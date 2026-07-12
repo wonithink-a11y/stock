@@ -1,0 +1,40 @@
+# 주 1회 (일요일) 누적 이력으로 백테스트 리포트 갱신
+# 08:00 UTC 일요일 = 17:00 KST 일요일
+name: weekly-backtest
+
+on:
+  schedule:
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analysis
+  cancel-in-progress: false
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 백테스트 리포트 생성
+        run: node scripts/backtest-report.js
+
+      - name: 결과 커밋
+        run: |
+          git config user.name "stock-scoring-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/data/backtest.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 - 커밋 생략"
+          else
+            git commit -m "chore: weekly backtest report $(date -u +'%Y-%m-%d')"
+            git push
+          fi

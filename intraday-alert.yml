@@ -1,0 +1,50 @@
+# 장중 급등락 감시 (준실시간): 한국장·미국장 시간대에 10분 간격 실행
+# cron은 UTC 기준. 스크립트가 현재 열린 시장을 다시 판별하므로 여유 있게 잡아도 안전합니다.
+#   - KR장: 00:00~06:40 UTC (09:00~15:40 KST)
+#   - US장: 13:20~21:10 UTC (서머타임/표준시 모두 커버)
+# ⚠️ private 저장소는 Actions 무료 한도(월 2,000분)가 빠듯할 수 있습니다.
+#    한도가 걱정되면 '*/10' → '*/20'으로 간격을 늘리세요. public 저장소는 무제한.
+name: intraday-alert
+
+on:
+  schedule:
+    - cron: '*/10 0-6 * * 1-5'    # 한국장
+    - cron: '*/10 13-21 * * 1-5'  # 미국장
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intraday
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 급등락 체크
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: node scripts/intraday-check.js
+
+      - name: 상태 파일 커밋
+        run: |
+          git config user.name "stock-scoring-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase --autostash || true
+          git add docs/data/intraday-state.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 - 커밋 생략"
+          else
+            git commit -m "chore: intraday state [skip ci]"
+            git push
+          fi
