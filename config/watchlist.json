@@ -1,0 +1,33 @@
+{
+  "description": "분석 대상 관심종목. market: 'KR'(한국, 6자리 코드) 또는 'US'(미국, 티커). groups로 대시보드에서 필터링됩니다. ※ 한국 종목의 버핏/린치 그룹은 '스타일'(기준 부합 종목 예시)이고, buffett-holdings는 버크셔 13F 공시 기반 실제 보유종목입니다(2026 Q1 기준 - 분기마다 13F 확인 후 갱신 권장). 연기금 그룹은 국민연금 5%+ 보유로 알려진 예시 - DART 대량보유상황보고로 확인하세요.",
+  "groupLabels": {
+    "index-core": "지수 대표(KR)",
+    "us-core": "지수 대표(US)",
+    "buffett-holdings": "버핏 실제 보유 (13F)",
+    "buffett-style": "버핏 스타일 (고ROE·저부채·주주환원)",
+    "lynch-style": "린치 스타일 (저PEG 성장)",
+    "pension": "연기금 고지분 (국민연금 5%+)"
+  },
+  "tickers": [
+    { "code": "005930", "name": "삼성전자", "market": "KR", "groups": ["index-core", "pension", "buffett-style"] },
+    { "code": "000660", "name": "SK하이닉스", "market": "KR", "groups": ["index-core", "pension"] },
+    { "code": "005380", "name": "현대차", "market": "KR", "groups": ["index-core", "pension"] },
+    { "code": "373220", "name": "LG에너지솔루션", "market": "KR", "groups": ["index-core"] },
+    { "code": "035420", "name": "NAVER", "market": "KR", "groups": ["lynch-style", "pension"] },
+    { "code": "068270", "name": "셀트리온", "market": "KR", "groups": ["lynch-style"] },
+    { "code": "033780", "name": "KT&G", "market": "KR", "groups": ["buffett-style"] },
+    { "code": "000270", "name": "기아", "market": "KR", "groups": ["buffett-style", "pension"] },
+    { "code": "000810", "name": "삼성화재", "market": "KR", "groups": ["buffett-style"] },
+    { "code": "105560", "name": "KB금융", "market": "KR", "groups": ["pension"] },
+    { "code": "055550", "name": "신한지주", "market": "KR", "groups": ["pension"] },
+    { "code": "005490", "name": "POSCO홀딩스", "market": "KR", "groups": ["pension"] },
+    { "code": "AAPL", "name": "애플", "market": "US", "groups": ["buffett-holdings", "us-core"] },
+    { "code": "AXP", "name": "아메리칸익스프레스", "market": "US", "groups": ["buffett-holdings"] },
+    { "code": "KO", "name": "코카콜라", "market": "US", "groups": ["buffett-holdings"] },
+    { "code": "BAC", "name": "뱅크오브아메리카", "market": "US", "groups": ["buffett-holdings"] },
+    { "code": "CVX", "name": "셰브론", "market": "US", "groups": ["buffett-holdings"] },
+    { "code": "GOOGL", "name": "알파벳", "market": "US", "groups": ["buffett-holdings", "us-core"] },
+    { "code": "MSFT", "name": "마이크로소프트", "market": "US", "groups": ["us-core"] },
+    { "code": "NVDA", "name": "엔비디아", "market": "US", "groups": ["us-core"] }
+  ]
+}

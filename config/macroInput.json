@@ -1,0 +1,22 @@
+{
+  "description": "시장 국면 판단용 거시 데이터. usdKrwLevel은 자동 수집으로 덮어쓰이고, 나머지는 주 1회 정도 수동 갱신 권장 (Fed 방향, 반도체 사이클 등은 자동화가 어려운 판단 영역).",
+  "fx": {
+    "usdKrwLevel": 1360,
+    "usdKrw20dChangePct": 0
+  },
+  "usRatePolicy": {
+    "fedFundsRateDirection": "holding",
+    "us10yTreasuryYieldTrend": "flat"
+  },
+  "sectorCycle": {
+    "semiconductorCyclePhase": "expansion",
+    "memoryPriceTrend": "rising"
+  },
+  "flowRegime": {
+    "pensionFundTrend20d": "neutral",
+    "foreignTrend20d": "neutral",
+    "indexRebalancingWindow": false
+  },
+  "fomcMeetingWithin7Days": false,
+  "majorPensionFundPolicyChange": false
+}

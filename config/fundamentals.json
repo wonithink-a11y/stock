@@ -1,0 +1,37 @@
+{
+  "description": "종목별 재무 데이터. ★값이 null인 필드는 반드시 실제 값으로 채우세요 - null이면 결측 처리되어 등급이 '유보'로 나옵니다(안전장치). [한국 KR] 출처: FnGuide(comp.fnguide.com)/네이버금융 종목분석 (빠름) 또는 DART 사업보고서 (원천). [미국 US] 출처: stockanalysis.com, macrotrends.net (빠름) 또는 SEC 10-K (원천). 미국 종목은 per/pbr도 여기서 수동 입력합니다(자동 수집 없음). 갱신 주기: 분기 1회(실적 발표 후). 삼성전자는 '기입 형식 예시'이며 실제 최신 값으로 검증 후 사용하세요.",
+  "updatedAt": "2026-07-12",
+  "byTicker": {
+    "005930": {
+      "_note": "기입 형식 예시 - 실제 최신 값인지 검증 필요",
+      "roe": 12.5,
+      "roeHistory5y": [14.1, 13.8, 9.9, 11.2, 12.5],
+      "debtRatio": 38.2,
+      "currentRatio": 218.0,
+      "operatingMarginTrend": 0.3,
+      "revenueGrowthYoY": 9.1,
+      "buybackOrDividendHistory": true,
+      "perRelative": 0.85,
+      "epsGrowthRate": 18.0
+    },
+    "000660": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "005380": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "373220": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "035420": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "068270": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "033780": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "000270": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "000810": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "105560": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "055550": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "005490": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null },
+    "AAPL":  { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "AXP":   { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "KO":    { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "BAC":   { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "CVX":   { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "GOOGL": { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "MSFT":  { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null },
+    "NVDA":  { "roe": null, "roeHistory5y": null, "debtRatio": null, "currentRatio": null, "operatingMarginTrend": null, "revenueGrowthYoY": null, "buybackOrDividendHistory": null, "perRelative": null, "epsGrowthRate": null, "per": null, "pbr": null }
+  }
+}

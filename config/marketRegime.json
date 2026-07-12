@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "description": "개별 종목 스코어링 이전에 시장 전체의 국면(regime)을 판단하는 상위 필터. 여기서 '경계' 이상 국면이면 개별 종목 점수가 높아도 비중을 줄이거나 진입을 보류하는 용도로 사용합니다.",
+
+  "regimeWeights": {
+    "fx": 0.25,
+    "usRatePolicy": 0.25,
+    "sectorCycle": 0.20,
+    "flowRegime": 0.30
+  },
+
+  "fx": {
+    "description": "원/달러 환율 - 외국인 자금 유출입과 직결. 급격한 원화 약세는 외국인 매도 압력으로 작용하는 경향",
+    "metrics": {
+      "usdKrwLevel": {
+        "label": "원/달러 환율 수준",
+        "note": "절대 레벨보다 변화 속도가 더 중요. 참고용 구간(시기별 조정 필요)",
+        "thresholds": { "stable": 1300, "caution": 1350, "risk": 1400 }
+      },
+      "usdKrw20dChangePct": {
+        "label": "환율 20일 변화율",
+        "lowerIsBetter": true,
+        "thresholds": { "stable": 1, "caution": 3, "risk": 5 },
+        "note": "20일간 원화가 3% 이상 급격히 약세면 외국인 이탈 경계 신호"
+      }
+    }
+  },
+
+  "usRatePolicy": {
+    "description": "미국 금리/통화정책 방향 - 신흥국 증시 자금 흐름의 핵심 변수",
+    "metrics": {
+      "fedFundsRateDirection": {
+        "label": "Fed 정책금리 방향",
+        "values": {
+          "cutting": "risk-on 우호적, 신흥국 자금 유입 경향",
+          "holding": "중립",
+          "hiking": "risk-off 압력, 신흥국 자금 유출 경향"
+        }
+      },
+      "us10yTreasuryYieldTrend": {
+        "label": "미 10년물 국채금리 추세",
+        "note": "급등 시 성장주·신흥국 밸류에이션 압박"
+      }
+    }
+  },
+
+  "sectorCycle": {
+    "description": "KOSPI는 반도체(삼성전자·SK하이닉스) 비중이 지수를 좌우하므로 업종 사이클 자체를 거시 변수로 취급",
+    "metrics": {
+      "semiconductorCyclePhase": {
+        "label": "반도체 업황 사이클 국면",
+        "values": {
+          "expansion": "우호적",
+          "peak": "경계 - 밸류에이션 부담 구간 진입 가능",
+          "contraction": "부정적",
+          "trough": "저점 매수 기회로 해석되기도 하나 변동성 큼"
+        }
+      },
+      "memoryPriceTrend": {
+        "label": "메모리 반도체(DRAM/NAND) 가격 추세",
+        "note": "D램익스체인지 등에서 확인 가능한 현물가 추세"
+      }
+    }
+  },
+
+  "flowRegime": {
+    "description": "수급 주체별(특히 연기금) 매매 동향 - KRX 투자자별 매매동향 기준",
+    "investorCategories": [
+      "금융투자", "보험", "투신", "사모", "은행", "연기금등", "기타금융", "기타법인", "개인", "외국인"
+    ],
+    "metrics": {
+      "pensionFundNetBuy20d": {
+        "label": "연기금등 20일 누적 순매수 (지수 전체 기준)",
+        "note": "KRX 투자자별 매매동향의 '연기금등' 항목. 국민연금 비중이 커서 사실상 NPS 매매 방향의 근사치로 활용됨",
+        "thresholds": { "strong": "지속 순매수", "weak": "지속 순매도" }
+      },
+      "foreignNetBuy20d": {
+        "label": "외국인 20일 누적 순매수 (지수 전체 기준)"
+      },
+      "indexRebalancingWindow": {
+        "label": "MSCI/FTSE 지수 리밸런싱 임박 여부",
+        "type": "boolean",
+        "note": "true인 경우 외국인 매매가 펀더멘털과 무관하게 기계적으로 발생할 수 있어 신호 신뢰도 하향 조정"
+      }
+    }
+  },
+
+  "regimeGrades": {
+    "favorable": { "min": 70, "action": "정상 비중으로 종목 스코어링 결과 신뢰" },
+    "neutral": { "min": 45, "action": "종목 스코어링 결과 참고하되 포지션 축소 고려" },
+    "caution": { "min": 25, "action": "신규 진입 보류, 기존 포지션 리스크 점검" },
+    "risk": { "min": 0, "action": "방어적 대응, 개별 종목 신호보다 현금 비중 우선 고려" }
+  },
+
+  "specialFlags": {
+    "description": "점수화하지 않고 별도로 표시해야 하는 이벤트성 신호",
+    "flags": [
+      "indexRebalancingWindow",
+      "fomcMeetingWithin7Days",
+      "majorPensionFundPolicyChange"
+    ]
+  }
+}

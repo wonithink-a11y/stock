@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주식 스코어링 대시보드</title>
+<style>
+  :root {
+    --bg: #0f1420; --card: #1a2233; --border: #2a3550;
+    --text: #e6ebf5; --muted: #8b96ad; --accent: #4d9fff;
+    --good: #2ecc71; --mid: #f1c40f; --bad: #e74c3c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 20px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  h1 { font-size: 20px; }
+  #updated { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  nav button { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  nav button.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  h2 { font-size: 15px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .table-wrap { overflow-x: auto; }
+  .grade { font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+  .grade-A { background: #14532d; color: #6ee7a0; }
+  .grade-B { background: #1e3a5f; color: #7cc0ff; }
+  .grade-C { background: #3f3f24; color: #e8e28a; }
+  .grade-D { background: #4a2e1a; color: #f0a868; }
+  .grade-E { background: #4c1d1d; color: #f38b8b; }
+  .grade-H { background: #333a47; color: #aab4c8; } /* 유보 */
+  .pos { color: var(--good); } .neg { color: var(--bad); }
+  .warn-tag { display: inline-block; background: #4c1d1d; color: #f38b8b; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+  .group-tag { display: inline-block; background: #1e3a5f; color: #9ecbff; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+  .mkt-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .mkt-KR { background: #253a5e; color: #8fc1ff; }
+  .mkt-US { background: #3d2e5e; color: #c5a8ff; }
+  .group-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .group-filter button { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 14px; cursor: pointer; font-size: 12px; }
+  .group-filter button.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
+  .regime { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .regime .score { font-size: 34px; font-weight: 700; }
+  .regime-favorable { color: var(--good); } .regime-neutral { color: var(--mid); }
+  .regime-caution { color: #f0a868; } .regime-risk { color: var(--bad); }
+  .muted { color: var(--muted); font-size: 13px; }
+  .bar-bg { background: #2a3550; border-radius: 4px; height: 8px; width: 120px; display: inline-block; vertical-align: middle; }
+  .bar-fill { height: 8px; border-radius: 4px; background: var(--accent); display: block; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 24px; line-height: 1.6; }
+  .empty { color: var(--muted); padding: 20px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 주식 스코어링 대시보드</h1>
+  <span id="updated">로딩 중...</span>
+</header>
+
+<nav>
+  <button data-tab="scores" class="active">종목 스코어</button>
+  <button data-tab="portfolio">국면·포트폴리오</button>
+  <button data-tab="reco">추천 이력</button>
+  <button data-tab="backtest">백테스트</button>
+</nav>
+
+<main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
+
+<footer>
+  ⚠️ 이 대시보드는 정보 통합·정량화 참고자료이며 투자 자문이 아닙니다. 모든 매매 판단과 책임은 본인에게 있습니다.<br>
+  데이터: 네이버금융(KR 시세·수급)·Stooq(US 시세) 비공식 소스 + 수동 입력 재무(fundamentals.json).
+  미국 시세는 시차로 전일 종가입니다. 점수·가중치는 백테스트로 검증되기 전까지 가설입니다.
+</footer>
+
+<script>
+const state = { latest: null, regime: null, portfolio: null, reco: null, backtest: null, tab: 'scores', groupFilter: 'all' };
+
+async function loadJson(name) {
+  try {
+    const res = await fetch(`data/${name}.json?t=${Date.now()}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+function gradeChip(grade) {
+  if (!grade) return '<span class="grade grade-H">N/A</span>';
+  const c = grade.charAt(0);
+  const cls = ['A','B','C','D','E'].includes(c) ? c : 'H';
+  const label = cls === 'H' ? '유보' : c;
+  return `<span class="grade grade-${cls}" title="${grade}">${label}</span>`;
+}
+
+function mktChip(market) {
+  const m = market || 'KR';
+  return `<span class="mkt-tag mkt-${m}">${m}</span>`;
+}
+
+function fmtPct(v) {
+  if (v === null || v === undefined) return '-';
+  const cls = v >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${v >= 0 ? '+' : ''}${v}%</span>`;
+}
+
+function fmtNum(v) { return v === null || v === undefined ? '-' : Number(v).toLocaleString(); }
+
+function fmtPrice(v, market) {
+  if (v === null || v === undefined) return '-';
+  return market === 'US' ? `$${Number(v).toLocaleString()}` : `${Number(v).toLocaleString()}원`;
+}
+
+function coverageBar(cov) {
+  if (!cov) return '-';
+  const pct = Math.round(cov.overall * 100);
+  return `<span class="bar-bg"><span class="bar-fill" style="width:${pct}%"></span></span> <span class="muted">${pct}%</span>`;
+}
+
+// ---------- 탭 렌더러 ----------
+
+function renderScores() {
+  const d = state.latest;
+  if (!d || !d.results || d.results.length === 0) return '<div class="card empty">아직 분석 결과가 없습니다. Actions가 처음 실행된 후 표시됩니다.</div>';
+  const labels = d.groupLabels || {};
+  const allGroups = [...new Set(d.results.flatMap(r => r.groups || []))];
+  const filterHtml = `<div class="group-filter">
+    <button data-group="all" class="${state.groupFilter === 'all' ? 'active' : ''}">전체</button>
+    ${allGroups.map(g => `<button data-group="${g}" class="${state.groupFilter === g ? 'active' : ''}">${labels[g] || g}</button>`).join('')}
+  </div>`;
+  const filtered = state.groupFilter === 'all' ? d.results : d.results.filter(r => (r.groups || []).includes(state.groupFilter));
+  const rows = filtered.map(r => `
+    <tr>
+      <td><strong>${r.name}</strong> <span class="muted">${r.ticker}</span>${mktChip(r.market)}<br>${(r.groups || []).map(g => `<span class="group-tag">${(labels[g] || g).split(' ')[0]}</span>`).join('')}</td>
+      <td>${r.totalScore ?? '-'}</td>
+      <td>${gradeChip(r.grade)}</td>
+      <td>${fmtPrice(r.currentPrice, r.market)}</td>
+      <td>${coverageBar(r.dataCoverage)}</td>
+      <td>${(r.warnings || []).map(w => `<span class="warn-tag">${w}</span>`).join('') || '-'}</td>
+    </tr>`).join('');
+  return `<div class="card">${filterHtml}<div class="table-wrap"><table>
+    <thead><tr><th>종목</th><th>점수</th><th>등급</th><th>종가</th><th>데이터 커버리지</th><th>경고</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <p class="muted" style="margin-top:10px">커버리지가 낮은 종목은 config/fundamentals.json에 재무 데이터를 채우면 등급 유보가 해제됩니다.
+    그룹 구성은 config/watchlist.json에서 편집합니다. 미국 종목은 KRX식 수급 데이터가 없어 별도 기준(criteria-us.json)으로 평가됩니다.</p></div>`;
+}
+
+function renderPortfolio() {
+  const rg = state.regime;
+  const pf = state.portfolio;
+  let html = '';
+  if (rg) {
+    html += `<div class="card"><div class="regime">
+      <span class="score regime-${rg.grade}">${rg.score}</span>
+      <div><div><strong>시장 국면: ${rg.grade}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${rg.action}</div>
+      ${(rg.specialFlags || []).length ? `<div class="muted">⚑ ${rg.specialFlags.join(', ')}</div>` : ''}</div>
+    </div></div>`;
+  }
+  if (pf && pf.holdings && pf.holdings.length > 0) {
+    const rows = pf.holdings.map(h => `
+      <tr>
+        <td><strong>${h.name}</strong> <span class="muted">${h.ticker}</span>${mktChip(h.market)}</td>
+        <td>${fmtNum(h.quantity)}주</td>
+        <td>${fmtPrice(h.avgPrice, h.market)} → ${fmtPrice(h.currentPrice, h.market)}</td>
+        <td>${fmtPct(h.unrealizedPnLPct)}</td>
+        <td>${h.stockScore ?? '-'} ${gradeChip(h.stockGrade)}</td>
+        <td><strong>${h.referenceSignal}</strong><div class="muted" style="white-space:normal;max-width:280px">${h.signalReason}</div></td>
+      </tr>`).join('');
+    html += `<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>종목</th><th>수량</th><th>평단→현재</th><th>손익</th><th>점수</th><th>참고 신호</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+      <p class="muted" style="margin-top:10px">신호는 손익과 무관하게 종목 자체 점수 + 시장 국면으로만 산출됩니다.</p></div>`;
+  } else {
+    html += '<div class="card empty">보유 종목이 없습니다. config/holdings.json에 추가하세요.</div>';
+  }
+  return html;
+}
+
+function renderReco() {
+  const d = state.reco;
+  if (!d || !d.performance || d.performance.length === 0) return '<div class="card empty">추천 이력이 아직 없습니다. B등급 이상 종목이 나오면 자동 기록됩니다.</div>';
+  const rows = d.performance.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong> <span class="muted">${p.ticker}</span>${mktChip(p.market)}</td>
+      <td>${p.recommendedDate} <span class="muted">(${p.holdingDays}일)</span></td>
+      <td>${gradeChip(p.gradeAtRecommendation)} ${p.scoreAtRecommendation}</td>
+      <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
+      <td>${fmtPct(p.changePct)}</td>
+    </tr>`).join('');
+  return `<div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>종목</th><th>추천일</th><th>추천 당시</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
+    <tbody>${rows}</tbody></table></div></div>`;
+}
+
+function renderBacktestMarket(title, benchName, d) {
+  if (!d) return '';
+  let html = `<div class="card"><h2>${title}</h2>
+    <p><strong>표본 ${d.sampleCount}건</strong> <span class="muted">| 거래비용 ${d.transactionCostPct}% 차감 | 벤치마크 ${benchName}</span></p>
+    <p style="margin-top:8px">IC(점수↔수익률 순위상관): ${Object.entries(d.ic).map(([h,v]) => `${h}=<strong>${v ?? 'N/A'}</strong>`).join(' · ')}</p>
+    <p style="margin-top:8px">등급 단조성: <strong>${d.gradeMonotonic ? '충족 ✓' : '불충족 ✗'}</strong></p>`;
+  const gradeRows = Object.entries(d.byGrade).map(([g, s]) => {
+    const h = s.horizons;
+    const cell = (x) => x ? `${x.avgReturnPct ?? '-'}% <span class="muted">(승률 ${x.winRatePct ?? '-'}%)</span>` : '-';
+    return `<tr><td>${gradeChip(g)} <span class="muted">${s.count}건</span></td><td>${cell(h.d20)}</td><td>${cell(h.d60)}</td><td>${cell(h.d120)}</td></tr>`;
+  }).join('');
+  html += `<div class="table-wrap" style="margin-top:10px"><table>
+    <thead><tr><th>등급</th><th>20일 평균</th><th>60일 평균</th><th>120일 평균</th></tr></thead>
+    <tbody>${gradeRows}</tbody></table></div>`;
+  html += `${(d.verdicts || []).map(v => `<p class="muted" style="margin-top:6px">• ${v}</p>`).join('')}</div>`;
+  return html;
+}
+
+function renderBacktest() {
+  const d = state.backtest;
+  if (!d || d.status !== 'ok') {
+    const msg = d && d.message ? d.message : '이력이 쌓이면 (약 1개월 후부터) 주간 백테스트 결과가 표시됩니다.';
+    return `<div class="card empty">${msg}</div>`;
+  }
+  const m = d.markets || {};
+  let html = `<div class="card muted">이력 ${d.historyDays}일 누적 | 갱신 ${new Date(d.updatedAt).toLocaleDateString('ko-KR')}</div>`;
+  html += renderBacktestMarket('🇰🇷 한국 (KR)', 'KOSPI', m.KR);
+  html += renderBacktestMarket('🇺🇸 미국 (US)', 'S&P500', m.US);
+  if (!m.KR && !m.US) html = '<div class="card empty">아직 시장별 표본이 없습니다.</div>';
+  return html;
+}
+
+// ---------- 탭 전환 ----------
+
+function render() {
+  const el = document.getElementById('content');
+  if (state.tab === 'scores') el.innerHTML = renderScores();
+  else if (state.tab === 'portfolio') el.innerHTML = renderPortfolio();
+  else if (state.tab === 'reco') el.innerHTML = renderReco();
+  else el.innerHTML = renderBacktest();
+}
+
+document.getElementById('content').addEventListener('click', (e) => {
+  const btn = e.target.closest('.group-filter button');
+  if (!btn) return;
+  state.groupFilter = btn.dataset.group;
+  render();
+});
+
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.tab = btn.dataset.tab;
+    render();
+  });
+});
+
+(async function init() {
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest] = await Promise.all([
+    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'),
+  ]);
+  const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
+  document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+{
+  "updatedAt": "2026-07-12T13:23:40.260453+00:00",
+  "marketRegime": "neutral",
+  "holdings": [
+    {
+      "ticker": "005930",
+      "name": "삼성전자",
+      "quantity": 10,
+      "avgPrice": 70000,
+      "currentPrice": 76500,
+      "currentValue": 765000,
+      "investedValue": 700000,
+      "unrealizedPnL": 65000,
+      "unrealizedPnLPct": 9.29,
+      "stockScore": 87.4,
+      "stockGrade": "A (강력 매수 후보)",
+      "stockWarnings": [],
+      "marketRegime": "neutral",
+      "referenceSignal": "비중 확대 고려",
+      "signalReason": "펀더멘털·기술적·수급 신호가 전반적으로 긍정적입니다.",
+      "breakdown": {
+        "fundamental": {
+          "score": 90.2,
+          "detail": {
+            "roe": {
+              "label": "자기자본이익률(ROE)",
+              "raw": 12.5,
+              "score": 85
+            },
+            "roeConsistency": {
+              "label": "ROE 지속성 (5년 최저치)",
+              "raw": 9.9,
+              "score": 84.25
+            },
+            "debtRatio": {
+              "label": "부채비율",
+              "raw": 38,
+              "score": 100
+            },
+            "currentRatio": {
+              "label": "유동비율",
+              "raw": 218,
+              "score": 100
+            },
+            "operatingMarginTrend": {
+              "label": "영업이익률 추세(최근 3~5년)",
+              "raw": 0.3,
+              "score": 88
+            },
+            "revenueGrowthYoY": {
+              "label": "매출 성장률(YoY)",
+              "raw": 9.1,
+              "score": 82.3
+            },
+            "shareholderReturn": {
+              "label": "주주환원 이력 (배당/자사주매입)",
+              "raw": true,
+              "score": 100
+            }
+          }
+        },
+        "valuation": {
+          "score": 82.2,
+          "detail": {
+            "perRelative": {
+              "label": "PER (업종평균 대비 배율)",
+              "raw": 0.85,
+              "score": 85
+            },
+            "pbr": {
+              "label": "PBR",
+              "raw": 1.1,
+              "score": 77.49999999999999
+            },
+            "peg": {
+              "label": "PEG (피터 린치)",
+              "peg": 0.7888888888888889,
+              "score": 82.66666666666667
+            },
+            "marginOfSafety": {
+              "label": "안전마진 (벤저민 그레이엄)",
+              "marginOfSafety": null,
+              "score": null
+            }
+          }
+        },
+        "technical": {
+          "score": 95.5,
+          "detail": {
+            "movingAverageCross": {
+              "label": "이동평균선 골든/데드크로스",
+              "signal": "goldenCross",
+              "score": 100
+            },
+            "rsi": {
+              "label": "RSI (상대강도지수)",
+              "value": 58,
+              "score": 70
+            },
+            "macd": {
+              "label": "MACD",
+              "signal": "bullishCross",
+              "score": 100
+            },
+            "volumeConfirmation": {
+              "label": "거래량 동반 여부",
+              "confirmed": true,
+              "score": 100
+            }
+          }
+        },
+        "supplyDemand": {
+          "score": 84,
+          "detail": {
+            "foreignNetBuy5d": {
+              "label": "외국인 5일 순매수 추세",
+              "trend": "netBuy",
+              "score": 70
+            },
+            "institutionNetBuy5d": {
+              "label": "기관 5일 순매수 추세",
+              "trend": "consistentBuy",
+              "score": 100
+            },
+            "largeShareholderChange": {
+              "label": "대주주 지분율 변동",
+              "score": null
+            },
+            "buybackOrRetirement": {
+              "label": "자사주 매입/소각 공시",
+              "score": null
+            }
+          }
+        }
+      },
+      "market": "KR"
+    }
+  ]
+}

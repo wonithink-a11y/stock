@@ -1,0 +1,157 @@
+{
+  "version": "2.0-US",
+  "description": "미국 주식용 기준. 한국판(criteria.json)과 로직은 동일하되: (1) 수급 카테고리 제외 - KRX식 외국인/기관 데이터가 미국에 없음, 대신 fundamental/valuation 비중 확대 (2) PBR 임계값 상향 - 미국 대형주는 무형자산·자사주소각 회계 특성상 PBR이 구조적으로 높아 한국 기준을 그대로 쓰면 전부 0점이 됨 (3) 커버리지 기준 0.5로 완화 - 수급 4개 지표가 구조적으로 결측이라 보정.",
+
+  "categoryWeights": {
+    "fundamental": 0.40,
+    "valuation": 0.35,
+    "technical": 0.25,
+    "supplyDemand": 0
+  },
+
+  "minimumDataCoverage": 0.5,
+
+  "fundamental": {
+    "description": "재무 건전성·수익성·성장성 (기업의 '질')",
+    "metrics": {
+      "roe": {
+        "label": "자기자본이익률(ROE)",
+        "unit": "%",
+        "thresholds": { "excellent": 20, "good": 12, "poor": 5 },
+        "weight": 0.20
+      },
+      "roeConsistency": {
+        "label": "ROE 지속성 (5년 최저치)",
+        "unit": "%",
+        "input": "roeHistory5y",
+        "thresholds": { "excellent": 15, "good": 10, "poor": 3 },
+        "weight": 0.15
+      },
+      "debtRatio": {
+        "label": "부채비율",
+        "unit": "%",
+        "lowerIsBetter": true,
+        "thresholds": { "excellent": 80, "good": 150, "poor": 300 },
+        "weight": 0.15
+      },
+      "currentRatio": {
+        "label": "유동비율",
+        "unit": "%",
+        "thresholds": { "excellent": 200, "good": 130, "poor": 90 },
+        "weight": 0.05
+      },
+      "operatingMarginTrend": {
+        "label": "영업이익률 추세(최근 3~5년)",
+        "unit": "방향성(-1~1)",
+        "thresholds": { "excellent": 0.5, "good": 0, "poor": -0.5 },
+        "weight": 0.15
+      },
+      "revenueGrowthYoY": {
+        "label": "매출 성장률(YoY)",
+        "unit": "%",
+        "thresholds": { "excellent": 15, "good": 5, "poor": 0 },
+        "weight": 0.15
+      },
+      "shareholderReturn": {
+        "label": "주주환원 이력 (배당/자사주매입)",
+        "input": "buybackOrDividendHistory (boolean)",
+        "weight": 0.15
+      }
+    }
+  },
+
+  "valuation": {
+    "description": "밸류에이션. perRelative는 S&P500 섹터 평균 대비 배율로 입력.",
+    "metrics": {
+      "perRelative": {
+        "label": "PER (섹터평균 대비 배율)",
+        "unit": "배율 (1.0 = 섹터평균)",
+        "lowerIsBetter": true,
+        "thresholds": { "excellent": 0.7, "good": 1.0, "poor": 1.5 },
+        "weight": 0.30
+      },
+      "pbr": {
+        "label": "PBR",
+        "unit": "배",
+        "lowerIsBetter": true,
+        "note": "미국 대형주 기준으로 상향 조정된 임계값",
+        "thresholds": { "excellent": 3, "good": 6, "poor": 15 },
+        "weight": 0.20
+      },
+      "peg": {
+        "label": "PEG (피터 린치)",
+        "formula": "peg = per / epsGrowthRate(%)",
+        "lowerIsBetter": true,
+        "thresholds": { "excellent": 1.0, "good": 1.5, "poor": 3.0 },
+        "weight": 0.30
+      },
+      "marginOfSafety": {
+        "label": "안전마진 (벤저민 그레이엄)",
+        "formula": "(intrinsicValue - currentPrice) / intrinsicValue",
+        "thresholds": { "excellent": 0.4, "good": 0.2, "poor": 0 },
+        "weight": 0.20
+      }
+    }
+  },
+
+  "technical": {
+    "description": "차트 기반 기술적 분석 (한국판과 동일)",
+    "indicators": {
+      "movingAverageCross": {
+        "label": "이동평균선 골든/데드크로스",
+        "signals": { "goldenCross": 100, "aboveBothMA": 70, "belowBothMA": 30, "deadCross": 0 }
+      },
+      "rsi": {
+        "label": "RSI (상대강도지수)",
+        "period": 14,
+        "zones": [
+          { "max": 30, "score": 30, "warning": "oversold" },
+          { "max": 45, "score": 45 },
+          { "max": 70, "score": 70 },
+          { "max": 80, "score": 40 },
+          { "max": 100, "score": 20, "warning": "extremeOverbought" }
+        ]
+      },
+      "macd": {
+        "label": "MACD",
+        "params": { "fast": 12, "slow": 26, "signal": 9 },
+        "signals": { "bullishCross": 100, "bearishCross": 0 }
+      },
+      "volumeConfirmation": {
+        "label": "거래량 동반 여부"
+      },
+      "deadCatBounce": {
+        "label": "데드캣바운스 경고 필터",
+        "type": "warningFlag"
+      }
+    },
+    "indicatorWeights": {
+      "movingAverageCross": 0.35,
+      "rsi": 0.15,
+      "macd": 0.25,
+      "volumeConfirmation": 0.25
+    }
+  },
+
+  "supplyDemand": {
+    "description": "미국 주식에는 KRX식 수급 데이터가 없어 비활성 (categoryWeights에서 0). 13F 기반 기관 보유 변화를 넣고 싶다면 분기 단위로만 가능.",
+    "metrics": {
+      "foreignNetBuy5d": { "label": "-", "weight": 0.4 },
+      "institutionNetBuy5d": { "label": "-", "weight": 0.35 },
+      "largeShareholderChange": { "label": "-", "weight": 0.15 },
+      "buybackOrRetirement": { "label": "-", "weight": 0.1 }
+    }
+  },
+
+  "warningFlags": {
+    "flags": [
+      "deadCatBounce",
+      "oversold",
+      "extremeOverbought",
+      "debtRatioAbove200",
+      "consecutiveOperatingLoss",
+      "auditOpinionNonStandard",
+      "majorShareholderSelloff"
+    ]
+  }
+}

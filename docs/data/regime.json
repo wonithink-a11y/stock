@@ -1,0 +1,29 @@
+{
+  "updatedAt": "2026-07-12T13:23:40.260453+00:00",
+  "grade": "neutral",
+  "score": 64.8,
+  "action": "종목 스코어링 결과 참고하되 포지션 축소 고려",
+  "specialFlags": [],
+  "macroUsed": {
+    "description": "시장 국면 판단용 거시 데이터. usdKrwLevel은 자동 수집으로 덮어쓰이고, 나머지는 주 1회 정도 수동 갱신 권장 (Fed 방향, 반도체 사이클 등은 자동화가 어려운 판단 영역).",
+    "fx": {
+      "usdKrwLevel": 1368,
+      "usdKrw20dChangePct": 0.8
+    },
+    "usRatePolicy": {
+      "fedFundsRateDirection": "holding",
+      "us10yTreasuryYieldTrend": "flat"
+    },
+    "sectorCycle": {
+      "semiconductorCyclePhase": "expansion",
+      "memoryPriceTrend": "rising"
+    },
+    "flowRegime": {
+      "pensionFundTrend20d": "neutral",
+      "foreignTrend20d": "neutral",
+      "indexRebalancingWindow": false
+    },
+    "fomcMeetingWithin7Days": false,
+    "majorPensionFundPolicyChange": false
+  }
+}
