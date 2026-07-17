@@ -49,6 +49,23 @@
   .bar-fill { height: 8px; border-radius: 4px; background: var(--accent); display: block; }
   footer { color: var(--muted); font-size: 12px; margin-top: 24px; line-height: 1.6; }
   .empty { color: var(--muted); padding: 20px; text-align: center; }
+  .cyc-tl { border-left: 2px solid var(--border); margin-left: 8px; padding-left: 18px; }
+  .cyc-item { position: relative; margin-bottom: 14px; }
+  .cyc-item::before { content: ''; position: absolute; left: -24px; top: 14px; width: 10px; height: 10px;
+                      border-radius: 50%; background: var(--border); }
+  .cyc-item.now::before { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .phase-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-right: 6px; }
+  .ph-TOP { background: #4c1d1d; color: #f38b8b; }
+  .ph-A1 { background: #4a2e1a; color: #f0a868; }
+  .ph-A2 { background: #3f3f24; color: #e8e28a; }
+  .ph-BOTTOM { background: #14532d; color: #6ee7a0; }
+  .ph-B1 { background: #1e3a5f; color: #7cc0ff; }
+  .ph-B2 { background: #3d2e5e; color: #c5a8ff; }
+  .sector-tag { display: inline-block; background: #253a5e; color: #9ecbff; font-size: 11px;
+                padding: 1px 7px; border-radius: 4px; margin: 1px 3px 1px 0; }
+  .fit-tag { display: inline-block; background: #14532d; color: #6ee7a0; font-size: 11px;
+             padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+  .egg-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
 </style>
 </head>
 <body>
@@ -62,6 +79,7 @@
   <button data-tab="portfolio">국면·포트폴리오</button>
   <button data-tab="reco">추천 이력</button>
   <button data-tab="backtest">백테스트</button>
+  <button data-tab="cycle">경기사이클🥚</button>
 </nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
@@ -73,7 +91,7 @@
 </footer>
 
 <script>
-const state = { latest: null, regime: null, portfolio: null, reco: null, backtest: null, tab: 'scores', groupFilter: 'all' };
+const state = { latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, tab: 'scores', groupFilter: 'all' };
 
 async function loadJson(name) {
   try {
@@ -129,7 +147,7 @@ function renderScores() {
   const filtered = state.groupFilter === 'all' ? d.results : d.results.filter(r => (r.groups || []).includes(state.groupFilter));
   const rows = filtered.map(r => `
     <tr>
-      <td><strong>${r.name}</strong> <span class="muted">${r.ticker}</span>${mktChip(r.market)}<br>${(r.groups || []).map(g => `<span class="group-tag">${(labels[g] || g).split(' ')[0]}</span>`).join('')}</td>
+      <td><strong>${r.name}</strong> <span class="muted">${r.ticker}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}<br>${(r.groups || []).map(g => `<span class="group-tag">${(labels[g] || g).split(' ')[0]}</span>`).join('')}</td>
       <td>${r.totalScore ?? '-'}</td>
       <td>${gradeChip(r.grade)}</td>
       <td>${fmtPrice(r.currentPrice, r.market)}</td>
@@ -222,6 +240,67 @@ function renderBacktest() {
   return html;
 }
 
+// ---------- 경기사이클 (코스톨라니 달걀) ----------
+
+function cycleFitTag(ticker) {
+  const c = state.cycle;
+  if (!c || !c.currentPhase || !c.sectorMap) return '';
+  const sectors = c.sectorMap[ticker] || [];
+  const fav = c.currentPhase.favorableSectors || [];
+  return sectors.some(s => fav.includes(s))
+    ? ' <span class="fit-tag" title="현재 금리 국면에서 역사적으로 강했던 섹터">🥚국면적합</span>' : '';
+}
+
+function renderEggSvg(c) {
+  const cx = 150, cy = 150, rx = 100, ry = 125;
+  const cur = c.currentPhase ? c.currentPhase.id : null;
+  const pts = (c.phases || []).map(p => {
+    const rad = (p.angle - 90) * Math.PI / 180;
+    const x = cx + rx * Math.cos(rad), y = cy + ry * Math.sin(rad);
+    const isCur = p.id === cur;
+    const anchor = x < cx - 10 ? 'end' : x > cx + 10 ? 'start' : 'middle';
+    const lx = cx + (rx + 14) * Math.cos(rad), ly = cy + (ry + 16) * Math.sin(rad);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isCur ? 9 : 5}"
+        fill="${isCur ? '#4d9fff' : '#2a3550'}" stroke="${isCur ? '#e6ebf5' : 'none'}" stroke-width="2"/>
+      <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="middle"
+        fill="${isCur ? '#e6ebf5' : '#8b96ad'}" font-size="11" font-weight="${isCur ? '700' : '400'}">${p.label}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 300 300" width="280" height="280" style="flex-shrink:0">
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="#2a3550" stroke-width="2"/>
+    <text x="${cx}" y="${cy - 8}" text-anchor="middle" fill="#8b96ad" font-size="11">금리 사이클</text>
+    <text x="${cx}" y="${cy + 10}" text-anchor="middle" fill="#8b96ad" font-size="10">(시계방향 순환)</text>
+    ${pts}</svg>`;
+}
+
+function renderCycle() {
+  const c = state.cycle;
+  if (!c) return '<div class="card empty">사이클 데이터(cycles.json)를 불러오지 못했습니다.</div>';
+  let html = '';
+  const cp = c.currentPhase;
+  if (cp) {
+    html += `<div class="card"><div class="egg-wrap">${renderEggSvg(c)}
+      <div style="flex:1;min-width:260px">
+        <h2><span class="phase-tag ph-${cp.id}">${cp.id}</span>현재 국면: ${cp.label}</h2>
+        <p class="muted" style="margin-top:6px;line-height:1.6">${cp.note}</p>
+        <p style="margin-top:10px;font-size:13px">역사적 강세 섹터:
+          ${(cp.favorableSectors || []).map(s => `<span class="sector-tag">${s}</span>`).join('')}</p>
+        <p class="muted" style="margin-top:6px;font-size:12px">주의: ${(cp.cautionSectors || []).join(', ')}
+          <span class="muted">| 기준금리 ${cp.rateKR}% (${cp.asOf})</span></p>
+      </div></div></div>`;
+  }
+  html += `<div class="card"><h2>2000년 이후 사이클 타임라인</h2><p class="muted" style="margin-bottom:12px">${c.theory ? c.theory.summary : ''}</p><div class="cyc-tl">`;
+  html += (c.timeline || []).map((t, i) => `
+    <div class="cyc-item${i === 0 ? ' now' : ''}">
+      <div><span class="phase-tag ph-${t.phaseId}">${t.phase}</span><strong>${t.period}</strong>
+        <span class="muted" style="margin-left:8px">${t.rate}</span></div>
+      <div class="muted" style="margin:4px 0">${t.market}</div>
+      <div>${(t.leaders || []).map(l => `<span class="sector-tag">${l}</span>`).join('')}</div>
+      <div class="muted" style="font-size:12px;margin-top:3px">${t.events}</div>
+    </div>`).join('');
+  html += `</div><p class="muted" style="margin-top:8px">⚠️ 과거 국면별 주도 섹터는 "그때 그랬다"는 기록이며, 같은 국면이 와도 같은 섹터가 주도한다는 보장은 없습니다. 참고 프레임으로만 사용하세요.</p></div>`;
+  return html;
+}
+
 // ---------- 탭 전환 ----------
 
 function render() {
@@ -229,6 +308,7 @@ function render() {
   if (state.tab === 'scores') el.innerHTML = renderScores();
   else if (state.tab === 'portfolio') el.innerHTML = renderPortfolio();
   else if (state.tab === 'reco') el.innerHTML = renderReco();
+  else if (state.tab === 'cycle') el.innerHTML = renderCycle();
   else el.innerHTML = renderBacktest();
 }
 
@@ -249,8 +329,8 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest] = await Promise.all([
-    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'),
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle] = await Promise.all([
+    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'),
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
