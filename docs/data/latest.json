@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-18T13:16:43.779Z",
+  "updatedAt": "2026-07-18T14:09:41.617Z",
   "regime": {
     "grade": "neutral",
     "score": 52.3
@@ -16,14 +16,15 @@
     {
       "ticker": "055550",
       "name": "신한지주",
-      "totalScore": 68.1,
-      "grade": "B (긍정적)",
+      "sectorType": "general",
+      "totalScore": 73.6,
+      "grade": "유보 (데이터 커버리지 58% < 기준 60%)",
       "dataCoverage": {
-        "overall": 0.63,
-        "sufficient": true,
+        "overall": 0.58,
+        "sufficient": false,
         "byCategory": {
           "fundamental": {
-            "valid": 4,
+            "valid": 3,
             "total": 7
           },
           "valuation": {
@@ -42,7 +43,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 52.9,
+          "score": 68.8,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -56,8 +57,8 @@
             },
             "debtRatio": {
               "label": "부채비율",
-              "raw": 1201.9,
-              "score": 0
+              "raw": null,
+              "score": null
             },
             "currentRatio": {
               "label": "유동비율",
@@ -155,9 +156,7 @@
           }
         }
       },
-      "warnings": [
-        "debtRatioAbove200"
-      ],
+      "warnings": [],
       "market": "KR",
       "currentPrice": 107900,
       "lastDate": "20260716",
@@ -166,166 +165,17 @@
       ]
     },
     {
-      "ticker": "068270",
-      "name": "셀트리온",
-      "totalScore": 65.6,
-      "grade": "B (긍정적)",
-      "dataCoverage": {
-        "overall": 0.79,
-        "sufficient": true,
-        "byCategory": {
-          "fundamental": {
-            "valid": 7,
-            "total": 7
-          },
-          "valuation": {
-            "valid": 2,
-            "total": 4
-          },
-          "technical": {
-            "valid": 4,
-            "total": 4
-          },
-          "supplyDemand": {
-            "valid": 2,
-            "total": 4
-          }
-        }
-      },
-      "breakdown": {
-        "fundamental": {
-          "score": 65.3,
-          "detail": {
-            "roe": {
-              "label": "자기자본이익률(ROE)",
-              "raw": 5.9,
-              "score": 12.600000000000005
-            },
-            "roeConsistency": {
-              "label": "ROE 지속성 (5년 최저치)",
-              "raw": 2.4,
-              "score": 0
-            },
-            "debtRatio": {
-              "label": "부채비율",
-              "raw": 28.7,
-              "score": 100
-            },
-            "currentRatio": {
-              "label": "유동비율",
-              "raw": 139.3,
-              "score": 55.02000000000002
-            },
-            "operatingMarginTrend": {
-              "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 14.24,
-              "score": 100
-            },
-            "revenueGrowthYoY": {
-              "label": "매출 성장률(YoY)",
-              "raw": 17,
-              "score": 100
-            },
-            "shareholderReturn": {
-              "label": "주주환원 이력 (배당/자사주매입)",
-              "raw": true,
-              "score": 100
-            }
-          }
-        },
-        "valuation": {
-          "score": 64.5,
-          "detail": {
-            "perRelative": {
-              "label": "PER (업종평균 대비 배율)",
-              "raw": null,
-              "score": null
-            },
-            "pbr": {
-              "label": "PBR",
-              "raw": 2.29,
-              "score": 11.307692307692305
-            },
-            "peg": {
-              "label": "PEG (피터 린치)",
-              "peg": 0.22668463611859838,
-              "score": 100
-            },
-            "marginOfSafety": {
-              "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": null,
-              "score": null
-            }
-          }
-        },
-        "technical": {
-          "score": 41,
-          "detail": {
-            "movingAverageCross": {
-              "label": "이동평균선 골든/데드크로스",
-              "signal": "belowBothMA",
-              "score": 30
-            },
-            "rsi": {
-              "label": "RSI (상대강도지수)",
-              "value": 59.5,
-              "score": 70
-            },
-            "macd": {
-              "label": "MACD",
-              "signal": "neutral",
-              "score": 50
-            },
-            "volumeConfirmation": {
-              "label": "거래량 동반 여부",
-              "confirmed": false,
-              "score": 30
-            }
-          }
-        },
-        "supplyDemand": {
-          "score": 86,
-          "detail": {
-            "foreignNetBuy5d": {
-              "label": "외국인 5일 순매수 추세",
-              "trend": "consistentBuy",
-              "score": 100
-            },
-            "institutionNetBuy5d": {
-              "label": "기관 5일 순매수 추세",
-              "trend": "netBuy",
-              "score": 70
-            },
-            "largeShareholderChange": {
-              "label": "대주주 지분율 변동",
-              "score": null
-            },
-            "buybackOrRetirement": {
-              "label": "자사주 매입/소각 공시",
-              "score": null
-            }
-          }
-        }
-      },
-      "warnings": [],
-      "market": "KR",
-      "currentPrice": 175800,
-      "lastDate": "20260716",
-      "groups": [
-        "lynch-style"
-      ]
-    },
-    {
       "ticker": "105560",
       "name": "KB금융",
-      "totalScore": 63.8,
-      "grade": "C (중립/관찰)",
+      "sectorType": "general",
+      "totalScore": 69.9,
+      "grade": "유보 (데이터 커버리지 58% < 기준 60%)",
       "dataCoverage": {
-        "overall": 0.63,
-        "sufficient": true,
+        "overall": 0.58,
+        "sufficient": false,
         "byCategory": {
           "fundamental": {
-            "valid": 4,
+            "valid": 3,
             "total": 7
           },
           "valuation": {
@@ -344,7 +194,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 58.1,
+          "score": 75.5,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -358,8 +208,8 @@
             },
             "debtRatio": {
               "label": "부채비율",
-              "raw": 1211.7,
-              "score": 0
+              "raw": null,
+              "score": null
             },
             "currentRatio": {
               "label": "유동비율",
@@ -458,8 +308,7 @@
         }
       },
       "warnings": [
-        "extremeOverbought",
-        "debtRatioAbove200"
+        "extremeOverbought"
       ],
       "market": "KR",
       "currentPrice": 181100,
@@ -469,9 +318,161 @@
       ]
     },
     {
+      "ticker": "068270",
+      "name": "셀트리온",
+      "sectorType": "general",
+      "totalScore": 65.6,
+      "grade": "B (긍정적)",
+      "dataCoverage": {
+        "overall": 0.79,
+        "sufficient": true,
+        "byCategory": {
+          "fundamental": {
+            "valid": 7,
+            "total": 7
+          },
+          "valuation": {
+            "valid": 2,
+            "total": 4
+          },
+          "technical": {
+            "valid": 4,
+            "total": 4
+          },
+          "supplyDemand": {
+            "valid": 2,
+            "total": 4
+          }
+        }
+      },
+      "breakdown": {
+        "fundamental": {
+          "score": 65.3,
+          "detail": {
+            "roe": {
+              "label": "자기자본이익률(ROE)",
+              "raw": 5.9,
+              "score": 12.600000000000005
+            },
+            "roeConsistency": {
+              "label": "ROE 지속성 (5년 최저치)",
+              "raw": 2.4,
+              "score": 0
+            },
+            "debtRatio": {
+              "label": "부채비율",
+              "raw": 28.7,
+              "score": 100
+            },
+            "currentRatio": {
+              "label": "유동비율",
+              "raw": 139.3,
+              "score": 55.02000000000002
+            },
+            "operatingMarginTrend": {
+              "label": "영업이익률 추세(최근 3~5년)",
+              "raw": 1,
+              "score": 100
+            },
+            "revenueGrowthYoY": {
+              "label": "매출 성장률(YoY)",
+              "raw": 17,
+              "score": 100
+            },
+            "shareholderReturn": {
+              "label": "주주환원 이력 (배당/자사주매입)",
+              "raw": true,
+              "score": 100
+            }
+          }
+        },
+        "valuation": {
+          "score": 64.5,
+          "detail": {
+            "perRelative": {
+              "label": "PER (업종평균 대비 배율)",
+              "raw": null,
+              "score": null
+            },
+            "pbr": {
+              "label": "PBR",
+              "raw": 2.29,
+              "score": 11.307692307692305
+            },
+            "peg": {
+              "label": "PEG (피터 린치)",
+              "peg": 0.22668463611859838,
+              "score": 100
+            },
+            "marginOfSafety": {
+              "label": "안전마진 (벤저민 그레이엄)",
+              "marginOfSafety": null,
+              "score": null
+            }
+          }
+        },
+        "technical": {
+          "score": 41,
+          "detail": {
+            "movingAverageCross": {
+              "label": "이동평균선 골든/데드크로스",
+              "signal": "belowBothMA",
+              "score": 30
+            },
+            "rsi": {
+              "label": "RSI (상대강도지수)",
+              "value": 59.5,
+              "score": 70
+            },
+            "macd": {
+              "label": "MACD",
+              "signal": "neutral",
+              "score": 50
+            },
+            "volumeConfirmation": {
+              "label": "거래량 동반 여부",
+              "confirmed": false,
+              "score": 30
+            }
+          }
+        },
+        "supplyDemand": {
+          "score": 86,
+          "detail": {
+            "foreignNetBuy5d": {
+              "label": "외국인 5일 순매수 추세",
+              "trend": "consistentBuy",
+              "score": 100
+            },
+            "institutionNetBuy5d": {
+              "label": "기관 5일 순매수 추세",
+              "trend": "netBuy",
+              "score": 70
+            },
+            "largeShareholderChange": {
+              "label": "대주주 지분율 변동",
+              "score": null
+            },
+            "buybackOrRetirement": {
+              "label": "자사주 매입/소각 공시",
+              "score": null
+            }
+          }
+        }
+      },
+      "warnings": [],
+      "market": "KR",
+      "currentPrice": 175800,
+      "lastDate": "20260716",
+      "groups": [
+        "lynch-style"
+      ]
+    },
+    {
       "ticker": "005930",
       "name": "삼성전자",
-      "totalScore": 59.7,
+      "sectorType": "general",
+      "totalScore": 59.5,
       "grade": "C (중립/관찰)",
       "dataCoverage": {
         "overall": 0.84,
@@ -497,7 +498,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 80.4,
+          "score": 79.8,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -521,8 +522,8 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 2.19,
-              "score": 100
+              "raw": 0.44,
+              "score": 96.4
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
@@ -623,6 +624,7 @@
     {
       "ticker": "000660",
       "name": "SK하이닉스",
+      "sectorType": "general",
       "totalScore": 58.9,
       "grade": "C (중립/관찰)",
       "dataCoverage": {
@@ -673,7 +675,7 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 13.14,
+              "raw": 1,
               "score": 100
             },
             "revenueGrowthYoY": {
@@ -777,6 +779,7 @@
     {
       "ticker": "000270",
       "name": "기아",
+      "sectorType": "general",
       "totalScore": 57.3,
       "grade": "C (중립/관찰)",
       "dataCoverage": {
@@ -827,7 +830,7 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": -3.84,
+              "raw": -0.77,
               "score": 0
             },
             "revenueGrowthYoY": {
@@ -926,9 +929,161 @@
       ]
     },
     {
+      "ticker": "000810",
+      "name": "삼성화재",
+      "sectorType": "general",
+      "totalScore": 55.9,
+      "grade": "유보 (데이터 커버리지 58% < 기준 60%)",
+      "dataCoverage": {
+        "overall": 0.58,
+        "sufficient": false,
+        "byCategory": {
+          "fundamental": {
+            "valid": 3,
+            "total": 7
+          },
+          "valuation": {
+            "valid": 2,
+            "total": 4
+          },
+          "technical": {
+            "valid": 4,
+            "total": 4
+          },
+          "supplyDemand": {
+            "valid": 2,
+            "total": 4
+          }
+        }
+      },
+      "breakdown": {
+        "fundamental": {
+          "score": 79.6,
+          "detail": {
+            "roe": {
+              "label": "자기자본이익률(ROE)",
+              "raw": 9.5,
+              "score": 63
+            },
+            "roeConsistency": {
+              "label": "ROE 지속성 (5년 최저치)",
+              "raw": 9.5,
+              "score": 81.25
+            },
+            "debtRatio": {
+              "label": "부채비율",
+              "raw": null,
+              "score": null
+            },
+            "currentRatio": {
+              "label": "유동비율",
+              "raw": null,
+              "score": null
+            },
+            "operatingMarginTrend": {
+              "label": "영업이익률 추세(최근 3~5년)",
+              "raw": null,
+              "score": null
+            },
+            "revenueGrowthYoY": {
+              "label": "매출 성장률(YoY)",
+              "raw": null,
+              "score": null
+            },
+            "shareholderReturn": {
+              "label": "주주환원 이력 (배당/자사주매입)",
+              "raw": true,
+              "score": 100
+            }
+          }
+        },
+        "valuation": {
+          "score": 27.4,
+          "detail": {
+            "perRelative": {
+              "label": "PER (업종평균 대비 배율)",
+              "raw": null,
+              "score": null
+            },
+            "pbr": {
+              "label": "PBR",
+              "raw": 1.23,
+              "score": 68.38461538461539
+            },
+            "peg": {
+              "label": "PEG (피터 린치)",
+              "peg": null,
+              "score": 0
+            },
+            "marginOfSafety": {
+              "label": "안전마진 (벤저민 그레이엄)",
+              "marginOfSafety": null,
+              "score": null
+            }
+          }
+        },
+        "technical": {
+          "score": 67.5,
+          "detail": {
+            "movingAverageCross": {
+              "label": "이동평균선 골든/데드크로스",
+              "signal": "aboveBothMA",
+              "score": 70
+            },
+            "rsi": {
+              "label": "RSI (상대강도지수)",
+              "value": 61.6,
+              "score": 70
+            },
+            "macd": {
+              "label": "MACD",
+              "signal": "bullishCross",
+              "score": 100
+            },
+            "volumeConfirmation": {
+              "label": "거래량 동반 여부",
+              "confirmed": false,
+              "score": 30
+            }
+          }
+        },
+        "supplyDemand": {
+          "score": 48.7,
+          "detail": {
+            "foreignNetBuy5d": {
+              "label": "외국인 5일 순매수 추세",
+              "trend": "netSell",
+              "score": 30
+            },
+            "institutionNetBuy5d": {
+              "label": "기관 5일 순매수 추세",
+              "trend": "netBuy",
+              "score": 70
+            },
+            "largeShareholderChange": {
+              "label": "대주주 지분율 변동",
+              "score": null
+            },
+            "buybackOrRetirement": {
+              "label": "자사주 매입/소각 공시",
+              "score": null
+            }
+          }
+        }
+      },
+      "warnings": [],
+      "market": "KR",
+      "currentPrice": 701000,
+      "lastDate": "20260716",
+      "groups": [
+        "buffett-style"
+      ]
+    },
+    {
       "ticker": "033780",
       "name": "KT&G",
-      "totalScore": 55.1,
+      "sectorType": "general",
+      "totalScore": 54.4,
       "grade": "C (중립/관찰)",
       "dataCoverage": {
         "overall": 0.79,
@@ -954,7 +1109,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 90.2,
+          "score": 88,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -978,8 +1133,8 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 0.3,
-              "score": 88
+              "raw": 0.06,
+              "score": 73.6
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
@@ -1078,7 +1233,8 @@
     {
       "ticker": "035420",
       "name": "NAVER",
-      "totalScore": 50.1,
+      "sectorType": "general",
+      "totalScore": 50.6,
       "grade": "C (중립/관찰)",
       "dataCoverage": {
         "overall": 0.79,
@@ -1104,7 +1260,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 58.5,
+          "score": 60,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -1128,8 +1284,8 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": -0.09,
-              "score": 57.400000000000006
+              "raw": -0.02,
+              "score": 67.2
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
@@ -1227,161 +1383,10 @@
       ]
     },
     {
-      "ticker": "000810",
-      "name": "삼성화재",
-      "totalScore": 49.5,
-      "grade": "D (부정적)",
-      "dataCoverage": {
-        "overall": 0.63,
-        "sufficient": true,
-        "byCategory": {
-          "fundamental": {
-            "valid": 4,
-            "total": 7
-          },
-          "valuation": {
-            "valid": 2,
-            "total": 4
-          },
-          "technical": {
-            "valid": 4,
-            "total": 4
-          },
-          "supplyDemand": {
-            "valid": 2,
-            "total": 4
-          }
-        }
-      },
-      "breakdown": {
-        "fundamental": {
-          "score": 61.2,
-          "detail": {
-            "roe": {
-              "label": "자기자본이익률(ROE)",
-              "raw": 9.5,
-              "score": 63
-            },
-            "roeConsistency": {
-              "label": "ROE 지속성 (5년 최저치)",
-              "raw": 9.5,
-              "score": 81.25
-            },
-            "debtRatio": {
-              "label": "부채비율",
-              "raw": 353,
-              "score": 0
-            },
-            "currentRatio": {
-              "label": "유동비율",
-              "raw": null,
-              "score": null
-            },
-            "operatingMarginTrend": {
-              "label": "영업이익률 추세(최근 3~5년)",
-              "raw": null,
-              "score": null
-            },
-            "revenueGrowthYoY": {
-              "label": "매출 성장률(YoY)",
-              "raw": null,
-              "score": null
-            },
-            "shareholderReturn": {
-              "label": "주주환원 이력 (배당/자사주매입)",
-              "raw": true,
-              "score": 100
-            }
-          }
-        },
-        "valuation": {
-          "score": 27.4,
-          "detail": {
-            "perRelative": {
-              "label": "PER (업종평균 대비 배율)",
-              "raw": null,
-              "score": null
-            },
-            "pbr": {
-              "label": "PBR",
-              "raw": 1.23,
-              "score": 68.38461538461539
-            },
-            "peg": {
-              "label": "PEG (피터 린치)",
-              "peg": null,
-              "score": 0
-            },
-            "marginOfSafety": {
-              "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": null,
-              "score": null
-            }
-          }
-        },
-        "technical": {
-          "score": 67.5,
-          "detail": {
-            "movingAverageCross": {
-              "label": "이동평균선 골든/데드크로스",
-              "signal": "aboveBothMA",
-              "score": 70
-            },
-            "rsi": {
-              "label": "RSI (상대강도지수)",
-              "value": 61.6,
-              "score": 70
-            },
-            "macd": {
-              "label": "MACD",
-              "signal": "bullishCross",
-              "score": 100
-            },
-            "volumeConfirmation": {
-              "label": "거래량 동반 여부",
-              "confirmed": false,
-              "score": 30
-            }
-          }
-        },
-        "supplyDemand": {
-          "score": 48.7,
-          "detail": {
-            "foreignNetBuy5d": {
-              "label": "외국인 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
-            },
-            "institutionNetBuy5d": {
-              "label": "기관 5일 순매수 추세",
-              "trend": "netBuy",
-              "score": 70
-            },
-            "largeShareholderChange": {
-              "label": "대주주 지분율 변동",
-              "score": null
-            },
-            "buybackOrRetirement": {
-              "label": "자사주 매입/소각 공시",
-              "score": null
-            }
-          }
-        }
-      },
-      "warnings": [
-        "debtRatioAbove200"
-      ],
-      "market": "KR",
-      "currentPrice": 701000,
-      "lastDate": "20260716",
-      "groups": [
-        "buffett-style"
-      ]
-    },
-    {
       "ticker": "005380",
       "name": "현대차",
-      "totalScore": 47.1,
+      "sectorType": "general",
+      "totalScore": 47.9,
       "grade": "D (부정적)",
       "dataCoverage": {
         "overall": 0.79,
@@ -1407,7 +1412,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 49.1,
+          "score": 51.4,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -1431,8 +1436,8 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": -1.97,
-              "score": 0
+              "raw": -0.39,
+              "score": 15.399999999999999
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
@@ -1532,7 +1537,8 @@
     {
       "ticker": "005490",
       "name": "POSCO홀딩스",
-      "totalScore": 41.1,
+      "sectorType": "general",
+      "totalScore": 43.1,
       "grade": "D (부정적)",
       "dataCoverage": {
         "overall": 0.79,
@@ -1558,7 +1564,7 @@
       },
       "breakdown": {
         "fundamental": {
-          "score": 36.1,
+          "score": 42,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
@@ -1582,8 +1588,8 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": -0.35,
-              "score": 21.000000000000004
+              "raw": -0.07,
+              "score": 60.199999999999996
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
@@ -1682,10 +1688,11 @@
     {
       "ticker": "373220",
       "name": "LG에너지솔루션",
+      "sectorType": "general",
       "totalScore": 28,
       "grade": "E (회피 권장)",
       "dataCoverage": {
-        "overall": 0.74,
+        "overall": 0.79,
         "sufficient": true,
         "byCategory": {
           "fundamental": {
@@ -1693,7 +1700,7 @@
             "total": 7
           },
           "valuation": {
-            "valid": 1,
+            "valid": 2,
             "total": 4
           },
           "technical": {
@@ -1732,7 +1739,7 @@
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 3.44,
+              "raw": 0.69,
               "score": 100
             },
             "revenueGrowthYoY": {
@@ -1763,7 +1770,7 @@
             "peg": {
               "label": "PEG (피터 린치)",
               "peg": null,
-              "score": null
+              "score": 0
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
@@ -1832,6 +1839,7 @@
     {
       "ticker": "AAPL",
       "name": "애플",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -1978,6 +1986,7 @@
     {
       "ticker": "AXP",
       "name": "아메리칸익스프레스",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2123,6 +2132,7 @@
     {
       "ticker": "KO",
       "name": "코카콜라",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2268,6 +2278,7 @@
     {
       "ticker": "BAC",
       "name": "뱅크오브아메리카",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2413,6 +2424,7 @@
     {
       "ticker": "CVX",
       "name": "셰브론",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2558,6 +2570,7 @@
     {
       "ticker": "GOOGL",
       "name": "알파벳",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2704,6 +2717,7 @@
     {
       "ticker": "MSFT",
       "name": "마이크로소프트",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
@@ -2849,6 +2863,7 @@
     {
       "ticker": "NVDA",
       "name": "엔비디아",
+      "sectorType": "general",
       "totalScore": null,
       "grade": "유보 (데이터 커버리지 0% < 기준 50%)",
       "dataCoverage": {
