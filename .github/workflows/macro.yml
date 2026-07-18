@@ -1,0 +1,37 @@
+name: Update macro.json
+
+# 매크로 지표(일드커브·VIX·HY스프레드·달러·M2·스타일·폭 등)를
+# FRED/Stooq 에서 받아 docs/data/macro.json 으로 커밋한다. API 키 불필요.
+
+on:
+  schedule:
+    - cron: '40 7 * * 1-5'   # 07:40 UTC = 16:40 KST, 평일
+  workflow_dispatch:          # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macro-json
+  cancel-in-progress: false
+
+jobs:
+  macro:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch macro indicators
+        run: python scripts/fetch_macro.py
+
+      - name: Commit macro.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/macro.json
+          git diff --staged --quiet || git commit -m "chore: update macro.json"
+          git push
