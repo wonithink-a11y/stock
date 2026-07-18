@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-17T09:29:39.815Z",
+  "updatedAt": "2026-07-18T13:16:43.779Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -12,7 +12,7 @@
       "investedValue": 700000,
       "unrealizedPnL": 1850000,
       "unrealizedPnLPct": 264.29,
-      "stockScore": 59.4,
+      "stockScore": 59.7,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "neutral",
@@ -20,37 +20,37 @@
       "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
       "breakdown": {
         "fundamental": {
-          "score": 90.2,
+          "score": 80.4,
           "detail": {
             "roe": {
               "label": "자기자본이익률(ROE)",
-              "raw": 12.5,
-              "score": 85
+              "raw": 10.4,
+              "score": 72.4
             },
             "roeConsistency": {
               "label": "ROE 지속성 (5년 최저치)",
-              "raw": 9.9,
-              "score": 84.25
+              "raw": 4.3,
+              "score": 18.199999999999996
             },
             "debtRatio": {
               "label": "부채비율",
-              "raw": 38.2,
+              "raw": 29.9,
               "score": 100
             },
             "currentRatio": {
               "label": "유동비율",
-              "raw": 218,
+              "raw": 232.8,
               "score": 100
             },
             "operatingMarginTrend": {
               "label": "영업이익률 추세(최근 3~5년)",
-              "raw": 0.3,
-              "score": 88
+              "raw": 2.19,
+              "score": 100
             },
             "revenueGrowthYoY": {
               "label": "매출 성장률(YoY)",
-              "raw": 9.1,
-              "score": 82.3
+              "raw": 10.9,
+              "score": 87.7
             },
             "shareholderReturn": {
               "label": "주주환원 이력 (배당/자사주매입)",
@@ -60,7 +60,7 @@
           }
         },
         "valuation": {
-          "score": 54.3,
+          "score": 66.7,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -74,8 +74,8 @@
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 1.145,
-              "score": 59.85
+              "peg": 0.6170658682634731,
+              "score": 92.97604790419162
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
