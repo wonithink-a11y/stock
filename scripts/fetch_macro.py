@@ -47,19 +47,68 @@ def fred(series):
     return out
 
 
+DIAG = []  # 소스별 성공/실패 기록 (macro.json 에 남겨 원인 추적)
+
+
 def stooq_daily(sym):
-    """Stooq 일봉 CSV -> [(date, close), ...]."""
-    txt = http_get("https://stooq.com/q/d/l/?s=%s&i=d" % sym)
-    out = []
-    for line in txt.splitlines()[1:]:
-        p = line.split(",")
-        if len(p) < 5:
-            continue
+    """Stooq 일봉 CSV -> [(date, close), ...]. .com 실패 시 .pl 재시도."""
+    last = None
+    for host in ("https://stooq.com", "https://stooq.pl"):
         try:
-            out.append((p[0], float(p[4])))
-        except ValueError:
-            continue
-    return out
+            txt = http_get("%s/q/d/l/?s=%s&i=d" % (host, sym))
+            out = []
+            for line in txt.splitlines()[1:]:
+                p = line.split(",")
+                if len(p) < 5:
+                    continue
+                try:
+                    out.append((p[0], float(p[4])))
+                except ValueError:
+                    continue
+            if len(out) > 20:
+                return out
+            last = "행 부족(%d) - 차단/빈응답 의심" % len(out)
+        except Exception as e:
+            last = "%s: %s" % (type(e).__name__, e)
+    raise RuntimeError("stooq %s" % last)
+
+
+def yahoo_daily(sym):
+    """Yahoo Finance chart API -> [(date, close), ...] (무료·무키 대체 소스)."""
+    last = None
+    for host in ("query1", "query2"):
+        try:
+            txt = http_get(
+                "https://%s.finance.yahoo.com/v8/finance/chart/%s?range=2y&interval=1d" % (host, sym))
+            j = json.loads(txt)
+            res = j["chart"]["result"][0]
+            ts = res["timestamp"]
+            closes = res["indicators"]["quote"][0]["close"]
+            out = []
+            for t, c in zip(ts, closes):
+                if c is None:
+                    continue
+                out.append((datetime.fromtimestamp(t, timezone.utc).date().isoformat(), float(c)))
+            if len(out) > 20:
+                return out
+            last = "행 부족(%d)" % len(out)
+        except Exception as e:
+            last = "%s: %s" % (type(e).__name__, e)
+    raise RuntimeError("yahoo %s" % last)
+
+
+def price_series(stooq_sym, yahoo_sym, label):
+    """Stooq → Yahoo 순으로 시도. 어느 소스가 됐는지 DIAG 에 기록."""
+    errors = []
+    for name, fn, arg in (("stooq", stooq_daily, stooq_sym), ("yahoo", yahoo_daily, yahoo_sym)):
+        try:
+            rows = fn(arg)
+            DIAG.append("%s: %s OK (%d행)" % (label, name, len(rows)))
+            return rows
+        except Exception as e:
+            errors.append("%s=%s" % (name, e))
+    DIAG.append("%s: 전 소스 실패 (%s)" % (label, " | ".join(errors)))
+    raise RuntimeError("%s 전 소스 실패" % label)
 
 
 def last(obs):
@@ -160,8 +209,8 @@ def collect():
 
     # 6) 스타일 성장/가치 IWF/IWD 비율
     try:
-        f = dict(stooq_daily("iwf.us"))
-        g = dict(stooq_daily("iwd.us"))
+        f = dict(price_series("iwf.us", "IWF", "style/IWF"))
+        g = dict(price_series("iwd.us", "IWD", "style/IWD"))
         common = sorted(set(f) & set(g))
         ser = [(dt, f[dt] / g[dt]) for dt in common if g[dt]]
         dt, ratio = ser[-1]
@@ -175,8 +224,8 @@ def collect():
 
     # 7) 시장 폭 proxy RSP/SPY
     try:
-        r = dict(stooq_daily("rsp.us"))
-        s = dict(stooq_daily("spy.us"))
+        r = dict(price_series("rsp.us", "RSP", "breadth/RSP"))
+        s = dict(price_series("spy.us", "SPY", "breadth/SPY"))
         common = sorted(set(r) & set(s))
         ser = [(dt, r[dt] / s[dt]) for dt in common if s[dt]]
         dt, ratio = ser[-1]
@@ -227,10 +276,16 @@ def collect():
 
 
 def main():
+    items = collect()
     data = {
         "updatedAt": datetime.now(timezone.utc).date().isoformat(),
         "generatedAtUTC": datetime.now(timezone.utc).isoformat(timespec="minutes"),
-        "indicators": collect(),
+        "indicators": items,
+        # 어떤 소스가 성공/실패했는지 남겨 로그를 뒤지지 않고도 원인 파악
+        "_diagnostics": {
+            "collected": [i["key"] for i in items],
+            "sources": DIAG,
+        },
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
