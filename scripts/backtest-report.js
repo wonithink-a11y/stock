@@ -8,6 +8,11 @@
  * 이력이 쌓이기 전(최소 ~1개월)에는 표본이 없어 리포트가 비어 있습니다 - 정상입니다.
  * 데모용 가상 데이터가 아니라 실제 수집 데이터만 사용하므로,
  * 여기서 나오는 IC·등급 성과가 곧 모델의 실제 성적표입니다.
+ *
+ * [v2.1] 각 스냅샷에 그날의 시장 국면(regimeGrade)을 실어 보내
+ *        backtester 가 국면 조건부 분석(regimeAnalysis)을 산출합니다.
+ *        analyze.js 가 history 파일에 regimeGrade 를 기록해야 동작하며,
+ *        없으면 regimeAnalysis.available=false 로 나오고 나머지는 기존과 동일합니다.
  */
 
 const fs = require('fs');
@@ -80,7 +85,13 @@ function buildSnapshots(days, market) {
       }
 
       if (hasAnyHorizon) {
-        snapshots.push({ date: day.date, stockData: stock.stockData, forwardReturns, benchmarkReturns });
+        snapshots.push({
+          date: day.date,
+          regimeGrade: day.regimeGrade, // [v2.1] 그날의 시장 국면 (없으면 undefined)
+          stockData: stock.stockData,
+          forwardReturns,
+          benchmarkReturns,
+        });
       }
     }
   }
@@ -131,6 +142,15 @@ function main() {
   for (const [market, result] of Object.entries(markets)) {
     console.log(`[${market}] 표본 ${result.sampleCount}건`);
     result.verdicts.forEach((v) => console.log(`  - ${v}`));
+    const ra = result.regimeAnalysis;
+    if (ra && ra.available) {
+      const fc = ra.filterComparison;
+      const h0 = Object.keys(fc.allRegimes.horizons)[0];
+      console.log(
+        `  [국면] 전 구간 승률 ${fc.allRegimes.horizons[h0].winRatePct}% → ` +
+          `우호 국면만 ${fc.favorableOnly.horizons[h0].winRatePct}% (${h0})`
+      );
+    }
   }
 }
 

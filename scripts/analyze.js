@@ -7,6 +7,10 @@
  *  3. 보유종목 포트폴리오 신호
  *  4. B등급 이상 추천 이력 기록 + 성과 갱신
  *  5. 대시보드용 JSON(docs/data/*)과 백테스트용 일별 스냅샷(docs/data/history/) 저장
+ *
+ * [v2.1] 일별 스냅샷에 그 시점의 시장 국면(regimeGrade/regimeScore)을 함께 기록합니다.
+ *        backtester 의 국면 조건부 분석("우호 국면에서만 진입했다면 승률은?")에 사용됩니다.
+ *        ⚠️ 반드시 '그날 판단된 국면'이어야 합니다(사후 국면을 넣으면 look-ahead bias).
  */
 
 const fs = require('fs');
@@ -113,10 +117,12 @@ function main() {
   }));
   saveJson(path.join(OUT_DIR, 'recommendations.json'), { updatedAt: inputs.collectedAt, performance });
 
-  // 5. 백테스트용 일별 스냅샷 (입력 데이터 원본 + 종가 + 벤치마크 종가)
+  // 5. 백테스트용 일별 스냅샷 (입력 데이터 원본 + 종가 + 벤치마크 종가 + 그날의 시장 국면)
   const today = new Date().toISOString().slice(0, 10);
   saveJson(path.join(HISTORY_DIR, `${today}.json`), {
     date: today,
+    regimeGrade: regime.grade, // [v2.1] 국면 조건부 백테스트용
+    regimeScore: regime.regimeScore, // [v2.1] 국면 점수(연속값) - 추후 구간 분석용
     kospiClose: inputs.kospiClose,
     spxClose: inputs.spxClose ?? null,
     stocks: inputs.stocks.map((s) => ({
