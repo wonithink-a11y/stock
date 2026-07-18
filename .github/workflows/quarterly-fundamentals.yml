@@ -1,0 +1,40 @@
+name: Update fundamentals (DART)
+
+# DART 사업보고서에서 한국 종목 재무데이터를 받아 config/fundamentals.json 을 갱신한다.
+# 인증키는 저장소 Secrets 의 DART_API_KEY 로만 주입한다 (코드에 하드코딩 금지).
+
+on:
+  schedule:
+    # 분기 실적 공시 이후를 노려 분기마다 1회 (3·5·8·11월 15일 07:40 UTC = 16:40 KST)
+    - cron: '40 7 15 3,5,8,11 *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fundamentals-json
+  cancel-in-progress: false
+
+jobs:
+  fundamentals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch fundamentals from DART
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: node scripts/fetch-fundamentals-kr.js
+
+      - name: Commit fundamentals.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/fundamentals.json
+          git diff --staged --quiet || git commit -m "chore: update fundamentals from DART"
+          git push
