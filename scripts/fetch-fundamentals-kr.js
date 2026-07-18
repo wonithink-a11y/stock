@@ -107,7 +107,9 @@ async function fetchAccounts(corpCode, year) {
       currentLiab: find(n => n === '유동부채'),
       liabilities: find(n => n === '부채총계'),
       equity: find(n => n === '자본총계'),
-      revenue: find(n => n.includes('매출')),         // '매출액' | '수익(매출액)'
+      // 일반기업 '매출액' / 금융업 '영업수익' / 일부 '수익(매출액)'
+      revenue: find(n => n === '매출액') || find(n => n.includes('영업수익'))
+            || find(n => n.includes('매출')) || find(n => n.startsWith('수익')),
       opProfit: find(n => n.includes('영업이익')),
       netIncome: find(n => n.includes('당기순이익')),
     };
@@ -177,16 +179,41 @@ function computeMetrics(yearly, div, latestYear) {
   const mCur = opMarginOf(cur), mPrev = opMarginOf(prev);
   const epsCur = div.eps[latestYear], epsPrev = div.eps[latestYear - 1];
 
+  // 금융업(은행·보험·증권·지주) 판별: 유동/비유동 구분 없는 재무상태표를 쓴다
+  const isFinancial = cur.currentAssets == null && cur.currentLiab == null;
+
+  const debtRaw = (cur.liabilities != null && cur.equity)
+    ? round(cur.liabilities / cur.equity * 100, 1) : null;
+
+  // criteria.json 의 operatingMarginTrend 단위는 '방향성(-1~1)'
+  // → 영업이익률 변화(%p)를 ±5%p = ±1 로 정규화
+  let omTrend = null;
+  if (mCur != null && mPrev != null) {
+    const pp = mCur - mPrev;
+    omTrend = round(Math.max(-1, Math.min(1, pp / 5)), 2);
+  }
+
+  // 전기 EPS가 0 이하(적자)면 성장률이 무의미 → 결측 처리
+  const epsGrowth = (epsCur != null && epsPrev != null && epsPrev > 0)
+    ? round((epsCur / epsPrev - 1) * 100, 1)
+    : ((cur.netIncome != null && prev && prev.netIncome > 0)
+      ? round((cur.netIncome / prev.netIncome - 1) * 100, 1) : null);
+
   return {
     roe: round(roeOf(cur), 1),
     roeHistory5y,
-    debtRatio: (cur.liabilities != null && cur.equity) ? round(cur.liabilities / cur.equity * 100, 1) : null,
-    currentRatio: (cur.currentAssets != null && cur.currentLiab) ? round(cur.currentAssets / cur.currentLiab * 100, 1) : null,
-    operatingMarginTrend: (mCur != null && mPrev != null) ? round(mCur - mPrev, 2) : null,
+    // 금융업은 예금·보험부채가 부채로 잡혀 부채비율이 구조적으로 1000%대 →
+    // 일반 기준(poor 200%)으로 채점하면 최하점·오경고가 나므로 결측 처리하고 원값만 참고로 보존
+    debtRatio: isFinancial ? null : debtRaw,
+    debtRatioRaw: debtRaw,
+    currentRatio: (cur.currentAssets != null && cur.currentLiab)
+      ? round(cur.currentAssets / cur.currentLiab * 100, 1) : null,
+    operatingMarginTrend: omTrend,
+    operatingMarginTrendPP: (mCur != null && mPrev != null) ? round(mCur - mPrev, 2) : null,
     revenueGrowthYoY: (cur.revenue != null && prev && prev.revenue) ? round((cur.revenue / prev.revenue - 1) * 100, 1) : null,
-    epsGrowthRate: (epsCur != null && epsPrev) ? round((epsCur / epsPrev - 1) * 100, 1)
-      : ((cur.netIncome != null && prev && prev.netIncome > 0) ? round((cur.netIncome / prev.netIncome - 1) * 100, 1) : null),
+    epsGrowthRate: epsGrowth,
     buybackOrDividendHistory: div.dividend.length ? div.dividend.some(v => v != null && v > 0) : null,
+    sectorType: isFinancial ? 'financial' : 'general',
   };
 }
 
@@ -242,8 +269,11 @@ async function main() {
       fund.byTicker[t.code] = { ...prevEntry, ...m, _source: `DART ${usedYear} 사업보고서` };
       delete fund.byTicker[t.code]._note;
 
-      const cov = Object.values(m).filter(v => v != null).length;
-      filled.push(`${t.code} ${t.name}: ROE ${m.roe}% · 부채 ${m.debtRatio}% · 유동 ${m.currentRatio}% · 매출성장 ${m.revenueGrowthYoY}% (${cov}/8)`);
+      const scored = ['roe', 'roeHistory5y', 'debtRatio', 'currentRatio',
+        'operatingMarginTrend', 'revenueGrowthYoY', 'epsGrowthRate', 'buybackOrDividendHistory'];
+      const cov = scored.filter(k => m[k] != null).length;
+      const tag = m.sectorType === 'financial' ? ' [금융]' : '';
+      filled.push(`${t.code} ${t.name}${tag}: ROE ${m.roe}% · 부채 ${m.debtRatioRaw}% · 매출성장 ${m.revenueGrowthYoY}% · 이익률추세 ${m.operatingMarginTrend} (${cov}/8)`);
     } catch (e) {
       failed.push(`${t.code} ${t.name}: ${e.message}`);
     }
