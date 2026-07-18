@@ -1,6 +1,6 @@
 {
-  "version": "2.0",
-  "description": "한국 주식(KOSPI/KOSDAQ) 종목 분석을 위한 통합 스코어링 기준 v2. guru 카테고리를 제거하고 valuation으로 대체해 fundamental과의 지표 이중계산을 없앴습니다. 각 모듈은 0~100점으로 정규화되며, categoryWeights로 최종 합산 비중을 조절합니다. 이 가중치는 초기 가설값이며 백테스트(run-backtest.js) 결과로 재조정하는 것을 전제로 합니다.",
+  "version": "2.1",
+  "description": "한국 주식(KOSPI/KOSDAQ) 종목 분석을 위한 통합 스코어링 기준 v2. guru 카테고리를 제거하고 valuation으로 대체해 fundamental과의 지표 이중계산을 없앴습니다. 각 모듈은 0~100점으로 정규화되며, categoryWeights로 최종 합산 비중을 조절합니다. 이 가중치는 초기 가설값이며 백테스트(run-backtest.js) 결과로 재조정하는 것을 전제로 합니다. v2.1: 업종별 기준 분기(sectorOverrides) 추가 - 금융업 부채비율 오채점 해결.",
 
   "categoryWeights": {
     "fundamental": 0.35,
@@ -162,6 +162,33 @@
         "note": "미입력 시 결측 처리. 공시 있음=100, 명시적으로 없음=50.",
         "weight": 0.10
       }
+    }
+  },
+
+  "sectorOverrides": {
+    "_note": "업종별로 기본 기준을 덮어씁니다. scoringEngine이 stockData.fundamental.sectorType 값으로 분기합니다. 여기에 없는 업종은 기본 기준을 그대로 사용합니다.",
+    "financial": {
+      "note": "은행·보험·증권·지주는 예금·보험부채가 부채로 잡혀 부채비율이 구조적으로 300~1300%대이고, 유동/비유동 구분이 없는 재무상태표를 씁니다. 일반 기준(poor 200%)을 적용하면 건전한 금융사도 최하점을 받으므로 별도 임계값을 사용합니다. 수집기(fetch-fundamentals-kr.js)가 sectorType='financial'과 debtRatioRaw를 채워줍니다.",
+      "fundamental": {
+        "metrics": {
+          "debtRatio": {
+            "thresholds": { "excellent": 800, "good": 1300, "poor": 1800 },
+            "thresholdsNote": "보험(300~400%대)은 excellent, 은행지주(1100~1300%대)는 good 부근에 위치. 1800% 이상은 금융업 기준으로도 과도한 레버리지."
+          },
+          "currentRatio": {
+            "excluded": true,
+            "excludedReason": "금융업 재무상태표는 유동/비유동 구분이 없어 산출 불가 (커버리지 분모에서도 제외)"
+          }
+        }
+      }
+    }
+  },
+
+  "warningThresholds": {
+    "_note": "debtRatioAbove200 경고를 업종별로 판정합니다. 해당 업종 값이 없으면 general(200)이 적용됩니다.",
+    "debtRatioHigh": {
+      "general": 200,
+      "financial": 1800
     }
   },
 
