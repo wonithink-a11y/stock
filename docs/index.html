@@ -66,6 +66,65 @@
   .fit-tag { display: inline-block; background: #14532d; color: #6ee7a0; font-size: 11px;
              padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
   .egg-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+
+  /* ── 종목 스코어 탭 (108종목 대응) ─────────────────────── */
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { background: var(--card); border: none; color: var(--muted); padding: 6px 14px; cursor: pointer; font-size: 13px; }
+  .seg button.active { background: #1e2a44; color: var(--text); }
+  .search { background: #131a29; border: 1px solid var(--border); color: var(--text);
+            padding: 6px 10px; border-radius: 8px; font-size: 13px; min-width: 150px; }
+  .search::placeholder { color: var(--muted); }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .filter-row .lbl { color: var(--muted); font-size: 11px; margin-right: 2px; min-width: 34px; }
+  .chip { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+          padding: 4px 11px; border-radius: 14px; cursor: pointer; font-size: 12px; }
+  .chip.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
+  .chip .cnt { opacity: .6; margin-left: 4px; font-size: 11px; }
+
+  .summary-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { background: #131a29; border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; }
+  .stat .k { color: var(--muted); font-size: 11px; display: block; }
+  .stat .v { font-size: 17px; font-weight: 700; }
+
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--text); }
+  th .arr { opacity: .5; font-size: 10px; }
+
+  /* 업종별 보기 */
+  .sec-block { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .sec-head { display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+              background: #161f31; cursor: pointer; flex-wrap: wrap; }
+  .sec-head:hover { background: #1a2540; }
+  .sec-name { font-weight: 700; font-size: 14px; }
+  .sec-metrics { margin-left: auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .sec-metric { text-align: right; }
+  .sec-metric .k { color: var(--muted); font-size: 10px; display: block; }
+  .sec-metric .v { font-size: 14px; font-weight: 700; }
+  .sec-body { padding: 0 14px 12px; }
+  .caret { color: var(--muted); font-size: 11px; width: 12px; display: inline-block; }
+  .conf { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+  .conf-low { background: #4c1d1d; color: #f38b8b; }
+  .conf-medium { background: #3f3f24; color: #e8e28a; }
+  .conf-high { background: #14532d; color: #6ee7a0; }
+  .dist { display: inline-flex; height: 8px; width: 110px; border-radius: 4px; overflow: hidden; background: #2a3550; }
+  .dist span { height: 8px; }
+  .d-A { background: #2ecc71; } .d-B { background: #4d9fff; } .d-C { background: #f1c40f; }
+  .d-D { background: #e67e22; } .d-E { background: #e74c3c; } .d-H { background: #55607a; }
+
+  /* 비고 */
+  .note-box { background: #131a29; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+              padding: 10px 13px; margin: 8px 0 12px; }
+  .note-box ol { margin: 6px 0 0 16px; }
+  .note-box li { color: var(--muted); font-size: 12.5px; line-height: 1.65; margin-bottom: 5px; white-space: normal; }
+  .note-title { font-size: 12px; font-weight: 700; color: #9ecbff; }
+  .adj { color: var(--muted); font-size: 11px; margin-top: 6px; white-space: normal; }
+  .row-detail td { background: #131a29; white-space: normal; }
+  .info-btn { background: none; border: 1px solid var(--border); color: var(--muted);
+              border-radius: 4px; font-size: 10px; padding: 1px 5px; cursor: pointer; }
+  .info-btn:hover { color: var(--text); border-color: var(--accent); }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover td { background: #1c263c; }
 </style>
 </head>
 <body>
@@ -86,12 +145,36 @@
 
 <footer>
   ⚠️ 이 대시보드는 정보 통합·정량화 참고자료이며 투자 자문이 아닙니다. 모든 매매 판단과 책임은 본인에게 있습니다.<br>
-  데이터: 네이버금융(KR 시세·수급)·Stooq(US 시세) 비공식 소스 + 수동 입력 재무(fundamentals.json).
-  미국 시세는 시차로 전일 종가입니다. 점수·가중치는 백테스트로 검증되기 전까지 가설입니다.
+  데이터: 네이버금융(KR 시세·수급)·Stooq(US 시세) + DART 재무·업종(fundamentals.json).
+  미국 시세는 시차로 전일 종가입니다. 점수·가중치는 백테스트로 검증되기 전까지 가설입니다.<br>
+  업종별 채점 기준은 config/criteria.json의 sectorOverrides에서 조정합니다. '신뢰도 낮음' 업종은 점수보다 비고를 우선해서 보세요.
 </footer>
 
 <script>
-const state = { latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, tab: 'scores', groupFilter: 'all' };
+const state = {
+  latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null,
+  tab: 'scores',
+  groupFilter: 'all',
+  // 종목 스코어 탭 전용
+  viewMode: 'sector',      // 'sector' | 'list'
+  sectorFilter: 'all',
+  gradeFilter: 'all',
+  search: '',
+  sortKey: 'totalScore',
+  sortDir: 'desc',
+  collapsed: {},           // 업종별 접힘 상태
+  openNotes: {},           // 업종 비고 펼침
+  openRows: {},            // 종목 상세 펼침
+};
+
+// 업종 표시명 (latest.json의 sectorCaution.label이 우선, 없을 때 폴백)
+const SECTOR_LABEL = {
+  general: '일반 (제조·유통 등)', financial: '금융', holding: '지주회사',
+  utility: '전력·가스', construction: '건설', shipping: '해운·조선',
+  airline: '항공', bio: '제약·바이오', telecom: '통신', reit: '리츠·부동산',
+};
+// 업종별 보기에서의 표시 순서 (신뢰도 낮은 업종을 위로 올려 눈에 띄게)
+const SECTOR_ORDER = ['financial','holding','utility','construction','shipping','airline','bio','telecom','reit','general'];
 
 async function loadJson(name) {
   try {
@@ -101,12 +184,23 @@ async function loadJson(name) {
   } catch { return null; }
 }
 
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function gradeChip(grade) {
   if (!grade) return '<span class="grade grade-H">N/A</span>';
   const c = grade.charAt(0);
   const cls = ['A','B','C','D','E'].includes(c) ? c : 'H';
   const label = cls === 'H' ? '유보' : c;
-  return `<span class="grade grade-${cls}" title="${grade}">${label}</span>`;
+  return `<span class="grade grade-${cls}" title="${esc(grade)}">${label}</span>`;
+}
+
+function gradeKey(grade) {
+  if (!grade) return 'H';
+  const c = grade.charAt(0);
+  return ['A','B','C','D','E'].includes(c) ? c : 'H';
 }
 
 function mktChip(market) {
@@ -133,33 +227,218 @@ function coverageBar(cov) {
   return `<span class="bar-bg"><span class="bar-fill" style="width:${pct}%"></span></span> <span class="muted">${pct}%</span>`;
 }
 
-// ---------- 탭 렌더러 ----------
+// ---------- 종목 스코어 탭 ----------
+
+const sectorOf = (r) => r.sectorType || 'general';
+const sectorName = (r) => (r.sectorCaution && r.sectorCaution.label) || SECTOR_LABEL[sectorOf(r)] || sectorOf(r);
+
+/** 알림·표에서 소음이 되는 상시 속성 플래그는 경고 열에서 숨긴다 (비고로 대체 표시) */
+const HIDDEN_WARNINGS = new Set(['sectorAdjusted', 'lowSectorConfidence']);
+
+function confChip(conf) {
+  if (!conf) return '';
+  const t = { low: '신뢰도 낮음', medium: '신뢰도 보통', high: '신뢰도 높음' }[conf] || conf;
+  return `<span class="conf conf-${conf}">${t}</span>`;
+}
+
+/** 등급 분포 막대 */
+function distBar(rows) {
+  const order = ['A','B','C','D','E','H'];
+  const cnt = {};
+  rows.forEach(r => { const k = gradeKey(r.grade); cnt[k] = (cnt[k] || 0) + 1; });
+  const total = rows.length || 1;
+  const segs = order.filter(k => cnt[k]).map(k =>
+    `<span class="d-${k}" style="width:${(cnt[k] / total * 100).toFixed(1)}%" title="${k === 'H' ? '유보' : k}등급 ${cnt[k]}개"></span>`).join('');
+  return `<span class="dist">${segs}</span>`;
+}
+
+function avgScore(rows) {
+  const v = rows.map(r => r.totalScore).filter(x => x !== null && x !== undefined);
+  if (!v.length) return null;
+  return Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10;
+}
+
+function applyFilters(all) {
+  const q = state.search.trim().toLowerCase();
+  return all.filter(r => {
+    if (state.groupFilter !== 'all' && !(r.groups || []).includes(state.groupFilter)) return false;
+    if (state.sectorFilter !== 'all' && sectorOf(r) !== state.sectorFilter) return false;
+    if (state.gradeFilter !== 'all' && gradeKey(r.grade) !== state.gradeFilter) return false;
+    if (q && !(String(r.name).toLowerCase().includes(q) || String(r.ticker).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function sortRows(rows) {
+  const k = state.sortKey, dir = state.sortDir === 'asc' ? 1 : -1;
+  const val = (r) => {
+    if (k === 'name') return r.name || '';
+    if (k === 'grade') return 'ABCDEH'.indexOf(gradeKey(r.grade));
+    if (k === 'coverage') return r.dataCoverage ? r.dataCoverage.overall : -1;
+    if (k === 'sector') return sectorName(r);
+    return r.totalScore ?? -1;
+  };
+  return [...rows].sort((a, b) => {
+    const x = val(a), y = val(b);
+    if (typeof x === 'string') return x.localeCompare(y, 'ko') * dir;
+    return (x - y) * dir;
+  });
+}
+
+function th(key, label) {
+  const on = state.sortKey === key;
+  const arr = on ? (state.sortDir === 'asc' ? '▲' : '▼') : '⇅';
+  return `<th class="sortable" data-sort="${key}">${label} <span class="arr">${arr}</span></th>`;
+}
+
+function stockRow(r) {
+  const warns = (r.warnings || []).filter(w => !HIDDEN_WARNINGS.has(w));
+  const hasNote = !!r.sectorCaution;
+  const open = !!state.openRows[r.ticker];
+  const main = `
+    <tr class="${hasNote ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
+      <td><strong>${esc(r.name)}</strong> <span class="muted">${esc(r.ticker)}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}
+        ${(r.groups || []).length ? `<br>${(r.groups || []).map(g => `<span class="group-tag">${esc((((state.latest || {}).groupLabels || {})[g] || g).split(' ')[0])}</span>`).join('')}` : ''}</td>
+      <td>${r.totalScore ?? '-'}</td>
+      <td>${gradeChip(r.grade)}</td>
+      <td><span class="sector-tag">${esc(sectorName(r))}</span>${r.sectorCaution ? ' ' + confChip(r.sectorCaution.confidence) : ''}</td>
+      <td>${fmtPrice(r.currentPrice, r.market)}</td>
+      <td>${coverageBar(r.dataCoverage)}</td>
+      <td>${warns.map(w => `<span class="warn-tag">${esc(w)}</span>`).join('') || '-'}</td>
+      <td>${hasNote ? `<button class="info-btn" data-row="${esc(r.ticker)}">${open ? '접기' : '비고 ' + r.sectorCaution.notes.length}</button>` : '<span class="muted">-</span>'}</td>
+    </tr>`;
+  if (!open || !hasNote) return main;
+  const c = r.sectorCaution;
+  return main + `
+    <tr class="row-detail"><td colspan="8">
+      <div class="note-title">${esc(c.label)} — ${esc(c.confidenceLabel || '')}</div>
+      <ol>${c.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>
+      ${c.adjustedMetrics && c.adjustedMetrics.length ? `<div class="adj">업종 기준으로 채점된 지표: ${c.adjustedMetrics.map(esc).join(', ')}</div>` : ''}
+      ${c.excludedMetrics && c.excludedMetrics.length ? `<div class="adj">평가 제외: ${c.excludedMetrics.map(m => esc(m.label) + ' (' + esc(m.reason) + ')').join(' / ')}</div>` : ''}
+    </td></tr>`;
+}
+
+function tableFor(rows) {
+  return `<div class="table-wrap"><table>
+    <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
+    <tbody>${rows.map(stockRow).join('')}</tbody></table></div>`;
+}
+
+function renderSectorView(filtered) {
+  const bySector = {};
+  filtered.forEach(r => { (bySector[sectorOf(r)] = bySector[sectorOf(r)] || []).push(r); });
+  const keys = Object.keys(bySector).sort((a, b) => {
+    const ia = SECTOR_ORDER.indexOf(a), ib = SECTOR_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  if (!keys.length) return '<div class="empty">조건에 맞는 종목이 없습니다.</div>';
+
+  return keys.map(k => {
+    const rows = sortRows(bySector[k]);
+    const sample = rows.find(r => r.sectorCaution) || rows[0];
+    const caution = sample && sample.sectorCaution;
+    const label = caution ? caution.label : (SECTOR_LABEL[k] || k);
+    const isCollapsed = state.collapsed[k] === true;
+    const notesOpen = !!state.openNotes[k];
+    const avg = avgScore(rows);
+
+    const head = `<div class="sec-head" data-sector-toggle="${esc(k)}">
+      <span class="caret">${isCollapsed ? '▶' : '▼'}</span>
+      <span class="sec-name">${esc(label)}</span>
+      ${caution ? confChip(caution.confidence) : ''}
+      <div class="sec-metrics">
+        <div class="sec-metric"><span class="k">종목</span><span class="v">${rows.length}</span></div>
+        <div class="sec-metric"><span class="k">평균</span><span class="v">${avg ?? '-'}</span></div>
+        <div class="sec-metric"><span class="k">등급 분포</span>${distBar(rows)}</div>
+      </div></div>`;
+
+    if (isCollapsed) return `<div class="sec-block">${head}</div>`;
+
+    const noteBox = caution ? `
+      <div class="note-box">
+        <div class="note-title">이 업종 채점 시 주의사항 ${notesOpen ? '' : `(${caution.notes.length}개)`}
+          <button class="info-btn" data-note-toggle="${esc(k)}" style="margin-left:6px">${notesOpen ? '접기' : '펼치기'}</button></div>
+        ${notesOpen ? `<ol>${caution.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>` : ''}
+      </div>` : '';
+
+    return `<div class="sec-block">${head}<div class="sec-body">${noteBox}${tableFor(rows)}</div></div>`;
+  }).join('');
+}
 
 function renderScores() {
   const d = state.latest;
   if (!d || !d.results || d.results.length === 0) return '<div class="card empty">아직 분석 결과가 없습니다. Actions가 처음 실행된 후 표시됩니다.</div>';
+  const all = d.results;
   const labels = d.groupLabels || {};
-  const allGroups = [...new Set(d.results.flatMap(r => r.groups || []))];
-  const filterHtml = `<div class="group-filter">
-    <button data-group="all" class="${state.groupFilter === 'all' ? 'active' : ''}">전체</button>
-    ${allGroups.map(g => `<button data-group="${g}" class="${state.groupFilter === g ? 'active' : ''}">${labels[g] || g}</button>`).join('')}
+
+  // ── 필터 UI
+  const groups = [...new Set(all.flatMap(r => r.groups || []))];
+  const sectorCounts = {};
+  all.forEach(r => { sectorCounts[sectorOf(r)] = (sectorCounts[sectorOf(r)] || 0) + 1; });
+  const sectorKeys = Object.keys(sectorCounts).sort((a, b) => {
+    const ia = SECTOR_ORDER.indexOf(a), ib = SECTOR_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+
+  const chip = (attr, val, text, cnt, cur) =>
+    `<button class="chip ${cur === val ? 'active' : ''}" data-${attr}="${esc(val)}">${esc(text)}${cnt !== undefined ? `<span class="cnt">${cnt}</span>` : ''}</button>`;
+
+  const toolbar = `<div class="toolbar">
+    <div class="seg">
+      <button data-view="sector" class="${state.viewMode === 'sector' ? 'active' : ''}">업종별</button>
+      <button data-view="list" class="${state.viewMode === 'list' ? 'active' : ''}">전체 목록</button>
+    </div>
+    <input class="search" id="stockSearch" placeholder="종목명·코드 검색" value="${esc(state.search)}">
+    <span class="muted" id="filterCount"></span>
   </div>`;
-  const filtered = state.groupFilter === 'all' ? d.results : d.results.filter(r => (r.groups || []).includes(state.groupFilter));
-  const rows = filtered.map(r => `
-    <tr>
-      <td><strong>${r.name}</strong> <span class="muted">${r.ticker}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}<br>${(r.groups || []).map(g => `<span class="group-tag">${(labels[g] || g).split(' ')[0]}</span>`).join('')}</td>
-      <td>${r.totalScore ?? '-'}</td>
-      <td>${gradeChip(r.grade)}</td>
-      <td>${fmtPrice(r.currentPrice, r.market)}</td>
-      <td>${coverageBar(r.dataCoverage)}</td>
-      <td>${(r.warnings || []).map(w => `<span class="warn-tag">${w}</span>`).join('') || '-'}</td>
-    </tr>`).join('');
-  return `<div class="card">${filterHtml}<div class="table-wrap"><table>
-    <thead><tr><th>종목</th><th>점수</th><th>등급</th><th>종가</th><th>데이터 커버리지</th><th>경고</th></tr></thead>
-    <tbody>${rows}</tbody></table></div>
-    <p class="muted" style="margin-top:10px">커버리지가 낮은 종목은 config/fundamentals.json에 재무 데이터를 채우면 등급 유보가 해제됩니다.
-    그룹 구성은 config/watchlist.json에서 편집합니다. 미국 종목은 KRX식 수급 데이터가 없어 별도 기준(criteria-us.json)으로 평가됩니다.</p></div>`;
+
+  const filters = `
+    <div class="filter-row"><span class="lbl">업종</span>
+      ${chip('sector', 'all', '전체', all.length, state.sectorFilter)}
+      ${sectorKeys.map(k => chip('sector', k, SECTOR_LABEL[k] || k, sectorCounts[k], state.sectorFilter)).join('')}
+    </div>
+    <div class="filter-row"><span class="lbl">등급</span>
+      ${chip('grade', 'all', '전체', undefined, state.gradeFilter)}
+      ${['A','B','C','D','E','H'].map(g => {
+        const c = all.filter(r => gradeKey(r.grade) === g).length;
+        return c ? chip('grade', g, g === 'H' ? '유보' : g, c, state.gradeFilter) : '';
+      }).join('')}
+    </div>
+    ${groups.length ? `<div class="filter-row"><span class="lbl">그룹</span>
+      ${chip('group', 'all', '전체', undefined, state.groupFilter)}
+      ${groups.map(g => chip('group', g, (labels[g] || g).split(' ')[0], all.filter(r => (r.groups || []).includes(g)).length, state.groupFilter)).join('')}
+    </div>` : ''}`;
+
+  const filtered = applyFilters(all);
+
+  // ── 요약 스트립
+  const lowConf = filtered.filter(r => r.sectorCaution && r.sectorCaution.confidence === 'low').length;
+  const held = filtered.filter(r => r.dataCoverage && !r.dataCoverage.sufficient).length;
+  const unmapped = filtered.filter(r => (r.warnings || []).includes('unmappedSector')).length;
+  const topGrade = filtered.filter(r => ['A','B'].includes(gradeKey(r.grade))).length;
+  const strip = `<div class="summary-strip">
+    <div class="stat"><span class="k">표시 종목</span><span class="v">${filtered.length}<span class="muted" style="font-size:12px"> / ${all.length}</span></span></div>
+    <div class="stat"><span class="k">평균 점수</span><span class="v">${avgScore(filtered) ?? '-'}</span></div>
+    <div class="stat"><span class="k">A·B등급</span><span class="v">${topGrade}</span></div>
+    <div class="stat"><span class="k">유보</span><span class="v">${held}</span></div>
+    <div class="stat"><span class="k">저신뢰 업종</span><span class="v">${lowConf}</span></div>
+    ${unmapped ? `<div class="stat"><span class="k">업종 미분류</span><span class="v" style="color:var(--bad)">${unmapped}</span></div>` : ''}
+  </div>`;
+
+  const body = state.viewMode === 'sector'
+    ? renderSectorView(filtered)
+    : (filtered.length ? tableFor(sortRows(filtered)) : '<div class="empty">조건에 맞는 종목이 없습니다.</div>');
+
+  const uni = d.universeVersion ? ` · 유니버스 ${esc(d.universeVersion)}(${d.universeSize ?? all.length}종목)` : '';
+
+  return `<div class="card">${toolbar}${filters}${strip}${body}
+    <p class="muted" style="margin-top:12px;white-space:normal">
+      업종 행을 클릭하면 접고 펼칠 수 있고, 종목 행을 클릭하면 그 업종의 채점 주의사항이 열립니다.
+      <strong>'신뢰도 낮음'</strong> 업종은 점수 자체의 예측력이 떨어지므로 비고를 먼저 읽으세요.
+      커버리지가 낮으면 config/fundamentals.json 보강으로 유보가 해제됩니다.${uni}</p></div>`;
 }
+
+// ---------- 나머지 탭 (기존 유지) ----------
 
 function renderPortfolio() {
   const rg = state.regime;
@@ -168,19 +447,19 @@ function renderPortfolio() {
   if (rg) {
     html += `<div class="card"><div class="regime">
       <span class="score regime-${rg.grade}">${rg.score}</span>
-      <div><div><strong>시장 국면: ${rg.grade}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${rg.action}</div>
-      ${(rg.specialFlags || []).length ? `<div class="muted">⚑ ${rg.specialFlags.join(', ')}</div>` : ''}</div>
+      <div><div><strong>시장 국면: ${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div>
+      ${(rg.specialFlags || []).length ? `<div class="muted">⚑ ${rg.specialFlags.map(esc).join(', ')}</div>` : ''}</div>
     </div></div>`;
   }
   if (pf && pf.holdings && pf.holdings.length > 0) {
     const rows = pf.holdings.map(h => `
       <tr>
-        <td><strong>${h.name}</strong> <span class="muted">${h.ticker}</span>${mktChip(h.market)}</td>
+        <td><strong>${esc(h.name)}</strong> <span class="muted">${esc(h.ticker)}</span>${mktChip(h.market)}</td>
         <td>${fmtNum(h.quantity)}주</td>
         <td>${fmtPrice(h.avgPrice, h.market)} → ${fmtPrice(h.currentPrice, h.market)}</td>
         <td>${fmtPct(h.unrealizedPnLPct)}</td>
         <td>${h.stockScore ?? '-'} ${gradeChip(h.stockGrade)}</td>
-        <td><strong>${h.referenceSignal}</strong><div class="muted" style="white-space:normal;max-width:280px">${h.signalReason}</div></td>
+        <td><strong>${esc(h.referenceSignal)}</strong><div class="muted" style="white-space:normal;max-width:280px">${esc(h.signalReason)}</div></td>
       </tr>`).join('');
     html += `<div class="card"><div class="table-wrap"><table>
       <thead><tr><th>종목</th><th>수량</th><th>평단→현재</th><th>손익</th><th>점수</th><th>참고 신호</th></tr></thead>
@@ -197,8 +476,8 @@ function renderReco() {
   if (!d || !d.performance || d.performance.length === 0) return '<div class="card empty">추천 이력이 아직 없습니다. B등급 이상 종목이 나오면 자동 기록됩니다.</div>';
   const rows = d.performance.map(p => `
     <tr>
-      <td><strong>${p.name}</strong> <span class="muted">${p.ticker}</span>${mktChip(p.market)}</td>
-      <td>${p.recommendedDate} <span class="muted">(${p.holdingDays}일)</span></td>
+      <td><strong>${esc(p.name)}</strong> <span class="muted">${esc(p.ticker)}</span>${mktChip(p.market)}</td>
+      <td>${esc(p.recommendedDate)} <span class="muted">(${p.holdingDays}일)</span></td>
       <td>${gradeChip(p.gradeAtRecommendation)} ${p.scoreAtRecommendation}</td>
       <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
       <td>${fmtPct(p.changePct)}</td>
@@ -222,7 +501,7 @@ function renderBacktestMarket(title, benchName, d) {
   html += `<div class="table-wrap" style="margin-top:10px"><table>
     <thead><tr><th>등급</th><th>20일 평균</th><th>60일 평균</th><th>120일 평균</th></tr></thead>
     <tbody>${gradeRows}</tbody></table></div>`;
-  html += `${(d.verdicts || []).map(v => `<p class="muted" style="margin-top:6px">• ${v}</p>`).join('')}</div>`;
+  html += `${(d.verdicts || []).map(v => `<p class="muted" style="margin-top:6px">• ${esc(v)}</p>`).join('')}</div>`;
   return html;
 }
 
@@ -230,7 +509,7 @@ function renderBacktest() {
   const d = state.backtest;
   if (!d || d.status !== 'ok') {
     const msg = d && d.message ? d.message : '이력이 쌓이면 (약 1개월 후부터) 주간 백테스트 결과가 표시됩니다.';
-    return `<div class="card empty">${msg}</div>`;
+    return `<div class="card empty">${esc(msg)}</div>`;
   }
   const m = d.markets || {};
   let html = `<div class="card muted">이력 ${d.historyDays}일 누적 | 갱신 ${new Date(d.updatedAt).toLocaleDateString('ko-KR')}</div>`;
@@ -280,22 +559,22 @@ function renderCycle() {
   if (cp) {
     html += `<div class="card"><div class="egg-wrap">${renderEggSvg(c)}
       <div style="flex:1;min-width:260px">
-        <h2><span class="phase-tag ph-${cp.id}">${cp.id}</span>현재 국면: ${cp.label}</h2>
-        <p class="muted" style="margin-top:6px;line-height:1.6">${cp.note}</p>
+        <h2><span class="phase-tag ph-${cp.id}">${cp.id}</span>현재 국면: ${esc(cp.label)}</h2>
+        <p class="muted" style="margin-top:6px;line-height:1.6">${esc(cp.note)}</p>
         <p style="margin-top:10px;font-size:13px">역사적 강세 섹터:
-          ${(cp.favorableSectors || []).map(s => `<span class="sector-tag">${s}</span>`).join('')}</p>
-        <p class="muted" style="margin-top:6px;font-size:12px">주의: ${(cp.cautionSectors || []).join(', ')}
-          <span class="muted">| 기준금리 ${cp.rateKR}% (${cp.asOf})</span></p>
+          ${(cp.favorableSectors || []).map(s => `<span class="sector-tag">${esc(s)}</span>`).join('')}</p>
+        <p class="muted" style="margin-top:6px;font-size:12px">주의: ${(cp.cautionSectors || []).map(esc).join(', ')}
+          <span class="muted">| 기준금리 ${cp.rateKR}% (${esc(cp.asOf)})</span></p>
       </div></div></div>`;
   }
-  html += `<div class="card"><h2>2000년 이후 사이클 타임라인</h2><p class="muted" style="margin-bottom:12px">${c.theory ? c.theory.summary : ''}</p><div class="cyc-tl">`;
+  html += `<div class="card"><h2>2000년 이후 사이클 타임라인</h2><p class="muted" style="margin-bottom:12px">${c.theory ? esc(c.theory.summary) : ''}</p><div class="cyc-tl">`;
   html += (c.timeline || []).map((t, i) => `
     <div class="cyc-item${i === 0 ? ' now' : ''}">
-      <div><span class="phase-tag ph-${t.phaseId}">${t.phase}</span><strong>${t.period}</strong>
-        <span class="muted" style="margin-left:8px">${t.rate}</span></div>
-      <div class="muted" style="margin:4px 0">${t.market}</div>
-      <div>${(t.leaders || []).map(l => `<span class="sector-tag">${l}</span>`).join('')}</div>
-      <div class="muted" style="font-size:12px;margin-top:3px">${t.events}</div>
+      <div><span class="phase-tag ph-${t.phaseId}">${esc(t.phase)}</span><strong>${esc(t.period)}</strong>
+        <span class="muted" style="margin-left:8px">${esc(t.rate)}</span></div>
+      <div class="muted" style="margin:4px 0">${esc(t.market)}</div>
+      <div>${(t.leaders || []).map(l => `<span class="sector-tag">${esc(l)}</span>`).join('')}</div>
+      <div class="muted" style="font-size:12px;margin-top:3px">${esc(t.events)}</div>
     </div>`).join('');
   html += `</div><p class="muted" style="margin-top:8px">⚠️ 과거 국면별 주도 섹터는 "그때 그랬다"는 기록이며, 같은 국면이 와도 같은 섹터가 주도한다는 보장은 없습니다. 참고 프레임으로만 사용하세요.</p></div>`;
   return html;
@@ -312,11 +591,60 @@ function render() {
   else el.innerHTML = renderBacktest();
 }
 
-document.getElementById('content').addEventListener('click', (e) => {
-  const btn = e.target.closest('.group-filter button');
-  if (!btn) return;
-  state.groupFilter = btn.dataset.group;
+/** 검색어는 innerHTML 재생성 시 포커스를 잃으므로 커서 위치를 복원한다 */
+function renderKeepingFocus() {
+  const el = document.getElementById('stockSearch');
+  const pos = el ? el.selectionStart : null;
   render();
+  const next = document.getElementById('stockSearch');
+  if (next && el) { next.focus(); if (pos !== null) next.setSelectionRange(pos, pos); }
+}
+
+document.getElementById('content').addEventListener('click', (e) => {
+  const t = e.target;
+
+  // 보기 전환
+  const view = t.closest('[data-view]');
+  if (view) { state.viewMode = view.dataset.view; return render(); }
+
+  // 필터 칩
+  const sec = t.closest('[data-sector]');
+  if (sec) { state.sectorFilter = sec.dataset.sector; return render(); }
+  const gr = t.closest('[data-grade]');
+  if (gr) { state.gradeFilter = gr.dataset.grade; return render(); }
+  const gp = t.closest('[data-group]');
+  if (gp) { state.groupFilter = gp.dataset.group; return render(); }
+
+  // 업종 비고 펼치기 (업종 헤더 토글보다 먼저 처리)
+  const nt = t.closest('[data-note-toggle]');
+  if (nt) { const k = nt.dataset.noteToggle; state.openNotes[k] = !state.openNotes[k]; return render(); }
+
+  // 종목 비고 버튼
+  const ib = t.closest('button.info-btn[data-row]');
+  if (ib) { const k = ib.dataset.row; state.openRows[k] = !state.openRows[k]; return render(); }
+
+  // 정렬
+  const sortTh = t.closest('th.sortable');
+  if (sortTh) {
+    const k = sortTh.dataset.sort;
+    if (state.sortKey === k) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    else { state.sortKey = k; state.sortDir = (k === 'name' || k === 'sector') ? 'asc' : 'desc'; }
+    return render();
+  }
+
+  // 업종 블록 접기
+  const st = t.closest('[data-sector-toggle]');
+  if (st) { const k = st.dataset.sectorToggle; state.collapsed[k] = !state.collapsed[k]; return render(); }
+
+  // 종목 행 클릭 → 비고 토글
+  const row = t.closest('tr.clickable[data-row]');
+  if (row) { const k = row.dataset.row; state.openRows[k] = !state.openRows[k]; return render(); }
+});
+
+document.getElementById('content').addEventListener('input', (e) => {
+  if (e.target.id !== 'stockSearch') return;
+  state.search = e.target.value;
+  renderKeepingFocus();
 });
 
 document.querySelectorAll('nav button').forEach(btn => {
@@ -334,6 +662,8 @@ document.querySelectorAll('nav button').forEach(btn => {
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
+  // 종목이 많을 때만 업종별 보기를 기본값으로 (20종목이면 전체 목록이 더 편하다)
+  if (state.latest && state.latest.results && state.latest.results.length <= 30) state.viewMode = 'list';
   render();
 })();
 </script>
