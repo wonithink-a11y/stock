@@ -1,0 +1,367 @@
+{
+  "version": "1.1",
+  "description": "DART 기업개황 API(company.json)의 induty_code(한국표준산업분류 KSIC 코드)를 criteria.json의 sectorType으로 변환하는 매핑 테이블. 해결 순서: byTicker(수동, 최우선) → bySicPrefix(최장 일치) → byNamePattern(SIC로 못 풀린 경우만) → general(+ unmappedSector 경고).",
+  "resolutionOrder": [
+    "byTicker",
+    "bySicPrefix",
+    "byNamePattern",
+    "default"
+  ],
+  "default": "general",
+  "byTickerNote": "SIC 코드만으로는 틀리는 케이스를 손으로 고정합니다. verified=true 는 2026-07-16 기준 시가총액 순위 페이지에서 종목코드·종목명 쌍을 직접 읽어 확인한 항목이고, verified=false 는 미검증(참고용, watchlist에 없으면 사용되지 않음)입니다. 리졸버가 watchlist의 종목명과 대조해 다르면 tickerNameMismatch를 경고하므로, 종목코드를 잘못 적어도 조용히 오분류되지 않습니다.",
+  "byTicker": {
+    "000100": {
+      "sectorType": "bio",
+      "name": "유한양행",
+      "verified": true
+    },
+    "000150": {
+      "sectorType": "holding",
+      "name": "두산",
+      "verified": true
+    },
+    "000720": {
+      "sectorType": "construction",
+      "name": "현대건설",
+      "verified": true
+    },
+    "000810": {
+      "sectorType": "financial",
+      "name": "삼성화재",
+      "verified": true
+    },
+    "000880": {
+      "sectorType": "holding",
+      "name": "한화",
+      "verified": true
+    },
+    "001040": {
+      "sectorType": "holding",
+      "name": "CJ",
+      "verified": false
+    },
+    "003490": {
+      "sectorType": "airline",
+      "name": "대한항공",
+      "verified": true
+    },
+    "003550": {
+      "sectorType": "holding",
+      "name": "LG",
+      "verified": true
+    },
+    "004990": {
+      "sectorType": "holding",
+      "name": "롯데지주",
+      "verified": false
+    },
+    "005490": {
+      "sectorType": "holding",
+      "name": "POSCO홀딩스",
+      "verified": true
+    },
+    "005830": {
+      "sectorType": "financial",
+      "name": "DB손해보험",
+      "verified": true
+    },
+    "005940": {
+      "sectorType": "financial",
+      "name": "NH투자증권",
+      "verified": true
+    },
+    "006260": {
+      "sectorType": "holding",
+      "name": "LS",
+      "verified": true
+    },
+    "006280": {
+      "sectorType": "bio",
+      "name": "녹십자",
+      "verified": false
+    },
+    "006360": {
+      "sectorType": "construction",
+      "name": "GS건설",
+      "verified": false
+    },
+    "006800": {
+      "sectorType": "financial",
+      "name": "미래에셋증권",
+      "verified": true
+    },
+    "009540": {
+      "sectorType": "shipping",
+      "name": "HD한국조선해양",
+      "verified": true
+    },
+    "010140": {
+      "sectorType": "shipping",
+      "name": "삼성중공업",
+      "verified": true
+    },
+    "011200": {
+      "sectorType": "shipping",
+      "name": "HMM",
+      "verified": true
+    },
+    "012450": {
+      "sectorType": "general",
+      "name": "한화에어로스페이스",
+      "verified": true
+    },
+    "0126Z0": {
+      "sectorType": "bio",
+      "name": "삼성에피스홀딩스",
+      "verified": true
+    },
+    "015760": {
+      "sectorType": "utility",
+      "name": "한국전력",
+      "verified": true
+    },
+    "016360": {
+      "sectorType": "financial",
+      "name": "삼성증권",
+      "verified": true
+    },
+    "017670": {
+      "sectorType": "telecom",
+      "name": "SK텔레콤",
+      "verified": true
+    },
+    "024110": {
+      "sectorType": "financial",
+      "name": "기업은행",
+      "verified": true
+    },
+    "028050": {
+      "sectorType": "construction",
+      "name": "삼성E&A",
+      "verified": true
+    },
+    "028260": {
+      "sectorType": "general",
+      "name": "삼성물산",
+      "verified": true
+    },
+    "029780": {
+      "sectorType": "financial",
+      "name": "삼성카드",
+      "verified": true
+    },
+    "030200": {
+      "sectorType": "telecom",
+      "name": "KT",
+      "verified": true
+    },
+    "032640": {
+      "sectorType": "telecom",
+      "name": "LG유플러스",
+      "verified": true
+    },
+    "032830": {
+      "sectorType": "financial",
+      "name": "삼성생명",
+      "verified": true
+    },
+    "034730": {
+      "sectorType": "holding",
+      "name": "SK",
+      "verified": true
+    },
+    "036460": {
+      "sectorType": "utility",
+      "name": "한국가스공사",
+      "verified": false
+    },
+    "039490": {
+      "sectorType": "financial",
+      "name": "키움증권",
+      "verified": true
+    },
+    "042660": {
+      "sectorType": "shipping",
+      "name": "한화오션",
+      "verified": true
+    },
+    "047040": {
+      "sectorType": "construction",
+      "name": "대우건설",
+      "verified": true
+    },
+    "047810": {
+      "sectorType": "general",
+      "name": "한국항공우주",
+      "verified": true
+    },
+    "055550": {
+      "sectorType": "financial",
+      "name": "신한지주",
+      "verified": true
+    },
+    "068270": {
+      "sectorType": "bio",
+      "name": "셀트리온",
+      "verified": true
+    },
+    "071050": {
+      "sectorType": "financial",
+      "name": "한국금융지주",
+      "verified": true
+    },
+    "078930": {
+      "sectorType": "holding",
+      "name": "GS",
+      "verified": true
+    },
+    "086790": {
+      "sectorType": "financial",
+      "name": "하나금융지주",
+      "verified": true
+    },
+    "088980": {
+      "sectorType": "reit",
+      "name": "맥쿼리인프라",
+      "verified": true
+    },
+    "105560": {
+      "sectorType": "financial",
+      "name": "KB금융",
+      "verified": true
+    },
+    "128940": {
+      "sectorType": "bio",
+      "name": "한미약품",
+      "verified": true
+    },
+    "138040": {
+      "sectorType": "financial",
+      "name": "메리츠금융지주",
+      "verified": false
+    },
+    "138930": {
+      "sectorType": "financial",
+      "name": "BNK금융지주",
+      "verified": true
+    },
+    "175330": {
+      "sectorType": "financial",
+      "name": "JB금융지주",
+      "verified": true
+    },
+    "180640": {
+      "sectorType": "holding",
+      "name": "한진칼",
+      "verified": true
+    },
+    "207940": {
+      "sectorType": "bio",
+      "name": "삼성바이오로직스",
+      "verified": true
+    },
+    "267250": {
+      "sectorType": "holding",
+      "name": "HD현대",
+      "verified": true
+    },
+    "298040": {
+      "sectorType": "general",
+      "name": "효성중공업",
+      "verified": true
+    },
+    "302440": {
+      "sectorType": "bio",
+      "name": "SK바이오사이언스",
+      "verified": false
+    },
+    "316140": {
+      "sectorType": "financial",
+      "name": "우리금융지주",
+      "verified": true
+    },
+    "323410": {
+      "sectorType": "financial",
+      "name": "카카오뱅크",
+      "verified": true
+    },
+    "326030": {
+      "sectorType": "bio",
+      "name": "SK바이오팜",
+      "verified": true
+    },
+    "329180": {
+      "sectorType": "shipping",
+      "name": "HD현대중공업",
+      "verified": true
+    },
+    "443060": {
+      "sectorType": "general",
+      "name": "HD현대마린솔루션",
+      "verified": true
+    }
+  },
+  "bySicPrefixNote": "KSIC 10차 기준. 키가 긴 것부터 일치시킵니다(최장 일치). 예: '311'(선박건조)은 '31'(기타 운송장비)보다 우선. 여기 없는 코드는 general로 떨어지며 unmappedSector 경고가 붙지 않습니다 — general은 '오분류'가 아니라 '기본 기준이 맞는 업종'이라는 뜻이기 때문입니다. 진짜 미분류(코드 자체를 못 받은 경우)만 경고합니다.",
+  "bySicPrefix": {
+    "64": "financial",
+    "65": "financial",
+    "66": "financial",
+    "35": "utility",
+    "41": "construction",
+    "42": "construction",
+    "50": "shipping",
+    "311": "shipping",
+    "51": "airline",
+    "61": "telecom",
+    "21": "bio",
+    "68": "reit"
+  },
+  "bySicPrefixCaveats": [
+    "68(부동산업)은 리츠와 부동산개발업이 섞여 있습니다. 개발업체가 코스피100에 들어오면 byTicker로 general 또는 construction으로 고정하세요.",
+    "21(의료용 물질 및 의약품)은 순수 제약사입니다. 바이오시밀러·CDMO 기업이 26(전자) 또는 20(화학)으로 잡히는 경우가 있어 byTicker 보정이 필요합니다.",
+    "64에는 비금융 지주회사가 섞여 들어오는 사례가 보고됩니다. 위 byTicker에 주요 지주사를 미리 고정해 둔 이유입니다.",
+    "50(수상운송)은 해운, 311(선박건조)은 조선입니다. 둘의 사이클 방향이 반대일 때가 있으나 현재는 같은 shipping 기준을 씁니다 — 백테스트 표본이 쌓이면 분리를 검토하세요."
+  ],
+  "byNamePatternNote": "SIC 코드를 받지 못했거나 bySicPrefix에서 안 풀린 경우에만 적용되는 최후 수단입니다. 순서대로 검사하며 첫 일치를 씁니다. 금융지주를 holding보다 먼저 두는 것이 중요합니다. ⚠ 사명 패턴은 오분류가 가장 잦은 경로입니다. 실측에서 '중공업'이 조선으로, '에어/항공우주'가 항공운송으로 잘못 잡혀 패턴을 좁혔습니다. resolvedBy가 byNamePattern인 종목은 반드시 눈으로 확인하세요.",
+  "byNamePattern": [
+    {
+      "pattern": "금융지주|금융그룹|은행$|증권$|화재$|해상화재|생명$|손해보험|캐피탈$|저축은행",
+      "sectorType": "financial"
+    },
+    {
+      "pattern": "리츠$|리츠[0-9]*호",
+      "sectorType": "reit"
+    },
+    {
+      "pattern": "홀딩스|지주$|그룹$",
+      "sectorType": "holding"
+    },
+    {
+      "pattern": "건설$|산업개발|엔지니어링",
+      "sectorType": "construction"
+    },
+    {
+      "pattern": "해운$|상선$|조선해양$|조선$",
+      "sectorType": "shipping"
+    },
+    {
+      "pattern": "항공$",
+      "sectorType": "airline"
+    },
+    {
+      "pattern": "제약$|약품$|바이오|파마|생명과학",
+      "sectorType": "bio"
+    },
+    {
+      "pattern": "텔레콤|통신$",
+      "sectorType": "telecom"
+    }
+  ],
+  "reviewChecklist": [
+    "verified=false 항목은 코스피100 확대 시 실제 사용되지 않습니다(watchlist 밖). 나중에 편입되면 코드를 먼저 확인할 것",
+    "코스피100 확대 직후 1회: 전 종목의 resolvedBy(byTicker/bySicPrefix/byNamePattern/default)와 sectorType을 표로 뽑아 눈으로 검수",
+    "resolvedBy가 'byNamePattern'인 종목은 오분류 위험이 가장 높으므로 byTicker로 승격",
+    "tickerNameMismatch 경고가 뜬 종목은 종목코드 오기입 — 즉시 수정",
+    "정기변경으로 신규 편입된 종목은 sectorType 지정 전까지 unmappedSector 경고가 유지되도록 방치할 것(조용히 general로 채점되는 것보다 안전)"
+  ]
+}
