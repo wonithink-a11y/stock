@@ -1,5 +1,5 @@
 /**
- * collect.js
+ * collect.js (v2 - 업종 전달 + 수집 안정화)
  *
  * 관심종목(한국+미국)의 시세·밸류에이션·기술지표·수급 데이터를 수집해
  * data/inputs.json 으로 저장합니다 (analyze.js의 입력).
@@ -14,34 +14,104 @@
  *  - PER/PBR: config/fundamentals.json 수동 입력 (분기 1회)
  *  - 수급: 없음 (KRX식 일별 수급 데이터가 미국엔 없음 - criteria-us.json에서 카테고리 비활성)
  *  [공통]
- *  - 재무(ROE/부채비율 등): config/fundamentals.json (수동 갱신, 추후 DART/SEC 자동화 지점)
+ *  - 재무(ROE/부채비율 등): config/fundamentals.json (fetch-fundamentals-kr.js가 분기 1회 갱신)
  *
  * 설계 원칙: 수집 실패는 에러로 죽지 않고 해당 필드를 결측(null)으로 남깁니다.
  * 스코어링 엔진이 결측을 커버리지로 처리하므로, 일부 소스가 죽어도 파이프라인은 계속 돕니다.
  *
  * ⚠️ 미국 시세는 시차 때문에 "전일(미국 기준) 종가"입니다. 평일 16:40 KST 실행 시점엔
  * 미국 장이 아직 안 열렸거나 마감 직후이므로 이게 정상 동작입니다.
+ *
+ * ── v1 → v2 변경점 ──────────────────────────────────────────────
+ * (1) 업종 정보 전달 [기능]
+ *     fetch-fundamentals-kr.js가 만든 sectorType·sectorResolved·debtRatioRaw를
+ *     종목 데이터에 실어 보냅니다. v1은 이 세 필드를 fundamentals.json에서 읽고도
+ *     stocks[].fundamental 에 넣지 않고 버려서, 업종별 채점 기준이 절대 적용되지
+ *     않았습니다(엔진·criteria가 준비돼 있어도 무용지물). 이번 수정의 핵심입니다.
+ *
+ * (2) 요청 안정화 [확장 대비]
+ *     v1은 종목 루프를 딜레이·재시도 없이 순차 실행했습니다. KR 종목당 요청 3회라
+ *     20종목이면 36회지만 코스피100이면 300회 연속이 되어 네이버 차단 위험이 큽니다.
+ *     - 종목 간 딜레이(REQUEST_DELAY_MS)
+ *     - 지수 백오프 재시도(MAX_RETRIES) + 요청 타임아웃
+ *     - 실패 종목만 모아 2차 재시도
+ *     - 그래도 실패하면 직전 inputs.json의 값으로 폴백(일봉은 하루 사이 크게 변하지 않음)
+ *     - 마지막에 실패 요약 출력
+ *     20종목에서는 실행시간이 ~10초 늘어나는 것 외에 동작이 동일합니다.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { resolveSector } = require('../lib/sectorResolver');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_DIR = path.join(ROOT, 'data');
+const INPUTS_PATH = path.join(DATA_DIR, 'inputs.json');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; stock-scoring-app)' };
 
-async function fetchText(url) {
-  const res = await fetch(url, { headers: UA });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
-  return res.text();
+// ---------- 수집 파라미터 ----------
+// 코스피100(KR 100종목 × 요청 3회 = 300회) 기준으로 넉넉하게 잡은 값입니다.
+// 속도보다 차단 회피를 우선했습니다. GitHub Actions는 6시간까지 허용하므로
+// 8~10분은 전혀 부담이 아닙니다. 실패해서 다시 도는 편이 훨씬 비쌉니다.
+//
+//   종목당 = 일봉(1회) + 0.6초 + PER/PBR(1회) + 0.6초 + 수급(1회) + 종목간 1.5초
+//          ≈ 4.0초  →  KR 100종목 약 6.7분, US 8종목 약 15초
+//
+// 더 느리게: COLLECT_DELAY_MS=3000 COLLECT_INTRA_DELAY_MS=1000 (약 13분)
+// 더 빠르게: COLLECT_DELAY_MS=500  COLLECT_INTRA_DELAY_MS=200  (약 2.5분, 차단 위험↑)
+const REQUEST_DELAY_MS = Number(process.env.COLLECT_DELAY_MS || 1500); // 종목 사이 간격
+const INTRA_DELAY_MS = Number(process.env.COLLECT_INTRA_DELAY_MS || 600); // 한 종목 내 요청 사이 간격
+const MAX_RETRIES = Number(process.env.COLLECT_MAX_RETRIES || 4);
+const TIMEOUT_MS = Number(process.env.COLLECT_TIMEOUT_MS || 15000);
+const RETRY_BASE_MS = 1500; // 지수 백오프 기준값 (1.5s → 3s → 6s, 429는 ×3)
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// 수집 실패 집계 (마지막에 요약 출력)
+const failures = [];
+function noteFailure(scope, target, message) {
+  failures.push({ scope, target, message });
 }
 
-async function fetchJson(url) {
-  const res = await fetch(url, { headers: UA });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
-  return res.json();
+// ---------- 재시도·타임아웃이 붙은 fetch ----------
+
+/** 재시도해도 의미 없는 상태코드(404 등)는 즉시 포기 */
+function isRetriable(status) {
+  if (status === undefined) return true; // 네트워크 오류
+  if (status === 429) return true; // 요청 과다 - 백오프 대상
+  return status >= 500;
 }
+
+async function fetchWithRetry(url, parse) {
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const res = await fetch(url, { headers: UA, signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) {
+        const err = new Error(`HTTP ${res.status}`);
+        err.status = res.status;
+        throw err;
+      }
+      return await parse(res);
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = e;
+      const status = e.status;
+      if (!isRetriable(status) || attempt === MAX_RETRIES) break;
+      // 429는 더 길게 쉰다 (차단 회피)
+      const wait = RETRY_BASE_MS * Math.pow(2, attempt - 1) * (status === 429 ? 3 : 1);
+      await sleep(wait);
+    }
+  }
+  throw lastErr;
+}
+
+const fetchText = (url) => fetchWithRetry(url, (res) => res.text());
+const fetchJson = (url) => fetchWithRetry(url, (res) => res.json());
 
 // ---------- 일봉 수집: 한국 (fchart: XML 형태) ----------
 
@@ -170,7 +240,7 @@ function computeTechnical(candles) {
 // ---------- 밸류에이션: 한국 (네이버 모바일 API) ----------
 
 async function fetchValuationInfoKR(code) {
-  const out = { per: null, pbr: null };
+  const out = { per: null, pbr: null, ok: false };
   try {
     const data = await fetchJson(`https://m.stock.naver.com/api/stock/${code}/integration`);
     const infos = data.totalInfos || [];
@@ -179,8 +249,10 @@ async function fetchValuationInfoKR(code) {
       if (info.code === 'per' && !Number.isNaN(value)) out.per = value;
       if (info.code === 'pbr' && !Number.isNaN(value)) out.pbr = value;
     }
+    out.ok = true;
   } catch (e) {
     console.warn(`  [경고] ${code} 밸류에이션 수집 실패: ${e.message}`);
+    noteFailure('valuation', code, e.message);
   }
   return out;
 }
@@ -211,6 +283,7 @@ async function fetchSupplyDemandKR(code) {
     };
   } catch (e) {
     console.warn(`  [경고] ${code} 수급 수집 실패: ${e.message}`);
+    noteFailure('supplyDemand', code, e.message);
     return { foreignTrend5d: null, institutionTrend5d: null };
   }
 }
@@ -223,6 +296,7 @@ async function fetchKospiClose() {
     return candles[candles.length - 1].close;
   } catch (e) {
     console.warn(`  [경고] KOSPI 지수 수집 실패: ${e.message}`);
+    noteFailure('index', 'KOSPI', e.message);
     return null;
   }
 }
@@ -233,6 +307,7 @@ async function fetchSpxClose() {
     return candles[candles.length - 1].close;
   } catch (e) {
     console.warn(`  [경고] S&P500 지수 수집 실패: ${e.message}`);
+    noteFailure('index', 'SPX', e.message);
     return null;
   }
 }
@@ -253,48 +328,90 @@ async function fetchUsdKrw() {
     };
   } catch (e) {
     console.warn(`  [경고] 환율 수집 실패: ${e.message}`);
+    noteFailure('fx', 'USDKRW', e.message);
     return null;
   }
 }
 
-// ---------- 메인 ----------
+// ---------- 업종 해석 ----------
 
-async function main() {
-  const watchlist = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'watchlist.json'), 'utf-8'));
-  const fundamentals = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'fundamentals.json'), 'utf-8'));
+/**
+ * fetch-fundamentals-kr.js가 넣어둔 sectorType을 우선 쓰고,
+ * 없으면 sicCode로 즉석 해석합니다(구버전 fundamentals.json 호환).
+ * 미국 종목은 sector-map이 한국 기준이라 항상 general로 둡니다.
+ */
+function resolveSectorFor(t, fund, market) {
+  if (market === 'US') {
+    return { sectorType: 'general', sectorResolved: true };
+  }
+  if (fund.sectorType) {
+    return {
+      sectorType: fund.sectorType,
+      sectorResolved: fund.sectorResolved !== undefined ? fund.sectorResolved : true,
+    };
+  }
+  try {
+    const r = resolveSector({ ticker: t.code, name: t.name, sicCode: fund.sicCode });
+    for (const w of r.warnings) console.warn(`  [업종] ${w.message}`);
+    return { sectorType: r.sectorType, sectorResolved: r.resolved };
+  } catch (e) {
+    // 리졸버가 죽어도 수집은 계속한다. general = 기존 v1과 동일한 채점.
+    console.warn(`  [경고] ${t.code} 업종 해석 실패(general로 진행): ${e.message}`);
+    noteFailure('sector', t.code, e.message);
+    return { sectorType: 'general', sectorResolved: false };
+  }
+}
 
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// ---------- 종목 1건 수집 ----------
 
-  const stocks = [];
-  for (const t of watchlist.tickers) {
-    const market = t.market || 'KR';
-    console.log(`수집 중: ${t.name} (${t.code}, ${market})`);
-    const fund = fundamentals.byTicker[t.code] || {};
+async function collectOne(t, fundamentals, prevByTicker) {
+  const market = t.market || 'KR';
+  const fund = fundamentals.byTicker[t.code] || {};
+  const prev = prevByTicker[t.code] || null;
 
-    let technical = {};
-    try {
-      const candles = market === 'US' ? await fetchDailyCandlesUS(t.code) : await fetchDailyCandlesKR(t.code);
-      technical = computeTechnical(candles);
-    } catch (e) {
-      console.warn(`  [경고] ${t.code} 일봉 수집 실패: ${e.message}`);
+  let technical = {};
+  let candlesOk = false;
+  try {
+    const candles = market === 'US' ? await fetchDailyCandlesUS(t.code) : await fetchDailyCandlesKR(t.code);
+    technical = computeTechnical(candles);
+    candlesOk = true;
+  } catch (e) {
+    console.warn(`  [경고] ${t.code} 일봉 수집 실패: ${e.message}`);
+    noteFailure('candles', t.code, e.message);
+    // 폴백: 직전 실행 결과의 기술지표를 그대로 사용 (하루 사이 크게 변하지 않음)
+    if (prev && prev.technical) {
+      technical = { ...prev.technical, currentPrice: prev.meta && prev.meta.currentPrice, lastDate: prev.meta && prev.meta.lastDate };
+      console.warn(`  [폴백] ${t.code} 직전 일봉 데이터 사용 (${technical.lastDate})`);
     }
+  }
 
-    let per = null;
-    let pbr = null;
-    let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
+  let per = null;
+  let pbr = null;
+  let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
 
-    if (market === 'US') {
-      // 미국: PER/PBR은 fundamentals.json 수동 입력, 수급 데이터 없음
-      per = fund.per ?? null;
-      pbr = fund.pbr ?? null;
-    } else {
-      const valuationInfo = await fetchValuationInfoKR(t.code);
-      per = valuationInfo.per;
-      pbr = valuationInfo.pbr;
-      supplyDemand = await fetchSupplyDemandKR(t.code);
+  if (market === 'US') {
+    // 미국: PER/PBR은 fundamentals.json 수동 입력, 수급 데이터 없음
+    per = fund.per ?? null;
+    pbr = fund.pbr ?? null;
+  } else {
+    await sleep(INTRA_DELAY_MS);
+    const valuationInfo = await fetchValuationInfoKR(t.code);
+    per = valuationInfo.per;
+    pbr = valuationInfo.pbr;
+    // 밸류에이션 실패 시 직전값 폴백
+    if (!valuationInfo.ok && prev && prev.valuation) {
+      per = prev.valuation.per ?? null;
+      pbr = prev.valuation.pbr ?? null;
     }
+    await sleep(INTRA_DELAY_MS);
+    supplyDemand = await fetchSupplyDemandKR(t.code);
+  }
 
-    stocks.push({
+  const sector = resolveSectorFor(t, fund, market);
+
+  return {
+    ok: candlesOk,
+    stock: {
       ticker: t.code,
       name: t.name,
       market,
@@ -306,6 +423,12 @@ async function main() {
         operatingMarginTrend: fund.operatingMarginTrend,
         revenueGrowthYoY: fund.revenueGrowthYoY,
         buybackOrDividendHistory: fund.buybackOrDividendHistory,
+        // [v2] 업종별 채점에 필요한 3개 필드. v1은 여기서 누락되어 있었다.
+        //  - debtRatioRaw: 금융업은 debtRatio가 null이고 원값이 여기 들어 있다
+        //  - sectorType/sectorResolved: 엔진의 업종 분기·미분류 경고 판단 근거
+        debtRatioRaw: fund.debtRatioRaw,
+        sectorType: sector.sectorType,
+        sectorResolved: sector.sectorResolved,
       },
       valuation: {
         perRelative: fund.perRelative,
@@ -332,12 +455,76 @@ async function main() {
         groups: t.groups || [],
         market,
       },
-    });
+    },
+  };
+}
+
+// ---------- 메인 ----------
+
+async function main() {
+  const watchlist = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'watchlist.json'), 'utf-8'));
+  const fundamentals = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'fundamentals.json'), 'utf-8'));
+
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+
+  // 직전 실행 결과 (수집 실패 시 폴백용)
+  let prevByTicker = {};
+  try {
+    if (fs.existsSync(INPUTS_PATH)) {
+      const prev = JSON.parse(fs.readFileSync(INPUTS_PATH, 'utf-8'));
+      prevByTicker = Object.fromEntries((prev.stocks || []).map((s) => [s.ticker, s]));
+    }
+  } catch (e) {
+    console.warn(`[경고] 직전 inputs.json 로드 실패(폴백 비활성): ${e.message}`);
+  }
+
+  const tickers = watchlist.tickers || [];
+  const stocks = [];
+  const retryQueue = [];
+
+  console.log(`수집 시작: ${tickers.length}종목 (딜레이 ${REQUEST_DELAY_MS}ms, 재시도 ${MAX_RETRIES}회)`);
+  const startedAt = Date.now();
+
+  for (let i = 0; i < tickers.length; i++) {
+    const t = tickers[i];
+    console.log(`[${i + 1}/${tickers.length}] ${t.name} (${t.code}, ${t.market || 'KR'})`);
+    const r = await collectOne(t, fundamentals, prevByTicker);
+    stocks.push(r.stock);
+    if (!r.ok) retryQueue.push({ index: stocks.length - 1, ticker: t });
+    if (i < tickers.length - 1) await sleep(REQUEST_DELAY_MS);
+  }
+
+  // 2차 재시도: 일봉 수집에 실패한 종목만, 더 긴 간격으로
+  if (retryQueue.length > 0) {
+    console.log(`\n2차 재시도: ${retryQueue.length}종목 (일봉 실패분)`);
+    await sleep(3000);
+    for (const { index, ticker } of retryQueue) {
+      console.log(`  재시도: ${ticker.name} (${ticker.code})`);
+      const r = await collectOne(ticker, fundamentals, prevByTicker);
+      if (r.ok) {
+        stocks[index] = r.stock;
+        console.log(`  ✓ ${ticker.code} 복구`);
+      }
+      await sleep(REQUEST_DELAY_MS * 2);
+    }
   }
 
   const kospiClose = await fetchKospiClose();
+  await sleep(INTRA_DELAY_MS);
   const spxClose = await fetchSpxClose();
+  await sleep(INTRA_DELAY_MS);
   const fx = await fetchUsdKrw();
+
+  const elapsed = Math.round((Date.now() - startedAt) / 1000);
+
+  // 업종 분포 요약 (확대 시 눈으로 검수하기 위한 것)
+  const sectorCount = {};
+  let unresolved = 0;
+  for (const s of stocks) {
+    const st = (s.fundamental && s.fundamental.sectorType) || 'general';
+    sectorCount[st] = (sectorCount[st] || 0) + 1;
+    if (s.fundamental && s.fundamental.sectorResolved === false) unresolved++;
+  }
 
   const output = {
     collectedAt: new Date().toISOString(),
@@ -345,9 +532,25 @@ async function main() {
     spxClose,
     fx,
     stocks,
+    _diagnostics: {
+      elapsedSec: elapsed,
+      requested: tickers.length,
+      collected: stocks.length,
+      candleFailures: retryQueue.length,
+      unresolvedSector: unresolved,
+      sectorCount,
+      failures: failures.slice(0, 50),
+    },
   };
-  fs.writeFileSync(path.join(DATA_DIR, 'inputs.json'), JSON.stringify(output, null, 2), 'utf-8');
-  console.log(`완료: ${stocks.length}개 종목 → data/inputs.json`);
+  fs.writeFileSync(INPUTS_PATH, JSON.stringify(output, null, 2), 'utf-8');
+
+  console.log(`\n완료: ${stocks.length}개 종목 → data/inputs.json (${elapsed}초)`);
+  console.log(`업종 분포: ${JSON.stringify(sectorCount)}`);
+  if (unresolved > 0) console.log(`⚠ 업종 미분류 ${unresolved}종목 — config/sector-map.json 확인 필요`);
+  if (failures.length > 0) {
+    console.log(`⚠ 수집 경고 ${failures.length}건`);
+    for (const f of failures.slice(0, 20)) console.log(`   ${f.scope} ${f.target}: ${f.message}`);
+  }
 }
 
 main().catch((e) => {

@@ -11,6 +11,12 @@
  * [v2.1] 일별 스냅샷에 그 시점의 시장 국면(regimeGrade/regimeScore)을 함께 기록합니다.
  *        backtester 의 국면 조건부 분석("우호 국면에서만 진입했다면 승률은?")에 사용됩니다.
  *        ⚠️ 반드시 '그날 판단된 국면'이어야 합니다(사후 국면을 넣으면 look-ahead bias).
+ *
+ * [v2.2] 일별 스냅샷과 latest.json 에 universeVersion / universeSize 를 기록합니다.
+ *        관심종목을 20종목 → 100종목으로 늘리면 그 전후 스냅샷의 모집단이 달라집니다.
+ *        이걸 구분하지 않고 백테스트를 돌리면 "종목이 늘어서 생긴 통계 변화"를
+ *        "전략이 좋아졌다"로 오독하게 됩니다. 표본 구간을 나누기 위한 최소 장치입니다.
+ *        ⚠️ 유니버스를 바꿀 때마다 watchlist.json 의 universeVersion 을 반드시 새로 부여할 것.
  */
 
 const fs = require('fs');
@@ -65,6 +71,8 @@ function main() {
 
   // 2. 관심종목 스코어링 (시장별 기준 적용)
   const watchlist = loadJson(path.join(ROOT, 'config', 'watchlist.json'), { groupLabels: {} });
+  // [v2.2] 유니버스 식별자. 미지정이면 'legacy'로 남겨 이후 구간과 구분할 수 있게 한다.
+  const universeVersion = watchlist.universeVersion || 'legacy';
   const results = inputs.stocks.map((s) => {
     const market = s.market || s.meta.market || 'KR';
     const r = scoreStock(s, criteriaFor(market));
@@ -74,6 +82,8 @@ function main() {
   saveJson(path.join(OUT_DIR, 'latest.json'), {
     updatedAt: inputs.collectedAt,
     regime: { grade: regime.grade, score: regime.regimeScore },
+    universeVersion,
+    universeSize: results.length,
     groupLabels: watchlist.groupLabels || {},
     results,
   });
@@ -123,6 +133,8 @@ function main() {
     date: today,
     regimeGrade: regime.grade, // [v2.1] 국면 조건부 백테스트용
     regimeScore: regime.regimeScore, // [v2.1] 국면 점수(연속값) - 추후 구간 분석용
+    universeVersion, // [v2.2] 유니버스가 바뀐 구간을 섞어서 집계하지 않기 위한 표식
+    universeSize: inputs.stocks.length,
     kospiClose: inputs.kospiClose,
     spxClose: inputs.spxClose ?? null,
     stocks: inputs.stocks.map((s) => ({
@@ -135,13 +147,38 @@ function main() {
   });
 
   // 알림용: 직전 결과 보관 후 이번 결과로 교체
+  // [v2.2] notify.js가 (a) 유니버스가 바뀐 날을 감지하고 (b) 종목 뒤에 업종 태그를 붙일 수 있도록
+  //        universeVersion과 업종 요약을 함께 저장합니다.
   const prevPath = path.join(OUT_DIR, 'previous.json');
-  const latestForDiff = { results: results.map((r) => ({ ticker: r.ticker, name: r.name, totalScore: r.totalScore, grade: r.grade, warnings: r.warnings })) };
+  const latestForDiff = {
+    universeVersion,
+    universeSize: results.length,
+    results: results.map((r) => ({
+      ticker: r.ticker,
+      name: r.name,
+      totalScore: r.totalScore,
+      grade: r.grade,
+      warnings: r.warnings,
+      sectorType: r.sectorType || 'general',
+      sectorLabel: r.sectorCaution ? r.sectorCaution.label : null,
+      sectorConfidence: r.sectorCaution ? r.sectorCaution.confidence : null,
+    })),
+  };
   const lastSaved = loadJson(path.join(OUT_DIR, 'current-summary.json'), null);
   if (lastSaved) saveJson(prevPath, lastSaved);
   saveJson(path.join(OUT_DIR, 'current-summary.json'), latestForDiff);
 
+  // 업종 분포·미분류 요약 (확대 후 눈으로 검수하기 위한 것)
+  const sectorCount = {};
+  let unmapped = 0;
+  for (const r of results) {
+    sectorCount[r.sectorType || 'general'] = (sectorCount[r.sectorType || 'general'] || 0) + 1;
+    if ((r.warnings || []).includes('unmappedSector')) unmapped++;
+  }
+
   console.log(`분석 완료: 종목 ${results.length}건, 국면 ${regime.grade}(${regime.regimeScore}점), 보유신호 ${holdings.length}건`);
+  console.log(`유니버스: ${universeVersion} / 업종 분포: ${JSON.stringify(sectorCount)}`);
+  if (unmapped > 0) console.log(`⚠ 업종 미분류 ${unmapped}종목 — config/sector-map.json 확인 필요`);
 }
 
 main();
