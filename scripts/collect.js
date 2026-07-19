@@ -39,9 +39,12 @@ const INTRA_DELAY_MS = Number(process.env.COLLECT_INTRA_DELAY_MS || 600); // 한
 const MAX_RETRIES = Number(process.env.COLLECT_MAX_RETRIES || 4);
 const TIMEOUT_MS = Number(process.env.COLLECT_TIMEOUT_MS || 15000);
 const RETRY_BASE_MS = 1500; // 지수 백오프 기준값 (1.5s → 3s → 6s, 429는 ×3)
-// [v3] inputs.json / prices.json 에 저장할 일봉 개수. 140개를 받아 기술지표는
-// 전부 쓰되, 저장은 최근 120일만(차트·스파크라인엔 충분, 파일 크기 절약).
-const CANDLE_KEEP = Number(process.env.COLLECT_CANDLE_KEEP || 120);
+// [v3.1] inputs.json / prices.json 에 저장할 일봉 개수.
+//  - CANDLE_FETCH: fchart/stooq에서 받아올 개수(260 ≈ 1년 거래일). 기술지표+1년 수익률용.
+//  - CANDLE_KEEP:  저장 개수(250). 1D/1W/1M/3M/6M/1Y/YTD 등락률과 차트 기간 토글(전체=1년)에 사용.
+//  파일 크기: 100종목×250일이면 prices.json ≈ 2MB 안팎(CDN 배포에 무리 없음).
+const CANDLE_FETCH = Number(process.env.COLLECT_CANDLE_FETCH || 260);
+const CANDLE_KEEP = Number(process.env.COLLECT_CANDLE_KEEP || 250);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -368,7 +371,7 @@ async function collectOne(t, fundamentals, prevByTicker) {
   let candlesOk = false;
   let candles = []; // [v3] 저장용 compact 일봉 시계열
   try {
-    const rawCandles = market === 'US' ? await fetchDailyCandlesUS(t.code) : await fetchDailyCandlesKR(t.code);
+    const rawCandles = market === 'US' ? await fetchDailyCandlesUS(t.code, CANDLE_FETCH) : await fetchDailyCandlesKR(t.code, CANDLE_FETCH);
     technical = computeTechnical(rawCandles);
     candles = toCompactCandles(rawCandles); // [v3]
     candlesOk = true;
