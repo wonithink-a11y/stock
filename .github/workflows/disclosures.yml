@@ -1,0 +1,42 @@
+name: Fetch disclosures (DART)
+
+# 관심종목(watchlist)의 DART 공시를 매일 조회해 docs/data/disclosures.json 갱신 + 텔레그램 알림.
+# 인증키는 저장소 Secrets 로만 주입한다 (코드에 하드코딩 금지).
+
+on:
+  schedule:
+    # 평일 저녁 (09:10 UTC = 18:10 KST) — 장 마감·정정공시 반영 후. 필요시 오전 조도 추가 가능.
+    - cron: '10 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: disclosures-json
+  cancel-in-progress: false
+
+jobs:
+  disclosures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch disclosures from DART
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/fetch-disclosures-kr.js
+
+      - name: Commit disclosures.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/disclosures.json
+          git diff --staged --quiet || git commit -m "chore: update disclosures from DART"
+          git push
