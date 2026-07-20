@@ -22,12 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.11'
 
-      - name: Fetch market flows from KRX
-        run: node scripts/fetch-market-flows-kr.js
+      - name: Install pykrx
+        run: pip install pykrx
+
+      - name: Fetch market flows from KRX (pykrx)
+        run: python scripts/fetch_market_flows.py
 
       - name: Commit market_flows.json
         run: |
