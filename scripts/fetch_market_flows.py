@@ -28,16 +28,33 @@ def last_biz(off=0):
     return d.strftime("%Y%m%d")
 
 
+def _net_series(df):
+    """단일컬럼('순매수') / 멀티컬럼(('거래대금','순매수')) 모두에서 순매수 열을 찾아 반환."""
+    cols = list(df.columns)
+    for c in cols:  # 멀티레벨: 금액×순매수 우선
+        if isinstance(c, tuple) and c[-1] == "순매수" and ("거래대금" in c or "금액" in c):
+            return df[c]
+    for c in cols:  # 멀티레벨: 아무 순매수
+        if isinstance(c, tuple) and c[-1] == "순매수":
+            return df[c]
+    if "순매수" in cols:
+        return df["순매수"]
+    return None
+
+
 def fetch(market, start, end):
     df = stock.get_market_trading_value_by_investor(start, end, market)
     print("[%s] index=%s" % (market, list(df.index)))
     print("[%s] columns=%s" % (market, list(df.columns)))
-    netcol = "순매수" if "순매수" in df.columns else df.columns[-1]
+    s = _net_series(df)
+    if s is None:
+        print("[%s] 순매수 컬럼을 찾지 못함 → 위 columns 확인 필요" % market)
+        return []
     items = []
-    for idx, row in df.iterrows():
-        name = str(idx).strip()
+    for name, net in s.items():
+        name = str(name).strip()
         try:
-            net = int(row[netcol])
+            net = int(net)
         except Exception:
             continue
         items.append({"name": name, "net": net, "agg": name in AGG})
