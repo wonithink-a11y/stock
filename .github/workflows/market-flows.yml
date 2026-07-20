@@ -1,0 +1,43 @@
+name: Fetch market flows (KRX)
+
+# 코스피/코스닥 투자자별 매매동향(순매수)을 KRX에서 받아 docs/data/market_flows.json 갱신.
+# 첫 실행은 응답 컬럼 구조를 로그로 확인하는 용도(Actions 로그 확인).
+
+on:
+  schedule:
+    # 평일 저녁 09:20 UTC = 18:20 KST (장 마감·집계 후)
+    - cron: '20 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-flows-json
+  cancel-in-progress: false
+
+jobs:
+  market-flows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch market flows from KRX
+        run: node scripts/fetch-market-flows-kr.js
+
+      - name: Commit market_flows.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/market_flows.json
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore: update market flows from KRX"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push 재시도 $i..."; sleep 5
+          done
+          echo "push 최종 실패"; exit 1
