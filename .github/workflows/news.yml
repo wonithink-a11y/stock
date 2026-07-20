@@ -1,0 +1,43 @@
+name: Fetch news (Naver)
+
+# 관심종목 뉴스 + 시장 주요뉴스를 네이버 검색 API로 수집해 docs/data/news.json 갱신 + 키워드 알림.
+# 인증키는 저장소 Secrets 로만 주입한다 (코드에 하드코딩 금지).
+
+on:
+  schedule:
+    # 평일 장중(00:00~06:30 UTC = 09:00~15:30 KST) 30분마다 + 장 마감 직후 1회
+    - cron: '0,30 0-6 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: news-json
+  cancel-in-progress: false
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch news from Naver
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/fetch-news-kr.js
+
+      - name: Commit news.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/news.json
+          git diff --staged --quiet || git commit -m "chore: update news from Naver"
+          git push
