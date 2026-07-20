@@ -1,14 +1,12 @@
 {
-  "updatedAt": "2026-07-20T15:54:52.770Z",
-  "source": "KRX MDCSTAT02201",
+  "updatedAt": "2026-07-20T16:00:45.489491Z",
+  "period": {
+    "start": "20260619",
+    "end": "20260720"
+  },
+  "source": "pykrx get_market_trading_value_by_investor",
   "markets": {
-    "KOSPI": {
-      "rows": [],
-      "error": "HTTP 400"
-    },
-    "KOSDAQ": {
-      "rows": [],
-      "error": "HTTP 400"
-    }
+    "KOSPI": [],
+    "KOSDAQ": []
   }
 }
