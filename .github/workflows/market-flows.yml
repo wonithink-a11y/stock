@@ -30,6 +30,9 @@ jobs:
         run: pip install pykrx
 
       - name: Fetch market flows from KRX (pykrx)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}       # data.krx.co.kr 무료 계정 (세부 투자자 데이터용)
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python scripts/fetch_market_flows.py
 
       - name: Commit market_flows.json
