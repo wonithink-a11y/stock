@@ -1,17 +1,23 @@
-# 평일 장 마감 후 자동 실행: 수집 → 분석 → 결과 커밋 → 알림
-# cron은 UTC 기준입니다. 07:40 UTC = 16:40 KST (장 마감 15:30 이후 여유 포함)
 name: daily-analysis
+
+# 일일 파이프라인: collect(시세·재무·수급 수집) → analyze(국면·스코어링·포트폴리오·추천이력)
+#                 → notify(텔레그램/슬랙 알림) → docs/data/*.json 커밋
+# 대시보드는 이 JSON을 raw.githubusercontent 로 읽어 자동 반영됩니다(서버 재배포 불필요).
+# 키는 저장소 Secrets 로만 주입한다 (코드에 하드코딩 금지).
+#
+# GitHub 경로: .github/workflows/daily-analysis.yml
 
 on:
   schedule:
+    # 평일 16:40 KST = 07:40 UTC (장 마감 후)
     - cron: '40 7 * * 1-5'
-  workflow_dispatch: # Actions 탭에서 수동 실행 가능
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: analysis
+  group: main-push
   cancel-in-progress: false
 
 jobs:
@@ -22,30 +28,32 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
 
-      - name: 데이터 수집
+      - name: Collect market data
         run: node scripts/collect.js
 
-      - name: 스코어링 분석
+      - name: Analyze & score
         run: node scripts/analyze.js
 
-      - name: 결과 커밋
-        run: |
-          git config user.name "stock-scoring-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add docs/data
-          if git diff --cached --quiet; then
-            echo "변경 없음 - 커밋 생략"
-          else
-            git commit -m "chore: daily analysis $(date -u +'%Y-%m-%d')"
-            git push
-          fi
-
-      - name: 알림 전송
-        if: always()
+      - name: Notify (telegram/slack)
+        continue-on-error: true   # 알림 실패가 파이프라인을 죽이지 않도록
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: node scripts/notify.js
+
+      - name: Commit results
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore: daily analysis $(date -u +%Y-%m-%d)"
+          # 동시 실행되는 다른 워크플로와의 푸시 경합(fetch first) 방지: rebase 후 재시도
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push 재시도 $i..."; sleep 5
+          done
+          echo "push 최종 실패"; exit 1
