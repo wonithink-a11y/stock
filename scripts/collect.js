@@ -244,19 +244,40 @@ function computeTechnical(candles) {
 // ---------- 밸류에이션: 한국 (네이버 모바일 API) ----------
 
 async function fetchValuationInfoKR(code) {
-  const out = { per: null, pbr: null, ok: false };
+  const out = { per: null, pbr: null, industryPer: null, ok: false };
+  const toNum = (v) => parseFloat(String(v).replace(/[,배%\s]/g, ''));
   try {
     const data = await fetchJson(`https://m.stock.naver.com/api/stock/${code}/integration`);
     const infos = data.totalInfos || [];
     for (const info of infos) {
-      const value = parseFloat(String(info.value).replace(/[,배]/g, ''));
-      if (info.code === 'per' && !Number.isNaN(value)) out.per = value;
-      if (info.code === 'pbr' && !Number.isNaN(value)) out.pbr = value;
+      const value = toNum(info.value);
+      if (Number.isNaN(value)) continue;
+      if (info.code === 'per') out.per = value;
+      else if (info.code === 'pbr') out.pbr = value;
+      // 동일업종 PER: 네이버 필드명이 버전마다 달라 코드/라벨을 방어적으로 탐색
+      else if (/industry.*per|sameindustry.*per|upjong.*per/i.test(info.code || '') ||
+               /동일\s*업종\s*per/i.test(`${info.key || ''}${info.name || ''}${info.title || ''}`)) {
+        out.industryPer = value;
+      }
     }
     out.ok = true;
   } catch (e) {
     console.warn(`  [경고] ${code} 밸류에이션 수집 실패: ${e.message}`);
     noteFailure('valuation', code, e.message);
+  }
+  // 통합 API에 동일업종 PER이 없으면 데스크톱 종목 페이지 HTML에서 폴백 추출.
+  // (네이버 데스크톱은 EUC-KR 인코딩이라 UTF-8로 읽으면 한글이 깨져 매칭 실패 → 바이트를 EUC-KR로 디코드)
+  if (out.industryPer === null) {
+    try {
+      const html = await fetchWithRetry(
+        `https://finance.naver.com/item/main.naver?code=${code}`,
+        async (res) => new TextDecoder('euc-kr').decode(Buffer.from(await res.arrayBuffer()))
+      );
+      const m = html.match(/동일업종\s*PER[\s\S]{0,240}?(-?[\d,]+\.\d+)\s*배/);
+      if (m) { const v = toNum(m[1]); if (!Number.isNaN(v) && v > 0) out.industryPer = v; }
+    } catch (e) {
+      noteFailure('industryPer', code, e.message);
+    }
   }
   return out;
 }
@@ -388,6 +409,7 @@ async function collectOne(t, fundamentals, prevByTicker) {
 
   let per = null;
   let pbr = null;
+  let industryPer = null;
   let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
 
   if (market === 'US') {
@@ -398,6 +420,7 @@ async function collectOne(t, fundamentals, prevByTicker) {
     const valuationInfo = await fetchValuationInfoKR(t.code);
     per = valuationInfo.per;
     pbr = valuationInfo.pbr;
+    industryPer = valuationInfo.industryPer;
     if (!valuationInfo.ok && prev && prev.valuation) {
       per = prev.valuation.per ?? null;
       pbr = prev.valuation.pbr ?? null;
@@ -405,6 +428,12 @@ async function collectOne(t, fundamentals, prevByTicker) {
     await sleep(INTRA_DELAY_MS);
     supplyDemand = await fetchSupplyDemandKR(t.code);
   }
+
+  // PER 업종평균 대비 배율: 동일업종 PER을 받았으면 개별PER/업종PER, 없으면 재무파일 값 폴백
+  const perRelative =
+    typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0
+      ? Math.round((per / industryPer) * 1000) / 1000
+      : (fund.perRelative ?? null);
 
   const sector = resolveSectorFor(t, fund, market);
 
@@ -427,7 +456,8 @@ async function collectOne(t, fundamentals, prevByTicker) {
         sectorResolved: sector.sectorResolved,
       },
       valuation: {
-        perRelative: fund.perRelative,
+        perRelative,
+        industryPer,
         pbr,
         per,
         epsGrowthRate: fund.epsGrowthRate,
