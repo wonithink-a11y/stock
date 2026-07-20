@@ -68,7 +68,8 @@ function main() {
   const results = inputs.stocks.map((s) => {
     const market = s.market || s.meta.market || 'KR';
     const r = scoreStock(s, criteriaFor(market));
-    return { ...r, market, currentPrice: s.meta.currentPrice, lastDate: s.meta.lastDate, groups: s.meta.groups || [] };
+    return { ...r, market, currentPrice: s.meta.currentPrice, lastDate: s.meta.lastDate, groups: s.meta.groups || [],
+             flows: (s.supplyDemand && s.supplyDemand.flows) || [] };
   });
   results.sort((a, b) => (b.totalScore ?? -1) - (a.totalScore ?? -1));
   saveJson(path.join(OUT_DIR, 'latest.json'), {

@@ -297,19 +297,26 @@ function netBuysToTrend(netBuys) {
 
 async function fetchSupplyDemandKR(code) {
   try {
-    const data = await fetchJson(`https://m.stock.naver.com/api/stock/${code}/trend?pageSize=5&page=1`);
+    const data = await fetchJson(`https://m.stock.naver.com/api/stock/${code}/trend?pageSize=20&page=1`);
     const rows = Array.isArray(data) ? data : data.trends || data.result || [];
-    const parseNum = (v) => Number(String(v).replace(/,/g, ''));
-    const foreign = rows.map((r) => parseNum(r.foreignerPureBuyQuant ?? r.frgn_qty ?? NaN)).filter((v) => !Number.isNaN(v));
-    const organ = rows.map((r) => parseNum(r.organPureBuyQuant ?? r.orgn_qty ?? NaN)).filter((v) => !Number.isNaN(v));
+    const num = (v) => { const n = Number(String(v ?? '').replace(/,/g, '')); return Number.isNaN(n) ? null : n; };
+    // 일별 투자자 순매수(수량). naver는 최신→과거 순 → 과거→최신으로 뒤집어 시계열 저장.
+    const flows = rows.map((r) => ({
+      date: String(r.bizdate ?? r.localTradedAt ?? r.dt ?? '').replace(/[^0-9]/g, '').slice(0, 8),
+      indiv: num(r.individualPureBuyQuant ?? r.individ_qty ?? r.indi_qty),
+      foreign: num(r.foreignerPureBuyQuant ?? r.frgn_qty),
+      org: num(r.organPureBuyQuant ?? r.orgn_qty),
+    })).reverse();
+    const recent5 = (k) => flows.slice(-5).map((f) => f[k]).filter((v) => v != null);
     return {
-      foreignTrend5d: netBuysToTrend(foreign),
-      institutionTrend5d: netBuysToTrend(organ),
+      foreignTrend5d: netBuysToTrend(recent5('foreign')),
+      institutionTrend5d: netBuysToTrend(recent5('org')),
+      flows,
     };
   } catch (e) {
     console.warn(`  [경고] ${code} 수급 수집 실패: ${e.message}`);
     noteFailure('supplyDemand', code, e.message);
-    return { foreignTrend5d: null, institutionTrend5d: null };
+    return { foreignTrend5d: null, institutionTrend5d: null, flows: [] };
   }
 }
 
@@ -474,6 +481,7 @@ async function collectOne(t, fundamentals, prevByTicker) {
       supplyDemand: {
         foreignTrend5d: supplyDemand.foreignTrend5d,
         institutionTrend5d: supplyDemand.institutionTrend5d,
+        flows: supplyDemand.flows || [],
       },
       // [v3] 대시보드 스파크라인·차트용 일봉 시계열 (compact: d/o/h/l/c/v, 최근 CANDLE_KEEP일)
       candles,
