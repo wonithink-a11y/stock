@@ -1,25 +1,23 @@
 {
-  "updatedAt": "2026-07-20T15:30:43.992Z",
-  "marketRegime": "neutral",
+  "updatedAt": "2026-07-21T10:13:33.550Z",
+  "marketRegime": "caution",
   "holdings": [
     {
       "ticker": "005930",
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 244000,
-      "currentValue": 2440000,
+      "currentPrice": 259000,
+      "currentValue": 2590000,
       "investedValue": 700000,
-      "unrealizedPnL": 1740000,
-      "unrealizedPnLPct": 248.57,
-      "stockScore": 60,
+      "unrealizedPnL": 1890000,
+      "unrealizedPnLPct": 270,
+      "stockScore": 63.5,
       "stockGrade": "C (중립/관찰)",
-      "stockWarnings": [
-        "deadCatBounce"
-      ],
-      "marketRegime": "neutral",
+      "stockWarnings": [],
+      "marketRegime": "caution",
       "referenceSignal": "유지 (중립 관찰)",
-      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
+      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -62,7 +60,7 @@
           }
         },
         "valuation": {
-          "score": 53.9,
+          "score": 53.2,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -71,17 +69,17 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.39,
+              "raw": 3.6,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.5904191616766467,
-              "score": 94.5748502994012
+              "peg": 0.6266467065868264,
+              "score": 92.40119760479041
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.7237014435994031,
+              "marginOfSafety": -0.8299726773916598,
               "score": 0
             }
           }
@@ -96,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 32.8,
+              "value": 34,
               "score": 45
             },
             "macd": {
@@ -112,7 +110,7 @@
           }
         },
         "supplyDemand": {
-          "score": 51.3,
+          "score": 70,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
@@ -121,8 +119,8 @@
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
+              "trend": "netBuy",
+              "score": 70
             },
             "largeShareholderChange": {
               "label": "대주주 지분율 변동",
