@@ -1,21 +1,21 @@
 {
-  "updatedAt": "2026-07-22T10:11:43.147Z",
-  "marketRegime": "neutral",
+  "updatedAt": "2026-07-23T10:09:59.329Z",
+  "marketRegime": "caution",
   "holdings": [
     {
       "ticker": "005930",
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 260500,
-      "currentValue": 2605000,
+      "currentPrice": 270000,
+      "currentValue": 2700000,
       "investedValue": 700000,
-      "unrealizedPnL": 1905000,
-      "unrealizedPnLPct": 272.14,
-      "stockScore": 58.2,
+      "unrealizedPnL": 2000000,
+      "unrealizedPnLPct": 285.71,
+      "stockScore": 60.2,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
-      "marketRegime": "neutral",
+      "marketRegime": "caution",
       "referenceSignal": "유지 (중립 관찰)",
       "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
       "breakdown": {
@@ -60,7 +60,7 @@
           }
         },
         "valuation": {
-          "score": 53.2,
+          "score": 52.7,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -69,33 +69,33 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.62,
+              "raw": 3.75,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.6305389221556886,
-              "score": 92.16766467065868
+              "peg": 0.6532934131736527,
+              "score": 90.80239520958084
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.8407389820395503,
+              "marginOfSafety": -0.9070046320517071,
               "score": 0
             }
           }
         },
         "technical": {
-          "score": 26.8,
+          "score": 41,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
-              "signal": "deadCross",
-              "score": 0
+              "signal": "belowBothMA",
+              "score": 30
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 37.5,
-              "score": 45
+              "value": 45.9,
+              "score": 70
             },
             "macd": {
               "label": "MACD",
