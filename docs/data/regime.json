@@ -1,14 +1,16 @@
 {
-  "updatedAt": "2026-07-24T10:05:34.264Z",
+  "updatedAt": "2026-07-27T11:02:27.476Z",
   "grade": "caution",
-  "score": 39.4,
+  "score": 42.5,
   "action": "신규 진입 보류, 기존 포지션 리스크 점검",
-  "specialFlags": [],
+  "specialFlags": [
+    "fomcMeetingWithin7Days"
+  ],
   "macroUsed": {
     "description": "시장 국면 판단용 거시 데이터. usdKrwLevel은 자동 수집으로 덮어쓰이고, 나머지는 주 1회 정도 수동 갱신 권장 (Fed 방향, 반도체 사이클 등은 자동화가 어려운 판단 영역).",
     "fx": {
-      "usdKrwLevel": 1462.4,
-      "usdKrw20dChangePct": -5.3
+      "usdKrwLevel": 1470.4,
+      "usdKrw20dChangePct": -4.4
     },
     "usRatePolicy": {
       "fedFundsRateDirection": "holding",
@@ -23,7 +25,7 @@
       "foreignTrend20d": "netSell",
       "indexRebalancingWindow": false
     },
-    "fomcMeetingWithin7Days": false,
+    "fomcMeetingWithin7Days": true,
     "majorPensionFundPolicyChange": false
   }
 }
