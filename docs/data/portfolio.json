@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-27T11:02:27.476Z",
+  "updatedAt": "2026-07-28T10:20:08.206Z",
   "marketRegime": "caution",
   "holdings": [
     {
@@ -7,17 +7,19 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 254000,
-      "currentValue": 2540000,
+      "currentPrice": 220000,
+      "currentValue": 2200000,
       "investedValue": 700000,
-      "unrealizedPnL": 1840000,
-      "unrealizedPnLPct": 262.86,
-      "stockScore": 55.6,
+      "unrealizedPnL": 1500000,
+      "unrealizedPnLPct": 214.29,
+      "stockScore": 56,
       "stockGrade": "C (중립/관찰)",
-      "stockWarnings": [],
+      "stockWarnings": [
+        "deadCatBounce"
+      ],
       "marketRegime": "caution",
       "referenceSignal": "유지 (중립 관찰)",
-      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
+      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -60,7 +62,7 @@
           }
         },
         "valuation": {
-          "score": 53.4,
+          "score": 54.9,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -69,17 +71,17 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.53,
+              "raw": 3.06,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.6146706586826348,
-              "score": 93.11976047904191
+              "peg": 0.5323353293413174,
+              "score": 98.05988023952095
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.794694650599062,
+              "marginOfSafety": -0.5550176847868966,
               "score": 0
             }
           }
@@ -94,7 +96,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 33.2,
+              "value": 31.2,
               "score": 45
             },
             "macd": {
