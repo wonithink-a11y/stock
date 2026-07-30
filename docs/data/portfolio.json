@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-30T05:18:46.565Z",
+  "updatedAt": "2026-07-30T10:10:17.898Z",
   "marketRegime": "caution",
   "holdings": [
     {
@@ -7,19 +7,17 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 207250,
-      "currentValue": 2072500,
+      "currentPrice": 207000,
+      "currentValue": 2070000,
       "investedValue": 700000,
-      "unrealizedPnL": 1372500,
-      "unrealizedPnLPct": 196.07,
-      "stockScore": 59.9,
+      "unrealizedPnL": 1370000,
+      "unrealizedPnLPct": 195.71,
+      "stockScore": 62.5,
       "stockGrade": "C (중립/관찰)",
-      "stockWarnings": [
-        "deadCatBounce"
-      ],
+      "stockWarnings": [],
       "marketRegime": "caution",
       "referenceSignal": "유지 (중립 관찰)",
-      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
+      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -76,18 +74,18 @@
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.5014970059880239,
-              "score": 99.91017964071857
+              "peg": 0.5008982035928145,
+              "score": 99.94610778443113
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.46424041741785005,
+              "marginOfSafety": -0.46336598293113274,
               "score": 0
             }
           }
         },
         "technical": {
-          "score": 37.3,
+          "score": 54.8,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -106,8 +104,8 @@
             },
             "volumeConfirmation": {
               "label": "거래량 동반 여부",
-              "confirmed": false,
-              "score": 30
+              "confirmed": true,
+              "score": 100
             }
           }
         },
