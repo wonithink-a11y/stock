@@ -1,8 +1,20 @@
 /**
- * collect.js (v3.3 - 미국 일봉 Yahoo 전환 + 미국 PER/PBR 일일 재계산)
+ * collect.js (v3.4 - perRelative 자체 산출 + 미국 일봉 Yahoo 전환)
  *
  * 관심종목(한국+미국)의 시세·밸류에이션·기술지표·수급 데이터를 수집해
  * data/inputs.json 으로 저장합니다 (analyze.js의 입력).
+ *
+ * ── v3.3 → v3.4 변경점 ──────────────────────────────────────────
+ * (0) perRelative 를 외부 소스에 의존하지 않고 스스로 만듭니다 [버그 수정] ★
+ *     한국 종목 perRelative 가 계속 결측이었습니다(valuation 가중치 0.30 중 PER 몫이
+ *     통째로 비는 상태). 원인은 네이버 '동일업종 PER' 추출 실패인데, 비공식 화면을
+ *     긁는 방식이라 마크업이 바뀌면 또 깨집니다. 그래서 2단으로 바꿨습니다.
+ *       1순위: 네이버 동일업종 PER (있으면 그대로 — 업종 분류가 네이버 기준이라 더 정밀)
+ *       2순위: 같은 sectorType 그룹의 PER 중위값 대비 배율 (자체 계산, 외부 의존 0)
+ *     2순위는 미국 종목이 이미 쓰던 방식(fetch-fundamentals-us.py 의 sectorPer)과 같은
+ *     논리를 한국에도 적용한 것입니다. 표본 3종목 미만인 업종은 대표성이 없어 산출하지
+ *     않습니다(추정값으로 점수를 만들지 않는다는 원칙).
+ *     각 종목의 valuation.perRelativeSource 에 무엇으로 계산했는지 남깁니다.
  *
  * ── v3 → v3.3 변경점 ────────────────────────────────────────────
  * (1) 미국 일봉 1차 소스를 Stooq → Yahoo chart API 로 교체 [버그 수정] ★
@@ -317,6 +329,54 @@ function computeTechnical(candles) {
 
 // ---------- 밸류에이션: 한국 (네이버 모바일 API) ----------
 
+/**
+ * [v3.4] 응답 JSON 어디에 있든 '동일업종 PER' 을 찾아냅니다.
+ *  네이버 통합 API 는 개편 때마다 필드 위치·이름이 바뀌어(totalInfos → stockItemTotalInfos 등)
+ *  특정 경로를 하드코딩하면 조용히 결측이 됩니다. 키 이름과 라벨을 함께 보고 재귀 탐색합니다.
+ *  - 키가 industryPer / sameIndustryPer / upjongPer 류이거나
+ *  - 형제 필드에 '동일업종' 이라는 라벨이 있고 값이 숫자면 채택
+ *  PER 값의 상식 범위(0 < v < 500)를 벗어나면 버립니다(다른 지표를 잘못 집는 것 방지).
+ */
+function findIndustryPer(node, depth = 0) {
+  if (!node || depth > 6) return null;
+  const toNum = (v) => parseFloat(String(v).replace(/[,배%\s]/g, ''));
+  const sane = (v) => (typeof v === 'number' && !Number.isNaN(v) && v > 0 && v < 500 ? v : null);
+
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      const r = findIndustryPer(item, depth + 1);
+      if (r !== null) return r;
+    }
+    return null;
+  }
+  if (typeof node !== 'object') return null;
+
+  // 1) 키 이름으로 직접 매칭
+  for (const [k, v] of Object.entries(node)) {
+    if (/^(same)?industry.*per$|^upjong.*per$|^sameupjongper$/i.test(k)) {
+      const n = sane(toNum(v));
+      if (n !== null) return n;
+    }
+  }
+  // 2) 같은 객체 안에 '동일업종' 라벨이 있으면 그 객체의 숫자 값을 채택
+  const labels = Object.values(node).filter((v) => typeof v === 'string');
+  if (labels.some((s) => /동일\s*업종/.test(s))) {
+    for (const [k, v] of Object.entries(node)) {
+      if (/label|name|title|key|code|desc/i.test(k)) continue;
+      const n = sane(toNum(v));
+      if (n !== null) return n;
+    }
+  }
+  // 3) 하위 탐색
+  for (const v of Object.values(node)) {
+    if (v && typeof v === 'object') {
+      const r = findIndustryPer(v, depth + 1);
+      if (r !== null) return r;
+    }
+  }
+  return null;
+}
+
 async function fetchValuationInfoKR(code) {
   const out = { per: null, pbr: null, industryPer: null, ok: false };
   const toNum = (v) => parseFloat(String(v).replace(/[,배%\s]/g, ''));
@@ -328,14 +388,10 @@ async function fetchValuationInfoKR(code) {
       if (Number.isNaN(value)) continue;
       if (info.code === 'per') out.per = value;
       else if (info.code === 'pbr') out.pbr = value;
-      // 동일업종 PER: 네이버 필드명이 버전마다 달라 코드/라벨을 방어적으로 탐색
-      else if (
-        /industry.*per|sameindustry.*per|upjong.*per/i.test(info.code || '') ||
-        /동일\s*업종\s*per/i.test(`${info.key || ''}${info.name || ''}${info.title || ''}`)
-      ) {
-        out.industryPer = value;
-      }
     }
+    // [v3.4] 동일업종 PER 은 네이버 응답 구조가 버전마다 달라 특정 필드만 보면 놓칩니다.
+    //  응답 전체를 훑어 '동일업종' 또는 industryPer 류 키를 가진 숫자를 찾습니다.
+    out.industryPer = findIndustryPer(data);
     out.ok = true;
   } catch (e) {
     console.warn(`  [경고] ${code} 밸류에이션 수집 실패: ${e.message}`);
@@ -563,11 +619,16 @@ async function collectOne(t, fundamentals, prevByTicker) {
   // PER 업종평균 대비 배율.
   //  KR: 동일업종 PER을 받았으면 개별PER/업종PER, 없으면 재무파일 값 폴백
   //  US: 위 US 분기에서 섹터 PER 중위값으로 이미 계산했으므로 덮어쓰지 않습니다.
+  //  둘 다 없으면 main() 의 2패스(같은 업종 PER 중위값)가 채웁니다.
+  let perRelativeSource = perRelative !== null ? 'sectorPer(US)' : null;
   if (perRelative === null) {
-    perRelative =
-      typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0
-        ? Math.round((per / industryPer) * 1000) / 1000
-        : (fund.perRelative ?? null);
+    if (typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0) {
+      perRelative = Math.round((per / industryPer) * 1000) / 1000;
+      perRelativeSource = 'naverIndustryPer';
+    } else if (fund.perRelative != null) {
+      perRelative = fund.perRelative;
+      perRelativeSource = 'fundamentals';
+    }
   }
 
   const sector = resolveSectorFor(t, fund, market);
@@ -592,6 +653,7 @@ async function collectOne(t, fundamentals, prevByTicker) {
       },
       valuation: {
         perRelative,
+        perRelativeSource, // [v3.4] naverIndustryPer | sectorPer(US) | sectorMedian | fundamentals | null
         industryPer,
         pbr,
         per,
@@ -621,6 +683,49 @@ async function collectOne(t, fundamentals, prevByTicker) {
       },
     },
   };
+}
+
+// ---------- [v3.4] perRelative 2패스: 같은 업종 PER 중위값 ----------
+
+/**
+ * 1패스에서 perRelative 를 못 만든 종목을, 같은 (시장 × sectorType) 그룹의 PER 중위값으로 채웁니다.
+ *
+ * 평균이 아니라 중위값을 쓰는 이유: PER 은 이익이 바닥일 때 수백 배로 튀어 평균을 오염시킵니다.
+ * 표본 3종목 미만인 그룹은 '업종 평균'이라 부를 수 없어 산출하지 않습니다(결측 유지).
+ * 적자 종목(PER 없음)은 분모 계산에서 자연히 빠집니다 — 이것이 이 지표의 알려진 한계입니다.
+ */
+function fillPerRelativeBySectorMedian(stocks) {
+  const groups = {};
+  for (const s of stocks) {
+    const per = s.valuation && s.valuation.per;
+    if (typeof per === 'number' && per > 0) {
+      const key = `${s.market}|${(s.fundamental && s.fundamental.sectorType) || 'general'}`;
+      (groups[key] = groups[key] || []).push(per);
+    }
+  }
+
+  const medians = {};
+  for (const [key, arr] of Object.entries(groups)) {
+    if (arr.length < 3) continue;
+    const v = arr.slice().sort((a, b) => a - b);
+    const n = v.length;
+    const med = n % 2 ? v[(n - 1) / 2] : (v[n / 2 - 1] + v[n / 2]) / 2;
+    medians[key] = Math.round(med * 100) / 100;
+  }
+
+  let filled = 0;
+  for (const s of stocks) {
+    if (s.valuation.perRelative != null) continue;
+    const per = s.valuation.per;
+    const key = `${s.market}|${(s.fundamental && s.fundamental.sectorType) || 'general'}`;
+    const med = medians[key];
+    if (typeof per === 'number' && per > 0 && med > 0) {
+      s.valuation.perRelative = Math.round((per / med) * 1000) / 1000;
+      s.valuation.perRelativeSource = 'sectorMedian';
+      filled++;
+    }
+  }
+  return { medians, filled };
 }
 
 // ---------- 메인 ----------
@@ -673,6 +778,9 @@ async function main() {
     }
   }
 
+  // [v3.4] perRelative 2패스 — 1패스에서 못 채운 종목을 업종 PER 중위값으로 보완
+  const perRel = fillPerRelativeBySectorMedian(stocks);
+
   const kospiClose = await fetchKospiClose();
   await sleep(INTRA_DELAY_MS);
   const spxClose = await fetchSpxClose();
@@ -682,6 +790,7 @@ async function main() {
   const elapsed = Math.round((Date.now() - startedAt) / 1000);
 
   const sectorCount = {};
+  const perRelSource = {};
   let unresolved = 0;
   let withCandles = 0;
   // [v3.3] 시장별 집계 — 미국 종목이 통째로 빠지는 사고를 로그에서 바로 보기 위한 것
@@ -693,10 +802,13 @@ async function main() {
     const hasCandles = Array.isArray(s.candles) && s.candles.length > 0;
     if (hasCandles) withCandles++;
     const mk = s.market || 'KR';
-    if (!byMarket[mk]) byMarket[mk] = { total: 0, candles: 0, per: 0 };
+    if (!byMarket[mk]) byMarket[mk] = { total: 0, candles: 0, per: 0, perRelative: 0 };
     byMarket[mk].total++;
     if (hasCandles) byMarket[mk].candles++;
     if (s.valuation && typeof s.valuation.per === 'number') byMarket[mk].per++;
+    if (s.valuation && s.valuation.perRelative != null) byMarket[mk].perRelative++;
+    const src = (s.valuation && s.valuation.perRelativeSource) || 'none';
+    perRelSource[src] = (perRelSource[src] || 0) + 1;
   }
 
   const output = {
@@ -712,6 +824,9 @@ async function main() {
       candleFailures: retryQueue.length,
       withCandles, // [v3] 시계열이 채워진 종목 수
       byMarket, // [v3.3] 시장별 일봉·PER 채움 현황
+      perRelativeSource: perRelSource, // [v3.4] perRelative 를 무엇으로 만들었는지
+      sectorPerMedian: perRel.medians, // [v3.4] 시장|업종별 PER 중위값 (표본 3 이상만)
+      sectorPerFilled: perRel.filled,
       unresolvedSector: unresolved,
       sectorCount,
       failures: failures.slice(0, 50),
@@ -722,7 +837,7 @@ async function main() {
   console.log(`\n완료: ${stocks.length}개 종목 → data/inputs.json (${elapsed}초)`);
   console.log(`일봉 시계열: ${withCandles}/${stocks.length}종목 저장`);
   for (const [mk, v] of Object.entries(byMarket)) {
-    console.log(`  ${mk}: ${v.total}종목 / 일봉 ${v.candles} / PER ${v.per}`);
+    console.log(`  ${mk}: ${v.total}종목 / 일봉 ${v.candles} / PER ${v.per} / perRelative ${v.perRelative}`);
     if (v.candles === 0 && v.total > 0) console.log(`  ⚠ ${mk} 일봉이 전건 실패했습니다 — 아래 실패 요약 확인`);
     if (mk === 'US' && v.per === 0 && v.total > 0) {
       console.log('  ⚠ US PER이 하나도 없습니다 — fundamentals.json 에 epsTtm/bvps 가 비었을 가능성');
@@ -730,6 +845,8 @@ async function main() {
     }
   }
   console.log(`업종 분포: ${JSON.stringify(sectorCount)}`);
+  console.log(`perRelative 산출: ${JSON.stringify(perRelSource)} (업종중위값 보완 ${perRel.filled}종목)`);
+  console.log(`업종 PER 중위값: ${JSON.stringify(perRel.medians)}`);
   if (unresolved > 0) console.log(`⚠ 업종 미분류 ${unresolved}종목 — sector-map.json / sector-map-us.json 확인 필요`);
   if (failures.length > 0) {
     console.log(`⚠ 수집 경고 ${failures.length}건`);
