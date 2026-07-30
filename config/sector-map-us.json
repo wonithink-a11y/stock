@@ -1,0 +1,44 @@
+{
+  "description": "미국 종목 업종 분류 규칙. yfinance 의 industry/sector 문자열을 criteria-us.json 의 sectorType 으로 변환합니다. 한국판 config/sector-map.json + lib/sectorResolver.js 와 같은 역할이며, 해결 순서도 동일합니다: byTicker → byIndustryPattern → bySectorPattern → default. sectorType 값은 criteria-us.json 의 sectorOverrides 키와 반드시 일치해야 합니다(없는 키를 쓰면 override 가 조용히 무시됩니다).",
+  "default": "general",
+
+  "byTickerNote": "패턴으로는 못 잡는 예외를 수동 고정합니다. 특히 yfinance 가 'Credit Services' 로 묶어버리는 결제망(V·MA)과 대출업(AXP)은 재무구조가 완전히 다릅니다. V·MA 는 레버리지가 일반 기업 수준(부채비율 60~180%)이라 은행 임계값을 적용하면 부채 항목에서 무조건 만점을 받아 점수가 왜곡됩니다.",
+  "byTicker": {
+    "V": "general",
+    "MA": "general",
+    "AXP": "financial",
+    "BRK-B": "financial",
+    "UNH": "general",
+    "JNJ": "general",
+    "MRK": "general",
+    "LLY": "general",
+    "ABBV": "general"
+  },
+
+  "byIndustryPatternNote": "yfinance industry 문자열 기준(예: 'Banks - Diversified', 'Insurance - Life', 'Capital Markets'). 위에서 아래로 첫 일치를 씁니다.",
+  "byIndustryPattern": [
+    { "pattern": "Bank", "sectorType": "financial" },
+    { "pattern": "Insurance", "sectorType": "financial" },
+    { "pattern": "Capital Markets", "sectorType": "financial" },
+    { "pattern": "Asset Management", "sectorType": "financial" },
+    { "pattern": "Financial (Data|Conglomerates)", "sectorType": "financial" },
+    { "pattern": "Mortgage", "sectorType": "financial" },
+    { "pattern": "Credit Services", "sectorType": "financial" },
+    { "pattern": "Biotechnology", "sectorType": "bio" },
+    { "pattern": "Drug Manufacturers - Specialty", "sectorType": "bio" },
+    { "pattern": "REIT", "sectorType": "reit" },
+    { "pattern": "Real Estate", "sectorType": "reit" },
+    { "pattern": "Utilities", "sectorType": "utility" },
+    { "pattern": "Telecom", "sectorType": "telecom" },
+    { "pattern": "Airlines", "sectorType": "airline" },
+    { "pattern": "Marine Shipping", "sectorType": "shipping" }
+  ],
+  "byIndustryPatternTodo": "criteria-us.json 에 override 가 없는 업종은 여기 넣지 마세요 — 매칭은 되지만 기준이 없어 general 로 채점되면서 'sectorAdjusted' 경고만 붙습니다. 건설(Engineering & Construction)·유틸리티 세분류를 넣으려면 criteria-us.json 에 sectorOverrides 키를 먼저 만드세요.",
+
+  "bySectorPatternNote": "industry 로 못 잡았을 때의 최후 수단(yfinance sector 문자열). 대분류라 정확도가 낮아 financial/utility/realestate 만 둡니다.",
+  "bySectorPattern": [
+    { "pattern": "^Financial", "sectorType": "financial" },
+    { "pattern": "^Utilities", "sectorType": "utility" },
+    { "pattern": "^Real Estate", "sectorType": "reit" }
+  ]
+}
