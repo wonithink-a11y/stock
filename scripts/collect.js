@@ -423,7 +423,8 @@ async function collectOne(t, fundamentals, prevByTicker) {
 
   let per = null;
   let pbr = null;
-  let perRelative = fund.perRelative ?? null;
+  let industryPer = null;   // [수정] KR 네이버 동일업종 PER. 선언이 없어 암묵적 전역이던 것을 지역변수로
+  let perRelative = null;   // KR은 아래에서, US는 US 분기에서 채움
   let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
 
   if (market === 'US') {
@@ -456,11 +457,13 @@ async function collectOne(t, fundamentals, prevByTicker) {
   }
 
   // PER 업종평균 대비 배율: 동일업종 PER을 받았으면 개별PER/업종PER, 없으면 재무파일 값 폴백
-  const perRelative =
-    typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0
-      ? Math.round((per / industryPer) * 1000) / 1000
-      : (fund.perRelative ?? null);
 
+if (perRelative === null) {
+    perRelative =
+      typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0
+        ? Math.round((per / industryPer) * 1000) / 1000
+        : (fund.perRelative ?? null);
+    }
   const sector = resolveSectorFor(t, fund, market);
 
   return {
