@@ -369,8 +369,15 @@ async function fetchUsdKrw() {
 
 function resolveSectorFor(t, fund, market) {
   if (market === 'US') {
-    return { sectorType: 'general', sectorResolved: true };
+    // [v2.1] fetch-fundamentals-us.py 가 yfinance industry → sector-map-us.json 으로
+    // 해석해 넣어둔 sectorType 을 씁니다. 없으면(첫 실행 전) general + resolved:false
+    // → 엔진이 unmappedSector 경고를 띄워 '조용한 오채점'을 막습니다.
+    return {
+      sectorType: fund.sectorType || 'general',
+      sectorResolved: fund.sectorType ? fund.sectorResolved !== false : false,
+    };
   }
+
   if (fund.sectorType) {
     return {
       sectorType: fund.sectorType,
@@ -416,12 +423,24 @@ async function collectOne(t, fundamentals, prevByTicker) {
 
   let per = null;
   let pbr = null;
-  let industryPer = null;
+  let perRelative = fund.perRelative ?? null;
   let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
 
   if (market === 'US') {
-    per = fund.per ?? null;
-    pbr = fund.pbr ?? null;
+    // [v2.1] 미국 PER/PBR 일일 재계산 (수동 입력 폐지)
+    //  per = 종가 / epsTtm,  pbr = 종가 / bvps,  perRelative = per / sectorPer
+    //  ↑ 세 분모는 fetch-fundamentals-us.py 가 분기마다 fundamentals.json 에 넣습니다.
+    //  적자(epsTtm<=0)면 PER 을 만들지 않습니다 — 음수 PER 은 lowerIsBetter 규칙에서
+    //  '가장 싼 주식'으로 오채점되기 때문입니다(결측이 오답보다 낫다).
+    const round2 = (v) => Math.round(v * 100) / 100;
+    const price = technical.currentPrice ?? null;
+    if (price && fund.epsTtm > 0) per = round2(price / fund.epsTtm);
+    if (price && fund.bvps > 0) pbr = round2(price / fund.bvps);
+    // 계산 불가 시 분기 스냅샷 값으로 폴백 (구버전 수동 입력값도 여기서 살아남습니다)
+    if (per === null) per = fund.per ?? null;
+    if (pbr === null) pbr = fund.pbr ?? null;
+    if (per !== null && fund.sectorPer > 0) perRelative = round2(per / fund.sectorPer);
+    // 수급: 미국은 KRX식 일별 수급 데이터가 없어 결측 유지 (criteria-us.json 에서 비중 0)
   } else {
     await sleep(INTRA_DELAY_MS);
     const valuationInfo = await fetchValuationInfoKR(t.code);
