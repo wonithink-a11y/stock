@@ -933,70 +933,291 @@
       "marketCapRank": 108
     },
     {
+      "code": "NVDA",
+      "name": "엔비디아",
+      "market": "US",
+      "groups": ["us-core", "sp40"],
+      "marketCapRank": 1
+    },
+    {
       "code": "AAPL",
       "name": "애플",
       "market": "US",
-      "groups": [
-        "buffett-holdings",
-        "us-core"
-      ]
-    },
-    {
-      "code": "AXP",
-      "name": "아메리칸익스프레스",
-      "market": "US",
-      "groups": [
-        "buffett-holdings"
-      ]
-    },
-    {
-      "code": "KO",
-      "name": "코카콜라",
-      "market": "US",
-      "groups": [
-        "buffett-holdings"
-      ]
-    },
-    {
-      "code": "BAC",
-      "name": "뱅크오브아메리카",
-      "market": "US",
-      "groups": [
-        "buffett-holdings"
-      ]
-    },
-    {
-      "code": "CVX",
-      "name": "셰브론",
-      "market": "US",
-      "groups": [
-        "buffett-holdings"
-      ]
+      "groups": ["buffett-holdings", "us-core", "sp40"],
+      "marketCapRank": 2
     },
     {
       "code": "GOOGL",
       "name": "알파벳",
       "market": "US",
-      "groups": [
-        "buffett-holdings",
-        "us-core"
-      ]
+      "groups": ["buffett-holdings", "us-core", "sp40"],
+      "marketCapRank": 3
     },
     {
       "code": "MSFT",
       "name": "마이크로소프트",
       "market": "US",
-      "groups": [
-        "us-core"
-      ]
+      "groups": ["us-core", "sp40"],
+      "marketCapRank": 4
     },
     {
-      "code": "NVDA",
-      "name": "엔비디아",
+      "code": "AMZN",
+      "name": "아마존",
       "market": "US",
-      "groups": [
-        "us-core"
-      ]
+      "groups": ["us-core", "sp40"],
+      "marketCapRank": 5
+    },
+    {
+      "code": "AVGO",
+      "name": "브로드컴",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 7
+    },
+    {
+      "code": "META",
+      "name": "메타",
+      "market": "US",
+      "groups": ["us-core", "sp40"],
+      "marketCapRank": 9
+    },
+    {
+      "code": "TSLA",
+      "name": "테슬라",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 10
+    },
+    {
+      "code": "BRK-B",
+      "name": "버크셔해서웨이B",
+      "market": "US",
+      "groups": ["buffett-holdings", "sp40"],
+      "marketCapRank": 11
+    },
+    {
+      "code": "LLY",
+      "name": "일라이릴리",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 12
+    },
+    {
+      "code": "MU",
+      "name": "마이크론",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 13
+    },
+    {
+      "code": "JPM",
+      "name": "JP모건체이스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 14
+    },
+    {
+      "code": "WMT",
+      "name": "월마트",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 16
+    },
+    {
+      "code": "AMD",
+      "name": "AMD",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 17
+    },
+    {
+      "code": "V",
+      "name": "비자",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 19
+    },
+    {
+      "code": "XOM",
+      "name": "엑슨모빌",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 20
+    },
+    {
+      "code": "JNJ",
+      "name": "존슨앤드존슨",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 21
+    },
+    {
+      "code": "MA",
+      "name": "마스터카드",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 22
+    },
+    {
+      "code": "INTC",
+      "name": "인텔",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 23
+    },
+    {
+      "code": "ABBV",
+      "name": "애브비",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 24
+    },
+    {
+      "code": "CSCO",
+      "name": "시스코",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 25
+    },
+    {
+      "code": "BAC",
+      "name": "뱅크오브아메리카",
+      "market": "US",
+      "groups": ["buffett-holdings", "sp40"],
+      "marketCapRank": 26
+    },
+    {
+      "code": "AMAT",
+      "name": "어플라이드머티리얼즈",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 27
+    },
+    {
+      "code": "COST",
+      "name": "코스트코",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 28
+    },
+    {
+      "code": "CAT",
+      "name": "캐터필러",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 29
+    },
+    {
+      "code": "CVX",
+      "name": "셰브론",
+      "market": "US",
+      "groups": ["buffett-holdings", "sp40"],
+      "marketCapRank": 30
+    },
+    {
+      "code": "UNH",
+      "name": "유나이티드헬스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 31
+    },
+    {
+      "code": "LRCX",
+      "name": "램리서치",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 32
+    },
+    {
+      "code": "GE",
+      "name": "GE에어로스페이스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 33
+    },
+    {
+      "code": "KO",
+      "name": "코카콜라",
+      "market": "US",
+      "groups": ["buffett-holdings", "sp40"],
+      "marketCapRank": 35
+    },
+    {
+      "code": "PG",
+      "name": "프록터앤드갬블",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 36
+    },
+    {
+      "code": "MS",
+      "name": "모건스탠리",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 37
+    },
+    {
+      "code": "HD",
+      "name": "홈디포",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 38
+    },
+    {
+      "code": "ORCL",
+      "name": "오라클",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 39
+    },
+    {
+      "code": "GS",
+      "name": "골드만삭스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 40
+    },
+    {
+      "code": "MRK",
+      "name": "머크",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 41
+    },
+    {
+      "code": "PM",
+      "name": "필립모리스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 42
+    },
+    {
+      "code": "PLTR",
+      "name": "팔란티어",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 44
+    },
+    {
+      "code": "NFLX",
+      "name": "넷플릭스",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 45
+    },
+    {
+      "code": "RTX",
+      "name": "RTX",
+      "market": "US",
+      "groups": ["sp40"],
+      "marketCapRank": 47
+    },
+    {
+      "code": "AXP",
+      "name": "아메리칸익스프레스",
+      "market": "US",
+      "groups": ["buffett-holdings"],
+      "marketCapRank": 61
     }
   ]
 }
