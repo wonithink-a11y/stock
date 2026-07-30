@@ -1,0 +1,177 @@
+name: add-ticker
+
+# 관심종목 추가 (수동 실행 전용)
+#
+# Actions → add-ticker → Run workflow 에서 종목코드만 입력하면
+#   ① 종목명 자동 조회 → ② 시세 검증 → ③ watchlist.json 추가·커밋
+#   ④ (선택) 해당 시장 재무 수집 → ⑤ (선택) 즉시 점수 계산까지 합니다.
+# JSON 을 직접 편집할 필요가 없어 휴대폰에서도 종목을 늘릴 수 있습니다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      market:
+        description: '시장'
+        type: choice
+        required: true
+        default: KR
+        options:
+          - KR
+          - US
+      codes:
+        description: '종목코드/티커 (쉼표 구분). KR=6자리 숫자(042700), US=티커(AMZN). 클래스주는 BRK-B'
+        type: string
+        required: true
+      name:
+        description: "종목명 (비우면 자동 조회. 미국 종목을 한글명으로 넣고 싶을 때만 입력 - 종목 1개일 때만 가능)"
+        type: string
+        required: false
+        default: ''
+      groups:
+        description: '그룹 태그 (쉼표 구분). 대시보드 필터·백테스트 구분용'
+        type: string
+        required: false
+        default: 'watch-manual'
+      fetch_fundamentals:
+        description: '재무 데이터 수집 (KR=DART, US=yfinance/SEC). 끄면 점수가 유보로 나옵니다'
+        type: boolean
+        required: false
+        default: true
+      run_scoring:
+        description: '점수 즉시 계산 (collect + analyze, 약 10분). 끄면 다음 daily-analysis에 반영'
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── ① 종목 추가 ────────────────────────────────────────────
+      # 시세 검증에 실패한 코드는 추가하지 않습니다(오타가 조용히 빈 행으로 남는 것을 막음).
+      - name: watchlist 에 추가
+        id: add
+        run: |
+          node scripts/add-ticker.js \
+            --market "${{ inputs.market }}" \
+            --codes "${{ inputs.codes }}" \
+            --groups "${{ inputs.groups }}" \
+            ${{ inputs.name != '' && format('--name "{0}"', inputs.name) || '' }}
+
+      - name: watchlist 커밋
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add config/watchlist.json
+          if git diff --cached --quiet; then
+            echo "watchlist 변경 없음"
+            exit 0
+          fi
+          git commit -m "chore: 관심종목 추가 (${{ inputs.market }}: ${{ inputs.codes }})"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            echo "push 재시도 $i"; sleep $((i * 5))
+          done
+          echo "push 실패"; exit 1
+
+      # ── ② 재무 수집 (US) ───────────────────────────────────────
+      - uses: actions/setup-python@v5
+        if: ${{ inputs.market == 'US' && inputs.fetch_fundamentals }}
+        with:
+          python-version: '3.11'
+
+      - name: 미국 재무 수집 (yfinance → SEC 폴백)
+        if: ${{ inputs.market == 'US' && inputs.fetch_fundamentals }}
+        env:
+          SEC_UA: 'stock-scoring-app wonithink@gmail.com'
+          US_SLEEP: '2.0'
+        run: |
+          pip install yfinance
+          # 새로 추가한 티커만 조회 (전체 재조회는 매월 fundamentals-us 워크플로가 합니다)
+          python scripts/fetch-fundamentals-us.py --only "${{ inputs.codes }}"
+
+      # ── ② 재무 수집 (KR) ───────────────────────────────────────
+      # fetch-fundamentals-kr.js 는 watchlist 전체를 도는 배치라 시간이 걸립니다(정상).
+      # 실패해도 종목 추가 자체는 되돌리지 않습니다 — 분기 배치가 다음에 채웁니다.
+      - name: 한국 재무 수집 (DART)
+        if: ${{ inputs.market == 'KR' && inputs.fetch_fundamentals }}
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        continue-on-error: true
+        run: node scripts/fetch-fundamentals-kr.js
+
+      - name: 재무 커밋
+        if: ${{ inputs.fetch_fundamentals }}
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add config/fundamentals.json
+          if git diff --cached --quiet; then
+            echo "재무 변경 없음"
+            exit 0
+          fi
+          git commit -m "chore: 신규 종목 재무 수집 (${{ inputs.market }})"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            echo "push 재시도 $i"; sleep $((i * 5))
+          done
+          echo "push 실패"; exit 1
+
+      # ── ③ 점수 계산 ────────────────────────────────────────────
+      # daily-analysis 와 같은 파이프라인이며 notify(텔레그램/슬랙)만 생략합니다.
+      - name: 수집 + 스코어링
+        if: ${{ inputs.run_scoring }}
+        run: |
+          node scripts/collect.js
+          node scripts/analyze.js
+
+      - name: 결과 커밋
+        if: ${{ inputs.run_scoring }}
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/data
+          if git diff --cached --quiet; then
+            echo "결과 변경 없음"
+            exit 0
+          fi
+          git commit -m "chore: 종목 추가 후 스코어링 갱신"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            echo "push 재시도 $i"; sleep $((i * 5))
+          done
+          echo "push 실패"; exit 1
+
+      - name: 추가된 종목 점수 요약
+        if: ${{ inputs.run_scoring }}
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const codes = process.env.CODES.split(/[,\s]+/).filter(Boolean)
+            .map((c) => (/^\d+$/.test(c) ? c.padStart(6, '0') : c.toUpperCase()));
+          const latest = JSON.parse(fs.readFileSync('docs/data/latest.json', 'utf-8'));
+          const rows = latest.results.filter((r) => codes.includes(String(r.ticker).toUpperCase()));
+          const lines = ['### 추가 종목 점수', '', '| 종목 | 점수 | 등급 | 커버리지 | 경고 |', '|---|---|---|---|---|'];
+          for (const r of rows) {
+            const ov = r.dataCoverage && r.dataCoverage.overall;
+            const cov = typeof ov === 'number' ? Math.round(ov * 100) + '%' : '-';
+            lines.push(`| ${r.name} (${r.ticker}) | ${r.totalScore ?? '-'} | ${r.grade ?? '-'} | ${cov} | ${(r.warnings || []).join(', ') || '-'} |`);
+          }
+          if (rows.length === 0) lines.push('| (latest.json에서 찾지 못함 — 수집 실패 가능) | | | | |');
+          const out = lines.join('\n') + '\n';
+          console.log(out);
+          if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out);
+          JS
+        env:
+          CODES: ${{ inputs.codes }}
