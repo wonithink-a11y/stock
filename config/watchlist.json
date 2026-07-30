@@ -1,8 +1,8 @@
 {
   "description": "분석 대상 관심종목. market: 'KR'(한국, 6자리 코드) 또는 'US'(미국, 티커). groups로 대시보드에서 필터링됩니다. ※ 한국 종목의 버핏/린치 그룹은 '스타일'(기준 부합 종목 예시)이고, buffett-holdings는 버크셔 13F 공시 기반 실제 보유종목입니다(2026 Q1 기준 - 분기마다 13F 확인 후 갱신 권장). 연기금 그룹은 국민연금 5%+ 보유로 알려진 예시 - DART 대량보유상황보고로 확인하세요. ※ 2026-07-19 코스피 시가총액 상위 100종목으로 확대(기준일 2026-07-16 종가, 코스닥 제외, 우선주 제외). 유니버스 기준을 바꾸면 백테스트 연속성이 끊기므로 universeVersion을 함께 올릴 것.",
-  "universeVersion": "2026-07-19-kospi100",
-  "universeRule": "코스피 시가총액 상위 100 (보통주 기준, 코스닥·우선주 제외). 재선정 시 marketCapRank를 갱신하고 universeVersion을 새로 부여할 것.",
-  "universeAsOf": "2026-07-16",
+  "universeVersion": "2026-07-30-kospi100-sp40",
+  "universeRule": "[KR] 코스피 시가총액 상위 100 (보통주, 코스닥·우선주 제외). [US] S&P500 구성종목 중 시가총액 상위 40 + 버핏 13F 보유분(AXP). ADR·비S&P 종목(TSM·ASML·ARM·HSBC 등)은 10-K 미제출로 SEC XBRL 폴백이 안 되고 회계기준도 달라 제외. 재선정 시 marketCapRank를 갱신하고 universeVersion을 새로 부여할 것.",
+  "universeAsOf": "2026-07-30",
   "groupLabels": {
     "index-core": "지수 대표(KR)",
     "us-core": "지수 대표(US)",
@@ -10,7 +10,8 @@
     "buffett-style": "버핏 스타일 (고ROE·저부채·주주환원)",
     "lynch-style": "린치 스타일 (저PEG 성장)",
     "pension": "연기금 고지분 (국민연금 5%+)",
-    "kospi100": "코스피 시총 100"
+    "kospi100": "코스피 시총 100",
+    "sp40": "S&P 시총 40"
   },
   "tickers": [
     {
