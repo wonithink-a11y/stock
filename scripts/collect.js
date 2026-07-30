@@ -1,24 +1,43 @@
 /**
- * collect.js (v3 - 일봉 시계열 저장 추가)
+ * collect.js (v3.3 - 미국 일봉 Yahoo 전환 + 미국 PER/PBR 일일 재계산)
  *
  * 관심종목(한국+미국)의 시세·밸류에이션·기술지표·수급 데이터를 수집해
  * data/inputs.json 으로 저장합니다 (analyze.js의 입력).
  *
- * ── v2 → v3 변경점 ──────────────────────────────────────────────
- * (1) 일봉 시계열(OHLCV) 저장 [기능]  ★ 이번 수정의 핵심
- *     v2까지는 fchart/stooq에서 받은 일봉에서 종가·거래량만 뽑아 기술지표를
- *     계산하고 나머지(시가·고가·저가·시계열 전체)를 버렸습니다. 그 결과 대시보드는
- *     "현재가 1개"만 알 수 있어 주가 변화·차트를 그릴 수 없었습니다.
- *     이제 종목마다 최근 CANDLE_KEEP(기본 120)일의 OHLCV를 compact 형태
- *     (d/o/h/l/c/v)로 stocks[].candles 에 실어 보냅니다.
- *     - 추가 네트워크 호출 0 (이미 받던 데이터를 저장만 함)
- *     - 수집 실패 시 직전 inputs.json의 candles로 폴백
- *     - analyze.js가 이 candles로 docs/data/prices.json 을 만듭니다.
+ * ── v3 → v3.3 변경점 ────────────────────────────────────────────
+ * (1) 미국 일봉 1차 소스를 Stooq → Yahoo chart API 로 교체 [버그 수정] ★
+ *     Stooq /q/d/l 는 IP당 일일 다운로드 한도가 있어 GitHub Actions 에서는 CSV 대신
+ *     "Exceeded the daily hits limit" 본문을 HTTP 200 으로 돌려줍니다. 코드에는
+ *     'CSV 파싱 실패'로만 보이고 200이라 재시도 조건에도 안 걸려, 미국 종목이
+ *     prices.json 에 한 건도 들어오지 못했습니다(tickers=100 = 한국 종목 수).
+ *     Yahoo chart API 는 무키·크럼 불필요. Stooq 는 폴백으로 남겨둡니다.
+ *
+ * (2) 미국 PER/PBR 일일 재계산 [기능]
+ *     scripts/fetch-fundamentals-us.py 가 월 1회 저장한 epsTtm(주당순이익 TTM)·
+ *     bvps(주당순자산)·sectorPer(섹터 PER 중위값)를 분모로 쓰고, 분자는 그날 종가입니다.
+ *       per = 종가/epsTtm,  pbr = 종가/bvps,  perRelative = per/sectorPer
+ *     분기마다 PER 을 박아두면 다음 분기까지 주가 변동이 반영되지 않던 문제를 없앱니다.
+ *     추가 네트워크 호출 0회(이미 받은 일봉 종가를 씁니다).
+ *
+ * (3) 미국도 업종별 채점 기준 적용 [버그 수정]
+ *     미국 종목을 무조건 sectorType='general' 로 고정하던 부분을 제거했습니다.
+ *     이 상태로는 JPM·BAC·GS·MS 의 부채비율(1000%대)이 일반 기준(poor 300%)에 걸려
+ *     fundamental 최하점 + 오경고가 났습니다(한국 금융주에서 겪은 문제와 동일).
+ *
+ * (4) industryPer 지역변수화 + perRelative 단일 선언 [버그 수정]
+ *     industryPer 가 선언 없이 대입돼 암묵적 전역이었습니다. 미국 종목은 이 값을
+ *     대입하지 않으므로 **직전 한국 종목의 동일업종 PER** 을 물려받아 엉뚱한
+ *     perRelative 가 찍혔습니다. perRelative 도 선언이 두 번이라 SyntaxError 였습니다.
+ *
+ * ── v2 → v3 변경점 (유지) ──────────────────────────────────────
+ *     일봉 시계열(OHLCV)을 compact 형태(d/o/h/l/c/v)로 stocks[].candles 에 저장.
+ *     analyze.js 가 이 candles 로 docs/data/prices.json 을 만듭니다.
  *
  * 데이터 소스:
- *  [한국 KR] 일봉/현재가: fchart.stock.naver.com | PER/PBR·수급: m.stock.naver.com
- *  [미국 US] 일봉/현재가: stooq.com CSV | PER/PBR: config/fundamentals.json 수동
- *  [공통]    재무: config/fundamentals.json (fetch-fundamentals-kr.js 분기 갱신)
+ *  [한국 KR] 일봉/현재가: fchart.stock.naver.com | PER/PBR·동일업종PER·수급: m.stock.naver.com
+ *  [미국 US] 일봉/현재가: Yahoo chart API (폴백 stooq.com) | PER/PBR: 종가 ÷ epsTtm/bvps
+ *  [공통]    재무: config/fundamentals.json
+ *            (KR = fetch-fundamentals-kr.js 분기, US = fetch-fundamentals-us.py 월 1회)
  *
  * 설계 원칙: 수집 실패는 에러로 죽지 않고 해당 필드를 결측(null)으로 남깁니다.
  */
@@ -33,6 +52,16 @@ const INPUTS_PATH = path.join(DATA_DIR, 'inputs.json');
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; stock-scoring-app)' };
 
+// Yahoo 는 UA 에 따라 429/403 을 주는 경우가 있어 이 호출만 브라우저 UA 를 씁니다.
+const YAHOO_UA = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  Accept: 'application/json',
+};
+
+// Yahoo 는 지수 심볼 표기가 달라 매핑이 필요합니다(^spx → ^GSPC).
+const US_SYMBOL_YAHOO = { '^spx': '^GSPC', '^SPX': '^GSPC', '^ndx': '^NDX', '^dji': '^DJI' };
+
 // ---------- 수집 파라미터 ----------
 const REQUEST_DELAY_MS = Number(process.env.COLLECT_DELAY_MS || 1500); // 종목 사이 간격
 const INTRA_DELAY_MS = Number(process.env.COLLECT_INTRA_DELAY_MS || 600); // 한 종목 내 요청 사이 간격
@@ -40,9 +69,8 @@ const MAX_RETRIES = Number(process.env.COLLECT_MAX_RETRIES || 4);
 const TIMEOUT_MS = Number(process.env.COLLECT_TIMEOUT_MS || 15000);
 const RETRY_BASE_MS = 1500; // 지수 백오프 기준값 (1.5s → 3s → 6s, 429는 ×3)
 // [v3.1] inputs.json / prices.json 에 저장할 일봉 개수.
-//  - CANDLE_FETCH: fchart/stooq에서 받아올 개수(260 ≈ 1년 거래일). 기술지표+1년 수익률용.
-//  - CANDLE_KEEP:  저장 개수(250). 1D/1W/1M/3M/6M/1Y/YTD 등락률과 차트 기간 토글(전체=1년)에 사용.
-//  파일 크기: 100종목×250일이면 prices.json ≈ 2MB 안팎(CDN 배포에 무리 없음).
+//  - CANDLE_FETCH: 받아올 개수(260 ≈ 1년 거래일). 기술지표+1년 수익률용.
+//  - CANDLE_KEEP:  저장 개수(250). 1D/1W/1M/3M/6M/1Y/YTD 등락률과 차트 기간 토글에 사용.
 const CANDLE_FETCH = Number(process.env.COLLECT_CANDLE_FETCH || 260);
 const CANDLE_KEEP = Number(process.env.COLLECT_CANDLE_KEEP || 250);
 
@@ -62,13 +90,14 @@ function isRetriable(status) {
   return status >= 500;
 }
 
-async function fetchWithRetry(url, parse) {
+// [v3.3] headers 인자 추가 — Yahoo 만 브라우저 UA 를 쓰기 위함(기본값은 기존과 동일).
+async function fetchWithRetry(url, parse, headers = UA) {
   let lastErr;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
-      const res = await fetch(url, { headers: UA, signal: controller.signal });
+      const res = await fetch(url, { headers, signal: controller.signal });
       clearTimeout(timer);
       if (!res.ok) {
         const err = new Error(`HTTP ${res.status}`);
@@ -92,7 +121,6 @@ const fetchText = (url) => fetchWithRetry(url, (res) => res.text());
 const fetchJson = (url) => fetchWithRetry(url, (res) => res.json());
 
 // ---------- 일봉 수집: 한국 (fchart: XML 형태) ----------
-// [v3] open/high/low 도 함께 보존 (v2는 close/volume만 남겼음)
 
 async function fetchDailyCandlesKR(symbol, count = 140) {
   const url = `https://fchart.stock.naver.com/sise.nhn?symbol=${symbol}&timeframe=day&count=${count}&requestType=0`;
@@ -115,14 +143,50 @@ async function fetchDailyCandlesKR(symbol, count = 140) {
   return candles; // 과거 → 최신 순
 }
 
-// ---------- 일봉 수집: 미국 (stooq CSV) ----------
+// ---------- 일봉 수집: 미국 ----------
+// [v3.3] 1차 Yahoo chart API, 2차 Stooq.
 
-async function fetchDailyCandlesUS(ticker, count = 140) {
+async function fetchDailyCandlesUSYahoo(ticker, count = 140) {
+  const sym = US_SYMBOL_YAHOO[ticker] || ticker;
+  const range = count > 250 ? '2y' : '1y';
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=${range}&interval=1d`;
+  const json = await fetchWithRetry(url, (res) => res.json(), YAHOO_UA);
+  const r = json && json.chart && json.chart.result && json.chart.result[0];
+  if (!r || !Array.isArray(r.timestamp)) {
+    const msg = (json && json.chart && json.chart.error && json.chart.error.description) || '응답 형식 이상';
+    throw new Error(`Yahoo 일봉 실패: ${msg}`);
+  }
+  const q = (r.indicators && r.indicators.quote && r.indicators.quote[0]) || {};
+  const pad = (n) => String(n).padStart(2, '0');
+  const candles = [];
+  for (let i = 0; i < r.timestamp.length; i++) {
+    const c = q.close ? q.close[i] : null;
+    if (c === null || c === undefined || Number.isNaN(c)) continue; // 거래정지·미확정 봉 제외
+    const d = new Date(r.timestamp[i] * 1000);
+    candles.push({
+      // 미국장 개장시각(13:30/14:30 UTC)은 UTC 기준으로도 같은 날짜라 UTC 변환이 안전합니다.
+      date: `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}`,
+      open: q.open && q.open[i] != null ? q.open[i] : c,
+      high: q.high && q.high[i] != null ? q.high[i] : c,
+      low: q.low && q.low[i] != null ? q.low[i] : c,
+      close: c,
+      volume: q.volume && q.volume[i] != null ? q.volume[i] : 0,
+    });
+  }
+  if (candles.length === 0) throw new Error(`Yahoo 일봉 데이터 없음: ${ticker}`);
+  return candles.slice(-count); // 과거 → 최신 순
+}
+
+async function fetchDailyCandlesUSStooq(ticker, count = 140) {
   const symbol = ticker.startsWith('^') ? ticker : `${ticker.toLowerCase()}.us`;
   const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`;
   const csv = await fetchText(url);
+  // 한도 초과를 '파싱 실패'로 뭉개지 않고 원인을 그대로 남깁니다.
+  if (/exceeded|limit/i.test(csv.slice(0, 200))) throw new Error('Stooq 일일 다운로드 한도 초과(IP 차단)');
   const lines = csv.trim().split('\n');
-  if (lines.length < 2 || !lines[0].startsWith('Date')) throw new Error(`CSV 파싱 실패: ${ticker}`);
+  if (lines.length < 2 || !lines[0].startsWith('Date')) {
+    throw new Error(`CSV 파싱 실패: ${ticker} (본문 앞부분: ${csv.slice(0, 60).replace(/\s+/g, ' ')})`);
+  }
   const candles = lines
     .slice(1)
     .map((line) => {
@@ -139,6 +203,16 @@ async function fetchDailyCandlesUS(ticker, count = 140) {
     .filter((c) => !Number.isNaN(c.close));
   if (candles.length === 0) throw new Error(`일봉 데이터 없음: ${ticker}`);
   return candles.slice(-count); // 과거 → 최신 순
+}
+
+async function fetchDailyCandlesUS(ticker, count = 140) {
+  try {
+    return await fetchDailyCandlesUSYahoo(ticker, count);
+  } catch (e) {
+    console.warn(`  [경고] ${ticker} Yahoo 일봉 실패(${e.message}) → Stooq 폴백`);
+    noteFailure('candlesYahoo', ticker, e.message);
+    return await fetchDailyCandlesUSStooq(ticker, count);
+  }
 }
 
 // [v3] 저장용 compact 변환 (키를 1글자로 줄여 파일 크기 절약)
@@ -255,8 +329,10 @@ async function fetchValuationInfoKR(code) {
       if (info.code === 'per') out.per = value;
       else if (info.code === 'pbr') out.pbr = value;
       // 동일업종 PER: 네이버 필드명이 버전마다 달라 코드/라벨을 방어적으로 탐색
-      else if (/industry.*per|sameindustry.*per|upjong.*per/i.test(info.code || '') ||
-               /동일\s*업종\s*per/i.test(`${info.key || ''}${info.name || ''}${info.title || ''}`)) {
+      else if (
+        /industry.*per|sameindustry.*per|upjong.*per/i.test(info.code || '') ||
+        /동일\s*업종\s*per/i.test(`${info.key || ''}${info.name || ''}${info.title || ''}`)
+      ) {
         out.industryPer = value;
       }
     }
@@ -266,15 +342,28 @@ async function fetchValuationInfoKR(code) {
     noteFailure('valuation', code, e.message);
   }
   // 통합 API에 동일업종 PER이 없으면 데스크톱 종목 페이지 HTML에서 폴백 추출.
-  // (네이버 데스크톱은 EUC-KR 인코딩이라 UTF-8로 읽으면 한글이 깨져 매칭 실패 → 바이트를 EUC-KR로 디코드)
+  // (네이버 데스크톱은 EUC-KR 이라 UTF-8로 읽으면 한글이 깨져 매칭 실패 → EUC-KR 디코드)
   if (out.industryPer === null) {
     try {
       const html = await fetchWithRetry(
         `https://finance.naver.com/item/main.naver?code=${code}`,
         async (res) => new TextDecoder('euc-kr').decode(Buffer.from(await res.arrayBuffer()))
       );
-      const m = html.match(/동일업종\s*PER[\s\S]{0,240}?(-?[\d,]+\.\d+)\s*배/);
-      if (m) { const v = toNum(m[1]); if (!Number.isNaN(v) && v > 0) out.industryPer = v; }
+      // [v3.3] 숫자와 '배' 사이에 닫는 태그(</em> 등)가 끼어 있어 기존 정규식이 매칭되지 않았습니다.
+      //  네이버 실제 마크업: <th>동일업종 PER</th> ... <em>10.55</em>배
+      //  → 태그를 건너뛸 수 있게 (?:<\/[a-zA-Z]+>\s*)* 를 넣고, 그래도 안 되면 태그를 벗겨 재시도.
+      const RE_IND_PER = /동일업종\s*PER[\s\S]{0,300}?(-?[\d,]+\.?\d*)\s*(?:<\/[a-zA-Z]+>\s*)*배/;
+      let m = html.match(RE_IND_PER);
+      if (!m) {
+        const plain = html.replace(/<[^>]+>/g, ' ');
+        m = plain.match(/동일업종\s*PER[\s\S]{0,120}?(-?[\d,]+\.?\d*)\s*배/);
+      }
+      if (m) {
+        const v = toNum(m[1]);
+        if (!Number.isNaN(v) && v > 0) out.industryPer = v;
+      } else {
+        noteFailure('industryPer', code, '동일업종 PER 패턴 불일치(네이버 마크업 변경 가능)');
+      }
     } catch (e) {
       noteFailure('industryPer', code, e.message);
     }
@@ -299,14 +388,19 @@ async function fetchSupplyDemandKR(code) {
   try {
     const data = await fetchJson(`https://m.stock.naver.com/api/stock/${code}/trend?pageSize=20&page=1`);
     const rows = Array.isArray(data) ? data : data.trends || data.result || [];
-    const num = (v) => { const n = Number(String(v ?? '').replace(/,/g, '')); return Number.isNaN(n) ? null : n; };
+    const num = (v) => {
+      const n = Number(String(v ?? '').replace(/,/g, ''));
+      return Number.isNaN(n) ? null : n;
+    };
     // 일별 투자자 순매수(수량). naver는 최신→과거 순 → 과거→최신으로 뒤집어 시계열 저장.
-    const flows = rows.map((r) => ({
-      date: String(r.bizdate ?? r.localTradedAt ?? r.dt ?? '').replace(/[^0-9]/g, '').slice(0, 8),
-      indiv: num(r.individualPureBuyQuant ?? r.individ_qty ?? r.indi_qty),
-      foreign: num(r.foreignerPureBuyQuant ?? r.frgn_qty),
-      org: num(r.organPureBuyQuant ?? r.orgn_qty),
-    })).reverse();
+    const flows = rows
+      .map((r) => ({
+        date: String(r.bizdate ?? r.localTradedAt ?? r.dt ?? '').replace(/[^0-9]/g, '').slice(0, 8),
+        indiv: num(r.individualPureBuyQuant ?? r.individ_qty ?? r.indi_qty),
+        foreign: num(r.foreignerPureBuyQuant ?? r.frgn_qty),
+        org: num(r.organPureBuyQuant ?? r.orgn_qty),
+      }))
+      .reverse();
     const recent5 = (k) => flows.slice(-5).map((f) => f[k]).filter((v) => v != null);
     return {
       foreignTrend5d: netBuysToTrend(recent5('foreign')),
@@ -335,6 +429,7 @@ async function fetchKospiClose() {
 
 async function fetchSpxClose() {
   try {
+    // '^spx' 는 US_SYMBOL_YAHOO 가 '^GSPC' 로 바꿔줍니다(Stooq 폴백에서는 '^spx' 그대로).
     const candles = await fetchDailyCandlesUS('^spx', 5);
     return candles[candles.length - 1].close;
   } catch (e) {
@@ -348,7 +443,9 @@ async function fetchSpxClose() {
 
 async function fetchUsdKrw() {
   try {
-    const data = await fetchJson('https://m.stock.naver.com/front-api/marketIndex/prices?category=exchange&reutersCode=FX_USDKRW&page=1&pageSize=21');
+    const data = await fetchJson(
+      'https://m.stock.naver.com/front-api/marketIndex/prices?category=exchange&reutersCode=FX_USDKRW&page=1&pageSize=21'
+    );
     const rows = data.result || [];
     if (rows.length === 0) return null;
     const parse = (v) => Number(String(v).replace(/,/g, ''));
@@ -369,7 +466,7 @@ async function fetchUsdKrw() {
 
 function resolveSectorFor(t, fund, market) {
   if (market === 'US') {
-    // [v2.1] fetch-fundamentals-us.py 가 yfinance industry → sector-map-us.json 으로
+    // [v3.3] fetch-fundamentals-us.py 가 yfinance industry → sector-map-us.json 으로
     // 해석해 넣어둔 sectorType 을 씁니다. 없으면(첫 실행 전) general + resolved:false
     // → 엔진이 unmappedSector 경고를 띄워 '조용한 오채점'을 막습니다.
     return {
@@ -406,7 +503,10 @@ async function collectOne(t, fundamentals, prevByTicker) {
   let candlesOk = false;
   let candles = []; // [v3] 저장용 compact 일봉 시계열
   try {
-    const rawCandles = market === 'US' ? await fetchDailyCandlesUS(t.code, CANDLE_FETCH) : await fetchDailyCandlesKR(t.code, CANDLE_FETCH);
+    const rawCandles =
+      market === 'US'
+        ? await fetchDailyCandlesUS(t.code, CANDLE_FETCH)
+        : await fetchDailyCandlesKR(t.code, CANDLE_FETCH);
     technical = computeTechnical(rawCandles);
     candles = toCompactCandles(rawCandles); // [v3]
     candlesOk = true;
@@ -415,7 +515,11 @@ async function collectOne(t, fundamentals, prevByTicker) {
     noteFailure('candles', t.code, e.message);
     // 폴백: 직전 실행 결과의 기술지표·시계열을 그대로 사용 (하루 사이 크게 변하지 않음)
     if (prev && prev.technical) {
-      technical = { ...prev.technical, currentPrice: prev.meta && prev.meta.currentPrice, lastDate: prev.meta && prev.meta.lastDate };
+      technical = {
+        ...prev.technical,
+        currentPrice: prev.meta && prev.meta.currentPrice,
+        lastDate: prev.meta && prev.meta.lastDate,
+      };
       console.warn(`  [폴백] ${t.code} 직전 일봉 데이터 사용 (${technical.lastDate})`);
     }
     if (prev && Array.isArray(prev.candles)) candles = prev.candles; // [v3] 시계열도 폴백
@@ -423,16 +527,16 @@ async function collectOne(t, fundamentals, prevByTicker) {
 
   let per = null;
   let pbr = null;
-  let industryPer = null;   // [수정] KR 네이버 동일업종 PER. 선언이 없어 암묵적 전역이던 것을 지역변수로
-  let perRelative = null;   // KR은 아래에서, US는 US 분기에서 채움
+  let industryPer = null; // [v3.3] KR 네이버 동일업종 PER. 선언 없이 쓰이던 암묵적 전역을 지역변수로.
+  let perRelative = null; // US 는 아래 US 분기에서, KR 은 if/else 뒤에서 채웁니다.
   let supplyDemand = { foreignTrend5d: null, institutionTrend5d: null };
 
   if (market === 'US') {
-    // [v2.1] 미국 PER/PBR 일일 재계산 (수동 입력 폐지)
-    //  per = 종가 / epsTtm,  pbr = 종가 / bvps,  perRelative = per / sectorPer
-    //  ↑ 세 분모는 fetch-fundamentals-us.py 가 분기마다 fundamentals.json 에 넣습니다.
+    // [v3.3] 미국 PER/PBR 일일 재계산 (수동 입력 폐지)
+    //  per = 종가/epsTtm,  pbr = 종가/bvps,  perRelative = per/sectorPer
+    //  ↑ 세 분모는 fetch-fundamentals-us.py 가 월 1회 fundamentals.json 에 넣습니다.
     //  적자(epsTtm<=0)면 PER 을 만들지 않습니다 — 음수 PER 은 lowerIsBetter 규칙에서
-    //  '가장 싼 주식'으로 오채점되기 때문입니다(결측이 오답보다 낫다).
+    //  '가장 싼 주식'으로 오채점됩니다(결측이 오답보다 낫다).
     const round2 = (v) => Math.round(v * 100) / 100;
     const price = technical.currentPrice ?? null;
     if (price && fund.epsTtm > 0) per = round2(price / fund.epsTtm);
@@ -456,14 +560,16 @@ async function collectOne(t, fundamentals, prevByTicker) {
     supplyDemand = await fetchSupplyDemandKR(t.code);
   }
 
-  // PER 업종평균 대비 배율: 동일업종 PER을 받았으면 개별PER/업종PER, 없으면 재무파일 값 폴백
-
-if (perRelative === null) {
+  // PER 업종평균 대비 배율.
+  //  KR: 동일업종 PER을 받았으면 개별PER/업종PER, 없으면 재무파일 값 폴백
+  //  US: 위 US 분기에서 섹터 PER 중위값으로 이미 계산했으므로 덮어쓰지 않습니다.
+  if (perRelative === null) {
     perRelative =
       typeof per === 'number' && per > 0 && typeof industryPer === 'number' && industryPer > 0
         ? Math.round((per / industryPer) * 1000) / 1000
         : (fund.perRelative ?? null);
-    }
+  }
+
   const sector = resolveSectorFor(t, fund, market);
 
   return {
@@ -539,7 +645,9 @@ async function main() {
   const stocks = [];
   const retryQueue = [];
 
-  console.log(`수집 시작: ${tickers.length}종목 (딜레이 ${REQUEST_DELAY_MS}ms, 재시도 ${MAX_RETRIES}회, 일봉저장 ${CANDLE_KEEP}일)`);
+  console.log(
+    `수집 시작: ${tickers.length}종목 (딜레이 ${REQUEST_DELAY_MS}ms, 재시도 ${MAX_RETRIES}회, 일봉저장 ${CANDLE_KEEP}일)`
+  );
   const startedAt = Date.now();
 
   for (let i = 0; i < tickers.length; i++) {
@@ -576,11 +684,19 @@ async function main() {
   const sectorCount = {};
   let unresolved = 0;
   let withCandles = 0;
+  // [v3.3] 시장별 집계 — 미국 종목이 통째로 빠지는 사고를 로그에서 바로 보기 위한 것
+  const byMarket = {};
   for (const s of stocks) {
     const st = (s.fundamental && s.fundamental.sectorType) || 'general';
     sectorCount[st] = (sectorCount[st] || 0) + 1;
     if (s.fundamental && s.fundamental.sectorResolved === false) unresolved++;
-    if (Array.isArray(s.candles) && s.candles.length) withCandles++;
+    const hasCandles = Array.isArray(s.candles) && s.candles.length > 0;
+    if (hasCandles) withCandles++;
+    const mk = s.market || 'KR';
+    if (!byMarket[mk]) byMarket[mk] = { total: 0, candles: 0, per: 0 };
+    byMarket[mk].total++;
+    if (hasCandles) byMarket[mk].candles++;
+    if (s.valuation && typeof s.valuation.per === 'number') byMarket[mk].per++;
   }
 
   const output = {
@@ -595,6 +711,7 @@ async function main() {
       collected: stocks.length,
       candleFailures: retryQueue.length,
       withCandles, // [v3] 시계열이 채워진 종목 수
+      byMarket, // [v3.3] 시장별 일봉·PER 채움 현황
       unresolvedSector: unresolved,
       sectorCount,
       failures: failures.slice(0, 50),
@@ -604,8 +721,16 @@ async function main() {
 
   console.log(`\n완료: ${stocks.length}개 종목 → data/inputs.json (${elapsed}초)`);
   console.log(`일봉 시계열: ${withCandles}/${stocks.length}종목 저장`);
+  for (const [mk, v] of Object.entries(byMarket)) {
+    console.log(`  ${mk}: ${v.total}종목 / 일봉 ${v.candles} / PER ${v.per}`);
+    if (v.candles === 0 && v.total > 0) console.log(`  ⚠ ${mk} 일봉이 전건 실패했습니다 — 아래 실패 요약 확인`);
+    if (mk === 'US' && v.per === 0 && v.total > 0) {
+      console.log('  ⚠ US PER이 하나도 없습니다 — fundamentals.json 에 epsTtm/bvps 가 비었을 가능성');
+      console.log('    → Actions에서 fundamentals-us 워크플로를 먼저 실행하세요');
+    }
+  }
   console.log(`업종 분포: ${JSON.stringify(sectorCount)}`);
-  if (unresolved > 0) console.log(`⚠ 업종 미분류 ${unresolved}종목 — config/sector-map.json 확인 필요`);
+  if (unresolved > 0) console.log(`⚠ 업종 미분류 ${unresolved}종목 — sector-map.json / sector-map-us.json 확인 필요`);
   if (failures.length > 0) {
     console.log(`⚠ 수집 경고 ${failures.length}건`);
     for (const f of failures.slice(0, 20)) console.log(`   ${f.scope} ${f.target}: ${f.message}`);
