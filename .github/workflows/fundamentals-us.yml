@@ -1,0 +1,82 @@
+name: fundamentals-us
+
+# 미국 종목 재무·주당지표 수집 (yfinance → 실패 필드는 SEC XBRL 폴백)
+#
+# 주기: 매월 3일 07:00 KST + 수동 실행
+#   분기(실적 시즌) 1회면 될 것 같지만, 미국 기업은 결산월이 흩어져 있어
+#   (NVDA 1월, AVGO 10월, COST 8월 …) 분기 고정 실행으로는 epsTtm 이 최대 3개월 낡습니다.
+#   41종목 × 1.5초 ≈ 2분이라 매월 도는 비용이 사실상 없습니다.
+#
+# PER/PBR 자체는 여기서 만들지 않습니다 — collect.js 가 매일 Stooq 종가를
+# epsTtm·bvps 로 나눠 계산합니다. 이 워크플로가 갱신하는 것은 그 '분모'입니다.
+
+on:
+  schedule:
+    - cron: '0 22 2 * *'   # UTC 22:00 (다음 날 07:00 KST)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          # yfinance 는 Yahoo 엔드포인트 변경에 맞춰 자주 고쳐지므로 버전을 고정하지 않습니다.
+          # 대신 실패 시 SEC XBRL 폴백이 값을 채우도록 설계했습니다.
+          pip install yfinance
+
+      - name: 미국 재무 수집
+        env:
+          # SEC 는 요청 헤더에 연락처를 요구합니다(규정). 없으면 403.
+          SEC_UA: 'stock-scoring-app wonithink@gmail.com'
+          US_SLEEP: '2.0'   # Yahoo 429 회피. 41종목 × 2초 ≈ 1.5분
+        run: python scripts/fetch-fundamentals-us.py
+
+      - name: 결과 요약
+        run: |
+          python - <<'PY'
+          import json
+          d = json.load(open('config/fundamentals.json', encoding='utf-8'))
+          bt = d['byTicker']
+          us = {k: v for k, v in bt.items() if not k[:1].isdigit() and v.get('_source', '').startswith('yfinance')}
+          need = ['roe', 'debtRatioRaw', 'operatingMarginTrend', 'revenueGrowthYoY',
+                  'epsGrowthRate', 'epsTtm', 'bvps']
+          print(f"US 종목 {len(us)}개, 섹터PER {d.get('usSectorPer')}")
+          weak = []
+          for k, v in sorted(us.items()):
+              filled = sum(1 for f in need if v.get(f) is not None)
+              if filled <= 4:
+                  weak.append(f"{k}({filled}/7)")
+          print("채움 부진:", ", ".join(weak) if weak else "없음")
+          PY
+
+      - name: 커밋 & 푸시
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add config/fundamentals.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 커밋 생략"
+            exit 0
+          fi
+          git commit -m "chore: 미국 재무 데이터 갱신 (yfinance/SEC)"
+          # 동시 실행 push 경합(fetch first) 방지 — 프로젝트 공통 규칙
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            echo "push 재시도 $i"
+            sleep $((i * 5))
+          done
+          echo "push 실패"
+          exit 1
