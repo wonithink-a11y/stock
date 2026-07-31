@@ -1,6 +1,9 @@
-name: Fetch news (Naver)
+name: Fetch news (Naver + Google)
 
-# 관심종목 뉴스 + 시장 주요뉴스를 네이버 검색 API로 수집해 docs/data/news.json 갱신 + 키워드 알림.
+# 관심종목 뉴스 + 시장 주요뉴스(4그룹)를 수집해 docs/data/news.json 갱신 + 키워드 알림.
+#   - 네이버 검색 API: 종목별 + 시장 그룹 쿼리 (Secrets 필요)
+#   - 구글뉴스 RSS   : 미국·글로벌 / 리스크·지정학 그룹의 영문 원문 (무키, 실패해도 무시)
+#   - config/holdings.json 의 보유종목이 '꼭 볼 뉴스' 우선순위 1순위
 # 인증키는 저장소 Secrets 로만 주입한다 (코드에 하드코딩 금지).
 
 on:
@@ -8,6 +11,15 @@ on:
     # 평일 장중(00:00~06:30 UTC = 09:00~15:30 KST) 30분마다 + 장 마감 직후 1회
     - cron: '0,30 0-6 * * 1-5'
   workflow_dispatch:
+    inputs:
+      retention_days:
+        description: '보존기간(일) — 이보다 오래된 기사는 버림'
+        required: false
+        default: '3'
+      use_google:
+        description: '구글뉴스 RSS 사용 (1=사용, 0=끔)'
+        required: false
+        default: '1'
 
 permissions:
   contents: write
@@ -19,6 +31,9 @@ concurrency:
 jobs:
   news:
     runs-on: ubuntu-latest
+    # 관심종목이 20 → 141개로 늘어 1회 실행이 ~2분. 네이버가 응답을 안 주면
+    # job 이 오래 매달리므로 상한을 둔다(스케줄 간격 30분보다 훨씬 짧게).
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -26,12 +41,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch news from Naver
+      - name: Fetch news (Naver + Google News RSS)
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 아래는 전부 선택값(스크립트에 기본값 있음). 코드를 고치지 않고 여기서 조정한다.
+          NEWS_RETENTION_DAYS: ${{ github.event.inputs.retention_days || '3' }}
+          NEWS_GOOGLE: ${{ github.event.inputs.use_google || '1' }}
+          NEWS_PER_STOCK: '5'     # 종목당 저장 기사 수. news.json 이 무거우면 3으로
+          NEWS_BRIEF_MAX: '15'    # '꼭 볼 뉴스' 최대 건수
         run: node scripts/fetch-news-kr.js
 
       - name: Commit news.json
@@ -39,5 +59,11 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/news.json
-          git diff --staged --quiet || git commit -m "chore: update news from Naver"
-          git push
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore: update news (naver+google)"
+          # 동시 실행되는 다른 워크플로와의 푸시 경합(fetch first) 방지: rebase 후 재시도
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push 재시도 $i..."; sleep 5
+          done
+          echo "push 최종 실패"; exit 1
