@@ -1,6 +1,6 @@
 {
   "description": "종목별 재무 데이터. ★값이 null인 필드는 반드시 실제 값으로 채우세요 - null이면 결측 처리되어 등급이 '유보'로 나옵니다(안전장치). [한국 KR] 출처: FnGuide(comp.fnguide.com)/네이버금융 종목분석 (빠름) 또는 DART 사업보고서 (원천). [미국 US] 출처: stockanalysis.com, macrotrends.net (빠름) 또는 SEC 10-K (원천). 미국 종목은 per/pbr도 여기서 수동 입력합니다(자동 수집 없음). 갱신 주기: 분기 1회(실적 발표 후). 삼성전자는 '기입 형식 예시'이며 실제 최신 값으로 검증 후 사용하세요. [자동] 한국 종목은 scripts/fetch-fundamentals-kr.js 가 DART 사업보고서에서 분기 1회 자동 수집합니다(ROE=당기순이익÷자본총계, 기말 자본 기준). 업종(sectorType)은 기업개황 API의 표준산업분류코드를 config/sector-map.json 으로 변환한 값입니다. perRelative와 미국 종목은 수동 입력 유지.",
-  "updatedAt": "2026-07-30",
+  "updatedAt": "2026-08-01",
   "byTicker": {
     "105560": {
       "roe": 9.6,
@@ -3913,9 +3913,57 @@
         "dividends": "yf"
       },
       "sectorPer": 32.63
+    },
+    "DAL": {
+      "roe": 20.1,
+      "roeHistory5y": [10.3, 25.2, 52.1, 26.2, 20.1],
+      "debtRatio": 290,
+      "debtRatioRaw": 290,
+      "currentRatio": 39,
+      "operatingMarginTrend": null,
+      "operatingMarginTrendPP": null,
+      "revenueGrowthYoY": 2.8,
+      "epsGrowthRate": null,
+      "buybackOrDividendHistory": true,
+      "perRelative": null,
+      "per": 14.0,
+      "pbr": 2.2,
+      "epsTtm": null,
+      "bvps": null,
+      "sectorType": "airline",
+      "sectorResolved": true,
+      "sectorSource": "byTicker",
+      "yfSector": "Industrials",
+      "yfIndustry": "Airlines",
+      "_source": "stockanalysis.com/macrotrends.net (수동 조사, Berkshire 13F Q1 2026 신규 편입)",
+      "_asOf": "2026-08-01"
+    },
+    "M": {
+      "roe": null,
+      "roeHistory5y": null,
+      "debtRatio": 260,
+      "debtRatioRaw": 260,
+      "currentRatio": 143,
+      "operatingMarginTrend": null,
+      "operatingMarginTrendPP": null,
+      "revenueGrowthYoY": -0.4,
+      "epsGrowthRate": null,
+      "buybackOrDividendHistory": true,
+      "perRelative": null,
+      "per": 9.8,
+      "pbr": 1.38,
+      "epsTtm": null,
+      "bvps": null,
+      "sectorType": "general",
+      "sectorResolved": true,
+      "sectorSource": "default",
+      "yfSector": "Consumer Cyclical",
+      "yfIndustry": "Department Stores",
+      "_source": "stockanalysis.com/macrotrends.net (수동 조사, Berkshire 13F Q1 2026 신규 편입; roe·epsGrowthRate는 출처 간 수치 불일치로 결측 처리)",
+      "_asOf": "2026-08-01"
     }
   },
-  "usUpdatedAt": "2026-07-30",
+  "usUpdatedAt": "2026-08-01",
   "usSectorPer": {
     "general": 32.63,
     "financial": 15.63
