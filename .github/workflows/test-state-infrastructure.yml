@@ -1,11 +1,19 @@
 name: test-state-infrastructure
 on:
   push:
-    paths: ['lib/**', 'config/policies/**', 'scripts/test-state-infrastructure.js']
+    paths:
+      - 'lib/**'
+      - 'config/policies/**'
+      - 'scripts/test-state-infrastructure.js'
+      - 'scripts/test-state-expirer.js'
+      - 'scripts/test-classifier.js'
   workflow_dispatch: {}
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # 한 스텝에 묶지 않는다. 어느 계층이 깨졌는지 로그에서 바로 보여야 한다.
+      - run: node scripts/test-classifier.js
       - run: node scripts/test-state-infrastructure.js
+      - run: node scripts/test-state-expirer.js
