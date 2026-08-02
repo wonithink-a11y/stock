@@ -1,0 +1,11 @@
+name: test-state-infrastructure
+on:
+  push:
+    paths: ['lib/**', 'config/policies/**', 'scripts/test-state-infrastructure.js']
+  workflow_dispatch: {}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/test-state-infrastructure.js
