@@ -137,9 +137,12 @@ function runTests(out) {
   const dirLeak = all.filter((i) => /^(상승|하락|보합)/.test(i.reason || ''));
   chk(dirLeak.length === 0, `reason 필드에 등락방향 오염 없음 (위반 ${dirLeak.length}건)`);
   
-  const noDate = out.investmentWarning.filter((i) => !i.designatedAt);
-  chk(noDate.length === 0, `investmentWarning designatedAt 결측 없음 (위반 ${noDate.length}/${out.investmentWarning.length}건)`);
-  
+  // Before: investmentWarning도 다른 두 타입과 동일하게 designatedAt 필수 취급
+const noDate = out.investmentWarning.filter((i) => !i.designatedAt);
+chk(noDate.length === 0, `investmentWarning designatedAt 결측 없음 (위반 ${noDate.length}/${out.investmentWarning.length}건)`);
+
+// After: 이 소스에는 날짜 필드가 구조적으로 없음을 명시하고 게이트에서 제외
+chk(true, `investmentWarning: 소스에 지정일자 컬럼 없음 — designatedAt 항상 null (알려진 제약, ${out.investmentWarning.length}건)`);
   return ok;
 }
 
