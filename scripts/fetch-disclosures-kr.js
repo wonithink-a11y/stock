@@ -19,6 +19,10 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
+const { buildEvents } = require('../lib/eventBuilders/dart');
+const { reduce } = require('../lib/stateReducer');
+const { getState, putState, appendHistory } = require('../lib/stateStore');
+const stateMapPolicy = require('../config/policies/stateMap.v1.json');
 
 const KEY = process.env.DART_API_KEY;
 if (!KEY) {
@@ -151,12 +155,15 @@ async function main() {
   const prevSeen = new Set((prev.items || []).map((x) => x.rceptNo));
 
   const collected = [];
+  const rawRows = [];   // 원시 DART 응답. 이벤트는 알림 필터(CATEGORIES)와 무관하게 전량에서 만든다.
   const failed = [];
   for (const t of krTickers) {
     const corp = corpMap[t.code];
     if (!corp) { failed.push(`${t.code} ${t.name}: corp_code 없음`); continue; }
     try {
       const rows = await fetchDisclosures(corp, bgnDe, endDe);
+      // stock_code가 비는 응답이 있어 watchlist 코드로 보정 (buildEvents의 필수 필드)
+      for (const r of rows) rawRows.push({ ...r, stock_code: r.stock_code || t.code });
       for (const r of rows) {
         const cat = classify(r.report_nm);
         if (!cat) continue;
@@ -180,6 +187,31 @@ async function main() {
   // 신규(이전 파일에 없던 rcept_no) 추출 → 알림
   const fresh = collected.filter((x) => !prevSeen.has(x.rceptNo));
 
+  // ── STEP2: Event → State 반영 ────────────────────────────────
+  // 알림·JSON 생성과 완전히 분리한다. 여기서 예외가 나도 위 산출물은 정상 생성되어야 한다.
+  const stateSync = { processed: 0, applied: 0, failed: [] };
+  const events = [];
+  for (const item of rawRows) {
+    try { events.push(...buildEvents(item)); }
+    catch (err) { stateSync.failed.push({ rceptNo: item.rcept_no ?? null, reason: err.message }); }
+  }
+  events.sort((a, b) => a.sortKey.localeCompare(b.sortKey));   // REDUCE-006 전제: sortKey 오름차순
+  for (const ev of events) {
+    stateSync.processed++;
+    try {
+      const prevState = getState(ev.ticker);
+      const nextState = reduce(prevState, ev, stateMapPolicy);
+      // reduce는 이미 반영된 이벤트에 대해 prevState를 그대로 반환한다.
+      // 동일 참조면 건너뛰어야 재실행 시 state-history에 중복 append가 쌓이지 않는다.
+      if (nextState === prevState) continue;
+      putState(nextState);
+      appendHistory(ev);
+      stateSync.applied++;
+    } catch (err) {
+      stateSync.failed.push({ ticker: ev.ticker, eventId: ev.eventId, reason: err.message });
+    }
+  }
+
   // 기존 + 이번 수집 병합, KEEP_DAYS 이내만 보관, 최신순 정렬, rceptNo 중복 제거
   const cutoff = kstYmd(KEEP_DAYS);
   const byNo = new Map();
@@ -194,12 +226,15 @@ async function main() {
     updatedAt: new Date().toISOString(),
     range: { bgnDe, endDe },
     count: merged.length,
+    stateSync,
     items: merged,
   }, null, 2) + '\n', 'utf8');
 
   console.log(`\n✅ 관심유형 공시 ${collected.length}건(신규 ${fresh.length}건) → ${OUT_PATH}`);
   fresh.forEach((x) => console.log(`  [신규] ${x.name} · ${x.category} · ${x.reportNm} (${x.rceptDt})`));
   if (failed.length) { console.log(`\n⚠ 실패/건너뜀 ${failed.length}건`); failed.forEach((s) => console.log('  ' + s)); }
+  console.log(`\n🧩 state: 이벤트 ${stateSync.processed}건 중 ${stateSync.applied}건 반영, 실패 ${stateSync.failed.length}건`);
+  stateSync.failed.slice(0, 10).forEach((f) => console.log('  ' + JSON.stringify(f)));
 
   // 텔레그램 알림 (신규 건, 최대 20건 묶음)
   if (fresh.length) {
