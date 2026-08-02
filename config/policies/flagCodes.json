@@ -1,0 +1,27 @@
+{
+  "version": "FC-1.1",
+  "note": "flags에 들어갈 수 있는 문자열의 유일한 정의처. 여기 없는 코드를 엔진이 만들면 test-policies.js가 잡는다.",
+  "groups": {
+    "confidence": [
+      { "code": "LOW_CONFIDENCE",      "description": "confidence.value가 lowConfidence 임계값 미만" },
+      { "code": "VERY_LOW_CONFIDENCE", "description": "confidence.value가 veryLowConfidence 임계값 미만" }
+    ],
+    "risk": [
+      { "code": "HIGH_RISK",      "description": "riskPenalty 합계가 -15 이하" },
+      { "code": "VERY_HIGH_RISK", "description": "riskPenalty 합계가 -25 이하" }
+    ],
+    "data": [
+      { "code": "MISSING_DATA",     "description": "필수 지표 결측으로 축 하나 이상이 null" },
+      { "code": "STALE_DATA",       "description": "dataCutoff가 기준일보다 오래됨" },
+      { "code": "OUTLIER_DETECTED", "description": "원시 지표가 정상 범위를 크게 벗어남" }
+    ],
+    "engine": [
+      { "code": "PARTIAL_CALCULATION", "description": "일부 축만 계산됨(missingAxis renormalize 적용)" },
+      { "code": "LEGACY_ENGINE",       "description": "V2 이전 엔진으로 산출된 점수" },
+      { "code": "UNSUPPORTED_FEATURE", "description": "요청된 기능이 현 엔진 버전에 없음" }
+    ],
+    "trading": [
+      { "code": "TRADE_BLOCKED", "description": "tradingState가 trading.v1.json의 blockedStates에 해당" }
+    ]
+  }
+}
