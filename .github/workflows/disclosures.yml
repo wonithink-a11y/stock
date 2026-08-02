@@ -35,12 +35,16 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node scripts/fetch-disclosures-kr.js
-
+        
       - name: Commit disclosures + state
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/disclosures.json data/state data/state-history data/cache
+          # state/state-history는 해당 이벤트가 처음 발생하는 날에야 생긴다.
+          # 없는 경로를 git add에 넘기면 exit 128로 죽어 나머지 산출물까지 커밋되지 않는다.
+          for p in docs/data/disclosures.json data/state data/state-history data/cache; do
+            if [ -e "$p" ]; then git add "$p"; fi
+          done
           git diff --staged --quiet && exit 0
           git commit -m "chore: update disclosures + state from DART"
           for i in 1 2 3 4 5; do
