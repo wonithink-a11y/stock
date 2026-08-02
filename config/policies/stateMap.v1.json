@@ -1,0 +1,15 @@
+{
+  "version": "SM-1.0",
+  "events": {
+    "MANAGEMENT_DESIGNATION": { "field": "listingStatus", "value": "MANAGED" },
+    "MANAGEMENT_RELEASE":     { "field": "listingStatus", "value": "NORMAL" },
+    "TRADING_HALT":           { "field": "tradingState",  "value": "HALTED" },
+    "TRADING_RESUME":         { "field": "tradingState",  "value": "NORMAL" },
+    "DELISTING_REVIEW":       { "field": "tradingState",  "value": "DELISTING_REVIEW" },
+    "DELISTED":               { "field": "tradingState",  "value": "DELISTED" },
+    "INVESTMENT_WARNING":         { "field": "riskStates", "add": "INVESTMENT_WARNING" },
+    "INVESTMENT_WARNING_RELEASE": { "field": "riskStates", "remove": "INVESTMENT_WARNING" },
+    "MEZZANINE_ISSUED":  { "field": "riskStates", "add": "MEZZANINE_ACTIVE", "ttlDays": 30 },
+    "RIGHTS_OFFERING":   { "field": "riskStates", "add": "RIGHTS_OFFERING_ACTIVE", "ttlDays": 30 }
+  }
+}
