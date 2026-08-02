@@ -61,17 +61,16 @@ function parseRows(html) {
       .filter(Boolean);
     const name = m[2].trim();
     
-    // 등락방향+등락폭 셀 오탐 방지 로직 적용
     const PRICE = /^[\d,.\-+%]+$/;
     const DIRECTION = /^(상승|하락|보합)/;   
     const reason = cells.find((c) => c !== name && !PRICE.test(c) && !DIRECTION.test(c)) || null;
     
-    // 요일 등 부가문자 허용 위해 부분매치 로직 적용
     const DATE_RE = /(\d{4})[.\-/](\d{2})[.\-/](\d{2})/;   
     const dateMatch = cells.map((c) => c.match(DATE_RE)).find(Boolean);
     const at = dateMatch ? `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}` : null;
     
-    out.push({ ticker: m[1], name, reason, at });
+    // 진단 임시 필드 _rawCells 추가
+    out.push({ ticker: m[1], name, reason, at, _rawCells: cells });
   }
   const seen = new Set();
   return out.filter((r) => !seen.has(r.ticker) && seen.add(r.ticker));
@@ -92,7 +91,15 @@ async function main() {
       try {
         const rows = parseRows(decodeEucKr(await fetchBuf(url)));
         if (rows.length === 0) throw new Error('0 rows parsed (구조 변경 또는 잘못된 URL)');
+        
         out[kind] = rows.map((r) => ({ ticker: r.ticker, name: r.name, reason: r.reason, [DATE_KEY[kind]]: r.at }));
+        
+        // 진단: 한글깨짐/날짜결측 표본 3건만 원본 셀과 함께 별도 기록 (프로덕션 스키마 오염 안 시킴)
+        out._diagnostics[`${kind}RawSample`] = rows
+          .filter((r) => !/[\uAC00-\uD7A3]/.test(r.name) || (kind === 'investmentWarning' && !r.at))
+          .slice(0, 3)
+          .map((r) => ({ ticker: r.ticker, name: r.name, cells: r._rawCells }));
+
         out.meta.sources.push({ kind, url, method: 'html', count: rows.length });
         done = true; break;
       } catch (e) {
@@ -126,7 +133,7 @@ function runTests(out) {
   chk(out.management.length > 0, `management 수집 건수 > 0 (${out.management.length}건)`);
   chk(out.meta.sources.length > 0, 'meta.sources 기록됨');
   
-  // 이번 세션에서 실측된 오염 패턴 회귀 방지 (신규 추가)
+  // 이번 세션에서 실측된 오염 패턴 회귀 방지
   const dirLeak = all.filter((i) => /^(상승|하락|보합)/.test(i.reason || ''));
   chk(dirLeak.length === 0, `reason 필드에 등락방향 오염 없음 (위반 ${dirLeak.length}건)`);
   
