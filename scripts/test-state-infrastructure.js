@@ -1,4 +1,8 @@
 'use strict';
+/**
+ * @file scripts/test-state-infrastructure.js
+ * State Infrastructure Test Script
+ */
 const assert = require('assert');
 const { classify } = require('../lib/eventClassifiers/dart');
 const { buildEvents } = require('../lib/eventBuilders/dart');
@@ -19,7 +23,7 @@ assert.deepStrictEqual(classify('상장폐지실질심사대상결정'), ['DELIS
 assert.deepStrictEqual(classify('상장폐지이의신청'), ['DELISTING_REVIEW_PENDING']);   // 회귀 방지 핵심
 assert.deepStrictEqual(classify('상장폐지사유해소'), ['DELISTING_REVIEW_RELEASE']);
 assert.deepStrictEqual(classify('관리종목지정및매매거래정지'),
-  ['MANAGEMENT_DESIGNATION', 'TRADING_HALT']);                                        // 복합 공시
+  ['MANAGEMENT_DESIGNATION', 'TRADING_HALT']);                             // 복합 공시
 assert.deepStrictEqual(classify('현금ㆍ현물배당결정'), []);
 assert.deepStrictEqual(classify(null), []);
 
@@ -34,7 +38,7 @@ assert.strictEqual(s.listingStatus, 'NORMAL');
 const fwd = reduce(base(), ev('MANAGEMENT_DESIGNATION', '2026-07-01', '20260701:A:00', 'a'), P);
 const back = reduce(fwd, ev('MANAGEMENT_RELEASE', '2026-06-01', '20260601:B:00', 'b'), P);
 assert.strictEqual(back.listingStatus, 'MANAGED');
-assert.strictEqual(back, fwd);                       // 동일 참조 = 무변경
+assert.strictEqual(back, fwd);                               // 동일 참조 = 무변경
 
 // ---- 재실행 멱등 (같은 sortKey 재적용) ----
 const again = reduce(fwd, ev('MANAGEMENT_DESIGNATION', '2026-07-01', '20260701:A:00', 'a'), P);
@@ -85,7 +89,7 @@ assert.strictEqual(built[0].sortKey, '20260715:2026071500123:00');
 assert.strictEqual(built[1].sortKey, '20260715:2026071500123:01');
 assert.strictEqual(built[0].occurredAt, '2026-07-15T00:00:00+09:00');
 assert.strictEqual(built[0].eventSchemaVersion, 'EV-1.0');
-assert.strictEqual(built[0].classifierVersion, 'DC-1.1');
+assert.strictEqual(built[0].classifierVersion, 'DC-1.2');
 assert.deepStrictEqual(buildEvents({ stock_code: '005930', rcept_no: '1',
   report_nm: '현금배당결정', rcept_dt: '20260715' }), []);
 
