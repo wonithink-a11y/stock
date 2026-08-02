@@ -55,13 +55,19 @@ function parseRows(html) {
   for (const row of html.split(/<tr[\s>]/i)) {
     const m = row.match(/\/item\/main\.naver\?code=(\d{6})[^>]*>([^<]+)</);
     if (!m) continue;
+    
     const cells = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
-      .map((c) => c[1].replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim())
+      .map((c) => c[1].replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim())
       .filter(Boolean);
     const name = m[2].trim();
-    const reason = cells.find((c) => c !== name && !/^[\d,.\-+%]+$/.test(c)) || null;
-    const dateCell = cells.find((c) => /^\d{4}[.\-/]\d{2}[.\-/]\d{2}$/.test(c)) || null;
-    out.push({ ticker: m[1], name, reason, at: dateCell ? dateCell.replace(/[.\/]/g, '-') : null });
+    const PRICE = /^[\d,.\-+%]+$/;
+    const DIRECTION = /^(상승|하락|보합)/;   // 등락방향+등락폭 셀 오탐 방지
+    const reason = cells.find((c) => c !== name && !PRICE.test(c) && !DIRECTION.test(c)) || null;
+    const DATE_RE = /(\d{4})[.\-/](\d{2})[.\-/](\d{2})/;   // 요일 등 부가문자 허용 위해 부분매치
+    const dateMatch = cells.map((c) => c.match(DATE_RE)).find(Boolean);
+    const at = dateMatch ? `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}` : null;
+    
+    out.push({ ticker: m[1], name, reason, at });
   }
   const seen = new Set();
   return out.filter((r) => !seen.has(r.ticker) && seen.add(r.ticker));
