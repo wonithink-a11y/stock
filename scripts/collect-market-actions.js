@@ -60,10 +60,14 @@ function parseRows(html) {
       .map((c) => c[1].replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim())
       .filter(Boolean);
     const name = m[2].trim();
+    
+    // 등락방향+등락폭 셀 오탐 방지 로직 적용
     const PRICE = /^[\d,.\-+%]+$/;
-    const DIRECTION = /^(상승|하락|보합)/;   // 등락방향+등락폭 셀 오탐 방지
+    const DIRECTION = /^(상승|하락|보합)/;   
     const reason = cells.find((c) => c !== name && !PRICE.test(c) && !DIRECTION.test(c)) || null;
-    const DATE_RE = /(\d{4})[.\-/](\d{2})[.\-/](\d{2})/;   // 요일 등 부가문자 허용 위해 부분매치
+    
+    // 요일 등 부가문자 허용 위해 부분매치 로직 적용
+    const DATE_RE = /(\d{4})[.\-/](\d{2})[.\-/](\d{2})/;   
     const dateMatch = cells.map((c) => c.match(DATE_RE)).find(Boolean);
     const at = dateMatch ? `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}` : null;
     
@@ -115,11 +119,20 @@ function runTests(out) {
     const t = out[k].map((i) => i.ticker);
     chk(new Set(t).size === t.length, `${k} ticker 중복 없음 (${t.length}건)`);
   }
+  
   // 유일한 치명 실패 모드: EUC-KR 미처리로 종목명 전량 깨짐
   const bad = all.filter((i) => !/[\uAC00-\uD7A3]/.test(i.name || ''));
   chk(bad.length === 0, `종목명 한글 정합성 (위반 ${bad.length}건${bad.length ? ' 예: ' + bad[0].name : ''})`);
   chk(out.management.length > 0, `management 수집 건수 > 0 (${out.management.length}건)`);
   chk(out.meta.sources.length > 0, 'meta.sources 기록됨');
+  
+  // 이번 세션에서 실측된 오염 패턴 회귀 방지 (신규 추가)
+  const dirLeak = all.filter((i) => /^(상승|하락|보합)/.test(i.reason || ''));
+  chk(dirLeak.length === 0, `reason 필드에 등락방향 오염 없음 (위반 ${dirLeak.length}건)`);
+  
+  const noDate = out.investmentWarning.filter((i) => !i.designatedAt);
+  chk(noDate.length === 0, `investmentWarning designatedAt 결측 없음 (위반 ${noDate.length}/${out.investmentWarning.length}건)`);
+  
   return ok;
 }
 
