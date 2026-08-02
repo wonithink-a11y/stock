@@ -1,0 +1,58 @@
+{
+  "version": "RP-1.2",
+  "provisional": true,
+  "notes": [
+    "penalty 값은 전부 가설이다. STEP7 백테스트로 검증하기 전까지 잠정값으로 취급한다.",
+    "검증 표본(watchlist 99종목 · 2024-08~2026-08 · DC-1.3 기준): R103 18건 / R105 96건. R102·R107은 발동 0건이라 백테스트로도 검증되지 않는다 — 트랙 A STEP F에서 '관리종목 이력 종목' 별도 표본이 필요하다. R104·R106은 결번이다(설계 단계에서 폐기).",
+    "향후 유상증자를 주주배정/제3자배정/일반공모로 차등할 수 있다. 단 Event 타입을 쪼개지 않고 payload.offeringType으로 두고 여기서 분기한다. 선행 조건은 DART piicDecsn 상세 수집이다 — 공시명에는 유형이 없다(결정 공시 1,080건 중 0건).",
+    "matchField는 상태의 네임스페이스다. listingStatus/tradingState는 단일 값, riskStates는 배열이라 조회 방식이 다르다. 한 Set에 섞으면 축이 다른 상태끼리 이름이 겹칠 때 엉뚱한 규칙이 발동한다. matchState가 해당 축에서 실제로 생성되는 값인지는 scripts/test-policies.js가 stateMap과 교차 검증한다."
+  ],
+  "rules": [
+    {
+      "code": "R101",
+      "matchField": null,
+      "matchState": null,
+      "category": "market",
+      "reason": "실적발표 임박",
+      "penalty": -5,
+      "enabled": false,
+      "disabledReason": "calendarUnavailable — 실적발표 예정일 소스가 없다"
+    },
+    {
+      "code": "R102",
+      "matchField": "listingStatus",
+      "matchState": "MANAGED",
+      "category": "listing",
+      "reason": "관리종목 지정",
+      "penalty": -25,
+      "exclusiveGroup": "listingStatus"
+    },
+    {
+      "code": "R103",
+      "matchField": "riskStates",
+      "matchState": "MEZZANINE_ACTIVE",
+      "category": "dilution",
+      "reason": "메자닌(CB/BW/EB) 발행",
+      "penalty": -8,
+      "stackable": true
+    },
+    {
+      "code": "R105",
+      "matchField": "riskStates",
+      "matchState": "RIGHTS_OFFERING_ACTIVE",
+      "category": "dilution",
+      "reason": "유상증자 결정",
+      "penalty": -10,
+      "stackable": true
+    },
+    {
+      "code": "R107",
+      "matchField": "riskStates",
+      "matchState": "INVESTMENT_WARNING",
+      "category": "listing",
+      "reason": "투자주의환기종목 지정",
+      "penalty": -15,
+      "exclusiveGroup": "listingStatus"
+    }
+  ]
+}

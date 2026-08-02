@@ -1,0 +1,6 @@
+{
+  "version": "MA-1.0",
+  "mode": "renormalize",
+  "modeNote": "renormalize = 결측 축을 뺀 나머지 가중치로 재정규화. 대안은 zeroFill(결측을 0점 처리)인데 이는 '결측에 기본점수를 주지 않는다'의 반대편 오류(결측을 최악으로 단정)라 채택하지 않았다.",
+  "note": "결측 축은 components에 null로 남고 점수 계산에서만 빠진다. 결측 사실은 confidence.coverage로 표현된다."
+}

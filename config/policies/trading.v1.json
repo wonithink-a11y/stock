@@ -1,0 +1,6 @@
+{
+  "version": "TP-1.0",
+  "blockedStates": ["HALTED", "DELISTING_REVIEW", "DELISTED"],
+  "note": "거래정지·상장폐지는 감점이 아니라 매매가능여부다. finalScore=83, tradeAllowed=false 처럼 병렬로 표현한다. 점수에 섞으면 '좋은 회사인데 못 산다'와 '나쁜 회사'가 구분되지 않는다.",
+  "blockedStatesNote": "tradingState 값이어야 한다. TRADING_HALT_TECHNICAL(병합·감자 등 하루이틀 정지)은 stateMap에 매핑되지 않으므로 여기 도달하지 않는다."
+}

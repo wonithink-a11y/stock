@@ -1,0 +1,19 @@
+{
+  "version": "VP-1.1",
+  "strictTolerance": 0.01,
+  "lenientTolerance": 0.5,
+  "toleranceNote": "INV-004(Σcomponents ≈ rawScore) 허용오차. strict=CI, lenient=운영. round1 누적 오차가 축 수만큼 쌓이므로 축이 6개로 늘면 재검토한다.",
+  "rulesNote": "불변식의 '검사 로직'은 코드(P8 Validator)에 있고, '위반 시 어떻게 취급할지'만 여기 있다. severity는 판단이므로 정책이다. critical=즉시 throw, warning=strict면 throw·lenient면 flag만.",
+  "severities": ["critical", "warning"],
+  "rules": [
+    { "code": "INV-001", "errorCode": "SC001", "severity": "critical", "message": "rawScore가 0~100 범위를 벗어났다" },
+    { "code": "INV-002", "errorCode": "PN001", "severity": "critical", "message": "riskPenalty가 양수다 — Adjustment는 감점 전용이다" },
+    { "code": "INV-003", "errorCode": "SC001", "severity": "critical", "message": "finalScore가 0~100 범위를 벗어났다" },
+    { "code": "INV-004", "errorCode": "SC002", "severity": "warning",  "message": "Σcomponents와 rawScore의 차이가 허용오차를 넘었다" },
+    { "code": "INV-005", "errorCode": "CF002", "severity": "warning",  "message": "confidence.value가 0~100 범위를 벗어났다" },
+    { "code": "INV-006", "errorCode": "CF002", "severity": "warning",  "message": "coverage/freshness/quality가 0~100 또는 null이 아니다" },
+    { "code": "INV-007", "errorCode": "CF001", "severity": "warning",  "message": "confidence.value가 confidencePolicyVersion 공식과 불일치한다" },
+    { "code": "AX001",   "errorCode": "AX001", "severity": "warning",  "message": "criteria에 있는 축의 스코어러가 없다" },
+    { "code": "AX002",   "errorCode": "AX002", "severity": "critical", "message": "categoryWeights가 비어 있다" }
+  ]
+}

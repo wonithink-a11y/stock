@@ -1,0 +1,18 @@
+{
+  "version": "REG-1.0",
+  "note": "score()가 실제로 사용한 정책 버전 전량을 meta.policies에 스탬프하기 위한 단일 진입점. 여기 없는 정책은 엔진이 읽지 않는다.",
+  "criteria": {
+    "KR": { "path": "config/criteria.json",    "version": "2.2" },
+    "US": { "path": "config/criteria-us.json", "version": "2.2-US" }
+  },
+  "criteriaNote": "criteria는 복사본을 만들지 않고 원본 경로를 가리킨다. 엔진은 로드 시 파일의 version 필드가 여기 적힌 값과 일치하는지 검사하고, 다르면 기동을 거부한다. 재현은 git 커밋 + 이 버전 문자열로 한다.",
+  "policies": {
+    "confidence":  "config/policies/confidence.v1.json",
+    "validation":  "config/policies/validation.v1.json",
+    "missingAxis": "config/policies/missingAxis.v1.json",
+    "riskPenalty": "config/policies/riskPenalty.v1.json",
+    "trading":     "config/policies/trading.v1.json",
+    "stateMap":    "config/policies/stateMap.v1.json",
+    "flagCodes":   "config/policies/flagCodes.json"
+  }
+}
