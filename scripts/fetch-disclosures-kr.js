@@ -42,6 +42,24 @@ const KEEP_DAYS = Number(process.env.DISCLOSURE_KEEP_DAYS || 30);        // 파�
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const CORPMAP_CACHE = path.join(ROOT, 'data', 'cache', 'corpCodeMap.json');
+const CORPMAP_TTL_DAYS = Number(process.env.CORPMAP_TTL_DAYS || 7);
+const NET_RETRY = Number(process.env.DART_NET_RETRY || 4);
+
+/** DART 접속은 간헐적으로 끊긴다(UND_ERR_CONNECT_TIMEOUT). 지수 백오프로 재시도한다. */
+async function fetchRetry(url) {
+  let lastErr;
+  for (let i = 0; i < NET_RETRY; i++) {
+    try { return await fetch(url); }
+    catch (e) {
+      lastErr = e;
+      console.warn(`  네트워크 재시도 ${i + 1}/${NET_RETRY}: ${e.cause?.code || e.message}`);
+      if (i < NET_RETRY - 1) await sleep(2000 * 2 ** i);   // 2s → 4s → 8s
+    }
+  }
+  throw lastErr;
+}
+
 // KST 기준 YYYYMMDD (서버가 UTC여도 한국 날짜로 조회)
 function kstYmd(offsetDays = 0) {
   const d = new Date(Date.now() + 9 * 3600 * 1000 - offsetDays * 86400 * 1000);
@@ -91,20 +109,50 @@ function unzipFirstEntry(buf) {
   return (method === 0 ? data : zlib.inflateRawSync(data)).toString('utf8');
 }
 
+function readCorpMapCache() {
+  const j = JSON.parse(fs.readFileSync(CORPMAP_CACHE, 'utf8'));
+  if (!j.map || Object.keys(j.map).length === 0) throw new Error('corpCode 캐시가 비어있음');
+  return j;
+}
+
+/** corp_code 매핑은 거의 변하지 않는데 매 실행 20MB ZIP을 받는 것은 낭비이자 단일 실패점이다.
+ *  캐시가 신선하면 재사용하고, 갱신에 실패하면 오래된 캐시로라도 계속 진행한다. */
 async function loadCorpCodeMap() {
-  const res = await fetch(`${BASE}/corpCode.xml?crtfc_key=${KEY}`);
-  if (!res.ok) throw new Error(`corpCode HTTP ${res.status}`);
-  const xml = unzipFirstEntry(Buffer.from(await res.arrayBuffer()));
-  const map = {};
-  const re = /<list>([\s\S]*?)<\/list>/g;
-  let m;
-  while ((m = re.exec(xml))) {
-    const seg = m[1];
-    const cc = (seg.match(/<corp_code>(.*?)<\/corp_code>/) || [])[1];
-    const sc = (seg.match(/<stock_code>(.*?)<\/stock_code>/) || [])[1];
-    if (cc && sc && sc.trim()) map[sc.trim()] = cc.trim();
+  try {
+    const c = readCorpMapCache();
+    const ageDays = (Date.now() - new Date(c.fetchedAt).getTime()) / 86400000;
+    if (ageDays < CORPMAP_TTL_DAYS) {
+      console.log(`corpCode 캐시 사용 (${Object.keys(c.map).length}건, ${ageDays.toFixed(1)}일 경과)`);
+      return c.map;
+    }
+  } catch { /* 캐시 없음·손상 → 새로 받는다 */ }
+
+  try {
+    const res = await fetchRetry(`${BASE}/corpCode.xml?crtfc_key=${KEY}`);
+    if (!res.ok) throw new Error(`corpCode HTTP ${res.status}`);
+    const xml = unzipFirstEntry(Buffer.from(await res.arrayBuffer()));
+    const map = {};
+    const re = /<list>([\s\S]*?)<\/list>/g;
+    let m;
+    while ((m = re.exec(xml))) {
+      const seg = m[1];
+      const cc = (seg.match(/<corp_code>(.*?)<\/corp_code>/) || [])[1];
+      const sc = (seg.match(/<stock_code>(.*?)<\/stock_code>/) || [])[1];
+      if (cc && sc && sc.trim()) map[sc.trim()] = cc.trim();
+    }
+    if (Object.keys(map).length === 0) throw new Error('corpCode 파싱 결과 0건');
+    fs.mkdirSync(path.dirname(CORPMAP_CACHE), { recursive: true });
+    fs.writeFileSync(CORPMAP_CACHE, JSON.stringify({ fetchedAt: new Date().toISOString(), map }, null, 0));
+    console.log(`corpCode 갱신 (${Object.keys(map).length}건)`);
+    return map;
+  } catch (e) {
+    let c;
+    // 캐시도 없으면 중단한다. 이때 표면에 나올 원인은 캐시 부재가 아니라 네트워크 실패여야 한다.
+    try { c = readCorpMapCache(); }
+    catch { throw new Error(`corpCode 갱신 실패(${e.cause?.code || e.message}) + 사용할 캐시 없음`); }
+    console.warn(`⚠ corpCode 갱신 실패(${e.cause?.code || e.message}) → 캐시(${c.fetchedAt})로 계속 진행`);
+    return c.map;
   }
-  return map;
 }
 
 /** 한 종목의 최근 공시 목록 (list.json, 필요시 페이지네이션) */
@@ -115,7 +163,7 @@ async function fetchDisclosures(corp, bgnDe, endDe) {
       crtfc_key: KEY, corp_code: corp, bgn_de: bgnDe, end_de: endDe,
       page_no: String(page), page_count: '100',
     });
-    const res = await fetch(url);
+    const res = await fetchRetry(url);
     if (!res.ok) throw new Error(`list HTTP ${res.status}`);
     const j = await res.json();
     if (j.status === '013') break;          // 조회된 데이터 없음
