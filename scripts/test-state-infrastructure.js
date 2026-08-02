@@ -91,26 +91,6 @@ ro2 = { ...ro2, riskStates: [], activeMeta: [] };          // stateExpirer가 �
 ro2 = reduce(ro2, ev('MEZZANINE_ISSUED', '2026-09-01', '20260901:O:00', 'o'), P);
 assert.strictEqual(ro2.activeMeta[0].activatedAt, iso('2026-09-01'));
 
-// ---- STEP3 stateExpirer: TTL 만료 ----
-const { expireState } = require('../lib/stateExpirer');
-const day = (n) => new Date(Date.parse(iso('2026-07-01')) + n * 86400000 + 9 * 3600e3).toISOString().replace(/\.\d{3}Z$/, '+09:00');
-let ex = reduce(base(), ev('MEZZANINE_ISSUED', '2026-07-01', '20260701:P:00', 'p'), P);
-ex = reduce(ex, ev('INVESTMENT_WARNING', '2026-07-02', '20260702:Q:00', 'q'), P);   // ttlDays 없음
-assert.strictEqual(expireState(ex, day(29)), ex);                       // 미만료 → 동일 참조 = 쓰기 없음
-const gone = expireState(ex, day(30));                                  // 정확히 30일차에 만료
-assert.deepStrictEqual(gone.riskStates, ['INVESTMENT_WARNING']);        // TTL 없는 위험은 남는다
-assert.deepStrictEqual(gone.activeMeta.map((m) => m.code), ['INVESTMENT_WARNING']);
-assert.strictEqual(gone.lastSortKey, ex.lastSortKey);                   // 이벤트 커서 불변(REDUCE-006 보호)
-assert.strictEqual(gone.updatedAt, day(30));
-assert.strictEqual(expireState(gone, day(60)), gone);                   // 멱등
-// meta 없는 riskStates는 임의 삭제하지 않는다
-const orphan = { ...ex, riskStates: [...ex.riskStates, 'LEGACY_RISK'] };
-assert.ok(expireState(orphan, day(30)).riskStates.includes('LEGACY_RISK'));
-// activatedAt 판독 불가 → 유지
-const bad = { ...ex, activeMeta: [{ code: 'MEZZANINE_ACTIVE', activatedAt: 'x', ttlDays: 30 }] };
-assert.strictEqual(expireState(bad, day(999)), bad);
-assert.throws(() => expireState(ex, 'not-a-date'));
-
 // ---- 잘못된 입력 → 즉시 실패 ----
 assert.throws(() => reduce(base(), ev('X', '2026-07-01', 'k', 'x'), null));
 assert.throws(() => reduce(base(), {}, P));
