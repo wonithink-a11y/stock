@@ -89,7 +89,7 @@ assert.strictEqual(built[0].sortKey, '20260715:2026071500123:00');
 assert.strictEqual(built[1].sortKey, '20260715:2026071500123:01');
 assert.strictEqual(built[0].occurredAt, '2026-07-15T00:00:00+09:00');
 assert.strictEqual(built[0].eventSchemaVersion, 'EV-1.0');
-assert.strictEqual(built[0].classifierVersion, 'DC-1.2');
+assert.strictEqual(built[0].classifierVersion, 'DC-1.3');
 assert.deepStrictEqual(buildEvents({ stock_code: '005930', rcept_no: '1',
   report_nm: '현금배당결정', rcept_dt: '20260715' }), []);
 
