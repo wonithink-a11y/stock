@@ -63,7 +63,9 @@ function parseRows(html) {
     
     const PRICE = /^[\d,.\-+%]+$/;
     const DIRECTION = /^(상승|하락|보합)/;   
-    const reason = cells.find((c) => c !== name && !PRICE.test(c) && !DIRECTION.test(c)) || null;
+    const rawReason = cells.find((c) => c !== name && !PRICE.test(c) && !DIRECTION.test(c)) || null;
+    // 네이버 표는 동일 문구를 2회 반복해 담는다("시가총액 미달 시가총액 미달") — 정규화
+    const reason = rawReason ? rawReason.replace(/^(.+?)\s*\1$/, '$1') : null;
     
     const DATE_RE = /(\d{4})[.\-/](\d{2})[.\-/](\d{2})/;   
     const dateMatch = cells.map((c) => c.match(DATE_RE)).find(Boolean);
@@ -96,7 +98,7 @@ async function main() {
         
         // 진단: 한글깨짐/날짜결측 표본 3건만 원본 셀과 함께 별도 기록 (프로덕션 스키마 오염 안 시킴)
         out._diagnostics[`${kind}RawSample`] = rows
-          .filter((r) => !/[\uAC00-\uD7A3]/.test(r.name) || (kind === 'investmentWarning' && !r.at))
+          .filter((r) => !NAME_CHARSET.test(r.name || ''))
           .slice(0, 3)
           .map((r) => ({ ticker: r.ticker, name: r.name, cells: r._rawCells }));
 
@@ -115,6 +117,10 @@ async function main() {
   process.exit(runTests(out) ? 0 : 1);
 }
 
+// 정상 종목명에 나올 수 있는 문자: ASCII + 한글 음절/자모.
+// 그 밖(U+0080~U+00FF latin1 폴백, U+FFFD)은 EUC-KR 디코딩 실패의 흔적이다.
+const NAME_CHARSET = /^[\x20-\x7E\uAC00-\uD7A3\u3131-\u318E]+$/;
+
 function runTests(out) {
   let ok = true;
   const chk = (c, m) => { console.log(`${c ? '[PASS]' : '[FAIL]'} ${m}`); if (!c) ok = false; };
@@ -127,9 +133,14 @@ function runTests(out) {
     chk(new Set(t).size === t.length, `${k} ticker 중복 없음 (${t.length}건)`);
   }
   
-  // 유일한 치명 실패 모드: EUC-KR 미처리로 종목명 전량 깨짐
-  const bad = all.filter((i) => !/[\uAC00-\uD7A3]/.test(i.name || ''));
-  chk(bad.length === 0, `종목명 한글 정합성 (위반 ${bad.length}건${bad.length ? ' 예: ' + bad[0].name : ''})`);
+  // 치명 실패 모드는 "한글이 없다"가 아니라 "EUC-KR 디코딩이 깨졌다"이다.
+  // ① 문자셋 검사 — SHD·STX·EDGC·DXVX 같은 정상 영문 사명은 통과해야 한다.
+  const garbled = all.filter((i) => !NAME_CHARSET.test(i.name || ''));
+  chk(garbled.length === 0, `종목명 인코딩 정합성 (위반 ${garbled.length}건${garbled.length ? ' 예: ' + garbled[0].name : ''})`);
+  // ② 비율 검사 — '?' 치환처럼 ASCII로 떨어지는 실패는 ①을 통과하므로 전체 한글 비율로 잡는다.
+  const hangul = all.filter((i) => /[\uAC00-\uD7A3]/.test(i.name || '')).length;
+  const ratio = all.length ? hangul / all.length : 0;
+  chk(ratio >= 0.7, `종목명 한글 비율 ${(ratio * 100).toFixed(1)}% ≥ 70% (${hangul}/${all.length})`);
   chk(out.management.length > 0, `management 수집 건수 > 0 (${out.management.length}건)`);
   chk(out.meta.sources.length > 0, 'meta.sources 기록됨');
   
@@ -137,12 +148,15 @@ function runTests(out) {
   const dirLeak = all.filter((i) => /^(상승|하락|보합)/.test(i.reason || ''));
   chk(dirLeak.length === 0, `reason 필드에 등락방향 오염 없음 (위반 ${dirLeak.length}건)`);
   
-  // Before: investmentWarning도 다른 두 타입과 동일하게 designatedAt 필수 취급
-const noDate = out.investmentWarning.filter((i) => !i.designatedAt);
-chk(noDate.length === 0, `investmentWarning designatedAt 결측 없음 (위반 ${noDate.length}/${out.investmentWarning.length}건)`);
-
-// After: 이 소스에는 날짜 필드가 구조적으로 없음을 명시하고 게이트에서 제외
-chk(true, `investmentWarning: 소스에 지정일자 컬럼 없음 — designatedAt 항상 null (알려진 제약, ${out.investmentWarning.length}건)`);
+  // 날짜 컬럼이 실제로 있는 두 타입만 결측을 게이트로 삼는다 (P4 시딩의 activatedAt 원천).
+  for (const [k, key] of [['management', 'designatedAt'], ['tradingHalt', 'haltedAt']]) {
+    const miss = out[k].filter((i) => !i[key]);
+    chk(miss.length === 0, `${k} ${key} 결측 없음 (위반 ${miss.length}/${out[k].length}건)`);
+  }
+  // investmentWarning은 소스에 지정일자 컬럼 자체가 없다. 전건 null이 정상이고, 값이 생기면 구조 변경 신호.
+  const iw = out.investmentWarning;
+  chk(iw.every((i) => i.designatedAt === null),
+      `investmentWarning designatedAt 전건 null (소스에 지정일자 컬럼 없음, ${iw.length}건)`);
   return ok;
 }
 
