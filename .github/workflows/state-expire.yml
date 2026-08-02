@@ -1,0 +1,45 @@
+name: Expire states (TTL)
+
+# data/state/*.json 의 TTL 만료 처리. 외부 API를 쓰지 않는다.
+# daily-analysis.yml 에 얹지 않는다 — 수집 실패가 만료 처리까지 끌고 내려가면 위험이 영구히 남는다.
+
+on:
+  schedule:
+    # 평일 06:00 KST (= 21:00 UTC 전일). 장 시작 전에 전날 만료분을 털어낸다.
+    - cron: '0 21 * * 0-4'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# disclosures.yml 과 같은 그룹이어야 state 동시 쓰기가 막힌다.
+concurrency:
+  group: state-write
+  cancel-in-progress: false
+
+jobs:
+  expire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Expire TTL states
+        run: node scripts/expire-states.js
+
+      - name: Commit state
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # data/state 는 첫 이벤트가 발생하는 날에야 생긴다. 없는 경로를 add하면 exit 128.
+          if [ -e data/state ]; then git add data/state; fi
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: expire TTL states"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
