@@ -1,0 +1,1642 @@
+{
+  "meta": {
+    "collectedAt": "2026-08-02T21:18:37+09:00",
+    "sources": [
+      {
+        "kind": "management",
+        "url": "https://finance.naver.com/sise/management.naver",
+        "method": "html",
+        "count": 113
+      },
+      {
+        "kind": "tradingHalt",
+        "url": "https://finance.naver.com/sise/trading_halt.naver",
+        "method": "html",
+        "count": 127
+      },
+      {
+        "kind": "investmentWarning",
+        "url": "https://finance.naver.com/sise/investment_alert.naver?type=caution",
+        "method": "html",
+        "count": 28
+      }
+    ]
+  },
+  "management": [
+    {
+      "ticker": "092600",
+      "name": "앤씨앤",
+      "reason": "하락\n\t\t\t\t86",
+      "designatedAt": "2026-07-31"
+    },
+    {
+      "ticker": "199730",
+      "name": "바이오인프라",
+      "reason": "상승\n\t\t\t\t110",
+      "designatedAt": "2026-07-31"
+    },
+    {
+      "ticker": "250930",
+      "name": "예선테크",
+      "reason": "하락\n\t\t\t\t13",
+      "designatedAt": "2026-07-31"
+    },
+    {
+      "ticker": "472220",
+      "name": "신영스팩10호",
+      "reason": "보합0",
+      "designatedAt": "2026-07-30"
+    },
+    {
+      "ticker": "291810",
+      "name": "핀텔",
+      "reason": "상승\n\t\t\t\t61",
+      "designatedAt": "2026-07-24"
+    },
+    {
+      "ticker": "044380",
+      "name": "주연테크",
+      "reason": "상승\n\t\t\t\t29",
+      "designatedAt": "2026-07-21"
+    },
+    {
+      "ticker": "067770",
+      "name": "세진티에스",
+      "reason": "상승\n\t\t\t\t65",
+      "designatedAt": "2026-07-21"
+    },
+    {
+      "ticker": "191410",
+      "name": "육일씨엔에쓰",
+      "reason": "상승\n\t\t\t\t38",
+      "designatedAt": "2026-07-21"
+    },
+    {
+      "ticker": "011155",
+      "name": "CJ씨푸드1우",
+      "reason": "상승\n\t\t\t\t270",
+      "designatedAt": "2026-07-20"
+    },
+    {
+      "ticker": "471050",
+      "name": "대신밸런스제17호스팩",
+      "reason": "하락\n\t\t\t\t5",
+      "designatedAt": "2026-07-20"
+    },
+    {
+      "ticker": "312610",
+      "name": "에이에프더블류",
+      "reason": "상승\n\t\t\t\t32",
+      "designatedAt": "2026-07-16"
+    },
+    {
+      "ticker": "032685",
+      "name": "소프트센우",
+      "reason": "하락\n\t\t\t\t1,390",
+      "designatedAt": "2026-07-15"
+    },
+    {
+      "ticker": "004415",
+      "name": "서울식품우",
+      "reason": "하락\n\t\t\t\t265",
+      "designatedAt": "2026-07-14"
+    },
+    {
+      "ticker": "035290",
+      "name": "골드앤에스",
+      "reason": "하락\n\t\t\t\t76",
+      "designatedAt": "2026-07-13"
+    },
+    {
+      "ticker": "084180",
+      "name": "수성웹툰",
+      "reason": "상승\n\t\t\t\t4",
+      "designatedAt": "2026-07-13"
+    },
+    {
+      "ticker": "368970",
+      "name": "오에스피",
+      "reason": "상승\n\t\t\t\t140",
+      "designatedAt": "2026-07-10"
+    },
+    {
+      "ticker": "025870",
+      "name": "신라에스지",
+      "reason": "하락\n\t\t\t\t75",
+      "designatedAt": "2026-07-09"
+    },
+    {
+      "ticker": "066410",
+      "name": "버킷스튜디오",
+      "reason": "보합0",
+      "designatedAt": "2026-07-09"
+    },
+    {
+      "ticker": "225430",
+      "name": "케이엠제약",
+      "reason": "상승\n\t\t\t\t45",
+      "designatedAt": "2026-07-09"
+    },
+    {
+      "ticker": "008290",
+      "name": "원풍물산",
+      "reason": "상승\n\t\t\t\t44",
+      "designatedAt": "2026-07-03"
+    },
+    {
+      "ticker": "288330",
+      "name": "파라택시스코리아",
+      "reason": "보합0",
+      "designatedAt": "2026-07-02"
+    },
+    {
+      "ticker": "294090",
+      "name": "이오플로우",
+      "reason": "보합0",
+      "designatedAt": "2026-07-01"
+    },
+    {
+      "ticker": "373790",
+      "name": "KIWOOM 미국방어배당성장나스닥",
+      "reason": "하락\n\t\t\t\t295",
+      "designatedAt": "2026-07-01"
+    },
+    {
+      "ticker": "397420",
+      "name": "RISE 국채선물5년추종",
+      "reason": "보합0",
+      "designatedAt": "2026-07-01"
+    },
+    {
+      "ticker": "454180",
+      "name": "KIWOOM 차이나내수소비TOP CSI",
+      "reason": "하락\n\t\t\t\t115",
+      "designatedAt": "2026-07-01"
+    },
+    {
+      "ticker": "489010",
+      "name": "PLUS 글로벌AI인프라",
+      "reason": "상승\n\t\t\t\t840",
+      "designatedAt": "2026-07-01"
+    },
+    {
+      "ticker": "001770",
+      "name": "SHD",
+      "reason": "하락\n\t\t\t\t180",
+      "designatedAt": "2026-06-26"
+    },
+    {
+      "ticker": "069920",
+      "name": "엑시온그룹",
+      "reason": "하락\n\t\t\t\t17",
+      "designatedAt": "2026-06-26"
+    },
+    {
+      "ticker": "073190",
+      "name": "듀오백",
+      "reason": "하락\n\t\t\t\t29",
+      "designatedAt": "2026-06-18"
+    },
+    {
+      "ticker": "043100",
+      "name": "알파AI",
+      "reason": "보합0",
+      "designatedAt": "2026-06-17"
+    },
+    {
+      "ticker": "036420",
+      "name": "콘텐트리중앙",
+      "reason": "상승\n\t\t\t\t258",
+      "designatedAt": "2026-06-16"
+    },
+    {
+      "ticker": "068240",
+      "name": "다원시스",
+      "reason": "보합0",
+      "designatedAt": "2026-06-08"
+    },
+    {
+      "ticker": "121850",
+      "name": "코이즈",
+      "reason": "상승\n\t\t\t\t181",
+      "designatedAt": "2026-06-05"
+    },
+    {
+      "ticker": "121800",
+      "name": "비덴트",
+      "reason": "보합0",
+      "designatedAt": "2026-06-04"
+    },
+    {
+      "ticker": "001840",
+      "name": "이화공영",
+      "reason": "보합0",
+      "designatedAt": "2026-05-22"
+    },
+    {
+      "ticker": "043220",
+      "name": "티에스넥스젠",
+      "reason": "보합0",
+      "designatedAt": "2026-05-21"
+    },
+    {
+      "ticker": "348950",
+      "name": "제이알글로벌리츠",
+      "reason": "보합0",
+      "designatedAt": "2026-05-18"
+    },
+    {
+      "ticker": "099520",
+      "name": "DGI",
+      "reason": "보합0",
+      "designatedAt": "2026-05-12"
+    },
+    {
+      "ticker": "276040",
+      "name": "스코넥",
+      "reason": "보합0",
+      "designatedAt": "2026-05-12"
+    },
+    {
+      "ticker": "030350",
+      "name": "드래곤플라이",
+      "reason": "보합0",
+      "designatedAt": "2026-05-07"
+    },
+    {
+      "ticker": "106080",
+      "name": "케이이엠텍",
+      "reason": "보합0",
+      "designatedAt": "2026-04-20"
+    },
+    {
+      "ticker": "393970",
+      "name": "대진첨단소재",
+      "reason": "보합0",
+      "designatedAt": "2026-04-20"
+    },
+    {
+      "ticker": "032960",
+      "name": "동일기연",
+      "reason": "상승\n\t\t\t\t62",
+      "designatedAt": "2026-04-16"
+    },
+    {
+      "ticker": "340930",
+      "name": "성원에너텍",
+      "reason": "보합0",
+      "designatedAt": "2026-04-14"
+    },
+    {
+      "ticker": "006490",
+      "name": "프리티",
+      "reason": "상승\n\t\t\t\t21",
+      "designatedAt": "2026-04-08"
+    },
+    {
+      "ticker": "011000",
+      "name": "진원생명과학",
+      "reason": "보합0",
+      "designatedAt": "2026-04-08"
+    },
+    {
+      "ticker": "017040",
+      "name": "광명전기",
+      "reason": "보합0",
+      "designatedAt": "2026-04-08"
+    },
+    {
+      "ticker": "064090",
+      "name": "인크레더블버즈",
+      "reason": "보합0",
+      "designatedAt": "2026-04-08"
+    },
+    {
+      "ticker": "309710",
+      "name": "아이티켐",
+      "reason": "보합0",
+      "designatedAt": "2026-04-07"
+    },
+    {
+      "ticker": "031860",
+      "name": "디에이치엑스컴퍼니",
+      "reason": "보합0",
+      "designatedAt": "2026-04-06"
+    },
+    {
+      "ticker": "049180",
+      "name": "셀루메드",
+      "reason": "보합0",
+      "designatedAt": "2026-04-01"
+    },
+    {
+      "ticker": "313760",
+      "name": "캐리",
+      "reason": "보합0",
+      "designatedAt": "2026-04-01"
+    },
+    {
+      "ticker": "175250",
+      "name": "아이큐어",
+      "reason": "보합0",
+      "designatedAt": "2026-03-31"
+    },
+    {
+      "ticker": "263050",
+      "name": "유틸렉스",
+      "reason": "보합0",
+      "designatedAt": "2026-03-30"
+    },
+    {
+      "ticker": "246720",
+      "name": "아스타",
+      "reason": "보합0",
+      "designatedAt": "2026-03-25"
+    },
+    {
+      "ticker": "008600",
+      "name": "윌비스",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "011810",
+      "name": "STX",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "023440",
+      "name": "제이스코홀딩스",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "044180",
+      "name": "KD",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "052770",
+      "name": "아이톡시",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "069460",
+      "name": "대호에이엘",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "079950",
+      "name": "인베니아",
+      "reason": "하락\n\t\t\t\t280",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "088290",
+      "name": "이원컴포텍",
+      "reason": "상승\n\t\t\t\t65",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "145210",
+      "name": "다이나믹디자인",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "183490",
+      "name": "엔지켐생명과학",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "195990",
+      "name": "루트K",
+      "reason": "하락\n\t\t\t\t1",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "214610",
+      "name": "롤링스톤",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "219550",
+      "name": "디와이디",
+      "reason": "상승\n\t\t\t\t214",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "380540",
+      "name": "옵티코어",
+      "reason": "보합0",
+      "designatedAt": "2026-03-24"
+    },
+    {
+      "ticker": "019490",
+      "name": "엑시큐어하이트론",
+      "reason": "보합0",
+      "designatedAt": "2026-03-23"
+    },
+    {
+      "ticker": "066900",
+      "name": "디에이피",
+      "reason": "상승\n\t\t\t\t43",
+      "designatedAt": "2026-03-23"
+    },
+    {
+      "ticker": "294140",
+      "name": "레몬",
+      "reason": "상승\n\t\t\t\t239",
+      "designatedAt": "2026-03-23"
+    },
+    {
+      "ticker": "298060",
+      "name": "풍전약품",
+      "reason": "상승\n\t\t\t\t60",
+      "designatedAt": "2026-03-18"
+    },
+    {
+      "ticker": "015020",
+      "name": "이스타코",
+      "reason": "보합0",
+      "designatedAt": "2026-03-17"
+    },
+    {
+      "ticker": "377030",
+      "name": "비트맥스",
+      "reason": "상승\n\t\t\t\t73",
+      "designatedAt": "2026-03-17"
+    },
+    {
+      "ticker": "002410",
+      "name": "범양건영",
+      "reason": "보합0",
+      "designatedAt": "2026-01-07"
+    },
+    {
+      "ticker": "234920",
+      "name": "자이글",
+      "reason": "보합0",
+      "designatedAt": "2025-12-11"
+    },
+    {
+      "ticker": "412540",
+      "name": "제일엠앤에스",
+      "reason": "보합0",
+      "designatedAt": "2025-12-03"
+    },
+    {
+      "ticker": "284620",
+      "name": "카이노스메드",
+      "reason": "보합0",
+      "designatedAt": "2025-11-24"
+    },
+    {
+      "ticker": "182400",
+      "name": "엔케이젠바이오텍코리아",
+      "reason": "보합0",
+      "designatedAt": "2025-11-20"
+    },
+    {
+      "ticker": "352770",
+      "name": "셀레스트라",
+      "reason": "보합0",
+      "designatedAt": "2025-11-04"
+    },
+    {
+      "ticker": "054180",
+      "name": "메디콕스",
+      "reason": "보합0",
+      "designatedAt": "2025-10-28"
+    },
+    {
+      "ticker": "066790",
+      "name": "씨씨에스",
+      "reason": "보합0",
+      "designatedAt": "2025-09-23"
+    },
+    {
+      "ticker": "080720",
+      "name": "한국유니온제약",
+      "reason": "보합0",
+      "designatedAt": "2025-09-10"
+    },
+    {
+      "ticker": "246250",
+      "name": "에스엘에스바이오",
+      "reason": "보합0",
+      "designatedAt": "2025-09-09"
+    },
+    {
+      "ticker": "001570",
+      "name": "금양",
+      "reason": "보합0",
+      "designatedAt": "2025-08-18"
+    },
+    {
+      "ticker": "016790",
+      "name": "현대사료",
+      "reason": "보합0",
+      "designatedAt": "2025-08-05"
+    },
+    {
+      "ticker": "258830",
+      "name": "세종메디칼",
+      "reason": "보합0",
+      "designatedAt": "2025-08-05"
+    },
+    {
+      "ticker": "269620",
+      "name": "시스웍",
+      "reason": "보합0",
+      "designatedAt": "2025-07-30"
+    },
+    {
+      "ticker": "217480",
+      "name": "에스디생명공학",
+      "reason": "보합0",
+      "designatedAt": "2025-07-28"
+    },
+    {
+      "ticker": "241820",
+      "name": "피씨엘",
+      "reason": "보합0",
+      "designatedAt": "2025-07-22"
+    },
+    {
+      "ticker": "043090",
+      "name": "더테크놀로지",
+      "reason": "상승\n\t\t\t\t47",
+      "designatedAt": "2025-07-21"
+    },
+    {
+      "ticker": "041590",
+      "name": "플래스크",
+      "reason": "보합0",
+      "designatedAt": "2025-07-15"
+    },
+    {
+      "ticker": "244460",
+      "name": "올리패스",
+      "reason": "보합0",
+      "designatedAt": "2025-07-02"
+    },
+    {
+      "ticker": "005030",
+      "name": "부산주공",
+      "reason": "보합0",
+      "designatedAt": "2025-05-22"
+    },
+    {
+      "ticker": "046070",
+      "name": "코다코",
+      "reason": "보합0",
+      "designatedAt": "2025-05-08"
+    },
+    {
+      "ticker": "036690",
+      "name": "코맥스",
+      "reason": "보합0",
+      "designatedAt": "2025-04-16"
+    },
+    {
+      "ticker": "245620",
+      "name": "EDGC",
+      "reason": "보합0",
+      "designatedAt": "2025-04-11"
+    },
+    {
+      "ticker": "065570",
+      "name": "삼영이엔씨",
+      "reason": "보합0",
+      "designatedAt": "2025-04-08"
+    },
+    {
+      "ticker": "068940",
+      "name": "셀피글로벌",
+      "reason": "보합0",
+      "designatedAt": "2025-04-08"
+    },
+    {
+      "ticker": "001470",
+      "name": "삼부토건",
+      "reason": "보합0",
+      "designatedAt": "2025-04-01"
+    },
+    {
+      "ticker": "073640",
+      "name": "테라사이언스",
+      "reason": "보합0",
+      "designatedAt": "2025-04-01"
+    },
+    {
+      "ticker": "196490",
+      "name": "디에이테크놀로지",
+      "reason": "보합0",
+      "designatedAt": "2025-03-25"
+    },
+    {
+      "ticker": "073570",
+      "name": "리튬포어스",
+      "reason": "상승\n\t\t\t\t19",
+      "designatedAt": "2025-03-24"
+    },
+    {
+      "ticker": "079970",
+      "name": "투비소프트",
+      "reason": "보합0",
+      "designatedAt": "2025-03-24"
+    },
+    {
+      "ticker": "196300",
+      "name": "HLB펩",
+      "reason": "상승\n\t\t\t\t235",
+      "designatedAt": "2025-03-24"
+    },
+    {
+      "ticker": "009440",
+      "name": "KC그린홀딩스",
+      "reason": "보합0",
+      "designatedAt": "2025-03-21"
+    },
+    {
+      "ticker": "180400",
+      "name": "DXVX",
+      "reason": "상승\n\t\t\t\t327",
+      "designatedAt": "2025-03-21"
+    },
+    {
+      "ticker": "418250",
+      "name": "시큐레터",
+      "reason": "보합0",
+      "designatedAt": "2025-03-17"
+    },
+    {
+      "ticker": "082660",
+      "name": "코스나인",
+      "reason": "보합0",
+      "designatedAt": "2024-12-18"
+    },
+    {
+      "ticker": "005110",
+      "name": "한창",
+      "reason": "보합0",
+      "designatedAt": "2024-08-16"
+    },
+    {
+      "ticker": "096610",
+      "name": "알에프세미",
+      "reason": "보합0",
+      "designatedAt": "2024-04-01"
+    },
+    {
+      "ticker": "377460",
+      "name": "큐에이드",
+      "reason": "보합0",
+      "designatedAt": "2024-01-11"
+    }
+  ],
+  "tradingHalt": [
+    {
+      "ticker": "060570",
+      "name": "드림어스컴퍼니",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-31"
+    },
+    {
+      "ticker": "393970",
+      "name": "대진첨단소재",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-07-31"
+    },
+    {
+      "ticker": "000880",
+      "name": "한화",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-30"
+    },
+    {
+      "ticker": "023760",
+      "name": "한국캐피탈",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-30"
+    },
+    {
+      "ticker": "065420",
+      "name": "에스아이리소스",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-30"
+    },
+    {
+      "ticker": "131100",
+      "name": "티엔엔터테인먼트",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-30"
+    },
+    {
+      "ticker": "036800",
+      "name": "나이스정보통신",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-29"
+    },
+    {
+      "ticker": "153490",
+      "name": "우리이앤엘하루틴",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-29"
+    },
+    {
+      "ticker": "183300",
+      "name": "코미코",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-29"
+    },
+    {
+      "ticker": "276730",
+      "name": "한울앤제주",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-29"
+    },
+    {
+      "ticker": "300120",
+      "name": "라온피플",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-29"
+    },
+    {
+      "ticker": "020180",
+      "name": "대신정보통신",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-27"
+    },
+    {
+      "ticker": "027970",
+      "name": "한국제지",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-27"
+    },
+    {
+      "ticker": "291230",
+      "name": "엔피",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-27"
+    },
+    {
+      "ticker": "498390",
+      "name": "한화플러스제5호스팩",
+      "reason": "SPAC 합병(예비심사청구대상)",
+      "haltedAt": "2026-07-27"
+    },
+    {
+      "ticker": "033540",
+      "name": "파라텍",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-24"
+    },
+    {
+      "ticker": "101000",
+      "name": "KS인더스트리",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-24"
+    },
+    {
+      "ticker": "177350",
+      "name": "베셀",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-24"
+    },
+    {
+      "ticker": "206560",
+      "name": "덱스터",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-07-24"
+    },
+    {
+      "ticker": "279060",
+      "name": "이노벡스",
+      "reason": null,
+      "haltedAt": "2026-07-24"
+    },
+    {
+      "ticker": "054940",
+      "name": "엑사이엔씨",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-22"
+    },
+    {
+      "ticker": "090150",
+      "name": "아이윈",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-22"
+    },
+    {
+      "ticker": "291650",
+      "name": "압타머사이언스",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-22"
+    },
+    {
+      "ticker": "900270",
+      "name": "헝셩그룹",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-22"
+    },
+    {
+      "ticker": "031440",
+      "name": "신세계푸드",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-21"
+    },
+    {
+      "ticker": "031860",
+      "name": "디에이치엑스컴퍼니",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-21"
+    },
+    {
+      "ticker": "052770",
+      "name": "아이톡시",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-07-21"
+    },
+    {
+      "ticker": "087260",
+      "name": "모바일어플라이언스",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-07-21"
+    },
+    {
+      "ticker": "105550",
+      "name": "엣지파운드리",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-21"
+    },
+    {
+      "ticker": "011000",
+      "name": "진원생명과학",
+      "reason": "기타공익과투자자보호",
+      "haltedAt": "2026-07-20"
+    },
+    {
+      "ticker": "204840",
+      "name": "지엘팜텍",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-20"
+    },
+    {
+      "ticker": "369370",
+      "name": "블리츠웨이엔터테인먼트",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-20"
+    },
+    {
+      "ticker": "377220",
+      "name": "프롬바이오",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-20"
+    },
+    {
+      "ticker": "062970",
+      "name": "한국첨단소재",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-16"
+    },
+    {
+      "ticker": "066790",
+      "name": "씨씨에스",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-13"
+    },
+    {
+      "ticker": "083660",
+      "name": "CSA 코스믹",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-13"
+    },
+    {
+      "ticker": "148780",
+      "name": "비큐AI",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-13"
+    },
+    {
+      "ticker": "336060",
+      "name": "웨이버스",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-13"
+    },
+    {
+      "ticker": "299900",
+      "name": "위지윅스튜디오",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-07-10"
+    },
+    {
+      "ticker": "066410",
+      "name": "버킷스튜디오",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-07-09"
+    },
+    {
+      "ticker": "064090",
+      "name": "인크레더블버즈",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-07-06"
+    },
+    {
+      "ticker": "263050",
+      "name": "유틸렉스",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-07-06"
+    },
+    {
+      "ticker": "288330",
+      "name": "파라택시스코리아",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-07-02"
+    },
+    {
+      "ticker": "468760",
+      "name": "유진스팩10호",
+      "reason": "SPAC 합병(예비심사청구대상)",
+      "haltedAt": "2026-06-30"
+    },
+    {
+      "ticker": "327610",
+      "name": "펨토바이오메드",
+      "reason": null,
+      "haltedAt": "2026-06-29"
+    },
+    {
+      "ticker": "469480",
+      "name": "IBKS제24호스팩",
+      "reason": "SPAC 합병(예비심사청구대상)",
+      "haltedAt": "2026-06-19"
+    },
+    {
+      "ticker": "016790",
+      "name": "현대사료",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-06-15"
+    },
+    {
+      "ticker": "258830",
+      "name": "세종메디칼",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-06-15"
+    },
+    {
+      "ticker": "043220",
+      "name": "티에스넥스젠",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-06-10"
+    },
+    {
+      "ticker": "210120",
+      "name": "캔버스엔",
+      "reason": "주식의 병합, 분할 등 전자등록 변경, 말소",
+      "haltedAt": "2026-06-10"
+    },
+    {
+      "ticker": "352770",
+      "name": "셀레스트라",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-06-10"
+    },
+    {
+      "ticker": "079970",
+      "name": "투비소프트",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-06-08"
+    },
+    {
+      "ticker": "266350",
+      "name": "팡스카이",
+      "reason": null,
+      "haltedAt": "2026-06-05"
+    },
+    {
+      "ticker": "121800",
+      "name": "비덴트",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-06-04"
+    },
+    {
+      "ticker": "143210",
+      "name": "핸즈코퍼레이션",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2026-05-27"
+    },
+    {
+      "ticker": "001840",
+      "name": "이화공영",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-05-22"
+    },
+    {
+      "ticker": "041590",
+      "name": "플래스크",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-05-21"
+    },
+    {
+      "ticker": "294090",
+      "name": "이오플로우",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-05-18"
+    },
+    {
+      "ticker": "099520",
+      "name": "DGI",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-05-12"
+    },
+    {
+      "ticker": "276040",
+      "name": "스코넥",
+      "reason": "파산신청(발행 ELW 포함)",
+      "haltedAt": "2026-05-12"
+    },
+    {
+      "ticker": "482680",
+      "name": "미래에셋비전스팩7호",
+      "reason": "SPAC 합병(예비심사청구대상)",
+      "haltedAt": "2026-05-12"
+    },
+    {
+      "ticker": "348950",
+      "name": "제이알글로벌리츠",
+      "reason": "회생절차개시신청(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2026-04-28"
+    },
+    {
+      "ticker": "068240",
+      "name": "다원시스",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-04-21"
+    },
+    {
+      "ticker": "106080",
+      "name": "케이이엠텍",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-20"
+    },
+    {
+      "ticker": "258050",
+      "name": "테크트랜스",
+      "reason": null,
+      "haltedAt": "2026-04-14"
+    },
+    {
+      "ticker": "340930",
+      "name": "성원에너텍",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-13"
+    },
+    {
+      "ticker": "017040",
+      "name": "광명전기",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2026-04-08"
+    },
+    {
+      "ticker": "043100",
+      "name": "알파AI",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-08"
+    },
+    {
+      "ticker": "080720",
+      "name": "한국유니온제약",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-04-07"
+    },
+    {
+      "ticker": "309710",
+      "name": "아이티켐",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-07"
+    },
+    {
+      "ticker": "346010",
+      "name": "타이드",
+      "reason": null,
+      "haltedAt": "2026-04-07"
+    },
+    {
+      "ticker": "119650",
+      "name": "KC코트렐",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2026-04-06"
+    },
+    {
+      "ticker": "049180",
+      "name": "셀루메드",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-01"
+    },
+    {
+      "ticker": "074610",
+      "name": "이엔플러스",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2026-04-01"
+    },
+    {
+      "ticker": "266170",
+      "name": "레드우즈",
+      "reason": null,
+      "haltedAt": "2026-04-01"
+    },
+    {
+      "ticker": "313760",
+      "name": "캐리",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-04-01"
+    },
+    {
+      "ticker": "246720",
+      "name": "아스타",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-25"
+    },
+    {
+      "ticker": "008600",
+      "name": "윌비스",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "023440",
+      "name": "제이스코홀딩스",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "030350",
+      "name": "드래곤플라이",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "044180",
+      "name": "KD",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "069460",
+      "name": "대호에이엘",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "145210",
+      "name": "다이나믹디자인",
+      "reason": "기타공익과투자자보호",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "183490",
+      "name": "엔지켐생명과학",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "214610",
+      "name": "롤링스톤",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "380540",
+      "name": "옵티코어",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2026-03-24"
+    },
+    {
+      "ticker": "222670",
+      "name": "플럼라인생명과학",
+      "reason": null,
+      "haltedAt": "2026-03-23"
+    },
+    {
+      "ticker": "015020",
+      "name": "이스타코",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2026-03-17"
+    },
+    {
+      "ticker": "009310",
+      "name": "참엔지니어링",
+      "reason": "기타공익과투자자보호",
+      "haltedAt": "2026-03-12"
+    },
+    {
+      "ticker": "284620",
+      "name": "카이노스메드",
+      "reason": "투자자 보호",
+      "haltedAt": "2026-01-15"
+    },
+    {
+      "ticker": "196490",
+      "name": "디에이테크놀로지",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-12-12"
+    },
+    {
+      "ticker": "082660",
+      "name": "코스나인",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-12-02"
+    },
+    {
+      "ticker": "073640",
+      "name": "테라사이언스",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-12-01"
+    },
+    {
+      "ticker": "019490",
+      "name": "엑시큐어하이트론",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2025-11-24"
+    },
+    {
+      "ticker": "245620",
+      "name": "EDGC",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-11-21"
+    },
+    {
+      "ticker": "182400",
+      "name": "엔케이젠바이오텍코리아",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-11-20"
+    },
+    {
+      "ticker": "234920",
+      "name": "자이글",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2025-10-29"
+    },
+    {
+      "ticker": "054180",
+      "name": "메디콕스",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-10-28"
+    },
+    {
+      "ticker": "244460",
+      "name": "올리패스",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-10-16"
+    },
+    {
+      "ticker": "046070",
+      "name": "코다코",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-10-02"
+    },
+    {
+      "ticker": "096610",
+      "name": "알에프세미",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-10-02"
+    },
+    {
+      "ticker": "269620",
+      "name": "시스웍",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-09-23"
+    },
+    {
+      "ticker": "020760",
+      "name": "일진디스플",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2025-09-12"
+    },
+    {
+      "ticker": "465320",
+      "name": "교보15호스팩",
+      "reason": "SPAC 합병(예비심사청구대상)",
+      "haltedAt": "2025-09-11"
+    },
+    {
+      "ticker": "246250",
+      "name": "에스엘에스바이오",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-09-09"
+    },
+    {
+      "ticker": "241820",
+      "name": "피씨엘",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-09-08"
+    },
+    {
+      "ticker": "267080",
+      "name": "세븐브로이맥주",
+      "reason": null,
+      "haltedAt": "2025-08-22"
+    },
+    {
+      "ticker": "175250",
+      "name": "아이큐어",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2025-08-05"
+    },
+    {
+      "ticker": "217480",
+      "name": "에스디생명공학",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-07-28"
+    },
+    {
+      "ticker": "011810",
+      "name": "STX",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2025-07-04"
+    },
+    {
+      "ticker": "068940",
+      "name": "셀피글로벌",
+      "reason": "투자자 보호",
+      "haltedAt": "2025-06-02"
+    },
+    {
+      "ticker": "212310",
+      "name": "오건에코텍",
+      "reason": null,
+      "haltedAt": "2025-04-18"
+    },
+    {
+      "ticker": "065570",
+      "name": "삼영이엔씨",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-04-08"
+    },
+    {
+      "ticker": "412540",
+      "name": "제일엠앤에스",
+      "reason": "상장폐지 사유발생",
+      "haltedAt": "2025-04-07"
+    },
+    {
+      "ticker": "238500",
+      "name": "솔루믹스",
+      "reason": null,
+      "haltedAt": "2025-04-04"
+    },
+    {
+      "ticker": "001470",
+      "name": "삼부토건",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2025-04-01"
+    },
+    {
+      "ticker": "001570",
+      "name": "금양",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2025-03-24"
+    },
+    {
+      "ticker": "009440",
+      "name": "KC그린홀딩스",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2025-03-21"
+    },
+    {
+      "ticker": "002410",
+      "name": "범양건영",
+      "reason": "감사의견거절(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2025-03-20"
+    },
+    {
+      "ticker": "036690",
+      "name": "코맥스",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2025-03-05"
+    },
+    {
+      "ticker": "418250",
+      "name": "시큐레터",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2024-09-12"
+    },
+    {
+      "ticker": "005110",
+      "name": "한창",
+      "reason": "기타 시장관리상(신주인수권증권 및 증서 제외)(발행ELW, 발행ETN 포함)",
+      "haltedAt": "2024-04-03"
+    },
+    {
+      "ticker": "000300",
+      "name": "DH오토넥스",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2024-02-23"
+    },
+    {
+      "ticker": "006380",
+      "name": "카프로",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2024-01-26"
+    },
+    {
+      "ticker": "377460",
+      "name": "큐에이드",
+      "reason": "상장적격성 실질심사 대상(사유발생)",
+      "haltedAt": "2023-11-28"
+    },
+    {
+      "ticker": "005030",
+      "name": "부산주공",
+      "reason": "기타공익과투자자보호및시장관리상",
+      "haltedAt": "2023-04-11"
+    },
+    {
+      "ticker": "265690",
+      "name": "ACE 러시아MSCI(합성)",
+      "reason": "투자유의종목(ETF, ETN)",
+      "haltedAt": "2022-03-07"
+    }
+  ],
+  "investmentWarning": [
+    {
+      "ticker": "043610",
+      "name": "KT지니뮤직",
+      "reason": "하락\n\t\t\t\t64",
+      "designatedAt": null
+    },
+    {
+      "ticker": "061970",
+      "name": "LB세미콘",
+      "reason": "상승\n\t\t\t\t230",
+      "designatedAt": null
+    },
+    {
+      "ticker": "348210",
+      "name": "넥스틴",
+      "reason": "상승\n\t\t\t\t3,550",
+      "designatedAt": null
+    },
+    {
+      "ticker": "040160",
+      "name": "누리플렉스",
+      "reason": "상승\n\t\t\t\t605",
+      "designatedAt": null
+    },
+    {
+      "ticker": "464580",
+      "name": "닷밀",
+      "reason": "상승\n\t\t\t\t83",
+      "designatedAt": null
+    },
+    {
+      "ticker": "073190",
+      "name": "듀오백",
+      "reason": "하락\n\t\t\t\t29",
+      "designatedAt": null
+    },
+    {
+      "ticker": "223220",
+      "name": "로지스몬",
+      "reason": "하락\n\t\t\t\t6",
+      "designatedAt": null
+    },
+    {
+      "ticker": "193250",
+      "name": "링크드",
+      "reason": "상승\n\t\t\t\t212",
+      "designatedAt": null
+    },
+    {
+      "ticker": "005360",
+      "name": "모나미",
+      "reason": "상승\n\t\t\t\t64",
+      "designatedAt": null
+    },
+    {
+      "ticker": "044480",
+      "name": "빌리언스",
+      "reason": "하락\n\t\t\t\t14",
+      "designatedAt": null
+    },
+    {
+      "ticker": "452430",
+      "name": "사피엔반도체",
+      "reason": "상승\n\t\t\t\t5,200",
+      "designatedAt": null
+    },
+    {
+      "ticker": "009620",
+      "name": "삼보산업",
+      "reason": "하락\n\t\t\t\t257",
+      "designatedAt": null
+    },
+    {
+      "ticker": "900120",
+      "name": "씨엑스아이",
+      "reason": "상승\n\t\t\t\t4",
+      "designatedAt": null
+    },
+    {
+      "ticker": "388210",
+      "name": "씨엠티엑스",
+      "reason": "상승\n\t\t\t\t12,300",
+      "designatedAt": null
+    },
+    {
+      "ticker": "230240",
+      "name": "에치에프알",
+      "reason": "상승\n\t\t\t\t2,380",
+      "designatedAt": null
+    },
+    {
+      "ticker": "484870",
+      "name": "엠앤씨솔루션",
+      "reason": "상승\n\t\t\t\t1,840",
+      "designatedAt": null
+    },
+    {
+      "ticker": "322310",
+      "name": "오로스테크놀로지",
+      "reason": "상승\n\t\t\t\t2,470",
+      "designatedAt": null
+    },
+    {
+      "ticker": "138080",
+      "name": "오이솔루션",
+      "reason": "상승\n\t\t\t\t2,400",
+      "designatedAt": null
+    },
+    {
+      "ticker": "239340",
+      "name": "이스트에이드",
+      "reason": "상승\n\t\t\t\t20",
+      "designatedAt": null
+    },
+    {
+      "ticker": "216400",
+      "name": "인바이츠바이오코아",
+      "reason": "상승\n\t\t\t\t47",
+      "designatedAt": null
+    },
+    {
+      "ticker": "079950",
+      "name": "인베니아",
+      "reason": "하락\n\t\t\t\t280",
+      "designatedAt": null
+    },
+    {
+      "ticker": "013720",
+      "name": "청보",
+      "reason": "상승\n\t\t\t\t55",
+      "designatedAt": null
+    },
+    {
+      "ticker": "225430",
+      "name": "케이엠제약",
+      "reason": "상승\n\t\t\t\t45",
+      "designatedAt": null
+    },
+    {
+      "ticker": "168360",
+      "name": "펨트론",
+      "reason": "상승\n\t\t\t\t2,240",
+      "designatedAt": null
+    },
+    {
+      "ticker": "147760",
+      "name": "피엠티",
+      "reason": "상승\n\t\t\t\t450",
+      "designatedAt": null
+    },
+    {
+      "ticker": "160190",
+      "name": "하이젠알앤엠",
+      "reason": "상승\n\t\t\t\t1,840",
+      "designatedAt": null
+    },
+    {
+      "ticker": "114810",
+      "name": "한솔아이원스",
+      "reason": "상승\n\t\t\t\t1,290",
+      "designatedAt": null
+    },
+    {
+      "ticker": "078350",
+      "name": "한양디지텍",
+      "reason": "상승\n\t\t\t\t3,460",
+      "designatedAt": null
+    }
+  ],
+  "_diagnostics": {
+    "failed": []
+  }
+}
