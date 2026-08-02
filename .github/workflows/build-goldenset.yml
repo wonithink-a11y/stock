@@ -1,0 +1,26 @@
+name: build-goldenset
+on:
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: '조회 구간(일). 기본 730 = 2년'
+        required: false
+        default: '730'
+concurrency: { group: goldenset-write, cancel-in-progress: false }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: node scripts/build-goldenset.js
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          GOLDENSET_LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days }}
+      - if: always()
+        run: |
+          git config user.name "bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/goldenset/ && git diff --cached --quiet || \
+            (git commit -m "task-2a: goldenset + source coverage" && git pull --rebase --autostash && git push)
