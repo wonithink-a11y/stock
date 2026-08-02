@@ -32,16 +32,14 @@ const SOURCES = {
 function fetchBuf(url, redirects = 0) {
   return new Promise((resolve, reject) => {
     https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
-      // 리다이렉트 추적 (네이버는 폐지된 경로를 302로 넘긴다)
       if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirects < 3) {
         res.resume();
-        const next = new URL(res.headers.location, url).toString();
-        return resolve(fetchBuf(next, redirects + 1));
+        return resolve(fetchBuf(new URL(res.headers.location, url).toString(), redirects + 1));
       }
-      // 상태코드 검사 — 이것이 없으면 404 본문이 "정상 수집 0건"으로 둔갑한다
+      // 상태코드 검사 — 없으면 404 본문이 "정상 수집 0건"으로 둔갑한다
       if (res.statusCode !== 200) { res.resume(); return reject(new Error(`HTTP ${res.statusCode} @ ${url}`)); }
       const chunks = [];
-      res.on('data', (c) => chunks.push(c));          // Buffer로 모은다. 문자열 누적 금지(멀티바이트 절단)
+      res.on('data', (c) => chunks.push(c));      // Buffer 누적. 문자열 누적 금지(멀티바이트 절단)
       res.on('end', () => resolve(Buffer.concat(chunks)));
     }).on('error', reject);
   });
@@ -49,10 +47,9 @@ function fetchBuf(url, redirects = 0) {
 
 function decodeEucKr(buf) {
   try { return new TextDecoder('euc-kr').decode(buf); }   // Node 18+ full-icu
-  catch { return buf.toString('latin1'); }                // 실패 시 한글 정합성 검사에서 잡힌다
+  catch { return buf.toString('latin1'); }                // 실패는 한글 정합성 검사에서 잡힌다
 }
 
-// <tr> 단위로 잘라 종목코드·종목명·나머지 셀(사유 후보)을 뽑는다
 function parseRows(html) {
   const out = [];
   for (const row of html.split(/<tr[\s>]/i)) {
@@ -115,7 +112,6 @@ function runTests(out) {
   // 유일한 치명 실패 모드: EUC-KR 미처리로 종목명 전량 깨짐
   const bad = all.filter((i) => !/[\uAC00-\uD7A3]/.test(i.name || ''));
   chk(bad.length === 0, `종목명 한글 정합성 (위반 ${bad.length}건${bad.length ? ' 예: ' + bad[0].name : ''})`);
-  // 관리종목 0건은 한국 시장에서 정상 발생하지 않는다 → 수집 실패로 간주
   chk(out.management.length > 0, `management 수집 건수 > 0 (${out.management.length}건)`);
   chk(out.meta.sources.length > 0, 'meta.sources 기록됨');
   return ok;
