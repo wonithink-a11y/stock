@@ -4,9 +4,13 @@ on:
     paths:
       - 'lib/**'
       - 'config/policies/**'
+      - 'config/criteria.json'
+      - 'config/criteria-us.json'
       - 'scripts/test-state-infrastructure.js'
       - 'scripts/test-state-expirer.js'
       - 'scripts/test-classifier.js'
+      - 'scripts/test-policies.js'
+      - 'scripts/test-policies-acceptance.js'
   workflow_dispatch: {}
 jobs:
   test:
@@ -17,3 +21,6 @@ jobs:
       - run: node scripts/test-classifier.js
       - run: node scripts/test-state-infrastructure.js
       - run: node scripts/test-state-expirer.js
+      # Acceptance(파일 단독 계약) → Integration(파일 간 정합성) 순서. 원인 파악이 쉬워진다.
+      - run: node scripts/test-policies-acceptance.js
+      - run: node scripts/test-policies.js
