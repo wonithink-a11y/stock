@@ -1,6 +1,6 @@
 {
   "description": "종목별 재무 데이터. ★값이 null인 필드는 반드시 실제 값으로 채우세요 - null이면 결측 처리되어 등급이 '유보'로 나옵니다(안전장치). [한국 KR] 출처: FnGuide(comp.fnguide.com)/네이버금융 종목분석 (빠름) 또는 DART 사업보고서 (원천). [미국 US] 출처: stockanalysis.com, macrotrends.net (빠름) 또는 SEC 10-K (원천). 미국 종목은 per/pbr도 여기서 수동 입력합니다(자동 수집 없음). 갱신 주기: 분기 1회(실적 발표 후). 삼성전자는 '기입 형식 예시'이며 실제 최신 값으로 검증 후 사용하세요. [자동] 한국 종목은 scripts/fetch-fundamentals-kr.js 가 DART 사업보고서에서 분기 1회 자동 수집합니다(ROE=당기순이익÷자본총계, 기말 자본 기준). 업종(sectorType)은 기업개황 API의 표준산업분류코드를 config/sector-map.json 으로 변환한 값입니다. perRelative와 미국 종목은 수동 입력 유지.",
-  "updatedAt": "2026-08-01",
+  "updatedAt": "2026-08-02",
   "byTicker": {
     "105560": {
       "roe": 9.6,
@@ -824,10 +824,10 @@
       "revenueGrowthYoY": 6.4,
       "epsGrowthRate": 22.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.26,
-      "per": 41.14,
-      "pbr": 46.58,
-      "epsTtm": 8.27,
+      "perRelative": 1.14,
+      "per": 35.47,
+      "pbr": 42.55,
+      "epsTtm": 8.72,
       "bvps": 7.26,
       "sectorType": "general",
       "sectorResolved": true,
@@ -835,7 +835,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Consumer Electronics",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -850,7 +850,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "AXP": {
       "roe": 32.4,
@@ -868,9 +868,9 @@
       "revenueGrowthYoY": 9.5,
       "epsGrowthRate": 9.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.29,
-      "per": 20.1,
-      "pbr": 6.53,
+      "perRelative": 1.32,
+      "per": 20.4,
+      "pbr": 6.62,
       "epsTtm": 16.48,
       "bvps": 50.78,
       "sectorType": "financial",
@@ -879,7 +879,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Credit Services",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -891,7 +891,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "KO": {
       "roe": 40.7,
@@ -909,18 +909,18 @@
       "revenueGrowthYoY": 1.9,
       "epsGrowthRate": 23.6,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.85,
-      "per": 27.75,
-      "pbr": 11.4,
+      "perRelative": 0.84,
+      "per": 26.3,
+      "pbr": 10.43,
       "epsTtm": 3.33,
-      "bvps": 7.82,
+      "bvps": 8.4,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Consumer Defensive",
       "yfIndustry": "Beverages - Non-Alcoholic",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -935,7 +935,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "BAC": {
       "roe": 10.1,
@@ -954,8 +954,8 @@
       "epsGrowthRate": 18.7,
       "buybackOrDividendHistory": true,
       "perRelative": 0.93,
-      "per": 14.47,
-      "pbr": 1.55,
+      "per": 14.31,
+      "pbr": 1.57,
       "epsTtm": 4.36,
       "bvps": 39.34,
       "sectorType": "financial",
@@ -964,7 +964,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Banks - Diversified",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -976,7 +976,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "CVX": {
       "roe": 6.6,
@@ -994,10 +994,10 @@
       "revenueGrowthYoY": -4.6,
       "epsGrowthRate": -31.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.0,
-      "per": 32.68,
-      "pbr": 2.07,
-      "epsTtm": 5.77,
+      "perRelative": 0.61,
+      "per": 18.94,
+      "pbr": 2.12,
+      "epsTtm": 10.43,
       "bvps": 92.91,
       "sectorType": "general",
       "sectorResolved": true,
@@ -1005,7 +1005,7 @@
       "yfSector": "Energy",
       "yfIndustry": "Oil & Gas Integrated",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -1020,7 +1020,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "GOOGL": {
       "roe": 31.8,
@@ -1038,9 +1038,9 @@
       "revenueGrowthYoY": 15.1,
       "epsGrowthRate": 34.5,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.51,
-      "per": 16.75,
-      "pbr": 6.62,
+      "perRelative": 0.57,
+      "per": 17.86,
+      "pbr": 7.0,
       "epsTtm": 19.91,
       "bvps": 50.9,
       "sectorType": "general",
@@ -1049,7 +1049,7 @@
       "yfSector": "Communication Services",
       "yfIndustry": "Internet Content & Information",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -1063,36 +1063,36 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "MSFT": {
-      "roe": 29.6,
+      "roe": 30.2,
       "roeHistory5y": [
-        43.7,
         35.1,
         32.8,
-        29.6
+        29.6,
+        30.2
       ],
-      "debtRatio": 80.2,
-      "debtRatioRaw": 80.2,
-      "currentRatio": 135.3,
-      "operatingMarginTrend": 0.71,
-      "operatingMarginTrendPP": 3.57,
-      "revenueGrowthYoY": 14.9,
-      "epsGrowthRate": 15.6,
+      "debtRatio": 71.4,
+      "debtRatioRaw": 71.4,
+      "currentRatio": 123.0,
+      "operatingMarginTrend": 1.0,
+      "operatingMarginTrendPP": 5.01,
+      "revenueGrowthYoY": 17.8,
+      "epsGrowthRate": 31.6,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.72,
-      "per": 23.41,
-      "pbr": 7.0,
-      "epsTtm": 16.8,
-      "bvps": 55.78,
+      "perRelative": 0.83,
+      "per": 25.9,
+      "pbr": 7.8,
+      "epsTtm": 17.96,
+      "bvps": 59.56,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Technology",
       "yfIndustry": "Software - Infrastructure",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -1107,7 +1107,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "NVDA": {
       "roe": 76.3,
@@ -1125,9 +1125,9 @@
       "revenueGrowthYoY": 65.5,
       "epsGrowthRate": 66.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.93,
-      "per": 30.21,
-      "pbr": 23.55,
+      "perRelative": 0.99,
+      "per": 30.79,
+      "pbr": 24.88,
       "epsTtm": 6.53,
       "bvps": 8.07,
       "sectorType": "general",
@@ -1136,7 +1136,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductors",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -1150,7 +1150,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "009150": {
       "roe": 7.5,
@@ -2502,10 +2502,10 @@
       "revenueGrowthYoY": 12.4,
       "epsGrowthRate": 29.7,
       "buybackOrDividendHistory": false,
-      "perRelative": 0.83,
-      "per": 27.11,
-      "pbr": 5.52,
-      "epsTtm": 8.36,
+      "perRelative": 0.7,
+      "per": 21.83,
+      "pbr": 6.61,
+      "epsTtm": 12.43,
       "bvps": 41.09,
       "sectorType": "general",
       "sectorResolved": true,
@@ -2513,7 +2513,7 @@
       "yfSector": "Consumer Cyclical",
       "yfIndustry": "Internet Retail",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2527,7 +2527,7 @@
         "shares": "yf",
         "buyback": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "AVGO": {
       "roe": 28.4,
@@ -2545,9 +2545,9 @@
       "revenueGrowthYoY": 23.9,
       "epsGrowthRate": 287.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.94,
-      "per": 63.3,
-      "pbr": 20.09,
+      "perRelative": 2.08,
+      "per": 64.99,
+      "pbr": 21.12,
       "epsTtm": 6.0,
       "bvps": 18.43,
       "sectorType": "general",
@@ -2556,7 +2556,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductors",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2571,7 +2571,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "META": {
       "roe": 27.8,
@@ -2589,10 +2589,10 @@
       "revenueGrowthYoY": 22.2,
       "epsGrowthRate": -1.6,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.66,
-      "per": 21.6,
-      "pbr": 6.1,
-      "epsTtm": 27.51,
+      "perRelative": 0.67,
+      "per": 20.96,
+      "pbr": 5.8,
+      "epsTtm": 26.55,
       "bvps": 96.01,
       "sectorType": "general",
       "sectorResolved": true,
@@ -2600,7 +2600,7 @@
       "yfSector": "Communication Services",
       "yfIndustry": "Internet Content & Information",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2615,7 +2615,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "TSLA": {
       "roe": 4.6,
@@ -2633,9 +2633,9 @@
       "revenueGrowthYoY": -2.9,
       "epsGrowthRate": -47.1,
       "buybackOrDividendHistory": false,
-      "perRelative": 8.79,
-      "per": 286.85,
-      "pbr": 13.32,
+      "perRelative": 9.14,
+      "per": 285.51,
+      "pbr": 13.89,
       "epsTtm": 1.08,
       "bvps": 22.4,
       "sectorType": "general",
@@ -2644,7 +2644,7 @@
       "yfSector": "Consumer Cyclical",
       "yfIndustry": "Auto Manufacturers",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2657,7 +2657,10 @@
         "currentLiab": "yf",
         "shares": "yf"
       },
-      "sectorPer": 32.63
+      "_kept": [
+        "buybackOrDividendHistory"
+      ],
+      "sectorPer": 31.25
     },
     "BRK-B": {
       "roe": 9.3,
@@ -2675,8 +2678,8 @@
       "revenueGrowthYoY": -3.2,
       "epsGrowthRate": -24.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.97,
-      "per": 15.15,
+      "perRelative": 0.98,
+      "per": 15.22,
       "pbr": 0.0,
       "epsTtm": 33.61,
       "bvps": 505559.44,
@@ -2686,7 +2689,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Insurance - Diversified",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2698,7 +2701,7 @@
         "shares": "yf",
         "buyback": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "LLY": {
       "roe": 77.8,
@@ -2716,9 +2719,9 @@
       "revenueGrowthYoY": 44.7,
       "epsGrowthRate": 96.0,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.33,
-      "per": 43.29,
-      "pbr": 34.65,
+      "perRelative": 1.31,
+      "per": 40.81,
+      "pbr": 32.9,
       "epsTtm": 28.15,
       "bvps": 34.92,
       "sectorType": "general",
@@ -2727,7 +2730,7 @@
       "yfSector": "Healthcare",
       "yfIndustry": "Drug Manufacturers - General",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2742,7 +2745,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "MU": {
       "roe": 15.8,
@@ -2760,9 +2763,9 @@
       "revenueGrowthYoY": 48.9,
       "epsGrowthRate": 984.3,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.57,
-      "per": 18.55,
-      "pbr": 8.28,
+      "perRelative": 0.59,
+      "per": 18.59,
+      "pbr": 9.23,
       "epsTtm": 44.17,
       "bvps": 89.22,
       "sectorType": "general",
@@ -2771,7 +2774,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductors",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2786,7 +2789,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "JPM": {
       "roe": 15.7,
@@ -2805,8 +2808,8 @@
       "epsGrowthRate": 1.4,
       "buybackOrDividendHistory": true,
       "perRelative": 0.98,
-      "per": 15.31,
-      "pbr": 2.59,
+      "per": 15.09,
+      "pbr": 2.64,
       "epsTtm": 23.34,
       "bvps": 133.01,
       "sectorType": "financial",
@@ -2815,7 +2818,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Banks - Diversified",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2827,7 +2830,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "WMT": {
       "roe": 22.0,
@@ -2845,9 +2848,9 @@
       "revenueGrowthYoY": 4.7,
       "epsGrowthRate": 13.3,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.22,
-      "per": 39.8,
-      "pbr": 9.64,
+      "perRelative": 1.25,
+      "per": 39.15,
+      "pbr": 9.39,
       "epsTtm": 2.85,
       "bvps": 11.85,
       "sectorType": "general",
@@ -2856,7 +2859,7 @@
       "yfSector": "Consumer Defensive",
       "yfIndustry": "Discount Stores",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2871,7 +2874,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "AMD": {
       "roe": 6.9,
@@ -2889,9 +2892,9 @@
       "revenueGrowthYoY": 34.3,
       "epsGrowthRate": 165.0,
       "buybackOrDividendHistory": true,
-      "perRelative": 4.64,
-      "per": 151.25,
-      "pbr": 10.86,
+      "perRelative": 5.08,
+      "per": 158.72,
+      "pbr": 12.04,
       "epsTtm": 3.05,
       "bvps": 39.55,
       "sectorType": "general",
@@ -2900,7 +2903,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductors",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2914,7 +2917,7 @@
         "shares": "yf",
         "buyback": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "V": {
       "roe": 52.9,
@@ -2932,18 +2935,18 @@
       "revenueGrowthYoY": 11.3,
       "epsGrowthRate": 4.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.98,
-      "per": 31.95,
-      "pbr": 19.01,
+      "perRelative": 1.0,
+      "per": 31.16,
+      "pbr": 19.4,
       "epsTtm": 11.76,
-      "bvps": 19.4,
+      "bvps": 18.87,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "byTicker",
       "yfSector": "Financial Services",
       "yfIndustry": "Credit Services",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -2958,7 +2961,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "XOM": {
       "roe": 11.1,
@@ -2976,18 +2979,18 @@
       "revenueGrowthYoY": -4.5,
       "epsGrowthRate": -14.5,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.79,
-      "per": 25.78,
-      "pbr": 2.55,
+      "perRelative": 0.84,
+      "per": 26.17,
+      "pbr": 2.46,
       "epsTtm": 5.93,
-      "bvps": 61.37,
+      "bvps": 63.08,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Energy",
       "yfIndustry": "Oil & Gas Integrated",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3002,7 +3005,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "JNJ": {
       "roe": 32.9,
@@ -3020,9 +3023,9 @@
       "revenueGrowthYoY": 6.0,
       "epsGrowthRate": 90.5,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.94,
-      "per": 30.8,
-      "pbr": 7.53,
+      "perRelative": 0.95,
+      "per": 29.77,
+      "pbr": 7.27,
       "epsTtm": 8.63,
       "bvps": 35.28,
       "sectorType": "general",
@@ -3031,7 +3034,7 @@
       "yfSector": "Healthcare",
       "yfIndustry": "Drug Manufacturers - General",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3046,7 +3049,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "MA": {
       "roe": 193.5,
@@ -3064,10 +3067,10 @@
       "revenueGrowthYoY": 16.4,
       "epsGrowthRate": 18.9,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.0,
-      "per": 32.58,
-      "pbr": 65.12,
-      "epsTtm": 16.8,
+      "perRelative": 1.01,
+      "per": 31.54,
+      "pbr": 66.25,
+      "epsTtm": 18.18,
       "bvps": 8.65,
       "sectorType": "general",
       "sectorResolved": true,
@@ -3075,7 +3078,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Credit Services",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3090,7 +3093,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "INTC": {
       "roe": -0.2,
@@ -3110,16 +3113,16 @@
       "buybackOrDividendHistory": true,
       "perRelative": null,
       "per": null,
-      "pbr": 3.69,
+      "pbr": 5.2,
       "epsTtm": -2.11,
-      "bvps": 22.18,
+      "bvps": 17.36,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Technology",
       "yfIndustry": "Semiconductors",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3134,7 +3137,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "ABBV": {
       "roe": 128.7,
@@ -3151,9 +3154,9 @@
       "revenueGrowthYoY": 8.6,
       "epsGrowthRate": -1.3,
       "buybackOrDividendHistory": true,
-      "perRelative": 3.94,
-      "per": 128.44,
-      "pbr": -69.9,
+      "perRelative": 2.27,
+      "per": 70.89,
+      "pbr": -66.62,
       "epsTtm": 2.03,
       "bvps": -3.77,
       "sectorType": "general",
@@ -3162,7 +3165,7 @@
       "yfSector": "Healthcare",
       "yfIndustry": "Drug Manufacturers - General",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3177,7 +3180,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "CSCO": {
       "roe": 21.7,
@@ -3195,9 +3198,9 @@
       "revenueGrowthYoY": 5.3,
       "epsGrowthRate": 2.8,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.18,
-      "per": 38.52,
-      "pbr": 9.07,
+      "perRelative": 1.24,
+      "per": 38.66,
+      "pbr": 9.35,
       "epsTtm": 3.08,
       "bvps": 12.4,
       "sectorType": "general",
@@ -3206,7 +3209,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Communication Equipment",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3221,7 +3224,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "AMAT": {
       "roe": 34.3,
@@ -3239,9 +3242,9 @@
       "revenueGrowthYoY": 4.4,
       "epsGrowthRate": 0.6,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.37,
-      "per": 44.86,
-      "pbr": 14.49,
+      "perRelative": 1.53,
+      "per": 47.85,
+      "pbr": 16.86,
       "epsTtm": 10.65,
       "bvps": 30.11,
       "sectorType": "general",
@@ -3250,7 +3253,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductor Equipment & Materials",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3265,7 +3268,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "COST": {
       "roe": 27.8,
@@ -3283,9 +3286,9 @@
       "revenueGrowthYoY": 8.2,
       "epsGrowthRate": 10.0,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.49,
-      "per": 48.53,
-      "pbr": 26.13,
+      "perRelative": 1.53,
+      "per": 47.86,
+      "pbr": 25.53,
       "epsTtm": 19.88,
       "bvps": 37.28,
       "sectorType": "general",
@@ -3294,7 +3297,7 @@
       "yfSector": "Consumer Defensive",
       "yfIndustry": "Discount Stores",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3309,7 +3312,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "CAT": {
       "roe": 41.7,
@@ -3327,9 +3330,9 @@
       "revenueGrowthYoY": 4.3,
       "epsGrowthRate": -14.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.28,
-      "per": 41.83,
-      "pbr": 19.32,
+      "perRelative": 1.3,
+      "per": 40.66,
+      "pbr": 20.11,
       "epsTtm": 20.09,
       "bvps": 40.51,
       "sectorType": "general",
@@ -3338,7 +3341,7 @@
       "yfSector": "Industrials",
       "yfIndustry": "Farm & Heavy Construction Machinery",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3353,7 +3356,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "UNH": {
       "roe": 12.8,
@@ -3371,9 +3374,9 @@
       "revenueGrowthYoY": 11.8,
       "epsGrowthRate": -14.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.99,
-      "per": 32.25,
-      "pbr": 3.65,
+      "perRelative": 1.0,
+      "per": 31.25,
+      "pbr": 3.59,
       "epsTtm": 13.24,
       "bvps": 115.36,
       "sectorType": "general",
@@ -3382,7 +3385,7 @@
       "yfSector": "Healthcare",
       "yfIndustry": "Healthcare Plans",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3397,7 +3400,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "LRCX": {
       "roe": 54.3,
@@ -3415,10 +3418,10 @@
       "revenueGrowthYoY": 23.7,
       "epsGrowthRate": 43.1,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.56,
-      "per": 50.98,
-      "pbr": 29.81,
-      "epsTtm": 5.3,
+      "perRelative": 1.62,
+      "per": 50.78,
+      "pbr": 34.62,
+      "epsTtm": 5.76,
       "bvps": 8.46,
       "sectorType": "general",
       "sectorResolved": true,
@@ -3426,7 +3429,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Semiconductor Equipment & Materials",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3441,7 +3444,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "GE": {
       "roe": 46.6,
@@ -3459,9 +3462,9 @@
       "revenueGrowthYoY": 18.5,
       "epsGrowthRate": 35.9,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.32,
-      "per": 42.92,
-      "pbr": 20.62,
+      "perRelative": 1.36,
+      "per": 42.36,
+      "pbr": 21.18,
       "epsTtm": 8.49,
       "bvps": 17.0,
       "sectorType": "general",
@@ -3470,7 +3473,7 @@
       "yfSector": "Industrials",
       "yfIndustry": "Aerospace & Defense",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3485,15 +3488,14 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "PG": {
-      "roe": 30.7,
+      "roe": 31.8,
       "roeHistory5y": [
-        31.6,
-        31.3,
-        29.6,
-        30.7
+        31.5,
+        31.8,
+        31.8
       ],
       "debtRatio": 140.3,
       "debtRatioRaw": 140.3,
@@ -3501,12 +3503,12 @@
       "operatingMarginTrend": 0.41,
       "operatingMarginTrendPP": 2.05,
       "revenueGrowthYoY": 0.3,
-      "epsGrowthRate": 8.1,
+      "epsGrowthRate": 1.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.66,
-      "per": 21.39,
-      "pbr": 6.33,
-      "epsTtm": 6.84,
+      "perRelative": 0.7,
+      "per": 21.83,
+      "pbr": 6.26,
+      "epsTtm": 6.62,
       "bvps": 23.08,
       "sectorType": "general",
       "sectorResolved": true,
@@ -3514,7 +3516,7 @@
       "yfSector": "Consumer Defensive",
       "yfIndustry": "Household & Personal Products",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3529,7 +3531,10 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "_kept": [
+        "revenueGrowthYoY"
+      ],
+      "sectorPer": 31.25
     },
     "MS": {
       "roe": 15.1,
@@ -3547,9 +3552,9 @@
       "revenueGrowthYoY": 14.5,
       "epsGrowthRate": 28.4,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.09,
-      "per": 17.1,
-      "pbr": 3.07,
+      "perRelative": 1.1,
+      "per": 17.01,
+      "pbr": 3.18,
       "epsTtm": 12.37,
       "bvps": 66.18,
       "sectorType": "financial",
@@ -3558,7 +3563,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Capital Markets",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3570,7 +3575,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "HD": {
       "roe": 110.5,
@@ -3589,8 +3594,8 @@
       "epsGrowthRate": -4.6,
       "buybackOrDividendHistory": true,
       "perRelative": 0.75,
-      "per": 24.44,
-      "pbr": 24.31,
+      "per": 23.58,
+      "pbr": 23.85,
       "epsTtm": 14.08,
       "bvps": 13.92,
       "sectorType": "general",
@@ -3599,7 +3604,7 @@
       "yfSector": "Consumer Cyclical",
       "yfIndustry": "Home Improvement Retail",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3614,7 +3619,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "ORCL": {
       "roe": 40.2,
@@ -3632,9 +3637,9 @@
       "revenueGrowthYoY": 17.3,
       "epsGrowthRate": 34.3,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.63,
-      "per": 20.58,
-      "pbr": 9.03,
+      "perRelative": 0.71,
+      "per": 22.28,
+      "pbr": 9.96,
       "epsTtm": 5.83,
       "bvps": 13.04,
       "sectorType": "general",
@@ -3643,7 +3648,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Software - Infrastructure",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3658,7 +3663,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "GS": {
       "roe": 13.7,
@@ -3677,8 +3682,8 @@
       "epsGrowthRate": 26.6,
       "buybackOrDividendHistory": true,
       "perRelative": 1.02,
-      "per": 15.95,
-      "pbr": 2.68,
+      "per": 15.72,
+      "pbr": 2.78,
       "epsTtm": 64.79,
       "bvps": 366.45,
       "sectorType": "financial",
@@ -3687,7 +3692,7 @@
       "yfSector": "Financial Services",
       "yfIndustry": "Capital Markets",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3699,7 +3704,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 15.63
+      "sectorPer": 15.47
     },
     "MRK": {
       "roe": 34.7,
@@ -3717,9 +3722,9 @@
       "revenueGrowthYoY": 1.3,
       "epsGrowthRate": 8.0,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.14,
-      "per": 37.14,
-      "pbr": 7.02,
+      "perRelative": 1.17,
+      "per": 36.68,
+      "pbr": 7.01,
       "epsTtm": 3.55,
       "bvps": 18.58,
       "sectorType": "general",
@@ -3728,7 +3733,7 @@
       "yfSector": "Healthcare",
       "yfIndustry": "Drug Manufacturers - General",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3743,7 +3748,7 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "PM": {
       "roe": null,
@@ -3756,18 +3761,18 @@
       "revenueGrowthYoY": 7.3,
       "epsGrowthRate": 60.3,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.83,
-      "per": 27.22,
+      "perRelative": 0.84,
+      "per": 26.18,
       "pbr": -33.33,
       "epsTtm": 0.87,
-      "bvps": -5.95,
+      "bvps": -6.42,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Consumer Defensive",
       "yfIndustry": "Tobacco",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3782,7 +3787,10 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "_kept": [
+        "pbr"
+      ],
+      "sectorPer": 31.25
     },
     "PLTR": {
       "roe": 22.0,
@@ -3800,9 +3808,9 @@
       "revenueGrowthYoY": 56.2,
       "epsGrowthRate": 231.1,
       "buybackOrDividendHistory": true,
-      "perRelative": 4.24,
-      "per": 138.2,
-      "pbr": 34.89,
+      "perRelative": 4.42,
+      "per": 138.27,
+      "pbr": 34.91,
       "epsTtm": 0.89,
       "bvps": 3.52,
       "sectorType": "general",
@@ -3811,7 +3819,7 @@
       "yfSector": "Technology",
       "yfIndustry": "Software - Infrastructure",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3825,7 +3833,7 @@
         "shares": "yf",
         "buyback": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "NFLX": {
       "roe": 41.3,
@@ -3843,9 +3851,9 @@
       "revenueGrowthYoY": 15.9,
       "epsGrowthRate": 27.6,
       "buybackOrDividendHistory": true,
-      "perRelative": 0.7,
-      "per": 22.8,
-      "pbr": 10.17,
+      "perRelative": 0.72,
+      "per": 22.55,
+      "pbr": 9.9,
       "epsTtm": 3.18,
       "bvps": 7.24,
       "sectorType": "general",
@@ -3854,7 +3862,7 @@
       "yfSector": "Communication Services",
       "yfIndustry": "Entertainment",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3868,7 +3876,7 @@
         "shares": "yf",
         "buyback": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "RTX": {
       "roe": 10.3,
@@ -3886,8 +3894,8 @@
       "revenueGrowthYoY": 9.7,
       "epsGrowthRate": 39.7,
       "buybackOrDividendHistory": true,
-      "perRelative": 1.18,
-      "per": 38.44,
+      "perRelative": 1.21,
+      "per": 37.89,
       "pbr": 4.37,
       "epsTtm": 5.68,
       "bvps": 49.22,
@@ -3897,7 +3905,7 @@
       "yfSector": "Industrials",
       "yfIndustry": "Aerospace & Defense",
       "_source": "yfinance+SEC XBRL",
-      "_asOf": "2026-07-30",
+      "_asOf": "2026-08-02",
       "_fields": {
         "revenue": "yf",
         "netIncome": "yf",
@@ -3912,60 +3920,100 @@
         "buyback": "yf",
         "dividends": "yf"
       },
-      "sectorPer": 32.63
+      "sectorPer": 31.25
     },
     "DAL": {
-      "roe": 20.1,
-      "roeHistory5y": [10.3, 25.2, 52.1, 26.2, 20.1],
-      "debtRatio": 290,
-      "debtRatioRaw": 290,
-      "currentRatio": 39,
-      "operatingMarginTrend": null,
-      "operatingMarginTrendPP": null,
+      "roe": 24.0,
+      "roeHistory5y": [
+        20.0,
+        41.5,
+        22.6,
+        24.0
+      ],
+      "debtRatio": 290.0,
+      "debtRatioRaw": 290.0,
+      "currentRatio": 39.7,
+      "operatingMarginTrend": 0.39,
+      "operatingMarginTrendPP": 1.95,
       "revenueGrowthYoY": 2.8,
-      "epsGrowthRate": null,
+      "epsGrowthRate": 43.7,
       "buybackOrDividendHistory": true,
       "perRelative": null,
-      "per": 14.0,
-      "pbr": 2.2,
-      "epsTtm": null,
-      "bvps": null,
+      "per": 14.5,
+      "pbr": 2.62,
+      "epsTtm": 6.03,
+      "bvps": 33.35,
       "sectorType": "airline",
       "sectorResolved": true,
-      "sectorSource": "byTicker",
+      "sectorSource": "industry:Airlines",
       "yfSector": "Industrials",
       "yfIndustry": "Airlines",
-      "_source": "stockanalysis.com/macrotrends.net (수동 조사, Berkshire 13F Q1 2026 신규 편입)",
-      "_asOf": "2026-08-01"
+      "_source": "yfinance+SEC XBRL",
+      "_asOf": "2026-08-02",
+      "_fields": {
+        "revenue": "yf",
+        "netIncome": "yf",
+        "opIncome": "yf",
+        "eps": "yf",
+        "equity": "yf",
+        "liabilities": "yf",
+        "assets": "yf",
+        "currentAssets": "yf",
+        "currentLiab": "yf",
+        "shares": "yf",
+        "buyback": "yf",
+        "dividends": "yf"
+      },
+      "sectorPer": null
     },
     "M": {
-      "roe": null,
-      "roeHistory5y": null,
-      "debtRatio": 260,
-      "debtRatioRaw": 260,
-      "currentRatio": 143,
-      "operatingMarginTrend": null,
-      "operatingMarginTrendPP": null,
-      "revenueGrowthYoY": -0.4,
-      "epsGrowthRate": null,
+      "roe": 13.2,
+      "roeHistory5y": [
+        28.1,
+        1.1,
+        12.8,
+        13.2
+      ],
+      "debtRatio": 234.1,
+      "debtRatioRaw": 234.1,
+      "currentRatio": 148.5,
+      "operatingMarginTrend": -0.51,
+      "operatingMarginTrendPP": -2.54,
+      "revenueGrowthYoY": -1.7,
+      "epsGrowthRate": 12.1,
       "buybackOrDividendHistory": true,
-      "perRelative": null,
-      "per": 9.8,
-      "pbr": 1.38,
-      "epsTtm": null,
-      "bvps": null,
+      "perRelative": 0.33,
+      "per": 10.26,
+      "pbr": 1.35,
+      "epsTtm": 2.42,
+      "bvps": 18.39,
       "sectorType": "general",
       "sectorResolved": true,
       "sectorSource": "default",
       "yfSector": "Consumer Cyclical",
       "yfIndustry": "Department Stores",
-      "_source": "stockanalysis.com/macrotrends.net (수동 조사, Berkshire 13F Q1 2026 신규 편입; roe·epsGrowthRate는 출처 간 수치 불일치로 결측 처리)",
-      "_asOf": "2026-08-01"
+      "_source": "yfinance+SEC XBRL",
+      "_asOf": "2026-08-02",
+      "_fields": {
+        "revenue": "yf",
+        "netIncome": "yf",
+        "opIncome": "yf",
+        "eps": "yf",
+        "equity": "yf",
+        "liabilities": "yf",
+        "assets": "yf",
+        "currentAssets": "yf",
+        "currentLiab": "yf",
+        "shares": "yf",
+        "buyback": "yf",
+        "dividends": "yf"
+      },
+      "sectorPer": 31.25
     }
   },
-  "usUpdatedAt": "2026-08-01",
+  "usUpdatedAt": "2026-08-02",
   "usSectorPer": {
-    "general": 32.63,
-    "financial": 15.63
+    "general": 31.25,
+    "financial": 15.47
   }
 }
