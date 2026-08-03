@@ -21,7 +21,8 @@ const a = score(base, C, P);
 chk(a.result.finalScore !== null && a.result.finalScore === a.result.rawScore, '① state 없음 → 감점 0, finalScore == rawScore');
 chk(a.result.tradeAllowed === true && a.result.tradingState === 'NORMAL', '① tradingState 기본값 NORMAL');
 chk(a.meta.policies.riskPenalty === 'RP-1.2' && a.meta.policies.criteria === '2.2', '① meta.policies 스탬프');
-chk(Object.isFrozen(a.result), '① ScoreResult immutable');
+chk(a.meta.policies.flagCodes === 'FC-1.1', '① flagCodes 버전 스탬프');
+chk(Object.isFrozen(a.result) && Object.isFrozen(a.meta), '① ScoreResult immutable');
 chk(validate(a, P, { mode: 'strict' }).length === 0, '① strict 검증 위반 0');
 
 // ② 감점 누적 + 거래정지 — 점수와 매매가능여부는 다른 축이다
