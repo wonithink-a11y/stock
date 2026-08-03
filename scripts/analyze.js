@@ -104,7 +104,7 @@ function main() {
       const violations = validate(envelope, policies, { mode: 'lenient' });
       v2Results.push({ ...envelope, market, _diagnostics: violations.length ? { violations } : undefined });
     } catch (err) {
-      v2Errors.push({ ticker: s.ticker, market, message: err.message, code: err.code || null });
+      v2Errors.push({ ticker: s.ticker, market, message: err.message, code: err.errorCode || null });
     }
   }
   saveJson(path.join(OUT_DIR, 'latest-v2.json'), {
