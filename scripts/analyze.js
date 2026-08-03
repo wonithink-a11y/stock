@@ -40,8 +40,8 @@ function main() {
     process.exit(1);
   }
 
-  const criteriaKR = loadJson(path.join(ROOT, 'config', 'criteria.json'));
-  const criteriaUS = loadJson(path.join(ROOT, 'config', 'criteria-us.json'), criteriaKR);
+  const criteriaKR = loadCriteria('KR').criteria;
+  const criteriaUS = loadCriteria('US').criteria;
   const criteriaFor = (market) => (market === 'US' ? criteriaUS : criteriaKR);
   const macro = loadJson(path.join(ROOT, 'config', 'macroInput.json'));
   const holdingsConfig = loadJson(path.join(ROOT, 'config', 'holdings.json'), { holdings: [] });
