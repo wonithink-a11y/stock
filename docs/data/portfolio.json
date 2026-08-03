@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-31T10:19:13.402Z",
+  "updatedAt": "2026-08-03T09:51:31.728Z",
   "marketRegime": "caution",
   "holdings": [
     {
@@ -7,12 +7,12 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 262500,
-      "currentValue": 2625000,
+      "currentPrice": 239500,
+      "currentValue": 2395000,
       "investedValue": 700000,
-      "unrealizedPnL": 1925000,
-      "unrealizedPnLPct": 275,
-      "stockScore": 62.4,
+      "unrealizedPnL": 1695000,
+      "unrealizedPnLPct": 242.14,
+      "stockScore": 60,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "caution",
@@ -60,7 +60,7 @@
           }
         },
         "valuation": {
-          "score": 53.1,
+          "score": 54.1,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -69,23 +69,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.65,
+              "raw": 3.33,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.6353293413173653,
-              "score": 91.88023952095809
+              "peg": 0.5796407185628742,
+              "score": 95.22155688622755
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.8553586056489335,
+              "marginOfSafety": -0.6927137974270785,
               "score": 0
             }
           }
         },
         "technical": {
-          "score": 58.5,
+          "score": 41,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -94,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 45.4,
+              "value": 46.8,
               "score": 70
             },
             "macd": {
@@ -104,8 +104,8 @@
             },
             "volumeConfirmation": {
               "label": "거래량 동반 여부",
-              "confirmed": true,
-              "score": 100
+              "confirmed": false,
+              "score": 30
             }
           }
         },
