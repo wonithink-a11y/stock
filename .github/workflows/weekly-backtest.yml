@@ -28,13 +28,14 @@ jobs:
         run: node scripts/backtest-report.js
 
       - name: 결과 커밋
-        run: |
-          git config user.name "stock-scoring-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add docs/data/backtest.json
-          if git diff --cached --quiet; then
-            echo "변경 없음 - 커밋 생략"
-          else
-            git commit -m "chore: weekly backtest report $(date -u +'%Y-%m-%d')"
-            git push
-          fi
+         run: |
+           git config user.name  "stock-scoring-bot"
+           git config user.email "actions@users.noreply.github.com"
+-          git add docs/data/backtest.json
++          git add docs/data/backtest.json docs/data/backtest-v2.json
+           if git diff --cached --quiet; then
+             echo "변경 없음 - 커밋 생략"
+           else
+             git commit -m "chore: weekly backtest report $(date -u +'%Y-%m-%d')"
+             git push
+           fi
