@@ -100,8 +100,8 @@ function buildSnapshots(days, market) {
 
 function main() {
   const days = loadHistory();
-  const criteriaKR = loadJson(path.join(ROOT, 'config', 'criteria.json'), undefined);
-  const criteriaUS = loadJson(path.join(ROOT, 'config', 'criteria-us.json'), criteriaKR);
+  const criteriaKR = loadCriteria('KR').criteria;
+  const criteriaUS = loadCriteria('US').criteria;
 
   const markets = {};
   let totalSamples = 0;
