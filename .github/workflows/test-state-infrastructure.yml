@@ -12,6 +12,7 @@ on:
       - 'scripts/test-classifier.js'
       - 'scripts/test-policies.js'
       - 'scripts/test-policies-acceptance.js'
+      - 'scripts/test-engine-v2.js'          # ← 14행 다음에 삽입
   workflow_dispatch: {}
 jobs:
   test:
