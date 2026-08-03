@@ -170,6 +170,71 @@ section('lib exports', () => {
     for (const k of keys) chk(typeof m[k] !== 'undefined', `${rel}: ${k} export`);
   }
 });
+// ── EP-1.0 Exit Policy (분석 단계 정책) ────────────────────────
+// exitReason enum과 EP.rules의 exact match를 강제한다. enum이 늘었는데 규칙이 없으면
+// 그 사유의 폐지 종목이 조용히 처리 누락된다(교훈13 — 발동 불가·미정의 규칙은 조용한 실패).
+const EXIT_REASONS = [
+  'BANKRUPTCY', 'AUDIT_OPINION', 'DELISTING_REVIEW_FAILED', 'CAPITAL_IMPAIRMENT',
+  'VOLUNTARY', 'MERGED', 'SPINOFF', 'RELISTED', 'UNKNOWN',
+];
+section('exitPolicy', () => {
+  const r = load('config/policies/registry.json');
+  chk(r.analysisPolicies && Object.keys(r.analysisPolicies).length > 0,
+    'registry: analysisPolicies 존재');
+  const dup = Object.keys(r.analysisPolicies || {}).filter((k) => (r.policies || {})[k]);
+  chk(dup.length === 0, `registry: policies/analysisPolicies 중복 없음${dup.length ? ` (${dup.join(',')})` : ''}`);
+
+  const ep = load(r.analysisPolicies.exitPolicy);
+  chk(isVersion(ep.version), 'exitPolicy: version 존재');
+  chk(ep.appliesToStage === 'A6', 'exitPolicy: appliesToStage=A6 (A5는 사실만 저장)');
+
+  const ruleKeys = Object.keys(ep.rules || {}).sort();
+  const enumKeys = [...EXIT_REASONS].sort();
+  const missing = enumKeys.filter((k) => !ruleKeys.includes(k));
+  const extra = ruleKeys.filter((k) => !enumKeys.includes(k));
+  chk(missing.length === 0, `exitPolicy: 모든 exitReason에 규칙 존재${missing.length ? ` (누락: ${missing.join(',')})` : ''}`);
+  chk(extra.length === 0, `exitPolicy: enum에 없는 규칙 없음${extra.length ? ` (잉여: ${extra.join(',')})` : ''}`);
+
+  const MODES = Object.keys(ep.modes || {});
+  chk(MODES.length > 0, 'exitPolicy: modes 정의 존재');
+  const badMode = ruleKeys.filter((k) => !MODES.includes(ep.rules[k].mode));
+  chk(badMode.length === 0, `exitPolicy: 모든 규칙의 mode가 정의됨${badMode.length ? ` (${badMode.join(',')})` : ''}`);
+
+  const liq = ruleKeys.filter((k) => ep.rules[k].mode === 'liquidation');
+  chk(liq.every((k) => typeof ep.rules[k].fallbackReturn === 'number' && ep.rules[k].fallbackReturn >= -1 && ep.rules[k].fallbackReturn <= 0),
+    'exitPolicy: liquidation 규칙에 fallbackReturn(-1~0) 존재');
+  chk(ep.sensitivityReport && ep.sensitivityReport.required === true,
+    'exitPolicy: sensitivityReport.required (exclude 편향을 계량 보고하지 않으면 exclude 선택을 검증할 수 없다)');
+  const exc = ruleKeys.filter((k) => ep.rules[k].mode === 'exclude');
+  chk(exc.length === 0 || (ep.sensitivityReport.metrics || []).includes('quintileExclusionRate'),
+    'exitPolicy: exclude가 있으면 분위별 제외율을 보고 지표에 포함');
+});
+// ── policyHashes / analysisVersions 계약 ───────────────────────
+// 버전을 안 올린 채 내용만 고친 경우를 잡는 유일한 수단. 소비자가 각자 해시를 계산하면
+// 정규화 규칙이 갈라지므로 loadPolicies가 단일 산출점이어야 한다.
+section('policy hashes', () => {
+  const { loadPolicies, _clearCache } = require(path.join(ROOT, 'lib/loadPolicies.js'));
+  _clearCache();
+  const p = loadPolicies('KR');
+  const r = load('config/policies/registry.json');
+
+  chk(p.hashes && typeof p.hashes === 'object', 'loadPolicies: hashes 반환');
+  const need = ['criteria', 'registry', ...Object.keys(r.policies), ...Object.keys(r.analysisPolicies || {})];
+  const miss = need.filter((k) => !p.hashes[k]);
+  chk(miss.length === 0, `hashes: 전 정책 커버${miss.length ? ` (누락: ${miss.join(',')})` : ''}`);
+  chk(Object.values(p.hashes).every((h) => /^sha256:[0-9a-f]{16}$/.test(h)), 'hashes: sha256 형식');
+
+  chk(p.analysisVersions && p.analysisVersions.exitPolicy, 'loadPolicies: analysisVersions 반환');
+  const leaked = Object.keys(r.analysisPolicies || {}).filter((k) => p.versions[k]);
+  chk(leaked.length === 0,
+    `versions에 분석 정책 미포함${leaked.length ? ` (누출: ${leaked.join(',')})` : ''} — meta.policies는 점수를 만든 정책만이다`);
+  chk(p.analysis && p.analysis.exitPolicy, 'loadPolicies: analysis.exitPolicy 접근 가능');
+
+  // 결정론: 같은 파일이면 몇 번을 읽어도 같은 해시여야 한다
+  _clearCache();
+  const p2 = loadPolicies('KR');
+  chk(JSON.stringify(p.hashes) === JSON.stringify(p2.hashes), 'hashes: 재로드 시 동일(결정론)');
+});
 // ── 보고 ────────────────────────────────────────────────────────
 const failed = results.filter((r) => !r.ok);
 failed.forEach((r) => console.log(`❌ ${r.label}`));
