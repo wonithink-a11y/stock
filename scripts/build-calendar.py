@@ -16,6 +16,7 @@ forward return의 d20/d60/d120은 달력일이 아니라 tradingDays 인덱스 �
 import json
 import os
 import sys
+import time
 from datetime import date
 
 # warm-up 시작점. 2015-01-01로 잡으면 첫 스냅샷(2016-01-08) 이전 거래일이 약 251일이라
@@ -25,6 +26,7 @@ FROM = os.environ.get("CAL_FROM", "20140101")
 TO = os.environ.get("CAL_TO", date.today().strftime("%Y%m%d"))
 ANALYSIS_FROM = os.environ.get("CAL_ANALYSIS_FROM", "2016-01-01")
 KOSPI_INDEX = "1001"
+PROXY_TICKERS = ["005930", "000660"]   # 폴백용. 2014년 이전 상장 + 정지 이력 사실상 없음
 OUT = "data/backfill/calendar.json"
 
 # 지표 lookback의 최댓값. criteria의 technical 파라미터가 늘어나면 여기도 올린다.
@@ -40,12 +42,85 @@ def chk(cond, msg):
         fails.append(msg)
 
 
-def fetch_trading_days():
+def _years():
+    for y in range(int(FROM[:4]), int(TO[:4]) + 1):
+        f, t = max(FROM, f"{y}0101"), min(TO, f"{y}1231")
+        if f <= t:
+            yield y, f, t
+
+
+def _retry(fn, what):
+    """단발 fetch는 배치의 단일 실패점이다(교훈5). 지수 백오프 4회."""
+    last = None
+    for i in range(4):
+        try:
+            return fn()
+        except Exception as e:            # noqa: BLE001 — 어떤 실패든 재시도 대상
+            last = e
+            if i < 3:
+                time.sleep(2 ** i)
+    print(f"    ! {what} 실패: {type(last).__name__}: {last}")
+    return None
+
+
+def _fetch_via_index():
+    """KOSPI 지수 일봉.
+    name_display=False 필수 — True면 pykrx가 지수명 테이블(전체지수기본정보)을 조회하는데,
+    그 조회가 실패하면 @dataframe_empty_handler가 빈 DF를 돌려주고
+    self.df.loc[ticker,'지수명']이 KeyError로 터진다. 지수명은 캘린더에 쓰지 않는다.
+    """
     from pykrx import stock
-    df = stock.get_index_ohlcv_by_date(FROM, TO, KOSPI_INDEX)
-    if df is None or df.empty:
-        raise RuntimeError("KOSPI 지수 조회가 비었다 — 거래일을 복원할 수 없다")
-    return [d.strftime("%Y-%m-%d") for d in df.index]
+    days = set()
+    for y, f, t in _years():
+        df = _retry(lambda f=f, t=t: stock.get_index_ohlcv_by_date(
+            f, t, KOSPI_INDEX, name_display=False), f"index {y}")
+        if df is None or df.empty:
+            continue
+        days.update(d.strftime("%Y-%m-%d") for d in df.index)
+    return days
+
+
+def _fetch_via_stocks():
+    """폴백 — 대형주 일봉의 합집합.
+    주식 엔드포인트는 지수 티커 테이블 경로를 타지 않는다. 두 종목의 합집합이라
+    한쪽이 거래정지된 날도 다른 쪽이 메운다.
+    """
+    from pykrx import stock
+    days, per = set(), {}
+    for tkr in PROXY_TICKERS:
+        got = set()
+        for y, f, t in _years():
+            df = _retry(lambda f=f, t=t, k=tkr: stock.get_market_ohlcv_by_date(f, t, k),
+                        f"{tkr} {y}")
+            if df is None or df.empty:
+                continue
+            got.update(d.strftime("%Y-%m-%d") for d in df.index)
+        per[tkr] = len(got)
+        days |= got
+    print(f"    프록시 종목별 거래일: {per}")
+    return days
+
+
+def fetch_trading_days():
+    """지수 → 대형주 순으로 시도한다. 어느 경로를 썼는지는 calendar.json의 source에 남긴다."""
+    try:
+        import pykrx
+        print(f"pykrx {getattr(pykrx, '__version__', 'unknown')}")
+    except Exception:
+        pass
+
+    for label, fn in (("pykrx:index_ohlcv:1001", _fetch_via_index),
+                      ("pykrx:market_ohlcv:" + "+".join(PROXY_TICKERS), _fetch_via_stocks)):
+        print(f"[수집] {label}")
+        days = fn()
+        # 연 240일 × 기간의 80% 미만이면 부분 실패다. 조용히 넘기면 forward return 오프셋이 통째로 어긋난다.
+        need = int((int(TO[:4]) - int(FROM[:4]) + 1) * 240 * 0.8)
+        if len(days) >= need:
+            print(f"    → {len(days)}일 확보 (기준 {need})")
+            return sorted(days), label
+        print(f"    → {len(days)}일뿐 (기준 {need}) — 다음 경로로 폴백")
+
+    raise RuntimeError("모든 수집 경로 실패 — 거래일을 복원할 수 없다")
 
 
 def build(days):
@@ -95,7 +170,7 @@ def validate(days, snapshots, month_first, warmup):
 
 
 def main():
-    days = fetch_trading_days()
+    days, source = fetch_trading_days()
     snapshots, month_first, warmup = build(days)
 
     validate(days, snapshots, month_first, warmup)
@@ -106,7 +181,7 @@ def main():
     out = {
         "schemaVersion": "CAL-1.0",
         "market": "KR",
-        "source": "pykrx:index_ohlcv:1001",
+        "source": source,
         "from": days[0],
         "to": days[-1],
         "analysisFrom": ANALYSIS_FROM,
