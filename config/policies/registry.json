@@ -1,5 +1,5 @@
 {
-  "version": "REG-1.1",
+  "version": "REG-1.2",
   "note": "score()가 실제로 사용한 정책 버전 전량을 meta.policies에 스탬프하기 위한 단일 진입점. 여기 없는 정책은 엔진이 읽지 않는다.",
   "criteria": {
     "KR": { "path": "config/criteria/KR-2.2.json", "version": "2.2" },
@@ -14,5 +14,9 @@
     "trading":     "config/policies/trading.v1.json",
     "stateMap":    "config/policies/stateMap.v1.json",
     "flagCodes":   "config/policies/flagCodes.json"
-  }
+  },
+  "analysisPolicies": {
+    "exitPolicy": "config/policies/exit.v1.json"
+  },
+  "analysisPoliciesNote": "score()가 읽지 않고 분석 단계(A6)에서만 쓰는 정책. policies와 분리하는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다 — 점수에 관여하지 않은 정책을 여기 섞으면 provenance가 허위가 되고, EP 버전만 올려도 과거 점수가 달라 보인다. loadPolicies()는 analysis/analysisVersions로 따로 반환하고 versions에는 넣지 않는다."
 }
