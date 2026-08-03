@@ -42,7 +42,26 @@ section('registry', () => {
   chk(cr.every((c) => fs.existsSync(path.join(ROOT, c.path))), 'registry: 모든 criteria path 실재');
   uniq(cr.map((c) => c.path), 'registry.criteria path');
 });
-
+// ── criteria snapshot 계약 ─────────────────────────────────────
+section('criteria snapshot', () => {
+  const r = load('config/policies/registry.json');
+  for (const [market, c] of Object.entries(r.criteria || {})) {
+    const id = `criteria[${market}]`;
+    chk(String(c.path).startsWith('config/criteria/'), `${id}: 스냅샷 디렉터리 경로`);
+    chk(path.basename(c.path) === `${market}-${c.version}.json`, `${id}: 파일명 == {market}-{version}.json`);
+    chk(!/-(KR|US)$/i.test(c.version), `${id}: version에 시장 접미사 없음`);
+    const abs = path.join(ROOT, c.path);
+    chk(fs.existsSync(abs), `${id}: 스냅샷 파일 실재`);
+    if (!fs.existsSync(abs)) continue;
+    const f = load(c.path);
+    chk(f.version === c.version, `${id}: 파일 version == registry version`);
+    chk(Object.keys(f.categoryWeights || {}).length > 0, `${id}: categoryWeights 존재 (AX002)`);
+  }
+  // 잔존 alias 금지 — 남아 있으면 미이관 리더가 조용히 옛 파일을 계속 읽는다
+  chk(!fs.existsSync(path.join(ROOT, 'config/criteria.json')), 'config/criteria.json 잔존 alias 없음');
+  chk(!fs.existsSync(path.join(ROOT, 'config/criteria-us.json')), 'config/criteria-us.json 잔존 alias 없음');
+  // 구버전 스냅샷이 config/criteria/ 에 남아 있는 것은 정상이다 — orphan 검사는 넣지 않는다.
+});
 // ── riskPenalty.v1.json ─────────────────────────────────────────
 section('riskPenalty', () => {
   const p = load('config/policies/riskPenalty.v1.json');
