@@ -13,12 +13,19 @@
  *        backtester 가 국면 조건부 분석(regimeAnalysis)을 산출합니다.
  *        analyze.js 가 history 파일에 regimeGrade 를 기록해야 동작하며,
  *        없으면 regimeAnalysis.available=false 로 나오고 나머지는 기존과 동일합니다.
+ *
+ * [P10] backtest.json(V1)은 그대로 두고 backtest-v2.json을 병행 출력한다(STEP6과 동일한
+ *       병행 원칙). V2 riskPenalty는 과거 스냅샷에 state가 없어 항상 0이다 — look-ahead
+ *       bias를 피하려고 현재 state를 과거에 소급 적용하지 않는다(lib/backtester.js 주석 참조).
+ *       즉 지금 backtest-v2.json은 "축 스코어링(rawScore)의 예측력"만 검증하고,
+ *       리스크 감점의 효과는 analyze.js가 history에 state를 함께 기록하기 시작한 뒤부터 검증된다.
  */
 
 const fs = require('fs');
 const path = require('path');
 const { runBacktest } = require('../lib/backtester');
 const { loadCriteria } = require('../lib/loadCriteria');
+const { loadPolicies } = require('../lib/loadPolicies');
 
 const ROOT = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'docs', 'data');
@@ -103,33 +110,36 @@ function main() {
   const days = loadHistory();
   const criteriaKR = loadCriteria('KR').criteria;
   const criteriaUS = loadCriteria('US').criteria;
+  const policiesKR = loadPolicies('KR');
+  const policiesUS = loadPolicies('US');
 
   const markets = {};
+  const marketsV2 = {};
   let totalSamples = 0;
+  let totalSamplesV2 = 0;
 
-  for (const [market, criteria] of [['KR', criteriaKR], ['US', criteriaUS]]) {
+  for (const [market, criteria, policies] of [['KR', criteriaKR, policiesKR], ['US', criteriaUS, policiesUS]]) {
     const snapshots = buildSnapshots(days, market);
     if (snapshots.length === 0) continue;
-    markets[market] = runBacktest(snapshots, criteria, { transactionCostPct: market === 'US' ? 0.1 : 0.3 });
+    const cost = market === 'US' ? 0.1 : 0.3;
+    markets[market] = runBacktest(snapshots, criteria, { transactionCostPct: cost });
     totalSamples += markets[market].sampleCount;
+
+    // [P10] V2 병행 실행 — 같은 스냅샷을 policies와 함께 넘기면 backtester가 V2 score()로 분기한다.
+    marketsV2[market] = runBacktest(snapshots, criteria, { transactionCostPct: cost, policies });
+    totalSamplesV2 += marketsV2[market].sampleCount;
   }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
   if (totalSamples === 0) {
-    fs.writeFileSync(
-      path.join(OUT_DIR, 'backtest.json'),
-      JSON.stringify(
-        {
-          updatedAt: new Date().toISOString(),
-          status: 'insufficient_history',
-          message: `이력 ${days.length}일 누적됨. 최소 horizon(약 28일) 이상 쌓여야 첫 결과가 나옵니다.`,
-        },
-        null,
-        2
-      ),
-      'utf-8'
-    );
+    const insufficient = {
+      updatedAt: new Date().toISOString(),
+      status: 'insufficient_history',
+      message: `이력 ${days.length}일 누적됨. 최소 horizon(약 28일) 이상 쌓여야 첫 결과가 나옵니다.`,
+    };
+    fs.writeFileSync(path.join(OUT_DIR, 'backtest.json'), JSON.stringify(insufficient, null, 2), 'utf-8');
+    fs.writeFileSync(path.join(OUT_DIR, 'backtest-v2.json'), JSON.stringify(insufficient, null, 2), 'utf-8');
     console.log('아직 백테스트 가능한 이력이 부족합니다 (정상).');
     return;
   }
@@ -137,6 +147,18 @@ function main() {
   fs.writeFileSync(
     path.join(OUT_DIR, 'backtest.json'),
     JSON.stringify({ updatedAt: new Date().toISOString(), status: 'ok', historyDays: days.length, markets }, null, 2),
+    'utf-8'
+  );
+
+  fs.writeFileSync(
+    path.join(OUT_DIR, 'backtest-v2.json'),
+    JSON.stringify({
+      updatedAt: new Date().toISOString(),
+      status: 'ok',
+      historyDays: days.length,
+      note: 'riskPenalty는 과거 스냅샷에 state가 없어 현재 항상 0이다 — look-ahead bias 방지(§ lib/backtester.js 주석). rawScore(축 스코어링)의 예측력만 검증된 결과다.',
+      markets: marketsV2,
+    }, null, 2),
     'utf-8'
   );
 
@@ -152,6 +174,12 @@ function main() {
           `우호 국면만 ${fc.favorableOnly.horizons[h0].winRatePct}% (${h0})`
       );
     }
+  }
+
+  console.log(`\n[V2] 총 표본 ${totalSamplesV2}건 (V1과 표본 수 동일해야 정상 — 다르면 축 결측 처리 차이를 의심)`);
+  for (const [market, result] of Object.entries(marketsV2)) {
+    console.log(`[V2:${market}] 표본 ${result.sampleCount}건`);
+    result.verdicts.forEach((v) => console.log(`  - ${v}`));
   }
 }
 
