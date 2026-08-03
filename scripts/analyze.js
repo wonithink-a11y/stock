@@ -19,6 +19,7 @@ const { scoreStock } = require('../lib/scoringEngine');
 const { evaluateRegime } = require('../lib/marketRegimeEngine');
 const { evaluateHolding } = require('../lib/portfolioAdvisor');
 const { recordRecommendation, getPerformance } = require('../lib/recommendationTracker');
+const { loadCriteria } = require('../lib/loadCriteria');
 
 const ROOT = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'docs', 'data');
