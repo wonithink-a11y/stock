@@ -18,6 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const { runBacktest } = require('../lib/backtester');
+const { loadCriteria } = require('../lib/loadCriteria');
 
 const ROOT = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'docs', 'data');
