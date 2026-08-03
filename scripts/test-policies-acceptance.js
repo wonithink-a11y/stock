@@ -146,7 +146,30 @@ section('flagCodes', () => {
     'flagCodes: 모든 코드에 description');
   chk(all.every((f) => /^[A-Z][A-Z0-9_]*$/.test(f.code)), 'flagCodes: 코드 표기 UPPER_SNAKE');
 });
-
+// ── lib 모듈 export 계약 (붙여넣기 잘림 탐지) ──────────────────
+// CommonJS는 module.exports가 통째로 없어도 문법 오류가 아니라 {} 를 내보낸다.
+// 웹 UI 붙여넣기 잘림은 항상 파일 끝에서 일어나므로, 소비자가 호출할 때까지 잠복한다.
+section('lib exports', () => {
+  const EXPECT = {
+    'lib/loadCriteria.js':          ['loadCriteria'],
+    'lib/loadPolicies.js':          ['loadPolicies'],
+    'lib/errorCodes.js':            ['E', 'throwErr', 'EngineError'],
+    'lib/validator.js':             ['validate', 'RULES'],
+    'lib/scoringEngine.js':         ['score', 'scoreStock', 'computeRiskPenalty', 'computeConfidenceValue'],
+    'lib/stateReducer.js':          [],
+    'lib/stateExpirer.js':          [],
+    'lib/stateStore.js':            [],
+    'lib/eventClassifiers/dart.js': [],
+    'lib/eventBuilders/dart.js':    [],
+  };
+  for (const [rel, keys] of Object.entries(EXPECT)) {
+    let m = null;
+    try { m = require(path.join(ROOT, rel)); }
+    catch (err) { chk(false, `${rel}: require 실패 — ${err.message}`); continue; }
+    chk(Object.keys(m).length > 0, `${rel}: export 존재(파일 잘림 아님)`);
+    for (const k of keys) chk(typeof m[k] !== 'undefined', `${rel}: ${k} export`);
+  }
+});
 // ── 보고 ────────────────────────────────────────────────────────
 const failed = results.filter((r) => !r.ok);
 failed.forEach((r) => console.log(`❌ ${r.label}`));
