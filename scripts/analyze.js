@@ -16,6 +16,10 @@
 const fs = require('fs');
 const path = require('path');
 const { scoreStock } = require('../lib/scoringEngine');
+const { score } = require('../lib/scoringEngine');
+const { loadPolicies } = require('../lib/loadPolicies');
+const { getState } = require('../lib/stateStore');
+const { validate } = require('../lib/validator');
 const { evaluateRegime } = require('../lib/marketRegimeEngine');
 const { evaluateHolding } = require('../lib/portfolioAdvisor');
 const { recordRecommendation, getPerformance } = require('../lib/recommendationTracker');
@@ -79,7 +83,38 @@ function main() {
     groupLabels: watchlist.groupLabels || {},
     results,
   });
+// 2-c. [STEP6] V2 엔진 병행 실행 — latest.json(V1)은 그대로 두고 latest-v2.json에 별도 저장.
+  //  종목 1건 실패가 전체를 막지 않도록 fail-soft. state 파일 없는 종목은 initState(NORMAL·감점 0)로
+    //  정상 처리되는 것이 의도된 경로다(§12-5).
+  const policiesByMarket = { KR: loadPolicies('KR'), US: loadPolicies('US') };
+  const v2Results = [];
+  const v2Errors = [];
+  for (const s of inputs.stocks) {
+    const market = s.market || s.meta.market || 'KR';
+    const policies = policiesByMarket[market] || policiesByMarket.KR;
+    try {
+      const stockDataV2 = {
+        ticker: s.ticker, name: s.name,
+        dataCutoff: s.meta.lastDate || inputs.collectedAt,
+        state: getState(s.ticker),
+        fundamental: s.fundamental, valuation: s.valuation,
+        technical: s.technical, supplyDemand: s.supplyDemand,
+      };
+      const envelope = score(stockDataV2, policies.criteria, policies);
+      const violations = validate(envelope, policies, { mode: 'lenient' });
+      v2Results.push({ ...envelope, market, _diagnostics: violations.length ? { violations } : undefined });
+    } catch (err) {
+      v2Errors.push({ ticker: s.ticker, market, message: err.message, code: err.code || null });
+    }
+  }
+  saveJson(path.join(OUT_DIR, 'latest-v2.json'), {
+    updatedAt: inputs.collectedAt,
+    engineVersion: v2Results[0]?.meta?.engineVersion || null,
+    results: v2Results,
+    _diagnostics: { errors: v2Errors, errorCount: v2Errors.length, resultCount: v2Results.length },
+  });
 
+   // 2-b. [신규] 대시보드 차트·스파크라인용 일봉 시계열 (collect.js v3의 stocks[].candles)
   // 2-b. [신규] 대시보드 차트·스파크라인용 일봉 시계열 (collect.js v3의 stocks[].candles)
   //  - compact 형태(d/o/h/l/c/v)를 종목별 열 배열로 변환해 파일 크기를 더 줄입니다.
   //  - candles가 없는(구버전 collect.js) 종목은 건너뜁니다 → 대시보드는 스파크라인만 '-' 표시.
