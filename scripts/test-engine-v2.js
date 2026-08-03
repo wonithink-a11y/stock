@@ -42,4 +42,4 @@ chk(d.result.flags.includes('MISSING_DATA') && d.result.flags.includes('PARTIAL_
 chk(d.result.confidence.value !== null && d.result.confidence.freshness === null, '④ ignoreNull — freshness 결측이 confidence를 끌어내리지 않음');
 
 console.log(`\n엔진 V2: ${pass} passed, ${fail} failed`);
-process.exit(fail === 0 ? 1 && 1 : 1);
+process.exit(fail === 0 ? 0 : 1);
