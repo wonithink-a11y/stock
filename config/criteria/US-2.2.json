@@ -1,0 +1,392 @@
+{
+  "version": "2.2",
+  "description": "미국 주식용 기준. 한국판(criteria.json)과 로직은 동일하되: (1) 수급 카테고리 제외 - KRX식 외국인/기관 데이터가 미국에 없음, 대신 fundamental/valuation 비중 확대 (2) PBR 임계값 상향 - 미국 대형주는 무형자산·자사주소각 회계 특성상 PBR이 구조적으로 높아 한국 기준을 그대로 쓰면 전부 0점이 됨 (3) 커버리지 기준 0.5로 완화 - 수급 4개 지표가 구조적으로 결측이라 보정.",
+
+  "changelogV22US": [
+    "sectorOverrides 신설 — financial·bio·utility·telecom·reit·airline·shipping 7개 업종. 종목을 코스피100 대칭으로 S&P 시총 상위 40으로 확대하면서 은행(JPM·BAC·MS·GS)·보험·제약이 대거 들어왔고, 기본 기준(제조업 전제)으로 채점하면 이들이 전부 최하점 + 오경고가 됩니다. 한국판이 v2.2에서 겪은 문제와 동일합니다.",
+    "일반 업종 debtRatio 임계값 완화(80/150/300 → 100/250/500). 미국 대형주는 자사주 매입·소각으로 '자본'이 구조적으로 줄어 총부채/자본 비율이 400~600%까지 올라갑니다(AAPL·MCD·SBUX). 재무 부실이 아니라 자본환원 정책의 결과입니다. 부채 부담의 실질 지표는 netDebt/EBITDA·이자보상배율인데 현재 미수집이라, 임계값을 완화하고 아래 cautions에 한계를 명시하는 쪽을 택했습니다.",
+    "warningThresholds.debtRatioHigh 업종별 정의 추가 (엔진의 debtRatioAbove200 경고선)",
+    "sectorOverrides는 config/sector-map-us.json 이 지정한 sectorType 으로 분기합니다. 이 파일의 키와 sector-map-us.json 의 sectorType 값이 어긋나면 override가 조용히 무시되므로 함께 관리하세요."
+  ],
+
+  "cautionsUS": [
+    "미국 대형주의 ROE는 자사주 매입으로 분모(자본)가 줄어 100%를 넘는 경우가 흔합니다(AAPL·HD·MCD). 한국 종목과 같은 ROE 임계값(20%=excellent)으로 비교하면 미국 종목이 구조적으로 유리해집니다. KR·US 점수를 나란히 놓고 순위를 매기지 마세요 — 시장별로 따로 읽는 것이 맞습니다.",
+    "자본이 마이너스인 기업(자사주 누적 소각·대규모 차입 배당)은 ROE·부채비율·PBR이 모두 산출되지 않고 결측 처리됩니다(음수 분모로 만든 비율은 방향이 뒤집혀 오채점되기 때문). 커버리지 미달로 '유보'가 나오는 것이 정상 동작입니다.",
+    "수급 카테고리가 0이라 국내 종목보다 technical 비중(25%)이 높습니다. 미국 종목 점수는 상대적으로 차트에 더 흔들립니다.",
+    "13F(기관 보유)는 분기 단위·45일 지연 공시라 일별 수급 대체재가 될 수 없습니다."
+  ],
+
+  "categoryWeights": {
+    "fundamental": 0.40,
+    "valuation": 0.35,
+    "technical": 0.25,
+    "supplyDemand": 0
+  },
+
+  "minimumDataCoverage": 0.5,
+
+  "fundamental": {
+    "description": "재무 건전성·수익성·성장성 (기업의 '질')",
+    "metrics": {
+      "roe": {
+        "label": "자기자본이익률(ROE)",
+        "unit": "%",
+        "thresholds": { "excellent": 20, "good": 12, "poor": 5 },
+        "weight": 0.20
+      },
+      "roeConsistency": {
+        "label": "ROE 지속성 (5년 최저치)",
+        "unit": "%",
+        "input": "roeHistory5y",
+        "thresholds": { "excellent": 15, "good": 10, "poor": 3 },
+        "weight": 0.15
+      },
+      "debtRatio": {
+        "label": "부채비율",
+        "unit": "%",
+        "lowerIsBetter": true,
+        "note": "v2.2-US에서 완화. 미국 대형주는 자사주 소각으로 자본이 줄어 이 비율이 구조적으로 높습니다. 실질 부담은 netDebt/EBITDA로 봐야 하나 미수집 항목입니다.",
+        "thresholds": { "excellent": 100, "good": 250, "poor": 500 },
+        "weight": 0.15
+      },
+      "currentRatio": {
+        "label": "유동비율",
+        "unit": "%",
+        "thresholds": { "excellent": 200, "good": 130, "poor": 90 },
+        "weight": 0.05
+      },
+      "operatingMarginTrend": {
+        "label": "영업이익률 추세(최근 3~5년)",
+        "unit": "방향성(-1~1)",
+        "thresholds": { "excellent": 0.5, "good": 0, "poor": -0.5 },
+        "weight": 0.15
+      },
+      "revenueGrowthYoY": {
+        "label": "매출 성장률(YoY)",
+        "unit": "%",
+        "thresholds": { "excellent": 15, "good": 5, "poor": 0 },
+        "weight": 0.15
+      },
+      "shareholderReturn": {
+        "label": "주주환원 이력 (배당/자사주매입)",
+        "input": "buybackOrDividendHistory (boolean)",
+        "weight": 0.15
+      }
+    }
+  },
+
+  "valuation": {
+    "description": "밸류에이션. perRelative는 같은 sectorType 그룹의 PER 중위값 대비 배율(fetch-fundamentals-us.py가 산출, 표본 3종목 미만이면 결측).",
+    "metrics": {
+      "perRelative": {
+        "label": "PER (섹터 중위값 대비 배율)",
+        "unit": "배율 (1.0 = 섹터 중위값)",
+        "lowerIsBetter": true,
+        "thresholds": { "excellent": 0.7, "good": 1.0, "poor": 1.5 },
+        "weight": 0.30
+      },
+      "pbr": {
+        "label": "PBR",
+        "unit": "배",
+        "lowerIsBetter": true,
+        "note": "미국 대형주 기준으로 상향 조정된 임계값",
+        "thresholds": { "excellent": 3, "good": 6, "poor": 15 },
+        "weight": 0.20
+      },
+      "peg": {
+        "label": "PEG (피터 린치)",
+        "formula": "peg = per / epsGrowthRate(%)",
+        "lowerIsBetter": true,
+        "thresholds": { "excellent": 1.0, "good": 1.5, "poor": 3.0 },
+        "weight": 0.30
+      },
+      "marginOfSafety": {
+        "label": "안전마진 (벤저민 그레이엄)",
+        "formula": "(intrinsicValue - currentPrice) / intrinsicValue",
+        "thresholds": { "excellent": 0.4, "good": 0.2, "poor": 0 },
+        "weight": 0.20
+      }
+    }
+  },
+
+  "technical": {
+    "description": "차트 기반 기술적 분석 (한국판과 동일)",
+    "indicators": {
+      "movingAverageCross": {
+        "label": "이동평균선 골든/데드크로스",
+        "signals": { "goldenCross": 100, "aboveBothMA": 70, "belowBothMA": 30, "deadCross": 0 }
+      },
+      "rsi": {
+        "label": "RSI (상대강도지수)",
+        "period": 14,
+        "zones": [
+          { "max": 30, "score": 30, "warning": "oversold" },
+          { "max": 45, "score": 45 },
+          { "max": 70, "score": 70 },
+          { "max": 80, "score": 40 },
+          { "max": 100, "score": 20, "warning": "extremeOverbought" }
+        ]
+      },
+      "macd": {
+        "label": "MACD",
+        "params": { "fast": 12, "slow": 26, "signal": 9 },
+        "signals": { "bullishCross": 100, "bearishCross": 0 }
+      },
+      "volumeConfirmation": {
+        "label": "거래량 동반 여부"
+      },
+      "deadCatBounce": {
+        "label": "데드캣바운스 경고 필터",
+        "type": "warningFlag"
+      }
+    },
+    "indicatorWeights": {
+      "movingAverageCross": 0.35,
+      "rsi": 0.15,
+      "macd": 0.25,
+      "volumeConfirmation": 0.25
+    }
+  },
+
+  "supplyDemand": {
+    "description": "미국 주식에는 KRX식 수급 데이터가 없어 비활성 (categoryWeights에서 0). 13F 기반 기관 보유 변화를 넣고 싶다면 분기 단위로만 가능.",
+    "metrics": {
+      "foreignNetBuy5d": { "label": "-", "weight": 0.4 },
+      "institutionNetBuy5d": { "label": "-", "weight": 0.35 },
+      "largeShareholderChange": { "label": "-", "weight": 0.15 },
+      "buybackOrRetirement": { "label": "-", "weight": 0.1 }
+    }
+  },
+
+  "sectorOverridesNote": "기본 기준(위)은 '미국 대형 제조·IT'를 전제로 만들어졌습니다. 아래 업종은 그 전제가 깨지므로 임계값을 갈아끼웁니다. sectorType='general'인 종목은 v2.0-US와 동일하게 동작합니다. cautions[]는 점수에 반영되지 않고 대시보드 비고로만 표시됩니다. 한국판과 달리 미국 금융주는 PBR 1~2.5배가 정상이라(한국 0.3~0.6배) 금융 PBR 임계값이 크게 다릅니다 — 같은 'financial'이라도 시장별로 값이 다른 이유입니다.",
+
+  "sectorOverrides": {
+    "financial": {
+      "label": "금융업 (은행·투자은행·보험·카드)",
+      "sectorConfidence": "medium",
+      "cautions": [
+        "예금·보험계약부채가 회계상 부채라 부채비율 700~1500%가 정상입니다. 일반 기준(위험 500%)으로 읽지 마세요. JPM·BAC는 약 900~1100%, GS·MS는 1100~1400%가 평시 수준입니다.",
+        "유동비율은 산출 의미가 없어 평가에서 제외했습니다(커버리지 분모에서도 제외).",
+        "이 모델이 보지 못하는 핵심 지표: CET1 자기자본비율, NIM(순이자마진), 대손충당금 적립률(ACL), 스트레스테스트(CCAR) 결과. 미국 은행의 실제 건전성은 이쪽이 결정합니다.",
+        "미국 금융주 PBR은 1.0~2.5배가 정상 범위입니다(한국 금융주 0.3~0.6배와 완전히 다름). 한국 기준을 가져오면 미국 은행이 전부 '초고평가'로 찍힙니다.",
+        "V·MA(결제망)는 은행이 아닙니다. sector-map-us.json 에서 general 로 고정해 두었습니다 — 은행 기준을 적용하면 부채 항목에서 부당하게 만점을 받습니다.",
+        "금리 사이클이 개별 기업 재무보다 주가를 더 많이 설명합니다. 경기사이클 탭과 함께 보세요."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": {
+            "useRawDebtRatio": true,
+            "lowerIsBetter": true,
+            "thresholds": { "excellent": 700, "good": 1200, "poor": 1700 }
+          },
+          "currentRatio": {
+            "excluded": true,
+            "excludedReason": "은행·보험은 유동/비유동 구분을 하지 않아 산출 불가"
+          },
+          "roe": { "thresholds": { "excellent": 16, "good": 11, "poor": 6 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "pbr": { "thresholds": { "excellent": 1.0, "good": 1.8, "poor": 3.0 } },
+          "perRelative": { "thresholds": { "excellent": 0.6, "good": 0.9, "poor": 1.4 } }
+        }
+      }
+    },
+
+    "bio": {
+      "label": "바이오테크 (임상단계·특수제약)",
+      "sectorConfidence": "low",
+      "cautionLevelNote": "이 업종은 정량 스코어링의 예측력이 가장 낮습니다. 점수는 참고치로만 쓰고 비고를 우선해 읽으세요.",
+      "cautions": [
+        "주가를 지배하는 변수가 재무제표 밖에 있습니다: FDA 승인·임상 결과·특허 만료(LOE)·기술이전. 이 모델은 전부 보지 못합니다.",
+        "대형 제약(JNJ·MRK·LLY·ABBV)은 sector-map-us.json 에서 general 로 고정했습니다. 실적이 안정적인 제조업에 가까워 이 완화된 기준을 적용하면 과도하게 관대해집니다.",
+        "R&D 자본화 여부에 따라 이익·ROE가 크게 달라져 기업 간 비교 신뢰도가 낮습니다.",
+        "적자·저ROE가 정상 상태인 기업이 많아 임계값을 크게 낮췄습니다. 그래도 fundamental 점수는 낮게 나옵니다.",
+        "이익 역성장 시 PEG를 0점 처리하는 엔진 규칙이 임상단계 기업 전체를 최하점으로 만듭니다."
+      ],
+      "fundamental": {
+        "metrics": {
+          "roe": { "thresholds": { "excellent": 12, "good": 3, "poor": -10 } },
+          "roeConsistency": { "thresholds": { "excellent": 5, "good": -5, "poor": -25 } },
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 80, "good": 200, "poor": 400 } },
+          "revenueGrowthYoY": { "thresholds": { "excellent": 25, "good": 10, "poor": 0 } },
+          "operatingMarginTrend": { "thresholds": { "excellent": 0.3, "good": -0.1, "poor": -0.7 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "perRelative": { "thresholds": { "excellent": 1.0, "good": 1.8, "poor": 3.5 } },
+          "pbr": { "thresholds": { "excellent": 4.0, "good": 8.0, "poor": 20.0 } },
+          "peg": { "thresholds": { "excellent": 1.0, "good": 2.0, "poor": 4.0 } }
+        }
+      }
+    },
+
+    "utility": {
+      "label": "전력·가스 (규제 유틸리티)",
+      "sectorConfidence": "low",
+      "cautions": [
+        "요금이 주(州) 규제기관 승인으로 결정되어 ROE는 경영 성과보다 정책 변수에 가깝습니다(허가 ROE 9~11%가 사실상 상한).",
+        "대규모 설비투자를 차입으로 조달하므로 부채비율 200~350%가 정상입니다.",
+        "이 모델이 보지 못하는 것: rate case 결과, 설비투자(rate base) 증가율, 연료비 전가 조항. 주가는 대부분 이쪽에 반응합니다.",
+        "금리에 채권처럼 반응합니다 — 금리 인상기 하락은 실적과 무관한 정상 반응입니다."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 120, "good": 220, "poor": 380 } },
+          "roe": { "thresholds": { "excellent": 11, "good": 8, "poor": 4 } },
+          "roeConsistency": { "thresholds": { "excellent": 8, "good": 4, "poor": 0 } },
+          "revenueGrowthYoY": { "thresholds": { "excellent": 8, "good": 2, "poor": -3 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "pbr": { "thresholds": { "excellent": 1.5, "good": 2.2, "poor": 3.5 } }
+        }
+      }
+    },
+
+    "telecom": {
+      "label": "통신서비스",
+      "sectorConfidence": "medium",
+      "cautions": [
+        "저성장이 구조적 정상입니다(매출 YoY 0~4%). 기준을 낮추지 않으면 안정적 우량 통신주가 성장성에서 최하점을 받습니다.",
+        "주파수 취득·설비투자 차입이 커 부채비율 200~400%가 정상입니다.",
+        "감가상각이 커 순이익·ROE가 실제 현금창출력보다 낮게 보입니다. 이 업종의 표준 지표는 EBITDA·FCF인데 미수집 항목입니다.",
+        "배당수익률(4~6%)이 주가 하방을 지지합니다."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 150, "good": 260, "poor": 420 } },
+          "revenueGrowthYoY": { "thresholds": { "excellent": 5, "good": 1, "poor": -3 } },
+          "roe": { "thresholds": { "excellent": 14, "good": 9, "poor": 4 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "pbr": { "thresholds": { "excellent": 1.5, "good": 2.5, "poor": 4.0 } }
+        }
+      }
+    },
+
+    "reit": {
+      "label": "리츠·부동산",
+      "sectorConfidence": "low",
+      "cautions": [
+        "리츠 평가의 표준 지표는 FFO/AFFO·배당수익률·LTV·임대율입니다. 이 모델은 넷 다 수집하지 않습니다. 점수의 예측력이 사실상 없다고 보는 편이 안전합니다.",
+        "감가상각이 커서 회계상 순이익·ROE가 실제 현금흐름보다 훨씬 낮게 나옵니다.",
+        "차입(LTV 30~50%)이 사업모델 자체입니다. 부채비율이 낮다고 좋은 것이 아닙니다.",
+        "이익 대부분을 배당으로 의무 배출해 내부유보가 없어 성장률 지표가 의미를 갖지 않습니다.",
+        "금리에 채권처럼 반응합니다 — 경기사이클 탭과 반드시 함께 보세요."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 100, "good": 180, "poor": 300 } },
+          "currentRatio": {
+            "excluded": true,
+            "excludedReason": "자산 대부분이 비유동 부동산이라 유동비율 해석이 무의미"
+          },
+          "roe": { "thresholds": { "excellent": 8, "good": 4, "poor": 1 } },
+          "roeConsistency": { "thresholds": { "excellent": 6, "good": 2, "poor": -2 } },
+          "revenueGrowthYoY": { "thresholds": { "excellent": 8, "good": 2, "poor": -3 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "pbr": { "thresholds": { "excellent": 1.2, "good": 2.0, "poor": 3.5 } },
+          "perRelative": { "thresholds": { "excellent": 0.8, "good": 1.1, "poor": 1.6 } }
+        }
+      }
+    },
+
+    "airline": {
+      "label": "항공운송",
+      "sectorConfidence": "low",
+      "cautions": [
+        "항공기 리스가 전액 부채로 계상되고(ASC 842) 선수수익(항공권 선판매)이 유동부채라, 부채비율 300~900%·유동비율 50~90%가 정상입니다.",
+        "이익이 유가·수요에 극단적으로 레버리지되어 있습니다 — 이 모델은 두 변수를 보지 않습니다.",
+        "코로나 구간 대규모 적자가 ROE 5년 최저치에 그대로 남아 정상 기업도 최하점을 받습니다.",
+        "이 모델이 보지 못하는 것: RASM/CASM, 탑승률(L/F), 유가 헤지 비율."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 250, "good": 500, "poor": 900 } },
+          "currentRatio": { "thresholds": { "excellent": 110, "good": 75, "poor": 45 } },
+          "roeConsistency": { "thresholds": { "excellent": 5, "good": -3, "poor": -25 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "pbr": { "thresholds": { "excellent": 1.5, "good": 3.0, "poor": 6.0 } }
+        }
+      }
+    },
+
+    "shipping": {
+      "label": "해운·에너지 운송",
+      "sectorConfidence": "low",
+      "cautions": [
+        "PER 함정이 가장 심한 업종입니다. 운임 사이클 정점에서 이익이 폭증해 PER이 2~4배로 내려가는데, 이때가 저평가가 아니라 고점입니다(peak earnings trap).",
+        "반대로 사이클 바닥에서는 적자로 PER이 산출되지 않아 밸류에이션 점수가 결측/최저가 됩니다 — 이 업종에서는 밸류에이션 점수가 역방향으로 작동할 수 있습니다.",
+        "이 모델이 보지 못하는 핵심 지표: 운임지수(BDI·TCE), 신조선가, 수주잔고.",
+        "ROE 5년 최저치가 사이클 저점 적자를 그대로 반영해 정상 기업도 최하점을 받습니다."
+      ],
+      "fundamental": {
+        "metrics": {
+          "debtRatio": { "lowerIsBetter": true, "thresholds": { "excellent": 100, "good": 200, "poor": 400 } },
+          "roeConsistency": { "thresholds": { "excellent": 5, "good": -2, "poor": -20 } },
+          "revenueGrowthYoY": { "thresholds": { "excellent": 20, "good": 5, "poor": -10 } }
+        }
+      },
+      "valuation": {
+        "metrics": {
+          "perRelative": { "thresholds": { "excellent": 0.9, "good": 1.2, "poor": 2.0 } },
+          "peg": { "thresholds": { "excellent": 0.8, "good": 1.5, "poor": 3.0 } },
+          "pbr": { "thresholds": { "excellent": 0.8, "good": 1.4, "poor": 2.5 } }
+        }
+      }
+    }
+  },
+
+  "warningThresholds": {
+    "debtRatioHighNote": "이 값 이상이면 debtRatioAbove200 경고. 업종별 '정상 범위'가 달라 경고선도 다릅니다. 한국판보다 general 값이 높은 이유는 자사주 소각으로 자본이 줄어드는 미국 대형주 특성 때문입니다.",
+    "debtRatioHigh": {
+      "general": 500,
+      "financial": 1700,
+      "bio": 400,
+      "utility": 380,
+      "telecom": 420,
+      "reit": 300,
+      "airline": 900,
+      "shipping": 400
+    }
+  },
+
+  "warningFlags": {
+    "flags": [
+      "deadCatBounce",
+      "oversold",
+      "extremeOverbought",
+      "debtRatioAbove200",
+      "consecutiveOperatingLoss",
+      "auditOpinionNonStandard",
+      "majorShareholderSelloff",
+      "sectorAdjusted",
+      "unmappedSector",
+      "lowSectorConfidence"
+    ],
+    "flagLabels": {
+      "deadCatBounce": "데드캣바운스 의심 (급락 후 거래량 없는 반등)",
+      "oversold": "과매도 구간 (하락 추세 중일 수 있음)",
+      "extremeOverbought": "극단적 과매수",
+      "debtRatioAbove200": "부채비율 업종 경고선 초과",
+      "consecutiveOperatingLoss": "연속 영업적자",
+      "auditOpinionNonStandard": "감사의견 비적정",
+      "majorShareholderSelloff": "대주주 지분 매각",
+      "sectorAdjusted": "업종 특성에 맞춰 채점 기준이 조정된 종목 — 비고 확인 필요",
+      "unmappedSector": "업종 미분류 — 일반 기준으로 채점되어 오채점 가능성 있음",
+      "lowSectorConfidence": "이 업종은 정량 스코어링의 신뢰도가 낮음 — 점수보다 비고를 우선 확인"
+    }
+  }
+}
