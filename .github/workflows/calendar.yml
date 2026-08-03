@@ -1,0 +1,69 @@
+name: backfill-calendar
+
+# A0.5 — 거래일 캘린더. 백필 체인의 첫 고리이며 A1(유니버스)의 입력이다.
+# 수동 실행 전용. 캘린더가 바뀌면 하류 전체의 upstream 해시가 어긋나 재실행이 강제되므로
+# 스케줄로 무심코 갱신되지 않게 한다.
+on:
+  workflow_dispatch:
+    inputs:
+      cal_from:
+        description: '시작일 YYYYMMDD (warm-up 포함)'
+        required: false
+        default: '20140101'
+      cal_to:
+        description: '종료일 YYYYMMDD (비우면 오늘)'
+        required: false
+        default: ''
+
+concurrency:
+  group: backfill-calendar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pykrx
+        run: pip install --quiet pykrx pandas
+
+      - name: Build calendar
+        env:
+          CAL_FROM: ${{ github.event.inputs.cal_from }}
+          CAL_TO: ${{ github.event.inputs.cal_to }}
+        run: |
+          if [ -z "$CAL_TO" ]; then unset CAL_TO; fi
+          python scripts/build-calendar.py
+
+      - name: Write manifest
+        run: |
+          node scripts/write-manifest.js \
+            --stage A0.5 --stageVersion A0.5.0 \
+            --target data/backfill/calendar.json
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill)" ]; then
+            git add data/backfill/calendar.json data/backfill/manifest/A0.5.json
+            git commit -m "chore(backfill): A0.5 거래일 캘린더 생성"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
