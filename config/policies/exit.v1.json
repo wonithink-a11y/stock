@@ -1,0 +1,35 @@
+{
+  "version": "EP-1.0",
+  "note": "상장폐지·중단 구간의 forward return을 A6(분석)에서 어떻게 취급할지 정의한다. A5는 사실(exitReason·exitPrice·fwdStatus)만 저장하고 이 정책을 읽지 않는다 — EP를 바꿔도 A5 재실행이 불필요해야 하기 때문이다. score()도 이 정책을 읽지 않으므로 ScoreResult.meta.policies에 스탬프되지 않는다(registry.analysisPolicies에 등록).",
+  "appliesToStage": "A6",
+  "rules": {
+    "BANKRUPTCY":              { "mode": "liquidation", "fallbackReturn": -1.0 },
+    "AUDIT_OPINION":           { "mode": "liquidation", "fallbackReturn": -1.0 },
+    "DELISTING_REVIEW_FAILED": { "mode": "liquidation", "fallbackReturn": -1.0 },
+    "CAPITAL_IMPAIRMENT":      { "mode": "liquidation", "fallbackReturn": -1.0 },
+    "VOLUNTARY":               { "mode": "tender" },
+    "MERGED":                  { "mode": "exclude" },
+    "SPINOFF":                 { "mode": "exclude" },
+    "RELISTED":                { "mode": "continue" },
+    "UNKNOWN":                 { "mode": "exclude" }
+  },
+  "modes": {
+    "liquidation": "정리매매 최종가 기준 실현수익률. exitPrice가 없으면 fallbackReturn을 쓴다.",
+    "tender": "공개매수·자진상폐 매수가 기준 실현수익률. exitPrice 필수이며 없으면 exclude로 강등하고 _diagnostics에 기록한다.",
+    "exclude": "해당 horizon 표본에서 제외한다. 값을 지어내지 않는다.",
+    "continue": "폐지가 아니므로 시계열을 그대로 잇는다. 재상장 구간의 가격 공백은 MISSING으로 남는다."
+  },
+  "sensitivityReport": {
+    "required": true,
+    "note": "exclude로 처리된 건은 반드시 계량 보고한다. 제외가 상위 분위에 편중되면 그 자체가 편향이므로, 편향의 크기를 숫자로 남기지 않으면 exclude 선택을 검증할 수 없다.",
+    "metrics": ["count", "shareOfTotal", "finalScoreMean", "finalScoreP50", "quintileExclusionRate"],
+    "byReason": true
+  },
+  "escalation": {
+    "note": "EP-1.1(승계회사 기준 수익률) 착수 조건. 둘 다 충족해야 한다 — 표본 없이 처리 방식을 바꾸지 않는다.",
+    "conditions": [
+      "MERGED 제외율이 Q5에서 Q1의 3배 이상이고 Q5 제외율이 1% 이상일 것",
+      "DART 주요사항보고서(회사합병결정) 교환비율·존속법인 코드 수집 경로가 존재할 것"
+    ]
+  }
+}
