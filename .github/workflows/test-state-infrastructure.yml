@@ -4,7 +4,8 @@ on:
     paths:
       - 'lib/**'
       - 'config/policies/**'
-      - 'config/criteria.json'
+      - 'config/criteria/**'          # ← 스냅샷 수정 시 반드시 트리거되어야 가드가 작동한다
+      - 'config/criteria.json'        # ← 잔존 alias 부활 감지용(삭제 후에도 남겨둔다)
       - 'config/criteria-us.json'
       - 'scripts/test-state-infrastructure.js'
       - 'scripts/test-state-expirer.js'
@@ -17,6 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # git diff로 이전 커밋과 비교하려면 필요
+
+      # 스냅샷은 추가만 허용. 수정(M)·삭제(D)는 재현성 계약 위반이므로 여기서 막는다.
+      - name: criteria 스냅샷 불변성 검사
+        run: |
+          BASE="${{ github.event.before }}"
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "base commit 없음(수동 실행/최초 push) — 생략"; exit 0
+          fi
+          CHANGED=$(git diff --name-only --diff-filter=MD "$BASE" "${{ github.sha }}" -- config/criteria/ || true)
+          if [ -n "$CHANGED" ]; then
+            echo "::error::criteria 스냅샷은 수정·삭제 금지. 새 버전 파일을 만들고 registry를 갱신하라: $CHANGED"
+            exit 1
+          fi
+
       # 한 스텝에 묶지 않는다. 어느 계층이 깨졌는지 로그에서 바로 보여야 한다.
       - run: node scripts/test-classifier.js
       - run: node scripts/test-state-infrastructure.js
