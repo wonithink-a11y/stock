@@ -1,0 +1,72 @@
+name: backfill-universe-a1a
+
+# A1a — 현재 상장 유니버스 (BF-1.1). 정의는 config/policies/universe.v1.json.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: backfill-universe-a1a
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: pip install --quiet pandas requests lxml html5lib
+
+      - name: Build A1a
+        timeout-minutes: 10
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/build-universe-a1a.py
+
+      - name: Write manifest
+        if: always()
+        run: |
+          if [ -f data/backfill/universe/a1a/current.jsonl ]; then
+            node scripts/write-manifest.js \
+              --stage A1a --stageVersion A1a.0 \
+              --target data/backfill/universe/a1a --kind dir --ext .jsonl \
+              --upstream A0.5
+          else
+            echo "산출물 없음 — manifest 생략"
+          fi
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: universe-a1a-diagnostics
+          path: data/backfill/universe/a1a/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill data/cache)" ]; then
+            git add data/backfill/universe/a1a data/backfill/manifest data/cache || true
+            git commit -m "chore(backfill): A1a 현재 상장 유니버스 (UN-1.0)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
