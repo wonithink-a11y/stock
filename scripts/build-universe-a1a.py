@@ -313,6 +313,13 @@ def validate(uni, pol, diag, src_rows):
     a = pol["acceptance"]
     print("\n[인수 조건]")
 
+    # 게이트 검증용 주입. 조건을 '더 엄격하게'만 만들 수 있고 느슨하게는 못 만든다 —
+    # 통과시키는 방향의 우회로가 생기면 그게 곧 정책 무력화 경로다.
+    inject = os.environ.get("A1A_FAIL_INJECTION", "").strip()
+    if inject:
+        diag["failInjection"] = inject
+        chk(False, f"[FAIL INJECTION] {inject} — 게이트 검증용 강제 실패")
+
     chk(a["sourceRowsMin"] <= src_rows <= a["sourceRowsMax"],
         f"소스 행 수 {src_rows} ∈ [{a['sourceRowsMin']}, {a['sourceRowsMax']}]")
 
