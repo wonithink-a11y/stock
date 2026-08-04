@@ -1,5 +1,5 @@
 {
-  "version": "UN-1.1",
+  "version": "UN-1.2",
   "note": "유니버스 정의의 단일 산출점. A1a·A1b·A2·A5 검증·A6 리포트가 모두 이 파일을 읽는다. score()는 읽지 않으므로 registry의 dataPolicies에 등록한다 — policies에 넣으면 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이 깨진다.",
   "market": "KR",
 
@@ -42,7 +42,7 @@
     "corpCodeDuplicate": 0,
     "corpCodeMissingRateWarn": 0.10
   },
-  "acceptanceNote": "임계를 느슨하게 고치면 이 파일의 해시가 바뀌고 manifest에 남는다. 완화는 UN-1.2 버전 승격으로만 한다. kospiMin/kosdaqMin은 dedup·SPAC·KONEX 제외를 모두 마친 최종 유니버스 기준이다(실측 833 / 1746). corpCodeDuplicate는 실측 0건 확인 후 WARN에서 FAIL로 승격했다(UN-1.0 → UN-1.1). corpCodeMissing은 WARN으로 남긴다 — DART corpCode.xml은 신규상장 반영에 지연이 있어 0건 강제는 정당한 실패를 만든다.",
+  "acceptanceNote": "이 블록은 A1a 범위다(A1b 임계는 a1b.acceptance에 있다). 임계를 느슨하게 고치면 이 파일의 해시가 바뀌고 manifest에 남는다. 완화는 버전 승격으로만 한다. kospiMin/kosdaqMin은 dedup·SPAC·KONEX 제외를 모두 마친 최종 유니버스 기준이다(실측 833 / 1746). corpCodeDuplicate는 실측 0건 확인 후 WARN에서 FAIL로 승격했다(UN-1.0 → UN-1.1). corpCodeMissing은 WARN으로 남긴다 — DART corpCode.xml은 신규상장 반영에 지연이 있어 0건 강제는 정당한 실패를 만든다.",
 
   "measuredAt": "2026-08-04",
   "measured": {
@@ -80,5 +80,46 @@
       "nameMissSectorHit": 123
     }
   },
-  "measuredNote": "3단 분리 이유: UN-1.0의 measured.kospi(848)는 dedup 전 수치인데 acceptanceNote가 이를 '필터 후 기준'으로 잘못 서술했다. 어느 단계의 숫자인지 명시하지 않으면 다음 임계 조정이 잘못된 기준선에 맞춰진다."
+  "measuredNote": "3단 분리 이유: UN-1.0의 measured.kospi(848)는 dedup 전 수치인데 acceptanceNote가 이를 '필터 후 기준'으로 잘못 서술했다. 어느 단계의 숫자인지 명시하지 않으면 다음 임계 조정이 잘못된 기준선에 맞춰진다.",
+
+  "a1b": {
+    "note": "폐지 이력 유니버스. A0.7 corp 집합에서 A1a의 current·excluded corp를 뺀 차집합이다. 상장 이력 자체의 유무는 여기서 확정되지 않는다 — KRX 조회가 없기 때문이며, A2가 확정한다.",
+
+    "base": "data/backfill/dart/corpcode.jsonl",
+    "subtract": [
+      "data/backfill/universe/a1a/current.jsonl",
+      "data/backfill/universe/a1a/excluded.jsonl"
+    ],
+    "diffKey": "corp",
+    "safetyNetKey": "ticker",
+    "diffKeyNote": "차집합은 corp 기준이다. ticker 기준 제거는 그 뒤에 붙는 안전망일 뿐이고, 걸린 건수 자체가 A1a의 corp 매핑 실패를 재는 진단값이다. 두 키의 역할을 바꾸면 ticker를 재사용당한 폐지사가 차집합에서 통째로 사라진다.",
+
+    "exitReasonDefault": "UNKNOWN",
+    "exitAtDefault": null,
+    "sourceTag": "DART_CORPCODE_DIFF",
+    "exitReasonNote": "A1b는 폐지 사유도 폐지일도 알지 못한다. dartModifyDate는 DART 레코드 수정일이지 폐지일이 아니며, A2가 마지막 거래일을 역탐색할 때 조회 구간을 좁히는 힌트일 뿐이다. exitAt으로 승격시키려는 유혹이 A1b의 최대 위험이다 — 그 오차는 백테스트에서 look-ahead로 나타난다.",
+
+    "acceptance": {
+      "candidateMin": 900,
+      "candidateMax": 1600,
+      "exitAtNonNull": 0,
+      "exitReasonNonDefault": 0,
+      "corpMissing": 0,
+      "corpIntersectA1a": 0,
+      "tickerIntersectA1a": 0
+    },
+    "acceptanceNote": "candidateMax가 candidateMin보다 중요하다. A1a가 망가져 base가 줄면 후보가 폭증하는데, 하한만 있으면 그 폭증이 '성공'으로 통과한다. ticker 계약은 최상위 tickerPattern을 그대로 쓴다 — 여기 복제하면 두 값이 갈라진다. 알려진 폐지 종목 대조는 정책이 아니라 scripts/test-universe-a1b.js의 회귀 테스트에 둔다: 정책은 시스템 동작을 정의하고 회귀 테스트는 구현이 계속 그 동작을 내는지 검증한다. 섞으면 픽스처를 늘렸을 때 정책과 어긋난다.",
+
+    "measuredAt": "2026-08-05",
+    "measured": {
+      "baseCorpCount": 3981,
+      "a1aCurrentCorp": 2579,
+      "a1aExcludedCorp": 180,
+      "candidatesAfterCorpDiff": 1222,
+      "removedByTickerSafetyNet": 0,
+      "finalCandidates": 1222,
+      "tickerReuseGroups": 0
+    },
+    "measuredNote": "A0.7 스냅샷(sha256:be13a4fc017a69e1, snapshotDate 2026-08-05)과 A1a(A1a.2, sha256:cb7556fc889a651c) 기준 실측이다. removedByTickerSafetyNet 0은 이 스냅샷의 ticker가 3,981건 전건 유일하기 때문이지 안전망이 불필요하다는 뜻이 아니다 — 0이라는 사실 자체가 진단값이다."
+  }
 }

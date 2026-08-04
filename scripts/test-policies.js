@@ -95,4 +95,32 @@ const all = Object.values(P.flagCodes.groups).flat().map((f) => f.code);
 assert.ok(all.includes('TRADE_BLOCKED'), 'evaluateTradingState가 세우는 TRADE_BLOCKED가 정의되어 있지 않다');
 assert.ok(all.includes('LOW_CONFIDENCE'));
 
-console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개)`);
+// ---- dataPolicies: universe ----
+// registry.policies에만 걸린 위 루프가 이 파일을 보지 않는다. 수집 단계(A1a·A1b)만 읽는
+// 정책이라 오타가 나면 Actions 실행 중에야 드러나고, 그때는 이미 네트워크 수집이 끝난 뒤다.
+const uni = load(registry.dataPolicies.universe);
+assert.ok(uni.version, 'universe에 version 없음 — manifest.policyHash 추적이 끊긴다');
+new RegExp(uni.tickerPattern);  // 컴파일 실패는 여기서 나야 한다
+
+const a1b = uni.a1b;
+assert.ok(a1b, `${uni.version}: a1b 블록 없음 — A1b가 임계값을 스크립트에 하드코딩하게 된다`);
+assert.ok(!('tickerPattern' in a1b),
+  'a1b에 tickerPattern을 복제하지 않는다 — 최상위 값과 갈라지면 두 단계가 다른 계약을 쓴다');
+assert.ok(a1b.acceptance.candidateMin < a1b.acceptance.candidateMax,
+  `a1b 후보 임계 역전: [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
+assert.ok(a1b.acceptance.candidateMax > 0,
+  'a1b candidateMax는 상한이다 — 없거나 0이면 A1a 파손으로 후보가 폭증해도 통과한다');
+assert.strictEqual(a1b.exitAtDefault, null,
+  'a1b exitAtDefault는 null이어야 한다 — A1b는 폐지일을 모른다');
+assert.strictEqual(a1b.exitReasonDefault, 'UNKNOWN',
+  'a1b exitReasonDefault는 UNKNOWN이어야 한다 — 사유 부여는 EP-1.1에서 기각됐다');
+assert.strictEqual(a1b.diffKey, 'corp', 'a1b 차집합 키는 corp다 — ticker로 바꾸면 재사용 폐지사가 사라진다');
+assert.strictEqual(a1b.safetyNetKey, 'ticker', 'a1b 안전망 키는 ticker다');
+assert.ok(a1b.base && Array.isArray(a1b.subtract) && a1b.subtract.length >= 2,
+  'a1b는 base 1개와 차집합 대상 2개(current·excluded)를 선언해야 한다 — excluded가 빠지면 KONEX·SPAC 180건이 폐지 후보로 샌다');
+for (const rel of [a1b.base, ...a1b.subtract]) {
+  assert.ok(/^data\/backfill\//.test(rel), `a1b 입력 경로가 백필 산출물이 아니다: ${rel}`);
+}
+
+console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
+console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개 + data ${Object.keys(registry.dataPolicies).length}개)`);
