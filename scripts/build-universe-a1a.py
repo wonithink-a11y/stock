@@ -405,22 +405,32 @@ def main():
     validate(uni, pol, diag, len(df))
 
     os.makedirs(OUT_DIR, exist_ok=True)
-    with open(f"{OUT_DIR}/current.jsonl", "w", encoding="utf-8", newline="\n") as f:
-        for x in uni:
-            f.write(json.dumps(x, ensure_ascii=False, sort_keys=False) + "\n")
+
+    # 진단은 중단 경로에도 남긴다(교훈 39). 실패 원인 판별의 유일한 근거다.
+    diag["acceptanceFails"] = list(fails)
+    diag["acceptanceWarns"] = list(warns)
+    diag["acceptancePassed"] = not fails
     with open(f"{OUT_DIR}/_diagnostics.json", "w", encoding="utf-8", newline="\n") as f:
         json.dump(diag, f, ensure_ascii=False, indent=2, sort_keys=False)
 
-    print(f"\n{OUT_DIR}/current.jsonl — {len(uni)}종목 "
-          f"(영숫자 티커 {len(diag['alnumTickers'])}건)")
     if warns:
         print(f"\nWARN {len(warns)}건 (실패 아님, 확인 필요):")
         for w in warns:
             print(f"  - {w}")
+
+    # 인수 조건 실패 시 산출물을 쓰지 않는다.
+    # 쓰고 나서 exit(1)하면 워크스페이스에 깨진 파일이 남고, manifest 단계가
+    # 그 파일에 해시를 찍어 하류가 verifyUpstream을 정상 통과한다.
+    # manifest는 '파일이 안 바뀌었다'만 증명하지 '검사를 통과했다'는 증명하지 않는다.
     if fails:
-        print(f"\n인수 조건 {len(fails)}건 실패")
+        print(f"\n인수 조건 {len(fails)}건 실패 — 산출물을 쓰지 않는다")
+        for x in fails:
+            print(f"  - {x}")
         sys.exit(1)
 
+    with open(f"{OUT_DIR}/current.jsonl", "w", encoding="utf-8", newline="\n") as f:
+        for x in uni:
+            f.write(json.dumps(x, ensure_ascii=False, sort_keys=False) + "\n")
 
-if __name__ == "__main__":
-    main()
+    print(f"\n{OUT_DIR}/current.jsonl — {len(uni)}종목 "
+          f"(영숫자 티커 {len(diag['alnumTickers'])}건)")
