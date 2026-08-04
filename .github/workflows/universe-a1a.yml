@@ -3,6 +3,12 @@ name: backfill-universe-a1a
 # A1a — 현재 상장 유니버스 (BF-1.1). 정의는 config/policies/universe.v1.json.
 on:
   workflow_dispatch:
+    inputs:
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
 
 concurrency:
   group: backfill-universe-a1a
@@ -33,6 +39,7 @@ jobs:
         timeout-minutes: 10
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          A1A_FAIL_INJECTION: ${{ inputs.failInjection }}
         run: python scripts/build-universe-a1a.py
 
       - name: Write manifest
