@@ -1,0 +1,104 @@
+name: backfill-universe-a1b
+
+# A1b — 폐지 이력 유니버스 (BF-1.1). 정의는 config/policies/universe.v1.json의 a1b 블록.
+# 네트워크를 쓰지 않는다 — 입력 3개(A0.7 corpcode / A1a current·excluded)가 모두
+# 커밋된 산출물이라 이 잡은 순수 집합 연산이다. 상류가 갱신되면 다시 돌린다.
+on:
+  workflow_dispatch:
+    inputs:
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-universe-a1b
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # pip 설치 스텝 없음 — build-universe-a1b.py는 표준 라이브러리만 쓴다.
+      # 의존성을 '혹시 몰라' 넣으면 네트워크 없는 단계가 네트워크 실패로 죽는다.
+
+      - name: Build A1b
+        timeout-minutes: 5
+        env:
+          A1B_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-universe-a1b.py
+
+      - name: Verify diagnostics contract
+        # Build가 exit 0인데 main()이 조기 반환됐다면 acceptance* 필드가 없거나 false로
+        # 남는다 — "빌드 성공 = 실제로 아무 일도 안 함"을 여기서 잡는다(A0.7·A1a와 동일 패턴).
+        # exitReasonPending·listingHistoryUnverified는 A1b가 '모른다'고 선언한 두 축이다.
+        # 이 플래그가 조용히 사라지면 하류가 UNKNOWN을 확정값으로 읽는다.
+        run: |
+          python -c "
+          import json
+          d = json.load(open('data/backfill/universe/a1b/_diagnostics.json', encoding='utf-8'))
+          for k in ('acceptancePassed', 'acceptanceFails', 'acceptanceWarns'):
+              assert k in d, f'{k} 필드 없음 — main() 진입 여부 의심'
+          assert d['acceptancePassed'] is True, f\"acceptancePassed={d.get('acceptancePassed')} — Build 성공인데 인수 조건은 실패\"
+          for k in ('exitReasonPending', 'listingHistoryUnverified'):
+              assert d.get(k) is True, f'{k} 플래그 없음 — A1b가 모르는 것을 아는 것처럼 넘긴다'
+          print('OK: acceptancePassed =', d['acceptancePassed'])
+          "
+
+      - name: Regression test
+        # 개수 임계는 분포를 보지 못한다. 알려진 폐지 5건이 실제로 후보에 있는지는
+        # 여기서만 확인된다. manifest는 이 스텝까지 통과해야 찍힌다.
+        run: node scripts/test-universe-a1b.js
+
+      - name: Write manifest
+        if: success()
+        run: |
+          F=data/backfill/universe/a1b/delisted.jsonl
+          test -f "$F" || { echo "Build 성공인데 산출물이 없다 — 스크립트 계약 위반"; exit 1; }
+          N=$(grep -c '' "$F")
+          echo "delisted.jsonl 실측 행 수: $N"
+          node scripts/write-manifest.js \
+            --stage A1b --stageVersion A1b.0 \
+            --target data/backfill/universe/a1b --kind dir --ext .jsonl \
+            --upstream A0.7,A1a \
+            --policies universe \
+            --extra "{\"recordCount\":$N}"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: universe-a1b-diagnostics
+          path: data/backfill/universe/a1b/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/universe/a1b data/backfill/manifest)" ]; then
+            git add data/backfill/universe/a1b data/backfill/manifest
+            git commit -m "chore(backfill): A1b 폐지 이력 유니버스 (UN-1.2)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
