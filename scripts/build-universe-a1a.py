@@ -355,10 +355,11 @@ def validate(uni, pol, diag, src_rows):
          f"corp_code 매핑 실패율 {mrate*100:.1f}% ({len(miss)}/{len(uni)})")
     diag["corpCodeMissing"] = miss[:500]
 
-    # corp_code 유일성 — 첫 실행은 WARN. 실측 후 FAIL 승격한다(BF-1.1 §7 A1a).
+    # corp_code 유일성 — UN-1.1에서 WARN → FAIL 승격(실측 0건 확인)
     cc = [x["corp"] for x in uni if x["corp"]]
     cdup = len(cc) - len(set(cc))
-    warn(cdup == 0, f"corp_code 유일성 (non-null 중 중복 {cdup}건) — 1 corp → N ticker 후보")
+    chk(cdup == a["corpCodeDuplicate"],
+        f"corp_code 유일성 (non-null 중 중복 {cdup}건) — 1 corp → N ticker 후보")
     if cdup:
         bag = defaultdict(list)
         for x in uni:
