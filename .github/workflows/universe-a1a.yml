@@ -36,21 +36,20 @@ jobs:
         run: python scripts/build-universe-a1a.py
 
       - name: Write manifest
-        if: always()
+        if: success()
         run: |
           F=data/backfill/universe/a1a/current.jsonl
-          if [ -f "$F" ]; then
-            N=$(grep -c '' "$F")
-            echo "current.jsonl 실측 행 수: $N"
-            node scripts/write-manifest.js \
-              --stage A1a --stageVersion A1a.1 \
-              --target data/backfill/universe/a1a --kind dir --ext .jsonl \
-              --upstream A0.5 \
-              --policies universe \
-              --extra "{\"recordCount\":$N}"
-          else
-            echo "산출물 없음 — manifest 생략"
-          fi
+          # if: success()가 1차 게이트, 파일 존재가 2차. A1a는 파일이 저장소에
+          # 커밋돼 있어 이 test가 항상 참이지만, 산출물이 신규인 하류 단계에서는 유효하다.
+          test -f "$F" || { echo "Build 성공인데 산출물이 없다 — 스크립트 계약 위반"; exit 1; }
+          N=$(grep -c '' "$F")
+          echo "current.jsonl 실측 행 수: $N"
+          node scripts/write-manifest.js \
+            --stage A1a --stageVersion A1a.1 \
+            --target data/backfill/universe/a1a --kind dir --ext .jsonl \
+            --upstream A0.5 \
+            --policies universe \
+            --extra "{\"recordCount\":$N}"
 
       - name: Upload diagnostics
         if: always()
@@ -61,13 +60,13 @@ jobs:
           if-no-files-found: warn
 
       - name: Commit
-        if: always()
+        if: success()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain data/backfill data/cache)" ]; then
             git add data/backfill/universe/a1a data/backfill/manifest data/cache || true
-            git commit -m "chore(backfill): A1a 현재 상장 유니버스 (UN-1.0)"
+            git commit -m "chore(backfill): A1a 현재 상장 유니버스 (UN-1.1)"
             for i in 1 2 3 4 5; do
               git pull --rebase --autostash origin main && git push origin HEAD:main && break
               echo "push 재시도 $i"; sleep 5
