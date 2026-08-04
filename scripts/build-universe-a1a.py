@@ -5,9 +5,12 @@ KIND 상장법인목록에서 KOSPI·KOSDAQ 보통주 유니버스를 확정하�
 정의는 config/policies/universe.v1.json(UN-1.0)이 단일 산출점이다 — 이 스크립트에
 시장·SPAC·중복 규칙을 하드코딩하지 않는다.
 
-입력: config/policies/universe.v1.json
+입력:
+  config/policies/universe.v1.json
+  data/backfill/dart/corpcode.jsonl   corp_code 역인덱스 (A0.7 산출물, 단일 출처)
 출력:
-  data/backfill/universe/a1a/current.jsonl   유니버스 (사실)
+  data/backfill/universe/a1a/current.jsonl    유니버스 (사실)
+  data/backfill/universe/a1a/excluded.jsonl   KONEX·SPAC 제외분 (corp 포함 — A1b 차집합용)
   data/backfill/universe/a1a/_diagnostics.json
 
 BF-1.0의 '월별 전종목 스냅샷' 방식은 폐기했다 — KRX bulk 조회가 Actions에서
@@ -19,8 +22,6 @@ import os
 import re
 import sys
 import time
-import zipfile
-import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
 
 import pandas as pd
@@ -28,11 +29,9 @@ import requests
 
 POLICY = "config/policies/universe.v1.json"
 OUT_DIR = "data/backfill/universe/a1a"
-CACHE_CORP = "data/cache/corpCodeMap.json"
+CORP_INDEX_PATH = "data/backfill/dart/corpcode.jsonl"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
-DART_KEY = os.environ.get("DART_API_KEY", "")
-STAGE_VERSION = "A1a.0"
 
 fails, warns = [], []
 
@@ -185,50 +184,44 @@ def fetch_corp_list(src, diag):
            {"sourceAttempts": attempts})
 
 
-# ── 2. corp_code 매핑 ──────────────────────────────────────────
-def load_corp_map():
-    if os.path.exists(CACHE_CORP):
-        try:
-            with open(CACHE_CORP, encoding="utf-8") as f:
-                c = json.load(f)
-            if isinstance(c, dict) and c.get("map"):
-                print(f"  corpCodeMap 캐시 사용 ({len(c['map'])}건)")
-                return c["map"]
-        except Exception as e:  # noqa: BLE001
-            print(f"  캐시 무시: {e}")
+# ── 2. corp_code 역인덱스 (A0.7 산출물이 단일 출처) ────────────────
+def load_corp_index(diag):
+    """ticker → [A0.7 레코드...]. 값이 리스트인 이유: A0.7은 ticker 재사용을 병합하지
+    않고 그대로 남긴다 — 같은 ticker에 corp가 둘 이상이면 여기서 이미 모호하다.
+    data/cache/corpCodeMap.json(단방향 맵)을 대체한다. 그 캐시는 재사용 발생 시
+    한쪽을 조용히 덮어써 A1b가 잡아야 할 폐지사가 입력에서부터 사라졌다."""
+    if not os.path.exists(CORP_INDEX_PATH):
+        _abort(f"{CORP_INDEX_PATH} 없음 — A0.7을 먼저 실행하라", diag)
+    idx = defaultdict(list)
+    with open(CORP_INDEX_PATH, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            idx[r["ticker"]].append(r)
+    print(f"  corp 역인덱스 {len(idx)} ticker "
+          f"({sum(len(v) for v in idx.values())}건)")
+    return idx
 
-    if not DART_KEY:
-        print("  ! DART_API_KEY 없음 — corp_code 매핑 생략")
-        return {}
 
-    r = _retry(lambda: requests.get("https://opendart.fss.or.kr/api/corpCode.xml",
-                                    params={"crtfc_key": DART_KEY}, timeout=(10, 90)),
-               "corpCode.xml")
-    if r is None or r.status_code != 200:
-        return {}
-    try:
-        zf = zipfile.ZipFile(io.BytesIO(r.content))
-        root = ET.fromstring(zf.read(zf.namelist()[0]).decode("utf-8"))
-    except Exception as e:  # noqa: BLE001
-        print(f"  ! corpCode.xml 파싱 실패: {e}")
-        return {}
-
-    m = {}
-    for it in root.iter("list"):
-        sc = (it.findtext("stock_code") or "").strip().upper()
-        cc = (it.findtext("corp_code") or "").strip()
-        if sc and cc:
-            m[sc.zfill(6)] = cc
-    os.makedirs(os.path.dirname(CACHE_CORP), exist_ok=True)
-    with open(CACHE_CORP, "w", encoding="utf-8", newline="\n") as f:
-        json.dump({"fetchedAt": time.strftime("%Y-%m-%d"), "map": m},
-                  f, ensure_ascii=False, sort_keys=True)
-    print(f"  corpCodeMap 신규 수집 ({len(m)}건)")
-    return m
+def resolve_corp(ticker, idx, diag):
+    """1:1이면 매핑, 0건이면 None(결측 — 기존 WARN 경로), 2건 이상이면 결측 처리하고
+    충돌을 기록한다. 모호한 매핑을 아무거나 골라 조용히 채우지 않는다."""
+    cands = idx.get(ticker, [])
+    if len(cands) == 1:
+        return cands[0]["corp"]
+    if len(cands) > 1:
+        diag["tickerCollisions"].append({
+            "ticker": ticker,
+            "corps": [{"corp": c["corp"], "corpName": c["corpName"],
+                       "modifyDate": c["modifyDate"]} for c in cands],
+        })
+    return None
 
 
 # ── 3. 필터 파이프라인 ─────────────────────────────────────────
-def build(df, pol, corp_map, diag):
+def build(df, pol, corp_idx, diag):
     src = pol["source"]
     mmap = src["marketMap"]
     pat = pol["tickerPattern"]
@@ -251,6 +244,7 @@ def build(df, pol, corp_map, diag):
             "fiscalMonth": str(r["결산월"]).strip() if pd.notna(r.get("결산월")) else None,
         })
     diag["tickerContractViolations"] = bad
+    diag["alnumTickersSource"] = sorted({x["ticker"] for x in rows if not x["ticker"].isdigit()})
 
     # 3-2 중복 — 전 필드 일치만 제거한다. 한 필드라도 다르면 회사 교체일 수 있으므로 FAIL.
     by_ticker = defaultdict(list)
@@ -271,14 +265,19 @@ def build(df, pol, corp_map, diag):
     diag["exactDuplicateRemoved"] = exact_removed
     diag["partialDuplicates"] = partial
 
-    # 3-3 시장 필터
+    # 3-3 corp_code — dedup 직후로 옮긴다. 이후 시장·SPAC 필터로 갈라져 excluded에
+    # 담길 레코드도 corp가 있어야 A1b의 차집합(corp 기준)에서 새어 들어가지 않는다.
+    for x in kept:
+        x["corp"] = resolve_corp(x["ticker"], corp_idx, diag)
+
+    # 3-4 시장 필터
     pre_market = Counter(x["market"] for x in kept)
     diag["marketCountsBeforeFilter"] = dict(pre_market)
     konex_excluded = [x for x in kept if x["market"] in pol["excludeMarkets"]]
     kept = [x for x in kept if x["market"] in pol["includeMarkets"]]
     diag["konexExcluded"] = len(konex_excluded)
 
-    # 3-4 SPAC — 회사명만으로 판정한다. 업종은 교차 집계만.
+    # 3-5 SPAC — 회사명만으로 판정한다. 업종은 교차 집계만.
     spac_re = re.compile(pol["spacNamePattern"])
     spacs = [x for x in kept if spac_re.search(x["name"])]
     if pol.get("excludeSpac"):
@@ -294,15 +293,23 @@ def build(df, pol, corp_map, diag):
         "nameMissSectorHit": sum(1 for x in kept if x["sector"] in hint),
     }
 
-    # 3-5 corp_code
-    for x in kept:
-        x["corp"] = corp_map.get(x["ticker"])
+    # 3-6 제외 목록 — 필터 순서상 KONEX가 이미 우선(SPAC 검사 전에 빠진다).
+    # 동시 해당은 배열로 남기지 않고 진단 카운터로만 잰다(소비자 분기 부담 방지).
+    diag["konexAndSpac"] = sum(1 for x in konex_excluded if spac_re.search(x["name"]))
+    excluded = ([dict(x, exclusionReason="KONEX") for x in konex_excluded]
+                + [dict(x, exclusionReason="SPAC") for x in spacs])
+    diag["excludedCorpMissing"] = [x["ticker"] for x in excluded if not x["corp"]]
 
     # 스키마 키 순서 고정 (BF-1.1 §3 — JSON 키 순서는 스키마 정의 순서)
     order = ["ticker", "name", "market", "corp", "listedAt", "sector", "fiscalMonth"]
     kept = [{k: x.get(k) for k in order} for x in kept]
     kept.sort(key=lambda x: x["ticker"])
-    return kept
+    excluded = [{**{k: x.get(k) for k in order}, "exclusionReason": x["exclusionReason"]}
+                for x in excluded]
+    excluded.sort(key=lambda x: x["ticker"])
+
+    diag["alnumTickersFinal"] = sorted(x["ticker"] for x in kept if not x["ticker"].isdigit())
+    return kept, excluded
 
 
 # ── 4. 인수 조건 ───────────────────────────────────────────────
@@ -375,6 +382,16 @@ def validate(uni, pol, diag, src_rows):
                                        "market": x["market"]})
         diag["corpCodeDuplicates"] = {k: v for k, v in bag.items() if len(v) > 1}
 
+    # A0.7 역인덱스가 같은 ticker에 corp 2개 이상을 낸 경우 — 아무거나 골라 채우지 않고
+    # 결측 처리했으므로, 그 결측이 실제로 남아 있는지 여기서 다시 확인한다.
+    chk(not diag["tickerCollisions"],
+        f"ticker→corp 충돌 {len(diag['tickerCollisions'])}건 (모호한 매핑, 사람 판정 필요)")
+
+    # excluded(KONEX+SPAC)에 corp가 없으면 A1b의 corp 기준 차집합에서 그 종목이
+    # 폐지 후보로 새어 들어간다 — corp 매핑을 dedup 직후로 옮긴 이유가 이것이다.
+    chk(not diag["excludedCorpMissing"],
+        f"excluded corp 결측 {len(diag['excludedCorpMissing'])}건")
+
 
 # ── 5. main ────────────────────────────────────────────────────
 def main() -> int:
@@ -386,8 +403,9 @@ def main() -> int:
     print(f"유니버스 정책 {pol['version']} · 시장 {pol['includeMarkets']} · "
           f"SPAC제외={pol['excludeSpac']}")
 
-    diag = {"stage": "A1a", "stageVersion": STAGE_VERSION,
-            "universePolicy": pol["version"]}
+    # stageVersion은 여기 안 둔다 — manifest(node write-manifest.js --stageVersion)가
+    # 단일 출처다. 두 곳에 두면 갱신을 하나만 하고 잊는 경로가 생긴다.
+    diag = {"stage": "A1a", "universePolicy": pol["version"], "tickerCollisions": []}
 
     print("\n[1/3] KIND 상장법인목록")
     df, nbytes = fetch_corp_list(pol["source"], diag)
@@ -395,11 +413,11 @@ def main() -> int:
     diag["sourceRows"] = len(df)
     diag["sourceBytes"] = nbytes
 
-    print("\n[2/3] corp_code 매핑")
-    corp_map = load_corp_map()
+    print("\n[2/3] corp_code 역인덱스 (A0.7)")
+    corp_idx = load_corp_index(diag)
 
     print("\n[3/3] 필터 파이프라인")
-    uni = build(df, pol, corp_map, diag)
+    uni, excluded = build(df, pol, corp_idx, diag)
     mc = Counter(x["market"] for x in uni)
     print(f"  최종 {len(uni)}종목  {dict(mc)}  "
           f"(중복제거 {diag['exactDuplicateRemoved']} · "
@@ -407,7 +425,7 @@ def main() -> int:
 
     diag["finalCount"] = len(uni)
     diag["marketCounts"] = dict(mc)
-    diag["alnumTickers"] = sorted(x["ticker"] for x in uni if not x["ticker"].isdigit())
+    diag["excludedCount"] = len(excluded)
 
     validate(uni, pol, diag, len(df))
 
@@ -439,8 +457,15 @@ def main() -> int:
         for x in uni:
             f.write(json.dumps(x, ensure_ascii=False, sort_keys=False) + "\n")
 
+    with open(f"{OUT_DIR}/excluded.jsonl", "w", encoding="utf-8", newline="\n") as f:
+        for x in excluded:
+            f.write(json.dumps(x, ensure_ascii=False, sort_keys=False) + "\n")
+
     print(f"\n{OUT_DIR}/current.jsonl — {len(uni)}종목 "
-          f"(영숫자 티커 {len(diag['alnumTickers'])}건)")
+          f"(영숫자 티커 {len(diag['alnumTickersFinal'])}건)")
+    print(f"{OUT_DIR}/excluded.jsonl — {len(excluded)}건 "
+          f"(KONEX {diag['konexExcluded']} · SPAC {diag['spacExcluded']} · "
+          f"동시해당 {diag['konexAndSpac']})")
     return 0
 
 

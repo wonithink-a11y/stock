@@ -68,9 +68,9 @@ jobs:
           N=$(grep -c '' "$F")
           echo "current.jsonl 실측 행 수: $N"
           node scripts/write-manifest.js \
-            --stage A1a --stageVersion A1a.1 \
+            --stage A1a --stageVersion A1a.2 \
             --target data/backfill/universe/a1a --kind dir --ext .jsonl \
-            --upstream A0.5 \
+            --upstream A0.5,A0.7 \
             --policies universe \
             --extra "{\"recordCount\":$N}"
 
