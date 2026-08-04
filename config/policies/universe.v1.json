@@ -1,0 +1,56 @@
+{
+  "version": "UN-1.0",
+  "note": "유니버스 정의의 단일 산출점. A1a·A2·A5 검증·A6 리포트가 모두 이 파일을 읽는다. score()는 읽지 않으므로 registry의 dataPolicies에 등록한다 — policies에 넣으면 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이 깨진다.",
+  "market": "KR",
+
+  "includeMarkets": ["KOSPI", "KOSDAQ"],
+  "excludeMarkets": ["KONEX"],
+  "commonSharesOnly": true,
+  "excludeSpac": true,
+  "deduplicate": "exact",
+
+  "tickerPattern": "^[0-9A-Z]{6}$",
+  "tickerPatternNote": "2025-11 이후 신규상장에 영숫자 코드가 배정된다(0218L0 등). \\d{6} 전제는 종목을 조용히 누락시킨다.",
+
+  "spacNamePattern": "스팩|기업인수목적",
+  "spacSectorHint": ["금융 지원 서비스업", "기타 금융업"],
+  "spacNote": "판정은 회사명만으로 한다. 업종은 교차 집계용 참고값이며 판정에 쓰지 않는다 — 업종으로 거르면 정상 금융사가 함께 사라진다.",
+
+  "commonSharesOnlyNote": "필터가 아니라 소스의 성질이다. KIND 상장법인목록은 법인 대표종목만 제공하며 실측 2,802건 중 끝자리 비0 코드가 0건이다. 별도 필터를 넣지 않는다 — 넣으면 소스가 바뀌었을 때 그 사실이 가려진다.",
+
+  "source": {
+    "provider": "KIND",
+    "url": "https://kind.krx.co.kr/corpgeneral/corpList.do",
+    "params": { "method": "download", "searchType": "13" },
+    "encoding": "euc-kr",
+    "marketMap": { "유가": "KOSPI", "코스닥": "KOSDAQ", "코넥스": "KONEX" }
+  },
+
+  "acceptance": {
+    "sourceRowsMin": 2200,
+    "sourceRowsMax": 3400,
+    "kospiMin": 700,
+    "kosdaqMin": 1500,
+    "konexAfterFilter": 0,
+    "spacAfterFilter": 0,
+    "spacExcludedMin": 1,
+    "konexExcludedMin": 1,
+    "residualDuplicate": 0,
+    "partialDuplicate": 0,
+    "listedAtParseRate": 1.0,
+    "futureListedAt": 0,
+    "corpCodeMissingRateWarn": 0.10
+  },
+  "acceptanceNote": "임계를 느슨하게 고치면 이 파일의 해시가 바뀌고 manifest에 남는다. 완화는 UN-1.1 버전 승격으로만 한다. kospiMin/kosdaqMin은 SPAC·KONEX 제외 후 기준이다(실측 848 / 1839).",
+
+  "measuredAt": "2026-08-04",
+  "measured": {
+    "sourceRows": 2802,
+    "kospi": 848,
+    "kosdaq": 1839,
+    "konex": 115,
+    "exactDuplicateCodes": 43,
+    "alnumTickers": 57,
+    "nonCommonCodes": 0
+  }
+}
