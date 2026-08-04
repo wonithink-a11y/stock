@@ -29,6 +29,30 @@ CACHE_CORP = "data/cache/corpCodeMap.json"
 MARKETS = ["KOSPI", "KOSDAQ"]
 DART_KEY = os.environ.get("DART_API_KEY", "")
 
+# ── 네트워크 가드 ──────────────────────────────────────────────
+# pykrx는 requests에 timeout을 넘기지 않는다. KRX가 응답을 끌면 요청 하나가 무한 대기하고,
+# 재시도 4회 × 148개월이 곱해져 14시간짜리 '무한 루프'가 된다. 어댑터 기본값을 강제한다.
+# 동시에 KRX 원본 응답 앞부분을 보관한다 — 실패 원인(로그인 페이지인지 차단인지)의 유일한 증거다.
+import requests as _rq
+
+LAST_KRX = {"url": None, "status": None, "head": None}
+_orig_send = _rq.adapters.HTTPAdapter.send
+
+
+def _send(self, request, **kw):
+    if kw.get("timeout") is None:
+        kw["timeout"] = (10, 20)          # (connect, read)
+    r = _orig_send(self, request, **kw)
+    if "krx.co.kr" in (request.url or "") and not kw.get("stream"):
+        try:
+            LAST_KRX.update(url=request.url, status=r.status_code, head=(r.text or "")[:800])
+        except Exception:  # noqa: BLE001
+            pass
+    return r
+
+
+_rq.adapters.HTTPAdapter.send = _send
+
 fails, warns = [], []
 
 
@@ -44,15 +68,16 @@ def warn(cond, msg):
         warns.append(msg)
 
 
-def _retry(fn, what, allow_empty=False):
+def _retry(fn, what, allow_empty=False, attempts=4):
     """빈 결과도 실패로 본다.
 
     A0.5에서 드러난 함정: pykrx의 @dataframe_empty_handler가 예외를 삼키고 빈 DataFrame을
     돌려주므로, 예외만 잡는 재시도는 한 번도 돌지 않는다. 그대로 두면 특정 월·종목이
     조용히 누락된 채 '성공'으로 기록된다 — 되돌리기 어려운 실패다.
+    attempts: 정찰·폴백 경로는 짧게(2) 돌려 총 소요를 억제한다.
     """
     last = None
-    for i in range(4):
+    for i in range(attempts):
         try:
             r = fn()
             empty = r is None or (hasattr(r, "empty") and r.empty) or (isinstance(r, (list, dict)) and len(r) == 0)
@@ -62,33 +87,71 @@ def _retry(fn, what, allow_empty=False):
                 return r
         except Exception as e:  # noqa: BLE001
             last = e
-        if i < 3:
+        if i < attempts - 1:
             time.sleep(2 ** i)
     print(f"    ! {what} 실패: {type(last).__name__}: {last}")
     return None
 
 
 # ── 1. 월별 유니버스 ────────────────────────────────────────────
-def fetch_month(date_yyyymmdd, market):
-    """ticker → name. 이름이 있어야 사명 변경·회사 교체를 구분할 수 있다."""
+def _tickers_from_frame(df):
+    if df is None or getattr(df, "empty", True):
+        return None
+    return {str(t).zfill(6): None for t in df.index}
+
+
+def fetch_month(date_yyyymmdd, market, attempts=4):
+    """4단계 폴백. A0.5에서 지수 API는 막히고 주식 API는 살아 있었듯 KRX는 엔드포인트별로
+    가용성이 다르다(교훈25). 이름 없는 목록이라도 확보하는 쪽이 그 달을 통째로 버리는 것보다 낫다."""
     from pykrx.website import krx
     from pykrx import stock
 
     s = _retry(lambda: krx.get_market_ticker_and_name(date_yyyymmdd, market),
-               f"{market} {date_yyyymmdd} (name)")
+               f"{market} {date_yyyymmdd} (name)", attempts=attempts)
     if s is not None:
-        return {str(t): str(n) for t, n in s.items()}
+        return {str(t).zfill(6): str(n) for t, n in s.items()}
 
     lst = _retry(lambda: stock.get_market_ticker_list(date_yyyymmdd, market),
-                 f"{market} {date_yyyymmdd} (list)")
-    if lst is None:
-        return None
-    return {str(t): None for t in lst}
+                 f"{market} {date_yyyymmdd} (list)", attempts=attempts)
+    if lst is not None:
+        return {str(t).zfill(6): None for t in lst}
+
+    for fname in ("get_market_cap", "get_market_cap_by_ticker",
+                  "get_market_ohlcv", "get_market_ohlcv_by_ticker"):
+        fn = getattr(stock, fname, None)
+        if fn is None:
+            continue
+        got = _tickers_from_frame(
+            _retry(lambda f=fn: f(date_yyyymmdd, market=market),
+                   f"{market} {date_yyyymmdd} ({fname})", attempts=2))
+        if got:
+            return got
+    return None
+
+
+def _abort(reason, extra):
+    """실패해도 진단은 남긴다. KRX 원본 응답이 다음 라운드의 유일한 입력이다(교훈28)."""
+    os.makedirs(OUT_DIR, exist_ok=True)
+    with open(f"{OUT_DIR}/_diagnostics.json", "w", encoding="utf-8", newline="\n") as f:
+        json.dump({"stage": "A1-preflight-abort", "reason": reason,
+                   "krxCredentialsPresent": bool(os.environ.get("KRX_ID") and os.environ.get("KRX_PW")),
+                   "krxLastResponse": LAST_KRX, **extra}, f, ensure_ascii=False, indent=2)
+    print(f"\n중단: {reason}")
+    print(f"  KRX 마지막 응답 status={LAST_KRX['status']} url={LAST_KRX['url']}")
+    print(f"  head: {(LAST_KRX['head'] or '')[:400]}")
+    sys.exit(2)
 
 
 def collect_monthly(month_first):
     months = sorted(month_first.keys())
-    out = {}
+
+    # 정찰 — 최신월·최초월 각 1회. 여기서 전 경로가 막히면 148개월을 도는 의미가 없다.
+    probes = [months[-1], months[0]]
+    print(f"  정찰 {probes}")
+    if not any(fetch_month(month_first[m].replace("-", ""), "KOSPI", attempts=2) for m in probes):
+        _abort("KRX 종목목록 조회가 전 경로(name/list/cap/ohlcv)에서 실패", {"probedMonths": probes})
+
+    out, streak = {}, 0
     for i, m in enumerate(months, 1):
         d = month_first[m].replace("-", "")
         per_market = {}
@@ -101,8 +164,15 @@ def collect_monthly(month_first):
             per_market[mk] = got
         if per_market:
             out[m] = per_market
+            streak = 0
+        else:
+            streak += 1
+            # 일시 장애와 구조적 차단을 구분한다. 5개월 연속이면 후자다.
+            if streak >= 5:
+                _abort(f"연속 {streak}개월 수집 실패 — 일시 장애가 아니라 구조적 차단",
+                       {"lastMonth": m, "collectedMonths": len(out)})
         if i % 12 == 0:
-            print(f"  … {m} ({i}/{len(months)})")
+            print(f"  … {m} ({i}/{len(months)}) 수집 {len(out)}")
     return out
 
 
