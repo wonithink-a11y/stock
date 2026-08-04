@@ -1,0 +1,99 @@
+name: backfill-dart-corpcode-a07
+
+# A0.7 — DART corpCode 스냅샷 (BF-1.1). ticker↔corp 양방향 이력을 남긴다.
+# data/cache/corpCodeMap.json(단방향 맵)을 대체한다 — 삭제는 A1a 전환 시점(§4).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 1 * *'   # 매월 1일 21:00 KST
+
+concurrency:
+  group: backfill-dart-corpcode-a07
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Build A0.7
+        timeout-minutes: 10
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/build-dart-corpcode.py
+
+      - name: Verify diagnostics contract
+        # Build가 exit 0인데 main()이 조기 반환됐다면 acceptance* 필드가 없거나 false로
+        # 남는다 — "빌드 성공 = 실제로 아무 일도 안 함"을 여기서 잡는다(universe-a1a와 동일 패턴).
+        run: |
+          python -c "
+          import json
+          d = json.load(open('data/backfill/dart/_diagnostics.json', encoding='utf-8'))
+          for k in ('acceptancePassed', 'acceptanceFails', 'acceptanceWarns'):
+              assert k in d, f'{k} 필드 없음 — main() 진입 여부 의심'
+          assert d['acceptancePassed'] is True, f\"acceptancePassed={d.get('acceptancePassed')} — Build 성공인데 인수 조건은 실패\"
+          print('OK: acceptancePassed =', d['acceptancePassed'])
+          "
+
+      - name: Write manifest
+        if: success()
+        run: |
+          F=data/backfill/dart/corpcode.jsonl
+          test -f "$F" || { echo "Build 성공인데 산출물이 없다 — 스크립트 계약 위반"; exit 1; }
+          N=$(grep -c '' "$F")
+          echo "corpcode.jsonl 실측 행 수: $N"
+          EXTRA=$(python -c "
+          import json
+          d = json.load(open('data/backfill/dart/_diagnostics.json', encoding='utf-8'))
+          print(json.dumps({
+              'snapshotDate': d['snapshotDate'],
+              'maxModifyDate': d['maxModifyDate'],
+              'corpCount': d['corpCount'],
+              'stockTickerCount': d['stockHolderCountRaw'],
+              'recordCount': $N,
+          }))
+          ")
+          node scripts/write-manifest.js \
+            --stage A0.7 --stageVersion A0.7.0 \
+            --target data/backfill/dart/corpcode.jsonl --kind file \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dart-corpcode-a07-diagnostics
+          path: data/backfill/dart/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/dart data/backfill/manifest)" ]; then
+            git add data/backfill/dart data/backfill/manifest
+            git commit -m "chore(backfill): A0.7 DART corpCode 스냅샷"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
