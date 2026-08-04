@@ -1,14 +1,15 @@
 {
   "schemaVersion": "BF-1.1",
   "stage": "A1a",
-  "stageVersion": "A1a.1",
+  "stageVersion": "A1a.2",
   "target": "data/backfill/universe/a1a",
   "targetKind": "dir",
   "targetExt": ".jsonl",
-  "hash": "sha256:2d404b68e424317d",
-  "fileCount": 1,
+  "hash": "sha256:cb7556fc889a651c",
+  "fileCount": 2,
   "upstream": {
-    "A0.5": "sha256:ac51b5d82dee1f21"
+    "A0.5": "sha256:ac51b5d82dee1f21",
+    "A0.7": "sha256:be13a4fc017a69e1"
   },
   "policyHash": {
     "registry": "sha256:d51abb2fc57fdf4b",
@@ -16,5 +17,5 @@
     "universe": "sha256:39bc1efc2d77d4f2"
   },
   "recordCount": 2579,
-  "generatedAt": "2026-08-04T12:21:50.945Z"
+  "generatedAt": "2026-08-04T23:08:35.649Z"
 }
