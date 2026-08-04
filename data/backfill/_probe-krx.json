@@ -1,0 +1,62 @@
+{
+  "probedAt": "2026-08-04T07:38:40+0900",
+  "tradeDate": "20260803",
+  "results": {
+    "E_login_state": {
+      "verdict": "CRED_OK",
+      "pykrxVersion": [
+        "1.0.51"
+      ],
+      "loginEntrypoint": null,
+      "loginCalled": null
+    },
+    "C_single_ohlcv_A05path": {
+      "verdict": "OK",
+      "rows": 1,
+      "cols": [
+        "시가",
+        "고가",
+        "저가",
+        "종가",
+        "거래량",
+        "등락률"
+      ]
+    },
+    "A_bulk_raw_nosession": {
+      "verdict": "HTML",
+      "status": 403,
+      "bytes": 2613,
+      "head": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n \r\n \r\n\r\n\r\n\t\r\n\t\t<html>\r\n<head>\r\n  <title>에러페이지 - 한국거래소 | 정보데이터시스템</title>\r\n  <meta charset=\"utf-8\">\r\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\r\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\">\r\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\r\n  <meta name=\"author\" content=\"한국거래소\" />\r\n  <meta name=\"descript"
+    },
+    "B_bulk_seeded_session": {
+      "verdict": "LOGOUT",
+      "status": 400,
+      "seedStatus": 200,
+      "cookies": [
+        "JSESSIONID",
+        "__smVisitorID"
+      ],
+      "bytes": 6,
+      "head": "LOGOUT"
+    },
+    "D_bulk_pykrx": {
+      "verdict": "EXC",
+      "error": "KeyError: \"None of [Index(['시가', '고가', '저가', '종가'], dtype='str')] are in the [columns]\"",
+      "trace": "None)\n               ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pandas/core/frame.py\", line 4384, in __getitem__\n    indexer = self.columns._get_indexer_strict(key, \"columns\")[1]\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pandas/core/indexes/base.py\", line 6302, in _get_indexer_strict\n    self._raise_if_missing(keyarr, indexer, axis_name)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pandas/core/indexes/base.py\", line 6352, in _raise_if_missing\n    raise KeyError(f\"None of [{key}] are in the [{axis_name}]\")\nKeyError: \"None of [Index(['시가', '고가', '저가', '종가'], dtype='str')] are in the [columns]\"\n"
+    },
+    "F_kind_corplist": {
+      "verdict": "OK",
+      "status": 200,
+      "bytes": 1263821,
+      "rows": 2803,
+      "head": "\r\n\r\n\r\n\r\n\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=euc-kr\" />\r\n<title>상장법인목록(EXCEL)</title>\r\n</head>\r\n<body>\r\n\t<table cellpadding=\"0\" cellspacing=\"1\" class=\"bbs_tb\" border=\"1\">\r\n\t\r\n\t<col width=\"20%\" />\r\n\t<col width=\"10%\" />\r\n\t<col width=\"15%\" />\r\n\t<col width=\"20%\" />\r\n\t<col width=\"10%\" />\r\n\t<col width=\"5%\" />\r\n\t<col width=\"8"
+    },
+    "G_kind_delisted": {
+      "verdict": "OK",
+      "status": 200,
+      "bytes": 77112,
+      "tables": 1,
+      "head": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n<!DOCTYPE html>\r\n<html lang=\"ko\">\r\n<head>\r\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta http-equiv=\"content-language\" content=\"kr\" />\r\n<meta http-equiv=\"content-style-type\" content=\"text/css\" />\r\n<meta http-equiv=\"pragma\" content=\"no-cache\" />\r\n<meta http-equiv=\"cache-control\" content=\"no-cache\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n<meta name=\"copyright\" content=\"대한민국 대표 기업공시채널 KIND(c)2014\" />\r\n<meta name=\"description\" content=\"대한민국 대표 기업공시채널 KIND\" />\r\n<meta name=\"keywords\" co"
+    }
+  }
+}
