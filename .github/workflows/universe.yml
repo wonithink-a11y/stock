@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: backfill-universe
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -28,11 +28,14 @@ jobs:
           node-version: '20'
 
       - name: Install deps
-        run: pip install --quiet pykrx pandas requests lxml html5lib
+        run: pip install --quiet "pykrx==1.0.51" pandas requests lxml html5lib
 
       - name: Build universe
+        timeout-minutes: 60
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python scripts/build-universe.py
 
       - name: Write manifest
