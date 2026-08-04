@@ -1,7 +1,7 @@
 {
-  "schemaVersion": "BF-1.0",
+  "schemaVersion": "BF-1.1",
   "stage": "A1a",
-  "stageVersion": "A1a.0",
+  "stageVersion": "A1a.1",
   "target": "data/backfill/universe/a1a",
   "targetKind": "dir",
   "targetExt": ".jsonl",
@@ -10,5 +10,11 @@
   "upstream": {
     "A0.5": "sha256:ac51b5d82dee1f21"
   },
-  "generatedAt": "2026-08-04T09:24:39.095Z"
+  "policyHash": {
+    "registry": "sha256:d51abb2fc57fdf4b",
+    "registryVersion": "REG-1.3",
+    "universe": "sha256:39bc1efc2d77d4f2"
+  },
+  "recordCount": 2579,
+  "generatedAt": "2026-08-04T11:28:42.898Z"
 }
