@@ -1,0 +1,14 @@
+{
+  "stage": "A1-preflight-abort",
+  "reason": "KRX 종목목록 조회가 전 경로(name/list/cap/ohlcv)에서 실패",
+  "krxCredentialsPresent": true,
+  "krxLastResponse": {
+    "url": "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd",
+    "status": 400,
+    "head": "LOGOUT"
+  },
+  "probedMonths": [
+    "2026-08",
+    "2014-05"
+  ]
+}
