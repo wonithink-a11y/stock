@@ -53,6 +53,8 @@ def warn(cond, msg):
 # 외부 라이브러리의 기본 timeout이 None이면 재시도 로직이 지연 증폭기가 된다(교훈31).
 _orig_send = requests.adapters.HTTPAdapter.send
 
+LAST_HTTP = {"url": None, "status": None, "bytes": None, "head": None}
+
 
 def _send(self, request, **kw):
     if kw.get("timeout") is None:
@@ -63,7 +65,23 @@ def _send(self, request, **kw):
 requests.adapters.HTTPAdapter.send = _send
 
 
-def _retry(fn, what, attempts=3):
+def _http(sess, url, **kw):
+    """비2xx를 예외로 올린다.
+
+    Response 객체는 비어 있지도 예외도 아니므로, 상태를 보지 않는 재시도는 403·503에서
+    한 번도 돌지 않는다 — 재시도가 붙어 있다는 사실이 오히려 안심시킨다.
+    마지막 응답을 보관한다: 중단 시 원본 status/head가 다음 라운드의 유일한 입력이다.
+    """
+    r = (sess or requests).get(url, **kw)
+    body = r.content or b""
+    LAST_HTTP.update(url=r.url, status=r.status_code, bytes=len(body),
+                     head=body[:400].decode("euc-kr", "replace"))
+    if not (200 <= r.status_code < 300):
+        raise requests.HTTPError(f"HTTP {r.status_code} ({len(body)}B)")
+    return r
+
+
+def _retry(fn, what, attempts=4, base=2):
     """빈 결과도 실패로 본다. 조회 실패를 성공으로 위장하면 종목이 조용히 사라진다."""
     last = None
     for i in range(attempts):
@@ -78,9 +96,23 @@ def _retry(fn, what, attempts=3):
         except Exception as e:  # noqa: BLE001
             last = e
         if i < attempts - 1:
-            time.sleep(2 ** i)
+            time.sleep(base ** i)
     print(f"  ! {what} 실패: {type(last).__name__}: {last}")
     return None
+
+
+def _abort(reason, diag, extra=None):
+    """실패해도 진단은 남긴다. 증거 없는 중단은 다음 라운드를 추측으로 만든다(교훈28)."""
+    diag.update({"aborted": True, "abortReason": reason, "lastHttp": LAST_HTTP,
+                 **(extra or {})})
+    os.makedirs(OUT_DIR, exist_ok=True)
+    with open(f"{OUT_DIR}/_diagnostics.json", "w", encoding="utf-8", newline="\n") as f:
+        json.dump(diag, f, ensure_ascii=False, indent=2)
+    print(f"\n중단: {reason}")
+    print(f"  마지막 응답 status={LAST_HTTP['status']} bytes={LAST_HTTP['bytes']} "
+          f"url={LAST_HTTP['url']}")
+    print(f"  head: {(LAST_HTTP['head'] or '')[:300]}")
+    sys.exit(2)
 
 
 # ── 식별자 정규화 (BF-1.1 §1.1) ────────────────────────────────
@@ -94,15 +126,63 @@ def normalize_ticker(raw, pattern):
 
 
 # ── 1. 소스 수집 ───────────────────────────────────────────────
-def fetch_corp_list(src):
-    r = _retry(lambda: requests.get(src["url"], params=src["params"],
-                                    headers={"User-Agent": UA}),
-               "KIND 상장법인목록")
-    if r is None or r.status_code != 200:
-        print("KIND 상장법인목록 수신 실패 — 중단")
-        sys.exit(2)
-    txt = r.content.decode(src["encoding"], "replace")
-    return pd.read_html(io.StringIO(txt))[0], len(r.content)
+def _parse_corp_html(content, encoding):
+    return pd.read_html(io.StringIO(content.decode(encoding, "replace")))[0]
+
+
+def fetch_corp_list(src, diag):
+    """3단계 폴백. 한 경로가 막혀도 정의(정책 파일)는 바뀌지 않으므로 소스 경로만 바꾼다."""
+    enc = src["encoding"]
+    hdr = {"User-Agent": UA}
+    attempts = []
+
+    # (a) 단발 GET — 정상 경로
+    r = _retry(lambda: _http(None, src["url"], params=src["params"], headers=hdr),
+               "corpList 단발 GET")
+    attempts.append({"path": "plain", "status": LAST_HTTP["status"],
+                     "bytes": LAST_HTTP["bytes"]})
+    if r is not None:
+        diag["sourcePath"] = "plain"
+        diag["sourceAttempts"] = attempts
+        return _parse_corp_html(r.content, enc), len(r.content)
+
+    # (b) 세션 시드 + Referer — 봇 판정으로 막히는 경우
+    def seeded():
+        s2 = requests.Session()
+        s2.headers.update(hdr)
+        s2.get("https://kind.krx.co.kr/corpgeneral/corpList.do",
+               params={"method": "loadInitPage"})
+        return _http(s2, src["url"], params=src["params"],
+                     headers={"Referer": "https://kind.krx.co.kr/corpgeneral/corpList.do"})
+
+    r = _retry(seeded, "corpList 세션 시드 GET", attempts=3)
+    attempts.append({"path": "seeded", "status": LAST_HTTP["status"],
+                     "bytes": LAST_HTTP["bytes"]})
+    if r is not None:
+        diag["sourcePath"] = "seeded"
+        diag["sourceAttempts"] = attempts
+        return _parse_corp_html(r.content, enc), len(r.content)
+
+    # (c) 시장별 분할 — 대용량 단일 응답이 막힐 때. 합집합이 전체와 같아야 한다
+    parts, total = [], 0
+    for mt in ("stockMkt", "kosdaqMkt", "konexMkt"):
+        p = dict(src["params"]); p["marketType"] = mt
+        rr = _retry(lambda pp=p: _http(None, src["url"], params=pp, headers=hdr),
+                    f"corpList {mt}", attempts=3)
+        attempts.append({"path": mt, "status": LAST_HTTP["status"],
+                         "bytes": LAST_HTTP["bytes"]})
+        if rr is None:
+            continue
+        parts.append(_parse_corp_html(rr.content, enc))
+        total += len(rr.content)
+    if parts:
+        diag["sourcePath"] = "perMarket"
+        diag["sourceAttempts"] = attempts
+        diag["perMarketRows"] = [len(x) for x in parts]
+        return pd.concat(parts, ignore_index=True), total
+
+    _abort("KIND 상장법인목록 전 경로 실패 (plain / seeded / perMarket)", diag,
+           {"sourceAttempts": attempts})
 
 
 # ── 2. corp_code 매핑 ──────────────────────────────────────────
@@ -302,8 +382,8 @@ def main():
             "universePolicy": pol["version"]}
 
     print("\n[1/3] KIND 상장법인목록")
-    df, nbytes = fetch_corp_list(pol["source"])
-    print(f"  {len(df)}행 / {nbytes}바이트")
+    df, nbytes = fetch_corp_list(pol["source"], diag)
+    print(f"  {len(df)}행 / {nbytes}바이트 · 경로={diag.get('sourcePath')}")
     diag["sourceRows"] = len(df)
     diag["sourceBytes"] = nbytes
 
