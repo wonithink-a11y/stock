@@ -377,10 +377,10 @@ def validate(uni, pol, diag, src_rows):
 
 
 # ── 5. main ────────────────────────────────────────────────────
-def main():
+def main() -> int:
     if not os.path.exists(POLICY):
         print(f"{POLICY} 없음 — UN-1.0 정책 파일이 필요하다")
-        sys.exit(1)
+        return 1
     with open(POLICY, encoding="utf-8") as f:
         pol = json.load(f)
     print(f"유니버스 정책 {pol['version']} · 시장 {pol['includeMarkets']} · "
@@ -433,7 +433,7 @@ def main():
         print(f"\n인수 조건 {len(fails)}건 실패 — 산출물을 쓰지 않는다")
         for x in fails:
             print(f"  - {x}")
-        sys.exit(1)
+        return 1
 
     with open(f"{OUT_DIR}/current.jsonl", "w", encoding="utf-8", newline="\n") as f:
         for x in uni:
@@ -441,3 +441,8 @@ def main():
 
     print(f"\n{OUT_DIR}/current.jsonl — {len(uni)}종목 "
           f"(영숫자 티커 {len(diag['alnumTickers'])}건)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
