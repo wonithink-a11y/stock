@@ -1,0 +1,61 @@
+name: probe-fundamentals-a3
+
+# A3 재무(PIT) 정찰 — 구현보다 먼저 돈다. 재무 수치를 남기지 않고 설계 판정만 남긴다.
+# 재는 것: availableFrom 경로(rcept_no) · 엔드포인트별 계정 매칭률 · 폐지 종목 커버리지 ·
+#          호출량 추정(resume 필요성의 근거). 결과는 data/backfill/_probe-fundamentals-a3.json.
+#
+# manifest를 찍지 않는다 — 정찰 산출물은 하류가 소비하는 데이터가 아니라 사람이 읽는 패턴이다.
+# 그래서 커밋은 if: always()여도 manifest 계약(§4)과 충돌하지 않는다.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: probe-fundamentals-a3
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Probe
+        timeout-minutes: 25
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/probe-fundamentals-a3.py
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-fundamentals-a3
+          path: data/backfill/_probe-fundamentals-a3.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/_probe-fundamentals-a3.json)" ]; then
+            git add data/backfill/_probe-fundamentals-a3.json
+            git commit -m "chore(backfill): A3 재무 정찰 결과"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

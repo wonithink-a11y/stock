@@ -1,0 +1,214 @@
+name: backfill-fundamentals-a3
+
+# A3 — 재무 (PIT). 정의는 config/policies/fundamentals.v1.json(FN-1.0).
+#
+# A2a와 결정적으로 다른 점은 실행이 하루에 끝나지 않는다는 것이다. DART 일 한도가
+# 20,000건이라 3,801법인 × 11사업연도 수집은 며칠에 걸친다. 그래서 collect는 매일
+# 한 번씩 dispatch로 돌리고, 각 실행은 '오늘 몫'만 하고 진행 상태를 커밋한다.
+# 전 샤드가 담당분을 마치면 finalize를 한 번 돌린다.
+#
+#   mode: collect    오늘 예산만큼 수집 → data/backfill/fundamentals/_shards/ 커밋
+#   mode: finalize   전 샤드 병합 → 인수 조건 → 산출물 + manifest → _shards/ 삭제
+#
+# 예산 소진은 실패가 아니라 정상적인 분할 실행이므로 collect는 exit 0으로 끝난다.
+# finalize는 담당분을 안 마친 샤드가 하나라도 있으면 중단한다 — 부분 수집물에
+# manifest를 찍으면 하류가 깨진 데이터로 정상 통과한다(교훈43).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '수집(collect) 또는 마감(finalize)'
+        required: true
+        default: 'collect'
+        type: choice
+        options: [collect, finalize]
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 finalize의 인수 조건을 강제 실패시킨다'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-fundamentals-a3
+  cancel-in-progress: false   # 수집 도중 취소되면 그날 예산만 태우고 진행이 안 남는다
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: 8
+
+jobs:
+  collect:
+    if: inputs.mode == 'collect'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      # fail-fast를 끈다. A2a와 반대인 이유: 저쪽은 부분 수집물이 쓸모없지만,
+      # 여기서는 한 샤드가 막혀도 나머지 샤드의 진행이 그대로 자산이다(내일 이어받는다).
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4        # 이전 실행이 커밋한 _shards/를 가져온다
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 80
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/build-fundamentals-a3.py --shard ${{ matrix.shard }} --shards $SHARDS
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a3-shard-${{ matrix.shard }}
+          path: data/backfill/fundamentals/_shards/
+          retention-days: 3
+          if-no-files-found: warn
+
+  persist:
+    # 샤드가 각자 push하지 않는 이유는 A2a와 같다 — 8개 잡이 같은 브랜치에 rebase
+    # 경합을 벌인다. 여기서 한 번만 커밋한다.
+    #
+    # if: success()다. 커밋 대상이 manifest가 아니라 resume 상태뿐이지만, 중단된 실행의
+    # 상태를 커밋하지 않는 쪽이 안전하다 — 서킷 브레이커가 열린 날의 부분 상태를 남기면
+    # 다음 실행이 '이미 처리한 법인'으로 건너뛴다.
+    needs: collect
+    if: success() && inputs.mode == 'collect'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a3-shard-*
+          merge-multiple: true
+          path: data/backfill/fundamentals/_shards/
+
+      - name: Progress summary
+        run: |
+          python - <<'PY'
+          import glob, json
+          done = total = calls = recs = 0
+          complete = 0
+          for p in sorted(glob.glob('data/backfill/fundamentals/_shards/_state-*.json')):
+              s = json.load(open(p, encoding='utf-8'))
+              done += len(s.get('corpsDone', []))
+              calls += s.get('callsUsedToday', 0)
+              complete += 1 if s.get('complete') else 0
+          for p in sorted(glob.glob('data/backfill/fundamentals/_shards/shard-*.jsonl')):
+              recs += sum(1 for _ in open(p, encoding='utf-8'))
+          print(f'법인 완료 {done} · 레코드 {recs} · 오늘 호출 {calls} · 완료 샤드 {complete}/8')
+          print('전 샤드 완료 — finalize를 돌려라' if complete == 8
+                else 'collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)')
+          PY
+
+      - name: Commit progress
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/fundamentals/_shards)" ]; then
+            git add data/backfill/fundamentals/_shards
+            git commit -m "chore(backfill): A3 재무 수집 진행 상태"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
+
+  finalize:
+    if: inputs.mode == 'finalize'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Policy sanity
+        run: node scripts/test-policies.js
+
+      - name: PIT regression test
+        # 합성 픽스처로 availableFrom 계약과 계정 매칭 분기를 전부 밟는다
+        # (네트워크·수집 산출물 불필요). PIT가 무너지는 실패는 조용하다 —
+        # 점수도 등급도 정상으로 보이고 백테스트만 좋아진다. 여기서 먼저 멈춘다.
+        run: python scripts/test-fundamentals-a3.py
+
+      - name: Finalize
+        env:
+          A3_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-fundamentals-a3.py --finalize
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js A3
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/fundamentals/a3
+          ls -1 "$D"/*.jsonl.gz > /dev/null || { echo "Build 성공인데 산출물이 없다"; exit 1; }
+          EXTRA=$(python -c "
+          import json
+          d = json.load(open('$D/_diagnostics.json', encoding='utf-8'))
+          print(json.dumps({
+              'recordCount': d['rowCount'],
+              'fiscalYearFrom': d['fiscalYearFrom'],
+              'fiscalYearTo': d['fiscalYearTo'],
+              'corpsWithData': d['corpsWithData'],
+              'corpsTargeted': d['corpsTargeted'],
+              'corpsWithDataRateByGroup': d['corpsWithDataRateByGroup'],
+              'coverageRate': d['coverageRate'],
+              'restatedFiscalYears': d['restatedFiscalYears'],
+              'disclosureLagDays': d['disclosureLagDays'],
+              'roeAbsOutlierCount': d['roeAbsOutlierCount'],
+              'sectorNotPointInTime': d['sectorNotPointInTime'],
+          }, ensure_ascii=False))
+          ")
+          node scripts/write-manifest.js \
+            --stage A3 --stageVersion A3.0 \
+            --target data/backfill/fundamentals/a3 --kind dir --ext .jsonl.gz \
+            --upstream A1a,A1b \
+            --policies universe,fundamentals \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fundamentals-a3-diagnostics
+          path: data/backfill/fundamentals/a3/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 중간 산출물을 지운다. 남겨두면 전체 데이터의 사본이 저장소에 영구히 쌓이고,
+          # 다음 수집이 낡은 상태를 이어받는다.
+          rm -rf data/backfill/fundamentals/_shards
+          git add -A data/backfill/fundamentals data/backfill/manifest
+          if [ -n "$(git status --porcelain data/backfill/fundamentals data/backfill/manifest)" ]; then
+            git commit -m "chore(backfill): A3 재무(PIT) 백필"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
