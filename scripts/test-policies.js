@@ -122,5 +122,25 @@ for (const rel of [a1b.base, ...a1b.subtract]) {
   assert.ok(/^data\/backfill\//.test(rel), `a1b 입력 경로가 백필 산출물이 아니다: ${rel}`);
 }
 
+// ---- dataPolicies: price ----
+const price = load(registry.dataPolicies.price);
+assert.ok(price.version, 'price에 version 없음');
+assert.ok(price.source.adjusted === true,
+  'price.source.adjusted는 true여야 한다 — raw 경로는 pykrx 1.2.8에서 죽어 있고, 미수정 가격은 technical 축을 오염시킨다');
+assert.ok(price.source.requiredVersion,
+  'requiredVersion 없음 — 정책은 요구 버전, manifest는 실행 버전을 남긴다. 요구가 없으면 대조가 불가능하다');
+assert.strictEqual(price.output.gzipMtime, 0,
+  'gzipMtime은 0이어야 한다 — 기본값(현재 시각)이면 내용이 같아도 매 실행 해시가 달라져 manifest가 재수집 판정 기능을 잃는다');
+assert.strictEqual(price.output.partition, 'year',
+  '저장 축은 연도다. 샤드로 바꾸면 실행 축과 묶여 샤드 수 변경이 전량 재수집이 된다');
+assert.ok(price.shards >= 1 && Number.isInteger(price.shards), 'shards는 1 이상 정수');
+assert.ok(price.acceptance.dailyChangeAbsMax > 0.3,
+  '일간 변동 임계가 가격제한폭(상하 30%) 이하면 정상 등락을 위반으로 잡는다');
+assert.ok(price.probeTickers.length >= 2,
+  '대량 루프 전 정찰은 2회 이상이다 — 1회는 일시 실패와 경로 차단을 구분하지 못한다(교훈32)');
+assert.deepStrictEqual(price.output.sortKey, ['date', 'ticker'],
+  '정렬 키가 바뀌면 산출 바이트가 바뀌어 하류 전체가 재실행된다');
+
 console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
+console.log(`   price ${price.version}: 샤드 ${price.shards} · 요구 pykrx ${price.source.requiredVersion} · 일간 임계 ±${price.acceptance.dailyChangeAbsMax * 100}%`);
 console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개 + data ${Object.keys(registry.dataPolicies).length}개)`);

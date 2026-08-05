@@ -1,0 +1,54 @@
+{
+  "version": "PR-1.0",
+  "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
+  "market": "KR",
+
+  "source": {
+    "provider": "KRX",
+    "via": "pykrx",
+    "function": "get_market_ohlcv_by_date",
+    "requiredVersion": "1.2.8",
+    "requiredVersionNote": "정책에는 '요구 버전', manifest에는 '실제 실행 버전'을 남긴다. 두 값이 갈라지면 같은 정책인데 결과가 다른 이유를 추적할 수 있다. 2026-08-05 실측: 문서에 기록된 1.0.51과 동작이 다르다(import 시 KRX 로그인 메시지 출력 — 개별종목 일봉 경로와는 무관한 노이즈다, 교훈41).",
+    "adjusted": true,
+    "adjustedNote": "adjusted=false 경로는 1.2.8에서 JSON 파싱 실패로 죽어 있다(실측). 따라서 dailyChangeAbsMax 검사의 목적은 '개발자가 수정주가를 안 썼는가'가 아니라 '소스가 수정주가를 정상 제공했는가'다. 2018-05-04 삼성전자 50:1 분할 구간에서 최대 일간변동 3.5%로 정상 적용을 확인했다."
+  },
+
+  "collectFrom": "2014-05-13",
+  "collectFromNote": "A0.5 캘린더의 첫 거래일. KRX 개별종목 일봉은 '오늘 기준 약 3,000거래일' 롤링 윈도우라 실제 확보 시작일은 이보다 뒤일 수 있고 매일 하루씩 밀린다(2026-08-05 실측 2014-05-15). 그래서 수집 시점의 실측 시작일을 actualDataFrom으로 남기고, 누락률은 calendarStart가 아니라 actualDataFrom 기준으로 잰다. 이 구분이 없으면 시작 구간이 영원히 누락으로 잡힌다.",
+
+  "shards": 8,
+  "shardsNote": "실행 축이다. 저장 축은 연도별 파일이라 샤드 수를 바꿔도 산출물 바이트가 바뀌지 않는다 — manifest 해시가 불변이므로 하류 재실행이 강제되지 않는다. 실행 축과 저장 축을 묶으면 샤드 수 변경이 곧 전량 재수집이 된다. 실측 소요는 종목당 약 0.3초(전 구간 1회 호출)로 2,579종목 약 13분이며, 분할의 목적은 시간 제한 회피가 아니라 실패 시 재실행 범위 축소다.",
+
+  "requestSleepSeconds": 0.1,
+  "retryAttempts": 4,
+  "retryBackoffBase": 2,
+  "circuitBreakerConsecutiveFailures": 20,
+  "probeTickers": ["005930", "000660"],
+  "probeNote": "대량 루프 진입 전 2회 정찰(교훈32). 둘 다 실패하면 경로가 막힌 것이므로 2,579회를 돌리지 않고 즉시 중단한다. 연속 실패 서킷 브레이커는 루프 도중 경로가 막히는 경우를 잡는다.",
+
+  "acceptance": {
+    "dailyChangeAbsMax": 0.5,
+    "dailyChangeViolations": 0,
+    "closeNonPositive": 0,
+    "highLowOrderViolations": 0,
+    "dateContractViolations": 0,
+    "tickerFetchFail": 0,
+    "duplicateKeys": 0,
+    "minTickersWithData": 2400,
+    "missingRateWarn": 0.01,
+    "perTickerMissingRateWarn": 0.10,
+    "emptyTickerRateWarn": 0.02
+  },
+  "acceptanceNote": "구조적으로 위반이 불가능한 것만 FAIL로 둔다 — 일간 ±50% 초과(국내 가격제한폭 상하 30%), close<=0, high<low, 날짜 계약, 조회 실패, (ticker,date) 중복. 누락률 계열은 PR-1.0에서 WARN이다: 거래정지 구간에 KRX가 행을 주는지 안 주는지를 아직 실측한 적이 없어, FAIL로 걸면 정당한 데이터가 파이프라인을 막는다. 실측 1회 후 PR-1.1에서 FAIL로 승격한다 — UN-1.0 → UN-1.1의 corpCodeDuplicate와 같은 패턴이다. minTickersWithData는 유니버스 2,579 대비 약 7% 여유이며, 이보다 적게 받히면 수집이 아니라 경로가 깨진 것이다.",
+
+  "output": {
+    "dir": "data/backfill/price/a2a",
+    "partition": "year",
+    "format": "jsonl.gz",
+    "gzipMtime": 0,
+    "gzipCompressLevel": 9,
+    "sortKey": ["date", "ticker"],
+    "fields": ["ticker", "date", "open", "high", "low", "close", "volume"],
+    "outputNote": "gzip 헤더의 mtime을 0으로 고정한다. 기본값(현재 시각)을 쓰면 내용이 완전히 같아도 매 실행 바이트가 달라지고, manifest 해시가 '재수집 여부 판정'이라는 기능을 통째로 잃는다. 정렬은 (date, ticker) — A5가 날짜 구간으로 읽으므로 소비 패턴과 일치하고, 신규 거래일 추가 시 최근 연도 파일만 바뀌어 git 델타가 작다."
+  }
+}

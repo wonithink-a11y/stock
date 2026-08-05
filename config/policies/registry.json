@@ -20,7 +20,8 @@
   },
   "analysisPoliciesNote": "score()가 읽지 않고 분석 단계(A6)에서만 쓰는 정책. policies와 분리하는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다 — 점수에 관여하지 않은 정책을 여기 섞으면 provenance가 허위가 되고, EP 버전만 올려도 과거 점수가 달라 보인다. loadPolicies()는 analysis/analysisVersions로 따로 반환하고 versions에는 넣지 않는다.",
   "dataPolicies": {
-    "universe": "config/policies/universe.v1.json"
+    "universe": "config/policies/universe.v1.json",
+    "price": "config/policies/price.v1.json"
   },
   "dataPoliciesNote": "score()도 A6도 읽지 않고 수집 단계(A1a·A2)가 읽는 정책. policies·analysisPolicies 어느 쪽에도 넣지 않는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다. A5에서의 추적은 upstream 체인(A5.upstream.A1a → A1a manifest.policyHash.universe)이 담당한다."
 }
