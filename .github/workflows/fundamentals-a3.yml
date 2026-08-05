@@ -63,11 +63,20 @@ jobs:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
         run: python scripts/build-fundamentals-a3.py --shard ${{ matrix.shard }} --shards $SHARDS
 
+      # 자기 샤드의 파일만 올린다. 디렉터리째 올리면 안 된다 — _shards/가 저장소에
+      # 커밋돼 있으므로 각 샤드의 checkout에는 남의 상태 파일(어제 버전)도 들어 있고,
+      # persist의 merge-multiple: true는 같은 이름을 나중 것으로 덮는다. 즉 추출 순서에
+      # 따라 다른 샤드의 오늘치 진행이 어제 버전으로 조용히 되돌아갈 수 있다.
+      # collect #1에서 이 문제가 없었던 것은 그때 _shards/가 저장소에 아예 없어서
+      # 각 샤드가 자기 파일만 갖고 있었기 때문이다 — 첫 실행이 우연히 안전했을 뿐이다.
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: a3-shard-${{ matrix.shard }}
-          path: data/backfill/fundamentals/_shards/
+          path: |
+            data/backfill/fundamentals/_shards/_state-${{ matrix.shard }}.json
+            data/backfill/fundamentals/_shards/shard-${{ matrix.shard }}.jsonl
+            data/backfill/fundamentals/_shards/_diagnostics-shard-${{ matrix.shard }}.json
           retention-days: 3
           if-no-files-found: warn
 
