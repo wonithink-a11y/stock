@@ -1,0 +1,1076 @@
+{
+  "probedAt": "2026-08-05T18:32:43.537723+09:00",
+  "stage": "A3-probe",
+  "purpose": "설계 판정. 재무 수치를 남기지 않으며 A3 산출물이 아니다",
+  "sampleNote": "무작위가 아니라 고정 앵커 + 균등 간격이다. 재실행 시 같은 표본이어야 두 실행의 차이를 표본 차이가 아니라 소스 변화로 읽을 수 있다.",
+  "sample": {
+    "corps": 32,
+    "current": 24,
+    "delisted": 8,
+    "years": [
+      2014,
+      2025
+    ],
+    "anchors": [
+      "005930",
+      "105560",
+      "003550",
+      "068270",
+      "006360",
+      "011200",
+      "003490",
+      "015760",
+      "017670"
+    ]
+  },
+  "endpoints": {
+    "fnlttSinglAcnt": {
+      "calls": 384,
+      "dartStatus": {
+        "013": 144,
+        "000": 240
+      },
+      "reportsFound": 240,
+      "rceptNoPresent": 240,
+      "rceptNoIsDate": 240,
+      "periodEndParsed": 240,
+      "availableFromAfterPeriodEnd": 240,
+      "availableFromNotAfterPeriodEnd": 0,
+      "lagDaysMin": 66,
+      "lagDaysP50": 89,
+      "lagDaysP95": 484,
+      "lagDaysMax": 1958,
+      "fullHitReports": 231,
+      "fullHitRate": 0.9625,
+      "accountHits": {
+        "currentAssets": {
+          "nameExact": 232,
+          "MISS": 8
+        },
+        "currentLiab": {
+          "nameExact": 232,
+          "MISS": 8
+        },
+        "liabilities": {
+          "nameExact": 240
+        },
+        "equity": {
+          "nameExact": 240
+        },
+        "revenue": {
+          "nameExact": 235,
+          "MISS": 5
+        },
+        "opProfit": {
+          "nameExact": 232,
+          "nameContains": 7,
+          "MISS": 1
+        },
+        "netIncome": {
+          "nameContains": 239,
+          "MISS": 1
+        }
+      },
+      "accountMissRate": {
+        "currentAssets": 0.0333,
+        "currentLiab": 0.0333,
+        "liabilities": 0.0,
+        "equity": 0.0,
+        "revenue": 0.0208,
+        "opProfit": 0.0042,
+        "netIncome": 0.0042
+      },
+      "fsDiv": {
+        "CFS": 220,
+        "OFS": 20
+      },
+      "byYear": {
+        "2014": {
+          "calls": 32,
+          "reports": 0,
+          "fullHit": 0
+        },
+        "2015": {
+          "calls": 32,
+          "reports": 19,
+          "fullHit": 18
+        },
+        "2016": {
+          "calls": 32,
+          "reports": 20,
+          "fullHit": 20
+        },
+        "2017": {
+          "calls": 32,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2018": {
+          "calls": 32,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2019": {
+          "calls": 32,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2020": {
+          "calls": 32,
+          "reports": 22,
+          "fullHit": 22
+        },
+        "2021": {
+          "calls": 32,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2022": {
+          "calls": 32,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2023": {
+          "calls": 32,
+          "reports": 25,
+          "fullHit": 22
+        },
+        "2024": {
+          "calls": 32,
+          "reports": 25,
+          "fullHit": 22
+        },
+        "2025": {
+          "calls": 32,
+          "reports": 24,
+          "fullHit": 22
+        }
+      }
+    },
+    "fnlttSinglAcntAll": {
+      "calls": 548,
+      "dartStatus": {
+        "013": 308,
+        "000": 240
+      },
+      "reportsFound": 240,
+      "rceptNoPresent": 240,
+      "rceptNoIsDate": 240,
+      "periodEndParsed": 0,
+      "availableFromAfterPeriodEnd": 0,
+      "availableFromNotAfterPeriodEnd": 0,
+      "lagDaysMin": null,
+      "lagDaysP50": null,
+      "lagDaysP95": null,
+      "lagDaysMax": null,
+      "fullHitReports": 232,
+      "fullHitRate": 0.9667,
+      "accountHits": {
+        "currentAssets": {
+          "id": 232,
+          "MISS": 8
+        },
+        "currentLiab": {
+          "id": 232,
+          "MISS": 8
+        },
+        "liabilities": {
+          "id": 240
+        },
+        "equity": {
+          "id": 240
+        },
+        "revenue": {
+          "id": 233,
+          "MISS": 4,
+          "nameContains": 1,
+          "nameExact": 2
+        },
+        "opProfit": {
+          "id": 231,
+          "nameExact": 7,
+          "nameContains": 2
+        },
+        "netIncome": {
+          "id": 237,
+          "nameContains": 3
+        }
+      },
+      "accountMissRate": {
+        "currentAssets": 0.0333,
+        "currentLiab": 0.0333,
+        "liabilities": 0.0,
+        "equity": 0.0,
+        "revenue": 0.0167,
+        "opProfit": 0.0,
+        "netIncome": 0.0
+      },
+      "fsDiv": {
+        "CFS": 220,
+        "OFS": 20
+      },
+      "byYear": {
+        "2014": {
+          "calls": 64,
+          "reports": 0,
+          "fullHit": 0
+        },
+        "2015": {
+          "calls": 49,
+          "reports": 19,
+          "fullHit": 19
+        },
+        "2016": {
+          "calls": 47,
+          "reports": 20,
+          "fullHit": 20
+        },
+        "2017": {
+          "calls": 45,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2018": {
+          "calls": 43,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2019": {
+          "calls": 43,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2020": {
+          "calls": 45,
+          "reports": 22,
+          "fullHit": 22
+        },
+        "2021": {
+          "calls": 45,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2022": {
+          "calls": 44,
+          "reports": 21,
+          "fullHit": 21
+        },
+        "2023": {
+          "calls": 41,
+          "reports": 25,
+          "fullHit": 22
+        },
+        "2024": {
+          "calls": 41,
+          "reports": 25,
+          "fullHit": 22
+        },
+        "2025": {
+          "calls": 41,
+          "reports": 24,
+          "fullHit": 22
+        }
+      }
+    }
+  },
+  "endpointNote": "fnlttSinglAcnt는 호출 1회로 3개 연도(당기·전기·전전기)를 주지만 account_nm으로만 매칭된다. fnlttSinglAcntAll은 account_id(IFRS 태그)를 주지만 fs_div가 필수라 호출이 최대 2배다. 선택 기준은 accountMissRate와 estimatedCalls 둘 다이며, 이 정찰이 그 두 값을 처음으로 실측한다.",
+  "pointInTime": {
+    "availableFromSource": "rcept_no 앞 8자리",
+    "contract": "availableFrom > 회계기간말 (BF-1.1 §7 A3 계약 1)",
+    "note": "위반이 0이 아니면 로직 반전이거나 회계기간말 파싱이 틀린 것이다. 정찰은 어느 쪽인지 단정하지 않고 두 카운터를 따로 남긴다.",
+    "amendmentCaveat": "DART가 돌려주는 rcept_no는 정정공시가 있으면 정정본의 것이다. 따라서 availableFrom은 원본 접수일보다 늦을 수 있다. 방향은 보수적이다(더 늦게 알았다고 기록) — look-ahead가 아니라 커버리지 손실로 나타난다. lagDaysP95·lagDaysMax가 그 규모를 가리킨다."
+  },
+  "coverage": {
+    "currentByAcnt": {
+      "sampled": 24,
+      "withAnyReport": 24,
+      "rate": 1.0,
+      "zeroReport": []
+    },
+    "currentByAcntAll": {
+      "sampled": 24,
+      "withAnyReport": 24,
+      "rate": 1.0,
+      "zeroReport": []
+    },
+    "delistedByAcnt": {
+      "sampled": 8,
+      "withAnyReport": 5,
+      "rate": 0.625,
+      "zeroReport": [
+        "037630",
+        "054440",
+        "128910"
+      ]
+    },
+    "delistedByAcntAll": {
+      "sampled": 8,
+      "withAnyReport": 5,
+      "rate": 0.625,
+      "zeroReport": [
+        "037630",
+        "054440",
+        "128910"
+      ]
+    },
+    "note": "폐지 종목은 DART에 법인 레코드가 남아도 재무제표까지 남는다는 보장이 없다. 표본 기준이며 전수가 아니다 — A3 게이트의 분모는 이 값이 아니라 본 수집의 실측으로 정한다."
+  },
+  "callBudget": {
+    "corpsTotal": 3801,
+    "yearsPlanned": 12,
+    "acntCallsPerCorpYear": 1,
+    "acntAllCallsPerCorpYear": 1.43,
+    "estimatedCallsAcnt": 45612,
+    "estimatedCallsAcntAll": 65092,
+    "dartDailyLimit": 20000,
+    "acntFitsInOneDay": false,
+    "acntAllFitsInOneDay": false
+  },
+  "callBudgetNote": "일 한도 20,000건. 초과하면 다음날까지 대기이므로 resume이 선택이 아니라 계약이다(BF-1.1 §7 A3 계약 5).",
+  "samples": {
+    "fnlttSinglAcnt": [
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2015,
+        "fsDiv": "CFS",
+        "rows": 13,
+        "availableFrom": "2016-03-30",
+        "periodEnd": "2015-12-31",
+        "lagDays": 90,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2016,
+        "fsDiv": "CFS",
+        "rows": 13,
+        "availableFrom": "2017-03-31",
+        "periodEnd": "2016-12-31",
+        "lagDays": 90,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2017,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2018-04-02",
+        "periodEnd": "2017-12-31",
+        "lagDays": 92,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2018,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2019-04-01",
+        "periodEnd": "2018-12-31",
+        "lagDays": 91,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2019,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2020-03-30",
+        "periodEnd": "2019-12-31",
+        "lagDays": 90,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2020,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2021-03-09",
+        "periodEnd": "2020-12-31",
+        "lagDays": 68,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2021,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2022-03-08",
+        "periodEnd": "2021-12-31",
+        "lagDays": 67,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2022,
+        "fsDiv": "CFS",
+        "rows": 14,
+        "availableFrom": "2023-03-07",
+        "periodEnd": "2022-12-31",
+        "lagDays": 66,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2023,
+        "fsDiv": "CFS",
+        "rows": 15,
+        "availableFrom": "2024-03-12",
+        "periodEnd": "2023-12-31",
+        "lagDays": 72,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2024,
+        "fsDiv": "CFS",
+        "rows": 15,
+        "availableFrom": "2025-03-11",
+        "periodEnd": "2024-12-31",
+        "lagDays": 70,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2025,
+        "fsDiv": "CFS",
+        "rows": 15,
+        "availableFrom": "2026-03-10",
+        "periodEnd": "2025-12-31",
+        "lagDays": 69,
+        "accountHits": {
+          "currentAssets": "nameExact",
+          "currentLiab": "nameExact",
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": "nameExact",
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      },
+      {
+        "ticker": "105560",
+        "corp": "00688996",
+        "group": "current",
+        "year": 2023,
+        "fsDiv": "CFS",
+        "rows": 20,
+        "availableFrom": "2024-03-26",
+        "periodEnd": "2023-12-31",
+        "lagDays": 86,
+        "accountHits": {
+          "currentAssets": null,
+          "currentLiab": null,
+          "liabilities": "nameExact",
+          "equity": "nameExact",
+          "revenue": null,
+          "opProfit": "nameExact",
+          "netIncome": "nameContains"
+        }
+      }
+    ],
+    "fnlttSinglAcntAll": [
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2015,
+        "fsDiv": "CFS",
+        "rows": 184,
+        "availableFrom": "2016-03-30",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2016,
+        "fsDiv": "CFS",
+        "rows": 188,
+        "availableFrom": "2017-03-31",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2017,
+        "fsDiv": "CFS",
+        "rows": 197,
+        "availableFrom": "2018-04-02",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2018,
+        "fsDiv": "CFS",
+        "rows": 218,
+        "availableFrom": "2019-04-01",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2019,
+        "fsDiv": "CFS",
+        "rows": 210,
+        "availableFrom": "2020-03-30",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2020,
+        "fsDiv": "CFS",
+        "rows": 209,
+        "availableFrom": "2021-03-09",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2021,
+        "fsDiv": "CFS",
+        "rows": 186,
+        "availableFrom": "2022-03-08",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2022,
+        "fsDiv": "CFS",
+        "rows": 185,
+        "availableFrom": "2023-03-07",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2023,
+        "fsDiv": "CFS",
+        "rows": 176,
+        "availableFrom": "2024-03-12",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2024,
+        "fsDiv": "CFS",
+        "rows": 213,
+        "availableFrom": "2025-03-11",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "005930",
+        "corp": "00126380",
+        "group": "current",
+        "year": 2025,
+        "fsDiv": "CFS",
+        "rows": 229,
+        "availableFrom": "2026-03-10",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": "id",
+          "currentLiab": "id",
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": "id",
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      },
+      {
+        "ticker": "105560",
+        "corp": "00688996",
+        "group": "current",
+        "year": 2023,
+        "fsDiv": "CFS",
+        "rows": 425,
+        "availableFrom": "2024-03-26",
+        "periodEnd": null,
+        "lagDays": null,
+        "accountHits": {
+          "currentAssets": null,
+          "currentLiab": null,
+          "liabilities": "id",
+          "equity": "id",
+          "revenue": null,
+          "opProfit": "id",
+          "netIncome": "id"
+        }
+      }
+    ]
+  },
+  "perCorp": [
+    {
+      "ticker": "005930",
+      "corp": "00126380",
+      "group": "current",
+      "name": "삼성전자",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "105560",
+      "corp": "00688996",
+      "group": "current",
+      "name": "KB금융",
+      "acntReports": 3,
+      "acntAllReports": 3
+    },
+    {
+      "ticker": "003550",
+      "corp": "00120021",
+      "group": "current",
+      "name": "LG",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "068270",
+      "corp": "00413046",
+      "group": "current",
+      "name": "셀트리온",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "006360",
+      "corp": "00120030",
+      "group": "current",
+      "name": "GS건설",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "011200",
+      "corp": "00164645",
+      "group": "current",
+      "name": "HMM",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "003490",
+      "corp": "00113526",
+      "group": "current",
+      "name": "대한항공",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "015760",
+      "corp": "00159193",
+      "group": "current",
+      "name": "한국전력공사",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "017670",
+      "corp": "00159023",
+      "group": "current",
+      "name": "SK텔레콤",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "000020",
+      "corp": "00119195",
+      "group": "current",
+      "name": "동화약품",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "003380",
+      "corp": "00148364",
+      "group": "current",
+      "name": "하림지주",
+      "acntReports": 9,
+      "acntAllReports": 9
+    },
+    {
+      "ticker": "008730",
+      "corp": "00145260",
+      "group": "current",
+      "name": "율촌화학",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "017370",
+      "corp": "00142883",
+      "group": "current",
+      "name": "우신시스템",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "032850",
+      "corp": "00231707",
+      "group": "current",
+      "name": "비트컴퓨터",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "043370",
+      "corp": "00155151",
+      "group": "current",
+      "name": "피에이치에이",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "060150",
+      "corp": "00375931",
+      "group": "current",
+      "name": "인선이엔티",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "078600",
+      "corp": "00177816",
+      "group": "current",
+      "name": "대주전자재료",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "095570",
+      "corp": "00365387",
+      "group": "current",
+      "name": "AJ네트웍스",
+      "acntReports": 11,
+      "acntAllReports": 11
+    },
+    {
+      "ticker": "124560",
+      "corp": "00562245",
+      "group": "current",
+      "name": "태웅로직스",
+      "acntReports": 7,
+      "acntAllReports": 7
+    },
+    {
+      "ticker": "189330",
+      "corp": "00991298",
+      "group": "current",
+      "name": "씨이랩",
+      "acntReports": 6,
+      "acntAllReports": 6
+    },
+    {
+      "ticker": "237690",
+      "corp": "00871833",
+      "group": "current",
+      "name": "에스티팜",
+      "acntReports": 10,
+      "acntAllReports": 10
+    },
+    {
+      "ticker": "293580",
+      "corp": "00651017",
+      "group": "current",
+      "name": "나우IB",
+      "acntReports": 3,
+      "acntAllReports": 3
+    },
+    {
+      "ticker": "352940",
+      "corp": "00367871",
+      "group": "current",
+      "name": "인바이오",
+      "acntReports": 6,
+      "acntAllReports": 6
+    },
+    {
+      "ticker": "420770",
+      "corp": "00765569",
+      "group": "current",
+      "name": "기가비스",
+      "acntReports": 3,
+      "acntAllReports": 3
+    },
+    {
+      "ticker": "030270",
+      "corp": "00100258",
+      "group": "delisted",
+      "name": "에스마크",
+      "acntReports": 5,
+      "acntAllReports": 5
+    },
+    {
+      "ticker": "019590",
+      "corp": "00136642",
+      "group": "delisted",
+      "name": "에스유앤피",
+      "acntReports": 2,
+      "acntAllReports": 2
+    },
+    {
+      "ticker": "065620",
+      "corp": "00201788",
+      "group": "delisted",
+      "name": "제낙스",
+      "acntReports": 6,
+      "acntAllReports": 6
+    },
+    {
+      "ticker": "037630",
+      "corp": "00265227",
+      "group": "delisted",
+      "name": "에스비엠",
+      "acntReports": 0,
+      "acntAllReports": 0
+    },
+    {
+      "ticker": "054440",
+      "corp": "00356644",
+      "group": "delisted",
+      "name": "엠텍반도체",
+      "acntReports": 0,
+      "acntAllReports": 0
+    },
+    {
+      "ticker": "083360",
+      "corp": "00529523",
+      "group": "delisted",
+      "name": "동북아11호선박투자회사",
+      "acntReports": 2,
+      "acntAllReports": 2
+    },
+    {
+      "ticker": "128910",
+      "corp": "00828309",
+      "group": "delisted",
+      "name": "동부티에스블랙펄기업인수목적",
+      "acntReports": 0,
+      "acntAllReports": 0
+    },
+    {
+      "ticker": "262760",
+      "corp": "01212383",
+      "group": "delisted",
+      "name": "엔케이맥스",
+      "acntReports": 2,
+      "acntAllReports": 2
+    }
+  ],
+  "totalCalls": 932,
+  "elapsedSeconds": 1276.7
+}
