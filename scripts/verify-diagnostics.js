@@ -73,6 +73,35 @@ const CONTRACT = {
     // 이 플래그는 통과를 만들 수 없고 거부만 만든다.
     forbidden: ['smokeTest'],
   },
+  'A2b': {
+    file: 'data/backfill/price/a2b/_diagnostics.json',
+    required: ['pricePolicy', 'environment', 'shardCount', 'rowCount',
+               'rowCountAfterExclusion', 'calendarStart', 'calendarEnd',
+               'actualDataFrom', 'actualDataTo', 'years', 'totalGzBytes',
+               // 기대 모델의 근거를 값으로 남긴다. A2a 기준(캘린더 끝)으로 되돌아가면
+               // 누락률이 90%대로 튀는데, basis가 없으면 그것이 수집 실패로 읽힌다.
+               'expectedRowsBasis', 'expectedRows', 'missingRate',
+               'datesNotInCalendar', 'tickerContractViolations',
+               // 품질 판별은 A2a와 공유하는 계약이라 같은 관측치를 남긴다
+               'qualityExcluded', 'qualityExcludedCount', 'qualityExcludedByReason',
+               'qualityExcludedRate', 'zeroVolumeTransitions', 'suspendedGapTransitions',
+               'comparableTransitions', 'keptZeroVolumeTransitions',
+               'keptComparableTransitions',
+               // 커버리지 — 분모를 셋 다 남긴다. 후보 전체(51.6%)를 커버리지로 읽는
+               // 오독이 정찰의 핵심 경고였고, 분모가 하나만 남으면 그 오독이 되돌아온다.
+               'candidateCount', 'tickersWithData', 'tickersInAnalysisWindow',
+               'tickersOutOfAnalysisWindow', 'rawCandidateCoverageRate', 'analysisFrom',
+               'emptyCount', 'emptyRate', 'exceptionCount',
+               // exitAt 축. A1b가 비워둔 칸을 채우는 것이 A2b의 두 번째 산출물이다.
+               // dartModifyDate와의 차이 분포는 '그것이 폐지일이 아니다'의 실측이다.
+               'exitRecordCount', 'exitAtVsDartModifyDate', 'exitAtSemanticsNote',
+               // A1b 차집합의 오분류 신호(지금도 거래 중일 가능성)
+               'stillTradingSuspects', 'stillTradingSuspectCount'],
+    // A2b가 '모른다'고 선언하는 축 둘. 사라지면 하류가 추정을 확정으로 읽는다 —
+    // 확보 실패를 구간 밖으로 본 것은 가정이고, exitAt은 폐지 효력일이 아니다.
+    trueFlags: ['coverageAssumesFailuresOutOfWindow', 'exitAtIsLastTradedNotEffectiveDate'],
+    forbidden: ['smokeTest'],
+  },
   'A3': {
     file: 'data/backfill/fundamentals/a3/_diagnostics.json',
     required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',

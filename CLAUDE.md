@@ -5,12 +5,13 @@
 
 ```
 Validated against
-  정책     UN-1.2 · PR-1.3 · FN-1.2 · REG-1.4
+  정책     UN-1.2 · PR-1.4 · FN-1.2 · REG-1.4
   구현     09186a5   ← 이 문서가 검증된 마지막 구현 커밋
-  완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
-           A3 구현 완료 · 정찰 완료(FN-1.2) — 수집 미실행
-  다음     세 갈래 병행 (인수인계 §9)
-           A3 collect 3회 → finalize (배경) · A2b 구현 (우선) · A4 가용성 확인
+  완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
+           A2b 구현 완료(PR-1.4) — 수집 미실행 · A3 구현·정찰 완료 — 수집 중
+           A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
+  다음     A3 collect #2·#3 → finalize → measured 확정 → FN-1.3 승격 판단
+           A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다 — 인수인계 §9.2)
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
@@ -64,6 +65,10 @@ A5가 A1b를 인용하지 않으면 생존편향 상태로 채점되므로, 이 
 한 곳만 고치는 경로가 생긴다. 새 단계를 추가하면 이 표에 `required`·`trueFlags`를 등록한다.
 
 **정책 버전을 올리면 그 정책을 읽는 단계를 상류부터 순서대로 재실행한다.**
+단, **그 단계가 읽는 키가 바뀌었을 때**다. 같은 파일에 다른 단계용 블록이 추가된 것만으로는
+재실행하지 않는다 — 산출물이 같은데 `policyHash`만 새 버전으로 찍히면 "그 단계가 새 기능을
+썼다"는 틀린 이력이 남는다. 실례: PR-1.4(a2b 블록 추가)는 A2a를 재실행하지 않았다.
+바이트 동일성 확인이 필요하면 재실행이 아니라 별도 rebuild 검증으로 한다.
 `verifyUpstream()`은 데이터 해시만 보므로 상류 manifest의 옛 `policyHash`는 그냥 통과한다.
 재실행은 무해한 연산이 아니다 — A1a는 KIND를 다시 읽으므로 산출물이 바뀔 수 있고,
 바뀌면 하류 수치도 따라 바뀐다. 정상이며, 재실행 후 행 수 확인이 절차의 일부다.
@@ -118,6 +123,7 @@ node scripts/test-classifier.js
 node scripts/test-state-infrastructure.js
 node scripts/test-universe-a1b.js       # A1b 산출물이 있어야 한다
 python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, 산출물 불필요)
+python scripts/test-price-a2b.py        # A2b 상장기간 한정·exitAt 출처 (합성 픽스처)
 python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭 (합성 픽스처, 산출물 불필요)
 
 # 수집 스크립트 (외부 네트워크 필요)
@@ -132,6 +138,7 @@ node scripts/verify-diagnostics.js A1b
 # 게이트 검증 — 인수 조건을 강제 실패시킨다
 A1A_FAIL_INJECTION=gate-test python scripts/build-universe-a1a.py; echo "exit=$?"
 A1B_FAIL_INJECTION=gate-test python scripts/build-universe-a1b.py; echo "exit=$?"
+A2B_FAIL_INJECTION=gate-test python scripts/build-price-a2b.py --finalize; echo "exit=$?"
 A3_FAIL_INJECTION=gate-test python scripts/build-fundamentals-a3.py --finalize; echo "exit=$?"
 
 # 로컬 실행 후 반드시
@@ -147,8 +154,9 @@ git checkout -- data/
 
 | 소스 | 결과 |
 |---|---|
-| KRX 개별종목 일봉 | 가용 |
-| KRX 전종목 스냅샷 | **영구 차단** — 세션 시드 후에도 `400 LOGOUT`. 코드로 우회 불가 |
+| 개별종목 일봉 | 가용 — 단 **naver 경로다**(pykrx `adjusted:true`). KRX 아님 |
+| KRX bld 전체 (`getJsonData.cmd`) | **차단** — 전종목 스냅샷·개별종목 일봉·종목별 수급 전부 `400 LOGOUT`. 세션 시드·UA 무관 |
+| naver 종목별 수급 | HTML 2005-01까지(20행/페이지) · JSON 최근 60거래일. 기관 '합계'만 |
 | KRX 지수 | 차단 |
 | KIND 상장법인목록 | 가용 (`corpList.do?method=download&searchType=13`, 2,802행, euc-kr) |
 | KIND 상장폐지목록 | **경로 없음** — 파라미터 미반영 셸 페이지 |
@@ -208,4 +216,11 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
 51. 정찰은 답을 확인하는 절차가 아니라 전제를 뒤집는 절차다.
     A3 정찰의 성과는 계획 검증이 아니라 엔드포인트 선택을 뒤집은 것이다.
     뒤집힐 수 없게 설계된 정찰은 돌릴 이유가 없다.
+53. 실패의 정의는 단계마다 다르다. 상류에서 빌려온 서킷은 정상을 실패로 읽는다.
+    A2a의 '연속 빈 응답 20건 → 중단'을 A2b에 복사하면 정상 수집이 죽는다 —
+    A2b에서 빈 응답은 후보의 48%가 내는 기대 응답이다. 서킷은 예외만 세고,
+    빈 응답의 과다는 즉시 중단이 아니라 인수 조건이 사후에 판정한다.
+52. 대조군이 같은 경로인지 먼저 확인한다.
+    "A2a 일봉은 되는데 수급만 막혔다"로 읽었으나 pykrx는 adjusted=true면 naver로 간다.
+    대조군이 다른 호스트였다 — KRX bld는 처음부터 죽어 있었고 A2a가 그것을 안 썼을 뿐이다.
 ```

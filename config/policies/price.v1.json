@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.3",
+  "version": "PR-1.4",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -106,6 +106,71 @@
   "rollingWindow": {
     "observeOnly": true,
     "observeNote": "종목별 앞단 잘림을 관측만 하고 게이트에 쓰지 않는다. 전체 최소 날짜로 재면 안 된다 — 2026-08-05 실측에서 장기 거래정지 이력 2종목(오상헬스케어·우양에이치씨)만 2014-05-13에 닿아 1,471종목 × 2거래일 손실을 통째로 가렸다. 극단값 2개가 지표를 무력화한 사례다. 게이트로 올리지 않는 이유는 손실 구간이 analysisFrom(2016-01-01) 이전 워밍업 405거래일의 앞 2일이라 분석에 영향이 없고, 데이터 자체가 없어 복구가 불가능하기 때문이다(구간을 6주로 좁혀도 동일)."
+  },
+
+  "a2b": {
+    "note": "PR-1.4 신설. A2b(폐지분 가격)는 A2a와 소스·품질 판별을 공유하지만 세 곳이 다르다 — 기대 거래일의 끝, 빈 응답의 의미, exitAt 확정. 위의 최상위 블록(source·collectFrom·dailyChange·returnTransition·qualityExclusion)은 두 단계가 공유하고, 여기 있는 것만 A2b가 덮어쓴다. A2a가 읽는 최상위 acceptance·output·shards는 건드리지 않는다.",
+
+    "shards": 8,
+    "shardsNote": "2026-08-05 로컬 실측 종목당 약 3.4초다 — A2a의 0.3초를 그대로 적용하면 안 된다. 폐지 종목은 상장기간 전체를 한 번에 받아 응답이 크고, 소스가 요청 구간이 아니라 '오늘로부터 N일'로 동작해 12년치를 통째로 내려준다. 후보 1,222건이면 단일 실행 약 70분이라 8샤드로 약 9분이다. 일 호출 한도가 없으므로 A3식 resume은 필요 없고, 분할의 목적은 A2a와 같이 실패 시 재실행 범위 축소다.",
+
+    "circuitBreaker": {
+      "consecutiveExceptions": 20,
+      "ignoreConsecutiveEmpty": true,
+      "note": "A2a는 '연속 빈 응답 20건'에서 멈춘다. A2b에서 빈 응답은 정상이다 — 정찰 실측으로 후보 1,222건 중 591건(48.4%)이 전 구간 0행이고, 그것이 '2014-05 이전 폐지'의 기대 응답이다. 게다가 A1b 산출물은 corp 오름차순(법인등록 순)이라 옛 폐지가 뭉쳐 있어 연속 빈 응답이 자연스럽게 길어진다. 그래서 A2b의 서킷 브레이커는 예외만 센다. 빈 응답의 과다는 emptyRateWarn과 minTickersWithData가 사후에 잡는다 — 즉시 중단이 아니라 인수 조건이 판정한다."
+    },
+
+    "expectedRows": {
+      "basis": "listingPeriod",
+      "basisNote": "기대 거래일을 '실제 최초 거래일 ~ 실제 최종 거래일'로 한정한다. A2a의 기준(최초 거래일 ~ 캘린더 끝)을 그대로 쓰면 폐지 이후 구간이 통째로 누락으로 잡혀 누락률이 90%대로 나온다. 폐지 종목의 구간 끝은 캘린더의 끝이 아니라 자기 마지막 거래일이다. 이 한정이 없으면 게이트가 '데이터가 없다'와 '회사가 없어졌다'를 구분하지 못한다."
+    },
+
+    "exitAt": {
+      "source": "lastTradedDate",
+      "file": "delisted-exit.jsonl.gz",
+      "sourceNote": "A1b가 null로 비워둔 exitAt의 확정값은 확보한 마지막 거래일이다. dartModifyDate를 쓰면 안 된다 — DART 레코드 최종 수정일이라 폐지와 인과가 없다(2019년 폐지 법인이 2024년에 수정되면 2024로 잡힌다). 두 값의 차이 분포를 진단에 남겨 이 구분이 실측으로 남게 한다.",
+      "semanticsNote": "마지막 '거래일'이지 상장폐지 '효력일'이 아니다. 정리매매 종료 후 효력이 발생하므로 실제 폐지일은 이 값 이상이다. EP(BF-1.1 §6)의 구간 판정에는 충분하지만 폐지일 자체가 필요하면 DART list.json 복원이 별도로 필요하다. 이 차이를 산출물 필드명(exitAtConfirmed)과 exitAtSource로 명시한다."
+    },
+
+    "coverage": {
+      "assumesFailuresOutOfWindow": true,
+      "assumptionNote": "확보 실패 종목은 lastTraded를 모르므로 '분석 구간과 겹치는 폐지 종목'이라는 올바른 분모를 정확히 셀 수 없다. 전 구간 0행이라는 사실에서 '2014-05 이전 폐지이거나 상장 이력 없음'을 추론하고 전부 구간 밖으로 본다. 이 가정을 진단과 산출물에 스탬프로 남긴다 — 숨기면 나중에 사실로 굳는다(A1b의 listingHistoryUnverified와 같은 처리)."
+    },
+
+    "output": {
+      "dir": "data/backfill/price/a2b",
+      "shardDir": "data/backfill/price/_shards_a2b",
+      "partition": "year",
+      "format": "jsonl.gz",
+      "gzipMtime": 0,
+      "gzipCompressLevel": 9,
+      "sortKey": ["date", "ticker"],
+      "fields": ["ticker", "date", "open", "high", "low", "close", "volume"],
+      "outputNote": "A2a와 디렉터리를 분리한다. 같은 디렉터리에 쓰면 manifest 디렉터리 해시가 두 단계의 산출물을 한 덩어리로 묶어, 한쪽 재수집이 다른 쪽 하류까지 강제 재실행시킨다. 샤드 중간 산출도 _shards와 겹치지 않게 분리한다 — 같은 경로면 A2a finalize가 A2b 샤드를 병합한다."
+    },
+
+    "acceptance": {
+      "closeNonPositive": 0,
+      "highLowOrderViolations": 0,
+      "dateContractViolations": 0,
+      "datesNotInCalendar": 0,
+      "duplicateKeys": 0,
+      "tickerContractViolations": 0,
+      "residualDailyChangeViolations": 0,
+      "exitAtMissing": 0,
+      "exitAtNotTradingDay": 0,
+      "exitAtNotInTickerRows": 0,
+      "exitAtCountMismatch": 0,
+      "minTickersWithData": 600,
+      "minTickersInAnalysisWindow": 550,
+      "emptyRateWarn": 0.55,
+      "qualityExcludedRateWarn": 0.05,
+      "missingRateWarn": 0.02,
+      "perTickerMissingRateWarn": 0.10,
+      "stillTradingSuspectDaysWarn": 5
+    },
+    "acceptanceNote": "FAIL은 두 부류다. (1) 구조적으로 위반이 불가능한 것 — 날짜 계약·close>0·high>=low·중복키·캘린더 밖 날짜·ticker 계약·품질 제외 후 잔여 ±50% 위반, 그리고 exitAt 4종(소스 값·누락·캘린더 거래일 아님·그 종목의 거래일 아님·레코드 수 불일치). exitAt 검사는 '마지막 가격행과 같은가'로 두면 자기 자신을 검사하는 동어반복이라 아무것도 막지 못한다(교훈45) — 그래서 소스를 정책에서 읽어 분기시키고, dartModifyDate로 바꾸는 순간 '그 종목의 거래일이 아니다'에서 걸리게 했다. 막으려는 지름길이 실제로 시도 가능한 경로여야 게이트가 정보를 갖는다. (2) 규모 두 개 — minTickersWithData 600과 minTickersInAnalysisWindow 550이다. 이 둘을 FAIL로 두는 근거는 정찰이 표본이 아니라 후보 1,222건 전수였다는 데 있다(확보 631 · 그중 최종거래일 2016 이후 572). A3의 정찰 32법인을 게이트로 못 쓰는 것과 여기가 다른 점이 그것이다. 여유는 각각 5% · 4%로 좁게 잡는다 — 소스가 조금만 흔들려도 걸리도록 하는 것이 목적이고, 상류 게이트를 되풀이하는 임계는 정보가 없다(교훈45). 나머지는 WARN으로 시작한다: 폐지 종목의 품질 제외율·누락률에는 실측이 없다. 정리매매 구간의 가격 급변이 A2a보다 잦을 수 있으므로 qualityExcludedRateWarn을 A2a의 FAIL 임계(3%)보다 느슨한 5%에 두되 등급이 WARN이라 완화가 아니다 — 첫 수집 실측 후 PR-1.3이 밟은 경로대로 승격한다.",
+    "stillTradingNote": "stillTradingSuspectDaysWarn은 A1b 오분류를 잡는 검사다. A1b는 'A0.7 − A1a' 차집합이라 A1a가 어떤 이유로 놓친 현재 상장 종목이 폐지 후보로 들어올 수 있다. 마지막 거래일이 캘린더 끝에서 5거래일 이내면 그 종목은 폐지된 것이 아니라 지금도 거래 중일 가능성이 높다. WARN인 이유는 폐지 직전 종목이 정상적으로 여기 걸리기 때문이다 — 판정이 아니라 확인 신호다."
   },
 
   "output": {

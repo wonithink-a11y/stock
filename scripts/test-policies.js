@@ -175,6 +175,44 @@ assert.ok(!('missingRateWarn' in price.acceptance),
 assert.ok(price.measured && price.measured.missingRate <= price.acceptance.missingRateMax,
   '실측 기준선이 임계를 넘는다 — 기준선이 이미 실패 상태면 임계가 근거를 잃는다');
 
+// PR-1.4 — a2b 블록. A2a와 공유하는 것과 A2b가 덮어쓰는 것의 경계가 계약이다.
+const a2b = price.a2b;
+assert.ok(a2b, 'price에 a2b 블록 없음 — PR-1.4 미만이다');
+assert.notStrictEqual(a2b.output.dir, price.output.dir,
+  'A2a와 산출 디렉터리가 같으면 manifest 디렉터리 해시가 두 단계를 한 덩어리로 묶는다 — 한쪽 재수집이 다른 쪽 하류까지 재실행시킨다');
+assert.ok(a2b.output.shardDir && !price.output.dir.includes(a2b.output.shardDir),
+  '샤드 경로가 A2a와 겹치면 A2a finalize가 A2b 샤드를 병합한다');
+assert.strictEqual(a2b.output.gzipMtime, 0,
+  'a2b도 gzip mtime을 0으로 고정해야 manifest가 재수집 판정 기능을 유지한다');
+assert.strictEqual(a2b.expectedRows.basis, 'listingPeriod',
+  '폐지 종목의 기대 거래일은 상장기간으로 한정한다 — A2a 기준(캘린더 끝)이면 폐지 이후가 전부 누락으로 잡혀 누락률이 90%대가 된다');
+assert.strictEqual(a2b.exitAt.source, 'lastTradedDate',
+  'exitAt은 마지막 거래일에서만 온다 — dartModifyDate는 DART 레코드 수정일이라 폐지와 인과가 없다');
+assert.ok(a2b.exitAt.file.endsWith(a2b.output.format),
+  `exitAt 파일이 ${a2b.output.format}가 아니면 manifest 디렉터리 해시(targetExt) 밖에 남는다`);
+assert.strictEqual(a2b.coverage.assumesFailuresOutOfWindow, true,
+  '확보 실패를 구간 밖으로 본 것은 가정이다 — 스탬프가 없으면 나중에 사실로 굳는다');
+assert.strictEqual(a2b.circuitBreaker.ignoreConsecutiveEmpty, true,
+  'A2b에서 빈 응답은 정상 결과다(정찰 실측 591/1222) — A2a식 연속 빈 응답 서킷은 정상 수집을 멈춘다');
+assert.ok(a2b.circuitBreaker.consecutiveExceptions > 0,
+  '예외 서킷까지 없으면 루프 도중 경로가 막혀도 끝까지 돈다');
+// 규모 FAIL 둘만 정찰 실측(전수 1,222건)에 근거한다. 실측 아래여야 게이트가 의미를 갖고,
+// 너무 낮으면 상류를 되풀이하는 임계가 된다(교훈45).
+assert.ok(a2b.acceptance.minTickersWithData > 0
+  && a2b.acceptance.minTickersWithData < 631,
+  'minTickersWithData가 정찰 실측(631) 이상이면 첫 실행부터 실패한다');
+assert.ok(a2b.acceptance.minTickersInAnalysisWindow > 0
+  && a2b.acceptance.minTickersInAnalysisWindow < 572,
+  'minTickersInAnalysisWindow가 정찰 실측(572) 이상이면 첫 실행부터 실패한다');
+assert.ok(a2b.acceptance.minTickersInAnalysisWindow <= a2b.acceptance.minTickersWithData,
+  '분석 구간 내 종목은 확보 종목의 부분집합이다 — 임계가 뒤집히면 통과 불가능한 계약이 된다');
+assert.strictEqual(a2b.acceptance.residualDailyChangeViolations, 0,
+  '품질 제외 후 잔여 위반은 0이어야 한다 — A2a와 같은 판별을 쓰므로 같은 기준이다');
+assert.ok(!('exitAtMismatchLastRow' in a2b.acceptance),
+  'exitAt을 마지막 가격행과 비교하는 검사는 동어반복이라 아무것도 막지 못한다(교훈45) — 출처 계약으로 대체됐다');
+assert.ok(a2b.acceptance.qualityExcludedRateWarn > 0,
+  '폐지 종목의 품질 제외율에는 실측이 없다 — WARN으로 시작해 첫 수집 후 승격한다');
+
 // ---- dataPolicies: fundamentals (FN-1.0) ----
 const fund = load(registry.dataPolicies.fundamentals);
 assert.ok(fund.version, 'fundamentals에 version 없음');
