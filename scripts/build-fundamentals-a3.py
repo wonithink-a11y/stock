@@ -34,6 +34,7 @@ finalize가 성공하면 지운다.
 import argparse
 import glob
 import gzip
+import hashlib
 import io
 import json
 import os
@@ -107,6 +108,58 @@ def today_kst():
     return datetime.now(KST).strftime("%Y-%m-%d")
 
 
+# ── 수집 계약 ──────────────────────────────────────────────────
+def dig(obj, path):
+    for part in path.split("."):
+        obj = obj[part]
+    return obj
+
+
+def collection_contract_hash(pol):
+    """이미 모은 레코드의 내용을 결정하는 필드들의 해시.
+
+    resume 호환 판정의 단일 출처다. FN-1.2까지는 정책 version 문자열을 비교했는데,
+    그것은 '재개해도 되는가'의 대리 지표로 너무 거칠었다 — 임계 하나를 고쳐 version이
+    올라가면 8샤드의 상태가 전부 폐기되고 이미 쓴 DART 호출이 사라진다. 수집이 여러
+    날에 걸치는 단계에서는 그 폐기가 조용한 하루 손실이다.
+
+    경로 목록 자체도 해시에 넣는다. 목록을 바꾸는 것은 '무엇이 계약인가'를 바꾸는
+    일이므로 그때는 이어받지 않는 쪽(재수집)으로 틀리는 편이 안전하다.
+    """
+    spec = pol["collectionContract"]["fields"]
+    payload = {"fields": list(spec), "values": {p: dig(pol, p) for p in spec}}
+    blob = json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(blob).hexdigest()[:16]
+
+
+def run_identity():
+    """Actions 실행 식별자. 로컬 실행에서는 전건 None이다.
+
+    셋을 다 남기는 이유는 'Re-run failed jobs'가 run id를 유지하고 attempt만 올리기
+    때문이다 — id만으로는 1회차 실패인지 2회차 실패인지 갈리지 않는다.
+    상태에 None이 섞여 있으면 그것 자체가 '로컬 실행분이 커밋됐다'는 신호다
+    (CLAUDE.md 절대 규칙 4의 사후 검출).
+    """
+    def g(k):
+        return os.environ.get(k) or None
+    return {"lastAttemptRunId": g("GITHUB_RUN_ID"),
+            "lastAttemptRunNumber": g("GITHUB_RUN_NUMBER"),
+            "lastAttemptRunAttempt": g("GITHUB_RUN_ATTEMPT")}
+
+
+def is_retryable(status, pol):
+    """분류표에 없는 실패는 재시도 가능으로 본다 — 기본값이 계약이다.
+
+    반대로 두면 DART가 새 오류 코드를 내놓는 날마다 그 법인들이 조용히 '수집 불가'로
+    승격되고 복구 가능한 데이터가 영구히 버려진다.
+    """
+    fc = pol["failureClassification"]
+    if status is not None and str(status) in fc["nonRetryableStatuses"]:
+        return False
+    return bool(fc["defaultRetryable"])
+
+
 # ── DART 호출 ──────────────────────────────────────────────────
 _orig_send = requests.adapters.HTTPAdapter.send
 
@@ -131,13 +184,17 @@ def dart_call(endpoint, params, pol, counters):
 
     crtfc_key는 params로만 넘기고 로그·산출물 어디에도 남기지 않는다.
     """
+    # last_status는 '마지막 시도'의 것이어야 한다. 비-DART 실패(전송·HTTP·파싱)에서
+    # 이전 시도의 DART status가 남아 있으면 분류가 그것을 보고 오판한다 —
+    # 1차 100 → 2차 HTTP 503이면 마지막 실패는 재시도 가능인데 non-retryable이 된다.
+    # 그래서 매 시도가 두 값을 함께 덮고, 비-DART 실패는 status를 None으로 둔다.
     last_status, last_err = None, None
     for i in range(pol["retryAttempts"]):
         counters["calls"] += 1
         try:
             r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params})
         except Exception as e:  # noqa: BLE001
-            last_err = f"{type(e).__name__}: {str(e)[:150]}"
+            last_status, last_err = None, f"{type(e).__name__}: {str(e)[:150]}"
             LAST_HTTP.update(endpoint=endpoint, httpStatus=None, dartStatus=None, bytes=None)
         else:
             body = r.content or b""
@@ -146,7 +203,7 @@ def dart_call(endpoint, params, pol, counters):
                 try:
                     j = r.json()
                 except Exception as e:  # noqa: BLE001
-                    last_err = f"PARSE {type(e).__name__}: {str(e)[:150]}"
+                    last_status, last_err = None, f"PARSE {type(e).__name__}: {str(e)[:150]}"
                 else:
                     st = str(j.get("status", ""))
                     LAST_HTTP["dartStatus"] = st
@@ -159,7 +216,7 @@ def dart_call(endpoint, params, pol, counters):
                         return [], st, None
                     last_status, last_err = st, str(j.get("message", ""))[:150]
             else:
-                last_err = f"HTTP {r.status_code}"
+                last_status, last_err = None, f"HTTP {r.status_code}"
         if i < pol["retryAttempts"] - 1:
             time.sleep(pol["retryBackoffBase"] ** i)
     return [], last_status, (last_err or "unknown")
@@ -286,18 +343,47 @@ def shard_path(shard):
     return f"{SHARD_DIR}/shard-{shard}.jsonl"
 
 
+# collectionContractHash 도입 전(FN-1.2 이하)에 쓰인 상태를 이어받기 위한 표.
+# 여기 있는 버전은 '그 버전의 collectionContract 필드 값이 현재와 같다'가 대조로
+# 확인된 것만이다 — FN-1.2 → FN-1.3 diff에서 기존 줄 중 바뀐 것은 version 문자열
+# 하나뿐이었다. 확인 없이 이 표에 버전을 추가하면 다른 규칙으로 모은 레코드를
+# 이어받게 되고, 그것이 바로 이 판정이 막으려던 실패다.
+LEGACY_CONTRACT_POLICIES = {"FN-1.2"}
+
+
 def load_state(shard, shards, pol):
     p = state_path(shard)
+    contract = collection_contract_hash(pol)
     if os.path.exists(p):
         st = load_json(p)
-        if st.get("shards") == shards and st.get("fundamentalsPolicy") == pol["version"]:
+        prev = st.get("collectionContractHash")
+        if prev is None and st.get("fundamentalsPolicy") in LEGACY_CONTRACT_POLICIES:
+            # 일회성 이관. 값 대조로 계약 동일성이 확인된 버전에만 적용된다.
+            print(f"  상태 이관 — {st.get('fundamentalsPolicy')}의 수집 계약은 현재와 같다. "
+                  f"{contract}로 채운다")
+            prev = contract
+            st["collectionContractHash"] = contract
+        if st.get("shards") == shards and prev == contract:
             return st
-        # 샤드 수나 정책이 바뀌면 담당 법인 집합과 수집 규칙이 달라진다.
-        # 이어받으면 어느 규칙으로 모은 레코드인지 알 수 없으므로 버리고 다시 시작한다.
-        print(f"  이전 상태 폐기 — shards {st.get('shards')}→{shards} · "
-              f"정책 {st.get('fundamentalsPolicy')}→{pol['version']}")
+        # 담당 법인 배분(shards)이나 레코드 내용을 결정하는 계약이 바뀌면, 이미 모은
+        # 레코드가 어느 규칙에서 나온 것인지 알 수 없으므로 버리고 다시 시작한다.
+        # 판정을 정책 version이 아니라 계약 해시로 하는 이유는 반대 실패 때문이다 —
+        # 임계 하나를 고쳐 version이 올라갔다고 며칠치 수집을 버리면 안 된다.
+        if st.get("shards") != shards:
+            print(f"  이전 상태 폐기 — shards {st.get('shards')}→{shards} "
+                  f"(담당 법인 배분이 달라진다)")
+        else:
+            print(f"  이전 상태 폐기 — 수집 계약 {prev}→{contract} "
+                  f"(정책 {st.get('fundamentalsPolicy')}→{pol['version']})")
     return {"stage": "A3", "shard": shard, "shards": shards,
-            "fundamentalsPolicy": pol["version"], "corpsDone": [],
+            "collectionContractHash": contract,
+            # 이 완화로 하나의 산출물이 여러 정책 버전에 걸쳐 수집될 수 있다.
+            # 옛 판정이 암묵적으로 주던 '한 버전에서 나왔다'는 정보를 값으로 대체한다.
+            "policyVersions": [], "fundamentalsPolicy": pol["version"],
+            "corpsAssigned": 0, "corpsDone": [],
+            # 하드 실패로 0레코드인 법인. done도 아니고 남은 것도 아닌 세 번째 상태다.
+            # 이것이 없으면 그런 법인이 done에 들어가 영구히 건너뛰어진다.
+            "hardSkipped": {}, "corpsPartialHard": 0,
             "callsUsedToday": 0, "lastRunDate": None,
             # 누적 카운터. 샤드 진단은 실행마다 덮이는데 수집은 며칠에 걸치므로,
             # 전수 비율을 내려면 여기 쌓여야 한다. periodEnd를 못 읽어 버린 보고서는
@@ -306,7 +392,62 @@ def load_state(shard, shards, pol):
             # 수집이 며칠에 걸치므로 산출물은 혼합 시점 스냅샷이 된다. PIT는 깨지지 않지만
             # (각 레코드가 자기 availableFrom을 들고 있다) 재현성은 깨진다 — 재수집 시
             # 바이트가 달라졌을 때 그게 버그인지 정정공시인지 가를 근거를 여기 남긴다.
-            "runDates": [], "complete": False}
+            "runDates": []}
+
+
+# ── 완료 판정 — 저장하지 않고 매번 계산한다 ────────────────────
+#
+# 관통 원칙: 상태는 단조하게 축적되고, 판정은 언제든 다시 계산할 수 있어야 한다.
+# complete를 저장하면 승인 목록이 바뀌는 즉시 낡고, 그것을 맞추려고 상태를 다시 쓰고
+# 싶어진다. 그 유혹을 없애는 것이 이 분리의 목적이다.
+#
+#   정의     complete ≡ corpsRemaining == 0 AND hardSkippedOpen == 0
+#   파생성질 complete ⇒ corpsAssigned == corpsDone + declaredHardSkipped
+#
+# 둘은 동치가 아니다. 아래는 정의에서 따라오는 성질일 뿐이며, 이 구분을 적어두지 않으면
+# 언젠가 '정의는 그대로 두고 항등식만 맞추는' 수정이 들어온다 — 완료의 의미를 바꾸면서
+# 바꾸지 않은 것처럼 보이게 만드는 수정이다.
+def declared_gaps():
+    """승인된 공백(retryable=false 중 사람이 승인한 것). 채널은 커밋 2에서 만든다.
+
+    그때까지는 빈 집합이므로 hardSkippedOpen == hardSkipped이고, 재시도 불가 실패가
+    하나라도 나오면 finalize가 막힌다. 조용히 통과하는 것보다 낫다.
+    """
+    return set()
+
+
+def shard_status(state):
+    """상태 하나에서 완료 판정과 항등식 항을 유도한다. 사실만 읽고 아무것도 쓰지 않는다.
+
+    corpsAssigned가 없는 상태(계약 해시 도입 전에 쓰인 것)는 분모를 모른다. 0으로
+    읽으면 '남음 -1381' 같은 거짓 수치가 나오고 보존식이 손상으로 오탐된다 —
+    모르는 것은 0이 아니다. 그때는 remaining을 None으로 두고 완료를 부정한다.
+    담당 법인 수는 다음 collect 실행이 채운다.
+    """
+    assigned = state.get("corpsAssigned")
+    known = assigned is not None
+    done = len(state.get("corpsDone") or [])
+    hard = dict(state.get("hardSkipped") or {})
+    declared = declared_gaps()
+    open_hard = [c for c in hard if c not in declared]
+    remaining = (assigned - done - len(hard)) if known else None
+    return {
+        "shard": state.get("shard"),
+        "corpsAssigned": assigned,
+        "corpsAssignedKnown": known,
+        "corpsDone": done,
+        "hardSkipped": len(hard),
+        "hardSkippedOpen": len(open_hard),
+        "hardSkippedOpenCorps": sorted(open_hard),
+        "declaredHardSkipped": len(hard) - len(open_hard),
+        "corpsRemaining": remaining,
+        # 보존식이다. 사실만으로 성립하며 승인 정책이 바뀌어도 흔들리지 않는다 —
+        # 그래서 open이 아니라 hardSkipped 전체가 들어간다. open만 쓰면 승인이
+        # 하나 생기는 순간 등식이 깨진다. 분모를 모르면 잴 수 없으므로 검사에서 뺀다
+        # (통과시키는 것이 아니라 판정 대상이 아니다 — 완료가 이미 부정된다).
+        "conservationOk": (assigned == done + len(hard) + remaining) if known else True,
+        "complete": known and remaining == 0 and not open_hard,
+    }
 
 
 def save_progress(shard, state, records):
@@ -350,11 +491,17 @@ def pick_fs_div(rows, preference):
 
 
 def scan_corp(corp, ticker, pol, counters, state):
-    """한 법인의 전 사업연도. (레코드 목록, 하드에러 수, 한도초과 여부)"""
+    """한 법인의 전 사업연도. (레코드 목록, 하드실패 정보, 한도초과 여부)
+
+    하드실패를 개수가 아니라 정보로 돌려주는 이유는 호출자가 재시도 가능 여부를
+    판정해야 하기 때문이다 — 개수만으로는 '무엇이 막혔는지'를 알 수 없고,
+    "수집 경로가 막혔다"는 단일 문구가 원인을 지목하지 못한다(교훈41).
+    """
     years = range(pol["fiscalYearFrom"], pol["fiscalYearTo"] + 1)
     preference = list(pol["source"]["fsDivPreference"])
     quota_status = pol["quota"]["quotaExceededStatus"]
-    out, hard, any_found, empty_run = [], 0, False, 0
+    out, any_found, empty_run = [], False, 0
+    fail = {"count": 0, "lastStatus": None, "lastReason": None}
     sic = None
 
     for y in years:
@@ -364,9 +511,11 @@ def scan_corp(corp, ticker, pol, counters, state):
             "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
         time.sleep(pol["requestSleepSeconds"])
         if st == quota_status:
-            return out, hard, True
+            return out, fail, True
         if err:
-            hard += 1
+            fail["count"] += 1
+            fail["lastStatus"] = st
+            fail["lastReason"] = err
             year_hard = True
             counters["hardErrors"] += 1
         elif rows:
@@ -401,7 +550,7 @@ def scan_corp(corp, ticker, pol, counters, state):
             continue
         out.append(rec)
 
-    return out, hard, False
+    return out, fail, False
 
 
 def fetch_sic(corp, pol, counters):
@@ -456,9 +605,22 @@ def run_shard(shard, shards, pol, limit):
     state.setdefault("runDates", [])
     if diag["runDate"] not in state["runDates"]:
         state["runDates"].append(diag["runDate"])
+    # 이관된 상태에는 새 필드가 없다. 사실 축적형이므로 기본값으로 열어두면 되고,
+    # 여기서 지우거나 다시 계산하지 않는다(원칙 1 — 상태는 단조하게 축적된다).
+    state.setdefault("hardSkipped", {})
+    state.setdefault("corpsPartialHard", 0)
+    state.setdefault("policyVersions", [])
+    state.pop("complete", None)      # 원칙 2 — 판정은 저장하지 않는다
+    state["fundamentalsPolicy"] = pol["version"]
+    if pol["version"] not in state["policyVersions"]:
+        state["policyVersions"].append(pol["version"])
+    # 담당 법인 수는 사실이고 완료 판정의 분모다. 상태에 있어야 finalize와 persist가
+    # 샤딩을 다시 계산하지 않고도 완료를 유도할 수 있다.
+    state["corpsAssigned"] = len(mine)
     budget = (pol["quota"]["dailyCallLimit"] - pol["quota"]["safetyMarginCalls"]) // shards
 
     done = set(state["corpsDone"])
+    hard_skipped = dict(state["hardSkipped"])
     # 이전 실행의 산출을 읽되 '완료된 법인'의 것만 남긴다. 스캔 도중 죽은 법인의
     # 부분 레코드를 그대로 두면 재개분과 겹쳐 같은 키가 두 벌이 된다.
     records = {}
@@ -491,22 +653,67 @@ def run_shard(shard, shards, pol, limit):
     consec_hard, quota_hit, budget_hit = 0, False, False
     t0 = time.time()
     processed = 0
+    # 이번 실행분의 항등식 항. 누적(corpsDone)과 시계가 다르므로 한 식에 섞지 않는다 —
+    # 섞으면 이틀째부터 항상 깨진다.
+    done_added, hard_this_run, quota_deferred = 0, 0, 0
+    # 루프 진입 시점에서 센다. 출구 쪽 카운터(done_added·hard_this_run)와 세는 자리가
+    # 달라야 항등식이 무언가를 잡는다 — 같은 자리에서 세면 구성상 항상 맞는 검사가 된다.
+    attempted = 0
+    done_before = len(done)
+    ident = run_identity()
 
     for corp in todo:
         if state["callsUsedToday"] + counters["calls"] >= budget:
             budget_hit = True
             break
-        recs, hard, quota = scan_corp(corp, corps[corp]["ticker"], pol, counters, state)
+        attempted += 1
+        recs, fail, quota = scan_corp(corp, corps[corp]["ticker"], pol, counters, state)
         if quota:
+            # 한도를 만나면 부분 레코드를 버리고 즉시 멈춘다. 이 법인은 done도
+            # hardSkipped도 아닌 '연기'이며 다음 실행이 처음부터 다시 한다.
             quota_hit = True
+            quota_deferred = 1
             break
         for r in recs:
             records[rec_key(r)] = r
-        done.add(corp)
-        state["corpsDone"] = sorted(done)
         processed += 1
 
-        consec_hard = consec_hard + 1 if (hard and not recs) else 0
+        if fail["count"] and not recs:
+            # 하드 실패로 0레코드다. 여기서 done에 넣으면 그 법인은 영구히
+            # 건너뛰어지고, complete가 그것을 완료로 계산해 finalize의 미완료 검사도
+            # 통과한다 — 데이터가 빈 채로 인수 조건을 지나간다.
+            prev = hard_skipped.get(corp) or {}
+            hard_skipped[corp] = {
+                "corp": corp,
+                # attempts는 실행(일) 단위다. 정책의 retryAttempts는 한 실행 안의
+                # 재시도라, 그것까지 합치면 5가 하루치인지 닷새치인지 갈리지 않아
+                # firstSeen·lastSeen 두 타임스탬프가 무의미해진다.
+                "attempts": (prev.get("attempts") or 0) + 1,
+                "firstSeen": prev.get("firstSeen") or diag["runDate"],
+                "lastSeen": diag["runDate"],
+                "lastStatus": fail["lastStatus"],
+                "lastReason": fail["lastReason"],
+                "retryable": is_retryable(fail["lastStatus"], pol),
+                **ident,
+            }
+            hard_this_run += 1
+            consec_hard += 1
+        else:
+            # 성공했다면 이전 실행의 하드 실패 기록을 지운다. 남겨두면 done과
+            # hardSkipped가 겹쳐 보존식이 깨진다.
+            hard_skipped.pop(corp, None)
+            done.add(corp)
+            done_added += 1
+            consec_hard = 0
+            if fail["count"]:
+                # 일부 연도만 실패하고 레코드는 나온 법인. done으로 두되(그 법인의
+                # 재무는 확보됐다) 몇 건인지는 남긴다 — 세지 않으면 부분 공백이
+                # 완전 수집과 구분되지 않는다.
+                state["corpsPartialHard"] = state.get("corpsPartialHard", 0) + 1
+
+        state["corpsDone"] = sorted(done)
+        state["hardSkipped"] = hard_skipped
+
         if consec_hard >= pol["circuitBreakerConsecutiveFailures"]:
             fold_counters(state, counters)
             save_progress(shard, state, records)
@@ -525,12 +732,20 @@ def run_shard(shard, shards, pol, limit):
                   f"호출 {state['callsUsedToday']} · {time.time()-t0:.0f}s")
 
     fold_counters(state, counters)
-    state["complete"] = len(done) >= len(mine)
     save_progress(shard, state, records)
 
+    status = shard_status(state)
+    # 실행 항등식. corpsAttempted는 이번 실행분이고 corpsDone은 누적이라 시계가 다르다 —
+    # 한 식에 섞으면 이틀째부터 항상 깨진다. quotaDeferred는 0 또는 1이다
+    # (한도를 만나면 즉시 break하고 부분 레코드는 버린다).
+    # 두 번째 항은 done 집합의 실제 증가분과 대조한다. 카운터가 아니라 집합을 보므로
+    # 같은 법인이 두 번 세어지거나 다른 경로로 done에 들어가는 것을 잡는다.
+    run_identity_ok = (attempted == done_added + hard_this_run + quota_deferred
+                       and len(done) - done_before == done_added)
     diag.update(
-        corpsAssigned=len(mine), corpsDone=len(done), corpsProcessed=processed,
-        recordCount=len(records), calls=state["callsUsedToday"], budget=budget,
+        corpsAssigned=status["corpsAssigned"], corpsDone=status["corpsDone"],
+        corpsProcessed=processed, recordCount=len(records),
+        calls=state["callsUsedToday"], budget=budget,
         dartStatus=dict(counters["dartStatus"]), hardErrors=counters["hardErrors"],
         earlyStopped=counters["earlyStopped"], sicFetchFailed=counters["sicFetchFailed"],
         # 진단은 이 실행의 기록이고 누적은 상태에 있다. 둘을 섞으면 며칠에 걸친
@@ -538,17 +753,86 @@ def run_shard(shard, shards, pol, limit):
         reportsFoundCumulative=state["reportsFound"],
         recordRejectedCumulative=dict(state["recordRejected"]),
         quotaExceeded=quota_hit, budgetExhausted=budget_hit,
-        complete=state["complete"], elapsedSeconds=round(time.time() - t0, 1))
+        # 완료는 계산값이다(원칙 2). 상태에 저장하지 않고 여기서 유도한다.
+        collectionContractHash=state["collectionContractHash"],
+        policyVersions=list(state["policyVersions"]),
+        hardSkipped=status["hardSkipped"], hardSkippedOpen=status["hardSkippedOpen"],
+        hardSkippedDetail=state["hardSkipped"],
+        corpsPartialHard=state.get("corpsPartialHard", 0),
+        corpsRemaining=status["corpsRemaining"],
+        conservationOk=status["conservationOk"],
+        corpsAttemptedThisRun=attempted, doneAddedThisRun=done_added,
+        hardSkippedThisRun=hard_this_run, quotaDeferred=quota_deferred,
+        runIdentityOk=run_identity_ok,
+        complete=status["complete"], elapsedSeconds=round(time.time() - t0, 1))
     with open(f"{SHARD_DIR}/_diagnostics-shard-{shard}.json", "w",
               encoding="utf-8", newline="\n") as f:
         json.dump(diag, f, ensure_ascii=False, indent=2)
 
-    tail = ("완료" if state["complete"] else
+    tail = ("완료" if status["complete"] else
             "한도 초과 — 다음 실행이 이어받는다" if quota_hit else
-            "오늘 예산 소진 — 다음 실행이 이어받는다" if budget_hit else "중단(원인 미상)")
+            "오늘 예산 소진 — 다음 실행이 이어받는다" if budget_hit else
+            f"재시도 대기 {status['hardSkippedOpen']}법인" if status["hardSkippedOpen"] else
+            "중단(원인 미상)")
     print(f"\n{shard_path(shard)} — {len(records)}레코드 · "
-          f"법인 {len(done)}/{len(mine)} · 호출 {state['callsUsedToday']} · {tail}")
+          f"법인 {status['corpsDone']}/{status['corpsAssigned']} · "
+          f"하드스킵 {status['hardSkipped']}(열림 {status['hardSkippedOpen']}) · "
+          f"남음 {status['corpsRemaining']} · 호출 {state['callsUsedToday']} · {tail}")
+    if not status["conservationOk"]:
+        print("  경고: 보존식 위반 — "
+              f"assigned {status['corpsAssigned']} != done {status['corpsDone']} + "
+              f"hardSkipped {status['hardSkipped']} + remaining {status['corpsRemaining']}")
+    if not run_identity_ok:
+        print(f"  경고: 실행 항등식 위반 — attempted {attempted} vs "
+              f"done+{done_added} / hardSkip+{hard_this_run} / quotaDeferred "
+              f"{quota_deferred} · done 집합 증가분 {len(done) - done_before}")
     # 예산 소진은 실패가 아니라 정상적인 분할 실행이다. exit(1)을 내면 매일 빨간 불이 된다.
+    return 0
+
+
+def run_summary():
+    """샤드 상태를 읽어 진행을 요약한다. 읽기 전용이며 아무것도 쓰지 않는다.
+
+    워크플로가 이것을 부르는 이유는 완료 판정이 계산값이 되면서다 — YAML 안에
+    같은 계산을 다시 적으면 계약이 두 벌이 되고 둘이 같이 틀린다(교훈44).
+    """
+    states = sorted(glob.glob(f"{SHARD_DIR}/_state-*.json"))
+    if not states:
+        print("샤드 상태 없음 — 수집을 아직 돌리지 않았다")
+        return 0
+    tot = Counter()
+    complete, unknown = 0, 0
+    for p in states:
+        st = load_json(p)
+        s = shard_status(st)
+        complete += 1 if s["complete"] else 0
+        for k in ("corpsDone", "hardSkipped", "hardSkippedOpen"):
+            tot[k] += s[k]
+        if s["corpsAssignedKnown"]:
+            tot["corpsAssigned"] += s["corpsAssigned"]
+            tot["corpsRemaining"] += s["corpsRemaining"]
+        else:
+            unknown += 1
+        tot["calls"] += st.get("callsUsedToday", 0)
+        tot["partialHard"] += st.get("corpsPartialHard", 0)
+    recs = sum(sum(1 for _ in open(p, encoding="utf-8"))
+               for p in sorted(glob.glob(f"{SHARD_DIR}/shard-*.jsonl")))
+    denom = "?" if unknown else tot["corpsAssigned"]
+    print(f"법인 완료 {tot['corpsDone']}/{denom} · 레코드 {recs} · "
+          f"오늘 호출 {tot['calls']} · 완료 샤드 {complete}/{len(states)}")
+    print(f"하드스킵 {tot['hardSkipped']}(미승인 {tot['hardSkippedOpen']}) · "
+          f"부분실패 {tot['partialHard']} · "
+          f"남음 {'?' if unknown else tot['corpsRemaining']}")
+    if unknown:
+        print(f"  샤드 {unknown}개가 담당 법인 수를 모른다 — 계약 해시 도입 전에 쓰인 "
+              f"상태다. 다음 collect 실행이 채운다")
+    if complete == len(states):
+        print("전 샤드 완료 — finalize를 돌려라")
+    elif tot["hardSkippedOpen"]:
+        print("collect를 다시 dispatch하면 이어받는다. 미승인 하드스킵은 재시도되며, "
+              "재시도 불가로 분류된 것만 승인 대상이다")
+    else:
+        print("collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)")
     return 0
 
 
@@ -782,15 +1066,45 @@ def run_finalize(pol):
     # 부분 수집물에 manifest가 찍힌다 — manifest는 '인수 조건을 통과했다'는 뜻이다(교훈43).
     incomplete, run_dates = [], set()
     reports_found, rejected = 0, Counter()
+    hard_all, open_all, partial_hard = {}, [], 0
+    pol_versions, contract_hashes, conservation_bad = set(), set(), []
     for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
         st = load_json(p)
         run_dates.update(st.get("runDates") or [])
         reports_found += st.get("reportsFound", 0)
         rejected.update(st.get("recordRejected") or {})
-        if not st.get("complete"):
-            incomplete.append({"shard": st.get("shard"),
-                               "done": len(st.get("corpsDone", []))})
+        pol_versions.update(st.get("policyVersions") or
+                            ([st["fundamentalsPolicy"]] if st.get("fundamentalsPolicy") else []))
+        if st.get("collectionContractHash"):
+            contract_hashes.add(st["collectionContractHash"])
+        hard_all.update(st.get("hardSkipped") or {})
+        partial_hard += st.get("corpsPartialHard", 0)
+        # 완료는 상태에 저장돼 있지 않다. 현재 상태 + 현재 승인 목록에서 매번 유도한다 —
+        # 저장하면 승인 목록이 바뀌는 즉시 낡는다(원칙 2).
+        s = shard_status(st)
+        open_all.extend(s["hardSkippedOpenCorps"])
+        if not s["conservationOk"]:
+            conservation_bad.append({"shard": s["shard"], "assigned": s["corpsAssigned"],
+                                     "done": s["corpsDone"], "hardSkipped": s["hardSkipped"],
+                                     "remaining": s["corpsRemaining"]})
+        if not s["complete"]:
+            incomplete.append({"shard": s["shard"], "done": s["corpsDone"],
+                               # None이면 '아직 모른다'다. 0으로 읽으면 안 된다.
+                               "remaining": s["corpsRemaining"],
+                               "assignedKnown": s["corpsAssignedKnown"],
+                               "hardSkippedOpen": s["hardSkippedOpen"]})
     diag["shardStatesIncomplete"] = incomplete
+    # 수집이 여러 정책 버전에 걸칠 수 있게 됐으므로(FN-1.3 collectionContract),
+    # 어느 버전들이 이 산출물을 만들었는지가 값으로 남아야 한다.
+    diag["collectionPolicyVersions"] = sorted(pol_versions)
+    diag["collectionContractHashes"] = sorted(contract_hashes)
+    diag["corpsHardSkipped"] = len(hard_all)
+    diag["corpsHardSkippedOpen"] = len(open_all)
+    diag["hardSkippedDetail"] = hard_all
+    diag["hardSkippedByRetryable"] = dict(Counter(
+        ("retryable" if v.get("retryable") else "nonRetryable") for v in hard_all.values()))
+    diag["corpsPartialHard"] = partial_hard
+    diag["stateConservationViolations"] = conservation_bad
     # 확보한 보고서 대비 레코드로 살아남은 비율. 이 분모는 산출물에 없다 —
     # 버려진 보고서는 흔적을 남기지 않으므로 여기서만 셀 수 있다.
     diag["reportsFound"] = reports_found
@@ -804,9 +1118,26 @@ def run_finalize(pol):
     diag["collectionWindow"] = {"from": rd[0] if rd else None,
                                 "to": rd[-1] if rd else None,
                                 "runDays": len(rd)}
+    if conservation_bad:
+        # 사실의 보존식이 깨졌다는 것은 상태가 손상됐다는 뜻이다. 완료 판정보다 먼저
+        # 본다 — 분해가 안 맞는 상태에서 내린 완료는 의미가 없다.
+        _abort(f"상태 보존식 위반 샤드 {len(conservation_bad)}개 {conservation_bad} — "
+               f"corpsAssigned = corpsDone + hardSkipped + corpsRemaining이 성립해야 한다",
+               diag, diag_path)
+    if len(contract_hashes) > 1:
+        _abort(f"샤드들이 서로 다른 수집 계약으로 모았다 {sorted(contract_hashes)} — "
+               f"한 산출물에 다른 규칙의 레코드가 섞인다", diag, diag_path)
     if incomplete:
-        _abort(f"아직 담당분을 마치지 않은 샤드 {len(incomplete)}개 {incomplete} — "
-               f"수집을 이어서 돌려라", diag, diag_path)
+        # 미완료의 사유가 둘로 갈린다. '아직 안 돌렸다'는 collect를 더 돌리면 되지만,
+        # hardSkippedOpen은 재시도로 안 풀릴 수 있다 — retryable=false면 사람의 승인
+        # (커밋 2의 declared-gaps 채널)이 있어야 닫힌다.
+        blocked = [x for x in incomplete if x["hardSkippedOpen"]]
+        hint = ("수집을 이어서 돌려라" if not blocked else
+                f"그중 {len(blocked)}개는 미승인 하드스킵이 있다 — "
+                f"재시도 불가 {diag['hardSkippedByRetryable'].get('nonRetryable', 0)}건은 "
+                f"승인 채널이 필요하다")
+        _abort(f"아직 담당분을 마치지 않은 샤드 {len(incomplete)}개 {incomplete} — {hint}",
+               diag, diag_path)
 
     rows = []
     for p in shard_files:
@@ -897,6 +1228,8 @@ def main() -> int:
     ap.add_argument("--shard", type=int)
     ap.add_argument("--shards", type=int)
     ap.add_argument("--finalize", action="store_true")
+    ap.add_argument("--summary", action="store_true",
+                    help="샤드 상태에서 진행을 요약한다(읽기 전용). 워크플로가 쓴다")
     ap.add_argument("--limit", type=int, default=0,
                     help="스모크 테스트용. 진단에 smokeTest 플래그가 박히고 CI가 거부한다")
     args = ap.parse_args()
@@ -910,6 +1243,8 @@ def main() -> int:
             print(f"{p} 없음 — 상류 단계(A1a·A1b)를 먼저 실행하라")
             return 1
 
+    if args.summary:
+        return run_summary()
     if args.finalize:
         return run_finalize(pol)
     if args.shard is None:

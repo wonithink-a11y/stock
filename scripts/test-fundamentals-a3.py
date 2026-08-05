@@ -358,6 +358,199 @@ os.environ.pop("A3_FAIL_INJECTION")
 f, w, d = run_validate(healthy_rows())
 ok("훅을 끄면 다시 통과한다 (한 방향 훅이다)", not f, str(f))
 
+# ── resume 무결성 (FN-1.3) ────────────────────────────────────
+# 여기서 지키는 것은 PIT가 아니라 상태다. 조용히 무너지는 방식이 같다 — 하드 실패로
+# 0레코드인 법인이 '완료'로 기록되면 점수도 등급도 정상으로 보이고, 그 법인의 재무만
+# 영원히 비어 있다. 진단에도 흔적이 남지 않는다(그 법인은 done에 있으니까).
+import copy
+import shutil
+import tempfile
+
+print("\n[실패 분류 — 기본값이 계약이다]")
+ok("100·101은 재시도 불가 (파라미터 계약 위반이라 같은 답이 온다)",
+   not m.is_retryable("100", POL) and not m.is_retryable("101", POL))
+ok("800·900은 재시도 가능", m.is_retryable("800", POL) and m.is_retryable("900", POL))
+ok("전송 실패(status 없음)는 재시도 가능", m.is_retryable(None, POL))
+ok("분류표에 없는 새 status는 재시도 가능 — 모르는 실패는 '못 한다'가 아니다",
+   m.is_retryable("777", POL))
+
+print("\n[수집 계약 해시]")
+base = m.collection_contract_hash(POL)
+bumped = copy.deepcopy(POL)
+bumped["version"] = "FN-9.9"
+bumped["acceptance"]["coverageRateMinWarn"] = 0.42
+bumped["quota"]["safetyMarginCalls"] = 9999
+ok("정책 version·임계만 바뀌면 계약 해시는 그대로 — 며칠치 수집을 버리지 않는다",
+   m.collection_contract_hash(bumped) == base)
+changed = copy.deepcopy(POL)
+changed["fiscalYearFrom"] = 2016
+ok("레코드 내용을 바꾸는 필드가 바뀌면 계약 해시가 달라진다",
+   m.collection_contract_hash(changed) != base)
+changed2 = copy.deepcopy(POL)
+changed2["accounts"]["spec"]["equity"]["exact"] = ["자본총계", "자본"]
+ok("계정 매칭 규칙 변경도 계약 변경이다",
+   m.collection_contract_hash(changed2) != base)
+shrunk = copy.deepcopy(POL)
+shrunk["collectionContract"]["fields"] = POL["collectionContract"]["fields"][:-1]
+ok("경로 목록 자체가 바뀌면 해시가 달라진다 (보수적 방향 = 재수집)",
+   m.collection_contract_hash(shrunk) != base)
+
+print("\n[완료 판정 — 저장하지 않고 계산한다]")
+st = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(10)],
+      "hardSkipped": {}}
+ok("담당분을 다 모으면 완료", m.shard_status(st)["complete"])
+st2 = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(9)],
+       "hardSkipped": {"00000009": {"retryable": True}}}
+s2 = m.shard_status(st2)
+ok("미승인 하드스킵이 있으면 완료가 아니다 (남은 것이 0이어도)",
+   s2["corpsRemaining"] == 0 and s2["hardSkippedOpen"] == 1 and not s2["complete"], str(s2))
+ok("보존식은 승인과 무관하게 성립한다 (사실을 먼저 보존하고 그다음 분해한다)",
+   s2["conservationOk"], str(s2))
+st3 = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(5)],
+       "hardSkipped": {}}
+ok("아직 안 돈 법인이 남으면 완료가 아니다", not m.shard_status(st3)["complete"])
+# 분모를 모르는 상태(계약 해시 도입 전)를 0으로 읽으면 '남음 -1381' 같은 거짓 수치가
+# 나오고, 보존식이 상태 손상으로 오탐된다. 모르는 것은 0이 아니다.
+s4 = m.shard_status({"shard": 0, "corpsDone": ["00000001"], "hardSkipped": {}})
+ok("담당 법인 수를 모르면 남은 수가 None이고 완료가 부정된다",
+   s4["corpsRemaining"] is None and not s4["complete"]
+   and not s4["corpsAssignedKnown"], str(s4))
+ok("분모를 모르는 것은 보존식 위반이 아니다 (잴 수 없는 것과 틀린 것은 다르다)",
+   s4["conservationOk"], str(s4))
+
+print("\n[수집 루프 — done.add가 hard를 본다]")
+
+
+def fake_run(tmp, script, prev_state=None):
+    """run_shard를 네트워크 없이 돌린다. scan_corp만 갈아끼우고 나머지는 실물이다 —
+    분기를 흉내 내면 그 분기가 실제로 실행되는지는 검증하지 못한다."""
+    m.SHARD_DIR = tmp
+    m.KEY = "test-key"
+    corps = {c: {"ticker": "000001", "group": "current"} for c in script}
+    m.target_corps = lambda: corps
+    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None)
+    if prev_state is not None:
+        os.makedirs(tmp, exist_ok=True)
+        json.dump(prev_state, open(f"{tmp}/_state-0.json", "w", encoding="utf-8"))
+
+    def fake_scan(corp, ticker, pol, counters, state):
+        return script[corp]
+    m.scan_corp = fake_scan
+    real_sleep = m.time.sleep
+    m.time.sleep = lambda *a: None      # m.time은 실제 time 모듈이다 — 반드시 되돌린다
+    try:
+        with redirect_stdout(io.StringIO()) as buf:
+            rc = m.run_shard(0, 1, copy.deepcopy(POL), 0)
+    finally:
+        m.time.sleep = real_sleep
+    return rc, json.load(open(f"{tmp}/_state-0.json", encoding="utf-8")), buf.getvalue()
+
+
+NO_FAIL = {"count": 0, "lastStatus": None, "lastReason": None}
+HARD = {"count": 1, "lastStatus": None, "lastReason": "HTTP 503"}
+HARD_PERM = {"count": 1, "lastStatus": "100", "lastReason": "부적절한 값"}
+
+
+def rec_for(corp):
+    return {"corp": corp, "ticker": "000001", "fiscalYear": 2020,
+            "availableFrom": "2021-03-31", "periodEnd": "2020-12-31"}
+
+
+tmp = tempfile.mkdtemp()
+try:
+    script = {
+        "00000001": ([rec_for("00000001")], NO_FAIL, False),   # 정상
+        "00000002": ([], HARD, False),                          # 하드 실패 0레코드
+        "00000003": ([rec_for("00000003")], HARD, False),        # 일부 연도만 실패
+    }
+    rc, st, log = fake_run(tmp, script)
+    ok("하드 실패로 0레코드인 법인은 done에 들어가지 않는다",
+       "00000002" not in st["corpsDone"], str(st["corpsDone"]))
+    ok("그 법인은 hardSkipped에 남는다 (done도 남은 것도 아닌 세 번째 상태)",
+       "00000002" in st["hardSkipped"], str(list(st["hardSkipped"])))
+    ok("레코드가 나온 법인은 done이다",
+       "00000001" in st["corpsDone"] and "00000003" in st["corpsDone"])
+    ok("일부 연도만 실패한 법인은 done이되 부분실패로 센다",
+       st["corpsPartialHard"] == 1, str(st["corpsPartialHard"]))
+    hs = st["hardSkipped"]["00000002"]
+    ok("hardSkipped는 사유와 재시도 가능 여부를 남긴다",
+       hs["lastReason"] == "HTTP 503" and hs["retryable"] is True, str(hs))
+    ok("attempts는 1에서 시작하고 firstSeen·lastSeen이 같다",
+       hs["attempts"] == 1 and hs["firstSeen"] == hs["lastSeen"], str(hs))
+    ok("complete는 상태 파일에 저장되지 않는다", "complete" not in st, str(list(st)))
+    ok("미완료다 — 미승인 하드스킵이 남아 있다",
+       not m.shard_status(st)["complete"] and m.shard_status(st)["hardSkippedOpen"] == 1)
+    ok("보존식이 성립한다 (assigned = done + hardSkipped + remaining)",
+       m.shard_status(st)["conservationOk"], str(m.shard_status(st)))
+
+    # 두 번째 실행 — 재시도되고 성공하면 hardSkipped에서 빠진다
+    script2 = dict(script)
+    script2["00000002"] = ([rec_for("00000002")], NO_FAIL, False)
+    read_paths = []
+    orig_load = m.load_json
+
+    def spy_load(path):
+        read_paths.append(str(path))
+        return orig_load(path)
+    m.load_json = spy_load
+    rc, st2, log2 = fake_run(tmp, script2)
+    m.load_json = orig_load
+    ok("재시도해 성공하면 done으로 옮겨진다",
+       "00000002" in st2["corpsDone"], str(st2["corpsDone"]))
+    ok("성공하면 hardSkipped에서 지워진다 (안 지우면 두 집합이 겹쳐 보존식이 깨진다)",
+       "00000002" not in st2["hardSkipped"], str(list(st2["hardSkipped"])))
+    ok("이제 완료다", m.shard_status(st2)["complete"], str(m.shard_status(st2)))
+    # 원칙 3 — resume은 diagnostics를 읽지 않는다. 문장으로만 두면 다음 사람이
+    # 편의상 진단을 읽어도 아무도 모른다.
+    ok("resume 경로가 _diagnostics를 읽지 않는다 (운영 계약과 진단 계약의 분리)",
+       not any("_diagnostics" in p for p in read_paths),
+       str([p for p in read_paths if "_diagnostics" in p]))
+
+    # 재시도 불가 실패는 승인 없이는 안 닫힌다
+    tmp2 = tempfile.mkdtemp()
+    rc, st3, _ = fake_run(tmp2, {"00000004": ([], HARD_PERM, False)})
+    ok("재시도 불가(100)로 분류된다",
+       st3["hardSkipped"]["00000004"]["retryable"] is False,
+       str(st3["hardSkipped"]["00000004"]))
+    ok("승인 채널이 없으므로 열린 채로 남는다 (조용히 통과하는 것보다 낫다)",
+       m.shard_status(st3)["hardSkippedOpen"] == 1)
+    shutil.rmtree(tmp2, ignore_errors=True)
+
+    print("\n[상태 이관 — 버전 승격이 수집을 버리지 않는다]")
+    tmp3 = tempfile.mkdtemp()
+    m.SHARD_DIR = tmp3
+    legacy = {"stage": "A3", "shard": 0, "shards": 1, "fundamentalsPolicy": "FN-1.2",
+              "corpsDone": ["00000001"], "callsUsedToday": 0, "lastRunDate": None,
+              "reportsFound": 3, "recordRejected": {}, "runDates": ["2026-08-05"],
+              "complete": False}
+    os.makedirs(tmp3, exist_ok=True)
+    json.dump(legacy, open(f"{tmp3}/_state-0.json", "w", encoding="utf-8"))
+    with redirect_stdout(io.StringIO()):
+        got = m.load_state(0, 1, POL)
+    ok("계약 해시 도입 전(FN-1.2) 상태를 이어받는다 — 1,381법인이 버려지지 않는다",
+       got["corpsDone"] == ["00000001"] and got["reportsFound"] == 3, str(got))
+    ok("이관 시 현재 계약 해시가 채워진다",
+       got["collectionContractHash"] == base, str(got.get("collectionContractHash")))
+    json.dump({**legacy, "fundamentalsPolicy": "FN-0.9"},
+              open(f"{tmp3}/_state-0.json", "w", encoding="utf-8"))
+    with redirect_stdout(io.StringIO()):
+        got2 = m.load_state(0, 1, POL)
+    ok("대조하지 않은 옛 버전은 이관하지 않는다 (다른 규칙의 레코드를 이어받는 경로)",
+       got2["corpsDone"] == [], str(got2["corpsDone"]))
+    json.dump({**legacy, "collectionContractHash": "sha256:deadbeefdeadbeef"},
+              open(f"{tmp3}/_state-0.json", "w", encoding="utf-8"))
+    with redirect_stdout(io.StringIO()):
+        got3 = m.load_state(0, 1, POL)
+    ok("계약 해시가 다르면 폐기한다 (레코드 내용 규칙이 바뀐 경우)",
+       got3["corpsDone"] == [], str(got3["corpsDone"]))
+    with redirect_stdout(io.StringIO()):
+        got4 = m.load_state(0, 4, POL)
+    ok("샤드 수가 바뀌어도 폐기한다 (담당 법인 배분이 달라진다)",
+       got4["corpsDone"] == [], str(got4["corpsDone"]))
+    shutil.rmtree(tmp3, ignore_errors=True)
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
 print(f"\n{'='*54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)

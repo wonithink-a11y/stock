@@ -138,7 +138,23 @@ const CONTRACT = {
                // 않으므로 산출물에는 흔적이 없다 — 확보 보고서의 절반을 잃어도
                // periodEndMissing은 0이다. 분모가 남지 않는 손실이라 여기서만 보인다.
                'reportsFound', 'recordRejected', 'periodEndParsedRate',
-               'tickerContractViolations'],
+               'tickerContractViolations',
+               // 수집 계약(FN-1.3). resume 판정을 정책 version이 아니라 계약 해시로
+               // 바꾸면서 하나의 산출물이 여러 정책 버전에 걸칠 수 있게 됐다 —
+               // 어느 버전들이 이것을 만들었는지가 값으로 남아야 그 완화가 기록을
+               // 잃지 않는다. 해시가 둘 이상이면 다른 규칙의 레코드가 섞인 것이다.
+               'collectionPolicyVersions', 'collectionContractHashes',
+               // 하드 실패로 0레코드인 법인. done도 남은 것도 아닌 세 번째 상태이며,
+               // 이 칸이 없으면 그런 법인이 완료로 계산되어 빈 데이터가 게이트를
+               // 그대로 지나간다. 승인 여부(open)와 재시도 가능 여부를 함께 남긴다 —
+               // retryable=true는 아직 모르는 것이지 못 하는 것이 아니다.
+               'corpsHardSkipped', 'corpsHardSkippedOpen', 'hardSkippedByRetryable',
+               // 일부 연도만 실패하고 레코드는 나온 법인. 세지 않으면 부분 공백이
+               // 완전 수집과 구분되지 않는다.
+               'corpsPartialHard',
+               // 사실의 보존식(assigned = done + hardSkipped + remaining) 위반.
+               // 비어 있어야 정상이고, 비어 있다는 것 자체가 기록이다.
+               'stateConservationViolations'],
     // sicCode는 '현재의 업종'이라 전 사업연도에 같은 값이 붙는다. A3가 모르는 축이다.
     trueFlags: ['sectorNotPointInTime'],
     forbidden: ['smokeTest'],

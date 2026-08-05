@@ -272,6 +272,41 @@ assert.strictEqual(fund.acceptance.periodEndParsedRateMin,
   fund.probeAcceptance.periodEndParsedRateMin,
   '정찰과 수집의 임계가 갈라졌다 — 정찰이 통과시킨 소스를 수집이 거부하게 된다');
 
+// FN-1.3 — 수집 계약. resume 판정을 정책 version 문자열에서 떼어낸다.
+// 그 판정은 재개 가능성의 대리 지표로 너무 거칠어서, 임계 하나를 고쳐 version이
+// 올라가면 며칠치 수집이 조용히 폐기됐다(실측 1,381법인·16,050호출이 그 경로에 있었다).
+assert.ok(Array.isArray(fund.collectionContract && fund.collectionContract.fields)
+       && fund.collectionContract.fields.length > 0,
+  'collectionContract.fields가 없다 — resume 호환 판정의 단일 출처가 사라지면 정책 version으로 되돌아가고, 그때 폐기되는 것은 이미 쓴 DART 호출이다');
+for (const p of fund.collectionContract.fields) {
+  const v = p.split('.').reduce((o, k) => (o === undefined ? o : o[k]), fund);
+  assert.ok(v !== undefined, `collectionContract.fields의 ${p}가 정책에 없다 — 해시가 undefined를 먹고 조용히 안정된다`);
+}
+// 여기 없어야 하는 것들. 들어가는 순간 '임계를 고치면 수집을 버린다'가 되돌아온다 —
+// 이 목록은 이미 모은 레코드의 내용을 결정하는 필드만이어야 한다.
+for (const p of ['acceptance', 'quota', 'probeCorps', 'failureClassification',
+                 'retryAttempts', 'output', 'shards']) {
+  assert.ok(!fund.collectionContract.fields.some(f => f === p || f.startsWith(`${p}.`)),
+    `collectionContract.fields에 ${p}가 있다 — 그것은 앞으로의 결정이나 finalize의 판정이지 이미 디스크에 있는 레코드의 유효성이 아니다`);
+}
+// 레코드 내용을 결정하는 축은 반드시 들어 있어야 한다. 빠지면 다른 규칙으로 모은
+// 레코드를 이어받게 되고, 그것이 이 판정이 애초에 막으려던 실패다.
+for (const p of ['source.endpoint', 'fiscalYearFrom', 'fiscalYearTo', 'accounts.spec']) {
+  assert.ok(fund.collectionContract.fields.includes(p),
+    `collectionContract.fields에 ${p}가 없다 — 이 값이 달랐다면 어제 그 법인에서 다른 레코드가 나왔다`);
+}
+
+// 실패 분류 — 기본값이 계약이다. 반대로 두면 DART가 새 오류 코드를 내놓는 날마다
+// 그 법인들이 조용히 '수집 불가'로 승격되고 복구 가능한 데이터가 영구히 버려진다.
+assert.strictEqual(fund.failureClassification.defaultRetryable, true,
+  '분류표에 없는 실패의 기본값이 재시도 불가다 — 모르는 실패는 아직 모르는 것이지 못 하는 것이 아니다');
+assert.ok(Array.isArray(fund.failureClassification.nonRetryableStatuses),
+  'nonRetryableStatuses가 배열이 아니다');
+for (const s of [fund.quota.quotaExceededStatus, '013']) {
+  assert.ok(!fund.failureClassification.nonRetryableStatuses.includes(s),
+    `${s}는 하드 실패가 아니다 — 한도 초과는 다음 실행이 이어받고 데이터 없음은 정상 사실이다. 여기 넣으면 정상 경로가 공백으로 승격된다`);
+}
+
 assert.ok(fund.fiscalYearFrom >= 2015,
   'fnlttSinglAcntAll은 2015 사업연도부터 제공된다 — 그 이전을 요구하면 전건 013이 된다');
 assert.ok(fund.fiscalYearTo >= fund.fiscalYearFrom, 'fiscalYear 구간이 뒤집혔다');

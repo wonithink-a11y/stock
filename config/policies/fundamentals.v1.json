@@ -1,5 +1,5 @@
 {
-  "version": "FN-1.2",
+  "version": "FN-1.3",
   "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다.",
   "market": "KR",
 
@@ -28,11 +28,40 @@
   "shards": 8,
   "shardsNote": "실행 축이다. 저장 축은 fiscalYear별 파일이라 샤드 수를 바꿔도 산출물 바이트가 바뀌지 않는다(A2a와 동일한 분리). 법인은 corp 정렬 후 라운드로빈으로 분배한다 — 연속 구간으로 자르면 폐지 법인이 특정 샤드에 몰려 소요와 실패율이 크게 갈린다.",
 
+  "collectionContract": {
+    "fields": [
+      "source.endpoint",
+      "source.reprtCode",
+      "source.fsDivPreference",
+      "source.companyEndpoint",
+      "fiscalYearFrom",
+      "fiscalYearTo",
+      "accounts.matchOrder",
+      "accounts.spec",
+      "stopAfterConsecutiveEmptyYears"
+    ],
+    "note": "resume 호환 판정의 단일 출처다. FN-1.2까지는 '정책 version 문자열이 같은가'로 판정했는데, 그것은 재개 가능성의 blunt한 대리 지표였다 — 수집이 여러 날에 걸치는 단계에서 임계 하나만 고쳐도 version이 올라가고, 그 순간 8샤드의 상태가 전부 폐기되어 이미 쓴 DART 호출이 사라진다. FN-1.3 실측: 그 경로가 발동했다면 1,381법인·16,050호출·하루가 조용히 버려졌을 것이다. '버전 승격이 하루치 수집을 말없이 버린다'는 done.add 결함과 같은 모양의 resume 무결성 결함이다.",
+    "principleNote": "여기 나열하는 것은 **이미 모은 레코드의 내용을 결정하는 필드**뿐이다. 이 값들이 그대로면 어제 모은 레코드는 오늘의 규칙으로도 같은 레코드이므로 이어받아도 된다. 반대로 acceptance 임계·quota·probeCorps·retry·failureClassification·output·note는 여기 없다 — 그것들은 finalize의 판정이거나 앞으로의 결정에만 영향을 주고, 이미 디스크에 있는 레코드의 유효성을 건드리지 않는다. 판단 기준은 하나다: '이 값이 달랐다면 어제 그 법인에서 다른 레코드가 나왔는가?'",
+    "hashNote": "해시 대상은 위 경로들의 값과 **경로 목록 자체**다. 목록을 바꾸는 것은 '무엇이 계약인가'를 바꾸는 일이라 그때는 이어받지 않는 쪽이 안전하다 — 보수적 방향(재수집)으로 틀리게 만든다. shards는 여기 없고 별도 필드로 남는다: 그것은 레코드 내용이 아니라 담당 법인 배분을 바꾸므로 판정과 사유 메시지를 따로 두는 편이 읽힌다.",
+    "provenanceNote": "이 완화로 하나의 산출물이 여러 정책 버전에 걸쳐 수집될 수 있게 됐다. 그래서 상태가 policyVersions를 누적하고 finalize가 collectionPolicyVersions로 진단에 남긴다 — 옛 판정이 주던 '이 레코드는 한 버전에서 나왔다'는 정보를 값으로 대체한 것이다. 버리는 것은 제약이지 기록이 아니다."
+  },
+
   "requestSleepSeconds": 0.12,
   "retryAttempts": 4,
   "retryBackoffBase": 2,
   "circuitBreakerConsecutiveFailures": 30,
   "circuitBreakerNote": "'조회된 데이터 없음'(013)은 실패가 아니다 — 그 법인이 그 해에 보고서를 안 냈다는 정상 사실이므로 연속 실패 카운터에 넣지 않는다. 카운터가 세는 것은 네트워크 오류·비2xx·파싱 실패·정의되지 않은 오류(900)다. 013을 실패로 세면 폐지 법인 구간에서 서킷이 즉시 열린다.",
+
+  "failureClassification": {
+    "nonRetryableStatuses": ["100", "101"],
+    "defaultRetryable": true,
+    "retryableNote": "하드 실패를 두 갈래로만 나눈다. DART status가 nonRetryableStatuses에 있으면 retryable=false, **그 밖의 모든 것은 true**다 — HTTP 5xx·타임아웃·연결 오류·JSON 파싱 실패·800(시스템 점검)·900(정의되지 않은 오류), 그리고 이 표에 없는 새 status 전부.",
+    "defaultNote": "기본값이 true인 것이 이 표의 핵심 계약이다. 반대로 두면 DART가 새 오류 코드를 내놓는 날마다 그 법인들이 조용히 '수집 불가'로 승격되고, 복구 가능한 데이터가 영구히 버려진다 — done.add가 만든 결함과 같은 모양이 다른 자리에서 재발한다. 모르는 실패는 '아직 모른다'이지 '못 한다'가 아니다.",
+    "nonRetryableNote": "100(부적절한 값)·101(부적절한 접근)만 false다. 둘 다 파라미터 계약 위반이라 같은 요청을 다시 보내면 같은 답이 온다 — 재시도가 정보를 더 주지 않는 유일한 부류다.",
+    "notClassifiedHere": "020(한도 초과)과 013(데이터 없음)은 여기 없다. 전자는 루프를 break해 다음 실행이 이어받고, 후자는 '그 해에 보고서를 안 냈다'는 정상 사실이라 애초에 실패가 아니다. 이 표가 분류하는 것은 '보고서가 있어야 하는데 못 받은 경우'뿐이다.",
+    "approvalNote": "retryable=true는 아무리 오래 실패해도 WARN으로 승격하지 않는다 — 미완료로 남아 다음 실행이 계속 재시도한다. 일시 장애가 N번 반복됐다는 것은 그 법인의 데이터가 없다는 뜻이 아니다. retryable=false만 사람의 승인(config/backfill/declared-gaps-a3.json) 대상이며, 그 채널은 커밋 2에서 만든다. 그때까지 retryable=false가 하나라도 나오면 finalize가 막힌다 — 조용히 통과하는 것보다 낫다.",
+    "policyNotCodeNote": "이 표가 코드가 아니라 정책에 있는 이유는 임계와 성질이 같아서다. '어떤 실패를 수집 불가로 볼 것인가'는 코드에 두면 조용히 넓어지고, 넓어진 사실이 파일 해시에 남지 않는다."
+  },
 
   "probeCorps": ["00126380", "00164779"],
   "probeYear": 2023,
