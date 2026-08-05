@@ -78,6 +78,10 @@ const CONTRACT = {
     required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',
                'fiscalYearFrom', 'fiscalYearTo', 'fiscalYearToExpectedByRule', 'years',
                'totalGzBytes',
+               // 수집이 며칠에 걸치므로 산출물은 혼합 시점 스냅샷일 수 있다. PIT는
+               // 깨지지 않지만(레코드마다 자기 availableFrom을 든다) 재현성은 깨진다 —
+               // 재수집으로 해시가 바뀌었을 때 정정공시를 후보로 지목할 유일한 근거다.
+               'collectionWindow',
                // PIT 축. A3의 존재 이유이자 유일하게 조용히 무너지는 축이다 —
                // 위반이 있어도 점수와 등급은 정상으로 보이고, 백테스트만 좋아진다.
                'availableFromNotAfterPeriodEnd', 'disclosureLagDays',

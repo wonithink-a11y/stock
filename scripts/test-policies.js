@@ -218,6 +218,13 @@ assert.ok(fund.fiscalYearFrom >= 2015,
 assert.ok(fund.fiscalYearTo >= fund.fiscalYearFrom, 'fiscalYear 구간이 뒤집혔다');
 assert.ok(fund.quota.dailyCallLimit > fund.quota.safetyMarginCalls * 2,
   '안전 여유분이 일 한도의 절반을 넘으면 예산이 아니라 제약이 된다');
+// 여유분의 하한은 감이 아니라 실측이다 — 같은 키를 쓰는 운영 워크플로의 최악 겹침이
+// 하루 약 1,000건이다(disclosures 200 + quarterly-fundamentals 400 + add-ticker 400).
+// 이보다 작으면 백필이 운영의 한도를 먹는다. 백필은 한 번 돌고 운영은 매일 돈다.
+assert.ok(fund.quota.safetyMarginCalls >= 1000,
+  '안전 여유분이 운영 워크플로의 최악 겹침(약 1,000건)보다 작다 — A3가 남의 한도를 먹는다');
+assert.strictEqual(fund.collectionWindow.recordDays, true,
+  '수집 창을 안 남기면 재수집으로 해시가 바뀌었을 때 정정공시인지 버그인지 가를 근거가 없다');
 assert.ok(fund.stopAfterConsecutiveEmptyYears >= 2,
   '조기 종료가 1이면 1년 결산 공백 뒤에 재개된 보고서를 통째로 놓친다');
 

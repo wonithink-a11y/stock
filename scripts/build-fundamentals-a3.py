@@ -294,7 +294,10 @@ def load_state(shard, shards, pol):
     return {"stage": "A3", "shard": shard, "shards": shards,
             "fundamentalsPolicy": pol["version"], "corpsDone": [],
             "fsDivHint": {}, "callsUsedToday": 0, "lastRunDate": None,
-            "complete": False}
+            # 수집이 며칠에 걸치므로 산출물은 혼합 시점 스냅샷이 된다. PIT는 깨지지 않지만
+            # (각 레코드가 자기 availableFrom을 들고 있다) 재현성은 깨진다 — 재수집 시
+            # 바이트가 달라졌을 때 그게 버그인지 정정공시인지 가를 근거를 여기 남긴다.
+            "runDates": [], "complete": False}
 
 
 def save_progress(shard, state, records):
@@ -422,6 +425,9 @@ def run_shard(shard, shards, pol, limit):
     if state["lastRunDate"] != diag["runDate"]:
         state["callsUsedToday"] = 0     # DART 한도는 KST 하루 단위다
         state["lastRunDate"] = diag["runDate"]
+    state.setdefault("runDates", [])
+    if diag["runDate"] not in state["runDates"]:
+        state["runDates"].append(diag["runDate"])
     budget = (pol["quota"]["dailyCallLimit"] - pol["quota"]["safetyMarginCalls"]) // shards
 
     done = set(state["corpsDone"])
@@ -718,13 +724,20 @@ def run_finalize(pol):
 
     # 전 샤드가 담당분을 끝냈는지 확인한다. 예산 소진으로 중단된 샤드가 섞이면
     # 부분 수집물에 manifest가 찍힌다 — manifest는 '인수 조건을 통과했다'는 뜻이다(교훈43).
-    incomplete = []
+    incomplete, run_dates = [], set()
     for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
         st = load_json(p)
+        run_dates.update(st.get("runDates") or [])
         if not st.get("complete"):
             incomplete.append({"shard": st.get("shard"),
                                "done": len(st.get("corpsDone", []))})
     diag["shardStatesIncomplete"] = incomplete
+    # 수집 창. 하루를 넘으면 산출물은 혼합 시점 스냅샷이며, 그 사실이 여기 남는다 —
+    # 재수집으로 해시가 바뀌었을 때 정정공시라는 후보 원인을 가리키는 유일한 근거다.
+    rd = sorted(run_dates)
+    diag["collectionWindow"] = {"from": rd[0] if rd else None,
+                                "to": rd[-1] if rd else None,
+                                "runDays": len(rd)}
     if incomplete:
         _abort(f"아직 담당분을 마치지 않은 샤드 {len(incomplete)}개 {incomplete} — "
                f"수집을 이어서 돌려라", diag, diag_path)
@@ -751,8 +764,12 @@ def run_finalize(pol):
     now = datetime.now(KST)
     expected_to = now.year - 1 if now.month >= 4 else now.year - 2
     diag["fiscalYearToExpectedByRule"] = expected_to
+    cw = diag["collectionWindow"]
     print(f"[2/3] 사업연도 {pol['fiscalYearFrom']}~{pol['fiscalYearTo']} · "
-          f"대상 법인 {len(corps)}")
+          f"대상 법인 {len(corps)} · 수집 창 {cw['from']}~{cw['to']} ({cw['runDays']}일)")
+    if cw["runDays"] > 1:
+        print("  ..    수집이 하루를 넘었다 — 혼합 시점 스냅샷이다. PIT는 유지되지만"
+              " 재수집 시 정정공시로 바이트가 달라질 수 있다")
 
     rows = validate(rows, corps, pol, diag)
     # 규칙 대조는 인수 조건 뒤에 둔다. 값을 박은 이유(재현성)와 낡음을 알리는 수단(WARN)이
