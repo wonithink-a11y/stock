@@ -73,6 +73,38 @@ const CONTRACT = {
     // 이 플래그는 통과를 만들 수 없고 거부만 만든다.
     forbidden: ['smokeTest'],
   },
+  'A3': {
+    file: 'data/backfill/fundamentals/a3/_diagnostics.json',
+    required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',
+               'fiscalYearFrom', 'fiscalYearTo', 'fiscalYearToExpectedByRule', 'years',
+               'totalGzBytes',
+               // PIT 축. A3의 존재 이유이자 유일하게 조용히 무너지는 축이다 —
+               // 위반이 있어도 점수와 등급은 정상으로 보이고, 백테스트만 좋아진다.
+               'availableFromNotAfterPeriodEnd', 'disclosureLagDays',
+               // 정정공시를 병합하지 않았다는 증거. 병합하면 '그 시점에 알던 값'이 사라진다.
+               'restatedFiscalYears',
+               // 계약 2 — 연도별 매칭 성공률. 전체 평균은 한 해의 붕괴를 가리므로
+               // 연도별 표와 중앙값 대비 낙폭을 함께 남긴다.
+               'yearCoverage', 'accountCoverageByYear', 'yearCoverageMedian',
+               'yearCoverageDropped', 'yearsWithNoData', 'fiscalYearOutOfRange',
+               // 커버리지 — 분자에 무엇을 넣었는지까지 남긴다. 계정 목록이 바뀌면
+               // 같은 이름의 비율이 다른 것을 재게 된다.
+               'coverageRate', 'coverageRequiredAccounts',
+               // 그룹별 확보율. 전체 비율만 두면 현재 상장분 2,579가 폐지분 1,222의
+               // 공백을 가린다(A2b 정찰에서 배운 분모 문제).
+               'corpsWithData', 'corpsTargeted', 'corpsWithDataByGroup',
+               'corpsWithDataRateByGroup',
+               // 계약 3 — 이상치는 제거 대상이 아니라 보고 대상이다
+               'roeComputable', 'roeAbsOutlierCount', 'roeAbsOutlierRate',
+               'roeAbsOutlierSample', 'negativeEquityCount', 'negativeEquityRate',
+               // 어느 수단으로 계정을 잡았는지. 매칭률이 떨어졌을 때 소스 변화인지
+               // 이름 변주인지 사후에 가르는 유일한 근거다.
+               'accountSourceDistribution', 'fsDivDistribution', 'sicCodeMissing',
+               'tickerContractViolations'],
+    // sicCode는 '현재의 업종'이라 전 사업연도에 같은 값이 붙는다. A3가 모르는 축이다.
+    trueFlags: ['sectorNotPointInTime'],
+    forbidden: ['smokeTest'],
+  },
 };
 
 const stage = process.argv[2];

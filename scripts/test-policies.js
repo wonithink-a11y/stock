@@ -175,6 +175,63 @@ assert.ok(!('missingRateWarn' in price.acceptance),
 assert.ok(price.measured && price.measured.missingRate <= price.acceptance.missingRateMax,
   '실측 기준선이 임계를 넘는다 — 기준선이 이미 실패 상태면 임계가 근거를 잃는다');
 
+// ---- dataPolicies: fundamentals (FN-1.0) ----
+const fund = load(registry.dataPolicies.fundamentals);
+assert.ok(fund.version, 'fundamentals에 version 없음');
+assert.strictEqual(fund.output.gzipMtime, 0,
+  'gzip mtime이 0이 아니면 내용이 같아도 매 실행 바이트가 달라져 manifest가 재수집 판정 기능을 잃는다');
+assert.strictEqual(fund.output.partition, 'fiscalYear',
+  '저장 축은 fiscalYear다 — 실행 축(샤드)과 묶이면 샤드 수 변경이 곧 전량 재수집이 된다');
+assert.ok(fund.shards >= 1 && Number.isInteger(fund.shards), 'shards는 1 이상 정수');
+assert.ok(fund.probeCorps.length >= 2,
+  '정찰은 2회 이상이어야 한다(교훈32) — 1회면 그 법인의 특수사정과 경로 차단이 구분되지 않는다');
+
+// PIT 계약 — 이 세 줄이 A3의 존재 이유다. 하나라도 느슨해지면 백테스트에 look-ahead가 들어간다.
+assert.strictEqual(fund.pointInTime.contract, 'availableFrom > periodEnd',
+  'PIT 계약이 바뀌었다 — 회계기간말이 아니라 공시 접수일부터 그 숫자를 알 수 있다(BF-1.1 §7 A3 계약 1)');
+assert.strictEqual(fund.acceptance.availableFromNotAfterPeriodEnd, 0,
+  '계약 1 위반 허용치는 0이다 — 위반이 있다는 것은 로직 반전이거나 periodEnd 파싱 오류다');
+assert.strictEqual(fund.acceptance.availableFromMissing, 0,
+  'availableFrom 없는 레코드는 시점을 모르는 재무값이다 — A5가 그것을 언제든 쓸 수 있는 값으로 읽는다');
+assert.strictEqual(fund.pointInTime.periodEndSource, 'thstrm_dt',
+  'periodEnd는 보고서가 말하는 값이어야 한다 — 결산월로 계산하면 결산월 변경 이력과 어긋나고 폐지 법인엔 그 필드가 없다');
+
+// 중복 키가 (corp, fiscalYear)가 아니라 (corp, fiscalYear, availableFrom)인 이유:
+// 정정공시는 중복이 아니라 사실이다. 병합하면 '그 시점에 알던 값'이 사라진다.
+assert.deepStrictEqual(fund.output.sortKey, ['fiscalYear', 'corp', 'availableFrom'],
+  '정렬 키에 availableFrom이 없으면 정정공시가 있는 (corp, fiscalYear)의 순서가 소스 반환 순서에 의존해 해시가 갈린다');
+assert.ok(fund.output.fields[0] === 'corp',
+  '조인 키는 corp_code다(계약 4) — ticker를 첫 필드로 두면 조인 키로 오해된다');
+
+// 커버리지 분자에서 유동자산·유동부채를 뺐는가. 넣으면 금융업 구성이 커버리지로 위장한다.
+assert.ok(!fund.accounts.requiredForCoverage.includes('currentAssets')
+       && !fund.accounts.requiredForCoverage.includes('currentLiab'),
+  '유동자산·유동부채는 금융업에서 구조적으로 결측이다 — 커버리지 분자에 넣으면 업종 구성이 데이터 품질로 둔갑한다');
+for (const k of fund.accounts.requiredForCoverage) {
+  assert.ok(k in fund.accounts.spec, `requiredForCoverage의 ${k}가 spec에 없다 — 잡을 수 없는 계정을 분자로 센다`);
+}
+assert.ok(fund.accounts.matchOrder[0] === 'id',
+  'IFRS 태그가 1순위가 아니면 계약 7(계정과목명이 회사·연도마다 다르다)에 그대로 노출된다');
+
+assert.ok(fund.fiscalYearFrom >= 2015,
+  'fnlttSinglAcntAll은 2015 사업연도부터 제공된다 — 그 이전을 요구하면 전건 013이 된다');
+assert.ok(fund.fiscalYearTo >= fund.fiscalYearFrom, 'fiscalYear 구간이 뒤집혔다');
+assert.ok(fund.quota.dailyCallLimit > fund.quota.safetyMarginCalls * 2,
+  '안전 여유분이 일 한도의 절반을 넘으면 예산이 아니라 제약이 된다');
+assert.ok(fund.stopAfterConsecutiveEmptyYears >= 2,
+  '조기 종료가 1이면 1년 결산 공백 뒤에 재개된 보고서를 통째로 놓친다');
+
+// FN-1.0은 실측 전이다. measured 블록이 생기기 전에 WARN 임계가 FAIL로 올라가면
+// 근거 없는 게이트가 된다(PR-1.0 → PR-1.3이 밟은 경로의 반대).
+if (!fund.measured) {
+  for (const k of ['minCorpsWithDataWarn', 'coverageRateMinWarn', 'yearCoverageDropWarn',
+                   'roeAbsOutlierRateWarn', 'negativeEquityRateWarn']) {
+    assert.ok(k in fund.acceptance,
+      `${k} 없음 — 실측 전 임계는 사라지는 것이 아니라 WARN으로 존재해야 관측이 남는다`);
+  }
+}
+
 console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
 console.log(`   price ${price.version}: 샤드 ${price.shards} · 요구 pykrx ${price.source.requiredVersion} · 일간 임계 ±${price.acceptance.dailyChangeAbsMax * 100}%`);
+console.log(`   fundamentals ${fund.version}: 사업연도 ${fund.fiscalYearFrom}~${fund.fiscalYearTo} · 샤드 ${fund.shards} · 일 한도 ${fund.quota.dailyCallLimit}${fund.measured ? '' : ' (실측 전 — 커버리지 임계는 WARN)'}`);
 console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개 + data ${Object.keys(registry.dataPolicies).length}개)`);
