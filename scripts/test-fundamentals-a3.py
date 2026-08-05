@@ -374,26 +374,70 @@ ok("전송 실패(status 없음)는 재시도 가능", m.is_retryable(None, POL)
 ok("분류표에 없는 새 status는 재시도 가능 — 모르는 실패는 '못 한다'가 아니다",
    m.is_retryable("777", POL))
 
-print("\n[수집 계약 해시]")
+print("\n[수집 계약 해시 — 범위를 표로 고정한다]")
 base = m.collection_contract_hash(POL)
-bumped = copy.deepcopy(POL)
-bumped["version"] = "FN-9.9"
-bumped["acceptance"]["coverageRateMinWarn"] = 0.42
-bumped["quota"]["safetyMarginCalls"] = 9999
-ok("정책 version·임계만 바뀌면 계약 해시는 그대로 — 며칠치 수집을 버리지 않는다",
-   m.collection_contract_hash(bumped) == base)
-changed = copy.deepcopy(POL)
-changed["fiscalYearFrom"] = 2016
-ok("레코드 내용을 바꾸는 필드가 바뀌면 계약 해시가 달라진다",
-   m.collection_contract_hash(changed) != base)
-changed2 = copy.deepcopy(POL)
-changed2["accounts"]["spec"]["equity"]["exact"] = ["자본총계", "자본"]
-ok("계정 매칭 규칙 변경도 계약 변경이다",
-   m.collection_contract_hash(changed2) != base)
-shrunk = copy.deepcopy(POL)
-shrunk["collectionContract"]["fields"] = POL["collectionContract"]["fields"][:-1]
-ok("경로 목록 자체가 바뀌면 해시가 달라진다 (보수적 방향 = 재수집)",
-   m.collection_contract_hash(shrunk) != base)
+
+
+def mutate(fn):
+    p = copy.deepcopy(POL)
+    fn(p)
+    return m.collection_contract_hash(p)
+
+
+# '9개 필드'라는 개수가 아니라 **무엇이 들어가는가**가 계약이다. 이 표가 없으면
+# 몇 달 뒤 누군가 stopAfter를 빼거나 requestSleepSeconds를 넣어도 아무도 모른다.
+# 판단 기준: 이 값이 달랐다면 어제와 다른 수집 결과가 나왔는가?
+SAME = [
+    ("정책 version 승격", lambda p: p.update(version="FN-9.9")),
+    ("인수 조건 임계", lambda p: p["acceptance"].update(coverageRateMinWarn=0.42)),
+    ("일 한도·안전 여유분", lambda p: p["quota"].update(safetyMarginCalls=9999)),
+    ("재시도 횟수·백오프",
+     lambda p: p.update(retryAttempts=99, retryBackoffBase=5)),
+    ("요청 간격(사실상 timeout류 운영값)",
+     lambda p: p.update(requestSleepSeconds=9.9)),
+    ("정책에 없던 새 운영 키 추가(timeout 등)",
+     lambda p: p.update(timeout=[10, 40], someDiagnosticsToggle=True)),
+    ("서킷 브레이커 임계", lambda p: p.update(circuitBreakerConsecutiveFailures=3)),
+    ("정찰 대상·연도", lambda p: p.update(probeCorps=["00000001"], probeYear=1999)),
+    ("산출 형식(정렬·압축)", lambda p: p["output"].update(gzipCompressLevel=1)),
+    ("주석만 수정", lambda p: p["source"].update(endpointNote="바뀐 설명")),
+]
+DIFF = [
+    ("엔드포인트", lambda p: p["source"].update(endpoint="fnlttSinglAcntAll.json")),
+    ("보고서 코드(reprtCode)", lambda p: p["source"].update(reprtCode="11012")),
+    ("연결·별도 선별 순서",
+     lambda p: p["source"].update(fsDivPreference=["OFS", "CFS"])),
+    ("업종 엔드포인트", lambda p: p["source"].update(companyEndpoint="other.json")),
+    ("사업연도 시작", lambda p: p.update(fiscalYearFrom=2016)),
+    ("사업연도 끝", lambda p: p.update(fiscalYearTo=2024)),
+    ("계정 매칭 순서", lambda p: p["accounts"].update(matchOrder=["nameExact", "id"])),
+    ("계정 매칭 규칙(accounts.spec)",
+     lambda p: p["accounts"]["spec"]["equity"].update(exact=["자본총계", "자본"])),
+    ("조기 종료 연수(stopAfter)",
+     lambda p: p.update(stopAfterConsecutiveEmptyYears=9)),
+    # failureClassification은 운영 정책이 아니라 수집 계약의 일부다 —
+    # 재시도 간격은 같은 결과에 이르는 경로만 바꾸지만, 어떤 실패를 '재시도 불가'로
+    # 볼 것인가는 그 법인이 계속 재시도될지 승인 대상 공백이 될지를 가른다.
+    ("실패 분류표(nonRetryableStatuses)",
+     lambda p: p["failureClassification"].update(nonRetryableStatuses=["100"])),
+    ("실패 분류 기본값(defaultRetryable)",
+     lambda p: p["failureClassification"].update(defaultRetryable=False)),
+    # 목록 자체를 바꾸는 것은 '무엇이 계약인가'를 바꾸는 일이다.
+    ("계약 경로 목록에서 하나 제거",
+     lambda p: p["collectionContract"].update(
+         fields=POL["collectionContract"]["fields"][:-1])),
+    ("계약 경로 목록에 운영값 추가",
+     lambda p: p["collectionContract"]["fields"].append("retryAttempts")),
+]
+for name, fn in SAME:
+    ok(f"해시 동일 — {name}", mutate(fn) == base)
+for name, fn in DIFF:
+    ok(f"해시 변경 — {name}", mutate(fn) != base)
+# 계약에 선언된 경로는 전부 실제로 해시에 반영돼야 한다. 선언만 되고 값이 안 읽히면
+# 목록이 장식이 되고, 그 사실은 어떤 개별 테스트로도 드러나지 않는다.
+for path in POL["collectionContract"]["fields"]:
+    ok(f"선언된 경로가 실제로 해시에 반영된다 — {path}",
+       m.dig(POL, path) is not None)
 
 print("\n[완료 판정 — 저장하지 않고 계산한다]")
 st = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(10)],
