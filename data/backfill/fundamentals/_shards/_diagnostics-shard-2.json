@@ -1,0 +1,41 @@
+{
+  "stage": "A3",
+  "mode": "shard",
+  "shard": 2,
+  "shards": 8,
+  "fundamentalsPolicy": "FN-1.2",
+  "runDate": "2026-08-05",
+  "probes": [
+    {
+      "corp": "00126380",
+      "ok": true,
+      "dartStatus": "000",
+      "error": null
+    },
+    {
+      "corp": "00164779",
+      "ok": true,
+      "dartStatus": "000",
+      "error": null
+    }
+  ],
+  "corpsAssigned": 475,
+  "corpsDone": 173,
+  "corpsProcessed": 173,
+  "recordCount": 1227,
+  "calls": 2005,
+  "budget": 2000,
+  "dartStatus": {
+    "000": 1354,
+    "013": 651
+  },
+  "hardErrors": 0,
+  "earlyStopped": 6,
+  "sicFetchFailed": 0,
+  "reportsFoundCumulative": 1227,
+  "recordRejectedCumulative": {},
+  "quotaExceeded": false,
+  "budgetExhausted": true,
+  "complete": false,
+  "elapsedSeconds": 1638.1
+}
