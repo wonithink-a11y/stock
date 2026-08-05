@@ -1,0 +1,37 @@
+{
+  "stage": "A1b",
+  "universePolicy": "UN-1.2",
+  "exitReasonPending": true,
+  "listingHistoryUnverified": true,
+  "baseCount": 3981,
+  "subtractCounts": {
+    "data/backfill/universe/a1a/current.jsonl": 2579,
+    "data/backfill/universe/a1a/excluded.jsonl": 180
+  },
+  "subtractCorpUnique": 2759,
+  "subtractTickerUnique": 2759,
+  "subtractCorpMissing": 0,
+  "candidatesAfterCorpDiff": 1222,
+  "tickerSafetyNetRemoved": [],
+  "finalCount": 1222,
+  "dartModifyDateByYear": {
+    "2017": 576,
+    "2018": 35,
+    "2019": 32,
+    "2020": 39,
+    "2021": 28,
+    "2022": 69,
+    "2023": 73,
+    "2024": 121,
+    "2025": 105,
+    "2026": 144
+  },
+  "corpContractViolations": [],
+  "intersectA1aCorp": [],
+  "intersectA1aTicker": [],
+  "tickerContractViolations": [],
+  "tickerReuse": [],
+  "acceptanceFails": [],
+  "acceptanceWarns": [],
+  "acceptancePassed": true
+}
