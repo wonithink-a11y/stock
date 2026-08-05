@@ -62,6 +62,9 @@ const CONTRACT = {
                'qualityExcludedRate',
                // 검사에서 제외한 비교쌍은 침묵하지 않는다 — 무엇을 안 봤는지가 기록이다
                'zeroVolumeTransitions', 'suspendedGapTransitions', 'comparableTransitions',
+               // 전체 기준과 산출물(제외 후) 기준을 함께 남긴다. 후자가 A5의
+               // returnTransition이 실제로 걷어낼 규모다
+               'keptZeroVolumeTransitions', 'keptComparableTransitions',
                // 관측 전용(게이트 아님)
                'frontTruncatedTickers', 'frontTruncatedTickerDays',
                'rowsBeforeListedAt', 'tickersWithRowsBeforeListedAt'],

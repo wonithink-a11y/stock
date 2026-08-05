@@ -156,5 +156,24 @@ case("제외율 상한 초과는 FAIL (자동 제외가 게이트를 무력화�
      {f"0001{n:02d}": "UNADJUSTED_CORPORATE_ACTION" for n in range(10)},
      expect_fail_substr="품질 제외율", expect_pass=False)
 
+# 9. 전이 관측치는 '전체' 기준이어야 한다.
+#    find_violations는 잔여 위반 확인을 위해 제외 후 부분집합으로 한 번 더 호출된다.
+#    그때 전체 기준 카운터가 덮이면, 제외 종목이 만난 거래정지 이력이 통째로 사라진다.
+mix = list(BASE)
+bad = flat("000300")
+bad[5] = row("000300", 5, 1000, vol=0)       # 제외될 종목에 거래량 0 전이를 심는다
+bad[6] = row("000300", 6, 1000, vol=0)
+for i in range(10, 20):
+    bad[i] = row("000300", i, 253)           # 영구 계단 → 제외 대상
+mix += bad
+d, _, _ = case("전이 관측치는 제외 후 부분집합에 덮이지 않는다",
+               mix, uni_of(*BASE_TK, "000300"),
+               {"000300": "UNADJUSTED_CORPORATE_ACTION"})
+assert d["zeroVolumeTransitions"] > d["keptZeroVolumeTransitions"], (
+    f"전체 {d['zeroVolumeTransitions']} vs 제외후 {d['keptZeroVolumeTransitions']} — "
+    "제외 종목의 거래정지 전이가 관측치에서 사라졌다")
+print(f"        전체 {d['zeroVolumeTransitions']} / 제외후 {d['keptZeroVolumeTransitions']} "
+      "(둘 다 남는다)")
+
 print(f"\n{'✅' if not failed else '❌'} A2a 품질 판별 {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

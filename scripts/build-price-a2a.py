@@ -261,10 +261,12 @@ def find_violations(by_ticker, cal_idx, pol, diag):
                     "kind": "TRANSIENT_PRICE_SPIKE" if transient else "UNADJUSTED_CORPORATE_ACTION",
                 })
 
-    diag["zeroVolumeTransitions"] = zero_vol
-    diag["suspendedGapTransitions"] = susp_gap
-    diag["comparableTransitions"] = comparable
-    return viol
+    # 카운터를 diag에 직접 쓰지 않는다 — 이 함수는 잔여 위반 확인을 위해 제외 후
+    # 부분집합으로 한 번 더 호출되고, 그때 전체 기준 관측치가 조용히 덮이기 때문이다.
+    # 무엇을 기록할지는 호출부가 정한다.
+    return viol, {"zeroVolumeTransitions": zero_vol,
+                  "suspendedGapTransitions": susp_gap,
+                  "comparableTransitions": comparable}
 
 
 def build_exclusions(viol, uni_by_ticker, by_ticker):
@@ -329,7 +331,10 @@ def validate(rows, uni, cal, pol, diag):
     uni_by_ticker = {x["ticker"]: x for x in uni}
 
     # ── 품질 제외 ──────────────────────────────────────────────
-    viol = find_violations(by_ticker, cal_idx, pol, diag)
+    viol, stats = find_violations(by_ticker, cal_idx, pol, diag)
+    # 전이 관측치는 '수집된 전체' 기준으로 남긴다. 제외 종목의 거래정지 이력도
+    # 수집이 무엇을 만났는지를 말해주는 사실이다.
+    diag.update(stats)
     excluded = build_exclusions(viol, uni_by_ticker, by_ticker)
     ex_set = {e["ticker"] for e in excluded}
     diag["qualityExcluded"] = excluded
@@ -345,7 +350,10 @@ def validate(rows, uni, cal, pol, diag):
         f"({len(ex_set)}종목 / {len(by_ticker)}) {diag['qualityExcludedByReason']}")
 
     kept = {tk: xs for tk, xs in by_ticker.items() if tk not in ex_set}
-    residual = find_violations(kept, cal_idx, pol, diag)
+    residual, kept_stats = find_violations(kept, cal_idx, pol, diag)
+    # 산출물(제외 후)에 남는 전이 규모 — A5가 returnTransition으로 실제 걷어낼 양이다.
+    diag["keptZeroVolumeTransitions"] = kept_stats["zeroVolumeTransitions"]
+    diag["keptComparableTransitions"] = kept_stats["comparableTransitions"]
     chk(len(residual) == a["residualDailyChangeViolations"],
         f"제외 후 잔여 ±{a['dailyChangeAbsMax']*100:.0f}% 위반 {len(residual)}종목")
 
