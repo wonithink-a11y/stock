@@ -685,6 +685,13 @@ try:
         got2 = m.load_state(0, 1, POL)
     ok("대조하지 않은 옛 버전은 이관하지 않는다 (다른 규칙의 레코드를 이어받는 경로)",
        got2["corpsDone"] == [], str(got2["corpsDone"]))
+    # 이관은 일회성 경로다. FN-1.3부터 상태가 collectionContractHash를 들고 다니므로
+    # 이후 버전 승격에는 이관이 필요 없다 — 계약이 같으면 해시가 같아 그냥 이어받고,
+    # 계약이 바뀌었으면 폐기가 의도된 동작이다. 따라서 이 집합은 자라면 안 된다.
+    # 자라는 순간 '값 대조 없이 다른 규칙의 상태를 이어받는' 경로가 열린다.
+    ok("legacy 이관 목록은 FN-1.2 하나뿐이다 (이관은 일회성이며 자라면 안 된다)",
+       m.LEGACY_CONTRACT_POLICIES == {"FN-1.2"},
+       str(m.LEGACY_CONTRACT_POLICIES))
     json.dump({**legacy, "collectionContractHash": "sha256:deadbeefdeadbeef"},
               open(f"{tmp3}/_state-0.json", "w", encoding="utf-8"))
     with redirect_stdout(io.StringIO()):
