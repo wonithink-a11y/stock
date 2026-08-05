@@ -69,13 +69,33 @@
 알려진 폐지 5/5 · 주입 실행 exit=1에 `delisted.jsonl` 미생성 ·
 `--upstream`에서 A0.7 제거 시 write-manifest 거부. manifest 예상 `sha256:52a69c2ac451af36`.
 
-**다음은 A2a (현재 상장분 가격)**. §6에서 A2 분할 축이 확정됐으므로 미결정 없이 착수 가능하다.
+**Actions 실행 완료 (2026-08-05) — 기준선 확정**
 
-착수 전 남은 절차 하나: **Actions에서 `backfill-universe-a1a` → `backfill-universe-a1b`
-순으로 dispatch**해 UN-1.2 policyHash를 정렬한다(§6 미결정 ② 참조). A1a는 KIND를 다시
-읽으므로 policyHash만 바뀌는 무해한 연산이 아니다 — 신규 상장이 있었다면 `current.jsonl`
-행 수(2,579)가 바뀌고 A1b 후보 수도 따라 바뀐다. 정상이며, 재실행 후 행 수 변화 확인이
-절차의 일부다. A0.7은 universe 정책을 읽지 않아 manifest에 policyHash가 없으므로 재실행 불필요.
+`backfill-universe-a1a` → `backfill-universe-a1b` 순으로 dispatch해 UN-1.2 policyHash를
+정렬했다. 이 상태가 A2 이후의 기준선이다.
+
+```
+단계   버전     데이터 해시                 건수    policyHash.universe
+A0.5   —        sha256:ac51b5d82dee1f21      —      (읽지 않음)
+A0.7   A0.7.0   sha256:be13a4fc017a69e1    3,981    (읽지 않음)
+A1a    A1a.2    sha256:cb7556fc889a651c    2,579    sha256:1325e19e37807f9a
+A1b    A1b.0    sha256:52a69c2ac451af36    1,222    sha256:1325e19e37807f9a
+                                                     ↑ 체인이 한 정책 버전으로 정렬됨
+```
+
+검증된 것 세 가지:
+
+- **A1a 데이터 해시 불변**(`cb7556fc889a651c`) — 재수집 사이 KIND 신규 상장이 없어
+  `current.jsonl`·`excluded.jsonl`은 한 줄도 안 바뀌고 manifest의 policyHash·generatedAt만
+  갱신됐다. 재수집이 데이터를 바꿀 수 있다는 위험은 이번엔 현실화되지 않았을 뿐이며,
+  다음 정책 승격 때도 같은 확인이 필요하다
+- **A1b manifest 해시가 로컬 예측치와 동일** — 로컬과 Actions가 같은 입력에서 같은 바이트를
+  낸다. 해시 결정론 규칙(바이트 해싱·Buffer.compare 정렬·generatedAt 제외)이 실제로 작동한다
+- **`verifyUpstream(['A0.5','A0.7','A1a','A1b'])` 통과** — 네 manifest의 선언 해시가 실제
+  파일과 전건 일치. 회귀 테스트도 committed 산출물 기준 5/5
+
+**다음은 A2a (현재 상장분 가격)**. §6에서 분할 축이 확정됐으므로 미결정 없이 착수 가능하다.
+A0.7은 universe 정책을 읽지 않아 manifest에 policyHash가 없고, 정책 승격 시 재실행 대상이 아니다.
 
 ---
 
@@ -88,7 +108,7 @@
   A0.5  거래일 캘린더        완료 — manifest sha256:ac51b5d82dee1f21
   A0.7  DART corpCode 스냅샷 완료 — 3,981건, sha256:be13a4fc017a69e1 (2026-08-05)
   A1a   현재 상장 유니버스   완료 — A0.7 전환, A1a.2, sha256:cb7556fc889a651c (2026-08-05)
-  A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0 (2026-08-05, Actions 실행 대기)
+  A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
   A2a   가격 (현재 상장분)   미착수   ← 다음 작업
   A2b   가격 (폐지분)        미착수
   A3~A9                      미착수
@@ -490,9 +510,9 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 3. [완료] build-universe-a1a.py 전환 (A0.7 입력 · excluded.jsonl · 진단 필드 정리)
 4. [완료] A1a 재실행 → current.jsonl 내용 해시 불변 확인 · excluded 180 검증
 5. [완료] scripts/test-universe-a1b.js (알려진 폐지 5개 인라인)
-6. [완료] A1b 구현 · 로컬 검증 완료 → Actions 실행 대기
-7. Actions dispatch: universe-a1a → universe-a1b (UN-1.2 policyHash 정렬)   ← 지금 여기
-8. A2a 착수 (현재 상장분 가격). REQUIRED_UPSTREAM에 A2a/A2b 등재는 이 커밋에서
+6. [완료] A1b 구현 · 로컬 검증
+7. [완료] Actions dispatch: universe-a1a → universe-a1b · 기준선 확정 (§0)
+8. A2a 착수 (현재 상장분 가격). REQUIRED_UPSTREAM에 A2a/A2b 등재는 이 커밋에서   ← 지금 여기
 9. A2b · A3~A9
 ```
 
