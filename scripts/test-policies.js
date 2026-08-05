@@ -288,8 +288,6 @@ for (const p of fund.collectionContract.fields) {
 assert.deepStrictEqual([...fund.collectionContract.fields].sort(), [
   'accounts.matchOrder',
   'accounts.spec',
-  'failureClassification.defaultRetryable',
-  'failureClassification.nonRetryableStatuses',
   'fiscalYearFrom',
   'fiscalYearTo',
   'source.companyEndpoint',
@@ -300,12 +298,16 @@ assert.deepStrictEqual([...fund.collectionContract.fields].sort(), [
 ].sort(), 'collectionContract.fields의 범위가 바뀌었다 — 무엇이 수집 계약인가는 개수가 아니라 목록이 계약이다. 의도한 변경이면 이 단언을 함께 고쳐라(그 diff가 근거로 남는다)');
 
 // 여기 없어야 하는 것들. 들어가는 순간 '임계를 고치면 수집을 버린다'가 되돌아온다.
-// retryAttempts·retryBackoffBase가 빠지는 이유는 failureClassification과 갈리는
-// 지점이다 — 재시도 횟수는 같은 결과에 이르는 경로만 바꾸지만, 분류는 무엇이
-// 공백이 되는지를 바꾼다.
+//
+// failureClassification이 여기 있는 이유는 한 번 넣었다가 뺐기 때문이다. retryable은
+// todo·shard_status·완료 게이트 어디에도 들어가지 않는다 — 재시도 불가로 분류된
+// 법인도 매 실행 똑같이 재시도되고, 공백을 닫는 것은 사람의 승인뿐이다. 즉 이 표는
+// 수집 결과가 아니라 자문 라벨을 바꾸고, 그 라벨은 다음 재시도에서 다시 계산된다.
+// 넣으면 '표를 고칠 때마다 며칠치 수집을 잃는다'는 비용만 남는다.
+// 만약 retryable이 실제로 수집 경로를 가르도록 바뀌면 이 단언도 함께 바뀌어야 한다.
 for (const p of ['acceptance', 'quota', 'probeCorps', 'probeYear', 'retryAttempts',
                  'retryBackoffBase', 'requestSleepSeconds', 'output', 'shards',
-                 'circuitBreakerConsecutiveFailures']) {
+                 'failureClassification', 'circuitBreakerConsecutiveFailures']) {
   assert.ok(!fund.collectionContract.fields.some(f => f === p || f.startsWith(`${p}.`)),
     `collectionContract.fields에 ${p}가 있다 — 그것은 finalize의 판정이거나 같은 결과에 이르는 경로의 차이지, 무엇이 수집되고 무엇이 공백이 되는지를 바꾸지 않는다`);
 }

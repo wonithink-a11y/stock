@@ -401,6 +401,13 @@ SAME = [
     ("정찰 대상·연도", lambda p: p.update(probeCorps=["00000001"], probeYear=1999)),
     ("산출 형식(정렬·압축)", lambda p: p["output"].update(gzipCompressLevel=1)),
     ("주석만 수정", lambda p: p["source"].update(endpointNote="바뀐 설명")),
+    # 한 번 계약에 넣었다가 뺐다. retryable은 todo·shard_status·완료 게이트 어디에도
+    # 들어가지 않아 수집 결과를 바꾸지 않는다 — 아래 [실패 분류는 수집을 가르지
+    # 않는다] 절이 그것을 직접 검증한다. 넣으면 표를 고칠 때마다 수집을 잃는 비용만 남는다.
+    ("실패 분류표(nonRetryableStatuses)",
+     lambda p: p["failureClassification"].update(nonRetryableStatuses=["100", "800"])),
+    ("실패 분류 기본값(defaultRetryable)",
+     lambda p: p["failureClassification"].update(defaultRetryable=False)),
 ]
 DIFF = [
     ("엔드포인트", lambda p: p["source"].update(endpoint="fnlttSinglAcntAll.json")),
@@ -415,13 +422,6 @@ DIFF = [
      lambda p: p["accounts"]["spec"]["equity"].update(exact=["자본총계", "자본"])),
     ("조기 종료 연수(stopAfter)",
      lambda p: p.update(stopAfterConsecutiveEmptyYears=9)),
-    # failureClassification은 운영 정책이 아니라 수집 계약의 일부다 —
-    # 재시도 간격은 같은 결과에 이르는 경로만 바꾸지만, 어떤 실패를 '재시도 불가'로
-    # 볼 것인가는 그 법인이 계속 재시도될지 승인 대상 공백이 될지를 가른다.
-    ("실패 분류표(nonRetryableStatuses)",
-     lambda p: p["failureClassification"].update(nonRetryableStatuses=["100"])),
-    ("실패 분류 기본값(defaultRetryable)",
-     lambda p: p["failureClassification"].update(defaultRetryable=False)),
     # 목록 자체를 바꾸는 것은 '무엇이 계약인가'를 바꾸는 일이다.
     ("계약 경로 목록에서 하나 제거",
      lambda p: p["collectionContract"].update(
@@ -465,7 +465,7 @@ ok("분모를 모르는 것은 보존식 위반이 아니다 (잴 수 없는 것
 print("\n[수집 루프 — done.add가 hard를 본다]")
 
 
-def fake_run(tmp, script, prev_state=None):
+def fake_run(tmp, script, prev_state=None, pol=None):
     """run_shard를 네트워크 없이 돌린다. scan_corp만 갈아끼우고 나머지는 실물이다 —
     분기를 흉내 내면 그 분기가 실제로 실행되는지는 검증하지 못한다."""
     m.SHARD_DIR = tmp
@@ -484,7 +484,7 @@ def fake_run(tmp, script, prev_state=None):
     m.time.sleep = lambda *a: None      # m.time은 실제 time 모듈이다 — 반드시 되돌린다
     try:
         with redirect_stdout(io.StringIO()) as buf:
-            rc = m.run_shard(0, 1, copy.deepcopy(POL), 0)
+            rc = m.run_shard(0, 1, copy.deepcopy(pol or POL), 0)
     finally:
         m.time.sleep = real_sleep
     return rc, json.load(open(f"{tmp}/_state-0.json", encoding="utf-8")), buf.getvalue()
@@ -559,6 +559,36 @@ try:
     ok("승인 채널이 없으므로 열린 채로 남는다 (조용히 통과하는 것보다 낫다)",
        m.shard_status(st3)["hardSkippedOpen"] == 1)
     shutil.rmtree(tmp2, ignore_errors=True)
+
+    print("\n[실패 분류는 수집을 가르지 않는다 — 계약 해시에서 뺀 근거]")
+    # 이 절이 없으면 failureClassification을 계약 해시에서 뺀 판단이 검증되지 않은
+    # 주장으로 남는다. retryable이 todo·완료 게이트를 가르기 시작하면 여기가 먼저 깨지고,
+    # 그때는 그 표가 collectionContract.fields로 들어가야 한다.
+    lenient = copy.deepcopy(POL)
+    lenient["failureClassification"]["nonRetryableStatuses"] = []   # 100도 재시도 가능
+    tmp_r1, tmp_r2 = tempfile.mkdtemp(), tempfile.mkdtemp()
+    _, s_strict, _ = fake_run(tmp_r1, {"00000004": ([], HARD_PERM, False)})
+    _, s_lenient, _ = fake_run(tmp_r2, {"00000004": ([], HARD_PERM, False)}, pol=lenient)
+    ok("분류표가 라벨을 실제로 바꾼다 (검사가 무의미하지 않다는 확인)",
+       s_strict["hardSkipped"]["00000004"]["retryable"] is False
+       and s_lenient["hardSkipped"]["00000004"]["retryable"] is True)
+    strip = lambda s: json.dumps(  # noqa: E731
+        {**s, "hardSkipped": {k: {kk: vv for kk, vv in v.items() if kk != "retryable"}
+                              for k, v in s["hardSkipped"].items()}},
+        ensure_ascii=False, sort_keys=True)
+    ok("라벨을 빼면 두 실행의 상태가 완전히 같다 — 분류는 수집 결과를 바꾸지 않는다",
+       strip(s_strict) == strip(s_lenient))
+    ok("재시도 불가로 분류돼도 완료 판정은 같다 (게이트는 retryable을 보지 않는다)",
+       m.shard_status(s_strict) == m.shard_status(s_lenient), str(m.shard_status(s_strict)))
+    # 라벨은 다음 재시도에서 현재 표로 다시 계산된다 — 낡음이 자가 치유되므로
+    # 표를 바꿨다고 이미 모은 것을 버릴 이유가 없다.
+    _, s_healed, _ = fake_run(tmp_r1, {"00000004": ([], HARD_PERM, False)}, pol=lenient)
+    ok("표를 바꾸고 다시 돌리면 옛 라벨이 현재 표로 갱신된다 (낡음이 자가 치유된다)",
+       s_healed["hardSkipped"]["00000004"]["retryable"] is True
+       and s_healed["hardSkipped"]["00000004"]["attempts"] == 2,
+       str(s_healed["hardSkipped"]["00000004"]))
+    shutil.rmtree(tmp_r1, ignore_errors=True)
+    shutil.rmtree(tmp_r2, ignore_errors=True)
 
     print("\n[승인 채널 — 수집을 바꾸지 않고 완료 판정만 닫는다]")
     REG = json.load(open(os.path.join(ROOT, "config/policies/registry.json"),

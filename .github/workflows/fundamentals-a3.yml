@@ -161,8 +161,18 @@ jobs:
           EXTRA=$(python -c "
           import json
           d = json.load(open('$D/_diagnostics.json', encoding='utf-8'))
+          # 수집 계약·정책 버전·승인 규모를 manifest에 남긴다. finalize가 _shards/를
+          # 지우므로 이 값들이 '어떤 계약으로 모았는가'의 유일한 생존 기록이다.
+          # manifest와 상태의 일치를 여기서 '검사'하지는 않는다 — 이 값이 그 상태에서
+          # 나왔으므로 구성상 항상 같고, 그런 검사는 아무것도 잡지 못한다(교훈45).
+          # 샤드 간 불일치는 finalize가 이미 중단으로 잡는다.
+          ch = d['collectionContractHashes']
           print(json.dumps({
               'recordCount': d['rowCount'],
+              'collectionContractHash': ch[0] if len(ch) == 1 else ch,
+              'collectionPolicyVersions': d['collectionPolicyVersions'],
+              'corpsHardSkipped': d['corpsHardSkipped'],
+              'declaredGapsCount': d['declaredGapsCount'],
               'fiscalYearFrom': d['fiscalYearFrom'],
               'fiscalYearTo': d['fiscalYearTo'],
               'corpsWithData': d['corpsWithData'],
