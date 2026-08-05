@@ -144,7 +144,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain data/backfill/price/a2a data/backfill/manifest)" ]; then
             git add data/backfill/price/a2a data/backfill/manifest
-            git commit -m "chore(backfill): A2a 현재 상장분 일봉 가격 (PR-1.0)"
+            # 커밋 메시지에 정책 버전을 넣지 않는다. 사람이 관리하는 중복 정보라
+            # 실제 정책과 어긋난다(첫 실행이 PR-1.2인데 PR-1.0으로 찍혔다).
+            # 버전은 manifest.policyHash · diagnostics가 이미 정확히 기록한다.
+            git commit -m "chore(backfill): A2a 현재 상장분 일봉 가격"
             for i in 1 2 3 4 5; do
               git pull --rebase --autostash origin main && git push origin HEAD:main && break
               echo "push 재시도 $i"; sleep 5

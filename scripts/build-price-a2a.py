@@ -384,20 +384,27 @@ def validate(rows, uni, cal, pol, diag):
     rate = 1 - (total_got / total_exp) if total_exp else 1
     diag["expectedRows"] = total_exp
     diag["missingRate"] = round(rate, 5)
-    # 기대 모델이 방금 바뀌었으므로 이번 실행까지 WARN이다. 새 모델의 실측 1회 후
-    # PR-1.2에서 FAIL로 승격한다.
-    warn(rate <= a["missingRateWarn"],
-         f"거래일 누락률 {rate*100:.3f}% (기대 {total_exp} / 실측 {total_got}) "
-         f"— 종목별 실제 최초 거래일 기준")
+    # PR-1.3에서 WARN → FAIL 승격. 임계 0.01은 그대로이고 등급만 올렸다 —
+    # 첫 수집 실측 0.056%로 18배 여유가 확인됐다. 이 값이 튀면 수집 실패다.
+    chk(rate <= a["missingRateMax"],
+        f"거래일 누락률 {rate*100:.3f}% <= {a['missingRateMax']*100:.0f}% "
+        f"(기대 {total_exp} / 실측 {total_got}) — 종목별 실제 최초 거래일 기준")
 
     worst = sorted(
         ({"ticker": tk, "firstTraded": first_traded[tk], "expected": expected[tk],
           "got": len(kept[tk]), "missingRate": round(1 - len(kept[tk]) / expected[tk], 4)}
          for tk in kept if expected[tk] > 0),
         key=lambda x: -x["missingRate"])
+    # 종목별은 WARN으로 남긴다. 전체 지표는 파이프라인 건전성을, 이쪽은 개별 종목의
+    # 거래 특성을 잰다 — 장기 거래정지가 여기 그대로 잡히므로 FAIL로 올리면
+    # 정상 시장 상태가 파이프라인을 막는다(실측: 오상헬스케어 64.4% / 한주라이트메탈 49.5%,
+    # 각각 1,932·1,455거래일 정지).
     over = [w for w in worst if w["missingRate"] > a["perTickerMissingRateWarn"]]
     diag["perTickerMissingWorst"] = worst[:50]
-    warn(not over, f"종목별 누락률 {a['perTickerMissingRateWarn']*100:.0f}% 초과 {len(over)}종목")
+    diag["perTickerMissingOver"] = over[:50]
+    warn(not over,
+         f"종목별 누락률 {a['perTickerMissingRateWarn']*100:.0f}% 초과 {len(over)}종목 "
+         f"{[w['ticker'] for w in over[:5]]} (장기 거래정지 가능 — 정상 시장 상태)")
 
     # ── 롤링 윈도우 앞단 잘림 — 관측만 한다(게이트 아님) ───────────
     # 전체 최소 날짜로 재면 극단값 2종목이 1,471종목의 손실을 가린다.

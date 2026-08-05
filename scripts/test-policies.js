@@ -164,6 +164,17 @@ assert.ok(price.returnTransition.consumers.includes('A5'),
 assert.strictEqual(price.rollingWindow.observeOnly, true,
   '롤링 윈도우 손실은 관측 전용이다 — 워밍업 구간이고 복구 불가라 게이트로 쓰면 정당한 실패를 만든다');
 
+// PR-1.3 — 전체는 FAIL, 종목별은 WARN. 같은 지표가 아니다:
+// 전체는 파이프라인 건전성을, 종목별은 개별 종목의 거래 특성(장기 거래정지)을 잰다.
+assert.ok(price.acceptance.missingRateMax > 0,
+  'missingRateMax 없음 — 전체 누락률은 PR-1.3에서 FAIL로 승격됐다');
+assert.ok(price.acceptance.perTickerMissingRateWarn > price.acceptance.missingRateMax,
+  '종목별 임계가 전체보다 낮으면 장기 거래정지 종목이 전체 게이트보다 먼저 걸린다');
+assert.ok(!('missingRateWarn' in price.acceptance),
+  'missingRateWarn이 남아 있다 — 승격 후 옛 키가 남으면 어느 쪽이 유효한지 모호해진다');
+assert.ok(price.measured && price.measured.missingRate <= price.acceptance.missingRateMax,
+  '실측 기준선이 임계를 넘는다 — 기준선이 이미 실패 상태면 임계가 근거를 잃는다');
+
 console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
 console.log(`   price ${price.version}: 샤드 ${price.shards} · 요구 pykrx ${price.source.requiredVersion} · 일간 임계 ±${price.acceptance.dailyChangeAbsMax * 100}%`);
 console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개 + data ${Object.keys(registry.dataPolicies).length}개)`);

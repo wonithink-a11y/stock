@@ -63,9 +63,10 @@ def case(name, rows, uni, expect_reasons, expect_fail_substr=None, expect_pass=T
     return diag, kept, excluded
 
 
-# 품질 제외율 상한(3%)이 실제로 작동하려면 깨끗한 종목이 함께 있어야 한다.
-# 위반 1종목만 넣으면 제외율이 100%가 되어 어떤 픽스처든 FAIL로 통과해버린다.
-CLEAN_N = 40
+# 깨끗한 종목이 함께 있어야 비율 기반 검사가 실제처럼 동작한다.
+# 너무 적으면 (1) 위반 1종목만으로 제외율이 100%가 되고 (2) 거래정지 1종목이
+# 전체 누락률을 지배한다 — 실제로는 2,579종목 중 하나다.
+CLEAN_N = 60
 
 
 def clean_fill():

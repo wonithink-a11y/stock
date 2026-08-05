@@ -82,7 +82,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain data/backfill/universe/a1b data/backfill/manifest)" ]; then
             git add data/backfill/universe/a1b data/backfill/manifest
-            git commit -m "chore(backfill): A1b 폐지 이력 유니버스 (UN-1.2)"
+            # 정책 버전은 manifest.policyHash가 기록한다 — 메시지에 중복하면 어긋난다
+            git commit -m "chore(backfill): A1b 폐지 이력 유니버스"
             for i in 1 2 3 4 5; do
               git pull --rebase --autostash origin main && git push origin HEAD:main && break
               echo "push 재시도 $i"; sleep 5

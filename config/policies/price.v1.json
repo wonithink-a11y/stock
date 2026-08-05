@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.2",
+  "version": "PR-1.3",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -62,11 +62,40 @@
     "tickerFetchFail": 0,
     "duplicateKeys": 0,
     "minTickersWithData": 2400,
-    "missingRateWarn": 0.01,
+    "missingRateMax": 0.01,
     "perTickerMissingRateWarn": 0.10,
     "emptyTickerRateWarn": 0.02
   },
-  "acceptanceNote": "구조적으로 위반이 불가능한 것만 FAIL이다 — close<=0, high<low, 날짜 계약, 캘린더 밖 날짜, 조회 실패, (ticker,date) 중복, 그리고 품질 제외를 마친 뒤 남는 ±50% 위반. qualityExcludedRateMax가 이 구조의 안전핀이다: 위반 종목을 자동 제외하기만 하면 게이트가 영원히 통과하므로, 제외가 급증하면 그건 종목 문제가 아니라 소스 문제로 보고 FAIL시킨다(실측 0.9% 대비 3배 여유인 3%). datesNotInCalendar를 FAIL로 두는 이유는 초과 행수 추적에서 실측 0건이 확인됐기 때문이고, 이 값이 0이어야 missingRate가 음수가 될 수 없다 — PR-1.0에서 누락률이 -1.465%로 나와 검사가 침묵한 원인이 기대 모델이었다. 누락률 계열은 기대 모델이 방금 바뀌었으므로 이번 실행까지 WARN으로 두고, 새 모델의 실측 1회 후 PR-1.2에서 승격한다.",
+  "acceptanceNote": "구조적으로 위반이 불가능한 것만 FAIL이다 — close<=0, high<low, 날짜 계약, 캘린더 밖 날짜, 조회 실패, (ticker,date) 중복, 그리고 품질 제외를 마친 뒤 남는 ±50% 위반. qualityExcludedRateMax가 이 구조의 안전핀이다: 위반 종목을 자동 제외하기만 하면 게이트가 영원히 통과하므로, 제외가 급증하면 그건 종목 문제가 아니라 소스 문제로 보고 FAIL시킨다(실측 0.775% 대비 약 4배 여유인 3%). datesNotInCalendar를 FAIL로 두는 이유는 초과 행수 추적에서 실측 0건이 확인됐기 때문이고, 이 값이 0이어야 missingRate가 음수가 될 수 없다 — PR-1.0에서 누락률이 -1.465%로 나와 검사가 침묵한 원인이 기대 모델이었다.",
+
+  "missingRateNote": "PR-1.3에서 전체 missingRate만 WARN → FAIL로 승격했다. 임계값 0.01은 바꾸지 않았고 판정 등급만 올렸다 — 2026-08-05 첫 수집 실측 0.056%로 18배 여유가 확인됐기 때문이다. 종목별 누락률은 WARN으로 남긴다: 이번 실행의 WARN 2종목이 오상헬스케어(64.4%)와 한주라이트메탈(49.5%)이었고, 둘 다 각각 1,932·1,455거래일의 장기 거래정지 이력 종목이다. 그 '누락'은 수집 실패가 아니라 거래정지 기간이므로 데이터가 없는 것이 정상이다. FAIL로 승격하면 정상 시장 상태가 파이프라인을 막는다 — ZERO_VOLUME_REFERENCE를 제외 사유로 두지 않은 것과 같은 논리다. 전체 지표는 파이프라인 건전성을, 종목별 지표는 개별 종목의 거래 특성을 재므로 같은 지표가 아니다.",
+
+  "measuredAt": "2026-08-05",
+  "measured": {
+    "stageVersion": "A2a.0",
+    "manifestHash": "sha256:9756e0737ea8c866",
+    "recordCount": 6088578,
+    "recordCountBeforeExclusion": 6131865,
+    "tickers": 2579,
+    "actualDataFrom": "2014-05-13",
+    "actualDataTo": "2026-08-03",
+    "missingRate": 0.00056,
+    "datesNotInCalendar": 0,
+    "qualityExcludedCount": 20,
+    "qualityExcludedRate": 0.00775,
+    "qualityExcludedByReason": { "UNADJUSTED_CORPORATE_ACTION": 18, "TRANSIENT_PRICE_SPIKE": 2 },
+    "zeroVolumeTransitions": 139199,
+    "keptZeroVolumeTransitions": 134919,
+    "comparableTransitions": 5990085,
+    "suspendedGapTransitions": 2,
+    "frontTruncatedTickers": 1471,
+    "frontTruncatedTickerDays": 2942,
+    "rowsBeforeListedAt": 91499,
+    "tickersWithRowsBeforeListedAt": 89,
+    "totalGzBytes": 121805000,
+    "environment": { "pykrx": "1.2.8", "python": "3.11.15" }
+  },
+  "measuredNote": "A2a 첫 성공 수집(2026-08-05)의 실측이자 기준선이다. 임계를 다시 손댈 때는 이 값이 비교 기준이다. zeroVolumeTransitions 139,199은 전체 전이의 2.3%로, A5가 returnTransition으로 실제 걷어낼 규모다(산출물 기준은 keptZeroVolumeTransitions 134,919).",
 
   "expectedRows": {
     "basis": "firstTradedDate",
