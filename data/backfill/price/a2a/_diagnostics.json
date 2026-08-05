@@ -1,0 +1,984 @@
+{
+  "stage": "A2a",
+  "mode": "finalize",
+  "pricePolicy": "PR-1.2",
+  "environment": {
+    "pykrx": "1.2.8",
+    "pykrxRequired": "1.2.8",
+    "python": "3.11.15"
+  },
+  "shardFiles": [
+    "shard-0.jsonl",
+    "shard-1.jsonl",
+    "shard-2.jsonl",
+    "shard-3.jsonl",
+    "shard-4.jsonl",
+    "shard-5.jsonl",
+    "shard-6.jsonl",
+    "shard-7.jsonl"
+  ],
+  "shardCount": 8,
+  "rowCount": 6131865,
+  "calendarStart": "2014-05-13",
+  "calendarEnd": "2026-08-03",
+  "actualDataFrom": "2014-05-13",
+  "actualDataTo": "2026-08-03",
+  "datesNotInCalendar": 0,
+  "datesNotInCalendarSample": [],
+  "zeroVolumeTransitions": 139199,
+  "suspendedGapTransitions": 2,
+  "comparableTransitions": 5990085,
+  "qualityExcluded": [
+    {
+      "ticker": "041920",
+      "name": "메디아나",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2014-10-07",
+          "prevDate": "2014-10-06",
+          "prevClose": 7290,
+          "close": 2646,
+          "change": -0.637,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "084650",
+      "name": "랩지노믹스",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2014-12-16",
+          "prevDate": "2014-12-15",
+          "prevClose": 18850,
+          "close": 1194,
+          "change": -0.9367,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "101970",
+      "name": "우양에이치씨",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 4,
+      "rowsDropped": 535,
+      "violations": [
+        {
+          "date": "2015-03-10",
+          "prevDate": "2015-03-09",
+          "prevClose": 600,
+          "close": 1180,
+          "change": 0.9667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2015-03-11",
+          "prevDate": "2015-03-10",
+          "prevClose": 1180,
+          "close": 1830,
+          "change": 0.5508,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2015-03-13",
+          "prevDate": "2015-03-12",
+          "prevClose": 1100,
+          "close": 1990,
+          "change": 0.8091,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2015-03-16",
+          "prevDate": "2015-03-13",
+          "prevClose": 1990,
+          "close": 830,
+          "change": -0.5829,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "124500",
+      "name": "아이티센글로벌",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2014-12-22",
+          "prevDate": "2014-12-19",
+          "prevClose": 4385,
+          "close": 10000,
+          "change": 1.2805,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2014-12-23",
+          "prevDate": "2014-12-22",
+          "prevClose": 10000,
+          "close": 3770,
+          "change": -0.623,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "149980",
+      "name": "하이로닉",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2014-12-17",
+          "prevDate": "2014-12-16",
+          "prevClose": 77100,
+          "close": 19529,
+          "change": -0.7467,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "179530",
+      "name": "애드바이오텍",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1620,
+      "violations": [
+        {
+          "date": "2021-05-26",
+          "prevDate": "2021-05-25",
+          "prevClose": 32150,
+          "close": 11200,
+          "change": -0.6516,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "183490",
+      "name": "엔지켐생명과학",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2018-02-21",
+          "prevDate": "2018-02-20",
+          "prevClose": 89000,
+          "close": 13131,
+          "change": -0.8525,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "185490",
+      "name": "아이진",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2998,
+      "violations": [
+        {
+          "date": "2015-11-16",
+          "prevDate": "2015-11-13",
+          "prevClose": 18300,
+          "close": 8818,
+          "change": -0.5181,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "192410",
+      "name": "오늘이엔엠",
+      "market": "KOSDAQ",
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 2935,
+      "violations": [
+        {
+          "date": "2018-10-01",
+          "prevDate": "2018-09-28",
+          "prevClose": 54703,
+          "close": 106575,
+          "change": 0.9482,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "221800",
+      "name": "지구홀딩스",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2723,
+      "violations": [
+        {
+          "date": "2023-02-23",
+          "prevDate": "2023-02-22",
+          "prevClose": 26300,
+          "close": 7190,
+          "change": -0.7266,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "228760",
+      "name": "지노믹트리",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2462,
+      "violations": [
+        {
+          "date": "2017-11-09",
+          "prevDate": "2017-11-08",
+          "prevClose": 44000,
+          "close": 16200,
+          "change": -0.6318,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "232680",
+      "name": "라온로보틱스",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2606,
+      "violations": [
+        {
+          "date": "2021-06-17",
+          "prevDate": "2021-06-16",
+          "prevClose": 22950,
+          "close": 8208,
+          "change": -0.6424,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "232830",
+      "name": "아이티센피엔에스",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2372,
+      "violations": [
+        {
+          "date": "2020-09-04",
+          "prevDate": "2020-09-03",
+          "prevClose": 34900,
+          "close": 8020,
+          "change": -0.7702,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "239890",
+      "name": "피엔에이치테크",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2443,
+      "violations": [
+        {
+          "date": "2021-02-16",
+          "prevDate": "2021-02-15",
+          "prevClose": 32950,
+          "close": 11925,
+          "change": -0.6381,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "270660",
+      "name": "에브리봇",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2212,
+      "violations": [
+        {
+          "date": "2021-02-17",
+          "prevDate": "2021-02-16",
+          "prevClose": 150500,
+          "close": 42650,
+          "change": -0.7166,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2021-07-28",
+          "prevDate": "2021-07-27",
+          "prevClose": 38300,
+          "close": 15150,
+          "change": -0.6044,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "303360",
+      "name": "프로티아",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1869,
+      "violations": [
+        {
+          "date": "2020-07-21",
+          "prevDate": "2020-07-20",
+          "prevClose": 26300,
+          "close": 13050,
+          "change": -0.5038,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "388610",
+      "name": "지에프씨생명과학",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 879,
+      "violations": [
+        {
+          "date": "2023-07-24",
+          "prevDate": "2023-07-21",
+          "prevClose": 15500,
+          "close": 5280,
+          "change": -0.6594,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "393210",
+      "name": "토마토시스템",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1176,
+      "violations": [
+        {
+          "date": "2023-04-27",
+          "prevDate": "2023-04-26",
+          "prevClose": 20100,
+          "close": 4956,
+          "change": -0.7534,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "425040",
+      "name": "티이엠씨",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 861,
+      "violations": [
+        {
+          "date": "2023-12-28",
+          "prevDate": "2023-12-27",
+          "prevClose": 26500,
+          "close": 51600,
+          "change": 0.9472,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2024-01-02",
+          "prevDate": "2023-12-28",
+          "prevClose": 51600,
+          "close": 25100,
+          "change": -0.5136,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "472850",
+      "name": "폰드그룹",
+      "market": "KOSDAQ",
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 606,
+      "violations": [
+        {
+          "date": "2025-12-30",
+          "prevDate": "2025-12-29",
+          "prevClose": 5609,
+          "close": 10060,
+          "change": 0.7935,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    }
+  ],
+  "qualityExcludedCount": 20,
+  "qualityExcludedByReason": {
+    "UNADJUSTED_CORPORATE_ACTION": 18,
+    "TRANSIENT_PRICE_SPIKE": 2
+  },
+  "qualityExcludedRate": 0.00775,
+  "keptZeroVolumeTransitions": 134919,
+  "keptComparableTransitions": 5951099,
+  "rowsBeforeListedAt": 91499,
+  "tickersWithRowsBeforeListedAt": 89,
+  "fetchFailedTickers": [],
+  "expectedRows": 6091963,
+  "missingRate": 0.00056,
+  "perTickerMissingWorst": [
+    {
+      "ticker": "036220",
+      "firstTraded": "2014-05-13",
+      "expected": 3000,
+      "got": 1069,
+      "missingRate": 0.6437
+    },
+    {
+      "ticker": "198940",
+      "firstTraded": "2014-08-12",
+      "expected": 2937,
+      "got": 1483,
+      "missingRate": 0.4951
+    },
+    {
+      "ticker": "000020",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000150",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000270",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000480",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000650",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "0007J0",
+      "firstTraded": "2026-04-02",
+      "expected": 83,
+      "got": 83,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000950",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001070",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001200",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001360",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001460",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001560",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001720",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001810",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002140",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002290",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002420",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002700",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002820",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003000",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003100",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003300",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003520",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003650",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003850",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004090",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004360",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004540",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004770",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004920",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005090",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005360",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005670",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005810",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005940",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006110",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006360",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006660",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006920",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "007310",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "007570",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "007770",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008260",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008600",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008970",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "009240",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "009440",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "009680",
+      "firstTraded": "2014-05-15",
+      "expected": 2998,
+      "got": 2998,
+      "missingRate": 0.0
+    }
+  ],
+  "frontTruncatedTickers": 1471,
+  "frontTruncatedTickerDays": 2942,
+  "frontTruncatedWorst": [
+    {
+      "ticker": "000020",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "000150",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "000270",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "000480",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "000650",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "000950",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001070",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001200",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001360",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001460",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001560",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001720",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "001810",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "002140",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "002290",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "002420",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "002700",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "002820",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "003000",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    },
+    {
+      "ticker": "003100",
+      "firstTraded": "2014-05-15",
+      "missing": 2
+    }
+  ],
+  "rowCountAfterExclusion": 6088578,
+  "acceptanceFails": [],
+  "acceptanceWarns": [
+    "종목별 누락률 10% 초과 2종목"
+  ],
+  "acceptancePassed": true,
+  "years": {
+    "2014": {
+      "rows": 235298,
+      "rawBytes": 27699201,
+      "gzBytes": 4794388
+    },
+    "2015": {
+      "rows": 397174,
+      "rawBytes": 46924450,
+      "gzBytes": 8150454
+    },
+    "2016": {
+      "rows": 416395,
+      "rawBytes": 49182932,
+      "gzBytes": 8520166
+    },
+    "2017": {
+      "rows": 430394,
+      "rawBytes": 50797968,
+      "gzBytes": 8745257
+    },
+    "2018": {
+      "rows": 450703,
+      "rawBytes": 53258755,
+      "gzBytes": 9129423
+    },
+    "2019": {
+      "rows": 477112,
+      "rawBytes": 56205841,
+      "gzBytes": 9556910
+    },
+    "2020": {
+      "rows": 502360,
+      "rawBytes": 59297666,
+      "gzBytes": 10094151
+    },
+    "2021": {
+      "rows": 526720,
+      "rawBytes": 62450383,
+      "gzBytes": 10558747
+    },
+    "2022": {
+      "rows": 542526,
+      "rawBytes": 64069493,
+      "gzBytes": 10685175
+    },
+    "2023": {
+      "rows": 561273,
+      "rawBytes": 66246970,
+      "gzBytes": 11209214
+    },
+    "2024": {
+      "rows": 582886,
+      "rawBytes": 68623553,
+      "gzBytes": 11507242
+    },
+    "2025": {
+      "rows": 601869,
+      "rawBytes": 70803352,
+      "gzBytes": 11780599
+    },
+    "2026": {
+      "rows": 363868,
+      "rawBytes": 42843608,
+      "gzBytes": 7073272
+    }
+  },
+  "totalGzBytes": 121806266
+}
