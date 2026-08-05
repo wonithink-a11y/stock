@@ -6,12 +6,12 @@
 ```
 Validated against
   정책     UN-1.2 · PR-1.3 · REG-1.3
-  구현     a5df256   ← 이 문서가 검증된 마지막 구현 커밋
+  구현     44972a4   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
   다음     A3 재무(PIT) — 가중치 65%를 쥔 병목
 ```
 
-`git log --oneline a5df256..HEAD -- lib scripts config .github`가 비어 있지 않으면
+`git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
 이 문서가 구현보다 오래됐을 수 있다. 단계를 완료하거나 정책 버전을 올릴 때 이 블록을 갱신한다.
 
 ---

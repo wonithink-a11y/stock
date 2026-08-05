@@ -7,7 +7,7 @@
 ```
 Validated against
   정책        UN-1.2 · PR-1.3 · REG-1.3 · EP-1.0
-  구현        a5df256   ← 이 문서가 검증된 마지막 구현 커밋
+  구현        44972a4   ← 이 문서가 검증된 마지막 구현 커밋
   검증 범위   A0.5 · A0.7 · A1a · A1b · A2a (전부 실행 완료, 기준선 확정)
               A2b 이후는 설계이며 아직 구현과 대조된 적이 없다
   갱신 시점   단계 완료 · 정책 버전 승격 시 이 블록을 함께 갱신한다
@@ -16,7 +16,7 @@ Validated against
 **구현이 문서를 앞서갔는지 확인하는 법**
 
 ```bash
-git log --oneline a5df256..HEAD -- lib scripts config .github
+git log --oneline 44972a4..HEAD -- lib scripts config .github
 ```
 
 출력이 비어 있지 않으면 이 문서가 대조되지 않은 구현 변경이 있다는 뜻이다. 그 자체가
