@@ -5,12 +5,13 @@
 
 ```
 Validated against
-  정책     UN-1.2 · REG-1.3
-  구현     91b9455   ← 이 문서가 검증된 마지막 구현 커밋
-  완료     A0.5 · A0.7 · A1a · A1b     다음: A2a
+  정책     UN-1.2 · PR-1.0 · REG-1.3
+  구현     46b2031   ← 이 문서가 검증된 마지막 구현 커밋
+  완료     A0.5 · A0.7 · A1a · A1b (실행) · A2a (구현, 첫 수집 대기)
+  다음     A2a 첫 수집 → A2b 커버리지 정찰
 ```
 
-`git log --oneline 91b9455..HEAD -- lib scripts config .github`가 비어 있지 않으면
+`git log --oneline 46b2031..HEAD -- lib scripts config .github`가 비어 있지 않으면
 이 문서가 구현보다 오래됐을 수 있다. 단계를 완료하거나 정책 버전을 올릴 때 이 블록을 갱신한다.
 
 ---
