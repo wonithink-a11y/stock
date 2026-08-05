@@ -89,9 +89,11 @@ normalizeTicker(raw):
 
 ⚠ 이 계약은 백필 구간(2016~2025)에는 해당 종목이 0건이라 **트랙 A의 선행 조건이 아니다.** 운영 파이프라인과 미래 데이터에만 영향하므로 병렬로 처리한다.
 
-### 1.2 유니버스 정의 (신설) — `config/policies/universe.v1.json` (UN-1.0)
+### 1.2 유니버스 정의 (신설) — `config/policies/universe.v1.json` (UN-1.2)
 
-정의는 **정책 파일이 단일 산출점**이다. A1a·A2·A5 검증·A6 리포트가 같은 파일을 읽는다. 코드에 시장·SPAC·중복 규칙을 하드코딩하지 않는다.
+정의는 **정책 파일이 단일 산출점**이다. A1a·A1b·A2·A5 검증·A6 리포트가 같은 파일을 읽는다. 코드에 시장·SPAC·중복 규칙을 하드코딩하지 않는다.
+
+파일은 두 블록으로 나뉜다. 최상위(`source`·`acceptance`·`measured`)는 A1a 범위이고, `a1b` 블록이 폐지 이력 차집합 범위다(UN-1.2 신설). `tickerPattern`은 최상위에만 두고 `a1b`가 그대로 읽는다 — 블록마다 복제하면 두 단계가 다른 식별자 계약을 쓰게 된다.
 
 ```
 포함   KOSPI(유가) + KOSDAQ
@@ -117,7 +119,9 @@ A5에서의 추적성은 체인이 보장한다: `A5.upstream.A1a → A1a manife
 
 **exact duplicate** — KIND 소스에 43코드 × 2행의 완전 동일 행이 존재한다. 회사 교체도 사명 변경도 아닌 소스 측 중복이므로 **전 필드 일치 시에만** 제거한다. 한 필드라도 다르면 제거하지 않고 FAIL로 올려 사람이 판정한다.
 
-**임계값 완화는 UN-1.1 승격으로만 한다.** `acceptance`를 느슨하게 고치면 파일 해시가 바뀌고 manifest에 남는다 — 조용한 완화가 불가능하다.
+**임계값 완화는 버전 승격으로만 한다.** `acceptance`를 느슨하게 고치면 파일 해시가 바뀌고 manifest에 남는다 — 조용한 완화가 불가능하다.
+
+**정책 버전을 올리면 상류 manifest의 policyHash는 낡은 채로 남는다.** `verifyUpstream()`은 상류의 *데이터* 해시만 대조하므로 UN-1.1 → UN-1.2 승격 후에도 A1a manifest의 옛 `policyHash.universe`가 그대로 통과한다(§6 미결정 ②). 실무 규칙: **정책을 올리면 그 정책을 읽는 단계를 상류부터 순서대로 재실행한다.** A1a는 KIND를 다시 읽으므로 이 재실행은 policyHash만 바뀌는 무해한 연산이 아니다 — 그 사이 신규 상장이 있었다면 `current.jsonl`이 바뀌고 하류 후보 수도 따라 바뀐다. 정상 동작이며, 재실행 후 행 수 변화를 확인하는 것이 절차의 일부다.
 
 ---
 
@@ -126,21 +130,37 @@ A5에서의 추적성은 체인이 보장한다: `A5.upstream.A1a → A1a manife
 ```
 A0    스키마 동결(이 문서)
 A0.5  calendar.json              ← 체인의 첫 고리
-A1a   현재 상장 유니버스           ← KIND 상장법인목록
-A1b   폐지 이력 유니버스           ← DART corpCode 차집합 + 사유 복원
-      ├ A2 가격(수정주가)  ─┐
-      ├ A3 재무(PIT)       ─┼→ A5 채점 → A6 분석 ─┬→ A7 state 리플레이
-      └ A4 수급            ─┘                      ├→ A8 STEP F(R102/R107)
-                                                    └→ A9 미국
+A0.7  DART corpCode 스냅샷        ← corp_code 단일 수집점
+A1a   현재 상장 유니버스           ← KIND 상장법인목록 + A0.7 역인덱스
+A1b   폐지 이력 유니버스           ← A0.7 − A1a 차집합 (사유 복원은 별도 단계)
+      ├ A2a 가격(현재 상장분) ─┐
+      ├ A2b 가격(폐지분)      ─┤
+      ├ A3  재무(PIT)         ─┼→ A5 채점 → A6 분석 ─┬→ A7 state 리플레이
+      └ A4  수급              ─┘                      ├→ A8 STEP F(R102/R107)
+                                                       └→ A9 미국
 ```
 
 A2·A3·A4는 상호 독립. **A4 없이도 A5 실행 가능**(`missingAxis: renormalize`).
 
+**A2를 유니버스 축으로 분할한다 (2026-08-05 확정)**
+
+```
+A2a  현재 상장분   upstream: A0.5·A1a       ← A1b를 기다리지 않는다
+A2b  폐지분        upstream: A0.5·A1b
+A5   upstream에 A2a·A2b가 모두 없으면 throw  ← 생존편향 차단은 그대로
+```
+
+분할 축은 **유니버스**지 수집/검증 단계가 아니다. 두 가지 이유다.
+
+1. **병렬화 목적을 만족하는 유일한 축이다.** 분할의 목적은 2,579종목 × 10년 수집을 A1b 완료 전에 착수하는 것이다. 수집/검증으로 나누면 수집 단계도 여전히 A1b가 있어야 대상을 알므로 대기가 그대로 남는다.
+2. **manifest 계약을 지킨다.** 검증을 별도 stage로 떼면 앞 stage가 *검증되지 않은 산출물*에 manifest를 찍어야 한다. manifest는 "인수 조건을 통과했다"는 뜻이고 실패 시 파일을 쓰지 않는 것이 계약이다(§4, 교훈43). 검증은 stage가 아니라 각 stage의 산출 직전 게이트다.
+
 **A1a / A1b 분리의 게이트 규칙**
 
 ```
-A2·A3·A4   A1a 해시만으로 착수 가능       ← 탐색 중에도 파이프라인이 멈추지 않는다
-A5         A1b 해시가 upstream에 없으면 verifyUpstream() throw
+A2a·A3·A4  A1a 해시만으로 착수 가능       ← 탐색 중에도 파이프라인이 멈추지 않는다
+A2b        A1b 해시 필수
+A5         A1b·A2a·A2b 해시가 upstream에 없으면 verifyUpstream() throw
 A6         GATE-EP-1/2 통과 전 Primary 결론 금지 (§6.4)
 ```
 
@@ -362,16 +382,69 @@ exitReasonCoverage  (폐지 1,222건 기준)
 
 **14를 첫 실행부터 FAIL로 걸지 않는 이유**: corp_code 매핑을 아직 실측한 적이 없다. 매핑 실패(`null`)가 다수면 실제 문제가 아닌데 파이프라인이 막힌다. 1 corp → N ticker 전건을 `_diagnostics.corpCodeDuplicates`에 출력하고, **실측 1회 후 FAIL로 승격**한다 — RP 감점값 `provisional`, exitReason 첫 실행 UNKNOWN 정상 처리와 같은 패턴이다.
 
-### A1b 폐지 이력 유니버스
-1. 폐지 후보 **> 500건** (0이면 복원 실패. 실측 차집합 1,222)
-2. 후보 집합 = `DART corpCode.stock_code` − `A1a 현재상장`. **A1a manifest를 upstream으로 필수 인용**
-3. 알려진 폐지 종목 5개 하드코딩 대조 (전건 포함되어야 함)
-4. **`exitAt`을 A1b에서 확정하지 않는다** — A2의 마지막 거래일로 확정. A1b는 후보 목록 + `corp_code`만 낸다
-5. `exitReason` 전건 UNKNOWN 허용. `_diagnostics.exitReasonPending = true`로 명시
-6. 상장 이력 없는 법인 혼입 추정치 리포트 (A2 일봉 조회에서 확정 제거)
-7. `corp_code` 결측 0건 — 차집합의 정의상 전건이 DART 출신이므로 결측이 나오면 로직 오류
+### A1b 폐지 이력 유니버스 — 구현 완료 (UN-1.2, 2026-08-05)
 
-### A2 가격
+임계는 전부 `universe.v1.json`의 `a1b.acceptance`에서 읽는다. 후보 집합은
+`A0.7 corp` − `A1a current.corp` − `A1a excluded.corp`이고, **A0.7·A1a manifest를 둘 다 upstream으로 필수 인용**한다(`REQUIRED_UPSTREAM.A1b`). A0.7을 빼면 어느 날짜의 DART 스냅샷과의 차집합인지 기록이 없다.
+
+| # | 검사 | 임계 | 판정 |
+|---|---|---|---|
+| 1 | 후보 수 | 900 ~ 1,600 (실측 1,222) | FAIL |
+| 2 | `exitAt` | 전건 `null` | FAIL |
+| 3 | `exitReason` | 전건 `UNKNOWN` + `_diagnostics.exitReasonPending = true` | FAIL |
+| 4 | `corp` 결측 / 계약 `^[0-9]{8}$` | 0건 / 위반 0건 | FAIL |
+| 5 | A1a ∩ A1b | **corp 기준·ticker 기준 둘 다** 0건 | FAIL |
+| 6 | `ticker` 계약 `^[0-9A-Z]{6}$` | 위반 0건 | FAIL |
+| 7 | ticker 재사용 후보 | 전수 `_diagnostics.tickerReuse` 기록 | **통과** — 재사용은 사실이다 |
+| 8 | 상장 이력 미검증 | `_diagnostics.listingHistoryUnverified = true` | FAIL(플래그 누락 시) |
+
+**5를 두 키로 재는 이유**: corp만 보면 A1a에서 corp 매핑에 실패한 종목(그쪽은 WARN이다)이 폐지 후보로 남아 있어도 교집합 0으로 통과한다. ticker 기준 제거는 차집합 뒤에 붙는 안전망이고, 걸린 건수 자체가 A1a 매핑 실패를 재는 진단값이다(`tickerSafetyNetRemoved`, 실측 0건).
+
+**`dartModifyDate`는 `exitAt`이 아니다.** A2가 마지막 거래일을 역탐색할 때 조회 구간을 좁히는 힌트일 뿐이다. 이걸 폐지일로 승격시키려는 유혹이 A1b의 최대 위험이고, 그 오차는 백테스트에서 look-ahead로 나타난다.
+
+**알려진 폐지 5건 대조는 정책이 아니라 회귀 테스트(`scripts/test-universe-a1b.js`)에 있다.** 정책은 시스템 동작을 정의하고 회귀 테스트는 구현이 계속 그 동작을 내는지 검증한다. 워크플로 순서는 `Build → 진단 계약 검증 → 회귀 테스트 → manifest`이고 manifest는 셋 다 통과해야 찍힌다. 이름은 **완전 일치**로 찾는다 — '데코'를 부분 일치로 찾으면 데코앤에프·한솔홈데코가 걸려 "찾았다"가 거짓이 된다.
+
+#### 후보 수 임계 `[900, 1600]`의 근거 — UN-1.3 재검토 트리거
+
+단일 시점 관측으로 임계를 좁히지 않는다. 이 범위는 **상류 게이트가 허용하는 구간보다 좁은가**로 정당화한다.
+
+```
+A0.7 인수조건   stock_code 보유 3,981 ±10%   → base   ∈ [3,583, 4,379]
+A1a 인수조건    sourceRows ∈ [2,200, 3,400]  → |A1a|  ∈ [2,200, 3,400]
+──────────────────────────────────────────────────────────────────
+상류 합성이 허용하는 후보 수                    N ∈ [183, 2,179]
+A1b 게이트                                      N ∈ [900, 1,600]
+```
+
+**상한이 하한보다 중요하다.** A1a가 망가져 base가 줄면 후보가 폭증하는데, 하한만 있으면 그 폭증이 '성공'으로 통과한다. 상한이 실질 정보량을 갖는 지점은 여기다.
+
+```
+A1a 시장 하한 여유  (833−700) + (1746−1500) = 379종목
+A1b 상한 여유       1600 − 1222             = 378종목
+```
+
+거의 같은 지점에서 발동한다. 즉 A1a가 **두 시장에 분산된 손실**을 입어 자기 하한 둘 다 아슬아슬하게 통과하는 경우를 A1b 상한이 잡는다. 사각지대가 없다.
+
+반대로 상한이 감시하지 않아도 되는 실패 모드도 분명하다. A1a의 corp 매핑 실패(WARN, 최대 10% ≈ 276건)는 그 종목의 ticker가 A1a에 살아 있으므로 ticker 안전망이 전부 흡수한다. 상한이 실제로 보는 실패 모드는 '소스 행 손실' 하나로 좁혀져 있다.
+
+**하한 900이 약한 쪽이다.** DART는 폐지 법인 레코드를 지우지 않으므로 후보 수는 시간에 대해 단조 증가한다. 하한은 "있던 폐지사가 사라졌다"는 급성 사고만 잡고, 장기적으로 부담이 되는 쪽은 상한이다.
+
+**재검토 트리거 (UN-1.3)** — 둘 중 하나가 성립하면 재조정한다.
+
+```
+① manifest.recordCount가 3회 이상 누적되어 증가 속도를 잴 수 있게 될 때
+② N ≥ 1,450 (상한의 90%)에 도달할 때
+```
+
+②의 1,450은 "상한까지 남은 여유가 150건 미만"이라는 뜻이다. 정상 증가가 상한을 밀어 올려 게이트가 오탐으로 바뀌기 전에, 여유가 한 자릿수 퍼센트로 줄기 전에 손을 대기 위한 값이다. 증가 속도를 아직 못 재는 상태(스냅샷 1회)에서 정할 수 있는 가장 단순한 조기 신호다. **①이 충족되면 ②를 기다리지 말고 실측 증가율 기준으로 상한을 다시 정한다.**
+
+두 번째 관측: `data/backfill/_probe-delisted.json`의 `P3_dart_diff`(2026-08-04 정찰, 별도 코드 경로)가 동일한 1,222를 기록했다. 구현 교차 검증이며 시간에 따른 변동폭의 근거는 아니다.
+
+### A2 가격 — A2a(현재 상장분) / A2b(폐지분)
+
+아래 인수 조건은 **양쪽 공통**이다. 분할은 유니버스 축이고 검증 로직을 나누지 않는다(§2).
+착수 시 확정할 차이는 두 가지다: A2b는 상장폐지 시점 이후 데이터가 없으므로 **2번의 거래일 대조 구간을 상장기간으로 한정**해야 하고, 그 마지막 거래일이 곧 A1b가 비워둔 `exitAt`의 확정값이 된다(`dartModifyDate`가 아니라).
+
 1. **일간 종가 변동 ±50% 초과 0건** — 초과 시 종목·날짜 전량 리포트 후 실패 (수정주가 미적용 탐지)
 2. 거래일 수 vs `calendar.tradingDays` 대조, 누락률 1% 초과 실패
 3. `close > 0`, `high >= low` 전수
@@ -429,18 +502,22 @@ exitReasonCoverage  (폐지 1,222건 기준)
 |---|---|---|
 | `docs/BF-1.1-백필계약.md` | 신규 | 이 문서 (`BF-1.0`은 이력으로 보존, 참조는 이쪽) |
 | `config/policies/exit.v1.json` | 무변경 | EP-1.0 |
-| `config/policies/universe.v1.json` | **신규** | UN-1.0 — 유니버스 정의 단일 산출점 |
+| `config/policies/universe.v1.json` | **UN-1.2** | 유니버스 정의 단일 산출점. `a1b` 블록 신설 |
 | `config/policies/registry.json` | 수정 | REG-1.2 → **REG-1.3** (`dataPolicies` 신설) |
 | `lib/loadPolicies.js` | 수정 | `data` · `dataVersions` 반환. 3중 네임스페이스 중복 등록 시 throw |
-| `lib/backfillManifest.js` | 수정 | `upstream` 필수 키 표(§4) 강제 |
+| `lib/backfillManifest.js` | 수정 | `upstream` 필수 키 표(§4) 강제. `A1b: ['A0.7','A1a']` |
 | `scripts/build-calendar.py` | 무변경 | A0.5 |
 | `scripts/build-universe.py` | **삭제** | KRX bulk 전제. A1a/A1b로 대체 |
-| `scripts/build-universe-a1a.py` | 신규 | A1a |
-| `scripts/build-universe-a1b.py` | 신규 | A1b |
+| `scripts/build-dart-corpcode.py` | 완료 | A0.7 — corp_code 단일 수집점 |
+| `scripts/build-universe-a1a.py` | 완료 | A1a |
+| `scripts/build-universe-a1b.py` | 완료 | A1b |
+| `scripts/verify-diagnostics.js` | 신규 | 진단 계약 단일 표. 워크플로가 `<stage>` 인자로 호출 |
+| `scripts/test-universe-a1b.js` | 신규 | 알려진 폐지 5건 회귀 + 산출물 스키마 계약 |
 | `.github/workflows/universe.yml` | **삭제** | |
-| `.github/workflows/universe-a1a.yml` · `universe-a1b.yml` | 신규 | |
+| `.github/workflows/dart-corpcode-a07.yml` | 완료 | A0.7 (월 1회 + dispatch) |
+| `.github/workflows/universe-a1a.yml` · `universe-a1b.yml` | 완료 | |
 | `scripts/probe-krx.py` · `probe-kind.py` · `probe-delisted.py` | 보존 | 정찰 근거. 재실행 불필요 |
-| `scripts/test-policies-acceptance.js` | 수정 | ticker 계약 검사 추가 |
+| `scripts/test-policies.js` | 수정 | `dataPolicies.universe` 검증 추가 (`a1b` 임계·기본값·키 역할) |
 
 ---
 
