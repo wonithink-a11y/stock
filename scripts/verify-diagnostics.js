@@ -149,6 +149,11 @@ const CONTRACT = {
                // 그대로 지나간다. 승인 여부(open)와 재시도 가능 여부를 함께 남긴다 —
                // retryable=true는 아직 모르는 것이지 못 하는 것이 아니다.
                'corpsHardSkipped', 'corpsHardSkippedOpen', 'hardSkippedByRetryable',
+               // 승인된 공백. 목록과 개수를 함께 남기는 이유는 approvalHash가 '어느
+               // 버전의 승인 목록인가'만 고정하고 '무엇을 승인했는가'는 말하지 않기
+               // 때문이다. declaredNotInHardSkipped는 실제 공백에 대응하지 않는 승인이며,
+               // 오래된 승인이 미래의 공백을 미리 덮는 것이 이 체계가 조용해지는 경로다.
+               'declaredGaps', 'declaredGapsCount', 'declaredNotInHardSkipped',
                // 일부 연도만 실패하고 레코드는 나온 법인. 세지 않으면 부분 공백이
                // 완전 수집과 구분되지 않는다.
                'corpsPartialHard',

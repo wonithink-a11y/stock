@@ -346,6 +346,45 @@ if (!fund.measured) {
   }
 }
 
+// ---- approvals: 운영 승인 채널 (REG-1.5) ----
+// 정책이 아니라 예외다. 네 번째 네임스페이스인 이유는 승인과 규칙이 manifest에서
+// 서로 다른 이벤트여야 하기 때문이다 — 같은 파일에 두면 corp 하나를 승인할 때마다
+// policyHash가 바뀌어 '규칙이 바뀌었다'와 '예외를 하나 인정했다'가 같은 신호가 된다.
+const { REQUIRED_APPROVALS, hashApprovalFiles } = require('../lib/backfillManifest');
+assert.ok(registry.approvals && typeof registry.approvals === 'object',
+  'registry.approvals가 없다 — 승인 목록이 정책 네임스페이스로 되돌아가면 예외 하나가 규칙 변경으로 보인다');
+for (const [stage, keys] of Object.entries(REQUIRED_APPROVALS)) {
+  for (const k of keys) {
+    assert.ok(k in registry.approvals,
+      `REQUIRED_APPROVALS.${stage}의 '${k}'가 registry.approvals에 없다 — 실행 불가능한 계약이 남는다`);
+    const p = path.join(ROOT, registry.approvals[k]);
+    assert.ok(fs.existsSync(p),
+      `승인 파일 없음: ${registry.approvals[k]} — 빈 목록이라도 파일은 존재해야 한다. 부재는 '승인이 없다'가 아니라 '채널이 배선되지 않았다'는 뜻이다`);
+    const doc = JSON.parse(fs.readFileSync(p, 'utf8'));
+    assert.ok(Array.isArray(doc.gaps), `${registry.approvals[k]}의 gaps가 배열이 아니다`);
+    for (const g of doc.gaps) {
+      assert.ok(/^[0-9]{8}$/.test(g.corp || ''),
+        `${registry.approvals[k]}의 corp 계약 위반: ${JSON.stringify(g.corp)} — 조인 키는 corp_code다`);
+      assert.ok(String(g.reason || '').trim(),
+        `${registry.approvals[k]}의 ${g.corp}에 reason이 없다 — 사유 없는 승인은 재검토할 근거를 남기지 않는다`);
+    }
+  }
+}
+// 승인 해시는 정책 해시와 섞이지 않는다. 같은 키를 양쪽에서 찍으면 어느 쪽이
+// 바뀌었는지가 아니라 둘 다 바뀐 것처럼 보인다.
+const ah = hashApprovalFiles(['declaredGapsA3']);
+assert.ok(ah && /^sha256:[0-9a-f]{16}$/.test(ah.declaredGapsA3),
+  'approvalHash가 파일 바이트 해시 형태가 아니다');
+assert.ok(!('registry' in ah) && !('registryVersion' in ah),
+  'approvalHash에 registry 해시가 섞였다 — policyHash가 이미 들고 있어 중복 신호가 된다');
+assert.throws(() => hashApprovalFiles(['notRegistered']), /approvals에 없다/,
+  '등록되지 않은 승인 키가 통과한다 — 어느 파일을 승인 목록으로 읽었는지 추적이 끊긴다');
+for (const k of Object.keys(registry.approvals)) {
+  assert.ok(!(k in registry.policies) && !(k in registry.dataPolicies)
+         && !(k in registry.analysisPolicies),
+    `승인 키 '${k}'가 정책 네임스페이스에도 있다 — 어느 층이 읽는지 모호해진다`);
+}
+
 console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
 console.log(`   price ${price.version}: 샤드 ${price.shards} · 요구 pykrx ${price.source.requiredVersion} · 일간 임계 ±${price.acceptance.dailyChangeAbsMax * 100}%`);
 console.log(`   fundamentals ${fund.version}: 사업연도 ${fund.fiscalYearFrom}~${fund.fiscalYearTo} · 샤드 ${fund.shards} · 일 한도 ${fund.quota.dailyCallLimit}${fund.measured ? '' : ' (실측 전 — 커버리지 임계는 WARN)'}`);

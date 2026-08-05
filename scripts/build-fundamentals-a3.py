@@ -52,6 +52,10 @@ A1A = "data/backfill/universe/a1a/current.jsonl"
 A1B = "data/backfill/universe/a1b/delisted.jsonl"
 OUT_DIR = "data/backfill/fundamentals/a3"
 SHARD_DIR = "data/backfill/fundamentals/_shards"
+# 운영 승인 목록. 정책이 아니라 예외이므로 config/policies가 아니다.
+# registry.approvals.declaredGapsA3와 같은 파일을 가리켜야 한다 — 갈라지면
+# manifest의 approvalHash가 수집기가 실제로 읽은 목록과 다른 것을 증명하게 된다.
+DECLARED_GAPS = "config/backfill/declared-gaps-a3.json"
 BASE = "https://opendart.fss.or.kr/api"
 KEY = os.environ.get("DART_API_KEY", "")
 KST = timezone(timedelta(hours=9))
@@ -407,13 +411,41 @@ def load_state(shard, shards, pol):
 # 둘은 동치가 아니다. 아래는 정의에서 따라오는 성질일 뿐이며, 이 구분을 적어두지 않으면
 # 언젠가 '정의는 그대로 두고 항등식만 맞추는' 수정이 들어온다 — 완료의 의미를 바꾸면서
 # 바꾸지 않은 것처럼 보이게 만드는 수정이다.
-def declared_gaps():
-    """승인된 공백(retryable=false 중 사람이 승인한 것). 채널은 커밋 2에서 만든다.
+_declared_cache = None
 
-    그때까지는 빈 집합이므로 hardSkippedOpen == hardSkipped이고, 재시도 불가 실패가
-    하나라도 나오면 finalize가 막힌다. 조용히 통과하는 것보다 낫다.
+
+def declared_gaps():
+    """승인된 공백 — 사람이 '이 법인은 재시도해도 안 된다'고 인정한 목록.
+
+    **승인은 수집 동작을 바꾸지 않는다.** 승인된 법인도 다음 실행에서 똑같이 재시도되며,
+    승인이 하는 일은 완료 판정에서 그 공백을 '열린 것'으로 세지 않는 것뿐이다.
+    이 분리가 approvalHash를 collectionContractHash와 따로 두는 근거다 — 승인이 수집
+    결과를 바꾸면 그것은 승인이 아니라 규칙이고, 규칙이라면 수집 계약 해시에 들어가야 한다.
+
+    파일이 없으면 빈 집합이 아니라 예외다. '승인이 없다'와 '채널이 배선되지 않았다'는
+    다르고, 후자를 조용히 통과시키면 승인 체계가 있는 척만 하게 된다.
     """
-    return set()
+    global _declared_cache
+    if _declared_cache is None:
+        if not os.path.exists(DECLARED_GAPS):
+            raise FileNotFoundError(
+                f"{DECLARED_GAPS} 없음 — 빈 목록이라도 파일은 존재해야 한다. "
+                f"파일 부재는 '승인이 없다'가 아니라 '승인 채널이 배선되지 않았다'는 뜻이다")
+        doc = load_json(DECLARED_GAPS)
+        gaps = doc.get("gaps")
+        if not isinstance(gaps, list):
+            raise ValueError(f"{DECLARED_GAPS}의 gaps가 배열이 아니다")
+        out = set()
+        for g in gaps:
+            corp = (g or {}).get("corp")
+            if not CORP_RE.match(corp or ""):
+                raise ValueError(f"{DECLARED_GAPS}의 corp 계약 위반: {corp!r}")
+            if not str((g or {}).get("reason") or "").strip():
+                # 사유 없는 승인은 다음 사람이 재검토할 근거를 남기지 않는다.
+                raise ValueError(f"{DECLARED_GAPS}의 {corp}에 reason이 없다")
+            out.add(corp)
+        _declared_cache = out
+    return _declared_cache
 
 
 def shard_status(state):
@@ -1105,6 +1137,12 @@ def run_finalize(pol):
         ("retryable" if v.get("retryable") else "nonRetryable") for v in hard_all.values()))
     diag["corpsPartialHard"] = partial_hard
     diag["stateConservationViolations"] = conservation_bad
+    # 승인은 실제 공백에 대응해야 한다. 대응하지 않는 승인은 '오래된 승인이 미래의
+    # 공백을 미리 덮는' 경로이고, 그것이 승인 체계가 조용해지는 유일한 길이다.
+    declared = declared_gaps()
+    diag["declaredGaps"] = sorted(declared)
+    diag["declaredGapsCount"] = len(declared)
+    diag["declaredNotInHardSkipped"] = sorted(declared - set(hard_all))
     # 확보한 보고서 대비 레코드로 살아남은 비율. 이 분모는 산출물에 없다 —
     # 버려진 보고서는 흔적을 남기지 않으므로 여기서만 셀 수 있다.
     diag["reportsFound"] = reports_found
@@ -1174,6 +1212,12 @@ def run_finalize(pol):
     warn(pol["fiscalYearTo"] >= expected_to,
          f"fiscalYearTo {pol['fiscalYearTo']} >= 규칙상 최신 사업연도 {expected_to} "
          f"(WARN이면 정책 값을 올릴 때가 됐다는 뜻이다)")
+    # 실제 공백에 대응하지 않는 승인. FAIL이 아닌 이유는 정당한 경우가 있어서다 —
+    # 승인한 법인이 나중에 성공하면 hardSkipped에서 빠지고 승인만 남는다.
+    # 다만 그대로 두면 다음 공백을 사람 눈에 안 띄게 덮으므로 정리 신호를 남긴다.
+    warn(not diag["declaredNotInHardSkipped"],
+         f"실제 공백에 대응하지 않는 승인 {len(diag['declaredNotInHardSkipped'])}건 "
+         f"{diag['declaredNotInHardSkipped']} — 오래된 승인이 미래의 공백을 미리 덮는다")
 
     os.makedirs(OUT_DIR, exist_ok=True)
     diag["acceptanceFails"] = list(fails)

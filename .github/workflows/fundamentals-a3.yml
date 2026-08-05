@@ -183,6 +183,7 @@ jobs:
             --target data/backfill/fundamentals/a3 --kind dir --ext .jsonl.gz \
             --upstream A1a,A1b \
             --policies universe,fundamentals \
+            --approvals declaredGapsA3 \
             --extra "$EXTRA"
 
       - name: Upload diagnostics

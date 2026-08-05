@@ -560,6 +560,61 @@ try:
        m.shard_status(st3)["hardSkippedOpen"] == 1)
     shutil.rmtree(tmp2, ignore_errors=True)
 
+    print("\n[승인 채널 — 수집을 바꾸지 않고 완료 판정만 닫는다]")
+    REG = json.load(open(os.path.join(ROOT, "config/policies/registry.json"),
+                         encoding="utf-8"))
+    ok("수집기가 읽는 승인 파일이 registry.approvals와 같다 (갈라지면 approvalHash가 "
+       "실제로 읽은 목록과 다른 것을 증명하게 된다)",
+       m.DECLARED_GAPS == REG["approvals"]["declaredGapsA3"],
+       f'{m.DECLARED_GAPS} vs {REG["approvals"]["declaredGapsA3"]}')
+    ok("커밋된 승인 목록은 비어 있다 (빈 배열도 해시 대상이다)",
+       m.declared_gaps() == set(), str(m.declared_gaps()))
+
+    tmp4 = tempfile.mkdtemp()
+    st_perm = {"shard": 0, "corpsAssigned": 2, "corpsDone": ["00000003"],
+               "hardSkipped": {"00000004": {"retryable": False}}}
+    ok("승인 전에는 열린 공백이라 완료가 아니다",
+       not m.shard_status(st_perm)["complete"]
+       and m.shard_status(st_perm)["hardSkippedOpen"] == 1)
+    m._declared_cache = {"00000004"}
+    s_ok = m.shard_status(st_perm)
+    ok("승인하면 완료된다 (열린 공백이 0이 된다)",
+       s_ok["complete"] and s_ok["hardSkippedOpen"] == 0
+       and s_ok["declaredHardSkipped"] == 1, str(s_ok))
+    ok("승인해도 보존식은 그대로 성립한다 (사실은 승인과 무관하다)",
+       s_ok["conservationOk"] and s_ok["hardSkipped"] == 1, str(s_ok))
+    # 원칙 4 — 승인은 규칙이 아니라 운영 결정이므로 수집 동작을 바꾸지 않는다.
+    # 바꾼다면 그것은 승인이 아니라 규칙이고, 수집 계약 해시에 들어가야 한다.
+    rc, st_a, _ = fake_run(tmp4, {"00000004": ([], HARD_PERM, False)})
+    ok("승인된 법인도 다음 실행에서 똑같이 재시도된다 (승인이 수집을 바꾸면 그것은 규칙이다)",
+       "00000004" in st_a["hardSkipped"]
+       and st_a["hardSkipped"]["00000004"]["attempts"] == 1, str(st_a["hardSkipped"]))
+    m._declared_cache = set()
+    shutil.rmtree(tmp4, ignore_errors=True)
+
+    real_path = m.DECLARED_GAPS
+    for bad, why in [
+        ({"gaps": [{"corp": "123", "reason": "x"}]}, "corp 계약 위반"),
+        ({"gaps": [{"corp": "00000004", "reason": "  "}]}, "사유 없는 승인"),
+        ({"gaps": "not-a-list"}, "gaps가 배열이 아님"),
+    ]:
+        p = os.path.join(tmp, "bad-gaps.json")
+        json.dump(bad, open(p, "w", encoding="utf-8"))
+        m.DECLARED_GAPS, m._declared_cache = p, None
+        try:
+            m.declared_gaps()
+            ok(f"승인 목록 거부 — {why}", False, "예외가 안 났다")
+        except (ValueError, KeyError):
+            ok(f"승인 목록 거부 — {why}", True)
+    m.DECLARED_GAPS, m._declared_cache = os.path.join(tmp, "nope.json"), None
+    try:
+        m.declared_gaps()
+        ok("승인 파일 부재는 빈 목록이 아니라 오류다", False, "예외가 안 났다")
+    except FileNotFoundError:
+        ok("승인 파일 부재는 빈 목록이 아니라 오류다 "
+           "('승인이 없다'와 '채널이 배선되지 않았다'는 다르다)", True)
+    m.DECLARED_GAPS, m._declared_cache = real_path, None
+
     print("\n[상태 이관 — 버전 승격이 수집을 버리지 않는다]")
     tmp3 = tempfile.mkdtemp()
     m.SHARD_DIR = tmp3
@@ -575,6 +630,55 @@ try:
        got["corpsDone"] == ["00000001"] and got["reportsFound"] == 3, str(got))
     ok("이관 시 현재 계약 해시가 채워진다",
        got["collectionContractHash"] == base, str(got.get("collectionContractHash")))
+
+    # 실제 파일에서 run_shard 전체를 거쳐 이어받는지까지 본다. load_state만 보면
+    # '읽기는 했다'까지고, 이어받은 상태로 수집이 실제로 이어지는지는 모른다 —
+    # 다음 정책 승격에서 안전하다고 말하려면 이 경로가 회귀에 있어야 한다.
+    tmp5 = tempfile.mkdtemp()
+    legacy5 = {"stage": "A3", "shard": 0, "shards": 1,
+               "fundamentalsPolicy": "FN-1.2", "corpsDone": ["00000001"],
+               "callsUsedToday": 0, "lastRunDate": None,
+               "reportsFound": 5, "recordRejected": {"RCEPT_NO_NOT_DATE": 1},
+               "runDates": ["2026-08-05"], "complete": False}
+    os.makedirs(tmp5, exist_ok=True)
+    json.dump(legacy5, open(f"{tmp5}/_state-0.json", "w", encoding="utf-8"))
+    with open(f"{tmp5}/shard-0.jsonl", "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec_for("00000001"), ensure_ascii=False) + "\n")
+    scanned = []
+
+    def scan_spy(corp, ticker, pol, counters, state):
+        scanned.append(corp)
+        return ([rec_for(corp)], NO_FAIL, False)
+
+    m.SHARD_DIR = tmp5
+    m.KEY = "test-key"
+    m.target_corps = lambda: {c: {"ticker": "000001", "group": "current"}
+                              for c in ("00000001", "00000005")}
+    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None)
+    m.scan_corp = scan_spy
+    _sleep = m.time.sleep
+    m.time.sleep = lambda *a: None
+    try:
+        with redirect_stdout(io.StringIO()):
+            m.run_shard(0, 1, copy.deepcopy(POL), 0)
+    finally:
+        m.time.sleep = _sleep
+    st5 = json.load(open(f"{tmp5}/_state-0.json", encoding="utf-8"))
+    recs5 = [json.loads(l) for l in open(f"{tmp5}/shard-0.jsonl", encoding="utf-8")]
+    ok("legacy 상태에서 run_shard가 이미 끝난 법인을 다시 수집하지 않는다",
+       scanned == ["00000005"], str(scanned))
+    ok("legacy 산출물의 레코드가 보존된다 (재개분과 합쳐진다)",
+       sorted(r["corp"] for r in recs5) == ["00000001", "00000005"], str(recs5))
+    ok("legacy 누적 카운터가 이어진다 (파싱률의 분모가 조용히 작아지지 않는다)",
+       st5["reportsFound"] == 5 and st5["recordRejected"] == {"RCEPT_NO_NOT_DATE": 1},
+       str({k: st5[k] for k in ("reportsFound", "recordRejected")}))
+    ok("이관된 상태에 정책 버전 이력이 누적되기 시작한다",
+       st5["policyVersions"] == [POL["version"]], str(st5.get("policyVersions")))
+    ok("이관 후 담당 법인 수가 채워져 완료 판정이 가능해진다",
+       m.shard_status(st5)["corpsAssignedKnown"]
+       and m.shard_status(st5)["complete"], str(m.shard_status(st5)))
+    shutil.rmtree(tmp5, ignore_errors=True)
+    m.SHARD_DIR = tmp3
     json.dump({**legacy, "fundamentalsPolicy": "FN-0.9"},
               open(f"{tmp3}/_state-0.json", "w", encoding="utf-8"))
     with redirect_stdout(io.StringIO()):

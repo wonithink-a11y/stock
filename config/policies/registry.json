@@ -1,5 +1,5 @@
 {
-  "version": "REG-1.4",
+  "version": "REG-1.5",
   "note": "score()가 실제로 사용한 정책 버전 전량을 meta.policies에 스탬프하기 위한 단일 진입점. 여기 없는 정책은 엔진이 읽지 않는다.",
   "criteria": {
     "KR": { "path": "config/criteria/KR-2.2.json", "version": "2.2" },
@@ -24,5 +24,9 @@
     "price": "config/policies/price.v1.json",
     "fundamentals": "config/policies/fundamentals.v1.json"
   },
-  "dataPoliciesNote": "score()도 A6도 읽지 않고 수집 단계(A1a·A2·A3)가 읽는 정책. policies·analysisPolicies 어느 쪽에도 넣지 않는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다. A5에서의 추적은 upstream 체인(A5.upstream.A1a → A1a manifest.policyHash.universe)이 담당한다."
+  "dataPoliciesNote": "score()도 A6도 읽지 않고 수집 단계(A1a·A2·A3)가 읽는 정책. policies·analysisPolicies 어느 쪽에도 넣지 않는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다. A5에서의 추적은 upstream 체인(A5.upstream.A1a → A1a manifest.policyHash.universe)이 담당한다.",
+  "approvals": {
+    "declaredGapsA3": "config/backfill/declared-gaps-a3.json"
+  },
+  "approvalsNote": "정책이 아니라 운영 승인이다. 네 번째 네임스페이스를 만든 이유는 승인과 규칙이 manifest에서 서로 다른 이벤트여야 하기 때문이다 — 정책 파일에 승인 목록을 두면 corp 하나를 승인할 때마다 policyHash가 바뀌어 그 정책을 읽는 모든 단계에 영향이 가고, '규칙이 바뀌었다'와 '예외를 하나 인정했다'가 같은 신호로 보인다. manifest는 이것을 policyHash가 아닌 approvalHash 필드로 받고, lib/backfillManifest.js의 REQUIRED_APPROVALS가 선언 누락을 거부한다(--extra에 얹으면 선언이 강제되지 않는다). 승인은 수집 동작을 바꾸지 않는다 — 바꾼다면 그것은 승인이 아니라 규칙이고, 규칙은 정책 쪽에 있어야 한다."
 }
