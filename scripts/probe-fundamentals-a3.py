@@ -32,6 +32,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
+POLICY = "config/policies/fundamentals.v1.json"
 A1A = "data/backfill/universe/a1a/current.jsonl"
 A1B = "data/backfill/universe/a1b/delisted.jsonl"
 OUT = "data/backfill/_probe-fundamentals-a3.json"
@@ -52,26 +53,11 @@ ANCHOR_TICKERS = ["005930", "105560", "003550", "068270",
 SAMPLE_CURRENT = 24
 SAMPLE_DELISTED = 8
 
-# 필요한 계정 7개. idTails는 IFRS 태그의 접두사를 뗀 꼬리다 —
-# 2019년 전후로 'ifrs_Equity' → 'ifrs-full_Equity'로 접두사가 바뀌었으므로
-# 접두사째 비교하면 옛 연도가 통째로 미매칭으로 잡힌다.
-ACCOUNTS = {
-    "currentAssets": {"sj": ["BS"], "idTails": ["CurrentAssets"],
-                      "exact": ["유동자산"], "contains": []},
-    "currentLiab":   {"sj": ["BS"], "idTails": ["CurrentLiabilities"],
-                      "exact": ["유동부채"], "contains": []},
-    "liabilities":   {"sj": ["BS"], "idTails": ["Liabilities"],
-                      "exact": ["부채총계"], "contains": []},
-    "equity":        {"sj": ["BS"], "idTails": ["Equity"],
-                      "exact": ["자본총계"], "contains": []},
-    "revenue":       {"sj": ["IS", "CIS"], "idTails": ["Revenue"],
-                      "exact": ["매출액", "수익(매출액)", "영업수익"],
-                      "contains": ["영업수익", "매출"]},
-    "opProfit":      {"sj": ["IS", "CIS"], "idTails": ["OperatingIncomeLoss"],
-                      "exact": ["영업이익"], "contains": ["영업이익"]},
-    "netIncome":     {"sj": ["IS", "CIS"], "idTails": ["ProfitLoss"],
-                      "exact": ["당기순이익"], "contains": ["당기순이익"]},
-}
+# 계정 표는 정책(FN)에서 읽는다. 정찰이 자기 사본을 들고 있으면 정책과 갈라지고,
+# 갈라진 채로 '이 방식으로 잡힌다'를 보고하게 된다 — 계약을 산출하는 쪽과 재는 쪽이
+# 같은 표를 봐야 한다(교훈44). idTails는 IFRS 태그의 접두사를 뗀 꼬리다.
+POL = json.load(open(POLICY, encoding="utf-8")) if os.path.exists(POLICY) else None
+ACCOUNTS = POL["accounts"]["spec"] if POL else {}
 
 DATE8 = re.compile(r"^\d{8}$")
 # thstrm_dt는 "2023.01.01 ~ 2023.12.31" 또는 "2023.12.31 현재" 두 형태로 온다.
@@ -325,6 +311,11 @@ def summarize(stats):
         "rceptNoPresent": stats["rceptNoPresent"],
         "rceptNoIsDate": stats["rceptNoIsDate"],
         "periodEndParsed": stats["periodEndParsed"],
+        # PIT 앵커 파싱 성공률. 이것이 무너지면 계약 1을 잴 수단이 없어지므로
+        # accountMissRate보다 상위 판정 항목이다 — 계약의 필수 필드를 주지 않는
+        # 소스는 계약의 후보가 될 수 없다.
+        "periodEndParsedRate": (round(stats["periodEndParsed"] / stats["reportsFound"], 4)
+                                if stats["reportsFound"] else None),
         "availableFromAfterPeriodEnd": stats["availableFromAfterPeriodEnd"],
         "availableFromNotAfterPeriodEnd": stats["availableFromNotAfterPeriodEnd"],
         "lagDaysMin": lag[0] if lag else None,
@@ -409,9 +400,31 @@ def main() -> int:
     est["acntFitsInOneDay"] = est["estimatedCallsAcnt"] <= est["dartDailyLimit"]
     est["acntAllFitsInOneDay"] = est["estimatedCallsAcntAll"] <= est["dartDailyLimit"]
 
+    # ── 판정 ──────────────────────────────────────────────────
+    # 정찰은 발견이 목적이라 대부분의 결과를 관측으로 남긴다. 딱 하나 예외가
+    # PIT 앵커다 — 정책이 고른 엔드포인트가 회계기간말을 주지 못하면 그것은 발견이
+    # 아니라 계약 위반이고, 그 상태로 수집을 시작하면 3일 뒤 0레코드를 얻는다.
+    chosen = (POL["source"]["endpoint"].replace(".json", "") if POL else "fnlttSinglAcnt")
+    thr = (POL.get("probeAcceptance", {}).get("periodEndParsedRateMin", 0.99) if POL else 0.99)
+    chosen_stats = summarize(acnt if chosen == "fnlttSinglAcnt" else acnt_all)
+    rate = chosen_stats["periodEndParsedRate"]
+    verdict = {
+        "chosenEndpoint": chosen,
+        "periodEndParsedRate": rate,
+        "periodEndParsedRateMin": thr,
+        "pass": rate is not None and rate >= thr,
+        "note": "정책이 고른 엔드포인트가 PIT 앵커(회계기간말)를 주는가. "
+                "이 판정이 FAIL이면 수집을 시작하면 안 된다 — build_record가 전건을 "
+                "PERIOD_END_UNPARSED로 버려 0레코드가 나온다.",
+    }
+    if not verdict["pass"]:
+        verdict["action"] = ("계약의 필수 필드를 주지 않는 소스는 계약의 후보가 될 수 없다. "
+                             "periodEnd를 얻을 다른 경로를 먼저 확보하거나 엔드포인트를 바꿔라.")
+
     out = {
         "probedAt": datetime.now(KST).isoformat(),
         "stage": "A3-probe",
+        "verdict": verdict,
         "purpose": "설계 판정. 재무 수치를 남기지 않으며 A3 산출물이 아니다",
         "sampleNote": "무작위가 아니라 고정 앵커 + 균등 간격이다. 재실행 시 같은 표본이어야 "
                       "두 실행의 차이를 표본 차이가 아니라 소스 변화로 읽을 수 있다.",
@@ -488,14 +501,25 @@ def main() -> int:
           f"일한도 내 {est['acntFitsInOneDay']}")
     print(f"  전체재무제표  {est['estimatedCallsAcntAll']:>8}건  "
           f"일한도 내 {est['acntAllFitsInOneDay']}")
+    v = verdict
+    shown = "측정 불가" if v["periodEndParsedRate"] is None else f"{v['periodEndParsedRate']:.1%}"
+    print(f"\n[판정] {'PASS' if v['pass'] else 'FAIL'}  {v['chosenEndpoint']} "
+          f"회계기간말 파싱률 {shown} (임계 {v['periodEndParsedRateMin']:.0%})")
     print(f"\n{OUT} ({out['elapsedSeconds']}s)")
+    if not v["pass"]:
+        print(f"  {v['action']}")
+        # 산출물은 남기고 비정상 종료한다 — 판정 결과도 기록이어야 한다(교훈39).
+        return 3
     return 0
 
 
 if __name__ == "__main__":
-    # 정찰의 '발견'은 어떤 결과든 exit 0이다 — 커버리지가 0%라도 그것이 산출물이다.
-    # 다만 '정찰이 돌지도 못한 것'(키 없음·상류 산출물 없음)은 발견이 아니라 설정 오류이므로
-    # exit 1로 가른다. 둘을 같은 코드로 끝내면 아무것도 재지 않은 실행이 통과로 보인다.
+    # 종료 코드 세 갈래.
+    #   0  발견 — 커버리지가 0%라도 그것이 산출물이다
+    #   1  정찰이 돌지도 못했다 (키 없음·상류 산출물 없음). 발견이 아니라 설정 오류다
+    #   3  판정 FAIL — 정책이 고른 엔드포인트가 PIT 앵커를 주지 않는다.
+    #      이것만은 관측으로 넘기지 않는다. 그 상태로 수집하면 3일 뒤 0레코드다.
+    # 셋을 한 코드로 끝내면 아무것도 재지 않은 실행과 계약이 깨진 실행이 통과로 보인다.
     try:
         rc = main()
     except KeyboardInterrupt:

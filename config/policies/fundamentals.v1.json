@@ -1,5 +1,5 @@
 {
-  "version": "FN-1.1",
+  "version": "FN-1.2",
   "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다.",
   "market": "KR",
 
@@ -106,7 +106,14 @@
     "yearCoverageDropWarn": 0.15,
     "roeAbsOutlierThreshold": 2.0,
     "roeAbsOutlierRateWarn": 0.02,
-    "negativeEquityRateWarn": 0.05
+    "negativeEquityRateWarn": 0.05,
+    "periodEndParsedRateMin": 0.99
+  },
+  "periodEndParsedRateNote": "확보한 보고서 중 회계기간말을 읽어낸 비율이다. 실측 전인데도 FAIL인 유일한 임계이며, 이유는 이 실패가 등급이 아니라 이분적이기 때문이다 — 정찰 실측이 주요계정 240/240 대 전체 재무제표 0/240으로 갈렸다. 응답 형식이 바뀌거나 파서가 깨지면 비율이 서서히 나빠지는 것이 아니라 통째로 무너진다. 0.99는 '전부 아니면 전무' 사이의 빈 구간에 놓은 선이므로, 이 값이 걸리면 그것은 품질 저하가 아니라 소스·파서의 구조 변화다.\n\n이 지표가 필요한 이유는 산출물만으로는 보이지 않기 때문이다. periodEnd를 못 읽은 보고서는 build_record가 레코드로 만들지 않으므로 산출물의 periodEndMissing은 언제나 0이다. 즉 확보한 보고서의 절반을 잃어도 인수 조건은 전건 통과한다 — 분모가 산출물에 남지 않는 손실이다. 그래서 샤드 상태에 누적 카운터(reportsFound·periodEndParsed)를 두고 finalize가 그것으로 비율을 낸다. 진단만으로 세면 안 된다: 샤드 진단은 실행마다 덮이는데 수집은 며칠에 걸친다.",
+
+  "probeAcceptance": {
+    "periodEndParsedRateMin": 0.99,
+    "note": "정찰도 같은 임계로 판정한다. 정찰의 목적은 발견이므로 어떤 결과든 산출물을 남기지만, 정책이 고른 엔드포인트가 PIT 앵커를 주지 못한다는 것은 발견이 아니라 계약 위반이다 — 그 상태로 수집을 시작하면 3일 뒤 0레코드를 얻는다. 그래서 정찰은 판정을 verdict 블록에 쓰고, FAIL이면 산출물을 남긴 뒤 비정상 종료한다(build 스크립트의 _abort와 같은 형태). 2026-08-05 첫 정찰에 이 판정이 있었다면 fnlttSinglAcntAll의 0/240에서 즉시 붉은 불이 켜졌을 것이다."
   },
   "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것만이다 — availableFrom 부재·계약 1 위반·periodEnd 부재·날짜 형식·corp 형식·(corp,fiscalYear,availableFrom) 중복·데이터가 0인 사업연도. 나머지는 전부 WARN으로 시작한다: 이 프로젝트의 규칙은 '실측하지 않은 임계는 WARN으로 시작하고 실측 1회 후 FAIL로 승격'이고(PR-1.0 → PR-1.3이 그 경로였다), FN-1.0 시점에는 커버리지·ROE 이상치·연도별 매칭률의 실측이 없다. 정찰(scripts/probe-fundamentals-a3.py)은 표본 30여 법인이라 게이트의 기준선이 될 수 없다 — 표본으로 잰 값을 전수의 임계로 쓰면 임계가 실측처럼 보이는 추정이 된다.",
 

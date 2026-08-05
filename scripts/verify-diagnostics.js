@@ -103,7 +103,12 @@ const CONTRACT = {
                'roeAbsOutlierSample', 'negativeEquityCount', 'negativeEquityRate',
                // 어느 수단으로 계정을 잡았는지. 매칭률이 떨어졌을 때 소스 변화인지
                // 이름 변주인지 사후에 가르는 유일한 근거다.
-               'accountSourceDistribution', 'fsDivDistribution', 'sicCodeMissing',
+               'accountSourceDistribution', 'accountMappingHitRateByAccount',
+               'fsDivDistribution', 'sicCodeMissing',
+               // PIT 앵커 파싱률과 그 분모. periodEnd를 못 읽은 보고서는 레코드가 되지
+               // 않으므로 산출물에는 흔적이 없다 — 확보 보고서의 절반을 잃어도
+               // periodEndMissing은 0이다. 분모가 남지 않는 손실이라 여기서만 보인다.
+               'reportsFound', 'recordRejected', 'periodEndParsedRate',
                'tickerContractViolations'],
     // sicCode는 '현재의 업종'이라 전 사업연도에 같은 값이 붙는다. A3가 모르는 축이다.
     trueFlags: ['sectorNotPointInTime'],

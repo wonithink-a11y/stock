@@ -299,6 +299,10 @@ def load_state(shard, shards, pol):
     return {"stage": "A3", "shard": shard, "shards": shards,
             "fundamentalsPolicy": pol["version"], "corpsDone": [],
             "callsUsedToday": 0, "lastRunDate": None,
+            # 누적 카운터. 샤드 진단은 실행마다 덮이는데 수집은 며칠에 걸치므로,
+            # 전수 비율을 내려면 여기 쌓여야 한다. periodEnd를 못 읽어 버린 보고서는
+            # 산출물에 흔적이 없다 — 분모가 남지 않는 손실이라 여기서만 셀 수 있다.
+            "reportsFound": 0, "recordRejected": {},
             # 수집이 며칠에 걸치므로 산출물은 혼합 시점 스냅샷이 된다. PIT는 깨지지 않지만
             # (각 레코드가 자기 availableFrom을 들고 있다) 재현성은 깨진다 — 재수집 시
             # 바이트가 달라졌을 때 그게 버그인지 정정공시인지 가를 근거를 여기 남긴다.
@@ -314,6 +318,20 @@ def save_progress(shard, state, records):
             f.write(json.dumps(records[k], ensure_ascii=False) + "\n")
     with open(state_path(shard), "w", encoding="utf-8", newline="\n") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
+
+
+def fold_counters(state, counters):
+    """이번 실행분을 상태의 누적으로 접고 비운다. 두 번 접히면 이중계상이므로
+    비우는 것까지가 한 동작이다."""
+    state["callsUsedToday"] += counters["calls"]
+    state["reportsFound"] = state.get("reportsFound", 0) + counters["reportsFound"]
+    rej = dict(state.get("recordRejected") or {})
+    for k, v in counters["recordRejected"].items():
+        rej[k] = rej.get(k, 0) + v
+    state["recordRejected"] = rej
+    counters["calls"] = 0
+    counters["reportsFound"] = 0
+    counters["recordRejected"] = Counter()
 
 
 def rec_key(r):
@@ -374,8 +392,11 @@ def scan_corp(corp, ticker, pol, counters, state):
             # 'general'로 채점되는 정상 경로이고, 여기서 버리면 재무 전체를 잃는다.
             sic = fetch_sic(corp, pol, counters)
 
+        counters["reportsFound"] += 1
         rec, why = build_record(corp, ticker, y, got[0], got[1], sic, pol)
         if rec is None:
+            # 사유별로 센다. 파싱률을 별도 카운터로 두면 rcept 실패가 periodEnd 실패로
+            # 섞여 들어간다 — 비율은 reportsFound와 이 표에서 정확히 유도된다.
             counters["recordRejected"][why] += 1
             continue
         out.append(rec)
@@ -410,7 +431,7 @@ def run_shard(shard, shards, pol, limit):
     diag_path = f"{SHARD_DIR}/_diagnostics-shard-{shard}.json"
     counters = {"calls": 0, "dartStatus": Counter(), "hardErrors": 0,
                 "earlyStopped": 0, "sicFetchFailed": 0,
-                "recordRejected": Counter()}
+                "reportsFound": 0, "recordRejected": Counter()}
     diag = {"stage": "A3", "mode": "shard", "shard": shard, "shards": shards,
             "fundamentalsPolicy": pol["version"], "runDate": today_kst()}
     if limit:
@@ -487,7 +508,7 @@ def run_shard(shard, shards, pol, limit):
 
         consec_hard = consec_hard + 1 if (hard and not recs) else 0
         if consec_hard >= pol["circuitBreakerConsecutiveFailures"]:
-            state["callsUsedToday"] += counters["calls"]
+            fold_counters(state, counters)
             save_progress(shard, state, records)
             diag.update(corpsProcessed=processed, recordCount=len(records),
                         calls=counters["calls"], lastHttp=LAST_HTTP)
@@ -495,13 +516,15 @@ def run_shard(shard, shards, pol, limit):
                    diag, diag_path)
 
         if processed % 25 == 0:
-            state["callsUsedToday"] += counters["calls"]
-            counters["calls"] = 0
+            # 누적 카운터를 상태로 접고 비운다. 접지 않으면 잡이 중간에 죽었을 때
+            # corpsDone에는 들어갔는데 그 구간의 보고서 수는 사라져, 파싱률의 분모가
+            # 조용히 작아진다. 체크포인트가 옮기지 않는 값은 체크포인트가 잃는 값이다.
+            fold_counters(state, counters)
             save_progress(shard, state, records)
             print(f"  {processed}/{len(todo)} · {len(records)}레코드 · "
                   f"호출 {state['callsUsedToday']} · {time.time()-t0:.0f}s")
 
-    state["callsUsedToday"] += counters["calls"]
+    fold_counters(state, counters)
     state["complete"] = len(done) >= len(mine)
     save_progress(shard, state, records)
 
@@ -510,7 +533,10 @@ def run_shard(shard, shards, pol, limit):
         recordCount=len(records), calls=state["callsUsedToday"], budget=budget,
         dartStatus=dict(counters["dartStatus"]), hardErrors=counters["hardErrors"],
         earlyStopped=counters["earlyStopped"], sicFetchFailed=counters["sicFetchFailed"],
-        recordRejected=dict(counters["recordRejected"]),
+        # 진단은 이 실행의 기록이고 누적은 상태에 있다. 둘을 섞으면 며칠에 걸친
+        # 수집에서 어느 쪽이 전수인지 모호해진다.
+        reportsFoundCumulative=state["reportsFound"],
+        recordRejectedCumulative=dict(state["recordRejected"]),
         quotaExceeded=quota_hit, budgetExhausted=budget_hit,
         complete=state["complete"], elapsedSeconds=round(time.time() - t0, 1))
     with open(f"{SHARD_DIR}/_diagnostics-shard-{shard}.json", "w",
@@ -712,7 +738,30 @@ def validate(rows, corps, pol, diag):
         for k, v in (r.get("accountSource") or {}).items():
             src[f"{k}:{v or 'MISS'}"] += 1
     diag["accountSourceDistribution"] = dict(src)
+    # 계정별 매칭률 — 전수 기준선이다. 정찰은 표본 32법인이라 이름 변주의 긴 꼬리를
+    # 보지 못했다. 이 표가 있어야 나중에 계정명을 추가·변경할 때 회귀 여부를
+    # 정량으로 판단할 수 있다(어느 수단으로 잡았는지까지 함께 남긴다).
+    hit_by_account = {}
+    for k in pol["accounts"]["spec"]:
+        by_method = Counter((r.get("accountSource") or {}).get(k) or "MISS" for r in rows)
+        hit = len(rows) - by_method["MISS"]
+        hit_by_account[k] = {
+            "hit": hit,
+            "rate": round(hit / len(rows), 5) if rows else None,
+            "byMethod": dict(by_method),
+            "inCoverageNumerator": k in pol["accounts"]["requiredForCoverage"],
+        }
+    diag["accountMappingHitRateByAccount"] = hit_by_account
     diag["sicCodeMissing"] = sum(1 for r in rows if not r.get("sicCode"))
+
+    # PIT 앵커 파싱률. 실측 전인데도 FAIL인 유일한 임계다 — 이 실패는 등급이 아니라
+    # 이분적이기 때문이다(정찰 실측 240/240 대 0/240). 응답 형식이 바뀌거나 파서가
+    # 깨지면 비율이 서서히 나빠지는 것이 아니라 통째로 무너진다.
+    rate = diag.get("periodEndParsedRate")
+    chk(rate is not None and rate >= a["periodEndParsedRateMin"],
+        f"회계기간말 파싱률 {'측정 불가' if rate is None else f'{rate*100:.2f}%'} >= "
+        f"{a['periodEndParsedRateMin']*100:.0f}% "
+        f"(확보 보고서 {diag.get('reportsFound')} · 버림 {diag.get('recordRejected')})")
 
     return rows
 
@@ -732,13 +781,23 @@ def run_finalize(pol):
     # 전 샤드가 담당분을 끝냈는지 확인한다. 예산 소진으로 중단된 샤드가 섞이면
     # 부분 수집물에 manifest가 찍힌다 — manifest는 '인수 조건을 통과했다'는 뜻이다(교훈43).
     incomplete, run_dates = [], set()
+    reports_found, rejected = 0, Counter()
     for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
         st = load_json(p)
         run_dates.update(st.get("runDates") or [])
+        reports_found += st.get("reportsFound", 0)
+        rejected.update(st.get("recordRejected") or {})
         if not st.get("complete"):
             incomplete.append({"shard": st.get("shard"),
                                "done": len(st.get("corpsDone", []))})
     diag["shardStatesIncomplete"] = incomplete
+    # 확보한 보고서 대비 레코드로 살아남은 비율. 이 분모는 산출물에 없다 —
+    # 버려진 보고서는 흔적을 남기지 않으므로 여기서만 셀 수 있다.
+    diag["reportsFound"] = reports_found
+    diag["recordRejected"] = dict(rejected)
+    pe_fail = rejected.get("PERIOD_END_UNPARSED", 0)
+    diag["periodEndParsedRate"] = (round(1 - pe_fail / reports_found, 5)
+                                   if reports_found else None)
     # 수집 창. 하루를 넘으면 산출물은 혼합 시점 스냅샷이며, 그 사실이 여기 남는다 —
     # 재수집으로 해시가 바뀌었을 때 정정공시라는 후보 원인을 가리키는 유일한 근거다.
     rd = sorted(run_dates)

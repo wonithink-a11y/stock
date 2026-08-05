@@ -224,6 +224,16 @@ assert.ok(fund.probed && !fund.probed.measured,
 assert.strictEqual(fund.probed.fnlttSinglAcnt.availableFromNotAfterPeriodEnd, 0,
   '정찰에서 계약 1 위반이 있었다면 수집을 시작하기 전에 원인을 먼저 밝혀야 한다');
 
+// FN-1.2 — PIT 앵커 파싱률. 실측 전인데도 FAIL인 유일한 임계다.
+// 근거는 실패가 이분적이라는 것이다(정찰 240/240 대 0/240) — 서서히 나빠지지 않는다.
+// 정찰과 수집이 같은 임계를 쓰는지도 본다. 갈라지면 정찰이 통과시킨 소스를 수집이
+// 거부하거나 그 반대가 된다.
+assert.ok(fund.acceptance.periodEndParsedRateMin >= 0.99,
+  'periodEnd 파싱률 임계가 없거나 느슨하다 — 이 값은 품질 등급이 아니라 소스·파서의 구조 변화를 잡는 선이다');
+assert.strictEqual(fund.acceptance.periodEndParsedRateMin,
+  fund.probeAcceptance.periodEndParsedRateMin,
+  '정찰과 수집의 임계가 갈라졌다 — 정찰이 통과시킨 소스를 수집이 거부하게 된다');
+
 assert.ok(fund.fiscalYearFrom >= 2015,
   'fnlttSinglAcntAll은 2015 사업연도부터 제공된다 — 그 이전을 요구하면 전건 013이 된다');
 assert.ok(fund.fiscalYearTo >= fund.fiscalYearFrom, 'fiscalYear 구간이 뒤집혔다');

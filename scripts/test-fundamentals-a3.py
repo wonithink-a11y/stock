@@ -213,10 +213,16 @@ def healthy_rows():
     return out
 
 
-def run_validate(rows, corps=None):
+def run_validate(rows, corps=None, reports_found=None, rejected=None):
+    """reports_found·rejected는 finalize가 샤드 상태에서 집계해 넣는 값이다.
+    기본값은 '버린 보고서 없음'이라 파싱률 100%가 된다."""
     m.fails.clear()
     m.warns.clear()
-    diag = {}
+    n = len(rows) if reports_found is None else reports_found
+    rej = rejected or {}
+    diag = {"reportsFound": n, "recordRejected": rej,
+            "periodEndParsedRate": (round(1 - rej.get("PERIOD_END_UNPARSED", 0) / n, 5)
+                                    if n else None)}
     with redirect_stdout(io.StringIO()):
         m.validate(list(rows), corps or CORPS, POL, diag)
     real_warns = [w for w in m.warns if not w.startswith(SCALE_WARNS)]
@@ -303,6 +309,38 @@ ok("자본잠식 건수를 센다", d["negativeEquityCount"] == 1)
 ok("이상치를 제거하지 않는다 (사실이지 오류가 아니다)",
    not any("ROE" in x for x in f), str(f))
 ok("이상치 표본이 진단에 남는다", len(d["roeAbsOutlierSample"]) == 2)
+
+print("\n[PIT 앵커 파싱률 — 분모가 산출물에 없는 손실]")
+rows = healthy_rows()
+# 확보한 보고서의 절반을 periodEnd 파싱 실패로 버렸다. 산출물만 보면 완벽하다 —
+# 버려진 보고서는 레코드가 되지 않으므로 periodEndMissing은 여전히 0이다.
+f, w, d = run_validate(rows, reports_found=len(rows) * 2,
+                       rejected={"PERIOD_END_UNPARSED": len(rows)})
+ok("확보 보고서의 절반을 버리면 FAIL",
+   any("회계기간말 파싱률" in x for x in f) and d["periodEndParsedRate"] == 0.5, str(f))
+ok("그래도 periodEndMissing 검사는 통과한다 (그래서 이 게이트가 필요하다)",
+   not any("periodEnd 존재" in x for x in f), str(f))
+
+f, w, d = run_validate(rows, reports_found=400, rejected={"PERIOD_END_UNPARSED": 1})
+ok("400건 중 1건 손실(99.75%)은 임계 안이라 통과",
+   d["periodEndParsedRate"] == 0.9975 and not any("회계기간말 파싱률" in x for x in f),
+   f"{d['periodEndParsedRate']} {f}")
+
+f, w, d = run_validate(rows, rejected={"RCEPT_NO_NOT_DATE": 5})
+ok("rcept 실패는 파싱률을 깎지 않는다 (사유를 섞으면 원인이 흐려진다)",
+   d["periodEndParsedRate"] == 1.0 and not any("회계기간말 파싱률" in x for x in f), str(f))
+
+print("\n[계정별 매칭률 — 전수 기준선]")
+rows = healthy_rows()
+rows[0] = R("00000001", 2016, "2017-03-31", "2016-12-31",
+            revenue=None, accountSource={**{k: "id" for k in SPEC}, "revenue": None})
+f, w, d = run_validate(rows)
+a = d["accountMappingHitRateByAccount"]
+ok("계정별 매칭률이 남는다", a["revenue"]["hit"] == len(rows) - 1, str(a["revenue"]))
+ok("매칭 수단별 분해가 남는다", a["revenue"]["byMethod"].get("MISS") == 1, str(a["revenue"]))
+ok("커버리지 분자 여부를 표시한다",
+   a["equity"]["inCoverageNumerator"] and not a["currentAssets"]["inCoverageNumerator"],
+   str({k: v["inCoverageNumerator"] for k, v in a.items()}))
 
 print("\n[그룹별 확보율]")
 f, w, d = run_validate([r for r in healthy_rows() if r["corp"] != "00000009"])
