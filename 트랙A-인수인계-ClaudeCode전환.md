@@ -4,7 +4,7 @@
 
 ---
 
-## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), A3 구현·정찰 완료·수집 대기 (§9)
+## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), 다음은 세 갈래 병행 (§9)
 
 **증상이었던 것**: `_diagnostics.json`에 `acceptancePassed`가 세 번의 워크플로 실행에도
 한 번도 안 나타남.
@@ -218,9 +218,9 @@ A5o manifest에 `survivorshipBias: true`를 강제한다.
   A1a   현재 상장 유니버스   완료 — A0.7 전환, A1a.2, sha256:cb7556fc889a651c (2026-08-05)
   A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
   A2a   가격 (현재 상장분)   완료 — 6,088,578행, A2a.0, sha256:9756e0737ea8c866 (2026-08-05)
-  A2b   가격 (폐지분)        정찰 완료 — 구현 시점만 남음(631종목). 크리티컬 패스 밖
-  A3    재무 (PIT)           구현·정찰 완료(FN-1.2, 2026-08-05) — 수집 미실행  ← 지금 여기
-  A4    수급                 미착수
+  A2b   가격 (폐지분)        정찰 완료 — 구현만 남음(631종목)   ← 우선 착수 (§9.2)
+  A3    재무 (PIT)           구현·정찰 완료(FN-1.2) — 수집 3일 배경 작업 (§9.1)
+  A4    수급                 계약 없음. 오늘은 가용성 확인만 (§9.3)
   A5o   운영 점수            미착수 (신설 예정)
   A5~A9                      미착수
 ```
@@ -629,10 +629,11 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 9. [완료] A2b 커버리지 정찰 → 51.6%(구간 기준 확보 불가 0건) → 우선순위 뒤로
 10. [완료] A3 구현 — FN-1.0 · 수집기 · 회귀 테스트 · 진단 계약 · 워크플로
 11. [완료] A3 정찰 → 엔드포인트 선택 뒤집힘 → FN-1.1, 파싱률 게이트 신설 → FN-1.2
-12. A3 실행: collect 반복(약 3일) → finalize → FN-1.3 승격   ← 지금 여기. §9 참조
-13. A4 수급
+12. 세 갈래 병행   ← 지금 여기. §9 참조
+    A3 collect 3회 → finalize (배경) · A2b 구현 (우선) · A4 가용성 확인 (타임박스)
+13. A4 정찰 → 계약 확정 → 구현
 14. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
-15. A2b 구현 → A5 연구(생존편향 제거) → A6~A9
+15. A5 연구(생존편향 제거) → A6~A9
 ```
 
 커밋은 관심사별로 분리한다. `manifest 계약 변경`과 `A0.7 도입`이 한 커밋에 섞이면
@@ -640,10 +641,39 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 ---
 
-## 9. 다음 작업 — A3 재무 (PIT) 실행
+## 9. 다음 작업 — 세 갈래 병행 (2026-08-05 확정)
 
 새 세션은 이 절만 읽고 시작할 수 있다. 앞의 §0~§8은 배경이다.
-**구현은 끝났고 남은 것은 실행이다.** 설계 근거는 `docs/BF-1.1-백필계약.md` §7 A3에 있다.
+
+### 병행 원칙
+
+**A3는 배경 작업이다.** 하루 한 번 dispatch하고 상태만 확인하면 되므로, 그 3일을
+불확실성이 낮은 작업으로 채운다. 순서의 근거는 리스크다 — 진행 중인 작업을 끝내고
+다음 큰 미지수로 옮기는 편이 안전하다.
+
+```
+A2b   정찰 완료 · 커버리지 분석 완료 · 구현 방향 확정   → 남은 것은 구현뿐. 미지수 없음
+A4    API 미확정 · 종목별 수급 가용성 미확인 · 정책 없음 → 다시 탐색 단계
+```
+
+그래서 **A2b 먼저, A4는 나중**이다. 예외가 하나 있어 오늘 30~60분만 떼어 둔다:
+종목별 수급 경로 자체가 없으면 A4 설계 전체가 바뀌므로, **그 한 가지만** 먼저 확인한다.
+
+### 일정
+
+```
+8/5 (오늘)  A3 collect #1  →  A4 API 가용성 확인(30~60분, 타임박스)  →  A2b 구현 착수
+8/6         A3 collect #2  →  A2b 구현 마무리 · 수집
+8/7         A3 collect #3  →  (여유 시) A4 정찰 계속
+8/7~8/8     A3 finalize → 전수 diagnostics 검토 → measured 확정 → FN-1.3 승격
+```
+
+세 갈래가 자원을 다투지 않는다 — A3는 DART, A2b는 KRX, 워크플로 concurrency 그룹도 다르다.
+**단 하나 겹치는 것이 A4다**(아래 §9.3 참조).
+
+---
+
+## 9.1 A3 재무 (PIT) — 배경 작업
 
 ### 왜 A3가 병목인가
 
@@ -656,41 +686,38 @@ KR-2.2.categoryWeights (동결)
 ```
 
 재무가 **가중치의 65%** 다. CLAUDE.md 절대 규칙 1이 "커버리지 60% 미만이면 등급 '유보'"이므로,
-A3 없이 A5를 돌리면 2,579종목 전건이 '유보'로 나온다. 점수는 계산되지만 등급이 안 붙는다.
+A3 없이 A5를 돌리면 2,579종목 전건이 '유보'로 나온다.
 
-### 이번 세션이 만든 것 (2026-08-05)
+### 돌리는 법
+
+```
+Actions → backfill-fundamentals-a3 → Run workflow → mode: collect
+```
+
+1회 약 25~30분(샤드당 2,000호출 × 0.5~0.7초, 8샤드 병렬 + persist).
+총 38,000~45,000호출 ÷ 일 예산 16,000 = **3회**. 매 실행 끝에 persist 잡이 찍는다.
+
+```
+법인 완료 2,431 · 레코드 24,118 · 오늘 호출 15,984 · 완료 샤드 3/8
+collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)
+```
+
+`완료 샤드 8/8`이 나오면 `mode: finalize`를 한 번 돌린다.
+같은 날 두 번 dispatch해도 안전하다 — 샤드가 `callsUsedToday`를 상태에 들고 있어
+그날 예산을 넘기지 않고 즉시 끝난다. **예산 소진은 실패가 아니다**(exit 0).
+
+### 이미 만들어져 있는 것
 
 ```
 config/policies/fundamentals.v1.json   FN-1.2 — 수집 파라미터 · PIT 계약 · 인수 조건 · probed
-config/policies/registry.json          REG-1.3 → REG-1.4 (dataPolicies.fundamentals 등록)
+config/policies/registry.json          REG-1.4 (dataPolicies.fundamentals)
 lib/backfillManifest.js                REQUIRED_POLICIES.A3 = ['universe','fundamentals']
-scripts/probe-fundamentals-a3.py       정찰 — 설계 판정용. 재무 수치를 남기지 않는다
-scripts/build-fundamentals-a3.py       수집기 — shard(resume) / finalize 2모드
+scripts/probe-fundamentals-a3.py       정찰 (완료). verdict 판정 + exit 3
+scripts/build-fundamentals-a3.py       수집기 — shard(resume) / finalize
 scripts/test-fundamentals-a3.py        회귀 49건 (합성 픽스처, 네트워크 불필요)
-scripts/verify-diagnostics.js          A3 진단 계약 등재 (필드 37 · trueFlag 1)
-scripts/test-policies.js               FN-1.0 검증 추가
-.github/workflows/probe-fundamentals-a3.yml
+scripts/verify-diagnostics.js          A3 진단 계약 (필드 42 · trueFlag 1)
 .github/workflows/fundamentals-a3.yml  mode: collect | finalize
 ```
-
-로컬에서 검증한 것: 정책 정합성, 회귀 49건 전건 통과, 합성 샤드로 finalize 전 경로
-(gzip 산출 → 진단 계약 통과), FAIL INJECTION 시 **산출물 미작성**, 미완료 샤드 존재 시 중단.
-DART 응답 실물은 정찰이 확인했고, 그 결과로 엔드포인트가 바뀌었다(아래).
-
-### 실행 순서
-
-```
-1) probe-fundamentals-a3        [완료 2026-08-05] → 엔드포인트 선택이 뒤집혔다
-2) 구현 수정                     [완료] FN-1.0 → FN-1.1 → FN-1.2(파싱률 게이트)
-3) fundamentals-a3 (collect)    매일 1회 dispatch. 전 샤드 complete까지 약 3일   ← 지금 여기
-4) fundamentals-a3 (finalize)   1회. manifest가 여기서 찍힌다
-5) FN-1.2 → FN-1.3 승격         실측 기준선(measured) 기록 + WARN → FAIL 승격
-```
-
-3)이 며칠 걸린다. 총 호출 약 45,600건이고 일 예산이 16,000건(한도의 80%)이기 때문이다.
-**예산 소진은 실패가 아니다** — collect는 진행 상태를 커밋하고 exit 0으로 끝나며,
-다음 실행이 이어받는다. 한도는 KST 자정에 초기화된다.
-persist 잡의 `Progress summary`가 매 실행 남은 샤드를 찍는다.
 
 ### 정찰이 뒤집은 것 (2026-08-05, 표본 32법인 × 12사업연도, 932호출)
 
@@ -707,57 +734,138 @@ persist 잡의 `Progress summary`가 매 실행 남은 샤드를 찍는다.
 | 사업연도 2014 | 32법인 전건 0보고서 | `fiscalYearFrom: 2015` 확인 |
 
 전체 재무제표에는 회계기간말 필드가 없다. **계약 1을 잴 수단이 없으면 수집기가 전건을
-버린다** — 3일을 수집한 뒤에야 드러났을 실패다(교훈50). 그리고 그 엔드포인트를 고른 근거
-("이름 매칭은 취약하다")도 240건 중 1건 차이로 무너졌다.
+버린다** — 3일을 수집한 뒤에야 드러났을 실패다(교훈50).
 
-부수 실측 둘은 수집 결과를 읽을 때 필요하다.
+수집 결과를 읽을 때 필요한 부수 실측 둘:
 
-- **공시지연 p95 484일 · max 1,958일** — 정정공시 caveat이 실재한다. 5%의 보고서가
-  회계기간말로부터 1년 넘게 지난 `availableFrom`을 갖는다. 방향은 보수적이라
+- **공시지연 p95 484일 · max 1,958일** — 정정공시 caveat이 실재한다. 방향은 보수적이라
   look-ahead가 아니라 커버리지 손실로 나타난다.
 - **폐지 표본 8건 중 3건 0보고서, 그중 하나가 SPAC**(`128910`). A1b는 `A0.7 − A1a`라
   A1a가 회사명으로 제외한 SPAC이 그대로 들어온다. `corpsWithDataRateByGroup.delisted`가
-  낮다고 곧바로 수집 실패로 읽지 말고 **분모부터 다시 정의한다**(A2b와 같은 판단).
+  낮다고 곧바로 수집 실패로 읽지 말고 **분모부터 다시 정의한다**.
 
 정찰 실측은 정책의 `probed` 블록에 있다. `measured`가 **아니다** — 표본 32법인이고,
-`test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가르므로 이름을 분리했다.
+`test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가른다.
 
-### collect를 돌리는 법
-
-```
-Actions → backfill-fundamentals-a3 → Run workflow
-  mode: collect        ← 전 샤드가 complete가 될 때까지 매일 1회
-```
-
-매 실행 끝에 persist 잡이 이렇게 찍는다.
-
-```
-법인 완료 2,431 · 레코드 24,118 · 오늘 호출 15,984 · 완료 샤드 3/8
-collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)
-```
-
-`완료 샤드 8/8`이 나오면 `mode: finalize`를 한 번 돌린다.
-같은 날 두 번 dispatch해도 안전하다 — 샤드가 `callsUsedToday`를 상태에 들고 있어
-그날 예산을 넘기지 않고 즉시 끝난다.
-
-### 수집이 끝난 뒤 할 일 (FN-1.3 승격)
+### 수집이 끝난 뒤 (FN-1.3 승격)
 
 A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
 
 1. `_diagnostics.json`의 실측을 `fundamentals.v1.json`의 `measured` 블록에 기록
-   (`test-policies.js`가 `measured` 존재 여부로 분기하므로 이 블록이 승격의 스위치다)
+   (이 블록이 승격의 스위치다)
 2. 여유가 확인된 WARN을 FAIL로 승격 — 후보는 `yearCoverageDropWarn`(계약 2가
    "특정 연도만 급락하면 **실패**"라고 명시한다), `coverageRateMinWarn`, `minCorpsWithDataWarn`
 3. `roeAbsOutlierRateWarn`·`negativeEquityRateWarn`은 **WARN으로 남긴다** —
    자본잠식은 시장의 정상 사건이고, FAIL로 올리면 사실이 파이프라인을 막는다
-   (A2a에서 장기 거래정지 2종목을 WARN으로 남긴 것과 같은 논리)
-4. 정책 버전을 올렸으므로 CLAUDE.md의 `Validated against`와 이 문서를 갱신
+4. 반드시 볼 두 지표: `periodEndParsedRate`(FAIL 임계 0.99)와
+   `accountMappingHitRateByAccount`(전수 기준선. 정찰 표본 32법인이 못 본 이름 변주의 긴 꼬리)
+5. CLAUDE.md `Validated against`와 이 문서 갱신
 
-### 다음 단계와의 관계
+---
+
+## 9.2 A2b 폐지분 가격 — 우선 구현 (미지수 없음)
+
+### 정찰 결과 (2026-08-05, `scripts/probe-price-a2b.py`)
 
 ```
-A3 완료 → A4 수급 → A5o 운영 점수(survivorshipBias 스탬프) → 운영 검증
-                  → A2b 구현 → A5 연구(생존편향 제거) → A6~A9
+A1b 후보                     1,222
+가격 확보 성공                 631   (51.6%)
+  ├ 최종거래일 >= 2016         572          ← 분석 구간 내 폐지. 생존편향에 실제 영향
+  └ 최종거래일 <  2016          59          ← 2016 이전 폐지. 유니버스에 없었다
+가격 확보 실패                 591   전건 EMPTY_ALL_WINDOW (예외 0)
+```
+
+> **51.6%를 커버리지로 읽으면 안 된다.** 실제 품질 지표는 분석 구간(`analysisFrom`)과
+> 겹치는 폐지 종목에 대한 커버리지이며, 그 기준으로 **확보 불가는 0건**이다.
+
+확보 실패 591건은 12년 전 구간에 거래일이 0행이므로 2014-05 이전 폐지이거나 상장 이력이
+없는 법인이다. 다만 실패 종목은 `lastTraded`를 모르므로, 게이트의 전제는
+**"확보 실패 = 전부 구간 밖"** 이고 **이 가정을 산출물에 명시한다**(가정을 숨기면 사실로 굳는다).
+
+### 남은 작업
+
+수집기는 A2a의 복사에 가깝다. 다만 **그대로 복사하면 안 되는 곳이 셋**이다.
+
+```
+1. 정책          price.v1.json에 a2b 블록 신설 → PR-1.4
+                 현재 output.dir이 'data/backfill/price/a2a' 하나뿐이다.
+                 임계(minTickersWithData 2400 등)도 A2a 전제라 631종목에 그대로 못 쓴다
+2. 기대 거래일    상장기간으로 한정한다. A2a는 '실제 최초 거래일 ~ 캘린더 끝'인데
+                 폐지 종목은 끝이 폐지일이다. 전 구간으로 재면 누락률이 90%대로 나온다
+3. exitAt 확정   확보한 마지막 거래일이 A1b가 비워둔 exitAt의 확정값이다
+                 (dartModifyDate가 아니다 — 그것은 DART 레코드 수정일이지 폐지일이 아니다)
+```
+
+만들 것 (A3와 같은 형태):
+
+```
+config/policies/price.v1.json          PR-1.3 → PR-1.4 (a2b 블록)
+scripts/build-price-a2b.py             shard/finalize. resume 불필요(631종목, 한도 없음)
+scripts/test-price-a2b.py              합성 픽스처 — 상장기간 한정·exitAt 확정 분기
+scripts/verify-diagnostics.js          A2b 등재. trueFlags에 exitAt 확정 여부 관련 플래그
+.github/workflows/price-a2b.yml
+```
+
+`REQUIRED_UPSTREAM.A2b = ['A0.5','A1b']` · `REQUIRED_POLICIES.A2b = ['universe','price']`는
+**이미 등재돼 있고** 상류 둘 다 완료라 지금 그대로 통과한다.
+
+---
+
+## 9.3 A4 수급 — 오늘은 가용성 확인만 (타임박스 30~60분)
+
+### 무엇을 채워야 하는가 (KR-2.2 실측)
+
+```
+supplyDemand 0.20 의 내부 가중치
+  foreignNetBuy5d          0.40   외국인 5일 순매수 추세   ← KRX 종목별
+  institutionNetBuy5d      0.35   기관 5일 순매수 추세     ← KRX 종목별
+  largeShareholderChange   0.15   대주주 지분율 변동       ← DART 공시
+  buybackOrRetirement      0.10   자사주 매입/소각 공시    ← DART 공시
+```
+
+**75%가 KRX 종목별 수급, 25%가 DART 공시다.** 이 분해가 일정에 영향을 준다 —
+DART 축은 A3와 **같은 일 한도를 나눠 쓴다.** A3 수집이 하루 16,000건을 쓰는 동안
+A4의 DART 부분을 시작하면 안 된다. 오늘 확인은 **KRX 축만** 본다.
+
+### 확인할 것 (이것만)
+
+`pykrx 1.2.8`에 시그니처는 존재한다(로컬 확인). **다만 시그니처의 존재는 가용성이 아니다**
+— 교훈38·41이 그것이다. bulk 경로는 이미 영구 차단으로 확정돼 있다.
+
+```
+종목별(후보)  get_market_trading_value_by_date(fromdate, todate, ticker, detail=False)
+              get_market_trading_volume_by_date(...)
+전종목(bulk)  get_market_trading_value_and_volume_by_ticker(...)   ← 차단 예상. 재확인만
+```
+
+질문 넷:
+
+```
+1. get_market_trading_value_by_date가 실제 데이터를 돌려주는가 (정찰 2종목: 005930·000660)
+2. detail=True(기관 세부: 연기금·투신 등)가 되는가 — 안 되면 '기관합계'로만 설계한다
+3. 2016년 구간이 오는가, 아니면 일봉처럼 약 3,000거래일 롤링 윈도우인가
+4. 종목당 소요는 얼마인가 (A2a 실측 0.3초/종목이 기준. 3,210종목이면 약 16분)
+```
+
+### 중단 조건
+
+```
+경로가 열려 있다   → 여기서 멈춘다. 결과만 기록하고 A2b로 돌아간다
+경로가 막혔다      → A4 설계 전체를 재검토한다 (supplyDemand 축을 어떻게 할지가 A5o를 바꾼다)
+```
+
+**오늘 A4에서 하지 않을 것**: 정책 파일 작성, 수집기 구현, DART 축 정찰.
+확인 결과는 `docs/BF-1.1-백필계약.md` §7에 A4 절을 신설해 적는다
+(현재 §7에 A4 인수 조건 절이 **없다** — 계약 미정 상태다).
+
+---
+
+## 9.4 다음 단계와의 관계
+
+```
+A3 완료 ─┬→ A5o 운영 점수(survivorshipBias 스탬프) → 운영 검증
+A4 완료 ─┘
+A2b 완료 ─→ A5 연구(생존편향 제거) → A6~A9
 ```
 
 `REQUIRED_UPSTREAM.A5`에는 이미 `A2a·A2b·A3`가 전부 들어 있다. A5o는 별도 stage로

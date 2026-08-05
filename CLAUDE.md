@@ -9,7 +9,8 @@ Validated against
   구현     09186a5   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
            A3 구현 완료 · 정찰 완료(FN-1.2) — 수집 미실행
-  다음     A3 collect 반복(약 3일) → finalize → FN-1.3 승격
+  다음     세 갈래 병행 (인수인계 §9)
+           A3 collect 3회 → finalize (배경) · A2b 구현 (우선) · A4 가용성 확인
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
