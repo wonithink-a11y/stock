@@ -94,8 +94,35 @@ A1b    A1b.0    sha256:52a69c2ac451af36    1,222    sha256:1325e19e37807f9a
 - **`verifyUpstream(['A0.5','A0.7','A1a','A1b'])` 통과** — 네 manifest의 선언 해시가 실제
   파일과 전건 일치. 회귀 테스트도 committed 산출물 기준 5/5
 
-**다음은 A2a (현재 상장분 가격)**. §6에서 분할 축이 확정됐으므로 미결정 없이 착수 가능하다.
 A0.7은 universe 정책을 읽지 않아 manifest에 policyHash가 없고, 정책 승격 시 재실행 대상이 아니다.
+
+**2026-08-05 갱신 — PR-1.0·A2a 구현 완료 (Actions 첫 수집 대기)**
+
+착수 전 정찰이 전제 네 개를 바꿨다. 상세는 `docs/BF-1.1-백필계약.md` §7 A2a에 있다.
+
+```
+pykrx 1.2.8 (문서 기록 1.0.51)     → 워크플로에 버전 핀. 정책=요구 / manifest=실행
+import 시 "KRX 로그인 실패" 출력    → 개별종목 일봉과 무관한 노이즈 (교훈41 재확인)
+adjusted=False 경로 사망           → ±50% 검사의 목적이 '소스가 수정주가를 주는가'로 바뀜
+KRX 응답이 2014-05-15부터          → actualDataFrom을 실행 시점에 측정, 누락률 기준으로 사용
+```
+
+- `config/policies/price.v1.json` PR-1.0 신설, `dataPolicies`에 등록
+- `scripts/build-price-a2a.py` — `--shard N --shards M` 수집 / `--finalize` 병합·검증·산출
+- `.github/workflows/price-a2a.yml` — 샤드 8개 → artifact → finalize 단일 잡
+- `REQUIRED_UPSTREAM`에 `A2a: [A0.5,A1a]` · `A2b: [A0.5,A1b]`, `A5`를 둘 다 필수로 갱신
+- `verify-diagnostics.js`에 `forbidden` 필드 신설 — `smokeTest`가 박힌 부분 수집물은 거부된다
+
+**실행 축(샤드 8)과 저장 축(연도별 gzip)을 분리했다.** 샤드 수를 바꿔도 산출물 바이트가
+안 바뀌어 manifest 해시가 불변이고 하류 재실행이 강제되지 않는다. 나중에 연도 축 부분
+재수집을 붙이는 것도 저장이 이미 연도 키라 열려 있다.
+
+**롤링 윈도우 때문에 지연 하루 = 거래일 하루 영구 손실이다.** 실측 시점에 이미 캘린더
+앞 2거래일(2014-05-13·05-14)이 사라졌다. A2a는 빨리 돌릴수록 좋다.
+
+로컬 검증(산출물 미커밋): 12종목×2샤드 69,037행 · 정찰 2/2 · 롤링 손실 2거래일 자동 측정 ·
+부분 수집 → 인수 조건 실패 → 산출물 미작성 + `verify-diagnostics` 거부 ·
+gzip 1.2초 간격 재작성 바이트 동일(헤더 `mtime=0`, FNAME 비트 0).
 
 ---
 
@@ -109,8 +136,8 @@ A0.7은 universe 정책을 읽지 않아 manifest에 policyHash가 없고, 정�
   A0.7  DART corpCode 스냅샷 완료 — 3,981건, sha256:be13a4fc017a69e1 (2026-08-05)
   A1a   현재 상장 유니버스   완료 — A0.7 전환, A1a.2, sha256:cb7556fc889a651c (2026-08-05)
   A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
-  A2a   가격 (현재 상장분)   미착수   ← 다음 작업
-  A2b   가격 (폐지분)        미착수
+  A2a   가격 (현재 상장분)   구현 완료 (PR-1.0) — Actions 첫 수집 대기   ← 지금 여기
+  A2b   가격 (폐지분)        커버리지 정찰 선행. 구현은 그 뒤
   A3~A9                      미착수
 ```
 
@@ -490,6 +517,7 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 |---|---|
 | registry.json | REG-1.3 |
 | universe.v1.json | UN-1.2 |
+| price.v1.json | PR-1.0 |
 | stateMap.v1.json | SM-1.1 |
 | riskPenalty.v1.json | RP-1.2 |
 | confidence.v1.json | CP-1.0 |
@@ -512,8 +540,9 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 5. [완료] scripts/test-universe-a1b.js (알려진 폐지 5개 인라인)
 6. [완료] A1b 구현 · 로컬 검증
 7. [완료] Actions dispatch: universe-a1a → universe-a1b · 기준선 확정 (§0)
-8. A2a 착수 (현재 상장분 가격). REQUIRED_UPSTREAM에 A2a/A2b 등재는 이 커밋에서   ← 지금 여기
-9. A2b · A3~A9
+8. [완료] A2a 구현 (PR-1.0 · 샤드 8 · 연도별 gzip) → Actions 첫 수집 대기   ← 지금 여기
+9. A2b 커버리지 정찰 (구현 아님. 확보율 5개 분포 → A5 게이트 X% 확정)
+10. A2b 구현 · A3~A9
 ```
 
 커밋은 관심사별로 분리한다. `manifest 계약 변경`과 `A0.7 도입`이 한 커밋에 섞이면
