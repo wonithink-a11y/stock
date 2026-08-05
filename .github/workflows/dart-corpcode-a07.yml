@@ -40,16 +40,9 @@ jobs:
 
       - name: Verify diagnostics contract
         # Build가 exit 0인데 main()이 조기 반환됐다면 acceptance* 필드가 없거나 false로
-        # 남는다 — "빌드 성공 = 실제로 아무 일도 안 함"을 여기서 잡는다(universe-a1a와 동일 패턴).
-        run: |
-          python -c "
-          import json
-          d = json.load(open('data/backfill/dart/_diagnostics.json', encoding='utf-8'))
-          for k in ('acceptancePassed', 'acceptanceFails', 'acceptanceWarns'):
-              assert k in d, f'{k} 필드 없음 — main() 진입 여부 의심'
-          assert d['acceptancePassed'] is True, f\"acceptancePassed={d.get('acceptancePassed')} — Build 성공인데 인수 조건은 실패\"
-          print('OK: acceptancePassed =', d['acceptancePassed'])
-          "
+        # 남는다 — "빌드 성공 = 실제로 아무 일도 안 함"을 여기서 잡는다.
+        # 계약 표는 scripts/verify-diagnostics.js에 있다 — 워크플로마다 복사하지 않는다.
+        run: node scripts/verify-diagnostics.js A0.7
 
       - name: Write manifest
         if: success()

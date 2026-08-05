@@ -46,17 +46,8 @@ jobs:
         # Build A1a가 exit 0인데 main()이 애초에 안 불렸거나 조기 반환됐다면
         # _diagnostics.json에 acceptance* 필드가 없거나 false로 남는다.
         # "빌드 성공 = 실제로 아무 일도 안 함"을 여기서 잡는다.
-        # 필드 세 개를 모두 검사해 스키마 자체를 계약으로 고정한다 — 이후 리팩터링에서
-        # acceptanceFails/acceptanceWarns가 조용히 사라져도 즉시 실패해야 한다.
-        run: |
-          python -c "
-          import json
-          d = json.load(open('data/backfill/universe/a1a/_diagnostics.json', encoding='utf-8'))
-          for k in ('acceptancePassed', 'acceptanceFails', 'acceptanceWarns'):
-              assert k in d, f'{k} 필드 없음 — main() 진입 여부 의심'
-          assert d['acceptancePassed'] is True, f\"acceptancePassed={d.get('acceptancePassed')} — Build 성공인데 인수 조건은 실패\"
-          print('OK: acceptancePassed =', d['acceptancePassed'])
-          "
+        # 계약 표는 scripts/verify-diagnostics.js에 있다 — 워크플로마다 복사하지 않는다.
+        run: node scripts/verify-diagnostics.js A1a
 
       - name: Write manifest
         if: success()
