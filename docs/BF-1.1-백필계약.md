@@ -248,13 +248,23 @@ data/backfill/manifest/{stage}.json
 
 **단계별 필수 upstream**
 
-| stage | upstream |
-|---|---|
-| A1a | `A0.5` |
-| A1b | `A0.5`, `A1a` |
-| A2 · A3 · A4 | `A0.5`, `A1a` |
-| **A5** | `A0.5`, `A1a`, **`A1b`**, `A2`, `A3` |
-| A6 | `A5` |
+단일 출처는 `lib/backfillManifest.js`의 `REQUIRED_UPSTREAM`·`REQUIRED_POLICIES`다.
+이 표는 그 사본이므로 어긋나면 코드가 맞다.
+
+| stage | upstream | 필수 정책 해시 |
+|---|---|---|
+| A1a | `A0.5`, `A0.7` | `universe` |
+| A1b | `A0.7`, `A1a` | `universe` |
+| A2a | `A0.5`, `A1a` | `universe`, `price` |
+| A2b | `A0.5`, `A1b` | `universe`, `price` |
+| **A3** | `A1a`, **`A1b`** | `universe`, `fundamentals` |
+| A4 | `A0.5`, `A1a` | — |
+| **A5** | `A0.5`, `A1a`, **`A1b`**, `A2a`, `A2b`, `A3` | — |
+| A6 · A7 | `A5` | — |
+
+A3가 `A1b`를 요구하는 이유는 폐지 법인의 재무가 없으면 생존편향이 그대로 남기 때문이고,
+`universe`까지 요구하는 이유는 대상 법인 집합이 A1a·A1b에서 오므로 그 집합을 만든 규칙
+(SPAC 제외·KONEX 제외)이 바뀌면 **재무 커버리지의 분모가 조용히 달라지기** 때문이다.
 
 ---
 
@@ -602,7 +612,7 @@ A1b 후보                     1,222
 
 인수 조건 자체는 A2a와 공통이되, 거래일 대조 구간을 **상장기간으로 한정**해야 하고 그 마지막 거래일이 A1b가 비워둔 `exitAt`의 확정값이 된다(`dartModifyDate`가 아니라).
 
-### A3 재무 (PIT)
+### A3 재무 (PIT) — 구현 완료 · 정찰 완료 (FN-1.1, 2026-08-05), 수집 대기
 1. 전 레코드에 `availableFrom` 존재, **`availableFrom > 회계기간말`** (음수면 로직 반전)
 2. 연도별 계정 매칭 성공률 리포트 — 특정 연도만 급락하면 실패
 3. `|ROE| > 200%` 건수 리포트
@@ -610,6 +620,155 @@ A1b 후보                     1,222
 5. DART 일 한도 20,000건. 실패 시 다음날까지 대기이므로 **resume 로직 필수**
 6. `fnlttSinglAcntAll`은 2015 사업연도부터 제공 — 2016 시작이 여기서 강제된다
 7. 계정과목명이 회사·연도마다 다르다. 기존 `fetch-fundamentals-kr.js` 매칭 로직 재사용
+
+정의는 `config/policies/fundamentals.v1.json`(FN-1.1)이 단일 산출점이다.
+아래는 그 계약을 구현하면서 **갈렸던 지점과 고른 쪽**이다.
+
+#### availableFrom은 rcept_no에서 온다
+
+`fnlttSinglAcntAll` 응답 행이 `rcept_no`(접수번호)를 들고 있고 앞 8자리가 접수일이다.
+추가 호출 없이 PIT 축을 얻는다. `list.json`을 corp×연도로 한 번 더 도는 설계였다면
+호출량이 두 배가 되고 일 한도 설계가 통째로 달라졌다.
+
+**회계기간말은 보고서가 말하는 값(`thstrm_dt`)을 쓴다.** 결산월로 계산하면 안 된다 —
+A1a의 `fiscalMonth`는 '현재의 결산월'이라 결산월을 변경한 회사의 과거 보고서와 어긋나고,
+A1b 폐지 법인에는 그 필드가 아예 없다(실측: A1a 2,579종목 중 12월 결산이 아닌 곳 52종목).
+
+**정정공시 주의**: DART가 돌려주는 `rcept_no`는 정정본이 있으면 정정본의 것이다.
+따라서 `availableFrom`은 원본 접수일보다 늦을 수 있다. **방향이 보수적이라 그대로 둔다** —
+look-ahead가 아니라 커버리지 손실로 나타나기 때문이다. 반대 방향(원본 접수일에 정정된
+수치를 붙이는 것)이 진짜 사고다: 그 시점에 존재하지 않던 숫자를 그때 알았다고 기록하게 된다.
+
+#### 엔드포인트는 `fnlttSinglAcnt` — 정찰이 첫 선택을 뒤집었다
+
+FN-1.0은 `fnlttSinglAcntAll`(전체 재무제표)을 골랐다. 근거는 `account_id`(IFRS 표준 태그)의
+견고성이었고, 계약 7("계정과목명이 회사·연도마다 다르다")이 그 근거였다.
+정찰(2026-08-05, 표본 32법인 × 12사업연도, 932호출)이 그 선택을 뒤집었다.
+
+| | 주요계정 `fnlttSinglAcnt` | 전체 재무제표 `fnlttSinglAcntAll` |
+|---|---|---|
+| `thstrm_dt` (회계기간말) | **240/240** | **0/240** |
+| 7계정 전부 매칭 | 96.25% | 96.67% |
+| 호출 / (corp, 연도) | **1.00** | 1.43 |
+| 총 호출 추정 | **45,612** | 65,092 |
+| 응답 행 수 | 13~14 | 184~197 |
+
+**결정적인 것은 첫 줄이다.** 전체 재무제표에는 `thstrm_dt`가 없다. 회계기간말을 못 읽으면
+계약 1(`availableFrom > periodEnd`)을 **잴 수단 자체가 없고**, 수집기는 전건을
+`PERIOD_END_UNPARSED`로 버린다 — 0레코드를 낸다. 3일을 수집한 뒤에야 드러났을 실패다.
+**잴 수 없는 계약은 계약이 아니다.**
+
+두 번째 줄은 선택의 근거를 무너뜨렸다. 이름 매칭이 96.25%다 — 240건 중 1건 차이라
+"이름은 취약하다"가 이 표본에서는 성립하지 않는다. 부채총계·자본총계는 `nameExact`
+240/240으로 미스가 0이고, 미스가 몰린 유동자산·유동부채(3.3%)는 금융업 양식이라
+애초에 커버리지 분자 밖이다.
+
+세 번째·네 번째 줄은 호출량이다. 주요계정은 `fs_div`가 요청 파라미터가 아니라 응답 행의
+필드라 연결·별도가 한 번에 온다. FN-1.0은 "호출량 이점이 시점(PIT)을 사면 안 된다"고
+적었는데, **실측에서는 호출량과 PIT가 같은 쪽이었다.** 경계는 옳았고 어느 쪽이 그 대가를
+치르는지에 대한 추정이 틀렸다.
+
+**당기(`thstrm`) 열만 쓴다.** 주요계정은 같은 응답에 전기·전전기를 함께 주는데, 그것을 쓰면
+그 값들의 `availableFrom`이 '그 보고서의 접수일'이 되어 과거 연도를 실제보다 늦게 안 것으로
+기록한다(교훈47). 엔드포인트를 바꾼 이득이 그대로 사고가 되는 지점이라, 정책에 근거를 남기고
+`test-policies.js`가 `thstrmOnlyNote`의 존재를 강제한다.
+
+태그 매칭 경로는 코드에 남겨 둔다. 주요계정 응답에는 `account_id`가 없어 실질은 이름
+매칭이지만, 전체 재무제표로 되돌아갈 때 같은 코드가 동작해야 하고 — 되돌아가려면
+`periodEnd`를 얻을 다른 경로가 먼저 있어야 한다 — 태그 비교는 접두사를 떼고 꼬리만 보므로
+2019년 전후 `ifrs_` → `ifrs-full_` 변경에 이미 대비돼 있다.
+
+#### 커버리지 분자에서 유동자산·유동부채를 뺀다
+
+금융업은 재무제표 양식 자체에 유동자산·유동부채가 없다(`fetch-fundamentals-kr.js`의
+v1 휴리스틱이 이것으로 금융업을 판별했다). 이 둘을 분자에 넣으면 **업종 구성이
+데이터 품질로 둔갑한다.** 필수 5계정은 `equity·netIncome·revenue·opProfit·liabilities`다.
+
+#### A3는 사실 층이다 — 파생값을 굽지 않는다
+
+산출물에는 원계정을 그대로 남기고 `roe`·`debtRatio`를 계산해 넣지 않는다.
+특히 금융업 `debtRatio`를 `null`로 비우는 규칙은 **채점 정책**이므로 A5가 적용한다.
+정책 층에서 적용해야 정책 버전이 바뀔 때 재수집이 아니라 재계산으로 끝난다.
+계약 3(`|ROE| > 200%`)은 진단으로만 계산하며, **이상치를 제거하지 않는다** —
+자본잠식 기업의 ROE는 오류가 아니라 사실이고, 도려내면 A5가 '정상 기업만 있는 세계'를
+채점하게 된다(생존편향의 축소판이다).
+
+`sicCode`는 수집하되 `sectorType`으로 변환하지 않는다. 그 규칙은 `lib/sectorResolver.js`에
+이미 있고, 파이썬으로 다시 구현하면 같은 계약이 두 벌이 되어 둘이 같이 틀린다(교훈44).
+
+#### `sicCode`는 PIT가 아니다 — 플래그로 들고 간다
+
+DART는 업종의 시계열을 제공하지 않으므로 '현재의 업종'이 전 사업연도에 붙는다.
+업종 변경이 드물어 실무상 영향이 작다고 보고 그대로 쓰되, **그것은 가정이지 사실이 아니므로**
+진단의 `sectorNotPointInTime: true`가 하류로 들고 간다(A1b의 `exitReasonPending`과 같은 형태).
+
+#### 유일성 키는 (corp, fiscalYear, **availableFrom**)
+
+정정공시로 같은 (corp, fiscalYear)에 서로 다른 `availableFrom`이 여럿 나온다.
+**그것은 중복이 아니라 사실이므로 병합하지 않는다.** 병합하면 '그 시점에 알던 값'이 사라진다.
+A5는 스냅샷일 `d`에 대해 `availableFrom <= d`인 것 중 `fiscalYear`가 가장 큰 것,
+그 안에서 `availableFrom`이 가장 큰 것을 고른다.
+
+#### 2016년 1~3월 공백은 메울 수 없다
+
+`fnlttSinglAcntAll`이 2015 사업연도부터이고 FY2015 사업보고서는 2016-03경 접수된다.
+따라서 2016-01~03 스냅샷에는 연간 재무가 **아예 없다**. FY2015 보고서의 전기·전전기 열을
+끌어와도 그 `availableFrom`은 2016-03이라 여전히 쓸 수 없다. 커버리지 손실이지
+look-ahead가 아니며, A6의 coverage decile이 드러낼 사실이다.
+
+#### resume은 선택이 아니라 계약이다
+
+3,801법인 × 11사업연도이므로 일 한도 20,000건 안에 들어오지 않는다.
+A2a의 샤드는 한 실행 안에서 artifact로 넘겼지만 A3는 **실행이 날짜를 넘긴다** —
+artifact로는 이어받을 수 없으므로 `data/backfill/fundamentals/_shards/`(진행 상태 +
+중간 산출)를 Actions가 커밋하고, finalize가 성공하면 지운다.
+
+- 예산 소진은 **실패가 아니다.** 진행을 커밋하고 exit 0으로 끝난다 —
+  여기서 exit(1)을 내면 정상적인 분할 실행이 매일 빨간 불로 보인다.
+- 013(조회된 데이터 없음)은 **실패가 아니다.** 그 법인이 그 해에 보고서를 안 냈다는
+  정상 사실이므로 서킷 브레이커 카운터에 넣지 않는다 — 넣으면 폐지 법인 구간에서
+  서킷이 즉시 열린다.
+- 보고서를 낸 적 있는 법인이 연속 3개 사업연도 비면 스캔을 멈춘다. 폐지 법인 1,222건의
+  호출을 크게 줄인다. 3인 이유는 1~2년 결산 공백(감사의견 거절 후 지연 공시 등)이
+  실재하기 때문이다. **하드 실패한 해는 '보고서 없음'으로 세지 않는다** — 네트워크 오류
+  세 번이 그 법인의 이후 이력을 통째로 자른다.
+- finalize는 담당분을 안 마친 샤드가 하나라도 있으면 중단한다(교훈43).
+
+#### 정찰 실측 (2026-08-05, 표본 32법인 × 12사업연도, 932호출)
+
+```
+계약 1  availableFrom > periodEnd     위반 0 / 240      ← 성립
+        rcept_no 앞 8자리 = 접수일     240 / 240         ← 가정 유지
+        회계기간말(thstrm_dt)          240 / 240         ← 주요계정만
+사업연도 2014                          32법인 전건 0보고서 ← fiscalYearFrom 2015 확인
+공시지연 lag                           p50 90일 · p95 484일 · max 1,958일
+연결/별도                              CFS 220 · OFS 20
+폐지 표본 확보율                        5 / 8 (62.5%)
+```
+
+**공시지연 p95가 484일**이라는 것은 정정공시 caveat이 이론이 아니라는 뜻이다. 5%의 보고서가
+회계기간말로부터 1년 넘게 지난 `availableFrom`을 갖는다. 방향은 보수적이므로(늦게 알았다고
+기록) look-ahead가 아니라 커버리지 손실로 나타나며, 그 규모가 이 숫자다.
+
+**폐지 표본 8건 중 3건이 보고서 0건이고 그중 하나가 SPAC이다**(`128910` 동부티에스블랙펄
+기업인수목적). A1b는 `A0.7 − A1a` 차집합이라, A1a가 **회사명으로** 제외한 SPAC이 그대로
+들어온다. 즉 A3의 폐지 그룹 분모에는 애초에 채점 대상이 아닌 법인이 섞여 있다.
+`corpsWithDataRateByGroup.delisted`가 낮게 나오는 것을 곧바로 '수집 실패'로 읽으면 안 되고,
+낮으면 **분모부터 다시 정의한다** — A2b에서 51.6%를 커버리지로 읽지 않기로 한 것과 같은 판단이다.
+
+표본 32법인은 **게이트의 기준선이 될 수 없다.** 정책의 `probed` 블록에 남기되 `measured`와
+이름을 분리한다 — `test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가르므로,
+이름을 섞으면 표본으로 잰 값이 전수의 임계가 된다.
+
+#### 임계는 전부 WARN으로 시작한다
+
+FN-1.0 시점에 커버리지·ROE 이상치·연도별 매칭률의 **실측이 없다.**
+FAIL은 구조적으로 위반이 불가능한 것만이다 — `availableFrom` 부재·계약 1 위반·
+`periodEnd` 부재·날짜/corp 형식·키 중복·데이터가 0인 사업연도.
+
+정찰(`scripts/probe-fundamentals-a3.py`)은 표본 30여 법인이라 **게이트의 기준선이 될 수 없다.**
+표본으로 잰 값을 전수의 임계로 쓰면 임계가 실측처럼 보이는 추정이 된다.
+첫 수집 실측 후 PR-1.0 → PR-1.3이 밟은 경로대로 승격한다.
 
 ### A5 채점
 1. `errorCount === 0`, 전 결과 `validate(..., {mode:'strict'})` 통과
@@ -653,7 +812,9 @@ A1b 후보                     1,222
 | `docs/BF-1.1-백필계약.md` | 신규 | 이 문서 (`BF-1.0`은 이력으로 보존, 참조는 이쪽) |
 | `config/policies/exit.v1.json` | 무변경 | EP-1.0 |
 | `config/policies/universe.v1.json` | **UN-1.2** | 유니버스 정의 단일 산출점. `a1b` 블록 신설 |
-| `config/policies/registry.json` | 수정 | REG-1.2 → **REG-1.3** (`dataPolicies` 신설) |
+| `config/policies/registry.json` | 수정 | REG-1.2 → REG-1.3(`dataPolicies` 신설) → **REG-1.4**(`fundamentals` 등록) |
+| `config/policies/price.v1.json` | **PR-1.3** | A2a·A2b 수집 파라미터·인수 조건 |
+| `config/policies/fundamentals.v1.json` | **FN-1.0** | A3 수집 파라미터·PIT 계약·인수 조건 |
 | `lib/loadPolicies.js` | 수정 | `data` · `dataVersions` 반환. 3중 네임스페이스 중복 등록 시 throw |
 | `lib/backfillManifest.js` | 수정 | `upstream` 필수 키 표(§4) 강제. `A1b: ['A0.7','A1a']` |
 | `scripts/build-calendar.py` | 무변경 | A0.5 |
@@ -666,8 +827,12 @@ A1b 후보                     1,222
 | `.github/workflows/universe.yml` | **삭제** | |
 | `.github/workflows/dart-corpcode-a07.yml` | 완료 | A0.7 (월 1회 + dispatch) |
 | `.github/workflows/universe-a1a.yml` · `universe-a1b.yml` | 완료 | |
-| `scripts/probe-krx.py` · `probe-kind.py` · `probe-delisted.py` | 보존 | 정찰 근거. 재실행 불필요 |
-| `scripts/test-policies.js` | 수정 | `dataPolicies.universe` 검증 추가 (`a1b` 임계·기본값·키 역할) |
+| `scripts/build-price-a2a.py` · `test-price-a2a.py` | 완료 | A2a + 품질 판별 회귀 |
+| `scripts/build-fundamentals-a3.py` | 신규 | A3 — shard(resume) / finalize 2모드 |
+| `scripts/test-fundamentals-a3.py` | 신규 | PIT 계약·계정 매칭 회귀 (합성 픽스처, 네트워크 불필요) |
+| `.github/workflows/fundamentals-a3.yml` | 신규 | A3 (`mode: collect` 반복 → `finalize` 1회) |
+| `scripts/probe-krx.py` · `probe-kind.py` · `probe-delisted.py` · `probe-price-a2b.py` · `probe-fundamentals-a3.py` | 보존 | 정찰 근거. 재실행 불필요 |
+| `scripts/test-policies.js` | 수정 | `dataPolicies` 3종 검증 (universe·price·fundamentals) |
 
 ---
 

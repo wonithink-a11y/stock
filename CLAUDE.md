@@ -5,10 +5,11 @@
 
 ```
 Validated against
-  정책     UN-1.2 · PR-1.3 · REG-1.3
+  정책     UN-1.2 · PR-1.3 · FN-1.1 · REG-1.4
   구현     44972a4   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
-  다음     A3 재무(PIT) — 가중치 65%를 쥔 병목
+           A3 구현 완료 · 정찰 완료(FN-1.1) — 수집 미실행
+  다음     A3 collect 반복(약 3일) → finalize → FN-1.2 승격
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
@@ -116,10 +117,12 @@ node scripts/test-classifier.js
 node scripts/test-state-infrastructure.js
 node scripts/test-universe-a1b.js       # A1b 산출물이 있어야 한다
 python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, 산출물 불필요)
+python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭 (합성 픽스처, 산출물 불필요)
 
 # 수집 스크립트 (외부 네트워크 필요)
 python scripts/build-dart-corpcode.py   # A0.7 — DART_API_KEY 필요
 python scripts/build-universe-a1a.py    # A1a — KIND
+python scripts/probe-fundamentals-a3.py # A3 정찰 — DART_API_KEY 필요. 수집 아님
 
 # A1b는 네트워크를 쓰지 않는다 (입력 3개가 모두 커밋된 산출물)
 python scripts/build-universe-a1b.py
@@ -128,6 +131,7 @@ node scripts/verify-diagnostics.js A1b
 # 게이트 검증 — 인수 조건을 강제 실패시킨다
 A1A_FAIL_INJECTION=gate-test python scripts/build-universe-a1a.py; echo "exit=$?"
 A1B_FAIL_INJECTION=gate-test python scripts/build-universe-a1b.py; echo "exit=$?"
+A3_FAIL_INJECTION=gate-test python scripts/build-fundamentals-a3.py --finalize; echo "exit=$?"
 
 # 로컬 실행 후 반드시
 git checkout -- data/
@@ -187,4 +191,20 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
 46. 분할 축을 잘못 고르면 분할의 목적이 사라진다.
     A2를 수집/검증으로 나누면 병렬화도 못 얻고 미검증 산출물에 manifest를 찍게 된다.
     유니버스 축(A2a/A2b)이 두 목적을 다 만족한다.
+47. 소스가 3개 연도를 한 번에 준다고 3개 연도를 그때 안 것은 아니다.
+    DART 주요계정의 전기·전전기 열은 '그 보고서 접수일'에 알려진 값이다.
+    호출량 이점이 시점(PIT)을 사면 안 된다 — 과거를 실제보다 늦게 안 것으로 기록한다.
+48. 결측처럼 보이는 것이 양식일 수 있다.
+    금융업 재무제표에는 유동자산·유동부채가 없다. 커버리지 분자에 넣으면
+    업종 구성이 데이터 품질로 둔갑한다. 결측률을 재기 전에 분자가 무엇인지 먼저 정한다.
+49. 조용히 무너지는 축은 게이트를 두 겹으로 건다.
+    PIT가 뒤집혀도 점수·등급은 정상으로 보이고 백테스트만 좋아진다.
+    그래서 인수 조건(FAIL)과 합성 픽스처 회귀를 둘 다 두고, 회귀는 수집 전에 돌린다.
+50. 잴 수 없는 계약은 계약이 아니다.
+    A3가 고른 fnlttSinglAcntAll에는 thstrm_dt가 없어(실측 0/240) 회계기간말을 못 읽는다.
+    계약 1을 잴 수단이 없으니 수집기가 전건을 버린다 — 3일 수집 후에 드러났을 실패다.
+    소스를 고를 때 '값이 있는가'만 보지 말고 '계약을 잴 필드가 있는가'를 함께 본다.
+51. 정찰은 답을 확인하는 절차가 아니라 전제를 뒤집는 절차다.
+    A3 정찰의 성과는 계획 검증이 아니라 엔드포인트 선택을 뒤집은 것이다.
+    뒤집힐 수 없게 설계된 정찰은 돌릴 이유가 없다.
 ```

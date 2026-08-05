@@ -4,7 +4,7 @@
 
 ---
 
-## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), 다음은 A3 (§9)
+## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), A3 구현·정찰 완료·수집 대기 (§9)
 
 **증상이었던 것**: `_diagnostics.json`에 `acceptancePassed`가 세 번의 워크플로 실행에도
 한 번도 안 나타남.
@@ -219,7 +219,7 @@ A5o manifest에 `survivorshipBias: true`를 강제한다.
   A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
   A2a   가격 (현재 상장분)   완료 — 6,088,578행, A2a.0, sha256:9756e0737ea8c866 (2026-08-05)
   A2b   가격 (폐지분)        정찰 완료 — 구현 시점만 남음(631종목). 크리티컬 패스 밖
-  A3    재무 (PIT)           미착수   ← 다음 작업. 가중치 65%를 쥔 병목
+  A3    재무 (PIT)           구현·정찰 완료(FN-1.1, 2026-08-05) — 수집 미실행  ← 지금 여기
   A4    수급                 미착수
   A5o   운영 점수            미착수 (신설 예정)
   A5~A9                      미착수
@@ -599,9 +599,10 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 | 파일 | 버전 |
 |---|---|
-| registry.json | REG-1.3 |
+| registry.json | REG-1.4 |
 | universe.v1.json | UN-1.2 |
 | price.v1.json | PR-1.3 |
+| fundamentals.v1.json | FN-1.1 |
 | stateMap.v1.json | SM-1.1 |
 | riskPenalty.v1.json | RP-1.2 |
 | confidence.v1.json | CP-1.0 |
@@ -626,10 +627,12 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 7. [완료] Actions dispatch: universe-a1a → universe-a1b · 기준선 확정 (§0)
 8. [완료] A2a 구현 → 첫 수집 실패(게이트 작동) → 3층 정정 → 재실행 성공 → 기준선 확정
 9. [완료] A2b 커버리지 정찰 → 51.6%(구간 기준 확보 불가 0건) → 우선순위 뒤로
-10. A3 재무(PIT)   ← 지금 여기. §9 참조
-11. A4 수급
-12. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
-13. A2b 구현 → A5 연구(생존편향 제거) → A6~A9
+10. [완료] A3 구현 — FN-1.0 · 수집기 · 회귀 테스트 · 진단 계약 · 워크플로
+11. [완료] A3 정찰 → 엔드포인트 선택 뒤집힘 → FN-1.1로 구현 수정
+12. A3 실행: collect 반복(약 3일) → finalize → FN-1.2 승격   ← 지금 여기. §9 참조
+13. A4 수급
+14. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
+15. A2b 구현 → A5 연구(생존편향 제거) → A6~A9
 ```
 
 커밋은 관심사별로 분리한다. `manifest 계약 변경`과 `A0.7 도입`이 한 커밋에 섞이면
@@ -637,9 +640,10 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 ---
 
-## 9. 다음 작업 — A3 재무 (PIT) 착수 안내
+## 9. 다음 작업 — A3 재무 (PIT) 실행
 
 새 세션은 이 절만 읽고 시작할 수 있다. 앞의 §0~§8은 배경이다.
+**구현은 끝났고 남은 것은 실행이다.** 설계 근거는 `docs/BF-1.1-백필계약.md` §7 A3에 있다.
 
 ### 왜 A3가 병목인가
 
@@ -654,49 +658,116 @@ KR-2.2.categoryWeights (동결)
 재무가 **가중치의 65%** 다. CLAUDE.md 절대 규칙 1이 "커버리지 60% 미만이면 등급 '유보'"이므로,
 A3 없이 A5를 돌리면 2,579종목 전건이 '유보'로 나온다. 점수는 계산되지만 등급이 안 붙는다.
 
-### 계약
-
-상세는 `docs/BF-1.1-백필계약.md` §7 A3. 요약하면 다음 5개다.
+### 이번 세션이 만든 것 (2026-08-05)
 
 ```
-1. 전 레코드에 availableFrom 존재. availableFrom > 회계기간말 (음수면 로직 반전)
-2. 연도별 계정 매칭 성공률 리포트 — 특정 연도만 급락하면 실패
-3. |ROE| > 200% 건수 리포트
-4. 조인 키는 corp_code   ← ticker 아님. A1a current.jsonl의 corp 필드를 쓴다
-5. DART 일 한도 20,000건. 실패 시 다음날까지 대기이므로 resume 로직 필수
+config/policies/fundamentals.v1.json   FN-1.1 — 수집 파라미터 · PIT 계약 · 인수 조건 · probed
+config/policies/registry.json          REG-1.3 → REG-1.4 (dataPolicies.fundamentals 등록)
+lib/backfillManifest.js                REQUIRED_POLICIES.A3 = ['universe','fundamentals']
+scripts/probe-fundamentals-a3.py       정찰 — 설계 판정용. 재무 수치를 남기지 않는다
+scripts/build-fundamentals-a3.py       수집기 — shard(resume) / finalize 2모드
+scripts/test-fundamentals-a3.py        회귀 42건 (합성 픽스처, 네트워크 불필요)
+scripts/verify-diagnostics.js          A3 진단 계약 등재 (필드 37 · trueFlag 1)
+scripts/test-policies.js               FN-1.0 검증 추가
+.github/workflows/probe-fundamentals-a3.yml
+.github/workflows/fundamentals-a3.yml  mode: collect | finalize
 ```
 
-`REQUIRED_UPSTREAM.A3`는 이미 `['A1a','A1b']`로 등재돼 있고 둘 다 완료라 **지금 그대로 통과**한다.
-`REQUIRED_POLICIES`에는 A3가 없다 — 재무 전용 정책 파일(가칭 `fundamentals.v1.json`)을 만들면
-`registry.json`의 `dataPolicies`에 등록하고 표에도 추가한다(A2a에서 `price` 추가한 것과 동일).
+로컬에서 검증한 것: 정책 정합성, 회귀 42건 전건 통과, 합성 샤드로 finalize 전 경로
+(gzip 산출 → 진단 계약 통과), FAIL INJECTION 시 **산출물 미작성**, 미완료 샤드 존재 시 중단.
+DART 응답 실물은 정찰이 확인했고, 그 결과로 엔드포인트가 바뀌었다(아래).
 
-### 착수 전에 볼 것
-
-- **`scripts/fetch-fundamentals-kr.js`** — 이미 있는 운영용 수집기다. DART `company.json`으로
-  업종(induty_code)을 받아 `lib/sectorResolver`로 sectorType을 확정하는 로직이 들어 있다.
-  A3는 이 로직을 재사용하되 **시점(PIT) 축을 추가**하는 것이 본질이다. 운영 수집기는
-  '현재 값'을 쓰고, A3는 '그 시점에 알 수 있었던 값'을 써야 한다
-- **PIT의 핵심**: `availableFrom`은 공시 접수일 기준이다. 회계기간말이 아니라 **공시가 실제로
-  나온 날**부터 그 숫자를 알 수 있다. 이걸 뒤집으면 백테스트에 look-ahead가 들어간다
-- **A0.7 산출물**(`data/backfill/dart/corpcode.jsonl`, 3,981건)이 corp_code 단일 출처다.
-  DART 조회는 이 corp로 한다
-
-### 이 프로젝트에서 반드시 지킬 것 (A2a에서 값비싸게 배운 것)
+### 실행 순서
 
 ```
-1. 인수 조건 실패 시 산출물을 쓰지 않는다. 쓰고 exit(1)하면 manifest가 깨진 데이터에 찍힌다
-2. 진단은 중단 경로에도 남긴다. verify-diagnostics.js의 표에 새 단계를 등재한다
-3. 임계는 정책 파일에서만 읽는다. 스크립트에 숫자를 쓰지 않는다
-4. 실측하지 않은 임계는 WARN으로 시작하고 실측 1회 후 FAIL로 승격한다
-5. 대량 루프 전 정찰 2회 + 연속 실패 서킷 브레이커 (교훈32)
-6. *_FAIL_INJECTION 훅을 붙인다. 실패만 만들 수 있고 통과는 만들 수 없어야 한다
-7. 로컬 실행 후 반드시 git checkout -- data/ 그리고 미추적 산출물 삭제
+1) probe-fundamentals-a3        [완료 2026-08-05] → 엔드포인트 선택이 뒤집혔다
+2) 구현 수정                     [완료] FN-1.0 → FN-1.1
+3) fundamentals-a3 (collect)    매일 1회 dispatch. 전 샤드 complete까지 약 3일   ← 지금 여기
+4) fundamentals-a3 (finalize)   1회. manifest가 여기서 찍힌다
+5) FN-1.1 → FN-1.2 승격         실측 기준선(measured) 기록 + WARN → FAIL 승격
 ```
+
+3)이 며칠 걸린다. 총 호출 약 45,600건이고 일 예산이 16,000건(한도의 80%)이기 때문이다.
+**예산 소진은 실패가 아니다** — collect는 진행 상태를 커밋하고 exit 0으로 끝나며,
+다음 실행이 이어받는다. 한도는 KST 자정에 초기화된다.
+persist 잡의 `Progress summary`가 매 실행 남은 샤드를 찍는다.
+
+### 정찰이 뒤집은 것 (2026-08-05, 표본 32법인 × 12사업연도, 932호출)
+
+정찰의 성과는 계획 확인이 아니라 **엔드포인트 선택을 뒤집은 것**이다.
+
+| 확인 항목 | 실측 | 결과 |
+|---|---|---|
+| `availableFrom > periodEnd` | 위반 0/240 | 계약 성립 |
+| `rceptNoIsDate` | 240/240 | 가정 유지 |
+| **`thstrm_dt`** | 주요계정 240/240 · **전체 재무제표 0/240** | **선택 뒤집힘** |
+| `accountMissRate` (7계정 전부) | 96.25% vs 96.67% | 선택 근거 붕괴 |
+| `delistedCoverage` | 5/8 (n=8) | 관측만. 게이트 불가 |
+| `estimatedCalls` | 45,612 vs 65,092 | 주요계정이 30% 싸다 |
+| 사업연도 2014 | 32법인 전건 0보고서 | `fiscalYearFrom: 2015` 확인 |
+
+전체 재무제표에는 회계기간말 필드가 없다. **계약 1을 잴 수단이 없으면 수집기가 전건을
+버린다** — 3일을 수집한 뒤에야 드러났을 실패다(교훈50). 그리고 그 엔드포인트를 고른 근거
+("이름 매칭은 취약하다")도 240건 중 1건 차이로 무너졌다.
+
+부수 실측 둘은 수집 결과를 읽을 때 필요하다.
+
+- **공시지연 p95 484일 · max 1,958일** — 정정공시 caveat이 실재한다. 5%의 보고서가
+  회계기간말로부터 1년 넘게 지난 `availableFrom`을 갖는다. 방향은 보수적이라
+  look-ahead가 아니라 커버리지 손실로 나타난다.
+- **폐지 표본 8건 중 3건 0보고서, 그중 하나가 SPAC**(`128910`). A1b는 `A0.7 − A1a`라
+  A1a가 회사명으로 제외한 SPAC이 그대로 들어온다. `corpsWithDataRateByGroup.delisted`가
+  낮다고 곧바로 수집 실패로 읽지 말고 **분모부터 다시 정의한다**(A2b와 같은 판단).
+
+정찰 실측은 정책의 `probed` 블록에 있다. `measured`가 **아니다** — 표본 32법인이고,
+`test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가르므로 이름을 분리했다.
+
+### collect를 돌리는 법
+
+```
+Actions → backfill-fundamentals-a3 → Run workflow
+  mode: collect        ← 전 샤드가 complete가 될 때까지 매일 1회
+```
+
+매 실행 끝에 persist 잡이 이렇게 찍는다.
+
+```
+법인 완료 2,431 · 레코드 24,118 · 오늘 호출 15,984 · 완료 샤드 3/8
+collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)
+```
+
+`완료 샤드 8/8`이 나오면 `mode: finalize`를 한 번 돌린다.
+같은 날 두 번 dispatch해도 안전하다 — 샤드가 `callsUsedToday`를 상태에 들고 있어
+그날 예산을 넘기지 않고 즉시 끝난다.
+
+### 수집이 끝난 뒤 할 일 (FN-1.2 승격)
+
+A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
+
+1. `_diagnostics.json`의 실측을 `fundamentals.v1.json`의 `measured` 블록에 기록
+   (`test-policies.js`가 `measured` 존재 여부로 분기하므로 이 블록이 승격의 스위치다)
+2. 여유가 확인된 WARN을 FAIL로 승격 — 후보는 `yearCoverageDropWarn`(계약 2가
+   "특정 연도만 급락하면 **실패**"라고 명시한다), `coverageRateMinWarn`, `minCorpsWithDataWarn`
+3. `roeAbsOutlierRateWarn`·`negativeEquityRateWarn`은 **WARN으로 남긴다** —
+   자본잠식은 시장의 정상 사건이고, FAIL로 올리면 사실이 파이프라인을 막는다
+   (A2a에서 장기 거래정지 2종목을 WARN으로 남긴 것과 같은 논리)
+4. 정책 버전을 올렸으므로 CLAUDE.md의 `Validated against`와 이 문서를 갱신
+
+### 다음 단계와의 관계
+
+```
+A3 완료 → A4 수급 → A5o 운영 점수(survivorshipBias 스탬프) → 운영 검증
+                  → A2b 구현 → A5 연구(생존편향 제거) → A6~A9
+```
+
+`REQUIRED_UPSTREAM.A5`에는 이미 `A2a·A2b·A3`가 전부 들어 있다. A5o는 별도 stage로
+추가하며 표 등재는 **A5o 착수 커밋에서** 한다 — 스크립트 없는 stage를 표에만 올리면
+실행 불가능한 계약이 남는다.
 
 ### 첫 명령
 
 ```bash
-node scripts/test-policies.js          # 정책 정합성 — 언제나 먼저
+node scripts/test-policies.js
+python scripts/test-fundamentals-a3.py
 git log --oneline <Validated against 해시>..HEAD -- lib scripts config .github
-                                       # 문서가 구현보다 오래됐는지 확인
 ```
