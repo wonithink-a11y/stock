@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.0",
+  "version": "PR-1.1",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -26,12 +26,31 @@
   "probeTickers": ["005930", "000660"],
   "probeNote": "대량 루프 진입 전 2회 정찰(교훈32). 둘 다 실패하면 경로가 막힌 것이므로 2,579회를 돌리지 않고 즉시 중단한다. 연속 실패 서킷 브레이커는 루프 도중 경로가 막히는 경우를 잡는다.",
 
+  "dailyChange": {
+    "comparableOnly": true,
+    "requireBothVolumePositive": true,
+    "requireAdjacentTradingDay": true,
+    "comparableNote": "변동률은 '체결이 있었던 인접 거래일'끼리만 잰다. 거래량 0인 행의 종가는 체결가가 아니라 거래정지 중 기준가 표기이고, 그것을 실제 체결가와 비교하는 것은 품질 검사가 아니라 서로 다른 의미의 값을 비교하는 것이다(2026-08-05 실측: 위반 57건 중 29건이 거래량 0 관여, 3건이 장기 공백). 캘린더 간격이 1이 아닌 쌍도 연속 변동이 아니므로 제외하되 둘 다 진단에 카운트로 남긴다. 이는 임계 완화가 아니라 비교 대상 정정이다 — 임계 ±50%는 그대로다.",
+    "transientReturnDays": 3,
+    "transientReturnTolerance": 0.25,
+    "transientNote": "위반 후 3거래일 안에 직전 수준의 ±25% 이내로 돌아오면 1일 오표기(TRANSIENT_PRICE_SPIKE), 그 수준에 머물면 수정주가 미적용(UNADJUSTED_CORPORATE_ACTION)으로 가른다. 둘 다 종목 단위 품질 제외 사유다 — 어느 행이 틀렸는지 단정하는 것은 추정이므로 행 단위로 도려내지 않는다."
+  },
+
+  "qualityExclusion": {
+    "file": "price-quality-excluded.jsonl.gz",
+    "reasons": ["UNADJUSTED_CORPORATE_ACTION", "TRANSIENT_PRICE_SPIKE"],
+    "reasonNote": "제외 사유 코드는 산출물에 남겨 A5가 그대로 노출할 수 있게 한다. 나중에 KRX·pykrx가 데이터를 고치면 특정 reason만 재검증하면 된다. ZERO_VOLUME_REFERENCE·LONG_SUSPENSION은 여기 없다 — 거래정지와 장기 공백은 정상 시장 사건이지 종목을 버릴 사유가 아니며, 진단 카운터(zeroVolumeTransitions·suspendedGapTransitions)로만 남긴다.",
+    "fileNote": "A1a의 excluded.jsonl과 이름을 구분한다. 그쪽은 '정의상 유니버스가 아니다'(KONEX·SPAC)이고 이쪽은 '데이터 품질이 계약에 못 미친다'로 의미가 다르다. manifest 디렉터리 해시가 targetExt '.jsonl.gz'로 걸리므로 이 파일도 gzip으로 쓴다 — 안 그러면 제외 목록이 manifest 밖에 남는다."
+  },
+
   "acceptance": {
     "dailyChangeAbsMax": 0.5,
-    "dailyChangeViolations": 0,
+    "residualDailyChangeViolations": 0,
+    "qualityExcludedRateMax": 0.03,
     "closeNonPositive": 0,
     "highLowOrderViolations": 0,
     "dateContractViolations": 0,
+    "datesNotInCalendar": 0,
     "tickerFetchFail": 0,
     "duplicateKeys": 0,
     "minTickersWithData": 2400,
@@ -39,7 +58,18 @@
     "perTickerMissingRateWarn": 0.10,
     "emptyTickerRateWarn": 0.02
   },
-  "acceptanceNote": "구조적으로 위반이 불가능한 것만 FAIL로 둔다 — 일간 ±50% 초과(국내 가격제한폭 상하 30%), close<=0, high<low, 날짜 계약, 조회 실패, (ticker,date) 중복. 누락률 계열은 PR-1.0에서 WARN이다: 거래정지 구간에 KRX가 행을 주는지 안 주는지를 아직 실측한 적이 없어, FAIL로 걸면 정당한 데이터가 파이프라인을 막는다. 실측 1회 후 PR-1.1에서 FAIL로 승격한다 — UN-1.0 → UN-1.1의 corpCodeDuplicate와 같은 패턴이다. minTickersWithData는 유니버스 2,579 대비 약 7% 여유이며, 이보다 적게 받히면 수집이 아니라 경로가 깨진 것이다.",
+  "acceptanceNote": "구조적으로 위반이 불가능한 것만 FAIL이다 — close<=0, high<low, 날짜 계약, 캘린더 밖 날짜, 조회 실패, (ticker,date) 중복, 그리고 품질 제외를 마친 뒤 남는 ±50% 위반. qualityExcludedRateMax가 이 구조의 안전핀이다: 위반 종목을 자동 제외하기만 하면 게이트가 영원히 통과하므로, 제외가 급증하면 그건 종목 문제가 아니라 소스 문제로 보고 FAIL시킨다(실측 0.9% 대비 3배 여유인 3%). datesNotInCalendar를 FAIL로 두는 이유는 초과 행수 추적에서 실측 0건이 확인됐기 때문이고, 이 값이 0이어야 missingRate가 음수가 될 수 없다 — PR-1.0에서 누락률이 -1.465%로 나와 검사가 침묵한 원인이 기대 모델이었다. 누락률 계열은 기대 모델이 방금 바뀌었으므로 이번 실행까지 WARN으로 두고, 새 모델의 실측 1회 후 PR-1.2에서 승격한다.",
+
+  "expectedRows": {
+    "basis": "firstTradedDate",
+    "basisNote": "종목별 기대 거래일은 '실제 최초 거래일'부터 센다. KIND listedAt을 쓰면 안 된다 — listedAt은 '현재 시장의 상장일'이지 최초 상장일이 아니어서, 코스닥→코스피 이전상장 종목(파라다이스·엘앤에프·포스코DX·NICE평가정보 등 86종목)은 상장일보다 10년 앞선 가격이 정상적으로 존재한다. 2026-08-05 실측: listedAt 이전 행 91,499행 − 앞단 잘림 2,942행 = 초과 88,557행으로 정확히 일치했다.",
+    "rowsBeforeListedAtIsNormal": true
+  },
+
+  "rollingWindow": {
+    "observeOnly": true,
+    "observeNote": "종목별 앞단 잘림을 관측만 하고 게이트에 쓰지 않는다. 전체 최소 날짜로 재면 안 된다 — 2026-08-05 실측에서 장기 거래정지 이력 2종목(오상헬스케어·우양에이치씨)만 2014-05-13에 닿아 1,471종목 × 2거래일 손실을 통째로 가렸다. 극단값 2개가 지표를 무력화한 사례다. 게이트로 올리지 않는 이유는 손실 구간이 analysisFrom(2016-01-01) 이전 워밍업 405거래일의 앞 2일이라 분석에 영향이 없고, 데이터 자체가 없어 복구가 불가능하기 때문이다(구간을 6주로 좁혀도 동일)."
+  },
 
   "output": {
     "dir": "data/backfill/price/a2a",

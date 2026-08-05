@@ -54,8 +54,17 @@ const CONTRACT = {
   'A2a': {
     file: 'data/backfill/price/a2a/_diagnostics.json',
     required: ['pricePolicy', 'environment', 'shardCount', 'rowCount',
-               'calendarStart', 'actualDataFrom', 'actualDataTo', 'rollingWindowLoss',
-               'expectedRows', 'missingRate', 'dailyChangeViolationCount', 'years'],
+               'rowCountAfterExclusion', 'calendarStart', 'actualDataFrom', 'actualDataTo',
+               'expectedRows', 'missingRate', 'datesNotInCalendar', 'years',
+               // 품질 제외는 개수가 아니라 사유별 분포까지 남는다 — A5가 사유를 그대로
+               // 노출하고, 소스가 고쳐지면 특정 사유만 재검증할 수 있어야 한다.
+               'qualityExcluded', 'qualityExcludedCount', 'qualityExcludedByReason',
+               'qualityExcludedRate',
+               // 검사에서 제외한 비교쌍은 침묵하지 않는다 — 무엇을 안 봤는지가 기록이다
+               'zeroVolumeTransitions', 'suspendedGapTransitions', 'comparableTransitions',
+               // 관측 전용(게이트 아님)
+               'frontTruncatedTickers', 'frontTruncatedTickerDays',
+               'rowsBeforeListedAt', 'tickersWithRowsBeforeListedAt'],
     trueFlags: [],
     // 부분 수집(--limit)이 정상 산출로 승격되는 경로를 막는다. 한 방향 훅이다 —
     // 이 플래그는 통과를 만들 수 없고 거부만 만든다.

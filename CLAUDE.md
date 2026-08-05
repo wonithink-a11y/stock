@@ -115,6 +115,7 @@ node scripts/test-engine-v2.js
 node scripts/test-classifier.js
 node scripts/test-state-infrastructure.js
 node scripts/test-universe-a1b.js       # A1b 산출물이 있어야 한다
+python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, 산출물 불필요)
 
 # 수집 스크립트 (외부 네트워크 필요)
 python scripts/build-dart-corpcode.py   # A0.7 — DART_API_KEY 필요

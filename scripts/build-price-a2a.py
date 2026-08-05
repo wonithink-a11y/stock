@@ -33,7 +33,7 @@ import os
 import re
 import sys
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 POLICY = "config/policies/price.v1.json"
 UNIVERSE = "data/backfill/universe/a1a/current.jsonl"
@@ -204,16 +204,14 @@ def run_shard(shard, shards, pol, limit):
 
 
 # ── finalize ───────────────────────────────────────────────────
-def write_year_gz(year, rows, pol):
+def write_gz(path, records, pol):
     """gzip mtime을 0으로 고정한다. 기본값(현재 시각)이면 내용이 같아도 매 실행
     바이트가 달라져 manifest 해시가 '재수집 여부 판정' 기능을 잃는다."""
     o = pol["output"]
     buf = io.BytesIO()
-    for x in rows:
-        buf.write((json.dumps({k: x[k] for k in FIELDS}, ensure_ascii=False) + "\n")
-                  .encode("utf-8"))
+    for x in records:
+        buf.write((json.dumps(x, ensure_ascii=False) + "\n").encode("utf-8"))
     raw = buf.getvalue()
-    path = f"{OUT_DIR}/{year}.jsonl.gz"
     with open(path, "wb") as fh:
         gz = gzip.GzipFile(filename="", mode="wb", fileobj=fh,
                            compresslevel=o["gzipCompressLevel"], mtime=o["gzipMtime"])
@@ -222,7 +220,77 @@ def write_year_gz(year, rows, pol):
     return len(raw), os.path.getsize(path)
 
 
+def write_year_gz(year, rows, pol):
+    return write_gz(f"{OUT_DIR}/{year}.jsonl.gz",
+                    [{k: x[k] for k in FIELDS} for x in rows], pol)
+
+
+def find_violations(by_ticker, cal_idx, pol, diag):
+    """±50% 위반을 '비교 가능한 쌍'에서만 찾는다.
+
+    비교 가능 = 양쪽 다 체결이 있었고(volume>0) 캘린더상 인접 거래일이다.
+    거래량 0인 행의 종가는 체결가가 아니라 거래정지 중 기준가 표기이므로, 그것을
+    실제 체결가와 비교하는 것은 품질 검사가 아니라 서로 다른 의미의 값을 비교하는 것이다.
+    임계는 그대로 두고 비교 대상만 정정한다 — 완화가 아니다.
+    """
+    dc = pol["dailyChange"]
+    limit = pol["acceptance"]["dailyChangeAbsMax"]
+    zero_vol = susp_gap = comparable = 0
+    viol = defaultdict(list)
+
+    for tk, xs in by_ticker.items():
+        for i in range(1, len(xs)):
+            a_, b_ = xs[i - 1], xs[i]
+            if dc["requireBothVolumePositive"] and (a_["volume"] == 0 or b_["volume"] == 0):
+                zero_vol += 1
+                continue
+            ia, ib = cal_idx.get(a_["date"]), cal_idx.get(b_["date"])
+            if dc["requireAdjacentTradingDay"] and (ia is None or ib is None or ib - ia != 1):
+                susp_gap += 1
+                continue
+            comparable += 1
+            if a_["close"] > 0 and abs(b_["close"] / a_["close"] - 1) > limit:
+                # 3거래일 안에 직전 수준으로 돌아오면 1일 오표기, 머물면 수정주가 미적용.
+                base = a_["close"]
+                fwd = [xs[j]["close"] for j in range(i + 1, min(i + 1 + dc["transientReturnDays"], len(xs)))]
+                transient = any(abs(c / base - 1) < dc["transientReturnTolerance"] for c in fwd)
+                viol[tk].append({
+                    "date": b_["date"], "prevDate": a_["date"],
+                    "prevClose": base, "close": b_["close"],
+                    "change": round(b_["close"] / base - 1, 4),
+                    "kind": "TRANSIENT_PRICE_SPIKE" if transient else "UNADJUSTED_CORPORATE_ACTION",
+                })
+
+    diag["zeroVolumeTransitions"] = zero_vol
+    diag["suspendedGapTransitions"] = susp_gap
+    diag["comparableTransitions"] = comparable
+    return viol
+
+
+def build_exclusions(viol, uni_by_ticker, by_ticker):
+    """종목 단위로 제외한다. 어느 행이 틀렸는지 단정하는 것은 추정이므로
+    행 단위로 도려내지 않는다 — '모르면 제외하고 추정하지 않는다'."""
+    out = []
+    for tk, vs in sorted(viol.items()):
+        kinds = {v["kind"] for v in vs}
+        # 한 종목에 둘 다 있으면 더 무거운 쪽(수정주가 미적용)을 사유로 남긴다.
+        reason = ("UNADJUSTED_CORPORATE_ACTION"
+                  if "UNADJUSTED_CORPORATE_ACTION" in kinds else "TRANSIENT_PRICE_SPIKE")
+        u = uni_by_ticker.get(tk, {})
+        out.append({
+            "ticker": tk,
+            "name": u.get("name"),
+            "market": u.get("market"),
+            "reason": reason,
+            "violationCount": len(vs),
+            "rowsDropped": len(by_ticker.get(tk, [])),
+            "violations": vs[:20],
+        })
+    return out
+
+
 def validate(rows, uni, cal, pol, diag):
+    """반환값은 (남길 행, 품질 제외 목록)이다."""
     a = pol["acceptance"]
     print("\n[인수 조건]")
 
@@ -243,68 +311,106 @@ def validate(rows, uni, cal, pol, diag):
     dup = len(rows) - len(keys)
     chk(dup == a["duplicateKeys"], f"(ticker,date) 중복 {dup}건")
 
-    # 일간 ±50% — 국내 가격제한폭이 상하 30%라 구조적으로 불가능한 변동이다.
-    # 목적은 '개발자가 수정주가를 안 썼는가'가 아니라 '소스가 수정주가를 정상 제공했는가'다
-    # (adjusted=false 경로는 pykrx 1.2.8에서 죽어 있어 실수할 여지가 없다).
+    cal_days = cal["tradingDays"]
+    cal_idx = {d: i for i, d in enumerate(cal_days)}
+    # 캘린더 밖 날짜가 0이어야 기대 모델이 성립한다. PR-1.0에서 누락률이 음수로
+    # 나왔을 때 이 값이 0임을 확인해 원인을 상류(A0.5)가 아니라 기대 모델로 좁혔다.
+    off_cal = [x for x in rows if x["date"] not in cal_idx]
+    diag["datesNotInCalendar"] = len(off_cal)
+    diag["datesNotInCalendarSample"] = sorted({x["date"] for x in off_cal})[:20]
+    chk(len(off_cal) == a["datesNotInCalendar"], f"캘린더 밖 날짜 {len(off_cal)}행")
+
     by_ticker = defaultdict(list)
     for x in rows:
         by_ticker[x["ticker"]].append(x)
-    jumps = []
-    for tk, xs in by_ticker.items():
+    for xs in by_ticker.values():
         xs.sort(key=lambda x: x["date"])
-        for i in range(1, len(xs)):
-            prev, cur = xs[i - 1]["close"], xs[i]["close"]
-            if prev > 0 and abs(cur / prev - 1) > a["dailyChangeAbsMax"]:
-                jumps.append({"ticker": tk, "date": xs[i]["date"],
-                              "prevClose": prev, "close": cur,
-                              "change": round(cur / prev - 1, 4)})
-    diag["dailyChangeViolations"] = jumps[:200]
-    diag["dailyChangeViolationCount"] = len(jumps)
-    chk(len(jumps) == a["dailyChangeViolations"],
-        f"일간 종가 변동 ±{a['dailyChangeAbsMax']*100:.0f}% 초과 {len(jumps)}건 (수정주가 미적용 탐지)")
 
-    chk(len(by_ticker) >= a["minTickersWithData"],
-        f"데이터 확보 종목 {len(by_ticker)} >= {a['minTickersWithData']} (유니버스 {len(uni)})")
+    uni_by_ticker = {x["ticker"]: x for x in uni}
 
-    # 조회 실패 — 기대 거래일이 0인 종목(상장일이 창구 밖)은 정상 공백이므로 제외한다
-    listed = {x["ticker"]: x["listedAt"] for x in uni}
-    data_from = diag["actualDataFrom"]
-    days = [d for d in cal["tradingDays"] if d >= data_from]
-    expected = {}
-    for tk, lst in listed.items():
-        start = lst if lst and lst > data_from else data_from
-        expected[tk] = sum(1 for d in days if d >= start)
+    # ── 품질 제외 ──────────────────────────────────────────────
+    viol = find_violations(by_ticker, cal_idx, pol, diag)
+    excluded = build_exclusions(viol, uni_by_ticker, by_ticker)
+    ex_set = {e["ticker"] for e in excluded}
+    diag["qualityExcluded"] = excluded
+    diag["qualityExcludedCount"] = len(excluded)
+    diag["qualityExcludedByReason"] = dict(Counter(e["reason"] for e in excluded))
 
-    hard_fail = [tk for tk in listed
-                 if expected[tk] > 0 and tk not in by_ticker]
-    diag["fetchFailedTickers"] = hard_fail[:200]
-    chk(len(hard_fail) == a["tickerFetchFail"],
-        f"기대 거래일이 있는데 데이터 0행인 종목 {len(hard_fail)}건")
+    ex_rate = len(ex_set) / max(len(by_ticker), 1)
+    diag["qualityExcludedRate"] = round(ex_rate, 5)
+    # 위반 종목을 자동 제외하기만 하면 게이트가 영원히 통과한다. 이 상한이 안전핀이다 —
+    # 제외가 급증하면 종목 문제가 아니라 소스 문제다.
+    chk(ex_rate <= a["qualityExcludedRateMax"],
+        f"품질 제외율 {ex_rate*100:.2f}% <= {a['qualityExcludedRateMax']*100:.0f}% "
+        f"({len(ex_set)}종목 / {len(by_ticker)}) {diag['qualityExcludedByReason']}")
 
-    legit_empty = [tk for tk in listed if expected[tk] == 0]
-    diag["expectedEmptyTickers"] = legit_empty
-    warn(len(legit_empty) / max(len(listed), 1) < a["emptyTickerRateWarn"],
-         f"정상 공백(상장일이 수집 창구 밖) {len(legit_empty)}건")
+    kept = {tk: xs for tk, xs in by_ticker.items() if tk not in ex_set}
+    residual = find_violations(kept, cal_idx, pol, diag)
+    chk(len(residual) == a["residualDailyChangeViolations"],
+        f"제외 후 잔여 ±{a['dailyChangeAbsMax']*100:.0f}% 위반 {len(residual)}종목")
 
-    # 누락률 — PR-1.0에서는 WARN이다. 거래정지 구간에 KRX가 행을 주는지 실측한 적이
-    # 없어, FAIL로 걸면 정당한 데이터가 파이프라인을 막는다. 실측 1회 후 PR-1.1에서 승격.
-    total_exp = sum(expected[tk] for tk in listed)
-    total_got = sum(len(v) for v in by_ticker.values())
+    chk(len(kept) >= a["minTickersWithData"],
+        f"데이터 확보 종목 {len(kept)} >= {a['minTickersWithData']} "
+        f"(유니버스 {len(uni)} − 품질 제외 {len(ex_set)})")
+
+    # ── 기대 모델 — 기준은 listedAt이 아니라 실제 최초 거래일 ──────
+    # listedAt은 '현재 시장의 상장일'이지 최초 상장일이 아니다. 이전상장 종목은
+    # 상장일보다 10년 앞선 가격이 정상적으로 존재한다(실측 86종목).
+    first_traded = {tk: xs[0]["date"] for tk, xs in by_ticker.items()}
+    before_listed = sum(1 for tk, xs in by_ticker.items() for x in xs
+                        if (uni_by_ticker.get(tk, {}).get("listedAt") or "") > x["date"])
+    diag["rowsBeforeListedAt"] = before_listed
+    diag["tickersWithRowsBeforeListedAt"] = sum(
+        1 for tk, xs in by_ticker.items()
+        if (uni_by_ticker.get(tk, {}).get("listedAt") or "") > xs[0]["date"])
+
+    fetch_fail = [tk for tk in uni_by_ticker if tk not in by_ticker]
+    diag["fetchFailedTickers"] = fetch_fail[:200]
+    chk(len(fetch_fail) == a["tickerFetchFail"], f"데이터 0행인 종목 {len(fetch_fail)}건")
+    warn(len(fetch_fail) / max(len(uni_by_ticker), 1) < a["emptyTickerRateWarn"],
+         f"정상 공백 후보 {len(fetch_fail)}건")
+
+    expected = {tk: sum(1 for d in cal_days if d >= first_traded[tk]) for tk in kept}
+    total_exp = sum(expected.values())
+    total_got = sum(len(v) for v in kept.values())
     rate = 1 - (total_got / total_exp) if total_exp else 1
     diag["expectedRows"] = total_exp
     diag["missingRate"] = round(rate, 5)
+    # 기대 모델이 방금 바뀌었으므로 이번 실행까지 WARN이다. 새 모델의 실측 1회 후
+    # PR-1.2에서 FAIL로 승격한다.
     warn(rate <= a["missingRateWarn"],
          f"거래일 누락률 {rate*100:.3f}% (기대 {total_exp} / 실측 {total_got}) "
-         f"— actualDataFrom {data_from} 기준")
+         f"— 종목별 실제 최초 거래일 기준")
 
     worst = sorted(
-        ({"ticker": tk, "expected": expected[tk], "got": len(by_ticker.get(tk, [])),
-          "missingRate": round(1 - len(by_ticker.get(tk, [])) / expected[tk], 4)}
-         for tk in listed if expected[tk] > 0),
+        ({"ticker": tk, "firstTraded": first_traded[tk], "expected": expected[tk],
+          "got": len(kept[tk]), "missingRate": round(1 - len(kept[tk]) / expected[tk], 4)}
+         for tk in kept if expected[tk] > 0),
         key=lambda x: -x["missingRate"])
     over = [w for w in worst if w["missingRate"] > a["perTickerMissingRateWarn"]]
     diag["perTickerMissingWorst"] = worst[:50]
     warn(not over, f"종목별 누락률 {a['perTickerMissingRateWarn']*100:.0f}% 초과 {len(over)}종목")
+
+    # ── 롤링 윈도우 앞단 잘림 — 관측만 한다(게이트 아님) ───────────
+    # 전체 최소 날짜로 재면 극단값 2종목이 1,471종목의 손실을 가린다.
+    trunc = []
+    for tk, xs in by_ticker.items():
+        # 상장 자체가 늦은 종목과 구분하려면 listedAt보다 뒤에서 시작한 경우만 센다
+        lst = uni_by_ticker.get(tk, {}).get("listedAt") or cal_days[0]
+        start = max(lst, cal_days[0])
+        if xs[0]["date"] > start:
+            miss = sum(1 for d in cal_days if start <= d < xs[0]["date"])
+            if miss:
+                trunc.append({"ticker": tk, "firstTraded": xs[0]["date"], "missing": miss})
+    trunc.sort(key=lambda x: -x["missing"])
+    diag["frontTruncatedTickers"] = len(trunc)
+    diag["frontTruncatedTickerDays"] = sum(t["missing"] for t in trunc)
+    diag["frontTruncatedWorst"] = trunc[:20]
+    print(f"  ..    앞단 잘림 {len(trunc)}종목 / {diag['frontTruncatedTickerDays']}종목-거래일 "
+          f"(관측 전용 — 워밍업 구간이라 게이트 아님)")
+
+    keep_rows = [x for x in rows if x["ticker"] not in ex_set]
+    return keep_rows, excluded
 
 
 def run_finalize(pol):
@@ -340,13 +446,14 @@ def run_finalize(pol):
     diag["calendarEnd"] = cal["tradingDays"][-1]
     diag["actualDataFrom"] = min(x["date"] for x in rows)
     diag["actualDataTo"] = max(x["date"] for x in rows)
-    diag["rollingWindowLoss"] = sum(1 for d in cal["tradingDays"]
-                                    if d < diag["actualDataFrom"])
+    # 전체 최소 날짜는 롤링 손실 지표로 쓰지 않는다 — 장기 거래정지 이력 종목 2개가
+    # 캘린더 첫날에 닿아 1,471종목의 실제 손실을 통째로 가렸다(2026-08-05 실측).
+    # 손실은 validate()에서 종목별로 잰다(frontTruncated*, 관측 전용).
     print(f"[2/3] 구간 — 캘린더 {diag['calendarStart']}~{diag['calendarEnd']} / "
-          f"실측 {diag['actualDataFrom']}~{diag['actualDataTo']} "
-          f"(롤링 윈도우로 소실된 앞 구간 {diag['rollingWindowLoss']}거래일)")
+          f"실측 {diag['actualDataFrom']}~{diag['actualDataTo']}")
 
-    validate(rows, uni, cal, pol, diag)
+    rows, excluded = validate(rows, uni, cal, pol, diag)
+    diag["rowCountAfterExclusion"] = len(rows)
 
     os.makedirs(OUT_DIR, exist_ok=True)
     diag["acceptanceFails"] = list(fails)
@@ -385,11 +492,19 @@ def run_finalize(pol):
         print(f"  {y}.jsonl.gz  {len(by_year[y]):>7}행  "
               f"{raw/1e6:6.1f}MB → {gz/1e6:5.1f}MB")
     diag["years"] = years
-    diag["totalGzBytes"] = sum(v["gzBytes"] for v in years.values())
+
+    # 품질 제외 목록도 gzip으로 쓴다 — manifest 디렉터리 해시가 targetExt '.jsonl.gz'로
+    # 걸리므로, 평문으로 두면 제외 목록이 manifest 밖에 남는다.
+    qx = pol["qualityExclusion"]["file"]
+    _, qx_bytes = write_gz(f"{OUT_DIR}/{qx}", excluded, pol)
+    print(f"  {qx}  {len(excluded):>7}종목  {qx_bytes/1e3:5.1f}KB  "
+          f"{diag['qualityExcludedByReason']}")
+
+    diag["totalGzBytes"] = sum(v["gzBytes"] for v in years.values()) + qx_bytes
     with open(diag_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(diag, f, ensure_ascii=False, indent=2)
 
-    print(f"\n{OUT_DIR} — {len(years)}개 연도 파일 · {len(rows)}행 · "
+    print(f"\n{OUT_DIR} — 연도 {len(years)}개 + 제외 1개 · {len(rows)}행 · "
           f"{diag['totalGzBytes']/1e6:.1f}MB")
     return 0
 

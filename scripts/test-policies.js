@@ -141,6 +141,22 @@ assert.ok(price.probeTickers.length >= 2,
 assert.deepStrictEqual(price.output.sortKey, ['date', 'ticker'],
   '정렬 키가 바뀌면 산출 바이트가 바뀌어 하류 전체가 재실행된다');
 
+// PR-1.1 — 첫 수집이 드러낸 세 가지를 계약으로 고정한다
+assert.strictEqual(price.expectedRows.basis, 'firstTradedDate',
+  'listedAt은 현재 시장의 상장일이라 이전상장 종목에서 기대행을 과소 계산한다 — 기준은 실제 최초 거래일이다');
+assert.ok(price.dailyChange.requireBothVolumePositive && price.dailyChange.requireAdjacentTradingDay,
+  '변동률은 체결이 있었던 인접 거래일끼리만 잰다. 거래정지 기준가와 체결가를 비교하면 가짜 점프가 나온다');
+assert.ok(price.acceptance.qualityExcludedRateMax > 0 && price.acceptance.qualityExcludedRateMax < 1,
+  '품질 제외율 상한이 없으면 위반 종목을 자동 제외하는 구조가 게이트를 영원히 통과시킨다');
+assert.strictEqual(price.acceptance.residualDailyChangeViolations, 0,
+  '제외 후 잔여 위반은 0이어야 한다 — 아니면 제외가 실제로 안 된 것이다');
+assert.ok(price.qualityExclusion.file.endsWith(price.output.format),
+  `품질 제외 파일이 ${price.output.format}가 아니면 manifest 디렉터리 해시(targetExt) 밖에 남는다`);
+assert.ok(price.qualityExclusion.reasons.length >= 1,
+  '제외 사유 코드가 없으면 A5가 왜 빠졌는지 모르고, 소스가 고쳐져도 재검증 대상을 못 고른다');
+assert.strictEqual(price.rollingWindow.observeOnly, true,
+  '롤링 윈도우 손실은 관측 전용이다 — 워밍업 구간이고 복구 불가라 게이트로 쓰면 정당한 실패를 만든다');
+
 console.log(`   universe ${uni.version}: a1b 후보 임계 [${a1b.acceptance.candidateMin}, ${a1b.acceptance.candidateMax}]`);
 console.log(`   price ${price.version}: 샤드 ${price.shards} · 요구 pykrx ${price.source.requiredVersion} · 일간 임계 ±${price.acceptance.dailyChangeAbsMax * 100}%`);
 console.log(`✅ 정책 파일 전체 통과 (${Object.keys(registry.policies).length}개 + criteria ${Object.keys(registry.criteria).length}개 + data ${Object.keys(registry.dataPolicies).length}개)`);

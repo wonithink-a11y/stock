@@ -87,6 +87,12 @@ jobs:
           echo "샤드 파일 $N개 / 기대 $SHARDS개"
           test "$N" -eq "$SHARDS" || { echo "샤드 누락 — 부분 수집물로 산출할 수 없다"; exit 1; }
 
+      - name: Quality classification regression test
+        # 합성 픽스처로 판별 분기를 전부 밟는다(네트워크·수집 산출물 불필요).
+        # 거래량 0·장기 공백·영구 계단·일시 스파이크·제외율 상한이 회귀하면
+        # 6백만 행을 다 모으고 나서가 아니라 여기서 멈춘다.
+        run: python scripts/test-price-a2a.py
+
       - name: Finalize
         env:
           A2A_FAIL_INJECTION: ${{ inputs.failInjection }}
@@ -104,12 +110,15 @@ jobs:
           import json
           d = json.load(open('$D/_diagnostics.json', encoding='utf-8'))
           print(json.dumps({
-              'recordCount': d['rowCount'],
+              'recordCount': d['rowCountAfterExclusion'],
+              'recordCountBeforeExclusion': d['rowCount'],
               'calendarStart': d['calendarStart'],
               'actualDataFrom': d['actualDataFrom'],
               'actualDataTo': d['actualDataTo'],
-              'rollingWindowLoss': d['rollingWindowLoss'],
               'missingRate': d['missingRate'],
+              'qualityExcludedCount': d['qualityExcludedCount'],
+              'qualityExcludedByReason': d['qualityExcludedByReason'],
+              'frontTruncatedTickerDays': d['frontTruncatedTickerDays'],
               'environment': d['environment'],
           }, ensure_ascii=False))
           ")
