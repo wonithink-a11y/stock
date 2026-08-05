@@ -7,8 +7,8 @@
 Validated against
   정책     UN-1.2 · PR-1.3 · REG-1.3
   구현     a5df256   ← 이 문서가 검증된 마지막 구현 커밋
-  완료     A0.5 · A0.7 · A1a · A1b · A2a (전부 실행 완료)
-  다음     A2b 커버리지 정찰
+  완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
+  다음     A3 재무(PIT) — 가중치 65%를 쥔 병목
 ```
 
 `git log --oneline a5df256..HEAD -- lib scripts config .github`가 비어 있지 않으면
