@@ -681,7 +681,7 @@ exitAtIsLastTradedNotEffectiveDate      마지막 '거래일'이지 폐지 '효�
 > a2b는 A2a가 읽지 않는 키만 추가한다. A2a manifest의 `policyHash`는 PR-1.3으로 남는다 —
 > PR-1.4로 다시 찍으면 'A2a가 PR-1.4 기능을 썼다'는 틀린 이력이 된다.
 
-### A3 재무 (PIT) — 구현 완료 · 정찰 완료 (FN-1.2, 2026-08-05), 수집 대기
+### A3 재무 (PIT) — 구현·정찰 완료 · collect #1 완료 (FN-1.3, 2026-08-05)
 1. 전 레코드에 `availableFrom` 존재, **`availableFrom > 회계기간말`** (음수면 로직 반전)
 2. 연도별 계정 매칭 성공률 리포트 — 특정 연도만 급락하면 실패
 3. `|ROE| > 200%` 건수 리포트
@@ -770,6 +770,78 @@ v1 휴리스틱이 이것으로 금융업을 판별했다). 이 둘을 분자에
 DART는 업종의 시계열을 제공하지 않으므로 '현재의 업종'이 전 사업연도에 붙는다.
 업종 변경이 드물어 실무상 영향이 작다고 보고 그대로 쓰되, **그것은 가정이지 사실이 아니므로**
 진단의 `sectorNotPointInTime: true`가 하류로 들고 간다(A1b의 `exitReasonPending`과 같은 형태).
+
+#### resume 무결성 — 상태는 축적하고 판정은 계산한다 (FN-1.3, 2026-08-05)
+
+계약 5("resume 로직 필수")는 재개가 **가능한가**만 말하고 재개가 **정확한가**는 말하지
+않았다. 첫 수집(collect #1, 1,381법인)이 그 빈칸에서 결함 둘을 드러냈다.
+
+> **관통 원칙 — 상태는 단조하게 축적되고, 판정은 언제든 다시 계산할 수 있어야 한다.**
+
+```
+저장한다        corpsAssigned · corpsDone · hardSkipped · reportsFound · recordRejected
+저장하지 않는다  complete · hardSkippedOpen · corpsRemaining      ← 전부 계산값이다
+```
+
+**결함 1 — `done.add(corp)`가 하드 실패를 보지 않았다.** 하드 실패로 0레코드인 법인이
+완료로 기록되고, `complete = len(done) >= len(mine)`이 그것을 완료로 계산해 finalize의
+미완료 검사까지 통과했다. **데이터가 빈 채로 인수 조건을 지나간다.** `if: success()`인
+persist가 우연히 이것을 가려 왔다 — 중단된 샤드의 상태가 커밋되지 않아 손상이 버려졌을
+뿐이다. 그래서 persist 완화는 이 수정 **이후에만** 가능했다.
+
+수정은 세 번째 상태를 만드는 것이다. 법인은 `done` / `hardSkipped` / `remaining`으로
+분해되며, 완료는 개수가 아니라 **분해가 남김없이 되는가**로 정의된다.
+
+```
+정의        complete ≡ corpsRemaining == 0 AND hardSkippedOpen == 0
+파생 성질    complete ⇒ corpsAssigned == corpsDone + declaredHardSkipped
+```
+
+**둘은 동치가 아니다.** 아래는 정의에서 따라오는 성질일 뿐이며, 이 구분을 적어두지 않으면
+언젠가 *정의는 그대로 두고 항등식만 맞추는* 수정이 들어온다 — 완료의 의미를 바꾸면서
+바꾸지 않은 것처럼 보이게 만드는 수정이다.
+
+```
+보고서      reportsFound  == records + recordRejected
+법인(누적)  corpsAssigned == corpsDone + hardSkipped + corpsRemaining   보존식
+승인        hardSkipped   == hardSkippedOpen + declaredHardSkipped      분류식
+법인(실행)  corpsAttempted == doneAdded + hardSkippedThisRun + quotaDeferred
+```
+
+보존식에 `hardSkippedOpen`이 아니라 `hardSkipped` 전체가 들어가는 이유는 계층이 달라서다.
+보존식은 사실만으로 성립해 승인 정책이 바뀌어도 흔들리지 않고, 분류식이 그 보존된 사실을
+승인 여부로 나눈다. **사실을 먼저 보존하고 그다음 운영 판단으로 분해한다** — 순서가
+뒤집히면 운영 결정이 사실의 보존을 흔든다. 네 번째 식은 시계가 다르다(이번 실행분 대
+누적)이라 한 식에 섞으면 이틀째부터 항상 깨진다.
+
+**실패 분류의 기본값이 계약이다.** `retryable`은 분류표에 없는 status를 **재시도 가능**으로
+본다. 반대로 두면 DART가 새 오류 코드를 내놓는 날마다 그 법인들이 조용히 '수집 불가'로
+승격되고 복구 가능한 데이터가 영구히 버려진다 — `done.add`가 만든 결함과 같은 모양이
+다른 자리에서 재발한다. `100`·`101`(파라미터 계약 위반)만 재시도 불가이고, 그것만 사람의
+승인 대상이다. 분류표는 정책 파일에 둔다 — '어떤 실패를 수집 불가로 볼 것인가'는 임계와
+성질이 같아서, 코드에 두면 조용히 넓어지고 그 사실이 파일 해시에 남지 않는다.
+
+**결함 2 — 정책 버전 승격이 며칠치 수집을 말없이 버렸다.** resume 호환을 정책 `version`
+문자열 일치로 판정했는데, 그것은 '재개해도 되는가'의 대리 지표로 너무 거칠었다. 임계 하나를
+고쳐 version이 올라가면 8샤드의 상태가 전부 폐기되고 이미 쓴 DART 호출이 사라진다 —
+FN-1.3을 올리는 이 작업 자체가 그 경로에 있었다(1,381법인 · 16,050호출 · 하루).
+
+판정을 **수집 계약 해시**로 바꾼다. 해시 대상은 *이미 모은 레코드의 내용을 결정하는
+필드*뿐이다(`source.endpoint`·`reprtCode`·`fsDivPreference`·`companyEndpoint`·
+`fiscalYear` 구간·`accounts.spec`·`matchOrder`·`stopAfterConsecutiveEmptyYears`).
+판단 기준은 하나다 — **"이 값이 달랐다면 어제 그 법인에서 다른 레코드가 나왔는가?"**
+`acceptance`·`quota`·`failureClassification`·`output`은 여기 없다. 그것들은 finalize의
+판정이거나 앞으로의 결정에만 영향을 주고, 이미 디스크에 있는 레코드의 유효성을 건드리지 않는다.
+
+이 완화로 하나의 산출물이 여러 정책 버전에 걸쳐 수집될 수 있게 됐다. 그래서 상태가
+`policyVersions`를 누적하고 finalize가 `collectionPolicyVersions`로 진단에 남긴다 —
+옛 판정이 암묵적으로 주던 '한 버전에서 나왔다'는 정보를 **값으로 대체한 것**이다.
+버리는 것은 제약이지 기록이 아니다.
+
+**두 계층을 섞지 않는다.** resume은 상태만 읽고 진단은 사람이 읽는다. resume이 진단을
+읽기 시작하면 운영 계약과 진단 계약이 다시 결합되고 "계약은 검사자 쪽에 둔다"(교훈44)가
+무너진다. 이 원칙은 문장이 아니라 **회귀 테스트로 강제한다** — 문장으로만 두면 다음 사람이
+편의상 진단을 읽어도 아무도 모른다.
 
 #### 유일성 키는 (corp, fiscalYear, **availableFrom**)
 

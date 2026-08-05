@@ -5,15 +5,17 @@
 
 ```
 Validated against
-  정책     UN-1.2 · PR-1.4 · FN-1.2 · REG-1.4
-  구현     8ad9b92   ← 이 문서가 검증된 마지막 구현 커밋
+  정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.4
+  구현     8410dae   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
            A2b 구현 완료(PR-1.4) — 수집 미실행
            A3 collect #1 완료 1,381/3,801법인 (hardErrors 0 · 항등식 OK)
+           A3 수집 안정화 커밋 1 완료 (FN-1.3 — resume 무결성)
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
-  다음     A3 수집 안정화 커밋 1 → collect #2·#3 → finalize → FN-1.3 승격 판단
-           설계는 인수인계 §9.1 「수집 안정화」에 확정돼 있다 (계약/장애분석 2층)
-           A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다 — 인수인계 §9.2)
+  다음     A3 collect #2 → #3 → finalize → measured 기록 후 임계 승격
+           커밋 2(승인 채널: registry approvals · approvalHash · declared-gaps-a3.json)
+           커밋 3(오류 원인 분해 · PYTHONUNBUFFERED · 신규 항등식 로그)
+           A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
@@ -126,7 +128,10 @@ node scripts/test-state-infrastructure.js
 node scripts/test-universe-a1b.js       # A1b 산출물이 있어야 한다
 python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, 산출물 불필요)
 python scripts/test-price-a2b.py        # A2b 상장기간 한정·exitAt 출처 (합성 픽스처)
-python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭 (합성 픽스처, 산출물 불필요)
+python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭·resume 무결성 (합성 픽스처)
+
+# A3 수집 진행 확인 (읽기 전용·네트워크 불필요. 워크플로도 이것을 부른다)
+python scripts/build-fundamentals-a3.py --summary
 
 # 수집 스크립트 (외부 네트워크 필요)
 python scripts/build-dart-corpcode.py   # A0.7 — DART_API_KEY 필요
@@ -225,4 +230,17 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
 52. 대조군이 같은 경로인지 먼저 확인한다.
     "A2a 일봉은 되는데 수급만 막혔다"로 읽었으나 pykrx는 adjusted=true면 naver로 간다.
     대조군이 다른 호스트였다 — KRX bld는 처음부터 죽어 있었고 A2a가 그것을 안 썼을 뿐이다.
+54. 완료를 저장하면 승인이 바뀌는 순간 낡는다.
+    상태는 사실만 단조하게 축적하고 판정은 매번 계산한다.
+    complete를 상태에 두면 그것을 맞추려고 상태를 다시 쓰게 되고, 그때 사실이 흔들린다.
+    완료는 done의 개수가 아니라 '담당분이 남김없이 분해되는가'로 정의한다.
+55. 재개 판정을 정책 version으로 하면 임계 하나가 며칠치 수집을 버린다.
+    resume 호환의 기준은 '이 값이 달랐다면 어제 다른 레코드가 나왔는가'뿐이다.
+    version 문자열은 그 질문의 거친 대리 지표이고, 거친 쪽으로 틀리면 손실이 조용하다.
+56. 실패 분류의 기본값이 계약이다.
+    모르는 실패를 '수집 불가'로 두면 새 오류 코드가 나올 때마다 공백이 조용히 넓어진다.
+    모르는 것은 '아직 모른다'이지 '못 한다'가 아니다 — 기본값은 재시도 가능이다.
+57. 모르는 것은 0이 아니다.
+    분모가 없는 상태를 0으로 읽어 '남음 -1381'이 나왔다. 거짓 수치는 게이트도 오탐시킨다.
+    잴 수 없는 것과 틀린 것을 구분하고, 잴 수 없으면 판정을 부정한다.
 ```
