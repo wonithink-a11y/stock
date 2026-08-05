@@ -8,6 +8,11 @@ A3의 본질은 재무 수치가 아니라 시점이다. 운영 수집기(script
 '현재 값'을 쓰고, 여기는 '그 시점에 알 수 있었던 값'을 쓴다. 그 축이 availableFrom이고,
 availableFrom > periodEnd가 성립하지 않으면 백테스트에 look-ahead가 들어간다.
 
+소스는 fnlttSinglAcnt(주요계정)이고 **당기(thstrm) 열만** 쓴다. 같은 응답의 전기·전전기를
+쓰면 그 값들의 availableFrom이 '그 보고서의 접수일'이 되어 과거 연도를 실제보다 늦게
+안 것으로 기록한다(교훈47). 3개 연도를 한 번에 준다는 사실은 호출량을 줄일 유혹이지
+시점을 바꿀 근거가 아니다 — 이 규칙이 무너지면 엔드포인트를 고른 이득이 그대로 사고가 된다.
+
 두 모드로 돈다. A2a와 같은 이유(실행 축과 저장 축의 분리)에 더해, A3에는 이유가 하나 더
 있다 — DART 일 한도 20,000건이라 수집이 여러 날에 걸친다.
 
@@ -293,7 +298,7 @@ def load_state(shard, shards, pol):
               f"정책 {st.get('fundamentalsPolicy')}→{pol['version']}")
     return {"stage": "A3", "shard": shard, "shards": shards,
             "fundamentalsPolicy": pol["version"], "corpsDone": [],
-            "fsDivHint": {}, "callsUsedToday": 0, "lastRunDate": None,
+            "callsUsedToday": 0, "lastRunDate": None,
             # 수집이 며칠에 걸치므로 산출물은 혼합 시점 스냅샷이 된다. PIT는 깨지지 않지만
             # (각 레코드가 자기 availableFrom을 들고 있다) 재현성은 깨진다 — 재수집 시
             # 바이트가 달라졌을 때 그게 버그인지 정정공시인지 가를 근거를 여기 남긴다.
@@ -316,36 +321,38 @@ def rec_key(r):
     return (r["corp"], r["fiscalYear"], r["availableFrom"])
 
 
+def pick_fs_div(rows, preference):
+    """주요계정은 fs_div가 요청 파라미터가 아니라 응답 행의 필드다 — 한 번의 응답에
+    연결·별도가 함께 온다. 그래서 이것은 재시도 순서가 아니라 행 선별 순서다."""
+    for div in preference:
+        sel = [r for r in rows if str(r.get("fs_div", "")) == div]
+        if sel:
+            return sel, div
+    return rows, (str(rows[0].get("fs_div", "")) or None)
+
+
 def scan_corp(corp, ticker, pol, counters, state):
     """한 법인의 전 사업연도. (레코드 목록, 하드에러 수, 한도초과 여부)"""
     years = range(pol["fiscalYearFrom"], pol["fiscalYearTo"] + 1)
-    order = list(pol["source"]["fsDivOrder"])
-    hint = state["fsDivHint"].get(corp)
-    if hint in order:
-        order = [hint] + [d for d in order if d != hint]
-
+    preference = list(pol["source"]["fsDivPreference"])
     quota_status = pol["quota"]["quotaExceededStatus"]
     out, hard, any_found, empty_run = [], 0, False, 0
     sic = None
 
     for y in years:
         got, year_hard = None, False
-        for div in order:
-            rows, st, err = dart_call("fnlttSinglAcntAll.json", {
-                "corp_code": corp, "bsns_year": str(y),
-                "reprt_code": pol["source"]["reprtCode"], "fs_div": div}, pol, counters)
-            time.sleep(pol["requestSleepSeconds"])
-            if st == quota_status:
-                return out, hard, True
-            if err:
-                hard += 1
-                year_hard = True
-                counters["hardErrors"] += 1
-                continue
-            if rows:
-                got = (rows, div)
-                state["fsDivHint"][corp] = div
-                break
+        rows, st, err = dart_call(pol["source"]["endpoint"], {
+            "corp_code": corp, "bsns_year": str(y),
+            "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
+        time.sleep(pol["requestSleepSeconds"])
+        if st == quota_status:
+            return out, hard, True
+        if err:
+            hard += 1
+            year_hard = True
+            counters["hardErrors"] += 1
+        elif rows:
+            got = pick_fs_div(rows, preference)
         if got is None:
             # 하드 실패한 해를 '보고서 없음'으로 세지 않는다. 그렇게 하면 일시적인
             # 네트워크 오류 세 번이 조기 종료를 불러 그 법인의 이후 이력을 통째로 자른다.
@@ -449,9 +456,9 @@ def run_shard(shard, shards, pol, limit):
     # 정찰 2회(교훈32) — 경로가 막혔으면 3,801법인을 돌리지 않고 즉시 중단한다.
     probes = []
     for pc in pol["probeCorps"]:
-        rows, st, err = dart_call("fnlttSinglAcntAll.json", {
+        rows, st, err = dart_call(pol["source"]["endpoint"], {
             "corp_code": pc, "bsns_year": str(pol["probeYear"]),
-            "reprt_code": pol["source"]["reprtCode"], "fs_div": "CFS"}, pol, counters)
+            "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
         probes.append({"corp": pc, "ok": bool(rows), "dartStatus": st, "error": err})
         time.sleep(pol["requestSleepSeconds"])
     diag["probes"] = probes

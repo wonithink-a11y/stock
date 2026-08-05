@@ -120,6 +120,38 @@ vals_b, how_b = m.match_accounts(blank, SPEC, ORDER)
 ok("금액이 비면 미매칭으로 센다 (커버리지 과대계상 방지)",
    vals_b["equity"] is None and how_b["equity"] is None, str(how_b))
 
+# 주요계정(fnlttSinglAcnt) 양식 — account_id가 없고 CFS·OFS가 한 응답에 함께 온다.
+# FN-1.1이 실제로 쓰는 형태이므로 여기가 회귀의 본진이다.
+def acnt_rows(fs_div, equity="1,000"):
+    def row(sj, nm, amt):
+        return {"fs_div": fs_div, "sj_div": sj, "account_nm": nm,
+                "thstrm_amount": amt, "rcept_no": "20170331000001",
+                "thstrm_dt": "2016.12.31 현재" if sj == "BS" else "2016.01.01 ~ 2016.12.31",
+                "currency": "KRW"}
+    return [row("BS", "유동자산", "500"), row("BS", "유동부채", "300"),
+            row("BS", "부채총계", "800"), row("BS", "자본총계", equity),
+            row("IS", "매출액", "2,000"), row("IS", "영업이익", "150"),
+            row("IS", "당기순이익", "100")]
+
+
+mixed = acnt_rows("CFS") + acnt_rows("OFS", equity="900")
+sel, div = m.pick_fs_div(mixed, POL["source"]["fsDivPreference"])
+ok("주요계정 응답에서 연결(CFS)을 먼저 고른다", div == "CFS" and len(sel) == 7, f"{div} {len(sel)}")
+sel_o, div_o = m.pick_fs_div(acnt_rows("OFS"), POL["source"]["fsDivPreference"])
+ok("연결이 없으면 별도(OFS)를 쓴다", div_o == "OFS" and len(sel_o) == 7, f"{div_o} {len(sel_o)}")
+
+vals_a, how_a = m.match_accounts(sel, SPEC, ORDER)
+ok("주요계정 양식에서 7계정 전부 (account_id 없이)",
+   all(v is not None for v in vals_a.values()), str(vals_a))
+ok("매칭 수단이 이름으로 기록된다 (태그가 없으므로)",
+   all(h in ("nameExact", "nameContains") for h in how_a.values()), str(how_a))
+ok("연결을 골랐으면 연결 값이 들어온다", vals_a["equity"] == 1000, str(vals_a["equity"]))
+
+rec_a, why_a = m.build_record("00126380", "005930", 2016, sel, div, "26410", POL)
+ok("주요계정 레코드도 PIT 계약을 만족한다",
+   rec_a is not None and rec_a["availableFrom"] == "2017-03-31"
+   and rec_a["periodEnd"] == "2016-12-31" and rec_a["fsDiv"] == "CFS", str(why_a))
+
 vals_f, _ = m.match_accounts(financial_statement(), SPEC, ORDER)
 ok("금융업 양식은 유동자산·유동부채만 결측",
    vals_f["currentAssets"] is None and vals_f["currentLiab"] is None

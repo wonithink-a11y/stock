@@ -211,7 +211,18 @@ for (const k of fund.accounts.requiredForCoverage) {
   assert.ok(k in fund.accounts.spec, `requiredForCoverage의 ${k}가 spec에 없다 — 잡을 수 없는 계정을 분자로 센다`);
 }
 assert.ok(fund.accounts.matchOrder[0] === 'id',
-  'IFRS 태그가 1순위가 아니면 계약 7(계정과목명이 회사·연도마다 다르다)에 그대로 노출된다');
+  'IFRS 태그를 1순위로 둔다 — 주요계정 응답에는 태그가 없어 실질은 이름 매칭이지만, 전체 재무제표로 되돌아갈 때 같은 코드가 동작해야 한다');
+
+// FN-1.1 — 정찰이 뒤집은 선택. 전체 재무제표는 thstrm_dt를 주지 않아(실측 0/240)
+// 계약 1을 잴 수단 자체가 없다. 되돌리려면 periodEnd를 얻을 다른 경로가 먼저 있어야 한다.
+assert.strictEqual(fund.source.endpoint, 'fnlttSinglAcnt.json',
+  '엔드포인트가 바뀌었다 — 전체 재무제표에는 thstrm_dt가 없어 회계기간말을 못 읽고, 수집기가 전건을 PERIOD_END_UNPARSED로 버린다(정찰 실측 240/240 대 0/240)');
+assert.ok(fund.source.thstrmOnlyNote,
+  '주요계정은 전기·전전기를 함께 준다 — 그것을 쓰면 안 된다는 근거가 정책에 없으면 다음 사람이 호출량을 줄이려고 쓴다(교훈47)');
+assert.ok(fund.probed && !fund.probed.measured,
+  'probed는 표본 정찰이다. measured와 이름을 섞으면 표본으로 잰 값이 전수의 게이트 기준선이 된다');
+assert.strictEqual(fund.probed.fnlttSinglAcnt.availableFromNotAfterPeriodEnd, 0,
+  '정찰에서 계약 1 위반이 있었다면 수집을 시작하기 전에 원인을 먼저 밝혀야 한다');
 
 assert.ok(fund.fiscalYearFrom >= 2015,
   'fnlttSinglAcntAll은 2015 사업연도부터 제공된다 — 그 이전을 요구하면 전건 013이 된다');
