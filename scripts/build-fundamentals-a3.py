@@ -45,7 +45,12 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from statistics import median
 
-import requests
+# requests는 수집 경로에서만 필요하다. 최상단에서 import하면 --summary·--finalize처럼
+# 네트워크를 쓰지 않는 경로가 그 의존성 때문에 죽는다 — 실제로 죽었다(collect #2의
+# persist 잡에는 Install deps 스텝이 없어 ModuleNotFoundError로 진행 커밋이 스킵됐다).
+# 읽기 전용 경로가 HTTP 라이브러리를 요구하지 않는 것이 옳고, 그것이 이 지연 import의
+# 이유다. 워크플로에 pip install을 한 줄 더 넣는 것은 같은 결합을 다른 자리에 남긴다.
+requests = None
 
 POLICY = "config/policies/fundamentals.v1.json"
 A1A = "data/backfill/universe/a1a/current.jsonl"
@@ -165,16 +170,28 @@ def is_retryable(status, pol):
 
 
 # ── DART 호출 ──────────────────────────────────────────────────
-_orig_send = requests.adapters.HTTPAdapter.send
+def require_requests():
+    """수집 경로 진입 시점에 requests를 올리고 전역 timeout 기본값을 심는다.
 
+    호출부에 timeout= 인자가 없다고 timeout이 없는 것이 아니다 — 이 몽키패치가
+    인자 없는 모든 요청에 (10, 60)을 넣는다. 실측 최댓값 1.55초/호출의 약 39배
+    여유이며, 지연 편차가 경합이 아니라 DART 쪽 변동에서 오므로 빡빡하게 잡지 않는다.
+    """
+    global requests
+    if requests is not None:
+        return requests
+    import requests as _r
 
-def _send(self, request, **kw):
-    if kw.get("timeout") is None:
-        kw["timeout"] = (10, 60)
-    return _orig_send(self, request, **kw)
+    _orig_send = _r.adapters.HTTPAdapter.send
 
+    def _send(self, request, **kw):
+        if kw.get("timeout") is None:
+            kw["timeout"] = (10, 60)
+        return _orig_send(self, request, **kw)
 
-requests.adapters.HTTPAdapter.send = _send
+    _r.adapters.HTTPAdapter.send = _send
+    requests = _r
+    return _r
 
 LAST_HTTP = {"endpoint": None, "httpStatus": None, "dartStatus": None, "bytes": None}
 
@@ -609,6 +626,7 @@ def fetch_sic(corp, pol, counters):
 
 
 def run_shard(shard, shards, pol, limit):
+    require_requests()      # 수집 경로에서만 필요하다 (--summary·--finalize는 안 쓴다)
     diag_path = f"{SHARD_DIR}/_diagnostics-shard-{shard}.json"
     counters = {"calls": 0, "dartStatus": Counter(), "hardErrors": 0,
                 "earlyStopped": 0, "sicFetchFailed": 0,

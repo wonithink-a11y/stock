@@ -803,6 +803,49 @@ try:
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
+print("\n[네트워크 의존성 격리 — 읽기 전용 경로는 requests를 요구하지 않는다]")
+# collect #2에서 persist 잡이 여기서 죽었다. 그 잡에는 Install deps 스텝이 없는데
+# 스크립트가 최상단에서 requests를 import하고 있었고, 그 결과 7샤드의 하루치 진행이
+# 커밋되지 않았다. 네트워크를 쓰지 않는 경로가 HTTP 라이브러리 때문에 죽으면 안 된다.
+import subprocess
+
+_blocker = tempfile.mkdtemp()
+with open(os.path.join(_blocker, "requests.py"), "w", encoding="utf-8") as fh:
+    fh.write("raise ImportError('requests 없음 — 이 테스트가 만든 상황이다')\n")
+_shards_dir = tempfile.mkdtemp()
+json.dump({"stage": "A3", "shard": 0, "shards": 8, "corpsAssigned": 2,
+           "corpsDone": ["00000001"], "hardSkipped": {}, "callsUsedToday": 10,
+           "lastRunDate": "2026-08-06", "reportsFound": 3, "recordRejected": {},
+           "runDates": ["2026-08-06"]},
+          open(os.path.join(_shards_dir, "_state-0.json"), "w", encoding="utf-8"))
+
+_probe = f'''
+import sys, importlib.util
+sys.path.insert(0, {_blocker!r})
+try:
+    import requests
+    print("BLOCKER_FAILED"); sys.exit(9)
+except ImportError:
+    pass
+spec = importlib.util.spec_from_file_location("a3", {os.path.join(ROOT, "scripts", "build-fundamentals-a3.py")!r})
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+m.SHARD_DIR = {_shards_dir!r}
+sys.exit(m.run_summary())
+'''
+_r = subprocess.run([sys.executable, "-c", _probe], capture_output=True, text=True,
+                    encoding="utf-8", cwd=ROOT)
+ok("requests가 없어도 모듈이 import된다 (최상단 import가 아니다)",
+   "BLOCKER_FAILED" not in _r.stdout and "ModuleNotFoundError" not in (_r.stderr or "")
+   and "No module named 'requests'" not in (_r.stderr or ""),
+   (_r.stderr or "")[-300:])
+ok("requests가 없어도 --summary가 정상 종료한다 (persist가 진행을 커밋할 수 있다)",
+   _r.returncode == 0, f"exit={_r.returncode} {(_r.stderr or '')[-300:]}")
+ok("그 상태에서도 요약이 실제 수치를 낸다",
+   "법인 완료 1/2" in _r.stdout, _r.stdout[:200])
+shutil.rmtree(_blocker, ignore_errors=True)
+shutil.rmtree(_shards_dir, ignore_errors=True)
+
 print(f"\n{'='*54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)
