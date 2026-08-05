@@ -51,6 +51,16 @@ const CONTRACT = {
                'tickerSafetyNetRemoved', 'finalCount', 'tickerReuse'],
     trueFlags: ['exitReasonPending', 'listingHistoryUnverified'],
   },
+  'A2a': {
+    file: 'data/backfill/price/a2a/_diagnostics.json',
+    required: ['pricePolicy', 'environment', 'shardCount', 'rowCount',
+               'calendarStart', 'actualDataFrom', 'actualDataTo', 'rollingWindowLoss',
+               'expectedRows', 'missingRate', 'dailyChangeViolationCount', 'years'],
+    trueFlags: [],
+    // 부분 수집(--limit)이 정상 산출로 승격되는 경로를 막는다. 한 방향 훅이다 —
+    // 이 플래그는 통과를 만들 수 없고 거부만 만든다.
+    forbidden: ['smokeTest'],
+  },
 };
 
 const stage = process.argv[2];
@@ -85,6 +95,9 @@ for (const k of [...COMMON, ...c.required]) {
 }
 for (const k of c.trueFlags) {
   if (d[k] !== true) errs.push(`${k}=${JSON.stringify(d[k])} — true여야 한다. ${stage}가 모르는 것을 아는 것처럼 하류로 넘긴다`);
+}
+for (const k of c.forbidden || []) {
+  if (k in d) errs.push(`${k} 플래그가 있다 — 부분 수집·시험 실행의 산출물은 정상 산출로 승격될 수 없다`);
 }
 
 if ('acceptancePassed' in d && d.acceptancePassed !== true) {
