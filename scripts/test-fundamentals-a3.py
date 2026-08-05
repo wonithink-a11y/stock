@@ -585,10 +585,77 @@ try:
        s_ok["conservationOk"] and s_ok["hardSkipped"] == 1, str(s_ok))
     # 원칙 4 — 승인은 규칙이 아니라 운영 결정이므로 수집 동작을 바꾸지 않는다.
     # 바꾼다면 그것은 승인이 아니라 규칙이고, 수집 계약 해시에 들어가야 한다.
-    rc, st_a, _ = fake_run(tmp4, {"00000004": ([], HARD_PERM, False)})
-    ok("승인된 법인도 다음 실행에서 똑같이 재시도된다 (승인이 수집을 바꾸면 그것은 규칙이다)",
-       "00000004" in st_a["hardSkipped"]
-       and st_a["hardSkipped"]["00000004"]["attempts"] == 1, str(st_a["hardSkipped"]))
+    #
+    # 이것을 '재시도되더라' 수준이 아니라 **산출물 바이트 동일성**으로 증명한다.
+    # 승인 유무로 collect 결과(state·JSONL·attempts)가 한 바이트라도 갈리면
+    # approvalHash를 collectionContractHash와 분리해 둘 근거가 사라진다.
+    GAP_SCRIPT = {"00000004": ([], HARD_PERM, False),
+                  "00000006": ([rec_for("00000006")], NO_FAIL, False)}
+
+    def collect_twice(declared):
+        """같은 시나리오를 승인 설정만 바꿔 두 번 실행하고 산출물을 통째로 돌려준다."""
+        d = tempfile.mkdtemp()
+        m._declared_cache = set(declared)
+        for _ in range(2):          # 두 번 돌려 attempts 증가 경로까지 밟는다
+            fake_run(d, GAP_SCRIPT)
+        st = open(f"{d}/_state-0.json", encoding="utf-8").read()
+        jl = open(f"{d}/shard-0.jsonl", encoding="utf-8").read()
+        shutil.rmtree(d, ignore_errors=True)
+        return st, jl
+
+    st_open, jl_open = collect_twice([])
+    st_appr, jl_appr = collect_twice(["00000004"])
+    ok("승인 유무와 무관하게 collect의 state 바이트가 동일하다",
+       st_open == st_appr,
+       "state가 갈렸다 — 승인이 수집을 바꾸면 두 해시를 분리할 수 없다")
+    ok("승인 유무와 무관하게 collect의 JSONL 바이트가 동일하다", jl_open == jl_appr)
+    s_open = json.loads(st_open)
+    ok("두 실행 모두 attempts가 2까지 올라간다 (승인이 재시도를 멈추지 않는다)",
+       s_open["hardSkipped"]["00000004"]["attempts"] == 2
+       and json.loads(st_appr)["hardSkipped"]["00000004"]["attempts"] == 2,
+       str(s_open["hardSkipped"]["00000004"]["attempts"]))
+    # 갈리는 것은 계산값 둘뿐이어야 한다.
+    m._declared_cache = set()
+    a = m.shard_status(s_open)
+    m._declared_cache = {"00000004"}
+    b = m.shard_status(s_open)
+    ok("승인이 바꾸는 것은 hardSkippedOpen·complete 계산뿐이다",
+       not a["complete"] and a["hardSkippedOpen"] == 1
+       and b["complete"] and b["hardSkippedOpen"] == 0,
+       f"{a} vs {b}")
+    ok("승인해도 사실 항(corpsDone·hardSkipped·corpsRemaining)은 그대로다",
+       (a["corpsDone"], a["hardSkipped"], a["corpsRemaining"])
+       == (b["corpsDone"], b["hardSkipped"], b["corpsRemaining"]), f"{a} vs {b}")
+
+    # finalize 게이트가 실제로 뒤집히는지 — 같은 상태·같은 산출물로 승인만 바꾼다.
+    def finalize_verdict(declared):
+        d, out = tempfile.mkdtemp(), tempfile.mkdtemp()
+        m._declared_cache = set(declared)
+        fake_run(d, GAP_SCRIPT)
+        m.SHARD_DIR, m.OUT_DIR = d, out
+        m.target_corps = lambda: {c: {"ticker": "000001", "group": "current"}
+                                  for c in GAP_SCRIPT}
+        try:
+            with redirect_stdout(io.StringIO()):
+                m.run_finalize(copy.deepcopy(POL))
+        except SystemExit:
+            pass
+        diag = json.load(open(f"{out}/_diagnostics.json", encoding="utf-8"))
+        shutil.rmtree(d, ignore_errors=True)
+        shutil.rmtree(out, ignore_errors=True)
+        return diag
+
+    d_open = finalize_verdict([])
+    d_appr = finalize_verdict(["00000004"])
+    ok("승인 전 finalize는 미완료 샤드에서 막힌다",
+       d_open.get("aborted") is True
+       and "담당분을 마치지 않은" in d_open.get("abortReason", ""),
+       str(d_open.get("abortReason"))[:120])
+    ok("승인 후 finalize는 그 게이트를 통과한다 (이후는 인수 조건의 몫이다)",
+       not d_appr.get("aborted"), str(d_appr.get("abortReason"))[:120])
+    ok("승인이 진단에 값으로 남는다 (approvalHash는 어느 목록인지만 고정한다)",
+       d_appr.get("declaredGaps") == ["00000004"]
+       and d_appr.get("declaredGapsCount") == 1, str(d_appr.get("declaredGaps")))
     m._declared_cache = set()
     shutil.rmtree(tmp4, ignore_errors=True)
 
