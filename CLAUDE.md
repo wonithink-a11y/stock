@@ -5,16 +5,16 @@
 
 ```
 Validated against
-  정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.4
-  구현     2e64a08   ← 이 문서가 검증된 마지막 구현 커밋
+  정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
+  구현     02ea298   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
            A2b 구현 완료(PR-1.4) — 수집 미실행
            A3 collect #1 완료 1,381/3,801법인 (hardErrors 0 · 항등식 OK)
            A3 수집 안정화 커밋 1 완료 (FN-1.3 — resume 무결성)
+           A3 수집 안정화 커밋 2 완료 (REG-1.5 — 승인 채널·approvalHash)
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
   다음     A3 collect #2 → #3 → finalize → measured 기록 후 임계 승격
-           커밋 2(승인 채널: registry approvals · approvalHash · declared-gaps-a3.json)
-           커밋 3(오류 원인 분해 · PYTHONUNBUFFERED · 신규 항등식 로그)
+           커밋 3(오류 원인 분해 · PYTHONUNBUFFERED) — 데이터 무결성 아닌 관측성
            A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
 ```
 
@@ -63,6 +63,13 @@ Validated against
 `verifyUpstream()`은 '선언된 상류의 변조'만 잡는다. '선언 자체의 누락'은
 `lib/backfillManifest.js`의 `REQUIRED_UPSTREAM` 표가 잡는다.
 A5가 A1b를 인용하지 않으면 생존편향 상태로 채점되므로, 이 표를 느슨하게 만들지 않는다.
+
+**규칙과 예외는 manifest에서 다른 필드로 갈린다.** `policyHash`는 '어떤 규칙으로
+만들었는가'이고 `approvalHash`는 '어떤 예외를 인정했는가'다(REG-1.5의 `approvals`
+네임스페이스). 승인 목록을 정책 파일에 두면 corp 하나를 승인할 때마다 그 정책을 읽는
+모든 단계의 manifest가 흔들린다. `REQUIRED_APPROVALS`가 선언 누락을 거부하며,
+`--extra`에 해시를 얹는 우회는 쓰지 않는다 — 그러면 선언이 강제되지 않는다.
+**승인은 수집 동작을 바꾸지 않는다.** 바꾼다면 그것은 승인이 아니라 규칙이다.
 
 진단 계약은 `scripts/verify-diagnostics.js`의 단계별 표 하나가 단일 출처다.
 워크플로에 검사를 인라인하지 않는다 — 계약이 워크플로 수만큼 복사되면 필드를 늘릴 때

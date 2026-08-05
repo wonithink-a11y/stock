@@ -564,7 +564,8 @@ A5                 [...,'A2a','A2b',...]  둘 다 필수 → 생존편향 차단
 ## 7. 파일 인벤토리
 
 ```
-lib/backfillManifest.js      해시·manifest·REQUIRED_UPSTREAM·hashPolicyFiles
+lib/backfillManifest.js      해시·manifest·REQUIRED_{UPSTREAM,POLICIES,APPROVALS}
+                             hashPolicyFiles(정책) · hashApprovalFiles(운영 승인)
 lib/loadPolicies.js          정책 3중 네임스페이스 로더 (policies/analysis/data)
 lib/loadCriteria.js          criteria 스냅샷 단일 로더
 lib/scoringEngine.js         V1 + V2 score() 병행
@@ -572,7 +573,7 @@ lib/eventClassifiers/dart.js DC-1.3
 lib/stateReducer.js · stateExpirer.js · stateStore.js
 lib/validator.js             RULES 기반 불변식 검사
 
-scripts/write-manifest.js         manifest CLI (--upstream --policies --extra)
+scripts/write-manifest.js         manifest CLI (--upstream --policies --approvals --extra)
 scripts/verify-diagnostics.js     진단 계약 단일 표 (워크플로가 <stage> 인자로 호출)
 scripts/build-dart-corpcode.py    A0.7
 scripts/build-universe-a1a.py     A1a
@@ -581,8 +582,10 @@ scripts/test-policies.js          정책 파일 간 정합성 + dataPolicies.uni
 scripts/test-universe-a1b.js      A1b 회귀 (알려진 폐지 5건 인라인)
 scripts/test-engine-v2.js · test-classifier.js · test-state-infrastructure.js
 
-config/policies/registry.json      REG-1.3
+config/policies/registry.json      REG-1.5 (criteria·policies·analysis·data·approvals)
 config/policies/universe.v1.json   UN-1.2 (a1b 블록 포함)
+config/backfill/declared-gaps-a3.json  A3 승인 목록. 정책이 아니라 예외이며
+                                       사람이 쓰고 사람이 커밋한다. 빈 배열도 해시 대상
 config/policies/{confidence,validation,missingAxis,riskPenalty,trading,stateMap}.v1.json
 config/policies/flagCodes.json · exit.v1.json
 config/criteria/KR-2.2.json · US-2.2.json   ← 동결. 수정 금지
@@ -599,10 +602,10 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 | 파일 | 버전 |
 |---|---|
-| registry.json | REG-1.4 |
+| registry.json | REG-1.5 (approvals 네임스페이스) |
 | universe.v1.json | UN-1.2 |
-| price.v1.json | PR-1.3 |
-| fundamentals.v1.json | FN-1.2 |
+| price.v1.json | PR-1.4 |
+| fundamentals.v1.json | FN-1.3 (수집 계약·실패 분류) |
 | stateMap.v1.json | SM-1.1 |
 | riskPenalty.v1.json | RP-1.2 |
 | confidence.v1.json | CP-1.0 |
@@ -977,31 +980,41 @@ manifest               approvalHash (policyHash와 별도 필드)
 
 정책 변경과 운영 승인이 manifest에서 **서로 다른 이벤트**로 갈린다.
 
-#### 권장 구현 순서와 커밋 경계 (계약이 아니다 — 구현하며 달라질 수 있다)
+#### 구현 순서와 커밋 경계 — 커밋 1·2 완료 (2026-08-05)
 
 ```
-커밋 1 — A3 resume 무결성 (A3 안에서 닫힌다)
+커밋 1 — A3 resume 무결성 (A3 안에서 닫힌다)                       ✅ 8410dae · 2e64a08
   1  done.add(corp) 조건 수정                  hard and not recs면 done에 넣지 않는다
                                               데이터 없음(hard=False)은 done이 맞다 —
                                               아니면 폐지 법인을 영원히 재시도한다
   2  retryable 분류 + hardSkipped 상태 모델     두 층 · attempts는 실행 단위
   3  finalize 게이트                            complete를 누적 항등식으로 재정의
-  4  persist 완화                               미완료(한도·예산)는 반드시 저장한다.
-                                              aborted 배제 규칙을 둘지는 1~3 이후 재확인
-커밋 2 — 승인 채널 (공통 인프라를 건드리는 유일한 커밋)
+  4  persist 완화                               !cancelled()로 완화 (아래 확정)
+  +  수집 계약 해시 (계획에 없던 항목)          정책 version 비교가 며칠치 수집을 버렸다
+커밋 2 — 승인 채널 (공통 인프라를 건드리는 유일한 커밋)             ✅ REG-1.5
   5  registry approvals · REQUIRED_APPROVALS · approvalHash · declared-gaps-a3.json
-커밋 3 — 수집 진단 보강
-  6  timeout 추가 (독립 결함)
-  7  오류 원인 분해 (020/013/HTTP/timeout) — "경로가 막혔다" 단일 문구 제거
-  8  신규 항등식 산출·로그
+커밋 3 — 수집 진단 보강 (남음 — 관측성이며 데이터 무결성이 아니다)
+  6  ~~timeout 추가~~   ← 취소. 처음부터 있었다 (아래 「정정」)
+  7  오류 원인 분해 (020/013/HTTP/파싱) — "경로가 막혔다" 단일 문구 제거
+  8  PYTHONUNBUFFERED
 ```
 
 공통 인프라를 A3 상태 정확성보다 먼저 건드리지 않는다. `done`이 잘못 기록되면 그 위의 승인
-체계가 아무리 옳아도 **이미 손실된 법인은 복구되지 않는다.**
+체계가 아무리 옳아도 **이미 손실된 법인은 복구되지 않는다.** 이 순서는 그대로 지켰다.
 
-**중간 상태 하나**: 3번이 5번보다 먼저라, 그 사이에 `retryable == false`가 나오면 탈출구
-없이 finalize가 막힌다. 조용히 통과하는 것보다 낫고 `100`·`101`은 드문 경로지만, 실제로
-걸리면 5번을 앞당긴다.
+**계획에 없던 항목 하나가 커밋 1에 들어갔다.** `load_state`가 `fundamentalsPolicy ==
+pol["version"]`으로 재개를 판정하고 있어서, **FN-1.3 승격 자체가** 8샤드 상태를 폐기하고
+collect #1(1,381법인 · 16,050호출 · 하루)을 0에서 다시 시작시킬 참이었다. 판정을 수집 계약
+해시로 교체했다 — 자세한 것은 `docs/BF-1.1-백필계약.md` §7 A3 「resume 무결성」에 있다.
+
+**`failureClassification`은 그 해시에 포함된다.** 처음에는 운영 파라미터로 보고 제외했으나,
+재시도 횟수·간격은 같은 결과에 이르는 경로만 바꾸는 반면 **어떤 status를 '재시도 불가'로
+볼 것인가는 그 법인이 계속 재시도될지 승인 대상 공백이 될지를 가른다.** 즉 최종 산출물의
+내용이 달라진다. 대가는 명시한다 — 이 표를 고치면 진행 중인 수집이 폐기된다.
+
+**중간 상태는 해소됐다.** 커밋 2가 들어갔으므로 `retryable == false`가 나와도 승인이라는
+탈출 경로가 있다. 다만 승인 목록은 지금 비어 있고(`gaps: []`), 실제로 걸리면 사람이
+`config/backfill/declared-gaps-a3.json`에 `{corp, reason}`을 추가하고 커밋해야 한다.
 
 **persist 단순화 가능성**(4번 시점에 판단): 1~3이 들어가면 서킷이 열린 샤드의 상태도
 정직해진다(실패 법인은 `hardSkipped`에 있고 `done`에 없다). 그러면 `aborted` 배제 규칙이
