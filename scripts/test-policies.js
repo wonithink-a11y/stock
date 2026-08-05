@@ -154,6 +154,13 @@ assert.ok(price.qualityExclusion.file.endsWith(price.output.format),
   `품질 제외 파일이 ${price.output.format}가 아니면 manifest 디렉터리 해시(targetExt) 밖에 남는다`);
 assert.ok(price.qualityExclusion.reasons.length >= 1,
   '제외 사유 코드가 없으면 A5가 왜 빠졌는지 모르고, 소스가 고쳐져도 재검증 대상을 못 고른다');
+// A2의 품질 검사와 A5의 수익률 계산이 전이 정의를 공유해야 한다. volume>0이 갈라지면
+// A2가 걷어낸 오염이 A5의 점수로 되돌아온다 — 인접 조건만 용도에 따라 다르다(§5.3).
+assert.strictEqual(price.returnTransition.requireBothVolumePositive,
+  price.dailyChange.requireBothVolumePositive,
+  'A2 검사와 A5 수익률의 volume>0 조건이 갈라졌다 — 거래정지일 기준가가 수익률로 들어간다');
+assert.ok(price.returnTransition.consumers.includes('A5'),
+  'returnTransition의 소비자에 A5가 없으면 공유 계약이 아니라 A2 전용 규칙이다');
 assert.strictEqual(price.rollingWindow.observeOnly, true,
   '롤링 윈도우 손실은 관측 전용이다 — 워밍업 구간이고 복구 불가라 게이트로 쓰면 정당한 실패를 만든다');
 

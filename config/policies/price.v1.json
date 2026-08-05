@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.1",
+  "version": "PR-1.2",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -25,6 +25,14 @@
   "circuitBreakerConsecutiveFailures": 20,
   "probeTickers": ["005930", "000660"],
   "probeNote": "대량 루프 진입 전 2회 정찰(교훈32). 둘 다 실패하면 경로가 막힌 것이므로 2,579회를 돌리지 않고 즉시 중단한다. 연속 실패 서킷 브레이커는 루프 도중 경로가 막히는 경우를 잡는다.",
+
+  "returnTransition": {
+    "requireBothVolumePositive": true,
+    "requireAdjacentTradingDay": false,
+    "note": "A2의 품질 검사와 A5의 수익률 계산이 '전이'를 같은 방식으로 정의하기 위한 공유 계약이다. 거래량 0인 날의 종가는 존재하지만 체결가가 아니므로(거래정지 중 기준가 표기) 수익률 계산에 쓰면 안 된다 — A2a에서 걷어낸 오염이 A5의 점수로 되돌아온다. A5는 이 블록을 읽어 체결이 있었던 날 사이에서만 수익률을 잰다.",
+    "adjacencyNote": "A5는 requireAdjacentTradingDay를 false로 쓴다. forward return은 d20/d60/d120처럼 거래일 인덱스 오프셋이라 인접 여부가 전제가 아니기 때문이다(BF-1.1 §5.3). A2의 일간 변동 검사만 인접을 요구한다 — 그쪽은 '하루 사이 변동'이 검사 대상이다. 두 용도의 차이는 여기서만 갈리고, volume>0 조건은 양쪽이 공유한다.",
+    "consumers": ["A2a", "A2b", "A5"]
+  },
 
   "dailyChange": {
     "comparableOnly": true,

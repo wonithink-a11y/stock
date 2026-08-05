@@ -300,6 +300,8 @@ exitReason    : BANKRUPTCY | AUDIT_OPINION | DELISTING_REVIEW_FAILED |
 
 d20/d60/d120은 달력일이 아니라 `calendar.tradingDays` 인덱스 기준이다. `bm`(벤치마크 동기간)을 함께 저장해 초과수익을 재계산 없이 뽑는다.
 
+**수익률은 체결이 있었던 날 사이에서만 잰다** (`price.v1.json`의 `returnTransition`, PR-1.2 신설). 거래량 0인 날의 종가는 존재하지만 체결가가 아니라 거래정지 중 기준가 표기다. A2a 첫 수집에서 ±50% 위반 57건 중 29건이 이 값과 실제 체결가를 비교한 데서 나왔다. A5가 같은 값으로 수익률을 계산하면 **A2에서 걷어낸 오염이 점수로 되돌아온다.** 그래서 전이 정의를 정책 한 곳에 두고 A2·A5가 공유한다 — `volume > 0` 조건은 양쪽이 같고, 인접 거래일 조건만 A2(일간 변동 검사)에서 true, A5(인덱스 오프셋)에서 false로 갈린다.
+
 ---
 
 ## 6. EP-1.0 — Exit Policy (정책 층)
