@@ -8,9 +8,11 @@ Validated against
   정책     UN-1.2 · PR-1.4 · FN-1.2 · REG-1.4
   구현     8ad9b92   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
-           A2b 구현 완료(PR-1.4) — 수집 미실행 · A3 구현·정찰 완료 — 수집 중
+           A2b 구현 완료(PR-1.4) — 수집 미실행
+           A3 collect #1 완료 1,381/3,801법인 (hardErrors 0 · 항등식 OK)
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
-  다음     A3 collect #2·#3 → finalize → measured 확정 → FN-1.3 승격 판단
+  다음     A3 수집 안정화 커밋 1 → collect #2·#3 → finalize → FN-1.3 승격 판단
+           설계는 인수인계 §9.1 「수집 안정화」에 확정돼 있다 (계약/장애분석 2층)
            A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다 — 인수인계 §9.2)
 ```
 
