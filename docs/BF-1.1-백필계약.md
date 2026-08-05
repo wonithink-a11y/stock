@@ -612,7 +612,7 @@ A1b 후보                     1,222
 
 인수 조건 자체는 A2a와 공통이되, 거래일 대조 구간을 **상장기간으로 한정**해야 하고 그 마지막 거래일이 A1b가 비워둔 `exitAt`의 확정값이 된다(`dartModifyDate`가 아니라).
 
-### A3 재무 (PIT) — 구현 완료 · 정찰 완료 (FN-1.1, 2026-08-05), 수집 대기
+### A3 재무 (PIT) — 구현 완료 · 정찰 완료 (FN-1.2, 2026-08-05), 수집 대기
 1. 전 레코드에 `availableFrom` 존재, **`availableFrom > 회계기간말`** (음수면 로직 반전)
 2. 연도별 계정 매칭 성공률 리포트 — 특정 연도만 급락하면 실패
 3. `|ROE| > 200%` 건수 리포트
@@ -621,7 +621,7 @@ A1b 후보                     1,222
 6. `fnlttSinglAcntAll`은 2015 사업연도부터 제공 — 2016 시작이 여기서 강제된다
 7. 계정과목명이 회사·연도마다 다르다. 기존 `fetch-fundamentals-kr.js` 매칭 로직 재사용
 
-정의는 `config/policies/fundamentals.v1.json`(FN-1.1)이 단일 산출점이다.
+정의는 `config/policies/fundamentals.v1.json`(FN-1.2)이 단일 산출점이다.
 아래는 그 계약을 구현하면서 **갈렸던 지점과 고른 쪽**이다.
 
 #### availableFrom은 rcept_no에서 온다
@@ -760,6 +760,42 @@ artifact로는 이어받을 수 없으므로 `data/backfill/fundamentals/_shards
 이름을 분리한다 — `test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가르므로,
 이름을 섞으면 표본으로 잰 값이 전수의 임계가 된다.
 
+#### PIT 앵커 파싱률 — 분모가 산출물에 남지 않는 손실
+
+`periodEnd`를 못 읽은 보고서는 레코드가 되지 않는다. 그래서 산출물의 `periodEndMissing`은
+**언제나 0이다** — 확보한 보고서의 절반을 잃어도 인수 조건은 전건 통과한다. 손실의 분모가
+산출물에 없기 때문이다.
+
+이 구멍을 막는 것이 `periodEndParsedRate`다.
+
+```
+periodEndParsedRate = 1 − recordRejected.PERIOD_END_UNPARSED / reportsFound
+```
+
+분모는 샤드 **상태**에 누적한다. 샤드 진단은 실행마다 덮이는데 수집은 며칠에 걸치므로,
+진단으로 세면 마지막 하루치만 남는다. 체크포인트가 옮기지 않는 값은 체크포인트가 잃는 값이다.
+
+**실측 전인데도 FAIL인 유일한 임계다**(0.99). 근거는 이 실패가 등급이 아니라 이분적이라는
+것이다 — 정찰 실측이 240/240 대 0/240으로 갈렸다. 응답 형식이 바뀌거나 파서가 깨지면 비율이
+서서히 나빠지는 것이 아니라 통째로 무너지므로, 0.99는 '전부 아니면 전무' 사이의 빈 구간에
+놓은 선이다. 이 값이 걸리면 품질 저하가 아니라 소스·파서의 구조 변화다.
+
+정찰도 같은 임계로 판정한다. 정찰은 발견이 목적이라 대부분을 관측으로 남기지만, **정책이
+고른 엔드포인트가 PIT 앵커를 주지 못하는 것은 발견이 아니라 계약 위반이다** — 그 상태로
+수집을 시작하면 3일 뒤 0레코드를 얻는다. 그래서 정찰은 판정을 `verdict`에 쓰고 FAIL이면
+산출물을 남긴 뒤 exit 3으로 끝낸다. 2026-08-05 첫 정찰에 이 판정이 있었다면
+`fnlttSinglAcntAll`의 0/240에서 즉시 붉은 불이 켜졌을 것이다.
+
+`test-policies.js`가 수집과 정찰의 임계가 같은지 본다. 갈라지면 정찰이 통과시킨 소스를
+수집이 거부하거나 그 반대가 된다.
+
+#### 계정별 매칭률은 전수로 남긴다
+
+정찰 표본은 32법인이라 이름 변주의 긴 꼬리를 보지 못한다. 그래서 수집이
+`accountMappingHitRateByAccount`를 계정별로 남긴다 — 매칭 수단별 분해(`id`/`nameExact`/
+`nameContains`/`MISS`)와 그 계정이 커버리지 분자에 드는지까지 함께다. 이 표가 있어야
+나중에 계정명을 추가·변경할 때 회귀 여부를 정량으로 판단할 수 있다.
+
 #### 임계는 전부 WARN으로 시작한다
 
 FN-1.0 시점에 커버리지·ROE 이상치·연도별 매칭률의 **실측이 없다.**
@@ -814,7 +850,7 @@ FAIL은 구조적으로 위반이 불가능한 것만이다 — `availableFrom` 
 | `config/policies/universe.v1.json` | **UN-1.2** | 유니버스 정의 단일 산출점. `a1b` 블록 신설 |
 | `config/policies/registry.json` | 수정 | REG-1.2 → REG-1.3(`dataPolicies` 신설) → **REG-1.4**(`fundamentals` 등록) |
 | `config/policies/price.v1.json` | **PR-1.3** | A2a·A2b 수집 파라미터·인수 조건 |
-| `config/policies/fundamentals.v1.json` | **FN-1.0** | A3 수집 파라미터·PIT 계약·인수 조건 |
+| `config/policies/fundamentals.v1.json` | **FN-1.2** | A3 수집 파라미터·PIT 계약·인수 조건 |
 | `lib/loadPolicies.js` | 수정 | `data` · `dataVersions` 반환. 3중 네임스페이스 중복 등록 시 throw |
 | `lib/backfillManifest.js` | 수정 | `upstream` 필수 키 표(§4) 강제. `A1b: ['A0.7','A1a']` |
 | `scripts/build-calendar.py` | 무변경 | A0.5 |

@@ -5,11 +5,11 @@
 
 ```
 Validated against
-  정책     UN-1.2 · PR-1.3 · FN-1.1 · REG-1.4
+  정책     UN-1.2 · PR-1.3 · FN-1.2 · REG-1.4
   구현     0dfb6ac   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료 · A2b 정찰 완료
-           A3 구현 완료 · 정찰 완료(FN-1.1) — 수집 미실행
-  다음     A3 collect 반복(약 3일) → finalize → FN-1.2 승격
+           A3 구현 완료 · 정찰 완료(FN-1.2) — 수집 미실행
+  다음     A3 collect 반복(약 3일) → finalize → FN-1.3 승격
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면

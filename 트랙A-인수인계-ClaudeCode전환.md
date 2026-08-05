@@ -219,7 +219,7 @@ A5o manifest에 `survivorshipBias: true`를 강제한다.
   A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
   A2a   가격 (현재 상장분)   완료 — 6,088,578행, A2a.0, sha256:9756e0737ea8c866 (2026-08-05)
   A2b   가격 (폐지분)        정찰 완료 — 구현 시점만 남음(631종목). 크리티컬 패스 밖
-  A3    재무 (PIT)           구현·정찰 완료(FN-1.1, 2026-08-05) — 수집 미실행  ← 지금 여기
+  A3    재무 (PIT)           구현·정찰 완료(FN-1.2, 2026-08-05) — 수집 미실행  ← 지금 여기
   A4    수급                 미착수
   A5o   운영 점수            미착수 (신설 예정)
   A5~A9                      미착수
@@ -602,7 +602,7 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 | registry.json | REG-1.4 |
 | universe.v1.json | UN-1.2 |
 | price.v1.json | PR-1.3 |
-| fundamentals.v1.json | FN-1.1 |
+| fundamentals.v1.json | FN-1.2 |
 | stateMap.v1.json | SM-1.1 |
 | riskPenalty.v1.json | RP-1.2 |
 | confidence.v1.json | CP-1.0 |
@@ -628,8 +628,8 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 8. [완료] A2a 구현 → 첫 수집 실패(게이트 작동) → 3층 정정 → 재실행 성공 → 기준선 확정
 9. [완료] A2b 커버리지 정찰 → 51.6%(구간 기준 확보 불가 0건) → 우선순위 뒤로
 10. [완료] A3 구현 — FN-1.0 · 수집기 · 회귀 테스트 · 진단 계약 · 워크플로
-11. [완료] A3 정찰 → 엔드포인트 선택 뒤집힘 → FN-1.1로 구현 수정
-12. A3 실행: collect 반복(약 3일) → finalize → FN-1.2 승격   ← 지금 여기. §9 참조
+11. [완료] A3 정찰 → 엔드포인트 선택 뒤집힘 → FN-1.1, 파싱률 게이트 신설 → FN-1.2
+12. A3 실행: collect 반복(약 3일) → finalize → FN-1.3 승격   ← 지금 여기. §9 참조
 13. A4 수급
 14. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
 15. A2b 구현 → A5 연구(생존편향 제거) → A6~A9
@@ -661,19 +661,19 @@ A3 없이 A5를 돌리면 2,579종목 전건이 '유보'로 나온다. 점수는
 ### 이번 세션이 만든 것 (2026-08-05)
 
 ```
-config/policies/fundamentals.v1.json   FN-1.1 — 수집 파라미터 · PIT 계약 · 인수 조건 · probed
+config/policies/fundamentals.v1.json   FN-1.2 — 수집 파라미터 · PIT 계약 · 인수 조건 · probed
 config/policies/registry.json          REG-1.3 → REG-1.4 (dataPolicies.fundamentals 등록)
 lib/backfillManifest.js                REQUIRED_POLICIES.A3 = ['universe','fundamentals']
 scripts/probe-fundamentals-a3.py       정찰 — 설계 판정용. 재무 수치를 남기지 않는다
 scripts/build-fundamentals-a3.py       수집기 — shard(resume) / finalize 2모드
-scripts/test-fundamentals-a3.py        회귀 42건 (합성 픽스처, 네트워크 불필요)
+scripts/test-fundamentals-a3.py        회귀 49건 (합성 픽스처, 네트워크 불필요)
 scripts/verify-diagnostics.js          A3 진단 계약 등재 (필드 37 · trueFlag 1)
 scripts/test-policies.js               FN-1.0 검증 추가
 .github/workflows/probe-fundamentals-a3.yml
 .github/workflows/fundamentals-a3.yml  mode: collect | finalize
 ```
 
-로컬에서 검증한 것: 정책 정합성, 회귀 42건 전건 통과, 합성 샤드로 finalize 전 경로
+로컬에서 검증한 것: 정책 정합성, 회귀 49건 전건 통과, 합성 샤드로 finalize 전 경로
 (gzip 산출 → 진단 계약 통과), FAIL INJECTION 시 **산출물 미작성**, 미완료 샤드 존재 시 중단.
 DART 응답 실물은 정찰이 확인했고, 그 결과로 엔드포인트가 바뀌었다(아래).
 
@@ -681,10 +681,10 @@ DART 응답 실물은 정찰이 확인했고, 그 결과로 엔드포인트가 �
 
 ```
 1) probe-fundamentals-a3        [완료 2026-08-05] → 엔드포인트 선택이 뒤집혔다
-2) 구현 수정                     [완료] FN-1.0 → FN-1.1
+2) 구현 수정                     [완료] FN-1.0 → FN-1.1 → FN-1.2(파싱률 게이트)
 3) fundamentals-a3 (collect)    매일 1회 dispatch. 전 샤드 complete까지 약 3일   ← 지금 여기
 4) fundamentals-a3 (finalize)   1회. manifest가 여기서 찍힌다
-5) FN-1.1 → FN-1.2 승격         실측 기준선(measured) 기록 + WARN → FAIL 승격
+5) FN-1.2 → FN-1.3 승격         실측 기준선(measured) 기록 + WARN → FAIL 승격
 ```
 
 3)이 며칠 걸린다. 총 호출 약 45,600건이고 일 예산이 16,000건(한도의 80%)이기 때문이다.
@@ -740,7 +740,7 @@ collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 �
 같은 날 두 번 dispatch해도 안전하다 — 샤드가 `callsUsedToday`를 상태에 들고 있어
 그날 예산을 넘기지 않고 즉시 끝난다.
 
-### 수집이 끝난 뒤 할 일 (FN-1.2 승격)
+### 수집이 끝난 뒤 할 일 (FN-1.3 승격)
 
 A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
 
