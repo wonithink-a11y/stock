@@ -725,16 +725,22 @@ A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
 
 ### collect #3 성공 기준
 
+이 8개면 충분하다.
+
 | 항목 | 기대값 |
 |---|---|
-| `corpsAssigned` | 8샤드 모두 채워짐 (샤드 6 포함 — 지금은 `?`다) |
-| `collectionContractHash` | 8샤드 동일 · 현재 코드 계산값과 일치 |
+| `collectionContractHash` | 8샤드 동일 · **None 없음** · 현재 코드 계산값과 일치 |
+| `corpsAssigned` | 8샤드 모두 존재 (샤드 6 포함 — 지금은 `?`다) |
 | `stateTransitionViolations` | 빈 배열 |
-| `conservationOk` · `runIdentityOk` | 모두 true |
-| `hardSkippedByRetryable.nonRetryable` | 0 (이상적) |
-| `reportsFound` vs jsonl 행 | `>=`. 재시도가 있으면 등식이 아니다 |
-| `hardErrors` | 관측이지 성공 기준이 아니다 — 0이 아니어도 hardSkipped가 받는다 |
-| `hardErrorsByCause` | 0이 아니면 **여기부터 읽는다**. 원인 계층이 대응을 가른다(§9.7) |
+| `stateInvariantViolations` | 빈 배열 (5·6·7. 하나라도 있으면 finalize가 중단한다) |
+| `recordCorpsNotInDone` | 0 |
+| `conservationOk` | true — 단 **구성상 항상 참이라 통과가 정보를 주지 않는다** |
+| `runIdentityOk` | true |
+| `hardErrorsByCause` | 원인별 집계 확인. **0이 아니어도 허용**이며 대응만 갈린다(§9.7) |
+
+보조 지표: `hardSkippedByRetryable.nonRetryable`은 0이 이상적이고, `reportsFound`와
+jsonl 행 수는 `>=`다(재시도가 있으면 등식이 아니다). `hardErrors` 총계는 관측이지
+성공 기준이 아니다 — 0이 아니어도 `hardSkipped`가 받는다.
 
 `nonRetryable`이 하나라도 나오면 그때가 `config/backfill/declared-gaps-a3.json`에
 `{corp, reason}`을 넣을 시점이다. `retryable` 쪽은 두면 다음 실행이 재시도한다.
@@ -790,7 +796,29 @@ A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
   2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone  실패 상태
   3  new.corpsAssigned == old.corpsAssigned             담당 범위
   4  산출물의 법인 집합 ⊆ new.corpsDone                  산출물 일관성
+
+상태 불변식 (state_invariant_violations — run_shard가 기록, finalize가 중단 게이트로)
+  5  corpsDone ∩ hardSkipped == ∅                       분류의 배타성
+  6  collectionContractHash is not None                 계약의 존재
+  7  corpsDone + hardSkipped <= corpsAssigned           담당 범위 안에 있다
 ```
+
+**5~7은 전이가 아니라 상태 자체의 성질이라 함수가 다르다.** `prev` 없이 언제든 잴 수
+있고, 그래서 **실행되지 않은 샤드에도 적용된다** — 전이 검사는 `run_shard`에서만, 그
+실행이 실제로 건드린 샤드에 대해서만 돈다. 예산 소진으로 즉시 끝난 샤드나 잡이 죽어
+안 돌아간 샤드는 전이 검사가 아예 보지 않는다. 상태 손상은 실행 여부와 무관한 사실이므로
+**읽는 쪽**에서도 재야 하고, 그 자리가 finalize다.
+
+5번이 특히 그렇다. 지금은 `done.add`와 `hardSkipped.pop`이 붙어 있어 겹칠 수 없지만,
+그것은 **코드의 현재 모양이 지켜주는 것이지 상태가 지켜주는 것이 아니다.** 순서가
+바뀌거나 사이에 예외가 끼면 두 집합에 동시에 든 법인이 생기고, 그 법인은 '완료됐는데
+미해결인' 상태가 된다 — 어느 쪽으로 세든 다른 쪽이 틀린다.
+
+**`conservationOk`는 검사가 아니다 (2026-08-06 발견).** `shard_status`가
+`remaining = assigned − done − hard`로 유도한 뒤 `assigned == done + hard + remaining`을
+확인하므로 **구성상 항상 참**이고, `stateConservationViolations`는 영원히 빈 배열이다.
+교훈61이 그대로 재발해 있었다. 유도되지 않아 실제로 깨질 수 있는 항은 부등식(7번)뿐이며,
+7번과 5번이 그 자리를 대신한다. 보존식 자체는 기록으로서는 뜻이 있어 남긴다.
 
 2번을 단순 집합 보존(`old.hard ⊆ new.hard`)으로 쓰면 안 된다. 하드스킵은 영구 사실이
 아니라 **현재 미해결**이고, 다음 실행에서 성공하면 `hardSkipped`에서 빠져 `corpsDone`으로

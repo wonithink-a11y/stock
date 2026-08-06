@@ -808,6 +808,14 @@ persist가 우연히 이것을 가려 왔다 — 중단된 샤드의 상태가 �
 법인(실행)  corpsAttempted == doneAdded + hardSkippedThisRun + quotaDeferred
 ```
 
+**보존식은 기록이지 검사가 아니다 (2026-08-06 정정).** `shard_status`가
+`remaining = assigned − done − hard`로 유도한 뒤 `assigned == done + hard + remaining`을
+확인하므로 구성상 항상 참이고, `stateConservationViolations`는 영원히 빈 배열이다 —
+교훈61이 그대로 재발해 있었다. 유도되지 않아 실제로 깨질 수 있는 항은 부등식뿐이며,
+그것을 상태 불변식 7번(`done + hardSkipped <= assigned`)으로 따로 세웠다.
+분류식 쪽의 대응물이 5번(`done ∩ hardSkipped == ∅`)이다 — 이 둘이 상태 손상을
+실제로 잡는 유일한 게이트다. 상세는 인수인계 §9.1.
+
 보존식에 `hardSkippedOpen`이 아니라 `hardSkipped` 전체가 들어가는 이유는 계층이 달라서다.
 보존식은 사실만으로 성립해 승인 정책이 바뀌어도 흔들리지 않고, 분류식이 그 보존된 사실을
 승인 여부로 나눈다. **사실을 먼저 보존하고 그다음 운영 판단으로 분해한다** — 순서가

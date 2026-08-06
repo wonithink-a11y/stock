@@ -159,7 +159,11 @@ const CONTRACT = {
                'corpsPartialHard',
                // 사실의 보존식(assigned = done + hardSkipped + remaining) 위반.
                // 비어 있어야 정상이고, 비어 있다는 것 자체가 기록이다.
-               'stateConservationViolations',
+               // conservationOk는 remaining을 유도한 뒤 그 등식을 재확인하므로 구성상
+               // 항상 참이다 — 기록으로는 뜻이 있으나 검사로는 빈 배열만 낸다(교훈61).
+               // 상태 손상을 실제로 잡는 것은 아래쪽이다: done ∩ hardSkipped == ∅ ·
+               // 계약 해시 존재 · done + hardSkipped <= assigned.
+               'stateConservationViolations', 'stateInvariantViolations',
                // 산출물 일관성 — 병합 결과의 법인이 전부 어느 샤드의 corpsDone에
                // 있는가. 샤드별 검사는 자기 상태만 보므로 병합에서 남의 레코드가
                // 섞이는 경우는 여기서만 보인다. 부분집합이지 등식이 아니다.

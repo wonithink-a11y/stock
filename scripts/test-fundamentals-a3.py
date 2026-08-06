@@ -873,13 +873,64 @@ for _label, _st, _recs, _want in [
     ("정상 — 보고서 0건 법인은 산출물에 없어도 된다", _now(), _R(), 0),
     ("1 위반 — corpsDone 후퇴", _now(corpsDone=["A"]), _R(), 1),
     ("2 위반 — 하드스킵이 해결되지도 남지도 않고 사라짐", _now(hardSkipped={}), _R(), 1),
-    ("2 위반 — done과 hardSkipped가 겹침",
-     _now(corpsDone=["A", "B", "X"], hardSkipped={"X": {}}), _R(), 1),
     ("3 위반 — corpsAssigned가 바뀜", _now(corpsAssigned=12), _R(), 1),
     ("4 위반 — 산출물에 corpsDone 밖의 법인", _now(), _R("A", "Z"), 1),
+    # 겹침은 전이가 아니라 상태의 성질이다. 여기서 빠졌다는 것을 못 박는다 —
+    # 양쪽에 두면 계약이 두 벌이 되고 한 곳만 고치는 경로가 생긴다(교훈44).
+    ("겹침은 전이 검사의 소관이 아니다 (상태 불변식 5가 든다)",
+     _now(corpsDone=["A", "B", "X"], hardSkipped={"X": {}}), _R(), 0),
 ]:
     _v = m.state_transition_violations(_PREV, _st, _recs)
     ok(f"{_label}", (1 if _v else 0) == _want, str(_v[:1]))
+
+
+print("\n[상태 불변식 — 실행 여부와 무관한 성질은 읽는 쪽에서도 잰다]")
+# 전이 검사는 run_shard에서만, 그 실행이 건드린 샤드에 대해서만 돈다. 예산 소진으로
+# 즉시 끝난 샤드나 잡이 죽어 안 돌아간 샤드는 아무도 보지 않는다 — finalize가
+# 다시 재는 이유다. 5번은 코드의 현재 모양(done.add와 hardSkipped.pop이 붙어 있음)이
+# 지켜주는 것이지 상태가 지켜주는 것이 아니라서 특히 그렇다.
+_HASH = "sha256:0000000000000000"
+
+
+def _stt(**kw):
+    return {"shard": 0, "corpsDone": ["A", "B"], "hardSkipped": {"X": {}},
+            "corpsAssigned": 10, "collectionContractHash": _HASH, **kw}
+
+
+for _label, _st, _want in [
+    ("정상 상태는 위반이 없다", _stt(), 0),
+    ("5 위반 — done ∩ hardSkipped != ∅",
+     _stt(corpsDone=["A", "B", "X"]), 1),
+    ("6 위반 — collectionContractHash가 None",
+     _stt(collectionContractHash=None), 1),
+    ("6 위반 — 키 자체가 없어도 같다 (FN-1.3 이전 상태)",
+     {k: v for k, v in _stt().items() if k != "collectionContractHash"}, 1),
+    ("7 위반 — done + hardSkipped > assigned", _stt(corpsAssigned=2), 1),
+    # 모르는 것은 0이 아니다(교훈57). 분모를 모르면 7번은 판정 대상이 아니다 —
+    # 0으로 읽으면 담당분을 아직 못 센 샤드가 전부 손상으로 잡힌다.
+    ("corpsAssigned가 None이면 7번을 재지 않는다", _stt(corpsAssigned=None), 0),
+]:
+    _v = m.state_invariant_violations(_st)
+    ok(_label, (1 if _v else 0) == _want, str(_v[:1]))
+
+ok("위반이 여럿이면 여럿을 돌려준다 (첫 건에서 멈추지 않는다)",
+   len(m.state_invariant_violations(
+       {"shard": 3, "corpsDone": ["A", "X"], "hardSkipped": {"X": {}},
+        "corpsAssigned": 1})) == 3,
+   str(m.state_invariant_violations(
+       {"shard": 3, "corpsDone": ["A", "X"], "hardSkipped": {"X": {}},
+        "corpsAssigned": 1})))
+ok("위반 메시지가 어느 샤드인지 말한다 (8개를 뒤지지 않게)",
+   all("샤드 3" in v for v in m.state_invariant_violations(
+       {"shard": 3, "corpsDone": ["X"], "hardSkipped": {"X": {}}})))
+
+# conservationOk가 검사가 아니라는 사실을 못 박는다. 이것이 깨지지 않는 한
+# stateConservationViolations는 영원히 빈 배열이고, 그 자리를 불변식이 대신한다.
+_bad = m.shard_status({"shard": 0, "corpsDone": ["A", "X"],
+                       "hardSkipped": {"X": {}}, "corpsAssigned": 1})
+ok("conservationOk는 구성상 항상 참이다 — 손상을 잡지 못한다(교훈61)",
+   _bad["conservationOk"] is True and _bad["corpsRemaining"] == -2,
+   f"conservationOk={_bad['conservationOk']} remaining={_bad['corpsRemaining']}")
 
 # 첫 실행에서 담당분이 처음 채워지는 것은 범위 변경이 아니다 —
 # corpsAssigned 기본값을 0으로 두면 여기가 '0 → 476'으로 오탐된다(교훈57).

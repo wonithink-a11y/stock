@@ -527,9 +527,60 @@ def declared_gaps():
     return _declared_cache
 
 
+def state_invariant_violations(state):
+    """**전이가 아니라 상태 자체의 성질이다.** prev 없이 언제든 잴 수 있다.
+
+        5  corpsDone ∩ hardSkipped == ∅        분류의 배타성
+        6  collectionContractHash is not None  계약의 존재
+        7  corpsDone + hardSkipped <= corpsAssigned   담당 범위 안에 있다
+
+    전이 검사와 나눈 이유가 이 함수의 존재 이유다. state_transition_violations는
+    run_shard에서만, 그 실행이 실제로 건드린 샤드에 대해서만 돈다 — 예산 소진으로
+    즉시 끝난 샤드나 잡이 죽어 안 돌아간 샤드는 아무도 보지 않는다. 상태 손상은
+    실행 여부와 무관한 사실이므로 **읽는 쪽**에서도 재야 하고, 그 자리가 finalize다.
+
+    5번이 특히 그렇다. 지금은 done.add와 hardSkipped.pop이 붙어 있어 겹칠 수 없지만,
+    그것은 코드의 현재 모양이 지켜주는 것이지 상태가 지켜주는 것이 아니다. 순서가
+    바뀌거나 사이에 예외가 끼면 두 집합에 동시에 든 법인이 생기고, 그 법인은
+    '완료됐는데 실패한' 상태가 된다 — 어느 쪽으로 세든 다른 쪽이 틀린다.
+
+    7번은 보존식 중 **실제로 잴 수 있는 부분**이다. shard_status의 conservationOk는
+    remaining을 assigned - done - hard로 유도한 뒤 그 등식을 다시 확인하므로 구성상
+    항상 참이고, 그래서 아무것도 잡지 못한다(교훈61). 유도되지 않은 항은 부등식뿐이다.
+    """
+    out = []
+    done = set(state.get("corpsDone") or [])
+    hard = set(state.get("hardSkipped") or {})
+    shard = state.get("shard")
+
+    both = done & hard
+    if both:
+        out.append(f"샤드 {shard}: 같은 법인이 corpsDone과 hardSkipped에 동시에 있다 "
+                   f"{len(both)}개 {sorted(both)[:3]} — 완료와 미해결이 같이 참일 수 없다")
+
+    if not state.get("collectionContractHash"):
+        # FN-1.3 이전 상태를 이어받는 경로는 load_state가 마이그레이션 표로 채운다.
+        # 그 뒤에도 None이면 상태를 쓴 경로가 계약을 남기지 않은 것이고, 그러면
+        # '어떤 규칙으로 모았는가'를 사후에 복원할 수 없다 — finalize가 _shards/를
+        # 지운 뒤에는 manifest의 그 값이 유일한 생존 기록이다.
+        out.append(f"샤드 {shard}: collectionContractHash가 없다 — collect를 한 번 더 "
+                   f"돌리면 채워진다. 그래도 없으면 상태를 쓴 경로의 결함이다")
+
+    assigned = state.get("corpsAssigned")
+    if assigned is not None and len(done) + len(hard) > assigned:
+        out.append(f"샤드 {shard}: 처리한 법인이 담당분보다 많다 "
+                   f"(done {len(done)} + hardSkipped {len(hard)} > assigned {assigned}) — "
+                   f"샤딩이 달라졌거나 남의 상태가 섞였다")
+    return out
+
+
 def state_transition_violations(prev, state, records=None):
     """한 실행이 상태를 어떻게 바꿨는지 검사한다. 네 식은 서로 독립이며
     각각 완료 상태 · 실패 상태 · 담당 범위 · 산출물 일관성을 본다.
+
+    '상태 자체'의 성질(겹침·계약 해시·범위)은 여기 없다 —
+    state_invariant_violations가 든다. 검사를 양쪽에 복사하면 필드를 늘릴 때
+    한 곳만 고치는 경로가 생기고, 그때 둘이 같이 틀린다(교훈44).
 
         1  old.corpsDone   ⊆ new.corpsDone
         2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone
@@ -557,10 +608,6 @@ def state_transition_violations(prev, state, records=None):
     if vanished:
         out.append(f"하드스킵 {len(vanished)}개가 해결되지도 남지도 않고 사라졌다 "
                    f"{sorted(vanished)[:3]}")
-
-    if not hard_new.isdisjoint(done_new):
-        out.append(f"같은 법인이 corpsDone과 hardSkipped에 동시에 있다 "
-                   f"{sorted(hard_new & done_new)[:3]} — 보존식이 깨진다")
 
     a_old, a_new = prev.get("assigned"), state.get("corpsAssigned")
     if a_old is not None and a_new is not None and a_old != a_new:
@@ -925,8 +972,11 @@ def run_shard(shard, shards, pol, limit):
     # 상태 전이 검사. 여기서는 기록만 하고 중단하지 않는다 — 진행은 이미 디스크에
     # 있고, 위반을 이유로 죽으면 그날 수집을 잃는다. 게이트는 finalize가 잡는다.
     transition = state_transition_violations(prev_state, state, records.values())
+    invariants = state_invariant_violations(state)
     for v in transition:
         print(f"  경고: 상태 전이 위반 — {v}")
+    for v in invariants:
+        print(f"  경고: 상태 불변식 위반 — {v}")
     # 실행 항등식. corpsAttempted는 이번 실행분이고 corpsDone은 누적이라 시계가 다르다 —
     # 한 식에 섞으면 이틀째부터 항상 깨진다. quotaDeferred는 0 또는 1이다
     # (한도를 만나면 즉시 break하고 부분 레코드는 버린다).
@@ -959,6 +1009,7 @@ def run_shard(shard, shards, pol, limit):
         corpsRemaining=status["corpsRemaining"],
         conservationOk=status["conservationOk"],
         stateTransitionViolations=transition,
+        stateInvariantViolations=invariants,
         corpsAttemptedThisRun=attempted, doneAddedThisRun=done_added,
         hardSkippedThisRun=hard_this_run, quotaDeferred=quota_deferred,
         runIdentityOk=run_identity_ok,
@@ -1273,8 +1324,13 @@ def run_finalize(pol):
     reports_found, rejected = 0, Counter()
     hard_all, open_all, partial_hard = {}, [], 0
     pol_versions, contract_hashes, conservation_bad = set(), set(), []
+    invariant_bad = []
     for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
         st = load_json(p)
+        # 상태 자체의 성질은 그 샤드가 이번에 돌았는지와 무관하다. 전이 검사는
+        # run_shard에서만 도므로 예산 소진으로 즉시 끝난 샤드를 못 본다 — 읽는 쪽에서
+        # 다시 재는 이유가 그것이다.
+        invariant_bad.extend(state_invariant_violations(st))
         run_dates.update(st.get("runDates") or [])
         reports_found += st.get("reportsFound", 0)
         rejected.update(st.get("recordRejected") or {})
@@ -1309,7 +1365,11 @@ def run_finalize(pol):
     diag["hardSkippedByRetryable"] = dict(Counter(
         ("retryable" if v.get("retryable") else "nonRetryable") for v in hard_all.values()))
     diag["corpsPartialHard"] = partial_hard
+    # conservationOk는 remaining을 유도한 뒤 그 등식을 다시 확인하므로 구성상 항상
+    # 참이다 — 기록으로는 뜻이 있지만 검사로는 빈 배열만 낸다(교훈61). 실제로 상태
+    # 손상을 잡는 것은 아래 stateInvariantViolations다.
     diag["stateConservationViolations"] = conservation_bad
+    diag["stateInvariantViolations"] = invariant_bad
     # 승인은 실제 공백에 대응해야 한다. 대응하지 않는 승인은 '오래된 승인이 미래의
     # 공백을 미리 덮는' 경로이고, 그것이 승인 체계가 조용해지는 유일한 길이다.
     declared = declared_gaps()
@@ -1329,6 +1389,12 @@ def run_finalize(pol):
     diag["collectionWindow"] = {"from": rd[0] if rd else None,
                                 "to": rd[-1] if rd else None,
                                 "runDays": len(rd)}
+    if invariant_bad:
+        # 완료 판정보다 먼저 본다. 상태가 깨진 채로 내린 완료는 의미가 없고,
+        # 이 위반들은 collect를 더 돌린다고 풀리는 종류가 아니다(계약 해시 누락만
+        # 예외이며 그 메시지가 스스로 그렇게 말한다).
+        _abort(f"상태 불변식 위반 {len(invariant_bad)}건 {invariant_bad}",
+               diag, diag_path)
     if conservation_bad:
         # 사실의 보존식이 깨졌다는 것은 상태가 손상됐다는 뜻이다. 완료 판정보다 먼저
         # 본다 — 분해가 안 맞는 상태에서 내린 완료는 의미가 없다.
