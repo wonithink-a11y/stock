@@ -986,6 +986,82 @@ ok("담당분을 모르는 샤드가 있으면 M1을 재지 않는다 (0으로 �
    "if assigned_unknown:" in _src
    and _src.index("if assigned_unknown:") < _src.index("elif assigned_sum != len(targets)"))
 
+
+# M3 — 한 법인의 레코드가 한 샤드에서만 나오는가. 실물 run_finalize를 2샤드 구성으로
+# 돌린다. 상태는 배타적으로 두고 **산출물만** 갈라놓는 것이 핵심이다 — M2(상태)가
+# 통과하는데 M3(산출물)가 잡아야 겹치지 않는 검사임이 증명된다.
+def m3_verdict(shard0_rows, shard1_rows, done0, done1):
+    d, out = tempfile.mkdtemp(), tempfile.mkdtemp()
+    os.makedirs(d, exist_ok=True)
+    _h = m.collection_contract_hash(POL)
+    for i, (rws, dn) in enumerate([(shard0_rows, done0), (shard1_rows, done1)]):
+        with open(f"{d}/shard-{i}.jsonl", "w", encoding="utf-8") as f:
+            for r in rws:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        json.dump({"shard": i, "shards": 2, "corpsDone": sorted(dn), "hardSkipped": {},
+                   "corpsAssigned": len(dn), "collectionContractHash": _h,
+                   "reportsFound": len(rws), "recordRejected": {}, "runDates": ["2026-08-06"],
+                   "policyVersions": [POL["version"]], "callsUsedToday": 0},
+                  open(f"{d}/_state-{i}.json", "w", encoding="utf-8"))
+    saved_dir, saved_out, saved_tc = m.SHARD_DIR, m.OUT_DIR, m.target_corps
+    m.SHARD_DIR, m.OUT_DIR = d, out
+    m.target_corps = lambda: {c: {"ticker": "000001", "group": "current"}
+                              for c in sorted(set(done0) | set(done1))}
+    try:
+        with redirect_stdout(io.StringIO()):
+            m.run_finalize(copy.deepcopy(POL))
+    except SystemExit:
+        pass
+    finally:
+        m.SHARD_DIR, m.OUT_DIR, m.target_corps = saved_dir, saved_out, saved_tc
+    dg = json.load(open(f"{out}/_diagnostics.json", encoding="utf-8"))
+    shutil.rmtree(d, ignore_errors=True)
+    shutil.rmtree(out, ignore_errors=True)
+    return dg
+
+
+def _rec(corp, year, af):
+    return {"corp": corp, "ticker": "000001", "fiscalYear": year, "availableFrom": af,
+            "periodEnd": f"{year}-12-31"}
+
+
+# 정상 — 법인이 샤드별로 나뉘어 있고 레코드도 따라간다
+_m3_ok = m3_verdict([_rec("00000001", 2020, "2021-03-31")],
+                    [_rec("00000002", 2020, "2021-03-31")],
+                    ["00000001"], ["00000002"])
+ok("정상 병합은 M3 위반이 없다",
+   _m3_ok.get("corpsSplitAcrossShards") == 0
+   and _m3_ok.get("recordKeysInMultipleShards") == 0, str(_m3_ok.get("abortReason"))[:150])
+
+# 분산 — 같은 법인의 다른 사업연도가 두 샤드에. 상태(corpsDone)는 배타적으로 두므로
+# M2는 통과하고, 키도 안 겹쳐 중복 검사도 통과한다. M3 없이는 아무도 못 보던 경우다.
+_m3_split = m3_verdict([_rec("00000001", 2020, "2021-03-31")],
+                       [_rec("00000001", 2021, "2022-03-31")],
+                       ["00000001"], ["00000002"])
+ok("분산 픽스처에서 M2(상태)는 통과한다 — 두 검사가 겹치지 않는다는 증거",
+   _m3_split.get("stateMergedViolations") == [],
+   str(_m3_split.get("stateMergedViolations")))
+ok("분산 — 키가 안 겹쳐도 한 법인이 두 샤드에 걸치면 M3 위반",
+   _m3_split.get("aborted") is True
+   and _m3_split.get("corpsSplitAcrossShards") == 1, str(_m3_split.get("abortReason"))[:150])
+ok("분산은 '분산'이라고 이름을 말한다 (복제와 대응이 다르다)",
+   "분산이다" in _m3_split.get("abortReason", ""),
+   _m3_split.get("abortReason", "")[:150])
+ok("분산에서는 겹치는 레코드 키가 0이다 (중복 검사로는 안 잡힌다는 증거)",
+   _m3_split.get("recordKeysInMultipleShards") == 0)
+
+# 복제 — 같은 키가 두 샤드에. validate의 중복 검사도 잡지만 '데이터 중복'이라고만
+# 말한다. M3가 먼저 돌아 원인이 샤딩임을 지목한다.
+_m3_dup = m3_verdict([_rec("00000001", 2020, "2021-03-31")],
+                     [_rec("00000001", 2020, "2021-03-31")],
+                     ["00000001"], ["00000002"])
+ok("복제 — 같은 레코드 키가 두 샤드에 있으면 M3 위반",
+   _m3_dup.get("aborted") is True
+   and _m3_dup.get("recordKeysInMultipleShards") == 1,
+   str(_m3_dup.get("abortReason"))[:150])
+ok("복제는 '복제'라고 이름을 말한다 — 원인이 샤딩임을 지목한다",
+   "복제다" in _m3_dup.get("abortReason", ""), _m3_dup.get("abortReason", "")[:150])
+
 # 첫 실행에서 담당분이 처음 채워지는 것은 범위 변경이 아니다 —
 # corpsAssigned 기본값을 0으로 두면 여기가 '0 → 476'으로 오탐된다(교훈57).
 ok("담당분을 몰랐다가 알게 되는 것은 위반이 아니다",

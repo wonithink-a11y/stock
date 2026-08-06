@@ -1453,8 +1453,18 @@ def run_finalize(pol):
                diag, diag_path)
 
     rows = []
+    # M3의 재료. 어느 샤드에서 온 레코드인지는 병합하는 순간에만 알 수 있다 —
+    # 레코드 자체에는 샤드 번호가 없고(있어서도 안 된다, 샤딩은 산출물의 성질이
+    # 아니다) 합쳐 놓으면 출처가 사라진다. 여기서 세지 않으면 영영 못 센다.
+    corp_shards = defaultdict(set)
+    key_shards = defaultdict(set)
     for p in shard_files:
-        rows.extend(load_jsonl(p))
+        sh = os.path.basename(p).replace("shard-", "").replace(".jsonl", "")
+        part = load_jsonl(p)
+        rows.extend(part)
+        for r in part:
+            corp_shards[r["corp"]].add(sh)
+            key_shards[rec_key(r)].add(sh)
     diag["shardFiles"] = [os.path.basename(p) for p in shard_files]
     diag["shardCount"] = len(shard_files)
     diag["rowCount"] = len(rows)
@@ -1480,6 +1490,35 @@ def run_finalize(pol):
     if stray:
         _abort(f"산출물에 어느 샤드의 corpsDone에도 없는 법인이 {len(stray)}개 있다 "
                f"{stray[:5]} — 병합이 담당 밖의 레코드를 끌어왔다", diag, diag_path)
+
+    # ── M3 — 한 법인의 레코드는 한 샤드에서만 나온다 ──────────────
+    #
+    # M2는 상태(corpsDone)를 보고 이것은 산출물(jsonl)을 본다. 출처가 다르므로
+    # 겹치지 않는다 — 상태가 배타적인데 레코드가 분산될 수 있고, 그 반대도 된다.
+    #
+    # 두 가지가 한 검사에 잡힌다. 법인 단위가 키 단위보다 **강하기** 때문이다.
+    #
+    #   분산  corp A의 2021년은 샤드 2에, 2022년은 샤드 5에 있다
+    #         키가 겹치지 않으므로 중복 검사(validate)는 통과한다. 아무도 못 본다.
+    #   복제  corp A의 같은 (corp, fiscalYear, availableFrom)이 두 샤드에 있다
+    #         validate가 '완전 중복'으로 잡기는 하지만 데이터 문제로 보고한다 —
+    #         원인이 샤딩이라는 것을 말해주지 않아 진단이 엉뚱한 곳을 판다.
+    #
+    # 어느 쪽이든 라운드로빈이 깨졌다는 뜻이고, 그것을 이름으로 말해주는 자리가
+    # 여기다. 병합이 이미 전 파일을 읽으므로 추가 비용은 사전 두 개뿐이다.
+    split_corps = sorted(c for c, s in corp_shards.items() if len(s) > 1)
+    dup_keys = sorted(k for k, s in key_shards.items() if len(s) > 1)
+    diag["corpsSplitAcrossShards"] = len(split_corps)
+    diag["corpsSplitAcrossShardsSample"] = [
+        {"corp": c, "shards": sorted(corp_shards[c])} for c in split_corps[:20]]
+    diag["recordKeysInMultipleShards"] = len(dup_keys)
+    if split_corps:
+        kind = ("복제와 분산이 섞였다" if dup_keys and len(dup_keys) < len(split_corps)
+                else "복제다 (같은 키가 여러 샤드에)" if dup_keys else
+                "분산이다 (키는 안 겹치나 한 법인이 여러 샤드에)")
+        _abort(f"한 법인의 레코드가 여러 샤드에서 나왔다 {len(split_corps)}법인 — {kind}. "
+               f"{diag['corpsSplitAcrossShardsSample'][:3]} · "
+               f"여러 샤드에 걸친 레코드 키 {len(dup_keys)}건", diag, diag_path)
 
     corps = targets      # M1에서 이미 읽었다. 두 번 읽으면 그 사이에 갈릴 수 있다
     diag["fiscalYearFrom"] = pol["fiscalYearFrom"]

@@ -734,6 +734,7 @@ A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
 | `stateTransitionViolations` | 빈 배열 (T1~T4) |
 | `stateInvariantViolations` | 빈 배열 (S1~S3. 하나라도 있으면 finalize가 중단한다) |
 | `stateMergedViolations` | 빈 배열 (M1·M2. `corpsAssignedSumMeasurable`이 true여야 M1이 산 검사다) |
+| `corpsSplitAcrossShards` | 0 (M3. `recordKeysInMultipleShards`가 분산/복제를 가른다) |
 | `recordCorpsNotInDone` | 0 |
 | `runIdentityOk` | true |
 | `hardErrorsByCause` | 원인별 집계 확인. **0이 아니어도 허용**이며 대응만 갈린다(§9.7) |
@@ -812,11 +813,31 @@ S — 상태 불변식   상태 하나로 잰다 → 어디서나. run_shard가 
   S3  corpsDone + hardSkipped <= corpsAssigned           담당 범위 안에 있다
 
 M — 병합 검사     전 샤드를 모아야 잰다 → finalize에만 있다
-                 stateMergedViolations
+                 M1·M2 stateMergedViolations · M3 corpsSplitAcrossShards
 
-  M1  Σ corpsAssigned == 대상 법인 수                     샤딩의 일관성
-  M2  샤드 간 corpsDone이 서로 배타                       라운드로빈의 배타성
+  M1  Σ corpsAssigned == 대상 법인 수                     샤딩의 일관성   상태
+  M2  샤드 간 corpsDone이 서로 배타                       라운드로빈(상태) 상태
+  M3  한 법인의 레코드가 한 샤드에서만 나온다              라운드로빈(산출) 산출물
 ```
+
+**M2와 M3는 출처가 다르다.** M2는 상태(`corpsDone`)를 보고 M3는 산출물(`jsonl`)을 본다 —
+상태가 배타적인데 레코드가 분산될 수 있고 그 반대도 된다. 회귀가 그것을 직접 든다
+(M2가 통과하는 픽스처에서 M3가 잡힌다).
+
+M3가 잡는 두 경우는 성질이 다르고 메시지가 이름을 말한다.
+
+```
+분산  corp A의 2021년은 샤드 2에, 2022년은 샤드 5에
+      키가 안 겹치므로 중복 검사가 통과한다 — M3 없이는 아무도 못 본다
+복제  corp A의 같은 (corp, fiscalYear, availableFrom)이 두 샤드에
+      validate가 '완전 중복'으로 잡기는 하나 데이터 문제로 보고한다 —
+      원인이 샤딩이라는 것을 말해주지 않아 진단이 엉뚱한 곳을 판다
+```
+
+법인 단위가 키 단위보다 강해서 한 검사가 둘을 다 잡는다. 어느 샤드에서 온 레코드인지는
+**병합하는 순간에만** 알 수 있다 — 레코드에 샤드 번호는 없고(있어서도 안 된다, 샤딩은
+산출물의 성질이 아니다) 합쳐 놓으면 출처가 사라진다. 여기서 세지 않으면 영영 못 센다.
+병합이 이미 전 파일을 읽으므로 추가 비용은 사전 두 개뿐이다.
 
 **T와 S를 가르는 것은 재는 자리가 아니라 재는 범위다.** T는 그 실행이 실제로 건드린
 샤드만 본다 — 예산 소진으로 즉시 끝난 샤드나 잡이 죽어 안 돌아간 샤드는 T가 아예 보지

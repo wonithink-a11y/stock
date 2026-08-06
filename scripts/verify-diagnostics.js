@@ -170,6 +170,10 @@ const CONTRACT = {
                // 원인을 가린다 — 잴 수 없으면 판정하지 않고 그 사실을 남긴다(교훈57).
                'stateInvariantViolations', 'stateMergedViolations',
                'corpsAssignedSum', 'corpsAssignedSumMeasurable',
+               // M3 — 한 법인의 레코드가 한 샤드에서만 나왔는가. M2가 상태를 보는 것과
+               // 달리 이쪽은 산출물을 본다. 어느 샤드에서 온 레코드인지는 병합하는
+               // 순간에만 알 수 있고(레코드에 샤드 번호는 없다) 합치면 사라진다.
+               'corpsSplitAcrossShards', 'recordKeysInMultipleShards',
                // 산출물 일관성 — 병합 결과의 법인이 전부 어느 샤드의 corpsDone에
                // 있는가. 샤드별 검사는 자기 상태만 보므로 병합에서 남의 레코드가
                // 섞이는 경우는 여기서만 보인다. 부분집합이지 등식이 아니다.
