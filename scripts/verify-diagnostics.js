@@ -176,6 +176,11 @@ const CONTRACT = {
                // 둘은 서로소이며 원인이 다르다 — 복제는 dedup·샤드 할당, 분산은
                // 샤드 분할을 가리킨다. 합쳐 두면 어느 층을 팔지 진단이 말해주지 않는다.
                'duplicateRecordKeysAcrossShards', 'recordDistributionAcrossShards',
+               // 법인별 공백 사유 — collect만 알 수 있고 산출물에는 흔적이 없다.
+               // 없는 행은 이유를 말하지 않으므로 이 표가 없으면 "A사 2021 없음"이
+               // 정상 사실(013)인지 손실(파싱 실패·조회 실패)인지 영영 모른다.
+               // finalize가 _shards/를 지우므로 여기가 유일한 생존 기록이다.
+               'recordGaps', 'recordGapCorps', 'recordGapReasons',
                // 산출물 일관성 — 병합 결과의 법인이 전부 어느 샤드의 corpsDone에
                // 있는가. 샤드별 검사는 자기 상태만 보므로 병합에서 남의 레코드가
                // 섞이는 경우는 여기서만 보인다. 부분집합이지 등식이 아니다.

@@ -716,7 +716,25 @@ def pick_fs_div(rows, preference):
 
 
 def scan_corp(corp, ticker, pol, counters, state):
-    """한 법인의 전 사업연도. (레코드 목록, 하드실패 정보, 한도초과 여부)
+    """한 법인의 전 사업연도. (레코드 목록, 하드실패 정보, 한도초과 여부, 연도별 공백 사유)
+
+    네 번째 값이 **collect만 아는 사실**이다. 어떤 (법인, 사업연도)에 레코드가 없을 때
+    그것이 정상 사실인지 손실인지는 응답을 본 이 자리에서만 알 수 있고, 산출물에는
+    흔적이 남지 않는다 — 없는 행은 이유를 말하지 않는다. finalize는 이것을 복원하지
+    못하며, 수집이 끝난 뒤에는 재수집 없이 영원히 얻을 수 없다.
+
+        013         그 해에 보고서를 안 냈다            정상 사실
+        REJECT:*    보고서는 받았는데 레코드가 못 됐다   손실 (파서를 본다)
+        HARD:*      그 해 조회가 실패했다               손실 (원인 계층이 붙는다)
+        EMPTY       status 000인데 목록이 비었다         소스 이상
+        EARLY_STOP  여기서 스캔을 멈췄다                 이후 연도는 '조회 안 함'이다
+
+    EARLY_STOP을 남기는 이유는 **'조회하지 않은 해'와 '조회했더니 없는 해'가 다르기**
+    때문이다. 이 표시가 없으면 조기 종료 뒤의 빈 연도가 013으로 오독되고, 그것은
+    없는 사실을 있다고 기록하는 것이다.
+
+    파생 결과(연도만 없음 · 특정 시점 이후 없음 · OFS만 존재)는 여기 넣지 않는다.
+    그것들은 JSONL과 이 표만 있으면 언제든 다시 계산된다 — 저장할 것은 원시 사실뿐이다.
 
     하드실패를 개수가 아니라 정보로 돌려주는 이유는 호출자가 재시도 가능 여부를
     판정해야 하기 때문이다 — 개수만으로는 '무엇이 막혔는지'를 알 수 없고,
@@ -727,6 +745,7 @@ def scan_corp(corp, ticker, pol, counters, state):
     quota_status = pol["quota"]["quotaExceededStatus"]
     out, any_found, empty_run = [], False, 0
     fail = {"count": 0, "lastStatus": None, "lastReason": None, "lastCause": None}
+    gaps = {}
     sic = None
 
     for y in years:
@@ -736,7 +755,10 @@ def scan_corp(corp, ticker, pol, counters, state):
             "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
         time.sleep(pol["requestSleepSeconds"])
         if st == quota_status:
-            return out, fail, True
+            # 한도를 만나면 이 법인은 처음부터 다시 한다. 여기까지 모은 공백 사유도
+            # 부분이므로 함께 버린다 — 레코드와 같은 규율이다. 반쪽 사실을 남기면
+            # 다음 실행의 온전한 사실과 섞인다.
+            return out, fail, True, {}
         if err:
             fail["count"] += 1
             fail["lastStatus"] = st
@@ -752,6 +774,11 @@ def scan_corp(corp, ticker, pol, counters, state):
         elif rows:
             got = pick_fs_div(rows, preference)
         if got is None:
+            # 이 해에 레코드가 없다. 그 사유가 정상 사실인지 손실인지는 여기서만 안다.
+            gaps[str(y)] = (f"HARD:{cause}" if year_hard else
+                            "013" if st == DART_NO_DATA else
+                            "EMPTY" if st == "000" else
+                            f"STATUS:{st}" if st else "UNKNOWN")
             # 하드 실패한 해를 '보고서 없음'으로 세지 않는다. 그렇게 하면 일시적인
             # 네트워크 오류 세 번이 조기 종료를 불러 그 법인의 이후 이력을 통째로 자른다.
             if any_found and not year_hard:
@@ -760,6 +787,10 @@ def scan_corp(corp, ticker, pol, counters, state):
                     # 보고서를 낸 적 있는 법인이 연속으로 비면 그 뒤는 영원히 빈다.
                     # 폐지 법인 1,222건의 호출을 크게 줄이는 지점이다.
                     counters["earlyStopped"] += 1
+                    # 여기서 멈췄다는 사실을 남긴다. 없으면 이후 연도의 부재가 013으로
+                    # 오독되고, 그것은 조회하지도 않은 해를 '보고서 없음'이라고
+                    # 기록하는 것이다 — 없는 사실을 있다고 적는 셈이다.
+                    gaps[str(y)] = f"EARLY_STOP:{gaps[str(y)]}"
                     break
             continue
 
@@ -778,10 +809,13 @@ def scan_corp(corp, ticker, pol, counters, state):
             # 사유별로 센다. 파싱률을 별도 카운터로 두면 rcept 실패가 periodEnd 실패로
             # 섞여 들어간다 — 비율은 reportsFound와 이 표에서 정확히 유도된다.
             counters["recordRejected"][why] += 1
+            # 전역 Counter는 '몇 건인가'만 답한다. 어느 법인의 어느 해인지는
+            # 여기 남기지 않으면 사라지고, 그것이 파서를 고칠 때 필요한 것이다.
+            gaps[str(y)] = f"REJECT:{why}"
             continue
         out.append(rec)
 
-    return out, fail, False
+    return out, fail, False, gaps
 
 
 def fetch_sic(corp, pol, counters):
@@ -844,6 +878,9 @@ def run_shard(shard, shards, pol, limit):
     # 이관된 상태에는 새 필드가 없다. 사실 축적형이므로 기본값으로 열어두면 되고,
     # 여기서 지우거나 다시 계산하지 않는다(원칙 1 — 상태는 단조하게 축적된다).
     state.setdefault("hardSkipped", {})
+    # 이관된 상태에는 없다. 사실 축적형이라 빈 dict로 열어두면 되고, 이미 done인
+    # 법인의 옛 공백은 채울 수 없다 — 그 사실은 그 실행에서만 알 수 있었다.
+    state.setdefault("recordGaps", {})
     state.setdefault("corpsPartialHard", 0)
     state.setdefault("policyVersions", [])
     state.pop("complete", None)      # 원칙 2 — 판정은 저장하지 않는다
@@ -861,6 +898,7 @@ def run_shard(shard, shards, pol, limit):
 
     done = set(state["corpsDone"])
     hard_skipped = dict(state["hardSkipped"])
+    record_gaps = dict(state["recordGaps"])
     # 이전 실행의 산출을 읽되 '완료된 법인'의 것만 남긴다. 스캔 도중 죽은 법인의
     # 부분 레코드를 그대로 두면 재개분과 겹쳐 같은 키가 두 벌이 된다.
     records = {}
@@ -912,7 +950,7 @@ def run_shard(shard, shards, pol, limit):
             budget_hit = True
             break
         attempted += 1
-        recs, fail, quota = scan_corp(corp, corps[corp]["ticker"], pol, counters, state)
+        recs, fail, quota, gaps = scan_corp(corp, corps[corp]["ticker"], pol, counters, state)
         if quota:
             # 한도를 만나면 부분 레코드를 버리고 즉시 멈춘다. 이 법인은 done도
             # hardSkipped도 아닌 '연기'이며 다음 실행이 처음부터 다시 한다.
@@ -922,6 +960,14 @@ def run_shard(shard, shards, pol, limit):
         for r in recs:
             records[rec_key(r)] = r
         processed += 1
+        # 이 법인의 스캔이 끝났으므로 공백 사유가 온전하다. 통째로 덮는다 —
+        # 재시도한 법인의 옛 사유와 새 사유를 병합하면 이미 풀린 실패가 남는다.
+        # 공백이 없으면 항목도 없다(빈 dict를 두면 '스캔했으나 사유 없음'과
+        # '스캔 안 함'이 같은 모양이 된다).
+        if gaps:
+            record_gaps[corp] = gaps
+        else:
+            record_gaps.pop(corp, None)
 
         if fail["count"] and not recs:
             # 하드 실패로 0레코드다. 여기서 done에 넣으면 그 법인은 영구히
@@ -961,6 +1007,7 @@ def run_shard(shard, shards, pol, limit):
                 state["corpsPartialHard"] = state.get("corpsPartialHard", 0) + 1
 
         state["corpsDone"] = sorted(done)
+        state["recordGaps"] = record_gaps
         state["hardSkipped"] = hard_skipped
 
         if consec_hard >= pol["circuitBreakerConsecutiveFailures"]:
@@ -1025,6 +1072,11 @@ def run_shard(shard, shards, pol, limit):
         hardSkipped=status["hardSkipped"], hardSkippedOpen=status["hardSkippedOpen"],
         hardSkippedDetail=state["hardSkipped"],
         corpsPartialHard=state.get("corpsPartialHard", 0),
+        # 사유별 집계는 여기, 법인별 원본은 상태에 있다. 집계는 파생이므로 저장하지
+        # 않고 매번 센다 — 원시 사실만 축적한다.
+        recordGapCorps=len(record_gaps),
+        recordGapReasons=dict(Counter(
+            r.split(":", 1)[0] for g in record_gaps.values() for r in g.values())),
         corpsRemaining=status["corpsRemaining"],
         stateTransitionViolations=transition,
         stateInvariantViolations=invariants,
@@ -1337,6 +1389,7 @@ def run_finalize(pol):
     incomplete, run_dates = [], set()
     reports_found, rejected = 0, Counter()
     hard_all, open_all, partial_hard = {}, [], 0
+    gaps_all = {}
     pol_versions, contract_hashes = set(), set()
     invariant_bad = []
     # 병합 검사(M1·M2)의 재료. 샤드 하나만 봐서는 잴 수 없는 것들이라 여기서만 모인다.
@@ -1362,6 +1415,9 @@ def run_finalize(pol):
         if st.get("collectionContractHash"):
             contract_hashes.add(st["collectionContractHash"])
         hard_all.update(st.get("hardSkipped") or {})
+        # finalize가 _shards/를 지우므로 진단에 옮기지 않으면 이 사실은 사라진다.
+        # collect만 알 수 있었던 것이라 재수집 없이는 복원되지 않는다.
+        gaps_all.update(st.get("recordGaps") or {})
         partial_hard += st.get("corpsPartialHard", 0)
         # 완료는 상태에 저장돼 있지 않다. 현재 상태 + 현재 승인 목록에서 매번 유도한다 —
         # 저장하면 승인 목록이 바뀌는 즉시 낡는다(원칙 2).
@@ -1384,6 +1440,13 @@ def run_finalize(pol):
     diag["hardSkippedByRetryable"] = dict(Counter(
         ("retryable" if v.get("retryable") else "nonRetryable") for v in hard_all.values()))
     diag["corpsPartialHard"] = partial_hard
+    # 법인별 공백 사유 — collect만 알 수 있고 산출물에는 흔적이 없다. 없는 행은
+    # 이유를 말하지 않으므로, 이 표가 없으면 "A사 2021 없음"이 정상 사실인지
+    # 손실인지 영영 모른다. hardSkippedDetail과 같은 자리에 둔다.
+    diag["recordGaps"] = gaps_all
+    diag["recordGapCorps"] = len(gaps_all)
+    diag["recordGapReasons"] = dict(Counter(
+        r.split(":", 1)[0] for g in gaps_all.values() for r in g.values()))
     # 병합 검사(M1·M2). 샤드 하나만 봐서는 잴 수 없으므로 **여기가 유일한 자리**다.
     # 기준은 하나다 — 이 검사가 샤드 단위에서 가능한가, 병합된 전체에서만 가능한가.
     # 후자면 finalize에 있어야 한다.
@@ -1478,9 +1541,14 @@ def run_finalize(pol):
         if os.path.exists(d) and load_json(d).get("smokeTest"):
             diag["smokeTest"] = True
 
-    # 산출물 일관성(불변식 4)을 병합 결과에서 직접 본다. 샤드별 검사는 각자의
-    # 상태만 보므로, 병합 과정에서 남의 레코드가 섞이는 경우는 여기서만 보인다.
-    # 등식이 아니라 부분집합이다 — 보고서가 0건인 법인도 정상적으로 완료된다.
+    # ── M4 — 병합 레코드의 법인 ⊆ 전 샤드 corpsDone 합집합 ──────────
+    #
+    # T4가 같은 성질을 샤드 안에서 본다(그 샤드의 레코드 ⊆ 그 샤드의 corpsDone).
+    # 여기는 **합집합**과 대조하므로 다른 검사다 — 병합이 엉뚱한 jsonl을 끌어오거나
+    # 병합 자체에 결함이 있으면 각 샤드는 자기 안에서 정상인데 합친 결과만 틀린다.
+    # 그 경우는 여기서만 보인다.
+    #
+    # 등식이 아니라 부분집합이다 — 보고서가 0건인 법인도 정상적으로 완료된다(실측 약 19%).
     all_done = set()
     for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
         all_done |= set(load_json(p).get("corpsDone") or [])

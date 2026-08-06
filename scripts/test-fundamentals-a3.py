@@ -488,7 +488,10 @@ def fake_run(tmp, script, prev_state=None, pol=None):
         json.dump(prev_state, open(f"{tmp}/_state-0.json", "w", encoding="utf-8"))
 
     def fake_scan(corp, ticker, pol, counters, state):
-        return script[corp]
+        # 픽스처는 3-튜플로 쓰고 공백 사유는 필요할 때만 4번째로 붙인다.
+        # 전부 4-튜플로 고치면 이 필드와 무관한 30여 개 픽스처가 함께 흔들린다.
+        r = script[corp]
+        return r if len(r) == 4 else (*r, {})
     m.scan_corp = fake_scan
     real_sleep = m.time.sleep
     m.time.sleep = lambda *a: None      # m.time은 실제 time 모듈이다 — 반드시 되돌린다
@@ -764,7 +767,7 @@ try:
 
     def scan_spy(corp, ticker, pol, counters, state):
         scanned.append(corp)
-        return ([rec_for(corp)], NO_FAIL, False)
+        return ([rec_for(corp)], NO_FAIL, False, {})
 
     m.SHARD_DIR = tmp5
     m.KEY = "test-key"
@@ -1222,7 +1225,7 @@ _sc = {"calls": 0, "dartStatus": Counter_(), "hardErrors": 0, "earlyStopped": 0,
        "sicFetchFailed": 0, "callFailuresByCause": Counter_(),
        "hardErrorsByCause": Counter_(), "reportsFound": 0,
        "recordRejected": Counter_()}
-_out, _fail, _quota = REAL_SCAN_CORP("00000001", "000001", _pol3, _sc, {})
+_out, _fail, _quota, _gaps = REAL_SCAN_CORP("00000001", "000001", _pol3, _sc, {})
 m.dart_call, m.time.sleep = _saved_dc, _saved_sleep
 ok("hardErrors를 남김없이 분해한다 (sum == hardErrors)",
    sum(_sc["hardErrorsByCause"].values()) == _sc["hardErrors"] == 3,
@@ -1232,6 +1235,113 @@ ok("같은 원인은 합산되고 다른 원인은 갈린다",
    str(dict(_sc["hardErrorsByCause"])))
 ok("하드스킵 기록이 마지막 원인을 든다 (lastStatus가 None인 실패를 가르는 유일한 값)",
    _fail["lastCause"] == "http:503" and _fail["lastStatus"] is None, str(_fail))
+
+
+print("\n[법인별 공백 사유 — collect만 알고 finalize는 복원하지 못한다]")
+# "A사 2021 없음"이 정상 사실(013)인지 손실(파싱 실패·조회 실패)인지는 응답을 본
+# 그 자리에서만 안다. 산출물에 없는 행은 이유를 말하지 않는다. 수집이 끝난 뒤에는
+# 재수집 없이 영영 얻을 수 없으므로 마지막 collect 전에 넣어야 하는 필드다.
+
+
+def scan_gaps(responses, pol_over=None):
+    """dart_call을 연도 순서대로 갈아끼우고 scan_corp의 공백 사유만 돌려준다."""
+    seq = list(responses)
+    saved_dc, saved_sleep = m.dart_call, m.time.sleep
+    m.dart_call = lambda *a, **k: seq.pop(0)
+    m.time.sleep = lambda *a: None
+    c = {"calls": 0, "dartStatus": Counter_(), "hardErrors": 0, "earlyStopped": 0,
+         "sicFetchFailed": 0, "callFailuresByCause": Counter_(),
+         "hardErrorsByCause": Counter_(), "reportsFound": 0,
+         "recordRejected": Counter_()}
+    p = {**POL, "fiscalYearFrom": 2020, "fiscalYearTo": 2023, "retryAttempts": 1,
+         "requestSleepSeconds": 0, **(pol_over or {})}
+    saved_sic = m.fetch_sic
+    m.fetch_sic = lambda *a, **k: "26"
+    try:
+        # REAL_SCAN_CORP이다 — m.scan_corp은 fake_run이 남긴 가짜다(교훈69).
+        return REAL_SCAN_CORP("00000001", "000001", p, c, {})
+    finally:
+        m.dart_call, m.time.sleep, m.fetch_sic = saved_dc, saved_sleep, saved_sic
+
+
+_NODATA = ([], m.DART_NO_DATA, None, None)
+_HARDERR = ([], None, "HTTP 503", "http:503")
+# 실제 계정 행이 붙은 정상 응답 — rcept_no와 thstrm_dt가 있어야 레코드가 된다
+_GOOD = (acnt_rows("CFS"), "000", None, None)
+
+
+_, _, _, _g_nodata = scan_gaps([_NODATA] * 4)
+ok("보고서를 안 낸 해는 013으로 남는다 (정상 사실이며 손실이 아니다)",
+   _g_nodata == {"2020": "013", "2021": "013", "2022": "013", "2023": "013"},
+   str(_g_nodata))
+
+_, _, _, _g_hard = scan_gaps([_GOOD, _HARDERR, _GOOD, _GOOD])
+ok("조회가 실패한 해는 HARD:<원인계층>으로 남는다 (013과 구분된다)",
+   _g_hard == {"2021": "HARD:http:503"}, str(_g_hard))
+
+# 레코드가 나온 해는 공백이 아니다 — 표에 없어야 한다.
+_r_ok, _, _, _g_none = scan_gaps([_GOOD] * 4)
+ok("레코드가 나온 해는 표에 없다 (공백만 기록한다)",
+   len(_r_ok) == 4 and _g_none == {}, f"{len(_r_ok)}건 {_g_none}")
+
+# 조기 종료 — 이후 연도는 '조회 안 함'이지 '보고서 없음'이 아니다. 표시가 없으면
+# 조회하지도 않은 해가 013으로 오독되고, 그것은 없는 사실을 있다고 적는 것이다.
+_, _, _, _g_stop = scan_gaps([_GOOD, _NODATA, _NODATA, _NODATA],
+                             {"stopAfterConsecutiveEmptyYears": 2})
+ok("조기 종료한 해에 EARLY_STOP이 붙는다 (경계가 남는다)",
+   _g_stop.get("2022", "").startswith("EARLY_STOP:"), str(_g_stop))
+ok("조기 종료 이후 연도는 표에 없다 — 조회 안 함과 보고서 없음을 섞지 않는다",
+   "2023" not in _g_stop, str(_g_stop))
+ok("조기 종료 표시가 원래 사유를 함께 든다 (무엇을 보고 멈췄는지)",
+   _g_stop.get("2022") == "EARLY_STOP:013", str(_g_stop))
+
+# 한도 초과 — 이 법인은 처음부터 다시 하므로 반쪽 사실을 남기지 않는다.
+_QUOTA = ([], POL["quota"]["quotaExceededStatus"], None, None)
+_, _, _q, _g_quota = scan_gaps([_GOOD, _QUOTA, _GOOD, _GOOD])
+ok("한도 초과로 중단하면 공백 사유도 버린다 (레코드와 같은 규율)",
+   _q is True and _g_quota == {}, f"quota={_q} gaps={_g_quota}")
+
+# 상태에 쌓이고 진단으로 살아남는가 — finalize가 _shards/를 지우므로 여기가
+# 유일한 생존 경로다.
+tmp_g = tempfile.mkdtemp()
+try:
+    _, st_g, _ = fake_run(tmp_g, {
+        "00000001": ([rec_for("00000001")], NO_FAIL, False, {"2021": "REJECT:X"}),
+        "00000002": ([rec_for("00000002")], NO_FAIL, False, {}),
+    })
+    ok("공백이 있는 법인만 상태에 남는다 (빈 항목을 만들지 않는다)",
+       st_g["recordGaps"] == {"00000001": {"2021": "REJECT:X"}}, str(st_g["recordGaps"]))
+    dg = json.load(open(f"{tmp_g}/_diagnostics-shard-0.json", encoding="utf-8"))
+    ok("샤드 진단이 사유별 집계를 낸다 (집계는 파생이라 저장하지 않고 센다)",
+       dg["recordGapReasons"] == {"REJECT": 1} and dg["recordGapCorps"] == 1, str(dg["recordGapReasons"]))
+
+    # 이미 done인 법인은 다시 스캔하지 않으므로 그 공백은 그대로 남는다. 정상이다 —
+    # 그 사실은 그 실행에서만 알 수 있었고, 재스캔 없이 고쳐 쓰면 거짓이 된다.
+    _, st_g_again, _ = fake_run(tmp_g, {
+        "00000001": ([rec_for("00000001")], NO_FAIL, False, {}),
+        "00000002": ([rec_for("00000002")], NO_FAIL, False, {}),
+    })
+    ok("done인 법인은 재스캔하지 않으므로 공백도 그대로다 (사실을 덮어쓰지 않는다)",
+       st_g_again["recordGaps"] == {"00000001": {"2021": "REJECT:X"}},
+       str(st_g_again["recordGaps"]))
+finally:
+    shutil.rmtree(tmp_g, ignore_errors=True)
+
+# 재스캔되는 법인(하드스킵)은 통째로 덮는다 — 병합하면 이미 풀린 실패가 남는다.
+tmp_g2 = tempfile.mkdtemp()
+try:
+    _, st_h1, _ = fake_run(tmp_g2, {
+        "00000001": ([], HARD, False, {"2021": "HARD:http:503"})})
+    ok("하드스킵된 법인의 공백이 상태에 남는다",
+       st_h1["recordGaps"] == {"00000001": {"2021": "HARD:http:503"}},
+       str(st_h1["recordGaps"]))
+    _, st_h2, _ = fake_run(tmp_g2, {
+        "00000001": ([rec_for("00000001")], NO_FAIL, False, {})})
+    ok("재시도해 성공하면 옛 공백이 지워진다 (병합하지 않고 덮는다)",
+       st_h2["recordGaps"] == {} and "00000001" in st_h2["corpsDone"],
+       str(st_h2["recordGaps"]))
+finally:
+    shutil.rmtree(tmp_g, ignore_errors=True)
 
 print("\n[아티팩트 범위 — 자기 샤드 파일만 올린다]")
 # 이번 사고의 근본 원인은 '병합이 잘못됐다'가 아니라 **애초에 병합 대상이 자기 것이
