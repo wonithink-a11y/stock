@@ -242,6 +242,54 @@ ok("PIT 지연 분위수를 남긴다 (평균 하나로는 꼬리가 안 보인�
    set(rep["pit"]["disclosureLagDays"]) == {"min", "p25", "median", "p75", "p95", "max"},
    str(sorted(rep["pit"]["disclosureLagDays"])))
 
+print("\n[의존성 — finalize 잡에는 pip install이 없다]")
+# collect #2가 정확히 이것으로 하루치를 잃었다. persist 잡에 Install deps가 없는데
+# 진행 요약이 requests를 최상단 import하는 스크립트를 불렀고, ModuleNotFoundError로
+# 다음 스텝(Commit progress)이 스킵됐다.
+#
+# 품질 리포트는 finalize 잡에서 도는데 그 잡에도 pip install이 없다. 지금은 표준
+# 라이브러리만 쓰지만 그것은 **관행이지 계약이 아니다** — 나중에 누가 pandas를
+# import하면 finalize가 산출물을 다 만들고 마지막에 죽는다. 서드파티 import를
+# 차단한 하위 프로세스에서 실제로 돌려 계약으로 못 박는다.
+import subprocess
+
+_blk = os.path.join(ROOT, ".dep-blocker-test")
+os.makedirs(_blk, exist_ok=True)
+for _mod in ("requests", "pandas", "numpy", "lxml", "html5lib", "pykrx"):
+    with open(os.path.join(_blk, f"{_mod}.py"), "w", encoding="utf-8") as fh:
+        fh.write(f"raise ImportError('{_mod} 차단 — 이 테스트가 만든 상황이다')\n")
+try:
+    _p = f'''
+import sys
+sys.path.insert(0, {_blk!r})
+sys.argv = ["generate-quality-report.py", "--check"]
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    "qr", {os.path.join(ROOT, "scripts", "generate-quality-report.py")!r})
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+sys.exit(m.main())
+'''
+    _r = subprocess.run([sys.executable, "-c", _p], capture_output=True, text=True,
+                        encoding="utf-8", errors="replace", cwd=ROOT)
+    ok("서드파티 없이도 품질 리포트가 돈다 (finalize 잡에 pip install이 없다)",
+       _r.returncode == 0 and "ModuleNotFoundError" not in (_r.stderr or ""),
+       f"exit={_r.returncode} {(_r.stderr or '')[-300:]}")
+finally:
+    import shutil as _sh
+    _sh.rmtree(_blk, ignore_errors=True)
+
+# 워크플로가 실제로 그 스텝을 들고 있는지. 스크립트만 있고 배선이 없으면 내일
+# 리포트가 안 나오고, 그 사실은 finalize가 끝난 뒤에야 드러난다.
+_wf = open(os.path.join(ROOT, ".github/workflows/fundamentals-a3.yml"),
+           encoding="utf-8").read()
+ok("finalize 워크플로가 품질 리포트를 만든다",
+   "generate-quality-report.py" in _wf and "--out" in _wf)
+ok("인수 조건 검증 뒤에 만든다 (실패한 수집물의 리포트는 오도한다)",
+   _wf.index("verify-diagnostics.js A3") < _wf.index("generate-quality-report.py"))
+ok("리포트를 진단 아티팩트에 함께 올린다 (커밋 실패해도 남는다)",
+   "_quality.json" in _wf.split("Upload diagnostics")[1])
+
 print(f"\n{'=' * 54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)

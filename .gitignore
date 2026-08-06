@@ -12,3 +12,4 @@ config.yaml
 # A2a 샤드 중간 산출 — artifact로만 넘기고 저장소에는 남기지 않는다.
 # 부분 수집물이 커밋되면 finalize 없이도 산출이 있는 것처럼 보인다.
 data/backfill/price/_shards/
+.dep-blocker-test/
