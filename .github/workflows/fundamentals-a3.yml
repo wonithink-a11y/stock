@@ -77,20 +77,21 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: a3-shard-${{ matrix.shard }}
+          # 이름에 시도 번호를 넣는다. v4 아티팩트는 불변이라 같은 이름을 두 번 올리면
+          # 409로 실패하고, 이 스텝은 if: always()라 **실패한 시도도 이름을 선점한다** —
+          # 그래서 재실행이 구조적으로 불가능했다(collect의 샤드 7이 이 경로로 막혔다).
+          #
+          # overwrite: true는 그 409는 풀지만 다른 손실을 연다. 재실행은 커밋된 상태에서
+          # 다시 시작하고 1차 시도의 아티팩트를 보지 않는다. DART 일 한도는 1차가 이미
+          # 태웠으므로 재실행이 **덜 진행하고 끝날 수 있고**, 그때 덮어쓰기는 더 나은
+          # 상태를 지운다. 이름을 겹치지 않게 두고 **병합에서 고르는** 것이 옳다.
+          name: a3-shard-${{ matrix.shard }}-a${{ github.run_attempt }}
           path: |
             data/backfill/fundamentals/_shards/_state-${{ matrix.shard }}.json
             data/backfill/fundamentals/_shards/shard-${{ matrix.shard }}.jsonl
             data/backfill/fundamentals/_shards/_diagnostics-shard-${{ matrix.shard }}.json
           retention-days: 3
           if-no-files-found: warn
-          # v4 아티팩트는 불변이라 같은 이름을 두 번 올리면 409로 실패한다.
-          # 이 스텝은 if: always()라 **실패한 시도도 아티팩트를 남기므로**, 그 샤드를
-          # 재실행하면 업로드에서 반드시 죽는다 — 재실행이 구조적으로 불가능했다.
-          # 실제로 collect #3의 샤드 7이 이 경로로 막혔다.
-          # 덮어쓰기가 안전한 이유는 재실행이 같은 샤드의 더 최신 상태를 올리기
-          # 때문이다. 남의 샤드는 이름이 달라 건드리지 않는다(교훈62의 범위 규칙).
-          overwrite: true
 
   persist:
     # 샤드가 각자 push하지 않는 이유는 A2a와 같다 — 8개 잡이 같은 브랜치에 rebase
@@ -134,8 +135,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: a3-shard-*
-          merge-multiple: true
-          path: data/backfill/fundamentals/_shards/
+          # merge-multiple을 쓰지 않는다. 시도별 아티팩트가 같은 파일명을 담고 있어
+          # 합치면 **추출 순서가 승자를 정한다** — 비결정적이고, 진행이 덜 된 시도가
+          # 이길 수 있다. 각자 자기 디렉터리에 풀고 아래에서 명시적으로 고른다.
+          path: _artifacts/
+
+      - name: Pick best attempt per shard
+        # 샤드마다 corpsDone이 가장 많은 시도를 고른다. 상태는 단조 축적이고 모든
+        # 시도가 같은 커밋된 상태에서 출발하므로, 더 많이 진행한 것이 덜 진행한 것을
+        # 포함한다(todo 순서가 sorted로 결정적이다). '나중 것'이 아니라 '더 나아간 것'을
+        # 고르는 것이 상태 모델과 일치한다.
+        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards
 
       - name: Progress summary
         # 완료 판정은 계산값이라(FN-1.3 원칙 2) 여기에 인라인하지 않는다.
