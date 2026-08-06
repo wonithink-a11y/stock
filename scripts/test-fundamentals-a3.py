@@ -846,6 +846,51 @@ ok("그 상태에서도 요약이 실제 수치를 낸다",
 shutil.rmtree(_blocker, ignore_errors=True)
 shutil.rmtree(_shards_dir, ignore_errors=True)
 
+print("\n[아티팩트 범위 — 자기 샤드 파일만 올린다]")
+# 이번 사고의 근본 원인은 '병합이 잘못됐다'가 아니라 **애초에 병합 대상이 자기 것이
+# 아니었다**는 것이다. _shards/가 저장소에 커밋된 뒤로 각 샤드의 checkout에는 남의
+# 전날 상태가 들어 있었고, 디렉터리째 올리니 merge-multiple이 그것으로 남의 오늘치를
+# 덮을 수 있었다. collect #1이 무사했던 건 그때 _shards/가 비어 있었기 때문이다.
+#
+# 그래서 계약을 '병합이 올바르게 된다'가 아니라 '병합 대상이 자기 샤드 파일뿐이다'로
+# 고정한다. 누군가 path를 디렉터리로 되돌리면 여기서 즉시 깨진다.
+# YAML 파서에 의존하지 않는다 — 이 테스트는 A3 finalize 잡에서 도는데 그 잡은
+# requests만 설치한다.
+WF = os.path.join(ROOT, ".github/workflows/fundamentals-a3.yml")
+_lines = open(WF, encoding="utf-8").read().splitlines()
+_start = next((i for i, l in enumerate(_lines)
+               if "name: a3-shard-" in l and "matrix.shard" in l), None)
+ok("collect의 업로드 스텝을 찾을 수 있다", _start is not None)
+
+_paths = []
+if _start is not None:
+    for i in range(_start, min(_start + 12, len(_lines))):
+        s = _lines[i].strip()
+        if s.startswith("path:"):
+            rest = s[len("path:"):].strip()
+            if rest and rest != "|":
+                _paths.append(rest)
+            else:                       # 블록 스칼라 — 들여쓴 줄을 모은다
+                indent = len(_lines[i]) - len(_lines[i].lstrip())
+                for j in range(i + 1, len(_lines)):
+                    t = _lines[j]
+                    if not t.strip():
+                        continue
+                    if len(t) - len(t.lstrip()) <= indent:
+                        break
+                    _paths.append(t.strip())
+            break
+
+ok("업로드 경로가 하나 이상 선언돼 있다", bool(_paths), str(_paths))
+ok("모든 업로드 경로가 자기 샤드를 지목한다 (matrix.shard 참조)",
+   bool(_paths) and all("matrix.shard" in p for p in _paths),
+   str([p for p in _paths if "matrix.shard" not in p]))
+ok("디렉터리째 올리지 않는다 (남의 상태 파일이 아티팩트에 섞이는 경로)",
+   all(not p.rstrip("/").endswith("_shards") for p in _paths), str(_paths))
+ok("자기 샤드의 상태·산출·진단 세 파일을 모두 올린다",
+   all(any(k in p for p in _paths) for k in ("_state-", "shard-", "_diagnostics-shard-")),
+   str(_paths))
+
 print(f"\n{'='*54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)
