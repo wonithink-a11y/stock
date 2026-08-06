@@ -174,6 +174,15 @@ jobs:
       - name: Verify diagnostics contract
         run: node scripts/verify-diagnostics.js A3
 
+      - name: Quality report (QR-1.0)
+        # 산출물이 인수 조건을 통과한 뒤에만 만든다. 실패한 수집물의 품질 리포트는
+        # 읽는 사람을 오도한다 — 그 수치는 '통과한 데이터'의 것이 아니다.
+        # 계산은 analyze-fundamentals-a3.py 하나에 있고 이 스크립트는 담기만 한다.
+        run: |
+          python scripts/test-analyze-a3.py
+          python scripts/generate-quality-report.py \
+            --out data/backfill/fundamentals/a3/_quality.json
+
       - name: Write manifest
         if: success()
         run: |
@@ -222,7 +231,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fundamentals-a3-diagnostics
-          path: data/backfill/fundamentals/a3/_diagnostics.json
+          path: |
+            data/backfill/fundamentals/a3/_diagnostics.json
+            data/backfill/fundamentals/a3/_quality.json
           if-no-files-found: warn
 
       - name: Commit

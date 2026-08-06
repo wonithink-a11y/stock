@@ -26,6 +26,7 @@ import json
 import os
 import sys
 from collections import Counter, defaultdict
+from datetime import date
 
 for _s in (sys.stdout, sys.stderr):
     if hasattr(_s, "reconfigure"):
@@ -85,7 +86,13 @@ def load_state():
 
 
 def target_corps():
-    """대상 법인 — 분모다. 없으면 None을 돌려주고 판정하지 않는다(교훈57)."""
+    """대상 법인 → {group, market}. 분모다. 없으면 None을 돌려주고 판정하지 않는다(교훈57).
+
+    **market은 A1a에만 있다.** A1b(폐지 1,222법인)의 출처는 DART corpCode 차집합이라
+    시장 구분을 들고 있지 않다. 그래서 폐지분의 market은 UNKNOWN이며, 그것을 버리거나
+    한쪽으로 몰지 않는다 — 버리면 byMarket이 현재 상장분만의 비율인데 전체처럼 읽히고,
+    그것이 정확히 A2b 정찰에서 배운 분모 문제다.
+    """
     out = {}
     for path, group in [("data/backfill/universe/a1b/delisted.jsonl", "delisted"),
                         ("data/backfill/universe/a1a/current.jsonl", "current")]:
@@ -94,8 +101,19 @@ def target_corps():
         for l in open(path, encoding="utf-8"):
             if l.strip():
                 r = json.loads(l)
-                out[r["corp"]] = group
+                out[r["corp"]] = {"group": group,
+                                  "market": r.get("market") or "UNKNOWN"}
     return out
+
+
+def _d(s):
+    return date(*map(int, s.split("-")))
+
+
+def _pct(sorted_vals, q):
+    if not sorted_vals:
+        return None
+    return sorted_vals[min(int(len(sorted_vals) * q), len(sorted_vals) - 1)]
 
 
 def analyze(rows, done, gaps, targets, pol):
@@ -181,17 +199,74 @@ def analyze(rows, done, gaps, targets, pol):
     o["recordGapReasons"] = dict(Counter(
         v.split(":", 1)[0] for g in gaps.values() for v in g.values()))
 
-    # ── 그룹별 (현재 상장 / 폐지) ─────────────────────────────
+    # ── 연도별 ────────────────────────────────────────────────
+    # 전체 평균은 한 해의 붕괴를 가린다. 연도별로 보고 중앙값 대비 낙폭을 함께 낸다.
+    by_year = Counter(r["fiscalYear"] for r in rows)
+    o["recordsByYear"] = {str(y): by_year.get(y, 0) for y in all_years}
+    o["corpsByYear"] = {str(y): sum(1 for c in with_rec if y in years_by_corp[c])
+                        for y in all_years}
+    cy = [v for v in o["corpsByYear"].values() if v]
+    med = sorted(cy)[len(cy) // 2] if cy else 0
+    o["corpsByYearMedian"] = med
+    # 중앙값 대비 비율. 특정 연도만 급락하는 것이 계약 2가 잡으려는 실패 모드다.
+    o["corpsByYearRatioToMedian"] = {
+        y: (round(v / med, 4) if med else None) for y, v in o["corpsByYear"].items()}
+
+    # ── 통화 ──────────────────────────────────────────────────
+    # 외화 표시 재무제표는 원화 법인과 그대로 비교하면 안 된다. 점수 층이 알아야 할
+    # 사실이므로 세어 둔다 — A3는 사실 층이라 여기서 환산하지는 않는다.
+    o["currency"] = dict(Counter(r.get("currency") for r in rows).most_common())
+    o["nonKrwRecords"] = sum(1 for r in rows if r.get("currency") not in (None, "KRW"))
+
+    # ── PIT ───────────────────────────────────────────────────
+    # A3의 존재 이유이자 유일하게 조용히 무너지는 축이다. 위반이 있어도 점수·등급은
+    # 정상으로 보이고 백테스트만 좋아진다.
+    lags, leak = [], []
+    for r in rows:
+        af, pe = r.get("availableFrom"), r.get("periodEnd")
+        if not (af and pe):
+            continue
+        n = (_d(af) - _d(pe)).days
+        lags.append(n)
+        if n <= 0:
+            leak.append({"corp": r["corp"], "fiscalYear": r["fiscalYear"],
+                         "availableFrom": af, "periodEnd": pe, "lagDays": n})
+    lags.sort()
+    o["pit"] = {
+        "measured": len(lags),
+        "futureLeak": len(leak),          # availableFrom <= periodEnd. 0이어야 한다
+        "futureLeakSample": leak[:20],
+        "disclosureLagDays": {
+            "min": lags[0] if lags else None, "p25": _pct(lags, 0.25),
+            "median": _pct(lags, 0.50), "p75": _pct(lags, 0.75),
+            "p95": _pct(lags, 0.95), "max": lags[-1] if lags else None},
+        # 정기보고서 제출기한(사업연도 말 90일)을 크게 넘는 것들. 정정공시나 지연공시라
+        # 이상이 아닐 수 있다 — 제거 대상이 아니라 보고 대상이다(계약 3과 같은 태도).
+        "lagOver180d": sum(1 for x in lags if x > 180),
+        "lagOver365d": sum(1 for x in lags if x > 365),
+    }
+    # 12월 결산이 아닌 법인. periodEnd 월이 갈리면 같은 fiscalYear라도 시점이 다르다.
+    o["periodEndMonth"] = dict(Counter(r["periodEnd"][5:7] for r in rows
+                                       if r.get("periodEnd")).most_common())
+
+    # ── 그룹별 (현재 상장 / 폐지) · 시장별 ────────────────────
     if targets:
         o["corpsTargeted"] = len(targets)
-        g_rec, g_tgt = Counter(), Counter(targets.values())
-        for c in with_rec:
-            if c in targets:
-                g_rec[targets[c]] += 1
-        o["corpsWithRecordsByGroup"] = dict(g_rec)
-        o["corpsTargetedByGroup"] = dict(g_tgt)
-        o["corpsWithRecordsRateByGroup"] = {
-            k: round(g_rec[k] / v, 4) for k, v in g_tgt.items() if v}
+        for axis in ("group", "market"):
+            rec, tgt = Counter(), Counter(t[axis] for t in targets.values())
+            for c in with_rec:
+                if c in targets:
+                    rec[targets[c][axis]] += 1
+            cap = axis.capitalize()
+            o[f"corpsWithRecordsBy{cap}"] = dict(rec)
+            o[f"corpsTargetedBy{cap}"] = dict(tgt)
+            o[f"corpsWithRecordsRateBy{cap}"] = {
+                k: round(rec[k] / v, 4) for k, v in tgt.items() if v}
+        # market UNKNOWN이 폐지분이라는 사실을 값으로 남긴다. 이 수가 delisted 총계와
+        # 다르면 A1a에 market이 빈 법인이 섞였다는 뜻이고, 그때 byMarket의 뜻이 바뀐다.
+        o["marketUnknownIsDelisted"] = (
+            o["corpsTargetedByMarket"].get("UNKNOWN", 0)
+            == o["corpsTargetedByGroup"].get("delisted", 0))
     return o
 
 
@@ -234,6 +309,10 @@ def main():
         for k, v in sorted(o["corpsWithRecordsRateByGroup"].items()):
             print(f"  {k:9s} {o['corpsWithRecordsByGroup'].get(k, 0)}"
                   f"/{o['corpsTargetedByGroup'][k]}  {v * 100:.1f}%")
+        print("  시장별 (UNKNOWN = 폐지분. A1b에는 market이 없다)")
+        for k, v in sorted(o["corpsWithRecordsRateByMarket"].items()):
+            print(f"    {k:9s} {o['corpsWithRecordsByMarket'].get(k, 0)}"
+                  f"/{o['corpsTargetedByMarket'][k]}  {v * 100:.1f}%")
 
     y0, y1 = o["fiscalYearRange"]
     print(f"\n[누락 패턴] 대상 사업연도 {y0}~{y1}")
@@ -255,6 +334,19 @@ def main():
         miss = d.get("MISS", 0)
         if miss:
             print(f"    {acc:15s} MISS {miss}  ({miss / o['records'] * 100:.2f}%)")
+
+    p = o["pit"]
+    lg = p["disclosureLagDays"]
+    print(f"\n[PIT] 잰 레코드 {p['measured']} · 미래 참조 {p['futureLeak']}건 (0이어야 한다)")
+    print(f"  공시 지연(일)  min {lg['min']} · p25 {lg['p25']} · 중앙 {lg['median']}"
+          f" · p75 {lg['p75']} · p95 {lg['p95']} · max {lg['max']}")
+    print(f"  180일 초과 {p['lagOver180d']} · 365일 초과 {p['lagOver365d']}"
+          f"  (정정·지연공시일 수 있다 — 제거가 아니라 보고 대상)")
+    print(f"  회계기간말 월 {o['periodEndMonth']}")
+    print(f"\n[통화] {o['currency']} · 비원화 {o['nonKrwRecords']}건")
+
+    print(f"\n[연도별] 법인 수 중앙값 {o['corpsByYearMedian']}")
+    print("  " + " · ".join(f"{y}:{v}" for y, v in o["corpsByYear"].items()))
 
     print(f"\n[공백 사유] 기록된 법인 {o['recordGapCorps']} · 사유 분포 {o['recordGapReasons']}")
     if o["recordGapCorps"] == 0:

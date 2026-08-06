@@ -141,8 +141,11 @@ ok("MISS는 계정별로 남는다 (평균은 어느 계정이 무너졌는지 �
 
 print("\n[그룹별 확보율]")
 # 전체 비율만 두면 현재 상장분이 폐지분의 공백을 가린다(A2b 정찰에서 배운 분모 문제).
-tgt = {"A": "current", "B": "current", "C": "delisted", "D": "delisted",
-       "E": "delisted"}
+tgt = {"A": {"group": "current", "market": "KOSPI"},
+       "B": {"group": "current", "market": "KOSDAQ"},
+       "C": {"group": "delisted", "market": "UNKNOWN"},
+       "D": {"group": "delisted", "market": "UNKNOWN"},
+       "E": {"group": "delisted", "market": "UNKNOWN"}}
 o7 = az.analyze(rows, done, {}, tgt, P)
 ok("그룹별 분모를 따로 든다",
    o7["corpsTargetedByGroup"] == {"current": 2, "delisted": 3},
@@ -159,6 +162,85 @@ ok("파일을 쓰지 않는다 (분석기는 파생만 만들고 저장하지 �
    'open(' in src and not any(f'"w"' in l or "'w'" in l
                               for l in src.splitlines() if "open(" in l), "쓰기 모드 발견")
 ok("네트워크를 쓰지 않는다", "requests" not in src and "urllib" not in src)
+
+print("\n[품질 리포트 QR-1.0]")
+_qspec = importlib.util.spec_from_file_location(
+    "qr", os.path.join(ROOT, "scripts", "generate-quality-report.py"))
+qr = importlib.util.module_from_spec(_qspec)
+_qspec.loader.exec_module(qr)
+
+o_full = az.analyze(rows, done, gaps, {c: {"group": "current", "market": "KOSPI"}
+                                       for c in done}, P)
+o_full["source"], o_full["isFinalOutput"] = "t", False
+rep = qr.build(o_full, rows)
+
+ok("스키마 검사가 통과한다", qr.check(rep) == [], str(qr.check(rep)))
+ok("섹션이 여섯이다 (coverage·missing·pit·schemaQuality·patterns·meta)",
+   set(rep) == set(qr.REQUIRED), str(sorted(rep)))
+
+# 칸이 비어 있는 것과 칸이 없는 것은 다르다. 표에 등록된 키를 지우면 걸려야 한다.
+import copy as _copy
+_broken = _copy.deepcopy(rep)
+del _broken["pit"]["futureLeak"]
+ok("등록된 칸이 빠지면 스키마 검사가 잡는다",
+   any("pit.futureLeak" in b for b in qr.check(_broken)), str(qr.check(_broken)))
+_broken2 = _copy.deepcopy(rep)
+_broken2["meta"]["schema"] = "QR-0.9"
+ok("스키마 버전이 다르면 잡는다", qr.check(_broken2) != [], str(qr.check(_broken2)))
+
+# 계산이 두 벌이 아니라는 것 — 리포트 값은 analyze()에서 그대로 온다.
+ok("리포트가 계산을 다시 하지 않는다 (analyze 결과와 같다)",
+   rep["patterns"]["internalHoles"] == o_full["internalHoles"]
+   and rep["pit"]["futureLeak"] == o_full["pit"]["futureLeak"]
+   and rep["schemaQuality"]["coreCompleteRate"] == o_full["coreCompleteRate"])
+
+# 낡음 탐지 — 파생을 저장하는 대가로 지불하는 것이다.
+d1 = qr.input_digest(rows)
+ok("같은 레코드는 순서가 달라도 같은 digest",
+   d1 == qr.input_digest(list(reversed(rows))), d1)
+ok("레코드가 달라지면 digest가 달라진다",
+   d1 != qr.input_digest(rows + [R("Z", 2020)]))
+
+# 부분 표본을 전수로 읽지 않게 하는 플래그. FN-1.4 임계는 true인 리포트에서만 정한다.
+ok("부분 수집이면 sampleComplete가 false", rep["meta"]["sampleComplete"] is False,
+   str(rep["meta"]))
+o_fin = dict(o_full, isFinalOutput=True, corpsDone=len(done), corpsTargeted=len(done))
+ok("전수 산출물이고 done == targeted일 때만 true",
+   qr.build(o_fin, rows)["meta"]["sampleComplete"] is True)
+o_fin2 = dict(o_full, isFinalOutput=True, corpsDone=1, corpsTargeted=99)
+ok("산출물이어도 done != targeted면 false",
+   qr.build(o_fin2, rows)["meta"]["sampleComplete"] is False)
+
+# 사유 없는 구멍이 비율로 남는가 — recordGaps의 적용 범위가 값으로 보여야 한다.
+ok("사유를 아는 비율이 남는다 (1.0이 아닐 수 있고 그것이 사실이다)",
+   rep["missing"]["reasonCoverage"] == round(
+       o_full["holeYearsWithReason"] / o_full["holeYears"], 4)
+   if o_full["holeYears"] else rep["missing"]["reasonCoverage"] is None,
+   str(rep["missing"]["reasonCoverage"]))
+_no_hole = az.analyze([R("A", y) for y in range(2020, 2025)], {"A"}, {}, None, P)
+_no_hole["source"], _no_hole["isFinalOutput"] = "t", False
+ok("구멍이 없으면 비율을 0이 아니라 None으로 둔다 (잴 수 없는 것과 0은 다르다)",
+   qr.build(_no_hole, [R("A", 2020)])["missing"]["reasonCoverage"] is None)
+
+# 시장 축 — UNKNOWN을 버리면 byMarket이 현재 상장분만의 비율인데 전체처럼 읽힌다.
+tgt_m = {"A": {"group": "current", "market": "KOSPI"},
+         "B": {"group": "current", "market": "KOSDAQ"},
+         "C": {"group": "delisted", "market": "UNKNOWN"},
+         "D": {"group": "delisted", "market": "UNKNOWN"}}
+o_m = az.analyze(rows, done, {}, tgt_m, P)
+ok("시장별 분모에 UNKNOWN이 남는다 (폐지분을 버리지 않는다)",
+   o_m["corpsTargetedByMarket"] == {"KOSPI": 1, "KOSDAQ": 1, "UNKNOWN": 2},
+   str(o_m["corpsTargetedByMarket"]))
+ok("UNKNOWN이 폐지분과 같은지 값으로 남긴다 (다르면 byMarket의 뜻이 바뀐다)",
+   o_m["marketUnknownIsDelisted"] is True)
+
+# 기본값이 파일을 쓰지 않는 것 — 로컬 실행이 data/를 더럽히지 않아야 한다(절대 규칙 4).
+qsrc = open(os.path.join(ROOT, "scripts/generate-quality-report.py"),
+            encoding="utf-8").read()
+ok("--out을 준 경우에만 파일을 쓴다", 'if a.out:' in qsrc and 'a.out' in qsrc)
+ok("PIT 지연 분위수를 남긴다 (평균 하나로는 꼬리가 안 보인다)",
+   set(rep["pit"]["disclosureLagDays"]) == {"min", "p25", "median", "p75", "p95", "max"},
+   str(sorted(rep["pit"]["disclosureLagDays"])))
 
 print(f"\n{'=' * 54}")
 print(f"통과 {passed} · 실패 {failed}")

@@ -806,7 +806,64 @@ finalize가 `_shards/`를 지우므로 `_diagnostics.json`의 `recordGaps`가 **
 **파생 결과는 넣지 않았다.** 연도만 없음 · 특정 시점 이후 없음 · OFS만 존재 같은
 패턴은 JSONL과 이 표만 있으면 언제든 다시 계산된다. 저장할 것은 원시 사실뿐이다.
 
-### 품질 분석기 — 수집 완료 전에 만들었다 (2026-08-06)
+### 품질 분석 계층 — QR-1.0 (2026-08-06, collect #3 전에 완성)
+
+**"어떻게 측정할 것인가"를 오늘 고정하고 "실제 수치"만 내일 채운다.** 내일 남는 일은
+워크플로 실행 하나뿐이다 — finalize가 끝나면 같은 스텝에서 리포트가 자동으로 나온다.
+
+```
+scripts/analyze-fundamentals-a3.py    계산 + 사람이 읽는 뷰
+scripts/generate-quality-report.py    같은 계산 → QR-1.0 스키마 → _quality.json
+scripts/test-analyze-a3.py            합성 픽스처 41건 (둘 다 검증)
+```
+
+**계산은 한 곳에만 있다.** `analyze()` 하나가 전부 내고 리포트는 담기만 한다.
+양쪽에 두면 사람이 읽는 수치와 기계가 읽는 수치가 갈리고, 갈린 순간 둘 다 못 믿는다.
+
+#### QR-1.0 스키마 — 섹션 6개
+
+```
+meta           schema · generatedAt · source · isFinalOutput · inputDigest ·
+               corpsDone · corpsTargeted · sampleComplete
+coverage       overall · byYear(중앙값 대비 낙폭 포함) · byGroup · byMarket · byCorp
+missing        byReason(013·REJECT·HARD·EMPTY·STATUS·EARLY_STOP) · holeYears ·
+               holeYearsWithReason/WithoutReason · reasonCoverage · 구멍 상세
+pit            measured · futureLeak · disclosureLagDays(6분위) ·
+               lagOver180d/365d · periodEndMonth
+schemaQuality  accountPresence · accountSourceByAccount · coreComplete(+분자 목록) ·
+               fsDivRecords/ByCorp · currency · nonKrwRecords
+patterns       fullRange · internalHoles · tailCut · headLate · notMutuallyExclusive
+```
+
+`REQUIRED` 표 하나가 스키마의 단일 출처이고 `--check`가 강제한다. 칸을 늘리려면
+표에 등록해야 한다 — **칸이 비어 있는 것과 칸이 없는 것은 다르다.**
+
+#### 원안에서 두 가지를 바꿨다
+
+**① `byMarket`에 UNKNOWN 버킷을 둔다.** `market`은 A1a에만 있다 — A1b(폐지 1,222법인)의
+출처는 DART corpCode 차집합이라 시장 구분을 들고 있지 않다. 버리면 `byMarket`이 현재
+상장분만의 비율인데 전체처럼 읽힌다(A2b 정찰에서 배운 분모 문제). `unknownIsDelisted`가
+UNKNOWN이 정확히 폐지분인지를 값으로 남긴다 — 다르면 A1a에 `market`이 빈 법인이 섞였다는
+뜻이고 그때 `byMarket`의 뜻이 바뀐다.
+
+**② 파생을 저장하는 대가를 지불한다.** 리포트는 파생 결과라 저장하면 조용히 낡는다.
+그래서 자기가 무엇으로부터 계산됐는지를 함께 들고 다닌다 — `inputDigest`(레코드 키집합
+해시) · `corpsDone` · `isFinalOutput` · `generatedAt`. 다시 만들어 digest가 다르면 그
+리포트는 낡은 것이고, **그 사실이 값으로 증명된다.** 저장하되 조용히 낡지 않게 한다.
+
+`sampleComplete`는 *산출물이면서 done == targeted*일 때만 true다. **FN-1.4 임계는
+이 값이 true인 리포트에서만 정한다** — 68%를 100%로 읽는 것을 값으로 막는다.
+
+기본 출력은 stdout이고 `--out`을 준 경우에만 파일을 쓴다. 로컬 실행이 `data/`를
+더럽히지 않는 것이 기본값이어야 한다(절대 규칙 4). 워크플로만 `--out`을 준다.
+
+#### 워크플로 배선
+
+finalize 잡의 `Verify diagnostics contract` 다음에 붙였다. **인수 조건을 통과한
+뒤에만** 만든다 — 실패한 수집물의 품질 리포트는 읽는 사람을 오도한다. 그 수치는
+'통과한 데이터'의 것이 아니다. 진단 아티팩트에도 함께 올린다.
+
+### 품질 분석기 실측 (2026-08-06)
 
 ```bash
 python scripts/analyze-fundamentals-a3.py            # 읽기 전용·네트워크 불필요
@@ -821,7 +878,7 @@ python scripts/analyze-fundamentals-a3.py --holes    # 내부 구멍 법인 전�
 전부 파생 결과이므로 **아무것도 저장하지 않는다.** 저장하면 원시 사실이 바뀔 때
 조용히 낡는다. 회귀(`test-analyze-a3.py` 25건)가 쓰기 모드 부재를 직접 단언한다.
 
-#### 2,605법인(68.5%) 시점 실측 — 경향 파악용, 임계 확정용 아님
+#### 2,605법인(68.5%) 시점 실측 — 경향 파악용, 임계 확정용 아님 (`sampleComplete: false`)
 
 ```
 레코드 19,078 · 레코드 보유 2,006법인 · 완료 2,605
@@ -839,7 +896,20 @@ python scripts/analyze-fundamentals-a3.py --holes    # 내부 구멍 법인 전�
            법인   CFS만 1,352 · OFS만 227 · 둘 다 427
 계정       핵심 5계정 전부 보유 96.92% · MISS는 revenue 1.80%가 최대
            매칭 수단 nameExact 113,318 · nameContains 19,091 (14.3%) · MISS 1,137
+
+시장별     KOSPI 83.8% · KOSDAQ 58.7% · UNKNOWN(폐지) 23.2%
+PIT        미래 참조 0건 · 공시지연(일) min 41 / p25 79 / 중앙 88 / p75 91 /
+           p95 297 / max 2,875 · 180일 초과 1,917 · 365일 초과 820
+통화       KRW 19,001 · CNY 33 · USD 31 · JPY 11 · HKD 2 (비원화 77건)
+회계기간말 12월 18,726 · 그 밖 352 (3·6·9·8·11·10·5월)
 ```
+
+**PIT 축은 위반 0건이다.** `availableFrom > periodEnd`가 전건 성립한다. 다만 지연
+꼬리가 길다 — 365일 초과가 820건이고 최대 2,875일(약 8년)이다. 정정공시·지연공시라
+이상이 아닐 수 있으므로 제거하지 않고 보고만 한다(계약 3과 같은 태도). 백테스트가
+이 꼬리를 어떻게 다룰지는 A5에서 결정한다.
+
+**비원화 77건**은 점수 층이 알아야 할 사실이다. A3는 사실 층이라 환산하지 않는다.
 
 **정찰과 갈린 값이 하나 있다.** OFS 비율이 실측 18.3%인데 정찰 32법인 표본은
 8.3%였다(`fsDiv: CFS 220 · OFS 20`). 두 배 넘게 다르다 — `measured` 블록에는
