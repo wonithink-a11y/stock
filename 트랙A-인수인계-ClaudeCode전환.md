@@ -4,7 +4,15 @@
 
 ---
 
-## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), 다음은 세 갈래 병행 (§9)
+> **새 세션은 §9만 읽고 시작하면 된다.** §0~§8은 이미 끝난 단계의 배경과 근거이고,
+> 지금 해야 할 일과 현재 수치는 전부 §9에 있다.
+>
+> 현재 위치 요약 — A3 재무 수집 2,605/3,801법인 (남음 1,196) · 다음은 collect #3.
+> 정책 UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5.
+
+---
+
+## 0. Gate Contract Verified (2026-08-04) — A0.7·A1a·A1b·A2a 완료(2026-08-05), 이후 진행은 §9
 
 **증상이었던 것**: `_diagnostics.json`에 `acceptancePassed`가 세 번의 워크플로 실행에도
 한 번도 안 나타남.
@@ -218,9 +226,10 @@ A5o manifest에 `survivorshipBias: true`를 강제한다.
   A1a   현재 상장 유니버스   완료 — A0.7 전환, A1a.2, sha256:cb7556fc889a651c (2026-08-05)
   A1b   폐지 이력 유니버스   완료 — 1,222건, A1b.0, sha256:52a69c2ac451af36 (2026-08-05)
   A2a   가격 (현재 상장분)   완료 — 6,088,578행, A2a.0, sha256:9756e0737ea8c866 (2026-08-05)
-  A2b   가격 (폐지분)        정찰 완료 — 구현만 남음(631종목)   ← 우선 착수 (§9.2)
-  A3    재무 (PIT)           구현·정찰 완료(FN-1.2) — 수집 3일 배경 작업 (§9.1)
-  A4    수급                 계약 없음. 오늘은 가용성 확인만 (§9.3)
+  A2b   가격 (폐지분)        구현 완료(PR-1.4) — 수집 미실행 (§9.3)
+  A3    재무 (PIT)           수집 중 — 2,605/3,801법인 · 19,078레코드 (§9)
+                             collect #3 한 번이면 끝날 가능성 (남음 1,196)
+  A4    수급                 가용성만 확인. 계약 미정 (§9.4)
   A5o   운영 점수            미착수 (신설 예정)
   A5~A9                      미착수
 ```
@@ -578,8 +587,16 @@ scripts/verify-diagnostics.js     진단 계약 단일 표 (워크플로가 <sta
 scripts/build-dart-corpcode.py    A0.7
 scripts/build-universe-a1a.py     A1a
 scripts/build-universe-a1b.py     A1b (네트워크 미사용)
-scripts/test-policies.js          정책 파일 간 정합성 + dataPolicies.universe
+scripts/build-price-a2a.py        A2a (--shard / --finalize)
+scripts/build-price-a2b.py        A2b (--shard / --finalize)
+scripts/build-fundamentals-a3.py  A3 (--shard / --finalize / --summary)
+scripts/probe-fundamentals-a3.py · probe-price-a2b.py   정찰 (수집 아님)
+scripts/test-policies.js          정책 정합성 + 수집 계약 범위 + 승인 채널
 scripts/test-universe-a1b.js      A1b 회귀 (알려진 폐지 5건 인라인)
+scripts/test-price-a2a.py · test-price-a2b.py           합성 픽스처
+scripts/test-fundamentals-a3.py   A3 회귀 161건 — PIT 계약 · 계정 매칭 · resume
+                                  무결성 · 수집 계약 해시 범위 · 승인 격리 ·
+                                  상태 전이 불변식 · 시크릿 · 아티팩트 범위
 scripts/test-engine-v2.js · test-classifier.js · test-state-infrastructure.js
 
 config/policies/registry.json      REG-1.5 (criteria·policies·analysis·data·approvals)
@@ -590,12 +607,16 @@ config/policies/{confidence,validation,missingAxis,riskPenalty,trading,stateMap}
 config/policies/flagCodes.json · exit.v1.json
 config/criteria/KR-2.2.json · US-2.2.json   ← 동결. 수정 금지
 
-data/backfill/manifest/A0.5.json · A0.7.json · A1a.json · A1b.json
+data/backfill/manifest/A0.5.json · A0.7.json · A1a.json · A1b.json · A2a.json
 data/backfill/dart/corpcode.jsonl · _diagnostics.json
 data/backfill/universe/a1a/current.jsonl · excluded.jsonl · _diagnostics.json
 data/backfill/universe/a1b/delisted.jsonl · _diagnostics.json
+data/backfill/price/a2a/{YYYY}.jsonl.gz · price-quality-excluded.jsonl.gz
+data/backfill/fundamentals/_shards/     ← A3 수집 중간 상태. Actions가 커밋하고
+                                          finalize가 성공하면 지운다
 
 docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 트리거는 §7에 있다
+                                   A3 resume 무결성·승인 채널·timeout 정정도 §7 A3에 있다
 ```
 
 ### 정책 버전
@@ -632,11 +653,16 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 9. [완료] A2b 커버리지 정찰 → 51.6%(구간 기준 확보 불가 0건) → 우선순위 뒤로
 10. [완료] A3 구현 — FN-1.0 · 수집기 · 회귀 테스트 · 진단 계약 · 워크플로
 11. [완료] A3 정찰 → 엔드포인트 선택 뒤집힘 → FN-1.1, 파싱률 게이트 신설 → FN-1.2
-12. 세 갈래 병행   ← 지금 여기. §9 참조
-    A3 collect 3회 → finalize (배경) · A2b 구현 (우선) · A4 가용성 확인 (타임박스)
-13. A4 정찰 → 계약 확정 → 구현
-14. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
-15. A5 연구(생존편향 제거) → A6~A9
+12. [완료] A2b 구현 (PR-1.4) · A4 가용성 확인 · A3 collect #1 (1,381법인)
+13. [완료] A3 수집 안정화 — resume 무결성(FN-1.3) · 승인 채널(REG-1.5) ·
+    수집 계약 해시 · 상태 전이 불변식 4종
+14. [완료] A3 collect #2 (누적 2,605법인) — persist 사고와 복구는 §9.2
+15. A3 collect #3 → finalize → FN-1.4 승격   ← 지금 여기. §9 참조
+16. 커밋 3 (오류 원인 분해 · PYTHONUNBUFFERED) — 관측성
+17. A2b 수집 실행
+18. A4 분할 축 결정 → 정찰 → 계약 확정 → 구현
+19. A5o 운영 점수 (survivorshipBias 스탬프) → 운영 검증
+20. A5 연구(생존편향 제거) → A6~A9
 ```
 
 커밋은 관심사별로 분리한다. `manifest 계약 변경`과 `A0.7 도입`이 한 커밋에 섞이면
@@ -644,621 +670,229 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 ---
 
-## 9. 다음 작업 — 세 갈래 병행 (2026-08-05 확정)
+## 9. 다음 작업 — A3 마무리 (2026-08-06 갱신)
 
 새 세션은 이 절만 읽고 시작할 수 있다. 앞의 §0~§8은 배경이다.
 
-### 병행 원칙
+### 첫 명령
 
-**A3는 배경 작업이다.** 하루 한 번 dispatch하고 상태만 확인하면 되므로, 그 3일을
-불확실성이 낮은 작업으로 채운다. 순서의 근거는 리스크다 — 진행 중인 작업을 끝내고
-다음 큰 미지수로 옮기는 편이 안전하다.
-
-```
-A2b   정찰 완료 · 커버리지 분석 완료 · 구현 방향 확정   → 남은 것은 구현뿐. 미지수 없음
-A4    API 미확정 · 종목별 수급 가용성 미확인 · 정책 없음 → 다시 탐색 단계
+```bash
+node scripts/test-policies.js
+python scripts/test-fundamentals-a3.py            # 161건
+python scripts/build-fundamentals-a3.py --summary # 읽기 전용·네트워크 불필요
+git log --oneline 2f651d1..HEAD -- lib scripts config .github
 ```
 
-그래서 **A2b 먼저, A4는 나중**이다. 예외가 하나 있어 오늘 30~60분만 떼어 둔다:
-종목별 수급 경로 자체가 없으면 A4 설계 전체가 바뀌므로, **그 한 가지만** 먼저 확인한다.
+`--summary`가 `법인 완료 2605/3801`(또는 그 이상)을 내면 상태가 정상이다.
 
-### 일정
+### 지금 위치
 
 ```
-8/5 (완료)  A3 collect #1 완료(1,381법인 · 재실행 1회) · A4 가용성 확인 · A2b 구현
-            + A3 수집 안정화 설계 확정 (§9.1 「수집 안정화」)
-8/6         A3 수집 안정화 커밋 1 구현 → A3 collect #2 → A2b 수집 실행
-8/7         A3 collect #3 → 커밋 2·3 → (여유 시) A4 두 갈래 분할 축 결정
-8/7~8/8     A3 finalize → 전수 diagnostics 검토 → measured 확정 → FN-1.3 승격
+A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
+     하드스킵 0 · 부분실패 0 · 기각 0 · rec/rep 1.00
+     collect #1(1,381) + collect #2(1,224) 완료
+정책 UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
 ```
 
-**커밋 1이 collect #2보다 먼저다.** DART 한도는 KST 자정에 초기화되므로 그 전에 넣으면
-일정 손실이 없다.
+### 할 일 — 순서대로
 
-세 갈래가 자원을 다투지 않는다 — A3는 DART, A2b는 KRX, 워크플로 concurrency 그룹도 다르다.
-**단 하나 겹치는 것이 A4다**(아래 §9.3 참조).
+```
+1  collect #3      Actions → backfill-fundamentals-a3 → mode: collect
+                   남은 1,196이면 한 번에 끝날 가능성이 높다(회당 실측 1,224)
+2  결과 확인       아래 「성공 기준」
+3  finalize        완료 샤드 8/8이 나온 뒤에만. mode: finalize
+4  FN-1.4 승격     measured 블록 기록 → WARN 임계를 FAIL로
+5  커밋 3          오류 원인 분해 + PYTHONUNBUFFERED (관측성. 데이터 무결성 아님)
+6  A2b 수집 실행   Actions → backfill-price-a2b (구현 완료·미실행)
+```
+
+**DART 키 교체가 선행 과제로 남아 있을 수 있다.** collect #2에서 API 키 앞 26자가
+아티팩트에 노출됐다(아래 「사고 기록」). 코드는 고쳐졌으나 키 재발급 여부는 사람이 판단한다.
+
+### collect #3 성공 기준
+
+| 항목 | 기대값 |
+|---|---|
+| `corpsAssigned` | 8샤드 모두 채워짐 (샤드 6 포함 — 지금은 `?`다) |
+| `collectionContractHash` | 8샤드 동일 · 현재 코드 계산값과 일치 |
+| `stateTransitionViolations` | 빈 배열 |
+| `conservationOk` · `runIdentityOk` | 모두 true |
+| `hardSkippedByRetryable.nonRetryable` | 0 (이상적) |
+| `reportsFound` vs jsonl 행 | `>=`. 재시도가 있으면 등식이 아니다 |
+| `hardErrors` | 관측이지 성공 기준이 아니다 — 0이 아니어도 hardSkipped가 받는다 |
+
+`nonRetryable`이 하나라도 나오면 그때가 `config/backfill/declared-gaps-a3.json`에
+`{corp, reason}`을 넣을 시점이다. `retryable` 쪽은 두면 다음 실행이 재시도한다.
+
+### finalize 후 (FN-1.4 승격)
+
+A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
+
+1. `_diagnostics.json` 실측을 `fundamentals.v1.json`의 `measured` 블록에 기록
+   (이 블록의 존재가 `test-policies.js`에서 WARN→FAIL 승격의 스위치다)
+2. 승격 후보: `yearCoverageDropWarn`(계약 2가 "특정 연도만 급락하면 실패"라고 명시)
+   · `coverageRateMinWarn` · `minCorpsWithDataWarn`
+3. **WARN으로 남길 것**: `roeAbsOutlierRateWarn` · `negativeEquityRateWarn` —
+   자본잠식은 시장의 정상 사건이고, FAIL로 올리면 사실이 파이프라인을 막는다
+4. 반드시 볼 둘: `periodEndParsedRate`(FAIL 임계 0.99) ·
+   `accountMappingHitRateByAccount`(전수 기준선. 정찰 32법인이 못 본 이름 변주의 긴 꼬리)
+5. CLAUDE.md `Validated against`와 이 문서 갱신
 
 ---
 
-## 9.1 A3 재무 (PIT) — 배경 작업
+## 9.1 A3 상태 모델 — 이번 라운드에 확정된 계약
 
-### 왜 A3가 병목인가
+수집기의 동작을 바꾸려면 이 절을 먼저 읽는다. 상세 근거는
+`docs/BF-1.1-백필계약.md` §7 A3의 「resume 무결성」·「승인 채널」에 있다.
 
-```
-KR-2.2.categoryWeights (동결)
-  fundamental   0.35   ← A3
-  valuation     0.30   ← A3
-  technical     0.15   ← A2a 완료
-  supplyDemand  0.20   ← A4
-```
-
-재무가 **가중치의 65%** 다. CLAUDE.md 절대 규칙 1이 "커버리지 60% 미만이면 등급 '유보'"이므로,
-A3 없이 A5를 돌리면 2,579종목 전건이 '유보'로 나온다.
-
-### 돌리는 법
+> **관통 원칙 — 상태는 단조하게 축적되고, 판정은 언제든 다시 계산할 수 있어야 한다.**
 
 ```
-Actions → backfill-fundamentals-a3 → Run workflow → mode: collect
-```
-
-1회 약 25~30분(샤드당 2,000호출 × 0.5~0.7초, 8샤드 병렬 + persist).
-총 38,000~45,000호출 ÷ 일 예산 16,000 = **3회**. 매 실행 끝에 persist 잡이 찍는다.
-
-```
-법인 완료 2,431 · 레코드 24,118 · 오늘 호출 15,984 · 완료 샤드 3/8
-collect를 다시 dispatch하면 이어받는다 (DART 한도는 KST 자정에 초기화된다)
-```
-
-`완료 샤드 8/8`이 나오면 `mode: finalize`를 한 번 돌린다.
-같은 날 두 번 dispatch해도 안전하다 — 샤드가 `callsUsedToday`를 상태에 들고 있어
-그날 예산을 넘기지 않고 즉시 끝난다. **예산 소진은 실패가 아니다**(exit 0).
-
-### 수집 안정화 — collect #1이 드러낸 것 (2026-08-05, 설계 확정 · 미구현)
-
-**collect #2 전에 최소한 커밋 1(`done.add` 조건 수정)은 넣는다.** 이 결함이 남은 채로
-하드 실패가 발생하면 수집하지 못한 법인이 영구히 완료로 기록된다. collect #1에서는
-`hardErrors`가 8샤드 모두 0이라 발현하지 않았지만, 그것이 내일도 0이라는 보장은 아니다.
-
-이 절은 **두 층**이다. 섞어 읽지 않는다.
-
-```
-확정된 설계 계약   「설계 계약」 절.  이번 장애와 무관하게 유지된다.
-                  구현이 어떻게 되든, 이 수정이 없었더라도 옳다
-이번 장애 분석     그 밖의 절.       재실행 결과로 일부가 사실로 바뀐다.
-                  샤드 1 원인 · persist 실제 동작 · 적용 순서가 여기 속한다
-```
-
-#### 무슨 일이 있었나
-
-```
-collect #1   샤드 1이 정찰 전건 실패로 exit 2 · 나머지 6샤드는 정상 종료
-             → persist가 needs: collect + if: success()라 스킵
-             → 그날 진행이 커밋되지 않음. 아티팩트에만 남음(보존 3일)
-```
-
-같은 워크플로의 `fail-fast: false`에는 *"한 샤드가 막혀도 나머지 샤드의 진행이 그대로
-자산이다"* 라고 적혀 있다. **persist 게이트가 그 자산을 정확히 버린다** — 두 결정이 모순이다.
-
-**복구됨.** `Re-run failed jobs`로 샤드 1만 다시 돌렸고(50m24s · 173/475법인 · 호출 2,000 ·
-1,322레코드), 성공하자 **persist가 다시 평가되어 실행됐다.** 이전 시도의 아티팩트 7개가
-그대로 내려와 8샤드 전체가 커밋됐다(`b435582`).
-
-```
-재실행이 통한 이유    아티팩트는 실행(run)에 붙고 attempt에 붙지 않는다
-                     성공한 샤드는 다시 돌지 않으므로 예산도 두 번 쓰지 않는다
-그날 하면 안 되는 것   Run workflow로 collect를 새로 dispatch하는 것.
-                     persist 전이라 호출량이 저장소에 없어 각 샤드가 0에서 다시 시작한다
-```
-
-모순 자체는 남아 있다 — 재실행이라는 수동 조작으로 우회했을 뿐이다. 커밋 1의 4번(persist 완화)이
-그것을 없앤다.
-
-#### 확정된 결함 — `done.add(corp)`가 `hard`를 보지 않는다 (무결성)
-
-```python
-recs, hard, quota = scan_corp(...)            # 499
-if quota: quota_hit = True; break             # 500  한도는 done에 안 들어간다(정상)
-for r in recs: records[rec_key(r)] = r
-done.add(corp)                                # 505  hard를 보지 않는다  ← 결함
-consec_hard = consec_hard + 1 if (hard and not recs) else 0   # 509  여기서야 센다
-```
-
-하드 실패로 0레코드인 법인이 `done`에 들어간다. 서킷은 그다음 줄에서야 세므로 **산발적
-실패 전부 + 연속 실패 N−1건이 영구히 건너뛰어진다.** `complete = len(done) >= len(mine)`이
-그것을 완료로 계산하므로 finalize의 미완료 샤드 검사도 통과한다. 데이터가 빈 채로 인수 조건을
-지나간다. `if: success()`가 **우연히** 이것을 가려 왔다 — 중단된 샤드의 상태가 커밋되지
-않아 손상이 버려졌을 뿐이다. **그래서 persist 완화는 이 결함 수정 이후에만 가능하다.**
-
-#### 샤드 1의 실패 원인 — 일시적 장애로 확정, 코드는 미확보
-
-재실행에서 **같은 조건·같은 정찰 법인으로 `dartStatus 000` 2/2 통과**했다. 코드도 정책도
-바뀌지 않았으므로 일시적 장애다. 다만 **정확한 status 코드는 얻지 못했다** — 1회차 진단이
-재실행 업로드로 대체돼 지금 커밋된 `_diagnostics-shard-1.json`은 성공분이다.
-
-그래서 남는 결론은 원인 자체가 아니라 **원인을 못 읽었다는 사실**이다.
-
-```
-dart_call은 020(한도) · 013(데이터 없음) · HTTP 오류 · 타임아웃을
-전부 같은 문구로 끝낸다 — "정찰 전건 실패 — 수집 경로가 막혔다"
-```
-
-증상이 원인을 지목하지 않는다(교훈41). 커밋 3의 오류 분해는 이 실측에서 나온 요구다 —
-다음에 같은 일이 나도 지금처럼 추측으로 끝나지 않게 한다.
-
-**timeout 부재는 여전히 결함이다**(138·412행). 1회차 스텝이 1m35s였는데 재시도 sleep
-총합은 약 14초라 나머지 약 80초가 응답 대기였다. 정찰 스크립트들은 `timeout=(10,40)`을 쓴다.
-
-#### 응답 지연 편차 — timeout 값의 근거
-
-같은 호출량에 소요가 2배 갈렸다.
-
-```
-샤드 2   1,741호출 / 1,429s = 0.82초/호출   총 27m21s
-샤드 0   1,743호출 / 2,694s = 1.55초/호출   총 51m31s
-샤드 1(재실행, 단독 실행)  1,738호출 / 2,690s = 1.55초/호출   총 50m24s
-```
-
-8샤드가 하나의 DART 키를 동시에 두드리는 것만으로는 설명되지 않는다 — 재실행의 샤드 1은
-**혼자 돌았는데도 1.55초/호출**이었다. 즉 지연은 경합이 아니라 DART 쪽 변동이다.
-
-그래서 **timeout을 빡빡하게 잡으면 안 된다.** 정상 지연과 진짜 행(hang)이 겹치는 구간이 넓다.
-`timeout=(10, 40)`(연결 10초 · 응답 40초)이 근거 있는 출발점이다 — 실측 최댓값 1.55초의
-25배 여유이면서, 무한 대기는 아니다.
-
-#### 신규 결함 — 로그가 실시간으로 안 보인다
-
-재실행 30분 동안 로그에 **한 줄도 나오지 않았다.** 25법인마다 진행을 print하는데도 그렇다.
-Python이 stdout을 파이프로 볼 때 블록 버퍼링(약 8KB)을 하기 때문이고, 진행 줄은 60바이트
-남짓이라 30분치가 버퍼에 갇힌다. 1회차에서 출력이 보였던 것은 프로세스가 exit하며 flush됐기
-때문이다.
-
-두 가지가 걸린다.
-
-```
-관측 불가   50분짜리 잡이 도는 중인지 멈춘 중인지 알 수 없다
-진단 소실   스텝 제한(80분)에 걸려 kill되면 버퍼가 통째로 사라진다
-            교훈39("중단 경로에도 진단을 남긴다")가 로그 층에서 깨져 있다
-```
-
-워크플로에 `PYTHONUNBUFFERED: 1` 한 줄이면 된다. 커밋 3에 넣는다.
-데이터는 25법인마다 `save_progress`로 디스크에 남으므로 kill돼도 진행은 잃지 않는다 —
-잃는 것은 로그뿐이다.
-
-#### 설계 계약 — 바뀌면 설계가 바뀐다
-
-아래 원칙과 항등식만이 계약이다. 필드 이름·구현 순서·커밋 단위는 바뀔 수 있지만
-이것들은 바뀌면 상태 모델 자체가 달라진다.
-
-> **관통 원칙 — 상태는 단조(monotonic)하게 축적되고, 판정은 언제든 다시 계산할 수 있어야 한다.**
-
-아래 넷은 전부 여기서 나온다. `complete`를 저장하지 않는 것, `hardSkippedOpen`을 저장하지
-않는 것, 승인이 바뀌어도 state를 다시 쓰지 않는 것, finalize가 항상 현재 기준으로 재계산하는
-것이 같은 한 문장의 따름이다. **앞으로 파생 상태를 추가할 때도 이 문장이 기준이다** —
-"이 값은 축적된 사실인가, 아니면 지금 계산할 수 있는 판정인가"를 먼저 묻는다.
-
-**원칙 1 — state는 사실만 저장한다.**
-
-```
-저장한다      corpsAssigned · corpsDone · hardSkipped · reportsFound · recordRejected
+저장한다        corpsAssigned · corpsDone · hardSkipped · reportsFound · recordRejected
 저장하지 않는다  complete · hardSkippedOpen · corpsRemaining      ← 전부 계산값이다
 ```
 
-**원칙 2 — 판정은 저장하지 않는다. 항상 계산한다.**
-`complete`는 **현재 state + 현재 승인 목록**에서 매번 유도한다. 저장하면 승인 목록이
-바뀌는 즉시 낡고, 그것을 맞추려고 state를 다시 쓰고 싶어진다. 그 유혹을 없애는 것이
-이 원칙의 목적이다. 현재 저장되는 `state["complete"]`(528행)를 없애고, finalize와
-persist 요약이 각자 계산한다.
-
-**원칙 3 — 두 계층을 섞지 않는다.**
-
-```
-resume       state만 읽는다
-diagnostics  사람이 읽는다
-resume은 diagnostics를 읽지 않는다
-```
-
-읽기 시작하면 운영 계약과 진단 계약이 다시 결합되고, "계약은 검사자 쪽에 둔다"(교훈44)가
-무너진다. **이 원칙은 회귀 테스트로 강제한다** — 문장으로만 두면 다음 사람이 편의상
-진단을 읽어도 아무도 모른다.
-
-**원칙 4 — 승인은 규칙이 아니라 운영 결정이다.**
-그래서 policyHash와 분리되고, 자기 해시(`approvalHash`)를 갖고, **state를 변경하지 않는다.**
-
-**항등식**
-
-```
-보고서    reportsFound  == records + recordRejected
-법인(누적) corpsAssigned == corpsDone + hardSkipped + corpsRemaining
-승인      hardSkipped   == hardSkippedOpen + declaredHardSkipped
-법인(실행) corpsAttempted == doneAddedThisRun + hardSkippedThisRun + quotaDeferred
-```
-
-**두 식은 계층이 다르다.**
-
-```
-법인(누적)  상태의 보존식      — 사실만으로 성립한다. 승인 정책이 바뀌어도 흔들리지 않는다
-승인        운영에 의한 분류식  — 보존된 사실을 승인 여부로 나눈다
-```
-
-그래서 보존식에는 `hardSkippedOpen`이 아니라 `hardSkipped` 전체가 들어간다. 승인된 공백은
-done도 remaining도 아니므로, open만 쓰면 승인이 하나 생기는 순간 등식이 깨진다.
-**사실을 먼저 보존하고, 그다음 운영 판단으로 분해한다** — 순서가 뒤집히면 운영 결정이
-사실의 보존을 흔든다.
-
-네 번째 식은 **시계가 다르다** — `corpsAttempted`는 이번 실행분이고 `corpsDone`은 누적이다.
-한 식에 섞으면 이틀째부터 항상 깨진다. `quotaDeferred`는 0 또는 1이다(한도를 만나면 즉시
-break하고 부분 레코드는 버린다).
-
-**`complete` — 정의와 파생 성질을 구분한다**
+**완료의 정의**
 
 ```
 정의        complete ≡ corpsRemaining == 0 AND hardSkippedOpen == 0
 파생 성질    complete ⇒ corpsAssigned == corpsDone + declaredHardSkipped
 ```
 
-**둘은 동치가 아니다.** 아래는 정의에서 따라오는 성질일 뿐이다. 이 구분을 적어두지 않으면
-언젠가 *정의는 그대로 두고 항등식만 맞추는* 수정이 들어온다 — 그것은 완료의 의미를 바꾸면서
-바꾸지 않은 것처럼 보이게 만든다.
+둘은 동치가 아니다. 아래는 정의에서 따라오는 성질일 뿐이며, 이 구분을 적어두지 않으면
+언젠가 *정의는 그대로 두고 항등식만 맞추는* 수정이 들어온다.
 
-읽으면 완료란 **담당분이 수집분과 승인된 공백으로만 남은 상태**다. `done`의 개수가 아니라
-**담당 법인이 남김없이 분해되는가**로 정의했으므로, `done`의 구현이 바뀌어도 완료 판정은
-흔들리지 않는다. 이번 논의에서 가장 큰 개선이 이 재정의다.
+**항등식과 불변식**
+
+```
+보고서      reportsFound  == records + recordRejected
+법인(누적)  corpsAssigned == corpsDone + hardSkipped + corpsRemaining   보존식
+승인        hardSkipped   == hardSkippedOpen + declaredHardSkipped      분류식
+법인(실행)  corpsAttempted == doneAdded + hardSkippedThisRun + quotaDeferred
+
+상태 전이 (state_transition_violations — run_shard가 기록, finalize가 4번을 게이트로)
+  1  old.corpsDone   ⊆ new.corpsDone                    완료 상태
+  2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone  실패 상태
+  3  new.corpsAssigned == old.corpsAssigned             담당 범위
+  4  산출물의 법인 집합 ⊆ new.corpsDone                  산출물 일관성
+```
+
+2번을 단순 집합 보존(`old.hard ⊆ new.hard`)으로 쓰면 안 된다. 하드스킵은 영구 사실이
+아니라 **현재 미해결**이고, 다음 실행에서 성공하면 `hardSkipped`에서 빠져 `corpsDone`으로
+간다. 보존해야 하는 것은 집합이 아니라 **법인의 상태**다.
+
+4번은 등식이 아니다. 보고서가 0건인 법인도 정상적으로 완료되며 **실측 약 19%**가
+그렇다(173 완료 중 140만 레코드 보유). 등식으로 걸면 정상 데이터를 거부한다.
+
+### 수집 계약 해시 — resume 호환 판정
+
+`fundamentals.v1.json`의 `collectionContract.fields` 9개 값 + 그 경로 목록의 해시다.
+정책 `version` 문자열로 판정하던 것을 대체했다 — 임계 하나를 고쳐 version이 올라가면
+8샤드 상태가 전부 폐기되고 이미 쓴 DART 호출이 사라졌다.
+
+```
+판정 기준은 '결과에 영향을 주는가'가 아니라 '이미 모은 것을 다시 쓸 수 있는가'다.
+```
+
+**`failureClassification`은 이 목록에 없다.** 한 번 넣었다가 뺐다 — `retryable`은
+`todo`·`shard_status`·완료 게이트 어디에도 들어가지 않아, 재시도 불가로 분류돼도
+매 실행 똑같이 재시도된다. 공백을 닫는 것은 사람의 승인뿐이다. 넣으면 표를 고칠 때마다
+수집을 잃는 비용만 남는다. 나중에 `retryable`이 수집 경로를 가르도록 바뀌면 회귀가
+먼저 깨지고, 그때 이 목록에 들어와야 한다.
+
+범위는 `test-policies.js`가 리터럴 목록으로, `test-fundamentals-a3.py`가 동일/변경 표로
+고정한다(운영값 12건 → 해시 동일, 계약값 11건 → 해시 변경).
+
+### 승인 채널 — 규칙과 예외의 분리
+
+```
+config/policies/fundamentals.v1.json    failureClassification — 규칙 (policyHash)
+config/backfill/declared-gaps-a3.json   승인 목록 — 예외 (approvalHash)
+```
+
+같은 파일에 두면 corp 하나를 승인할 때마다 그 정책을 읽는 모든 단계의 manifest가
+흔들린다. `REQUIRED_APPROVALS`가 선언 누락을 거부하며 `--extra`에 얹는 우회는 쓰지 않는다.
+
+**승인은 수집 동작을 바꾸지 않는다.** 승인된 법인도 다음 실행에서 똑같이 재시도되고,
+승인이 하는 일은 완료 판정에서 그 공백을 '열린 것'으로 세지 않는 것뿐이다. 회귀가
+이것을 산출물 바이트 동일성으로 증명한다 — 승인 유무로 `_state`·`jsonl`이 한 바이트도
+갈리지 않는다. **바꾼다면 그것은 승인이 아니라 규칙이다.**
 
 ---
 
-여기부터는 **현시점의 구현 안이다. 계약이 아니라 바뀔 수 있다.**
+## 9.2 사고 기록 — collect #2 (2026-08-06)
 
-#### 구현 안 — `hardSkipped` 상태 모델
+같은 실수를 반복하지 않기 위한 절이다. 셋 다 수정·push됐다.
 
-```
-state          corp · attempts · firstSeen · lastSeen · lastStatus · lastReason
-               · retryable · lastAttemptRunId · lastAttemptRunNumber · lastAttemptRunAttempt
-diagnostics    위 목록 + retryable별 집계 + attempts 분포 + 지속기간(lastSeen − firstSeen)
-```
-
-`attempts`는 **실행(일) 단위**로 센다. 정책의 `retryAttempts: 4`는 한 실행 안의 재시도라,
-그것까지 합치면 `attempts: 5`가 하루치인지 닷새치인지 갈리지 않아 두 타임스탬프가 무의미해진다.
-
-run 식별자를 셋 다 남기는 이유: `Re-run failed jobs`는 **run id가 그대로이고 attempt만
-올라간다.** id만으로는 1회차 실패인지 2회차 실패인지 갈리지 않는다.
-`/actions/runs/<id>/attempts/<attempt>`로 바로 점프하는 것이 목적이다.
-로컬 실행에서는 이 값이 null이라, 상태에 null이 섞이면 **로컬 실행분이 커밋됐다는 신호**가 된다
-(절대 규칙 4의 사후 검출).
-
-`declaredGaps`에는 있는데 `hardSkipped`에 없는 항목(`declaredNotInHardSkipped`)은 WARN으로
-남긴다. 오래된 승인이 미래의 공백을 미리 덮는 것이 승인 체계가 조용해지는 유일한 경로다.
-
-#### 구현 안 — `retryable`은 미분류를 재시도 가능으로 본다
-
-| 실패 | retryable | 근거 |
-|---|---|---|
-| HTTP 5xx · 타임아웃 · 연결 오류 | true | 환경이다 |
-| `800` 시스템 점검 | true | 정의상 일시적 |
-| `900` 정의되지 않은 오류 | true | 모른다 |
-| `r.json()` 파싱 실패 | true | API 변경일 수 있다 |
-| `020` 한도 · `013` 데이터 없음 | 해당 없음 | 이미 별도 경로 (loop break / 정상 완료) |
-| `100`·`101` 부적절한 값·접근 | false | 파라미터 계약 위반이라 재시도가 같은 답을 준다 |
-| **분류표에 없는 status** | **true** | ← 이것이 계약이다 |
-
-기본값이 반대면 새 오류 코드가 나올 때마다 조용히 공백으로 승격된다 — 지금 `done.add`가
-만든 결함과 같은 모양이 다른 자리에서 재발한다. 분류표는 **정책 파일에 둔다**(코드가 아니라).
-어떤 실패를 '수집 불가'로 볼지는 임계와 같은 성질이라, 코드에 두면 조용히 넓어진다.
-
-#### 구현 안 — 승인은 정책과 분리한다
-
-`retryable == true`는 아무리 오래 실패해도 **WARN으로 승격하지 않는다**(미완료로 남는다).
-일시 장애·타임아웃·파서 실패가 N번 실패했다고 공백이 되면 복구 가능한 데이터를 영구히 버린다.
-`retryable == false`만 승인 대상이고, 승인은 사람이 한다.
+### ① persist가 진행을 커밋하지 못했다 (실제 손실)
 
 ```
-config/policies/fundamentals.v1.json   declaredGapPolicy — 허용 비율·승인 규칙 (규칙)
-config/backfill/declared-gaps-a3.json  실제 승인 목록 (예외)   ← 항상 존재. 빈 배열도 해시한다
+collect (6)  실패 1.6분   정찰 ConnectTimeout — 일시적 DART 장애
+persist      실패         Progress summary 실패 → Commit progress 스킵
+                          → 정상 종료한 7샤드의 하루치가 커밋되지 않음
 ```
 
-같은 파일에 두면 corp 하나를 승인할 때마다 policyHash가 바뀌어 **그 정책을 읽는 모든 단계의
-manifest에 영향**이 간다. 바뀐 것은 규칙이 아니라 예외 목록인데도 그렇다. `data/`가 아니라
-`config/`인 이유는 절대 규칙 4다 — `data/backfill/`은 Actions 전용이고, 승인 목록은 정의상
-사람이 쓰고 사람이 커밋한다.
+원인은 `persist` 잡에 `Install deps` 스텝이 없는데(collect·finalize에만 있다) 진행 요약을
+인라인 heredoc에서 `build-fundamentals-a3.py --summary`로 옮겼고, 그 스크립트가 최상단에서
+`requests`를 import한 것이다.
 
-승인 파일 항목은 최소로 둔다. `decidedBy`·`approvedInCommit`을 넣지 않는 이유는 git이 이미
-작성자·시각·이력을 보존하고, **항목을 추가하는 그 커밋의 SHA는 그 시점에 알 수 없기** 때문이다.
-manifest의 `approvalHash`가 "어느 버전의 승인 목록으로 만들어졌는가"를 결정론적으로 고정하고,
-누가·언제는 `git log --follow`가 답한다.
+두 층에서 고쳤다. `requests`를 지연 import(`require_requests()`)로 바꿔 읽기 전용 경로가
+HTTP 라이브러리를 요구하지 않게 했고, `Progress summary`에 `continue-on-error: true`를 붙였다.
+**관측이 내구성을 막아서는 안 된다** — persist 게이트를 `!cancelled()`로 완화해 막으려던
+실패 모드가 한 층 아래에서 그대로 재발했다.
 
-```json
-{ "corp": "00126380", "reason": "DART가 100을 지속 반환 — 파라미터 계약 위반" }
-```
+복구: 아티팩트에서 각 샤드의 자기 파일만 골라 복원했다(커밋 `395a543`, 4개 불변식 검증 후
+임시 디렉터리 → 재검증 → 원자적 교체).
 
-manifest 채널은 새로 만든다 — `--extra`에 해시를 얹으면 **선언이 강제되지 않는다**.
-이 저장소가 이미 거부한 형태다("선언 자체의 누락은 REQUIRED 표가 잡는다").
+### ② 아티팩트가 디렉터리째 올라갔다 (잠재 결함)
 
-```
-registry.json          approvals 네임스페이스 신설 → approvals.declaredGapsA3
-backfillManifest.js    REQUIRED_APPROVALS = { 'A3': ['declaredGapsA3'] }
-manifest               approvalHash (policyHash와 별도 필드)
-```
+`upload-artifact`가 `_shards/` 전체를 올려, 각 샤드의 checkout에 있던 **남의 전날 상태**까지
+함께 올라갔다. `merge-multiple: true`는 같은 이름을 나중 것으로 덮으므로 추출 순서에 따라
+다른 샤드의 오늘치가 되돌아갈 수 있었다. collect #1이 무사했던 것은 그때 `_shards/`가
+저장소에 없었기 때문이다 — **우연한 안전은 설계가 아니다.**
 
-정책 변경과 운영 승인이 manifest에서 **서로 다른 이벤트**로 갈린다.
+이제 자기 샤드 파일 3개만 올린다. 계약을 *"병합이 올바르게 된다"* 가 아니라
+**"병합 대상이 자기 샤드 파일뿐이다"** 로 회귀에 고정했다(`path`를 디렉터리로 되돌리면 실패).
 
-#### 구현 순서와 커밋 경계 — 커밋 1·2 완료 (2026-08-05)
+### ③ 진단에 DART API 키가 남았다 (시크릿)
 
 ```
-커밋 1 — A3 resume 무결성 (A3 안에서 닫힌다)                       ✅ 8410dae · 2e64a08
-  1  done.add(corp) 조건 수정                  hard and not recs면 done에 넣지 않는다
-                                              데이터 없음(hard=False)은 done이 맞다 —
-                                              아니면 폐지 법인을 영원히 재시도한다
-  2  retryable 분류 + hardSkipped 상태 모델     두 층 · attempts는 실행 단위
-  3  finalize 게이트                            complete를 누적 항등식으로 재정의
-  4  persist 완화                               !cancelled()로 완화 (아래 확정)
-  +  수집 계약 해시 (계획에 없던 항목)          정책 version 비교가 며칠치 수집을 버렸다
-커밋 2 — 승인 채널 (공통 인프라를 건드리는 유일한 커밋)             ✅ REG-1.5
-  5  registry approvals · REQUIRED_APPROVALS · approvalHash · declared-gaps-a3.json
-커밋 3 — 수집 진단 보강 (남음 — 관측성이며 데이터 무결성이 아니다)
-  6  ~~timeout 추가~~   ← 취소. 처음부터 있었다 (아래 「정정」)
-  7  오류 원인 분해 (020/013/HTTP/파싱) — "경로가 막혔다" 단일 문구 제거
-  8  PYTHONUNBUFFERED
+"ConnectTimeout: ... /api/fnlttSinglAcnt.json?crtfc_key=<키 앞 26자>"
 ```
 
-공통 인프라를 A3 상태 정확성보다 먼저 건드리지 않는다. `done`이 잘못 기록되면 그 위의 승인
-체계가 아무리 옳아도 **이미 손실된 법인은 복구되지 않는다.** 이 순서는 그대로 지켰다.
+`requests` 예외 메시지가 요청 URL을 통째로 담고, `dart_call`이 그것을 잘라 진단에 저장했다.
+코드에는 *"crtfc_key는 params로만 넘기고 로그·산출물 어디에도 남기지 않는다"* 고 적혀 있었다 —
+**규율은 예외 경로를 막지 못한다.**
 
-**계획에 없던 항목 하나가 커밋 1에 들어갔다.** `load_state`가 `fundamentalsPolicy ==
-pol["version"]`으로 재개를 판정하고 있어서, **FN-1.3 승격 자체가** 8샤드 상태를 폐기하고
-collect #1(1,381법인 · 16,050호출 · 하루)을 0에서 다시 시작시킬 참이었다. 판정을 수집 계약
-해시로 교체했다 — 자세한 것은 `docs/BF-1.1-백필계약.md` §7 A3 「resume 무결성」에 있다.
+`redact()`를 예외·파싱실패·DART message 세 경로에 걸었다. 자르기 전에 지운다(순서가 반대면
+잘린 조각이 남는다). 커밋 이력에는 없었고(`git log --all -S` 전수 확인) 노출은 아티팩트
+`a3-shard-6` 하나이며 2026-08-08 만료다. 노출분은 40자 중 앞 26자.
 
-**`failureClassification`은 그 해시에 넣지 않는다 — 한 번 넣었다가 뺐다.** 넣은 근거는
-"재시도 불가로 옮기면 그 법인이 승인 대상 공백이 된다"였는데, 코드에서 `retryable`은
-`todo`·`shard_status`·완료 게이트 어디에도 들어가지 않는다. 재시도 불가로 분류돼도 매 실행
-똑같이 재시도되고 공백을 닫는 것은 사람의 승인뿐이며, 라벨은 다음 재시도에서 다시 계산된다.
-넣으면 비용만 남는다 — 커밋 3이 새 status를 발견해 표에 넣는 순간 수집이 폐기된다.
-**판정 기준은 '결과에 영향을 주는가'가 아니라 '이미 모은 것을 다시 쓸 수 있는가'다.**
-근거는 `docs/BF-1.1-백필계약.md` §7 A3에 회귀와 함께 있다.
-
-**중간 상태는 해소됐다.** 커밋 2가 들어갔으므로 `retryable == false`가 나와도 승인이라는
-탈출 경로가 있다. 다만 승인 목록은 지금 비어 있고(`gaps: []`), 실제로 걸리면 사람이
-`config/backfill/declared-gaps-a3.json`에 `{corp, reason}`을 추가하고 커밋해야 한다.
-
-**persist 단순화 가능성**(4번 시점에 판단): 1~3이 들어가면 서킷이 열린 샤드의 상태도
-정직해진다(실패 법인은 `hardSkipped`에 있고 `done`에 없다). 그러면 `aborted` 배제 규칙이
-상태 모델이 이미 주는 보호를 한 번 더 구현하는 것이 되어, 둘이 나중에 어긋난다.
-회귀 테스트로 `hardSkipped`가 기대대로 채워지는 것을 먼저 확인하고 정한다.
-서킷 경로는 `_abort` 전에 `save_progress`를 부르고(512행), 정찰 실패 경로는 부르지 않는다(487행).
-
-#### collect #1 실측 (2026-08-05, 커밋 `b435582` 기준 · 전 8샤드 검증 완료)
-
-```
-샤드  담당  완료  레코드  보고서  rec/rep  하드실패  호출  조기중단  종료
- 0    476   173   1409    1409     1.00      0     2007    10    예산 소진
- 1    475   173   1322    1322     1.00      0     2000     9    예산 소진
- 2    475   173   1227    1227     1.00      0     2005     6    예산 소진
- 3    475   172   1304    1304     1.00      0     2009     4    예산 소진
- 4    475   173   1310    1310     1.00      0     2008     7    예산 소진
- 5    475   174   1221    1221     1.00      0     2008     7    예산 소진
- 6    475   171   1437    1437     1.00      0     2010     4    예산 소진
- 7    475   172   1338    1338     1.00      0     2003     7    예산 소진
-합계 3801  1381  10568   10568     1.00      0    16050    54
-
-항등식   reportsFound 10568 == records 10568 + 기각 0   OK
-dartStatus(샤드1)  {"000": 1458, "013": 542}   — 020·800·900 없음
-```
-
-**`hardErrors`가 8샤드 모두 0이다.** `done.add` 결함이 이번 실행에서 발현하지 않았으므로
-커밋된 상태를 그대로 신뢰해도 되고 **샤드 리셋이 필요 없다.** 이 확인이 없었다면
-`corpsDone`에 빈 채로 완료된 법인이 섞였는지 알 수 없었다.
-
-`rec/rep = 1.00`은 받은 보고서가 전부 레코드가 됐다는 뜻이다 — `periodEnd` 파싱이 전건
-성공했고, 기각이 0이라 파싱률 게이트(FAIL 임계 0.99)에 여유가 크다. 다만 이는 첫 36%
-구간의 값이므로 finalize의 전수 값과 다를 수 있다.
-
-전 샤드가 `예산 소진`으로 끝났다(정상 종료, exit 0). 호출 16,050은 일 한도 20,000에
-안전 마진 4,000을 뺀 예산과 일치한다.
-
-#### 남은 진도
-
-```
-법인   1,381 / 3,801  (36.3%)     남음 2,420
-추정   회당 약 1,381법인 → collect 2회 더 → finalize
-레코드 10,568 (회당). 전수 추정 약 29,000
-```
-
-`완료 샤드 0/8`이 정상이다 — 샤드마다 475법인 중 173을 했고, 예산 소진은 실패가 아니다.
-`mode: finalize`는 **8/8이 나온 뒤에만** 돌린다.
-
-### 이미 만들어져 있는 것
-
-```
-config/policies/fundamentals.v1.json   FN-1.2 — 수집 파라미터 · PIT 계약 · 인수 조건 · probed
-config/policies/registry.json          REG-1.4 (dataPolicies.fundamentals)
-lib/backfillManifest.js                REQUIRED_POLICIES.A3 = ['universe','fundamentals']
-scripts/probe-fundamentals-a3.py       정찰 (완료). verdict 판정 + exit 3
-scripts/build-fundamentals-a3.py       수집기 — shard(resume) / finalize
-scripts/test-fundamentals-a3.py        회귀 49건 (합성 픽스처, 네트워크 불필요)
-scripts/verify-diagnostics.js          A3 진단 계약 (필드 42 · trueFlag 1)
-.github/workflows/fundamentals-a3.yml  mode: collect | finalize
-```
-
-### 정찰이 뒤집은 것 (2026-08-05, 표본 32법인 × 12사업연도, 932호출)
-
-정찰의 성과는 계획 확인이 아니라 **엔드포인트 선택을 뒤집은 것**이다.
-
-| 확인 항목 | 실측 | 결과 |
-|---|---|---|
-| `availableFrom > periodEnd` | 위반 0/240 | 계약 성립 |
-| `rceptNoIsDate` | 240/240 | 가정 유지 |
-| **`thstrm_dt`** | 주요계정 240/240 · **전체 재무제표 0/240** | **선택 뒤집힘** |
-| `accountMissRate` (7계정 전부) | 96.25% vs 96.67% | 선택 근거 붕괴 |
-| `delistedCoverage` | 5/8 (n=8) | 관측만. 게이트 불가 |
-| `estimatedCalls` | 45,612 vs 65,092 | 주요계정이 30% 싸다 |
-| 사업연도 2014 | 32법인 전건 0보고서 | `fiscalYearFrom: 2015` 확인 |
-
-전체 재무제표에는 회계기간말 필드가 없다. **계약 1을 잴 수단이 없으면 수집기가 전건을
-버린다** — 3일을 수집한 뒤에야 드러났을 실패다(교훈50).
-
-수집 결과를 읽을 때 필요한 부수 실측 둘:
-
-- **공시지연 p95 484일 · max 1,958일** — 정정공시 caveat이 실재한다. 방향은 보수적이라
-  look-ahead가 아니라 커버리지 손실로 나타난다.
-- **폐지 표본 8건 중 3건 0보고서, 그중 하나가 SPAC**(`128910`). A1b는 `A0.7 − A1a`라
-  A1a가 회사명으로 제외한 SPAC이 그대로 들어온다. `corpsWithDataRateByGroup.delisted`가
-  낮다고 곧바로 수집 실패로 읽지 말고 **분모부터 다시 정의한다**.
-
-정찰 실측은 정책의 `probed` 블록에 있다. `measured`가 **아니다** — 표본 32법인이고,
-`test-policies.js`가 `measured`의 존재로 WARN→FAIL 승격을 가른다.
-
-### 수집이 끝난 뒤 (FN-1.3 승격)
-
-A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
-
-1. `_diagnostics.json`의 실측을 `fundamentals.v1.json`의 `measured` 블록에 기록
-   (이 블록이 승격의 스위치다)
-2. 여유가 확인된 WARN을 FAIL로 승격 — 후보는 `yearCoverageDropWarn`(계약 2가
-   "특정 연도만 급락하면 **실패**"라고 명시한다), `coverageRateMinWarn`, `minCorpsWithDataWarn`
-3. `roeAbsOutlierRateWarn`·`negativeEquityRateWarn`은 **WARN으로 남긴다** —
-   자본잠식은 시장의 정상 사건이고, FAIL로 올리면 사실이 파이프라인을 막는다
-4. 반드시 볼 두 지표: `periodEndParsedRate`(FAIL 임계 0.99)와
-   `accountMappingHitRateByAccount`(전수 기준선. 정찰 표본 32법인이 못 본 이름 변주의 긴 꼬리)
-5. CLAUDE.md `Validated against`와 이 문서 갱신
+**키 재발급은 사람이 판단한다.** 새 세션이 이어받았다면 먼저 확인한다.
 
 ---
 
-## 9.2 A2b 폐지분 가격 — 우선 구현 (미지수 없음)
-
-### 정찰 결과 (2026-08-05, `scripts/probe-price-a2b.py`)
-
-```
-A1b 후보                     1,222
-가격 확보 성공                 631   (51.6%)
-  ├ 최종거래일 >= 2016         572          ← 분석 구간 내 폐지. 생존편향에 실제 영향
-  └ 최종거래일 <  2016          59          ← 2016 이전 폐지. 유니버스에 없었다
-가격 확보 실패                 591   전건 EMPTY_ALL_WINDOW (예외 0)
-```
-
-> **51.6%를 커버리지로 읽으면 안 된다.** 실제 품질 지표는 분석 구간(`analysisFrom`)과
-> 겹치는 폐지 종목에 대한 커버리지이며, 그 기준으로 **확보 불가는 0건**이다.
-
-확보 실패 591건은 12년 전 구간에 거래일이 0행이므로 2014-05 이전 폐지이거나 상장 이력이
-없는 법인이다. 다만 실패 종목은 `lastTraded`를 모르므로, 게이트의 전제는
-**"확보 실패 = 전부 구간 밖"** 이고 **이 가정을 산출물에 명시한다**(가정을 숨기면 사실로 굳는다).
-
-### 구현 완료 (2026-08-05). 남은 것은 수집 실행뿐
+## 9.3 A2b 폐지분 가격 — 구현 완료 · 수집 미실행
 
 ```
 Actions → backfill-price-a2b → Run workflow
 ```
 
-8샤드 × 약 9분 + finalize. 일 한도가 없으므로 한 번에 끝난다(A3식 resume 불필요).
-소요 근거는 **종목당 약 3.4초 실측**이다 — A2a의 0.3초를 그대로 쓰면 안 된다.
-폐지 종목은 상장기간 전체를 한 번에 받고, 소스가 요청 구간이 아니라 '오늘로부터 N일'로
-동작해 12년치를 통째로 내려준다.
+8샤드 × 약 9분 + finalize. 일 한도가 없어 한 번에 끝난다(A3식 resume 불필요).
+종목당 약 3.4초 실측 — A2a의 0.3초를 쓰면 안 된다. 폐지 종목은 상장기간 전체를 한 번에 받고,
+소스가 요청 구간이 아니라 '오늘로부터 N일'로 동작해 12년치를 통째로 내려준다.
 
-만들어진 것:
+정찰 실측(후보 1,222 전수): 가격 확보 631(51.6%) · 그중 최종거래일 ≥ 2016이 572.
+**51.6%를 커버리지로 읽으면 안 된다** — 확보 실패 591건은 12년 구간 전체에 거래일이 0행이라
+2014-05 이전 폐지이거나 상장 이력 없는 법인이고, **분석 구간 기준 확보 불가는 0건**이다.
 
-```
-config/policies/price.v1.json          PR-1.3 → PR-1.4 (a2b 블록)
-scripts/build-price-a2b.py             shard/finalize
-scripts/test-price-a2b.py              합성 픽스처 32건 (네트워크 불필요)
-scripts/verify-diagnostics.js          A2b 등재 (필드 39 · trueFlag 2)
-scripts/test-policies.js               a2b 블록 계약 13건 추가
-.github/workflows/price-a2b.yml        8샤드 + finalize
-```
-
-**계획이 셋이라고 했던 '복사하면 안 되는 곳'은 넷이었다.** 구현 중에 하나가 더 나왔다.
-
-```
-2(신규). 빈 응답이 정상 결과다
-         A2a는 '연속 빈 응답 20건'에서 멈춘다. A2b는 후보의 48.4%가 전 구간 0행이고,
-         A1b 산출물이 corp 오름차순(등록 순)이라 옛 폐지가 뭉쳐 있다.
-         그대로 복사했다면 정상 수집이 중간에 죽었을 것이다 — 그것도 '경로 차단'이라는
-         틀린 사유를 달고. 서킷은 예외만 세고, 빈 응답의 과다는 인수 조건이 사후에 잡는다.
-```
-
-구현이 바꾼 판단 둘:
-
-- **exitAt 검사를 '마지막 가격행과 같은가'로 두면 동어반복이다**(교훈45). 자기 자신을
-  검사하는 게이트라 아무것도 막지 못한다. 소스를 정책에서 읽어 분기시키고,
-  `dartModifyDate`로 바꾸면 '그 종목의 거래일이 아니다'에서 걸리게 했다.
-  회귀 테스트가 그 잘못된 경로를 실제로 만들어 FAIL을 확인한다.
-- **규모 임계 둘만 FAIL이다.** 정찰이 표본이 아니라 후보 1,222건 **전수**였기 때문이다
-  (확보 631 · 구간 내 572 → 임계 600 · 550). A3의 32법인 표본을 게이트로 못 쓰는 것과
-  여기가 갈리는 지점이다. 나머지는 실측이 없으므로 WARN으로 시작한다.
-
-검증 완료: 정책 통과 · A2b 회귀 32/32 · A2a 9/9 · A3 49/49 · 엔진 31/31 ·
-로컬 스모크(5종목 → 3,144행, 빈 응답 2건 정상 · finalize exit 1 · 진단 계약이
-smokeTest·acceptancePassed=false를 거부 · `A2B_FAIL_INJECTION` 동작) · `data/` 정리 완료.
-
-`REQUIRED_UPSTREAM.A2b = ['A0.5','A1b']` · `REQUIRED_POLICIES.A2b = ['universe','price']`는
-**이미 등재돼 있고** 상류 둘 다 완료라 그대로 통과한다.
-
-### PR-1.4와 A2a — 재실행하지 않는다 (2026-08-05 결정)
-
-**PR-1.4는 A2b를 추가하는 정책 확장이며, A2a 산출물 계약에는 영향이 없어 재생성하지 않았다.**
-
-근거는 세 가지다.
-
-```
-1 계약이 안 바뀌었다   A2a의 입력·처리 로직·acceptance·diagnostics·산출 스키마가 그대로다.
-                       a2b는 순수 추가이고 A2a가 읽는 키(최상위 acceptance·output·shards)를
-                       건드리지 않았다. 업스트림 계약은 그대로, 하류 계약만 확장됐다
-2 재실행이 이력을 틀리게 만든다
-                       policyHash는 '이 산출물이 어떤 정책에서 만들어졌는가'다.
-                       A2a에 PR-1.4를 찍으면 'A2a가 PR-1.4 기능을 썼다'는 오해가 남는다.
-                       PR-1.3으로 두는 편이 의미상 정확하다
-3 결정론 검증은 다른 도구의 일이다
-                       재실행으로 바이트 동일성을 확인할 수는 있으나, 그 목적이라면
-                       별도 rebuild-verification 워크플로가 맞다. 운영 산출물을 다시 만드는
-                       이유를 'policyHash 맞추기'로 두면 관리 기준이 흐려진다
-```
-
-CLAUDE.md의 재실행 규칙은 **그 단계가 읽는 키가 바뀐 경우**를 뜻한다. 같은 파일의
-다른 블록이 추가된 것만으로는 재실행 사유가 아니다 — 그 조건을 규칙에 명시해 뒀다.
+PR-1.4는 A2a 재실행 사유가 아니다(§9.5).
 
 ---
 
-## 9.3 A4 수급 — 오늘은 가용성 확인만 (타임박스 30~60분)
+## 9.4 A4 수급 — 계약 미정
 
-### 무엇을 채워야 하는가 (KR-2.2 실측)
-
-```
-supplyDemand 0.20 의 내부 가중치
-  foreignNetBuy5d          0.40   외국인 5일 순매수 추세   ← KRX 종목별
-  institutionNetBuy5d      0.35   기관 5일 순매수 추세     ← KRX 종목별
-  largeShareholderChange   0.15   대주주 지분율 변동       ← DART 공시
-  buybackOrRetirement      0.10   자사주 매입/소각 공시    ← DART 공시
-```
-
-**75%가 KRX 종목별 수급, 25%가 DART 공시다.** 이 분해가 일정에 영향을 준다 —
-DART 축은 A3와 **같은 일 한도를 나눠 쓴다.** A3 수집이 하루 16,000건을 쓰는 동안
-A4의 DART 부분을 시작하면 안 된다. 오늘 확인은 **KRX 축만** 본다.
-
-### 확인할 것 (이것만)
-
-`pykrx 1.2.8`에 시그니처는 존재한다(로컬 확인). **다만 시그니처의 존재는 가용성이 아니다**
-— 교훈38·41이 그것이다. bulk 경로는 이미 영구 차단으로 확정돼 있다.
-
-```
-종목별(후보)  get_market_trading_value_by_date(fromdate, todate, ticker, detail=False)
-              get_market_trading_volume_by_date(...)
-전종목(bulk)  get_market_trading_value_and_volume_by_ticker(...)   ← 차단 예상. 재확인만
-```
-
-질문 넷:
-
-```
-1. get_market_trading_value_by_date가 실제 데이터를 돌려주는가 (정찰 2종목: 005930·000660)
-2. detail=True(기관 세부: 연기금·투신 등)가 되는가 — 안 되면 '기관합계'로만 설계한다
-3. 2016년 구간이 오는가, 아니면 일봉처럼 약 3,000거래일 롤링 윈도우인가
-4. 종목당 소요는 얼마인가 (A2a 실측 0.3초/종목이 기준. 3,210종목이면 약 16분)
-```
-
-### 중단 조건
-
-```
-경로가 열려 있다   → 여기서 멈춘다. 결과만 기록하고 A2b로 돌아간다
-경로가 막혔다      → A4 설계 전체를 재검토한다 (supplyDemand 축을 어떻게 할지가 A5o를 바꾼다)
-```
-
-### 확인 결과 (2026-08-05 실행 완료 — 전문은 `docs/BF-1.1-백필계약.md` §7 A4 절)
+가용성만 확인됐다(2026-08-05). 전문은 `docs/BF-1.1-백필계약.md` §7 A4.
 
 ```
 KRX bld 전체            400 LOGOUT. 수급만이 아니라 개별종목 일봉도 같다
@@ -1270,22 +904,36 @@ naver JSON (trend)      최대 60행 · page 무시 = 최근분만 · 약 1.7초
 
 **경로는 열려 있으나 비용이 설계를 바꾼다.** 이력은 HTML 축이 유일하고 종목당 약 130페이지라
 3,210종목이면 단일 약 200시간이다(Actions 6시간 잡 한도 초과 → 샤드 resume 필수).
-운영(최근분)은 JSON 한 번이면 끝난다. 그래서 A4는 단일 단계가 아니라 두 갈래로 갈릴
-후보지만, **분할 축 결정은 A4 착수 시점에 한다**(교훈46 — 축을 잘못 고르면 분할의 목적이 사라진다).
+운영(최근분)은 JSON 한 번이면 끝난다. 두 갈래로 갈릴 후보지만 **분할 축 결정은 착수 시점에
+한다**(교훈46). Actions 러너에서의 KRX bld 상태는 미확인이며, 착수 시 1분짜리 probe로 먼저 가른다.
 
-**그리고 대조군이 틀렸던 것이 이 확인의 진짜 소득이다.** "A2a 일봉은 되는데 수급만
-막혔다"로 읽었으나, pykrx는 `adjusted=true`면 naver로 간다 — A2a는 KRX를 쓴 적이 없다.
-KRX bld는 처음부터 죽어 있었고 아무도 확인하지 않았을 뿐이다(교훈52).
-§10 표의 'KRX 개별종목 일봉 ✅'를 정정했다. Actions 러너에서의 KRX bld 상태는
-여전히 미확인이며, A4 착수 시 1분짜리 probe 잡으로 먼저 가른다.
-
-**오늘 A4에서 하지 않을 것**: 정책 파일 작성, 수집기 구현, DART 축 정찰.
-확인 결과는 `docs/BF-1.1-백필계약.md` §7에 A4 절을 신설해 적는다
-(현재 §7에 A4 인수 조건 절이 **없다** — 계약 미정 상태다).
+`supplyDemand 0.20`의 내부 가중치는 **75%가 KRX 종목별 수급, 25%가 DART 공시**다.
+DART 축은 A3와 같은 일 한도를 나눠 쓰므로 A3 수집 중에는 시작하지 않는다.
 
 ---
 
-## 9.4 다음 단계와의 관계
+## 9.5 재실행하지 않는 것들
+
+**PR-1.4와 A2a** — PR-1.4는 A2b를 추가하는 정책 확장이며 A2a 산출물 계약에는 영향이 없다.
+
+```
+1 계약이 안 바뀌었다   A2a의 입력·처리·acceptance·diagnostics·산출 스키마가 그대로다
+2 재실행이 이력을 틀리게 만든다
+                       policyHash는 '이 산출물이 어떤 정책에서 만들어졌는가'다.
+                       A2a에 PR-1.4를 찍으면 'A2a가 PR-1.4 기능을 썼다'는 오해가 남는다
+3 결정론 검증은 다른 도구의 일이다
+                       바이트 동일성 확인이 목적이면 별도 rebuild 워크플로가 맞다
+```
+
+CLAUDE.md의 재실행 규칙은 **그 단계가 읽는 키가 바뀐 경우**를 뜻한다. 같은 파일의 다른 블록이
+추가된 것만으로는 재실행 사유가 아니다.
+
+**REG-1.5와 하류 단계** — `approvals` 네임스페이스 추가로 registry 해시가 바뀌지만, 기존
+단계가 읽는 키는 그대로다. 재실행하지 않는다.
+
+---
+
+## 9.6 다음 단계와의 관계
 
 ```
 A3 완료 ─┬→ A5o 운영 점수(survivorshipBias 스탬프) → 운영 검증
@@ -1296,11 +944,3 @@ A2b 완료 ─→ A5 연구(생존편향 제거) → A6~A9
 `REQUIRED_UPSTREAM.A5`에는 이미 `A2a·A2b·A3`가 전부 들어 있다. A5o는 별도 stage로
 추가하며 표 등재는 **A5o 착수 커밋에서** 한다 — 스크립트 없는 stage를 표에만 올리면
 실행 불가능한 계약이 남는다.
-
-### 첫 명령
-
-```bash
-node scripts/test-policies.js
-python scripts/test-fundamentals-a3.py
-git log --oneline <Validated against 해시>..HEAD -- lib scripts config .github
-```
