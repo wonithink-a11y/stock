@@ -734,7 +734,7 @@ A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
 | `stateTransitionViolations` | 빈 배열 (T1~T4) |
 | `stateInvariantViolations` | 빈 배열 (S1~S3. 하나라도 있으면 finalize가 중단한다) |
 | `stateMergedViolations` | 빈 배열 (M1·M2. `corpsAssignedSumMeasurable`이 true여야 M1이 산 검사다) |
-| `corpsSplitAcrossShards` | 0 (M3. `recordKeysInMultipleShards`가 분산/복제를 가른다) |
+| `duplicateRecordKeysAcrossShards` · `recordDistributionAcrossShards` | 둘 다 0 (M3. 서로소라 어느 쪽이 0이 아닌지가 팔 곳을 지목한다) |
 | `recordCorpsNotInDone` | 0 |
 | `runIdentityOk` | true |
 | `hardErrorsByCause` | 원인별 집계 확인. **0이 아니어도 허용**이며 대응만 갈린다(§9.7) |
@@ -745,6 +745,43 @@ jsonl 행 수는 `>=`다(재시도가 있으면 등식이 아니다). `hardError
 
 `nonRetryable`이 하나라도 나오면 그때가 `config/backfill/declared-gaps-a3.json`에
 `{corp, reason}`을 넣을 시점이다. `retryable` 쪽은 두면 다음 실행이 재시도한다.
+
+### 레코드 스키마 — 품질 분석에 필요한 것은 이미 있다 (2026-08-06 확인)
+
+품질 분석은 필요한 정보가 **레코드에** 있어야 의미가 있고, 없으면 분석기를 복잡하게
+만드는 것보다 스키마를 보강하는 것이 옳다. 그런데 스키마 보강은 **collect 단계**에서만
+가능하다 — finalize는 없는 것을 만들어내지 못한다. 그래서 collect #3 전에 확인했다.
+
+```
+output.fields  corp · ticker · fiscalYear · availableFrom · rceptNo · fsDiv ·
+               periodEnd · currency · sicCode · (계정 7) · accountSource
+```
+
+`fsDiv`는 레코드(`build_record`)에도 `output.fields`에도 있어 최종 JSONL까지 간다.
+`accountSource`는 계정별 매칭 수단이 든 dict라 `accountSet` 역할을 한다(MISS 포함).
+
+**`fsDiv` 값의 뜻이 생각보다 강하다.** `pick_fs_div`는 `fsDivPreference`를 *한 응답의
+행들* 위에서 순회한다 — 주요계정은 fs_div가 요청 파라미터가 아니라 응답 행의 필드라
+연결·별도가 함께 온다. 따라서 `fsDiv == "OFS"`는 **그 (corp, 사업연도)에 연결이
+없었다**는 뜻이고, '연결이 있었는데 별도만 수집했다'는 경우는 존재하지 않는다.
+"연결만 없는지"는 사후 복원이 아니라 **레코드가 직접 답한다.**
+
+| 누락 패턴 | 복원 가능성 |
+|---|---|
+| 회사 A는 항상 2021만 없음 | corp × fiscalYear 격자의 구멍 (대상 목록이 분모) |
+| 회사 B는 연결만 없음 | `fsDiv == OFS`가 직접 답한다 |
+| 회사 C는 2024부터 없음 | 그 법인의 마지막 `fiscalYear` |
+
+**남은 공백 하나 — 레코드가 되지 못한 보고서의 사유가 법인별로 안 남는다.**
+`recordRejected`는 사유별 전역 Counter다(`RCEPT_NO_NOT_DATE`·`PERIOD_END_UNPARSED`).
+그래서 "회사 B의 2021이 없다"에서 *보고서가 없었다*(DART 013, 정상 사실)와 *보고서는
+있었는데 버렸다*(파싱 실패, 데이터 손실)가 구분되지 않는다. 이 둘은 대응이 정반대다.
+
+다만 **지금 실측 기각은 0이다** — 19,078레코드 / rec-rep 1.00. 남은 1,196법인에서
+처음 나올 가능성은 낮고, 이 provenance는 상태에 법인별 사유 맵을 더하는 방식이라
+수집 계약 해시를 건드리지 않는다(추가 필드다). 넣을지 말지는 collect #3 직전의
+판단이고, **넣는다면 지금이 마지막 기회다** — 마지막 collect가 끝나면 재수집 없이는
+못 채운다.
 
 ### finalize 후 (FN-1.4 승격)
 
@@ -834,10 +871,21 @@ M3가 잡는 두 경우는 성질이 다르고 메시지가 이름을 말한다.
       원인이 샤딩이라는 것을 말해주지 않아 진단이 엉뚱한 곳을 판다
 ```
 
-법인 단위가 키 단위보다 강해서 한 검사가 둘을 다 잡는다. 어느 샤드에서 온 레코드인지는
-**병합하는 순간에만** 알 수 있다 — 레코드에 샤드 번호는 없고(있어서도 안 된다, 샤딩은
-산출물의 성질이 아니다) 합쳐 놓으면 출처가 사라진다. 여기서 세지 않으면 영영 못 센다.
-병합이 이미 전 파일을 읽으므로 추가 비용은 사전 두 개뿐이다.
+**카운터는 서로소로 나눈다.** 원인이 다르므로 진단이 팔 곳을 지목해야 한다.
+
+```
+duplicateRecordKeysAcrossShards > 0   → dedup 또는 샤드 할당 (같은 일을 두 번 했다)
+recordDistributionAcrossShards  > 0   → 샤드 분할       (담당 경계가 흔들렸다)
+```
+
+복제는 분산의 특수한 경우라 그냥 세면 한 법인이 양쪽에 잡힌다. 그러면 *"둘 다 0이
+아니다"* 가 두 문제를 뜻하는지 한 문제를 두 번 센 것인지 알 수 없다. 복제가 있는
+법인은 복제로만 세고 분산은 '복제가 아닌 분산'만 센다 — 그래야 위 두 화살표가
+**배타적인 지시**가 된다. 회귀가 이중계상 부재와 섞인 경우의 분해를 직접 든다.
+
+어느 샤드에서 온 레코드인지는 **병합하는 순간에만** 알 수 있다 — 레코드에 샤드 번호는
+없고(있어서도 안 된다, 샤딩은 산출물의 성질이 아니다) 합쳐 놓으면 출처가 사라진다.
+여기서 세지 않으면 영영 못 센다. 병합이 이미 전 파일을 읽으므로 추가 비용은 사전 둘뿐이다.
 
 **T와 S를 가르는 것은 재는 자리가 아니라 재는 범위다.** T는 그 실행이 실제로 건드린
 샤드만 본다 — 예산 소진으로 즉시 끝난 샤드나 잡이 죽어 안 돌아간 샤드는 T가 아예 보지

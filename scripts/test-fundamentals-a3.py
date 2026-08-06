@@ -1030,8 +1030,9 @@ _m3_ok = m3_verdict([_rec("00000001", 2020, "2021-03-31")],
                     [_rec("00000002", 2020, "2021-03-31")],
                     ["00000001"], ["00000002"])
 ok("정상 병합은 M3 위반이 없다",
-   _m3_ok.get("corpsSplitAcrossShards") == 0
-   and _m3_ok.get("recordKeysInMultipleShards") == 0, str(_m3_ok.get("abortReason"))[:150])
+   _m3_ok.get("recordDistributionAcrossShards") == 0
+   and _m3_ok.get("duplicateRecordKeysAcrossShards") == 0,
+   str(_m3_ok.get("abortReason"))[:150])
 
 # 분산 — 같은 법인의 다른 사업연도가 두 샤드에. 상태(corpsDone)는 배타적으로 두므로
 # M2는 통과하고, 키도 안 겹쳐 중복 검사도 통과한다. M3 없이는 아무도 못 보던 경우다.
@@ -1043,12 +1044,15 @@ ok("분산 픽스처에서 M2(상태)는 통과한다 — 두 검사가 겹치�
    str(_m3_split.get("stateMergedViolations")))
 ok("분산 — 키가 안 겹쳐도 한 법인이 두 샤드에 걸치면 M3 위반",
    _m3_split.get("aborted") is True
-   and _m3_split.get("corpsSplitAcrossShards") == 1, str(_m3_split.get("abortReason"))[:150])
-ok("분산은 '분산'이라고 이름을 말한다 (복제와 대응이 다르다)",
-   "분산이다" in _m3_split.get("abortReason", ""),
+   and _m3_split.get("recordDistributionAcrossShards") == 1,
+   str(_m3_split.get("abortReason"))[:150])
+ok("분산은 '샤드 분할을 본다'로 팔 곳을 지목한다",
+   "샤드 분할을 본다" in _m3_split.get("abortReason", ""),
    _m3_split.get("abortReason", "")[:150])
-ok("분산에서는 겹치는 레코드 키가 0이다 (중복 검사로는 안 잡힌다는 증거)",
-   _m3_split.get("recordKeysInMultipleShards") == 0)
+# 두 카운터가 서로소라는 것이 이 검사의 값이다. 분산인데 복제 카운터가 0이어야
+# "duplicate > 0 → dedup / distribution > 0 → 분할"이 배타적인 지시가 된다.
+ok("분산에서 복제 카운터는 0이다 (중복 검사로는 안 잡힌다는 증거이자 서로소의 증거)",
+   _m3_split.get("duplicateRecordKeysAcrossShards") == 0)
 
 # 복제 — 같은 키가 두 샤드에. validate의 중복 검사도 잡지만 '데이터 중복'이라고만
 # 말한다. M3가 먼저 돌아 원인이 샤딩임을 지목한다.
@@ -1057,10 +1061,32 @@ _m3_dup = m3_verdict([_rec("00000001", 2020, "2021-03-31")],
                      ["00000001"], ["00000002"])
 ok("복제 — 같은 레코드 키가 두 샤드에 있으면 M3 위반",
    _m3_dup.get("aborted") is True
-   and _m3_dup.get("recordKeysInMultipleShards") == 1,
+   and _m3_dup.get("duplicateRecordKeysAcrossShards") == 1,
    str(_m3_dup.get("abortReason"))[:150])
-ok("복제는 '복제'라고 이름을 말한다 — 원인이 샤딩임을 지목한다",
-   "복제다" in _m3_dup.get("abortReason", ""), _m3_dup.get("abortReason", "")[:150])
+ok("복제는 'dedup 또는 샤드 할당을 본다'로 팔 곳을 지목한다",
+   "dedup 또는 샤드 할당을 본다" in _m3_dup.get("abortReason", ""),
+   _m3_dup.get("abortReason", "")[:150])
+# 복제는 분산의 특수한 경우라 그냥 세면 양쪽에 잡힌다. 서로소로 만들지 않으면
+# "둘 다 0이 아니다"가 두 문제인지 한 문제를 두 번 센 것인지 알 수 없다.
+ok("복제인 법인은 분산으로 이중계상되지 않는다 (두 카운터가 서로소)",
+   _m3_dup.get("recordDistributionAcrossShards") == 0,
+   str(_m3_dup.get("recordDistributionAcrossShards")))
+
+# 섞인 경우 — 복제 법인 하나와 분산 법인 하나가 함께 있으면 각자 자기 칸에 하나씩.
+_m3_both = m3_verdict([_rec("00000001", 2020, "2021-03-31"),
+                       _rec("00000003", 2020, "2021-03-31")],
+                      [_rec("00000001", 2020, "2021-03-31"),
+                       _rec("00000003", 2021, "2022-03-31")],
+                      ["00000001", "00000003"], ["00000002"])
+ok("복제와 분산이 함께 있으면 각 카운터가 하나씩 센다 (합산이 아니라 분해)",
+   _m3_both.get("duplicateRecordKeysAcrossShards") == 1
+   and _m3_both.get("recordDistributionAcrossShards") == 1,
+   f"dup={_m3_both.get('duplicateRecordKeysAcrossShards')} "
+   f"dist={_m3_both.get('recordDistributionAcrossShards')}")
+ok("섞인 경우 중단 메시지가 둘 다 이름과 팔 곳을 말한다",
+   "dedup 또는 샤드 할당을 본다" in _m3_both.get("abortReason", "")
+   and "샤드 분할을 본다" in _m3_both.get("abortReason", ""),
+   _m3_both.get("abortReason", "")[:200])
 
 # 첫 실행에서 담당분이 처음 채워지는 것은 범위 변경이 아니다 —
 # corpsAssigned 기본값을 0으로 두면 여기가 '0 → 476'으로 오탐된다(교훈57).

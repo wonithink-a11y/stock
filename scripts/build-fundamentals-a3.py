@@ -1504,21 +1504,42 @@ def run_finalize(pol):
     #         validate가 '완전 중복'으로 잡기는 하지만 데이터 문제로 보고한다 —
     #         원인이 샤딩이라는 것을 말해주지 않아 진단이 엉뚱한 곳을 판다.
     #
-    # 어느 쪽이든 라운드로빈이 깨졌다는 뜻이고, 그것을 이름으로 말해주는 자리가
-    # 여기다. 병합이 이미 전 파일을 읽으므로 추가 비용은 사전 두 개뿐이다.
-    split_corps = sorted(c for c, s in corp_shards.items() if len(s) > 1)
+    # 어느 쪽이든 라운드로빈이 깨졌다는 뜻이지만 **원인이 다르므로 카운터를 나눈다.**
+    # 하나로 두면 사고 시점에 어느 층을 파야 하는지 진단이 말해주지 않는다.
+    #
+    #   duplicate > 0     → dedup 또는 샤드 할당 문제 (같은 일을 두 번 했다)
+    #   distribution > 0  → 샤드 분할 문제 (담당 경계가 흔들렸다)
+    #
+    # 두 집합은 **서로소로 만든다.** 복제는 분산의 특수한 경우라 그냥 세면 한 법인이
+    # 양쪽에 잡히고, 그러면 "둘 다 0이 아니다"가 두 문제를 뜻하는지 한 문제를 두 번
+    # 센 것인지 알 수 없다. 복제가 있는 법인은 복제로만 세고, 분산은 '복제가 아닌
+    # 분산'만 센다 — 그래야 위 두 화살표가 배타적인 지시가 된다.
+    # 병합이 이미 전 파일을 읽으므로 추가 비용은 사전 두 개뿐이다.
     dup_keys = sorted(k for k, s in key_shards.items() if len(s) > 1)
-    diag["corpsSplitAcrossShards"] = len(split_corps)
-    diag["corpsSplitAcrossShardsSample"] = [
-        {"corp": c, "shards": sorted(corp_shards[c])} for c in split_corps[:20]]
-    diag["recordKeysInMultipleShards"] = len(dup_keys)
-    if split_corps:
-        kind = ("복제와 분산이 섞였다" if dup_keys and len(dup_keys) < len(split_corps)
-                else "복제다 (같은 키가 여러 샤드에)" if dup_keys else
-                "분산이다 (키는 안 겹치나 한 법인이 여러 샤드에)")
-        _abort(f"한 법인의 레코드가 여러 샤드에서 나왔다 {len(split_corps)}법인 — {kind}. "
-               f"{diag['corpsSplitAcrossShardsSample'][:3]} · "
-               f"여러 샤드에 걸친 레코드 키 {len(dup_keys)}건", diag, diag_path)
+    dup_corps = {k[0] for k in dup_keys}
+    split_corps = {c for c, s in corp_shards.items() if len(s) > 1}
+    dist_corps = sorted(split_corps - dup_corps)
+
+    diag["duplicateRecordKeysAcrossShards"] = len(dup_keys)
+    diag["duplicateRecordKeysSample"] = [
+        {"corp": k[0], "fiscalYear": k[1], "availableFrom": k[2],
+         "shards": sorted(key_shards[k])} for k in dup_keys[:20]]
+    diag["recordDistributionAcrossShards"] = len(dist_corps)
+    diag["recordDistributionSample"] = [
+        {"corp": c, "shards": sorted(corp_shards[c])} for c in dist_corps[:20]]
+
+    if dup_keys or dist_corps:
+        parts = []
+        if dup_keys:
+            parts.append(f"복제 {len(dup_keys)}키/{len(dup_corps)}법인 "
+                         f"{diag['duplicateRecordKeysSample'][:3]} — "
+                         f"dedup 또는 샤드 할당을 본다")
+        if dist_corps:
+            parts.append(f"분산 {len(dist_corps)}법인 "
+                         f"{diag['recordDistributionSample'][:3]} — "
+                         f"샤드 분할을 본다")
+        _abort("한 법인의 레코드가 여러 샤드에서 나왔다 · " + " · ".join(parts),
+               diag, diag_path)
 
     corps = targets      # M1에서 이미 읽었다. 두 번 읽으면 그 사이에 갈릴 수 있다
     diag["fiscalYearFrom"] = pol["fiscalYearFrom"]
