@@ -140,9 +140,14 @@ node scripts/test-universe-a1b.js       # A1b 산출물이 있어야 한다
 python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, 산출물 불필요)
 python scripts/test-price-a2b.py        # A2b 상장기간 한정·exitAt 출처 (합성 픽스처)
 python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭·resume 무결성 (합성 픽스처)
+python scripts/test-analyze-a3.py       # A3 품질 분석기 (합성 픽스처)
 
 # A3 수집 진행 확인 (읽기 전용·네트워크 불필요. 워크플로도 이것을 부른다)
 python scripts/build-fundamentals-a3.py --summary
+
+# A3 품질 분석 (읽기 전용. 산출물이 있으면 그것을, 없으면 수집 중간물을 읽는다)
+python scripts/analyze-fundamentals-a3.py
+python scripts/analyze-fundamentals-a3.py --holes   # 내부 구멍 법인 전체
 
 # 수집 스크립트 (외부 네트워크 필요)
 python scripts/build-dart-corpcode.py   # A0.7 — DART_API_KEY 필요
