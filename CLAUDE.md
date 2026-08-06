@@ -20,7 +20,8 @@ Validated against
   다음     A3 collect #3 (남음 1,196 — 한 번에 끝날 가능성) → finalize
            → measured 기록 후 임계 승격 (FN-1.4)
            A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
-           A5 착수 불가 — 계산 가능 가중치 0.4475 < minimumDataCoverage 0.6
+           A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
+           A5 운영 투입은 대기 — availableWeight 0.4475 < 0.6
            EPS·배당(alotMatter)·주식수가 없다. A3b 신설 여부가 사람의 결정
            (docs/A5-1.0-입출력계약.md)
 ```
@@ -144,6 +145,7 @@ python scripts/test-price-a2a.py        # A2a 품질 판별 (합성 픽스처, �
 python scripts/test-price-a2b.py        # A2b 상장기간 한정·exitAt 출처 (합성 픽스처)
 python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭·resume 무결성 (합성 픽스처)
 python scripts/test-analyze-a3.py       # A3 품질 분석기·QR-1.0 리포트 (합성 픽스처)
+node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리·리졸버
 
 # A3 수집 진행 확인 (읽기 전용·네트워크 불필요. 워크플로도 이것을 부른다)
 python scripts/build-fundamentals-a3.py --summary
