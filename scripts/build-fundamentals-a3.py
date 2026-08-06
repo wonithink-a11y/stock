@@ -80,6 +80,16 @@ DART_NO_DATA = "013"
 
 fails, warns = [], []
 
+# 진단 출력이 콘솔 인코딩 때문에 죽지 않게 한다. 이 파일의 메시지에는 em-dash가 섞여
+# 있고, cp949 콘솔에서 --summary가 그것을 만나 UnicodeEncodeError로 죽었다 —
+# 인수인계 §9의 첫 명령이자 CLAUDE.md가 읽기 전용 진단으로 문서화한 경로다.
+# errors='replace'만 바꾸고 encoding은 건드리지 않는다. utf-8로 강제하면 cp949
+# 콘솔에서 한글이 통째로 깨지는데, 그것은 크래시를 가독성 손실로 바꾸는 거래일 뿐이다.
+# 관측이 내구성을 막아서는 안 된다(교훈63) — 여기서는 관측이 자기 자신을 막았다.
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(errors="replace")
+
 
 def chk(cond, msg):
     print(("  OK  " if cond else "  FAIL") + "  " + msg)
@@ -207,26 +217,57 @@ def redact(s):
     return SECRET_RE.sub(r"\1<redacted>", str(s))
 
 
+def _top_causes(counter, n=3):
+    """사람이 읽는 한 줄. 원인이 하나면 그것만, 여럿이면 상위 n개를 센 순서로."""
+    if not counter:
+        return "원인 없음"
+    return " · ".join(f"{k} {v}" for k, v in counter.most_common(n))
+
+
+def _bump(counters, key, cause):
+    """진단 카운터는 없을 수도 있다 — 테스트와 정찰이 부분 counters로 부른다.
+
+    관측을 위해 수집 경로를 죽이지 않는다. setdefault로 열어두고 센다.
+    """
+    if cause:
+        counters.setdefault(key, Counter())[cause] += 1
+
+
 def dart_call(endpoint, params, pol, counters):
-    """(rows, dartStatus, hardError)
+    """(rows, dartStatus, hardError, cause)
 
     DART는 조회 실패도 HTTP 200 + status 필드로 돌려준다 — HTTP status만 보는 재시도는
     0회 돈다(교훈38). 그래서 두 축을 다 보고, 재시도는 '하드 실패'에만 건다.
     '데이터 없음'을 재시도하면 폐지 법인 구간에서 호출 예산을 헛되이 태운다.
 
     crtfc_key는 params로만 넘기고 로그·산출물 어디에도 남기지 않는다.
+
+    네 번째 값 cause는 실패의 **원인 계층**이다. hardErrors 하나로는 "수집 경로가
+    막혔다"까지밖에 못 말하고, 그 문구는 원인을 지목하지 않는다(교훈41). 계층을
+    문자열 앞머리로 갈라 두면 전송 장애(transport)·게이트웨이(http)·응답 형식(parse)·
+    DART 업무 오류(dart)가 집계에서 섞이지 않는다. 특히 앞 셋은 dartStatus 카운터에
+    아예 나타나지 않는다 — status를 읽지 못한 실패이기 때문이다.
+
+      transport:<예외명>   요청이 나가지 못했거나 응답을 못 받았다
+      http:<코드>          비-2xx로 돌아왔다 (DART가 아니라 앞단일 수 있다)
+      parse:<예외명>       2xx인데 JSON이 아니다
+      dart:<status>        형식은 정상이고 DART가 업무 오류를 돌려줬다
+
+    분류표(failureClassification)는 dart:* 만 가른다. 나머지는 status가 None이라
+    기본값(재시도 가능)으로 떨어지며, 그 사실이 이 분해에서 보인다.
     """
     # last_status는 '마지막 시도'의 것이어야 한다. 비-DART 실패(전송·HTTP·파싱)에서
     # 이전 시도의 DART status가 남아 있으면 분류가 그것을 보고 오판한다 —
     # 1차 100 → 2차 HTTP 503이면 마지막 실패는 재시도 가능인데 non-retryable이 된다.
-    # 그래서 매 시도가 두 값을 함께 덮고, 비-DART 실패는 status를 None으로 둔다.
-    last_status, last_err = None, None
+    # 그래서 매 시도가 세 값을 함께 덮고, 비-DART 실패는 status를 None으로 둔다.
+    last_status, last_err, last_cause = None, None, None
     for i in range(pol["retryAttempts"]):
         counters["calls"] += 1
         try:
             r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params})
         except Exception as e:  # noqa: BLE001
             last_status, last_err = None, f"{type(e).__name__}: {redact(e)[:150]}"
+            last_cause = f"transport:{type(e).__name__}"
             LAST_HTTP.update(endpoint=endpoint, httpStatus=None, dartStatus=None, bytes=None)
         else:
             body = r.content or b""
@@ -236,22 +277,30 @@ def dart_call(endpoint, params, pol, counters):
                     j = r.json()
                 except Exception as e:  # noqa: BLE001
                     last_status, last_err = None, f"PARSE {type(e).__name__}: {redact(e)[:150]}"
+                    last_cause = f"parse:{type(e).__name__}"
                 else:
                     st = str(j.get("status", ""))
                     LAST_HTTP["dartStatus"] = st
                     counters["dartStatus"][st] += 1
                     if st == "000":
-                        return (j.get("list") or []), st, None
+                        return (j.get("list") or []), st, None, None
                     # 데이터 없음과 한도 초과는 재시도 대상이 아니다.
                     # 전자는 정상 사실이고 후자는 기다린다고 풀리지 않는다.
+                    # 실패가 아니므로 원인 분해에도 넣지 않는다.
                     if st in (DART_NO_DATA, pol["quota"]["quotaExceededStatus"]):
-                        return [], st, None
+                        return [], st, None, None
                     last_status, last_err = st, redact(j.get("message", ""))[:150]
+                    last_cause = f"dart:{st}"
             else:
                 last_status, last_err = None, f"HTTP {r.status_code}"
+                last_cause = f"http:{r.status_code}"
+        # 시도 단위로 센다. 아래 hardErrorsByCause와 분모가 다르다 —
+        # 재시도로 풀린 실패는 여기에만 남고, 그 차이가 '재시도가 돌고 있는가'를
+        # 보여주는 유일한 값이다(교훈38: 붙어 있다는 사실이 도는 것을 뜻하지 않는다).
+        _bump(counters, "callFailuresByCause", last_cause)
         if i < pol["retryAttempts"] - 1:
             time.sleep(pol["retryBackoffBase"] ** i)
-    return [], last_status, (last_err or "unknown")
+    return [], last_status, (last_err or "unknown"), (last_cause or "unknown")
 
 
 # ── 계정 매칭 ──────────────────────────────────────────────────
@@ -611,12 +660,12 @@ def scan_corp(corp, ticker, pol, counters, state):
     preference = list(pol["source"]["fsDivPreference"])
     quota_status = pol["quota"]["quotaExceededStatus"]
     out, any_found, empty_run = [], False, 0
-    fail = {"count": 0, "lastStatus": None, "lastReason": None}
+    fail = {"count": 0, "lastStatus": None, "lastReason": None, "lastCause": None}
     sic = None
 
     for y in years:
         got, year_hard = None, False
-        rows, st, err = dart_call(pol["source"]["endpoint"], {
+        rows, st, err, cause = dart_call(pol["source"]["endpoint"], {
             "corp_code": corp, "bsns_year": str(y),
             "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
         time.sleep(pol["requestSleepSeconds"])
@@ -626,8 +675,14 @@ def scan_corp(corp, ticker, pol, counters, state):
             fail["count"] += 1
             fail["lastStatus"] = st
             fail["lastReason"] = err
+            fail["lastCause"] = cause
             year_hard = True
             counters["hardErrors"] += 1
+            # hardErrors를 남김없이 분해한다 — sum(hardErrorsByCause) == hardErrors.
+            # 여기가 hardErrors를 올리는 유일한 자리라 등식이 구성상 성립하고,
+            # 그래서 이 값은 검사가 아니라 분해다. 마지막 시도의 원인을 쓴다:
+            # 재시도가 있었다면 그 법인-연도를 실제로 포기시킨 원인이 그것이다.
+            _bump(counters, "hardErrorsByCause", cause)
         elif rows:
             got = pick_fs_div(rows, preference)
         if got is None:
@@ -691,6 +746,10 @@ def run_shard(shard, shards, pol, limit):
     diag_path = f"{SHARD_DIR}/_diagnostics-shard-{shard}.json"
     counters = {"calls": 0, "dartStatus": Counter(), "hardErrors": 0,
                 "earlyStopped": 0, "sicFetchFailed": 0,
+                # 두 분해는 분모가 다르다. 위는 시도 단위(재시도 포함), 아래는
+                # 법인-연도 단위(포기시킨 원인). 한 표로 합치면 재시도로 풀린 실패와
+                # 데이터를 잃은 실패가 같은 칸에 들어간다.
+                "callFailuresByCause": Counter(), "hardErrorsByCause": Counter(),
                 "reportsFound": 0, "recordRejected": Counter()}
     diag = {"stage": "A3", "mode": "shard", "shard": shard, "shards": shards,
             "fundamentalsPolicy": pol["version"], "runDate": today_kst()}
@@ -754,15 +813,20 @@ def run_shard(shard, shards, pol, limit):
     # 정찰 2회(교훈32) — 경로가 막혔으면 3,801법인을 돌리지 않고 즉시 중단한다.
     probes = []
     for pc in pol["probeCorps"]:
-        rows, st, err = dart_call(pol["source"]["endpoint"], {
+        rows, st, err, cause = dart_call(pol["source"]["endpoint"], {
             "corp_code": pc, "bsns_year": str(pol["probeYear"]),
             "reprt_code": pol["source"]["reprtCode"]}, pol, counters)
-        probes.append({"corp": pc, "ok": bool(rows), "dartStatus": st, "error": err})
+        probes.append({"corp": pc, "ok": bool(rows), "dartStatus": st,
+                       "error": err, "cause": cause})
         time.sleep(pol["requestSleepSeconds"])
     diag["probes"] = probes
     if not any(p["ok"] for p in probes):
+        # 원인 분해를 함께 남긴다. collect #2의 샤드 6이 여기서 죽었고 진단에 남은
+        # 것은 예외 메시지 문자열뿐이었다 — 전 시도가 같은 원인이었는지 섞였는지를
+        # 사후에 셀 수 없었다. 중단 경로야말로 분해가 필요한 자리다(교훈39).
         _abort("정찰 전건 실패 — 수집 경로가 막혔다", diag, diag_path,
-               {"lastHttp": LAST_HTTP})
+               {"lastHttp": LAST_HTTP,
+                "callFailuresByCause": dict(counters["callFailuresByCause"])})
     print(f"  정찰 {sum(1 for p in probes if p['ok'])}/{len(probes)} 통과")
 
     consec_hard, quota_hit, budget_hit = 0, False, False
@@ -808,6 +872,10 @@ def run_shard(shard, shards, pol, limit):
                 "lastSeen": diag["runDate"],
                 "lastStatus": fail["lastStatus"],
                 "lastReason": fail["lastReason"],
+                # 원인 계층. lastStatus가 None인 실패(전송·HTTP·파싱)는 그것만으로
+                # 서로 구분되지 않는데, 승인 판단에서 갈려야 하는 것들이다 —
+                # transport:ConnectTimeout은 기다리면 풀리고 http:404는 아니다.
+                "lastCause": fail["lastCause"],
                 "retryable": is_retryable(fail["lastStatus"], pol),
                 **ident,
             }
@@ -833,8 +901,12 @@ def run_shard(shard, shards, pol, limit):
             fold_counters(state, counters)
             save_progress(shard, state, records)
             diag.update(corpsProcessed=processed, recordCount=len(records),
-                        calls=counters["calls"], lastHttp=LAST_HTTP)
-            _abort(f"연속 하드 실패 {consec_hard}법인 — 루프 도중 경로가 막혔다",
+                        calls=counters["calls"], lastHttp=LAST_HTTP,
+                        hardErrors=counters["hardErrors"],
+                        hardErrorsByCause=dict(counters["hardErrorsByCause"]),
+                        callFailuresByCause=dict(counters["callFailuresByCause"]))
+            _abort(f"연속 하드 실패 {consec_hard}법인 — 루프 도중 경로가 막혔다"
+                   f" ({_top_causes(counters['hardErrorsByCause'])})",
                    diag, diag_path)
 
         if processed % 25 == 0:
@@ -867,6 +939,11 @@ def run_shard(shard, shards, pol, limit):
         corpsProcessed=processed, recordCount=len(records),
         calls=state["callsUsedToday"], budget=budget,
         dartStatus=dict(counters["dartStatus"]), hardErrors=counters["hardErrors"],
+        # hardErrors는 개수고 이것은 원인이다. 개수만으로는 '무엇이 막혔는지'를 알 수
+        # 없고, 단일 문구는 원인을 지목하지 못한다(교훈41). 두 분해의 분모가 다르므로
+        # 진단에도 따로 남긴다 — 합쳐서 비율을 내면 재시도 횟수가 실패율로 둔갑한다.
+        hardErrorsByCause=dict(counters["hardErrorsByCause"]),
+        callFailuresByCause=dict(counters["callFailuresByCause"]),
         earlyStopped=counters["earlyStopped"], sicFetchFailed=counters["sicFetchFailed"],
         # 진단은 이 실행의 기록이고 누적은 상태에 있다. 둘을 섞으면 며칠에 걸친
         # 수집에서 어느 쪽이 전수인지 모호해진다.
@@ -899,6 +976,13 @@ def run_shard(shard, shards, pol, limit):
           f"법인 {status['corpsDone']}/{status['corpsAssigned']} · "
           f"하드스킵 {status['hardSkipped']}(열림 {status['hardSkippedOpen']}) · "
           f"남음 {status['corpsRemaining']} · 호출 {state['callsUsedToday']} · {tail}")
+    if counters["hardErrors"]:
+        # 로그를 읽는 사람이 진단 JSON을 열지 않고도 원인을 본다. 두 줄인 이유는
+        # 분모가 달라서다 — 위는 데이터를 잃은 실패, 아래는 재시도가 흡수한 것까지다.
+        print(f"  하드실패 {counters['hardErrors']}건 원인 — "
+              f"{_top_causes(counters['hardErrorsByCause'])}")
+        print(f"  실패 시도 {sum(counters['callFailuresByCause'].values())}건 원인 — "
+              f"{_top_causes(counters['callFailuresByCause'])}")
     if not status["conservationOk"]:
         print("  경고: 보존식 위반 — "
               f"assigned {status['corpsAssigned']} != done {status['corpsDone']} + "

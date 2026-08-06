@@ -37,6 +37,11 @@ permissions:
 
 env:
   SHARDS: 8
+  # 파이썬 stdout은 tty가 아니면 블록 버퍼링이다. collect 샤드는 80분 동안 25법인마다
+  # 체크포인트를 찍는데, 그 출력이 버퍼에 남은 채 timeout-minutes의 kill을 맞으면
+  # 통째로 사라진다 — 어디까지 갔는지를 말해줄 유일한 기록이 정작 필요한 순간에만
+  # 없다. 잡 수준에 둬서 collect·persist·finalize 전부에 걸린다.
+  PYTHONUNBUFFERED: '1'
 
 jobs:
   collect:

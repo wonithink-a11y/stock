@@ -31,6 +31,13 @@ spec = importlib.util.spec_from_file_location(
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
+# 아래 fake_run은 m.dart_call·m.scan_corp을 갈아끼우고 되돌리지 않는다 — 그 뒤 테스트가
+# 가짜를 계속 본다. 실물을 대상으로 하는 테스트는 여기서 잡아둔 참조를 쓴다.
+# m.<이름>을 그냥 부르면 앞선 테스트가 남긴 가짜를 조용히 검사하게 되고, 그때는
+# 통과든 실패든 실물에 대한 정보가 아니다.
+REAL_DART_CALL = m.dart_call
+REAL_SCAN_CORP = m.scan_corp
+
 POL = json.load(open(os.path.join(ROOT, "config/policies/fundamentals.v1.json"),
                      encoding="utf-8"))
 
@@ -472,7 +479,7 @@ def fake_run(tmp, script, prev_state=None, pol=None):
     m.KEY = "test-key"
     corps = {c: {"ticker": "000001", "group": "current"} for c in script}
     m.target_corps = lambda: corps
-    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None)
+    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None, None)
     if prev_state is not None:
         os.makedirs(tmp, exist_ok=True)
         json.dump(prev_state, open(f"{tmp}/_state-0.json", "w", encoding="utf-8"))
@@ -490,9 +497,13 @@ def fake_run(tmp, script, prev_state=None, pol=None):
     return rc, json.load(open(f"{tmp}/_state-0.json", encoding="utf-8")), buf.getvalue()
 
 
-NO_FAIL = {"count": 0, "lastStatus": None, "lastReason": None}
-HARD = {"count": 1, "lastStatus": None, "lastReason": "HTTP 503"}
-HARD_PERM = {"count": 1, "lastStatus": "100", "lastReason": "부적절한 값"}
+# lastCause는 scan_corp이 돌려주는 계약의 일부다. 픽스처에서 빼면 run_shard이
+# KeyError로 죽고, 그것이 '계약이 넷이다'를 강제하는 방식이다.
+NO_FAIL = {"count": 0, "lastStatus": None, "lastReason": None, "lastCause": None}
+HARD = {"count": 1, "lastStatus": None, "lastReason": "HTTP 503",
+        "lastCause": "http:503"}
+HARD_PERM = {"count": 1, "lastStatus": "100", "lastReason": "부적절한 값",
+             "lastCause": "dart:100"}
 
 
 def rec_for(corp):
@@ -751,7 +762,7 @@ try:
     m.KEY = "test-key"
     m.target_corps = lambda: {c: {"ticker": "000001", "group": "current"}
                               for c in ("00000001", "00000005")}
-    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None)
+    m.dart_call = lambda *a, **k: ([{"rcept_no": "20200101000001"}], "000", None, None)
     m.scan_corp = scan_spy
     _sleep = m.time.sleep
     m.time.sleep = lambda *a: None
@@ -907,11 +918,113 @@ def _raise_with_key(*a, **k):
 _saved = m.requests
 m.requests = type("R", (), {"get": staticmethod(_raise_with_key)})()
 _c = {"calls": 0, "dartStatus": __import__("collections").Counter()}
-_rows, _st, _err = m.dart_call("fnlttSinglAcnt.json", {"corp_code": "00126380"},
-                               {**POL, "retryAttempts": 1}, _c)
+_rows, _st, _err, _cause = m.dart_call("fnlttSinglAcnt.json", {"corp_code": "00126380"},
+                                       {**POL, "retryAttempts": 1}, _c)
 m.requests = _saved
 ok("dart_call이 돌려주는 오류에도 키가 없다 (진단에 저장되는 값이다)",
    _KEY not in (_err or ""), (_err or "")[:120])
+ok("원인 계층에도 키가 없다 (예외명만 쓴다)", _KEY not in (_cause or ""), _cause or "")
+
+
+print("\n[오류 원인 분해 — hardErrors 하나로는 원인을 지목하지 못한다]")
+# 교훈41의 재발 방지. 진단에 남는 것이 개수뿐이면 collect가 막혔을 때 남는 정보는
+# "수집 경로가 막혔다" 한 줄이고, 그것은 전송 장애인지 DART 업무 오류인지 게이트웨이
+# 오류인지 가르지 않는다. 세 실패는 대응이 전부 다르다 — 기다린다 / 승인한다 / 키를 본다.
+Counter_ = __import__("collections").Counter
+
+
+class _FakeResp:
+    def __init__(self, code, payload=None, raw=None):
+        self.status_code, self._p, self._raw = code, payload, raw
+        self.content = b"x"
+
+    def json(self):
+        if self._raw is not None:
+            raise ValueError("Expecting value: line 1 column 1 (char 0)")
+        return self._p
+
+
+def _cause_of(responder, attempts=1, pol=None):
+    """dart_call을 한 번 돌리고 (cause, 시도별 분해)를 돌려준다."""
+    saved = m.requests
+    m.requests = type("R", (), {"get": staticmethod(responder)})()
+    c = {"calls": 0, "dartStatus": Counter_()}
+    real_sleep, m.time.sleep = m.time.sleep, lambda *a: None
+    try:
+        _, _, _, cause = REAL_DART_CALL("fnlttSinglAcnt.json", {},
+                                        {**(pol or POL), "retryAttempts": attempts}, c)
+    finally:
+        m.requests, m.time.sleep = saved, real_sleep
+    return cause, c.get("callFailuresByCause", Counter_())
+
+
+class _Timeout(Exception):
+    pass
+
+
+def _boom(*a, **k):
+    raise _Timeout("timed out")
+
+
+ok("전송 실패는 transport:<예외명>", _cause_of(_boom)[0] == "transport:_Timeout",
+   _cause_of(_boom)[0])
+ok("비-2xx는 http:<코드> (DART status가 없으므로 dartStatus 표에 안 잡힌다)",
+   _cause_of(lambda *a, **k: _FakeResp(503))[0] == "http:503",
+   _cause_of(lambda *a, **k: _FakeResp(503))[0])
+ok("2xx인데 JSON이 아니면 parse:<예외명>",
+   _cause_of(lambda *a, **k: _FakeResp(200, raw=b"<html>"))[0] == "parse:ValueError",
+   _cause_of(lambda *a, **k: _FakeResp(200, raw=b"<html>"))[0])
+ok("DART 업무 오류는 dart:<status>",
+   _cause_of(lambda *a, **k: _FakeResp(200, {"status": "800", "message": "점검"}))[0]
+   == "dart:800")
+
+# 실패가 아닌 것은 원인 분해에 들어가지 않는다. 013을 실패로 세면 폐지 법인 구간에서
+# 원인 표가 정상 사실로 가득 차 진짜 장애가 묻힌다.
+_c013, _b013 = _cause_of(lambda *a, **k: _FakeResp(200, {"status": "013"}))
+ok("013(데이터 없음)은 원인이 아니다", _c013 is None and not _b013, f"{_c013} {dict(_b013)}")
+_cq, _bq = _cause_of(lambda *a, **k: _FakeResp(
+    200, {"status": POL["quota"]["quotaExceededStatus"]}))
+ok("한도 초과도 원인이 아니다 (실패가 아니라 대기다)", _cq is None and not _bq,
+   f"{_cq} {dict(_bq)}")
+ok("성공은 원인이 아니다",
+   _cause_of(lambda *a, **k: _FakeResp(200, {"status": "000", "list": [1]}))[0] is None)
+
+# 마지막 시도의 원인을 쓴다 — lastStatus와 같은 규칙이다. 1차 dart:100 → 2차 HTTP 503
+# 이면 그 법인-연도를 실제로 포기시킨 것은 503이고, 승인 판단도 그것을 봐야 한다.
+_seq = [_FakeResp(200, {"status": "100", "message": "부적절"}), _FakeResp(503)]
+_cause_mixed, _by_attempt = _cause_of(lambda *a, **k: _seq.pop(0), attempts=2)
+ok("여러 시도가 섞이면 마지막 시도의 원인을 쓴다", _cause_mixed == "http:503", _cause_mixed)
+ok("시도 단위 분해는 둘 다 센다 (재시도가 흡수한 실패도 남는다)",
+   dict(_by_attempt) == {"dart:100": 1, "http:503": 1}, str(dict(_by_attempt)))
+
+# 분모가 다르다는 것이 이 두 표를 나눈 이유다. 한 표로 합치면 재시도 횟수가
+# 실패율로 둔갑한다.
+_retried, _by2 = _cause_of(_boom, attempts=3)
+ok("한 번의 하드 실패가 시도 분해에서는 retryAttempts만큼 센다",
+   sum(_by2.values()) == 3, str(dict(_by2)))
+
+# hardErrorsByCause는 검사가 아니라 분해다 — 남김없이 갈라져야 값이 있다.
+# 누군가 hardErrors를 다른 자리에서도 올리면 여기서 깨진다.
+_pol3 = {**POL, "fiscalYearFrom": 2020, "fiscalYearTo": 2022, "retryAttempts": 1,
+         "requestSleepSeconds": 0}
+_causes = ["transport:X", "http:503", "http:503"]
+_saved_dc, _saved_sleep = m.dart_call, m.time.sleep
+m.time.sleep = lambda *a: None
+m.dart_call = lambda *a, **k: ([], None, "boom", _causes.pop(0))
+_sc = {"calls": 0, "dartStatus": Counter_(), "hardErrors": 0, "earlyStopped": 0,
+       "sicFetchFailed": 0, "callFailuresByCause": Counter_(),
+       "hardErrorsByCause": Counter_(), "reportsFound": 0,
+       "recordRejected": Counter_()}
+_out, _fail, _quota = REAL_SCAN_CORP("00000001", "000001", _pol3, _sc, {})
+m.dart_call, m.time.sleep = _saved_dc, _saved_sleep
+ok("hardErrors를 남김없이 분해한다 (sum == hardErrors)",
+   sum(_sc["hardErrorsByCause"].values()) == _sc["hardErrors"] == 3,
+   f"{dict(_sc['hardErrorsByCause'])} vs {_sc['hardErrors']}")
+ok("같은 원인은 합산되고 다른 원인은 갈린다",
+   dict(_sc["hardErrorsByCause"]) == {"transport:X": 1, "http:503": 2},
+   str(dict(_sc["hardErrorsByCause"])))
+ok("하드스킵 기록이 마지막 원인을 든다 (lastStatus가 None인 실패를 가르는 유일한 값)",
+   _fail["lastCause"] == "http:503" and _fail["lastStatus"] is None, str(_fail))
 
 print("\n[아티팩트 범위 — 자기 샤드 파일만 올린다]")
 # 이번 사고의 근본 원인은 '병합이 잘못됐다'가 아니라 **애초에 병합 대상이 자기 것이
