@@ -84,6 +84,13 @@ jobs:
             data/backfill/fundamentals/_shards/_diagnostics-shard-${{ matrix.shard }}.json
           retention-days: 3
           if-no-files-found: warn
+          # v4 아티팩트는 불변이라 같은 이름을 두 번 올리면 409로 실패한다.
+          # 이 스텝은 if: always()라 **실패한 시도도 아티팩트를 남기므로**, 그 샤드를
+          # 재실행하면 업로드에서 반드시 죽는다 — 재실행이 구조적으로 불가능했다.
+          # 실제로 collect #3의 샤드 7이 이 경로로 막혔다.
+          # 덮어쓰기가 안전한 이유는 재실행이 같은 샤드의 더 최신 상태를 올리기
+          # 때문이다. 남의 샤드는 이름이 달라 건드리지 않는다(교훈62의 범위 규칙).
+          overwrite: true
 
   persist:
     # 샤드가 각자 push하지 않는 이유는 A2a와 같다 — 8개 잡이 같은 브랜치에 rebase
@@ -136,12 +143,23 @@ jobs:
           if [ -n "$(git status --porcelain data/backfill/fundamentals/_shards)" ]; then
             git add data/backfill/fundamentals/_shards
             git commit -m "chore(backfill): A3 재무 수집 진행 상태"
+            # 5번 다 실패하면 **스텝을 실패시킨다.** 예전에는 for 루프가 그냥 끝나
+            # exit 0이 됐다 — persist가 초록불인데 아무것도 push되지 않는 조용한 손실
+            # 경로였다. 하루치 수집이 걸린 자리에서 실패는 보여야 한다.
+            pushed=0
             for i in 1 2 3 4 5; do
-              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+                pushed=1; break
+              fi
               echo "push 재시도 $i"; sleep 5
             done
+            if [ "$pushed" != "1" ]; then
+              echo "::error::5회 재시도 후에도 push 실패 — 이 실행의 수집 진행이 커밋되지 않았다."
+              echo "아티팩트(a3-shard-*, 보존 3일)에 상태가 남아 있으니 만료 전에 회수한다."
+              exit 1
+            fi
           else
-            echo "변경 없음"
+            echo "변경 없음 — 아티팩트에 상태 파일이 있었는지 위 다운로드 스텝을 확인한다"
           fi
 
   finalize:
