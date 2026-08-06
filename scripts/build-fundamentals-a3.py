@@ -195,6 +195,17 @@ def require_requests():
 
 LAST_HTTP = {"endpoint": None, "httpStatus": None, "dartStatus": None, "bytes": None}
 
+# requests의 예외 메시지는 요청 URL을 통째로 담고, 그 URL에는 crtfc_key가 들어 있다.
+# 그것을 그대로 진단에 저장하면 공개 저장소와 아티팩트에 API 키가 남는다(절대 규칙 2).
+# 실제로 남았다 — collect #2 샤드 6의 ConnectTimeout 메시지에 키 앞 26자가 들어갔다.
+# "params로만 넘긴다"는 규율은 예외 경로를 막지 못한다. 문자열로 나가는 지점에서 지운다.
+SECRET_RE = re.compile(r"(crtfc_key=)[^&\s\"'\)]+")
+
+
+def redact(s):
+    """자르기 전에 지운다. 순서가 반대면 잘린 조각이 그대로 남는다."""
+    return SECRET_RE.sub(r"\1<redacted>", str(s))
+
 
 def dart_call(endpoint, params, pol, counters):
     """(rows, dartStatus, hardError)
@@ -215,7 +226,7 @@ def dart_call(endpoint, params, pol, counters):
         try:
             r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params})
         except Exception as e:  # noqa: BLE001
-            last_status, last_err = None, f"{type(e).__name__}: {str(e)[:150]}"
+            last_status, last_err = None, f"{type(e).__name__}: {redact(e)[:150]}"
             LAST_HTTP.update(endpoint=endpoint, httpStatus=None, dartStatus=None, bytes=None)
         else:
             body = r.content or b""
@@ -224,7 +235,7 @@ def dart_call(endpoint, params, pol, counters):
                 try:
                     j = r.json()
                 except Exception as e:  # noqa: BLE001
-                    last_status, last_err = None, f"PARSE {type(e).__name__}: {str(e)[:150]}"
+                    last_status, last_err = None, f"PARSE {type(e).__name__}: {redact(e)[:150]}"
                 else:
                     st = str(j.get("status", ""))
                     LAST_HTTP["dartStatus"] = st
@@ -235,7 +246,7 @@ def dart_call(endpoint, params, pol, counters):
                     # 전자는 정상 사실이고 후자는 기다린다고 풀리지 않는다.
                     if st in (DART_NO_DATA, pol["quota"]["quotaExceededStatus"]):
                         return [], st, None
-                    last_status, last_err = st, str(j.get("message", ""))[:150]
+                    last_status, last_err = st, redact(j.get("message", ""))[:150]
             else:
                 last_status, last_err = None, f"HTTP {r.status_code}"
         if i < pol["retryAttempts"] - 1:

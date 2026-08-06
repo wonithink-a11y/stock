@@ -846,6 +846,40 @@ ok("그 상태에서도 요약이 실제 수치를 낸다",
 shutil.rmtree(_blocker, ignore_errors=True)
 shutil.rmtree(_shards_dir, ignore_errors=True)
 
+print("\n[시크릿 — 진단에 API 키가 남지 않는다]")
+# collect #2 샤드 6의 ConnectTimeout 메시지에 crtfc_key 앞 26자가 그대로 들어갔다.
+# requests의 예외는 요청 URL을 통째로 담고 그 URL에 키가 있다. "params로만 넘긴다"는
+# 규율은 예외 경로를 막지 못한다 — 문자열로 나가는 지점에서 지워야 한다.
+# 저장소는 공개이고 아티팩트도 내려받을 수 있다(절대 규칙 2).
+_KEY = "ab9ac09b48dd77a90b77439c9e0123456789abcd"
+_url = (f"HTTPSConnectionPool(host='opendart.fss.or.kr', port=443): Max retries "
+        f"exceeded with url: /api/fnlttSinglAcnt.json?crtfc_key={_KEY}&corp_code=00126380")
+ok("예외 메시지의 키가 지워진다", _KEY not in m.redact(_url), m.redact(_url)[:120])
+ok("지운 자리에 표시가 남는다 (조용히 사라지지 않는다)",
+   "crtfc_key=<redacted>" in m.redact(_url), m.redact(_url)[:120])
+ok("자르기 전에 지운다 — 잘린 조각도 남지 않는다",
+   _KEY[:20] not in f"{m.redact(_url)[:150]}", m.redact(_url)[:150])
+ok("키가 없는 메시지는 그대로 둔다",
+   m.redact("HTTP 503 Service Unavailable") == "HTTP 503 Service Unavailable")
+
+
+class _Boom(Exception):
+    pass
+
+
+def _raise_with_key(*a, **k):
+    raise _Boom(_url)
+
+
+_saved = m.requests
+m.requests = type("R", (), {"get": staticmethod(_raise_with_key)})()
+_c = {"calls": 0, "dartStatus": __import__("collections").Counter()}
+_rows, _st, _err = m.dart_call("fnlttSinglAcnt.json", {"corp_code": "00126380"},
+                               {**POL, "retryAttempts": 1}, _c)
+m.requests = _saved
+ok("dart_call이 돌려주는 오류에도 키가 없다 (진단에 저장되는 값이다)",
+   _KEY not in (_err or ""), (_err or "")[:120])
+
 print("\n[아티팩트 범위 — 자기 샤드 파일만 올린다]")
 # 이번 사고의 근본 원인은 '병합이 잘못됐다'가 아니라 **애초에 병합 대상이 자기 것이
 # 아니었다**는 것이다. _shards/가 저장소에 커밋된 뒤로 각 샤드의 checkout에는 남의
