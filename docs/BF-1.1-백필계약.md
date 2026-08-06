@@ -808,13 +808,16 @@ persist가 우연히 이것을 가려 왔다 — 중단된 샤드의 상태가 �
 법인(실행)  corpsAttempted == doneAdded + hardSkippedThisRun + quotaDeferred
 ```
 
-**보존식은 기록이지 검사가 아니다 (2026-08-06 정정).** `shard_status`가
+**보존식은 등식으로는 검사가 되지 못한다 (2026-08-06 정정).** `shard_status`가
 `remaining = assigned − done − hard`로 유도한 뒤 `assigned == done + hard + remaining`을
-확인하므로 구성상 항상 참이고, `stateConservationViolations`는 영원히 빈 배열이다 —
-교훈61이 그대로 재발해 있었다. 유도되지 않아 실제로 깨질 수 있는 항은 부등식뿐이며,
-그것을 상태 불변식 7번(`done + hardSkipped <= assigned`)으로 따로 세웠다.
-분류식 쪽의 대응물이 5번(`done ∩ hardSkipped == ∅`)이다 — 이 둘이 상태 손상을
-실제로 잡는 유일한 게이트다. 상세는 인수인계 §9.1.
+확인해 구성상 항상 참이었고, `conservationOk`·`stateConservationViolations`는 그래서
+**필드째 제거했다** — 교훈61이 재발해 있었고, "항상 참이라 정보를 주지 않는다"를 문서에
+적어두는 것만으로는 다음 사람이 그 `true`를 상태의 건강으로 읽는 것을 막지 못한다.
+
+유도되지 않아 실제로 깨질 수 있는 항은 부등식뿐이며 상태 불변식 S3
+(`done + hardSkipped <= assigned`)가 그것이다. 분류식 쪽의 대응물이 S1
+(`done ∩ hardSkipped == ∅`)이고, 이 둘이 상태 손상을 실제로 잡는 게이트다.
+검사는 T(전이) · S(상태) · M(병합) 세 무리로 나뉘며 상세는 인수인계 §9.1.
 
 보존식에 `hardSkippedOpen`이 아니라 `hardSkipped` 전체가 들어가는 이유는 계층이 달라서다.
 보존식은 사실만으로 성립해 승인 정책이 바뀌어도 흔들리지 않고, 분류식이 그 보존된 사실을

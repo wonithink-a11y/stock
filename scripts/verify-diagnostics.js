@@ -157,13 +157,19 @@ const CONTRACT = {
                // 일부 연도만 실패하고 레코드는 나온 법인. 세지 않으면 부분 공백이
                // 완전 수집과 구분되지 않는다.
                'corpsPartialHard',
-               // 사실의 보존식(assigned = done + hardSkipped + remaining) 위반.
-               // 비어 있어야 정상이고, 비어 있다는 것 자체가 기록이다.
-               // conservationOk는 remaining을 유도한 뒤 그 등식을 재확인하므로 구성상
-               // 항상 참이다 — 기록으로는 뜻이 있으나 검사로는 빈 배열만 낸다(교훈61).
-               // 상태 손상을 실제로 잡는 것은 아래쪽이다: done ∩ hardSkipped == ∅ ·
-               // 계약 해시 존재 · done + hardSkipped <= assigned.
-               'stateConservationViolations', 'stateInvariantViolations',
+               // 상태 손상. 둘 다 비어 있어야 정상이고, 비어 있다는 것 자체가 기록이다.
+               //   S  샤드 하나로 잴 수 있는 성질 — done ∩ hardSkipped == ∅ ·
+               //      계약 해시 존재 · done + hardSkipped <= assigned
+               //   M  병합해야만 잴 수 있는 성질 — Σ corpsAssigned == 대상 법인 수 ·
+               //      샤드 간 corpsDone 배타
+               // 옛 stateConservationViolations는 제거했다. conservationOk가 remaining을
+               // 유도한 뒤 그 등식을 재확인해 구성상 항상 참이었고, 남겨두면 다음 사람이
+               // 그 true를 상태의 건강으로 읽는다(교훈72).
+               // Measurable 플래그가 따로 있는 이유는 M1의 분모에 빠진 항이 있을 수
+               // 있어서다. 0으로 읽으면 그 차이가 '샤딩이 달라졌다'로 보고돼 실제
+               // 원인을 가린다 — 잴 수 없으면 판정하지 않고 그 사실을 남긴다(교훈57).
+               'stateInvariantViolations', 'stateMergedViolations',
+               'corpsAssignedSum', 'corpsAssignedSumMeasurable',
                // 산출물 일관성 — 병합 결과의 법인이 전부 어느 샤드의 corpsDone에
                // 있는가. 샤드별 검사는 자기 상태만 보므로 병합에서 남의 레코드가
                // 섞이는 경우는 여기서만 보인다. 부분집합이지 등식이 아니다.

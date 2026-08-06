@@ -731,10 +731,10 @@ A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
 |---|---|
 | `collectionContractHash` | 8샤드 동일 · **None 없음** · 현재 코드 계산값과 일치 |
 | `corpsAssigned` | 8샤드 모두 존재 (샤드 6 포함 — 지금은 `?`다) |
-| `stateTransitionViolations` | 빈 배열 |
-| `stateInvariantViolations` | 빈 배열 (5·6·7. 하나라도 있으면 finalize가 중단한다) |
+| `stateTransitionViolations` | 빈 배열 (T1~T4) |
+| `stateInvariantViolations` | 빈 배열 (S1~S3. 하나라도 있으면 finalize가 중단한다) |
+| `stateMergedViolations` | 빈 배열 (M1·M2. `corpsAssignedSumMeasurable`이 true여야 M1이 산 검사다) |
 | `recordCorpsNotInDone` | 0 |
-| `conservationOk` | true — 단 **구성상 항상 참이라 통과가 정보를 주지 않는다** |
 | `runIdentityOk` | true |
 | `hardErrorsByCause` | 원인별 집계 확인. **0이 아니어도 허용**이며 대응만 갈린다(§9.7) |
 
@@ -790,35 +790,63 @@ A2a가 PR-1.0 → PR-1.3에서 밟은 경로와 같다.
 법인(누적)  corpsAssigned == corpsDone + hardSkipped + corpsRemaining   보존식
 승인        hardSkipped   == hardSkippedOpen + declaredHardSkipped      분류식
 법인(실행)  corpsAttempted == doneAdded + hardSkippedThisRun + quotaDeferred
-
-상태 전이 (state_transition_violations — run_shard가 기록, finalize가 4번을 게이트로)
-  1  old.corpsDone   ⊆ new.corpsDone                    완료 상태
-  2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone  실패 상태
-  3  new.corpsAssigned == old.corpsAssigned             담당 범위
-  4  산출물의 법인 집합 ⊆ new.corpsDone                  산출물 일관성
-
-상태 불변식 (state_invariant_violations — run_shard가 기록, finalize가 중단 게이트로)
-  5  corpsDone ∩ hardSkipped == ∅                       분류의 배타성
-  6  collectionContractHash is not None                 계약의 존재
-  7  corpsDone + hardSkipped <= corpsAssigned           담당 범위 안에 있다
 ```
 
-**5~7은 전이가 아니라 상태 자체의 성질이라 함수가 다르다.** `prev` 없이 언제든 잴 수
-있고, 그래서 **실행되지 않은 샤드에도 적용된다** — 전이 검사는 `run_shard`에서만, 그
-실행이 실제로 건드린 샤드에 대해서만 돈다. 예산 소진으로 즉시 끝난 샤드나 잡이 죽어
-안 돌아간 샤드는 전이 검사가 아예 보지 않는다. 상태 손상은 실행 여부와 무관한 사실이므로
-**읽는 쪽**에서도 재야 하고, 그 자리가 finalize다.
+**검사는 성격에 따라 세 무리다.** 나누는 기준은 하나 — *이 검사가 샤드 단위에서
+가능한가, 병합된 전체에서만 가능한가.* 새 검사를 추가할 때 먼저 이 질문에 답한다.
 
-5번이 특히 그렇다. 지금은 `done.add`와 `hardSkipped.pop`이 붙어 있어 겹칠 수 없지만,
+```
+T — 전이 불변식   두 상태를 비교한다 → run_shard에서만 잴 수 있다
+                 state_transition_violations · 진단에 기록, finalize가 T4를 게이트로
+
+  T1  old.corpsDone   ⊆ new.corpsDone                    완료 상태
+  T2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone  실패 상태
+  T3  new.corpsAssigned == old.corpsAssigned             담당 범위
+  T4  산출물의 법인 집합 ⊆ new.corpsDone                  산출물 일관성
+
+S — 상태 불변식   상태 하나로 잰다 → 어디서나. run_shard가 기록, finalize가 게이트
+                 state_invariant_violations
+
+  S1  corpsDone ∩ hardSkipped == ∅                       분류의 배타성
+  S2  collectionContractHash is not None                 계약의 존재
+  S3  corpsDone + hardSkipped <= corpsAssigned           담당 범위 안에 있다
+
+M — 병합 검사     전 샤드를 모아야 잰다 → finalize에만 있다
+                 stateMergedViolations
+
+  M1  Σ corpsAssigned == 대상 법인 수                     샤딩의 일관성
+  M2  샤드 간 corpsDone이 서로 배타                       라운드로빈의 배타성
+```
+
+**T와 S를 가르는 것은 재는 자리가 아니라 재는 범위다.** T는 그 실행이 실제로 건드린
+샤드만 본다 — 예산 소진으로 즉시 끝난 샤드나 잡이 죽어 안 돌아간 샤드는 T가 아예 보지
+않는다. 상태 손상은 실행 여부와 무관한 사실이므로 **읽는 쪽에서도** 재고, 그 자리가
+finalize다.
+
+S1이 특히 그렇다. 지금은 `done.add`와 `hardSkipped.pop`이 붙어 있어 겹칠 수 없지만,
 그것은 **코드의 현재 모양이 지켜주는 것이지 상태가 지켜주는 것이 아니다.** 순서가
 바뀌거나 사이에 예외가 끼면 두 집합에 동시에 든 법인이 생기고, 그 법인은 '완료됐는데
 미해결인' 상태가 된다 — 어느 쪽으로 세든 다른 쪽이 틀린다.
 
-**`conservationOk`는 검사가 아니다 (2026-08-06 발견).** `shard_status`가
+S2는 읽는 쪽 검사이고, `save_progress`가 **쓰는 쪽에서** 같은 것을 막는다. 저쪽은 이미
+디스크에 있는 잘못된 파일을 발견할 뿐이고, 이쪽은 그 파일이 생기는 것을 막는다.
+FN-1.3 이후 `collectionContractHash`가 없는 상태는 **그 자체로 invalid이며 복구 절차가
+아니라 결함으로 취급한다** — 계약이 "collect를 한 번 더 돌려라"를 말하기 시작하면
+위반이 '아직 안 한 일'로 읽힌다.
+
+M1은 분모에 빠진 항이 있으면 **재지 않는다**(`corpsAssignedSumMeasurable: false`).
+실측으로 확인된 함정이다 — 이 조건 없이 돌렸더니 `합계 3326 != 대상 3801`이 나왔는데
+그 475는 샤딩 변경이 아니라 담당분을 아직 안 센 샤드 6이었다. 거짓 수치는 게이트를
+엉뚱한 원인으로 물게 한다(교훈57).
+
+**`conservationOk`는 제거했다 (2026-08-06).** `shard_status`가
 `remaining = assigned − done − hard`로 유도한 뒤 `assigned == done + hard + remaining`을
-확인하므로 **구성상 항상 참**이고, `stateConservationViolations`는 영원히 빈 배열이다.
-교훈61이 그대로 재발해 있었다. 유도되지 않아 실제로 깨질 수 있는 항은 부등식(7번)뿐이며,
-7번과 5번이 그 자리를 대신한다. 보존식 자체는 기록으로서는 뜻이 있어 남긴다.
+확인해 **구성상 항상 참**이었고, `stateConservationViolations`는 영원히 빈 배열이었다.
+"항상 참이라 정보를 주지 않는다"고 문서에 적어두는 것으로는 부족하다 — 필드가 남아
+있는 한 다음 사람은 `conservationOk: true`를 상태의 건강으로 읽는다. 보존식 중 유도되지
+않아 실제로 깨질 수 있는 항은 부등식뿐이고, **S3와 S1이 그 자리를 대신한다.**
+`remaining`이 `hardSkippedOpen`이 아니라 `hardSkipped` 전체를 뺀 값이라는 성질(사실을
+먼저 보존하고 그다음 승인으로 분해한다)은 회귀가 직접 든다.
 
 2번을 단순 집합 보존(`old.hard ⊆ new.hard`)으로 쓰면 안 된다. 하드스킵은 영구 사실이
 아니라 **현재 미해결**이고, 다음 실행에서 성공하면 `hardSkipped`에서 빠져 `corpsDone`으로

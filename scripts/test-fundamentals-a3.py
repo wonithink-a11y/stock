@@ -455,19 +455,22 @@ st2 = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(
 s2 = m.shard_status(st2)
 ok("미승인 하드스킵이 있으면 완료가 아니다 (남은 것이 0이어도)",
    s2["corpsRemaining"] == 0 and s2["hardSkippedOpen"] == 1 and not s2["complete"], str(s2))
-ok("보존식은 승인과 무관하게 성립한다 (사실을 먼저 보존하고 그다음 분해한다)",
-   s2["conservationOk"], str(s2))
+# 보존식은 사실만으로 성립해야 한다 — remaining이 open이 아니라 hardSkipped 전체를
+# 뺀 값이라야 승인 하나가 생기는 순간 남은 수가 흔들리지 않는다. 등식을 '검사'로
+# 되돌리지 않고(구성상 항상 참이다, 교훈72) remaining의 정의로 확인한다.
+ok("남은 수는 승인이 아니라 hardSkipped 전체를 뺀다 (사실이 먼저다)",
+   s2["corpsRemaining"] == 10 - s2["corpsDone"] - s2["hardSkipped"], str(s2))
+ok("conservationOk 필드는 없다 — 유도값으로 그 식을 검사하면 항상 참이다(교훈72)",
+   "conservationOk" not in s2, str(sorted(s2)))
 st3 = {"shard": 0, "corpsAssigned": 10, "corpsDone": [f"{i:08d}" for i in range(5)],
        "hardSkipped": {}}
 ok("아직 안 돈 법인이 남으면 완료가 아니다", not m.shard_status(st3)["complete"])
 # 분모를 모르는 상태(계약 해시 도입 전)를 0으로 읽으면 '남음 -1381' 같은 거짓 수치가
-# 나오고, 보존식이 상태 손상으로 오탐된다. 모르는 것은 0이 아니다.
+# 나오고, 그 거짓 수치가 게이트를 오탐시킨다. 모르는 것은 0이 아니다.
 s4 = m.shard_status({"shard": 0, "corpsDone": ["00000001"], "hardSkipped": {}})
 ok("담당 법인 수를 모르면 남은 수가 None이고 완료가 부정된다",
    s4["corpsRemaining"] is None and not s4["complete"]
    and not s4["corpsAssignedKnown"], str(s4))
-ok("분모를 모르는 것은 보존식 위반이 아니다 (잴 수 없는 것과 틀린 것은 다르다)",
-   s4["conservationOk"], str(s4))
 
 print("\n[수집 루프 — done.add가 hard를 본다]")
 
@@ -535,8 +538,10 @@ try:
     ok("complete는 상태 파일에 저장되지 않는다", "complete" not in st, str(list(st)))
     ok("미완료다 — 미승인 하드스킵이 남아 있다",
        not m.shard_status(st)["complete"] and m.shard_status(st)["hardSkippedOpen"] == 1)
-    ok("보존식이 성립한다 (assigned = done + hardSkipped + remaining)",
-       m.shard_status(st)["conservationOk"], str(m.shard_status(st)))
+    # 실물 수집 루프가 남긴 상태에 S(상태 불변식)를 그대로 건다. 픽스처가 아니라
+    # run_shard이 실제로 쓴 파일이라, 루프가 상태를 어떻게 만드는지가 검사 대상이다.
+    ok("실행이 남긴 상태가 S1·S2·S3를 모두 만족한다",
+       m.state_invariant_violations(st) == [], str(m.state_invariant_violations(st)))
 
     # 두 번째 실행 — 재시도되고 성공하면 hardSkipped에서 빠진다
     script2 = dict(script)
@@ -622,8 +627,11 @@ try:
     ok("승인하면 완료된다 (열린 공백이 0이 된다)",
        s_ok["complete"] and s_ok["hardSkippedOpen"] == 0
        and s_ok["declaredHardSkipped"] == 1, str(s_ok))
-    ok("승인해도 보존식은 그대로 성립한다 (사실은 승인과 무관하다)",
-       s_ok["conservationOk"] and s_ok["hardSkipped"] == 1, str(s_ok))
+    # 사실은 승인과 무관하다. hardSkipped 전체와 남은 수는 승인 전후로 같고,
+    # 승인이 움직이는 것은 분류(hardSkippedOpen)와 그것이 낳는 완료 판정뿐이다.
+    ok("승인해도 사실은 그대로다 (hardSkipped 전체와 남은 수가 안 흔들린다)",
+       s_ok["hardSkipped"] == 1
+       and s_ok["corpsRemaining"] == m.shard_status(st_perm)["corpsRemaining"], str(s_ok))
     # 원칙 4 — 승인은 규칙이 아니라 운영 결정이므로 수집 동작을 바꾸지 않는다.
     # 바꾼다면 그것은 승인이 아니라 규칙이고, 수집 계약 해시에 들어가야 한다.
     #
@@ -924,13 +932,59 @@ ok("위반 메시지가 어느 샤드인지 말한다 (8개를 뒤지지 않게)
    all("샤드 3" in v for v in m.state_invariant_violations(
        {"shard": 3, "corpsDone": ["X"], "hardSkipped": {"X": {}}})))
 
-# conservationOk가 검사가 아니라는 사실을 못 박는다. 이것이 깨지지 않는 한
-# stateConservationViolations는 영원히 빈 배열이고, 그 자리를 불변식이 대신한다.
-_bad = m.shard_status({"shard": 0, "corpsDone": ["A", "X"],
-                       "hardSkipped": {"X": {}}, "corpsAssigned": 1})
-ok("conservationOk는 구성상 항상 참이다 — 손상을 잡지 못한다(교훈61)",
-   _bad["conservationOk"] is True and _bad["corpsRemaining"] == -2,
-   f"conservationOk={_bad['conservationOk']} remaining={_bad['corpsRemaining']}")
+# 같은 손상 상태를 두 눈으로 본다. shard_status는 remaining을 음수로 내놓을 뿐
+# 아무 판정도 하지 않고(그 자리에 있던 conservationOk는 구성상 항상 참이라 제거했다),
+# 손상을 말하는 것은 S가 유일하다. 필드가 되살아나면 첫 단언이 깨진다.
+_bad_st = {"shard": 0, "corpsDone": ["A", "X"], "hardSkipped": {"X": {}},
+           "corpsAssigned": 1, "collectionContractHash": _HASH}
+_bad = m.shard_status(_bad_st)
+ok("shard_status에 conservationOk가 없다 (유도값으로 그 식을 검사하면 항상 참)",
+   "conservationOk" not in _bad, str(sorted(_bad)))
+ok("손상은 remaining을 음수로 만들 뿐 스스로 신고하지 않는다",
+   _bad["corpsRemaining"] == -2, str(_bad))
+ok("그 손상을 말하는 것은 S다 (S1 겹침 · S3 범위 초과)",
+   len(m.state_invariant_violations(_bad_st)) == 2,
+   str(m.state_invariant_violations(_bad_st)))
+
+# S2는 읽는 쪽 검사다. 쓰는 쪽에서도 막아야 그런 파일이 애초에 안 생긴다 —
+# 저쪽은 이미 디스크에 있는 잘못된 파일을 발견할 뿐이다.
+_tmp_sp = tempfile.mkdtemp()
+_saved_dir, m.SHARD_DIR = m.SHARD_DIR, _tmp_sp
+try:
+    m.save_progress(0, {"shard": 0, "corpsDone": [], "hardSkipped": {}}, {})
+    _sp_raised = False
+except RuntimeError:
+    _sp_raised = True
+finally:
+    m.SHARD_DIR = _saved_dir
+    shutil.rmtree(_tmp_sp, ignore_errors=True)
+ok("save_progress가 계약 해시 없는 상태를 쓰기를 거부한다 (쓰는 쪽에서 막는다)",
+   _sp_raised)
+
+
+print("\n[병합 검사 M — 샤드 하나로는 잴 수 없어 finalize에만 있다]")
+# 기준은 하나다: 이 검사가 샤드 단위에서 가능한가, 병합된 전체에서만 가능한가.
+# 후자면 finalize에 있어야 한다. M1·M2가 그 사례다 — 각 샤드는 자기 안에서 전부
+# 정상으로 보이고, 합쳐야만 샤딩이 달라졌다는 것이 드러난다.
+_WF3 = os.path.join(ROOT, ".github/workflows/fundamentals-a3.yml")
+_wf3 = open(_WF3, encoding="utf-8").read()
+ok("워크플로의 SHARDS와 정책의 shards가 같다 (M1의 분모가 갈리는 첫 경로)",
+   f"SHARDS: {POL['shards']}" in _wf3, f"정책 shards={POL['shards']}")
+
+_src = open(os.path.join(ROOT, "scripts/build-fundamentals-a3.py"),
+            encoding="utf-8").read()
+ok("M 검사가 finalize에만 있다 (run_shard은 자기 샤드만 보므로 잴 수 없다)",
+   _src.count("stateMergedViolations") >= 1
+   and "stateMergedViolations" not in _src.split("def run_finalize")[0],
+   "run_shard 쪽에 M이 새어 들어갔다")
+ok("M 위반도 완료 판정보다 먼저 중단시킨다",
+   _src.index("if invariant_bad or merged_bad") < _src.index("if incomplete:"))
+# M1의 분모에 빠진 항이 있으면 판정하지 않는다. 실제로 이것 없이 돌렸더니
+# '합계 3326 != 대상 3801'이 나왔는데, 그 475는 샤딩 변경이 아니라 담당분을 아직
+# 안 센 샤드 6이었다 — 거짓 수치가 게이트를 엉뚱한 원인으로 물게 한다(교훈57).
+ok("담당분을 모르는 샤드가 있으면 M1을 재지 않는다 (0으로 읽지 않는다)",
+   "if assigned_unknown:" in _src
+   and _src.index("if assigned_unknown:") < _src.index("elif assigned_sum != len(targets)"))
 
 # 첫 실행에서 담당분이 처음 채워지는 것은 범위 변경이 아니다 —
 # corpsAssigned 기본값을 0으로 두면 여기가 '0 → 476'으로 오탐된다(교훈57).
