@@ -846,6 +846,39 @@ ok("그 상태에서도 요약이 실제 수치를 낸다",
 shutil.rmtree(_blocker, ignore_errors=True)
 shutil.rmtree(_shards_dir, ignore_errors=True)
 
+print("\n[상태 전이 불변식 — 네 식이 서로 독립으로 발동한다]")
+# 완료 상태 · 실패 상태 · 담당 범위 · 산출물 일관성. 복구 절차에서 쓴 계약을
+# 저장소로 옮긴 것이다 — 매 실행 성립해야 하는 불변식이라 임시 스크립트에만
+# 두면 다음 실행부터 아무도 확인하지 않는다.
+_PREV = {"done": {"A", "B"}, "hard": {"X"}, "assigned": 10}
+_now = lambda **kw: {"corpsDone": ["A", "B"], "hardSkipped": {"X": {}},   # noqa: E731
+                     "corpsAssigned": 10, **kw}
+_R = lambda *cs: [{"corp": c} for c in cs]                                # noqa: E731
+
+for _label, _st, _recs, _want in [
+    ("정상 — 변화 없음", _now(), _R("A"), 0),
+    ("정상 — 하드스킵이 done으로 해소",
+     _now(corpsDone=["A", "B", "X"], hardSkipped={}), _R("A", "X"), 0),
+    ("정상 — 보고서 0건 법인은 산출물에 없어도 된다", _now(), _R(), 0),
+    ("1 위반 — corpsDone 후퇴", _now(corpsDone=["A"]), _R(), 1),
+    ("2 위반 — 하드스킵이 해결되지도 남지도 않고 사라짐", _now(hardSkipped={}), _R(), 1),
+    ("2 위반 — done과 hardSkipped가 겹침",
+     _now(corpsDone=["A", "B", "X"], hardSkipped={"X": {}}), _R(), 1),
+    ("3 위반 — corpsAssigned가 바뀜", _now(corpsAssigned=12), _R(), 1),
+    ("4 위반 — 산출물에 corpsDone 밖의 법인", _now(), _R("A", "Z"), 1),
+]:
+    _v = m.state_transition_violations(_PREV, _st, _recs)
+    ok(f"{_label}", (1 if _v else 0) == _want, str(_v[:1]))
+
+# 첫 실행에서 담당분이 처음 채워지는 것은 범위 변경이 아니다 —
+# corpsAssigned 기본값을 0으로 두면 여기가 '0 → 476'으로 오탐된다(교훈57).
+ok("담당분을 몰랐다가 알게 되는 것은 위반이 아니다",
+   not m.state_transition_violations(
+       {"done": set(), "hard": set(), "assigned": None},
+       {"corpsDone": [], "hardSkipped": {}, "corpsAssigned": 476}, []))
+ok("새 상태의 corpsAssigned 기본값이 None이다 (0이 아니다)",
+   m.load_state(99, 1, POL)["corpsAssigned"] is None)
+
 print("\n[시크릿 — 진단에 API 키가 남지 않는다]")
 # collect #2 샤드 6의 ConnectTimeout 메시지에 crtfc_key 앞 26자가 그대로 들어갔다.
 # requests의 예외는 요청 URL을 통째로 담고 그 URL에 키가 있다. "params로만 넘긴다"는

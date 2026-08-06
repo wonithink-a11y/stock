@@ -159,7 +159,11 @@ const CONTRACT = {
                'corpsPartialHard',
                // 사실의 보존식(assigned = done + hardSkipped + remaining) 위반.
                // 비어 있어야 정상이고, 비어 있다는 것 자체가 기록이다.
-               'stateConservationViolations'],
+               'stateConservationViolations',
+               // 산출물 일관성 — 병합 결과의 법인이 전부 어느 샤드의 corpsDone에
+               // 있는가. 샤드별 검사는 자기 상태만 보므로 병합에서 남의 레코드가
+               // 섞이는 경우는 여기서만 보인다. 부분집합이지 등식이 아니다.
+               'recordCorpsNotInDone'],
     // sicCode는 '현재의 업종'이라 전 사업연도에 같은 값이 붙는다. A3가 모르는 축이다.
     trueFlags: ['sectorNotPointInTime'],
     forbidden: ['smokeTest'],

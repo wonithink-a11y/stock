@@ -412,7 +412,9 @@ def load_state(shard, shards, pol):
             # 이 완화로 하나의 산출물이 여러 정책 버전에 걸쳐 수집될 수 있다.
             # 옛 판정이 암묵적으로 주던 '한 버전에서 나왔다'는 정보를 값으로 대체한다.
             "policyVersions": [], "fundamentalsPolicy": pol["version"],
-            "corpsAssigned": 0, "corpsDone": [],
+            # None이지 0이 아니다. 아직 담당분을 세지 않았다는 뜻이고, 0으로 두면
+            # 첫 실행에서 '0 → 476'이 담당 범위 변경으로 오탐된다(교훈57).
+            "corpsAssigned": None, "corpsDone": [],
             # 하드 실패로 0레코드인 법인. done도 아니고 남은 것도 아닌 세 번째 상태다.
             # 이것이 없으면 그런 법인이 done에 들어가 영구히 건너뛰어진다.
             "hardSkipped": {}, "corpsPartialHard": 0,
@@ -474,6 +476,54 @@ def declared_gaps():
             out.add(corp)
         _declared_cache = out
     return _declared_cache
+
+
+def state_transition_violations(prev, state, records=None):
+    """한 실행이 상태를 어떻게 바꿨는지 검사한다. 네 식은 서로 독립이며
+    각각 완료 상태 · 실패 상태 · 담당 범위 · 산출물 일관성을 본다.
+
+        1  old.corpsDone   ⊆ new.corpsDone
+        2  old.hardSkipped ⊆ new.hardSkipped ∪ new.corpsDone
+        3  new.corpsAssigned == old.corpsAssigned
+        4  jsonl의 법인 집합 ⊆ new.corpsDone
+
+    2번을 단순 집합 보존(old.hard ⊆ new.hard)으로 쓰면 안 된다. 하드스킵은 영구
+    사실이 아니라 '현재 미해결'이고, 다음 실행에서 성공하면 hardSkipped에서 빠져
+    corpsDone으로 간다(안 빼면 두 집합이 겹쳐 보존식이 깨진다). 보존해야 하는 것은
+    집합이 아니라 **법인의 상태**다 — 계속 실패 중이거나 해결됐거나 둘 중 하나이고,
+    둘 다 아니면 사실이 사라진 것이다.
+
+    4번은 등식이 아니다. 보고서가 0건인 법인도 정상적으로 완료되며 실측 약 19%가
+    그렇다(173 완료 중 140만 레코드 보유). 등식으로 걸면 정상 데이터를 거부한다.
+    """
+    out = []
+    done_new = set(state.get("corpsDone") or [])
+    hard_new = set(state.get("hardSkipped") or {})
+
+    lost = set(prev.get("done") or set()) - done_new
+    if lost:
+        out.append(f"corpsDone이 후퇴했다 — {len(lost)}개 {sorted(lost)[:3]}")
+
+    vanished = set(prev.get("hard") or set()) - hard_new - done_new
+    if vanished:
+        out.append(f"하드스킵 {len(vanished)}개가 해결되지도 남지도 않고 사라졌다 "
+                   f"{sorted(vanished)[:3]}")
+
+    if not hard_new.isdisjoint(done_new):
+        out.append(f"같은 법인이 corpsDone과 hardSkipped에 동시에 있다 "
+                   f"{sorted(hard_new & done_new)[:3]} — 보존식이 깨진다")
+
+    a_old, a_new = prev.get("assigned"), state.get("corpsAssigned")
+    if a_old is not None and a_new is not None and a_old != a_new:
+        out.append(f"corpsAssigned가 {a_old} → {a_new}로 바뀌었다 — 이어받은 상태의 "
+                   f"담당 범위가 달라졌다면 corpsDone이 남의 법인을 가리킬 수 있다")
+
+    if records is not None:
+        stray = {r["corp"] for r in records} - done_new
+        if stray:
+            out.append(f"산출물에 corpsDone에 없는 법인이 {len(stray)}개 있다 "
+                       f"{sorted(stray)[:3]}")
+    return out
 
 
 def shard_status(state):
@@ -677,6 +727,10 @@ def run_shard(shard, shards, pol, limit):
         state["policyVersions"].append(pol["version"])
     # 담당 법인 수는 사실이고 완료 판정의 분모다. 상태에 있어야 finalize와 persist가
     # 샤딩을 다시 계산하지 않고도 완료를 유도할 수 있다.
+    # 이어받은 시점의 사실. 실행이 끝난 뒤 이것과 대조해 전이가 축적이었는지 본다.
+    prev_state = {"done": set(state["corpsDone"]),
+                  "hard": set(state["hardSkipped"]),
+                  "assigned": state.get("corpsAssigned")}
     state["corpsAssigned"] = len(mine)
     budget = (pol["quota"]["dailyCallLimit"] - pol["quota"]["safetyMarginCalls"]) // shards
 
@@ -796,6 +850,11 @@ def run_shard(shard, shards, pol, limit):
     save_progress(shard, state, records)
 
     status = shard_status(state)
+    # 상태 전이 검사. 여기서는 기록만 하고 중단하지 않는다 — 진행은 이미 디스크에
+    # 있고, 위반을 이유로 죽으면 그날 수집을 잃는다. 게이트는 finalize가 잡는다.
+    transition = state_transition_violations(prev_state, state, records.values())
+    for v in transition:
+        print(f"  경고: 상태 전이 위반 — {v}")
     # 실행 항등식. corpsAttempted는 이번 실행분이고 corpsDone은 누적이라 시계가 다르다 —
     # 한 식에 섞으면 이틀째부터 항상 깨진다. quotaDeferred는 0 또는 1이다
     # (한도를 만나면 즉시 break하고 부분 레코드는 버린다).
@@ -822,6 +881,7 @@ def run_shard(shard, shards, pol, limit):
         corpsPartialHard=state.get("corpsPartialHard", 0),
         corpsRemaining=status["corpsRemaining"],
         conservationOk=status["conservationOk"],
+        stateTransitionViolations=transition,
         corpsAttemptedThisRun=attempted, doneAddedThisRun=done_added,
         hardSkippedThisRun=hard_this_run, quotaDeferred=quota_deferred,
         runIdentityOk=run_identity_ok,
@@ -1221,6 +1281,19 @@ def run_finalize(pol):
         d = f"{SHARD_DIR}/_diagnostics-{os.path.basename(p).replace('.jsonl','')}.json"
         if os.path.exists(d) and load_json(d).get("smokeTest"):
             diag["smokeTest"] = True
+
+    # 산출물 일관성(불변식 4)을 병합 결과에서 직접 본다. 샤드별 검사는 각자의
+    # 상태만 보므로, 병합 과정에서 남의 레코드가 섞이는 경우는 여기서만 보인다.
+    # 등식이 아니라 부분집합이다 — 보고서가 0건인 법인도 정상적으로 완료된다.
+    all_done = set()
+    for p in sorted(glob.glob(f"{SHARD_DIR}/_state-*.json")):
+        all_done |= set(load_json(p).get("corpsDone") or [])
+    stray = sorted({r["corp"] for r in rows} - all_done)
+    diag["recordCorpsNotInDone"] = len(stray)
+    diag["recordCorpsNotInDoneSample"] = stray[:20]
+    if stray:
+        _abort(f"산출물에 어느 샤드의 corpsDone에도 없는 법인이 {len(stray)}개 있다 "
+               f"{stray[:5]} — 병합이 담당 밖의 레코드를 끌어왔다", diag, diag_path)
 
     corps = target_corps()
     diag["fiscalYearFrom"] = pol["fiscalYearFrom"]
