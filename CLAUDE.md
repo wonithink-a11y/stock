@@ -6,7 +6,7 @@
 ```
 Validated against
   정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
-  구현     7489bd3   ← 이 문서가 검증된 마지막 구현 커밋
+  구현     6a89ed6   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
            A2b 구현 완료(PR-1.4) — 수집 미실행
            A3 collect #1~#3 완료 3,672/3,801법인 96.6% (하드스킵 0 · 기각 0)
@@ -24,7 +24,10 @@ Validated against
            A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
            A5 운영 투입은 대기 — availableWeight 0.4475 < 0.6
            EPS·배당(alotMatter)·주식수가 없다. A3b 신설 여부가 사람의 결정
-           (docs/A5-1.0-입출력계약.md)
+           (docs/A5-1.0-입출력계약.md · docs/A3b-결정브리프.md)
+           alotMatter만으로 availableWeight 0.4475→0.68 (임계 0.6을 넘는다)
+           FN-1.4 승격은 절차만 확정 — 수치는 finalize 이후
+           (docs/FN-1.4-measured승격절차.md)
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
