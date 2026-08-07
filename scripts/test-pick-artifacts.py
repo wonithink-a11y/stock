@@ -35,7 +35,7 @@ def ok(name, cond, detail=""):
         print(f"  FAIL  {name}{('  — ' + detail) if detail else ''}")
 
 
-def make(root, artifact, shard, done, rows=1, broken=False):
+def make(root, artifact, shard, done, rows=1, broken=False, gaps=0):
     d = os.path.join(root, artifact)
     os.makedirs(d, exist_ok=True)
     p = os.path.join(d, f"_state-{shard}.json")
@@ -43,7 +43,8 @@ def make(root, artifact, shard, done, rows=1, broken=False):
         open(p, "w", encoding="utf-8").write("{ not json")
     else:
         json.dump({"shard": shard, "corpsDone": [f"{i:08d}" for i in range(done)],
-                   "hardSkipped": {}},
+                   "hardSkipped": {},
+                   "recordGaps": {f"{i:08d}": {"2020": "013"} for i in range(gaps)}},
                   open(p, "w", encoding="utf-8"))
     with open(os.path.join(d, f"shard-{shard}.jsonl"), "w", encoding="utf-8") as f:
         for i in range(rows):
@@ -175,6 +176,44 @@ try:
     make(root3, "a3-shard-6-a1", 6, done=470)
     run(root3, dest)
     ok("나중 회수가 더 진행했으면 갱신한다", state_done(dest, 6) == 470)
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
+print("\n[진행이 같으면 사실이 더 많은 쪽]")
+# 실측에서 나온 경우다. 샤드 6은 어제와 오늘 실행이 같은 346법인에서 멈췄고
+# corpsDone 집합도 레코드 수도 완전히 같았는데, 오늘 것에만 recordGaps 94법인이
+# 있었다(그 사이에 그 필드를 넣었다). 동점을 '건너뜀'으로 처리하면 그 94법인의
+# 공백 사유가 사라지고, 그것은 재수집 없이는 영영 못 얻는 사실이다(교훈75).
+tmp = tempfile.mkdtemp()
+try:
+    root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "out")
+    make(root, "a3-shard-6-a1", 6, done=346, gaps=0)
+    run(root, dest)
+    ok("먼저 온 것이 들어간다", state_done(dest, 6) == 346)
+
+    root2 = os.path.join(tmp, "art2")
+    make(root2, "a3-shard-6-a1", 6, done=346, gaps=94)
+    run(root2, dest)
+    with open(os.path.join(dest, "_state-6.json"), encoding="utf-8") as f:
+        st = json.load(f)
+    ok("진행이 같아도 recordGaps가 더 많으면 갱신한다",
+       len(st.get("recordGaps") or {}) == 94, str(len(st.get("recordGaps") or {})))
+    ok("그때도 corpsDone은 그대로다 (사실만 늘고 진행은 안 흔들린다)",
+       len(st["corpsDone"]) == 346)
+
+    root3 = os.path.join(tmp, "art3")
+    make(root3, "a3-shard-6-a1", 6, done=346, gaps=10)
+    run(root3, dest)
+    with open(os.path.join(dest, "_state-6.json"), encoding="utf-8") as f:
+        ok("사실이 더 적은 쪽으로는 물러서지 않는다",
+           len(json.load(f).get("recordGaps") or {}) == 94)
+
+    # 진행이 더 크면 gaps가 적어도 이긴다 — 1순위는 어디까지나 진행이다.
+    root4 = os.path.join(tmp, "art4")
+    make(root4, "a3-shard-6-a1", 6, done=400, gaps=1)
+    run(root4, dest)
+    ok("진행이 더 크면 사실이 적어도 이긴다 (1순위는 진행)",
+       state_done(dest, 6) == 400, str(state_done(dest, 6)))
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 

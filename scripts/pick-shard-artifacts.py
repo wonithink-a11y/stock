@@ -40,14 +40,27 @@ def shard_of(dirname):
     return int(m.group(1)), int(m.group(2) or 1)
 
 
-def done_count(state_path):
-    """고르는 기준. 읽을 수 없으면 -1 — 후보에서 지지 않게가 아니라 지도록 둔다.
-    깨진 상태 파일이 온전한 것을 이기면 안 된다."""
+def rank(state_path):
+    """고르는 기준 (corpsDone 수, recordGaps 법인 수). 큰 쪽이 이긴다.
+
+    1순위는 진행이다. 2순위가 필요한 이유는 **진행이 같은데 사실이 더 많은 상태가
+    있기** 때문이다 — 실측: 샤드 6은 어제와 오늘 실행이 같은 346법인에서 멈췄고
+    corpsDone 집합도 레코드 수도 완전히 같았는데, 오늘 것에만 recordGaps 94법인이
+    있었다(그 필드를 그 사이에 넣었다). 동점을 '건너뜀'으로 처리하면 그 94법인의
+    공백 사유가 사라지고, 그것은 **재수집 없이는 영영 못 얻는 사실이다**(교훈75).
+
+    읽을 수 없으면 (-1, -1) — 깨진 상태가 온전한 것을 이기면 안 된다.
+    """
     try:
         with open(state_path, encoding="utf-8") as f:
-            return len(json.load(f).get("corpsDone") or [])
+            st = json.load(f)
+        return (len(st.get("corpsDone") or []), len(st.get("recordGaps") or {}))
     except Exception:
-        return -1
+        return (-1, -1)
+
+
+def done_count(state_path):
+    return rank(state_path)[0]
 
 
 def main():
@@ -68,7 +81,7 @@ def main():
     for p in glob.glob(os.path.join(dest, "_state-*.json")):
         m = re.search(r"_state-(\d+)\.json$", os.path.basename(p))
         if m:
-            floor[int(m.group(1))] = done_count(p)
+            floor[int(m.group(1))] = rank(p)
 
     # shard -> (done, attempt, dir)
     best = {}
@@ -83,9 +96,9 @@ def main():
             continue
         seen += 1
         st = os.path.join(full, f"_state-{shard}.json")
-        n = done_count(st) if os.path.exists(st) else -1
+        n = rank(st) if os.path.exists(st) else (-1, -1)
         cur = best.get(shard)
-        # 동점이면 나중 시도를 쓴다. 진행이 같다면 최신 진단이 더 유용하다.
+        # 순위가 같으면 나중 시도를 쓴다. 진행도 사실도 같다면 최신 진단이 더 유용하다.
         if cur is None or (n, attempt) > (cur[0], cur[1]):
             best[shard] = (n, attempt, full)
 
@@ -95,15 +108,15 @@ def main():
 
     for shard in sorted(best):
         n, attempt, src = best[shard]
-        if n < 0:
+        if n[0] < 0:
             print(f"  샤드 {shard}: 상태 파일을 읽을 수 없다 ({os.path.basename(src)}) — 건너뛴다")
             continue
         have = floor.get(shard)
         if have is not None and n <= have:
-            # 같아도 쓰지 않는다. 같은 진행이면 바꿀 이유가 없고, 굳이 덮으면
-            # 목적지의 jsonl·진단이 다른 시도의 것으로 갈릴 수 있다.
+            # 순위가 같거나 낮으면 쓰지 않는다. 순위는 (진행, 사실의 양)이라
+            # '진행은 같은데 사실이 더 많은' 후보는 여기서 걸리지 않고 통과한다.
             verdict = "동일" if n == have else f"역행 {have}→{n}"
-            print(f"  샤드 {shard}: 목적지가 이미 done {have} — 건너뛴다 ({verdict})")
+            print(f"  샤드 {shard}: 목적지가 이미 (done {have[0]}, gaps {have[1]}) — 건너뛴다 ({verdict})")
             continue
         # 셋을 한 시도에서 통째로 가져온다. 갈라 오면 상태와 산출물이 어긋난다.
         moved = []
@@ -113,7 +126,7 @@ def main():
             if os.path.exists(p):
                 shutil.copy2(p, os.path.join(dest, name))
                 moved.append(name)
-        print(f"  샤드 {shard}: 시도 a{attempt} 채택 (done {n}) · 파일 {len(moved)}개")
+        print(f"  샤드 {shard}: 시도 a{attempt} 채택 (done {n[0]} · gaps {n[1]}) · 파일 {len(moved)}개")
 
     # 어느 시도가 졌는지 남긴다. 사람이 나중에 "왜 이 상태인가"를 물을 때의 근거다.
     for shard in sorted(best):
@@ -121,9 +134,9 @@ def main():
         for d in sorted(os.listdir(root)):
             s, a = shard_of(d)
             if s == shard:
-                cands.append((a, done_count(os.path.join(root, d, f"_state-{s}.json"))))
+                cands.append((a, rank(os.path.join(root, d, f"_state-{s}.json"))))
         if len(cands) > 1:
-            desc = " · ".join(f"a{a}:done {n}" for a, n in sorted(cands))
+            desc = " · ".join(f"a{a}:done {n[0]}/gaps {n[1]}" for a, n in sorted(cands))
             print(f"  샤드 {shard} 후보 {len(cands)}개 — {desc}")
     print(f"완료 — 샤드 {len(best)}개를 {dest}에 놓았다")
     return 0
