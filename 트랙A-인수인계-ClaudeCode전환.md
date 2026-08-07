@@ -670,81 +670,229 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 ---
 
-## 9. 다음 작업 — A3 마무리 (2026-08-06 갱신)
+## 9. 다음 작업 — A3 마무리 (2026-08-07 09:50 KST 갱신)
 
 새 세션은 이 절만 읽고 시작할 수 있다. 앞의 §0~§8은 배경이다.
+
+### 한 줄 요약
+
+**A3 수집이 96.6% 왔고 샤드 6에 129법인만 남았다. 오늘 예산을 다 써서 지금 돌리면
+아무 일도 안 일어난다 — KST 자정(2026-08-08 00:00) 이후 collect 한 번이면 끝난다.**
 
 ### 첫 명령
 
 ```bash
+python scripts/build-fundamentals-a3.py --summary   # 읽기 전용·네트워크 불필요
 node scripts/test-policies.js
-python scripts/test-fundamentals-a3.py            # 161건
-python scripts/build-fundamentals-a3.py --summary # 읽기 전용·네트워크 불필요
-git log --oneline 2f651d1..HEAD -- lib scripts config .github
+python scripts/test-fundamentals-a3.py              # 213건
+python scripts/test-analyze-a3.py                   # 45건
+python scripts/test-pick-artifacts.py               # 29건
+node scripts/test-a5-framework.js                   # 45건
 ```
 
-기대 출력 (collect #3 전):
+기대 출력:
 
 ```
-법인 완료 2605/? · 레코드 19078 · 오늘 호출 16051 · 완료 샤드 0/8
-하드스킵 0(미승인 0) · 부분실패 0 · 남음 ?
-  샤드 1개가 담당 법인 수를 모른다 — 계약 해시 도입 전에 쓰인 상태다. 다음 collect 실행이 채운다
+법인 완료 3672/3801 · 레코드 24200 · 오늘 호출 12535 · 완료 샤드 7/8
+하드스킵 0(미승인 0) · 부분실패 0 · 남음 129
 ```
 
-**분모의 `?`는 정상이다.** 샤드 6이 collect #2에서 정찰 실패로 중단해 `corpsAssigned`를
-쓰지 못했고, 모르는 것을 0으로 읽지 않기 때문이다(교훈57). collect #3이 채우면
-`2605/3801` 형태가 된다 — 그때부터 `남음`도 숫자로 나온다.
+`오늘 호출`은 상태의 `lastRunDate`가 오늘일 때만 유효한 값이다. 날짜가 바뀌면
+0으로 리셋되므로 자정 이후에 보면 다른 수가 나온다 — 이상이 아니다.
 
 ### 지금 위치
 
 ```
-A3   2,605 / 3,801법인 · 19,078레코드 · 남음 1,196
-     하드스킵 0 · 부분실패 0 · 기각 0 · rec/rep 1.00
-     collect #1(1,381) + collect #2(1,224) 완료
+A3   3,672 / 3,801법인 (96.6%) · 24,200레코드 · 완료 샤드 7/8 · 남음 129
+     하드스킵 0 · 부분실패 0 · 기각 0
+     남은 129는 전부 샤드 6이다 (346/475)
+     recordGaps 925법인 — 013이 6,471건 · EARLY_STOP 37건 · REJECT/HARD 0건
+
 정책 UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
+검사 T(전이 4) · S(상태 3) · M(병합 4) 전부 통과 · 계약 해시 8샤드 동일
 ```
 
 ### 할 일 — 순서대로
 
 ```
-1  collect #3      Actions → backfill-fundamentals-a3 → mode: collect
-                   남은 1,196이면 한 번에 끝날 가능성이 높다(회당 실측 1,224)
-2  결과 확인       아래 「성공 기준」
-3  finalize        완료 샤드 8/8이 나온 뒤에만. mode: finalize
-4  FN-1.4 승격     measured 블록 기록 → WARN 임계를 FAIL로
-5  커밋 3          ✅ 완료 (2026-08-06, collect #3 전) — 아래 §9.7
-6  A2b 수집 실행   Actions → backfill-price-a2b (구현 완료·미실행)
+1  ⏳ collect 마지막   KST 자정 이후. Actions → backfill-fundamentals-a3
+                      → Run workflow → mode: collect
+                      샤드 6의 129법인. 실측 11.5호출/법인 → 약 1,478호출 (예산 2,000)
+                      → 한 번에 끝난다
+2  ⏳ 결과 확인        아래 「성공 기준」. 완료 샤드 8/8 · 남음 0
+3  ⏳ finalize         mode: finalize. 8/8이 된 뒤에만
+                      → 산출물 + manifest + _quality.json 자동 생성 → _shards/ 삭제
+4  ⏳ FN-1.4 승격      measured 블록 기록 → WARN 임계를 FAIL로
+5  ⏳ A3b 결정         사람의 판단. §9.6.1 — A5 운영 투입의 전제
+6  ⏳ A2b 수집 실행    Actions → backfill-price-a2b (구현 완료·미실행)
 ```
 
-**5는 1보다 먼저 끝났다.** collect #3이 사람의 dispatch를 기다리는 동안 할 수 있는
-유일한 항목이었고, 순서를 바꾼 이득이 있다 — 원인 분해와 PYTHONUNBUFFERED는 **collect
-#3의 로그를 읽는 도구**다. collect #3 뒤에 넣었다면 그 실행의 관측을 놓쳤을 것이다.
+**1번을 지금 돌리면 안 되는 이유**는 아래 「예산이 오늘 막혀 있다」에 있다.
+자정 전에 돌리면 정찰 16호출만 태우고 샤드 6이 즉시 중단한다.
 
-**DART 키 교체가 선행 과제로 남아 있을 수 있다.** collect #2에서 API 키 앞 26자가
-아티팩트에 노출됐다(아래 「사고 기록」). 코드는 고쳐졌으나 키 재발급 여부는 사람이 판단한다.
+### ⚠ 예산이 오늘 막혀 있다 — 구조적 문제이기도 하다
 
-### collect #3 성공 기준
+```
+샤드별 예산  2,000 = (20,000 − 안전여유 4,000) / 8
+샤드 6       오늘 2,005 사용 → 이미 초과 → 첫 루프에서 break
+나머지 7개   완료라 할 일 없음
+
+A3 몫 16,000 중 오늘 12,535 사용 · 잔여 3,465
+샤드 6에 필요한 것은 1,478 — 전체로는 여유가 충분한데 나눗셈이 막는다
+```
+
+**안전여유를 줄여도 안 된다.** 8등분이라 여유를 0으로 해도 샤드당 2,500이고
+샤드 6은 이미 2,005를 썼다 — 495만 남아 1,478에 못 미친다.
+
+오늘 끝내는 유일한 길은 **활성 샤드끼리만 나누도록 예산 배분을 고치는 것**이다.
+
+```
+budget = 자기가 오늘 쓴 양 + (limit − margin − 오늘 전체 사용) / 활성 샤드 수
+       = 2,005 + 3,465 / 1 = 5,470          → 오늘 끝난다
+```
+
+병렬 실행에도 안전하다 — 활성 샤드가 8개면 각자 `16,000/8 = 2,000`으로 지금과 같고,
+합계가 절대 한도를 넘지 않는다. `quota`는 `collectionContract.fields`에 없으므로
+**resume도 깨지지 않는다**(확인함).
+
+**2026-08-07 시점의 판단은 "고치지 않고 기다린다"였다.** 96.6%까지 온 상태에서
+마지막 수집 직전에 예산 로직을 건드리는 것은 이득(14시간) 대비 위험이 크다 —
+버그가 나면 과소 수집이나 한도 초과인데 둘 다 조용하다.
+
+다만 **언젠가 고칠 값어치가 있다.** 마지막 샤드는 항상 뒤처지고 그때마다 예산의
+87.5%가 논다. A3b를 신설하면 같은 일이 또 생긴다. **FN-1.4 승격 때 measured와
+함께 넣는 것**이 자연스러운 자리다.
+
+### collect 성공 기준
 
 이 8개면 충분하다.
 
 | 항목 | 기대값 |
 |---|---|
 | `collectionContractHash` | 8샤드 동일 · **None 없음** · 현재 코드 계산값과 일치 |
-| `corpsAssigned` | 8샤드 모두 존재 (샤드 6 포함 — 지금은 `?`다) |
+| `corpsAssigned` | 8샤드 모두 존재 (지금도 전부 있다) |
 | `stateTransitionViolations` | 빈 배열 (T1~T4) |
 | `stateInvariantViolations` | 빈 배열 (S1~S3. 하나라도 있으면 finalize가 중단한다) |
 | `stateMergedViolations` | 빈 배열 (M1·M2. `corpsAssignedSumMeasurable`이 true여야 M1이 산 검사다) |
 | `duplicateRecordKeysAcrossShards` · `recordDistributionAcrossShards` | 둘 다 0 (M3. 서로소라 어느 쪽이 0이 아닌지가 팔 곳을 지목한다) |
-| `recordCorpsNotInDone` | 0 |
+| `recordCorpsNotInDone` | 0 (M4) |
 | `runIdentityOk` | true |
-| `hardErrorsByCause` | 원인별 집계 확인. **0이 아니어도 허용**이며 대응만 갈린다(§9.7) |
 
-보조 지표: `hardSkippedByRetryable.nonRetryable`은 0이 이상적이고, `reportsFound`와
-jsonl 행 수는 `>=`다(재시도가 있으면 등식이 아니다). `hardErrors` 총계는 관측이지
-성공 기준이 아니다 — 0이 아니어도 `hardSkipped`가 받는다.
-
+보조: `hardErrorsByCause`는 0이 아니어도 허용이며 대응만 갈린다(§9.7).
 `nonRetryable`이 하나라도 나오면 그때가 `config/backfill/declared-gaps-a3.json`에
 `{corp, reason}`을 넣을 시점이다. `retryable` 쪽은 두면 다음 실행이 재시도한다.
+
+### 이번 라운드에 만든 것 (2026-08-06 ~ 08-07)
+
+새 세션이 "이미 있는 것을 또 만들지" 않도록 적어둔다.
+
+```
+상태 계약
+  T 전이 4 · S 상태 3 · M 병합 4        build-fundamentals-a3.py
+  conservationOk 제거                    구성상 항상 참이라 검사가 아니었다(교훈72)
+  save_progress가 계약 해시를 강제        쓰는 시점에 막는다
+
+관측
+  hardErrorsByCause · callFailuresByCause  원인 계층(transport/http/parse/dart)
+  recordGaps                               법인별 연도별 공백 사유 — collect만 아는 사실
+  PYTHONUNBUFFERED · GITHUB_STEP_SUMMARY   로그·요약이 죽거나 묻히지 않게
+
+품질 (QR-1.0)
+  analyze-fundamentals-a3.py     계산 + 사람이 읽는 뷰
+  generate-quality-report.py     같은 계산 → _quality.json (finalize가 자동 호출)
+  test-analyze-a3.py             45건
+
+회수
+  pick-shard-artifacts.py        샤드별 최선 시도 선택 · 역행 금지
+  test-pick-artifacts.py         29건
+
+A5 프레임워크
+  lib/a5/featureRegistry.js      피처 → 소스·가용성. availableWeight()
+  lib/a5/pitSelector.js          PIT 3규칙 · 이력 · freshness · 미래참조 방어
+  lib/a5/resolver.js             레코드 → 지표 · provenance · 결측 전파
+  test-a5-framework.js           45건
+
+문서
+  docs/A5-1.0-입출력계약.md      A5 입출력 · 공백 분석 · A3b 근거
+```
+
+회귀 총계 — A3 213 · 품질 45 · 아티팩트 29 · A5 45 · 엔진 4종. 전부 통과 상태로 둔다.
+
+---
+
+## 9.0 사고 기록 — collect #3 (2026-08-07)
+
+**수집은 성공했는데 persist가 못 커밋해 아티팩트에서 손으로 회수했다.** 원인 셋을
+전부 고쳤고 마지막 실행에서는 persist가 정상 커밋했다. 같은 일을 반복하지 않기 위한 절이다.
+
+### ① 재실행은 옛 코드를 돈다 — 이미 고친 결함을 다시 고치러 갈 뻔했다
+
+persist 로그가 최상단 `import requests`로 죽었는데, 그 지연 import는 `526fbe6`
+(08-06 08:12)에서 이미 고쳐 main에 있었다.
+
+```
+로그   line 48  import requests           현재 코드는 53행이 requests = None
+스텝   Progress summary 실패 → Commit progress 스킵
+       현재 워크플로는 continue-on-error: true라 스킵되지 않는다
+```
+
+둘 다 "이 실행은 526fbe6 이전 코드다"를 뜻했다. **Re-run은 그 실행이 시작된 시점의
+커밋을 다시 돈다** — main을 고쳐도 반영되지 않고 같은 오류가 영원히 난다.
+
+이제 persist 첫 스텝이 `checkout SHA`와 `run attempt`를 찍고, 재실행이면 경고를 낸다.
+
+```
+코드를 고쳤다면 재실행(Re-run jobs)이 아니라 새 dispatch(Run workflow)다
+```
+
+### ② 아티팩트 이름이 불변이라 샤드 재실행이 구조적으로 불가능했다
+
+`upload-artifact@v4`는 같은 이름을 두 번 올리면 409로 실패한다. 이 스텝은
+`if: always()`라 **실패한 시도도 이름을 선점한다.** 그래서 샤드 7을 재실행하면
+수집을 정상으로 마쳐도 업로드에서 반드시 죽었다.
+
+이름에 시도 번호를 넣어(`a3-shard-<N>-a<시도>`) 409를 아예 없앴다.
+`overwrite: true`는 쓰지 않는다 — 재실행이 **덜 진행하고 끝날 수 있어서**
+(일 한도를 앞 시도가 태웠으므로) 더 나은 상태를 지울 수 있다.
+
+### ③ push가 5번 다 실패해도 persist가 초록불이었다
+
+```bash
+for i in 1 2 3 4 5; do ... && break; done   # break가 안 걸려도 루프는 정상 종료
+```
+
+persist가 성공으로 보이는데 아무것도 push되지 않는 **조용한 손실 경로**였다.
+collect #2 사고가 "실패가 다음 스텝을 막았다"였다면 이것은 반대편 — 실패가
+성공으로 보인다. 이제 `::error::`와 `exit 1`을 내고 회수 경로를 함께 출력한다.
+
+### 회수 방법 — 같은 일이 또 생기면
+
+```bash
+# 1) 실행 페이지 하단 Artifacts에서 a3-shard-* 다운로드
+# 2) 아티팩트 이름과 같은 폴더로 압축 해제 (recover/a3-shard-0/ ...)
+# 3) 선택기가 샤드마다 가장 나은 시도를 고른다
+python scripts/pick-shard-artifacts.py recover data/backfill/fundamentals/_shards
+python scripts/build-fundamentals-a3.py --summary
+```
+
+선택기의 순위는 **(corpsDone 수, recordGaps 법인 수)**다. 진행이 1순위이고,
+진행이 같을 때 사실이 많은 쪽이 이긴다 — 실측에서 샤드 6이 어제·오늘 똑같이
+346에서 멈췄는데 오늘 것에만 `recordGaps` 94법인이 있었다. 동점을 건너뛰면
+그 94법인의 공백 사유가 사라진다(재수집 없이는 못 얻는 사실이다).
+
+목적지도 후보로 넣어 **회수가 역행하지 않는다.** 여러 번에 걸쳐 회수할 때
+나중 것이 덜 진행했으면 지킨다.
+
+### 초록불은 완료가 아니다
+
+예산 소진은 설계상 `exit 0`이다(A3는 며칠에 걸쳐 돌아 매일 빨간불이면 진짜 실패와
+구분이 안 된다). 그래서 **잡이 초록불인데 담당분은 안 끝난** 상태가 정상적으로 있다.
+
+실제로 그렇게 읽혔다 — `collect (6)`이 초록불이라 완료로 읽혔지만 로그 마지막 줄은
+`법인 346/475 · 남음 129 · 오늘 예산 소진`이었다. 이제 `--summary` 결과를
+`GITHUB_STEP_SUMMARY`에 써서 실행 요약 첫 화면에 띄운다.
+
+**완료 여부는 체크마크가 아니라 `완료 샤드 N/8`이 말한다.**
 
 ### 레코드 스키마 — 품질 분석에 필요한 것은 이미 있다 (2026-08-06 확인)
 
@@ -1232,10 +1380,15 @@ CLAUDE.md의 재실행 규칙은 **그 단계가 읽는 키가 바뀐 경우**�
 
 ---
 
-## 9.6.1 A5 착수가 막혀 있다 — 계산 가능 가중치 0.4475 < 0.6 (2026-08-06)
+## 9.6.1 A5 운영 투입이 막혀 있다 — availableWeight 0.4475 < 0.6 (2026-08-06)
 
 A5 인터페이스를 설계하다 **A3 finalize 뒤에 발견했다면 되돌릴 수 없었을 공백**을
 찾았다. 상세는 `docs/A5-1.0-입출력계약.md`.
+
+**막힌 것은 운영 투입이지 구현이 아니다.** 프레임워크는 구현을 마쳤고(`lib/a5/`,
+회귀 45건) A3b와 무관하다. 결측은 이 엔진에서 정상 경로이며(`missingAxis.renormalize`,
+`PARTIAL_CALCULATION` 플래그 코드) 축이 비어 있다는 것은 점수를 운영에 내보내지
+않는다는 뜻이다. 이 구분을 잃으면 "점수가 안 나오니 개발도 못 한다"가 된다.
 
 ```
 카테고리       가중   공급 가능    막는 것

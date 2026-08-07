@@ -9,8 +9,8 @@ Validated against
   구현     32674a8   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
            A2b 구현 완료(PR-1.4) — 수집 미실행
-           A3 collect #1·#2 완료 2,780/3,801법인 (하드스킵 0 · 기각 0)
-           샤드 6 진행 회수로 분모 확정 — 8샤드 계약 해시 일치
+           A3 collect #1~#3 완료 3,672/3,801법인 96.6% (하드스킵 0 · 기각 0)
+           완료 샤드 7/8 — 샤드 6만 129법인 남음. recordGaps 925법인 확보
            A3 수집 안정화 커밋 1 완료 (FN-1.3 — resume 무결성·수집 계약 해시)
            A3 수집 안정화 커밋 2 완료 (REG-1.5 — 승인 채널·approvalHash)
            A3 수집 안정화 커밋 3 완료 (오류 원인 분해 · PYTHONUNBUFFERED) — 관측성
@@ -18,7 +18,7 @@ Validated against
            법인별 공백 사유(recordGaps) 추가 — collect만 아는 사실
            conservationOk 제거 — 구성상 항상 참이라 검사가 아니었다
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
-  다음     A3 collect #3 (남음 1,196 — 한 번에 끝날 가능성) → finalize
+  다음     A3 collect 마지막 (샤드 6의 129 — KST 자정 이후. 오늘 예산 소진) → finalize
            → measured 기록 후 임계 승격 (FN-1.4)
            A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
            A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
