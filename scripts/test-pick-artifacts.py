@@ -254,6 +254,10 @@ ok("선택기를 커밋 전에 부른다",
    wf.index("pick-shard-artifacts.py") < wf.index("Commit progress"))
 ok("overwrite로 덮지 않는다 (더 나아간 시도를 지울 수 있다)",
    "overwrite: true" not in wf, "설정에 남아 있다")
+# 예산 소진은 exit 0이라 잡이 초록불인데 담당분은 안 끝난 상태가 정상적으로 있다.
+# 그 사실이 로그를 펼쳐야만 보이면 초록불을 완료로 읽게 된다 — 실제로 그렇게 읽혔다.
+ok("진행 요약을 실행 요약 페이지에 쓴다 (초록불을 완료로 읽지 않게)",
+   "GITHUB_STEP_SUMMARY" in wf, "요약 페이지 출력이 없다")
 
 print(f"\n{'=' * 54}")
 print(f"통과 {passed} · 실패 {failed}")

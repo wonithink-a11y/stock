@@ -156,7 +156,20 @@ jobs:
         # 커밋되지 않았다 — persist 게이트를 !cancelled()로 완화해 막으려던 바로 그
         # 실패 모드가 한 층 아래에서 재발했다. 관측이 내구성을 막아서는 안 된다.
         continue-on-error: true
-        run: python scripts/build-fundamentals-a3.py --summary
+        # 실행 요약 페이지에도 쓴다. 예산 소진은 설계상 exit 0이라 잡이 **초록불인데
+        # 담당분은 안 끝난** 상태가 정상적으로 존재한다 — 그 사실이 로그를 펼쳐야만
+        # 보이면 초록불을 완료로 읽게 된다. 실제로 그렇게 읽혔다.
+        # 완료 여부는 체크마크가 아니라 이 표가 말한다.
+        run: |
+          python scripts/build-fundamentals-a3.py --summary | tee /tmp/a3-summary.txt
+          {
+            echo "## A3 수집 진행"
+            echo '```'
+            cat /tmp/a3-summary.txt
+            echo '```'
+            echo "> 잡의 초록불은 '정상 종료'이지 '담당분 완료'가 아니다."
+            echo "> 예산 소진은 실패가 아니라 분할 실행의 정상 경로다 — 완료 샤드 수를 본다."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit progress
         # if를 붙이지 않는다. 위 스텝이 continue-on-error라 실패해도 여기까지 온다.
