@@ -855,8 +855,14 @@ spec.loader.exec_module(m)
 m.SHARD_DIR = {_shards_dir!r}
 sys.exit(m.run_summary())
 '''
+# 자식은 파이프에 로케일 인코딩으로 쓴다 — 한국어 Windows에서는 cp949다. 부모가
+# utf-8로 읽으면 리더 스레드가 UnicodeDecodeError로 죽고 stdout이 None이 되어,
+# 검사 대상과 무관한 자리에서 테스트가 터진다(실측). 아래 요약 수치 단언은 한글
+# 문자열을 보므로 자식 쪽 파이프를 utf-8로 못 박는다. 이것은 테스트가 자기
+# 파이프를 정하는 것이지 스크립트의 콘솔 인코딩 정책(교훈70)을 바꾸는 것이 아니다.
+_env = dict(os.environ, PYTHONIOENCODING="utf-8")
 _r = subprocess.run([sys.executable, "-c", _probe], capture_output=True, text=True,
-                    encoding="utf-8", cwd=ROOT)
+                    encoding="utf-8", errors="replace", cwd=ROOT, env=_env)
 ok("requests가 없어도 모듈이 import된다 (최상단 import가 아니다)",
    "BLOCKER_FAILED" not in _r.stdout and "ModuleNotFoundError" not in (_r.stderr or "")
    and "No module named 'requests'" not in (_r.stderr or ""),
