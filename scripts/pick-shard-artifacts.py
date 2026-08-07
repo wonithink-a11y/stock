@@ -60,6 +60,16 @@ def main():
         return 1
     os.makedirs(dest, exist_ok=True)
 
+    # 목적지에 이미 있는 상태도 후보다. 이것이 없으면 **회수가 역행할 수 있다** —
+    # 어제 아티팩트로 샤드 6을 346까지 올려둔 뒤 오늘 아티팩트(341)를 회수하면
+    # 175법인이 사라진다. 아티팩트끼리만 비교하면 그 경로가 열린 채로 남는다.
+    # 상태는 단조 축적이므로 '이미 있는 것보다 뒤로 가지 않는다'가 불변식이다.
+    floor = {}
+    for p in glob.glob(os.path.join(dest, "_state-*.json")):
+        m = re.search(r"_state-(\d+)\.json$", os.path.basename(p))
+        if m:
+            floor[int(m.group(1))] = done_count(p)
+
     # shard -> (done, attempt, dir)
     best = {}
     seen = 0
@@ -87,6 +97,13 @@ def main():
         n, attempt, src = best[shard]
         if n < 0:
             print(f"  샤드 {shard}: 상태 파일을 읽을 수 없다 ({os.path.basename(src)}) — 건너뛴다")
+            continue
+        have = floor.get(shard)
+        if have is not None and n <= have:
+            # 같아도 쓰지 않는다. 같은 진행이면 바꿀 이유가 없고, 굳이 덮으면
+            # 목적지의 jsonl·진단이 다른 시도의 것으로 갈릴 수 있다.
+            verdict = "동일" if n == have else f"역행 {have}→{n}"
+            print(f"  샤드 {shard}: 목적지가 이미 done {have} — 건너뛴다 ({verdict})")
             continue
         # 셋을 한 시도에서 통째로 가져온다. 갈라 오면 상태와 산출물이 어긋난다.
         moved = []

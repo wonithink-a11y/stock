@@ -154,6 +154,46 @@ try:
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
+print("\n[목적지보다 뒤로 가지 않는다]")
+# 회수는 여러 번에 걸쳐 일어난다. 어제 아티팩트로 샤드 6을 346까지 올려둔 뒤
+# 오늘 아티팩트(341)를 회수하면 175법인이 사라진다 — 아티팩트끼리만 비교하면
+# 그 경로가 열린 채로 남는다. 상태는 단조 축적이므로 목적지도 후보다.
+tmp = tempfile.mkdtemp()
+try:
+    root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "out")
+    make(root, "a3-shard-6-a1", 6, done=346)
+    run(root, dest)
+    ok("1차 회수는 그대로 들어간다", state_done(dest, 6) == 346)
+
+    root2 = os.path.join(tmp, "art2")
+    make(root2, "a3-shard-6-a1", 6, done=341)
+    run(root2, dest)
+    ok("나중 회수가 덜 진행했으면 목적지를 지키지 않는다 (역행 금지)",
+       state_done(dest, 6) == 346, str(state_done(dest, 6)))
+
+    root3 = os.path.join(tmp, "art3")
+    make(root3, "a3-shard-6-a1", 6, done=470)
+    run(root3, dest)
+    ok("나중 회수가 더 진행했으면 갱신한다", state_done(dest, 6) == 470)
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
+print("\n[아티팩트에 남의 샤드 파일이 섞여 있어도]")
+# 실측: collect #2의 아티팩트는 8샤드 파일을 전부 담고 있었다(경로 지정 전 버전).
+# 폴더 이름이 지목하는 샤드의 파일만 봐야 남의 옛 상태를 끌어오지 않는다.
+tmp = tempfile.mkdtemp()
+try:
+    root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "out")
+    d = make(root, "a3-shard-2-a1", 2, done=349)
+    make(root, "a3-shard-2-a1", 5, done=99)      # 같은 폴더에 남의 샤드 파일
+    run(root, dest)
+    ok("폴더가 지목하는 샤드만 채택한다", state_done(dest, 2) == 349)
+    ok("같은 폴더의 남의 샤드는 놓지 않는다",
+       not os.path.exists(os.path.join(dest, "_state-5.json")),
+       str(sorted(os.listdir(dest))))
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
 print("\n[의존성]")
 src = open(os.path.join(ROOT, "scripts/pick-shard-artifacts.py"), encoding="utf-8").read()
 ok("서드파티를 import하지 않는다 (persist 잡에 pip install이 없다)",
