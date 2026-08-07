@@ -757,13 +757,26 @@ A3   3,672 / 3,801법인 (96.6%) · 24,200레코드 · 완료 샤드 7/8 · 남�
 **Actions 실행 목록이 아직 남아 있는 지금 손으로 기록한다.** 코드는 고치지 않는다
 (동결 중이고, 성공 경로에 run identity를 남기는 것은 다음 수집기의 계약이다).
 
+### A3 종료 체크리스트
+
+**첫 줄이 이 목록에서 유일하게 복구 불가능한 항목이다.** 나머지는 전부 git에
+남아 있어 언제든 다시 만들 수 있다 — 태그는 재생성되고, manifest·diagnostics·
+산출물은 커밋에 있다. **Actions 실행 목록만 보존 기간이 있다.**
+
 ```
-남길 것   commitSha        태그가 가리키는 커밋
-          manifestHash     manifest 파일의 해시 (커밋에 이미 있으나 명시)
-          diagnosticsHash  _diagnostics.json의 해시
-          runs             collect #1~#4 · finalize 각각의 run id와 URL
-          완료 시각 (KST) · 최종 수치(법인·레코드·샤드)
+□ ★ GitHub Actions Run ID 기록 완료   ← 되돌릴 수 없다. 가장 먼저 한다
+     collect #1~#4 · finalize 각각의 run id와 URL
+□ git tag a3-complete
+□ 최종 수치 확인 (법인 3801/3801 · 레코드 · 샤드 8/8 · 남음 0)
+□ 완료 시각 (KST)
 ```
+
+`manifestHash`·`diagnosticsHash`를 따로 적지 않는다 — 태그가 가리키는 커밋에
+이미 들어 있어 중복이다(이 저장소는 `data/backfill/` 57개를 추적한다).
+
+**다음 수집기부터는 코드가 남긴다.** MN-1.0 §5에 `execution.runId` ·
+`execution.runAttempt` · `execution.workflow`를 manifest 계약으로 넣어뒀다.
+A3에서 손으로 하는 이 일이 반복되지 않는다.
 
 ### A3 회고 — 재사용 패턴으로 남긴다 (5번)
 
@@ -775,8 +788,13 @@ A3   3,672 / 3,801법인 (96.6%) · 24,200레코드 · 완료 샤드 7/8 · 남�
 형식   Pattern       Resume 호환 판정
        Applicability 여러 날에 걸치는 모든 수집기
        Source        config/policies/fundamentals.v1.json collectionContract
+       Verification  scripts/test-fundamentals-a3.py — resume 무결성 회귀
        주의          version 문자열로 판정하면 임계 하나가 며칠치를 버린다(교훈55)
 ```
+
+`Verification`이 있는 이유는 **패턴이 실제로 어디서 검증되는지까지 연결되어야
+다음 수집기가 그 회귀를 복제할 수 있기** 때문이다. 검증 자리를 못 적는 패턴은
+아직 패턴이 아니라 관행이다 — 그런 항목은 목록에 남기되 그렇게 표시한다.
 
 ```
 후보  Resume 호환 판정 · 일 예산 배분 · 샤딩과 병합 계약 · manifest 인수 조건

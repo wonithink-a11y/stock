@@ -157,7 +157,18 @@ schemaVersion MN-1.0
 ```
 ticker · date · rows · sha256 · source · endpoint · adjusted
 requestedAt · createdAt · schemaVersion · gapReasons
+execution.runId · execution.runAttempt · execution.workflow
 ```
+
+`execution` 세 필드는 **A3에서 잃은 것을 처음부터 막는다.** A3는 `run_identity()`가
+`hardSkipped` 항목에만 펼쳐져(`build-fundamentals-a3.py:992`) 하드 실패가 0인
+정상 수집에서는 run id가 어디에도 남지 않았고, finalize가 `_shards/`를 지운 뒤에는
+복원 경로가 없었다. 날짜(`runDates`)만으로는 로그를 찾지 못한다 — 하루에 여러 번
+dispatch하고 재실행도 하기 때문이다.
+
+**성공 경로에 남겨야 한다.** 실패 경로에만 남기면 "잘 돌아간 실행"의 출처가
+사라지는데, 나중에 되짚어야 하는 것은 대개 그쪽이다. `runAttempt`를 함께 두는
+이유는 Re-run이 run id를 유지하고 attempt만 올리기 때문이다(교훈78).
 
 manifest는 "파일이 존재한다"가 아니라 **"이 산출물이 인수 조건을 통과했다"**를
 뜻한다(교훈43). 그러므로:
