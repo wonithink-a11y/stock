@@ -8,23 +8,49 @@
   "probes": [
     {
       "corp": "00126380",
-      "ok": false,
-      "dartStatus": null,
-      "error": "ConnectTimeout: HTTPSConnectionPool(host='opendart.fss.or.kr', port=443): Max retries exceeded with url: /api/fnlttSinglAcnt.json?crtfc_key=<redacted>"
+      "ok": true,
+      "dartStatus": "000",
+      "error": null
     },
     {
       "corp": "00164779",
-      "ok": false,
-      "dartStatus": null,
-      "error": "ConnectTimeout: HTTPSConnectionPool(host='opendart.fss.or.kr', port=443): Max retries exceeded with url: /api/fnlttSinglAcnt.json?crtfc_key=<redacted>"
+      "ok": true,
+      "dartStatus": "000",
+      "error": null
     }
   ],
-  "aborted": true,
-  "abortReason": "정찰 전건 실패 — 수집 경로가 막혔다",
-  "lastHttp": {
-    "endpoint": "fnlttSinglAcnt.json",
-    "httpStatus": null,
-    "dartStatus": null,
-    "bytes": null
-  }
+  "corpsAssigned": 475,
+  "corpsDone": 346,
+  "corpsProcessed": 175,
+  "recordCount": 2564,
+  "calls": 2006,
+  "budget": 2000,
+  "dartStatus": {
+    "000": 1255,
+    "013": 750
+  },
+  "hardErrors": 0,
+  "earlyStopped": 11,
+  "sicFetchFailed": 0,
+  "reportsFoundCumulative": 2564,
+  "recordRejectedCumulative": {},
+  "quotaExceeded": false,
+  "budgetExhausted": true,
+  "collectionContractHash": "sha256:49d95a15f488259a",
+  "policyVersions": [
+    "FN-1.3"
+  ],
+  "hardSkipped": 0,
+  "hardSkippedOpen": 0,
+  "hardSkippedDetail": {},
+  "corpsPartialHard": 0,
+  "corpsRemaining": 129,
+  "conservationOk": true,
+  "corpsAttemptedThisRun": 175,
+  "doneAddedThisRun": 175,
+  "hardSkippedThisRun": 0,
+  "quotaDeferred": 0,
+  "runIdentityOk": true,
+  "complete": false,
+  "elapsedSeconds": 2902.2
 }
