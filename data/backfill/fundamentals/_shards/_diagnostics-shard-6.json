@@ -4,7 +4,7 @@
   "shard": 6,
   "shards": 8,
   "fundamentalsPolicy": "FN-1.3",
-  "runDate": "2026-08-07",
+  "runDate": "2026-08-08",
   "probes": [
     {
       "corp": "00126380",
@@ -22,24 +22,24 @@
     }
   ],
   "corpsAssigned": 475,
-  "corpsDone": 346,
-  "corpsProcessed": 175,
-  "recordCount": 2564,
-  "calls": 2005,
+  "corpsDone": 475,
+  "corpsProcessed": 129,
+  "recordCount": 3114,
+  "calls": 1518,
   "budget": 2000,
   "dartStatus": {
-    "000": 1255,
-    "013": 750
+    "000": 660,
+    "013": 858
   },
   "hardErrors": 0,
   "hardErrorsByCause": {},
   "callFailuresByCause": {},
-  "earlyStopped": 11,
+  "earlyStopped": 3,
   "sicFetchFailed": 0,
-  "reportsFoundCumulative": 2564,
+  "reportsFoundCumulative": 3114,
   "recordRejectedCumulative": {},
   "quotaExceeded": false,
-  "budgetExhausted": true,
+  "budgetExhausted": false,
   "collectionContractHash": "sha256:49d95a15f488259a",
   "policyVersions": [
     "FN-1.3"
@@ -48,19 +48,19 @@
   "hardSkippedOpen": 0,
   "hardSkippedDetail": {},
   "corpsPartialHard": 0,
-  "recordGapCorps": 94,
+  "recordGapCorps": 216,
   "recordGapReasons": {
-    "013": 739,
-    "EARLY_STOP": 11
+    "013": 1594,
+    "EARLY_STOP": 14
   },
-  "corpsRemaining": 129,
+  "corpsRemaining": 0,
   "stateTransitionViolations": [],
   "stateInvariantViolations": [],
-  "corpsAttemptedThisRun": 175,
-  "doneAddedThisRun": 175,
+  "corpsAttemptedThisRun": 129,
+  "doneAddedThisRun": 129,
   "hardSkippedThisRun": 0,
   "quotaDeferred": 0,
   "runIdentityOk": true,
-  "complete": false,
-  "elapsedSeconds": 1657.8
+  "complete": true,
+  "elapsedSeconds": 1711.4
 }
