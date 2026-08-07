@@ -6,7 +6,7 @@
 ```
 Validated against
   정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
-  구현     6a89ed6   ← 이 문서가 검증된 마지막 구현 커밋
+  구현     5289fe8   ← 이 문서가 검증된 마지막 구현 커밋
   완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
            A2b 구현 완료(PR-1.4) — 수집 미실행
            A3 collect #1~#3 완료 3,672/3,801법인 96.6% (하드스킵 0 · 기각 0)
@@ -18,8 +18,8 @@ Validated against
            법인별 공백 사유(recordGaps) 추가 — collect만 아는 사실
            conservationOk 제거 — 구성상 항상 참이라 검사가 아니었다
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
-  다음     A3 collect 마지막 (샤드 6의 129 — KST 자정 이후. 오늘 예산 소진) → finalize
-           → measured 기록 후 임계 승격 (FN-1.4)
+  다음     A3 collect 마지막 (샤드 6의 129 — 2026-08-08 00:00 KST 이후) → finalize
+           → a3-complete 태그 → 회고 → measured 기록 후 임계 승격 (FN-1.4)
            A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
            A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
            A5 운영 투입은 대기 — availableWeight 0.4475 < 0.6
@@ -28,6 +28,9 @@ Validated against
            alotMatter만으로 availableWeight 0.4475→0.68 (임계 0.6을 넘는다)
            FN-1.4 승격은 절차만 확정 — 수치는 finalize 이후
            (docs/FN-1.4-measured승격절차.md)
+  분봉     단기 트랙은 설계만 끝났고 코드가 없다. A3를 닫은 뒤 시작한다
+           소스 KIS 단일 · naver는 알림 유지 · Raw는 저장소 밖(parquet)
+           다음은 T0 정찰 — 인수인계 §9.8 · docs/MN-1.0-분봉Raw저장계약.md
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
