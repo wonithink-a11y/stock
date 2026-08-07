@@ -4,38 +4,42 @@
   "shard": 4,
   "shards": 8,
   "fundamentalsPolicy": "FN-1.3",
-  "runDate": "2026-08-06",
+  "runDate": "2026-08-07",
   "probes": [
     {
       "corp": "00126380",
       "ok": true,
       "dartStatus": "000",
-      "error": null
+      "error": null,
+      "cause": null
     },
     {
       "corp": "00164779",
       "ok": true,
       "dartStatus": "000",
-      "error": null
+      "error": null,
+      "cause": null
     }
   ],
   "corpsAssigned": 475,
-  "corpsDone": 347,
-  "corpsProcessed": 174,
-  "recordCount": 2536,
-  "calls": 2010,
+  "corpsDone": 475,
+  "corpsProcessed": 128,
+  "recordCount": 3114,
+  "calls": 1510,
   "budget": 2000,
   "dartStatus": {
-    "000": 1357,
-    "013": 653
+    "000": 696,
+    "013": 814
   },
   "hardErrors": 0,
-  "earlyStopped": 9,
+  "hardErrorsByCause": {},
+  "callFailuresByCause": {},
+  "earlyStopped": 6,
   "sicFetchFailed": 0,
-  "reportsFoundCumulative": 2536,
+  "reportsFoundCumulative": 3114,
   "recordRejectedCumulative": {},
   "quotaExceeded": false,
-  "budgetExhausted": true,
+  "budgetExhausted": false,
   "collectionContractHash": "sha256:49d95a15f488259a",
   "policyVersions": [
     "FN-1.3"
@@ -44,13 +48,19 @@
   "hardSkippedOpen": 0,
   "hardSkippedDetail": {},
   "corpsPartialHard": 0,
-  "corpsRemaining": 128,
-  "conservationOk": true,
-  "corpsAttemptedThisRun": 174,
-  "doneAddedThisRun": 174,
+  "recordGapCorps": 117,
+  "recordGapReasons": {
+    "013": 808,
+    "EARLY_STOP": 6
+  },
+  "corpsRemaining": 0,
+  "stateTransitionViolations": [],
+  "stateInvariantViolations": [],
+  "corpsAttemptedThisRun": 128,
+  "doneAddedThisRun": 128,
   "hardSkippedThisRun": 0,
   "quotaDeferred": 0,
   "runIdentityOk": true,
-  "complete": false,
-  "elapsedSeconds": 2974.8
+  "complete": true,
+  "elapsedSeconds": 1172.1
 }
