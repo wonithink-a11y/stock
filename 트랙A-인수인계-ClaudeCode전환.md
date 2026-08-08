@@ -670,144 +670,98 @@ docs/BF-1.1-백필계약.md            상세 설계. A1b 임계 근거·UN-1.3 
 
 ---
 
-## 9. 다음 작업 — A3 마무리 (2026-08-07 저녁 갱신)
+## 9. 다음 작업 — 분봉 T0 정찰 (2026-08-08 갱신 · **A3 종료**)
 
 새 세션은 이 절만 읽고 시작할 수 있다. 앞의 §0~§8은 배경이다.
-분봉(단기) 트랙은 §9.8이며 A3와 독립이다 — **A3를 닫기 전에는 손대지 않는다.**
 
 ### 한 줄 요약
 
-**A3 수집이 96.6% 왔고 샤드 6에 129법인만 남았다. KST 자정(2026-08-08 00:00)
-이후 collect 한 번이면 끝난다.** 2026-08-07 안에 돌리면 샤드 6 예산이 이미 소진돼
-정찰 16호출만 태우고 즉시 중단한다(아래 「예산」).
+**A3가 끝났다(태그 `a3-complete`). 다음 작업은 분봉 트랙의 T0 정찰이며 §9.8이
+그 인수인계다.** A3 관련으로 남은 것은 A3 자체가 아니라 후속 단계다 — FN-1.4
+임계 승격 · A3b 결정 · A2b 수집. 셋 다 급하지 않고 서로 독립이다.
 
 ### 첫 명령
 
 ```bash
-python scripts/build-fundamentals-a3.py --summary   # 읽기 전용·네트워크 불필요
+git describe --tags                    # a3-complete 이 보이면 A3는 닫힌 상태다
 node scripts/test-policies.js
 python scripts/test-fundamentals-a3.py              # 213건
 python scripts/test-analyze-a3.py                   # 45건
 python scripts/test-pick-artifacts.py               # 29건
 node scripts/test-a5-framework.js                   # 45건
+python scripts/generate-quality-report.py           # QR-1.0 → stdout (산출물을 읽는다)
 ```
 
-기대 출력:
-
-```
-법인 완료 3672/3801 · 레코드 24200 · 오늘 호출 12535 · 완료 샤드 7/8
-하드스킵 0(미승인 0) · 부분실패 0 · 남음 129
-```
-
-`오늘 호출`은 상태의 `lastRunDate`가 오늘일 때만 유효한 값이다. 날짜가 바뀌면
-0으로 리셋되므로 자정 이후에 보면 다른 수가 나온다 — 이상이 아니다.
+`build-fundamentals-a3.py --summary`는 이제 쓸 일이 없다. `_shards/`가 finalize에서
+삭제됐고 진행 상태라는 개념이 사라졌다 — 산출물을 보려면 위 품질 리포트를 쓴다.
 
 ### 지금 위치
 
 ```
-A3   3,672 / 3,801법인 (96.6%) · 24,200레코드 · 완료 샤드 7/8 · 남음 129
-     하드스킵 0 · 부분실패 0 · 기각 0
-     남은 129는 전부 샤드 6이다 (346/475)
-     recordGaps 925법인 — 013이 6,471건 · EARLY_STOP 37건 · REJECT/HARD 0건
+A3   완료 (a3-complete → d605297)
+     법인 3,801/3,801 · 레코드 24,750 · 사업연도 2015~2025
+     coverageRate 0.9604 · periodEndParsedRate 1.0
+     인수 조건 acceptancePassed true · FAIL 0 · WARN 0
+     manifest sha256:d37769470101be68 · 실행 이력은 docs/A3-완료기록.md
 
-정책 UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
-검사 T(전이 4) · S(상태 3) · M(병합 4) 전부 통과 · 계약 해시 8샤드 동일
+완료  A0.5 · A0.7 · A1a · A1b · A2a · A3
+미실행 A2b (구현 완료) · A4 (계약 미정)
+대기  A5 운영 투입 — availableWeight 0.4475 < 0.6
+분봉  설계만 완료. 코드 없음 → §9.8
 ```
 
-### 할 일 — 순서대로
+### 할 일 — 서로 독립이다. 급한 순이 아니라 관심 순으로 고르면 된다
 
 ```
-1  ⏳ collect 마지막   KST 자정 이후. Actions → backfill-fundamentals-a3
-                      → Run workflow → mode: collect
-                      샤드 6의 129법인. 실측 11.5호출/법인 → 약 1,478호출 (예산 2,000)
-                      → 한 번에 끝난다
-2  ⏳ 결과 확인        아래 「성공 기준」. 완료 샤드 8/8 · 남음 0
-3  ⏳ finalize         mode: finalize. 8/8이 된 뒤에만
-                      → 산출물 + manifest + _quality.json 자동 생성 → _shards/ 삭제
-4  ⏳ A3 완료 기록      태그 + run id (아래 「완료 기록」) — 태그만으로는 부족하다
-5  ⏳ A3 회고          30분. 재사용 가능한 패턴으로 남긴다 (아래 「회고」)
-6  ⏳ FN-1.4 승격      measured 기록 → WARN 임계를 FAIL로
-                      절차는 docs/FN-1.4-measured승격절차.md — 수치는 그때 넣는다
-7  ⏳ A3b 결정         사람의 판단. docs/A3b-결정브리프.md
-8  ⏳ A2b 수집 실행    Actions → backfill-price-a2b (구현 완료·미실행)
+A  분봉 T0 정찰      §9.8. 다음 트랙의 첫걸음이며 앱키만 있으면 로컬에서 된다
+B  FN-1.4 임계 승격   measured가 이제 있다. docs/FN-1.4-measured승격절차.md
+                     §2 도출식으로 후보를 만들어 사람 승인 → 새 정책 버전
+                     A3 재수집은 필요 없다(임계는 collectionContract에 없다)
+C  A3b 결정          사람의 판단. docs/A3b-결정브리프.md
+                     alotMatter만으로 availableWeight 0.4475 → 0.68
+D  A2b 수집 실행      Actions → backfill-price-a2b
 ```
 
-**4·5가 끝나기 전에는 분봉 트랙(§9.8)에 손대지 않는다.** 일정 문제가 아니라
-"A3가 닫혔는가"를 나중에 판정할 수 있게 하기 위해서다. 두 트랙의 문서·코드가
-섞이기 시작하면 그 판정이 불가능해진다.
+**B는 A3의 후속이지 A3의 일부가 아니다.** A3는 이미 닫혔고 FN-1.4는 finalize만
+다시 돌린다.
 
-**1번을 2026-08-07 안에 돌리면 안 되는 이유**는 아래 「예산」에 있다.
-자정 전에 돌리면 정찰 16호출만 태우고 샤드 6이 즉시 중단한다.
-
-### A3 완료 기록 (4번) — 태그로는 run id가 안 남는다
-
-이 저장소는 `data/backfill/` 57개 파일을 추적하므로 **태그 하나가 산출물·manifest·
-진단을 다 고정한다.** "태그는 코드만 남긴다"는 여기서는 맞지 않다. 실제로 빠지는
-것은 하나뿐이고, 그것이 **어느 Actions 실행이 이 데이터를 만들었는가**다.
+### A3 종료 기록 — 어디에 있는가
 
 ```
-확인된 사실 (2026-08-07)
-  run_identity()는 GITHUB_RUN_ID·RUN_NUMBER·RUN_ATTEMPT를 읽지만
-  **ident가 hardSkipped 항목에만 펼쳐진다 (build-fundamentals-a3.py:992)
-  A3는 hardSkipped 0이라 run id가 저장소 어디에도 없다 (8샤드 전건 None 확인)
-  finalize가 _shards/를 지우면 runDates(날짜)와 runIdentityOk(불리언)만 남는다
+docs/A3-완료기록.md        실행 이력(run ID 6건) · 확정 수치 · 인수 조건 판정
+docs/A3-회고-재사용패턴.md  다음 수집기가 집어 쓸 패턴 10개
+태그 a3-complete           산출물·manifest·진단·정책을 한 커밋으로 고정
 ```
 
-날짜만으로는 로그를 못 찾는다 — 하루에 여러 번 dispatch했고 재실행도 있었다.
-**Actions 실행 목록이 아직 남아 있는 지금 손으로 기록한다.** 코드는 고치지 않는다
-(동결 중이고, 성공 경로에 run identity를 남기는 것은 다음 수집기의 계약이다).
+run ID를 따로 기록한 이유는 그것만 코드가 안 남겼기 때문이다 — `run_identity()`가
+`hardSkipped` 항목에만 펼쳐져(`build-fundamentals-a3.py:992`) 하드 실패 0인 정상
+수집에서는 저장되지 않았고, `_shards/` 삭제 후에는 복원 경로가 없었다. 다음
+수집기는 `docs/MN-1.0-분봉Raw저장계약.md` §5의 `execution.*`가 막는다.
 
-### A3 종료 체크리스트
-
-**첫 줄이 이 목록에서 유일하게 복구 불가능한 항목이다.** 나머지는 전부 git에
-남아 있어 언제든 다시 만들 수 있다 — 태그는 재생성되고, manifest·diagnostics·
-산출물은 커밋에 있다. **Actions 실행 목록만 보존 기간이 있다.**
-
-**기록 자리는 `docs/A3-완료기록.md`다.** collect 4건의 run ID는 확보했다.
+### finalize 사고 — 첫 시도가 게이트에서 죽었다 (2026-08-08)
 
 ```
-☑ ★ GitHub Actions Run ID (collect)   2026-08-08 확보. 되돌릴 수 없어 먼저 했다
-☐ finalize 실행 → run ID 추가
-☐ git tag a3-complete
-☐ 최종 수치 재확인 (finalize 산출물 기준)
-☐ A3 회고
+PIT regression test → ModuleNotFoundError: No module named 'requests'
+  test-fundamentals-a3.py:527 → run_shard → require_requests()
+원인  finalize 잡에 pip install requests가 없었다 (collect 잡에만 있었다)
 ```
 
-`manifestHash`·`diagnosticsHash`를 따로 적지 않는다 — 태그가 가리키는 커밋에
-이미 들어 있어 중복이다(이 저장소는 `data/backfill/` 57개를 추적한다).
+**'네트워크를 쓰지 않는다'와 '그 라이브러리가 없어도 된다'는 다른 말이다.**
+지연 import는 앞엣것을 위한 장치이지 뒤엣것을 보장하지 않는다. 합성 픽스처라 호출은
+안 나가지만 모듈은 있어야 한다. 잡의 의존성을 *스텝의 실제 필요*가 아니라 *잡 이름의
+성격*으로 정하면 이렇게 갈린다 — collect #2에서 persist가 최상단 import로 죽은 것과
+같은 축이고, 그때 고친 것이 지연 import라 한 겹 뒤에서 다시 나왔다.
 
-**다음 수집기부터는 코드가 남긴다.** MN-1.0 §5에 `execution.runId` ·
-`execution.runAttempt` · `execution.workflow`를 manifest 계약으로 넣어뒀다.
-A3에서 손으로 하는 이 일이 반복되지 않는다.
+산출물·manifest는 쓰이지 않아 데이터는 손상되지 않았다(교훈43이 설계대로 동작).
+고친 뒤 **Re-run이 아니라 새 Run workflow**로 돌렸다(교훈78).
 
-### A3 회고 — 재사용 패턴으로 남긴다 (5번)
+---
 
-분봉 Collector도 결국 같은 종류의 수집기다. **"무엇을 배웠는가"가 아니라 "무엇을
-재사용하는가"로 쓴다** — 교훈은 이미 CLAUDE.md에 78개가 있고, 필요한 것은 다음
-수집기가 집어 쓸 수 있는 형태다.
+## 9-A. 아래는 A3 진행 중의 기록이다 (이력)
 
-```
-형식   Pattern       Resume 호환 판정
-       Applicability 여러 날에 걸치는 모든 수집기
-       Source        config/policies/fundamentals.v1.json collectionContract
-       Verification  scripts/test-fundamentals-a3.py — resume 무결성 회귀
-       주의          version 문자열로 판정하면 임계 하나가 며칠치를 버린다(교훈55)
-```
-
-`Verification`이 있는 이유는 **패턴이 실제로 어디서 검증되는지까지 연결되어야
-다음 수집기가 그 회귀를 복제할 수 있기** 때문이다. 검증 자리를 못 적는 패턴은
-아직 패턴이 아니라 관행이다 — 그런 항목은 목록에 남기되 그렇게 표시한다.
-
-```
-후보  Resume 호환 판정 · 일 예산 배분 · 샤딩과 병합 계약 · manifest 인수 조건
-      PIT · provenance · 상태 기계(T/S/M) · 재시도 분류 · 결손 사유 기록
-      Fail-soft 진단 · 아티팩트 회수
-```
-
-**단, 새 문서를 먼저 만들지 않는다.** 같은 내용이 이미 두 곳에 있다 —
-CLAUDE.md의 교훈 78개와 `docs/BF-1.1-백필계약.md`다. 세 번째 사본이 생기면 계약을
-고칠 때 한 곳만 고치는 경로가 열린다(교훈44). **회고의 산출은 "기존 두 곳에 없는
-것"의 목록이고**, 그것이 비어 있지 않을 때 비로소 새 자리를 정한다.
+여기부터 §9.7까지는 A3를 돌리는 동안 쌓인 것이다. **A3가 닫혔으므로 절차로 읽지
+말고 이력으로 읽는다.** 다음 수집기에 쓸 것은 `docs/A3-회고-재사용패턴.md`에
+추려뒀다.
 
 ### ⚠ 예산 — 2026-08-07에만 막혀 있다. 구조적 문제이기도 하다
 
@@ -1645,9 +1599,8 @@ API 키가 없음.
 
 ## 9.8 분봉(단기) 트랙 — 설계만 끝났고 코드는 없다 (2026-08-07)
 
-**A3가 닫히기 전에는 이 절에 손대지 않는다.** §9의 「할 일」 4·5(태그·회고)가
-끝난 뒤가 시작점이다. A3와 기술적으로 독립이지만 섞으면 "A3가 끝났는가"를
-판정할 수 없게 된다.
+**A3는 2026-08-08에 닫혔다(태그 `a3-complete`). 이 트랙을 시작해도 된다.**
+다음 작업은 T0 정찰이며 아래 「다음 작업」에 범위와 성공 조건이 있다.
 
 ### 왜 이 트랙이 생겼는가
 

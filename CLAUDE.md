@@ -6,31 +6,26 @@
 ```
 Validated against
   정책     UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5
-  구현     5289fe8   ← 이 문서가 검증된 마지막 구현 커밋
-  완료     A0.5 · A0.7 · A1a · A1b · A2a 실행 완료
+  구현     55c72a0   ← 이 문서가 검증된 마지막 구현 커밋
+  완료     A0.5 · A0.7 · A1a · A1b · A2a · **A3** 실행 완료
+           A3 종료 2026-08-08 — 태그 a3-complete → d605297
+             법인 3801/3801 · 레코드 24750 · 2015~2025
+             coverageRate 0.9604 · periodEndParsedRate 1.0
+             인수 조건 acceptancePassed true · FAIL 0 · WARN 0
+             docs/A3-완료기록.md · docs/A3-회고-재사용패턴.md
            A2b 구현 완료(PR-1.4) — 수집 미실행
-           A3 collect #1~#3 완료 3,672/3,801법인 96.6% (하드스킵 0 · 기각 0)
-           완료 샤드 7/8 — 샤드 6만 129법인 남음. recordGaps 925법인 확보
-           A3 수집 안정화 커밋 1 완료 (FN-1.3 — resume 무결성·수집 계약 해시)
-           A3 수집 안정화 커밋 2 완료 (REG-1.5 — 승인 채널·approvalHash)
-           A3 수집 안정화 커밋 3 완료 (오류 원인 분해 · PYTHONUNBUFFERED) — 관측성
-           A3 상태 검사를 T(전이 4) · S(상태 3) · M(병합 4)로 정리
-           법인별 공백 사유(recordGaps) 추가 — collect만 아는 사실
-           conservationOk 제거 — 구성상 항상 참이라 검사가 아니었다
            A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
-  다음     A3 collect 마지막 (샤드 6의 129 — 2026-08-08 00:00 KST 이후) → finalize
-           → a3-complete 태그 → 회고 → measured 기록 후 임계 승격 (FN-1.4)
-           A2b 수집 실행 (PR-1.4는 A2a 재실행 사유가 아니다)
            A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
-           A5 운영 투입은 대기 — availableWeight 0.4475 < 0.6
-           EPS·배당(alotMatter)·주식수가 없다. A3b 신설 여부가 사람의 결정
-           (docs/A5-1.0-입출력계약.md · docs/A3b-결정브리프.md)
-           alotMatter만으로 availableWeight 0.4475→0.68 (임계 0.6을 넘는다)
-           FN-1.4 승격은 절차만 확정 — 수치는 finalize 이후
-           (docs/FN-1.4-measured승격절차.md)
-  분봉     단기 트랙은 설계만 끝났고 코드가 없다. A3를 닫은 뒤 시작한다
+  다음     넷이 서로 독립이다. 급한 것은 없다
+           A 분봉 T0 정찰   인수인계 §9.8 · docs/MN-1.0-분봉Raw저장계약.md
+           B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
+                            A3 재수집 불필요 — 임계는 collectionContract에 없다
+           C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
+                            alotMatter만으로 availableWeight 0.4475→0.68 (임계 0.6)
+           D A2b 수집 실행  (PR-1.4는 A2a 재실행 사유가 아니다)
+  분봉     단기 트랙은 설계만 끝났고 코드가 없다. A3가 닫혀 시작 가능하다
            소스 KIS 단일 · naver는 알림 유지 · Raw는 저장소 밖(parquet)
-           다음은 T0 정찰 — 인수인계 §9.8 · docs/MN-1.0-분봉Raw저장계약.md
+           Execution Environment · Storage Provider · 약관 Q1/Q2가 미결정
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
@@ -155,8 +150,9 @@ python scripts/test-analyze-a3.py       # A3 품질 분석기·QR-1.0 리포트 
 python scripts/test-pick-artifacts.py   # 샤드 아티팩트 선택 (재실행 시 어느 시도가 사는가)
 node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리·리졸버
 
-# A3 수집 진행 확인 (읽기 전용·네트워크 불필요. 워크플로도 이것을 부른다)
-python scripts/build-fundamentals-a3.py --summary
+# A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
+# 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.
+# python scripts/build-fundamentals-a3.py --summary
 
 # A3 품질 분석 (읽기 전용. 산출물이 있으면 그것을, 없으면 수집 중간물을 읽는다)
 python scripts/analyze-fundamentals-a3.py
@@ -350,6 +346,11 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
 76. 소비자의 입력 계약을 생산자가 닫히기 전에 읽는다.
     A3 수집을 마친 뒤 A5에 착수했다면 EPS·배당·주식수 부재를 그때 알았고,
     그때는 재수집 말고는 길이 없었다. 다음 단계가 무엇을 먹는지 먼저 본다.
+80. '네트워크를 쓰지 않는다'와 '그 라이브러리가 없어도 된다'는 다른 말이다.
+    지연 import는 앞엣것을 위한 장치이지 뒤엣것을 보장하지 않는다.
+    finalize 잡에 requests를 안 깔았는데 회귀가 run_shard를 밟아 게이트가 죽었다.
+    합성 픽스처라 호출은 안 나가지만 모듈은 있어야 한다.
+    잡의 의존성을 스텝의 실제 필요가 아니라 잡 이름의 성격으로 정하면 갈린다.
 77. 없는 것이 스펙의 누락인지 소스의 부재인지 먼저 가른다.
     A3의 계정 일곱은 주요계정에 있는 것을 다 가져온 것이 맞았다.
     빠진 EPS는 다른 엔드포인트(alotMatter)에 있었다 — 고칠 자리가 전혀 다르다.
