@@ -211,12 +211,20 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install deps
+        # finalize 자체는 네트워크를 쓰지 않지만 아래 회귀가 run_shard를 밟고,
+        # run_shard는 진입 시 require_requests()로 requests를 올린다. 합성 픽스처라
+        # 호출은 나가지 않으나 모듈은 있어야 한다 — '네트워크를 쓰지 않는다'와
+        # '그 라이브러리가 없어도 된다'는 다른 말이다. 첫 finalize에서 이것을 몰라
+        # ModuleNotFoundError로 게이트가 멈췄다(run 31255002639).
+        run: pip install --quiet requests
+
       - name: Policy sanity
         run: node scripts/test-policies.js
 
       - name: PIT regression test
         # 합성 픽스처로 availableFrom 계약과 계정 매칭 분기를 전부 밟는다
-        # (네트워크·수집 산출물 불필요). PIT가 무너지는 실패는 조용하다 —
+        # (네트워크 불필요·수집 산출물 불필요). PIT가 무너지는 실패는 조용하다 —
         # 점수도 등급도 정상으로 보이고 백테스트만 좋아진다. 여기서 먼저 멈춘다.
         run: python scripts/test-fundamentals-a3.py
 
