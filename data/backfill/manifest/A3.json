@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A3",
+  "stageVersion": "A3.0",
+  "target": "data/backfill/fundamentals/a3",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:d37769470101be68",
+  "fileCount": 11,
+  "upstream": {
+    "A1a": "sha256:cb7556fc889a651c",
+    "A1b": "sha256:52a69c2ac451af36"
+  },
+  "policyHash": {
+    "registry": "sha256:7723d86e9dc760af",
+    "registryVersion": "REG-1.5",
+    "universe": "sha256:1325e19e37807f9a",
+    "fundamentals": "sha256:124c4df7acdf3474"
+  },
+  "approvalHash": {
+    "declaredGapsA3": "sha256:627bfdb446ac5d3e"
+  },
+  "recordCount": 24750,
+  "collectionContractHash": "sha256:49d95a15f488259a",
+  "collectionPolicyVersions": [
+    "FN-1.3"
+  ],
+  "corpsHardSkipped": 0,
+  "declaredGapsCount": 0,
+  "fiscalYearFrom": 2015,
+  "fiscalYearTo": 2025,
+  "corpsWithData": 3003,
+  "corpsTargeted": 3801,
+  "corpsWithDataRateByGroup": {
+    "delisted": 0.3592,
+    "current": 0.9942
+  },
+  "coverageRate": 0.9604,
+  "collectionWindow": {
+    "from": "2026-08-05",
+    "to": "2026-08-08",
+    "runDays": 4
+  },
+  "reportsFound": 24750,
+  "periodEndParsedRate": 1,
+  "restatedFiscalYears": 0,
+  "disclosureLagDays": {
+    "min": 36,
+    "p50": 87,
+    "p95": 273,
+    "max": 2875
+  },
+  "roeAbsOutlierCount": 331,
+  "sectorNotPointInTime": true,
+  "generatedAt": "2026-08-08T11:34:59.785Z"
+}

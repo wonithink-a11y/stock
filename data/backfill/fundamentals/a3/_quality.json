@@ -1,0 +1,583 @@
+{
+  "meta": {
+    "schema": "QR-1.0",
+    "generatedAt": "2026-08-08T20:34:59+09:00",
+    "source": "data/backfill/fundamentals/a3 (11개 연도 파일)",
+    "isFinalOutput": true,
+    "inputDigest": "sha256:9df10969e0e62742",
+    "corpsDone": 3801,
+    "corpsTargeted": 3801,
+    "sampleComplete": true
+  },
+  "coverage": {
+    "overall": {
+      "records": 24750,
+      "corpsWithRecords": 3003,
+      "corpsDone": 3801,
+      "corpsTargeted": 3801,
+      "corpsDoneWithNoRecords": 798,
+      "rate": 0.7901
+    },
+    "byYear": {
+      "records": {
+        "2015": 1840,
+        "2016": 1867,
+        "2017": 1948,
+        "2018": 2048,
+        "2019": 2119,
+        "2020": 2219,
+        "2021": 2295,
+        "2022": 2370,
+        "2023": 2640,
+        "2024": 2701,
+        "2025": 2703
+      },
+      "corps": {
+        "2015": 1840,
+        "2016": 1867,
+        "2017": 1948,
+        "2018": 2048,
+        "2019": 2119,
+        "2020": 2219,
+        "2021": 2295,
+        "2022": 2370,
+        "2023": 2640,
+        "2024": 2701,
+        "2025": 2703
+      },
+      "corpsMedian": 2219,
+      "corpsRatioToMedian": {
+        "2015": 0.8292,
+        "2016": 0.8414,
+        "2017": 0.8779,
+        "2018": 0.9229,
+        "2019": 0.9549,
+        "2020": 1.0,
+        "2021": 1.0342,
+        "2022": 1.068,
+        "2023": 1.1897,
+        "2024": 1.2172,
+        "2025": 1.2181
+      }
+    },
+    "byGroup": {
+      "targeted": {
+        "delisted": 1222,
+        "current": 2579
+      },
+      "withRecords": {
+        "current": 2564,
+        "delisted": 439
+      },
+      "rate": {
+        "delisted": 0.3592,
+        "current": 0.9942
+      }
+    },
+    "byMarket": {
+      "targeted": {
+        "UNKNOWN": 1222,
+        "KOSPI": 833,
+        "KOSDAQ": 1746
+      },
+      "withRecords": {
+        "KOSDAQ": 1734,
+        "KOSPI": 830,
+        "UNKNOWN": 439
+      },
+      "rate": {
+        "UNKNOWN": 0.3592,
+        "KOSPI": 0.9964,
+        "KOSDAQ": 0.9931
+      },
+      "unknownIsDelisted": true
+    },
+    "byCorp": {
+      "fullRange": 1631,
+      "withInternalHoles": 27,
+      "withTailCut": 300,
+      "withHeadLate": 1163
+    }
+  },
+  "missing": {
+    "byReason": {
+      "013": 7326,
+      "EARLY_STOP": 40
+    },
+    "corpsWithGapRecord": 1047,
+    "holeYears": 42,
+    "holeYearsWithReason": 4,
+    "holeYearsWithoutReason": 38,
+    "reasonCoverage": 0.0952,
+    "corpsDoneWithNoRecordsWithReason": 199,
+    "internalHolesDetail": [
+      {
+        "corp": "00101257",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00117498",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2021,
+          2022
+        ],
+        "reasons": {
+          "2021": null,
+          "2022": null
+        }
+      },
+      {
+        "corp": "00118460",
+        "from": 2015,
+        "to": 2020,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00120562",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2017,
+          2018
+        ],
+        "reasons": {
+          "2017": null,
+          "2018": null
+        }
+      },
+      {
+        "corp": "00123152",
+        "from": 2015,
+        "to": 2018,
+        "missing": [
+          2017
+        ],
+        "reasons": {
+          "2017": null
+        }
+      },
+      {
+        "corp": "00129411",
+        "from": 2015,
+        "to": 2018,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00148717",
+        "from": 2015,
+        "to": 2018,
+        "missing": [
+          2017
+        ],
+        "reasons": {
+          "2017": null
+        }
+      },
+      {
+        "corp": "00148993",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2021
+        ],
+        "reasons": {
+          "2021": null
+        }
+      },
+      {
+        "corp": "00155382",
+        "from": 2015,
+        "to": 2020,
+        "missing": [
+          2019
+        ],
+        "reasons": {
+          "2019": null
+        }
+      },
+      {
+        "corp": "00175650",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00241236",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00248053",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00260657",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2019
+        ],
+        "reasons": {
+          "2016": null,
+          "2019": null
+        }
+      },
+      {
+        "corp": "00261735",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2017
+        ],
+        "reasons": {
+          "2017": null
+        }
+      },
+      {
+        "corp": "00263140",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00277736",
+        "from": 2015,
+        "to": 2024,
+        "missing": [
+          2022
+        ],
+        "reasons": {
+          "2022": null
+        }
+      },
+      {
+        "corp": "00353230",
+        "from": 2015,
+        "to": 2018,
+        "missing": [
+          2017
+        ],
+        "reasons": {
+          "2017": null
+        }
+      },
+      {
+        "corp": "00397243",
+        "from": 2015,
+        "to": 2021,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00407975",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00450339",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2022
+        ],
+        "reasons": {
+          "2022": null
+        }
+      },
+      {
+        "corp": "00491336",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": null,
+          "2017": null
+        }
+      },
+      {
+        "corp": "00495554",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2022
+        ],
+        "reasons": {
+          "2022": null
+        }
+      },
+      {
+        "corp": "00550082",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2017
+        ],
+        "reasons": {
+          "2017": null
+        }
+      },
+      {
+        "corp": "00684732",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016,
+          2017
+        ],
+        "reasons": {
+          "2016": "013",
+          "2017": "013"
+        }
+      },
+      {
+        "corp": "00689418",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2021,
+          2022
+        ],
+        "reasons": {
+          "2021": null,
+          "2022": null
+        }
+      },
+      {
+        "corp": "01061327",
+        "from": 2015,
+        "to": 2025,
+        "missing": [
+          2016
+        ],
+        "reasons": {
+          "2016": "013"
+        }
+      },
+      {
+        "corp": "01128622",
+        "from": 2016,
+        "to": 2025,
+        "missing": [
+          2018
+        ],
+        "reasons": {
+          "2018": "013"
+        }
+      }
+    ]
+  },
+  "pit": {
+    "measured": 24750,
+    "futureLeak": 0,
+    "futureLeakSample": [],
+    "disclosureLagDays": {
+      "min": 36,
+      "p25": 78,
+      "median": 87,
+      "p75": 91,
+      "p95": 273,
+      "max": 2875
+    },
+    "lagOver180d": 2441,
+    "lagOver365d": 982,
+    "periodEndMonth": {
+      "12": 24261,
+      "03": 165,
+      "06": 155,
+      "09": 77,
+      "11": 41,
+      "08": 21,
+      "10": 11,
+      "02": 8,
+      "07": 7,
+      "05": 4
+    }
+  },
+  "schemaQuality": {
+    "accountPresence": {
+      "currentAssets": {
+        "n": 24457,
+        "rate": 0.9882
+      },
+      "currentLiab": {
+        "n": 24436,
+        "rate": 0.9873
+      },
+      "liabilities": {
+        "n": 24730,
+        "rate": 0.9992
+      },
+      "equity": {
+        "n": 24677,
+        "rate": 0.9971
+      },
+      "revenue": {
+        "n": 24084,
+        "rate": 0.9731
+      },
+      "opProfit": {
+        "n": 24683,
+        "rate": 0.9973
+      },
+      "netIncome": {
+        "n": 24505,
+        "rate": 0.9901
+      }
+    },
+    "accountSourceByAccount": {
+      "currentAssets": {
+        "nameExact": 24457,
+        "MISS": 293
+      },
+      "currentLiab": {
+        "nameExact": 24436,
+        "MISS": 314
+      },
+      "liabilities": {
+        "nameExact": 24730,
+        "MISS": 20
+      },
+      "equity": {
+        "nameExact": 24677,
+        "MISS": 73
+      },
+      "revenue": {
+        "nameExact": 24084,
+        "MISS": 666
+      },
+      "opProfit": {
+        "nameExact": 24432,
+        "MISS": 67,
+        "nameContains": 251
+      },
+      "netIncome": {
+        "nameContains": 24505,
+        "MISS": 245
+      }
+    },
+    "accountSource": {
+      "nameExact": 146816,
+      "nameContains": 24756,
+      "MISS": 1678
+    },
+    "coreAccounts": [
+      "liabilities",
+      "equity",
+      "revenue",
+      "opProfit",
+      "netIncome"
+    ],
+    "coreComplete": 23770,
+    "coreCompleteRate": 0.9604,
+    "fsDivRecords": {
+      "OFS": 4989,
+      "CFS": 19761
+    },
+    "fsDivByCorp": {
+      "CFS+OFS": 682,
+      "CFS": 1844,
+      "OFS": 477
+    },
+    "currency": {
+      "KRW": 24513,
+      "CNY": 123,
+      "USD": 85,
+      "JPY": 23,
+      "HKD": 6
+    },
+    "nonKrwRecords": 237
+  },
+  "patterns": {
+    "fullRange": 1631,
+    "internalHoles": 27,
+    "tailCut": 300,
+    "headLate": 1163,
+    "tailCutByLastYear": {
+      "2015": 44,
+      "2016": 21,
+      "2017": 14,
+      "2018": 21,
+      "2019": 18,
+      "2020": 28,
+      "2021": 21,
+      "2022": 18,
+      "2023": 46,
+      "2024": 69
+    },
+    "notMutuallyExclusive": true
+  }
+}
