@@ -763,12 +763,14 @@ A3   3,672 / 3,801법인 (96.6%) · 24,200레코드 · 완료 샤드 7/8 · 남�
 남아 있어 언제든 다시 만들 수 있다 — 태그는 재생성되고, manifest·diagnostics·
 산출물은 커밋에 있다. **Actions 실행 목록만 보존 기간이 있다.**
 
+**기록 자리는 `docs/A3-완료기록.md`다.** collect 4건의 run ID는 확보했다.
+
 ```
-□ ★ GitHub Actions Run ID 기록 완료   ← 되돌릴 수 없다. 가장 먼저 한다
-     collect #1~#4 · finalize 각각의 run id와 URL
-□ git tag a3-complete
-□ 최종 수치 확인 (법인 3801/3801 · 레코드 · 샤드 8/8 · 남음 0)
-□ 완료 시각 (KST)
+☑ ★ GitHub Actions Run ID (collect)   2026-08-08 확보. 되돌릴 수 없어 먼저 했다
+☐ finalize 실행 → run ID 추가
+☐ git tag a3-complete
+☐ 최종 수치 재확인 (finalize 산출물 기준)
+☐ A3 회고
 ```
 
 `manifestHash`·`diagnosticsHash`를 따로 적지 않는다 — 태그가 가리키는 커밋에
