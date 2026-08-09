@@ -344,8 +344,12 @@ def validate_rows(rows, date, pol):
     return v
 
 
-def acceptance(outcomes, rows, date, pol):
-    """하루치가 인수 조건을 통과했는가. 실패면 parquet를 쓰지 않는다."""
+def acceptance(outcomes, row_count, violations, date, pol):
+    """하루치가 인수 조건을 통과했는가. 실패면 parquet를 쓰지 않는다.
+
+    행을 통째로 받지 않는다 - 배치마다 검증한 위반만 누적해 넘긴다.
+    검사를 추가하기 전에 그 검사가 어느 범위에서 잴 수 있는지 먼저 정한다(교훈73).
+    """
     acc = pol["acceptance"]
     n = len(outcomes)
     unresolved = [o for o in outcomes if o.status == "UNRESOLVED"]
@@ -359,25 +363,30 @@ def acceptance(outcomes, rows, date, pol):
         {"미해결": len(unresolved), "전체": n, "비율": round(rate, 4),
          "상한": acc["maxUnresolvedRate"]})
 
-    viol = validate_rows(rows, date, pol)
-    add("스키마·중복·일자 위반 0", len(viol) == 0,
-        {"위반": len(viol), "샘플": viol[:3]})
-
-    add("모든 행이 요청 일자", all(str(r["ts"]).startswith(dashed(date))
-                              for r in rows), {"행": len(rows)})
+    add("스키마·중복·일자 위반 0", len(violations) == 0,
+        {"위반": len(violations), "샘플": violations[:3]})
 
     unknown_gap = [o.gap_reason for o in outcomes
                    if o.status == "GAP"
                    and o.gap_reason not in pol["gapReason"]["values"]]
     add("gapReason이 계약 안의 값", not unknown_gap, {"미등록": unknown_gap[:5]})
 
+    add("행이 있거나 전부 결손으로 설명된다",
+        row_count > 0 or all(o.status != "OK" for o in outcomes),
+        {"행": row_count})
+
     return checks, all(c["통과"] for c in checks)
 
 
 # ---------------------------------------------------------------- 저장
 
-def write_parquet(rows, date, out_root):
-    """minute/date=YYYY-MM-DD/part-000.parquet. pyarrow가 없으면 알린다."""
+def write_parquet(rows, date, out_root, part=0, subdir=None):
+    """한 조각을 쓴다. pyarrow가 없으면 알린다.
+
+    하루치를 한 번에 쓰지 않는 이유는 메모리다. Broad 하루 562,974행을
+    다 모으면 피크 RSS 389MB로 1GB VM에서 기존 모니터와 공존하지 못한다.
+    §3의 레이아웃이 part-*.parquet인 것은 이것을 전제한 것이다.
+    """
     try:
         import pyarrow as pa
         import pyarrow.parquet as pq
@@ -386,15 +395,28 @@ def write_parquet(rows, date, out_root):
 
     d = dashed(date)
     out_dir = Path(out_root) / ("date=" + d)
+    if subdir:
+        out_dir = out_dir / subdir
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / "part-000.parquet"
+    path = out_dir / ("part-%03d.parquet" % part)
     table = pa.table({k: [r[k] for r in rows] for k in SCHEMA})
     pq.write_table(table, path, compression="zstd")
     return path, None
 
 
-def build_manifest(date, outcomes, rows, pol, sha, checks, passed,
-                   raw_path, run):
+def combined_sha(parts):
+    """조각들의 결합 해시. 이름으로 정렬해 순서를 고정한다.
+
+    조각이 하나뿐이어도 같은 식을 쓴다 - 조각 수에 따라 식이 달라지면
+    나중에 둘을 비교할 수 없다.
+    """
+    body = "\n".join(p["name"] + " " + p["sha256"]
+                     for p in sorted(parts, key=lambda x: x["name"]))
+    return sha256_bytes(body.encode("utf-8"))
+
+
+def build_manifest(date, outcomes, row_count, pol, sha, checks, passed,
+                   raw_path, run, parts=None):
     gaps = {}
     for o in outcomes:
         if o.status == "GAP":
@@ -406,9 +428,11 @@ def build_manifest(date, outcomes, rows, pol, sha, checks, passed,
     return {
         "schemaVersion": "MN-1.0",
         "date": dashed(date),
-        "rows": len(rows),
+        "rows": row_count,
         "symbols": len(outcomes),
         "sha256": sha,
+        "shaMethod": "combined: sha256 of sorted 'name sha' lines",
+        "parts": parts or [],
         "rawPath": str(raw_path) if raw_path else None,
         "source": pol["source"],
         "endpoint": pol["endpoint"],
@@ -470,7 +494,8 @@ def save_state(root, date, pol, done):
 # ---------------------------------------------------------------- 실행
 
 def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
-            resume=False, run=None, sleeper=time.sleep, progress=None):
+            resume=False, run=None, sleeper=time.sleep, progress=None,
+            keep_rows=True):
     run = run or {}
     done = {}
     if resume:
@@ -481,11 +506,11 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
         if st:
             done = st.get("symbols") or {}
 
-    todo = [t for t in tickers if done.get(t, {}).get("status") != "OK"
-            and done.get(t, {}).get("status") != "GAP"]
+    todo = sorted(t for t in tickers
+                  if done.get(t, {}).get("status") not in ("OK", "GAP"))
 
     outcomes = []
-    for t in tickers:
+    for t in sorted(tickers):
         prev = done.get(t)
         if prev and prev.get("status") in ("OK", "GAP"):
             outcomes.append(Outcome(t, date, prev["status"],
@@ -493,40 +518,107 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
                                     attempts=prev.get("attempts", 0),
                                     detail={"fromState": True}))
 
-    conc = pol["concurrency"]["initial"]
-    results = []
-    if todo:
-        with ThreadPoolExecutor(max_workers=max(1, conc)) as ex:
-            for o in ex.map(lambda t: collect_symbol_day(
-                    transport, t, date, pol, ctx, sleeper=sleeper), todo):
-                results.append(o)
-                if progress:
-                    progress(len(results), len(todo))
+    # --- 수집하면서 흘려보낸다 ---------------------------------------------
+    # 다 모은 뒤에 배치를 나누면 소용이 없다. Outcome이 이미 전부 들고 있기
+    # 때문이다 - 실측으로 배치를 넣고도 피크가 389MB에서 371MB로만 내려갔다.
+    # 행은 버퍼로 옮기고 Outcome에서 즉시 버린다.
+    # 인수 조건 통과 전에는 최종 경로에 두지 않으므로 스테이징에 쓴다(교훈43).
+    batch_n = pol["output"].get("flushEverySymbols", 200)
+    staging = pol["output"].get("stagingDirName", "_staging")
+    part_dir = Path(out_root) / ("date=" + dashed(date))
+    stage_dir = part_dir / staging
+    if stage_dir.exists():
+        for f in stage_dir.glob("part-*.parquet"):
+            f.unlink()
 
-    # resume 상태는 쓰는 시점에 강제한다. 읽는 시점의 발견보다 안전하다(교훈73).
-    for o in results:
+    parts, violations = [], []
+    row_count = 0
+    err = None
+    keep = [] if keep_rows else None
+    buf, part_i, since = [], 0, 0
+
+    def flush():
+        nonlocal buf, part_i, row_count, err
+        if not buf:
+            return
+        buf.sort(key=lambda r: (r["ticker"], r["ts"]))
+        if len(violations) < 20:
+            violations.extend(validate_rows(buf, date, pol)[:20])
+        row_count += len(buf)
+        pth, e = write_parquet(buf, date, out_root, part=part_i,
+                               subdir=staging)
+        if e:
+            err = e
+        else:
+            parts.append({"name": pth.name, "rows": len(buf),
+                          "sha256": sha256_bytes(pth.read_bytes())})
+        part_i += 1
+        buf = []
+
+    def absorb(o):
+        nonlocal since
+        if o.rows:
+            buf.extend(o.rows)
+            if keep is not None:
+                keep.extend(o.rows)
+            o.rows = []          # 여기서 버리지 않으면 배치가 의미가 없다
         done[o.ticker] = o.to_state()
         outcomes.append(o)
+        since += 1
+        if since >= batch_n:
+            flush()
+            since = 0
+
+    # 청크 단위로 제출한다. ThreadPoolExecutor.map은 전량을 즉시 제출하고
+    # future가 결과를 쥐고 있어, 행을 버려도 피크가 안 내려간다 -
+    # 실측으로 388.7 → 371.4 → 374.6으로 제자리였다.
+    # 줄여야 하는 것은 '들고 있는 행'이 아니라 '인플라이트 작업'이다.
+    conc = pol["concurrency"]["initial"]
+    seen = 0
+    if todo:
+        with ThreadPoolExecutor(max_workers=max(1, conc)) as ex:
+            for i in range(0, len(todo), batch_n):
+                chunk = todo[i:i + batch_n]
+                for o in ex.map(lambda t: collect_symbol_day(
+                        transport, t, date, pol, ctx, sleeper=sleeper), chunk):
+                    absorb(o)
+                    seen += 1
+                if progress:
+                    progress(seen, len(todo))
+    flush()
+
+    # resume 상태는 쓰는 시점에 강제한다. 읽는 시점의 발견보다 안전하다(교훈73).
     save_state(state_root, date, pol, done)
 
-    rows = []
-    for o in outcomes:
-        rows.extend(o.rows)
-    rows.sort(key=lambda r: (r["ticker"], r["ts"]))
+    checks, passed = acceptance(outcomes, row_count, violations, date, pol)
 
-    checks, passed = acceptance(outcomes, rows, date, pol)
-    raw_path, err = (None, None)
-    sha = None
-    if passed:
-        raw_path, err = write_parquet(rows, date, out_root)
-        if raw_path:
-            sha = sha256_bytes(Path(raw_path).read_bytes())
-    man = build_manifest(date, outcomes, rows, pol, sha, checks, passed,
-                         raw_path, run)
+    raw_path = None
+    if passed and parts and not err:
+        # 스테이징을 최종 위치로 올린다.
+        for p in list(stage_dir.glob("part-*.parquet")):
+            p.replace(part_dir / p.name)
+        try:
+            stage_dir.rmdir()
+        except OSError:
+            pass
+        raw_path = part_dir
+    else:
+        for p in list(stage_dir.glob("part-*.parquet")) if stage_dir.exists() else []:
+            p.unlink()
+        if stage_dir.exists():
+            try:
+                stage_dir.rmdir()
+            except OSError:
+                pass
+        parts = [] if not passed else parts
+
+    sha = combined_sha(parts) if (passed and parts and not err) else None
+    man = build_manifest(date, outcomes, row_count, pol, sha, checks, passed,
+                         raw_path, run, parts=parts if raw_path else [])
     if err:
         man["writerError"] = err
-    return {"outcomes": outcomes, "rows": rows, "manifest": man,
-            "acceptancePassed": passed, "writerError": err}
+    return {"outcomes": outcomes, "rows": keep, "rowCount": row_count,
+            "manifest": man, "acceptancePassed": passed, "writerError": err}
 
 
 def load_context():

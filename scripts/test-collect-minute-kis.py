@@ -303,9 +303,18 @@ def run_all(M=None):
             check("왕복: rawPath가 기록됐다", bool(man["rawPath"]), man["rawPath"])
 
             path = Path(man["rawPath"])
-            check("왕복: 파일이 실제로 있다", path.exists(), str(path))
-            check("왕복: 경로가 date 파티션",
-                  path.parent.name == "date=2026-08-03", path.parent.name)
+            check("왕복: 경로가 존재한다", path.exists(), str(path))
+            check("왕복: rawPath가 date 파티션 디렉터리",
+                  path.is_dir() and path.name == "date=2026-08-03", path.name)
+            check("왕복: parts가 비어 있지 않다", len(man["parts"]) >= 1,
+                  man["parts"])
+            check("왕복: 모든 part 파일이 실재한다",
+                  all((path / p["name"]).exists() for p in man["parts"]))
+            check("왕복: 스테이징이 남아 있지 않다",
+                  not (path / "_staging").exists())
+            check("왕복: parts 행 합이 manifest rows",
+                  sum(p["rows"] for p in man["parts"]) == man["rows"],
+                  (sum(p["rows"] for p in man["parts"]), man["rows"]))
 
             t = pq.read_table(path)
             check("왕복: 행 수가 manifest와 같다",
@@ -324,19 +333,78 @@ def run_all(M=None):
             check("왕복: ticker가 6자 유지 (선행 0 소실 없음)",
                   all(len(r["ticker"]) == 6 for r in back))
 
-            sha_now = M.sha256_bytes(path.read_bytes())
-            check("왕복: sha256이 manifest와 일치",
-                  sha_now == man["sha256"], (sha_now[:16], man["sha256"][:16]))
+            recomputed = M.combined_sha(
+                [{"name": p["name"],
+                  "sha256": M.sha256_bytes((path / p["name"]).read_bytes())}
+                 for p in man["parts"]])
+            check("왕복: 결합 sha256이 manifest와 일치",
+                  recomputed == man["sha256"],
+                  (recomputed[:16], str(man["sha256"])[:16]))
 
             # 같은 입력을 다시 쓰면 같은 바이트인가.
             # 아니면 manifest의 sha256으로는 '재빌드 동일성'을 증명할 수 없고,
             # 검증은 행 단위 대조로만 가능하다. 지금 알아야 §5가 정확해진다.
             p2, _ = M.write_parquet(res3["rows"], date, tmp / "rt2")
-            same = M.sha256_bytes(Path(p2).read_bytes()) == sha_now
-            check("왕복: 재작성이 바이트 동일 (결정적 쓰기)", same,
+            one = M.sha256_bytes((path / man["parts"][0]["name"]).read_bytes())
+            check("왕복: 재작성이 바이트 동일 (결정적 쓰기)",
+                  M.sha256_bytes(Path(p2).read_bytes()) == one,
                   "비결정적이면 manifest sha는 '이 파일이 안 바뀌었다'만 증명한다")
 
-        # 16 정책이 계약 문서와 어긋나지 않는가
+            # 조각이 여러 개일 때도 같은 계약이 서는가.
+            # 1GB VM 때문에 배치로 쓰므로 Broad에서는 이쪽이 정상 경로다.
+            pol_b = json.loads(json.dumps(pol))
+            pol_b["output"]["flushEverySymbols"] = 1
+            res4 = M.run_day(FakeTransport(data2), ["111111", "333333"], date,
+                             pol_b, base_ctx(), tmp / "rt3", tmp / "rt3state",
+                             sleeper=slept.append)
+            m4 = res4["manifest"]
+            check("배치: 조각이 2개 이상", len(m4["parts"]) >= 2, m4["parts"])
+            check("배치: 행 합이 단일 조각과 같다",
+                  m4["rows"] == man["rows"], (m4["rows"], man["rows"]))
+            t4 = pq.read_table(Path(m4["rawPath"]))
+            check("배치: 되읽은 행 수가 같다", t4.num_rows == m4["rows"],
+                  (t4.num_rows, m4["rows"]))
+            check("배치: 되읽은 값 집합이 단일 조각과 같다",
+                  sorted(t4.to_pylist(), key=lambda r: (r["ticker"], r["ts"]))
+                  == sorted(back, key=lambda r: (r["ticker"], r["ts"])))
+            check("배치: 조각 수가 달라지면 결합 sha도 달라진다",
+                  m4["sha256"] != man["sha256"],
+                  "같으면 결합식이 조각 구성을 반영하지 못한다")
+
+        # 16 인플라이트가 묶여 있는가 — 메모리의 실제 원인이었다
+        # 행을 버려도 피크가 안 내려갔다. ThreadPoolExecutor.map이 전량을
+        # 즉시 제출해 future가 결과를 쥐고 있었기 때문이다(388.7 → 371.4 → 374.6).
+        # 청크 제출로 144.8MB가 됐다. 이 성질이 사라지면 1GB VM에서 죽는다.
+        if have_pa:
+            class WatchTransport(FakeTransport):
+                def __init__(self, *a, **kw):
+                    super().__init__(*a, **kw)
+                    self.parts_seen_midway = None
+                    self.n = 0
+                    self.stage = None
+
+                def fetch(self, ticker, sent_date, hour, pol):
+                    self.n += 1
+                    if self.n == 30 and self.stage:
+                        self.parts_seen_midway = len(
+                            list(self.stage.glob("part-*.parquet")))
+                    return super().fetch(ticker, sent_date, hour, pol)
+
+            many = {("%06d" % i, sent): candles(sent, n=20) for i in range(40)}
+            wt = WatchTransport(many)
+            polc = json.loads(json.dumps(pol))
+            polc["output"]["flushEverySymbols"] = 5
+            wt.stage = (tmp / "chunk" / ("date=" + date) /
+                        polc["output"]["stagingDirName"])
+            M.run_day(wt, ["%06d" % i for i in range(40)], date, polc,
+                      base_ctx(), tmp / "chunk", tmp / "chunkstate",
+                      sleeper=slept.append, keep_rows=False)
+            check("인플라이트가 묶여 있다 (중간에 이미 조각이 쓰였다)",
+                  wt.parts_seen_midway is not None and wt.parts_seen_midway > 0,
+                  "전량 제출이면 마지막에야 조각이 생긴다: " +
+                  str(wt.parts_seen_midway))
+
+        # 17 정책이 계약 문서와 어긋나지 않는가
         cc = pol["collectionContract"]
         check("정책의 sessionMinutes가 T0 실측 381",
               cc["sessionMinutes"] == 381, cc["sessionMinutes"])

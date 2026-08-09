@@ -1,14 +1,12 @@
 {
   "version": "MN-1.0",
   "note": "분봉 수집 정책. 계약 문서는 docs/MN-1.0-분봉Raw저장계약.md다. 이 파일은 수집기가 읽는 값만 담는다.",
-
   "market": "KR",
   "source": "KIS",
   "endpoint": "inquire_time_dailychartprice",
   "trId": "FHKST03010230",
   "adjusted": true,
   "adjustedNote": "T0 실측. 348080/2025-10-02에서 수정 8327 · 원주 953 · 분봉 8327로 수정주가 축이며 A2a와 같은 축이다. 엔드포인트에 수정주가 파라미터가 없다.",
-
   "collectionContract": {
     "note": "이 블록이 바뀌면 이미 모은 것을 다시 써도 되는가가 달라진다. resume 호환의 기준은 '이 값이 달랐다면 어제 다른 레코드가 나왔는가'뿐이다(교훈55). 임계·재시도 횟수는 여기 넣지 않는다.",
     "marketDivCode": "J",
@@ -23,34 +21,32 @@
     "retentionTradingDays": 246,
     "retentionNote": "T0 실측 2026-08-09 기준 경계 2025-07-29. 창은 매일 하루씩 민다"
   },
-
   "successGate": {
     "note": "P0. 성공은 '응답이 왔다'가 아니라 '내가 물은 것에 답했다'이다(교훈81). 이 게이트가 없으면 잘못된 날짜에도 최근 영업일 데이터가 rt_cd=0으로 들어온다.",
     "requireRtCd": "0",
     "requireRequestedDateInResponse": true
   },
-
   "retry": {
     "note": "메커니즘이다. 정책 파라미터가 아니다 — 값 자체는 보수적으로 두고 T1 실측으로 조정한다. 없으면 EGW00201에서 첫날부터 구멍이 난다.",
     "maxAttempts": 5,
     "backoffBaseSeconds": 2.0,
     "backoffMaxSeconds": 60.0,
     "jitterRatio": 0.25,
-    "retryableMsgCodes": ["EGW00201"],
+    "retryableMsgCodes": [
+      "EGW00201"
+    ],
     "retryableMsgCodesNote": "EGW00201 = 유량초과. §6.2에서 동시 4~6에 실측",
     "retryOnTransport": true,
     "retryOnHttp5xx": true,
     "defaultUnknownRetryable": true,
     "defaultUnknownRetryableNote": "모르는 실패의 기본값은 재시도 가능이다(교훈56). 모르는 것은 '못 한다'가 아니라 '아직 모른다'다"
   },
-
   "concurrency": {
     "note": "동시 4~6에서 EGW00201이 실측됐다. 2에서 시작해 실운영 로그를 보고 올린다.",
     "initial": 2,
     "max": 4,
     "requestSleepSeconds": 0.1
   },
-
   "pendingT1": {
     "note": "T1(§6.1) 결과가 있어야 정할 수 있는 것들이다. 지금은 보수적 기본값으로 격리해 두고, T1 뒤에 이 블록만 승격한다. 기본값을 '확정'으로 읽지 않는다.",
     "emptyResponseRetries": 1,
@@ -61,7 +57,6 @@
     "versionRetentionNote": "재수집이 얼마나 자주 값을 바꾸는지 모르므로 일단 전부 보관한다(§4)",
     "correctionHandling": "unresolved"
   },
-
   "universeTiers": {
     "note": "MN-1.0 §6.3. collectionTier는 전부 Broad다 — 유니버스 선정으로 Raw 수집을 거르지 않는다. 오늘 Core가 아닌 종목의 오늘치가 사라지면 그 종목이 나중에 Core가 되어도 이력을 만들 수 없다.",
     "turnoverWindowTradingDays": 60,
@@ -69,39 +64,61 @@
     "boundaryNote": "경계는 §6.2 커버리지 실측에서 나왔다. 절벽은 20억 근처이며 100억 이상은 커버리지 1.000·최장결측 2분이다. 종목 수는 분기마다 달라지므로 계약에 박지 않는다.",
     "tiers": [
       {
-        "bucket": "200억이상", "minTurnoverEok": 200, "maxTurnoverEok": null,
-        "analysisTier": "Core", "collectionTier": "Broad",
-        "backfill246d": "yes", "signalEligible": true, "signalCaveat": null,
+        "bucket": "200억이상",
+        "minTurnoverEok": 200,
+        "maxTurnoverEok": null,
+        "analysisTier": "Core",
+        "collectionTier": "Broad",
+        "backfill246d": "yes",
+        "signalEligible": true,
+        "signalCaveat": null,
         "reason": "LIQUIDITY_TIER_CORE",
         "measured": "커버리지 중앙값 1.000 · p10 0.995 · 최장결측 최대 2분"
       },
       {
-        "bucket": "50~200억", "minTurnoverEok": 50, "maxTurnoverEok": 200,
-        "analysisTier": "Extended", "collectionTier": "Broad",
-        "backfill246d": "on-demand", "signalEligible": true, "signalCaveat": null,
+        "bucket": "50~200억",
+        "minTurnoverEok": 50,
+        "maxTurnoverEok": 200,
+        "analysisTier": "Extended",
+        "collectionTier": "Broad",
+        "backfill246d": "on-demand",
+        "signalEligible": true,
+        "signalCaveat": null,
         "reason": "LIQUIDITY_TIER_EXTENDED",
         "measured": "커버리지 중앙값 0.993 · p10 0.971 · 최장결측 최대 4분"
       },
       {
-        "bucket": "20~50억", "minTurnoverEok": 20, "maxTurnoverEok": 50,
-        "analysisTier": "Conditional", "collectionTier": "Broad",
-        "backfill246d": "on-request", "signalEligible": true,
+        "bucket": "20~50억",
+        "minTurnoverEok": 20,
+        "maxTurnoverEok": 50,
+        "analysisTier": "Conditional",
+        "collectionTier": "Broad",
+        "backfill246d": "on-request",
+        "signalEligible": true,
         "signalCaveat": "중반 세션 커버리지 0.956. 하루 총 결측 14분. 품질 경고와 함께 쓴다",
         "reason": "LIQUIDITY_TIER_CONDITIONAL",
         "measured": "커버리지 중앙값 0.962 · p10 0.887 · 최장결측 최대 5분"
       },
       {
-        "bucket": "5~20억", "minTurnoverEok": 5, "maxTurnoverEok": 20,
-        "analysisTier": "QualityLimited", "collectionTier": "Broad",
-        "backfill246d": "no", "signalEligible": true,
+        "bucket": "5~20억",
+        "minTurnoverEok": 5,
+        "maxTurnoverEok": 20,
+        "analysisTier": "QualityLimited",
+        "collectionTier": "Broad",
+        "backfill246d": "no",
+        "signalEligible": true,
         "signalCaveat": "지표군별로 갈린다. opening range·마감은 성립하나 중반 의존 지표(VWAP·이동평균)는 깨진다. 중반 커버리지 0.836 · 최장결측 p90 12분",
         "reason": "LIQUIDITY_TIER_QUALITY_LIMITED",
         "measured": "커버리지 중앙값 0.844 · p10 0.556"
       },
       {
-        "bucket": "5억미만", "minTurnoverEok": 0, "maxTurnoverEok": 5,
-        "analysisTier": "SignalExcluded", "collectionTier": "Broad",
-        "backfill246d": "no", "signalEligible": false,
+        "bucket": "5억미만",
+        "minTurnoverEok": 0,
+        "maxTurnoverEok": 5,
+        "analysisTier": "SignalExcluded",
+        "collectionTier": "Broad",
+        "backfill246d": "no",
+        "signalEligible": false,
         "signalCaveat": "일반 신호 생성에 부적합. Raw는 보존한다 — 유동성이 오르면 그때 이력이 필요하다",
         "reason": "LIQUIDITY_TIER_SIGNAL_EXCLUDED",
         "measured": "커버리지 중앙값 0.424 · p10 0.173 · 최장결측 중앙 20분"
@@ -109,18 +126,29 @@
     ],
     "qualityJudgementNote": "품질 판정은 종목 단위가 아니라 (종목, 지표군) 단위다. 결측이 중반에 몰리므로 같은 종목에서 opening range는 성립하고 VWAP은 깨질 수 있다."
   },
-
   "gapReason": {
     "note": "왜 시장 데이터가 없는가다. 수집이 왜 실패했는가(failureClass)와 다른 축이다. 섞으면 일시적 장애가 영구 결손으로 기록된다.",
-    "values": ["HALT", "PRE_LIST", "DELISTED", "HOLIDAY", "EMPTY", "NOT_QUERIED"]
+    "values": [
+      "HALT",
+      "PRE_LIST",
+      "DELISTED",
+      "HOLIDAY",
+      "EMPTY",
+      "NOT_QUERIED"
+    ]
   },
-
   "failureClass": {
     "note": "왜 수집이 실패했는가다. 이것은 gapReason이 아니다 — 재시도로 사라질 수 있다. 원인을 아는 자리에서 라벨을 붙인다(교훈67).",
-    "values": ["RATE_LIMIT", "NETWORK", "HTTP_ERROR", "API_ERROR", "DATE_MISMATCH", "UNKNOWN"],
+    "values": [
+      "RATE_LIMIT",
+      "NETWORK",
+      "HTTP_ERROR",
+      "API_ERROR",
+      "DATE_MISMATCH",
+      "UNKNOWN"
+    ],
     "dateMismatchNote": "DATE_MISMATCH는 전송 실패가 아니라 '그 날짜에 데이터가 없다'는 증거다. 재시도해도 같으므로 gapReason으로 승격한다"
   },
-
   "acceptance": {
     "note": "하루치 수집이 인수 조건을 통과했는가. 실패하면 parquet를 쓰지 않는다(교훈43).",
     "minSymbolsResolvedRate": 0.95,
@@ -130,14 +158,25 @@
     "requireSchemaExact": true,
     "requireNoDuplicateKeys": true
   },
-
   "output": {
     "rawRoot": "minute",
     "partition": "date",
     "layout": "minute/date=YYYY-MM-DD/part-*.parquet",
     "manifestDir": "data/backfill/minute/manifest",
     "compression": "zstd",
-    "schema": ["ticker", "ts", "open", "high", "low", "close", "volume"],
-    "schemaNote": "리터럴 목록으로 고정한다. '몇 개'로 적으면 하나를 빼도 참으로 읽힌다(교훈59)"
+    "schema": [
+      "ticker",
+      "ts",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ],
+    "schemaNote": "리터럴 목록으로 고정한다. '몇 개'로 적으면 하나를 빼도 참으로 읽힌다(교훈59)",
+    "flushEverySymbols": 200,
+    "flushEverySymbolsNote": "배치 쓰기 단위. 하루치를 다 모으면 Broad 562,974행에서 피크 RSS 389MB로 1GB VM에서 기존 모니터와 공존하지 못한다(실측).",
+    "stagingDirName": "_staging",
+    "stagingNote": "인수 조건 통과 전에는 최종 경로에 두지 않는다. 스테이징에 쓰고 통과하면 옮기고 실패하면 지운다(교훈43)."
   }
 }
