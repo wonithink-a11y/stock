@@ -1,0 +1,95 @@
+{
+  "version": "MN-1.0",
+  "note": "분봉 수집 정책. 계약 문서는 docs/MN-1.0-분봉Raw저장계약.md다. 이 파일은 수집기가 읽는 값만 담는다.",
+
+  "market": "KR",
+  "source": "KIS",
+  "endpoint": "inquire_time_dailychartprice",
+  "trId": "FHKST03010230",
+  "adjusted": true,
+  "adjustedNote": "T0 실측. 348080/2025-10-02에서 수정 8327 · 원주 953 · 분봉 8327로 수정주가 축이며 A2a와 같은 축이다. 엔드포인트에 수정주가 파라미터가 없다.",
+
+  "collectionContract": {
+    "note": "이 블록이 바뀌면 이미 모은 것을 다시 써도 되는가가 달라진다. resume 호환의 기준은 '이 값이 달랐다면 어제 다른 레코드가 나왔는가'뿐이다(교훈55). 임계·재시도 횟수는 여기 넣지 않는다.",
+    "marketDivCode": "J",
+    "pageSize": 120,
+    "pageSizeNote": "T0 실측. 문서값과 일치",
+    "cursorField": "FID_INPUT_HOUR_1",
+    "cursorSeed": "153000",
+    "pastDataFlag": "Y",
+    "fakeTickFlag": "",
+    "sessionMinutes": 381,
+    "sessionMinutesNote": "09:00~15:19 (380) + 15:30 종가단일가 (1). 15:20~15:29는 캔들이 제도상 없다",
+    "retentionTradingDays": 246,
+    "retentionNote": "T0 실측 2026-08-09 기준 경계 2025-07-29. 창은 매일 하루씩 민다"
+  },
+
+  "successGate": {
+    "note": "P0. 성공은 '응답이 왔다'가 아니라 '내가 물은 것에 답했다'이다(교훈81). 이 게이트가 없으면 잘못된 날짜에도 최근 영업일 데이터가 rt_cd=0으로 들어온다.",
+    "requireRtCd": "0",
+    "requireRequestedDateInResponse": true
+  },
+
+  "retry": {
+    "note": "메커니즘이다. 정책 파라미터가 아니다 — 값 자체는 보수적으로 두고 T1 실측으로 조정한다. 없으면 EGW00201에서 첫날부터 구멍이 난다.",
+    "maxAttempts": 5,
+    "backoffBaseSeconds": 2.0,
+    "backoffMaxSeconds": 60.0,
+    "jitterRatio": 0.25,
+    "retryableMsgCodes": ["EGW00201"],
+    "retryableMsgCodesNote": "EGW00201 = 유량초과. §6.2에서 동시 4~6에 실측",
+    "retryOnTransport": true,
+    "retryOnHttp5xx": true,
+    "defaultUnknownRetryable": true,
+    "defaultUnknownRetryableNote": "모르는 실패의 기본값은 재시도 가능이다(교훈56). 모르는 것은 '못 한다'가 아니라 '아직 모른다'다"
+  },
+
+  "concurrency": {
+    "note": "동시 4~6에서 EGW00201이 실측됐다. 2에서 시작해 실운영 로그를 보고 올린다.",
+    "initial": 2,
+    "max": 4,
+    "requestSleepSeconds": 0.1
+  },
+
+  "pendingT1": {
+    "note": "T1(§6.1) 결과가 있어야 정할 수 있는 것들이다. 지금은 보수적 기본값으로 격리해 두고, T1 뒤에 이 블록만 승격한다. 기본값을 '확정'으로 읽지 않는다.",
+    "emptyResponseRetries": 1,
+    "emptyResponseRetriesNote": "빈 응답이 재시도로 채워지는지 아직 모른다. 1회만 시도하고 결과를 gapReason으로 남긴다",
+    "recollectHaltedSymbols": false,
+    "recollectHaltedSymbolsNote": "거래정지·상장전을 다시 물을 가치가 있는지는 T1이 답한다",
+    "versionRetention": "keep-all",
+    "versionRetentionNote": "재수집이 얼마나 자주 값을 바꾸는지 모르므로 일단 전부 보관한다(§4)",
+    "correctionHandling": "unresolved"
+  },
+
+  "gapReason": {
+    "note": "왜 시장 데이터가 없는가다. 수집이 왜 실패했는가(failureClass)와 다른 축이다. 섞으면 일시적 장애가 영구 결손으로 기록된다.",
+    "values": ["HALT", "PRE_LIST", "DELISTED", "HOLIDAY", "EMPTY", "NOT_QUERIED"]
+  },
+
+  "failureClass": {
+    "note": "왜 수집이 실패했는가다. 이것은 gapReason이 아니다 — 재시도로 사라질 수 있다. 원인을 아는 자리에서 라벨을 붙인다(교훈67).",
+    "values": ["RATE_LIMIT", "NETWORK", "HTTP_ERROR", "API_ERROR", "DATE_MISMATCH", "UNKNOWN"],
+    "dateMismatchNote": "DATE_MISMATCH는 전송 실패가 아니라 '그 날짜에 데이터가 없다'는 증거다. 재시도해도 같으므로 gapReason으로 승격한다"
+  },
+
+  "acceptance": {
+    "note": "하루치 수집이 인수 조건을 통과했는가. 실패하면 parquet를 쓰지 않는다(교훈43).",
+    "minSymbolsResolvedRate": 0.95,
+    "minSymbolsResolvedRateNote": "resolved = 데이터를 받았거나 사유 있는 결손으로 확정된 종목. 미해결(재시도 소진) 비율이 5%를 넘으면 그날치를 쓰지 않는다",
+    "maxUnresolvedRate": 0.05,
+    "requireAllRowsRequestedDate": true,
+    "requireSchemaExact": true,
+    "requireNoDuplicateKeys": true
+  },
+
+  "output": {
+    "rawRoot": "minute",
+    "partition": "date",
+    "layout": "minute/date=YYYY-MM-DD/part-*.parquet",
+    "manifestDir": "data/backfill/minute/manifest",
+    "compression": "zstd",
+    "schema": ["ticker", "ts", "open", "high", "low", "close", "volume"],
+    "schemaNote": "리터럴 목록으로 고정한다. '몇 개'로 적으면 하나를 빼도 참으로 읽힌다(교훈59)"
+  }
+}

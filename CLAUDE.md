@@ -28,11 +28,14 @@ Validated against
              상시 VM(Oracle Always Free) · 블록 볼륨(주) + Object Storage(사본)
              ★ 유휴 회수 조항: 7일간 CPU p95 20% 미만이면 인스턴스가 회수된다
                우리 워크로드가 정확히 걸린다. PAYG 업그레이드 여부는 사람의 결정
+           A Collector v1 구현 완료 2026-08-09 — 회귀 37건, 네트워크 불필요
+             scripts/collect-minute-kis.py · config/policies/minute.v1.json
+             요청일자 게이트(P0) · EGW00201 재시도·backoff · resume · manifest
+             gapReason(왜 데이터가 없나)과 failureClass(왜 수집이 실패했나)를 가른다
+             T1이 정할 것은 policy.pendingT1에 격리 — 기본값을 확정으로 읽지 않는다
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 VM 프로비저닝 + pyarrow(ARM 휠) 확인 — 둘 다 미착수
-           A2 Broad 당일 증분 Collector — 미루면 손실이 하루씩 누적된다
-              재시도·backoff·resume은 v1에 넣는다. 나중 '안정화'가 아니다
-              EGW00201이 동시 4~6에서 나오므로 없으면 첫날부터 구멍이 난다
+           A1 VM 프로비저닝 + pyarrow(ARM 휠) 확인 — 둘 다 미착수. 여기가 막혀 있다
+              parquet writer는 pyarrow가 없으면 rawPath를 비우고 writerError를 남긴다
            A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
            A4' Core 182종목 백필은 T1 결과 뒤 (≈224,000호출)
            B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
@@ -166,6 +169,7 @@ python scripts/test-fundamentals-a3.py  # A3 PIT 계약·계정 매칭·resume �
 python scripts/test-analyze-a3.py       # A3 품질 분석기·QR-1.0 리포트 (합성 픽스처)
 python scripts/test-pick-artifacts.py   # 샤드 아티팩트 선택 (재실행 시 어느 시도가 사는가)
 node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리·리졸버
+python scripts/test-collect-minute-kis.py  # 분봉 Collector v1 (합성 픽스처, 네트워크 불필요)
 
 # A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
 # 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.
