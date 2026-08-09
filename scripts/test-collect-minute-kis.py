@@ -280,7 +280,63 @@ def run_all(M=None):
         check("다른 날짜 행을 잡는다",
               any(x["why"] == "dateMismatch" for x in v3), v3)
 
-        # 15 정책이 계약 문서와 어긋나지 않는가
+        # 15 parquet 왕복 — 저장 계층을 실증한다
+        # 쓰는 것만 보고 넘어가면 '저장했다'와 '되읽을 수 있다'가 갈린다.
+        try:
+            import pyarrow.parquet as pq
+            have_pa = True
+        except ImportError:
+            have_pa = False
+
+        if not have_pa:
+            check("parquet 왕복 (pyarrow 없음 — 건너뜀)", True)
+            check("writer가 부재를 조용히 넘기지 않는다",
+                  M.write_parquet([], date, tmp / "nopa")[1] is not None)
+        else:
+            data2 = {("111111", sent): candles(sent),
+                     ("333333", sent): candles(sent, n=200)}
+            res3 = M.run_day(FakeTransport(data2), ["111111", "333333"], date,
+                             pol, base_ctx(), tmp / "rt", tmp / "rtstate",
+                             sleeper=slept.append)
+            man = res3["manifest"]
+            check("왕복: 인수 조건 통과", res3["acceptancePassed"], None)
+            check("왕복: rawPath가 기록됐다", bool(man["rawPath"]), man["rawPath"])
+
+            path = Path(man["rawPath"])
+            check("왕복: 파일이 실제로 있다", path.exists(), str(path))
+            check("왕복: 경로가 date 파티션",
+                  path.parent.name == "date=2026-08-03", path.parent.name)
+
+            t = pq.read_table(path)
+            check("왕복: 행 수가 manifest와 같다",
+                  t.num_rows == man["rows"] == len(res3["rows"]),
+                  (t.num_rows, man["rows"], len(res3["rows"])))
+            check("왕복: 스키마가 계약 순서 그대로",
+                  t.column_names == M.SCHEMA, t.column_names)
+
+            back = t.to_pylist()
+            check("왕복: 값이 바이트 단위로 보존된다",
+                  back == res3["rows"],
+                  next((i for i, (a, b) in enumerate(zip(back, res3["rows"]))
+                        if a != b), None))
+            check("왕복: 필수 필드에 null이 없다",
+                  all(all(r[k] is not None for k in M.SCHEMA) for r in back))
+            check("왕복: ticker가 6자 유지 (선행 0 소실 없음)",
+                  all(len(r["ticker"]) == 6 for r in back))
+
+            sha_now = M.sha256_bytes(path.read_bytes())
+            check("왕복: sha256이 manifest와 일치",
+                  sha_now == man["sha256"], (sha_now[:16], man["sha256"][:16]))
+
+            # 같은 입력을 다시 쓰면 같은 바이트인가.
+            # 아니면 manifest의 sha256으로는 '재빌드 동일성'을 증명할 수 없고,
+            # 검증은 행 단위 대조로만 가능하다. 지금 알아야 §5가 정확해진다.
+            p2, _ = M.write_parquet(res3["rows"], date, tmp / "rt2")
+            same = M.sha256_bytes(Path(p2).read_bytes()) == sha_now
+            check("왕복: 재작성이 바이트 동일 (결정적 쓰기)", same,
+                  "비결정적이면 manifest sha는 '이 파일이 안 바뀌었다'만 증명한다")
+
+        # 16 정책이 계약 문서와 어긋나지 않는가
         cc = pol["collectionContract"]
         check("정책의 sessionMinutes가 T0 실측 381",
               cc["sessionMinutes"] == 381, cc["sessionMinutes"])

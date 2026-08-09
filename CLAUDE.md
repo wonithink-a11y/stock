@@ -151,7 +151,7 @@ SPAC 제외는 **회사명으로만** 판정한다(`스팩|기업인수목적`).
 
 ```bash
 # 의존성
-pip install pandas requests lxml html5lib
+pip install pandas requests lxml html5lib pyarrow
 node --version   # 20 이상
 
 # 시크릿 (셸 세션에만. 파일에 쓰지 말 것)
