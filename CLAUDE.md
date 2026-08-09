@@ -24,13 +24,17 @@ Validated against
              절벽은 20억. 100억↑ 커버리지 1.000·최장결측 2분. 결측은 중반에 몰린다
              Core 200억↑ · Extended 50~200 · Conditional 20~50 · Broad 전체
              수집 대상과 분석 대상을 분리한다 — 유니버스로 Raw를 거르지 않는다
+           A 실행환경 확정 2026-08-09 — MN-1.0 §1.1. 문서에 TBD가 없다
+             상시 VM(Oracle Always Free) · 블록 볼륨(주) + Object Storage(사본)
+             ★ 유휴 회수 조항: 7일간 CPU p95 20% 미만이면 인스턴스가 회수된다
+               우리 워크로드가 정확히 걸린다. PAYG 업그레이드 여부는 사람의 결정
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 Execution Environment · Storage Provider 결정 (MN-1.0 §1.1)
-              상시 VM 쪽으로 기울었으나 미확정. 이것이 다음 전부를 막는다
-           A2 T1 정찰 7일 (§6.1) — 재현성이 핵심
-              병행: Core 10종목 smoke · Broad 당일 증분 시작
-              Broad는 미루면 손실이 누적된다. 오늘 안 받은 하루는 못 받는다
-           A3' Core 182종목 백필은 T1 결과 뒤에 한다 (≈224,000호출)
+           A1 VM 프로비저닝 + pyarrow(ARM 휠) 확인 — 둘 다 미착수
+           A2 Broad 당일 증분 Collector — 미루면 손실이 하루씩 누적된다
+              재시도·backoff·resume은 v1에 넣는다. 나중 '안정화'가 아니다
+              EGW00201이 동시 4~6에서 나오므로 없으면 첫날부터 구멍이 난다
+           A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
+           A4' Core 182종목 백필은 T1 결과 뒤 (≈224,000호출)
            B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
                             A3 재수집 불필요 — 임계는 collectionContract에 없다
            C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
