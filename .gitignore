@@ -13,3 +13,14 @@ config.yaml
 # 부분 수집물이 커밋되면 finalize 없이도 산출이 있는 것처럼 보인다.
 data/backfill/price/_shards/
 .dep-blocker-test/
+
+# 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.
+# 범위를 좁게 둔다. '*secret*' 같은 넓은 패턴은 나중에 docs/secret-정책.md 같은
+# 정상 문서를 조용히 숨긴다 - 무시는 실패하지 않으므로 눈치채기 어렵다.
+# core.ignorecase=true라 대소문자를 가리지 않는다. '*KIS*Key*'는 자기를 다루는
+# 도구인 scripts/setup-kis-key.py까지 삼켰다. 넓은 패턴은 조용히 과녁을 넘는다.
+*.docx
+/KIS*Key*
+*appkey*
+*apikey*
+!scripts/setup-kis-key.py
