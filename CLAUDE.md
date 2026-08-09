@@ -20,9 +20,17 @@ Validated against
              보존 246영업일 · 120건/호출 · 시각커서 · 수정주가축(A2a와 동일)
              캔들 시작시각 기준 · cntg_vol은 구간 · 휴장일은 직전영업일 대체
              scripts/probe-minute-kis.py · data/backfill/_probe-minute-kis.json
-  다음     넷이 서로 독립이다. 급한 것은 없다
-           A 분봉 T1 정찰   7일. MN-1.0 §6.1 — 재현성이 핵심
-             그전에 Execution Environment · Storage Provider 결정이 필요하다
+           A 커버리지 정찰·유니버스 정책 확정 2026-08-09 — MN-1.0 §6.2 · §6.3
+             절벽은 20억. 100억↑ 커버리지 1.000·최장결측 2분. 결측은 중반에 몰린다
+             Core 200억↑ · Extended 50~200 · Conditional 20~50 · Broad 전체
+             수집 대상과 분석 대상을 분리한다 — 유니버스로 Raw를 거르지 않는다
+  다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
+           A1 Execution Environment · Storage Provider 결정 (MN-1.0 §1.1)
+              상시 VM 쪽으로 기울었으나 미확정. 이것이 다음 전부를 막는다
+           A2 T1 정찰 7일 (§6.1) — 재현성이 핵심
+              병행: Core 10종목 smoke · Broad 당일 증분 시작
+              Broad는 미루면 손실이 누적된다. 오늘 안 받은 하루는 못 받는다
+           A3' Core 182종목 백필은 T1 결과 뒤에 한다 (≈224,000호출)
            B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
                             A3 재수집 불필요 — 임계는 collectionContract에 없다
            C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
