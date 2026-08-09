@@ -1,0 +1,6269 @@
+{
+  "schemaVersion": "PROBE-MINCOV-1.0",
+  "probe": "minute-coverage",
+  "startedAt": "2026-08-09 20:38:54 KST",
+  "elapsedSeconds": 501.0,
+  "범위": "분봉 전용 선정 기준. A1/A2 장기 Universe 정책과 무관하다",
+  "일자": [
+    "2026-08-03",
+    "2026-07-01"
+  ],
+  "분모": {
+    "방식": "표본 최대 관측 캔들수",
+    "일자별": {
+      "2026-08-03": 381,
+      "2026-07-01": 381
+    },
+    "대조값(T0 실측)": 381
+  },
+  "구간정의억": [
+    {
+      "이름": "A_500억이상",
+      "하한": 500,
+      "상한": null
+    },
+    {
+      "이름": "B_200_500억",
+      "하한": 200,
+      "상한": 500
+    },
+    {
+      "이름": "C_100_200억",
+      "하한": 100,
+      "상한": 200
+    },
+    {
+      "이름": "D_50_100억",
+      "하한": 50,
+      "상한": 100
+    },
+    {
+      "이름": "E_20_50억",
+      "하한": 20,
+      "상한": 50
+    },
+    {
+      "이름": "F_5_20억",
+      "하한": 5,
+      "상한": 20
+    },
+    {
+      "이름": "G_5억미만",
+      "하한": 0,
+      "상한": 5
+    }
+  ],
+  "표본": {
+    "A_500억이상": [
+      {
+        "ticker": "000660",
+        "turnoverEok": 126247.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "005380",
+        "turnoverEok": 6420.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "006400",
+        "turnoverEok": 2796.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "028260",
+        "turnoverEok": 2673.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "080220",
+        "turnoverEok": 2262.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "000270",
+        "turnoverEok": 1918.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "240810",
+        "turnoverEok": 1680.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "010170",
+        "turnoverEok": 1559.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "006800",
+        "turnoverEok": 1517.7,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "000150",
+        "turnoverEok": 1360.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "007660",
+        "turnoverEok": 1206.7,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "017670",
+        "turnoverEok": 1111.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "278470",
+        "turnoverEok": 978.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "064400",
+        "turnoverEok": 944.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "178320",
+        "turnoverEok": 914.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "440110",
+        "turnoverEok": 872.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "207940",
+        "turnoverEok": 814.1,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "095610",
+        "turnoverEok": 778.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "043260",
+        "turnoverEok": 710.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "307950",
+        "turnoverEok": 689.5,
+        "market": "KOSPI"
+      }
+    ],
+    "B_200_500억": [
+      {
+        "ticker": "365660",
+        "turnoverEok": 496.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "477850",
+        "turnoverEok": 479.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "267270",
+        "turnoverEok": 464.9,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "319400",
+        "turnoverEok": 441.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "267250",
+        "turnoverEok": 427.5,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "087010",
+        "turnoverEok": 411.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "298380",
+        "turnoverEok": 392.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "336260",
+        "turnoverEok": 377.3,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "005830",
+        "turnoverEok": 359.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "259960",
+        "turnoverEok": 328.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "375500",
+        "turnoverEok": 313.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "047050",
+        "turnoverEok": 291.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "103590",
+        "turnoverEok": 279.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "131290",
+        "turnoverEok": 269.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "357780",
+        "turnoverEok": 236.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "023530",
+        "turnoverEok": 233.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "332570",
+        "turnoverEok": 226.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "489790",
+        "turnoverEok": 222.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "257720",
+        "turnoverEok": 218.5,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "183300",
+        "turnoverEok": 213.6,
+        "market": "KOSDAQ"
+      }
+    ],
+    "C_100_200억": [
+      {
+        "ticker": "001450",
+        "turnoverEok": 198.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "112610",
+        "turnoverEok": 187.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "295310",
+        "turnoverEok": 179.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "476830",
+        "turnoverEok": 176.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "002380",
+        "turnoverEok": 171.5,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "083650",
+        "turnoverEok": 165.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "241560",
+        "turnoverEok": 163.3,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "326030",
+        "turnoverEok": 156.7,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "271560",
+        "turnoverEok": 151.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "356680",
+        "turnoverEok": 145.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "097230",
+        "turnoverEok": 144.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "139480",
+        "turnoverEok": 134.9,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "050890",
+        "turnoverEok": 129.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "097950",
+        "turnoverEok": 124.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "330860",
+        "turnoverEok": 121.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "417840",
+        "turnoverEok": 117.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "022100",
+        "turnoverEok": 113.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "020150",
+        "turnoverEok": 109.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "006110",
+        "turnoverEok": 106.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "011780",
+        "turnoverEok": 105.0,
+        "market": "KOSPI"
+      }
+    ],
+    "D_50_100억": [
+      {
+        "ticker": "004370",
+        "turnoverEok": 98.2,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "475830",
+        "turnoverEok": 92.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "099320",
+        "turnoverEok": 89.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "034230",
+        "turnoverEok": 85.5,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "298020",
+        "turnoverEok": 83.7,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "290550",
+        "turnoverEok": 79.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "041510",
+        "turnoverEok": 76.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "007340",
+        "turnoverEok": 74.1,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "003380",
+        "turnoverEok": 72.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "125490",
+        "turnoverEok": 70.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "383310",
+        "turnoverEok": 67.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "011930",
+        "turnoverEok": 65.9,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "010820",
+        "turnoverEok": 63.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "213420",
+        "turnoverEok": 61.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "119850",
+        "turnoverEok": 59.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "080580",
+        "turnoverEok": 58.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "005070",
+        "turnoverEok": 56.3,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "482630",
+        "turnoverEok": 54.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "056080",
+        "turnoverEok": 53.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "328130",
+        "turnoverEok": 52.9,
+        "market": "KOSDAQ"
+      }
+    ],
+    "E_20_50억": [
+      {
+        "ticker": "007070",
+        "turnoverEok": 49.9,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "085910",
+        "turnoverEok": 48.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "005090",
+        "turnoverEok": 45.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "121600",
+        "turnoverEok": 42.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "215790",
+        "turnoverEok": 40.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "114810",
+        "turnoverEok": 39.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "321370",
+        "turnoverEok": 36.5,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "389470",
+        "turnoverEok": 34.5,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "082270",
+        "turnoverEok": 33.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "004000",
+        "turnoverEok": 30.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "355150",
+        "turnoverEok": 30.3,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "003540",
+        "turnoverEok": 29.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "052900",
+        "turnoverEok": 27.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "030520",
+        "turnoverEok": 27.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "114090",
+        "turnoverEok": 25.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "020000",
+        "turnoverEok": 24.5,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "059120",
+        "turnoverEok": 24.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "255220",
+        "turnoverEok": 23.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "130660",
+        "turnoverEok": 22.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "451760",
+        "turnoverEok": 21.7,
+        "market": "KOSDAQ"
+      }
+    ],
+    "F_5_20억": [
+      {
+        "ticker": "493280",
+        "turnoverEok": 19.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "089860",
+        "turnoverEok": 18.3,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "102940",
+        "turnoverEok": 17.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "037070",
+        "turnoverEok": 15.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "078890",
+        "turnoverEok": 14.3,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "215600",
+        "turnoverEok": 13.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "0008Z0",
+        "turnoverEok": 12.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "119610",
+        "turnoverEok": 11.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "413630",
+        "turnoverEok": 11.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "071320",
+        "turnoverEok": 10.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "089230",
+        "turnoverEok": 9.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "297090",
+        "turnoverEok": 9.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "200880",
+        "turnoverEok": 8.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "199430",
+        "turnoverEok": 7.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "026890",
+        "turnoverEok": 7.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "054950",
+        "turnoverEok": 7.0,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "109070",
+        "turnoverEok": 6.5,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "000890",
+        "turnoverEok": 6.1,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "055490",
+        "turnoverEok": 5.8,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "101670",
+        "turnoverEok": 5.4,
+        "market": "KOSDAQ"
+      }
+    ],
+    "G_5억미만": [
+      {
+        "ticker": "122900",
+        "turnoverEok": 5.0,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "016580",
+        "turnoverEok": 4.3,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "355390",
+        "turnoverEok": 3.7,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "226330",
+        "turnoverEok": 3.3,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "420570",
+        "turnoverEok": 2.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "136150",
+        "turnoverEok": 2.6,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "067570",
+        "turnoverEok": 2.3,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "100660",
+        "turnoverEok": 2.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "079950",
+        "turnoverEok": 1.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "002870",
+        "turnoverEok": 1.6,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "290670",
+        "turnoverEok": 1.4,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "067370",
+        "turnoverEok": 1.2,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "223310",
+        "turnoverEok": 1.1,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "007370",
+        "turnoverEok": 0.9,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "060540",
+        "turnoverEok": 0.8,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "002620",
+        "turnoverEok": 0.7,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "373170",
+        "turnoverEok": 0.5,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "145270",
+        "turnoverEok": 0.4,
+        "market": "KOSPI"
+      },
+      {
+        "ticker": "087600",
+        "turnoverEok": 0.3,
+        "market": "KOSDAQ"
+      },
+      {
+        "ticker": "006380",
+        "turnoverEok": 0.0,
+        "market": "KOSPI"
+      }
+    ]
+  },
+  "구간요약": {
+    "A_500억이상": {
+      "표본": 40,
+      "측정실패": 0,
+      "측정실패율": 0.0,
+      "실패유형": {},
+      "커버리지중앙값": 1.0,
+      "커버리지p10": 0.9974,
+      "커버리지최소": 0.9921,
+      "커버리지90이상비율": 1.0,
+      "커버리지95이상비율": 1.0,
+      "최장결측중앙값분": 0.0,
+      "호출중앙값": 5.0,
+      "거래대금중앙값억": 1283.5
+    },
+    "B_200_500억": {
+      "표본": 38,
+      "측정실패": 2,
+      "측정실패율": 0.05,
+      "실패유형": {
+        "빈응답": 1,
+        "일자대체": 1
+      },
+      "커버리지중앙값": 1.0,
+      "커버리지p10": 0.9948,
+      "커버리지최소": 0.9711,
+      "커버리지90이상비율": 1.0,
+      "커버리지95이상비율": 1.0,
+      "최장결측중앙값분": 0.0,
+      "호출중앙값": 5.0,
+      "거래대금중앙값억": 320.5
+    },
+    "C_100_200억": {
+      "표본": 40,
+      "측정실패": 0,
+      "측정실패율": 0.0,
+      "실패유형": {},
+      "커버리지중앙값": 1.0,
+      "커버리지p10": 0.9921,
+      "커버리지최소": 0.9239,
+      "커버리지90이상비율": 1.0,
+      "커버리지95이상비율": 0.975,
+      "최장결측중앙값분": 0.0,
+      "호출중앙값": 5.0,
+      "거래대금중앙값억": 144.9
+    },
+    "D_50_100억": {
+      "표본": 40,
+      "측정실패": 0,
+      "측정실패율": 0.0,
+      "실패유형": {},
+      "커버리지중앙값": 0.9934,
+      "커버리지p10": 0.9711,
+      "커버리지최소": 0.832,
+      "커버리지90이상비율": 0.975,
+      "커버리지95이상비율": 0.925,
+      "최장결측중앙값분": 1.0,
+      "호출중앙값": 5.0,
+      "거래대금중앙값억": 69.3
+    },
+    "E_20_50억": {
+      "표본": 40,
+      "측정실패": 0,
+      "측정실패율": 0.0,
+      "실패유형": {},
+      "커버리지중앙값": 0.9619,
+      "커버리지p10": 0.8871,
+      "커버리지최소": 0.8005,
+      "커버리지90이상비율": 0.85,
+      "커버리지95이상비율": 0.55,
+      "최장결측중앙값분": 2.0,
+      "호출중앙값": 5.0,
+      "거래대금중앙값억": 30.6
+    },
+    "F_5_20억": {
+      "표본": 40,
+      "측정실패": 0,
+      "측정실패율": 0.0,
+      "실패유형": {},
+      "커버리지중앙값": 0.8438,
+      "커버리지p10": 0.5564,
+      "커버리지최소": 0.3675,
+      "커버리지90이상비율": 0.375,
+      "커버리지95이상비율": 0.225,
+      "최장결측중앙값분": 4.0,
+      "호출중앙값": 4.0,
+      "거래대금중앙값억": 10.0
+    },
+    "G_5억미만": {
+      "표본": 38,
+      "측정실패": 2,
+      "측정실패율": 0.05,
+      "실패유형": {
+        "빈응답": 2
+      },
+      "커버리지중앙값": 0.4239,
+      "커버리지p10": 0.1732,
+      "커버리지최소": 0.1444,
+      "커버리지90이상비율": 0.026,
+      "커버리지95이상비율": 0.0,
+      "최장결측중앙값분": 20.0,
+      "호출중앙값": 3.0,
+      "거래대금중앙값억": 1.6
+    }
+  },
+  "하한제안": {
+    "구간": "E_20_50억",
+    "하한억": 20,
+    "근거": {
+      "중앙값": 0.9619,
+      "p10": 0.8871
+    }
+  },
+  "acceptance": [
+    {
+      "항목": "AC1 구간별 표본 20이상(=일자2 x 종목10 이상)",
+      "통과": true,
+      "실측": {
+        "최소표본": 38
+      }
+    },
+    {
+      "항목": "AC2 일자대체 응답이 성공으로 집계되지 않음",
+      "통과": true,
+      "실측": {
+        "발생": 1,
+        "종목": [
+          "183300/2026-08-03"
+        ]
+      }
+    },
+    {
+      "항목": "AC2b 측정 실패율 5% 미만",
+      "통과": true,
+      "실측": {
+        "실패율": 0.0143,
+        "유형": {
+          "빈응답": 3,
+          "일자대체": 1
+        }
+      }
+    },
+    {
+      "항목": "AC3 두 일자 모두 측정됨",
+      "통과": true,
+      "실측": {
+        "2026-08-03": 381,
+        "2026-07-01": 381
+      }
+    },
+    {
+      "항목": "AC4 분모가 T0 실측 381과 일치",
+      "통과": true,
+      "실측": {
+        "일자별최대캔들": {
+          "2026-08-03": 381,
+          "2026-07-01": 381
+        },
+        "대조값": 381
+      }
+    },
+    {
+      "항목": "AC5 커버리지 단조성(거래대금이 크면 커버리지가 크거나 같다)",
+      "통과": true,
+      "실측": {
+        "구간별중앙값": {
+          "A_500억이상": 1.0,
+          "B_200_500억": 1.0,
+          "C_100_200억": 1.0,
+          "D_50_100억": 0.9934,
+          "E_20_50억": 0.9619,
+          "F_5_20억": 0.8438,
+          "G_5억미만": 0.4239
+        }
+      }
+    },
+    {
+      "항목": "AC6 하한 제안이 도출됨",
+      "통과": true,
+      "실측": {
+        "구간": "E_20_50억",
+        "하한억": 20,
+        "근거": {
+          "중앙값": 0.9619,
+          "p10": 0.8871
+        }
+      }
+    }
+  ],
+  "acceptancePassed": true,
+  "callCount": 1251,
+  "측정": [
+    {
+      "ticker": "000660",
+      "date": "2026-08-03",
+      "turnoverEok": 126247.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.89,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "000660",
+      "date": "2026-07-01",
+      "turnoverEok": 126247.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.85,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005380",
+      "date": "2026-08-03",
+      "turnoverEok": 6420.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.82,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005380",
+      "date": "2026-07-01",
+      "turnoverEok": 6420.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.84,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "006400",
+      "date": "2026-08-03",
+      "turnoverEok": 2796.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.89,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "006400",
+      "date": "2026-07-01",
+      "turnoverEok": 2796.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.9,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "028260",
+      "date": "2026-08-03",
+      "turnoverEok": 2673.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.87,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "028260",
+      "date": "2026-07-01",
+      "turnoverEok": 2673.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.81,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "080220",
+      "date": "2026-08-03",
+      "turnoverEok": 2262.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.7,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "080220",
+      "date": "2026-07-01",
+      "turnoverEok": 2262.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.79,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "000270",
+      "date": "2026-08-03",
+      "turnoverEok": 1918.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.76,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "000270",
+      "date": "2026-07-01",
+      "turnoverEok": 1918.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.65,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "240810",
+      "date": "2026-08-03",
+      "turnoverEok": 1680.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.97,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "240810",
+      "date": "2026-07-01",
+      "turnoverEok": 1680.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.98,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "010170",
+      "date": "2026-08-03",
+      "turnoverEok": 1559.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.02,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "010170",
+      "date": "2026-07-01",
+      "turnoverEok": 1559.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.01,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "006800",
+      "date": "2026-08-03",
+      "turnoverEok": 1517.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.08,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "006800",
+      "date": "2026-07-01",
+      "turnoverEok": 1517.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.03,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "000150",
+      "date": "2026-08-03",
+      "turnoverEok": 1360.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.07,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "000150",
+      "date": "2026-07-01",
+      "turnoverEok": 1360.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.06,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "007660",
+      "date": "2026-08-03",
+      "turnoverEok": 1206.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.59,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "007660",
+      "date": "2026-07-01",
+      "turnoverEok": 1206.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.35,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "017670",
+      "date": "2026-08-03",
+      "turnoverEok": 1111.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.25,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "017670",
+      "date": "2026-07-01",
+      "turnoverEok": 1111.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.5,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "278470",
+      "date": "2026-08-03",
+      "turnoverEok": 978.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.8,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "278470",
+      "date": "2026-07-01",
+      "turnoverEok": 978.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.18,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "064400",
+      "date": "2026-08-03",
+      "turnoverEok": 944.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.11,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "064400",
+      "date": "2026-07-01",
+      "turnoverEok": 944.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.02,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "178320",
+      "date": "2026-08-03",
+      "turnoverEok": 914.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.47,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "178320",
+      "date": "2026-07-01",
+      "turnoverEok": 914.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.09,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "440110",
+      "date": "2026-08-03",
+      "turnoverEok": 872.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.06,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "440110",
+      "date": "2026-07-01",
+      "turnoverEok": 872.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.2,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "207940",
+      "date": "2026-08-03",
+      "turnoverEok": 814.1,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.79,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "207940",
+      "date": "2026-07-01",
+      "turnoverEok": 814.1,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.7,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "095610",
+      "date": "2026-08-03",
+      "turnoverEok": 778.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.7,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "095610",
+      "date": "2026-07-01",
+      "turnoverEok": 778.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.58,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "043260",
+      "date": "2026-08-03",
+      "turnoverEok": 710.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.24,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "043260",
+      "date": "2026-07-01",
+      "turnoverEok": 710.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.39,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "307950",
+      "date": "2026-08-03",
+      "turnoverEok": 689.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.39,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "307950",
+      "date": "2026-07-01",
+      "turnoverEok": 689.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.33,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "365660",
+      "date": "2026-08-03",
+      "turnoverEok": 496.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.54,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "365660",
+      "date": "2026-07-01",
+      "turnoverEok": 496.6,
+      "market": "KOSDAQ",
+      "calls": 1,
+      "elapsed": 1.48,
+      "error": {
+        "rtCd": "0",
+        "msgCd": "MCA00000",
+        "rows": 0,
+        "dateHonored": null
+      },
+      "candles": 0
+    },
+    {
+      "ticker": "477850",
+      "date": "2026-08-03",
+      "turnoverEok": 479.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.86,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "477850",
+      "date": "2026-07-01",
+      "turnoverEok": 479.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.79,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "267270",
+      "date": "2026-08-03",
+      "turnoverEok": 464.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.88,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "267270",
+      "date": "2026-07-01",
+      "turnoverEok": 464.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.1,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "319400",
+      "date": "2026-08-03",
+      "turnoverEok": 441.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.28,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "319400",
+      "date": "2026-07-01",
+      "turnoverEok": 441.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.3,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "267250",
+      "date": "2026-08-03",
+      "turnoverEok": 427.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.4,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "267250",
+      "date": "2026-07-01",
+      "turnoverEok": 427.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.12,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "087010",
+      "date": "2026-08-03",
+      "turnoverEok": 411.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.2,
+      "candles": 370,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 319,
+        "마감30분": 21
+      },
+      "gridMissing": 11,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "087010",
+      "date": "2026-07-01",
+      "turnoverEok": 411.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 9.31,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "298380",
+      "date": "2026-08-03",
+      "turnoverEok": 392.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 10.18,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "298380",
+      "date": "2026-07-01",
+      "turnoverEok": 392.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 10.93,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "336260",
+      "date": "2026-08-03",
+      "turnoverEok": 377.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.19,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "336260",
+      "date": "2026-07-01",
+      "turnoverEok": 377.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.64,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005830",
+      "date": "2026-08-03",
+      "turnoverEok": 359.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.56,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005830",
+      "date": "2026-07-01",
+      "turnoverEok": 359.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.72,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "259960",
+      "date": "2026-08-03",
+      "turnoverEok": 328.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.96,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "259960",
+      "date": "2026-07-01",
+      "turnoverEok": 328.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 14.34,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "375500",
+      "date": "2026-08-03",
+      "turnoverEok": 313.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 14.73,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "375500",
+      "date": "2026-07-01",
+      "turnoverEok": 313.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 12.06,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "047050",
+      "date": "2026-08-03",
+      "turnoverEok": 291.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.99,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "047050",
+      "date": "2026-07-01",
+      "turnoverEok": 291.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 12.71,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "103590",
+      "date": "2026-08-03",
+      "turnoverEok": 279.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.02,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "103590",
+      "date": "2026-07-01",
+      "turnoverEok": 279.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.73,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "131290",
+      "date": "2026-08-03",
+      "turnoverEok": 269.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.2,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "131290",
+      "date": "2026-07-01",
+      "turnoverEok": 269.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.86,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "357780",
+      "date": "2026-08-03",
+      "turnoverEok": 236.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.59,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "357780",
+      "date": "2026-07-01",
+      "turnoverEok": 236.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.7,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "023530",
+      "date": "2026-08-03",
+      "turnoverEok": 233.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.82,
+      "candles": 380,
+      "first": "090000",
+      "last": "151900",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 20
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "023530",
+      "date": "2026-07-01",
+      "turnoverEok": 233.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.81,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "332570",
+      "date": "2026-08-03",
+      "turnoverEok": 226.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.65,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "332570",
+      "date": "2026-07-01",
+      "turnoverEok": 226.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.78,
+      "candles": 375,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 324,
+        "마감30분": 21
+      },
+      "gridMissing": 6,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "489790",
+      "date": "2026-08-03",
+      "turnoverEok": 222.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.72,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "489790",
+      "date": "2026-07-01",
+      "turnoverEok": 222.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.8,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "257720",
+      "date": "2026-08-03",
+      "turnoverEok": 218.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.82,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "257720",
+      "date": "2026-07-01",
+      "turnoverEok": 218.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.76,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "183300",
+      "date": "2026-08-03",
+      "turnoverEok": 213.6,
+      "market": "KOSDAQ",
+      "calls": 1,
+      "elapsed": 1.62,
+      "error": {
+        "rtCd": "0",
+        "msgCd": "MCA00000",
+        "rows": 120,
+        "dateHonored": false
+      },
+      "candles": 0
+    },
+    {
+      "ticker": "183300",
+      "date": "2026-07-01",
+      "turnoverEok": 213.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.72,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "001450",
+      "date": "2026-08-03",
+      "turnoverEok": 198.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.1,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "001450",
+      "date": "2026-07-01",
+      "turnoverEok": 198.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.12,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "112610",
+      "date": "2026-08-03",
+      "turnoverEok": 187.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.09,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "112610",
+      "date": "2026-07-01",
+      "turnoverEok": 187.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.96,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "295310",
+      "date": "2026-08-03",
+      "turnoverEok": 179.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.01,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "295310",
+      "date": "2026-07-01",
+      "turnoverEok": 179.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.73,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "476830",
+      "date": "2026-08-03",
+      "turnoverEok": 176.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.64,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "476830",
+      "date": "2026-07-01",
+      "turnoverEok": 176.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.75,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "002380",
+      "date": "2026-08-03",
+      "turnoverEok": 171.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.78,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "002380",
+      "date": "2026-07-01",
+      "turnoverEok": 171.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.63,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "083650",
+      "date": "2026-08-03",
+      "turnoverEok": 165.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.71,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "083650",
+      "date": "2026-07-01",
+      "turnoverEok": 165.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.73,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "241560",
+      "date": "2026-08-03",
+      "turnoverEok": 163.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.7,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "241560",
+      "date": "2026-07-01",
+      "turnoverEok": 163.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.68,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "326030",
+      "date": "2026-08-03",
+      "turnoverEok": 156.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.83,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "326030",
+      "date": "2026-07-01",
+      "turnoverEok": 156.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.14,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "271560",
+      "date": "2026-08-03",
+      "turnoverEok": 151.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.49,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "271560",
+      "date": "2026-07-01",
+      "turnoverEok": 151.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.37,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "356680",
+      "date": "2026-08-03",
+      "turnoverEok": 145.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.46,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "356680",
+      "date": "2026-07-01",
+      "turnoverEok": 145.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.96,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "097230",
+      "date": "2026-08-03",
+      "turnoverEok": 144.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.91,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 325,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "097230",
+      "date": "2026-07-01",
+      "turnoverEok": 144.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.85,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "139480",
+      "date": "2026-08-03",
+      "turnoverEok": 134.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.72,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "139480",
+      "date": "2026-07-01",
+      "turnoverEok": 134.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.82,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "050890",
+      "date": "2026-08-03",
+      "turnoverEok": 129.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.04,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "050890",
+      "date": "2026-07-01",
+      "turnoverEok": 129.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.76,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "097950",
+      "date": "2026-08-03",
+      "turnoverEok": 124.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.09,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "097950",
+      "date": "2026-07-01",
+      "turnoverEok": 124.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.94,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "330860",
+      "date": "2026-08-03",
+      "turnoverEok": 121.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.38,
+      "candles": 352,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 302,
+        "마감30분": 21
+      },
+      "gridMissing": 29,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "330860",
+      "date": "2026-07-01",
+      "turnoverEok": 121.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.94,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "417840",
+      "date": "2026-08-03",
+      "turnoverEok": 117.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.68,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "417840",
+      "date": "2026-07-01",
+      "turnoverEok": 117.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.82,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "022100",
+      "date": "2026-08-03",
+      "turnoverEok": 113.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.51,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "022100",
+      "date": "2026-07-01",
+      "turnoverEok": 113.6,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.67,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "020150",
+      "date": "2026-08-03",
+      "turnoverEok": 109.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.81,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 325,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "020150",
+      "date": "2026-07-01",
+      "turnoverEok": 109.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.79,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "006110",
+      "date": "2026-08-03",
+      "turnoverEok": 106.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.3,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "006110",
+      "date": "2026-07-01",
+      "turnoverEok": 106.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.15,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "011780",
+      "date": "2026-08-03",
+      "turnoverEok": 105.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.23,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "011780",
+      "date": "2026-07-01",
+      "turnoverEok": 105.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.19,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "004370",
+      "date": "2026-08-03",
+      "turnoverEok": 98.2,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.04,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "004370",
+      "date": "2026-07-01",
+      "turnoverEok": 98.2,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 6.44,
+      "candles": 347,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 298,
+        "마감30분": 19
+      },
+      "gridMissing": 34,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "475830",
+      "date": "2026-08-03",
+      "turnoverEok": 92.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.68,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "475830",
+      "date": "2026-07-01",
+      "turnoverEok": 92.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.48,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "099320",
+      "date": "2026-08-03",
+      "turnoverEok": 89.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.53,
+      "candles": 371,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 320,
+        "마감30분": 21
+      },
+      "gridMissing": 10,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "099320",
+      "date": "2026-07-01",
+      "turnoverEok": 89.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.49,
+      "candles": 372,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 321,
+        "마감30분": 21
+      },
+      "gridMissing": 9,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "034230",
+      "date": "2026-08-03",
+      "turnoverEok": 85.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.86,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "034230",
+      "date": "2026-07-01",
+      "turnoverEok": 85.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.6,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "298020",
+      "date": "2026-08-03",
+      "turnoverEok": 83.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.75,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "298020",
+      "date": "2026-07-01",
+      "turnoverEok": 83.7,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.85,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "290550",
+      "date": "2026-08-03",
+      "turnoverEok": 79.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.87,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "290550",
+      "date": "2026-07-01",
+      "turnoverEok": 79.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.99,
+      "candles": 372,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 321,
+        "마감30분": 21
+      },
+      "gridMissing": 9,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "041510",
+      "date": "2026-08-03",
+      "turnoverEok": 76.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.85,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "041510",
+      "date": "2026-07-01",
+      "turnoverEok": 76.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.13,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "007340",
+      "date": "2026-08-03",
+      "turnoverEok": 74.1,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 9.41,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "007340",
+      "date": "2026-07-01",
+      "turnoverEok": 74.1,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.07,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "003380",
+      "date": "2026-08-03",
+      "turnoverEok": 72.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 13.35,
+      "candles": 377,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 326,
+        "마감30분": 21
+      },
+      "gridMissing": 4,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "003380",
+      "date": "2026-07-01",
+      "turnoverEok": 72.4,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 12.86,
+      "candles": 370,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 319,
+        "마감30분": 21
+      },
+      "gridMissing": 11,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "125490",
+      "date": "2026-08-03",
+      "turnoverEok": 70.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 11.96,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "125490",
+      "date": "2026-07-01",
+      "turnoverEok": 70.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 11.51,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "383310",
+      "date": "2026-08-03",
+      "turnoverEok": 67.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 9.57,
+      "candles": 358,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 307,
+        "마감30분": 21
+      },
+      "gridMissing": 23,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "383310",
+      "date": "2026-07-01",
+      "turnoverEok": 67.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 12.39,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "011930",
+      "date": "2026-08-03",
+      "turnoverEok": 65.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 10.9,
+      "candles": 372,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 321,
+        "마감30분": 21
+      },
+      "gridMissing": 9,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "011930",
+      "date": "2026-07-01",
+      "turnoverEok": 65.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 10.81,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "010820",
+      "date": "2026-08-03",
+      "turnoverEok": 63.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 11.41,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 326,
+        "마감30분": 20
+      },
+      "gridMissing": 5,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "010820",
+      "date": "2026-07-01",
+      "turnoverEok": 63.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 10.29,
+      "candles": 375,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 324,
+        "마감30분": 21
+      },
+      "gridMissing": 6,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "213420",
+      "date": "2026-08-03",
+      "turnoverEok": 61.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.28,
+      "candles": 371,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 320,
+        "마감30분": 21
+      },
+      "gridMissing": 10,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "213420",
+      "date": "2026-07-01",
+      "turnoverEok": 61.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.82,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "119850",
+      "date": "2026-08-03",
+      "turnoverEok": 59.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 10.1,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "119850",
+      "date": "2026-07-01",
+      "turnoverEok": 59.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 10.04,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "080580",
+      "date": "2026-08-03",
+      "turnoverEok": 58.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 8.22,
+      "candles": 317,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 275,
+        "마감30분": 17
+      },
+      "gridMissing": 64,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "080580",
+      "date": "2026-07-01",
+      "turnoverEok": 58.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.97,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005070",
+      "date": "2026-08-03",
+      "turnoverEok": 56.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.16,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "005070",
+      "date": "2026-07-01",
+      "turnoverEok": 56.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.85,
+      "candles": 375,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 324,
+        "마감30분": 21
+      },
+      "gridMissing": 6,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "482630",
+      "date": "2026-08-03",
+      "turnoverEok": 54.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.02,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 325,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "482630",
+      "date": "2026-07-01",
+      "turnoverEok": 54.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.38,
+      "candles": 377,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 326,
+        "마감30분": 21
+      },
+      "gridMissing": 4,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "056080",
+      "date": "2026-08-03",
+      "turnoverEok": 53.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.42,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "056080",
+      "date": "2026-07-01",
+      "turnoverEok": 53.7,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.3,
+      "candles": 377,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 326,
+        "마감30분": 21
+      },
+      "gridMissing": 4,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "328130",
+      "date": "2026-08-03",
+      "turnoverEok": 52.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.33,
+      "candles": 377,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 326,
+        "마감30분": 21
+      },
+      "gridMissing": 4,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "328130",
+      "date": "2026-07-01",
+      "turnoverEok": 52.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.34,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "007070",
+      "date": "2026-08-03",
+      "turnoverEok": 49.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.49,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "007070",
+      "date": "2026-07-01",
+      "turnoverEok": 49.9,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.56,
+      "candles": 379,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 2,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "085910",
+      "date": "2026-08-03",
+      "turnoverEok": 48.0,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.14,
+      "candles": 351,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 27,
+        "중반": 304,
+        "마감30분": 20
+      },
+      "gridMissing": 30,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "085910",
+      "date": "2026-07-01",
+      "turnoverEok": 48.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 8.5,
+      "candles": 373,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 322,
+        "마감30분": 21
+      },
+      "gridMissing": 8,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "005090",
+      "date": "2026-08-03",
+      "turnoverEok": 45.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.49,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "005090",
+      "date": "2026-07-01",
+      "turnoverEok": 45.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.59,
+      "candles": 375,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 325,
+        "마감30분": 21
+      },
+      "gridMissing": 6,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "121600",
+      "date": "2026-08-03",
+      "turnoverEok": 42.0,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.84,
+      "candles": 343,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 292,
+        "마감30분": 21
+      },
+      "gridMissing": 38,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "121600",
+      "date": "2026-07-01",
+      "turnoverEok": 42.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.42,
+      "candles": 366,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 315,
+        "마감30분": 21
+      },
+      "gridMissing": 15,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "215790",
+      "date": "2026-08-03",
+      "turnoverEok": 40.2,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.87,
+      "candles": 349,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 299,
+        "마감30분": 21
+      },
+      "gridMissing": 32,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "215790",
+      "date": "2026-07-01",
+      "turnoverEok": 40.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.36,
+      "candles": 361,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 310,
+        "마감30분": 21
+      },
+      "gridMissing": 20,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "114810",
+      "date": "2026-08-03",
+      "turnoverEok": 39.0,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.07,
+      "candles": 358,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 308,
+        "마감30분": 20
+      },
+      "gridMissing": 23,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "114810",
+      "date": "2026-07-01",
+      "turnoverEok": 39.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.2,
+      "candles": 373,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 322,
+        "마감30분": 21
+      },
+      "gridMissing": 8,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "321370",
+      "date": "2026-08-03",
+      "turnoverEok": 36.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.08,
+      "candles": 368,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 318,
+        "마감30분": 21
+      },
+      "gridMissing": 13,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "321370",
+      "date": "2026-07-01",
+      "turnoverEok": 36.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.1,
+      "candles": 364,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 314,
+        "마감30분": 20
+      },
+      "gridMissing": 17,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "389470",
+      "date": "2026-08-03",
+      "turnoverEok": 34.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.99,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 327,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "389470",
+      "date": "2026-07-01",
+      "turnoverEok": 34.5,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.41,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "082270",
+      "date": "2026-08-03",
+      "turnoverEok": 33.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.69,
+      "candles": 373,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 322,
+        "마감30분": 21
+      },
+      "gridMissing": 8,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "082270",
+      "date": "2026-07-01",
+      "turnoverEok": 33.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.81,
+      "candles": 374,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 323,
+        "마감30분": 21
+      },
+      "gridMissing": 7,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "004000",
+      "date": "2026-08-03",
+      "turnoverEok": 30.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.87,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "004000",
+      "date": "2026-07-01",
+      "turnoverEok": 30.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.33,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "355150",
+      "date": "2026-08-03",
+      "turnoverEok": 30.3,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.83,
+      "candles": 347,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 26,
+        "중반": 300,
+        "마감30분": 21
+      },
+      "gridMissing": 34,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "355150",
+      "date": "2026-07-01",
+      "turnoverEok": 30.3,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.2,
+      "candles": 367,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 316,
+        "마감30분": 21
+      },
+      "gridMissing": 14,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "003540",
+      "date": "2026-08-03",
+      "turnoverEok": 29.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.07,
+      "candles": 374,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 324,
+        "마감30분": 21
+      },
+      "gridMissing": 7,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "003540",
+      "date": "2026-07-01",
+      "turnoverEok": 29.0,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.98,
+      "candles": 360,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 310,
+        "마감30분": 20
+      },
+      "gridMissing": 21,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "052900",
+      "date": "2026-08-03",
+      "turnoverEok": 27.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.51,
+      "candles": 338,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 287,
+        "마감30분": 21
+      },
+      "gridMissing": 43,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "052900",
+      "date": "2026-07-01",
+      "turnoverEok": 27.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 7.01,
+      "candles": 367,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 316,
+        "마감30분": 21
+      },
+      "gridMissing": 14,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "030520",
+      "date": "2026-08-03",
+      "turnoverEok": 27.2,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.85,
+      "candles": 373,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 322,
+        "마감30분": 21
+      },
+      "gridMissing": 8,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "030520",
+      "date": "2026-07-01",
+      "turnoverEok": 27.2,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.51,
+      "candles": 339,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 288,
+        "마감30분": 21
+      },
+      "gridMissing": 42,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "114090",
+      "date": "2026-08-03",
+      "turnoverEok": 25.8,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.53,
+      "candles": 342,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 27,
+        "중반": 294,
+        "마감30분": 21
+      },
+      "gridMissing": 39,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "114090",
+      "date": "2026-07-01",
+      "turnoverEok": 25.8,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.0,
+      "candles": 359,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 308,
+        "마감30분": 21
+      },
+      "gridMissing": 22,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "020000",
+      "date": "2026-08-03",
+      "turnoverEok": 24.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.98,
+      "candles": 377,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 328,
+        "마감30분": 20
+      },
+      "gridMissing": 4,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "020000",
+      "date": "2026-07-01",
+      "turnoverEok": 24.5,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 7.08,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "059120",
+      "date": "2026-08-03",
+      "turnoverEok": 24.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.93,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 329,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "059120",
+      "date": "2026-07-01",
+      "turnoverEok": 24.1,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.99,
+      "candles": 344,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 294,
+        "마감30분": 20
+      },
+      "gridMissing": 37,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "255220",
+      "date": "2026-08-03",
+      "turnoverEok": 23.4,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.17,
+      "candles": 328,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 27,
+        "중반": 282,
+        "마감30분": 19
+      },
+      "gridMissing": 53,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "255220",
+      "date": "2026-07-01",
+      "turnoverEok": 23.4,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.23,
+      "candles": 350,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 299,
+        "마감30분": 21
+      },
+      "gridMissing": 31,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "130660",
+      "date": "2026-08-03",
+      "turnoverEok": 22.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 6.65,
+      "candles": 329,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 283,
+        "마감30분": 18
+      },
+      "gridMissing": 52,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "130660",
+      "date": "2026-07-01",
+      "turnoverEok": 22.4,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 8.46,
+      "candles": 361,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 310,
+        "마감30분": 21
+      },
+      "gridMissing": 20,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "451760",
+      "date": "2026-08-03",
+      "turnoverEok": 21.7,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.84,
+      "candles": 305,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 258,
+        "마감30분": 19
+      },
+      "gridMissing": 76,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "451760",
+      "date": "2026-07-01",
+      "turnoverEok": 21.7,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.3,
+      "candles": 356,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 307,
+        "마감30분": 21
+      },
+      "gridMissing": 25,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "493280",
+      "date": "2026-08-03",
+      "turnoverEok": 19.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 6.23,
+      "candles": 303,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 255,
+        "마감30분": 20
+      },
+      "gridMissing": 78,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "493280",
+      "date": "2026-07-01",
+      "turnoverEok": 19.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.4,
+      "candles": 370,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 320,
+        "마감30분": 20
+      },
+      "gridMissing": 11,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "089860",
+      "date": "2026-08-03",
+      "turnoverEok": 18.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.51,
+      "candles": 376,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 325,
+        "마감30분": 21
+      },
+      "gridMissing": 5,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "089860",
+      "date": "2026-07-01",
+      "turnoverEok": 18.3,
+      "market": "KOSPI",
+      "calls": 5,
+      "elapsed": 6.38,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "102940",
+      "date": "2026-08-03",
+      "turnoverEok": 17.0,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.38,
+      "candles": 363,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 314,
+        "마감30분": 19
+      },
+      "gridMissing": 18,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "102940",
+      "date": "2026-07-01",
+      "turnoverEok": 17.0,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.21,
+      "candles": 329,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 279,
+        "마감30분": 20
+      },
+      "gridMissing": 52,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "037070",
+      "date": "2026-08-03",
+      "turnoverEok": 15.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.5,
+      "candles": 380,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 1,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "037070",
+      "date": "2026-07-01",
+      "turnoverEok": 15.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.15,
+      "candles": 357,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 306,
+        "마감30분": 21
+      },
+      "gridMissing": 24,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "078890",
+      "date": "2026-08-03",
+      "turnoverEok": 14.3,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.06,
+      "candles": 311,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 261,
+        "마감30분": 20
+      },
+      "gridMissing": 70,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "078890",
+      "date": "2026-07-01",
+      "turnoverEok": 14.3,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.9,
+      "candles": 334,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 292,
+        "마감30분": 17
+      },
+      "gridMissing": 47,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "215600",
+      "date": "2026-08-03",
+      "turnoverEok": 13.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.93,
+      "candles": 337,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 289,
+        "마감30분": 19
+      },
+      "gridMissing": 44,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "215600",
+      "date": "2026-07-01",
+      "turnoverEok": 13.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.85,
+      "candles": 338,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 287,
+        "마감30분": 21
+      },
+      "gridMissing": 43,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "0008Z0",
+      "date": "2026-08-03",
+      "turnoverEok": 12.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.84,
+      "candles": 293,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 247,
+        "마감30분": 21
+      },
+      "gridMissing": 88,
+      "longestGapMin": 7
+    },
+    {
+      "ticker": "0008Z0",
+      "date": "2026-07-01",
+      "turnoverEok": 12.6,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.11,
+      "candles": 366,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 316,
+        "마감30분": 21
+      },
+      "gridMissing": 15,
+      "longestGapMin": 1
+    },
+    {
+      "ticker": "119610",
+      "date": "2026-08-03",
+      "turnoverEok": 11.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.89,
+      "candles": 253,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 20,
+        "중반": 215,
+        "마감30분": 18
+      },
+      "gridMissing": 128,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "119610",
+      "date": "2026-07-01",
+      "turnoverEok": 11.9,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.05,
+      "candles": 359,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 14,
+        "중반": 324,
+        "마감30분": 21
+      },
+      "gridMissing": 22,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "413630",
+      "date": "2026-08-03",
+      "turnoverEok": 11.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.09,
+      "candles": 381,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 330,
+        "마감30분": 21
+      },
+      "gridMissing": 0,
+      "longestGapMin": 0
+    },
+    {
+      "ticker": "413630",
+      "date": "2026-07-01",
+      "turnoverEok": 11.1,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.07,
+      "candles": 373,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 322,
+        "마감30분": 21
+      },
+      "gridMissing": 8,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "071320",
+      "date": "2026-08-03",
+      "turnoverEok": 10.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.9,
+      "candles": 357,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 306,
+        "마감30분": 21
+      },
+      "gridMissing": 24,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "071320",
+      "date": "2026-07-01",
+      "turnoverEok": 10.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.02,
+      "candles": 327,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 280,
+        "마감30분": 18
+      },
+      "gridMissing": 54,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "089230",
+      "date": "2026-08-03",
+      "turnoverEok": 9.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.94,
+      "candles": 289,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 243,
+        "마감30분": 21
+      },
+      "gridMissing": 92,
+      "longestGapMin": 6
+    },
+    {
+      "ticker": "089230",
+      "date": "2026-07-01",
+      "turnoverEok": 9.6,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.99,
+      "candles": 316,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 26,
+        "중반": 273,
+        "마감30분": 17
+      },
+      "gridMissing": 65,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "297090",
+      "date": "2026-08-03",
+      "turnoverEok": 9.0,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.72,
+      "candles": 224,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 180,
+        "마감30분": 16
+      },
+      "gridMissing": 157,
+      "longestGapMin": 7
+    },
+    {
+      "ticker": "297090",
+      "date": "2026-07-01",
+      "turnoverEok": 9.0,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.0,
+      "candles": 313,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 264,
+        "마감30분": 19
+      },
+      "gridMissing": 68,
+      "longestGapMin": 6
+    },
+    {
+      "ticker": "200880",
+      "date": "2026-08-03",
+      "turnoverEok": 8.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.03,
+      "candles": 350,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 301,
+        "마감30분": 19
+      },
+      "gridMissing": 31,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "200880",
+      "date": "2026-07-01",
+      "turnoverEok": 8.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.91,
+      "candles": 278,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 24,
+        "중반": 240,
+        "마감30분": 14
+      },
+      "gridMissing": 103,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "199430",
+      "date": "2026-08-03",
+      "turnoverEok": 7.8,
+      "market": "KOSDAQ",
+      "calls": 5,
+      "elapsed": 6.06,
+      "candles": 378,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 328,
+        "마감30분": 21
+      },
+      "gridMissing": 3,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "199430",
+      "date": "2026-07-01",
+      "turnoverEok": 7.8,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.82,
+      "candles": 274,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 226,
+        "마감30분": 19
+      },
+      "gridMissing": 107,
+      "longestGapMin": 7
+    },
+    {
+      "ticker": "026890",
+      "date": "2026-08-03",
+      "turnoverEok": 7.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.98,
+      "candles": 264,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 26,
+        "중반": 227,
+        "마감30분": 11
+      },
+      "gridMissing": 117,
+      "longestGapMin": 13
+    },
+    {
+      "ticker": "026890",
+      "date": "2026-07-01",
+      "turnoverEok": 7.4,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.88,
+      "candles": 263,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 19,
+        "중반": 224,
+        "마감30분": 20
+      },
+      "gridMissing": 118,
+      "longestGapMin": 10
+    },
+    {
+      "ticker": "054950",
+      "date": "2026-08-03",
+      "turnoverEok": 7.0,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.72,
+      "candles": 212,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 166,
+        "마감30분": 16
+      },
+      "gridMissing": 169,
+      "longestGapMin": 9
+    },
+    {
+      "ticker": "054950",
+      "date": "2026-07-01",
+      "turnoverEok": 7.0,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.66,
+      "candles": 180,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 23,
+        "중반": 142,
+        "마감30분": 15
+      },
+      "gridMissing": 201,
+      "longestGapMin": 10
+    },
+    {
+      "ticker": "109070",
+      "date": "2026-08-03",
+      "turnoverEok": 6.5,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.73,
+      "candles": 235,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 22,
+        "중반": 201,
+        "마감30분": 12
+      },
+      "gridMissing": 146,
+      "longestGapMin": 12
+    },
+    {
+      "ticker": "109070",
+      "date": "2026-07-01",
+      "turnoverEok": 6.5,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.72,
+      "candles": 350,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 301,
+        "마감30분": 21
+      },
+      "gridMissing": 31,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "000890",
+      "date": "2026-08-03",
+      "turnoverEok": 6.1,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.82,
+      "candles": 283,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 233,
+        "마감30분": 21
+      },
+      "gridMissing": 98,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "000890",
+      "date": "2026-07-01",
+      "turnoverEok": 6.1,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.8,
+      "candles": 352,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 305,
+        "마감30분": 17
+      },
+      "gridMissing": 29,
+      "longestGapMin": 2
+    },
+    {
+      "ticker": "055490",
+      "date": "2026-08-03",
+      "turnoverEok": 5.8,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.58,
+      "candles": 140,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 21,
+        "중반": 111,
+        "마감30분": 8
+      },
+      "gridMissing": 241,
+      "longestGapMin": 18
+    },
+    {
+      "ticker": "055490",
+      "date": "2026-07-01",
+      "turnoverEok": 5.8,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.65,
+      "candles": 173,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 17,
+        "중반": 145,
+        "마감30분": 11
+      },
+      "gridMissing": 208,
+      "longestGapMin": 15
+    },
+    {
+      "ticker": "101670",
+      "date": "2026-08-03",
+      "turnoverEok": 5.4,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.84,
+      "candles": 312,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 265,
+        "마감30분": 18
+      },
+      "gridMissing": 69,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "101670",
+      "date": "2026-07-01",
+      "turnoverEok": 5.4,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.68,
+      "candles": 292,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 246,
+        "마감30분": 17
+      },
+      "gridMissing": 89,
+      "longestGapMin": 4
+    },
+    {
+      "ticker": "122900",
+      "date": "2026-08-03",
+      "turnoverEok": 5.0,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 4.83,
+      "candles": 280,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 21,
+        "중반": 240,
+        "마감30분": 19
+      },
+      "gridMissing": 101,
+      "longestGapMin": 6
+    },
+    {
+      "ticker": "122900",
+      "date": "2026-07-01",
+      "turnoverEok": 5.0,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.4,
+      "candles": 274,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 229,
+        "마감30분": 17
+      },
+      "gridMissing": 107,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "016580",
+      "date": "2026-08-03",
+      "turnoverEok": 4.3,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.65,
+      "candles": 272,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 14,
+        "중반": 240,
+        "마감30분": 18
+      },
+      "gridMissing": 109,
+      "longestGapMin": 8
+    },
+    {
+      "ticker": "016580",
+      "date": "2026-07-01",
+      "turnoverEok": 4.3,
+      "market": "KOSPI",
+      "calls": 4,
+      "elapsed": 5.67,
+      "candles": 345,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 21,
+        "중반": 305,
+        "마감30분": 19
+      },
+      "gridMissing": 36,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "355390",
+      "date": "2026-08-03",
+      "turnoverEok": 3.7,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 4.25,
+      "candles": 192,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 155,
+        "마감30분": 9
+      },
+      "gridMissing": 189,
+      "longestGapMin": 10
+    },
+    {
+      "ticker": "355390",
+      "date": "2026-07-01",
+      "turnoverEok": 3.7,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 5.04,
+      "candles": 245,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 198,
+        "마감30분": 18
+      },
+      "gridMissing": 136,
+      "longestGapMin": 7
+    },
+    {
+      "ticker": "226330",
+      "date": "2026-08-03",
+      "turnoverEok": 3.3,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.79,
+      "candles": 259,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 28,
+        "중반": 215,
+        "마감30분": 16
+      },
+      "gridMissing": 122,
+      "longestGapMin": 7
+    },
+    {
+      "ticker": "226330",
+      "date": "2026-07-01",
+      "turnoverEok": 3.3,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.65,
+      "candles": 195,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 24,
+        "중반": 160,
+        "마감30분": 11
+      },
+      "gridMissing": 186,
+      "longestGapMin": 9
+    },
+    {
+      "ticker": "420570",
+      "date": "2026-08-03",
+      "turnoverEok": 2.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.83,
+      "candles": 243,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 23,
+        "중반": 205,
+        "마감30분": 15
+      },
+      "gridMissing": 138,
+      "longestGapMin": 8
+    },
+    {
+      "ticker": "420570",
+      "date": "2026-07-01",
+      "turnoverEok": 2.9,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.75,
+      "candles": 250,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 23,
+        "중반": 210,
+        "마감30분": 17
+      },
+      "gridMissing": 131,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "136150",
+      "date": "2026-08-03",
+      "turnoverEok": 2.6,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.55,
+      "candles": 111,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 15,
+        "중반": 92,
+        "마감30분": 4
+      },
+      "gridMissing": 270,
+      "longestGapMin": 33
+    },
+    {
+      "ticker": "136150",
+      "date": "2026-07-01",
+      "turnoverEok": 2.6,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.59,
+      "candles": 129,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 21,
+        "중반": 94,
+        "마감30분": 14
+      },
+      "gridMissing": 252,
+      "longestGapMin": 29
+    },
+    {
+      "ticker": "067570",
+      "date": "2026-08-03",
+      "turnoverEok": 2.3,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.66,
+      "candles": 180,
+      "first": "090000",
+      "last": "151900",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 11,
+        "중반": 161,
+        "마감30분": 8
+      },
+      "gridMissing": 201,
+      "longestGapMin": 30
+    },
+    {
+      "ticker": "067570",
+      "date": "2026-07-01",
+      "turnoverEok": 2.3,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.85,
+      "candles": 340,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 12,
+        "중반": 308,
+        "마감30분": 20
+      },
+      "gridMissing": 41,
+      "longestGapMin": 8
+    },
+    {
+      "ticker": "100660",
+      "date": "2026-08-03",
+      "turnoverEok": 2.1,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.64,
+      "candles": 127,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 20,
+        "중반": 99,
+        "마감30분": 8
+      },
+      "gridMissing": 254,
+      "longestGapMin": 24
+    },
+    {
+      "ticker": "100660",
+      "date": "2026-07-01",
+      "turnoverEok": 2.1,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.83,
+      "candles": 340,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 30,
+        "중반": 290,
+        "마감30분": 20
+      },
+      "gridMissing": 41,
+      "longestGapMin": 3
+    },
+    {
+      "ticker": "079950",
+      "date": "2026-08-03",
+      "turnoverEok": 1.8,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.73,
+      "candles": 183,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 26,
+        "중반": 141,
+        "마감30분": 16
+      },
+      "gridMissing": 198,
+      "longestGapMin": 13
+    },
+    {
+      "ticker": "079950",
+      "date": "2026-07-01",
+      "turnoverEok": 1.8,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.61,
+      "candles": 183,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 16,
+        "중반": 150,
+        "마감30분": 17
+      },
+      "gridMissing": 198,
+      "longestGapMin": 20
+    },
+    {
+      "ticker": "002870",
+      "date": "2026-08-03",
+      "turnoverEok": 1.6,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.6,
+      "candles": 215,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 20,
+        "중반": 177,
+        "마감30분": 18
+      },
+      "gridMissing": 166,
+      "longestGapMin": 9
+    },
+    {
+      "ticker": "002870",
+      "date": "2026-07-01",
+      "turnoverEok": 1.6,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.66,
+      "candles": 224,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 18,
+        "중반": 185,
+        "마감30분": 21
+      },
+      "gridMissing": 157,
+      "longestGapMin": 9
+    },
+    {
+      "ticker": "290670",
+      "date": "2026-08-03",
+      "turnoverEok": 1.4,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.66,
+      "candles": 166,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 22,
+        "중반": 132,
+        "마감30분": 12
+      },
+      "gridMissing": 215,
+      "longestGapMin": 19
+    },
+    {
+      "ticker": "290670",
+      "date": "2026-07-01",
+      "turnoverEok": 1.4,
+      "market": "KOSDAQ",
+      "calls": 4,
+      "elapsed": 4.87,
+      "candles": 302,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 29,
+        "중반": 254,
+        "마감30분": 19
+      },
+      "gridMissing": 79,
+      "longestGapMin": 5
+    },
+    {
+      "ticker": "067370",
+      "date": "2026-08-03",
+      "turnoverEok": 1.2,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.43,
+      "candles": 76,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 7,
+        "중반": 64,
+        "마감30분": 5
+      },
+      "gridMissing": 305,
+      "longestGapMin": 36
+    },
+    {
+      "ticker": "067370",
+      "date": "2026-07-01",
+      "turnoverEok": 1.2,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.36,
+      "candles": 116,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 19,
+        "중반": 86,
+        "마감30분": 11
+      },
+      "gridMissing": 265,
+      "longestGapMin": 27
+    },
+    {
+      "ticker": "223310",
+      "date": "2026-08-03",
+      "turnoverEok": 1.1,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.35,
+      "candles": 119,
+      "first": "090000",
+      "last": "151900",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 23,
+        "중반": 76,
+        "마감30분": 20
+      },
+      "gridMissing": 262,
+      "longestGapMin": 35
+    },
+    {
+      "ticker": "223310",
+      "date": "2026-07-01",
+      "turnoverEok": 1.1,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.36,
+      "candles": 121,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 13,
+        "중반": 102,
+        "마감30분": 6
+      },
+      "gridMissing": 260,
+      "longestGapMin": 20
+    },
+    {
+      "ticker": "007370",
+      "date": "2026-08-03",
+      "turnoverEok": 0.9,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.32,
+      "candles": 91,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 15,
+        "중반": 70,
+        "마감30분": 6
+      },
+      "gridMissing": 290,
+      "longestGapMin": 47
+    },
+    {
+      "ticker": "007370",
+      "date": "2026-07-01",
+      "turnoverEok": 0.9,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.27,
+      "candles": 66,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 9,
+        "중반": 49,
+        "마감30분": 8
+      },
+      "gridMissing": 315,
+      "longestGapMin": 51
+    },
+    {
+      "ticker": "060540",
+      "date": "2026-08-03",
+      "turnoverEok": 0.8,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.24,
+      "candles": 72,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 10,
+        "중반": 54,
+        "마감30분": 8
+      },
+      "gridMissing": 309,
+      "longestGapMin": 51
+    },
+    {
+      "ticker": "060540",
+      "date": "2026-07-01",
+      "turnoverEok": 0.8,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.48,
+      "candles": 105,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 15,
+        "중반": 83,
+        "마감30분": 7
+      },
+      "gridMissing": 276,
+      "longestGapMin": 24
+    },
+    {
+      "ticker": "002620",
+      "date": "2026-08-03",
+      "turnoverEok": 0.7,
+      "market": "KOSPI",
+      "calls": 2,
+      "elapsed": 2.37,
+      "candles": 85,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 21,
+        "중반": 55,
+        "마감30분": 9
+      },
+      "gridMissing": 296,
+      "longestGapMin": 47
+    },
+    {
+      "ticker": "002620",
+      "date": "2026-07-01",
+      "turnoverEok": 0.7,
+      "market": "KOSPI",
+      "calls": 2,
+      "elapsed": 2.43,
+      "candles": 101,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 19,
+        "중반": 76,
+        "마감30분": 6
+      },
+      "gridMissing": 280,
+      "longestGapMin": 50
+    },
+    {
+      "ticker": "373170",
+      "date": "2026-08-03",
+      "turnoverEok": 0.5,
+      "market": "KOSDAQ",
+      "calls": 3,
+      "elapsed": 3.7,
+      "candles": 139,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 25,
+        "중반": 111,
+        "마감30분": 3
+      },
+      "gridMissing": 242,
+      "longestGapMin": 33
+    },
+    {
+      "ticker": "373170",
+      "date": "2026-07-01",
+      "turnoverEok": 0.5,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.41,
+      "candles": 57,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 7,
+        "중반": 46,
+        "마감30분": 4
+      },
+      "gridMissing": 324,
+      "longestGapMin": 46
+    },
+    {
+      "ticker": "145270",
+      "date": "2026-08-03",
+      "turnoverEok": 0.4,
+      "market": "KOSPI",
+      "calls": 2,
+      "elapsed": 2.43,
+      "candles": 78,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 9,
+        "중반": 66,
+        "마감30분": 3
+      },
+      "gridMissing": 303,
+      "longestGapMin": 36
+    },
+    {
+      "ticker": "145270",
+      "date": "2026-07-01",
+      "turnoverEok": 0.4,
+      "market": "KOSPI",
+      "calls": 3,
+      "elapsed": 3.37,
+      "candles": 157,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 13,
+        "중반": 129,
+        "마감30분": 15
+      },
+      "gridMissing": 224,
+      "longestGapMin": 20
+    },
+    {
+      "ticker": "087600",
+      "date": "2026-08-03",
+      "turnoverEok": 0.3,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.18,
+      "candles": 71,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 10,
+        "중반": 51,
+        "마감30분": 10
+      },
+      "gridMissing": 310,
+      "longestGapMin": 42
+    },
+    {
+      "ticker": "087600",
+      "date": "2026-07-01",
+      "turnoverEok": 0.3,
+      "market": "KOSDAQ",
+      "calls": 2,
+      "elapsed": 2.17,
+      "candles": 55,
+      "first": "090000",
+      "last": "153000",
+      "zeroVolCandles": 0,
+      "bySession": {
+        "개장30분": 11,
+        "중반": 36,
+        "마감30분": 8
+      },
+      "gridMissing": 326,
+      "longestGapMin": 62
+    },
+    {
+      "ticker": "006380",
+      "date": "2026-08-03",
+      "turnoverEok": 0.0,
+      "market": "KOSPI",
+      "calls": 1,
+      "elapsed": 1.08,
+      "error": {
+        "rtCd": "0",
+        "msgCd": "MCA00000",
+        "rows": 0,
+        "dateHonored": null
+      },
+      "candles": 0
+    },
+    {
+      "ticker": "006380",
+      "date": "2026-07-01",
+      "turnoverEok": 0.0,
+      "market": "KOSPI",
+      "calls": 1,
+      "elapsed": 1.01,
+      "error": {
+        "rtCd": "0",
+        "msgCd": "MCA00000",
+        "rows": 0,
+        "dateHonored": null
+      },
+      "candles": 0
+    }
+  ]
+}
