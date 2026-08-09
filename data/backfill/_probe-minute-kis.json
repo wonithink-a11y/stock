@@ -1,0 +1,1443 @@
+{
+  "schemaVersion": "PROBE-MIN-1.0",
+  "probe": "minute-kis-T0",
+  "startedAt": "2026-08-09 18:29:44 KST",
+  "elapsedSeconds": 144.4,
+  "endpoint": {
+    "base": "https://openapi.koreainvestment.com:9443",
+    "path": "/uapi/domestic-stock/v1/quotations/inquire-time-dailychartprice",
+    "trId": "FHKST03010230",
+    "이름": "주식일별분봉조회 [국내주식-213]"
+  },
+  "문서상수": {
+    "페이지크기": "실전 120건",
+    "보관": "최대 1년",
+    "토큰유효": "1일",
+    "토큰갱신": "6시간 초과 시",
+    "토큰발급주기": "5분당 1회"
+  },
+  "checklist": [
+    "1_보존기간",
+    "2_페이지크기",
+    "3_페이지네이션",
+    "4_ratelimit",
+    "5_수정주가",
+    "6_타임존과캔들기준",
+    "7_거래량의미",
+    "8_휴장일응답",
+    "9_모의계좌",
+    "10_오류코드체계",
+    "11_거래정지액면분할",
+    "12_즉시재조회재현성"
+  ],
+  "findings": {
+    "1_보존기간": {
+      "status": "측정됨",
+      "사다리": [
+        {
+          "영업일전": 5,
+          "일자": "2026-07-27",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20260727"
+          ]
+        },
+        {
+          "영업일전": 20,
+          "일자": "2026-07-03",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20260703"
+          ]
+        },
+        {
+          "영업일전": 60,
+          "일자": "2026-05-06",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20260506"
+          ]
+        },
+        {
+          "영업일전": 120,
+          "일자": "2026-02-03",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20260203"
+          ]
+        },
+        {
+          "영업일전": 180,
+          "일자": "2025-11-06",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20251106"
+          ]
+        },
+        {
+          "영업일전": 240,
+          "일자": "2025-08-06",
+          "데이터": true,
+          "rows": 120,
+          "msgCd": "MCA00000",
+          "dateHonored": true,
+          "응답일자": [
+            "20250806"
+          ]
+        },
+        {
+          "영업일전": 300,
+          "일자": "2025-05-12",
+          "데이터": false,
+          "rows": 0,
+          "msgCd": "MCA00000",
+          "dateHonored": null,
+          "응답일자": []
+        }
+      ],
+      "경계": {
+        "마지막가용일": "2025-07-29",
+        "그이전": "2025-07-28",
+        "영업일수": 246
+      },
+      "문서값": "최대 1년 분봉 보관",
+      "주석": "★ 백필 일정 전체가 여기 달렸다. 경계는 오늘 기준이며 매일 하루씩 밀린다"
+    },
+    "2_페이지크기": {
+      "status": "측정됨",
+      "rowsPerCall": 120,
+      "문서값": "실전 120건",
+      "일치": true
+    },
+    "3_페이지네이션": {
+      "status": "측정됨",
+      "방식": "시각 커서 (FID_INPUT_HOUR_1 갱신)",
+      "커서값": "132100",
+      "다음페이지행수": 120,
+      "더과거를주는가": true,
+      "겹침건수": 1,
+      "주석": "커서는 응답의 최소 시각. 겹침이 있으면 수집기가 중복을 걸러야 한다"
+    },
+    "4_ratelimit": {
+      "status": "측정됨",
+      "버스트": [
+        {
+          "동시호출": 8,
+          "소요초": 4.31,
+          "실효초당": 1.9,
+          "거부": 0,
+          "거부샘플": []
+        },
+        {
+          "동시호출": 16,
+          "소요초": 7.21,
+          "실효초당": 2.2,
+          "거부": 0,
+          "거부샘플": []
+        }
+      ],
+      "거부발생": false,
+      "주석": "거부가 없으면 상한이 이 지점보다 높다는 뜻일 뿐 상한을 잰 것이 아니다. 순차 호출은 초당 0.5회라 상한 근처에도 못 간다 — 배치 크기는 여기서 얻은 하한이 아니라 여유를 두고 정한다"
+    },
+    "5_수정주가": {
+      "status": "확정",
+      "분봉구간고가": 242000,
+      "분봉구간저가": 238000,
+      "a2a일봉": {
+        "ticker": "005930",
+        "date": "2026-08-03",
+        "open": 248000,
+        "high": 249500,
+        "low": 238000,
+        "close": 239500,
+        "volume": 27825493
+      },
+      "주석": "이 호출은 120건이라 하루 전체가 아니다. 고저 비교는 참고값이며 확정은 하루 전체를 모은 뒤다. 엔드포인트에 수정주가 파라미터가 없다는 사실이 더 강한 신호다",
+      "수정주가파라미터": "없음 (FID_* 목록에 adjust 계열 없음)",
+      "파생일봉": {
+        "open": 248000,
+        "high": 249500,
+        "low": 238000,
+        "close": 239500,
+        "volume": 27392691
+      },
+      "OHLC일치": true,
+      "확정": "수정주가 축",
+      "기준일": "2025-10-02",
+      "표본수": 14,
+      "축이갈린종목수": 1,
+      "판정사례": {
+        "ticker": "348080",
+        "일자": "2025-10-02",
+        "수정주가종가": 8327,
+        "원주가종가": 953,
+        "분봉종가": 8327,
+        "판정": "수정주가 축",
+        "a2a종가": 8327
+      },
+      "표본": [
+        {
+          "ticker": "000020",
+          "수정주가종가": 6370,
+          "원주가종가": 6370,
+          "갈림": false
+        },
+        {
+          "ticker": "003570",
+          "수정주가종가": 72600,
+          "원주가종가": 72600,
+          "갈림": false
+        },
+        {
+          "ticker": "008870",
+          "수정주가종가": 59700,
+          "원주가종가": 59700,
+          "갈림": false
+        },
+        {
+          "ticker": "017510",
+          "수정주가종가": 9410,
+          "원주가종가": 9410,
+          "갈림": false
+        },
+        {
+          "ticker": "032830",
+          "수정주가종가": 159100,
+          "원주가종가": 159100,
+          "갈림": false
+        },
+        {
+          "ticker": "043220",
+          "수정주가종가": 171,
+          "원주가종가": 171,
+          "갈림": false
+        },
+        {
+          "ticker": "058850",
+          "수정주가종가": 3010,
+          "원주가종가": 3010,
+          "갈림": false
+        },
+        {
+          "ticker": "077970",
+          "수정주가종가": 39550,
+          "원주가종가": 39550,
+          "갈림": false
+        },
+        {
+          "ticker": "094170",
+          "수정주가종가": 17700,
+          "원주가종가": 17700,
+          "갈림": false
+        },
+        {
+          "ticker": "122450",
+          "수정주가종가": 3900,
+          "원주가종가": 3900,
+          "갈림": false
+        },
+        {
+          "ticker": "181710",
+          "수정주가종가": 28200,
+          "원주가종가": 28200,
+          "갈림": false
+        },
+        {
+          "ticker": "228850",
+          "수정주가종가": 5840,
+          "원주가종가": 5840,
+          "갈림": false
+        },
+        {
+          "ticker": "290520",
+          "수정주가종가": 1493,
+          "원주가종가": 1493,
+          "갈림": false
+        },
+        {
+          "ticker": "348080",
+          "수정주가종가": 8327,
+          "원주가종가": 953,
+          "갈림": true
+        }
+      ]
+    },
+    "6_타임존과캔들기준": {
+      "status": "측정됨",
+      "요청일자": "2026-08-03",
+      "응답일자집합": [
+        "20260803"
+      ],
+      "시각최소": "132100",
+      "시각최대": "153000",
+      "정렬": "내림차순",
+      "간격종류": [
+        100,
+        1100,
+        4100
+      ],
+      "주석": "09:00 개장. 첫 캔들 시각이 090000이면 시작시각, 090100이면 종료시각 기준으로 읽는다",
+      "하루첫시각": "090000",
+      "하루끝시각": "153000",
+      "판정": "시작시각 기준 (09:00 캔들이 있다)",
+      "장전시간외포함": false
+    },
+    "7_거래량의미": {
+      "status": "측정됨",
+      "필드": "cntg_vol",
+      "구간합": 8994776,
+      "단조증가": false,
+      "판정": "구간(그 1분)",
+      "output1_acml_vol": "20546010",
+      "주석": "단조증가면 누적이다. naver 경로는 실측에서 누적이었다",
+      "하루합": 27392691,
+      "a2a일거래량": 27825493,
+      "비율": 0.9844,
+      "확정": "구간(그 1분) — 합이 일거래량과 맞는다"
+    },
+    "8_휴장일응답": {
+      "status": "측정됨",
+      "휴장일": "2026-08-02",
+      "http": 200,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "dateHonored": false,
+      "형태": "요청 무시 · 다른 날짜 반환",
+      "응답일자": [
+        "20260731"
+      ],
+      "주석": "'조회하지 않음'과 '조회했더니 없음'은 다르다(교훈75). 휴장일이 빈 응답인지 다른 날짜로 대체되는지가 수집기의 결손 기록 방식을 가른다"
+    },
+    "9_모의계좌": {
+      "status": "미측정",
+      "이유": "모의계좌 앱키가 없다. 실전 키로는 잴 수 없다",
+      "필요조건": "모의계좌를 추가신청해 별도 앱키를 받아야 한다"
+    },
+    "10_오류코드체계": {
+      "status": "측정됨",
+      "사례": {
+        "없는종목": {
+          "http": 200,
+          "rtCd": "0",
+          "msgCd": "MCA00000",
+          "msg": "정상처리 되었습니다.",
+          "rows": 0,
+          "sentDate": "20260803",
+          "respDates": [],
+          "dateHonored": null
+        },
+        "잘못된시장코드": {
+          "http": 200,
+          "rtCd": "2",
+          "msgCd": "OPSQ2001",
+          "msg": "ERROR INVALID FID_COND_MRKT_DIV_CODE",
+          "rows": 0,
+          "sentDate": "20260803",
+          "respDates": [],
+          "dateHonored": null
+        },
+        "미래일자": {
+          "http": 200,
+          "rtCd": "0",
+          "msgCd": "MCA00000",
+          "msg": "정상처리 되었습니다.",
+          "rows": 120,
+          "sentDate": "20990101",
+          "respDates": [
+            "20260807"
+          ],
+          "dateHonored": false
+        },
+        "형식오류일자": {
+          "http": 200,
+          "rtCd": "0",
+          "msgCd": "MCA00000",
+          "msg": "정상처리 되었습니다.",
+          "rows": 120,
+          "sentDate": "notadate",
+          "respDates": [
+            "20260807"
+          ],
+          "dateHonored": false
+        },
+        "하이픈일자": {
+          "http": 200,
+          "rtCd": "0",
+          "msgCd": "MCA00000",
+          "msg": "정상처리 되었습니다.",
+          "rows": 120,
+          "sentDate": "2026-08-03",
+          "respDates": [
+            "20260807"
+          ],
+          "dateHonored": false
+        }
+      },
+      "주석": "모르는 실패의 기본값은 재시도 가능이다(교훈56). 이 표는 '재시도 불가'로 분류할 코드만 확정하는 데 쓴다. 가장 위험한 것은 rt_cd=0으로 오는 실패다 — 잘못된 일자 형식이 오류가 아니라 '다른 날짜의 정상 응답'이 된다"
+    },
+    "11_거래정지액면분할": {
+      "status": "미측정",
+      "이유": "단발 호출로는 '과거 값이 바뀌는가'를 잴 수 없다. 이것은 T1(7일)의 질문이다",
+      "T1로이관": true
+    },
+    "12_즉시재조회재현성": {
+      "status": "측정됨",
+      "동일": true,
+      "행수": [
+        120,
+        120
+      ],
+      "주석": "T0는 '지금 두 번 부르면 같은가'다. '며칠 뒤 다시 받으면 같은가'는 T1이다"
+    }
+  },
+  "evidence": {
+    "baseCall": {
+      "http": 200,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "elapsed": 2.099,
+      "sentDate": "20260803",
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    "output1Fields": [
+      "acml_tr_pbmn",
+      "acml_vol",
+      "hts_kor_isnm",
+      "prdy_ctrt",
+      "prdy_vrss",
+      "prdy_vrss_sign",
+      "stck_prdy_clpr",
+      "stck_prpr"
+    ],
+    "output2Fields": [
+      "acml_tr_pbmn",
+      "cntg_vol",
+      "stck_bsop_date",
+      "stck_cntg_hour",
+      "stck_hgpr",
+      "stck_lwpr",
+      "stck_oprc",
+      "stck_prpr"
+    ],
+    "output2SampleFirst": {
+      "stck_bsop_date": "20260803",
+      "stck_cntg_hour": "153000",
+      "stck_prpr": "239500",
+      "stck_oprc": "239500",
+      "stck_hgpr": "239500",
+      "stck_lwpr": "239500",
+      "cntg_vol": "2698728",
+      "acml_tr_pbmn": "6632429616750"
+    },
+    "output2SampleLast": {
+      "stck_bsop_date": "20260803",
+      "stck_cntg_hour": "132100",
+      "stck_prpr": "241750",
+      "stck_oprc": "240750",
+      "stck_hgpr": "242000",
+      "stck_lwpr": "240750",
+      "cntg_vol": "111989",
+      "acml_tr_pbmn": "4502920907500"
+    },
+    "thinTicker": {
+      "ticker": "000020",
+      "rows": 120,
+      "rtCd": "0",
+      "msg": "정상처리 되었습니다.",
+      "시각최소": "120800",
+      "시각최대": "153000",
+      "거래량0인분": 0
+    },
+    "fullDay": {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "pages": 5,
+      "분캔들수": 381,
+      "첫시각": "090000",
+      "끝시각": "153000",
+      "파생일봉": {
+        "open": 248000,
+        "high": 249500,
+        "low": 238000,
+        "close": 239500,
+        "volume": 27392691
+      },
+      "a2a일봉": {
+        "ticker": "005930",
+        "date": "2026-08-03",
+        "open": 248000,
+        "high": 249500,
+        "low": 238000,
+        "close": 239500,
+        "volume": 27825493
+      }
+    }
+  },
+  "callCount": 53,
+  "calls": [
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:19 KST",
+      "http": 200,
+      "elapsed": 2.099,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "132100",
+      "past": "Y",
+      "at": "2026-08-09 18:27:22 KST",
+      "http": 200,
+      "elapsed": 1.881,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:24 KST",
+      "http": 200,
+      "elapsed": 2.035,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-02",
+      "sentDate": "20260802",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:28 KST",
+      "http": 200,
+      "elapsed": 1.935,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260731"
+      ],
+      "dateHonored": false
+    },
+    {
+      "ticker": "999999",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:30 KST",
+      "http": 200,
+      "elapsed": 2.081,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:32 KST",
+      "http": 200,
+      "elapsed": 1.887,
+      "rtCd": "2",
+      "msgCd": "OPSQ2001",
+      "msg": "ERROR INVALID FID_COND_MRKT_DIV_CODE",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "20990101",
+      "sentDate": "20990101",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:34 KST",
+      "http": 200,
+      "elapsed": 2.061,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260807"
+      ],
+      "dateHonored": false
+    },
+    {
+      "ticker": "005930",
+      "date": "notadate",
+      "sentDate": "notadate",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:36 KST",
+      "http": 200,
+      "elapsed": 2.093,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260807"
+      ],
+      "dateHonored": false
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "2026-08-03",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:38 KST",
+      "http": 200,
+      "elapsed": 2.212,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260807"
+      ],
+      "dateHonored": false
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-07-27",
+      "sentDate": "20260727",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:41 KST",
+      "http": 200,
+      "elapsed": 2.178,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260727"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-07-03",
+      "sentDate": "20260703",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:43 KST",
+      "http": 200,
+      "elapsed": 2.299,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260703"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-05-06",
+      "sentDate": "20260506",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:46 KST",
+      "http": 200,
+      "elapsed": 1.94,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260506"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-02-03",
+      "sentDate": "20260203",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:48 KST",
+      "http": 200,
+      "elapsed": 1.958,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260203"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-11-06",
+      "sentDate": "20251106",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:50 KST",
+      "http": 200,
+      "elapsed": 1.955,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20251106"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-08-06",
+      "sentDate": "20250806",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:52 KST",
+      "http": 200,
+      "elapsed": 2.009,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20250806"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-05-12",
+      "sentDate": "20250512",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:54 KST",
+      "http": 200,
+      "elapsed": 2.14,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-06-25",
+      "sentDate": "20250625",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:56 KST",
+      "http": 200,
+      "elapsed": 1.931,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-07-16",
+      "sentDate": "20250716",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:27:58 KST",
+      "http": 200,
+      "elapsed": 2.032,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-07-25",
+      "sentDate": "20250725",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:01 KST",
+      "http": 200,
+      "elapsed": 2.189,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-07-31",
+      "sentDate": "20250731",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:03 KST",
+      "http": 200,
+      "elapsed": 1.956,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20250731"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-07-29",
+      "sentDate": "20250729",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:05 KST",
+      "http": 200,
+      "elapsed": 2.054,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20250729"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2025-07-28",
+      "sentDate": "20250728",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:07 KST",
+      "http": 200,
+      "elapsed": 1.988,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 0,
+      "respDates": [],
+      "dateHonored": null
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 2.917,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 2.952,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 3.005,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 3.032,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 4.137,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 4.182,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 4.257,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:10 KST",
+      "http": 200,
+      "elapsed": 4.265,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.189,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.27,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.276,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.237,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.282,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.276,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.347,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.314,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.721,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.924,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 6.97,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 7.003,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 7.01,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 7.025,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 7.102,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:16 KST",
+      "http": 200,
+      "elapsed": 7.162,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "000020",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:25 KST",
+      "http": 200,
+      "elapsed": 2.166,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:27 KST",
+      "http": 200,
+      "elapsed": 1.857,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "132100",
+      "past": "Y",
+      "at": "2026-08-09 18:28:29 KST",
+      "http": 200,
+      "elapsed": 2.09,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "112200",
+      "past": "Y",
+      "at": "2026-08-09 18:28:32 KST",
+      "http": 200,
+      "elapsed": 2.037,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "092300",
+      "past": "Y",
+      "at": "2026-08-09 18:28:34 KST",
+      "http": 200,
+      "elapsed": 1.986,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260731",
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "005930",
+      "date": "2026-08-03",
+      "sentDate": "20260803",
+      "hour": "090000",
+      "past": "Y",
+      "at": "2026-08-09 18:28:36 KST",
+      "http": 200,
+      "elapsed": 2.022,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20260731",
+        "20260803"
+      ],
+      "dateHonored": true
+    },
+    {
+      "ticker": "348080",
+      "date": "2025-10-02",
+      "sentDate": "20251002",
+      "hour": "153000",
+      "past": "Y",
+      "at": "2026-08-09 18:29:42 KST",
+      "http": 200,
+      "elapsed": 1.978,
+      "rtCd": "0",
+      "msgCd": "MCA00000",
+      "msg": "정상처리 되었습니다.",
+      "rows": 120,
+      "respDates": [
+        "20251002"
+      ],
+      "dateHonored": true
+    }
+  ]
+}
