@@ -62,6 +62,54 @@
     "correctionHandling": "unresolved"
   },
 
+  "universeTiers": {
+    "note": "MN-1.0 §6.3. collectionTier는 전부 Broad다 — 유니버스 선정으로 Raw 수집을 거르지 않는다. 오늘 Core가 아닌 종목의 오늘치가 사라지면 그 종목이 나중에 Core가 되어도 이력을 만들 수 없다.",
+    "turnoverWindowTradingDays": 60,
+    "turnoverSource": "a2a daily close x volume, median",
+    "boundaryNote": "경계는 §6.2 커버리지 실측에서 나왔다. 절벽은 20억 근처이며 100억 이상은 커버리지 1.000·최장결측 2분이다. 종목 수는 분기마다 달라지므로 계약에 박지 않는다.",
+    "tiers": [
+      {
+        "bucket": "200억이상", "minTurnoverEok": 200, "maxTurnoverEok": null,
+        "analysisTier": "Core", "collectionTier": "Broad",
+        "backfill246d": "yes", "signalEligible": true, "signalCaveat": null,
+        "reason": "LIQUIDITY_TIER_CORE",
+        "measured": "커버리지 중앙값 1.000 · p10 0.995 · 최장결측 최대 2분"
+      },
+      {
+        "bucket": "50~200억", "minTurnoverEok": 50, "maxTurnoverEok": 200,
+        "analysisTier": "Extended", "collectionTier": "Broad",
+        "backfill246d": "on-demand", "signalEligible": true, "signalCaveat": null,
+        "reason": "LIQUIDITY_TIER_EXTENDED",
+        "measured": "커버리지 중앙값 0.993 · p10 0.971 · 최장결측 최대 4분"
+      },
+      {
+        "bucket": "20~50억", "minTurnoverEok": 20, "maxTurnoverEok": 50,
+        "analysisTier": "Conditional", "collectionTier": "Broad",
+        "backfill246d": "on-request", "signalEligible": true,
+        "signalCaveat": "중반 세션 커버리지 0.956. 하루 총 결측 14분. 품질 경고와 함께 쓴다",
+        "reason": "LIQUIDITY_TIER_CONDITIONAL",
+        "measured": "커버리지 중앙값 0.962 · p10 0.887 · 최장결측 최대 5분"
+      },
+      {
+        "bucket": "5~20억", "minTurnoverEok": 5, "maxTurnoverEok": 20,
+        "analysisTier": "QualityLimited", "collectionTier": "Broad",
+        "backfill246d": "no", "signalEligible": true,
+        "signalCaveat": "지표군별로 갈린다. opening range·마감은 성립하나 중반 의존 지표(VWAP·이동평균)는 깨진다. 중반 커버리지 0.836 · 최장결측 p90 12분",
+        "reason": "LIQUIDITY_TIER_QUALITY_LIMITED",
+        "measured": "커버리지 중앙값 0.844 · p10 0.556"
+      },
+      {
+        "bucket": "5억미만", "minTurnoverEok": 0, "maxTurnoverEok": 5,
+        "analysisTier": "SignalExcluded", "collectionTier": "Broad",
+        "backfill246d": "no", "signalEligible": false,
+        "signalCaveat": "일반 신호 생성에 부적합. Raw는 보존한다 — 유동성이 오르면 그때 이력이 필요하다",
+        "reason": "LIQUIDITY_TIER_SIGNAL_EXCLUDED",
+        "measured": "커버리지 중앙값 0.424 · p10 0.173 · 최장결측 중앙 20분"
+      }
+    ],
+    "qualityJudgementNote": "품질 판정은 종목 단위가 아니라 (종목, 지표군) 단위다. 결측이 중반에 몰리므로 같은 종목에서 opening range는 성립하고 VWAP은 깨질 수 있다."
+  },
+
   "gapReason": {
     "note": "왜 시장 데이터가 없는가다. 수집이 왜 실패했는가(failureClass)와 다른 축이다. 섞으면 일시적 장애가 영구 결손으로 기록된다.",
     "values": ["HALT", "PRE_LIST", "DELISTED", "HOLIDAY", "EMPTY", "NOT_QUERIED"]

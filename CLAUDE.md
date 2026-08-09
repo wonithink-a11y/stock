@@ -28,11 +28,14 @@ Validated against
              상시 VM(Oracle Always Free) · 블록 볼륨(주) + Object Storage(사본)
              ★ 유휴 회수 조항: 7일간 CPU p95 20% 미만이면 인스턴스가 회수된다
                우리 워크로드가 정확히 걸린다. PAYG 업그레이드 여부는 사람의 결정
-           A Collector v1 구현 완료 2026-08-09 — 회귀 37건, 네트워크 불필요
+           A Collector v1 + 유니버스 스냅샷 완료 2026-08-09 — 회귀 48+20건
+             parquet 왕복 실증 · 결정적 쓰기 · 저장 실측 행당 10.95B
              scripts/collect-minute-kis.py · config/policies/minute.v1.json
              요청일자 게이트(P0) · EGW00201 재시도·backoff · resume · manifest
              gapReason(왜 데이터가 없나)과 failureClass(왜 수집이 실패했나)를 가른다
              T1이 정할 것은 policy.pendingT1에 격리 — 기본값을 확정으로 읽지 않는다
+             scripts/build-minute-universe.py — selectedAt 스냅샷. 미래참조 차단
+             Core 182 · Extended 208 · Conditional 233 (2026-08-03 기준)
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
            A1 VM 프로비저닝 + pyarrow(ARM 휠) 확인 — 둘 다 미착수. 여기가 막혀 있다
               parquet writer는 pyarrow가 없으면 rawPath를 비우고 writerError를 남긴다
@@ -43,9 +46,10 @@ Validated against
            C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
                             alotMatter만으로 availableWeight 0.4475→0.68 (임계 0.6)
            D A2b 수집 실행  (PR-1.4는 A2a 재실행 사유가 아니다)
-  분봉     단기 트랙은 설계만 끝났고 코드가 없다. A3가 닫혀 시작 가능하다
-           소스 KIS 단일 · naver는 알림 유지 · Raw는 저장소 밖(parquet)
-           Execution Environment · Storage Provider · 약관 Q1/Q2가 미결정
+  분봉     MN-1.0에 TBD가 없다. 남은 미결은 약관 Q1/Q2(§7)와 T1 정책뿐이다
+           소스 KIS 단일 · naver는 알림 유지 · Raw는 저장소 밖(parquet zstd)
+           parquet 쓰기는 결정적이다(실측) — sha256으로 재빌드 동일성을 증명한다
+           저장 규모 실측 행당 10.95B · Broad 연 1.52GB · Core 백필 0.18GB
 ```
 
 `git log --oneline 44972a4..HEAD -- lib scripts config .github`가 비어 있지 않으면
@@ -170,6 +174,7 @@ python scripts/test-analyze-a3.py       # A3 품질 분석기·QR-1.0 리포트 
 python scripts/test-pick-artifacts.py   # 샤드 아티팩트 선택 (재실행 시 어느 시도가 사는가)
 node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리·리졸버
 python scripts/test-collect-minute-kis.py  # 분봉 Collector v1 (합성 픽스처, 네트워크 불필요)
+python scripts/test-minute-universe.py     # 분봉 유니버스 스냅샷 PIT (합성 픽스처)
 
 # A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
 # 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.
