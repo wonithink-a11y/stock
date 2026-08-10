@@ -275,25 +275,97 @@ def run_all(M=None):
             check("계약 변경 시 resume 거부", True)
 
         # 14 검증기 — 중복·OHLC·일자
-        bad = [{"ticker": "111111", "ts": "2026-08-03T09:00+09:00", "open": 10,
-                "high": 20, "low": 5, "close": 15, "volume": 1},
-               {"ticker": "111111", "ts": "2026-08-03T09:00+09:00", "open": 10,
-                "high": 20, "low": 5, "close": 15, "volume": 1}]
-        v = M.validate_rows(bad, date, pol)
+        def row(ts, o, h, l, c, v_=1, tk="111111"):
+            return {"ticker": tk, "ts": "2026-08-03T" + ts + "+09:00",
+                    "open": o, "high": h, "low": l, "close": c, "volume": v_}
+
+        bad = [row("09:00", 10, 20, 5, 15), row("09:00", 10, 20, 5, 15)]
+        v, _ = M.validate_rows(bad, date, pol)
         check("중복 키를 잡는다",
               any(x["why"] == "duplicateKey" for x in v), v)
 
-        bad2 = [{"ticker": "111111", "ts": "2026-08-03T09:00+09:00", "open": 10,
-                 "high": 5, "low": 8, "close": 15, "volume": 1}]
-        v2 = M.validate_rows(bad2, date, pol)
-        check("OHLC 모순을 잡는다",
-              any(x["why"] == "ohlcInconsistent" for x in v2), v2)
+        v2, _ = M.validate_rows([row("09:00", 10, 5, 8, 15)], date, pol)
+        check("low > high를 잡는다",
+              any(x["why"] == "lowAboveHigh" for x in v2), v2)
 
         bad3 = [{"ticker": "111111", "ts": "2026-07-31T09:00+09:00", "open": 10,
                  "high": 20, "low": 5, "close": 15, "volume": 1}]
-        v3 = M.validate_rows(bad3, date, pol)
+        v3, _ = M.validate_rows(bad3, date, pol)
         check("다른 날짜 행을 잡는다",
               any(x["why"] == "dateMismatch" for x in v3), v3)
+
+        # 14b 09:00의 open 면제 — 실측 2026-08-10 (3일 중 2일이 이것으로 떨어졌다)
+        # 09:00 봉의 open은 시가단일가 체결가라 그 1분의 [low,high] 밖일 수 있다.
+        # 소스가 약속하지 않은 것을 단언하면 정상 데이터가 위반이 된다.
+        # 면제가 어디까지인지를 여기서 못 박는다 - 넓어지면 진짜 손상이 숨는다.
+        v4, o4 = M.validate_rows([row("09:00", 6880, 6810, 6810, 6810, 63)],
+                                 date, pol)       # 실측 036220
+        check("09:00의 open이 high 위여도 위반이 아니다", not v4, v4)
+        check("면제한 것을 관측치로 센다",
+              o4.get("openOutOfRangeAtSessionOpen") == 1, o4)
+
+        v5, o5 = M.validate_rows([row("09:00", 9360, 9420, 9390, 9420, 603)],
+                                 date, pol)       # 실측 272550 (아래로 벗어남)
+        check("09:00의 open이 low 아래여도 위반이 아니다 (양방향)", not v5, v5)
+        check("아래로 벗어난 것도 관측치로 센다",
+              o5.get("openOutOfRangeAtSessionOpen") == 1, o5)
+
+        # ★ 면제는 09:00 하나뿐이다. 여기가 새면 A의 근거가 사라진다.
+        v6, o6 = M.validate_rows([row("09:01", 6880, 6810, 6810, 6810)],
+                                 date, pol)
+        check("09:01의 open 범위 이탈은 여전히 위반",
+              any(x["why"] == "openOutOfRange" for x in v6), v6)
+        check("09:01은 관측치로 새지 않는다", not o6, o6)
+        v7, _ = M.validate_rows([row("15:30", 100, 90, 90, 90)], date, pol)
+        check("종가단일가(15:30)도 면제 대상이 아니다",
+              any(x["why"] == "openOutOfRange" for x in v7), v7)
+
+        # ★ close는 09:00에서도 강제된다. 실측 5건 모두 close는 범위 안이었다.
+        v8, _ = M.validate_rows([row("09:00", 6810, 6810, 6810, 9999)],
+                                date, pol)
+        check("09:00이어도 close 범위 이탈은 위반",
+              any(x["why"] == "closeOutOfRange" for x in v8), v8)
+        v9, _ = M.validate_rows([row("09:00", 6880, 6810, 6820, 6815)],
+                                date, pol)
+        check("09:00이어도 low > high는 위반",
+              any(x["why"] == "lowAboveHigh" for x in v9), v9)
+
+        # 14c 면제가 인수 조건까지 통과시키는가 (실운영에서 깨진 자리다)
+        opened = candles(sent)
+        opened[0]["stck_oprc"] = "99999"       # 09:00 봉의 open만 범위 밖으로
+        res_ex = M.run_day(FakeTransport({("111111", sent): opened}),
+                           ["111111"], date, pol, base_ctx(),
+                           tmp / "exempt", tmp / "exemptst",
+                           sleeper=slept.append)
+        check("09:00 이상치가 있어도 하루가 인수 조건을 통과한다",
+              res_ex["acceptancePassed"],
+              [c for c in res_ex["manifest"]["acceptance"] if not c["통과"]])
+        check("manifest가 면제 건수를 들고 있다",
+              res_ex["manifest"]["observations"]
+              .get("openOutOfRangeAtSessionOpen") == 1,
+              res_ex["manifest"]["observations"])
+
+        # 14d 정책이 계약을 단일 출처로 들고 있는가
+        val = pol.get("validation") or {}
+        check("면제 시각이 정책에 리터럴로 있다",
+              val.get("openWithinRangeExemptMinutes") == ["09:00"],
+              val.get("openWithinRangeExemptMinutes"))
+        check("면제 사유가 실측과 함께 적혀 있다",
+              "2026-08-10" in str(val.get("openWithinRangeExemptNote")))
+        check("close·low<=high는 정책에서도 강제로 남아 있다",
+              val.get("requireCloseWithinRange") is True
+              and val.get("requireLowLeHigh") is True, val)
+        check("정책 버전이 올라갔다 (완화는 버전 승격으로만)",
+              pol["version"] == "MN-1.1", pol["version"])
+        # collectionContract가 안 바뀌어야 이미 모은 것을 다시 쓸 수 있다.
+        check("면제가 collectionContract를 건드리지 않았다",
+              "validation" not in pol["collectionContract"]
+              and set(pol["collectionContract"]) == {
+                  "note", "marketDivCode", "pageSize", "pageSizeNote",
+                  "cursorField", "cursorSeed", "pastDataFlag", "fakeTickFlag",
+                  "sessionMinutes", "sessionMinutesNote",
+                  "retentionTradingDays", "retentionNote"},
+              sorted(pol["collectionContract"]))
 
         # 15 parquet 왕복 — 저장 계층을 실증한다
         # 쓰는 것만 보고 넘어가면 '저장했다'와 '되읽을 수 있다'가 갈린다.

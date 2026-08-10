@@ -1,6 +1,10 @@
 {
-  "version": "MN-1.0",
+  "version": "MN-1.1",
   "note": "분봉 수집 정책. 계약 문서는 docs/MN-1.0-분봉Raw저장계약.md다. 이 파일은 수집기가 읽는 값만 담는다.",
+  "versionHistory": {
+    "MN-1.1": "2026-08-10. validation 블록 추가 - 09:00 봉의 open 불변식을 면제하고 관측치로 센다. collectionContract는 건드리지 않았으므로 resume 상태가 그대로 살고 재수집이 필요 없다.",
+    "MN-1.0": "2026-08-09. 최초."
+  },
   "market": "KR",
   "source": "KIS",
   "endpoint": "inquire_time_dailychartprice",
@@ -148,6 +152,19 @@
       "UNKNOWN"
     ],
     "dateMismatchNote": "DATE_MISMATCH는 전송 실패가 아니라 '그 날짜에 데이터가 없다'는 증거다. 재시도해도 같으므로 gapReason으로 승격한다"
+  },
+  "validation": {
+    "note": "행 단위 불변식. 소스가 약속한 것만 강제한다 - 약속하지 않은 것을 단언하면 정상 데이터가 위반으로 잡힌다. 실측으로 3일 중 2일이 이것 때문에 떨어졌다(2026-08-10).",
+    "requireLowLeHigh": true,
+    "requireCloseWithinRange": true,
+    "requireOpenWithinRange": true,
+    "openWithinRangeExemptMinutes": [
+      "09:00"
+    ],
+    "openWithinRangeExemptNote": "실측 2026-08-10. 08-06 2건(036220 6880>6810 · 063440 1130>1129) · 08-07 3건(272550 9360<9390 · 378850 2740>2735 · 400760 2940>2935) / 종목 약 2,453. 09:00 봉의 open은 시가단일가 체결가이고 H·L·C·V는 그 직후 연속 체결 구간의 집계다. 둘이 갈리는 종목에서 open이 [low,high] 밖으로 나간다. 위로 4건 아래로 1건이라 한쪽으로 치우친 계산 오류가 아니며, 09:01 이후로는 한 건도 없다. 다섯 건 모두 close는 범위 안이었다 - 깨지는 것은 open 하나뿐이다.",
+    "exemptMinutesNote": "리터럴 목록으로 고정한다. '장 시작 캔들'처럼 적으면 세션 정의가 바뀔 때 조용히 범위가 달라진다(교훈59).",
+    "exemptionIsObserved": true,
+    "exemptionIsObservedNote": "면제는 눈감는 것이 아니다. 면제한 건수를 manifest의 observations에 남긴다. 지금 하루 2~3건인 것이 500건이 되면 다른 일이 벌어진 것이고, 그것을 보려면 세고 있어야 한다."
   },
   "acceptance": {
     "note": "하루치 수집이 인수 조건을 통과했는가. 실패하면 parquet를 쓰지 않는다(교훈43).",

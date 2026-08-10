@@ -379,8 +379,20 @@ def collect_symbol_day(transport, ticker, date, pol, ctx, sleeper=time.sleep,
 # ---------------------------------------------------------------- 검증
 
 def validate_rows(rows, date, pol):
-    """스키마·중복·일자를 본다. 위반을 말하고 복구는 말하지 않는다(교훈74)."""
-    v = []
+    """스키마·중복·일자·OHLC를 본다. 위반을 말하고 복구는 말하지 않는다(교훈74).
+
+    (위반, 관측)을 돌려준다.
+
+    OHLC 불변식을 셋으로 가른 이유는 개수가 원인을 지목하지 못하기
+    때문이다(교훈67). 'ohlcInconsistent' 하나로는 low>high(진짜 손상)와
+    09:00의 open(소스의 표기 방식)이 같은 칸에 들어간다. 둘은 대응이 전혀
+    다르다 - 하나는 수집을 멈출 일이고 하나는 세어 두기만 할 일이다.
+
+    관측은 계약이 면제한 것을 그래도 센 것이다. 면제는 눈감는 것이 아니다.
+    """
+    val = pol.get("validation") or {}
+    exempt = set(val.get("openWithinRangeExemptMinutes") or [])
+    v, obs = [], {}
     d = dashed(date)
     keys = set()
     for i, r in enumerate(rows):
@@ -393,12 +405,23 @@ def validate_rows(rows, date, pol):
         if k in keys:
             v.append({"row": i, "why": "duplicateKey", "key": list(k)})
         keys.add(k)
-        if not (r["low"] <= r["open"] <= r["high"]
-                and r["low"] <= r["close"] <= r["high"]):
-            v.append({"row": i, "why": "ohlcInconsistent", "key": list(k)})
+
+        if val.get("requireLowLeHigh", True) and r["low"] > r["high"]:
+            v.append({"row": i, "why": "lowAboveHigh", "key": list(k)})
+        if (val.get("requireCloseWithinRange", True)
+                and not (r["low"] <= r["close"] <= r["high"])):
+            v.append({"row": i, "why": "closeOutOfRange", "key": list(k)})
+        if not (r["low"] <= r["open"] <= r["high"]):
+            # 09:00의 open은 시가단일가 체결가라 그 1분의 체결 범위 밖일 수
+            # 있다. 소스가 약속하지 않은 것을 위반으로 세지 않는다.
+            if str(r["ts"])[11:16] in exempt:
+                obs["openOutOfRangeAtSessionOpen"] = (
+                    obs.get("openOutOfRangeAtSessionOpen", 0) + 1)
+            elif val.get("requireOpenWithinRange", True):
+                v.append({"row": i, "why": "openOutOfRange", "key": list(k)})
         if r["volume"] < 0:
             v.append({"row": i, "why": "negativeVolume", "key": list(k)})
-    return v
+    return v, obs
 
 
 def acceptance(outcomes, row_count, violations, date, pol):
@@ -420,7 +443,7 @@ def acceptance(outcomes, row_count, violations, date, pol):
         {"미해결": len(unresolved), "전체": n, "비율": round(rate, 4),
          "상한": acc["maxUnresolvedRate"]})
 
-    add("스키마·중복·일자 위반 0", len(violations) == 0,
+    add("스키마·중복·일자·OHLC 위반 0", len(violations) == 0,
         {"위반": len(violations), "샘플": violations[:3]})
 
     unknown_gap = [o.gap_reason for o in outcomes
@@ -649,7 +672,7 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
             for f in stage_dir.glob("part-*.parquet"):
                 f.unlink()
 
-    parts, violations = list(carried), []
+    parts, violations, observations = list(carried), [], {}
     row_count = sum(p["rows"] for p in carried)
     err = None
     keep = [] if keep_rows else None
@@ -660,8 +683,13 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
         if not buf:
             return
         buf.sort(key=lambda r: (r["ticker"], r["ts"]))
+        # 검증은 항상 돌린다. 상한은 '보관하는 표본'에만 건다 - 검증 자체를
+        # 건너뛰면 관측치가 20건 이후로 조용히 멈춘다.
+        vv, oo = validate_rows(buf, date, pol)
         if len(violations) < 20:
-            violations.extend(validate_rows(buf, date, pol)[:20])
+            violations.extend(vv[:20])
+        for ok_, on_ in oo.items():
+            observations[ok_] = observations.get(ok_, 0) + on_
         row_count += len(buf)
         pth, e = write_parquet(buf, date, out_root, part=part_i,
                                subdir=staging)
@@ -746,6 +774,10 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
     man["symbolsWithRows"] = sum(1 for o in outcomes if o.status == "OK")
     man["symbolsNotQueried"] = sum(1 for o in outcomes
                                    if o.gap_reason == "NOT_QUERIED")
+    man["observations"] = observations
+    man["observationsNote"] = ("이 실행이 검증한 행에 대한 수치다. 재개된 날은 "
+                               "이월 조각을 다시 검증하지 않으므로 앞 실행의 "
+                               "_failed manifest가 나머지를 들고 있다.")
     if err:
         man["writerError"] = err
     return {"outcomes": outcomes, "rows": keep, "rowCount": row_count,
