@@ -1,5 +1,5 @@
 {
-  "version": "FN-1.4",
+  "version": "FN-1.5",
   "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다.",
   "market": "KR",
 
@@ -246,6 +246,111 @@
   "coverageNote": "coverageRate는 requiredForCoverage 5계정이 모두 잡힌 레코드의 비율이다. CLAUDE.md 절대 규칙 1의 '커버리지 60% 미만이면 등급 유보'와 같은 숫자를 쓰되 층이 다르다 — 저쪽은 종목별 지표 결측률이고 이쪽은 수집 단계의 계정 확보율이다. 같은 값으로 둔 것은 우연이 아니라, 수집 커버리지가 그 아래로 떨어지면 하류에서 어차피 전건 유보가 되므로 그 지점을 수집 단계에서 먼저 보이게 하려는 것이다.",
 
   "yearCoverageDropNote": "BF-1.1 §7 A3 계약 2('특정 연도만 급락하면 실패')의 구현이다. 전체 평균이 아니라 인접 연도 대비 낙폭을 본다 — 평균만 보면 한 해가 무너져도 나머지 열 해가 가린다. FN-1.0에서는 WARN이고, 첫 수집 실측 후 FAIL로 승격한다.",
+
+  "a3b": {
+    "note": "FN-1.5 신설. A3b(배당·주당순이익)는 A3와 골격·일 한도·샤드 예산을 공유하고 소스만 다르다. 계약 전문은 docs/A3b-1.0-배당EPS계약.md이며, 여기 있는 것만 A3b가 덮어쓴다. A3가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 건드리지 않는다 — PR-1.4가 a2b 블록을 추가하면서 A2a를 재실행하지 않은 것과 같은 모양이다.",
+    "source": {
+      "endpoint": "alotMatter.json",
+      "reprtCode": "11011",
+      "callsPerCorpYear": 1,
+      "thstrmOnly": true,
+      "thstrmOnlyNote": "당기(thstrm) 열만 쓴다. alotMatter도 frmtrm·lwfr을 함께 주므로 A3와 같은 유혹이 있고, 현행 scripts/fetch-fundamentals-kr.js의 fetchDividend는 실제로 3개 연도를 다 읽는다. A3b는 그러지 않는다 — 전기·전전기 값의 availableFrom은 '그 보고서의 접수일'이라 과거 연도를 실제보다 늦게 안 것으로 기록하게 된다(교훈47).",
+      "epsPreference": ["(연결)주당순이익", "(별도)주당순이익", "주당순이익"],
+      "dividendPreference": ["주당현금배당금"],
+      "dividendStockKndPreference": ["보통주"],
+      "preferenceNote": "응답 행의 se 라벨로 선별한다. 정찰 실측(28셀): (연결)주당순이익 27 · 주당순이익 1. (별도)주당순이익은 아직 관측되지 않았다 — 순서에 넣어 두되 미관측이며 본 수집이 분포를 남긴다. A3의 fsDivPreference(CFS→OFS)와 같은 형태다.",
+      "probedNote": "정찰 32호출 중 28셀 응답(2026-08-11, data/backfill/_probe-fundamentals-a3b.json). rcept_no 존재·형식·응답 내 단일값 28/28, stlm_dt 존재·파싱 28/28, PIT 방향 after 28/28, A3 rceptNo 일치 28/28. 이 블록의 확정은 그 실측이다."
+    },
+    "grid": {
+      "mode": "a3ReuseAndScanMissing",
+      "reuseFrom": "data/backfill/fundamentals/a3",
+      "scanMissingCorps": true,
+      "estimatedCalls": 26400,
+      "modeNote": "A3가 보고서를 찾은 (corp, fiscalYear) 24,750셀을 그대로 조회하고, A3 데이터가 없는 798법인은 조기 종료 규칙으로 스캔한다(법인당 2~3호출, 약 1,600건). 전체 격자 재탐색(약 30,700)보다 싸면서 목표 집단을 빠짐없이 덮는다. 798을 넣는 이유 둘: 그 안에 현재 상장 15법인이 있고 그들이 목표 집단이며, A3 진단이 599법인의 조회 여부를 남기지 않아 지금 '조회 안 함'과 '조회했더니 없음'이 구분되지 않는다(교훈75). 이 스캔이 그것을 실측으로 닫는다."
+    },
+    "pointInTime": {
+      "availableFromSource": "rcept_no",
+      "availableFromRule": "rcept_no 앞 8자리(YYYYMMDD)를 접수일로 읽는다",
+      "periodEndSource": "stlm_dt",
+      "contract": "availableFrom > periodEnd",
+      "contractNote": "A3의 계약 1과 같은 방향이며 정찰이 실측으로 확정했다(after 28/28). 뒤집으면 백테스트에 look-ahead가 들어간다.",
+      "periodEndFormatNote": "정찰 실측은 'YYYY-MM-DD' 단일값 28/28이었다. A3의 thstrm_dt가 '2023.12.31 현재' 같은 문장형이었던 것과 다르다. 그래도 파서는 형태를 가정하지 않고 문자열에서 마지막 날짜를 캐며 원문을 진단에 남긴다 — 한 번의 관측을 성질로 읽지 않는다.",
+      "borrowFromA3": false,
+      "borrowFromA3Note": "A3의 availableFrom을 빌려 쓰지 않는다. alotMatter는 rcept_no로 조회할 수 없어 A3가 본 것과 다른 정정본을 받을 수 있고, 그때 A3의 접수일을 붙이면 그 시점에 없던 값을 그 시점에 알았다고 기록하게 된다. 대신 A3의 rceptNo와 대조해 진단에 남긴다 — 두 값이 독립 조회에서 나오므로 동어반복이 아니다(교훈72). 정찰 28/28 일치는 오늘의 관측이지 성질이 아니다."
+    },
+    "dividend": {
+      "semantics": "threeWay",
+      "semanticsNote": "정찰 실측에서 주당현금배당금 행은 28/28 오는데 값이 숫자인 것은 16/28이었다. 행은 늘 오고 값이 빈다 — 무배당 기업이 그렇다. 그래서 세 갈래로 남긴다.\n\n  행 있음·값 숫자   dividendRowPresent true  · dividendPerShare <숫자>\n  행 있음·값 없음   dividendRowPresent true  · dividendPerShare 0      무배당. 관측된 사실\n  행 없음          dividendRowPresent false · dividendPerShare null   결측\n\n0과 null을 합치면 배당을 안 주는 회사가 전부 결측으로 잡혀 유보가 되고, null을 0으로 읽으면 조회 못 한 것을 무배당으로 단정한다. 둘 다 틀리다.\n\n절대 규칙 1(결측에 기본점수 금지)과 어긋나지 않는다 — 기본점수를 주는 것이 아니라 관측된 사실을 사실대로 적는 것이고, 그것을 어떻게 채점할지는 A5가 정한다. A3b는 원천 상태를 보존하고 A5가 판정한다.",
+      "epsEmptyIsNull": true,
+      "epsEmptyIsNullNote": "eps는 배당과 다르다. 행이 있는데 값이 비면 null이다 — '주당순이익 0'은 관측 가능한 값이므로 빈 값을 0으로 읽으면 서로 다른 두 상태가 섞인다."
+    },
+    "scanRecord": {
+      "recordEmptyCells": true,
+      "recordEmptyCellsNote": "스캔한 (corp, fiscalYear)는 결과가 없어도 남긴다. 빈 dict도 남긴다. A3는 build-fundamentals-a3.py:967의 'if gaps … else pop' 때문에 798법인 중 599의 조회 여부가 기록에 없고, 같은 파일 주석이 '빈 dict를 두면 스캔했으나 사유 없음과 스캔 안 함이 같은 모양이 된다'고 이미 적어 뒀다. A3b는 그 실수를 반복하지 않는다(교훈75).",
+      "values": ["OK", "013", "EARLY_STOP", "OTHER_STATUS"]
+    },
+    "collectionContract": {
+      "fields": [
+        "a3b.source.endpoint",
+        "a3b.source.reprtCode",
+        "a3b.source.epsPreference",
+        "a3b.source.dividendPreference",
+        "a3b.grid.mode",
+        "a3b.pointInTime.availableFromSource",
+        "a3b.pointInTime.periodEndSource",
+        "fiscalYearFrom",
+        "fiscalYearTo",
+        "stopAfterConsecutiveEmptyYears"
+      ],
+      "note": "resume 호환 판정의 단일 출처다. 판단 기준은 A3와 같다 — '이 값이 달랐다면 어제와 다른 수집 결과가 나왔는가?'. acceptance 임계·quota·retry·output은 여기 없다. 특히 quota가 없으므로 FN-1.4의 shardBudgetMode 변경이 A3b의 resume도 깨지 않는다."
+    },
+    "acceptance": {
+      "rceptNoPresentRateMin": 0.99,
+      "pitContractViolations": 0,
+      "availableFromMissing": 0,
+      "periodEndMissing": 0,
+      "dateContractViolations": 0,
+      "corpContractViolations": 0,
+      "duplicateKeys": 0,
+      "scannedCellsMismatch": 0,
+      "epsNumericRateWarn": 0.85,
+      "epsRowFoundRateWarn": 0.95,
+      "currentListedEpsRateWarn": 0.95
+    },
+    "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것과 이분적 지표만이다. rceptNoPresentRateMin 0.99는 A3의 periodEndParsedRateMin과 같은 부류다 — 응답 형식이 바뀌면 서서히 나빠지지 않고 통째로 무너지므로 '전부 아니면 전무' 사이의 빈 구간에 긋는다(FN-1.4 절차 §2.1). scannedCellsMismatch는 격자(입력)와 scannedCells(응답)가 다른 출처라 구성상 참이 아니다(교훈72).\n\n나머지는 WARN으로 시작한다. 정찰 28셀은 표본이라 게이트의 기준선이 될 수 없고, 첫 전수 수집이 a3b.measured를 채운 뒤 FN-1.4 절차의 도출식으로 승격한다. WARN 초기값은 정찰 실측(epsNumericRate 0.93 · epsRowFoundRate 1.0)보다 낮게 두되 그 값에서 유도하지 않았다 — 표본에서 유도하면 임계가 실측처럼 보이는 추정이 된다.",
+    "notGated": {
+      "dividendRowFound": "정찰 28/28 = 1.0. 항상 참이라 통과가 정보를 주지 않는다(교훈61). 게이트로 만들면 무엇도 막지 못하면서 통과가 건강으로 읽힌다.",
+      "dividendNumericRate": "첫 관측 0.57. 낮은 이유가 무배당이라 커버리지가 아니라 회사 구성의 함수다 — 배당 정책이 바뀌면 움직인다. 게이트로 걸면 시장 구성 변화가 데이터 품질 실패로 둔갑한다(FN-1.4 절차 §2.3).",
+      "delistedEpsRate": "A3b의 성공 판정 대상이 아니다. 목표는 현재 상장 종목의 운영 채점 확보이고 폐지 법인 재무 복구는 범위 밖이다(브리프 §5). measured에 기록만 한다."
+    },
+    "revalidate": {
+      "enabled": true,
+      "fromOutput": ["pitContractViolations", "duplicateKeys", "dateContractViolations",
+                     "corpContractViolations", "epsNumericRate", "dividendThreeWayDistribution",
+                     "currentListedEpsRate"],
+      "requiresState": ["scannedCells", "dartStatusDistribution", "rceptNoPresentRate"],
+      "note": "커밋된 산출물만으로 다시 판정할 수 있는 항목과 상태가 있어야 잴 수 있는 항목을 갈라 선언한다. A3는 finalize가 샤드를 지워 FN-1.4 승격 때 재판정할 길이 없었고(재수집 3~4일이라 하지 않기로 했다), A3b가 같은 구조를 물려받으면 다음 승격에서 같은 벽에 선다. 샤드 보존 정책은 바꾸지 않는다 — 대신 무엇이 가능한지를 미리 안다. requiresState 쪽은 산출물에 없는 행이 이유를 말하지 않기 때문이다(교훈75)."
+    },
+    "output": {
+      "dir": "data/backfill/fundamentals/a3b",
+      "stateDir": "data/backfill/fundamentals/_shards_a3b",
+      "partition": "fiscalYear",
+      "format": "jsonl.gz",
+      "gzipMtime": 0,
+      "gzipCompressLevel": 9,
+      "sortKey": ["fiscalYear", "corp", "availableFrom"],
+      "fields": ["corp", "ticker", "fiscalYear", "availableFrom", "rceptNo", "periodEnd",
+                 "eps", "epsSource", "dividendRowPresent", "dividendPerShare",
+                 "dividendStockKnd"],
+      "outputNote": "A3와 디렉터리를 분리한다. 같은 디렉터리면 manifest 디렉터리 해시가 두 단계를 한 덩어리로 묶어 한쪽 재수집이 다른 쪽 하류까지 재실행시킨다(BF-1.1이 A2a/A2b에 대해 정한 것과 같은 이유). 샤드 경로도 분리한다 — 겹치면 A3 finalize가 A3b 샤드를 병합한다."
+    },
+    "manifest": {
+      "stage": "A3b",
+      "upstream": ["A1a", "A1b", "A3"],
+      "policies": ["universe", "fundamentals"],
+      "upstreamNote": "A3를 선언하는 이유는 격자가 A3 산출물에서 오기 때문이다. 선언하지 않으면 어느 A3 스냅샷의 격자로 모았는지 기록이 없고, A3가 재수집돼도 verifyUpstream이 그 drift를 보지 못한다(A1b가 base인 A0.7을 선언하는 것과 같은 이유). REQUIRED_UPSTREAM.A5에 A3b를 넣을지는 별도 결정이며 A5 운영 게이트 4(A4 재정규화)와 함께 정한다."
+    }
+  },
 
   "output": {
     "dir": "data/backfill/fundamentals/a3",
