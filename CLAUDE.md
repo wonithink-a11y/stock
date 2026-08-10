@@ -50,9 +50,11 @@ Validated against
              EGW00201 0건 · 기존 모니터 생존 · OOM 없음
              → Broad 2,559종목 환산 약 40분/일
            A 첫 Broad 수집 완료 2026-08-10 — VM 상시화 가동
+             08-04 ~ 08-10 5영업일. 셋은 실측 기록이 있다
              08-06 583,593행 · 08-07 576,024행 · 08-10 606,218행
              하루 약 22분 (T0 예측 40분보다 빠름) · 종목 약 2,455/2,579
              피크 메모리 103.8MB / 한도 320MB · 기존 모니터 생존
+             인수 조건 실패 뒤 재개해도 행 수가 동일 — 스테이징 이월 실증
            A 정책 MN-1.1 승격 2026-08-10 — 09:00 봉 open 불변식 면제
              3일 중 2일이 58만 행 중 2~3건으로 인수 조건에 떨어졌다
              전부 09:00의 open · 양방향(위 4 아래 1) · close는 5/5 정상
@@ -68,13 +70,19 @@ Validated against
                resume이 스테이징을 지워 이미 받은 행을 잃던 것
                alive-monitor가 낡은 캘린더의 마지막 거래일에 고정되던 것
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 VM에서 install-vm.sh 실행 ← 여기. MN-1.0 부록 5번부터
-              코드는 다 있다. 남은 것은 VM에서 도는 것뿐이다
-           A2 사람의 결정 둘 — swap 0 유지 여부 · Oracle PAYG 업그레이드
-              하루 40분으로는 CPU p95 20%에 못 미쳐 유휴 회수 대상이다
-           A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
+           A1 T1 정찰 7일 (§6.1) ← 여기. 재현성이 핵심
+              독립 검증 체계가 이것을 기다린다 (AI 협업 구조 절)
               pendingT1 블록만 승격하면 된다. 코드는 안 고친다
-           A4' Core 182종목 246일 백필은 T1 결과 뒤 (≈224,000호출)
+           A2 manifest 승격 파이프라인 미구현 (AI 협업 구조 절)
+              VM → Object Storage → Actions 대조 → commit
+              그때까지 분봉 manifest는 VM에만 있고 GitHub 정본에 없다
+              ★ VM의 MINUTE_MANIFEST_DIR이 아직 저장소 안을 가리킨다
+                staging으로 옮겨야 결정과 일치한다 (collector.env 한 줄)
+           A3 사람의 결정 둘 — swap 0 유지 여부 · Oracle PAYG 업그레이드
+              하루 22분으로는 CPU p95 20%에 못 미쳐 유휴 회수 대상이다
+              MemoryMax=320M을 걸어 OOM 대상이 수집기가 되게 했으므로
+              swap은 급하지 않다. PAYG는 7일 시계가 08-10부터 돈다
+           A4 Core 182종목 246일 백필은 T1 결과 뒤 (≈224,000호출)
            B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
                             A3 재수집 불필요 — 임계는 collectionContract에 없다
            C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
@@ -114,6 +122,85 @@ Validated against
    그래야 파일 해시가 바뀌고 manifest에 흔적이 남는다.
 7. **`static/index.html` 전체를 읽지 않는다** (116KB). grep으로 구간만 본다.
 8. npm 프로젝트가 아니다. 빌드·타입체크가 없으므로 문법 오류는 런타임에야 드러난다.
+
+---
+
+## AI 협업 구조 (확정 2026-08-10)
+
+Claude Code 외에 **ChatGPT**(설계·계약 검토, 진입 규칙은 `CHATGPT.md`)와
+**모두의 AI 실험실**(독립 실행·검증)이 있고, **VM이 매일 자동으로 산출물을 만든다.**
+GitHub `main`이 공통 정본이다 — 다른 주체의 작업을 기억이나 추측으로 다루지 않고
+시작 전에 Git 상태와 관련 문서를 확인한다.
+
+### 정본을 쓰는 주체는 하나다
+
+VM은 매일 도는 생산 시스템이다. 여기에 GitHub write 권한을 주면 두 번째 자동
+writer가 생긴다. **VM에 GitHub 자격증명을 넣지 않는다.** 자격증명이 없어지는 것이
+아니라 폭발 반경이 줄어든다 — 객체 저장소 토큰은 산출물까지지만 GitHub 토큰은
+코드·정책·히스토리를 다시 쓴다.
+
+```
+VM        수집 → staging / Object Storage (parquet + manifest)
+            ↓
+Actions   산출물과 대조 → 승격 → commit     ← Git writer는 여기 하나뿐
+            ↓
+GitHub main
+```
+
+**★ manifest를 만드는 것과 승격하는 것은 다르다.** 인수 조건은 응답을 본 수집기만
+계산할 수 있다 — 미해결 비율·gapReason·dayVerdict는 parquet 안에 없다(교훈75).
+그러므로 manifest는 VM이 만들고 Actions는 그것을 산출물과 대조(sha256·rows·스키마)해
+승격한다. **Actions가 인수 조건을 다시 계산하지 않는다 — 잴 수단이 없다.**
+
+이 구조로 규칙 4는 그대로 유효하다(VM은 Git에 쓰지 않는다).
+**아직 미구현이다.** 그때까지 분봉 manifest는 VM에만 있고 GitHub에 없다.
+
+### 같은 작업에서 생산자와 검증자를 겸하지 않는다
+
+'실험실 = 검증자'로 두면 실험실이 백필을 생산할 때 자기 산출물을 자기가 검증하게
+된다(교훈72의 조직판). 주체가 아니라 **작업 단위**로 가른다.
+
+```
+실험실이 생산한 백필   → Claude 인수 조건·회귀 + 사람
+Claude가 생산한 수집   → 실험실 독립 재실행 + ChatGPT 계약 대조
+```
+
+독립 재현 검증은 **T1 재현성 정찰(MN-1.0 §6.1) 이후에** 본격화한다. 그 전에는 두
+실행의 차이가 결함인지 소스의 정상 변동인지 가릴 수 없고, 대개 구현자를 의심하게 된다.
+
+### Git 규칙
+
+판단이 아니라 게이트로 막는다. 실제로 non-fast-forward가 났고, 막은 것은 규율이
+아니라 git이었다(2026-08-10).
+
+```
+force push 금지 · --force-with-lease 도 금지
+push 거절 → 상대 commit의 변경 파일 확인 → 겹치면 중지하고 보고
+                                       → 안 겹치면 rebase → 재검증 → push
+push된 히스토리를 다시 쓰지 않는다. 되돌릴 일은 revert로 앞으로 간다
+(아직 push하지 않은 로컬 커밋의 rebase는 허용)
+```
+
+### 쓰기 권한은 경로가 정한다
+
+'누가 무엇을 담당한다'는 겹칠 때 해석이 갈리고 '누가 어디에 쓰는가'는 갈리지 않는다.
+
+| 경로 | Writer |
+|---|---|
+| `scripts/` · `lib/` · `deploy/` · `.github/` | Claude |
+| `config/policies/` | Claude (사용자 승인 후. 규칙 6) |
+| `config/criteria/` | 없음 — 동결 (규칙 5) |
+| `docs/*계약*.md` | Claude가 구현 반영 · ChatGPT는 지적만 |
+| `CLAUDE.md` | Claude |
+| `CHATGPT.md` | ChatGPT |
+| `docs/data/` · `data/backfill/` | GitHub Actions |
+| VM staging · Object Storage | VM |
+| `docs/verification/` | 실험실 |
+
+**실험실의 검증 결과를 `data/backfill/**/manifest/`에 쓰지 않는다.** 그러면 manifest가
+'생산자가 인수 조건을 통과시켰다'에서 '누군가 통과했다고 말한다'로 바뀐다.
+
+계약·아키텍처 변경은 구현과 별개의 결정이며 사용자 승인 없이 하지 않는다.
 
 ---
 
