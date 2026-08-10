@@ -1,0 +1,193 @@
+name: backfill-fundamentals-a3b
+
+# A3b — 배당·주당순이익 (BF-1.1 · FN-1.5). 계약은 docs/A3b-1.0-배당EPS계약.md.
+#
+#   mode: collect    오늘 예산만큼 수집 → data/backfill/fundamentals/_shards_a3b/ 커밋
+#   mode: finalize   전 샤드 병합 → 인수 조건 → 산출물 + manifest → _shards_a3b/ 삭제
+#
+# A3와 샤드 디렉터리를 분리한다 — 겹치면 A3 finalize가 A3b 샤드를 병합한다.
+# 일 한도는 A3와 같은 DART 키를 쓰므로 **A3 수집과 같은 날 돌리지 않는다**
+# (shard_budget은 한 단계 안의 샤드끼리만 나눈다 — build-fundamentals-a3.py 주석 참조).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'collect = 오늘 예산만큼 수집 · finalize = 병합·검증·산출'
+        required: true
+        default: collect
+        type: choice
+        options: [collect, finalize]
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-fundamentals-a3b
+  cancel-in-progress: false      # 수집 중 취소하면 그날 쓴 호출이 상태에 안 남는다
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: '8'
+
+jobs:
+  collect:
+    if: inputs.mode == 'collect'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      # fail-fast를 끈다. 한 샤드가 죽어도 나머지가 오늘 몫을 마치는 편이 낫다 —
+      # 부분 진행이 상태에 남아 다음 실행이 이어받는다(A3와 같은 판단).
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4        # 이전 실행이 커밋한 _shards_a3b/를 가져온다
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 110
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/build-fundamentals-a3b.py --shard ${{ matrix.shard }} --shards $SHARDS
+
+      # 자기 샤드의 파일만 올린다. 디렉터리째 올리면 남의 상태 파일이 섞이고,
+      # 병합 스텝이 낡은 사본으로 최신 상태를 덮어쓴다(A3가 밟은 자리다).
+      - name: Upload shard ${{ matrix.shard }}
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a3b-shard-${{ matrix.shard }}-a${{ github.run_attempt }}
+          path: |
+            data/backfill/fundamentals/_shards_a3b/_state-${{ matrix.shard }}.json
+            data/backfill/fundamentals/_shards_a3b/shard-${{ matrix.shard }}.jsonl
+            data/backfill/fundamentals/_shards_a3b/_diagnostics-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+
+  commit-shards:
+    needs: collect
+    # if: success()가 아니다. 한 샤드가 죽어도 나머지 샤드가 오늘 쓴 호출은 상태에
+    # 남아야 한다 — 안 남기면 그 호출이 사라지고 다음 실행이 처음부터 다시 한다.
+    # CLAUDE.md의 'commit 스텝은 if: success()' 규칙은 산출물·manifest에 대한 것이고
+    # 여기는 진행 상태다. finalize 잡의 Commit은 그대로 if: success()다.
+    if: ${{ !cancelled() && inputs.mode == 'collect' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: _artifacts
+          pattern: a3b-shard-*
+
+      # 같은 샤드가 재시도되면 아티팩트가 여럿이다. 가장 많이 진행된 것을 고른다.
+      - name: Pick best attempt per shard
+        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards_a3b
+
+      - name: Commit shards
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/fundamentals/_shards_a3b)" ]; then
+            git add data/backfill/fundamentals/_shards_a3b
+            git commit -m "chore(backfill): A3b 샤드 진행 상태"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
+
+  finalize:
+    if: inputs.mode == 'finalize'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Finalize
+        env:
+          A3B_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-fundamentals-a3b.py --finalize
+
+      - name: Verify diagnostics contract
+        # 계약 표는 scripts/verify-diagnostics.js에 있다 — 워크플로마다 복사하지 않는다.
+        run: node scripts/verify-diagnostics.js A3b
+
+      - name: Regression
+        run: python scripts/test-fundamentals-a3b.py
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/fundamentals/a3b
+          test -n "$(ls $D/*.jsonl.gz 2>/dev/null)" || { echo "산출물 없음 — 스크립트 계약 위반"; exit 1; }
+          EXTRA=$(python - <<'PY'
+          import json
+          d = json.load(open('data/backfill/fundamentals/a3b/_diagnostics.json',
+                             encoding='utf-8'))
+          keys = ['plannedCells', 'scannedCells', 'gridMode', 'epsNumericRate',
+                  'currentListedEpsRate', 'currentListedCorps',
+                  'dividendThreeWayDistribution', 'rceptNoVsA3',
+                  'rceptNoPresentRate', 'callsTotal']
+          out = {k: d[k] for k in keys if k in d}
+          out['recordCount'] = d['rowCount']
+          print(json.dumps(out, ensure_ascii=False))
+          PY
+          )
+          echo "a3b manifest extra: $EXTRA"
+          node scripts/write-manifest.js \
+            --stage A3b --stageVersion A3b.0 \
+            --target data/backfill/fundamentals/a3b --kind dir --ext .jsonl.gz \
+            --upstream A1a,A1b,A3 \
+            --policies universe,fundamentals \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fundamentals-a3b-diagnostics
+          path: data/backfill/fundamentals/a3b/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 성공했으므로 샤드는 지운다. 남겨두면 전체 데이터의 사본이 저장소에 쌓인다.
+          # 임계를 올린 뒤의 재판정은 --revalidate 가 산출물만으로 한다(계약 §9).
+          rm -rf data/backfill/fundamentals/_shards_a3b
+          if [ -n "$(git status --porcelain data/backfill/fundamentals data/backfill/manifest)" ]; then
+            git add -A data/backfill/fundamentals data/backfill/manifest
+            git commit -m "chore(backfill): A3b 배당·주당순이익"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

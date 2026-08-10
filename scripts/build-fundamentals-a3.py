@@ -424,11 +424,19 @@ def shard_path(shard):
     return f"{SHARD_DIR}/shard-{shard}.jsonl"
 
 
-def shard_budget(pol, shards, shard, my_used, today):
+def shard_budget(pol, shards, shard, my_used, today, state_dir=None):
     """오늘 이 샤드가 쓸 수 있는 누적 호출 상한. (budget, detail)을 돌려준다.
 
-    A3b도 같은 격자·같은 일 한도를 쓰므로 순수 함수로 둔다 — 복사하면 정책은
-    하나인데 구현이 둘이 된다(build-price-a2b.py가 A2a 함수를 가져다 쓰는 것과 같은 이유).
+    A3b도 같은 일 한도를 쓰므로 순수 함수로 둔다 — 복사하면 정책은 하나인데 구현이
+    둘이 된다(build-price-a2b.py가 A2a 함수를 가져다 쓰는 것과 같은 이유).
+    `state_dir`로 상태 디렉터리를 갈라 받는다: A3b는 자기 샤드끼리 나눠야 하므로
+    A3의 상태를 읽으면 안 된다.
+
+    ★ 한계 — 이 함수는 **한 단계 안의** 샤드끼리만 나눈다. A3와 A3b가 같은 날 함께
+    돌면 각자 (dailyCallLimit − safetyMarginCalls)를 자기 것으로 보고 합이 한도를
+    넘는다. safetyMarginCalls는 운영 워크플로의 겹침을 흡수하도록 잡은 값이지 두
+    백필의 겹침이 아니다. 지금은 A3 수집이 끝나 겹치지 않으며, 겹칠 일이 생기면
+    단계 간 배분을 먼저 정한다.
 
     activeShards 가 8등분을 대신하는 이유는 마지막 샤드가 항상 뒤처지는데 그때
     예산의 87.5%가 놀기 때문이다. 2026-08-07 실측에서 샤드 6에 1,478건이 필요했고
@@ -449,12 +457,13 @@ def shard_budget(pol, shards, shard, my_used, today):
         raise ValueError(f"quota.shardBudgetMode '{mode}' — 허용값은 equalSplit·activeShards뿐이다")
 
     used_today, active = 0, 0
+    sdir = state_dir or SHARD_DIR
     for s in range(shards):
         if s == shard:
             used_today += my_used
             active += 1                     # 자기 자신은 지금 돌고 있으므로 활성이다
             continue
-        p = state_path(s)
+        p = f"{sdir}/_state-{s}.json"
         if not os.path.exists(p):
             # 아직 한 번도 안 돈 샤드. 활성으로 세면 활성 수가 커져 내 몫이 줄어든다 —
             # 모르는 것을 과다 배분 쪽으로 해석하지 않는다(교훈57).

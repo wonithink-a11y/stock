@@ -265,7 +265,9 @@
       "mode": "a3ReuseAndScanMissing",
       "reuseFrom": "data/backfill/fundamentals/a3",
       "scanMissingCorps": true,
+      "plannedCells": 33528,
       "estimatedCalls": 26400,
+      "cellsVsCallsNote": "격자 셀 33,528과 실제 호출 약 26,400은 다른 수다. 미확보 798법인은 격자에 전 사업연도(11개)가 들어가지만 조기 종료가 걸려 법인당 2~3호출에서 멈춘다. 셀은 전부 scanned에 기록되고(EARLY_STOP 포함) 호출은 그보다 적다 — 그래서 scannedCellsMismatch는 셀 기준이고 예산은 호출 기준이다.",
       "modeNote": "A3가 보고서를 찾은 (corp, fiscalYear) 24,750셀을 그대로 조회하고, A3 데이터가 없는 798법인은 조기 종료 규칙으로 스캔한다(법인당 2~3호출, 약 1,600건). 전체 격자 재탐색(약 30,700)보다 싸면서 목표 집단을 빠짐없이 덮는다. 798을 넣는 이유 둘: 그 안에 현재 상장 15법인이 있고 그들이 목표 집단이며, A3 진단이 599법인의 조회 여부를 남기지 않아 지금 '조회 안 함'과 '조회했더니 없음'이 구분되지 않는다(교훈75). 이 스캔이 그것을 실측으로 닫는다."
     },
     "pointInTime": {
@@ -312,6 +314,7 @@
       "dateContractViolations": 0,
       "corpContractViolations": 0,
       "duplicateKeys": 0,
+      "corpsIncomplete": 0,
       "scannedCellsMismatch": 0,
       "epsNumericRateWarn": 0.85,
       "epsRowFoundRateWarn": 0.95,

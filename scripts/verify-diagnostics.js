@@ -189,7 +189,45 @@ const CONTRACT = {
     trueFlags: ['sectorNotPointInTime'],
     forbidden: ['smokeTest'],
   },
+
+  'A3b': {
+    file: 'data/backfill/fundamentals/a3b/_diagnostics.json',
+    required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',
+               // 격자 축. A3 산출물에서 읽으므로 몇 셀을 계획했는지가 남아야
+               // scannedCells 와의 대조가 성립한다(A3b-1.0 §3·§7).
+               'gridMode', 'reuseCorps', 'reuseCells', 'missingCorps', 'plannedCells',
+               // ★ 스캔 기록. A3가 빈 gaps를 pop해서 798법인 중 599의 '조회 여부'가
+               // 사라진 자리다. 이 필드가 없으면 같은 공백이 A3b에서 다시 생긴다.
+               'scannedCells', 'scannedCorps', 'dartStatusDistribution', 'rejectReasons',
+               // ★ rceptNoPresentRate 의 분모. 스캔 셀이 아니라 '행이 돌아온 셀'이다 —
+               // 013(보고서 없음)을 분모에 넣으면 '보고서가 없다'가 'rcept_no 를 안
+               // 준다'로 읽힌다. 분모가 없으면 비율을 판정할 수 없다(교훈57).
+               'respondedCells',
+               // PIT 축. A3의 존재 이유와 같고, 조용히 무너지는 축이다.
+               'epsNumericRate', 'pitContractViolationSample',
+               // 배당 세 갈래. 하나로 뭉치면 무배당과 결측이 같은 모양이 된다(§5.1).
+               'dividendThreeWayDistribution',
+               // 목표 집단의 확보율. 전체 비율만 보면 폐지 그룹이 현재 상장을 가린다.
+               'currentListedEpsRate', 'currentListedCorps',
+               // A3 rceptNo 대조. amended 는 정정공시이며 결함이 아니다(§4).
+               'rceptNoVsA3', 'rceptNoPresentRate'],
+    // A3b가 '모른다'고 선언하는 축은 없다 — 대신 스캔 기록이 그 자리를 대신한다.
+    trueFlags: [],
+    forbidden: ['smokeTest'],
+  },
 };
+
+// 표 자체를 먼저 검사한다. 새 단계를 추가하면서 키 이름을 틀리면(file → path 같은)
+// 그 단계에서만 죽는데, 그 순간은 워크플로 한복판이라 이미 수집을 마친 뒤다.
+// 쓰는 시점에 강제하는 편이 읽는 시점의 발견보다 안전하다(교훈73).
+for (const [name, spec] of Object.entries(CONTRACT)) {
+  for (const k of ['file', 'required', 'trueFlags']) {
+    if (spec[k] === undefined) {
+      console.error(`진단 계약 표가 깨졌다: ${name}에 '${k}'가 없다 (키 이름 오타?)`);
+      process.exit(1);
+    }
+  }
+}
 
 const stage = process.argv[2];
 const c = CONTRACT[stage];
