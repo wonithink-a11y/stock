@@ -1,0 +1,1394 @@
+{
+  "probe": "A3b",
+  "probedAt": "2026-08-11T01:30:50+09:00",
+  "endpoint": "alotMatter.json",
+  "reprtCode": "11011",
+  "sampleSpec": {
+    "currentWithA3": {
+      "corps": 10,
+      "years": 2
+    },
+    "delistedWithA3": {
+      "corps": 4,
+      "years": 2
+    },
+    "noA3": {
+      "corps": 4,
+      "years": 1
+    }
+  },
+  "a3IndexSize": 24750,
+  "sample": [
+    {
+      "corp": "00100601",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101549",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101628",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101664",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101752",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100258",
+      "years": [
+        2019,
+        2018
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "years": [
+        2016,
+        2015
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00101257",
+      "years": [
+        2025,
+        2024
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00102681",
+      "years": [
+        2019,
+        2018
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100957",
+      "years": [
+        2024
+      ],
+      "group": "noA3"
+    },
+    {
+      "corp": "00101275",
+      "years": [
+        2024
+      ],
+      "group": "noA3"
+    },
+    {
+      "corp": "00101442",
+      "years": [
+        2024
+      ],
+      "group": "noA3"
+    },
+    {
+      "corp": "00101637",
+      "years": [
+        2024
+      ],
+      "group": "noA3"
+    }
+  ],
+  "plannedCalls": 32,
+  "calls": 32,
+  "observations": [
+    {
+      "corp": "00100601",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 79,
+      "a3RceptNo": "20260320000921",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100601",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 226,
+      "a3RceptNo": "20250814004064",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20260318001400",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20250318001036",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 79,
+      "a3RceptNo": "20260320000881",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250314",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 73,
+      "a3RceptNo": "20250314001189",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260323",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 82,
+      "a3RceptNo": "20260323001613",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 226,
+      "a3RceptNo": "20250814004193",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20260318001176",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250317",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 76,
+      "a3RceptNo": "20250317000859",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20260318001570",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20250318000908",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101549",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 79,
+      "a3RceptNo": "20260320001252",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101549",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 79,
+      "a3RceptNo": "20250320001428",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101628",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20260318000486",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101628",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 79,
+      "a3RceptNo": "20250320001362",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101664",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20260318001475",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101664",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 77,
+      "a3RceptNo": "20250318001404",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101752",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260310",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 69,
+      "a3RceptNo": "20260310003012",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101752",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20251001",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 274,
+      "a3RceptNo": "20251001000321",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": true,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2019,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20200330",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20191231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 90,
+      "a3RceptNo": "20200330001636",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2018,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20190401",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20181231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 91,
+      "a3RceptNo": "20190401004704",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20170810",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20161231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 222,
+      "a3RceptNo": "20170810000569",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(개별)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2015,
+      "dartStatus": "000",
+      "rowCount": 14,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20160516",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2015-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20151231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 137,
+      "a3RceptNo": "20160516003201",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(연결)당기순이익(백만원)",
+        "(연결)현금배당성향(%)",
+        "주당순이익(원)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00101257",
+      "fiscalYear": 2025,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20260715",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20251231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 196,
+      "a3RceptNo": "20260715000525",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": false,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00101257",
+      "fiscalYear": 2024,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20250331",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2024-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20241231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 90,
+      "a3RceptNo": "20250331004254",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": false,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00102681",
+      "fiscalYear": 2019,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20200327",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20191231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 87,
+      "a3RceptNo": "20200327000505",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00102681",
+      "fiscalYear": 2018,
+      "dartStatus": "000",
+      "rowCount": 15,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "rceptNoConsistent": true,
+      "availableFrom": "20190401",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-12-31"
+      ],
+      "stlmDtValues": 1,
+      "periodEnd": "20181231",
+      "periodEndParsable": true,
+      "pitDirection": "after",
+      "disclosureLagDays": 91,
+      "a3RceptNo": "20190401002671",
+      "rceptNoMatchesA3": true,
+      "epsRowFound": true,
+      "epsThstrmNumeric": true,
+      "dividendRowFound": true,
+      "dividendThstrmNumeric": false,
+      "seSample": [
+        "(별도)당기순이익(백만원)",
+        "(연결)당기순이익(백만원)",
+        "(연결)주당순이익(원)",
+        "(연결)현금배당성향(%)",
+        "주당액면가액(원)",
+        "주당주식배당(주)",
+        "주당현금배당금(원)",
+        "주식배당금총액(백만원)",
+        "주식배당수익률(%)",
+        "현금배당금총액(백만원)",
+        "현금배당수익률(%)"
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100957",
+      "fiscalYear": 2024,
+      "dartStatus": "013",
+      "error": "조회된 데이타가 없습니다.",
+      "rowCount": 0,
+      "group": "noA3"
+    },
+    {
+      "corp": "00101275",
+      "fiscalYear": 2024,
+      "dartStatus": "013",
+      "error": "조회된 데이타가 없습니다.",
+      "rowCount": 0,
+      "group": "noA3"
+    },
+    {
+      "corp": "00101442",
+      "fiscalYear": 2024,
+      "dartStatus": "013",
+      "error": "조회된 데이타가 없습니다.",
+      "rowCount": 0,
+      "group": "noA3"
+    },
+    {
+      "corp": "00101637",
+      "fiscalYear": 2024,
+      "dartStatus": "013",
+      "error": "조회된 데이타가 없습니다.",
+      "rowCount": 0,
+      "group": "noA3"
+    }
+  ],
+  "verdict": {
+    "respondedCells": 28,
+    "totalCells": 32,
+    "rceptNoPresentRate": 1.0,
+    "rceptNoFormatOkRate": 1.0,
+    "rceptNoConsistentRate": 1.0,
+    "availableFromParsableRate": 1.0,
+    "stlmDtPresentRate": 1.0,
+    "periodEndParsableRate": 1.0,
+    "epsRowFoundRate": 1.0,
+    "dividendRowFoundRate": 1.0,
+    "pitDirection": {
+      "after": 28
+    },
+    "rceptNoVsA3": {
+      "true": 28
+    },
+    "byGroup": {
+      "currentWithA3": {
+        "cells": 20,
+        "responded": 20,
+        "dartStatus": {
+          "000": 20
+        }
+      },
+      "delistedWithA3": {
+        "cells": 8,
+        "responded": 8,
+        "dartStatus": {
+          "000": 8
+        }
+      },
+      "noA3": {
+        "cells": 4,
+        "responded": 0,
+        "dartStatus": {
+          "013": 4
+        }
+      }
+    },
+    "canAnchorPit": true,
+    "canMeasurePeriodEnd": true,
+    "pitContractDirection": "availableFrom > periodEnd",
+    "opensValuation": true,
+    "blockers": [],
+    "go": true
+  },
+  "elapsedSeconds": 41.9
+}
