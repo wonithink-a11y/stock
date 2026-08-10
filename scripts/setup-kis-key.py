@@ -314,7 +314,14 @@ def main():
         app_key, app_secret = read_from_file(src_file)
     else:
         say("  KIS Developers에서 발급받은 값 두 개를 차례로 넣습니다.")
-        say("  타이핑도 붙여넣기도 하지 않습니다. 복사만 하면 됩니다.")
+        # 안내는 실제로 타는 경로와 같아야 한다. Windows는 클립보드를 읽고
+        # POSIX는 붙여넣기를 받는다 - 문구가 어긋나면 사람이 엉뚱한 조작을 한다.
+        if os.name == "nt":
+            say("  타이핑도 붙여넣기도 하지 않습니다. 복사만 하면 됩니다.")
+        else:
+            say("  터미널에 붙여넣고 Enter를 누릅니다. 화면에는 안 보입니다.")
+            say("  PC의 .env에서 값을 옮기려면 아래가 더 간단합니다:")
+            say("    scp <PC경로>/.env ubuntu@<VM>:~/collector-venv/.env")
         say()
         app_key = read_secret("1/2 앱키(APP KEY)", set())
         app_secret = read_secret("2/2 앱시크릿(APP SECRET)", {app_key})
