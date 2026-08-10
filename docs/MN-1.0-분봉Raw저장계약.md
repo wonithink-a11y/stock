@@ -597,3 +597,37 @@ Feature Engine → Signal Engine → Execution Arbiter → Backtest
 - `docs/A5-1.0-입출력계약.md` — provenance·결측 전파의 선례
 - `lib/backfillManifest.js` — `REQUIRED_UPSTREAM` 표(§5가 손댈 자리)
 - `scripts/intraday-check.js` — naver 알림 경로(§8이 지키는 것)
+
+---
+
+## 부록 — VM 실행 명령 (2026-08-10)
+
+기존 `stock-MonitorAlways`를 쓴다. `/home/ubuntu/stock`(기존 모니터)은 건드리지 않는다.
+
+```
+~/collector        코드 (git clone)
+~/collector-venv   venv · .env · .token_cache_kis.json
+```
+
+```bash
+# 1  코드 갱신
+cd ~/collector && git pull
+
+# 2  키 (한 번만. 값은 대화형으로만 받는다)
+KIS_ENV_PATH=~/collector-venv/.env ~/collector-venv/bin/python3 scripts/setup-kis-key.py --show
+
+# 3  준비 점검
+KIS_ENV_PATH=~/collector-venv/.env ~/collector-venv/bin/python3 scripts/check-vm-readiness.py --symbols 200 --candles 370
+
+# 4  10종목 smoke (GO/NO-GO 자동 판정)
+KIS_ENV_PATH=~/collector-venv/.env KIS_TOKEN_CACHE=~/collector-venv/.token_cache_kis.json \
+  ~/collector-venv/bin/python3 scripts/smoke-minute-kis.py --monitor-pattern home/ubuntu/stock
+
+# 5  유니버스 스냅샷
+~/collector-venv/bin/python3 scripts/build-minute-universe.py --as-of $(date +%F)
+
+# 6  감시 (0=OK 1=STALE 2=PENDING. cron에 그대로 건다)
+~/collector-venv/bin/python3 scripts/alive-monitor.py --deadline 18:00
+```
+
+smoke가 `판정 GO`면 Broad로 간다. 추가 검증 단계를 만들지 않는다.

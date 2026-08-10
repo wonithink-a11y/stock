@@ -36,11 +36,22 @@ Validated against
              T1이 정할 것은 policy.pendingT1에 격리 — 기본값을 확정으로 읽지 않는다
              scripts/build-minute-universe.py — selectedAt 스냅샷. 미래참조 차단
              Core 182 · Extended 208 · Conditional 233 (2026-08-03 기준)
+           A VM 준비 완료 2026-08-10 — 기존 stock-MonitorAlways 사용
+             readiness PASS: pyarrow·zstd·결정적 쓰기·parquet 왕복
+             MemTotal 952MB · MemAvailable 539MB · 조각 피크 RSS 167MB
+             ~/collector (코드) · ~/collector-venv (venv·.env·토큰캐시)
+             기존 /home/ubuntu/stock 은 건드리지 않는다. 앱키도 다른 계좌다
+           A Alive Monitor + smoke 러너 완료 2026-08-10 — 회귀 19+7건
+             scripts/alive-monitor.py   OK/PENDING/STALE · 상태 무저장 · fail-soft
+             scripts/smoke-minute-kis.py  GO/NO-GO 15항목 자동 판정
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 VM 프로비저닝 + pyarrow(ARM 휠) 확인 — 둘 다 미착수. 여기가 막혀 있다
-              parquet writer는 pyarrow가 없으면 rawPath를 비우고 writerError를 남긴다
+           A1 10종목 smoke 실행 ← 여기. VM에서 명령 한 줄
+              통과하면 Broad 200종목(Core)으로 바로 간다. 추가 검증 단계 없음
+           A2 Broad 당일 증분 상시화 (systemd timer 또는 cron)
+              미루면 손실이 하루씩 누적된다. 오늘 안 받은 하루는 못 받는다
            A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
-           A4' Core 182종목 백필은 T1 결과 뒤 (≈224,000호출)
+              pendingT1 블록만 승격하면 된다. 코드는 안 고친다
+           A4' Core 182종목 246일 백필은 T1 결과 뒤 (≈224,000호출)
            B FN-1.4 승격    measured가 생겼다. docs/FN-1.4-measured승격절차.md
                             A3 재수집 불필요 — 임계는 collectionContract에 없다
            C A3b 결정       사람의 판단. docs/A3b-결정브리프.md
