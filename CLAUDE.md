@@ -7,15 +7,24 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 Validated against
   정책      UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5 · MN-1.1
   현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
-  다음      A1 T1 창 진행 중 ← 여기. **창 동안 코드를 동결한다**(MN-1.0 §6.1)
+  T1 창     Day 1 = 2026-08-10. **동결은 커밋 금지다**(MN-1.0 §6.1)
+               동결: probe-t1-minute.py · collect-minute-kis.py ·
+                     minute.v1.json(collectionContract·successGate·retry) ·
+                     data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-               (000880 3일 전부 0행 - 그 축은 값 재현성을 못 잰다)
-            A2 manifest 승격 파이프라인 (VM → Object Storage → Actions 대조)
-               그때까지 분봉 manifest는 VM에만 있고 GitHub 정본에 없다
-            A3 사람의 결정 둘 — swap 0 유지 · Oracle PAYG (유휴 회수 7일 시계)
-            A4 Core 182종목 246일 백필은 T1 결과 뒤 (≈224,000호출)
-            B FN-1.4 승격 · C A3b 결정 · D A2b 수집 — 독립이며 급하지 않다
+  다음      병행 가능 (T1과 독립. 위 동결 파일만 안 건드리면 된다)
+            ① A1a → A1b 갱신 ← 여기. Actions 수동 실행, 이 순서로
+               A1a가 낡으면 그 사이 신규상장이 A1b에서 '폐지'로 분류된다
+               (corpcode에는 있고 current에는 없어 차집합에 걸린다)
+               → A2b가 살아 있는 종목의 폐지 가격을 수집하게 된다
+               분봉 신규상장 누락은 246영업일 안이면 나중에 채울 수 있다
+            ② A2b 수집 실행. A1b 갱신 뒤에. A5 생존편향 제거의 선행 조건
+               naver 경로라 KIS·T1과 유량이 겹치지 않는다
+            ③ A3b 결정 (사람) · ④ FN-1.4 승격 · ⑤ A2 manifest 승격 설계
+            ★ A1a 갱신 후 A2a가 신규상장분만큼 비게 된다. A5 전에 확인한다
+  T1 대기   Core 182종목 246일 백필 (≈224,000호출)
+            calendar.json 재생성 — T1의 분류 입력이다
   완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A5 프레임워크
             분봉 T0·커버리지 정찰 · Collector v1 · 상시화 · 첫 Broad 수집
             실측 수치와 근거는 완료기록·계약 문서에 있다. 여기 옮기지 않는다
