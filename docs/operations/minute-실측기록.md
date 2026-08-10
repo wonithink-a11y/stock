@@ -1,0 +1,82 @@
+# 분봉 트랙 실측 기록 (2026-08-09 ~ 08-10)
+
+`CLAUDE.md` 상태 블록에서 분리했다(2026-08-10). **원문 그대로다.**
+
+옮긴 이유는 토큰이지만, 그냥 지우면 안 되는 것들이 섞여 있다. VM readiness·
+smoke GO·첫 Broad 수집의 실측치는 **다른 문서에 없다.** 설계 근거는 계약 문서
+(`docs/MN-1.0-분봉Raw저장계약.md`)에 있고, 여기에는 '그때 실제로 몇이 나왔는가'가
+있다. 둘은 다른 것이다 — 계약은 무엇을 지켜야 하는가이고 이것은 무엇이 관측됐는가다.
+
+나중에 "왜 MemoryMax가 320M인가", "하루 22분이 맞나"를 되짚을 때 여기를 본다.
+
+---
+
+```
+  완료     A0.5 · A0.7 · A1a · A1b · A2a · **A3** 실행 완료
+           A3 종료 2026-08-08 — 태그 a3-complete → d605297
+             법인 3801/3801 · 레코드 24750 · 2015~2025
+             coverageRate 0.9604 · periodEndParsedRate 1.0
+             인수 조건 acceptancePassed true · FAIL 0 · WARN 0
+             docs/A3-완료기록.md · docs/A3-회고-재사용패턴.md
+           A2b 구현 완료(PR-1.4) — 수집 미실행
+           A4 가용성 확인 완료 (KRX bld 차단 · naver 축 확인, 계약 미정)
+           A5 프레임워크 구현 완료 (lib/a5 — PIT·레지스트리·리졸버, 회귀 45건)
+           A 분봉 T0 정찰 완료 2026-08-09 — MN-1.0 §6 빈칸 9/11 실측
+             보존 246영업일 · 120건/호출 · 시각커서 · 수정주가축(A2a와 동일)
+             캔들 시작시각 기준 · cntg_vol은 구간 · 휴장일은 직전영업일 대체
+             scripts/probe-minute-kis.py · data/backfill/_probe-minute-kis.json
+           A 커버리지 정찰·유니버스 정책 확정 2026-08-09 — MN-1.0 §6.2 · §6.3
+             절벽은 20억. 100억↑ 커버리지 1.000·최장결측 2분. 결측은 중반에 몰린다
+             Core 200억↑ · Extended 50~200 · Conditional 20~50 · Broad 전체
+             수집 대상과 분석 대상을 분리한다 — 유니버스로 Raw를 거르지 않는다
+           A 실행환경 확정 2026-08-09 — MN-1.0 §1.1. 문서에 TBD가 없다
+             상시 VM(Oracle Always Free) · 블록 볼륨(주) + Object Storage(사본)
+             ★ 유휴 회수 조항: 7일간 CPU p95 20% 미만이면 인스턴스가 회수된다
+               우리 워크로드가 정확히 걸린다. PAYG 업그레이드 여부는 사람의 결정
+           A Collector v1 + 유니버스 스냅샷 완료 2026-08-09 — 회귀 48+20건
+             parquet 왕복 실증 · 결정적 쓰기 · 저장 실측 행당 10.95B
+             scripts/collect-minute-kis.py · config/policies/minute.v1.json
+             요청일자 게이트(P0) · EGW00201 재시도·backoff · resume · manifest
+             gapReason(왜 데이터가 없나)과 failureClass(왜 수집이 실패했나)를 가른다
+             T1이 정할 것은 policy.pendingT1에 격리 — 기본값을 확정으로 읽지 않는다
+             scripts/build-minute-universe.py — selectedAt 스냅샷. 미래참조 차단
+             Core 182 · Extended 208 · Conditional 233 (2026-08-03 기준)
+           A VM 준비 완료 2026-08-10 — 기존 stock-MonitorAlways 사용
+             readiness PASS: pyarrow·zstd·결정적 쓰기·parquet 왕복
+             MemTotal 952MB · MemAvailable 539MB · 조각 피크 RSS 167MB
+             ~/collector (코드) · ~/collector-venv (venv·.env·토큰캐시)
+             기존 /home/ubuntu/stock 은 건드리지 않는다. 앱키도 다른 계좌다
+           A Alive Monitor + smoke 러너 완료 2026-08-10 — 회귀 19+7건
+             scripts/alive-monitor.py   OK/PENDING/STALE · 상태 무저장 · fail-soft
+             scripts/smoke-minute-kis.py  GO/NO-GO 15항목 자동 판정
+           A 10종목 smoke GO 2026-08-10 — 15항목 전부 PASS
+             3,810행 = 381 x 10 (결측 0) · 50호출 = 5 x 10 (T0 예측과 일치)
+             9.4초 · 피크 VmHWM 116.5MB / 한도 261.6MB · shaMatch true
+             EGW00201 0건 · 기존 모니터 생존 · OOM 없음
+             → Broad 2,559종목 환산 약 40분/일
+           A 첫 Broad 수집 완료 2026-08-10 — VM 상시화 가동
+             08-04 ~ 08-10 5영업일. 셋은 실측 기록이 있다
+             08-06 583,593행 · 08-07 576,024행 · 08-10 606,218행
+             하루 약 22분 (T0 예측 40분보다 빠름) · 종목 약 2,455/2,579
+             피크 메모리 103.8MB / 한도 320MB · 기존 모니터 생존
+             인수 조건 실패 뒤 재개해도 행 수가 동일 — 스테이징 이월 실증
+           A manifest 생산 경계 확정 2026-08-10 — VM은 정본을 만들지 않는다
+             MINUTE_MANIFEST_DIR → ~/minute-raw/_manifest (저장소 밖)
+             install-vm.sh가 이전 판의 것을 mv -n 으로 옮긴다
+             계약(§5·규칙 4)은 승격 위치를 말하지 생산 위치를 말하지 않는다
+           A 정책 MN-1.1 승격 2026-08-10 — 09:00 봉 open 불변식 면제
+             3일 중 2일이 58만 행 중 2~3건으로 인수 조건에 떨어졌다
+             전부 09:00의 open · 양방향(위 4 아래 1) · close는 5/5 정상
+             임계(비율) 완화가 아니라 불변식의 범위를 고쳤다
+             collectionContract 해시 24d4ea7a 불변 → 재수집 불필요
+           A 상시화 구현 완료 2026-08-10 — MN-1.0 §10. 회귀 98+16+27건
+             scripts/run-minute-daily.py  최근 3영업일 중 미완료를 채운다
+             deploy/install-vm.sh  systemd timer(16:10·17:40 KST) + cron + logrotate
+             수집 대상은 A1a current.jsonl(2,579) — 스냅샷(2,556)이 아니다
+             MemoryMax=320M — OOM 대상이 항상 수집기가 되게 한다
+             ★ 실행 전 고친 것 셋. 셋 다 조용히 틀리는 축이었다
+               캘린더 커버 밖(=앞으로의 모든 날)을 HOLIDAY로 굳히던 것
+               resume이 스테이징을 지워 이미 받은 행을 잃던 것
+               alive-monitor가 낡은 캘린더의 마지막 거래일에 고정되던 것
+  다음
+```
