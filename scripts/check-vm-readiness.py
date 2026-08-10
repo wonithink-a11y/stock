@@ -198,7 +198,10 @@ def main():
 
     # ---- 7 자격증명 (값은 보지 않는다) -----------------------------------
     env_ok = bool(os.environ.get("KIS_APP_KEY"))
-    dotenv = Path(".env")
+    # KIS_ENV_PATH를 보지 않으면 cwd의 .env만 찾는다. VM은 키를
+    # ~/collector-venv/.env에 두므로 있는데도 FAIL이 났다 -
+    # smoke는 PASS인데 readiness만 FAIL이면 그 불일치가 단서다.
+    dotenv = Path(os.environ.get("KIS_ENV_PATH") or ".env").expanduser()
     if not env_ok and dotenv.exists():
         try:
             env_ok = any(l.startswith("KIS_APP_KEY=") and len(l) > 20

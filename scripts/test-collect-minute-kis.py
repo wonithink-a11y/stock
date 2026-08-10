@@ -404,7 +404,26 @@ def run_all(M=None):
                   "전량 제출이면 마지막에야 조각이 생긴다: " +
                   str(wt.parts_seen_midway))
 
-        # 17 정책이 계약 문서와 어긋나지 않는가
+        # 17 운영 환경(Python 3.8)에 없는 API를 쓰지 않는가
+        # 문법 검사(ast feature_version)는 구문만 본다. 런타임 API 차이는
+        # 구조적으로 못 잡는다 - Path.write_text(newline=)이 3.10부터라
+        # VM에서 TypeError로 죽었다(교훈82). 줄바꿈으로 감싼 호출도 본다.
+        # 정규식으로 훑으면 주석 안의 'write_text(newline=)' 설명까지 잡는다.
+        # AST로 호출 노드만 본다 - 문자열·주석에 영향받지 않는다.
+        import ast as _ast
+        offenders = []
+        for f in sorted((REPO / "scripts").glob("*.py")):
+            tree = _ast.parse(f.read_text(encoding="utf-8"))
+            for node in _ast.walk(tree):
+                if (isinstance(node, _ast.Call)
+                        and isinstance(node.func, _ast.Attribute)
+                        and node.func.attr == "write_text"
+                        and any(k.arg == "newline" for k in node.keywords)):
+                    offenders.append(f.name)
+        check("3.8에 없는 write_text(newline=)을 쓰지 않는다",
+              not offenders, sorted(set(offenders)))
+
+        # 18 정책이 계약 문서와 어긋나지 않는가
         cc = pol["collectionContract"]
         check("정책의 sessionMinutes가 T0 실측 381",
               cc["sessionMinutes"] == 381, cc["sessionMinutes"])

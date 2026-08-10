@@ -487,8 +487,9 @@ def save_state(root, date, pol, done):
         "updatedAt": stamp(),
         "symbols": done,
     }
-    p.write_text(json.dumps(payload, ensure_ascii=False, indent=2),
-                 encoding="utf-8", newline="\n")
+    # Path.write_text(newline=)은 3.10부터다. VM은 3.8이라 open으로 쓴다.
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 # ---------------------------------------------------------------- 실행
@@ -695,9 +696,9 @@ def main():
         return 1
     mdir = Path(pol["output"]["manifestDir"])
     mdir.mkdir(parents=True, exist_ok=True)
-    (mdir / (dashed(args.date) + ".json")).write_text(
-        json.dumps(man, ensure_ascii=False, indent=2),
-        encoding="utf-8", newline="\n")
+    with open(mdir / (dashed(args.date) + ".json"), "w",
+              encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(man, ensure_ascii=False, indent=2))
     return 0
 
 

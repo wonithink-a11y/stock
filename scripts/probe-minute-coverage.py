@@ -356,8 +356,8 @@ def main():
         "측정": results,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2),
-                   encoding="utf-8", newline="\n")
+    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(out, ensure_ascii=False, indent=2))
 
     say()
     say("  구간            표본   중앙값   p10    >=0.9   호출   거래대금")
