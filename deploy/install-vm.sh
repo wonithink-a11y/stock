@@ -187,12 +187,36 @@ CRON_LINE="${MON_HM#*:} ${MON_HM%:*} * * * MINUTE_MANIFEST_DIR=$MANIFEST MINUTE_
 T1_HM="$(utc_to_local 10:10)"
 T1_LINE="${T1_HM#*:} ${T1_HM%:*} * * * MINUTE_RAW_ROOT=$RAW MINUTE_T1_DIR=$RAW/_t1 MINUTE_MANIFEST_DIR=$MANIFEST KIS_ENV_PATH=$VENV/.env KIS_TOKEN_CACHE=$VENV/.token_cache_kis.json $PY $REPO/scripts/probe-t1-minute.py >> $LOGDIR/t1.log 2>&1 $T1_TAG"
 
+# crontab은 통째로 다시 쓰는 수밖에 없다. 그래서 읽기 실패를 '비어 있음'으로
+# 읽으면 기존 모니터(/home/ubuntu/stock)의 cron이 조용히 사라진다 - 스크립트는
+# 성공한 것처럼 보이고, 알림이 멈춘 것은 며칠 뒤에 안다.
+# 부재(크론탭이 없다)와 실패(읽지 못했다)를 가르고, 실패면 멈춘다.
+CUR=""
+if CUR="$(crontab -l 2>/dev/null)"; then
+  :
+elif crontab -l 2>&1 | grep -qi "no crontab"; then
+  CUR=""
+else
+  say "[중단] crontab을 읽지 못했다. 덮어쓰면 기존 항목이 사라진다"
+  say "       crontab -l 을 직접 확인한 뒤 다시 돌린다"
+  exit 1
+fi
+
+KEEP="$(printf '%s\n' "$CUR" | grep -v "$CRON_TAG" | grep -v "$T1_TAG" \
+        | grep -v '^[[:space:]]*$' || true)"
+NKEEP="$(printf '%s' "$KEEP" | grep -c . || true)"
+say "기존 cron 보존 ${NKEEP}줄 (우리 항목은 교체)"
+
 if [ "$DRY" = 1 ]; then
   printf '  [dry] crontab += %s\n' "$CRON_LINE"
   printf '  [dry] crontab += %s\n' "$T1_LINE"
 else
-  ( crontab -l 2>/dev/null | grep -v "$CRON_TAG" | grep -v "$T1_TAG" || true
-    echo "$CRON_LINE"; echo "$T1_LINE" ) | crontab -
+  # 되돌릴 수 없는 실패는 그 자리에서 잃지 않게 한다(교훈84).
+  BK="$VENV/crontab.backup.$(date +%Y%m%d%H%M%S)"
+  printf '%s\n' "$CUR" > "$BK"
+  { if [ -n "$KEEP" ]; then printf '%s\n' "$KEEP"; fi
+    echo "$CRON_LINE"; echo "$T1_LINE"; } | crontab -
+  say "직전 crontab 백업 $BK"
 fi
 say "cron     감시 $MON_HM · T1 $T1_HM 로컬"
 
