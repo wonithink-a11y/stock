@@ -8,6 +8,8 @@ Validated against
   정책      UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5 · MN-1.1
   현재 트랙  A 분봉 — T1 재현성 정찰 관측 중 (7일)
   다음      A1 T1 7일이 쌓이면 pendingT1 승격. 코드는 다 있고 시간이 하는 일이다
+               표본·anchor는 첫 실행이 _t1/plan.json에 얼린다. --replan 아니면 안 바뀐다
+               스냅샷 없으면 수집한 parquet에서 거래대금 순위를 뽑는다 (SSH 불요)
             A2 manifest 승격 파이프라인 (VM → Object Storage → Actions 대조)
                그때까지 분봉 manifest는 VM에만 있고 GitHub 정본에 없다
             A3 사람의 결정 둘 — swap 0 유지 · Oracle PAYG (유휴 회수 7일 시계)

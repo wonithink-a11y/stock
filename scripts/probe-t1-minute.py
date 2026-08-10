@@ -39,7 +39,8 @@ import json
 import os
 import sys
 import time
-from datetime import date as _date, datetime, timedelta, timezone
+import statistics as st
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 for _s in (sys.stdout, sys.stderr):
@@ -157,9 +158,144 @@ def compare_rows(a, b):
     }
 
 
+# ---------------------------------------------------------------- 계획
+#
+# ★ 표본과 anchor는 7일 동안 바뀌지 않는다.
+#
+# 매 실행마다 다시 고르면 일자간 대조가 성립하지 않는다. 어제의 '대형주'와
+# 오늘의 '대형주'가 다른 종목이면 비교할 쌍이 없기 때문이다. 특히 폴백은
+# 수집된 날짜에서 순위를 내므로 하루가 지날 때마다 값이 달라진다.
+#
+# 그래서 첫 실행이 계획을 만들어 얼려 두고, 이후 실행은 그것을 읽기만 한다.
+# 계획을 바꾸려면 --replan 이라는 명시적 행위가 필요하고, 그때 이전 계획을
+# 무엇으로 대체했는지 기록에 남는다.
+
+PLAN_VERSION = "T1PLAN-1.0"
+TURNOVER_WINDOW = 5          # 폴백 집계 범위(수집일). 계획 시점에 한 번만 쓴다
+
+
+def plan_path(outdir):
+    return Path(outdir) / "plan.json"
+
+
+def plan_hash(plan):
+    """계획의 신원. 창 도중에 계획이 바뀌면 대조 결과가 그것을 드러내야 한다."""
+    core = {"anchorDate": plan.get("anchorDate"),
+            "sample": sorted((s["ticker"], s["axis"])
+                             for s in (plan.get("sample") or []))}
+    return hashlib.sha256(json.dumps(core, sort_keys=True, ensure_ascii=False)
+                          .encode("utf-8")).hexdigest()[:16]
+
+
+def load_plan(outdir):
+    return safe(lambda: json.loads(
+        plan_path(outdir).read_text(encoding="utf-8")))
+
+
+def save_plan(outdir, plan):
+    Path(outdir).mkdir(parents=True, exist_ok=True)
+    with open(plan_path(outdir), "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(plan, ensure_ascii=False, indent=2) + "\n")
+
+
 # ---------------------------------------------------------------- 표본
 
-def pick_sample(M, raw_root, universe_dir=None, state_dir=None):
+def collected_dates(raw_root):
+    return sorted(p.name.split("=")[1]
+                  for p in Path(raw_root).glob("date=*") if "=" in p.name)
+
+
+def turnover_from_snapshot(universe_dir=None):
+    """유니버스 스냅샷의 거래대금. 있으면 이것을 쓴다 - 일봉 60거래일 중앙값이라
+    폴백보다 정확하고, 다른 단계와 같은 정의를 쓴다."""
+    d = Path(universe_dir or (REPO / "data" / "backfill" / "minute" / "universe"))
+    snaps = sorted(d.glob("*.jsonl")) if d.exists() else []
+    if not snaps:
+        return None, None
+    out = {}
+    for line in safe(lambda: snaps[-1].read_text(encoding="utf-8"), "").splitlines():
+        if line.strip():
+            r = safe(lambda l=line: json.loads(l))
+            if r and r.get("ticker"):
+                out[r["ticker"]] = r.get("turnoverEok") or 0.0
+    return (out, "universe-snapshot:" + snaps[-1].name) if out else (None, None)
+
+
+def turnover_from_parquet(raw_root, dates):
+    """수집한 분봉에서 종목별 일 거래대금 중앙값(억). 스냅샷이 없을 때의 폴백.
+
+    스냅샷(일봉 60거래일)보다 거칠다. 그래도 되는 이유는 이 값이 정하는 것이
+    '대형주와 소형주가 표본에 있다'뿐이고 PIT 정확성이 필요 없기 때문이다.
+    선정 근거는 계획에 문자열로 남으므로 나중에 되짚을 수 있다.
+
+    **이 값은 계획을 만들 때 한 번만 쓴다.** 매일 다시 계산하면 순위가 흔들려
+    표본이 바뀌고, 그러면 일자간 대조가 성립하지 않는다.
+
+    1GB VM이라 열 단위로 읽고 파일마다 버린다. to_pylist()를 행 단위로 쓰면
+    45,000개 dict가 파일마다 생긴다.
+    """
+    try:
+        import pyarrow.parquet as pq
+    except ImportError:
+        return None, None
+    per = {}
+    used = []
+    for d in dates:
+        files = sorted(Path(raw_root).glob("date=" + d + "/part-*.parquet"))
+        if not files:
+            continue
+        day = {}
+        for f in files:
+            t = safe(lambda f=f: pq.read_table(
+                f, columns=["ticker", "close", "volume"]))
+            if t is None:
+                continue
+            tk = t.column("ticker").to_pylist()
+            cl = t.column("close").to_pylist()
+            vo = t.column("volume").to_pylist()
+            del t
+            for i in range(len(tk)):
+                day[tk[i]] = day.get(tk[i], 0) + cl[i] * vo[i]
+            del tk, cl, vo
+        if not day:
+            continue
+        used.append(d)
+        for k, v in day.items():
+            per.setdefault(k, []).append(v)
+    if not per:
+        return None, None
+    med = {k: st.median(v) / 1e8 for k, v in per.items()}
+    return med, ("parquet-turnover:" + ",".join(used))
+
+
+def pick_anchor(manifest_dir, dates):
+    """anchor = 인수 조건을 통과한 **가장 오래된** 수집일.
+
+    최근이 아니라 오래된 것을 고른다. 롤링 창(최근 N일)이 이미 '갓 받은
+    데이터가 안정되는가'를 재기 때문이다. anchor가 재야 하는 것은 다른
+    질문 - '이미 안정됐어야 할 과거가 흔들리는가'이고, 그 신호는 오래된
+    날일수록 세다. anchor는 고정이므로 7일 동안 계속 늙는다.
+
+    인수 조건 통과를 요구하는 이유는 혼동 제거다. 미완료 날짜를 anchor로
+    잡으면 날짜 간 차이가 소스의 사후 변경인지 우리 수집이 덜 된 것인지
+    가릴 수 없다. 휴장일도 고르지 않는다 - 잴 것이 없다.
+    """
+    for d in dates:                      # 오름차순 = 오래된 것부터
+        m = safe(lambda d=d: json.loads(
+            (Path(manifest_dir) / (d + ".json")).read_text(encoding="utf-8")))
+        if not m or not m.get("acceptancePassed"):
+            continue
+        if str(m.get("dayVerdict") or "").startswith("CLOSED"):
+            continue
+        if not (m.get("rows") or 0) > 0:
+            continue
+        return d, ("인수 조건을 통과한 가장 오래된 수집일 · %s · rows %s"
+                   % (m.get("dayVerdict"), m.get("rows")))
+    return None, "미측정 — 인수 조건을 통과한 수집일이 없다"
+
+
+def pick_sample(M, raw_root, turnover=None, turnover_source=None,
+                state_dir=None):
     """표본은 의도적으로 고른다(§6.1). 무작위 5종목은 갈리는 축을 못 밟는다.
 
     고른 이유를 함께 남긴다. 나중에 '왜 이 종목인가'를 되짚을 수 없으면
@@ -171,38 +307,31 @@ def pick_sample(M, raw_root, universe_dir=None, state_dir=None):
     def take(ticker, axis, why):
         if not ticker or any(c["ticker"] == ticker for c in chosen):
             return False
-        chosen.append({"ticker": ticker, "axis": axis, "why": why})
+        chosen.append({"ticker": ticker, "axis": axis, "why": why,
+                       "source": turnover_source if axis in ("대형주", "소형주")
+                       else "observed"})
         axes[axis] = ticker
         return True
 
-    # 대형주 · 소형주 — 유니버스 스냅샷의 거래대금
-    rows = []
-    d = Path(universe_dir or (REPO / "data" / "backfill" / "minute" / "universe"))
-    snaps = sorted(d.glob("*.jsonl")) if d.exists() else []
-    if snaps:
-        for line in safe(lambda: snaps[-1].read_text(encoding="utf-8"), "").splitlines():
-            if line.strip():
-                r = safe(lambda l=line: json.loads(l))
-                if r:
-                    rows.append(r)
-    rows.sort(key=lambda r: r.get("turnoverEok") or 0, reverse=True)
-    if rows:
-        for r in rows[:2]:
-            take(r["ticker"], "대형주",
-                 "거래대금 상위 %.0f억 (%s)" % (r.get("turnoverEok") or 0, snaps[-1].name))
-        for r in [x for x in rows if (x.get("turnoverEok") or 0) > 0][-2:]:
-            take(r["ticker"], "소형주",
-                 "거래대금 하위 %.2f억" % (r.get("turnoverEok") or 0))
+    # 대형주 · 소형주 — 거래대금 순위. 출처는 스냅샷이거나 수집한 parquet다.
+    if turnover:
+        rank = sorted(((v, k) for k, v in turnover.items() if v and v > 0),
+                      reverse=True)
+        for v, k in rank[:2]:
+            take(k, "대형주", "거래대금 상위 %.0f억 (%s)" % (v, turnover_source))
+        for v, k in rank[-2:]:
+            take(k, "소형주", "거래대금 하위 %.2f억 (%s)" % (v, turnover_source))
     else:
-        unmeasured.append("대형주·소형주 — 유니버스 스냅샷이 없다")
+        unmeasured.append("대형주·소형주 — 거래대금 출처가 없다 "
+                          "(유니버스 스냅샷도 수집된 parquet도 읽지 못했다)")
 
     # 거래정지 이력 — Broad 수집 상태에서 HALT가 실제로 난 종목을 쓴다.
     # 추측이 아니라 우리가 관측한 사실에서 고른다.
     halted = []
     sd = Path(state_dir or (Path(raw_root) / "_state"))
     for p in sorted(sd.glob("state-*.json"))[-5:] if sd.exists() else []:
-        st = safe(lambda p=p: json.loads(p.read_text(encoding="utf-8"))) or {}
-        for tk, v in (st.get("symbols") or {}).items():
+        stt = safe(lambda p=p: json.loads(p.read_text(encoding="utf-8"))) or {}
+        for tk, v in (stt.get("symbols") or {}).items():
             if v.get("gapReason") == "HALT":
                 halted.append((tk, p.name))
     if halted:
@@ -231,15 +360,60 @@ def pick_sample(M, raw_root, universe_dir=None, state_dir=None):
     return chosen, unmeasured, missing
 
 
-def target_dates(M, ctx, raw_root, back=3):
-    """대상 날짜. 재현성은 '같은 날짜를 다시 받는가'라 날짜를 고정해야 한다.
+def derive_plan(M, raw_root, state_dir, manifest_dir, universe_dir=None,
+                window_days=7):
+    """7일 창의 계획을 만든다. 첫 실행에서 한 번만 부른다."""
+    dates = collected_dates(raw_root)
+    turn, src = turnover_from_snapshot(universe_dir)
+    if not turn:
+        # 스냅샷이 없다. 이미 받아 둔 분봉에서 같은 축을 만든다 -
+        # SSH 없이도 표본이 서게 하는 안전망이다. 스냅샷이 생기면
+        # 다음 창부터 그것을 쓴다(이 창은 계획이 얼어 있다).
+        turn, src = turnover_from_parquet(raw_root, dates[-TURNOVER_WINDOW:])
+    sample, unmeasured, missing = pick_sample(
+        M, raw_root, turnover=turn, turnover_source=src, state_dir=state_dir)
+    anchor, anchor_why = pick_anchor(manifest_dir, dates)
+    if not anchor:
+        unmeasured.append("고정 관측일(anchor) — " + anchor_why)
 
-    이미 Broad로 받은 날을 쓴다. 그래야 Broad manifest의 dayVerdict를 참조로
-    끌어올 수 있고, T1이 새 호출로 없던 날을 만들지 않는다.
+    plan = {
+        "schemaVersion": PLAN_VERSION,
+        "createdAt": stamp(),
+        "windowDays": window_days,
+        "frozen": True,
+        "frozenNote": "표본과 anchor는 이 창 동안 바뀌지 않는다. 매 실행마다 "
+                      "다시 고르면 어제의 '대형주'와 오늘의 것이 달라져 "
+                      "일자간 대조에 쓸 쌍이 없다. 바꾸려면 --replan.",
+        "turnoverSource": src,
+        "turnoverWindowDates": dates[-TURNOVER_WINDOW:],
+        "collectedDatesAtPlanning": dates,
+        "sample": sample,
+        "sampleAxesMissing": missing,
+        "anchorDate": anchor,
+        "anchorWhy": anchor_why,
+        "anchorRule": "인수 조건을 통과하고 휴장이 아닌 가장 오래된 수집일. "
+                      "최근이 아니라 오래된 것을 고르는 이유는 롤링 창이 이미 "
+                      "'갓 받은 데이터가 안정되는가'를 재기 때문이다 - anchor는 "
+                      "'이미 안정됐어야 할 과거가 흔들리는가'를 잰다.",
+        "unmeasured": unmeasured,
+    }
+    plan["planHash"] = plan_hash(plan)
+    return plan
+
+
+def target_dates(plan, raw_root, back=2):
+    """anchor(고정) + 최근 수집일(롤링). 두 축을 함께 본다.
+
+    롤링   갓 받은 데이터가 다음 날 같은가        재현성
+    anchor 오래된 날이 7일 동안 흔들리는가        사후 변경·수정주가
     """
-    got = sorted(p.name.split("=")[1]
-                 for p in Path(raw_root).glob("date=*") if "=" in p.name)
-    return got[-back:] if got else []
+    got = collected_dates(raw_root)
+    roll = got[-back:] if got else []
+    a = plan.get("anchorDate")
+    out = list(roll)
+    if a and a not in out:
+        out.insert(0, a)
+    return out
 
 
 # ---------------------------------------------------------------- 실행
@@ -300,25 +474,47 @@ def run(M, args, out=print):
     raw, state, mandir = M.env_paths(pol)
     outdir = t1_dir()
 
-    sample, unmeasured, missing_axes = pick_sample(M, raw, state_dir=state)
-    dates = target_dates(M, ctx, raw, back=args.dates)
+    # 계획을 먼저 읽는다. 있으면 그대로 쓴다 - 표본과 anchor는 창 동안
+    # 바뀌지 않아야 하고, 그것이 일자간 대조가 성립하는 유일한 조건이다.
+    plan = load_plan(outdir)
+    replaced = None
+    if plan is None or args.replan:
+        replaced = plan
+        plan = derive_plan(M, raw, state, mandir, window_days=args.window)
+        if replaced:
+            plan["replacedPlan"] = {"createdAt": replaced.get("createdAt"),
+                                    "planHash": replaced.get("planHash"),
+                                    "replacedAt": stamp()}
+        if not args.dry_run:
+            save_plan(outdir, plan)
+        plan_state = "새로 세움" + (" (--replan으로 교체)" if replaced else "")
+    else:
+        plan_state = "기존 계획 재사용 (" + str(plan.get("createdAt")) + ")"
+
+    sample = plan.get("sample") or []
+    unmeasured = list(plan.get("unmeasured") or [])
+    missing_axes = plan.get("sampleAxesMissing") or []
+    dates = target_dates(plan, raw, back=args.dates)
 
     out("")
     out("  T1 수집 신뢰성 정찰   " + stamp())
+    out("  계획 " + plan_state + "  hash " + str(plan.get("planHash")))
     out("  표본 " + str(len(sample)) + "종목 · 대상 " + str(len(dates)) + "일 · 출력 "
         + str(outdir))
     for s in sample:
         out("    " + s["ticker"] + "  " + s["axis"].ljust(12) + s["why"])
+    out("  고정 관측일 " + str(plan.get("anchorDate")) + "  "
+        + str(plan.get("anchorWhy")))
     for u in unmeasured:
         out("    [미측정] " + u)
     if not dates:
         out("  [중단] 대상 날짜가 없다 - Broad 수집물이 " + str(raw) + "에 없다")
         return 2, None
-    out("  대상 날짜 " + ", ".join(dates))
+    out("  대상 날짜 " + ", ".join(dates) + "   (anchor 고정 + 최근 롤링)")
     out("")
 
     if args.dry_run:
-        out("  --dry-run: 부르지 않았다")
+        out("  --dry-run: 부르지 않았고 계획도 쓰지 않았다")
         return 0, None
 
     if not sample:
@@ -336,7 +532,7 @@ def run(M, args, out=print):
             a = observe(M, tr, s["ticker"], d, pol, ctx)
             # 즉시 재실행 — 전송 흔들림과 데이터 변화를 가른다.
             # 첫 날짜에만 한다. 전부 하면 호출이 두 배가 되는데 얻는 것은 같다.
-            if d == dates[-1]:
+            if d == dates[-1] and d != plan.get("anchorDate"):
                 b = observe(M, tr, s["ticker"], d, pol, ctx)
                 cmp_ = compare_rows(a["_rows"], b["_rows"])
                 cmp_.update({"ticker": s["ticker"], "date": d,
@@ -386,6 +582,10 @@ def run(M, args, out=print):
             json.dumps(pol["collectionContract"], sort_keys=True,
                        ensure_ascii=False).encode("utf-8")),
         "tokenSource": how,
+        "planHash": plan.get("planHash"),
+        "planCreatedAt": plan.get("createdAt"),
+        "anchorDate": plan.get("anchorDate"),
+        "turnoverSource": plan.get("turnoverSource"),
         "sample": sample,
         "sampleAxesMissing": missing_axes,
         "unmeasured": unmeasured,
@@ -457,7 +657,14 @@ def report_only(out=print):
         out("  T1 관측이 없다: " + str(d))
         return 1
     out("")
+    pl = load_plan(d) or {}
     out("  T1 누적 요약   실행 " + str(len(runs)) + "회")
+    out("  계획 " + str(pl.get("createdAt")) + "  hash " + str(pl.get("planHash"))
+        + "  anchor " + str(pl.get("anchorDate")))
+    hashes = {r.get("planHash") for _, r in runs if r.get("planHash")}
+    if len(hashes) > 1:
+        out("  ★ 창 도중에 계획이 바뀌었다 " + str(sorted(hashes))
+            + " — 그 경계를 넘는 대조는 같은 표본이 아니다")
     tot = same = 0
     for name, r in runs:
         c = r.get("crossRun") or []
@@ -484,7 +691,11 @@ def report_only(out=print):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dates", type=int, default=2,
-                    help="최근 수집일 중 몇 개를 대상으로 할 것인가")
+                    help="롤링 대상 - 최근 수집일 중 몇 개 (anchor는 별도로 고정)")
+    ap.add_argument("--window", type=int, default=7, help="정찰 창 (일)")
+    ap.add_argument("--replan", action="store_true",
+                    help="얼어 있는 표본·anchor를 다시 고른다. 창 도중에 쓰면 "
+                         "일자간 대조가 끊긴다")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--selftest", action="store_true")
