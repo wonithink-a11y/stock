@@ -206,6 +206,7 @@ node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리�
 python scripts/test-collect-minute-kis.py  # 분봉 Collector v1 (합성 픽스처, 네트워크 불필요)
 python scripts/test-minute-universe.py     # 분봉 유니버스 스냅샷 PIT (합성 픽스처)
 python scripts/test-alive-monitor.py       # 수집 감시기 (합성 픽스처)
+python scripts/smoke-minute-kis.py --selftest  # smoke 러너 자체 검증 (네트워크 불필요)
 
 # A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
 # 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.
