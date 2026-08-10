@@ -55,6 +55,10 @@ Validated against
              하루 약 22분 (T0 예측 40분보다 빠름) · 종목 약 2,455/2,579
              피크 메모리 103.8MB / 한도 320MB · 기존 모니터 생존
              인수 조건 실패 뒤 재개해도 행 수가 동일 — 스테이징 이월 실증
+           A manifest 생산 경계 확정 2026-08-10 — VM은 정본을 만들지 않는다
+             MINUTE_MANIFEST_DIR → ~/minute-raw/_manifest (저장소 밖)
+             install-vm.sh가 이전 판의 것을 mv -n 으로 옮긴다
+             계약(§5·규칙 4)은 승격 위치를 말하지 생산 위치를 말하지 않는다
            A 정책 MN-1.1 승격 2026-08-10 — 09:00 봉 open 불변식 면제
              3일 중 2일이 58만 행 중 2~3건으로 인수 조건에 떨어졌다
              전부 09:00의 open · 양방향(위 4 아래 1) · close는 5/5 정상
@@ -70,14 +74,15 @@ Validated against
                resume이 스테이징을 지워 이미 받은 행을 잃던 것
                alive-monitor가 낡은 캘린더의 마지막 거래일에 고정되던 것
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 T1 정찰 7일 (§6.1) ← 여기. 재현성이 핵심
-              독립 검증 체계가 이것을 기다린다 (AI 협업 구조 절)
-              pendingT1 블록만 승격하면 된다. 코드는 안 고친다
+           A1 T1 7일 관측 ← 여기. 구현·cron 등록은 끝났고 7일이 쌓이면 된다
+              scripts/probe-t1-minute.py  19:10 KST cron · 회귀 30건
+              manifest를 만들지 않는다 · dayVerdict를 계산하지 않는다
+              임계는 안 정했다 (thresholdDecided false) — 측정 뒤에 정한다
+              액면분할 축은 확보 수단이 없어 미측정으로 남는다
+              7일 뒤 pendingT1 승격. 독립 검증 체계가 이것을 기다린다
            A2 manifest 승격 파이프라인 미구현 (AI 협업 구조 절)
               VM → Object Storage → Actions 대조 → commit
               그때까지 분봉 manifest는 VM에만 있고 GitHub 정본에 없다
-              ★ VM의 MINUTE_MANIFEST_DIR이 아직 저장소 안을 가리킨다
-                staging으로 옮겨야 결정과 일치한다 (collector.env 한 줄)
            A3 사람의 결정 둘 — swap 0 유지 여부 · Oracle PAYG 업그레이드
               하루 22분으로는 CPU p95 20%에 못 미쳐 유휴 회수 대상이다
               MemoryMax=320M을 걸어 OOM 대상이 수집기가 되게 했으므로
@@ -328,10 +333,15 @@ python scripts/test-collect-minute-kis.py  # 분봉 Collector v1 (합성 픽스�
 python scripts/test-run-minute-daily.py    # 상시 러너의 날짜 선택·재시도 경계
 python scripts/test-minute-universe.py     # 분봉 유니버스 스냅샷 PIT (합성 픽스처)
 python scripts/test-alive-monitor.py       # 수집 감시기 (합성 픽스처)
+python scripts/test-probe-t1-minute.py     # T1 정찰 — 미측정을 미측정으로 적는가
 python scripts/smoke-minute-kis.py --selftest  # smoke 러너 자체 검증 (네트워크 불필요)
 
 # 분봉 상시 수집 — 무엇을 돌지 확인 (네트워크 불필요)
 python scripts/run-minute-daily.py --dry-run --days 3
+
+# T1 정찰 — 표본과 대상 확인 / 누적 요약 (네트워크 불필요)
+python scripts/probe-t1-minute.py --dry-run
+python scripts/probe-t1-minute.py --report
 
 # A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
 # 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.

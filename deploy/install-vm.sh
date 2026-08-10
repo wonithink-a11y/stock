@@ -31,6 +31,7 @@ UNIT_DIR=/etc/systemd/system
 SERVICE=minute-collect.service
 TIMER=minute-collect.timer
 CRON_TAG="# minute-alive-monitor (MN-1.0)"
+T1_TAG="# minute-t1-probe (MN-1.0 6.1)"
 
 DRY=0
 UNINSTALL=0
@@ -65,7 +66,7 @@ if [ "$UNINSTALL" = 1 ]; then
   run "sudo systemctl disable --now $TIMER 2>/dev/null || true"
   run "sudo rm -f $UNIT_DIR/$TIMER $UNIT_DIR/$SERVICE"
   run "sudo systemctl daemon-reload"
-  run "crontab -l 2>/dev/null | grep -v '$CRON_TAG' | grep -v alive-monitor.py | crontab - || true"
+  run "crontab -l 2>/dev/null | grep -v '$CRON_TAG' | grep -v '$T1_TAG' | grep -v alive-monitor.py | grep -v probe-t1-minute.py | crontab - || true"
   echo; say "제거 완료"; echo
   exit 0
 fi
@@ -91,15 +92,42 @@ say "감시     $MON_HM 로컬  (= 18:10 KST · deadline 18:00)"
 echo
 
 # ---------------------------------------------------------------- 디렉터리
-run "mkdir -p '$LOGDIR' '$RAW'"
+run "mkdir -p '$LOGDIR' '$RAW' '$RAW/_manifest' '$RAW/_t1'"
+
+# --- 이전 판이 저장소 안에 쓴 manifest를 밖으로 옮긴다 ----------------------
+# 지우지 않는다. 덮어쓰지도 않는다(-n). 옮긴 것을 한 줄씩 알린다.
+OLDMAN="$REPO/data/backfill/minute/manifest"
+if [ -d "$OLDMAN" ]; then
+  n=$(find "$OLDMAN" -name '*.json' 2>/dev/null | wc -l)
+  if [ "$n" -gt 0 ]; then
+    say "이전 manifest $n건을 저장소 밖으로 옮긴다 (정본 오염 방지)"
+    if [ "$DRY" = 1 ]; then
+      printf '  [dry] mv -n %s/**/*.json -> %s\n' "$OLDMAN" "$RAW/_manifest"
+    else
+      mkdir -p "$RAW/_manifest/_failed"
+      find "$OLDMAN" -maxdepth 1 -name '*.json' -exec mv -n {} "$RAW/_manifest/" \;
+      if [ -d "$OLDMAN/_failed" ]; then
+        find "$OLDMAN/_failed" -maxdepth 1 -name '*.json' \
+          -exec mv -n {} "$RAW/_manifest/_failed/" \;
+      fi
+      say "  남은 것 $(find "$OLDMAN" -name '*.json' 2>/dev/null | wc -l)건 (0이어야 한다)"
+    fi
+  fi
+fi
 
 # ---------------------------------------------------------------- 환경 파일
 # 시크릿은 여기 넣지 않는다. 앱키는 $VENV/.env 에만 있고 KIS_ENV_PATH로 가리킨다.
 # systemd EnvironmentFile은 셸 확장을 하지 않으므로 절대 경로만 쓴다.
+# manifest는 저장소 밖에 쓴다. VM은 GitHub 정본을 만들지 않는다 -
+# 생산 경로가 working tree 안에 있으면 누군가의 git add -A 한 번으로
+# VM이 정본에 쓰는 주체가 된다. 계약(§5·규칙 4)은 '승격된 manifest가
+# 어디 있어야 하는가'를 말하지 생산자가 어디에 쓰는지를 말하지 않는다.
+MANIFEST="$RAW/_manifest"
 ENVBODY="# minute collector — install-vm.sh가 생성한다. 시크릿을 넣지 않는다.
 MINUTE_RAW_ROOT=$RAW
 MINUTE_STATE_DIR=$RAW/_state
-MINUTE_MANIFEST_DIR=$REPO/data/backfill/minute/manifest
+MINUTE_MANIFEST_DIR=$MANIFEST
+MINUTE_T1_DIR=$RAW/_t1
 KIS_ENV_PATH=$VENV/.env
 KIS_TOKEN_CACHE=$VENV/.token_cache_kis.json
 PYTHONUNBUFFERED=1
@@ -152,15 +180,21 @@ say "로테이트 $LR"
 # 감시기는 systemd가 아니라 cron에 둔다. 수집 유닛이 통째로 죽어도(유닛 파일
 # 오류·daemon-reload 실패) 감시는 그것과 다른 경로로 살아 있어야 한다.
 # 종료 코드 0=OK 1=STALE 2=PENDING.
-CRON_LINE="${MON_HM#*:} ${MON_HM%:*} * * * MINUTE_MANIFEST_DIR=$REPO/data/backfill/minute/manifest MINUTE_STATE_DIR=$RAW/_state $PY $REPO/scripts/alive-monitor.py --deadline 18:00 --json >> $LOGDIR/alive-monitor.log 2>&1 $CRON_TAG"
+CRON_LINE="${MON_HM#*:} ${MON_HM%:*} * * * MINUTE_MANIFEST_DIR=$MANIFEST MINUTE_STATE_DIR=$RAW/_state $PY $REPO/scripts/alive-monitor.py --deadline 18:00 --json >> $LOGDIR/alive-monitor.log 2>&1 $CRON_TAG"
+
+# T1 정찰(7일). 상시 인프라가 아니라 한시 작업이라 systemd가 아닌 cron에 둔다 -
+# 끝나면 이 한 줄만 지우면 된다. 수집·감시가 끝난 뒤(19:10 KST) 돈다.
+T1_HM="$(utc_to_local 10:10)"
+T1_LINE="${T1_HM#*:} ${T1_HM%:*} * * * MINUTE_RAW_ROOT=$RAW MINUTE_T1_DIR=$RAW/_t1 MINUTE_MANIFEST_DIR=$MANIFEST KIS_ENV_PATH=$VENV/.env KIS_TOKEN_CACHE=$VENV/.token_cache_kis.json $PY $REPO/scripts/probe-t1-minute.py >> $LOGDIR/t1.log 2>&1 $T1_TAG"
 
 if [ "$DRY" = 1 ]; then
   printf '  [dry] crontab += %s\n' "$CRON_LINE"
+  printf '  [dry] crontab += %s\n' "$T1_LINE"
 else
-  ( crontab -l 2>/dev/null | grep -v "$CRON_TAG" || true; echo "$CRON_LINE" ) \
-    | crontab -
+  ( crontab -l 2>/dev/null | grep -v "$CRON_TAG" | grep -v "$T1_TAG" || true
+    echo "$CRON_LINE"; echo "$T1_LINE" ) | crontab -
 fi
-say "cron     $MON_HM 로컬"
+say "cron     감시 $MON_HM · T1 $T1_HM 로컬"
 
 # ---------------------------------------------------------------- 확인
 echo
