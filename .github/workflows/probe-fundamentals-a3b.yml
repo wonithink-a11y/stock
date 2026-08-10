@@ -1,0 +1,65 @@
+name: probe-fundamentals-a3b
+
+# A3b 정찰 — 계약 확정 전에 돈다. alotMatter가 PIT 앵커를 주는지만 잰다.
+# 재는 것: rcept_no 존재·형식·응답 내 일관성 · stlm_dt 존재·형태 ·
+#          availableFrom/periodEnd 방향 · A3 rceptNo와의 차이 · EPS·배당 행 발견 여부.
+# 금액은 남기지 않는다. 결과는 data/backfill/_probe-fundamentals-a3b.json.
+#
+# A3 정찰(probe-fundamentals-a3)과 산출물을 분리한다 — 그쪽 파일은 정책의 probed 블록이
+# 인용하는 출처라 덮어쓰면 FN-1.4의 근거가 사라진다.
+#
+# manifest를 찍지 않는다 — 정찰 산출물은 하류가 소비하는 데이터가 아니라 사람이 읽는
+# 패턴이다. 그래서 커밋이 if: always()여도 manifest 계약(§4)과 충돌하지 않는다.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: probe-fundamentals-a3b
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Probe
+        timeout-minutes: 10
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/probe-fundamentals-a3b.py
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-fundamentals-a3b
+          path: data/backfill/_probe-fundamentals-a3b.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/_probe-fundamentals-a3b.json)" ]; then
+            git add data/backfill/_probe-fundamentals-a3b.json
+            git commit -m "chore(backfill): A3b 정찰 결과"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
