@@ -49,11 +49,20 @@ Validated against
              9.4초 · 피크 VmHWM 116.5MB / 한도 261.6MB · shaMatch true
              EGW00201 0건 · 기존 모니터 생존 · OOM 없음
              → Broad 2,559종목 환산 약 40분/일
+           A 상시화 구현 완료 2026-08-10 — MN-1.0 §10. 회귀 98+16+27건
+             scripts/run-minute-daily.py  최근 3영업일 중 미완료를 채운다
+             deploy/install-vm.sh  systemd timer(16:10·17:40 KST) + cron + logrotate
+             수집 대상은 A1a current.jsonl(2,579) — 스냅샷(2,556)이 아니다
+             MemoryMax=320M — OOM 대상이 항상 수집기가 되게 한다
+             ★ 실행 전 고친 것 셋. 셋 다 조용히 틀리는 축이었다
+               캘린더 커버 밖(=앞으로의 모든 날)을 HOLIDAY로 굳히던 것
+               resume이 스테이징을 지워 이미 받은 행을 잃던 것
+               alive-monitor가 낡은 캘린더의 마지막 거래일에 고정되던 것
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 Broad 수집 실행 ← 여기. MN-1.0 부록 5번부터
-              추가 검증 단계를 만들지 않는다. smoke가 관문이었다
-           A2 Broad 당일 증분 상시화 (systemd timer 또는 cron)
-              미루면 손실이 하루씩 누적된다. 오늘 안 받은 하루는 못 받는다
+           A1 VM에서 install-vm.sh 실행 ← 여기. MN-1.0 부록 5번부터
+              코드는 다 있다. 남은 것은 VM에서 도는 것뿐이다
+           A2 사람의 결정 둘 — swap 0 유지 여부 · Oracle PAYG 업그레이드
+              하루 40분으로는 CPU p95 20%에 못 미쳐 유휴 회수 대상이다
            A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
               pendingT1 블록만 승격하면 된다. 코드는 안 고친다
            A4' Core 182종목 246일 백필은 T1 결과 뒤 (≈224,000호출)
@@ -220,9 +229,13 @@ python scripts/test-analyze-a3.py       # A3 품질 분석기·QR-1.0 리포트 
 python scripts/test-pick-artifacts.py   # 샤드 아티팩트 선택 (재실행 시 어느 시도가 사는가)
 node scripts/test-a5-framework.js       # A5 PIT 선택·피처 레지스트리·리졸버
 python scripts/test-collect-minute-kis.py  # 분봉 Collector v1 (합성 픽스처, 네트워크 불필요)
+python scripts/test-run-minute-daily.py    # 상시 러너의 날짜 선택·재시도 경계
 python scripts/test-minute-universe.py     # 분봉 유니버스 스냅샷 PIT (합성 픽스처)
 python scripts/test-alive-monitor.py       # 수집 감시기 (합성 픽스처)
 python scripts/smoke-minute-kis.py --selftest  # smoke 러너 자체 검증 (네트워크 불필요)
+
+# 분봉 상시 수집 — 무엇을 돌지 확인 (네트워크 불필요)
+python scripts/run-minute-daily.py --dry-run --days 3
 
 # A3 수집 진행 확인 — A3 종료로 쓸 일이 없다 (_shards/가 finalize에서 삭제됨).
 # 다음 수집기가 같은 형태를 쓰므로 명령 형태만 남긴다.
@@ -434,6 +447,18 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
     하이픈 하나로 전 구간이 "있음"이 되어 보존 기간을 3년으로 읽었다 — 실제는 246영업일.
     응답이 요청의 식별자(일자·종목)를 담고 있는지를 성공 조건에 넣는다.
     같은 이유로 휴장일도 빈 응답이 아니라 직전 영업일로 대체된다.
+83. 낡을 수 있는 기준을 무한정 신뢰하면, 그것이 낡는 순간부터 조용히 틀린다.
+    calendar.json은 A0.5가 만들고 매일 갱신되지 않는다. "거래일 목록에 없다"를
+    휴장으로 읽으면 캘린더가 하루 낡을 때마다 그날의 모든 결손이 HOLIDAY로 굳고,
+    감시기는 마지막 거래일을 영원히 '오늘 기대치'로 돌려준다.
+    기준에는 값만이 아니라 '어디까지 말할 자격이 있는가'를 함께 들고 다닌다.
+84. 되돌릴 수 없는 실패는 그 자리에서 잃지 않게 설계한다.
+    resume은 상태가 완료로 아는 종목을 다시 부르지 않는다. 그런데 인수 조건에
+    걸렸다고 스테이징을 비우면 그 종목들의 행이 재수집으로도 돌아오지 않는다.
+    실패한 하루는 '틀린 데이터'가 아니라 '아직 덜 모은 하루'다.
+85. 한 번 도는 것과 매일 도는 것은 다른 문제다.
+    1회 수집은 명령이고 상시화는 '하루가 사라지지 않는다'는 성질이다.
+    성질은 재시도 창·Persistent·감시가 지키지, 명령을 여러 번 치는 것이 아니다.
 77. 없는 것이 스펙의 누락인지 소스의 부재인지 먼저 가른다.
     A3의 계정 일곱은 주요계정에 있는 것을 다 가져온 것이 맞았다.
     빠진 EPS는 다른 엔드포인트(alotMatter)에 있었다 — 고칠 자리가 전혀 다르다.

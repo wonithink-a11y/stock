@@ -1,0 +1,36 @@
+[Unit]
+# 분봉 Broad 당일 증분 수집 (MN-1.0 §6.3 · §9)
+# 경로는 install-vm.sh가 채운다. 하드코딩하지 않는다(VM 운영 기준 8).
+Description=Minute Broad incremental collection (MN-1.0)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@USER@
+WorkingDirectory=@REPO@
+EnvironmentFile=@ENVFILE@
+ExecStart=@PY@ @REPO@/scripts/run-minute-daily.py --quiet
+
+# 한 번 도는 데 Broad 기준 약 40분. 러너의 예산(기본 180분)보다 넉넉히 둔다.
+TimeoutStartSec=14400
+
+# 이 VM에는 기존 모니터(/home/ubuntu/stock)가 함께 산다. 수집이 메모리를
+# 먹고 커널이 OOM 대상을 고르면 더 오래 살아온 쪽이 뽑힐 수 있다.
+# 한도를 이 유닛에 걸어 두면 죽는 쪽이 항상 수집기다 - 수집은 다음 실행이
+# 이어받지만, 알림이 죽으면 그 사실을 알려줄 것이 없다.
+# 실측 피크: 10종목 116.5MB · Broad 청크 제출 144.8MB.
+MemoryAccounting=yes
+MemoryMax=320M
+
+# 기존 모니터의 응답성을 뺏지 않는다. 수집은 급하지 않고 대부분 네트워크 대기다.
+Nice=10
+IOSchedulingClass=idle
+CPUSchedulingPolicy=batch
+
+StandardOutput=append:@LOGDIR@/minute-collect.log
+StandardError=append:@LOGDIR@/minute-collect.log
+
+# 자격증명은 EnvironmentFile이 가리키는 파일에만 있다. 여기 쓰지 않는다.
+NoNewPrivileges=yes
+PrivateTmp=yes

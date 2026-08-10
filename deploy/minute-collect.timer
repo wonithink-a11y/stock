@@ -1,0 +1,25 @@
+[Unit]
+Description=Minute Broad incremental collection timer (MN-1.0)
+
+[Timer]
+# 시각은 install-vm.sh가 이 머신의 로컬 시간대로 환산해 채운다.
+#   1회차 16:10 KST   장 마감(15:30) + 40분
+#   2회차 17:40 KST   1회차가 인수 조건을 못 넘겼을 때 resume이 이어받는다
+OnCalendar=*-*-* @RUN1@:00
+OnCalendar=*-*-* @RUN2@:00
+
+# 요일을 걸지 않는다. 시간대 환산에서 요일이 밀릴 수 있고, 어차피 러너가
+# 영업일이 아닌 날은 아무것도 부르지 않고 끝낸다(정찰 3종목이 상한이다).
+# 요일을 유닛에 박으면 그 판단이 두 곳에 생긴다.
+
+# VM이 꺼져 있었거나 트리거를 놓쳤으면 다음 부팅에 따라잡는다.
+# 이것이 '오늘 안 받은 하루'를 막는 마지막 방어선이다.
+Persistent=true
+
+# 같은 시각에 여러 작업이 겹치지 않게 흩는다.
+RandomizedDelaySec=180
+
+Unit=minute-collect.service
+
+[Install]
+WantedBy=timers.target

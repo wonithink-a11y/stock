@@ -10,9 +10,11 @@
 
 import importlib.util
 import json
+import os
 import shutil
 import sys
 import tempfile
+from datetime import timedelta
 from pathlib import Path
 
 for _s in (sys.stdout, sys.stderr):
@@ -92,7 +94,20 @@ class FakeTransport:
 
 
 def base_ctx():
-    return {"tradingDays": {"2026-08-03", "2026-08-04"},
+    """캘린더가 2026-07-31 ~ 08-04를 덮는다. 그 밖은 '모른다'다.
+
+    범위를 명시하는 이유는, 캘린더가 못 덮는 날짜를 휴장으로 부르는 것이
+    이 수집기의 가장 조용한 실패이기 때문이다(교훈57).
+    """
+    return {"tradingDays": {"2026-07-31", "2026-08-03", "2026-08-04"},
+            "calendarFrom": "2026-07-31", "calendarTo": "2026-08-04",
+            "listedAt": {"111111": "2026-01-01", "222222": "2027-01-01"},
+            "delistedAt": {}}
+
+
+def open_ctx():
+    """캘린더가 아예 없는 상태. 상시 운영이 실제로 서 있는 자리다."""
+    return {"tradingDays": set(), "calendarFrom": None, "calendarTo": None,
             "listedAt": {"111111": "2026-01-01", "222222": "2027-01-01"},
             "delistedAt": {}}
 
@@ -439,6 +454,242 @@ def run_all(M=None):
               set(pol["gapReason"]["values"]) & set(pol["failureClass"]["values"]))
         check("pendingT1이 존재한다 (정책 미확정을 명시)",
               "pendingT1" in pol and "emptyResponseRetries" in pol["pendingT1"])
+
+        # 19 캘린더 범위 밖을 휴장으로 부르지 않는다
+        # A0.5 캘린더는 매일 갱신되지 않는다. 범위 밖을 '거래일 목록에 없다'는
+        # 이유로 HOLIDAY로 굳히면, 캘린더가 하루 낡을 때마다 그날의 모든
+        # 결손이 거짓 사유로 봉인된다 - 재수집으로도 못 되돌린다(교훈57·75).
+        beyond = "2026-08-10"        # base_ctx의 calendarTo(08-04) 이후
+        check("캘린더 범위 밖은 캘린더가 말하지 않는다",
+              not M.calendar_covers(beyond, base_ctx()))
+        check("캘린더 범위 안의 비거래일은 여전히 HOLIDAY",
+              M.resolve_gap_reason("EMPTY", "111111", "2026-08-01",
+                                   base_ctx()) == "HOLIDAY")
+        tr = FakeTransport({})
+        o = M.collect_symbol_day(tr, "111111", beyond, pol, base_ctx(),
+                                 sleeper=slept.append)
+        check("범위 밖 빈 응답이 HOLIDAY가 아니라 EMPTY",
+              o.gap_reason == "EMPTY", o.gap_reason)
+        tr = FakeTransport({("111111", "__substitute__"): candles("20260731")})
+        o = M.collect_symbol_day(tr, "111111", beyond, pol, base_ctx(),
+                                 sleeper=slept.append)
+        check("범위 밖 일자대체가 HOLIDAY가 아니라 HALT",
+              o.gap_reason == "HALT", o.gap_reason)
+
+        # 20 날짜 단위 판정 — 종목 하나로는 잴 수 없는 것(교훈73)
+        b = "20260810"
+        data_open = {("111111", b): candles(b), ("333333", b): candles(b, 200)}
+        res = M.run_day(FakeTransport(data_open), ["111111", "333333"], beyond,
+                        pol, base_ctx(), tmp / "v1", tmp / "v1s",
+                        sleeper=slept.append)
+        check("행이 있으면 TRADING_OBSERVED",
+              res["manifest"]["dayVerdict"] == "TRADING_OBSERVED",
+              res["manifest"]["dayVerdict"])
+
+        res = M.run_day(FakeTransport({}), ["111111", "333333"], beyond, pol,
+                        base_ctx(), tmp / "v2", tmp / "v2s",
+                        sleeper=slept.append)
+        check("전 종목이 비면 CLOSED_INFERRED",
+              res["manifest"]["dayVerdict"] == "CLOSED_INFERRED",
+              res["manifest"]["dayVerdict"])
+        check("휴장 추론이 개별 라벨을 HOLIDAY로 정정한다",
+              res["manifest"]["gapReasons"].get("HOLIDAY") == 2,
+              res["manifest"]["gapReasons"])
+
+        res = M.run_day(FakeTransport({}, fail_plan=[{"transportError": "X"}] * 99),
+                        ["111111", "333333"], beyond, pol, base_ctx(),
+                        tmp / "v3", tmp / "v3s", sleeper=slept.append)
+        check("장애가 있으면 휴장이라 단정하지 않는다 (UNKNOWN)",
+              res["manifest"]["dayVerdict"] == "UNKNOWN",
+              res["manifest"]["dayVerdict"])
+        check("캘린더가 덮으면 캘린더가 진실이다 (TRADING_CONFIRMED)",
+              M.day_verdict(date, [], base_ctx())[0] == "TRADING_CONFIRMED")
+        check("캘린더가 덮는 비거래일은 CLOSED_CONFIRMED",
+              M.day_verdict("2026-08-01", [], base_ctx())[0]
+              == "CLOSED_CONFIRMED")
+
+        # 21 NOT_QUERIED — '조회했더니 없음'과 '조회하지 않음'을 가른다(§2.1)
+        res = M.run_day(FakeTransport({}), ["111111"], beyond, pol, base_ctx(),
+                        tmp / "nq", tmp / "nqs", sleeper=slept.append,
+                        not_queried=["333333", "444444"])
+        check("부르지 않은 종목이 NOT_QUERIED로 남는다",
+              res["manifest"]["gapReasons"].get("NOT_QUERIED") == 2,
+              res["manifest"]["gapReasons"])
+        check("manifest의 symbols가 부르지 않은 것까지 센다",
+              res["manifest"]["symbols"] == 3, res["manifest"]["symbols"])
+        check("NOT_QUERIED는 휴장 추론으로 덮이지 않는다",
+              res["manifest"]["symbolsNotQueried"] == 2,
+              res["manifest"]["symbolsNotQueried"])
+        # 이것이 핵심이다. NOT_QUERIED를 GAP이라는 이유로 완료로 세면
+        # 정찰로 건너뛴 종목이 다음 재개에서 영영 조회되지 않는다.
+        check("resume이 NOT_QUERIED를 완료로 세지 않는다",
+              not M.is_resolved({"status": "GAP", "gapReason": "NOT_QUERIED"}))
+        check("resume이 EMPTY는 완료로 센다",
+              M.is_resolved({"status": "GAP", "gapReason": "EMPTY"}))
+        tr_nq = FakeTransport({("333333", b): candles(b, n=30)})
+        M.run_day(tr_nq, ["333333"], beyond, pol, base_ctx(),
+                  tmp / "nq", tmp / "nqs", resume=True, sleeper=slept.append)
+        check("재개가 NOT_QUERIED 종목을 실제로 부른다",
+              any(c[0] == "333333" for c in tr_nq.calls), tr_nq.calls[:3])
+
+        # 22 resume이 앞 실행의 스테이징을 이어받는가
+        # 이것이 없으면 인수 조건에 걸린 하루가 재개될 때, 이미 받아 놓은
+        # 종목들의 행이 통째로 사라진다 - state는 그 종목을 완료로 알고
+        # 있어 다시 부르지 않기 때문이다. 조용하고 되돌릴 수 없다.
+        if have_pa:
+            polx = json.loads(json.dumps(pol))
+            polx["output"]["flushEverySymbols"] = 1
+            good = {("%06d" % i, sent): candles(sent, n=10) for i in range(6)}
+            allt = ["%06d" % i for i in range(6)] + ["999999"]
+            # 999999는 계속 실패해 인수 조건을 못 넘긴다 (미해결 1/7 > 5%)
+            tr_a = FakeTransport(good)
+            orig = tr_a.fetch
+
+            def flaky(ticker, sent_date, hour, p):
+                if ticker == "999999":
+                    return {"transportError": "X"}
+                return orig(ticker, sent_date, hour, p)
+            tr_a.fetch = flaky
+            r1 = M.run_day(tr_a, allt, date, polx, base_ctx(),
+                           tmp / "carry", tmp / "carrys", sleeper=slept.append)
+            stage = (tmp / "carry" / ("date=" + date) /
+                     polx["output"]["stagingDirName"])
+            check("실패한 하루의 조각이 스테이징에 남는다",
+                  not r1["acceptancePassed"]
+                  and len(list(stage.glob("part-*.parquet"))) >= 6,
+                  (r1["acceptancePassed"],
+                   len(list(stage.glob("part-*.parquet")))))
+
+            good2 = dict(good)
+            good2[("999999", sent)] = candles(sent, n=10)
+            r2 = M.run_day(FakeTransport(good2), allt, date, polx, base_ctx(),
+                           tmp / "carry", tmp / "carrys", resume=True,
+                           sleeper=slept.append)
+            check("재개가 인수 조건을 통과한다", r2["acceptancePassed"],
+                  [c for c in r2["manifest"]["acceptance"] if not c["통과"]])
+            check("재개 뒤 행 수가 전 종목 합이다 (앞 실행분을 잃지 않았다)",
+                  r2["manifest"]["rows"] == 70, r2["manifest"]["rows"])
+            t5 = pq.read_table(Path(r2["manifest"]["rawPath"]))
+            check("재개 뒤 parquet가 실제로 7종목을 담는다",
+                  len(set(t5.column("ticker").to_pylist())) == 7,
+                  len(set(t5.column("ticker").to_pylist())))
+            check("재개 뒤 manifest 행 합이 parts 합과 같다",
+                  sum(p["rows"] for p in r2["manifest"]["parts"])
+                  == r2["manifest"]["rows"] == t5.num_rows,
+                  (sum(p["rows"] for p in r2["manifest"]["parts"]),
+                   r2["manifest"]["rows"], t5.num_rows))
+            check("재개 뒤 조각 이름이 겹치지 않았다",
+                  len({p["name"] for p in r2["manifest"]["parts"]})
+                  == len(r2["manifest"]["parts"]), r2["manifest"]["parts"])
+            check("재개 뒤 스테이징이 비었다", not stage.exists())
+            recomb = M.combined_sha(
+                [{"name": p["name"],
+                  "sha256": M.sha256_bytes(
+                      (Path(r2["manifest"]["rawPath"]) / p["name"]).read_bytes())}
+                 for p in r2["manifest"]["parts"]])
+            check("재개 뒤 결합 sha가 실제 파일과 일치",
+                  recomb == r2["manifest"]["sha256"])
+
+        # 23 정찰 — 하나라도 캔들이 오면 즉시 멈춘다
+        tr_p = FakeTransport({("111111", b): candles(b, n=5)})
+        outs = M.probe_market_open(tr_p, ["111111", "333333", "444444"],
+                                   beyond, pol, base_ctx(),
+                                   sleeper=slept.append)
+        check("정찰이 첫 성공에서 멈춘다",
+              len(outs) == 1 and outs[0].status == "OK",
+              [(o.ticker, o.status) for o in outs])
+        tr_p = FakeTransport({})
+        outs = M.probe_market_open(tr_p, ["111111", "333333", "444444"],
+                                   beyond, pol, base_ctx(),
+                                   sleeper=slept.append)
+        check("정찰이 전부 비면 셋을 다 본다",
+              len(outs) == 3 and all(o.status == "GAP" for o in outs),
+              [(o.ticker, o.status) for o in outs])
+
+        # 24 유니버스 원천 — Broad는 스냅샷이 아니라 전체 상장이다
+        if M.A1A_PATH.exists():
+            bt = M.broad_tickers()
+            check("Broad가 A1a 전체 상장에서 온다", len(bt) > 2000, len(bt))
+            check("Broad 티커가 6자를 유지한다 (영숫자 코드 포함)",
+                  all(len(t) == 6 for t in bt),
+                  [t for t in bt if len(t) != 6][:5])
+            check("Broad가 정렬·중복 없음", bt == sorted(set(bt)))
+            check("상장일 이후만 담는다",
+                  len(M.broad_tickers("1990-01-01")) < len(bt),
+                  len(M.broad_tickers("1990-01-01")))
+        else:
+            check("Broad 유니버스 (A1a 없음 - 건너뜀)", True)
+
+        # 25 토큰 — 무인 운영의 단일 실패점
+        # 캐시가 살아 있는데 새로 받으면 발급 한도에 걸리고, 만료됐는데
+        # 재사용하면 그날 수집이 통째로 죽는다. 양쪽을 다 본다.
+        tokdir = tmp / "tok"
+        tokdir.mkdir(parents=True, exist_ok=True)
+        tp = tokdir / "cache.json"
+        minted = []
+
+        def fake_mint(k, s):
+            minted.append(k)
+            return {"access_token": "NEW",
+                    "access_token_token_expired":
+                        (M.now_kst() + timedelta(hours=24))
+                        .strftime("%Y-%m-%d %H:%M:%S")}
+
+        live = (M.now_kst() + timedelta(hours=5)
+                ).strftime("%Y-%m-%d %H:%M:%S")
+        tp.write_text(json.dumps({"accessToken": "OLD", "expiresAt": live,
+                                  "appKeyTail": "cdef"}), encoding="utf-8")
+        tok, how = M.get_token("abcdef", "s", cache=tp, mint=fake_mint)
+        check("살아 있는 토큰을 재사용한다",
+              tok == "OLD" and how == "cache" and not minted, (tok, how, minted))
+
+        dead = (M.now_kst() - timedelta(hours=1)
+                ).strftime("%Y-%m-%d %H:%M:%S")
+        tp.write_text(json.dumps({"accessToken": "OLD", "expiresAt": dead,
+                                  "appKeyTail": "cdef"}), encoding="utf-8")
+        tok, how = M.get_token("abcdef", "s", cache=tp, mint=fake_mint)
+        check("만료된 토큰은 새로 받는다",
+              tok == "NEW" and how == "minted", (tok, how))
+        check("발급 결과가 캐시에 남는다",
+              json.loads(tp.read_text(encoding="utf-8"))["accessToken"] == "NEW")
+
+        tp.write_text(json.dumps({"accessToken": "OLD", "expiresAt": live,
+                                  "appKeyTail": "zzzz"}), encoding="utf-8")
+        tok, _ = M.get_token("abcdef", "s", cache=tp, mint=fake_mint)
+        check("앱키가 바뀌면 캐시를 믿지 않는다", tok == "NEW", tok)
+
+        # 26 manifest 자리 — 통과만 manifest, 실패는 진단으로
+        md = tmp / "mans"
+        p_ok = M.write_manifest({"date": "2026-08-03", "acceptancePassed": True},
+                                md)
+        p_no = M.write_manifest({"date": "2026-08-03",
+                                 "acceptancePassed": False}, md)
+        check("통과한 것만 manifest 디렉터리에 쓴다",
+              Path(p_ok).parent == md and Path(p_ok).name == "2026-08-03.json",
+              str(p_ok))
+        check("실패는 _failed/로 격리한다 (존재가 통과로 읽히지 않게)",
+              Path(p_no).parent == md / "_failed", str(p_no))
+
+        # 27 경로가 환경변수로 옮겨지는가 (VM 운영 기준 8)
+        old = {k: os.environ.get(k) for k in
+               ("MINUTE_RAW_ROOT", "MINUTE_STATE_DIR", "MINUTE_MANIFEST_DIR")}
+        try:
+            os.environ["MINUTE_RAW_ROOT"] = str(tmp / "envraw")
+            os.environ.pop("MINUTE_STATE_DIR", None)
+            os.environ.pop("MINUTE_MANIFEST_DIR", None)
+            r_, s_, m_ = M.env_paths(pol)
+            check("MINUTE_RAW_ROOT가 Raw 위치를 옮긴다",
+                  r_ == tmp / "envraw", str(r_))
+            check("state가 raw 아래로 따라간다",
+                  s_ == tmp / "envraw" / "_state", str(s_))
+            check("manifestDir이 cwd가 아니라 저장소 기준이다",
+                  m_ == REPO / pol["output"]["manifestDir"], str(m_))
+        finally:
+            for k, v in old.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
 
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

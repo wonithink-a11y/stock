@@ -204,13 +204,29 @@ def classify_response(resp, sent_date, pol):
     return "OK", None
 
 
+def calendar_covers(date, ctx):
+    """캘린더가 이 날짜에 대해 말할 자격이 있는가.
+
+    캘린더는 A0.5가 만들고 매일 갱신되지 않는다. 커버 범위 밖의 날짜를
+    '거래일 목록에 없다'는 이유로 휴장이라 부르면, 캘린더가 하루 낡을 때마다
+    그날의 모든 결손이 HOLIDAY로 굳는다 - 재수집으로도 되돌릴 수 없는
+    거짓이다(교훈57·75). 모르는 것은 '휴장'이 아니라 '모른다'이다.
+    """
+    tds = ctx.get("tradingDays") or set()
+    if not tds:
+        return False
+    lo = ctx.get("calendarFrom") or min(tds)
+    hi = ctx.get("calendarTo") or max(tds)
+    return lo <= date <= hi
+
+
 def resolve_gap_reason(kind, ticker, date, ctx):
     """결손의 사유를 확정한다. 응답을 본 자리에서 남긴다(교훈75).
 
-    ctx: {"tradingDays": set, "listedAt": {ticker: 'YYYY-MM-DD'},
-          "delistedAt": {ticker: 'YYYY-MM-DD'}}
+    ctx: {"tradingDays": set, "calendarFrom": str, "calendarTo": str,
+          "listedAt": {ticker: 'YYYY-MM-DD'}, "delistedAt": {...}}
     """
-    if date not in ctx.get("tradingDays", set()) and ctx.get("tradingDays"):
+    if calendar_covers(date, ctx) and date not in ctx["tradingDays"]:
         return "HOLIDAY"
     listed = (ctx.get("listedAt") or {}).get(ticker)
     if listed and date < listed:
@@ -223,6 +239,47 @@ def resolve_gap_reason(kind, ticker, date, ctx):
         # 단정하지 않고 라벨만 남긴다 - 확정은 상장/정지 원장이 생긴 뒤다.
         return "HALT"
     return "EMPTY"
+
+
+def day_verdict(date, outcomes, ctx):
+    """그날 장이 섰는가. 이것은 종목 하나로는 잴 수 없다(교훈73).
+
+    개별 응답은 '이 종목의 그날이 없다'까지만 말한다. 그런데 2,559개가
+    동시에 거래정지일 수는 없으므로, 전부 비었다는 사실 자체가 휴장의
+    증거다 - 병합 범위에서만 나오는 정보다.
+
+    캘린더가 그 날짜를 덮으면 캘린더가 진실이다. 덮지 못할 때만 추론한다.
+    """
+    if calendar_covers(date, ctx):
+        return (("TRADING_CONFIRMED" if date in ctx["tradingDays"]
+                 else "CLOSED_CONFIRMED"), "calendar")
+    if any(o.status == "OK" for o in outcomes):
+        return "TRADING_OBSERVED", "rows"
+    if any(o.status == "UNRESOLVED" for o in outcomes):
+        # 못 받은 것이 있는데 '없다'고 단정하지 않는다. 장애와 휴장은 다르다.
+        return "UNKNOWN", "unresolved"
+    if not [o for o in outcomes if o.gap_reason != "NOT_QUERIED"]:
+        return "UNKNOWN", "not-queried"
+    return "CLOSED_INFERRED", "all-empty"
+
+
+def probe_market_open(transport, tickers, date, pol, ctx, sleeper=time.sleep):
+    """장이 섰는지 소수 종목으로 먼저 묻는다.
+
+    휴장일에 Broad 전체를 도는 것은 약 9,200호출을 버리는 일이다. 유동성
+    상위 몇 개만 먼저 물어 하나라도 캔들이 오면 전체를 돈다.
+
+    하나라도 OK면 즉시 멈춘다 - 장이 섰다는 사실은 한 종목으로 충분하다.
+    반대로 '전부 비었다'는 여러 개를 봐야 한다. 한 종목의 거래정지와
+    휴장을 구분하지 못하기 때문이다.
+    """
+    outs = []
+    for t in tickers:
+        o = collect_symbol_day(transport, t, date, pol, ctx, sleeper=sleeper)
+        outs.append(o)
+        if o.status == "OK":
+            break
+    return outs
 
 
 # ---------------------------------------------------------------- 수집
@@ -404,6 +461,40 @@ def write_parquet(rows, date, out_root, part=0, subdir=None):
     return path, None
 
 
+def next_part_index(stage_dir):
+    """스테이징에 이미 있는 조각 다음 번호. 이름이 겹치면 앞 조각을 덮는다."""
+    top = -1
+    if Path(stage_dir).exists():
+        for f in Path(stage_dir).glob("part-*.parquet"):
+            try:
+                top = max(top, int(f.stem.split("-")[1]))
+            except (IndexError, ValueError):
+                pass
+    return top + 1
+
+
+def adopt_staged_parts(stage_dir):
+    """앞 실행이 남긴 스테이징 조각을 이 실행의 것으로 이어받는다.
+
+    행 수는 파일에서 다시 읽는다. 상태 파일이 들고 있는 종목별 행 수를
+    합치지 않는 이유는, 그것이 '받았다고 기록한 수'이지 '파일에 있는 수'가
+    아니기 때문이다 - 두 개가 갈리는 순간을 manifest가 잡아야 한다.
+    """
+    try:
+        import pyarrow.parquet as pq
+    except ImportError:
+        return []
+    out = []
+    for f in sorted(Path(stage_dir).glob("part-*.parquet")):
+        try:
+            n = pq.ParquetFile(str(f)).metadata.num_rows
+        except Exception:
+            continue
+        out.append({"name": f.name, "rows": n,
+                    "sha256": sha256_bytes(f.read_bytes())})
+    return out
+
+
 def combined_sha(parts):
     """조각들의 결합 해시. 이름으로 정렬해 순서를 고정한다.
 
@@ -494,9 +585,20 @@ def save_state(root, date, pol, done):
 
 # ---------------------------------------------------------------- 실행
 
+def is_resolved(rec):
+    """이 종목의 그날이 끝났는가. NOT_QUERIED는 끝난 것이 아니다.
+
+    '조회하지 않았다'를 GAP이라는 이유로 완료로 세면, 휴장 추론으로
+    건너뛴 종목이 다음 재개에서 영영 조회되지 않는다. §2.1이 EMPTY와
+    NOT_QUERIED의 경계를 지우지 말라고 한 것이 이 자리다.
+    """
+    return (rec.get("status") in ("OK", "GAP")
+            and rec.get("gapReason") != "NOT_QUERIED")
+
+
 def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
             resume=False, run=None, sleeper=time.sleep, progress=None,
-            keep_rows=True):
+            keep_rows=True, not_queried=()):
     run = run or {}
     done = {}
     if resume:
@@ -507,17 +609,23 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
         if st:
             done = st.get("symbols") or {}
 
-    todo = sorted(t for t in tickers
-                  if done.get(t, {}).get("status") not in ("OK", "GAP"))
+    todo = sorted(t for t in tickers if not is_resolved(done.get(t, {})))
 
     outcomes = []
     for t in sorted(tickers):
         prev = done.get(t)
-        if prev and prev.get("status") in ("OK", "GAP"):
+        if prev and is_resolved(prev):
             outcomes.append(Outcome(t, date, prev["status"],
                                     gap_reason=prev.get("gapReason"),
                                     attempts=prev.get("attempts", 0),
                                     detail={"fromState": True}))
+
+    # 조회하지 않기로 한 종목. 호출하지 않았다는 사실을 그 자리에서 남긴다 -
+    # 없는 행은 이유를 말하지 않는다(교훈75).
+    for t in sorted(set(not_queried) - set(tickers)):
+        o = Outcome(t, date, "GAP", gap_reason="NOT_QUERIED")
+        done[t] = o.to_state()
+        outcomes.append(o)
 
     # --- 수집하면서 흘려보낸다 ---------------------------------------------
     # 다 모은 뒤에 배치를 나누면 소용이 없다. Outcome이 이미 전부 들고 있기
@@ -528,15 +636,24 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
     staging = pol["output"].get("stagingDirName", "_staging")
     part_dir = Path(out_root) / ("date=" + dashed(date))
     stage_dir = part_dir / staging
-    if stage_dir.exists():
-        for f in stage_dir.glob("part-*.parquet"):
-            f.unlink()
 
-    parts, violations = [], []
-    row_count = 0
+    # 앞 실행이 스테이징에 남긴 조각을 이어받는다.
+    # resume은 state가 완료로 아는 종목을 다시 부르지 않는다. 그러므로 그
+    # 종목들의 행은 스테이징에만 있고, 여기서 지우면 영영 사라진다 -
+    # 인수 조건에 걸린 하루는 '틀린 데이터'가 아니라 '아직 덜 모은 하루'다.
+    carried = []
+    if stage_dir.exists():
+        if resume:
+            carried = adopt_staged_parts(stage_dir)
+        else:
+            for f in stage_dir.glob("part-*.parquet"):
+                f.unlink()
+
+    parts, violations = list(carried), []
+    row_count = sum(p["rows"] for p in carried)
     err = None
     keep = [] if keep_rows else None
-    buf, part_i, since = [], 0, 0
+    buf, part_i, since = [], next_part_index(stage_dir), 0
 
     def flush():
         nonlocal buf, part_i, row_count, err
@@ -588,6 +705,17 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
                     progress(seen, len(todo))
     flush()
 
+    # --- 날짜 단위 판정 -----------------------------------------------------
+    # 여기서만 잴 수 있다. 개별 종목은 자기 결손밖에 모른다(교훈73).
+    verdict, verdict_by = day_verdict(date, outcomes, ctx)
+    if verdict == "CLOSED_INFERRED":
+        # 휴장이 확정되면 개별 라벨의 HALT/EMPTY는 그 사유가 아니었다.
+        # 원 사실(DATE_MISMATCH)은 failureClass에 그대로 남는다 - 지우지 않는다.
+        for o in outcomes:
+            if o.status == "GAP" and o.gap_reason in ("HALT", "EMPTY"):
+                o.gap_reason = "HOLIDAY"
+                done[o.ticker] = o.to_state()
+
     # resume 상태는 쓰는 시점에 강제한다. 읽는 시점의 발견보다 안전하다(교훈73).
     save_state(state_root, date, pol, done)
 
@@ -604,101 +732,325 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
             pass
         raw_path = part_dir
     else:
-        for p in list(stage_dir.glob("part-*.parquet")) if stage_dir.exists() else []:
-            p.unlink()
-        if stage_dir.exists():
-            try:
-                stage_dir.rmdir()
-            except OSError:
-                pass
+        # 스테이징을 지우지 않는다. 다음 resume이 이어받는다 - state는 이미
+        # 그 종목들을 완료로 알고 있어 다시 부르지 않으므로, 여기서 지우면
+        # 그 행들은 재수집으로도 돌아오지 않는다.
         parts = [] if not passed else parts
 
     sha = combined_sha(parts) if (passed and parts and not err) else None
     man = build_manifest(date, outcomes, row_count, pol, sha, checks, passed,
                          raw_path, run, parts=parts if raw_path else [])
+    man["dayVerdict"] = verdict
+    man["dayVerdictBasis"] = verdict_by
+    man["calendarCovered"] = calendar_covers(date, ctx)
+    man["symbolsWithRows"] = sum(1 for o in outcomes if o.status == "OK")
+    man["symbolsNotQueried"] = sum(1 for o in outcomes
+                                   if o.gap_reason == "NOT_QUERIED")
     if err:
         man["writerError"] = err
     return {"outcomes": outcomes, "rows": keep, "rowCount": row_count,
-            "manifest": man, "acceptancePassed": passed, "writerError": err}
+            "manifest": man, "acceptancePassed": passed, "writerError": err,
+            "dayVerdict": verdict}
 
 
 def load_context():
-    ctx = {"tradingDays": set(), "listedAt": {}, "delistedAt": {}}
+    ctx = {"tradingDays": set(), "listedAt": {}, "delistedAt": {},
+           "calendarFrom": None, "calendarTo": None}
     if CALENDAR_PATH.exists():
         try:
-            ctx["tradingDays"] = set(
-                json.loads(CALENDAR_PATH.read_text(encoding="utf-8"))["tradingDays"])
+            cal = json.loads(CALENDAR_PATH.read_text(encoding="utf-8"))
+            ctx["tradingDays"] = set(cal["tradingDays"])
+            # 캘린더가 어디까지 말할 수 있는지를 함께 들고 다닌다.
+            # 이것이 없으면 범위 밖 날짜를 휴장으로 오독한다.
+            ctx["calendarFrom"] = cal.get("from") or min(ctx["tradingDays"])
+            ctx["calendarTo"] = cal.get("to") or max(ctx["tradingDays"])
         except Exception:
             pass
-    a1a = REPO / "data" / "backfill" / "universe" / "a1a" / "current.jsonl"
-    if a1a.exists():
-        for line in a1a.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                r = json.loads(line)
-                if r.get("listedAt"):
-                    ctx["listedAt"][r["ticker"]] = r["listedAt"]
-            except Exception:
-                pass
+    for r in read_a1a():
+        if r.get("listedAt"):
+            ctx["listedAt"][r["ticker"]] = r["listedAt"]
     return ctx
+
+
+# ---------------------------------------------------------------- 실행 환경
+#
+# 경로·키·토큰은 여기 모은다. 하드코딩하지 않는다(VM 운영 기준 8) -
+# VM은 코드(~/collector)와 자격증명(~/collector-venv)을 다른 곳에 둔다.
+
+A1A_PATH = REPO / "data" / "backfill" / "universe" / "a1a" / "current.jsonl"
+
+# 휴장 정찰용 기본 표본. 유동성 상위이고 상장 이력이 길어 정지 확률이 낮다.
+# 유니버스 스냅샷이 있으면 그쪽 상위를 쓰고, 이것은 폴백이다.
+PROBE_FALLBACK = ["005930", "000660", "035420"]
+
+
+def read_a1a():
+    if not A1A_PATH.exists():
+        return []
+    out = []
+    for line in A1A_PATH.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            out.append(json.loads(line))
+        except Exception:
+            pass
+    return out
+
+
+def broad_tickers(date=None):
+    """Broad = 전체 상장. 유니버스 스냅샷을 수집 필터로 쓰지 않는다.
+
+    스냅샷은 거래대금 창(60거래일)을 채운 종목만 담는다 - 신규상장은
+    20거래일이 쌓일 때까지 빠지고, 그 20일치는 나중에 받을 수 없다.
+    §6.3의 '유니버스로 Raw를 거르지 않는다'가 정확히 이 자리를 말한 것이다.
+    """
+    out = []
+    for r in read_a1a():
+        tk = r.get("ticker")
+        if not tk:
+            continue
+        if date and r.get("listedAt") and r["listedAt"] > date:
+            continue
+        out.append(tk)
+    return sorted(set(out))
+
+
+def probe_tickers(candidates, universe_dir=None):
+    """정찰 표본. 유니버스 스냅샷의 거래대금 상위에서 고른다."""
+    d = Path(universe_dir or (REPO / "data" / "backfill" / "minute" / "universe"))
+    pool = set(candidates)
+    snaps = sorted(d.glob("*.jsonl")) if d.exists() else []
+    if snaps:
+        try:
+            rows = []
+            for line in snaps[-1].read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    rows.append(json.loads(line))
+            rows.sort(key=lambda r: r.get("turnoverEok") or 0, reverse=True)
+            top = [r["ticker"] for r in rows if r["ticker"] in pool][:3]
+            if len(top) == 3:
+                return top
+        except Exception:
+            pass
+    return [t for t in PROBE_FALLBACK if t in pool][:3]
+
+
+def load_env_file(path=None):
+    p = Path(path or os.environ.get("KIS_ENV_PATH")
+             or (REPO / ".env")).expanduser()
+    env = {}
+    if p.exists():
+        for line in p.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            k, _, v = line.partition("=")
+            env[k.strip()] = v.strip()
+    return env
+
+
+def credentials():
+    env = load_env_file()
+    key = os.environ.get("KIS_APP_KEY") or env.get("KIS_APP_KEY")
+    sec = os.environ.get("KIS_APP_SECRET") or env.get("KIS_APP_SECRET")
+    if not key or not sec:
+        raise SystemExit("KIS 키가 없다. scripts/setup-kis-key.py를 먼저 돌린다")
+    return key, sec
+
+
+def token_cache_path():
+    return Path(os.environ.get("KIS_TOKEN_CACHE")
+                or (REPO / ".token_cache_kis.json")).expanduser()
+
+
+def _mint_token(key, sec):
+    import requests
+    r = requests.post(
+        BASE + "/oauth2/tokenP",
+        data=json.dumps({"grant_type": "client_credentials",
+                         "appkey": key, "appsecret": sec}),
+        headers={"content-type": "application/json"}, timeout=20)
+    b = r.json()
+    if r.status_code != 200 or "access_token" not in b:
+        raise SystemExit("토큰 발급 실패: http=%s code=%s"
+                         % (r.status_code, b.get("error_code", b.get("msg_cd"))))
+    return b
+
+
+def get_token(key, sec, cache=None, mint=None):
+    """캐시가 살아 있으면 재사용하고 아니면 발급한다.
+
+    무인 운영에서 이것이 없으면 24시간마다 사람이 붙어야 한다. 반대로
+    매번 새로 받으면 발급 한도에 걸리고 같은 앱키를 쓰는 다른 프로세스의
+    토큰까지 흔든다 - 만료 10분 전까지는 반드시 재사용한다.
+    """
+    p = Path(cache or token_cache_path())
+    try:
+        c = json.loads(p.read_text(encoding="utf-8"))
+        exp = datetime.fromisoformat(c["expiresAt"])
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=KST)
+        if (exp - timedelta(minutes=10) > now_kst()
+                and c.get("appKeyTail") == key[-4:]):
+            return c["accessToken"], "cache"
+    except Exception:
+        pass
+
+    b = (mint or _mint_token)(key, sec)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps({"accessToken": b["access_token"],
+                            "expiresAt": b.get("access_token_token_expired", ""),
+                            "issuedAt": stamp(), "appKeyTail": key[-4:]},
+                           ensure_ascii=False, indent=2))
+    try:
+        os.chmod(p, 0o600)
+    except Exception:
+        pass
+    return b["access_token"], "minted"
+
+
+def env_paths(pol=None):
+    """Raw는 저장소 밖이다(§1). 기본값은 로컬 진단용이고 VM은 환경변수로 옮긴다."""
+    pol = pol or load_policy()
+    raw = Path(os.environ.get("MINUTE_RAW_ROOT")
+               or (REPO / "data" / "minute")).expanduser()
+    state = Path(os.environ.get("MINUTE_STATE_DIR")
+                 or (raw / "_state")).expanduser()
+    # 정책의 manifestDir은 저장소 상대 경로다. cwd 상대로 읽으면 systemd에서
+    # WorkingDirectory에 따라 다른 곳에 쓴다.
+    man = Path(os.environ.get("MINUTE_MANIFEST_DIR")
+               or (REPO / pol["output"]["manifestDir"])).expanduser()
+    return raw, state, man
+
+
+def write_manifest(man, manifest_dir):
+    """manifest는 '인수 조건을 통과했다'는 뜻이다(§5·교훈43).
+
+    실패한 실행을 같은 자리에 쓰면 '파일이 있다'가 '통과했다'로 읽힌다.
+    실패는 진단으로 _failed/에 남긴다 - 버리지도 않고 승격하지도 않는다.
+    """
+    d = Path(manifest_dir)
+    if not man.get("acceptancePassed"):
+        d = d / "_failed"
+        name = man["date"] + "-" + now_kst().strftime("%H%M%S") + ".json"
+    else:
+        name = man["date"] + ".json"
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / name
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(man, ensure_ascii=False, indent=2) + "\n")
+    return p
+
+
+def collect_one_day(date, tickers, pol=None, ctx=None, resume=True,
+                    probe=None, transport=None, paths=None, progress=None,
+                    source=None):
+    """하루치를 수집하고 manifest까지 쓴다. main()과 상시 러너의 공통 경로다.
+
+    probe=True면 소수 종목으로 먼저 묻고, 전부 비면 나머지를 NOT_QUERIED로
+    남긴 채 끝낸다. 기본값은 '캘린더가 그 날짜를 못 덮을 때만 정찰'이다 -
+    캘린더가 거래일이라고 말하면 물어볼 것이 없다.
+    """
+    pol = pol or load_policy()
+    ctx = ctx if ctx is not None else load_context()
+    raw, state, mandir = paths or env_paths(pol)
+    if probe is None:
+        probe = not calendar_covers(date, ctx)
+
+    if transport is None:
+        key, sec = credentials()
+        token, how = get_token(key, sec)
+        transport = KisTransport(key, sec, token)
+    else:
+        how = "injected"
+
+    run = {"host": os.environ.get("HOSTNAME")
+           or os.environ.get("COMPUTERNAME") or "local",
+           "tokenSource": how, "tickerSource": source}
+
+    skipped = ()
+    targets = list(tickers)
+    if probe and len(tickers) > 8:
+        pt = probe_tickers(tickers)
+        outs = probe_market_open(transport, pt, date, pol, ctx)
+        if pt and all(o.status == "GAP" for o in outs):
+            # 전부 비었다. 휴장으로 보고 나머지는 부르지 않는다 -
+            # 조회하지 않았다는 사실은 NOT_QUERIED로 남는다.
+            targets = pt
+            skipped = [t for t in tickers if t not in set(pt)]
+
+    res = run_day(transport, targets, date, pol, ctx, raw, state,
+                  resume=resume, run=run, progress=progress,
+                  keep_rows=False, not_queried=skipped)
+    res["manifestPath"] = str(write_manifest(res["manifest"], mandir))
+    return res
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date")
-    ap.add_argument("--tickers")
+    ap.add_argument("--tickers", help="쉼표 구분")
+    ap.add_argument("--tickers-file", help="한 줄에 하나")
+    ap.add_argument("--universe", choices=["broad"],
+                    help="broad = 전체 상장 (A1a current.jsonl)")
     ap.add_argument("--resume", action="store_true")
-    ap.add_argument("--out", default=str(REPO / "data" / "minute"))
-    ap.add_argument("--state", default=str(REPO / "data" / "minute" / "_state"))
+    ap.add_argument("--out")
+    ap.add_argument("--state")
+    ap.add_argument("--manifest-dir")
+    ap.add_argument("--probe", dest="probe", action="store_true", default=None,
+                    help="소수 종목으로 휴장 여부를 먼저 확인한다")
+    ap.add_argument("--no-probe", dest="probe", action="store_false")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
 
     if args.selftest:
         sys.exit(selftest())
 
-    if not args.date or not args.tickers:
-        ap.error("--date 와 --tickers 가 필요하다 (또는 --selftest)")
+    if not args.date:
+        ap.error("--date 가 필요하다 (또는 --selftest)")
+    date = dashed(args.date)
+
+    if args.universe == "broad":
+        tickers, source = broad_tickers(date), "broad:a1a"
+    elif args.tickers_file:
+        tickers = [l.strip() for l in
+                   Path(args.tickers_file).read_text(encoding="utf-8").splitlines()
+                   if l.strip()]
+        source = "file:" + Path(args.tickers_file).name
+    elif args.tickers:
+        tickers = [t.strip() for t in args.tickers.split(",") if t.strip()]
+        source = "arg"
+    else:
+        ap.error("--universe · --tickers · --tickers-file 중 하나가 필요하다")
+
+    if not tickers:
+        raise SystemExit("종목이 비었다: " + source)
 
     pol = load_policy()
-    env = {}
-    p = REPO / ".env"
-    if p.exists():
-        for line in p.read_text(encoding="utf-8").splitlines():
-            k, _, v = line.partition("=")
-            env[k.strip()] = v.strip()
-    key = os.environ.get("KIS_APP_KEY") or env.get("KIS_APP_KEY")
-    sec = os.environ.get("KIS_APP_SECRET") or env.get("KIS_APP_SECRET")
-    if not key or not sec:
-        raise SystemExit("KIS 키가 없다")
+    raw, state, mandir = env_paths(pol)
+    paths = (Path(args.out or raw), Path(args.state or state),
+             Path(args.manifest_dir or mandir))
 
-    cache = REPO / ".token_cache_kis.json"
-    if not cache.exists():
-        raise SystemExit("토큰 캐시가 없다. probe-minute-kis.py를 먼저 돌린다")
-    token = json.loads(cache.read_text(encoding="utf-8"))["accessToken"]
-
-    tr = KisTransport(key, sec, token)
-    tickers = [t.strip() for t in args.tickers.split(",") if t.strip()]
-    res = run_day(tr, tickers, args.date, pol, load_context(),
-                  args.out, args.state, resume=args.resume,
-                  run={"host": os.environ.get("COMPUTERNAME", "local")},
-                  progress=lambda i, n: print("  %d/%d" % (i, n), flush=True))
+    res = collect_one_day(
+        date, tickers, pol=pol, resume=args.resume, probe=args.probe,
+        paths=paths, source=source,
+        progress=lambda i, n: print("  %d/%d" % (i, n), flush=True))
 
     man = res["manifest"]
-    print(json.dumps({k: man[k] for k in
-                      ("date", "rows", "symbols", "gapReasons", "unresolved",
-                       "acceptancePassed")}, ensure_ascii=False, indent=2))
+    print(json.dumps({k: man.get(k) for k in
+                      ("date", "dayVerdict", "rows", "symbols",
+                       "symbolsWithRows", "symbolsNotQueried",
+                       "gapReasons", "unresolved", "acceptancePassed")},
+                     ensure_ascii=False, indent=2))
     if not res["acceptancePassed"]:
         for c in man["acceptance"]:
             if not c["통과"]:
                 print("  FAIL " + c["항목"] + " " +
                       json.dumps(c["실측"], ensure_ascii=False)[:160])
         return 1
-    mdir = Path(pol["output"]["manifestDir"])
-    mdir.mkdir(parents=True, exist_ok=True)
-    with open(mdir / (dashed(args.date) + ".json"), "w",
-              encoding="utf-8", newline="\n") as f:
-        f.write(json.dumps(man, ensure_ascii=False, indent=2))
+    print("  manifest " + res["manifestPath"])
     return 0
 
 

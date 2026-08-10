@@ -61,32 +61,45 @@ def safe(fn, default=None):
         return default
 
 
-def load_trading_days(path):
+def load_calendar(path):
+    """거래일 집합과 '어디까지 아는가'를 함께 읽는다.
+
+    범위를 같이 들고 오지 않으면, 캘린더가 낡은 뒤에도 마지막 거래일을
+    영원히 '오늘 기대치'로 돌려준다 - 수집이 멈춘 것을 감시기가 모르는
+    것보다 나쁜 것은, 멈추지 않았는데 멈췄다고 믿는 것이다.
+    """
     def _():
         d = json.loads(Path(path).read_text(encoding="utf-8"))
-        return set(d.get("tradingDays") or [])
-    return safe(_, set()) or set()
+        days = set(d.get("tradingDays") or [])
+        return days, (d.get("to") or (max(days) if days else None))
+    return safe(_, (set(), None)) or (set(), None)
 
 
-def expected_date(now, trading_days):
+def load_trading_days(path):
+    return load_calendar(path)[0]
+
+
+def expected_date(now, trading_days, calendar_to=None):
     """오늘 수집했어야 하는 영업일.
 
-    캘린더가 있으면 그것이 진실이다. 없으면 주말만 제외한다 -
-    거친 쪽으로 틀리면 공휴일에 거짓 경보가 난다. 그래서 캘린더가
-    없다는 사실 자체를 보고에 남긴다(모르는 것은 0이 아니다, 교훈57).
+    캘린더가 덮는 구간에서는 캘린더가 진실이다. 그 뒤로는 주말만
+    제외한다 - 거친 쪽으로 틀리면 공휴일에 거짓 경보가 나지만, 반대로
+    틀리면 수집이 멈춘 것을 영영 모른다. 비대칭이라 거친 쪽을 고른다.
+    어느 근거를 썼는지는 보고에 남긴다(모르는 것은 0이 아니다, 교훈57).
     """
     d = now.date()
-    if trading_days:
-        for i in range(0, 15):
-            cand = (d - timedelta(days=i)).isoformat()
-            if cand in trading_days:
-                return cand, "calendar"
-        return None, "calendar-miss"
+    hi = calendar_to or (max(trading_days) if trading_days else None)
     for i in range(0, 15):
         c = d - timedelta(days=i)
+        s = c.isoformat()
+        if hi and s <= hi:
+            if s in trading_days:
+                return s, "calendar"
+            continue
         if c.weekday() < 5:
-            return c.isoformat(), "weekday-heuristic"
-    return None, "unknown"
+            return s, ("weekday-heuristic-beyond-calendar" if hi
+                       else "weekday-heuristic")
+    return None, ("calendar-miss" if trading_days else "unknown")
 
 
 def read_manifest(manifest_dir, date):
@@ -168,7 +181,10 @@ def judge(now, deadline_hm, exp_date, manifest, state, max_unresolved_rate):
             reasons.append("미해결 비율 %.3f > 상한 %.3f"
                            % (rate, max_unresolved_rate))
 
-    if manifest.get("rows", 0) <= 0:
+    # 휴장일에는 행이 0인 것이 정상이다. 그 판정은 수집기가 응답 전체를
+    # 보고 내렸고(dayVerdict), 감시기는 그것을 다시 계산하지 않는다.
+    closed = str(manifest.get("dayVerdict") or "").startswith("CLOSED")
+    if manifest.get("rows", 0) <= 0 and not closed:
         reasons.append("행이 0이다")
 
     return ("STALE" if reasons else "OK"), (reasons or ["정상"])
@@ -176,8 +192,8 @@ def judge(now, deadline_hm, exp_date, manifest, state, max_unresolved_rate):
 
 def run(args):
     now = args._now or now_kst()
-    tds = load_trading_days(args.calendar)
-    exp, how = expected_date(now, tds)
+    tds, cal_to = load_calendar(args.calendar)
+    exp, how = expected_date(now, tds, cal_to)
     man = read_manifest(args.manifest, exp) if exp else None
     st = read_state(args.state, exp) if exp else None
     newest, newest_at = latest_manifest(args.manifest)
@@ -194,6 +210,8 @@ def run(args):
         "expectedDate": exp,
         "expectedDateSource": how,
         "calendarLoaded": bool(tds),
+        "calendarThrough": cal_to,
+        "dayVerdict": (man or {}).get("dayVerdict"),
         "lastManifestAt": (man or {}).get("_mtime") or newest_at,
         "lastSuccessfulCollectionAt": (
             newest_at if (newest or {}).get("acceptancePassed") else None),
@@ -225,6 +243,8 @@ def emit(report, as_json):
     rows = [
         ("기대 영업일", str(r["expectedDate"]) + "  (" +
          r["expectedDateSource"] + ")"),
+        ("캘린더 커버", str(r.get("calendarThrough")) + " 까지"),
+        ("날짜 판정", str(r.get("dayVerdict"))),
         ("마지막 manifest", str(r["lastManifestAt"])),
         ("마지막 성공 수집", str(r["lastSuccessfulCollectionAt"]) +
          ("  " + str(r["lastSuccessfulDate"])

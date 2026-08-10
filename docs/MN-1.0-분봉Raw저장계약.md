@@ -198,6 +198,33 @@ gapReason   HALT        거래정지
 
 마지막 두 줄의 경계를 지운 채로 저장하면 커버리지가 영원히 거짓말을 한다.
 
+**`NOT_QUERIED`는 완료가 아니다.** resume이 '이 종목의 그날이 끝났는가'를 물을 때
+`GAP`이라는 이유만으로 통과시키면, 정찰로 건너뛴 종목이 다음 재개에서 영영
+조회되지 않는다. 판정은 `status == GAP AND gapReason != NOT_QUERIED`다.
+
+### 2.2 휴장 판정은 종목이 아니라 날짜의 성질이다 (2026-08-10 확정)
+
+개별 응답은 "이 종목의 그날이 없다"까지만 말한다. 그것이 거래정지인지 휴장인지는
+**전 종목을 봐야** 갈린다 — 2,559개가 동시에 정지일 수는 없기 때문이다(교훈73).
+
+```
+dayVerdict   TRADING_CONFIRMED   캘린더가 거래일이라고 말한다
+             CLOSED_CONFIRMED    캘린더가 휴장이라고 말한다
+             TRADING_OBSERVED    캘린더 밖이지만 캔들을 받았다
+             CLOSED_INFERRED     캘린더 밖이고 조회한 전 종목이 비었다
+             UNKNOWN             미해결이 있어 '없다'고 단정할 수 없다
+```
+
+`CLOSED_INFERRED`일 때만 개별 `HALT`/`EMPTY`를 `HOLIDAY`로 정정한다. 원 사실인
+`DATE_MISMATCH`는 `failureClass`에 그대로 남긴다 — 판정이 사실을 덮지 않는다.
+
+**★ 캘린더가 못 덮는 날짜를 휴장이라고 부르지 않는다.** `calendar.json`은 A0.5가
+만들고 매일 갱신되지 않는다(실측: 2026-08-10 시점의 `to`는 2026-08-03). "거래일
+목록에 없다"를 휴장으로 읽으면, 캘린더가 하루 낡을 때마다 그날의 **모든** 결손이
+거짓 사유로 굳는다 — 재수집으로도 되돌릴 수 없다(교훈57·75). 그래서 `calendarFrom
+~ calendarTo` 밖에서는 캘린더가 판정에 참여하지 않고, 휴장 여부는 위의 날짜 단위
+추론이 답한다.
+
 ---
 
 ## 3. 파티션과 포맷
@@ -278,7 +305,14 @@ dispatch하고 재실행도 하기 때문이다.
 manifest는 "파일이 존재한다"가 아니라 **"이 산출물이 인수 조건을 통과했다"**를
 뜻한다(교훈43). 그러므로:
 
-- 인수 조건 실패 시 parquet를 **쓰지 않는다.** 쓰고 나서 `exit(1)`하지 않는다.
+- 인수 조건 실패 시 parquet를 **최종 경로로 올리지 않는다.** 쓰고 나서 `exit(1)`하지
+  않는다. 실패한 실행의 manifest는 `manifest/_failed/<date>-<hhmmss>.json`으로
+  격리한다 — 버리면 진단이 사라지고, 같은 자리에 두면 존재가 통과로 읽힌다.
+- **다만 스테이징 조각은 지우지 않는다.** resume은 상태가 완료로 아는 종목을 다시
+  부르지 않으므로, 실패했다고 스테이징을 비우면 그 종목들의 행이 재수집으로도
+  돌아오지 않는다. 인수 조건에 걸린 하루는 '틀린 데이터'가 아니라 **'아직 덜 모은
+  하루'**다. 다음 resume이 이어받아 조각 번호를 이어 붙이고, 하루가 온전해지는
+  순간에만 승격한다.
 - 워크플로의 manifest·commit 스텝은 `if: success()`다.
 - Raw가 저장소 밖에 있으므로 `REQUIRED_UPSTREAM` 표에 **'외부 저장소 참조'를 명시적
   타입으로 추가한다.** 안 넣으면 "파일이 없으니 검증을 건너뛴다"는 조용한 경로가 생긴다.
@@ -561,9 +595,9 @@ T0 정찰 (§6)                        ✔ 완료 2026-08-09
 Execution Environment 결정 (§1.1)    ✔ 상시 VM (Oracle Always Free)
 Storage Provider 결정 (§1.1)         ✔ 블록 볼륨(주) + Object Storage(사본)
 Raw 계약 확정 (TBD 제거)             ✔ 완료 2026-08-09
-T1 신뢰성 정찰 (§6.1, 7일)          ← Collector의 T1 비의존 부분은 병행
-  동시에  ① Core 10종목 smoke (Step A)
-         ② Broad 당일 증분 시작 — T1과 독립이며 미루면 손실이 누적된다
+Core 10종목 smoke (Step A)            ✔ GO 2026-08-10 (15항목 전부 PASS)
+Broad 당일 증분 상시화 (§10)          ✔ 구현 2026-08-10 — deploy/install-vm.sh
+T1 신뢰성 정찰 (§6.1, 7일)          ← 여기. Broad와 병행하며 서로 막지 않는다
 T1 결과 반영 → retry·version·correction 정책 확정
 Core 182종목 백필 (Step B) → Extended → On-demand
 Feature Engine → Signal Engine → Execution Arbiter → Backtest
@@ -571,6 +605,69 @@ Feature Engine → Signal Engine → Execution Arbiter → Backtest
 
 **Broad 당일 증분만 이 사슬 밖에 있다.** 나머지는 앞 단계가 틀리면 다시 하면
 되지만, 오늘 받지 않은 분봉은 다시 할 수 없다.
+
+---
+
+## 10. 상시 운영 (확정 2026-08-10)
+
+한 번 도는 것과 매일 도는 것은 다른 문제다. 1회 수집은 명령이고, 상시화는
+**하루가 사라지지 않는다는 성질**이다. 그 성질을 무엇이 지키는지 적어 둔다.
+
+```
+systemd timer   하루 2회 · 16:10 · 17:40 KST · Persistent=true
+러너            scripts/run-minute-daily.py — 최근 3영업일 중 미완료를 채운다
+수집기          scripts/collect-minute-kis.py — 하루치를 안다
+cron            scripts/alive-monitor.py 18:10 KST · deadline 18:00
+설치            deploy/install-vm.sh (멱등 · --dry-run · --uninstall)
+```
+
+### 왜 하루가 아니라 창(window)인가
+
+매 실행이 '오늘 하루'만 본다면 그 하루의 실패는 그대로 손실이다. 러너는 최근
+**3영업일** 중 통과한 manifest가 없는 날을 오래된 것부터 채운다. 그래서 한 번의
+실패가 다음 실행에서 저절로 메워지고, 그날 안에 두 번(16:10·17:40) 기회가 있다.
+
+`Persistent=true`가 마지막 방어선이다 — VM이 꺼져 있어 트리거를 놓쳤으면 다음
+부팅에 따라잡는다.
+
+### 방어의 층
+
+```
+게이트 1  요청일자 ∈ 응답 (P0)        엉뚱한 날짜를 성공으로 세지 않는다
+게이트 2  인수 조건                   통과 못 하면 승격하지 않는다
+게이트 3  창 3영업일 · 하루 2회        한 번의 실패가 손실이 되지 않는다
+게이트 4  alive-monitor               멈춘 것을 그날 안에 안다
+게이트 5  MemoryMax=320M              OOM 대상이 항상 수집기가 되게 한다
+```
+
+게이트 5가 중요한 이유는 이 VM에 기존 모니터(`/home/ubuntu/stock`)가 함께 살기
+때문이다. 커널이 OOM 대상을 고르면 더 오래 살아온 쪽이 뽑힐 수 있다. 한도를
+수집 유닛에 걸어 두면 죽는 쪽이 항상 수집기다 — **수집은 다음 실행이 이어받지만,
+알림이 죽으면 그 사실을 알려줄 것이 없다.**
+
+### 휴장일에 9,200호출을 버리지 않는다
+
+캘린더가 못 덮는 날짜(=앞으로의 모든 날짜)에는 유동성 상위 3종목으로 먼저 묻는다.
+하나라도 캔들이 오면 전체를 돌고, 전부 비면 나머지를 `NOT_QUERIED`로 남긴 채
+끝낸다. 거래일에 드는 비용은 약 5호출이고, 휴장일에 아끼는 것은 약 9,200호출이다.
+
+### 손대지 않고 남긴 것
+
+```
+manifest 커밋       VM에서 git push를 하려면 자격증명이 VM에 들어간다. 사람의 결정
+A1a 갱신 주기       Broad 대상은 A1a current.jsonl이다. 신규상장은 A1a를 다시
+                    만들어야 들어온다 (build-universe-a1a.py · KIND · 네트워크)
+5% 예산 안의 미해결  통과한 manifest는 다시 돌지 않는다. 재수집은 §4의 '새
+                    requestedAt 버전'이고 그 정책은 pendingT1이다
+알림 연동           alive-monitor는 종료 코드와 로그까지다. 텔레그램 훅은 별건
+```
+
+### Broad 대상은 유니버스 스냅샷이 아니다
+
+수집 대상은 **A1a `current.jsonl`(전체 상장)**이고 유니버스 스냅샷이 아니다.
+스냅샷은 거래대금 창 60거래일을 채운 종목만 담아 신규상장이 20거래일 동안 빠진다
+(실측 2026-08-10: a1a 2,579 · 스냅샷 2,556). 그 20일치는 나중에 받을 수 없다 —
+§6.3의 '유니버스로 Raw를 거르지 않는다'가 정확히 이 자리를 말한 것이다.
 
 약관 확인(§7)은 이 사슬과 병렬이며 어느 단계도 막지 않는다. 단 **Q1(장기 보관)의
 답이 '불가'면 §1 전체를 다시 본다.**
@@ -623,11 +720,35 @@ KIS_ENV_PATH=~/collector-venv/.env ~/collector-venv/bin/python3 scripts/check-vm
 KIS_ENV_PATH=~/collector-venv/.env KIS_TOKEN_CACHE=~/collector-venv/.token_cache_kis.json \
   ~/collector-venv/bin/python3 scripts/smoke-minute-kis.py --monitor-pattern home/ubuntu/stock
 
-# 5  유니버스 스냅샷
+# 5  유니버스 스냅샷 (분석 대상. 수집 대상을 거르지 않는다)
 ~/collector-venv/bin/python3 scripts/build-minute-universe.py --as-of $(date +%F)
 
-# 6  감시 (0=OK 1=STALE 2=PENDING. cron에 그대로 건다)
+# 6  Broad 당일 증분 — 먼저 무엇을 돌지 확인한다 (네트워크를 쓰지 않는다)
+~/collector-venv/bin/python3 scripts/run-minute-daily.py --dry-run --days 3
+
+# 7  실제로 한 번 돌린다 (Broad 약 40분/일)
+KIS_ENV_PATH=~/collector-venv/.env KIS_TOKEN_CACHE=~/collector-venv/.token_cache_kis.json \
+MINUTE_RAW_ROOT=~/minute-raw \
+  ~/collector-venv/bin/python3 scripts/run-minute-daily.py --days 3
+
+# 8  상시화  ← 여기가 실질적 완성 지점이다
+bash deploy/install-vm.sh --dry-run     # 무엇을 할지 먼저 본다
+bash deploy/install-vm.sh               # timer + cron + logrotate
+systemctl list-timers minute-collect.timer
+
+# 9  감시 (0=OK 1=STALE 2=PENDING. install-vm.sh가 cron에 건다)
 ~/collector-venv/bin/python3 scripts/alive-monitor.py --deadline 18:00
+```
+
+`install-vm.sh`는 멱등하다. 코드를 갱신한 뒤 다시 돌리면 유닛만 새로 깔린다.
+시스템 시간대를 바꾸지 않고 KST 기준 시각을 로컬 벽시계로 환산해 유닛에 박는다 —
+기존 모니터가 그 시간대를 전제할 수 있기 때문이다.
+
+```
+로그      ~/collector-venv/logs/minute-collect.log · alive-monitor.log
+Raw       ~/minute-raw/date=YYYY-MM-DD/part-*.parquet   (저장소 밖, §1)
+manifest  ~/collector/data/backfill/minute/manifest/    (저장소 안, 커밋 대상)
+상태      ~/minute-raw/_state/state-YYYY-MM-DD.json
 ```
 
 smoke가 `판정 GO`면 Broad로 간다. 추가 검증 단계를 만들지 않는다.

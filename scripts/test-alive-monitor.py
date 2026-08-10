@@ -167,6 +167,59 @@ def run_all(M=None):
               and r3["expectedDateSource"] == "weekday-heuristic",
               (r3["calendarLoaded"], r3["expectedDateSource"]))
 
+        # 10b 캘린더가 낡아도 기대 영업일이 굳지 않는다
+        # 캘린더는 A0.5가 만들고 매일 갱신되지 않는다. 범위 뒤로도 마지막
+        # 거래일을 계속 돌려주면, 수집이 몇 주 멈춰도 감시기는 그 옛 날짜의
+        # manifest를 보고 계속 OK라고 말한다 - 감시가 없는 것보다 나쁘다.
+        beyond = datetime(2026, 8, 12, 19, 0, tzinfo=KST)   # 캘린더 끝(08-04) 이후
+        exp, how = M.expected_date(beyond, {"2026-08-03", "2026-08-04"},
+                                   "2026-08-04")
+        check("캘린더 범위 뒤로는 평일 휴리스틱으로 넘어간다",
+              exp == "2026-08-12" and how.endswith("beyond-calendar"),
+              (exp, how))
+        exp2, how2 = M.expected_date(datetime(2026, 8, 4, 19, 0, tzinfo=KST),
+                                     {"2026-08-03", "2026-08-04"}, "2026-08-04")
+        check("캘린더 범위 안에서는 여전히 캘린더가 진실",
+              exp2 == "2026-08-04" and how2 == "calendar", (exp2, how2))
+        exp3, how3 = M.expected_date(datetime(2026, 8, 1, 19, 0, tzinfo=KST),
+                                     {"2026-08-03", "2026-08-04"}, "2026-08-04")
+        check("범위 안의 비거래일은 건너뛴다 (토요일에 경보 없음)",
+              exp3 == "2026-07-31" or exp3 is None, (exp3, how3))
+
+        shutil.rmtree(man, ignore_errors=True)
+        shutil.rmtree(sta, ignore_errors=True)
+        write_manifest(man, "2026-08-12", dayVerdict="TRADING_OBSERVED")
+        write_state(sta, "2026-08-12", ok=10, unresolved=0)
+        r4 = M.run(A(_now=beyond))
+        check("캘린더 밖 날짜의 수집을 정상으로 읽는다",
+              r4["status"] == "OK" and r4["expectedDate"] == "2026-08-12",
+              (r4["status"], r4["expectedDate"], r4["reasons"]))
+        check("캘린더가 어디까지 아는지 보고한다",
+              r4["calendarThrough"] == "2026-08-04", r4["calendarThrough"])
+
+        # 10c 휴장일의 행 0은 정상이다
+        # 판정은 수집기가 응답 전체를 보고 내렸다. 감시기가 다시 세지 않는다.
+        shutil.rmtree(man, ignore_errors=True)
+        write_manifest(man, "2026-08-12", rows=0, symbols=2559,
+                       dayVerdict="CLOSED_INFERRED")
+        r5 = M.run(A(_now=beyond))
+        check("휴장으로 판정된 날의 행 0은 경보가 아니다",
+              r5["status"] == "OK", (r5["status"], r5["reasons"]))
+        check("휴장 판정을 보고에 남긴다",
+              r5["dayVerdict"] == "CLOSED_INFERRED", r5["dayVerdict"])
+        shutil.rmtree(man, ignore_errors=True)
+        write_manifest(man, "2026-08-12", rows=0,
+                       dayVerdict="TRADING_OBSERVED")
+        r6 = M.run(A(_now=beyond))
+        check("거래일인데 행 0이면 여전히 STALE",
+              r6["status"] == "STALE", (r6["status"], r6["reasons"]))
+
+        # 원상 복구 — 뒤 테스트가 원래 픽스처를 전제한다
+        shutil.rmtree(man, ignore_errors=True)
+        shutil.rmtree(sta, ignore_errors=True)
+        write_manifest(man, DAY)
+        write_state(sta, DAY, ok=10, unresolved=0)
+
         # 11 상태를 저장하지 않는다 (판정은 매번 계산)
         before_files = set(p.name for p in tmp.rglob("*"))
         M.run(A(_now=after))

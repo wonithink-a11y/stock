@@ -24,3 +24,7 @@ data/backfill/price/_shards/
 *appkey*
 *apikey*
 !scripts/setup-kis-key.py
+
+# 분봉 Raw는 저장소 밖이다(MN-1.0 §1). 로컬 실행은 진단용이며 커밋 대상이 아니다.
+# manifest(data/backfill/minute/manifest)는 반대로 유일한 커밋 대상이라 무시하지 않는다.
+data/minute/
