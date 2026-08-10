@@ -682,6 +682,34 @@ python3 scripts/probe-t1-minute.py --verify-plan     # 0=GO 1=NO-GO
 갈라 찍히므로 `t1.log`에서 창의 시작점을 grep으로 찾을 수 있고, 계획이 갈리면 매일
 실행 로그와 `--report`가 함께 알린다.
 
+### ★ 창 동안 코드를 동결한다
+
+`plan.json`은 **표본을 얼리지만 코드는 얼리지 않는다.** 그런데 T1은 수집기의
+transport와 응답 해석을 그대로 쓴다 — 창 도중에 그것을 고치면 **관측 대상이 아니라
+관측 도구가 바뀐다.** 그날 이후의 차이가 소스의 변화인지 우리의 변경인지 가릴 수 없고,
+그것은 T1이 답하려던 질문 자체를 지운다.
+
+```
+동결      scripts/probe-t1-minute.py
+          scripts/collect-minute-kis.py  (transport · 응답 분류 · 재시도)
+          config/policies/minute.v1.json 의 collectionContract · successGate · retry
+동결 아님  run-minute-daily.py · alive-monitor.py · deploy/ · 문서
+          다만 수집 대상 날짜가 달라지면 롤링 창이 흔들리므로 함께 기록한다
+```
+
+고쳐야 할 것이 생기면 **창을 이어붙이지 않는다.**
+
+```
+중단 → 수정 → --replan → 새 Day 1
+```
+
+7일을 다시 쓰는 편이 오염된 7일보다 싸다. 오염된 창은 그 사실을 7일 뒤에 알게 되고,
+그때는 그 위에 얹은 `pendingT1` 승격과 Core 백필(약 224,000호출)까지 되짚어야 한다.
+
+**한 가지 예외.** 수집 손실을 막는 수정은 T1보다 우선한다. 오늘 못 받은 분봉은
+246영업일 뒤 사라지지만 T1은 다시 돌리면 된다. 그 경우에도 고치고 `--replan`한다 —
+동결이 데이터를 잃는 버그를 방치하는 이유가 되어서는 안 된다.
+
 **임계를 미리 정하지 않는다.** 비교 *방법*만 확정하고 *임계*는 7일 뒤에 정한다 —
 지금 박으면 그 임계에 맞는 답만 나온다(교훈51). 산출물의
 `reproducibilityMethod.thresholdDecided`가 `false`로 남아 있는 것이 그 표시다.
