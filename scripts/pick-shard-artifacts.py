@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """샤드별로 가장 진행된 시도를 골라 _shards/에 놓는다.
 
-  python scripts/pick-shard-artifacts.py <아티팩트 루트> <목적지>
+  python scripts/pick-shard-artifacts.py <아티팩트 루트> <목적지> [접두사]
+
+  접두사 기본값은 a3. A3b는 a3b를 넘긴다 — 아티팩트 이름이 <접두사>-shard-<N>-a<시도>다.
 
 재실행이 있으면 한 샤드에 여러 시도의 아티팩트가 생긴다(a3-shard-7-a1, -a2 …).
 셋을 합치면 안 된다 — 같은 파일명을 담고 있어 **추출 순서가 승자를 정하고**, 그것은
@@ -28,13 +30,22 @@ for _s in (sys.stdout, sys.stderr):
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(errors="replace")
 
-# a3-shard-<N>-a<시도>. 시도 번호가 없는 옛 이름(a3-shard-<N>)도 받는다 —
-# 이름 규칙을 바꾸기 전에 올라간 아티팩트가 섞일 수 있고, 거부하면 그 진행을 잃는다.
-NAME_RE = re.compile(r"^a3-shard-(\d+)(?:-a(\d+))?$")
+# <접두사>-shard-<N>-a<시도>. 시도 번호가 없는 옛 이름도 받는다 — 이름 규칙을 바꾸기 전에
+# 올라간 아티팩트가 섞일 수 있고, 거부하면 그 진행을 잃는다.
+#
+# 접두사를 인자로 받는 이유(2026-08-11): 'a3'를 정규식에 박아 뒀더니 A3b가 올린
+# a3b-shard-0-a1 이 전건 '이름 규칙 밖'으로 걸러졌다. 수집 8샤드가 성공한 뒤 커밋
+# 단계에서만 죽어서 **그날 쓴 DART 호출이 상태로 남지 않았다.** 접두사가 다른 단계를
+# 같은 회수기로 쓰는 것이 원래 의도였는데 정규식이 그것을 막고 있었다.
+DEFAULT_PREFIX = "a3"
 
 
-def shard_of(dirname):
-    m = NAME_RE.match(dirname)
+def name_re(prefix):
+    return re.compile(rf"^{re.escape(prefix)}-shard-(\d+)(?:-a(\d+))?$")
+
+
+def shard_of(dirname, prefix=DEFAULT_PREFIX):
+    m = name_re(prefix).match(dirname)
     if not m:
         return None, None
     return int(m.group(1)), int(m.group(2) or 1)
@@ -49,12 +60,17 @@ def rank(state_path):
     있었다(그 필드를 그 사이에 넣었다). 동점을 '건너뜀'으로 처리하면 그 94법인의
     공백 사유가 사라지고, 그것은 **재수집 없이는 영영 못 얻는 사실이다**(교훈75).
 
+    2순위의 '사실'이 담기는 칸은 단계마다 이름이 다르다 — A3는 `recordGaps`, A3b는
+    `scanned`다. 둘을 함께 세지 않으면 A3b에서 2순위가 늘 0이 되어 이 규율이 A3에만
+    적용된다. 한쪽만 있는 것이 정상이므로 합으로 센다.
+
     읽을 수 없으면 (-1, -1) — 깨진 상태가 온전한 것을 이기면 안 된다.
     """
     try:
         with open(state_path, encoding="utf-8") as f:
             st = json.load(f)
-        return (len(st.get("corpsDone") or []), len(st.get("recordGaps") or {}))
+        facts = len(st.get("recordGaps") or {}) + len(st.get("scanned") or {})
+        return (len(st.get("corpsDone") or []), facts)
     except Exception:
         return (-1, -1)
 
@@ -64,10 +80,11 @@ def done_count(state_path):
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         print(__doc__)
         return 2
     root, dest = sys.argv[1], sys.argv[2]
+    prefix = sys.argv[3] if len(sys.argv) == 4 else DEFAULT_PREFIX
     if not os.path.isdir(root):
         print(f"{root} 없음 — 다운로드 스텝이 아무것도 받지 못했다")
         return 1
@@ -90,7 +107,7 @@ def main():
         full = os.path.join(root, d)
         if not os.path.isdir(full):
             continue
-        shard, attempt = shard_of(d)
+        shard, attempt = shard_of(d, prefix)
         if shard is None:
             print(f"  건너뜀 (이름 규칙 밖) {d}")
             continue
@@ -103,7 +120,8 @@ def main():
             best[shard] = (n, attempt, full)
 
     if not best:
-        print(f"고를 샤드가 없다 (아티팩트 디렉터리 {seen}개) — 이름 규칙을 확인한다")
+        print(f"고를 샤드가 없다 (아티팩트 디렉터리 {seen}개) — "
+              f"기대한 이름은 {prefix}-shard-<N>[-a<시도>] 다")
         return 1
 
     for shard in sorted(best):
@@ -132,7 +150,7 @@ def main():
     for shard in sorted(best):
         cands = []
         for d in sorted(os.listdir(root)):
-            s, a = shard_of(d)
+            s, a = shard_of(d, prefix)
             if s == shard:
                 cands.append((a, rank(os.path.join(root, d, f"_state-{s}.json"))))
         if len(cands) > 1:

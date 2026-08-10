@@ -55,9 +55,9 @@ def make(root, artifact, shard, done, rows=1, broken=False, gaps=0):
     return d
 
 
-def run(root, dest):
+def run(root, dest, prefix=None):
     argv = sys.argv
-    sys.argv = ["pick", root, dest]
+    sys.argv = ["pick", root, dest] + ([prefix] if prefix else [])
     try:
         return pick.main()
     finally:
@@ -259,6 +259,40 @@ ok("overwrite로 덮지 않는다 (더 나아간 시도를 지울 수 있다)",
 ok("진행 요약을 실행 요약 페이지에 쓴다 (초록불을 완료로 읽지 않게)",
    "GITHUB_STEP_SUMMARY" in wf, "요약 페이지 출력이 없다")
 
+# ── 접두사 (2026-08-11) ───────────────────────────────────────────
+# a3를 정규식에 박아 뒀더니 A3b가 올린 a3b-shard-0-a1 이 전건 걸러졌다. 수집 8샤드가
+# 성공한 뒤 커밋 단계에서만 죽어 그날 쓴 DART 호출이 상태로 남지 않았다.
+print("\n[접두사 — 단계가 늘어도 같은 회수기를 쓴다]")
+
+tmp = tempfile.mkdtemp()
+root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "dest")
+make(root, "a3b-shard-0-a1", 0, done=5)
+make(root, "a3b-shard-1-a1", 1, done=7)
+rc = run(root, dest, "a3b")
+ok("접두사를 넘기면 a3b-shard-* 를 회수한다", rc == 0 and state_done(dest, 0) == 5, f"rc={rc}")
+ok("두 샤드 모두 회수한다", state_done(dest, 1) == 7)
+shutil.rmtree(tmp, ignore_errors=True)
+
+tmp = tempfile.mkdtemp()
+root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "dest")
+make(root, "a3b-shard-0-a1", 0, done=5)
+ok("접두사를 빠뜨리면 회수하지 못하고 exit 1 이다 (조용히 넘어가지 않는다)",
+   run(root, dest) == 1)
+shutil.rmtree(tmp, ignore_errors=True)
+
+tmp = tempfile.mkdtemp()
+root, dest = os.path.join(tmp, "art"), os.path.join(tmp, "dest")
+make(root, "a3-shard-0-a1", 0, done=5)
+ok("기본값은 a3 그대로다 (A3 워크플로가 안 깨진다)",
+   run(root, dest) == 0 and state_done(dest, 0) == 5)
+shutil.rmtree(tmp, ignore_errors=True)
+
+# rank 의 2순위. A3는 recordGaps, A3b는 scanned 에 사실을 담는다 —
+# 한쪽만 세면 그 규율이 A3에만 적용된다(교훈75).
+_st = os.path.join(tempfile.mkdtemp(), "_state-0.json")
+json.dump({"corpsDone": ["a", "b"], "scanned": {"a": {"2024": "OK"}, "b": {"2024": "013"}}},
+          open(_st, "w", encoding="utf-8"))
+ok("rank 가 A3b 의 scanned 도 사실로 센다", pick.rank(_st) == (2, 2), str(pick.rank(_st)))
 print(f"\n{'=' * 54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)

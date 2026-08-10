@@ -95,7 +95,10 @@ jobs:
 
       # 같은 샤드가 재시도되면 아티팩트가 여럿이다. 가장 많이 진행된 것을 고른다.
       - name: Pick best attempt per shard
-        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards_a3b
+        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards_a3b a3b
+        # ★ 세 번째 인자가 아티팩트 이름 접두사다. 빠뜨리면 기본값 a3로 찾아
+        # a3b-shard-* 를 전건 '이름 규칙 밖'으로 거르고, 수집 8샤드가 성공한 뒤
+        # 커밋 단계에서만 죽는다 — 그날 쓴 DART 호출이 상태로 안 남는다(2026-08-11 실측).
 
       - name: Commit shards
         run: |

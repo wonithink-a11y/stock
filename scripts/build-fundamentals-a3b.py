@@ -118,26 +118,48 @@ def _abort(reason, diag, path, extra=None):
 
 
 # ── DART ───────────────────────────────────────────────────────
-def dart_get(endpoint, params):
+DART_NO_DATA = "013"
+
+
+def dart_get(endpoint, params, pol=None):
     """(json, dartStatus, error). 키는 로그·산출물에 절대 넣지 않는다.
 
-    DART는 조회 실패도 HTTP 200 + status 필드로 준다. 두 축을 다 남긴다.
+    DART는 조회 실패도 HTTP 200 + status 필드로 준다 — HTTP만 보는 재시도는 013·020에서
+    한 번도 돌지 않는다. 두 축을 다 본다.
+
+    **재시도가 필요한 이유**: 재시도 없이 일시 오류를 그대로 돌려주면 호출부가 그것을
+    '빈 응답'으로 세고, 두 번 연속이면 조기 종료가 걸려 **그 법인이 데이터 없이 완료로
+    들어간다.** 네트워크 한 번 튄 것이 영구 결측이 되는 경로다(A3의 done.add 결함과
+    같은 모양). 013과 한도(020)는 재시도하지 않는다 — 답이 바뀌지 않는다.
     """
-    q = {"crtfc_key": KEY, **params}
-    try:
-        r = requests.get(f"{BASE}/{endpoint}", params=q)
-    except Exception as e:  # noqa: BLE001
-        return None, "EXC", f"{type(e).__name__}: {str(e)[:150]}"
-    if not (200 <= r.status_code < 300):
-        return None, f"HTTP{r.status_code}", f"HTTP {r.status_code}"
-    try:
-        j = r.json()
-    except Exception as e:  # noqa: BLE001
-        return None, "PARSE", f"{type(e).__name__}: {str(e)[:150]}"
-    st = str(j.get("status", ""))
-    if st != "000":
-        return None, st, str(j.get("message", ""))[:150]
-    return j, "000", None
+    attempts = (pol or {}).get("retryAttempts", 1)
+    base = (pol or {}).get("retryBackoffBase", 2)
+    quota_status = ((pol or {}).get("quota") or {}).get("quotaExceededStatus", "020")
+    last = (None, "unknown", "unknown")
+    for i in range(attempts):
+        try:
+            r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params})
+        except Exception as e:  # noqa: BLE001
+            last = (None, "EXC", f"{type(e).__name__}: {str(e)[:150]}")
+        else:
+            if not (200 <= r.status_code < 300):
+                last = (None, f"HTTP{r.status_code}", f"HTTP {r.status_code}")
+            else:
+                try:
+                    j = r.json()
+                except Exception as e:  # noqa: BLE001
+                    last = (None, "PARSE", f"{type(e).__name__}: {str(e)[:150]}")
+                else:
+                    st = str(j.get("status", ""))
+                    if st == "000":
+                        return j, "000", None
+                    # 답이 바뀌지 않는 둘은 즉시 돌려준다
+                    if st in (DART_NO_DATA, quota_status):
+                        return None, st, str(j.get("message", ""))[:150]
+                    last = (None, st, str(j.get("message", ""))[:150])
+        if i < attempts - 1:
+            time.sleep(base ** i)
+    return last
 
 
 # ── 파싱 (순수 함수 — 회귀가 여기를 밟는다) ────────────────────────
@@ -319,9 +341,17 @@ def build_grid(pol):
 
 # ── 수집 ───────────────────────────────────────────────────────
 def scan_corp(corp, ticker, years, pol, state, counters):
-    """(records, scanned). scanned는 조회한 셀 전부다 — 결과가 없어도 남긴다(계약 §7)."""
+    """(records, scanned, quota_hit). scanned는 조회한 셀 전부다 — 결과가 없어도 남긴다(§7).
+
+    ★ 한도(020)를 만나면 **이 법인을 통째로 버리고 quota_hit 을 올린다.** 빈 응답으로
+    세면 안 된다 — 두 번 연속이면 조기 종료가 걸려 그 법인이 데이터 없이 완료로
+    들어가고, 그 결측은 재수집 없이는 영영 안 채워진다. 여기까지 모은 공백 사유도
+    부분이라 함께 버린다: 반쪽 사실을 남기면 다음 실행의 온전한 사실과 섞인다
+    (A3의 같은 자리와 동일한 규율).
+    """
     a3b = pol["a3b"]
     stop_after = pol["stopAfterConsecutiveEmptyYears"]
+    quota_status = pol["quota"]["quotaExceededStatus"]
     recs, scanned = [], {}
     consec_empty = 0
 
@@ -331,9 +361,12 @@ def scan_corp(corp, ticker, years, pol, state, counters):
             break
         j, st, err = dart_get(a3b["source"]["endpoint"], {
             "corp_code": corp, "bsns_year": str(y),
-            "reprt_code": a3b["source"]["reprtCode"]})
+            "reprt_code": a3b["source"]["reprtCode"]}, pol)
         counters["calls"] += 1
         state["callsUsedToday"] += 1
+        if st == quota_status:
+            counters["quotaHits"] += 1
+            return [], {}, True
         rows = (j or {}).get("list") or []
         if st != "000" or not rows:
             scanned[str(y)] = st if st != "000" else "EMPTY"
@@ -355,7 +388,7 @@ def scan_corp(corp, ticker, years, pol, state, counters):
         remaining = [y for y in years if str(y) not in scanned]
         for y in remaining:
             scanned[str(y)] = "EARLY_STOP"
-    return recs, scanned
+    return recs, scanned, False
 
 
 def rec_key(r):
@@ -411,15 +444,20 @@ def run_shard(shard, shards, pol, limit):
             if r["corp"] in done:
                 records[rec_key(r)] = r
 
-    counters = {"calls": 0, "emptyCells": 0, "rejected": Counter()}
-    budget_hit = False
+    counters = {"calls": 0, "emptyCells": 0, "quotaHits": 0, "rejected": Counter()}
+    budget_hit = quota_hit = False
     t0 = time.time()
     for i, corp in enumerate(todo, 1):
         if state["callsUsedToday"] >= budget:
             budget_hit = True
             break
-        recs, scanned = scan_corp(corp, corps[corp]["ticker"], grid[corp],
-                                  pol, state, counters)
+        recs, scanned, hit_quota = scan_corp(corp, corps[corp]["ticker"], grid[corp],
+                                             pol, state, counters)
+        if hit_quota:
+            # done 에 넣지 않는다. 넣으면 그 법인이 영구히 건너뛰어지고, 완료 게이트가
+            # 그것을 완료로 계산해 빈 데이터가 인수 조건을 그대로 지나간다.
+            quota_hit = True
+            break
         for r in recs:
             records[rec_key(r)] = r
         # ★ 계약 §7 — 결과가 없어도 남긴다. 빈 dict 도 남긴다.
@@ -433,7 +471,8 @@ def run_shard(shard, shards, pol, limit):
     diag.update(corpsAssigned=len(mine), corpsDone=len(done),
                 corpsRemaining=len(mine) - len(done),
                 calls=state["callsUsedToday"], budget=budget,
-                budgetExhausted=budget_hit, rowCount=len(records),
+                budgetExhausted=budget_hit, quotaExceeded=quota_hit,
+                quotaHits=counters["quotaHits"], rowCount=len(records),
                 emptyCells=counters["emptyCells"],
                 rejected=dict(counters["rejected"]),
                 scannedCells=sum(len(v) for v in state["scanned"].values()),
@@ -449,7 +488,9 @@ def run_shard(shard, shards, pol, limit):
 
     print(f"\n{rpath} — {len(records)}행 · 스캔 {diag['scannedCells']}셀 · "
           f"호출 {state['callsUsedToday']} · "
-          f"{'예산 소진 (다음 실행이 이어받는다)' if budget_hit else '담당분 완료'}")
+          f"""{'DART 일 한도 (다음 실행이 이어받는다)' if quota_hit
+              else '예산 소진 (다음 실행이 이어받는다)' if budget_hit
+              else '담당분 완료'}""")
     return 0          # 예산 소진은 실패가 아니다
 
 

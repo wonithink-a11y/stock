@@ -5,7 +5,7 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5 · MN-1.1
+  정책      UN-1.2 · PR-1.4 · FN-1.5 · REG-1.5 · MN-1.1
   현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
   T1 창     Day 1 = 2026-08-10. **동결은 커밋 금지다**(MN-1.0 §6.1)
                동결: probe-t1-minute.py · collect-minute-kis.py ·
@@ -13,24 +13,27 @@ Validated against
                      data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      병행 가능 (T1과 독립. 위 동결 파일만 안 건드리면 된다)
-            ① A1a → A1b 갱신 ← 여기. Actions 수동 실행, 이 순서로
-               A1a가 낡으면 그 사이 신규상장이 A1b에서 '폐지'로 분류된다
-               (corpcode에는 있고 current에는 없어 차집합에 걸린다)
-               → A2b가 살아 있는 종목의 폐지 가격을 수집하게 된다
-               분봉 신규상장 누락은 246영업일 안이면 나중에 채울 수 있다
-            ② A2b 수집 실행. A1b 갱신 뒤에. A5 생존편향 제거의 선행 조건
-               naver 경로라 KIS·T1과 유량이 겹치지 않는다
-            ③ A3b 결정 (사람) · ④ FN-1.4 승격 · ⑤ A2 manifest 승격 설계
-            ★ A1a 갱신 후 A2a가 신규상장분만큼 비게 된다. A5 전에 확인한다
-  T1 대기   Core 182종목 246일 백필 (≈224,000호출)
-            calendar.json 재생성 — T1의 분류 입력이다
+  다음      A3b collect 재실행 ← 여기. Actions 수동, mode=collect (2일, 하루 1회)
+            8샤드 완료 후 mode=finalize. A3 수집과 같은 날 돌리지 않는다
+            (shard_budget은 한 단계 안의 샤드끼리만 나눈다)
+            첫 실행(2026-08-11)은 수집 8샤드 성공 후 commit-shards에서 죽었다 —
+            그날 호출은 상태로 안 남았다. 원인 셋을 고쳤고 처음부터 다시 돈다
+  T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
+            ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
+              2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
+              (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
+  언제든    백테스트 표본 편입 조건 정의 (score ≠ eligible)
+            ⑤ A2 manifest 승격 설계 · A5 결측 정책은 A2b 실측 후
+  T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
+            calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다
   완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A5 프레임워크
+            A1a·A1b 갱신 (2578 / 1223, 2026-08-10) · FN-1.4 임계 승격
+            A3b 계약 확정 + 정찰 GO + 수집기 구현 (FN-1.5)
             분봉 T0·커버리지 정찰 · Collector v1 · 상시화 · 첫 Broad 수집
             실측 수치와 근거는 완료기록·계약 문서에 있다. 여기 옮기지 않는다
   운영 중    VM stock-MonitorAlways (1 OCPU · 1GB · Python 3.8)
             수집 16:10·17:40 · 감시 18:10 · T1 19:10 KST
-            Broad 약 2,455/2,579종목 · 하루 약 22분 · 약 60만행/일
+            Broad 약 2,455/2,578종목 · 하루 약 22분 · 약 60만행/일
             Raw는 저장소 밖 ~/minute-raw. manifest도 VM에서는 저장소 밖이다
 ```
 
@@ -39,6 +42,7 @@ Validated against
 ```
 계약      docs/MN-1.0-분봉Raw저장계약.md        분봉 (현재 트랙)
           docs/BF-1.1-백필계약.md               manifest·인수 조건의 원 계약
+          docs/A3b-1.0-배당EPS계약.md           A3b (구현 완료·실행 대기)
           docs/A5-1.0-입출력계약.md
 완료기록   docs/A3-완료기록.md · docs/A3-회고-재사용패턴.md
           docs/operations/minute-실측기록.md    VM·smoke·첫 Broad 수집 실측치

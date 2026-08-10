@@ -164,7 +164,7 @@ print("\n[6] 스캔 기록 — 결과가 없어도 남긴다")
 _responses = {}
 
 
-def fake_get(endpoint, params):
+def fake_get(endpoint, params, pol=None):
     k = (params["corp_code"], int(params["bsns_year"]))
     v = _responses.get(k)
     if v is None:
@@ -179,8 +179,9 @@ _pol["stopAfterConsecutiveEmptyYears"] = 2
 
 _responses = {("00000001", 2024): [row("(연결)주당순이익(원)", "10")]}
 st = {"callsUsedToday": 0}
-cnt = {"calls": 0, "emptyCells": 0, "rejected": __import__("collections").Counter()}
-recs, scanned = m.scan_corp("00000001", "005930", [2021, 2022, 2023, 2024], _pol, st, cnt)
+cnt = {"calls": 0, "emptyCells": 0, "quotaHits": 0,
+       "rejected": __import__("collections").Counter()}
+recs, scanned, _q = m.scan_corp("00000001", "005930", [2021, 2022, 2023, 2024], _pol, st, cnt)
 ok("013 인 해도 scanned 에 남는다", scanned.get("2021") == "013", str(scanned))
 ok("조기 종료 뒤의 해는 EARLY_STOP 으로 남는다 ('조회 안 함'과 013 을 가른다)",
    scanned.get("2023") == "EARLY_STOP" and scanned.get("2024") == "EARLY_STOP", str(scanned))
@@ -190,11 +191,107 @@ ok("조기 종료가 실제로 호출을 줄인다", cnt["calls"] == 2, str(cnt[
 
 _responses = {("00000002", y): [row("(연결)주당순이익(원)", str(y))] for y in (2023, 2024)}
 st = {"callsUsedToday": 0}
-cnt = {"calls": 0, "emptyCells": 0, "rejected": __import__("collections").Counter()}
-recs, scanned = m.scan_corp("00000002", "005930", [2023, 2024], _pol, st, cnt)
+cnt = {"calls": 0, "emptyCells": 0, "quotaHits": 0,
+       "rejected": __import__("collections").Counter()}
+recs, scanned, _q = m.scan_corp("00000002", "005930", [2023, 2024], _pol, st, cnt)
 ok("전부 성공하면 OK 로 남는다", list(scanned.values()) == ["OK", "OK"], str(scanned))
 ok("레코드 2건", len(recs) == 2)
 ok("callsUsedToday 가 누적된다", st["callsUsedToday"] == 2)
+
+# ── 6.1 한도(020) — 빈 응답으로 세면 법인이 데이터 없이 완료로 들어간다 ──────
+print("\n[6.1] DART 일 한도 — 조기 종료로 위장되면 안 된다")
+
+
+def quota_get(endpoint, params, pol=None):
+    return None, "020", "사용한도를 초과하였습니다."
+
+
+m.dart_get = quota_get
+st = {"callsUsedToday": 0}
+cnt = {"calls": 0, "emptyCells": 0, "quotaHits": 0,
+       "rejected": __import__("collections").Counter()}
+recs, scanned, hit = m.scan_corp("00000003", "005930", [2021, 2022, 2023], _pol, st, cnt)
+ok("한도를 만나면 quota_hit 을 올린다", hit is True)
+ok("첫 호출에서 즉시 멈춘다 (조기 종료까지 가지 않는다)", cnt["calls"] == 1, str(cnt["calls"]))
+ok("부분 결과를 남기지 않는다 (반쪽 사실이 다음 실행의 온전한 사실과 섞인다)",
+   recs == [] and scanned == {}, f"recs={len(recs)} scanned={scanned}")
+ok("한도를 빈 응답으로 세지 않는다", cnt["emptyCells"] == 0 and cnt["quotaHits"] == 1,
+   f"empty={cnt['emptyCells']} quota={cnt['quotaHits']}")
+
+# ── 6.2 재시도 — 일시 오류가 영구 결측이 되면 안 된다 ────────────────────
+print("\n[6.2] 재시도 — 네트워크 한 번 튄 것이 결측이 되지 않는다")
+
+_seq = []
+
+
+def flaky_get(endpoint, params, pol=None):
+    _seq.append(1)
+    if len(_seq) < 3:
+        return None, "EXC", "ConnectionError"
+    return {"list": [row("(연결)주당순이익(원)", "10")]}, "000", None
+
+
+_real_sleep = m.time.sleep
+m.time.sleep = lambda *_: None
+try:
+    _pol_retry = copy.deepcopy(_pol)
+    _pol_retry["retryAttempts"] = 4
+    got = m.dart_get.__wrapped__ if hasattr(m.dart_get, "__wrapped__") else None
+    # 실물 dart_get 을 되살려 재시도 경로를 밟는다
+    import importlib.util as _il
+    _sp = _il.spec_from_file_location("a3b_fresh",
+                                      os.path.join(ROOT, "scripts",
+                                                   "build-fundamentals-a3b.py"))
+    _fresh = _il.module_from_spec(_sp)
+    _sp.loader.exec_module(_fresh)
+    _fresh.time.sleep = lambda *_: None
+    _calls = {"n": 0}
+
+    class _Resp:
+        status_code = 200
+
+        def json(self):
+            _calls["n"] += 1
+            if _calls["n"] < 3:
+                return {"status": "800", "message": "시스템 점검"}
+            return {"status": "000", "list": [row("(연결)주당순이익(원)", "10")]}
+
+    _fresh.requests.get = lambda *a, **k: _Resp()
+    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    ok("일시 오류는 재시도해서 성공으로 돌아온다", stt == "000" and j is not None,
+       f"status={stt} calls={_calls['n']}")
+    ok("재시도 횟수가 정책을 따른다", _calls["n"] == 3, str(_calls["n"]))
+
+    _calls["n"] = 0
+
+    class _Quota:
+        status_code = 200
+
+        def json(self):
+            _calls["n"] += 1
+            return {"status": "020", "message": "한도 초과"}
+
+    _fresh.requests.get = lambda *a, **k: _Quota()
+    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    ok("한도(020)는 재시도하지 않는다 (답이 바뀌지 않는다)",
+       stt == "020" and _calls["n"] == 1, f"status={stt} calls={_calls['n']}")
+
+    _calls["n"] = 0
+
+    class _NoData:
+        status_code = 200
+
+        def json(self):
+            _calls["n"] += 1
+            return {"status": "013", "message": "조회된 데이타가 없습니다."}
+
+    _fresh.requests.get = lambda *a, **k: _NoData()
+    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    ok("013 도 재시도하지 않는다", stt == "013" and _calls["n"] == 1,
+       f"status={stt} calls={_calls['n']}")
+finally:
+    m.time.sleep = _real_sleep
+    m.dart_get = fake_get
 
 # ── 7. 인수 조건 ──────────────────────────────────────────────────
 print("\n[7] 인수 조건")
