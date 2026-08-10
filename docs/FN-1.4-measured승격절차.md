@@ -26,7 +26,7 @@
 
 ```
 1  measured 산출      finalize가 전수에서 계산 → _quality.json · manifest
-2  diff               직전 measured와 대조. 첫 승격은 probeSample(표본 32법인)이 비교 대상
+2  diff               직전 measured와 대조. 첫 승격은 probed(표본 32법인)가 비교 대상
 3  후보 임계 유도      §2의 도출식으로 계산한다. 눈대중으로 맞추지 않는다
 4  실패 모드 진술      후보마다 "이 선이 잡는 것"을 한 문장으로 쓴다. 못 쓰면 그 임계는 버린다
 5  사람 승인          값과 진술을 함께 본다. 승인 없이 진행하지 않는다
@@ -103,11 +103,31 @@ WARN 임계 = 기존 값 유지 (하류 계약이 이미 그 수를 쓰고 있�
 `measured` 블록 옆에 이 표를 함께 낸다. 값만으로는 승인할 수 없다.
 
 ```
-지표 | probeSample | measured | 후보 임계 | 도출식(§2.x) | 이 선이 잡는 것
+지표 | probed | measured | 후보 임계 | 도출식(§2.x) | 이 선이 잡는 것
 ```
 
 **「이 선이 잡는 것」이 비어 있으면 승인하지 않는다.** 상류 게이트가 이미 막는 것을
 되풀이하는 임계는 통과율만 떨어뜨리고 새로 잡는 실패 모드가 없다(교훈45).
+
+정책 파일의 키 이름은 `probed`다(`probeSample`이 아니다). 이름을 다르게 둔 이유는
+`test-policies.js`가 **`measured`의 존재 여부로** WARN→FAIL 승격을 가르기 때문이고,
+같은 검사가 `probed`에 `measured` 키가 없는 것도 함께 강제한다 — 표본으로 잰 값이
+전수의 게이트 기준선이 되는 경로를 막는다.
+
+### ★ 3.1 도출식이 없는 지표는 승격하지 않는다
+
+§2.2의 식은 **'높을수록 좋은' 지표만** 상정한다.
+
+```
+FAIL 임계 = floor(measured × (1 − 허용낙폭), 소수 2자리)
+```
+
+`yearCoverageDrop` · `roeAbsOutlierRate` · `negativeEquityRate`는 낮을수록 좋아 이 식이
+그대로 적용되지 않는다. 거울식을 **승인 단계에서 즉석으로 만들지 않는다** — §0이 막으려는
+것이 정확히 그것이다. 데이터를 본 뒤에 만든 식은 그 데이터를 통과하도록 만들어진다.
+식이 없으면 §2.2 마지막 문장대로 **WARN으로 남긴다.**
+
+거울식이 필요해지면 그때 이 문서를 먼저 고치고, 다음 measured로 적용한다.
 
 ---
 
@@ -124,9 +144,36 @@ FN-1.4는 `acceptance` 임계만 바꾼다. `collectionContract.fields`에 임�
 
 ---
 
+---
+
+## 5. 실행 기록 — 2026-08-10
+
+절차대로 승격했다. **값과 근거는 정책 파일의 `promotion` 블록이 단일 출처다** — 여기
+복사하지 않는다(복사하면 두 곳이 갈린다).
+
+```
+승격    coverageRateMin 0.86            §2.2 · floor(0.9604 × (1−0.10), 2)
+        currentListedCoverageMin 0.96   §2.2 · floor(0.9942 × (1−0.03), 2) · 신설
+유지    periodEndParsedRateMin 0.99     §2.1 — measured 1.0 이지만 올리지 않는다
+        coverageRateMinWarn 0.60        하류 한계(절대 규칙 1)라 measured로 안 건드린다
+WARN    yearCoverageDrop · roeAbsOutlierRate · negativeEquityRate    §3.1 — 도출식 없음
+게이트 아님  minCorpsWithData(개수) · delistedCoverage                §2.3 — 분모가 회사 구성
+```
+
+`currentListedCoverageMin`을 신설한 이유가 §2.3의 실제 적용이다. 전체 `coverageRate`
+하나만 두면 **폐지 그룹의 구성 변화가 현재 상장분의 열화를 가린다** — 실측이 현재 상장
+0.9942 대 폐지 0.3592로 갈렸고, 폐지 쪽 분모에는 SPAC과 2015 이전 폐지가 섞여 있다
+(`probed.delistedCoverageNote`가 예고한 그대로다).
+
+`quota.shardBudgetMode`를 `equalSplit` → `activeShards`로 함께 바꿨다. 임계가 아니라
+로직이라 §3 표 밖이며, 근거와 안전 불변식은 정책의 `shardBudgetModeNote`에 있다.
+`quota`는 `collectionContract.fields`에 없으므로 §4대로 **재수집은 하지 않는다.**
+
+---
+
 ## 관련
 
-- `config/policies/fundamentals.v1.json` — `acceptanceNote` · `probeSample.note`
+- `config/policies/fundamentals.v1.json` — `promotion` · `measured` · `acceptanceNote` · `probed.note`
 - `scripts/test-policies.js` — measured 존재로 WARN→FAIL 승격을 강제하는 자리
 - `scripts/analyze-fundamentals-a3.py` · `generate-quality-report.py` — measured의 산출 경로
 - `트랙A-인수인계-ClaudeCode전환.md` §9 — 진행 상태의 단일 출처

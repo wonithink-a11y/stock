@@ -1394,6 +1394,92 @@ ok("자기 샤드의 상태·산출·진단 세 파일을 모두 올린다",
    all(any(k in p for p in _paths) for k in ("_state-", "shard-", "_diagnostics-shard-")),
    str(_paths))
 
+# ── 10. 샤드 예산 배분 (FN-1.4 quota.shardBudgetMode) ─────────────────
+# 조용히 틀리고 되돌리기 어려운 자리다 — 과소면 수집이 하루 더 걸리고 과다면 DART
+# 일 한도를 먹어 운영 워크플로가 죽는다. 둘 다 로그에 붉은 불이 안 뜬다.
+print(f"\n{'-'*54}\n[10] 샤드 예산 배분")
+
+_POL = {"quota": {"dailyCallLimit": 20000, "safetyMarginCalls": 4000,
+                  "shardBudgetMode": "activeShards"}}
+_TODAY = "2026-08-07"
+
+
+def _with_states(states, fn):
+    """_state-N.json을 임시 디렉터리에 깔고 fn을 부른다. 저장소를 건드리지 않는다."""
+    import tempfile
+    real_dir = m.SHARD_DIR
+    with tempfile.TemporaryDirectory() as d:
+        m.SHARD_DIR = d
+        try:
+            for s, st in states.items():
+                with open(f"{d}/_state-{s}.json", "w", encoding="utf-8") as f:
+                    json.dump(st, f)
+            return fn()
+        finally:
+            m.SHARD_DIR = real_dir
+
+
+def _st(assigned, done, used, date=_TODAY):
+    return {"corpsAssigned": assigned, "corpsDone": ["c"] * done,
+            "callsUsedToday": used, "lastRunDate": date}
+
+
+# 인수인계 문서가 적어 둔 2026-08-07 실측 상황을 그대로 재현한다.
+# 샤드 6만 남았고 자기가 2,005를 썼으며 전체는 12,535를 썼다 → 2,005 + 3,465 = 5,470
+_others = {s: _st(475, 475, 10530 if s == 0 else 0) for s in range(8) if s != 6}
+b6, d6 = _with_states(_others, lambda: m.shard_budget(_POL, 8, 6, 2005, _TODAY))
+ok("활성 샤드 1개면 잔여 전부를 받는다 (2026-08-07 실측 재현)",
+   b6 == 5470 and d6["activeShards"] == 1, f"budget={b6} detail={d6}")
+ok("그 예산이 샤드 6에 필요했던 1,478건을 덮는다",
+   b6 - 2005 >= 1478, f"가용 {b6 - 2005}")
+
+# 8개 전부 활성이면 지금과 같아야 한다 — 병렬 실행에서 동작이 안 바뀐다.
+_all_active = {s: _st(475, 0, 0) for s in range(8) if s != 0}
+b0, d0 = _with_states(_all_active, lambda: m.shard_budget(_POL, 8, 0, 0, _TODAY))
+ok("활성 8개면 16,000/8 = 2,000으로 옛 동작과 같다",
+   b0 == 2000 and d0["activeShards"] == 8, f"budget={b0} detail={d0}")
+
+# 합이 절대 한도를 넘지 않는다. 이것이 이 함수의 유일한 안전 불변식이다.
+_mixed = {0: _st(475, 100, 1200), 1: _st(475, 475, 900), 2: _st(475, 200, 800),
+          3: _st(475, 475, 700), 4: _st(475, 300, 600), 5: _st(475, 475, 500),
+          6: _st(475, 400, 400), 7: _st(475, 475, 300)}
+_tot = 0
+for s in range(8):
+    mine = _mixed[s]
+    if mine["corpsAssigned"] - len(mine["corpsDone"]) <= 0:
+        continue
+    others = {k: v for k, v in _mixed.items() if k != s}
+    bb, _ = _with_states(others, lambda s=s, mine=mine: m.shard_budget(
+        _POL, 8, s, mine["callsUsedToday"], _TODAY))
+    _tot += bb
+ok("활성 샤드 예산의 합이 dailyCallLimit − safetyMarginCalls를 넘지 않는다",
+   _tot <= 16000, f"합계 {_tot} <= 16000")
+
+# 어제 상태의 callsUsedToday는 오늘 사용분이 아니다. 세면 풀이 줄어 과소 배분된다.
+_stale = {s: _st(475, 475, 2000, "2026-08-06") for s in range(8) if s != 3}
+b3, d3 = _with_states(_stale, lambda: m.shard_budget(_POL, 8, 3, 0, _TODAY))
+ok("다른 샤드의 lastRunDate가 어제면 그 사용분을 세지 않는다",
+   d3["usedToday"] == 0 and b3 == 16000, f"budget={b3} detail={d3}")
+
+# 상태 파일이 없는 샤드는 활성으로 센다 — 모르는 것을 과다 배분 쪽으로 읽지 않는다.
+b_none, d_none = _with_states({}, lambda: m.shard_budget(_POL, 8, 0, 0, _TODAY))
+ok("상태 파일이 없으면 활성으로 세어 내 몫이 커지지 않는다",
+   d_none["activeShards"] == 8 and b_none == 2000, f"budget={b_none} detail={d_none}")
+
+# 옛 모드는 그대로 살아 있어야 한다(되돌릴 길).
+b_eq, d_eq = m.shard_budget({"quota": {**_POL["quota"], "shardBudgetMode": "equalSplit"}},
+                            8, 0, 999, _TODAY)
+ok("equalSplit 모드는 옛 동작 그대로다 (사용분을 더하지 않는다)",
+   b_eq == 2000 and d_eq["mode"] == "equalSplit", f"budget={b_eq}")
+
+# 모르는 모드를 조용히 폴백시키면 그것이 정책 무력화 경로다(교훈45).
+try:
+    m.shard_budget({"quota": {**_POL["quota"], "shardBudgetMode": "somethingNew"}},
+                   8, 0, 0, _TODAY)
+    ok("모르는 shardBudgetMode는 예외다", False, "폴백했다")
+except ValueError as e:
+    ok("모르는 shardBudgetMode는 조용히 폴백하지 않고 예외다", "shardBudgetMode" in str(e))
+
 print(f"\n{'='*54}")
 print(f"통과 {passed} · 실패 {failed}")
 sys.exit(0 if failed == 0 else 1)

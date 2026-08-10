@@ -424,6 +424,60 @@ def shard_path(shard):
     return f"{SHARD_DIR}/shard-{shard}.jsonl"
 
 
+def shard_budget(pol, shards, shard, my_used, today):
+    """오늘 이 샤드가 쓸 수 있는 누적 호출 상한. (budget, detail)을 돌려준다.
+
+    A3b도 같은 격자·같은 일 한도를 쓰므로 순수 함수로 둔다 — 복사하면 정책은
+    하나인데 구현이 둘이 된다(build-price-a2b.py가 A2a 함수를 가져다 쓰는 것과 같은 이유).
+
+    activeShards 가 8등분을 대신하는 이유는 마지막 샤드가 항상 뒤처지는데 그때
+    예산의 87.5%가 놀기 때문이다. 2026-08-07 실측에서 샤드 6에 1,478건이 필요했고
+    A3 몫의 잔여는 3,465건이었는데 나눗셈이 막았다.
+
+    다른 샤드의 상태는 **체크아웃 시점에 커밋돼 있는 것**을 읽는다. 샤드는 병렬
+    matrix라 실행 중 서로를 못 보지만 같은 스냅샷을 보므로 배분의 합이 절대 한도를
+    넘지 않는다 — Σ(자기 사용분) + 활성수 × (풀 // 활성수) <= limit - margin.
+    """
+    q = pol["quota"]
+    pool_total = q["dailyCallLimit"] - q["safetyMarginCalls"]
+    mode = q.get("shardBudgetMode", "equalSplit")
+
+    if mode == "equalSplit":
+        return pool_total // shards, {"mode": mode}
+    if mode != "activeShards":
+        # 모르는 값을 조용히 폴백시키지 않는다. 폴백은 느슨해지는 방향의 우회가 된다.
+        raise ValueError(f"quota.shardBudgetMode '{mode}' — 허용값은 equalSplit·activeShards뿐이다")
+
+    used_today, active = 0, 0
+    for s in range(shards):
+        if s == shard:
+            used_today += my_used
+            active += 1                     # 자기 자신은 지금 돌고 있으므로 활성이다
+            continue
+        p = state_path(s)
+        if not os.path.exists(p):
+            # 아직 한 번도 안 돈 샤드. 활성으로 세면 활성 수가 커져 내 몫이 줄어든다 —
+            # 모르는 것을 과다 배분 쪽으로 해석하지 않는다(교훈57).
+            active += 1
+            continue
+        try:
+            st = load_json(p)
+        except Exception:                   # noqa: BLE001
+            active += 1
+            continue
+        if st.get("lastRunDate") == today:
+            used_today += st.get("callsUsedToday", 0)
+        assigned = st.get("corpsAssigned")
+        remaining = None if assigned is None else assigned - len(st.get("corpsDone") or [])
+        if remaining is None or remaining > 0:
+            active += 1
+
+    active = max(1, active)
+    budget = my_used + max(0, pool_total - used_today) // active
+    return budget, {"mode": mode, "poolTotal": pool_total, "usedToday": used_today,
+                    "activeShards": active, "myUsedToday": my_used}
+
+
 # collectionContractHash 도입 전(FN-1.2 이하)에 쓰인 상태를 이어받기 위한 표.
 # 여기 있는 버전은 '그 버전의 collectionContract 필드 값이 현재와 같다'가 대조로
 # 확인된 것만이다 — FN-1.2 → FN-1.3 diff에서 기존 줄 중 바뀐 것은 version 문자열
@@ -894,7 +948,10 @@ def run_shard(shard, shards, pol, limit):
                   "hard": set(state["hardSkipped"]),
                   "assigned": state.get("corpsAssigned")}
     state["corpsAssigned"] = len(mine)
-    budget = (pol["quota"]["dailyCallLimit"] - pol["quota"]["safetyMarginCalls"]) // shards
+    # 상태의 날짜 리셋(위)이 끝난 뒤에 잰다 — callsUsedToday가 오늘 값이어야 한다.
+    budget, budget_detail = shard_budget(
+        pol, shards, shard, state["callsUsedToday"], diag["runDate"])
+    diag["shardBudget"] = budget_detail
 
     done = set(state["corpsDone"])
     hard_skipped = dict(state["hardSkipped"])
@@ -1295,6 +1352,12 @@ def validate(rows, corps, pol, diag):
     warn(cov_rate >= a["coverageRateMinWarn"],
          f"필수 {len(required)}계정 전부 확보 {cov_rate*100:.1f}% >= "
          f"{a['coverageRateMinWarn']*100:.0f}% ({full_cnt}/{len(rows)})")
+    # FN-1.4 승격. WARN 0.60은 하류 한계(절대 규칙 1의 유보 경계)라 그대로 두고,
+    # FAIL은 measured 0.9604에서 유도한 0.86을 따로 둔다 — 두 선이 잡는 것이 다르다.
+    if "coverageRateMin" in a:
+        chk(cov_rate >= a["coverageRateMin"],
+            f"필수 계정 확보율 {cov_rate*100:.2f}% >= {a['coverageRateMin']*100:.0f}% "
+            f"(FN-1.4: measured 0.9604 × (1-0.10))")
 
     corps_with = {r["corp"] for r in rows}
     diag["corpsWithData"] = len(corps_with)
@@ -1311,6 +1374,16 @@ def validate(rows, corps, pol, diag):
     warn(len(corps_with) >= a["minCorpsWithDataWarn"],
          f"재무 확보 법인 {len(corps_with)} >= {a['minCorpsWithDataWarn']} "
          f"(대상 {len(corps)} · 그룹별 {diag['corpsWithDataRateByGroup']})")
+    # FN-1.4 승격. 개수가 아니라 '현재 상장' 그룹의 비율을 본다 — 개수 임계는 분모가
+    # 회사 구성이라 상장·폐지가 일어날 때마다 의미가 바뀐다(A1b가 08-10에 1,222→1,223).
+    # 폐지 그룹은 게이트로 만들지 않는다: 분모에 SPAC과 2015 이전 폐지가 섞여 있다.
+    if "currentListedCoverageMin" in a and tgt_group.get("current"):
+        cur_rate = by_group.get("current", 0) / tgt_group["current"]
+        chk(cur_rate >= a["currentListedCoverageMin"],
+            f"현재 상장 재무 확보율 {cur_rate*100:.2f}% >= "
+            f"{a['currentListedCoverageMin']*100:.0f}% "
+            f"({by_group.get('current', 0)}/{tgt_group['current']}) "
+            f"(FN-1.4: measured 0.9942 × (1-0.03))")
 
     # ── 계약 3: |ROE| > 200% ──────────────────────────────────
     thr = a["roeAbsOutlierThreshold"]
