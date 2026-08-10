@@ -31,8 +31,12 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 REPO = Path(__file__).resolve().parent.parent
-ENV_PATH = REPO / ".env"
 KEYS = ("KIS_APP_KEY", "KIS_APP_SECRET")
+
+# 경로를 하드코딩하지 않는다. VM에서는 저장소 밖에 둘 수 있다.
+#   KIS_ENV_PATH=~/collector-venv/.env python3 setup-kis-key.py
+ENV_PATH = Path(os.environ.get("KIS_ENV_PATH")
+                or (REPO / ".env")).expanduser()
 
 
 def say(msg=""):
@@ -56,11 +60,23 @@ def fail(msg):
     sys.exit(1)
 
 
+def git_base():
+    """ENV_PATH의 가장 가까운 '존재하는' 조상. cwd로 폴백하지 않는다.
+
+    폴백하면 대상이 저장소 밖인데도 저장소의 .env를 대신 검사해
+    '무시됩니다'라는 거짓 안심을 준다 - 실제로 그렇게 나왔다.
+    """
+    d = ENV_PATH.parent
+    while not d.is_dir() and d.parent != d:
+        d = d.parent
+    return d
+
+
 def git_ok(args):
     """git 명령의 종료코드가 0인가."""
     try:
         r = subprocess.run(
-            ["git"] + args, cwd=str(REPO),
+            ["git"] + args, cwd=str(git_base()),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
         return r.returncode == 0
@@ -70,6 +86,8 @@ def git_ok(args):
 
 def read_clipboard():
     """Windows 클립보드 원문을 읽는다. 실패하면 None."""
+    if os.name != "nt":
+        return None
     try:
         r = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive",
@@ -96,8 +114,12 @@ def read_secret(label, seen):
     tty가 아니면 stdin으로 내려온다(테스트 전용).
     """
     interactive = sys.stdin.isatty()
+    # 클립보드 경로는 Windows 전용이다. POSIX에서는 getpass가 tty 라인
+    # 편집기를 거치므로 붙여넣기가 정상 동작한다 - Windows에서만 msvcrt가
+    # 키를 한 글자씩 읽어 Ctrl+V가 제어문자로 들어왔다.
+    use_clip = interactive and os.name == "nt"
     while True:
-        if interactive:
+        if use_clip:
             say("  " + label)
             say("    지금 그 값을 복사(Ctrl+C)한 뒤 여기서 Enter를 누릅니다.")
             try:
@@ -107,6 +129,13 @@ def read_secret(label, seen):
             raw = read_clipboard()
             if raw is None:
                 fail("클립보드를 읽지 못했다.")
+        elif interactive:
+            import getpass
+            try:
+                raw = getpass.getpass("  " + label + " (붙여넣고 Enter, "
+                                      "화면에는 안 보입니다): ")
+            except (EOFError, KeyboardInterrupt):
+                fail("입력이 취소됐다.")
         else:
             say("  " + label + " [비대화형 stdin]")
             raw = sys.stdin.readline()
@@ -263,9 +292,17 @@ def main():
     say()
 
     # 1. 쓰기 전에 gitignore를 확인한다. 커밋 가능하면 여기서 멈춘다.
-    if not git_ok(["check-ignore", "-q", "--", ".env"]):
-        fail(".env가 .gitignore에 걸리지 않는다. 이 저장소는 공개다.\n"
-             "        .gitignore를 먼저 고친다.")
+    #    수집 VM처럼 저장소가 아닌 곳에서도 돌아야 하므로, '저장소가 아니다'와
+    #    '저장소인데 무시되지 않는다'를 가른다. 뒤엣것만 중단 사유다.
+    in_repo = git_ok(["rev-parse", "--is-inside-work-tree"])
+    if in_repo:
+        if not git_ok(["check-ignore", "-q", "--", str(ENV_PATH)]):
+            fail(str(ENV_PATH) + " 가 .gitignore에 걸리지 않는다.\n"
+                 "        이 저장소는 공개다. .gitignore를 먼저 고친다.")
+    else:
+        say("  [알림] git 저장소가 아닙니다. 커밋 위험은 없지만")
+        say("         파일 권한으로만 보호됩니다.")
+        say()
 
     # 2. 값을 받는다. 파일 모드가 주어지면 그쪽이 우선이다.
     src_file = None
@@ -302,6 +339,7 @@ def main():
             if name not in KEYS:
                 lines.append(line)
 
+    ENV_PATH.parent.mkdir(parents=True, exist_ok=True)
     lines.append("KIS_APP_KEY=" + app_key)
     lines.append("KIS_APP_SECRET=" + app_secret)
 
@@ -327,11 +365,13 @@ def main():
     say()
 
     # 6. 마지막으로 실제 git 상태를 본다.
-    if git_ok(["ls-files", "--error-unmatch", ".env"]):
+    if in_repo and git_ok(["ls-files", "--error-unmatch", str(ENV_PATH)]):
         say("  [경고] .env가 git에 추적되고 있습니다. 즉시 조치가 필요합니다.")
         say("         git rm --cached .env")
-    else:
+    elif in_repo:
         say("  .env는 git이 무시합니다. 커밋되지 않습니다.")
+    else:
+        say("  git 저장소 밖입니다. 파일 권한으로 보호됩니다.")
 
     # 7. 원본 파일은 남겨두지 않는다. 키가 두 곳에 있으면 관리 지점이 둘이다.
     if src_file is not None and src_file.exists():
