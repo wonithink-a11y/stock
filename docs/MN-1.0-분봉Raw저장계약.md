@@ -693,7 +693,9 @@ transport와 응답 해석을 그대로 쓴다 — 창 도중에 그것을 고�
 동결      scripts/probe-t1-minute.py
           scripts/collect-minute-kis.py  (transport · 응답 분류 · 재시도)
           config/policies/minute.v1.json 의 collectionContract · successGate · retry
+          data/backfill/calendar.json    ← 코드가 아니지만 분류의 입력이다
 동결 아님  run-minute-daily.py · alive-monitor.py · deploy/ · 문서
+          data/backfill/universe/a1a/current.jsonl  (아래 참조)
           다만 수집 대상 날짜가 달라지면 롤링 창이 흔들리므로 함께 기록한다
 ```
 
@@ -705,6 +707,17 @@ transport와 응답 해석을 그대로 쓴다 — 창 도중에 그것을 고�
 
 7일을 다시 쓰는 편이 오염된 7일보다 싸다. 오염된 창은 그 사실을 7일 뒤에 알게 되고,
 그때는 그 위에 얹은 `pendingT1` 승격과 Core 백필(약 224,000호출)까지 되짚어야 한다.
+
+`calendar.json`을 동결에 넣은 이유는 그것이 코드가 아니라 **입력**이기 때문이다.
+`load_context()` → `resolve_gap_reason()` → `day_verdict()`로 곧장 들어간다. 지금은
+커버 범위 밖이라 추론 경로를 타는데, 창 도중에 갱신하면 같은 응답이 다른 경로로
+분류된다. T1의 대상일은 전부 거래일이라 결과는 아마 같겠지만 **'아마'로 관측을
+운영하지 않는다.** 7일 기다리는 비용이 0이다.
+
+`a1a`는 반대다. `listedAt`만 읽고 기존 종목의 상장일은 사실이라 바뀌지 않는다.
+새 종목이 늘면 Broad 수집 대상이 늘 뿐 T1의 표본은 `plan.json`에 얼어 있다.
+**그리고 늦추면 손실이 누적된다** — 갱신 전 신규상장은 매일 수집에서 빠지고
+그 하루는 246영업일 뒤 사라진다. 창 도중에 갱신해도 된다.
 
 **한 가지 예외.** 수집 손실을 막는 수정은 T1보다 우선한다. 오늘 못 받은 분봉은
 246영업일 뒤 사라지지만 T1은 다시 돌리면 된다. 그 경우에도 고치고 `--replan`한다 —
