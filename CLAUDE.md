@@ -6,13 +6,11 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 ```
 Validated against
   정책      UN-1.2 · PR-1.4 · FN-1.3 · REG-1.5 · MN-1.1
-  현재 트랙  A 분봉 — T1 재현성 정찰 **시작 전** (관측 0건)
-  다음      A1 T1 Day 1 대기 ← 여기. **VM에 새 코드가 반영된 뒤에 시작한다**
-               구버전으로 먼저 돌리지 않는다 - 창 도중에 계획이 갈리면
-               그 경계를 넘는 대조가 같은 표본이 아니게 된다
-               VM 반영 후 --verify-plan 이 통과해야 Day 1로 센다
-               표본·anchor는 첫 실행이 _t1/plan.json에 얼린다 (--replan 외 불변)
-               스냅샷 없으면 수집한 parquet에서 거래대금 순위 (SSH 불요)
+  현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
+  다음      A1 T1 창 진행 중 ← 여기. **창 동안 코드를 동결한다**(MN-1.0 §6.1)
+               매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
+               Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
+               (000880 3일 전부 0행 - 그 축은 값 재현성을 못 잰다)
             A2 manifest 승격 파이프라인 (VM → Object Storage → Actions 대조)
                그때까지 분봉 manifest는 VM에만 있고 GitHub 정본에 없다
             A3 사람의 결정 둘 — swap 0 유지 · Oracle PAYG (유휴 회수 7일 시계)
