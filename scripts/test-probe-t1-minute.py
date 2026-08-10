@@ -269,6 +269,83 @@ def run_all(T=None):
         check("계획이 거래대금 출처를 기록한다",
               p1["turnoverSource"], p1["turnoverSource"])
 
+        # 9b 계획 검증 — Day 1을 세기 전의 관문
+        # 통과 못 한 계획으로 7일을 돌면 그 7일은 대조에 쓸 수 없고,
+        # 그 사실을 7일 뒤에 알게 된다.
+        good = tmp / "vgood"
+        gplan = {
+            "schemaVersion": T.PLAN_VERSION, "createdAt": "2026-08-12T19:10:00+09:00",
+            "frozen": True, "turnoverSource": "parquet-turnover:2026-08-10",
+            "anchorDate": "2026-08-04", "anchorWhy": "가장 오래된 통과일",
+            "unmeasured": ["액면분할이력 — 표본 확보 수단이 없다"],
+            "sample": [{"ticker": "%06d" % i, "axis": a, "why": "w",
+                        "source": "s"} for i, a in enumerate(
+                            ["대형주", "대형주", "소형주", "소형주",
+                             "거래정지이력", "신규상장"])],
+        }
+        gplan["planHash"] = T.plan_hash(gplan)
+        T.save_plan(good, gplan)
+        checks, ok = T.verify_plan(good)
+        check("온전한 계획은 GO", ok, [c for c in checks if not c["통과"]])
+        check("실행이 없으면 planHash 불변은 미측정으로 통과",
+              any("실행 없음" in c["항목"] for c in checks),
+              [c["항목"] for c in checks])
+
+        def broken(mutate):
+            d = tmp / ("vb%d" % len(list(tmp.glob("vb*"))))
+            pl = json.loads(json.dumps(gplan))
+            mutate(pl)
+            T.save_plan(d, pl)
+            return T.verify_plan(d)[1]
+
+        check("계획이 없으면 NO-GO", not T.verify_plan(tmp / "none")[1])
+        check("anchor가 없으면 NO-GO",
+              not broken(lambda p: p.update(anchorDate=None)))
+        check("표본이 6이 아니면 NO-GO",
+              not broken(lambda p: p["sample"].pop()))
+        check("선정 근거가 빠지면 NO-GO",
+              not broken(lambda p: p["sample"][0].pop("why")))
+        check("출처가 빠지면 NO-GO",
+              not broken(lambda p: p["sample"][0].pop("source")))
+        check("표본이 중복이면 NO-GO",
+              not broken(lambda p: p["sample"].__setitem__(
+                  1, dict(p["sample"][0]))))
+        check("planHash가 내용과 안 맞으면 NO-GO",
+              not broken(lambda p: p.update(planHash="0" * 16)))
+        check("frozen이 아니면 NO-GO",
+              not broken(lambda p: p.update(frozen=False)))
+        check("액면분할 미측정 기록이 없으면 NO-GO",
+              not broken(lambda p: p.update(unmeasured=[])))
+        # 축 넷 중 하나가 빠지면, 종목 수가 6이어도 NO-GO여야 한다.
+        # 수만 세면 같은 축이 두 번 들어가도 참이 된다(교훈59).
+        check("종목 수가 6이어도 축이 빠지면 NO-GO",
+              not broken(lambda p: p["sample"][5].update(axis="대형주")))
+
+        # 이후 실행이 다른 계획을 썼으면 NO-GO
+        (good / "t1-20260812T191000.json").write_text(json.dumps(
+            {"runId": "a", "planHash": gplan["planHash"], "crossRun": []}),
+            encoding="utf-8")
+        check("같은 planHash로 돌았으면 GO", T.verify_plan(good)[1])
+        (good / "t1-20260813T191000.json").write_text(json.dumps(
+            {"runId": "b", "planHash": "deadbeefdeadbeef", "crossRun": []}),
+            encoding="utf-8")
+        check("창 도중 계획이 갈렸으면 NO-GO", not T.verify_plan(good)[1])
+
+        # 9c 로그가 '새로 세움'과 '재사용'을 구분하는가
+        # cron이 append하는 로그라 나중에 grep으로 창의 시작점을 찾게 된다.
+        ln_new = T.plan_line(gplan, "NEW")
+        ln_use = T.plan_line(gplan, "REUSE")
+        check("새 계획은 [PLAN NEW]", "[PLAN NEW]" in ln_new, ln_new)
+        check("재사용은 [PLAN REUSE]", "[PLAN REUSE]" in ln_use, ln_use)
+        check("교체는 [PLAN REPLAN]",
+              "[PLAN REPLAN]" in T.plan_line(gplan, "REPLAN"))
+        check("한 줄에 hash·표본수·anchor·출처가 다 있다",
+              all(x in ln_new for x in [gplan["planHash"][:8], "표본 6",
+                                        "2026-08-04", "parquet-turnover"]),
+              ln_new)
+        check("재사용 줄에만 생성 시각이 붙는다",
+              "생성" in ln_use and "생성" not in ln_new, (ln_new, ln_use))
+
         # 7 임계를 미리 정하지 않았는가 (교훈51)
         # 여기가 통과로 바뀌는 순간 이 정찰은 답을 확인하는 절차가 된다.
         check("비교 방법은 리터럴로 고정돼 있다",

@@ -27,6 +27,7 @@ T0는 **API가 무엇을 주는가**를 한 번에 쟀다. T1은 **같은 것을
 사용:
     python3 scripts/probe-t1-minute.py
     python3 scripts/probe-t1-minute.py --dry-run     표본과 대상만 보여준다
+    python3 scripts/probe-t1-minute.py --verify-plan 계획이 쓸 만한가 (Day 1 전)
     python3 scripts/probe-t1-minute.py --report      쌓인 관측을 요약한다
     python3 scripts/probe-t1-minute.py --selftest
 """
@@ -401,6 +402,100 @@ def derive_plan(M, raw_root, state_dir, manifest_dir, universe_dir=None,
     return plan
 
 
+def plan_line(plan, state):
+    """로그 한 줄. '새로 세움'과 '재사용'이 눈에 바로 들어와야 한다.
+
+    cron이 t1.log에 append하므로 나중에 grep으로 창의 시작점을 찾게 된다.
+    대괄호 표지를 쓰는 이유가 그것이다 - 문장 안에 섞여 있으면 못 찾는다.
+    """
+    return ("  [PLAN %s] hash %s  표본 %d  anchor %s  출처 %s%s"
+            % (state,
+               str(plan.get("planHash"))[:8],
+               len(plan.get("sample") or []),
+               str(plan.get("anchorDate")),
+               str(plan.get("turnoverSource")),
+               ("  생성 " + str(plan.get("createdAt")))
+               if state == "REUSE" else ""))
+
+
+# 액면분할은 확보 수단이 없어 구조적으로 미측정이다(§6.1). 표본이 채워야 하는
+# 것은 나머지 넷이며, 그 넷이 다 서면 종목 수가 6이 된다(대형 2 · 소형 2 · 정지 1
+# · 신규 1). 6이라는 수를 계약에 박지 않고 축으로 박는다 - 수만 세면 같은 축이
+# 두 번 들어가도 참이 된다(교훈59).
+PLAN_REQUIRED_AXES = ["대형주", "소형주", "거래정지이력", "신규상장"]
+PLAN_EXPECTED_SAMPLE = 6
+
+
+def verify_plan(outdir):
+    """계획이 7일 측정에 쓸 수 있는 상태인가. 읽기 전용이고 네트워크를 쓰지 않는다.
+
+    Day 1을 세기 전에 이것이 통과해야 한다. 통과하지 못한 계획으로 7일을
+    돌면 그 7일은 대조에 쓸 수 없고, 그 사실을 7일 뒤에 알게 된다.
+    """
+    checks = []
+
+    def add(name, ok, detail=None):
+        checks.append({"항목": name, "통과": bool(ok), "실측": detail})
+
+    plan = load_plan(outdir)
+    if not plan:
+        add("plan.json이 있다", False, {"경로": str(plan_path(outdir))})
+        return checks, False
+
+    add("plan.json이 있다", True, {"createdAt": plan.get("createdAt")})
+    add("스키마가 계약 버전", plan.get("schemaVersion") == PLAN_VERSION,
+        {"schemaVersion": plan.get("schemaVersion"), "기대": PLAN_VERSION})
+    add("계획이 얼어 있다", plan.get("frozen") is True,
+        {"frozen": plan.get("frozen")})
+
+    sample = plan.get("sample") or []
+    add("표본이 %d종목" % PLAN_EXPECTED_SAMPLE,
+        len(sample) == PLAN_EXPECTED_SAMPLE, {"표본": len(sample)})
+
+    axes = {s.get("axis") for s in sample}
+    miss = [a for a in PLAN_REQUIRED_AXES if a not in axes]
+    add("필수 축 넷이 모두 채워졌다", not miss,
+        {"채운 축": sorted(axes), "빠진 축": miss})
+
+    add("모든 표본에 선정 근거가 있다",
+        all(s.get("why") and s.get("source") for s in sample),
+        {"근거 없는 종목": [s.get("ticker") for s in sample
+                        if not (s.get("why") and s.get("source"))]})
+    add("표본에 중복이 없다",
+        len({s.get("ticker") for s in sample}) == len(sample),
+        {"고유": len({s.get("ticker") for s in sample})})
+    add("거래대금 출처가 기록됐다", bool(plan.get("turnoverSource")),
+        {"turnoverSource": plan.get("turnoverSource")})
+
+    add("고정 관측일(anchor)이 하나 있다", bool(plan.get("anchorDate")),
+        {"anchorDate": plan.get("anchorDate"), "why": plan.get("anchorWhy")})
+    add("anchor 선정 근거가 있다", bool(plan.get("anchorWhy")),
+        {"anchorWhy": plan.get("anchorWhy")})
+
+    h = plan.get("planHash")
+    add("planHash가 있다", bool(h), {"planHash": h})
+    add("planHash가 계획 내용과 일치한다", h == plan_hash(plan),
+        {"기록": h, "재계산": plan_hash(plan)})
+
+    # 액면분할은 못 채우는 것이 정상이다. 다만 '못 채웠다'가 기록돼 있어야 한다 -
+    # 조용히 빠지면 7일 뒤에 '수정주가 변경 없음'을 확인으로 읽게 된다(교훈50).
+    add("액면분할 축이 미측정으로 명시됐다",
+        any("액면분할" in u for u in (plan.get("unmeasured") or [])),
+        {"unmeasured": plan.get("unmeasured")})
+
+    # 이후 실행이 계획을 갈아치우지 않았는가. 실행이 있을 때만 잴 수 있다.
+    runs = prior_runs(outdir)
+    used = sorted({r.get("planHash") for _, r in runs if r.get("planHash")})
+    if not runs:
+        add("이후 실행의 planHash 불변 (실행 없음 — 미측정)", True,
+            {"실행": 0, "note": "Day 1 전이라 잴 것이 없다"})
+    else:
+        add("모든 실행이 같은 planHash를 썼다",
+            used == [h], {"실행": len(runs), "쓰인 hash": used, "계획": h})
+
+    return checks, all(c["통과"] for c in checks)
+
+
 def target_dates(plan, raw_root, back=2):
     """anchor(고정) + 최근 수집일(롤링). 두 축을 함께 본다.
 
@@ -487,9 +582,9 @@ def run(M, args, out=print):
                                     "replacedAt": stamp()}
         if not args.dry_run:
             save_plan(outdir, plan)
-        plan_state = "새로 세움" + (" (--replan으로 교체)" if replaced else "")
+        plan_state = "REPLAN" if replaced else "NEW"
     else:
-        plan_state = "기존 계획 재사용 (" + str(plan.get("createdAt")) + ")"
+        plan_state = "REUSE"
 
     sample = plan.get("sample") or []
     unmeasured = list(plan.get("unmeasured") or [])
@@ -498,7 +593,16 @@ def run(M, args, out=print):
 
     out("")
     out("  T1 수집 신뢰성 정찰   " + stamp())
-    out("  계획 " + plan_state + "  hash " + str(plan.get("planHash")))
+    out(plan_line(plan, plan_state))
+    if plan_state == "NEW":
+        out("  ↑ 이 실행이 창의 Day 1이다. 이후 실행은 [PLAN REUSE]여야 한다")
+    # 창 도중 계획 교체는 가장 나쁜 실패다. 매일 보이게 둔다.
+    prior = sorted({r.get("planHash") for _, r in prior_runs(outdir)
+                    if r.get("planHash")})
+    if prior and prior != [plan.get("planHash")]:
+        out("  ★ 창 도중에 계획이 갈렸다 " + str(prior) + " -> "
+            + str(plan.get("planHash"))
+            + " — 그 경계를 넘는 대조는 같은 표본이 아니다")
     out("  표본 " + str(len(sample)) + "종목 · 대상 " + str(len(dates)) + "일 · 출력 "
         + str(outdir))
     for s in sample:
@@ -698,6 +802,8 @@ def main():
                          "일자간 대조가 끊긴다")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--verify-plan", dest="verify_plan", action="store_true",
+                    help="계획이 7일 측정에 쓸 수 있는 상태인가. Day 1 전에 본다")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
 
@@ -710,6 +816,20 @@ def main():
         t = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(t)
         return t.run_all(sys.modules[__name__])
+
+    if args.verify_plan:
+        checks, ok = verify_plan(t1_dir())
+        print()
+        print("  T1 계획 검증   " + str(plan_path(t1_dir())))
+        for c in checks:
+            print(("  PASS  " if c["통과"] else "  FAIL  ") + c["항목"]
+                  + ("" if c["통과"] else
+                     "  " + json.dumps(c["실측"], ensure_ascii=False)[:150]))
+        print()
+        print("  " + ("GO — Day 1로 세도 된다" if ok
+                      else "NO-GO — 이 계획으로 7일을 돌면 대조에 쓸 수 없다"))
+        print()
+        return 0 if ok else 1
 
     if args.report:
         return report_only()
