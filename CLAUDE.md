@@ -44,9 +44,14 @@ Validated against
            A Alive Monitor + smoke 러너 완료 2026-08-10 — 회귀 19+7건
              scripts/alive-monitor.py   OK/PENDING/STALE · 상태 무저장 · fail-soft
              scripts/smoke-minute-kis.py  GO/NO-GO 15항목 자동 판정
+           A 10종목 smoke GO 2026-08-10 — 15항목 전부 PASS
+             3,810행 = 381 x 10 (결측 0) · 50호출 = 5 x 10 (T0 예측과 일치)
+             9.4초 · 피크 VmHWM 116.5MB / 한도 261.6MB · shaMatch true
+             EGW00201 0건 · 기존 모니터 생존 · OOM 없음
+             → Broad 2,559종목 환산 약 40분/일
   다음     A 분봉이 주선이다. B·C·D는 여전히 독립이며 급하지 않다
-           A1 10종목 smoke 실행 ← 여기. VM에서 명령 한 줄
-              통과하면 Broad 200종목(Core)으로 바로 간다. 추가 검증 단계 없음
+           A1 Broad 수집 실행 ← 여기. MN-1.0 부록 5번부터
+              추가 검증 단계를 만들지 않는다. smoke가 관문이었다
            A2 Broad 당일 증분 상시화 (systemd timer 또는 cron)
               미루면 손실이 하루씩 누적된다. 오늘 안 받은 하루는 못 받는다
            A3' T1 정찰 7일 (§6.1) — Broad와 병행. 재현성이 핵심
