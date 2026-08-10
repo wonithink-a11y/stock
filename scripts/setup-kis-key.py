@@ -39,6 +39,11 @@ ENV_PATH = Path(os.environ.get("KIS_ENV_PATH")
                 or (REPO / ".env")).expanduser()
 
 
+# 보이지 않으면 붙여넣기가 됐는지 알 수 없어 여러 번 누르게 된다 -
+# 실측으로 36자 키가 72자(2회 붙여넣기)로 들어왔다. --show면 보여준다.
+SHOW_INPUT = ("--show" in sys.argv)
+
+
 def say(msg=""):
     print(msg, flush=True)
 
@@ -117,7 +122,7 @@ def read_secret(label, seen):
     # 클립보드 경로는 Windows 전용이다. POSIX에서는 getpass가 tty 라인
     # 편집기를 거치므로 붙여넣기가 정상 동작한다 - Windows에서만 msvcrt가
     # 키를 한 글자씩 읽어 Ctrl+V가 제어문자로 들어왔다.
-    use_clip = interactive and os.name == "nt"
+    use_clip = interactive and os.name == "nt" and not SHOW_INPUT
     while True:
         if use_clip:
             say("  " + label)
@@ -130,10 +135,14 @@ def read_secret(label, seen):
             if raw is None:
                 fail("클립보드를 읽지 못했다.")
         elif interactive:
-            import getpass
             try:
-                raw = getpass.getpass("  " + label + " (붙여넣고 Enter, "
-                                      "화면에는 안 보입니다): ")
+                if SHOW_INPUT:
+                    raw = input("  " + label + " (붙여넣고 Enter, "
+                                "화면에 보입니다): ")
+                else:
+                    import getpass
+                    raw = getpass.getpass("  " + label + " (붙여넣고 Enter, "
+                                          "화면에는 안 보입니다): ")
             except (EOFError, KeyboardInterrupt):
                 fail("입력이 취소됐다.")
         else:
@@ -164,6 +173,12 @@ def read_secret(label, seen):
             if not v:
                 say("    [다시] 값이 비어 있습니다.")
                 continue
+        half = len(v) // 2
+        if len(v) % 2 == 0 and half >= 8 and v[:half] == v[half:]:
+            say("    [다시] 같은 값이 두 번 붙었습니다 (" + str(len(v)) +
+                "자 = " + str(half) + "자 x 2).")
+            say("           붙여넣기가 두 번 들어갔습니다. 한 번만 넣습니다.")
+            continue
         if v in seen:
             say("    [다시] 앞에서 받은 값과 같습니다.")
             say("           클립보드가 아직 안 바뀌었습니다. 다음 값을 복사한 뒤 Enter.")
@@ -350,7 +365,10 @@ def main():
     lines.append("KIS_APP_KEY=" + app_key)
     lines.append("KIS_APP_SECRET=" + app_secret)
 
-    ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+    # Path.write_text의 newline 인자는 3.10부터다. VM은 3.8이라 open으로 쓴다.
+    # 문법 검사(ast feature_version)로는 이런 API 차이가 안 잡힌다.
+    with open(ENV_PATH, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
 
     # 4. 파일 권한을 현재 사용자로 좁힌다. 실패해도 치명적이지 않다.
     try:
