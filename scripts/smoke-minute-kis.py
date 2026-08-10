@@ -201,9 +201,37 @@ def phase_real(M, J, args, tmp, report):
               {"why": "앱키가 없다. setup-kis-key.py를 먼저 돌린다"})
         return None
     if not cache.exists():
-        J.add("kis_auth", "KIS 인증", False,
-              {"why": "토큰 캐시가 없다: " + str(cache)})
-        return None
+        # VM에는 캐시가 없다. 여기서 한 번 발급한다 - 토큰은 24시간 유효하고
+        # 갱신은 6시간 초과 시라, 매번 받으면 기존 시스템과 충돌한다.
+        def mint():
+            import requests
+            r = requests.post(
+                M.BASE + "/oauth2/tokenP",
+                data=json.dumps({"grant_type": "client_credentials",
+                                 "appkey": key, "appsecret": sec}),
+                headers={"content-type": "application/json"}, timeout=20)
+            b = r.json()
+            if r.status_code != 200 or "access_token" not in b:
+                return {"_fail": {"http": r.status_code,
+                                  "code": b.get("error_code", b.get("msg_cd")),
+                                  "msg": str(b.get("error_description",
+                                                   b.get("msg1", "")))[:120]}}
+            cache.write_text(json.dumps(
+                {"accessToken": b["access_token"],
+                 "expiresAt": b.get("access_token_token_expired", ""),
+                 "issuedAt": now(), "appKeyTail": key[-4:]},
+                ensure_ascii=False, indent=2), encoding="utf-8")
+            try:
+                os.chmod(cache, 0o600)
+            except Exception:
+                pass
+            return {"ok": True, "expiresAt": b.get("access_token_token_expired")}
+
+        got = safe(mint, {"_fail": {"why": "발급 중 예외"}})
+        if not got.get("ok"):
+            J.add("kis_auth", "KIS 인증", False,
+                  {"why": "토큰 발급 실패", "detail": got.get("_fail")})
+            return None
     tok = safe(lambda: json.loads(cache.read_text(encoding="utf-8"))["accessToken"])
     if not isinstance(tok, str):
         J.add("kis_auth", "KIS 인증", False, {"why": "토큰 캐시를 읽지 못했다"})
