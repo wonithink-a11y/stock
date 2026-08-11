@@ -46,6 +46,7 @@
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-7 | 발행주식수·수급 소스 정찰 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | 인계서 미발행 |
 
 ### 주석 — 상태의 근거
@@ -80,6 +81,10 @@ LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensiti
 LAB-2  원래 제목은 'diagnostics 실패 원인 분류'였는데 재료가 없어 재정의했다 —
        8샤드 전부 rejected {} 이고 기각 0건이다. 번호는 그대로 둔다(LESSONS 와 같은 이유)
 LAB-5·6  2026-08-11 신설. 기존 번호를 다시 매기지 않고 뒤에 붙였다
+LAB-7  실험실 커넥터로 공공데이터 응답 필드만 확인한다. 수집이 아니다 —
+       우리 DART 예산 0원이고 뒤집힐 수 있는 질문이라 지금 한다.
+       다 열려도 0.68 → 0.79 이고 수급 축의 큰 둘(외국인·기관 순매수)은
+       거래소 영역이라 그 목록에 없다. 착수는 별건(계약 변경 🔴)
 ```
 
 ---
