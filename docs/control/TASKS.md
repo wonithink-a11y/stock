@@ -41,7 +41,7 @@
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | — | — | `BLOCKED` | A3B-2 | 0.4475 → 0.68 |
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `PLANNED` | A3B-2 | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-5 | A3↔A3b 조인 성공률 (★ 1순위) | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-5 | A3↔A3b 조인 성공률 | AI-Lab | Claude ✅ | `DONE` | — | `docs/verification/LAB-5-조인성공률-결과.md` |
 | LAB-2 | epsSource 혼재가 횡단면을 깨는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
@@ -60,14 +60,19 @@ A3B-3  원인은 a3520af 에서 고쳤으나 그 경로가 한 번도 성공한 
 T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-minute.py)만 있고
        산출물·로그는 VM 에 있다(~/minute-raw · t1.log). 'IN PROGRESS' 로 추정하지 않는다.
        CLAUDE.md 상태 블록의 Day 1 = 2026-08-10 은 계획이지 관측이 아니다
-A5-5   ★ A3 와 A3b 가 같은 날짜를 다른 형식으로 쓴다 —
-       A3 "2024-03-21" · A3b "20240321". 실측: 정규화 없이 조인하면 14,578건 중
-       0건, 하이픈 제거 후 14,155건(97.1%)이다. rceptNo 는 같으므로 같은 공시다.
-       지금은 A3b 가 A5 에 연결되지 않아 무해하지만, 연결되는 순간
-       조용히 터진다 — availableWeight 는 플래그로 계산하므로 0.68 을 계속
-       보고하는데 실제 valuation 커버리지는 0 이 된다. 되돌리기 어려운 쪽이다.
+A5-5   ★ 두 갈래다. 형식 문제이자 PIT 문제다 (LAB-5 로 범위가 넓어졌다)
+       (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". 정규화 없이 조인하면
+           14,578건 중 0건, 하이픈 제거 후 14,155건이다. 지금은 A3b 가 A5 에
+           연결되지 않아 무해하지만 연결되는 순간 조용히 터진다 —
+           availableWeight 는 플래그로 계산하므로 0.68 을 계속 보고하는데 실제
+           valuation 커버리지는 0 이 된다. 되돌리기 어려운 쪽이다
+       (2) 공시 선택 — 정규화 후에도 45건은 같은 법인·사업연도에서 A3 와 A3b 가
+           서로 다른 공시를 골랐다. 공시일 차이 최대 2,603일(약 7년)이다.
+           PIT 는 'asOf 이전의 마지막 정정본'을 쓰는데, 재무와 EPS 가 다른
+           공시에서 오면 같은 asOf 에서 두 소스가 다른 시점을 본다
        A3 산출물은 finalize 됐으므로 고칠 자리는 조인 지점(A5 resolver)이다.
-       발견 경위: LAB-5 패키지를 검증하다 나왔다(2026-08-11)
+       발견 경위: (1) LAB-5 패키지 검증 · (2) LAB-5 결과 (2026-08-11)
+       게이트3 판단 — 정규화를 전제하면 A3 방향 조인율 99.4% 로 0.68 은 유효하다
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
