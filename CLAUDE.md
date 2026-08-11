@@ -55,6 +55,9 @@ Validated against
           docs/operations/data-source-availability.md   막힌 소스 (재론 금지)
 결정 대기  docs/A3b-결정브리프.md · docs/FN-1.4-measured승격절차.md
 협업      CHATGPT.md                            ChatGPT의 진입 규칙
+          docs/AI협업-업무분담.md               업무 경계 · 인계 형식 · 출처 규칙
+          docs/control/TASKS.md                 현재 업무 배정. 정본이 아니다 —
+                                                코드·계약·실측과 다르면 그쪽이 맞다
 ```
 
 계약은 **무엇을 지켜야 하는가**, 완료기록은 **무엇이 관측됐는가**, 교훈은 **왜
@@ -203,6 +206,7 @@ push된 히스토리를 다시 쓰지 않는다. 되돌릴 일은 revert로 앞�
 | `docs/*계약*.md` | Claude가 구현 반영 · ChatGPT는 지적만 |
 | `CLAUDE.md` | Claude |
 | `CHATGPT.md` | ChatGPT |
+| `docs/AI협업-업무분담.md` · `docs/control/` | Claude |
 | `docs/data/` · `data/backfill/` | GitHub Actions |
 | VM staging · Object Storage | VM |
 | `docs/verification/` | 실험실 |
