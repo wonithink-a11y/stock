@@ -138,7 +138,7 @@ def dart_get(endpoint, params, pol=None):
     last = (None, "unknown", "unknown")
     for i in range(attempts):
         try:
-            r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params})
+            r = requests.get(f"{BASE}/{endpoint}", params={"crtfc_key": KEY, **params}, timeout=30)
         except Exception as e:  # noqa: BLE001
             last = (None, "EXC", f"{type(e).__name__}: {str(e)[:150]}")
         else:
