@@ -1,0 +1,37 @@
+{
+  "stage": "A3b",
+  "mode": "shard",
+  "shard": 0,
+  "shards": 8,
+  "stageVersion": "A3b.0",
+  "fundamentalsPolicy": "FN-1.5",
+  "runDate": "2026-08-11",
+  "gridMode": "a3ReuseAndScanMissing",
+  "reuseCorps": 3003,
+  "reuseCells": 24750,
+  "missingCorps": 798,
+  "missingCorpsByGroup": {
+    "delisted": 783,
+    "current": 15
+  },
+  "missingCellsUpperBound": 8778,
+  "targetCorps": 3801,
+  "shardBudget": {
+    "mode": "activeShards",
+    "poolTotal": 16000,
+    "usedToday": 0,
+    "activeShards": 8,
+    "myUsedToday": 0
+  },
+  "corpsAssigned": 476,
+  "corpsDone": 237,
+  "corpsRemaining": 239,
+  "calls": 2001,
+  "budget": 2000,
+  "budgetExhausted": true,
+  "rowCount": 1839,
+  "emptyCells": 162,
+  "rejected": {},
+  "scannedCells": 2408,
+  "elapsedSeconds": 2293.3
+}
