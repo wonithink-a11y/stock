@@ -1,7 +1,7 @@
 # TASKS — 지금 누가 무엇에 막혀 있는가
 
 ```
-갱신   2026-08-11 · commit 02f183d 기준
+갱신   2026-08-11 · commit 76fc46e 기준
 ```
 
 **이 파일은 프로젝트 상태 정본이 아니다.** 답하는 질문은 하나다 — *지금 누가 무엇을 하고
@@ -44,7 +44,6 @@
 | LAB-2 | diagnostics 실패 원인 분류 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-4 | 백테스트 입력·forward-return 조인 구조 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| DOC-1 | 이 문서와 업무분담 문서를 문서 지도에 등록 | Claude | — | `WAITING_USER` | 사용자 GO | `CLAUDE.md` |
 
 ### 주석 — 상태의 근거
 
