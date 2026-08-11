@@ -21,7 +21,7 @@
  */
 const assert = require('assert');
 const {
-  runBacktest, classifyBase, EXCLUSION, UNMEASURED_REASONS, MIN_SAMPLE,
+  runBacktest, classifyBase, EXCLUSION, UNMEASURED_REASONS, UNMEASURED_AXIS_MODEL, MIN_SAMPLE,
 } = require('../lib/backtester');
 const { loadPolicies } = require('../lib/loadPolicies');
 
@@ -196,6 +196,94 @@ for (const k of ['sampleCount', 'transactionCostPct', 'ic', 'byGrade', 'gradeMon
 ok('ic[h] 는 숫자 또는 null 이다 (객체로 바꾸지 않았다)',
    Object.values(r.ic).every((v) => v === null || typeof v === 'number'),
    JSON.stringify(r.ic));
+
+// ── 7. 축 모델 (SB-1.0) — 3축과 4축은 다른 모델이다 ─────────────────
+console.log('\n[7] 축 basis — 선언과 관측을 대조한다');
+
+const axisBasis = require('../lib/a5/axisBasis');
+const SB = P.analysis.scoreBasis;
+
+ok('SB-1.0 이 analysisPolicies 로 로드된다 (score() 가 읽는 정책이 아니다)',
+   SB && SB.version === 'SB-1.0', JSON.stringify(SB && SB.version));
+ok('★ scoreBasis 가 meta.policies 에 실리지 않는다 (provenance 허위 방지)',
+   P.versions.scoreBasis === undefined && P.analysisVersions.scoreBasis === 'SB-1.0',
+   `versions=${P.versions.scoreBasis} analysisVersions=${P.analysisVersions.scoreBasis}`);
+
+ok('가중치 0 인 축은 basis 에 들지 않는다 (US supplyDemand)',
+   JSON.stringify(axisBasis.basisOf(
+     { fundamental: 70, valuation: 60, technical: 50, supplyDemand: 80 },
+     { fundamental: 0.4, valuation: 0.35, technical: 0.25, supplyDemand: 0 }))
+   === JSON.stringify(['fundamental', 'technical', 'valuation']));
+ok('축 점수가 null 이면 basis 에서 빠진다',
+   JSON.stringify(axisBasis.basisOf(
+     { fundamental: 70, valuation: null, technical: 50, supplyDemand: null },
+     C.categoryWeights)) === JSON.stringify(['fundamental', 'technical']));
+ok('없는 모델 id 는 조용히 기본값으로 대체되지 않는다',
+   (() => { try { axisBasis.resolveModel(SB, 'KR_9AXIS'); return false; } catch (e) { return true; } })());
+
+const M3 = axisBasis.resolveModel(SB, 'KR_3AXIS');
+const M4 = axisBasis.resolveModel(SB, 'KR_4AXIS');
+ok('★ KR_3AXIS 는 운영 모델이 아니다 (criteria 와 대조해 계산한다 — 정책에 적어 둔 값이 아니다)',
+   axisBasis.describeModel(M3, C).matchesOperationalModel === false);
+ok('★ KR_4AXIS 는 운영 모델과 같다',
+   axisBasis.describeModel(M4, C).matchesOperationalModel === true);
+ok('KR_3AXIS 에 승격 금지 규칙이 붙어 있다 (조건이 정책에 남는다)',
+   typeof M3.promotionRule === 'string' && M3.promotionRule.includes('KR_4AXIS'));
+ok('US_3AXIS 는 US criteria 기준으로 운영 모델이다 (축이 빠진 게 아니라 완전한 모델)',
+   axisBasis.describeModel(
+     axisBasis.resolveModel(SB, 'US_3AXIS'),
+     loadPolicies('US').criteria).matchesOperationalModel === true);
+
+// FULL 은 4축이 다 사는 입력이다. KR_3AXIS 로 돌리면 전부 basis 가 다르다.
+const s4 = [snap(1), snap(2), snap(3)];
+const r3 = runBacktest(s4, C, { policies: P, axisModel: 'KR_3AXIS' });
+ok('★ 4축으로 채점된 종목은 KR_3AXIS 실행에서 BASIS_MISMATCH 로 빠진다',
+   r3.population.excludedByReason[EXCLUSION.BASIS_MISMATCH] === 3 && r3.population.eligible === 0,
+   JSON.stringify(r3.population.excludedByReason));
+ok('제외 사유는 여전히 배타적이다 (합 == excluded)',
+   Object.values(r3.population.excludedByReason).reduce((a, b) => a + b, 0) === r3.population.excluded);
+
+const r4 = runBacktest(s4, C, { policies: P, axisModel: 'KR_4AXIS' });
+ok('같은 스냅샷을 KR_4AXIS 로 돌리면 전부 편입된다',
+   r4.population.eligible === 3 && !r4.population.excludedByReason[EXCLUSION.BASIS_MISMATCH],
+   JSON.stringify(r4.population.excludedByReason));
+ok('★ 모델이 결과에 남는다 — 3축 결과를 4축으로 읽을 수 없다',
+   r3.population.model.axisModel === 'KR_3AXIS'
+   && r4.population.model.axisModel === 'KR_4AXIS'
+   && JSON.stringify(r3.population.model.excludedAxes) !== '{}',
+   JSON.stringify(r3.population.model));
+ok('★ 운영 모델이 아니면 판정 요약 첫 줄이 그것을 말한다',
+   r3.verdicts[0].includes('운영 모델이 아닙니다'), r3.verdicts[0]);
+ok('운영 모델이면 그 경고가 없다',
+   !r4.verdicts.some((v) => v.includes('운영 모델이 아닙니다')));
+
+const rU = runBacktest(s4, C, { policies: P });
+ok('★ 선언하지 않으면 basis 를 재지 않는다 (기본 모델을 몰래 고르지 않는다)',
+   rU.population.model.axisModel === 'UNDECLARED'
+   && !rU.population.excludedByReason[EXCLUSION.BASIS_MISMATCH]);
+ok('★ 미선언은 unmeasuredReasons 로 선언된다 (통과가 아니다 — 교훈57)',
+   rU.population.unmeasuredReasons.includes(UNMEASURED_AXIS_MODEL)
+   && !r3.population.unmeasuredReasons.includes(UNMEASURED_AXIS_MODEL),
+   JSON.stringify(rU.population.unmeasuredReasons));
+ok('미선언 실행도 판정 요약이 비교 금지를 말한다',
+   rU.verdicts[0].includes('비교하지 마세요'), rU.verdicts[0]);
+ok('관측된 basis 분포를 선언과 별개로 남긴다',
+   rU.population.observedBasis['fundamental+supplyDemand+technical+valuation'] === 3,
+   JSON.stringify(rU.population.observedBasis));
+
+// V1/V2 가 같은 basis 를 내는가 — 엔진 선택이 모집단을 바꾸지 않는다는 계약의 연장
+const v1b = runBacktest(s4, C, { axisModel: 'KR_3AXIS' });
+ok('★ V1 과 V2 가 같은 basis 판정을 낸다 (엔진 선택이 모집단을 바꾸지 않는다)',
+   v1b.population.eligible === r3.population.eligible
+   && JSON.stringify(v1b.population.observedBasis) === JSON.stringify(r3.population.observedBasis),
+   `V1=${JSON.stringify(v1b.population.observedBasis)} V2=${JSON.stringify(r3.population.observedBasis)}`);
+
+// THIN 은 technical 만 있는 입력이다. basis 가 달라 BASIS_MISMATCH 가 coverage 보다 먼저 잡는다.
+const rThin = runBacktest([snap(9, { thin: true })], C, { policies: P, axisModel: 'KR_3AXIS' });
+ok('★ basis 가 다르면 coverage 미달보다 먼저 잡는다 (모델 정체가 품질 문제로 묻히지 않는다)',
+   rThin.population.excludedByReason[EXCLUSION.BASIS_MISMATCH] === 1
+   && !rThin.population.excludedByReason[EXCLUSION.INSUFFICIENT_COVERAGE],
+   JSON.stringify(rThin.population.excludedByReason));
 
 console.log(`\n${'='.repeat(54)}`);
 console.log(`통과 ${pass} · 실패 ${fail}`);

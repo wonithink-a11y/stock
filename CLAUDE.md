@@ -5,7 +5,7 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.4 · FN-1.5 · REG-1.5 · MN-1.1
+  정책      UN-1.2 · PR-1.4 · FN-1.5 · REG-1.6 · MN-1.1 · SB-1.0
   현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
   T1 창     Day 1 = 2026-08-10. **동결은 커밋 금지다**(MN-1.0 §6.1)
                동결: probe-t1-minute.py · collect-minute-kis.py ·
@@ -22,13 +22,17 @@ Validated against
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-  언제든    백테스트 표본 편입 조건 정의 (score ≠ eligible)
-            ⑤ A2 manifest 승격 설계 · A5 결측 정책은 A2b 실측 후
+  언제든    ⑤ A2 manifest 승격 설계
+            analyze.js 일별 산출의 basis 혼재 — 게이트4를 운영 경로에 적용할지는 별건
+  안 한다   A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
+            A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
   T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
             calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다
   완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A5 프레임워크
             A1a·A1b 갱신 (2578 / 1223, 2026-08-10) · FN-1.4 임계 승격
             A3b 계약 확정 + 정찰 GO + 수집기 구현 (FN-1.5)
+            백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
+            ★ KR_3AXIS 백테스트를 KR_4AXIS(운영)의 검증으로 승격하지 않는다
             분봉 T0·커버리지 정찰 · Collector v1 · 상시화 · 첫 Broad 수집
             실측 수치와 근거는 완료기록·계약 문서에 있다. 여기 옮기지 않는다
   운영 중    VM stock-MonitorAlways (1 OCPU · 1GB · Python 3.8)
