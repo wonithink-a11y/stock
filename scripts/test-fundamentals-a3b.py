@@ -172,6 +172,7 @@ def fake_get(endpoint, params, pol=None):
     return {"list": v}, "000", None
 
 
+_real_dart_get = m.dart_get
 m.dart_get = fake_get
 _pol = copy.deepcopy(POL)
 _pol["requestSleepSeconds"] = 0
@@ -221,30 +222,12 @@ ok("한도를 빈 응답으로 세지 않는다", cnt["emptyCells"] == 0 and cnt
 # ── 6.2 재시도 — 일시 오류가 영구 결측이 되면 안 된다 ────────────────────
 print("\n[6.2] 재시도 — 네트워크 한 번 튄 것이 결측이 되지 않는다")
 
-_seq = []
-
-
-def flaky_get(endpoint, params, pol=None):
-    _seq.append(1)
-    if len(_seq) < 3:
-        return None, "EXC", "ConnectionError"
-    return {"list": [row("(연결)주당순이익(원)", "10")]}, "000", None
-
-
 _real_sleep = m.time.sleep
+_real_requests_get = m.requests.get
 m.time.sleep = lambda *_: None
 try:
     _pol_retry = copy.deepcopy(_pol)
     _pol_retry["retryAttempts"] = 4
-    got = m.dart_get.__wrapped__ if hasattr(m.dart_get, "__wrapped__") else None
-    # 실물 dart_get 을 되살려 재시도 경로를 밟는다
-    import importlib.util as _il
-    _sp = _il.spec_from_file_location("a3b_fresh",
-                                      os.path.join(ROOT, "scripts",
-                                                   "build-fundamentals-a3b.py"))
-    _fresh = _il.module_from_spec(_sp)
-    _sp.loader.exec_module(_fresh)
-    _fresh.time.sleep = lambda *_: None
     _calls = {"n": 0}
 
     class _Resp:
@@ -256,8 +239,8 @@ try:
                 return {"status": "800", "message": "시스템 점검"}
             return {"status": "000", "list": [row("(연결)주당순이익(원)", "10")]}
 
-    _fresh.requests.get = lambda *a, **k: _Resp()
-    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    m.requests.get = lambda *a, **k: _Resp()
+    j, stt, err = _real_dart_get("alotMatter.json", {}, _pol_retry)
     ok("일시 오류는 재시도해서 성공으로 돌아온다", stt == "000" and j is not None,
        f"status={stt} calls={_calls['n']}")
     ok("재시도 횟수가 정책을 따른다", _calls["n"] == 3, str(_calls["n"]))
@@ -271,8 +254,8 @@ try:
             _calls["n"] += 1
             return {"status": "020", "message": "한도 초과"}
 
-    _fresh.requests.get = lambda *a, **k: _Quota()
-    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    m.requests.get = lambda *a, **k: _Quota()
+    j, stt, err = _real_dart_get("alotMatter.json", {}, _pol_retry)
     ok("한도(020)는 재시도하지 않는다 (답이 바뀌지 않는다)",
        stt == "020" and _calls["n"] == 1, f"status={stt} calls={_calls['n']}")
 
@@ -285,12 +268,13 @@ try:
             _calls["n"] += 1
             return {"status": "013", "message": "조회된 데이타가 없습니다."}
 
-    _fresh.requests.get = lambda *a, **k: _NoData()
-    j, stt, err = _fresh.dart_get("alotMatter.json", {}, _pol_retry)
+    m.requests.get = lambda *a, **k: _NoData()
+    j, stt, err = _real_dart_get("alotMatter.json", {}, _pol_retry)
     ok("013 도 재시도하지 않는다", stt == "013" and _calls["n"] == 1,
        f"status={stt} calls={_calls['n']}")
 finally:
     m.time.sleep = _real_sleep
+    m.requests.get = _real_requests_get
     m.dart_get = fake_get
 
 # ── 7. 인수 조건 ──────────────────────────────────────────────────

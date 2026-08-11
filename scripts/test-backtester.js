@@ -18,8 +18,9 @@
  *   4. 표본 부족 판정이 horizon 단위인가
  *   5. 모집단이 엔진 선택과 무관한가 (V1/V2 가 같은 표본을 낸다)
  *   6. 못 재는 축을 0으로 적지 않는가
+ *   7. 기존 소비자 스키마가 보존되는가
+ *   8. 축 모델이 3축/4축을 가르는가 (SB-1.0)
  */
-const assert = require('assert');
 const {
   runBacktest, classifyBase, EXCLUSION, UNMEASURED_REASONS, UNMEASURED_AXIS_MODEL, MIN_SAMPLE,
 } = require('../lib/backtester');
@@ -197,7 +198,7 @@ ok('ic[h] 는 숫자 또는 null 이다 (객체로 바꾸지 않았다)',
    Object.values(r.ic).every((v) => v === null || typeof v === 'number'),
    JSON.stringify(r.ic));
 
-// ── 7. 축 모델 (SB-1.0) — 3축과 4축은 다른 모델이다 ─────────────────
+// ── 8. 축 모델 (SB-1.0) — 3축과 4축은 다른 모델이다 ─────────────────
 console.log('\n[7] 축 basis — 선언과 관측을 대조한다');
 
 const axisBasis = require('../lib/a5/axisBasis');

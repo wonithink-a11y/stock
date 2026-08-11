@@ -416,8 +416,8 @@ def target_corps():
     return out
 
 
-def state_path(shard):
-    return f"{SHARD_DIR}/_state-{shard}.json"
+def state_path(shard, state_dir=None):
+    return f"{state_dir or SHARD_DIR}/_state-{shard}.json"
 
 
 def shard_path(shard):
@@ -463,7 +463,7 @@ def shard_budget(pol, shards, shard, my_used, today, state_dir=None):
             used_today += my_used
             active += 1                     # 자기 자신은 지금 돌고 있으므로 활성이다
             continue
-        p = f"{sdir}/_state-{s}.json"
+        p = state_path(s, sdir)
         if not os.path.exists(p):
             # 아직 한 번도 안 돈 샤드. 활성으로 세면 활성 수가 커져 내 몫이 줄어든다 —
             # 모르는 것을 과다 배분 쪽으로 해석하지 않는다(교훈57).
