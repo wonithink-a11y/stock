@@ -40,10 +40,12 @@
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | — | — | `BLOCKED` | A3B-2 | 0.4475 → 0.68 |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-1 | A3/A3b 데이터 품질·결측 패턴 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-2 | diagnostics 실패 원인 분류 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-4 | 백테스트 입력·forward-return 조인 구조 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-5 | A3↔A3b 조인 성공률 (★ 1순위) | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | 인계서 미발행 |
 
 ### 주석 — 상태의 근거
 
@@ -60,6 +62,10 @@ T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-min
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
+       인계서는 docs/control/handoff/LAB-*.md. 표의 순서가 권고 순서다
+LAB-2  원래 제목은 'diagnostics 실패 원인 분류'였는데 재료가 없어 재정의했다 —
+       8샤드 전부 rejected {} 이고 기각 0건이다. 번호는 그대로 둔다(LESSONS 와 같은 이유)
+LAB-5·6  2026-08-11 신설. 기존 번호를 다시 매기지 않고 뒤에 붙였다
 ```
 
 ---
