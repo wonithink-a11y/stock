@@ -51,6 +51,25 @@ factor / weight / threshold 민감도 · regime별 성능 결론 ·
 
 저장소 접근이 있으면 `wonithink-a11y/stock` 의 `main` 에서 직접 읽으면 됩니다.
 
+### 네트워크만 되면 URL 로 넘기는 것이 가장 쉽습니다
+
+저장소가 공개라 인증 없이 읽을 수 있습니다. **토큰이나 키를 보내지 마세요 — 필요 없습니다.**
+
+```
+https://raw.githubusercontent.com/wonithink-a11y/stock/<커밋해시>/<경로>
+```
+
+**브랜치가 아니라 커밋 해시에 고정하세요.** `main` 으로 주면 수집이 진행되는 동안
+내용이 바뀌어, 실험실이 본 데이터와 결과에 적힌 기준이 어긋납니다. 커밋에 고정하면
+같은 URL 이 언제 열어도 같은 바이트를 줍니다.
+
+한글 파일명은 URL 인코딩이 필요합니다(`조인성공률` → `%EC%A1%B0%EC%9D%B8...`).
+
+> 받는 쪽 주의 — `.jsonl.gz` 는 gzip 바이트 그대로 옵니다. 그리고 큰 JSON 을 요약
+> 모델에 통째로 물어 배열 길이를 세게 하지 마세요. 실측에서 `_state-3.json` 의
+> `corpsDone` 을 246 대신 475(`corpsAssigned`)로 답한 사례가 있습니다.
+> **세는 것은 코드로 하세요.**
+
 ```
 data/backfill/fundamentals/a3/*.jsonl.gz          A3 재무 (gzip JSONL, 11개 파일)
 data/backfill/fundamentals/_shards_a3b/           A3b EPS·배당 (8샤드)
