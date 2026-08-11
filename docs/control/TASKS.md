@@ -46,7 +46,9 @@
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
 | LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-8 | 공시 선택 불일치 45건 (A5-5 입력) | AI-Lab | Claude | `PLANNED` | — | `docs/verification/` |
 | LAB-7 | 발행주식수·수급 소스 정찰 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
+| LAB-5b | A3b 수집 완료 후 조인율 재집계 | AI-Lab | Claude | `BLOCKED` | A3B-2 | `docs/verification/` |
 | LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | 인계서 미발행 |
 
 ### 주석 — 상태의 근거
@@ -72,7 +74,12 @@ A5-5   ★ 두 갈래다. 형식 문제이자 PIT 문제다 (LAB-5 로 범위가
            PIT 는 'asOf 이전의 마지막 정정본'을 쓰는데, 재무와 EPS 가 다른
            공시에서 오면 같은 asOf 에서 두 소스가 다른 시점을 본다
        A3 산출물은 finalize 됐으므로 고칠 자리는 조인 지점(A5 resolver)이다.
-       발견 경위: (1) LAB-5 패키지 검증 · (2) LAB-5 결과 (2026-08-11)
+       ★ (2)의 원인 후보를 찾았다 — 두 수집기의 공시 선택 규칙이 다르다.
+         A3  build-fundamentals-a3.py:380   rcept = rows[0]["rcept_no"]  (첫 행)
+         A3b build-fundamentals-a3b.py:222  rc = sorted(rcepts)[-1]      (최대=최신)
+         둘 다 reprtCode 11011(사업보고서)인데 정정공시가 있으면 한쪽은 원본을
+         다른 쪽은 정정본을 잡는다. 아직 가설이다 — LAB-8 이 공시 메타데이터로 검증한다
+       발견 경위: (1) LAB-5 패키지 검증 · (2) LAB-5 결과 · 선택 규칙은 LAB-8 발행 중 (2026-08-11)
        게이트3 판단 — 정규화를 전제하면 A3 방향 조인율 99.4% 로 0.68 은 유효하다
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
