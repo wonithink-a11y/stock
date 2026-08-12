@@ -13,14 +13,17 @@ Validated against
                      data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      A5-5 — RCEPT_MISMATCH 63건 공시 선택 정책 (LAB-8 결과 대기)
+  다음      A5-5 — RCEPT_MISMATCH 63건 공시 선택 정책 (사용자 GO 대기)
             형식 불일치(A3 "2024-03-21" · A3b "20240321")는 고쳤다(아래 완료).
             남은 건 같은 corp+fiscalYear인데 A3·A3b가 가리키는 공시가 다른 63건
             (24,690매치 중 0.26%, manifest rceptNoVsA3.amended와 동수) —
-            50건은 A3=원본·A3b=정정본(rows[0] vs max(rcept_no)) 가설과 맞지만
-            13건(그중 12건 FY2019, gap -120~-357일)은 반대라 가설이 그대로
-            성립하지 않는다. LAB-8 결과(docs/verification/, 아직 없음) 전에는
-            resolver.js에 어느 쪽을 고를지 정책을 넣지 않는다
+            ★ LAB-8 잠정 결과 나옴(실험실 불능이라 Claude 대행, 2026-08-12,
+            docs/verification/LAB-8-공시선택-불일치-결과.md). 63건 전량 DART
+            원문 대조(조회실패 0) — 49건(78%)은 A3=원본·A3b=정정본(rows[0] vs
+            max(rcept_no)) 가설과 맞지만 12건(19%, 11건 FY2019 집중)은 반대
+            방향, 2건은 다단계 정정이라 가설이 그대로 성립하지 않는다.
+            ★ Claude가 조사자라 잠정치다 — 실험실 복구 시 재확인 전까지
+            resolver.js 정책은 이 결과만으로 확정하지 않는다
   T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다

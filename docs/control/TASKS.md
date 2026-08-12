@@ -33,12 +33,12 @@
 
 | ID | Task | Owner | Reviewer | Status | Depends | Output |
 |---|---|---|---|---|---|---|
-| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `IN PROGRESS` (1) DONE · (2) BLOCKED | (2)는 LAB-8 | `lib/a5/pitSelector.js` |
+| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `IN PROGRESS` (1) DONE · (2) 사용자 정책 결정 대기 | (2)는 LAB-8 잠정 결과 참조 | `lib/a5/pitSelector.js` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 여전히 0.4475(실측) | A5-5(2)·LAB-8 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `PLANNED` | 사용자 GO 대기(아래) | `docs/verification/` |
+| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
 | LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
 | LAB-6 | 무배당 44%의 분포 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
@@ -68,10 +68,15 @@ A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
            (aa694ee, 2026-08-12) — 수정 후 재실측 lte 탈락 0, freshnessDays null 0.
            A3b 계약의 원본 포맷(YYYYMMDD)은 안 건드렸다. resolver.js 는 미변경
        (2) 공시 선택 — A3b 가 finalize된 뒤(25,531건) 재계산하니 45건이 아니라
-           63건(24,690매치 중 0.26%)이다. 50건은 A3=rows[0](원본)·
-           A3b=max(rcept_no)(정정본) 가설과 맞지만, 13건(그중 12건 FY2019,
-           gap -120~-357일)은 반대 방향이라 가설이 그대로 성립하지 않는다.
-           resolver.js 정책은 LAB-8 결과 전에 넣지 않는다(오퍼스 위임 설계 권고,
+           63건(24,690매치 중 0.26%)이다. ★ LAB-8 잠정 결과(Claude 대행,
+           2026-08-12, docs/verification/LAB-8-공시선택-불일치-결과.md) —
+           63건 전량 DART 원문 대조, 조회 실패 0건. 49건(77.8%)은
+           A3=rows[0](원본)·A3b=max(rcept_no)(정정본) 가설과 일치했지만,
+           12건(19.0%, 11건이 FY2019 집중)은 방향이 반대(A3가 정정본)였고,
+           2건은 원본-정정 단순 쌍이 아닌 다단계 정정이었다. 가설은 부분
+           확인·부분 반증 — "어느 쪽이 항상 정정본"이라는 단일 규칙은 안 된다.
+           resolver.js 정책은 아직 안 정했다 — Claude 잠정치라 실험실 복구 시
+           재확인 전에는 최종 확정하지 않는다(오퍼스 위임 설계 권고,
            2026-08-12) — 임시로는 63건을 flag-and-withhold 하는 안이 유력하다
 A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 "0.4475→0.68"은
        featureRegistry 플래그를 임시로 뒤집은 시뮬레이션이었지 실제 값이 아니다.
