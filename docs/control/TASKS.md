@@ -1,7 +1,7 @@
 # TASKS — 지금 누가 무엇에 막혀 있는가
 
 ```
-갱신   2026-08-12 · commit b1a928e 기준
+갱신   2026-08-12 · commit 54b9a8c 기준
 ```
 
 **이 파일은 프로젝트 상태 정본이 아니다.** 답하는 질문은 하나다 — *지금 누가 무엇을 하고
@@ -35,8 +35,8 @@
 |---|---|---|---|---|---|---|
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` 재개(2026-08-12, 사용자 GO) — shareholderReturn·technical 구현 완료(6365430), peg는 A3c 대기로 중단 | perRelative·peg는 A3c 확보 전까지 scoring 미연결 | `lib/a5/resolver.js` |
-| A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `IN PROGRESS` 정책 초안 확정(PIT+우선순위 tie-break+carry-forward, 실제 데이터로 replay 검증 통과) — 표본 확대(9→40법인) 재검증 대기 | fundamentals.v1.json 반영은 확대 재검증 통과 후. 본수집은 그 다음 | `docs/A3c-정책초안.md` · `scripts/probe-fundamentals-a3c.py` |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` shareholderReturn·technical 구현 완료(5bcd738), peg는 A3c 본수집 완료 대기, perRelative는 별건 보류 | peg는 A3c 확보 전까지 scoring 미연결 | `lib/a5/resolver.js` |
+| A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `IN PROGRESS` 정책 FN-1.6 정식 반영(268c40a)·수집기+workflow 구현(5d4964a)·31법인 스모크 통과(istc_totqy확보 97.33%). 본수집 GO(2026-08-12, 사용자) — 실행 대기 | 절차는 `docs/control/세션인수인계-2026-08-12b.md` | `config/policies/fundamentals.v1.json` · `scripts/build-fundamentals-a3c.py` |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | BF-1.1 | 10년 Historical Backfill — 소급 스코어 재현 | — | — | `PLANNED` 수직 슬라이스 GO(820f097) + resolver 필드명 버그 수정(7a4c00c). data/backfill/scores/ 전체 실행은 여전히 미착수 | 다음 재개는 A5-3 재검토 사용자 GO부터 | `docs/verification/BF-1.1-수직슬라이스-결과.md` |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
@@ -110,6 +110,15 @@ A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 
        ★ 결정(2026-08-12, 사용자 GO) — 보류. 부분 구현은 게이트가 계속 미달이라
        결과가 지금과 동일하고, 전체 구현은 백테스트 eligible 표본이 3건뿐이라
        지금 열어도 검증할 수 없다(LAB-4). CLAUDE.md "언제든" 항목으로 이동.
+       ★ 재개(같은 날, 2026-08-12) — "게이트(0.6) 미달"이 shareholderReturn+
+       peg 조합 기준이었다는 게 재확인됐다. shareholderReturn·technical은
+       peg 없이도 각자 독립 구현 가능해 먼저 연결(5bcd738). peg 자체의
+       실질 블로커는 perRelative 인프라 부재가 아니라 A2a(수정주가)↔A3b
+       (원본 EPS) 조정 기준 불일치였다(LAB-7이 발견) — availableWeight
+       게이트와 무관하게 이미 잘못된 값(PER=0.197 등)을 냈다. 이 블로커는
+       perRelative처럼 새 횡단면 인프라가 필요 없고 A3c(발행주식총수)
+       하나로 우회 가능해 별도로 착수(아래 A3c 행). perRelative만 여전히
+       "언제든"으로 남는다
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
@@ -181,6 +190,20 @@ LAB-7  실험실 커넥터로 공공데이터 응답 필드만 확인한다. 수
        istc_totqy)로 EPS 원본을 안 쓰고 우회 가능. "증자(감자) 현황"보다
        안전하다고 판단(사유 분류가 불필요해 오분류 위험이 없다). 실API
        호출은 안 했다 — 착수(A3c 신설)는 별도 🔴 GO 대기
+A3c    🔴 GO(2026-08-12, 사용자) 이후 실데이터로 규칙 확정. PIT(rcept_no)·
+       tie-break(사업보고서>반기>3분기>1분기, 동일 availableFrom)·
+       carry-forward를 40법인(41 corp-year) replay로 검증 — direct
+       94.19%·carryForward 5.81%·neverValid 0%. 정책 FN-1.5→FN-1.6
+       정식 반영(268c40a), 수집기(build-fundamentals-a3c.py)는 A3/A3b의
+       shard/resume/finalize 패턴 그대로 재사용(5d4964a). 31법인 스모크
+       (1,159레코드) istc_totqy확보 97.33% · 인수 조건 전량 통과.
+       ★ 안전 사고(2026-08-12, 취소함) — workflow에 처음엔 limit 입력이
+       없어 collect를 한 번 돌리자마자 전체(134,112셀·8샤드)가 바로
+       시작됐다. limit 기본값 5로 추가(ace241c) — 본수집 시 limit=0을
+       명시해야 전체가 돈다. maxConsecutiveMissing·neverValidRatio는
+       원래도 WARN 전용이었음을 코드로 재확인(2026-08-12) — acceptance
+       추가 변경 불필요. 본수집 절차는
+       docs/control/세션인수인계-2026-08-12b.md
 ```
 
 ---

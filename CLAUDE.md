@@ -5,7 +5,7 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.4 · FN-1.5 · REG-1.6 · MN-1.1 · SB-1.0
+  정책      UN-1.2 · PR-1.4 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0
   현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
   T1 창     Day 1 = 2026-08-10. **동결은 커밋 금지다**(MN-1.0 §6.1)
                동결: probe-t1-minute.py · collect-minute-kis.py ·
@@ -13,32 +13,31 @@ Validated against
                      data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      없음 — 능동적 작업 대기 항목이 없다(2026-08-12). T1은 VM에서
-            자동 진행 중(Day 3/7), 개입은 Day 7 판정 때뿐이다. "언제든"
-            항목 중 아무거나 착수해도 되고, 없이 다음 세션까지 대기해도 된다
+  다음      A3c(발행주식총수) 본수집 — 사용자 GO(2026-08-12). 정책 FN-1.6 반영·
+            수집기(build-fundamentals-a3c.py)·workflow 구현 완료, 31법인
+            스모크(1,159레코드) istc_totqy확보 97.33%로 인수 조건 통과 확인,
+            maxConsecutiveMissing·neverValidRatio는 이미 WARN 전용이라 정책
+            추가 변경 불필요(확인 완료). 남은 절차: workflow_dispatch
+            mode=collect(limit=0)를 매일 반복 → corpsIncomplete=0 →
+            mode=finalize 1회. Claude는 gh CLI가 없어 Actions를 직접 못
+            돌린다 — 사용자가 매번 수동 트리거하고 결과를 알려준다.
+            세부 절차·안전장치는 docs/control/세션인수인계-2026-08-12b.md.
+            T1은 VM에서 자동 진행 중(Day 3/7), 개입은 Day 7 판정 때뿐이다
   T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-  언제든    A5-3 게이트 3 보류 확정(2026-08-12, 사용자 GO). shareholderReturn·peg만
-            열어도 availableWeight=0.59로 게이트(0.6) 미달이라 부분 구현은 결과가
-            지금과 똑같다(축이 계속 유보). perRelative(업종 PER 횡단면)까지 있어야
-            0.68인데, resolver.js의 종목 단위 인터페이스에 안 맞는 새 인프라
-            (날짜별·업종별 PIT 중앙값)가 필요해 🔴급 설계 결정이다. 지금 열어도
-            백테스트 eligible 표본이 3건뿐이라(LAB-4) 검증할 데도 없어 급하지
-            않다. 재검토 트리거: eligible 표본이 쌓이거나(d60 30건 돌파 2026-10월
-            추정) 설계에 여유가 생길 때
+  언제든    perRelative(업종 PER 횡단면) — A5-3 부분 재개(아래) 이후에도 여전히
+            미착수. 날짜별·업종별 PIT 중앙값 인프라가 새로 필요해 resolver.js의
+            종목 단위 인터페이스에 안 맞는다. 🔴급 설계 결정, 백테스트 eligible
+            표본이 3건뿐이라(LAB-4) 지금 열어도 검증할 데가 없어 급하지 않다
             LAB-2(FY2015 EPS 라벨링) 방향 보류 — 서두를 이유 없음(2026-08-12)
             BF-1.1(10년 Historical Backfill) — 원재료 완료, 소급 스코어 재현
             (data/backfill/scores/)은 여전히 미실행. 2026-08-12 최소 수직
             슬라이스(2016-04-08/005930)로 Universe→PIT→가격→resolver→운영
-            score() 실데이터 연결 GO 확인(820f097). 그 과정에서 resolver.js↔
-            scoringEngine.js 필드명 불일치(fundamentals→fundamental)를 발견해
-            수정(7a4c00c, finalScore null→87.5 회복, 회귀 전체 통과).
-            ★ featureRegistry.js가 낡음 — A3b(EPS·배당) 완료를 반영 못 해
-            shareholderReturn·perRelative·peg가 여전히 available:false로
-            찍혀 있다(실측: A3b에 EPS 존재 확인됨). availableWeight 0.4475는
-            불변. 다음 재개는 A5-3(축별 구현 상태 재검토) 사용자 GO부터.
+            score() 실데이터 연결 GO 확인(820f097). resolver.js↔scoringEngine.js
+            필드명 불일치(fundamentals→fundamental)를 발견해 수정(7a4c00c,
+            finalScore null→87.5 회복). peg가 A3c 완료로 열리면 다시 확인
             10년 전체 백필은 여전히 미착수, 우선순위 미정
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
@@ -70,8 +69,28 @@ Validated against
               docs/A5-1.0-입출력계약.md §5) — 63건은 어느 쪽도 안 고르고
               withhold(missing[] 반영·provenance에 두 rceptNo 기록). 정상
               24,627건은 영향 없음. LAB-8 잠정치 위의 임시 정책이라 실험실
-              재확인에서 달라지면 다시 연다. 정책만 확정 — resolver.js·
-              featureRegistry.js 구현은 별도(A5-3 게이트3, 아래 "언제든")
+              재확인에서 달라지면 다시 연다
+            ★ A5-3 부분 구현 (2026-08-12, 5bcd738·ff17675) — shareholderReturn·
+              technical을 resolver.js에 연결(RCEPT_MISMATCH withhold 반영),
+              featureRegistry.js의 낡은 available:false 플래그를 실제 구현
+              상태로 정정. 실측 raw score 87.5→90.2, 회귀 0건. peg는 A2a(수정
+              주가)↔A3b(원본 EPS) 조정 불일치로 여전히 중단(LAB-7이 발견) —
+              A3c(발행주식총수) 완료가 이 블로커의 해소 경로, perRelative는
+              별개(위 "언제든")
+            ★ LAB-7 발행주식수 소스 정찰 (2026-08-12) — DART stockTotqySttus의
+              istc_totqy로 peg를 EPS 우회 계산(price/(순이익÷발행주식수))할 수
+              있음을 확인. PIT(rcept_no)·tie-break(사업보고서>반기>3분기>1분기,
+              동일 availableFrom)·carry-forward 규칙을 40법인 실측(41
+              corp-year)으로 replay 검증 — direct 94.19%·carryForward
+              5.81%·neverValid 0%. 삼성전자 2018년 분할 케이스로 기중 변경
+              반영 정밀도 한계(약 91일, 다음 정기보고서까지)도 확인해 정책에
+              명시
+            ★ A3c 정책·수집기 구현 (2026-08-12, 268c40a·5d4964a) — 위 규칙을
+              fundamentals.v1.json에 정식 반영(FN-1.5→FN-1.6), build-
+              fundamentals-a3c.py를 A3/A3b 샤드/재개/finalize 패턴으로 구현.
+              31법인 스모크(1,159레코드) istc_totqy확보 97.33%, 인수 조건
+              전량 통과(maxConsecutiveMissing·neverValidRatio는 이미 WARN
+              전용으로 확인). 본수집은 사용자 GO 완료, 실행은 "다음" 항목
             백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
             ★ 게이트4를 analyze.js 운영 경로에 연결 (2026-08-12, 9aed997) —
               latest.json이 KR_4AXIS·US_3AXIS 미선언으로 축을 섞어 냈다.
