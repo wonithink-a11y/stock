@@ -90,6 +90,43 @@ ok('freshness는 며칠 묵었는지를 사실로 낸다 (점수로 바꾸지 �
    pit.freshnessDays(R(2022, '2023-03-31'), '2023-06-30') === 91,
    String(pit.freshnessDays(R(2022, '2023-03-31'), '2023-06-30')));
 
+console.log('\n[포맷 정규화 — A3b는 availableFrom을 YYYYMMDD로 쓴다]');
+// A3 'YYYY-MM-DD' · A3b 'YYYYMMDD'. 정규화 없이 문자열째 비교하면 '-'가 숫자보다
+// 작아 asOf와 같은 해의 압축형 레코드가 전부 미래로 읽힌다(실측 2,752/25,531건,
+// 2026-08-12) — A3b 계약의 원본 포맷은 그대로 두고 pitSelector 안에서만 정규화한다.
+ok('압축형을 하이픈형으로 정규화한다', pit.normDate('20240321') === '2024-03-21');
+ok('이미 하이픈형이면 그대로 둔다', pit.normDate('2024-03-21') === '2024-03-21');
+ok('모르는 형식은 조용히 잘못 비교하지 않고 던진다 (교훈57)',
+   (() => { try { pit.normDate('2024/03/21'); return false; } catch (e) { return true; } })());
+
+ok('★ asOf와 같은 해의 압축형 레코드가 더 이상 미래로 오판되지 않는다 (실측 재현)',
+   pit.lte('20260429', '2026-08-12') === true);
+ok('압축형 asOf도 같은 규칙으로 정규화된다',
+   pit.lte('2026-04-29', '20260812') === true);
+ok('실제로 미래인 압축형 레코드는 여전히 걸러진다',
+   pit.lte('20270101', '2026-08-12') === false);
+
+const mixed = [
+  R(2023, '2024-03-31'),                                 // A3 형식
+  R(2024, '20250321', { rceptNo: '20250321000001' }),     // A3b 형식
+];
+ok('A3·A3b 레코드가 섞여도 asOf 시점에 맞는 최신 연도를 고른다',
+   pit.selectAsOf(mixed, '2025-06-30').fiscalYear === 2024,
+   J(pit.selectAsOf(mixed, '2025-06-30')));
+ok('압축형 레코드가 아직 이르면 그 앞 연도로 물러난다 (규칙 1)',
+   pit.selectAsOf(mixed, '2025-02-01').fiscalYear === 2023,
+   J(pit.selectAsOf(mixed, '2025-02-01')));
+ok('압축형·하이픈형 동률 타이브레이크도 정규화 기준으로 비교한다 (규칙 3)',
+   pit.selectFiscalYear([R(2023, '2023-11-15'), R(2023, '20240110', { rceptNo: 'x' })],
+     2023, '2024-06-30').availableFrom === '20240110');
+
+ok('freshnessDays가 압축형에서도 NaN이 아니라 숫자를 낸다 (기존은 100% null이었다)',
+   typeof pit.freshnessDays(R(2024, '20250321'), '2025-06-30') === 'number',
+   String(pit.freshnessDays(R(2024, '20250321'), '2025-06-30')));
+ok('압축형 freshnessDays 값이 실제 경과일과 맞는다',
+   pit.freshnessDays(R(2024, '20250321'), '2025-06-30') === 101,
+   String(pit.freshnessDays(R(2024, '20250321'), '2025-06-30')));
+
 console.log('\n[피처 레지스트리 — 가용성이 값이다]');
 const aw = reg.availableWeight(criteria);
 ok('계산 가능 가중치를 수치로 낸다', typeof aw.total === 'number', J(aw.total));
