@@ -38,14 +38,15 @@
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 정책은 정해짐, 구현 대기 | resolver.js에 RCEPT_MISMATCH withhold 구현 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
-| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | — | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
-| LAB-6 | 무배당 44%의 분포 | Claude★ | — | `DONE(잠정)` 실제론 52.3%, 5개업종 100% | — | `docs/verification/LAB-6-배당분포-결과.md` |
-| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | — | `DONE(잠정)` ★ 16개 현재상장 종목 갇힘 발견 | — | `docs/verification/LAB-1-조기종료-결과.md` |
-| LAB-5b | A3b 수집 완료 후 조인율 재집계 | Claude★ | — | `DONE(잠정)` 24,627/25,531·96.5% | — | 이 파일·CLAUDE.md |
-| LAB-4 | 백테스트 입력 구조 · basis 시계열 | Claude★ | — | `DONE(잠정)` ★ raw join 30 돌파, eligible은 아직 3 | — | `docs/verification/LAB-4-백테스트입력구조-결과.md` |
-| LAB-3 | score distribution · 이상치 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(대기) | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
+| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
+| LAB-6 | 무배당 44%의 분포 | Claude★ | Codex(대기) | `DONE(잠정)` 실제론 52.3%, 5개업종 100% | — | `docs/verification/LAB-6-배당분포-결과.md` |
+| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ 16개 현재상장 종목 갇힘 발견 | — | `docs/verification/LAB-1-조기종료-결과.md` |
+| LAB-5b | A3b 수집 완료 후 조인율 재집계 | Claude★ | Codex(대기) | `DONE(잠정)` 24,627/25,531·96.5% | — | 이 파일·CLAUDE.md |
+| LAB-4 | 백테스트 입력 구조 · basis 시계열 | Claude★ | Codex(대기) | `DONE(잠정)` ★ raw join 30 돌파, eligible은 아직 3 | — | `docs/verification/LAB-4-백테스트입력구조-결과.md` |
+| LAB-3 | score distribution · 이상치 | — | — | `안 함` 인계서 없음, 스코프 미확정 상태로 방치돼 있었다(2026-08-12 확인). 사용자가 실행하지 않기로 결정 | — | 없음 |
 | LAB-7 | 발행주식수·수급 소스 정찰 | Claude★ | — | `BLOCKED` | 착수 자체가 별건(계약 변경 🔴), 대행 대상 아님 | `docs/verification/` |
+| CODEX-1 | Claude 잠정 결과 6건 독립 재확인 | Codex | Claude | `PLANNED` | 사용자가 Codex에 인계서 전달 | `docs/control/handoff/CODEX-1-잠정결과-재확인.md` |
 
 ### 주석 — 상태의 근거
 
@@ -57,9 +58,14 @@ T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-min
        Claude가 대행한다. 복구되면 AI-Lab으로 Owner를 되돌린다. Claude 결과는
        잠정치다 — "같은 작업에서 생산자와 검증자를 겸하지 않는다" 원칙이 이
        기간 구조적으로 깨지므로, 🔴 결정(A5-5(2) 등)을 Claude 잠정치만으로
-       확정하지 않는다. LAB-8·LAB-5b·LAB-2·LAB-6·LAB-1·LAB-4 완료(잠정). 남은
-       순서(LAB-3 → LAB-7)는 이전 권고 그대로다.
+       확정하지 않는다. LAB-8·LAB-5b·LAB-2·LAB-6·LAB-1·LAB-4 완료(잠정).
+       LAB-3은 인계서가 없어 실행하지 않기로 함(사용자 결정). LAB-7은 대행
+       대상 아님(계약 변경 별건).
        원인·복구 시점은 저장소에서 잴 수 없다 — TBD
+       ★ Codex 합류(2026-08-12, AGENTS.md) — 실험실 대신 이 6건을 독립
+       재확인하는 역할을 맡는다(CODEX-1). Codex는 Claude와 다른 계열이라
+       이 재확인은 진짜 독립 검증이다 — 실험실 복구를 기다릴 필요가 줄었다.
+       Codex는 읽기 전용이라 결과는 Claude가 대신 옮겨 적는다
 
 A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
        (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". lib/a5/pitSelector.js 가
