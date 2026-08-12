@@ -37,6 +37,7 @@
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 보류 확정(2026-08-12, 사용자 GO) — 재개 조건: eligible 표본 축적 또는 설계 여유 | 사용자 결정 완료, 트리거 도달 전까지 착수 안 함 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
+| BF-1.1 | 10년 Historical Backfill — 소급 스코어 재현 | — | — | `PLANNED` 원재료(A0.5~A3b) 완료, data/backfill/scores/ 미실행. 우선순위 미정 | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
 | LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
