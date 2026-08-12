@@ -1,0 +1,93 @@
+{
+  "stage": "A3b",
+  "mode": "finalize",
+  "stageVersion": "A3b.0",
+  "fundamentalsPolicy": "FN-1.5",
+  "shardCount": 8,
+  "rowCount": 25531,
+  "gridMode": "a3ReuseAndScanMissing",
+  "reuseCorps": 3003,
+  "reuseCells": 24750,
+  "missingCorps": 798,
+  "missingCorpsByGroup": {
+    "delisted": 783,
+    "current": 15
+  },
+  "missingCellsUpperBound": 8778,
+  "targetCorps": 3801,
+  "plannedCells": 33528,
+  "scannedCells": 33528,
+  "scannedCorps": 3801,
+  "dartStatusDistribution": {
+    "OK": 25531,
+    "013": 2408,
+    "EARLY_STOP": 5589
+  },
+  "rejectReasons": {},
+  "corpsDone": 3801,
+  "callsTotal": 11901,
+  "respondedCells": 25531,
+  "rceptNoPresentRate": 1.0,
+  "corpsIncomplete": 0,
+  "pitContractViolationSample": [],
+  "dividendThreeWayDistribution": {
+    "zeroNoDividend": 13344,
+    "numeric": 12187
+  },
+  "epsNumericRate": 0.92946,
+  "currentListedEpsRate": 0.96819,
+  "currentListedCorps": 2578,
+  "rceptNoVsA3": {
+    "same": 24627,
+    "amended": 63
+  },
+  "acceptanceFails": [],
+  "acceptanceWarns": [],
+  "acceptancePassed": true,
+  "years": {
+    "2015": {
+      "rows": 1941,
+      "gzBytes": 36031
+    },
+    "2016": {
+      "rows": 2006,
+      "gzBytes": 37352
+    },
+    "2017": {
+      "rows": 2076,
+      "gzBytes": 39093
+    },
+    "2018": {
+      "rows": 2149,
+      "gzBytes": 40336
+    },
+    "2019": {
+      "rows": 2198,
+      "gzBytes": 40678
+    },
+    "2020": {
+      "rows": 2277,
+      "gzBytes": 43314
+    },
+    "2021": {
+      "rows": 2341,
+      "gzBytes": 44858
+    },
+    "2022": {
+      "rows": 2413,
+      "gzBytes": 45575
+    },
+    "2023": {
+      "rows": 2672,
+      "gzBytes": 49373
+    },
+    "2024": {
+      "rows": 2731,
+      "gzBytes": 50850
+    },
+    "2025": {
+      "rows": 2727,
+      "gzBytes": 50751
+    }
+  }
+}

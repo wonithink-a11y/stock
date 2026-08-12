@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A3b",
+  "stageVersion": "A3b.0",
+  "target": "data/backfill/fundamentals/a3b",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:a3f753def6d8cfef",
+  "fileCount": 11,
+  "upstream": {
+    "A1a": "sha256:3543c5a084d46438",
+    "A1b": "sha256:1bbd28931525cf0e",
+    "A3": "sha256:d37769470101be68"
+  },
+  "policyHash": {
+    "registry": "sha256:1e6ba386ce327dd6",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "fundamentals": "sha256:78e0d57d08652607"
+  },
+  "plannedCells": 33528,
+  "scannedCells": 33528,
+  "gridMode": "a3ReuseAndScanMissing",
+  "epsNumericRate": 0.92946,
+  "currentListedEpsRate": 0.96819,
+  "currentListedCorps": 2578,
+  "dividendThreeWayDistribution": {
+    "zeroNoDividend": 13344,
+    "numeric": 12187
+  },
+  "rceptNoVsA3": {
+    "same": 24627,
+    "amended": 63
+  },
+  "rceptNoPresentRate": 1,
+  "callsTotal": 11901,
+  "recordCount": 25531,
+  "generatedAt": "2026-08-12T01:44:44.398Z"
+}
