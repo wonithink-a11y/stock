@@ -38,14 +38,14 @@
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 여전히 0.4475(실측) | A5-5(2)·LAB-8 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | AI-Lab | Claude | `BLOCKED` | ★ 실험실 GitHub 읽기 불가(아래) | `docs/verification/` |
-| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
-| LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
-| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
-| LAB-5b | A3b 수집 완료 후 조인율 재집계 | AI-Lab | Claude | `BLOCKED` | 위와 동일. 잠정치는 Claude가 이미 냄 | `docs/verification/` |
-| LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
-| LAB-3 | score distribution · 이상치 | AI-Lab | — | `BLOCKED` | 위와 동일 | 인계서 미발행 |
-| LAB-7 | 발행주식수·수급 소스 정찰 | AI-Lab | — | `BLOCKED` | 위와 동일. 착수 자체가 별건(계약 변경 🔴) | `docs/verification/` |
+| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `PLANNED` | 사용자 GO 대기(아래) | `docs/verification/` |
+| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-6 | 무배당 44%의 분포 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-5b | A3b 수집 완료 후 조인율 재집계 | Claude★ | — | `DONE(잠정)` 24,627/25,531·96.5% | — | 이 파일·CLAUDE.md |
+| LAB-4 | 백테스트 입력 구조 · basis 시계열 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-3 | score distribution · 이상치 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-7 | 발행주식수·수급 소스 정찰 | Claude★ | — | `BLOCKED` | 착수 자체가 별건(계약 변경 🔴), 대행 대상 아님 | `docs/verification/` |
 
 ### 주석 — 상태의 근거
 
@@ -53,11 +53,13 @@
 T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-minute.py)만 있고
        산출물·로그는 VM 에 있다(~/minute-raw · t1.log). 'IN PROGRESS' 로 추정하지 않는다.
        CLAUDE.md 상태 블록의 Day 1 = 2026-08-10 은 계획이지 관측이 아니다
-★ 전 LAB-* 공통 (2026-08-12)  실험실이 GitHub 콘텐츠를 못 읽는 상태다(사용자 보고).
-       인계서는 GitHub 공개 raw 로 읽는 구조라 이게 안 풀리면 LAB-* 착수 자체가
-       안 된다. 원인·복구 시점은 저장소에서 잴 수 없다 — TBD. 복구되면 이 표의
-       BLOCKED 를 개별적으로 다시 판단한다(LAB-8 → LAB-2·6 → LAB-1 → LAB-5b →
-       LAB-4 → LAB-3 → LAB-7 순서를 권고했다, 근거는 각 항목 참조)
+★ 전 LAB-* 공통 (2026-08-12, 사용자 지시)  실험실이 GitHub을 못 읽어 그동안
+       Claude가 대행한다. 복구되면 AI-Lab으로 Owner를 되돌린다. Claude 결과는
+       잠정치다 — "같은 작업에서 생산자와 검증자를 겸하지 않는다" 원칙이 이
+       기간 구조적으로 깨지므로, 🔴 결정(A5-5(2) 등)을 Claude 잠정치만으로
+       확정하지 않는다. LAB-5b는 A5-5 검증 중 이미 잠정 완료됐다. 남은 순서
+       (LAB-8 → LAB-2·6 → LAB-1 → LAB-4 → LAB-3 → LAB-7)는 이전 권고 그대로다.
+       원인·복구 시점은 저장소에서 잴 수 없다 — TBD
 
 A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
        (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". lib/a5/pitSelector.js 가
