@@ -38,7 +38,7 @@
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 정책은 정해짐, 구현 대기 | resolver.js에 RCEPT_MISMATCH withhold 구현 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(대기) | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
+| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
 | LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
 | LAB-6 | 무배당 44%의 분포 | Claude★ | Codex(대기) | `DONE(잠정)` 실제론 52.3%, 5개업종 100% | — | `docs/verification/LAB-6-배당분포-결과.md` |
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ 16개 현재상장 종목 갇힘 발견 | — | `docs/verification/LAB-1-조기종료-결과.md` |
@@ -85,8 +85,11 @@ A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
            RCEPT_MISMATCH 발생 시 어느 쪽도 안 고르고 withhold한다(missing[]
            반영·provenance에 두 rceptNo 기록). 정상 24,627건은 영향 없음.
            **정책만 확정** — resolver.js·featureRegistry.js 구현은 안 함(별도
-           작업). LAB-8이 Claude 잠정치라 이 정책도 임시다 — 실험실 복구 후
-           재확인에서 다르게 나오면 다시 연다
+           작업). ★ Codex 정량 재확인(2026-08-12) — 완전히 다른 방법(rceptNo
+           날짜 산술, DART 웹 열람 없음)으로 63/13 분할과 corp 목록을 동일하게
+           재현했다. 63건 총량·FY2019 집중은 이제 이중 확인됐다. DART 원문
+           내용(제목·정정 표시) 확인은 아직 Claude 단일 출처라 정책은 여전히
+           임시다 — 그 부분 재확인에서 다르게 나오면 다시 연다
 A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 "0.4475→0.68"은
        featureRegistry 플래그를 임시로 뒤집은 시뮬레이션이었지 실제 값이 아니다.
        실측(node -e availableWeight)은 여전히 0.4475다. resolver.js가 A3b에서
