@@ -1,0 +1,65 @@
+name: probe-fundamentals-a3c
+
+# A3c 정찰 — 계약 확정 전에 돈다. stockTotqySttus(주식의 총수 현황)가
+# istc_totqy를 실제로 주는지, rcept_no로 PIT 앵커를 만들 수 있는지만 잰다.
+# 재는 것: rcept_no 존재·형식 · istc_totqy 확보 여부 · 삼성전자 2018년
+#          분기별 액면분할 관측(split_verdict, 판정 아님 — 비율만 계산).
+# 결과는 data/backfill/_probe-fundamentals-a3c.json.
+#
+# probe-fundamentals-a3b.yml과 완전히 같은 형태다 — 스크립트·산출물 경로만 다르다.
+#
+# manifest를 찍지 않는다 — 정찰 산출물은 하류가 소비하는 데이터가 아니라 사람이
+# 읽는 패턴이다.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: probe-fundamentals-a3c
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Probe
+        timeout-minutes: 10
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/probe-fundamentals-a3c.py
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-fundamentals-a3c
+          path: data/backfill/_probe-fundamentals-a3c.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/_probe-fundamentals-a3c.json)" ]; then
+            git add data/backfill/_probe-fundamentals-a3c.json
+            git commit -m "chore(backfill): A3c 정찰 결과"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
