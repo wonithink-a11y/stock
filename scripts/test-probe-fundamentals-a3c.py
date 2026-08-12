@@ -151,6 +151,80 @@ ok("판정 필드(go/blockers/verdict)가 없다 — 이 모드는 판정하지 
 ok("OUT_RAWDUMP도 다른 두 경로와 겹치지 않는다",
    len({m.OUT, m.OUT_RETEST, m.OUT_RAWDUMP}) == 3)
 
+print("\n[8g] select_with_carryforward — 확정 규칙(docs/A3c-정책초안.md §2)")
+samsung = [
+    {"availableFrom": "20180515", "value": 128386494, "tag": "1분기"},
+    {"availableFrom": "20180814", "value": 6419324700, "tag": "반기"},
+    {"availableFrom": "20181114", "value": 6419324700, "tag": "3분기"},
+    {"availableFrom": "20190401", "value": 5969782550, "tag": "사업보고서"},
+]
+r = m.select_with_carryforward(samsung, "20180601")
+ok("분할 후·반기 접수 전엔 분할 전 값을 DIRECT로 유지한다 (미래를 안 당겨쓴다)",
+   r == {"value": 128386494, "source": "DIRECT", "from": "20180515", "tag": "1분기"}, str(r))
+r = m.select_with_carryforward(samsung, "20180901")
+ok("반기 접수 후엔 분할 후 값으로 전환된다",
+   r["value"] == 6419324700 and r["source"] == "DIRECT", str(r))
+
+kg = [
+    {"availableFrom": "20250814", "value": None, "tag": "1분기"},
+    {"availableFrom": "20250814", "value": 68469040, "tag": "반기"},
+]
+r1 = m.select_with_carryforward(kg, "20250814")
+r2 = m.select_with_carryforward(list(reversed(kg)), "20250814")
+ok("동일 접수일 — 우선순위(반기>1분기)로 결정되고 입력 순서와 무관하다",
+   r1 == r2 == {"value": 68469040, "source": "DIRECT", "from": "20250814", "tag": "반기"}, f"{r1} vs {r2}")
+
+hyp = [
+    {"availableFrom": "20250101", "value": 500, "tag": "사업보고서"},
+    {"availableFrom": "20250814", "value": 999, "tag": "1분기"},
+    {"availableFrom": "20250814", "value": None, "tag": "반기"},
+]
+r = m.select_with_carryforward(hyp, "20250814")
+ok("우선순위 높은 보고서가 결측이어도 같은 날짜의 낮은 우선순위 값으로 안 샌다",
+   r["value"] == 500 and r["source"] == "CARRY_FORWARD", str(r))
+
+gn = [
+    {"availableFrom": "20250515", "value": None, "tag": "1분기"},
+    {"availableFrom": "20250814", "value": 19522575, "tag": "반기"},
+    {"availableFrom": "20251114", "value": None, "tag": "3분기"},
+    {"availableFrom": "20260318", "value": 19522575, "tag": "사업보고서"},
+]
+r = m.select_with_carryforward(gn, "20250601")
+ok("반기도 안 나온 시점은 정직하게 None이다 (0이나 추정값을 지어내지 않는다)",
+   r == {"value": None, "source": None}, str(r))
+r = m.select_with_carryforward(gn, "20251201")
+ok("3분기 결측을 건너뛰고 반기 값으로 carry-forward한다 (연속 결측 처리)",
+   r["value"] == 19522575 and r["source"] == "CARRY_FORWARD"
+   and r["selectedButMissing"] == "3분기", str(r))
+
+print("\n[8h] replay_summary — 표본 전체 지표 집계 (판정 없이 숫자만)")
+
+
+def _obs(corp, fy, code, label, avail, val):
+    return {"corp": corp, "fiscalYear": fy, "reprtCode": code, "reprtLabel": label,
+            "dartStatus": "000", "availableFrom": avail, "istcTotqy": val}
+
+
+sample_obs = [
+    _obs("A", 2025, "11013", "1분기", "20250515", 100),
+    _obs("A", 2025, "11012", "반기", "20250814", 110),
+    _obs("A", 2025, "11014", "3분기", "20251114", None),
+    _obs("A", 2025, "11011", "사업보고서", "20260318", 120),
+    _obs("B", 2025, "11013", "1분기", "20250814", None),
+    _obs("B", 2025, "11012", "반기", "20250814", 200),
+]
+rs = m.replay_summary(sample_obs)
+ok("법인×연도 수를 센다", rs["corpYearsObserved"] == 2, str(rs))
+ok("동시접수를 1건 잡는다 (B사 1분기·반기가 같은 날)", rs["coFilingCount"] == 1, str(rs))
+ok("direct/carry-forward 비율이 숫자로 나온다",
+   isinstance(rs["directRatio"], float) and isinstance(rs["carryForwardRatio"], float), str(rs))
+ok("neverValidRatio가 0이다 (둘 다 정상값이 최소 한 번은 있다)", rs["neverValidRatio"] == 0.0, str(rs))
+ok("연속 결측 최대 길이를 센다 (A사 3분기 1건뿐이라 1)", rs["maxConsecutiveMissing"] == 1, str(rs))
+
+never_obs = [_obs("C", 2025, code, label, "2025" + "0101", None) for code, label in m.REPRT_CODES]
+rs2 = m.replay_summary(never_obs)
+ok("전 보고서 결측이면 neverValidRatio가 1이다 (지어내지 않는다)", rs2["neverValidRatio"] == 1.0, str(rs2))
+
 print("\n[9] 표본 선정이 결정적이다 (A3 산출물이 있을 때만)")
 a3_idx = m.load_a3_index()
 if not a3_idx:

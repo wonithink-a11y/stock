@@ -60,11 +60,18 @@ KST = timezone(timedelta(hours=9))
 REPRT_CODES = [("11013", "1분기"), ("11012", "반기"), ("11014", "3분기"), ("11011", "사업보고서")]
 SLEEP = 0.2
 
-# 일반 표본. 32호출 예산(6법인×1년×4reprt) — A3b와 같은 규모.
+# 2026-08-12 확대 — 첫 정찰(8법인·32호출)로는 §2 규칙(PIT+우선순위+carry-forward)의
+# 엣지케이스(동시접수·연속결측)가 우연히 하나씩만 걸렸다. 표본을 30~50법인으로
+# 넓혀 규칙이 더 큰 표본에서도 안 깨지는지 본다. 40법인×1년×4reprt = 160호출.
 SAMPLE = {
-    "currentWithA3": {"corps": 6, "years": 1},
-    "delistedWithA3": {"corps": 2, "years": 1},
+    "currentWithA3": {"corps": 30, "years": 1},
+    "delistedWithA3": {"corps": 10, "years": 1},
 }
+
+# 보고서 종류 우선순위 — 동일 availableFrom(같은 날 접수)일 때 이 순서로 고른다.
+# 2026-08-12 확정(사용자 GO). 값의 유무로 고르지 않는다 — 그러면 데이터 품질
+# 문제가 선택 로직에 숨는다(docs/A3c-정책초안.md §2.2).
+REPRT_PRIORITY = {"사업보고서": 4, "반기": 3, "3분기": 2, "1분기": 1}
 
 # ★ 액면분할 검증 전용 표본. 무작위가 아니라 알려진 사실(50:1, 2018-05-04)로
 # 고른다 — price.v1.json:13이 이미 이 분할을 정상 반영 확인한 바로 그 사례다.
@@ -277,6 +284,92 @@ def split_verdict(split_obs):
     }
 
 
+def select_with_carryforward(reports, as_of):
+    """확정된 A3c PIT 규칙(docs/A3c-정책초안.md §2) — 이 함수 하나가 규칙의
+    단일 구현이다. reports: [{availableFrom, value(or None='-'), tag}].
+
+      1  availableFrom <= as_of 인 후보만 본다 (PIT)
+      2  그중 가장 최신 availableFrom을 고른다
+      3  같은 날짜에 여럿이면 REPRT_PRIORITY로 정한다(값의 유무로 정하지 않는다)
+      4  그 보고서 값이 결측이면, 같은 날짜의 다른 보고서로 옆으로 새지 않고
+         그 이전(더 과거) 날짜의 가장 최근 정상값으로 carry-forward한다
+      5  이전 정상값 자체가 없으면 None이다(지어내지 않는다)
+    """
+    eligible = [r for r in reports if r["availableFrom"] <= as_of]
+    if not eligible:
+        return {"value": None, "source": None}
+    max_date = max(r["availableFrom"] for r in eligible)
+    same_date = sorted([r for r in eligible if r["availableFrom"] == max_date],
+                        key=lambda r: REPRT_PRIORITY.get(r["tag"], 0), reverse=True)
+    top = same_date[0]
+    if top["value"] is not None:
+        return {"value": top["value"], "source": "DIRECT", "from": top["availableFrom"], "tag": top["tag"]}
+    earlier = sorted([r for r in eligible if r["availableFrom"] < max_date],
+                      key=lambda r: r["availableFrom"])
+    for r in reversed(earlier):
+        if r["value"] is not None:
+            return {"value": r["value"], "source": "CARRY_FORWARD", "from": r["availableFrom"],
+                    "tag": r["tag"], "selectedButMissing": top["tag"]}
+    return {"value": None, "source": None}
+
+
+def replay_summary(obs_all):
+    """§2 규칙을 표본 전체에 재생해 지금 확정할 수 있는 지표를 낸다. 판정(go/NO-GO)은
+    안 한다 — 이건 acceptance 임계를 아직 안 정한 초안 단계이고, 숫자만 사람이 본다."""
+    by_corp_year = {}
+    for o in obs_all:
+        if o.get("dartStatus") != "000":
+            continue
+        by_corp_year.setdefault((o["corp"], o["fiscalYear"]), []).append(
+            {"availableFrom": o.get("availableFrom") or "", "value": o.get("istcTotqy"), "tag": o["reprtLabel"]})
+
+    directCount = carryCount = neverCount = 0
+    coFilingCorps = []
+    maxConsecutiveMissing = 0
+    order = ["1분기", "반기", "3분기", "사업보고서"]
+
+    for (corp, fy), reports in by_corp_year.items():
+        # 동시접수 — 서로 다른 보고서 종류가 같은 availableFrom을 쓰는가
+        dates = {}
+        for r in reports:
+            dates.setdefault(r["availableFrom"], []).append(r["tag"])
+        for d, tags in dates.items():
+            if len(tags) > 1:
+                coFilingCorps.append({"corp": corp, "fiscalYear": fy, "availableFrom": d, "tags": tags})
+
+        # 연속 결측 — 보고서 발행 순서(1분기→반기→3분기→사업보고서) 기준
+        ordered = sorted(reports, key=lambda r: order.index(r["tag"]) if r["tag"] in order else 99)
+        run = 0
+        for r in ordered:
+            if r["value"] is None:
+                run += 1
+                maxConsecutiveMissing = max(maxConsecutiveMissing, run)
+            else:
+                run = 0
+
+        # 각 보고서 접수 직후 시점으로 asOf를 잡아 규칙을 재생한다
+        if not any(r["value"] is not None for r in reports):
+            neverCount += 1
+            continue
+        for r in reports:
+            res = select_with_carryforward(reports, r["availableFrom"])
+            if res["source"] == "DIRECT":
+                directCount += 1
+            elif res["source"] == "CARRY_FORWARD":
+                carryCount += 1
+
+    total = directCount + carryCount
+    return {
+        "corpYearsObserved": len(by_corp_year),
+        "directRatio": round(directCount / total, 4) if total else None,
+        "carryForwardRatio": round(carryCount / total, 4) if total else None,
+        "neverValidRatio": round(neverCount / len(by_corp_year), 4) if by_corp_year else None,
+        "coFilingCount": len(coFilingCorps),
+        "coFilingCases": coFilingCorps,
+        "maxConsecutiveMissing": maxConsecutiveMissing,
+    }
+
+
 def retest_only(triples) -> int:
     """실패한 셀만 다시 조회한다. 원본 정찰 산출물(OUT)은 건드리지 않는다 —
     첫 실측 증거와 재검증 증거를 같은 파일에서 덮어쓰면 무엇이 바뀌었는지
@@ -399,6 +492,9 @@ def main() -> int:
     out["splitProbeObservations"] = split_obs
     out["verdict"] = verdict(obs_all)
     out["splitVerdict"] = split_verdict(split_obs)
+    # docs/A3c-정책초안.md §2 규칙을 표본 전체에 재생한다. go/NO-GO 판정은 안
+    # 한다 — acceptance 임계를 아직 안 정했다(§5, 표본 확대 후 결정).
+    out["replaySummary"] = replay_summary(obs_all + split_obs)
     out["calls"] = len(obs_all) + len(split_obs)
     out["elapsedSeconds"] = round(time.time() - t0, 1)
     _write(out)
@@ -410,6 +506,7 @@ def main() -> int:
     for b in v["blockers"]:
         print(f"  ! {b}")
     print(f"  액면분할 관측: {json.dumps(out['splitVerdict'], ensure_ascii=False)}")
+    print(f"\n[replay 요약] {json.dumps(out['replaySummary'], ensure_ascii=False)}")
     print(f"\n{OUT} ({out['elapsedSeconds']}s)")
     return 0
 
