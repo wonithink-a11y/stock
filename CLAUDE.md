@@ -29,8 +29,17 @@ Validated against
             않다. 재검토 트리거: eligible 표본이 쌓이거나(d60 30건 돌파 2026-10월
             추정) 설계에 여유가 생길 때
             LAB-2(FY2015 EPS 라벨링) 방향 보류 — 서두를 이유 없음(2026-08-12)
-            BF-1.1(10년 Historical Backfill) — 원재료(A0.5~A3b)는 완료됐으나 실제
-            소급 스코어 재현(data/backfill/scores/)은 미실행. 우선순위 미정
+            BF-1.1(10년 Historical Backfill) — 원재료 완료, 소급 스코어 재현
+            (data/backfill/scores/)은 여전히 미실행. 2026-08-12 최소 수직
+            슬라이스(2016-04-08/005930)로 Universe→PIT→가격→resolver→운영
+            score() 실데이터 연결 GO 확인(820f097). 그 과정에서 resolver.js↔
+            scoringEngine.js 필드명 불일치(fundamentals→fundamental)를 발견해
+            수정(7a4c00c, finalScore null→87.5 회복, 회귀 전체 통과).
+            ★ featureRegistry.js가 낡음 — A3b(EPS·배당) 완료를 반영 못 해
+            shareholderReturn·perRelative·peg가 여전히 available:false로
+            찍혀 있다(실측: A3b에 EPS 존재 확인됨). availableWeight 0.4475는
+            불변. 다음 재개는 A5-3(축별 구현 상태 재검토) 사용자 GO부터.
+            10년 전체 백필은 여전히 미착수, 우선순위 미정
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
