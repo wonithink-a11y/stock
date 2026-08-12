@@ -1,6 +1,6 @@
 {
-  "version": "FN-1.6",
-  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다. FN-1.6은 a3c 블록을 신설한다 — A3/A3b가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 그대로다.",
+  "version": "FN-1.7",
+  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다. FN-1.6은 a3c 블록을 신설한다 — A3/A3b가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 그대로다. FN-1.7은 quota.dailyCallLimit을 실측치로 교정한다(quota.note 참조) — a3c 블록은 FN-1.6과 동일하다.",
   "market": "KR",
 
   "source": {
@@ -69,13 +69,13 @@
   "probeNote": "대량 루프 진입 전 2회 정찰(교훈32). 삼성전자·SK하이닉스로 경로가 열려 있는지만 본다. 둘 다 실패하면 3,801법인을 돌리지 않고 즉시 중단한다.",
 
   "quota": {
-    "dailyCallLimit": 20000,
+    "dailyCallLimit": 40000,
     "safetyMarginCalls": 4000,
     "quotaExceededStatus": "020",
     "shardBudgetMode": "activeShards",
-    "note": "DART 일 한도. 초과하면 다음날까지 대기이므로 resume이 선택이 아니라 계약이다(BF-1.1 §7 A3 계약 5). 한도는 API 키 단위라 샤드 전체가 하나의 예산을 나눠 쓴다.",
+    "note": "DART 일 한도. 초과하면 다음날까지 대기이므로 resume이 선택이 아니라 계약이다(BF-1.1 §7 A3 계약 5). 한도는 API 키 단위라 샤드 전체가 하나의 예산을 나눠 쓴다. FN-1.7에서 20000→40000 — DART 인증키 관리 페이지의 일일허용건수를 사용자가 직접 확인해 40,000임을 확정(2026-08-13). 옛 20000은 근거 문서를 못 찾은 관측값이었고, A3c 첫 본수집(8샤드 병렬)에서 quotaExceeded가 총 40,008호출 지점에서 발생해 이 실측과 거의 정확히 일치했다 — '20000의 2배 초과'가 아니라 '실제 한도에서 정상적으로 멈췄다'였다.",
     "shardBudgetModeNote": "FN-1.4에서 equalSplit → activeShards. 허용값은 둘뿐이고 모르는 값은 FAIL이다(느슨해지는 방향의 우회를 막는다).\n\n  equalSplit    (dailyCallLimit − safetyMarginCalls) / shards        — 옛 동작\n  activeShards  내가 오늘 쓴 양 + (dailyCallLimit − safetyMarginCalls − 오늘 전체 사용) / 활성 샤드 수\n\n바꾼 이유는 마지막 샤드가 항상 뒤처지는데 8등분이라 그때 예산의 87.5%가 놀기 때문이다. 2026-08-07 실측: 샤드 6에 1,478건이 필요했고 A3 몫의 잔여는 3,465건이었는데 나눗셈이 막아 하루를 더 썼다. 안전여유를 0으로 해도 풀리지 않는다(샤드당 2,500인데 샤드 6이 이미 2,005를 썼다). A3b를 신설하면 같은 일이 또 생긴다.\n\n'오늘 전체 사용'과 '활성 샤드 수'는 체크아웃 시점에 커밋돼 있는 _state-*.json에서 읽는다. 샤드는 병렬 matrix라 실행 중 서로를 못 보지만 같은 스냅샷을 보므로 배분의 합이 절대 한도를 넘지 않는다 — Σ(내가 쓴 양) + 활성수 × (풀 / 활성수) ≤ dailyCallLimit − safetyMarginCalls. 다른 샤드의 callsUsedToday는 그 상태의 lastRunDate가 오늘(KST)일 때만 센다. 상태 파일이 없는 샤드는 '활성이며 0 사용'으로 본다 — 활성 수가 커지는 방향이라 과다 배분이 되지 않는다.\n\nquota는 collectionContract.fields에 없으므로 이 변경은 resume을 깨지 않는다.",
-    "safetyMarginNote": "일 한도의 20%다. 감이 아니라 같은 키를 쓰는 다른 소비자의 실측 합이다(2026-08-05): disclosures.yml이 평일 매일 KR 100종목 × list.json으로 100~200건, quarterly-fundamentals.yml이 연 4회 100종목 × 4회로 약 400건, add-ticker.yml이 같은 수집기를 dispatch로 돌려 약 400건(시점 예측 불가), dart-corpcode-a07이 월 1건. 최악의 겹침이 하루 약 1,000건이므로 4,000은 그 4배다. 첫 설계값 600은 이 겹침보다 작아서 A3가 운영 워크플로의 한도를 먹는 구간이 있었다. 여유분을 늘려서 치르는 비용은 수집 일수 2.5일 → 3.1일 하루뿐이다 — 백필은 한 번 도는 일이고 운영은 매일 도므로, 둘이 부딪히면 양보하는 쪽은 백필이다.",
+    "safetyMarginNote": "절대량 4,000은 FN-1.5부터 안 바꿨다 — 같은 키를 쓰는 다른 소비자의 실측 합(2026-08-05): disclosures.yml이 평일 매일 KR 100종목 × list.json으로 100~200건, quarterly-fundamentals.yml이 연 4회 100종목 × 4회로 약 400건, add-ticker.yml이 같은 수집기를 dispatch로 돌려 약 400건(시점 예측 불가), dart-corpcode-a07이 월 1건. 최악의 겹침이 하루 약 1,000건이므로 4,000은 그 4배다 — 이 근거는 dailyCallLimit의 크기와 무관한 절대치이므로, FN-1.7에서 한도가 40,000으로 오르며 비율은 20%에서 10%로 낮아졌지만 4,000을 그대로 둔다(사용자 결정, 2026-08-13). 첫 설계값 600은 이 겹침보다 작아서 A3가 운영 워크플로의 한도를 먹는 구간이 있었다.",
     "overshootNote": "예산 검사는 법인 단위로 한다. 한 법인이 최대 사업연도 11개 × fs_div 2회 + 업종 1회를 쓰므로 샤드당 최대 25건 정도 초과할 수 있고, 8샤드 합쳐 약 200건이다. 안전 여유분이 이것도 함께 흡수한다. 검사를 호출 단위로 내리지 않는 이유는 법인 중간에 끊으면 그 법인의 부분 레코드가 남고, 재개 시 같은 키가 두 벌이 되기 때문이다.",
     "shardBudgetNote": "샤드가 자기 예산을 다 쓰면 실패가 아니라 '오늘 몫을 마쳤다'로 끝낸다. 진행 상태를 커밋하고 exit 0으로 끝내며, 다음 실행이 이어받는다. 여기서 exit(1)을 내면 정상적인 분할 실행이 매일 빨간 불로 보인다."
   },
