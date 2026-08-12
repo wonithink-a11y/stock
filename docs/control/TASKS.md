@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|---|
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `WAITING_USER` 범위 결정 대기 — 2/3만 열면 0.59로 미달, perRelative는 신규 횡단면 인프라 필요 | 사용자가 전체/부분/보류 중 결정 | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 보류 확정(2026-08-12, 사용자 GO) — 재개 조건: eligible 표본 축적 또는 설계 여유 | 사용자 결정 완료, 트리거 도달 전까지 착수 안 함 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
@@ -105,6 +105,9 @@ A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 
        수집 전체를 업종별로 묶어 중앙값 내는" 별도 2-pass 로직으로 푼다 —
        A5 백필 경로엔 이 인프라(날짜별·업종별 PIT 중앙값)가 아예 없다.
        구현 착수 안 함, 사용자 결정 대기(전체 구현 vs 부분 구현 vs 보류)
+       ★ 결정(2026-08-12, 사용자 GO) — 보류. 부분 구현은 게이트가 계속 미달이라
+       결과가 지금과 동일하고, 전체 구현은 백테스트 eligible 표본이 3건뿐이라
+       지금 열어도 검증할 수 없다(LAB-4). CLAUDE.md "언제든" 항목으로 이동.
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
