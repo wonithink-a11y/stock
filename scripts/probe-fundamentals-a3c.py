@@ -23,6 +23,7 @@
 입력: DART_API_KEY (환경변수) · A1a·A1b·A3 산출물
 출력: data/backfill/_probe-fundamentals-a3c.json
 """
+import argparse
 import glob
 import gzip
 import json
@@ -39,6 +40,16 @@ A1A = "data/backfill/universe/a1a/current.jsonl"
 A1B = "data/backfill/universe/a1b/delisted.jsonl"
 A3_DIR = "data/backfill/fundamentals/a3"
 OUT = "data/backfill/_probe-fundamentals-a3c.json"
+OUT_RETEST = "data/backfill/_probe-fundamentals-a3c-retest.json"
+
+# 2026-08-12 첫 정찰(32건)에서 istc_totqy를 못 읽은 4건. '보통주' 행이 없고
+# '합계'만 있는 케이스였다 — 행 선택 로직을 고친 뒤 이 4건만 다시 확인한다.
+RETEST_DEFAULT = [
+    ("00101220", 2025, "11013"),
+    ("00101433", 2025, "11013"),
+    ("00101433", 2025, "11014"),
+    ("00100717", 2016, "11013"),
+]
 BASE = "https://opendart.fss.or.kr/api"
 KEY = os.environ.get("DART_API_KEY", "")
 KST = timezone(timedelta(hours=9))
@@ -176,17 +187,29 @@ def probe_cell(corp, year, reprt_code, reprt_label):
     obs["stlmDtPresent"] = any(r.get("stlm_dt") for r in rows)
     obs["stlmDtRaw"] = sorted({str(r.get("stlm_dt") or "") for r in rows})[:3]
 
-    # istc_totqy — 보통주(se가 '보통주' 또는 합계 행)를 우선한다. 응답 구조가
-    # 문서 기준 추정이므로 어떤 행 라벨이 실제로 오는지도 그대로 남긴다.
+    # istc_totqy — '보통주' 행을 1순위로 찾는다. 없으면 '합계' 행(2026-08-12
+    # 재검증에서 추가 — 32건 중 4건이 보통주/우선주 구분 없이 합계만 낸다는 걸
+    # 실측으로 확인했다). 둘 다 없으면 임의로 다른 행(rows[0] 등)에서 값을
+    # 만들지 않는다 — 뭘 읽었는지 모르는 값을 istc_totqy로 자칭하는 것이
+    # rows[0] 폴백의 실제 위험이었다.
     def norm(x):
         return str(x or "").replace(" ", "")
-    stock_rows = [r for r in rows if "보통주" in norm(r.get("se", "")) or not r.get("se")]
-    target = stock_rows[0] if stock_rows else rows[0]
+    stock_rows = [r for r in rows if "보통주" in norm(r.get("se", ""))]
+    if not stock_rows:
+        stock_rows = [r for r in rows if norm(r.get("se", "")) == "합계"]
+    target = stock_rows[0] if stock_rows else None
     obs["seSample"] = sorted({norm(r.get("se")) for r in rows})[:6]
-    obs["istcTotqy"] = num(target.get("istc_totqy"))
-    obs["istcTotqyRowFound"] = obs["istcTotqy"] is not None
-    obs["isuStockTotqy"] = num(target.get("isu_stock_totqy"))
-    obs["distbStockCo"] = num(target.get("distb_stock_co"))
+    obs["istcTotqySelectedFrom"] = norm(target.get("se")) if target else None
+    if target is None:
+        obs["istcTotqy"] = None
+        obs["istcTotqyRowFound"] = False
+        obs["isuStockTotqy"] = None
+        obs["distbStockCo"] = None
+    else:
+        obs["istcTotqy"] = num(target.get("istc_totqy"))
+        obs["istcTotqyRowFound"] = obs["istcTotqy"] is not None
+        obs["isuStockTotqy"] = num(target.get("isu_stock_totqy"))
+        obs["distbStockCo"] = num(target.get("distb_stock_co"))
     return obs
 
 
@@ -251,6 +274,48 @@ def split_verdict(split_obs):
     }
 
 
+def retest_only(triples) -> int:
+    """실패한 셀만 다시 조회한다. 원본 정찰 산출물(OUT)은 건드리지 않는다 —
+    첫 실측 증거와 재검증 증거를 같은 파일에서 덮어쓰면 무엇이 바뀌었는지
+    되짚을 근거가 사라진다."""
+    t0 = time.time()
+    code_label = dict(REPRT_CODES)
+    out = {"probe": "A3c-retest", "probedAt": datetime.now(KST).isoformat(timespec="seconds"),
+           "endpoint": "stockTotqySttus.json", "retestOf": OUT, "cells": triples}
+
+    if not KEY:
+        out["aborted"] = True
+        out["abortReason"] = "DART_API_KEY 없음"
+        _write(out, OUT_RETEST)
+        print("중단: DART_API_KEY 없음")
+        return 0
+
+    print(f"A3c 재검증 — {len(triples)}셀 (행 선택 로직 수정 후)")
+    obs_all = []
+    for corp, year, code in triples:
+        label = code_label.get(code, code)
+        o = probe_cell(corp, year, code, label)
+        obs_all.append(o)
+        print(f"  {corp} {year} {label:6} status={o['dartStatus']} "
+              f"istc_totqy={o.get('istcTotqy')} selectedFrom={o.get('istcTotqySelectedFrom')} "
+              f"seSample={o.get('seSample')}")
+        time.sleep(SLEEP)
+
+    out["observations"] = obs_all
+    out["verdict"] = verdict(obs_all)
+    out["calls"] = len(obs_all)
+    out["elapsedSeconds"] = round(time.time() - t0, 1)
+    _write(out, OUT_RETEST)
+
+    v = out["verdict"]
+    print(f"\n[재검증 판정] {'GO' if v['go'] else 'NO-GO'}")
+    print(f"  istc_totqy 확보 {v['istcTotqyRowFoundRate']} (수정 전 이 4건은 0.0)")
+    for b in v["blockers"]:
+        print(f"  ! {b}")
+    print(f"\n{OUT_RETEST} ({out['elapsedSeconds']}s)")
+    return 0
+
+
 def main() -> int:
     t0 = time.time()
     out = {"probe": "A3c", "probedAt": datetime.now(KST).isoformat(timespec="seconds"),
@@ -310,11 +375,35 @@ def main() -> int:
     return 0
 
 
-def _write(out):
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+def _write(out, path=OUT):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
 
+def parse_only(s):
+    """'corp:year:reprtCode,corp:year:reprtCode,...' 를 튜플 목록으로."""
+    triples = []
+    for part in s.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        corp, year, code = part.split(":")
+        triples.append((corp, int(year), code))
+    return triples
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--only", default=None,
+                     help="실패 셀만 재조회. 'corp:year:reprtCode,...' 또는 생략 시 기본 4건")
+    ap.add_argument("--only-default", action="store_true",
+                     help="RETEST_DEFAULT(첫 정찰에서 실패한 4건)을 재조회한다")
+    args = ap.parse_args()
+
+    if args.only:
+        raise SystemExit(retest_only(parse_only(args.only)))
+    elif args.only_default:
+        raise SystemExit(retest_only(RETEST_DEFAULT))
+    else:
+        raise SystemExit(main())

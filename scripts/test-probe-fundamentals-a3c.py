@@ -98,7 +98,41 @@ o = m.probe_cell("00126380", 2024, "11011", "사업보고서")
 ok("availableFrom을 rcept_no 앞 8자리에서 만든다", o["availableFrom"] == "20250311")
 ok("istc_totqy를 콤마 제거 후 정수로 읽는다", o["istcTotqy"] == 5969782550, str(o.get("istcTotqy")))
 ok("보통주 행을 우선한다", o["seSample"] == ["보통주"])
+ok("selectedFrom이 보통주다", o["istcTotqySelectedFrom"] == "보통주")
 ok("stlm_dt 원문을 남긴다", o["stlmDtRaw"] == ["2024.12.31"])
+
+print("\n[8b] probe_cell — 보통주 행이 없으면 합계로 폴백한다 (2026-08-12 재검증)")
+_rows_no_common = [
+    {"rcept_no": "20250515000456", "stlm_dt": "2025.03.31", "se": "비고", "istc_totqy": None},
+    {"rcept_no": "20250515000456", "stlm_dt": "2025.03.31", "se": "합계",
+     "istc_totqy": "68,469,040", "isu_stock_totqy": "1,000,000,000", "distb_stock_co": "68,469,040"},
+]
+m.dart_get = lambda e, p: ({"list": _rows_no_common}, "000", None)
+o = m.probe_cell("00101220", 2025, "11013", "1분기")
+ok("보통주가 없으면 합계 행을 쓴다", o["istcTotqySelectedFrom"] == "합계")
+ok("합계 행의 istc_totqy를 정수로 읽는다", o["istcTotqy"] == 68469040, str(o.get("istcTotqy")))
+ok("istcTotqyRowFound가 참이다", o["istcTotqyRowFound"] is True)
+
+print("\n[8c] probe_cell — 보통주도 합계도 없으면 rows[0]으로 임의 폴백하지 않는다")
+_rows_neither = [{"rcept_no": "20250515000456", "stlm_dt": "2025.03.31", "se": "비고", "istc_totqy": "999"}]
+m.dart_get = lambda e, p: ({"list": _rows_neither}, "000", None)
+o = m.probe_cell("00999999", 2025, "11013", "1분기")
+ok("istc_totqy가 None이다 (비고 행의 999를 임의로 안 쓴다)", o["istcTotqy"] is None)
+ok("istcTotqyRowFound가 거짓이다", o["istcTotqyRowFound"] is False)
+ok("selectedFrom도 None이다", o["istcTotqySelectedFrom"] is None)
+
+print("\n[8d] parse_only / RETEST_DEFAULT — 재검증 대상 4건이 정확하다")
+parsed = m.parse_only("00101220:2025:11013,00101433:2025:11013")
+ok("문자열을 (corp, year, code) 튜플로 파싱한다",
+   parsed == [("00101220", 2025, "11013"), ("00101433", 2025, "11013")], str(parsed))
+ok("RETEST_DEFAULT가 4건이다", len(m.RETEST_DEFAULT) == 4)
+ok("RETEST_DEFAULT가 실제 실패 4건과 일치한다",
+   set(m.RETEST_DEFAULT) == {("00101220", 2025, "11013"), ("00101433", 2025, "11013"),
+                              ("00101433", 2025, "11014"), ("00100717", 2016, "11013")},
+   str(m.RETEST_DEFAULT))
+
+print("\n[8e] retest_only — 원본 산출물(OUT)이 아니라 OUT_RETEST에 쓴다")
+ok("출력 경로가 서로 다르다", m.OUT != m.OUT_RETEST, f"{m.OUT} vs {m.OUT_RETEST}")
 
 print("\n[9] 표본 선정이 결정적이다 (A3 산출물이 있을 때만)")
 a3_idx = m.load_a3_index()

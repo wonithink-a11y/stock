@@ -10,8 +10,22 @@ name: probe-fundamentals-a3c
 #
 # manifest를 찍지 않는다 — 정찰 산출물은 하류가 소비하는 데이터가 아니라 사람이
 # 읽는 패턴이다.
+#
+# mode=retest(기본값) — 2026-08-12 첫 정찰(32건)에서 istc_totqy를 못 읽은
+# 4건만 재조회한다(행 선택 로직 수정 후, --only-default). 원본 32건 산출물은
+# 안 건드리고 _probe-fundamentals-a3c-retest.json에 별도로 남는다.
+# mode=full — 원래 32건 전체를 다시 돈다.
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: '정찰 모드 — retest(실패 4건만, 기본) 또는 full(32건 전체)'
+        required: false
+        default: 'retest'
+        type: choice
+        options:
+          - retest
+          - full
 
 concurrency:
   group: probe-fundamentals-a3c
@@ -38,14 +52,22 @@ jobs:
         timeout-minutes: 10
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
-        run: python scripts/probe-fundamentals-a3c.py
+          MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$MODE" = "full" ]; then
+            python scripts/probe-fundamentals-a3c.py
+          else
+            python scripts/probe-fundamentals-a3c.py --only-default
+          fi
 
       - name: Upload
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: probe-fundamentals-a3c
-          path: data/backfill/_probe-fundamentals-a3c.json
+          path: |
+            data/backfill/_probe-fundamentals-a3c.json
+            data/backfill/_probe-fundamentals-a3c-retest.json
           if-no-files-found: warn
 
       - name: Commit
@@ -53,9 +75,9 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain data/backfill/_probe-fundamentals-a3c.json)" ]; then
-            git add data/backfill/_probe-fundamentals-a3c.json
-            git commit -m "chore(backfill): A3c 정찰 결과"
+          git add -A -- data/backfill/_probe-fundamentals-a3c.json data/backfill/_probe-fundamentals-a3c-retest.json 2>/dev/null || true
+          if [ -n "$(git status --porcelain data/backfill/_probe-fundamentals-a3c.json data/backfill/_probe-fundamentals-a3c-retest.json 2>/dev/null)" ]; then
+            git commit -m "chore(backfill): A3c 정찰 결과 ($MODE)"
             for i in 1 2 3 4 5; do
               git pull --rebase --autostash origin main && git push origin HEAD:main && break
               echo "push 재시도 $i"; sleep 5
