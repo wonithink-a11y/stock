@@ -376,8 +376,10 @@
     "pointInTime": {
       "availableFromSource": "rcept_no",
       "availableFromRule": "rcept_no 앞 8자리(YYYYMMDD)를 접수일로 읽는다",
-      "contract": "availableFrom > 그 보고서가 다루는 분기/반기/사업연도 종료일",
+      "contract": "availableFrom > periodEnd",
       "contractNote": "A3의 계약 1과 같은 방향. 미래를 보지 않는다.",
+      "periodEndSource": "stlm_dt",
+      "periodEndSourceNote": "결산기준일. A3b와 같은 필드명, 다른 엔드포인트라 다시 실측했다 — rawdump(2026-08-12) 관측은 'YYYY-MM-DD' 단일값이었다. A3b의 stlm_dt 파서(형태를 가정하지 않고 마지막 날짜를 캔다)를 그대로 재사용한다.",
       "tieBreakOnSameAvailableFrom": ["사업보고서", "반기", "3분기", "1분기"],
       "tieBreakNote": "동일 접수일에 서로 다른 reprtCode가 존재하면(실측: 00101220/KG케미칼, 2025-08-14에 1분기·반기가 동시 접수됨) 이 순서로 고른다. 값의 유무로 고르지 않는다 — 그러면 데이터 품질 문제가 선택 로직에 숨는다(2026-08-12, 사용자 확정). 우선순위가 높은 보고서가 결측이어도 같은 날짜의 낮은 우선순위 값으로 옆으로 새지 않는다 — carryForward로 넘어간다(가상 케이스로 검증됨).",
       "carryForward": {
@@ -424,6 +426,9 @@
       "availableFromParsableRateMin": 0.99,
       "canAnchorPit": true,
       "pitContractViolations": 0,
+      "periodEndMissing": 0,
+      "dateContractViolations": 0,
+      "corpContractViolations": 0,
       "duplicateKeys": 0,
       "corpsIncomplete": 0,
       "scannedCellsMismatch": 0,
@@ -465,7 +470,7 @@
       "gzipCompressLevel": 9,
       "sortKey": ["fiscalYear", "corp", "availableFrom", "reprtCode"],
       "fields": ["corp", "ticker", "fiscalYear", "reprtCode", "availableFrom", "rceptNo",
-                 "istcTotqy", "isuStockTotqy", "distbStockCo", "scanStatus"],
+                 "periodEnd", "istcTotqy", "isuStockTotqy", "distbStockCo", "scanStatus"],
       "outputNote": "A3/A3b와 디렉터리를 분리한다 — 같은 이유(BF-1.1의 A2a/A2b 분리 원칙). istcTotqy가 결측이면 raw 레코드엔 null로 남긴다 — DIRECT/CARRY_FORWARD 선택은 저장 시점이 아니라 조회(resolve) 시점에 pitSelector가 한다(파생값을 저장하지 않는다, 교훈75와 같은 원칙)."
     },
     "manifest": {

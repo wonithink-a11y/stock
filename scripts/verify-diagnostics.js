@@ -215,6 +215,27 @@ const CONTRACT = {
     trueFlags: [],
     forbidden: ['smokeTest'],
   },
+
+  'A3c': {
+    file: 'data/backfill/fundamentals/a3c/_diagnostics.json',
+    required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',
+               // 격자 축. A3b와 같되 cellMultiplier(4)가 추가다 — reprtCode 4종을
+               // 전부 도는 게 A3c의 정의적 차이라 이 값이 없으면 격자가 왜 4배인지
+               // 산출물만으로 못 되짚는다.
+               'gridMode', 'reuseCorps', 'reuseCells', 'missingCorps', 'plannedCells',
+               'cellMultiplier',
+               // ★ 스캔 기록. A3/A3b와 같은 이유(교훈75) — 결과 없이도 스캔 여부를 남긴다.
+               'scannedCells', 'scannedCorps', 'dartStatusDistribution', 'rejectReasons',
+               // PIT 축.
+               'pitContractViolationSample', 'rceptNoPresentRate', 'availableFromParsableRate',
+               // A3c 고유 — istc_totqy 확보율과 PIT+tie-break+carry-forward 규칙을
+               // 전체 수집분에 재생한 결과. docs/A3c-정책초안.md §2가 이 값들로
+               // 검증됐고, 여기 없으면 그 검증이 probed(40법인)에서 이 수집분으로
+               // 이어졌는지 산출물만으로 못 확인한다.
+               'istcTotqyRowFoundRate', 'replayMetrics'],
+    trueFlags: [],
+    forbidden: ['smokeTest'],
+  },
 };
 
 // 표 자체를 먼저 검사한다. 새 단계를 추가하면서 키 이름을 틀리면(file → path 같은)

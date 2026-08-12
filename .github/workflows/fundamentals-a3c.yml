@@ -1,0 +1,188 @@
+name: backfill-fundamentals-a3c
+
+# A3c — 발행주식총수 (BF-1.1 · FN-1.6). 계약은 docs/A3c-정책초안.md.
+#
+#   mode: collect    오늘 예산만큼 수집 → data/backfill/fundamentals/_shards_a3c/ 커밋
+#   mode: finalize   전 샤드 병합 → 인수 조건 → 산출물 + manifest → _shards_a3c/ 삭제
+#
+# A3/A3b와 샤드 디렉터리를 분리한다 — 겹치면 다른 단계의 finalize가 A3c 샤드를
+# 병합한다. 일 한도는 A3/A3b와 같은 DART 키를 쓰므로 **같은 날 A3/A3b 수집과
+# 겹쳐 돌리지 않는다**(shard_budget은 한 단계 안의 샤드끼리만 나눈다).
+#
+# A3b 대비 격자가 4배(corp × fiscalYear × reprtCode 4종)라 샤드당 소요가 더 크다 —
+# timeout을 A3b(120분)보다 넉넉히 잡았다.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'collect = 오늘 예산만큼 수집 · finalize = 병합·검증·산출'
+        required: true
+        default: collect
+        type: choice
+        options: [collect, finalize]
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-fundamentals-a3c
+  cancel-in-progress: false      # 수집 중 취소하면 그날 쓴 호출이 상태에 안 남는다
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: '8'
+
+jobs:
+  collect:
+    if: inputs.mode == 'collect'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4        # 이전 실행이 커밋한 _shards_a3c/를 가져온다
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 170
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: python scripts/build-fundamentals-a3c.py --shard ${{ matrix.shard }} --shards $SHARDS
+
+      - name: Upload shard ${{ matrix.shard }}
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a3c-shard-${{ matrix.shard }}-a${{ github.run_attempt }}
+          path: |
+            data/backfill/fundamentals/_shards_a3c/_state-${{ matrix.shard }}.json
+            data/backfill/fundamentals/_shards_a3c/shard-${{ matrix.shard }}.jsonl
+            data/backfill/fundamentals/_shards_a3c/_diagnostics-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+
+  commit-shards:
+    needs: collect
+    # A3b와 같은 이유로 success()가 아니다 — 한 샤드가 죽어도 나머지가 오늘 쓴
+    # 호출은 상태에 남아야 다음 실행이 이어받는다.
+    if: ${{ !cancelled() && inputs.mode == 'collect' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: _artifacts
+          pattern: a3c-shard-*
+
+      - name: Pick best attempt per shard
+        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards_a3c a3c
+
+      - name: Commit shards
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/fundamentals/_shards_a3c)" ]; then
+            git add data/backfill/fundamentals/_shards_a3c
+            git commit -m "chore(backfill): A3c 샤드 진행 상태"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
+
+  finalize:
+    if: inputs.mode == 'finalize'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Finalize
+        env:
+          A3C_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-fundamentals-a3c.py --finalize
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js A3c
+
+      - name: Regression
+        run: python scripts/test-fundamentals-a3c.py
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/fundamentals/a3c
+          test -n "$(ls $D/*.jsonl.gz 2>/dev/null)" || { echo "산출물 없음 — 스크립트 계약 위반"; exit 1; }
+          EXTRA=$(python - <<'PY'
+          import json
+          d = json.load(open('data/backfill/fundamentals/a3c/_diagnostics.json',
+                             encoding='utf-8'))
+          keys = ['plannedCells', 'scannedCells', 'gridMode', 'cellMultiplier',
+                  'istcTotqyRowFoundRate', 'replayMetrics',
+                  'rceptNoPresentRate', 'availableFromParsableRate', 'callsTotal']
+          out = {k: d[k] for k in keys if k in d}
+          out['recordCount'] = d['rowCount']
+          print(json.dumps(out, ensure_ascii=False))
+          PY
+          )
+          echo "a3c manifest extra: $EXTRA"
+          node scripts/write-manifest.js \
+            --stage A3c --stageVersion A3c.0 \
+            --target data/backfill/fundamentals/a3c --kind dir --ext .jsonl.gz \
+            --upstream A1a,A1b,A3 \
+            --policies universe,fundamentals \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fundamentals-a3c-diagnostics
+          path: data/backfill/fundamentals/a3c/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm -rf data/backfill/fundamentals/_shards_a3c
+          if [ -n "$(git status --porcelain data/backfill/fundamentals data/backfill/manifest)" ]; then
+            git add -A data/backfill/fundamentals data/backfill/manifest
+            git commit -m "chore(backfill): A3c 발행주식총수"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
