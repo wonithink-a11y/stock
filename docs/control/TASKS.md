@@ -1,7 +1,7 @@
 # TASKS — 지금 누가 무엇에 막혀 있는가
 
 ```
-갱신   2026-08-11 · commit 76fc46e 기준
+갱신   2026-08-12 · commit b1a928e 기준
 ```
 
 **이 파일은 프로젝트 상태 정본이 아니다.** 답하는 질문은 하나다 — *지금 누가 무엇을 하고
@@ -33,54 +33,47 @@
 
 | ID | Task | Owner | Reviewer | Status | Depends | Output |
 |---|---|---|---|---|---|---|
-| A3B-1 | collect 남은 1,857법인 | Claude | — | `IN PROGRESS` 1,944/3,801 (51.1%) | ★ 사용자 실행 승인 · KST 일 예산 | `_shards_a3b/` |
-| A3B-2 | finalize (병합·인수 조건·manifest) | Claude | — | `BLOCKED` | A3B-1 8샤드 완료 | `data/backfill/fundamentals/a3b/` |
-| A3B-3 | commit-shards 경로 검증 | Claude | — | `TBD` | A3B-1 다음 실행 | — |
-| A5-4 | 게이트 4 — 축 모델 선언 (SB-1.0) | Claude | ChatGPT | `DONE` | — | `b7a4c33` |
+| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `IN PROGRESS` (1) DONE · (2) BLOCKED | (2)는 LAB-8 | `lib/a5/pitSelector.js` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | — | — | `BLOCKED` | A3B-2 | 0.4475 → 0.68 |
-| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `PLANNED` | A3B-2 | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` 공식 기록 작성 중 | A5-5(1) DONE | — |
+| A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
-| LAB-5 | A3↔A3b 조인 성공률 | AI-Lab | Claude ✅ | `DONE` | — | `docs/verification/LAB-5-조인성공률-결과.md` |
-| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-8 | 공시 선택 불일치 45건 (A5-5 입력) | AI-Lab | Claude | `PLANNED` | — | `docs/verification/` |
-| LAB-7 | 발행주식수·수급 소스 정찰 | AI-Lab | — | `PLANNED` | — | `docs/verification/` |
-| LAB-5b | A3b 수집 완료 후 조인율 재집계 | AI-Lab | Claude | `BLOCKED` | A3B-2 | `docs/verification/` |
-| LAB-3 | score distribution · 이상치 | AI-Lab | — | `PLANNED` | — | 인계서 미발행 |
+| LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | AI-Lab | Claude | `BLOCKED` | ★ 실험실 GitHub 읽기 불가(아래) | `docs/verification/` |
+| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
+| LAB-6 | 무배당 44%의 분포 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
+| LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
+| LAB-5b | A3b 수집 완료 후 조인율 재집계 | AI-Lab | Claude | `BLOCKED` | 위와 동일. 잠정치는 Claude가 이미 냄 | `docs/verification/` |
+| LAB-4 | 백테스트 입력 구조 · basis 시계열 | AI-Lab | — | `BLOCKED` | 위와 동일 | `docs/verification/` |
+| LAB-3 | score distribution · 이상치 | AI-Lab | — | `BLOCKED` | 위와 동일 | 인계서 미발행 |
+| LAB-7 | 발행주식수·수급 소스 정찰 | AI-Lab | — | `BLOCKED` | 위와 동일. 착수 자체가 별건(계약 변경 🔴) | `docs/verification/` |
 
 ### 주석 — 상태의 근거
 
 ```
-A3B-1  _shards_a3b/_state-*.json 8건의 callsUsedToday 합 16,038 · corpsDone 합 1,944.
-       2026-08-11 아침 실행(run 31412044044)이 commit-shards 에서 죽어 아티팩트로
-       회수했다. collect 자체는 8샤드 전부 정상 종료(budgetExhausted=true ·
-       quotaExceeded=none)였다
-A3B-3  원인은 a3520af 에서 고쳤으나 그 경로가 한 번도 성공한 적이 없다.
-       '고쳤다'와 '성공한다'는 다르므로 DONE 이 아니다
 T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-minute.py)만 있고
        산출물·로그는 VM 에 있다(~/minute-raw · t1.log). 'IN PROGRESS' 로 추정하지 않는다.
        CLAUDE.md 상태 블록의 Day 1 = 2026-08-10 은 계획이지 관측이 아니다
-A5-5   ★ 두 갈래다. 형식 문제이자 PIT 문제다 (LAB-5 로 범위가 넓어졌다)
-       (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". 정규화 없이 조인하면
-           14,578건 중 0건, 하이픈 제거 후 14,155건이다. 지금은 A3b 가 A5 에
-           연결되지 않아 무해하지만 연결되는 순간 조용히 터진다 —
-           availableWeight 는 플래그로 계산하므로 0.68 을 계속 보고하는데 실제
-           valuation 커버리지는 0 이 된다. 되돌리기 어려운 쪽이다
-       (2) 공시 선택 — 정규화 후에도 45건은 같은 법인·사업연도에서 A3 와 A3b 가
-           서로 다른 공시를 골랐다. 공시일 차이 최대 2,603일(약 7년)이다.
-           PIT 는 'asOf 이전의 마지막 정정본'을 쓰는데, 재무와 EPS 가 다른
-           공시에서 오면 같은 asOf 에서 두 소스가 다른 시점을 본다
-       A3 산출물은 finalize 됐으므로 고칠 자리는 조인 지점(A5 resolver)이다.
-       ★ (2)의 원인 후보를 찾았다 — 두 수집기의 공시 선택 규칙이 다르다.
-         A3  build-fundamentals-a3.py:380   rcept = rows[0]["rcept_no"]  (첫 행)
-         A3b build-fundamentals-a3b.py:222  rc = sorted(rcepts)[-1]      (최대=최신)
-         둘 다 reprtCode 11011(사업보고서)인데 정정공시가 있으면 한쪽은 원본을
-         다른 쪽은 정정본을 잡는다. 아직 가설이다 — LAB-8 이 공시 메타데이터로 검증한다
-       발견 경위: (1) LAB-5 패키지 검증 · (2) LAB-5 결과 · 선택 규칙은 LAB-8 발행 중 (2026-08-11)
-       게이트3 판단 — 정규화를 전제하면 A3 방향 조인율 99.4% 로 0.68 은 유효하다
+★ 전 LAB-* 공통 (2026-08-12)  실험실이 GitHub 콘텐츠를 못 읽는 상태다(사용자 보고).
+       인계서는 GitHub 공개 raw 로 읽는 구조라 이게 안 풀리면 LAB-* 착수 자체가
+       안 된다. 원인·복구 시점은 저장소에서 잴 수 없다 — TBD. 복구되면 이 표의
+       BLOCKED 를 개별적으로 다시 판단한다(LAB-8 → LAB-2·6 → LAB-1 → LAB-5b →
+       LAB-4 → LAB-3 → LAB-7 순서를 권고했다, 근거는 각 항목 참조)
+
+A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
+       (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". lib/a5/pitSelector.js 가
+           정규화 없이 문자열 비교해 asOf 와 같은 해의 A3b 레코드 전부가 미래로
+           오판됐다(실측 2,752/25,531, 100% 결정론적). normDate() 로 고쳤다
+           (aa694ee, 2026-08-12) — 수정 후 재실측 lte 탈락 0, freshnessDays null 0.
+           A3b 계약의 원본 포맷(YYYYMMDD)은 안 건드렸다. resolver.js 는 미변경
+       (2) 공시 선택 — A3b 가 finalize된 뒤(25,531건) 재계산하니 45건이 아니라
+           63건(24,690매치 중 0.26%)이다. 50건은 A3=rows[0](원본)·
+           A3b=max(rcept_no)(정정본) 가설과 맞지만, 13건(그중 12건 FY2019,
+           gap -120~-357일)은 반대 방향이라 가설이 그대로 성립하지 않는다.
+           resolver.js 정책은 LAB-8 결과 전에 넣지 않는다(오퍼스 위임 설계 권고,
+           2026-08-12) — 임시로는 63건을 flag-and-withhold 하는 안이 유력하다
+A5-3   A3b-결정브리프 §6 이 "정규화를 전제하면 A3 방향 조인율 99.4% 로 0.68 유효"
+       라고 이미 답해 뒀다. A5-5(1) 이 그 전제를 실제로 만들었으므로 남은 건
+       공식 기록뿐이다
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
@@ -88,6 +81,9 @@ LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensiti
 LAB-2  원래 제목은 'diagnostics 실패 원인 분류'였는데 재료가 없어 재정의했다 —
        8샤드 전부 rejected {} 이고 기각 0건이다. 번호는 그대로 둔다(LESSONS 와 같은 이유)
 LAB-5·6  2026-08-11 신설. 기존 번호를 다시 매기지 않고 뒤에 붙였다
+LAB-5b 조인율 자체는 Claude 가 A5-5 검증 중 이미 실측했다(24,627/25,531, 96.5%,
+       manifest rceptNoVsA3 와 동수). 독립 재확인 가치는 남아 있으나(생산자·검증자
+       겸임 금지), 실험실이 열릴 때까지는 이 잠정치로 진행한다
 LAB-7  실험실 커넥터로 공공데이터 응답 필드만 확인한다. 수집이 아니다 —
        우리 DART 예산 0원이고 뒤집힐 수 있는 질문이라 지금 한다.
        다 열려도 0.68 → 0.79 이고 수급 축의 큰 둘(외국인·기관 순매수)은
