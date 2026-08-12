@@ -161,9 +161,8 @@ ok('technical은 통째로 가용하다',
 ok('valuation은 통째로 불가하다', aw.byCategory.valuation.availableFraction === 0);
 ok('supplyDemand는 통째로 불가하다 (A4 미정)',
    aw.byCategory.supplyDemand.availableFraction === 0);
-ok('fundamental은 부분 가용이다 (shareholderReturn만 막혔다)',
-   aw.byCategory.fundamental.availableFraction > 0
-   && aw.byCategory.fundamental.availableFraction < 1,
+ok('fundamental은 통째로 가용하다 (2026-08-12, shareholderReturn 구현 완료)',
+   aw.byCategory.fundamental.availableFraction === 1,
    J(aw.byCategory.fundamental));
 
 // A3b를 할지 말지의 근거가 되는 수치. 문서의 주장이 아니라 코드가 답한다.
