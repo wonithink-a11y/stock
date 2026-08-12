@@ -41,9 +41,12 @@ A1B = "data/backfill/universe/a1b/delisted.jsonl"
 A3_DIR = "data/backfill/fundamentals/a3"
 OUT = "data/backfill/_probe-fundamentals-a3c.json"
 OUT_RETEST = "data/backfill/_probe-fundamentals-a3c-retest.json"
+OUT_RAWDUMP = "data/backfill/_probe-fundamentals-a3c-rawdump.json"
 
 # 2026-08-12 첫 정찰(32건)에서 istc_totqy를 못 읽은 4건. '보통주' 행이 없고
-# '합계'만 있는 케이스였다 — 행 선택 로직을 고친 뒤 이 4건만 다시 확인한다.
+# '합계'만 있는 케이스였다. 행 선택을 '합계' 우선으로 고쳤는데도 재검증에서
+# 여전히 null이었다 — '합계' 행 자체에 istc_totqy가 비어 있거나 다른 키에
+# 들어있다는 뜻이다. 원인은 원본 응답을 봐야 안다(raw_dump).
 RETEST_DEFAULT = [
     ("00101220", 2025, "11013"),
     ("00101433", 2025, "11013"),
@@ -316,6 +319,42 @@ def retest_only(triples) -> int:
     return 0
 
 
+def raw_dump(triples) -> int:
+    """4건의 원본 응답을 가공 없이 그대로 저장한다. 파생값·판정·가설 없음 —
+    istc_totqy가 실제로 어느 키에 들어오는지, 필드 구조가 보고서 종류마다
+    어떻게 다른지를 눈으로 보기 위한 것뿐이다."""
+    t0 = time.time()
+    out = {"probe": "A3c-rawdump", "probedAt": datetime.now(KST).isoformat(timespec="seconds"),
+           "endpoint": "stockTotqySttus.json", "note": "가공 없는 원본 list 응답. 판정 없음.",
+           "cells": []}
+
+    if not KEY:
+        out["aborted"] = True
+        out["abortReason"] = "DART_API_KEY 없음"
+        _write(out, OUT_RAWDUMP)
+        print("중단: DART_API_KEY 없음")
+        return 0
+
+    print(f"A3c 원본 덤프 — {len(triples)}셀 (판정 없음, 원본 행만 저장)")
+    for corp, year, code in triples:
+        j, st, err = dart_get("stockTotqySttus.json", {
+            "corp_code": corp, "bsns_year": str(year), "reprt_code": code})
+        rows = (j or {}).get("list") or []
+        out["cells"].append({
+            "corp": corp, "fiscalYear": year, "reprtCode": code,
+            "dartStatus": st, "error": err, "rowCount": len(rows),
+            "rawRows": rows,
+        })
+        print(f"  {corp} {year} {code}  status={st}  rows={len(rows)}  "
+              f"keys={sorted(rows[0].keys()) if rows else []}")
+        time.sleep(SLEEP)
+
+    out["elapsedSeconds"] = round(time.time() - t0, 1)
+    _write(out, OUT_RAWDUMP)
+    print(f"\n{OUT_RAWDUMP} ({out['elapsedSeconds']}s)")
+    return 0
+
+
 def main() -> int:
     t0 = time.time()
     out = {"probe": "A3c", "probedAt": datetime.now(KST).isoformat(timespec="seconds"),
@@ -399,9 +438,13 @@ if __name__ == "__main__":
                      help="실패 셀만 재조회. 'corp:year:reprtCode,...' 또는 생략 시 기본 4건")
     ap.add_argument("--only-default", action="store_true",
                      help="RETEST_DEFAULT(첫 정찰에서 실패한 4건)을 재조회한다")
+    ap.add_argument("--raw-dump", action="store_true",
+                     help="RETEST_DEFAULT 4건의 원본 응답을 가공 없이 저장한다(판정 없음)")
     args = ap.parse_args()
 
-    if args.only:
+    if args.raw_dump:
+        raise SystemExit(raw_dump(RETEST_DEFAULT))
+    elif args.only:
         raise SystemExit(retest_only(parse_only(args.only)))
     elif args.only_default:
         raise SystemExit(retest_only(RETEST_DEFAULT))

@@ -134,6 +134,23 @@ ok("RETEST_DEFAULT가 실제 실패 4건과 일치한다",
 print("\n[8e] retest_only — 원본 산출물(OUT)이 아니라 OUT_RETEST에 쓴다")
 ok("출력 경로가 서로 다르다", m.OUT != m.OUT_RETEST, f"{m.OUT} vs {m.OUT_RETEST}")
 
+print("\n[8f] raw_dump — 가공 없이 원본 행을 그대로 저장한다 (판정·파생값 없음)")
+m.KEY = "test-key-not-real"  # KEY 없음 가드를 통과시키려는 테스트 전용 값. 실제 호출 없음(dart_get 모킹됨)
+_raw_written = {}
+m._write = lambda out, path=m.OUT: _raw_written.update({"out": out, "path": path})
+_weird_rows = [{"rcept_no": "20250515000456", "stlm_dt": "2025.03.31", "se": "합계",
+                "isu_stock_totqy": "1,000,000,000"}]  # istc_totqy 키가 아예 없는 시나리오
+m.dart_get = lambda e, p: ({"list": _weird_rows}, "000", None)
+m.raw_dump([("00101220", 2025, "11013")])
+ok("출력 경로가 OUT_RAWDUMP다", _raw_written["path"] == m.OUT_RAWDUMP)
+ok("원본 행을 가공 없이 그대로 담는다",
+   _raw_written["out"]["cells"][0]["rawRows"] == _weird_rows, str(_raw_written["out"]["cells"]))
+ok("판정 필드(go/blockers/verdict)가 없다 — 이 모드는 판정하지 않는다",
+   "verdict" not in _raw_written["out"] and "go" not in _raw_written["out"],
+   str(_raw_written["out"].keys()))
+ok("OUT_RAWDUMP도 다른 두 경로와 겹치지 않는다",
+   len({m.OUT, m.OUT_RETEST, m.OUT_RAWDUMP}) == 3)
+
 print("\n[9] 표본 선정이 결정적이다 (A3 산출물이 있을 때만)")
 a3_idx = m.load_a3_index()
 if not a3_idx:
