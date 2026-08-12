@@ -13,7 +13,8 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const pit = require(path.join(ROOT, 'lib/a5/pitSelector'));
 const reg = require(path.join(ROOT, 'lib/a5/featureRegistry'));
-const { resolve, fundamentalsFrom } = require(path.join(ROOT, 'lib/a5/resolver'));
+const { resolve, fundamentalsFrom, shareholderReturnFrom, valuationFrom } =
+  require(path.join(ROOT, 'lib/a5/resolver'));
 const criteria = require(path.join(ROOT, 'lib/loadCriteria')).loadCriteria('KR').criteria;
 
 let passed = 0, failed = 0;
@@ -32,6 +33,28 @@ function R(fiscalYear, availableFrom, over) {
     currentAssets: 200, currentLiab: 100, liabilities: 400, equity: 1000,
     revenue: 1000, opProfit: 100, netIncome: 50,
   }, over || {});
+}
+
+/** A3b(EPS·배당) 레코드 픽스처. availableFrom은 A3b 원본 포맷(YYYYMMDD)이다. */
+function RB(fiscalYear, availableFrom, over) {
+  return Object.assign({
+    corp: '00000001', ticker: '000001', fiscalYear, availableFrom,
+    periodEnd: `${fiscalYear}1231`, rceptNo: `${availableFrom}000001`,
+    eps: 1000, dividendPerShare: 0, dividendRowPresent: true, dividendStockKnd: '보통주',
+  }, over || {});
+}
+
+/** OHLCV 캔들 픽스처. n일치, 오름차순, 임의 걷는 종가로 채운다(재현성 위해 결정적). */
+function candlesFixture(n, startDate, startClose = 10000) {
+  const out = [];
+  let close = startClose;
+  const start = new Date(startDate + 'T00:00:00Z');
+  for (let i = 0; i < n; i++) {
+    const d = new Date(start.getTime() + i * 86400000);
+    close = Math.round(close * (1 + ((i % 7) - 3) / 200)); // 결정적 등락 (±1.5%대)
+    out.push({ date: d.toISOString().slice(0, 10), close, volume: 100000 + (i % 5) * 1000 });
+  }
+  return out;
 }
 
 console.log('[PIT 선택 — asOf 시점에 알 수 있었던 것만]');
@@ -218,6 +241,88 @@ ok('품질 리포트가 confidence 입력으로 흐른다',
    && rq.confidenceInputs.qualityCoverageRate === 0.53, J(rq.confidenceInputs));
 ok('품질 출처가 provenance에 남는다 (어느 리포트로 채점했는가)',
    rq.provenance.quality.inputDigest === 'sha256:x');
+
+console.log('\n[shareholderReturn — A3b 배당 이력]');
+const divYes = [RB(2021, '20220331', { dividendPerShare: 0 }), RB(2022, '20230331', { dividendPerShare: 500 })];
+const rSrYes = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                         fundamentals: restated, dividendEps: divYes });
+ok('5년 이력 중 한 해라도 배당 있으면 true',
+   rSrYes.stockData.fundamental.buybackOrDividendHistory === true);
+ok('dividendEps를 넘겨도 stockData.valuation은 안 생긴다 (아래 조정 기준 불일치 참조)',
+   rSrYes.stockData.valuation === undefined);
+
+const divNo = [RB(2021, '20220331', { dividendPerShare: 0 }), RB(2022, '20230331', { dividendPerShare: 0 })];
+const rSrNo = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                        fundamentals: restated, dividendEps: divNo });
+ok('전 이력 무배당이면 false다 (null이 아니다 — 확인한 사실이다)',
+   rSrNo.stockData.fundamental.buybackOrDividendHistory === false);
+
+const rSrEmpty = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                           fundamentals: restated, dividendEps: [] });
+ok('그 시점 A3b 레코드가 하나도 없으면 null이다 (false로 지어내지 않는다)',
+   rSrEmpty.stockData.fundamental.buybackOrDividendHistory === null);
+ok('dividendEps를 아예 안 넘긴 기존 호출은 그대로 null이다 (회귀 없음)',
+   r1.stockData.fundamental.buybackOrDividendHistory === null
+   && r1.stockData.valuation === undefined);
+
+console.log('\n[valuationFrom — 공식은 맞다. resolve()엔 아직 안 붙인다]');
+// ★ resolve()가 안 부르므로 여기서는 valuationFrom()을 직접 호출해 "공식 자체는
+// 맞다"만 확인한다. price·eps 조정 기준이 같다는 전제에서만 유효하다 — 그 전제가
+// 실제로는 안 맞는다는 게 이번 조사의 결론이다(A2a adjusted:true vs A3b 원본 EPS).
+const epsGrow = [RB(2021, '20220331', { eps: 1000 }), RB(2022, '20230331', { eps: 1200 })];
+const valDirect = valuationFrom(epsGrow, '2023-06-30', { date: '2023-06-30', close: 24000 });
+ok('per = price / eps (같은 조정 기준이라는 전제하에)',
+   valDirect.values.per === 20, J(valDirect.values));
+ok('epsGrowthRate = (당해eps/전해eps - 1) * 100',
+   valDirect.values.epsGrowthRate === 20, J(valDirect.values));
+ok('valuation provenance가 선택된 fiscalYear를 남긴다',
+   valDirect.provenance.fiscalYear === 2022);
+
+const epsFuture = [RB(2021, '20220331', { eps: 1000 }), RB(2022, '20990101', { eps: 9999 })];
+const valPit = valuationFrom(epsFuture, '2023-06-30', { date: '2023-06-30', close: 24000 });
+ok('asOf 이후 EPS 레코드는 선택되지 않는다 (미래를 보지 않는다)',
+   valPit.provenance.fiscalYear === 2021, J(valPit.provenance));
+
+const epsNoPrev = [RB(2022, '20230331', { eps: 1200 })];
+const valNoPrev = valuationFrom(epsNoPrev, '2023-06-30', { date: '2023-06-30', close: 24000 });
+ok('전년 EPS가 없으면 epsGrowthRate는 null이다 (0이 아니다)',
+   valNoPrev.values.epsGrowthRate === null, J(valNoPrev.values));
+
+const epsLoss = [RB(2022, '20230331', { eps: -500 })];
+const valLoss = valuationFrom(epsLoss, '2023-06-30', { date: '2023-06-30', close: 24000 });
+ok('적자(EPS<=0)면 per는 null이다 (음수 PER을 만들지 않는다)',
+   valLoss.values.per === null, J(valLoss.values));
+
+// ★ 실측(005930/2016-04-08)을 그대로 재현 — A2a 수정주가와 A3b 원본 EPS를
+// 그대로 나누면 이렇게 말이 안 되는 값이 나온다는 걸 회귀로 못 박는다.
+// resolve()가 이 값을 stockData에 붙이지 않는 게 바로 이 이유다.
+const samsungLike = [RB(2015, '20160330', { eps: 126305 })];
+const valSamsung = valuationFrom(samsungLike, '2016-04-08', { date: '2016-04-08', close: 24920 });
+ok('조정 기준이 다른 price/eps를 그대로 나누면 비정상적으로 낮은 PER이 나온다 (알려진 결함, 미사용)',
+   valSamsung.values.per < 1, J(valSamsung.values));
+
+console.log('\n[technical — A2a 캔들 기반, scripts/collect.js 계산식 재사용]');
+const candles70 = candlesFixture(70, '2023-01-02');
+const rTech = resolve({ ticker: '000001', corp: '00000001', asOf: candles70[candles70.length - 1].date,
+                        fundamentals: restated, candles: candles70 });
+ok('70일 캔들이면 maSignal이 계산된다 (MA60 성립)',
+   rTech.stockData.technical.maSignal !== null && rTech.stockData.technical.maSignal !== undefined,
+   J(rTech.stockData.technical));
+ok('RSI가 계산된다 (14일 이상)',
+   typeof rTech.stockData.technical.rsi === 'number', J(rTech.stockData.technical.rsi));
+ok('MACD는 35일 미만이면 null이다',
+   resolve({ ticker: '000001', corp: '00000001', asOf: candlesFixture(20, '2023-01-02').slice(-1)[0].date,
+            fundamentals: restated, candles: candlesFixture(20, '2023-01-02') })
+     .stockData.technical.macdSignal === null);
+ok('candles를 아예 안 넘기면 technical 키 자체가 없다 (축 미구축과 구분)',
+   r1.stockData.technical === undefined);
+
+let threwOnFuture = false;
+try {
+  resolve({ ticker: '000001', corp: '00000001', asOf: '2023-01-01',
+           fundamentals: restated, candles: candlesFixture(70, '2023-01-02') });
+} catch (e) { threwOnFuture = true; }
+ok('asOf 이전 날짜인데 미래 캔들이 섞이면 조용히 넘기지 않고 던진다', threwOnFuture);
 
 console.log('\n[점수 계산을 다시 구현하지 않는다]');
 const src = require('fs').readFileSync(path.join(ROOT, 'lib/a5/resolver.js'), 'utf8');

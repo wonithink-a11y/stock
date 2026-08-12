@@ -11,7 +11,8 @@
  * 이 스크립트 자체는 resolver.js·scoringEngine.js를 건드리지 않는다 — 배선(연결)만
  * 확인한다. (2026-08-12: 최초 실행에서 resolver.js의 fundamentals/fundamental
  * 필드명 불일치를 발견 → lib/a5/resolver.js에서 별도로 수정, 이 스크립트는 그
- * 수정을 검증하는 재실행 용도로도 쓴다.)
+ * 수정을 검증하는 재실행 용도로도 쓴다. 같은 날 A5-3 부분 구현
+ * (shareholderReturn·peg·technical) 이후에도 같은 snapshot으로 재검증했다.)
  */
 'use strict';
 
@@ -71,6 +72,22 @@ function findPrice(ticker, date) {
   return rows.find((r) => r.ticker === ticker && r.date === date) || null;
 }
 
+/** asOf 이전(포함) 최근 windowDays 거래일 캔들. technical 축 검증용. */
+function findCandles(ticker, asOf, windowDays = 260) {
+  const asOfYear = Number(asOf.slice(0, 4));
+  const rows = [];
+  // technical은 MA60·MACD(35일)가 필요해 연도 경계를 넘을 수 있다 — 전해까지 같이 읽는다.
+  for (const year of [asOfYear - 1, asOfYear]) {
+    const p = path.join(ROOT, `data/backfill/price/a2a/${year}.jsonl.gz`);
+    if (!fs.existsSync(p)) continue;
+    for (const r of readJsonl(`data/backfill/price/a2a/${year}.jsonl.gz`)) {
+      if (r.ticker === ticker && r.date <= asOf) rows.push(r);
+    }
+  }
+  rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  return rows.slice(-windowDays).map((r) => ({ date: r.date, close: r.close, volume: r.volume }));
+}
+
 function main() {
   const criteria = loadCriteria('KR').criteria;
   const policies = loadPolicies('KR');
@@ -87,13 +104,20 @@ function main() {
 
     // 2. Fundamentals (A3) — corp 전체 이력을 넘기고 pitSelector가 asOf로 고른다
     const a3records = findFundamentals(corp);
-    const a3bRecordsAll = findFundamentalsA3b(corp); // 참고용. resolver에 넣지 않는다.
+    const a3bRecordsAll = findFundamentalsA3b(corp); // 이제 resolver에도 넣는다(shareholderReturn·peg 재료)
 
     // 3. Price
     const price = findPrice(ticker, ASOF);
 
-    // 4. resolver.resolve() — 실제 프로덕션 리졸버, 변경 없이 그대로 호출
-    const resolved = resolve({ ticker, corp, asOf: ASOF, fundamentals: a3records, price });
+    // 3b. Technical용 캔들 — asOf 이전만
+    const candles = findCandles(ticker, ASOF);
+
+    // 4. resolver.resolve() — 실제 프로덕션 리졸버, 변경 없이 그대로 호출.
+    //    dividendEps·candles를 넘기면 shareholderReturn·peg·technical이 함께 열린다.
+    const resolved = resolve({
+      ticker, corp, asOf: ASOF, fundamentals: a3records, price,
+      dividendEps: a3bRecordsAll, candles,
+    });
 
     entry.pit = {
       totalRecordsForCorp: a3records.length,
@@ -111,9 +135,30 @@ function main() {
       ? { date: price.date, close: price.close, matchesAsOf: price.date === ASOF }
       : { found: false };
 
-    entry.a3bAvailableButUnused = a3bRecordsAll
-      .filter((r) => r.availableFrom <= ASOF.replace(/-/g, ''))
-      .map((r) => ({ fiscalYear: r.fiscalYear, eps: r.eps, dividendPerShare: r.dividendPerShare }));
+    entry.candles = {
+      count: candles.length,
+      firstDate: candles[0] ? candles[0].date : null,
+      lastDate: candles[candles.length - 1] ? candles[candles.length - 1].date : null,
+      allBeforeOrOnAsOf: candles.every((c) => c.date <= ASOF),
+    };
+
+    const asOfCompact = ASOF.replace(/-/g, '');
+    entry.a3bPit = {
+      totalRecordsForCorp: a3bRecordsAll.length,
+      selectedFiscalYear: resolved.provenance.valuation ? resolved.provenance.valuation.fiscalYear : null,
+      selectedAvailableFrom: resolved.provenance.valuation ? resolved.provenance.valuation.availableFrom : null,
+      shareholderReturnYearsChecked: resolved.provenance.shareholderReturn
+        ? resolved.provenance.shareholderReturn.yearsChecked : null,
+      futureRecordsExcluded: a3bRecordsAll
+        .filter((r) => r.availableFrom > asOfCompact)
+        .map((r) => ({ fiscalYear: r.fiscalYear, availableFrom: r.availableFrom })),
+    };
+
+    entry.newFeatures = {
+      shareholderReturn: resolved.stockData.fundamental.buybackOrDividendHistory,
+      valuation: resolved.stockData.valuation,
+      technical: resolved.stockData.technical,
+    };
 
     // 5. resolver 출력을 그대로 score()에 넣는다 — resolver.js가 scoringEngine.js와
     //    같은 키 이름(fundamental, 단수)을 쓰므로 추가 매핑이 필요 없다.

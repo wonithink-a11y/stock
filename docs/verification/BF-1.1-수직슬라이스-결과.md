@@ -161,3 +161,86 @@ PIT/Universe/Price는 이번 수정과 무관한 배선이라 값이 그대로�
 
 **결론**: 수정이 finalScore를 살려냈고, 그 외 아무것도 안 건드렸다는 걸 회귀+
 재실행 양쪽으로 확인. 커밋 준비 완료.
+
+---
+
+## ★ A5-3 부분 구현 — shareholderReturn·peg·technical (2026-08-12)
+
+A5-3 재개 조사(별도 보고) 결과를 근거로 3개 feature를 열려고 시도했다. 결과는
+**둘 성공 · 하나는 실측 도중 blocker를 발견해 중단.**
+
+### 구현 범위와 방법
+
+```
+lib/a5/technicalFrom.js (신규)   scripts/collect.js의 순수 계산 함수
+                                (sma·computeMaSignal·computeRsi·computeMacdSignal·
+                                computeTechnical)를 그대로 복사. collect.js는
+                                require하지 않는다 — module.exports가 없고
+                                하단에서 main()을 즉시 실행하는 라이브 스크립트라
+                                require하면 네트워크 호출이 실행된다
+lib/a5/resolver.js              shareholderReturnFrom()·valuationFrom() 신설.
+                                resolve()가 dividendEps(A3b)·candles(A2a) 두 신규
+                                파라미터를 받는다. 기본값은 undefined(빈 배열이
+                                아니다) — 안 넘긴 기존 호출부(test-a5-framework.js
+                                등)는 이전과 완전히 동일하게 동작한다
+scoringEngine.js                변경 없음(지시대로)
+criteria/policy                 변경 없음(지시대로)
+```
+
+### shareholderReturn — 성공
+
+A3b `dividendPerShare` 5년 이력 중 한 해라도 양수면 true(criteria 정의 그대로:
+"이력 있음=100, 없음=40"). 이력이 아예 없으면(그 시점 A3b 레코드가 하나도 없으면)
+false가 아니라 null — "안 했다"와 "몰랐다"를 구분한다.
+
+### technical — 성공 (계속 상장 종목 한정)
+
+A2a 캔들(asOf 이전 최대 260일)을 `computeTechnical()`에 그대로 넣는다. asOf 이후
+캔들이 섞이면 조용히 넘기지 않고 던진다. **A2b(폐지 종목 가격)는 여전히 0건**이라
+전체 유니버스가 아니라 계속 상장 종목에만 적용된다 — 이건 A5-3이 아니라 T1 뒤
+A2b 완료를 기다려야 하는 별도 문제로 이미 알려져 있다.
+
+### peg(valuation) — ★ 실측 중 blocker 발견, 중단
+
+`per = price / eps`를 실제로 계산하려고 005930/2016-04-08로 검증하다가 발견:
+
+```
+A2a 가격(adjusted:true, 수정주가)   24,920  ← 2018년 50:1 액면분할이 소급 반영됨
+A3b EPS(DART 원문, 조정 없음)       126,305  ← 분할 반영 안 됨
+naive per = 24920/126305 = 0.197   ← 정상 PER 범위(수~수십)에서 벗어난 값
+(참고: 50배 보정 가정 시 9.87 — 정상 범위. 조정 기준 불일치가 원인이라는 방증)
+```
+
+`valuationFrom()` 자체의 계산식은 맞다(합성 픽스처로 단위 테스트 통과) — 문제는
+**두 소스의 조정 기준이 다른데 그대로 나눴다**는 것. resolver.js가 임의로 분할
+배율을 추정해 보정하지 않았다(지시된 중단 기준 "기존 계약과 충돌"에 해당한다고
+판단). `resolve()`는 `valuationFrom()`을 호출하지 않고, `stockData.valuation`도
+붙이지 않는다 — dividendEps를 넘겨도 shareholderReturn만 채워지고 valuation은
+비어 있다. 이 문제는 perRelative를 열 때도 그대로 재발한다.
+
+### 검증
+
+```
+A5 회귀(test-a5-framework.js)   73 passed, 0 failed (기존 56 + 신규 17)
+전체 JS 회귀 9개 파일            전부 통과
+전체 Python 회귀 12개            전부 통과
+005930/2016-04-08 재실행         shareholderReturn=true, technical 5개 지표 산출
+                                 finalScore 79.6(fundamental+technical만 유효),
+                                 valuation 키 없음(의도대로)
+기존 fundamental score 불변 확인  scoreStock()으로 직접 대조 —
+                                 raw score 87.5→90.2(+2.7, shareholderReturn
+                                 추가로 정상 상승), coverage 4/7→5/7.
+                                 probe에 보였던 components.fundamental=63.1은
+                                 다른 값(axis 간 재정규화된 기여도)이지 fundamental
+                                 자체가 나빠진 게 아니다 — 혼동하지 않도록 기록
+```
+
+### 종합
+
+```
+구현 완료   shareholderReturn(fundamental) · technical(계속 상장 종목)
+구현 안 함   peg·perRelative(valuation) — A2a/A3b 조정 기준 불일치, 별도 판단 필요
+             supplyDemand — A4 원천 데이터 없음
+A5-3 전체 완료로 표시하지 않는다. availableWeight는 이 작업으로 자동으로
+안 바뀐다 — featureRegistry.js를 임의 수정하지 않았기 때문이다(지시대로).
+```
