@@ -39,7 +39,7 @@
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
-| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
+| LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | — | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
 | LAB-6 | 무배당 44%의 분포 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
 | LAB-1 | 조기 종료가 목표 집단을 삼켰는가 | Claude★ | — | `PLANNED` | — | `docs/verification/` |
 | LAB-5b | A3b 수집 완료 후 조인율 재집계 | Claude★ | — | `DONE(잠정)` 24,627/25,531·96.5% | — | 이 파일·CLAUDE.md |
@@ -57,8 +57,8 @@ T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-min
        Claude가 대행한다. 복구되면 AI-Lab으로 Owner를 되돌린다. Claude 결과는
        잠정치다 — "같은 작업에서 생산자와 검증자를 겸하지 않는다" 원칙이 이
        기간 구조적으로 깨지므로, 🔴 결정(A5-5(2) 등)을 Claude 잠정치만으로
-       확정하지 않는다. LAB-5b는 A5-5 검증 중 이미 잠정 완료됐다. 남은 순서
-       (LAB-8 → LAB-2·6 → LAB-1 → LAB-4 → LAB-3 → LAB-7)는 이전 권고 그대로다.
+       확정하지 않는다. LAB-8·LAB-5b·LAB-2 완료(잠정). 남은 순서
+       (LAB-6 → LAB-1 → LAB-4 → LAB-3 → LAB-7)는 이전 권고 그대로다.
        원인·복구 시점은 저장소에서 잴 수 없다 — TBD
 
 A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
@@ -90,6 +90,13 @@ LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensiti
        인계서는 docs/control/handoff/LAB-*.md. 표의 순서가 권고 순서다
 LAB-2  원래 제목은 'diagnostics 실패 원인 분류'였는데 재료가 없어 재정의했다 —
        8샤드 전부 rejected {} 이고 기각 0건이다. 번호는 그대로 둔다(LESSONS 와 같은 이유)
+       ★ 결과(Claude 잠정, 2026-08-12) — "업종별 섞임" 질문 자체가 재정의됐다.
+       별도 1,972건(7.7%)의 대다수는 회사별 회계 기준 차이가 아니라 FY2015~
+       2016초 공시 양식의 EPS 라벨 공백으로 보인다(FY2015 별도 99.7% · FY2017
+       부터 전 구간 0건, A3의 fsDiv는 FY2015도 다른 해와 같은 CFS 비율).
+       "별도는 작은 회사에 몰린다"는 원래 가설은 기각 — FY2016+ 데이터로는
+       자본·매출 분위에 별 패턴이 없다. 원본 텍스트 직접 대조는 못 했다(DART
+       뷰어가 프레임 구조라 본문에 못 닿음) — 정황 증거 기반 추정으로 남긴다
 LAB-5·6  2026-08-11 신설. 기존 번호를 다시 매기지 않고 뒤에 붙였다
 LAB-5b 조인율 자체는 Claude 가 A5-5 검증 중 이미 실측했다(24,627/25,531, 96.5%,
        manifest rceptNoVsA3 와 동수). 독립 재확인 가치는 남아 있으나(생산자·검증자
