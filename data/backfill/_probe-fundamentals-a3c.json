@@ -1,0 +1,1168 @@
+{
+  "probe": "A3c",
+  "probedAt": "2026-08-12T21:14:56+09:00",
+  "endpoint": "stockTotqySttus.json",
+  "reprtCodes": [
+    [
+      "11013",
+      "1분기"
+    ],
+    [
+      "11012",
+      "반기"
+    ],
+    [
+      "11014",
+      "3분기"
+    ],
+    [
+      "11011",
+      "사업보고서"
+    ]
+  ],
+  "sampleSpec": {
+    "currentWithA3": {
+      "corps": 6,
+      "years": 1
+    },
+    "delistedWithA3": {
+      "corps": 2,
+      "years": 1
+    }
+  },
+  "splitProbeSpec": {
+    "corp": "00126380",
+    "name": "삼성전자",
+    "year": 2018,
+    "knownEvent": "2018-05-04 50:1 액면분할 (config/policies/price.v1.json 실측 확인됨)"
+  },
+  "sample": [
+    {
+      "corp": "00100601",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "years": [
+        2025
+      ],
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100258",
+      "years": [
+        2019
+      ],
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "years": [
+        2016
+      ],
+      "group": "delistedWithA3"
+    }
+  ],
+  "plannedCalls": 36,
+  "observations": [
+    {
+      "corp": "00100601",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 26123038,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 175000000,
+      "distbStockCo": 26123038,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100601",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 26123038,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 175000000,
+      "distbStockCo": 26123038,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100601",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 26123038,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 175000000,
+      "distbStockCo": 26123038,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100601",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 26123038,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 175000000,
+      "distbStockCo": 26123038,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 6500000,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 11250000,
+      "distbStockCo": 6500000,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 13000000,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 26250000,
+      "distbStockCo": 13000000,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 13000000,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 26250000,
+      "distbStockCo": 13000000,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100939",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "종류주",
+        "합계"
+      ],
+      "istcTotqy": 13000000,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 26250000,
+      "distbStockCo": 13000000,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250514",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 198407845,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 5000000000,
+      "distbStockCo": 197572806,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250813",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 198407845,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 5000000000,
+      "distbStockCo": 197572806,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251113",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 198407845,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 5000000000,
+      "distbStockCo": 197572806,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101044",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260320",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 198407845,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 5000000000,
+      "distbStockCo": 197572806,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 68469040,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 68469040,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 68469040,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 67233030,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 3,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260323",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": 67233030,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 67233030,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 19522575,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 40000000,
+      "distbStockCo": 17864650,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 19522575,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 40000000,
+      "distbStockCo": 17864650,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 14568592,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 30000000,
+      "distbStockCo": 14452932,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2025,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 14568592,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 30000000,
+      "distbStockCo": 14452932,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 14568592,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 30000000,
+      "distbStockCo": 14452932,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00101488",
+      "fiscalYear": 2025,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20260318",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 14568592,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 30000000,
+      "distbStockCo": 14452932,
+      "group": "currentWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2019,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20190515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 7562701,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 200000000,
+      "distbStockCo": 7550930,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2019,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20190821",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 7562701,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 200000000,
+      "distbStockCo": 7550930,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2019,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20191114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 7562701,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 200000000,
+      "distbStockCo": 7550930,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100258",
+      "fiscalYear": 2019,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20200330",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2019-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 7562701,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 200000000,
+      "distbStockCo": 7550930,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20160516",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20160816",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 139256447,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 139256447,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20161114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 280368949,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 280368949,
+      "group": "delistedWithA3"
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20170810",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 280368949,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 1000000000,
+      "distbStockCo": 280368949,
+      "group": "delistedWithA3"
+    }
+  ],
+  "splitProbeObservations": [
+    {
+      "corp": "00126380",
+      "fiscalYear": 2018,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20180515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-03-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 128386494,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 400000000,
+      "distbStockCo": 119395651
+    },
+    {
+      "corp": "00126380",
+      "fiscalYear": 2018,
+      "reprtCode": "11012",
+      "reprtLabel": "반기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20180814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-06-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 6419324700,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 20000000000,
+      "distbStockCo": 5969782550
+    },
+    {
+      "corp": "00126380",
+      "fiscalYear": 2018,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20181114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-09-30"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 6419324700,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 20000000000,
+      "distbStockCo": 5969782550
+    },
+    {
+      "corp": "00126380",
+      "fiscalYear": 2018,
+      "reprtCode": "11011",
+      "reprtLabel": "사업보고서",
+      "dartStatus": "000",
+      "rowCount": 4,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20190401",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2018-12-31"
+      ],
+      "seSample": [
+        "보통주",
+        "비고",
+        "우선주",
+        "합계"
+      ],
+      "istcTotqy": 5969782550,
+      "istcTotqyRowFound": true,
+      "isuStockTotqy": 20000000000,
+      "distbStockCo": 5969782550
+    }
+  ],
+  "verdict": {
+    "respondedCells": 32,
+    "totalCells": 32,
+    "rceptNoPresentRate": 1.0,
+    "rceptNoFormatOkRate": 1.0,
+    "availableFromParsableRate": 1.0,
+    "istcTotqyRowFoundRate": 0.875,
+    "byReprtCode": {
+      "1분기": {
+        "cells": 8,
+        "responded": 8,
+        "dartStatus": {
+          "000": 8
+        }
+      },
+      "반기": {
+        "cells": 8,
+        "responded": 8,
+        "dartStatus": {
+          "000": 8
+        }
+      },
+      "3분기": {
+        "cells": 8,
+        "responded": 8,
+        "dartStatus": {
+          "000": 8
+        }
+      },
+      "사업보고서": {
+        "cells": 8,
+        "responded": 8,
+        "dartStatus": {
+          "000": 8
+        }
+      }
+    },
+    "canAnchorPit": true,
+    "canReadIstcTotqy": false,
+    "blockers": [
+      "istc_totqy 를 숫자로 못 읽는다 — A3c 의 존재 이유가 흔들린다"
+    ],
+    "go": false
+  },
+  "splitVerdict": {
+    "measured": true,
+    "sequence": [
+      [
+        "1분기",
+        128386494,
+        "20180515"
+      ],
+      [
+        "반기",
+        6419324700,
+        "20180814"
+      ],
+      [
+        "3분기",
+        6419324700,
+        "20181114"
+      ],
+      [
+        "사업보고서",
+        5969782550,
+        "20190401"
+      ]
+    ],
+    "quarterOverQuarterRatios": [
+      50.0,
+      1.0,
+      0.93
+    ],
+    "note": "50:1 분할이면 어느 분기 사이에 ratio≈50이 한 번 나타나야 한다. 그 분기의 availableFrom이 실제 분할일(2018-05-04)보다 얼마나 늦는지가 이번 정책 결정(①안)이 감수한 정밀도 한계의 실측값이다."
+  },
+  "calls": 36,
+  "elapsedSeconds": 31.7
+}
