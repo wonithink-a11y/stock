@@ -46,7 +46,7 @@
 | LAB-5b | A3b 수집 완료 후 조인율 재집계 | Claude★ | Codex(대기) | `DONE(잠정)` 조인 96.7%(24,690/25,531)·그중 rceptNo일치 99.7% | — | 이 파일·CLAUDE.md |
 | LAB-4 | 백테스트 입력 구조 · basis 시계열 | Claude★ | Codex(대기) | `DONE(잠정)` ★ raw join 30 돌파, eligible은 아직 3 | — | `docs/verification/LAB-4-백테스트입력구조-결과.md` |
 | LAB-3 | score distribution · 이상치 | — | — | `안 함` 인계서 없음, 스코프 미확정 상태로 방치돼 있었다(2026-08-12 확인). 사용자가 실행하지 않기로 결정 | — | 없음 |
-| LAB-7 | 발행주식수·수급 소스 정찰 | Claude★ | — | `BLOCKED` | 착수 자체가 별건(계약 변경 🔴), 대행 대상 아님 | `docs/verification/` |
+| LAB-7 | 발행주식수·수급 소스 정찰 | Claude | — | `DONE(정찰)` DART 공개 문서 기준(실API 호출 아님) — istc_totqy(주식의 총수 현황) 확보 가능, PIT 가능(rcept_no). A3c 착수는 별도 🔴 GO 대기 | 실제 착수(새 DART 엔드포인트 수집)는 사용자 GO 필요 | `docs/verification/LAB-7-발행주식수-소스정찰-결과.md` |
 | CODEX-1 | Claude 잠정 결과 6건 독립 재확인 | Codex | Claude | `PLANNED` | 사용자가 Codex에 인계서 전달 | `docs/control/handoff/CODEX-1-잠정결과-재확인.md` |
 
 ### 주석 — 상태의 근거
@@ -173,6 +173,13 @@ LAB-7  실험실 커넥터로 공공데이터 응답 필드만 확인한다. 수
        우리 DART 예산 0원이고 뒤집힐 수 있는 질문이라 지금 한다.
        다 열려도 0.68 → 0.79 이고 수급 축의 큰 둘(외국인·기관 순매수)은
        거래소 영역이라 그 목록에 없다. 착수는 별건(계약 변경 🔴)
+       ★ 재정찰(2026-08-12, Claude, DART 공개 문서 기준) — A5-3 peg 블로커
+       (A2a 수정주가 ↔ A3b 원본 EPS 불일치) 해결 경로로 다시 열었다.
+       "주식의 총수 현황"(istc_totqy) API가 corp_code·rcept_no를 가져
+       기존 PIT 패턴을 그대로 쓸 수 있다 — per = price/(netIncome÷
+       istc_totqy)로 EPS 원본을 안 쓰고 우회 가능. "증자(감자) 현황"보다
+       안전하다고 판단(사유 분류가 불필요해 오분류 위험이 없다). 실API
+       호출은 안 했다 — 착수(A3c 신설)는 별도 🔴 GO 대기
 ```
 
 ---
