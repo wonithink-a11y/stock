@@ -130,6 +130,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install deps
+        run: pip install --quiet requests
+
       - name: Finalize
         env:
           A3B_FAIL_INJECTION: ${{ inputs.failInjection }}
