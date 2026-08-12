@@ -122,3 +122,42 @@ Coverage 결과        21.1% < 60% 게이트 → 유보(정직한 결과, 버그
    버그, 후자는 신규 기능 개발).
 2. 10년 전체 백필·threshold 연구·Dashboard 착수는 여전히 하지 않는다. 사용자 승인
    대기.
+
+---
+
+## ★ 수정 및 재검증 (2026-08-12, 같은 날)
+
+위 1번을 바로 반영했다. `lib/a5/resolver.js` 112행 `fundamentals: f.values` →
+`fundamental: f.values` 한 줄(+주석 한 줄) 수정, `scripts/test-a5-framework.js`의
+`stockData.fundamentals` 참조 7건을 `stockData.fundamental`로 갱신했다.
+`provenance.fundamentals`(별도 네임스페이스)·`scoringEngine.js`·`analyze.js`는
+손대지 않았다.
+
+**사전 확인**: `docs/A5-1.0-입출력계약.md`가 이미 `categoryScores { fundamental,
+valuation, technical, supplyDemand }`(단수)로 계약을 명시하고 있어 계약 문서
+변경은 불필요 — 구현이 계약과 어긋나 있던 것을 계약에 맞게 고친 것.
+
+```
+A5 프레임워크 회귀 (test-a5-framework.js)   56 passed, 0 failed
+전체 JS 회귀 (scripts/test-*.js, 9개 파일)   전부 통과 (backtester 60·classifier 57·
+                                            engine-v2 31·policies-acceptance 146·
+                                            policies 7+2+4·state·a1b 등)
+전체 Python 회귀 (scripts/test-*.py, 12개)   전부 통과 (2건은 cp949 콘솔 출력
+                                            인코딩 문제로 요약줄만 크래시 —
+                                            PYTHONIOENCODING=utf-8로 재실행해 통과
+                                            확인. 로직 실패 아님, 이번 변경과 무관)
+```
+
+**동일 슬라이스(2016-04-08 / 005930) 재실행**:
+```
+finalScore                87.5   (수정 전: null)
+components.fundamental    87.5   (수정 전: null)
+confidence.value          21.1   (수정 전: 0 — 변화 없음, 원래도 fundamental만 있었으므로 정상)
+Universe/PIT/Price 결과    동일 (listedAt·selectedFiscalYear 2015·
+                          availableFrom 2016-03-30·close 24920 — 전부 그대로)
+```
+PIT/Universe/Price는 이번 수정과 무관한 배선이라 값이 그대로인 게 맞다 — 실제로
+그대로임을 재실행으로 확인했다.
+
+**결론**: 수정이 finalScore를 살려냈고, 그 외 아무것도 안 건드렸다는 걸 회귀+
+재실행 양쪽으로 확인. 커밋 준비 완료.

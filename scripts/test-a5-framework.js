@@ -158,10 +158,10 @@ console.log('\n[리졸버 — 결측은 채우지 않는다]');
 const r1 = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
                      fundamentals: restated, price: { date: '2023-06-30', close: 5000 } });
 ok('PIT 규칙으로 고른 레코드에서 지표를 유도한다',
-   r1.stockData.fundamentals.roe === 5, J(r1.stockData.fundamentals.roe));
+   r1.stockData.fundamental.roe === 5, J(r1.stockData.fundamental.roe));
 ok('부채비율을 낸다 (liabilities / equity)',
-   r1.stockData.fundamentals.debtRatio === 40);
-ok('유동비율을 낸다', r1.stockData.fundamentals.currentRatio === 200);
+   r1.stockData.fundamental.debtRatio === 40);
+ok('유동비율을 낸다', r1.stockData.fundamental.currentRatio === 200);
 ok('provenance가 어느 레코드였는지 지목한다',
    r1.provenance.fundamentals.fiscalYear === 2022
    && r1.provenance.fundamentals.availableFrom === '2023-03-31',
@@ -177,13 +177,13 @@ const fin = [R(2022, '2023-03-31', { currentAssets: null, currentLiab: null })];
 const rf = resolve({ ticker: '000002', corp: '00000002', asOf: '2023-06-30',
                      fundamentals: fin });
 ok('금융업의 유동비율은 null이다 (0이나 대체값이 아니다)',
-   rf.stockData.fundamentals.currentRatio === null);
+   rf.stockData.fundamental.currentRatio === null);
 ok('결측 지표가 missing 목록에 남는다',
    rf.missing.includes('currentRatio'), J(rf.missing));
 
 // A3b 전까지 비어 있어야 하는 값. 채우면 계약 위반이다.
 ok('배당 이력은 null이다 (A3b 전까지 채우지 않는다)',
-   r1.stockData.fundamentals.buybackOrDividendHistory === null);
+   r1.stockData.fundamental.buybackOrDividendHistory === null);
 ok('배당 이력이 missing에 잡힌다',
    r1.missing.includes('buybackOrDividendHistory'));
 
@@ -192,9 +192,9 @@ const zero = [R(2022, '2023-03-31', { equity: 0, revenue: 0 })];
 const rz = resolve({ ticker: '000003', corp: '00000003', asOf: '2023-06-30',
                      fundamentals: zero });
 ok('자본이 0이면 ROE는 null이다 (Infinity가 아니다)',
-   rz.stockData.fundamentals.roe === null, J(rz.stockData.fundamentals.roe));
+   rz.stockData.fundamental.roe === null, J(rz.stockData.fundamental.roe));
 ok('매출이 0이면 영업이익률 추세도 null이다',
-   rz.stockData.fundamentals.operatingMarginTrend === null);
+   rz.stockData.fundamental.operatingMarginTrend === null);
 
 // 레코드가 하나도 없는 시점 — 빈 값이 아니라 '아무것도 몰랐다'로 남아야 한다.
 const rEmpty = resolve({ ticker: '000004', corp: '00000004', asOf: '2015-01-01',

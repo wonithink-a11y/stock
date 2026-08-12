@@ -8,7 +8,10 @@
  * 하나: "asOf 시점에 알 수 있었던 데이터만으로 실제 production score()까지
  * 연결되는가"를 실데이터로 확인하고, 사람이 읽을 수 있는 근거를 남기는 것.
  *
- * resolver.js·scoringEngine.js는 건드리지 않는다. 여기서 하는 것은 배선(연결)뿐이다.
+ * 이 스크립트 자체는 resolver.js·scoringEngine.js를 건드리지 않는다 — 배선(연결)만
+ * 확인한다. (2026-08-12: 최초 실행에서 resolver.js의 fundamentals/fundamental
+ * 필드명 불일치를 발견 → lib/a5/resolver.js에서 별도로 수정, 이 스크립트는 그
+ * 수정을 검증하는 재실행 용도로도 쓴다.)
  */
 'use strict';
 
@@ -112,51 +115,28 @@ function main() {
       .filter((r) => r.availableFrom <= ASOF.replace(/-/g, ''))
       .map((r) => ({ fiscalYear: r.fiscalYear, eps: r.eps, dividendPerShare: r.dividendPerShare }));
 
-    // 5. resolver 출력을 "있는 그대로" score()에 넣으면 무슨 일이 나는지 (키 불일치 확인용)
-    const asIsStockData = {
+    // 5. resolver 출력을 그대로 score()에 넣는다 — resolver.js가 scoringEngine.js와
+    //    같은 키 이름(fundamental, 단수)을 쓰므로 추가 매핑이 필요 없다.
+    const stockData = {
       ticker, name,
       dataCutoff: ASOF,
       state: null,
-      ...resolved.stockData, // fundamentals(복수) 키만 붙는다. scoringEngine은 fundamental(단수)을 읽는다
+      ...resolved.stockData,
     };
-    let asIsResult;
+    let result;
     try {
-      asIsResult = score(asIsStockData, criteria, policies);
+      result = score(stockData, criteria, policies);
     } catch (err) {
-      asIsResult = { error: err.message };
+      result = { error: err.message };
     }
 
-    // 6. resolver.js는 건드리지 않되, 이 스크립트 안에서만 키를 정확히 매핑해 실제
-    //    production score()가 진짜 데이터를 받으면 어떻게 되는지 확인한다.
-    //    valuation/technical/supplyDemand는 의도적으로 넣지 않는다 — 미구축 상태 그대로 둔다.
-    const wiredStockData = {
-      ticker, name,
-      dataCutoff: ASOF,
-      state: null,
-      fundamental: resolved.stockData.fundamentals, // resolver(복수) → scoringEngine(단수) 매핑
-    };
-    let wiredResult;
-    try {
-      wiredResult = score(wiredStockData, criteria, policies);
-    } catch (err) {
-      wiredResult = { error: err.message };
-    }
-
-    entry.scoreAsIs = asIsResult.error
-      ? { error: asIsResult.error }
+    entry.score = result.error
+      ? { error: result.error }
       : {
-          finalScore: asIsResult.result.finalScore,
-          components: asIsResult.result.components,
-          confidence: asIsResult.result.confidence,
-        };
-
-    entry.scoreWired = wiredResult.error
-      ? { error: wiredResult.error }
-      : {
-          finalScore: wiredResult.result.finalScore,
-          components: wiredResult.result.components,
-          confidence: wiredResult.result.confidence,
-          flags: wiredResult.result.flags,
+          finalScore: result.result.finalScore,
+          components: result.result.components,
+          confidence: result.result.confidence,
+          flags: result.result.flags,
         };
 
     report.samples.push(entry);
