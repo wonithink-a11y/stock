@@ -25,7 +25,6 @@ Validated against
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-  언제든    analyze.js 일별 산출의 basis 혼재 — 게이트4를 운영 경로에 적용할지는 별건
   안 한다   A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
             A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
   T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
@@ -48,6 +47,10 @@ Validated against
               freshnessDays가 전건 null이던 것을 고쳤다. 실측: lte 탈락 2,752→0,
               freshnessDays null 25,531→0, A3 회귀 0건. resolver.js는 미변경
             백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
+            ★ 게이트4를 analyze.js 운영 경로에 연결 (2026-08-12, 9aed997) —
+              latest.json이 KR_4AXIS·US_3AXIS 미선언으로 축을 섞어 냈다.
+              onMismatch:withhold 연결 후 실측 143종목 중 142 유지·1 withhold
+              (088980, 기존 dataCoverage 게이트로도 이미 '유보'였다)
             ★ KR_3AXIS 백테스트를 KR_4AXIS(운영)의 검증으로 승격하지 않는다
             승인 3등급 · 실험실 트랙 가동 (2026-08-11) — LAB-5 인수 완료
             실험실은 GitHub 공개 raw 로 읽는다. 인계서는 docs/control/handoff/
