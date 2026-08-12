@@ -13,34 +13,18 @@ Validated against
                      data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      A5-5 — RCEPT_MISMATCH 63건 공시 선택 정책 (사용자 GO 대기)
-            형식 불일치(A3 "2024-03-21" · A3b "20240321")는 고쳤다(아래 완료).
-            남은 건 같은 corp+fiscalYear인데 A3·A3b가 가리키는 공시가 다른 63건
-            (24,690매치 중 0.26%, manifest rceptNoVsA3.amended와 동수) —
-            ★ LAB-8 잠정 결과 나옴(실험실 불능이라 Claude 대행, 2026-08-12,
-            docs/verification/LAB-8-공시선택-불일치-결과.md). 63건 전량 DART
-            원문 대조(조회실패 0) — 49건(78%)은 A3=원본·A3b=정정본(rows[0] vs
-            max(rcept_no)) 가설과 맞지만 12건(19%, 11건 FY2019 집중)은 반대
-            방향, 2건은 다단계 정정이라 가설이 그대로 성립하지 않는다.
-            ★ Claude가 조사자라 잠정치다 — 실험실 복구 시 재확인 전까지
-            resolver.js 정책은 이 결과만으로 확정하지 않는다
+  다음      LAB-1 재수집 — 조기 종료로 갇힌 현재 상장 16종목 (사용자 GO 대기,
+            우선순위 ②). 실행(Actions 수동 트리거)은 별도 승인 필요. 목록·근거는
+            docs/verification/LAB-1-조기종료-결과.md
+            ③ LAB-2(FY2015 EPS 라벨링) 는 보류 — 서두를 이유 없음(사용자 판단,
+            2026-08-12). 원문 대조 전까지 valuation 정책 변경 안 함
   T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-  언제든    ★ LAB-2 발견(2026-08-12, Claude 잠정) — A3b epsSource="주당순이익"
-            (별도, 1,972건)의 대다수가 회사별 회계 기준이 아니라 FY2015~2016초
-            공시 양식의 라벨 공백으로 보인다(FY2015 별도 99.7% · FY2017부터
-            0건. A3의 fsDiv는 FY2015도 다른 해와 같은 CFS 비율). 원문 직접
-            대조는 못 함(뷰어가 프레임이라 본문 접근 불가) — 정황 증거 기반
-            추정. FY2015 EPS를 valuation 축에서 어떻게 다룰지는 결정 안 함
-            (docs/verification/LAB-2-epsSource-혼재-결과.md)
-            ★ LAB-1 발견(2026-08-12, Claude 잠정) — A3b 조기 종료(EARLY_STOP)
-            754개 중 16개가 현재 상장 종목이다. 15개는 2024~2026 신규상장이라
-            2015~2017 013(상장 전, 정상) 3연속으로 조기 종료가 걸려 실제 존재
-            연도(2024~2025)를 한 번도 조회 안 했다 — 재수집하면 채울 수 있는
-            작고 특정된 손실. 목록은 결과 문서 참조. 실행은 사용자 사전 확인
-            (docs/verification/LAB-1-조기종료-결과.md)
+  언제든    A5-3 게이트 3 구현 — RCEPT_MISMATCH 정책은 확정됐으니(아래 완료)
+            resolver.js에 shareholderReturn·perRelative·peg 유도 로직을 짜
+            넣는 일만 남았다. 급하지 않음, 착수 신호 없으면 대기
   안 한다   A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
             A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
   T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
@@ -62,6 +46,12 @@ Validated against
               정규화 없이 비교해 asOf와 같은 해 레코드가 전부 미래로 오판되던 것과
               freshnessDays가 전건 null이던 것을 고쳤다. 실측: lte 탈락 2,752→0,
               freshnessDays null 25,531→0, A3 회귀 0건. resolver.js는 미변경
+            ★ A5-5 (2) RCEPT_MISMATCH 정책 확정 (2026-08-12, 사용자 GO,
+              docs/A5-1.0-입출력계약.md §5) — 63건은 어느 쪽도 안 고르고
+              withhold(missing[] 반영·provenance에 두 rceptNo 기록). 정상
+              24,627건은 영향 없음. LAB-8 잠정치 위의 임시 정책이라 실험실
+              재확인에서 달라지면 다시 연다. 정책만 확정 — resolver.js·
+              featureRegistry.js 구현은 별도(A5-3 게이트3, 아래 "언제든")
             백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
             ★ 게이트4를 analyze.js 운영 경로에 연결 (2026-08-12, 9aed997) —
               latest.json이 KR_4AXIS·US_3AXIS 미선언으로 축을 섞어 냈다.

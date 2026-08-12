@@ -33,9 +33,9 @@
 
 | ID | Task | Owner | Reviewer | Status | Depends | Output |
 |---|---|---|---|---|---|---|
-| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `IN PROGRESS` (1) DONE · (2) 사용자 정책 결정 대기 | (2)는 LAB-8 잠정 결과 참조 | `lib/a5/pitSelector.js` |
+| A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 여전히 0.4475(실측) | A5-5(2)·LAB-8 | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 정책은 정해짐, 구현 대기 | resolver.js에 RCEPT_MISMATCH withhold 구현 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | — | `DONE(잠정)` 49 정상·12 반대·2 다단계 | — | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
@@ -75,15 +75,18 @@ A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
            12건(19.0%, 11건이 FY2019 집중)은 방향이 반대(A3가 정정본)였고,
            2건은 원본-정정 단순 쌍이 아닌 다단계 정정이었다. 가설은 부분
            확인·부분 반증 — "어느 쪽이 항상 정정본"이라는 단일 규칙은 안 된다.
-           resolver.js 정책은 아직 안 정했다 — Claude 잠정치라 실험실 복구 시
-           재확인 전에는 최종 확정하지 않는다(오퍼스 위임 설계 권고,
-           2026-08-12) — 임시로는 63건을 flag-and-withhold 하는 안이 유력하다
+           ★ 정책 확정(2026-08-12, 사용자 GO, docs/A5-1.0-입출력계약.md §5) —
+           RCEPT_MISMATCH 발생 시 어느 쪽도 안 고르고 withhold한다(missing[]
+           반영·provenance에 두 rceptNo 기록). 정상 24,627건은 영향 없음.
+           **정책만 확정** — resolver.js·featureRegistry.js 구현은 안 함(별도
+           작업). LAB-8이 Claude 잠정치라 이 정책도 임시다 — 실험실 복구 후
+           재확인에서 다르게 나오면 다시 연다
 A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 "0.4475→0.68"은
        featureRegistry 플래그를 임시로 뒤집은 시뮬레이션이었지 실제 값이 아니다.
        실측(node -e availableWeight)은 여전히 0.4475다. resolver.js가 A3b에서
-       shareholderReturn·perRelative·peg를 유도하는 코드가 없다 — 그 유도 로직이
-       RCEPT_MISMATCH 63건을 어떻게 다룰지부터 정해야 해서(A5-5(2)) LAB-8에
-       실질적으로 같이 묶인다. docs/A5-1.0-입출력계약.md §5에 정정 반영함
+       shareholderReturn·perRelative·peg를 유도하는 코드가 없다. RCEPT_MISMATCH
+       정책은 정해졌으니(A5-5(2)) 이제 이 유도 로직 구현이 게이트 3을 여는
+       남은 유일한 작업이다. docs/A5-1.0-입출력계약.md §5에 반영함
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
