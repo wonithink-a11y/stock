@@ -35,7 +35,8 @@
 |---|---|---|---|---|---|---|
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 보류 확정(2026-08-12, 사용자 GO) — 재개 조건: eligible 표본 축적 또는 설계 여유 | 사용자 결정 완료, 트리거 도달 전까지 착수 안 함 | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` 재개(2026-08-12, 사용자 GO) — shareholderReturn·technical 구현 완료(6365430), peg는 A3c 대기로 중단 | perRelative·peg는 A3c 확보 전까지 scoring 미연결 | `lib/a5/resolver.js` |
+| A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `BLOCKED` 정찰 스크립트 작성 완료(1bb02a1), DART_API_KEY 없어 미실행 | 실행은 사용자 키 또는 Actions dispatch 필요 | `scripts/probe-fundamentals-a3c.py` |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | BF-1.1 | 10년 Historical Backfill — 소급 스코어 재현 | — | — | `PLANNED` 수직 슬라이스 GO(820f097) + resolver 필드명 버그 수정(7a4c00c). data/backfill/scores/ 전체 실행은 여전히 미착수 | 다음 재개는 A5-3 재검토 사용자 GO부터 | `docs/verification/BF-1.1-수직슬라이스-결과.md` |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
