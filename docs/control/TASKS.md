@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|---|
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `IN PROGRESS` (1) DONE · (2) BLOCKED | (2)는 LAB-8 | `lib/a5/pitSelector.js` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` 공식 기록 작성 중 | A5-5(1) DONE | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 여전히 0.4475(실측) | A5-5(2)·LAB-8 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | AI-Lab | Claude | `BLOCKED` | ★ 실험실 GitHub 읽기 불가(아래) | `docs/verification/` |
@@ -71,9 +71,12 @@ A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
            gap -120~-357일)은 반대 방향이라 가설이 그대로 성립하지 않는다.
            resolver.js 정책은 LAB-8 결과 전에 넣지 않는다(오퍼스 위임 설계 권고,
            2026-08-12) — 임시로는 63건을 flag-and-withhold 하는 안이 유력하다
-A5-3   A3b-결정브리프 §6 이 "정규화를 전제하면 A3 방향 조인율 99.4% 로 0.68 유효"
-       라고 이미 답해 뒀다. A5-5(1) 이 그 전제를 실제로 만들었으므로 남은 건
-       공식 기록뿐이다
+A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 "0.4475→0.68"은
+       featureRegistry 플래그를 임시로 뒤집은 시뮬레이션이었지 실제 값이 아니다.
+       실측(node -e availableWeight)은 여전히 0.4475다. resolver.js가 A3b에서
+       shareholderReturn·perRelative·peg를 유도하는 코드가 없다 — 그 유도 로직이
+       RCEPT_MISMATCH 63건을 어떻게 다룰지부터 정해야 해서(A5-5(2)) LAB-8에
+       실질적으로 같이 묶인다. docs/A5-1.0-입출력계약.md §5에 정정 반영함
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
