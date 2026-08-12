@@ -11,6 +11,13 @@ name: backfill-fundamentals-a3c
 #
 # A3b 대비 격자가 4배(corp × fiscalYear × reprtCode 4종)라 샤드당 소요가 더 크다 —
 # timeout을 A3b(120분)보다 넉넉히 잡았다.
+#
+# ★ limit 기본값이 5다(무제한이 아니다). A3b의 워크플로에는 이 입력 자체가 없었고
+# (스모크 테스트는 로컬에서 --limit로 했다), 이 워크플로를 처음 그대로 베꼈을 때
+# limit 입력을 안 만들어서 collect를 한 번 돌리자마자 전체(134,112셀·8샤드)가
+# 바로 시작된 사고가 있었다(2026-08-12, 취소함). 기본값을 작게 잡아 다음에 아무
+# 생각 없이 collect를 눌러도 전체 수집으로 안 번지게 한다 — 전체를 돌리려면
+# limit=0을 명시적으로 넣어야 한다.
 on:
   workflow_dispatch:
     inputs:
@@ -24,6 +31,11 @@ on:
         description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상)'
         required: false
         default: ''
+        type: string
+      limit:
+        description: 'collect 전용. 샤드당 담당 법인 수 상한(스모크 테스트용). 0=무제한'
+        required: false
+        default: '5'
         type: string
 
 concurrency:
@@ -59,7 +71,9 @@ jobs:
         timeout-minutes: 170
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
-        run: python scripts/build-fundamentals-a3c.py --shard ${{ matrix.shard }} --shards $SHARDS
+        run: |
+          python scripts/build-fundamentals-a3c.py --shard ${{ matrix.shard }} --shards $SHARDS \
+            --limit ${{ inputs.limit }}
 
       - name: Upload shard ${{ matrix.shard }}
         if: always()
