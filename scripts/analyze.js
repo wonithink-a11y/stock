@@ -24,6 +24,7 @@ const { evaluateRegime } = require('../lib/marketRegimeEngine');
 const { evaluateHolding } = require('../lib/portfolioAdvisor');
 const { recordRecommendation, getPerformance } = require('../lib/recommendationTracker');
 const { loadCriteria } = require('../lib/loadCriteria');
+const axisBasis = require('../lib/a5/axisBasis');
 
 const ROOT = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'docs', 'data');
@@ -70,12 +71,27 @@ function main() {
 
   // 2. 관심종목 스코어링 (시장별 기준 적용)
   const watchlist = loadJson(path.join(ROOT, 'config', 'watchlist.json'), { groupLabels: {} });
+  const policiesByMarket = { KR: loadPolicies('KR'), US: loadPolicies('US') };
+  // SB-1.0 게이트4 — 선언 basis와 다른 축 집합으로 채점된 종목을 다른 모델과 나란히
+  // 내보내지 않는다. KR_4AXIS·US_3AXIS는 이미 확정된 모델(2026-08-11)이라 여기서는
+  // 매일 도는 이 경로에 잇기만 한다. onMismatch: withhold — 스탬프만 남기는 안은
+  // SB-1.0이 이미 기각했다(43건 전부에 붙는 경고는 아무도 안 읽는다, 실측 근거).
+  const scoreBasisModel = {
+    KR: axisBasis.resolveModel(policiesByMarket.KR.analysis.scoreBasis, 'KR_4AXIS'),
+    US: axisBasis.resolveModel(policiesByMarket.US.analysis.scoreBasis, 'US_3AXIS'),
+  };
   const results = inputs.stocks.map((s) => {
     const market = s.market || s.meta.market || 'KR';
     const r = scoreStock(s, criteriaFor(market));
-    return { ...r, market, currentPrice: s.meta.currentPrice, lastDate: s.meta.lastDate, groups: s.meta.groups || [],
-             flows: (s.supplyDemand && s.supplyDemand.flows) || [] };
-  });
+    const axisScores = {};
+    for (const [axis, b] of Object.entries(r.breakdown)) axisScores[axis] = b.score;
+    const basis = axisBasis.basisOf(axisScores, criteriaFor(market).categoryWeights);
+    const model = scoreBasisModel[market] || scoreBasisModel.KR;
+    if (!axisBasis.matchesModel(basis, model)) return null;   // 다른 모델 — withhold
+    return { ...r, market, basis, axisModel: model.id, currentPrice: s.meta.currentPrice, lastDate: s.meta.lastDate,
+             groups: s.meta.groups || [], flows: (s.supplyDemand && s.supplyDemand.flows) || [] };
+  }).filter(Boolean);
+  const basisWithheldCount = inputs.stocks.length - results.length;
   results.sort((a, b) => (b.totalScore ?? -1) - (a.totalScore ?? -1));
   saveJson(path.join(OUT_DIR, 'latest.json'), {
     updatedAt: inputs.collectedAt,
@@ -86,7 +102,6 @@ function main() {
 // 2-c. [STEP6] V2 엔진 병행 실행 — latest.json(V1)은 그대로 두고 latest-v2.json에 별도 저장.
   //  종목 1건 실패가 전체를 막지 않도록 fail-soft. state 파일 없는 종목은 initState(NORMAL·감점 0)로
     //  정상 처리되는 것이 의도된 경로다(§12-5).
-  const policiesByMarket = { KR: loadPolicies('KR'), US: loadPolicies('US') };
   const v2Results = [];
   const v2Errors = [];
   for (const s of inputs.stocks) {
@@ -204,7 +219,7 @@ function main() {
   if (lastSaved) saveJson(prevPath, lastSaved);
   saveJson(path.join(OUT_DIR, 'current-summary.json'), latestForDiff);
 
-  console.log(`분석 완료: 종목 ${results.length}건, 국면 ${regime.grade}(${regime.regimeScore}점), 보유신호 ${holdings.length}건, 시계열 ${priceCount}종목 → prices.json`);
+  console.log(`분석 완료: 종목 ${results.length}건(게이트4 withhold ${basisWithheldCount}건), 국면 ${regime.grade}(${regime.regimeScore}점), 보유신호 ${holdings.length}건, 시계열 ${priceCount}종목 → prices.json`);
 }
 
 main();
