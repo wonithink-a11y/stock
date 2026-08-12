@@ -13,33 +13,34 @@ Validated against
                      data/backfill/calendar.json
                매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
                Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      A3b collect 남은 1,857법인 ← 여기. Actions 수동, mode=collect
-            8샤드 완료 후 mode=finalize. A3 수집과 같은 날 돌리지 않는다
-            (shard_budget은 한 단계 안의 샤드끼리만 나눈다)
-            ★ 51.1% 진행 상태다 (1,944/3,801 · 레코드 14,578 · commit 02f183d).
-              첫 실행(2026-08-11)이 commit-shards에서 죽었으나 아티팩트로 회수했다
-            ★ 실행 직후 _shards_a3b/ 에 커밋이 올라왔는지 먼저 본다 —
-              a3520af가 원인을 고쳤지만 그 경로는 아직 한 번도 성공한 적이 없다.
-              안 올라오면 아티팩트 회수를 다시 한다(절차 검증됨)
+  다음      A5-5 — RCEPT_MISMATCH 63건 공시 선택 정책 (LAB-8 결과 대기)
+            형식 불일치(A3 "2024-03-21" · A3b "20240321")는 고쳤다(아래 완료).
+            남은 건 같은 corp+fiscalYear인데 A3·A3b가 가리키는 공시가 다른 63건
+            (24,690매치 중 0.26%, manifest rceptNoVsA3.amended와 동수) —
+            50건은 A3=원본·A3b=정정본(rows[0] vs max(rcept_no)) 가설과 맞지만
+            13건(그중 12건 FY2019, gap -120~-357일)은 반대라 가설이 그대로
+            성립하지 않는다. LAB-8 결과(docs/verification/, 아직 없음) 전에는
+            resolver.js에 어느 쪽을 고를지 정책을 넣지 않는다
   T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-  A3b 뒤    ★ A5-5 availableFrom 두 갈래. A3b가 A5에 연결되는 순간 조용히 터진다
-            (1) 형식 — A3 "2024-03-21" · A3b "20240321". 정규화 없이 조인하면 0건,
-                하면 14,155건(97.1%). availableWeight는 그래도 0.68을 보고한다
-            (2) 공시 선택 — 45건이 같은 사업연도에 서로 다른 공시를 가리킨다.
-                A3는 rows[0], A3b는 max(rcept_no)를 고른다(가설, LAB-8이 검증 중)
-            고칠 자리는 조인 지점(A5 resolver)이다. A3 산출물은 finalize됐다
   언제든    ⑤ A2 manifest 승격 설계
             analyze.js 일별 산출의 basis 혼재 — 게이트4를 운영 경로에 적용할지는 별건
   안 한다   A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
             A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
   T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
             calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다
-  완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A5 프레임워크
+  완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A3b · A5 프레임워크
             A1a·A1b 갱신 (2578 / 1223, 2026-08-10) · FN-1.4 임계 승격
             A3b 계약 확정 + 정찰 GO + 수집기 구현 (FN-1.5)
+            ★ A3b finalize 완료 (2026-08-12) — 8샤드 3,801법인 전량 · 25,531레코드
+              · manifest data/backfill/manifest/A3b.json · EPS확보 92.95%
+              (상장종목 96.82%) · rcept_no 완전성 1.0 · 미해결 0건
+            ★ A5-5 (1) pitSelector 정규화 (2026-08-12, aa694ee) — A3b의 YYYYMMDD를
+              정규화 없이 비교해 asOf와 같은 해 레코드가 전부 미래로 오판되던 것과
+              freshnessDays가 전건 null이던 것을 고쳤다. 실측: lte 탈락 2,752→0,
+              freshnessDays null 25,531→0, A3 회귀 0건. resolver.js는 미변경
             백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
             ★ KR_3AXIS 백테스트를 KR_4AXIS(운영)의 검증으로 승격하지 않는다
             승인 3등급 · 실험실 트랙 가동 (2026-08-11) — LAB-5 인수 완료
