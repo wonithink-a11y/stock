@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|---|
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `BLOCKED` 정책은 정해짐, 구현 대기 | resolver.js에 RCEPT_MISMATCH withhold 구현 | — |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `WAITING_USER` 범위 결정 대기 — 2/3만 열면 0.59로 미달, perRelative는 신규 횡단면 인프라 필요 | 사용자가 전체/부분/보류 중 결정 | — |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
@@ -94,8 +94,17 @@ A5-3   ★ 착각을 바로잡았다(2026-08-12) — A3b-결정브리프 §4의 
        featureRegistry 플래그를 임시로 뒤집은 시뮬레이션이었지 실제 값이 아니다.
        실측(node -e availableWeight)은 여전히 0.4475다. resolver.js가 A3b에서
        shareholderReturn·perRelative·peg를 유도하는 코드가 없다. RCEPT_MISMATCH
-       정책은 정해졌으니(A5-5(2)) 이제 이 유도 로직 구현이 게이트 3을 여는
-       남은 유일한 작업이다. docs/A5-1.0-입출력계약.md §5에 반영함
+       정책은 정해졌으니(A5-5(2)) 이 유도 로직 구현이 게이트 3을 여는 남은
+       작업이다. docs/A5-1.0-입출력계약.md §5에 반영함
+       ★ 착수 조사(2026-08-12) — 셋 중 둘(shareholderReturn·peg)은 종목 하나만
+       보는 계산이라 구현 가능하지만, 그 둘만 열어도 availableWeight=0.59로
+       게이트(0.6) 미달이다. perRelative(업종 중앙값 대비 PER)가 있어야 0.68로
+       넘는데, 이건 그 시점 같은 업종 동료 전체의 PER을 함께 봐야 하는 횡단면
+       계산이라 resolver.js의 종목 단위(ticker,asOf) 인터페이스에 안 맞는다.
+       라이브 경로(scripts/collect.js)도 이걸 resolver 함수가 아니라 "당일
+       수집 전체를 업종별로 묶어 중앙값 내는" 별도 2-pass 로직으로 푼다 —
+       A5 백필 경로엔 이 인프라(날짜별·업종별 PIT 중앙값)가 아예 없다.
+       구현 착수 안 함, 사용자 결정 대기(전체 구현 vs 부분 구현 vs 보류)
 LAB-*  표본 없이 가능한 것만 열었다. factor/weight/threshold sensitivity ·
        regime 성능 · 과최적화 판단은 조건 미달이라 열지 않았다 —
        조건은 docs/AI협업-업무분담.md §2.1
