@@ -1,6 +1,6 @@
 {
-  "version": "FN-1.5",
-  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다.",
+  "version": "FN-1.6",
+  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다. FN-1.6은 a3c 블록을 신설한다 — A3/A3b가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 그대로다.",
   "market": "KR",
 
   "source": {
@@ -352,6 +352,127 @@
       "upstream": ["A1a", "A1b", "A3"],
       "policies": ["universe", "fundamentals"],
       "upstreamNote": "A3를 선언하는 이유는 격자가 A3 산출물에서 오기 때문이다. 선언하지 않으면 어느 A3 스냅샷의 격자로 모았는지 기록이 없고, A3가 재수집돼도 verifyUpstream이 그 drift를 보지 못한다(A1b가 base인 A0.7을 선언하는 것과 같은 이유). REQUIRED_UPSTREAM.A5에 A3b를 넣을지는 별도 결정이며 A5 운영 게이트 4(A4 재정규화)와 함께 정한다."
+    }
+  },
+
+  "a3c": {
+    "note": "FN-1.6 신설. A3c(발행주식총수)는 peg가 필요로 하는 sharesOutstanding을 A2a(수정주가)와 같은 조정 기준으로 확보하기 위한 단계다 — A3b EPS는 DART 원문 그대로라 A2a 가격과 그대로 나누면 액면분할을 겪은 종목에서 틀린 값이 나온다(005930/2016-04-08 실측, per=0.197. 50배 보정 가정 시 9.87로 정상 범위 — 조정 기준 불일치가 원인이라는 방증). netIncome(A3, 분할과 무관)÷sharesOutstanding(이 블록)으로 EPS 원본을 우회한다. 결정 경위는 docs/A3c-정책초안.md, 실측 근거는 40법인·160호출 정찰(data/backfill/_probe-fundamentals-a3c.json, 2026-08-12)이다. A3/A3b가 읽는 최상위 키는 건드리지 않는다.",
+    "source": {
+      "endpoint": "stockTotqySttus.json",
+      "reprtCodes": ["11013", "11012", "11014", "11011"],
+      "reprtCodeLabels": { "11013": "1분기", "11012": "반기", "11014": "3분기", "11011": "사업보고서" },
+      "reprtCodesNote": "A3/A3b는 사업보고서(11011) 1회만 쓰지만 A3c는 4개 reprtCode를 전부 쓴다 — 기중 주식수 변경(액면분할 등)을 그다음 정기보고서 시점부터라도 반영하려면 분기 단위 스냅샷이 필요하다. A3b 대비 격자가 4배다.",
+      "field": "istc_totqy",
+      "fieldNote": "발행주식의 총수. isu_stock_totqy·tesstk_co·distb_stock_co는 참고 필드로만 수집한다(진단용, PIT 값의 근거가 아니다).",
+      "missingValueNote": "DART가 dartStatus=000(공식 성공)이면서도 istc_totqy를 포함한 관련 필드 전부를 문자열 '-'로 주는 경우가 실측으로 확인됐다(4건 rawdump, data/backfill/_probe-fundamentals-a3c-rawdump.json) — 코드 버그가 아니라 소스 자체의 결측이다. '-'는 파싱 시 null로 읽는다(0으로 지어내지 않는다).",
+      "rowSelectionNote": "응답에 '보통주' 행이 있으면 그것을 쓴다. 없으면 '합계' 행을 쓴다(2026-08-12, 실측: 32건 중 4건이 보통주/우선주 구분 없이 합계만 낸다). 둘 다 없으면 임의로 다른 행에서 값을 만들지 않는다 — rows[0] 같은 폴백은 금지한다."
+    },
+    "grid": {
+      "mode": "a3ReuseAndScanMissing",
+      "reuseFrom": "data/backfill/fundamentals/a3",
+      "cellMultiplier": 4,
+      "modeNote": "A3b와 같은 방식으로 A3가 보고서를 찾은 (corp, fiscalYear)를 조회 대상으로 삼되, 그 셀마다 reprtCodes 4개를 전부 조회한다. A3 데이터가 없는 법인은 A3b와 같은 조기종료 규칙(stopAfterConsecutiveEmptyYears)을 그대로 적용한다."
+    },
+    "pointInTime": {
+      "availableFromSource": "rcept_no",
+      "availableFromRule": "rcept_no 앞 8자리(YYYYMMDD)를 접수일로 읽는다",
+      "contract": "availableFrom > 그 보고서가 다루는 분기/반기/사업연도 종료일",
+      "contractNote": "A3의 계약 1과 같은 방향. 미래를 보지 않는다.",
+      "tieBreakOnSameAvailableFrom": ["사업보고서", "반기", "3분기", "1분기"],
+      "tieBreakNote": "동일 접수일에 서로 다른 reprtCode가 존재하면(실측: 00101220/KG케미칼, 2025-08-14에 1분기·반기가 동시 접수됨) 이 순서로 고른다. 값의 유무로 고르지 않는다 — 그러면 데이터 품질 문제가 선택 로직에 숨는다(2026-08-12, 사용자 확정). 우선순위가 높은 보고서가 결측이어도 같은 날짜의 낮은 우선순위 값으로 옆으로 새지 않는다 — carryForward로 넘어간다(가상 케이스로 검증됨).",
+      "carryForward": {
+        "enabled": true,
+        "rule": "선택된 보고서의 istc_totqy가 결측('-')이면, 같은 날짜의 다른 보고서로 새지 않고 그 이전(더 과거) 날짜의 가장 최근 정상값을 쓴다. 이전 정상값 자체가 없으면 null이다 — 0이나 추정값을 지어내지 않는다.",
+        "valueSourceValues": ["DIRECT", "CARRY_FORWARD"],
+        "note": "40법인 실측(2026-08-12): direct 94.19% · carryForward 5.81% · neverValid(그 해 4개 보고서 전부 결측) 0%. raw istc_totqy 확보율은 88.12%였지만 carry-forward로 실질 커버리지가 100%에 근접한다."
+      },
+      "knownPrecisionLimit": {
+        "description": "기중 주식수 변경(액면분할 등)이 실제 시행일과 그다음 정기보고서 접수일 사이 구간에는 반영되지 않는다 — 그 구간의 asOf는 직전 보고서의 DIRECT 값(변경 전 수치)을 그대로 쓴다. carry-forward가 아니라 PIT 그대로다(그 시점엔 실제로 그 값만 알려져 있었다). 임의로 보정하지 않는다.",
+        "measuredGapDays": 91,
+        "measuredCase": "005930(삼성전자) 2018-05-04 50:1 액면분할(config/policies/price.v1.json 기존 검증). 시행 후에도 1분기보고서(접수 2018-05-15)는 분할 전 값(128,386,494)을 그대로 보고했고, 반기보고서(접수 2018-08-14)에야 분할 후 값(6,419,324,700, 정확히 50.0배)으로 반영됐다.",
+        "note": "약 3개월(분기 주기)이 이 정밀도 한계의 상한이다. 더 정밀한 시점(수시공시 등)으로 좁히는 것은 이번 단계 범위 밖이다."
+      }
+    },
+    "extremeTransition": {
+      "detect": true,
+      "correct": false,
+      "note": "연속 DIRECT 값 사이의 비율을 진단으로 남긴다(stockCountTransition). 임의로 분할 배율을 추정해 보정하지 않는다 — 진단으로만 남기고 사람이 본다."
+    },
+    "scanRecord": {
+      "recordEmptyCells": true,
+      "recordEmptyCellsNote": "스캔한 (corp, fiscalYear, reprtCode)는 결과가 없어도 남긴다 — A3의 실수(교훈75)를 반복하지 않는다(A3b와 동일 원칙).",
+      "values": ["OK", "EMPTY", "013", "EARLY_STOP", "OTHER_STATUS"],
+      "valuesNote": "EMPTY는 A3b에는 없는 값이다 — dartStatus=000인데 istc_totqy가 '-'로 빈 경우를 013(조회된 데이터 없음)과 구분한다. 013은 그 분기 보고서 자체가 없는 것이고 EMPTY는 보고서는 있는데 그 필드만 빈 것이라 원인이 다르다."
+    },
+    "collectionContract": {
+      "fields": [
+        "a3c.source.endpoint",
+        "a3c.source.reprtCodes",
+        "a3c.source.field",
+        "a3c.grid.mode",
+        "a3c.pointInTime.availableFromSource",
+        "a3c.pointInTime.tieBreakOnSameAvailableFrom",
+        "a3c.pointInTime.carryForward.enabled",
+        "fiscalYearFrom",
+        "fiscalYearTo",
+        "stopAfterConsecutiveEmptyYears"
+      ],
+      "note": "resume 호환 판정의 단일 출처다. 판단 기준은 A3/A3b와 같다 — '이 값이 달랐다면 어제와 다른 수집 결과가 나왔는가?'. acceptance 임계·quota·retry·output은 여기 없다."
+    },
+    "acceptance": {
+      "rceptNoPresentRateMin": 0.99,
+      "availableFromParsableRateMin": 0.99,
+      "canAnchorPit": true,
+      "pitContractViolations": 0,
+      "duplicateKeys": 0,
+      "corpsIncomplete": 0,
+      "scannedCellsMismatch": 0,
+      "istcTotqyRowFoundRateWarn": 0.80,
+      "directRatioWarn": 0.85,
+      "neverValidRateWarn": 0.05,
+      "maxConsecutiveMissingWarn": 3
+    },
+    "acceptanceNote": "FAIL은 A3/A3b와 같은 부류 — 구조적으로 위반이 불가능한 것과 이분적 지표(rceptNo·availableFrom 파싱, PIT 위반, 중복 키)만이다. istcTotqyRowFoundRate·directRatio·neverValidRate·maxConsecutiveMissing은 전부 WARN이다 — 이 값들은 40법인 정찰(probed, 아래 §probed)의 관측이지 3,801법인 전수 수집(measured)의 관측이 아니다. A3/A3b가 지킨 원칙(FN-1.0→FN-1.4, '실측하지 않은 임계는 WARN으로 시작하고 실측 1회 후 FAIL로 승격') 그대로다. 실제 A3c 본수집이 measured를 채우기 전까지 FAIL로 승격하지 않는다.",
+    "probed": {
+      "probedAt": "2026-08-12",
+      "script": "scripts/probe-fundamentals-a3c.py",
+      "sample": { "corps": 40, "corpYearsObserved": 41, "calls": 164 },
+      "verdict": {
+        "rceptNoPresentRate": 1.0,
+        "availableFromParsableRate": 1.0,
+        "canAnchorPit": true,
+        "istcTotqyRowFoundRate": 0.8812
+      },
+      "replaySummary": {
+        "directRatio": 0.9419,
+        "carryForwardRatio": 0.0581,
+        "neverValidRatio": 0.0,
+        "coFilingCount": 1,
+        "maxConsecutiveMissing": 1
+      },
+      "note": "이 블록은 measured가 아니다. 표본 40법인의 정찰이며 게이트 임계의 기준선으로 쓰지 않는다 — A3/A3b와 같은 이유(표본으로 잰 값을 전수의 임계로 쓰면 임계가 실측처럼 보이는 추정이 된다). 원본은 data/backfill/_probe-fundamentals-a3c.json."
+    },
+    "notGated": {
+      "coFilingCount": "동일 접수일 동시 보고서는 tieBreakOnSameAvailableFrom이 결정론적으로 처리한다 — 게이트로 만들 필요가 없다. 발생 자체를 세기만 한다.",
+      "maxConsecutiveMissing": "carry-forward가 처리하는 정상 경로다. 다만 값이 갑자기 커지면(예: 연속 4 이상) 소스 특성이 바뀌었다는 신호이므로 WARN으로 관찰한다."
+    },
+    "output": {
+      "dir": "data/backfill/fundamentals/a3c",
+      "stateDir": "data/backfill/fundamentals/_shards_a3c",
+      "partition": "fiscalYear",
+      "format": "jsonl.gz",
+      "gzipMtime": 0,
+      "gzipCompressLevel": 9,
+      "sortKey": ["fiscalYear", "corp", "availableFrom", "reprtCode"],
+      "fields": ["corp", "ticker", "fiscalYear", "reprtCode", "availableFrom", "rceptNo",
+                 "istcTotqy", "isuStockTotqy", "distbStockCo", "scanStatus"],
+      "outputNote": "A3/A3b와 디렉터리를 분리한다 — 같은 이유(BF-1.1의 A2a/A2b 분리 원칙). istcTotqy가 결측이면 raw 레코드엔 null로 남긴다 — DIRECT/CARRY_FORWARD 선택은 저장 시점이 아니라 조회(resolve) 시점에 pitSelector가 한다(파생값을 저장하지 않는다, 교훈75와 같은 원칙)."
+    },
+    "manifest": {
+      "stage": "A3c",
+      "upstream": ["A1a", "A1b", "A3"],
+      "policies": ["universe", "fundamentals"],
+      "upstreamNote": "A3b와 같은 이유 — 격자가 A3 산출물에서 온다."
     }
   },
 
