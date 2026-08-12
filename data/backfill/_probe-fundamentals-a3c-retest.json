@@ -1,0 +1,176 @@
+{
+  "probe": "A3c-retest",
+  "probedAt": "2026-08-12T21:23:40+09:00",
+  "endpoint": "stockTotqySttus.json",
+  "retestOf": "data/backfill/_probe-fundamentals-a3c.json",
+  "cells": [
+    [
+      "00101220",
+      2025,
+      "11013"
+    ],
+    [
+      "00101433",
+      2025,
+      "11013"
+    ],
+    [
+      "00101433",
+      2025,
+      "11014"
+    ],
+    [
+      "00100717",
+      2016,
+      "11013"
+    ]
+  ],
+  "observations": [
+    {
+      "corp": "00101220",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250814",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqySelectedFrom": "합계",
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20250515",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqySelectedFrom": "합계",
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null
+    },
+    {
+      "corp": "00101433",
+      "fiscalYear": 2025,
+      "reprtCode": "11014",
+      "reprtLabel": "3분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20251114",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2025-09-30"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqySelectedFrom": "합계",
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null
+    },
+    {
+      "corp": "00100717",
+      "fiscalYear": 2016,
+      "reprtCode": "11013",
+      "reprtLabel": "1분기",
+      "dartStatus": "000",
+      "rowCount": 2,
+      "rceptNoValues": 1,
+      "rceptNoPresent": true,
+      "rceptNoFormatOk": true,
+      "availableFrom": "20160516",
+      "availableFromParsable": true,
+      "stlmDtPresent": true,
+      "stlmDtRaw": [
+        "2016-03-31"
+      ],
+      "seSample": [
+        "비고",
+        "합계"
+      ],
+      "istcTotqySelectedFrom": "합계",
+      "istcTotqy": null,
+      "istcTotqyRowFound": false,
+      "isuStockTotqy": null,
+      "distbStockCo": null
+    }
+  ],
+  "verdict": {
+    "respondedCells": 4,
+    "totalCells": 4,
+    "rceptNoPresentRate": 1.0,
+    "rceptNoFormatOkRate": 1.0,
+    "availableFromParsableRate": 1.0,
+    "istcTotqyRowFoundRate": 0.0,
+    "byReprtCode": {
+      "1분기": {
+        "cells": 3,
+        "responded": 3,
+        "dartStatus": {
+          "000": 3
+        }
+      },
+      "반기": {
+        "cells": 0,
+        "responded": 0,
+        "dartStatus": {}
+      },
+      "3분기": {
+        "cells": 1,
+        "responded": 1,
+        "dartStatus": {
+          "000": 1
+        }
+      },
+      "사업보고서": {
+        "cells": 0,
+        "responded": 0,
+        "dartStatus": {}
+      }
+    },
+    "canAnchorPit": true,
+    "canReadIstcTotqy": false,
+    "blockers": [
+      "istc_totqy 를 숫자로 못 읽는다 — A3c 의 존재 이유가 흔들린다"
+    ],
+    "go": false
+  },
+  "calls": 4,
+  "elapsedSeconds": 4.8
+}
