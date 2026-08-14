@@ -19,8 +19,11 @@ Validated against
             maxConsecutiveMissing·neverValidRatio는 이미 WARN 전용이라 정책
             추가 변경 불필요(확인 완료). 남은 절차: workflow_dispatch
             mode=collect(limit=0)를 매일 반복 → corpsIncomplete=0 →
-            mode=finalize 1회. Claude는 gh CLI가 없어 Actions를 직접 못
-            돌린다 — 사용자가 매번 수동 트리거하고 결과를 알려준다.
+            mode=finalize 1회. gh CLI는 인증돼 있어 사용 가능하다(workflow
+            스코프 포함, 2026-08-14 확인·이전 판의 "gh CLI가 없다"는 서술은
+            낡은 것이었다). 다만 Actions 수동 트리거는 여전히 실행 승인
+            규칙(아래 "AI 협업 구조" 절, 부작용 실행은 등급 무관 사전 확인)
+            대상이다 — gh 가용성이 그 규칙을 바꾸지 않는다.
             세부 절차·안전장치는 docs/control/세션인수인계-2026-08-12b.md.
             T1은 VM에서 자동 진행 중(Day 3/7), 개입은 Day 7 판정 때뿐이다
   T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
