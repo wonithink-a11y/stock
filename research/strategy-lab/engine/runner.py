@@ -55,6 +55,74 @@ def _drop_suspension_rows(bars):
     return bars[~((bars["open"] == 0) & (bars["high"] == 0) & (bars["low"] == 0))]
 
 
+def _schedule_portfolio(resolved, portfolio, portfolio_cfg):
+    """Drives portfolio.process_day() chronologically over every date where a
+    resolved trade enters or exits. Returns max_open_seen (simultaneous
+    positions observed, for diag).
+
+    SAME-BAR CONTRACT: a trade whose order_date == exit_fill.fill_date (stop
+    or target hit on the very first session after entry) cannot be detected
+    via "order.symbol in portfolio.open_positions" at the top of a date's
+    iteration - its own entry is scheduled for this SAME date and hasn't been
+    admitted yet (process_day() processes exits before entries). Such a same-
+    bar exit is held back into same_bar_exit_candidates, then retried in a
+    second process_day() call for the same date, after its entry has had a
+    chance to be admitted. Before this fix, that exit was silently dropped:
+    the symbol stayed "open" with its original entry until a LATER, unrelated
+    trade for the same symbol closed - fusing two different trades' entry and
+    exit into one fabricated closed position (found via a 2026-08-15 audit:
+    136 of trend_breakout_v1's 1,400 SMOKE trades were such fusions, plus all
+    10 positions reported still open at backtest end were same-bar trades
+    stuck mid-fix)."""
+    by_entry_date = {}
+    by_exit_date = {}
+    for item in resolved:
+        _, order, entry_fill, exit_fill, _, _ = item
+        by_entry_date.setdefault(order.order_date, []).append(item)
+        by_exit_date.setdefault(exit_fill.fill_date, []).append(item)
+
+    event_dates = sorted(set(by_entry_date) | set(by_exit_date))
+    max_open_seen = 0
+
+    def _check_invariant(date):
+        # runtime invariant, not just a unit-test assumption: the contract caps
+        # simultaneous positions at max_positions - verify it holds on every
+        # single event day of the real run, not only in synthetic fixtures.
+        assert len(portfolio.open_positions) <= portfolio_cfg.max_positions, (
+            f"{date}: {len(portfolio.open_positions)} open positions exceeds max_positions="
+            f"{portfolio_cfg.max_positions}"
+        )
+        return len(portfolio.open_positions)
+
+    for date in event_dates:
+        exits_today = []
+        same_bar_exit_candidates = []  # order.order_date == exit_fill.fill_date == date
+        for item in by_exit_date.get(date, []):
+            sig, order, entry_fill, exit_fill, _, _ = item
+            if order.symbol in portfolio.open_positions:  # already admitted on a prior day
+                shares = portfolio.open_positions[order.symbol]["shares"]
+                exits_today.append((order.symbol, exit_fill, shares))
+            elif order.order_date == date:
+                same_bar_exit_candidates.append((order.symbol, exit_fill))
+            # else: exit for a trade whose entry never won a portfolio slot -
+            # correctly nothing to close.
+        candidates_today = [(order, entry_fill) for (_, order, entry_fill, _, _, _) in by_entry_date.get(date, [])]
+        portfolio.process_day(date, exits_today, candidates_today)
+        max_open_seen = max(max_open_seen, _check_invariant(date))
+
+        if same_bar_exit_candidates:
+            same_bar_exits_admitted = [
+                (symbol, exit_fill, portfolio.open_positions[symbol]["shares"])
+                for symbol, exit_fill in same_bar_exit_candidates
+                if symbol in portfolio.open_positions
+            ]
+            if same_bar_exits_admitted:
+                portfolio.process_day(date, same_bar_exits_admitted, [])
+                max_open_seen = max(max_open_seen, _check_invariant(date))
+
+    return max_open_seen
+
+
 def load_strategy(strategy_id, repo_root):
     path = os.path.join(repo_root, "research", "strategy-lab", "strategies", strategy_id, "rule.py")
     spec = importlib.util.spec_from_file_location(f"strategies.{strategy_id}.rule", path)
@@ -201,33 +269,7 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
     resolved = deduped
     diag["portfolioEligibleTradeCount"] = len(resolved)
 
-    # drive the portfolio chronologically over only the dates where something happens
-    by_entry_date = {}
-    by_exit_date = {}
-    for item in resolved:
-        _, order, entry_fill, exit_fill, _, _ = item
-        by_entry_date.setdefault(order.order_date, []).append(item)
-        by_exit_date.setdefault(exit_fill.fill_date, []).append(item)
-
-    event_dates = sorted(set(by_entry_date) | set(by_exit_date))
-    max_open_seen = 0
-    for date in event_dates:
-        exits_today = []
-        for item in by_exit_date.get(date, []):
-            sig, order, entry_fill, exit_fill, _, _ = item
-            if order.symbol in portfolio.open_positions:  # only if actually admitted earlier
-                shares = portfolio.open_positions[order.symbol]["shares"]
-                exits_today.append((order.symbol, exit_fill, shares))
-        candidates_today = [(order, entry_fill) for (_, order, entry_fill, _, _, _) in by_entry_date.get(date, [])]
-        portfolio.process_day(date, exits_today, candidates_today)
-        # runtime invariant, not just a unit-test assumption: the contract caps
-        # simultaneous positions at max_positions - verify it holds on every
-        # single event day of the real run, not only in synthetic fixtures.
-        assert len(portfolio.open_positions) <= portfolio_cfg.max_positions, (
-            f"{date}: {len(portfolio.open_positions)} open positions exceeds max_positions="
-            f"{portfolio_cfg.max_positions}"
-        )
-        max_open_seen = max(max_open_seen, len(portfolio.open_positions))
+    max_open_seen = _schedule_portfolio(resolved, portfolio, portfolio_cfg)
 
     diag["finalCash"] = portfolio.cash
     diag["closedPositionCount"] = len(portfolio.closed_positions)

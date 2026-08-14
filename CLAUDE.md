@@ -70,6 +70,33 @@ Validated against
               A2b 완료 전까지 정책·파라미터 동결. 세부:
               docs/control/세션인수인계-2026-08-14.md ·
               research/strategy-lab/reports/2026-08-14-5dc-v1a-p-baseline/
+            ★ TREND-BREAKOUT-v1 탐색 + engine/runner.py same-bar 스케줄링
+              버그 발견·수정 (2026-08-14) — Donchian 채널 돌파 후보를
+              5DC-v1A-P의 RiskSpec/execution/portfolio/cost 계약 그대로
+              재사용해 구현(신규 코드는 indicators/donchian.py뿐). SMOKE
+              실행 중 당일진입+당일청산(same-bar) 거래의 청산이 누락되고
+              같은 심볼의 나중 거래 청산과 잘못 병합되는 버그를 발견 —
+              최초 baseline(1,400건) 중 136건(9.7%) 병합 오염 + 종료시점
+              미청산 10건 전부 버그 산물(합 10.4% 영향). runner.py의
+              day-loop을 _schedule_portfolio()로 추출 후 same-bar 재시도
+              로직 추가(진입/청산 파라미터 무변경), 신규 회귀
+              test_runner_scheduling.py 포함 전체 15개 파일 통과. **이
+              수정은 research/strategy-lab 공통 엔진에 반영돼 5DC-v1A-P를
+              포함한 이 엔진의 모든 실행에 영향을 준다** — 5DC-v1A-P의
+              2026-08-14 baseline은 이 수정 이전에 만들어졌고, 재실행
+              여부는 아직 결정되지 않았다. 수정 후 TREND-BREAKOUT-v1
+              baseline 재실행 결과 2,154건(이전 1,400건 대비 +54%),
+              CAGR -12.25%(이전 -8.30%)·MDD -83.34%(이전 -70.89%)로
+              성과는 악화 — same-bar 즉시청산으로 자본회전이 빨라져 동일
+              음의 기대값 거래에 더 자주 노출된 결과로 관찰됨. **1,400건
+              기준으로 나온 이전 분석(연도별·국면연결·초기 MFE/MAE)은
+              오염 가능성이 있어 재확인 전까지 인용하지 않는다.** 2,154건
+              기준 재분석(ATR%×MFE 교차, ATR×2.0 stop 구조 검증)은 완료 —
+              ATR%-MAE 상관 r=0.82로 손실폭이 stop_distance 공식에 강하게
+              연동됨을 확인, 고변동 종목 고유의 "추가" 위험은 평균적으론
+              미미(초과손실 -0.13%p)하나 꼬리 위험(표준편차)은 5배 큼.
+              TREND-BREAKOUT-v1은 여전히 미채택 탐색 전략. 세부:
+              docs/control/세션인수인계-2026-08-14-b.md
             A0.5 · A0.7 · A1a · A1b · A2a · A3 · A3b · A5 프레임워크
             A1a·A1b 갱신 (2578 / 1223, 2026-08-10) · FN-1.4 임계 승격
             A3b 계약 확정 + 정찰 GO + 수집기 구현 (FN-1.5)
