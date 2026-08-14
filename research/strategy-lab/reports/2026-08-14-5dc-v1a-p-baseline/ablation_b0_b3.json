@@ -1,0 +1,509 @@
+{
+  "generatedAtUTC": "2026-08-13T23:34:57.353277+00:00",
+  "warning": "All results are SMOKE / A1A_ONLY - survivorship bias present, not validated performance",
+  "B1_BB_only": {
+    "elapsedSeconds": 822.1,
+    "signalCount": 336657,
+    "executableTradeCount": 336016,
+    "portfolioEligibleTradeCount": 143729,
+    "closedPositionCount": 1358,
+    "resultTable": {
+      "runClass": "SMOKE",
+      "survivorshipBias": "PRESENT",
+      "primaryEligible": false,
+      "initialCapital": 100000000,
+      "finalEquity": 57279086.48840287,
+      "totalReturn": -0.42720913511597125,
+      "cagr": -0.04489422436912005,
+      "mdd": -0.5298546977376811,
+      "sharpe": -0.791012894176025,
+      "tradeCount": 1358,
+      "winRate": 0.2849779086892489,
+      "avgWin": 904562.0057360693,
+      "avgLoss": -404517.4147594811,
+      "winLossRatio": 2.236150960951597,
+      "profitFactor": 0.8912362738293181,
+      "expectancy": -31458.69919852529,
+      "avgHoldingPeriod": 22.691458026509572,
+      "maxConsecutiveWins": 15,
+      "maxConsecutiveLosses": 30
+    },
+    "yearlyBreakdown": {
+      "2014": {
+        "trades": 70,
+        "winRate": 0.3,
+        "netReturn": -0.0057,
+        "mdd": -0.08937755654620404,
+        "profitFactor": 0.975
+      },
+      "2015": {
+        "trades": 108,
+        "winRate": 0.3611,
+        "netReturn": 0.1365,
+        "mdd": -0.10084214779656267,
+        "profitFactor": 1.3668
+      },
+      "2016": {
+        "trades": 108,
+        "winRate": 0.25,
+        "netReturn": -0.0595,
+        "mdd": -0.12084030829210662,
+        "profitFactor": 0.8143
+      },
+      "2017": {
+        "trades": 98,
+        "winRate": 0.3265,
+        "netReturn": -0.0043,
+        "mdd": -0.05875424752753941,
+        "profitFactor": 0.9788
+      },
+      "2018": {
+        "trades": 129,
+        "winRate": 0.2326,
+        "netReturn": -0.108,
+        "mdd": -0.21270254401078892,
+        "profitFactor": 0.7457
+      },
+      "2019": {
+        "trades": 100,
+        "winRate": 0.23,
+        "netReturn": -0.0453,
+        "mdd": -0.11412191517278235,
+        "profitFactor": 0.8272
+      },
+      "2020": {
+        "trades": 113,
+        "winRate": 0.292,
+        "netReturn": -0.0048,
+        "mdd": -0.15771139392121375,
+        "profitFactor": 0.9869
+      },
+      "2021": {
+        "trades": 109,
+        "winRate": 0.3486,
+        "netReturn": 0.1096,
+        "mdd": -0.08937459241309478,
+        "profitFactor": 1.3368
+      },
+      "2022": {
+        "trades": 110,
+        "winRate": 0.2364,
+        "netReturn": -0.1813,
+        "mdd": -0.20359579494177707,
+        "profitFactor": 0.5201
+      },
+      "2023": {
+        "trades": 110,
+        "winRate": 0.3455,
+        "netReturn": 0.0273,
+        "mdd": -0.09153974052275764,
+        "profitFactor": 1.0821
+      },
+      "2024": {
+        "trades": 110,
+        "winRate": 0.2091,
+        "netReturn": -0.1977,
+        "mdd": -0.1980059543609005,
+        "profitFactor": 0.4554
+      },
+      "2025": {
+        "trades": 114,
+        "winRate": 0.3421,
+        "netReturn": 0.0597,
+        "mdd": -0.08914608546534808,
+        "profitFactor": 1.1853
+      },
+      "2026": {
+        "trades": 79,
+        "winRate": 0.2278,
+        "netReturn": -0.1962,
+        "mdd": -0.22687466621596278,
+        "profitFactor": 0.4954
+      }
+    }
+  },
+  "B2_CCI_only": {
+    "elapsedSeconds": 344.6,
+    "signalCount": 299864,
+    "executableTradeCount": 298992,
+    "portfolioEligibleTradeCount": 149248,
+    "closedPositionCount": 1246,
+    "resultTable": {
+      "runClass": "SMOKE",
+      "survivorshipBias": "PRESENT",
+      "primaryEligible": false,
+      "initialCapital": 100000000,
+      "finalEquity": 102939440.30367509,
+      "totalReturn": 0.029394403036750782,
+      "cagr": 0.0023914639432434104,
+      "mdd": -0.2896560180635839,
+      "sharpe": 0.10872302506158692,
+      "tradeCount": 1246,
+      "winRate": 0.3218298555377207,
+      "avgWin": 943291.4561895706,
+      "avgLoss": -444166.1936430089,
+      "winLossRatio": 2.1237353713320317,
+      "profitFactor": 1.0078318152711772,
+      "expectancy": 2359.10136731565,
+      "avgHoldingPeriod": 24.876404494382022,
+      "maxConsecutiveWins": 10,
+      "maxConsecutiveLosses": 32
+    },
+    "yearlyBreakdown": {
+      "2014": {
+        "trades": 46,
+        "winRate": 0.3261,
+        "netReturn": -0.0335,
+        "mdd": -0.04361470649181222,
+        "profitFactor": 0.7572
+      },
+      "2015": {
+        "trades": 95,
+        "winRate": 0.3474,
+        "netReturn": 0.002,
+        "mdd": -0.10221056318023831,
+        "profitFactor": 1.0069
+      },
+      "2016": {
+        "trades": 104,
+        "winRate": 0.2788,
+        "netReturn": -0.0066,
+        "mdd": -0.09776897623034961,
+        "profitFactor": 0.9783
+      },
+      "2017": {
+        "trades": 93,
+        "winRate": 0.3548,
+        "netReturn": 0.011,
+        "mdd": -0.050995442569153025,
+        "profitFactor": 1.0556
+      },
+      "2018": {
+        "trades": 100,
+        "winRate": 0.29,
+        "netReturn": -0.0459,
+        "mdd": -0.14882241789242084,
+        "profitFactor": 0.8516
+      },
+      "2019": {
+        "trades": 103,
+        "winRate": 0.3107,
+        "netReturn": 0.028,
+        "mdd": -0.13251535435496323,
+        "profitFactor": 1.0931
+      },
+      "2020": {
+        "trades": 104,
+        "winRate": 0.4038,
+        "netReturn": 0.2509,
+        "mdd": -0.10912391903839203,
+        "profitFactor": 1.8938
+      },
+      "2021": {
+        "trades": 107,
+        "winRate": 0.3084,
+        "netReturn": -0.0901,
+        "mdd": -0.1875054933060107,
+        "profitFactor": 0.7225
+      },
+      "2022": {
+        "trades": 95,
+        "winRate": 0.2526,
+        "netReturn": -0.1265,
+        "mdd": -0.17339929713094387,
+        "profitFactor": 0.5885
+      },
+      "2023": {
+        "trades": 109,
+        "winRate": 0.3303,
+        "netReturn": 0.0686,
+        "mdd": -0.04988588152442132,
+        "profitFactor": 1.2099
+      },
+      "2024": {
+        "trades": 103,
+        "winRate": 0.3301,
+        "netReturn": -0.0242,
+        "mdd": -0.06861785264178216,
+        "profitFactor": 0.9153
+      },
+      "2025": {
+        "trades": 90,
+        "winRate": 0.3778,
+        "netReturn": 0.0938,
+        "mdd": -0.052410584262455165,
+        "profitFactor": 1.3982
+      },
+      "2026": {
+        "trades": 97,
+        "winRate": 0.2784,
+        "netReturn": -0.0509,
+        "mdd": -0.19560017818082878,
+        "profitFactor": 0.8726
+      }
+    }
+  },
+  "B0_BuyHold": {
+    "elapsedSeconds": 3.6,
+    "tickerCount": 2226,
+    "allocPerTicker": 39093.04143862393,
+    "resultTable": {
+      "runClass": "SMOKE",
+      "survivorshipBias": "PRESENT",
+      "primaryEligible": false,
+      "initialCapital": 100000000,
+      "finalEquity": 130603680.0,
+      "totalReturn": 0.30603272517789737,
+      "cagr": 0.022081152053288644,
+      "mdd": -0.4102460464349226,
+      "sharpe": 0.2140524786354522,
+      "tradeCount": 2226,
+      "winRate": 0.3247978436657682,
+      "avgWin": 96082.01420954356,
+      "avgLoss": -18780.36744710579,
+      "winLossRatio": 5.116088089338773,
+      "profitFactor": 2.4610323942727432,
+      "expectancy": 18526.68643328841,
+      "avgHoldingPeriod": 2382.34995507637,
+      "maxConsecutiveWins": 7,
+      "maxConsecutiveLosses": 23
+    },
+    "yearlyBreakdown": {
+      "2014": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2015": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2016": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2017": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2018": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2019": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2020": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2021": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2022": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2023": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2024": {
+        "trades": 0,
+        "winRate": "N/A",
+        "netReturn": "N/A",
+        "mdd": "N/A",
+        "profitFactor": "N/A"
+      },
+      "2025": {
+        "trades": 37,
+        "winRate": 0.027,
+        "netReturn": -0.0044,
+        "mdd": -0.13166321810190978,
+        "profitFactor": 0.3547
+      },
+      "2026": {
+        "trades": 2189,
+        "winRate": 0.3298,
+        "netReturn": 0.2778,
+        "mdd": -0.4102460464349226,
+        "profitFactor": 2.5255
+      }
+    }
+  },
+  "B3_BB_plus_CCI_5DC_v1A_P": {
+    "note": "reused from the already-completed 5DC-v1A-P SMOKE run - same strategy, no rerun",
+    "resultTable": {
+      "warning": "SMOKE/A1A_ONLY diagnostic numbers - NOT a validated performance result (survivorship bias present)",
+      "equityCurveMethod": "realized-pnl-at-exit-event stepwise curve (initial_capital + cumulative closed pnl); does not mark-to-market open positions intra-holding",
+      "initialCapital": 100000000,
+      "finalEquity": 86267666.94729893,
+      "totalReturn": -0.13732333052701073,
+      "cagr": -0.012105147182687848,
+      "mdd": -0.30929943021687895,
+      "sharpe": -0.09813371532493272,
+      "sortino": -0.27645324635299373,
+      "calmar": -0.03913730838171861,
+      "tradeCount": 848,
+      "winRate": 0.2794811320754717,
+      "avgWin": 1122610.9736301326,
+      "avgLoss": -457923.29591332586,
+      "winLossRatio": 2.4515262351767677,
+      "profitFactor": 0.9509193416315775,
+      "expectancy": -16193.788977241433,
+      "avgHoldingPeriod": 34.696933962264154,
+      "maxConsecutiveWins": 6,
+      "maxConsecutiveLosses": 21
+    },
+    "yearlyBreakdown": {
+      "2014": {
+        "trades": 58,
+        "winRate": 0.3621,
+        "grossReturn": 0.0699,
+        "netReturn": 0.0603,
+        "annualReturn": 0.0603,
+        "mdd": -0.05653331314773731,
+        "profitFactor": 1.3769
+      },
+      "2015": {
+        "trades": 78,
+        "winRate": 0.2821,
+        "grossReturn": 0.1064,
+        "netReturn": 0.0945,
+        "annualReturn": 0.0945,
+        "mdd": -0.10772208584320722,
+        "profitFactor": 1.3232
+      },
+      "2016": {
+        "trades": 61,
+        "winRate": 0.2623,
+        "grossReturn": -0.0212,
+        "netReturn": -0.0306,
+        "annualReturn": -0.0306,
+        "mdd": -0.08040607627483957,
+        "profitFactor": 0.8538
+      },
+      "2017": {
+        "trades": 71,
+        "winRate": 0.2676,
+        "grossReturn": -0.0734,
+        "netReturn": -0.0836,
+        "annualReturn": -0.0836,
+        "mdd": -0.08807632417370362,
+        "profitFactor": 0.5273
+      },
+      "2018": {
+        "trades": 55,
+        "winRate": 0.2182,
+        "grossReturn": -0.0505,
+        "netReturn": -0.0586,
+        "annualReturn": -0.0586,
+        "mdd": -0.07634127869647629,
+        "profitFactor": 0.6796
+      },
+      "2019": {
+        "trades": 60,
+        "winRate": 0.2167,
+        "grossReturn": -0.065,
+        "netReturn": -0.0737,
+        "annualReturn": -0.0737,
+        "mdd": -0.09787540581772498,
+        "profitFactor": 0.6206
+      },
+      "2020": {
+        "trades": 43,
+        "winRate": 0.2326,
+        "grossReturn": -0.048,
+        "netReturn": -0.0542,
+        "annualReturn": -0.0542,
+        "mdd": -0.07968344145749723,
+        "profitFactor": 0.6578
+      },
+      "2021": {
+        "trades": 94,
+        "winRate": 0.3085,
+        "grossReturn": 0.0316,
+        "netReturn": 0.0165,
+        "annualReturn": 0.0165,
+        "mdd": -0.11759957420748049,
+        "profitFactor": 1.0505
+      },
+      "2022": {
+        "trades": 57,
+        "winRate": 0.1754,
+        "grossReturn": 0.0825,
+        "netReturn": 0.0743,
+        "annualReturn": 0.0743,
+        "mdd": -0.12197785327746297,
+        "profitFactor": 1.3108
+      },
+      "2023": {
+        "trades": 74,
+        "winRate": 0.2568,
+        "grossReturn": -0.0158,
+        "netReturn": -0.0269,
+        "annualReturn": -0.0269,
+        "mdd": -0.0788523363513276,
+        "profitFactor": 0.8959
+      },
+      "2024": {
+        "trades": 100,
+        "winRate": 0.29,
+        "grossReturn": -0.0541,
+        "netReturn": -0.0688,
+        "annualReturn": -0.0688,
+        "mdd": -0.1199387969684063,
+        "profitFactor": 0.7881
+      },
+      "2025": {
+        "trades": 56,
+        "winRate": 0.4286,
+        "grossReturn": 0.051,
+        "netReturn": 0.0422,
+        "annualReturn": 0.0422,
+        "mdd": -0.03715051482830857,
+        "profitFactor": 1.2685
+      },
+      "2026": {
+        "trades": 41,
+        "winRate": 0.3171,
+        "grossReturn": -0.0264,
+        "netReturn": -0.0326,
+        "annualReturn": -0.0326,
+        "mdd": -0.08722914999675653,
+        "profitFactor": 0.8066
+      }
+    }
+  }
+}

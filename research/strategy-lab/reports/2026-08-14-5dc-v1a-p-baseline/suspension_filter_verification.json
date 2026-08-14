@@ -1,0 +1,351 @@
+{
+  "1_predicate_source": "def _drop_suspension_rows(bars):\n    \"\"\"A2a keeps trading-suspension rows as-is (open=high=low=0, volume=0, close\n    = last reference price) rather than excluding the ticker - this is documented,\n    deliberate upstream behavior (config/policies/price.v1.json: \"거래정지와 장기\n    공백은 정상 시장 사건이지 종목을 버릴 사유가 아니다\", and its returnTransition\n    block already requires volume>0 on both sides before treating two closes as a\n    real price change).\n\n    This engine has to make the same distinction at the row level: a halt row's\n    open=0 cannot be a real entry fill, and its 0 high/low would inject a fake\n    ~last_close-sized true-range spike into ATR. So these rows are dropped from\n    the ticker's own series before indicators or execution ever see them - not a\n    strategy filter (rule.py never sees this), just routing around a known upstream\n    data artifact the same way price.v1.json's own consumers already do.\n    \"\"\"\n    return bars[bars[\"volume\"] > 0]\n",
+  "2_totalVolumeZeroRows": 128491,
+  "3_haltArtifactRowsRemoved": 73216,
+  "4_volumeZeroButNotHaltPattern": {
+    "count": 55275,
+    "tickerCount": 430,
+    "examples": [
+      {
+        "ticker": "051360",
+        "date": "2026-06-29",
+        "open": 10010.0,
+        "high": 10010.0,
+        "low": 10010.0,
+        "close": 10010.0,
+        "volume": 0
+      },
+      {
+        "ticker": "051360",
+        "date": "2026-06-30",
+        "open": 10010.0,
+        "high": 10010.0,
+        "low": 10010.0,
+        "close": 10010.0,
+        "volume": 0
+      },
+      {
+        "ticker": "051360",
+        "date": "2026-07-01",
+        "open": 10010.0,
+        "high": 10010.0,
+        "low": 10010.0,
+        "close": 10010.0,
+        "volume": 0
+      },
+      {
+        "ticker": "027580",
+        "date": "2026-04-27",
+        "open": 2990.0,
+        "high": 2990.0,
+        "low": 2990.0,
+        "close": 2990.0,
+        "volume": 0
+      },
+      {
+        "ticker": "027580",
+        "date": "2026-04-28",
+        "open": 2990.0,
+        "high": 2990.0,
+        "low": 2990.0,
+        "close": 2990.0,
+        "volume": 0
+      },
+      {
+        "ticker": "027580",
+        "date": "2026-04-29",
+        "open": 2990.0,
+        "high": 2990.0,
+        "low": 2990.0,
+        "close": 2990.0,
+        "volume": 0
+      },
+      {
+        "ticker": "079190",
+        "date": "2018-09-19",
+        "open": 11984.0,
+        "high": 11984.0,
+        "low": 11984.0,
+        "close": 11984.0,
+        "volume": 0
+      },
+      {
+        "ticker": "079190",
+        "date": "2018-09-20",
+        "open": 11984.0,
+        "high": 11984.0,
+        "low": 11984.0,
+        "close": 11984.0,
+        "volume": 0
+      },
+      {
+        "ticker": "079190",
+        "date": "2018-09-21",
+        "open": 11984.0,
+        "high": 11984.0,
+        "low": 11984.0,
+        "close": 11984.0,
+        "volume": 0
+      },
+      {
+        "ticker": "225570",
+        "date": "2016-08-18",
+        "open": 10630.0,
+        "high": 10630.0,
+        "low": 10630.0,
+        "close": 10635.0,
+        "volume": 0
+      },
+      {
+        "ticker": "208370",
+        "date": "2016-01-14",
+        "open": 11004.0,
+        "high": 11004.0,
+        "low": 11004.0,
+        "close": 11004.0,
+        "volume": 0
+      },
+      {
+        "ticker": "208370",
+        "date": "2016-01-22",
+        "open": 10921.0,
+        "high": 10921.0,
+        "low": 10921.0,
+        "close": 10922.0,
+        "volume": 0
+      },
+      {
+        "ticker": "208370",
+        "date": "2016-02-18",
+        "open": 11192.0,
+        "high": 11192.0,
+        "low": 11192.0,
+        "close": 11197.0,
+        "volume": 0
+      },
+      {
+        "ticker": "298060",
+        "date": "2022-12-19",
+        "open": 55085.0,
+        "high": 55085.0,
+        "low": 55085.0,
+        "close": 55085.0,
+        "volume": 0
+      },
+      {
+        "ticker": "298060",
+        "date": "2026-04-23",
+        "open": 4635.0,
+        "high": 4635.0,
+        "low": 4635.0,
+        "close": 4635.0,
+        "volume": 0
+      },
+      {
+        "ticker": "298060",
+        "date": "2026-04-24",
+        "open": 4635.0,
+        "high": 4635.0,
+        "low": 4635.0,
+        "close": 4635.0,
+        "volume": 0
+      },
+      {
+        "ticker": "080530",
+        "date": "2017-03-29",
+        "open": 39250.0,
+        "high": 39250.0,
+        "low": 39250.0,
+        "close": 39250.0,
+        "volume": 0
+      },
+      {
+        "ticker": "080530",
+        "date": "2018-02-08",
+        "open": 14975.0,
+        "high": 14975.0,
+        "low": 14975.0,
+        "close": 14975.0,
+        "volume": 0
+      },
+      {
+        "ticker": "080530",
+        "date": "2018-02-09",
+        "open": 14975.0,
+        "high": 14975.0,
+        "low": 14975.0,
+        "close": 14975.0,
+        "volume": 0
+      },
+      {
+        "ticker": "134380",
+        "date": "2014-11-07",
+        "open": 3640.0,
+        "high": 3640.0,
+        "low": 3640.0,
+        "close": 3640.0,
+        "volume": 0
+      },
+      {
+        "ticker": "134380",
+        "date": "2026-03-31",
+        "open": 11860.0,
+        "high": 11860.0,
+        "low": 11860.0,
+        "close": 11860.0,
+        "volume": 0
+      },
+      {
+        "ticker": "134380",
+        "date": "2026-04-01",
+        "open": 11860.0,
+        "high": 11860.0,
+        "low": 11860.0,
+        "close": 11860.0,
+        "volume": 0
+      }
+    ]
+  },
+  "predicateRemovesAllVolumeZeroRows_verified": true,
+  "5_sourceUntouched": {
+    "gitStatusOnDataDir": "clean (no changes under data/)",
+    "sampleFileHash_2018_jsonl_gz": "4141afce00d9754ca28caf46bec1807f54b1f74fb989348685ae8c686211e304",
+    "filterAppliesTo": "an in-memory dict returned by A2aProvider.load() inside runner.run_smoke() only - the .cache/ parquet (provider-level cache) also stores the RAW pre-filter scan, confirmed separately below.",
+    "cacheLayerStillContainsVolumeZeroRows": true
+  },
+  "6_singleApplicationPoint": {
+    "filterAppliedAtLines": [
+      "def _drop_suspension_rows(bars):",
+      "    bars_by_ticker = {t: _drop_suspension_rows(df) for t, df in bars_by_ticker_raw.items()}"
+    ],
+    "note": "bars_by_ticker is reassigned to the filtered result once, before the loop that calls rule.compute_features() (BB/CCI/ATR) and rule.generate_signals() (signal), and before build_order()/simulate_trade() (execution) - all four read the SAME already-filtered dict, not four separate filters that could drift apart.",
+    "computeFeaturesCallSites": 1,
+    "generateSignalsCallSites": 1,
+    "simulateTradeCallSites": 1
+  },
+  "7_beforeAfterComparison": {
+    "before": {
+      "tickerCount": 2558,
+      "totalBars": 6085580,
+      "signalCount": 29169,
+      "executableTradeCount": 29134,
+      "errorCount": 0
+    },
+    "after": {
+      "tickerCount": 2558,
+      "totalBars": 5957089,
+      "signalCount": 28549,
+      "executableTradeCount": 28369,
+      "errorCount": 0
+    },
+    "barsRemoved": 128491
+  },
+  "8_atrDistortionExamples": [
+    {
+      "ticker": "123690",
+      "firstHaltDate": "2014-07-21",
+      "atrAroundHalt_beforeFilter": {
+        "2014-07-18": 234.51,
+        "2014-07-21": 506.33,
+        "2014-07-22": 505.88,
+        "2014-07-23": 495.81
+      },
+      "atrAtNearestDate_afterFilter": {
+        "2014-07-18": 234.51,
+        "2014-07-21": null,
+        "2014-07-22": 253.47,
+        "2014-07-23": 261.44
+      }
+    },
+    {
+      "ticker": "389470",
+      "firstHaltDate": "2025-05-08",
+      "atrAroundHalt_beforeFilter": {
+        "2025-05-07": 4599.62,
+        "2025-05-08": 8049.64,
+        "2025-05-09": 8160.38,
+        "2025-05-12": 11434.64
+      },
+      "atrAtNearestDate_afterFilter": {
+        "2025-05-07": 4599.62,
+        "2025-05-08": null,
+        "2025-05-09": 4956.79,
+        "2025-05-12": null
+      }
+    },
+    {
+      "ticker": "368770",
+      "firstHaltDate": "2021-08-18",
+      "atrAroundHalt_beforeFilter": {
+        "2021-08-17": 83.41,
+        "2021-08-18": 261.74,
+        "2021-08-19": 427.33,
+        "2021-08-20": 581.09
+      },
+      "atrAtNearestDate_afterFilter": {
+        "2021-08-17": 83.41,
+        "2021-08-18": null,
+        "2021-08-19": null,
+        "2021-08-20": null
+      }
+    },
+    {
+      "ticker": "053060",
+      "firstHaltDate": "2020-12-07",
+      "atrAroundHalt_beforeFilter": {
+        "2020-12-04": 116.22,
+        "2020-12-07": 216.85,
+        "2020-12-08": 310.29,
+        "2020-12-09": 397.05
+      },
+      "atrAtNearestDate_afterFilter": {
+        "2020-12-04": 116.22,
+        "2020-12-07": null,
+        "2020-12-08": null,
+        "2020-12-09": null
+      }
+    },
+    {
+      "ticker": "225570",
+      "firstHaltDate": "2016-10-07",
+      "atrAroundHalt_beforeFilter": {
+        "2016-10-06": 87.06,
+        "2016-10-07": 830.85,
+        "2016-10-10": 1521.5,
+        "2016-10-11": 2162.82
+      },
+      "atrAtNearestDate_afterFilter": {
+        "2016-10-06": 88.12,
+        "2016-10-07": null,
+        "2016-10-10": null,
+        "2016-10-11": null
+      }
+    }
+  ],
+  "9_scopeJudgment": {
+    "verdict": "A2a_DATA_QUALITY_BOUNDARY_FIX, not a 5DC-v1A-P policy change",
+    "evidence": [
+      "strategies/5dc_v1a_p/policy.json unmodified since contract freeze (2026-08-14)",
+      "strategies/5dc_v1a_p/rule.py never sees bars_raw - it only ever receives the already-filtered bars_by_ticker, and contains no reference to volume or suspension handling",
+      "the filter is defined and applied entirely inside engine/runner.py, upstream of rule.py - swapping strategies would inherit the same filtering with zero rule.py changes"
+    ]
+  },
+  "10_policyTextComparison": {
+    "price_v1_json_returnTransition": {
+      "requireBothVolumePositive": true,
+      "requireAdjacentTradingDay": false,
+      "note": "A2의 품질 검사와 A5의 수익률 계산이 '전이'를 같은 방식으로 정의하기 위한 공유 계약이다. 거래량 0인 날의 종가는 존재하지만 체결가가 아니므로(거래정지 중 기준가 표기) 수익률 계산에 쓰면 안 된다 — A2a에서 걷어낸 오염이 A5의 점수로 되돌아온다. A5는 이 블록을 읽어 체결이 있었던 날 사이에서만 수익률을 잰다.",
+      "adjacencyNote": "A5는 requireAdjacentTradingDay를 false로 쓴다. forward return은 d20/d60/d120처럼 거래일 인덱스 오프셋이라 인접 여부가 전제가 아니기 때문이다(BF-1.1 §5.3). A2의 일간 변동 검사만 인접을 요구한다 — 그쪽은 '하루 사이 변동'이 검사 대상이다. 두 용도의 차이는 여기서만 갈리고, volume>0 조건은 양쪽이 공유한다.",
+      "consumers": [
+        "A2a",
+        "A2b",
+        "A5"
+      ]
+    },
+    "price_v1_json_qualityExclusion_reasonNote": "제외 사유 코드는 산출물에 남겨 A5가 그대로 노출할 수 있게 한다. 나중에 KRX·pykrx가 데이터를 고치면 특정 reason만 재검증하면 된다. ZERO_VOLUME_REFERENCE·LONG_SUSPENSION은 여기 없다 — 거래정지와 장기 공백은 정상 시장 사건이지 종목을 버릴 사유가 아니며, 진단 카운터(zeroVolumeTransitions·suspendedGapTransitions)로만 남긴다.",
+    "myPredicate": "bars[bars['volume'] > 0]  -- unconditionally DROPS the row from the ticker's series",
+    "priceV1Json_actualMechanism": "requireBothVolumePositive:true scoped to a PAIRWISE 'returnTransition' check (A2a/A2b/A5 consumers only) - it does NOT delete rows; it excludes a transition PAIR from return/quality calculations while the row itself remains in the dataset (reasonNote explicitly states: '거래정지와 장기 공백은... 종목을 버릴 사유가 아니며, 진단 카운터로만 남긴다').",
+    "exactMatch": false,
+    "verdict": "BLOCKER-adjacent finding: price.v1.json defines NO literal predicate for this scenario (rolling technical-indicator computation). Its consumers list is [A2a, A2b, A5] - a Strategy Lab indicator engine is not among them, and the policy's own mechanism (pairwise transition exclusion, row preserved) is architecturally different from row deletion. This filter is therefore a NEW design decision for a scenario the existing policy does not cover, not a reuse of an existing rule - reported as such rather than asserting an equivalence that doesn't hold byte-for-byte."
+  }
+}
