@@ -33,6 +33,7 @@
 
 | ID | Task | Owner | Reviewer | Status | Depends | Output |
 |---|---|---|---|---|---|---|
+| SL-1 | Strategy Lab — 5DC-v1A-P SMOKE baseline + B0~B3 ablation | Claude | — | `DONE(SMOKE)` engine·계약·ablation 구현+실데이터 검증(364e279), execution 위반 0건. A1A_ONLY라 PRIMARY 아님, 정책·파라미터 동결 | PRIMARY 전환은 A2b 완료 후(A5-2와 동일 의존) | `docs/control/세션인수인계-2026-08-14.md` · `research/strategy-lab/` |
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
 | A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` shareholderReturn·technical 구현 완료(5bcd738), peg는 A3c 본수집 완료 대기, perRelative는 별건 보류 | peg는 A3c 확보 전까지 scoring 미연결 | `lib/a5/resolver.js` |

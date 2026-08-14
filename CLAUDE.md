@@ -27,6 +27,10 @@ Validated against
             ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
               2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
+            ★ Strategy Lab(아래 완료 참고)의 PRIMARY 전환도 정확히 이 A2b를
+              기다린다 — A2b가 오면 동일 engine·동일 policy로
+              A1A_A1B_MERGED 재실행만 하면 된다(코드 변경 없음, 설계상 그렇게
+              만들어 둠). 그전까지 5DC-v1A-P는 동결, 손대지 않는다
   언제든    perRelative(업종 PER 횡단면) — A5-3 부분 재개(아래) 이후에도 여전히
             미착수. 날짜별·업종별 PIT 중앙값 인프라가 새로 필요해 resolver.js의
             종목 단위 인터페이스에 안 맞는다. 🔴급 설계 결정, 백테스트 eligible
@@ -55,7 +59,18 @@ Validated against
               (2026-08-12). T1 재현성 정찰과 같은 분봉 파이프라인이라 T1 결과
               전에 승격 경로를 바꾸면 실험 조건이 흔들린다. 그래서 "언제든"이
               아니라 T1 뒤다
-  완료      A0.5 · A0.7 · A1a · A1b · A2a · A3 · A3b · A5 프레임워크
+  완료      ★ Strategy Lab 신설 + 5DC-v1A-P SMOKE baseline 동결 (2026-08-14,
+              364e279) — research/strategy-lab, production과 완전 격리
+              (A2a 읽기 전용). 공통 engine(indicators·execution·portfolio·
+              metrics)·5DC-v1A-P 계약·B0~B3 ablation 전부 구현 + 실데이터
+              (A1A_ONLY 2,558종목) 검증 완료, execution 계약 26,090건 전수
+              위반 0. A2a 거래정지 아티팩트(open=high=low=0) 발견·수정,
+              execution 성능 병목(pandas 문자열 재파싱) 프로파일링 후 계약
+              무변경으로 최적화(FastBars). A1A_ONLY라 runClass=SMOKE 고정,
+              A2b 완료 전까지 정책·파라미터 동결. 세부:
+              docs/control/세션인수인계-2026-08-14.md ·
+              research/strategy-lab/reports/2026-08-14-5dc-v1a-p-baseline/
+            A0.5 · A0.7 · A1a · A1b · A2a · A3 · A3b · A5 프레임워크
             A1a·A1b 갱신 (2578 / 1223, 2026-08-10) · FN-1.4 임계 승격
             A3b 계약 확정 + 정찰 GO + 수집기 구현 (FN-1.5)
             ★ A3b finalize 완료 (2026-08-12) — 8샤드 3,801법인 전량 · 25,531레코드
