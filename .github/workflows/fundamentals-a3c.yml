@@ -12,6 +12,12 @@ name: backfill-fundamentals-a3c
 # A3b 대비 격자가 4배(corp × fiscalYear × reprtCode 4종)라 샤드당 소요가 더 크다 —
 # timeout을 A3b(120분)보다 넉넉히 잡았다.
 #
+# ★ 스텝 330분/잡 345분(2026-08-15, 170/180에서 상향) — 08-14 실행에서 샤드 3이
+# 170분 타임아웃으로 죽고 나머지 7개 샤드는 42~96분에 끝났다. 재시도·요청
+# 타임아웃(30초)이 유한해 무한 대기 버그는 아니었다 — 남은 법인군(상장폐지
+# 위주)이 응답이 불안정해 재시도가 잦았던 것으로 추정. GitHub 호스티드 러너의
+# 잡당 실행 상한이 360분이라 345가 그 아래에서 낼 수 있는 사실상 최대치다.
+#
 # ★ limit 기본값이 5다(무제한이 아니다). A3b의 워크플로에는 이 입력 자체가 없었고
 # (스모크 테스트는 로컬에서 --limit로 했다), 이 워크플로를 처음 그대로 베꼈을 때
 # limit 입력을 안 만들어서 collect를 한 번 돌리자마자 전체(134,112셀·8샤드)가
@@ -52,7 +58,7 @@ jobs:
   collect:
     if: inputs.mode == 'collect'
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 345
     strategy:
       fail-fast: false
       matrix:
@@ -68,7 +74,7 @@ jobs:
         run: pip install --quiet requests
 
       - name: Collect shard ${{ matrix.shard }}
-        timeout-minutes: 170
+        timeout-minutes: 330
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
         run: |
