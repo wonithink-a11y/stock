@@ -1,5 +1,111 @@
 {
-  "updatedAt": "2026-08-09T08:35:09.740Z",
-  "status": "insufficient_history",
-  "message": "이력 22일 누적됨. 최소 horizon(약 28일) 이상 쌓여야 첫 결과가 나옵니다."
+  "updatedAt": "2026-08-16T08:21:21.996Z",
+  "status": "ok",
+  "historyDays": 27,
+  "markets": {
+    "KR": {
+      "sampleCount": 6,
+      "transactionCostPct": 0.3,
+      "ic": {
+        "d20": -0.029,
+        "d60": null,
+        "d120": null
+      },
+      "icSampleCount": {
+        "d20": 6,
+        "d60": 0,
+        "d120": 0
+      },
+      "population": {
+        "totalCandidates": 72,
+        "eligible": 6,
+        "excluded": 66,
+        "excludedByReason": {
+          "INSUFFICIENT_COVERAGE": 66
+        },
+        "byHorizon": {
+          "d20": {
+            "eligible": 6,
+            "excludedByReason": {
+              "NO_FORWARD_RETURN": 0
+            }
+          },
+          "d60": {
+            "eligible": 0,
+            "excludedByReason": {
+              "NO_FORWARD_RETURN": 6
+            }
+          },
+          "d120": {
+            "eligible": 0,
+            "excludedByReason": {
+              "NO_FORWARD_RETURN": 6
+            }
+          }
+        },
+        "model": {
+          "axisModel": "UNDECLARED",
+          "note": "axisModel을 선언하지 않은 실행이다. basis를 재지 않았으므로 이 산출물이 어느 모델인지 알 수 없다. population.unmeasuredReasons 참조."
+        },
+        "observedBasis": {
+          "fundamental+supplyDemand+technical+valuation": 6,
+          "supplyDemand+technical+valuation": 66
+        },
+        "unmeasuredReasons": [
+          "DELISTED_STATUS_UNMEASURED",
+          "PIT_STATUS_UNMEASURED",
+          "AXIS_MODEL_UNDECLARED"
+        ],
+        "pitCheckedCount": 0,
+        "pitUnmeasuredCount": 72
+      },
+      "byGrade": {
+        "C": {
+          "count": 6,
+          "horizons": {
+            "d20": {
+              "count": 6,
+              "avgReturnPct": -5.92,
+              "medianReturnPct": -9.07,
+              "winRatePct": 33.3,
+              "avgExcessVsBenchmarkPct": 0.43,
+              "expectancyPct": -5.92,
+              "payoffRatio": 0.51
+            },
+            "d60": {
+              "count": 0,
+              "avgReturnPct": null,
+              "medianReturnPct": null,
+              "winRatePct": null,
+              "avgExcessVsBenchmarkPct": null,
+              "expectancyPct": null,
+              "payoffRatio": null
+            },
+            "d120": {
+              "count": 0,
+              "avgReturnPct": null,
+              "medianReturnPct": null,
+              "winRatePct": null,
+              "avgExcessVsBenchmarkPct": null,
+              "expectancyPct": null,
+              "payoffRatio": null
+            }
+          }
+        }
+      },
+      "gradeMonotonic": true,
+      "regimeAnalysis": {
+        "available": false,
+        "reason": "스냅샷에 시장 국면(regimeGrade) 정보가 없습니다. 수집 시 regimeGrade 를 기록하거나, runBacktest 의 options.regimeByDate 로 과거 국면 이력을 주입하세요.",
+        "verdicts": []
+      },
+      "verdicts": [
+        "axisModel 을 선언하지 않은 실행입니다. 이 결과가 어떤 축 집합 위에서 나온 것인지 기록되지 않았으므로 다른 실행과 비교하지 마세요 (SB-1.0).",
+        "표본 부족: d20 6건 · d60 0건 · d120 0건 (최소 30건, 권장 100건). 이 구간의 IC·등급 성과는 판단 근거가 되지 않습니다.",
+        "후보 72건 중 6건이 표본이고 66건을 제외했습니다 (INSUFFICIENT_COVERAGE 66). 폐지 여부와 PIT 는 이 백테스터가 재지 못합니다 — population.unmeasuredReasons 참조.",
+        "평균 IC -0.029: 점수가 오히려 역방향입니다. 모델 구조를 재검토하세요.",
+        "등급 단조성 불충족: 등급이 성과 순서를 예측하지 못합니다. categoryWeights 튜닝이 필요합니다."
+      ]
+    }
+  }
 }
