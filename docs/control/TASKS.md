@@ -37,11 +37,11 @@
 | SL-2 | TREND-BREAKOUT-v1 후속 — 재확인·재실행 결정·다음 실험 (3건, 전부 미착수) | Claude | — | `PLANNED` (1) 1,400건 기준 이전 분석(연도별·국면연결·초기 MFE/MAE)을 2,154건(same-bar 수정 후)으로 재확인 (2) same-bar 수정이 5DC-v1A-P의 2026-08-14 baseline에 주는 영향 및 재실행 여부 결정 (3) stop_distance를 ATR 비례 대신 고정폭/상한으로 바꿨을 때 고변동 구간 손실이 실제로 줄어드는지 검증 | 셋 다 서로 독립, 착수 순서 미정 | `docs/control/세션인수인계-2026-08-14-b.md` |
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `BLOCKED` | T1-1 종료 | — |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` shareholderReturn·technical 구현 완료(5bcd738), peg는 A3c 본수집 완료 대기, perRelative는 별건 보류 | peg는 A3c 확보 전까지 scoring 미연결 | `lib/a5/resolver.js` |
-| A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `IN PROGRESS` 정책 FN-1.6 정식 반영(268c40a)·수집기+workflow 구현(5d4964a)·31법인 스모크 통과(istc_totqy확보 97.33%). 본수집 GO(2026-08-12, 사용자) — 실행 대기 | 절차는 `docs/control/세션인수인계-2026-08-12b.md` | `config/policies/fundamentals.v1.json` · `scripts/build-fundamentals-a3c.py` |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` shareholderReturn·technical 구현 완료(5bcd738), peg는 A3c 데이터 확보됨(2026-08-16) — resolver.js 연결은 별도 승인 필요·미착수, perRelative는 별건 보류 | peg 연결 착수는 별도 사용자 승인 | `lib/a5/resolver.js` |
+| A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `DONE` finalize 완료(2026-08-16, a997f9a). 격자 134,112셀 전수·istcTotqyRowFoundRate 95.257%·레코드 98,684 | — | `data/backfill/fundamentals/a3c/` · `data/backfill/manifest/A3c.json` |
 | A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
 | BF-1.1 | 10년 Historical Backfill — 소급 스코어 재현 | — | — | `PLANNED` 수직 슬라이스 GO(820f097) + resolver 필드명 버그 수정(7a4c00c). data/backfill/scores/ 전체 실행은 여전히 미착수 | 다음 재개는 A5-3 재검토 사용자 GO부터 | `docs/verification/BF-1.1-수직슬라이스-결과.md` |
-| T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (T1 종료 후) | `TBD` | — | 저장소 밖 |
+| T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (검토 대기) | `DONE` REPRODUCIBILITY FAIL(2026-08-16, Day1~7 완주) — KIS 데이터 자체가 아니라 재조회 동치 가설의 FAIL. KIS는 계속 사용, snapshot이 기준 원본 | — | `docs/operations/T1-Day1to7-최종판정-2026-08-16.md` · `docs/operations/T1-후속검토-판정명칭및운영권고-2026-08-16.md` |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
 | LAB-2 | epsSource 혼재가 횡단면을 깨는가 | Claude★ | Codex(대기) | `DONE(잠정)` ★ FY2015 라벨링 아티팩트 발견 | — | `docs/verification/LAB-2-epsSource-혼재-결과.md` |
 | LAB-6 | 무배당 44%의 분포 | Claude★ | Codex(대기) | `DONE(잠정)` 실제론 52.3%, 5개업종 100% | — | `docs/verification/LAB-6-배당분포-결과.md` |
@@ -55,9 +55,9 @@
 ### 주석 — 상태의 근거
 
 ```
-T1-1   ★ 저장소에서 상태를 잴 수 없다. 코드(scripts/probe-t1-minute.py)만 있고
-       산출물·로그는 VM 에 있다(~/minute-raw · t1.log). 'IN PROGRESS' 로 추정하지 않는다.
-       CLAUDE.md 상태 블록의 Day 1 = 2026-08-10 은 계획이지 관측이 아니다
+T1-1   ★ 2026-08-16 종료 — REPRODUCIBILITY FAIL. 원본(t1.log·_t1/*.json)은
+       여전히 VM에만 있지만, 분석 산출물은 저장소에 있다(위 Output 두 파일).
+       CLAUDE.md 완료 블록에 요약, 세부는 그 두 문서가 정본이다
 ★ 전 LAB-* 공통 (2026-08-12, 사용자 지시)  실험실이 GitHub을 못 읽어 그동안
        Claude가 대행한다. 복구되면 AI-Lab으로 Owner를 되돌린다. Claude 결과는
        잠정치다 — "같은 작업에서 생산자와 검증자를 겸하지 않는다" 원칙이 이

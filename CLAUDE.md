@@ -6,34 +6,27 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 ```
 Validated against
   정책      UN-1.2 · PR-1.4 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0
-  현재 트랙  A 분봉 — T1 재현성 정찰 **Day 1 = 2026-08-10** (planHash fcbc3dd6)
-  T1 창     Day 1 = 2026-08-10. **동결은 커밋 금지다**(MN-1.0 §6.1)
-               동결: probe-t1-minute.py · collect-minute-kis.py ·
-                     minute.v1.json(collectionContract·successGate·retry) ·
-                     data/backfill/calendar.json
-               매일 grep '\[PLAN' t1.log 로 REUSE 한 줄만 본다
-               Day 7 판정은 최고 수준 검증. 한계는 실측기록에 적어 뒀다
-  다음      A3c(발행주식총수) 본수집 — 사용자 GO(2026-08-12). 정책 FN-1.6 반영·
-            수집기(build-fundamentals-a3c.py)·workflow 구현 완료, 31법인
-            스모크(1,159레코드) istc_totqy확보 97.33%로 인수 조건 통과 확인,
-            maxConsecutiveMissing·neverValidRatio는 이미 WARN 전용이라 정책
-            추가 변경 불필요(확인 완료). 남은 절차: workflow_dispatch
-            mode=collect(limit=0)를 매일 반복 → corpsIncomplete=0 →
-            mode=finalize 1회. gh CLI는 인증돼 있어 사용 가능하다(workflow
-            스코프 포함, 2026-08-14 확인·이전 판의 "gh CLI가 없다"는 서술은
-            낡은 것이었다). 다만 Actions 수동 트리거는 여전히 실행 승인
-            규칙(아래 "AI 협업 구조" 절, 부작용 실행은 등급 무관 사전 확인)
-            대상이다 — gh 가용성이 그 규칙을 바꾸지 않는다.
-            세부 절차·안전장치는 docs/control/세션인수인계-2026-08-12b.md.
-            T1은 VM에서 자동 진행 중(Day 3/7), 개입은 Day 7 판정 때뿐이다
-  T1 대기   ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
-            ★ A2b는 T1과 독립이 아니다 — calendar.json이 동결이라 수집 상한이
-              2026-08-03이고, 043090의 실제 마지막 거래일 08-07이 잘린다
+  현재 트랙  A3c·T1 둘 다 종료됐다(아래 완료 참고) — A3c는 finalize 완료(2026-08-16,
+               a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님). 다음 항목 참고
+  다음      calendar.json 재생성 → A2b 수집 → Core 백필. calendar.json이 A2b의
+            수집 상한이라 반드시 먼저 온다(T1이 풀어 준 순서, 아래 "착수 가능" 참고)
+  착수 가능  T1 종료로 풀렸다. 순서가 있고, 각각의 착수는 별도 사용자 승인이다
+            ① calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다.
+              지금 2026-08-03에서 끝나 043090의 실제 마지막 거래일 08-07이 잘린다
               (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-            ★ Strategy Lab(아래 완료 참고)의 PRIMARY 전환도 정확히 이 A2b를
-              기다린다 — A2b가 오면 동일 engine·동일 policy로
-              A1A_A1B_MERGED 재실행만 하면 된다(코드 변경 없음, 설계상 그렇게
-              만들어 둠). 그전까지 5DC-v1A-P는 동결, 손대지 않는다
+            ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
+              ★ Strategy Lab(아래 완료 참고)의 PRIMARY 전환이 정확히 이 A2b를
+                기다린다 — A2b가 오면 동일 engine·동일 policy로
+                A1A_A1B_MERGED 재실행만 하면 된다(코드 변경 없음, 설계상 그렇게
+                만들어 둠). 그전까지 5DC-v1A-P는 동결, 손대지 않는다
+            ③ Core 182종목 246일 백필 (≈224,000호출)
+            ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
+              emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
+            ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
+              Actions 대조 → commit. 「AI 협업 구조」 절이 이미 "아직 미구현"으로
+              적어 둔 그 파이프라인이다. 백필 A2(가격) 스테이지와 무관하다 —
+              착오로 그쪽을 조사했다가 git blame(822971b)으로 바로잡았다
+              (2026-08-12). T1이 끝나 승격 경로를 바꿔도 실험 조건이 흔들리지 않는다
   언제든    perRelative(업종 PER 횡단면) — A5-3 부분 재개(아래) 이후에도 여전히
             미착수. 날짜별·업종별 PIT 중앙값 인프라가 새로 필요해 resolver.js의
             종목 단위 인터페이스에 안 맞는다. 🔴급 설계 결정, 백테스트 eligible
@@ -53,16 +46,27 @@ Validated against
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
             A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
             A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
-  T1 뒤     Core 182종목 246일 백필 (≈224,000호출)
-            calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다
-            ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
-              Actions 대조 → commit. 「AI 협업 구조」 절이 이미 "아직 미구현"으로
-              적어 둔 그 파이프라인이다. 백필 A2(가격) 스테이지와 무관하다 —
-              착오로 그쪽을 조사했다가 git blame(822971b)으로 바로잡았다
-              (2026-08-12). T1 재현성 정찰과 같은 분봉 파이프라인이라 T1 결과
-              전에 승격 경로를 바꾸면 실험 조건이 흔들린다. 그래서 "언제든"이
-              아니라 T1 뒤다
-  완료      ★ Strategy Lab 신설 + 5DC-v1A-P SMOKE baseline 동결 (2026-08-14,
+  완료      ★ T1 재현성 정찰 종료 — REPRODUCIBILITY FAIL (2026-08-16 확정,
+              Day1~Day7 전체 완주). 08-15 한 번 Day5 기준 조기종료·PASS를
+              시도했으나 사용자 지시로 취소하고 원계획대로 Day7까지 마쳤다 —
+              Day6·Day7 관측이 그 PASS 판단을 뒤집었다.
+              ★ FAIL의 대상은 KIS 데이터 자체가 아니라 **"재조회하면 기존
+              저장값과 완전히 같다"는 동치 가설**이다. 가격(OHLC) 변경은 증거
+              있는 전 비교에서 0건. 000660/08-04 anchor는 두 값 사이를 진동
+              (A B A A A B B, Day7까지 안 굳음). 005930/08-13은 15:32 종가 바가
+              사후 삭제된 채 복귀하지 않아 저장해 둔 production(381행)이 지금
+              API(380행)로 재현되지 않는다 — 단 어느 쪽도 가격 필드는 안 바뀌었다.
+              결론: **KIS는 계속 쓴다** · 수집 당시 snapshot이 백테스트·분석의
+              기준 원본 · 재조회 결과는 snapshot을 덮어쓰지 않고 별도
+              버전/관측으로만 취급(MN-1.0 §4가 이미 이렇게 설계돼 있었다) ·
+              `pendingT1.versionRetention: keep-all` 유지 · 15:32/NXT/시간외를
+              문제 구간으로 확정하지 않는다(KIS 응답에 세션 식별자가 아예 없어
+              미확정) · A2·production 정책·KIS 공급원·threshold 전부 미변경.
+              액면분할 · 빈응답 재시도(관측 기회 0) · 000880 값 재현성 · 일자간
+              diff의 필드(crossRun이 sha만 남긴다)는 여전히 미측정이다. 상세:
+              docs/operations/T1-Day1to7-최종판정-2026-08-16.md ·
+              docs/operations/T1-후속검토-판정명칭및운영권고-2026-08-16.md
+            ★ Strategy Lab 신설 + 5DC-v1A-P SMOKE baseline 동결 (2026-08-14,
               364e279) — research/strategy-lab, production과 완전 격리
               (A2a 읽기 전용). 공통 engine(indicators·execution·portfolio·
               metrics)·5DC-v1A-P 계약·B0~B3 ablation 전부 구현 + 실데이터
@@ -135,7 +139,15 @@ Validated against
               fundamentals-a3c.py를 A3/A3b 샤드/재개/finalize 패턴으로 구현.
               31법인 스모크(1,159레코드) istc_totqy확보 97.33%, 인수 조건
               전량 통과(maxConsecutiveMissing·neverValidRatio는 이미 WARN
-              전용으로 확인). 본수집은 사용자 GO 완료, 실행은 "다음" 항목
+              전용으로 확인)
+            ★ A3c 본수집 finalize 완료 (2026-08-16, a997f9a) — 샤드 3이 응답
+              불안정으로 170분 타임아웃에 반복 걸려 워크플로 timeout을
+              330/345분으로 올린 뒤(8c3e91c) 8샤드 전량 완료. 격자 134,112셀
+              전수 스캔·istcTotqyRowFoundRate 95.257%·레코드 98,684·
+              corp-year 25,661(direct 97.74%·carryForward 2.26%·neverValid
+              0.2%). manifest data/backfill/manifest/A3c.json. peg 연결
+              (lib/a5/resolver.js, A5-3 게이트3)은 데이터는 열렸지만 별도
+              승인 필요한 연결 작업이라 착수하지 않았다(TASKS.md A5-3 참고)
             백테스트 표본 편입 계약 · A5 게이트4 결정 (SB-1.0, 2026-08-11)
             ★ 게이트4를 analyze.js 운영 경로에 연결 (2026-08-12, 9aed997) —
               latest.json이 KR_4AXIS·US_3AXIS 미선언으로 축을 섞어 냈다.
