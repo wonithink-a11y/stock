@@ -56,8 +56,11 @@ jobs:
       - name: Collect (KIS, 동시성 2, shards=1)
         timeout-minutes: 140
         env:
-          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
-          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          # 저장소 시크릿 이름은 KIS_APPKEY/KIS_SECRET이다(gh secret list 실측,
+          # 2026-08-16) — 로컬 .env·build-price-a2b.py가 쓰는 KIS_APP_KEY/
+          # KIS_APP_SECRET과 이름이 다르다. 여기서만 매핑한다.
+          KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
         run: python scripts/build-price-a2b.py --shard 0 --shards $SHARDS
 
       - uses: actions/upload-artifact@v4
