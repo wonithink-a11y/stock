@@ -43,6 +43,8 @@ jobs:
         env:
           CAL_FROM: ${{ github.event.inputs.cal_from }}
           CAL_TO: ${{ github.event.inputs.cal_to }}
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: |
           if [ -z "$CAL_TO" ]; then unset CAL_TO; fi
           python scripts/build-calendar.py
