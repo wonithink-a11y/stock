@@ -272,7 +272,8 @@ def main():
         "results": results,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
+    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(out, ensure_ascii=False, indent=2))
 
     print(f"\n{'='*60}")
     er = summary["emptyRate"]

@@ -31,6 +31,7 @@ spec = importlib.util.spec_from_file_location(
     "a2b", os.path.join(ROOT, "scripts", "build-price-a2b.py"))
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
+m.time.sleep = lambda *_: None  # EGW00201 재시도 백오프 등 실제 대기 없이 로직만 검증한다
 
 POL = json.load(open(os.path.join(ROOT, "config/policies/price.v1.json"), encoding="utf-8"))
 
@@ -204,29 +205,28 @@ case("그 신호는 FAIL이 아니다(폐지 직전 종목이 정상적으로 �
      not f3, f"fails={f3}")
 
 # ── 차이 2. 빈 응답과 예외를 가른다 (서킷 브레이커의 전제) ──────────
-class _StubDF:
-    def __init__(self, empty):
-        self.empty = empty
+# KIS call_page(ticker, d1, d2) 대역. fetch_one은 이 함수만 주입받으므로
+# 네트워크 없이 페이지네이션·빈응답·예외 분기를 전부 스텁으로 밟을 수 있다.
+def _call_page_empty(ticker, d1, d2):
+    return {"rtCd": "0", "msgCd": None, "msg": "", "rows": {}}
 
 
-class _StubStock:
-    """pykrx 대역. 빈 DataFrame과 예외를 각각 돌려준다."""
-    def __init__(self, mode):
-        self.mode = mode
-        self.calls = 0
-
-    def get_market_ohlcv_by_date(self, frm, to, ticker, adjusted=True):
-        self.calls += 1
-        if self.mode == "empty":
-            return _StubDF(True)
-        raise ConnectionError("차단")
+def _call_page_raise(ticker, d1, d2):
+    raise ConnectionError("차단")
 
 
-s = _StubStock("empty")
-df, kind, err = m.fetch_one(s, "000001", "20200101", "20200209", POL)
-case("빈 응답은 kind='empty'로 구분된다", kind == "empty" and df is None, f"kind={kind}")
-s2 = _StubStock("raise")
-df2, kind2, err2 = m.fetch_one(s2, "000001", "20200101", "20200209", POL)
+def _call_page_one_page(ticker, d1, d2):
+    """한 페이지(90행 미만)만 주고 끝나는 정상 응답 — 페이지네이션 종료 조건 확인용."""
+    rows = {f"2020{m:02d}{d:02d}": {"stck_oprc": "1000", "stck_hgpr": "1000",
+                                    "stck_lwpr": "1000", "stck_clpr": "1000",
+                                    "acml_vol": "1000"}
+            for m, d in [(1, i) for i in range(1, 11)]}
+    return {"rtCd": "0", "msgCd": None, "msg": "", "rows": rows}
+
+
+rows_e, kind, err = m.fetch_one(_call_page_empty, "000001", "20200101", "20200209", POL)
+case("빈 응답은 kind='empty'로 구분된다", kind == "empty" and rows_e is None, f"kind={kind}")
+rows_x, kind2, err2 = m.fetch_one(_call_page_raise, "000001", "20200101", "20200209", POL)
 case("예외는 kind='exception'으로 구분된다",
      kind2 == "exception" and "ConnectionError" in (err2 or ""), f"kind={kind2} err={err2}")
 case("문자열이 아니라 종류로 가른다(서킷이 조용히 반대로 돌지 않는다)",
@@ -234,6 +234,41 @@ case("문자열이 아니라 종류로 가른다(서킷이 조용히 반대로 �
 case("서킷 브레이커가 예외만 센다",
      POL["a2b"]["circuitBreaker"]["ignoreConsecutiveEmpty"] is True
      and POL["a2b"]["circuitBreaker"]["consecutiveExceptions"] > 0)
+
+rows_ok, kind3, err3 = m.fetch_one(_call_page_one_page, "000001", "20200101", "20200209", POL)
+case("정상 페이지는 kind='ok'로 구분되고 rows가 dict로 온다",
+     kind3 == "ok" and isinstance(rows_ok, dict) and len(rows_ok) == 10, f"kind={kind3}")
+recs = m.to_records_kis("000001", rows_ok)
+case("to_records_kis가 KIS 필드를 FIELDS로 매핑한다",
+     recs[0]["ticker"] == "000001" and recs[0]["close"] == 1000
+     and set(recs[0].keys()) == {"ticker", "date", "open", "high", "low", "close", "volume"},
+     str(recs[0]))
+
+_rtcd1_calls = []
+
+
+def _call_page_rtcd1(ticker, d1, d2):
+    _rtcd1_calls.append(1)
+    return {"rtCd": "1", "msgCd": "OTHER_ERROR", "msg": "실패", "rows": {}}
+
+
+rows_r1, kind4, err4 = m.fetch_one(_call_page_rtcd1, "000001", "20200101", "20200209", POL)
+case("rt_cd != '0'은 빈 응답이 아니라 예외로 분류된다(성공과 실패를 안 섞는다)",
+     kind4 == "exception" and rows_r1 is None, f"kind={kind4} err={err4}")
+
+_egw_calls = []
+
+
+def _call_page_egw_then_ok(ticker, d1, d2):
+    _egw_calls.append(1)
+    if len(_egw_calls) == 1:
+        return {"rtCd": "1", "msgCd": "EGW00201", "msg": "초당 거래건수 초과", "rows": {}}
+    return {"rtCd": "0", "msgCd": None, "msg": "", "rows": {}}
+
+
+rows_egw, kind5, err5 = m.fetch_one(_call_page_egw_then_ok, "000001", "20200101", "20200209", POL)
+case("EGW00201은 재시도되고 최종 결과로 분류된다(예외로 즉시 포기하지 않는다)",
+     len(_egw_calls) == 2 and kind5 == "empty", f"calls={len(_egw_calls)} kind={kind5}")
 
 # ── 공유 계약 — 품질 판별은 A2a와 같아야 한다 ──────────────────────
 perm = series("000003", 0, 30)

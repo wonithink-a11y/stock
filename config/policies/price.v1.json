@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.4",
+  "version": "PR-1.5",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -109,15 +109,34 @@
   },
 
   "a2b": {
-    "note": "PR-1.4 신설. A2b(폐지분 가격)는 A2a와 소스·품질 판별을 공유하지만 세 곳이 다르다 — 기대 거래일의 끝, 빈 응답의 의미, exitAt 확정. 위의 최상위 블록(source·collectFrom·dailyChange·returnTransition·qualityExclusion)은 두 단계가 공유하고, 여기 있는 것만 A2b가 덮어쓴다. A2a가 읽는 최상위 acceptance·output·shards는 건드리지 않는다.",
+    "note": "PR-1.4 신설. A2b(폐지분 가격)는 A2a와 소스·품질 판별을 공유하지만 세 곳이 다르다 — 기대 거래일의 끝, 빈 응답의 의미, exitAt 확정. 위의 최상위 블록(collectFrom·dailyChange·returnTransition·qualityExclusion)은 두 단계가 공유하고, 여기 있는 것만 A2b가 덮어쓴다. A2a가 읽는 최상위 acceptance·output·shards·source는 건드리지 않는다. PR-1.5부터 source는 A2b가 자기 것을 따로 가진다(아래) — 최상위 source(pykrx/Naver)는 A2a 전용으로 남는다.",
 
-    "shards": 8,
-    "shardsNote": "2026-08-05 로컬 실측 종목당 약 3.4초다 — A2a의 0.3초를 그대로 적용하면 안 된다. 폐지 종목은 상장기간 전체를 한 번에 받아 응답이 크고, 소스가 요청 구간이 아니라 '오늘로부터 N일'로 동작해 12년치를 통째로 내려준다. 후보 1,222건이면 단일 실행 약 70분이라 8샤드로 약 9분이다. 일 호출 한도가 없으므로 A3식 resume은 필요 없고, 분할의 목적은 A2a와 같이 실패 시 재실행 범위 축소다.",
+    "source": {
+      "provider": "KIS",
+      "via": "REST",
+      "endpoint": "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice",
+      "trId": "FHKST03010100",
+      "adjustedFlag": "0",
+      "pageSize": 100,
+      "emptyPageThreshold": 90,
+      "maxPagesPerTicker": 36,
+      "concurrency": 2,
+      "sleepBetweenCallsSeconds": 0.15,
+      "egw00201RetryAttempts": 4,
+      "egw00201RetryBackoffBase": 2,
+      "credentialEnv": ["KIS_APP_KEY", "KIS_APP_SECRET"],
+      "sourceNote": "PR-1.4까지는 A2a와 같은 pykrx(사실상 Naver, adjusted=True 경로)를 썼다. 세션인수인계-2026-08-16.md §4가 이유로 갈아탔다 — Naver는 요청 구간과 무관하게 '오늘 기준 최근 3,000캔들'만 줘서, 정찰(2026-08-05)과 실제 수집(2026-08-16) 사이 11일 만에 확보 종목이 631→509로 줄었다(롤링 윈도우 전진). 1차 대체 후보였던 KRX-native(pykrx.website.krx.market.wrap, adjStkPrc=2)는 3,000캔들 캡은 없었지만 액면분할을 조정하지 않았다 — 005930 2018-05-04 전후 종가가 51배 단절됐다(실측, 이 정책 파일에 표는 안 남기고 세션인수인계 문서에 남김). KIS(FID_ORG_ADJ_PRC=0)는 콜당 100행 캡이 있지만 날짜 커서 페이지네이션으로 완전히 우회되고(005930·000660 둘 다 정확히 2014-01-02~2026-08-14 3,097행 확보), 같은 분할 구간에서 53,000→51,900으로 연속적이다 — 분할 조정이 실제로 적용된다.",
+      "pageCapNote": "100행 캡은 하드캡으로 확인됐다(FID_INPUT_DATE_1/2 범위와 무관). maxPagesPerTicker=36은 측정된 천장(32, 2014~2026 전체 이력)에 여유 4를 더한 값이다 — 캘린더가 늘어나도 당장 재조정할 필요는 없다.",
+      "sampleProbeNote": "1,223건 중 40건 표본(seed=20260816, random.Random(SEED).sample) 실측: 빈응답 47.5%(Naver 옛 실측 48.4%와 일치 — 소스 무관한 시장 사실), 유효종목 평균 13.24콜(범위 3~30), EGW00201 0/297, 실패 0건, 동시성 2에서 처리량 약 2.15콜/초. 모집단(1,223건) 재추정 총 호출량 약 9,080콜(범위 4,200~14,000), 예상 소요 약 70분. 상세: 세션인수인계-2026-08-16.md §4."
+    },
+
+    "shards": 1,
+    "shardsNote": "PR-1.5부터 1로 고정한다(과거 8). KIS 토큰 발급이 5분당 1회로 제한돼(실측, probe-minute-kis.py) 여러 프로세스(Actions matrix job)로 나누면 서로 발급을 다툰다 — 8개 job이 동시에 시작하면 1개만 성공하고 나머지는 실패한다. 병렬성은 job을 나누는 대신 프로세스 안에서 스레드 동시성(source.concurrency=2)으로 낸다. 전량 예상 소요는 약 70분(범위 33~109분, 표본 프로브 근거)이라 단일 job 시간제한 안에 충분히 들어간다. 일 호출 한도가 없으므로 A3식 resume은 여전히 필요 없다 — 실패 시 job을 통째로 재실행한다(과거 8샤드 버전의 '재실행 범위 축소' 목적은 shards=1에서는 성립하지 않는다, 대신 재실행 비용 자체가 작다).",
 
     "circuitBreaker": {
       "consecutiveExceptions": 20,
       "ignoreConsecutiveEmpty": true,
-      "note": "A2a는 '연속 빈 응답 20건'에서 멈춘다. A2b에서 빈 응답은 정상이다 — 정찰 실측으로 후보 1,222건 중 591건(48.4%)이 전 구간 0행이고, 그것이 '2014-05 이전 폐지'의 기대 응답이다. 게다가 A1b 산출물은 corp 오름차순(법인등록 순)이라 옛 폐지가 뭉쳐 있어 연속 빈 응답이 자연스럽게 길어진다. 그래서 A2b의 서킷 브레이커는 예외만 센다. 빈 응답의 과다는 emptyRateWarn과 minTickersWithData가 사후에 잡는다 — 즉시 중단이 아니라 인수 조건이 판정한다."
+      "note": "A2a는 '연속 빈 응답 20건'에서 멈춘다. A2b에서 빈 응답은 정상이다 — 정찰 실측으로 후보 1,223건 중 591건(48.4%, Naver 경로)·표본 40건 중 19건(47.5%, KIS 경로)이 전 구간 0행이고, 그것이 '2014-05 이전 폐지'의 기대 응답이다. 게다가 A1b 산출물은 corp 오름차순(법인등록 순)이라 옛 폐지가 뭉쳐 있어 연속 빈 응답이 자연스럽게 길어진다. 그래서 A2b의 서킷 브레이커는 예외만 센다. 빈 응답의 과다는 emptyRateWarn과 minTickersWithData가 사후에 잡는다 — 즉시 중단이 아니라 인수 조건이 판정한다. PR-1.5부터 '연속'은 동시성 2의 완료 순서 기준 근사치다 — 제출 순서와 완전히 같지는 않지만, 경로가 실제로 막히면 완료 순서에서도 예외가 뭉치므로 서킷의 목적은 유지된다."
     },
 
     "expectedRows": {

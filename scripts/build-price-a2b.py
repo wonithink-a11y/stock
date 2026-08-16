@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 """A2b — 폐지분 일봉 가격 (BF-1.1)
 
-A1b가 남긴 폐지 후보 1,222건의 일봉을 받아 연도별로 저장하고, A1b가 null로 비워둔
-exitAt을 확정한다. 정의는 config/policies/price.v1.json의 `a2b` 블록(PR-1.4)이다.
+A1b가 남긴 폐지 후보 1,223건의 일봉을 받아 연도별로 저장하고, A1b가 null로 비워둔
+exitAt을 확정한다. 정의는 config/policies/price.v1.json의 `a2b` 블록(PR-1.5)이다.
+
+PR-1.5부터 소스가 KIS다(그 전엔 A2a와 같은 pykrx/Naver). 세션인수인계-2026-08-16.md
+§4가 이유다 — Naver 우회 경로는 "오늘 기준 최근 3,000캔들"만 주는 롤링 윈도우라
+폐지 종목의 과거 구간이 조용히 잘렸고, KRX-native 대체 경로(adjStkPrc=2)는 액면분할을
+조정하지 않아 부적합 판정을 받았다. KIS(FHKST03010100, FID_ORG_ADJ_PRC=0)만 두 조건을
+다 통과했다 — 콜당 100행 캡은 있지만 날짜 커서 페이지네이션으로 전량 확보되고,
+005930 2018년 분할도 연속적으로 조정된다(커밋 4f3a52b 프로브 실측).
 
 수집기는 A2a의 복사에 가깝다. **그대로 복사하면 안 되는 곳이 넷**이고, 이 파일에서
-A2a와 다른 코드는 전부 그 넷 중 하나다.
+A2a와 다른 코드는 전부 그 넷 중 하나다. (소스가 KIS로 바뀐 것은 이 넷과 무관한
+다섯 번째 차이다 — fetch 방식만 바뀌고 validate()·exitAt·커버리지 로직은 그대로다.)
 
   1. 기대 거래일을 상장기간으로 한정한다
      A2a는 '실제 최초 거래일 ~ 캘린더 끝'이다. 폐지 종목의 끝은 캘린더의 끝이 아니라
@@ -27,6 +35,10 @@ A2a와 다른 코드는 전부 그 넷 중 하나다.
 하나인데 구현이 둘이 된다. 그래서 순수 함수만 A2a 모듈에서 가져다 쓴다.
 
   --shard N --shards M   후보 부분집합 수집 → _shards_a2b/shard-N.jsonl (커밋 안 함)
+                         PR-1.5부터 shards=1 고정이다 — KIS 토큰 발급이 5분당 1회
+                         제한이라 여러 프로세스(Actions matrix job)로 나누면 서로
+                         발급을 다툰다. 병렬성은 프로세스 안에서 스레드 동시성
+                         (a2b.source.concurrency)으로 낸다.
   --finalize             병합 → 검증 → 연도 분할 → exitAt 산출 → gzip
 
 입력:
@@ -48,11 +60,19 @@ import re
 import sys
 import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timedelta, timezone
+
+import requests
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POLICY = "config/policies/price.v1.json"
 UNIVERSE = "data/backfill/universe/a1b/delisted.jsonl"
 CALENDAR = "data/backfill/calendar.json"
+TOKEN_CACHE = os.path.join(ROOT, ".token_cache_kis.json")
+KIS_BASE = "https://openapi.koreainvestment.com:9443"
+KIS_DAILY_PATH = "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice"
+KST = timezone(timedelta(hours=9))
 
 TICKER_RE = re.compile(r"^[0-9A-Z]{6}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -110,37 +130,145 @@ def load_jsonl(path):
         return [json.loads(l) for l in f if l.strip()]
 
 
-# ── 수집 ───────────────────────────────────────────────────────
-def fetch_one(stock, ticker, frm, to, pol):
-    """(df, kind, error)를 돌려준다. kind는 'ok' | 'empty' | 'exception'.
+# ── 수집 (KIS) ─────────────────────────────────────────────────
+def _kis_env():
+    key = os.environ.get("KIS_APP_KEY", "")
+    secret = os.environ.get("KIS_APP_SECRET", "")
+    if not key or not secret:
+        raise SystemExit("KIS_APP_KEY / KIS_APP_SECRET 환경변수가 없다")
+    return key, secret
 
-    A2a의 fetch_one을 재사용하지 않는 유일한 이유가 이 반환값이다. A2a는 빈 응답과
-    예외를 하나의 실패로 합쳐 문자열로만 구분한다("빈 응답"). A2b는 그 둘을 다르게
-    처리해야 하므로(차이 2) 문자열을 파싱해 갈라서는 안 된다 — 문구가 바뀌면
-    서킷 브레이커가 조용히 반대로 동작한다."""
-    last = None
-    for i in range(pol["retryAttempts"]):
+
+def _kis_token(key, secret):
+    """토큰 캐시가 유효하면 재사용한다. KIS는 발급을 5분당 1회로 제한하므로
+    (프로브에서 실측) shards=1로 프로세스당 발급을 최대 1회로 묶어야 한다 —
+    캐시가 없어도 이 프로세스 안에서는 한 번만 발급된다."""
+    if os.path.exists(TOKEN_CACHE):
         try:
-            df = stock.get_market_ohlcv_by_date(
-                frm, to, ticker, adjusted=pol["source"]["adjusted"])
-            if df is not None and not df.empty:
-                return df, "ok", None
-            last = ("empty", None)
+            c = json.load(open(TOKEN_CACHE, encoding="utf-8"))
+            exp = datetime.fromisoformat(c["expiresAt"].replace(" ", "T")).replace(tzinfo=KST)
+            if exp - timedelta(minutes=10) > datetime.now(KST) and c.get("appKeyTail") == key[-4:]:
+                return c["accessToken"]
+        except Exception:
+            pass
+    r = requests.post(
+        KIS_BASE + "/oauth2/tokenP",
+        data=json.dumps({"grant_type": "client_credentials",
+                         "appkey": key, "appsecret": secret}),
+        headers={"content-type": "application/json"}, timeout=20)
+    body = r.json()
+    if r.status_code != 200 or "access_token" not in body:
+        raise SystemExit(f"KIS 토큰 발급 실패: {body.get('error_description', body)}")
+    tok = body["access_token"]
+    with open(TOKEN_CACHE, "w", encoding="utf-8", newline="\n") as f:
+        json.dump({"accessToken": tok,
+                   "expiresAt": body.get("access_token_token_expired", ""),
+                   "appKeyTail": key[-4:]}, f, ensure_ascii=False, indent=2)
+    return tok
+
+
+def _kis_call_page(key, secret, token, ticker, d1, d2, tr_id, adj_flag):
+    """1페이지(최대 100행). 예외는 호출부(fetch_one)가 kind='exception'으로 분류한다."""
+    r = requests.get(
+        KIS_BASE + KIS_DAILY_PATH,
+        headers={"content-type": "application/json",
+                 "authorization": "Bearer " + token,
+                 "appkey": key, "appsecret": secret,
+                 "tr_id": tr_id, "custtype": "P"},
+        params={"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": ticker,
+                "FID_INPUT_DATE_1": d1, "FID_INPUT_DATE_2": d2,
+                "FID_PERIOD_DIV_CODE": "D", "FID_ORG_ADJ_PRC": adj_flag},
+        timeout=15)
+    b = r.json()
+    o2 = b.get("output2") or []
+    rows = {x.get("stck_bsop_date"): x for x in o2 if x.get("stck_bsop_date")}
+    return {"rtCd": b.get("rt_cd"), "msgCd": b.get("msg_cd"),
+            "msg": (b.get("msg1") or "")[:150], "rows": rows}
+
+
+def _call_page_with_retry(call_page, ticker, d1, d2, src):
+    """EGW00201(초당 거래건수 초과)은 재시도 가능으로 분류한다(CLAUDE.md 운영기준).
+    표본 프로브(297콜)에서 동시성 2·0.15초 간격으로 0회였지만 전량(약 9,000콜)의
+    3%뿐이라 재시도는 그대로 남겨둔다."""
+    r = None
+    for attempt in range(src["egw00201RetryAttempts"]):
+        r = call_page(ticker, d1, d2)
+        if r.get("msgCd") == "EGW00201":
+            time.sleep(src["egw00201RetryBackoffBase"] ** attempt)
+            continue
+        return r
+    return r
+
+
+def fetch_one(call_page, ticker, frm, to, pol):
+    """(rows, kind, error)를 돌려준다. kind는 'ok' | 'empty' | 'exception'.
+    rows는 {날짜YYYYMMDD: KIS 원본 행} — A2a의 DataFrame과 다른 이유는 소스가
+    REST/JSON이기 때문이지 차이 2(빈 응답·예외 구분)와는 무관하다. 그 구분 자체는
+    A2a의 fetch_one과 여전히 다르게 유지한다 — 문자열이 아니라 kind로 가른다.
+
+    call_page(ticker, d1, d2) -> {"rtCd", "msgCd", "msg", "rows"} 를 주입받는다.
+    테스트가 네트워크 없이 이 함수를 스텁할 수 있게 하기 위해서다."""
+    src = pol["a2b"]["source"]
+    collected, cur_to = {}, to
+    for _ in range(src["maxPagesPerTicker"]):
+        try:
+            r = _call_page_with_retry(call_page, ticker, frm, cur_to, src)
         except Exception as e:  # noqa: BLE001
-            last = ("exception", f"{type(e).__name__}: {e}")
-        if i < pol["retryAttempts"] - 1:
-            time.sleep(pol["retryBackoffBase"] ** i)
-    return None, last[0], last[1]
+            return None, "exception", f"{type(e).__name__}: {e}"
+        if r.get("rtCd") != "0":
+            return None, "exception", f"rtCd={r.get('rtCd')} msgCd={r.get('msgCd')} {r.get('msg')}"
+        page_rows = r.get("rows") or {}
+        if not page_rows:
+            break
+        collected.update(page_rows)
+        earliest = min(page_rows)
+        if earliest <= frm or len(page_rows) < src["emptyPageThreshold"]:
+            break
+        cur_to = (datetime.strptime(earliest, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
+        time.sleep(src["sleepBetweenCallsSeconds"])
+    if not collected:
+        return None, "empty", None
+    return collected, "ok", None
+
+
+def to_records_kis(ticker, rows):
+    out = []
+    for d, r in rows.items():
+        out.append({
+            "ticker": ticker,
+            "date": f"{d[:4]}-{d[4:6]}-{d[6:]}",
+            "open": int(r["stck_oprc"]),
+            "high": int(r["stck_hgpr"]),
+            "low": int(r["stck_lwpr"]),
+            "close": int(r["stck_clpr"]),
+            "volume": int(r["acml_vol"]),
+        })
+    return out
+
+
+def _kis_environment():
+    try:
+        from importlib.metadata import version
+        req_ver = version("requests")
+    except Exception:  # noqa: BLE001
+        req_ver = "unknown"
+    return {"requests": req_ver, "python": sys.version.split()[0], "kisSource": True}
 
 
 def run_shard(shard, shards, pol, limit):
-    from pykrx import stock
-
     a2b = pol["a2b"]
+    src = a2b["source"]
+    key, secret = _kis_env()
+    token = _kis_token(key, secret)
+
+    def call_page(ticker, d1, d2):
+        return _kis_call_page(key, secret, token, ticker, d1, d2,
+                              src["trId"], src["adjustedFlag"])
+
     shard_dir = a2b["output"]["shardDir"]
     diag_path = f"{shard_dir}/_diagnostics-shard-{shard}.json"
     diag = {"stage": "A2b", "mode": "shard", "shard": shard, "shards": shards,
-            "pricePolicy": pol["version"], "environment": A2A.environment(pol)}
+            "pricePolicy": pol["version"], "environment": _kis_environment()}
     if limit:
         diag["smokeTest"] = True
 
@@ -154,13 +282,13 @@ def run_shard(shard, shards, pol, limit):
     if limit:
         mine = mine[:limit]
     print(f"A2b 샤드 {shard}/{shards} — {len(mine)}종목 · 구간 {frm}~{to} · "
-          f"pykrx {diag['environment']['pykrx']}")
+          f"KIS {src['trId']} · 동시성 {src['concurrency']}")
 
-    # 정찰 2회(교훈32). 현재 상장 종목으로 경로만 본다 — 폐지 종목으로 정찰하면
-    # '경로가 막힘'과 '그 종목이 구간 밖'이 구분되지 않는다.
+    # 정찰 2회(교훈32). 현재 상장 종목의 최근 1일로 경로만 본다 — 폐지 종목으로
+    # 정찰하면 '경로가 막힘'과 '그 종목이 구간 밖'이 구분되지 않는다.
     probes = []
     for pt in pol["probeTickers"]:
-        df, kind, err = fetch_one(stock, pt, to, to, pol)
+        _, kind, err = fetch_one(call_page, pt, to, to, pol)
         probes.append({"ticker": pt, "ok": kind == "ok", "kind": kind, "error": err})
     diag["probes"] = probes
     if not any(p["ok"] for p in probes):
@@ -170,27 +298,38 @@ def run_shard(shard, shards, pol, limit):
     cb = a2b["circuitBreaker"]
     rows, empty, exc, consec_exc = [], [], [], 0
     t0 = time.time()
-    for i, tk in enumerate(mine, 1):
-        df, kind, err = fetch_one(stock, tk, frm, to, pol)
-        if kind == "ok":
-            rows.extend(A2A.to_records(tk, df))
-            consec_exc = 0
-        elif kind == "empty":
-            # 정상 결과다(차이 2). 전 구간 0행 = 2014-05 이전 폐지이거나 상장 이력 없음.
-            # 서킷을 걸지 않는다 — 과다 여부는 finalize의 emptyRate·규모 게이트가 본다.
-            empty.append(tk)
-            consec_exc = 0
-        else:
-            exc.append({"ticker": tk, "error": err})
-            consec_exc += 1
-            if consec_exc >= cb["consecutiveExceptions"]:
-                diag.update(rowCount=len(rows), emptyTickers=empty, exceptionTickers=exc)
-                _abort(f"연속 예외 {consec_exc}건 — 루프 도중 경로가 막혔다",
-                       diag, diag_path)
-        if i % 200 == 0:
-            print(f"  {i}/{len(mine)} · {len(rows)}행 · 빈 응답 {len(empty)} · "
-                  f"예외 {len(exc)} · {time.time()-t0:.0f}s")
-        time.sleep(pol["requestSleepSeconds"])
+    done = 0
+
+    def _work(tk):
+        return tk, fetch_one(call_page, tk, frm, to, pol)
+
+    # 동시성은 티커 단위 스레드로 낸다(a2b.source.concurrency, 표본 프로브에서
+    # 실측된 값). '연속' 예외는 여기서부터는 제출 순서가 아니라 완료 순서
+    # 기준이다 — 병렬이라 완전히 같지는 않지만, 경로가 실제로 막히면 완료
+    # 순서에서도 예외가 뭉치므로 서킷의 목적(막힘 감지)은 그대로 유지된다.
+    with ThreadPoolExecutor(max_workers=src["concurrency"]) as ex:
+        futs = {ex.submit(_work, tk): tk for tk in mine}
+        for fut in as_completed(futs):
+            tk, (kis_rows, kind, err) = fut.result()
+            if kind == "ok":
+                rows.extend(to_records_kis(tk, kis_rows))
+                consec_exc = 0
+            elif kind == "empty":
+                # 정상 결과다(차이 2). 전 구간 0행 = 2014-05 이전 폐지이거나 상장 이력 없음.
+                # 서킷을 걸지 않는다 — 과다 여부는 finalize의 emptyRate·규모 게이트가 본다.
+                empty.append(tk)
+                consec_exc = 0
+            else:
+                exc.append({"ticker": tk, "error": err})
+                consec_exc += 1
+                if consec_exc >= cb["consecutiveExceptions"]:
+                    diag.update(rowCount=len(rows), emptyTickers=empty, exceptionTickers=exc)
+                    _abort(f"연속 예외 {consec_exc}건 — 루프 도중 경로가 막혔다",
+                           diag, diag_path)
+            done += 1
+            if done % 100 == 0:
+                print(f"  {done}/{len(mine)} · {len(rows)}행 · 빈 응답 {len(empty)} · "
+                      f"예외 {len(exc)} · {time.time()-t0:.0f}s")
 
     diag.update(tickerCount=len(mine), rowCount=len(rows),
                 emptyTickers=empty, emptyCount=len(empty),
@@ -432,7 +571,7 @@ def run_finalize(pol):
     gz_pol = {**pol, "output": a2b["output"]}
     diag_path = f"{out_dir}/_diagnostics.json"
     diag = {"stage": "A2b", "mode": "finalize", "pricePolicy": pol["version"],
-            "environment": A2A.environment(pol)}
+            "environment": _kis_environment()}
 
     shard_files = sorted(glob.glob(f"{shard_dir}/shard-*.jsonl"))
     if not shard_files:
@@ -548,11 +687,11 @@ def main() -> int:
     args = ap.parse_args()
 
     if not os.path.exists(POLICY):
-        print(f"{POLICY} 없음 — PR-1.4 정책 파일이 필요하다")
+        print(f"{POLICY} 없음 — 정책 파일이 필요하다")
         return 1
     pol = load_json(POLICY)
-    if "a2b" not in pol:
-        print(f"{POLICY}에 a2b 블록이 없다 — PR-1.4 미만이다")
+    if "a2b" not in pol or "source" not in pol.get("a2b", {}):
+        print(f"{POLICY}에 a2b.source 블록이 없다 — PR-1.5 미만이다")
         return 1
 
     if args.finalize:
