@@ -1,0 +1,298 @@
+{
+  "stage": "A3c",
+  "mode": "finalize",
+  "stageVersion": "A3c.0",
+  "fundamentalsPolicy": "FN-1.7",
+  "shardCount": 8,
+  "rowCount": 98684,
+  "gridMode": "a3ReuseAndScanMissing",
+  "reuseCorps": 3003,
+  "reuseCells": 24750,
+  "missingCorps": 798,
+  "missingCorpsByGroup": {
+    "delisted": 783,
+    "current": 15
+  },
+  "targetCorps": 3801,
+  "cellMultiplier": 4,
+  "plannedCells": 134112,
+  "scannedCells": 134112,
+  "scannedCorps": 3801,
+  "dartStatusDistribution": {
+    "OK": 94003,
+    "013": 13376,
+    "EARLY_STOP": 22052,
+    "EMPTY": 4681
+  },
+  "rejectReasons": {},
+  "corpsDone": 3801,
+  "callsTotal": 21256,
+  "corpsIncomplete": 0,
+  "pitContractViolationSample": [],
+  "istcTotqyRowFoundRate": 0.95257,
+  "replayMetrics": {
+    "corpYearsObserved": 25661,
+    "directRatio": 0.9774,
+    "carryForwardRatio": 0.0226,
+    "neverValidRatio": 0.002,
+    "coFilingCount": 653,
+    "coFilingCases": [
+      {
+        "corp": "00101664",
+        "fiscalYear": 2015,
+        "availableFrom": "20151116",
+        "tags": [
+          "반기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00105952",
+        "fiscalYear": 2017,
+        "availableFrom": "20210831",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00105952",
+        "fiscalYear": 2018,
+        "availableFrom": "20210831",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00105952",
+        "fiscalYear": 2019,
+        "availableFrom": "20210831",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00105952",
+        "fiscalYear": 2020,
+        "availableFrom": "20210831",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00113535",
+        "fiscalYear": 2019,
+        "availableFrom": "20200318",
+        "tags": [
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00125974",
+        "fiscalYear": 2025,
+        "availableFrom": "20250814",
+        "tags": [
+          "반기",
+          "1분기"
+        ]
+      },
+      {
+        "corp": "00128412",
+        "fiscalYear": 2016,
+        "availableFrom": "20170120",
+        "tags": [
+          "반기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00138297",
+        "fiscalYear": 2017,
+        "availableFrom": "20171117",
+        "tags": [
+          "반기",
+          "1분기"
+        ]
+      },
+      {
+        "corp": "00138297",
+        "fiscalYear": 2023,
+        "availableFrom": "20231114",
+        "tags": [
+          "반기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00139205",
+        "fiscalYear": 2020,
+        "availableFrom": "20200814",
+        "tags": [
+          "반기",
+          "1분기"
+        ]
+      },
+      {
+        "corp": "00139205",
+        "fiscalYear": 2022,
+        "availableFrom": "20230322",
+        "tags": [
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00141149",
+        "fiscalYear": 2025,
+        "availableFrom": "20250814",
+        "tags": [
+          "반기",
+          "1분기"
+        ]
+      },
+      {
+        "corp": "00145598",
+        "fiscalYear": 2018,
+        "availableFrom": "20181031",
+        "tags": [
+          "반기",
+          "1분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2016,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2017,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2018,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2019,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2020,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      },
+      {
+        "corp": "00147772",
+        "fiscalYear": 2021,
+        "availableFrom": "20230118",
+        "tags": [
+          "사업보고서",
+          "반기",
+          "1분기",
+          "3분기"
+        ]
+      }
+    ],
+    "maxConsecutiveMissing": 4
+  },
+  "rceptNoPresentRate": 1.0,
+  "availableFromParsableRate": 1.0,
+  "acceptanceFails": [],
+  "acceptanceWarns": [
+    "최대 연속 결측 4 <= 3"
+  ],
+  "acceptancePassed": true,
+  "years": {
+    "2015": {
+      "rows": 7501,
+      "gzBytes": 119900
+    },
+    "2016": {
+      "rows": 7660,
+      "gzBytes": 121990
+    },
+    "2017": {
+      "rows": 7949,
+      "gzBytes": 127088
+    },
+    "2018": {
+      "rows": 8245,
+      "gzBytes": 131174
+    },
+    "2019": {
+      "rows": 8490,
+      "gzBytes": 133239
+    },
+    "2020": {
+      "rows": 8750,
+      "gzBytes": 142250
+    },
+    "2021": {
+      "rows": 9062,
+      "gzBytes": 146999
+    },
+    "2022": {
+      "rows": 9349,
+      "gzBytes": 149164
+    },
+    "2023": {
+      "rows": 10330,
+      "gzBytes": 163608
+    },
+    "2024": {
+      "rows": 10615,
+      "gzBytes": 168289
+    },
+    "2025": {
+      "rows": 10733,
+      "gzBytes": 168727
+    }
+  }
+}
