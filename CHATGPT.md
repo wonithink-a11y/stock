@@ -71,6 +71,7 @@
 - `CHATGPT.md` = ChatGPT가 위 정보를 어떤 순서로 읽어야 하는가
 - Git history = 실제로 언제 무엇이 변경되었는가
 - ChatGPT 대화 = 논의 과정이며 정본이 아니다
+- `research/strategy-lab/findings/RESEARCH-FINDINGS.md` = AI Lab에서 확인된 중요한 연구·검증 결과를 장기적으로 누적하는 참고 기록
 
 ## 4. 변경 권한과 충돌 방지
 
@@ -87,6 +88,7 @@
 - Claude 작업 결과 검증
 - 장기 프로젝트 맥락 정리
 - Book 3 집필 및 관련 문서 정리
+- AI Lab 연구·검증 결과의 장기 기록 정리
 
 ### 사용자
 - 설계 및 정책의 최종 결정
@@ -96,6 +98,22 @@
 역할이 겹치는 파일은 동시에 수정하지 않는다.
 
 특히 ChatGPT는 `CLAUDE.md`의 구현 상태를 임의로 재작성하지 않는다. 변경이 필요하다고 판단되면 먼저 실제 GitHub 상태와 최근 commit을 확인하고 변경 이유를 명확히 한 뒤 수정한다.
+
+### 4.1 AI Lab 연구 기록의 직접 관리
+
+`research/strategy-lab/`은 실험·검증 영역이므로 ChatGPT는 다음 범위의 문서를 직접 작성·갱신·커밋할 수 있다.
+
+- 연구 결과 요약
+- 독립 검증 결과
+- AI별 검증 결과의 비교 및 누적
+- 확정 사실 / 가설 / 조사 중 상태의 구분
+- 후속 연구 과제와 현재 상태
+
+핵심 findings는 가능한 경우 `research/strategy-lab/findings/RESEARCH-FINDINGS.md`에 누적하고, 상세 결과는 개별 `reports/` 문서에 보존한다.
+
+이 기록은 대화가 새 세션으로 바뀌어도 연구 맥락을 복구하기 위한 것이며, production 계약·정책의 정본이 아니다. 연구 결과를 production 정책이나 아키텍처 결정으로 자동 승격하지 않는다.
+
+새로운 연구 결과가 확인되면 ChatGPT는 대화에만 남겨두지 않고 중요한 내용을 findings에 반영하여 GitHub에 커밋한다. 단, 코드·production 정책·계약을 변경하는 경우에는 기존 승인 및 역할 규칙을 따른다.
 
 ## 5. AI 협업 프로토콜 — 의견교환 우선
 
@@ -246,8 +264,8 @@ CLAUDE.md의 현재 상태
 
 > ChatGPT는 이전 대화를 복원하려고 하지 않는다. GitHub의 현재 정본을 읽고 현재 상태를 재구성한다.
 
-> Claude와 ChatGPT는 같은 파일을 동시에 관리하지 않는다.
+> Claude와 ChatGPT는 서로의 판단을 검토할 수 있지만, 최종 프로젝트 결정권은 사용자에게 있다.
 
 > 새 세션에서는 전체 저장소를 무작정 읽지 않고, 현재 상태 → 관련 계약 → 필요한 근거 순으로 범위를 좁힌다.
 
-> ChatGPT와 Claude는 서로의 판단을 검토할 수 있지만, 최종 프로젝트 결정권은 사용자에게 있다.
+> AI Lab의 중요한 연구·검증 결과는 대화에만 남기지 않고 `research/strategy-lab/findings/RESEARCH-FINDINGS.md`에 누적하여 새 세션에서도 복구 가능하게 한다.
