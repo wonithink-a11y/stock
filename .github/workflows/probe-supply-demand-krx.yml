@@ -1,0 +1,30 @@
+name: Probe supply-demand (KRX per-ticker)
+
+# A4(수급) 착수 전 정찰. 로컬에서 KRX 종목별 함수가 "LOGOUT"으로 막혀
+# Actions 환경(기존 market-flows.yml과 같은 러너)에서 확인한다.
+# 정찰 전용 — 아무 파일도 커밋하지 않는다. 결과는 이 워크플로 로그로만 본다.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pykrx
+        run: pip install pykrx
+
+      - name: Probe KRX per-ticker investor trend
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-supply-demand-krx.py
