@@ -59,6 +59,12 @@ jobs:
           KRX_ID: ${{ secrets.KRX_ID }}
           KRX_PW: ${{ secrets.KRX_PW }}
         run: |
+          # 16샤드 동시 로그인 실측(2026-08-17) — 1차 시도(16개 동시)는 전부 빈 응답으로
+          # 즉시 실패했고, 몇 분 뒤 재실행은 16개 동시가 전부 성공했다. 재시도(4회, 60s
+          # 이내)를 추가한 다음 실행에서도 16개가 거의 동시에 재시도를 반복하며 전부
+          # 실패했다 — 순간 부하가 몰리면 KRX 쪽이 일시적으로 막힌다고 보고, 샤드마다
+          # 시작을 20초씩 벌려 동시 로그인 시도 자체를 줄인다.
+          sleep $(( 20 * ${{ matrix.shard }} ))
           python scripts/build-supply-demand-a4.py --shard ${{ matrix.shard }} --shards $SHARDS \
             ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}
 

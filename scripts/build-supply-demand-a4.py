@@ -150,10 +150,14 @@ def _environment():
 
 def _import_pykrx_stock():
     """pykrx는 import 시점에 KRX 로그인을 무조건 시도한다(모듈 최상위 부작용,
-    KRX_ID/KRX_PW가 설정된 경우). 그 로그인 응답이 가끔 빈 본문으로 온다
-    (실측 2026-08-17, 16샤드 동시 실행 1회차 — 재시도만으로 해소됨, 진짜
-    동시 로그인 한도가 아니라 KRX 쪽 일시적 응답 불량으로 보인다). 여기서
-    막힌 채 3~4시간짜리 본수집 전체를 날리지 않도록 재시도한다."""
+    KRX_ID/KRX_PW가 설정된 경우). 그 로그인 응답이 가끔 빈 본문으로 온다.
+
+    실측(2026-08-17): 16샤드 동시 시작 1차 시도는 전부 즉시 실패했다. 몇 분 뒤
+    재실행(동시 시작)은 16개 전부 성공했다. 짧은 재시도(10~30초 간격, 4회)를
+    추가한 다음 실행은 16개가 거의 같은 순간에 재시도를 반복하며 전부 실패했다
+    — 순간 부하가 몰리면 KRX 쪽이 수 분 단위로 막히는 것으로 보인다. 그래서
+    (1) 워크플로가 샤드 시작을 20초씩 벌리고 (2) 여기 백오프도 늘려서, 재시도가
+    또 다른 동시 부하가 되지 않게 한다."""
     last_err = None
     for attempt in range(4):
         try:
@@ -161,9 +165,10 @@ def _import_pykrx_stock():
             return stock
         except Exception as e:  # noqa: BLE001
             last_err = e
-            print(f"  pykrx import/KRX 로그인 실패(시도 {attempt + 1}/4): "
+            wait = 30 * (attempt + 1)
+            print(f"  pykrx import/KRX 로그인 실패(시도 {attempt + 1}/4, {wait}초 대기): "
                   f"{type(e).__name__}: {e}")
-            time.sleep(10 * (attempt + 1))
+            time.sleep(wait)
     raise last_err
 
 
