@@ -33,7 +33,7 @@
 
 | ID | Task | Owner | Reviewer | Status | Depends | Output |
 |---|---|---|---|---|---|---|
-| SL-1 | Strategy Lab — 5DC-v1A-P SMOKE baseline + B0~B3 ablation | Claude | — | `DONE(SMOKE)` engine·계약·ablation 구현+실데이터 검증(364e279), execution 위반 0건. A1A_ONLY라 PRIMARY 아님, 정책·파라미터 동결 | PRIMARY 전환은 A2b 완료 후(A5-2와 동일 의존) | `docs/control/세션인수인계-2026-08-14.md` · `research/strategy-lab/` |
+| SL-1 | Strategy Lab — 5DC-v1A-P SMOKE baseline + B0~B3 ablation | Claude | — | `DONE(SMOKE)` engine·계약·ablation 구현+실데이터 검증(364e279), execution 위반 0건. A1A_ONLY라 PRIMARY 아님, 정책·파라미터 동결. (2026-08-17) survivorship bias 검증 완료 — A1A_A1B_MERGED(508종목 공식 A2b)가 A1A_ONLY보다 안 나쁘고 소폭 개선(CAGR -9.81%→-8.18%·MDD -75.0%→-74.29%), 표본편향 가설 기각. 사용자 결정: 이 SMOKE 결과로 충분, PRIMARY 정식 승격은 보류 | A2b 완료로 선행조건은 풀렸으나 PRIMARY 전환(universe.v1.json 확장·runner.py assert 완화, 둘 다 별도 🔴) 착수는 사용자가 보류 | `docs/control/세션인수인계-2026-08-14.md` · `docs/control/세션인수인계-2026-08-16.md` · `research/strategy-lab/` |
 | SL-2 | TREND-BREAKOUT-v1 후속 — 재확인·재실행 결정·다음 실험 (3건, 전부 미착수) | Claude | — | `PLANNED` (1) 1,400건 기준 이전 분석(연도별·국면연결·초기 MFE/MAE)을 2,154건(same-bar 수정 후)으로 재확인 (2) same-bar 수정이 5DC-v1A-P의 2026-08-14 baseline에 주는 영향 및 재실행 여부 결정 — (2026-08-17) 5DC-v1A-P post-fix(1,592건) same-bar 130건(STOP120/TARGET10) 확정, production 정의와 일치. 경쟁 수치 231건은 TREND-BREAKOUT-v1 pkl 오사용으로 판명(재조사 종결). 재실행 채택 여부는 여전히 미결정 (3) stop_distance를 ATR 비례 대신 고정폭/상한으로 바꿨을 때 고변동 구간 손실이 실제로 줄어드는지 검증 | 셋 다 서로 독립, 착수 순서 미정 | `docs/control/세션인수인계-2026-08-14-b.md` · `docs/control/세션인수인계-2026-08-16.md` |
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `DONE` (2026-08-17) PR-1.6(480/440/20%)로 전량 재실행, finalize 통과 — 확보 508·분석구간 460·품질제외율 19.37%, 실패·EGW00201·EGW00316 0건 | — | `data/backfill/manifest/A2b.json` · `docs/control/세션인수인계-2026-08-16.md` |
@@ -51,6 +51,7 @@
 | LAB-3 | score distribution · 이상치 | — | — | `안 함` 인계서 없음, 스코프 미확정 상태로 방치돼 있었다(2026-08-12 확인). 사용자가 실행하지 않기로 결정 | — | 없음 |
 | LAB-7 | 발행주식수·수급 소스 정찰 | Claude | — | `DONE(정찰)` DART 공개 문서 기준(실API 호출 아님) — istc_totqy(주식의 총수 현황) 확보 가능, PIT 가능(rcept_no). A3c 착수는 별도 🔴 GO 대기 | 실제 착수(새 DART 엔드포인트 수집)는 사용자 GO 필요 | `docs/verification/LAB-7-발행주식수-소스정찰-결과.md` |
 | CODEX-1 | Claude 잠정 결과 6건 독립 재확인 | Codex | Claude | `PLANNED` | 사용자가 Codex에 인계서 전달 | `docs/control/handoff/CODEX-1-잠정결과-재확인.md` |
+| GRAPHIFY-1 | graphify 설치·전체 그래프 초기화 + 토큰 정책 수립 | Claude | — | `DONE` 2,238 노드·3,937 엣지·200 커뮤니티(AST+Gemini 문서 86/98). ★ 서브에이전트로 71만 토큰 날린 뒤 정책 확정: Gemini 키 우선 → 서브 개발자 위임 → 그래도 안 되면 사전 승인 | — | `docs/control/세션인수인계-2026-08-17-graphify.md` |
 
 ### 주석 — 상태의 근거
 
