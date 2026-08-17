@@ -574,3 +574,13 @@ DART/KIS/네이버 API 키 · 텔레그램·슬랙 토큰 · 대시보드 `?key=
     응답이 요청의 식별자(일자·종목)를 담고 있는지를 성공 조건에 넣는다.
     같은 이유로 휴장일도 빈 응답이 아니라 직전 영업일로 대체된다.
 ```
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
