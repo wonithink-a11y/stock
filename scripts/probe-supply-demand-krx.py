@@ -64,41 +64,49 @@ def run(label, fn):
 def main():
     from pykrx import stock
 
-    hr("1. 최근 구간 — KIS 프로브와 동일 종목·날짜로 교차검증용")
-    df_a = run(f"value_by_investor {TICKER_A} {OVERLAP_FROM}~{OVERLAP_TO}",
-               lambda: stock.get_market_trading_value_by_investor(OVERLAP_FROM, OVERLAP_TO, TICKER_A))
-    if df_a is not None:
-        print("\n원본 DataFrame (금액, 원):")
-        print(df_a.to_string())
+    hr("0. 기간합계 함수 확인 (1차 프로브에서 쓴 함수 — 참고용, 날짜별 아님)")
+    run(f"value_by_investor(기간합계) {TICKER_A} {OVERLAP_FROM}~{OVERLAP_TO}",
+        lambda: stock.get_market_trading_value_by_investor(OVERLAP_FROM, OVERLAP_TO, TICKER_A))
+    print("주의: get_market_trading_value_by_investor 는 기간 전체를 합산한 1건짜리 요약이다"
+          " (행=투자자구분, 날짜별 시계열이 아님). 날짜별 시계열은 아래 _by_date 함수가 맞다.")
 
-    df_a_vol = run(f"volume_by_investor {TICKER_A} {OVERLAP_FROM}~{OVERLAP_TO}",
-                   lambda: stock.get_market_trading_volume_by_investor(OVERLAP_FROM, OVERLAP_TO, TICKER_A))
-    if df_a_vol is not None:
-        print("\n원본 DataFrame (수량, 주):")
-        print(df_a_vol.to_string())
+    hr("1. 일별추이(정답 함수) — KIS 프로브와 동일 종목·날짜로 교차검증")
+    df_val = run(f"value_by_date(순매수) {TICKER_A} {OVERLAP_FROM}~{OVERLAP_TO}",
+                 lambda: stock.get_market_trading_value_by_date(OVERLAP_FROM, OVERLAP_TO, TICKER_A,
+                                                                 on="순매수", detail=True))
+    if df_val is not None:
+        print("\n원본 DataFrame (일별 순매수 금액, 원):")
+        print(df_val.to_string())
+
+    df_vol = run(f"volume_by_date(순매수) {TICKER_A} {OVERLAP_FROM}~{OVERLAP_TO}",
+                 lambda: stock.get_market_trading_volume_by_date(OVERLAP_FROM, OVERLAP_TO, TICKER_A,
+                                                                  on="순매수", detail=True))
+    if df_vol is not None:
+        print("\n원본 DataFrame (일별 순매수 수량, 주):")
+        print(df_vol.to_string())
         ref = KIS_REFERENCE["005930"]
         print(f"\nKIS 참고값(2026-08-14 005930): 외국인순매수 {ref['frgn_ntby_qty']:,}주 · "
               f"기관 {ref['orgn_ntby_qty']:,}주 · 개인 {ref['prsn_ntby_qty']:,}주")
-        print("위 KRX volume DataFrame에서 같은 날짜 행과 부호·크기가 맞는지 사람이 대조한다"
-              "(투자자구분 라벨 체계가 달라 자동 매칭은 안 함).")
+        print("위 표의 2026-08-14 행과 직접 대조한다 — 이제 날짜가 정확히 맞는 비교다.")
 
-    run(f"value_by_investor {TICKER_B} {OVERLAP_FROM}~{OVERLAP_TO}",
-        lambda: stock.get_market_trading_value_by_investor(OVERLAP_FROM, OVERLAP_TO, TICKER_B))
+    run(f"value_by_date(순매수) {TICKER_B} {OVERLAP_FROM}~{OVERLAP_TO}",
+        lambda: stock.get_market_trading_value_by_date(OVERLAP_FROM, OVERLAP_TO, TICKER_B, on="순매수", detail=True))
 
-    hr("2. 과거 구간 — 2016~2023 anchor 4개 (005930)")
+    hr("2. 과거 구간(일별추이) — 2016~2023 anchor 4개 (005930)")
     for anchor in ANCHORS:
         end = anchor[:4] + anchor[4:6] + f"{int(anchor[6:8]) + 5:02d}"
         df = run(f"anchor {anchor}~{end}",
-                 lambda a=anchor, e=end: stock.get_market_trading_value_by_investor(a, e, TICKER_A))
+                 lambda a=anchor, e=end: stock.get_market_trading_value_by_date(a, e, TICKER_A, on="순매수"))
         if df is not None:
             print(df.to_string())
 
-    hr("3. 연속 호출 체감 — 단일일 조회 10회 (005930)")
+    hr("3. 연속 호출 체감 — 단일일 조회 10회, 일별추이 함수 (005930)")
     days = ["20260803", "20260804", "20260805", "20260806", "20260807",
             "20260810", "20260811", "20260812", "20260813", "20260814"]
     fail_count = 0
     for d in days:
-        df = run(f"single-day {d}", lambda dd=d: stock.get_market_trading_value_by_investor(dd, dd, TICKER_A))
+        df = run(f"single-day {d}",
+                 lambda dd=d: stock.get_market_trading_value_by_date(dd, dd, TICKER_A, on="순매수"))
         if df is None:
             fail_count += 1
     print(f"\n10회 중 실패 {fail_count}건")
