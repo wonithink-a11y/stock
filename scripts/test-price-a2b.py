@@ -41,9 +41,11 @@ DAYS = ([f"2020-01-{d:02d}" for d in range(1, 32)]
 ANALYSIS_FROM = DAYS[20]
 CAL = {"tradingDays": DAYS, "analysisFrom": ANALYSIS_FROM}
 
-# 규모 게이트(minTickersWithData 600 · minTickersInAnalysisWindow 550)가 실제
-# 임계로 동작하도록 픽스처를 그 위에 둔다. 임계 아래로 두면 모든 케이스가
-# 규모 FAIL을 달고 나와 다른 검사의 판정을 읽을 수 없다.
+# 규모 게이트(PR-1.6: minTickersWithData 480 · minTickersInAnalysisWindow 440)가
+# 실제 임계로 동작하도록 픽스처를 그 위에 둔다. 임계 아래로 두면 모든 케이스가
+# 규모 FAIL을 달고 나와 다른 검사의 판정을 읽을 수 없다. 620은 아래 '정찰 실측
+# 구성을 그대로 만든다' 테스트(확보 620 + 빈응답 591)가 참조하는 고정값이기도
+# 해서, 게이트 여유만 필요하면 이 상수를 건드리지 않고 175행의 표본 크기만 줄인다.
 CLEAN_N = 620
 
 passed = failed = 0
@@ -171,8 +173,9 @@ case("후보 전체 대비 비율은 게이트가 아니라 관측으로만 남�
 case("확보 실패=구간 밖이라는 가정이 스탬프로 남는다",
      diag2["coverageAssumesFailuresOutOfWindow"] is True)
 
-# 규모 게이트가 실제로 막는가 — 정찰 전수 실측(631·572)이 근거인 유일한 FAIL 둘
-small = BASE[:30 * 500]                      # 500종목만
+# 규모 게이트가 실제로 막는가 — PR-1.6(480·440, 근거는 KIS 전량실행 실측
+# 504·456에 정찰 때와 같은 5%·4% 여유를 다시 적용한 값) 둘 다 아래로 떨어뜨린다
+small = BASE[:30 * 400]                      # 400종목만 (480·440 둘 다 미만)
 small_tk = sorted({r["ticker"] for r in small})
 _, _, _, _, sfails, _ = run(small, cand_of(*small_tk))
 case("확보 종목이 임계 미만이면 FAIL",
