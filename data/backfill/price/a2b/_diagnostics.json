@@ -1,0 +1,3263 @@
+{
+  "stage": "A2b",
+  "mode": "finalize",
+  "pricePolicy": "PR-1.6",
+  "environment": {
+    "requests": "2.34.2",
+    "python": "3.11.15",
+    "kisSource": true
+  },
+  "shardFiles": [
+    "shard-0.jsonl"
+  ],
+  "shardCount": 1,
+  "rowCount": 720757,
+  "emptyCount": 591,
+  "exceptionCount": 2,
+  "exceptionSample": [
+    {
+      "ticker": "115390",
+      "error": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "ticker": "115960",
+      "error": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    }
+  ],
+  "calendarStart": "2014-01-02",
+  "calendarEnd": "2026-08-14",
+  "actualDataFrom": "2014-05-13",
+  "actualDataTo": "2026-08-07",
+  "tickerContractViolations": 0,
+  "tickerContractViolationSample": [],
+  "datesNotInCalendar": 0,
+  "datesNotInCalendarSample": [],
+  "zeroVolumeTransitions": 144969,
+  "suspendedGapTransitions": 0,
+  "comparableTransitions": 575158,
+  "qualityExcluded": [
+    {
+      "ticker": "000800",
+      "name": "경남기업",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 227,
+      "violations": [
+        {
+          "date": "2015-04-08",
+          "prevDate": "2015-04-07",
+          "prevClose": 462,
+          "close": 900,
+          "change": 0.9481,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "001140",
+      "name": "국보",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2874,
+      "violations": [
+        {
+          "date": "2026-01-26",
+          "prevDate": "2026-01-23",
+          "prevClose": 85,
+          "close": 14,
+          "change": -0.8353,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "008020",
+      "name": "경남에너지",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 496,
+      "violations": [
+        {
+          "date": "2016-05-11",
+          "prevDate": "2016-05-10",
+          "prevClose": 10250,
+          "close": 26000,
+          "change": 1.5366,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "010600",
+      "name": "웰바이오텍",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 2873,
+      "violations": [
+        {
+          "date": "2026-01-20",
+          "prevDate": "2026-01-19",
+          "prevClose": 14,
+          "close": 30,
+          "change": 1.1429,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "014200",
+      "name": "광림",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2833,
+      "violations": [
+        {
+          "date": "2025-11-25",
+          "prevDate": "2025-11-24",
+          "prevClose": 1870,
+          "close": 2950,
+          "change": 0.5775,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "014350",
+      "name": "신일건업",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 227,
+      "violations": [
+        {
+          "date": "2015-04-14",
+          "prevDate": "2015-04-13",
+          "prevClose": 1300,
+          "close": 485,
+          "change": -0.6269,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "024810",
+      "name": "이화전기공업",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2783,
+      "violations": [
+        {
+          "date": "2025-09-03",
+          "prevDate": "2025-09-02",
+          "prevClose": 92,
+          "close": 260,
+          "change": 1.8261,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "028040",
+      "name": "미래SCI",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1700,
+      "violations": [
+        {
+          "date": "2021-04-12",
+          "prevDate": "2021-04-09",
+          "prevClose": 17,
+          "close": 6,
+          "change": -0.6471,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "030790",
+      "name": "비케이탑스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2459,
+      "violations": [
+        {
+          "date": "2024-05-10",
+          "prevDate": "2024-05-09",
+          "prevClose": 19,
+          "close": 8,
+          "change": -0.5789,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "032980",
+      "name": "바이온",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2977,
+      "violations": [
+        {
+          "date": "2026-06-23",
+          "prevDate": "2026-06-22",
+          "prevClose": 19,
+          "close": 32,
+          "change": 0.6842,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2026-06-29",
+          "prevDate": "2026-06-26",
+          "prevClose": 7,
+          "close": 3,
+          "change": -0.5714,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "033600",
+      "name": "럭슬",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1784,
+      "violations": [
+        {
+          "date": "2021-08-03",
+          "prevDate": "2021-08-02",
+          "prevClose": 67,
+          "close": 112,
+          "change": 0.6716,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2021-08-09",
+          "prevDate": "2021-08-06",
+          "prevClose": 46,
+          "close": 22,
+          "change": -0.5217,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "035480",
+      "name": "글로앤웰",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 1372,
+      "violations": [
+        {
+          "date": "2019-12-04",
+          "prevDate": "2019-12-03",
+          "prevClose": 514,
+          "close": 1920,
+          "change": 2.7354,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2019-12-06",
+          "prevDate": "2019-12-05",
+          "prevClose": 2220,
+          "close": 880,
+          "change": -0.6036,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2019-12-11",
+          "prevDate": "2019-12-10",
+          "prevClose": 682,
+          "close": 253,
+          "change": -0.629,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "036180",
+      "name": "지더블유바이텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2905,
+      "violations": [
+        {
+          "date": "2026-03-16",
+          "prevDate": "2026-03-13",
+          "prevClose": 5,
+          "close": 2,
+          "change": -0.6,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "036500",
+      "name": "에스에스컴텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 737,
+      "violations": [
+        {
+          "date": "2017-05-04",
+          "prevDate": "2017-05-02",
+          "prevClose": 63,
+          "close": 95,
+          "change": 0.5079,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2017-05-10",
+          "prevDate": "2017-05-08",
+          "prevClose": 57,
+          "close": 28,
+          "change": -0.5088,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "038160",
+      "name": "팍스넷",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1244,
+      "violations": [
+        {
+          "date": "2021-08-20",
+          "prevDate": "2021-08-19",
+          "prevClose": 315,
+          "close": 63,
+          "change": -0.8,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "038340",
+      "name": "무궁화인포메이션테크놀로지",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2671,
+      "violations": [
+        {
+          "date": "2025-03-21",
+          "prevDate": "2025-03-20",
+          "prevClose": 260,
+          "close": 399,
+          "change": 0.5346,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2025-03-27",
+          "prevDate": "2025-03-26",
+          "prevClose": 220,
+          "close": 70,
+          "change": -0.6818,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "040670",
+      "name": "와이즈파워",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 290,
+      "violations": [
+        {
+          "date": "2015-07-14",
+          "prevDate": "2015-07-13",
+          "prevClose": 11,
+          "close": 5,
+          "change": -0.5455,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "043090",
+      "name": "더테크놀로지",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 3004,
+      "violations": [
+        {
+          "date": "2026-08-07",
+          "prevDate": "2026-08-06",
+          "prevClose": 210,
+          "close": 103,
+          "change": -0.5095,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "045890",
+      "name": "금빛",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1871,
+      "violations": [
+        {
+          "date": "2021-12-17",
+          "prevDate": "2021-12-16",
+          "prevClose": 17,
+          "close": 4,
+          "change": -0.7647,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "050320",
+      "name": "에스에이치엔엘",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1980,
+      "violations": [
+        {
+          "date": "2022-05-25",
+          "prevDate": "2022-05-24",
+          "prevClose": 47,
+          "close": 202,
+          "change": 3.2979,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2022-05-26",
+          "prevDate": "2022-05-25",
+          "prevClose": 202,
+          "close": 100,
+          "change": -0.505,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "050540",
+      "name": "엠피씨플러스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2211,
+      "violations": [
+        {
+          "date": "2023-04-28",
+          "prevDate": "2023-04-27",
+          "prevClose": 2440,
+          "close": 899,
+          "change": -0.6316,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "051170",
+      "name": "썬코어",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 943,
+      "violations": [
+        {
+          "date": "2018-03-14",
+          "prevDate": "2018-03-13",
+          "prevClose": 56,
+          "close": 27,
+          "change": -0.5179,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "052190",
+      "name": "세영디앤씨",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1978,
+      "violations": [
+        {
+          "date": "2022-05-26",
+          "prevDate": "2022-05-25",
+          "prevClose": 295,
+          "close": 95,
+          "change": -0.678,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "053110",
+      "name": "소리바다",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2048,
+      "violations": [
+        {
+          "date": "2022-08-30",
+          "prevDate": "2022-08-29",
+          "prevClose": 395,
+          "close": 850,
+          "change": 1.1519,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2022-09-06",
+          "prevDate": "2022-09-05",
+          "prevClose": 150,
+          "close": 55,
+          "change": -0.6333,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "053330",
+      "name": "영진코퍼레이션",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 233,
+      "violations": [
+        {
+          "date": "2015-04-16",
+          "prevDate": "2015-04-15",
+          "prevClose": 241,
+          "close": 120,
+          "change": -0.5021,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2015-04-21",
+          "prevDate": "2015-04-20",
+          "prevClose": 35,
+          "close": 15,
+          "change": -0.5714,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "054340",
+      "name": "피앤텔",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1478,
+      "violations": [
+        {
+          "date": "2020-05-20",
+          "prevDate": "2020-05-19",
+          "prevClose": 341,
+          "close": 117,
+          "change": -0.6569,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "054630",
+      "name": "에이디칩스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2856,
+      "violations": [
+        {
+          "date": "2025-12-29",
+          "prevDate": "2025-12-26",
+          "prevClose": 94,
+          "close": 15,
+          "change": -0.8404,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "056000",
+      "name": "코원플레이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2186,
+      "violations": [
+        {
+          "date": "2023-03-29",
+          "prevDate": "2023-03-28",
+          "prevClose": 52,
+          "close": 25,
+          "change": -0.5192,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "057880",
+      "name": "푸른소나무",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2871,
+      "violations": [
+        {
+          "date": "2026-01-21",
+          "prevDate": "2026-01-20",
+          "prevClose": 19,
+          "close": 6,
+          "change": -0.6842,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "058420",
+      "name": "제이웨이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2197,
+      "violations": [
+        {
+          "date": "2023-04-13",
+          "prevDate": "2023-04-12",
+          "prevClose": 92,
+          "close": 37,
+          "change": -0.5978,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "060240",
+      "name": "스타코링크",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2993,
+      "violations": [
+        {
+          "date": "2026-07-23",
+          "prevDate": "2026-07-22",
+          "prevClose": 53,
+          "close": 17,
+          "change": -0.6792,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "060910",
+      "name": "프리젠",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 688,
+      "violations": [
+        {
+          "date": "2017-02-23",
+          "prevDate": "2017-02-22",
+          "prevClose": 1850,
+          "close": 451,
+          "change": -0.7562,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "065270",
+      "name": "플렉스컴",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 472,
+      "violations": [
+        {
+          "date": "2016-04-05",
+          "prevDate": "2016-04-04",
+          "prevClose": 570,
+          "close": 271,
+          "change": -0.5246,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2016-04-06",
+          "prevDate": "2016-04-05",
+          "prevClose": 271,
+          "close": 501,
+          "change": 0.8487,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2016-04-11",
+          "prevDate": "2016-04-08",
+          "prevClose": 165,
+          "close": 73,
+          "change": -0.5576,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "065620",
+      "name": "제낙스",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1782,
+      "violations": [
+        {
+          "date": "2021-08-02",
+          "prevDate": "2021-07-30",
+          "prevClose": 830,
+          "close": 1705,
+          "change": 1.0542,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "066350",
+      "name": "티엔아이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 250,
+      "violations": [
+        {
+          "date": "2015-05-19",
+          "prevDate": "2015-05-18",
+          "prevClose": 261,
+          "close": 120,
+          "change": -0.5402,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "068150",
+      "name": "케이엔씨글로벌",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 694,
+      "violations": [
+        {
+          "date": "2017-03-02",
+          "prevDate": "2017-02-28",
+          "prevClose": 116,
+          "close": 50,
+          "change": -0.569,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "071460",
+      "name": "위니아",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2189,
+      "violations": [
+        {
+          "date": "2025-06-17",
+          "prevDate": "2025-06-16",
+          "prevClose": 23,
+          "close": 10,
+          "change": -0.5652,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "072520",
+      "name": "제넨바이오",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2724,
+      "violations": [
+        {
+          "date": "2025-06-11",
+          "prevDate": "2025-06-10",
+          "prevClose": 21,
+          "close": 62,
+          "change": 1.9524,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2025-06-17",
+          "prevDate": "2025-06-16",
+          "prevClose": 16,
+          "close": 6,
+          "change": -0.625,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "078650",
+      "name": "지나인제약",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 2263,
+      "violations": [
+        {
+          "date": "2023-07-17",
+          "prevDate": "2023-07-14",
+          "prevClose": 750,
+          "close": 370,
+          "change": -0.5067,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2023-07-18",
+          "prevDate": "2023-07-17",
+          "prevClose": 370,
+          "close": 175,
+          "change": -0.527,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2023-07-20",
+          "prevDate": "2023-07-19",
+          "prevClose": 107,
+          "close": 33,
+          "change": -0.6916,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "078780",
+      "name": "아이디에스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 483,
+      "violations": [
+        {
+          "date": "2016-04-26",
+          "prevDate": "2016-04-25",
+          "prevClose": 415,
+          "close": 200,
+          "change": -0.5181,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "078940",
+      "name": "퀀타피아",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2645,
+      "violations": [
+        {
+          "date": "2025-02-12",
+          "prevDate": "2025-02-11",
+          "prevClose": 46,
+          "close": 70,
+          "change": 0.5217,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "080440",
+      "name": "에스제이케이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1806,
+      "violations": [
+        {
+          "date": "2021-09-10",
+          "prevDate": "2021-09-09",
+          "prevClose": 42,
+          "close": 18,
+          "change": -0.5714,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "086200",
+      "name": "제이앤유글로벌",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 488,
+      "violations": [
+        {
+          "date": "2016-05-02",
+          "prevDate": "2016-04-29",
+          "prevClose": 160,
+          "close": 690,
+          "change": 3.3125,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2016-05-03",
+          "prevDate": "2016-05-02",
+          "prevClose": 690,
+          "close": 202,
+          "change": -0.7072,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "086460",
+      "name": "큐러블",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 2767,
+      "violations": [
+        {
+          "date": "2025-08-11",
+          "prevDate": "2025-08-08",
+          "prevClose": 699,
+          "close": 297,
+          "change": -0.5751,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2025-08-13",
+          "prevDate": "2025-08-12",
+          "prevClose": 399,
+          "close": 135,
+          "change": -0.6617,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2025-08-14",
+          "prevDate": "2025-08-13",
+          "prevClose": 135,
+          "close": 57,
+          "change": -0.5778,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "087220",
+      "name": "스틸플라워",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 979,
+      "violations": [
+        {
+          "date": "2018-04-26",
+          "prevDate": "2018-04-25",
+          "prevClose": 51,
+          "close": 114,
+          "change": 1.2353,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "090120",
+      "name": "잘만테크",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 245,
+      "violations": [
+        {
+          "date": "2015-05-11",
+          "prevDate": "2015-05-08",
+          "prevClose": 111,
+          "close": 45,
+          "change": -0.5946,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "090970",
+      "name": "코리아퍼시픽01호선박투자회사",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 729,
+      "violations": [
+        {
+          "date": "2017-04-17",
+          "prevDate": "2017-04-14",
+          "prevClose": 1380,
+          "close": 3500,
+          "change": 1.5362,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "090980",
+      "name": "코리아퍼시픽02호선박투자회사",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 729,
+      "violations": [
+        {
+          "date": "2017-04-17",
+          "prevDate": "2017-04-14",
+          "prevClose": 1340,
+          "close": 2350,
+          "change": 0.7537,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2017-04-20",
+          "prevDate": "2017-04-19",
+          "prevClose": 923,
+          "close": 431,
+          "change": -0.533,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2017-04-21",
+          "prevDate": "2017-04-20",
+          "prevClose": 431,
+          "close": 182,
+          "change": -0.5777,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "090990",
+      "name": "코리아퍼시픽03호선박투자회사",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 729,
+      "violations": [
+        {
+          "date": "2017-04-20",
+          "prevDate": "2017-04-19",
+          "prevClose": 850,
+          "close": 384,
+          "change": -0.5482,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2017-04-21",
+          "prevDate": "2017-04-20",
+          "prevClose": 384,
+          "close": 167,
+          "change": -0.5651,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "091000",
+      "name": "코리아퍼시픽04호선박투자회사",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 729,
+      "violations": [
+        {
+          "date": "2017-04-17",
+          "prevDate": "2017-04-14",
+          "prevClose": 1100,
+          "close": 1795,
+          "change": 0.6318,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2017-04-20",
+          "prevDate": "2017-04-19",
+          "prevClose": 842,
+          "close": 399,
+          "change": -0.5261,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "091270",
+      "name": "유디피",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 822,
+      "violations": [
+        {
+          "date": "2018-04-10",
+          "prevDate": "2018-04-09",
+          "prevClose": 21,
+          "close": 49,
+          "change": 1.3333,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2018-04-16",
+          "prevDate": "2018-04-13",
+          "prevClose": 20,
+          "close": 2,
+          "change": -0.9,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2018-04-17",
+          "prevDate": "2018-04-16",
+          "prevClose": 2,
+          "close": 9,
+          "change": 3.5,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "091690",
+      "name": "디지텍시스템스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 170,
+      "violations": [
+        {
+          "date": "2015-01-20",
+          "prevDate": "2015-01-19",
+          "prevClose": 69,
+          "close": 31,
+          "change": -0.5507,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "093230",
+      "name": "이아이디",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2784,
+      "violations": [
+        {
+          "date": "2025-09-03",
+          "prevDate": "2025-09-02",
+          "prevClose": 50,
+          "close": 105,
+          "change": 1.1,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "094190",
+      "name": "이엘케이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1479,
+      "violations": [
+        {
+          "date": "2020-05-21",
+          "prevDate": "2020-05-20",
+          "prevClose": 21,
+          "close": 10,
+          "change": -0.5238,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "095300",
+      "name": "엔에스브이",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 823,
+      "violations": [
+        {
+          "date": "2017-09-06",
+          "prevDate": "2017-09-05",
+          "prevClose": 193,
+          "close": 405,
+          "change": 1.0984,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "103130",
+      "name": "웅진에너지",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1485,
+      "violations": [
+        {
+          "date": "2020-05-22",
+          "prevDate": "2020-05-21",
+          "prevClose": 190,
+          "close": 471,
+          "change": 1.4789,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "103650",
+      "name": "에이치앤아이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 535,
+      "violations": [
+        {
+          "date": "2016-07-07",
+          "prevDate": "2016-07-06",
+          "prevClose": 25,
+          "close": 240,
+          "change": 8.6,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2016-07-08",
+          "prevDate": "2016-07-07",
+          "prevClose": 240,
+          "close": 15,
+          "change": -0.9375,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2016-07-12",
+          "prevDate": "2016-07-11",
+          "prevClose": 15,
+          "close": 48,
+          "change": 2.2,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "110570",
+      "name": "넥솔론",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 723,
+      "violations": [
+        {
+          "date": "2017-04-12",
+          "prevDate": "2017-04-11",
+          "prevClose": 39,
+          "close": 60,
+          "change": 0.5385,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "111610",
+      "name": "세왕",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 420,
+      "violations": [
+        {
+          "date": "2016-01-15",
+          "prevDate": "2016-01-14",
+          "prevClose": 14050,
+          "close": 40000,
+          "change": 1.847,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2016-01-19",
+          "prevDate": "2016-01-18",
+          "prevClose": 22800,
+          "close": 7770,
+          "change": -0.6592,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "111820",
+      "name": "지유온",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1816,
+      "violations": [
+        {
+          "date": "2021-09-29",
+          "prevDate": "2021-09-28",
+          "prevClose": 99,
+          "close": 40,
+          "change": -0.596,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "114120",
+      "name": "크루셜텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2401,
+      "violations": [
+        {
+          "date": "2024-02-14",
+          "prevDate": "2024-02-13",
+          "prevClose": 250,
+          "close": 90,
+          "change": -0.64,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "117930",
+      "name": "한진해운",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 694,
+      "violations": [
+        {
+          "date": "2017-03-06",
+          "prevDate": "2017-03-03",
+          "prevClose": 38,
+          "close": 12,
+          "change": -0.6842,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "123260",
+      "name": "파인넥스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1453,
+      "violations": [
+        {
+          "date": "2020-04-09",
+          "prevDate": "2020-04-08",
+          "prevClose": 73,
+          "close": 27,
+          "change": -0.6301,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "127160",
+      "name": "매직마이크로",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2057,
+      "violations": [
+        {
+          "date": "2015-11-19",
+          "prevDate": "2015-11-18",
+          "prevClose": 2000,
+          "close": 970,
+          "change": -0.515,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2022-09-21",
+          "prevDate": "2022-09-20",
+          "prevClose": 8,
+          "close": 3,
+          "change": -0.625,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "135160",
+      "name": "무송지오씨",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1806,
+      "violations": [
+        {
+          "date": "2023-04-24",
+          "prevDate": "2023-04-21",
+          "prevClose": 132,
+          "close": 210,
+          "change": 0.5909,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2023-04-28",
+          "prevDate": "2023-04-27",
+          "prevClose": 170,
+          "close": 390,
+          "change": 1.2941,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "138440",
+      "name": "이코리아자기관리부동산투자회사",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 333,
+      "violations": [
+        {
+          "date": "2015-09-10",
+          "prevDate": "2015-09-09",
+          "prevClose": 1325,
+          "close": 2500,
+          "change": 0.8868,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "141020",
+      "name": "디에스앤엘",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2372,
+      "violations": [
+        {
+          "date": "2024-01-02",
+          "prevDate": "2023-12-28",
+          "prevClose": 52,
+          "close": 22,
+          "change": -0.5769,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "141070",
+      "name": "맥스로텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1809,
+      "violations": [
+        {
+          "date": "2021-09-10",
+          "prevDate": "2021-09-09",
+          "prevClose": 101,
+          "close": 180,
+          "change": 0.7822,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2021-09-15",
+          "prevDate": "2021-09-14",
+          "prevClose": 102,
+          "close": 46,
+          "change": -0.549,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "144740",
+      "name": "피엠디아카데미",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 1041,
+      "violations": [
+        {
+          "date": "2018-07-30",
+          "prevDate": "2018-07-27",
+          "prevClose": 13,
+          "close": 5,
+          "change": -0.6154,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2018-07-31",
+          "prevDate": "2018-07-30",
+          "prevClose": 5,
+          "close": 10,
+          "change": 1.0,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2018-08-01",
+          "prevDate": "2018-07-31",
+          "prevClose": 10,
+          "close": 19,
+          "change": 0.9,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "149130",
+      "name": "케이비부국제1호개발전문위탁관리부동산투자회사",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 195,
+      "violations": [
+        {
+          "date": "2015-02-23",
+          "prevDate": "2015-02-17",
+          "prevClose": 230,
+          "close": 402,
+          "change": 0.7478,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2015-02-24",
+          "prevDate": "2015-02-23",
+          "prevClose": 402,
+          "close": 1000,
+          "change": 1.4876,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2015-02-27",
+          "prevDate": "2015-02-26",
+          "prevClose": 826,
+          "close": 300,
+          "change": -0.6368,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "149300",
+      "name": "아퓨어스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1645,
+      "violations": [
+        {
+          "date": "2026-05-19",
+          "prevDate": "2026-05-18",
+          "prevClose": 9,
+          "close": 15,
+          "change": 0.6667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "150440",
+      "name": "피노텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2285,
+      "violations": [
+        {
+          "date": "2024-03-15",
+          "prevDate": "2024-03-14",
+          "prevClose": 332,
+          "close": 601,
+          "change": 0.8102,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2024-03-20",
+          "prevDate": "2024-03-19",
+          "prevClose": 401,
+          "close": 670,
+          "change": 0.6708,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "150840",
+      "name": "인트로메딕",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2873,
+      "violations": [
+        {
+          "date": "2026-01-22",
+          "prevDate": "2026-01-21",
+          "prevClose": 86,
+          "close": 170,
+          "change": 0.9767,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "160350",
+      "name": "웹솔루스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 238,
+      "violations": [
+        {
+          "date": "2015-04-22",
+          "prevDate": "2015-04-21",
+          "prevClose": 12,
+          "close": 20,
+          "change": 0.6667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "163430",
+      "name": "디피코",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1498,
+      "violations": [
+        {
+          "date": "2024-06-11",
+          "prevDate": "2024-06-10",
+          "prevClose": 130,
+          "close": 55,
+          "change": -0.5769,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2024-06-17",
+          "prevDate": "2024-06-14",
+          "prevClose": 23,
+          "close": 1,
+          "change": -0.9565,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "165270",
+      "name": "금오하이텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 755,
+      "violations": [
+        {
+          "date": "2017-06-01",
+          "prevDate": "2017-05-31",
+          "prevClose": 25,
+          "close": 50,
+          "change": 1.0,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "179280",
+      "name": "스탠다드펌",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 238,
+      "violations": [
+        {
+          "date": "2015-04-22",
+          "prevDate": "2015-04-21",
+          "prevClose": 31,
+          "close": 200,
+          "change": 5.4516,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "182690",
+      "name": "테라셈",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2072,
+      "violations": [
+        {
+          "date": "2022-10-13",
+          "prevDate": "2022-10-12",
+          "prevClose": 41,
+          "close": 18,
+          "change": -0.561,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "183350",
+      "name": "엘피케이로보틱스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 1497,
+      "violations": [
+        {
+          "date": "2020-06-09",
+          "prevDate": "2020-06-08",
+          "prevClose": 123,
+          "close": 360,
+          "change": 1.9268,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-06-11",
+          "prevDate": "2020-06-10",
+          "prevClose": 480,
+          "close": 2195,
+          "change": 3.5729,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-06-12",
+          "prevDate": "2020-06-11",
+          "prevClose": 2195,
+          "close": 1000,
+          "change": -0.5444,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "189540",
+      "name": "씨티네트웍스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 1471,
+      "violations": [
+        {
+          "date": "2020-05-04",
+          "prevDate": "2020-04-29",
+          "prevClose": 53,
+          "close": 24,
+          "change": -0.5472,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2020-05-07",
+          "prevDate": "2020-05-06",
+          "prevClose": 18,
+          "close": 7,
+          "change": -0.6111,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-05-08",
+          "prevDate": "2020-05-07",
+          "prevClose": 7,
+          "close": 49,
+          "change": 6.0,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "194610",
+      "name": "우성아이비",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1065,
+      "violations": [
+        {
+          "date": "2018-10-01",
+          "prevDate": "2018-09-28",
+          "prevClose": 77,
+          "close": 120,
+          "change": 0.5584,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "194860",
+      "name": "에스와이이노베이션",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 720,
+      "violations": [
+        {
+          "date": "2017-04-11",
+          "prevDate": "2017-04-10",
+          "prevClose": 2100,
+          "close": 500,
+          "change": -0.7619,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "195440",
+      "name": "퓨전",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1096,
+      "violations": [
+        {
+          "date": "2021-06-03",
+          "prevDate": "2021-06-02",
+          "prevClose": 670,
+          "close": 333,
+          "change": -0.503,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2021-06-09",
+          "prevDate": "2021-06-08",
+          "prevClose": 208,
+          "close": 330,
+          "change": 0.5865,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "197210",
+      "name": "리드",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1381,
+      "violations": [
+        {
+          "date": "2020-05-12",
+          "prevDate": "2020-05-11",
+          "prevClose": 197,
+          "close": 89,
+          "change": -0.5482,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-05-13",
+          "prevDate": "2020-05-12",
+          "prevClose": 89,
+          "close": 38,
+          "change": -0.573,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "199870",
+      "name": "배터리솔루션즈",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 551,
+      "violations": [
+        {
+          "date": "2018-03-20",
+          "prevDate": "2018-03-19",
+          "prevClose": 20,
+          "close": 41,
+          "change": 1.05,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2018-03-27",
+          "prevDate": "2018-03-26",
+          "prevClose": 40,
+          "close": 70,
+          "change": 0.75,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "204630",
+      "name": "로아앤코홀딩스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2751,
+      "violations": [
+        {
+          "date": "2026-03-17",
+          "prevDate": "2026-03-16",
+          "prevClose": 662,
+          "close": 220,
+          "change": -0.6677,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "215050",
+      "name": "비엔디생활건강",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1987,
+      "violations": [
+        {
+          "date": "2023-04-13",
+          "prevDate": "2023-04-12",
+          "prevClose": 399,
+          "close": 190,
+          "change": -0.5238,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2023-04-19",
+          "prevDate": "2023-04-18",
+          "prevClose": 52,
+          "close": 23,
+          "change": -0.5577,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "217620",
+      "name": "선샤인푸드",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2677,
+      "violations": [
+        {
+          "date": "2026-05-07",
+          "prevDate": "2026-05-06",
+          "prevClose": 23,
+          "close": 5,
+          "change": -0.7826,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "220110",
+      "name": "드림티엔터테인먼트",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 5,
+      "rowsDropped": 1179,
+      "violations": [
+        {
+          "date": "2020-04-02",
+          "prevDate": "2020-04-01",
+          "prevClose": 29,
+          "close": 60,
+          "change": 1.069,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2020-04-03",
+          "prevDate": "2020-04-02",
+          "prevClose": 60,
+          "close": 99,
+          "change": 0.65,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-04-06",
+          "prevDate": "2020-04-03",
+          "prevClose": 99,
+          "close": 27,
+          "change": -0.7273,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-04-07",
+          "prevDate": "2020-04-06",
+          "prevClose": 27,
+          "close": 11,
+          "change": -0.5926,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2020-04-08",
+          "prevDate": "2020-04-07",
+          "prevClose": 11,
+          "close": 5,
+          "change": -0.5455,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "221610",
+      "name": "자안바이오",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1460,
+      "violations": [
+        {
+          "date": "2021-12-27",
+          "prevDate": "2021-12-24",
+          "prevClose": 440,
+          "close": 710,
+          "change": 0.6136,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2022-01-04",
+          "prevDate": "2022-01-03",
+          "prevClose": 145,
+          "close": 50,
+          "change": -0.6552,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "221670",
+      "name": "주노콜렉션",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 501,
+      "violations": [
+        {
+          "date": "2019-07-12",
+          "prevDate": "2019-07-11",
+          "prevClose": 400,
+          "close": 1000,
+          "change": 1.5,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "222810",
+      "name": "세토피아",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2594,
+      "violations": [
+        {
+          "date": "2026-03-13",
+          "prevDate": "2026-03-12",
+          "prevClose": 42,
+          "close": 15,
+          "change": -0.6429,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "225850",
+      "name": "미애부",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1568,
+      "violations": [
+        {
+          "date": "2022-04-20",
+          "prevDate": "2022-04-19",
+          "prevClose": 30,
+          "close": 220,
+          "change": 6.3333,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "225860",
+      "name": "엠앤씨생명과학",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1228,
+      "violations": [
+        {
+          "date": "2022-04-19",
+          "prevDate": "2022-04-18",
+          "prevClose": 6,
+          "close": 10,
+          "change": 0.6667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2022-04-20",
+          "prevDate": "2022-04-19",
+          "prevClose": 10,
+          "close": 80,
+          "change": 7.0,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "226350",
+      "name": "아이엠텍",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1314,
+      "violations": [
+        {
+          "date": "2021-06-04",
+          "prevDate": "2021-06-03",
+          "prevClose": 434,
+          "close": 750,
+          "change": 0.7281,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "226440",
+      "name": "시스네오텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2380,
+      "violations": [
+        {
+          "date": "2025-06-18",
+          "prevDate": "2025-06-17",
+          "prevClose": 27,
+          "close": 11,
+          "change": -0.5926,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "227100",
+      "name": "프로브잇",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1870,
+      "violations": [
+        {
+          "date": "2026-06-23",
+          "prevDate": "2026-06-22",
+          "prevClose": 18,
+          "close": 50,
+          "change": 1.7778,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2026-06-30",
+          "prevDate": "2026-06-29",
+          "prevClose": 5,
+          "close": 2,
+          "change": -0.6,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "235090",
+      "name": "태경피엔에스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 527,
+      "violations": [
+        {
+          "date": "2018-05-08",
+          "prevDate": "2018-05-04",
+          "prevClose": 188,
+          "close": 353,
+          "change": 0.8777,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "240340",
+      "name": "인터코스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1492,
+      "violations": [
+        {
+          "date": "2022-05-16",
+          "prevDate": "2022-05-13",
+          "prevClose": 52,
+          "close": 100,
+          "change": 0.9231,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "242350",
+      "name": "피엔아이컴퍼니",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1658,
+      "violations": [
+        {
+          "date": "2023-09-13",
+          "prevDate": "2023-09-12",
+          "prevClose": 44,
+          "close": 85,
+          "change": 0.9318,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "246830",
+      "name": "시냅스엠",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 4,
+      "rowsDropped": 449,
+      "violations": [
+        {
+          "date": "2018-05-04",
+          "prevDate": "2018-05-03",
+          "prevClose": 50,
+          "close": 250,
+          "change": 4.0,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2018-05-09",
+          "prevDate": "2018-05-08",
+          "prevClose": 179,
+          "close": 60,
+          "change": -0.6648,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2018-05-10",
+          "prevDate": "2018-05-09",
+          "prevClose": 60,
+          "close": 210,
+          "change": 2.5,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2018-05-11",
+          "prevDate": "2018-05-10",
+          "prevClose": 210,
+          "close": 320,
+          "change": 0.5238,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "248020",
+      "name": "젬",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 606,
+      "violations": [
+        {
+          "date": "2024-04-03",
+          "prevDate": "2024-04-02",
+          "prevClose": 280,
+          "close": 105,
+          "change": -0.625,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2024-04-04",
+          "prevDate": "2024-04-03",
+          "prevClose": 105,
+          "close": 27,
+          "change": -0.7429,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "250300",
+      "name": "제이에스피브이",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 623,
+      "violations": [
+        {
+          "date": "2019-02-14",
+          "prevDate": "2019-02-13",
+          "prevClose": 1000,
+          "close": 199,
+          "change": -0.801,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2019-02-15",
+          "prevDate": "2019-02-14",
+          "prevClose": 199,
+          "close": 7,
+          "change": -0.9648,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "252370",
+      "name": "유쎌",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 836,
+      "violations": [
+        {
+          "date": "2020-02-21",
+          "prevDate": "2020-02-20",
+          "prevClose": 1200,
+          "close": 2360,
+          "change": 0.9667,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "258250",
+      "name": "셀젠텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 1897,
+      "violations": [
+        {
+          "date": "2024-08-26",
+          "prevDate": "2024-08-23",
+          "prevClose": 45,
+          "close": 88,
+          "change": 0.9556,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2024-08-28",
+          "prevDate": "2024-08-27",
+          "prevClose": 51,
+          "close": 19,
+          "change": -0.6275,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "258540",
+      "name": "에스엘테라퓨틱스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 2068,
+      "violations": [
+        {
+          "date": "2025-04-25",
+          "prevDate": "2025-04-24",
+          "prevClose": 51,
+          "close": 77,
+          "change": 0.5098,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2025-05-02",
+          "prevDate": "2025-04-30",
+          "prevClose": 71,
+          "close": 115,
+          "change": 0.6197,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "267060",
+      "name": "명진홀딩스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 1389,
+      "violations": [
+        {
+          "date": "2023-04-10",
+          "prevDate": "2023-04-07",
+          "prevClose": 30,
+          "close": 51,
+          "change": 0.7,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        },
+        {
+          "date": "2023-04-12",
+          "prevDate": "2023-04-11",
+          "prevClose": 72,
+          "close": 26,
+          "change": -0.6389,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2023-04-17",
+          "prevDate": "2023-04-14",
+          "prevClose": 10,
+          "close": 2,
+          "change": -0.8,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "267810",
+      "name": "앙츠",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1457,
+      "violations": [
+        {
+          "date": "2023-04-03",
+          "prevDate": "2023-03-31",
+          "prevClose": 440,
+          "close": 900,
+          "change": 1.0455,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "271850",
+      "name": "다이오진",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1432,
+      "violations": [
+        {
+          "date": "2023-04-11",
+          "prevDate": "2023-04-10",
+          "prevClose": 110,
+          "close": 200,
+          "change": 0.8182,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "286000",
+      "name": "씨엔티드림",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 937,
+      "violations": [
+        {
+          "date": "2024-10-04",
+          "prevDate": "2024-10-02",
+          "prevClose": 583,
+          "close": 1399,
+          "change": 1.3997,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "288490",
+      "name": "나라소프트",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1770,
+      "violations": [
+        {
+          "date": "2026-02-02",
+          "prevDate": "2026-01-30",
+          "prevClose": 7,
+          "close": 3,
+          "change": -0.5714,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "308700",
+      "name": "테크엔",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1732,
+      "violations": [
+        {
+          "date": "2026-01-12",
+          "prevDate": "2026-01-09",
+          "prevClose": 29,
+          "close": 89,
+          "change": 2.069,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "309900",
+      "name": "티티씨디펜스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 733,
+      "violations": [
+        {
+          "date": "2022-06-13",
+          "prevDate": "2022-06-10",
+          "prevClose": 59,
+          "close": 17,
+          "change": -0.7119,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2022-06-14",
+          "prevDate": "2022-06-13",
+          "prevClose": 17,
+          "close": 6,
+          "change": -0.6471,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "322190",
+      "name": "베른",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 819,
+      "violations": [
+        {
+          "date": "2024-04-23",
+          "prevDate": "2024-04-22",
+          "prevClose": 9,
+          "close": 4,
+          "change": -0.5556,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2024-04-24",
+          "prevDate": "2024-04-23",
+          "prevClose": 4,
+          "close": 1,
+          "change": -0.75,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "323230",
+      "name": "엠에프엠코리아",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 1474,
+      "violations": [
+        {
+          "date": "2025-06-11",
+          "prevDate": "2025-06-10",
+          "prevClose": 19,
+          "close": 32,
+          "change": 0.6842,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "329020",
+      "name": "오션스톤",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 3,
+      "rowsDropped": 655,
+      "violations": [
+        {
+          "date": "2022-12-19",
+          "prevDate": "2022-12-16",
+          "prevClose": 140,
+          "close": 800,
+          "change": 4.7143,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2022-12-23",
+          "prevDate": "2022-12-22",
+          "prevClose": 203,
+          "close": 61,
+          "change": -0.6995,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2022-12-26",
+          "prevDate": "2022-12-23",
+          "prevClose": 61,
+          "close": 11,
+          "change": -0.8197,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "329050",
+      "name": "구스앤홈",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 432,
+      "violations": [
+        {
+          "date": "2021-04-06",
+          "prevDate": "2021-04-05",
+          "prevClose": 305,
+          "close": 700,
+          "change": 1.2951,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2021-04-09",
+          "prevDate": "2021-04-08",
+          "prevClose": 696,
+          "close": 115,
+          "change": -0.8348,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "341310",
+      "name": "이앤에치",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 1509,
+      "violations": [
+        {
+          "date": "2026-02-19",
+          "prevDate": "2026-02-13",
+          "prevClose": 14,
+          "close": 2,
+          "change": -0.8571,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "419700",
+      "name": "이브이파킹서비스",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 352,
+      "violations": [
+        {
+          "date": "2024-12-04",
+          "prevDate": "2024-12-03",
+          "prevClose": 9,
+          "close": 3,
+          "change": -0.6667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "446600",
+      "name": "카이바이오텍",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 2,
+      "rowsDropped": 528,
+      "violations": [
+        {
+          "date": "2025-02-17",
+          "prevDate": "2025-02-14",
+          "prevClose": 16000,
+          "close": 29650,
+          "change": 0.8531,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        },
+        {
+          "date": "2025-02-21",
+          "prevDate": "2025-02-20",
+          "prevClose": 24950,
+          "close": 10980,
+          "change": -0.5599,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
+      "ticker": "900050",
+      "name": "중국원양자원유한공사",
+      "market": null,
+      "reason": "TRANSIENT_PRICE_SPIKE",
+      "violationCount": 1,
+      "rowsDropped": 834,
+      "violations": [
+        {
+          "date": "2017-09-21",
+          "prevDate": "2017-09-20",
+          "prevClose": 123,
+          "close": 230,
+          "change": 0.8699,
+          "kind": "TRANSIENT_PRICE_SPIKE"
+        }
+      ]
+    },
+    {
+      "ticker": "900280",
+      "name": "케이만금세기차륜집단유한공사",
+      "market": null,
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2020,
+      "violations": [
+        {
+          "date": "2025-01-07",
+          "prevDate": "2025-01-06",
+          "prevClose": 3,
+          "close": 1,
+          "change": -0.6667,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    }
+  ],
+  "qualityExcludedCount": 122,
+  "qualityExcludedByReason": {
+    "TRANSIENT_PRICE_SPIKE": 15,
+    "UNADJUSTED_CORPORATE_ACTION": 107
+  },
+  "qualityExcludedRate": 0.19365,
+  "keptZeroVolumeTransitions": 98422,
+  "keptComparableTransitions": 444794,
+  "expectedRowsBasis": "listingPeriod",
+  "expectedRows": 543724,
+  "missingRate": 0.0,
+  "perTickerMissingWorst": [
+    {
+      "ticker": "000030",
+      "firstTraded": "2014-11-19",
+      "lastTraded": "2019-02-12",
+      "expected": 1037,
+      "got": 1037,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000360",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-04-14",
+      "expected": 227,
+      "got": 227,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000420",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-02-23",
+      "expected": 191,
+      "got": 191,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000060",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2023-02-20",
+      "expected": 2160,
+      "got": 2160,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "000830",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-09-14",
+      "expected": 332,
+      "got": 332,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001300",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2014-07-14",
+      "expected": 43,
+      "got": 43,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "001880",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2024-02-29",
+      "expected": 2412,
+      "got": 2412,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002000",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2018-12-12",
+      "expected": 1127,
+      "got": 1127,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002250",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2019-05-17",
+      "expected": 1230,
+      "got": 1230,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002300",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2020-07-10",
+      "expected": 1515,
+      "got": 1515,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002270",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2022-07-19",
+      "expected": 2014,
+      "got": 2014,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "002550",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2017-07-20",
+      "expected": 787,
+      "got": 787,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003450",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2016-10-31",
+      "expected": 608,
+      "got": 608,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003410",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2024-07-08",
+      "expected": 2498,
+      "got": 2498,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003600",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-08-13",
+      "expected": 311,
+      "got": 311,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003640",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-01-15",
+      "expected": 167,
+      "got": 167,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003560",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2026-01-14",
+      "expected": 2866,
+      "got": 2866,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "003940",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2016-01-20",
+      "expected": 418,
+      "got": 418,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004130",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2018-12-18",
+      "expected": 1131,
+      "got": 1131,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004320",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-04-10",
+      "expected": 225,
+      "got": 225,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004200",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2020-07-20",
+      "expected": 1521,
+      "got": 1521,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "004740",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2017-07-04",
+      "expected": 775,
+      "got": 775,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005190",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2021-04-15",
+      "expected": 1703,
+      "got": 1703,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005450",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2020-06-29",
+      "expected": 1506,
+      "got": 1506,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005390",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2025-09-29",
+      "expected": 2797,
+      "got": 2797,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005620",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2017-08-24",
+      "expected": 811,
+      "got": 811,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "005980",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2018-10-02",
+      "expected": 1078,
+      "got": 1078,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006580",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2024-06-20",
+      "expected": 2486,
+      "got": 2486,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "006390",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2025-11-20",
+      "expected": 2830,
+      "got": 2830,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "007190",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2017-03-14",
+      "expected": 700,
+      "got": 700,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008000",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2018-03-19",
+      "expected": 946,
+      "got": 946,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "007630",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2022-02-21",
+      "expected": 1913,
+      "got": 1913,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008110",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2026-03-27",
+      "expected": 2914,
+      "got": 2914,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008500",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2026-06-29",
+      "expected": 2976,
+      "got": 2976,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008720",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2014-12-29",
+      "expected": 156,
+      "got": 156,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008560",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2023-04-24",
+      "expected": 2204,
+      "got": 2204,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008800",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2021-06-04",
+      "expected": 1737,
+      "got": 1737,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "008900",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2016-05-16",
+      "expected": 494,
+      "got": 494,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "010050",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2023-08-25",
+      "expected": 2288,
+      "got": 2288,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "010520",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-07-14",
+      "expected": 289,
+      "got": 289,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "010420",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2025-09-24",
+      "expected": 2794,
+      "got": 2794,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "010620",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2025-12-12",
+      "expected": 2846,
+      "got": 2846,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "011720",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2016-11-18",
+      "expected": 622,
+      "got": 622,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "011160",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2020-03-23",
+      "expected": 1440,
+      "got": 1440,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "012600",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2025-05-26",
+      "expected": 2710,
+      "got": 2710,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "012510",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2026-07-14",
+      "expected": 2987,
+      "got": 2987,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "013340",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2014-09-01",
+      "expected": 77,
+      "got": 77,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "013450",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2015-07-17",
+      "expected": 292,
+      "got": 292,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "015350",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2022-01-17",
+      "expected": 1891,
+      "got": 1891,
+      "missingRate": 0.0
+    },
+    {
+      "ticker": "016170",
+      "firstTraded": "2014-05-13",
+      "lastTraded": "2018-09-17",
+      "expected": 1070,
+      "got": 1070,
+      "missingRate": 0.0
+    }
+  ],
+  "perTickerMissingOver": [],
+  "analysisFrom": "2016-01-01",
+  "candidateCount": 1223,
+  "tickersWithData": 508,
+  "tickersInAnalysisWindow": 460,
+  "tickersOutOfAnalysisWindow": 48,
+  "rawCandidateCoverageRate": 0.4154,
+  "coverageAssumesFailuresOutOfWindow": true,
+  "coverageAssumptionNote": "확보 실패 종목은 lastTraded를 모르므로 '분석 구간과 겹치는 폐지 종목'이라는 올바른 분모를 정확히 셀 수 없다. 전 구간 0행이라는 사실에서 '2014-05 이전 폐지이거나 상장 이력 없음'을 추론하고 전부 구간 밖으로 본다. 이 가정을 진단과 산출물에 스탬프로 남긴다 — 숨기면 나중에 사실로 굳는다(A1b의 listingHistoryUnverified와 같은 처리).",
+  "emptyRate": 0.4832,
+  "exitAtVsDartModifyDate": {
+    "comparable": 508,
+    "same": 0,
+    "dartLater": 508,
+    "dartEarlier": 0,
+    "note": "dartModifyDate는 DART 레코드 최종 수정일이지 폐지일이 아니다. 이 분포는 그 사실의 실측이며, 하류가 dartModifyDate를 exitAt으로 승격하지 못하게 하는 근거다."
+  },
+  "exitAtIsLastTradedNotEffectiveDate": true,
+  "exitAtSemanticsNote": "마지막 '거래일'이지 상장폐지 '효력일'이 아니다. 정리매매 종료 후 효력이 발생하므로 실제 폐지일은 이 값 이상이다. EP(BF-1.1 §6)의 구간 판정에는 충분하지만 폐지일 자체가 필요하면 DART list.json 복원이 별도로 필요하다. 이 차이를 산출물 필드명(exitAtConfirmed)과 exitAtSource로 명시한다.",
+  "stillTradingSuspects": [],
+  "stillTradingSuspectCount": 0,
+  "rowCountAfterExclusion": 543724,
+  "exitRecordCount": 508,
+  "acceptanceFails": [],
+  "acceptanceWarns": [],
+  "acceptancePassed": true,
+  "years": {
+    "2014": {
+      "rows": 37108,
+      "rawBytes": 4321417,
+      "gzBytes": 652065
+    },
+    "2015": {
+      "rows": 57448,
+      "rawBytes": 6716788,
+      "gzBytes": 1041296
+    },
+    "2016": {
+      "rows": 60859,
+      "rawBytes": 7105147,
+      "gzBytes": 1077930
+    },
+    "2017": {
+      "rows": 58249,
+      "rawBytes": 6789939,
+      "gzBytes": 1003130
+    },
+    "2018": {
+      "rows": 53351,
+      "rawBytes": 6227719,
+      "gzBytes": 936502
+    },
+    "2019": {
+      "rows": 49499,
+      "rawBytes": 5760319,
+      "gzBytes": 834061
+    },
+    "2020": {
+      "rows": 45778,
+      "rawBytes": 5312321,
+      "gzBytes": 737037
+    },
+    "2021": {
+      "rows": 42178,
+      "rawBytes": 4914051,
+      "gzBytes": 699662
+    },
+    "2022": {
+      "rows": 39052,
+      "rawBytes": 4528830,
+      "gzBytes": 621165
+    },
+    "2023": {
+      "rows": 40682,
+      "rawBytes": 4684217,
+      "gzBytes": 582788
+    },
+    "2024": {
+      "rows": 34722,
+      "rawBytes": 3983799,
+      "gzBytes": 449415
+    },
+    "2025": {
+      "rows": 21288,
+      "rawBytes": 2438203,
+      "gzBytes": 238208
+    },
+    "2026": {
+      "rows": 3510,
+      "rawBytes": 402292,
+      "gzBytes": 36967
+    }
+  },
+  "totalGzBytes": 8932062
+}

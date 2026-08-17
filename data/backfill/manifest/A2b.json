@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A2b",
+  "stageVersion": "A2b.0",
+  "target": "data/backfill/price/a2b",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:d5028152711db442",
+  "fileCount": 15,
+  "upstream": {
+    "A0.5": "sha256:37fa93c616711589",
+    "A1b": "sha256:1bbd28931525cf0e"
+  },
+  "policyHash": {
+    "registry": "sha256:1e6ba386ce327dd6",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "price": "sha256:f2c34e0879f72c00"
+  },
+  "recordCount": 543724,
+  "recordCountBeforeExclusion": 720757,
+  "candidateCount": 1223,
+  "tickersWithData": 508,
+  "tickersInAnalysisWindow": 460,
+  "analysisFrom": "2016-01-01",
+  "emptyCount": 591,
+  "missingRate": 0,
+  "qualityExcludedCount": 122,
+  "exitRecordCount": 508,
+  "coverageAssumesFailuresOutOfWindow": true,
+  "exitAtIsLastTradedNotEffectiveDate": true,
+  "environment": {
+    "requests": "2.34.2",
+    "python": "3.11.15",
+    "kisSource": true
+  },
+  "generatedAt": "2026-08-17T01:49:50.005Z"
+}
