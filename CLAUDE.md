@@ -5,20 +5,20 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.4 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0
-  현재 트랙  A3c·T1 둘 다 종료됐다(아래 완료 참고) — A3c는 finalize 완료(2026-08-16,
-               a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님). 다음 항목 참고
-  다음      calendar.json 재생성 → A2b 수집 → Core 백필. calendar.json이 A2b의
-            수집 상한이라 반드시 먼저 온다(T1이 풀어 준 순서, 아래 "착수 가능" 참고)
-  착수 가능  T1 종료로 풀렸다. 순서가 있고, 각각의 착수는 별도 사용자 승인이다
-            ① calendar.json 재생성 — T1의 분류 입력이자 A2b의 수집 상한이다.
-              지금 2026-08-03에서 끝나 043090의 실제 마지막 거래일 08-07이 잘린다
-              (CLAUDE.md 옛 판에 적힌 'naver 경로'는 사실이 아니다. pykrx/KRX다)
-            ② A2b 수집 · lib/a5/priceSource.js · 043090 처리 방향
-              ★ Strategy Lab(아래 완료 참고)의 PRIMARY 전환이 정확히 이 A2b를
-                기다린다 — A2b가 오면 동일 engine·동일 policy로
-                A1A_A1B_MERGED 재실행만 하면 된다(코드 변경 없음, 설계상 그렇게
-                만들어 둠). 그전까지 5DC-v1A-P는 동결, 손대지 않는다
+  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0
+  현재 트랙  A3c·T1·A2b 전부 종료됐다(아래 완료 참고) — A3c는 finalize 완료
+               (2026-08-16, a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님),
+               A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
+               (2026-08-17, manifest 88d5756). 다음 항목 참고
+  다음      A2b 소비 단계 — lib/a5/priceSource.js PRIMARY 연결·043090 처리 ·
+            Strategy Lab PRIMARY 전환 · Core 백필. 전부 A2b 완료로 막힘만
+            풀렸을 뿐 착수는 아직 안 함(아래 "착수 가능" 참고)
+  착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
+            ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
+              스코어링의 PRIMARY 가격 소스로 실제 연결하는 단계
+            ② Strategy Lab PRIMARY 전환 — 5DC-v1A-P를 동일 engine·동일 policy로
+              A1A_A1B_MERGED 재실행(코드 변경 없음, 설계상 그렇게 만들어 둠).
+              세션인수인계-2026-08-16.md §4 끝 참고
             ③ Core 182종목 246일 백필 (≈224,000호출)
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
@@ -46,7 +46,19 @@ Validated against
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
             A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
             A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
-  완료      ★ T1 재현성 정찰 종료 — REPRODUCIBILITY FAIL (2026-08-16 확정,
+  완료      ★ A2b(폐지 종목 가격) 전량 수집·finalize 통과 (2026-08-17) — KIS
+              전환(PR-1.5, 2026-08-16) 후 첫 전량 실행이 규모 게이트 2건에서
+              FAIL(504<600·456<550), 표본 31건 교차검증으로 원인을 정리매매
+              (상장폐지 직전 가격제한폭 없는 구간)로 확정 — KIS 오류·판정
+              오탐 0/31. 실측을 그대로 임계로 승격하지 않고 PR-1.4가 정찰에
+              적용한 것과 같은 ~5%·~4% 여유를 재적용해 PR-1.6(480/440,
+              qualityExcludedRateWarn 20%)으로 승격 후 재실행 — 확보 508·
+              분석구간 460·품질제외율 19.37%, 실패·EGW00201·EGW00316 0건.
+              manifest data/backfill/manifest/A2b.json(커밋 88d5756). Strategy
+              Lab PRIMARY 전환·운영 PRIMARY 가격소스 연결의 블로커가 풀렸다
+              (위 "착수 가능" 참고, 착수 자체는 미착수). 세부:
+              세션인수인계-2026-08-16.md §4
+            ★ T1 재현성 정찰 종료 — REPRODUCIBILITY FAIL (2026-08-16 확정,
               Day1~Day7 전체 완주). 08-15 한 번 Day5 기준 조기종료·PASS를
               시도했으나 사용자 지시로 취소하고 원계획대로 Day7까지 마쳤다 —
               Day6·Day7 관측이 그 PASS 판단을 뒤집었다.
