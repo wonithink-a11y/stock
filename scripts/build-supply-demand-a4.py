@@ -40,7 +40,6 @@ import os
 import re
 import sys
 import time
-from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 for _s in (sys.stdout, sys.stderr):
@@ -247,69 +246,117 @@ def run_shard(shard, shards, pol, limit):
     return 0
 
 
-# ── 검증 ───────────────────────────────────────────────────────
-def validate(rows, cand, cal, pol, diag):
-    """반환값은 (남길 행,)이다 — A2b와 달리 품질 제외·exitAt이 없다."""
+# ── 검증 (스트리밍) ────────────────────────────────────────────
+# 전량(약 2,578종목 x 10.6년 ≈ 585만 행, 중첩 딕셔너리)을 한 번에 메모리에
+# 올리면 GitHub Actions 러너가 OOM으로 죽는다(실측 2026-08-17, "runner has
+# received a shutdown signal" — finalize가 [1/3] 로그도 못 찍고 죽었다).
+# 그래서 검증과 연도 라우팅을 같은 스트리밍 패스에서 한다 — 레코드를 다 읽고
+# 버리지, 리스트에 쌓지 않는다. 전역 검사(중복 키 등)는 가벼운 집합/카운터로만
+# 유지한다. 연도별 정렬은 2단계(연도별 스크래치 파일 → 그 파일만 로드해 정렬 후
+# gzip)로 미룬다 — 한 해치(약 53만 행)는 메모리에 올려도 안전하다.
+def stream_validate_and_route(shard_files, cand, cal, pol, diag, scratch_dir):
     a = pol["acceptance"]
-    print("\n[인수 조건]")
+    cal_days = cal["tradingDays"]
+    cal_idx = {d: i for i, d in enumerate(cal_days)}
+    candidate_tickers = {x["ticker"] for x in cand}
+
+    print("\n[인수 조건 — 스트리밍 1단계: 검증 + 연도 라우팅]")
 
     inject = os.environ.get("A4_FAIL_INJECTION", "").strip()
     if inject:
         diag["failInjection"] = inject
         chk(False, f"[FAIL INJECTION] {inject} — 게이트 검증용 강제 실패")
 
-    cal_days = cal["tradingDays"]
-    cal_idx = {d: i for i, d in enumerate(cal_days)}
-    date_viol = {id(x) for x in rows if not DATE_RE.match(x["date"] or "") or x["date"] not in cal_idx}
-    diag["dateContractViolations"] = len(date_viol)
-    chk(len(date_viol) == a["dateContractViolations"],
-        f"date 계약(YYYY-MM-DD·캘린더 안) 위반 {len(date_viol)}건")
+    os.makedirs(scratch_dir, exist_ok=True)
+    year_writers = {}
 
-    bad_tk = sorted({x["ticker"] for x in rows if not TICKER_RE.match(x["ticker"] or "")})
+    seen_keys = set()
+    dup_count = 0
+    date_viol = 0
+    bad_tk = set()
+    key_mismatch = 0
+    clearing_viol = 0
+    clearing_sample = []
+    by_ticker = set()
+    row_count = 0
+    min_date = max_date = None
+
+    for p in shard_files:
+        with open(p, encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                x = json.loads(line)
+                row_count += 1
+                d, tk = x.get("date"), x.get("ticker")
+
+                if not DATE_RE.match(d or "") or d not in cal_idx:
+                    date_viol += 1
+                if not TICKER_RE.match(tk or ""):
+                    bad_tk.add(tk)
+
+                key = (tk, d)
+                if key in seen_keys:
+                    dup_count += 1
+                else:
+                    seen_keys.add(key)
+
+                keysets = {frozenset(x[f2].keys())
+                           for f2 in ("buyAmount", "sellAmount", "buyVolume", "sellVolume")}
+                if len(keysets) > 1:
+                    key_mismatch += 1
+
+                buy_a, sell_a = x["buyAmount"], x["sellAmount"]
+                buy_v, sell_v = x["buyVolume"], x["sellVolume"]
+                cats = [k for k in buy_a if k != "전체"]
+                diff_a = sum(buy_a.get(k, 0) - sell_a.get(k, 0) for k in cats)
+                diff_v = sum(buy_v.get(k, 0) - sell_v.get(k, 0) for k in cats)
+                if diff_a != 0 or diff_v != 0:
+                    clearing_viol += 1
+                    if len(clearing_sample) < 10:
+                        clearing_sample.append({"ticker": tk, "date": d,
+                                                "diffAmount": diff_a, "diffVolume": diff_v})
+
+                by_ticker.add(tk)
+                if min_date is None or d < min_date:
+                    min_date = d
+                if max_date is None or d > max_date:
+                    max_date = d
+
+                y = (d or "0000")[:4]
+                fh = year_writers.get(y)
+                if fh is None:
+                    fh = open(f"{scratch_dir}/{y}.jsonl", "a", encoding="utf-8", newline="\n")
+                    year_writers[y] = fh
+                fh.write(json.dumps({k: x[k] for k in FIELDS}, ensure_ascii=False) + "\n")
+
+    for fh in year_writers.values():
+        fh.close()
+
+    diag["rowCount"] = row_count
+    diag["actualDataFrom"] = min_date
+    diag["actualDataTo"] = max_date
+    diag["dateContractViolations"] = date_viol
+    chk(date_viol == a["dateContractViolations"],
+        f"date 계약(YYYY-MM-DD·캘린더 안) 위반 {date_viol}건")
+
     diag["tickerContractViolations"] = len(bad_tk)
     chk(len(bad_tk) == a["tickerContractViolations"],
         f"ticker 계약 [0-9A-Z]{{6}} (위반 {len(bad_tk)}종목)")
 
-    dup = len(rows) - len({(x["ticker"], x["date"]) for x in rows})
-    chk(dup == a["duplicateKeys"], f"(ticker,date) 중복 {dup}건")
+    chk(dup_count == a["duplicateKeys"], f"(ticker,date) 중복 {dup_count}건")
 
-    # 4개 측정치의 카테고리 키 집합이 레코드 안에서 일치하는지 — fetch_one이
-    # 이미 4콜 사이 날짜 인덱스는 맞췄지만, 카테고리 키까지 맞는지는 여기서 확인한다.
-    key_mismatch = 0
-    for x in rows:
-        keys = [frozenset(x[f].keys()) for f in ("buyAmount", "sellAmount", "buyVolume", "sellVolume")]
-        if len(set(keys)) > 1:
-            key_mismatch += 1
     diag["categoryKeySetViolations"] = key_mismatch
     chk(key_mismatch == a["categoryKeySetViolations"],
         f"카테고리 키 집합 불일치 {key_mismatch}행")
 
-    # 시장 청산 조건 — 순매수를 저장하지 않으므로, 카테고리 합계 매수-매도가
-    # 0인지로 항등식을 대신 검사한다(3차 정찰에서 12/12 카테고리 실측 확인).
-    clearing_viol = 0
-    clearing_sample = []
-    for x in rows:
-        buy_a, sell_a = x["buyAmount"], x["sellAmount"]
-        buy_v, sell_v = x["buyVolume"], x["sellVolume"]
-        cats = [k for k in buy_a if k != "전체"]
-        diff_a = sum(buy_a.get(k, 0) - sell_a.get(k, 0) for k in cats)
-        diff_v = sum(buy_v.get(k, 0) - sell_v.get(k, 0) for k in cats)
-        if diff_a != 0 or diff_v != 0:
-            clearing_viol += 1
-            if len(clearing_sample) < 10:
-                clearing_sample.append({"ticker": x["ticker"], "date": x["date"],
-                                        "diffAmount": diff_a, "diffVolume": diff_v})
     diag["marketClearingViolations"] = clearing_viol
     diag["marketClearingViolationSample"] = clearing_sample
     chk(clearing_viol == a["marketClearingViolations"],
         f"시장 청산 조건(카테고리 합 매수-매도=0) 위반 {clearing_viol}행")
 
-    # ── 커버리지 (WARN) ────────────────────────────────────────
-    by_ticker = defaultdict(list)
-    for x in rows:
-        by_ticker[x["ticker"]].append(x)
     tickers_with_data = len(by_ticker)
-    total_candidates = len(cand)
+    total_candidates = len(candidate_tickers)
     rate = tickers_with_data / max(total_candidates, 1)
     diag["candidateCount"] = total_candidates
     diag["tickersWithData"] = tickers_with_data
@@ -322,8 +369,7 @@ def validate(rows, cand, cal, pol, diag):
     to_d = cal_days[-1]
     expected_days = sum(1 for d in cal_days if from_d <= d <= to_d)
     total_expected = expected_days * max(tickers_with_data, 1)
-    total_got = len(rows)
-    missing_rate = 1 - (total_got / total_expected) if total_expected else 1
+    missing_rate = 1 - (row_count / total_expected) if total_expected else 1
     diag["expectedDaysPerTicker"] = expected_days
     diag["missingRate"] = round(missing_rate, 5)
     warn(missing_rate <= a["missingRateWarn"],
@@ -337,7 +383,7 @@ def validate(rows, cand, cal, pol, diag):
          f"UNRESOLVED 비율 {unresolved_rate*100:.2f}% <= {a['unresolvedRateWarn']*100:.0f}% "
          f"({diag.get('unresolvedCount', 0)}/{total_candidates})")
 
-    return rows
+    return sorted(year_writers.keys())
 
 
 # ── finalize ───────────────────────────────────────────────────
@@ -351,17 +397,9 @@ def run_finalize(pol):
     shard_files = sorted(glob.glob(f"{shard_dir}/shard-*.jsonl"))
     if not shard_files:
         _abort(f"{shard_dir}에 샤드 산출물이 없다 — 수집 잡을 먼저 돌려라", diag, diag_path)
-
-    rows = []
-    for p in shard_files:
-        rows.extend(load_jsonl(p))
     diag["shardFiles"] = [os.path.basename(p) for p in shard_files]
     diag["shardCount"] = len(shard_files)
-    diag["rowCount"] = len(rows)
-    print(f"[1/3] 샤드 {len(shard_files)}개 병합 — {len(rows)}행")
-
-    if not rows:
-        _abort("병합 결과 0행", diag, diag_path)
+    print(f"[1/3] 샤드 {len(shard_files)}개 발견 — 스트리밍 검증·라우팅 시작")
 
     empty_n = exc_n = unresolved_n = 0
     unresolved_all = []
@@ -385,14 +423,19 @@ def run_finalize(pol):
     cal = load_json(CALENDAR)
     diag["calendarStart"] = cal["tradingDays"][0]
     diag["calendarEnd"] = cal["tradingDays"][-1]
-    diag["actualDataFrom"] = min(x["date"] for x in rows)
-    diag["actualDataTo"] = max(x["date"] for x in rows)
+
+    scratch_dir = f"{shard_dir}/_year_scratch"
+    for old in glob.glob(f"{scratch_dir}/*.jsonl"):
+        os.remove(old)
+    years_found = stream_validate_and_route(shard_files, cand, cal, pol, diag, scratch_dir)
+    if diag["rowCount"] == 0:
+        _abort("병합 결과 0행", diag, diag_path)
+    # validate()는 이 버전에서도 행을 걸러내지 않는다(A2b와 달리 품질 제외가 없다) —
+    # 위반이 있으면 FAIL로 전체를 막을 뿐, 통과 시엔 전량을 그대로 쓴다.
+    diag["rowCountAfterValidation"] = diag["rowCount"]
     print(f"[2/3] 구간 — 캘린더 {diag['calendarStart']}~{diag['calendarEnd']} / "
           f"실측 {diag['actualDataFrom']}~{diag['actualDataTo']} · "
-          f"빈 응답 {empty_n} · 예외/UNRESOLVED {exc_n}")
-
-    rows = validate(rows, cand, cal, pol, diag)
-    diag["rowCountAfterValidation"] = len(rows)
+          f"빈 응답 {empty_n} · 예외/UNRESOLVED {exc_n} · 총 {diag['rowCount']}행")
 
     os.makedirs(out_dir, exist_ok=True)
     diag["acceptanceFails"] = list(fails)
@@ -410,40 +453,42 @@ def run_finalize(pol):
         print(f"\n인수 조건 {len(fails)}건 실패 — 산출물을 쓰지 않는다")
         for x in fails:
             print(f"  - {x}")
+        for f2 in glob.glob(f"{scratch_dir}/*.jsonl"):
+            os.remove(f2)
         return 1
 
-    print("\n[3/3] 연도 분할 · gzip")
-    rows.sort(key=lambda x: (x["date"], x["ticker"]))
-    by_year = defaultdict(list)
-    for x in rows:
-        by_year[x["date"][:4]].append(x)
-
+    print("\n[3/3] 연도별 정렬 · gzip (스크래치 파일 하나씩만 메모리에 올린다)")
     for old in glob.glob(f"{out_dir}/*.jsonl.gz"):
         os.remove(old)
 
     import gzip
     years = {}
-    for y in sorted(by_year):
+    total_rows = 0
+    for y in years_found:
+        year_rows = load_jsonl(f"{scratch_dir}/{y}.jsonl")
+        year_rows.sort(key=lambda x: (x["date"], x["ticker"]))
         path = f"{out_dir}/{y}.jsonl.gz"
         raw = "\n".join(
-            json.dumps({k: x[k] for k in FIELDS}, ensure_ascii=False, sort_keys=True)
-            for x in by_year[y]
+            json.dumps(x, ensure_ascii=False, sort_keys=True) for x in year_rows
         ).encode("utf-8") + b"\n"
         with open(path, "wb") as f:
             with gzip.GzipFile(fileobj=f, mode="wb", mtime=pol["output"]["gzipMtime"]) as gz:
                 gz.compresslevel = pol["output"]["gzipCompressLevel"]
                 gz.write(raw)
         gz_bytes = os.path.getsize(path)
-        years[y] = {"rows": len(by_year[y]), "rawBytes": len(raw), "gzBytes": gz_bytes}
-        print(f"  {y}.jsonl.gz  {len(by_year[y]):>9}행  "
+        years[y] = {"rows": len(year_rows), "rawBytes": len(raw), "gzBytes": gz_bytes}
+        total_rows += len(year_rows)
+        print(f"  {y}.jsonl.gz  {len(year_rows):>9}행  "
               f"{len(raw)/1e6:6.1f}MB → {gz_bytes/1e6:5.1f}MB")
+        os.remove(f"{scratch_dir}/{y}.jsonl")
+
     diag["years"] = years
     diag["totalGzBytes"] = sum(v["gzBytes"] for v in years.values())
 
     with open(diag_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(diag, f, ensure_ascii=False, indent=2)
 
-    print(f"\n{out_dir} — 연도 {len(years)}개 · {len(rows)}행 · "
+    print(f"\n{out_dir} — 연도 {len(years)}개 · {total_rows}행 · "
           f"{diag['totalGzBytes']/1e6:.1f}MB")
     return 0
 
