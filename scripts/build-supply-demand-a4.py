@@ -148,8 +148,27 @@ def _environment():
     return {"pykrx": pykrx_ver, "python": sys.version.split()[0]}
 
 
+def _import_pykrx_stock():
+    """pykrx는 import 시점에 KRX 로그인을 무조건 시도한다(모듈 최상위 부작용,
+    KRX_ID/KRX_PW가 설정된 경우). 그 로그인 응답이 가끔 빈 본문으로 온다
+    (실측 2026-08-17, 16샤드 동시 실행 1회차 — 재시도만으로 해소됨, 진짜
+    동시 로그인 한도가 아니라 KRX 쪽 일시적 응답 불량으로 보인다). 여기서
+    막힌 채 3~4시간짜리 본수집 전체를 날리지 않도록 재시도한다."""
+    last_err = None
+    for attempt in range(4):
+        try:
+            from pykrx import stock
+            return stock
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+            print(f"  pykrx import/KRX 로그인 실패(시도 {attempt + 1}/4): "
+                  f"{type(e).__name__}: {e}")
+            time.sleep(10 * (attempt + 1))
+    raise last_err
+
+
 def run_shard(shard, shards, pol, limit):
-    from pykrx import stock
+    stock = _import_pykrx_stock()
 
     sd = pol
     src = sd["source"]
