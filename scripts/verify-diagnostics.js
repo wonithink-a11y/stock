@@ -236,6 +236,29 @@ const CONTRACT = {
     trueFlags: [],
     forbidden: ['smokeTest'],
   },
+
+  'A4': {
+    file: 'data/backfill/supplyDemand/a4/_diagnostics.json',
+    required: ['supplyDemandPolicy', 'environment', 'shardCount', 'rowCount',
+               'rowCountAfterValidation', 'calendarStart', 'calendarEnd',
+               'actualDataFrom', 'actualDataTo', 'years', 'totalGzBytes',
+               // 구조 계약 위반 카운트 — 전부 FAIL(0)이라 여기 있는 것 자체가
+               // 게이트가 실제로 돌았다는 증거다.
+               'dateContractViolations', 'tickerContractViolations',
+               'categoryKeySetViolations',
+               // 시장 청산 조건(순매수를 저장하지 않으므로 매수-매도 카테고리 합이
+               // 0인지로 항등식을 대신 검사한다) 위반과 표본.
+               'marketClearingViolations', 'marketClearingViolationSample',
+               // 커버리지 — 대상(A1a)·확보·비율. 분모가 없으면 tickersWithData
+               // 하나만으로는 좋은지 나쁜지 판정할 수 없다.
+               'candidateCount', 'tickersWithData', 'tickersWithDataRate',
+               'emptyCount', 'missingRate', 'expectedDaysPerTicker',
+               // UNRESOLVED — 종목별 실패 사유 전량. 없으면 "그 종목 왜 없지"가
+               // 재수집 없이는 영영 답 없는 질문이 된다(교훈75).
+               'unresolvedCount', 'unresolvedRate', 'unresolved'],
+    trueFlags: [],
+    forbidden: ['smokeTest'],
+  },
 };
 
 // 표 자체를 먼저 검사한다. 새 단계를 추가하면서 키 이름을 틀리면(file → path 같은)

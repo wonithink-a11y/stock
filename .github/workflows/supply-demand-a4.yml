@@ -1,0 +1,163 @@
+name: backfill-supply-demand-a4
+
+# A4 — 종목별 일별 수급(외국인·기관·개인 매수/매도) 원자료. 정의는
+# config/policies/supplyDemand.v1.json(SD-1.0). A2a와 같은 구조(8-way matrix →
+# artifact → finalize) — KIS 토큰 제약이 없는 KRX(pykrx) 소스라 A2b(shards=1)가
+# 아니라 A2a식 병렬 샤드를 쓴다.
+#
+# limit 입력이 스모크와 본수집을 가른다. 값을 넣으면 각 샤드가 종목 수를 그만큼만
+# 처리한다(A3c가 겪은 "limit 없이 바로 전체가 돈" 안전사고를 반복하지 않기 위함,
+# 세션인수인계 2026-08-12b). 스모크는 동시에 여러 샤드가 도는 첫 실행이라
+# 동일 KRX_ID 계정의 동시 로그인이 서로를 끊어내는지도 여기서 함께 확인한다.
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: '샤드당 처리 종목 수 상한. 비우면 전체(본수집). 스모크는 작은 수를 넣는다'
+        required: false
+        default: ''
+        type: string
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-supply-demand-a4
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: 8
+  PYKRX_VERSION: 1.2.8
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet "pykrx==${PYKRX_VERSION}" pandas
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 170
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: |
+          python scripts/build-supply-demand-a4.py --shard ${{ matrix.shard }} --shards $SHARDS \
+            ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a4-shard-${{ matrix.shard }}
+          path: data/backfill/supplyDemand/_shards_a4/
+          retention-days: 1
+          if-no-files-found: error
+
+  finalize:
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        # --selftest만 pandas가 필요하다(merge_dfs 검증용). --finalize는 pykrx를 안 부른다.
+        run: pip install --quiet pandas
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a4-shard-*
+          merge-multiple: true
+          path: data/backfill/supplyDemand/_shards_a4/
+
+      - name: Verify all shards present
+        run: |
+          N=$(ls data/backfill/supplyDemand/_shards_a4/shard-*.jsonl 2>/dev/null | wc -l)
+          D=$(ls data/backfill/supplyDemand/_shards_a4/_diagnostics-shard-*.json 2>/dev/null | wc -l)
+          echo "샤드 파일 $N개 · 샤드 진단 $D개 / 기대 $SHARDS개"
+          test "$N" -eq "$SHARDS" || { echo "샤드 누락 — 부분 수집물로 산출할 수 없다"; exit 1; }
+          test "$D" -eq "$SHARDS" || { echo "샤드 진단 누락 — 커버리지 분모를 셀 수 없다"; exit 1; }
+
+      - name: A4 self-test (merge_dfs · 시장청산조건, 네트워크 불필요)
+        run: python scripts/build-supply-demand-a4.py --selftest
+
+      - name: Finalize
+        env:
+          A4_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-supply-demand-a4.py --finalize
+
+      - name: Verify diagnostics contract
+        # smokeTest 플래그가 있으면 여기서 거부된다(scripts/verify-diagnostics.js의
+        # forbidden 훅) — 스모크 산출물이 manifest·commit으로 승격되지 않는다.
+        run: node scripts/verify-diagnostics.js A4
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/supplyDemand/a4
+          ls -1 "$D"/*.jsonl.gz > /dev/null || { echo "Build 성공인데 산출물이 없다"; exit 1; }
+          EXTRA=$(python -c "
+          import json
+          d = json.load(open('$D/_diagnostics.json', encoding='utf-8'))
+          print(json.dumps({
+              'recordCount': d['rowCountAfterValidation'],
+              'candidateCount': d['candidateCount'],
+              'tickersWithData': d['tickersWithData'],
+              'tickersWithDataRate': d['tickersWithDataRate'],
+              'emptyCount': d['emptyCount'],
+              'unresolvedCount': d['unresolvedCount'],
+              'unresolved': d['unresolved'][:200],
+              'missingRate': d['missingRate'],
+              'actualDataFrom': d['actualDataFrom'],
+              'actualDataTo': d['actualDataTo'],
+              'smokeTest': d.get('smokeTest', False),
+          }, ensure_ascii=False))
+          ")
+          node scripts/write-manifest.js \
+            --stage A4 --stageVersion A4.0 \
+            --target data/backfill/supplyDemand/a4 --kind dir --ext .jsonl.gz \
+            --upstream A0.5,A1a \
+            --policies universe,supplyDemand \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: supply-demand-a4-diagnostics
+          path: data/backfill/supplyDemand/a4/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/supplyDemand/a4 data/backfill/manifest)" ]; then
+            git add data/backfill/supplyDemand/a4 data/backfill/manifest
+            git commit -m "chore(backfill): A4 종목별 일별 수급 원자료"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

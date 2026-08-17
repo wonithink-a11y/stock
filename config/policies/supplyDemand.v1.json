@@ -1,0 +1,73 @@
+{
+  "version": "SD-1.0",
+  "note": "A4(수급) 백필의 수집 파라미터와 인수 조건. price.v1.json·fundamentals.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 3차에 걸친 정찰(세션 2026-08-17)로 KIS·KRX 두 경로를 실제 호출로 검증한 결과 위에서 확정했다 — KIS(inquire-investor)는 최근 ~30거래일 고정창만 주고 날짜 파라미터가 없어 백필 불가, KRX(pykrx get_market_trading_value_by_date/_volume_by_date)가 유일한 백필 경로다. 종목 1개당 단일 호출로 10.6년(2,601행)을 6.78초에 받아온 실측이 이 정책의 근거다.",
+  "market": "KR",
+
+  "source": {
+    "provider": "KRX",
+    "via": "pykrx",
+    "requiredVersion": "1.2.8",
+    "valueFn": "get_market_trading_value_by_date",
+    "volumeFn": "get_market_trading_volume_by_date",
+    "sides": ["매수", "매도"],
+    "detail": true,
+    "detailNote": "12개 투자자구분(금융투자·보험·투신·사모·은행·기타금융·연기금·기타법인·개인·외국인·기타외국인·전체, 실측 관찰값)을 코드에 하드코딩하지 않는다 — 수집기는 pykrx가 실제로 돌려준 컬럼 집합을 그대로 저장한다. KRX가 카테고리를 늘리거나 줄여도 수집기 수정 없이 반영된다.",
+    "netNotFetched": "순매수(on=\"순매수\")는 호출하지 않는다. 3차 정찰에서 매수-매도=순매수 항등식이 12/12 카테고리 전건 성립함을 확인했으므로, 순매수는 조회 시점에 매수-매도로 유도한다(교훈75, 파생값 미저장 원칙). 종목당 호출을 4콜(금액 매수/매도·수량 매수/매도)로 묶어 6콜보다 33% 줄인다.",
+    "credentialEnv": ["KRX_ID", "KRX_PW"],
+    "credentialEnvNote": "기존 market-flows.yml이 쓰는 시크릿과 동일 계정을 재사용한다. 정찰에서 이 계정으로 로그인 성공·2016~2023 anchor 4개 전부 응답·30콜 연속 실패 0건을 확인했다. 동일 계정의 동시(멀티샤드) 로그인이 서로를 끊어내는지는 미검증 — 본수집 전 스모크가 확인해야 할 유일한 남은 위험이다.",
+    "probeTickers": ["005930", "000660"],
+    "probeNote": "대량 루프 진입 전 2회 정찰(교훈32, A2a/A2b와 동일 패턴). 둘 다 실패하면 경로가 막힌 것이므로 전량을 돌리지 않고 즉시 중단한다.",
+    "retryNote": "KIS의 EGW00201류 재시도 가능 오류 코드에 해당하는 것을 KRX/pykrx에서 관측하지 못했다(누적 약 70콜, 실패 0건) — 그래서 이 버전은 호출별 재시도 로직을 두지 않는다. 종목 하나의 예외는 그 종목만 UNRESOLVED로 남기고(fail-soft) 다음 실행이 재시도한다."
+  },
+
+  "collectFrom": "2016-01-04",
+  "collectFromNote": "사용자 지시(2026-08-17). A0.5 캘린더의 실제 시작(2014-01-02)보다 늦다 — 수급 데이터의 2014~2015 구간 가용성은 이번 정찰에서 확인하지 않았다(anchor는 2016·2018·2020·2023만 썼다). 필요해지면 별도 정찰로 연다.",
+
+  "shards": 8,
+  "shardsNote": "A3c와 같은 근거 — ticker 정렬 후 라운드로빈 분배. 연속 구간으로 자르면 신규상장·결측 종목이 특정 샤드에 몰려 실패율이 갈린다. 종목당 4콜 × 평균 약 7초/콜(10년 단일 호출 실측 6.78초 기준 근사, 매수/매도 개별 호출 소요는 미실측) 가정 시 샤드당(약 322종목) 약 150분 — GitHub Actions 단일 job 6시간 한도 안에 들지만 여유가 크지 않다. 스모크가 실제 종목당 소요시간을 확인하면 샤드 수를 재검토한다.",
+
+  "circuitBreaker": {
+    "consecutiveExceptions": 20,
+    "ignoreConsecutiveEmpty": true,
+    "note": "A2b와 같은 값·같은 근거. 빈 응답(신규상장 등 데이터 없음)은 실패로 안 센다 — 예외만 센다. 정찰에서 관찰된 유일한 실패(246250, pykrx 내부 'Length mismatch' 예외)는 차단이 아니라 특정 종목의 데이터 결측으로 판단됐다."
+  },
+
+  "output": {
+    "dir": "data/backfill/supplyDemand/a4",
+    "shardDir": "data/backfill/supplyDemand/_shards_a4",
+    "partition": "year",
+    "format": "jsonl.gz",
+    "gzipMtime": 0,
+    "gzipCompressLevel": 9,
+    "sortKey": ["date", "ticker"],
+    "fields": ["ticker", "date", "buyAmount", "sellAmount", "buyVolume", "sellVolume"],
+    "fieldsNote": "순매수는 저장하지 않는다(사용자 지시, 교훈75). buyAmount·sellAmount·buyVolume·sellVolume은 각각 KRX가 실제로 돌려준 투자자구분 키를 그대로 담은 객체다(source.detailNote) — flat 필드 수십 개보다 스키마가 안정적이고 KIS 매핑 공식(A4 계약 초안, 세션 2026-08-17)을 그대로 재현할 수 있다."
+  },
+
+  "acceptance": {
+    "dateContractViolations": 0,
+    "tickerContractViolations": 0,
+    "duplicateKeys": 0,
+    "categoryKeySetViolations": 0,
+    "marketClearingViolations": 0,
+    "minTickersWithDataWarn": 0.90,
+    "missingRateWarn": 0.05,
+    "unresolvedRateWarn": 0.05
+  },
+  "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것만이다. dateContractViolations(YYYY-MM-DD·캘린더 밖 날짜 포함) · tickerContractViolations([0-9A-Z]{6}) · duplicateKeys((ticker,date) 중복) · categoryKeySetViolations(같은 레코드 안에서 buyAmount/sellAmount/buyVolume/sellVolume의 키 집합이 서로 다르면 위반 — 4번의 독립 호출이 같은 날짜에 대해 다른 카테고리 집합을 줬다는 뜻이라 소스 응답이 자기모순이다) · marketClearingViolations(카테고리 합계 매수-매도가 0이 아니면 위반 — 순매수를 저장하지 않으므로 항등식은 '매수-매도의 카테고리 합이 0'이라는 시장 청산 조건으로 대신 검사한다. 순매수를 별도로 불러 대조하지 않는 이유는 3차 정찰에서 12/12 카테고리 항등식이 이미 확정됐기 때문이다).\n\n나머지는 전부 WARN이다 — 이번이 A4의 첫 전수 수집이라 A3(FN-1.0)와 같은 이유로 baseline이 없다. minTickersWithDataWarn 0.90 · missingRateWarn 0.05 · unresolvedRateWarn 0.05는 근거 없이 고른 시작값이다(정찰은 최대 70콜 규모라 전수 baseline이 아니다). 첫 전수 수집의 measured 실측 후 FN-1.4 승격 절차와 같은 방식으로 재조정한다 — 지금 이 값을 FAIL로 올리지 않는다.",
+
+  "coverage": {
+    "targetUniverse": "A1a",
+    "targetUniverseNote": "대상은 현재 상장 유니버스(A1a)다. A2b·A3c처럼 폐지 종목(A1b)을 별도로 다루는 하위 단계는 이번 버전에 없다 — 수급 데이터의 폐지 종목 가용성은 미검증이라 범위 밖으로 둔다(필요해지면 A4b로 연다).",
+    "unresolved": {
+      "policy": "종목 조회가 예외로 끝나면(circuitBreaker에 안 걸리는 범위에서) 그 종목을 유니버스에서 빼지 않고 UNRESOLVED로 상태에 남긴다. 사유(pykrx 예외 메시지)와 함께 diagnostics에 전량 기록하고 다음 실행이 다시 시도한다 — A3의 retryable=true 기본값과 같은 태도다."
+    }
+  },
+
+  "manifest": {
+    "stage": "A4",
+    "upstream": ["A0.5", "A1a"],
+    "policies": ["universe", "supplyDemand"],
+    "upstreamNote": "lib/backfillManifest.js의 REQUIRED_UPSTREAM.A4가 이미 ['A0.5','A1a']로 선언돼 있었다(이 정책 파일 작성 이전부터) — A4가 예약된 단계 이름이었다는 뜻이다. A0.5는 거래일 계약(날짜 검사)에, A1a는 대상 유니버스에 쓴다."
+  }
+}

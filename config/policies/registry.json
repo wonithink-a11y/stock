@@ -30,7 +30,8 @@
     "universe": "config/policies/universe.v1.json",
     "price": "config/policies/price.v1.json",
     "fundamentals": "config/policies/fundamentals.v1.json",
-    "minute": "config/policies/minute.v1.json"
+    "minute": "config/policies/minute.v1.json",
+    "supplyDemand": "config/policies/supplyDemand.v1.json"
   },
   "dataPoliciesNote": "score()도 A6도 읽지 않고 수집 단계(A1a·A2·A3)가 읽는 정책. policies·analysisPolicies 어느 쪽에도 넣지 않는 이유는 meta.policies가 '그 점수를 만든 정책 전량'이라는 계약이기 때문이다. A5에서의 추적은 upstream 체인(A5.upstream.A1a → A1a manifest.policyHash.universe)이 담당한다.",
   "approvals": {
