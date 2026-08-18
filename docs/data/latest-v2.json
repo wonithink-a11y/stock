@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-17T08:28:47.335Z",
+  "updatedAt": "2026-08-18T08:13:26.286Z",
   "engineVersion": "2.1.1",
   "results": [
     {
@@ -7,8 +7,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -108,13 +108,13 @@
             "source": null
           },
           "pbr": {
-            "raw": 3.82,
+            "raw": 3.73,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.66437125748503,
-            "score": 90.1377245508982,
+            "raw": 0.6497005988023952,
+            "score": 91.01796407185628,
             "source": null
           },
           "marginOfSafety": {
@@ -171,8 +171,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -187,9 +187,9 @@
       "result": {
         "ticker": "000660",
         "name": "SK하이닉스",
-        "rawScore": 67.2,
+        "rawScore": 67.8,
         "riskPenalty": 0,
-        "finalScore": 67.2,
+        "finalScore": 67.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -204,7 +204,7 @@
         "components": {
           "fundamental": 29.6,
           "valuation": 18,
-          "technical": 5.6,
+          "technical": 6.1,
           "supplyDemand": 14
         },
         "adjustments": [],
@@ -226,7 +226,7 @@
           },
           {
             "factor": "technical",
-            "impact": -1.9,
+            "impact": -1.3,
             "direction": "negative"
           }
         ],
@@ -267,17 +267,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.548,
+            "raw": 0.581,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 7.09,
+            "raw": 7.17,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.1371009490940466,
+            "raw": 0.13848144952545297,
             "score": 100,
             "source": null
           },
@@ -293,7 +293,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -335,8 +335,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -351,9 +351,9 @@
       "result": {
         "ticker": "402340",
         "name": "SK스퀘어",
-        "rawScore": 55.1,
+        "rawScore": 55.2,
         "riskPenalty": 0,
-        "finalScore": 55.1,
+        "finalScore": 55.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -367,7 +367,7 @@
         "flags": [],
         "components": {
           "fundamental": 20.6,
-          "valuation": 14.3,
+          "valuation": 14.4,
           "technical": 6.1,
           "supplyDemand": 14
         },
@@ -390,7 +390,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -0.7,
+            "impact": -0.6,
             "direction": "negative"
           }
         ],
@@ -426,17 +426,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.076,
-            "score": 59.35999999999999,
+            "raw": 1.072,
+            "score": 59.91999999999999,
             "source": null
           },
           "pbr": {
-            "raw": 4.22,
+            "raw": 4.15,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.06990014265335237,
+            "raw": 0.06875891583452212,
             "score": 100,
             "source": null
           },
@@ -494,8 +494,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -510,9 +510,9 @@
       "result": {
         "ticker": "005380",
         "name": "현대차",
-        "rawScore": 55.5,
+        "rawScore": 52.7,
         "riskPenalty": 0,
-        "finalScore": 55.5,
+        "finalScore": 52.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -526,21 +526,21 @@
         "flags": [],
         "components": {
           "fundamental": 18,
-          "valuation": 18.5,
-          "technical": 8.8,
+          "valuation": 19,
+          "technical": 5.5,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 3.5,
+            "impact": 4,
             "direction": "positive"
           },
           {
             "factor": "technical",
-            "impact": 1.3,
-            "direction": "positive"
+            "impact": -2,
+            "direction": "negative"
           },
           {
             "factor": "fundamental",
@@ -590,13 +590,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.482,
+            "raw": 0.486,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.99,
-            "score": 85.75,
+            "raw": 0.95,
+            "score": 88.75,
             "source": null
           },
           "peg": {
@@ -606,7 +606,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 72.39770410404395,
+            "score": 77.13060645152734,
             "source": null
           },
           "movingAverageCross": {
@@ -616,7 +616,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -626,7 +626,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -658,8 +658,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -754,17 +754,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 5.078,
+            "raw": 4.926,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 11.99,
+            "raw": 11.08,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 36.79,
+            "raw": 34.005,
             "score": 0,
             "source": null
           },
@@ -822,8 +822,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -838,9 +838,9 @@
       "result": {
         "ticker": "373220",
         "name": "LG에너지솔루션",
-        "rawScore": 28.2,
+        "rawScore": 26.1,
         "riskPenalty": 0,
-        "finalScore": 28.2,
+        "finalScore": 26.1,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -855,7 +855,7 @@
         "components": {
           "fundamental": 10.2,
           "valuation": 0,
-          "technical": 8.3,
+          "technical": 6.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -872,8 +872,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -923,7 +923,7 @@
             "source": null
           },
           "pbr": {
-            "raw": 3.9,
+            "raw": 3.71,
             "score": 0,
             "source": null
           },
@@ -939,7 +939,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -986,8 +986,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1002,9 +1002,9 @@
       "result": {
         "ticker": "032830",
         "name": "삼성생명",
-        "rawScore": 43.8,
+        "rawScore": 43.4,
         "riskPenalty": 0,
-        "finalScore": 43.8,
+        "finalScore": 43.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -1018,7 +1018,7 @@
         "flags": [],
         "components": {
           "fundamental": 17.1,
-          "valuation": 10.3,
+          "valuation": 9.9,
           "technical": 6.1,
           "supplyDemand": 10.3
         },
@@ -1026,7 +1026,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -4.7,
+            "impact": -5.1,
             "direction": "negative"
           },
           {
@@ -1077,23 +1077,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.302,
+            "raw": 2.406,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 0.67,
+            "raw": 0.69,
             "score": 100,
             "source": null
           },
           "peg": {
-            "raw": 2.254838709677419,
+            "raw": 2.325806451612903,
             "score": 0,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 71.46772591399422,
+            "score": 64.94439139003073,
             "source": null
           },
           "movingAverageCross": {
@@ -1145,8 +1145,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1241,18 +1241,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.633,
+            "raw": 1.671,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 9.03,
+            "raw": 8.94,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.6714285714285714,
-            "score": 89.71428571428572,
+            "raw": 0.6640854472630173,
+            "score": 90.15487316421897,
             "source": null
           },
           "marginOfSafety": {
@@ -1309,8 +1309,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1325,9 +1325,9 @@
       "result": {
         "ticker": "105560",
         "name": "KB금융",
-        "rawScore": 70,
+        "rawScore": 69.8,
         "riskPenalty": 0,
-        "finalScore": 70,
+        "finalScore": 69.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -1341,7 +1341,7 @@
         "flags": [],
         "components": {
           "fundamental": 28.3,
-          "valuation": 23.2,
+          "valuation": 23,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -1354,7 +1354,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 8.2,
+            "impact": 8,
             "direction": "positive"
           },
           {
@@ -1400,8 +1400,8 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.169,
-            "score": 46.339999999999996,
+            "raw": 1.185,
+            "score": 44.099999999999994,
             "source": null
           },
           "pbr": {
@@ -1468,8 +1468,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1484,9 +1484,9 @@
       "result": {
         "ticker": "000270",
         "name": "기아",
-        "rawScore": 63.4,
+        "rawScore": 62.8,
         "riskPenalty": 0,
-        "finalScore": 63.4,
+        "finalScore": 62.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -1500,8 +1500,8 @@
         "flags": [],
         "components": {
           "fundamental": 26.4,
-          "valuation": 20.6,
-          "technical": 6.1,
+          "valuation": 20.7,
+          "technical": 5.5,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -1513,12 +1513,12 @@
           },
           {
             "factor": "valuation",
-            "impact": 5.6,
+            "impact": 5.7,
             "direction": "positive"
           },
           {
             "factor": "technical",
-            "impact": -1.3,
+            "impact": -2,
             "direction": "negative"
           },
           {
@@ -1564,13 +1564,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.275,
+            "raw": 0.28,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.89,
-            "score": 93.25,
+            "raw": 0.87,
+            "score": 94.75,
             "source": null
           },
           "peg": {
@@ -1590,7 +1590,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -1632,8 +1632,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1648,9 +1648,9 @@
       "result": {
         "ticker": "028260",
         "name": "삼성물산",
-        "rawScore": 52.1,
+        "rawScore": 51.7,
         "riskPenalty": 0,
-        "finalScore": 52.1,
+        "finalScore": 51.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -1664,7 +1664,7 @@
         "flags": [],
         "components": {
           "fundamental": 19.7,
-          "valuation": 12.8,
+          "valuation": 12.5,
           "technical": 6.1,
           "supplyDemand": 13.5
         },
@@ -1676,14 +1676,14 @@
             "direction": "positive"
           },
           {
+            "factor": "valuation",
+            "impact": -2.5,
+            "direction": "negative"
+          },
+          {
             "factor": "fundamental",
             "impact": 2.2,
             "direction": "positive"
-          },
-          {
-            "factor": "valuation",
-            "impact": -2.2,
-            "direction": "negative"
           },
           {
             "factor": "technical",
@@ -1728,8 +1728,8 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.854,
-            "score": 84.6,
+            "raw": 0.896,
+            "score": 80.39999999999999,
             "source": null
           },
           "pbr": {
@@ -1796,8 +1796,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -1812,9 +1812,9 @@
       "result": {
         "ticker": "055550",
         "name": "신한지주",
-        "rawScore": 70.4,
+        "rawScore": 70.5,
         "riskPenalty": 0,
-        "finalScore": 70.4,
+        "finalScore": 70.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -1828,7 +1828,7 @@
         "flags": [],
         "components": {
           "fundamental": 27.4,
-          "valuation": 24.5,
+          "valuation": 24.6,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -1841,7 +1841,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 9.5,
+            "impact": 9.6,
             "direction": "positive"
           },
           {
@@ -1887,23 +1887,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.124,
-            "score": 52.639999999999986,
+            "raw": 1.13,
+            "score": 51.80000000000001,
             "source": null
           },
           "pbr": {
-            "raw": 0.86,
-            "score": 95.5,
+            "raw": 0.85,
+            "score": 96.25,
             "source": null
           },
           "peg": {
-            "raw": 0.6320987654320988,
-            "score": 92.07407407407408,
+            "raw": 0.6271604938271605,
+            "score": 92.37037037037037,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 96.15757888886284,
+            "score": 97.06991875608846,
             "source": null
           },
           "movingAverageCross": {
@@ -1955,8 +1955,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2051,17 +2051,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.781,
+            "raw": 1.633,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 5.51,
+            "raw": 5.29,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.20273531777956558,
+            "raw": 0.19460981496379728,
             "score": 100,
             "source": null
           },
@@ -2119,8 +2119,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2135,9 +2135,9 @@
       "result": {
         "ticker": "012450",
         "name": "한화에어로스페이스",
-        "rawScore": 38.3,
+        "rawScore": 37.7,
         "riskPenalty": 0,
-        "finalScore": 38.3,
+        "finalScore": 37.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -2151,7 +2151,7 @@
         "flags": [],
         "components": {
           "fundamental": 17.4,
-          "valuation": 3.1,
+          "valuation": 2.5,
           "technical": 7.6,
           "supplyDemand": 10.3
         },
@@ -2159,7 +2159,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -11.9,
+            "impact": -12.5,
             "direction": "negative"
           },
           {
@@ -2215,12 +2215,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.257,
-            "score": 34.02000000000002,
+            "raw": 1.304,
+            "score": 27.439999999999994,
             "source": null
           },
           "pbr": {
-            "raw": 5.99,
+            "raw": 5.92,
             "score": 0,
             "source": null
           },
@@ -2283,8 +2283,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2379,12 +2379,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 11.827,
+            "raw": 11.707,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 6.59,
+            "raw": 6.21,
             "score": 0,
             "source": null
           },
@@ -2447,8 +2447,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2463,9 +2463,9 @@
       "result": {
         "ticker": "012330",
         "name": "현대모비스",
-        "rawScore": 62.5,
+        "rawScore": 63.8,
         "riskPenalty": 0,
-        "finalScore": 62.5,
+        "finalScore": 63.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -2479,8 +2479,8 @@
         "flags": [],
         "components": {
           "fundamental": 24.9,
-          "valuation": 18.7,
-          "technical": 5.5,
+          "valuation": 19.2,
+          "technical": 6.1,
           "supplyDemand": 13.5
         },
         "adjustments": [],
@@ -2492,7 +2492,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 3.7,
+            "impact": 4.2,
             "direction": "positive"
           },
           {
@@ -2502,7 +2502,7 @@
           },
           {
             "factor": "technical",
-            "impact": -2,
+            "impact": -1.3,
             "direction": "negative"
           }
         ],
@@ -2543,13 +2543,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.493,
+            "raw": 0.49,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.96,
-            "score": 88,
+            "raw": 0.91,
+            "score": 91.75,
             "source": null
           },
           "peg": {
@@ -2559,7 +2559,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 72.9154151905555,
+            "score": 79.03919610961715,
             "source": null
           },
           "movingAverageCross": {
@@ -2569,7 +2569,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 40,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -2611,8 +2611,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2627,9 +2627,9 @@
       "result": {
         "ticker": "034730",
         "name": "SK",
-        "rawScore": 55.1,
+        "rawScore": 54.9,
         "riskPenalty": -8,
-        "finalScore": 47.1,
+        "finalScore": 46.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -2643,7 +2643,7 @@
         "flags": [],
         "components": {
           "fundamental": 13.6,
-          "valuation": 25.1,
+          "valuation": 24.8,
           "technical": 6.1,
           "supplyDemand": 10.3
         },
@@ -2658,7 +2658,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 10.1,
+            "impact": 9.8,
             "direction": "positive"
           },
           {
@@ -2714,23 +2714,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.536,
+            "raw": 0.514,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.09,
-            "score": 78.25,
+            "raw": 1.1,
+            "score": 77.49999999999999,
             "source": null
           },
           "peg": {
-            "raw": 0.028411672199895165,
+            "raw": 0.028656299143805696,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 39.36505884452296,
+            "score": 36.60284337955812,
             "source": null
           },
           "movingAverageCross": {
@@ -2782,8 +2782,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2798,9 +2798,9 @@
       "result": {
         "ticker": "068270",
         "name": "셀트리온",
-        "rawScore": 65.6,
+        "rawScore": 65.5,
         "riskPenalty": 0,
-        "finalScore": 65.6,
+        "finalScore": 65.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -2814,7 +2814,7 @@
         "flags": [],
         "components": {
           "fundamental": 31.7,
-          "valuation": 12.2,
+          "valuation": 12.1,
           "technical": 8.3,
           "supplyDemand": 13.5
         },
@@ -2832,7 +2832,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -2.8,
+            "impact": -2.9,
             "direction": "negative"
           },
           {
@@ -2878,17 +2878,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.249,
-            "score": 35.139999999999986,
+            "raw": 1.257,
+            "score": 34.02000000000002,
             "source": null
           },
           "pbr": {
-            "raw": 2.62,
+            "raw": 2.55,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.2591644204851752,
+            "raw": 0.25208894878706195,
             "score": 100,
             "source": null
           },
@@ -2946,8 +2946,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -2962,9 +2962,9 @@
       "result": {
         "ticker": "086790",
         "name": "하나금융지주",
-        "rawScore": 69.9,
+        "rawScore": 68.1,
         "riskPenalty": 0,
-        "finalScore": 69.9,
+        "finalScore": 68.1,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -2978,15 +2978,15 @@
         "flags": [],
         "components": {
           "fundamental": 27.1,
-          "valuation": 25.2,
-          "technical": 10.1,
+          "valuation": 25.3,
+          "technical": 8.3,
           "supplyDemand": 7.5
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 10.2,
+            "impact": 10.3,
             "direction": "positive"
           },
           {
@@ -2995,14 +2995,14 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": 2.6,
-            "direction": "positive"
-          },
-          {
             "factor": "supplyDemand",
             "impact": -2.5,
             "direction": "negative"
+          },
+          {
+            "factor": "technical",
+            "impact": 0.8,
+            "direction": "positive"
           }
         ],
         "features": {
@@ -3037,18 +3037,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.005,
-            "score": 69.30000000000001,
+            "raw": 1.002,
+            "score": 69.72,
             "source": null
           },
           "pbr": {
-            "raw": 0.79,
+            "raw": 0.78,
             "score": 100,
             "source": null
           },
           "peg": {
-            "raw": 0.8723809523809524,
-            "score": 77.65714285714286,
+            "raw": 0.858095238095238,
+            "score": 78.51428571428572,
             "source": null
           },
           "marginOfSafety": {
@@ -3068,7 +3068,7 @@
           },
           "macd": {
             "raw": null,
-            "score": 100,
+            "score": 50,
             "source": null
           },
           "volumeConfirmation": {
@@ -3105,8 +3105,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -3121,9 +3121,9 @@
       "result": {
         "ticker": "006400",
         "name": "삼성SDI",
-        "rawScore": 32.1,
+        "rawScore": 30.6,
         "riskPenalty": 0,
-        "finalScore": 32.1,
+        "finalScore": 30.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -3137,15 +3137,15 @@
         "flags": [],
         "components": {
           "fundamental": 9.6,
-          "valuation": 4.5,
-          "technical": 8.3,
+          "valuation": 5.2,
+          "technical": 6.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -10.5,
+            "impact": -9.8,
             "direction": "negative"
           },
           {
@@ -3155,8 +3155,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -3206,8 +3206,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 1.8,
-            "score": 37.69230769230769,
+            "raw": 1.7,
+            "score": 43.07692307692308,
             "source": null
           },
           "peg": {
@@ -3222,7 +3222,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -3269,8 +3269,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -3285,9 +3285,9 @@
       "result": {
         "ticker": "000810",
         "name": "삼성화재",
-        "rawScore": 53.7,
+        "rawScore": 51.2,
         "riskPenalty": 0,
-        "finalScore": 53.7,
+        "finalScore": 51.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -3301,8 +3301,8 @@
         "flags": [],
         "components": {
           "fundamental": 31.5,
-          "valuation": 8,
-          "technical": 8.2,
+          "valuation": 7.6,
+          "technical": 6.1,
           "supplyDemand": 6
         },
         "adjustments": [],
@@ -3314,7 +3314,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -7,
+            "impact": -7.4,
             "direction": "negative"
           },
           {
@@ -3324,8 +3324,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.7,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           }
         ],
         "features": {
@@ -3360,13 +3360,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.625,
+            "raw": 1.676,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 1.08,
-            "score": 79,
+            "raw": 1.1,
+            "score": 77.49999999999999,
             "source": null
           },
           "peg": {
@@ -3376,7 +3376,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 55.00169492012331,
+            "score": 49.57936895819628,
             "source": null
           },
           "movingAverageCross": {
@@ -3386,7 +3386,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -3396,7 +3396,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -3428,8 +3428,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -3444,9 +3444,9 @@
       "result": {
         "ticker": "066570",
         "name": "LG전자",
-        "rawScore": 47.5,
+        "rawScore": 44.7,
         "riskPenalty": 0,
-        "finalScore": 47.5,
+        "finalScore": 44.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -3460,8 +3460,8 @@
         "flags": [],
         "components": {
           "fundamental": 11.4,
-          "valuation": 13.8,
-          "technical": 8.3,
+          "valuation": 13.7,
+          "technical": 5.5,
           "supplyDemand": 14
         },
         "adjustments": [],
@@ -3477,14 +3477,14 @@
             "direction": "positive"
           },
           {
-            "factor": "valuation",
-            "impact": -1.2,
+            "factor": "technical",
+            "impact": -2,
             "direction": "negative"
           },
           {
-            "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "factor": "valuation",
+            "impact": -1.3,
+            "direction": "negative"
           }
         ],
         "features": {
@@ -3524,17 +3524,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.369,
-            "score": 18.34,
+            "raw": 1.39,
+            "score": 15.400000000000013,
             "source": null
           },
           "pbr": {
-            "raw": 1.51,
-            "score": 53.30769230769231,
+            "raw": 1.46,
+            "score": 56,
             "source": null
           },
           "peg": {
-            "raw": 0.24517923362175525,
+            "raw": 0.23720642768850433,
             "score": 100,
             "source": null
           },
@@ -3545,12 +3545,12 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -3592,8 +3592,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -3608,9 +3608,9 @@
       "result": {
         "ticker": "035420",
         "name": "NAVER",
-        "rawScore": 59.8,
+        "rawScore": 60.9,
         "riskPenalty": 0,
-        "finalScore": 59.8,
+        "finalScore": 60.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -3624,7 +3624,7 @@
         "flags": [],
         "components": {
           "fundamental": 21,
-          "valuation": 13.4,
+          "valuation": 14.5,
           "technical": 8.3,
           "supplyDemand": 17.2
         },
@@ -3641,14 +3641,14 @@
             "direction": "positive"
           },
           {
-            "factor": "valuation",
-            "impact": -1.6,
-            "direction": "negative"
-          },
-          {
             "factor": "technical",
             "impact": 0.8,
             "direction": "positive"
+          },
+          {
+            "factor": "valuation",
+            "impact": -0.5,
+            "direction": "negative"
           }
         ],
         "features": {
@@ -3688,23 +3688,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.683,
+            "raw": 0.682,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.16,
-            "score": 73,
+            "raw": 1.1,
+            "score": 77.49999999999999,
             "source": null
           },
           "peg": {
-            "raw": 8.245833333333334,
+            "raw": 7.8500000000000005,
             "score": 0,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 0,
+            "score": 14.097236292008647,
             "source": null
           },
           "movingAverageCross": {
@@ -3756,8 +3756,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -3772,9 +3772,9 @@
       "result": {
         "ticker": "267260",
         "name": "HD현대일렉트릭",
-        "rawScore": 49.9,
+        "rawScore": 49.6,
         "riskPenalty": 0,
-        "finalScore": 49.9,
+        "finalScore": 49.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -3788,7 +3788,7 @@
         "flags": [],
         "components": {
           "fundamental": 26,
-          "valuation": 10.3,
+          "valuation": 10,
           "technical": 6.1,
           "supplyDemand": 7.5
         },
@@ -3801,7 +3801,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -4.7,
+            "impact": -5,
             "direction": "negative"
           },
           {
@@ -3852,18 +3852,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.27,
-            "score": 32.199999999999996,
+            "raw": 1.303,
+            "score": 27.58000000000001,
             "source": null
           },
           "pbr": {
-            "raw": 13.9,
+            "raw": 13.59,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.7982646420824294,
-            "score": 82.10412147505423,
+            "raw": 0.7802603036876355,
+            "score": 83.18438177874187,
             "source": null
           },
           "marginOfSafety": {
@@ -3920,8 +3920,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4016,17 +4016,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 3.17,
+            "raw": 3.367,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 14.85,
+            "raw": 15.03,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 4.735051546391753,
+            "raw": 4.792268041237113,
             "score": 0,
             "source": null
           },
@@ -4084,8 +4084,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4100,9 +4100,9 @@
       "result": {
         "ticker": "042660",
         "name": "한화오션",
-        "rawScore": 54.6,
+        "rawScore": 55.4,
         "riskPenalty": 0,
-        "finalScore": 54.6,
+        "finalScore": 55.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -4116,7 +4116,7 @@
         "flags": [],
         "components": {
           "fundamental": 22.8,
-          "valuation": 15.3,
+          "valuation": 16.1,
           "technical": 6.1,
           "supplyDemand": 10.3
         },
@@ -4134,7 +4134,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 0.3,
+            "impact": 1.1,
             "direction": "positive"
           },
           {
@@ -4180,17 +4180,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1,
-            "score": 70,
+            "raw": 0.907,
+            "score": 79.3,
             "source": null
           },
           "pbr": {
-            "raw": 3.9,
+            "raw": 3.7,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.09888190076869323,
+            "raw": 0.09385045422781273,
             "score": 100,
             "source": null
           },
@@ -4248,8 +4248,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4344,17 +4344,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.882,
+            "raw": 1.996,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 11.48,
+            "raw": 11.6,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.4086142322097378,
+            "raw": 0.41273408239700377,
             "score": 100,
             "source": null
           },
@@ -4412,8 +4412,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4428,9 +4428,9 @@
       "result": {
         "ticker": "009540",
         "name": "HD한국조선해양",
-        "rawScore": 67.6,
+        "rawScore": 66.8,
         "riskPenalty": 0,
-        "finalScore": 67.6,
+        "finalScore": 66.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -4444,8 +4444,8 @@
         "flags": [],
         "components": {
           "fundamental": 29.8,
-          "valuation": 19.3,
-          "technical": 8.3,
+          "valuation": 20.6,
+          "technical": 6.1,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -4457,13 +4457,13 @@
           },
           {
             "factor": "valuation",
-            "impact": 4.3,
+            "impact": 5.6,
             "direction": "positive"
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -4508,28 +4508,28 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.767,
-            "score": 93.3,
+            "raw": 0.711,
+            "score": 98.9,
             "source": null
           },
           "pbr": {
-            "raw": 2.01,
-            "score": 26.384615384615397,
+            "raw": 1.95,
+            "score": 29.615384615384617,
             "source": null
           },
           "peg": {
-            "raw": 0.12764705882352942,
+            "raw": 0.12388235294117646,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 5.420304331977982,
+            "score": 15.644650110096226,
             "source": null
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -4576,8 +4576,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4592,9 +4592,9 @@
       "result": {
         "ticker": "005490",
         "name": "POSCO홀딩스",
-        "rawScore": 47.2,
+        "rawScore": 48.5,
         "riskPenalty": 0,
-        "finalScore": 47.2,
+        "finalScore": 48.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -4608,7 +4608,7 @@
         "flags": [],
         "components": {
           "fundamental": 15.4,
-          "valuation": 15.4,
+          "valuation": 16.7,
           "technical": 6.1,
           "supplyDemand": 10.3
         },
@@ -4620,14 +4620,14 @@
             "direction": "negative"
           },
           {
+            "factor": "valuation",
+            "impact": 1.7,
+            "direction": "positive"
+          },
+          {
             "factor": "technical",
             "impact": -1.3,
             "direction": "negative"
-          },
-          {
-            "factor": "valuation",
-            "impact": 0.4,
-            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
@@ -4672,12 +4672,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.083,
-            "score": 58.38,
+            "raw": 1,
+            "score": 70,
             "source": null
           },
           "pbr": {
-            "raw": 0.44,
+            "raw": 0.43,
             "score": 100,
             "source": null
           },
@@ -4688,7 +4688,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 69.43279672143514,
+            "score": 72.82534403720231,
             "source": null
           },
           "movingAverageCross": {
@@ -4740,8 +4740,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4756,9 +4756,9 @@
       "result": {
         "ticker": "006800",
         "name": "미래에셋증권",
-        "rawScore": 60.2,
+        "rawScore": 61.4,
         "riskPenalty": 0,
-        "finalScore": 60.2,
+        "finalScore": 61.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -4772,7 +4772,7 @@
         "flags": [],
         "components": {
           "fundamental": 27.7,
-          "valuation": 16.6,
+          "valuation": 17.8,
           "technical": 6.1,
           "supplyDemand": 9.7
         },
@@ -4785,7 +4785,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 1.6,
+            "impact": 2.8,
             "direction": "positive"
           },
           {
@@ -4831,23 +4831,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.296,
-            "score": 28.559999999999995,
+            "raw": 1.269,
+            "score": 32.34000000000001,
             "source": null
           },
           "pbr": {
-            "raw": 1.56,
-            "score": 50.61538461538461,
+            "raw": 1.5,
+            "score": 53.84615384615384,
             "source": null
           },
           "peg": {
-            "raw": 0.16068027210884353,
+            "raw": 0.15523809523809523,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 33.28835407161506,
+            "score": 44.743277442303224,
             "source": null
           },
           "movingAverageCross": {
@@ -4899,8 +4899,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -4995,7 +4995,7 @@
             "source": null
           },
           "perRelative": {
-            "raw": 4.233,
+            "raw": 4.443,
             "score": 0,
             "source": null
           },
@@ -5063,8 +5063,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5079,9 +5079,9 @@
       "result": {
         "ticker": "316140",
         "name": "우리금융지주",
-        "rawScore": 63,
+        "rawScore": 62.9,
         "riskPenalty": 0,
-        "finalScore": 63,
+        "finalScore": 62.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -5095,7 +5095,7 @@
         "flags": [],
         "components": {
           "fundamental": 25.1,
-          "valuation": 19.4,
+          "valuation": 19.3,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -5108,7 +5108,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 4.4,
+            "impact": 4.3,
             "direction": "positive"
           },
           {
@@ -5154,8 +5154,8 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.877,
-            "score": 82.3,
+            "raw": 0.891,
+            "score": 80.89999999999999,
             "source": null
           },
           "pbr": {
@@ -5164,7 +5164,7 @@
             "source": null
           },
           "peg": {
-            "raw": 3.0730769230769233,
+            "raw": 3.0807692307692305,
             "score": 0,
             "source": null
           },
@@ -5222,8 +5222,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5238,9 +5238,9 @@
       "result": {
         "ticker": "015760",
         "name": "한국전력",
-        "rawScore": 60.2,
+        "rawScore": 62.1,
         "riskPenalty": 0,
-        "finalScore": 60.2,
+        "finalScore": 62.1,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -5255,7 +5255,7 @@
         "components": {
           "fundamental": 23.3,
           "valuation": 30,
-          "technical": 3.7,
+          "technical": 5.6,
           "supplyDemand": 3.2
         },
         "adjustments": [],
@@ -5277,7 +5277,7 @@
           },
           {
             "factor": "technical",
-            "impact": -3.8,
+            "impact": -1.9,
             "direction": "negative"
           }
         ],
@@ -5328,7 +5328,7 @@
             "source": null
           },
           "peg": {
-            "raw": 0.016931582584657916,
+            "raw": 0.0165860400829302,
             "score": 100,
             "source": null
           },
@@ -5349,7 +5349,7 @@
           },
           "macd": {
             "raw": null,
-            "score": 0,
+            "score": 50,
             "source": null
           },
           "volumeConfirmation": {
@@ -5386,8 +5386,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5402,9 +5402,9 @@
       "result": {
         "ticker": "010130",
         "name": "고려아연",
-        "rawScore": 56.1,
+        "rawScore": 55.4,
         "riskPenalty": 0,
-        "finalScore": 56.1,
+        "finalScore": 55.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -5418,7 +5418,7 @@
         "flags": [],
         "components": {
           "fundamental": 23.7,
-          "valuation": 17.6,
+          "valuation": 16.9,
           "technical": 8.3,
           "supplyDemand": 6.5
         },
@@ -5436,7 +5436,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 2.6,
+            "impact": 1.9,
             "direction": "positive"
           },
           {
@@ -5482,17 +5482,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.861,
-            "score": 83.9,
+            "raw": 0.921,
+            "score": 77.89999999999999,
             "source": null
           },
           "pbr": {
-            "raw": 2.18,
-            "score": 17.230769230769223,
+            "raw": 2.22,
+            "score": 15.076923076923066,
             "source": null
           },
           "peg": {
-            "raw": 0.13502977801840824,
+            "raw": 0.1376285868976719,
             "score": 100,
             "source": null
           },
@@ -5550,8 +5550,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5646,12 +5646,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 9.816,
+            "raw": 9.134,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 10.34,
+            "raw": 10.13,
             "score": 0,
             "source": null
           },
@@ -5714,8 +5714,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5730,9 +5730,9 @@
       "result": {
         "ticker": "096770",
         "name": "SK이노베이션",
-        "rawScore": 66.4,
+        "rawScore": 65.9,
         "riskPenalty": 0,
-        "finalScore": 66.4,
+        "finalScore": 65.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -5746,7 +5746,7 @@
         "flags": [],
         "components": {
           "fundamental": 13.6,
-          "valuation": 27.3,
+          "valuation": 26.9,
           "technical": 8.3,
           "supplyDemand": 17.2
         },
@@ -5754,7 +5754,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 12.3,
+            "impact": 11.9,
             "direction": "positive"
           },
           {
@@ -5815,8 +5815,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 0.92,
-            "score": 91,
+            "raw": 0.94,
+            "score": 89.5,
             "source": null
           },
           "peg": {
@@ -5878,8 +5878,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -5974,17 +5974,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.498,
+            "raw": 2.274,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 4.22,
+            "raw": 4.02,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.046994680851063834,
+            "raw": 0.04478723404255319,
             "score": 100,
             "source": null
           },
@@ -6042,8 +6042,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6143,7 +6143,7 @@
             "source": null
           },
           "pbr": {
-            "raw": 0.63,
+            "raw": 0.61,
             "score": 100,
             "source": null
           },
@@ -6206,8 +6206,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6222,9 +6222,9 @@
       "result": {
         "ticker": "017670",
         "name": "SK텔레콤",
-        "rawScore": 29.3,
+        "rawScore": 26,
         "riskPenalty": 0,
-        "finalScore": 29.3,
+        "finalScore": 26,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -6239,7 +6239,7 @@
         "components": {
           "fundamental": 9.6,
           "valuation": 2.9,
-          "technical": 10.9,
+          "technical": 7.6,
           "supplyDemand": 6
         },
         "adjustments": [],
@@ -6261,7 +6261,7 @@
           },
           {
             "factor": "technical",
-            "impact": 3.4,
+            "impact": 0.1,
             "direction": "positive"
           }
         ],
@@ -6302,13 +6302,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 4.845,
+            "raw": 4.851,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 1.61,
-            "score": 47.92307692307691,
+            "raw": 1.6,
+            "score": 48.46153846153845,
             "source": null
           },
           "peg": {
@@ -6328,7 +6328,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -6338,7 +6338,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -6370,8 +6370,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6386,9 +6386,9 @@
       "result": {
         "ticker": "011200",
         "name": "HMM",
-        "rawScore": 54.7,
+        "rawScore": 59.8,
         "riskPenalty": 0,
-        "finalScore": 54.7,
+        "finalScore": 59.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -6402,15 +6402,15 @@
         "flags": [],
         "components": {
           "fundamental": 20.2,
-          "valuation": 17.9,
-          "technical": 6.4,
+          "valuation": 17.3,
+          "technical": 12.1,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
-            "factor": "valuation",
-            "impact": 2.9,
+            "factor": "technical",
+            "impact": 4.6,
             "direction": "positive"
           },
           {
@@ -6419,9 +6419,9 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": -1.1,
-            "direction": "negative"
+            "factor": "valuation",
+            "impact": 2.3,
+            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
@@ -6466,12 +6466,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.982,
-            "score": 71.8,
+            "raw": 1,
+            "score": 70,
             "source": null
           },
           "pbr": {
-            "raw": 0.72,
+            "raw": 0.77,
             "score": 100,
             "source": null
           },
@@ -6482,7 +6482,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 89.9600079968016,
+            "score": 83.2118920478502,
             "source": null
           },
           "movingAverageCross": {
@@ -6492,17 +6492,17 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
             "raw": null,
-            "score": 0,
+            "score": 100,
             "source": null
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 30,
+            "score": 100,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -6534,8 +6534,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6630,13 +6630,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.598,
+            "raw": 0.63,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.97,
-            "score": 28.538461538461537,
+            "raw": 1.98,
+            "score": 28,
             "source": null
           },
           "peg": {
@@ -6698,8 +6698,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6794,17 +6794,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.68,
+            "raw": 0.696,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 4.98,
+            "raw": 4.85,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.22107623318385647,
+            "raw": 0.2155829596412556,
             "score": 100,
             "source": null
           },
@@ -6862,8 +6862,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -6878,9 +6878,9 @@
       "result": {
         "ticker": "024110",
         "name": "기업은행",
-        "rawScore": 55.1,
+        "rawScore": 55.7,
         "riskPenalty": 0,
-        "finalScore": 55.1,
+        "finalScore": 55.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -6895,7 +6895,7 @@
         "components": {
           "fundamental": 25.3,
           "valuation": 21,
-          "technical": 5.6,
+          "technical": 6.1,
           "supplyDemand": 3.2
         },
         "adjustments": [],
@@ -6917,7 +6917,7 @@
           },
           {
             "factor": "technical",
-            "impact": -1.9,
+            "impact": -1.3,
             "direction": "negative"
           }
         ],
@@ -6953,7 +6953,7 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.674,
+            "raw": 0.684,
             "score": 100,
             "source": null
           },
@@ -6963,7 +6963,7 @@
             "source": null
           },
           "peg": {
-            "raw": 2.456,
+            "raw": 2.46,
             "score": 0,
             "source": null
           },
@@ -6979,7 +6979,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -7021,8 +7021,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7037,9 +7037,9 @@
       "result": {
         "ticker": "010950",
         "name": "S-Oil",
-        "rawScore": 42.4,
+        "rawScore": 41.4,
         "riskPenalty": 0,
-        "finalScore": 42.4,
+        "finalScore": 41.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -7053,8 +7053,8 @@
         "flags": [],
         "components": {
           "fundamental": 8.3,
-          "valuation": 16.1,
-          "technical": 8.3,
+          "valuation": 15.8,
+          "technical": 7.6,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -7066,11 +7066,6 @@
           },
           {
             "factor": "valuation",
-            "impact": 1.1,
-            "direction": "positive"
-          },
-          {
-            "factor": "technical",
             "impact": 0.8,
             "direction": "positive"
           },
@@ -7078,6 +7073,11 @@
             "factor": "supplyDemand",
             "impact": -0.3,
             "direction": "negative"
+          },
+          {
+            "factor": "technical",
+            "impact": 0.1,
+            "direction": "positive"
           }
         ],
         "features": {
@@ -7117,13 +7117,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.63,
+            "raw": 0.688,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.8,
-            "score": 37.69230769230769,
+            "raw": 1.87,
+            "score": 33.92307692307691,
             "source": null
           },
           "peg": {
@@ -7143,7 +7143,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -7185,8 +7185,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7281,17 +7281,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.99,
+            "raw": 2.037,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 11.8,
+            "raw": 11.51,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 3.7940789473684213,
+            "raw": 3.7006578947368425,
             "score": 0,
             "source": null
           },
@@ -7349,8 +7349,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7365,9 +7365,9 @@
       "result": {
         "ticker": "267250",
         "name": "HD현대",
-        "rawScore": 66.5,
+        "rawScore": 65.4,
         "riskPenalty": 0,
-        "finalScore": 66.5,
+        "finalScore": 65.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -7382,7 +7382,7 @@
         "components": {
           "fundamental": 25.4,
           "valuation": 23.1,
-          "technical": 8.3,
+          "technical": 7.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -7399,8 +7399,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -0.4,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -7445,7 +7445,7 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.402,
+            "raw": 0.381,
             "score": 100,
             "source": null
           },
@@ -7455,13 +7455,13 @@
             "source": null
           },
           "peg": {
-            "raw": 0.13692480359147025,
+            "raw": 0.13636363636363638,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 32.255168763081564,
+            "score": 32.906953718628515,
             "source": null
           },
           "movingAverageCross": {
@@ -7471,7 +7471,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 20,
             "source": null
           },
           "macd": {
@@ -7513,8 +7513,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7529,9 +7529,9 @@
       "result": {
         "ticker": "035720",
         "name": "카카오",
-        "rawScore": 51.8,
+        "rawScore": 53.5,
         "riskPenalty": 0,
-        "finalScore": 51.8,
+        "finalScore": 53.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -7545,24 +7545,24 @@
         "flags": [],
         "components": {
           "fundamental": 17.9,
-          "valuation": 15.4,
-          "technical": 8.3,
+          "valuation": 15.5,
+          "technical": 9.8,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
-          },
-          {
-            "factor": "fundamental",
-            "impact": 0.4,
+            "impact": 2.3,
             "direction": "positive"
           },
           {
             "factor": "valuation",
+            "impact": 0.5,
+            "direction": "positive"
+          },
+          {
+            "factor": "fundamental",
             "impact": 0.4,
             "direction": "positive"
           },
@@ -7609,17 +7609,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.242,
-            "score": 36.120000000000005,
+            "raw": 1.247,
+            "score": 35.41999999999999,
             "source": null
           },
           "pbr": {
-            "raw": 1.53,
-            "score": 52.230769230769226,
+            "raw": 1.47,
+            "score": 55.46153846153846,
             "source": null
           },
           "peg": {
-            "raw": 0.04572589864092468,
+            "raw": 0.04373174139463991,
             "score": 100,
             "source": null
           },
@@ -7630,7 +7630,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 100,
             "source": null
           },
           "rsi": {
@@ -7677,8 +7677,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7693,9 +7693,9 @@
       "result": {
         "ticker": "011070",
         "name": "LG이노텍",
-        "rawScore": 39.5,
+        "rawScore": 39.4,
         "riskPenalty": 0,
-        "finalScore": 39.5,
+        "finalScore": 39.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -7709,7 +7709,7 @@
         "flags": [],
         "components": {
           "fundamental": 18.6,
-          "valuation": 5,
+          "valuation": 4.9,
           "technical": 6.1,
           "supplyDemand": 9.7
         },
@@ -7717,7 +7717,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -10,
+            "impact": -10.1,
             "direction": "negative"
           },
           {
@@ -7773,13 +7773,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.102,
-            "score": 55.719999999999985,
+            "raw": 1.119,
+            "score": 53.34,
             "source": null
           },
           "pbr": {
-            "raw": 2.55,
-            "score": 0,
+            "raw": 2.46,
+            "score": 2.1538461538461555,
             "source": null
           },
           "peg": {
@@ -7841,8 +7841,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -7857,9 +7857,9 @@
       "result": {
         "ticker": "018260",
         "name": "삼성에스디에스",
-        "rawScore": 52.9,
+        "rawScore": 53.4,
         "riskPenalty": 0,
-        "finalScore": 52.9,
+        "finalScore": 53.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -7873,7 +7873,7 @@
         "flags": [],
         "components": {
           "fundamental": 22.6,
-          "valuation": 8,
+          "valuation": 8.6,
           "technical": 8.3,
           "supplyDemand": 14
         },
@@ -7881,7 +7881,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -7,
+            "impact": -6.4,
             "direction": "negative"
           },
           {
@@ -7937,17 +7937,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.015,
-            "score": 67.90000000000002,
+            "raw": 1,
+            "score": 70,
             "source": null
           },
           "pbr": {
-            "raw": 1.9,
-            "score": 32.30769230769231,
+            "raw": 1.78,
+            "score": 38.76923076923077,
             "source": null
           },
           "peg": {
-            "raw": 98.06666666666668,
+            "raw": 92.03333333333333,
             "score": 0,
             "source": null
           },
@@ -8005,8 +8005,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8021,9 +8021,9 @@
       "result": {
         "ticker": "003550",
         "name": "LG",
-        "rawScore": 52.8,
+        "rawScore": 53.2,
         "riskPenalty": 0,
-        "finalScore": 52.8,
+        "finalScore": 53.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -8037,8 +8037,8 @@
         "flags": [],
         "components": {
           "fundamental": 15.4,
-          "valuation": 13.2,
-          "technical": 10.2,
+          "valuation": 16.2,
+          "technical": 7.6,
           "supplyDemand": 14
         },
         "adjustments": [],
@@ -8049,19 +8049,19 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": 2.7,
-            "direction": "positive"
-          },
-          {
             "factor": "fundamental",
             "impact": -2.1,
             "direction": "negative"
           },
           {
             "factor": "valuation",
-            "impact": -1.8,
-            "direction": "negative"
+            "impact": 1.2,
+            "direction": "positive"
+          },
+          {
+            "factor": "technical",
+            "impact": 0.1,
+            "direction": "positive"
           }
         ],
         "features": {
@@ -8101,23 +8101,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.262,
-            "score": 33.32,
+            "raw": 1.126,
+            "score": 52.360000000000014,
             "source": null
           },
           "pbr": {
-            "raw": 0.62,
+            "raw": 0.58,
             "score": 100,
             "source": null
           },
           "peg": {
-            "raw": 1.3295138888888889,
-            "score": 46.93402777777778,
+            "raw": 1.2486111111111111,
+            "score": 52.59722222222222,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 0,
+            "score": 13.022717547771661,
             "source": null
           },
           "movingAverageCross": {
@@ -8137,7 +8137,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -8169,8 +8169,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8185,9 +8185,9 @@
       "result": {
         "ticker": "278470",
         "name": "에이피알",
-        "rawScore": 63.2,
+        "rawScore": 61.5,
         "riskPenalty": 0,
-        "finalScore": 63.2,
+        "finalScore": 61.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -8201,8 +8201,8 @@
         "flags": [],
         "components": {
           "fundamental": 34.3,
-          "valuation": 10,
-          "technical": 8.3,
+          "valuation": 9,
+          "technical": 7.6,
           "supplyDemand": 10.7
         },
         "adjustments": [],
@@ -8214,17 +8214,17 @@
           },
           {
             "factor": "valuation",
-            "impact": -5,
+            "impact": -6,
             "direction": "negative"
-          },
-          {
-            "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
             "impact": 0.7,
+            "direction": "positive"
+          },
+          {
+            "factor": "technical",
+            "impact": 0.1,
             "direction": "positive"
           }
         ],
@@ -8265,17 +8265,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.419,
-            "score": 11.339999999999995,
+            "raw": 1.512,
+            "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 28.86,
+            "raw": 29.3,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.24168136390358613,
+            "raw": 0.24544385655496767,
             "score": 100,
             "source": null
           },
@@ -8291,7 +8291,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -8333,8 +8333,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8429,17 +8429,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.49,
+            "raw": 2.499,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 7.66,
+            "raw": 7.32,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 9.01875,
+            "raw": 8.625,
             "score": 0,
             "source": null
           },
@@ -8497,8 +8497,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8513,9 +8513,9 @@
       "result": {
         "ticker": "086280",
         "name": "현대글로비스",
-        "rawScore": 74.7,
+        "rawScore": 75,
         "riskPenalty": 0,
-        "finalScore": 74.7,
+        "finalScore": 75,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -8529,7 +8529,7 @@
         "flags": [],
         "components": {
           "fundamental": 30.8,
-          "valuation": 25.4,
+          "valuation": 25.6,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -8542,7 +8542,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 10.4,
+            "impact": 10.6,
             "direction": "positive"
           },
           {
@@ -8593,23 +8593,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.326,
+            "raw": 0.335,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.52,
-            "score": 52.76923076923077,
+            "raw": 1.49,
+            "score": 54.38461538461539,
             "source": null
           },
           "peg": {
-            "raw": 0.16136752136752136,
+            "raw": 0.15794871794871795,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 70.21352330083332,
+            "score": 72.66458335182851,
             "source": null
           },
           "movingAverageCross": {
@@ -8661,8 +8661,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8677,9 +8677,9 @@
       "result": {
         "ticker": "071050",
         "name": "한국금융지주",
-        "rawScore": 78,
+        "rawScore": 78.2,
         "riskPenalty": 0,
-        "finalScore": 78,
+        "finalScore": 78.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -8693,7 +8693,7 @@
         "flags": [],
         "components": {
           "fundamental": 31.7,
-          "valuation": 29.4,
+          "valuation": 29.6,
           "technical": 6.1,
           "supplyDemand": 10.7
         },
@@ -8701,7 +8701,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 14.4,
+            "impact": 14.6,
             "direction": "positive"
           },
           {
@@ -8752,17 +8752,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.557,
+            "raw": 0.529,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.93,
-            "score": 90.25,
+            "raw": 0.88,
+            "score": 94,
             "source": null
           },
           "peg": {
-            "raw": 0.05376458112407211,
+            "raw": 0.05047720042417815,
             "score": 100,
             "source": null
           },
@@ -8820,8 +8820,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -8836,9 +8836,9 @@
       "result": {
         "ticker": "030200",
         "name": "KT",
-        "rawScore": 75.1,
+        "rawScore": 74.9,
         "riskPenalty": 0,
-        "finalScore": 75.1,
+        "finalScore": 74.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -8852,15 +8852,15 @@
         "flags": [],
         "components": {
           "fundamental": 26.7,
-          "valuation": 29.8,
-          "technical": 8.2,
+          "valuation": 29.7,
+          "technical": 8.3,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 14.8,
+            "impact": 14.7,
             "direction": "positive"
           },
           {
@@ -8870,7 +8870,7 @@
           },
           {
             "factor": "technical",
-            "impact": 0.7,
+            "impact": 0.8,
             "direction": "positive"
           },
           {
@@ -8916,17 +8916,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.717,
-            "score": 98.3,
+            "raw": 0.735,
+            "score": 96.5,
             "source": null
           },
           "pbr": {
-            "raw": 0.71,
+            "raw": 0.72,
             "score": 100,
             "source": null
           },
           "peg": {
-            "raw": 0.03192969608202124,
+            "raw": 0.03247894544123031,
             "score": 100,
             "source": null
           },
@@ -8937,12 +8937,12 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 30,
+            "score": 70,
             "source": null
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -8952,7 +8952,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -8984,8 +8984,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9085,7 +9085,7 @@
             "source": null
           },
           "pbr": {
-            "raw": 3.66,
+            "raw": 3.44,
             "score": 0,
             "source": null
           },
@@ -9148,8 +9148,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9244,12 +9244,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 3.283,
+            "raw": 3.429,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 3.04,
+            "raw": 3.02,
             "score": 0,
             "source": null
           },
@@ -9312,8 +9312,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9328,9 +9328,9 @@
       "result": {
         "ticker": "005940",
         "name": "NH투자증권",
-        "rawScore": 74.6,
+        "rawScore": 75.3,
         "riskPenalty": 0,
-        "finalScore": 74.6,
+        "finalScore": 75.3,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -9344,7 +9344,7 @@
         "flags": [],
         "components": {
           "fundamental": 30.9,
-          "valuation": 26.9,
+          "valuation": 27.5,
           "technical": 6.1,
           "supplyDemand": 10.7
         },
@@ -9357,7 +9357,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 11.9,
+            "impact": 12.5,
             "direction": "positive"
           },
           {
@@ -9403,23 +9403,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.885,
-            "score": 81.5,
+            "raw": 0.858,
+            "score": 84.2,
             "source": null
           },
           "pbr": {
-            "raw": 1.08,
-            "score": 79,
+            "raw": 1.03,
+            "score": 82.75,
             "source": null
           },
           "peg": {
-            "raw": 0.17296137339055795,
+            "raw": 0.16545064377682403,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 96.70048231635921,
+            "score": 100,
             "source": null
           },
           "movingAverageCross": {
@@ -9471,8 +9471,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9487,9 +9487,9 @@
       "result": {
         "ticker": "259960",
         "name": "크래프톤",
-        "rawScore": 57.2,
+        "rawScore": 58.3,
         "riskPenalty": 0,
-        "finalScore": 57.2,
+        "finalScore": 58.3,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -9503,7 +9503,7 @@
         "flags": [],
         "components": {
           "fundamental": 26.9,
-          "valuation": 14.5,
+          "valuation": 15.6,
           "technical": 5.6,
           "supplyDemand": 10.3
         },
@@ -9521,8 +9521,8 @@
           },
           {
             "factor": "valuation",
-            "impact": -0.5,
-            "direction": "negative"
+            "impact": 0.6,
+            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
@@ -9572,8 +9572,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 1.43,
-            "score": 57.61538461538462,
+            "raw": 1.36,
+            "score": 61.38461538461538,
             "source": null
           },
           "peg": {
@@ -9583,7 +9583,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 33.33305263170334,
+            "score": 48.828214395099025,
             "source": null
           },
           "movingAverageCross": {
@@ -9635,8 +9635,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9651,9 +9651,9 @@
       "result": {
         "ticker": "000720",
         "name": "현대건설",
-        "rawScore": 37,
+        "rawScore": 37.6,
         "riskPenalty": 0,
-        "finalScore": 37,
+        "finalScore": 37.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -9667,7 +9667,7 @@
         "flags": [],
         "components": {
           "fundamental": 16.2,
-          "valuation": 8.6,
+          "valuation": 9.2,
           "technical": 6.1,
           "supplyDemand": 6
         },
@@ -9675,7 +9675,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -6.4,
+            "impact": -5.8,
             "direction": "negative"
           },
           {
@@ -9736,8 +9736,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 1.43,
-            "score": 57.61538461538462,
+            "raw": 1.36,
+            "score": 61.38461538461538,
             "source": null
           },
           "peg": {
@@ -9799,8 +9799,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9815,9 +9815,9 @@
       "result": {
         "ticker": "323410",
         "name": "카카오뱅크",
-        "rawScore": 45.8,
+        "rawScore": 43.7,
         "riskPenalty": 0,
-        "finalScore": 45.8,
+        "finalScore": 43.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -9831,15 +9831,15 @@
         "flags": [],
         "components": {
           "fundamental": 24.3,
-          "valuation": 2.9,
-          "technical": 8.3,
+          "valuation": 3,
+          "technical": 6.1,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -12.1,
+            "impact": -12,
             "direction": "negative"
           },
           {
@@ -9849,8 +9849,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -9890,17 +9890,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.193,
+            "raw": 2.198,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 1.6,
-            "score": 48.46153846153845,
+            "raw": 1.58,
+            "score": 49.53846153846153,
             "source": null
           },
           "peg": {
-            "raw": 2.195604395604396,
+            "raw": 2.1714285714285717,
             "score": 0,
             "source": null
           },
@@ -9911,7 +9911,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -9958,8 +9958,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -9974,9 +9974,9 @@
       "result": {
         "ticker": "307950",
         "name": "현대오토에버",
-        "rawScore": 45,
+        "rawScore": 41.7,
         "riskPenalty": 0,
-        "finalScore": 45,
+        "finalScore": 41.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -9991,7 +9991,7 @@
         "components": {
           "fundamental": 25.9,
           "valuation": 0,
-          "technical": 8.8,
+          "technical": 5.5,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -10008,8 +10008,8 @@
           },
           {
             "factor": "technical",
-            "impact": 1.3,
-            "direction": "positive"
+            "impact": -2,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -10054,17 +10054,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.562,
+            "raw": 2.478,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 7.37,
+            "raw": 6.79,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 10.919117647058824,
+            "raw": 10.060294117647059,
             "score": 0,
             "source": null
           },
@@ -10080,7 +10080,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -10090,7 +10090,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -10122,8 +10122,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10138,9 +10138,9 @@
       "result": {
         "ticker": "005830",
         "name": "DB손해보험",
-        "rawScore": 72,
+        "rawScore": 71.6,
         "riskPenalty": 0,
-        "finalScore": 72,
+        "finalScore": 71.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -10154,7 +10154,7 @@
         "flags": [],
         "components": {
           "fundamental": 35,
-          "valuation": 19,
+          "valuation": 18.6,
           "technical": 8.3,
           "supplyDemand": 9.7
         },
@@ -10167,7 +10167,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 4,
+            "impact": 3.6,
             "direction": "positive"
           },
           {
@@ -10213,13 +10213,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.856,
-            "score": 84.4,
+            "raw": 0.893,
+            "score": 80.7,
             "source": null
           },
           "pbr": {
-            "raw": 0.93,
-            "score": 90.25,
+            "raw": 0.95,
+            "score": 88.75,
             "source": null
           },
           "peg": {
@@ -10281,8 +10281,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10297,9 +10297,9 @@
       "result": {
         "ticker": "0126Z0",
         "name": "삼성에피스홀딩스",
-        "rawScore": 63.8,
+        "rawScore": 62.6,
         "riskPenalty": 0,
-        "finalScore": 63.8,
+        "finalScore": 62.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -10313,8 +10313,8 @@
         "flags": [],
         "components": {
           "fundamental": 22.8,
-          "valuation": 16.1,
-          "technical": 10.9,
+          "valuation": 17.1,
+          "technical": 8.8,
           "supplyDemand": 14
         },
         "adjustments": [],
@@ -10330,13 +10330,13 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": 3.4,
+            "factor": "valuation",
+            "impact": 2.1,
             "direction": "positive"
           },
           {
-            "factor": "valuation",
-            "impact": 1.1,
+            "factor": "technical",
+            "impact": 1.3,
             "direction": "positive"
           }
         ],
@@ -10377,13 +10377,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.664,
+            "raw": 0.609,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.79,
-            "score": 38.230769230769226,
+            "raw": 1.59,
+            "score": 49,
             "source": null
           },
           "peg": {
@@ -10398,7 +10398,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -10445,8 +10445,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10461,9 +10461,9 @@
       "result": {
         "ticker": "003490",
         "name": "대한항공",
-        "rawScore": 48.8,
+        "rawScore": 47.5,
         "riskPenalty": 0,
-        "finalScore": 48.8,
+        "finalScore": 47.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -10477,8 +10477,8 @@
         "flags": [],
         "components": {
           "fundamental": 21.1,
-          "valuation": 14.1,
-          "technical": 6.1,
+          "valuation": 14.7,
+          "technical": 4.3,
           "supplyDemand": 7.5
         },
         "adjustments": [],
@@ -10489,18 +10489,18 @@
             "direction": "positive"
           },
           {
+            "factor": "technical",
+            "impact": -3.2,
+            "direction": "negative"
+          },
+          {
             "factor": "supplyDemand",
             "impact": -2.5,
             "direction": "negative"
           },
           {
-            "factor": "technical",
-            "impact": -1.3,
-            "direction": "negative"
-          },
-          {
             "factor": "valuation",
-            "impact": -0.9,
+            "impact": -0.3,
             "direction": "negative"
           }
         ],
@@ -10546,8 +10546,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 0.89,
-            "score": 93.25,
+            "raw": 0.86,
+            "score": 95.5,
             "source": null
           },
           "peg": {
@@ -10557,7 +10557,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 71.6044764359733,
+            "score": 75.96842542523584,
             "source": null
           },
           "movingAverageCross": {
@@ -10572,7 +10572,7 @@
           },
           "macd": {
             "raw": null,
-            "score": 50,
+            "score": 0,
             "source": null
           },
           "volumeConfirmation": {
@@ -10609,8 +10609,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10625,9 +10625,9 @@
       "result": {
         "ticker": "016360",
         "name": "삼성증권",
-        "rawScore": 68.9,
+        "rawScore": 69.4,
         "riskPenalty": 0,
-        "finalScore": 68.9,
+        "finalScore": 69.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -10641,7 +10641,7 @@
         "flags": [],
         "components": {
           "fundamental": 32.3,
-          "valuation": 28.1,
+          "valuation": 28.7,
           "technical": 5.6,
           "supplyDemand": 2.8
         },
@@ -10654,7 +10654,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 13.1,
+            "impact": 13.7,
             "direction": "positive"
           },
           {
@@ -10700,18 +10700,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.754,
-            "score": 94.6,
+            "raw": 0.73,
+            "score": 97,
             "source": null
           },
           "pbr": {
-            "raw": 1.02,
-            "score": 83.5,
+            "raw": 0.97,
+            "score": 87.25,
             "source": null
           },
           "peg": {
-            "raw": 0.5725,
-            "score": 95.65,
+            "raw": 0.5466666666666666,
+            "score": 97.2,
             "source": null
           },
           "marginOfSafety": {
@@ -10768,8 +10768,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10864,12 +10864,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.274,
+            "raw": 0.278,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.69,
+            "raw": 0.66,
             "score": 100,
             "source": null
           },
@@ -10932,8 +10932,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -10948,9 +10948,9 @@
       "result": {
         "ticker": "443060",
         "name": "HD현대마린솔루션",
-        "rawScore": 56,
+        "rawScore": 55.5,
         "riskPenalty": 0,
-        "finalScore": 56,
+        "finalScore": 55.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -10964,8 +10964,8 @@
         "flags": [],
         "components": {
           "fundamental": 34.4,
-          "valuation": 6.3,
-          "technical": 5.6,
+          "valuation": 5.2,
+          "technical": 6.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -10977,12 +10977,12 @@
           },
           {
             "factor": "valuation",
-            "impact": -8.7,
+            "impact": -9.8,
             "direction": "negative"
           },
           {
             "factor": "technical",
-            "impact": -1.9,
+            "impact": -1.3,
             "direction": "negative"
           },
           {
@@ -11028,17 +11028,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1,
-            "score": 70,
+            "raw": 1.088,
+            "score": 57.67999999999999,
             "source": null
           },
           "pbr": {
-            "raw": 10.42,
+            "raw": 10.8,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 2.162686567164179,
+            "raw": 2.2417910447761193,
             "score": 0,
             "source": null
           },
@@ -11054,7 +11054,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -11096,8 +11096,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11112,9 +11112,9 @@
       "result": {
         "ticker": "352820",
         "name": "하이브",
-        "rawScore": 31.4,
+        "rawScore": 32.4,
         "riskPenalty": 0,
-        "finalScore": 31.4,
+        "finalScore": 32.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11128,15 +11128,15 @@
         "flags": [],
         "components": {
           "fundamental": 17.4,
-          "valuation": 1.3,
-          "technical": 5.3,
+          "valuation": 1.9,
+          "technical": 5.6,
           "supplyDemand": 7.5
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -13.7,
+            "impact": -13.1,
             "direction": "negative"
           },
           {
@@ -11146,7 +11146,7 @@
           },
           {
             "factor": "technical",
-            "impact": -2.2,
+            "impact": -1.9,
             "direction": "negative"
           },
           {
@@ -11197,8 +11197,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 2.3,
-            "score": 10.769230769230777,
+            "raw": 2.2,
+            "score": 16.153846153846143,
             "source": null
           },
           "peg": {
@@ -11218,7 +11218,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 30,
+            "score": 45,
             "source": null
           },
           "macd": {
@@ -11260,8 +11260,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11276,9 +11276,9 @@
       "result": {
         "ticker": "006260",
         "name": "LS",
-        "rawScore": 43.7,
+        "rawScore": 43.2,
         "riskPenalty": 0,
-        "finalScore": 43.7,
+        "finalScore": 43.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11292,7 +11292,7 @@
         "flags": [],
         "components": {
           "fundamental": 20.2,
-          "valuation": 8.7,
+          "valuation": 8.3,
           "technical": 8.8,
           "supplyDemand": 6
         },
@@ -11300,7 +11300,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -6.3,
+            "impact": -6.7,
             "direction": "negative"
           },
           {
@@ -11356,17 +11356,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1,
-            "score": 70,
+            "raw": 1.008,
+            "score": 68.88,
             "source": null
           },
           "pbr": {
-            "raw": 1.75,
-            "score": 40.38461538461538,
+            "raw": 1.86,
+            "score": 34.46153846153845,
             "source": null
           },
           "peg": {
-            "raw": 2.1510638297872338,
+            "raw": 2.2836879432624118,
             "score": 0,
             "source": null
           },
@@ -11424,8 +11424,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11440,9 +11440,9 @@
       "result": {
         "ticker": "047050",
         "name": "포스코인터내셔널",
-        "rawScore": 53.7,
+        "rawScore": 54.7,
         "riskPenalty": 0,
-        "finalScore": 53.7,
+        "finalScore": 54.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11456,7 +11456,7 @@
         "flags": [],
         "components": {
           "fundamental": 17.6,
-          "valuation": 22.5,
+          "valuation": 23.4,
           "technical": 6.1,
           "supplyDemand": 7.5
         },
@@ -11464,7 +11464,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 7.5,
+            "impact": 8.4,
             "direction": "positive"
           },
           {
@@ -11520,23 +11520,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.476,
+            "raw": 0.482,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.35,
-            "score": 61.92307692307691,
+            "raw": 1.3,
+            "score": 64.61538461538461,
             "source": null
           },
           "peg": {
-            "raw": 0.7145077720207254,
-            "score": 87.12953367875647,
+            "raw": 0.689119170984456,
+            "score": 88.65284974093264,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 31.634643844528863,
+            "score": 43.18662929323881,
             "source": null
           },
           "movingAverageCross": {
@@ -11588,8 +11588,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11604,9 +11604,9 @@
       "result": {
         "ticker": "039490",
         "name": "키움증권",
-        "rawScore": 77.5,
+        "rawScore": 77.9,
         "riskPenalty": 0,
-        "finalScore": 77.5,
+        "finalScore": 77.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11620,7 +11620,7 @@
         "flags": [],
         "components": {
           "fundamental": 29.5,
-          "valuation": 28.5,
+          "valuation": 28.8,
           "technical": 6.1,
           "supplyDemand": 13.5
         },
@@ -11628,7 +11628,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 13.5,
+            "impact": 13.8,
             "direction": "positive"
           },
           {
@@ -11679,17 +11679,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.663,
+            "raw": 0.634,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.14,
-            "score": 74.5,
+            "raw": 1.07,
+            "score": 79.75,
             "source": null
           },
           "peg": {
-            "raw": 0.1441527446300716,
+            "raw": 0.13603818615751792,
             "score": 100,
             "source": null
           },
@@ -11747,8 +11747,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11763,9 +11763,9 @@
       "result": {
         "ticker": "003230",
         "name": "삼양식품",
-        "rawScore": 72.9,
+        "rawScore": 72,
         "riskPenalty": 0,
-        "finalScore": 72.9,
+        "finalScore": 72,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11779,7 +11779,7 @@
         "flags": [],
         "components": {
           "fundamental": 33.7,
-          "valuation": 17.4,
+          "valuation": 16.6,
           "technical": 8.3,
           "supplyDemand": 13.5
         },
@@ -11797,7 +11797,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 2.4,
+            "impact": 1.6,
             "direction": "positive"
           },
           {
@@ -11843,18 +11843,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.759,
-            "score": 94.1,
+            "raw": 0.837,
+            "score": 86.3,
             "source": null
           },
           "pbr": {
-            "raw": 6.89,
+            "raw": 7.24,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.5116279069767442,
-            "score": 99.30232558139535,
+            "raw": 0.5374418604651162,
+            "score": 97.75348837209303,
             "source": null
           },
           "marginOfSafety": {
@@ -11911,8 +11911,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -11927,9 +11927,9 @@
       "result": {
         "ticker": "028050",
         "name": "삼성E&A",
-        "rawScore": 46.4,
+        "rawScore": 46.7,
         "riskPenalty": 0,
-        "finalScore": 46.4,
+        "finalScore": 46.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -11943,7 +11943,7 @@
         "flags": [],
         "components": {
           "fundamental": 25.7,
-          "valuation": 2.2,
+          "valuation": 2.5,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -11951,7 +11951,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -12.8,
+            "impact": -12.5,
             "direction": "negative"
           },
           {
@@ -12012,8 +12012,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 2.03,
-            "score": 25.307692307692317,
+            "raw": 1.95,
+            "score": 29.615384615384617,
             "source": null
           },
           "peg": {
@@ -12075,8 +12075,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12171,17 +12171,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.277,
+            "raw": 0.269,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.73,
+            "raw": 0.74,
             "score": 100,
             "source": null
           },
           "peg": {
-            "raw": 0.20023809523809524,
+            "raw": 0.2042857142857143,
             "score": 100,
             "source": null
           },
@@ -12239,8 +12239,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12255,9 +12255,9 @@
       "result": {
         "ticker": "090430",
         "name": "아모레퍼시픽",
-        "rawScore": 44.4,
+        "rawScore": 42.2,
         "riskPenalty": 0,
-        "finalScore": 44.4,
+        "finalScore": 42.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -12271,15 +12271,15 @@
         "flags": [],
         "components": {
           "fundamental": 21.5,
-          "valuation": 4,
-          "technical": 8.3,
+          "valuation": 3.7,
+          "technical": 6.4,
           "supplyDemand": 10.7
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -11,
+            "impact": -11.3,
             "direction": "negative"
           },
           {
@@ -12289,8 +12289,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.1,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -12335,13 +12335,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.385,
-            "score": 16.099999999999998,
+            "raw": 1.417,
+            "score": 11.619999999999994,
             "source": null
           },
           "pbr": {
-            "raw": 1.71,
-            "score": 42.53846153846154,
+            "raw": 1.67,
+            "score": 44.69230769230769,
             "source": null
           },
           "peg": {
@@ -12366,7 +12366,7 @@
           },
           "macd": {
             "raw": null,
-            "score": 50,
+            "score": 0,
             "source": null
           },
           "volumeConfirmation": {
@@ -12403,8 +12403,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12419,9 +12419,9 @@
       "result": {
         "ticker": "180640",
         "name": "한진칼",
-        "rawScore": 32.7,
+        "rawScore": 32.8,
         "riskPenalty": 0,
-        "finalScore": 32.7,
+        "finalScore": 32.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -12435,7 +12435,7 @@
         "flags": [],
         "components": {
           "fundamental": 13.7,
-          "valuation": 0.5,
+          "valuation": 0.6,
           "technical": 8.3,
           "supplyDemand": 10.3
         },
@@ -12443,7 +12443,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": -14.5,
+            "impact": -14.4,
             "direction": "negative"
           },
           {
@@ -12499,13 +12499,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.59,
-            "score": 0,
+            "raw": 1.497,
+            "score": 0.41999999999998483,
             "source": null
           },
           "pbr": {
-            "raw": 2.36,
-            "score": 7.5384615384615445,
+            "raw": 2.34,
+            "score": 8.615384615384622,
             "source": null
           },
           "peg": {
@@ -12567,8 +12567,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12663,7 +12663,7 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.598,
+            "raw": 0.568,
             "score": 100,
             "source": null
           },
@@ -12731,8 +12731,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12827,18 +12827,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 2.143,
+            "raw": 2.221,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 6.68,
+            "raw": 6.59,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.6185258964143426,
-            "score": 92.88844621513944,
+            "raw": 0.6106573705179282,
+            "score": 93.36055776892431,
             "source": null
           },
           "marginOfSafety": {
@@ -12895,8 +12895,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -12911,9 +12911,9 @@
       "result": {
         "ticker": "021240",
         "name": "코웨이",
-        "rawScore": 61.7,
+        "rawScore": 62.2,
         "riskPenalty": 0,
-        "finalScore": 61.7,
+        "finalScore": 62.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -12927,7 +12927,7 @@
         "flags": [],
         "components": {
           "fundamental": 29.2,
-          "valuation": 18.2,
+          "valuation": 18.7,
           "technical": 8.3,
           "supplyDemand": 6
         },
@@ -12945,7 +12945,7 @@
           },
           {
             "factor": "valuation",
-            "impact": 3.2,
+            "impact": 3.7,
             "direction": "positive"
           },
           {
@@ -12991,23 +12991,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.368,
+            "raw": 0.38,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.87,
-            "score": 33.92307692307691,
+            "raw": 1.84,
+            "score": 35.53846153846153,
             "source": null
           },
           "peg": {
-            "raw": 1.0564356435643565,
-            "score": 66.04950495049505,
+            "raw": 1.0386138613861386,
+            "score": 67.29702970297029,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 20.40561965416408,
+            "score": 25.82953729729031,
             "source": null
           },
           "movingAverageCross": {
@@ -13059,8 +13059,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13075,9 +13075,9 @@
       "result": {
         "ticker": "007660",
         "name": "이수페타시스",
-        "rawScore": 55.4,
+        "rawScore": 55.9,
         "riskPenalty": 0,
-        "finalScore": 55.4,
+        "finalScore": 55.9,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13091,8 +13091,8 @@
         "flags": [],
         "components": {
           "fundamental": 29.1,
-          "valuation": 10.4,
-          "technical": 6.1,
+          "valuation": 9,
+          "technical": 8.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -13104,13 +13104,13 @@
           },
           {
             "factor": "valuation",
-            "impact": -4.6,
+            "impact": -6,
             "direction": "negative"
           },
           {
             "factor": "technical",
-            "impact": -1.3,
-            "direction": "negative"
+            "impact": 0.6,
+            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
@@ -13155,17 +13155,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.391,
-            "score": 15.259999999999998,
+            "raw": 1.571,
+            "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 8.81,
+            "raw": 9.49,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.4260042283298097,
+            "raw": 0.4585623678646935,
             "score": 100,
             "source": null
           },
@@ -13181,7 +13181,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 40,
             "source": null
           },
           "macd": {
@@ -13191,7 +13191,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 30,
+            "score": 100,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -13223,8 +13223,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13239,9 +13239,9 @@
       "result": {
         "ticker": "064400",
         "name": "LG씨엔에스",
-        "rawScore": 60.2,
+        "rawScore": 61.3,
         "riskPenalty": 0,
-        "finalScore": 60.2,
+        "finalScore": 61.3,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13255,7 +13255,7 @@
         "flags": [],
         "components": {
           "fundamental": 29.3,
-          "valuation": 9.6,
+          "valuation": 10.7,
           "technical": 8.8,
           "supplyDemand": 12.5
         },
@@ -13268,7 +13268,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -5.4,
+            "impact": -4.3,
             "direction": "negative"
           },
           {
@@ -13319,18 +13319,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.579,
+            "raw": 0.562,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 2.65,
-            "score": 0,
+            "raw": 2.45,
+            "score": 2.6923076923076827,
             "source": null
           },
           "peg": {
-            "raw": 1.905681818181818,
-            "score": 6.602272727272737,
+            "raw": 1.7624999999999997,
+            "score": 16.625000000000018,
             "source": null
           },
           "marginOfSafety": {
@@ -13387,8 +13387,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13403,9 +13403,9 @@
       "result": {
         "ticker": "267270",
         "name": "HD건설기계",
-        "rawScore": 50.6,
+        "rawScore": 49.4,
         "riskPenalty": 0,
-        "finalScore": 50.6,
+        "finalScore": 49.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13419,8 +13419,8 @@
         "flags": [],
         "components": {
           "fundamental": 18.8,
-          "valuation": 13.8,
-          "technical": 8.3,
+          "valuation": 14.6,
+          "technical": 6.1,
           "supplyDemand": 9.7
         },
         "adjustments": [],
@@ -13431,14 +13431,14 @@
             "direction": "positive"
           },
           {
-            "factor": "valuation",
-            "impact": -1.2,
+            "factor": "technical",
+            "impact": -1.3,
             "direction": "negative"
           },
           {
-            "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "factor": "valuation",
+            "impact": -0.4,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -13483,28 +13483,28 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.487,
+            "raw": 0.493,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.41,
-            "score": 58.69230769230769,
+            "raw": 1.36,
+            "score": 61.38461538461538,
             "source": null
           },
           "peg": {
-            "raw": 7.844444444444444,
+            "raw": 7.555555555555555,
             "score": 0,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 20.766749350352935,
+            "score": 32.66666666666664,
             "source": null
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -13551,8 +13551,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13567,9 +13567,9 @@
       "result": {
         "ticker": "047040",
         "name": "대우건설",
-        "rawScore": 19.9,
+        "rawScore": 20.5,
         "riskPenalty": 0,
-        "finalScore": 19.9,
+        "finalScore": 20.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13583,7 +13583,7 @@
         "flags": [],
         "components": {
           "fundamental": 4.3,
-          "valuation": 2.8,
+          "valuation": 3.5,
           "technical": 6.1,
           "supplyDemand": 6.5
         },
@@ -13596,7 +13596,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -12.2,
+            "impact": -11.5,
             "direction": "negative"
           },
           {
@@ -13652,8 +13652,8 @@
             "source": null
           },
           "pbr": {
-            "raw": 2.06,
-            "score": 23.69230769230769,
+            "raw": 1.96,
+            "score": 29.07692307692308,
             "source": null
           },
           "peg": {
@@ -13715,8 +13715,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13731,9 +13731,9 @@
       "result": {
         "ticker": "326030",
         "name": "SK바이오팜",
-        "rawScore": 55.4,
+        "rawScore": 53.6,
         "riskPenalty": 0,
-        "finalScore": 55.4,
+        "finalScore": 53.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13747,8 +13747,8 @@
         "flags": [],
         "components": {
           "fundamental": 26.6,
-          "valuation": 10.3,
-          "technical": 8.3,
+          "valuation": 10.5,
+          "technical": 6.1,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -13760,13 +13760,13 @@
           },
           {
             "factor": "valuation",
-            "impact": -4.7,
+            "impact": -4.5,
             "direction": "negative"
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -13811,18 +13811,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.636,
+            "raw": 0.643,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 7.33,
+            "raw": 7.16,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 1.798165137614679,
-            "score": 14.12844036697247,
+            "raw": 1.7550458715596329,
+            "score": 17.146788990825698,
             "source": null
           },
           "marginOfSafety": {
@@ -13832,7 +13832,7 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -13879,8 +13879,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -13895,9 +13895,9 @@
       "result": {
         "ticker": "032640",
         "name": "LG유플러스",
-        "rawScore": 68.3,
+        "rawScore": 66.2,
         "riskPenalty": 0,
-        "finalScore": 68.3,
+        "finalScore": 66.2,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -13912,7 +13912,7 @@
         "components": {
           "fundamental": 22.7,
           "valuation": 27.1,
-          "technical": 8.3,
+          "technical": 6.1,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -13929,8 +13929,8 @@
           },
           {
             "factor": "technical",
-            "impact": 0.8,
-            "direction": "positive"
+            "impact": -1.3,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
@@ -13985,18 +13985,18 @@
             "source": null
           },
           "peg": {
-            "raw": 0.3024875621890547,
+            "raw": 0.3,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 96.43077428983395,
+            "score": 96.81631044007756,
             "source": null
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
@@ -14043,8 +14043,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14059,9 +14059,9 @@
       "result": {
         "ticker": "241560",
         "name": "두산밥캣",
-        "rawScore": 55.1,
+        "rawScore": 55.4,
         "riskPenalty": 0,
-        "finalScore": 55.1,
+        "finalScore": 55.4,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -14075,7 +14075,7 @@
         "flags": [],
         "components": {
           "fundamental": 13.9,
-          "valuation": 19.5,
+          "valuation": 19.8,
           "technical": 8.3,
           "supplyDemand": 13.5
         },
@@ -14083,7 +14083,7 @@
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 4.5,
+            "impact": 4.8,
             "direction": "positive"
           },
           {
@@ -14139,13 +14139,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.517,
+            "raw": 0.528,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 0.84,
-            "score": 97,
+            "raw": 0.81,
+            "score": 99.25,
             "source": null
           },
           "peg": {
@@ -14155,7 +14155,7 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 77.78770120882471,
+            "score": 81.32709629351022,
             "source": null
           },
           "movingAverageCross": {
@@ -14207,8 +14207,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14223,9 +14223,9 @@
       "result": {
         "ticker": "000100",
         "name": "유한양행",
-        "rawScore": 68.8,
+        "rawScore": 68.1,
         "riskPenalty": 0,
-        "finalScore": 68.8,
+        "finalScore": 68.1,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -14239,8 +14239,8 @@
         "flags": [],
         "components": {
           "fundamental": 30.8,
-          "valuation": 14.8,
-          "technical": 9.2,
+          "valuation": 15,
+          "technical": 8.3,
           "supplyDemand": 14
         },
         "adjustments": [],
@@ -14257,13 +14257,13 @@
           },
           {
             "factor": "technical",
-            "impact": 1.7,
+            "impact": 0.8,
             "direction": "positive"
           },
           {
             "factor": "valuation",
-            "impact": -0.2,
-            "direction": "negative"
+            "impact": 0,
+            "direction": "positive"
           }
         ],
         "features": {
@@ -14303,17 +14303,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.038,
-            "score": 64.67999999999999,
+            "raw": 1.022,
+            "score": 66.92,
             "source": null
           },
           "pbr": {
-            "raw": 2.73,
+            "raw": 2.6,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.18211845102505694,
+            "raw": 0.1732346241457859,
             "score": 100,
             "source": null
           },
@@ -14324,12 +14324,12 @@
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 100,
+            "score": 70,
             "source": null
           },
           "rsi": {
             "raw": null,
-            "score": 40,
+            "score": 70,
             "source": null
           },
           "macd": {
@@ -14371,8 +14371,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14462,7 +14462,7 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.608,
+            "raw": 0.604,
             "score": 100,
             "source": null
           },
@@ -14472,7 +14472,7 @@
             "source": null
           },
           "peg": {
-            "raw": 0.3574193548387097,
+            "raw": 0.35032258064516125,
             "score": 100,
             "source": null
           },
@@ -14530,8 +14530,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14626,12 +14626,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.855,
+            "raw": 1.936,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 0.8,
+            "raw": 0.79,
             "score": 100,
             "source": null
           },
@@ -14694,8 +14694,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14785,12 +14785,12 @@
             "source": null
           },
           "perRelative": {
-            "raw": 11.088,
+            "raw": 10.663,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 3.16,
+            "raw": 3,
             "score": 0,
             "source": null
           },
@@ -14853,8 +14853,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -14869,9 +14869,9 @@
       "result": {
         "ticker": "029780",
         "name": "삼성카드",
-        "rawScore": 63.7,
+        "rawScore": 59.8,
         "riskPenalty": 0,
-        "finalScore": 63.7,
+        "finalScore": 59.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -14886,7 +14886,7 @@
         "components": {
           "fundamental": 27.2,
           "valuation": 18.3,
-          "technical": 12.2,
+          "technical": 8.3,
           "supplyDemand": 6
         },
         "adjustments": [],
@@ -14897,11 +14897,6 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": 4.7,
-            "direction": "positive"
-          },
-          {
             "factor": "supplyDemand",
             "impact": -4,
             "direction": "negative"
@@ -14909,6 +14904,11 @@
           {
             "factor": "valuation",
             "impact": 3.3,
+            "direction": "positive"
+          },
+          {
+            "factor": "technical",
+            "impact": 0.8,
             "direction": "positive"
           }
         ],
@@ -14949,7 +14949,7 @@
             "source": null
           },
           "pbr": {
-            "raw": 0.59,
+            "raw": 0.58,
             "score": 100,
             "source": null
           },
@@ -14970,17 +14970,17 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
             "raw": null,
-            "score": 100,
+            "score": 50,
             "source": null
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 100,
+            "score": 30,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -15012,8 +15012,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15108,17 +15108,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 3.944,
+            "raw": 3.967,
             "score": 0,
             "source": null
           },
           "pbr": {
-            "raw": 3.51,
+            "raw": 3.37,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 10.584259259259259,
+            "raw": 10.142592592592592,
             "score": 0,
             "source": null
           },
@@ -15176,8 +15176,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15277,7 +15277,7 @@
             "source": null
           },
           "pbr": {
-            "raw": 0.79,
+            "raw": 0.76,
             "score": 100,
             "source": null
           },
@@ -15340,8 +15340,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15356,9 +15356,9 @@
       "result": {
         "ticker": "062040",
         "name": "산일전기",
-        "rawScore": 64,
+        "rawScore": 63.5,
         "riskPenalty": 0,
-        "finalScore": 64,
+        "finalScore": 63.5,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -15372,7 +15372,7 @@
         "flags": [],
         "components": {
           "fundamental": 35,
-          "valuation": 13.1,
+          "valuation": 12.7,
           "technical": 6.1,
           "supplyDemand": 9.7
         },
@@ -15385,7 +15385,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -1.9,
+            "impact": -2.3,
             "direction": "negative"
           },
           {
@@ -15436,17 +15436,17 @@
             "source": null
           },
           "perRelative": {
-            "raw": 1.173,
-            "score": 45.779999999999994,
+            "raw": 1.209,
+            "score": 40.73999999999999,
             "source": null
           },
           "pbr": {
-            "raw": 9.37,
+            "raw": 9.21,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.4358974358974359,
+            "raw": 0.42794871794871797,
             "score": 100,
             "source": null
           },
@@ -15504,8 +15504,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15520,9 +15520,9 @@
       "result": {
         "ticker": "175330",
         "name": "JB금융지주",
-        "rawScore": 74.9,
+        "rawScore": 74.8,
         "riskPenalty": 0,
-        "finalScore": 74.9,
+        "finalScore": 74.8,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -15595,8 +15595,8 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.823,
-            "score": 87.7,
+            "raw": 0.832,
+            "score": 86.8,
             "source": null
           },
           "pbr": {
@@ -15605,8 +15605,8 @@
             "source": null
           },
           "peg": {
-            "raw": 1.4423076923076923,
-            "score": 39.03846153846154,
+            "raw": 1.4384615384615385,
+            "score": 39.30769230769231,
             "source": null
           },
           "marginOfSafety": {
@@ -15663,8 +15663,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15679,9 +15679,9 @@
       "result": {
         "ticker": "271560",
         "name": "오리온",
-        "rawScore": 61.7,
+        "rawScore": 61.3,
         "riskPenalty": 0,
-        "finalScore": 61.7,
+        "finalScore": 61.3,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -15695,8 +15695,8 @@
         "flags": [],
         "components": {
           "fundamental": 28.2,
-          "valuation": 15,
-          "technical": 8.3,
+          "valuation": 16.5,
+          "technical": 6.3,
           "supplyDemand": 10.3
         },
         "adjustments": [],
@@ -15707,18 +15707,18 @@
             "direction": "positive"
           },
           {
-            "factor": "technical",
-            "impact": 0.8,
+            "factor": "valuation",
+            "impact": 1.5,
             "direction": "positive"
+          },
+          {
+            "factor": "technical",
+            "impact": -1.2,
+            "direction": "negative"
           },
           {
             "factor": "supplyDemand",
             "impact": 0.3,
-            "direction": "positive"
-          },
-          {
-            "factor": "valuation",
-            "impact": 0,
             "direction": "positive"
           }
         ],
@@ -15759,13 +15759,13 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.454,
+            "raw": 0.445,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.36,
-            "score": 61.38461538461538,
+            "raw": 1.27,
+            "score": 66.23076923076923,
             "source": null
           },
           "peg": {
@@ -15775,27 +15775,27 @@
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 37.96082866978953,
+            "score": 58.60786253267271,
             "source": null
           },
           "movingAverageCross": {
             "raw": null,
-            "score": 70,
+            "score": 30,
             "source": null
           },
           "rsi": {
             "raw": null,
-            "score": 70,
+            "score": 45,
             "source": null
           },
           "macd": {
             "raw": null,
-            "score": 50,
+            "score": 0,
             "source": null
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 30,
+            "score": 100,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -15827,8 +15827,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -15843,9 +15843,9 @@
       "result": {
         "ticker": "128940",
         "name": "한미약품",
-        "rawScore": 61.2,
+        "rawScore": 61.1,
         "riskPenalty": 0,
-        "finalScore": 61.2,
+        "finalScore": 61.1,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -15859,7 +15859,7 @@
         "flags": [],
         "components": {
           "fundamental": 30.5,
-          "valuation": 14.3,
+          "valuation": 14.2,
           "technical": 6.1,
           "supplyDemand": 10.3
         },
@@ -15877,7 +15877,7 @@
           },
           {
             "factor": "valuation",
-            "impact": -0.7,
+            "impact": -0.8,
             "direction": "negative"
           },
           {
@@ -15923,18 +15923,18 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.961,
-            "score": 73.9,
+            "raw": 0.978,
+            "score": 72.2,
             "source": null
           },
           "pbr": {
-            "raw": 3.89,
+            "raw": 3.83,
             "score": 0,
             "source": null
           },
           "peg": {
-            "raw": 0.7439698492462312,
-            "score": 85.36180904522612,
+            "raw": 0.7316582914572866,
+            "score": 86.1005025125628,
             "source": null
           },
           "marginOfSafety": {
@@ -15991,8 +15991,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -16007,9 +16007,9 @@
       "result": {
         "ticker": "088980",
         "name": "맥쿼리인프라",
-        "rawScore": 33.1,
+        "rawScore": 39.6,
         "riskPenalty": 0,
-        "finalScore": 33.1,
+        "finalScore": 39.6,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -16026,7 +16026,7 @@
           "PARTIAL_CALCULATION"
         ],
         "components": {
-          "technical": 16,
+          "technical": 22.5,
           "supplyDemand": 17.1,
           "fundamental": null,
           "valuation": null
@@ -16040,8 +16040,8 @@
           },
           {
             "factor": "technical",
-            "impact": -1.9,
-            "direction": "negative"
+            "impact": 0.4,
+            "direction": "positive"
           }
         ],
         "features": {
@@ -16102,7 +16102,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 30,
             "source": null
           },
           "macd": {
@@ -16112,7 +16112,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 30,
+            "score": 100,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -16144,8 +16144,8 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "KR",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
-        "dataCutoff": "20260814",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
+        "dataCutoff": "20260818",
         "policies": {
           "criteria": "2.2",
           "confidence": "CP-1.0",
@@ -16160,9 +16160,9 @@
       "result": {
         "ticker": "036570",
         "name": "엔씨소프트",
-        "rawScore": 64.1,
+        "rawScore": 68,
         "riskPenalty": 0,
-        "finalScore": 64.1,
+        "finalScore": 68,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -16176,15 +16176,15 @@
         "flags": [],
         "components": {
           "fundamental": 22.6,
-          "valuation": 25.1,
-          "technical": 6.1,
+          "valuation": 26.3,
+          "technical": 8.8,
           "supplyDemand": 10.3
         },
         "adjustments": [],
         "topFactors": [
           {
             "factor": "valuation",
-            "impact": 10.1,
+            "impact": 11.3,
             "direction": "positive"
           },
           {
@@ -16194,8 +16194,8 @@
           },
           {
             "factor": "technical",
-            "impact": -1.3,
-            "direction": "negative"
+            "impact": 1.3,
+            "direction": "positive"
           },
           {
             "factor": "supplyDemand",
@@ -16240,23 +16240,23 @@
             "source": null
           },
           "perRelative": {
-            "raw": 0.402,
+            "raw": 0.392,
             "score": 100,
             "source": null
           },
           "pbr": {
-            "raw": 1.36,
-            "score": 61.38461538461538,
+            "raw": 1.27,
+            "score": 66.23076923076923,
             "source": null
           },
           "peg": {
-            "raw": 0.04189140596907587,
+            "raw": 0.038942826321467096,
             "score": 100,
             "source": null
           },
           "marginOfSafety": {
             "raw": null,
-            "score": 56.29644575222148,
+            "score": 72.72212484871667,
             "source": null
           },
           "movingAverageCross": {
@@ -16276,7 +16276,7 @@
           },
           "volumeConfirmation": {
             "raw": null,
-            "score": 30,
+            "score": 100,
             "source": null
           },
           "foreignNetBuy5d": {
@@ -16308,7 +16308,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -16470,7 +16470,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -16632,7 +16632,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -16794,7 +16794,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -16956,7 +16956,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17118,7 +17118,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17280,7 +17280,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17442,7 +17442,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17604,7 +17604,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17761,7 +17761,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -17923,7 +17923,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18085,7 +18085,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18242,7 +18242,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18404,7 +18404,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18566,7 +18566,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18728,7 +18728,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -18890,7 +18890,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19052,7 +19052,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19214,7 +19214,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19376,7 +19376,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19538,7 +19538,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19700,7 +19700,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -19857,7 +19857,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20019,7 +20019,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20181,7 +20181,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20343,7 +20343,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20505,7 +20505,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20667,7 +20667,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20829,7 +20829,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -20991,7 +20991,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21153,7 +21153,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21315,7 +21315,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21472,7 +21472,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21634,7 +21634,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21796,7 +21796,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -21953,7 +21953,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22115,7 +22115,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22278,7 +22278,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22440,7 +22440,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22602,7 +22602,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22764,7 +22764,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -22921,7 +22921,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -23083,7 +23083,7 @@
         "schemaVersion": "1.0.0",
         "engineVersion": "2.1.1",
         "market": "US",
-        "calculatedAt": "2026-08-17T17:28:47+09:00",
+        "calculatedAt": "2026-08-18T17:13:26+09:00",
         "dataCutoff": "20260814",
         "policies": {
           "criteria": "2.2",
@@ -23099,9 +23099,9 @@
       "result": {
         "ticker": "M",
         "name": "메이시스",
-        "rawScore": 60.8,
+        "rawScore": 61.7,
         "riskPenalty": 0,
-        "finalScore": 60.8,
+        "finalScore": 61.7,
         "tradeAllowed": true,
         "tradingState": "NORMAL",
         "tradingFlags": [],
@@ -23119,7 +23119,7 @@
         "components": {
           "fundamental": 17.9,
           "valuation": 33.5,
-          "technical": 9.3,
+          "technical": 10.3,
           "supplyDemand": null
         },
         "adjustments": [],
@@ -23131,7 +23131,7 @@
           },
           {
             "factor": "technical",
-            "impact": -3.2,
+            "impact": -2.2,
             "direction": "negative"
           },
           {
@@ -23203,7 +23203,7 @@
           },
           "rsi": {
             "raw": null,
-            "score": 45,
+            "score": 70,
             "source": null
           },
           "macd": {
