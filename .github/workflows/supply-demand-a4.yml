@@ -22,6 +22,11 @@ on:
         required: false
         default: ''
         type: string
+      sourceRunId:
+        description: 'collect를 건너뛰고 이 run ID의 샤드 아티팩트로 finalize만 다시 돈다(비우면 평소대로 collect부터)'
+        required: false
+        default: ''
+        type: string
 
 concurrency:
   group: backfill-supply-demand-a4
@@ -29,6 +34,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: read   # download-artifact가 run-id를 명시하면(다른 run에서 받기) API 조회에 필요
 
 env:
   # 스모크(15종목×8샤드, 2026-08-17) 실측 — 종목당 약 45~51초(오버헤드 포함).
@@ -39,6 +45,7 @@ env:
 
 jobs:
   collect:
+    if: inputs.sourceRunId == ''
     runs-on: ubuntu-latest
     timeout-minutes: 220
     strategy:
@@ -77,6 +84,7 @@ jobs:
 
   finalize:
     needs: collect
+    if: always() && (needs.collect.result == 'success' || needs.collect.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -96,6 +104,11 @@ jobs:
           pattern: a4-shard-*
           merge-multiple: true
           path: data/backfill/supplyDemand/_shards_a4/
+          # sourceRunId가 있으면 collect를 새로 안 돌리고 그 run의 아티팩트를 그대로
+          # 쓴다 — finalize가 순수 코드 버그(OOM)로 죽었을 때 KRX 재수집 없이
+          # 고친 finalize만 재실행하기 위함. 비우면 지금 run(자기 자신)에서 받는다.
+          run-id: ${{ inputs.sourceRunId != '' && inputs.sourceRunId || github.run_id }}
+          github-token: ${{ github.token }}
 
       - name: Verify all shards present
         run: |
