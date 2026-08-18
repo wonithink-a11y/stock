@@ -1060,6 +1060,15 @@ FAIL은 구조적으로 위반이 불가능한 것만이다 — `availableFrom` 
 
 ### A4 수급 — 가용성 정찰만 완료 (2026-08-05, 로컬 실측). **인수 조건 미정**
 
+**★ 갱신(2026-08-18): 아래는 2026-08-05 당시 기록이고 이후 상태가 바뀌었다.**
+pykrx가 2026-04(PR #282)에 `KRX_ID`/`KRX_PW` 로그인 세션을 추가하면서 아래 표의
+`400 LOGOUT`이 풀렸다 — 이 정찰은 그 이전 버전(로그인 진입점 없음) 기준이다.
+계약은 `config/policies/supplyDemand.v1.json`(SD-1.0)으로 확정했고, A4는
+2,578/2,578종목·540만9,687행(2016-01-04~2026-08-14) finalize 통과했다
+(manifest `data/backfill/manifest/A4.json`, 세션인수인계-2026-08-18.md).
+아래 "경로가 존재하는가" 기록은 그대로 두되(당시 실측은 정확했다),
+현재 결론으로 대체하지 않는다.
+
 계약이 아직 없다. 이 절은 계약을 쓰기 전에 **경로가 존재하는가**만 잰 결과다.
 
 | 경로 | 결과 |
@@ -1185,7 +1194,7 @@ GitHub Actions 러너 기준. **추측이 아니라 실행 결과다** — 재�
 |---|---|---|
 | 개별종목 일봉 | pykrx `adjusted:true` → **naver** | ✅ 가용 (A0.5·A2의 실제 경로) |
 | KRX 개별종목 일봉 | `data.krx.co.kr` MDCSTAT01701 계열 | ❌ 로컬 실측 `400 LOGOUT`(2026-08-05). A2a는 이 경로를 쓴 적이 없다 — Actions 상태 미확인 |
-| KRX 종목별 수급 | `data.krx.co.kr` MDCSTAT02302/02303 | ❌ `400 LOGOUT`. §7 A4 절 |
+| KRX 종목별 수급 | `data.krx.co.kr` MDCSTAT02302/02303 | ❌ `400 LOGOUT`(2026-08-05, 로그인 미지원 pykrx 기준). **갱신(2026-08-18): pykrx의 `KRX_ID`/`KRX_PW` 로그인 세션(2026-04 추가)으로 풀렸다 — A4가 이 경로로 finalize 통과. §7 A4 절** |
 | naver 종목별 수급 | `finance.naver.com/item/frgn.naver` (HTML) | ✅ 2005-01까지 · 20행/페이지 · 기관합계만 |
 | naver 종목별 수급 | `m.stock.naver.com/api/.../trend` (JSON) | ✅ 최근 약 60거래일만(`page` 무시) |
 | KRX 전종목 스냅샷 | `data.krx.co.kr` MDCSTAT01501 계열 | ❌ **영구 차단**. 세션 시드 후에도 `400 LOGOUT`. 코드로 우회 불가 |

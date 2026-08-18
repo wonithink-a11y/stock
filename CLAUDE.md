@@ -5,21 +5,26 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0
-  현재 트랙  A3c·T1·A2b 전부 종료됐다(아래 완료 참고) — A3c는 finalize 완료
+  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0 · SD-1.0
+  현재 트랙  A3c·T1·A2b·A4 전부 종료됐다(아래 완료 참고) — A3c는 finalize 완료
                (2026-08-16, a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님),
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
-               (2026-08-17, manifest 88d5756). 다음 항목 참고
+               (2026-08-17, manifest 88d5756), A4는 종목별 일별 수급 전량
+               finalize 통과(2026-08-18, manifest 74ac94e). 다음 항목 참고
   다음      A2b 소비 단계 — lib/a5/priceSource.js PRIMARY 연결·043090 처리 ·
-            Strategy Lab PRIMARY 전환 · Core 백필. 전부 A2b 완료로 막힘만
+            Strategy Lab PRIMARY 전환 · Core 백필. A4 소비 단계 — SB-1.0
+            KR_4AXIS 백테스트로 3축↔4축 비교. 전부 A2b·A4 완료로 막힘만
             풀렸을 뿐 착수는 아직 안 함(아래 "착수 가능" 참고)
-  착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
+  착수 가능  A2b·A4 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
               스코어링의 PRIMARY 가격 소스로 실제 연결하는 단계
             ② Strategy Lab PRIMARY 전환 — 5DC-v1A-P를 동일 engine·동일 policy로
               A1A_A1B_MERGED 재실행(코드 변경 없음, 설계상 그렇게 만들어 둠).
               세션인수인계-2026-08-16.md §4 끝 참고
             ③ Core 182종목 246일 백필 (≈224,000호출)
+            ④ SB-1.0 KR_4AXIS 백테스트 — A4(수급) 완료로 열렸다. 기존
+              KR_3AXIS와 나란히 돌려 3축↔4축을 비교한다. KR_3AXIS를
+              KR_4AXIS(운영)의 검증으로 승격하지 않는다는 기존 규칙은 유지
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
@@ -44,9 +49,19 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
-            A4 수급 백필. 지금 착수하지 않고 별도 작업 단위로 남긴다.
-            A4가 오면 SB-1.0에 KR_4AXIS 백테스트를 열고 3축↔4축을 비교한다
-  완료      ★ A2b(폐지 종목 가격) 전량 수집·finalize 통과 (2026-08-17) — KIS
+  완료      ★ A4(종목별 일별 수급) 전량 finalize 통과 (2026-08-18, manifest
+              74ac94e) — 2026-08-17 하루 6회 실행 전부 실패. 15:47 실행은
+              16샤드 전량 KRX 로그인·수집까지 성공했으나 finalize가 전량
+              (약 585만 행)을 리스트 하나에 올리다 OOM으로 죽었다("runner
+              has received a shutdown signal"). 검증+연도라우팅을 스트리밍
+              2단계로 바꿔 고친 뒤(f8a893d), 이미 수집 성공한 그 실행의 샤드
+              아티팩트를 재사용하도록 워크플로에 sourceRunId 입력을 추가해
+              (1ca9832) KRX 재수집 없이 finalize만 재실행 — 16분 32초에
+              통과. 확보 2,578/2,578(100%)·5,409,687행·2016-01-04~
+              2026-08-14·unresolved 0·missingRate 19.42%. SB-1.0 KR_4AXIS
+              백테스트의 블로커가 풀렸다(위 "착수 가능" 참고, 착수 자체는
+              미착수). 세부: 세션인수인계-2026-08-18.md
+            ★ A2b(폐지 종목 가격) 전량 수집·finalize 통과 (2026-08-17) — KIS
               전환(PR-1.5, 2026-08-16) 후 첫 전량 실행이 규모 게이트 2건에서
               FAIL(504<600·456<550), 표본 31건 교차검증으로 원인을 정리매매
               (상장폐지 직전 가격제한폭 없는 구간)로 확정 — KIS 오류·판정
