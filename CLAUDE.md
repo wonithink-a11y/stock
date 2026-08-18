@@ -12,19 +12,24 @@ Validated against
                (2026-08-17, manifest 88d5756), A4는 종목별 일별 수급 전량
                finalize 통과(2026-08-18, manifest 74ac94e). 다음 항목 참고
   다음      A2b 소비 단계 — lib/a5/priceSource.js PRIMARY 연결·043090 처리 ·
-            Strategy Lab PRIMARY 전환 · Core 백필. A4 소비 단계 — SB-1.0
-            KR_4AXIS 백테스트로 3축↔4축 비교. 전부 A2b·A4 완료로 막힘만
-            풀렸을 뿐 착수는 아직 안 함(아래 "착수 가능" 참고)
-  착수 가능  A2b·A4 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
+            Strategy Lab PRIMARY 전환 · Core 백필. 착수 아직 안 함(아래 "착수
+            가능" 참고). A4 소비 단계(SB-1.0 KR_4AXIS 백테스트)는 착수했다가
+            보류했다(아래 완료 참고) — 재개하려면 A5-3(valuation) 여부부터
+            결정해야 한다
+  착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
               스코어링의 PRIMARY 가격 소스로 실제 연결하는 단계
             ② Strategy Lab PRIMARY 전환 — 5DC-v1A-P를 동일 engine·동일 policy로
               A1A_A1B_MERGED 재실행(코드 변경 없음, 설계상 그렇게 만들어 둠).
               세션인수인계-2026-08-16.md §4 끝 참고
             ③ Core 182종목 246일 백필 (≈224,000호출)
-            ④ SB-1.0 KR_4AXIS 백테스트 — A4(수급) 완료로 열렸다. 기존
-              KR_3AXIS와 나란히 돌려 3축↔4축을 비교한다. KR_3AXIS를
-              KR_4AXIS(운영)의 검증으로 승격하지 않는다는 기존 규칙은 유지
+            ④ A5-3 valuation/peg 연결(lib/a5/resolver.js, A2a 수정주가 ↔ A3b
+              원본 EPS 조정 기준 정의) — A3c 완료(2026-08-16)로 데이터는
+              열렸으나 아직 착수 안 함(TASKS.md A5-3). 2026-08-18 SB-1.0
+              KR_4AXIS 정찰이 이걸 재확인했다 — valuation 결측이 단순 라벨링
+              문제가 아니라 fundamental+technical만으로는 절대 규칙 1(커버리지
+              60%)을 통과 못 한다는 사실을 발견했다(세션인수인계-2026-08-18-b.md).
+              SB-1.0 KR_4AXIS 재개의 전제조건이 됐다
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
@@ -49,7 +54,24 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
-  완료      ★ A4(종목별 일별 수급) 전량 finalize 통과 (2026-08-18, manifest
+  완료      ★ SB-1.0 KR_4AXIS 백테스트 정찰 — valuation 블로커 재확인, 보류
+              (2026-08-18) — A4 완료로 착수한 3단계 vertical slice(5→35종목,
+              553주간 snapshot, 2016~2026)에서 resolver.js가 valuation을
+              아직 안 붙인다는 사실(A5-3, 2026-08-12부터 알려진 블로커)이 이
+              트랙을 막고 있음을 실측으로 재확인했다. baseline(fundamental+
+              technical만)을 lib/backtester.js의 runBacktest()에 태우면
+              19,355건 전량이 INSUFFICIENT_COVERAGE로 걸러진다(절대 규칙 1,
+              커버리지 60% 미만 유보) — valuation 결측은 라벨링 문제가 아니라
+              이 재현 경로 자체의 전제조건이었다. 수급을 더한 유일한 측정
+              가능 조합(baseline+supplyDemand, KR_3AXIS/KR_4AXIS 어느 쪽도
+              아님)도 예측력이 약함(평균 IC 0.004, 등급 비단조, A등급이
+              d60·d120에서 최하위권). 전체 2,578종목 확대는 지금 구조로는
+              정보 가치가 낮다고 판단해 보류 — A5-3을 열지가 재개의 전제
+              (위 "착수 가능" ④ 참고). 재사용 가능한 진단 스크립트 둘 커밋:
+              scripts/probe-a4-supplydemand-vertical-slice.js ·
+              scripts/probe-a4-runbacktest-comparison.js. 세부:
+              세션인수인계-2026-08-18-b.md
+            ★ A4(종목별 일별 수급) 전량 finalize 통과 (2026-08-18, manifest
               74ac94e) — 2026-08-17 하루 6회 실행 전부 실패. 15:47 실행은
               16샤드 전량 KRX 로그인·수집까지 성공했으나 finalize가 전량
               (약 585만 행)을 리스트 하나에 올리다 OOM으로 죽었다("runner
