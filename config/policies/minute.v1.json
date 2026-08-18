@@ -1,7 +1,8 @@
 {
-  "version": "MN-1.1",
+  "version": "MN-1.2",
   "note": "분봉 수집 정책. 계약 문서는 docs/MN-1.0-분봉Raw저장계약.md다. 이 파일은 수집기가 읽는 값만 담는다.",
   "versionHistory": {
+    "MN-1.2": "2026-08-18. concurrency.initial을 2→4로 승격 (사용자 GO, 과거 246영업일 백필 속도 개선). 4는 이미 이 파일에 문서화돼 있던 상한이고, 첫 EGW00201이 실측된 6보다 낮다. concurrency는 collectionContract 밖이라 resume 상태·이미 통과한 manifest는 영향받지 않는다. 운영 daily 수집에도 동일 적용됨 — 관찰 필요.",
     "MN-1.1": "2026-08-10. validation 블록 추가 - 09:00 봉의 open 불변식을 면제하고 관측치로 센다. collectionContract는 건드리지 않았으므로 resume 상태가 그대로 살고 재수집이 필요 없다.",
     "MN-1.0": "2026-08-09. 최초."
   },
@@ -46,8 +47,8 @@
     "defaultUnknownRetryableNote": "모르는 실패의 기본값은 재시도 가능이다(교훈56). 모르는 것은 '못 한다'가 아니라 '아직 모른다'다"
   },
   "concurrency": {
-    "note": "동시 4~6에서 EGW00201이 실측됐다. 2에서 시작해 실운영 로그를 보고 올린다.",
-    "initial": 2,
+    "note": "동시 4~6에서 EGW00201이 실측됐다. MN-1.2(2026-08-18)에서 2→4로 승격 - 이미 문서화된 상한이고 첫 실패(6)보다 낮다. EGW00201 재발 시 되돌린다.",
+    "initial": 4,
     "max": 4,
     "requestSleepSeconds": 0.1
   },
