@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A4",
+  "stageVersion": "A4.0",
+  "target": "data/backfill/supplyDemand/a4",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:8c71aed2b602f6c5",
+  "fileCount": 11,
+  "upstream": {
+    "A0.5": "sha256:37fa93c616711589",
+    "A1a": "sha256:3543c5a084d46438"
+  },
+  "policyHash": {
+    "registry": "sha256:e4ef72fda0901a86",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "supplyDemand": "sha256:eeedbde9d542f06b"
+  },
+  "recordCount": 5409687,
+  "candidateCount": 2578,
+  "tickersWithData": 2578,
+  "tickersWithDataRate": 1,
+  "emptyCount": 0,
+  "unresolvedCount": 0,
+  "unresolved": [],
+  "missingRate": 0.19416,
+  "actualDataFrom": "2016-01-04",
+  "actualDataTo": "2026-08-14",
+  "smokeTest": false,
+  "generatedAt": "2026-08-18T02:21:56.528Z"
+}
