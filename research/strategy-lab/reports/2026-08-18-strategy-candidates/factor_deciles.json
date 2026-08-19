@@ -1,0 +1,746 @@
+{
+  "title": "전략 후보 팩터 검증 (2016-2026, A1A_ONLY)",
+  "universeMode": "A1A_ONLY",
+  "tickersScanned": 2558,
+  "rebalanceDates": 128,
+  "panelRows": 217253,
+  "horizonsDays": [
+    20,
+    60,
+    120
+  ],
+  "start": "2016-01-01",
+  "end": "2026-08-14",
+  "factorDefinitions": {
+    "mom20": "Close[t]/Close[t-20]-1 (단기 모멘텀)",
+    "mom60": "Close[t]/Close[t-60]-1 (중기 모멘텀)",
+    "mom12_1": "Close[t-21]/Close[t-252]-1 (12-1 모멘텀, 기존 역전 재현)",
+    "rev20": "-(Close[t]/Close[t-20]-1) (단기 평균회귀 — 급락 후 반등)",
+    "vol20": "20D 로그수익률 표준편차 (변동성)",
+    "liq_surge": "5D 평균거래량/60D 평균거래량 (거래량 급증)",
+    "volume20": "20D 평균거래량 (유동성)"
+  },
+  "results": {
+    "mom20": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.01077,
+          "winrate_fwd20": 0.45867,
+          "mean_fwd60": 0.02196,
+          "winrate_fwd60": 0.4263,
+          "mean_fwd120": 0.02428,
+          "winrate_fwd120": 0.39572,
+          "n": 21778
+        },
+        "2": {
+          "mean_fwd20": 0.00789,
+          "winrate_fwd20": 0.46308,
+          "mean_fwd60": 0.0226,
+          "winrate_fwd60": 0.43937,
+          "mean_fwd120": 0.04096,
+          "winrate_fwd120": 0.42556,
+          "n": 21722
+        },
+        "3": {
+          "mean_fwd20": 0.00816,
+          "winrate_fwd20": 0.46453,
+          "mean_fwd60": 0.02831,
+          "winrate_fwd60": 0.45509,
+          "mean_fwd120": 0.04709,
+          "winrate_fwd120": 0.43461,
+          "n": 21723
+        },
+        "4": {
+          "mean_fwd20": 0.00746,
+          "winrate_fwd20": 0.46919,
+          "mean_fwd60": 0.0281,
+          "winrate_fwd60": 0.46092,
+          "mean_fwd120": 0.04896,
+          "winrate_fwd120": 0.43981,
+          "n": 21748
+        },
+        "5": {
+          "mean_fwd20": 0.0082,
+          "winrate_fwd20": 0.46863,
+          "mean_fwd60": 0.02479,
+          "winrate_fwd60": 0.46237,
+          "mean_fwd120": 0.04097,
+          "winrate_fwd120": 0.43247,
+          "n": 21738
+        },
+        "6": {
+          "mean_fwd20": 0.01039,
+          "winrate_fwd20": 0.47189,
+          "mean_fwd60": 0.0268,
+          "winrate_fwd60": 0.45924,
+          "mean_fwd120": 0.04537,
+          "winrate_fwd120": 0.43995,
+          "n": 21666
+        },
+        "7": {
+          "mean_fwd20": 0.00954,
+          "winrate_fwd20": 0.46479,
+          "mean_fwd60": 0.02738,
+          "winrate_fwd60": 0.45077,
+          "mean_fwd120": 0.04243,
+          "winrate_fwd120": 0.43478,
+          "n": 21696
+        },
+        "8": {
+          "mean_fwd20": 0.00863,
+          "winrate_fwd20": 0.4571,
+          "mean_fwd60": 0.02138,
+          "winrate_fwd60": 0.44379,
+          "mean_fwd120": 0.04014,
+          "winrate_fwd120": 0.4297,
+          "n": 21713
+        },
+        "9": {
+          "mean_fwd20": 0.00722,
+          "winrate_fwd20": 0.4379,
+          "mean_fwd60": 0.02009,
+          "winrate_fwd60": 0.42495,
+          "mean_fwd120": 0.03972,
+          "winrate_fwd120": 0.41085,
+          "n": 21706
+        },
+        "10": {
+          "mean_fwd20": 0.00013,
+          "winrate_fwd20": 0.40307,
+          "mean_fwd60": 0.00306,
+          "winrate_fwd60": 0.3817,
+          "mean_fwd120": 0.01661,
+          "winrate_fwd120": 0.3693,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": -0.4061,
+        "fwd20_d10minusd1": -0.01064,
+        "fwd60_spearman": -0.5152,
+        "fwd60_d10minusd1": -0.0189,
+        "fwd120_spearman": -0.3333,
+        "fwd120_d10minusd1": -0.00767
+      }
+    },
+    "mom60": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.01471,
+          "winrate_fwd20": 0.46044,
+          "mean_fwd60": 0.02324,
+          "winrate_fwd60": 0.4311,
+          "mean_fwd120": 0.0257,
+          "winrate_fwd120": 0.40244,
+          "n": 21777
+        },
+        "2": {
+          "mean_fwd20": 0.00894,
+          "winrate_fwd20": 0.46552,
+          "mean_fwd60": 0.02568,
+          "winrate_fwd60": 0.45285,
+          "mean_fwd120": 0.04157,
+          "winrate_fwd120": 0.43527,
+          "n": 21720
+        },
+        "3": {
+          "mean_fwd20": 0.00931,
+          "winrate_fwd20": 0.47194,
+          "mean_fwd60": 0.02655,
+          "winrate_fwd60": 0.4566,
+          "mean_fwd120": 0.04544,
+          "winrate_fwd120": 0.4366,
+          "n": 21704
+        },
+        "4": {
+          "mean_fwd20": 0.00805,
+          "winrate_fwd20": 0.47115,
+          "mean_fwd60": 0.02644,
+          "winrate_fwd60": 0.4647,
+          "mean_fwd120": 0.04355,
+          "winrate_fwd120": 0.43861,
+          "n": 21730
+        },
+        "5": {
+          "mean_fwd20": 0.00962,
+          "winrate_fwd20": 0.47155,
+          "mean_fwd60": 0.02844,
+          "winrate_fwd60": 0.45843,
+          "mean_fwd120": 0.04714,
+          "winrate_fwd120": 0.43569,
+          "n": 21722
+        },
+        "6": {
+          "mean_fwd20": 0.00843,
+          "winrate_fwd20": 0.46665,
+          "mean_fwd60": 0.02489,
+          "winrate_fwd60": 0.45625,
+          "mean_fwd120": 0.04293,
+          "winrate_fwd120": 0.43368,
+          "n": 21712
+        },
+        "7": {
+          "mean_fwd20": 0.00792,
+          "winrate_fwd20": 0.45813,
+          "mean_fwd60": 0.02446,
+          "winrate_fwd60": 0.44344,
+          "mean_fwd120": 0.04005,
+          "winrate_fwd120": 0.42934,
+          "n": 21710
+        },
+        "8": {
+          "mean_fwd20": 0.00721,
+          "winrate_fwd20": 0.44837,
+          "mean_fwd60": 0.02085,
+          "winrate_fwd60": 0.43317,
+          "mean_fwd120": 0.03627,
+          "winrate_fwd120": 0.42115,
+          "n": 21712
+        },
+        "9": {
+          "mean_fwd20": 0.00561,
+          "winrate_fwd20": 0.44049,
+          "mean_fwd60": 0.0204,
+          "winrate_fwd60": 0.42515,
+          "mean_fwd120": 0.04142,
+          "winrate_fwd120": 0.41128,
+          "n": 21703
+        },
+        "10": {
+          "mean_fwd20": -0.00143,
+          "winrate_fwd20": 0.40459,
+          "mean_fwd60": 0.00351,
+          "winrate_fwd60": 0.38281,
+          "mean_fwd120": 0.02246,
+          "winrate_fwd120": 0.36865,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": -0.8909,
+        "fwd20_d10minusd1": -0.01614,
+        "fwd60_spearman": -0.6364,
+        "fwd60_d10minusd1": -0.01973,
+        "fwd120_spearman": -0.3697,
+        "fwd120_d10minusd1": -0.00324
+      }
+    },
+    "mom12_1": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.01247,
+          "winrate_fwd20": 0.44886,
+          "mean_fwd60": 0.02743,
+          "winrate_fwd60": 0.43545,
+          "mean_fwd120": 0.03738,
+          "winrate_fwd120": 0.40909,
+          "n": 21775
+        },
+        "2": {
+          "mean_fwd20": 0.00697,
+          "winrate_fwd20": 0.45525,
+          "mean_fwd60": 0.0226,
+          "winrate_fwd60": 0.44462,
+          "mean_fwd120": 0.04183,
+          "winrate_fwd120": 0.42676,
+          "n": 21722
+        },
+        "3": {
+          "mean_fwd20": 0.00822,
+          "winrate_fwd20": 0.46212,
+          "mean_fwd60": 0.02081,
+          "winrate_fwd60": 0.44738,
+          "mean_fwd120": 0.03674,
+          "winrate_fwd120": 0.42756,
+          "n": 21702
+        },
+        "4": {
+          "mean_fwd20": 0.00869,
+          "winrate_fwd20": 0.46167,
+          "mean_fwd60": 0.02251,
+          "winrate_fwd60": 0.44358,
+          "mean_fwd120": 0.04158,
+          "winrate_fwd120": 0.43203,
+          "n": 21730
+        },
+        "5": {
+          "mean_fwd20": 0.00694,
+          "winrate_fwd20": 0.45388,
+          "mean_fwd60": 0.02391,
+          "winrate_fwd60": 0.44693,
+          "mean_fwd120": 0.04255,
+          "winrate_fwd120": 0.42774,
+          "n": 21728
+        },
+        "6": {
+          "mean_fwd20": 0.00693,
+          "winrate_fwd20": 0.46158,
+          "mean_fwd60": 0.02121,
+          "winrate_fwd60": 0.4467,
+          "mean_fwd120": 0.03762,
+          "winrate_fwd120": 0.42646,
+          "n": 21697
+        },
+        "7": {
+          "mean_fwd20": 0.00706,
+          "winrate_fwd20": 0.45784,
+          "mean_fwd60": 0.02331,
+          "winrate_fwd60": 0.43845,
+          "mean_fwd120": 0.04014,
+          "winrate_fwd120": 0.42385,
+          "n": 21713
+        },
+        "8": {
+          "mean_fwd20": 0.00815,
+          "winrate_fwd20": 0.45897,
+          "mean_fwd60": 0.02209,
+          "winrate_fwd60": 0.44608,
+          "mean_fwd120": 0.03593,
+          "winrate_fwd120": 0.43019,
+          "n": 21716
+        },
+        "9": {
+          "mean_fwd20": 0.00696,
+          "winrate_fwd20": 0.45677,
+          "mean_fwd60": 0.02231,
+          "winrate_fwd60": 0.44142,
+          "mean_fwd120": 0.03994,
+          "winrate_fwd120": 0.41931,
+          "n": 21707
+        },
+        "10": {
+          "mean_fwd20": 0.00596,
+          "winrate_fwd20": 0.44185,
+          "mean_fwd60": 0.01823,
+          "winrate_fwd60": 0.41382,
+          "mean_fwd120": 0.03275,
+          "winrate_fwd120": 0.38965,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": -0.6242,
+        "fwd20_d10minusd1": -0.00651,
+        "fwd60_spearman": -0.5152,
+        "fwd60_d10minusd1": -0.0092,
+        "fwd120_spearman": -0.3697,
+        "fwd120_d10minusd1": -0.00463
+      }
+    },
+    "rev20": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.00015,
+          "winrate_fwd20": 0.40312,
+          "mean_fwd60": 0.00303,
+          "winrate_fwd60": 0.38172,
+          "mean_fwd120": 0.01656,
+          "winrate_fwd120": 0.36923,
+          "n": 21775
+        },
+        "2": {
+          "mean_fwd20": 0.00727,
+          "winrate_fwd20": 0.43795,
+          "mean_fwd60": 0.0202,
+          "winrate_fwd60": 0.4252,
+          "mean_fwd120": 0.03983,
+          "winrate_fwd120": 0.41102,
+          "n": 21724
+        },
+        "3": {
+          "mean_fwd20": 0.00855,
+          "winrate_fwd20": 0.45701,
+          "mean_fwd60": 0.02133,
+          "winrate_fwd60": 0.4437,
+          "mean_fwd120": 0.04009,
+          "winrate_fwd120": 0.42974,
+          "n": 21704
+        },
+        "4": {
+          "mean_fwd20": 0.0095,
+          "winrate_fwd20": 0.46447,
+          "mean_fwd60": 0.02718,
+          "winrate_fwd60": 0.45068,
+          "mean_fwd120": 0.04206,
+          "winrate_fwd120": 0.43441,
+          "n": 21758
+        },
+        "5": {
+          "mean_fwd20": 0.01046,
+          "winrate_fwd20": 0.47206,
+          "mean_fwd60": 0.02695,
+          "winrate_fwd60": 0.45945,
+          "mean_fwd120": 0.04584,
+          "winrate_fwd120": 0.44003,
+          "n": 21726
+        },
+        "6": {
+          "mean_fwd20": 0.00805,
+          "winrate_fwd20": 0.46805,
+          "mean_fwd60": 0.02474,
+          "winrate_fwd60": 0.46197,
+          "mean_fwd120": 0.04086,
+          "winrate_fwd120": 0.43276,
+          "n": 21707
+        },
+        "7": {
+          "mean_fwd20": 0.00753,
+          "winrate_fwd20": 0.4696,
+          "mean_fwd60": 0.02819,
+          "winrate_fwd60": 0.46112,
+          "mean_fwd120": 0.04875,
+          "winrate_fwd120": 0.4395,
+          "n": 21695
+        },
+        "8": {
+          "mean_fwd20": 0.00816,
+          "winrate_fwd20": 0.46474,
+          "mean_fwd60": 0.02821,
+          "winrate_fwd60": 0.45492,
+          "mean_fwd120": 0.04718,
+          "winrate_fwd120": 0.43455,
+          "n": 21696
+        },
+        "9": {
+          "mean_fwd20": 0.00793,
+          "winrate_fwd20": 0.46319,
+          "mean_fwd60": 0.02269,
+          "winrate_fwd60": 0.43942,
+          "mean_fwd120": 0.04102,
+          "winrate_fwd120": 0.4257,
+          "n": 21708
+        },
+        "10": {
+          "mean_fwd20": 0.01079,
+          "winrate_fwd20": 0.45869,
+          "mean_fwd60": 0.02195,
+          "winrate_fwd60": 0.42638,
+          "mean_fwd120": 0.02436,
+          "winrate_fwd120": 0.39582,
+          "n": 21760
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": 0.4303,
+        "fwd20_d10minusd1": 0.01064,
+        "fwd60_spearman": 0.5152,
+        "fwd60_d10minusd1": 0.01892,
+        "fwd120_spearman": 0.3697,
+        "fwd120_d10minusd1": 0.0078
+      }
+    },
+    "vol20": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.00607,
+          "winrate_fwd20": 0.47605,
+          "mean_fwd60": 0.02128,
+          "winrate_fwd60": 0.47063,
+          "mean_fwd120": 0.03825,
+          "winrate_fwd120": 0.44941,
+          "n": 21775
+        },
+        "2": {
+          "mean_fwd20": 0.00622,
+          "winrate_fwd20": 0.46492,
+          "mean_fwd60": 0.025,
+          "winrate_fwd60": 0.46644,
+          "mean_fwd120": 0.0435,
+          "winrate_fwd120": 0.44457,
+          "n": 21722
+        },
+        "3": {
+          "mean_fwd20": 0.00823,
+          "winrate_fwd20": 0.47235,
+          "mean_fwd60": 0.02951,
+          "winrate_fwd60": 0.46539,
+          "mean_fwd120": 0.04878,
+          "winrate_fwd120": 0.44871,
+          "n": 21702
+        },
+        "4": {
+          "mean_fwd20": 0.01217,
+          "winrate_fwd20": 0.47413,
+          "mean_fwd60": 0.033,
+          "winrate_fwd60": 0.47078,
+          "mean_fwd120": 0.05052,
+          "winrate_fwd120": 0.44491,
+          "n": 21728
+        },
+        "5": {
+          "mean_fwd20": 0.00999,
+          "winrate_fwd20": 0.46401,
+          "mean_fwd60": 0.02928,
+          "winrate_fwd60": 0.45848,
+          "mean_fwd120": 0.05042,
+          "winrate_fwd120": 0.43855,
+          "n": 21726
+        },
+        "6": {
+          "mean_fwd20": 0.00933,
+          "winrate_fwd20": 0.46348,
+          "mean_fwd60": 0.02699,
+          "winrate_fwd60": 0.44523,
+          "mean_fwd120": 0.04438,
+          "winrate_fwd120": 0.42841,
+          "n": 21699
+        },
+        "7": {
+          "mean_fwd20": 0.01108,
+          "winrate_fwd20": 0.46583,
+          "mean_fwd60": 0.02968,
+          "winrate_fwd60": 0.44266,
+          "mean_fwd120": 0.04865,
+          "winrate_fwd120": 0.4241,
+          "n": 21714
+        },
+        "8": {
+          "mean_fwd20": 0.01194,
+          "winrate_fwd20": 0.4551,
+          "mean_fwd60": 0.02654,
+          "winrate_fwd60": 0.42973,
+          "mean_fwd120": 0.04785,
+          "winrate_fwd120": 0.41803,
+          "n": 21716
+        },
+        "9": {
+          "mean_fwd20": 0.0081,
+          "winrate_fwd20": 0.43265,
+          "mean_fwd60": 0.01573,
+          "winrate_fwd60": 0.40151,
+          "mean_fwd120": 0.03,
+          "winrate_fwd120": 0.38723,
+          "n": 21708
+        },
+        "10": {
+          "mean_fwd20": -0.00473,
+          "winrate_fwd20": 0.3903,
+          "mean_fwd60": -0.01253,
+          "winrate_fwd60": 0.35358,
+          "mean_fwd120": -0.01579,
+          "winrate_fwd120": 0.32872,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": 0.0667,
+        "fwd20_d10minusd1": -0.01079,
+        "fwd60_spearman": -0.3091,
+        "fwd60_d10minusd1": -0.03381,
+        "fwd120_spearman": -0.3333,
+        "fwd120_d10minusd1": -0.05404
+      }
+    },
+    "liq_surge": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.00206,
+          "winrate_fwd20": 0.43003,
+          "mean_fwd60": 0.01291,
+          "winrate_fwd60": 0.40299,
+          "mean_fwd120": 0.02419,
+          "winrate_fwd120": 0.38962,
+          "n": 21775
+        },
+        "2": {
+          "mean_fwd20": 0.00477,
+          "winrate_fwd20": 0.44084,
+          "mean_fwd60": 0.01946,
+          "winrate_fwd60": 0.42542,
+          "mean_fwd120": 0.02738,
+          "winrate_fwd120": 0.40047,
+          "n": 21722
+        },
+        "3": {
+          "mean_fwd20": 0.00681,
+          "winrate_fwd20": 0.45429,
+          "mean_fwd60": 0.02179,
+          "winrate_fwd60": 0.43918,
+          "mean_fwd120": 0.04077,
+          "winrate_fwd120": 0.41729,
+          "n": 21702
+        },
+        "4": {
+          "mean_fwd20": 0.00904,
+          "winrate_fwd20": 0.4635,
+          "mean_fwd60": 0.02472,
+          "winrate_fwd60": 0.44758,
+          "mean_fwd120": 0.04302,
+          "winrate_fwd120": 0.4283,
+          "n": 21728
+        },
+        "5": {
+          "mean_fwd20": 0.01133,
+          "winrate_fwd20": 0.46691,
+          "mean_fwd60": 0.02775,
+          "winrate_fwd60": 0.44891,
+          "mean_fwd120": 0.04859,
+          "winrate_fwd120": 0.43519,
+          "n": 21726
+        },
+        "6": {
+          "mean_fwd20": 0.00922,
+          "winrate_fwd20": 0.47223,
+          "mean_fwd60": 0.0281,
+          "winrate_fwd60": 0.46223,
+          "mean_fwd120": 0.04648,
+          "winrate_fwd120": 0.43772,
+          "n": 21699
+        },
+        "7": {
+          "mean_fwd20": 0.01211,
+          "winrate_fwd20": 0.48038,
+          "mean_fwd60": 0.03056,
+          "winrate_fwd60": 0.46592,
+          "mean_fwd120": 0.05084,
+          "winrate_fwd120": 0.44312,
+          "n": 21714
+        },
+        "8": {
+          "mean_fwd20": 0.00988,
+          "winrate_fwd20": 0.46906,
+          "mean_fwd60": 0.0258,
+          "winrate_fwd60": 0.46109,
+          "mean_fwd120": 0.0438,
+          "winrate_fwd120": 0.44023,
+          "n": 21716
+        },
+        "9": {
+          "mean_fwd20": 0.00867,
+          "winrate_fwd20": 0.4602,
+          "mean_fwd60": 0.02049,
+          "winrate_fwd60": 0.44661,
+          "mean_fwd120": 0.03656,
+          "winrate_fwd120": 0.42823,
+          "n": 21708
+        },
+        "10": {
+          "mean_fwd20": 0.0045,
+          "winrate_fwd20": 0.42145,
+          "mean_fwd60": 0.01289,
+          "winrate_fwd60": 0.40463,
+          "mean_fwd120": 0.02491,
+          "winrate_fwd120": 0.39255,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": 0.3212,
+        "fwd20_d10minusd1": 0.00244,
+        "fwd60_spearman": 0.1273,
+        "fwd60_d10minusd1": -2e-05,
+        "fwd120_spearman": 0.2242,
+        "fwd120_d10minusd1": 0.00072
+      }
+    },
+    "volume20": {
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.00837,
+          "winrate_fwd20": 0.46457,
+          "mean_fwd60": 0.02625,
+          "winrate_fwd60": 0.46402,
+          "mean_fwd120": 0.04631,
+          "winrate_fwd120": 0.44207,
+          "n": 21775
+        },
+        "2": {
+          "mean_fwd20": 0.00907,
+          "winrate_fwd20": 0.46777,
+          "mean_fwd60": 0.02782,
+          "winrate_fwd60": 0.45935,
+          "mean_fwd120": 0.03988,
+          "winrate_fwd120": 0.43951,
+          "n": 21722
+        },
+        "3": {
+          "mean_fwd20": 0.0105,
+          "winrate_fwd20": 0.47037,
+          "mean_fwd60": 0.02695,
+          "winrate_fwd60": 0.46014,
+          "mean_fwd120": 0.04376,
+          "winrate_fwd120": 0.44093,
+          "n": 21702
+        },
+        "4": {
+          "mean_fwd20": 0.0087,
+          "winrate_fwd20": 0.46553,
+          "mean_fwd60": 0.02627,
+          "winrate_fwd60": 0.45876,
+          "mean_fwd120": 0.04533,
+          "winrate_fwd120": 0.44077,
+          "n": 21728
+        },
+        "5": {
+          "mean_fwd20": 0.0085,
+          "winrate_fwd20": 0.46401,
+          "mean_fwd60": 0.02475,
+          "winrate_fwd60": 0.44909,
+          "mean_fwd120": 0.04007,
+          "winrate_fwd120": 0.42741,
+          "n": 21726
+        },
+        "6": {
+          "mean_fwd20": 0.0097,
+          "winrate_fwd20": 0.46131,
+          "mean_fwd60": 0.02643,
+          "winrate_fwd60": 0.44601,
+          "mean_fwd120": 0.04238,
+          "winrate_fwd120": 0.42384,
+          "n": 21699
+        },
+        "7": {
+          "mean_fwd20": 0.01001,
+          "winrate_fwd20": 0.45864,
+          "mean_fwd60": 0.02578,
+          "winrate_fwd60": 0.44469,
+          "mean_fwd120": 0.04503,
+          "winrate_fwd120": 0.42636,
+          "n": 21714
+        },
+        "8": {
+          "mean_fwd20": 0.00808,
+          "winrate_fwd20": 0.45593,
+          "mean_fwd60": 0.02252,
+          "winrate_fwd60": 0.43351,
+          "mean_fwd120": 0.03859,
+          "winrate_fwd120": 0.41573,
+          "n": 21716
+        },
+        "9": {
+          "mean_fwd20": 0.00599,
+          "winrate_fwd20": 0.44606,
+          "mean_fwd60": 0.01587,
+          "winrate_fwd60": 0.41791,
+          "mean_fwd120": 0.0318,
+          "winrate_fwd120": 0.40045,
+          "n": 21708
+        },
+        "10": {
+          "mean_fwd20": -0.00053,
+          "winrate_fwd20": 0.40463,
+          "mean_fwd60": 0.0018,
+          "winrate_fwd60": 0.37095,
+          "mean_fwd120": 0.01332,
+          "winrate_fwd120": 0.35556,
+          "n": 21763
+        }
+      },
+      "monotonicity": {
+        "fwd20_spearman": -0.5152,
+        "fwd20_d10minusd1": -0.0089,
+        "fwd60_spearman": -0.8061,
+        "fwd60_d10minusd1": -0.02445,
+        "fwd120_spearman": -0.7091,
+        "fwd120_d10minusd1": -0.03299
+      }
+    }
+  },
+  "caveats": [
+    "A1A_ONLY 유니버스(현재 상장 종목만) — survivorship bias 있음. 2016 이전 상장폐지 종목 제외.",
+    "월별 리밸런스, cross-sectional decile, 팩터는 t까지 backward, forward는 t 이후 (PIT 준수).",
+    "거래비용·슬리피지·포지션사이징 미반영 — raw 팩터 검증이다. tradable 전략 P&L 아님.",
+    "20D/60D/120D 겹치는 수익률 창은 독립 관측치 아님 — 통계적 유의성 한계.",
+    "A4 투자자별 수급은 저장소에 없음(data/backfill/supplyDemand/a4 부재) → 수급 결합 전략 실증 불가."
+  ]
+}

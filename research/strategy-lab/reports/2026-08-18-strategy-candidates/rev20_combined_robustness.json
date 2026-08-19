@@ -1,0 +1,3679 @@
+{
+  "config": {
+    "topN": 30,
+    "start": "2016-01-01",
+    "end": "2026-08-14",
+    "turnoverUnit": "원/일 (close*volume 20D 평균)",
+    "method": "월 리밸런스 top-30, t+1 open 진입/청산, 상장폐지 종목은 다음 리밸런스 이후 거래 없으면 미진입"
+  },
+  "reproduction": {
+    "REV20_A1A_ONLY_30bps": {
+      "cagr": 0.0354,
+      "totalReturn": 0.467,
+      "maxDrawdown": -0.6011,
+      "n_months": 125,
+      "n_selected_rows": 257286
+    },
+    "REV20_A1A_ONLY_150bps": {
+      "cagr": -0.0974,
+      "totalReturn": -0.676,
+      "maxDrawdown": -0.8292,
+      "n_months": 125,
+      "n_selected_rows": 257286
+    },
+    "REV20_A1A_ONLY_turnover10M": {
+      "cagr": -0.0064,
+      "totalReturn": -0.0687,
+      "maxDrawdown": -0.6151,
+      "n_months": 125,
+      "n_selected_rows": 253614
+    },
+    "REV20_MERGED_30bps": {
+      "cagr": 0.067,
+      "totalReturn": 1.041,
+      "maxDrawdown": -0.5932,
+      "n_months": 126,
+      "n_selected_rows": 278630
+    },
+    "REV20_MERGED_minPrice5000": {
+      "cagr": -0.07,
+      "totalReturn": -0.5496,
+      "maxDrawdown": -0.7513,
+      "n_months": 126,
+      "n_selected_rows": 178824
+    }
+  },
+  "REV20": {
+    "cost60bps": {
+      "n_selected_rows": 278630,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1518,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": 0.3987,
+      "cagr": 0.031,
+      "maxDrawdown": -0.6605,
+      "finalEquity": 139874871.0,
+      "yearly": {
+        "2016": 0.6686,
+        "2017": 0.4053,
+        "2018": -0.0327,
+        "2019": 0.1689,
+        "2020": 0.0669,
+        "2021": 0.1438,
+        "2022": -0.0754,
+        "2023": -0.2253,
+        "2024": 0.2806,
+        "2025": -0.1709,
+        "2026": -0.3808
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 63,
+        "n_neg": 63,
+        "mean": 0.006441,
+        "median": -0.000649,
+        "std": 0.087183,
+        "min": -0.253524,
+        "max": 0.235758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 268,
+          "top_contrib": {
+            "ticker": "234100",
+            "count": 3,
+            "sum_ret": 2.0247
+          },
+          "bottom_contrib": {
+            "ticker": "048870",
+            "count": 3,
+            "sum_ret": -0.6322
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 258,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 3,
+            "sum_ret": 3.0086
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 297,
+          "top_contrib": {
+            "ticker": "241510",
+            "count": 3,
+            "sum_ret": 2.245
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "135270",
+            "count": 4,
+            "sum_ret": -0.7818
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 281,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 5,
+            "sum_ret": 2.2284
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 1,
+            "sum_ret": 0.8967
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "cost90bps": {
+      "n_selected_rows": 278630,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1518,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.0425,
+      "cagr": -0.0039,
+      "maxDrawdown": -0.7168,
+      "finalEquity": 95749906.0,
+      "yearly": {
+        "2016": 0.6167,
+        "2017": 0.3609,
+        "2018": -0.0643,
+        "2019": 0.1313,
+        "2020": 0.0322,
+        "2021": 0.107,
+        "2022": -0.1058,
+        "2023": -0.2511,
+        "2024": 0.2398,
+        "2025": -0.1983,
+        "2026": -0.3911
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 60,
+        "n_neg": 66,
+        "mean": 0.003441,
+        "median": -0.003649,
+        "std": 0.087183,
+        "min": -0.256524,
+        "max": 0.232758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 268,
+          "top_contrib": {
+            "ticker": "234100",
+            "count": 3,
+            "sum_ret": 2.0247
+          },
+          "bottom_contrib": {
+            "ticker": "048870",
+            "count": 3,
+            "sum_ret": -0.6322
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 258,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 3,
+            "sum_ret": 3.0086
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 297,
+          "top_contrib": {
+            "ticker": "241510",
+            "count": 3,
+            "sum_ret": 2.245
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "135270",
+            "count": 4,
+            "sum_ret": -0.7818
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 281,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 5,
+            "sum_ret": 2.2284
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 1,
+            "sum_ret": 0.8967
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "turnover10M": {
+      "n_selected_rows": 269749,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1544,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.522,
+      "cagr": -0.0649,
+      "maxDrawdown": -0.6839,
+      "finalEquity": 47795676.0,
+      "yearly": {
+        "2016": 0.2157,
+        "2017": 0.0251,
+        "2018": -0.2068,
+        "2019": 0.0242,
+        "2020": -0.0047,
+        "2021": 0.1252,
+        "2022": -0.0585,
+        "2023": -0.2217,
+        "2024": 0.3161,
+        "2025": -0.1662,
+        "2026": -0.3704
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 59,
+        "n_neg": 67,
+        "mean": -0.002188,
+        "median": -0.005244,
+        "std": 0.08522,
+        "min": -0.250524,
+        "max": 0.238758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 303,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 290,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "turnover50M": {
+      "n_selected_rows": 256214,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1539,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.6005,
+      "cagr": -0.08,
+      "maxDrawdown": -0.7177,
+      "finalEquity": 39946395.0,
+      "yearly": {
+        "2016": 0.1883,
+        "2017": -0.0154,
+        "2018": -0.2354,
+        "2019": 0.0137,
+        "2020": 0.0084,
+        "2021": 0.1252,
+        "2022": -0.0637,
+        "2023": -0.2559,
+        "2024": 0.3161,
+        "2025": -0.1688,
+        "2026": -0.3704
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 60,
+        "n_neg": 66,
+        "mean": -0.003496,
+        "median": -0.001567,
+        "std": 0.086307,
+        "min": -0.250524,
+        "max": 0.238758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 282,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 2,
+            "sum_ret": -1.2805
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 303,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 294,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 290,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "turnover100M": {
+      "n_selected_rows": 241242,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1538,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.6183,
+      "cagr": -0.0838,
+      "maxDrawdown": -0.7172,
+      "finalEquity": 38165175.0,
+      "yearly": {
+        "2016": 0.1826,
+        "2017": -0.0379,
+        "2018": -0.2148,
+        "2019": 0.0219,
+        "2020": -0.0015,
+        "2021": 0.1252,
+        "2022": -0.0616,
+        "2023": -0.2576,
+        "2024": 0.2965,
+        "2025": -0.1752,
+        "2026": -0.3704
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 59,
+        "n_neg": 67,
+        "mean": -0.00387,
+        "median": -0.003878,
+        "std": 0.086116,
+        "min": -0.250524,
+        "max": 0.238758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 2,
+            "sum_ret": -1.2805
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 304,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "turnover300M": {
+      "n_selected_rows": 199339,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1548,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.6678,
+      "cagr": -0.0953,
+      "maxDrawdown": -0.7537,
+      "finalEquity": 33221069.0,
+      "yearly": {
+        "2016": 0.1413,
+        "2017": 0.0067,
+        "2018": -0.1999,
+        "2019": 0.0322,
+        "2020": -0.0094,
+        "2021": 0.1161,
+        "2022": -0.101,
+        "2023": -0.2475,
+        "2024": 0.2356,
+        "2025": -0.1219,
+        "2026": -0.4618
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 62,
+        "n_neg": 64,
+        "mean": -0.005182,
+        "median": -0.003527,
+        "std": 0.083047,
+        "min": -0.263512,
+        "max": 0.171998,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "066110",
+            "count": 2,
+            "sum_ret": -0.5437
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 306,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 281,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "066410",
+            "count": 2,
+            "sum_ret": 0.8781
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "025950",
+            "count": 3,
+            "sum_ret": -0.7507
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 158,
+          "top_contrib": {
+            "ticker": "321370",
+            "count": 1,
+            "sum_ret": 0.9151
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "cost60_turnover100M": {
+      "n_selected_rows": 241242,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1538,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.7398,
+      "cagr": -0.1152,
+      "maxDrawdown": -0.7898,
+      "finalEquity": 26022719.0,
+      "yearly": {
+        "2016": 0.1447,
+        "2017": -0.0694,
+        "2018": -0.241,
+        "2019": -0.0114,
+        "2020": -0.0341,
+        "2021": 0.0889,
+        "2022": -0.0924,
+        "2023": -0.2825,
+        "2024": 0.2552,
+        "2025": -0.2025,
+        "2026": -0.3808
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 59,
+        "n_neg": 67,
+        "mean": -0.00687,
+        "median": -0.006878,
+        "std": 0.086116,
+        "min": -0.253524,
+        "max": 0.235758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 2,
+            "sum_ret": -1.2805
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 304,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "cost60_turnover100M_minPrice5000": {
+      "n_selected_rows": 165017,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1544,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.7827,
+      "cagr": -0.1296,
+      "maxDrawdown": -0.8433,
+      "finalEquity": 21726079.0,
+      "yearly": {
+        "2016": 0.0308,
+        "2017": 0.085,
+        "2018": -0.1924,
+        "2019": -0.1444,
+        "2020": 0.0485,
+        "2021": 0.0719,
+        "2022": -0.1684,
+        "2023": -0.3703,
+        "2024": 0.0583,
+        "2025": -0.2028,
+        "2026": -0.4464
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 60,
+        "n_neg": 66,
+        "mean": -0.008449,
+        "median": -0.007188,
+        "std": 0.08403,
+        "min": -0.24684,
+        "max": 0.212658,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 277,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "066110",
+            "count": 2,
+            "sum_ret": -0.5437
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 301,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 275,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "253840",
+            "count": 3,
+            "sum_ret": -0.7561
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 271,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "087730",
+            "count": 3,
+            "sum_ret": -0.705
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 279,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "214310",
+            "count": 4,
+            "sum_ret": -0.6459
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 290,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 284,
+          "top_contrib": {
+            "ticker": "900100",
+            "count": 2,
+            "sum_ret": 1.3761
+          },
+          "bottom_contrib": {
+            "ticker": "031860",
+            "count": 1,
+            "sum_ret": -0.4527
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 274,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 3,
+            "sum_ret": 2.1872
+          },
+          "bottom_contrib": {
+            "ticker": "065650",
+            "count": 4,
+            "sum_ret": -1.282
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 161,
+          "top_contrib": {
+            "ticker": "078860",
+            "count": 1,
+            "sum_ret": 0.5224
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "minPrice1000": {
+      "n_selected_rows": 274227,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1529,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": 0.3487,
+      "cagr": 0.0276,
+      "maxDrawdown": -0.6823,
+      "finalEquity": 134866164.0,
+      "yearly": {
+        "2016": 0.7574,
+        "2017": 0.3614,
+        "2018": -0.0245,
+        "2019": 0.183,
+        "2020": 0.0561,
+        "2021": 0.1506,
+        "2022": -0.0747,
+        "2023": -0.2438,
+        "2024": 0.3051,
+        "2025": -0.1757,
+        "2026": -0.4319
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 64,
+        "n_neg": 62,
+        "mean": 0.006003,
+        "median": 0.002588,
+        "std": 0.085297,
+        "min": -0.257431,
+        "max": 0.235025,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 268,
+          "top_contrib": {
+            "ticker": "234100",
+            "count": 3,
+            "sum_ret": 2.0247
+          },
+          "bottom_contrib": {
+            "ticker": "048870",
+            "count": 3,
+            "sum_ret": -0.6322
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 264,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 3,
+            "sum_ret": 3.0086
+          },
+          "bottom_contrib": {
+            "ticker": "058370",
+            "count": 1,
+            "sum_ret": -0.9168
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 301,
+          "top_contrib": {
+            "ticker": "241510",
+            "count": 3,
+            "sum_ret": 2.245
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "066410",
+            "count": 2,
+            "sum_ret": 0.8781
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 2,
+            "sum_ret": -0.9369
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 290,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 154,
+          "top_contrib": {
+            "ticker": "058450",
+            "count": 1,
+            "sum_ret": 0.9685
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "minPrice2000": {
+      "n_selected_rows": 254562,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1555,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.3298,
+      "cagr": -0.0357,
+      "maxDrawdown": -0.7491,
+      "finalEquity": 67016104.0,
+      "yearly": {
+        "2016": 0.5345,
+        "2017": 0.3182,
+        "2018": -0.1703,
+        "2019": 0.1614,
+        "2020": -0.0086,
+        "2021": 0.1287,
+        "2022": -0.0819,
+        "2023": -0.3447,
+        "2024": 0.1966,
+        "2025": -0.1359,
+        "2026": -0.4538
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 63,
+        "n_neg": 63,
+        "mean": 0.000536,
+        "median": 0.000655,
+        "std": 0.08577,
+        "min": -0.269564,
+        "max": 0.21617,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 281,
+          "top_contrib": {
+            "ticker": "234100",
+            "count": 3,
+            "sum_ret": 2.0247
+          },
+          "bottom_contrib": {
+            "ticker": "179440",
+            "count": 1,
+            "sum_ret": -0.7108
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 272,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 4,
+            "sum_ret": 2.6139
+          },
+          "bottom_contrib": {
+            "ticker": "135270",
+            "count": 2,
+            "sum_ret": -0.7064
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 305,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 296,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "283100",
+            "count": 3,
+            "sum_ret": -0.5646
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 292,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 154,
+          "top_contrib": {
+            "ticker": "058450",
+            "count": 1,
+            "sum_ret": 0.9685
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "minPrice3000": {
+      "n_selected_rows": 225665,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1561,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.5659,
+      "cagr": -0.0731,
+      "maxDrawdown": -0.7801,
+      "finalEquity": 43406010.0,
+      "yearly": {
+        "2016": 0.3247,
+        "2017": 0.2982,
+        "2018": -0.2394,
+        "2019": 0.0559,
+        "2020": 0.0245,
+        "2021": 0.1028,
+        "2022": -0.1091,
+        "2023": -0.3386,
+        "2024": 0.2139,
+        "2025": -0.109,
+        "2026": -0.4797
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 58,
+        "n_neg": 68,
+        "mean": -0.002894,
+        "median": -0.003802,
+        "std": 0.085568,
+        "min": -0.27953,
+        "max": 0.208903,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "179440",
+            "count": 1,
+            "sum_ret": -0.7108
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 276,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 4,
+            "sum_ret": 2.6139
+          },
+          "bottom_contrib": {
+            "ticker": "101360",
+            "count": 1,
+            "sum_ret": -0.5817
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 303,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 2,
+            "sum_ret": -0.909
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "214310",
+            "count": 4,
+            "sum_ret": -0.6459
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 296,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "071950",
+            "count": 1,
+            "sum_ret": 1.6736
+          },
+          "bottom_contrib": {
+            "ticker": "009410",
+            "count": 2,
+            "sum_ret": -0.4599
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 2,
+            "sum_ret": 2.3166
+          },
+          "bottom_contrib": {
+            "ticker": "025950",
+            "count": 3,
+            "sum_ret": -0.7507
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 154,
+          "top_contrib": {
+            "ticker": "058450",
+            "count": 1,
+            "sum_ret": 0.9685
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "minPrice5000": {
+      "n_selected_rows": 178824,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1541,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.5496,
+      "cagr": -0.07,
+      "maxDrawdown": -0.7513,
+      "finalEquity": 45036676.0,
+      "yearly": {
+        "2016": 0.1938,
+        "2017": 0.1763,
+        "2018": -0.1389,
+        "2019": -0.0669,
+        "2020": 0.1109,
+        "2021": 0.1297,
+        "2022": -0.106,
+        "2023": -0.3503,
+        "2024": 0.0936,
+        "2025": -0.176,
+        "2026": -0.4332
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 60,
+        "n_neg": 66,
+        "mean": -0.00272,
+        "median": -0.003321,
+        "std": 0.084374,
+        "min": -0.24384,
+        "max": 0.215658,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "179440",
+            "count": 1,
+            "sum_ret": -0.7108
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 278,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 4,
+            "sum_ret": 2.6139
+          },
+          "bottom_contrib": {
+            "ticker": "138290",
+            "count": 2,
+            "sum_ret": -0.6657
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 302,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 274,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 4,
+            "sum_ret": 2.1076
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 271,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "344860",
+            "count": 1,
+            "sum_ret": -0.8
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 294,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 282,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "214310",
+            "count": 4,
+            "sum_ret": -0.6459
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 284,
+          "top_contrib": {
+            "ticker": "900100",
+            "count": 2,
+            "sum_ret": 1.3761
+          },
+          "bottom_contrib": {
+            "ticker": "031860",
+            "count": 1,
+            "sum_ret": -0.4527
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 275,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 3,
+            "sum_ret": 2.1872
+          },
+          "bottom_contrib": {
+            "ticker": "065650",
+            "count": 4,
+            "sum_ret": -1.282
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 161,
+          "top_contrib": {
+            "ticker": "078860",
+            "count": 1,
+            "sum_ret": 0.5224
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "_raw_base": {
+      "n_selected_rows": 278630,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1518,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": 1.9748,
+      "cagr": 0.1042,
+      "maxDrawdown": -0.5128,
+      "finalEquity": 297476731.0,
+      "yearly": {
+        "2016": 0.777,
+        "2017": 0.4982,
+        "2018": 0.0334,
+        "2019": 0.2474,
+        "2020": 0.1394,
+        "2021": 0.2208,
+        "2022": -0.0117,
+        "2023": -0.1713,
+        "2024": 0.366,
+        "2025": -0.1134,
+        "2026": -0.3598
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 69,
+        "n_neg": 57,
+        "mean": 0.012441,
+        "median": 0.005351,
+        "std": 0.087183,
+        "min": -0.247524,
+        "max": 0.241758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 268,
+          "top_contrib": {
+            "ticker": "234100",
+            "count": 3,
+            "sum_ret": 2.0247
+          },
+          "bottom_contrib": {
+            "ticker": "048870",
+            "count": 3,
+            "sum_ret": -0.6322
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 258,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 3,
+            "sum_ret": 3.0086
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 297,
+          "top_contrib": {
+            "ticker": "241510",
+            "count": 3,
+            "sum_ret": 2.245
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "135270",
+            "count": 4,
+            "sum_ret": -0.7818
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 281,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 5,
+            "sum_ret": 2.2284
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "224020",
+            "count": 1,
+            "sum_ret": 0.8967
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 291,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "_raw_minPrice5000": {
+      "n_selected_rows": 178824,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1541,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.3406,
+      "cagr": -0.0372,
+      "maxDrawdown": -0.6943,
+      "finalEquity": 65936897.0,
+      "yearly": {
+        "2016": 0.2332,
+        "2017": 0.2152,
+        "2018": -0.1096,
+        "2019": -0.0353,
+        "2020": 0.148,
+        "2021": 0.1673,
+        "2022": -0.0756,
+        "2023": -0.3277,
+        "2024": 0.13,
+        "2025": -0.1478,
+        "2026": -0.4235
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 62,
+        "n_neg": 64,
+        "mean": 0.00028,
+        "median": -0.000321,
+        "std": 0.084374,
+        "min": -0.24084,
+        "max": 0.218658,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "179440",
+            "count": 1,
+            "sum_ret": -0.7108
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 278,
+          "top_contrib": {
+            "ticker": "245030",
+            "count": 4,
+            "sum_ret": 2.6139
+          },
+          "bottom_contrib": {
+            "ticker": "138290",
+            "count": 2,
+            "sum_ret": -0.6657
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 302,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 274,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 4,
+            "sum_ret": 2.1076
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 271,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "344860",
+            "count": 1,
+            "sum_ret": -0.8
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 294,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 282,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "214310",
+            "count": 4,
+            "sum_ret": -0.6459
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 284,
+          "top_contrib": {
+            "ticker": "900100",
+            "count": 2,
+            "sum_ret": 1.3761
+          },
+          "bottom_contrib": {
+            "ticker": "031860",
+            "count": 1,
+            "sum_ret": -0.4527
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 275,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 3,
+            "sum_ret": 2.1872
+          },
+          "bottom_contrib": {
+            "ticker": "065650",
+            "count": 4,
+            "sum_ret": -1.282
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 161,
+          "top_contrib": {
+            "ticker": "078860",
+            "count": 1,
+            "sum_ret": 0.5224
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "_raw_turnover100M": {
+      "n_selected_rows": 241242,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1538,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.4409,
+      "cagr": -0.0515,
+      "maxDrawdown": -0.6199,
+      "finalEquity": 55907998.0,
+      "yearly": {
+        "2016": 0.2217,
+        "2017": -0.0055,
+        "2018": -0.1878,
+        "2019": 0.0561,
+        "2020": 0.0322,
+        "2021": 0.1626,
+        "2022": -0.0298,
+        "2023": -0.232,
+        "2024": 0.339,
+        "2025": -0.147,
+        "2026": -0.3598
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 62,
+        "n_neg": 64,
+        "mean": -0.00087,
+        "median": -0.000878,
+        "std": 0.086116,
+        "min": -0.247524,
+        "max": 0.241758,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 2,
+            "sum_ret": -1.2805
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 304,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.6512
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 286,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "066430",
+            "count": 3,
+            "sum_ret": -1.1585
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 287,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "082660",
+            "count": 4,
+            "sum_ret": 0.9698
+          },
+          "bottom_contrib": {
+            "ticker": "051980",
+            "count": 2,
+            "sum_ret": -0.6994
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 289,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 3,
+            "sum_ret": 1.9953
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 3,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 288,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 3,
+            "sum_ret": 2.2414
+          },
+          "bottom_contrib": {
+            "ticker": "067390",
+            "count": 2,
+            "sum_ret": -0.6206
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 285,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 1,
+            "sum_ret": 2.1493
+          },
+          "bottom_contrib": {
+            "ticker": "065500",
+            "count": 3,
+            "sum_ret": -0.9865
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 156,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    },
+    "_raw_turnover100M_minPrice5000": {
+      "n_selected_rows": 165017,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1544,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.5328,
+      "cagr": -0.0668,
+      "maxDrawdown": -0.7162,
+      "finalEquity": 46722719.0,
+      "yearly": {
+        "2016": 0.1008,
+        "2017": 0.1583,
+        "2018": -0.1362,
+        "2019": -0.0851,
+        "2020": 0.1199,
+        "2021": 0.1445,
+        "2022": -0.1105,
+        "2023": -0.3255,
+        "2024": 0.13,
+        "2025": -0.1473,
+        "2026": -0.4273
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 63,
+        "n_neg": 63,
+        "mean": -0.002449,
+        "median": -0.001188,
+        "std": 0.08403,
+        "min": -0.24084,
+        "max": 0.218658,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 283,
+          "top_contrib": {
+            "ticker": "047770",
+            "count": 3,
+            "sum_ret": 1.5618
+          },
+          "bottom_contrib": {
+            "ticker": "026260",
+            "count": 4,
+            "sum_ret": -0.7525
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 277,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.0734
+          },
+          "bottom_contrib": {
+            "ticker": "066110",
+            "count": 2,
+            "sum_ret": -0.5437
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 301,
+          "top_contrib": {
+            "ticker": "009730",
+            "count": 1,
+            "sum_ret": 1.2397
+          },
+          "bottom_contrib": {
+            "ticker": "099830",
+            "count": 1,
+            "sum_ret": -0.962
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 275,
+          "top_contrib": {
+            "ticker": "123010",
+            "count": 2,
+            "sum_ret": 1.2124
+          },
+          "bottom_contrib": {
+            "ticker": "253840",
+            "count": 3,
+            "sum_ret": -0.7561
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 271,
+          "top_contrib": {
+            "ticker": "033270",
+            "count": 2,
+            "sum_ret": 1.4321
+          },
+          "bottom_contrib": {
+            "ticker": "087730",
+            "count": 3,
+            "sum_ret": -0.705
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 295,
+          "top_contrib": {
+            "ticker": "307750",
+            "count": 1,
+            "sum_ret": 0.8163
+          },
+          "bottom_contrib": {
+            "ticker": "195990",
+            "count": 3,
+            "sum_ret": -0.6409
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 279,
+          "top_contrib": {
+            "ticker": "263050",
+            "count": 2,
+            "sum_ret": 0.8564
+          },
+          "bottom_contrib": {
+            "ticker": "214310",
+            "count": 4,
+            "sum_ret": -0.6459
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 290,
+          "top_contrib": {
+            "ticker": "011810",
+            "count": 2,
+            "sum_ret": 1.1908
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 284,
+          "top_contrib": {
+            "ticker": "900100",
+            "count": 2,
+            "sum_ret": 1.3761
+          },
+          "bottom_contrib": {
+            "ticker": "031860",
+            "count": 1,
+            "sum_ret": -0.4527
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 274,
+          "top_contrib": {
+            "ticker": "389140",
+            "count": 3,
+            "sum_ret": 2.1872
+          },
+          "bottom_contrib": {
+            "ticker": "065650",
+            "count": 4,
+            "sum_ret": -1.282
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 161,
+          "top_contrib": {
+            "ticker": "078860",
+            "count": 1,
+            "sum_ret": 0.5224
+          },
+          "bottom_contrib": {
+            "ticker": "900300",
+            "count": 3,
+            "sum_ret": -1.0746
+          }
+        }
+      }
+    }
+  },
+  "LOWMOM60": {
+    "baseline_MERGED_30bps": {
+      "n_selected_rows": 273272,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1188,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": 3.9108,
+      "cagr": 0.1557,
+      "maxDrawdown": -0.3845,
+      "finalEquity": 491079696.0,
+      "yearly": {
+        "2016": 0.7926,
+        "2017": 0.354,
+        "2018": -0.08,
+        "2019": 0.0402,
+        "2020": 0.2416,
+        "2021": 0.1822,
+        "2022": -0.0764,
+        "2023": -0.0349,
+        "2024": 0.2956,
+        "2025": 0.2903,
+        "2026": -0.2983
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 72,
+        "n_neg": 54,
+        "mean": 0.016788,
+        "median": 0.015952,
+        "std": 0.090724,
+        "min": -0.234629,
+        "max": 0.248341,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 209,
+          "top_contrib": {
+            "ticker": "156170",
+            "count": 3,
+            "sum_ret": 3.3236
+          },
+          "bottom_contrib": {
+            "ticker": "015540",
+            "count": 6,
+            "sum_ret": -1.1286
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 182,
+          "top_contrib": {
+            "ticker": "107640",
+            "count": 4,
+            "sum_ret": 2.7118
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 223,
+          "top_contrib": {
+            "ticker": "148780",
+            "count": 4,
+            "sum_ret": 1.5055
+          },
+          "bottom_contrib": {
+            "ticker": "030270",
+            "count": 9,
+            "sum_ret": -0.9973
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 195,
+          "top_contrib": {
+            "ticker": "189330",
+            "count": 5,
+            "sum_ret": 2.5086
+          },
+          "bottom_contrib": {
+            "ticker": "007630",
+            "count": 7,
+            "sum_ret": -1.0269
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 212,
+          "top_contrib": {
+            "ticker": "950130",
+            "count": 2,
+            "sum_ret": 2.5652
+          },
+          "bottom_contrib": {
+            "ticker": "160600",
+            "count": 6,
+            "sum_ret": -1.1791
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 221,
+          "top_contrib": {
+            "ticker": "032280",
+            "count": 2,
+            "sum_ret": 1.5327
+          },
+          "bottom_contrib": {
+            "ticker": "299910",
+            "count": 4,
+            "sum_ret": -1.0446
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 230,
+          "top_contrib": {
+            "ticker": "298060",
+            "count": 2,
+            "sum_ret": 1.5113
+          },
+          "bottom_contrib": {
+            "ticker": "151910",
+            "count": 4,
+            "sum_ret": -0.8689
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 206,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 5,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 228,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 2,
+            "sum_ret": 2.452
+          },
+          "bottom_contrib": {
+            "ticker": "283100",
+            "count": 4,
+            "sum_ret": -0.9748
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 201,
+          "top_contrib": {
+            "ticker": "065170",
+            "count": 2,
+            "sum_ret": 3.4831
+          },
+          "bottom_contrib": {
+            "ticker": "101390",
+            "count": 6,
+            "sum_ret": -0.9673
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 106,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "377030",
+            "count": 6,
+            "sum_ret": -1.2542
+          }
+        }
+      }
+    },
+    "cost60_turnover100M": {
+      "n_selected_rows": 236815,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1253,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": 0.1684,
+      "cagr": 0.0142,
+      "maxDrawdown": -0.4696,
+      "finalEquity": 116840842.0,
+      "yearly": {
+        "2016": 0.0877,
+        "2017": -0.1286,
+        "2018": -0.2057,
+        "2019": -0.1299,
+        "2020": 0.1952,
+        "2021": 0.0761,
+        "2022": -0.1375,
+        "2023": -0.0548,
+        "2024": 0.2449,
+        "2025": 0.8669,
+        "2026": -0.3608
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 66,
+        "n_neg": 60,
+        "mean": 0.006907,
+        "median": 0.009413,
+        "std": 0.111431,
+        "min": -0.261398,
+        "max": 0.689088,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 220,
+          "top_contrib": {
+            "ticker": "214270",
+            "count": 1,
+            "sum_ret": 0.8441
+          },
+          "bottom_contrib": {
+            "ticker": "015540",
+            "count": 6,
+            "sum_ret": -1.1286
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 196,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.2575
+          },
+          "bottom_contrib": {
+            "ticker": "086830",
+            "count": 1,
+            "sum_ret": -0.9399
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 238,
+          "top_contrib": {
+            "ticker": "007390",
+            "count": 2,
+            "sum_ret": 1.4298
+          },
+          "bottom_contrib": {
+            "ticker": "030270",
+            "count": 9,
+            "sum_ret": -0.9973
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 204,
+          "top_contrib": {
+            "ticker": "033110",
+            "count": 4,
+            "sum_ret": 1.4052
+          },
+          "bottom_contrib": {
+            "ticker": "007630",
+            "count": 7,
+            "sum_ret": -1.0269
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 222,
+          "top_contrib": {
+            "ticker": "950130",
+            "count": 2,
+            "sum_ret": 2.5652
+          },
+          "bottom_contrib": {
+            "ticker": "160600",
+            "count": 4,
+            "sum_ret": -1.1791
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 227,
+          "top_contrib": {
+            "ticker": "032280",
+            "count": 2,
+            "sum_ret": 1.5327
+          },
+          "bottom_contrib": {
+            "ticker": "299910",
+            "count": 4,
+            "sum_ret": -1.0446
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 236,
+          "top_contrib": {
+            "ticker": "298060",
+            "count": 2,
+            "sum_ret": 1.5113
+          },
+          "bottom_contrib": {
+            "ticker": "151910",
+            "count": 4,
+            "sum_ret": -0.8689
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 213,
+          "top_contrib": {
+            "ticker": "208340",
+            "count": 2,
+            "sum_ret": 2.453
+          },
+          "bottom_contrib": {
+            "ticker": "106520",
+            "count": 4,
+            "sum_ret": -0.927
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 233,
+          "top_contrib": {
+            "ticker": "066790",
+            "count": 2,
+            "sum_ret": 2.452
+          },
+          "bottom_contrib": {
+            "ticker": "023460",
+            "count": 3,
+            "sum_ret": -0.8678
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 208,
+          "top_contrib": {
+            "ticker": "012170",
+            "count": 4,
+            "sum_ret": 19.871
+          },
+          "bottom_contrib": {
+            "ticker": "101390",
+            "count": 4,
+            "sum_ret": -0.9673
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 110,
+          "top_contrib": {
+            "ticker": "215790",
+            "count": 1,
+            "sum_ret": 2.5831
+          },
+          "bottom_contrib": {
+            "ticker": "377030",
+            "count": 6,
+            "sum_ret": -1.2542
+          }
+        }
+      }
+    },
+    "cost60_turnover100M_minPrice5000": {
+      "n_selected_rows": 161744,
+      "n_portfolio_rows": 3780,
+      "n_unique_tickers": 1270,
+      "n_underfilled_months": 0,
+      "underfilled_examples": [],
+      "totalReturn": -0.6924,
+      "cagr": -0.1016,
+      "maxDrawdown": -0.7407,
+      "finalEquity": 30762621.0,
+      "yearly": {
+        "2016": 0.0472,
+        "2017": -0.2186,
+        "2018": -0.1697,
+        "2019": -0.1209,
+        "2020": 0.2556,
+        "2021": 0.0329,
+        "2022": -0.1525,
+        "2023": -0.0328,
+        "2024": -0.0788,
+        "2025": -0.105,
+        "2026": -0.4294
+      },
+      "monthly": {
+        "n_months": 126,
+        "n_pos": 59,
+        "n_neg": 67,
+        "mean": -0.005302,
+        "median": -0.004839,
+        "std": 0.088853,
+        "min": -0.283422,
+        "max": 0.246926,
+        "worst_month": "2026-05-04"
+      },
+      "yearly_detail": {
+        "2016": {
+          "n_selected": 360,
+          "n_tickers": 211,
+          "top_contrib": {
+            "ticker": "214270",
+            "count": 1,
+            "sum_ret": 0.8441
+          },
+          "bottom_contrib": {
+            "ticker": "015540",
+            "count": 7,
+            "sum_ret": -1.1828
+          }
+        },
+        "2017": {
+          "n_selected": 360,
+          "n_tickers": 194,
+          "top_contrib": {
+            "ticker": "052420",
+            "count": 2,
+            "sum_ret": 1.2575
+          },
+          "bottom_contrib": {
+            "ticker": "049180",
+            "count": 3,
+            "sum_ret": -0.9108
+          }
+        },
+        "2018": {
+          "n_selected": 360,
+          "n_tickers": 235,
+          "top_contrib": {
+            "ticker": "131100",
+            "count": 1,
+            "sum_ret": 1.2434
+          },
+          "bottom_contrib": {
+            "ticker": "051370",
+            "count": 5,
+            "sum_ret": -0.6658
+          }
+        },
+        "2019": {
+          "n_selected": 360,
+          "n_tickers": 214,
+          "top_contrib": {
+            "ticker": "033250",
+            "count": 1,
+            "sum_ret": 1.7323
+          },
+          "bottom_contrib": {
+            "ticker": "102940",
+            "count": 4,
+            "sum_ret": -0.7082
+          }
+        },
+        "2020": {
+          "n_selected": 360,
+          "n_tickers": 225,
+          "top_contrib": {
+            "ticker": "179900",
+            "count": 1,
+            "sum_ret": 0.8411
+          },
+          "bottom_contrib": {
+            "ticker": "160600",
+            "count": 4,
+            "sum_ret": -1.1791
+          }
+        },
+        "2021": {
+          "n_selected": 360,
+          "n_tickers": 226,
+          "top_contrib": {
+            "ticker": "009620",
+            "count": 2,
+            "sum_ret": 1.4515
+          },
+          "bottom_contrib": {
+            "ticker": "148140",
+            "count": 6,
+            "sum_ret": -1.2581
+          }
+        },
+        "2022": {
+          "n_selected": 360,
+          "n_tickers": 237,
+          "top_contrib": {
+            "ticker": "073570",
+            "count": 1,
+            "sum_ret": 2.4944
+          },
+          "bottom_contrib": {
+            "ticker": "063080",
+            "count": 4,
+            "sum_ret": -0.6489
+          }
+        },
+        "2023": {
+          "n_selected": 360,
+          "n_tickers": 222,
+          "top_contrib": {
+            "ticker": "074610",
+            "count": 3,
+            "sum_ret": 1.3598
+          },
+          "bottom_contrib": {
+            "ticker": "214870",
+            "count": 3,
+            "sum_ret": -0.8967
+          }
+        },
+        "2024": {
+          "n_selected": 360,
+          "n_tickers": 242,
+          "top_contrib": {
+            "ticker": "900100",
+            "count": 1,
+            "sum_ret": 1.3099
+          },
+          "bottom_contrib": {
+            "ticker": "432720",
+            "count": 5,
+            "sum_ret": -0.681
+          }
+        },
+        "2025": {
+          "n_selected": 360,
+          "n_tickers": 225,
+          "top_contrib": {
+            "ticker": "389470",
+            "count": 1,
+            "sum_ret": 2.504
+          },
+          "bottom_contrib": {
+            "ticker": "065650",
+            "count": 3,
+            "sum_ret": -0.6569
+          }
+        },
+        "2026": {
+          "n_selected": 180,
+          "n_tickers": 125,
+          "top_contrib": {
+            "ticker": "308080",
+            "count": 1,
+            "sum_ret": 0.8873
+          },
+          "bottom_contrib": {
+            "ticker": "476040",
+            "count": 3,
+            "sum_ret": -0.7791
+          }
+        }
+      }
+    }
+  }
+}
