@@ -6,7 +6,7 @@ A3는 미지수 세 개가 설계를 좌우한다. 어느 것도 문서로 확�
   1. availableFrom을 얻을 경로가 있는가
      PIT의 정의가 여기 걸린다. 응답의 rcept_no 앞 8자리가 접수일이면 추가 호출 없이
      availableFrom을 얻는다. 없으면 list.json을 corp×연도로 한 번 더 돌아야 하고
-     호출량이 두 배가 된다 — 일 한도 20,000건 설계가 통째로 바뀐다.
+     호출량이 두 배가 된다 — 일 한도 40,000건(FN-1.7) 설계가 통째로 바뀐다.
   2. 어느 엔드포인트로 계정을 잡는가
      fnlttSinglAcnt(주요계정)는 호출 1회로 3개 연도를 주지만 account_nm(회사·연도마다
      다른 한글 이름)으로만 매칭된다. fnlttSinglAcntAll(전체 재무제표)은 account_id
@@ -463,7 +463,7 @@ def main() -> int:
         },
 
         "callBudget": est,
-        "callBudgetNote": "일 한도 20,000건. 초과하면 다음날까지 대기이므로 resume이 "
+        "callBudgetNote": "일 한도 40,000건(FN-1.7). 초과하면 다음날까지 대기이므로 resume이 "
                           "선택이 아니라 계약이다(BF-1.1 §7 A3 계약 5).",
 
         "samples": {"fnlttSinglAcnt": s_acnt, "fnlttSinglAcntAll": s_all},

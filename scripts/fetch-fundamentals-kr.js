@@ -18,7 +18,7 @@
  *     기업개황 API(company.json)에서 induty_code(한국표준산업분류)를 받아
  *     lib/sectorResolver 로 sectorType(financial/holding/utility/construction/
  *     shipping/airline/bio/telecom/reit/general)을 확정합니다.
- *     종목당 요청 1회 추가 — 분기 1회 실행이라 DART 한도(일 20,000건)에 여유가 큽니다.
+ *     종목당 요청 1회 추가 — 분기 1회 실행이라 DART 한도(일 40,000건, FN-1.7)에 여유가 큽니다.
  *
  * (2) v1의 업종 판별 한계
  *     v1은 "유동자산·유동부채가 둘 다 없으면 금융업"이라는 재무제표 형태 휴리스틱만
