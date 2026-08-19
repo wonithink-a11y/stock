@@ -1,0 +1,35 @@
+{
+  "rawRowCount": 5409687,
+  "rawPeriod": [
+    "2016-01-04",
+    "2026-08-14"
+  ],
+  "tickersWithA4": 2578,
+  "clearingIdentityCheck": {
+    "rule": "buyAmount['전체'] == sellAmount['전체'] (KRX 시장 청산) 재검증",
+    "violations": 0
+  },
+  "categoryKeySetVariants": 1,
+  "categoryKeySetNote": "같은 레코드 안 buy/sell/volume 키 집합 일치 여부는 원자료 finalize(_diagnostics.json: categoryKeySetViolations=0)가 검증 — 여기서는 전체 키 조합 수만 기록",
+  "a2aJoin": {
+    "a4Tickers": 2578,
+    "a2aTickersWithClose": 2558
+  },
+  "forwardReturnCoverage": {
+    "d20": 0.9908,
+    "d60": 0.9727,
+    "d120": 0.9453
+  },
+  "a2aDateLimit": {
+    "a2aLastDate": "2026-08-03",
+    "a4LastDate": "2026-08-14",
+    "note": "A2a 백필 수집 한계가 A4보다 11일 짧다. 패널 기간 말 2026-08-04~08-14의 수급 레코드는 close 부재로 forward return이 NaN — 정직하게 남겨둠(보간 없음)."
+  },
+  "sizeProxyNote": "시가총액 대신 total_amount(전체 거래대금) 3분위를 규모 proxy로 사용. A1a 유니버스 시총 매핑은 다음 버전 과제 — 규모 결론은 proxy 기준 잠정치다.",
+  "rawDiagnosticsReference": "data/backfill/supplyDemand/a4/_diagnostics.json (finalize: marketClearingViolations=0, acceptancePassed=true)",
+  "exclusions": {
+    "tickersNoA2a": "A1A 유니버스 외 종목(A2a 미커버)은 패널에서 제외",
+    "rowsNoClose": "21926 rows — A2a close 부재",
+    "fwdNaN": "기간 말 미래 부재 — fwd_d120이 마지막 ~120 거래일에서 NaN"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "source": "data/backfill/supplyDemand/a4/*.jsonl.gz (KRX via pykrx, SD-1.0)",
+  "priceSource": "data/backfill/price/a2a/*.jsonl.gz (A2a, adjusted)",
+  "period": [
+    "2016-01-04",
+    "2026-08-03"
+  ],
+  "nRows": 5348454,
+  "nTickers": 2558,
+  "adjustedPrice": true,
+  "adjustNote": "A2a는 수정주가(PR-1.5/1.6, 액면분할·배당 보정). unadjusted는 사용하지 않음. forward return도 adjusted 기준.",
+  "pitNote": "파생 feature(rolling netbuy, ratio)는 date t까지의 정보만 사용. forward return은 t 이후 거래일 — feature 계산에 미래 데이터 미사용.",
+  "institutionCategories": [
+    "금융투자",
+    "보험",
+    "투신",
+    "사모",
+    "은행",
+    "기타금융",
+    "연기금",
+    "기타법인"
+  ],
+  "foreignCategories": [
+    "외국인",
+    "기타외국인"
+  ],
+  "columns": {
+    "ticker": "종목 코드 (6자리)",
+    "date": "거래일 (YYYY-MM-DD)",
+    "foreign_net": "외국인+기타외국인 순매수 금액(원) — buyAmount-sellAmount, KRX 원자료",
+    "inst_net": "기관(금융투자·보험·투신·사모·은행·기타금융·연기금·기타법인) 순매수 금액(원)",
+    "indiv_net": "개인 순매수 금액(원)",
+    "total_amount": "전체 거래대금(원) — buyAmount['전체']",
+    "total_volume": "전체 거래량(주) — buyVolume['전체']",
+    "net_*": "KRX 11개 카테고리별 순매수 금액(원) — 금융투자·보험·투신·사모·은행·기타금융·연기금·기타법인·개인·외국인·기타외국인",
+    "close": "A2a adjusted close (수정주가)",
+    "fwd_d20/d60/d120": "forward return — t 이후 {'d20': 20, 'd60': 60, 'd120': 120}/거래일 close / t close - 1 (adjusted)",
+    "foreign_nb_1d/5d/20d": "외국인 순매수 합계 t-{w+1}~t (PIT rolling)",
+    "inst_nb_1d/5d/20d": "기관 순매수 합계 (PIT rolling)",
+    "indiv_nb_1d/5d/20d": "개인 순매수 합계 (PIT rolling)",
+    "foreign_nb20_ratio": "20d 외국인 순매수 / 20d 거래대금",
+    "inst_nb20_ratio": "20d 기관 순매수 / 20d 거래대금",
+    "indiv_nb20_ratio": "20d 개인 순매수 / 20d 거래대금",
+    "log_total_amount": "log1p(거래대금) — 유동성 proxy"
+  },
+  "missing": {
+    "fwd_d120": 0.05471263284680022,
+    "fwd_d60": 0.027345285198302163,
+    "fwd_d20": 0.009165452297056308,
+    "total_amount": 0.0
+  },
+  "basicStats": {
+    "foreign_net": {
+      "mean": -32924387.0,
+      "median": -116145.0,
+      "std": 11117287318.0
+    },
+    "inst_net": {
+      "mean": -7337256.0,
+      "median": 0.0,
+      "std": 7077871467.0
+    },
+    "indiv_net": {
+      "mean": 40261643.0,
+      "median": 307201.0,
+      "std": 12489168825.0
+    }
+  },
+  "notComputable": {
+    "perShareFlow": "주당 수급량 — 발행주식수(A3c) 미연결(연결 시점은 SD-1.0 범위 밖)",
+    "foreignOwnershipPct": "외국인 보유율 — 보유잔고 원자료 없음(순매수만)",
+    "shortInterest": "공매도 잔고 — 원자료 없음 (docs/operations/data-source-availability.md: KRX 공매도 차단)",
+    "marketCap": "시가총액 — A1a 유니버스 미매핑(다음 버전 과제, 시장/규모 분할은 total_amount proxy 사용)"
+  }
+}
