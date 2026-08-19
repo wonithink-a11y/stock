@@ -1,0 +1,175 @@
+{
+  "question": "Does Momentum12M have forward-return predictive power in the A1A_ONLY universe?",
+  "universeMode": "A1A_ONLY",
+  "tickersInUniverse": 2578,
+  "rebalanceDates": 152,
+  "panelRowsBeforeDecile": 249602,
+  "panelRowsAfterDecile": 249602,
+  "horizonsDays": [
+    20,
+    60,
+    120
+  ],
+  "decileTable": {
+    "1": {
+      "mean_fwd20": 0.01667,
+      "median_fwd20": -0.00808,
+      "winrate_fwd20": 0.45652,
+      "mean_fwd60": 0.0319,
+      "median_fwd60": -0.02377,
+      "winrate_fwd60": 0.44341,
+      "mean_fwd120": 0.04399,
+      "median_fwd120": -0.04917,
+      "winrate_fwd120": 0.42095,
+      "n": 25022
+    },
+    "2": {
+      "mean_fwd20": 0.00672,
+      "median_fwd20": -0.00671,
+      "winrate_fwd20": 0.46181,
+      "mean_fwd60": 0.02161,
+      "median_fwd60": -0.0158,
+      "winrate_fwd60": 0.45488,
+      "mean_fwd120": 0.04262,
+      "median_fwd120": -0.03077,
+      "winrate_fwd120": 0.43969,
+      "n": 24954
+    },
+    "3": {
+      "mean_fwd20": 0.00652,
+      "median_fwd20": -0.00654,
+      "winrate_fwd20": 0.4607,
+      "mean_fwd60": 0.02012,
+      "median_fwd60": -0.01693,
+      "winrate_fwd60": 0.44763,
+      "mean_fwd120": 0.04108,
+      "median_fwd120": -0.03111,
+      "winrate_fwd120": 0.43596,
+      "n": 24936
+    },
+    "4": {
+      "mean_fwd20": 0.00875,
+      "median_fwd20": -0.0046,
+      "winrate_fwd20": 0.46764,
+      "mean_fwd60": 0.02424,
+      "median_fwd60": -0.01615,
+      "winrate_fwd60": 0.45049,
+      "mean_fwd120": 0.04276,
+      "median_fwd120": -0.02954,
+      "winrate_fwd120": 0.43703,
+      "n": 24955
+    },
+    "5": {
+      "mean_fwd20": 0.00664,
+      "median_fwd20": -0.00655,
+      "winrate_fwd20": 0.45515,
+      "mean_fwd60": 0.02186,
+      "median_fwd60": -0.01607,
+      "winrate_fwd60": 0.44541,
+      "mean_fwd120": 0.0421,
+      "median_fwd120": -0.02893,
+      "winrate_fwd120": 0.43977,
+      "n": 24970
+    },
+    "6": {
+      "mean_fwd20": 0.00672,
+      "median_fwd20": -0.00559,
+      "winrate_fwd20": 0.45785,
+      "mean_fwd60": 0.02026,
+      "median_fwd60": -0.01552,
+      "winrate_fwd60": 0.44445,
+      "mean_fwd120": 0.03925,
+      "median_fwd120": -0.02899,
+      "winrate_fwd120": 0.43394,
+      "n": 24923
+    },
+    "7": {
+      "mean_fwd20": 0.00835,
+      "median_fwd20": -0.00621,
+      "winrate_fwd20": 0.45772,
+      "mean_fwd60": 0.0232,
+      "median_fwd60": -0.01563,
+      "winrate_fwd60": 0.44417,
+      "mean_fwd120": 0.04149,
+      "median_fwd120": -0.02827,
+      "winrate_fwd120": 0.43391,
+      "n": 24950
+    },
+    "8": {
+      "mean_fwd20": 0.00828,
+      "median_fwd20": -0.00752,
+      "winrate_fwd20": 0.45309,
+      "mean_fwd60": 0.02166,
+      "median_fwd60": -0.01994,
+      "winrate_fwd60": 0.44014,
+      "mean_fwd120": 0.03681,
+      "median_fwd120": -0.03575,
+      "winrate_fwd120": 0.42479,
+      "n": 24942
+    },
+    "9": {
+      "mean_fwd20": 0.00814,
+      "median_fwd20": -0.012,
+      "winrate_fwd20": 0.44786,
+      "mean_fwd60": 0.01941,
+      "median_fwd60": -0.03281,
+      "winrate_fwd60": 0.42421,
+      "mean_fwd120": 0.03471,
+      "median_fwd120": -0.05323,
+      "winrate_fwd120": 0.41126,
+      "n": 24943
+    },
+    "10": {
+      "mean_fwd20": 0.00176,
+      "median_fwd20": -0.02506,
+      "winrate_fwd20": 0.42656,
+      "mean_fwd60": 0.00718,
+      "median_fwd60": -0.05915,
+      "winrate_fwd60": 0.40021,
+      "mean_fwd120": 0.01982,
+      "median_fwd120": -0.10032,
+      "winrate_fwd120": 0.37581,
+      "n": 25007
+    }
+  },
+  "positiveVsNonpositive": {
+    "momentum_positive": {
+      "n": 105126,
+      "mean_fwd20": 0.007370636170171197,
+      "median_fwd20": -0.011471331119537354,
+      "winrate_fwd20": 0.4464357057245591,
+      "mean_fwd60": 0.02074068570280811,
+      "median_fwd60": -0.027853310108184814,
+      "winrate_fwd60": 0.4321861385385157,
+      "mean_fwd120": 0.03486131154640174,
+      "median_fwd120": -0.050120919942855835,
+      "winrate_fwd120": 0.41429332420143444
+    },
+    "momentum_nonpositive": {
+      "n": 144476,
+      "mean_fwd20": 0.008209820267350086,
+      "median_fwd20": -0.005714297294616699,
+      "winrate_fwd20": 0.46033943353913453,
+      "mean_fwd60": 0.02143756013792969,
+      "median_fwd60": -0.017136484384536743,
+      "winrate_fwd60": 0.4448074420665024,
+      "mean_fwd120": 0.041080751040900754,
+      "median_fwd120": -0.03107762336730957,
+      "winrate_fwd120": 0.4333038013234032
+    }
+  },
+  "monotonicity": {
+    "fwd20_decile_return_spearman": -0.3091,
+    "fwd20_decile10_minus_decile1": -0.01492,
+    "fwd60_decile_return_spearman": -0.5636,
+    "fwd60_decile10_minus_decile1": -0.02472,
+    "fwd120_decile_return_spearman": -0.8788,
+    "fwd120_decile10_minus_decile1": -0.02417
+  },
+  "caveats": [
+    "A1A_ONLY universe (currently-listed tickers only) - same survivorship scope as the 5DC SMOKE baseline, not A1A_A1B_MERGED.",
+    "Monthly rebalance, cross-sectional decile assigned per date (Book3 9.47 cross-sectional normalization), not pooled.",
+    "No execution cost, slippage, or position sizing applied - this measures raw price forward return only, not a tradeable strategy's P&L.",
+    "Overlapping return windows (20D/60D/120D) across consecutive monthly dates are not independent observations - a caveat on statistical significance, not corrected for here."
+  ]
+}

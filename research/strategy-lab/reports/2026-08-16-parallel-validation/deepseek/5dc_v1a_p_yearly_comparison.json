@@ -1,0 +1,310 @@
+{
+  "analysis_date": "2026-08-16",
+  "model_name": "deepseek",
+  "method": "realized-pnl-at-exit-event yearly (same as baseline ablation)",
+  "baseline_recorded_yearly": {
+    "2014": {
+      "trades": 58,
+      "winRate": 0.3621,
+      "grossReturn": 0.0699,
+      "netReturn": 0.0603,
+      "annualReturn": 0.0603,
+      "mdd": -0.05653331314773731,
+      "profitFactor": 1.3769
+    },
+    "2015": {
+      "trades": 78,
+      "winRate": 0.2821,
+      "grossReturn": 0.1064,
+      "netReturn": 0.0945,
+      "annualReturn": 0.0945,
+      "mdd": -0.10772208584320722,
+      "profitFactor": 1.3232
+    },
+    "2016": {
+      "trades": 61,
+      "winRate": 0.2623,
+      "grossReturn": -0.0212,
+      "netReturn": -0.0306,
+      "annualReturn": -0.0306,
+      "mdd": -0.08040607627483957,
+      "profitFactor": 0.8538
+    },
+    "2017": {
+      "trades": 71,
+      "winRate": 0.2676,
+      "grossReturn": -0.0734,
+      "netReturn": -0.0836,
+      "annualReturn": -0.0836,
+      "mdd": -0.08807632417370362,
+      "profitFactor": 0.5273
+    },
+    "2018": {
+      "trades": 55,
+      "winRate": 0.2182,
+      "grossReturn": -0.0505,
+      "netReturn": -0.0586,
+      "annualReturn": -0.0586,
+      "mdd": -0.07634127869647629,
+      "profitFactor": 0.6796
+    },
+    "2019": {
+      "trades": 60,
+      "winRate": 0.2167,
+      "grossReturn": -0.065,
+      "netReturn": -0.0737,
+      "annualReturn": -0.0737,
+      "mdd": -0.09787540581772498,
+      "profitFactor": 0.6206
+    },
+    "2020": {
+      "trades": 43,
+      "winRate": 0.2326,
+      "grossReturn": -0.048,
+      "netReturn": -0.0542,
+      "annualReturn": -0.0542,
+      "mdd": -0.07968344145749723,
+      "profitFactor": 0.6578
+    },
+    "2021": {
+      "trades": 94,
+      "winRate": 0.3085,
+      "grossReturn": 0.0316,
+      "netReturn": 0.0165,
+      "annualReturn": 0.0165,
+      "mdd": -0.11759957420748049,
+      "profitFactor": 1.0505
+    },
+    "2022": {
+      "trades": 57,
+      "winRate": 0.1754,
+      "grossReturn": 0.0825,
+      "netReturn": 0.0743,
+      "annualReturn": 0.0743,
+      "mdd": -0.12197785327746297,
+      "profitFactor": 1.3108
+    },
+    "2023": {
+      "trades": 74,
+      "winRate": 0.2568,
+      "grossReturn": -0.0158,
+      "netReturn": -0.0269,
+      "annualReturn": -0.0269,
+      "mdd": -0.0788523363513276,
+      "profitFactor": 0.8959
+    },
+    "2024": {
+      "trades": 100,
+      "winRate": 0.29,
+      "grossReturn": -0.0541,
+      "netReturn": -0.0688,
+      "annualReturn": -0.0688,
+      "mdd": -0.1199387969684063,
+      "profitFactor": 0.7881
+    },
+    "2025": {
+      "trades": 56,
+      "winRate": 0.4286,
+      "grossReturn": 0.051,
+      "netReturn": 0.0422,
+      "annualReturn": 0.0422,
+      "mdd": -0.03715051482830857,
+      "profitFactor": 1.2685
+    },
+    "2026": {
+      "trades": 41,
+      "winRate": 0.3171,
+      "grossReturn": -0.0264,
+      "netReturn": -0.0326,
+      "annualReturn": -0.0326,
+      "mdd": -0.08722914999675653,
+      "profitFactor": 0.8066
+    }
+  },
+  "pre_fix_replay_yearly": {
+    "2014": {
+      "trades": 58,
+      "winRate": 0.3620689655172414,
+      "netReturn": 0.0602879194930368,
+      "mdd": -0.05653331314773731,
+      "profitFactor": 1.3769298306695972
+    },
+    "2015": {
+      "trades": 78,
+      "winRate": 0.28205128205128205,
+      "netReturn": 0.09430549121114407,
+      "mdd": -0.10772208584320722,
+      "profitFactor": 1.3232311689422862
+    },
+    "2016": {
+      "trades": 61,
+      "winRate": 0.26229508196721313,
+      "netReturn": -0.03040886662883857,
+      "mdd": -0.0804060762748397,
+      "profitFactor": 0.8538036443937923
+    },
+    "2017": {
+      "trades": 71,
+      "winRate": 0.2676056338028169,
+      "netReturn": -0.0833818784920789,
+      "mdd": -0.08807632417370376,
+      "profitFactor": 0.5272747375004466
+    },
+    "2018": {
+      "trades": 55,
+      "winRate": 0.21818181818181817,
+      "netReturn": -0.058487938180610155,
+      "mdd": -0.07634127869647644,
+      "profitFactor": 0.6796265912160414
+    },
+    "2019": {
+      "trades": 60,
+      "winRate": 0.21666666666666667,
+      "netReturn": -0.07250647951414313,
+      "mdd": -0.09804561721238024,
+      "profitFactor": 0.6206402792007497
+    },
+    "2020": {
+      "trades": 43,
+      "winRate": 0.23255813953488372,
+      "netReturn": -0.054542016028170215,
+      "mdd": -0.0775141558407919,
+      "profitFactor": 0.6577950403373514
+    },
+    "2021": {
+      "trades": 94,
+      "winRate": 0.30851063829787234,
+      "netReturn": 0.016688223333640506,
+      "mdd": -0.11265532241107652,
+      "profitFactor": 1.0505012507912506
+    },
+    "2022": {
+      "trades": 57,
+      "winRate": 0.17543859649122806,
+      "netReturn": 0.09238041997849789,
+      "mdd": -0.12197785327746297,
+      "profitFactor": 1.3108339012453092
+    },
+    "2023": {
+      "trades": 74,
+      "winRate": 0.25675675675675674,
+      "netReturn": -0.026827175593209573,
+      "mdd": -0.0788523363513276,
+      "profitFactor": 0.8959291640578231
+    },
+    "2024": {
+      "trades": 100,
+      "winRate": 0.29,
+      "netReturn": -0.06980125043927721,
+      "mdd": -0.11993879696840626,
+      "profitFactor": 0.7880920363938546
+    },
+    "2025": {
+      "trades": 56,
+      "winRate": 0.42857142857142855,
+      "netReturn": 0.04214054978198334,
+      "mdd": -0.037150514828308556,
+      "profitFactor": 1.2684631117238234
+    },
+    "2026": {
+      "trades": 41,
+      "winRate": 0.2926829268292683,
+      "netReturn": -0.018175997340412975,
+      "mdd": -0.08154178217404741,
+      "profitFactor": 0.8949475708817096
+    }
+  },
+  "post_fix_rerun_yearly": {
+    "2014": {
+      "trades": 69,
+      "winRate": 0.34782608695652173,
+      "netReturn": 0.048070479296529633,
+      "mdd": -0.06489864915614559,
+      "profitFactor": 1.2302678759174628
+    },
+    "2015": {
+      "trades": 125,
+      "winRate": 0.28,
+      "netReturn": -0.07757698344676933,
+      "mdd": -0.15110384351883355,
+      "profitFactor": 0.8319672954196464
+    },
+    "2016": {
+      "trades": 108,
+      "winRate": 0.25,
+      "netReturn": -0.08038504610740294,
+      "mdd": -0.118783375371694,
+      "profitFactor": 0.7516187444331187
+    },
+    "2017": {
+      "trades": 101,
+      "winRate": 0.27722772277227725,
+      "netReturn": -0.08737885277942836,
+      "mdd": -0.10633779076738102,
+      "profitFactor": 0.6203219991863734
+    },
+    "2018": {
+      "trades": 124,
+      "winRate": 0.1935483870967742,
+      "netReturn": -0.1660546692930822,
+      "mdd": -0.1874924199665131,
+      "profitFactor": 0.5839729499821847
+    },
+    "2019": {
+      "trades": 107,
+      "winRate": 0.308411214953271,
+      "netReturn": -0.012800818060336616,
+      "mdd": -0.11602242045374939,
+      "profitFactor": 0.9560790889103138
+    },
+    "2020": {
+      "trades": 136,
+      "winRate": 0.2867647058823529,
+      "netReturn": 0.056975290504163834,
+      "mdd": -0.24739348432356356,
+      "profitFactor": 1.1255209426553823
+    },
+    "2021": {
+      "trades": 156,
+      "winRate": 0.32051282051282054,
+      "netReturn": 0.08277303688321402,
+      "mdd": -0.12393525135076,
+      "profitFactor": 1.1594081497625435
+    },
+    "2022": {
+      "trades": 134,
+      "winRate": 0.20149253731343283,
+      "netReturn": -0.2294617849921442,
+      "mdd": -0.2407975004032611,
+      "profitFactor": 0.49940520614025713
+    },
+    "2023": {
+      "trades": 144,
+      "winRate": 0.2777777777777778,
+      "netReturn": -0.07866218309750528,
+      "mdd": -0.16586454191658515,
+      "profitFactor": 0.8090424712160742
+    },
+    "2024": {
+      "trades": 140,
+      "winRate": 0.2571428571428571,
+      "netReturn": -0.08639349243832473,
+      "mdd": -0.17427531344993952,
+      "profitFactor": 0.7891823249622242
+    },
+    "2025": {
+      "trades": 100,
+      "winRate": 0.35,
+      "netReturn": 0.03169980195721256,
+      "mdd": -0.05475188767631176,
+      "profitFactor": 1.1198216105398136
+    },
+    "2026": {
+      "trades": 148,
+      "winRate": 0.13513513513513514,
+      "netReturn": -0.44343519018893385,
+      "mdd": -0.4786773976476605,
+      "profitFactor": 0.36810493802357663
+    }
+  }
+}

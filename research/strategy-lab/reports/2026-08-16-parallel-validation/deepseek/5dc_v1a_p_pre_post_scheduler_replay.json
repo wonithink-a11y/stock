@@ -1,0 +1,68 @@
+{
+  "analysis_date": "2026-08-16",
+  "model_name": "deepseek",
+  "resolvedTrades": 25735,
+  "pre_fix": {
+    "tag": "pre_fix",
+    "closedPositionCount": 848,
+    "openPositionCountAtEnd": 10,
+    "finalCash": 41779888.04245882,
+    "realized": {
+      "finalEquity": 87580180.58495852,
+      "totalReturn": -0.1186608428699959,
+      "cagr": -0.010386000310505517,
+      "mdd": -0.30929943021687883,
+      "sharpe": -0.06894135893466483
+    },
+    "tradeStats": {
+      "tradeCount": 848,
+      "winRate": 0.2783018867924528,
+      "avgWin": 1134037.2714302042,
+      "avgLoss": -457602.3128636754,
+      "winLossRatio": 2.4782157772179922,
+      "profitFactor": 0.9556518356592258,
+      "expectancy": -14646.013461133462,
+      "avgHoldingPeriod": 49.95518867924528,
+      "maxConsecutiveWins": 6,
+      "maxConsecutiveLosses": 21
+    },
+    "sameBarTrades": 0,
+    "sameBarByType": {},
+    "maxOpenSeen": 10
+  },
+  "post_fix": {
+    "tag": "post_fix",
+    "closedPositionCount": 1592,
+    "openPositionCountAtEnd": 0,
+    "finalCash": 28471028.93155645,
+    "realized": {
+      "finalEquity": 28471028.93155632,
+      "totalReturn": -0.7134895992042365,
+      "cagr": -0.09805313945578853,
+      "mdd": -0.7500016684083142,
+      "sharpe": -1.5959768292618484
+    },
+    "tradeStats": {
+      "tradeCount": 1592,
+      "winRate": 0.26256281407035176,
+      "avgWin": 715628.8969085811,
+      "avgLoss": -315725.596231883,
+      "winLossRatio": 2.2666166615867005,
+      "profitFactor": 0.8070236495257588,
+      "expectancy": -44930.25820882142,
+      "avgHoldingPeriod": 27.497487437185928,
+      "maxConsecutiveWins": 8,
+      "maxConsecutiveLosses": 34
+    },
+    "sameBarTrades": 130,
+    "sameBarByType": {
+      "STOP": 120,
+      "TARGET": 10
+    },
+    "maxOpenSeen": 10
+  },
+  "baseline_recorded": {
+    "closedPositionCount": 848,
+    "source": "reports/2026-08-14-5dc-v1a-p-baseline/ablation_b0_b3.json B3"
+  }
+}

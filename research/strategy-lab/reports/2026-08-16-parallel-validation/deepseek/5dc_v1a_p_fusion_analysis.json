@@ -1,0 +1,36 @@
+{
+  "analysis_date": "2026-08-16",
+  "model_name": "deepseek",
+  "resolvedTrades": 25735,
+  "pre_fix_closed": 848,
+  "post_fix_closed": 1592,
+  "diff_closed": 744,
+  "post_fix_same_bar": 130,
+  "post_only_non_same_bar": 1429,
+  "pre_only": 815,
+  "common": 33,
+  "pre_fix_open_at_end": 10,
+  "post_fix_open_at_end": 0,
+  "fusion_estimate": {
+    "explanation": "post-only trades that are NOT same-bar are fused-fabricated in pre-fix: their symbol had a stale open position from a dropped same-bar exit, and a later unrelated exit closed a fused entry/exit pair. pre-only trades are pre-fix fabricated closes that do not correspond to any real post-fix closed trade (they are the fusion partner closes).",
+    "post_only_non_sb": 1429,
+    "pre_only": 815
+  },
+  "stale_open_at_end_pre_fix": {
+    "count": 10,
+    "symbols": [
+      "003830",
+      "000320",
+      "065950",
+      "093640",
+      "218150",
+      "036030",
+      "003220",
+      "001790",
+      "092600",
+      "001120"
+    ],
+    "totalCostBasis": 45800292.54,
+    "totalShares": 10147
+  }
+}

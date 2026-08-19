@@ -10,6 +10,26 @@ reports/*
 reports/2026-08-16-sl2-sequential/*.pkl
 reports/2026-08-16-sl2-sequential/slim_resolved.json
 reports/2026-08-16-sl2-sequential/sessions.json
+
+# 2026-08-20 DEEPSEEK-3 감사(docs/control/handoff/DEEPSEEK-3-미커밋파일-정리-감사.md)로
+# 커밋 추천된 리포트 — 정본 문서(세션인수인계-2026-08-16.md §5.5 · -post5dc.md)가
+# 인용/반영한 것들만 화이트리스트. pre-fix 오염분(1,400건 기준 a25/b55/annual-analysis/
+# exit-type-analysis)·불확실한 것(benchmark-analysis·pnl-equity-validation)은 계속 gitignore.
+!reports/2026-08-15-trend-breakout-v1-smoke/
+!reports/2026-08-15-trend-breakout-v1-smoke-postfix/
+!reports/2026-08-15-trend-breakout-v1-annual-analysis-2154/
+!reports/2026-08-16-parallel-validation/
+!reports/2026-08-17-postfix-baseline-audit/
+!reports/2026-08-17-survivorship-attribution-design/
+!reports/2026-08-17-survivorship-bias-measurement/
+reports/2026-08-17-survivorship-bias-measurement/run_a1a_only_nocap.json
+reports/2026-08-17-survivorship-bias-measurement/run_merged_nocap.json
+!reports/2026-08-17-survivorship-bias-verify-508/
+!reports/2026-08-17-momentum-decile-analysis/
+!reports/2026-08-17-net-margin-decile-analysis/
+!reports/2026-08-17-post-5dc-factor-screening/
+!reports/2026-08-19-tradingagents-structure-smoke/
+
 __pycache__/
 data/**/*.parquet
 data/**/*.pkl

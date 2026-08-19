@@ -1,0 +1,207 @@
+{
+  "analysis_date": "2026-08-16",
+  "model_name": "deepseek",
+  "part": 2,
+  "fusion_pnl_distortion": {
+    "fused_cases": 56,
+    "sb_pnl_sum": -13888203.12,
+    "fused_pre_pnl_sum": 20957636.76,
+    "post_true_split_sum": -13748835.56,
+    "fusion_distortion": -34706472.32,
+    "note": "post_true_split = same-bar trade pnl + partner trade pnl in post-fix; fused_pre_pnl = what pre-fix actually booked for the stale entry closed by the later exit.",
+    "examples": [
+      {
+        "symbol": "004140",
+        "sb_entry": "2015-06-17",
+        "sb_exit": "2015-06-17",
+        "sb_pnl": -846297.29,
+        "fused_pre_exit": "2017-06-30",
+        "fused_pre_holding_days": 744,
+        "fused_pre_pnl": -1977124.64,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -846297.29
+      },
+      {
+        "symbol": "005110",
+        "sb_entry": "2014-08-07",
+        "sb_exit": "2014-08-07",
+        "sb_pnl": -702447.83,
+        "fused_pre_exit": "2015-12-09",
+        "fused_pre_holding_days": 489,
+        "fused_pre_pnl": 21697669.96,
+        "partner_count": 1,
+        "partner_pnl_sum": 1460358.86,
+        "post_true_split": 757911.03
+      },
+      {
+        "symbol": "205500",
+        "sb_entry": "2020-03-13",
+        "sb_exit": "2020-03-13",
+        "sb_pnl": -592327.94,
+        "fused_pre_exit": "2022-01-10",
+        "fused_pre_holding_days": 668,
+        "fused_pre_pnl": 21132021.54,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -592327.94
+      },
+      {
+        "symbol": "189860",
+        "sb_entry": "2018-10-12",
+        "sb_exit": "2018-10-12",
+        "sb_pnl": -579977.31,
+        "fused_pre_exit": "2019-05-10",
+        "fused_pre_holding_days": 210,
+        "fused_pre_pnl": -1285417.4,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -579977.31
+      },
+      {
+        "symbol": "092200",
+        "sb_entry": "2015-11-10",
+        "sb_exit": "2015-11-10",
+        "sb_pnl": -569936.5,
+        "fused_pre_exit": "2017-04-18",
+        "fused_pre_holding_days": 525,
+        "fused_pre_pnl": 677142.33,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -569936.5
+      },
+      {
+        "symbol": "049960",
+        "sb_entry": "2015-04-22",
+        "sb_exit": "2015-04-22",
+        "sb_pnl": -555565.05,
+        "fused_pre_exit": "2016-11-04",
+        "fused_pre_holding_days": 562,
+        "fused_pre_pnl": -2218990.7,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -555565.05
+      },
+      {
+        "symbol": "011560",
+        "sb_entry": "2018-06-19",
+        "sb_exit": "2018-06-19",
+        "sb_pnl": -513102.05,
+        "fused_pre_exit": "2021-04-19",
+        "fused_pre_holding_days": 1035,
+        "fused_pre_pnl": -2789457.58,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -513102.05
+      },
+      {
+        "symbol": "014580",
+        "sb_entry": "2018-06-18",
+        "sb_exit": "2018-06-18",
+        "sb_pnl": -508862.51,
+        "fused_pre_exit": "2020-06-15",
+        "fused_pre_holding_days": 728,
+        "fused_pre_pnl": -937357.12,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -508862.51
+      },
+      {
+        "symbol": "007540",
+        "sb_entry": "2022-06-14",
+        "sb_exit": "2022-06-14",
+        "sb_pnl": -488446.82,
+        "fused_pre_exit": "2022-12-23",
+        "fused_pre_holding_days": 192,
+        "fused_pre_pnl": -1573072.5,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -488446.82
+      },
+      {
+        "symbol": "001390",
+        "sb_entry": "2022-05-13",
+        "sb_exit": "2022-05-13",
+        "sb_pnl": -487826.03,
+        "fused_pre_exit": "2022-06-30",
+        "fused_pre_holding_days": 48,
+        "fused_pre_pnl": -2020274.87,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -487826.03
+      },
+      {
+        "symbol": "026940",
+        "sb_entry": "2015-11-10",
+        "sb_exit": "2015-11-10",
+        "sb_pnl": -457131.22,
+        "fused_pre_exit": "2017-03-03",
+        "fused_pre_holding_days": 479,
+        "fused_pre_pnl": -503957.07,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -457131.22
+      },
+      {
+        "symbol": "011810",
+        "sb_entry": "2022-09-27",
+        "sb_exit": "2022-09-27",
+        "sb_pnl": -433189.75,
+        "fused_pre_exit": "2023-04-04",
+        "fused_pre_holding_days": 189,
+        "fused_pre_pnl": 4032655.26,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -433189.75
+      },
+      {
+        "symbol": "203450",
+        "sb_entry": "2015-03-02",
+        "sb_exit": "2015-03-02",
+        "sb_pnl": -425968.62,
+        "fused_pre_exit": "2015-03-26",
+        "fused_pre_holding_days": 24,
+        "fused_pre_pnl": -973363.99,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -425968.62
+      },
+      {
+        "symbol": "016880",
+        "sb_entry": "2018-10-29",
+        "sb_exit": "2018-10-29",
+        "sb_pnl": -415024.1,
+        "fused_pre_exit": "2019-03-28",
+        "fused_pre_holding_days": 150,
+        "fused_pre_pnl": -934063.75,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -415024.1
+      },
+      {
+        "symbol": "003280",
+        "sb_entry": "2019-05-27",
+        "sb_exit": "2019-05-27",
+        "sb_pnl": -407303.36,
+        "fused_pre_exit": "2022-06-10",
+        "fused_pre_holding_days": 1110,
+        "fused_pre_pnl": -2142511.73,
+        "partner_count": 0,
+        "partner_pnl_sum": 0.0,
+        "post_true_split": -407303.36
+      }
+    ]
+  },
+  "common_position_cascade": {
+    "common_count": 716,
+    "same_shares_count": 33,
+    "diff_shares_count": 683,
+    "pnl_equal_within_1_krw_count": 33,
+    "note": "share-size differences on identical entry/exit dates indicate cash/slot cascade from stale positions."
+  },
+  "slot_cascade": {
+    "stale_open_symbols_at_end": 10,
+    "post_fix_trades_on_stale_symbols": 26,
+    "note": "trades on symbols that were stale-open at backtest end in pre-fix; in pre-fix these symbols could not be re-entered until the stale position closed."
+  }
+}

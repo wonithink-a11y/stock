@@ -1,0 +1,85 @@
+{
+  "strategyId": "trend_breakout_v1",
+  "runClass": "SMOKE",
+  "runNote": "SMOKE only - A1A_ONLY universe, A2b (delisted price) not collected, survivorship bias present. POST-FIX: same-bar scheduling bug fixed in engine/runner.py 2026-08-15.",
+  "dateRangeRequested": {
+    "start": "2014-05-13",
+    "end": "2026-08-03"
+  },
+  "universeCoverage": {
+    "universeMode": "A1A_ONLY",
+    "totalTickers": 2578,
+    "missingPriceTickers": 20,
+    "fullyCovered": false
+  },
+  "tickersScanned": 2558,
+  "suspensionRowsDropped": 73222,
+  "signalCount": 157643,
+  "invalidSignalCount": 0,
+  "skippedSignalCount": 63095,
+  "skippedReasons": {
+    "no_bar_on_entry_date": 80,
+    "ran_out_of_bars_before_exit_resolved": 46,
+    "no_next_session": 40,
+    "overlaps_open_position_same_symbol": 62929
+  },
+  "executableTradeCount": 157477,
+  "portfolioEligibleTradeCount": 94548,
+  "exitTypeCounts": {
+    "STOP": 111105,
+    "TARGET": 37424,
+    "TIME_EXIT": 8948
+  },
+  "closedTradeExitTypeCounts": {
+    "STOP": {
+      "count": 1575,
+      "pct": 0.7311977715877437
+    },
+    "TARGET": {
+      "count": 441,
+      "pct": 0.20473537604456823
+    },
+    "TIME_EXIT": {
+      "count": 138,
+      "pct": 0.06406685236768803
+    }
+  },
+  "executionErrorCount": 0,
+  "firstSignalDate": "2014-06-16",
+  "lastSignalDate": "2026-08-03",
+  "closedPositionCount": 2154,
+  "openPositionCountAtEnd": 0,
+  "maxSimultaneousPositionsObserved": 10,
+  "finalCash": 20232068.02946186,
+  "equityCurveReplayMatchesRunnerBookkeeping": true,
+  "equityCurvePoints": 3000,
+  "equityCurveFirst": [
+    "2014-05-13",
+    100000000
+  ],
+  "equityCurveLast": [
+    "2026-08-03",
+    20232068.02946186
+  ],
+  "metrics": {
+    "totalReturn": -0.7976793197053814,
+    "cagr": -0.12253041028874534,
+    "maxDrawdown": -0.8333862754952495,
+    "sharpe": -0.9735609194989676,
+    "sortino": -1.2854191533550823,
+    "calmar": -0.14702715162417357
+  },
+  "tradeStats": {
+    "tradeCount": 2154,
+    "winRate": 0.2488393686165274,
+    "avgWin": 535511.7350345685,
+    "avgLoss": -226701.00244070872,
+    "winLossRatio": 2.3621939438694186,
+    "profitFactor": 0.7825314919122426,
+    "expectancy": -37032.466095885786,
+    "avgHoldingPeriod": 13.691272051996286,
+    "maxConsecutiveWins": 10,
+    "maxConsecutiveLosses": 44
+  },
+  "runElapsedSeconds": 382.31498980522156
+}

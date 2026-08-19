@@ -1,0 +1,384 @@
+{
+  "strategyId": "trend_breakout_v1",
+  "runClass": "SMOKE",
+  "dataSource": "runner full smoke 2026-08-15 post-fix (2,154 trades) - loaded from pickle",
+  "annual": {
+    "2014": {
+      "startDate": "2014-05-13",
+      "startEquity": 100000000.0,
+      "endDate": "2014-12-30",
+      "endEquity": 84924492.88672182,
+      "annualReturn": -0.15075507113278175,
+      "maxDrawdown": -0.20711967544865464,
+      "cagr": -0.22769449263264163,
+      "sharpe": -1.5336842319615303,
+      "sortino": -1.7395093157004597,
+      "calmar": -1.0993378207039897,
+      "tradeStats": {
+        "tradeCount": 75,
+        "winRate": 0.17333333333333334,
+        "avgWin": 1108093.6795487294,
+        "avgLoss": -369065.5277204652,
+        "winLossRatio": 3.002430723868671,
+        "profitFactor": 0.6295419259724632,
+        "expectancy": -113024.59846047148,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 4,
+        "maxConsecutiveLosses": 18
+      },
+      "exitTypeCounts": {
+        "STOP": 0.7866666666666666,
+        "TARGET": 0.17333333333333334,
+        "TIME_EXIT": 0.04
+      }
+    },
+    "2015": {
+      "startDate": "2014-12-30",
+      "startEquity": 84924492.88672182,
+      "endDate": "2015-12-30",
+      "endEquity": 94473078.14729084,
+      "annualReturn": 0.11243617637264647,
+      "maxDrawdown": -0.25010470394606465,
+      "cagr": 0.11251736611899088,
+      "sharpe": 0.503369957993022,
+      "sortino": 0.7168990273850142,
+      "calmar": 0.44988104719236055,
+      "tradeStats": {
+        "tradeCount": 147,
+        "winRate": 0.3197278911564626,
+        "avgWin": 1151383.6635703107,
+        "avgLoss": -521142.4887456518,
+        "winLossRatio": 2.209345214475985,
+        "profitFactor": 1.0383922508037131,
+        "expectancy": 13610.770838363438,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 10,
+        "maxConsecutiveLosses": 16
+      },
+      "exitTypeCounts": {
+        "STOP": 0.6666666666666666,
+        "TARGET": 0.2653061224489796,
+        "TIME_EXIT": 0.06802721088435375
+      }
+    },
+    "2016": {
+      "startDate": "2015-12-30",
+      "startEquity": 94473078.14729084,
+      "endDate": "2016-12-29",
+      "endEquity": 78289949.18337658,
+      "annualReturn": -0.17129884281618846,
+      "maxDrawdown": -0.20275714007306853,
+      "cagr": -0.1714054862024621,
+      "sharpe": -0.6479643241541273,
+      "sortino": -0.7961888450281982,
+      "calmar": -0.8453733670769469,
+      "tradeStats": {
+        "tradeCount": 148,
+        "winRate": 0.23648648648648649,
+        "avgWin": 945008.5701147362,
+        "avgLoss": -368064.9993057163,
+        "winLossRatio": 2.5675045763582864,
+        "profitFactor": 0.7952447802879649,
+        "expectancy": -57540.84437520392,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 5,
+        "maxConsecutiveLosses": 19
+      },
+      "exitTypeCounts": {
+        "STOP": 0.7364864864864865,
+        "TARGET": 0.18243243243243243,
+        "TIME_EXIT": 0.08108108108108109
+      }
+    },
+    "2017": {
+      "startDate": "2016-12-29",
+      "startEquity": 78289949.18337658,
+      "endDate": "2017-12-28",
+      "endEquity": 66039695.55868325,
+      "annualReturn": -0.15647287745710337,
+      "maxDrawdown": -0.22842150000126182,
+      "cagr": -0.15696564999722595,
+      "sharpe": -1.1659573306706992,
+      "sortino": -1.4060044921755375,
+      "calmar": -0.6871754628892589,
+      "tradeStats": {
+        "tradeCount": 116,
+        "winRate": 0.3275862068965517,
+        "avgWin": 577005.6626589355,
+        "avgLoss": -279047.21461067244,
+        "winLossRatio": 2.067770729996268,
+        "profitFactor": 1.0073754838443358,
+        "expectancy": 1383.900356957733,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 7,
+        "maxConsecutiveLosses": 12
+      },
+      "exitTypeCounts": {
+        "TARGET": 0.21551724137931033,
+        "STOP": 0.6379310344827587,
+        "TIME_EXIT": 0.14655172413793102
+      }
+    },
+    "2018": {
+      "startDate": "2017-12-28",
+      "startEquity": 66039695.55868325,
+      "endDate": "2018-12-28",
+      "endEquity": 67003697.54013122,
+      "annualReturn": 0.014597311106489874,
+      "maxDrawdown": -0.4365938758778491,
+      "cagr": 0.014607381935375141,
+      "sharpe": 0.241491448692873,
+      "sortino": 0.3276590069741112,
+      "calmar": 0.03345759696240452,
+      "tradeStats": {
+        "tradeCount": 190,
+        "winRate": 0.18421052631578946,
+        "avgWin": 765554.9333639083,
+        "avgLoss": -333043.73813672474,
+        "winLossRatio": 2.2986618443780027,
+        "profitFactor": 0.5190526745369684,
+        "expectancy": -130670.29864976602,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 4,
+        "maxConsecutiveLosses": 44
+      },
+      "exitTypeCounts": {
+        "STOP": 0.8,
+        "TARGET": 0.16842105263157894,
+        "TIME_EXIT": 0.031578947368421054
+      }
+    },
+    "2019": {
+      "startDate": "2018-12-28",
+      "startEquity": 67003697.54013122,
+      "endDate": "2019-12-30",
+      "endEquity": 58884585.517493695,
+      "annualReturn": -0.12117408920268402,
+      "maxDrawdown": -0.2280954821965604,
+      "cagr": -0.12063263085394182,
+      "sharpe": -0.45346796308559173,
+      "sortino": -0.6126801632031958,
+      "calmar": -0.5288690056122511,
+      "tradeStats": {
+        "tradeCount": 169,
+        "winRate": 0.20118343195266272,
+        "avgWin": 545355.5481031804,
+        "avgLoss": -229269.92296503973,
+        "winLossRatio": 2.378661540294315,
+        "profitFactor": 0.5990703138519016,
+        "expectancy": -73428.11221758719,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 4,
+        "maxConsecutiveLosses": 31
+      },
+      "exitTypeCounts": {
+        "STOP": 0.7751479289940828,
+        "TARGET": 0.14792899408284024,
+        "TIME_EXIT": 0.07692307692307693
+      }
+    },
+    "2020": {
+      "startDate": "2019-12-30",
+      "startEquity": 58884585.517493695,
+      "endDate": "2020-12-30",
+      "endEquity": 52360874.12666618,
+      "annualReturn": -0.11078810071422551,
+      "maxDrawdown": -0.49079172318615577,
+      "cagr": -0.11057411798850303,
+      "sharpe": -0.08682151034537733,
+      "sortino": -0.11663331139462532,
+      "calmar": -0.22529743833223245,
+      "tradeStats": {
+        "tradeCount": 215,
+        "winRate": 0.2744186046511628,
+        "avgWin": 585909.1419747483,
+        "avgLoss": -225944.40828174492,
+        "winLossRatio": 2.59315619461642,
+        "profitFactor": 0.9807449710408255,
+        "expectancy": -3156.689839265345,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 10,
+        "maxConsecutiveLosses": 25
+      },
+      "exitTypeCounts": {
+        "STOP": 0.7162790697674418,
+        "TARGET": 0.22325581395348837,
+        "TIME_EXIT": 0.06046511627906977
+      }
+    },
+    "2021": {
+      "startDate": "2020-12-30",
+      "startEquity": 52360874.12666618,
+      "endDate": "2021-12-30",
+      "endEquity": 61681482.76112884,
+      "annualReturn": 0.17800712440199495,
+      "maxDrawdown": -0.2845828878685602,
+      "cagr": 0.17813931400723537,
+      "sharpe": 0.7784651817573099,
+      "sortino": 1.0915667485356793,
+      "calmar": 0.6259663584885409,
+      "tradeStats": {
+        "tradeCount": 204,
+        "winRate": 0.19607843137254902,
+        "avgWin": 479236.1885743107,
+        "avgLoss": -188383.54501927263,
+        "winLossRatio": 2.5439386891529314,
+        "profitFactor": 0.6204728510129102,
+        "expectancy": -57477.714902883745,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 7,
+        "maxConsecutiveLosses": 25
+      },
+      "exitTypeCounts": {
+        "TARGET": 0.1715686274509804,
+        "STOP": 0.7941176470588235,
+        "TIME_EXIT": 0.03431372549019608
+      }
+    },
+    "2022": {
+      "startDate": "2021-12-30",
+      "startEquity": 61681482.76112884,
+      "endDate": "2022-12-29",
+      "endEquity": 55510403.76188646,
+      "annualReturn": -0.10004751382421928,
+      "maxDrawdown": -0.2872915787679814,
+      "cagr": -0.10037323429780642,
+      "sharpe": -0.12103994960784653,
+      "sortino": -0.1601178768249326,
+      "calmar": -0.34937757218031273,
+      "tradeStats": {
+        "tradeCount": 185,
+        "winRate": 0.1783783783783784,
+        "avgWin": 320844.5970938716,
+        "avgLoss": -136169.58897754148,
+        "winLossRatio": 2.3562133035944512,
+        "profitFactor": 0.5115463093330059,
+        "expectancy": -54648.13957020834,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 2,
+        "maxConsecutiveLosses": 23
+      },
+      "exitTypeCounts": {
+        "STOP": 0.8162162162162162,
+        "TARGET": 0.15135135135135136,
+        "TIME_EXIT": 0.032432432432432434
+      }
+    },
+    "2023": {
+      "startDate": "2022-12-29",
+      "startEquity": 55510403.76188646,
+      "endDate": "2023-12-28",
+      "endEquity": 60150445.119882524,
+      "annualReturn": 0.08358867966263861,
+      "maxDrawdown": -0.29907538240881737,
+      "cagr": 0.08388744594021635,
+      "sharpe": 0.43980574345464835,
+      "sortino": 0.6137231146123501,
+      "calmar": 0.280489304283652,
+      "tradeStats": {
+        "tradeCount": 171,
+        "winRate": 0.29239766081871343,
+        "avgWin": 319277.017856444,
+        "avgLoss": -115609.27517869741,
+        "winLossRatio": 2.761690334646049,
+        "profitFactor": 1.1411943531595243,
+        "expectancy": 11550.4596268995,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 6,
+        "maxConsecutiveLosses": 30
+      },
+      "exitTypeCounts": {
+        "STOP": 0.6842105263157895,
+        "TIME_EXIT": 0.04678362573099415,
+        "TARGET": 0.26900584795321636
+      }
+    },
+    "2024": {
+      "startDate": "2023-12-28",
+      "startEquity": 60150445.119882524,
+      "endDate": "2024-12-30",
+      "endEquity": 61247919.01318242,
+      "annualReturn": 0.018245482491652032,
+      "maxDrawdown": -0.2411115556786456,
+      "cagr": 0.018107910121991644,
+      "sharpe": 0.21694497047322064,
+      "sortino": 0.30084816026911343,
+      "calmar": 0.0751017929067072,
+      "tradeStats": {
+        "tradeCount": 186,
+        "winRate": 0.23655913978494625,
+        "avgWin": 241784.63006646233,
+        "avgLoss": -105441.11288005955,
+        "winLossRatio": 2.293077372404966,
+        "profitFactor": 0.7105310168015386,
+        "expectancy": -23301.689817441464,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 4,
+        "maxConsecutiveLosses": 18
+      },
+      "exitTypeCounts": {
+        "TARGET": 0.1935483870967742,
+        "STOP": 0.7473118279569892,
+        "TIME_EXIT": 0.05913978494623656
+      }
+    },
+    "2025": {
+      "startDate": "2024-12-30",
+      "startEquity": 61247919.01318242,
+      "endDate": "2025-12-30",
+      "endEquity": 127253223.59062779,
+      "annualReturn": 1.0776742400544093,
+      "maxDrawdown": -0.18863536675741366,
+      "cagr": 1.0787151153870416,
+      "sharpe": 1.9237874668216877,
+      "sortino": 3.423331730221433,
+      "calmar": 5.718519988747796,
+      "tradeStats": {
+        "tradeCount": 160,
+        "winRate": 0.34375,
+        "avgWin": 201168.0523201675,
+        "avgLoss": -91984.08606373795,
+        "winLossRatio": 2.1869875641398817,
+        "profitFactor": 1.145564914549462,
+        "expectancy": 8786.96150572955,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 5,
+        "maxConsecutiveLosses": 24
+      },
+      "exitTypeCounts": {
+        "STOP": 0.64375,
+        "TARGET": 0.29375,
+        "TIME_EXIT": 0.0625
+      }
+    },
+    "2026": {
+      "startDate": "2025-12-30",
+      "startEquity": 127253223.59062779,
+      "endDate": "2026-08-03",
+      "endEquity": 102508582.26487048,
+      "annualReturn": -0.19445198029214994,
+      "maxDrawdown": -0.5929079836798536,
+      "cagr": -0.3062496358928183,
+      "sharpe": -0.16666837154699574,
+      "sortino": -0.2500729632149144,
+      "calmar": -0.5165213563023646,
+      "tradeStats": {
+        "tradeCount": 188,
+        "winRate": 0.28191489361702127,
+        "avgWin": 305347.87549725035,
+        "avgLoss": -151229.39052740013,
+        "winLossRatio": 2.0191040539962146,
+        "profitFactor": 0.792685295272588,
+        "expectancy": -22513.459148110367,
+        "avgHoldingPeriod": 0.0,
+        "maxConsecutiveWins": 7,
+        "maxConsecutiveLosses": 21
+      },
+      "exitTypeCounts": {
+        "STOP": 0.6702127659574468,
+        "TARGET": 0.2127659574468085,
+        "TIME_EXIT": 0.11702127659574468
+      }
+    }
+  }
+}

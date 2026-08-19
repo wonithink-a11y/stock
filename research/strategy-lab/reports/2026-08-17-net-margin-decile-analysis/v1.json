@@ -1,0 +1,175 @@
+{
+  "question": "Does Net Margin (netIncome/revenue, PIT as-of A3) have forward-return predictive power in the A1A_ONLY universe?",
+  "universeMode": "A1A_ONLY",
+  "tickersWithFundamentalData": 2516,
+  "rebalanceDates": 152,
+  "panelRowsBeforeDecile": 223966,
+  "panelRowsAfterDecile": 223799,
+  "horizonsDays": [
+    20,
+    60,
+    120
+  ],
+  "decileTable": {
+    "1": {
+      "mean_fwd20": 0.00859,
+      "median_fwd20": -0.01842,
+      "winrate_fwd20": 0.41391,
+      "mean_fwd60": 0.02159,
+      "median_fwd60": -0.04814,
+      "winrate_fwd60": 0.38971,
+      "mean_fwd120": 0.03515,
+      "median_fwd120": -0.09178,
+      "winrate_fwd120": 0.36498,
+      "n": 22437
+    },
+    "2": {
+      "mean_fwd20": 0.00512,
+      "median_fwd20": -0.01449,
+      "winrate_fwd20": 0.43332,
+      "mean_fwd60": 0.0144,
+      "median_fwd60": -0.03863,
+      "winrate_fwd60": 0.40815,
+      "mean_fwd120": 0.01842,
+      "median_fwd120": -0.07539,
+      "winrate_fwd120": 0.38186,
+      "n": 22367
+    },
+    "3": {
+      "mean_fwd20": 0.00781,
+      "median_fwd20": -0.01096,
+      "winrate_fwd20": 0.44774,
+      "mean_fwd60": 0.02177,
+      "median_fwd60": -0.03044,
+      "winrate_fwd60": 0.42453,
+      "mean_fwd120": 0.03597,
+      "median_fwd120": -0.05373,
+      "winrate_fwd120": 0.4045,
+      "n": 22361
+    },
+    "4": {
+      "mean_fwd20": 0.00853,
+      "median_fwd20": -0.00829,
+      "winrate_fwd20": 0.45813,
+      "mean_fwd60": 0.02404,
+      "median_fwd60": -0.02117,
+      "winrate_fwd60": 0.44204,
+      "mean_fwd120": 0.04187,
+      "median_fwd120": -0.03979,
+      "winrate_fwd120": 0.42569,
+      "n": 22378
+    },
+    "5": {
+      "mean_fwd20": 0.00681,
+      "median_fwd20": -0.00653,
+      "winrate_fwd20": 0.46217,
+      "mean_fwd60": 0.01788,
+      "median_fwd60": -0.01759,
+      "winrate_fwd60": 0.44587,
+      "mean_fwd120": 0.03222,
+      "median_fwd120": -0.03484,
+      "winrate_fwd120": 0.43087,
+      "n": 22392
+    },
+    "6": {
+      "mean_fwd20": 0.00892,
+      "median_fwd20": -0.00693,
+      "winrate_fwd20": 0.4623,
+      "mean_fwd60": 0.02447,
+      "median_fwd60": -0.01907,
+      "winrate_fwd60": 0.44538,
+      "mean_fwd120": 0.04496,
+      "median_fwd120": -0.03704,
+      "winrate_fwd120": 0.42605,
+      "n": 22345
+    },
+    "7": {
+      "mean_fwd20": 0.00641,
+      "median_fwd20": -0.00666,
+      "winrate_fwd20": 0.46211,
+      "mean_fwd60": 0.01757,
+      "median_fwd60": -0.0182,
+      "winrate_fwd60": 0.44709,
+      "mean_fwd120": 0.02958,
+      "median_fwd120": -0.03287,
+      "winrate_fwd120": 0.43278,
+      "n": 22367
+    },
+    "8": {
+      "mean_fwd20": 0.00628,
+      "median_fwd20": -0.00698,
+      "winrate_fwd20": 0.45995,
+      "mean_fwd60": 0.01996,
+      "median_fwd60": -0.01867,
+      "winrate_fwd60": 0.44565,
+      "mean_fwd120": 0.03557,
+      "median_fwd120": -0.03367,
+      "winrate_fwd120": 0.4317,
+      "n": 22372
+    },
+    "9": {
+      "mean_fwd20": 0.00798,
+      "median_fwd20": -0.00615,
+      "winrate_fwd20": 0.46384,
+      "mean_fwd60": 0.02186,
+      "median_fwd60": -0.0155,
+      "winrate_fwd60": 0.45574,
+      "mean_fwd120": 0.03814,
+      "median_fwd120": -0.03083,
+      "winrate_fwd120": 0.43776,
+      "n": 22357
+    },
+    "10": {
+      "mean_fwd20": 0.00703,
+      "median_fwd20": -0.0076,
+      "winrate_fwd20": 0.4581,
+      "mean_fwd60": 0.01663,
+      "median_fwd60": -0.02063,
+      "winrate_fwd60": 0.44196,
+      "mean_fwd120": 0.02821,
+      "median_fwd120": -0.03948,
+      "winrate_fwd120": 0.42492,
+      "n": 22423
+    }
+  },
+  "profitableVsUnprofitable": {
+    "momentum_positive": {
+      "n": 155164,
+      "mean_fwd20": 0.007131630926498394,
+      "median_fwd20": -0.006957978010177612,
+      "winrate_fwd20": 0.4609187698177412,
+      "mean_fwd60": 0.019922770170078076,
+      "median_fwd60": -0.01870018243789673,
+      "winrate_fwd60": 0.4462181949421257,
+      "mean_fwd120": 0.03569223986075866,
+      "median_fwd120": -0.0349733829498291,
+      "winrate_fwd120": 0.43009332061560673
+    },
+    "momentum_nonpositive": {
+      "n": 68802,
+      "mean_fwd20": 0.007790662024915955,
+      "median_fwd20": -0.014032870531082153,
+      "winrate_fwd20": 0.4321822040056975,
+      "mean_fwd60": 0.020213188105331445,
+      "median_fwd60": -0.03803786635398865,
+      "winrate_fwd60": 0.4084764977762274,
+      "mean_fwd120": 0.030407474736190702,
+      "median_fwd120": -0.07179057598114014,
+      "winrate_fwd120": 0.38475625708554984
+    }
+  },
+  "monotonicity": {
+    "fwd20_decile_return_spearman": -0.1394,
+    "fwd20_decile10_minus_decile1": -0.00156,
+    "fwd60_decile_return_spearman": -0.0545,
+    "fwd60_decile10_minus_decile1": -0.00496,
+    "fwd120_decile_return_spearman": 0.0303,
+    "fwd120_decile10_minus_decile1": -0.00694
+  },
+  "caveats": [
+    "A1A_ONLY universe, same scope as the momentum re-check for direct comparability.",
+    "PIT as-of join on A3 annual reports (availableFrom <= rebalance date) - no restatement/rceptNo tie-break beyond 'latest available' (A3's PIT rule is simpler than A3b/A3c's multi-report tie-break since A3 is one annual record per corp-year).",
+    "No execution cost, slippage, or position sizing applied - raw forward price return only.",
+    "Monthly rebalance windows overlap across horizons (20D/60D/120D) - not independent observations."
+  ]
+}

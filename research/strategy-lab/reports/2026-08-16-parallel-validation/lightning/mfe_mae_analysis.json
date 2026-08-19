@@ -1,0 +1,97 @@
+{
+  "analysis_date": "2026-08-16",
+  "model_name": "lightning",
+  "pkl_path": "full_smoke_result.pkl",
+  "total_trades": 2154,
+
+  "mfe_mae_availability": {
+    "available": false,
+    "reason": "trace_limit=5 limits stored traces to 5 samples only",
+    
+    "code_evidence": "analyze_loss_root_cause.py:150-159 explicitly checks for MFE/MAE in traces and confirms it's not available",
+    
+    "quote_from_code": "MFE/MAE data NOT available in traces (only 5 traces stored with trace_limit=5)\nMFE/MAE requires full trade-by-tick simulation which was not stored\nCurrent data: IMPOSSIBLE to compute MFE/MAE from stored results"
+  },
+
+  "what_mfe_mae_measures": {
+    "mfe": "Maximum Favorable Excursion - the largest favorable price movement (highest price - entry price) that a trade experiences before exit",
+    "mae": "Maximum Adverse Excursion - the largest adverse price movement (entry price - lowest price for long positions) that a trade experiences before exit",
+    
+    "why_important": [
+      "Entry price quality: High MFE indicates good entry at a favorable price level",
+      "Exit quality: High MAE indicates the price moved significantly against the trade before exiting (possibly stop-hunting or poor exit timing)",
+      "Stop-loss effectiveness: MAE at stop exit shows whether stops are hit at expected price levels",
+      "Risk assessment: The distribution of MFE/MAE across trades reveals the typical PnL variability and tail risk",
+      "Strategy optimization: MFE/MAE information is used to optimize entry timing, stop placement, and position sizing"
+    ]
+  },
+
+  "current_data_limits": {
+    "traces_stored": 5,
+    "trace_limit_config": "In runner.py:281-325, _build_traces() limits traces to `trace_limit` samples (default=5)",
+    "trace_purpose": "Diagnostic traces for debugging and analysis, not comprehensive trade data",
+    "full_trade_data_available": "Closed positions (pnl, entry/exit prices, exit type) are available, but tick-by-tick price excursion data is not",
+    
+    "what_is_available_from_stored_data": [
+      "Entry fill price and exit fill price for each closed position",
+      "PnL per trade (close_price * shares - cost_basis - costs)",
+      "Exit type (STOP, TARGET, TIME_EXIT)",
+      "Holding period (entry_date to exit_date)",
+      "Symbol and trade timestamps"
+    ],
+    
+    "what_is_missing": [
+      "Price path between entry and exit (needed for MFE/MAE)",
+      "High/low prices during the trade's holding period",
+      "Maximum favorable/adverse excursion for each trade",
+      "Tick-by-tick simulation data for reconstruction"
+    ]
+  },
+
+  "impact_of limitation": {
+    "strategic": [
+      "Cannot assess entry price quality across the full trade population",
+      "Cannot evaluate stop-loss effectiveness at the population level",
+      "Cannot optimize stop placement based on actual excursion distributions",
+      "Cannot compute profit factor adjusted for excursion quality",
+      "Cannot distinguish between good strategy edge and good luck/exit timing"
+    ],
+    
+    "quantitative": [
+      "Cannot compute population-level MFE/MAE statistics (mean, median, percentiles)",
+      "Cannot analyze MFE/MAE correlation with exit type (STOP vs TARGET vs TIME_EXIT)",
+      "Cannot analyze MFE/MAE trend over time (2014-2025)",
+      "Cannot analyze MFE/MAE correlation with holding period or market regime"
+    ]
+  },
+
+  "verification_status": "CONFIRMED - MFE/MAE data is genuinely not available in the stored full_smoke_result.pkl traces. This is not a matter of 'need further investigation' - the data simply does not exist in the current artifact. The only way to obtain it would be to re-run the full smoke simulation with trace_limit removed or set to a very large value, which would require the full bar data and strategy execution pipeline."
+
+,
+  "confidence_level": "HIGH - The code explicitly checks for MFE/MAE in traces and confirms its absence. The trace_limit=5 constraint in runner.py is a hard limit on the number of traces stored, not a temporary filtering step.",
+  
+  "confidence_explanation": "Two independent code paths confirm this:\n1. analyze_loss_root_cause.py:150-159 - explicitly checks trace data for MFE/MAE and concludes it's impossible to compute\n2. runner.py:281-325 - _build_traces() limits output to `trace_limit` samples (default 5), and traces are the only source of per-trade price excursion data\n\nNo code path reconstructs MFE/MAE from the available closed_position data (which only has entry/exit prices, not the intra-trade price path).",
+
+  "workaround_possible": false,
+  "workaround_explanation": "No valid workaround exists with the current data artifact. The closed_positions data only stores entry_fill_price and exit_fill_price at the fill level, not the intra-trade price path. MFE/MAE requires the price path between entry and exit, which was not stored due to the trace_limit=5 constraint designed to limit memory/storage usage.",
+
+  "recommended_future_work": {
+    "re_run_with_full_traces": "Run the smoke pipeline with trace_limit removed or set to len(resolved) to store all trade traces. This would require the full bar data and strategy execution pipeline but would make MFE/MAE computable.",
+    
+    "sample_reconstruction": "For a subset of trades, reconstruct the price path using the available bar data and compute MFE/MAE. This would be approximate but informative.",
+    
+    "correlation_analysis_with_available_data": "Even without full MFE/MAE, analyze the relationship between holding period, exit type, and PnL using the available data. This can provide some indirect insights into trade quality.",
+    
+    "parameter_sensitivity": "Analyze how sensitive the strategy results are to the transaction cost bps (currently 5 entry/5 exit). If costs are increased, does the strategy edge persist? This is more immediately actionable than MFE/MAE."
+  },
+
+  "related_issues": {
+    "stop_loss_effectiveness": "Without MAE at stop exits, cannot assess whether stops are consistently hit at or near the expected 2*ATR distance, or if there are frequent gaps/slippage effects",
+    
+    "entry_quality": "Without MFE, cannot determine whether entries are typically made near channel lows (favorable) or at random levels",
+    
+    "profit_factor_adjustment": "Gross profit and profit factor don't account for excursion quality. A strategy with the same profit factor but different MFE/MAE profiles has different risk characteristics.",
+    
+    "comparison_with_benchmark": "Benchmark comparison (+107.77% vs +6.10% equity discrepancy) cannot be fully explained or verified without understanding the trade excursion quality. A strategy with many winners that have small MFE may have a different risk profile than one with large MFE."
+  }
+}

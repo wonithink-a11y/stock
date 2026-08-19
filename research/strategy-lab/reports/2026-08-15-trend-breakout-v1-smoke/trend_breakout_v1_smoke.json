@@ -1,0 +1,71 @@
+{
+  "strategyId": "trend_breakout_v1",
+  "runClass": "SMOKE",
+  "runNote": "SMOKE only - A1A_ONLY universe, A2b (delisted price) not collected, survivorship bias present. Not a PRIMARY result.",
+  "dateRangeRequested": {
+    "start": "2014-05-13",
+    "end": "2026-08-03"
+  },
+  "universeCoverage": {
+    "universeMode": "A1A_ONLY",
+    "totalTickers": 2578,
+    "missingPriceTickers": 20,
+    "fullyCovered": false
+  },
+  "tickersScanned": 2558,
+  "suspensionRowsDropped": 73222,
+  "signalCount": 157643,
+  "invalidSignalCount": 0,
+  "skippedSignalCount": 63095,
+  "skippedReasons": {
+    "no_bar_on_entry_date": 80,
+    "ran_out_of_bars_before_exit_resolved": 46,
+    "no_next_session": 40,
+    "overlaps_open_position_same_symbol": 62929
+  },
+  "executableTradeCount": 157477,
+  "portfolioEligibleTradeCount": 94548,
+  "exitTypeCounts": {
+    "STOP": 111105,
+    "TIME_EXIT": 8948,
+    "TARGET": 37424
+  },
+  "executionErrorCount": 0,
+  "firstSignalDate": "2014-06-16",
+  "lastSignalDate": "2026-08-03",
+  "closedPositionCount": 1400,
+  "openPositionCountAtEnd": 10,
+  "maxSimultaneousPositionsObserved": 10,
+  "finalCash": 19045602.375057586,
+  "equityCurveReplayMatchesRunnerBookkeeping": true,
+  "equityCurvePoints": 3000,
+  "equityCurveFirst": [
+    "2014-05-13",
+    100000000
+  ],
+  "equityCurveLast": [
+    "2026-08-03",
+    34671727.375057586
+  ],
+  "metrics": {
+    "totalReturn": -0.6532827262494241,
+    "cagr": -0.08300143760484702,
+    "maxDrawdown": -0.7089124093974719,
+    "sharpe": -0.6531437243701509,
+    "sortino": -0.8643087853387819,
+    "calmar": -0.11708278273107489
+  },
+  "tradeStats": {
+    "tradeCount": 1400,
+    "winRate": 0.26071428571428573,
+    "avgWin": 829356.9169232602,
+    "avgLoss": -350570.39626032126,
+    "winLossRatio": 2.3657357431498833,
+    "profitFactor": 0.8342932814006835,
+    "expectancy": -42946.48960888751,
+    "avgHoldingPeriod": 20.84357142857143,
+    "maxConsecutiveWins": 8,
+    "maxConsecutiveLosses": 33
+  },
+  "runElapsedSeconds": 358.80297565460205
+}

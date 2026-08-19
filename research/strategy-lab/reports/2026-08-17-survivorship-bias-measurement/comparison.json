@@ -1,0 +1,97 @@
+{
+  "runs": {
+    "run_a1a_only": {
+      "cagr": -0.09805313945578853,
+      "mdd": -0.7500016684083142,
+      "finalEquity": 28471028.93155632,
+      "totalReturn": -0.7134895992042365,
+      "sharpe": -1.5959768292618484,
+      "sortino": -2.680756997795432,
+      "winRate": 0.26256281407035176,
+      "winLossRatio": 2.2666166615867005,
+      "profitFactor": 0.8070236495257588,
+      "avgHoldingPeriod": 27.497487437185928,
+      "expectancy": -44930.25820882142,
+      "closed": 1592,
+      "signalCount": 28791,
+      "openAtEnd": 0,
+      "a1bCensus": {
+        "a1bSymbolsWithTrades": 0,
+        "a1bTradeCount": 0,
+        "a1bNetPnl": 0
+      }
+    },
+    "run_merged": {
+      "cagr": -0.08184678769981912,
+      "mdd": -0.7428728577590779,
+      "finalEquity": 35229437.728503995,
+      "totalReturn": -0.645346928790058,
+      "sharpe": -1.3270904490857163,
+      "sortino": -2.270781805998142,
+      "winRate": 0.26498422712933756,
+      "winLossRatio": 2.34699725310082,
+      "profitFactor": 0.8461277650663899,
+      "avgHoldingPeriod": 27.67192429022082,
+      "expectancy": -40864.70805772614,
+      "closed": 1585,
+      "signalCount": 31984,
+      "openAtEnd": 0,
+      "a1bCensus": {
+        "a1bSymbolsWithTrades": 85,
+        "a1bTradeCount": 119,
+        "a1bNetPnl": -5475308.18
+      }
+    },
+    "run_a1a_only_nocap": {
+      "cagr": 0.0028951066149109916,
+      "mdd": -0.07760173873864835,
+      "finalEquity": 103557127.06906426,
+      "totalReturn": 0.035635862545763786,
+      "sharpe": 0.18033964932426158,
+      "sortino": 0.3455770933078016,
+      "winRate": 0.30131272236535395,
+      "winLossRatio": 2.3838042222285782,
+      "profitFactor": 1.0280286514123596,
+      "avgHoldingPeriod": 29.84149184149184,
+      "expectancy": 145.46792087122162,
+      "closed": 24453,
+      "signalCount": 28791,
+      "openAtEnd": 0,
+      "a1bCensus": {
+        "a1bSymbolsWithTrades": 0,
+        "a1bTradeCount": 0,
+        "a1bNetPnl": 0
+      }
+    },
+    "run_merged_nocap": {
+      "cagr": 0.0009229154884302648,
+      "mdd": -0.08241893974330283,
+      "finalEquity": 101119525.85911101,
+      "totalReturn": 0.011261625997989633,
+      "sharpe": 0.05374825181161808,
+      "sortino": 0.10104611912841187,
+      "winRate": 0.30119675908719246,
+      "winLossRatio": 2.3392847645521124,
+      "profitFactor": 1.0082737864019955,
+      "avgHoldingPeriod": 30.14528357987066,
+      "expectancy": 41.60878090803911,
+      "closed": 26906,
+      "signalCount": 31984,
+      "openAtEnd": 0,
+      "a1bCensus": {
+        "a1bSymbolsWithTrades": 449,
+        "a1bTradeCount": 2500,
+        "a1bNetPnl": -2447363.25
+      }
+    }
+  },
+  "comparison": {
+    "a1a_only_vs_merged": {
+      "cagr_delta": 0.016206,
+      "mdd_delta": 0.007129,
+      "finalEquity_delta": 6758408.8,
+      "closed_delta": -7,
+      "winRate_delta": 0.002421
+    }
+  }
+}

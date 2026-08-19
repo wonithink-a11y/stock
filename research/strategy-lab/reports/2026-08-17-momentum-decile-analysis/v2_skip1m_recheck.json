@@ -1,0 +1,339 @@
+{
+  "question": "Does Momentum12M have forward-return predictive power in the A1A_ONLY universe? raw12m = Close[t]/Close[t-252]-1 (v1 result). skip1m_12_1 = Close[t-21]/Close[t-252]-1, Jegadeesh-Titman J=12,K=1 skip-month re-check.",
+  "universeMode": "A1A_ONLY",
+  "tickersInUniverse": 2578,
+  "rebalanceDates": 152,
+  "horizonsDays": [
+    20,
+    60,
+    120
+  ],
+  "variants": {
+    "raw12m": {
+      "panelRowsBeforeDecile": 249602,
+      "panelRowsAfterDecile": 249602,
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.01667,
+          "median_fwd20": -0.00808,
+          "winrate_fwd20": 0.45652,
+          "mean_fwd60": 0.0319,
+          "median_fwd60": -0.02377,
+          "winrate_fwd60": 0.44341,
+          "mean_fwd120": 0.04399,
+          "median_fwd120": -0.04917,
+          "winrate_fwd120": 0.42095,
+          "n": 25022
+        },
+        "2": {
+          "mean_fwd20": 0.00672,
+          "median_fwd20": -0.00671,
+          "winrate_fwd20": 0.46181,
+          "mean_fwd60": 0.02161,
+          "median_fwd60": -0.0158,
+          "winrate_fwd60": 0.45488,
+          "mean_fwd120": 0.04262,
+          "median_fwd120": -0.03077,
+          "winrate_fwd120": 0.43969,
+          "n": 24954
+        },
+        "3": {
+          "mean_fwd20": 0.00652,
+          "median_fwd20": -0.00654,
+          "winrate_fwd20": 0.4607,
+          "mean_fwd60": 0.02012,
+          "median_fwd60": -0.01693,
+          "winrate_fwd60": 0.44763,
+          "mean_fwd120": 0.04108,
+          "median_fwd120": -0.03111,
+          "winrate_fwd120": 0.43596,
+          "n": 24936
+        },
+        "4": {
+          "mean_fwd20": 0.00875,
+          "median_fwd20": -0.0046,
+          "winrate_fwd20": 0.46764,
+          "mean_fwd60": 0.02424,
+          "median_fwd60": -0.01615,
+          "winrate_fwd60": 0.45049,
+          "mean_fwd120": 0.04276,
+          "median_fwd120": -0.02954,
+          "winrate_fwd120": 0.43703,
+          "n": 24955
+        },
+        "5": {
+          "mean_fwd20": 0.00664,
+          "median_fwd20": -0.00655,
+          "winrate_fwd20": 0.45515,
+          "mean_fwd60": 0.02186,
+          "median_fwd60": -0.01607,
+          "winrate_fwd60": 0.44541,
+          "mean_fwd120": 0.0421,
+          "median_fwd120": -0.02893,
+          "winrate_fwd120": 0.43977,
+          "n": 24970
+        },
+        "6": {
+          "mean_fwd20": 0.00672,
+          "median_fwd20": -0.00559,
+          "winrate_fwd20": 0.45785,
+          "mean_fwd60": 0.02026,
+          "median_fwd60": -0.01552,
+          "winrate_fwd60": 0.44445,
+          "mean_fwd120": 0.03925,
+          "median_fwd120": -0.02899,
+          "winrate_fwd120": 0.43394,
+          "n": 24923
+        },
+        "7": {
+          "mean_fwd20": 0.00835,
+          "median_fwd20": -0.00621,
+          "winrate_fwd20": 0.45772,
+          "mean_fwd60": 0.0232,
+          "median_fwd60": -0.01563,
+          "winrate_fwd60": 0.44417,
+          "mean_fwd120": 0.04149,
+          "median_fwd120": -0.02827,
+          "winrate_fwd120": 0.43391,
+          "n": 24950
+        },
+        "8": {
+          "mean_fwd20": 0.00828,
+          "median_fwd20": -0.00752,
+          "winrate_fwd20": 0.45309,
+          "mean_fwd60": 0.02166,
+          "median_fwd60": -0.01994,
+          "winrate_fwd60": 0.44014,
+          "mean_fwd120": 0.03681,
+          "median_fwd120": -0.03575,
+          "winrate_fwd120": 0.42479,
+          "n": 24942
+        },
+        "9": {
+          "mean_fwd20": 0.00814,
+          "median_fwd20": -0.012,
+          "winrate_fwd20": 0.44786,
+          "mean_fwd60": 0.01941,
+          "median_fwd60": -0.03281,
+          "winrate_fwd60": 0.42421,
+          "mean_fwd120": 0.03471,
+          "median_fwd120": -0.05323,
+          "winrate_fwd120": 0.41126,
+          "n": 24943
+        },
+        "10": {
+          "mean_fwd20": 0.00176,
+          "median_fwd20": -0.02506,
+          "winrate_fwd20": 0.42656,
+          "mean_fwd60": 0.00718,
+          "median_fwd60": -0.05915,
+          "winrate_fwd60": 0.40021,
+          "mean_fwd120": 0.01982,
+          "median_fwd120": -0.10032,
+          "winrate_fwd120": 0.37581,
+          "n": 25007
+        }
+      },
+      "positiveVsNonpositive": {
+        "momentum_positive": {
+          "n": 105126,
+          "mean_fwd20": 0.007370636170171197,
+          "median_fwd20": -0.011471331119537354,
+          "winrate_fwd20": 0.4464357057245591,
+          "mean_fwd60": 0.02074068570280811,
+          "median_fwd60": -0.027853310108184814,
+          "winrate_fwd60": 0.4321861385385157,
+          "mean_fwd120": 0.03486131154640174,
+          "median_fwd120": -0.050120919942855835,
+          "winrate_fwd120": 0.41429332420143444
+        },
+        "momentum_nonpositive": {
+          "n": 144476,
+          "mean_fwd20": 0.008209820267350086,
+          "median_fwd20": -0.005714297294616699,
+          "winrate_fwd20": 0.46033943353913453,
+          "mean_fwd60": 0.02143756013792969,
+          "median_fwd60": -0.017136484384536743,
+          "winrate_fwd60": 0.4448074420665024,
+          "mean_fwd120": 0.041080751040900754,
+          "median_fwd120": -0.03107762336730957,
+          "winrate_fwd120": 0.4333038013234032
+        }
+      },
+      "monotonicity": {
+        "fwd20_decile_return_spearman": -0.3091,
+        "fwd20_decile10_minus_decile1": -0.01492,
+        "fwd60_decile_return_spearman": -0.5636,
+        "fwd60_decile10_minus_decile1": -0.02472,
+        "fwd120_decile_return_spearman": -0.8788,
+        "fwd120_decile10_minus_decile1": -0.02417
+      }
+    },
+    "skip1m_12_1": {
+      "panelRowsBeforeDecile": 249602,
+      "panelRowsAfterDecile": 249602,
+      "decileTable": {
+        "1": {
+          "mean_fwd20": 0.01193,
+          "median_fwd20": -0.01135,
+          "winrate_fwd20": 0.44528,
+          "mean_fwd60": 0.02562,
+          "median_fwd60": -0.02836,
+          "winrate_fwd60": 0.43401,
+          "mean_fwd120": 0.03781,
+          "median_fwd120": -0.05461,
+          "winrate_fwd120": 0.41323,
+          "n": 25020
+        },
+        "2": {
+          "mean_fwd20": 0.00691,
+          "median_fwd20": -0.00863,
+          "winrate_fwd20": 0.45458,
+          "mean_fwd60": 0.02146,
+          "median_fwd60": -0.02024,
+          "winrate_fwd60": 0.44541,
+          "mean_fwd120": 0.04303,
+          "median_fwd120": -0.03556,
+          "winrate_fwd120": 0.43323,
+          "n": 24957
+        },
+        "3": {
+          "mean_fwd20": 0.00813,
+          "median_fwd20": -0.00619,
+          "winrate_fwd20": 0.46224,
+          "mean_fwd60": 0.02037,
+          "median_fwd60": -0.01771,
+          "winrate_fwd60": 0.44861,
+          "mean_fwd120": 0.03901,
+          "median_fwd120": -0.03193,
+          "winrate_fwd120": 0.43449,
+          "n": 24937
+        },
+        "4": {
+          "mean_fwd20": 0.00834,
+          "median_fwd20": -0.00643,
+          "winrate_fwd20": 0.46069,
+          "mean_fwd60": 0.02273,
+          "median_fwd60": -0.01724,
+          "winrate_fwd60": 0.44603,
+          "mean_fwd120": 0.04362,
+          "median_fwd120": -0.02991,
+          "winrate_fwd120": 0.43933,
+          "n": 24956
+        },
+        "5": {
+          "mean_fwd20": 0.00774,
+          "median_fwd20": -0.00657,
+          "winrate_fwd20": 0.45496,
+          "mean_fwd60": 0.02452,
+          "median_fwd60": -0.01552,
+          "winrate_fwd60": 0.44747,
+          "mean_fwd120": 0.0447,
+          "median_fwd120": -0.0293,
+          "winrate_fwd120": 0.43734,
+          "n": 24978
+        },
+        "6": {
+          "mean_fwd20": 0.00815,
+          "median_fwd20": -0.00499,
+          "winrate_fwd20": 0.46198,
+          "mean_fwd60": 0.02212,
+          "median_fwd60": -0.01459,
+          "winrate_fwd60": 0.44845,
+          "mean_fwd120": 0.03981,
+          "median_fwd120": -0.02868,
+          "winrate_fwd120": 0.4344,
+          "n": 24910
+        },
+        "7": {
+          "mean_fwd20": 0.00806,
+          "median_fwd20": -0.00577,
+          "winrate_fwd20": 0.45863,
+          "mean_fwd60": 0.02282,
+          "median_fwd60": -0.01754,
+          "winrate_fwd60": 0.44071,
+          "mean_fwd120": 0.0414,
+          "median_fwd120": -0.03047,
+          "winrate_fwd120": 0.43125,
+          "n": 24944
+        },
+        "8": {
+          "mean_fwd20": 0.00846,
+          "median_fwd20": -0.00702,
+          "winrate_fwd20": 0.45537,
+          "mean_fwd60": 0.02091,
+          "median_fwd60": -0.01844,
+          "winrate_fwd60": 0.44303,
+          "mean_fwd120": 0.03472,
+          "median_fwd120": -0.03251,
+          "winrate_fwd120": 0.43037,
+          "n": 24960
+        },
+        "9": {
+          "mean_fwd20": 0.0065,
+          "median_fwd20": -0.01001,
+          "winrate_fwd20": 0.45319,
+          "mean_fwd60": 0.0191,
+          "median_fwd60": -0.02702,
+          "winrate_fwd60": 0.43514,
+          "mean_fwd120": 0.03671,
+          "median_fwd120": -0.04883,
+          "winrate_fwd120": 0.41653,
+          "n": 24932
+        },
+        "10": {
+          "mean_fwd20": 0.00434,
+          "median_fwd20": -0.01906,
+          "winrate_fwd20": 0.43798,
+          "mean_fwd60": 0.01179,
+          "median_fwd60": -0.05207,
+          "winrate_fwd60": 0.40615,
+          "mean_fwd120": 0.02383,
+          "median_fwd120": -0.09003,
+          "winrate_fwd120": 0.38292,
+          "n": 25008
+        }
+      },
+      "positiveVsNonpositive": {
+        "momentum_positive": {
+          "n": 105253,
+          "mean_fwd20": 0.008375689999065721,
+          "median_fwd20": -0.009150326251983643,
+          "winrate_fwd20": 0.455388444984941,
+          "mean_fwd60": 0.021925063860050244,
+          "median_fwd60": -0.02453291416168213,
+          "winrate_fwd60": 0.43844831026194026,
+          "mean_fwd120": 0.036571877727102804,
+          "median_fwd120": -0.04589211940765381,
+          "winrate_fwd120": 0.42012104168052217
+        },
+        "momentum_nonpositive": {
+          "n": 144349,
+          "mean_fwd20": 0.007477717140398784,
+          "median_fwd20": -0.007215023040771484,
+          "winrate_fwd20": 0.4538237189034908,
+          "mean_fwd60": 0.02057457632002346,
+          "median_fwd60": -0.01915186643600464,
+          "winrate_fwd60": 0.4402524437301263,
+          "mean_fwd120": 0.03983895266750345,
+          "median_fwd120": -0.03392857313156128,
+          "winrate_fwd120": 0.42907120936064674
+        }
+      },
+      "monotonicity": {
+        "fwd20_decile_return_spearman": -0.4788,
+        "fwd20_decile10_minus_decile1": -0.00759,
+        "fwd60_decile_return_spearman": -0.5879,
+        "fwd60_decile10_minus_decile1": -0.01382,
+        "fwd120_decile_return_spearman": -0.5273,
+        "fwd120_decile10_minus_decile1": -0.01398
+      }
+    }
+  },
+  "caveats": [
+    "A1A_ONLY universe (currently-listed tickers only) - same survivorship scope as the 5DC SMOKE baseline, not A1A_A1B_MERGED.",
+    "Monthly rebalance, cross-sectional decile assigned per date (Book3 9.47 cross-sectional normalization), not pooled.",
+    "No execution cost, slippage, or position sizing applied - this measures raw price forward return only, not a tradeable strategy's P&L.",
+    "Overlapping return windows (20D/60D/120D) across consecutive monthly dates are not independent observations - a caveat on statistical significance, not corrected for here."
+  ]
+}
