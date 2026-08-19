@@ -1,0 +1,211 @@
+{
+ "anchor": {
+  "runnerFinalCash": 20232068.02946186,
+  "runnerOpenPositionsAtEnd": 0,
+  "initialPlusSumPnl": 20232068.02946201,
+  "note": "engine ended flat, so every candidate curve must terminate here"
+ },
+ "candidates": {
+  "A_realized_only": {
+   "params": {
+    "mtm": "cost",
+    "cost_bps_source": "fill",
+    "refuse_unaffordable": false
+   },
+   "terminalEquity": 20232068.02946191,
+   "terminalCash": 20232068.02946191,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 0,
+   "matchesRunnerCash": true,
+   "terminalVsAnchorDiff": 4.842877388000488e-08,
+   "yearEndEquity": {
+    "2014": 91523155.11546464,
+    "2015": 93523938.428704,
+    "2016": 85007893.46117377,
+    "2017": 85168425.90258087,
+    "2018": 60341069.15912534,
+    "2019": 47931718.19435313,
+    "2020": 47253029.87891109,
+    "2021": 35527576.038722746,
+    "2022": 25417670.2182342,
+    "2023": 27392798.814434014,
+    "2024": 23058684.508389905,
+    "2025": 24464598.349306636,
+    "2026": 20232068.02946191
+   }
+  },
+  "B_as_published": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "five",
+    "refuse_unaffordable": true,
+    "same_day_cash_ban": false,
+    "missing_close": "entry_price",
+    "same_bar_second_pass": false
+   },
+   "terminalEquity": 102508582.26487045,
+   "terminalCash": 716102.2648704534,
+   "tradesDroppedByReAdmissionCheck": 1784,
+   "positionsStillOpenAtEnd": 14,
+   "matchesRunnerCash": false,
+   "terminalVsAnchorDiff": 82276514.23540859,
+   "yearEndEquity": {
+    "2014": 84924492.8867218,
+    "2015": 94473078.14729083,
+    "2016": 78289949.18337655,
+    "2017": 66039695.558683224,
+    "2018": 67003697.5401312,
+    "2019": 58884585.51749367,
+    "2020": 52360874.12666616,
+    "2021": 61681482.76112882,
+    "2022": 55510403.76188644,
+    "2023": 60150445.1198825,
+    "2024": 61247919.013182394,
+    "2025": 127253223.59062777,
+    "2026": 102508582.26487045
+   }
+  },
+  "B1_only_5bps": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "five",
+    "refuse_unaffordable": false
+   },
+   "terminalEquity": 31688166.43309701,
+   "terminalCash": 31688166.43309701,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 0,
+   "matchesRunnerCash": false,
+   "terminalVsAnchorDiff": 11456098.403635148,
+   "yearEndEquity": {
+    "2014": 92574858.65885621,
+    "2015": 98192319.72247048,
+    "2016": 89441262.656117,
+    "2017": 90003051.72304434,
+    "2018": 66074754.34249819,
+    "2019": 56020137.813032895,
+    "2020": 56081443.183214344,
+    "2021": 44755794.062100224,
+    "2022": 35128234.74012472,
+    "2023": 38268797.04940859,
+    "2024": 33878799.34974074,
+    "2025": 35399878.03460407,
+    "2026": 31688166.43309701
+   }
+  },
+  "B2_only_readmit": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "fill",
+    "refuse_unaffordable": true
+   },
+   "terminalEquity": 20232068.02946191,
+   "terminalCash": 20232068.02946191,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 0,
+   "matchesRunnerCash": true,
+   "terminalVsAnchorDiff": 4.842877388000488e-08,
+   "yearEndEquity": {
+    "2014": 91749435.19346464,
+    "2015": 95828207.634704,
+    "2016": 85710800.08217376,
+    "2017": 85268732.24258088,
+    "2018": 59849724.28212534,
+    "2019": 48831315.07985313,
+    "2020": 47905483.94341109,
+    "2021": 35647505.431722745,
+    "2022": 25485887.4397342,
+    "2023": 28131053.199434012,
+    "2024": 23257264.347889908,
+    "2025": 24397773.509306632,
+    "2026": 20232068.02946191
+   }
+  },
+  "B3_only_samebar": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "fill",
+    "refuse_unaffordable": false,
+    "same_bar_second_pass": false
+   },
+   "terminalEquity": -172203834.32221085,
+   "terminalCash": -484780578.32221085,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 125,
+   "matchesRunnerCash": false,
+   "terminalVsAnchorDiff": -192435902.3516727,
+   "yearEndEquity": {
+    "2014": 84041053.59622408,
+    "2015": 91919160.96879166,
+    "2016": 62575096.51748033,
+    "2017": 39429621.4092482,
+    "2018": -11870926.05378282,
+    "2019": -48612391.26447067,
+    "2020": -44864856.305860996,
+    "2021": -26147307.37999153,
+    "2022": -153848851.2718665,
+    "2023": -145606783.7271726,
+    "2024": -180455168.39540058,
+    "2025": -59526827.32763398,
+    "2026": -172203834.32221085
+   }
+  },
+  "C_faithful_mtm": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "fill",
+    "refuse_unaffordable": false
+   },
+   "terminalEquity": 20232068.02946191,
+   "terminalCash": 20232068.02946191,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 0,
+   "matchesRunnerCash": true,
+   "terminalVsAnchorDiff": 4.842877388000488e-08,
+   "yearEndEquity": {
+    "2014": 91749435.19346464,
+    "2015": 95828207.634704,
+    "2016": 85710800.08217376,
+    "2017": 85268732.24258088,
+    "2018": 59849724.28212534,
+    "2019": 48831315.07985313,
+    "2020": 47905483.94341109,
+    "2021": 35647505.431722745,
+    "2022": 25485887.4397342,
+    "2023": 28131053.199434012,
+    "2024": 23257264.347889908,
+    "2025": 24397773.509306632,
+    "2026": 20232068.02946191
+   }
+  },
+  "C2_entrypx_fallback": {
+   "params": {
+    "mtm": "close",
+    "cost_bps_source": "fill",
+    "refuse_unaffordable": false,
+    "missing_close": "entry_price"
+   },
+   "terminalEquity": 20232068.02946191,
+   "terminalCash": 20232068.02946191,
+   "tradesDroppedByReAdmissionCheck": 0,
+   "positionsStillOpenAtEnd": 0,
+   "matchesRunnerCash": true,
+   "terminalVsAnchorDiff": 4.842877388000488e-08,
+   "yearEndEquity": {
+    "2014": 91749435.19346464,
+    "2015": 95828207.634704,
+    "2016": 85710800.08217376,
+    "2017": 85268732.24258088,
+    "2018": 59849724.28212534,
+    "2019": 48831315.07985313,
+    "2020": 47905483.94341109,
+    "2021": 35647505.431722745,
+    "2022": 25485887.4397342,
+    "2023": 28131053.199434012,
+    "2024": 23257264.347889908,
+    "2025": 24397773.509306632,
+    "2026": 20232068.02946191
+   }
+  }
+ }
+}

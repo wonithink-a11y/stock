@@ -1,0 +1,106 @@
+{
+ "diag": {
+  "runClass": "SMOKE",
+  "universeMode": "A1A_ONLY",
+  "universeCoverage": {
+   "universeMode": "A1A_ONLY",
+   "totalTickers": 2578,
+   "missingPriceTickers": 20,
+   "fullyCovered": false
+  },
+  "tickersScanned": 2558,
+  "suspensionRowsDropped": 73222,
+  "signalCount": 157643,
+  "invalidSignalCount": 0,
+  "skippedSignalCount": 63095,
+  "skippedReasons": {
+   "no_bar_on_entry_date": 80,
+   "no_next_session": 40,
+   "ran_out_of_bars_before_exit_resolved": 46,
+   "overlaps_open_position_same_symbol": 62929
+  },
+  "executableTradeCount": 157477,
+  "exitTypeCounts": {
+   "TARGET": 37424,
+   "STOP": 111105,
+   "TIME_EXIT": 8948
+  },
+  "executionErrorCount": 0,
+  "firstSignalDate": "2014-06-16",
+  "lastSignalDate": "2026-08-03",
+  "portfolioEligibleTradeCount": 94548,
+  "finalCash": 20232068.02946186,
+  "closedPositionCount": 2154,
+  "openPositionCountAtEnd": 0,
+  "maxSimultaneousPositionsObserved": 10
+ },
+ "portfolio_cash": 20232068.02946186,
+ "open_at_end": 0,
+ "params": {
+  "strategyId": "trend_breakout_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-14",
+  "note": "TREND-BREAKOUT-v1. Exploratory candidate in research/strategy-lab, NOT production (5DC-v1A-P is unaffected). A2a daily OHLCV Donchian-channel breakout. Reuses 5DC-v1A-P's RiskSpec/executor/portfolio/cost contract verbatim - only the indicator and signal differ.",
+  "direction": "LONG_ONLY",
+  "indicators": {
+   "donchian": {
+    "period": 20,
+    "source": "high_low"
+   },
+   "atr": {
+    "period": 14,
+    "method": "wilder"
+   }
+  },
+  "signal": {
+   "expression": "Close[t-1] <= donchian_high[t-1] AND Close[t] > donchian_high[t]",
+   "evaluatedAfter": "t close confirmed",
+   "note": "edge-triggered - donchian_high[t] itself only ever uses High[t-N..t-1] (t excluded), see engine/indicators/donchian.py"
+  },
+  "entry": {
+   "timing": "next_tradable_session_open",
+   "signalDateField": "t",
+   "entryDateField": "next_session(t)",
+   "entryPriceField": "Open[entry_date]"
+  },
+  "risk": {
+   "atrReferenceDate": "t (signal date) - never t+1 or later",
+   "stopDistanceFormula": "2 * ATR[t]",
+   "stopFormula": "entry_price - stop_distance",
+   "targetFormula": "entry_price + 3 * stop_distance",
+   "rewardRisk": 3.0,
+   "maxHoldingSessions": 60,
+   "timeExitRule": "close of the 60th tradable session counting entry_date as session 1"
+  },
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+  "cost": {
+   "entryCostBps": 15,
+   "exitCostBps": 15,
+   "roundTripBps": 30,
+   "slippageBps": 0
+  },
+  "portfolio": {
+   "initialCapital": 100000000,
+   "currency": "KRW",
+   "maxPositions": 10,
+   "equalWeight": true,
+   "fractionalShares": false,
+   "sameDayCashReuse": false,
+   "tieBreak": "ticker_ascending"
+  },
+  "universe": {
+   "mode": "A1A_ONLY",
+   "runClassAllowed": [
+    "SMOKE"
+   ],
+   "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+  "warmup": {
+   "donchianBars": 20,
+   "atrBars": 14,
+   "effectiveWarmupBars": 20
+  }
+ }
+}

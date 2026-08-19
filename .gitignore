@@ -28,3 +28,11 @@ data/backfill/price/_shards/
 # 분봉 Raw는 저장소 밖이다(MN-1.0 §1). 로컬 실행은 진단용이며 커밋 대상이 아니다.
 # manifest(data/backfill/minute/manifest)는 반대로 유일한 커밋 대상이라 무시하지 않는다.
 data/minute/
+
+# Obsidian 편집기 개인 설정(워크스페이스 상태 등, 기기마다 다르다) — 추적 안 함.
+# gitignore해도 Obsidian 사용에는 영향 없다(파일시스템만 읽고 git을 모른다).
+.obsidian/
+
+# graphify 생성 캐시 — `graphify update .`로 언제든 재생성 가능. 추적 안 함.
+# gitignore해도 graphify 사용에는 영향 없다(로컬 디스크에서 그대로 읽고 쓴다).
+graphify-out/
