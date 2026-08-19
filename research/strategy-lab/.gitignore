@@ -2,6 +2,18 @@
 reports/*
 !reports/2026-08-14-5dc-v1a-p-baseline/
 !reports/2026-08-18-strategy-candidates/
+
+# SL-2(3) 검증 문서(docs/verification/SL-2-stop-distance-재현-결과.md)가 이 안의
+# 요약·거래 데이터를 직접 인용한다 — 그 파일들만 예외로 둔다. 249MB짜리
+# trade_paths.pkl 등 재생성 가능한 원시 캐시는 계속 gitignore.
+!reports/2026-08-16-sl2-sequential/
+reports/2026-08-16-sl2-sequential/*.pkl
+reports/2026-08-16-sl2-sequential/slim_resolved.json
+reports/2026-08-16-sl2-sequential/sessions.json
 __pycache__/
 data/**/*.parquet
 data/**/*.pkl
+
+# Codex slot-marginal 분석의 원시 스냅샷(33MB, 15,360행×22 config) — 재생성 가능
+# (node slot_marginal_analysis.js). analysis.json(파생 결과)은 계속 추적한다.
+findings/slot-marginal-contribution/snapshots.json

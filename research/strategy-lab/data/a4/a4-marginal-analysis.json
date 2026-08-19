@@ -1,0 +1,121 @@
+{
+  "config": {
+    "period": [
+      "2016-01-04",
+      "2026-08-03"
+    ],
+    "nRows": 5348454
+  },
+  "marginalIC": {
+    "fwd_d20": {
+      "foreign_nb_20d": {
+        "nDays": 2575,
+        "coefMean": 0.00592,
+        "coefT": 13.328
+      },
+      "inst_nb_20d": {
+        "nDays": 2575,
+        "coefMean": 0.00301,
+        "coefT": 7.287
+      },
+      "indiv_nb_20d": {
+        "nDays": 2575,
+        "coefMean": 0.00439,
+        "coefT": 8.977
+      }
+    },
+    "fwd_d60": {
+      "foreign_nb_20d": {
+        "nDays": 2535,
+        "coefMean": 0.01268,
+        "coefT": 17.025
+      },
+      "inst_nb_20d": {
+        "nDays": 2535,
+        "coefMean": 0.00619,
+        "coefT": 8.961
+      },
+      "indiv_nb_20d": {
+        "nDays": 2535,
+        "coefMean": 0.00584,
+        "coefT": 6.925
+      }
+    },
+    "fwd_d120": {
+      "foreign_nb_20d": {
+        "nDays": 2475,
+        "coefMean": 0.01712,
+        "coefT": 15.614
+      },
+      "inst_nb_20d": {
+        "nDays": 2475,
+        "coefMean": 0.01145,
+        "coefT": 10.117
+      },
+      "indiv_nb_20d": {
+        "nDays": 2475,
+        "coefMean": 0.00116,
+        "coefT": 0.941
+      }
+    }
+  },
+  "univariateIC_reference": {
+    "fwd_d20": {
+      "foreign_nb_20d": 0.00439,
+      "inst_nb_20d": 0.00391,
+      "indiv_nb_20d": -0.0017
+    },
+    "fwd_d60": {
+      "foreign_nb_20d": 0.0094,
+      "inst_nb_20d": 0.01142,
+      "indiv_nb_20d": -0.01016
+    },
+    "fwd_d120": {
+      "foreign_nb_20d": 0.01211,
+      "inst_nb_20d": 0.02226,
+      "indiv_nb_20d": -0.02232
+    }
+  },
+  "individualCorrelation": {
+    "indiv_nb_20d_vs_foreign_nb_20d": {
+      "nDays": 2595,
+      "corrMean": -0.53265,
+      "corrStd": 0.05457
+    },
+    "indiv_nb_20d_vs_inst_nb_20d": {
+      "nDays": 2595,
+      "corrMean": -0.56115,
+      "corrStd": 0.05674
+    }
+  },
+  "indiv_sizeIC": {
+    "fwd_d60": {
+      "tercile1": {
+        "nDays": 2535,
+        "icMean": 0.02257
+      },
+      "tercile2": {
+        "nDays": 2535,
+        "icMean": 0.01313
+      },
+      "tercile3": {
+        "nDays": 2535,
+        "icMean": -0.01314
+      }
+    },
+    "fwd_d120": {
+      "tercile1": {
+        "nDays": 2475,
+        "icMean": 0.01224
+      },
+      "tercile2": {
+        "nDays": 2475,
+        "icMean": 3e-05
+      },
+      "tercile3": {
+        "nDays": 2475,
+        "icMean": -0.02341
+      }
+    }
+  }
+}

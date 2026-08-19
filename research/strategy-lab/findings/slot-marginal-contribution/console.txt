@@ -1,0 +1,247 @@
+﻿====================================================================================================
+POOLED SPEARMAN IC (score ??forward return)
+config                             d20           d60          d120
+base                        0.0181 (n=13213)    0.0316 (n=12973)    0.0411 (n=12613)
+base_foreign                0.0119 (n=13213)    0.0118 (n=12973)    0.0155 (n=12613)
+base_inst                  -0.0011 (n=13213)    0.0087 (n=12973)    0.0189 (n=12613)
+base_both                   0.0061 (n=13213)    0.0120 (n=12973)    0.0188 (n=12613)
+full                        0.0377 (n=13244)    0.0603 (n=13004)    0.0764 (n=12644)
+loo_roe                     0.0343 (n=13244)    0.0562 (n=13004)    0.0724 (n=12644)
+loo_roeConsistency          0.0352 (n=13244)    0.0572 (n=13004)    0.0738 (n=12644)
+loo_debtRatio               0.0417 (n=13244)    0.0647 (n=13004)    0.0804 (n=12644)
+loo_currentRatio            0.0394 (n=13244)    0.0628 (n=13004)    0.0793 (n=12644)
+loo_operatingMarginTrend    0.0378 (n=13244)    0.0601 (n=13004)    0.0754 (n=12644)
+loo_revenueGrowthYoY        0.0378 (n=13244)    0.0606 (n=13004)    0.0778 (n=12644)
+loo_shareholderReturn       0.0352 (n=13244)    0.0552 (n=13004)    0.0683 (n=12644)
+loo_perRelative             0.0395 (n=13244)    0.0622 (n=13004)    0.0789 (n=12644)
+loo_pbr                     0.0183 (n=13244)    0.0278 (n=13004)    0.0380 (n=12644)
+loo_peg                     0.0382 (n=13244)    0.0615 (n=13004)    0.0785 (n=12644)
+loo_marginOfSafety          0.0387 (n=13244)    0.0616 (n=13004)    0.0792 (n=12644)
+loo_movingAverageCross      0.0429 (n=13244)    0.0625 (n=13004)    0.0780 (n=12644)
+loo_rsi                     0.0373 (n=13244)    0.0599 (n=13004)    0.0759 (n=12644)
+loo_macd                    0.0351 (n=13244)    0.0588 (n=13004)    0.0749 (n=12644)
+loo_volumeConfirmation      0.0361 (n=13244)    0.0601 (n=13004)    0.0764 (n=12644)
+loo_foreignNetBuy5d         0.0310 (n=13244)    0.0561 (n=13004)    0.0741 (n=12644)
+loo_institutionNetBuy5d     0.0402 (n=13244)    0.0577 (n=13004)    0.0711 (n=12644)
+
+DAILY RANK IC (cross-sectional, mean짹std)
+config                                       d20                     d60                    d120
+base                        0.0176짹0.1310(t=1.52,d=127)    0.0341짹0.1245(t=3.06,d=125)    0.0422짹0.1339(t=3.48,d=122)
+base_foreign                0.0154짹0.1072(t=1.62,d=127)    0.0238짹0.1039(t=2.56,d=125)    0.0297짹0.1192(t=2.75,d=122)
+base_inst                   0.0025짹0.1240(t=0.23,d=127)    0.0156짹0.1181(t=1.48,d=125)    0.0228짹0.1268(t=1.99,d=122)
+base_both                   0.0105짹0.1157(t=1.03,d=127)    0.0214짹0.1124(t=2.13,d=125)    0.0295짹0.1249(t=2.61,d=122)
+full                        0.0453짹0.1066(t=4.79,d=127)    0.0674짹0.1142(t=6.60,d=125)    0.0793짹0.1223(t=7.16,d=122)
+loo_roe                     0.0436짹0.1017(t=4.83,d=127)    0.0672짹0.1110(t=6.77,d=125)    0.0802짹0.1239(t=7.15,d=122)
+loo_roeConsistency          0.0436짹0.1039(t=4.73,d=127)    0.0666짹0.1124(t=6.62,d=125)    0.0788짹0.1228(t=7.09,d=122)
+loo_debtRatio               0.0471짹0.1109(t=4.78,d=127)    0.0698짹0.1164(t=6.70,d=125)    0.0808짹0.1223(t=7.30,d=122)
+loo_currentRatio            0.0464짹0.1071(t=4.89,d=127)    0.0701짹0.1155(t=6.79,d=125)    0.0821짹0.1239(t=7.32,d=122)
+loo_operatingMarginTrend    0.0463짹0.1081(t=4.82,d=127)    0.0683짹0.1125(t=6.79,d=125)    0.0794짹0.1161(t=7.55,d=122)
+loo_revenueGrowthYoY        0.0433짹0.1094(t=4.47,d=127)    0.0656짹0.1157(t=6.34,d=125)    0.0766짹0.1233(t=6.86,d=122)
+loo_shareholderReturn       0.0414짹0.1070(t=4.36,d=127)    0.0614짹0.1142(t=6.01,d=125)    0.0715짹0.1248(t=6.33,d=122)
+loo_perRelative             0.0468짹0.1077(t=4.90,d=127)    0.0693짹0.1161(t=6.67,d=125)    0.0815짹0.1254(t=7.18,d=122)
+loo_pbr                     0.0234짹0.1060(t=2.49,d=127)    0.0332짹0.1096(t=3.38,d=125)    0.0400짹0.1217(t=3.63,d=122)
+loo_peg                     0.0464짹0.1059(t=4.94,d=127)    0.0698짹0.1112(t=7.02,d=125)    0.0824짹0.1196(t=7.61,d=122)
+loo_marginOfSafety          0.0467짹0.1057(t=4.98,d=127)    0.0705짹0.1149(t=6.86,d=125)    0.0842짹0.1238(t=7.51,d=122)
+loo_movingAverageCross      0.0483짹0.1064(t=5.11,d=127)    0.0690짹0.1150(t=6.71,d=125)    0.0792짹0.1209(t=7.24,d=122)
+loo_rsi                     0.0456짹0.1057(t=4.87,d=127)    0.0670짹0.1137(t=6.59,d=125)    0.0794짹0.1207(t=7.26,d=122)
+loo_macd                    0.0427짹0.1057(t=4.55,d=127)    0.0666짹0.1141(t=6.53,d=125)    0.0794짹0.1229(t=7.13,d=122)
+loo_volumeConfirmation      0.0429짹0.1082(t=4.47,d=127)    0.0680짹0.1148(t=6.62,d=125)    0.0793짹0.1249(t=7.01,d=122)
+loo_foreignNetBuy5d         0.0369짹0.1156(t=3.60,d=127)    0.0622짹0.1190(t=5.84,d=125)    0.0735짹0.1312(t=6.19,d=122)
+loo_institutionNetBuy5d     0.0471짹0.1036(t=5.12,d=127)    0.0676짹0.1102(t=6.86,d=125)    0.0786짹0.1163(t=7.46,d=122)
+
+LOO MARGINAL CONTRIBUTION (dIC = IC(full) - IC(full-slot), pooled)
+slot                                ?d20          ?d60         ?d120
+pbr                               0.0194        0.0324        0.0385
+shareholderReturn                 0.0025        0.0051        0.0081
+institutionNetBuy5d              -0.0025        0.0025        0.0054
+roe                               0.0034        0.0041        0.0040
+debtRatio                        -0.0040       -0.0044       -0.0040
+currentRatio                     -0.0017       -0.0025       -0.0029
+marginOfSafety                   -0.0010       -0.0013       -0.0028
+roeConsistency                    0.0025        0.0030        0.0026
+perRelative                      -0.0018       -0.0019       -0.0024
+foreignNetBuy5d                   0.0067        0.0042        0.0023
+peg                              -0.0005       -0.0013       -0.0020
+movingAverageCross               -0.0052       -0.0022       -0.0016
+macd                              0.0026        0.0014        0.0015
+revenueGrowthYoY                 -0.0001       -0.0003       -0.0014
+operatingMarginTrend             -0.0000        0.0002        0.0011
+rsi                               0.0004        0.0004        0.0005
+volumeConfirmation                0.0016        0.0002        0.0000
+
+?깃툒蹂?d60 forward return (mean%, n) ??'A~E': coverage sufficient留? '?좊낫': coverage<60%
+[base]
+     ?좊낫: mean=   1.50% median=  -2.01% win= 42.2% n=13004
+[base_foreign]
+      A: mean=  -0.95% median=  -5.85% win= 35.7% n=70
+      B: mean=   1.60% median=  -2.93% win= 41.8% n=1204
+      C: mean=   2.94% median=  -2.23% win= 44.0% n=3270
+      D: mean=   2.14% median=  -2.63% win= 43.2% n=3757
+      E: mean=   0.63% median=  -3.51% win= 41.5% n=1447
+     ?좊낫: mean=  -0.29% median=  -0.27% win= 39.7% n=3256
+[base_inst]
+      A: mean=  -2.13% median=  -4.79% win= 38.9% n=113
+      B: mean=   2.34% median=  -2.26% win= 44.0% n=1199
+      C: mean=   2.67% median=  -2.47% win= 42.8% n=3125
+      D: mean=   1.38% median=  -2.84% win= 42.8% n=3539
+      E: mean=   2.60% median=  -2.77% win= 43.5% n=1772
+     ?좊낫: mean=  -0.29% median=  -0.27% win= 39.7% n=3256
+[base_both]
+      A: mean=  -5.72% median=  -6.68% win= 25.6% n=39
+      B: mean=   1.14% median=  -3.57% win= 42.2% n=1043
+      C: mean=   3.05% median=  -2.04% win= 43.1% n=3519
+      D: mean=   1.13% median=  -2.31% win= 41.9% n=4144
+      E: mean=   2.03% median=  -1.26% win= 38.9% n=1418
+     ?좊낫: mean=   0.07% median=  -1.50% win= 43.3% n=2841
+[full]
+      A: mean=  -2.62% median=  -4.18% win= 36.6% n=123
+      B: mean=   2.37% median=  -1.44% win= 45.9% n=1960
+      C: mean=   2.64% median=  -1.87% win= 43.7% n=3735
+      D: mean=   1.44% median=  -2.49% win= 41.2% n=3408
+      E: mean=  -1.00% median=  -4.43% win= 35.5% n=1922
+     ?좊낫: mean=   1.23% median=  -0.73% win= 44.0% n=1856
+[loo_roe]
+      A: mean=   0.52% median=  -2.71% win= 41.7% n=127
+      B: mean=   2.09% median=  -1.86% win= 45.2% n=2282
+      C: mean=   2.44% median=  -1.91% win= 44.0% n=3950
+      D: mean=   1.79% median=  -3.18% win= 42.1% n=3026
+      E: mean=  -0.09% median=  -5.21% win= 38.9% n=1204
+     ?좊낫: mean=  -0.12% median=   0.00% win= 38.1% n=2415
+[loo_roeConsistency]
+      A: mean=   1.76% median=  -3.50% win= 43.9% n=187
+      B: mean=   2.44% median=  -1.62% win= 45.2% n=2424
+      C: mean=   2.32% median=  -1.97% win= 44.1% n=3678
+      D: mean=   1.85% median=  -3.21% win= 42.1% n=2957
+      E: mean=  -0.24% median=  -5.21% win= 38.4% n=1324
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_debtRatio]
+      A: mean=  -1.16% median=  -3.51% win= 42.0% n=138
+      B: mean=   2.18% median=  -1.68% win= 45.0% n=1717
+      C: mean=   3.06% median=  -1.62% win= 45.2% n=3432
+      D: mean=   1.86% median=  -2.97% win= 42.4% n=3129
+      E: mean=  -0.07% median=  -4.95% win= 39.3% n=2166
+     ?좊낫: mean=  -0.12% median=   0.00% win= 38.2% n=2422
+[loo_currentRatio]
+      A: mean=  -2.04% median=  -4.34% win= 37.5% n=128
+      B: mean=   2.40% median=  -1.46% win= 45.4% n=1887
+      C: mean=   2.93% median=  -1.76% win= 44.6% n=3602
+      D: mean=   1.67% median=  -3.07% win= 42.5% n=3170
+      E: mean=  -0.09% median=  -4.94% win= 39.1% n=1783
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_operatingMarginTrend]
+      A: mean=  -2.33% median=  -3.51% win= 39.2% n=148
+      B: mean=   2.06% median=  -1.88% win= 45.1% n=1994
+      C: mean=   2.63% median=  -1.82% win= 44.4% n=3608
+      D: mean=   1.51% median=  -3.11% win= 42.5% n=3288
+      E: mean=  -0.05% median=  -5.68% win= 38.3% n=1837
+     ?좊낫: mean=   0.64% median=   0.00% win= 38.8% n=2129
+[loo_revenueGrowthYoY]
+      A: mean=  -2.14% median=  -2.71% win= 40.8% n=125
+      B: mean=   2.34% median=  -1.83% win= 45.0% n=1919
+      C: mean=   2.57% median=  -1.90% win= 44.4% n=3664
+      D: mean=   1.88% median=  -3.08% win= 42.7% n=3268
+      E: mean=  -0.88% median=  -5.83% win= 38.2% n=1899
+     ?좊낫: mean=   0.64% median=   0.00% win= 38.8% n=2129
+[loo_shareholderReturn]
+      A: mean=  -1.86% median=  -3.52% win= 43.0% n=107
+      B: mean=   2.04% median=  -1.89% win= 44.9% n=1684
+      C: mean=   3.14% median=  -1.59% win= 44.8% n=3663
+      D: mean=   1.64% median=  -3.08% win= 42.6% n=3023
+      E: mean=   0.11% median=  -4.74% win= 39.5% n=2093
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_perRelative]
+      A: mean=  -2.29% median=  -4.29% win= 37.5% n=120
+      B: mean=   1.97% median=  -1.46% win= 45.6% n=1876
+      C: mean=   2.89% median=  -1.67% win= 44.1% n=3717
+      D: mean=   1.40% median=  -2.66% win= 41.0% n=3544
+      E: mean=  -1.02% median=  -4.37% win= 35.6% n=1891
+     ?좊낫: mean=   1.23% median=  -0.73% win= 44.0% n=1856
+[loo_pbr]
+      A: mean=  -2.54% median=  -4.29% win= 37.0% n=154
+      B: mean=   2.56% median=  -1.62% win= 45.5% n=2007
+      C: mean=   2.08% median=  -2.17% win= 42.7% n=2989
+      D: mean=   1.15% median=  -2.77% win= 41.1% n=3664
+      E: mean=   1.90% median=  -1.80% win= 40.1% n=2029
+     ?좊낫: mean=   0.21% median=  -1.30% win= 42.5% n=2161
+[loo_peg]
+      A: mean=  -2.37% median=  -4.29% win= 37.7% n=122
+      B: mean=   2.53% median=  -1.33% win= 46.2% n=1824
+      C: mean=   2.66% median=  -1.88% win= 43.6% n=3533
+      D: mean=   1.50% median=  -2.40% win= 41.6% n=3690
+      E: mean=  -0.97% median=  -4.47% win= 35.6% n=1967
+     ?좊낫: mean=   1.12% median=  -0.75% win= 44.0% n=1868
+[loo_marginOfSafety]
+      A: mean=  -3.13% median=  -4.54% win= 34.6% n=130
+      B: mean=   2.04% median=  -1.80% win= 44.9% n=2223
+      C: mean=   3.09% median=  -1.67% win= 44.3% n=3881
+      D: mean=   0.98% median=  -2.63% win= 40.8% n=3075
+      E: mean=  -1.07% median=  -4.43% win= 35.3% n=1834
+     ?좊낫: mean=   1.23% median=  -0.73% win= 44.0% n=1861
+[loo_movingAverageCross]
+      A: mean=  -0.52% median=  -2.52% win= 42.1% n=121
+      B: mean=   2.37% median=  -1.44% win= 45.8% n=1917
+      C: mean=   2.66% median=  -1.93% win= 43.9% n=3720
+      D: mean=   1.96% median=  -2.85% win= 42.9% n=3146
+      E: mean=  -0.36% median=  -5.31% win= 38.5% n=1671
+     ?좊낫: mean=  -0.20% median=   0.00% win= 38.1% n=2429
+[loo_rsi]
+      A: mean=  -1.89% median=  -4.58% win= 37.6% n=117
+      B: mean=   2.19% median=  -1.44% win= 45.5% n=1908
+      C: mean=   2.96% median=  -1.79% win= 44.5% n=3658
+      D: mean=   1.64% median=  -3.03% win= 42.4% n=3184
+      E: mean=  -0.04% median=  -5.02% win= 39.1% n=1703
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_macd]
+      A: mean=  -2.59% median=  -4.49% win= 35.1% n=131
+      B: mean=   2.42% median=  -1.39% win= 45.8% n=1913
+      C: mean=   2.88% median=  -1.79% win= 44.4% n=3643
+      D: mean=   1.65% median=  -2.99% win= 42.5% n=3152
+      E: mean=  -0.02% median=  -4.95% win= 39.2% n=1731
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_volumeConfirmation]
+      A: mean=  -0.70% median=  -2.14% win= 41.4% n=145
+      B: mean=   2.40% median=  -1.91% win= 44.9% n=2018
+      C: mean=   2.55% median=  -1.70% win= 44.1% n=3693
+      D: mean=   1.68% median=  -2.54% win= 41.2% n=3255
+      E: mean=  -0.26% median=  -3.57% win= 36.3% n=1713
+     ?좊낫: mean=   0.12% median=  -1.33% win= 42.5% n=2180
+[loo_foreignNetBuy5d]
+      A: mean=   0.73% median=  -1.68% win= 43.8% n=235
+      B: mean=   1.54% median=  -1.80% win= 44.8% n=1904
+      C: mean=   3.04% median=  -1.74% win= 44.4% n=3505
+      D: mean=   1.89% median=  -2.98% win= 42.9% n=3001
+      E: mean=   0.27% median=  -4.99% win= 39.4% n=1925
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+[loo_institutionNetBuy5d]
+      A: mean=  -0.76% median=  -3.06% win= 41.0% n=183
+      B: mean=   3.05% median=  -1.14% win= 46.6% n=1941
+      C: mean=   2.28% median=  -2.07% win= 43.9% n=3669
+      D: mean=   1.63% median=  -3.18% win= 41.7% n=3070
+      E: mean=   0.47% median=  -4.60% win= 40.2% n=1707
+     ?좊낫: mean=  -0.19% median=   0.00% win= 38.1% n=2434
+
+coverage sufficient rate / mean coverage
+   base                     sufficient=0.000 meanCov=0.465
+   base_foreign             sufficient=0.657 meanCov=0.509
+   base_inst                sufficient=0.657 meanCov=0.509
+   base_both                sufficient=0.685 meanCov=0.553
+   full                     sufficient=0.749 meanCov=0.612
+   loo_roe                  sufficient=0.712 meanCov=0.570
+   loo_roeConsistency       sufficient=0.711 meanCov=0.570
+   loo_debtRatio            sufficient=0.711 meanCov=0.570
+   loo_currentRatio         sufficient=0.711 meanCov=0.570
+   loo_operatingMarginTrend sufficient=0.731 meanCov=0.576
+   loo_revenueGrowthYoY     sufficient=0.731 meanCov=0.576
+   loo_shareholderReturn    sufficient=0.711 meanCov=0.570
+   loo_perRelative          sufficient=0.749 meanCov=0.606
+   loo_pbr                  sufficient=0.729 meanCov=0.586
+   loo_peg                  sufficient=0.748 meanCov=0.604
+   loo_marginOfSafety       sufficient=0.749 meanCov=0.595
+   loo_movingAverageCross   sufficient=0.711 meanCov=0.566
+   loo_rsi                  sufficient=0.711 meanCov=0.566
+   loo_macd                 sufficient=0.711 meanCov=0.566
+   loo_volumeConfirmation   sufficient=0.728 meanCov=0.567
+   loo_foreignNetBuy5d      sufficient=0.711 meanCov=0.566
+   loo_institutionNetBuy5d  sufficient=0.711 meanCov=0.566
+
+?꾩껜 寃곌낵 ??research\strategy-lab\findings\slot-marginal-contribution\analysis.json
