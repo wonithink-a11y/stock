@@ -270,15 +270,25 @@ def load_a3c_timeline():
 
 def _pit_select_asof(rows, asof_date):
     """lib/a5/pitSelector.js의 selectAsOf()와 같은 규칙 — availableFrom이
-    asof_date 이하인 것 중 fiscalYear 최댓값, 동률이면 reprtCode 우선순위,
-    그래도 동률이면 availableFrom 최댓값. 같은 접수일에 여러 회계연도가
-    한꺼번에(catch-up) 몰아서 제출되면 raw 시간순 정렬만으론 어느 값이
-    "그 시점 기준 최신"인지 못 가른다 — A3c 자신의 PIT 규칙을 그대로
-    가져와야 한다."""
+    asof_date 이하인 것 중 fiscalYear 최댓값, 그다음 availableFrom 최댓값
+    (실제 접수일 기준 최신). reprtCode 우선순위는 **같은 availableFrom**에
+    여러 회계연도/보고서가 한꺼번에(catch-up) 몰아서 접수됐을 때만 마지막
+    tie-break로 쓴다 — A3c 자신의 PIT 규칙(lib/a5/pitSelector.js 규칙 2·3)을
+    그대로 가져와야 한다.
+
+    ★ 2026-08-21 수정 — 원래는 정렬키가 (fiscalYear, priority, availableFrom)
+    순이라 같은 회계연도 안에서 priority가 availableFrom(실제 접수 시점)보다
+    먼저 비교됐다. 069640 실사례(2025 3분기 보고서가 2025 반기보고서보다
+    3개월 늦게 접수됐는데도, priority표에서 반기(11012=3)가 3분기(11014=2)
+    보다 높아 더 오래된 반기 값이 "PIT 최신"으로 잘못 선택됨)로 발견 —
+    reverseOrConsolidation A3d 후보 69건 중 56건(81%)이 배수>1(논리적으로
+    모순, 병합은 배수<1이어야 함)이던 원인이었다. 009810 catch-up 회귀
+    (아래 테스트)는 그대로 통과한다 — 그 사례는 애초에 availableFrom이
+    완전히 같은 날이라 이 정렬키 순서 변경의 영향을 안 받는다."""
     candidates = [r for r in rows if r[0] <= asof_date]
     if not candidates:
         return None
-    return max(candidates, key=lambda r: (r[1], _REPRT_PRIORITY.get(r[2], 0), r[0]))
+    return max(candidates, key=lambda r: (r[1], r[0], _REPRT_PRIORITY.get(r[2], 0)))
 
 
 def a3c_bracket_ratio(ticker, disclosure_date, timeline):

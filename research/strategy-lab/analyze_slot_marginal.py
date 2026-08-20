@@ -14,8 +14,13 @@ import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr
 
-SRC = Path("research/strategy-lab/findings/slot-marginal-contribution/snapshots.json")
-OUT = Path("research/strategy-lab/findings/slot-marginal-contribution/analysis.json")
+# Windows 콘솔 기본 cp949는 em-dash 등 일부 문자를 못 찍는다(UnicodeEncodeError) —
+# stdout 인코딩을 강제해 콘솔 출력이 스크립트를 죽이지 않게 한다.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+SRC = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("research/strategy-lab/findings/slot-marginal-contribution/snapshots.json")
+OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("research/strategy-lab/findings/slot-marginal-contribution/analysis.json")
 
 HORIZONS = ["d20", "d60", "d120"]
 GRADE_ORDER = ["A", "B", "C", "D", "E", "유보"]
