@@ -36,8 +36,11 @@ Validated against
               메커니즘 확인)으로 D4의 핵심 불확실성 해소, D2 전량 수집
               (KRX-native 기준도 ~8.6시간급)은 비용 대비 이득이 낮다고 판단.
               **방향만 확정이고 구현(정책 스키마·resolver.js)은 별도 🔴 결정**
-              — 다음 단계는 GO-5(c)(전체 유니버스 공시 조회, ~2,578콜)부터
-              사용자 확인 후 진행(브리프 §14)
+              이었으나 그 뒤 구현·A3d 백필·PIT 버그 수정까지 전부 끝났다
+              (위 "완료"의 2026-08-20 A3d 신설·2026-08-21 PIT 버그 수정 항목
+              참고). **남은 건 A3d 실제 재수집(GitHub Actions, "실행"이라
+              사전 확인 대상) → featureRegistry.js peg/pbr available:true
+              전환 → V7 수직 슬라이스뿐**, 전부 착수 대기 중(사용자 확인 필요)
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
@@ -62,6 +65,28 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
+              커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
+              reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
+              주식수 증가, 논리모순)로 나오는 걸 발견. 원인 1:
+              `_pit_select_asof()`가 같은 회계연도 안에서 reprtCode 우선순위를
+              실제 접수일보다 먼저 비교해 더 늦게 접수된 분기보고서 대신 오래된
+              반기보고서를 골랐다(069640 실사례, production
+              lib/a5/pitSelector.js와 다른 규칙이었음 — 정렬키 순서 교정).
+              원인 2: "공시일 이후 첫 변화 = 그 공시 효과"라는 가정이 그 사이에
+              무관한 별개 사건이 끼면 깨졌다(001140 실사례) —
+              `a3c_bracket_ratio()`에 `expected_direction` 추가해 카테고리
+              기대 방향(split=증가·reverseOrConsolidation=감소)과 안 맞는
+              변화는 건너뛰고, 끝까지 없으면 지어내지 않고 유보하게 고침.
+              로컬 재계산(DART 재수집 없음) 결과 전체 493건 방향모순 0건.
+              scripts/test-a5-d4-real-samples.js(N=24 실데이터 통합 회귀, 98
+              통과) 신설 — docs/A5-3-peg-조정기준-결정브리프.md §14 4번이
+              요구한 작업. **실제 data/backfill/fundamentals/a3d/ 산출물은
+              아직 옛(버그 있는) 값이다** — 재수집(GitHub Actions, ~35분~1시간·
+              DART 예산)은 "실행"이라 사전 확인 대상, 트리거 안 함. 그러므로
+              lib/a5/featureRegistry.js의 peg/pbr `available:true` 전환도
+              보류(재수집 후 판단) — 아래 "착수 가능" ④ 갱신 참고. 세부:
+              research/strategy-lab/findings/a3d-bracket-candidates/README.md
   완료      ★ 저장소 미커밋 파일 정리 2차 (2026-08-20) — DEEPSEEK-4(저장소
               루트)·DEEPSEEK-5(strategy-lab 루즈 파일) OpenCode 감사.
               DEEPSEEK-5는 51개 전량 분류 성공(23개 커밋 추천 — 이미 커밋된
