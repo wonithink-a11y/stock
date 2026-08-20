@@ -45,6 +45,7 @@ DART_API_KEY라 일 한도를 공유 — 같은 날 A3/A3b/A3c와 겹쳐 돌리�
   data/backfill/fundamentals/a3d/_diagnostics.json
 """
 import argparse
+import datetime
 import glob
 import gzip
 import importlib.util
@@ -344,6 +345,38 @@ def _base_record(corp, ticker, rcept_no, disclosure_date, report_nm):
             "rawIcMthn": None, "rawCrMth": None}
 
 
+def _dedup_same_event(recs, a3d, counters):
+    """같은 corp·category·배수(반올림 4자리)가 sameEventDedupWindowDays 안에
+    여럿이면 가장 늦은 것만 남긴다 — "결정" 공시와 "거래정지해제/변경상장"
+    공시가 같은 사건을 두 번 내는 패턴(011040 실사례, §19 정책 주석 참조).
+    '[기재정정]'류와 다른 중복이라 classify()의 정정 접두어 필터로는 안
+    잡힌다. 창을 넘는 간격은 합치지 않는다 — 실제로 다른 사건일 수 있다."""
+    window = a3d["multiplierSource"]["sameEventDedupWindowDays"]
+    by_key = defaultdict(list)
+    for r in recs:
+        by_key[(r["category"], round(r["multiplier"], 4))].append(r)
+
+    kept = []
+    for group in by_key.values():
+        group.sort(key=lambda r: r["disclosureDate"])
+        cluster = [group[0]]
+        for r in group[1:]:
+            if _epoch_days(r["disclosureDate"]) - _epoch_days(cluster[-1]["disclosureDate"]) <= window:
+                cluster.append(r)
+            else:
+                kept.append(cluster[-1])
+                counters["dedupSameEvent"] += len(cluster) - 1
+                cluster = [r]
+        kept.append(cluster[-1])
+        counters["dedupSameEvent"] += len(cluster) - 1
+    return kept
+
+
+def _epoch_days(yyyymmdd):
+    return (datetime.date(int(yyyymmdd[:4]), int(yyyymmdd[4:6]), int(yyyymmdd[6:8]))
+            - datetime.date(1970, 1, 1)).days
+
+
 def scan_corp(corp, ticker, pol, timeline, counters):
     """
     ★ 2026-08-20 스모크 테스트(gh run 32362600405)로 구조 자체를 다시 짰다.
@@ -374,6 +407,7 @@ def scan_corp(corp, ticker, pol, timeline, counters):
 
     # split·reverseOrConsolidation — I타입 list.json, 상세 API 없음(§19.1).
     i_rows = list_disclosures(corp, "I", scan_from, scan_to, pol, counters)
+    split_candidates = []
     for r in i_rows:
         for base_cat in classify(r.get("report_nm"), categories):
             if base_cat not in ("split", "reverseOrConsolidation"):
@@ -395,7 +429,8 @@ def scan_corp(corp, ticker, pol, timeline, counters):
             rec["category"] = base_cat
             rec["multiplier"] = round(ratio, 6)
             rec["multiplierSource"] = "a3cBracket"
-            records.append(rec)
+            split_candidates.append(rec)
+    records.extend(_dedup_same_event(split_candidates, a3d, counters))
 
     # mergerSpinoff — B타입 list.json, 상세 API 없음(§16.3, D4 범위 밖·분류만).
     b_rows = list_disclosures(corp, "B", scan_from, scan_to, pol, counters)
@@ -528,7 +563,7 @@ def run_shard(shard, shards, pol, limit):
                 records[rec_key(r)] = r
 
     counters = {"calls": 0, "listErrors": Counter(), "rejected": Counter(),
-                "bracketDistances": [], "bracketOutOfTolerance": 0}
+                "bracketDistances": [], "bracketOutOfTolerance": 0, "dedupSameEvent": 0}
     budget_hit = False
     t0 = time.time()
     for i, corp in enumerate(todo, 1):
@@ -554,6 +589,7 @@ def run_shard(shard, shards, pol, limit):
                 rejected=dict(counters["rejected"]),
                 bracketOutOfTolerance=counters["bracketOutOfTolerance"],
                 bracketSamples=len(counters["bracketDistances"]),
+                dedupSameEvent=counters["dedupSameEvent"],
                 elapsedSeconds=round(time.time() - t0, 1))
 
     with open(rpath, "w", encoding="utf-8", newline="\n") as f:

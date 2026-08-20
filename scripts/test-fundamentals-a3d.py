@@ -158,6 +158,43 @@ ok("co-filing을 PIT로 올바르게 걸러 배수가 깨끗하게 나온다(bef
    "구간이라 20210319의 79439210에서야 진짜 변화가 잡힌다)",
    ratio2 is not None and abs(ratio2 - 79439210 / 83578428) < 1e-9, str(ratio2))
 
+print("\n[_dedup_same_event — ★ 011040 실사례: '결정'+'변경상장' 같은 사건 2단계]")
+a3d_pol = A3D
+counters_dedup = {"dedupSameEvent": 0}
+same_event = [
+    {"corp": "00101549", "ticker": "011040", "rceptNo": "20180219900301",
+     "disclosureDate": "20180219", "reportNm": "주식분할결정", "category": "split", "multiplier": 2.0},
+    {"corp": "00101549", "ticker": "011040", "rceptNo": "20180510900808",
+     "disclosureDate": "20180510", "reportNm": "주권매매거래정지해제(액면분할 주권 변경상장)",
+     "category": "split", "multiplier": 2.0},
+]
+result = m._dedup_same_event(same_event, a3d_pol, counters_dedup)
+ok("80일 간격·같은 배수(×2) 두 건이 하나로 합쳐진다(가장 늦은 변경상장 단계를 남긴다)",
+   len(result) == 1 and result[0]["disclosureDate"] == "20180510", str(result))
+ok("합친 만큼 dedupSameEvent 카운터가 올라간다", counters_dedup["dedupSameEvent"] == 1)
+
+far_apart = [
+    {"corp": "X", "ticker": "X", "rceptNo": "1", "disclosureDate": "20180101",
+     "category": "split", "multiplier": 2.0},
+    {"corp": "X", "ticker": "X", "rceptNo": "2", "disclosureDate": "20190101",
+     "category": "split", "multiplier": 2.0},
+]
+counters_far = {"dedupSameEvent": 0}
+result_far = m._dedup_same_event(far_apart, a3d_pol, counters_far)
+ok("120일 창을 넘는 간격(1년)은 합치지 않는다 — 실제로 다른 사건일 수 있다",
+   len(result_far) == 2, str(result_far))
+
+diff_multiplier = [
+    {"corp": "Y", "ticker": "Y", "rceptNo": "1", "disclosureDate": "20180101",
+     "category": "split", "multiplier": 2.0},
+    {"corp": "Y", "ticker": "Y", "rceptNo": "2", "disclosureDate": "20180201",
+     "category": "split", "multiplier": 5.0},
+]
+counters_diff = {"dedupSameEvent": 0}
+result_diff = m._dedup_same_event(diff_multiplier, a3d_pol, counters_diff)
+ok("가까운 날짜라도 배수가 다르면 별개 사건 — 합치지 않는다",
+   len(result_diff) == 2, str(result_diff))
+
 print("\n[_clean_ratio_distance — 정수/역수 근접도]")
 ok("정확히 2.0 → 거리 0", m._clean_ratio_distance(2.0) == 0)
 ok("정확히 0.5(2:1 병합) → 거리 0", m._clean_ratio_distance(0.5) == 0)
