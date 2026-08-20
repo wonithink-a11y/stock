@@ -4,6 +4,13 @@
 > **주체:** Codex (독립 검증 — 실행 기반 재현)
 > **상태:** ⭐ **Claude 잠정치 → Codex 재확인 대상 완료** (생산자·검증자 겸임 아님: 설계는 이전 세션 Claude, 측정은 Codex)
 > **저장 규칙:** 이 문서는 사용자 지시("결과는 research/strategy-lab/findings 아래 문서화")에 따라 Codex가 작성한 검증 결과 사본이다. `docs/verification/` 및 `CLAUDE.md` 상태 갱신은 Claude가 검토한 뒤 옮겨 적는다(AGENTS.md §3).
+>
+> **★ 2026-08-20 정정(DEEPSEEK-7, docs/verification/DEEPSEEK-7-slot-marginal-표본확장-결과.md):**
+> 120종목 표본을 400종목·독립 시드 2개로 확장 재현한 결과 pbr 지배·수급 5일
+> 방향·coverage 0% 결론은 유지되지만, **"base가 4종 중 유일하게 유의하다"는
+> §3.1의 주장은 표본 크기 효과였다** — 400종목에서는 base가 유의성을 잃거나
+> (세트 A) 나머지 config도 유의해진다(세트 B). 부호(방향)만 인용하고 이
+> "유일 유의" 부분은 근거로 쓰지 않는다.
 
 ---
 
