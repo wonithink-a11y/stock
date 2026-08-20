@@ -33,12 +33,23 @@ def ok(label, cond, detail=""):
         failed += 1
 
 
-print("[classify — 실제 report_nm 문자열, §15·§3.6 실사례]")
+print("[classify — 실제 report_nm 문자열, §15·§3.6·goldenset 실사례]")
 cats = A3D["categories"]
-ok("005930 '주식분할결정' → split",
+ok("005930류 독립형 '주식분할결정' → split (§3.6 인용, OR의 한쪽)",
    m.classify("주식분할결정", cats) == ["split"])
-ok("079650 '주권매매거래정지해제(액면분할 주권 변경상장)' → haltLiftSplit",
-   m.classify("주권매매거래정지해제(액면분할 주권 변경상장)", cats) == ["haltLiftSplit"])
+ok("079650 '주권매매거래정지해제(액면분할 주권 변경상장)' → split (goldenset 실측 다수형)",
+   m.classify("주권매매거래정지해제(액면분할 주권 변경상장)", cats) == ["split"])
+ok("goldenset 실측 '주권매매거래정지해제(액면병합 주권 변경상장)' → reverseOrConsolidation",
+   m.classify("주권매매거래정지해제(액면병합 주권 변경상장)", cats) == ["reverseOrConsolidation"])
+ok("goldenset 실측 '주권매매거래정지해제(주식병합(무액면주식) 주권 변경상장)' → reverseOrConsolidation",
+   m.classify("주권매매거래정지해제(주식병합(무액면주식) 주권 변경상장)", cats) == ["reverseOrConsolidation"])
+ok("★ 애매한 정지 통보(해제 아님) '주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)'는 "
+   "의도적으로 매칭 안 됨(분할·병합 구분 불가, goldenset 66건 실측)",
+   m.classify("주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)", cats) == [])
+ok("goldenset 실측 '주권매매거래정지해제(감자 주권 및 액면분할 변경상장)' → split "
+   "(감자와 겹치는 복합사건, capitalReductionRaw와 별개로 잡혀 resolver.js의 "
+   "COMPOUND_EVENT가 처리)",
+   m.classify("주권매매거래정지해제(감자 주권 및 액면분할 변경상장)", cats) == ["split"])
 ok("'[기재정정]주요사항보고서(감자결정)' → capitalReductionRaw (정정 접두어 무관)",
    m.classify("[기재정정]주요사항보고서(감자결정)", cats) == ["capitalReductionRaw"])
 ok("'주요사항보고서(유상증자결정)' → rightsOfferingRaw",

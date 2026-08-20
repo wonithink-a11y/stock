@@ -489,7 +489,7 @@
       "listEndpointNote": "corp_code + bgn_de + end_de로 10년 전체를 한 번에 받는다(§3.6 실측3 — 가장 활발한 종목도 100건 캡의 30% 수준). pblntf_ty를 B(주요사항보고서)·I(거래소공시) 두 번 각각 호출한다 — 하나로 안 합쳐진다(DART API 제약).",
       "pblntf_ty": {
         "B": ["rightsOffering", "bonusIssue", "capitalReduction", "mergerSpinoff"],
-        "I": ["split", "reverseOrConsolidation", "haltLiftSplit"],
+        "I": ["split", "reverseOrConsolidation"],
         "note": "★ §15가 실측으로 확정한 라우팅. 최초 스캔은 B타입만 걸고 분할류를 전부 0건으로 놓쳤다 — 분할결정은 거래소 자율공시(I타입)이지 주요사항보고서(B타입)가 아니다(005930 원문 대조로 확인, pblntf_ty 필드 자체가 없는 공시였다)."
       },
       "iTypePagination": {
@@ -510,11 +510,10 @@
     },
 
     "categories": [
-      { "reportNmPattern": "주식분할결정", "category": "split", "pblntf_ty": "I" },
-      { "reportNmPattern": "주식병합", "category": "reverseOrConsolidation", "pblntf_ty": "I",
-        "patternNote": "실제 report_nm 정확한 형태는 미확인(§15는 존재만 확인, 원문 미대조) — 실행 전 표본 대조 필요(§19.5의 3번)." },
-      { "reportNmPattern": "매매거래정지해제.*액면분할", "category": "haltLiftSplit", "pblntf_ty": "I",
-        "patternNote": "079650 실사례: '주권매매거래정지해제(액면분할 주권 변경상장)'." },
+      { "reportNmPattern": "주식분할결정|거래정지해제.*액면분할|거래정지해제.*주식분할", "category": "split", "pblntf_ty": "I",
+        "patternNote": "★ 2026-08-20 재작성 — 원래 '주식분할결정' 단독 정규식은 data/goldenset/disclosures-raw.json 3,756건 실사례에서 0건 매칭됐다(독립 report_nm이 아니었다). 실측 78건 전부가 '주권매매거래정지(해제)' 계열의 괄호 부가설명이었다 — 079650(브리프 §3.6)의 '거래정지해제(액면분할 주권 변경상장)' 패턴이 다수였고, '주식분할결정' 단독형은 이 표본엔 없었지만(다른 시점·종목 표본에서 나올 수 있어 OR로 남긴다) 배제하지 않는다. ★ '거래정지'(해제 없는 단순 정지 통보)는 의도적으로 안 걸리게 뺐다 — 그 단계의 report_nm은 '주식의 병합, 분할 등 전자등록 변경, 말소'류 애매한 문구를 쓴다(실측 66건, 분할·병합 구분 불가). '거래정지해제'(변경상장 시점)만 구체적 문구를 쓴다." },
+      { "reportNmPattern": "주식병합결정|거래정지해제.*액면병합|거래정지해제.*주식병합", "category": "reverseOrConsolidation", "pblntf_ty": "I",
+        "patternNote": "★ 2026-08-20 재작성 — 위 split과 같은 이유. 실측 91건 전부가 '거래정지해제(액면병합 주권 변경상장)'류였다(13건) — 독립된 '주식병합' 타이틀은 없었다. '주식병합(무액면주식) 주권 변경상장'(1건)도 매칭되도록 '무액면주식' 뒤 텍스트를 배제하지 않는다." },
       { "reportNmPattern": "감자결정", "category": "capitalReductionRaw", "pblntf_ty": "B",
         "note": "crDecsn 상세로 Free/Paid/Unknown 세 갈래로 다시 분류한다(아래 classification)." },
       { "reportNmPattern": "(?<!유)무상증자결정(?!.*유상)", "category": "bonusIssue", "pblntf_ty": "B",
@@ -544,7 +543,8 @@
     "multiplierSource": {
       "bonusIssue": "fricDecsn.nstk_ascnt_ps_ostk (배수 = 1 + 값, 실측 검증됨)",
       "capitalReductionFree": "crDecsn.cr_rt_ostk (배수 = 1 - 값/100, §16.3 실측)",
-      "split": "a3cBracket", "reverseOrConsolidation": "a3cBracket", "haltLiftSplit": "a3cBracket",
+      "split": "a3cBracket", "reverseOrConsolidation": "a3cBracket",
+      "haltLiftSplitMergedNote": "★ 2026-08-20 — haltLiftSplit을 별도 category로 안 낸다. 실사례(goldenset 3,756건)로 확인한 결과 '거래정지해제(액면분할...)'·'거래정지해제(액면병합...)'가 split·reverseOrConsolidation의 실제 report_nm 형태 자체였다 — 셋을 나눌 근거가 없었다(위 categories 재작성 참고). lib/a5/corporateActionAdjustment.js의 CATEGORY_CLASS에는 이전 설계의 흔적으로 haltLiftSplit 키가 남아있지만 이 수집기가 그 값을 내지 않으므로 실질적으로 죽은 매핑이다 — 매칭되는 입력이 없어 해가 없다.",
       "a3cBracketNote": "★ 브리프 §19.1 핵심 설계 — DART에 순수 분할·병합의 배수를 주는 구조화 API가 없다(DS005 36개 항목 전수 확인 + irdsSttus 실측으로 공백 확정). 공시로 '무엇이 일어났는지'만 확인하고, 실제 배수는 data/backfill/fundamentals/a3c의 그 corp 레코드에서 disclosureDate를 감싸는 두 값의 비율로 계산한다(000860 실측: 6,500,000→13,000,000, 정확히 ×2). 새 API 호출이 아니라 이미 수집된 A3c 산출물을 읽기만 한다 — A3c의 grid.mode(a3ReuseAndScanMissing)와 같은 재사용 원칙.",
       "a3cBracketToleranceWarn": 0.02,
       "a3cBracketToleranceNote": "브래킷 비율이 정수 또는 그 역수에서 이 비율(2%) 이상 벗어나면 WARN(DART_MATCH_FAIL 후보로 진단에 남긴다, 자동 FAIL은 아니다) — 실측 근거는 000860 1건뿐이라(정확히 2.0000) 임계 자체는 미실측 잠정값이다(§19.5 1번)."
@@ -570,7 +570,7 @@
       "corpsIncomplete": 0,
       "a3cBracketOutOfToleranceWarn": 0.10,
       "a3cBracketOutOfToleranceNote": "split류 중 브래킷 비율이 위 tolerance를 벗어난 비율. 실측 없이 WARN으로 시작한다(price.v1.json·fundamentals.v1.json a3c가 밟은 절차와 동일 — 실측 1회 후 FAIL 승격 여부를 정한다).",
-      "categoryDistributionNote": "§15 실측(1,786종목 · 8,301콜 · rightsOffering 1,104·mergerSpinoff 760·bonusIssue 583·capitalReduction 279·reverseOrConsolidation 350·split 205·haltLiftSplit 104)과 이 수집분의 분포가 크게 다르면(게이트 아님, 진단으로만) 소스가 변했다는 신호다."
+      "categoryDistributionNote": "§15 실측(1,786종목 · 8,301콜 · rightsOffering 1,104·mergerSpinoff 760·bonusIssue 583·capitalReduction 279·reverseOrConsolidation 350·split 205·haltLiftSplit 104)과 이 수집분의 분포가 크게 다르면(게이트 아님, 진단으로만) 소스가 변했다는 신호다. ★ 단, §15는 haltLiftSplit을 별도로 셌지만 이 수집기는 그걸 split/reverseOrConsolidation에 합쳐서 낸다(위 haltLiftSplitMergedNote) — 직접 비교하려면 이 수집분의 split+reverseOrConsolidation 합을 §15의 split+reverseOrConsolidation+haltLiftSplit 합(205+350+104=659)과 비교한다."
     },
     "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것만이다(A3/A3b/A3c와 같은 원칙) — 나머지는 전부 WARN으로 시작한다. 이 블록 전체가 실측 0회 상태로 설계됐다(§19가 3건 소표본으로 만들었다) — 실제 전체 유니버스 실행(1회) 후 measured 블록을 채우고 임계를 재평가한다.",
 

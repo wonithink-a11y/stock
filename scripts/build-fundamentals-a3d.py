@@ -15,9 +15,13 @@ A3c의 복사에 가깝다(샤드/재개/finalize 패턴 재사용). 다른 곳�
      1단계: list.json(B·I 타입)으로 report_nm을 분류한다. 2단계: 카테고리별
      상세(piicDecsn·crDecsn·fricDecsn)를 그 corp에 대해 각 최대 1회만 부른다
      (§19.3 — 상세 API가 날짜범위 전체의 매칭분을 한 번에 준다, crDecsn 실측 확인).
-  3. splitLike 중 셋(split·reverseOrConsolidation·haltLiftSplit)은 상세 API가
-     없다 — 이미 수집된 A3c 산출물(로컬 파일, 새 호출 없음)에서 공시일을
-     감싸는 istcTotqy 전이 비율로 배수를 낸다(§19.1, 000860 실측 ×2 검증됨).
+  3. splitLike 중 split·reverseOrConsolidation은 상세 API가 없다 — 이미
+     수집된 A3c 산출물(로컬 파일, 새 호출 없음)에서 공시일을 감싸는
+     istcTotqy 전이 비율로 배수를 낸다(§19.1, 000860 실측 ×2 검증됨).
+     ★ 둘 다 report_nm이 "주권매매거래정지해제(액면분할/액면병합...)" 형태다
+     (2026-08-20, goldenset 3,756건 실사례로 재확인 — 독립된 "주식분할결정"류
+     타이틀이 아니었다). 원래 있던 haltLiftSplit 카테고리는 이 재확인으로
+     split/reverseOrConsolidation에 흡수됐다(별도 report_nm 패턴이 아니었다).
   4. PIT 개념이 다르다
      A3c는 '그 시점에 안 값'이 핵심이지만 A3d는 '그 사건이 언제 났는가'가
      핵심이다 — availableFrom이 아니라 disclosureDate(rcept_dt)를 낸다. 이
@@ -376,7 +380,7 @@ def scan_corp(corp, ticker, pol, timeline, counters):
             rec["category"] = "bonusIssue"
             rec["multiplier"] = round(1 + ratio, 6)
             rec["multiplierSource"] = "fricDecsn"
-        elif base_cat in ("split", "reverseOrConsolidation", "haltLiftSplit"):
+        elif base_cat in ("split", "reverseOrConsolidation"):
             ratio = a3c_bracket_ratio(ticker, disclosure_date, timeline)
             if ratio is None:
                 counters["rejected"][f"{base_cat}:BRACKET_MISSING"] += 1
