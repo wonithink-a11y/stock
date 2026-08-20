@@ -1218,11 +1218,30 @@ ic_mthn 분류 (piicDecsn.json 상세 조회로 확인)
                                    미검증)
 ```
 
-`capitalReduction`(감자)은 무상/유상 구분 API가 이번 세션에 확인이 안 됐다 —
-`piicDecsn`류의 감자 전용 상세 엔드포인트가 있는지 다음 세션이 먼저 확인해야
-한다(§16.5). 확인 전까지는 감자 전체를 `CAPITAL_REDUCTION_TYPE_UNKNOWN`으로
-유보한다 — 무상/유상을 잘못 가르면 splitLike 보정을 유상감자(실질 사건)에
-잘못 적용하는 조용한 오류가 된다.
+**★ capitalReduction(감자) 무상/유상 구분 — 확인 완료(2026-08-20 후속 세션).**
+전용 엔드포인트 `crDecsn.json`(감자 결정)이 존재한다 — `piicDecsn`(유상증자)·
+`pifricDecsn`(무상증자)과 같은 층위의 API다. 단 `ic_mthn`처럼 깨끗한 코드 필드는
+없다 — `cr_mth`(감자방법)·`cr_rs`(감자사유) 둘 다 자유 텍스트다. 실제 호출 2건
+(read-only 표본, `data/backfill/`에 안 씀)으로 대칭 확인:
+
+```
+065170(2024-12-09)      cr_mth="기명식 보통주 10주를 동일한 액면주식 1주로
+                         무상병합"  cr_rs="결손금 보전을 통한 재무구조 개선"
+                         cr_rt_ostk="90.0"          → 무상감자 (splitLike)
+케이에이치건설(01097906,  cr_mth="기명식 보통주식 8주를 동일 액면가의 기명식
+2024-03)                 보통주 1주로 무상병합"  cr_rt_ostk="87.50"
+                         → 무상감자 (splitLike)
+루트로닉(00549925,       cr_mth="유상소각(소각대금지급액1주당 37,579.20원
+2024-03)                 상환)"  cr_rs="자본금 규모의 적정화 및 주주가치 제고"
+                         cr_rt_ostk="-"             → 유상감자 (capitalReal)
+```
+
+`cr_mth`에 "무상"/"유상" 키워드가 안정적으로 나타난다(3/3) — `report_nm`
+분류(CATEGORIES)와 같은 정규식 매칭으로 처리 가능하다. **배수(splitLike 보정에
+쓸 값)는 `cr_rt_ostk`(감자비율)를 쓴다** — 단 유상소각형(루트로닉처럼 비율이
+"-")은 애초에 capitalReal이라 배수 자체가 필요 없다. 표본이 3건뿐이므로 키워드가
+항상 "무상"/"유상"으로 시작한다고 단정하지 않는다 — 매칭 실패 시
+`CAPITAL_REDUCTION_TYPE_UNKNOWN`으로 유보하는 안전판은 그대로 둔다(아래 16.4).
 
 `mergerSpinoff`(합병류)는 D4 범위 밖으로 둔다 — 존속법인·소멸법인 identity가
 바뀌는 문제라 istcTotqy 배수 보정과 무관한 별도 설계가 필요하다(peg/pbr을
@@ -1240,7 +1259,8 @@ DART_MATCH_FAIL              A3c 전이 배수 이상(§2.3 패턴) 감지, 그�
 COMPOUND_EVENT                같은 시기(예: ±1개월) splitLike/capitalReal 카테고리가
                               2개 이상 겹침 (065170류) — 개별 처리 불가
 RIGHTS_FORMULA_UNVERIFIED     ic_mthn=주주배정류, 권리락 정밀 공식 미검증(§16.3)
-CAPITAL_REDUCTION_TYPE_UNKNOWN  감자 무상/유상 구분 API 미확인(§16.3)
+CAPITAL_REDUCTION_TYPE_UNKNOWN  cr_mth 텍스트에서 "무상"/"유상" 키워드 매칭 실패
+                              (API·필드는 확인됨, §16.3 — 매칭 실패 시의 안전판)
 MERGER_UNHANDLED              합병류, D4 범위 밖(§16.3)
 DISCLOSURE_COVERAGE_GAP        2016 이전 상장 등 전자공시 커버리지 밖 — istcTotqy
                               전이가 있는데 그 시기 공시를 조회할 수 없음
@@ -1252,10 +1272,10 @@ DISCLOSURE_COVERAGE_GAP        2016 이전 상장 등 전자공시 커버리지 
 ### 16.5 미해결 (다음 세션이 확인할 것)
 
 ```
-1  감자(capitalReduction)의 무상/유상 구분 API가 있는가 — piicDecsn과 대응하는
-   감자 상세 엔드포인트(가칭 decrDecsn 등) 탐색 필요. 없으면 report_nm 텍스트에서
-   "무상감자"/"유상감자" 직접 파싱하는 대안도 검토(fetch-disclosures-kr.js
-   CATEGORIES 방식과 유사)
+1  ✅ 확인됨(2026-08-20 후속) — crDecsn.json 존재, cr_mth/cr_rs 자유텍스트에서
+   "무상"/"유상" 키워드로 구분 가능(3/3 실측). 위 §16.3 참고. 남은 것: 3건은
+   전부 "무상병합"·"유상소각" 두 패턴뿐이었다 — 다른 표현(예: "주금액 감액")이
+   있는지는 V7의 더 큰 표본에서 확인
 2  §16.2의 "공시일 기준 배수 적용이 91일 지연을 없앤다"는 이번 세션 추론이지
    실측이 아니다 — V7(수직 슬라이스)에서 실제 사례로 확인 필요
 3  cumulativeSplitFactor의 기준점이 "오늘"인가 "A2a가 실제로 쓰는 기준"인가 —
@@ -1291,6 +1311,7 @@ DISCLOSURE_COVERAGE_GAP        2016 이전 상장 등 전자공시 커버리지 
 - `scripts/fetch-disclosures-kr.js` `CATEGORIES` — report_nm 정규식 분류 기존 패턴,
   D4가 재사용 대상으로 삼음(§3.6)
 - DART OpenAPI `list.json`(공시목록, `pblntf_ty=B` 필터) · `piicDecsn.json`
-  (유상증자결정 상세) — 이번 세션에 실제 호출로 확인, 저장소 코드에는 아직 없음
+  (유상증자결정 상세) · `crDecsn.json`(감자결정 상세, §16.3에서 확인) — 이번
+  세션에 실제 호출로 확인, 저장소 코드에는 아직 없음
 - `docs/BF-1.1-백필계약.md` §7(A3 계약 5) — 같은 세션에 DART 일 한도 20,000→40,000
   (FN-1.7 반영 누락) 정정. 이 브리프의 콜 예산 계산(§3.6·§7)은 40,000 기준
