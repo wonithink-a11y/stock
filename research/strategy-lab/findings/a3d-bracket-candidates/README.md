@@ -110,6 +110,20 @@ None이다(split 12건·reverseOrConsolidation 62건 None, 나머지는 값 확�
 
 **전체 대조표**: `research/strategy-lab/findings/a3d-bracket-candidates/pit-fix-impact.json`.
 
+### ★ 남은 77건(dist>0.1) 1차 분류 — `remaining-outliers-triage.md`
+
+두 수정 후에도 "정수배에서 먼 값"으로 남는 77건을 기계적으로 더 갈라봤다
+(원인 판단 아님, 숫자만): **69/77건(90%)이 그 disclosureDate 앞뒤 200일
+안에 같은 corp의 다른 이벤트를 갖는다** — `_dedup_same_event`의 120일
+창보다 넓은 범위에서 사건이 몰려 있다는 뜻이다. 진짜 원인 규명(그 이벤트가
+실제로 브래킷을 오염시켰는지)은 안 했지만, 나머지 8건(이벤트 단독)의
+값을 보면 2.5·1.25류(5:2, 4:5 같은 정수 아닌 "깔끔한 분수" 배수로 보임)가
+여럿이다 — `_clean_ratio_distance()`가 정수·정수의 역수만 "깔끔"으로
+보고 단순 분수는 인정하지 않아서 생기는 오탐일 가능성이 있다(정책
+`a3cBracketOutOfToleranceWarn` 임계 자체의 설계 문제일 수 있음 — 이건
+🔴 판단이라 여기서 결정하지 않는다). 재현: `python research/strategy-lab/
+remaining_outliers_triage.py`.
+
 ### 남은 일 (다음 세션·재수집 필요, 오늘 밤엔 안 함)
 
 이 두 수정은 `scripts/build-fundamentals-a3d.py`(GitHub Actions 수집기)에
