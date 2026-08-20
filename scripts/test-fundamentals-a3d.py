@@ -47,36 +47,32 @@ ok("★ 애매한 정지 통보(해제 아님) '주권매매거래정지(주식�
    "의도적으로 매칭 안 됨(분할·병합 구분 불가, goldenset 66건 실측)",
    m.classify("주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)", cats) == [])
 ok("goldenset 실측 '주권매매거래정지해제(감자 주권 및 액면분할 변경상장)' → split "
-   "(감자와 겹치는 복합사건, capitalReductionRaw와 별개로 잡혀 resolver.js의 "
-   "COMPOUND_EVENT가 처리)",
+   "(감자는 이제 list.json이 아니라 crDecsn에서 별도로 나온다 — 같은 corp에서 "
+   "가까운 시점에 잡히면 resolver.js의 COMPOUND_EVENT가 처리)",
    m.classify("주권매매거래정지해제(감자 주권 및 액면분할 변경상장)", cats) == ["split"])
-ok("'[기재정정]주요사항보고서(감자결정)' → capitalReductionRaw (정정 접두어 무관)",
-   m.classify("[기재정정]주요사항보고서(감자결정)", cats) == ["capitalReductionRaw"])
-ok("'주요사항보고서(유상증자결정)' → rightsOfferingRaw",
-   m.classify("주요사항보고서(유상증자결정)", cats) == ["rightsOfferingRaw"])
-ok("'주요사항보고서(무상증자결정)' → bonusIssue",
-   m.classify("주요사항보고서(무상증자결정)", cats) == ["bonusIssue"])
 ok("'주요사항보고서(회사합병결정)' → mergerSpinoff",
    m.classify("주요사항보고서(회사합병결정)", cats) == ["mergerSpinoff"])
 ok("'주요사항보고서(주식교환·이전결정)' → mergerSpinoff",
    m.classify("주요사항보고서(주식교환·이전결정)", cats) == ["mergerSpinoff"])
 ok("무관한 공시('영업정지')는 빈 리스트",
    m.classify("영업정지", cats) == [])
+ok("★ 2026-08-20 구조 변경 확인 — '감자결정'·'유상증자결정'·'무상증자결정'은 "
+   "이제 categories 표에 없다(상세 API로 직접 수집, 아래 sub_classify 테스트 참고) "
+   "— classify()로는 안 잡혀야 한다",
+   m.classify("주요사항보고서(감자결정)", cats) == []
+   and m.classify("주요사항보고서(유상증자결정)", cats) == []
+   and m.classify("주요사항보고서(무상증자결정)", cats) == [])
 
-print("\n[classify — ★ 유무상증자결정 회귀(2026-08-20 발견한 정규식 버그)]")
-combo = m.classify("주요사항보고서(유무상증자결정)", cats)
-ok("유무상증자결정 → bonusIssue·rightsOfferingRaw 정확히 2개(중복 없음)",
-   sorted(combo) == ["bonusIssue", "rightsOfferingRaw"], str(combo))
-solo = m.classify("주요사항보고서(무상증자결정)", cats)
-ok("순수 무상증자결정은 여전히 bonusIssue 1개뿐(lookbehind 정정 후 회귀 없음)",
-   solo == ["bonusIssue"], str(solo))
-
-print("\n[sub_classify_rights — 034020 실사례]")
+print("\n[sub_classify_rights — 034020 + 스모크 테스트(gh run 32362600405) 실사례 40건]")
 cls = A3D["classification"]
 ok("034020 ic_mthn='주주배정후 실권주 일반공모' → rightsOfferingShareholders",
    m.sub_classify_rights("주주배정후 실권주 일반공모", cls) == "rightsOfferingShareholders")
 ok("020560/079160류 ic_mthn='제3자배정증자' → rightsOfferingThirdParty",
    m.sub_classify_rights("제3자배정증자", cls) == "rightsOfferingThirdParty")
+ok("★ 스모크 실측 '일반공모증자'(불특정다수 대상, 권리락 없음) → rightsOfferingThirdParty",
+   m.sub_classify_rights("일반공모증자", cls) == "rightsOfferingThirdParty")
+ok("★ 스모크 실측 '주주우선공모증자'(기존 주주 우선, 권리락 대상) → rightsOfferingShareholders",
+   m.sub_classify_rights("주주우선공모증자", cls) == "rightsOfferingShareholders")
 ok("알 수 없는 ic_mthn은 None(임의 배정하지 않는다)",
    m.sub_classify_rights("알수없는방식", cls) is None)
 ok("ic_mthn 자체가 없으면(None) None", m.sub_classify_rights(None, cls) is None)

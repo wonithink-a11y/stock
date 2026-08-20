@@ -305,7 +305,32 @@ def build_grid(pol):
 
 
 # ── 수집 ───────────────────────────────────────────────────────
+def _base_record(corp, ticker, rcept_no, disclosure_date, report_nm):
+    return {"corp": corp, "ticker": ticker, "rceptNo": rcept_no,
+            "disclosureDate": disclosure_date, "reportNm": report_nm,
+            "multiplier": None, "multiplierSource": None,
+            "rawIcMthn": None, "rawCrMth": None}
+
+
 def scan_corp(corp, ticker, pol, timeline, counters):
+    """
+    ★ 2026-08-20 스모크 테스트(gh run 32362600405)로 구조 자체를 다시 짰다.
+
+    원래는 list.json(B타입)에서 report_nm으로 후보를 고른 뒤 rcept_no로
+    상세(piicDecsn 등)를 대조했다. 실사례로 보니 이게 근본적으로 틀렸다 —
+    "[기재정정]"류 정정공시가 원본과 별개의 list.json row를 만드는데(예:
+    00100258 하나에 '유상증자결정' 매칭 40건), 상세 API는 실제 결정
+    "건"당 하나만 낸다(같은 corp에서 14건뿐). 정정공시 대부분이 상세를
+    못 찾아 RIGHTS_ICMTHN_UNMATCHED로 떨어졌다(160건 vs 정상 수용 158건 —
+    거절이 수용보다 많았다).
+
+    고친 구조: rightsOffering·capitalReduction·bonusIssue는 **상세 API
+    자체를 그 corp의 사건 목록으로 직접 쓴다** — list.json으로 먼저 걸러
+    대조하지 않는다. crDecsn 실측(§16.3)으로 이미 확인된 사실 그대로다 —
+    상세 API가 corp_code+날짜범위로 그 구간의 실제 결정을 전부 준다.
+    rcept_no 앞 8자리가 접수일이다(A3c의 availableFrom 규칙과 동일 근거).
+    list.json(B타입)은 이제 상세 API가 없는 mergerSpinoff에만 쓴다.
+    """
     a3d = pol["a3d"]
     scan_from = a3d["scanFrom"].replace("-", "")
     scan_to = today_kst().replace("-", "")
@@ -313,98 +338,103 @@ def scan_corp(corp, ticker, pol, timeline, counters):
     cls_pol = a3d["classification"]
     endpoints = a3d["source"]["detailEndpoints"]
 
-    matched = []  # (row, base_category)
-    # pblntf_ty 블록엔 "note"(문서용 문자열)도 섞여 있다 — 실제 값(리스트)인 키만 돈다.
-    # (2026-08-20 스모크 테스트에서 "note"도 실제 pblntf_ty 파라미터로 보내지고 있던
-    # 걸 발견 — DART가 013(데이터 없음)으로 조용히 받아줘서 결과는 안 틀렸지만
-    # corp당 불필요한 API 콜 하나가 매번 낭비되고 있었다.)
-    for pblntf_ty, cats in a3d["source"]["pblntf_ty"].items():
-        if not isinstance(cats, list):
-            continue
-        rows = list_disclosures(corp, pblntf_ty, scan_from, scan_to, pol, counters)
-        for r in rows:
-            for cat in classify(r.get("report_nm"), categories):
-                if cat in cats or cat in ("rightsOfferingRaw", "capitalReductionRaw"):
-                    matched.append((r, cat))
-
-    need_rights = any(c == "rightsOfferingRaw" for _, c in matched)
-    need_cr = any(c == "capitalReductionRaw" for _, c in matched)
-    need_bonus = any(c == "bonusIssue" for _, c in matched)
-
-    rights_detail = fetch_detail_by_rcept(
-        endpoints["rightsOffering"]["endpoint"], corp, scan_from, scan_to, pol, counters
-    ) if need_rights else {}
-    cr_detail = fetch_detail_by_rcept(
-        endpoints["capitalReduction"]["endpoint"], corp, scan_from, scan_to, pol, counters
-    ) if need_cr else {}
-    bonus_detail = fetch_detail_by_rcept(
-        endpoints["bonusIssue"]["endpoint"], corp, scan_from, scan_to, pol, counters
-    ) if need_bonus else {}
-
     records = []
-    for r, base_cat in matched:
-        rcept_no = str(r.get("rcept_no") or "")
-        disclosure_date = str(r.get("rcept_dt") or "")
-        report_nm = str(r.get("report_nm") or "")
-        if not rcept_no or not DATE8.match(disclosure_date):
-            counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
-            continue
 
-        rec = {"corp": corp, "ticker": ticker, "rceptNo": rcept_no,
-               "disclosureDate": disclosure_date, "reportNm": report_nm,
-               "multiplier": None, "multiplierSource": None,
-               "rawIcMthn": None, "rawCrMth": None}
-
-        if base_cat == "rightsOfferingRaw":
-            detail = rights_detail.get(rcept_no)
-            ic_mthn = detail.get("ic_mthn") if detail else None
-            sub = sub_classify_rights(ic_mthn, cls_pol)
-            if sub is None:
-                counters["rejected"]["RIGHTS_ICMTHN_UNMATCHED"] += 1
+    # split·reverseOrConsolidation — I타입 list.json, 상세 API 없음(§19.1).
+    i_rows = list_disclosures(corp, "I", scan_from, scan_to, pol, counters)
+    for r in i_rows:
+        for base_cat in classify(r.get("report_nm"), categories):
+            if base_cat not in ("split", "reverseOrConsolidation"):
                 continue
-            rec["category"] = sub
-            rec["rawIcMthn"] = ic_mthn
-        elif base_cat == "capitalReductionRaw":
-            detail = cr_detail.get(rcept_no)
-            cr_mth = detail.get("cr_mth") if detail else None
-            cr_rt = num(detail.get("cr_rt_ostk")) if detail else None
-            sub = sub_classify_capital_reduction(cr_mth, cls_pol)
-            rec["category"] = sub
-            rec["rawCrMth"] = cr_mth
-            if sub == "capitalReductionFree" and cr_rt is not None:
-                rec["multiplier"] = round(1 - cr_rt / 100, 6)
-                rec["multiplierSource"] = "crDecsn"
-            elif sub == "capitalReductionFree":
-                counters["rejected"]["CR_RATIO_MISSING"] += 1
+            rcept_no = str(r.get("rcept_no") or "")
+            disclosure_date = str(r.get("rcept_dt") or "")
+            if not rcept_no or not DATE8.match(disclosure_date):
+                counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
                 continue
-        elif base_cat == "bonusIssue":
-            detail = bonus_detail.get(rcept_no)
-            ratio = num(detail.get("nstk_ascnt_ps_ostk")) if detail else None
-            if ratio is None:
-                counters["rejected"]["BONUS_RATIO_MISSING"] += 1
-                continue
-            rec["category"] = "bonusIssue"
-            rec["multiplier"] = round(1 + ratio, 6)
-            rec["multiplierSource"] = "fricDecsn"
-        elif base_cat in ("split", "reverseOrConsolidation"):
             ratio = a3c_bracket_ratio(ticker, disclosure_date, timeline)
             if ratio is None:
                 counters["rejected"][f"{base_cat}:BRACKET_MISSING"] += 1
                 continue
-            tol = a3d["multiplierSource"]["a3cBracketToleranceWarn"]
             dist = _clean_ratio_distance(ratio)
             counters["bracketDistances"].append(dist)
             if dist is not None and dist > a3d["acceptance"]["a3cBracketOutOfToleranceWarn"]:
                 counters["bracketOutOfTolerance"] += 1
+            rec = _base_record(corp, ticker, rcept_no, disclosure_date, str(r.get("report_nm") or ""))
             rec["category"] = base_cat
             rec["multiplier"] = round(ratio, 6)
             rec["multiplierSource"] = "a3cBracket"
-        elif base_cat == "mergerSpinoff":
-            rec["category"] = "mergerSpinoff"
-        else:
-            counters["rejected"][f"UNKNOWN_CATEGORY:{base_cat}"] += 1
-            continue
+            records.append(rec)
 
+    # mergerSpinoff — B타입 list.json, 상세 API 없음(§16.3, D4 범위 밖·분류만).
+    b_rows = list_disclosures(corp, "B", scan_from, scan_to, pol, counters)
+    for r in b_rows:
+        if "mergerSpinoff" not in classify(r.get("report_nm"), categories):
+            continue
+        rcept_no = str(r.get("rcept_no") or "")
+        disclosure_date = str(r.get("rcept_dt") or "")
+        if not rcept_no or not DATE8.match(disclosure_date):
+            counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
+            continue
+        rec = _base_record(corp, ticker, rcept_no, disclosure_date, str(r.get("report_nm") or ""))
+        rec["category"] = "mergerSpinoff"
+        records.append(rec)
+
+    # rightsOffering — piicDecsn 자체가 사건 목록이다(무조건 호출).
+    for row in fetch_detail_by_rcept(
+            endpoints["rightsOffering"]["endpoint"], corp, scan_from, scan_to, pol, counters
+    ).values():
+        rcept_no = str(row.get("rcept_no") or "")
+        if not rcept_no or not DATE8.match(rcept_no[:8]):
+            counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
+            continue
+        ic_mthn = row.get("ic_mthn")
+        sub = sub_classify_rights(ic_mthn, cls_pol)
+        if sub is None:
+            counters["rejected"]["RIGHTS_ICMTHN_UNMATCHED"] += 1
+            continue
+        rec = _base_record(corp, ticker, rcept_no, rcept_no[:8], "")
+        rec["category"] = sub
+        rec["rawIcMthn"] = ic_mthn
+        records.append(rec)
+
+    # capitalReduction — crDecsn 자체가 사건 목록이다(무조건 호출).
+    for row in fetch_detail_by_rcept(
+            endpoints["capitalReduction"]["endpoint"], corp, scan_from, scan_to, pol, counters
+    ).values():
+        rcept_no = str(row.get("rcept_no") or "")
+        if not rcept_no or not DATE8.match(rcept_no[:8]):
+            counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
+            continue
+        cr_mth = row.get("cr_mth")
+        cr_rt = num(row.get("cr_rt_ostk"))
+        sub = sub_classify_capital_reduction(cr_mth, cls_pol)
+        rec = _base_record(corp, ticker, rcept_no, rcept_no[:8], "")
+        rec["category"] = sub
+        rec["rawCrMth"] = cr_mth
+        if sub == "capitalReductionFree":
+            if cr_rt is None:
+                counters["rejected"]["CR_RATIO_MISSING"] += 1
+                continue
+            rec["multiplier"] = round(1 - cr_rt / 100, 6)
+            rec["multiplierSource"] = "crDecsn"
+        records.append(rec)
+
+    # bonusIssue — fricDecsn 자체가 사건 목록이다(무조건 호출).
+    for row in fetch_detail_by_rcept(
+            endpoints["bonusIssue"]["endpoint"], corp, scan_from, scan_to, pol, counters
+    ).values():
+        rcept_no = str(row.get("rcept_no") or "")
+        if not rcept_no or not DATE8.match(rcept_no[:8]):
+            counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
+            continue
+        ratio = num(row.get("nstk_ascnt_ps_ostk"))
+        if ratio is None:
+            counters["rejected"]["BONUS_RATIO_MISSING"] += 1
+            continue
+        rec = _base_record(corp, ticker, rcept_no, rcept_no[:8], "")
+        rec["category"] = "bonusIssue"
+        rec["multiplier"] = round(1 + ratio, 6)
+        rec["multiplierSource"] = "fricDecsn"
         records.append(rec)
 
     return records
@@ -526,15 +556,12 @@ def validate(rows, pol, diag, from_output_only=False):
     dup = len(rows) - len({rec_key(r) for r in rows})
     chk(dup == a["duplicateKeys"], f"(corp, disclosureDate, rceptNo, category) 중복 {dup}건")
 
-    known_categories = set()
-    for c in pol["a3d"]["categories"]:
-        if c["category"] == "compoundRightsAndBonus":
-            known_categories |= {"bonusIssue", "rightsOfferingRaw"}
-        else:
-            known_categories.add(c["category"])
-    known_categories |= {"rightsOfferingThirdParty", "rightsOfferingShareholders",
+    # categories 표엔 이제 split·reverseOrConsolidation·mergerSpinoff만 있다(list.json
+    # 매칭 대상). rightsOffering·capitalReduction·bonusIssue는 상세 API에서 직접
+    # 나오는 최종 category라 표에 없다 — 여기서 명시적으로 더한다(2026-08-20 재작성).
+    known_categories = {c["category"] for c in pol["a3d"]["categories"]}
+    known_categories |= {"bonusIssue", "rightsOfferingThirdParty", "rightsOfferingShareholders",
                          "capitalReductionFree", "capitalReductionPaid", "capitalReductionUnknown"}
-    known_categories -= {"rightsOfferingRaw", "capitalReductionRaw"}  # raw는 최종 산출물에 안 남는다
     unknown = [r for r in rows if r.get("category") not in known_categories]
     diag["categoryUnknownSample"] = [r["category"] for r in unknown[:20]]
     chk(len(unknown) == a["categoryUnknownCount"], f"알 수 없는 category {len(unknown)}건")

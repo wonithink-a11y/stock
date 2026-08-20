@@ -488,9 +488,9 @@
       "listEndpoint": "list.json",
       "listEndpointNote": "corp_code + bgn_de + end_de로 10년 전체를 한 번에 받는다(§3.6 실측3 — 가장 활발한 종목도 100건 캡의 30% 수준). pblntf_ty를 B(주요사항보고서)·I(거래소공시) 두 번 각각 호출한다 — 하나로 안 합쳐진다(DART API 제약).",
       "pblntf_ty": {
-        "B": ["rightsOffering", "bonusIssue", "capitalReduction", "mergerSpinoff"],
+        "B": ["mergerSpinoff"],
         "I": ["split", "reverseOrConsolidation"],
-        "note": "★ §15가 실측으로 확정한 라우팅. 최초 스캔은 B타입만 걸고 분할류를 전부 0건으로 놓쳤다 — 분할결정은 거래소 자율공시(I타입)이지 주요사항보고서(B타입)가 아니다(005930 원문 대조로 확인, pblntf_ty 필드 자체가 없는 공시였다)."
+        "note": "★ §15가 실측으로 확정한 라우팅. 최초 스캔은 B타입만 걸고 분할류를 전부 0건으로 놓쳤다 — 분할결정은 거래소 자율공시(I타입)이지 주요사항보고서(B타입)가 아니다(005930 원문 대조로 확인, pblntf_ty 필드 자체가 없는 공시였다). ★ 2026-08-20 재작성 — rightsOffering·bonusIssue·capitalReduction은 더 이상 list.json(B타입)으로 걸러 상세와 대조하지 않는다(아래 categories 재작성 참고) — B타입은 이제 mergerSpinoff 전용이다."
       },
       "iTypePagination": {
         "required": true,
@@ -514,23 +514,16 @@
         "patternNote": "★ 2026-08-20 재작성 — 원래 '주식분할결정' 단독 정규식은 data/goldenset/disclosures-raw.json 3,756건 실사례에서 0건 매칭됐다(독립 report_nm이 아니었다). 실측 78건 전부가 '주권매매거래정지(해제)' 계열의 괄호 부가설명이었다 — 079650(브리프 §3.6)의 '거래정지해제(액면분할 주권 변경상장)' 패턴이 다수였고, '주식분할결정' 단독형은 이 표본엔 없었지만(다른 시점·종목 표본에서 나올 수 있어 OR로 남긴다) 배제하지 않는다. ★ '거래정지'(해제 없는 단순 정지 통보)는 의도적으로 안 걸리게 뺐다 — 그 단계의 report_nm은 '주식의 병합, 분할 등 전자등록 변경, 말소'류 애매한 문구를 쓴다(실측 66건, 분할·병합 구분 불가). '거래정지해제'(변경상장 시점)만 구체적 문구를 쓴다." },
       { "reportNmPattern": "주식병합결정|거래정지해제.*액면병합|거래정지해제.*주식병합", "category": "reverseOrConsolidation", "pblntf_ty": "I",
         "patternNote": "★ 2026-08-20 재작성 — 위 split과 같은 이유. 실측 91건 전부가 '거래정지해제(액면병합 주권 변경상장)'류였다(13건) — 독립된 '주식병합' 타이틀은 없었다. '주식병합(무액면주식) 주권 변경상장'(1건)도 매칭되도록 '무액면주식' 뒤 텍스트를 배제하지 않는다." },
-      { "reportNmPattern": "감자결정", "category": "capitalReductionRaw", "pblntf_ty": "B",
-        "note": "crDecsn 상세로 Free/Paid/Unknown 세 갈래로 다시 분류한다(아래 classification)." },
-      { "reportNmPattern": "(?<!유)무상증자결정(?!.*유상)", "category": "bonusIssue", "pblntf_ty": "B",
-        "patternNote": "★ 2026-08-20 정정 — 원래 lookbehind가 없었다. '유무상증자결정' 안의 '무상증자결정' 부분문자열이 이 패턴에 잘못 매칭돼 compoundRightsAndBonus와 별개로 bonusIssue가 중복 매칭됐다(회귀 작성 중 발견). (?<!유)로 바로 앞이 '유'가 아닌 경우만 매칭." },
-      { "reportNmPattern": "유상증자결정(?!.*무상)", "category": "rightsOfferingRaw", "pblntf_ty": "B",
-        "note": "piicDecsn 상세로 ThirdParty/Shareholders 두 갈래로 다시 분류한다." },
-      { "reportNmPattern": "유무상증자결정", "category": "compoundRightsAndBonus", "pblntf_ty": "B",
-        "note": "동시 결정 — bonusIssue·rightsOfferingRaw 둘 다로 전개한다(둘 다 fricDecsn·piicDecsn 상세 조회 대상). resolver.js의 COMPOUND_EVENT가 어차피 겹침을 잡으므로 여기서 추가 판정 로직을 두지 않는다." },
       { "reportNmPattern": "회사합병결정|회사분할결정|회사분할합병결정|주식교환.?이전결정", "category": "mergerSpinoff", "pblntf_ty": "B" }
     ],
-    "categoriesNote": "정규식은 scripts/fetch-disclosures-kr.js의 CATEGORIES 패턴(공백 제거 후 매칭)을 재사용한다 — 새 문법을 안 만든다. 실제 매칭 로직(코드)이 이 표를 단일 출처로 읽는다.",
+    "categoriesNote": "정규식은 scripts/fetch-disclosures-kr.js의 CATEGORIES 패턴(공백 제거 후 매칭)을 재사용한다 — 새 문법을 안 만든다. 실제 매칭 로직(코드)이 이 표를 단일 출처로 읽는다. ★ 2026-08-20 재작성 — capitalReductionRaw·bonusIssue·rightsOfferingRaw·compoundRightsAndBonus 네 항목을 표에서 뺐다. list.json(B타입)으로 후보를 걸러 rcept_no로 상세와 대조하는 방식이 근본적으로 틀렸다는 게 스모크 테스트(gh run 32362600405)로 드러났다 — '[기재정정]'류 정정공시가 원본과 별개의 list.json row를 만드는데, 상세 API(piicDecsn 등)는 실제 결정 '건'당 하나만 낸다(00100258 실측: list.json 매칭 40건 vs 상세 레코드 14건). 정정공시 대부분이 상세를 못 찾아 거절 카운터가 수용 건수보다 컸다(RIGHTS_ICMTHN_UNMATCHED 160 vs rowCount 158). 고친 구조: 세 카테고리는 이제 list.json 매칭 없이 상세 API(piicDecsn·crDecsn·fricDecsn) 자체를 그 corp의 사건 목록으로 직접 쓴다(scripts/build-fundamentals-a3d.py의 scan_corp() 참고) — 상세 API가 corp_code+날짜범위로 실제 결정을 이미 중복 없이 준다(crDecsn 실측, §16.3). B타입 list.json은 상세 API가 없는 mergerSpinoff에만 남는다.",
 
     "classification": {
       "rightsOffering": {
-        "icMthnThirdPartyPattern": "제3자배정",
-        "icMthnShareholdersPattern": "주주배정",
-        "unmatchedNote": "둘 다 안 걸리면(알려지지 않은 ic_mthn 값) resolver.js의 corporateActionAdjustment.js가 CATEGORY_CLASS에 없는 값으로 보고 DART_MATCH_FAIL로 유보한다 — 수집기가 임의로 한쪽에 밀어넣지 않는다."
+        "icMthnThirdPartyPattern": "제3자배정|일반공모",
+        "icMthnShareholdersPattern": "주주배정|주주우선공모",
+        "unmatchedNote": "둘 다 안 걸리면(알려지지 않은 ic_mthn 값) resolver.js의 corporateActionAdjustment.js가 CATEGORY_CLASS에 없는 값으로 보고 DART_MATCH_FAIL로 유보한다 — 수집기가 임의로 한쪽에 밀어넣지 않는다.",
+        "patternRevisionNote": "★ 2026-08-20 스모크 테스트(gh run 32362600405) 실사례로 확장 — 40개 표본 corp의 piicDecsn 실측 76건 분포: 제3자배정증자 65 · 일반공모증자 2 · 주주배정후 실권주 일반공모 7 · 주주배정증자 1 · 주주우선공모증자 1. 원래 패턴은 뒤 둘(일반공모증자·주주우선공모증자)을 놓쳤다. '일반공모증자'는 기존 주주가 아닌 불특정 다수 대상이라 제3자배정과 같은 성격(권리락 메커니즘 없음)으로, '주주우선공모증자'는 기존 주주에게 우선권을 준다는 점에서 주주배정과 같은 성격(권리락 대상)으로 판단했다 — 단 이 구분은 §3.6이 실측 확인한 제3자배정/주주배정 이분법을 유추 확장한 것이지 이 두 값 자체를 공시 원문으로 재확인하진 않았다(잔여 불확실성으로 남긴다). Shareholders 패턴을 먼저 검사하므로 '주주배정후 실권주 일반공모'(공모 텍스트를 포함하지만 진짜 주주배정형)는 이 순서 덕에 여전히 올바르게 Shareholders로 분류된다."
       },
       "capitalReduction": {
         "crMthFreePattern": "무상",
