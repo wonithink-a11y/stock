@@ -1,0 +1,33 @@
+{
+  "stage": "A3d",
+  "mode": "shard",
+  "shard": 6,
+  "shards": 8,
+  "stageVersion": "A3d.0",
+  "fundamentalsPolicy": "FN-1.8",
+  "runDate": "2026-08-21",
+  "targetCorps": 3801,
+  "shardBudget": {
+    "mode": "activeShards",
+    "poolTotal": 36000,
+    "usedToday": 0,
+    "activeShards": 8,
+    "myUsedToday": 0
+  },
+  "corpsAssigned": 475,
+  "corpsDone": 475,
+  "corpsRemaining": 0,
+  "calls": 2826,
+  "budget": 4500,
+  "budgetExhausted": false,
+  "rowCount": 1059,
+  "listErrors": {},
+  "rejected": {
+    "split:BRACKET_MISSING": 4,
+    "reverseOrConsolidation:BRACKET_MISSING": 57
+  },
+  "bracketOutOfTolerance": 17,
+  "bracketSamples": 77,
+  "dedupSameEvent": 14,
+  "elapsedSeconds": 2047.9
+}
