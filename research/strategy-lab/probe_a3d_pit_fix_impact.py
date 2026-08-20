@@ -41,7 +41,8 @@ def main():
         new_ratio = m.a3c_bracket_ratio(r["ticker"], r["disclosureDate"], timeline, direction)
         new_mult = round(new_ratio, 6) if new_ratio is not None else None
         rec = {
-            "ticker": r["ticker"], "category": r["category"], "disclosureDate": r["disclosureDate"],
+            "corp": r["corp"], "ticker": r["ticker"], "category": r["category"],
+            "disclosureDate": r["disclosureDate"], "rceptNo": r.get("rceptNo"),
             "oldMultiplier": old_mult, "newMultiplier": new_mult,
         }
         rows_out.append(rec)
