@@ -37,7 +37,8 @@ def main():
 
     for r in rows:
         old_mult = r.get("multiplier")
-        new_ratio = m.a3c_bracket_ratio(r["ticker"], r["disclosureDate"], timeline)
+        direction = "up" if r["category"] == "split" else "down"
+        new_ratio = m.a3c_bracket_ratio(r["ticker"], r["disclosureDate"], timeline, direction)
         new_mult = round(new_ratio, 6) if new_ratio is not None else None
         rec = {
             "ticker": r["ticker"], "category": r["category"], "disclosureDate": r["disclosureDate"],

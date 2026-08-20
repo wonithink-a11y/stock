@@ -291,9 +291,24 @@ def _pit_select_asof(rows, asof_date):
     return max(candidates, key=lambda r: (r[1], r[0], _REPRT_PRIORITY.get(r[2], 0)))
 
 
-def a3c_bracket_ratio(ticker, disclosure_date, timeline):
+def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None):
     """disclosure_date 시점의 PIT 선택값(before)과, 그 뒤로 **PIT 선택값이
     실제로 달라지는 첫 시점**(after)의 비율.
+
+    ★ expected_direction (2026-08-21 추가) — 'up'(split, 주식수 증가)
+    또는 'down'(reverseOrConsolidation, 주식수 감소)을 주면, 그 방향과
+    안 맞는 변화는 건너뛰고 계속 찾는다. None이면 기존처럼 첫 변화를
+    그대로 받는다(하위호환, 직접 호출하는 회귀 테스트용).
+
+    이유(001140 실사례, 2023-02-28 reverseOrConsolidation 공시) — "공시일
+    이후 첫 변화 = 그 공시의 효과"라는 가정이 그 사이에 **무관한 별개
+    사건**(유상증자 등)이 먼저 끼면 깨진다. 001140은 공시 직후(2023-05,
+    +33.8%, 증가)에 무관한 증자가 먼저 잡혀 reverseOrConsolidation인데
+    배수>1(모순)이 나왔다 — 실제 병합 효과로 보이는 큰 감소(-88.5%)는
+    3개월 뒤(2023-08)에야 나타난다. 방향을 미리 알려주면 그 감소를
+    올바르게 찾는다. `_dedup_same_event`(120일 창)는 "같은 사건의 두
+    단계"만 다루므로 이 케이스(다른 사건이 먼저 낌)는 못 잡는다 — 이
+    변경으로 보완한다.
 
     ★ '직후 첫 레코드'가 아니라 '값이 달라진 첫 레코드'다(2026-08-20, 회귀
     작성 중 000860 실사례로 발견) — 91일 지연(브리프 §5.1)이 여기서도 그대로
@@ -320,9 +335,14 @@ def a3c_bracket_ratio(ticker, disclosure_date, timeline):
     after = None
     for af in future_dates:
         val = _pit_select_asof(rows, af)[3]
-        if val != before:
-            after = val
-            break
+        if val == before:
+            continue
+        if expected_direction == "up" and val <= before:
+            continue
+        if expected_direction == "down" and val >= before:
+            continue
+        after = val
+        break
     if after is None or before == 0:
         return None
     return after / before
@@ -427,7 +447,8 @@ def scan_corp(corp, ticker, pol, timeline, counters):
             if not rcept_no or not DATE8.match(disclosure_date):
                 counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
                 continue
-            ratio = a3c_bracket_ratio(ticker, disclosure_date, timeline)
+            expected_direction = "up" if base_cat == "split" else "down"
+            ratio = a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction)
             if ratio is None:
                 counters["rejected"][f"{base_cat}:BRACKET_MISSING"] += 1
                 continue

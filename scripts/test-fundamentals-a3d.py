@@ -181,6 +181,43 @@ ok("수정 후에는 before(3분기, 44806502)=after(사업보고서, 44806502)�
    "None(BRACKET_MISSING)이 된다 — 수정 전 실측 1.4883(방향이 거꾸로인 값)을 더는 안 낸다",
    ratio3 is None, str(ratio3))
 
+print("\n[a3c_bracket_ratio — ★ expected_direction: 001140 실사례(2026-08-21 추가)]")
+# 2023-02-28 reverseOrConsolidation 공시. 공시 직후 첫 변화(2023-05-15, +33.8%)는
+# 무관한 별개 사건(유상증자 등으로 추정)이고, 실제 병합 효과로 보이는 큰 감소는
+# 3개월 뒤(2023-08-14)에야 나타난다. expected_direction 없이는 첫 변화(증가)를
+# 그대로 받아 배수>1(병합인데 증가, 모순)이 났다.
+timeline_001140 = {
+    "001140": [
+        ("20220516", 2022, "11013", 69660070),
+        ("20220812", 2021, "11011", 65408729),
+        ("20220812", 2022, "11012", 79380779),
+        ("20230515", 2023, "11013", 106178909),  # 무관한 증자로 추정 — 방향(up)이 안 맞다
+        ("20230814", 2022, "11011", 104570331),
+        ("20230814", 2023, "11012", 12189770),   # 진짜 병합으로 보이는 큰 감소
+        ("20231114", 2023, "11014", 12389769),
+    ]
+}
+ratio_nodir = m.a3c_bracket_ratio("001140", "20230228", timeline_001140)
+ok("방향 지정 없이는(하위호환) 첫 변화(증가, 106178909)를 그대로 받는다",
+   abs(ratio_nodir - 106178909 / 79380779) < 1e-9, str(ratio_nodir))
+ratio_down = m.a3c_bracket_ratio("001140", "20230228", timeline_001140, "down")
+ok("expected_direction='down'을 주면 방향이 안 맞는 5월 증가를 건너뛰고 "
+   "8월의 진짜 감소(12189770)를 찾는다 — 배수<1(방향 정상)이 된다",
+   ratio_down is not None and ratio_down < 1
+   and abs(ratio_down - 12189770 / 79380779) < 1e-9, str(ratio_down))
+ratio_up_matches_first = m.a3c_bracket_ratio("001140", "20230228", timeline_001140, "up")
+ok("반대로 expected_direction='up'을 주면 5월의 증가(방향이 맞다)를 그대로 받는다 "
+   "— nodir과 같은 값",
+   abs(ratio_up_matches_first - ratio_nodir) < 1e-9, str(ratio_up_matches_first))
+# 원하는 방향의 변화가 끝까지 없는 경우 — 지어내지 않고 None이어야 한다.
+timeline_only_decrease = {
+    "X": [("20200101", 2020, "11011", 1000), ("20200601", 2020, "11012", 500)],
+}
+ratio_wrong_dir_only = m.a3c_bracket_ratio("X", "20200101", timeline_only_decrease, "up")
+ok("원하는 방향(up)의 변화가 끝까지 없으면(감소만 있음) None — 방향이 안 맞는 "
+   "감소를 억지로 받지 않는다(교훈57)",
+   ratio_wrong_dir_only is None, str(ratio_wrong_dir_only))
+
 print("\n[_dedup_same_event — ★ 011040 실사례: '결정'+'변경상장' 같은 사건 2단계]")
 a3d_pol = A3D
 counters_dedup = {"dedupSameEvent": 0}

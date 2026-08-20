@@ -73,7 +73,7 @@ DART 재수집 없이 이미 수집된 disclosureDate로 로컬 A3c만 재조회
 바뀜. reverseOrConsolidation 방향모순(배수>1) 136건 중 **39건 해소, 97건
 여전히 모순** — 이 버그가 원인의 전부는 아니었다(아래 원인 2).
 
-### 원인 2 (미해결 — 설계 결정 필요) — 공시일과 "다음 변화"가 다른 사건일 수 있다
+### 원인 2 (확정·수정 완료) — 공시일과 "다음 변화"가 다른 사건일 수 있다
 
 001140(2023-02-28 reverseOrConsolidation 공시) 실사례: PIT 수정 후에도
 배수 1.3376(모순)이 그대로 나온다. 타임라인을 직접 보면 —
@@ -91,19 +91,35 @@ DART 재수집 없이 이미 수집된 disclosureDate로 로컬 A3c만 재조회
 **두 사건이 몇 달 간격으로 겹칠 때** 깨진다. `_dedup_same_event`(120일
 창)는 "같은 사건의 두 단계"만 다루지 "다른 사건이 먼저 낀 경우"는 안 잡는다.
 
-**가능한 다음 수정 방향(구현 안 함, 판단만 남김)**: split은 배수>1,
-reverseOrConsolidation은 배수<1이 구조적으로 강제돼야 한다는 걸 이미 안다
-— "다음 변화"가 카테고리 기대 방향과 반대면 그 변화를 건너뛰고 그다음
-변화를 계속 찾거나(무한정 건너뛰면 안 되므로 탐색 창 필요), 방향이
-안 맞으면 그냥 DART_MATCH_FAIL로 유보하는 게 "값을 지어내지 않는다"
-원칙(교훈57)에 더 맞다. 이건 `a3c_bracket_ratio()`의 의미 자체를 바꾸는
-결정이라 `docs/A5-3-peg-조정기준-결정브리프.md` §17.1 판정 순서에 영향을
-준다 — 다음 세션에서 판단이 필요하다.
+**수정**: `a3c_bracket_ratio()`에 `expected_direction`('up'=split, 'down'=
+reverseOrConsolidation) 파라미터를 추가했다. "다음 변화"를 찾을 때 방향이
+안 맞으면 건너뛰고 계속 찾고, 그 방향의 변화가 끝까지 없으면 값을 지어내지
+않고 None(BRACKET_MISSING)으로 유보한다(교훈57). `scan_corp()`이 base_cat에
+따라 방향을 넘기도록 호출부도 수정. 회귀에 001140 실사례(방향 무시하면
+증가를 잘못 잡고, 방향을 주면 3개월 뒤 진짜 감소를 올바로 찾음) +
+합성 경계값(원하는 방향이 끝까지 없으면 None) 추가 — 전체 50건 통과.
 
-split(false positive 2/49, 4%)은 상대적으로 건강해 원인 2의 영향이 작다 —
-reverseOrConsolidation(97/136, 71%)이 훨씬 크다.
+**최종 로컬 재계산 결과** (원인 1+2 둘 다 적용, DART 재수집 없음): 전체
+493건 중 **방향모순(카테고리 정의와 반대 부호) 0건** — split 268건·
+reverseOrConsolidation 225건 전부 구조적으로 맞는 부호이거나 정직하게
+None이다(split 12건·reverseOrConsolidation 62건 None, 나머지는 값 확보).
+값이 있는 419건 중 여전히 "정수배에서 먼 값"(dist>0.1, WARN 기준)인 건
+77건(18.4%, 원래 정책 WARN 23.98%에서 하락) — 이건 정수배가 아닌 진짜
+비정형 비율일 수도 있어 더 볼 필요는 있지만, 최소한 **방향이 거꾸로인
+값은 이제 하나도 안 나간다.**
 
 **전체 대조표**: `research/strategy-lab/findings/a3d-bracket-candidates/pit-fix-impact.json`.
+
+### 남은 일 (다음 세션·재수집 필요, 오늘 밤엔 안 함)
+
+이 두 수정은 `scripts/build-fundamentals-a3d.py`(GitHub Actions 수집기)에
+반영됐지만 **`data/backfill/fundamentals/a3d/`의 실제 산출물(manifest
+`sha256:f551f9ae17e71405`, 커밋 `201e17c`)은 여전히 옛(버그 있는) 값이다**
+— 이 README의 로컬 재계산은 진단용이지 산출물을 대체하지 않는다. 고친
+수집기로 실제 재수집(GitHub Actions `fundamentals-a3d.yml`, DART 예산·
+샤드 실행 ~35분~1시간)을 해야 manifest가 갱신된다 — 이건 "실행"이라 등급과
+무관하게 사전 확인 대상(CLAUDE.md)이라 오늘 밤 트리거하지 않았다. 다음
+세션에서 사용자 확인 후 재실행을 권한다.
 
 ## 파일
 
