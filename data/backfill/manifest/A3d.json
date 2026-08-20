@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A3d",
+  "stageVersion": "A3d.0",
+  "target": "data/backfill/fundamentals/a3d",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:f551f9ae17e71405",
+  "fileCount": 9,
+  "upstream": {
+    "A1a": "sha256:3543c5a084d46438",
+    "A1b": "sha256:1bbd28931525cf0e",
+    "A3c": "sha256:cfab28f1e2c6ac7e"
+  },
+  "policyHash": {
+    "registry": "sha256:e4ef72fda0901a86",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "fundamentals": "sha256:4a5dab484c96635b"
+  },
+  "targetCorps": 3801,
+  "corpsDone": 3801,
+  "corpsIncomplete": 0,
+  "callsTotal": 22672,
+  "categoryDistribution": {
+    "rightsOfferingThirdParty": 4553,
+    "capitalReductionUnknown": 267,
+    "mergerSpinoff": 1774,
+    "rightsOfferingShareholders": 669,
+    "bonusIssue": 715,
+    "split": 268,
+    "capitalReductionFree": 382,
+    "reverseOrConsolidation": 225,
+    "capitalReductionPaid": 18
+  },
+  "bracketOutOfToleranceRate": 0.2398,
+  "bracketSamples": 638,
+  "recordCount": 8871,
+  "generatedAt": "2026-08-20T15:16:48.085Z"
+}
