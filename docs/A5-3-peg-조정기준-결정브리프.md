@@ -1065,13 +1065,14 @@ KRX-native(Actions 경로)가 명백히 더 싸다.
 3  ✅ 완료 — 유보 규칙 최종본(§17). 판정 순서(우선순위 트리)를 새로 정리하고,
    epsGrowthRate 안전판이 D4에서 보정후 값 기준으로 바뀌는 것(splitLike는
    더 이상 안 걸리고 capitalReal은 계속 걸림)을 명시했다.
-4  🟡 부분 완료(2026-08-20, 사용자 GO) — **함수·회귀는 구현됐다. 백필 단계는
-   아직 없다.** 아래 §18 참고. resolve()에 peg/pbr이 실제로 붙었지만
-   featureRegistry.js의 available은 여전히 false다(운영 투입 불가, 구현
-   불가와 다름 — 이 파일 원칙 그대로).
-5  V7(§6) — 수직 슬라이스로 실데이터 연결 확인. §18이 만든 함수를 **진짜
-   운영 데이터**(A3c 실제 레코드 + 실제 수집된 corporateActions)로 한 번
-   돌려보는 단계라 여전히 남아있다 — §18의 회귀는 손으로 만든 픽스처였다.
+4  🟡 부분 완료(2026-08-20, 사용자 GO) — resolver.js 함수·회귀 구현(§18) +
+   공시 라벨링 백필 단계 설계·구현(§19~20, 정책·수집기·워크플로·회귀 전부
+   완료). **전체 유니버스 실행은 아직 안 했다**(§20.4 — 실행은 등급과
+   무관하게 별도 사전 확인). featureRegistry.js의 available은 여전히
+   false다(운영 투입 불가, 구현 불가와 다름 — 이 파일 원칙 그대로).
+5  V7(§6) — 수직 슬라이스로 실데이터 연결 확인. §18·§20이 만든 함수·수집기를
+   **진짜 운영 데이터**로 한 번 돌려보는 단계라 여전히 남아있다 — 지금
+   test-a5-d4.js·test-fundamentals-a3d.py는 둘 다 손으로 만든 정답표다.
 ```
 
 **다음 세션 시작점**: §18이 명시한 잔여 작업(공시 라벨링 백필 단계 신설) —
@@ -1649,8 +1650,96 @@ splitLike 배수 소스 최종 (카테고리별)
 
 ---
 
+## 20. 구현 (§19 설계 실행, 2026-08-20, 사용자 GO "그래 진행해줘")
+
+### 20.1 엔드포인트 3개 실제 호출로 확정 — 브리프 초안의 착오 정정
+
+설계(§19) 작성 직후, 실제 코드를 짜기 전에 세 엔드포인트를 전부 read-only로
+호출해 필드명을 재확인했다(§16.3·§19.1이 인용한 이전 실측 위에 추가 확인):
+
+```
+piicDecsn.json    034020(corp_code=00159616) — ic_mthn="주주배정후 실권주 일반공모"
+                  필드명 확정(접두어 없음)
+crDecsn.json      §16.3에서 이미 확정(cr_mth·cr_rs·cr_rt_ostk)
+fricDecsn.json    065170(=비엘팜텍, corp_code=00384717) — rcept_no
+                  20250212000715, nstk_ascnt_ps_ostk="2" → 배수 1+2=3.
+                  §3.6의 ×3 실측과 정확히 일치. ★ 엔드포인트명 정정 —
+                  §16.4·§19 최초본이 "pifricDecsn"(유무상증자 결정, 별개
+                  엔드포인트)이라 적은 것은 착오였다. 순수 무상증자는
+                  fricDecsn이다.
+```
+
+### 20.2 만든 것
+
+```
+config/policies/fundamentals.v1.json  a3d 블록 신설(FN-1.7→FN-1.8) — source·
+  categories·classification·multiplierSource·grid·acceptance·output·manifest.
+  A3/A3b/A3c가 읽는 키는 무변경.
+scripts/build-fundamentals-a3d.py (신규) — A3c의 샤드/재개/finalize 패턴
+  재사용. 격자는 (corp) 하나(A3c의 (corp, fiscalYear, reprtCode)와 다름).
+  1단계 list.json(B·I타입, §15 버그 수정 반영) → 2단계 카테고리별 상세
+  (corp당 최대 1회, §19.3) → splitLike 3종은 A3c 로컬 산출물에서 브래킷
+  배수 계산(새 호출 없음).
+scripts/test-fundamentals-a3d.py (신규) — 네트워크 없이 순수 함수(classify·
+  서브분류·브래킷 비율) 검증, 34건 전부 통과. 정답표는 이번 세션 실제 API
+  확인값(034020·065170·케이에이치건설·루트로닉·000860).
+.github/workflows/fundamentals-a3d.yml (신규) — A3c 워크플로 그대로 재사용
+  (collect/finalize 2모드, 8샤드, limit 기본값 5).
+scripts/verify-diagnostics.js — A3d 계약 등록.
+lib/backfillManifest.js — REQUIRED_UPSTREAM에 A3d: [A1a, A1b, A3c] 등록.
+```
+
+### 20.3 ★ 회귀가 또 설계 결함 2건을 잡았다
+
+**(1) 정규식 lookbehind 누락 — "유무상증자결정"이 bonusIssue에 중복 매칭.**
+`"무상증자결정(?!.*유상)"`은 `"유무상증자결정"` 문자열 안의 부분문자열에도
+매칭됐다(뒤쪽만 보고 앞쪽 문맥은 안 봤다) — `compoundRightsAndBonus`가 이미
+`bonusIssue`로 전개하는데, 별도 규칙이 같은 공시를 또 `bonusIssue`로 잡아
+중복이 생겼다. `(?<!유)무상증자결정(?!.*유상)`으로 정정(정책 파일에 발견
+경위를 그대로 남김).
+
+**(2) A3c 브래킷이 '바로 다음 레코드'를 쓰면 91일 지연에서 조용히 틀린다.**
+000860 실사례로 재현했다 — 1분기보고서(접수 2025-05-15)가 분할(공시
+2025-03-26)보다 나중에 접수됐는데도 여전히 분할 전 값(6,500,000)을 낸다.
+"disclosureDate 직후 첫 레코드"를 그대로 쓰면 비율이 1.0(무변화)으로 잘못
+나온다 — §5.1의 91일 정밀도 한계가 여기서도 똑같이 나타난 것이다. "직후
+첫 레코드"가 아니라 **"값이 실제로 달라진 첫 레코드"**로 고쳐서 반기보고서
+(접수 2025-08-14, 13,000,000)까지 스캔하게 했다 — 정정 후 정확히 ×2.0.
+
+**두 건 다 설계 문서(§19) 단계에서는 안 잡혔다.** §18.2(resolver.js 구현)에서
+겪은 것과 같은 패턴 — 문서로 설계할 때는 "직후"와 "값이 바뀐 뒤"를 같은
+것으로 뭉뚱그리기 쉽고, 실사례로 회귀를 돌려야 드러난다.
+
+### 20.4 여전히 안 끝났다 — 설계·구현이지 실행이 아니다
+
+**전체 유니버스 실행은 안 했다.** DART API 실호출은 이번 세션 진단
+목적(엔드포인트 확인, 3~13건)뿐이고 `data/backfill/`에는 아무것도 안 썼다
+(규칙 4). 실제 워크플로 실행(`--shard`/`--finalize`)은 §14가 이미 적어둔
+대로 등급과 무관하게 별도 사전 확인 대상이다(CLAUDE.md, '실행'은 항상
+사전 확인). 다음 순서(§18.3 갱신):
+
+```
+1  ✅ 완료 — 이 §20의 정책·수집기·회귀·워크플로
+2  전체 유니버스 실행(list.json ~2,578콜 + 상세 조회, §19.4 미실측분 확정) —
+   실행 사전 확인 대상
+3  §14 4번의 N=20~30 표본 회귀를 실제 수집된 a3d 산출물로 재작성(§18.3이
+   이미 적어둔 것 — 지금 test-a5-d4.js·test-fundamentals-a3d.py는 둘 다
+   손으로 만든 정답표다)
+4  featureRegistry.js available:true + V7 수직 슬라이스
+```
+
+reverseOrConsolidation("주식병합")의 정확한 report_nm 패턴은 여전히 미확인
+(§19.5 3번, §15는 카테고리 존재만 확인했지 원문 대조는 안 했다) — 2번(전체
+실행) 전에 표본 대조가 먼저 필요할 수 있다.
+
+---
+
 ## 관련
 
+- `config/policies/fundamentals.v1.json` `a3d` 블록 — §20 구현(FN-1.8)
+- `scripts/build-fundamentals-a3d.py` · `scripts/test-fundamentals-a3d.py` —
+  §20 구현·회귀(34건)
+- `.github/workflows/fundamentals-a3d.yml` — §20 구현
 - `lib/a5/corporateActionAdjustment.js` — D4 판정 순서·보정 공식 구현(§18)
 - `lib/a5/resolver.js` `sharesOutstandingFrom()`·`valuationD4From()` — §18 구현.
   `valuationFrom()` 117~154행 · `resolve()` 177행 주석 — A3b 경로 중단 경위(안 건드림)

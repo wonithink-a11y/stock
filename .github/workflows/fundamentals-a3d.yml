@@ -1,0 +1,198 @@
+name: backfill-fundamentals-a3d
+
+# A3d — 공시 기반 기업행위 라벨 (FN-1.8 · A5-3 D4). 계약은
+# docs/A5-3-peg-조정기준-결정브리프.md §16~19.
+#
+#   mode: collect    오늘 예산만큼 수집 → data/backfill/fundamentals/_shards_a3d/ 커밋
+#   mode: finalize   전 샤드 병합 → 인수 조건 → 산출물 + manifest → _shards_a3d/ 삭제
+#
+# A3/A3b/A3c와 샤드 디렉터리를 분리한다 — 겹치면 다른 단계의 finalize가 A3d 샤드를
+# 병합한다. 일 한도는 A3/A3b/A3c와 같은 DART 키를 쓰므로 **같은 날 겹쳐 돌리지 않는다**
+# (shard_budget은 한 단계 안의 샤드끼리만 나눈다).
+#
+# A3c 대비 격자가 훨씬 작다((corp) 하나, fiscalYear×reprtCode 전개가 없다) — §15
+# 실측(list.json 1단계만 8,301콜·64분)을 근거로 timeout을 A3c보다 짧게 잡았다.
+# 2단계(상세 조회)는 미실측이라 여유를 크게 둔다.
+#
+# limit 기본값 5 — A3c와 같은 이유(2026-08-12 사고 재발 방지, limit=0을 명시해야
+# 전체 수집이 시작된다).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'collect = 오늘 예산만큼 수집 · finalize = 병합·검증·산출'
+        required: true
+        default: collect
+        type: choice
+        options: [collect, finalize]
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상)'
+        required: false
+        default: ''
+        type: string
+      limit:
+        description: 'collect 전용. 샤드당 담당 법인 수 상한(스모크 테스트용). 0=무제한'
+        required: false
+        default: '5'
+        type: string
+
+concurrency:
+  group: backfill-fundamentals-a3d
+  cancel-in-progress: false      # 수집 중 취소하면 그날 쓴 호출이 상태에 안 남는다
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: '8'
+
+jobs:
+  collect:
+    if: inputs.mode == 'collect'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4        # 이전 실행이 커밋한 _shards_a3d/를 가져온다
+                                          # + A3c 산출물(브래킷 배수 소스, 새 호출 없음)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 170
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: |
+          python scripts/build-fundamentals-a3d.py --shard ${{ matrix.shard }} --shards $SHARDS \
+            --limit ${{ inputs.limit }}
+
+      - name: Upload shard ${{ matrix.shard }}
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a3d-shard-${{ matrix.shard }}-a${{ github.run_attempt }}
+          path: |
+            data/backfill/fundamentals/_shards_a3d/_state-${{ matrix.shard }}.json
+            data/backfill/fundamentals/_shards_a3d/shard-${{ matrix.shard }}.jsonl
+            data/backfill/fundamentals/_shards_a3d/_diagnostics-shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+
+  commit-shards:
+    needs: collect
+    if: ${{ !cancelled() && inputs.mode == 'collect' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: _artifacts
+          pattern: a3d-shard-*
+
+      - name: Pick best attempt per shard
+        run: python scripts/pick-shard-artifacts.py _artifacts data/backfill/fundamentals/_shards_a3d a3d
+
+      - name: Commit shards
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/fundamentals/_shards_a3d)" ]; then
+            git add data/backfill/fundamentals/_shards_a3d
+            git commit -m "chore(backfill): A3d 샤드 진행 상태"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
+
+  finalize:
+    if: inputs.mode == 'finalize'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Finalize
+        env:
+          A3D_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-fundamentals-a3d.py --finalize
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js A3d
+
+      - name: Regression
+        run: python scripts/test-fundamentals-a3d.py
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/fundamentals/a3d
+          test -n "$(ls $D/*.jsonl.gz 2>/dev/null)" || { echo "산출물 없음 — 스크립트 계약 위반"; exit 1; }
+          EXTRA=$(python - <<'PY'
+          import json
+          d = json.load(open('data/backfill/fundamentals/a3d/_diagnostics.json',
+                             encoding='utf-8'))
+          keys = ['targetCorps', 'corpsDone', 'corpsIncomplete', 'callsTotal',
+                  'categoryDistribution', 'bracketOutOfToleranceRate', 'bracketSamples']
+          out = {k: d[k] for k in keys if k in d}
+          out['recordCount'] = d['rowCount']
+          print(json.dumps(out, ensure_ascii=False))
+          PY
+          )
+          echo "a3d manifest extra: $EXTRA"
+          node scripts/write-manifest.js \
+            --stage A3d --stageVersion A3d.0 \
+            --target data/backfill/fundamentals/a3d --kind dir --ext .jsonl.gz \
+            --upstream A1a,A1b,A3c \
+            --policies universe,fundamentals \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fundamentals-a3d-diagnostics
+          path: data/backfill/fundamentals/a3d/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm -rf data/backfill/fundamentals/_shards_a3d
+          if [ -n "$(git status --porcelain data/backfill/fundamentals data/backfill/manifest)" ]; then
+            git add -A data/backfill/fundamentals data/backfill/manifest
+            git commit -m "chore(backfill): A3d 공시 기반 기업행위 라벨"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

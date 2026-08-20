@@ -1,6 +1,6 @@
 {
-  "version": "FN-1.7",
-  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다. FN-1.6은 a3c 블록을 신설한다 — A3/A3b가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 그대로다. FN-1.7은 quota.dailyCallLimit을 실측치로 교정한다(quota.note 참조) — a3c 블록은 FN-1.6과 동일하다.",
+  "version": "FN-1.8",
+  "note": "재무 백필(A3)의 수집 파라미터와 인수 조건. price.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 여기가 정의하는 것은 '어느 시점에 무엇을 알 수 있었는가'다 — A3의 본질은 재무 수치가 아니라 시점(PIT) 축이다. 운영 수집기(scripts/fetch-fundamentals-kr.js)는 '현재 값'을 쓰고 이 정책은 '그 시점에 알 수 있었던 값'을 쓴다. FN-1.6은 a3c 블록을 신설한다 — A3/A3b가 읽는 최상위 키(source·accounts·pointInTime·acceptance·quota·output)는 그대로다. FN-1.7은 quota.dailyCallLimit을 실측치로 교정한다(quota.note 참조) — a3c 블록은 FN-1.6과 동일하다. FN-1.8은 a3d 블록을 신설한다(A5-3 D4, docs/A5-3-peg-조정기준-결정브리프.md §16~19) — A3/A3b/A3c가 읽는 키는 이번에도 그대로다.",
   "market": "KR",
 
   "source": {
@@ -478,6 +478,119 @@
       "upstream": ["A1a", "A1b", "A3"],
       "policies": ["universe", "fundamentals"],
       "upstreamNote": "A3b와 같은 이유 — 격자가 A3 산출물에서 온다."
+    }
+  },
+
+  "a3d": {
+    "note": "FN-1.8 신설. A3d(공시 기반 기업행위 라벨)는 A3c의 istcTotqy를 A2a 조정주가 기준에 맞추기 위한 D4 설계의 원자재를 만든다(docs/A5-3-peg-조정기준-결정브리프.md §16~19). 이 블록은 '무엇을 어디서 가져오는가'만 정의한다 — 판정 순서·보정 공식은 lib/a5/corporateActionAdjustment.js(코드)가 단일 출처다. A3/A3b/A3c가 읽는 최상위 키는 건드리지 않는다. 격자가 (corp, fiscalYear)가 아니라 (corp) 하나인 게 A3c와의 정의적 차이다 — 공시는 10년 전체를 한 콜로 조회한다(§3.6 실측3).",
+
+    "source": {
+      "listEndpoint": "list.json",
+      "listEndpointNote": "corp_code + bgn_de + end_de로 10년 전체를 한 번에 받는다(§3.6 실측3 — 가장 활발한 종목도 100건 캡의 30% 수준). pblntf_ty를 B(주요사항보고서)·I(거래소공시) 두 번 각각 호출한다 — 하나로 안 합쳐진다(DART API 제약).",
+      "pblntf_ty": {
+        "B": ["rightsOffering", "bonusIssue", "capitalReduction", "mergerSpinoff"],
+        "I": ["split", "reverseOrConsolidation", "haltLiftSplit"],
+        "note": "★ §15가 실측으로 확정한 라우팅. 최초 스캔은 B타입만 걸고 분할류를 전부 0건으로 놓쳤다 — 분할결정은 거래소 자율공시(I타입)이지 주요사항보고서(B타입)가 아니다(005930 원문 대조로 확인, pblntf_ty 필드 자체가 없는 공시였다)."
+      },
+      "iTypePagination": {
+        "required": true,
+        "pageCount": 100,
+        "note": "§15 버그2 — I타입은 콜당 100건 캡에 자주 걸린다(전체 2,578종목 중 1,754개, 68%가 다중 페이지 필요, 실측). page_no를 total_page까지 순회한다. B타입은 이 문제가 없다(최고 활동 종목도 raw total_count 93건, 캡 안쪽) — 그래도 방어적으로 같은 페이지네이션 루프를 쓴다(비용은 total_page=1이면 추가 콜 0)."
+      },
+      "detailEndpoints": {
+        "rightsOffering": { "endpoint": "piicDecsn.json", "field": "ic_mthn",
+                            "fieldNote": "증자방식. 2026-08-20 실측 호출로 필드명 확정(034020, corp_code=00159616) — 값 '주주배정후 실권주 일반공모'." },
+        "capitalReduction": { "endpoint": "crDecsn.json", "fields": ["cr_mth", "cr_rs", "cr_rt_ostk"],
+                              "fieldNote": "cr_mth(감자방법)·cr_rs(감자사유) 자유텍스트, cr_rt_ostk(감자비율) 숫자문자열. 2026-08-20 실측(065170·케이에이치건설·루트로닉, §16.3)." },
+        "bonusIssue": { "endpoint": "fricDecsn.json", "field": "nstk_ascnt_ps_ostk",
+                        "fieldNote": "1주당 신주배정 주식수. 2026-08-20 실측(065170=비엘팜텍, rcept_no 20250212000715, 값 '2' → 배수 1+2=3, 브리프 §3.6의 ×3 실측과 정확히 일치). ★ 엔드포인트명 정정 — 브리프 초안(§16.4·§19 최초본)이 'pifricDecsn'(유무상증자 결정, 별개 엔드포인트)이라 적었던 것은 착오다. 순수 무상증자는 fricDecsn이다." }
+      },
+      "detailCallNote": "상세 호출은 (corp, category)당 최대 1회다 — piicDecsn 등도 corp_code+bgn_de+end_de로 그 구간의 매칭 상세를 전부 list로 준다(crDecsn 실측으로 확인, §16.3). '유상증자 건수만큼' 호출한다고 추정했던 §15·§3.6의 예산 추정은 상한이지 실제 호출 수가 아니다 — 실제로는 카테고리당 1콜이라 훨씬 싸다.",
+      "credentialEnv": ["DART_API_KEY"]
+    },
+
+    "categories": [
+      { "reportNmPattern": "주식분할결정", "category": "split", "pblntf_ty": "I" },
+      { "reportNmPattern": "주식병합", "category": "reverseOrConsolidation", "pblntf_ty": "I",
+        "patternNote": "실제 report_nm 정확한 형태는 미확인(§15는 존재만 확인, 원문 미대조) — 실행 전 표본 대조 필요(§19.5의 3번)." },
+      { "reportNmPattern": "매매거래정지해제.*액면분할", "category": "haltLiftSplit", "pblntf_ty": "I",
+        "patternNote": "079650 실사례: '주권매매거래정지해제(액면분할 주권 변경상장)'." },
+      { "reportNmPattern": "감자결정", "category": "capitalReductionRaw", "pblntf_ty": "B",
+        "note": "crDecsn 상세로 Free/Paid/Unknown 세 갈래로 다시 분류한다(아래 classification)." },
+      { "reportNmPattern": "(?<!유)무상증자결정(?!.*유상)", "category": "bonusIssue", "pblntf_ty": "B",
+        "patternNote": "★ 2026-08-20 정정 — 원래 lookbehind가 없었다. '유무상증자결정' 안의 '무상증자결정' 부분문자열이 이 패턴에 잘못 매칭돼 compoundRightsAndBonus와 별개로 bonusIssue가 중복 매칭됐다(회귀 작성 중 발견). (?<!유)로 바로 앞이 '유'가 아닌 경우만 매칭." },
+      { "reportNmPattern": "유상증자결정(?!.*무상)", "category": "rightsOfferingRaw", "pblntf_ty": "B",
+        "note": "piicDecsn 상세로 ThirdParty/Shareholders 두 갈래로 다시 분류한다." },
+      { "reportNmPattern": "유무상증자결정", "category": "compoundRightsAndBonus", "pblntf_ty": "B",
+        "note": "동시 결정 — bonusIssue·rightsOfferingRaw 둘 다로 전개한다(둘 다 fricDecsn·piicDecsn 상세 조회 대상). resolver.js의 COMPOUND_EVENT가 어차피 겹침을 잡으므로 여기서 추가 판정 로직을 두지 않는다." },
+      { "reportNmPattern": "회사합병결정|회사분할결정|회사분할합병결정|주식교환.?이전결정", "category": "mergerSpinoff", "pblntf_ty": "B" }
+    ],
+    "categoriesNote": "정규식은 scripts/fetch-disclosures-kr.js의 CATEGORIES 패턴(공백 제거 후 매칭)을 재사용한다 — 새 문법을 안 만든다. 실제 매칭 로직(코드)이 이 표를 단일 출처로 읽는다.",
+
+    "classification": {
+      "rightsOffering": {
+        "icMthnThirdPartyPattern": "제3자배정",
+        "icMthnShareholdersPattern": "주주배정",
+        "unmatchedNote": "둘 다 안 걸리면(알려지지 않은 ic_mthn 값) resolver.js의 corporateActionAdjustment.js가 CATEGORY_CLASS에 없는 값으로 보고 DART_MATCH_FAIL로 유보한다 — 수집기가 임의로 한쪽에 밀어넣지 않는다."
+      },
+      "capitalReduction": {
+        "crMthFreePattern": "무상",
+        "crMthPaidPattern": "유상",
+        "unmatchedCategory": "capitalReductionUnknown",
+        "note": "실측 3/3(§16.3, 065170·케이에이치건설·루트로닉)이 cr_mth 텍스트에 이 키워드로 안정적으로 분류됐다. 매칭 실패는 임의 배정하지 않고 capitalReductionUnknown으로 보낸다(resolver.js가 CAPITAL_REDUCTION_TYPE_UNKNOWN으로 유보)."
+      }
+    },
+
+    "multiplierSource": {
+      "bonusIssue": "fricDecsn.nstk_ascnt_ps_ostk (배수 = 1 + 값, 실측 검증됨)",
+      "capitalReductionFree": "crDecsn.cr_rt_ostk (배수 = 1 - 값/100, §16.3 실측)",
+      "split": "a3cBracket", "reverseOrConsolidation": "a3cBracket", "haltLiftSplit": "a3cBracket",
+      "a3cBracketNote": "★ 브리프 §19.1 핵심 설계 — DART에 순수 분할·병합의 배수를 주는 구조화 API가 없다(DS005 36개 항목 전수 확인 + irdsSttus 실측으로 공백 확정). 공시로 '무엇이 일어났는지'만 확인하고, 실제 배수는 data/backfill/fundamentals/a3c의 그 corp 레코드에서 disclosureDate를 감싸는 두 값의 비율로 계산한다(000860 실측: 6,500,000→13,000,000, 정확히 ×2). 새 API 호출이 아니라 이미 수집된 A3c 산출물을 읽기만 한다 — A3c의 grid.mode(a3ReuseAndScanMissing)와 같은 재사용 원칙.",
+      "a3cBracketToleranceWarn": 0.02,
+      "a3cBracketToleranceNote": "브래킷 비율이 정수 또는 그 역수에서 이 비율(2%) 이상 벗어나면 WARN(DART_MATCH_FAIL 후보로 진단에 남긴다, 자동 FAIL은 아니다) — 실측 근거는 000860 1건뿐이라(정확히 2.0000) 임계 자체는 미실측 잠정값이다(§19.5 1번)."
+    },
+
+    "grid": {
+      "mode": "corpOnly",
+      "unit": "corp",
+      "modeNote": "A3c의 (corp, fiscalYear, reprtCode)와 다르다 — 공시는 연도별이 아니라 corp당 1회의 날짜범위 조회다(list.json). 대상 법인은 A3c와 같은 target_corps()(A1a+A1b)를 재사용한다(scripts/build-fundamentals-a3c.py의 함수, 새로 안 짠다)."
+    },
+    "scanFrom": "2016-01-01",
+    "scanFromNote": "§15 GO-5(c) 실측과 같은 시작점. 2016 이전 상장 종목은 전자공시 커버리지 밖이라 그 구간의 사건은 원리적으로 못 잡는다(§16.5 미해결, DISCLOSURE_COVERAGE_GAP로 유보) — scanFrom을 더 당겨도 못 메운다(전자공시 자체가 그때부터다).",
+
+    "shards": 8,
+    "shardsNote": "A3c와 같은 값(재사용, 새로 정하지 않는다). quota는 최상위 quota 블록을 그대로 쓴다 — 같은 DART_API_KEY라 A3/A3b/A3c와 일 한도를 공유한다(quota.shardBudgetModeNote의 한계와 동일 — 같은 날 다른 A3* 수집과 겹쳐 돌리지 않는다).",
+
+    "acceptance": {
+      "dateContractViolations": 0,
+      "corpContractViolations": 0,
+      "duplicateKeys": 0,
+      "categoryUnknownCount": 0,
+      "categoryUnknownNote": "categories 표에 없는 값으로 분류된 레코드는 구조적으로 불가능해야 한다(정규식이 못 걸렀다는 뜻) — FAIL.",
+      "corpsIncomplete": 0,
+      "a3cBracketOutOfToleranceWarn": 0.10,
+      "a3cBracketOutOfToleranceNote": "split류 중 브래킷 비율이 위 tolerance를 벗어난 비율. 실측 없이 WARN으로 시작한다(price.v1.json·fundamentals.v1.json a3c가 밟은 절차와 동일 — 실측 1회 후 FAIL 승격 여부를 정한다).",
+      "categoryDistributionNote": "§15 실측(1,786종목 · 8,301콜 · rightsOffering 1,104·mergerSpinoff 760·bonusIssue 583·capitalReduction 279·reverseOrConsolidation 350·split 205·haltLiftSplit 104)과 이 수집분의 분포가 크게 다르면(게이트 아님, 진단으로만) 소스가 변했다는 신호다."
+    },
+    "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것만이다(A3/A3b/A3c와 같은 원칙) — 나머지는 전부 WARN으로 시작한다. 이 블록 전체가 실측 0회 상태로 설계됐다(§19가 3건 소표본으로 만들었다) — 실제 전체 유니버스 실행(1회) 후 measured 블록을 채우고 임계를 재평가한다.",
+
+    "output": {
+      "dir": "data/backfill/fundamentals/a3d",
+      "stateDir": "data/backfill/fundamentals/_shards_a3d",
+      "partition": "category",
+      "format": "jsonl.gz",
+      "gzipMtime": 0,
+      "gzipCompressLevel": 9,
+      "sortKey": ["corp", "disclosureDate", "rceptNo"],
+      "fields": ["corp", "ticker", "category", "rceptNo", "disclosureDate", "reportNm",
+                 "multiplier", "multiplierSource", "rawIcMthn", "rawCrMth"],
+      "outputNote": "lib/a5/corporateActionAdjustment.js가 소비하는 형태와 일치시킨다(§18.1·§19.3) — category 문자열은 CATEGORY_CLASS의 키와 정확히 같아야 한다. rawIcMthn·rawCrMth는 진단·재분류용이며 resolver.js는 안 읽는다(category에 이미 접혀 들어갔다)."
+    },
+    "manifest": {
+      "stage": "A3d",
+      "upstream": ["A1a", "A1b", "A3c"],
+      "policies": ["universe", "fundamentals"],
+      "upstreamNote": "target_corps()가 A1a·A1b를 재사용하고, multiplierSource.a3cBracket이 A3c 산출물을 직접 읽으므로 A3c를 상류로 선언한다 — A3c가 재수집되면 브래킷 배수가 달라질 수 있다."
     }
   },
 

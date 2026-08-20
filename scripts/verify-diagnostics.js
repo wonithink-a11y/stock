@@ -237,6 +237,23 @@ const CONTRACT = {
     forbidden: ['smokeTest'],
   },
 
+  'A3d': {
+    file: 'data/backfill/fundamentals/a3d/_diagnostics.json',
+    required: ['fundamentalsPolicy', 'stageVersion', 'shardCount', 'rowCount',
+               // 대상·완료 축. A3d는 격자가 (corp) 하나뿐이라 A3c의 cellMultiplier류가
+               // 없다 — 그 대신 corpsIncomplete가 완료 여부의 유일한 척도다.
+               'targetCorps', 'corpsDone', 'corpsIncomplete', 'callsTotal',
+               // 분류·거절 사유. A3/A3b/A3c와 같은 이유(교훈75) — 결과 없이도
+               // 왜 없는지를 남긴다.
+               'rejected', 'listErrors', 'categoryDistribution',
+               // A3d 고유 — splitLike 중 a3cBracket 소스의 정합성 척도. 이 값이
+               // 없으면 000860류 검증(§19.1)이 이 수집분에 실제로 이어졌는지
+               // 산출물만으로 못 확인한다.
+               'bracketOutOfToleranceRate', 'bracketSamples'],
+    trueFlags: [],
+    forbidden: ['smokeTest'],
+  },
+
   'A4': {
     file: 'data/backfill/supplyDemand/a4/_diagnostics.json',
     required: ['supplyDemandPolicy', 'environment', 'shardCount', 'rowCount',
