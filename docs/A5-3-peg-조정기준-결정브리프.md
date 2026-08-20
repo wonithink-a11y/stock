@@ -1062,8 +1062,9 @@ KRX-native(Actions 경로)가 명백히 더 싸다.
 2  ✅ 완료 — 라벨링 정책 스키마 초안(§16). splitLike/capitalReal 구분,
    ic_mthn·crDecsn 분류, D4판 유보 코드, cumulativeSplitFactor 공식과
    기준점까지 확인(§16.5).
-3  §4와 같은 형태의 유보 규칙(D4 버전) 최종 정리 — §16.4의 초안을 정책
-   파일에 옮길 형태로 확정
+3  ✅ 완료 — 유보 규칙 최종본(§17). 판정 순서(우선순위 트리)를 새로 정리하고,
+   epsGrowthRate 안전판이 D4에서 보정후 값 기준으로 바뀌는 것(splitLike는
+   더 이상 안 걸리고 capitalReal은 계속 걸림)을 명시했다.
 4  lib/a5/resolver.js 구현 + **N=20~30 표본 회귀 신설(2026-08-20 후속 세션
    결정)** — splitLike/capitalReal 분류·cumulativeSplitFactor 계산값을
    분할·감자·증자 이력이 있는 종목 표본에서 사람이 확인한 정답표와 대조한다.
@@ -1079,8 +1080,8 @@ KRX-native(Actions 경로)가 명백히 더 싸다.
 5  V7(§6) — 수직 슬라이스로 실데이터 연결 확인 (4번 회귀와 별개, 배관 확인용)
 ```
 
-**다음 세션 시작점**: 3번(유보 규칙 D4 최종 정리)부터 — 1·2번은 이번 세션에
-끝났다.
+**다음 세션 시작점**: 4번(resolver.js 구현 + N=20~30 표본 회귀)부터 — 사용자
+🔴 GO가 필요하다(규칙 5·6). 1~3번은 이번 세션에 끝났다.
 
 ---
 
@@ -1349,6 +1350,93 @@ DISCLOSURE_COVERAGE_GAP        2016 이전 상장 등 전자공시 커버리지 
 - COMPOUND_EVENT 판정 창(위 "±1개월"은 예시일 뿐 실측 근거 없음). 065170의
   실제 간격(무상증자 2025-02-12·감자 2024-12-09, 약 65일)을 기준으로
   V7에서 다시 잡는다.
+
+---
+
+## 17. 유보 규칙 최종본 (D4, §14의 3번, 2026-08-20 후속 세션)
+
+**§4(D2 전제)와 §16.3~16.4(D4 초안)를 종합한, 정책 파일에 그대로 옮길 수 있는
+형태다.** 아직 구현 승인은 아니다(§14 서두) — `config/policies` 신설은 별도 🔴 GO.
+
+### 17.1 판정 순서 — 여러 유보 코드가 겹칠 수 있어 우선순위가 필요하다
+
+지금까지 §16이 코드를 나열만 했지 순서를 안 정했다. 순서가 없으면 같은 레코드가
+어떤 코드로 유보됐는지 구현마다 달라질 수 있다(교훈43과 같은 종류의 위험 — 계약이
+"무엇을 검사하는가"만 있고 "어느 게 먼저인가"가 없으면 계약이 아니다).
+
+```
+1  SHARES_MISSING / PRICE_MISSING     — 기초 데이터 자체가 없음 (D2·D4 공통, §4.1 그대로)
+2  istcTotqy 전이 배수 이상 감지(§2.3 패턴)?
+   아니오 → 정상 경로, 아래 3~6 전부 건너뛴다(대부분의 asOf가 여기서 끝난다)
+   예    → 3으로
+3  그 시기가 전자공시 커버리지 밖(2016 이전 상장 등)인가?
+   예 → DISCLOSURE_COVERAGE_GAP
+   아니오 → 4로
+4  같은 시기(§16.6, 창 크기는 코드 구현 시점에 065170 실측 간격 ~65일 기준으로
+   확정) splitLike/capitalReal 카테고리가 2개 이상 겹치는가?
+   예 → COMPOUND_EVENT
+   아니오 → 5로
+5  매칭되는 공시가 list.json에 없는가?
+   예 → DART_MATCH_FAIL
+   아니오 → 카테고리로 분기(6)
+6  카테고리 분기 (§16.1·§16.3)
+   splitLike(분할·병합·무상증자·거래정지해제분할·무상감자)
+     → cumulativeSplitFactor 적용(§16.2), 유보 없음, provenance에 적용 배수 기록
+   capitalReal · rightsOffering · ic_mthn=제3자배정
+     → 그대로 통과(보정도 유보도 없음)
+   capitalReal · rightsOffering · ic_mthn=주주배정류
+     → RIGHTS_FORMULA_UNVERIFIED
+   capitalReal · capitalReduction · cr_mth 키워드 매칭 실패
+     → CAPITAL_REDUCTION_TYPE_UNKNOWN
+   capitalReal · mergerSpinoff
+     → MERGER_UNHANDLED
+7  (splitLike 보정을 통과했거나 애초에 이상 없었던 값에 대해) 아래 사후 검사 —
+   D2 시절 §4.1 그대로, 다만 보정 후 값(istcTotqy_raw × cumulativeSplitFactor)에
+   적용한다
+   SHARES_EXCEED_AUTHORIZED   (보정후 값) > isuStockTotqy   → null
+   SHARES_IMPLAUSIBLE         (보정후 값) >= 1e12            → null
+   SHARES_BASIS_UNSTABLE      직전/직후 값 대비 왕복(A→B→A)  → null
+```
+
+`RCEPT_MISMATCH`(A5-1.0 §5)는 이 순서와 독립이다 — 재무 레코드 자체의 조인
+문제라 istcTotqy 흐름과 무관하게 항상 먼저 걸러진다(기존 A3b 경로 그대로).
+
+### 17.2 epsGrowthRate(peg) 유보 — D4에서 바뀌는 것
+
+§4.2의 `shareBasisStable(cur, prev)` 안전판은 **D4에서도 그대로 유지한다.** 단
+비교 대상을 바꾼다:
+
+```
+D2/원안: |istcTotqy_raw(cur)/istcTotqy_raw(prev) - 1| <= tolerance
+D4:      |sharesOutstandingForValuation(cur)/sharesOutstandingForValuation(prev) - 1|
+           <= tolerance   (§16.2의 보정후 값 — cumulativeSplitFactor 적용됨)
+```
+
+**이유**: splitLike 사건은 위 17.1의 6번에서 이미 배수 보정을 받으므로, 보정후
+값으로 비교하면 cur·prev가 같은 기준 위에 있어 비율이 자연스럽게 1에 가깝다 —
+즉 **splitLike는 더 이상 이 안전판에 걸리지 않는다**(D2/원안 시절엔 분할이
+100% 이 안전판에 걸려 peg가 늘 유보됐다 — D4의 개선점 중 하나다). 반대로
+**capitalReal(진짜 증자·감자)은 여전히 걸려야 한다** — 실질 희석은 EPS 성장률
+비교를 왜곡하는 게 맞고, 그걸 놓치면 안 된다. 보정후 값을 쓰면 이 구분이
+공식 하나로 자동으로 갈린다 — splitLike만 따로 예외 처리할 필요가 없다.
+
+허용치 권고(1%)는 §4.2 그대로 유지 — 이건 tolerance 자체의 근거(§2.6 실측
+분포)이지 D2/D4 구분과 무관하다. §6 V5가 여전히 이 선의 최종 근거다.
+
+### 17.3 유보의 흔적 — §4.3 그대로, 필드 하나 추가
+
+`missing[]`·`provenance` 원칙은 §4.3 그대로다. D4가 추가하는 것은 provenance에
+**적용된 splitLike 사건 목록**(각 사건의 rceptNo·공시일·배수)을 남기는 것 —
+"왜 이 값이 원본 istcTotqy와 다른가"를 나중에 재구성할 수 있어야 한다(교훈75와
+같은 이유, 파생값만 두고 근거를 안 남기면 나중에 검증이 불가능해진다).
+
+### 17.4 이 최종본이 여전히 안 정하는 것
+
+- 17.1의 "같은 시기" 창 크기 — §16.6이 이미 남긴 미해결, 코드 구현 시점 확정
+- `crDecsn`/`piicDecsn` 실제 호출 로직(재시도·페이지네이션 등) — 수집기 구현
+  세부, 이 정책 설계 범위 밖
+- §14 4번의 N=20~30 표본 회귀가 위 17.1~17.2 판정 순서 자체를 검증한다 —
+  이 문서 정리만으로는 "순서가 실제로 맞다"를 증명 못 한다
 
 ---
 
