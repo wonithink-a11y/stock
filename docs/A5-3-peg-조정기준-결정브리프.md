@@ -1516,12 +1516,150 @@ capitalReal 유보  레코드가 사건과 같거나 이후에 접수 → 그 �
 
 ---
 
+## 19. 공시 라벨링 백필 단계 설계 (§18.3의 1번, 2026-08-20 후속 세션)
+
+**아직 구현 승인이 아니다.** `scripts/build-fundamentals-a3c.py`(A3/A3b와 같은
+샤드/재개/finalize 패턴)를 재사용 대상으로 삼아 설계만 한다 — 실제
+`config/policies` 신설·수집기 작성은 이 설계에 대한 별도 🔴 GO 이후.
+
+### 19.1 ★ 설계 도중 발견한 공백 — 순수 분할·병합은 배수를 주는 구조화 API가 없다
+
+`crDecsn`(감자)·`piicDecsn`(유상증자)·`pifricDecsn`(무상증자)은 전부 DART
+"주요사항보고서"(DS005) 그룹이다. 이 그룹 **36개 항목 전체를 다시 확인했는데
+주식분할·주식병합이 없다.** §15가 이미 "이 공시엔 pblntf_ty 필드 자체가 없다
+(거래소 자율공시 계열)"이라 적어둔 사실과 일치한다 — 분할은 자본금 계정을
+안 건드리는(액면가만 재조정) 회계상 무사건이라 "주요사항"으로 안 잡힌다.
+
+후보였던 `irdsSttus`(증자(감자) 현황, DS002 정기보고서군)도 확인했다 — 005930의
+실제 2018-05-04 50:1 분할 해(2018 사업연도)로 직접 호출(read-only, 저장소 미기록):
+
+```json
+{"isu_dcrs_de":"-","isu_dcrs_stle":"-","isu_dcrs_qy":"-", ... "stlm_dt":"2018-12-31"}
+```
+
+전 필드가 `"-"` — **알려진 분할 해인데도 이 API가 완전히 빈 값을 준다.** 분할이
+자본금 증감 회계 이벤트가 아니라는 가설과 일치한다. 즉 splitLike 중
+`capitalReductionFree`(무상감자, crDecsn이 커버)를 뺀 나머지 넷(split·
+reverseOrConsolidation·bonusIssue·haltLiftSplit) 중 **split·
+reverseOrConsolidation·haltLiftSplit 셋은 배수를 줄 구조화 API가 DART에
+없다**(bonusIssue는 pifricDecsn의 `fric_nstk_ascnt_ps_ostk`로 배수를 얻을 수
+있다 — 위 §16.4 초안이 이미 pifricDecsn을 인용했었다).
+
+**대안 — A3c 자신의 전후 전이값에서 배수를 읽는다(실측 검증 완료).**
+`data/backfill/fundamentals/a3c/`의 실제 000860 레코드:
+
+```
+2025 1분기(접수 20250515)  istcTotqy 6,500,000
+2025 반기 (접수 20250814)  istcTotqy 13,000,000   ★ 정확히 ×2
+```
+
+공시(2025-03-26, "주식분할결정")로 **"이 corp가 이 시점에 split 카테고리
+사건을 겪었다"만 확인**하고, **실제 배수는 그 시점을 감싸는 A3c 전이값에서
+계산**한다(13,000,000/6,500,000 = 2.0). **이게 D1이 기각된 이유(§3.1, "배수만
+보고는 사유를 못 가른다")와 다른 점은 사유를 이미 공시가 확정했다는 것이다**
+— D1은 배수만으로 사유까지 추론하려 했고 D4는 사유를 공시가 주고 배수만
+A3c에서 읽는다. 순서가 반대라 위험이 다르다.
+
+```
+splitLike 배수 소스 최종 (카테고리별)
+  bonusIssue                → pifricDecsn.fric_nstk_ascnt_ps_ostk (구조화 API)
+  capitalReductionFree      → crDecsn.cr_rt_ostk (구조화 API)
+  split·reverseOrConsolidation·haltLiftSplit
+                             → A3c 전이값(공시일을 감싸는 두 레코드의 istcTotqy
+                               비율). 정합성 검사: 비율이 정수 또는 그 역수에
+                               가까운가(허용 오차, 미확정 — 아래 19.5) — 아니면
+                               DART_MATCH_FAIL로 유보(임의 배수를 쓰지 않는다)
+```
+
+### 19.2 아키텍처 — A3c 패턴 재사용, 격자 단위만 다르다
+
+```
+격자 단위     (corp) — A3c의 (corp, fiscalYear, reprtCode)와 다르다. 공시는
+              연도별이 아니라 10년 전체를 한 번에 훑는다(§3.6 실측3, list.json이
+              날짜 범위 제한 없이 한 콜로 들어옴).
+2단계 수집    1단계  list.json(corp, 2016-01-01~오늘)을 B타입·I타입 각각 호출
+                    (§15의 버그 수정 반영 — I타입은 페이지네이션 필수, 100건 캡).
+                    report_nm을 CATEGORIES류 정규식으로 1차 분류
+                    (fetch-disclosures-kr.js 패턴 재사용).
+              2단계  카테고리별 상세 조회 — rightsOffering만 piicDecsn(ic_mthn),
+                    capitalReductionFree만 crDecsn(cr_mth·cr_rt_ostk),
+                    bonusIssue만 pifricDecsn(fric_nstk_ascnt_ps_ostk).
+                    split·reverseOrConsolidation·haltLiftSplit·mergerSpinoff는
+                    상세 조회가 없다(mergerSpinoff는 D4 범위 밖이라 분류만
+                    한다, §16.3) — 1단계 분류로 끝난다.
+후처리        split류 셋은 A3c(이미 수집된 산출물, 재호출 없음)에서 공시일을
+              감싸는 전이값을 찾아 배수를 계산(19.1). A3b/A3c처럼 다른 단계
+              산출물을 읽기만 하고 새로 수집하지 않는다 — A3c grid 재사용
+              패턴(a3ReuseAndScanMissing)과 같은 결.
+샤드          A3c처럼 corp 단위 샤딩. quota는 DART 일 한도 40,000(FN-1.7).
+              예산 계산은 A3.shard_budget() 재사용(A3c가 이미 그렇게 한다).
+```
+
+### 19.3 출력 스키마 — resolver.js의 corporateActions 입력과 일치시킨다
+
+`lib/a5/corporateActionAdjustment.js`가 이미 소비 형태를 정해뒀다(§18.1) —
+수집기는 그 형태로 낸다. 카테고리 문자열은 CATEGORY_CLASS의 키와 정확히
+같아야 한다(예: `rightsOfferingThirdParty`/`rightsOfferingShareholders`로
+이미 ic_mthn이 접혀 들어간 형태, `capitalReductionFree`/`Paid`/`Unknown`도
+마찬가지 — 원문 코드(ic_mthn·cr_mth)를 그대로 저장하지 않고 분류 결과를
+저장한다. 원문은 provenance용으로 별도 필드에 남긴다).
+
+```
+{
+  corp, ticker, rceptNo, disclosureDate,           // list.json 공통
+  category,                                         // CATEGORY_CLASS 키와 일치
+  multiplier,                                        // splitLike만. 소스는 19.1
+  multiplierSource,                                  // "pifricDecsn" | "crDecsn" |
+                                                       // "a3cBracket" — 어디서 왔는지
+  rawIcMthn, rawCrMth,                              // capitalReal 분류의 원문(진단용)
+  reportNm,                                          // 원문 report_nm(진단·재분류용)
+}
+```
+
+### 19.4 인수 조건 — 처음엔 WARN, 실측 후 승격 (price.v1.json·fundamentals.v1.json과 같은 절차)
+
+```
+구조적(FAIL, 실측 불필요)   날짜 계약(YYYYMMDD) · corp 계약 · 중복 키 ·
+                            category가 CATEGORY_CLASS에 없는 값
+실측 필요(WARN으로 시작)    splitLike 중 a3cBracket 소스의 "정수/역수에 가까움"
+                            비율 · 카테고리 분포가 §15 실측(1,786종목·8,301콜)
+                            과 크게 다른가 · corpsIncomplete
+```
+
+§15가 이미 규모(전체 콜 수 8,301·소요 64분)를 실측해뒀다 — 이 수집기의
+1단계(list.json)는 그 실측을 그대로 재현하면 된다. 2단계(상세 조회)의 콜
+수는 미실측(§14의 "GO-5(c) 실행 결과"가 "유상증자만" 상세 조회 예산을 수백~
+2천으로 추정했었다) — 실제 수집 1회로 확정한다.
+
+### 19.5 미해결 (구현 전에 정할 것)
+
+```
+1  split류 A3c 브래킷 배수의 "정수/역수에 가까움" 허용 오차 — 000860은 정확히
+   2.0000이었지만(실측), 반올림·중간 이벤트 개입 등으로 오차가 있을 수 있다.
+   §5.1의 k(기중 기업행위 탐지 임계)와 같은 종류의 결정, 실측 없이 못 정한다
+2  A3c 브래킷이 "그 공시 하나 때문"이라고 확신하려면 브래킷 구간(두 레코드
+   사이)에 다른 splitLike 사건이 없어야 한다 — 이미 COMPOUND_EVENT가 이걸
+   부분적으로 잡지만(§17.1), 지금 COMPOUND_EVENT는 "같은 시기 카테고리 겹침"
+   이지 "브래킷 구간 안에 사건이 여럿"과 정확히 같은 정의는 아니다 — 재정의
+   필요할 수 있음
+3  mergerSpinoff·haltLiftSplit의 report_nm 정규식 세부(CATEGORIES 재사용
+   방향은 맞지만 정확한 패턴은 §15의 실제 report_nm 표본으로 다시 짜야 한다)
+4  2단계 상세 조회 총 콜 수 미실측 — 실행 전 추정만 있다(위 19.4)
+```
+
+---
+
 ## 관련
 
 - `lib/a5/corporateActionAdjustment.js` — D4 판정 순서·보정 공식 구현(§18)
 - `lib/a5/resolver.js` `sharesOutstandingFrom()`·`valuationD4From()` — §18 구현.
   `valuationFrom()` 117~154행 · `resolve()` 177행 주석 — A3b 경로 중단 경위(안 건드림)
 - `scripts/test-a5-d4.js` — N=13 실사례+경계값 회귀(§18.1)
+- DART OpenAPI `pifricDecsn.json`(유무상증자 결정, bonusIssue 배수)·
+  `irdsSttus.json`(증자(감자) 현황 — 분할엔 안 쓴다, §19.1에서 공백 확인) —
+  §19 설계 중 실제 호출로 확인
+- `scripts/build-fundamentals-a3c.py` — §19.2가 재사용하는 샤드/재개/finalize
+  패턴의 원본
 - `lib/a5/featureRegistry.js` 46~70행 — `peg`·`pbr`·`perRelative`의 `blockedBy`(§18.3에서 갱신)
 - `docs/A5-1.0-입출력계약.md` §3.2 · §5 — valuation 가격 계약, RCEPT_MISMATCH 정책
 - `docs/verification/LAB-7-발행주식수-소스정찰-결과.md` — ①/② 비교와 그 판단의 사각
