@@ -188,19 +188,25 @@ def list_disclosures(corp, pblntf_ty, bgn_de, end_de, pol, counters):
         time.sleep(pol["requestSleepSeconds"])
 
 
+# 정정·보완 공시 접두어 — 같은 사건에 대한 관리행위(오탈자·첨부파일 정정 등)일
+# 뿐이지 새 사건이 아니다. 2026-08-20 스모크 3차에서 000860 실사례로 발견 —
+# "[기재정정]주식분할결정"이 원본과 별개의 split 레코드를 만들어 같은 사건
+# 하나가 COMPOUND_EVENT로 잘못 유보될 뻔했다(rightsOffering·capitalReduction·
+# bonusIssue는 이미 §19.3 재설계로 상세 API 직접 수집이라 이 문제가 없다 —
+# 여기는 상세 API가 없는 split·reverseOrConsolidation·mergerSpinoff에만 남는다).
+_CORRECTION_PREFIX = re.compile(r"^\[(기재정정|첨부정정|첨부추가|연장결정)\]")
+
+
 def classify(report_nm, categories):
-    """report_nm(공백 제거) → 매칭 카테고리 이름 목록. 보통 0~1개지만
-    compoundRightsAndBonus는 2개로 전개된다(정책의 categories 표가 그 매핑을
-    선언한다 — 여기서 하드코딩하지 않는다)."""
+    """report_nm(공백 제거) → 매칭 카테고리 이름 목록. 정정·보완 공시는
+    원본과 같은 사건이므로 빈 리스트를 낸다(위 _CORRECTION_PREFIX)."""
     nm = re.sub(r"\s", "", str(report_nm or ""))
+    if _CORRECTION_PREFIX.match(nm):
+        return []
     out = []
     for c in categories:
         if re.search(c["reportNmPattern"], nm):
-            cat = c["category"]
-            if cat == "compoundRightsAndBonus":
-                out.extend(["bonusIssue", "rightsOfferingRaw"])
-            else:
-                out.append(cat)
+            out.append(c["category"])
     return out
 
 
@@ -235,9 +241,17 @@ def sub_classify_capital_reduction(cr_mth, cls_pol):
 
 
 # ── A3c 브래킷 (새 호출 없음 — 로컬 산출물 읽기) ───────────────────
+# A3c pointInTime.tieBreakOnSameAvailableFrom(사업보고서>반기>3분기>1분기)과
+# 정확히 같은 우선순위 — lib/a5/pitSelector.js의 규칙(fiscalYear 최댓값 먼저,
+# 그다음 이 우선순위)을 파이썬 쪽에서 재현한다(§19.5 1번이 남겼던 문제,
+# 2026-08-20 스모크 테스트 3차 실행에서 실제로 잡음 — 009810 사례 아래 참조).
+_REPRT_PRIORITY = {"11011": 4, "11012": 3, "11014": 2, "11013": 1}
+
+
 def load_a3c_timeline():
-    """{ticker: [(availableFrom, istcTotqy), ...]} — 오름차순, istcTotqy가
-    있는 레코드만. 정수배 사건(§19.1)의 배수를 여기서 브래킷으로 계산한다."""
+    """{ticker: [(availableFrom, fiscalYear, reprtCode, istcTotqy), ...]} —
+    오름차순. istcTotqy가 있는 레코드만. 정수배 사건(§19.1)의 배수를 여기서
+    브래킷으로 계산한다."""
     out = defaultdict(list)
     for p in sorted(glob.glob(f"{A3C_DIR}/*.jsonl.gz")):
         with gzip.open(p, "rt", encoding="utf-8") as f:
@@ -246,37 +260,55 @@ def load_a3c_timeline():
                     continue
                 r = json.loads(line)
                 if r.get("ticker") and isinstance(r.get("istcTotqy"), (int, float)):
-                    out[r["ticker"]].append((r["availableFrom"], r["istcTotqy"]))
+                    out[r["ticker"]].append(
+                        (r["availableFrom"], r["fiscalYear"], r["reprtCode"], r["istcTotqy"]))
     for t in out:
         out[t].sort(key=lambda x: x[0])
     return out
 
 
+def _pit_select_asof(rows, asof_date):
+    """lib/a5/pitSelector.js의 selectAsOf()와 같은 규칙 — availableFrom이
+    asof_date 이하인 것 중 fiscalYear 최댓값, 동률이면 reprtCode 우선순위,
+    그래도 동률이면 availableFrom 최댓값. 같은 접수일에 여러 회계연도가
+    한꺼번에(catch-up) 몰아서 제출되면 raw 시간순 정렬만으론 어느 값이
+    "그 시점 기준 최신"인지 못 가른다 — A3c 자신의 PIT 규칙을 그대로
+    가져와야 한다."""
+    candidates = [r for r in rows if r[0] <= asof_date]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda r: (r[1], _REPRT_PRIORITY.get(r[2], 0), r[0]))
+
+
 def a3c_bracket_ratio(ticker, disclosure_date, timeline):
-    """disclosure_date 직전의 마지막 값(before)과, 그 뒤에서 **실제로 값이
-    달라진 첫 레코드**(after)의 비율.
+    """disclosure_date 시점의 PIT 선택값(before)과, 그 뒤로 **PIT 선택값이
+    실제로 달라지는 첫 시점**(after)의 비율.
 
     ★ '직후 첫 레코드'가 아니라 '값이 달라진 첫 레코드'다(2026-08-20, 회귀
     작성 중 000860 실사례로 발견) — 91일 지연(브리프 §5.1)이 여기서도 그대로
     나타난다. 000860의 1분기보고서(접수 2025-05-15)는 분할(공시 2025-03-26)
-    보다 나중에 접수됐는데도 여전히 분할 전 값을 낸다 — '직후 레코드'를 그대로
-    쓰면 비율이 1.0(무변화)으로 잘못 나온다. 반기보고서(접수 2025-08-14)에야
-    실제로 바뀐 값이 나온다 — 그래서 '바로 다음'이 아니라 '달라질 때까지' 본다.
+    보다 나중에 접수됐는데도 여전히 분할 전 값을 낸다.
+
+    ★ raw 시간순이 아니라 PIT 선택(_pit_select_asof)을 쓴다(2026-08-20,
+    스모크 3차에서 009810 실사례로 발견) — 2020-10-23에 세 회계연도(2019
+    사업보고서·2020 반기·2020 3분기)가 한꺼번에 접수됐는데, 단순 시간순
+    정렬은 그중 임의의 하나를 "그 날짜의 값"으로 잘못 골라 배수가
+    0.81038처럼 지저분하게 나왔다 — PIT 규칙(최댓값 회계연도 우선)을 쓰면
+    올바른 값으로 좁혀진다.
 
     before가 아예 없으면(그 corp의 첫 레코드보다도 이른 공시) None. after를
     못 찾으면(그 뒤로 영영 안 바뀜 — 아직 반영 전이거나 데이터 끝) None.
     지어내지 않는다(교훈57)."""
     rows = timeline.get(ticker) or []
-    before, idx_before = None, None
-    for i, (af, val) in enumerate(rows):
-        if af <= disclosure_date:
-            before, idx_before = val, i
-        else:
-            break
-    if before is None:
+    before_row = _pit_select_asof(rows, disclosure_date)
+    if before_row is None:
         return None
+    before = before_row[3]
+
+    future_dates = sorted({af for af, *_ in rows if af > disclosure_date})
     after = None
-    for af, val in rows[(idx_before + 1):]:
+    for af in future_dates:
+        val = _pit_select_asof(rows, af)[3]
         if val != before:
             after = val
             break
