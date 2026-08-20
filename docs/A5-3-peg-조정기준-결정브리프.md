@@ -1065,23 +1065,17 @@ KRX-native(Actions 경로)가 명백히 더 싸다.
 3  ✅ 완료 — 유보 규칙 최종본(§17). 판정 순서(우선순위 트리)를 새로 정리하고,
    epsGrowthRate 안전판이 D4에서 보정후 값 기준으로 바뀌는 것(splitLike는
    더 이상 안 걸리고 capitalReal은 계속 걸림)을 명시했다.
-4  lib/a5/resolver.js 구현 + **N=20~30 표본 회귀 신설(2026-08-20 후속 세션
-   결정)** — splitLike/capitalReal 분류·cumulativeSplitFactor 계산값을
-   분할·감자·증자 이력이 있는 종목 표본에서 사람이 확인한 정답표와 대조한다.
-   V2(§6)와 같은 패턴(정답표를 A3c/D4 산출물 자체로 만들지 않는다 — 교훈72).
-   ★ 이 회귀를 넣는 이유: V7(다음 항목)은 종목 1개짜리 연결 확인일 뿐이고,
-   이 작업의 실패 모양(키워드 오분류·배수 계산 실수)은 CLAUDE.md 검증강도
-   기준의 "조용히 틀림 + 되돌릴 수 있음" 칸이라 강한 회귀가 필요하다(§16.5
-   4번 논의). price.v1.json·fundamentals.v1.json이 이미 밟은 "표본 실측 →
-   WARN 등급 시작 → 승격" 패턴을 그대로 재사용 — 새 V-step을 따로 만들지
-   않는다.
-   **featureRegistry.js의 peg/pbr blockedBy 해제는 이 회귀 통과 후로 미룬다**
-   — 통과 전에 풀면 유니버스 전체에 미검증 값이 나간다.
-5  V7(§6) — 수직 슬라이스로 실데이터 연결 확인 (4번 회귀와 별개, 배관 확인용)
+4  🟡 부분 완료(2026-08-20, 사용자 GO) — **함수·회귀는 구현됐다. 백필 단계는
+   아직 없다.** 아래 §18 참고. resolve()에 peg/pbr이 실제로 붙었지만
+   featureRegistry.js의 available은 여전히 false다(운영 투입 불가, 구현
+   불가와 다름 — 이 파일 원칙 그대로).
+5  V7(§6) — 수직 슬라이스로 실데이터 연결 확인. §18이 만든 함수를 **진짜
+   운영 데이터**(A3c 실제 레코드 + 실제 수집된 corporateActions)로 한 번
+   돌려보는 단계라 여전히 남아있다 — §18의 회귀는 손으로 만든 픽스처였다.
 ```
 
-**다음 세션 시작점**: 4번(resolver.js 구현 + N=20~30 표본 회귀)부터 — 사용자
-🔴 GO가 필요하다(규칙 5·6). 1~3번은 이번 세션에 끝났다.
+**다음 세션 시작점**: §18이 명시한 잔여 작업(공시 라벨링 백필 단계 신설) —
+사용자 🔴 GO 필요. 1~3번과 4번의 함수·회귀 부분은 이번 세션에 끝났다.
 
 ---
 
@@ -1440,10 +1434,95 @@ D4:      |sharesOutstandingForValuation(cur)/sharesOutstandingForValuation(prev)
 
 ---
 
+## 18. resolver.js 구현 + 회귀 (§14 4번, 2026-08-20, 사용자 GO "그래 진행해줘")
+
+### 18.1 만든 것
+
+```
+lib/a5/corporateActionAdjustment.js (신규) — §17.1의 판정 순서·§16.2의
+  cumulativeSplitFactor 공식을 구현한 순수 함수. 공시를 수집하지 않는다 —
+  호출부가 corporateActions(그 corp의 분류된 이벤트 배열)를 이미 넘겼다고
+  가정한다.
+lib/a5/resolver.js
+  sharesOutstandingFrom() — A3c PIT 선택 + D4 보정 + 사후 임계 검사
+    (SHARES_EXCEED_AUTHORIZED·SHARES_IMPLAUSIBLE, §17.1 7번)
+  valuationD4From() — a3c 블록의 EPS 우회식(netIncome÷보정된 shares)으로
+    per·epsGrowthRate·pbr을 낸다. 기존 valuationFrom()(A3b 기반, 알려진
+    결함으로 미사용)은 그대로 둔다 — 안 건드린다.
+  resolve() — sharesOutstanding(A3c 레코드)을 넘겼을 때만 stockData.valuation이
+    생긴다(dividendEps·candles와 같은 undefined-vs-빈배열 패턴).
+scripts/test-a5-d4.js (신규) — 37건, 전부 통과. 기존 회귀(test-a5-framework.js
+  73건 포함 전체 10개 test-*.js) 전부 재확인, 회귀 없음.
+lib/a5/featureRegistry.js — peg·pbr의 blockedBy를 갱신, stage를 A3b→A3d(가칭)로
+  정정(peg도 pbr과 같은 우회식을 쓰므로 A3b가 상류가 아니다). **available은
+  여전히 false** — 아래 18.3 참고.
+```
+
+### 18.2 ★ 회귀가 설계 결함을 하나 잡았다 — splitLike와 capitalReal 유보는
+게이트 방향이 반대다
+
+처음 구현은 두 경우 모두 "레코드보다 사건이 미래(§16.2 그대로)"로 짰다.
+`scripts/test-a5-d4.js`의 주주배정 유상증자 테스트(034020류)가 이걸로 실패했다
+— 원인을 추적한 결과:
+
+```
+splitLike   레코드가 사건보다 먼저 접수 → 그 레코드의 raw 값은 사건을 아직
+            모른다 → 배수를 곱해 미래 기준으로 소급 보정한다.
+capitalReal 유보  레코드가 사건과 같거나 이후에 접수 → 그 레코드의 raw 값
+            (실질 변화)은 이미 사건을 반영한 정상 값이다. 문제는 값이
+            아니라 **그 시점 A2a 가격이 권리락을 올바르게 반영했는지가
+            검증 안 됐다는 것**(§3.6 미해결 지점)이다 — 그래서 "사건이
+            이미 일어난 뒤의 레코드"가 유보 대상이지 "사건이 아직 안 일어난
+            옛 레코드"는 그 사건과 무관하다.
+```
+
+이건 문서 조사로는 안 나왔을 오류다 — §16~17을 쓸 때는 두 경우를 "사건 처리"로
+뭉뚱그렸는데, 실제로 코드를 짜고 실사례로 검증하니 방향이 반대라는 게 드러났다.
+**§14 4번에 회귀를 넣기로 한 근거(§16.5 4번, "조용히 틀림"에는 강한 회귀가
+필요하다)가 그대로 들어맞은 사례다.**
+
+### 18.3 ★ 아직 안 끝났다 — 함수는 됐지만 운영 투입은 못 한다
+
+`featureRegistry.js`의 `available`을 이번에 `true`로 안 바꿨다. 이유는 이 파일
+자체의 원칙("지금 그 단계가 실제로 그 값을 주는가 — 스펙이 아니라 실측") —
+`corporateActions`를 실제로 채워줄 백필 단계(공시 라벨링 수집기, 가칭 A3d)가
+아직 없다. §14의 GO-5(c)(§15)가 규모(1,786종목·8,301콜)를 확정했지만 그걸
+실제로 `list.json`·`crDecsn.json`·`piicDecsn.json`으로 긁어 `data/backfill/`에
+쌓는 수집기·워크플로는 이번 세션에 안 만들었다 — 이건 §14 4번이 처음부터
+가정했던 "N=20~30 표본"조차 지금은 **손으로 만든 픽스처**(§18.1의
+`test-a5-d4.js`, 이번 세션에 실제 API로 확인한 13개 실사례를 값만 옮겨 적은
+것)이지 자동 수집이 아니라는 뜻이다.
+
+**남은 것(다음 세션, 순서대로)**:
+
+```
+1  공시 라벨링 백필 단계 신설 — config/policies에 새 dataPolicies 블록(가칭
+   disclosures 또는 fundamentals.v1.json의 a3d), 수집기 스크립트
+   (scripts/build-fundamentals-a3d.js류, fetch-disclosures-kr.js의 CATEGORIES
+   패턴과 crDecsn/piicDecsn 호출 재사용), GitHub Actions 워크플로. 🔴 — 새
+   백필 단계는 계약·manifest 신설이라 별도 승인
+2  전체 유니버스 실행 — list.json ~2,578콜 + crDecsn/piicDecsn 상세(수백~2천
+   콜 추정). 🔴이자 '실행'(등급과 무관하게 사전 확인, CLAUDE.md)
+3  N=20~30 표본 회귀를 **실제 수집된 데이터**로 재작성 — 지금 test-a5-d4.js는
+   손으로 만든 픽스처라 "함수가 맞다"만 증명하지 "수집기가 맞다"는 증명 못
+   한다(§16.5 4번과 같은 구분)
+4  통과하면 featureRegistry.js available:true + V7 수직 슬라이스
+```
+
+이 순서를 밟기 전까지 `resolve()`에 `sharesOutstanding`을 실제로 넘기는 호출부
+(운영 스코어링, 백테스트 등)는 아직 없다 — 함수는 존재하지만 아무도 안 부른다는
+점에서 기존 `valuationFrom()`(A3b 기반, 알려진 결함으로 미사용)과 지금 상태가
+비슷하다. 차이는 이번 것은 "고칠 방법이 없어서"가 아니라 "상류가 아직 없어서"다.
+
+---
+
 ## 관련
 
-- `lib/a5/resolver.js` `valuationFrom()` 117~154행 · `resolve()` 177행 주석 — 중단 경위
-- `lib/a5/featureRegistry.js` 46~70행 — `peg`·`pbr`·`perRelative`의 `blockedBy`
+- `lib/a5/corporateActionAdjustment.js` — D4 판정 순서·보정 공식 구현(§18)
+- `lib/a5/resolver.js` `sharesOutstandingFrom()`·`valuationD4From()` — §18 구현.
+  `valuationFrom()` 117~154행 · `resolve()` 177행 주석 — A3b 경로 중단 경위(안 건드림)
+- `scripts/test-a5-d4.js` — N=13 실사례+경계값 회귀(§18.1)
+- `lib/a5/featureRegistry.js` 46~70행 — `peg`·`pbr`·`perRelative`의 `blockedBy`(§18.3에서 갱신)
 - `docs/A5-1.0-입출력계약.md` §3.2 · §5 — valuation 가격 계약, RCEPT_MISMATCH 정책
 - `docs/verification/LAB-7-발행주식수-소스정찰-결과.md` — ①/② 비교와 그 판단의 사각
 - `docs/A3c-정책초안.md` §2.4 — 91일 정밀도 한계의 원 실측
