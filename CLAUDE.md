@@ -29,7 +29,12 @@ Validated against
               KR_4AXIS 정찰이 이걸 재확인했다 — valuation 결측이 단순 라벨링
               문제가 아니라 fundamental+technical만으로는 절대 규칙 1(커버리지
               60%)을 통과 못 한다는 사실을 발견했다(세션인수인계-2026-08-18-b.md).
-              SB-1.0 KR_4AXIS 재개의 전제조건이 됐다
+              SB-1.0 KR_4AXIS 재개의 전제조건이 됐다. **🔴 결정 대기**:
+              docs/A5-3-peg-조정기준-결정브리프.md가 D2(A2c 신규 가격 수집)
+              vs D4(주식수 소급 보정, 신규 수집 불필요) 두 안을 정리해 GO
+              대기 중(2026-08-19, 6/6 대조 일치·유상증자 4실사례 확인, 정밀
+              검증은 "더 파도 판단이 안 바뀐다"는 교차검토로 멈춤). 다음
+              세션이 GO/STOP 결정
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
@@ -54,7 +59,63 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
-  완료      ★ SB-1.0 KR_4AXIS 백테스트 정찰 — valuation 블로커 재확인, 보류
+  완료      ★ 저장소 미커밋 파일 정리 2차 (2026-08-20) — DEEPSEEK-4(저장소
+              루트)·DEEPSEEK-5(strategy-lab 루즈 파일) OpenCode 감사.
+              DEEPSEEK-5는 51개 전량 분류 성공(23개 커밋 추천 — 이미 커밋된
+              리포트의 생성 스크립트임을 출력 코드로 확인), DEEPSEEK-4는
+              OpenCode가 조사만 하고 표를 출력 안 해(2회 재시도 실패) Claude가
+              24개 직접 읽고 판단. 그 과정에서 **5DC-v1A-P post-fix 같은-바
+              STOP 120건 중 16건(13.3%)이 무조정 가격의 기업행위 갭으로
+              발생했다는, 문서화 안 돼 있던 조사 결과**를 발견해 커밋
+              (e0fad6a) — A2a 품질 게이트(PR-1.4)가 20종목은 걸렀으나 이
+              16종목은 통과해 들어옴. `verify_a1b_pnl.py`가 기존 survivorship
+              리포트의 "새 A1A 거래 240건" 주장을 재검산해 359건 불일치도
+              발견(후속 확인 필요, 미해결). strategy-lab 23개 재현성 확보
+              커밋(838512a). 삭제 27개(667MB `full_smoke_result.pkl` 포함,
+              생성 스크립트 없고 내용은 이미 커밋된 산출물이 보존 — 사용자
+              승인 후 삭제)
+            ★ Codex slot-marginal 발견 (2026-08-19,
+              research/strategy-lab/findings/slot-marginal-contribution/) —
+              KR-2.2 19개 슬롯을 LOO(leave-one-out)로 측정. (1) production
+              baseline(재무+기술)이 최소 비교 4종 중 유일하게 유의한 IC
+              (d120 +0.0411, t=3.48), 수급 5일 추세를 얹으면 오히려 IC 감소.
+              (2) full 모델에서 IC를 결정적으로 올리는 슬롯은 **pbr** 하나
+              (ΔIC d120 +0.0385) — 단 CA(기업행위) 배제로 표본 120종목 중
+              42종목(35%)이 valuation 자체를 측정 못 함. (3) 수급 슬롯이
+              쓰는 5일 추세 ordinal은 음(-) IC인데 A4 연구(20일 누적)는
+              양(+) IC — **같은 수급 정보라도 5일 정의가 역방향**. (4) base는
+              coverage 60%를 원리적으로 못 넘음(최대 0.579) — 등급을 내려면
+              수급이 사실상 필수. `docs/control/KR-2.3-supplyDemand-설계안.md`는
+              이 발견(5일 분류가 역방향일 수 있다는 우려의 실증)으로 재검토
+              전까지 보류 — 재개 조건은 `trendFromWindow()`를 20일 창으로
+              바꿨을 때의 classification IC를 먼저 재는 것
+            ★ A4 수급 데이터셋 + DEEPSEEK-2 marginal IC 독립검증
+              (2026-08-18~19, 커밋 c63340d·699ed18) — Strategy Lab 연구용
+              A4 데이터셋 추가. DeepSeek 독립 재구현으로 재현 확인 +
+              구조적 원인 규명: **개인 순매수축은 외국인·기관축의 완전한
+              선형결합**(foreign_nb_20d+inst_nb_20d+indiv_nb_20d=0,
+              5,348,454행 전부 오차 0) — 시장청산 항등식(전체매수=전체매도)
+              에서 필연. "개인축을 4번째 지표로 추가"는 정의상 불가능
+              (marginal이 낮은 게 아니라 독립 정보 자체가 존재할 수 없음).
+              d120에서 개인축 marginal이 사라지는 이유가 이 완전공선성임을
+              확정
+            ★ SL-2(3) stop_distance 비교 독립 재현 검증 (2026-08-19, 커밋
+              38a08e5) — ORIGINAL_2xATR·FIXED_MEDIAN·CAP_P75 세 방식 전
+              수치가 slim_trades.json(2,154건) 원시 데이터에서 소수점까지
+              정확히 일치. 예외 1건: ATR%-MAE 상관(문서값 r=0.820)이 전체
+              2,154건으로는 재현 안 됨(r=0.684) — STOP 청산 거래만 추리면
+              0.838로 근접, 원 상관계수가 부분집합 기준이었을 가능성
+              (생성 스크립트 부재로 미확정)
+            ★ REV20 결합 견고성 검증 — 채택 불가로 하향 (2026-08-18,
+              research/strategy-lab/reports/2026-08-18-strategy-candidates/
+              README.md §11) — 비용·유동성·가격 필터를 동시 적용(기존엔
+              하나씩만 테스트)하자 survivorship 제거로 살아났던 REV20
+              (+6.7%)이 전부 손실로 뒤집힘(cost60bps+turnover1억 -11.5%,
+              최악 조합 -13.0%). 원인은 필터 부작용이 아니라 **알파 자체가
+              5,000원·1억원 미만 저가·저유동성 종목에서만 존재**(<5,000원
+              mean +3.94%/월 vs ≥5,000원 -0.14%/월). 현재 조건에서 REV20
+              채택 불가 확정
+            ★ SB-1.0 KR_4AXIS 백테스트 정찰 — valuation 블로커 재확인, 보류
               (2026-08-18) — A4 완료로 착수한 3단계 vertical slice(5→35종목,
               553주간 snapshot, 2016~2026)에서 resolver.js가 valuation을
               아직 안 붙인다는 사실(A5-3, 2026-08-12부터 알려진 블로커)이 이
