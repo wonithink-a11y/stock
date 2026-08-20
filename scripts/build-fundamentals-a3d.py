@@ -308,13 +308,19 @@ def build_grid(pol):
 def scan_corp(corp, ticker, pol, timeline, counters):
     a3d = pol["a3d"]
     scan_from = a3d["scanFrom"].replace("-", "")
-    scan_to = today_kst()
+    scan_to = today_kst().replace("-", "")
     categories = a3d["categories"]
     cls_pol = a3d["classification"]
     endpoints = a3d["source"]["detailEndpoints"]
 
     matched = []  # (row, base_category)
+    # pblntf_ty 블록엔 "note"(문서용 문자열)도 섞여 있다 — 실제 값(리스트)인 키만 돈다.
+    # (2026-08-20 스모크 테스트에서 "note"도 실제 pblntf_ty 파라미터로 보내지고 있던
+    # 걸 발견 — DART가 013(데이터 없음)으로 조용히 받아줘서 결과는 안 틀렸지만
+    # corp당 불필요한 API 콜 하나가 매번 낭비되고 있었다.)
     for pblntf_ty, cats in a3d["source"]["pblntf_ty"].items():
+        if not isinstance(cats, list):
+            continue
         rows = list_disclosures(corp, pblntf_ty, scan_from, scan_to, pol, counters)
         for r in rows:
             for cat in classify(r.get("report_nm"), categories):
