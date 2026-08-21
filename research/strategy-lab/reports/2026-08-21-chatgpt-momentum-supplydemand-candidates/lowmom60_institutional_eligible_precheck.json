@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-08-21T15:17:57",
+  "context": "ChatGPT 제안 후보 A/B/C(저모멘텀+기관수급) 착수 전 사전 점검 - 저모멘텀 알파가 기관수급 유효 구간(거래대금 상위 tercile)에서도 남는지. lowmom60_robustness.py 패널·백테스트 로직 재사용, 절대임계 대신 매달 상대 tercile 필터로 변경.",
+  "period": "2016-01-01 ~ 2026-08-14",
+  "topN": 30,
+  "costBps": 30.0,
+  "referenceBaseline_2026_08_18_report": {
+    "cagr": 0.221,
+    "totalReturn": 8.0,
+    "note": "reports/2026-08-18-strategy-candidates/README.md §4 원 수치(2016-01-01~2026-08-14 근접 기간) - 재현 목적 아님, 규모감 비교용"
+  },
+  "results": {
+    "baseline_no_filter": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "finalEquity": 694698717.0,
+      "totalReturn": 5.947,
+      "cagr": 0.1927,
+      "maxDD": -0.3845
+    },
+    "T3_top_liquidity_tercile": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "finalEquity": 25023095.0,
+      "totalReturn": -0.7498,
+      "cagr": -0.1183,
+      "maxDD": -0.7666
+    },
+    "T1_bottom_liquidity_tercile_control": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "finalEquity": 3174682544.0,
+      "totalReturn": 30.7468,
+      "cagr": 0.3694,
+      "maxDD": -0.3055
+    }
+  }
+}
