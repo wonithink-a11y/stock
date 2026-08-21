@@ -1,0 +1,24 @@
+{
+  "strategyId": "dummy_sma20",
+  "version": "0.1",
+  "note": "Paper Trading Engine 배관(plumbing) 검증용 더미 전략. 실제 매매 후보 아님 - 5DC-v1A-P/TREND-BREAKOUT-v1과 무관하고 그 둘의 보류 상태에 영향받지 않는다.",
+
+  "testUniverse": ["005930", "000660", "035420", "051910", "005380"],
+
+  "signal": {
+    "expression": "Close[t-1] <= SMA20[t-1] AND Close[t] > SMA20[t]",
+    "note": "SMA20은 engine/indicators/bollinger.py의 bb_mid를 재사용(새 지표 미작성)"
+  },
+
+  "risk": {
+    "stopPct": 0.05,
+    "targetPct": 0.10,
+    "maxHoldingSessions": 20,
+    "note": "ATR 기반 아님 - 리스크 계약 결함 논의(same-bar STOP)와 무관하게 배관만 검증"
+  },
+
+  "position": {
+    "notionalPerPosition": 10000000,
+    "maxPositions": 3
+  }
+}
