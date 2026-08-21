@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-08-21T15:21:11",
+  "context": "2026-08-21 사용자 지시 - 배수 정밀 스윕(C0~C4 후속, 동일 조건: A1A_ONLY, 동일 기간·비용·PIT). stop_distance_candidates_5dc.json은 미변경(별도 파일).",
+  "universeMode": "A1A_ONLY",
+  "period": "2014-05-13 ~ 2026-08-03",
+  "results": [
+    {
+      "candidate": "C5_2p25xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 1346,
+      "exitTypeCounts": {
+        "STOP": 18135,
+        "TARGET": 6193,
+        "TIME_EXIT": 3976
+      },
+      "sameBarTradeCount": 82,
+      "sameBarShare": 0.0609,
+      "medianStopOverEntry_allTrades": 0.08526186040017457,
+      "medianStopOverEntry_sameBarOnly": 0.09194769678652355,
+      "cagr": -0.07355819483353798,
+      "mdd": -0.6741768776194651,
+      "sharpe": -1.2729111293849982,
+      "finalEquity": 39357615.223129734,
+      "tradeCount": 1346,
+      "winRate": 0.2838038632986627,
+      "profitFactor": 0.8495925087504158,
+      "avgHoldingPeriod": 32.59583952451709
+    },
+    {
+      "candidate": "C6_2p75xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 1086,
+      "exitTypeCounts": {
+        "STOP": 16353,
+        "TARGET": 5301,
+        "TIME_EXIT": 6559
+      },
+      "sameBarTradeCount": 46,
+      "sameBarShare": 0.0424,
+      "medianStopOverEntry_allTrades": 0.10348876733046311,
+      "medianStopOverEntry_sameBarOnly": 0.11048861742019653,
+      "cagr": -0.07078167560758186,
+      "mdd": -0.6658902553174935,
+      "sharpe": -1.2575014709571315,
+      "finalEquity": 40773430.05732446,
+      "tradeCount": 1086,
+      "winRate": 0.3139963167587477,
+      "profitFactor": 0.8383081956142107,
+      "avgHoldingPeriod": 40.45948434622468
+    },
+    {
+      "candidate": "C7_3p25xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 907,
+      "exitTypeCounts": {
+        "STOP": 14603,
+        "TARGET": 4458,
+        "TIME_EXIT": 9078
+      },
+      "sameBarTradeCount": 33,
+      "sameBarShare": 0.0364,
+      "medianStopOverEntry_allTrades": 0.12037535892706022,
+      "medianStopOverEntry_sameBarOnly": 0.12627409041786744,
+      "cagr": -0.038251207523388286,
+      "mdd": -0.48448604627164166,
+      "sharpe": -0.6955698260793346,
+      "finalEquity": 61751746.25182333,
+      "tradeCount": 907,
+      "winRate": 0.3539140022050717,
+      "profitFactor": 0.8924823685785038,
+      "avgHoldingPeriod": 48.52701212789415
+    }
+  ]
+}
