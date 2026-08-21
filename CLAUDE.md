@@ -441,7 +441,7 @@ git log --oneline $(git log -1 --format=%H -- CLAUDE.md)..HEAD -- lib scripts co
 동일 원칙).
 
 결과는 `docs/verification/`·`docs/control/`류에만 남기고 manifest·
-`data/backfill/`에는 쓰지 않는다(실험실·Codex와 동일 원칙 — 아래 "쓰기 권한은
+`data/backfill/`에는 쓰지 않는다(실험실과 동일 원칙 — 아래 "쓰기 권한은
 경로가 정한다" 참고). **OpenCode 결과는 관점 하나다, Claude의 판단과 동일시
 하지 않는다** — 근거와 함께 독립 결과로 구분해 적는다(오퍼스 위임과 같은
 원칙, 교훈61).
@@ -454,9 +454,10 @@ credential·API key 등 민감정보는 전달하지 않는다(규칙 2).
 ## AI 협업 구조 (확정 2026-08-10)
 
 Claude Code 외에 **ChatGPT**(설계·계약 검토, 진입 규칙은 `CHATGPT.md`)와
-**Codex**(설계 검토 + 독립 검증, 진입 규칙은 `AGENTS.md`, 2026-08-12 합류·
-읽기 전용)와 **모두의 AI 실험실**(독립 실행·검증, 현재 GitHub 접근 불가)이
-있고, **VM이 매일 자동으로 산출물을 만든다.**
+**OpenCode/DeepSeek**(기계적 전처리 서브에이전트 — 판단은 위임하지 않는다,
+진입 규칙은 `AGENTS.md`, 2026-08-21 Codex에서 전환)와 **모두의 AI 실험실**
+(독립 실행·검증, 현재 GitHub 접근 불가)이 있고, **VM이 매일 자동으로
+산출물을 만든다.**
 GitHub `main`이 공통 정본이다 — 다른 주체의 작업을 기억이나 추측으로 다루지 않고
 시작 전에 Git 상태와 관련 문서를 확인한다.
 
@@ -496,11 +497,11 @@ Claude가 생산한 수집   → 실험실 독립 재실행 + ChatGPT 계약 대
 독립 재현 검증은 **T1 재현성 정찰(MN-1.0 §6.1) 이후에** 본격화한다. 그 전에는 두
 실행의 차이가 결함인지 소스의 정상 변동인지 가릴 수 없고, 대개 구현자를 의심하게 된다.
 
-**실험실이 GitHub을 못 읽는 동안은 Codex가 독립 검증을 대신한다** — Claude와
-다른 계열이라 여기 넣어도 생산자·검증자 겸임이 안 생긴다(TASKS.md 'LAB-*' 공통
-주석 참조). 단, **같은 결정에 설계 검토와 검증을 동시에 맡기지 않는다** — Codex가
-어떤 설계를 검토했으면 그 설계의 구현 검증은 다른 주체(ChatGPT·사람·실험실 복구 후)가
-한다. 겸임 여부는 '주체'가 아니라 '같은 결정을 두 번 만졌는가'로 판단한다.
+**실험실이 GitHub을 못 읽는 동안은 독립 검증 대행자가 없다**(2026-08-21,
+Codex 사용 중단 — 사용자 결정). OpenCode/DeepSeek은 판단을 위임받지 않으므로
+이 자리를 대신하지 않는다(위 "OpenCode 위임 기준" 참고). 실험실 복구 전까지
+Claude가 생산한 백필의 독립 재현 검증은 비어 있다 — 필요하면 ChatGPT 계약
+대조나 사람 확인으로 보완한다.
 
 ### Git 규칙
 
@@ -527,16 +528,16 @@ push된 히스토리를 다시 쓰지 않는다. 되돌릴 일은 revert로 앞�
 | `docs/*계약*.md` | Claude가 구현 반영 · ChatGPT는 지적만 |
 | `CLAUDE.md` | Claude |
 | `CHATGPT.md` | ChatGPT |
-| `AGENTS.md` | Claude가 관리 (Codex 진입 규칙이지만 Codex는 읽기 전용이라 스스로 못 씀) |
+| `AGENTS.md` | Claude가 관리 (OpenCode 진입 규칙, OpenCode는 파일 수정·커밋 기본 금지라 스스로 못 씀) |
 | `docs/AI협업-업무분담.md` · `docs/control/` | Claude |
 | `docs/data/` · `data/backfill/` | GitHub Actions |
 | VM staging · Object Storage | VM |
-| `docs/verification/` | 실험실 (또는 Codex 세션 결과를 Claude가 옮겨 적는다 — ChatGPT 계약 피드백과 같은 relay, Codex는 읽기 전용이라 스스로 못 씀) |
+| `docs/verification/` | 실험실 (또는 OpenCode 결과를 Claude가 옮겨 적는다 — ChatGPT 계약 피드백과 같은 relay) |
 
 **실험실의 검증 결과를 `data/backfill/**/manifest/`에 쓰지 않는다.** 그러면 manifest가
-'생산자가 인수 조건을 통과시켰다'에서 '누군가 통과했다고 말한다'로 바뀐다. Codex도 같다 —
-읽기 전용이라 애초에 쓸 수 없지만, Claude가 대신 옮겨 적을 때도 manifest·`data/backfill/`은
-대상에서 뺀다.
+'생산자가 인수 조건을 통과시켰다'에서 '누군가 통과했다고 말한다'로 바뀐다. OpenCode도
+같다 — 애초에 판단을 위임 안 하니 쓸 이유가 없지만, Claude가 대신 옮겨 적을 때도
+manifest·`data/backfill/`은 대상에서 뺀다.
 
 계약·아키텍처 변경은 구현과 별개의 결정이며 사용자 승인 없이 하지 않는다.
 
@@ -558,10 +559,10 @@ push된 히스토리를 다시 쓰지 않는다. 되돌릴 일은 revert로 앞�
 수집 실행 · Actions 수동 트리거 · VM 배포 · push · 상태 디렉터리 삭제.
 코드는 revert로 되돌아가지만 이틀짜리 수집과 API 예산은 그렇지 않다.
 
-ChatGPT·Codex는 🔴만 검토한다 — **독립 검토자이지 승인자가 아니다.** 🟡·🟢을 보내면
-왕복만 는다. **★ 일치는 승인 근거가 아니다.** 셋이 같은 답을 내는 것은 정보를 거의
+ChatGPT는 🔴만 검토한다 — **독립 검토자이지 승인자가 아니다.** 🟡·🟢을 보내면
+왕복만 는다. **★ 일치는 승인 근거가 아니다.** 같은 답을 내는 것은 정보를 거의
 주지 않는다(교훈61). 근거는 실측과 계약이고 검토의 값은 불일치에서 나온다 —
-ChatGPT·Codex가 서로 다르거나 Claude와 다를 때만 그 불일치를 사용자에게 설명한다.
+ChatGPT가 Claude와 다를 때만 그 불일치를 사용자에게 설명한다.
 
 ---
 
