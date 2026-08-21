@@ -1,26 +1,40 @@
-"""Paper Trading Engine skeleton - orchestrates Signal -> OrderIntent ->
-PaperBroker -> position state, once per call to run_once(as_of).
+"""Paper Trading Engine - Signal -> OrderIntent -> Broker -> position state.
 
-Scope (docs/control/리스크계약-스톱타이밍-결정브리프.md 관련 논의, 2026-08-21
-사용자 승인 1~2단계): plumbing only. No KIS connection - PaperBroker fills
-against A2a historical/EOD bars. Assumes run_once(as_of) is called after the
-as_of session has fully closed (no live intraday feed exists yet); a future
-step wires this to a same-day intraday source and this assumption is revisited
-then, not before.
+두 가지 경로가 이 파일에 같이 산다:
+
+  run_once(as_of)          로컬 시뮬레이션(PaperBroker, A2a 과거 EOD 데이터).
+                            하루 한 번, 신호 스캔부터 체결까지 한 호출 안에서
+                            끝난다(2026-08-21 1~2단계, 사용자 승인). 실전
+                            연동과 무관 - run_paper_engine.py·
+                            tests/test_paper_engine.py가 이 경로를 쓴다.
+
+  scan_signals(as_of) +     실거래(KisVtsBroker) 경로. 신호 판단(scan_signals,
+  poll_once()               하루 1회, EOD 데이터로 충분)과 체결 관리(poll_once,
+                            장중 수 분 간격)를 분리한다 - 실제 주문은 "제출"과
+                            "체결 확인"이 별개 호출이라 run_once()처럼 한
+                            사이클에 못 담는다(2026-08-21 3단계, 사용자 승인
+                            "B안으로 진행해줘"). poll_once의 enable_live_orders
+                            플래그가 기본 False - 이게 유일한 자동주문
+                            활성화 스위치다.
 
 Lookahead discipline (mirrors engine/execution/executor.py):
   - ENTRY fills at the *next* trading session's open after a signal fires -
-    never at the price the signal was computed from. This is why a fresh
-    signal goes to PENDING_ENTRY and waits one run_once() cycle, exactly like
-    build_order()'s next_session() does in the backtest engine.
-  - EXIT (stop/target/time) is decided from as_of's own finalized OHLC - not
-    lookahead, because by the time run_once(as_of) is called that session is
-    already over.
+    never at the price the signal was computed from. run_once()은 이를 위해
+    PENDING_ENTRY로 한 사이클 대기한다(build_order()의 next_session()과 동일
+    원칙). poll_once()의 실거래 경로는 이 규칙이 자연히 성립한다 - 신호가
+    난 날(scan_signals)과 체결이 실제로 나가는 시점(다음 거래일 poll_once)
+    사이에 최소 하루 차이가 생긴다(신호는 그날 마감 후에나 계산되므로).
+  - EXIT (stop/target/time)은 run_once()에서는 as_of의 확정 OHLC로,
+    poll_once()에서는 그 순간의 실시간 시세로 판정한다 - 어느 쪽도
+    lookahead가 아니다.
 
-Duplicate-entry guard: a symbol already PENDING_ENTRY or OPEN is skipped in
-the new-signal scan (state dict membership is the only check - no separate
-"already holding" flag to keep in sync).
+Duplicate-entry guard: run_once()·scan_signals() 둘 다 상태 dict에 이미
+있는 심볼은 신호 스캔에서 건너뛴다. poll_once()는 상태값(PENDING_ENTRY/
+ENTRY_SUBMITTED/OPEN/EXIT_SUBMITTED)마다 분기가 배타적이라, SUBMITTED
+상태인 동안은 같은 심볼에 새 주문을 낼 경로 자체가 없다.
 """
+from datetime import datetime, timezone, timedelta
+
 import pandas as pd
 
 from engine.data.a2aProvider import A2aProvider
@@ -28,6 +42,8 @@ from engine.data.calendar import TradingCalendar
 from engine.live import positionStore
 from engine.live.contracts import OrderIntent
 from engine.live.paperBroker import PaperBroker
+
+KST = timezone(timedelta(hours=9))
 
 
 def run_once(repo_root, rule, as_of, log=print, bars_by_ticker=None, calendar=None):
@@ -130,6 +146,196 @@ def run_once(repo_root, rule, as_of, log=print, bars_by_ticker=None, calendar=No
         open_or_pending += 1
         events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
         log(f"[{as_of}] SIGNAL -> INTENT  {symbol}  qty={quantity} (fills next session)")
+
+    positionStore.save(repo_root, strategy_id, state)
+    return events
+
+
+def scan_signals(repo_root, rule, as_of, log=print, bars_by_ticker=None):
+    """run_once()의 '3) 신규 진입 신호 스캔' 단계와 판단 로직은 동일하지만
+    별개 함수다(호출은 공유하지 않는다) - run_once()는 세 단계가 메모리
+    안의 같은 state를 이어 쓰다가 끝에 한 번만 저장하는데, 이 함수가 내부에서
+    다시 positionStore.load()를 하면 그 사이 상태(체결·청산)가 아직
+    저장 전이라 덮어써질 위험이 있다. 그래서 run_once()의 코드를 그대로
+    복제해 뒀다 - 신호 로직을 고치면 두 곳 다 고쳐야 한다(현재는 이
+    한계를 감수, 리팩터링은 별도 판단).
+
+    실거래(poll_once) 경로에서는 이 함수가 유일한 진입점이라 이 문제가
+    없다 - 하루 1회, 단독으로 load/save한다. PENDING_ENTRY를 만들 뿐
+    어떤 주문도 내지 않는다."""
+    params = rule.PARAMS
+    strategy_id = params["strategyId"]
+    universe = params["testUniverse"]
+    position_cfg = params["position"]
+
+    calendar = TradingCalendar(repo_root=repo_root)
+    if bars_by_ticker is None:
+        a2a = A2aProvider(repo_root=repo_root, use_cache=True)
+        bars_by_ticker = a2a.load(set(universe), calendar.days[0], as_of, universe_hash="paper-skeleton-v0")
+
+    state = positionStore.load(repo_root, strategy_id)
+    events = []
+    as_of_ts = pd.Timestamp(as_of)
+    open_or_pending = len(state)
+
+    for symbol in universe:
+        if symbol in state:
+            continue
+        if open_or_pending >= position_cfg["maxPositions"]:
+            continue
+        bars = bars_by_ticker.get(symbol)
+        if bars is None:
+            continue
+        features = rule.compute_features(bars)
+        if not rule.signal_fires(features, as_of):
+            continue
+        entry_price_hint = float(features.loc[as_of_ts, "close"])
+        quantity = max(1, int(position_cfg["notionalPerPosition"] // entry_price_hint))
+        state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity, "intent_date": as_of}
+        open_or_pending += 1
+        events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
+        log(f"[{as_of}] SIGNAL -> INTENT  {symbol}  qty={quantity} (실주문은 poll_once가 낸다)")
+
+    positionStore.save(repo_root, strategy_id, state)
+    return events
+
+
+def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=None):
+    """장중에 여러 번(수 분 간격) 불리는 것을 전제로 한 실거래 폴링.
+    broker: KisVtsBroker와 같은 인터페이스(submit_buy/submit_sell/check_fill/
+    current_price) - 테스트에서는 합성 FakeBroker를 넣는다.
+
+    enable_live_orders=False(기본값)면 아무 것도 안 하고 즉시 반환한다 -
+    이게 유일한 활성화 스위치다. 이 함수를 부르는 스케줄러/크론이 있어도
+    이 값이 True로 바뀌기 전까지는 broker를 단 한 번도 호출하지 않는다.
+
+    상태기계 (positionStore, 심볼당 하나):
+        PENDING_ENTRY    -> submit_buy 시도 -> ENTRY_SUBMITTED
+        ENTRY_SUBMITTED  -> check_fill: 체결확인 -> OPEN
+                                         거부     -> PENDING_ENTRY(재시도)
+                                         대기중   -> 그대로(중복 제출 없음)
+        OPEN             -> stop/target/time 판정 -> submit_sell -> EXIT_SUBMITTED
+        EXIT_SUBMITTED   -> check_fill: 체결확인 -> 상태 삭제(포지션 종료)
+                                         거부     -> OPEN(재시도)
+                                         대기중   -> 그대로(중복 제출 없음)
+
+    각 분기는 상태값으로 완전히 배타적이라, 같은 poll_once() 호출 안에서도
+    한 심볼에 두 번 주문이 나갈 수 없다 - '이미 SUBMITTED인 걸 다시 사려는'
+    경로 자체가 없다.
+    """
+    if not enable_live_orders:
+        log("[비활성] enable_live_orders=False - poll_once가 아무 것도 하지 않음")
+        return []
+
+    params = rule.PARAMS
+    strategy_id = params["strategyId"]
+    risk = params["risk"]
+    now = now or datetime.now(KST)
+    today = now.strftime("%Y-%m-%d")
+    today_compact = now.strftime("%Y%m%d")
+
+    state = positionStore.load(repo_root, strategy_id)
+    events = []
+
+    for symbol, pos in list(state.items()):
+        status = pos["status"]
+
+        if status == "PENDING_ENTRY":
+            try:
+                order_no = broker.submit_buy(symbol, pos["quantity"])
+            except Exception as e:  # KisVtsError 등 - 브로커 예외 타입에 결합하지 않는다
+                log(f"[{today}] 매수 제출 실패 {symbol}: {e}")
+                continue
+            state[symbol] = {**pos, "status": "ENTRY_SUBMITTED",
+                              "order_no": order_no, "order_date": today_compact}
+            events.append({"type": "ENTRY_SUBMITTED", "symbol": symbol, "orderNo": order_no})
+            log(f"[{today}] 매수 제출  {symbol}  주문번호={order_no}")
+            continue
+
+        if status == "ENTRY_SUBMITTED":
+            try:
+                r = broker.check_fill(pos["order_no"], pos["order_date"], pos["quantity"])
+            except Exception as e:
+                log(f"[{today}] 체결조회 실패(매수) {symbol}: {e}")
+                continue
+            if r["rejected"]:
+                state[symbol] = {"status": "PENDING_ENTRY", "quantity": pos["quantity"],
+                                  "intent_date": pos.get("intent_date", today)}
+                events.append({"type": "ENTRY_REJECTED", "symbol": symbol})
+                log(f"[{today}] 매수 거부됨  {symbol}  - 다음 poll에서 재시도")
+                continue
+            if r["fullyFilled"]:
+                entry_price = r["avgPrice"]
+                filled_qty = r["filledQty"]
+                state[symbol] = {
+                    "status": "OPEN", "quantity": filled_qty, "entry_price": entry_price,
+                    "entry_date": today, "stop_price": round(entry_price * (1 - risk["stopPct"]), 2),
+                    "target_price": round(entry_price * (1 + risk["targetPct"]), 2),
+                    "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
+                    "lastCountedDate": None,
+                }
+                events.append({"type": "FILL_ENTRY", "symbol": symbol,
+                                "price": entry_price, "qty": filled_qty})
+                log(f"[{today}] 매수 체결 확인  {symbol}  qty={filled_qty}  price={entry_price}")
+            # else: 아직 대기중 - 그대로 둔다(중복 제출 없음)
+            continue
+
+        if status == "OPEN":
+            if pos.get("lastCountedDate") != today:
+                pos["sessions_held"] = pos.get("sessions_held", 0) + 1
+                pos["lastCountedDate"] = today
+                state[symbol] = pos
+
+            try:
+                price = broker.current_price(symbol)
+            except Exception as e:
+                log(f"[{today}] 시세 조회 실패 {symbol}: {e}")
+                continue
+
+            reason = None
+            if price <= pos["stop_price"]:
+                reason = "STOP"
+            elif price >= pos["target_price"]:
+                reason = "TARGET"
+            elif pos["sessions_held"] >= pos["max_holding_sessions"]:
+                reason = "TIME_EXIT"
+            if reason is None:
+                continue
+
+            try:
+                order_no = broker.submit_sell(symbol, pos["quantity"])
+            except Exception as e:
+                log(f"[{today}] 매도 제출 실패 {symbol}: {e}")
+                continue
+            state[symbol] = {**pos, "status": "EXIT_SUBMITTED", "order_no": order_no,
+                              "order_date": today_compact, "exitReason": reason}
+            events.append({"type": "EXIT_SUBMITTED", "symbol": symbol, "reason": reason, "orderNo": order_no})
+            log(f"[{today}] 매도 제출  {symbol}  사유={reason}  주문번호={order_no}")
+            continue
+
+        if status == "EXIT_SUBMITTED":
+            try:
+                r = broker.check_fill(pos["order_no"], pos["order_date"], pos["quantity"])
+            except Exception as e:
+                log(f"[{today}] 체결조회 실패(매도) {symbol}: {e}")
+                continue
+            if r["rejected"]:
+                reverted = {k: v for k, v in pos.items()
+                            if k not in ("order_no", "order_date", "exitReason")}
+                reverted["status"] = "OPEN"
+                state[symbol] = reverted
+                events.append({"type": "EXIT_REJECTED", "symbol": symbol})
+                log(f"[{today}] 매도 거부됨  {symbol}  - OPEN으로 복귀, 다음 poll에서 재시도")
+                continue
+            if r["fullyFilled"]:
+                exit_price = r["avgPrice"]
+                pnl = round((exit_price - pos["entry_price"]) * r["filledQty"], 2)
+                events.append({"type": f"FILL_EXIT_{pos['exitReason']}", "symbol": symbol,
+                                "price": exit_price, "pnl": pnl})
+                log(f"[{today}] 매도 체결 확인  {symbol}  price={exit_price}  pnl={pnl}")
+                del state[symbol]
+            # else: 아직 대기중 - 그대로 둔다(중복 제출 없음)
+            continue
 
     positionStore.save(repo_root, strategy_id, state)
     return events
