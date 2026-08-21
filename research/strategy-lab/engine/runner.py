@@ -55,6 +55,36 @@ def _drop_suspension_rows(bars):
     return bars[~((bars["open"] == 0) & (bars["high"] == 0) & (bars["low"] == 0))]
 
 
+def _merge_continuous_same_symbol_holds(resolved):
+    """Opt-in (PARAMS["scheduling"]["continuousHoldOnRenewal"]) - collapse a
+    same-symbol renewal chain into one trade spanning the whole chain: original
+    entry_fill, final exit_fill, no interim cash event and no interim round-trip
+    cost. Only merges when the earlier trade's exit was TIME_EXIT and its
+    fill_date exactly equals the next trade's order_date - a STOP/TARGET exit is
+    never merged, so a same-day "stopped out, then an unrelated fresh signal for
+    the same symbol" coincidence is never silently welded into one continuous
+    position (found 2026-08-21 while diagnosing pbr_value_v1's monthly full-
+    rotation cash-timing throttle: exit-then-reenter on the exact rebalance day
+    is a real trade under this loop's own contract, but for a strategy whose
+    "renewal" IS the same investment thesis continuing, forcing a liquidate+
+    refund cycle through Portfolio's same-day-cash-reuse-ban is a needless
+    round-trip, not a real decision)."""
+    ordered = sorted(resolved, key=lambda item: item[1].order_date)
+    merged = []
+    chain_idx = {}
+    for item in ordered:
+        sig, order, entry_fill, exit_fill, risk_spec, atr = item
+        idx = chain_idx.get(order.symbol)
+        if idx is not None:
+            p_sig, p_order, p_entry, p_exit, p_risk, p_atr = merged[idx]
+            if p_exit.fill_type == "TIME_EXIT" and p_exit.fill_date == order.order_date:
+                merged[idx] = (p_sig, p_order, p_entry, exit_fill, p_risk, p_atr)
+                continue
+        merged.append(item)
+        chain_idx[order.symbol] = len(merged) - 1
+    return merged, len(resolved) - len(merged)
+
+
 def _schedule_portfolio(resolved, portfolio, portfolio_cfg):
     """Drives portfolio.process_day() chronologically over every date where a
     resolved trade enters or exits. Returns max_open_seen (simultaneous
@@ -280,6 +310,11 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
         deduped.append(item)
     resolved = deduped
     diag["portfolioEligibleTradeCount"] = len(resolved)
+
+    continuous_holds_merged_count = 0
+    if params.get("scheduling", {}).get("continuousHoldOnRenewal", False):
+        resolved, continuous_holds_merged_count = _merge_continuous_same_symbol_holds(resolved)
+    diag["continuousHoldsMergedCount"] = continuous_holds_merged_count
 
     max_open_seen = _schedule_portfolio(resolved, portfolio, portfolio_cfg)
 
