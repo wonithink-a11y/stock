@@ -38,9 +38,11 @@ Validated against
               **방향만 확정이고 구현(정책 스키마·resolver.js)은 별도 🔴 결정**
               이었으나 그 뒤 구현·A3d 백필·PIT 버그 수정까지 전부 끝났다
               (위 "완료"의 2026-08-20 A3d 신설·2026-08-21 PIT 버그 수정 항목
-              참고). **남은 건 A3d 실제 재수집(GitHub Actions, "실행"이라
-              사전 확인 대상) → featureRegistry.js peg/pbr available:true
-              전환 → V7 수직 슬라이스뿐**, 전부 착수 대기 중(사용자 확인 필요)
+              참고). **★ A3d 실제 재수집도 완료됨**(2026-08-21, 사용자 확인
+              후 트리거, manifest 커밋 `ca9cffd`) — 실제 산출물에서 방향모순
+              0건 직접 재확인(split 261행·reverseOrConsolidation 161행).
+              **남은 건 featureRegistry.js peg/pbr available:true 전환 →
+              V7 수직 슬라이스뿐**, 착수 대기 중(사용자 확인 필요)
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →

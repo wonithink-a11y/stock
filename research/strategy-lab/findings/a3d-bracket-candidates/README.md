@@ -124,16 +124,27 @@ None이다(split 12건·reverseOrConsolidation 62건 None, 나머지는 값 확�
 🔴 판단이라 여기서 결정하지 않는다). 재현: `python research/strategy-lab/
 remaining_outliers_triage.py`.
 
-### 남은 일 (다음 세션·재수집 필요, 오늘 밤엔 안 함)
+### ★ 실제 재수집 완료 (2026-08-21, 사용자 확인 후 트리거)
 
-이 두 수정은 `scripts/build-fundamentals-a3d.py`(GitHub Actions 수집기)에
-반영됐지만 **`data/backfill/fundamentals/a3d/`의 실제 산출물(manifest
-`sha256:f551f9ae17e71405`, 커밋 `201e17c`)은 여전히 옛(버그 있는) 값이다**
-— 이 README의 로컬 재계산은 진단용이지 산출물을 대체하지 않는다. 고친
-수집기로 실제 재수집(GitHub Actions `fundamentals-a3d.yml`, DART 예산·
-샤드 실행 ~35분~1시간)을 해야 manifest가 갱신된다 — 이건 "실행"이라 등급과
-무관하게 사전 확인 대상(CLAUDE.md)이라 오늘 밤 트리거하지 않았다. 다음
-세션에서 사용자 확인 후 재실행을 권한다.
+GitHub Actions `fundamentals-a3d.yml`을 mode=collect(전체, 8샤드, ~1시간)
+→ mode=finalize로 실행해 고친 수집기로 실제 산출물을 재생성했다(manifest
+커밋 `ca9cffd`). 인수 조건 전부 통과(`acceptancePassed: true`,
+`acceptanceFails: []`). 실측 결과가 위 로컬 예측과 거의 정확히 일치한다:
+
+```
+bracketOutOfToleranceRate   18.85% (로컬 예측 18.4%)
+split                       268행 → 261행 (56건 BRACKET_MISSING으로 정직하게 유보)
+reverseOrConsolidation      225행 → 161행 (438건 후보 중 다수 BRACKET_MISSING 유보)
+```
+
+**실제 산출물에서 방향모순 직접 재확인(로컬 재계산이 아니라 실제 커밋된
+파일 그대로)**: `split` 261행 중 multiplier<1(모순) **0건**,
+`reverseOrConsolidation` 161행 중 multiplier>1(모순) **0건**. 두 버그
+수정이 production 데이터에서도 완전히 검증됐다.
+
+`lib/a5/featureRegistry.js`의 peg/pbr `available:true` 전환은 이제 데이터
+전제조건이 풀렸다 — 다음 단계(§3 "다음 순서" 2·3번, N=20-30 실데이터 회귀는
+이미 완료됨)로 넘어갈 수 있다.
 
 ## 파일
 
