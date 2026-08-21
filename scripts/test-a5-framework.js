@@ -153,12 +153,17 @@ ok('압축형 freshnessDays 값이 실제 경과일과 맞는다',
 console.log('\n[피처 레지스트리 — 가용성이 값이다]');
 const aw = reg.availableWeight(criteria);
 ok('계산 가능 가중치를 수치로 낸다', typeof aw.total === 'number', J(aw.total));
-ok('지금은 minimumDataCoverage에 못 미친다 (운영 투입 불가이지 구현 불가가 아니다)',
-   aw.total < criteria.minimumDataCoverage,
+// 2026-08-21 — pbr·peg available:true 전환(A3d 재수집 완료) 후 0.65로
+// minimumDataCoverage(0.6)를 넘었다. 운영 투입 가능/불가는 이 값이 답하지
+// featureRegistry 구현 여부가 답하지 않는다(이 파일 상단 원칙) — 지금은
+// 넘긴 쪽이라 부등호를 뒤집는다.
+ok('minimumDataCoverage를 넘는다 (2026-08-21, A3d 재수집으로 pbr·peg 전환 후)',
+   aw.total >= criteria.minimumDataCoverage,
    `${aw.total} vs ${criteria.minimumDataCoverage}`);
 ok('technical은 통째로 가용하다',
    aw.byCategory.technical.availableFraction === 1);
-ok('valuation은 통째로 불가하다', aw.byCategory.valuation.availableFraction === 0);
+ok('valuation은 절반 가용하다 (pbr·peg는 available, perRelative·marginOfSafety는 아직)',
+   aw.byCategory.valuation.availableFraction === 0.5, J(aw.byCategory.valuation));
 ok('supplyDemand는 통째로 불가하다 (A4 미정)',
    aw.byCategory.supplyDemand.availableFraction === 0);
 ok('fundamental은 통째로 가용하다 (2026-08-12, shareholderReturn 구현 완료)',

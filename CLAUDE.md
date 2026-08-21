@@ -41,8 +41,13 @@ Validated against
               참고). **★ A3d 실제 재수집도 완료됨**(2026-08-21, 사용자 확인
               후 트리거, manifest 커밋 `ca9cffd`) — 실제 산출물에서 방향모순
               0건 직접 재확인(split 261행·reverseOrConsolidation 161행).
-              **남은 건 featureRegistry.js peg/pbr available:true 전환 →
-              V7 수직 슬라이스뿐**, 착수 대기 중(사용자 확인 필요)
+              **★ featureRegistry.js peg/pbr available:true 전환도 완료**
+              (2026-08-21, 사용자 확인 후) — `availableWeight().total`이
+              0.65로 `minimumDataCoverage`(0.6)를 처음 넘었다(valuation
+              availableFraction 0→0.5). scripts/test-a5-framework.js의 옛
+              단정 2건(coverage<0.6·valuation 전부 불가)을 새 상태로 갱신,
+              25개 회귀 스위트 전체 재확인. **남은 건 V7 수직 슬라이스**
+              (§6, 실데이터 연결 최종 확인)뿐, 착수 대기 중(사용자 확인 필요)
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
