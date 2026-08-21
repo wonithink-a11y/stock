@@ -276,6 +276,26 @@ const CONTRACT = {
     trueFlags: [],
     forbidden: ['smokeTest'],
   },
+
+  'A8': {
+    file: 'data/backfill/shortSelling/a8/_diagnostics.json',
+    required: ['shortSellingPolicy', 'environment', 'shardCount', 'rowCount',
+               'rowCountAfterValidation', 'calendarStart', 'calendarEnd',
+               'actualDataFrom', 'actualDataTo', 'years', 'totalGzBytes',
+               // 구조 계약 위반 카운트 — 전부 FAIL(0). A4와 달리 종목당 1콜(카테고리
+               // 구조 없음)이라 categoryKeySetViolations·marketClearingViolations는
+               // 해당 없음 - 애초에 잴 대상 자체가 없다(교훈73, 병합에서만 잴 수
+               // 있는 걸 샤드 쪽에 두지 않는 것과 같은 이유로 여기서도 없는 축을
+               // 있는 척 만들지 않는다).
+               'dateContractViolations', 'tickerContractViolations',
+               // 커버리지 — 대상(A1a)·확보·비율.
+               'candidateCount', 'tickersWithData', 'tickersWithDataRate',
+               'emptyCount', 'missingRate', 'expectedDaysPerTicker',
+               // UNRESOLVED — 종목별 실패 사유 전량(교훈75).
+               'unresolvedCount', 'unresolvedRate', 'unresolved'],
+    trueFlags: [],
+    forbidden: ['smokeTest'],
+  },
 };
 
 // 표 자체를 먼저 검사한다. 새 단계를 추가하면서 키 이름을 틀리면(file → path 같은)

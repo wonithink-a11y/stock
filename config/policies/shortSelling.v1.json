@@ -1,0 +1,67 @@
+{
+  "version": "SS-1.0",
+  "note": "A8(공매도) 백필의 수집 파라미터와 인수 조건. supplyDemand.v1.json(A4)과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 정찰(2026-08-21~22, probe-shorting-krx 워크플로 run 32502926508)로 KRX(pykrx, A4와 동일 KRX_ID/KRX_PW 로그인 세션) get_shorting_status_by_date가 잔고(수량·금액)와 그날 거래(거래량·거래대금)를 한 호출로 전부 반환함을 확인 — 별도 함수(get_shorting_balance_by_date)는 이 함수의 부분집합(잔고수량/잔고금액이 완전히 동일한 값)이라 별도 수집 안 함. get_shorting_value_by_date/_volume_by_date(그날 총매수 대비 공매도 비중)는 이번 버전에 포함하지 않는다 - 필요해지면 A8b로 연다(A4가 A4b를 열어둔 것과 같은 패턴).",
+  "market": "KR",
+
+  "source": {
+    "provider": "KRX",
+    "via": "pykrx",
+    "requiredVersion": "1.2.8",
+    "statusFn": "get_shorting_status_by_date",
+    "statusFnNote": "인자 (fromdate, todate, ticker) -> 컬럼 [거래량, 잔고수량, 거래대금, 잔고금액]. 정찰 실측(005930·000660, 2026-08-21)에서 이 함수의 잔고수량/잔고금액이 get_shorting_balance_by_date의 공매도잔고/공매도금액과 바이트 단위로 동일함을 값 대조로 확인 - 종목당 1콜로 충분하다(A4의 4콜과 대조).",
+    "credentialEnv": ["KRX_ID", "KRX_PW"],
+    "credentialEnvNote": "A4·market-flows.yml과 동일 계정 재사용. 동시(멀티샤드) 로그인 부하 완화가 필요하면 A4 워크플로의 샤드별 20초 지연 패턴을 그대로 쓴다.",
+    "probeTickers": ["005930", "000660"],
+    "probeNote": "A4와 동일 정찰종목·동일 2회 정찰 패턴(교훈32). 둘 다 실패하면 경로가 막힌 것이므로 전량을 돌리지 않고 즉시 중단한다.",
+    "retryNote": "A4와 동일 판단(호출별 재시도 없음, 종목 단위 예외는 fail-soft로 UNRESOLVED) - 이 버전의 정찰(약 24콜)에서는 KRX 쪽 재시도 가능 오류를 관측하지 못했다. 본수집 스모크에서 재확인이 필요하면 이 값을 올린다."
+  },
+
+  "collectFrom": "2016-01-04",
+  "collectFromNote": "★ 미검증 - A4와 같은 시작일을 잠정 사용했을 뿐, 공매도 데이터 자체의 가용 시작일을 anchor로 확인한 적이 없다(이번 정찰은 최근 10일 구간만 봤다). 스모크 단계에서 2016·2018·2020·2023 anchor(A4와 동일 패턴)로 먼저 확인하고, 실제 시작일이 다르면 이 값을 고친 뒤 본수집한다 - 이 조건이 스모크 GO의 일부다.",
+
+  "shards": 16,
+  "shardsNote": "A4와 동일 근거로 잠정 채택(종목 정렬 후 라운드로빈). 이 정책은 종목당 1콜(A4는 4콜)이라 샤드당 소요시간이 A4보다 짧을 가능성이 높다 - 스모크 실측 후 샤드 수를 낮출 수 있다(비용 최소화, 지금은 A4 실측을 그대로 재사용한 보수적 값).",
+
+  "circuitBreaker": {
+    "consecutiveExceptions": 20,
+    "ignoreConsecutiveEmpty": true,
+    "note": "A4와 동일 값·동일 근거. 신규상장 등으로 인한 빈 응답은 실패로 안 센다."
+  },
+
+  "output": {
+    "dir": "data/backfill/shortSelling/a8",
+    "shardDir": "data/backfill/shortSelling/_shards_a8",
+    "partition": "year",
+    "format": "jsonl.gz",
+    "gzipMtime": 0,
+    "gzipCompressLevel": 9,
+    "sortKey": ["date", "ticker"],
+    "fields": ["ticker", "date", "shortVolume", "shortBalanceShares", "shortValue", "shortBalanceValue"],
+    "fieldsNote": "get_shorting_status_by_date의 [거래량, 잔고수량, 거래대금, 잔고금액]을 그대로 옮긴 것 - 파생값 없음(교훈75). shortVolume/shortValue=그날 공매도 체결(수량/금액), shortBalanceShares/shortBalanceValue=그날 시점 공매도 잔고(수량/금액, 누적 포지션)."
+  },
+
+  "acceptance": {
+    "dateContractViolations": 0,
+    "tickerContractViolations": 0,
+    "duplicateKeys": 0,
+    "minTickersWithDataWarn": 0.90,
+    "missingRateWarn": 0.05,
+    "unresolvedRateWarn": 0.05
+  },
+  "acceptanceNote": "FAIL은 구조적으로 위반이 불가능한 것만이다(dateContractViolations·tickerContractViolations·duplicateKeys, A4와 동일 정의). A4의 categoryKeySetViolations·marketClearingViolations는 여기 해당 없음(단일 함수 호출이라 카테고리 교차검증 대상 자체가 없다). 나머지는 전부 WARN이다 - 이번이 A8의 첫 전수 수집이라 baseline이 없다(A4·A3c와 같은 이유). minTickersWithDataWarn 0.90·missingRateWarn 0.05·unresolvedRateWarn 0.05는 A4 첫 수집 시 쓴 것과 같은 근거 없는 시작값 - 첫 전수 수집의 measured 실측 후 FN-1.4 승격 절차와 같은 방식으로 재조정한다.",
+
+  "coverage": {
+    "targetUniverse": "A1a",
+    "targetUniverseNote": "A4와 동일 - 현재 상장 유니버스(A1a). 폐지 종목(A1b)의 공매도 가용성은 미검증 - 필요해지면 A8b로 연다.",
+    "unresolved": {
+      "policy": "A4와 동일 - 종목 조회가 예외로 끝나면 UNRESOLVED로 상태에 남기고 사유를 diagnostics에 전량 기록, 다음 실행이 재시도한다."
+    }
+  },
+
+  "manifest": {
+    "stage": "A8",
+    "upstream": ["A0.5", "A1a"],
+    "policies": ["universe", "shortSelling"],
+    "upstreamNote": "A4와 동일 근거 - A0.5는 거래일 계약, A1a는 대상 유니버스."
+  }
+}

@@ -1,0 +1,192 @@
+name: backfill-short-selling-a8
+
+# A8 — 종목별 일별 공매도(거래·잔고) 원자료. 정의는
+# config/policies/shortSelling.v1.json(SS-1.0). supply-demand-a4.yml과 같은 구조
+# (8/16-way matrix → artifact → finalize) - 같은 KRX_ID/KRX_PW 로그인 세션(A4와
+# 공유), 종목당 1콜(A4는 4콜)이라 샤드당 소요시간이 A4보다 짧을 가능성이 높다.
+#
+# limit 입력이 스모크와 본수집을 가른다(A4와 동일 관례, A3c 안전사고 재발 방지).
+# anchor 입력은 collectFrom(정책 파일에 ★ 미검증으로 표시됨) 실제 시작일을
+# 확인하는 별도 잡이다 - 이것부터 먼저 돌려 정책의 collectFrom을 확정한 뒤에
+# 본수집을 시작한다.
+on:
+  workflow_dispatch:
+    inputs:
+      anchor:
+        description: 'YYYY-MM-DD 하나만 넣으면 anchor 확인 전용 잡만 돈다(수집 안 함) - collectFrom 검증용'
+        required: false
+        default: ''
+        type: string
+      limit:
+        description: '샤드당 처리 종목 수 상한. 비우면 전체(본수집). 스모크는 작은 수를 넣는다'
+        required: false
+        default: ''
+        type: string
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
+      sourceRunId:
+        description: 'collect를 건너뛰고 이 run ID의 샤드 아티팩트로 finalize만 다시 돈다(비우면 평소대로 collect부터)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-short-selling-a8
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  SHARDS: 16
+  PYKRX_VERSION: 1.2.8
+
+jobs:
+  anchor:
+    if: inputs.anchor != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet "pykrx==${PYKRX_VERSION}" pandas
+      - env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/build-short-selling-a8.py --anchor "${{ inputs.anchor }}"
+
+  collect:
+    if: inputs.anchor == '' && inputs.sourceRunId == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 220
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet "pykrx==${PYKRX_VERSION}" pandas
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 210
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: |
+          # A4의 동시로그인 부하 실측(2026-08-17)과 같은 완화 - 샤드 시작을 20초씩 벌린다.
+          sleep $(( 20 * ${{ matrix.shard }} ))
+          python scripts/build-short-selling-a8.py --shard ${{ matrix.shard }} --shards $SHARDS \
+            ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a8-shard-${{ matrix.shard }}
+          path: data/backfill/shortSelling/_shards_a8/
+          retention-days: 1
+          if-no-files-found: error
+
+  finalize:
+    needs: collect
+    if: inputs.anchor == '' && always() && (needs.collect.result == 'success' || needs.collect.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: pip install --quiet pandas
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a8-shard-*
+          merge-multiple: true
+          path: data/backfill/shortSelling/_shards_a8/
+          run-id: ${{ inputs.sourceRunId != '' && inputs.sourceRunId || github.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify all shards present
+        run: |
+          N=$(ls data/backfill/shortSelling/_shards_a8/shard-*.jsonl 2>/dev/null | wc -l)
+          D=$(ls data/backfill/shortSelling/_shards_a8/_diagnostics-shard-*.json 2>/dev/null | wc -l)
+          echo "샤드 파일 $N개 · 샤드 진단 $D개 / 기대 $SHARDS개"
+          test "$N" -eq "$SHARDS" || { echo "샤드 누락 — 부분 수집물로 산출할 수 없다"; exit 1; }
+          test "$D" -eq "$SHARDS" || { echo "샤드 진단 누락 — 커버리지 분모를 셀 수 없다"; exit 1; }
+
+      - name: A8 self-test (records_from_df, 네트워크 불필요)
+        run: python scripts/build-short-selling-a8.py --selftest
+
+      - name: Finalize
+        env:
+          A8_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-short-selling-a8.py --finalize
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js A8
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/shortSelling/a8
+          ls -1 "$D"/*.jsonl.gz > /dev/null || { echo "Build 성공인데 산출물이 없다"; exit 1; }
+          EXTRA=$(python -c "
+          import json
+          d = json.load(open('$D/_diagnostics.json', encoding='utf-8'))
+          print(json.dumps({
+              'recordCount': d['rowCountAfterValidation'],
+              'candidateCount': d['candidateCount'],
+              'tickersWithData': d['tickersWithData'],
+              'tickersWithDataRate': d['tickersWithDataRate'],
+              'emptyCount': d['emptyCount'],
+              'unresolvedCount': d['unresolvedCount'],
+              'unresolved': d['unresolved'][:200],
+              'missingRate': d['missingRate'],
+              'actualDataFrom': d['actualDataFrom'],
+              'actualDataTo': d['actualDataTo'],
+              'smokeTest': d.get('smokeTest', False),
+          }, ensure_ascii=False))
+          ")
+          node scripts/write-manifest.js \
+            --stage A8 --stageVersion A8.0 \
+            --target data/backfill/shortSelling/a8 --kind dir --ext .jsonl.gz \
+            --upstream A0.5,A1a \
+            --policies universe,shortSelling \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: short-selling-a8-diagnostics
+          path: data/backfill/shortSelling/a8/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/shortSelling/a8 data/backfill/manifest)" ]; then
+            git add data/backfill/shortSelling/a8 data/backfill/manifest
+            git commit -m "chore(backfill): A8 종목별 일별 공매도 원자료"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
