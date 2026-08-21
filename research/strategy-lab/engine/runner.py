@@ -260,13 +260,19 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
     # Portfolio.process_day() also refuses a second same-symbol entry as a
     # second, independent safety net - this loop is what keeps the schedule
     # itself unambiguous in the first place.
+    # order_date == last_exit is NOT an overlap: process_day() pops an exiting
+    # position before filtering entry candidates (portfolio.py), so a same-day
+    # exit+reentry for the same symbol is resolved unambiguously there. Only
+    # order_date < last_exit is a genuine overlap (found 2026-08-21 via
+    # pbr_value_v1: a symbol picked in consecutive monthly rebalances had its
+    # renewal signal dropped here even though the prior slot had already freed).
     resolved.sort(key=lambda item: item[1].order_date)
     by_symbol_last_exit = {}
     deduped = []
     for item in resolved:
         _, order, entry_fill, exit_fill, _, _ = item
         last_exit = by_symbol_last_exit.get(order.symbol)
-        if last_exit is not None and order.order_date <= last_exit:
+        if last_exit is not None and order.order_date < last_exit:
             diag["skippedSignalCount"] += 1
             diag["skippedReasons"]["overlaps_open_position_same_symbol"] += 1
             continue
