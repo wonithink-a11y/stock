@@ -123,9 +123,11 @@ Validated against
               견고, 저유동성 대조군도 +7.48%로 비슷). 상대 tercile이 낸
               "채택 불가"는 팩터가 진짜 죽어서가 아니라 오염된 통제변수
               때문에 죽어 보인 오판이었다. **PBR/A5-3 밸류에이션·LOWMOM60+
-              기관수급 두 후보가 다시 열렸다** — 실제 Strategy Lab 정책화는
-              미착수(top30·월별 리밸런싱이라는 좁은 설정에서만 봤다는 한계
-              있음, 다음 세션 판단). 신규 스크립트(전부 로컬 미커밋):
+              기관수급 두 후보가 다시 열렸다** — decile/IC 정밀검증으로
+              top-30 결과가 노이즈가 아님도 확인(저PBR IC t=6.30, 저모멘텀60
+              IC t=5.24, 둘 다 decile 1→10 거의 단조 감소). 실제 Strategy
+              Lab 정책화는 미착수(다음 세션 판단). 신규 스크립트(전부 로컬
+              미커밋):
               scripts/build-a5-quality-panel.js · research/strategy-lab/
               lynch_garp_factor_precheck.py ·
               buffett_quality_factor_precheck.py ·
@@ -134,7 +136,8 @@ Validated against
               testbed_mechanics_diagnostic.py ·
               absolute_turnover_filter_validation.py ·
               lowmom60_institutional_eligible_precheck_v2_absolute.py ·
-              a5_valuation_factor_precheck_v2_absolute.py
+              a5_valuation_factor_precheck_v2_absolute.py ·
+              absolute_liquidity_decile_check.py
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
