@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-08-21T11:59:14",
+  "context": "docs/control/세션인수인계-2026-08-16.md §6 리스크 계약 결함 — 후보 재시뮬레이션",
+  "universeMode": "A1A_ONLY",
+  "period": "2014-05-13 ~ 2026-08-03",
+  "derivedParams": {
+    "median_pct_ownData": "0.07918324",
+    "p75_pct_ownData": "0.10476522"
+  },
+  "results": [
+    {
+      "candidate": "C0_ORIGINAL_2xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 1592,
+      "exitTypeCounts": {
+        "STOP": 18901,
+        "TARGET": 6638,
+        "TIME_EXIT": 2800
+      },
+      "sameBarTradeCount": 130,
+      "sameBarShare": 0.0817,
+      "medianStopOverEntry_allTrades": 0.07555481433868408,
+      "medianStopOverEntry_sameBarOnly": 0.08173128603246538,
+      "cagr": -0.09805313945578853,
+      "mdd": -0.7500016684083142,
+      "sharpe": -1.5959768292618484,
+      "finalEquity": 28471028.93155632,
+      "tradeCount": 1592,
+      "winRate": 0.26256281407035176,
+      "profitFactor": 0.8070236495257588,
+      "avgHoldingPeriod": 27.497487437185928
+    },
+    {
+      "candidate": "C1_2p5xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 1200,
+      "exitTypeCounts": {
+        "STOP": 17286,
+        "TARGET": 5739,
+        "TIME_EXIT": 5233
+      },
+      "sameBarTradeCount": 63,
+      "sameBarShare": 0.0525,
+      "medianStopOverEntry_allTrades": 0.09397351429155235,
+      "medianStopOverEntry_sameBarOnly": 0.09771917058133531,
+      "cagr": -0.07735962354064607,
+      "mdd": -0.667695211809126,
+      "sharpe": -1.3685542918206939,
+      "finalEquity": 37450340.67135227,
+      "tradeCount": 1200,
+      "winRate": 0.2975,
+      "profitFactor": 0.8357726431522041,
+      "avgHoldingPeriod": 36.61833333333333
+    },
+    {
+      "candidate": "C2_3xATR",
+      "signalCount": 28791,
+      "closedTradeCount": 988,
+      "exitTypeCounts": {
+        "STOP": 15510,
+        "TARGET": 4838,
+        "TIME_EXIT": 7822
+      },
+      "sameBarTradeCount": 35,
+      "sameBarShare": 0.0354,
+      "medianStopOverEntry_allTrades": 0.11327559621710526,
+      "medianStopOverEntry_sameBarOnly": 0.11756729315734729,
+      "cagr": -0.05646340606086764,
+      "mdd": -0.5956341681228156,
+      "sharpe": -1.0318355874032357,
+      "finalEquity": 49034452.04645627,
+      "tradeCount": 988,
+      "winRate": 0.3248987854251012,
+      "profitFactor": 0.867375210819544,
+      "avgHoldingPeriod": 44.53846153846154
+    },
+    {
+      "candidate": "C3_FIXED_MEDIAN",
+      "signalCount": 28791,
+      "closedTradeCount": 1514,
+      "exitTypeCounts": {
+        "STOP": 17968,
+        "TARGET": 6351,
+        "TIME_EXIT": 4093
+      },
+      "sameBarTradeCount": 199,
+      "sameBarShare": 0.1314,
+      "medianStopOverEntry_allTrades": 0.07918324321508408,
+      "medianStopOverEntry_sameBarOnly": 0.07793298148010906,
+      "cagr": -0.030265997159510616,
+      "mdd": -0.39191004546386426,
+      "sharpe": -0.5337623964334892,
+      "finalEquity": 68353561.09690489,
+      "tradeCount": 1514,
+      "winRate": 0.2985468956406869,
+      "profitFactor": 0.9201823725813907,
+      "avgHoldingPeriod": 28.81638044914135
+    },
+    {
+      "candidate": "C4_CAP_P75",
+      "signalCount": 28791,
+      "closedTradeCount": 1707,
+      "exitTypeCounts": {
+        "STOP": 19202,
+        "TARGET": 6802,
+        "TIME_EXIT": 2395
+      },
+      "sameBarTradeCount": 172,
+      "sameBarShare": 0.1008,
+      "medianStopOverEntry_allTrades": 0.07633115220985204,
+      "medianStopOverEntry_sameBarOnly": 0.09306272333289714,
+      "cagr": -0.06926934520992933,
+      "mdd": -0.6500256709448161,
+      "sharpe": -1.1477346820971275,
+      "finalEquity": 41653492.952123165,
+      "tradeCount": 1707,
+      "winRate": 0.2659636789689514,
+      "profitFactor": 0.8514907895395769,
+      "avgHoldingPeriod": 25.585823081429407
+    }
+  ]
+}
