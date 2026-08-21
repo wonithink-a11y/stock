@@ -211,7 +211,13 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
             diag["invalidSignalCount"] += 1
             continue
         row = features.loc[ts]
-        if pd.isna(row["atr"]):
+        # row.get(...) not row[...]: not every strategy's compute_features adds an
+        # 'atr' column (e.g. pbr_value_v1 has no price-based stop/target, so no ATR
+        # warmup to gate on) - .get() with a non-NaN default makes this check a no-op
+        # for those strategies while leaving every existing atr-based strategy's
+        # behavior byte-for-byte unchanged (row.get("atr", 0.0) == row["atr"] whenever
+        # the column exists).
+        if pd.isna(row.get("atr", 0.0)):
             diag["invalidSignalCount"] += 1
             continue
 
@@ -242,7 +248,7 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
         entry_fill, exit_fill = result
         diag["executableTradeCount"] += 1
         diag["exitTypeCounts"][exit_fill.fill_type] += 1
-        resolved.append((sig, order, entry_fill, exit_fill, risk_spec, float(row["atr"])))
+        resolved.append((sig, order, entry_fill, exit_fill, risk_spec, float(row.get("atr", 0.0))))
 
     # Two different signals on the same ticker can both resolve to complete
     # trades at the instrument level even while their holding windows overlap

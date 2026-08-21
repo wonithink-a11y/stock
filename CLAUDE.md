@@ -18,12 +18,18 @@ Validated against
             절대임계값(turnover20≥1억원)으로 재검토하니 **둘 다 판정이
             뒤집혔다**(LOWMOM60+수급 대형주 -11.8%→+13.90%, PBR 대형주
             -1.48%→+7.06%) — 2026-08-21, 세션인수인계-2026-08-21-c.md, 아래
-            완료 참고. **다음 세션이 고를 것: PBR/A5-3 밸류에이션·LOWMOM60+
-            기관수급 두 후보를 실제 Strategy Lab 정책으로 만들지 여부**(둘 다
-            top30·월별 리밸런싱이라는 좁은 설정에서만 봤다는 한계 있음,
-            decile/IC 정밀검증 먼저 필요할 수 있음). LOWMOM60·REV20·5DC·
-            TREND-BREAKOUT의 원래 판정은 이 결함과 무관(절대임계값 기반 또는
-            turnover 미사용)이라 재검토 대상 아님. A2b 소비 단계(
+            완료 참고. PBR을 실제 engine.runner.run_smoke()에 연결
+            (strategies/pbr_value_v1/, 로컬 미커밋)했다가 **겹침판정 결함
+            발견하고 중단** — 한 종목이 여러 달 연속 선택되면 갱신 신호가
+            engine/runner.py의 overlaps_open_position_same_symbol에 걸려
+            버려져, 사전점검 +7.06%가 실제로는 +2.95%(MDD -23.6%, Sharpe
+            0.75)로 나온다. **다음 세션이 고를 것: 이 겹침판정 로직(모든
+            전략이 공유하는 run_smoke() 핵심 루프) 수정 여부** — git
+            worktree 격리 후 기존 회귀+PBR 재확인 권고("모두의 AI 실험실"은
+            GitHub 읽기 접근 끊겨 현재 못 씀). LOWMOM60+기관수급은 같은
+            결함이 예상돼 PBR 해결 전까지 미착수. LOWMOM60·REV20·5DC·
+            TREND-BREAKOUT의 원래 판정은 이 tercile 결함과 무관(절대임계값
+            기반 또는 turnover 미사용)이라 재검토 대상 아님. A2b 소비 단계(
             priceSource.js PRIMARY 연결·043090 처리·Core 백필)도 여전히 미착수
             (아래 "착수 가능" 참고, 우선순위 미정)
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
@@ -137,7 +143,21 @@ Validated against
               absolute_turnover_filter_validation.py ·
               lowmom60_institutional_eligible_precheck_v2_absolute.py ·
               a5_valuation_factor_precheck_v2_absolute.py ·
-              absolute_liquidity_decile_check.py
+              absolute_liquidity_decile_check.py.
+              ★ 이어서 PBR을 실제 엔진(engine.runner.run_smoke())에 연결
+              시도 - 기존 엔진이 종목별 기술적 신호만 지원하고 횡단면 랭킹
+              전략을 지원 안 한다는 걸 발견(strategies/base.py 계약), 사용자
+              승인("엔진 확장") 후 strategies/pbr_value_v1/를 신설해 엔진
+              무변경으로 흡수(오프라인 랭킹 selection.json + generate_signals가
+              features에 직접 값을 써서 risk_spec_for에 전달). 실제 실행 결과
+              CAGR +2.95%(사전점검 +7.06%보다 낮음, MDD -23.6%·Sharpe 0.75는
+              개선) - 원인은 engine/runner.py의 겹침방지 로직이 연속 선택
+              종목의 갱신 신호를 버리는 것으로 확정, 이 로직 수정은 모든
+              전략이 공유하는 핵심 루프라 범위가 커 중단(사용자 승인). 엔진
+              파일 중 유일한 변경은 row["atr"] 하드코딩을 row.get("atr", 0.0)
+              으로 바꾼 안전한 방어 수정뿐(기존 회귀 전체 재확인, 커밋됨).
+              pbr_value_v1 전략 코드 자체는 재현성 사슬 미완성(소스 패널
+              미커밋) + 겹침판정 미해결로 로컬에만 남기고 커밋 안 함
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
