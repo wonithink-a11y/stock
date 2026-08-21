@@ -11,14 +11,16 @@ Validated against
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
                (2026-08-17, manifest 88d5756), A4는 종목별 일별 수급 전량
                finalize 통과(2026-08-18, manifest 74ac94e). 다음 항목 참고
-  다음      투자대가 방법론(버핏·린치·그린블라트·오닐) 타당성 조사·precheck를
-            2026-08-21 3회 세션에 걸쳐 진행 → **PBR·PEG·ROE 세 팩터 전부가
-            "팩터 알파"가 아니라 유동성 tercile 버킷 자체의 프리미엄이었음을
-            플라시보 테스트로 확정, 이 라인 종료**(세션인수인계-2026-08-21-c.md).
-            다음 세션이 고를 두 방향(순위 없음) — (A) T3(대형주) 전용으로
-            좁혀 재검토 (B) 30bps 비용모델 자체 재검토(단 REV20이 이미 현실적
-            비용 하 소멸을 보임, 정보가치 낮을 수 있음). A2b 소비 단계(
-            priceSource.js PRIMARY 연결·043090 처리·Core 백필)는 여전히 미착수
+  다음      투자대가 방법론(버핏·린치·그린블라트·오닐) 타당성 조사·precheck →
+            **`turnover20` rolling tercile을 "유동성 통제변수"로 쓰는 이
+            프로젝트의 관행 자체가 중립적이지 않고 그 자체로 강한 예측변수
+            였음을 확정하고 라인 종료**(2026-08-21, 세션인수인계-2026-08-21-c.md)
+            — 아래 완료 참고. **이 tercile 방식으로 과거에 "채택 불가"라
+            판정한 LOWMOM60·REV20·5DC 정밀 스윕·TREND-BREAKOUT-v1이 재검토
+            대상일 수 있다**(팩터가 진짜 나빴는지 오염된 통제변수 때문인지
+            미확인, 착수 안 함) — 재검토하려면 먼저 중립적 유동성 분류를
+            설계·검증해야 한다. 착수 여부·우선순위 미정. A2b 소비 단계(
+            priceSource.js PRIMARY 연결·043090 처리·Core 백필)도 여전히 미착수
             (아래 "착수 가능" 참고, 우선순위 미정)
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
@@ -76,24 +78,42 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
-  완료      ★ 투자대가 방법론 타당성 조사 → 유동성 프리미엄 메타패턴 확정
-              (2026-08-21, 세션인수인계-2026-08-21-c.md) — GPT 제안(버핏·린치·
-              그린블라트·오닐)의 데이터 필드 매핑을 서브에이전트 2개로 조사
-              (Greenblatt는 ROIC/EV/EBITDA 원재료 자체가 없어 사실상 불가,
-              CAN SLIM은 분기 EPS 원천 데이터 없음·상대강도 코드 없음으로
-              절반만 가능). Lynch PEG·Buffett Quality(ROE) precheck를
-              돌린 결과 둘 다 "저유동성 tercile(T1)에서만 플러스, 대형주(T3)
-              에서 반전"(PBR·REV20·LOWMOM60+수급에 이은 3~4번째 재현). 팩터
-              순위 없이 T1/T3 버킷 자체를 무작위로 사는 플라시보 테스트로
-              확정: **무작위 T1 30종목(CAGR +10.26%)이 PEG(+4.08%)·ROE
-              (+8.68%)로 고른 T1보다 오히려 높다** — 세 팩터가 잡은 건 팩터
-              알파가 아니라 T1 버킷 소속 자체였다. 이 프리미엄은 2026-08-18
-              REV20 검증이 이미 현실적 비용 하 소멸을 보인 것과 같은 종류.
-              CAN SLIM은 같은 벽에 부딪힐 가능성이 높아 시도 안 하고 라인
-              종료(사용자 승인). 신규 스크립트: scripts/build-a5-quality-
-              panel.js · research/strategy-lab/lynch_garp_factor_precheck.py
-              · buffett_quality_factor_precheck.py ·
-              meta_pattern_liquidity_check.py
+  완료      ★ 투자대가 방법론 타당성 조사 → turnover20 tercile 테스트베드
+              결함 확정으로 종결 (2026-08-21, 세션인수인계-2026-08-21-c.md)
+              — GPT 제안(버핏·린치·그린블라트·오닐)의 데이터 필드 매핑을
+              서브에이전트 2개로 조사(Greenblatt는 ROIC/EV/EBITDA 원재료
+              자체가 없어 사실상 불가, CAN SLIM은 분기 EPS 원천 데이터 없음·
+              상대강도 코드 없음으로 절반만 가능). Lynch PEG·Buffett Quality
+              (ROE) precheck를 돌린 결과 둘 다 "저유동성 tercile(T1)에서만
+              플러스, 대형주(T3)에서 반전"(PBR·REV20·LOWMOM60+수급에 이은
+              3~4번째 재현). 팩터 순위 없이 T1/T3 버킷 자체를 무작위로 사는
+              플라시보 테스트로 확정: 무작위 T1 30종목(CAGR +10.26%)이 PEG
+              (+4.08%)·ROE(+8.68%)로 고른 T1보다 오히려 높다 — 세 팩터가
+              잡은 건 팩터 알파가 아니라 T1 버킷 소속 자체였다.
+              ★ 사용자 질문("왜 이렇게까지 유효한 검증이 없었나")을 계기로
+              T3 안에서 ROE 하위분위 배제 전략을 실제로 백테스트(단조적
+              개선 확인, decile IC t=8.06과 일치, 최대 +4.1%p) 했으나 전부
+              여전히 마이너스였던 걸 파고들어 원인을 확정했다:
+              `testbed_mechanics_diagnostic.py`로 tercile 없이 전체 유니버스
+              월별 리밸런싱만 하면 CAGR +2.94%(매수-보유 벤치마크 +4.78%
+              대비 정상적 비용 드래그)로 정상 범위임을 확인 — 리밸런싱
+              메커니즘도 30bps 비용 가정도 원인이 아니었다. **문제는
+              `turnover20` rolling tercile을 "유동성 통제변수"로 쓰는 것
+              자체가 중립적이지 않고 그 자체로 강한 방향성 있는 예측변수
+              였다는 것**(T3 baseline -5.77% vs 벤치마크 +4.78%, 10.5%p
+              격차가 전부 이걸로 설명됨). 서로 다른 경제적 근거를 가진
+              7개 가설(5DC·TREND-BREAKOUT·LOWMOM60·REV20·PBR·PEG·ROE)이
+              하나같이 "저유동성에서만 플러스"로 수렴한 이유가 바로 이것 —
+              팩터 각각의 문제가 아니라 전부가 공유한 "유동성 통제변수"가
+              실은 팩터보다 훨씬 강한 숨은 신호였다. **이 tercile 방식으로
+              과거에 채택 불가 판정한 LOWMOM60·REV20·5DC·TREND-BREAKOUT이
+              재검토 대상일 수 있다**(미착수). 신규 스크립트(전부 로컬
+              미커밋): scripts/build-a5-quality-panel.js · research/
+              strategy-lab/lynch_garp_factor_precheck.py ·
+              buffett_quality_factor_precheck.py ·
+              meta_pattern_liquidity_check.py · t3_factor_decile_check.py ·
+              t3_roe_quality_strategy_backtest.py ·
+              testbed_mechanics_diagnostic.py
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
