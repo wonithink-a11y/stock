@@ -11,15 +11,19 @@ Validated against
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
                (2026-08-17, manifest 88d5756), A4는 종목별 일별 수급 전량
                finalize 통과(2026-08-18, manifest 74ac94e). 다음 항목 참고
-  다음      투자대가 방법론(버핏·린치·그린블라트·오닐) 타당성 조사·precheck →
-            **`turnover20` rolling tercile을 "유동성 통제변수"로 쓰는 이
-            프로젝트의 관행 자체가 중립적이지 않고 그 자체로 강한 예측변수
-            였음을 확정하고 라인 종료**(2026-08-21, 세션인수인계-2026-08-21-c.md)
-            — 아래 완료 참고. **이 tercile 방식으로 과거에 "채택 불가"라
-            판정한 LOWMOM60·REV20·5DC 정밀 스윕·TREND-BREAKOUT-v1이 재검토
-            대상일 수 있다**(팩터가 진짜 나빴는지 오염된 통제변수 때문인지
-            미확인, 착수 안 함) — 재검토하려면 먼저 중립적 유동성 분류를
-            설계·검증해야 한다. 착수 여부·우선순위 미정. A2b 소비 단계(
+  다음      투자대가 방법론 타당성 조사 → **`turnover20` rolling tercile을
+            "유동성 통제변수"로 쓰는 이 프로젝트의 관행이 중립적이지 않고
+            그 자체로 강한 예측변수였음을 확정** → 이 방식으로 실제 기각된
+            2건(ChatGPT 저모멘텀+수급 A/B/C, PBR 대형주 반전)을 중립성 검증된
+            절대임계값(turnover20≥1억원)으로 재검토하니 **둘 다 판정이
+            뒤집혔다**(LOWMOM60+수급 대형주 -11.8%→+13.90%, PBR 대형주
+            -1.48%→+7.06%) — 2026-08-21, 세션인수인계-2026-08-21-c.md, 아래
+            완료 참고. **다음 세션이 고를 것: PBR/A5-3 밸류에이션·LOWMOM60+
+            기관수급 두 후보를 실제 Strategy Lab 정책으로 만들지 여부**(둘 다
+            top30·월별 리밸런싱이라는 좁은 설정에서만 봤다는 한계 있음,
+            decile/IC 정밀검증 먼저 필요할 수 있음). LOWMOM60·REV20·5DC·
+            TREND-BREAKOUT의 원래 판정은 이 결함과 무관(절대임계값 기반 또는
+            turnover 미사용)이라 재검토 대상 아님. A2b 소비 단계(
             priceSource.js PRIMARY 연결·043090 처리·Core 백필)도 여전히 미착수
             (아래 "착수 가능" 참고, 우선순위 미정)
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
@@ -105,15 +109,32 @@ Validated against
               7개 가설(5DC·TREND-BREAKOUT·LOWMOM60·REV20·PBR·PEG·ROE)이
               하나같이 "저유동성에서만 플러스"로 수렴한 이유가 바로 이것 —
               팩터 각각의 문제가 아니라 전부가 공유한 "유동성 통제변수"가
-              실은 팩터보다 훨씬 강한 숨은 신호였다. **이 tercile 방식으로
-              과거에 채택 불가 판정한 LOWMOM60·REV20·5DC·TREND-BREAKOUT이
-              재검토 대상일 수 있다**(미착수). 신규 스크립트(전부 로컬
-              미커밋): scripts/build-a5-quality-panel.js · research/
-              strategy-lab/lynch_garp_factor_precheck.py ·
+              실은 팩터보다 훨씬 강한 숨은 신호였다.
+              ★ 사용자 질문("실험실 테스트 다 다시해야 하나")에 코드를 직접
+              확인해 정확한 영향 범위를 좁혔다 — 이 tercile 방식을 실제로
+              쓴 결론은 2건뿐(ChatGPT 저모멘텀+수급 A/B/C 기각, PBR 대형주
+              반전). LOWMOM60·REV20의 원래 robustness는 절대 거래대금
+              임계값을 써서 무관, 5DC·TREND-BREAKOUT은 turnover/tercile
+              자체를 안 써서 무관. 절대임계값(turnover20≥1억원)의 중립성을
+              먼저 검증(`absolute_turnover_filter_validation.py`, 전체
+              유니버스 baseline 대비 갭 -0.68%p)한 뒤 그 2건을 재실행하니
+              **둘 다 판정이 뒤집혔다**: LOWMOM60+수급 대형주 -11.8%→
+              **+13.90%**, PBR 대형주 -1.48%→**+7.06%**(유동성 무관하게
+              견고, 저유동성 대조군도 +7.48%로 비슷). 상대 tercile이 낸
+              "채택 불가"는 팩터가 진짜 죽어서가 아니라 오염된 통제변수
+              때문에 죽어 보인 오판이었다. **PBR/A5-3 밸류에이션·LOWMOM60+
+              기관수급 두 후보가 다시 열렸다** — 실제 Strategy Lab 정책화는
+              미착수(top30·월별 리밸런싱이라는 좁은 설정에서만 봤다는 한계
+              있음, 다음 세션 판단). 신규 스크립트(전부 로컬 미커밋):
+              scripts/build-a5-quality-panel.js · research/strategy-lab/
+              lynch_garp_factor_precheck.py ·
               buffett_quality_factor_precheck.py ·
               meta_pattern_liquidity_check.py · t3_factor_decile_check.py ·
               t3_roe_quality_strategy_backtest.py ·
-              testbed_mechanics_diagnostic.py
+              testbed_mechanics_diagnostic.py ·
+              absolute_turnover_filter_validation.py ·
+              lowmom60_institutional_eligible_precheck_v2_absolute.py ·
+              a5_valuation_factor_precheck_v2_absolute.py
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
