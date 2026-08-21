@@ -4,19 +4,19 @@
   "stageVersion": "A3d.0",
   "fundamentalsPolicy": "FN-1.8",
   "shardCount": 8,
-  "rowCount": 8871,
+  "rowCount": 8800,
   "targetCorps": 3801,
   "corpsDone": 3801,
   "callsTotal": 22672,
   "rejected": {
-    "reverseOrConsolidation:BRACKET_MISSING": 362,
-    "split:BRACKET_MISSING": 40,
+    "split:BRACKET_MISSING": 56,
+    "reverseOrConsolidation:BRACKET_MISSING": 438,
     "BONUS_RATIO_MISSING": 1,
     "CR_RATIO_MISSING": 4
   },
   "listErrors": {},
-  "bracketOutOfTolerance": 153,
-  "bracketSamples": 638,
+  "bracketOutOfTolerance": 105,
+  "bracketSamples": 557,
   "corpsIncomplete": 0,
   "categoryUnknownSample": [],
   "categoryDistribution": {
@@ -25,15 +25,15 @@
     "mergerSpinoff": 1774,
     "rightsOfferingShareholders": 669,
     "bonusIssue": 715,
-    "split": 268,
+    "split": 261,
     "capitalReductionFree": 382,
-    "reverseOrConsolidation": 225,
+    "reverseOrConsolidation": 161,
     "capitalReductionPaid": 18
   },
-  "bracketOutOfToleranceRate": 0.2398,
+  "bracketOutOfToleranceRate": 0.1885,
   "acceptanceFails": [],
   "acceptanceWarns": [
-    "A3c 브래킷 허용오차 초과율 23.98% <= 10%"
+    "A3c 브래킷 허용오차 초과율 18.85% <= 10%"
   ],
   "acceptancePassed": true,
   "categories": {
@@ -58,8 +58,8 @@
       "gzBytes": 30216
     },
     "reverseOrConsolidation": {
-      "rows": 225,
-      "gzBytes": 5499
+      "rows": 161,
+      "gzBytes": 3975
     },
     "rightsOfferingShareholders": {
       "rows": 669,
@@ -67,11 +67,11 @@
     },
     "rightsOfferingThirdParty": {
       "rows": 4553,
-      "gzBytes": 59837
+      "gzBytes": 59839
     },
     "split": {
-      "rows": 268,
-      "gzBytes": 6468
+      "rows": 261,
+      "gzBytes": 6240
     }
   }
 }
