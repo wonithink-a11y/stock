@@ -1792,6 +1792,44 @@ reverseOrConsolidation 2종·애매한 거래정지 미매칭 확인·감자+분
 
 ---
 
+## 22. V7 최종 수직 슬라이스 — 실데이터 연결 확인 (§6, 2026-08-21)
+
+A5-3 D4 운영 전환(featureRegistry.js `pbr`·`peg` available:true, 커밋 `501ed60`)
+이후 남았던 마지막 확인. `scripts/probe-v7-vertical-slice.js` 신설 —
+`scripts/probe-bf11-vertical-slice.js`(BF-1.1)와 같은 진단 전용 패턴(manifest·
+`data/backfill/scores/`에 아무것도 안 씀)이되, resolver.js에 `sharesOutstanding`
+(A3c)·`corporateActions`(A3d, 9개 카테고리 전부)를 함께 넘겨 valuation(D4) 경로가
+실제로 열리게 했다. 005930/2016-04-08은 §1.3(A3c FY2015 전부 EMPTY)이라
+부적합해 다른 표본을 썼다.
+
+**표본 1 — 005930/2019-06-03**: per·pbr·peg 전부 `null`로 유보됨. 원인은
+2016-09-12 mergerSpinoff(회사분할결정) 공시 — `corporateActionAdjustment.js`의
+capitalReal 유보 게이트가 "그 공시 이후 접수된 모든 레코드"를 영구
+`MERGER_UNHANDLED`로 막는다(§16 설계 그대로, 버그 아님). score()는
+`valuation: null`·`LOW_CONFIDENCE` 플래그로 정직하게 반영했다 — 파이프라인이
+깨진 게 아니라 정책이 의도대로 막은 것임을 실측으로 확인.
+
+**표본 2 — 002100(경농)/2019-06-03**: A3d 9개 카테고리 전부 사건 0건,
+발행주식수 2개년 동일(21,691,750주, factor=1). per=70.25·epsGrowthRate=
+-51.6·pbr=1.7 전부 채워졌고 `score().components.valuation=4.6`, confidence
+57.9→73.7로 상승, `LOW_CONFIDENCE` 플래그 소멸. **Universe→PIT→가격→
+resolver→score()까지 valuation이 실제로 흘러 들어가는 것을 처음 실데이터로
+확인했다** — 이게 V7의 본 목적.
+
+**부수 발견 (기록만, 별도 판단 아님)**: capitalReal 유보 게이트가 "사건과
+비교연도의 관련성"을 안 보고 "그 공시 이후 접수된 레코드 전부"를 막는다.
+과거에 한 번이라도 mergerSpinoff·capitalReductionUnknown·
+rightsOfferingShareholders 공시가 있던 corp는 그 시점 이후 영구히 valuation이
+유보된다 — 005930처럼 그 사건이 비교 대상 회계연도와 무관해도 마찬가지다.
+설계 문서(§16.4)가 이미 "대부분 유보로 간다"고 명시한 대로라 정책 위반은
+아니지만, 실사례로 처음 그 범위를 확인했다. 임계 재설계(사건-비교연도 거리로
+좁히는 등)는 별도 🔴 결정 — 이 세션은 판단하지 않았다.
+
+전체 회귀 스위트 재확인, 깨짐 없음. resolver.js·corporateActionAdjustment.js
+미변경(진단만).
+
+---
+
 ## 관련
 
 - `config/policies/fundamentals.v1.json` `a3d` 블록 — §20 구현(FN-1.8)
@@ -1814,6 +1852,8 @@ reverseOrConsolidation 2종·애매한 거래정지 미매칭 확인·감자+분
 - `config/policies/fundamentals.v1.json` `a3c` 블록 — 우회식 전제가 적힌 자리
 - `config/policies/price.v1.json` `source.adjustedNote` · `a2b.source.sourceNote` —
   A2a 조정 서술과 KRX-native raw 경로의 기존 실측
+- `scripts/probe-v7-vertical-slice.js` · `scripts/probe-bf11-vertical-slice.js` —
+  §22 V7 수직 슬라이스, BF-1.1 원본 패턴
 - `scripts/fetch-disclosures-kr.js` `CATEGORIES` — report_nm 정규식 분류 기존 패턴,
   D4가 재사용 대상으로 삼음(§3.6)
 - DART OpenAPI `list.json`(공시목록, `pblntf_ty=B` 필터) · `piicDecsn.json`
