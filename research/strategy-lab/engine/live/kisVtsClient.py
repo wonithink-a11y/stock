@@ -17,6 +17,7 @@ examples_user/domestic_stock/domestic_stock_functions.py, 2026-08-21 확인)
 """
 import json
 import os
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -39,8 +40,47 @@ TR_BALANCE = "VTTC8434R"
 TR_PRICE = "FHKST01010100"
 
 
+class _RateLimiter:
+    """모의투자 REST 유량 제한 - 계좌 단위 1건/초(KIS Developers 공지,
+    2026-04-20 기준. 사용자 확인, 2026-08-21). 계좌 단위라 프로세스 안에
+    KisVtsClient 인스턴스가 여러 개 생겨도(예: 각 전략마다 하나씩) 전부
+    이 모듈 레벨 싱글턴 하나를 공유해야 한다 - 인스턴스별로 따로 두면
+    합산 호출량이 다시 1건/초를 넘을 수 있다.
+
+    스레드 세이프: 여러 스레드가 동시에 wait()를 불러도 락 안에서
+    '마지막 호출 이후 경과 시간'을 확인하고 필요하면 잠들었다가 자기
+    차례를 갱신한다 - 두 호출이 동시에 통과하는 경쟁 조건이 없다.
+    """
+    def __init__(self, min_interval_sec=1.0):
+        self.min_interval_sec = min_interval_sec
+        self._lock = threading.Lock()
+        self._next_allowed = 0.0
+
+    def wait(self):
+        with self._lock:
+            now = time.monotonic()
+            sleep_for = self._next_allowed - now
+            if sleep_for > 0:
+                time.sleep(sleep_for)
+                now = time.monotonic()
+            self._next_allowed = now + self.min_interval_sec
+
+
+_RATE_LIMITER = _RateLimiter(min_interval_sec=1.0)
+
+
 class KisVtsError(RuntimeError):
     pass
+
+
+def _request(method, url, **kwargs):
+    """유일한 HTTP 진입점 - KisVtsClient의 REST 호출은 전부 이 함수를
+    거친다. 호출부마다 _RATE_LIMITER.wait()를 따로 넣지 않는 이유는
+    '새 메서드를 추가하면서 깜빡한다'는 실패 모드를 구조적으로 없애기
+    위해서다(교훈72와 같은 원칙 - 공유 지점 하나를 강제하는 게 각
+    호출부에 규율을 요구하는 것보다 안전하다)."""
+    _RATE_LIMITER.wait()
+    return requests.request(method, url, **kwargs)
 
 
 def _load_env():
@@ -88,10 +128,10 @@ class KisVtsClient:
             except Exception:
                 pass
 
-        r = requests.post(BASE_URL + "/oauth2/tokenP",
-                           data=json.dumps({"grant_type": "client_credentials",
-                                             "appkey": self.key, "appsecret": self.secret}),
-                           headers={"content-type": "application/json"}, timeout=20)
+        r = _request("POST", BASE_URL + "/oauth2/tokenP",
+                      data=json.dumps({"grant_type": "client_credentials",
+                                        "appkey": self.key, "appsecret": self.secret}),
+                      headers={"content-type": "application/json"}, timeout=20)
         body = r.json()
         if r.status_code != 200 or "access_token" not in body:
             raise KisVtsError("토큰 발급 실패: " + str(body.get("error_description", body)))
@@ -133,8 +173,8 @@ class KisVtsClient:
             "ORD_QTY": str(quantity),
             "ORD_UNPR": str(ord_unpr),
         }
-        r = requests.post(BASE_URL + PATH_ORDER, headers=self._headers(tr_id),
-                           data=json.dumps(body), timeout=20)
+        r = _request("POST", BASE_URL + PATH_ORDER, headers=self._headers(tr_id),
+                      data=json.dumps(body), timeout=20)
         resp = r.json()
         if r.status_code != 200 or resp.get("rt_cd") != "0":
             raise KisVtsError(f"{side} 주문 실패: {resp.get('msg_cd')} {resp.get('msg1')}")
@@ -148,8 +188,8 @@ class KisVtsClient:
             "FUND_STTL_ICLD_YN": "N", "FNCG_AMT_AUTO_RDPT_YN": "N", "PRCS_DVSN": "00",
             "CTX_AREA_FK100": "", "CTX_AREA_NK100": "",
         }
-        r = requests.get(BASE_URL + PATH_BALANCE, headers=self._headers(TR_BALANCE),
-                          params=params, timeout=20)
+        r = _request("GET", BASE_URL + PATH_BALANCE, headers=self._headers(TR_BALANCE),
+                      params=params, timeout=20)
         resp = r.json()
         if r.status_code != 200 or resp.get("rt_cd") != "0":
             raise KisVtsError(f"잔고 조회 실패: {resp.get('msg_cd')} {resp.get('msg1')}")
@@ -162,8 +202,8 @@ class KisVtsClient:
         구분이 없는 공개 엔드포인트라 TR_ID가 하나뿐이다 - 그래도 호출은
         항상 BASE_URL(모의투자 도메인)로만 나간다."""
         params = {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": symbol}
-        r = requests.get(BASE_URL + PATH_PRICE, headers=self._headers(TR_PRICE),
-                          params=params, timeout=20)
+        r = _request("GET", BASE_URL + PATH_PRICE, headers=self._headers(TR_PRICE),
+                      params=params, timeout=20)
         resp = r.json()
         if r.status_code != 200 or resp.get("rt_cd") != "0":
             raise KisVtsError(f"시세 조회 실패({symbol}): {resp.get('msg_cd')} {resp.get('msg1')}")
@@ -183,8 +223,8 @@ class KisVtsClient:
             "ODNO": order_no, "INQR_DVSN_1": "",
             "CTX_AREA_FK100": "", "CTX_AREA_NK100": "", "EXCG_ID_DVSN_CD": "KRX",
         }
-        r = requests.get(BASE_URL + "/uapi/domestic-stock/v1/trading/inquire-daily-ccld",
-                          headers=self._headers("VTTC0081R"), params=params, timeout=20)
+        r = _request("GET", BASE_URL + "/uapi/domestic-stock/v1/trading/inquire-daily-ccld",
+                      headers=self._headers("VTTC0081R"), params=params, timeout=20)
         resp = r.json()
         if r.status_code != 200 or resp.get("rt_cd") != "0":
             raise KisVtsError(f"체결조회 실패(주문번호 {order_no}): {resp.get('msg_cd')} {resp.get('msg1')}")
