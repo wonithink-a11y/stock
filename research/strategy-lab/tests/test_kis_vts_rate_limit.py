@@ -158,7 +158,7 @@ def test_disabled_engine_never_reaches_kis_client():
                   "position": {"notionalPerPosition": 1000000, "maxPositions": 1}}
 
     from engine.live import positionStore
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     positionStore.save(repo_root, "test_poison_broker_synth",
                         {"TEST1": {"status": "PENDING_ENTRY", "quantity": 1, "intent_date": "2026-08-20"}})
     try:

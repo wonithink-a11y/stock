@@ -18,7 +18,7 @@ from datetime import datetime, timedelta, timezone
 from engine.live import positionStore
 from engine.live.paperEngine import poll_once
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 STRATEGY_ID = "test_poll_engine_synth"
 KST = timezone(timedelta(hours=9))
 
