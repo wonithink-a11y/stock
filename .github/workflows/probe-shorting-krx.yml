@@ -1,0 +1,35 @@
+name: probe-shorting-krx
+
+# 공매도 데이터 정찰(scouting) 전용 - A4(수급)가 뚫은 KRX_ID/KRX_PW 로그인
+# 세션으로 공매도 관련 pykrx 함수가 응답하는지만 확인한다. data/backfill/에
+# 아무것도 안 쓰고 commit도 없다 - scripts/probe-shorting-krx.py 참고.
+# 결과는 artifact로만 남는다. 이 정찰 결과를 보고 실제 백필 여부를 별도로 정한다.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet "pykrx==1.2.8" pandas
+
+      - name: Probe shorting-related pykrx functions
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-shorting-krx.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-shorting-krx-result
+          path: probe-shorting-krx-result.json
+          retention-days: 7
+          if-no-files-found: warn
