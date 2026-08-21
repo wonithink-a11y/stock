@@ -11,11 +11,15 @@ Validated against
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
                (2026-08-17, manifest 88d5756), A4는 종목별 일별 수급 전량
                finalize 통과(2026-08-18, manifest 74ac94e). 다음 항목 참고
-  다음      A2b 소비 단계 — lib/a5/priceSource.js PRIMARY 연결·043090 처리 ·
-            Strategy Lab PRIMARY 전환 · Core 백필. 착수 아직 안 함(아래 "착수
-            가능" 참고). A4 소비 단계(SB-1.0 KR_4AXIS 백테스트)는 착수했다가
-            보류했다(아래 완료 참고) — 재개하려면 A5-3(valuation) 여부부터
-            결정해야 한다
+  다음      투자대가 방법론(버핏·린치·그린블라트·오닐) 타당성 조사·precheck를
+            2026-08-21 3회 세션에 걸쳐 진행 → **PBR·PEG·ROE 세 팩터 전부가
+            "팩터 알파"가 아니라 유동성 tercile 버킷 자체의 프리미엄이었음을
+            플라시보 테스트로 확정, 이 라인 종료**(세션인수인계-2026-08-21-c.md).
+            다음 세션이 고를 두 방향(순위 없음) — (A) T3(대형주) 전용으로
+            좁혀 재검토 (B) 30bps 비용모델 자체 재검토(단 REV20이 이미 현실적
+            비용 하 소멸을 보임, 정보가치 낮을 수 있음). A2b 소비 단계(
+            priceSource.js PRIMARY 연결·043090 처리·Core 백필)는 여전히 미착수
+            (아래 "착수 가능" 참고, 우선순위 미정)
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
               스코어링의 PRIMARY 가격 소스로 실제 연결하는 단계
@@ -72,6 +76,24 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ 투자대가 방법론 타당성 조사 → 유동성 프리미엄 메타패턴 확정
+              (2026-08-21, 세션인수인계-2026-08-21-c.md) — GPT 제안(버핏·린치·
+              그린블라트·오닐)의 데이터 필드 매핑을 서브에이전트 2개로 조사
+              (Greenblatt는 ROIC/EV/EBITDA 원재료 자체가 없어 사실상 불가,
+              CAN SLIM은 분기 EPS 원천 데이터 없음·상대강도 코드 없음으로
+              절반만 가능). Lynch PEG·Buffett Quality(ROE) precheck를
+              돌린 결과 둘 다 "저유동성 tercile(T1)에서만 플러스, 대형주(T3)
+              에서 반전"(PBR·REV20·LOWMOM60+수급에 이은 3~4번째 재현). 팩터
+              순위 없이 T1/T3 버킷 자체를 무작위로 사는 플라시보 테스트로
+              확정: **무작위 T1 30종목(CAGR +10.26%)이 PEG(+4.08%)·ROE
+              (+8.68%)로 고른 T1보다 오히려 높다** — 세 팩터가 잡은 건 팩터
+              알파가 아니라 T1 버킷 소속 자체였다. 이 프리미엄은 2026-08-18
+              REV20 검증이 이미 현실적 비용 하 소멸을 보인 것과 같은 종류.
+              CAN SLIM은 같은 벽에 부딪힐 가능성이 높아 시도 안 하고 라인
+              종료(사용자 승인). 신규 스크립트: scripts/build-a5-quality-
+              panel.js · research/strategy-lab/lynch_garp_factor_precheck.py
+              · buffett_quality_factor_precheck.py ·
+              meta_pattern_liquidity_check.py
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
