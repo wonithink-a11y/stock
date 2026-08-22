@@ -42,7 +42,10 @@ permissions:
   actions: read
 
 env:
-  SHARDS: 16
+  # 16샤드 스모크가 20초 stagger를 갖고도 2연속 다른 샤드에서 KRX 로그인
+  # JSONDecodeError로 실패(2026-08-21/22, run 32506426666·32555617084) - 동시
+  # 로그인 수 자체를 8로 줄인다. 샤드당 처리량은 늘어나므로 아래 timeout도 올린다.
+  SHARDS: 8
   PYKRX_VERSION: 1.2.8
 
 jobs:
@@ -64,11 +67,11 @@ jobs:
   collect:
     if: inputs.anchor == '' && inputs.sourceRunId == ''
     runs-on: ubuntu-latest
-    timeout-minutes: 220
+    timeout-minutes: 340
     strategy:
       fail-fast: true
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -78,7 +81,7 @@ jobs:
         run: pip install --quiet "pykrx==${PYKRX_VERSION}" pandas
 
       - name: Collect shard ${{ matrix.shard }}
-        timeout-minutes: 210
+        timeout-minutes: 330
         env:
           KRX_ID: ${{ secrets.KRX_ID }}
           KRX_PW: ${{ secrets.KRX_PW }}
