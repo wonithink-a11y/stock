@@ -81,7 +81,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 340
     strategy:
-      fail-fast: true
+      # fail-fast:true였을 때 1개 샤드의 KRX 로그인 실패(간헐적, JSONDecodeError)가
+      # 나머지 15개를 전부 취소시켰다(2026-08-22, run 32506426666·32558686194 등
+      # 반복 관측). 샤드는 서로 독립적으로 자기 아티팩트만 쓰므로 하나가 죽어도
+      # 나머지를 끝까지 돌리고, 실패한 샤드만 `gh run rerun --failed`로 채운다
+      # (finalize의 "샤드 전량 존재" 검사가 부분 실패를 그대로 승격시키는 걸 막는다).
+      fail-fast: false
       matrix:
         shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
