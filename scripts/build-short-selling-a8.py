@@ -12,16 +12,21 @@ config/policies/shortSelling.v1.json(SS-1.0)이다.
   - get_shorting_status_by_date 하나가 [거래량, 잔고수량, 거래대금, 잔고금액]을
     한 호출로 전부 준다 - get_shorting_balance_by_date는 이 함수의 부분집합
     (값 대조로 확인, 잔고수량/잔고금액이 완전히 동일)이라 별도 수집 안 한다.
-    A4(4콜/종목)와 달리 종목당 1콜.
-  - collectFrom(2016-01-04)은 A4 값을 잠정 재사용한 것뿐 - 공매도 데이터 자체의
-    가용 시작일은 anchor로 확인된 적이 없다(정책 파일의 ★ 표시 참고). 스모크가
-    이걸 확인하는 게 본수집 GO의 전제조건이다.
+  - ★ "종목당 1콜로 충분하다"는 최초 정찰(단일 날짜 쿼리로만 확인)의 틀린 결론
+    이었다. 실측(2026-08-22, rangecheck 진단 - 8샤드 스모크가 전량 "빈 응답"으로
+    끝난 원인 조사)으로 KRX가 2년 구간은 성공, 3년 구간은 (정찰종목 005930·
+    000660조차) 빈 응답으로 조용히 거부함을 확인했다 - pykrx가 내부
+    'output' 키 에러를 삼키고 빈 DataFrame으로 위장한다(교훈81과 동일 패턴).
+    종목당 collectFrom~오늘을 2년 단위(date_chunks)로 쪼갠 여러 콜로 바꿨다.
+  - collectFrom(2016-06-30)은 anchor 이분탐색(8회 실행)으로 실측 확정 - 한국
+    공매도 잔고 공시 제도 시행일과 일치한다.
 
 build-supply-demand-a4.py를 골격으로 재사용한다(같은 구조: chk/warn/_abort →
 fetch 레이어 → run_shard → validate(스트리밍) → run_finalize → main). A4와
-다른 점: 종목당 1콜뿐이라 4-way 카테고리 교차검증(categoryKeySetViolations)과
-시장청산조건(marketClearingViolations) 검사가 없다 - 애초에 카테고리 구조 자체가
-없다(flat 4필드).
+다른 점: 4-way 카테고리 교차검증(categoryKeySetViolations)과 시장청산조건
+(marketClearingViolations) 검사가 없다 - 애초에 카테고리 구조 자체가 없다
+(flat 4필드). 대신 종목당 여러 콜(2년 청크)을 date_chunks/fetch_range_chunked로
+합친다 - A4의 4콜(카테고리별)과는 다른 이유의 다중 콜이다.
 
   --shard N --shards M   후보 부분집합 수집 → _shards_a8/shard-N.jsonl (커밋 안 함)
   --finalize             병합 → 검증 → 연도 분할 → gzip
@@ -44,7 +49,7 @@ import os
 import re
 import sys
 import time
-from datetime import timedelta, timezone
+from datetime import date, timedelta, timezone
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -123,6 +128,43 @@ def records_from_df(ticker, df):
     return records, "ok", None
 
 
+def date_chunks(frm_str, to_str, years=2):
+    """[frm, to](YYYY-MM-DD, 양끝 포함)를 `years`년 단위로 안 겹치게 쪼갠다.
+
+    실측(2026-08-22, rangecheck 진단): KRX get_shorting_status_by_date는 2년
+    구간은 성공(005930 490행)하지만 3년 구간은 빈 응답(내부 'output' 키 에러를
+    pykrx가 조용히 삼킴 - 교훈81과 동일 패턴)으로 실패한다. "종목당 1콜" 가정이
+    틀렸음이 이 실측으로 드러났다 - 순수 함수라 네트워크 없이 테스트 가능하다."""
+    frm = date.fromisoformat(frm_str)
+    to = date.fromisoformat(to_str)
+    chunks = []
+    cur = frm
+    while cur <= to:
+        try:
+            nxt = cur.replace(year=cur.year + years) - timedelta(days=1)
+        except ValueError:  # 2/29 시작점
+            nxt = cur.replace(year=cur.year + years, day=28) - timedelta(days=1)
+        end = min(nxt, to)
+        chunks.append((cur.isoformat(), end.isoformat()))
+        cur = end + timedelta(days=1)
+    return chunks
+
+
+def fetch_range_chunked(stock_mod, ticker, frm_str, to_str, years=2):
+    """date_chunks로 나눠 종목 하나의 전체 구간을 여러 콜로 모은다.
+    (records, kind, error)를 돌려준다 - fetch_one과 같은 반환 형태.
+    청크 중 하나라도 'exception'이면 그 시점에서 멈추고 exception으로 취급한다
+    (부분 데이터를 성공으로 위장하지 않는다 - 절대 규칙 1과 같은 정신)."""
+    rows = []
+    for cfrm, cto in date_chunks(frm_str, to_str, years):
+        records, kind, err = fetch_one(stock_mod, ticker, cfrm.replace("-", ""), cto.replace("-", ""))
+        if kind == "exception":
+            return None, "exception", err
+        if kind == "ok":
+            rows.extend(records)
+    return (rows, "ok", None) if rows else (None, "empty", None)
+
+
 def fetch_one(stock_mod, ticker, frm, to):
     """(records, kind, error)를 돌려준다. kind는 'ok' | 'empty' | 'exception'."""
     try:
@@ -197,14 +239,18 @@ def run_shard(shard, shards, pol, limit):
 
     cand = load_jsonl(UNIVERSE)
     cal = load_json(CALENDAR)
-    frm = pol["collectFrom"].replace("-", "")
-    to = cal["tradingDays"][-1].replace("-", "")
+    frm_iso = pol["collectFrom"]
+    to_iso = cal["tradingDays"][-1]
+    frm = frm_iso.replace("-", "")
+    to = to_iso.replace("-", "")
+    chunk_years = pol.get("chunkYears", 2)
 
     tickers = sorted(x["ticker"] for x in cand)
     mine = [t for i, t in enumerate(tickers) if i % shards == shard]
     if limit:
         mine = mine[:limit]
-    print(f"A8 샤드 {shard}/{shards} — {len(mine)}종목 · 구간 {frm}~{to}")
+    print(f"A8 샤드 {shard}/{shards} — {len(mine)}종목 · 구간 {frm}~{to} · "
+          f"{chunk_years}년 청크 {len(date_chunks(frm_iso, to_iso, chunk_years))}개")
 
     probes = []
     for pt in src["probeTickers"]:
@@ -220,7 +266,7 @@ def run_shard(shard, shards, pol, limit):
     t0 = time.time()
 
     for i, tk in enumerate(mine):
-        records, kind, err = fetch_one(stock, tk, frm, to)
+        records, kind, err = fetch_range_chunked(stock, tk, frm_iso, to_iso, chunk_years)
         if kind == "ok":
             rows.extend(records)
             consec_exc = 0
@@ -504,6 +550,23 @@ def _selftest() -> int:
     empty_df = pd.DataFrame(columns=["거래량", "잔고수량", "거래대금", "잔고금액"])
     _, kind3, _ = records_from_df("000000", empty_df)
     check(kind3 == "empty", "records_from_df: 빈 응답 → empty")
+
+    # date_chunks — 실제 수집 구간(10년 1.5개월)이 2년씩 안 겹치게 나뉘는지
+    chunks = date_chunks("2016-06-30", "2026-08-14", 2)
+    check(chunks[0] == ("2016-06-30", "2018-06-29"), "date_chunks: 첫 청크 2년-1일")
+    check(chunks[-1] == ("2026-06-30", "2026-08-14"), "date_chunks: 마지막 청크는 to로 clamp")
+    check(len(chunks) == 6, "date_chunks: 10년1.5개월 → 6개 청크")
+    gaps = all(
+        date.fromisoformat(chunks[i + 1][0]) - date.fromisoformat(chunks[i][1])
+        == timedelta(days=1)
+        for i in range(len(chunks) - 1)
+    )
+    check(gaps, "date_chunks: 청크 사이 빈 날짜·겹침 없음")
+
+    # 2/29 시작점(윤년) - year+2가 항상 윤년은 아니므로 replace가 죽지 않아야 함
+    # (to를 2년 뒤보다 훨씬 뒤로 둬서 clamp 없이 실제 윤년 분기를 통과시킨다)
+    leap_chunks = date_chunks("2016-02-29", "2020-01-01", 2)
+    check(leap_chunks[0] == ("2016-02-29", "2018-02-27"), "date_chunks: 윤년 시작점 안전")
 
     print("\n" + ("전체 통과" if ok else "실패 있음"))
     return 0 if ok else 1
