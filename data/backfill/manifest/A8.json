@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A8",
+  "stageVersion": "A8.0",
+  "target": "data/backfill/shortSelling/a8",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:ea555c4835fa0175",
+  "fileCount": 11,
+  "upstream": {
+    "A0.5": "sha256:37fa93c616711589",
+    "A1a": "sha256:3543c5a084d46438"
+  },
+  "policyHash": {
+    "registry": "sha256:2c72bc12486b17fd",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "shortSelling": "sha256:1bf4ce8c112e3cc4"
+  },
+  "recordCount": 5310860,
+  "candidateCount": 2578,
+  "tickersWithData": 2577,
+  "tickersWithDataRate": 0.9996,
+  "emptyCount": 0,
+  "unresolvedCount": 1,
+  "unresolved": [
+    {
+      "ticker": "054040",
+      "reason": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    }
+  ],
+  "missingRate": 0.17034,
+  "actualDataFrom": "2016-06-30",
+  "actualDataTo": "2026-08-14",
+  "smokeTest": false,
+  "generatedAt": "2026-08-22T11:18:09.590Z"
+}

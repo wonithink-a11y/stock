@@ -1,0 +1,114 @@
+{
+  "stage": "A8",
+  "mode": "finalize",
+  "shortSellingPolicy": "SS-1.1",
+  "environment": {
+    "pykrx": "unknown",
+    "python": "3.11.16"
+  },
+  "shardFiles": [
+    "shard-0.jsonl",
+    "shard-1.jsonl",
+    "shard-10.jsonl",
+    "shard-11.jsonl",
+    "shard-12.jsonl",
+    "shard-13.jsonl",
+    "shard-14.jsonl",
+    "shard-15.jsonl",
+    "shard-2.jsonl",
+    "shard-3.jsonl",
+    "shard-4.jsonl",
+    "shard-5.jsonl",
+    "shard-6.jsonl",
+    "shard-7.jsonl",
+    "shard-8.jsonl",
+    "shard-9.jsonl"
+  ],
+  "shardCount": 16,
+  "emptyCount": 0,
+  "exceptionCount": 1,
+  "unresolvedCount": 1,
+  "unresolved": [
+    {
+      "ticker": "054040",
+      "reason": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    }
+  ],
+  "calendarStart": "2014-01-02",
+  "calendarEnd": "2026-08-14",
+  "rowCount": 5310860,
+  "actualDataFrom": "2016-06-30",
+  "actualDataTo": "2026-08-14",
+  "dateContractViolations": 0,
+  "tickerContractViolations": 0,
+  "candidateCount": 2578,
+  "tickersWithData": 2577,
+  "tickersWithDataRate": 0.9996,
+  "expectedDaysPerTicker": 2484,
+  "missingRate": 0.17034,
+  "unresolvedRate": 0.0004,
+  "rowCountAfterValidation": 5310860,
+  "acceptanceFails": [],
+  "acceptanceWarns": [
+    "누락률 17.03% <= 5% (신규상장 등으로 상장 전 구간이 항상 '누락'으로 잡히는 단순 계산)"
+  ],
+  "acceptancePassed": true,
+  "years": {
+    "2016": {
+      "rows": 216394,
+      "rawBytes": 30347192,
+      "gzBytes": 3268811
+    },
+    "2017": {
+      "rows": 432930,
+      "rawBytes": 60471031,
+      "gzBytes": 6361171
+    },
+    "2018": {
+      "rows": 453148,
+      "rawBytes": 63723862,
+      "gzBytes": 7016777
+    },
+    "2019": {
+      "rows": 479576,
+      "rawBytes": 67706408,
+      "gzBytes": 7692747
+    },
+    "2020": {
+      "rows": 505214,
+      "rawBytes": 69681500,
+      "gzBytes": 6705974
+    },
+    "2021": {
+      "rows": 529752,
+      "rawBytes": 72823321,
+      "gzBytes": 6787070
+    },
+    "2022": {
+      "rows": 545855,
+      "rawBytes": 74415775,
+      "gzBytes": 6505026
+    },
+    "2023": {
+      "rows": 565180,
+      "rawBytes": 76488260,
+      "gzBytes": 6322804
+    },
+    "2024": {
+      "rows": 587011,
+      "rawBytes": 78974482,
+      "gzBytes": 6244677
+    },
+    "2025": {
+      "rows": 606169,
+      "rawBytes": 84842294,
+      "gzBytes": 9257676
+    },
+    "2026": {
+      "rows": 389631,
+      "rawBytes": 56077346,
+      "gzBytes": 7206217
+    }
+  },
+  "totalGzBytes": 73368950
+}
