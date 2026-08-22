@@ -17,6 +17,11 @@ on:
         required: false
         default: ''
         type: string
+      rangecheck:
+        description: 'FROM,TO(YYYY-MM-DD,YYYY-MM-DD)만 넣으면 정찰종목으로 그 구간 응답 유무만 확인하고 종료 - 구간 길이가 빈 응답 원인인지 진단'
+        required: false
+        default: ''
+        type: string
       limit:
         description: '샤드당 처리 종목 수 상한. 비우면 전체(본수집). 스모크는 작은 수를 넣는다'
         required: false
@@ -50,7 +55,7 @@ env:
 
 jobs:
   anchor:
-    if: inputs.anchor != ''
+    if: inputs.anchor != '' || inputs.rangecheck != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -59,13 +64,19 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install --quiet "pykrx==${PYKRX_VERSION}" pandas
-      - env:
+      - if: inputs.anchor != ''
+        env:
           KRX_ID: ${{ secrets.KRX_ID }}
           KRX_PW: ${{ secrets.KRX_PW }}
         run: python scripts/build-short-selling-a8.py --anchor "${{ inputs.anchor }}"
+      - if: inputs.rangecheck != ''
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/build-short-selling-a8.py --rangecheck "${{ inputs.rangecheck }}"
 
   collect:
-    if: inputs.anchor == '' && inputs.sourceRunId == ''
+    if: inputs.anchor == '' && inputs.rangecheck == '' && inputs.sourceRunId == ''
     runs-on: ubuntu-latest
     timeout-minutes: 340
     strategy:
@@ -100,7 +111,7 @@ jobs:
 
   finalize:
     needs: collect
-    if: inputs.anchor == '' && always() && (needs.collect.result == 'success' || needs.collect.result == 'skipped')
+    if: inputs.anchor == '' && inputs.rangecheck == '' && always() && (needs.collect.result == 'success' || needs.collect.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

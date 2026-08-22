@@ -170,6 +170,20 @@ def run_anchor_check(pol, anchor_date):
     return 0
 
 
+def run_range_check(pol, frm, to):
+    """진단 전용 - 정찰종목에 대해 (frm,to) 구간 쿼리가 실제로 행을 돌려주는지 확인한다.
+    data/backfill/에 아무것도 안 쓴다. 스모크가 전량 빈 응답이 나온 원인이
+    구간 길이 자체에 있는지(정찰종목=확실히 데이터 있는 종목으로 격리) 보려는 것."""
+    stock = _import_pykrx_stock()
+    f, t = frm.replace("-", ""), to.replace("-", "")
+    print(f"range 확인 — {frm} ~ {to}")
+    for pt in pol["source"]["probeTickers"]:
+        records, kind, err = fetch_one(stock, pt, f, t)
+        n = len(records) if records else 0
+        print(f"  {pt}: {kind} ({n}행) {err or ''}")
+    return 0
+
+
 def run_shard(shard, shards, pol, limit):
     stock = _import_pykrx_stock()
 
@@ -504,6 +518,8 @@ def main() -> int:
                     help="스모크 테스트용. 진단에 smokeTest 플래그가 박힌다")
     ap.add_argument("--anchor", type=str, default="",
                     help="이 날짜(YYYY-MM-DD) 하나로 정찰종목 응답 유무만 확인하고 종료")
+    ap.add_argument("--rangecheck", type=str, default="",
+                    help="FROM,TO(YYYY-MM-DD,YYYY-MM-DD) 구간으로 정찰종목 응답 유무 확인하고 종료 - 구간 길이가 원인인지 진단")
     ap.add_argument("--selftest", action="store_true",
                     help="네트워크 없이 records_from_df 로직만 검증한다")
     args = ap.parse_args()
@@ -521,6 +537,9 @@ def main() -> int:
 
     if args.anchor:
         return run_anchor_check(pol, args.anchor)
+    if args.rangecheck:
+        frm, to = args.rangecheck.split(",")
+        return run_range_check(pol, frm.strip(), to.strip())
     if args.finalize:
         return run_finalize(pol)
     if args.shard is None:
