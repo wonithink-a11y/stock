@@ -1,0 +1,43 @@
+{
+  "generatedAtUTC": "2026-08-23T13:00:07+00:00",
+  "purpose": "Macro Regime Layer 10개(9 raw + 1 derived) 백필",
+  "designDoc": "findings/macro-regime-layer-design-2026-08.md",
+  "sourceCheckDoc": "findings/macro-regime-layer-data-source-check-2026-08.md",
+  "columns": [
+    "usFedFundsRate",
+    "usTreasury10y",
+    "usNasdaq",
+    "krKospi",
+    "krTreasury3y",
+    "krCorpAA3y",
+    "krCpi",
+    "krLeadingCyclical",
+    "krCoincidentCyclical",
+    "krCreditSpreadBp"
+  ],
+  "rowCount": 3097,
+  "dateRange": [
+    "2014-01-02",
+    "2026-08-14"
+  ],
+  "pitRule": {
+    "daily(usFedFundsRate/usTreasury10y/usNasdaq/krKospi/krTreasury3y/krCorpAA3y/krCreditSpreadBp)": "asOf(D) = 관측일자 < D (asof_join_kr, 등호 배제, 무변경 재사용)",
+    "monthly(krCpi)": "usableFromDate = 참조월 말일 + 5일, 그 뒤 위와 동일 asOf 규칙",
+    "monthly(krLeadingCyclical/krCoincidentCyclical)": "usableFromDate = 참조월 말일 + 60일(12월 예외를 균일 상수로 흡수), 그 뒤 동일 asOf 규칙"
+  },
+  "lagAssumptionCaveat": "CPI·경기종합지수 lag는 웹검색 기반 보수적 추정 (design doc §3.2, §10) — 실제 통계청 공표일정 대조는 안 함",
+  "missingRateByColumn": {
+    "usFedFundsRate": 0.0,
+    "usTreasury10y": 0.0,
+    "usNasdaq": 0.0,
+    "krKospi": 0.03294,
+    "krTreasury3y": 0.00032,
+    "krCorpAA3y": 0.00032,
+    "krCpi": 0.00743,
+    "krLeadingCyclical": 0.02002,
+    "krCoincidentCyclical": 0.02002,
+    "krCreditSpreadBp": 0.00032
+  },
+  "generatedByCommit": "1466019144085cffe1300c585b590f4c27fbdd3a",
+  "note": "BF-1.1 정식 manifest 아님 — research 재현성 기록용 경량 버전"
+}

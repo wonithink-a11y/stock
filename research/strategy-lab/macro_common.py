@@ -16,8 +16,10 @@ PIT 규칙(asof_join_kr): KR 거래일 D에는 FRED 관측일자가 D보다 엄�
 않는다(설계 문서 §3-1). 등호(<=)를 쓰면 미래정보 누출이다.
 """
 import json
+import os
 import ssl
 import urllib.request
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -64,6 +66,66 @@ def fred(series):
 def load_kr_calendar():
     cal = json.loads(CALENDAR_PATH.read_text(encoding="utf-8"))
     return cal["tradingDays"]
+
+
+def ecos(stat_code, freq, start, end, *item_codes):
+    """한국은행 ECOS StatisticSearch -> [(TIME, float), ...].
+
+    freq: "D"(일별, TIME=YYYYMMDD) 또는 "M"(월별, TIME=YYYYMM). 결측(빈 배열
+    응답)은 조용히 빈 리스트로 반환한다 — 지어내지 않는다(findings/
+    macro-regime-layer-design-2026-08.md §5). 키는 환경변수 ECOS_API_KEY
+    에서만 읽는다(절대 규칙 2 — 코드에 하드코딩 금지).
+    """
+    key = os.environ.get("ECOS_API_KEY")
+    if not key:
+        raise RuntimeError("ECOS_API_KEY 환경변수가 없다 — .env에서 로드했는지 확인")
+    item_path = "/".join(item_codes)
+    url = ("https://ecos.bok.or.kr/api/StatisticSearch/%s/json/kr/1/10000/%s/%s/%s/%s%s"
+           % (key, stat_code, freq, start, end, ("/" + item_path) if item_path else ""))
+    txt = http_get(url)
+    data = json.loads(txt)
+    result = data.get("StatisticSearch") or data.get("RESULT")
+    if not result or "row" not in result:
+        return []
+    out = []
+    for r in result["row"]:
+        v = r.get("DATA_VALUE")
+        if v is None or v == "":
+            continue
+        try:
+            out.append((r["TIME"], float(v)))
+        except ValueError:
+            continue
+    return out
+
+
+def month_end(year, month):
+    if month == 12:
+        return date(year, 12, 31)
+    return date(year, month + 1, 1) - timedelta(days=1)
+
+
+def usable_from_date_monthly(yyyymm, lag_days):
+    """설계 §3.3: usableFromDate = 참조월 말일 + lag_days(달력일).
+
+    yyyymm: "YYYYMM" 문자열(ECOS TIME 그대로). 반환: "YYYY-MM-DD" 문자열.
+    """
+    y, m = int(yyyymm[:4]), int(yyyymm[4:6])
+    return (month_end(y, m) + timedelta(days=lag_days)).strftime("%Y-%m-%d")
+
+
+def ecos_daily_to_iso(rows):
+    """ECOS 일별 TIME(YYYYMMDD) -> asof_join_kr이 기대하는 YYYY-MM-DD."""
+    return [(t[:4] + "-" + t[4:6] + "-" + t[6:8], v) for t, v in rows]
+
+
+def ecos_monthly_to_usable(rows, lag_days):
+    """ECOS 월별 관측치를 usableFromDate 기준 (date, value) 리스트로 변환.
+
+    asof_join_kr()에 그대로 넣을 수 있게, "참조월"이 아니라 이미 계산한
+    usableFromDate를 date 컬럼 자리에 채운다(설계 §2 — 새 조인 로직 불요).
+    """
+    return [(usable_from_date_monthly(t, lag_days), v) for t, v in rows]
 
 
 def asof_join_kr(fred_rows, kr_trading_days, value_col):

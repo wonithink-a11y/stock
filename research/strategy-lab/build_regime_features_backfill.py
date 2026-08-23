@@ -435,6 +435,20 @@ def audit():
 MACRO_FILES = {
     "usdkrw_daily_kr.parquet": ["usdKrwLevel", "usdKrwLevelAsOfDate", "usdKrw20dChangePct"],
     "vix_daily_kr.parquet": ["vixLevel", "vixLevelAsOfDate"],
+    # 2026-08-23 Macro Regime Layer 추가분(설계: findings/
+    # macro-regime-layer-design-2026-08.md, 백필: build_macro_layer_backfill.py)
+    "macro_layer_daily_kr.parquet": [
+        "usFedFundsRate", "usFedFundsRateAsOfDate",
+        "usTreasury10y", "usTreasury10yAsOfDate",
+        "usNasdaq", "usNasdaqAsOfDate",
+        "krKospi", "krKospiAsOfDate",
+        "krTreasury3y", "krTreasury3yAsOfDate",
+        "krCorpAA3y", "krCorpAA3yAsOfDate",
+        "krCpi", "krCpiAsOfDate",
+        "krLeadingCyclical", "krLeadingCyclicalAsOfDate",
+        "krCoincidentCyclical", "krCoincidentCyclicalAsOfDate",
+        "krCreditSpreadBp", "krCreditSpreadBpAsOfDate",
+    ],
 }
 
 
