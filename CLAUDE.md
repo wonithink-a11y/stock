@@ -36,7 +36,20 @@ Validated against
             (ChatGPT A/B/C)은 겹침판정·연속보유 수정이 이제 적용 가능해졌으나
             아직 미착수. A2b 소비 단계(priceSource.js PRIMARY 연결·043090
             처리·Core 백필)도 여전히 미착수(아래 "착수 가능" 참고, 우선순위
-            미정)
+            미정). ★ 2026-08-23 후속 — Macro Regime Layer(아래 완료 참고)로
+            "PBR이 왜 좋았나"를 다시 열었다. 미국 10년물(usTreasury10y)
+            trailing 6개월 변화 축이 **2022년을 빼도 방향이 유지되는
+            유일한 축**(한국 국고채·신용스프레드는 2022년 하나로만 설명,
+            제외 시 부호 반전) — PBR 분류를 "가치주 노출"에서 "미국
+            장기금리 상승기 조건부 가치주 노출"로 좁혔다. 단 이걸 **실제
+            진입 타이밍 필터로 구현하면 오히려 나빠진다**(CAGR +4.72%→
+            +2.26%, Sharpe 0.4556→0.3293, Calmar도 악화 — 2022년 PBR
+            자신의 절대수익은 -2.38%로 마이너스였고 EW가 더 나빴을 뿐이라,
+            "상대적 우위를 설명하는 축"과 "타이밍 필터로 쓸 축"은 다른
+            질문임을 확인). CAND1은 같은 축에서 PBR과 정반대 방향(단
+            데이터 창 1년이라 약한 증거), Opening Fade는 무관(설명력 없음,
+            PF 전 구간 1.00~1.01). PBR 최종 분류("연구 후보, production
+            alpha 미확정")는 안 바뀌었지만 진입 필터 경로는 완전히 닫혔다
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향(2026-08-23 재검토 —
               docs/BF-1.1-백필계약.md §5 "운영(A5o)/연구(A5) 분리" 확정에 따르면
@@ -116,6 +129,33 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ Macro Regime Layer 구축 + PBR/CAND1/Opening Fade 3전략
+              규제-조건부 검증 + 진입필터 실전 backtest + GPT·Ox Alpha
+              감사 독립검증 (2026-08-23, 다수 커밋 — 1b2e836·4989745·cf90a86·
+              df8a424·470ae34·ac170cb·9441fa5·5801426·96822eb) — 기존
+              market-regime(VIX·USD/KRW·4축)에 미국금리(FRED DFF·DGS10)·
+              미국시장(NASDAQ)·한국시장(KOSPI)·한국금리·신용스프레드·물가·
+              경기(전부 한국은행 ECOS, 사용자 키 발급)를 추가해 10개 컬럼
+              (`market_regime_features.parquet` 25→45컬럼) PIT-safe 백필.
+              **핵심 발견**: FRED 경유 한국 물가·경기 지표는 2023-11~
+              2024-03에서 갱신 정지 상태였는데(실측), 같은 지표를 ECOS
+              원천으로 받으면 정상 최신 — 문제는 한국이 통계를 안 낸 게
+              아니라 FRED가 그 시점 이후 안 받아온 것이었다. 이 10개 축
+              (특히 미국10년물)을 PBR/CAND1/Opening Fade에 적용한 결과와
+              PBR 진입필터 backtest 결과는 위 "다음" PBR 항목에 정리.
+              부수: GPT·Ox Alpha가 독립 작성한 market-regime 데이터
+              인벤토리 보고서를 검증해 실제 오류 1건(US10Y 등 8개 시리즈를
+              "raw 단계, 정규화 필요"로 오기 — 실제로는 이미 병합 완료,
+              자기 문서 안의 다른 항목과도 모순) 발견·기록, KOSPI 3,000행
+              캡(네이버 API 응답 상한, count 파라미터 무관)은 라이브
+              재현으로 정확함을 확인 — Claude 자신의 이전 백필 보고서
+              설명을 정밀화하는 부수 효과. 세부: research/strategy-lab/
+              findings/macro-regime-layer-*·pbr-macro-rate-regime-check-
+              2026-08.md·cand1-macro-rate-regime-check-2026-08.md·
+              opening-fade-macro-rate-regime-check-2026-08.md·
+              macro-rate-regime-synthesis-2026-08.md·pbr-ratefilter-
+              backtest-2026-08.md·market-regime-final-data-inventory-
+              verification-2026-08.md
   완료      ★ Ox Alpha 후속배치 3건 독립검증 + CAND1 미시구조 검증 + 코드리뷰
               커밋 2건 (2026-08-23, 세션인수인계-2026-08-23-b.md) — 오프닝
               페이드 비용반영(T+5 net+29.2bp·T+10 net+23.1bp, 관례비용
