@@ -68,15 +68,17 @@ Validated against
               아니라 `config/policies/universe.v1.json` 병합모드 확장 +
               `engine/runner.py`의 A1A_ONLY assert 완화, 둘 다 별도 🔴 결정).
               세션인수인계-2026-08-16.md §5 끝 참고
-            ③ Core 182종목 246일 백필(2026-08-23 정정 — 이 항목은 낡았다.
-              2026-08-18 확인 결과 `collect-minute-kis.py`에 "Core로 좁힌"
-              경로가 없어 **Core 182종목 대신 전체 2,579종목을 249일
-              백필하기로 사용자 확인 후 변경**됐고(세션인수인계-
-              2026-08-18-c.md), `run-minute-daily.py --days 249`를
-              VM에서 상시 루프(`systemd-run` transient unit)로 이미
-              실행 시작했다. **완료 여부는 이번 세션에서 확인 안 함** —
-              VM 상태 직접 확인 필요. "Core 182종목"이라는 원래 문구
-              자체가 지금은 틀렸다)
+            ③ 전체 2,579종목 249영업일 분봉 백필 — **완료 확인됨**(2026-08-23,
+              VM 직접 확인). 로그에 "할 일 없다"(538회 스킵 후 종료) 도달,
+              manifest 253개(2025-08-08~2026-08-21, 날짜 공백 없음)·
+              EGW00201 누적 0건, 루프(`minute-backfill-loop.service`)는
+              2026-08-20 23:16에 이미 정상 stop됨(별도 정리 불필요). 단
+              **산출물은 여전히 VM `~/minute-raw`에만 있고 GitHub에는 없다**
+              — 승격 파이프라인이 아직 미구현이라(아래 "다음" ★ 분봉 manifest
+              승격 파이프라인 항목) "착수 가능" 목록에 남겨두는 이유가 없다,
+              다음 착수 대상은 그 승격 파이프라인 자체다. 일별 운영 cron
+              (`minute-collect.timer`, `--days` 기본 3)은 이 백필과 무관하게
+              정상 작동 중(최근 실행 정상)
             ④ A5-3 valuation/peg 연결(lib/a5/resolver.js, A2a 수정주가 ↔ A3b
               원본 EPS 조정 기준 정의) — A3c 완료(2026-08-16)로 데이터는
               열렸으나 아직 착수 안 함(TASKS.md A5-3). 2026-08-18 SB-1.0
