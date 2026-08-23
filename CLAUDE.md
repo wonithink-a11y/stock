@@ -40,9 +40,14 @@ Validated against
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향 — A2b 산출물을 운영
               스코어링의 PRIMARY 가격 소스로 실제 연결하는 단계
-            ② Strategy Lab PRIMARY 전환 — 5DC-v1A-P를 동일 engine·동일 policy로
-              A1A_A1B_MERGED 재실행(코드 변경 없음, 설계상 그렇게 만들어 둠).
-              세션인수인계-2026-08-16.md §4 끝 참고
+            ② Strategy Lab PRIMARY **정식 승격**(2026-08-23 정정 — 재실행 자체는
+              이미 2026-08-17에 두 번 독립 검증까지 끝났다. 504종목·508종목
+              공식 A2b 버전 둘 다 A1A_A1B_MERGED CAGR -8.1847%로 소수점까지
+              완전 일치, A1A_ONLY 대비 +1.62%p 개선. 사용자가 그때 "SMOKE급으로
+              충분, 정식 승격은 나중"으로 결정해 미뤄뒀다 — 남은 건 재실행이
+              아니라 `config/policies/universe.v1.json` 병합모드 확장 +
+              `engine/runner.py`의 A1A_ONLY assert 완화, 둘 다 별도 🔴 결정).
+              세션인수인계-2026-08-16.md §5 끝 참고
             ③ Core 182종목 246일 백필 (≈224,000호출)
             ④ A5-3 valuation/peg 연결(lib/a5/resolver.js, A2a 수정주가 ↔ A3b
               원본 EPS 조정 기준 정의) — A3c 완료(2026-08-16)로 데이터는
