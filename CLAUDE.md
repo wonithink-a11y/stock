@@ -67,8 +67,11 @@ Validated against
               0.65로 `minimumDataCoverage`(0.6)를 처음 넘었다(valuation
               availableFraction 0→0.5). scripts/test-a5-framework.js의 옛
               단정 2건(coverage<0.6·valuation 전부 불가)을 새 상태로 갱신,
-              25개 회귀 스위트 전체 재확인. **남은 건 V7 수직 슬라이스**
-              (§6, 실데이터 연결 최종 확인)뿐, 착수 대기 중(사용자 확인 필요)
+              25개 회귀 스위트 전체 재확인. **★ V7 최종 수직 슬라이스도 완료됨**
+              (2026-08-21, 커밋 `4e9716a`, 아래 "완료" 참고) — 이 항목(A5-3
+              valuation/peg 연결)은 이제 전부 끝났다. 이 문단은 2026-08-23
+              세션이 CLAUDE.md 갱신 누락(V7 완료가 상태블록에 반영 안 됨)을
+              발견해 정정했다
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
             ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
@@ -215,6 +218,16 @@ Validated against
               으로 바꾼 안전한 방어 수정뿐(기존 회귀 전체 재확인, 커밋됨).
               pbr_value_v1 전략 코드 자체는 재현성 사슬 미완성(소스 패널
               미커밋) + 겹침판정 미해결로 로컬에만 남기고 커밋 안 함
+  완료      ★ A5-3 V7 최종 수직 슬라이스 — valuation(D4) 실데이터 연결 확인
+              (2026-08-21, 커밋 `4e9716a`, docs/A5-3-peg-조정기준-결정브리프.md
+              §22) — 005930/2019-06-03은 2016년 mergerSpinoff 공시로 valuation이
+              정책대로 정직하게 유보됨을 확인(버그 아님). 002100(경농)/2019-06-03은
+              per·pbr·peg 전부 채워져 Universe→PIT→가격→resolver→score()까지
+              valuation이 실제로 흘러 들어가는 것을 처음 실데이터로 확인 —
+              이게 V7의 본 목적. A5-3 valuation/peg 연결 트랙 전체가 이걸로
+              완전히 닫혔다. 부수 발견(capitalReal 유보 게이트가 사건-비교연도
+              관련성을 안 보고 그 이후 전부 막는 범위 확인)은 별도 🔴 결정 대상으로
+              남기고 이 세션은 판단하지 않음
   완료      ★ A3d 브래킷 PIT 버그 2건 발견·수정 + A5-3 실데이터 회귀 (2026-08-21,
               커밋 11c1f96·63fc757·18d2126) — A3d finalize(201e17c) 산출물의
               reverseOrConsolidation 후보 69건 중 56건(81%)이 배수>1(병합인데
