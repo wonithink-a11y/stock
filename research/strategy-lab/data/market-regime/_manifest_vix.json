@@ -1,0 +1,22 @@
+{
+  "generatedAtUTC": "2026-08-23T09:24:48+00:00",
+  "seriesId": "VIXCLS",
+  "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=VIXCLS",
+  "fredRows": 9256,
+  "fredDateRange": [
+    "1990-01-02",
+    "2026-08-20"
+  ],
+  "krTradingDays": 3097,
+  "krDateRange": [
+    "2014-01-02",
+    "2026-08-14"
+  ],
+  "missingRows": 0,
+  "pitRule": "asOf(D) = FRED date < D (backward, allow_exact_matches=False)",
+  "note": "BF-1.1 정식 manifest 아님 — research 재현성 기록용 경량 버전 (findings/market-regime-build-plan-2026-08.md §2-3)",
+  "files": {
+    "raw": "vixcls_raw.parquet",
+    "joined": "vix_daily_kr.parquet"
+  }
+}

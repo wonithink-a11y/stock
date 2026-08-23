@@ -1,0 +1,38 @@
+{
+  "generatedAtUTC": "2026-08-23T09:41:23+00:00",
+  "group": "turnover_value",
+  "readinessItemNo": 5,
+  "columns": [
+    "value_a4",
+    "value_z60"
+  ],
+  "source": "A4 buyAmount.전체",
+  "formula": "일별 전체 체결대금 합 + 60일 z-score(rolling mean/std)",
+  "formulaOrigin": "reports/2026-08-23-market-regime-readiness/build_regime_feature_check.py (원본 무변경, 계산식 그대로 이식)",
+  "pitRule": "값은 date(t)일 종가/마감확정치까지만 사용해 계산됨(미래정보 없음). 실전 사용은 usableFromDate(=t+1 거래일)부터 — readiness 문서 PIT 규칙 1",
+  "rowCount": 2604,
+  "krTradingDaysTotalInCalendar": 2604,
+  "duplicateDateRows": 0,
+  "perColumnStats": {
+    "value_a4": {
+      "validDays": 2604,
+      "missingRate": 0.0,
+      "firstValidDate": "2016-01-04",
+      "lastValidDate": "2026-08-14"
+    },
+    "value_z60": {
+      "validDays": 2565,
+      "missingRate": 0.01498,
+      "firstValidDate": "2016-03-03",
+      "lastValidDate": "2026-08-14"
+    }
+  },
+  "dataSourceOrigin": {
+    "price": "data/backfill/price/a2a/*.jsonl.gz (수정주가, 현행상장 유니버스)",
+    "supplyDemand": "data/backfill/supplyDemand/a4/*.jsonl.gz (KRX/pykrx, SD-1.0)",
+    "universe": "data/backfill/universe/a1a/current.jsonl",
+    "calendar": "data/backfill/calendar.json"
+  },
+  "generatedByCommit": "d33bd3e0c76d2fc652972f036c9659fd592155b7",
+  "note": "BF-1.1 정식 manifest 아님 — research 재현성 기록용 경량 버전 (findings/market-regime-build-plan-2026-08.md §2-3과 동일 관례)"
+}

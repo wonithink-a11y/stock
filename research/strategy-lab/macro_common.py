@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""market-regime macro 백필 공통 유틸 — FRED 조회 + KR 거래일 asOf 조인.
+
+설계: findings/market-regime-build-plan-2026-08.md §2·§3.
+`build_usdkrw_backfill.py`(DEXKOUS)·`build_vix_backfill.py`(VIXCLS)가 공유한다.
+두 스크립트가 PIT의 핵심인 asOf 규칙을 각자 복사해 쓰면 한쪽만 고치고 다른
+쪽을 놓칠 위험이 생긴다 — 그래서 이 로직만 한 곳에 둔다.
+
+`fred()`는 scripts/fetch_macro.py:31-47 을 그대로 복사한 것이다(원본은
+무변경 — Strategy Lab의 production 코드 비참조 원칙, 설계 문서 §2-1).
+
+PIT 규칙(asof_join_kr): KR 거래일 D에는 FRED 관측일자가 D보다 엄격히
+이전(< D)인 가장 최근 값만 쓴다. DEXKOUS/VIXCLS 둘 다 뉴욕 마감 기준
+날짜라, 같은 날짜(D)로 찍힌 값은 D의 KRX 마감 시점에 아직 존재하지
+않는다(설계 문서 §3-1). 등호(<=)를 쓰면 미래정보 누출이다.
+"""
+import json
+import ssl
+import urllib.request
+from pathlib import Path
+
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[1]
+CALENDAR_PATH = REPO / "data" / "backfill" / "calendar.json"
+OUT_DIR = HERE / "data" / "market-regime"
+
+UA = "Mozilla/5.0 (macro-fetch; +https://github.com)"
+CTX = ssl.create_default_context()
+
+
+def http_get(url, timeout=20):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=timeout, context=CTX) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def fred(series):
+    """scripts/fetch_macro.py:31-47 을 그대로 복사한 것 — 원본은 무변경.
+
+    FRED CSV -> [(YYYY-MM-DD, float), ...]. 결측은 '.' 뿐 아니라 완전
+    빈 문자열로도 온다(2026-08-23 DEXKOUS에서 실측, 전부 미국 공휴일) —
+    `if not v`가 둘 다 걸러낸다.
+    """
+    txt = http_get(
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=" + series)
+    out = []
+    for line in txt.splitlines()[1:]:
+        p = line.split(",")
+        if len(p) < 2:
+            continue
+        d, v = p[0].strip(), p[-1].strip()
+        if not v or v == ".":
+            continue
+        try:
+            out.append((d, float(v)))
+        except ValueError:
+            continue
+    return out
+
+
+def load_kr_calendar():
+    cal = json.loads(CALENDAR_PATH.read_text(encoding="utf-8"))
+    return cal["tradingDays"]
+
+
+def asof_join_kr(fred_rows, kr_trading_days, value_col):
+    """KR 거래일별로 'date < D'인 가장 최근 FRED 관측치를 붙인다.
+
+    반환: DataFrame[date, <value_col>, <value_col>AsOfDate]
+      (AsOfDate = 실제로 쓰인 FRED 관측일자, 감사용 provenance)
+    """
+    fred_df = pd.DataFrame(fred_rows, columns=["fredDate", "value"])
+    fred_df["fredDate"] = pd.to_datetime(fred_df["fredDate"])
+    fred_df = fred_df.sort_values("fredDate").reset_index(drop=True)
+
+    kr_df = pd.DataFrame({"date": pd.to_datetime(sorted(kr_trading_days))})
+
+    joined = pd.merge_asof(
+        kr_df, fred_df,
+        left_on="date", right_on="fredDate",
+        direction="backward", allow_exact_matches=False,
+    )
+    joined["date"] = joined["date"].dt.strftime("%Y-%m-%d")
+    asof_col = value_col + "AsOfDate"
+    joined[asof_col] = joined["fredDate"].dt.strftime("%Y-%m-%d")
+    joined = joined.rename(columns={"value": value_col})
+    return joined[["date", value_col, asof_col]]
+
+
+def selftest_asof_join(value_col="level"):
+    """네트워크 없이 asof_join_kr()의 PIT 규칙만 검증. 호출측 selftest가 재사용."""
+    checks = []
+
+    def check(name, cond):
+        checks.append((name, bool(cond)))
+
+    asof_col = value_col + "AsOfDate"
+
+    # 합성 FRED 관측치: 뉴욕 날짜 기준 월~금(주말 없음, 단순화)
+    fred_rows = [
+        ("2026-01-05", 1300.0), ("2026-01-06", 1305.0), ("2026-01-07", 1310.0),
+        ("2026-01-08", 1315.0), ("2026-01-09", 1320.0),
+    ]
+    # KR 거래일: 화~금 + 다음주 월(연휴 흉내로 갭을 둠)
+    kr_days = ["2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-12"]
+
+    j = asof_join_kr(fred_rows, kr_days, value_col)
+    row = {r["date"]: r for r in j.to_dict("records")}
+
+    check("D당일 FRED 관측치를 쓰지 않는다(등호 배제)",
+          row["2026-01-06"][asof_col] == "2026-01-05"
+          and row["2026-01-06"][value_col] == 1300.0)
+    check("연속 거래일에서는 하루 전 값을 쓴다",
+          row["2026-01-09"][asof_col] == "2026-01-08"
+          and row["2026-01-09"][value_col] == 1315.0)
+    check("주말 갭도 backward-fill로 자연 처리된다",
+          row["2026-01-12"][asof_col] == "2026-01-09"
+          and row["2026-01-12"][value_col] == 1320.0)
+
+    early = asof_join_kr(fred_rows, ["2026-01-01"], value_col)
+    check("FRED 이력 이전 날짜는 NaN(기본값 금지)",
+          pd.isna(early.iloc[0][value_col]))
+
+    return checks

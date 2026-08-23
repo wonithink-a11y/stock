@@ -1,0 +1,27 @@
+{
+  "generatedAtUTC": "2026-08-23T09:42:44+00:00",
+  "purpose": "9개 feature 그룹 + USD/KRW + VIX 통합 — 개별 parquet 검증 완료 후 병합",
+  "sourceFiles": [
+    "market_return",
+    "trend",
+    "breadth",
+    "realized_vol",
+    "turnover_value",
+    "foreign_flow",
+    "institution_flow",
+    "dispersion",
+    "correlation",
+    "usdkrw_daily_kr.parquet",
+    "vix_daily_kr.parquet"
+  ],
+  "rowCount": 2604,
+  "dateRange": [
+    "2016-01-04",
+    "2026-08-14"
+  ],
+  "duplicateDateRows": 0,
+  "joinRule": "9개 feature 그룹 date 기준 left-join(macro가 더 짧으면 그 구간 NaN)",
+  "pitNote": "각 feature 컬럼의 PIT 규칙은 원 그룹 manifest(_manifest_<group>.json)·macro manifest(_manifest_usdkrw.json/_manifest_vix.json)를 따른다 — 이 파일은 조인만 하고 규칙을 새로 만들지 않는다",
+  "generatedByCommit": "d33bd3e0c76d2fc652972f036c9659fd592155b7",
+  "note": "BF-1.1 정식 manifest 아님 — research 재현성 기록용 경량 버전"
+}

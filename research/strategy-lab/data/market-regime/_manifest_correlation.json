@@ -1,0 +1,31 @@
+{
+  "generatedAtUTC": "2026-08-23T09:41:23+00:00",
+  "group": "correlation",
+  "readinessItemNo": 9,
+  "columns": [
+    "impl_corr20"
+  ],
+  "source": "A2a close(파생 R, ew_ret)",
+  "formula": "20일 개별 변동성·EW 변동성으로 역산한 implied 평균상관",
+  "formulaOrigin": "reports/2026-08-23-market-regime-readiness/build_regime_feature_check.py (원본 무변경, 계산식 그대로 이식)",
+  "pitRule": "값은 date(t)일 종가/마감확정치까지만 사용해 계산됨(미래정보 없음). 실전 사용은 usableFromDate(=t+1 거래일)부터 — readiness 문서 PIT 규칙 1",
+  "rowCount": 2604,
+  "krTradingDaysTotalInCalendar": 2604,
+  "duplicateDateRows": 0,
+  "perColumnStats": {
+    "impl_corr20": {
+      "validDays": 2595,
+      "missingRate": 0.00346,
+      "firstValidDate": "2016-01-04",
+      "lastValidDate": "2026-08-03"
+    }
+  },
+  "dataSourceOrigin": {
+    "price": "data/backfill/price/a2a/*.jsonl.gz (수정주가, 현행상장 유니버스)",
+    "supplyDemand": "data/backfill/supplyDemand/a4/*.jsonl.gz (KRX/pykrx, SD-1.0)",
+    "universe": "data/backfill/universe/a1a/current.jsonl",
+    "calendar": "data/backfill/calendar.json"
+  },
+  "generatedByCommit": "d33bd3e0c76d2fc652972f036c9659fd592155b7",
+  "note": "BF-1.1 정식 manifest 아님 — research 재현성 기록용 경량 버전 (findings/market-regime-build-plan-2026-08.md §2-3과 동일 관례)"
+}
