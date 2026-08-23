@@ -6,7 +6,8 @@ stepwise curve; no intra-holding mark-to-market), plus a same-bar trade census.
 
 This is read-only w.r.t. production: it only reads data/backfill (via the
 strategy-lab engine's read-only A2a provider + local cache), writes nothing to
-git, and saves its report under reports/2026-08-16-parallel-validation/deepseek/.
+git, and saves its report under reports/2026-08-22-convention-standardized-rerun/
+(since 2026-08-22 the frozen 2026-08-16 artifacts are never overwritten).
 """
 import sys
 import os
@@ -29,9 +30,13 @@ def _to_ordinal(date_str):
 
 
 def realized_pnl_metrics(portfolio, calendar, start, end):
-    """Same as baseline ablation: equity = initial_capital + cumulative closed
-    pnl, stepped at each exit event (no intra-holding mark-to-market). Points
-    are (exit_date, running_equity). CAGR/MDD/Sharpe over that event curve."""
+    """Anchored realized-pnl-at-exit-event stepwise curve (convention standard
+    fixed 2026-08-22): the curve starts at (evaluation start date, initial
+    capital) so totalReturn == finalEquity/initialCapital - 1 and cagr spans
+    the full evaluation window. Exits still step the same cumulative closed
+    pnl - no intra-holding mark-to-market, no change to trades or accounting.
+    MDD is invariant to this anchor; Sharpe/Sortino shift because one return
+    segment is added."""
     events = sorted(
         (p["exit_date"], p["pnl"]) for p in portfolio.closed_positions
     )
@@ -42,6 +47,7 @@ def realized_pnl_metrics(portfolio, calendar, start, end):
         curve.append((d, eq))
     if not curve:
         return None
+    curve = [(start, portfolio.config.initial_capital)] + curve
     return {
         "initialCapital": portfolio.config.initial_capital,
         "finalEquity": eq,
@@ -98,7 +104,7 @@ def main():
 
     result_table = {
         "warning": "SMOKE/A1A_ONLY diagnostic numbers - NOT a validated performance result (survivorship bias present)",
-        "equityCurveMethod": "realized-pnl-at-exit-event stepwise curve (initial_capital + cumulative closed pnl); does not mark-to-market open positions intra-holding",
+        "equityCurveMethod": "anchored realized-pnl-at-exit-event stepwise curve: starts at (evaluation start date, initial_capital) so totalReturn==final/initial-1 and cagr spans the full evaluation window; exits step cumulative closed pnl with no intra-holding mark-to-market",
         "initialCapital": params["portfolio"]["initialCapital"],
         "finalEquity": realized["finalEquity"],
         "totalReturn": realized["totalReturn"],
@@ -111,7 +117,7 @@ def main():
     }
 
     report = {
-        "analysis_date": "2026-08-16",
+        "analysis_date": "2026-08-22",
         "model_name": "deepseek",
         "runIdentification": {
             "strategyId": "5dc_v1a_p",
@@ -144,7 +150,15 @@ def main():
     }
 
     import pickle
-    pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "5dc_v1a_p_resolved.pkl")
+    # 2026-08-22: outputs redirected to a versioned dir so re-runs can never
+    # overwrite the frozen 2026-08-16 artifacts (5dc_v1a_p_resolved.pkl at the
+    # lab root and reports/2026-08-16-parallel-validation/deepseek/*.json).
+    out_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "reports", "2026-08-22-convention-standardized-rerun",
+    )
+    os.makedirs(out_dir, exist_ok=True)
+    pkl_path = os.path.join(out_dir, "5dc_v1a_p_resolved_standard.pkl")
     with open(pkl_path, "wb") as f:
         pickle.dump({
             "resolved": result["resolved"],
@@ -154,12 +168,7 @@ def main():
             "calendar": calendar,
         }, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    out_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "reports", "2026-08-16-parallel-validation", "deepseek",
-    )
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "5dc_v1a_p_samebar_rerun.json")
+    out_path = os.path.join(out_dir, "5dc_v1a_p_samebar_rerun_anchored_convention.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2, default=str)
 
