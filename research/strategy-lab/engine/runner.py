@@ -127,9 +127,19 @@ def _schedule_portfolio(resolved, portfolio, portfolio_cfg):
     for date in event_dates:
         exits_today = []
         same_bar_exit_candidates = []  # order.order_date == exit_fill.fill_date == date
+        # 2026-08-22 fix (found via v3_bollinger_rsi SMOKE, ticker 189330): a same-
+        # symbol exit+reentry chain where the re-entering trade SAME-BAR-stops puts
+        # TWO exit items for one symbol into by_exit_date[date]. Both passed the
+        # "in open_positions" check below (checked before any pop), so the symbol
+        # was queued twice and process_day() raised KeyError on the second pop.
+        # Guard: queue each symbol once per date; a later duplicate whose own
+        # order_date == date correctly falls through to the same-bar retry path,
+        # which runs after process_day admits that day's entries.
+        exit_symbols_queued = set()
         for item in by_exit_date.get(date, []):
             sig, order, entry_fill, exit_fill, _, _ = item
-            if order.symbol in portfolio.open_positions:  # already admitted on a prior day
+            if order.symbol in portfolio.open_positions and order.symbol not in exit_symbols_queued:  # already admitted on a prior day
+                exit_symbols_queued.add(order.symbol)
                 shares = portfolio.open_positions[order.symbol]["shares"]
                 exits_today.append((order.symbol, exit_fill, shares))
             elif order.order_date == date:

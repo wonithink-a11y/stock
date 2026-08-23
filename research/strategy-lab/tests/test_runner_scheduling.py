@@ -13,6 +13,15 @@ for the same symbol closed it - fusing two different trades' entry and exit
 into one fabricated closed position. See _schedule_portfolio's docstring for
 the fix (same-bar exits are retried in a second process_day() call for the
 same date, after admission).
+
+Also regression for the 2026-08-22 DOUBLE-QUEUE KEYERROR (found via
+v3_bollinger_rsi SMOKE, ticker 189330): when a symbol's prior-day position
+exits on date D *and* a same-day re-entry for that same symbol also
+same-bar-stops on D, both exit items independently satisfied the
+"order.symbol in portfolio.open_positions" check (taken before either is
+popped), so the symbol was queued twice in exits_today and Portfolio raised
+KeyError on the second pop. Fixed by queuing each symbol at most once per
+date in that branch (see exit_symbols_queued in _schedule_portfolio).
 """
 import os
 import sys
@@ -98,10 +107,36 @@ def test_non_same_bar_trades_unaffected():
     assert by_entry_price[105]["exit"].fill_price == 95.0
 
 
+def test_prior_day_exit_and_same_day_reentry_samebar_stop_do_not_double_queue():
+    """Trade A entered 2024-01-02, exits 2024-01-10 (an ordinary prior-day
+    exit). Trade B re-enters the SAME symbol on 2024-01-10 and same-bar-stops
+    on that same date. Before the fix, both exit items passed the
+    "already admitted" check on 2024-01-10 and were queued twice, crashing
+    Portfolio.process_day() with KeyError on the second pop for "000004"."""
+    trade_a = _make_trade("000004", "2024-01-02", 100.0, "2024-01-10", 120.0, "TARGET")
+    trade_b = _make_trade("000004", "2024-01-10", 50.0, "2024-01-10", 45.0, "STOP")
+    resolved = [trade_a, trade_b]
+
+    cfg = PortfolioConfig(initial_capital=100_000_000, max_positions=10, tie_break="ticker_ascending")
+    portfolio = Portfolio(cfg)
+    _schedule_portfolio(resolved, portfolio, cfg)  # must not raise KeyError
+
+    assert len(portfolio.closed_positions) == 2, (
+        f"expected 2 separate closed trades, got {len(portfolio.closed_positions)}"
+    )
+    by_entry_price = {round(p["entry"].fill_price): p for p in portfolio.closed_positions}
+    assert 100 in by_entry_price, "trade A's own entry (100) missing from closed positions"
+    assert 50 in by_entry_price, "trade B's own entry (50) missing from closed positions"
+    assert by_entry_price[100]["exit"].fill_price == 120.0, "trade A closed with the wrong exit price"
+    assert by_entry_price[50]["exit"].fill_price == 45.0, "trade B closed with the wrong exit price"
+    assert "000004" not in portfolio.open_positions
+
+
 def run():
     test_same_bar_exit_does_not_fuse_with_a_later_trade()
     test_same_bar_exit_with_no_later_trade_still_closes_correctly()
     test_non_same_bar_trades_unaffected()
+    test_prior_day_exit_and_same_day_reentry_samebar_stop_do_not_double_queue()
     print("test_runner_scheduling: OK")
 
 
