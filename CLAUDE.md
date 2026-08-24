@@ -33,8 +33,11 @@ Validated against
             남는가"로 바뀐다. 선결 조건: `pbr_value_v1/`(policy.json
             포함, 여전히 로컬 미커밋)의 재현성 사슬 완성(`valuation-
             panel.jsonl` 커밋 또는 산출 스크립트 정리). LOWMOM60+기관수급
-            (ChatGPT A/B/C)은 겹침판정·연속보유 수정이 이제 적용 가능해졌으나
-            아직 미착수. A2b 소비 단계(priceSource.js PRIMARY 연결·043090
+            (ChatGPT A/B/C) — **완료(아래 완료 참고, 2026-08-24)**. 실제로
+            검증까지 끝난 건 후보 C뿐이라는 걸 확인해 C만 구현 —
+            실제 엔진 CAGR +5.09%(사전점검 +13.90%보다 낮음, PBR과 같은
+            패턴). "연구 후보, production 미확정"으로 PBR과 동일 분류.
+            A2b 소비 단계(priceSource.js PRIMARY 연결·043090
             처리·Core 백필)도 여전히 미착수(아래 "착수 가능" 참고, 우선순위
             미정). ★ 2026-08-23 후속 — Macro Regime Layer(아래 완료 참고)로
             "PBR이 왜 좋았나"를 다시 열었다. 미국 10년물(usTreasury10y)
@@ -470,6 +473,27 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ LOWMOM60+기관수급(ChatGPT A/B/C) 재개 — 후보 C만 실제 엔진
+              검증 (2026-08-24) — 재개 전 코드를 직접 확인해보니 "+13.90%로
+              재검증됨"이라던 사전점검(`lowmom60_institutional_eligible_
+              precheck_v2_absolute.py`)이 실은 A4 기관수급 데이터를 전혀
+              쓰지 않고 LOWMOM60+절대유동성필터만 쓴다는 걸 발견 — 이건
+              후보 C(저모멘텀+유동성필터)이지 A/B(저모멘텀+실제 기관/외국인
+              순매수 결합)가 아니다. A/B는 필터 결합 방식이 이 프로젝트
+              어디에도 구체적으로 정의된 적이 없어(원 ChatGPT 제안 원문
+              미보존) 이번 범위 밖 — 사용자 확인 후 C만 구현.
+              `strategies/lowmom60_v1/`을 pbr_value_v1과 완전히 같은 패턴
+              (오프라인 selection.json + engine 무변경)으로 신설 — PBR이
+              겪은 고정 21일 근사 문제를 처음부터 정확 holdSessions 계산으로
+              피하고 연속보유 병합도 처음부터 켰다. 실제 엔진 결과: **CAGR
+              +5.09%**(사전점검 +13.90%보다 낮음)·MDD -27.77%·Sharpe 0.77·
+              2,437건(승률 46.9%) — PBR도 겪은 같은 종류의 낙폭(포트폴리오
+              실제 회계가 오프라인 EW 근사보다 항상 불리), 버그 신호 없음
+              (신규 회귀 4건 포함 전체 138건 통과). MDD가 상당히 깊어
+              **"채택할 만큼 강하다"고 보긴 이르다** — PBR과 동일하게
+              "연구 가치 있는 후보, production alpha 미확정"으로 분류.
+              코드는 PBR과 같은 이유로 로컬 미커밋(재현성 사슬 미완성).
+              findings/lowmom60-candidate-c-engine-verification-2026-08.md
   완료      ★ Strategy Lab PRIMARY 정식 승격 — A1A_A1B_MERGED 실제 배선
               (2026-08-24, GATE-EP-1과 무관한 트랙으로 선택) — A2bProvider·
               MergedPriceProvider 신설(PriceProvider 인터페이스가 원래
