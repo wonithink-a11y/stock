@@ -1,0 +1,102 @@
+name: backfill-exit-overlay
+
+# EO — exitReason 복원(Tier A + Tier B) 승격. 정의는 config/policies/exitOverlay.v1.json.
+# docs/A5-파일럿-exit-overlay-설계안.md §1의 스키마를 그대로 구현한다.
+#
+# Tier A(MERGED, mergerSpinoff 대조)는 새 DART 호출이 없고, Tier B(나머지 5개
+# 사유)만 DART list.json을 corp당 1회 호출한다(대상 ~329종목, 로컬 실측
+# 2026-08-24 근거 — A3/A3b/A3c/A3d보다 훨씬 작은 격자라 matrix 샤딩이 불필요하다,
+# A0.5·A2b와 같은 단일 job 구조).
+#
+# 같은 DART 키를 A3/A3b/A3c/A3d와 공유하므로 그 워크플로들과 같은 날 겹쳐
+# 돌리지 않는다(대량 호출은 아니지만 동일 관례를 따른다).
+on:
+  workflow_dispatch:
+    inputs:
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: backfill-exit-overlay
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Selftest
+        run: python scripts/build-exit-overlay.py --selftest
+
+      - name: Build exit overlay
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          EO_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: python scripts/build-exit-overlay.py --promote
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js EO
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/exitOverlay
+          test -f "$D/v1.jsonl" || { echo "Build 성공인데 산출물이 없다"; exit 1; }
+          EXTRA=$(node -e "
+          const d = require('./$D/_diagnostics.json');
+          console.log(JSON.stringify({
+            exitAtConfirmedTotal: d.exitAtConfirmedTotal,
+            totalClassified: d.totalClassified, totalUnknown: d.totalUnknown,
+            classifiedRate: d.classifiedRate, distribution: d.distribution,
+            tierBListErrorRate: d.tierBListErrorRate,
+          }));
+          ")
+          node scripts/write-manifest.js \
+            --stage EO --stageVersion EO.0 \
+            --target data/backfill/exitOverlay --kind dir --ext .jsonl \
+            --upstream A1b,A2b,A3d \
+            --policies exitOverlay \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exit-overlay-diagnostics
+          path: data/backfill/exitOverlay/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/exitOverlay data/backfill/manifest)" ]; then
+            git add data/backfill/exitOverlay data/backfill/manifest
+            git commit -m "chore(backfill): EO exit overlay 승격 - Tier A+B exitReason 분류"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

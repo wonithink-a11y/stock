@@ -288,6 +288,17 @@ const CONTRACT = {
     forbidden: ['smokeTest'],
   },
 
+  'EO': {
+    file: 'data/backfill/exitOverlay/_diagnostics.json',
+    required: ['stageVersion', 'exitOverlayPolicy', 'overlayVersion',
+               'exitAtConfirmedTotal', 'tierA', 'tierB', 'tierBListErrorRate',
+               'totalClassified', 'totalUnknown', 'classifiedRate', 'distribution'],
+    trueFlags: [],
+    // 스모크/드라이런 산출물이 정상 산출로 승격되는 경로를 막는다
+    // (A2a·A2b·A3~A3d·A5와 동일 원칙, --promote 없이는 애초에 파일 자체가 없다).
+    forbidden: ['smokeTest'],
+  },
+
   'A8': {
     file: 'data/backfill/shortSelling/a8/_diagnostics.json',
     required: ['shortSellingPolicy', 'environment', 'shardCount', 'rowCount',

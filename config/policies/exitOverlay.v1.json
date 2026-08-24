@@ -1,0 +1,37 @@
+{
+  "version": "EO-1.0",
+  "note": "exitReason 복원(Tier A/B) 승격 파이프라인의 파라미터. score()도 A6의 EP-1.0(config/policies/exit.v1.json)도 이 파일을 읽지 않는다 — 이 정책은 '분류를 어떻게 만들었는가'이고 exit.v1.json은 'A6이 그 분류를 어떻게 쓰는가'다. dataPolicies 층(price.v1.json·fundamentals.v1.json과 동일) — 수집 단계(EO)만 읽는다.",
+  "appliesToStage": "EO",
+
+  "windowDays": 365,
+  "windowDaysNote": "Tier A(mergerSpinoff 대조)·Tier B(DART list.json 조회 구간) 공통. 실측 근거(2026-08-24, 508종목 대조): 180일 이내 94건·365일 이내 누적 179건·730일 이내 188건 — 365일에서 끊는 이유는 730일까지 늘려도 9건만 늘고 인과관계 근거는 오히려 약해지기 때문(공시-폐지 간격이 멀수록 다른 사건이 끼어들 가능성).",
+
+  "tierA": {
+    "source": "mergerSpinoff 공시(A3d) × exitAtConfirmed(A2b) 시간축 조인, 새 DART 호출 없음",
+    "exitReason": "MERGED"
+  },
+
+  "tierB": {
+    "source": "DART list.json(pblntf_ty=I), corp당 1회 조회 (Tier A가 못 잡은 나머지만)",
+    "patterns": {
+      "VOLUNTARY": "자진상장폐지",
+      "BANKRUPTCY": "회생절차개시결정|부도발생|파산선고",
+      "AUDIT_OPINION": "의견거절|의견부적정",
+      "CAPITAL_IMPAIRMENT": "자본잠식",
+      "DELISTING_REVIEW_FAILED": "상장적격성실질심사"
+    },
+    "priority": ["VOLUNTARY", "BANKRUPTCY", "AUDIT_OPINION_OR_CAPITAL_IMPAIRMENT", "DELISTING_REVIEW_FAILED"],
+    "priorityNote": "고정, 결과를 보기 전에 정함. VOLUNTARY·BANKRUPTCY가 위인 이유는 둘 다 회사의 실제 선택/법적 절차라는 구체적 사실이기 때문. AUDIT_OPINION과 CAPITAL_IMPAIRMENT가 한 corp 검색범위 안에 동시 등장하면(KRX 공식 템플릿이 둘을 합쳐서 내는 경우 실측 확인) 어느 쪽이 방아쇠인지 단정하지 않고 UNKNOWN으로 남긴다.",
+    "excludedPatterns": {
+      "note": "결정된 사건이 아니므로 anchor로 쓰지 않는다",
+      "examples": ["파산신청", "파산신청기각"]
+    }
+  },
+
+  "acceptance": {
+    "tierBListErrorRateWarn": 0.05,
+    "tierBListErrorRateNote": "DART list.json 호출 중 status!=000(013 no-data 제외) 비율. 초과는 경고 — DART 쿼터·일시 장애 가능성.",
+    "minClassifiedRateWarn": 0.30,
+    "minClassifiedRateNote": "exitAtConfirmed 전체 대비 Tier A+B 합산 분류율. 2026-08-24 실측 48.8%(508건 중 248건) 기준으로 여유를 둔 경고 임계 — 미달은 실패가 아니라 실측이 예상과 다르다는 신호일 뿐."
+  }
+}

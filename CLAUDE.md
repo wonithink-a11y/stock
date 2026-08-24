@@ -386,6 +386,40 @@ Validated against
             BF-1.1-GATE-EP-1-재정의-비교.md ·
             BF-1.1-A5-파일럿-1차실행-결과.md ·
             docs/A5-파일럿-exit-overlay-설계안.md
+            ★ 2026-08-24 후속5 — A6 설계 착수(사용자 GO, "진단 전용 v1"로
+            범위 확정). 두 블로커를 먼저 확인했다: (1) `exit.v1.json`의
+            liquidation/tender 모드가 요구하는 exitPrice(정리매매 최종가·
+            공개매수가)를 어느 단계도 수집하지 않는다(A5는 `exitPrice:null`을
+            "A6 몫"으로 그대로 저장) — 신규 데이터 소스 확보 문제라 이번
+            범위 밖. (2) GATE-EP-1(§6.4)이 Primary 결론을 막는다. §6.4가
+            HOLD 상태에서도 허용하는 `exitReasonCoverage`·GATE 판정만 구현—
+            Primary IC/분위 스프레드는 만들지 않았다(막혀 있는데 만들면
+            죽은 코드). ① exit overlay 승격 파이프라인 신설
+            (`scripts/build-exit-overlay.py` — 기존 Tier A/B 로컬 진단
+            스크립트를 새 로직 없이 그대로 재사용해 병합, `--promote`일
+            때만 씀. `config/policies/exitOverlay.v1.json`·
+            `.github/workflows/exit-overlay.yml`·registry.json
+            dataPolicies 등록·`lib/backfillManifest.js`에 EO 상류(A1b·
+            A2b·A3d)/정책 선언·`scripts/verify-diagnostics.js`에 EO 계약
+            등록). **아직 트리거 안 함** — DART list.json 약 329콜, 사전
+            확인 필요(실행은 등급과 무관하게 항상 사전 확인). ②
+            `scripts/build-a6-coverage-report.js` 신설 — A1b baked
+            exitReason(현재 전건 UNKNOWN) 위에 EO overlay가 있으면 그 값을
+            덮어쓰는 방식으로 join(설계안 §1이 남겨둔 "overlay 우선?" 결정을
+            이 스크립트가 구현), exitReasonCoverage·GATE-EP-1(corp 단위,
+            A1b DELISTED 전체 분모)·GATE-EP-2(A5 커버리지가 있는 corp만
+            대상, 폐지 직전 최종 finalScore 5분위 UNKNOWN율 Q5/Q1)를 계산해
+            `docs/verification/BF-1.1-A6-coverage-gate-{날짜}.md`에 리포트.
+            EO 승격 전 실측(2026-08-24): **GATE-EP-1 UNKNOWN 1223/1223
+            100% FAIL**(A5 baked 값이 아직 overlay 미반영이라 당연한 결과,
+            결함 아님) · GATE-EP-2는 eligibleCorps 461·Q5/Q1=1.00로 PASS지만
+            전부 UNKNOWN이라 무의미한 통과(분포가 없으면 비율도 의미가
+            없다). **EO를 실제로 트리거해 승격해야 이 리포트가 의미
+            있어진다** — 다음 세션이 이어받을 것: (a) EO 워크플로 트리거
+            사용자 확인 후 실행 → (b) A6 리포트 재실행(overlay 반영 후
+            실측 GATE 판정, Tier A+B 커버리지가 48.8%대라 여전히 5% 임계를
+            크게 초과해 HOLD 예상되지만 실측 전까지 단정하지 않는다) →
+            (c) exitPrice 수집 착수 여부는 별도 🔴 결정.
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
