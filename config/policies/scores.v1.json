@@ -1,0 +1,25 @@
+{
+  "version": "SC-1.0",
+  "note": "A5 본백필(3,801종목×553주)의 샤드·인수 조건. price.v1.json·fundamentals.v1.json과 같은 층(dataPolicies) — score()도 A6도 읽지 않는다. A5 파일럿(20종목×52주, docs/A5-파일럿-exit-overlay-설계안.md)이 이미 검증한 파이프라인을 그대로 확장한 것이라 새 소스 프로브가 없다 — 네트워크 호출 자체가 없는 순수 로컬 계산(resolve()+score(), lib/a5/priceSource.js)이기 때문. 표본 실측(60종목×전체 553주, 2026-08-24)이 이 정책의 근거다.",
+  "market": "KR",
+
+  "grid": {
+    "universe": "A1a+A1b 전체(3,801종목)",
+    "snapshotSource": "data/backfill/calendar.json의 snapshotDays 전체(553주)",
+    "note": "A5는 A2·A3와 달리 별도 collectFrom이 없다 — calendar.warmupDays(497거래일)가 이미 analysisFrom(2016-01-01) 이전 버퍼를 반영해 snapshotDays 자체가 2016-01-08부터 시작한다."
+  },
+
+  "shards": 8,
+  "shardsNote": "A3/A3c/A3d와 같은 근거(corp 정렬 후 라운드로빈). 표본 실측(60종목×553주=33,180격자, 56.6초, 정적데이터로딩 37.7초 포함)을 3,801종목으로 외삽하면 순차 약 1.0시간 — 8샤드면 샤드당 약 7~8분으로 GH Actions 단일 job에 여유 있게 들어간다. 네트워크 예산 제약이 없어(순수 로컬 계산) A3/A3d처럼 여러 날에 걸친 collect/commit-shards 단계가 불필요하다 — 실패한 샤드는 재실행하면 그만이다(scripts/build-a5-backfill.js 헤더 주석).",
+
+  "acceptance": {
+    "corpsIncompleteMax": 0,
+    "corpsIncompleteNote": "샤드 담당 corp 중 하나라도 처리 안 됐으면 실패 — 부분 산출물이 완전 산출물로 승격되면 안 된다.",
+    "assembleFailedRateWarn": 0.01,
+    "assembleFailedRateNote": "resolve()+score() 예외 또는 validator.js critical 위반으로 레코드를 못 만든 비율. 1% 초과는 경고(WARN)— 실패는 아니지만 원인 조사 대상.",
+    "minRecordCountPerYear": 1,
+    "minRecordCountPerYearNote": "특정 연도가 통째로 0행이면 그 해 calendar.snapshotDays나 가격 데이터 자체가 비어 있다는 뜻 — 조용히 넘어가지 않는다(교훈57).",
+    "exitReasonUnknownRateInfoOnly": true,
+    "exitReasonUnknownNote": "BF-1.1-exitReason 복원(Tier A/B)이 아직 A1b에 승격되지 않아(2026-08-24 시점) 폐지종목 대부분이 exitReason=UNKNOWN으로 baked-in된다 — 이것은 A5의 결함이 아니라 A1b의 현재 상태를 정직하게 반영한 것이다(A5 파일럿 §5.2 검증 완료). 게이트로 쓰지 않고 _diagnostics에만 남긴다."
+  }
+}

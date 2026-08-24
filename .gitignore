@@ -12,6 +12,9 @@ config.yaml
 # A2a 샤드 중간 산출 — artifact로만 넘기고 저장소에는 남기지 않는다.
 # 부분 수집물이 커밋되면 finalize 없이도 산출이 있는 것처럼 보인다.
 data/backfill/price/_shards/
+# A5 본백필도 같은 이유(네트워크 없는 순수 계산이라 A2b식 커밋 재개도 불필요 —
+# 실패한 샤드는 그냥 재실행한다, scripts/build-a5-backfill.js 주석 참고).
+data/backfill/scores/_shards/
 .dep-blocker-test/
 
 # Paper Trading Engine 포지션 상태 — 실행마다 바뀌는 로컬 상태다. 연구

@@ -1,0 +1,144 @@
+name: backfill-scores-a5
+
+# A5 본백필 — 3,801종목 × 553주(2016-01~2026-08) 전량 PIT 채점. 정의는
+# config/policies/scores.v1.json. A5 파일럿(20종목×52주, docs/A5-파일럿-
+# exit-overlay-설계안.md)이 이미 검증한 파이프라인(resolve()+score()·
+# priceSource.js·fwd/fwdStatus)을 전체 유니버스·전체 구간으로 확장한다.
+#
+# A3d와 달리 네트워크 호출이 전혀 없다(순수 로컬 계산) — DART 일일 예산 같은
+# 제약이 없어 여러 날에 걸친 collect/commit-shards 단계가 불필요하다. 구조는
+# A2b와 같다: matrix 수집 → artifact → 단일 finalize job. 실패한 샤드는
+# 재실행하면 그만이다(표본 실측 기준 샤드당 약 7~8분, scores.v1.json 참고).
+on:
+  workflow_dispatch:
+    inputs:
+      failInjection:
+        description: '게이트 검증용. 값을 넣으면 인수 조건을 강제 실패시킨다(빈 값=정상 실행)'
+        required: false
+        default: ''
+        type: string
+      universeLimit:
+        description: '스모크 테스트용. 유니버스를 이 수만큼 잘라 전체 파이프라인을 검증한다. 0=전체(본수집)'
+        required: false
+        default: '0'
+        type: string
+
+concurrency:
+  group: backfill-scores-a5
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  SHARDS: '8'
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Collect shard ${{ matrix.shard }}
+        timeout-minutes: 50
+        run: |
+          ARGS="--shard ${{ matrix.shard }} --shards $SHARDS"
+          if [ "${{ inputs.universeLimit }}" != "0" ]; then
+            ARGS="$ARGS --universeLimit ${{ inputs.universeLimit }}"
+          fi
+          node scripts/build-a5-backfill.js $ARGS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a5-shard-${{ matrix.shard }}
+          path: |
+            data/backfill/scores/_shards/shard-${{ matrix.shard }}-*.jsonl
+            data/backfill/scores/_shards/_diagnostics-shard-${{ matrix.shard }}.json
+          retention-days: 1
+          if-no-files-found: error
+
+  finalize:
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a5-shard-*
+          merge-multiple: true
+          path: data/backfill/scores/_shards/
+
+      - name: Verify all shards present
+        run: |
+          N=$(ls data/backfill/scores/_shards/shard-*-*.jsonl 2>/dev/null | grep -oE 'shard-[0-9]+-' | sort -u | wc -l)
+          D=$(ls data/backfill/scores/_shards/_diagnostics-shard-*.json 2>/dev/null | wc -l)
+          echo "샤드 $N개 · 샤드 진단 $D개 / 기대 $SHARDS개"
+          test "$D" -eq "$SHARDS" || { echo "샤드 진단 누락 — 완료 여부를 셀 수 없다"; exit 1; }
+
+      - name: Finalize
+        env:
+          SCORES_FAIL_INJECTION: ${{ inputs.failInjection }}
+        run: node scripts/build-a5-backfill.js --finalize
+
+      - name: Verify diagnostics contract
+        run: node scripts/verify-diagnostics.js A5
+
+      - name: Write manifest
+        if: success()
+        run: |
+          D=data/backfill/scores
+          ls -1 "$D"/*.jsonl.gz > /dev/null || { echo "Build 성공인데 산출물이 없다"; exit 1; }
+          EXTRA=$(node -e "
+          const d = require('./$D/_diagnostics.json');
+          console.log(JSON.stringify({
+            recordCount: d.recordCount, corpsAssigned: d.corpsAssigned, corpsDone: d.corpsDone,
+            corpsIncomplete: d.corpsIncomplete, noPriceAtAsOf: d.noPriceAtAsOf,
+            assembleFailed: d.assembleFailed, assembleFailedRate: d.assembleFailedRate,
+            validateViolations: d.validateViolations, exitReasonUnknown: d.exitReasonUnknown,
+            perYearCounts: d.perYearCounts,
+          }));
+          ")
+          node scripts/write-manifest.js \
+            --stage A5 --stageVersion A5.0 \
+            --target data/backfill/scores --kind dir --ext .jsonl.gz \
+            --upstream A0.5,A1a,A1b,A2a,A2b,A3,A3b,A3c,A3d \
+            --policies universe,price,fundamentals,scores \
+            --extra "$EXTRA"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scores-a5-diagnostics
+          path: data/backfill/scores/_diagnostics.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/scores data/backfill/manifest)" ]; then
+            git add data/backfill/scores data/backfill/manifest
+            git commit -m "chore(backfill): A5 본백필 - 3,801종목×553주 PIT 채점"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

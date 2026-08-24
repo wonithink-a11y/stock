@@ -277,6 +277,17 @@ const CONTRACT = {
     forbidden: ['smokeTest'],
   },
 
+  'A5': {
+    file: 'data/backfill/scores/_diagnostics.json',
+    required: ['corpsAssigned', 'corpsDone', 'corpsIncomplete', 'noPriceAtAsOf',
+               'assembleFailed', 'assembleFailedRate', 'validateViolations',
+               'exitReasonUnknown', 'written', 'recordCount', 'perYearCounts', 'years'],
+    trueFlags: [],
+    // --limit·--universeLimit(스모크 테스트)의 산출물이 정상 산출로 승격되는
+    // 경로를 막는다(A2a·A2b·A3~A3d와 동일 원칙, 한 방향 훅).
+    forbidden: ['smokeTest'],
+  },
+
   'A8': {
     file: 'data/backfill/shortSelling/a8/_diagnostics.json',
     required: ['shortSellingPolicy', 'environment', 'shardCount', 'rowCount',
