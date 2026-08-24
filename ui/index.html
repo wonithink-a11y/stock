@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Paper Trading Engine</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Paper Trading Engine</h1>
+  <nav id="tab-nav"></nav>
+</header>
+<main id="tab-main"></main>
+
+<!-- 탭 모듈 - 로드되면서 window.TABS.<id>를 등록한다. 순서는 app.js의
+     TAB_ORDER와 맞춰야 함(현재: chart, scoring, research, macro). -->
+<script src="tabs/chart.js"></script>
+<script src="tabs/scoring.js"></script>
+<script src="tabs/research.js"></script>
+<script src="tabs/macro.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
