@@ -56,9 +56,9 @@
   },
 
   "universe": {
-    "mode": "A1A_ONLY",
-    "runClassAllowed": ["SMOKE"],
-    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+    "mode": "A1A_A1B_MERGED",
+    "runClassAllowed": ["SMOKE", "PRIMARY"],
+    "coverageNote": "missingPriceTickers ~19% of A1a+A1b (734/3801, real A2b run 2026-08-24) - a chunk of delisted names have zero price trace by construction (mirrors GATE-EP-1's own finding), not a fixable gap. PRIMARY does not require 100% coverage; the gap is reported in diag.universeCoverage instead."
   },
 
   "warmup": {

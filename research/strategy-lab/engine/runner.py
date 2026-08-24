@@ -22,8 +22,10 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from engine.data.a2aProvider import A2aProvider  # noqa: E402
+from engine.data.a2bProvider import A2bProvider  # noqa: E402
 from engine.data.calendar import TradingCalendar  # noqa: E402
 from engine.data.fastBars import FastBars  # noqa: E402
+from engine.data.mergedPriceProvider import MergedPriceProvider  # noqa: E402
 from engine.data.universeProvider import UniverseProvider  # noqa: E402
 from engine.execution.executor import CostModel, build_order, simulate_trade  # noqa: E402
 from engine.portfolio.portfolio import Portfolio, PortfolioConfig  # noqa: E402
@@ -179,12 +181,21 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
     either way. When omitted, behaves exactly as before (loads strategies/<id>/rule.py)."""
     rule = rule_module if rule_module is not None else load_strategy(strategy_id, repo_root)
     params = rule.PARAMS
-    assert params["universe"]["mode"] == "A1A_ONLY", "runner only wires A1A_ONLY - PRIMARY requires A2b (not built)"
+    universe_mode = params["universe"]["mode"]
+    assert universe_mode in ("A1A_ONLY", "A1A_A1B_MERGED"), \
+        f"unknown universe mode {universe_mode!r} - runner wires A1A_ONLY and A1A_A1B_MERGED only"
+    include_delisted = universe_mode == "A1A_A1B_MERGED"
 
-    universe = UniverseProvider(repo_root=repo_root, include_delisted=False)
+    universe = UniverseProvider(repo_root=repo_root, include_delisted=include_delisted)
     tickers = universe.tickers if ticker_subset is None else (universe.tickers & set(ticker_subset))
 
-    price_provider = A2aProvider(repo_root=repo_root, use_cache=True)
+    if include_delisted:
+        price_provider = MergedPriceProvider(
+            A2aProvider(repo_root=repo_root, use_cache=True),
+            A2bProvider(repo_root=repo_root, use_cache=True),
+        )
+    else:
+        price_provider = A2aProvider(repo_root=repo_root, use_cache=True)
     bars_by_ticker_raw = price_provider.load(tickers, start, end, universe_hash=universe.universe_hash)
     bars_by_ticker = {t: _drop_suspension_rows(df) for t, df in bars_by_ticker_raw.items()}
     suspension_rows_dropped = sum(len(bars_by_ticker_raw[t]) - len(bars_by_ticker[t]) for t in bars_by_ticker_raw)
@@ -204,10 +215,24 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
     )
     portfolio = Portfolio(portfolio_cfg)
 
+    universe_coverage = universe.price_coverage_report(price_provider)
+    # PRIMARY requires the merged universe (A1a+A1b) actually ran against real
+    # A2a+A2b production data - not "every A1b ticker has a price row". The
+    # original contract-section-11 wording ("full A2a+A2b price coverage") was
+    # written before A2b existed; running the real merge (2026-08-24) found
+    # missingPriceTickers is structurally nonzero (~19%, mirrors GATE-EP-1's
+    # own finding: a chunk of delisted names have zero price trace by
+    # construction, not by a fixable gap). Requiring 100% coverage would make
+    # PRIMARY permanently unreachable. The honest substitute (2026-08-24,
+    # user-confirmed): PRIMARY means "ran the real merged universe", and the
+    # gap is reported via universeCoverage below rather than hidden behind a
+    # gate that can never pass.
+    run_class = "PRIMARY" if include_delisted else "SMOKE"
+
     diag = {
-        "runClass": "SMOKE",
+        "runClass": run_class,
         "universeMode": universe.mode,
-        "universeCoverage": universe.price_coverage_report(price_provider),
+        "universeCoverage": universe_coverage,
         "tickersScanned": len(bars_by_ticker),
         "suspensionRowsDropped": suspension_rows_dropped,
         "signalCount": 0,
