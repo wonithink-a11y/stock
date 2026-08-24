@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T08:26:06.360Z",
+  "updatedAt": "2026-08-24T08:31:35.856Z",
   "marketRegime": "caution",
   "holdings": [
     {
@@ -7,12 +7,12 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 281500,
-      "currentValue": 2815000,
+      "currentPrice": 257000,
+      "currentValue": 2570000,
       "investedValue": 700000,
-      "unrealizedPnL": 2115000,
-      "unrealizedPnLPct": 302.14,
-      "stockScore": 64.7,
+      "unrealizedPnL": 1870000,
+      "unrealizedPnLPct": 267.14,
+      "stockScore": 61,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "caution",
@@ -69,17 +69,17 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.27,
+              "raw": 2.99,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.37814371257485035,
+              "peg": 0.34520958083832337,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.35482840241854996,
+              "marginOfSafety": -0.2378242560593522,
               "score": 0
             }
           }
@@ -94,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 56.3,
+              "value": 55.7,
               "score": 70
             },
             "macd": {
@@ -110,7 +110,7 @@
           }
         },
         "supplyDemand": {
-          "score": 70,
+          "score": 51.3,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
@@ -119,8 +119,8 @@
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
-              "trend": "netBuy",
-              "score": 70
+              "trend": "netSell",
+              "score": 30
             },
             "largeShareholderChange": {
               "label": "대주주 지분율 변동",
