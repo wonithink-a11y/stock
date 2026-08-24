@@ -200,7 +200,67 @@ def scan_signals(repo_root, rule, as_of, log=print, bars_by_ticker=None):
     return events
 
 
-def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=None):
+def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_by_ticker=None):
+    """scan_signals()의 월별 교체매매(pbr_value_v1·lowmom60_v1) 버전 - 종목별
+    predicate(rule.signal_fires) 대신 rule.selected_symbols(as_of)로 이번
+    리밸런싱일의 전체 선택 목록을 한 번에 받는다(횡단면 랭킹이 이미
+    selection.json에 구워져 있어 종목 단위 루프가 필요 없다).
+
+    이미 보유중(OPEN/PENDING_ENTRY/ENTRY_SUBMITTED)인 종목은 건너뛴다 -
+    재선택된 종목을 다시 사지 않는다. poll_once(is_still_selected=...)가
+    그 종목을 계속 들고 간다(continuousHoldOnRenewal 효과, 별도 병합
+    로직 없음).
+
+    capital_krw: 이 전략에 배정된 가상자금 총액(같은 KIS 모의투자 계좌를
+    strategy_id별로 나눠 쓴다, positionStore가 이미 strategy_id별 분리
+    파일이라 장부도 자연히 분리됨). 슬롯예산 = capital_krw // maxPositions.
+    ponytail: 슬롯예산보다 비싼 종목은 스킵한다(1주 강제매수로 예산을
+    넘기지 않음) - 균등가중을 정확히 지키려면 잔여 슬롯 수에 따라 예산을
+    동적으로 재분배해야 하지만, 파일럿 규모(가상자금 수백만원, top-30)에서는
+    이 단순 버전으로 충분하다."""
+    params = rule.PARAMS
+    strategy_id = params["strategyId"]
+    max_positions = params["portfolio"]["maxPositions"]
+    budget_per_slot = capital_krw // max_positions
+
+    calendar = TradingCalendar(repo_root=repo_root)
+    target = rule.selected_symbols(as_of)
+
+    if bars_by_ticker is None:
+        a2a = A2aProvider(repo_root=repo_root, use_cache=True)
+        bars_by_ticker = a2a.load(set(target), calendar.days[0], as_of,
+                                   universe_hash=f"{strategy_id}-rebalance-scan")
+
+    state = positionStore.load(repo_root, strategy_id)
+    events = []
+    as_of_ts = pd.Timestamp(as_of)
+    open_or_pending = len(state)
+
+    for symbol in target:
+        if symbol in state:
+            continue
+        if open_or_pending >= max_positions:
+            continue
+        bars = bars_by_ticker.get(symbol)
+        if bars is None or as_of_ts not in bars.index:
+            log(f"[{as_of}] SKIP {symbol} - 가격 데이터 없음")
+            continue
+        price = float(bars.loc[as_of_ts, "close"])
+        quantity = int(budget_per_slot // price)
+        if quantity < 1:
+            log(f"[{as_of}] SKIP {symbol} - 슬롯예산({budget_per_slot:,.0f}) < 가격({price:,.0f})")
+            continue
+        state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity, "intent_date": as_of}
+        open_or_pending += 1
+        events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
+        log(f"[{as_of}] SIGNAL -> INTENT  {symbol}  qty={quantity} (실주문은 poll_once가 낸다)")
+
+    positionStore.save(repo_root, strategy_id, state)
+    return events
+
+
+def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=None,
+              is_still_selected=None):
     """장중에 여러 번(수 분 간격) 불리는 것을 전제로 한 실거래 폴링.
     broker: KisVtsBroker와 같은 인터페이스(submit_buy/submit_sell/check_fill/
     current_price) - 테스트에서는 합성 FakeBroker를 넣는다.
@@ -209,12 +269,23 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
     이게 유일한 활성화 스위치다. 이 함수를 부르는 스케줄러/크론이 있어도
     이 값이 True로 바뀌기 전까지는 broker를 단 한 번도 호출하지 않는다.
 
+    is_still_selected(symbol) -> bool, optional: pbr_value_v1·lowmom60_v1처럼
+    가격 기반 stop/target이 없는(도달 불가능하게 막아둔) 월별 교체매매
+    전략용. OPEN 포지션이 "이번 리밸런싱에도 여전히 선택됐는가"를 stop/
+    target/time보다 먼저 확인한다 - False면 즉시 REBALANCE_EXIT, True면
+    아무 것도 안 하고 계속 보유(continuousHoldOnRenewal과 동일 효과를
+    별도 병합 로직 없이 얻는다 - "다시 선택됨"이 곧 "그대로 둠"이므로).
+    None(기본값)이면 이 분기를 완전히 건너뛰어 기존 stop/target/time 전략
+    (dummy_sma20 등)의 동작은 전혀 안 바뀐다.
+
     상태기계 (positionStore, 심볼당 하나):
         PENDING_ENTRY    -> submit_buy 시도 -> ENTRY_SUBMITTED
         ENTRY_SUBMITTED  -> check_fill: 체결확인 -> OPEN
                                          거부     -> PENDING_ENTRY(재시도)
                                          대기중   -> 그대로(중복 제출 없음)
-        OPEN             -> stop/target/time 판정 -> submit_sell -> EXIT_SUBMITTED
+        OPEN             -> (is_still_selected가 있으면 그 판정 우선,
+                             없거나 True면) stop/target/time 판정
+                             -> submit_sell -> EXIT_SUBMITTED
         EXIT_SUBMITTED   -> check_fill: 체결확인 -> 상태 삭제(포지션 종료)
                                          거부     -> OPEN(재시도)
                                          대기중   -> 그대로(중복 제출 없음)
@@ -286,19 +357,22 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 pos["lastCountedDate"] = today
                 state[symbol] = pos
 
-            try:
-                price = broker.current_price(symbol)
-            except Exception as e:
-                log(f"[{today}] 시세 조회 실패 {symbol}: {e}")
-                continue
-
             reason = None
-            if price <= pos["stop_price"]:
-                reason = "STOP"
-            elif price >= pos["target_price"]:
-                reason = "TARGET"
-            elif pos["sessions_held"] >= pos["max_holding_sessions"]:
-                reason = "TIME_EXIT"
+            if is_still_selected is not None and not is_still_selected(symbol):
+                reason = "REBALANCE_EXIT"
+
+            if reason is None:
+                try:
+                    price = broker.current_price(symbol)
+                except Exception as e:
+                    log(f"[{today}] 시세 조회 실패 {symbol}: {e}")
+                    continue
+                if price <= pos["stop_price"]:
+                    reason = "STOP"
+                elif price >= pos["target_price"]:
+                    reason = "TARGET"
+                elif pos["sessions_held"] >= pos["max_holding_sessions"]:
+                    reason = "TIME_EXIT"
             if reason is None:
                 continue
 

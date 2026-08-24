@@ -39,6 +39,7 @@ class FakeBroker:
         self.buy_calls = 0
         self.sell_calls = 0
         self.check_fill_calls = 0
+        self.current_price_calls = 0
         self._order_seq = 0
         self._fill_script = list(fill_script or [])
         self.price = price
@@ -60,6 +61,7 @@ class FakeBroker:
         return {"fullyFilled": False, "rejected": False, "filledQty": 0, "avgPrice": None, "pending": True}
 
     def current_price(self, symbol):
+        self.current_price_calls += 1
         return self.price
 
 
@@ -243,6 +245,39 @@ def test_rejected_exit_reverts_to_open_no_duplicate_sell():
     _reset()
 
 
+def test_is_still_selected_false_triggers_rebalance_exit_without_price_check():
+    """월별 교체매매(pbr_value_v1 등)용 - is_still_selected가 False를 주면
+    가격 조회(broker.current_price) 없이 곧장 REBALANCE_EXIT로 매도 제출."""
+    _reset()
+    _seed({"TEST1": {"status": "OPEN", "quantity": 5, "entry_price": 200.0,
+                      "entry_date": "2026-08-20", "stop_price": 1.0, "target_price": 99999.0,
+                      "max_holding_sessions": 999, "sessions_held": 1, "lastCountedDate": "2026-08-20"}})
+    broker = FakeBroker(price=205.0)  # stop/target 둘 다 안 걸리는 가격
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        is_still_selected=lambda symbol: False)
+    ok("REBALANCE_EXIT submitted", events == [{"type": "EXIT_SUBMITTED", "symbol": "TEST1",
+                                                "reason": "REBALANCE_EXIT", "orderNo": "ORD1"}], events)
+    ok("current_price never called (membership decided first)", broker.current_price_calls == 0)
+    _reset()
+
+
+def test_is_still_selected_true_keeps_holding_continuous_hold():
+    """재선택(continuousHoldOnRenewal)됐으면 stop/target도 안 걸리는 한 아무 것도
+    안 한다 - 청산도 재매수도 없이 그대로 보유가 이어진다."""
+    _reset()
+    _seed({"TEST1": {"status": "OPEN", "quantity": 5, "entry_price": 200.0,
+                      "entry_date": "2026-08-20", "stop_price": 1.0, "target_price": 99999.0,
+                      "max_holding_sessions": 999, "sessions_held": 1, "lastCountedDate": "2026-08-20"}})
+    broker = FakeBroker(price=205.0)
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        is_still_selected=lambda symbol: True)
+    ok("no exit, no re-entry", events == [], events)
+    ok("sell never submitted", broker.sell_calls == 0)
+    state = positionStore.load(REPO_ROOT, STRATEGY_ID)
+    ok("still OPEN, untouched", state["TEST1"]["status"] == "OPEN", state)
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -254,6 +289,8 @@ def main():
     test_time_exit_after_max_holding_sessions()
     test_exit_fill_confirmed_removes_position_and_reports_pnl()
     test_rejected_exit_reverts_to_open_no_duplicate_sell()
+    test_is_still_selected_false_triggers_rebalance_exit_without_price_check()
+    test_is_still_selected_true_keeps_holding_continuous_hold()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:
