@@ -88,11 +88,38 @@ main { padding: 16px; }
 .stat-value { font-family: var(--mono); font-size: 22px; font-weight: 600; }
 .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 
-tr:hover td { background: #161c28; }
+tbody tr:nth-child(even) td { background: #131824; }
+tr:hover td { background: #1a2233 !important; }
 
 table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
-th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--panel-border); }
+th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--panel-border); }
 th:first-child, td:first-child { text-align: left; }
+th {
+  color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+  font-weight: 500; border-bottom: 1px solid var(--panel-border);
+}
+
+/* 탭1 차트 - 계좌 히어로 바 + 상단 대형 차트(ui/tabs/chart.js가 씀) */
+.account-hero { position: relative; display: flex; gap: 32px; align-items: flex-end; flex-wrap: wrap; padding: 16px 20px; }
+.hero-stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-value-lg { font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.account-hero-updated { position: absolute; top: 12px; right: 16px; font-size: 10px; }
+
+.chart-panel { padding: 14px 16px 8px; }
+.chart-panel-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.chart-symbol-title { font-size: 13px; color: var(--accent); }
+.chart-canvas-wrap { position: relative; width: 100%; height: 380px; }
+.chart-canvas-wrap canvas {
+  width: 100%; height: 100%; display: block;
+  background: linear-gradient(180deg, #0e1219 0%, #0b0e14 100%);
+  border: 1px solid var(--panel-border); border-radius: 6px;
+}
+.chart-tooltip {
+  position: absolute; display: none; pointer-events: none;
+  background: #1c2433; border: 1px solid var(--panel-border); color: var(--text);
+  padding: 6px 10px; border-radius: 4px; font-size: 12px; font-family: var(--mono);
+  z-index: 10; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
 
 .up { color: var(--up); }
 .down { color: var(--down); }

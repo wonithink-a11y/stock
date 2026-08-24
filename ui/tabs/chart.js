@@ -16,16 +16,19 @@ window.TABS.chart = {
 function renderChartTab(container, data) {
   const { updatedAt, historyAsOf, account, strategies } = data;
   const strategyEntries = Object.entries(strategies);
+  const totalPositions = strategyEntries.reduce((n, [, s]) => n + (s.positions || []).length, 0);
+  const openCount = strategyEntries.reduce((n, [, s]) =>
+    n + (s.positions || []).filter((p) => p.status === "OPEN").length, 0);
 
   let html = "";
 
-  html += '<div class="panel">';
-  html += '  <h2>계좌 요약 (기준: ' + (historyAsOf || "-") + ")</h2>";
-  html += '  <div class="grid grid-2">';
-  html += '    <div><div class="stat-label">예수금</div><div class="stat-value mono">' + formatAccount(account?.cashKrw) + "</div></div>";
-  html += '    <div><div class="stat-label">평가금액</div><div class="stat-value mono">' + formatAccount(account?.totalValueKrw) + "</div></div>";
-  html += "  </div>";
-  html += '  <div class="dim mono" style="margin-top:8px;font-size:11px;">최종 갱신: ' + (updatedAt || "-") + "</div>";
+  // 계좌 요약 - 히어로 스탯 바 (전문 트레이딩 터미널의 상단 계좌 바 참고)
+  html += '<div class="panel account-hero">';
+  html += '  <div class="hero-stat"><div class="stat-label">예수금</div><div class="stat-value-lg mono">' + formatAccount(account?.cashKrw) + "</div></div>";
+  html += '  <div class="hero-stat"><div class="stat-label">평가금액</div><div class="stat-value-lg mono">' + formatAccount(account?.totalValueKrw) + "</div></div>";
+  html += '  <div class="hero-stat"><div class="stat-label">보유/전체 포지션</div><div class="stat-value-lg mono">' + openCount + " / " + totalPositions + "</div></div>";
+  html += '  <div class="hero-stat"><div class="stat-label">기준일</div><div class="stat-value-lg mono" style="font-size:18px">' + (historyAsOf || "-") + "</div></div>";
+  html += '  <div class="dim mono account-hero-updated">최종 갱신 ' + (updatedAt || "-") + "</div>";
   html += "</div>";
 
   const allPositions = [];
@@ -81,13 +84,15 @@ function renderChartTab(container, data) {
     return tablesHtml;
   }
 
-  html += '<div id="tables-container">' + buildTables() + "</div>";
-
-  html += '<div class="panel" style="margin-top:12px;">';
-  html += '  <h2>차트 <span id="chart-title" class="dim" style="font-weight:normal;font-size:12px;"></span></h2>';
-  html += '  <canvas id="price-chart" width="800" height="300" style="width:100%;height:300px;background:var(--panel);border:1px solid var(--panel-border);border-radius:4px;"></canvas>';
-  html += '  <div id="chart-tooltip" style="position:absolute;display:none;pointer-events:none;background:rgba(0,0,0,0.85);color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;font-family:var(--mono);z-index:10;white-space:nowrap;"></div>';
+  // 차트를 계좌 요약 바로 다음, 테이블보다 위에 - 트레이딩 터미널은 차트가
+  // 주인공이지 스크롤해서 찾는 부가 정보가 아니다.
+  html += '<div class="panel chart-panel">';
+  html += '  <div class="chart-panel-head"><h2 style="margin:0">가격 차트</h2><span id="chart-title" class="mono chart-symbol-title"></span></div>';
+  html += '  <div class="chart-canvas-wrap"><canvas id="price-chart"></canvas>';
+  html += '  <div id="chart-tooltip" class="chart-tooltip"></div></div>';
   html += "</div>";
+
+  html += '<div id="tables-container">' + buildTables() + "</div>";
 
   container.innerHTML = html;
 
@@ -258,8 +263,10 @@ function renderChartTab(container, data) {
       const y = yScale(point.close);
 
       tooltip.style.display = "block";
-      tooltip.style.left = rect.left + x + 12 + "px";
-      tooltip.style.top = rect.top + y - 28 + "px";
+      // 툴팁은 .chart-canvas-wrap(position:relative) 기준 절대좌표 -
+      // canvas와 wrap이 같은 크기라 캔버스 로컬 좌표(x,y)를 그대로 쓴다.
+      tooltip.style.left = x + 12 + "px";
+      tooltip.style.top = Math.max(0, y - 28) + "px";
       tooltip.textContent = point.date + " | " + formatPrice(point.close);
 
       ctx.clearRect(0, 0, width, height);
