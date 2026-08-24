@@ -1,0 +1,44 @@
+{
+  "overlayVersion": "v1",
+  "generatedAt": "2026-08-24T10:26:40",
+  "exitAtConfirmedTotal": 508,
+  "tierA": {
+    "classified": 179,
+    "buckets": {
+      "within180": 94,
+      "within365": 85,
+      "within730": 9,
+      "farBefore": 22,
+      "afterExit": 37,
+      "noMergerRecord": 261
+    }
+  },
+  "tierB": {
+    "pool": 329,
+    "classified": 69,
+    "callsTotal": 331,
+    "listErrors": {},
+    "unclassifiedBuckets": {
+      "ambiguousAuditCapital": 56,
+      "noSignal": 204
+    }
+  },
+  "totalClassified": 248,
+  "totalUnknown": 260,
+  "classifiedRate": 0.4882,
+  "distribution": {
+    "MERGED": 179,
+    "VOLUNTARY": 22,
+    "BANKRUPTCY": 20,
+    "CAPITAL_IMPAIRMENT": 5,
+    "DELISTING_REVIEW_FAILED": 21,
+    "AUDIT_OPINION": 1
+  },
+  "stage": "EO",
+  "stageVersion": "EO.0",
+  "exitOverlayPolicy": "EO-1.0",
+  "tierBListErrorRate": 0.0,
+  "acceptanceFails": [],
+  "acceptanceWarns": [],
+  "acceptancePassed": true
+}

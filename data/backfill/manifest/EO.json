@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "EO",
+  "stageVersion": "EO.0",
+  "target": "data/backfill/exitOverlay",
+  "targetKind": "dir",
+  "targetExt": ".jsonl",
+  "hash": "sha256:e7e6223b352b4b96",
+  "fileCount": 1,
+  "upstream": {
+    "A1b": "sha256:1bbd28931525cf0e",
+    "A2b": "sha256:d5028152711db442",
+    "A3d": "sha256:aad8594aa08ab67b"
+  },
+  "policyHash": {
+    "registry": "sha256:e3ce722115d7e59a",
+    "registryVersion": "REG-1.6",
+    "exitOverlay": "sha256:89d937cf4b1f0664"
+  },
+  "exitAtConfirmedTotal": 508,
+  "totalClassified": 248,
+  "totalUnknown": 260,
+  "classifiedRate": 0.4882,
+  "distribution": {
+    "MERGED": 179,
+    "VOLUNTARY": 22,
+    "BANKRUPTCY": 20,
+    "CAPITAL_IMPAIRMENT": 5,
+    "DELISTING_REVIEW_FAILED": 21,
+    "AUDIT_OPINION": 1
+  },
+  "tierBListErrorRate": 0,
+  "generatedAt": "2026-08-24T10:26:40.508Z"
+}
