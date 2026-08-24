@@ -75,8 +75,39 @@ Validated against
             보여준다. **타이밍/사이징 경로는 이진·연속 둘 다 이제 닫혔다**
             — 다음에 이 방향을 열려면 "언제 살까"가 아니라 "topN 자체를
             줄이는 독립적인 팩터 강도 실험"이라는 별개 질문이 된다(이번
-            범위 밖). 이 세션은 사용자 지시로 미커밋 — findings/pbr-
-            exposure-overlay-vs-ranking-cut-2026-08.md(로컬)
+            범위 밖). findings/pbr-exposure-overlay-vs-ranking-cut-2026-08.md
+            (커밋 `67f5517`, push 완료)
+            ★ 2026-08-24 후속 4 — overnight OpenCode(opencode/x-preview-f-free
+            무료 티어, 병렬 3job) 확장으로 "이미 검증된 전략 × 아직 안 써본
+            축" 조합을 마저 채웠다. LOWMOM60+기관수급 10축 전체(job1) —
+            미국10Y·신용스프레드만 유의미, KOSPI 강한 역방향. PBR/CAND1/
+            OpeningFade 미검증 6축(job2) — **한국 일반순환지수**가 세 후보
+            모두에서 유의미(부호는 제각각). TREND-BREAKOUT-v1·5DC-v1A-P
+            10축 전체(job3) — 미국10Y+신용스프레드 클러스터에서 PBR·
+            LOWMOM60과 **정반대 방향**(추세추종 vs 가치·역모멘텀 성격 차로
+            설명됨). 부수: job3 도중 `engine/portfolio/portfolio.py`에서
+            `KeyError` 발견 → 원인은 `pbr_vs_ew_monthly_mtm.py`(연구용 복제
+            스케줄러)가 `engine/runner.py`의 2026-08-22 `exit_symbols_queued`
+            가드를 반영 못 한 옛 버전이었던 것(engine 자체는 무결함). Claude가
+            직접 수정 후 PBR baseline 재실행으로 완전 무변경 확인(closed=756,
+            CAGR 4.72%, MDD -21.70%, Sharpe 0.4556 — 소수점까지 일치, 오늘
+            세션 PBR 결과 전부 안전). OpenCode도 독립적으로 같은 원인을
+            진단해 자기 스크립트 안에 로컬로 같은 가드를 구현 - 교차검증됨.
+            findings/overnight-macro-regime-cross-candidate-synthesis-2026-08.md
+            · pbr-vs-ew-monthly-mtm-exit-dedup-fix-2026-08.md(커밋 `839a54e`)
+            ★ 2026-08-24 후속 5 — 후속4가 찾은 "TREND-BREAKOUT-v1·5DC-v1A-P는
+            미국10Y hiking에 불리"라는 상관관계에 후속3과 같은 순수노출
+            오버레이 방법론(부호만 반전) + **상수노출 대조군**(신규, 평균
+            노출을 오버레이와 동일하게 맞춰 디레버리징 효과와 타이밍효과를
+            분리)을 적용. **TREND-BREAKOUT-v1은 타이밍가치 없음**(순수
+            타이밍가치 CAGR -0.55%p·Sharpe -0.0599 — baseline 대비 개선처럼
+            보였던 건 전부 평균노출 53% 축소라는 디레버리징 효과였다).
+            **5DC-v1A-P는 작지만 진짜 타이밍가치 존재**(CAGR +0.52%p·
+            Sharpe +0.0423, 세 지표 다 대조군보다 우수) — 단 baseline·
+            오버레이·대조군 셋 다 여전히 깊은 마이너스(-5%~-11%)라 손실
+            완화 신호이지 수익 신호는 아니다. PBR에서 이미 확인한 "상관관계
+            ≠ 타이밍가치" 교훈이 재현됨. findings/trendbreakout-5dc-exposure-
+            overlay-timing-value-2026-08.md(커밋 `f7e3ab5`, 전부 push 완료)
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① lib/a5/priceSource.js · 043090 처리 방향(2026-08-23 재검토 —
               docs/BF-1.1-백필계약.md §5 "운영(A5o)/연구(A5) 분리" 확정에 따르면
