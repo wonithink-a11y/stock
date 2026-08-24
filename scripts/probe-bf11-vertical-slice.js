@@ -27,7 +27,10 @@ const { loadCriteria } = require(path.join(ROOT, 'lib/loadCriteria'));
 const { loadPolicies } = require(path.join(ROOT, 'lib/loadPolicies'));
 
 const ASOF = '2016-04-08';
-const SAMPLE = [{ ticker: '005930', corp: '00126380', name: '삼성전자' }];
+const SAMPLE = [
+  { ticker: '005930', corp: '00126380', name: '삼성전자' }, // A2a(현재 상장)
+  { ticker: '000060', corp: '00117744', name: '메리츠화재해상보험' }, // A2b(폐지) — priceSource.js 폴백 검증
+];
 
 function readJsonl(relPath) {
   const buf = fs.readFileSync(path.join(ROOT, relPath));
@@ -37,7 +40,11 @@ function readJsonl(relPath) {
 
 function findUniverse(ticker) {
   const a1a = readJsonl('data/backfill/universe/a1a/current.jsonl');
-  return a1a.find((r) => r.ticker === ticker) || null;
+  const hit = a1a.find((r) => r.ticker === ticker);
+  if (hit) return { ...hit, universe: 'a1a' };
+  const a1b = readJsonl('data/backfill/universe/a1b/delisted.jsonl');
+  const delisted = a1b.find((r) => r.ticker === ticker);
+  return delisted ? { ...delisted, listedAt: null, universe: 'a1b' } : null;
 }
 
 function findFundamentals(corp) {
@@ -66,26 +73,12 @@ function findFundamentalsA3b(corp) {
   return records;
 }
 
-function findPrice(ticker, date) {
-  const year = date.slice(0, 4);
-  const rows = readJsonl(`data/backfill/price/a2a/${year}.jsonl.gz`);
-  return rows.find((r) => r.ticker === ticker && r.date === date) || null;
-}
+const { findPrice, findCandles: findCandlesUnified } = require(path.join(ROOT, 'lib/a5/priceSource'));
 
-/** asOf 이전(포함) 최근 windowDays 거래일 캔들. technical 축 검증용. */
+/** asOf 이전(포함) 최근 windowDays 거래일 캔들. technical 축 검증용. A2a·A2b 통합 조회
+ *  (priceSource.js, BF-1.1 §2 — 폐지종목은 A2b에만 있다). */
 function findCandles(ticker, asOf, windowDays = 260) {
-  const asOfYear = Number(asOf.slice(0, 4));
-  const rows = [];
-  // technical은 MA60·MACD(35일)가 필요해 연도 경계를 넘을 수 있다 — 전해까지 같이 읽는다.
-  for (const year of [asOfYear - 1, asOfYear]) {
-    const p = path.join(ROOT, `data/backfill/price/a2a/${year}.jsonl.gz`);
-    if (!fs.existsSync(p)) continue;
-    for (const r of readJsonl(`data/backfill/price/a2a/${year}.jsonl.gz`)) {
-      if (r.ticker === ticker && r.date <= asOf) rows.push(r);
-    }
-  }
-  rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  return rows.slice(-windowDays).map((r) => ({ date: r.date, close: r.close, volume: r.volume }));
+  return findCandlesUnified(ticker, asOf, windowDays).candles;
 }
 
 function main() {
@@ -99,7 +92,10 @@ function main() {
     // 1. Universe
     const uni = findUniverse(ticker);
     entry.universe = uni
-      ? { present: true, listedAt: uni.listedAt, listedBeforeAsOf: uni.listedAt <= ASOF }
+      ? {
+          present: true, source: uni.universe,
+          listedAt: uni.listedAt, listedBeforeAsOf: uni.listedAt ? uni.listedAt <= ASOF : null,
+        }
       : { present: false };
 
     // 2. Fundamentals (A3) — corp 전체 이력을 넘기고 pitSelector가 asOf로 고른다
