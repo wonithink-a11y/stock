@@ -43,13 +43,19 @@ SERIES = {
     "krCpi": "한국 소비자물가지수",
     "krCreditSpreadBp": "한국 신용스프레드(bp)",
 }
-# 1차 우선순위 추가분(fred_extended_daily_kr.parquet에서 읽음)
+# 1차·2차 우선순위 추가분(fred_extended_daily_kr.parquet에서 읽음)
 SERIES_EXT = {
     "usSp500": "S&P 500",
     "usNasdaq100": "나스닥 100",
     "usTreasury2y": "미국 2년물 국채금리",
     "usYieldSpread10y2y": "미국 10Y-2Y 금리차",
     "usHighYieldSpread": "미국 하이일드 스프레드",
+    # 2차 - 전부 월별/분기별 경제지표(매일 안 바뀜, 아래 main() 하단 참고)
+    "usCpi": "미국 CPI",
+    "usPceCore": "미국 근원 PCE",
+    "usUnemploymentRate": "미국 실업률",
+    "usIndustrialProduction": "미국 산업생산지수",
+    "usRealGdp": "미국 실질 GDP",
 }
 NOT_AVAILABLE = ["gold", "silver"]
 
