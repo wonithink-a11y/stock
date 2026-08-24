@@ -40,6 +40,30 @@
 
 이 해석이 A6이 실제로 원하는 의미와 다를 수 있다 — §1이 이미 "A6이 overlay를 어떻게 읽을지는 별도 🔴 결정"이라고 명시했으므로, 그 결정 시점에 이 해석도 함께 재확인이 필요하다.
 
+## OpenCode 독립 재구현 교차검증 — 완료 (2026-08-24, 설계안 §5.1)
+
+지시서 `docs/control/handoff/OPENCODE-2-a5-pilot-fwdstatus-independent.md`를
+OpenCode(`opencode/nemotron-3-ultra-free` — 지정 모델 `deepseek-v4-flash-free`가
+"Model not found"로 막혀 대체 순서 1번으로 전환)에 위임. `scripts/build-a5-pilot.js`를
+열지 않고 스펙 문서(BF-1.1 §5.1·§5.3, 설계안 §2, price.v1.json returnTransition)만
+보고 `research/strategy-lab/a5-pilot-independent/build-fwdstatus-independent.js`를
+독립 작성 — 같은 20종목×52스냅샷 격자에서 793행을 산출했다.
+
+**결과: 793셀 × 3horizon = 2,379건 전부 일치**(fwdStatus 100%, fwd 수치도
+0.0001 이내 오차 전부 일치, 불일치 0건). 두 구현은 코드 구조가 다르다
+(변수명·루프 순서·헬퍼 분리 방식 모두 독립적) — `priceSource.js`(허용된 유일한
+공유 모듈) 외에는 겹치는 코드가 없다.
+
+**이 일치가 "정답 확정"은 아니다**(AGENTS.md §4, findings.md가 명시) — 두
+구현이 같은 스펙 문서를 똑같이 잘못 읽었을 가능성은 일치로는 안 잡힌다.
+다만 스펙 문서(문장)에서 코드로 옮기는 과정의 번역 오류(A3d PIT 브래킷
+버그류)는 이걸로 잡힐 확률이 높아졌다는 것이 이 검증의 실제 가치다.
+
+세부: `research/strategy-lab/a5-pilot-independent/{comparison.json,findings.md}`
+(진단 전용, 미커밋 — 규칙 4).
+
 ## 다음
 
-설계안 §5.1에 따라 OpenCode에게 fwd/fwdStatus 독립 재구현을 위임할 차례다(resolve()·score()·priceSource.js는 이미 검증된 프로덕션 모듈이라 재구현 대상이 아니다). 지시서는 §5.1(독립 재구현)·§5.2(재실행 검증)를 분리해서 준다(AGENTS.md §2, "복잡한 걸 한 번에 주면 멈춘다").
+설계안 §5.2(shard/resume 재실행 검증, exitReason bake-in 값 대조)는 아직
+미착수. 그 뒤 §4가 정한 순서대로: exit overlay 계약 확정 → GH Actions
+본수집 설계 → 3,801×553주 본백필(전부 별도 🔴 결정, 사용자 확인 필요).

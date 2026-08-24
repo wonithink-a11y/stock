@@ -328,9 +328,15 @@ Validated against
             listingStatus/exitReason/exitAt는 corp 상수(빌드 시점 A1b
             값)로 해석해 구현(설계안 §1이 명시 안 한 부분, A6이 실제로
             원하는 의미와 다를 수 있어 별도 🔴 결정 시점에 재확인 필요).
-            다음은 OpenCode에 fwd/fwdStatus 독립 재구현 지시서 작성
-            (설계안 §5.1, resolve()·score()·priceSource.js는 이미
-            검증돼 재구현 대상 아님). 세부: docs/verification/
+            ★ 같은 날 후속 — OpenCode(`nemotron-3-ultra-free`, 지정
+            모델 deepseek 무료티어 종료로 대체) 독립 재구현 교차검증
+            완료(커밋 예정). scripts/build-a5-pilot.js를 안 보고 스펙
+            문서만으로 fwd/fwdStatus를 다시 짜 같은 격자에서 793행 산출
+            — 2,379건(793셀×3horizon) 전부 일치(fwdStatus·fwd 수치
+            둘 다), 불일치 0건. 일치가 정답 확정은 아니라는 단서(AGENTS.md
+            §4)는 findings.md에 명시돼 있다. 다음은 §5.2(shard/resume
+            재실행 검증)·exit overlay 계약 확정 → GH Actions 본수집
+            설계 → 3,801×553주 본백필(전부 별도 🔴). 세부: docs/verification/
             BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
             BF-1.1-GATE-EP-1-재정의-비교.md ·
