@@ -291,9 +291,28 @@ Validated against
             Lab(PBR·5DC 등 지금까지 돌려온 백테스트 엔진)은 이 GATE·
             exit.v1.json과 무관한 별도 시스템이라 이번 트랙과 무관하게
             그대로 유효하다.
+            ★ 2026-08-24 후속 4 — 위 참고사항("A5는 EP를 안 읽는다", §5
+            계약)을 근거로 A5 착수를 GATE-EP-1과 분리하기로 사용자 확정.
+            순서: exit overlay 설계 고정 → 20종목×52주 파일럿(2샤드,
+            재개·결정성 검증) → 통과 시 overlay 계약 확정 → GH Actions
+            본수집 설계 → 3,801×553주 본백필 → A6 진단 → EP-1/2 재평가.
+            exit overlay(A5 baked-in exitReason과 별개로, Tier A/B/C가
+            늘어나도 A5 재계산 없이 최신 분류를 반영하는 별도 파일 —
+            오늘 만든 `build-exit-reason-overlay*.py`와 같은 패턴을
+            정식화) 설계·파일럿 종목 선정 기준(무작위 금지 — 활성 8·
+            Tier B분류 4·MERGED 2·UNKNOWN 6 최소구성, fwdStatus=EXIT
+            실제 발생 구간 포함)까지 확정. 위임 경계도 정함 — 스키마·
+            선정기준·fwd/fwdStatus 로직은 Claude, 독립 재실행 결정성
+            검증·재개 시나리오 실행·집계는 OpenCode 위임 가능(단
+            `research/strategy-lab/` 밖 쓰기 금지, 규칙 4로 파일럿은
+            처음부터 scratch 전용). A6이 overlay를 어떻게 읽을지는
+            여전히 별도 🔴 결정(이번엔 안 다룸). **실제 파일럿 구현은
+            아직 착수 안 함** — 설계만 고정, 다음이 실제 20종목 리스트
+            확정 + 스크립트 작성.
             세부: docs/verification/BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
-            BF-1.1-GATE-EP-1-재정의-비교.md
+            BF-1.1-GATE-EP-1-재정의-비교.md ·
+            docs/A5-파일럿-exit-overlay-설계안.md
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
