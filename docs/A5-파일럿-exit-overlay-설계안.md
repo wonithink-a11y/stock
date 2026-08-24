@@ -105,22 +105,51 @@ bake-in·EXIT 경로가 한 번도 안 걸릴 위험이 있다(교훈57과 같�
   A5 레코드가 바이트 단위로 동일한지 diff(결정성)
 ```
 
-## 5. 위임 경계
+## 5. 위임 경계 — 독립 재구현 교차검증(사용자 확정, 2026-08-24 후속)
+
+`AGENTS.md`를 고치지 않는다. 이미 §4(충돌 처리)가 "같은 실험을 다시
+돌렸는데 결과가 다르면 판단은 Claude와 사용자가 한다"를 정해 두고 있어,
+그 범위를 이번 과제에 맞게 쓰는 것뿐이다. 선례: `engine/runner.py`의
+`exit_symbols_queued` 가드를 Claude가 수정한 뒤 OpenCode가 독립적으로
+같은 원인을 진단해 자기 스크립트에 같은 가드를 구현한 사례(2026-08-24
+후속4, CLAUDE.md 완료 기록) — 이번에도 그 패턴을 그대로 쓴다.
 
 ```
-Claude   exit overlay 스키마 확정(위 §1) · 파일럿 스크립트 골격(§2 조각
-         연결, fwd/fwdStatus 로직 신규 구현) · 종목·기간 선정(§3 기준
-         적용해 실제 20종목 리스트 확정)
-OpenCode 위임 가능(스크립트 완성 후)
-         — 독립 재실행 후 결정성 diff(생산자·검증자 겸임 금지 원칙)
-         — 샤드 강제중단→재개 시나리오 실행·로그 보고
-         — selftest fixture(합성 데이터, A3c/A3d 패턴 확장) 작성
-         — fwdStatus·exitReason 분포 집계
+Claude    scripts/build-a5-pilot.js 작성 — exit overlay 스키마(§1)·
+          fwd/fwdStatus 로직(§2)·샤드/재개(§4)·종목 선정(§3) 전부 포함
+OpenCode  research/strategy-lab/a5-pilot-independent/ 안에 독립 재구현
+          — build-a5-pilot-independent.js
+          — comparison.json (Claude 산출물과 레코드·fwdStatus·exitReason·
+            재개 동작 비교)
+          — findings.md
 ```
 
-`AGENTS.md` 제약: OpenCode는 `research/strategy-lab/` 밖에 못 쓴다.
+**독립 구현 범위는 이번에 새로 설계한 부분만이다** — `resolve()`·
+`score()`·`priceSource.js`는 이미 검증 끝난 프로덕션 모듈이므로 Claude와
+OpenCode 둘 다 그대로 읽기 전용으로 불러 쓴다(재구현하면 낭비이고 새로
+잡을 버그도 없다). 독립적으로 다시 짜는 대상은:
+
+```
+- fwd/fwdStatus 계산(§2, 거래일 인덱스 오프셋 · FUTURE>EXIT>MISSING>HALTED>OK 우선순위)
+- 샤드·재개 상태 관리(§4)
+- exitReason bake-in + overlay 조인(§1)
+```
+
+비교 후 차이가 나오면 **자동으로 어느 쪽이 맞다고 고르지 않는다**(AGENTS.md
+§4 그대로) — Claude와 사용자가 원인을 판정한다. 두 구현이 일치해도 그
+자체가 승인 근거는 아니다(교훈61, 오퍼스·OpenCode 위임 기준과 같은 원칙) —
+둘 다 같은 설계 문서를 잘못 읽었을 가능성은 일치로는 안 잡힌다. 다만
+설계→코드 번역 과정의 논리 오류(A3d PIT 브래킷 버그 같은 유형)는 이
+구조로 잡을 확률이 높아진다.
+
+`AGENTS.md` 제약(무변경): OpenCode는 `research/strategy-lab/` 밖에 못
+쓴다, commit·push 안 함. 지시서는 §2 "복잡한 걸 한 번에 주면 멈춘다"
+경고를 따라 좁게 나눈다 — fwd/fwdStatus 로직 하나, 샤드/재개 하나,
+overlay 조인 하나로 쪼개서 순서대로 지시한다.
+
 규칙 4: 로컬 실행(Claude·OpenCode 둘 다) 결과는 `data/backfill/scores/`가
-아니라 scratch 경로에만 쓴다 — 파일럿은 처음부터 진단 전용이다.
+아니라 scratch 경로/`research/strategy-lab/` 안에만 쓴다 — 파일럿은
+처음부터 진단 전용이다.
 
 ## 6. 이 문서가 안 하는 것
 

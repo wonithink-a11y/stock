@@ -302,13 +302,19 @@ Validated against
             정식화) 설계·파일럿 종목 선정 기준(무작위 금지 — 활성 8·
             Tier B분류 4·MERGED 2·UNKNOWN 6 최소구성, fwdStatus=EXIT
             실제 발생 구간 포함)까지 확정. 위임 경계도 정함 — 스키마·
-            선정기준·fwd/fwdStatus 로직은 Claude, 독립 재실행 결정성
-            검증·재개 시나리오 실행·집계는 OpenCode 위임 가능(단
-            `research/strategy-lab/` 밖 쓰기 금지, 규칙 4로 파일럿은
-            처음부터 scratch 전용). A6이 overlay를 어떻게 읽을지는
+            선정기준·fwd/fwdStatus 로직은 Claude. ★ 위임 경계를 사용자
+            지시로 강화 — OpenCode는 단순 재실행/집계가 아니라
+            `research/strategy-lab/a5-pilot-independent/`에 **독립
+            재구현**을 작성해 Claude 산출물과 비교한다(exit_symbols_queued
+            가드를 Claude·OpenCode가 각자 독립 구현해 교차검증한 선례와
+            같은 패턴, AGENTS.md §4 "판단은 자동으로 안 고른다"를 그대로
+            적용 — AGENTS.md 자체는 안 고침). 독립 구현 대상은 이번에
+            새로 설계한 부분만(fwd/fwdStatus·샤드재개·overlay 조인) —
+            resolve()·score()·priceSource.js는 이미 검증됐으니 둘 다
+            읽기 전용으로 그대로 쓴다. A6이 overlay를 어떻게 읽을지는
             여전히 별도 🔴 결정(이번엔 안 다룸). **실제 파일럿 구현은
             아직 착수 안 함** — 설계만 고정, 다음이 실제 20종목 리스트
-            확정 + 스크립트 작성.
+            확정 + Claude 스크립트 작성 + OpenCode 지시서 작성.
             세부: docs/verification/BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
             BF-1.1-GATE-EP-1-재정의-비교.md ·
