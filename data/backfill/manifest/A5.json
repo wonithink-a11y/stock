@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "BF-1.1",
+  "stage": "A5",
+  "stageVersion": "A5.0",
+  "target": "data/backfill/scores",
+  "targetKind": "dir",
+  "targetExt": ".jsonl.gz",
+  "hash": "sha256:ca4b55d1b21c3f48",
+  "fileCount": 11,
+  "upstream": {
+    "A0.5": "sha256:37fa93c616711589",
+    "A1a": "sha256:3543c5a084d46438",
+    "A1b": "sha256:1bbd28931525cf0e",
+    "A2a": "sha256:9756e0737ea8c866",
+    "A2b": "sha256:d5028152711db442",
+    "A3": "sha256:d37769470101be68",
+    "A3b": "sha256:a3f753def6d8cfef",
+    "A3c": "sha256:cfab28f1e2c6ac7e",
+    "A3d": "sha256:aad8594aa08ab67b"
+  },
+  "policyHash": {
+    "registry": "sha256:29a135bb5078a2ec",
+    "registryVersion": "REG-1.6",
+    "universe": "sha256:1325e19e37807f9a",
+    "price": "sha256:f2c34e0879f72c00",
+    "fundamentals": "sha256:4a5dab484c96635b",
+    "scores": "sha256:18e73c9745d869db"
+  },
+  "recordCount": 1254759,
+  "corpsAssigned": 3801,
+  "corpsDone": 3801,
+  "corpsIncomplete": 0,
+  "noPriceAtAsOf": 847194,
+  "assembleFailed": 0,
+  "assembleFailedRate": 0,
+  "validateViolations": 0,
+  "exitReasonUnknown": 95745,
+  "perYearCounts": {
+    "2016": 100910,
+    "2017": 102585,
+    "2018": 107455,
+    "2019": 111325,
+    "2020": 117180,
+    "2021": 119330,
+    "2022": 122970,
+    "2023": 127829,
+    "2024": 131632,
+    "2025": 133899,
+    "2026": 79644
+  },
+  "generatedAt": "2026-08-24T09:33:14.037Z"
+}
