@@ -334,9 +334,16 @@ Validated against
             문서만으로 fwd/fwdStatus를 다시 짜 같은 격자에서 793행 산출
             — 2,379건(793셀×3horizon) 전부 일치(fwdStatus·fwd 수치
             둘 다), 불일치 0건. 일치가 정답 확정은 아니라는 단서(AGENTS.md
-            §4)는 findings.md에 명시돼 있다. 다음은 §5.2(shard/resume
-            재실행 검증)·exit overlay 계약 확정 → GH Actions 본수집
-            설계 → 3,801×553주 본백필(전부 별도 🔴). 세부: docs/verification/
+            §4)는 findings.md에 명시돼 있다. ★ 같은 날 후속2 — §5.2
+            (재실행 검증)도 OpenCode(`x-preview-f-free`, 사용자 지정
+            1순위로 즉시 성공)에 위임해 완료. build-a5-pilot.js를 수정
+            없이 그대로 재실행 — 완전 재실행 결정성(md5 완전 동일)·
+            SIGKILL 중단(130/520)→재개(중복 0·유실 0)·exitReason/exitAt
+            bake-in 전수 대조(delisted 12종목 377행+active 8종목 416행
+            =793행 전체, 불일치 0) 셋 다 통과. 설계안 §4~§5(파일럿 통과
+            확인)가 이걸로 전부 끝났다. 다음은 exit overlay 계약 확정
+            → GH Actions 본수집 설계 → 3,801×553주 본백필(전부 별도
+            🔴). 세부: docs/verification/
             BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
             BF-1.1-GATE-EP-1-재정의-비교.md ·

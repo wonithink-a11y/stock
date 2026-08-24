@@ -62,8 +62,29 @@ OpenCode(`opencode/nemotron-3-ultra-free` — 지정 모델 `deepseek-v4-flash-f
 세부: `research/strategy-lab/a5-pilot-independent/{comparison.json,findings.md}`
 (진단 전용, 미커밋 — 규칙 4).
 
+## 재실행 검증(설계안 §5.2) — 완료 (2026-08-24)
+
+지시서 `docs/control/handoff/OPENCODE-3-a5-pilot-rerun-verification.md`를
+OpenCode(`opencode/x-preview-f-free`, 사용자 지정 1순위 — deepseek·nemotron
+둘 다 시도할 필요 없이 바로 성공)에 위임. 이번엔 §5.1과 달리 `scripts/build-a5-pilot.js`
+를 **수정 없이 그대로** 재실행하는 재현 검증(새 코드 작성 아님).
+
+- **완전 재실행 결정성** — `_shards`·`output` 전체 삭제 후 처음부터 다시
+  실행한 산출물이 Claude의 기존 산출물과 md5 완전 동일
+  (`c20aa51098b97060e17391c8cec1e9c2`).
+- **SIGKILL 중단(130/520 시점)→재개** — 재개 후 중복 0·유실 0(doneKeys
+  520/520), 최종 산출물도 원본과 md5 동일.
+- **exitReason/exitAt bake-in 전수 대조** — delisted 12종목 377행 전부
+  `data/backfill/universe/a1b/delisted.jsonl`의 값(`exitReason:"UNKNOWN"`,
+  `exitAt:null`)과 정확히 일치, active 8종목 416행 전부 null 확인.
+  377+416=793 = 전체 행 수, 불일치 0건.
+
+세부: `research/strategy-lab/a5-pilot-independent/rerun-verification-findings.md`
+(진단 전용, 미커밋).
+
 ## 다음
 
-설계안 §5.2(shard/resume 재실행 검증, exitReason bake-in 값 대조)는 아직
-미착수. 그 뒤 §4가 정한 순서대로: exit overlay 계약 확정 → GH Actions
-본수집 설계 → 3,801×553주 본백필(전부 별도 🔴 결정, 사용자 확인 필요).
+설계안 §4~§5(파일럿 통과 확인)가 이걸로 전부 끝났다 — 독립 재구현(§5.1)과
+재실행 검증(§5.2) 둘 다 통과. 다음은 §4 마지막이 정한 순서대로: exit
+overlay 계약 확정 → GH Actions 본수집 설계 → 3,801×553주 본백필(전부
+별도 🔴 결정, 사용자 확인 필요).
