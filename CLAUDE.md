@@ -331,10 +331,39 @@ Validated against
               macro-rate-regime-synthesis-2026-08.md·pbr-ratefilter-
               backtest-2026-08.md·market-regime-final-data-inventory-
               verification-2026-08.md
+  완료      ★ CAND1 익일종가 근사 + Opening Fade 롱온리 walk-forward 검증 —
+              둘 다 기각 (2026-08-24) — "단기·초단기 종가매매" 새 팩터를
+              찾기 전에 이미 "검증됐다"고 기록된 CAND1·Opening Fade 두
+              후보부터 실제로 엔진에 얹을 수 있는 형태인지 열어봤다.
+              **CAND1**: 검증된 청산(익일 09:35)을 엔진이 지원 못 해 "익일
+              종가로 근사"를 먼저 research 레벨에서 확인 — net이 baseline
+              (21.43bp) 대비 93% 침식돼 1.48bp만 남고 MDD도 -21.77%→
+              -38.97%로 악화(TEST t도 3.94→2.01). CAND1의 edge는 신호 후
+              09:35까지의 좁은 창에만 있고 익일 종가까지 들면 거의 증발한다
+              — 09:35 청산을 실제 지원하는 엔진 확장(🔴급) 없이는 테스트
+              불가로 판정. **Opening Fade**: CLAUDE.md가 인용해 온 "T+5
+              net+29.2bp·T+10 net+23.1bp"가 실은 **Q1롱+Q5숏 페어·2xRT
+              비용**이었음을 코드로 확인 — 이 프로젝트는 LONG_ONLY라(최상단
+              규칙, 엔진에 마진/숏 개념 없음) 그대로 못 쓴다. Q1(롱)만 편도
+              비용(20bp)으로 떼어 CAND1과 같은 TRAIN/VALID/TEST(60/15/25%)
+              walk-forward로 처음 검증한 결과 TRAIN(+35.1bp/일, t=2.63)·
+              VALID(+59.3bp/일, t=3.08)는 강한 양성이지만 **TEST(최근
+              63거래일)에서 부호가 완전히 반전**(T+5 -79.1bp/일 t=-3.10,
+              T+10 -122.2bp/일 t=-4.01) — 감사(published gross 재현)는
+              통과해 계산 버그가 아니라 진짜 workforward 실패. 전체 집계가
+              순양(+16.8bp/일)으로 보였던 건 TRAIN+VALID 이익이 TEST 손실을
+              상쇄한 착시였다. **결론: 이 세션에서 "단기·초단기 종가매매"
+              방향의 기존 검증 후보 둘 다 실전 형태로 재검증하니 탈락 —
+              새 팩터 탐색보다 다른 트랙(BF-1.1 10년 백필·CAND1 Risk-Off
+              필터 등)으로 넘어가는 게 낫다는 판단으로 이 방향은 일단
+              중단**(사용자 확인 후). findings/cand1-close-exit-
+              approximation-2026-08.md · opening-fade-longonly-
+              walkforward-2026-08.md
   완료      ★ Ox Alpha 후속배치 3건 독립검증 + CAND1 미시구조 검증 + 코드리뷰
               커밋 2건 (2026-08-23, 세션인수인계-2026-08-23-b.md) — 오프닝
               페이드 비용반영(T+5 net+29.2bp·T+10 net+23.1bp, 관례비용
-              30bp 기준으로도 생존)과 CAND1 국면분해(VALID 약화가 특정
+              30bp 기준으로도 생존, **★ 2026-08-24 정정 — 이 숫자는 Q1롱+
+              Q5숏 페어·2xRT다, 아래 참고**)과 CAND1 국면분해(VALID 약화가 특정
               변동성 국면 편중이 아님)는 스크립트 로직·수치 대조로 타당성
               확인. **H6 재정의 실험은 결론 무효로 판정** —
               `h6_last30_execution.py`가 요구하는 "15:20 종가 봉"이 KRX
