@@ -341,9 +341,28 @@ Validated against
             SIGKILL 중단(130/520)→재개(중복 0·유실 0)·exitReason/exitAt
             bake-in 전수 대조(delisted 12종목 377행+active 8종목 416행
             =793행 전체, 불일치 0) 셋 다 통과. 설계안 §4~§5(파일럿 통과
-            확인)가 이걸로 전부 끝났다. 다음은 exit overlay 계약 확정
-            → GH Actions 본수집 설계 → 3,801×553주 본백필(전부 별도
-            🔴). 세부: docs/verification/
+            확인)가 이걸로 전부 끝났다.
+            ★ 2026-08-24 후속3 — 본백필 인프라 구현 완료(사용자 지시로
+            바로 착수, 커밋 `93f6818`). `scripts/build-a5-backfill.js`
+            (파일럿과 같은 resolve()+score()·priceSource.js·fwd/fwdStatus,
+            격자만 3,801종목×553주로 확장·샤드는 corp 단위)·
+            `.github/workflows/scores-a5.yml`(8샤드 matrix+finalize,
+            A2b 패턴 — 네트워크 없는 순수 계산이라 A3d식 다일 collect
+            불필요)·`config/policies/scores.v1.json`(샤드·인수조건 정책화,
+            registry 등록)·`lib/backfillManifest.js`(A5 REQUIRED_UPSTREAM에
+            A3b/A3c/A3d 추가 — resolver.js가 실제 읽는 의존성 반영, 기존
+            A3만으로는 그 셋의 재수집 drift를 못 잡았다)·
+            `scripts/verify-diagnostics.js`(A5 계약 등록, smokeTest
+            forbidden). 표본 실측(60종목×전체 553주, 56.6초, 정적로딩
+            37.7초 포함) 외삽 전체 순차 약 1.0시간 — 8샤드면 샤드당 약
+            7~8분. 로컬 검증(`--universeLimit 20`, 4샤드) — accept 경로
+            (corpsIncomplete=0·manifest 작성)·reject 경로(부분 실행 시
+            게이트 발동)·fail-injection(exit 2)·verify-diagnostics.js의
+            smokeTest 거부 전부 확인, 기존 JS 회귀 전체 재통과, 로컬
+            산출물은 되돌림(규칙 4). **실제 3,801종목 GH Actions 트리거는
+            아직 안 함** — 실행은 등급과 무관하게 항상 사전 확인(프로젝트
+            규칙), 다음 세션(또는 이 세션 후속)이 사용자 GO 후 트리거.
+            세부: docs/verification/
             BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
             BF-1.1-GATE-EP-1-재정의-비교.md ·
