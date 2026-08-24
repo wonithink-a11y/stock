@@ -219,12 +219,41 @@ Validated against
             으로 508종목 중 179종목(35.2%)을 MERGED로 분류(365일 창,
             결과를 보기 전에 고정). `scripts/build-exit-reason-
             overlay.py`(selftest 9건) 신설, `data/backfill/`에는 쓰지
-            않음(규칙 4, 로컬 진단 전용). **Tier B(합병 외 사유 —
-            BANKRUPTCY·AUDIT_OPINION·DELISTING_REVIEW_FAILED·
-            CAPITAL_IMPAIRMENT·VOLUNTARY, exitAtConfirmed 앵커로 새 DART
-            list.json 조회 필요, 대상 329+715종목)는 다음 세션으로 넘김**
-            — Tier A만으로는 여전히 GATE-EP-1 임계(5%)를 한참 넘는다.
-            세부: docs/verification/BF-1.1-exitReason-TierA-결과.md
+            않음(규칙 4, 로컬 진단 전용).
+            ★ 2026-08-24 후속 — Tier B(합병 외 사유) 완료. Tier B 대상
+            329종목(exitAtConfirmed는 있으나 Tier A가 못 잡은 나머지)에
+            새 DART `list.json`(pblntf_ty=I, corp당 1회, 366콜) 조회 —
+            패턴을 짜기 전에 20종목 무작위 표본의 실제 report_nm을 먼저
+            읽고 다섯 정규식(VOLUNTARY="자진상장폐지"·BANKRUPTCY="회생절차
+            개시결정"/"부도발생"/"파산선고"(파산신청·파산신청기각은 결정된
+            사건이 아니므로 제외)·AUDIT_OPINION="의견거절/의견부적정"·
+            CAPITAL_IMPAIRMENT="자본잠식"·DELISTING_REVIEW_FAILED="상장적
+            격성실질심사")을 고정. 329종목 중 69종목(21.0%, VOLUNTARY 22·
+            DELISTING_REVIEW_FAILED 21·BANKRUPTCY 20·CAPITAL_IMPAIRMENT 5·
+            AUDIT_OPINION 1) 분류. **핵심 발견 — KRX 공식 공시 템플릿이
+            감사의견과 자본잠식을 한 제목에 합쳐서 낸다**
+            (`"반기검토의견부적정,의견거절또는완전자본잠식사실발생"`) —
+            title만으로는 어느 쪽이 실제 방아쇠였는지 못 가르는 56종목
+            (17.0%)을 지어내지 않고 ambiguousAuditCapital로 남겼다(AUDIT_
+            OPINION이 1건뿐인 것도 이 모호성 때문 — 실제로 드문 게 아니라
+            대부분 이 56건에 섞여 빠졌다). 나머지 204종목(62.0%)은 창 안에
+            다섯 신호 자체가 없음(noSignal) — SPAC 청산·투자회사 만기청산
+            등 애초에 다섯 카테고리 밖일 가능성(표본에서 실제 확인:
+            교보14호·케이비제18호기업인수목적, 아시아퍼시픽13호선박투자
+            회사). `scripts/build-exit-reason-overlay-tierb.py`(selftest
+            11건) 신설, `data/backfill/`에는 쓰지 않음(규칙 4).
+            **GATE-EP-1까지는 아직 한참 멀다** — Tier A+B 합산해도 A1b
+            1,223종목 중 248종목(20.3%)만 분류, UNKNOWN 975종목(79.7%)이
+            남아 임계(5%)를 크게 초과한다. 낙관적으로 보고하지 않는다.
+            남은 선택지(전부 미착수, 순서 미정) — ① ambiguousAuditCapital
+            56건의 공시 본문 파싱(document API, 범위 확대) ② noSignal
+            204건 표본 확인(enum에 새 카테고리 필요할 수도, exit.v1.json
+            변경은 별도 🔴) ③ exitAtConfirmed 자체가 없는 715종목 별도
+            트랙. **다음 세션은 이 셋을 고르기 전에 "이 접근이 근본적으로
+            GATE-EP-1을 넘길 수 있는가"부터 재확인하는 게 순서일 수
+            있다** — 이번 세션은 이 판단을 내리지 않았다.
+            세부: docs/verification/BF-1.1-exitReason-TierA-결과.md ·
+            BF-1.1-exitReason-TierB-결과.md
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
