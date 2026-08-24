@@ -252,6 +252,21 @@ Validated against
               정제 필터로 이어질지는 별도 실제 runner 검증 필요(사용자
               지시로 착수, 아래 참고). findings/vix-incremental-info-
               check-2026-08.md
+              ★ 정제 필터("Risk-Off AND VIX Low/Mid만 차단", VIX High인
+              Risk-Off는 다시 허용) 실제 runner 검증 → **기각**. baseline
+              (CAGR -8.18%)보다는 낫지만(-7.34%) 원본 "Risk-Off 전부 차단"
+              필터(-5.09%)보다 명확히 나쁘다(CAGR -2.25%p·MDD +9.71%p
+              악화). 원인: P1-1은 거래단위 평균을 봤지만(VIX-High×Risk-Off
+              거래만 떼면 승률 33%·플러스), 실제 runner에서 그 거래들을
+              다시 허용하면 다른 후보와 슬롯(maxPositions=10) 경쟁을
+              벌인다 — "거래 자체가 나쁘지 않다"와 "그 슬롯의 최선의
+              선택이다"는 다른 질문. P0-1(오프라인이 개선폭 과대평가)과
+              **같은 메커니즘의 반대 사례**(이번엔 정제가 손해). **원본
+              필터 유지가 최종 결론** — TREND-BREAKOUT-v1로 확장 안 함
+              (원인이 슬롯경쟁이라는 엔진 공통 구조라 재현 가능성 높고
+              한계효용 낮음, 사용자 확인). findings/5dc-riskoff-vix-refined
+              -filter-rejection-2026-08.md — 이걸로 P0-1·P0-2·P1-1 Risk-Off
+              필터 연구선 일단락
   완료      ★ Video 전략 후보 V3(Bollinger+RSI) 5DC 독립성 검토 통과 후
               전체 유니버스에서 기각 + Ox Alpha "5DC Risk-Off 필터" 인수인계
               문서 검증 (2026-08-24) — `video-strategies-2026-08/audit.md`
