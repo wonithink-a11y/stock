@@ -202,6 +202,34 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ Video 전략 후보 V3(Bollinger+RSI) 5DC 독립성 검토 통과 후
+              전체 유니버스에서 기각 + Ox Alpha "5DC Risk-Off 필터" 인수인계
+              문서 검증 (2026-08-24) — `video-strategies-2026-08/audit.md`
+              (2026-08-22)가 "★ 흥미로움"(스모크 30종목 Sharpe 1.20)으로
+              표시하고 "5DC와 독립성 검토 필요"로 막아뒀던 V3를 재개. 신호
+              겹침 실측(완전 동일일 0.00%, 근접 20거래일 선후관계 17.78%)
+              으로 독립성 확인(findings/v3-5dc-signal-independence-2026-08.md)
+              → 전체 유니버스(2,543종목) 백테스트 결과 **완전히 뒤집힘**
+              (CAGR +5.39%→-4.05%, Sharpe 1.20→-0.2248) — 30종목 소표본이
+              우연히 유리한 구간에 치우친 착시였다. **V3 기각**
+              (findings/v3-bollinger-rsi-full-universe-rejection-2026-08.md).
+              ★ 별도로 Ox Alpha가 작성한 "5DC Risk-Off 필터" 인수인계
+              문서(사용자 제공)를 검증 — P0-1(5DC Risk-Off 신규진입 차단
+              counterfactual: MDD -75.00%→-54.84%, 부트스트랩 P(개선)=
+              96.45%)은 findings/5dc-riskoff-filter-validation-2026-08.md
+              와 소수점까지 정확히 일치. 단 그 1,592건 frozen baseline은
+              `run_5dc_v1a_p_merged.py`(**A1A_A1B_MERGED**, 생존편향 제거)
+              로 만든 것인데, 오늘 밤 Claude가 TREND-BREAKOUT/5DC 타이밍가치
+              검증에 쓴 5DC baseline(CAGR -10.88%)은 `policy.json` 기본값
+              **A1A_ONLY**(생존편향 있음)로 만든 것 — **둘 다 유효하지만
+              서로 다른 유니버스라 직접 비교 불가**, 혼동 방지용으로 기록.
+              인수인계 문서의 "P1-2: VIX ETN 최종 승격 여부"는 이미
+              `vix-etn-regime-robustness-2026-08.md`가 B→C로 하향해 답한
+              상태(문서 자체가 낡음 — 이 프로젝트가 반복 겪은 "착수 가능
+              목록이 실제보다 낡아있다" 패턴). 진짜 남은 항목은 P0-1 잔여
+              (실제 runner 검증)·P0-2(Risk-Off 필터를 TREND-BREAKOUT·CAND1에
+              일반화)·P1-1(VIX가 Risk-Off 라벨과 별개 정보를 주는지) — 전부
+              미착수, 오늘 밤 다룬 "금리 축 타이밍"과는 별개의 연구선
   완료      ★ Macro Regime Layer 구축 + PBR/CAND1/Opening Fade 3전략
               규제-조건부 검증 + 진입필터 실전 backtest + GPT·Ox Alpha
               감사 독립검증 (2026-08-23, 다수 커밋 — 1b2e836·4989745·cf90a86·
