@@ -234,6 +234,24 @@ Validated against
               CAND1은 엔진도 다르다(분봉단위 청산, 일별 Portfolio 스케줄러
               아님) - 이미 있는 반대 방향 증거를 무시하고 새 엔진까지
               붙여가며 확인할 필요는 낮다고 판단해 보류(사용자 확인 후)
+              ★ P1-1(VIX가 Risk-Off 라벨과 별개 정보를 주는가) — Claude가
+              직접 설계(통계 프레이밍이라 OpenCode 위임 안 함). regime_labels
+              .parquet가 이미 `regime`(합산 라벨)과 `vixState`(VIX 단독
+              Low<20/Mid20-30/High≥30, 기존 production 임계값) 둘 다 같은
+              usableFromDate로 갖고 있음을 확인 — 새 임계값 없이 라벨 안에서
+              vixState별로 쪼개기만 함. **답: 그렇다, VIX는 잔여정보가
+              있다** — 5DC·TREND-BREAKOUT-v1 두 전략, Risk-On/Neutral/
+              Risk-Off 세 구간 **전부(6/6 조합)에서 VIX Low→Mid→High로
+              갈수록 승률·평균PnL이 단조 증가**, 예외 없음. 특히 Risk-Off
+              안에서: VIX Low인데 Risk-Off로 분류된 날(다른 3축이 나빠서)이
+              가장 나쁘고(승률 14.7~16.0%), VIX가 진짜 높은 패닉 국면의
+              Risk-Off는 오히려 승률 30~33%·평균PnL 플러스로 반전 — Ox
+              Alpha 문서(§9, VIX 급등후 리바운드)와 방향 일치. 단 상관관계
+              관측일 뿐(다중검정·유의성 검정 없음, High VIX×Risk-On은
+              n=2~3로 참고 수준) — "Risk-Off AND VIX Low/Mid일 때만 차단"
+              정제 필터로 이어질지는 별도 실제 runner 검증 필요(사용자
+              지시로 착수, 아래 참고). findings/vix-incremental-info-
+              check-2026-08.md
   완료      ★ Video 전략 후보 V3(Bollinger+RSI) 5DC 독립성 검토 통과 후
               전체 유니버스에서 기각 + Ox Alpha "5DC Risk-Off 필터" 인수인계
               문서 검증 (2026-08-24) — `video-strategies-2026-08/audit.md`
