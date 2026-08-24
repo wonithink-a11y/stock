@@ -205,7 +205,26 @@ Validated against
             score() 실데이터 연결 GO 확인(820f097). resolver.js↔scoringEngine.js
             필드명 불일치(fundamentals→fundamental)를 발견해 수정(7a4c00c,
             finalScore null→87.5 회복). peg가 A3c 완료로 열리면 다시 확인
-            10년 전체 백필은 여전히 미착수, 우선순위 미정
+            10년 전체 백필은 여전히 미착수, 우선순위 미정. ★ 2026-08-24
+            착수 — A5 채점 백필(3,801종목×553주간 스냅샷)에 들어가기 전,
+            A6 Primary 결론을 막는 GATE-EP-1(§6.4, A1b exitReason 100%
+            UNKNOWN)부터 풀기로 순서를 정했다(A5는 계산량이 큰 다일짜리
+            작업이라, 끝내놓고도 결론을 못 내는 상태로 남는 걸 피하려는
+            판단). exitReason 복원 Tier A 완료 — 2026-08-16에 시도됐다
+            폐기된 `dartModifyDate` 앵커(실제 폐지일과 수개월~수년 어긋남)
+            대신, 그 이후(2026-08-17) A2b가 만든 `exitAtConfirmed`(가격
+            데이터 기반 실측 폐지일)로 재설계. 이미 커밋된 A3d
+            `mergerSpinoff.jsonl.gz`(A1a·A1b 전체 대상 기수집 공시)를
+            시간축으로 대조하는 순수 로컬 조인만으로 **새 DART 호출 0건**
+            으로 508종목 중 179종목(35.2%)을 MERGED로 분류(365일 창,
+            결과를 보기 전에 고정). `scripts/build-exit-reason-
+            overlay.py`(selftest 9건) 신설, `data/backfill/`에는 쓰지
+            않음(규칙 4, 로컬 진단 전용). **Tier B(합병 외 사유 —
+            BANKRUPTCY·AUDIT_OPINION·DELISTING_REVIEW_FAILED·
+            CAPITAL_IMPAIRMENT·VOLUNTARY, exitAtConfirmed 앵커로 새 DART
+            list.json 조회 필요, 대상 329+715종목)는 다음 세션으로 넘김**
+            — Tier A만으로는 여전히 GATE-EP-1 임계(5%)를 한참 넘는다.
+            세부: docs/verification/BF-1.1-exitReason-TierA-결과.md
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
