@@ -312,12 +312,29 @@ Validated against
             새로 설계한 부분만(fwd/fwdStatus·샤드재개·overlay 조인) —
             resolve()·score()·priceSource.js는 이미 검증됐으니 둘 다
             읽기 전용으로 그대로 쓴다. A6이 overlay를 어떻게 읽을지는
-            여전히 별도 🔴 결정(이번엔 안 다룸). **실제 파일럿 구현은
-            아직 착수 안 함** — 설계만 고정, 다음이 실제 20종목 리스트
-            확정 + Claude 스크립트 작성 + OpenCode 지시서 작성.
-            세부: docs/verification/BF-1.1-exitReason-TierA-결과.md ·
+            여전히 별도 🔴 결정(이번엔 안 다룸). ★ 2026-08-24 후속 —
+            `scripts/build-a5-pilot.js` 구현·실행 완료(커밋 `3561202`).
+            20종목×52주(1,040격자) 결과 793행, Tier B 4종목 d120 EXIT
+            건수(11·10·9·26)가 설계안 §3.1 사전 실측표와 정확히 일치 —
+            fwd/fwdStatus 로직이 맞다는 독립 신호. 실행 중 버그 둘 발견·
+            수정: (1) `createWriteStream`+`process.exit()`가 버퍼 flush
+            전에 종료해 "기록했다"는 진단과 달리 파일이 비어 있었다 →
+            `appendFileSync`로 교체. (2) `noPriceAtAsOf` 스킵 분기가
+            상태 파일 쓰기를 건너뛰어 재개 시 마지막 종목의 후행 스킵
+            구간이 "미완료"로 재처리됐다(데이터 유실은 아님, 재개
+            완결성 버그) → done.add+상태쓰기를 분기 공통 경로로 통합.
+            SIGKILL 중단(156/520)→재개, 전체 재실행 바이트 동일성
+            (결정성) 둘 다 확인 — 설계안 §4 요구 항목 전부 통과.
+            listingStatus/exitReason/exitAt는 corp 상수(빌드 시점 A1b
+            값)로 해석해 구현(설계안 §1이 명시 안 한 부분, A6이 실제로
+            원하는 의미와 다를 수 있어 별도 🔴 결정 시점에 재확인 필요).
+            다음은 OpenCode에 fwd/fwdStatus 독립 재구현 지시서 작성
+            (설계안 §5.1, resolve()·score()·priceSource.js는 이미
+            검증돼 재구현 대상 아님). 세부: docs/verification/
+            BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
             BF-1.1-GATE-EP-1-재정의-비교.md ·
+            BF-1.1-A5-파일럿-1차실행-결과.md ·
             docs/A5-파일럿-exit-overlay-설계안.md
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
