@@ -202,6 +202,38 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ 5DC Risk-Off 필터 실제 runner 검증(P0-1 후속) + TREND-BREAKOUT-v1
+              일반화(P0-2) (2026-08-24) — Ox Alpha 인수인계의 오프라인
+              counterfactual(findings/5dc-riskoff-filter-validation-2026-08.md,
+              MDD -75.00%→-54.84%)을 실제 Portfolio 스케줄러(슬롯/현금
+              재배정 포함)로 검증. **5개 지표(CAGR·MDD·PF·승률·finalEquity)
+              전부 개선 방향 유지**하나 **규모는 오프라인의 63~76%**(MDD
+              개선 20.16%p→12.74%p) — 원인: Risk-Off로 차단된 원시 진입
+              후보 1,706건 중 실제 거래감소는 109건뿐(나머지는 어차피
+              maxPositions=10 슬롯경쟁에서 탈락할 후보). 오프라인 문서 자신의
+              "2차 재배치 효과는 보수적 방향" 예측과 **반대** — 실제로는
+              효과가 작아짐. 최종판정 A(개선 확인, 규모 축소).
+              findings/5dc-riskoff-runner-validation-2026-08.md. ★ 임시 CI
+              shard(원 스크립트 요구, 로컬 부재) 대신 정식 finalize된
+              `data/backfill/price/a2b`로 대체 - baseline이 frozen 1,592건과
+              소폭 다름(1,585건, 원인 미확정이나 A/B 비교 자체는 일관적).
+              ★ 같은 패턴을 TREND-BREAKOUT-v1에 일반화(OpenCode 위임 -
+              `run_5dc_pipeline()`이 이름과 달리 완전 범용 함수임을 확인해
+              전략ID만 교체하는 기계적 작업으로 판단) — 여기서도 5개 지표
+              전부 개선 방향 확인(CAGR -14.85%→-12.53%, MDD -86.73%→-81.63%),
+              2차 재배치 비율은 더 낮음(3.7%, 신호밀도가 높아 슬롯경쟁이
+              더 치열함). 단 이 전략 자체는 필터 후에도 CAGR -12.5%로 깊은
+              마이너스 - "필터가 전략 무관하게 통한다"는 근거로만 인용,
+              "TREND-BREAKOUT-v1이 쓸만해졌다"는 근거 아님.
+              findings/trend-breakout-riskoff-runner-validation-2026-08.md.
+              ★ CAND1은 P0-2 대상이었으나 **착수 보류** — 기존
+              `findings/cand1-regime-conditional-2026-08.md`(2026-08-23)가
+              이미 CAND1의 Risk-Off 구간이 5DC와 정반대로 **여전히 net
+              +10.01bp 플러스**(가장 낮은 MDD -5.03%)임을 보여줘, 진입차단
+              필터가 CAND1에는 오히려 해로울 가능성이 높다고 판단했다.
+              CAND1은 엔진도 다르다(분봉단위 청산, 일별 Portfolio 스케줄러
+              아님) - 이미 있는 반대 방향 증거를 무시하고 새 엔진까지
+              붙여가며 확인할 필요는 낮다고 판단해 보류(사용자 확인 후)
   완료      ★ Video 전략 후보 V3(Bollinger+RSI) 5DC 독립성 검토 통과 후
               전체 유니버스에서 기각 + Ox Alpha "5DC Risk-Off 필터" 인수인계
               문서 검증 (2026-08-24) — `video-strategies-2026-08/audit.md`
