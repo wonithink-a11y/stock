@@ -122,20 +122,24 @@ Validated against
             4번 반복 검증돼 이 프로젝트의 표준 절차로 굳어졌다.
             findings/lowmom60-exposure-overlay-timing-value-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
-            ① 043090 처리 방향은 여전히 미착수. lib/a5/priceSource.js는 재정의·
-              구현 완료(2026-08-24) — docs/BF-1.1-백필계약.md §2 "운영(A5o)/
-              연구(A5) 분리" 확정에 따라 **오늘 유니버스에 없는 폐지종목
-              가격은 A5o에 필요 없다**는 재정의가 맞음을 코드로 재확인
-              (`scripts/analyze.js`는 라이브 가격을 별도 경로로 받고 A2a/A2b
-              백필과 무관). 실제 자리는 BF-1.1 10년 역사적 백필의 가격
-              조회뿐 — `lib/a5/priceSource.js` 신설(A2a 우선·A2b 폴백 통합
-              조회, findPrice·findCandles), `scripts/probe-bf11-vertical-
-              slice.js`에 연결해 폐지종목(000060/메리츠화재해상보험,
-              A2b 폴백)까지 실데이터로 검증 — resolver→score() 정상 도달
-              (fundamental은 해당 corp의 A3가 2016년분을 안 갖고 있어 정직하게
-              null, 버그 아님). 회귀 `scripts/test-price-source.js`(9건) 신설,
-              전체 11개 파일 재확인. **10년 전체 백필 자체는 여전히 미착수**
-              (이 항목은 그 첫 부품일 뿐, 우선순위 별도 결정)
+            ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
+              docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
+              **오늘 유니버스에 없는 폐지종목 가격은 A5o에 필요 없다**는
+              재정의가 맞음을 코드로 재확인(`scripts/analyze.js`는 라이브
+              가격을 별도 경로로 받고 A2a/A2b 백필과 무관). 실제 자리는
+              BF-1.1 10년 역사적 백필의 가격 조회뿐 — `lib/a5/priceSource.js`
+              신설(A2a 우선·A2b 폴백 통합 조회, findPrice·findCandles),
+              `scripts/probe-bf11-vertical-slice.js`에 연결해 폐지종목
+              (000060/메리츠화재해상보험, A2b 폴백)까지 실데이터로 검증 —
+              resolver→score() 정상 도달(fundamental은 해당 corp의 A3가
+              2016년분을 안 갖고 있어 정직하게 null, 버그 아님). 회귀
+              `scripts/test-price-source.js`(9건) 신설, 전체 11개 파일
+              재확인. **043090**(`survivorship-attribution-design/DESIGN.md`
+              §6.4가 남긴 경계 사례 — A1b 소속인데 가격은 A2a에 전체 존재)도
+              같은 A2a-우선 규칙으로 실측 확인(`findPrice('043090', ...)` →
+              `source:'a2a'`) — 그 문서가 요구한 "병합 실행 시 소스 우선
+              규칙 명시"를 이 모듈이 충족한다. **10년 전체 백필 자체는
+              여전히 미착수**(이 항목은 그 첫 부품일 뿐, 우선순위 별도 결정)
             ② Strategy Lab PRIMARY **정식 승격**(2026-08-23 정정 — 재실행 자체는
               이미 2026-08-17에 두 번 독립 검증까지 끝났다. 504종목·508종목
               공식 A2b 버전 둘 다 A1A_A1B_MERGED CAGR -8.1847%로 소수점까지
