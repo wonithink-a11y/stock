@@ -192,9 +192,16 @@ function runShard(shard, shards, limit, universeLimit) {
 
   // 연도별 fragment 파일 핸들은 열어두지 않는다 — 매 레코드 appendFileSync로
   // 연다/닫는다(느리지만 프로세스 중단에도 안전, 파일럿에서 검증된 패턴).
+  //
+  // smokeTest는 참일 때만 키를 넣는다(A3d와 동일 관례) — verify-diagnostics.js의
+  // forbidden 체크는 `k in d`(키 존재)로 판정하지 `d[k]===true`로 판정하지
+  // 않는다. smokeTest:false를 그냥 두면 정상 본수집도 "플래그가 있다"고
+  // 오탐한다 — 실제로 첫 본백필 실행이 이 버그로 커밋 직전에 거부됐다
+  // (계산 자체는 125만 행 전부 정상이었는데 manifest·commit이 안 됐다).
   const diag = {
     corpsAssigned: mine.length, corpsDone: 0,
-    universeLimit: universeLimit || null, smokeTest: !!(limit || universeLimit),
+    universeLimit: universeLimit || null,
+    ...(limit || universeLimit ? { smokeTest: true } : {}),
     noPriceAtAsOf: 0, assembleFailed: 0, validateViolations: 0,
     exitReasonUnknown: 0, written: 0,
     byYear: {},
@@ -413,7 +420,8 @@ function runFinalize() {
   }
 
   const finalDiag = {
-    stage: 'A5', aborted: false, smokeTest,
+    stage: 'A5', aborted: false,
+    ...(smokeTest ? { smokeTest: true } : {}),
     acceptancePassed: true, acceptanceFails: [], acceptanceWarns: warns,
     ...agg, recordCount: totalRecordCount, corpsIncomplete, assembleFailedRate, perYearCounts, years,
   };
