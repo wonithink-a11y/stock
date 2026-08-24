@@ -140,14 +140,10 @@ Validated against
               `source:'a2a'`) — 그 문서가 요구한 "병합 실행 시 소스 우선
               규칙 명시"를 이 모듈이 충족한다. **10년 전체 백필 자체는
               여전히 미착수**(이 항목은 그 첫 부품일 뿐, 우선순위 별도 결정)
-            ② Strategy Lab PRIMARY **정식 승격**(2026-08-23 정정 — 재실행 자체는
-              이미 2026-08-17에 두 번 독립 검증까지 끝났다. 504종목·508종목
-              공식 A2b 버전 둘 다 A1A_A1B_MERGED CAGR -8.1847%로 소수점까지
-              완전 일치, A1A_ONLY 대비 +1.62%p 개선. 사용자가 그때 "SMOKE급으로
-              충분, 정식 승격은 나중"으로 결정해 미뤄뒀다 — 남은 건 재실행이
-              아니라 `config/policies/universe.v1.json` 병합모드 확장 +
-              `engine/runner.py`의 A1A_ONLY assert 완화, 둘 다 별도 🔴 결정).
-              세션인수인계-2026-08-16.md §5 끝 참고
+            ② Strategy Lab PRIMARY **정식 승격 — 완료됨**(2026-08-24, 아래
+              "완료" 참고). 세션인수인계-2026-08-16.md §5 끝이 남긴 두 가지
+              (engine/runner.py의 A1A_ONLY assert 완화 · 병합 유니버스 실제
+              배선) 전부 끝났다
             ③ 전체 2,579종목 249영업일 분봉 백필 — **완료 확인됨**(2026-08-23,
               VM 직접 확인). 로그에 "할 일 없다"(538회 스킵 후 종료) 도달,
               manifest 253개(2025-08-08~2026-08-21, 날짜 공백 없음)·
@@ -474,6 +470,31 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ Strategy Lab PRIMARY 정식 승격 — A1A_A1B_MERGED 실제 배선
+              (2026-08-24, GATE-EP-1과 무관한 트랙으로 선택) — A2bProvider·
+              MergedPriceProvider 신설(PriceProvider 인터페이스가 원래
+              예상해 둔 확장 경로 그대로, `data/backfill/price/a2b` 읽기),
+              `engine/runner.py`의 `A1A_ONLY` assert를 `A1A_A1B_MERGED`도
+              허용하도록 완화. 실제 병합 유니버스(3,801종목)로 5DC-v1A-P를
+              2014-05-13~2026-08-03 전체 재실행 성공(847.6초) — 신규 회귀
+              8건 + 기존 126건 전부 통과.
+              **실행 중 GATE-EP-1과 같은 구조의 문제를 발견** — policy.json의
+              기존 "PRIMARY requires full A2a+A2b coverage" 기준(2026-08-16
+              작성, A2b 완성 전)이 원리적으로 충족 불가능함을 확인
+              (missingPriceTickers 734/3801=19.3%, 폐지종목 상당수가 가격
+              흔적 자체가 없다 — 오늘 세션 앞부분 GATE-EP-1 조사와 정확히
+              같은 근본 원인). 사용자 확인 후 PRIMARY 기준을 "100% 커버리지"
+              에서 "병합 유니버스로 실제 실행했는가"로 재정의 — 결측은
+              숨기지 않고 `diag.universeCoverage`에 그대로 남긴다(exitReason
+              Coverage와 같은 패턴). `strategies/5dc_v1a_p/policy.json`의
+              mode를 `A1A_A1B_MERGED`로 전환해 이 전략만 PRIMARY로 승격 —
+              다른 전략(PBR·TREND-BREAKOUT-v1 등)은 각각 별도 검증 없이는
+              A1A_ONLY 그대로 둔다. 이 재실행 자체의 성과 수치(CAGR -7.94%
+              등)는 2026-08-17 비교(-8.1847%)와 정확히 일치하지 않는데,
+              그 사이 engine이 same-bar·portfolio scheduling 등 여러 번
+              고쳐졌기 때문 — 이 프로젝트가 이미 받아들인 "냉동 baseline은
+              engine commit 바운드로만 유효" 원칙 그대로다, 새 이상 신호
+              아님
   완료      ★ 5DC Risk-Off 필터 실제 runner 검증(P0-1 후속) + TREND-BREAKOUT-v1
               일반화(P0-2) (2026-08-24) — Ox Alpha 인수인계의 오프라인
               counterfactual(findings/5dc-riskoff-filter-validation-2026-08.md,
