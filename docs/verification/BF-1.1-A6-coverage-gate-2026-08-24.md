@@ -4,18 +4,24 @@
 (IC·분위 스프레드 확정 해석)은 포함하지 않는다** — GATE 통과 여부와 무관하게
 아직 계산하지 않는다(exitPrice 미수집이 별도로 막고 있다, 아래 참고).
 
-overlay 상태: **EO 미승격** — A1b baked 값(전건 UNKNOWN)만 사용했다. exit-overlay.yml을 먼저 트리거하라.
+overlay 상태: EO 승격됨 — overlay 분류를 A1b baked 값 위에 덮어썼다
 
 ## exitReasonCoverage (A1b DELISTED corp 전체 1223건 기준)
 
 | exitReason | count | share |
 |---|---|---|
-| UNKNOWN | 1223 | 100.0% |
+| UNKNOWN | 975 | 79.7% |
+| MERGED | 179 | 14.6% |
+| VOLUNTARY | 22 | 1.8% |
+| DELISTING_REVIEW_FAILED | 21 | 1.7% |
+| BANKRUPTCY | 20 | 1.6% |
+| CAPITAL_IMPAIRMENT | 5 | 0.4% |
+| AUDIT_OPINION | 1 | 0.1% |
 
 ## GATE-EP-1
 
 ```
-UNKNOWN 1223 / 1223 = 100.0%   (임계 5%)
+UNKNOWN 975 / 1223 = 79.7%   (임계 5%)
 판정: FAIL → A6 Primary 결론 금지 (HOLD)
 ```
 
@@ -23,14 +29,14 @@ UNKNOWN 1223 / 1223 = 100.0%   (임계 5%)
 
 | 분위 | corp 수 | UNKNOWN | UNKNOWN율 | finalScore 범위 |
 |---|---|---|---|---|
-| Q1 | 92 | 92 | 100.0% | 9.2 ~ 35.0 |
-| Q2 | 92 | 92 | 100.0% | 35.0 ~ 40.3 |
-| Q3 | 92 | 92 | 100.0% | 40.3 ~ 44.5 |
-| Q4 | 92 | 92 | 100.0% | 44.5 ~ 53.5 |
-| Q5 | 93 | 93 | 100.0% | 53.7 ~ 91.8 |
+| Q1 | 92 | 48 | 52.2% | 9.2 ~ 35.0 |
+| Q2 | 92 | 47 | 51.1% | 35.0 ~ 40.3 |
+| Q3 | 92 | 53 | 57.6% | 40.3 ~ 44.5 |
+| Q4 | 92 | 48 | 52.2% | 44.5 ~ 53.5 |
+| Q5 | 93 | 34 | 36.6% | 53.7 ~ 91.8 |
 
 ```
-Q5/Q1 비 = 1.00   (임계 3.0)
+Q5/Q1 비 = 0.70   (임계 3.0)
 판정: PASS
 ```
 

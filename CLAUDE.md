@@ -401,8 +401,14 @@ Validated against
             `.github/workflows/exit-overlay.yml`·registry.json
             dataPolicies 등록·`lib/backfillManifest.js`에 EO 상류(A1b·
             A2b·A3d)/정책 선언·`scripts/verify-diagnostics.js`에 EO 계약
-            등록). **아직 트리거 안 함** — DART list.json 약 329콜, 사전
-            확인 필요(실행은 등급과 무관하게 항상 사전 확인). ②
+            등록). **사용자 확인 후 실제 트리거 완료**(GH Actions run
+            32716383305, 5분 4초, 전 스텝 통과) — DART list.json 331콜,
+            list 오류 0건. Tier A 179건(MERGED)·Tier B 69건(VOLUNTARY 22·
+            DELISTING_REVIEW_FAILED 21·BANKRUPTCY 20·CAPITAL_IMPAIRMENT 5·
+            AUDIT_OPINION 1), 합계 248/508(48.8%) — Tier A/B가 로컬에서
+            먼저 낸 수치(2026-08-24 후속2·3)와 소수점까지 정확히 일치
+            (교차검증). `data/backfill/exitOverlay/v1.jsonl`(248행)·
+            `manifest/EO.json` 커밋됨. ②
             `scripts/build-a6-coverage-report.js` 신설 — A1b baked
             exitReason(현재 전건 UNKNOWN) 위에 EO overlay가 있으면 그 값을
             덮어쓰는 방식으로 join(설계안 §1이 남겨둔 "overlay 우선?" 결정을
@@ -410,16 +416,25 @@ Validated against
             A1b DELISTED 전체 분모)·GATE-EP-2(A5 커버리지가 있는 corp만
             대상, 폐지 직전 최종 finalScore 5분위 UNKNOWN율 Q5/Q1)를 계산해
             `docs/verification/BF-1.1-A6-coverage-gate-{날짜}.md`에 리포트.
-            EO 승격 전 실측(2026-08-24): **GATE-EP-1 UNKNOWN 1223/1223
-            100% FAIL**(A5 baked 값이 아직 overlay 미반영이라 당연한 결과,
-            결함 아님) · GATE-EP-2는 eligibleCorps 461·Q5/Q1=1.00로 PASS지만
-            전부 UNKNOWN이라 무의미한 통과(분포가 없으면 비율도 의미가
-            없다). **EO를 실제로 트리거해 승격해야 이 리포트가 의미
-            있어진다** — 다음 세션이 이어받을 것: (a) EO 워크플로 트리거
-            사용자 확인 후 실행 → (b) A6 리포트 재실행(overlay 반영 후
-            실측 GATE 판정, Tier A+B 커버리지가 48.8%대라 여전히 5% 임계를
-            크게 초과해 HOLD 예상되지만 실측 전까지 단정하지 않는다) →
-            (c) exitPrice 수집 착수 여부는 별도 🔴 결정.
+            **EO 승격 후 실측(2026-08-24) — GATE-EP-1 UNKNOWN 975/1223
+            = 79.7% FAIL**(2026-08-24 후속2가 손으로 낸 79.7%와 정확히
+            일치 — 파이프라인 자체의 교차검증). exitReasonCoverage 분포:
+            UNKNOWN 79.7%·MERGED 14.6%·VOLUNTARY 1.8%·
+            DELISTING_REVIEW_FAILED 1.7%·BANKRUPTCY 1.6%·
+            CAPITAL_IMPAIRMENT 0.4%·AUDIT_OPINION 0.1%. **GATE-EP-2는
+            PASS**(eligibleCorps 461·Q5/Q1=0.70, 임계 3.0) — 오히려 최고
+            점수 분위(Q5)의 UNKNOWN율(36.6%)이 최저 분위(Q1, 52.2%)보다
+            낮아, "제외가 상위 분위에 편중"되는 편향 패턴은 실측상 없다.
+            **종합 판정: HOLD**(GATE-EP-1 단독 FAIL로 충분) — A6 Primary
+            결론은 여전히 금지, 이 리포트(진단)만 유효하다. GATE-EP-1을
+            통과하려면 Tier C(나머지 975건 중 상당수)가 필요한데 그
+            설계는 아직 없다 — 2026-08-24 후속3이 이미 "재정의로 우회하면
+            survivorship bias 재도입"이라고 확정해 분모 자체를 낮추는
+            길도 막혀 있다. 다음 세션이 이어받을 것: (a) Tier C 설계
+            여부(새 DART 소스나 다른 앵커가 필요, 착수 안 하는 것도
+            선택지) → (b) exitPrice(정리매매가·공개매수가) 수집 착수
+            여부는 별도 🔴 결정 — 둘 다 안 풀리면 A6 Primary는 무기한
+            HOLD로 남는다, 이것도 정직한 결론이다.
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
