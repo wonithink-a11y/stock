@@ -359,9 +359,27 @@ Validated against
             (corpsIncomplete=0·manifest 작성)·reject 경로(부분 실행 시
             게이트 발동)·fail-injection(exit 2)·verify-diagnostics.js의
             smokeTest 거부 전부 확인, 기존 JS 회귀 전체 재통과, 로컬
-            산출물은 되돌림(규칙 4). **실제 3,801종목 GH Actions 트리거는
-            아직 안 함** — 실행은 등급과 무관하게 항상 사전 확인(프로젝트
-            규칙), 다음 세션(또는 이 세션 후속)이 사용자 GO 후 트리거.
+            산출물은 되돌림(규칙 4).
+            ★ 2026-08-24 후속4 — **본백필 완료**(사용자 GO 후 트리거,
+            GH Actions run 32711717340). 1차 트리거(32710516850)는 8샤드
+            수집·finalize 전부 성공(125만행 계산 정상)했으나 마지막
+            "Verify diagnostics contract"에서 거부돼 manifest·commit이
+            스킵됐다 — 원인은 `scripts/verify-diagnostics.js`의 forbidden
+            체크가 `k in d`(키 존재)로 판정하는데 `smokeTest:false`를
+            무조건 채워 넣어 실제 본수집도 "플래그가 있다"로 오탐한
+            것(커밋 `e0195c0`으로 수정 — smokeTest는 참일 때만 키를
+            넣는다, A3d와 동일 관례). 재트리거 완전 성공 —
+            `data/backfill/scores/{2016~2026}.jsonl.gz`(총 11개 연도)·
+            `data/backfill/manifest/A5.json` 커밋 `8226a58`.
+            **실측: 레코드 1,254,759행**(사전 추정 순차 약 1시간이 실제로는
+            8샤드 병렬 벽시계 약 4~5분, finalize 1분 9초) · corpsIncomplete=0
+            (3,801/3,801 완료) · assembleFailed=0 · exitReasonUnknown
+            95,745건(Tier A/B가 A1b에 아직 승격 안 된 상태 그대로 정직하게
+            반영, 결함 아님) · 연도별 100,910~133,899행(2026은 반년치라
+            79,644행, 정상). `data/backfill/scores/`가 이 프로젝트 역사상
+            처음으로 실제 산출물을 갖게 됐다. 다음은 exit overlay 계약
+            확정(A6이 Tier A/B/C 분류를 어떻게 읽을지, §1이 이미 "별도
+            🔴 결정"으로 남겨둔 것) — 아직 미착수.
             세부: docs/verification/
             BF-1.1-exitReason-TierA-결과.md ·
             BF-1.1-exitReason-TierB-결과.md ·
