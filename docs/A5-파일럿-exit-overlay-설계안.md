@@ -165,37 +165,68 @@ bake-in·EXIT 경로가 한 번도 안 걸릴 위험이 있다(교훈57과 같�
 후속4, CLAUDE.md 완료 기록) — 이번에도 그 패턴을 그대로 쓴다.
 
 ```
-Claude    scripts/build-a5-pilot.js 작성 — exit overlay 스키마(§1)·
+Claude    scripts/build-a5-pilot.js 먼저 작성·실행 — exit overlay 스키마(§1)·
           fwd/fwdStatus 로직(§2)·샤드/재개(§4)·종목 선정(§3) 전부 포함
-OpenCode  research/strategy-lab/a5-pilot-independent/ 안에 독립 재구현
-          — build-a5-pilot-independent.js
-          — comparison.json (Claude 산출물과 레코드·fwdStatus·exitReason·
-            재개 동작 비교)
-          — findings.md
+OpenCode  Claude 완료 후 착수. research/strategy-lab/a5-pilot-independent/
+          안에서 아래 두 갈래로 작업(범위를 섞지 않는다)
 ```
 
-**독립 구현 범위는 이번에 새로 설계한 부분만이다** — `resolve()`·
-`score()`·`priceSource.js`는 이미 검증 끝난 프로덕션 모듈이므로 Claude와
-OpenCode 둘 다 그대로 읽기 전용으로 불러 쓴다(재구현하면 낭비이고 새로
-잡을 버그도 없다). 독립적으로 다시 짜는 대상은:
+**순서(Claude 먼저)의 진짜 이유**: "동시에 하면 독립성이 떨어진다"가
+아니다 — 설계(§1~§4)는 이미 고정돼 있어 순서와 무관하게 독립성은
+유지된다. 진짜 이유는 **Claude가 먼저 구현하면서 이 설계 문서의 빈틈을
+실제로 찾아 고칠 수 있다**는 것이다 — 그 뒤에 OpenCode가 시작해야 두
+구현의 차이가 "모호한 스펙을 각자 다르게 해석한 차이"가 아니라 "진짜
+로직 버그"만 남는다(2026-08-24 사용자 정정).
+
+### 5.1 독립 재구현(코드를 다시 짠다) — fwd/fwdStatus 하나만
+
+새로 설계한 부분 중 **우선순위 로직이 있고, 조용히 틀리면 210만 레코드
+전체를 오염시키는**(검증강도 표의 "최고 수준 검증" 칸) 유일한 조각이다.
+`resolve()`·`score()`·`priceSource.js`는 Claude·OpenCode 둘 다 이미
+검증 끝난 프로덕션 모듈을 그대로 읽기 전용으로 불러 쓴다(재구현하면
+낭비이고 새로 잡을 버그도 없다).
 
 ```
-- fwd/fwdStatus 계산(§2, 거래일 인덱스 오프셋 · FUTURE>EXIT>MISSING>HALTED>OK 우선순위)
-- 샤드·재개 상태 관리(§4)
-- exitReason bake-in + overlay 조인(§1)
+research/strategy-lab/a5-pilot-independent/
+  build-fwdstatus-independent.js   FUTURE>EXIT>MISSING>HALTED>OK 우선순위·
+                                    거래일 인덱스 오프셋을 독립적으로 재구현
+  comparison.json                  Claude 산출물의 fwd/fwdStatus 필드와 비교
+  findings.md
 ```
+
+### 5.2 재실행 검증(코드를 다시 안 짠다) — shard/resume · exitReason bake-in
+
+**이 둘은 독립 재구현 대상에서 뺀다(2026-08-24 사용자 지적으로 축소)** —
+샤드/재개는 A3·A3b·A3c·A3d 네 단계에서 이미 검증·실전 투입된 패턴을
+좌표만(corp → corp×asOf) 바꿔 재사용하는 것뿐이라 새로 짤 게 거의 없고,
+exitReason bake-in도 그 시점 A1b 값을 그대로 복사하는 단순 로직이다.
+이미 검증된 걸 다시 검증하는 비용을 안 들인다. 대신:
+
+```
+- Claude의 build-a5-pilot.js를 OpenCode가 그대로(수정 없이) 재실행
+- 샤드 2 강제중단(SIGKILL) → 재개 → 상태 파일이 완료분을 건너뛰는지 관찰
+- 동일 입력 재실행 결과가 Claude의 첫 실행과 바이트 단위로 같은지 diff
+- exitReason 필드가 A1b 값과 정확히 일치하는지 확인
+```
+
+### 5.3 이번 범위 밖 — overlay join
+
+**overlay join(A6이 최신 Tier A/B/C 분류를 읽는 방식)은 A5 pilot 자체가
+안 다룬다**(§1·§6, "A6 몫, 별도 🔴 결정"). OpenCode 지시서에 이 경계를
+명시한다 — "exitReason 처리를 비교하라"는 지시만 주면 bake-in과 overlay
+join을 구분 못 하고 후자까지 구현해버릴 위험이 있다(스코프 슬금슬금 확대).
 
 비교 후 차이가 나오면 **자동으로 어느 쪽이 맞다고 고르지 않는다**(AGENTS.md
 §4 그대로) — Claude와 사용자가 원인을 판정한다. 두 구현이 일치해도 그
 자체가 승인 근거는 아니다(교훈61, 오퍼스·OpenCode 위임 기준과 같은 원칙) —
 둘 다 같은 설계 문서를 잘못 읽었을 가능성은 일치로는 안 잡힌다. 다만
-설계→코드 번역 과정의 논리 오류(A3d PIT 브래킷 버그 같은 유형)는 이
+설계→코드 번역 과정의 논리 오류(A3d PIT 브래킷 버그 같은 유형)는 §5.1
 구조로 잡을 확률이 높아진다.
 
 `AGENTS.md` 제약(무변경): OpenCode는 `research/strategy-lab/` 밖에 못
 쓴다, commit·push 안 함. 지시서는 §2 "복잡한 걸 한 번에 주면 멈춘다"
-경고를 따라 좁게 나눈다 — fwd/fwdStatus 로직 하나, 샤드/재개 하나,
-overlay 조인 하나로 쪼개서 순서대로 지시한다.
+경고를 따라 §5.1(독립 재구현 하나)·§5.2(재실행 검증)를 별도 지시로
+쪼갠다 — 한 지시서에 다 몰아넣지 않는다.
 
 규칙 4: 로컬 실행(Claude·OpenCode 둘 다) 결과는 `data/backfill/scores/`가
 아니라 scratch 경로/`research/strategy-lab/` 안에만 쓴다 — 파일럿은
