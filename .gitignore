@@ -21,6 +21,12 @@ data/backfill/scores/_shards/
 # 산출물이 아니라 재시작 안전성을 위한 캐시라 커밋 대상이 아니다.
 research/strategy-lab/data/paper/
 
+# 차트 UI(오픈코드가 개발)가 읽는 데이터 피드 · 쓰는 주문요청함 - 둘 다
+# build_ui_feed.py/watcher가 매번 새로 만드는 런타임 상태다. ui/ 아래
+# UI 코드 자체(오픈코드 산출물)는 커밋 대상이지만 이 두 폴더는 아니다.
+ui/data/
+ui/orders/
+
 # 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.
 # 범위를 좁게 둔다. '*secret*' 같은 넓은 패턴은 나중에 docs/secret-정책.md 같은
 # 정상 문서를 조용히 숨긴다 - 무시는 실패하지 않으므로 눈치채기 어렵다.

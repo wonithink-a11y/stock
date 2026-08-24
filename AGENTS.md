@@ -42,11 +42,40 @@
 
 이 세션은 저장소 대부분에 **읽기 전용**이다. `research/strategy-lab/` 안에서는
 연구 산출물(새 스크립트 사본·`findings/` 결과 파일)을 만들어도 된다 — 그
-디렉터리 자체가 production과 격리된 연구 샌드박스다. 그 밖의 `config/`·`lib/`·
-`scripts/`·`data/`는 읽기만 하고 고치지 않는다. **git commit·git push는 하지
-않는다.**
+디렉터리 자체가 production과 격리된 연구 샌드박스다. `ui/`도 쓰기 가능하다
+(§3.1 참고, 2026-08-25 신설). 그 밖의 `config/`·`lib/`·`scripts/`·`data/`는
+읽기만 하고 고치지 않는다. **git commit·git push는 항상 하지 않는다 -
+`ui/`도 예외 없다.** 결과는 Claude가 검토 후 직접 커밋한다.
 
 지시서에 명시적으로 대상 파일이 지정돼 있으면 그 목록 밖은 건드리지 않는다.
+
+### 3.1 `ui/` - 차트 트레이더 UI (2026-08-25 신설, Paper Trading Engine 전용)
+
+Paper Trading Engine(모의투자 파일럿, `research/strategy-lab/engine/live/`)의
+가시성 UI + 단기매매 차트 화면. **KIS 시크릿·주문 실행 코드는 이 위임 범위
+밖이다** - `ui/` 안 어떤 코드도 KIS API를 직접 부르지 않는다(그 경계가 이
+섹션 전체의 이유다).
+
+```
+ui/               오픈코드 쓰기 가능 - UI 코드(HTML/CSS/JS) 전부
+ui/data/          오픈코드 읽기만. Claude가 build_ui_feed.py로 채운다
+                  (KIS 잔고 읽기전용 조회 + positionStore 병합). 스키마는
+                  research/strategy-lab/build_ui_feed.py 상단 주석 참고.
+ui/orders/        오픈코드가 지금 쓰지 않는다 - "배포된 UI가 나중에 이
+                  경로에 쓴다"는 계약만 코드에 반영한다. 사용자가 화면에서
+                  매수/매도를 누르면 ui/orders/pending/에 요청 파일 하나를
+                  쓰는 것으로 끝난다 - 실제 KIS 호출은 Claude가 별도로
+                  짤 감시 스크립트(아직 미구현) 몫이다. 스키마는 아래.
+그 외 전체         읽기 전용, §3의 기존 규칙 그대로
+```
+
+**주문요청 스키마** (`ui/orders/pending/<timestamp>_<symbol>_<side>.json`):
+```json
+{"symbol": "005930", "side": "BUY", "quantity": 10,
+ "reason": "chart_trader_manual", "requestedAt": "2026-08-25T10:00:00+09:00"}
+```
+이 파일을 쓰는 것 자체가 사람의 확인 행위다(화면에서 직접 누른 버튼) -
+그 뒤 실제 체결은 별도 감시 스크립트가 처리한다.
 
 ## 4. 충돌 처리
 
