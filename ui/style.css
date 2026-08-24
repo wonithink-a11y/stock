@@ -114,3 +114,28 @@ th:first-child, td:first-child { text-align: left; }
 
 .mono { font-family: var(--mono); }
 .loading, .empty { color: var(--text-dim); padding: 24px; text-align: center; }
+.loading.error { color: var(--up); }
+
+/* 탭3 리서치랩 - ui/tabs/research.js가 쓰는 클래스 (셸 소유, Claude가 채움) */
+.research-layout { display: grid; grid-template-columns: 320px 1fr; gap: 12px; align-items: start; }
+.research-sidebar { padding: 12px; max-height: calc(100vh - 90px); overflow-y: auto; }
+.research-search input {
+  width: 100%; background: #0d1119; border: 1px solid var(--panel-border);
+  color: var(--text); padding: 8px 10px; border-radius: 4px; margin-bottom: 10px;
+}
+.research-search input:focus { outline: none; border-color: var(--accent); }
+.finding-item {
+  padding: 8px 6px; border-bottom: 1px solid var(--panel-border);
+  cursor: pointer; border-radius: 4px;
+}
+.finding-item:hover { background: #161c28; }
+.finding-item.selected { background: #16233a; border-left: 3px solid var(--accent); padding-left: 3px; }
+.finding-title { font-size: 13px; line-height: 1.4; margin-bottom: 4px; }
+.finding-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--text-dim); }
+.finding-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.research-content { max-height: calc(100vh - 90px); overflow-y: auto; }
+.finding-content { font-family: -apple-system, "Malgun Gothic", "Segoe UI", sans-serif; line-height: 1.7; }
+.finding-content h1, .finding-content h2, .finding-content h3 { color: var(--accent); margin: 16px 0 8px; }
+.finding-content h1 { font-size: 18px; } .finding-content h2 { font-size: 16px; } .finding-content h3 { font-size: 14px; }
+.finding-content code { background: #1a2030; padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 12px; }
+@media (max-width: 900px) { .research-layout { grid-template-columns: 1fr; } }
