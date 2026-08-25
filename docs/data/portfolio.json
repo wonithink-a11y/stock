@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-24T08:31:35.856Z",
+  "updatedAt": "2026-08-25T08:29:04.785Z",
   "marketRegime": "caution",
   "holdings": [
     {
@@ -12,7 +12,7 @@
       "investedValue": 700000,
       "unrealizedPnL": 1870000,
       "unrealizedPnLPct": 267.14,
-      "stockScore": 61,
+      "stockScore": 56.7,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "caution",
@@ -94,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 55.7,
+              "value": 55.6,
               "score": 70
             },
             "macd": {
@@ -110,12 +110,12 @@
           }
         },
         "supplyDemand": {
-          "score": 51.3,
+          "score": 30,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
-              "trend": "netBuy",
-              "score": 70
+              "trend": "netSell",
+              "score": 30
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
