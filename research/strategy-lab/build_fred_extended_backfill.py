@@ -38,9 +38,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from macro_common import OUT_DIR, asof_join_kr, fred, load_kr_calendar, month_end
+from macro_common import OUT_DIR, asof_join_kr, fred, http_get, load_kr_calendar, month_end
 
 HERE = Path(__file__).resolve().parent
+KOSDAQ_COUNT = 4000  # build_macro_layer_backfill.py의 KOSPI_COUNT와 동일 관례
+                      # (네이버 응답이 count와 무관하게 최근 3000행으로 캡됨, 실측 확인)
 
 # (FRED 시리즈ID, 컬럼명, 주기, lag일, 설명/공표관례 근거)
 #   period: "daily"(당일/익일 마감 확정치, lag=0) · "weekly"(관측일+lag) ·
@@ -115,6 +117,26 @@ def tier_of(period):
     return 1 if period in ("daily", "weekly") else 2
 
 
+def naver_kosdaq_daily(count=KOSDAQ_COUNT):
+    """네이버 차트 API -> [(YYYY-MM-DD, close), ...]. build_macro_layer_backfill.py의
+    naver_kospi_daily()와 완전히 같은 파싱, symbol만 KOSDAQ - KOSDAQ은 FRED에
+    없어(직접 확인함) 이 시리즈만 유일하게 FRED가 아니다."""
+    url = ("https://fchart.stock.naver.com/sise.nhn?symbol=KOSDAQ&timeframe=day"
+           f"&count={count}&requestType=0")
+    xml = http_get(url)
+    import re
+    out = []
+    for m in re.finditer(r'<item data="([^"]+)"\s*/>', xml):
+        parts = m.group(1).split("|")
+        d, close = parts[0], parts[4]
+        try:
+            iso = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
+            out.append((iso, float(close)))
+        except (ValueError, IndexError):
+            continue
+    return out
+
+
 def fetch_all(tier="all"):
     raw = {}
     for series_id, col, period, lag_days, note in SERIES:
@@ -125,6 +147,13 @@ def fetch_all(tier="all"):
         rows = to_usable_rows(rows, period, lag_days)
         raw[col] = rows
         print(f"  {len(rows)}행" + (f" ({rows[0][0]}~{rows[-1][0]})" if rows else " (빈 응답)"))
+
+    if tier in ("all", 1):
+        print("네이버 KOSDAQ(count=%d) ..." % KOSDAQ_COUNT)
+        rows = naver_kosdaq_daily()
+        raw["krKosdaq"] = to_usable_rows(rows, "daily", 0)  # 당일 종가 확정치, lag=0
+        print(f"  {len(rows)}행" + (f" ({rows[0][0]}~{rows[-1][0]})" if rows else " (빈 응답)"))
+
     return raw
 
 
@@ -226,8 +255,13 @@ def main():
         "skippedDuplicates": SKIPPED_DUPLICATES,
         "rowCount": int(len(joined)),
         "dateRange": [joined["date"].iloc[0], joined["date"].iloc[-1]],
-        "lagAssumptions": {col: {"seriesId": sid, "period": period, "lagDays": lag, "note": note}
-                            for sid, col, period, lag, note in SERIES},
+        "lagAssumptions": {
+            **{col: {"seriesId": sid, "period": period, "lagDays": lag, "note": note}
+               for sid, col, period, lag, note in SERIES},
+            **({"krKosdaq": {"seriesId": "NAVER:KOSDAQ", "period": "daily", "lagDays": 0,
+                              "note": "코스닥 종가, FRED에 없어 네이버 차트 API 사용(당일 확정)"}}
+               if "krKosdaq" in cols_all else {}),
+        },
         "lagAssumptionCaveat": "실제 BLS/BEA/Fed 공표일정 대조는 안 함 - 보수적(실제보다 "
                                "늦게 알았다고 가정) 추정치다. build_macro_layer_backfill.py의 "
                                "krCpi lag과 동일한 한계.",

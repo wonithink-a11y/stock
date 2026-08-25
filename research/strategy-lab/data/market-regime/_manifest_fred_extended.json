@@ -1,0 +1,179 @@
+{
+  "generatedAtUTC": "2026-08-25T14:26:56+00:00",
+  "purpose": "FRED 확장 매크로 시리즈(금·은 제외 사용자 우선순위 목록) 백필",
+  "tierFetchedThisRun": 1,
+  "columns": [
+    "usSp500",
+    "usNasdaq100",
+    "usTreasury2y",
+    "usYieldSpread10y2y",
+    "usYieldSpread10y3m",
+    "usInitialClaims",
+    "usFinancialConditionsIndex",
+    "usHighYieldSpread",
+    "usIgCreditSpread",
+    "usDollarIndexBroad",
+    "krKosdaq"
+  ],
+  "skippedDuplicates": {
+    "DFF": "usFedFundsRate로 이미 존재(build_macro_layer_backfill.py)",
+    "DGS10": "usTreasury10y로 이미 존재",
+    "NASDAQCOM": "usNasdaq으로 이미 존재",
+    "DEXKOUS": "usdKrwLevel로 이미 존재(build_usdkrw_backfill.py)"
+  },
+  "rowCount": 3097,
+  "dateRange": [
+    "2014-01-02",
+    "2026-08-14"
+  ],
+  "lagAssumptions": {
+    "usSp500": {
+      "seriesId": "SP500",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "S&P500 종가, 당일 확정"
+    },
+    "usNasdaq100": {
+      "seriesId": "NASDAQ100",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "나스닥100 종가, 당일 확정"
+    },
+    "usTreasury2y": {
+      "seriesId": "DGS2",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "2년물 국채금리, 당일 확정"
+    },
+    "usYieldSpread10y2y": {
+      "seriesId": "T10Y2Y",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "FRED 공식 스프레드, 직접 계산 안 함(PIT 일관성)"
+    },
+    "usYieldSpread10y3m": {
+      "seriesId": "T10Y3M",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "FRED 공식 스프레드"
+    },
+    "usFedFundsRateMonthly": {
+      "seriesId": "FEDFUNDS",
+      "period": "monthly",
+      "lagDays": 3,
+      "note": "그 달 일별 DFF 평균, 다음 달 첫 영업일 근처 공표 - 보수적으로 +3일"
+    },
+    "usCpi": {
+      "seriesId": "CPIAUCSL",
+      "period": "monthly",
+      "lagDays": 18,
+      "note": "BLS CPI, 통상 다음 달 10~15일경 공표 - 보수적으로 +18일"
+    },
+    "usCpiCore": {
+      "seriesId": "CPILFESL",
+      "period": "monthly",
+      "lagDays": 18,
+      "note": "CPIAUCSL과 동시 공표"
+    },
+    "usPce": {
+      "seriesId": "PCEPI",
+      "period": "monthly",
+      "lagDays": 32,
+      "note": "BEA PCE, 통상 다음 달 말경 공표 - 보수적으로 +32일"
+    },
+    "usPceCore": {
+      "seriesId": "PCEPILFE",
+      "period": "monthly",
+      "lagDays": 32,
+      "note": "PCEPI와 동시 공표"
+    },
+    "usUnemploymentRate": {
+      "seriesId": "UNRATE",
+      "period": "monthly",
+      "lagDays": 38,
+      "note": "BLS 고용보고서, 다음 달 첫째 금요일 - 보수적으로 +38일"
+    },
+    "usNonfarmPayrolls": {
+      "seriesId": "PAYEMS",
+      "period": "monthly",
+      "lagDays": 38,
+      "note": "UNRATE와 동일 보고서·동시 공표"
+    },
+    "usInitialClaims": {
+      "seriesId": "ICSA",
+      "period": "weekly",
+      "lagDays": 6,
+      "note": "관측주 다음 목요일 공표 - 보수적으로 관측일+6일"
+    },
+    "usRealGdp": {
+      "seriesId": "GDPC1",
+      "period": "quarterly",
+      "lagDays": 32,
+      "note": "BEA 속보치, 분기말+1개월경 공표 - 보수적으로 +32일"
+    },
+    "usIndustrialProduction": {
+      "seriesId": "INDPRO",
+      "period": "monthly",
+      "lagDays": 18,
+      "note": "Fed, 다음 달 중순경 공표"
+    },
+    "usRetailSales": {
+      "seriesId": "RSAFS",
+      "period": "monthly",
+      "lagDays": 18,
+      "note": "Census, 다음 달 중순경 공표"
+    },
+    "usConsumerSentiment": {
+      "seriesId": "UMCSENT",
+      "period": "monthly",
+      "lagDays": 3,
+      "note": "미시간대 확정치, 관측월 마지막 영업일 공표(당월) - 관측일이 이미 월초로 찍혀 보수적으로 +3일만"
+    },
+    "usFinancialConditionsIndex": {
+      "seriesId": "NFCI",
+      "period": "weekly",
+      "lagDays": 8,
+      "note": "Chicago Fed, 관측주 다음 금요일 공표 - 보수적으로 +8일"
+    },
+    "usHighYieldSpread": {
+      "seriesId": "BAMLH0A0HYM2",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "ICE BofA 지수, 당일 확정"
+    },
+    "usIgCreditSpread": {
+      "seriesId": "BAMLC0A0CM",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "ICE BofA 지수, 당일 확정"
+    },
+    "usDollarIndexBroad": {
+      "seriesId": "DTWEXBGS",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "Fed 광의 달러지수, 당일 확정"
+    },
+    "krKosdaq": {
+      "seriesId": "NAVER:KOSDAQ",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "코스닥 종가, FRED에 없어 네이버 차트 API 사용(당일 확정)"
+    }
+  },
+  "lagAssumptionCaveat": "실제 BLS/BEA/Fed 공표일정 대조는 안 함 - 보수적(실제보다 늦게 알았다고 가정) 추정치다. build_macro_layer_backfill.py의 krCpi lag과 동일한 한계.",
+  "missingRateByColumn": {
+    "usSp500": 0.21085,
+    "usNasdaq100": 0.0,
+    "usTreasury2y": 0.0,
+    "usYieldSpread10y2y": 0.0,
+    "usYieldSpread10y3m": 0.0,
+    "usInitialClaims": 0.0,
+    "usFinancialConditionsIndex": 0.0,
+    "usHighYieldSpread": 0.76719,
+    "usIgCreditSpread": 0.76752,
+    "usDollarIndexBroad": 0.0,
+    "krKosdaq": 0.03358
+  },
+  "generatedByCommit": "d82a07975651f8eec7bbf535eb63f77b0c25d7ef",
+  "note": "market_regime_features.parquet에 아직 병합 안 함(독립 산출물). UI로 뭘 쓸지 정한 뒤 별도 병합 작업."
+}

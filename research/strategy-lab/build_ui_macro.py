@@ -45,6 +45,7 @@ SERIES = {
 }
 # 1차·2차 우선순위 추가분(fred_extended_daily_kr.parquet에서 읽음)
 SERIES_EXT = {
+    "krKosdaq": "코스닥",
     "usSp500": "S&P 500",
     "usNasdaq100": "나스닥 100",
     "usTreasury2y": "미국 2년물 국채금리",
