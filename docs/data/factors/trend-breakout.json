@@ -1,0 +1,47 @@
+{
+ "factor": "TREND-BREAKOUT-v1 (Donchian 추세돌파, 탐색 전략 — 미채택)",
+ "universe": "A1A 현재 상장 유니버스 2,578종목(KOSPI+KOSDAQ 보통주, 코넥스·스팩 제외) · A1A_ONLY",
+ "period": {
+  "backtest": "2014-05~2026-08",
+  "ic": null
+ },
+ "strategy_status": "미채택 탐색 전략(CLAUDE.md 판독: 필터 후에도 경제적으로 매력적이지 않음)",
+ "cagr": -0.1225,
+ "mdd": -0.8334,
+ "sharpe": null,
+ "sharpe_note": "smoke-postfix 정본에는 Sharpe 미기재 — 연간 테이블은 benchmark_comparison_final.json 참조",
+ "trades": {
+  "count": 2154,
+  "note": "post-fix 2,154건 기준(CLAUDE.md)"
+ },
+ "deciles": null,
+ "ic": {
+  "requested_horizons_1M_3M_6M_12M": null,
+  "note": "시그널 전략 — IC 미산출"
+ },
+ "riskoff_runner_variant": {
+  "baseline": {
+   "cagr": -0.1485,
+   "mdd": -0.8673,
+   "pf": 0.759,
+   "win_rate": 0.2398
+  },
+  "filtered": {
+   "cagr": -0.1253,
+   "mdd": -0.8163,
+   "pf": 0.789,
+   "win_rate": 0.2488
+  },
+  "source": "findings/trend-breakout-riskoff-runner-validation-2026-08.md"
+ },
+ "annual_benchmark_table": {
+  "path": "reports/2026-08-15-trend-breakout-v1-benchmark-analysis/benchmark_comparison_final.json",
+  "contains": "연도별 strategy/universe_ew/kospi/kospi200/kosdaq 수익률·MDD·Sharpe"
+ },
+ "atr_stop_evidence": "ATR%-MAE 상관 r=0.82(슬림 2,154건 직접 재현) — sl2-atr-mae-correlation-reproduction.md",
+ "sources": [
+  "CLAUDE.md 상태블록(smoke-postfix 정본)",
+  "findings/trend-breakout-riskoff-runner-validation-2026-08.md",
+  "reports/2026-08-15-trend-breakout-v1-benchmark-analysis/"
+ ]
+}

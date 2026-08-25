@@ -1,0 +1,71 @@
+{
+ "factor": "PBR (저PBR 밸류)",
+ "universe": "A1A 현재 상장 유니버스 2,578종목(KOSPI+KOSDAQ 보통주, 코넥스·스팩 제외)",
+ "period": {
+  "backtest": "2016-01~2026-08",
+  "ic": null
+ },
+ "strategy_status": "연구 가치 있음 / production alpha 미확정 (CLAUDE.md 2026-08-22 최종 분류)",
+ "cagr": 0.0472,
+ "mdd": -0.217,
+ "sharpe": 0.4556,
+ "benchmark": {
+  "name": "EW 동일유니버스(월별 MTM)",
+  "cagr": 0.0304,
+  "mdd": -0.226,
+  "sharpe": 0.29,
+  "excess_cagr_pctp": 1.68,
+  "source": "findings/pbr-vs-ew-monthly-mtm-exit-dedup-fix-2026-08.md (무변경 재확인)"
+ },
+ "deciles": {
+  "note": "전체 decile 테이블은 미보관. 확인된 인용치만 기록.",
+  "decile_ic_t_cited": 6.3,
+  "decile_ic_source": "findings/pbr-exposure-overlay-vs-ranking-cut-2026-08.md L44 인용",
+  "a5_precheck_v2_absolute": {
+   "lowPBR_no_filter_cagr": 0.082,
+   "lowPBR_high_liquidity_cagr": 0.0706,
+   "lowPBR_low_liquidity_control_cagr": 0.0748,
+   "source": "reports/2026-08-21-a5-valuation-precheck/pbr-factor-precheck-v2-absolute.json"
+  },
+  "v1_tercile_T3_cagr_for_comparison": -0.0148
+ },
+ "ic": {
+  "requested_horizons_1M_3M_6M_12M": null,
+  "horizon_note": "프로젝트 표준 IC 호른즈는 d20/d60/d120이다. 요청된 1M/3M/6M/12M 체계로 발행된 문서는 발견되지 않아 해당 필드는 null(UNKNOWN).",
+  "loo_pbr_ic_two_methods": {
+   "note": "PBR 슬롯을 뺀 모델의 IC를 서로 다른 두 방법으로 잰 값 - 원본 파일에서 rho와 t를 각각 다른 계산에서 가져와 하나의 쌍으로 잘못 합쳐놨던 걸(검토 중 발견) Claude가 바로잡음. 방향·크기대는 서로 일치하나 방법이 달라 완전히 같은 수는 아니다.",
+   "daily_rank_ic_mean_of_daily": {
+    "d20": { "mean": 0.0234, "t": 2.4865, "n_days": 127 },
+    "d60": { "mean": 0.0332, "t": 3.3825, "n_days": 125 },
+    "d120": { "mean": 0.04, "t": 3.6341, "n_days": 122 },
+    "source": "findings/slot-marginal-contribution/analysis.json rankIc.loo_pbr"
+   },
+   "pooled_regression_rho": {
+    "d20": 0.0183,
+    "d60": 0.0278,
+    "d120": 0.038,
+    "source": "findings/slot-marginal-contribution/analysis.json marginal.pbr.pooled.rhoLoo"
+   }
+  },
+  "marginal_delta_ic_when_pbr_added": {
+   "d20": 0.0194,
+   "d60": 0.0324,
+   "d120": 0.0385,
+   "source": "동상(marginal.pbr.pooled)"
+  },
+  "within_sector_oos_2023_2026_t": 1.94,
+  "within_sector_source": "CLAUDE.md 상태블록(2026-08-22 섹터중립 재검증)"
+ },
+ "year_decomposition_note": "로그초과수익의 98.6%가 2022년 단일 연도(금리인상기 가치주 국면)",
+ "variants_rejected_or_marginal": [
+  "이진 금리 필터: CAGR·Sharpe 악화 (findings/pbr-ratefilter-backtest-2026-08.md)",
+  "노출 오버레이: baseline 대비 CAGR·Sharpe 열위 (findings/pbr-exposure-overlay-vs-ranking-cut-2026-08.md, 0.3976<0.4556)",
+  "10Y hiking 연속 비중축소: MDD −21.70→−17.49%·Calmar +16.5% 개선이나 Sharpe +0.0047 미미 (findings/pbr-sizing-macro-continuous-2026-08.md)"
+ ],
+ "sources": [
+  "findings/pbr-vs-ew-monthly-mtm-exit-dedup-fix-2026-08.md",
+  "CLAUDE.md 상태블록(2026-08-22)",
+  "findings/slot-marginal-contribution/analysis.json",
+  "reports/2026-08-21-a5-valuation-precheck/"
+ ]
+}

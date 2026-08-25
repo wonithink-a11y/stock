@@ -1,0 +1,64 @@
+{
+ "factor": "LOWMOM60 (저모멘텀 60일 + 절대유동성 필터, 기관수급 결합 검토대)",
+ "universe": "A1A 현재 상장 유니버스 2,578종목(KOSPI+KOSDAQ 보통주, 코넥스·스팩 제외) · 월간 리밸런스 top30 · turnover≥1억",
+ "period": {
+  "backtest": "2016-01~2026-08",
+  "ic": null
+ },
+ "strategy_status": "연구 가치 있는 후보 / production alpha 미확정 (findings/lowmom60-candidate-c-engine-verification-2026-08.md)",
+ "cagr": 0.0509,
+ "mdd": -0.2777,
+ "sharpe": 0.77,
+ "trades": {
+  "count": 2437,
+  "win_rate": 0.469
+ },
+ "engine_run_source": "findings/lowmom60-candidate-c-engine-verification-2026-08.md (strategies/lowmom60_v1, A1A_ONLY 2016-01~2026-08)",
+ "measurement_convention_variants": {
+  "mtm_monthly_remeasured": {
+   "cagr": 0.1473,
+   "mdd": -0.4265,
+   "sharpe": 0.5303,
+   "total_return": 3.1854,
+   "source": "reports/2026-08-24-lowmom60-exposure-overlay-vs-baseline-mtm/lowmom60-exposure-overlay-vs-baseline-mtm.json (baseline 블록)",
+   "note": "회계 관례 차이로 엔진 검증치(+5.09%/−27.77%)와 큰 격차 — 관례별 수치가 다름을 명시"
+  },
+  "macro_regime_check_baseline": {
+   "cagr": 0.139,
+   "maxdd": -0.4265,
+   "months_traded": 123,
+   "source": "reports/2026-08-24-lowmom60-macro-regime/lowmom60-macro-regime-check.json"
+  }
+ },
+ "precheck_offline_approximation": {
+  "top30_cagr": 0.139,
+  "decile_ic_t": 5.24,
+  "decile_ic_horizon": null,
+  "source": "lowmom60_institutional_eligible_precheck_v2_absolute.py 산출 (candidate-c 문서 인용)"
+ },
+ "deciles": {
+  "note": "자체 decile 테이블은 precheck 내부에 존재하나 문서화 표는 미보관.",
+  "underlying_evidence_momentum12m_deciles": {
+   "spearman_rank_vs_fwd_ret": {
+    "20D": -0.31,
+    "60D": -0.56,
+    "120D": -0.88
+   },
+   "conclusion": "저모멘텀 종목군이 일관 우위 — Momentum12M>0 필터는 기각",
+   "source": "reports/2026-08-17-post-5dc-factor-screening/README.md §5 (momentum_decile_analysis.py, v1/v2_skip1m JSON)"
+  }
+ },
+ "ic": {
+  "requested_horizons_1M_3M_6M_12M": null,
+  "horizon_note": "프로젝트 표준 IC 호른즈는 d20/d60/d120이다. 요청된 1M/3M/6M/12M 체계로 발행된 문서는 발견되지 않아 해당 필드는 null(UNKNOWN)."
+ },
+ "overlay_timing_value": "CAGR +1.90%p이지만 MDD 악화(-20.61→-27.34) — 순채택 근거 없음 (findings/lowmom60-exposure-overlay-timing-value-2026-08.md)",
+ "history_note": "ChatGPT 제안 A/B/C 중 A/B는 정의 부재로 미검증, C만 엔진 검증 완료",
+ "sources": [
+  "findings/lowmom60-candidate-c-engine-verification-2026-08.md",
+  "reports/2026-08-24-lowmom60-v1-smoke/run.json",
+  "reports/2026-08-24-lowmom60-exposure-overlay-vs-baseline-mtm/",
+  "reports/2026-08-24-lowmom60-macro-regime/",
+  "findings/lowmom60-exposure-overlay-timing-value-2026-08.md"
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "factor": "5DC-v1A-P (Donchian 돌파 단기 트레이딩, post-fix 정본)",
+ "universe": "A1A 현재 상장 유니버스 2,578종목(KOSPI+KOSDAQ 보통주, 코넥스·스팩 제외) · A1A_ONLY",
+ "period": {
+  "backtest": "2014-05~2026-08",
+  "ic": null
+ },
+ "strategy_status": "SMOKE/연구 정본 — 미채택(경제적 매력 없음, riskoff 필터로도 음의 CAGR)",
+ "cagr": -0.09805313945578853,
+ "mdd": -0.7500016684083142,
+ "sharpe": -1.5959768292618484,
+ "trades": {
+  "closed_positions": 1592,
+  "win_rate": 0.26256281407035176,
+  "signals": 28791,
+  "executable": 28339,
+  "portfolio_eligible": 25735
+ },
+ "deciles": null,
+ "ic": {
+  "requested_horizons_1M_3M_6M_12M": null,
+  "note": "크로스섹셔널 팩터가 아닌 시그널 전략 — IC 미산출"
+ },
+ "riskoff_filter_variant": {
+  "note": "VIX 기반 risk-off 필터 적용안(채택 여부는 별도 승인 대상)",
+  "runner_validation": {
+   "cagr_base": -0.0818,
+   "cagr_filtered": -0.0509,
+   "mdd_base": -0.7429,
+   "mdd_filtered": -0.6155,
+   "pf_base": 0.846,
+   "pf_filtered": 0.889,
+   "source": "findings/5dc-riskoff-runner-validation-2026-08.md"
+  },
+  "filter_validation": {
+   "cagr_base_initial_capital": -0.09852,
+   "cagr_filtered": -0.05342,
+   "mdd_base": -0.75,
+   "mdd_filtered": -0.5484,
+   "pf_base": 0.807,
+   "pf_filtered": 0.833,
+   "source": "findings/5dc-riskoff-filter-validation-2026-08.md"
+  }
+ },
+ "known_defect_stat": "post-fix 같은날 청산 STOP 120건 중 16건(13.3%)이 무조정 가격의 기업행위 갭으로 발생 (CLAUDE.md, DeepSeek 감사 2026-08-20)",
+ "trade_level_table": "reports/2026-08-16-parallel-validation/deepseek/5dc_v1a_p_samebar_rerun.json allTrades(거래별 보존 유일 전략)",
+ "sources": [
+  "reports/2026-08-16-parallel-validation/deepseek/5dc_v1a_p_samebar_rerun.json",
+  "findings/5dc-riskoff-runner-validation-2026-08.md",
+  "findings/5dc-riskoff-filter-validation-2026-08.md",
+  "CLAUDE.md 상태블록"
+ ]
+}
