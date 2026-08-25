@@ -128,7 +128,7 @@
   /* ---- 레짐 스냅샷 ------------------------------------------------------ */
   function signalBadge(signal) {
     var map = {
-      green: { col: "#35c07a", text: "안정" },
+      green: { col: "var(--good)", text: "안정" },
       yellow: { col: "var(--warn)", text: "주의" },
       red: { col: "var(--up)", text: "위험" },
       neutral: { col: "var(--text-dim)", text: "중립" }

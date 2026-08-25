@@ -6,9 +6,34 @@
    탭 순서는 index.html의 <script> 로드 순서를 그대로 따른다
    (TAB_ORDER로 고정 - window.TABS는 순서를 보장 안 하는 plain object).
 */
-const TAB_ORDER = ["chart", "scoring", "research", "macro"];
+const TAB_ORDER = ["chart", "scoring", "research", "macro", "datahealth"];
+
+/* 다크/라이트 테마 - localStorage에 기억, 기본은 다크(기존 동작 무변경).
+   .themechange 이벤트를 document에 쏴서 canvas처럼 CSS 변수를 못 읽는
+   탭(chart.js)이 직접 다시 그릴 수 있게 한다. */
+const THEME_KEY = "ui_theme";
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = theme === "light" ? "🌞" : "🌙";
+}
+
+function initTheme() {
+  applyTheme(localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark");
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+      document.dispatchEvent(new CustomEvent("themechange", { detail: { theme: next } }));
+    });
+  }
+}
 
 function boot() {
+  initTheme();
   const nav = document.getElementById("tab-nav");
   const main = document.getElementById("tab-main");
   const rendered = new Set();
