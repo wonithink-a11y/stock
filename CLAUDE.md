@@ -186,6 +186,22 @@ Validated against
             (nDrop<2·percentile 극단값 미확인), 여전히 OOS 미검증이라
             이 사후적 최적 파라미터 선택 자체에 look-ahead 위험이 있다 -
             바로 채택하지 않는다. findings/pbr-combined-paramsweep-2026-08.md
+            ★ 2026-08-26 후속5 — PEAD(실적발표 후 드리프트) 착수 시도,
+            착수 전 재확인에서 전제 자체가 틀렸음을 발견. Ox Alpha 조사가
+            "데이터 매핑 타당(A3b·A3d·pitSelector.js)"이라 적어 뒀지만
+            실제로 `data/backfill/fundamentals/a3b/`를 열어보면 fiscalYear당
+            1건뿐인 **연간 EPS만 있다**(reprtCode 필드 자체가 없음 - A3c
+            발행주식수는 분기 reprtCode 4종이 있는 것과 대조). A3d는 기업행위
+            데이터로 실적발표와 무관. **표준 분기 PEAD는 이 프로젝트
+            데이터로 재현 불가능** - "데이터 매핑 확인됨" 판정이 파일
+            존재만 봤지 분기 단위 여부를 안 열어본 오류였음을 정정.
+            완전히 막힌 건 아니라 보고 연간 SUE 대체판(Foster/Olsen/Shevlin
+            1984 seasonal random walk)을 정찰했으나 **기각** - T+20 IC
+            t=1.86(유동성필터 시 t=1.32, 통상 유의성 기준 미달)·T+60은
+            신호 소멸(t=0.16~0.35), T+20 IC는 양인데 decile 스프레드는
+            음이라 방향도 내부 불일치. 진짜 분기 PEAD를 하려면 DART
+            분기보고서 손익계산서 신규 수집이 필요(별도 🔴 결정, 이번
+            범위 밖). findings/pead-annual-precheck-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
