@@ -216,10 +216,29 @@ Validated against
             강해진다(t=1.96, 통상 유의성 경계에 정확히 걸침)** - 시간이
             지날수록 드리프트가 커지는 이 모양이 PEAD 문헌의 고전적 그림에
             더 가깝다. 단 100종목·28개 공시월짜리 파일럿이라 "있다"고
-            단정할 단계는 아니다. 전면 수집(3,801종목×10년, GH Actions
-            샤드 수집기 신설 - 정책·계약 변경이라 🔴)은 이 세션에서
-            착수 안 함, 사용자 확인 후 결정 대상. findings/
-            pead-quarterly-pilot-2026-08.md
+            단정할 단계는 아니다. findings/pead-quarterly-pilot-2026-08.md
+            ★ 2026-08-26 후속7 — 사용자 확인 후 전면 수집 착수(연구 전용
+            스코프 - data/backfill/·GH Actions·정책 파일 없음, PBR의
+            valuation-panel.jsonl과 같은 패턴, `research/strategy-lab/
+            build_quarterly_earnings_panel.py` 커밋). 전체 25,531
+            corp-year×3콜≈76,600콜, DART 일일한도(4만) 안전마진(3.6만)에서
+            자동정지·재실행시 이어감(state 파일). 2~3회 실행(1~2일) 필요,
+            착수 시점 기준 진행 중 - 완료 후 `analyze_pead_quarterly_oos.py`
+            (TRAIN/VALID/TEST 60/15/25 시간분할, CAND1·Opening Fade와 같은
+            원칙 - 파일럿의 "전체기간만 봄" 한계 해소, 부분패널로 코드
+            경로 검증 완료)로 재검증 예정.
+            ★ 2026-08-26 후속8 — 수집 대기 중 Ox Alpha 엔진개선 제안 중
+            역변동성 가중 시도. `engine/portfolio/portfolio.py`의
+            `Portfolio.process_day()`에 opt-in `weights` 인자 추가(기본
+            None=기존 동일비중/전액현금 동작 완전 불변, 회귀 143건 전체
+            재통과 확인 - 다른 전략은 인자를 안 넘겨 무영향).
+            pbr_value_v1_combined에 60일 변동성 역수로 가중한 결과
+            **사실상 무승부** - CAGR 6.87%→6.68%(-0.19%p)·MDD -18.90%→
+            -17.94%(+0.96%p 개선)·Sharpe 0.6809→0.6811(사실상 동일).
+            전형적 위험-수익 트레이드오프일 뿐 어느 쪽 우위도 아니다 -
+            단일 실행(60일 창 하나)이라 노이즈와 구분 안 됨, 결론
+            안 냄. 버퍼랭크(2번째 제안)는 메커니즘이 문서에 없어 설계부터
+            필요, 미착수. findings/pbr-combined-invvol-weighting-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라

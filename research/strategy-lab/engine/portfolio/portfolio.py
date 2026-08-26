@@ -36,10 +36,16 @@ class Portfolio:
         self.open_positions = {}  # symbol -> {shares, entry_fill, cost_basis, entry_date}
         self.closed_positions = []
 
-    def process_day(self, date, exits_today, candidate_orders_today):
+    def process_day(self, date, exits_today, candidate_orders_today, weights=None):
         """exits_today: [(symbol, exit_fill, shares)].
         candidate_orders_today: [(order, entry_fill)] - unordered, this function
-        applies the configured tie-break."""
+        applies the configured tie-break.
+        weights: optional {symbol: float}, opt-in relative sizing among today's
+        admitted entries only (e.g. inverse-volatility). None (default) keeps
+        the existing equal_weight/full-cash behavior byte-for-byte. When given,
+        the SAME total pool equal_weight would have deployed today (len(selected)
+        slices of cash/max_positions) is redistributed proportionally to weight,
+        rather than split evenly - existing positions and exits are untouched."""
         pending_cash = 0.0
         for symbol, exit_fill, shares in exits_today:
             proceeds = exit_fill.fill_price * shares
@@ -61,11 +67,19 @@ class Portfolio:
         ordered = [pair for pair in ordered if pair[0].symbol not in self.open_positions]
         selected = ordered[:max(available_slots, 0)]
 
-        target_alloc = (self.cash / self.config.max_positions) if self.config.equal_weight else self.cash
+        base_alloc = (self.cash / self.config.max_positions) if self.config.equal_weight else self.cash
+        if weights is None:
+            alloc_for = {order.symbol: base_alloc for order, _ in selected}
+        else:
+            total_w = sum(weights.get(order.symbol, 0.0) for order, _ in selected) or 1.0
+            pool_today = base_alloc * len(selected)
+            alloc_for = {order.symbol: pool_today * (weights.get(order.symbol, 0.0) / total_w)
+                         for order, _ in selected}
         for order, entry_fill in selected:
             # cost is sized INTO the target allocation (not added on top of it) -
             # otherwise N equal slices of exactly cash/N collectively overshoot
             # cash once entry costs are layered on, and the last slot(s) starve.
+            target_alloc = alloc_for[order.symbol]
             all_in_price = entry_fill.fill_price * (1 + entry_fill.cost_bps / 10000)
             shares = int(target_alloc // all_in_price)
             if shares <= 0:
