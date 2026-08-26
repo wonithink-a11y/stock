@@ -124,6 +124,37 @@ Validated against
             만들기 전에 디레버리징 대조군으로 분리검증한다"는 절차가 이번에
             4번 반복 검증돼 이 프로젝트의 표준 절차로 굳어졌다.
             findings/lowmom60-exposure-overlay-timing-value-2026-08.md
+            ★ 2026-08-26 후속 — Ox Alpha(OpenCode, opencode/x-preview-f-free
+            --variant max) 조사(GitHub 전략 저장소·학술 문헌)를 Claude가
+            gh api·WebSearch로 재검증(생산자·검증자 분리, AGENTS.md 원칙)한
+            뒤, 그 조사가 찾은 새 축 하나(Qlib TopkDropoutStrategy의 회전율
+            제한)와 학술 후보 하나(Nartea/Wu/Liu 2014 MAX효과)를 PBR에 신규
+            실험. **dropout**(매달 top-30 전체 재선정 대신 전월 보유 최하위
+            3개만 교체) — CAGR +0.64%p(4.72%→5.36%)·Sharpe +0.0345·MDD 개선,
+            회전율 -40.6%. **MAX제외**(top-30 중 그 달 MAX5 상위 20% 대체
+            없이 제외) — CAGR **+0.95%p**(→5.67%)·Sharpe **+0.1258**(4개
+            실험 중 최대)·MDD 개선, 거래건수는 늘었는데도 net 개선(회전율
+            효과가 아니라 "MAX 상위 종목 자체가 나쁜 편입"이라는 방향).
+            둘 다 1회 실행·단일 파라미터만 테스트 - 채택 근거 아님.
+            findings/pbr-dropout-turnover-limit-2026-08.md ·
+            pbr-max-exclusion-2026-08.md · github-strategy-sources-
+            usability-2026-08.md · github-literature-return-enhancement-
+            candidates-2026-08.md(업종모멘텀 인용은 실제 최신 논문과 정반대
+            결론이라 기각, MAX·PEAD는 원문 대조로 확인)
+            ★ 2026-08-26 후속2 — 위 두 실험의 공통 한계였던 "T1/T3(대형주)
+            분해 안 함"을 확인. 절대임계값(turnover20>=1억원)으로는 PBR
+            자체가 이미 유동성 필터를 거친 선별 유니버스라 거의 전부(98~99%)
+            가 고유동성 쪽으로 잡혀 표본이 희박(T1 6~10건) - 참고용. 전략이
+            실제로 고른 거래 내 상대 tercile(하위/상위 33%, 이미 고정된
+            거래집합의 사후 진단이라 tercile을 필터로 쓸 때의 오염 문제와는
+            다름, 표본 150~295건)로 재분해한 결과 **둘 다 문헌이 경고한
+            "소형주에서만 플러스, 대형주에서 반전" 패턴이 아니다**(부호
+            반전 0건). dropout은 T1·T3 둘 다 개선되고 오히려 T3에서 개선폭이
+            더 큼(+7.63%p vs T1 +3.83%p). MAX제외는 평균수익률은 두 버킷
+            다 baseline과 거의 같으나(-0.3~0.6%p) 승률이 둘 다 개선(+0.6~
+            1.9%p) - Sharpe 개선이 평균수익 상승이 아니라 승률/꼬리위험
+            축소에서 온다는 뜻. findings/pbr-dropout-maxexcl-t1t3-
+            decomposition-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
