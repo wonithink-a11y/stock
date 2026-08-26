@@ -239,6 +239,27 @@ Validated against
             단일 실행(60일 창 하나)이라 노이즈와 구분 안 됨, 결론
             안 냄. 버퍼랭크(2번째 제안)는 메커니즘이 문서에 없어 설계부터
             필요, 미착수. findings/pbr-combined-invvol-weighting-2026-08.md
+            ★ 2026-08-26 후속9 — 사용자 지시로 버퍼랭크는 판단해서 스킵
+            (dropout/nDrop과 개념적으로 같은 회전율제한 메커니즘이라 새로
+            만들어도 이미 확인한 "회전율 낮출수록 좋다"는 결론을 다른
+            방식으로 재확인할 가능성이 높다고 판단, Claude 자체 판단).
+            대신 combined 파라미터 스윕(nDrop=2+pct=0.8이 최선)이 전체기간을
+            다 보고 사후에 고른 것이라는 한계를 `run_pbr_combined_oos_
+            validation.py`(커밋)로 검증 - CAND1·Opening Fade와 같은 원칙
+            (TRAIN에서만 스윕, VALID·TEST는 고정 선택을 보고만 함)을 12격자
+            전체에 적용. 월별 시가평가 128개월을 60/15/25分(TRAIN 2016-01~
+            2022-06·VALID 2022-06~2024-01·TEST 2024-01~2026-08)로 분할.
+            **결과: TRAIN에서 고른 최선이 전체기간 스윕이 골랐던 것과 정확히
+            일치**(nDrop=2/pct=0.8) - 순전한 look-ahead 산물이 아님. **12격자·
+            3구간 전부 Sharpe 양(+), 부호반전 0건** - 이 프로젝트가 REV20·
+            Opening Fade에서 겪은 "TEST 반전" 패턴이 여기선 안 나타난다,
+            지금까지 PBR 계열 실험 중 OOS 반전 위험이 가장 낮은 축. VALID
+            (2022-06~2024-01)가 전 격자 공통으로 가장 약하고 TEST가 공통으로
+            가장 강함 - 파라미터 문제가 아니라 구간 자체의 국면 효과. dropout
+            +maxexcl·nDrop=2/pct=0.8은 "연구 후보"에서 "production 결정을
+            실제로 고려해볼 후보"로 한 단계 상향 - 단 2022년 concentration
+            문제를 이 검증이 직접 배제하진 않고, production 채택은 여전히
+            별도 🔴 결정. findings/pbr-combined-oos-validation-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
