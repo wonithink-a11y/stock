@@ -155,6 +155,17 @@ Validated against
             1.9%p) - Sharpe 개선이 평균수익 상승이 아니라 승률/꼬리위험
             축소에서 온다는 뜻. findings/pbr-dropout-maxexcl-t1t3-
             decomposition-2026-08.md
+            ★ 2026-08-26 후속3 — dropout·MAX제외 결합 실험(세션인수인계
+            §5-1, "단순 합산 가정 금지"). `pbr_value_v1_combined`(dropout의
+            매달 보유목록 위에 maxexcl과 동일한 MAX5 상위20% 제외를 한 겹 더
+            적용, 순서 고정 - MAX제외를 먼저 하면 dropout의 nDrop 예산 계산이
+            달라짐) 결과 **세 지표 전부 단순 합산보다 더 큰 개선**(초가산적) —
+            CAGR 단순합산 +1.59%p vs 실제 +2.15%p(+0.56%p 초과), Sharpe
+            단순합산 +0.1603 vs 실제 +0.2253(+0.065 초과), MDD도 개별 최선
+            (maxexcl -20.80%)보다 combined(-18.90%)가 더 낮음. 상쇄가 아니라
+            증폭 - 두 필터가 서로 다른 축(회전율 대 종목별 복권효과)으로
+            같은 풀을 걸러내며 상호보완적으로 작동한 것으로 해석.
+            findings/pbr-dropout-maxexcl-combined-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
