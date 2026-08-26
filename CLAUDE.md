@@ -274,6 +274,23 @@ Validated against
             개선, OOS 반전 없음) - 단 "완전히 분산된 안정 알파"로 과장
             않음, 조건부(매크로 국면 의존) 성격 그대로 인지하고 판단할 것.
             findings/pbr-combined-2022-concentration-2026-08.md
+            ★ 2026-08-26 후속11 — 사용자 제안("2022년 약세장에 방어적이면
+            약세장 타이밍 신호로 쓰자")을 이 프로젝트 표준 절차(순수 노출
+            오버레이+상수노출 대조군, PBR·TREND-BREAKOUT·5DC·LOWMOM60에
+            이미 4번 적용한 방법)로 실제 검증. baseline(노출100%) CAGR
+            7.74%·MDD -19.40%·Sharpe 0.7406 → 동적 오버레이(평균노출
+            0.468) CAGR 3.83%·MDD -10.00%·Sharpe 0.6314 → 같은 평균노출
+            상수 대조군 CAGR 3.70%·MDD -9.34%·Sharpe 0.7406(baseline과
+            수학적으로 동일, 상수배율은 Sharpe 불변). **순수 타이밍가치
+            (오버레이-대조군): CAGR +0.13%p(사실상 0)·MDD -0.66%p(대조군
+            보다 나쁨)·Sharpe -0.1092(뚜렷이 나쁨) - 기각.** 2022년 평균
+            노출이 실제로 0.922(전 구간 최고)였다는 것 자체는 사실이나,
+            그 신호를 실시간 추종해도 그냥 디레버리징보다 나을 게 없다 -
+            baseline PBR이 이미 겪은 "상관관계 ≠ 타이밍가치" 결론이 5번째
+            사례(PBR·TREND-BREAKOUT·5DC·LOWMOM60·combined)로 재확인.
+            combined의 production 후보 판단은 안 바뀜(오버레이 없는
+            baseline combined 그대로가 여전히 검토 대상). findings/
+            pbr-combined-exposure-overlay-timing-value-2026-08.md
   착수 가능  A2b 종료로 풀렸다. 순서 없음, 각각의 착수는 별도 사용자 승인이다
             ① **priceSource.js·043090 처리 둘 다 완료**(2026-08-24) —
               docs/BF-1.1-백필계약.md §2 "운영(A5o)/연구(A5) 분리" 확정에 따라
