@@ -152,7 +152,7 @@
 
 <script>
 const state = {
-  latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, macro: null,
+  latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, macro: null, etf: null,
   tab: 'scores',
   groupFilter: 'all',
   // 종목 스코어 탭 전용
@@ -236,6 +236,20 @@ function fmtPct(v) {
 }
 
 function fmtNum(v) { return v === null || v === undefined ? '-' : Number(v).toLocaleString(); }
+
+function fmtEok(v) {
+  if (v === null || v === undefined || isNaN(v)) return '-';
+  const n = Number(v);
+  if (n < 1e8) return Math.round(n / 1e4).toLocaleString() + '만';
+  return Math.round(n / 1e8).toLocaleString() + '억';
+}
+
+function pctCell(pct) {
+  if (pct === null || pct === undefined || pct === '' || isNaN(pct)) return '<span class="muted">-</span>';
+  const n = Number(pct);
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}${n}%</span>`;
+}
 
 function fmtPrice(v, market) {
   if (v === null || v === undefined) return '-';
@@ -501,6 +515,41 @@ function renderPortfolio() {
       <p class="muted" style="margin-top:8px">%p = 절대 포인트차(금리·스프레드류) · % = 상대 변화율. 캘린더일 기준(휴장일은 직전 거래일 값으로 대체).</p>
     </div>`;
   }
+  const etf = state.etf;
+  if (etf && etf.curated && etf.curated.length > 0) {
+    const watchRows = [...etf.curated.map(r => ({ ...r, name: r.label })),
+      etf.vixEtn, etf.gold].filter(Boolean).map(r => `
+      <tr>
+        <td>${esc(r.name)}</td>
+        <td>${fmtNum(r.close)}</td>
+        <td>${pctCell(r.pct)}</td>
+        <td>${fmtEok(r.value)}</td>
+      </tr>`).join('');
+    html += `<div class="card"><h2>관심 ETF/ETN</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>종목</th><th>종가</th><th>등락률</th><th>거래대금</th></tr></thead>
+        <tbody>${watchRows}</tbody>
+      </table></div>
+      <p class="muted" style="margin-top:8px">기준일 ${esc(etf.updatedAt || '-')}</p>
+    </div>`;
+  }
+  if (etf && etf.top50 && etf.top50.length > 0) {
+    const top50Rows = etf.top50.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${esc(r.name)}</td>
+        <td>${fmtNum(r.close)}</td>
+        <td>${pctCell(r.pct)}</td>
+        <td>${fmtEok(r.value)}</td>
+      </tr>`).join('');
+    html += `<div class="card"><h2>거래대금 상위 ETF (${etf.top50.length}개)</h2>
+      <p class="muted" style="margin-bottom:8px">레버리지·인버스 포함 그대로 - 실제 거래대금 순위입니다.</p>
+      <div class="table-wrap" style="max-height:480px;overflow-y:auto"><table>
+        <thead><tr><th>#</th><th>종목</th><th>종가</th><th>등락률</th><th>거래대금</th></tr></thead>
+        <tbody>${top50Rows}</tbody>
+      </table></div>
+    </div>`;
+  }
   if (pf && pf.holdings && pf.holdings.length > 0) {
     const rows = pf.holdings.map(h => `
       <tr>
@@ -707,8 +756,8 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro] = await Promise.all([
-    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'),
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf] = await Promise.all([
+    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
