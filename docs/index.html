@@ -175,11 +175,15 @@ const MACRO_LABELS = {
   dollar: "달러 인덱스",
   style: "성장/가치 스타일",
   breadth: "시장 참여 폭 (Breadth)",
+  buffett: "버핏지수 (시총/GDP)",
   cape: "CAPE (Shiller P/E)",
   kospi: "KOSPI",
   kosdaq: "KOSDAQ",
+  kospi200: "KOSPI200 지수 (선물 무료소스 없음)",
   usdkrw: "USD/KRW",
+  us2y: "미국 2년물 국채금리",
   us10y: "미국 10년물 국채금리",
+  us30y: "미국 30년물 국채금리",
   wti: "WTI 원유",
   btc: "BTC/USD"
 };
@@ -469,14 +473,32 @@ function renderPortfolio() {
     </div></div>`;
   }
   if (mc && mc.indicators && mc.indicators.length > 0) {
-    const macroHtml = mc.indicators.map(ind => {
-      const label = MACRO_LABELS[ind.key] || ind.key;
-      const sigClass = ind.signal === 'green' ? 'regime-favorable' :
-                       ind.signal === 'yellow' ? 'regime-caution' :
-                       ind.signal === 'red' ? 'regime-risk' : 'regime-neutral';
-      return `<div class="stat"><span class="k">${esc(label)}</span><span class="v ${sigClass}">${esc(ind.display != null ? ind.display : ind.value)}</span></div>`;
+    const chgCell = (v, unit) => {
+      if (v == null) return '<span class="muted">-</span>';
+      const cls = v >= 0 ? 'pos' : 'neg';
+      return `<span class="${cls}">${v >= 0 ? '+' : ''}${v}${unit}</span>`;
+    };
+    const macroRows = mc.indicators.map(it => {
+      const label = MACRO_LABELS[it.key] || it.key;
+      const c = it.changes || {};
+      const unit = it.changeUnit || '%';
+      return `<tr>
+        <td>${esc(label)}</td>
+        <td><strong>${esc(it.display != null ? it.display : it.value)}</strong></td>
+        <td>${chgCell(c.d1, unit)}</td>
+        <td>${chgCell(c.d30, unit)}</td>
+        <td>${chgCell(c.d90, unit)}</td>
+        <td>${chgCell(c.d180, unit)}</td>
+        <td>${chgCell(c.d365, unit)}</td>
+      </tr>`;
     }).join('');
-    html += `<div class="card"><h2>매크로 지표</h2><div class="summary-strip">${macroHtml}</div></div>`;
+    html += `<div class="card"><h2>매크로 지표</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>지표</th><th>현재값</th><th>1일</th><th>30일</th><th>90일</th><th>180일</th><th>1년</th></tr></thead>
+        <tbody>${macroRows}</tbody>
+      </table></div>
+      <p class="muted" style="margin-top:8px">%p = 절대 포인트차(금리·스프레드류) · % = 상대 변화율. 캘린더일 기준(휴장일은 직전 거래일 값으로 대체).</p>
+    </div>`;
   }
   if (pf && pf.holdings && pf.holdings.length > 0) {
     const rows = pf.holdings.map(h => `
