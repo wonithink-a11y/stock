@@ -1,0 +1,58 @@
+name: probe-future-krx
+
+# KOSPI200 선물 데이터 가용성 정찰 - 수집이 아니라 판정. 결과는
+# data/backfill/_probe-future-krx.json. probe-krx.yml과 같은 패턴.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: probe-future-krx
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet "pykrx==1.0.51"
+
+      - name: Probe
+        timeout-minutes: 5
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-future-krx.py
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-future-krx
+          path: data/backfill/_probe-future-krx.json
+          if-no-files-found: warn
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill)" ]; then
+            git add data/backfill/_probe-future-krx.json
+            git commit -m "chore(backfill): KOSPI200 선물 경로 정찰 결과"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
