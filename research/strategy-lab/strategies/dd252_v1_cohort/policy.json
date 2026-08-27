@@ -1,0 +1,83 @@
+{
+  "strategyId": "dd252_v1_cohort",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-27",
+  "note": "DD252(skip-1m) Arm A(baseline) - findings/dd252-strategy-design-2026-08.md §13. 유동성 필터 없음(Arm C 전용). 6-cohort 격리 회계는 이 policy.json이 아니라 run_dd252_cohort_smoke.py가 구현(코호트당 독립 Portfolio, initialCapital=총액/6) - engine의 단일 max_positions 풀은 코호트 격리를 표현 못 해 여기서는 신호 생성·PIT·체결에만 쓰인다.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "build_selection_cohort.py가 오프라인으로 읽는 설정.",
+    "metric": "dd_252_skip1m",
+    "formula": "close[t-21] / max(close[t-252..t-21]) - 1",
+    "rankDirection": "descending",
+    "topN": 30,
+    "nCohorts": 6,
+    "crossCohortDedup": true,
+    "crossCohortDedupNote": "신규 cohort 선정 시 현재 어느 cohort에서든 보유 중인 종목은 제외하고 다음 순위로 채운다(설계문서 §7).",
+    "rebalanceFrequency": "monthly",
+    "minHistorySessions": 273,
+    "liquidityFilter": "none (Arm A - Arm C에서 amt20>=1억 적용 예정, 이번 단계 아님)"
+  },
+
+  "signal": {
+    "expression": "그 달 MERGED 유니버스(자격=히스토리 273세션 이상) 안에서 dd_252_skip1m 내림차순 순위, 6-cohort 중 이번 달 차례인 cohort에만 상위 30(교차-cohort 중복 제외) 배정 - build_selection_cohort.py가 오프라인 계산, selection.json에 (ticker, date, holdSessions, cohort) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "가격 기반 stop/target 없는 순수 시간 청산. maxHoldingSessions는 selection.json이 종목·리밸런싱일마다 정확한 값(120)을 이미 갖고 있어 사실상 이 값은 안 쓰임(폴백 전용).",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "maxHoldingSessions": 120,
+    "maxHoldingSessionsNote": "폴백 전용 - 정상 경로는 selection.json의 holdSessions=120 고정값을 그대로 씀.",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions(=120)"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "initialCapitalNote": "run_smoke()가 내부적으로 요구하는 표준 필드라 채워두지만, run_dd252_cohort_smoke.py는 run_smoke()가 이 값으로 만드는 자체 Portfolio를 쓰지 않는다(resolved만 사용) - 실제 회계는 6개 독립 Portfolio(각 initial_capital=이 값/6)로 별도 스케줄링한다.",
+    "currency": "KRW",
+    "maxPositions": 30,
+    "maxPositionsNote": "cohort 1개 기준 값(run_smoke() 표준 필드용) - 실제 6-cohort 스케줄링도 코호트당 30을 그대로 씀.",
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_A1B_MERGED",
+    "runClassAllowed": ["PRIMARY"],
+    "primaryRequires": "A1A_A1B_MERGED universe with A2a+A2b price coverage (missingPriceTickers reported via diag.universeCoverage per 2026-08-24 PRIMARY redefinition)"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": false,
+    "note": "각 신호는 독립된 120세션 고정 보유 - 다음 리밸런싱에 같은 종목이 다시 selection.json에 나타나도(이론상 재선정 가능하나 cross-cohort dedup으로 사실상 드묾) 연속보유 병합을 하지 않는다."
+  }
+}
