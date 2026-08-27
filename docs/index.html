@@ -518,7 +518,7 @@ function renderPortfolio() {
   const etf = state.etf;
   if (etf && etf.curated && etf.curated.length > 0) {
     const watchRows = [...etf.curated.map(r => ({ ...r, name: r.label })),
-      etf.vixEtn, etf.gold].filter(Boolean).map(r => `
+      ...(etf.vixEtn || []).map(r => ({ ...r, name: r.label })), etf.gold].filter(Boolean).map(r => `
       <tr>
         <td>${esc(r.name)}</td>
         <td>${fmtNum(r.close)}</td>

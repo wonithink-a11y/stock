@@ -35,9 +35,15 @@ CURATED_ETF = [
     ("381180", "TIGER 미국필라델피아반도체나스닥"),
     ("465580", "ACE 미국빅테크TOP7 Plus"),
 ]
-VIX_ETN_CODE = "500095"  # 신한 S&P500 VIX S/T 선물 ETN E - 이미
-                          # research/strategy-lab/findings/vix-domestic-etn-
-                          # etf-data-source-2026-08.md 에서 검증된 종목
+# VIX ETN 기본(1x)+인버스(-0.5x) 1개씩 - "반대로 움직이는지" 눈으로 보는
+# 용도라 발행사 통일보다 실측 유동성이 나은 쪽을 골랐다(2026-08-27 확정)
+CURATED_ETN = [
+    ("500095", "신한 VIX ETN (정방향)"),   # 신한 S&P500 VIX S/T선물 ETN E -
+                                            # research/strategy-lab/findings/
+                                            # vix-domestic-etn-etf-data-
+                                            # source-2026-08.md 에서 기검증
+    ("530131", "삼성 VIX ETN (인버스0.5X)"),  # 삼성 인버스0.5X S&P500 VIX S/T선물 ETN B
+]
 GOLD_CODE = "04020000"   # 금 99.99_1kg
 
 
@@ -100,7 +106,16 @@ def main():
     top50 = [row_summary(r) for r in ranked[:50]]
 
     _, etn_rows = fetch_first_nonempty("etp/etn_bydd_trd")
-    vix = next((row_summary(r) for r in etn_rows if r.get("ISU_CD") == VIX_ETN_CODE), None)
+    etn_by_code = {r["ISU_CD"]: r for r in etn_rows}
+    vix_etns = []
+    for code, label in CURATED_ETN:
+        r = etn_by_code.get(code)
+        if r:
+            s = row_summary(r)
+            s["label"] = label
+            vix_etns.append(s)
+        else:
+            print("curated ETN missing:", code, label, file=sys.stderr)
 
     _, gold_rows = fetch_first_nonempty("gen/gold_bydd_trd")
     gold = next((row_summary(r) for r in gold_rows if r.get("ISU_CD") == GOLD_CODE), None)
@@ -109,14 +124,14 @@ def main():
         "updatedAt": bas_dd,
         "curated": curated,
         "top50": top50,
-        "vixEtn": vix,
+        "vixEtn": vix_etns,
         "gold": gold,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    print("wrote %s (curated=%d, top50=%d, vixEtn=%s, gold=%s)" %
-          (OUT, len(curated), len(top50), bool(vix), bool(gold)))
+    print("wrote %s (curated=%d, top50=%d, vixEtn=%d, gold=%s)" %
+          (OUT, len(curated), len(top50), len(vix_etns), bool(gold)))
 
 
 if __name__ == "__main__":

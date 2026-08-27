@@ -524,15 +524,28 @@
       "value": "29084063327"
     }
   ],
-  "vixEtn": {
-    "code": "500095",
-    "name": "신한 S&P500 VIX S/T 선물 ETN E",
-    "close": "7170",
-    "change": "-125",
-    "pct": "-1.71",
-    "volume": "1535",
-    "value": "11020655"
-  },
+  "vixEtn": [
+    {
+      "code": "500095",
+      "name": "신한 S&P500 VIX S/T 선물 ETN E",
+      "close": "7170",
+      "change": "-125",
+      "pct": "-1.71",
+      "volume": "1535",
+      "value": "11020655",
+      "label": "신한 VIX ETN (정방향)"
+    },
+    {
+      "code": "530131",
+      "name": "삼성 인버스0.5X S&P500 VIX S/T선물 ETN B",
+      "close": "22315",
+      "change": "200",
+      "pct": "0.90",
+      "volume": "567",
+      "value": "12613410",
+      "label": "삼성 VIX ETN (인버스0.5X)"
+    }
+  ],
   "gold": {
     "code": "04020000",
     "name": "금 99.99_1kg",
