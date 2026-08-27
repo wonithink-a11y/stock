@@ -1588,8 +1588,19 @@ SPAC 제외는 **회사명으로만** 판정한다(`스팩|기업인수목적`).
 
 ```bash
 pip install pandas requests lxml html5lib pyarrow    # node는 20 이상
-export DART_API_KEY='...'      # 셸 세션에만. 파일에 쓰지 말 것
+export DART_API_KEY='...'      # 셸 세션 export, 또는 .env(gitignore 대상)
 ```
+
+DART_API_KEY를 `.env`에 쓰는 것도 2026-08-27부터 허용이다(사용자 지시).
+옛 "파일에 쓰지 말 것"은 GH Actions Secrets에 이미 있어 로컬 `.env` 기록이
+노출 범위를 실질적으로 늘리지 않는다는 재검토로 바뀌었다 - 다른 로컬
+전용 시크릿(API 키 전반)과 동일하게 `.env`(gitignore) 규칙을 따른다
+(절대 규칙 2). 여러 서비스 키를 한 번에 넣을 땐 `scripts/setup-keys-
+interactive.py`(또는 `setup-keys.bat` 더블클릭)를 쓴다 - 서비스당 값을
+클립보드로 하나씩만 받는다. **파일을 통째로 자동 파싱하는 방식은 쓰지
+않는다** - 2026-08-27에 그 방식(옛 `scripts/setup-all-keys.py`, 삭제됨)이
+실제로 키 값을 대화 로그에 노출시키는 사고를 냈다(base64 패딩 "="을
+구분자로 착각). 세부: `세션인수인계-2026-08-27-b.md`.
 
 **회귀는 `scripts/test-*.{py,js}` 다. `ls`로 찾아 전부 돌린다** — 변경 위험과
 무관하게, 전체 7.8초다(위 '검증 강도'). npm이 아니라 자동 발견이 없으므로(규칙 8)
