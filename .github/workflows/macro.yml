@@ -1,7 +1,8 @@
 name: Update macro.json
 
-# 매크로 지표(일드커브·VIX·HY스프레드·달러·M2·스타일·폭 등)를
-# FRED/Stooq 에서 받아 docs/data/macro.json 으로 커밋한다. API 키 불필요.
+# 매크로 지표(일드커브·VIX·HY스프레드·달러·M2·스타일·폭·KOSPI200 선물 등)를
+# FRED/Stooq/Yahoo/Naver/KRX Open API 에서 받아 docs/data/macro.json 으로
+# 커밋한다. KOSPI200 선물만 KRX_OPENAPI_KEY(공식 인증키) 필요, 나머지는 무료·무키.
 
 on:
   schedule:
@@ -26,12 +27,14 @@ jobs:
           python-version: '3.11'
 
       - name: Fetch macro indicators
+        env:
+          KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
         run: python scripts/fetch_macro.py
 
       - name: Commit macro.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/macro.json
+          git add docs/data/macro.json docs/data/kospi200fut_history.json
           git diff --staged --quiet || git commit -m "chore: update macro.json"
           git push

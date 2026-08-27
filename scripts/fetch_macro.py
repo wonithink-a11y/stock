@@ -15,6 +15,7 @@ import os
 import re
 import ssl
 import sys
+import time
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
@@ -195,6 +196,58 @@ def horizon_changes(obs, kind):
         else:
             out[key] = round(v - old, 3)
     return out
+
+
+KRX_FUT_URL = "https://data-dbg.krx.co.kr/svc/apis/drv/fut_bydd_trd"
+
+
+def krx_futures_day(bas_dd, auth_key):
+    """KRX Open API 선물 일별매매정보(실측 확정: AUTH_KEY 헤더, basDd=YYYYMMDD)에서
+    그 날 '코스피200 선물'(미니 제외) 중 정규장·최대거래량 계약(=근월물) 1행.
+    없으면(휴장일 등) None. 이 API는 하루치 스냅샷만 주므로 이력은 호출자가 누적한다."""
+    req = urllib.request.Request(
+        KRX_FUT_URL + "?basDd=" + bas_dd,
+        headers={"AUTH_KEY": auth_key, "User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=15, context=CTX) as r:
+        payload = json.loads(r.read().decode("utf-8"))
+    rows = payload.get("OutBlock_1") or []
+    cands = [row for row in rows
+             if row.get("PROD_NM") == "코스피200 선물" and row.get("MKT_NM") == "정규"
+             and row.get("TDD_CLSPRC") not in (None, "", "-")]
+    if not cands:
+        return None
+    best = max(cands, key=lambda row: float(row.get("ACC_TRDVOL") or 0))
+    spot = best.get("SPOT_PRC")
+    return {
+        "date": "%s-%s-%s" % (bas_dd[:4], bas_dd[4:6], bas_dd[6:8]),
+        "close": float(best["TDD_CLSPRC"]),
+        "oi": int(float(best.get("ACC_OPNINT_QTY") or 0)),
+        "spot": float(spot) if spot not in (None, "", "-") else None,
+        "vol": int(float(best.get("ACC_TRDVOL") or 0)),
+    }
+
+
+def krx_futures_backfill(auth_key, hist, target_days=400, max_calls=420):
+    """hist(누적 이력)에 최근 target_days 캘린더일 내 빠진 평일을 채운다.
+    최초 실행은 ~260콜(영업일수)이 들고, 그 다음날부터는 신규 1~2콜뿐이다 -
+    실행할 때마다 최근 구간의 구멍(실패한 날 등)도 자동으로 메운다."""
+    known = {r["date"] for r in hist}
+    d = date.today()
+    oldest = d - timedelta(days=target_days)
+    calls = 0
+    while d >= oldest and calls < max_calls:
+        if d.weekday() < 5:
+            iso = d.isoformat()
+            if iso not in known:
+                row = krx_futures_day(d.strftime("%Y%m%d"), auth_key)
+                calls += 1
+                time.sleep(0.1)
+                if row:
+                    hist.append(row)
+                    known.add(iso)
+        d -= timedelta(days=1)
+    hist.sort(key=lambda r: r["date"])
+    return hist
 
 
 def ind(key, value, display, as_of, signal, history=None, changes=None, change_kind=None):
@@ -416,7 +469,35 @@ def collect():
     except Exception as e:
         print("wti fail:", e, file=sys.stderr)
 
-    # 18) BTC/USD (Yahoo Finance BTC-USD)
+    # 18) KOSPI200 선물 (KRX Open API 공식, 근월물 - 매일 조금씩 이력을
+    # 누적한다. docs/data/kospi200fut_history.json은 이 스크립트가 직접
+    # 관리하는 유일한 부가 산출물)
+    try:
+        krx_key = os.environ.get("KRX_OPENAPI_KEY", "")
+        if not krx_key:
+            raise RuntimeError("KRX_OPENAPI_KEY not set")
+        hist_path = os.path.join(os.path.dirname(OUT), "kospi200fut_history.json")
+        hist = []
+        if os.path.exists(hist_path):
+            with open(hist_path, encoding="utf-8") as f:
+                hist = json.load(f)
+        hist = krx_futures_backfill(krx_key, hist)
+        with open(hist_path, "w", encoding="utf-8") as f:
+            json.dump(hist, f, ensure_ascii=False, indent=2)
+        DIAG.append("KOSPI200선물: KRX OpenAPI OK (누적 %d행)" % len(hist))
+
+        obs = [(r["date"], r["close"]) for r in hist]
+        d, v = last(obs)
+        changes = horizon_changes(obs, "pct")
+        c90 = changes.get("d90")
+        sig = "yellow" if c90 is None else ("green" if c90 > 5 else ("red" if c90 < -5 else "yellow"))
+        items.append(ind("kospi200fut", round(v, 2), "%.2f (근월물)" % v, d, sig,
+                         weekly(obs), changes, "pct"))
+    except Exception as e:
+        DIAG.append("KOSPI200선물: KRX OpenAPI 실패 (%s)" % e)
+        print("kospi200fut fail:", e, file=sys.stderr)
+
+    # 19) BTC/USD (Yahoo Finance BTC-USD)
     try:
         obs = price_series("btc.v", "BTC-USD", "BTC")
         d, v = last(obs)
