@@ -1,0 +1,30 @@
+{
+  "probedAt": "2026-08-27T10:54:23+0900",
+  "product": "KRDRVFUK2I",
+  "results": {
+    "A_login_state": {
+      "verdict": "CRED_OK",
+      "pykrxVersion": "1.0.51"
+    },
+    "B_ticker_meta": {
+      "verdict": "OK",
+      "count": 28,
+      "prodName": "                                     name\nvalue                                    \nKRDRVFUK2I      "
+    },
+    "C_ohlcv_by_ticker": {
+      "verdict": "EMPTY_ALL",
+      "okDays": [],
+      "triedDays": 5
+    },
+    "D_ohlcv_alternative": {
+      "verdict": "EXC",
+      "error": "IndexError: index -1 is out of bounds for axis 0 with size 0",
+      "trace": "py\", line 94, in get_future_ohlcv_by_ticker\n    target_date = krx.get_nearest_business_day_in_a_week(\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pykrx/website/krx/__init__.py\", line 37, in get_nearest_business_day_in_a_week\n    return df.index[-1].strftime(\"%Y%m%d\")\n           ~~~~~~~~^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pandas/core/indexes/range.py\", line 1289, in __getitem__\n    raise IndexError(\nIndexError: index -1 is out of bounds for axis 0 with size 0\n"
+    },
+    "E_index_control": {
+      "verdict": "EXC",
+      "error": "KeyError: '지수명'",
+      "trace": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pandas/core/frame.py\", line 4489, in _get_value\n    series = self._get_item(col)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pandas/core/frame.py\", line 4969, in _get_item\n    loc = self.columns.get_loc(item)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pandas/core/indexes/range.py\", line 525, in get_loc\n    raise KeyError(key)\nKeyError: '지수명'\n"
+    }
+  }
+}
