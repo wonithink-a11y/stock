@@ -152,7 +152,7 @@
 
 <script>
 const state = {
-  latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null,
+  latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, macro: null,
   tab: 'scores',
   groupFilter: 'all',
   // 종목 스코어 탭 전용
@@ -167,6 +167,22 @@ const state = {
   openRows: {},            // 종목 상세 펼침
 };
 
+const MACRO_LABELS = {
+  yieldcurve: "장단기 금리차 (10Y-2Y)",
+  hyspread: "하이일드 스프레드",
+  vix: "VIX 변동성지수",
+  liquidity: "유동성 (M2 YoY)",
+  dollar: "달러 인덱스",
+  style: "성장/가치 스타일",
+  breadth: "시장 참여 폭 (Breadth)",
+  cape: "CAPE (Shiller P/E)",
+  kospi: "KOSPI",
+  kosdaq: "KOSDAQ",
+  usdkrw: "USD/KRW",
+  us10y: "미국 10년물 국채금리",
+  wti: "WTI 원유",
+  btc: "BTC/USD"
+};
 // 업종 표시명 (latest.json의 sectorCaution.label이 우선, 없을 때 폴백)
 const SECTOR_LABEL = {
   general: '일반 (제조·유통 등)', financial: '금융', holding: '지주회사',
@@ -442,6 +458,7 @@ function renderScores() {
 
 function renderPortfolio() {
   const rg = state.regime;
+  const mc = state.macro;
   const pf = state.portfolio;
   let html = '';
   if (rg) {
@@ -450,6 +467,16 @@ function renderPortfolio() {
       <div><div><strong>시장 국면: ${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div>
       ${(rg.specialFlags || []).length ? `<div class="muted">⚑ ${rg.specialFlags.map(esc).join(', ')}</div>` : ''}</div>
     </div></div>`;
+  }
+  if (mc && mc.indicators && mc.indicators.length > 0) {
+    const macroHtml = mc.indicators.map(ind => {
+      const label = MACRO_LABELS[ind.key] || ind.key;
+      const sigClass = ind.signal === 'green' ? 'regime-favorable' :
+                       ind.signal === 'yellow' ? 'regime-caution' :
+                       ind.signal === 'red' ? 'regime-risk' : 'regime-neutral';
+      return `<div class="stat"><span class="k">${esc(label)}</span><span class="v ${sigClass}">${esc(ind.display != null ? ind.display : ind.value)}</span></div>`;
+    }).join('');
+    html += `<div class="card"><h2>매크로 지표</h2><div class="summary-strip">${macroHtml}</div></div>`;
   }
   if (pf && pf.holdings && pf.holdings.length > 0) {
     const rows = pf.holdings.map(h => `
@@ -657,8 +684,8 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle] = await Promise.all([
-    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'),
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro] = await Promise.all([
+    loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'),
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;

@@ -272,6 +272,82 @@ def collect():
     except Exception as e:
         print("cape fail:", e, file=sys.stderr)
 
+    # 10) KOSPI 지수
+    try:
+        obs = price_series("^kospi", "^KS11", "KOSPI")
+        d, v = last(obs)
+        chg = pct_change(v, ago(obs, 63))  # 3개월 전 대비
+        sig = "green" if chg > 5 else ("red" if chg < -5 else "yellow")
+        items.append(ind("kospi", round(v, 1),
+                         "%.1f (%s%.1f%% 3m)" % (v, "+" if chg >= 0 else "", chg),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("kospi fail:", e, file=sys.stderr)
+
+    # 11) KOSDAQ 지수
+    try:
+        obs = price_series("^kosdaq", "^KQ11", "KOSDAQ")
+        d, v = last(obs)
+        chg = pct_change(v, ago(obs, 63))
+        sig = "green" if chg > 5 else ("red" if chg < -5 else "yellow")
+        items.append(ind("kosdaq", round(v, 1),
+                         "%.1f (%s%.1f%% 3m)" % (v, "+" if chg >= 0 else "", chg),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("kosdaq fail:", e, file=sys.stderr)
+
+    # 12) USD/KRW 환율
+    try:
+        obs = price_series("usdkrw", "KRW=X", "USD/KRW")
+        d, v = last(obs)
+        chg = pct_change(v, ago(obs, 63))
+        # 원화 강세(환율 하락) 유리: 3m -3% 이상 green, +3% 이상 red
+        sig = "green" if chg < -3 else ("red" if chg > 3 else "yellow")
+        items.append(ind("usdkrw", round(v, 1),
+                         "%.1f (%s%.1f%% 3m)" % (v, "+" if chg >= 0 else "", chg),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("usdkrw fail:", e, file=sys.stderr)
+
+    # 13) 미국 10년물 국채금리 (FRED DGS10, %)
+    try:
+        obs = fred("DGS10")
+        d, v = last(obs)
+        old = ago(obs, 63)
+        chg = None if old is None else v - old  # %p 절대 변화(= bp/100), 상대 pct_change 아님
+        # 3m +30bp 이상 상승 시 위험(red), -10bp 이하 하락 시 완화(green)
+        sig = "yellow" if chg is None else ("red" if chg > 0.3 else ("green" if chg < -0.1 else "yellow"))
+        items.append(ind("us10y", round(v, 2),
+                         "%.2f%%" % v + ("" if chg is None else " (%s%.2f%%p 3m)" % ("+" if chg >= 0 else "", chg)),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("us10y fail:", e, file=sys.stderr)
+
+    # 14) WTI 원유 현물 (FRED DCOILWTICO, $/배럴)
+    try:
+        obs = fred("DCOILWTICO")
+        d, v = last(obs)
+        chg = pct_change(v, ago(obs, 63))
+        # 3m +15% 이상 상승 시 인플레 압력(red), -10% 이하 하락 시 완화(green)
+        sig = "red" if chg > 15 else ("green" if chg < -10 else "yellow")
+        items.append(ind("wti", round(v, 2),
+                         "$%.2f (%s%.1f%% 3m)" % (v, "+" if chg >= 0 else "", chg),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("wti fail:", e, file=sys.stderr)
+
+    # 15) BTC/USD (Yahoo Finance BTC-USD)
+    try:
+        obs = price_series("btc.v", "BTC-USD", "BTC")
+        d, v = last(obs)
+        chg = pct_change(v, ago(obs, 63))
+        sig = "green" if chg > 20 else ("red" if chg < -20 else "yellow")
+        items.append(ind("btc", round(v, 1),
+                         "%.1f (%s%.1f%% 3m)" % (v, "+" if chg >= 0 else "", chg),
+                         d, sig, weekly(obs)))
+    except Exception as e:
+        print("btc fail:", e, file=sys.stderr)
+
     return items
 
 
