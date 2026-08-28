@@ -32,6 +32,7 @@ import os
 import re
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone, timedelta
 
 import requests
@@ -127,6 +128,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--daily-budget", type=int, default=36_000)
     ap.add_argument("--sleep", type=float, default=0.15)
+    ap.add_argument("--max-consecutive-empty-corpyears", type=int, default=30,
+                     help="이 개수만큼 연속으로 corp-year 전체(3콜)가 레코드 0건이면 "
+                          "중단한다(outage 상태로 수천 건을 doneKeys에 헛되이 태우는 사고 방지, "
+                          "2026-08-27~28 실측: 3,283건 연쇄실패). 마지막 corp-year는 doneKeys에 "
+                          "안 남겨 재실행 시 재시도된다.")
     args = ap.parse_args()
 
     if not KEY:
@@ -145,7 +151,9 @@ def main():
 
     t0 = time.time()
     n_new_records, n_new_calls, n_fail = 0, 0, 0
-    quota_hit = False
+    fail_codes = Counter()
+    consecutive_empty_corpyears = 0
+    quota_hit = circuit_tripped = False
     for row in grid:
         key = f"{row['ticker']}|{row['fiscalYear']}"
         if key in state["doneKeys"]:
@@ -154,6 +162,7 @@ def main():
             print(f"\ndaily budget reached ({state['callsUsedToday']}/{args.daily_budget}) - "
                   f"내일 다시 실행하면 이어서 계속한다")
             break
+        records_this_corpyear = 0
         for reprt_code, q_label in zip(REPRT_CODES, ["Q1", "Q2", "Q3"]):
             rows_, err = dart_call(reprt_code, row["corp"], row["fiscalYear"])
             state["callsUsedToday"] += 1
@@ -164,17 +173,31 @@ def main():
                 break
             if err:
                 n_fail += 1
+                fail_codes[err] += 1
+                time.sleep(args.sleep)
                 continue
             info = extract_net_income(rows_)
             if info is None or info["thstrm"] is None or info["frmtrm"] is None or not info["rceptNo"]:
+                time.sleep(args.sleep)
                 continue
             rec = {"ticker": row["ticker"], "corp": row["corp"], "fiscalYear": row["fiscalYear"],
                    "quarter": q_label, "availableFrom": info["rceptNo"][:8],
                    "thstrm": info["thstrm"], "frmtrm": info["frmtrm"]}
             out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             n_new_records += 1
+            records_this_corpyear += 1
             time.sleep(args.sleep)
         if quota_hit:
+            break
+        if records_this_corpyear == 0:
+            consecutive_empty_corpyears += 1
+        else:
+            consecutive_empty_corpyears = 0
+        if consecutive_empty_corpyears >= args.max_consecutive_empty_corpyears:
+            print(f"\ncircuit breaker: {consecutive_empty_corpyears}개 corp-year 연속 레코드 0건 - "
+                  f"outage로 의심돼 중단한다. 최근 실패 코드: {fail_codes.most_common(5)} - "
+                  f"이 corp-year({key})는 doneKeys에 안 남겨 재실행 시 재시도한다")
+            circuit_tripped = True
             break
         state["doneKeys"].add(key)
         if n_new_calls % 300 == 0:
@@ -189,6 +212,10 @@ def main():
     save_state(state)
     print(f"\nrun complete: newCalls={n_new_calls} newRecords={n_new_records} newFails={n_fail} "
           f"({time.time()-t0:.0f}s)")
+    if fail_codes:
+        print(f"fail codes: {fail_codes.most_common(10)}")
+    if circuit_tripped:
+        print("outage로 의심돼 조기중단 - 재실행하면 이어서 계속한다")
     print(f"total done: {len(state['doneKeys'])}/{len(grid)}")
     if len(state["doneKeys"]) < len(grid):
         print("아직 안 끝남 - 다시 실행하면 이어서 계속한다")
