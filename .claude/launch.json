@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8731", "--directory", "ui"],
       "port": 8731
+    },
+    {
+      "name": "rule-discovery-lab",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["research/strategy-lab/dashboard/serve.py", "--port", "8732"],
+      "port": 8732
     }
   ]
 }

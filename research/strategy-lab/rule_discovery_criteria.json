@@ -1,0 +1,39 @@
+{
+  "version": "v1",
+  "updated": "2026-08-29",
+  "description": "Rule Discovery 후보(신규 factor/조합)의 1차 판정 기준. 실험하면서 값을 바꿔도 된다 - 바꿀 때 version을 올리고 changelog에 왜 바꿨는지 남긴다. 각 finding은 실제로 적용한 version과 값을 자기 frontmatter에 같이 기록해야 나중에 비교가 가능하다 (기준 자체가 계속 바뀌므로).",
+  "thresholds": {
+    "min_t_stat": {
+      "train": 2.0,
+      "valid": 1.5,
+      "test": 1.5,
+      "note": "TRAIN보다 VALID/TEST를 낮게 잡은 이유: 표본이 작아 검정력이 약한 경우가 실제로 많았다(PBR combined OOS에서 VALID가 전 격자 공통으로 가장 약했음). 부호는 세 구간 전부 같아야 한다 - 이건 숫자가 아니라 항상 요구."
+    },
+    "require_sign_consistency_train_valid_test": true,
+    "min_sample_size": {
+      "train": 100,
+      "valid": 30,
+      "test": 30,
+      "note": "DART 내부자거래(22개월 표본)가 '기각도 채택도 아닌 판단보류'로 처리된 선례 기준"
+    },
+    "concentration": {
+      "max_single_year_pct_for_auto_reject": 70,
+      "max_single_year_pct_for_auto_keep": 40,
+      "note": "40% 이하면 이 게이트 통과, 40~70%는 HOLD(연도별/국면별 분해 없이는 Claude에게 KEEP 후보로 올리지 않음), 70% 이상은 REJECT 권고. PBR 원본(98.6% 단일연도)은 기각, PBR combined(45.7%+28.3%=74% 두 해)는 '고려 후보'로 상향된 실측 사례에서 역산."
+    },
+    "require_absolute_threshold_check_if_relative_grouping_used": {
+      "enabled": true,
+      "note": "조건/필터에 상대 percentile·tercile·quantile 그룹(유동성tercile 등)이 하나라도 쓰이면, 같은 그룹을 절대임계값 버전으로도 재검증해서 부호가 안 뒤집히는지 반드시 확인. turnover20 상대tercile이 그 자체로 강한 예측변수였던 사고(2026-08-21) 재발 방지."
+    },
+    "portfolio_engine_reality_check_required_before_keep": true,
+    "exposure_overlay_vs_constant_control_required_if_timing_or_sizing_claimed": true
+  },
+  "verdict_labels": ["KEEP", "HOLD", "REJECT"],
+  "changelog": [
+    {
+      "version": "v1",
+      "date": "2026-08-29",
+      "note": "초기 확정. 숫자는 전부 이 프로젝트가 실제로 겪은 사고/판정 사례에서 역산한 것이지 이론값이 아니다. 사용자 지시로 '실험하다 바꿔도 됨' - 이 changelog에 남기기만 하면 된다."
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Rule Discovery Lab</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#11161f; --border:#232a37; --text:#dbe2ee; --dim:#7c8798;
+    --keep:#38d68a; --hold:#f0b429; --reject:#ef5a5a; --unk:#5b6472; --accent:#4da3ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:14px/1.5 -apple-system,Segoe UI,sans-serif;padding:20px}
+  header{display:flex;justify-content:space-between;align-items:baseline;
+         margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  h1{font-size:18px;margin:0;letter-spacing:.02em}
+  h1 span{color:var(--dim);font-weight:400}
+  #meta{color:var(--dim);font-size:12px}
+  #meta b{color:var(--accent)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px}
+
+  .pipeline{display:flex;align-items:stretch;gap:6px;overflow-x:auto;margin-bottom:18px;
+            padding-bottom:4px}
+  .stage{min-width:130px;text-align:center;padding:10px 8px}
+  .stage .label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .stage .name{font-size:13px;margin-top:4px}
+  .arrow{align-self:center;color:var(--border);font-size:18px;flex-shrink:0}
+  .split{display:flex;flex-direction:column;gap:6px}
+  .split .stage{min-width:150px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+  .dot.keep{background:var(--keep)} .dot.hold{background:var(--hold)}
+  .dot.reject{background:var(--reject)} .dot.unk{background:var(--unk)}
+
+  .kpis{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .kpi{flex:1;min-width:110px}
+  .kpi .n{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+  .kpi .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .kpi.keep .n{color:var(--keep)} .kpi.hold .n{color:var(--hold)}
+  .kpi.reject .n{color:var(--reject)} .kpi.unk .n{color:var(--unk)}
+
+  .filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .filters button{background:var(--panel);border:1px solid var(--border);color:var(--dim);
+                   padding:5px 12px;border-radius:14px;font-size:12px;cursor:pointer}
+  .filters button.active{color:var(--text);border-color:var(--accent)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--dim);font-weight:400;font-size:11px;
+     text-transform:uppercase;letter-spacing:.04em;padding:6px 10px;
+     border-bottom:1px solid var(--border)}
+  td{padding:7px 10px;border-bottom:1px solid var(--border)}
+  tr:hover td{background:#161c27}
+  .badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .badge.kr{background:#1e2a4a;color:#7fa8ff}
+  .badge.crypto{background:#3a2a1e;color:#f0a860}
+  .badge.macro{background:#2a1e3a;color:#c08cff}
+  .badge.us{background:#1e3a2e;color:#7ff0b0}
+  .badge.other{background:#232a37;color:var(--dim)}
+  .v{font-size:12px;font-weight:600}
+  .v.keep{color:var(--keep)} .v.hold{color:var(--hold)}
+  .v.reject{color:var(--reject)} .v.unk{color:var(--unk)}
+  .orig{color:var(--dim);font-size:11px;font-style:italic}
+  .file{color:var(--accent);text-decoration:none;font-family:ui-monospace,monospace;font-size:12px}
+  .file:hover{text-decoration:underline}
+  .cond{font-family:ui-monospace,monospace;font-size:11px;color:var(--text)}
+  .cond span{background:#1a2130;border:1px solid var(--border);border-radius:4px;
+             padding:1px 6px;margin:1px 3px 1px 0;display:inline-block}
+  .cond.empty{color:var(--dim);font-style:italic}
+  .stats{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+  .stats b{font-weight:600}
+  .stats .pos{color:var(--keep)} .stats .neg{color:var(--reject)}
+  .stats .mdd{color:var(--hold)}
+  .stats.empty{color:var(--dim);font-style:italic;font-variant-numeric:normal}
+  .mtime{color:var(--dim);font-size:12px;white-space:nowrap}
+  #wrap{max-height:520px;overflow:auto}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Rule Discovery Lab <span>&mdash; KR / Crypto 실험 현황</span></h1>
+    <div id="meta">criteria <b id="cversion">-</b> &middot; <span id="fetched">불러오는 중...</span></div>
+  </header>
+
+  <div class="pipeline">
+    <div class="stage card"><div class="label">Sources</div><div class="name">A2a · A3b/c · A4<br>data/crypto</div></div>
+    <div class="arrow">&rarr;</div>
+    <div class="stage card"><div class="label">Event / State</div><div class="name">52주저점거리 · MA구조<br>수급방향전환 등</div></div>
+    <div class="arrow">&rarr;</div>
+    <div class="split">
+      <div class="stage card"><div class="label">Track</div><div class="name" id="node-kr">KR</div></div>
+      <div class="stage card"><div class="label">Track</div><div class="name" id="node-crypto">CRYPTO</div></div>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="stage card"><div class="label">Search</div><div class="name">TRAIN에서 threshold<br>VALID/TEST 고정확인</div></div>
+    <div class="arrow">&rarr;</div>
+    <div class="stage card"><div class="label">Verdict</div><div class="name" id="node-verdict">rule_discovery_criteria.json</div></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi card"><div class="n" id="k-total">-</div><div class="l">전체 findings</div></div>
+    <div class="kpi card keep"><div class="n" id="k-keep">-</div><div class="l">Keep</div></div>
+    <div class="kpi card hold"><div class="n" id="k-hold">-</div><div class="l">Hold</div></div>
+    <div class="kpi card reject"><div class="n" id="k-reject">-</div><div class="l">Reject</div></div>
+    <div class="kpi card unk"><div class="n" id="k-unk">-</div><div class="l">Unclassified</div></div>
+  </div>
+
+  <div class="card">
+    <div class="filters" id="track-filters"></div>
+    <div class="filters" id="verdict-filters"></div>
+    <div id="wrap">
+      <table>
+        <thead><tr><th>Track</th><th>Verdict</th><th>File</th><th>Conditions (조합)</th><th>Result (있는 값만)</th><th>Updated</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+const REGISTRY_URL = '../findings/_registry.jsonl';
+const CRITERIA_URL = '../rule_discovery_criteria.json';
+const REFRESH_MS = 10000;
+let entries = [];
+let trackFilter = 'all', verdictFilter = 'all';
+
+function relTime(iso){
+  if(!iso) return '-';
+  const d = (Date.now() - new Date(iso).getTime())/1000;
+  if(d < 60) return '방금';
+  if(d < 3600) return Math.floor(d/60)+'분 전';
+  if(d < 86400) return Math.floor(d/3600)+'시간 전';
+  return Math.floor(d/86400)+'일 전';
+}
+
+function render(){
+  const tracks = ['all', ...new Set(entries.map(e=>e.track))];
+  const verdicts = ['all','KEEP','HOLD','REJECT','UNCLASSIFIED'];
+
+  document.getElementById('track-filters').innerHTML = tracks.map(t=>
+    `<button data-t="${t}" class="${t===trackFilter?'active':''}">${t}</button>`).join('');
+  document.getElementById('verdict-filters').innerHTML = verdicts.map(v=>
+    `<button data-v="${v}" class="${v===verdictFilter?'active':''}">${v}</button>`).join('');
+
+  const filtered = entries.filter(e =>
+    (trackFilter==='all'||e.track===trackFilter) &&
+    (verdictFilter==='all'||e.verdict===verdictFilter));
+
+  const counts = {KEEP:0,HOLD:0,REJECT:0,UNCLASSIFIED:0};
+  entries.forEach(e => counts[e.verdict] = (counts[e.verdict]||0)+1);
+  document.getElementById('k-total').textContent = entries.length;
+  document.getElementById('k-keep').textContent = counts.KEEP;
+  document.getElementById('k-hold').textContent = counts.HOLD;
+  document.getElementById('k-reject').textContent = counts.REJECT;
+  document.getElementById('k-unk').textContent = counts.UNCLASSIFIED;
+
+  const byTrack = t => entries.filter(e=>e.track===t);
+  const nodeLabel = t => {
+    const es = byTrack(t);
+    if(!es.length) return t.toUpperCase()+' <span style="color:var(--dim)">활동 없음</span>';
+    const c = {KEEP:0,HOLD:0,REJECT:0}; es.forEach(e=>c[e.verdict]!==undefined && c[e.verdict]++);
+    return t.toUpperCase()+`<br><span class="dot keep"></span>${c.KEEP}
+            <span class="dot hold"></span>${c.HOLD}
+            <span class="dot reject"></span>${c.REJECT}`;
+  };
+  document.getElementById('node-kr').innerHTML = nodeLabel('kr');
+  document.getElementById('node-crypto').innerHTML = nodeLabel('crypto');
+
+  const condHtml = e => {
+    if(!e.conditions || !e.conditions.length)
+      return '<span class="cond empty">- (파일명 클릭해서 원문 참고)</span>';
+    return '<span class="cond">' + e.conditions.map(c=>`<span>${c}</span>`).join('') + '</span>';
+  };
+
+  const pct = v => (v>0?'+':'')+v.toFixed(2)+'%';
+  const num = v => v.toFixed(2);
+  const signClass = v => v>0 ? 'pos' : (v<0 ? 'neg' : '');
+  const has = v => v!==null && v!==undefined;
+
+  const statsHtml = e => {
+    const parts = [];
+    if(has(e.cagr)) parts.push(`CAGR <b class="${signClass(e.cagr)}">${pct(e.cagr)}</b>`);
+    if(has(e.sharpe)) parts.push(`Sharpe <b class="${signClass(e.sharpe)}">${num(e.sharpe)}</b>`);
+    if(has(e.mdd)) parts.push(`MDD <b class="mdd">${pct(e.mdd)}</b>`);
+    if(has(e.cagr) && has(e.mdd) && e.mdd!==0)
+      parts.push(`Calmar <b>${num(e.cagr/Math.abs(e.mdd))}</b>`);
+    if(has(e.win_rate)) parts.push(`WinRate <b>${e.win_rate.toFixed(1)}%</b>`);
+    if(has(e.n)) parts.push(`N <b>${Math.round(e.n)}</b>`);
+    if(has(e.t_stat)) parts.push(`t <b class="${Math.abs(e.t_stat)>=2?'pos':'neg'}">${num(e.t_stat)}</b>`);
+    if(!parts.length) return '<span class="stats empty">- (원문 참고)</span>';
+    return `<span class="stats">${parts.join(' &middot; ')}</span>`;
+  };
+
+  const sorted = [...filtered].sort((a,b)=> new Date(b.mtime||0) - new Date(a.mtime||0));
+  document.getElementById('rows').innerHTML = sorted.map(e => `
+    <tr>
+      <td><span class="badge ${e.track}">${e.track}</span></td>
+      <td><span class="v ${e.verdict.toLowerCase()}">${e.verdict}</span>${e.original_verdict?` <span class="orig">(원문: ${e.original_verdict})</span>`:''}</td>
+      <td><a class="file" href="../findings/${e.file}" target="_blank">${e.file}</a></td>
+      <td>${condHtml(e)}</td>
+      <td>${statsHtml(e)}</td>
+      <td class="mtime">${relTime(e.mtime)}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--dim)">해당 조건의 finding 없음</td></tr>';
+
+  document.getElementById('fetched').textContent = '갱신 ' + new Date().toLocaleTimeString('ko-KR');
+}
+
+document.addEventListener('click', e => {
+  if(e.target.dataset.t !== undefined){ trackFilter = e.target.dataset.t; render(); }
+  if(e.target.dataset.v !== undefined){ verdictFilter = e.target.dataset.v; render(); }
+});
+
+async function load(){
+  try{
+    const [regText, criteria] = await Promise.all([
+      fetch(REGISTRY_URL, {cache:'no-store'}).then(r=>r.text()),
+      fetch(CRITERIA_URL, {cache:'no-store'}).then(r=>r.json())
+    ]);
+    entries = regText.trim().split('\n').filter(Boolean).map(JSON.parse);
+    document.getElementById('cversion').textContent = criteria.version;
+    render();
+  }catch(err){
+    document.getElementById('fetched').textContent = '로드 실패 - ' + err.message +
+      ' (research/strategy-lab에서 python -m http.server로 띄웠는지 확인)';
+  }
+}
+load();
+setInterval(load, REFRESH_MS);
+</script>
+</body>
+</html>
