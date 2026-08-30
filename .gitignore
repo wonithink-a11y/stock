@@ -1,6 +1,7 @@
 node_modules/
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # 로컬 Windows 스케줄 작업 로그(StockUI-FRED-Tier1-Daily/Tier2-Weekly) - 매일/매주 쌓이는 실행 로그, 커밋 대상 아님
 research/strategy-lab/fred_tier1_daily.log
