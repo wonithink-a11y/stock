@@ -6,7 +6,8 @@
 소스 확정: findings/macro-regime-layer-data-source-check-2026-08.md §1-7.
 
 9개 raw + 1개 derived:
-  usFedFundsRate(FRED DFF) · usTreasury10y(FRED DGS10) · usNasdaq(FRED NASDAQCOM)
+  usFedFundsRate(FRED DFF) · usTreasury10y(Treasury.gov, 2026-08-30 FRED에서
+  전환 - FRED보다 갱신이 빠름) · usNasdaq(FRED NASDAQCOM)
   krKospi(네이버 차트) · krTreasury3y·krCorpAA3y(ECOS 817Y002, 일별)
   krCpi(ECOS 901Y009, 월별) · krLeadingCyclical·krCoincidentCyclical(ECOS 901Y067, 월별)
   krCreditSpreadBp = (krCorpAA3y - krTreasury3y) * 100 (derived, 일별)
@@ -36,7 +37,7 @@ import pandas as pd
 
 from macro_common import (
     OUT_DIR, asof_join_kr, ecos, ecos_daily_to_iso, ecos_monthly_to_usable,
-    fred, http_get, load_kr_calendar,
+    fred, http_get, load_kr_calendar, treasury_par_yield,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -75,8 +76,8 @@ def fetch_all():
     raw["usFedFundsRate"] = fred("DFF")
     print("  %d행" % len(raw["usFedFundsRate"]))
 
-    print("FRED DGS10 ...")
-    raw["usTreasury10y"] = fred("DGS10")
+    print("Treasury.gov 10년물 (FRED DGS10보다 빠름, 2026-08-30 실측) ...")
+    raw["usTreasury10y"] = treasury_par_yield("10 Yr")
     print("  %d행" % len(raw["usTreasury10y"]))
 
     print("FRED NASDAQCOM ...")

@@ -18,6 +18,7 @@ PIT 규칙(asof_join_kr): KR 거래일 D에는 FRED 관측일자가 D보다 엄�
 import json
 import os
 import ssl
+import time
 import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
@@ -36,6 +37,22 @@ def http_get(url, timeout=20):
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=timeout, context=CTX) as r:
         return r.read().decode("utf-8", "replace")
+
+
+def _retry(fn, what="조회"):
+    """단발 fetch는 배치의 단일 실패점이다(교훈5, scripts/build-calendar.py와 동일 패턴).
+    지수 백오프 4회 - 실측(2026-08-30)으로 확인된, 같은 호스트에 연속 요청 시
+    한두 해가 순간적으로 타임아웃되는 문제를 흡수한다."""
+    last = None
+    for i in range(4):
+        try:
+            return fn()
+        except Exception as e:            # noqa: BLE001 — 어떤 실패든 재시도 대상
+            last = e
+            if i < 3:
+                time.sleep(2 ** i)
+    print(f"    ! {what} 실패: {type(last).__name__}: {last}")
+    return None
 
 
 def fred(series):
@@ -70,7 +87,6 @@ def load_kr_calendar():
     매 실행마다 직접 조회한다(2026-08-30, 자동화가 calendar.json 동결에 막혀
     갱신이 안 되던 문제 해소).
     """
-    import time
     from pykrx import stock
 
     to = date.today().strftime("%Y%m%d")
@@ -78,21 +94,10 @@ def load_kr_calendar():
     years[0] = ("20140101", years[0][1])
     years[-1] = (years[-1][0], to)
 
-    def _retry(fn):
-        last = None
-        for i in range(4):
-            try:
-                return fn()
-            except Exception as e:            # noqa: BLE001 — 어떤 실패든 재시도 대상
-                last = e
-                if i < 3:
-                    time.sleep(2 ** i)
-        print(f"    ! KR 거래일 조회 실패: {type(last).__name__}: {last}")
-        return None
-
     days = set()
     for f, t in years:
-        df = _retry(lambda f=f, t=t: stock.get_index_ohlcv_by_date(f, t, "1001", name_display=False))
+        df = _retry(lambda f=f, t=t: stock.get_index_ohlcv_by_date(f, t, "1001", name_display=False),
+                    f"KR 거래일(index) {f[:4]}")
         if df is not None and not df.empty:
             days.update(d.strftime("%Y-%m-%d") for d in df.index)
 
@@ -100,7 +105,8 @@ def load_kr_calendar():
     if len(days) < need:
         for tkr in ("005930", "000660"):          # 지수 경로 실패 시 대형주 합집합 폴백
             for f, t in years:
-                df = _retry(lambda f=f, t=t, k=tkr: stock.get_market_ohlcv_by_date(f, t, k))
+                df = _retry(lambda f=f, t=t, k=tkr: stock.get_market_ohlcv_by_date(f, t, k),
+                            f"KR 거래일({tkr}) {f[:4]}")
                 if df is not None and not df.empty:
                     days.update(d.strftime("%Y-%m-%d") for d in df.index)
 
@@ -149,6 +155,40 @@ def ecos(stat_code, freq, start, end, *item_codes):
         except ValueError:
             continue
     return out
+
+
+def treasury_par_yield(tenor_col, from_year=2014):
+    """미 재무부 Daily Treasury Par Yield Curve Rates - FRED DGS*보다 갱신이
+    빠르다(실측 2026-08-30: 이 시점 FRED DGS2/DGS10은 아직 08/27까지였는데
+    이 소스는 이미 금요일 08/28 값을 갖고 있었다). tenor_col 예: "2 Yr"·
+    "10 Yr"·"30 Yr". from_year 기본 2014 - scripts/build-calendar.py의
+    KR 거래일 시작점과 맞춰, 어차피 asof_join_kr()이 join할 kr_days 이전
+    구간을 받아봐야 안 쓰인다.
+
+    30년물은 2002-02~2006-02 발행 중단 구간엔 그 해 CSV에 컬럼 자체가
+    없다(지어내지 않는다 - 없으면 조용히 스킵, 2014년 이후 구간엔 해당 없음).
+    """
+    import csv
+    import io
+
+    out = []
+    for y in range(from_year, date.today().year + 1):
+        url = ("https://home.treasury.gov/resource-center/data-chart-center/"
+               f"interest-rates/daily-treasury-rates.csv/{y}/all"
+               f"?type=daily_treasury_yield_curve&field_tdr_date_value={y}&page&_format=csv")
+        txt = _retry(lambda url=url: http_get(url), f"Treasury {y}년")
+        if txt is None:
+            continue
+        for row in csv.DictReader(io.StringIO(txt)):
+            v = row.get(tenor_col)
+            if not v:
+                continue
+            mm, dd, yyyy = row["Date"].split("/")
+            try:
+                out.append((f"{yyyy}-{mm}-{dd}", float(v)))
+            except ValueError:
+                continue
+    return sorted(out)
 
 
 def month_end(year, month):

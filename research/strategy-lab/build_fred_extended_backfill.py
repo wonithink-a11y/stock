@@ -38,7 +38,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from macro_common import OUT_DIR, asof_join_kr, fred, http_get, load_kr_calendar, month_end
+from macro_common import (
+    OUT_DIR, asof_join_kr, fred, http_get, load_kr_calendar, month_end, treasury_par_yield,
+)
+
+# series_id -> Treasury.gov 컬럼명. 이 표에 있으면 fred() 대신 treasury_par_yield()를 쓴다
+# (FRED보다 갱신이 빠름, macro_common.treasury_par_yield 문서 참고).
+TREASURY_TENOR = {"TSY2Y": "2 Yr", "TSY30Y": "30 Yr"}
 
 HERE = Path(__file__).resolve().parent
 KOSDAQ_COUNT = 4000  # build_macro_layer_backfill.py의 KOSPI_COUNT와 동일 관례
@@ -52,7 +58,10 @@ SERIES = [
     ("SP500", "usSp500", "daily", 0, "S&P500 종가, 당일 확정"),
     ("NASDAQ100", "usNasdaq100", "daily", 0, "나스닥100 종가, 당일 확정"),
     # -- 미국 금리 --
-    ("DGS2", "usTreasury2y", "daily", 0, "2년물 국채금리, 당일 확정"),
+    ("TSY2Y", "usTreasury2y", "daily", 0,
+     "2년물 국채금리, Treasury.gov 직접(2026-08-30 FRED DGS2에서 전환 - FRED보다 갱신 빠름)"),
+    ("TSY30Y", "usTreasury30y", "daily", 0,
+     "30년물 국채금리, Treasury.gov 직접(2002-02~2006-02 발행중단 구간은 결측)"),
     ("T10Y2Y", "usYieldSpread10y2y", "daily", 0, "FRED 공식 스프레드, 직접 계산 안 함(PIT 일관성)"),
     ("T10Y3M", "usYieldSpread10y3m", "daily", 0, "FRED 공식 스프레드"),
     ("FEDFUNDS", "usFedFundsRateMonthly", "monthly", 3,
@@ -142,8 +151,12 @@ def fetch_all(tier="all"):
     for series_id, col, period, lag_days, note in SERIES:
         if tier != "all" and tier_of(period) != tier:
             continue
-        print(f"FRED {series_id} ({col}, {period}, lag={lag_days}일) ...")
-        rows = fred(series_id)
+        if series_id in TREASURY_TENOR:
+            print(f"Treasury.gov {TREASURY_TENOR[series_id]} ({col}, {period}, lag={lag_days}일) ...")
+            rows = treasury_par_yield(TREASURY_TENOR[series_id])
+        else:
+            print(f"FRED {series_id} ({col}, {period}, lag={lag_days}일) ...")
+            rows = fred(series_id)
         rows = to_usable_rows(rows, period, lag_days)
         raw[col] = rows
         print(f"  {len(rows)}행" + (f" ({rows[0][0]}~{rows[-1][0]})" if rows else " (빈 응답)"))
