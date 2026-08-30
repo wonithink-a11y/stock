@@ -419,6 +419,27 @@ Validated against
               있는 OCI 콘솔 액션이라 Claude가 대신 못 한다. 재개 조건:
               사용자가 버킷 이름·네임스페이스·API 키(또는 그것들을 발급할
               의향)를 갖고 오는 것
+              ★ 2026-08-30 후속 — 사용자가 버킷·Dynamic Group·Policy를 콘솔에서
+              생성해 재개. **VM(Instance Principal) → Object Storage 쓰기 경로
+              검증 완료** — `stock`/`stock-new` 둘 다 포함한 Dynamic Group
+              `stock-minute-object-writer` + Policy(`manage objects ... where
+              all {target.bucket.name=..., any {request.permission=
+              'OBJECT_CREATE','OBJECT_INSPECT'}}`, OVERWRITE·DELETE 제외)로
+              실제 PUT+HEAD 성공 확인(`stock-new`에 격리 venv `~/oci-cli-venv`로
+              OCI CLI 설치, collector-venv와 안 섞음). **버킷 정식 이름은
+              `stock-minute-manifest`(전부 소문자)** — 디버깅 중 두 번의 표기
+              불일치(①"manifest"를 "mainfest"로 오타 ②`Stock-`대문자로 시작해
+              놓고 Policy는 소문자로 조건 검) 때문에 Instance Principal 인증
+              자체는 처음부터 정상이었는데도 4시간 가까이 `BucketNotFound`로
+              막혔었다 — 원인 규명 과정에서 `manage all-resources`(최대 권한)
+              로도 안 되는 것까지 확인해 권한 문제가 아님을 먼저 확정한 뒤,
+              별도 임시 버킷(`stock-minute-ip-test`)에 격리 테스트해 Dynamic
+              Group·Policy 메커니즘 자체는 처음부터 문제없었음을 증명 →
+              버킷명 표기만 맞추자 즉시 해결. **다음 단계(미착수)**: Actions
+              쪽 read-only 사용자/API 키(설계상 계획된 3단계, 아직 안 만듦),
+              그리고 실제 manifest 업로드·검증·commit 파이프라인 스크립트
+              자체. 임시 진단용 버킷(`stock-minute-ip-test`)·정책은 사용자가
+              콘솔에서 직접 정리 예정.
   언제든    perRelative(업종 PER 횡단면) — A5-3 부분 재개(아래) 이후에도 여전히
             미착수. 날짜별·업종별 PIT 중앙값 인프라가 새로 필요해 resolver.js의
             종목 단위 인터페이스에 안 맞는다. 🔴급 설계 결정, 백테스트 eligible
