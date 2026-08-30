@@ -1,3 +1,18 @@
+---
+track: kr
+factor: lowmom60-candidate-c
+date: 2026-08-24
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["lowmom60","absolute_liquidity_filter","continuousHoldOnRenewal"]
+reason: "실제 엔진에서 사전점검 대비 낙폭 큼(+13.9%→+5.09% CAGR, MDD -27.77%) - 버그 신호 없으나 채택할 만큼 강하진 않아 연구 후보(production 미확정)"
+cagr: 5.09
+mdd: -27.77
+sharpe: 0.77
+win_rate: 46.9
+n: 2437
+---
+
 # LOWMOM60 Candidate C — 실제 엔진 검증 (2026-08-24)
 
 ## 배경

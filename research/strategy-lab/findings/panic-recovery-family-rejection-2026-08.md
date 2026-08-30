@@ -1,3 +1,12 @@
+---
+track: kr
+factor: panic-recovery-family-rejection
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["4축 percentile 진입", "Panic→Recovery 2단계(낙폭 pct≥80 + +3% 회복)", "즉시매수 계열", "원상복귀·이동평균 청산", "AAII sentiment contrarian"]
+reason: "즉시매수 3종·Panic→Recovery 청산 3종·sentiment 2종+1.5σ 진단 등 9개 변형 전부 Buy&Hold 대비 열위 - '큰 폭 하락 매수 후 회복 매도' 이진 구조가 장기 복리와 구조적으로 부정합"
+---
 # Panic→Recovery 전략군 — 9개 변형 전부 기각 (2026-08-28)
 
 작성: Claude(대화형 세션, 사용자와 매 단계 함께 설계·판정). 사용자가 공유한

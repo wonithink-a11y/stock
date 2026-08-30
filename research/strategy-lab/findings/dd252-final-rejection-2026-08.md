@@ -1,3 +1,16 @@
+---
+track: kr
+factor: dd252-skip1m
+date: 2026-08
+verdict: REJECT
+conditions: ["52주 고점 대비 낙폭(skip-1m)", "연도별 로그초과수익 비중", "국면별 성과", "종목별 PnL 집중도", "유동성 게이트"]
+reason: "2026 부분연도 제외 시 벤치마크보다 낮고 초과수익의 93%가 불장 5개년에 쏠려 국면 무관 구조적 alpha가 아니라, 종목 집중도도 높아 연구 종결·production 후보 제외"
+cagr: 10.72
+sharpe: 0.5872
+mdd: -27.77
+n: 1630
+---
+
 # DD252(skip-1m) — Arm A 실전 검증 및 최종 기각
 
 - 검증일: 2026-08-27

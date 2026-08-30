@@ -5,10 +5,12 @@ date: 2026-08-29
 verdict: HOLD
 criteria_version: v1
 conditions: ["S3-A bb_breakout_trend_A rules (baseline params, no optimization)"]
+reason: "N=28<30 표본부족, event/asset independence 재확인 미완 - HOLD"
 cagr: -15.36
 sharpe: -0.9100
 mdd: -21.11
 n: 28
+
 ---
 
 ## 1. TEST event-date decomposition

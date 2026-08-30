@@ -1,3 +1,16 @@
+---
+track: kr
+factor: pbr-dropout-maxexcl-combined
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["pbr_dropout", "pbr_maxexcl", "combined_overlay"]
+reason: "dropout+MAX제외 결합이 단순 합산 가정을 넘어선 초가산적 개선(CAGR +2.15%p)이나 단일 파라미터 조합·1회 실행으로 research 후보에 그침 - production alpha 미확정"
+cagr: 6.87
+sharpe: 0.6809
+mdd: -18.90
+n: 649
+---
 # PBR dropout + MAX제외 결합 실험 — 단순 합산보다 큰 개선 (2026-08-26)
 
 세션인수인계-2026-08-26.md §5-1(두 실험의 결합, "단순 합산 가정 금지")을

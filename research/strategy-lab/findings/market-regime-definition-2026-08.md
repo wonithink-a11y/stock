@@ -1,3 +1,11 @@
+---
+track: macro
+factor: market-regime-definition
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["vixLevel", "trend60", "adv_pct", "usdKrw20dChangePct"]
+reason: "VIX·trend60·breadth·USD/KRW 4축 regime 정의 - 전략 성과에 최적화하지 않은 사전고정 임계값, 성과측정은 이 문서 범위 밖"
+---
 # market-regime 정의 — VIX·trend·breadth·USD/KRW 4축 (2026-08)
 
 설계 원칙: **regime 정의을 어떤 전략의 수익률에도 맞춰 최적화하지 않는다.** 임계값은 (a) 기존 production 관례(VIX)이거나 (b) 그 feature 자신의 전체 히스토리 tercile(trend·breadth·USD/KRW)뿐이다 — 전략 성과는 이 정의를 고정한 뒤 별도 단계에서 측정한다(이번 문서 범위 밖).

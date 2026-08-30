@@ -1,3 +1,11 @@
+---
+track: kr
+factor: github-strategy-sources-usability
+date: 2026-08-26
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "GitHub 전략 저장소 10개 팩트체크(gh api 전수 일치)+활용성 A~D 등급 - Qlib TopkDropout가 유일한 실참고 가치, 채택 서열·다음 실험 후보 제시(조사)"
+---
 # GitHub 전략 저장소 활용성 조사 — Ox Alpha 산출 + Claude 검증 (2026-08-26)
 
 Ox Alpha(OpenCode, `opencode/x-preview-f-free --variant max`)가 "GitHub에

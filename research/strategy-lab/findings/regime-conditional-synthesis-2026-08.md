@@ -1,3 +1,11 @@
+---
+track: kr
+factor: regime-conditional-synthesis
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["market_regime_definition_2026-08", "own_signal_execution_cost"]
+reason: "동일 regime 정의로 3전략 종합 - CAND1 유일 regime-robust(후보로 생존), Opening Fade는 Risk-On 조건부 신호로 재분류, H6 채택 불가 - 1년 창 한계 공유"
+---
 # Opening Fade · CAND1 · H6 — regime-conditional 종합 (2026-08)
 
 세 전략을 **동일한 regime 정의**(`market-regime-definition-2026-08.md`, 사전고정·

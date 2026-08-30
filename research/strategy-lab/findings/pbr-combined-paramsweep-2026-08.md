@@ -1,3 +1,16 @@
+---
+track: kr
+factor: pbr-combined-paramsweep
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["nDrop∈{2,3,5}", "exclusionPercentile∈{0.7,0.8,0.9}", "naive_sum 대비 combined gap"]
+reason: "시너지(초가산적)는 nDrop 전부에서 재현되고 pct=0.8이 국소최적이며 nDrop=2+pct=0.8이 격자 최선이나 OOS 미검증으로 production 미확정 유지"
+cagr: 7.74
+sharpe: 0.7406
+mdd: -19.40
+---
+
 # PBR dropout×MAX제외 파라미터 스윕 — 시너지는 재현, 최적점은 이동 (2026-08-26)
 
 세션인수인계-2026-08-26.md §5-4(파라미터 스윕, 민감도 확인)와, 결합 실험

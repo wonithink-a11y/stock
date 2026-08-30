@@ -1,3 +1,11 @@
+---
+track: macro
+factor: market-regime-feature-semantics
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "market_regime_features 기술통계·시간안정성·상관 감사 - rvol20↔impl_corr20(r=0.948)·ew_ret↔adv_pct(0.860) 중복 의심, 계산 로직 무변경"
+---
+
 # market-regime feature semantics audit — 2026-08
 목적: `market_regime_features.parquet`(계산 검증 완료, 2026-08-23 quality audit 19/19 PASS)의 각 feature가 **분포·시간안정성·상관구조** 관점에서 실제로 어떤 의미를 갖는지 점검한다. 계산 로직·원본 데이터 무변경 — 이미 있는 컬럼의 기술통계만 낸다.
 

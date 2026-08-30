@@ -1,3 +1,12 @@
+---
+track: kr
+factor: slot-marginal-contribution-seed-comparison
+verdict: UNCLASSIFIED
+original_verdict: 유보
+criteria_version: backfill-v1
+reason: "19개 scoring slot LOO marginal 기여의 시드 간 robustness - pbr 슬롯 5시드 전부 ΔIC(d120) 1위(0.0161~0.0385), base_foreign standalone IC 부호 시드마다 반전(비재현) - 판단 유보"
+---
+
 # 시드 간 robustness 비교 (seed 20260819 / 20260820 / 20260821 / 20260822 / 20260823)
 
 ## 개요

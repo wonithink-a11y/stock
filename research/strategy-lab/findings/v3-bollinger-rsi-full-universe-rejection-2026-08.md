@@ -1,3 +1,15 @@
+---
+track: kr
+factor: v3-bollinger-rsi
+date: 2026-08-24
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["bollinger", "rsi", "level_trigger"]
+reason: "30종목 스모크(Sharpe 1.20)가 전체 유니버스에서 완전 반전 - CAGR -4.05%, Sharpe -0.2248, 11년 중 9년 마이너스, 소표본 착시로 기각"
+cagr: -4.05
+sharpe: -0.2248
+mdd: -41.83
+---
 # V3(Bollinger+RSI) 전체 유니버스 백테스트 — 기각 (2026-08-24)
 
 `v3-5dc-signal-independence-2026-08.md`가 5DC와의 독립성 검토를 통과시킨

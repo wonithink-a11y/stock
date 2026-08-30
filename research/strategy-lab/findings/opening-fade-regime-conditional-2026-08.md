@@ -1,3 +1,10 @@
+---
+track: kr
+factor: opening-fade-regime-conditional
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "Opening Fade regime-conditional T+5/T+10 - 전체 baseline net +9.19bp(T+5), Risk-On/Neutral/Risk-Off 비교만, 252일 후반 구간 net 음, 판정 없음"
+---
 # Opening Fade — regime-conditional 성과 (2026-08)
 
 지시: regime 정의(2026-08-23 고정본)를 바꾸지 않고, Opening Fade의 기존 신호정의·체결규칙(Q1 롱+Q5 숏, 09:05 진입, RT=30bp)·비용가정을 바꾸지 않은 채 baseline과 Risk-On/Neutral/Risk-Off를 비교한다. regime threshold는 이 결과를 보고 역최적화하지 않는다.

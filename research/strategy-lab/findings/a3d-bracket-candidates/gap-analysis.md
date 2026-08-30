@@ -1,3 +1,10 @@
+---
+track: kr
+factor: a3d-bracket-candidates
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "a3d bracket 후보의 공시일 대비 istcTotqy 실제 점프일 gap 분석 - 데이터 감사(56건, |gapDays| 30일 이내 28건)"
+---
 # a3d bracket 후보 gap 분석 (reverseOrConsolidation & multiplier > 1)
 
 disclosureDate(공시일)와 istcTotqy 실제 점프일의 차이. gapDays = 점프일 - 공시일(음수면 점프가 공시일보다 먼저).

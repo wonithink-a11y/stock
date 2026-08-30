@@ -5,10 +5,12 @@ date: 2026-08-29
 verdict: HOLD
 criteria_version: v1
 conditions: ["S1 bb_squeeze_v1 rules (baseline params, no optimization)"]
+reason: "N=13 표본부족, leave-one-out에서 단일이벤트(2026-08-20)·단일자산(DOGE) 제거 시 부호반전 - HOLD"
 cagr: 1.28
 sharpe: 0.1671
 mdd: -10.31
 n: 13
+
 ---
 
 ## 1. TEST event-date decomposition

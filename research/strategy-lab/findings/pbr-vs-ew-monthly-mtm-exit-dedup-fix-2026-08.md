@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-vs-ew-monthly-mtm-exit-dedup-fix
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["exit_symbols_queued 가드", "same-day exit+reentry 중복"]
+reason: "pbr_vs_ew_monthly_mtm.py에 exit_symbols_queued 가드 누락 발견·이식(engine 무변경) - PBR 결과 전부 무변경 확인(CAGR 4.72 등 4항목 동일), 영향은 이 함수 재사용 경로에 한정"
+---
 # pbr_vs_ew_monthly_mtm.py — exit_symbols_queued 가드 누락 발견·수정 (2026-08-24)
 
 overnight macro-regime 확장 실험(TREND-BREAKOUT-v1) 중 발견한 버그. 결론부터:

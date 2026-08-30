@@ -5,10 +5,13 @@ date: 2026-08-29
 verdict: REJECT
 criteria_version: backfill-v1
 conditions: ["taker_ratio_7", "bull_regime_mom30", "daily_rebalance", "30bp_cost"]
+reason: "r7 지평 통계는 유의하나 실전 일간 리밸런싱+거래비용+r1지평에서 전 퀀타일 MDD -99.98%(사실상 전액손실) - 실전 전략화 불가"
 cagr: -0.91
 sharpe: -0.81
 mdd: -99.98
+
 ---
+
 # Step 27 — `taker_ratio_7` 실전형 OOS 검증 (Bull Regime Only)
 
 날짜: 2026-08-29 | 판정: **REJECT**

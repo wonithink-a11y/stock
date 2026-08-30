@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pead-quarterly-oos-validation
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["quarterly SUE", "eligibleLiquidity 절대 유동성 필터", "TRAIN/VALID/TEST 60/15/25"]
+reason: "분기 SUE IC는 세 구간 전부 양(부호 반전 없음)이나 유의성은 TRAIN T+20(t=3.15)만 통과, VALID·TEST t<2·T+60 재현 실패·TEST unfiltered 방향 불일치 - 연간판·파일럿에 이어 기각"
+---
 # PEAD 분기 SUE 전면수집 — OOS(TRAIN/VALID/TEST) 검증 결과
 
 **결론: 기각(채택 보류).** IC 부호는 세 구간 전부 양(+)으로 유지되나(방향

@@ -5,11 +5,13 @@ date: 2026-08-30
 verdict: REJECT
 criteria_version: v1
 conditions: ["foreign_flow_ratio top-30 일별", "turnover20>=1억원", "5세션 고정보유", "maxPositions=30", "tieBreak=ticker_ascending"]
+reason: "신호 자체(순수통계)는 KEEP이나 일별 top-30 포트폴리오 엔진연결 시 CAGR -4.26%. topN=6으로 슬롯경쟁 해소해도 더 악화(-7.32%, 극단값 노이즈 민감) - 일별 top-N 롱온리 구현 형태는 REJECT"
 cagr: -4.26
 sharpe: -0.37
 mdd: -38.21
 win_rate: 45.15
 n: 19289
+
 ---
 
 # 외국인수급5D — 실제 엔진(foreign_flow5d_v1) 스모크 테스트

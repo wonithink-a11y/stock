@@ -1,3 +1,13 @@
+---
+track: kr
+factor: cand1-next-stage-validation
+date: 2026-08
+verdict: UNCLASSIFIED
+original_verdict: FAIL(주의)/PASS 혼재
+criteria_version: backfill-v1
+conditions: ["CAND1 thr=0.02", "vthr=1.5", "entry n_open", "exit n_c0935", "cost 20bp", "regime threshold 고정"]
+reason: "CAND1 시간분해에서 월 11/13개월·분기 4/5 순이익이나 일부 예외로 FAIL(주의), 종목집중도 top5 거래비중 1.1%로 PASS, 20bp 기준 net 21.65bp, 09:35 청산은 엔진 계약 밖이라 SMOKE 승인 조건부"
+
 # CAND1 다음 단계 검증 — 월별/분기별·집중도·비용민감도 (2026-08)
 
 신호·체결·비용(thr=0.02, vthr=1.5, entry=n_open, exit=n_c0935, cost=20bp)·regime threshold 전부 고정, 변경 없음. 이 문서는 CAND1이 이미 통과한 regime-conditional 검증(`cand1-regime-conditional-2026-08.md`, 커밋 `6745dc5`) 위에 시간 분해·집중도·비용 스트레스만 추가한다.

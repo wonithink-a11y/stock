@@ -1,3 +1,14 @@
+---
+track: kr
+factor: opening-fade-longonly-walkforward
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["q1_long_only", "20bp_one_way", "60_15_25_split", "t_5_t_10"]
+reason: "Q1 롱온리 편도비용 walk-forward: TRAIN/VALID 양순익(T+5 t +2.63/+3.08)이나 TEST 급반전(net -484bp, t -3.10) - 문서에 최종 판정 표기 없음"
+win_rate: 42.4
+n: 91065
+t_stat: 1.55
+---
 # Opening Fade — 롱온리(Q1) walk-forward 검증 (2026-08)
 
 목적: 기존에 인용된 Opening Fade net(+29.2bp@T+5 등)은 Q1롱+Q5숏 페어·2xRT 비용이다 — 이 프로젝트는 LONG_ONLY라 그대로 쓸 수 없다. Q1(롱)만 편도 비용(20bp)으로 떼어 CAND1과 같은 틀(TRAIN/VALID/TEST 60/15/25%, 시간순 분리)로 처음 검증한다. 신호(r05 날짜별 5분위)는 튜닝 파라미터가 없어 TRAIN에서 고르는 절차 자체가 없다 — 세 구간 각각의 안정성만 본다.

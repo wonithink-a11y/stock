@@ -1,3 +1,12 @@
+---
+track: kr
+factor: h6-regime-conditional
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["H6_15:19", "H6_15:30", "regime_PIT_join", "cost_20bp"]
+reason: "H6 마감급등 되돌림 15:19/15:30 두 버전 모두 모든 regime에서 net 음수(baseline net -62.4/-66.2bp, MDD -81%) - regime 조건에 의한 성과 개선 없음(판정 문구 없음, 전/후반 표본 한계)"
+---
+
 # H6(마감 급등 되돌림) — regime-conditional 성과, 15:19/15:30 (2026-08)
 
 기존 H6의 **15:20 정의는 쓰지 않는다**(결함 확정 — `findings/h6-last30-execution/study.md` 독립검증 메모: KRX가 15:20부터 장마감 단일가로 전환돼 그 시각 연속체결 봉이 사실상 없음). 대안으로 제안됐던 **15:19(마지막 연속봉)**·**15:30(장마감 단일가)** 두 시점을 각각 독립 버전으로 검증한다. Q5(급등 최상위)만 숏, 익일 시가 청산, cost=20bp(CAND1과 동일 관례 — 단일 leg·익일 청산 구조가 같음), regime 정의는 고정본을 바꾸지 않는다.

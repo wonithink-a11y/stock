@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-dropout-maxexcl-t1t3-decomposition
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["turnover20 진입시점 상대 tercile", "T1하위33%·T3상위33%", "dropout·maxexcl 각 거래집합"]
+reason: "dropout(T3 +7.63%p 우세)·maxexcl(승률 개선 위주) 둘 다 소형주만 유의·대형주 반전 패턴 아님(부호 반전 0건) - 1회 실행이라 채택 가능 미확정"
+---
 # PBR dropout·MAX제외 T1/T3(유동성) 분해 — 반전 패턴 없음 확인 (2026-08-26)
 
 세션인수인계-2026-08-26.md가 남긴 공통 한계("T1/T3 대형주 분해 안 함 - 특히

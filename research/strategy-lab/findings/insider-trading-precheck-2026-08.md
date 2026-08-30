@@ -1,3 +1,13 @@
+---
+track: kr
+factor: insider-trading-precheck
+date: 2026-08-28
+verdict: HOLD
+criteria_version: backfill-v1
+reason: "DART 내부자거래 지분변동 breadth 신호 - 고/저 breadth CAGR 53%p 격차로 방향성 있으나 월별 랭크IC t=1.35로 미달, 22개월 표본으로 표준 검증 불가 - 표본부족 판단보류"
+t_stat: 1.35
+n: 17289
+---
 # DART 내부자거래(임원·주요주주 지분변동) 1차 정찰 — 표본부족으로 결론 보류
 
 **결론: 방향성은 흥미롭지만 22개월 표본으로는 결론을 낼 수 없다.** 실제

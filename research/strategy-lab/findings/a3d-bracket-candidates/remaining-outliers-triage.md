@@ -1,3 +1,10 @@
+---
+track: kr
+factor: a3d-bracket-candidates
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "a3d bracket 후보 중 허용오차 초과(dist>0.1) 77건 triage - 대다수(69/77)가 200일 이내 인접 이벤트 보유, 관측치 분류·기록용"
+---
 # 남은 허용오차 초과 건 분석 (dist > 0.1)
 
 - 분석 대상: 77건

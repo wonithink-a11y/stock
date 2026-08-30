@@ -1,3 +1,13 @@
+---
+track: kr
+factor: opening-fade-macro-extra-axes
+date: 2026-08
+verdict: UNCLASSIFIED
+original_verdict: conditional candidate (소거 정보만 추가)
+criteria_version: backfill-v1
+conditions: ["OpenFade Q1롱+Q5숏 RT30", "macro 6축 trailing126 변화 부호", "T+5/T+10 horizon"]
+reason: "일반순환지수 축만 두 horizon에서 일관된 차이(not-up 우위)를 보이나 1년 창 한계·CAND1과 부호 반전으로 분류 변경 근거로는 이르고, 금리·나스닥·KOSPI·CPI 축은 소거 정보만 추가"
+---
 # Opening Fade — 미검증 macro 6축 확장 검증 (2026-08)
 
 opening_fade_macro_rate_regime_check.py(미국 10년물 1축)에 이어, 아직 안 쓴 macro 6축(연방기금금리·나스닥·KOSPI·한국 CPI·선행순환지수·일반순환지수)에 **완전히 같은 방법론**을 적용했다. 신호정의·체결규칙·비용가정(Q1롱+Q5숏, 09:05 진입, RT=30bp) 전부 무변경, trailDays=126 사전고정.

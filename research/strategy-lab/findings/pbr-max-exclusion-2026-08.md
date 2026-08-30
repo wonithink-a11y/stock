@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-max-exclusion
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["MAX5 top20% 제외", "counterfactual 대체 없이 제외", "Nartea/Wu/Liu 정의"]
+reason: "MAX 상위 20% 제외로 CAGR +0.95%p·Sharpe +0.1258·MDD 개선 3지표 동시 개선(11연도 중 8개 우위) - 1회 실행·T1/T3·OOS 미검증이라 아직 채택 근거 아님"
+cagr: 5.67
+sharpe: 0.5814
+mdd: -20.80
+---
 # PBR — MAX(복권효과) 제외 카운터팩추얼 결과 (2026-08-26)
 
 `findings/github-literature-return-enhancement-candidates-2026-08.md`의

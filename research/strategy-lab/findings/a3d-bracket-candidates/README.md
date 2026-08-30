@@ -1,3 +1,12 @@
+---
+track: kr
+factor: a3d-bracket-candidates
+date: 2026-08-21
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "A3d 브래킷 후보 선정(493건 중 out-of-tolerance 118건)과 PIT 정렬·방향 버그 2건 수정(재수집 후 방향모순 0건) 기록 - 후보/픽스 기록지, DART 대조 판단·채택은 미실행"
+---
+
 # A3d 브래킷 후보 — N=20~30 표본 회귀 준비 (2026-08-21)
 
 `docs/control/세션인수인계-2026-08-20-c.md` §3 "다음 순서 1"의 1차 결과.

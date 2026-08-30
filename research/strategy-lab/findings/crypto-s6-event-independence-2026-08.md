@@ -5,10 +5,12 @@ date: 2026-08-29
 verdict: HOLD
 criteria_version: v1
 conditions: ["S6 price_action_v1 rules (baseline params, no optimization)"]
+reason: "N=19<30 표본부족 - HOLD"
 cagr: -10.71
 sharpe: -1.0374
 mdd: -17.38
 n: 19
+
 ---
 
 ## 1. TEST event-date decomposition

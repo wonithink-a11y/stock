@@ -1,3 +1,15 @@
+---
+track: kr
+factor: research-findings
+date: 2026-08-17
+verdict: UNCLASSIFIED
+conditions: ["5DC-v1A-P post-fix baseline", "survivorship bias A1A_ONLY vs A1A_A1B_MERGED", "data/execution contract audit", "corporate action price-quality 관련 이슈"]
+reason: "5DC-v1A-P post-fix baseline·데이터감사·survivorship·corporate-action 자료를 누적한 연구 로그 — 개별 트랙 판정이 없는 종합 문서"
+cagr: -9.8
+mdd: -75.0
+win_rate: 26.26
+n: 1592
+---
 # AI Lab Research Findings
 
 > 목적: Strategy Lab에서 DeepSeek/Ultra/ChatGPT 등의 독립 연구·검증으로 확인된 중요한 사실을 누적한다.

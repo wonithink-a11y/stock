@@ -1,3 +1,10 @@
+---
+track: kr
+factor: opening-fade-macro-rate-regime-check
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "미국 10년물 금리 축으로는 Opening Fade 설명 안 됨 - T+5와 T+10이 반대 방향, PF 전 구간 1.00~1.01로 break-even, 기존 Risk-On 의존 분류 유지(조건이 금리는 아니라는 소거만)"
+---
 # Opening Fade — 미국 10년물 금리 hiking regime 조건부 확인 (2026-08)
 
 PBR·CAND1 조사와 같은 축(미국 10년물 trailing 6개월/126거래일 변화, trailDays 동일 사전고정)을 Opening Fade에도 적용했다. 신호정의·체결규칙·비용가정(Q1롱+Q5숏, 09:05 진입, RT=30bp) 전부 무변경.

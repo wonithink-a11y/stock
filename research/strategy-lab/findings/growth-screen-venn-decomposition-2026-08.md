@@ -1,3 +1,15 @@
+---
+track: kr
+factor: growth-screen-venn-decomposition
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["asset_growth", "revenue_growth", "op_profit_growth", "top20"]
+reason: "성장축 3개 모두 단독으로도 알파 없음, 교집합 겹칠수록 CAGR 단조 악화(집중위험, 평균 0.6종목) - 성장주 스크리닝 방향 완전 폐쇄"
+cagr: -14.12
+sharpe: -0.613
+mdd: -78.2
+---
 # 성장주 스크리닝 — A/B/C 단일축·교집합 7종 분해 (원인분석)
 
 **결론: 3개 성장축(자산·매출·영업이익 3년증가율) 전부 단독으로도 알파가

@@ -6,7 +6,10 @@ verdict: UNCLASSIFIED
 original_verdict: CONDITIONAL
 criteria_version: backfill-v1
 conditions: ["taker_ratio_7", "zec_loo", "window_sensitivity", "control_ladder", "date_cs_ic"]
+reason: "date-CS IC는 강건(t=10.7)하나 raw신호 대부분이 funding으로 설명됨, 연도별 부호반전(2022-23 음/2024-26 양) - 레짐조건부로만 사용 가능"
+
 ---
+
 # Step 24 Follow-up — `taker_ratio_7` 견고성 검증
 
 날짜: 2026-08-29 | 판정: **CONDITIONAL**

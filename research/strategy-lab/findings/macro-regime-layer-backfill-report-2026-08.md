@@ -1,3 +1,11 @@
+---
+track: macro
+factor: macro-regime-layer-backfill-report
+date: 2026-08
+verdict: UNCLASSIFIED
+reason: Macro Regime Layer 백필 실행·audit 결과를 기록한 보고 문서로, 전략 채택/기각 판정이 없음
+---
+
 # Macro Regime Layer 백필 — 실행 결과 보고 (2026-08-23)
 
 `macro-regime-layer-design-2026-08.md`의 설계를 사용자 지시(2026-08-23, 10항목)

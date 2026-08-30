@@ -1,3 +1,10 @@
+---
+track: kr
+factor: cand1-engine-integration-design
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "CAND1 엔진 연결 옵션 A(종가 근사) vs B(09:35 분봉 확장) 비교 설계 - 결정 안 함, 청산이 구조적 공백인 것만 확인"
+---
 # CAND1 엔진 연결 — 09:35 청산 근사 vs 확장 설계 비교 (2026-08)
 
 범위: **설계 문서만.** 코드 구현·엔진 변경·실행 없음. threshold·신호정의·

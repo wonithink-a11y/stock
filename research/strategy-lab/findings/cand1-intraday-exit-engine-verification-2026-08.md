@@ -1,3 +1,12 @@
+---
+track: kr
+factor: cand1-intraday-exit-engine-verification
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["cand1_0935_exit", "minuteprovider", "thr_0.02", "vthr_1.5", "20bp_cost"]
+reason: "CAND1 09:35 청산을 MinuteProvider 경로로 standalone과 대조 - 가격 근접일치 99.81%, 부분표본 net 차이 -1.33bp로 사전 기준(>99%, <2bp) 충족 - 엔진 확장 검증 PASS"
+n: 10502
+---
 # CAND1 09:35 청산 엔진 확장 — MinuteProvider vs standalone 대조 (2026-08)
 
 신호·진입·비용(thr=0.02, vthr=1.5, cost=20bp) 무변경. standalone 12804건(그리드 n_c0935) 각각의 청산가를 `engine/execution/intraday_exit.py`(MinuteProvider 경로)로 다시 조회해 대조한다.

@@ -1,3 +1,11 @@
+---
+track: macro
+factor: macro-regime-layer-design
+date: 2026-08-23
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "Macro Regime Layer(10축) 스키마·PIT·정합 규칙 설계 + synthetic selftest 12/12 PASS - CPI/경기지수 lag 상수는 보수적 추정, 실제 백필은 범위 밖"
+---
 # Macro Regime Layer — schema·PIT·정합 규칙 설계 (2026-08)
 
 목적: `macro-regime-layer-data-source-check-2026-08.md`(§7까지, 소스 확정)를 이어받아

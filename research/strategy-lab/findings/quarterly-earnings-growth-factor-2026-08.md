@@ -1,3 +1,13 @@
+---
+track: kr
+factor: quarterly-earnings-growth-factor
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["CAN SLIM C 근사(분기 순이익 성장)", "TRAIN/VALID/TEST", "국면분해(불장/약세장/횡보장)", "T1/T3 유동성"]
+reason: "1차 IC t=3.13로 최고였으나 국면분해로 초과수익의 102.7%가 불장 5개년(+0.9529)에서만 발생 - DD252(93%)보다 극단적인 조건부 베타 노출로 최종 기각"
+t_stat: 3.13
+---
 # 분기 이익성장률(CAN SLIM 'C' 근사) — 신규 팩터, 국면분해로 최종 기각
 
 **결론: 기각.** 1차 신호는 이번 세션 최고(decile IC t=3.13)였지만, 후속

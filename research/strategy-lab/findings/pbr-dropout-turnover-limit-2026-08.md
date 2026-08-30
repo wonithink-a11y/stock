@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-dropout-turnover-limit
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["Qlib TopkDropoutStrategy 방식", "nDrop=3", "월별 최대 nDrop개 교체", "continuousHoldOnRenewal"]
+reason: "회전율 제한으로 CAGR +0.64%p·MDD 개선·Sharpe +0.0345 전부 같은 방향 개선·2022 몰빵도 아님 - 1회 실행·nDrop 1개·OOS 미검증이라 아직 채택 근거 아님"
+cagr: 5.36
+sharpe: 0.4901
+mdd: -21.42
+---
 # PBR — Qlib TopkDropoutStrategy 방식(회전율 제한) 적용 결과 (2026-08-26)
 
 `findings/github-strategy-sources-usability-2026-08.md`가 찾은 유일한

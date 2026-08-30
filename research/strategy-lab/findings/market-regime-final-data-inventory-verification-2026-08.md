@@ -1,3 +1,12 @@
+---
+track: macro
+factor: market-regime-final-data-inventory-verification
+date: 2026-08-23
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["regime_labels.parquet 2604행", "VIX ETN parquet", "KOSPI 3000행 컷", "market_regime_features 45컬럼"]
+reason: "GPT·Ox Alpha 인벤토리의 데이터·라이브 조회 주장은 전부 독립 재현으로 일치(regime labels 2604행, VIX ETN parquet, KOSPI 3,000행 컷)했으나 요약 문서 §1-7·1-8이 같은 문서 §1-5와 모순되는 'asOf 미적용' 서술과 44컬럼 오기재(실제 45)를 가짐 - 데이터 수집 단계는 신뢰, 요약 문서 작성 단계에서 오류"
+---
 # GPT·Ox Alpha "Market Regime 최종 데이터 인벤토리" 독립 검증 (2026-08-23)
 
 대상: `findings/market-regime-final-data-inventory-2026-08.md`(GPT·Ox Alpha

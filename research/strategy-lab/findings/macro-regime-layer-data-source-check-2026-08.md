@@ -1,3 +1,11 @@
+---
+track: macro
+factor: macro-regime-layer-data-source
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "Macro Regime Layer용 금리·신용·경기·물가·글로벌 소스 실측 - FRED 한국계열 갱신 정지, ECOS 키 확보로 전 축 해결 - 소스 확정(백필·설계는 다음 단계)"
+---
+
 # Macro Regime Layer — 금리·신용·경기·물가·글로벌시장 소스 확인 (2026-08)
 
 목적: 기존 market-regime(VIX·USD/KRW·trend60·breadth, `market-regime-definition-2026-08.md`)에

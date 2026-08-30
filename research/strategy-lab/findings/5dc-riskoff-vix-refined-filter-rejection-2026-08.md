@@ -1,3 +1,14 @@
+---
+track: kr
+factor: 5dc-riskoff-vix-refined-filter-rejection
+date: 2026-08-24
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["Risk-Off∧VIX Low/Mid 정제필터", "Risk-Off 전부 차단 원본필터"]
+reason: "정제필터(C)가 CAGR -7.34%로 원본필터(B) -5.09%에 명확히 못 미치고 VIX High Risk-Off 거래를 다시 받아주며 다른 후보의 슬롯을 뺏어 - 거래단위 관측이 포트폴리오 슬롯 경쟁을 놓쳐 필터 방향을 잘못 가리켰다"
+cagr: -7.34
+mdd: -71.26
+---
 # 5DC-v1A-P — Risk-Off+VIX 정제 필터 실제 runner 검증 — 기각 (2026-08-24)
 
 `vix-incremental-info-check-2026-08.md`(P1-1)가 Risk-Off 구간 안에서도

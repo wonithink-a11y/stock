@@ -1,3 +1,10 @@
+---
+track: kr
+factor: cand1-regime-conditional
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "Risk-On/Neutral/Risk-Off regime별 CAND1 성과 비교 및 기존 TEST +0.369%/일(t=3.94) 재현 - 국면 조건부 관측"
+---
 # CAND1(PMCRASH_REVERSAL) — regime-conditional 성과 (2026-08)
 
 지시: regime 정의(2026-08-23 고정본)를 바꾸지 않고, CAND1의 기존 신호·체결 규칙(thr=0.02, vthr=1.5, entry=n_open, exit=n_c0935, cost=20bp)을 바꾸지 않은 채 baseline과 Risk-On/Neutral/Risk-Off를 비교한다.

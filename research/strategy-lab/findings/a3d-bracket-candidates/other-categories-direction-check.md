@@ -1,3 +1,10 @@
+---
+track: kr
+factor: other-categories-direction-check
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "무상감자·무상증자·유상감자 등 방향모순 의심 집계 - capitalReductionFree 1건만 의심, 나머지 방향모순 없음, 실수치 없는 null 다수"
+---
 # other-categories 방향모순 집계 (capitalReductionFree · bonusIssue · capitalReductionPaid · capitalReductionUnknown)
 
 집계 기준:

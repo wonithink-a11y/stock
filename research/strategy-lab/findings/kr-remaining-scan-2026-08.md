@@ -5,7 +5,10 @@ date: 2026-08-29
 verdict: UNCLASSIFIED
 criteria_version: backfill-v1
 conditions: ["assetTurnover", "treasuryRatio", "dividendPresent", "pit_monthly", "30bps_cost"]
+reason: "treasuryRatio만 독립신호(TEST residual +8.7)로 확인되나 portfolio 경제성이 전 기간 0~1.6%로 실현 불가 수준 - 전용 견고성 검증 필요. assetTurnover는 대리변수, dividendPresent는 REJECT급"
+
 ---
+
 # 남은 Fundamental/Value Factor Screening (10-KR-22)
 
 - 검증일: 2026-08-29

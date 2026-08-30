@@ -1,3 +1,13 @@
+---
+track: kr
+factor: trend-breakout-riskoff-runner-validation
+date: 2026-08
+verdict: UNCLASSIFIED
+original_verdict: A - 개선 확인
+conditions: ["Risk-Off 신규진입 차단"]
+reason: "Risk-Off 신규진입 필터를 TREND-BREAKOUT-v1에서도 확인 - 5개 지표 전부 개선(다만 필터 후에도 CAGR -12.5%)으로 필터의 전략 범용성 검증"
+---
+
 # P0-2: TREND-BREAKOUT-v1 Risk-Off 신규진입 회피 — 실제 runner 검증 (2026-08-24)
 
 `5dc-riskoff-runner-validation-2026-08.md`(5DC-v1A-P 대상, P0-1 후속)의

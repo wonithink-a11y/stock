@@ -1,3 +1,14 @@
+---
+track: kr
+factor: lowmom60-macro-regime-check
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["lowmom60", "inst_inflow", "turnover20>=1억", "top30", "30bps_cost", "trail126d_축버킷"]
+reason: "LOWMOM60+기관수급 절대수익은 미10년물·신용스프레드 상승기에 몰리고(기여 75~80%) KOSPI 상승기엔 마이너스(역추세) - 조건만 좁혔을 뿐 production 판단 아님(UNCLASSIFIED)"
+cagr: 13.90
+mdd: -42.65
+---
 # LOWMOM60+기관수급 — macro regime 축별 조건부 성과 검증 (2026-08-24)
 
 배경: `pbr_macro_rate_regime_check.py`(2026-08-23)가 검증한 방법론 — 월별 수익을

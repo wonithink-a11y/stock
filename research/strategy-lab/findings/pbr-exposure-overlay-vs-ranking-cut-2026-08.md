@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-exposure-overlay-vs-ranking-cut
+date: 2026-08-24
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["us_treasury10y_chg6m", "exposure_frac", "ranking_cut_control"]
+reason: "랭킹컷 개선은 노출 타이밍이 아니라 '더 타이트한 저PBR 스크리닝' 구성효과 재확인 - 노출 고정 시 CAGR 4.72→2.65·Sharpe 0.4556→0.3976 열위, 이진·연속 사이징 경로 폐쇄"
+cagr: 2.65
+sharpe: 0.3976
+mdd: -12.35
+---
 # PBR 비중조절 — 노출효과 vs 구성효과 분리 (2026-08-24)
 
 `pbr-sizing-macro-continuous-2026-08.md`(매달 top-K PBR 랭킹 컷)의 개선분이

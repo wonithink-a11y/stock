@@ -5,8 +5,10 @@ date: 2026-08-30
 verdict: KEEP
 criteria_version: v1
 conditions: ["foreign_flow_ratio = (외국인+기타외국인 순매수)/전체거래대금", "T+5 forward return", "날짜별 cross-sectional quintile"]
+reason: "원본(flow-basic-effect)과 원시데이터부터 독립재구현해 mean/NW-t/n 소수점까지 완전일치 - 순수 cross-sectional 통계로 KEEP 확정"
 n: 2590
 t_stat: 15.53
+
 ---
 
 # 외국인수급5D 효과 — 독립 재현 검증

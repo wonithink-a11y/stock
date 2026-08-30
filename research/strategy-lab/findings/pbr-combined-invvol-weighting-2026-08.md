@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-combined-invvol-weighting
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["60일 변동성 역수 가중", "Portfolio.process_day weights opt-in"]
+reason: "역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류"
+cagr: 6.68
+sharpe: 0.6811
+mdd: -17.94
+---
 # PBR combined 역변동성 가중 — 사실상 무승부, MDD만 소폭 개선 (2026-08-26)
 
 Ox Alpha가 제안한 엔진 개선 2건(findings/github-literature-return-

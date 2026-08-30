@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-macro-rate-regime-check
+date: 2026-08-23
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["usTreasury10y_chg6m", "krTreasury3y_chg6m", "krCreditSpreadBp 확대", "2022 제외 재검산"]
+reason: "미국10년물 축만 2022 제외에도 방향 유지(가설 완전 기각 아님, hiking +0.51%/월) - 국고채·신용스프레드는 2022 하나로 설명·역전, 연도별 반례도 존재해 깨끗한 인과 아님"
+---
 # PBR 2022년 집중 현상 — 금리 regime 조건부 가설 검증 (2026-08-23)
 
 배경: `pbr_vs_ew_monthly_mtm.py`(2026-08-22, 실제 엔진 MTM)로 확정한 PBR-EW

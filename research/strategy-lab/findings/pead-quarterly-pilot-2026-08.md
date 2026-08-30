@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pead-quarterly-pilot
+date: 2026-08-26
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["quarterly SUE", "reprtCode 11012/11014 분기 단독값", "T+60 drift"]
+reason: "분기 SUE 파일럿이 T+60에서 IC t=1.96으로 신호 강화(연간판과 반대 패턴, PEAD 문헌 그림에 근접) - 표본 100종목·28공시월이라 확실·기각 모두 못하고 OOS 재확인이 다음 단계"
+---
 # PEAD 분기 SUE 로컬 파일럿 — 경계선 신호, 연간판과 반대 패턴 (2026-08-26)
 
 `findings/pead-annual-precheck-2026-08.md`가 "표준 분기 PEAD는 A3b(연간

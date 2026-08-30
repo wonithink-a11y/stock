@@ -6,7 +6,10 @@ verdict: UNCLASSIFIED
 original_verdict: WEAK
 criteria_version: backfill-v1
 conditions: ["opMargin", "mom60_regime", "vol_regime", "residual_control", "pit_monthly", "30bps_cost"]
+reason: "방향성 IC는 시간·regime 무관하게 견고(24m rolling 100% 양)하나 경제적 규모가 2023년 이후에만 2~3배 강해짐(TEST 가중 의심) - 단독 포지션 부여 보류"
+
 ---
+
 # opMargin Time & Regime 안정성 (10-KR-21)
 
 - 검증일: 2026-08-29

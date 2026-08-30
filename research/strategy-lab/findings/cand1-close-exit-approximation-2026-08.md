@@ -1,3 +1,16 @@
+---
+track: kr
+factor: cand1-close-exit-approximation
+date: 2026-08
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["n_close_approx", "n_c0935_baseline", "20bps_cost"]
+reason: "익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중"
+win_rate: 53.8
+mdd: -38.97
+n: 13329
+t_stat: 2.01
+---
 # CAND1 — 익일 종가 근사(n_close) vs 검증된 익일 09:35(n_c0935) (2026-08)
 
 목적: `cand1-next-stage-validation-2026-08.md` §7 SMOKE 계획의 옵션 1을 엔진 접점 없이 먼저 확인 — Strategy Lab 엔진이 지원 못 하는 '일중 특정 시각(09:35) 청산'을 '익일 종가' 청산으로 근사했을 때도 순양(net>0)이 유지되는가. 신호·체결 파라미터(thr=0.02, vthr=1.5, entry=n_open, cost=20bp)는 전부 동결값 그대로, exit 컬럼만 바꾼다.

@@ -1,3 +1,13 @@
+---
+track: kr
+factor: trendbreakout-5dc-exposure-overlay-timing-value
+date: 2026-08-24
+verdict: UNCLASSIFIED
+original_verdict: "TREND-BREAKOUT 타이밍가치 없음 / 5DC-v1A-P 작은 양"
+criteria_version: backfill-v1
+conditions: ["us_treasury10y_chg6m", "exposure_frac_overlay", "constant_exposure_control"]
+reason: "디레버리징 대조군 분리로 TREND-BREAKOUT 타이밍가치는 없음(-0.55%p, 방향 종료)이고 5DC는 작은 양(+0.52%p) - 두 전략이 갈리고 둘 다 연구 후보, 실전 적용 아님"
+---
 # TREND-BREAKOUT-v1 · 5DC-v1A-P — 미국10Y 노출조절의 순수 타이밍가치 분리검증 (2026-08-24)
 
 `pbr-exposure-overlay-vs-ranking-cut-2026-08.md`(같은 날 오전)가 PBR에서

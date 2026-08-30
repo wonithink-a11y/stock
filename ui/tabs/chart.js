@@ -20,14 +20,21 @@ window.TABS.chart = {
         } catch (e) { /* 다음 경로 시도 */ }
       }
 
-      renderChartTab(container, data, kospiHistory);
+      // 종목명 조회 - 없어도(신규 상장 등 매핑 누락) 코드만 보이면 되니 fail-soft.
+      let tickerNames = {};
+      try {
+        const nRes = await fetch("../data/ticker-names.json");
+        if (nRes.ok) tickerNames = await nRes.json();
+      } catch (e) { /* 코드만 표시 */ }
+
+      renderChartTab(container, data, kospiHistory, tickerNames);
     } catch (e) {
       container.innerHTML = '<div class="empty">데이터 로드 실패: ' + String(e && e.message || e) + "</div>";
     }
   }
 };
 
-function renderChartTab(container, data, kospiHistory) {
+function renderChartTab(container, data, kospiHistory, tickerNames) {
   const { updatedAt, historyAsOf, account, strategies } = data;
   const strategyEntries = Object.entries(strategies);
   const totalPositions = strategyEntries.reduce((n, [, s]) => n + (s.positions || []).length, 0);
@@ -91,7 +98,10 @@ function renderChartTab(container, data, kospiHistory) {
         const rowClass = isSelected ? ' style="background:var(--row-selected);"' : "";
         tablesHtml += "<tr" + rowClass + ' data-symbol="' + pos.symbol + '">';
         const risk = computeRiskMetrics(pos.history, kospiHistory);
-        tablesHtml += '      <td class="mono" style="text-align:left;">' + pos.symbol + "</td>";
+        const tickerName = tickerNames && tickerNames[pos.symbol];
+        tablesHtml += '      <td style="text-align:left;">' +
+          (tickerName ? tickerName + ' <span class="mono dim" style="font-size:11px">' + pos.symbol + "</span>" : '<span class="mono">' + pos.symbol + "</span>") +
+          "</td>";
         tablesHtml += '      <td>' + sparklineSvg(pos.history) + "</td>";
         tablesHtml += '      <td class="mono">' + (risk && risk.beta != null ? risk.beta.toFixed(2) : "-") + "</td>";
         tablesHtml += '      <td class="mono">' + (risk ? risk.volAnnualPct.toFixed(1) + "%" : "-") + "</td>";

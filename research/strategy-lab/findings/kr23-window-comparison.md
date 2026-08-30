@@ -1,3 +1,11 @@
+---
+track: kr
+factor: kr23-window-comparison
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["foreignTrend5d", "institutionTrend5d", "window5_10_15_20", "pooled_spearman"]
+reason: "수급 슬롯 5일 추세 창을 window 5/10/15/20으로 재계산해 base_foreign/base_inst IC 비교 - base_inst d20 부호반전은 window 5~10 사이, base_foreign는 전 window·전 horizon 양수 - 판정 없음"
+---
 # 수급 슬롯 5일 추세 창 vs 실제 20일 창 — window=5/10/15/20 pooled Spearman IC 비교
 
 측정 대상: 수급 원자료에서 "5일 추세"로 라벨링된 `foreignTrend5d`/`institutionTrend5d` 슬롯을

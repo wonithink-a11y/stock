@@ -63,6 +63,7 @@ original_verdict: REGIME-CONDITIONAL   # verdict가 표준 4개에 안 맞아 UN
                                         # 내렸을 때만 - 원문이 실제로 쓴 라벨을 그대로 전사
 criteria_version: v1
 conditions: ["52w_low_dist<=10%", "foreign_flow_20d>0", "per<=15", "ma20>ma120"]
+reason: "TRAIN t=2.15로 통과했으나 TEST에서 부호반전, PER필터로 유니버스가 좁아지며 발생 - HOLD"
 cagr: 5.36
 sharpe: 0.74
 mdd: -18.90
@@ -83,6 +84,14 @@ stats:
 리터럴로 쓴다(레지스트리 파서가 YAML 전체를 파싱하지 않고 이 줄만
 `json.loads`하기 때문 - 여러 줄로 쪼개면 못 읽는다). 대시보드가 이 필드를
 테이블에 그대로 보여준다.
+
+**`reason`은 "왜 이 판정이 났는가"를 한 줄로 요약한다(2026-08-30 추가).**
+대시보드가 conditions 태그 밑에 그대로 보여준다 - 태그만 봐선 "그래서
+결론이 뭔데"를 알 수 없다는 지적으로 신설. 자유 텍스트 한 줄(콜론·쉼표
+포함 가능, 단 줄바꿈 금지 - `reason:` 이후 그 줄 끝까지가 전부 값이라
+여러 줄로 쪼개면 못 읽는다). 판정 근거의 핵심만 압축한다 - 원문 전체
+요약이 아니라 "TRAIN 통과, TEST 반전" 같은 한 문장. `original_verdict`와
+마찬가지로 순수 전사·요약이라 OpenCode 위임이 안전하다.
 
 **숫자 필드는 `cagr`·`sharpe`·`mdd`·`win_rate`·`n`·`t_stat` 여섯 개다 -
 전부 단일 스칼라 한 줄이어야 한다**(위 `conditions`와 같은 이유 - `stats`
@@ -124,10 +133,12 @@ stats:
 옛 finding(frontmatter 없음)은 이 필드들이 전부 없으니 대시보드에서
 "-"로 뜨고, 파일명을 클릭해 원문에서 조합·수치를 읽는다.
 
-이전(2026-08-29 이전) findings 218개는 이 형식이 없다 - 재작성하지 않는다.
-`build_findings_registry.py`가 파일명·본문 키워드로 best-effort 분류해
-`_registry.jsonl`에 `UNCLASSIFIED`로 채워둔 것도 있다 - 그건 확정 판정이
-아니라 다음 세션이 빠르게 훑기 위한 근사치일 뿐이다.
+~~이전(2026-08-29 이전) findings 218개는 이 형식이 없다 - 재작성하지
+않는다.~~ **2026-08-30 사용자 지시로 번복** - OpenCode(Big Pickle) 2개
+동시 실행으로 나머지 findings에도 frontmatter를 소급 채운다. 이유: 대시보드
+UNCLASSIFIED 근사치보다 실제 조건·결과값이 있는 편이 랩 데이터 활용도가
+높다고 판단. 각 파일에 실제로 계산된 값만 채우고 지어내지 않는 원칙(교훈57)은
+그대로 유지 - 소급 작업도 예외 없이 이 원칙을 따른다.
 
 ## 실험실(OpenCode) 지시서 템플릿
 

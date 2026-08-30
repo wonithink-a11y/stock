@@ -1,3 +1,12 @@
+---
+track: kr
+factor: cand1-macro-extra-axes
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "1년 창 한계로 구조적 관계 미확정 - 한국 일반순환지수 축만 판별력(+49.36bp), 나머지 5축 무판별/표본 부족 - 가설만 유지"
+---
+
 # CAND1 — 미검증 macro 6축 확장 검증 (2026-08)
 
 cand1_macro_rate_regime_check.py(미국 10년물 1축)에 이어, 아직 안 쓴 macro 6축(연방기금금리·나스닥·KOSPI·한국 CPI·선행순환지수·일반순환지수)에 **완전히 같은 방법론**을 적용했다. 신호·체결·비용 전부 무변경(thr=0.02·vthr=1.5·entry=n_open·exit=n_c0935·cost=20bp), trailDays=126 사전고정.

@@ -1,3 +1,16 @@
+---
+track: kr
+factor: trend-breakout-macro-regime-check
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["trailing_126d_change_gt0", "monthly_mtm", "absolute_return"]
+reason: "TREND-BREAKOUT-v1 손실은 KOSPI 약세·미국10Y 상승·신용스프레드 확대 창에 집중(ex-2022 방향 유지) - 절대수익 기준 손실의 조건화, 편입 판단 없음"
+cagr: -13.30
+sharpe: -0.73
+mdd: -77.92
+n: 128
+---
 # TREND-BREAKOUT-v1 — macro regime 축별 조건부 성과 검증 (2026-08-24)
 
 배경: `pbr_macro_rate_regime_check.py`(2026-08-23)가 검증한 방법론 — 월별 수익을

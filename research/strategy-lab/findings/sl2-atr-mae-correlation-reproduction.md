@@ -1,3 +1,14 @@
+---
+track: kr
+factor: sl2-atr-mae-correlation-reproduction
+date: 2026-08-21
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["sl2 atr_pct vs mae_pct pearson 상관", "STOP만 분리", "전체 2,154건"]
+reason: "SL2 ATR%-MAE 상관 재현 — 전체 r=-0.6836, STOP만 r=-0.8380으로 문서값(0.820)과 어긋나나 2026-08-19 재현의 STOP(0.838)과는 일치, 어느 쪽이 맞다는 결론은 내리지 않는 재현 문서"
+n: 2154
+---
+
 # SL2 ATR%-MAE 상관 재현 (전체 / STOP만)
 
 - 생성 일자: 2026-08-21

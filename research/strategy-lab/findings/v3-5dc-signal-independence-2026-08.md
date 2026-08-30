@@ -1,3 +1,13 @@
+---
+track: kr
+factor: v3-5dc-signal-independence
+date: 2026-08-24
+verdict: KEEP
+criteria_version: backfill-v1
+conditions: ["v3_bollinger_rsi30", "5dc_bb_mid_cci", "20d_window_overlap"]
+reason: "V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행"
+n: 25807
+---
 # V3(Bollinger+RSI) vs 5DC-v1A-P — 신호 독립성 검토 (2026-08-24)
 
 `video-strategies-2026-08/audit.md`(2026-08-22)가 V3(스모크 Sharpe 1.20,

@@ -1,3 +1,15 @@
+---
+track: kr
+factor: lowmom60-exposure-overlay-timing-value
+date: 2026-08-24
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["us_treasury10y_chg6m", "exposure_frac_overlay", "constant_exposure_control"]
+reason: "순수 타이밍가치 CAGR +1.90%p(뚜렷한 양)이나 MDD -6.73%p 악화·Calmar 열위·Sharpe 오차범위 - 지표별로 갈려 순채택 근거 아님, 미국10Y 사이징 방향은 4후보 전부 폐쇄"
+cagr: 14.73
+sharpe: 0.5303
+mdd: -42.65
+---
 # LOWMOM60+기관수급 — 미국10Y 순수 타이밍가치 분리검증 (2026-08-24)
 
 `trendbreakout-5dc-exposure-overlay-timing-value-2026-08.md`와 같은

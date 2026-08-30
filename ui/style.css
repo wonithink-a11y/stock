@@ -240,3 +240,128 @@ th {
 .finding-content h1 { font-size: 18px; } .finding-content h2 { font-size: 16px; } .finding-content h3 { font-size: 14px; }
 .finding-content code { background: var(--surface-3); padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 12px; }
 @media (max-width: 900px) { .research-layout { grid-template-columns: 1fr; } }
+
+/* Rule Discovery Lab 필드(track/verdict/conditions/reason/수치) - 2026-08-30,
+   research/strategy-lab의 대시보드와 같은 findings/*.md 소스를 여기서도 보여준다. */
+.v-chip-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.v-chip {
+  background: var(--surface-3); border: 1px solid var(--panel-border); color: var(--text-dim);
+  border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; font-family: var(--mono);
+}
+.v-chip:hover { color: var(--text); }
+.v-chip.active { color: var(--accent); border-color: var(--accent); }
+.finding-badges { display: flex; gap: 4px; margin-bottom: 3px; }
+.v-badge {
+  display: inline-block; font-size: 10px; font-family: var(--mono); text-transform: uppercase;
+  padding: 1px 6px; border-radius: 3px; border: 1px solid var(--panel-border); background: var(--surface-3);
+}
+.v-badge.v-keep { color: var(--good); border-color: var(--good); }
+.v-badge.v-hold { color: var(--warn); border-color: var(--warn); }
+.v-badge.v-reject { color: var(--up); border-color: var(--up); }
+.v-badge.v-unclassified { color: var(--text-dim); }
+.v-orig { font-size: 10px; color: var(--text-dim); font-style: italic; }
+.v-reason { font-size: 11.5px; color: var(--text-dim); margin: 3px 0; line-height: 1.4; }
+.v-cond { font-family: var(--mono); font-size: 11px; margin: 4px 0; }
+.v-cond span {
+  background: var(--surface-3); border: 1px solid var(--panel-border); border-radius: 4px;
+  padding: 1px 6px; margin: 1px 3px 1px 0; display: inline-block;
+}
+.v-stats { font-family: var(--mono); font-size: 12px; margin: 4px 0; }
+.v-stats b { font-weight: 600; }
+.v-stats .pos { color: var(--good); }
+.v-stats .neg { color: var(--up); }
+.finding-summary { padding: 10px 14px; border-bottom: 1px solid var(--panel-border); margin-bottom: 10px; }
+
+/* Quant Research Lab / Experiment Console - 2026-08-30, 리서치랩 탭을
+   Overview/Experiments/Compare/Findings 4개 서브뷰로 재구성. */
+.tab-panel.rl-console.active { display: flex; flex-direction: column; gap: 10px; }
+.rl-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; }
+.rl-nav-btn {
+  background: transparent; border: none; color: var(--text-dim); font-size: 13px;
+  padding: 6px 14px; border-radius: 6px 6px 0 0; cursor: pointer; font-family: var(--mono);
+}
+.rl-nav-btn:hover { color: var(--text); background: var(--row-hover); }
+.rl-nav-btn.active { color: var(--accent); background: var(--surface-2); }
+
+.rl-stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.rl-stat-tile {
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 10px;
+  padding: 14px; text-align: center;
+}
+.rl-stat-val { font-size: 26px; font-weight: 600; font-family: var(--mono); }
+.rl-stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
+.v-keep-text { color: var(--good); }
+.v-hold-text { color: var(--warn); }
+.v-reject-text { color: var(--up); }
+@media (max-width: 900px) { .rl-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.rl-panel h2 { display: flex; align-items: center; justify-content: space-between; }
+.rl-recent-list { display: flex; flex-direction: column; gap: 2px; }
+.rl-recent-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 4px; cursor: pointer;
+  border-radius: 4px; font-size: 12px;
+}
+.rl-recent-row:hover { background: var(--row-hover); }
+.rl-recent-date { color: var(--text-dim); font-size: 11px; min-width: 76px; }
+.rl-recent-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.rl-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+.rl-toolbar input[type="search"] {
+  background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text);
+  padding: 6px 10px; border-radius: 4px; font-size: 12px; min-width: 200px;
+}
+.rl-toolbar input[type="search"]:focus { outline: none; border-color: var(--accent); }
+
+.rl-exp-list { padding: 6px 10px; }
+.rl-exp-group-header {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 10px 6px 4px; border-top: 1px solid var(--panel-border); margin-top: 4px;
+}
+.rl-exp-group-header:first-child { border-top: none; margin-top: 0; }
+.rl-exp-row {
+  display: flex; align-items: center; gap: 10px; padding: 7px 6px; cursor: pointer;
+  border-radius: 4px; border-bottom: 1px solid var(--panel-border);
+}
+.rl-exp-row:hover { background: var(--row-hover); }
+.rl-exp-badges { display: flex; gap: 4px; flex-shrink: 0; }
+.rl-exp-title { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rl-exp-date { flex-shrink: 0; font-size: 11px; }
+.rl-exp-row .v-stats { flex-shrink: 0; margin: 0; }
+@media (max-width: 700px) {
+  .rl-exp-row { flex-wrap: wrap; }
+  .rl-exp-title { flex-basis: 100%; order: 1; white-space: normal; }
+}
+
+.rl-stats-table { border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+.rl-stats-table th, .rl-stats-table td { border: 1px solid var(--panel-border); padding: 4px 12px; text-align: left; }
+.rl-stats-table th { color: var(--text-dim); font-weight: 400; background: var(--surface-2); }
+
+.rl-compare-layout { display: grid; grid-template-columns: 300px 1fr; gap: 12px; align-items: start; }
+.rl-compare-list { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.rl-compare-row { display: flex; align-items: center; gap: 6px; padding: 5px 4px; font-size: 12px; cursor: pointer; border-radius: 4px; }
+.rl-compare-row:hover { background: var(--row-hover); }
+.rl-compare-row .rl-recent-title { flex: 1; }
+.rl-compare-scroll { overflow-x: auto; }
+.rl-compare-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.rl-compare-table th, .rl-compare-table td {
+  border: 1px solid var(--panel-border); padding: 6px 10px; text-align: left; vertical-align: top;
+  white-space: nowrap;
+}
+.rl-compare-table tr:first-child th { color: var(--accent); background: var(--surface-2); }
+.rl-compare-table th:first-child, .rl-compare-table td:first-child {
+  color: var(--text-dim); font-family: var(--mono); white-space: nowrap; background: var(--surface-2);
+}
+@media (max-width: 900px) { .rl-compare-layout { grid-template-columns: 1fr; } }
+
+.rl-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center;
+  justify-content: center; z-index: 100; padding: 24px;
+}
+.rl-modal { width: min(760px, 100%); max-height: 85vh; overflow-y: auto; margin: 0; }
+.rl-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.rl-modal-head .finding-title { font-size: 15px; }
+.rl-modal-close {
+  background: none; border: none; color: var(--text-dim); font-size: 22px; cursor: pointer; line-height: 1;
+}
+.rl-modal-close:hover { color: var(--text); }
+.rl-modal-body .finding-summary { padding: 0 0 10px; }

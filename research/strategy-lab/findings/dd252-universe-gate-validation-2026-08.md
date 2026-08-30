@@ -1,3 +1,13 @@
+---
+track: kr
+factor: universe-gate-validation
+date: 2026-08
+verdict: UNCLASSIFIED
+conditions: ["거래대금 20세션 평균 ≥1억원", "rv20 상위 decile 제외", "종가 ≥5,000원", "LOWMOM60(mom60)", "REV20(mom20)"]
+reason: "factor-level 선행 검증 문서 — 유동성≥1억 필터는 alpha 보존(B 유력), 고변동·가격 필터는 alpha 훼손해 보류했으나 DD252 포트폴리오 자체 판정은 아님"
+t_stat: 2.44
+---
+
 # DD252 후속 — 유니버스 게이트가 LOWMOM60/REV20 alpha를 보존하는가
 
 - 연구일: 2026-08-26

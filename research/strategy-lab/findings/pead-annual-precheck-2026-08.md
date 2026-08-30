@@ -1,3 +1,13 @@
+---
+track: kr
+factor: pead-annual-precheck
+date: 2026-08-26
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["annual_sue_seasonal_random_walk", "availableFrom_entry", "30bps_cost", "turnover20_1e8"]
+reason: "연간 SUE 근사 PEAD: T+20 IC t=1.86 유의성 미달, 유동성 필터 시 t=1.32, T+60 소멸 - 분기 SUE 데이터 부재(매핑 오류 정정)로 연간 대체판도 기각"
+t_stat: 1.86
+---
 # PEAD 착수 전 재확인 — 데이터 매핑 오류 발견 + 연간 대체판도 기각 (2026-08-26)
 
 세션인수인계-2026-08-26.md §5-3(PEAD 착수, "데이터 매핑은 확인됨" 전제)을

@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-combined-oos-validation
+date: 2026-08-26
+verdict: KEEP
+criteria_version: backfill-v1
+conditions: ["TRAIN/VALID/TEST 60/15/25 시간분할", "12격자(nDrop×maxexcl)", "nDrop=2/maxexcl=0.8 선택"]
+reason: "12격자·3구간 전부 Sharpe 양(+)로 OOS 부호 반전 0건, TRAIN 최선(nDrop=2/maxexcl=0.8)이 전체기간 선택과 정확히 일치 - production 고려 후보로 상향"
+---
 # PBR combined 파라미터 스윕 — OOS(TRAIN/VALID/TEST) 검증, 반전 없음 (2026-08-26)
 
 `findings/pbr-combined-paramsweep-2026-08.md`이 "nDrop=2+pct=0.8이 격자

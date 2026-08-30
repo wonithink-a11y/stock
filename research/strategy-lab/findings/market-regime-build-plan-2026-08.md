@@ -1,3 +1,12 @@
+---
+track: macro
+factor: market-regime-build-plan
+date: 2026-08-23
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["usd_krw_dexkus", "vix_vixcls", "regime_features_daily", "asOf_PIT"]
+reason: "market-regime 최소 스키마·백필 설계 문서 - 9개 feature+PBR/VIX asOf 규칙 설계 후 실제 구축 완료(2026-08-23), KOSPI/KOSDAQ 지수는 소스 미확정으로 별도 트랙, 판정 없음"
+---
 # market-regime 데이터셋 구축 가능성 — 최소 스키마·백필 설계 (2026-08)
 
 목적: market-regime 연구용 데이터셋을 **실제로 만들 수 있는지** 설계 수준에서

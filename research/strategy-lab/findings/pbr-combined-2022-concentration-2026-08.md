@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-combined-2022-concentration
+date: 2026-08-26
+verdict: KEEP
+criteria_version: backfill-v1
+conditions: ["연도별 로그초과수익 비중 분해", "combined(nDrop=2/pct=0.8)", "2022·2024 연도 몰입"]
+reason: "combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면 의존은 잔존"
+---
 # PBR combined 연도 집중도 재확인 — 98.6%→45.7%, 훨씬 완화됐으나 완전히 사라지진 않음 (2026-08-26)
 
 baseline PBR은 EW 대비 초과 로그수익의 **98.6%가 2022년 단 한 해**에서

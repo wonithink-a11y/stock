@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-combined-exposure-overlay-timing-value
+date: 2026-08-26
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["US10Y trailing 6개월 변화", "순수 노출 오버레이", "상수노출(0.468) 대조군"]
+reason: "미국10Y 노출 오버레이가 상수노출 대조군 대비 CAGR +0.13%p·MDD -0.66%p 열위·Sharpe -0.1092로 타이밍가치 없음 - baseline과 같은 기각 결론 combined에서 재현"
+cagr: 3.83
+sharpe: 0.6314
+mdd: -10.00
+---
 # PBR combined 미국10Y 노출 오버레이 — 타이밍가치 없음, baseline과 같은 결론 (2026-08-26)
 
 사용자 질문(2026-08-26, "2022년 약세장에 combined이 방어적이었다면 약세장

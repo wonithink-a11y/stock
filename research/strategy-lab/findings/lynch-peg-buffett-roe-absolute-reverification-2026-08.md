@@ -1,3 +1,11 @@
+---
+track: kr
+factor: lynch-peg-buffett-roe-absolute-reverification
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+reason: "PEG는 tercile 반전은 해소됐으나 OOS TEST에서 소멸(t=0.64, CAGR -0.17%), ROE는 절대임계값에서도 반전 유지·IC t=0.47·기각 유지 - 투자대가 트랙 실질 폐쇄"
+---
 # Lynch PEG · Buffett ROE — 절대 유동성 재검증 (tercile 버그 사후조치)
 
 **결론: PEG는 유동성 반전 문제가 해소됐지만 OOS에서 소멸(기각). ROE는

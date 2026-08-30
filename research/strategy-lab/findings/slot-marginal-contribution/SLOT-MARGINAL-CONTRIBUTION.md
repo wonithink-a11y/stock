@@ -1,3 +1,14 @@
+---
+track: kr
+factor: slot-marginal-contribution
+date: 2026-08-19
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["base_11_slot", "full_17_slot", "loo", "pit_monthly", "d120"]
+reason: "KR-2.2 19슬롯 LOO - IC 결정 요인은 pbr 단독(ΔIC d120 +0.0385), 수급 5d 추세는 IC 희석, 등급 경계·수익률 정렬 안 됨, base는 coverage 60% 불가 - 400종목 재현으로 '유일 유의'는 표본효과로 정정"
+t_stat: 7.16
+n: 13213
+---
 # Slot Marginal Contribution — Scoring 슬롯 19개의 독립 marginal 분석
 
 > **날짜:** 2026-08-19

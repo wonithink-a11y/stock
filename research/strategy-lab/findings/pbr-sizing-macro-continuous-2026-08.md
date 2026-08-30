@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-sizing-macro-continuous
+date: 2026-08-23
+verdict: HOLD
+criteria_version: backfill-v1
+conditions: ["us_treasury10y_chg6m", "continuous_exposure_sizing"]
+reason: "미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결정 보류"
+cagr: 4.43
+sharpe: 0.4603
+mdd: -17.49
+---
 # PBR 미국10Y hiking 강도 연속 비중축소 backtest — MDD·Calmar 개선, CAGR은 소폭 하락 (2026-08-23)
 
 `pbr-ratefilter-backtest-2026-08.md`(이진 on/off 진입필터, 기각)의 다음

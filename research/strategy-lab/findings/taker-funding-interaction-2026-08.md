@@ -6,7 +6,10 @@ verdict: UNCLASSIFIED
 original_verdict: REDUNDANT
 criteria_version: backfill-v1
 conditions: ["taker_ratio_7", "funding_residual", "bull_regime", "2d_combination"]
+reason: "taker_ratio_7 단독은 유의(t=5.71)하나 funding_residual과 결합하면 신호가 역전(스프레드 +0.036->-0.014) - 상호보완이 아니라 충돌, 결합 무의미"
+
 ---
+
 # Step 26 — `taker_ratio_7` × Funding Residual 결합 정보 검증 (Bull Regime Only)
 
 날짜: 2026-08-29 | 판정: **REDUNDANT**

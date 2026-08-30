@@ -1,3 +1,13 @@
+---
+track: kr
+factor: per-factor-t1t3-oos
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["turnover20 상대 tercile(T1/T3)", "TRAIN/VALID/TEST 60/15/25", "top-30 바스켓"]
+reason: "유동성 버킷 반전은 없으나(PBR계와 다름) 전체기간 IC t=1.90 자체가 약하고 시간분할 후 어느 구간도 t≈2 미달, VALID backtest CAGR -8.36% - PEAD 연간판 같은 급의 기각"
+t_stat: 1.90
+---
 # 저PER 팩터 — T1/T3 유동성 분해 + TRAIN/VALID/TEST OOS 검증
 
 **결론: 기각.** T1/T3 유동성 분해에서는 PBR이 겪은 "대형주 반전" 문제가

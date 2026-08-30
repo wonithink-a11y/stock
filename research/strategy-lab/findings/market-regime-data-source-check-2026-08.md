@@ -1,3 +1,12 @@
+---
+track: macro
+factor: market-regime-data-source-check
+date: 2026-08-23
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "market-regime용 USD/KRW='DEXKOUS'(KR 거래일 커버 대조)·VIX='VIXCLS' 확정, fetch_macro.py의 fred() 무변경 재사용만으로 백필 가능 확인 - 조사만 수행, 백필 실행은 범위 밖"
+---
+
 # market-regime USD/KRW·VIX 장기 데이터소스 확인 — 2026-08
 
 목적: market-regime 연구에 쓸 **USD/KRW**·**VIX**의 정확한 소스(FRED series ID)를

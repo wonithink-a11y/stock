@@ -1,3 +1,12 @@
+---
+track: kr
+factor: dd252-skip1m
+date: 2026-08
+verdict: HOLD
+conditions: ["dd_252_skip1m(52주 고점 대비 낙폭)", "fwd_d120 decile 스프레드", "IC 자기상관 보정", "Newey-West 월별 스프레드 t", "모멘텀 직교화"]
+reason: "신호 계산 정확성·재현성은 통과했으나 naive-t가 유의성을 부풀린 문제 발견, NW보정 t=2.08 경계선 신호로 확신도를 재조정하고 연구 후보로 유지 — 채택은 이후 백테스트 단계 후 판단"
+t_stat: 2.08
+---
 # DD252(skip-1m) 팩터 후보 — Ox Alpha 산출 검증 (2026-08-26)
 
 Ox Alpha(OpenCode, `opencode/x-preview-f-free --variant max`)가 로컬에서

@@ -1,3 +1,12 @@
+---
+track: macro
+factor: overnight-macro-regime-cross-candidate-synthesis
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "6개 후보×매크로축 교차 종합 - 미국10Y+신용스프레드 클러스터가 가치/역모멘텀(강)·추세추종(약)으로 일관 갈라지고 경기동행축은 전략별 조건부로만 해석 - 인과·필터 경제가치 검증은 아님"
+---
+
 # Overnight macro-regime 교차후보 종합 (2026-08-24)
 
 2026-08-24 새벽 OpenCode(opencode/x-preview-f-free) 병렬 3job + Claude 직접

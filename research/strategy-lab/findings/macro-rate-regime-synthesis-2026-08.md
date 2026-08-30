@@ -1,3 +1,11 @@
+---
+track: macro
+factor: macro-rate-regime-synthesis
+date: 2026-08
+verdict: UNCLASSIFIED
+reason: 미국 10년물 금리 regime 축을 PBR·CAND1·Opening Fade에 적용한 세 건의 결과를 종합한 문서로, 이 문서 자체의 채택/기각 판정이 없음
+---
+
 # PBR·CAND1·Opening Fade — 미국 10년물 금리 regime 조건부 종합 (2026-08-23)
 
 Macro Regime Layer(`macro-regime-layer-backfill-report-2026-08.md`)로 확보한

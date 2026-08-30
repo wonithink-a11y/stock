@@ -1,3 +1,13 @@
+---
+track: kr
+factor: cand1-macro-rate-regime-check
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["us_treasury10y_trailing_126d", "not_hiking", "20bp_cost"]
+reason: "CAND1은 미국10Y 하락/정체 구간에서 오히려 양호(net 30.33bp·PF 1.77 vs hiking 10.86bp·PF 1.31), 두 구간 모두 순이익 - 1년 창으로 분류 반전 근거 불충분"
+n: 12804
+win_rate: 54.6
+---
 # CAND1 — 미국 10년물 금리 hiking regime 조건부 확인 (2026-08)
 
 PBR 조사(pbr_macro_rate_regime_check.py)에서 2022년을 빼도 살아남은 유일한 축(미국 10년물 trailing 6개월 변화)을 CAND1에도 적용했다. 신호·체결·비용 전부 무변경(thr=0.02·vthr=1.5·entry=n_open·exit=n_c0935·cost=20bp), trailDays=126는 PBR 조사와 동일 사전고정값.

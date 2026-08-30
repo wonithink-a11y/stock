@@ -1,3 +1,16 @@
+---
+track: kr
+factor: 5dc-v1a-p-macro-regime-check
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["trailing_126d_change_gt0", "monthly_mtm", "absolute_return"]
+reason: "5DC-v1A-P 손실은 한국 금리·신용스프레드·미국10Y 상승 창에 집중(ex-2022 방향 유지) - 절대수익 기준 손실의 조건화, production 편입 판단 없음"
+cagr: -10.88
+sharpe: -0.64
+mdd: -70.46
+n: 128
+---
 # 5DC-v1A-P — macro regime 축별 조건부 성과 검증 (2026-08-24)
 
 배경: `pbr_macro_rate_regime_check.py`(2026-08-23)가 검증한 방법론 — 월별 수익을

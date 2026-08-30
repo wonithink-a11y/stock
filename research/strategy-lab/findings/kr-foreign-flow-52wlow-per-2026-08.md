@@ -5,8 +5,10 @@ date: 2026-08-30
 verdict: HOLD
 criteria_version: v1
 conditions: ["ff_bucket=20-40%", "l2w_bucket=0-10%", "per_bucket=low"]
+reason: "TRAIN 유의(t=3.06)했으나 TEST에서 부호반전, PER유효값 요구로 유니버스가 2558->1315종목으로 좁아지며 발생 - HOLD"
 n: 184
 t_stat: 3.055
+
 ---
 
 # KR 실험 결과 - 외국인수급5D x 52주저점거리 x PER

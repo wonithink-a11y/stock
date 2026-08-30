@@ -1,3 +1,15 @@
+---
+track: kr
+factor: pbr-ratefilter-backtest
+date: 2026-08-23
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["US10Y trailing 6개월 변화 hiking", "런 단위 필터링", "Calmar 비교"]
+reason: "hiking 필터가 baseline 대비 CAGR +4.72→2.26·Sharpe 0.4556→0.3293·Calmar 0.2175→0.1836로 악화(MDD만 개선) - 상대우위 축을 타이밍 필터로 전환하는 구현 경로 기각"
+cagr: 2.26
+sharpe: 0.3293
+mdd: -12.31
+---
 # PBR 미국10Y hiking 필터 실전 backtest — 경제적 가치 없음 (2026-08-23)
 
 `pbr-macro-rate-regime-check-2026-08.md`(2022년 제외해도 방향이 유지되는

@@ -6,7 +6,10 @@ verdict: UNCLASSIFIED
 original_verdict: REGIME-CONDITIONAL
 criteria_version: backfill-v1
 conditions: ["taker_ratio_7", "mom30_regime", "funding_level", "funding_residual"]
+reason: "mom30 강세장(bull)에서만 작동하는 contrarian 신호, 약세장에서 신호소멸 - 기존변수 통제후 잔차도 약함(t=1.21)이라 무조건적 단독사용 불가"
+
 ---
+
 # Step 25 — `taker_ratio_7` 레짐 의존성 검증
 
 날짜: 2026-08-29 | 판정: **REGIME-CONDITIONAL**

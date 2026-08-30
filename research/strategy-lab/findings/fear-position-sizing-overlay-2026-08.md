@@ -1,3 +1,15 @@
+---
+track: us
+factor: fear-position-sizing-overlay
+date: 2026-08-28
+verdict: REJECT
+criteria_version: backfill-v1
+conditions: ["fear_percentile_sizing", "constant_exposure_control"]
+reason: "공포 비례 연속 사이징은 전 지표에서 같은 평균노출 상수 대조군보다 열위 - 순수 타이밍가치 없음, 상관관계!=타이밍가치 6번째 확인, 이 방향 폐쇄"
+cagr: 6.51
+sharpe: 0.508
+mdd: -66.75
+---
 # Fear → Position Sizing 오버레이 — 타이밍가치 없음 (6번째 확인)
 
 **결론: 기각.** `panic-recovery-family-rejection-2026-08.md` §5가 착수 전

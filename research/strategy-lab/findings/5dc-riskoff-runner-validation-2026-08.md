@@ -1,3 +1,16 @@
+---
+track: kr
+factor: 5dc-riskoff-runner-validation
+date: 2026-08
+verdict: UNCLASSIFIED
+original_verdict: "A — 개선 확인, 단 오프라인 대비 규모는 축소"
+conditions: ["진입일 PIT 라벨이 Risk-Off인 신규 진입 후보는 슬롯 배정 이전 차단"]
+reason: "실제 runner에서도 CAGR·MDD·PF·승률·final equity 전부 개선 방향, 개선폭은 오프라인의 63~76%로 축소(슬롯 재배정 효과)"
+cagr: -5.09
+mdd: -61.55
+win_rate: 27.78
+n: 1476
+---
 # P0-1 후속: 5DC-v1A-P Risk-Off 신규진입 회피 — 실제 runner 검증 (2026-08-24)
 
 `5dc-riskoff-filter-validation-2026-08.md`(오프라인 counterfactual, 2026-08-23)

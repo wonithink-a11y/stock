@@ -1,3 +1,11 @@
+---
+track: kr
+factor: literature-return-enhancement-candidates
+date: 2026-08-26
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+reason: "문헌 인용 대조로 MAX 채택·실험 진행, PEAD 채택 후보(외국인 추매 주장만 미검증), 업종모멘텀 인용 반박으로 기각"
+---
 # 학술 문헌 기반 신규 팩터 후보 조사 — Ox Alpha 산출 + Claude 검증 (2026-08-26)
 
 Ox Alpha(OpenCode, `opencode/x-preview-f-free --variant max`)가 "이미 닫힌

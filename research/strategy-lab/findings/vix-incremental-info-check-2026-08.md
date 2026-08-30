@@ -1,3 +1,13 @@
+---
+track: macro
+factor: vix-incremental-info-check
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["regime_labels", "vixState", "5dc_v1a_p", "trend_breakout_v1"]
+reason: "VIX는 Risk-Off 라벨 너머 잔여 정보 보유 - (전략×regime) 6개 조합 전부 VIX Low→High 단조 개선(Risk-Off×VIX High는 승률 30~33%·평균 +PnL)이나 1차 관측, 필터 정제는 사용자 확인 필요"
+---
+
 # P1-1: VIX가 Risk-Off 라벨과 별개의 정보를 주는가 (2026-08-24)
 
 Ox Alpha 인수인계 문서의 P1-1 질문. `market-regime-definition-2026-08.md`

@@ -1,3 +1,12 @@
+---
+track: kr
+factor: kr23-window-bisection
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["base_inst_trend_slot", "window_5_to_20", "d20_pooled_spearman"]
+reason: "base_inst d20 부호 반전점 6<window<7 확정, 그러나 전 window p≥0.29로 단독 d20 예측력 실질 부재 - 이분 실행 이력·수치만 기록"
+n: 13213
+---
 # KR23 — window 이분 탐색 (base_inst 수급 추세 슬롯)
 
 이전 실험에서 `base_inst`(institutionTrend) d20 pooled Spearman IC가 window=5에서

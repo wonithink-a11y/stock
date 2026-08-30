@@ -1,3 +1,12 @@
+---
+track: kr
+factor: pbr-macro-extra-axes
+date: 2026-08-24
+verdict: UNCLASSIFIED
+criteria_version: backfill-v1
+conditions: ["usFedFundsRate", "usNasdaq", "krKospi", "krCpi", "krLeadingCyclical", "krCoincidentCyclical"]
+reason: "미검증 macro 6축 중 한국 일반순환지수만 생존(2022 제외에도 방향 유지, up +0.52%/월) - 나머지 5축은 역방향·2022 단독·버킷 붕괴로 근거 불가, 생존축도 연도별 반례 4개"
+---
 # PBR-EW — 미검증 macro 6축 확장 검증 (2026-08-24)
 
 `pbr_macro_rate_regime_check.py`(2026-08-23)가 usTreasury10y·krTreasury3y·

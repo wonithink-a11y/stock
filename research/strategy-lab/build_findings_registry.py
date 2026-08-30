@@ -28,7 +28,7 @@ VALID_VERDICTS = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 FIELD_RE = re.compile(
-    r"^(track|factor|date|verdict|criteria_version|conditions|original_verdict|"
+    r"^(track|factor|date|verdict|criteria_version|conditions|original_verdict|reason|"
     + "|".join(NUMERIC_FIELDS) + r"):\s*(.+?)\s*$",
     re.M,
 )
@@ -60,6 +60,14 @@ def parse_frontmatter(text: str):
         return None
     fields = dict(FIELD_RE.findall(m.group(1)))
     return fields or None
+
+
+def strip_quotes(raw: str):
+    """reason처럼 자유텍스트 필드는 YAML 관례상 큰따옴표로 감싸 쓰기 쉽다 -
+    한 겹만 벗긴다(정규식 파서라 실제 YAML 인용해제는 안 함, 교훈57 - 못 벗기면 원문 그대로)."""
+    if raw and len(raw) >= 2 and raw[0] == '"' and raw[-1] == '"':
+        return raw[1:-1]
+    return raw
 
 
 def parse_conditions(raw: str):
@@ -98,6 +106,7 @@ def build_entry(path: Path, findings_root: Path) -> dict:
             "mtime": mtime,
             "criteria_version": fm.get("criteria_version"),
             "conditions": parse_conditions(fm.get("conditions")),
+            "reason": strip_quotes(fm.get("reason")),
             "source": "frontmatter",
         }
         entry.update({f: parse_float(fm.get(f)) for f in NUMERIC_FIELDS})
@@ -111,6 +120,7 @@ def build_entry(path: Path, findings_root: Path) -> dict:
         "mtime": mtime,
         "criteria_version": None,
         "conditions": None,
+        "reason": None,
         "source": "best_effort_keyword_scan",
     }
     entry.update({f: None for f in NUMERIC_FIELDS})
