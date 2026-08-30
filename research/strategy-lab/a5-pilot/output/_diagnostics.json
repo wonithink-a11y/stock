@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-08-24T08:34:08.405Z",
+  "shardCount": 2,
+  "expectedGridSize": 1040,
+  "rowCount": 793,
+  "duplicateKeysCollapsed": 0,
+  "fwdStatusDistribution": {
+    "d20": {
+      "OK": 503,
+      "HALTED": 238,
+      "EXIT": 52
+    },
+    "d60": {
+      "OK": 417,
+      "HALTED": 188,
+      "EXIT": 130,
+      "MISSING": 16,
+      "FUTURE": 42
+    },
+    "d120": {
+      "OK": 293,
+      "HALTED": 99,
+      "EXIT": 181,
+      "MISSING": 16,
+      "FUTURE": 204
+    }
+  },
+  "d120ExitCountByTicker": {
+    "140910": 10,
+    "208340": 26,
+    "230980": 11,
+    "257990": 11,
+    "439410": 3,
+    "449020": 16,
+    "451700": 10,
+    "495900": 26,
+    "044060": 9,
+    "096040": 12,
+    "003560": 26,
+    "008110": 21
+  }
+}

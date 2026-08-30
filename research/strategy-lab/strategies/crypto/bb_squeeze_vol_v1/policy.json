@@ -1,0 +1,55 @@
+{
+  "strategyId": "crypto_bb_squeeze_vol_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Bollinger Squeeze + Volume Confirmation (community/GitHub concept, Strategy 2). Exactly Strategy 1 plus one condition: volume > SMA(volume,20)*1.5. Baseline params only. Exit reuses existing lab ATR risk management.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "squeeze_lookback": 100,
+    "squeeze_pct": 0.20,
+    "vol_sma_period": 20,
+    "vol_ratio_min": 1.5,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "squeeze(t) AND fresh breakout AND volume > SMA(volume,20)*1.5",
+    "evaluatedAfter": "bar close confirmed"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(14)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Community: volume-confirmed Bollinger breakouts (freqtrade/TradingView public descriptions)"
+  ]
+}

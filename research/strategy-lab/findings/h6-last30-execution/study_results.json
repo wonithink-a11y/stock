@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-08-23T15:12:14",
+  "label": "[RESEARCH HYPOTHESIS] - H6 재정의 첫 정의만 테스트, 튜닝 없음",
+  "redefinition": {
+    "signal": "r(15:00->15:20) = c1520/c1500 - 1 (15:20 이후 정보 배제)",
+    "structure": "15:20 종가 매도 진입 -> 익일 시가 청산(A2a open)",
+    "outcome": "숏손익 = -(익일 open/c1520 - 1), 같은 창 유니버스 EW 평균 대비 초과수익",
+    "executionWindow": "봉 ts 15:21..15:30"
+  },
+  "diagnostics": {
+    "days": 252,
+    "tickerDaysValid": 1308,
+    "avgTickersPerDay": 5.2
+  },
+  "quintileShortProfitExcessPct": {
+    "Q1": -0.851,
+    "Q2": 0.549,
+    "Q3": 0.048,
+    "Q4": -0.735,
+    "Q5": 0.045
+  },
+  "liquidity": {
+    "execWindowTurnoverKRW": {
+      "p10": 1238803.0,
+      "p25": 5497040.0,
+      "p50": 29767650.0,
+      "p75": 144152237.5,
+      "p90": 628186905.0,
+      "mean": 425141803.39
+    },
+    "execWindowVolumeShareOfDay": {
+      "p10": 0.0,
+      "p25": 0.01,
+      "p50": 0.02,
+      "p75": 0.03,
+      "p90": 0.04,
+      "mean": 0.02
+    }
+  }
+}

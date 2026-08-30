@@ -1,0 +1,51 @@
+{
+  "strategyId": "crypto_vol_break_persist_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Step 9 research strategy: 20-bar high/low close breakout where current ATR(14) exceeds the prior-20-bar mean ATR (volatility expansion). LONG only (lab Portfolio engine is long-only). Entry next-bar OPEN, exit = standard lab ATR stop (2xATR[t]) / 3R target / 60-bar time exit. Baseline params, no optimization.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "atr_period": 14,
+    "breakout_period": 20,
+    "vol_ref_period": 20,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "close(t) crosses ABOVE max(high, t-20..t-1) [edge] AND ATR14(t) > mean(ATR14, t-20..t-1)",
+    "evaluatedAfter": "bar close confirmed, t excluded from both references"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(14)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Step 9 research definition (volatility expansion + breakout persistence hypothesis)"
+  ]
+}

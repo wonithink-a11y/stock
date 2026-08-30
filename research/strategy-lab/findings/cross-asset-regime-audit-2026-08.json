@@ -1,0 +1,105 @@
+{
+  "design": {
+    "purpose": "BTC as market regime factor audit",
+    "universe": "28 symbols"
+  },
+  "btc_daily": {
+    "krw_daily": {
+      "rows": 1195,
+      "start": "2023-05-21 00:00:00",
+      "end": "2026-08-27 00:00:00",
+      "cols": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ]
+    },
+    "usdt_daily": {
+      "rows": 2441,
+      "start": "2019-12-23 00:00:00",
+      "end": "2026-08-28 00:00:00"
+    }
+  },
+  "btc_1h_features": {
+    "daily_rows": 2442,
+    "rv_mean": 0.0010183025911741077,
+    "mom_available": [
+      "mom_7d",
+      "mom_30d"
+    ]
+  },
+  "dominance_proxy": {
+    "available": true,
+    "rows": 2547,
+    "start": "2019-09-09 00:00:00",
+    "end": "2026-08-29 00:00:00",
+    "mean_dominance": 0.4987265666303393,
+    "std": 0.1634651353981143
+  },
+  "alt_idiosyncratic": {
+    "btc_daily": true,
+    "krw_daily": true
+  },
+  "regime_correlation": {
+    "ETH": {
+      "pearson": 0.7767536583840982,
+      "spearman": 0.8184046722814878
+    },
+    "SOL": {
+      "pearson": 0.5278020369506662,
+      "spearman": 0.6684549686865694
+    },
+    "XRP": {
+      "pearson": 0.4120291774219892,
+      "spearman": 0.6768148191694359
+    },
+    "ADA": {
+      "pearson": 0.6440777206402292,
+      "spearman": 0.7112463020955312
+    },
+    "DOGE": {
+      "pearson": 0.3293416854829622,
+      "spearman": 0.7142083468001345
+    }
+  },
+  "regime_vs_alt_returns": {
+    "ETH": {
+      "bull_mean": 0.027778314214656482,
+      "bear_mean": -0.0009000939787355406,
+      "diff": 0.028678408193392024
+    },
+    "SOL": {
+      "bull_mean": 0.04418250722695201,
+      "bear_mean": 0.00023978116728419512,
+      "diff": 0.043942726059667814
+    },
+    "XRP": {
+      "bull_mean": 0.027146090638689658,
+      "bear_mean": 0.0013113944419171394,
+      "diff": 0.02583469619677252
+    },
+    "ADA": {
+      "bull_mean": 0.02754989054978159,
+      "bear_mean": -0.004265826413263277,
+      "diff": 0.03181571696304487
+    },
+    "DOGE": {
+      "bull_mean": 0.06708612554399239,
+      "bear_mean": -0.007683782479646946,
+      "diff": 0.07476990802363934
+    }
+  },
+  "idiosyncratic_stats": {
+    "bull": {
+      "idio_r1_mean": 0.002370263626364714,
+      "idio_r7_mean": 0.02060644815916703
+    },
+    "bear": {
+      "idio_r1_mean": -0.0002589062311519738,
+      "idio_r7_mean": -0.0030143878334679937
+    }
+  },
+  "runtime_sec": 2.8
+}

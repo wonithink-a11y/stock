@@ -1,0 +1,414 @@
+{
+ "generatedAt": "2026-08-23T04:57:13",
+ "mode": "full",
+ "definitions": {
+  "levels": "prior-session rolling 5/20-day high/low (shift1)",
+  "break": "first 5-min grid close beyond the level",
+  "mae": "min post-break grid close / break price - 1 until day end",
+  "stopModel": "fill at stop price, no gap-through; trigger when MAE<=-s; comparison vs holding to day close"
+ },
+ "sample": {
+  "rows": 601385,
+  "days": 250
+ },
+ "results": {
+  "SUP_l20": {
+   "n": 67088,
+   "f005": {
+    "n": 66658,
+    "mean": 0.001949,
+    "median": 0.0,
+    "winRate": 0.482148,
+    "vol": 0.012792,
+    "t": 39.331067,
+    "p": 0.0
+   },
+   "f030": {
+    "n": 65544,
+    "mean": 0.002132,
+    "median": 0.001167,
+    "winRate": 0.521177,
+    "vol": 0.018005,
+    "t": 30.320376,
+    "p": 0.0
+   },
+   "f060": {
+    "n": 64066,
+    "mean": 0.002247,
+    "median": 0.001363,
+    "winRate": 0.526379,
+    "vol": 0.021002,
+    "t": 27.084786,
+    "p": 0.0
+   },
+   "f120": {
+    "n": 60962,
+    "mean": 0.000463,
+    "median": 0.0,
+    "winRate": 0.489436,
+    "vol": 0.024986,
+    "t": 4.574409,
+    "p": 5e-06
+   },
+   "f_dayclose": {
+    "n": 67088,
+    "mean": -2.5e-05,
+    "median": 0.0,
+    "winRate": 0.493635,
+    "vol": 0.031966,
+    "t": -0.200645,
+    "p": 0.840977
+   },
+   "nxo": {
+    "n": 66979,
+    "mean": 0.001277,
+    "median": 0.001565,
+    "winRate": 0.518342,
+    "vol": 0.041983,
+    "t": 7.869836,
+    "p": 0.0
+   },
+   "nxc": {
+    "n": 66979,
+    "mean": 0.00126,
+    "median": 0.0,
+    "winRate": 0.49093,
+    "vol": 0.057095,
+    "t": 5.710329,
+    "p": 0.0
+   },
+   "mae": {
+    "median": -0.010791,
+    "p25": -0.025177,
+    "p75": -0.002543,
+    "beyond_-2%": 0.315705,
+    "beyond_-5%": 0.089956
+   },
+   "stops": {
+    "stop=0.5%": {
+     "triggerRate": 0.668421,
+     "avgHeld": -2.5e-05,
+     "avgStopped": 0.00268,
+     "missedBounceShare": 0.300069,
+     "p95HeldLossAvoided": 0.050395,
+     "maeCappedAt": -0.005
+    },
+    "stop=1.0%": {
+     "triggerRate": 0.521762,
+     "avgHeld": -2.5e-05,
+     "avgStopped": 0.001823,
+     "missedBounceShare": 0.240311,
+     "p95HeldLossAvoided": 0.055395,
+     "maeCappedAt": -0.01
+    },
+    "stop=2.0%": {
+     "triggerRate": 0.322114,
+     "avgHeld": -2.5e-05,
+     "avgStopped": 0.000873,
+     "missedBounceShare": 0.153187,
+     "p95HeldLossAvoided": 0.065395,
+     "maeCappedAt": -0.02
+    }
+   }
+  },
+  "RES_l20": {
+   "n": 39129,
+   "f005": {
+    "n": 38953,
+    "mean": -0.001416,
+    "median": -0.00103,
+    "winRate": 0.372706,
+    "vol": 0.021407,
+    "t": -13.054258,
+    "p": 0.0
+   },
+   "f030": {
+    "n": 38273,
+    "mean": -0.003209,
+    "median": -0.002427,
+    "winRate": 0.381,
+    "vol": 0.033675,
+    "t": -18.641316,
+    "p": 0.0
+   },
+   "f060": {
+    "n": 37331,
+    "mean": -0.003719,
+    "median": -0.003308,
+    "winRate": 0.382604,
+    "vol": 0.038576,
+    "t": -18.625686,
+    "p": 0.0
+   },
+   "f120": {
+    "n": 35201,
+    "mean": -0.003793,
+    "median": -0.003876,
+    "winRate": 0.390557,
+    "vol": 0.043534,
+    "t": -16.345591,
+    "p": 0.0
+   },
+   "f_dayclose": {
+    "n": 39129,
+    "mean": -0.003861,
+    "median": -0.002445,
+    "winRate": 0.420277,
+    "vol": 0.051253,
+    "t": -14.900493,
+    "p": 0.0
+   },
+   "nxo": {
+    "n": 39042,
+    "mean": 0.003412,
+    "median": -0.000777,
+    "winRate": 0.474924,
+    "vol": 0.069906,
+    "t": 9.642831,
+    "p": 0.0
+   },
+   "nxc": {
+    "n": 39042,
+    "mean": -0.000728,
+    "median": -0.004112,
+    "winRate": 0.447134,
+    "vol": 0.085011,
+    "t": -1.691914,
+    "p": 0.09067
+   },
+   "mae": {
+    "median": -0.016832,
+    "p25": -0.037875,
+    "p75": -0.005848,
+    "beyond_-2%": 0.443635,
+    "beyond_-5%": 0.178359
+   },
+   "stops": {
+    "stop=0.5%": {
+     "triggerRate": 0.771806,
+     "avgHeld": -0.003861,
+     "avgStopped": 0.003663,
+     "missedBounceShare": 0.318971,
+     "p95HeldLossAvoided": 0.079417,
+     "maeCappedAt": -0.005
+    },
+    "stop=1.0%": {
+     "triggerRate": 0.647116,
+     "avgHeld": -0.003861,
+     "avgStopped": 0.002633,
+     "missedBounceShare": 0.277288,
+     "p95HeldLossAvoided": 0.084417,
+     "maeCappedAt": -0.01
+    },
+    "stop=2.0%": {
+     "triggerRate": 0.448133,
+     "avgHeld": -0.003861,
+     "avgStopped": 0.001276,
+     "missedBounceShare": 0.190575,
+     "p95HeldLossAvoided": 0.094417,
+     "maeCappedAt": -0.02
+    }
+   }
+  },
+  "SUP_l5": {
+   "n": 133297,
+   "f005": {
+    "n": 132440,
+    "mean": 0.001736,
+    "median": 0.0,
+    "winRate": 0.48203,
+    "vol": 0.011371,
+    "t": 55.561682,
+    "p": 0.0
+   },
+   "f030": {
+    "n": 130447,
+    "mean": 0.001858,
+    "median": 0.001156,
+    "winRate": 0.522925,
+    "vol": 0.016458,
+    "t": 40.78091,
+    "p": 0.0
+   },
+   "f060": {
+    "n": 127639,
+    "mean": 0.002104,
+    "median": 0.001303,
+    "winRate": 0.525631,
+    "vol": 0.019552,
+    "t": 38.447683,
+    "p": 0.0
+   },
+   "f120": {
+    "n": 121835,
+    "mean": 0.000588,
+    "median": 0.0,
+    "winRate": 0.488193,
+    "vol": 0.023086,
+    "t": 8.889498,
+    "p": 0.0
+   },
+   "f_dayclose": {
+    "n": 133297,
+    "mean": 0.000152,
+    "median": 0.0,
+    "winRate": 0.492397,
+    "vol": 0.02976,
+    "t": 1.865669,
+    "p": 0.06209
+   },
+   "nxo": {
+    "n": 132080,
+    "mean": 0.001969,
+    "median": 0.001821,
+    "winRate": 0.526552,
+    "vol": 0.038541,
+    "t": 18.563179,
+    "p": 0.0
+   },
+   "nxc": {
+    "n": 132080,
+    "mean": -0.000138,
+    "median": -0.00088,
+    "winRate": 0.478839,
+    "vol": 0.053899,
+    "t": -0.930877,
+    "p": 0.351919
+   },
+   "mae": {
+    "median": -0.00998,
+    "p25": -0.022951,
+    "p75": -0.002451,
+    "beyond_-2%": 0.289624,
+    "beyond_-5%": 0.075215
+   },
+   "stops": {
+    "stop=0.5%": {
+     "triggerRate": 0.658034,
+     "avgHeld": 0.000152,
+     "avgStopped": 0.002483,
+     "missedBounceShare": 0.295843,
+     "p95HeldLossAvoided": 0.04718,
+     "maeCappedAt": -0.005
+    },
+    "stop=1.0%": {
+     "triggerRate": 0.502877,
+     "avgHeld": 0.000152,
+     "avgStopped": 0.001726,
+     "missedBounceShare": 0.231416,
+     "p95HeldLossAvoided": 0.05218,
+     "maeCappedAt": -0.01
+    },
+    "stop=2.0%": {
+     "triggerRate": 0.296053,
+     "avgHeld": 0.000152,
+     "avgStopped": 0.000922,
+     "missedBounceShare": 0.139838,
+     "p95HeldLossAvoided": 0.06218,
+     "maeCappedAt": -0.02
+    }
+   }
+  },
+  "RES_l5": {
+   "n": 91086,
+   "f005": {
+    "n": 90580,
+    "mean": -0.001476,
+    "median": -0.001055,
+    "winRate": 0.346809,
+    "vol": 0.018887,
+    "t": -23.515299,
+    "p": 0.0
+   },
+   "f030": {
+    "n": 88940,
+    "mean": -0.002664,
+    "median": -0.002319,
+    "winRate": 0.370902,
+    "vol": 0.029098,
+    "t": -27.307224,
+    "p": 0.0
+   },
+   "f060": {
+    "n": 86853,
+    "mean": -0.003223,
+    "median": -0.003273,
+    "winRate": 0.368968,
+    "vol": 0.033294,
+    "t": -28.531832,
+    "p": 0.0
+   },
+   "f120": {
+    "n": 82278,
+    "mean": -0.003559,
+    "median": -0.003865,
+    "winRate": 0.376139,
+    "vol": 0.037345,
+    "t": -27.339869,
+    "p": 0.0
+   },
+   "f_dayclose": {
+    "n": 91086,
+    "mean": -0.00324,
+    "median": -0.00274,
+    "winRate": 0.406341,
+    "vol": 0.043694,
+    "t": -22.379824,
+    "p": 0.0
+   },
+   "nxo": {
+    "n": 90958,
+    "mean": 0.002157,
+    "median": -0.001321,
+    "winRate": 0.460465,
+    "vol": 0.057857,
+    "t": 11.246092,
+    "p": 0.0
+   },
+   "nxc": {
+    "n": 90958,
+    "mean": -0.001305,
+    "median": -0.004091,
+    "winRate": 0.438301,
+    "vol": 0.07196,
+    "t": -5.471107,
+    "p": 0.0
+   },
+   "mae": {
+    "median": -0.015094,
+    "p25": -0.031599,
+    "p75": -0.005758,
+    "beyond_-2%": 0.400402,
+    "beyond_-5%": 0.132874
+   },
+   "stops": {
+    "stop=0.5%": {
+     "triggerRate": 0.772753,
+     "avgHeld": -0.00324,
+     "avgStopped": 0.002494,
+     "missedBounceShare": 0.322772,
+     "p95HeldLossAvoided": 0.066069,
+     "maeCappedAt": -0.005
+    },
+    "stop=1.0%": {
+     "triggerRate": 0.630009,
+     "avgHeld": -0.00324,
+     "avgStopped": 0.001418,
+     "missedBounceShare": 0.274213,
+     "p95HeldLossAvoided": 0.071069,
+     "maeCappedAt": -0.01
+    },
+    "stop=2.0%": {
+     "triggerRate": 0.405957,
+     "avgHeld": -0.00324,
+     "avgStopped": 0.000176,
+     "missedBounceShare": 0.178644,
+     "p95HeldLossAvoided": 0.081069,
+     "maeCappedAt": -0.02
+    }
+   }
+  }
+ },
+ "pitNote": "levels from prior sessions; outcomes after the mark",
+ "runtimeSec": 21.7
+}

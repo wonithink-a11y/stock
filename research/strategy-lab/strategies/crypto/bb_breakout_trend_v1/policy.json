@@ -1,0 +1,54 @@
+{
+  "strategyId": "crypto_bb_breakout_trend_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Bollinger Breakout + Daily Trend Confirmation (multi-timeframe, Strategy 3). Lower TF (default 4H): close > upper BB(20). Higher TF (Daily): close > SMA(200). use_daily_trend=True = ARM B (breakout + trend filter), False = ARM A (breakout alone). Baseline params only. Exit reuses existing lab ATR risk management.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "sma_trend": 200,
+    "use_daily_trend": true,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "(close[t] > upper[t]) AND (close[t-1] <= upper[t-1]) [AND Daily close[t] > Daily SMA(200)[t]]",
+    "evaluatedAfter": "low-TF bar close confirmed, high-TF candle fully closed (runner-injected, no leakage)"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(14)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Community: multi-timeframe Bollinger breakout + 200-SMA trend filter (public descriptions)",
+    "John Bollinger, 'Bollinger on Bollinger Bands' (2002)"
+  ]
+}

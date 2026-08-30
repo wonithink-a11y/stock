@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-08-23T02:11:39",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "purpose": "오더닝 페이드 스프레드의 신호 창(1/5/15분) 민감도 - 세 값 전부 보고",
+  "definitions": {
+    "perWindow": "신호=P(tw)/P(09:00)-1, 결과=P(15:30 close)/P(tw)-1 (결과 구간은 창 끝->종가로 정렬)",
+    "rest": "minute_opening_fade_study.py와 동일"
+  },
+  "diagnostics": {
+    "days": 250,
+    "tickerDays": 598450
+  },
+  "results": {
+    "W1": {
+      "signalRows": 515647,
+      "excessByQuintileBp": {
+        "Q1": 12.33,
+        "Q2": 7.52,
+        "Q3": 4.58,
+        "Q4": 1.31,
+        "Q5": -25.75
+      },
+      "spreadQ5mQ1Bp": -38.08,
+      "medianAbsSignalBp": 67.7
+    },
+    "W5": {
+      "signalRows": 494535,
+      "excessByQuintileBp": {
+        "Q1": 12.07,
+        "Q2": 8.36,
+        "Q3": 4.48,
+        "Q4": -2.41,
+        "Q5": -22.52
+      },
+      "spreadQ5mQ1Bp": -34.59,
+      "medianAbsSignalBp": 88.7
+    },
+    "W15": {
+      "signalRows": 471593,
+      "excessByQuintileBp": {
+        "Q1": 8.28,
+        "Q2": 8.18,
+        "Q3": 4.69,
+        "Q4": -2.41,
+        "Q5": -18.76
+      },
+      "spreadQ5mQ1Bp": -27.05,
+      "medianAbsSignalBp": 107.5
+    }
+  }
+}

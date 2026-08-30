@@ -1,0 +1,87 @@
+{
+  "experiment": "WVF-KR-V1",
+  "step": "STEP 2 SMOKE",
+  "strategyId": "wvf_kr_v1",
+  "policyVersion": "1.0",
+  "universe": "A1A_ONLY",
+  "tickersRequested": 3000,
+  "tickersWithData": 2558,
+  "period": {
+    "rawStart": "2014-05-13",
+    "perfStart": "2016-01-01",
+    "end": "2026-08-03"
+  },
+  "indicators": {
+    "wvf": {
+      "lookback": 22,
+      "formula": "(Highest(Close,22)-Low)/Highest(Close,22)*100"
+    },
+    "bollinger": {
+      "length": 20,
+      "mult": 2.0,
+      "source": "wvf"
+    }
+  },
+  "costBps": {
+    "entry": 15,
+    "exit": 15,
+    "slippage": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "maxPositions": 30,
+    "equalWeight": true
+  },
+  "results": {
+    "grossReturn": 8.04,
+    "netReturn": -1.12,
+    "CAGR": -0.11,
+    "MDD": -9.38,
+    "Sharpe": -0.056,
+    "Exposure": 0.8402,
+    "Trades": 128249,
+    "WinRate": 54.7,
+    "Turnover": 30.53,
+    "SameBarExecutions": 0
+  },
+  "benchmarks": {
+    "equalWeight": {
+      "totalReturn": 85.54,
+      "CAGR": 6.02,
+      "MDD": -46.76,
+      "Sharpe": 0.392,
+      "Exposure": 1.0,
+      "note": "daily rebalanced equal-weight on available (MACD parity)"
+    },
+    "buyAndHold": {
+      "totalReturn": 14.51,
+      "CAGR": 1.29,
+      "MDD": -41.04,
+      "Sharpe": 0.166,
+      "Exposure": 1.0,
+      "note": "b0_buy_hold: equal weight, first/last close, entry+exit cost (MACD parity)"
+    }
+  },
+  "audit": {
+    "pre_listing_signals": 7814,
+    "entry_sig_total": 207366,
+    "warmup_excluded": 62596,
+    "entry_count": 129050,
+    "exit_count": 128249
+  },
+  "yearly": {
+    "2014": 0.0,
+    "2015": 0.0,
+    "2016": 0.010336830460000038,
+    "2017": 0.014271574800886038,
+    "2018": -0.031056110676711116,
+    "2019": -0.015349716337834248,
+    "2020": 0.0006967509839183821,
+    "2021": 0.02788829144433346,
+    "2022": -0.057638476135209754,
+    "2023": -0.009603192550512217,
+    "2024": 0.02115041390210687,
+    "2025": 0.043680786582146476,
+    "2026": -0.011524057063276836
+  }
+}

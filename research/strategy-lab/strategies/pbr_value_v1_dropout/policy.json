@@ -1,0 +1,82 @@
+{
+  "strategyId": "pbr_value_v1_dropout",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-26",
+  "note": "pbr_value_v1의 회전율 제한(dropout) 변형. 신호·체결·비용·portfolio 설정 전부 pbr_value_v1과 동일(무변경 복사) - 차이는 selection.json 하나뿐(build_selection_dropout.py). pbr_value_v1의 build_selection.py는 매달 top-30을 완전히 새로 뽑아 전월 보유를 전혀 안 본다 - Qlib(microsoft/qlib) TopkDropoutStrategy의 n_drop 방식(전월 보유 중 순위가 가장 낮은 n_drop개만 교체)을 가져와 회전율을 줄이면 거래비용 감소로 net 성과가 개선되는지 검증(findings/github-strategy-sources-usability-2026-08.md).",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection_dropout.py가 오프라인으로 읽는 설정이다 - engine/runner.py는 이 블록을 모른다(선택 로직이 selection.json에 이미 구워져 있으므로).",
+    "metric": "pbr",
+    "rankDirection": "ascending",
+    "topN": 30,
+    "nDrop": 3,
+    "nDropNote": "Qlib 예제(topk=50, n_drop=5, 비율 10%)와 같은 비율로 topN=30에 맞춰 3 선택. 매달 최대 3종목만 교체(전월 보유 중 이번 달 순위가 가장 낮은 것부터), 유효 후보 자체가 이번 달 사라진(유동성 미달·상장폐지 등) 종목은 nDrop 예산과 무관하게 자동 이탈.",
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "minTurnoverNote": "절대 임계값 - 상대 tercile 아님(세션인수인계-2026-08-21-c.md, turnover20 rolling tercile이 그 자체로 강한 예측변수였음이 확정된 결함을 피하기 위함). pbr_value_v1과 동일.",
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl",
+    "excludesMergerSpinoff": true
+  },
+
+  "signal": {
+    "expression": "그 달 turnover20>=1억원 유니버스 안에서 PBR 오름차순 순위를 매기고, 전월 보유 중 순위가 가장 낮은 nDrop개만 새 후보로 교체(Qlib TopkDropoutStrategy 방식) - build_selection_dropout.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "이 전략은 가격 기반 stop/target이 없다 - 순수 시간 기반(월별) 청산. stop_distance·reward_risk를 entry_price 대비 극단적으로 크게 잡아 STOP/TARGET이 절대 안 걸리게 하고, maxHoldingSessions만으로 TIME_EXIT을 강제한다(engine/execution/executor.py의 '초 max_holding_sessions'th session 종가 청산' 규칙 재사용, 새 청산 타입 없음). pbr_value_v1과 동일.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "maxHoldingSessions": 21,
+    "maxHoldingSessionsNote": "다음 리밸런싱일이 없는 마지막 달에만 쓰는 폴백. 그 외 모든 신호는 selection.json에 미리 계산해 둔 정확한 세션수를 쓴다. pbr_value_v1과 동일.",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "pbr_value_v1과 동일 이유(engine.execution.contracts.Order가 metadata를 안 나름, 매달 후보 수가 대개 <=maxPositions)."
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "다음 리밸런싱에도 동일 종목이 selection.json에 남아있으면 청산-재진입 없이 원래 진입가로 계속 보유(runner.py의 _merge_continuous_same_symbol_holds) - dropout 방식으로 유지되는 종목(매달 최대 27개)이 이 병합 혜택을 그대로 받는다. pbr_value_v1과 동일."
+  }
+}

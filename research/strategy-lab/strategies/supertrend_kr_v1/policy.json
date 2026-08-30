@@ -1,0 +1,72 @@
+{
+  "strategyId": "supertrend_kr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-29",
+  "note": "SUPERTREND-KR-V1 baseline (STEP 2). SuperTrend (Olivier Seban, 2008) as standardised by TradingView built-in and most libraries: ATR period 10, multiplier 3.0, Wilder EMA (alpha=1/10), source = (High+Low)/2. Recursive final bands. Long only: Entry on DOWN->UP trend flip (close crosses above final_ub), Exit on UP->DOWN flip (close crosses below final_lb). Dynamic trend-reversal exit NOT expressible in engine.executor's fixed STOP/TARGET/TIME contract, so driver-driven exactly like MACD/Squeeze: engine DATA layer (A2aProvider/UniverseProvider/calendar/_drop_suspension_rows), engine PORTFOLIO accounting (engine.portfolio.Portfolio), CostModel, engine.metrics - not engine.executor.simulate_trade.",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "atr": { "period": 10, "smoothing": "wilder_ema", "alpha": 0.1 },
+    "supertrend": { "multiplier": 3.0, "source": "median_price (H+L)/2" }
+  },
+
+  "signal": {
+    "entry": "trend[t-1] == DOWN AND trend[t] == UP (close crosses above final_ub)",
+    "exit": "trend[t-1] == UP AND trend[t] == DOWN (close crosses below final_lb)",
+    "evaluatedAt": "t close",
+    "noPyramiding": true,
+    "noShort": true,
+    "noLeverage": true
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "exit": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "exitDateField": "next_session(t)",
+    "exitPriceField": "Open[exit_date]",
+    "note": "Trend reversal exit is a dynamic (state-machine) exit, NOT a static stop/target/time. Implemented in the research driver, not engine.executor."
+  },
+
+  "pit": {
+    "listingDateGate": "required",
+    "rule": "no signal on/before ticker's A1a listedAt. Gateway applied at the signal date t: t < listedAt -> signal discarded. Entry is at next_session(t) so it is necessarily after listedAt.",
+    "source": "data/backfill/universe/a1a/current.jsonl listedAt"
+  },
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+
+  "period": {
+    "rawDataStart": "2014-05-13",
+    "performanceStart": "2016-01-01",
+    "end": "2026-08-03",
+    "note": "Indicator warm-up uses pre-2016 bars; only trades with signal_date >= performanceStart are generated/measured."
+  }
+}

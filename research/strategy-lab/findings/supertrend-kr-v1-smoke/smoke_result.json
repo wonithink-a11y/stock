@@ -1,0 +1,87 @@
+{
+  "experiment": "SUPERTREND-KR-V1",
+  "step": "STEP 2 SMOKE",
+  "strategyId": "supertrend_kr_v1",
+  "policyVersion": "1.0",
+  "universe": "A1A_ONLY",
+  "tickersRequested": 3000,
+  "tickersWithData": 2558,
+  "period": {
+    "rawStart": "2014-05-13",
+    "perfStart": "2016-01-01",
+    "end": "2026-08-03"
+  },
+  "indicators": {
+    "atr": {
+      "period": 10,
+      "smoothing": "wilder_ema",
+      "alpha": 0.1
+    },
+    "supertrend": {
+      "multiplier": 3.0,
+      "source": "median_price"
+    }
+  },
+  "costBps": {
+    "entry": 15,
+    "exit": 15,
+    "slippage": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "maxPositions": 30,
+    "equalWeight": true
+  },
+  "results": {
+    "grossReturn": -1.54,
+    "netReturn": -6.36,
+    "CAGR": -0.62,
+    "MDD": -19.96,
+    "Sharpe": -0.223,
+    "Exposure": 0.8386,
+    "Trades": 63613,
+    "WinRate": 30.1,
+    "Turnover": 16.05,
+    "SameBarExecutions": 0
+  },
+  "benchmarks": {
+    "equalWeight": {
+      "totalReturn": 85.54,
+      "CAGR": 6.02,
+      "MDD": -46.76,
+      "Sharpe": 0.392,
+      "Exposure": 1.0,
+      "note": "daily rebalanced equal-weight on available (MACD parity)"
+    },
+    "buyAndHold": {
+      "totalReturn": 14.51,
+      "CAGR": 1.29,
+      "MDD": -41.04,
+      "Sharpe": 0.166,
+      "Exposure": 1.0,
+      "note": "b0_buy_hold: equal weight, first/last close, entry+exit cost (MACD parity)"
+    }
+  },
+  "audit": {
+    "pre_listing_signals": 1949,
+    "entry_sig_total": 72799,
+    "warmup_excluded": 14496,
+    "entry_count": 64167,
+    "exit_count": 63613
+  },
+  "yearly": {
+    "2014": 0.0,
+    "2015": 0.0,
+    "2016": -0.04543183650000006,
+    "2017": -0.019913835110843808,
+    "2018": -0.03701142378117595,
+    "2019": -0.03645483725033661,
+    "2020": 0.037148631314779516,
+    "2021": 0.05132921385667206,
+    "2022": -0.09445780084028706,
+    "2023": -0.015792343369755074,
+    "2024": -0.03197132953429036,
+    "2025": 0.06386319619239013,
+    "2026": 0.07783143515916707
+  }
+}

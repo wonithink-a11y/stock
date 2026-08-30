@@ -1,0 +1,54 @@
+{
+  "strategyId": "crypto_price_action_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Quantified Price Action / Range Expansion (community/GitHub concept, Strategy 6). body_ratio>=0.6, close_location>=0.8, range_expansion>=1.5 (ATR(20)), close>prev 20-bar high, volume>1.5x SMA(20). All conditions simultaneously, next bar open. Exit: existing lab ATR risk management (2x ATR(20) stop / 3.0 RR / 60-bar time exit). Fixed baseline - no condition tuning.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "body_ratio_min": 0.6,
+    "close_location_min": 0.8,
+    "range_expansion_min": 1.5,
+    "vol_ratio_min": 1.5,
+    "breakout_bars": 20,
+    "atr_period": 20,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "body_ratio>=0.6 AND close_location>=0.8 AND range_expansion>=1.5 AND close>prev20high AND volume>1.5*SMA20",
+    "evaluatedAfter": "bar close confirmed"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(20)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Community: quantified candlestick/price-action patterns (public descriptions)"
+  ]
+}

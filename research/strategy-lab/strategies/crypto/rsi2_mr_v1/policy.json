@@ -1,0 +1,49 @@
+{
+  "strategyId": "crypto_rsi2_mr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Trend-filtered RSI(2) Mean Reversion (community/GitHub concept, Strategy 4). Entry: Daily SMA(200) uptrend AND RSI(2) <= 10 on 4H, next 4H bar open. Exit: RSI(2) >= 70 (dynamic exit in runner) or 60-bar time exit. No static stop by spec. Baseline thresholds only - RSI threshold sweep (5/10/15/20) explicitly forbidden.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "rsi_period": 2,
+    "entry_rsi_max": 10.0,
+    "exit_rsi_min": 70.0,
+    "max_holding": 60,
+    "sma_trend": 200
+  },
+
+  "signal": {
+    "expression": "Daily close > SMA(200) AND RSI(2) <= 10",
+    "evaluatedAfter": "4H bar close confirmed; daily candle fully closed (runner-injected)",
+    "exitExpression": "RSI(2) >= 70 OR time exit after 60 bars"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "exitRule": "RSI(2) >= 70 (dynamic), time exit at 60 bars",
+    "stopEnabled": false
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Community: RSI(2) mean-reversion filters on 4H crypto (freqtrade/backtrader public strategies)"
+  ]
+}

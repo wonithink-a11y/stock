@@ -1,0 +1,128 @@
+{
+  "generatedAt": "2026-08-23T02:01:53",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "purpose": "오더닝 페이드 Q5-Q1 스프레드(09:05->close)의 월별 분해 + 상위 기여월 제외 후 부호 유지 검증",
+  "definitions": "minute_opening_fade_study.py와 동일; 스프레드=월 내 날짜 동일가중 (Q5평균초과 - Q1평균초과)",
+  "diagnostics": {
+    "days": 250,
+    "tickerDaysValid": 492092
+  },
+  "monthly": [
+    {
+      "month": "2025-08",
+      "nDates": 15,
+      "avgTickersPerDayQ": 1861.8,
+      "q1MeanExcessBp": 0.049,
+      "q5MeanExcessBp": -0.107,
+      "spreadQ5mQ1Bp": -0.156
+    },
+    {
+      "month": "2025-09",
+      "nDates": 22,
+      "avgTickersPerDayQ": 1905.9,
+      "q1MeanExcessBp": 0.126,
+      "q5MeanExcessBp": -0.104,
+      "spreadQ5mQ1Bp": -0.23
+    },
+    {
+      "month": "2025-10",
+      "nDates": 18,
+      "avgTickersPerDayQ": 1973.8,
+      "q1MeanExcessBp": 0.064,
+      "q5MeanExcessBp": -0.145,
+      "spreadQ5mQ1Bp": -0.209
+    },
+    {
+      "month": "2025-11",
+      "nDates": 19,
+      "avgTickersPerDayQ": 1946.8,
+      "q1MeanExcessBp": 0.071,
+      "q5MeanExcessBp": -0.203,
+      "spreadQ5mQ1Bp": -0.273
+    },
+    {
+      "month": "2025-12",
+      "nDates": 21,
+      "avgTickersPerDayQ": 1911.5,
+      "q1MeanExcessBp": -0.013,
+      "q5MeanExcessBp": -0.012,
+      "spreadQ5mQ1Bp": 0.001
+    },
+    {
+      "month": "2026-01",
+      "nDates": 20,
+      "avgTickersPerDayQ": 2038.4,
+      "q1MeanExcessBp": 0.134,
+      "q5MeanExcessBp": 0.001,
+      "spreadQ5mQ1Bp": -0.133
+    },
+    {
+      "month": "2026-02",
+      "nDates": 17,
+      "avgTickersPerDayQ": 2143.9,
+      "q1MeanExcessBp": 0.047,
+      "q5MeanExcessBp": -0.094,
+      "spreadQ5mQ1Bp": -0.141
+    },
+    {
+      "month": "2026-03",
+      "nDates": 21,
+      "avgTickersPerDayQ": 2068.3,
+      "q1MeanExcessBp": 0.096,
+      "q5MeanExcessBp": -0.224,
+      "spreadQ5mQ1Bp": -0.321
+    },
+    {
+      "month": "2026-04",
+      "nDates": 22,
+      "avgTickersPerDayQ": 2032.5,
+      "q1MeanExcessBp": 0.058,
+      "q5MeanExcessBp": -0.056,
+      "spreadQ5mQ1Bp": -0.114
+    },
+    {
+      "month": "2026-05",
+      "nDates": 18,
+      "avgTickersPerDayQ": 2052.1,
+      "q1MeanExcessBp": 0.249,
+      "q5MeanExcessBp": -0.431,
+      "spreadQ5mQ1Bp": -0.68
+    },
+    {
+      "month": "2026-06",
+      "nDates": 21,
+      "avgTickersPerDayQ": 1943.1,
+      "q1MeanExcessBp": 0.319,
+      "q5MeanExcessBp": -0.601,
+      "spreadQ5mQ1Bp": -0.92
+    },
+    {
+      "month": "2026-07",
+      "nDates": 22,
+      "avgTickersPerDayQ": 1824.8,
+      "q1MeanExcessBp": 0.122,
+      "q5MeanExcessBp": -0.573,
+      "spreadQ5mQ1Bp": -0.695
+    },
+    {
+      "month": "2026-08",
+      "nDates": 14,
+      "avgTickersPerDayQ": 1880.4,
+      "q1MeanExcessBp": 0.274,
+      "q5MeanExcessBp": -0.352,
+      "spreadQ5mQ1Bp": -0.626
+    }
+  ],
+  "robustness": {
+    "overallSpreadBp_dateEqualWeight": -0.346,
+    "topContributionMonths": [
+      "2026-06",
+      "2026-07",
+      "2026-05"
+    ],
+    "excludeTop2_remainingSpreadBp": -0.262,
+    "excludeTop2_monthsKept": 11,
+    "excludeTop3_remainingSpreadBp": -0.22,
+    "excludeTop3_monthsKept": 10
+  }
+}

@@ -1,0 +1,890 @@
+{
+ "strategy": "vol_break_persist_v1",
+ "universe": [
+  "KRW-BTC",
+  "KRW-ETH",
+  "KRW-SOL",
+  "KRW-XRP",
+  "KRW-ADA",
+  "KRW-DOGE",
+  "KRW-DOT"
+ ],
+ "periods": {
+  "FULL": {
+   "metrics": {
+    "cagr": 0.09041638565738896,
+    "maxDrawdown": -0.3644232806327592,
+    "sharpe_ann": 0.5583756572365232,
+    "calmar": 0.2481081491292111,
+    "totalReturn": 0.32705591690919,
+    "winRate": 0.36363636363636365,
+    "profitFactor": 1.2285089889718406,
+    "tradeCount": 110,
+    "annualReturns": {
+     "2024": 0.2998,
+     "2025": -0.1126,
+     "2026": -0.0983
+    },
+    "exitTypeCounts": {
+     "TARGET": 42,
+     "STOP": 71,
+     "TIME_EXIT": 4
+    }
+   },
+   "benchmark": {
+    "cagr": 0.2703062887138008,
+    "totalReturn": 1.1861304664144185,
+    "maxDrawdown": -0.711328996599682,
+    "sharpe_ann": 0.6976315100838787
+   }
+  },
+  "TRAIN": {
+   "metrics": {
+    "cagr": 0.22889907815340282,
+    "maxDrawdown": -0.22933710364190849,
+    "sharpe_ann": 1.1375648385333907,
+    "calmar": 0.9980900365377005,
+    "totalReturn": 0.4978859500451045,
+    "winRate": 0.43243243243243246,
+    "profitFactor": 1.5510622664224267,
+    "tradeCount": 74,
+    "annualReturns": {
+     "2024": 0.2998,
+     "2025": -0.0969
+    },
+    "exitTypeCounts": {
+     "TARGET": 36,
+     "STOP": 43
+    }
+   },
+   "benchmark": {
+    "cagr": 0.8353145849854289,
+    "totalReturn": 2.288153104546973,
+    "maxDrawdown": -0.5225992859913348,
+    "sharpe_ann": 1.281971769679604
+   }
+  },
+  "VALID": {
+   "metrics": {
+    "cagr": 0.026921710521083275,
+    "maxDrawdown": -0.11799630491244611,
+    "sharpe_ann": 0.2288112611332336,
+    "calmar": 0.2281572337460849,
+    "totalReturn": 0.013030626906479492,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 1.0890303582074776,
+    "tradeCount": 18,
+    "annualReturns": {},
+    "exitTypeCounts": {
+     "STOP": 15,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   },
+   "benchmark": {
+    "cagr": 0.6302548513644666,
+    "totalReturn": 0.2689369760321054,
+    "maxDrawdown": -0.26655294251275147,
+    "sharpe_ann": 1.1542038629725504
+   }
+  },
+  "TEST": {
+   "metrics": {
+    "cagr": -0.15085457169418803,
+    "maxDrawdown": -0.18581217006694706,
+    "sharpe_ann": -1.6286614374881518,
+    "calmar": -0.8118659377361342,
+    "totalReturn": -0.12489950595843491,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 0.38498806230085075,
+    "tradeCount": 18,
+    "annualReturns": {
+     "2026": -0.0981
+    },
+    "exitTypeCounts": {
+     "STOP": 13,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   },
+   "benchmark": {
+    "cagr": -0.5923083632395847,
+    "totalReturn": -0.5190746248257025,
+    "maxDrawdown": -0.6242180665578805,
+    "sharpe_ann": -1.3674394768453157
+   }
+  }
+ },
+ "cost_sensitivity": {
+  "0.0": {
+   "FULL": {
+    "cagr": 0.09883509047087613,
+    "maxDrawdown": -0.357722474216336,
+    "sharpe_ann": 0.5995747178289216,
+    "calmar": 0.2762898548306045,
+    "totalReturn": 0.3608434120860988,
+    "winRate": 0.3669724770642202,
+    "profitFactor": 1.2528053444934888,
+    "tradeCount": 109,
+    "annualReturns": {
+     "2024": 0.3105,
+     "2025": -0.1058,
+     "2026": -0.0946
+    },
+    "exitTypeCounts": {
+     "TARGET": 42,
+     "STOP": 71,
+     "TIME_EXIT": 4
+    }
+   },
+   "TEST": {
+    "cagr": -0.14635272383756415,
+    "maxDrawdown": -0.18388755063649018,
+    "sharpe_ann": -1.5693271800614514,
+    "calmar": -0.7958816316329915,
+    "totalReturn": -0.12111611578418557,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 0.3960366912230981,
+    "tradeCount": 18,
+    "annualReturns": {
+     "2026": -0.0944
+    },
+    "exitTypeCounts": {
+     "STOP": 13,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   }
+  },
+  "1.0": {
+   "FULL": {
+    "cagr": 0.09041638565738896,
+    "maxDrawdown": -0.3644232806327592,
+    "sharpe_ann": 0.5583756572365232,
+    "calmar": 0.2481081491292111,
+    "totalReturn": 0.32705591690919,
+    "winRate": 0.36363636363636365,
+    "profitFactor": 1.2285089889718406,
+    "tradeCount": 110,
+    "annualReturns": {
+     "2024": 0.2998,
+     "2025": -0.1126,
+     "2026": -0.0983
+    },
+    "exitTypeCounts": {
+     "TARGET": 42,
+     "STOP": 71,
+     "TIME_EXIT": 4
+    }
+   },
+   "TEST": {
+    "cagr": -0.15085457169418803,
+    "maxDrawdown": -0.18581217006694706,
+    "sharpe_ann": -1.6286614374881518,
+    "calmar": -0.8118659377361342,
+    "totalReturn": -0.12489950595843491,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 0.38498806230085075,
+    "tradeCount": 18,
+    "annualReturns": {
+     "2026": -0.0981
+    },
+    "exitTypeCounts": {
+     "STOP": 13,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   }
+  },
+  "2.0": {
+   "FULL": {
+    "cagr": 0.08272175224841738,
+    "maxDrawdown": -0.3693937618371592,
+    "sharpe_ann": 0.5206223228972985,
+    "calmar": 0.2239392236539279,
+    "totalReturn": 0.2966877535755861,
+    "winRate": 0.36363636363636365,
+    "profitFactor": 1.2073846564156028,
+    "tradeCount": 110,
+    "annualReturns": {
+     "2024": 0.2877,
+     "2025": -0.1168,
+     "2026": -0.1019
+    },
+    "exitTypeCounts": {
+     "TARGET": 42,
+     "STOP": 71,
+     "TIME_EXIT": 4
+    }
+   },
+   "TEST": {
+    "cagr": -0.1553337370461776,
+    "maxDrawdown": -0.1877323348051448,
+    "sharpe_ann": -1.6881289776449269,
+    "calmar": -0.827421324128339,
+    "totalReturn": -0.12866750058037302,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 0.3742590772172587,
+    "tradeCount": 18,
+    "annualReturns": {
+     "2026": -0.1017
+    },
+    "exitTypeCounts": {
+     "STOP": 13,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   }
+  },
+  "4.0": {
+   "FULL": {
+    "cagr": 0.06712170999580969,
+    "maxDrawdown": -0.3792928409466931,
+    "sharpe_ann": 0.4440042486439165,
+    "calmar": 0.17696540179423836,
+    "totalReturn": 0.23660570752247612,
+    "winRate": 0.36363636363636365,
+    "profitFactor": 1.165602068922491,
+    "tradeCount": 110,
+    "annualReturns": {
+     "2024": 0.2633,
+     "2025": -0.1255,
+     "2026": -0.1091
+    },
+    "exitTypeCounts": {
+     "TARGET": 42,
+     "STOP": 71,
+     "TIME_EXIT": 4
+    }
+   },
+   "TEST": {
+    "cagr": -0.16481010669199148,
+    "maxDrawdown": -0.19186491816100446,
+    "sharpe_ann": -1.9299310840681119,
+    "calmar": -0.8589903160602305,
+    "totalReturn": -0.13665143782226252,
+    "winRate": 0.2222222222222222,
+    "profitFactor": 0.35100653286410316,
+    "tradeCount": 18,
+    "annualReturns": {
+     "2026": -0.1095
+    },
+    "exitTypeCounts": {
+     "STOP": 13,
+     "TARGET": 3,
+     "TIME_EXIT": 2
+    }
+   }
+  }
+ },
+ "test": {
+  "net_pnl": -1248995059.5843472,
+  "trade_count": 18,
+  "by_coin": {
+   "KRW-BTC": {
+    "trades": 2,
+    "netPnl": 102298125.36159682
+   },
+   "KRW-ETH": {
+    "trades": 3,
+    "netPnl": 20577864.134168148
+   },
+   "KRW-SOL": {
+    "trades": 2,
+    "netPnl": 92163637.82201552
+   },
+   "KRW-XRP": {
+    "trades": 1,
+    "netPnl": 140144286.25744355
+   },
+   "KRW-ADA": {
+    "trades": 4,
+    "netPnl": -500742574.4799186
+   },
+   "KRW-DOGE": {
+    "trades": 2,
+    "netPnl": -299559522.4409218
+   },
+   "KRW-DOT": {
+    "trades": 4,
+    "netPnl": -803876876.238731
+   }
+  },
+  "by_entry": {
+   "2025-11-08": [
+    {
+     "symbol": "KRW-DOT",
+     "pnl": -297508820.1776812,
+     "exit_type": "STOP",
+     "holding_sessions": 9,
+     "ret_pct": -14.790299853619137
+    }
+   ],
+   "2026-01-05": [
+    {
+     "symbol": "KRW-DOGE",
+     "pnl": -205118866.93115067,
+     "exit_type": "STOP",
+     "holding_sessions": 15,
+     "ret_pct": -10.480949022364506
+    }
+   ],
+   "2026-01-14": [
+    {
+     "symbol": "KRW-DOT",
+     "pnl": -170216580.16453934,
+     "exit_type": "STOP",
+     "holding_sessions": 6,
+     "ret_pct": -10.875687959363646
+    }
+   ],
+   "2026-02-26": [
+    {
+     "symbol": "KRW-DOT",
+     "pnl": -265394576.7132802,
+     "exit_type": "STOP",
+     "holding_sessions": 27,
+     "ret_pct": -14.141179645719681
+    }
+   ],
+   "2026-05-11": [
+    {
+     "symbol": "KRW-ADA",
+     "pnl": -69552283.96486902,
+     "exit_type": "STOP",
+     "holding_sessions": 5,
+     "ret_pct": -7.32636121034822
+    }
+   ],
+   "2026-04-14": [
+    {
+     "symbol": "KRW-ETH",
+     "pnl": -153842492.0220821,
+     "exit_type": "STOP",
+     "holding_sessions": 34,
+     "ret_pct": -8.407349060927983
+    }
+   ],
+   "2026-04-23": [
+    {
+     "symbol": "KRW-BTC",
+     "pnl": -77202972.60931396,
+     "exit_type": "STOP",
+     "holding_sessions": 35,
+     "ret_pct": -5.450496230387691
+    }
+   ],
+   "2026-04-30": [
+    {
+     "symbol": "KRW-DOGE",
+     "pnl": -94440655.50977111,
+     "exit_type": "STOP",
+     "holding_sessions": 29,
+     "ret_pct": -7.967032246299588
+    }
+   ],
+   "2026-07-05": [
+    {
+     "symbol": "KRW-ADA",
+     "pnl": -168575780.42113948,
+     "exit_type": "STOP",
+     "holding_sessions": 4,
+     "ret_pct": -12.068819388052399
+    }
+   ],
+   "2026-07-02": [
+    {
+     "symbol": "KRW-SOL",
+     "pnl": -182909100.91758442,
+     "exit_type": "STOP",
+     "holding_sessions": 27,
+     "ret_pct": -10.463316356983333
+    }
+   ],
+   "2026-08-03": [
+    {
+     "symbol": "KRW-ADA",
+     "pnl": -171600491.97974896,
+     "exit_type": "STOP",
+     "holding_sessions": 15,
+     "ret_pct": -10.22871068790635
+    }
+   ],
+   "2026-08-20": [
+    {
+     "symbol": "KRW-BTC",
+     "pnl": 179501097.9709108,
+     "exit_type": "TARGET",
+     "holding_sessions": 2,
+     "ret_pct": 11.174222002797451
+    },
+    {
+     "symbol": "KRW-SOL",
+     "pnl": 275072738.73959994,
+     "exit_type": "TARGET",
+     "holding_sessions": 3,
+     "ret_pct": 17.00631487986066
+    },
+    {
+     "symbol": "KRW-ETH",
+     "pnl": 187133672.6437502,
+     "exit_type": "TIME_EXIT",
+     "holding_sessions": 8,
+     "ret_pct": 11.613137229834702
+    }
+   ],
+   "2026-08-21": [
+    {
+     "symbol": "KRW-XRP",
+     "pnl": 140144286.25744355,
+     "exit_type": "TARGET",
+     "holding_sessions": 2,
+     "ret_pct": 21.580394477928564
+    }
+   ],
+   "2026-08-22": [
+    {
+     "symbol": "KRW-DOT",
+     "pnl": -70756899.18323028,
+     "exit_type": "STOP",
+     "holding_sessions": 4,
+     "ret_pct": -7.922380933775008
+    },
+    {
+     "symbol": "KRW-ADA",
+     "pnl": -91014018.11416113,
+     "exit_type": "STOP",
+     "holding_sessions": 5,
+     "ret_pct": -10.219134902792737
+    }
+   ],
+   "2026-08-27": [
+    {
+     "symbol": "KRW-ETH",
+     "pnl": -12713316.487499952,
+     "exit_type": "TIME_EXIT",
+     "holding_sessions": 1,
+     "ret_pct": -0.8167988336486132
+    }
+   ]
+  },
+  "cluster_net": 479936592.0568695,
+  "single_net": -1728931651.6412168
+ },
+ "loo_events": {
+  "2025-11-08": {
+   "cagr": -0.11903499937302675,
+   "maxDrawdown": -0.1634713622119797,
+   "sharpe_ann": -1.2754230356280418,
+   "calmar": -0.7281703520563402,
+   "totalReturn": -0.09823600110966912,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.4496186281376889,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0982
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-01-05": {
+   "cagr": -0.13279538715002648,
+   "maxDrawdown": -0.17155812800277942,
+   "sharpe_ann": -1.4791114177815576,
+   "calmar": -0.7740547690510767,
+   "totalReturn": -0.10974450512687783,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.41965570135394736,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0824
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-01-14": {
+   "cagr": -0.1319348594970874,
+   "maxDrawdown": -0.17089804087988483,
+   "sharpe_ann": -1.4437909629110248,
+   "calmar": -0.7720091981031977,
+   "totalReturn": -0.1090238220994183,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.42146673332243384,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0817
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-02-26": {
+   "cagr": -0.12043592312717966,
+   "maxDrawdown": -0.16185892500351048,
+   "sharpe_ann": -1.3999927214393275,
+   "calmar": -0.7440795935384321,
+   "totalReturn": -0.09940614263302516,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.4464552892199782,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0718
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-05-11": {
+   "cagr": -0.14258976594942385,
+   "maxDrawdown": -0.17927817665511028,
+   "sharpe_ann": -1.543086242772336,
+   "calmar": -0.795354842456556,
+   "totalReturn": -0.1179565131384489,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.40024920204450953,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0909
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-04-14": {
+   "cagr": -0.15011366583472974,
+   "maxDrawdown": -0.18521571604654127,
+   "sharpe_ann": -1.630363947874846,
+   "calmar": -0.810480174355231,
+   "totalReturn": -0.12427658915274942,
+   "winRate": 0.2222222222222222,
+   "profitFactor": 0.38629498032575504,
+   "tradeCount": 18,
+   "annualReturns": {
+    "2026": -0.0974
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-04-23": {
+   "cagr": -0.1463220092630656,
+   "maxDrawdown": -0.1822203889940402,
+   "sharpe_ann": -1.605139193026884,
+   "calmar": -0.8029947146466211,
+   "totalReturn": -0.1210903156392118,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.3932276437618527,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0941
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-04-30": {
+   "cagr": -0.15198805345664712,
+   "maxDrawdown": -0.18669433768803997,
+   "sharpe_ann": -1.6816976457282906,
+   "calmar": -0.8141010345510001,
+   "totalReturn": -0.12585267476979234,
+   "winRate": 0.2222222222222222,
+   "profitFactor": 0.3829403046618849,
+   "tradeCount": 18,
+   "annualReturns": {
+    "2026": -0.099
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-07-05": {
+   "cagr": -0.12991446970655207,
+   "maxDrawdown": -0.16930604616956205,
+   "sharpe_ann": -1.4023897221499688,
+   "calmar": -0.7673350872327451,
+   "totalReturn": -0.10733228315362775,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.4256860235108307,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.08
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-07-02": {
+   "cagr": -0.13338265444663255,
+   "maxDrawdown": -0.17202891877469753,
+   "sharpe_ann": -1.4625134661896033,
+   "calmar": -0.7753501876118913,
+   "totalReturn": -0.11023641101533599,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.4184685570213573,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.083
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-08-03": {
+   "cagr": -0.15277020929781426,
+   "maxDrawdown": -0.18732658695926907,
+   "sharpe_ann": -1.6732246043836636,
+   "calmar": -0.8155287072572966,
+   "totalReturn": -0.12651054295336794,
+   "winRate": 0.2222222222222222,
+   "profitFactor": 0.381577843054666,
+   "tradeCount": 18,
+   "annualReturns": {
+    "2026": -0.0997
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-08-20": {
+   "cagr": -0.21130648392026818,
+   "maxDrawdown": -0.18581217006694706,
+   "sharpe_ann": -2.8539984892719534,
+   "calmar": -1.1372047581390157,
+   "totalReturn": -0.17607142001143494,
+   "winRate": 0.06666666666666667,
+   "profitFactor": 0.1656255697904487,
+   "tradeCount": 15,
+   "annualReturns": {
+    "2026": -0.1508
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 1,
+    "TIME_EXIT": 1
+   }
+  },
+  "2026-08-21": {
+   "cagr": -0.17029308390673326,
+   "maxDrawdown": -0.18581217006694706,
+   "sharpe_ann": -2.010847916055229,
+   "calmar": -0.9164797109111725,
+   "totalReturn": -0.14127851238600742,
+   "winRate": 0.17647058823529413,
+   "profitFactor": 0.31234354359805344,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.1149
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 2,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-08-22": {
+   "cagr": -0.13160925133732093,
+   "maxDrawdown": -0.18581217006694706,
+   "sharpe_ann": -1.399527863033915,
+   "calmar": -0.7082918803967624,
+   "totalReturn": -0.10875116293432086,
+   "winRate": 0.25,
+   "profitFactor": 0.4182449411251121,
+   "tradeCount": 16,
+   "annualReturns": {
+    "2026": -0.0814
+   },
+   "exitTypeCounts": {
+    "STOP": 11,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "2026-08-27": {
+   "cagr": -0.14934230591289444,
+   "maxDrawdown": -0.18581217006694706,
+   "sharpe_ann": -1.6110641066745772,
+   "calmar": -0.8037272577952631,
+   "totalReturn": -0.12362817430968476,
+   "winRate": 0.23529411764705882,
+   "profitFactor": 0.38741331067320184,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.0968
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 3,
+    "TIME_EXIT": 1
+   }
+  }
+ },
+ "loo_asset": {
+  "KRW-BTC": {
+   "cagr": -0.15717078777328342,
+   "maxDrawdown": -0.1822203889940402,
+   "sharpe_ann": -1.851458791187317,
+   "calmar": -0.8625312932375747,
+   "totalReturn": -0.1302139402203829,
+   "winRate": 0.1875,
+   "profitFactor": 0.3413614824603625,
+   "tradeCount": 16,
+   "annualReturns": {
+    "2026": -0.1035
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 2,
+    "TIME_EXIT": 2
+   }
+  },
+  "KRW-ETH": {
+   "cagr": -0.15803130517519903,
+   "maxDrawdown": -0.17701726226072062,
+   "sharpe_ann": -1.8856714105793777,
+   "calmar": -0.8927451659626391,
+   "totalReturn": -0.1309385419974627,
+   "winRate": 0.2,
+   "profitFactor": 0.33867006661405896,
+   "tradeCount": 15,
+   "annualReturns": {
+    "2026": -0.1043
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 3
+   }
+  },
+  "KRW-SOL": {
+   "cagr": -0.1639304088284278,
+   "maxDrawdown": -0.17202891877469753,
+   "sharpe_ann": -1.9694788381969899,
+   "calmar": -0.9529235549234826,
+   "totalReturn": -0.13590958386087948,
+   "winRate": 0.1875,
+   "profitFactor": 0.3007691920765478,
+   "tradeCount": 16,
+   "annualReturns": {
+    "2026": -0.1094
+   },
+   "exitTypeCounts": {
+    "STOP": 12,
+    "TARGET": 2,
+    "TIME_EXIT": 2
+   }
+  },
+  "KRW-XRP": {
+   "cagr": -0.17029308390673326,
+   "maxDrawdown": -0.18581217006694706,
+   "sharpe_ann": -2.010847916055229,
+   "calmar": -0.9164797109111725,
+   "totalReturn": -0.14127851238600742,
+   "winRate": 0.17647058823529413,
+   "profitFactor": 0.31234354359805344,
+   "tradeCount": 17,
+   "annualReturns": {
+    "2026": -0.1149
+   },
+   "exitTypeCounts": {
+    "STOP": 13,
+    "TARGET": 2,
+    "TIME_EXIT": 2
+   }
+  },
+  "KRW-ADA": {
+   "cagr": -0.0875241262583506,
+   "maxDrawdown": -0.14499496810081228,
+   "sharpe_ann": -0.9372296850587216,
+   "calmar": -0.6036356116682389,
+   "totalReturn": -0.072005405550021,
+   "winRate": 0.2857142857142857,
+   "profitFactor": 0.5310700277929348,
+   "tradeCount": 14,
+   "annualReturns": {
+    "2026": -0.0436
+   },
+   "exitTypeCounts": {
+    "STOP": 9,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "KRW-DOGE": {
+   "cagr": -0.12338702569626225,
+   "maxDrawdown": -0.16416368697760444,
+   "sharpe_ann": -1.415035395061642,
+   "calmar": -0.7516097376217858,
+   "totalReturn": -0.10187221684823555,
+   "winRate": 0.25,
+   "profitFactor": 0.4397832633611497,
+   "tradeCount": 16,
+   "annualReturns": {
+    "2026": -0.0743
+   },
+   "exitTypeCounts": {
+    "STOP": 11,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  },
+  "KRW-DOT": {
+   "cagr": -0.05768053248593186,
+   "maxDrawdown": -0.12339071337930552,
+   "sharpe_ann": -0.6633587439799203,
+   "calmar": -0.46746250918106574,
+   "totalReturn": -0.04731613582665972,
+   "winRate": 0.2857142857142857,
+   "profitFactor": 0.6402724599275625,
+   "tradeCount": 14,
+   "annualReturns": {
+    "2026": -0.0473
+   },
+   "exitTypeCounts": {
+    "STOP": 9,
+    "TARGET": 3,
+    "TIME_EXIT": 2
+   }
+  }
+ },
+ "corr_vs_reference": {
+  "donchian_atr": 0.8547895804102138,
+  "S6_price_action": 0.773140961443257,
+  "S3A": 0.7528717528620843,
+  "vol_regime": 0.7174130200967432,
+  "S3B": 0.684000623919422,
+  "S5_supertrend": 0.5835240271807997,
+  "trend_momentum": 0.5162863225090875,
+  "S1_bb_squeeze": 0.4126479567610996,
+  "S2_bb_squeeze_vol": 0.39965703361661115,
+  "S4_rsi2_mr": 0.14363540864395002
+ },
+ "signal_overlap": {
+  "new": 167,
+  "donchian": 279,
+  "shared": 167
+ }
+}

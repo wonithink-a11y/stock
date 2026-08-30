@@ -1,0 +1,92 @@
+{
+  "experiment": "SQUEEZE-KR-V1",
+  "step": "STEP 1 SMOKE",
+  "strategyId": "squeeze_kr_v1",
+  "policyVersion": "1.0",
+  "universe": "A1A_ONLY",
+  "tickersRequested": 3000,
+  "tickersWithData": 2558,
+  "period": {
+    "rawStart": "2014-05-13",
+    "perfStart": "2016-01-01",
+    "end": "2026-08-03"
+  },
+  "indicators": {
+    "bollinger": {
+      "length": 20,
+      "mult": 2.0,
+      "stdDev": "population ddof=0"
+    },
+    "keltner": {
+      "length": 20,
+      "mult": 1.5,
+      "rangeMa": "SMA(TR,20)"
+    },
+    "momentum": {
+      "lookback": 20,
+      "method": "linreg_endpoint"
+    }
+  },
+  "costBps": {
+    "entry": 15,
+    "exit": 15,
+    "slippage": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "maxPositions": 30,
+    "equalWeight": true
+  },
+  "results": {
+    "grossReturn": 0.09,
+    "netReturn": -4.16,
+    "CAGR": -0.4,
+    "MDD": -10.05,
+    "Sharpe": -0.358,
+    "Exposure": 0.8402,
+    "Trades": 59583,
+    "WinRate": 32.0,
+    "Turnover": 14.17,
+    "SameBarExecutions": 0
+  },
+  "benchmarks": {
+    "equalWeight": {
+      "totalReturn": 85.54,
+      "CAGR": 6.02,
+      "MDD": -46.76,
+      "Sharpe": 0.392,
+      "Exposure": 1.0,
+      "note": "daily rebalanced equal-weight on available (MACD parity)"
+    },
+    "buyAndHold": {
+      "totalReturn": 14.51,
+      "CAGR": 1.29,
+      "MDD": -41.04,
+      "Sharpe": 0.166,
+      "Exposure": 1.0,
+      "note": "b0_buy_hold: equal weight, first/last close, entry+exit cost (MACD parity)"
+    }
+  },
+  "audit": {
+    "pre_listing_signals": 2486,
+    "release_total": 192971,
+    "warmup_excluded": 22943,
+    "entry_count": 59799,
+    "exit_count": 59583
+  },
+  "yearly": {
+    "2014": 0.0,
+    "2015": 0.0,
+    "2016": -0.02024733900000006,
+    "2017": -0.0028252403082782117,
+    "2018": -0.03327381998833853,
+    "2019": -0.010276540761827262,
+    "2020": 0.0016235128922513318,
+    "2021": 0.031891719380556204,
+    "2022": -0.043622024037948,
+    "2023": -0.011257696745227124,
+    "2024": -0.008521687819269624,
+    "2025": 0.011021034120701639,
+    "2026": 0.04647135799577735
+  }
+}

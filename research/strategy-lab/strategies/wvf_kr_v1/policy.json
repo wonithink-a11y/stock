@@ -1,0 +1,72 @@
+{
+  "strategyId": "wvf_kr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-29",
+  "note": "WVF-KR-V1 baseline (STEP 2). Williams Vix Fix (Larry Williams, Active Trader Dec 2007) original formula: WVF = (Highest(Close,22) - Low) / Highest(Close,22) * 100. Entry on WVF crossing above Bollinger Band(20,2.0) upper band; Exit on WVF crossing below BB midline (20 SMA). Long only, no pyramiding, no leverage. Dynamic mean-reversion exit NOT expressible in engine.executor's fixed STOP/TARGET/TIME contract, so driver-driven exactly like MACD/Squeeze/SuperTrend: engine DATA layer (A2aProvider/UniverseProvider/calendar/_drop_suspension_rows), engine PORTFOLIO accounting (engine.portfolio.Portfolio), CostModel, engine.metrics - not engine.executor.simulate_trade.",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "wvf": { "lookback": 22, "formula": "(Highest(Close,22) - Low) / Highest(Close,22) * 100" },
+    "bollinger": { "length": 20, "mult": 2.0, "source": "wvf" }
+  },
+
+  "signal": {
+    "entry": "WVF crosses above BB upper band (WVF[t] >= BB_upper[t] AND WVF[t-1] < BB_upper[t-1])",
+    "exit": "WVF crosses below BB midline (WVF[t] < BB_mid[t] AND WVF[t-1] >= BB_mid[t-1])",
+    "evaluatedAt": "t close",
+    "noPyramiding": true,
+    "noShort": true,
+    "noLeverage": true
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "exit": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "exitDateField": "next_session(t)",
+    "exitPriceField": "Open[exit_date]",
+    "note": "Mean reversion exit (BB midline cross) is a dynamic (state-machine) exit, NOT a static stop/target/time. Implemented in the research driver, not engine.executor."
+  },
+
+  "pit": {
+    "listingDateGate": "required",
+    "rule": "no signal on/before ticker's A1a listedAt. Gateway applied at the signal date t: t < listedAt -> signal discarded. Entry is at next_session(t) so it is necessarily after listedAt.",
+    "source": "data/backfill/universe/a1a/current.jsonl listedAt"
+  },
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+
+  "period": {
+    "rawDataStart": "2014-05-13",
+    "performanceStart": "2016-01-01",
+    "end": "2026-08-03",
+    "note": "Indicator warm-up uses pre-2016 bars; only trades with signal_date >= performanceStart are generated/measured."
+  }
+}

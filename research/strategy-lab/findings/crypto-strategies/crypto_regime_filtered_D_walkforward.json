@@ -1,0 +1,244 @@
+{
+ "strategy": "crypto_regime_filtered",
+ "timeframe": "D",
+ "splits": {
+  "train": "2023-12-07~2025-07-25",
+  "valid": "2025-07-26~2025-12-22",
+  "test": "2025-12-23~2026-08-28"
+ },
+ "paramGrid": [
+  {
+   "donchianPeriod": 20,
+   "atrMult": 2.0,
+   "volThreshold": 0.03,
+   "useVolRegimeFilter": true,
+   "useBtcTrendFilter": true,
+   "maxHoldingSessions": 60
+  },
+  {
+   "donchianPeriod": 20,
+   "atrMult": 2.5,
+   "volThreshold": 0.03,
+   "useVolRegimeFilter": true,
+   "useBtcTrendFilter": true,
+   "maxHoldingSessions": 60
+  },
+  {
+   "donchianPeriod": 20,
+   "atrMult": 2.0,
+   "volThreshold": 0.04,
+   "useVolRegimeFilter": true,
+   "useBtcTrendFilter": true,
+   "maxHoldingSessions": 60
+  },
+  {
+   "donchianPeriod": 20,
+   "atrMult": 2.0,
+   "volThreshold": 0.03,
+   "useVolRegimeFilter": true,
+   "useBtcTrendFilter": false,
+   "maxHoldingSessions": 60
+  },
+  {
+   "donchianPeriod": 20,
+   "atrMult": 2.0,
+   "volThreshold": 0.03,
+   "useVolRegimeFilter": false,
+   "useBtcTrendFilter": true,
+   "maxHoldingSessions": 60
+  }
+ ],
+ "trainResults": [
+  {
+   "totalReturnPct": 2.11,
+   "cagrPct": 256.56,
+   "mddPct": null,
+   "sharpe": null,
+   "sortino": null,
+   "calmar": null,
+   "winRatePct": 100.0,
+   "profitFactor": null,
+   "tradeCount": 1,
+   "avgHoldingDays": 6.0,
+   "turnover": 0.2,
+   "annualReturns": {},
+   "nSignals": 38,
+   "nTrades": 34,
+   "maxPositions": 1,
+   "params": {
+    "donchianPeriod": 20,
+    "atrMult": 2.0,
+    "volThreshold": 0.03,
+    "useVolRegimeFilter": true,
+    "useBtcTrendFilter": true,
+    "maxHoldingSessions": 60
+   }
+  },
+  {
+   "totalReturnPct": 2.64,
+   "cagrPct": 389.63,
+   "mddPct": null,
+   "sharpe": null,
+   "sortino": null,
+   "calmar": null,
+   "winRatePct": 100.0,
+   "profitFactor": null,
+   "tradeCount": 1,
+   "avgHoldingDays": 6.0,
+   "turnover": 0.2,
+   "annualReturns": {},
+   "nSignals": 38,
+   "nTrades": 34,
+   "maxPositions": 1,
+   "params": {
+    "donchianPeriod": 20,
+    "atrMult": 2.5,
+    "volThreshold": 0.03,
+    "useVolRegimeFilter": true,
+    "useBtcTrendFilter": true,
+    "maxHoldingSessions": 60
+   }
+  },
+  {
+   "totalReturnPct": 34.39,
+   "cagrPct": 23.03,
+   "mddPct": -4.97,
+   "sharpe": 9.506,
+   "sortino": 30.903,
+   "calmar": 4.634,
+   "winRatePct": 77.27,
+   "profitFactor": 5.875,
+   "tradeCount": 22,
+   "avgHoldingDays": 7.1,
+   "turnover": 4.26,
+   "annualReturns": {
+    "2025": 11.77
+   },
+   "nSignals": 92,
+   "nTrades": 84,
+   "maxPositions": 3,
+   "params": {
+    "donchianPeriod": 20,
+    "atrMult": 2.0,
+    "volThreshold": 0.04,
+    "useVolRegimeFilter": true,
+    "useBtcTrendFilter": true,
+    "maxHoldingSessions": 60
+   }
+  },
+  {
+   "totalReturnPct": 2.11,
+   "cagrPct": 256.56,
+   "mddPct": null,
+   "sharpe": null,
+   "sortino": null,
+   "calmar": null,
+   "winRatePct": 100.0,
+   "profitFactor": null,
+   "tradeCount": 1,
+   "avgHoldingDays": 6.0,
+   "turnover": 0.2,
+   "annualReturns": {},
+   "nSignals": 38,
+   "nTrades": 34,
+   "maxPositions": 1,
+   "params": {
+    "donchianPeriod": 20,
+    "atrMult": 2.0,
+    "volThreshold": 0.03,
+    "useVolRegimeFilter": true,
+    "useBtcTrendFilter": false,
+    "maxHoldingSessions": 60
+   }
+  },
+  {
+   "totalReturnPct": 67.11,
+   "cagrPct": 42.55,
+   "mddPct": -22.13,
+   "sharpe": 2.818,
+   "sortino": 5.601,
+   "calmar": 1.923,
+   "winRatePct": 51.52,
+   "profitFactor": 1.645,
+   "tradeCount": 99,
+   "avgHoldingDays": 7.8,
+   "turnover": 19.57,
+   "annualReturns": {
+    "2025": 5.21
+   },
+   "nSignals": 252,
+   "nTrades": 240,
+   "maxPositions": 5,
+   "params": {
+    "donchianPeriod": 20,
+    "atrMult": 2.0,
+    "volThreshold": 0.03,
+    "useVolRegimeFilter": false,
+    "useBtcTrendFilter": true,
+    "maxHoldingSessions": 60
+   }
+  }
+ ],
+ "bestParams": {
+  "donchianPeriod": 20,
+  "atrMult": 2.0,
+  "volThreshold": 0.04,
+  "useVolRegimeFilter": true,
+  "useBtcTrendFilter": true,
+  "maxHoldingSessions": 60
+ },
+ "validMetrics": {
+  "totalReturnPct": -0.82,
+  "cagrPct": -63.28,
+  "mddPct": -0.82,
+  "sharpe": null,
+  "sortino": null,
+  "calmar": -77.218,
+  "winRatePct": null,
+  "profitFactor": null,
+  "tradeCount": 1,
+  "avgHoldingDays": 3.0,
+  "turnover": 0.14,
+  "annualReturns": {},
+  "nSignals": 6,
+  "nTrades": 6,
+  "maxPositions": 1
+ },
+ "testMetrics": {
+  "totalReturnPct": 4.33,
+  "cagrPct": 12.46,
+  "mddPct": -5.29,
+  "sharpe": 2.606,
+  "sortino": 7.321,
+  "calmar": 2.356,
+  "winRatePct": 46.67,
+  "profitFactor": 1.647,
+  "tradeCount": 15,
+  "avgHoldingDays": 7.1,
+  "turnover": 2.26,
+  "annualReturns": {},
+  "nSignals": 36,
+  "nTrades": 36,
+  "maxPositions": 5
+ },
+ "fullMetrics": {
+  "totalReturnPct": 34.22,
+  "cagrPct": 12.31,
+  "mddPct": -11.73,
+  "sharpe": 5.051,
+  "sortino": 13.187,
+  "calmar": 1.049,
+  "winRatePct": 58.14,
+  "profitFactor": 2.366,
+  "tradeCount": 43,
+  "avgHoldingDays": 7.7,
+  "turnover": 8.84,
+  "annualReturns": {
+   "2025": 11.86,
+   "2026": -0.2
+  },
+  "nSignals": 145,
+  "nTrades": 145,
+  "maxPositions": 5
+ }
+}

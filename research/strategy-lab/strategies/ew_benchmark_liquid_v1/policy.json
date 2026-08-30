@@ -1,0 +1,54 @@
+{
+  "strategyId": "ew_benchmark_liquid_v1",
+  "version": "diag-0.1",
+  "note": "진단전용 - pbr_value_v1과 완전히 동일한 엔진 경로로 계산하는 전체유니버스 EW 벤치마크. 매달 turnover20>=1억원 적격종목 전부(랭킹 없음)를 선택 - 리밸런싱·비용·연속보유·포트폴리오 회계는 pbr_value_v1과 동일. maxPositions=1500은 관측된 월별 최대 적격종목수(1,391, 2016-01~2026-08)보다 커서 어떤 달도 잘리지 않는다(트렁케이션 방지). production/config/policies 아님, 커밋 대상 아님.",
+  "direction": "LONG_ONLY",
+  "factor": {
+    "note": "랭킹 없음 - 매달 turnover20>=1억원인 종목 전부를 선택. build_selection_ew_benchmark.py가 오프라인으로 계산.",
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl (같은 티커 유니버스만 - pbr_value_v1과 동일 비교 기준)"
+  },
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+  "risk": {
+    "note": "pbr_value_v1과 동일 - 가격기반 stop/target 없음, 순수 시간청산.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "maxHoldingSessions": 21,
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 1500,
+    "maxPositionsNote": "관측된 월별 최대 적격종목수(1,391)보다 커서 트렁케이션 없음 - 매달 적격종목 전부가 선택된다. 단, 동일가중 사이징이 cash/maxPositions(고정)이라 그 달 실제 적격수가 1,500보다 적으면 그 차이만큼 현금이 그 달은 미투자 상태로 남는다(엔진 구조적 한계, 코드 변경 없이는 회피 불가 - 진단 보고에 실제 투자비율로 명시).",
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "pbr_value_v1과 동일 정책 - 계속 적격인 종목은 청산-재진입 없이 유지. 이걸 안 켜면 EW가 PBR과 다른 현금타이밍 조건을 받아 비교가 불공정해진다."
+  },
+  "warmup": {
+    "note": "기술적 지표 없음."
+  }
+}

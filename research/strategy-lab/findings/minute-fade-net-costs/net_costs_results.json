@@ -1,0 +1,135 @@
+{
+  "generatedAt": "2026-08-23T12:28:39",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "accounting": "드래그=체결횟수 x (15bp 관례 절반비용 + 슬리피지); 롱숏=하루 4체결, 단일레그=2체결",
+  "sources": [
+    "findings/minute-opening-fade/study_results.json",
+    "findings/minute-opening-fade-monthly/study_results.json"
+  ],
+  "results": {
+    "gross": {
+      "longShortBp": 34.6,
+      "longOnlyExcessBp": 12.1,
+      "shortOnlyExcessBp": 22.5
+    },
+    "scenarios": [
+      {
+        "slippagePerExecBp": 0,
+        "dragLongShortBp": 60,
+        "netLongShortBp": -25.4,
+        "dragSingleLegBp": 30,
+        "netLongOnlyBp": -17.9,
+        "netShortOnlyBp": -7.5
+      },
+      {
+        "slippagePerExecBp": 5,
+        "dragLongShortBp": 80,
+        "netLongShortBp": -45.4,
+        "dragSingleLegBp": 40,
+        "netLongOnlyBp": -27.9,
+        "netShortOnlyBp": -17.5
+      },
+      {
+        "slippagePerExecBp": 10,
+        "dragLongShortBp": 100,
+        "netLongShortBp": -65.4,
+        "dragSingleLegBp": 50,
+        "netLongOnlyBp": -37.9,
+        "netShortOnlyBp": -27.5
+      }
+    ],
+    "monthly": [
+      {
+        "month": "2025-08",
+        "grossLSBp": 15.6,
+        "netLS_s0Bp": -44.4,
+        "netLS_s5Bp": -64.4,
+        "netLS_s10Bp": -84.4
+      },
+      {
+        "month": "2025-09",
+        "grossLSBp": 23.0,
+        "netLS_s0Bp": -37.0,
+        "netLS_s5Bp": -57.0,
+        "netLS_s10Bp": -77.0
+      },
+      {
+        "month": "2025-10",
+        "grossLSBp": 20.9,
+        "netLS_s0Bp": -39.1,
+        "netLS_s5Bp": -59.1,
+        "netLS_s10Bp": -79.1
+      },
+      {
+        "month": "2025-11",
+        "grossLSBp": 27.3,
+        "netLS_s0Bp": -32.7,
+        "netLS_s5Bp": -52.7,
+        "netLS_s10Bp": -72.7
+      },
+      {
+        "month": "2025-12",
+        "grossLSBp": -0.1,
+        "netLS_s0Bp": -60.1,
+        "netLS_s5Bp": -80.1,
+        "netLS_s10Bp": -100.1
+      },
+      {
+        "month": "2026-01",
+        "grossLSBp": 13.3,
+        "netLS_s0Bp": -46.7,
+        "netLS_s5Bp": -66.7,
+        "netLS_s10Bp": -86.7
+      },
+      {
+        "month": "2026-02",
+        "grossLSBp": 14.1,
+        "netLS_s0Bp": -45.9,
+        "netLS_s5Bp": -65.9,
+        "netLS_s10Bp": -85.9
+      },
+      {
+        "month": "2026-03",
+        "grossLSBp": 32.1,
+        "netLS_s0Bp": -27.9,
+        "netLS_s5Bp": -47.9,
+        "netLS_s10Bp": -67.9
+      },
+      {
+        "month": "2026-04",
+        "grossLSBp": 11.4,
+        "netLS_s0Bp": -48.6,
+        "netLS_s5Bp": -68.6,
+        "netLS_s10Bp": -88.6
+      },
+      {
+        "month": "2026-05",
+        "grossLSBp": 68.0,
+        "netLS_s0Bp": 8.0,
+        "netLS_s5Bp": -12.0,
+        "netLS_s10Bp": -32.0
+      },
+      {
+        "month": "2026-06",
+        "grossLSBp": 92.0,
+        "netLS_s0Bp": 32.0,
+        "netLS_s5Bp": 12.0,
+        "netLS_s10Bp": -8.0
+      },
+      {
+        "month": "2026-07",
+        "grossLSBp": 69.5,
+        "netLS_s0Bp": 9.5,
+        "netLS_s5Bp": -10.5,
+        "netLS_s10Bp": -30.5
+      },
+      {
+        "month": "2026-08",
+        "grossLSBp": 62.6,
+        "netLS_s0Bp": 2.6,
+        "netLS_s5Bp": -17.4,
+        "netLS_s10Bp": -37.4
+      }
+    ]
+  }
+}

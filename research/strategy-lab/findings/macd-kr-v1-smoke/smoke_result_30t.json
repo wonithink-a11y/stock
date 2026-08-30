@@ -1,0 +1,147 @@
+{
+  "experiment": "MACD-KR-V1",
+  "step": "STEP 2 SMOKE",
+  "description": "MACD(12,26,9) cross Long-only, next-open entry/exit; listing-date PIT gate; performance 2016-01-01+",
+  "generatedAt": "2026-08-29T16:13:24",
+  "macd": {
+    "fast": 12,
+    "slow": 26,
+    "signal": 9,
+    "emaMethod": "ewm(span, adjust=False)",
+    "referenceMatch": "macd_from_close_series (macd_information_content_study.py)"
+  },
+  "scope": {
+    "market": "KOSPI + KOSDAQ",
+    "timeframe": "Daily",
+    "universeMode": "A1A_ONLY",
+    "tickersRequested": 30,
+    "tickersWithData": 30,
+    "tickersNoData": 0,
+    "rawDataStart": "2014-05-13",
+    "performanceStart": "2016-01-01",
+    "end": "2026-08-03",
+    "suspensionRowsDropped": 128,
+    "seed": 42,
+    "tickers": [
+      "0004V0",
+      "0017J0",
+      "002020",
+      "002320",
+      "002460",
+      "009160",
+      "009970",
+      "011390",
+      "013360",
+      "021650",
+      "029530",
+      "039490",
+      "047040",
+      "047810",
+      "049070",
+      "052300",
+      "055490",
+      "067920",
+      "069140",
+      "189330",
+      "192390",
+      "192440",
+      "220180",
+      "296640",
+      "353190",
+      "353200",
+      "377030",
+      "432430",
+      "435570",
+      "455900"
+    ]
+  },
+  "pit": {
+    "listingGate": "yes (A1a listedAt)",
+    "listingAtAppliedTickers": 30,
+    "preListingSignalsDropped": 113,
+    "warmupSignalsExcluded": 590
+  },
+  "signals": {
+    "bullishCrossTotal": 2703,
+    "entryFills": 2345,
+    "exitFills": 2335
+  },
+  "trades": {
+    "count": 2335,
+    "firstTrade": "2016-01-05",
+    "lastTrade": "2026-07-31",
+    "winning": 742,
+    "losing": 1593,
+    "avgHoldingSessions": 18.98543897216274
+  },
+  "metrics": {
+    "grossReturn": null,
+    "netTotalReturn": -0.022488279320001303,
+    "cagr": -0.0021476930022146234,
+    "mdd": -0.2850193855205568,
+    "sharpe": 0.008373196079695165,
+    "sortino": 0.011883899297206318,
+    "calmar": -0.007535252376929018,
+    "exposure": 0.28976248806038457,
+    "turnover": 112.25671095334489,
+    "transactionCostKRW": 17851526.004,
+    "finalEquity": 97751172.06799987,
+    "winRate": 0.3177730192719486,
+    "profitFactor": 0.9909005441337867,
+    "avgWin": 301229.6477675202,
+    "avgLoss": -141597.56223948524,
+    "expectancy": -879.0226997858665,
+    "tradeStats": {
+      "tradeCount": 2335,
+      "winRate": 0.3177730192719486,
+      "avgWin": 301229.6477675202,
+      "avgLoss": -141597.56223948524,
+      "winLossRatio": 2.1273646452899224,
+      "profitFactor": 0.9909005441337867,
+      "expectancy": -879.0226997858665,
+      "avgHoldingPeriod": 18.98543897216274,
+      "maxConsecutiveWins": 12,
+      "maxConsecutiveLosses": 41
+    }
+  },
+  "benchmarks": {
+    "equalWeight": {
+      "desc": "daily-rebalanced equal-weight of subset (same A1A_ONLY universe window)",
+      "totalReturn": 0.977215662707843,
+      "cagr": 0.06657688269256501,
+      "mdd": -0.5024400134387003,
+      "sharpe": 0.4016655911887381
+    },
+    "buyAndHold": {
+      "desc": "buy each ticker at first close, hold to last close (b0_buy_hold)",
+      "totalReturn": 0.28985402562267293,
+      "cagr": 0.024351484694963954,
+      "mdd": -0.6598209118253625,
+      "sharpe": 0.22752115883169316
+    },
+    "randomControl": {
+      "note": "deferred - not built into shared engine (STEP-2 11); follow-up experiment"
+    }
+  },
+  "yearlyBreakdown": {
+    "2016": -1219289.5350000001,
+    "2017": -1767647.3199999991,
+    "2018": 2886486.5014999975,
+    "2019": -2088485.2480000001,
+    "2020": 11097018.701499993,
+    "2021": 5814428.764500002,
+    "2022": -2110073.9605000075,
+    "2023": -4478717.096499999,
+    "2024": -19562073.42500002,
+    "2025": 18675756.942999996,
+    "2026": -9299922.329500003
+  },
+  "invariantChecks": {
+    "sameBarExecution": {
+      "violations": 0
+    },
+    "shortPositions": 0,
+    "leverage": 0.0,
+    "preListingPositions": 0
+  }
+}

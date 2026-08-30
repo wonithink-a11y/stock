@@ -1,0 +1,97 @@
+{
+  "design": {
+    "purpose": "Order-flow imbalance predictive test (core 4)",
+    "features": [
+      "taker_buy_ratio_q_of",
+      "imbalance_q_of",
+      "imb_q_chg_7d_of",
+      "imbalance_q_z30_of"
+    ],
+    "targets": [
+      "r_1",
+      "r_3",
+      "r_7"
+    ]
+  },
+  "pooled_decile": {
+    "taker_buy_ratio_q_of": {
+      "D1_mean": 0.021076,
+      "D10_mean": 0.016971,
+      "D1_minus_D10": 0.004104,
+      "t": 1.321,
+      "n_D1": 5676,
+      "n_D10": 5760
+    },
+    "imbalance_q_of": {
+      "D1_mean": 0.021076,
+      "D10_mean": 0.016971,
+      "D1_minus_D10": 0.004104,
+      "t": 1.321,
+      "n_D1": 5676,
+      "n_D10": 5760
+    },
+    "imb_q_chg_7d_of": {
+      "D1_mean": 0.007882,
+      "D10_mean": 0.006186,
+      "D1_minus_D10": 0.001696,
+      "t": 0.652,
+      "n_D1": 5699,
+      "n_D10": 5726
+    },
+    "imbalance_q_z30_of": {
+      "D1_mean": 0.00522,
+      "D10_mean": 0.018441,
+      "D1_minus_D10": -0.013222,
+      "t": -4.494,
+      "n_D1": 5703,
+      "n_D10": 5746
+    }
+  },
+  "corr_f": {
+    "taker_buy_ratio_q_of": -0.24372268909307504,
+    "imbalance_q_of": -0.24372268909307504,
+    "imb_q_chg_7d_of": 0.1247233560793359,
+    "imbalance_q_z30_of": -0.07642118659103349
+  },
+  "corr_mom": {
+    "taker_buy_ratio_q_of": -0.08586835127175554,
+    "imbalance_q_of": -0.08586835127175554,
+    "imb_q_chg_7d_of": 0.03803681942733534,
+    "imbalance_q_z30_of": -0.1002869820178896
+  },
+  "loo_btc": {
+    "taker_buy_ratio_q_of": {
+      "D1_mean": 0.021869,
+      "D10_mean": 0.016489,
+      "D1_minus_D10": 0.00538,
+      "t": 1.671,
+      "n_D1": 5451,
+      "n_D10": 5518
+    },
+    "imbalance_q_of": {
+      "D1_mean": 0.021869,
+      "D10_mean": 0.016489,
+      "D1_minus_D10": 0.00538,
+      "t": 1.671,
+      "n_D1": 5451,
+      "n_D10": 5518
+    },
+    "imb_q_chg_7d_of": {
+      "D1_mean": 0.007671,
+      "D10_mean": 0.005968,
+      "D1_minus_D10": 0.001704,
+      "t": 0.633,
+      "n_D1": 5454,
+      "n_D10": 5478
+    },
+    "imbalance_q_z30_of": {
+      "D1_mean": 0.005224,
+      "D10_mean": 0.018671,
+      "D1_minus_D10": -0.013447,
+      "t": -4.4,
+      "n_D1": 5456,
+      "n_D10": 5497
+    }
+  },
+  "runtime_sec": 74.2
+}

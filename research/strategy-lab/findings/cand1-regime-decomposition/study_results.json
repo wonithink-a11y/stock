@@ -1,0 +1,338 @@
+{
+  "generatedAt": "2026-08-23T14:52:39",
+  "purpose": "CAND1 VALID 약화 원인 진단 - 변동성 프록시 상/하위 분해 (재스윕 없음)",
+  "signalReconstruction": "run_strategy_validation.load_frame 재사용, 동결 파라미터(thr=2%, vthr=1.5)",
+  "proxies": {
+    "proxyAbs": "그날 유니버스 EW 일간수익률(cc) 절댓값",
+    "proxyStd": "그날 일간수익률 횡단면 표준편차"
+  },
+  "results": {
+    "splitsSessions": {
+      "train": 150,
+      "valid": 37,
+      "test": 63
+    },
+    "groups": {
+      "train_abs_highVol": {
+        "nSignals": 3453,
+        "nDays": 73,
+        "medianProxy": 0.007943,
+        "meanTradeBp": 0.989,
+        "meanExcessBp": 0.719,
+        "winRateTrade": 0.5975
+      },
+      "train_abs_lowVol": {
+        "nSignals": 1493,
+        "nDays": 72,
+        "medianProxy": 0.007943,
+        "meanTradeBp": 0.502,
+        "meanExcessBp": 0.605,
+        "winRateTrade": 0.5318
+      },
+      "train_std_highVol": {
+        "nSignals": 3849,
+        "nDays": 73,
+        "medianProxy": 0.033936,
+        "meanTradeBp": 0.948,
+        "meanExcessBp": 0.696,
+        "winRateTrade": 0.59
+      },
+      "train_std_lowVol": {
+        "nSignals": 1097,
+        "nDays": 72,
+        "medianProxy": 0.033936,
+        "meanTradeBp": 0.468,
+        "meanExcessBp": 0.645,
+        "winRateTrade": 0.5342
+      },
+      "valid_abs_highVol": {
+        "nSignals": 814,
+        "nDays": 19,
+        "medianProxy": 0.010969,
+        "meanTradeBp": -0.256,
+        "meanExcessBp": 0.497,
+        "winRateTrade": 0.4373
+      },
+      "valid_abs_lowVol": {
+        "nSignals": 432,
+        "nDays": 18,
+        "medianProxy": 0.010969,
+        "meanTradeBp": -0.382,
+        "meanExcessBp": 0.099,
+        "winRateTrade": 0.4722
+      },
+      "valid_std_highVol": {
+        "nSignals": 737,
+        "nDays": 19,
+        "medianProxy": 0.042922,
+        "meanTradeBp": -0.658,
+        "meanExcessBp": 0.388,
+        "winRateTrade": 0.4125
+      },
+      "valid_std_lowVol": {
+        "nSignals": 509,
+        "nDays": 18,
+        "medianProxy": 0.042922,
+        "meanTradeBp": 0.219,
+        "meanExcessBp": 0.316,
+        "winRateTrade": 0.5029
+      },
+      "test_abs_highVol": {
+        "nSignals": 4493,
+        "nDays": 31,
+        "medianProxy": 0.019305,
+        "meanTradeBp": 0.735,
+        "meanExcessBp": 0.602,
+        "winRateTrade": 0.5638
+      },
+      "test_abs_lowVol": {
+        "nSignals": 2644,
+        "nDays": 31,
+        "medianProxy": 0.019305,
+        "meanTradeBp": 1.021,
+        "meanExcessBp": 0.615,
+        "winRateTrade": 0.6135
+      },
+      "test_std_highVol": {
+        "nSignals": 4806,
+        "nDays": 31,
+        "medianProxy": 0.044934,
+        "meanTradeBp": 0.884,
+        "meanExcessBp": 0.649,
+        "winRateTrade": 0.5953
+      },
+      "test_std_lowVol": {
+        "nSignals": 2331,
+        "nDays": 31,
+        "medianProxy": 0.044934,
+        "meanTradeBp": 0.753,
+        "meanExcessBp": 0.52,
+        "winRateTrade": 0.5551
+      }
+    },
+    "validDateDistribution": [
+      {
+        "date": "2026-03-27",
+        "proxyAbsBp": 0.39,
+        "proxyStdBp": 3.67,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-03-30",
+        "proxyAbsBp": 1.77,
+        "proxyStdBp": 4.59,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-03-31",
+        "proxyAbsBp": 2.54,
+        "proxyStdBp": 4.38,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-01",
+        "proxyAbsBp": 4.37,
+        "proxyStdBp": 4.51,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-02",
+        "proxyAbsBp": 3.65,
+        "proxyStdBp": 3.87,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-03",
+        "proxyAbsBp": 1.44,
+        "proxyStdBp": 3.59,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-06",
+        "proxyAbsBp": 0.55,
+        "proxyStdBp": 3.75,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-07",
+        "proxyAbsBp": 0.7,
+        "proxyStdBp": 3.73,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-08",
+        "proxyAbsBp": 3.61,
+        "proxyStdBp": 5.1,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-09",
+        "proxyAbsBp": 0.49,
+        "proxyStdBp": 3.89,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-10",
+        "proxyAbsBp": 2.35,
+        "proxyStdBp": 4.07,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-13",
+        "proxyAbsBp": 0.68,
+        "proxyStdBp": 4.49,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-14",
+        "proxyAbsBp": 2.16,
+        "proxyStdBp": 4.36,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-15",
+        "proxyAbsBp": 1.66,
+        "proxyStdBp": 4.61,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-16",
+        "proxyAbsBp": 1.57,
+        "proxyStdBp": 4.81,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-17",
+        "proxyAbsBp": 0.53,
+        "proxyStdBp": 4.06,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-20",
+        "proxyAbsBp": 0.24,
+        "proxyStdBp": 3.98,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-21",
+        "proxyAbsBp": 0.15,
+        "proxyStdBp": 4.32,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-22",
+        "proxyAbsBp": 0.74,
+        "proxyStdBp": 12.13,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-23",
+        "proxyAbsBp": 0.51,
+        "proxyStdBp": 3.75,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-24",
+        "proxyAbsBp": 1.61,
+        "proxyStdBp": 3.96,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-27",
+        "proxyAbsBp": 1.17,
+        "proxyStdBp": 4.29,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-04-28",
+        "proxyAbsBp": 0.16,
+        "proxyStdBp": 3.93,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-29",
+        "proxyAbsBp": 0.54,
+        "proxyStdBp": 3.72,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-04-30",
+        "proxyAbsBp": 1.1,
+        "proxyStdBp": 3.82,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-05-04",
+        "proxyAbsBp": 0.75,
+        "proxyStdBp": 4.78,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-06",
+        "proxyAbsBp": 1.04,
+        "proxyStdBp": 5.37,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-07",
+        "proxyAbsBp": 0.91,
+        "proxyStdBp": 4.21,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-05-08",
+        "proxyAbsBp": 0.26,
+        "proxyStdBp": 4.28,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-05-11",
+        "proxyAbsBp": 1.5,
+        "proxyStdBp": 4.69,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-12",
+        "proxyAbsBp": 2.02,
+        "proxyStdBp": 4.47,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-13",
+        "proxyAbsBp": 0.03,
+        "proxyStdBp": 4.8,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-14",
+        "proxyAbsBp": 0.9,
+        "proxyStdBp": 4.68,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-15",
+        "proxyAbsBp": 3.18,
+        "proxyStdBp": 4.94,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-18",
+        "proxyAbsBp": 1.68,
+        "proxyStdBp": 4.92,
+        "halfByStd": "high"
+      },
+      {
+        "date": "2026-05-19",
+        "proxyAbsBp": 1.61,
+        "proxyStdBp": 4.22,
+        "halfByStd": "low"
+      },
+      {
+        "date": "2026-05-20",
+        "proxyAbsBp": 2.53,
+        "proxyStdBp": 4.08,
+        "halfByStd": "low"
+      }
+    ]
+  }
+}

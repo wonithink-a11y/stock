@@ -1,0 +1,81 @@
+{
+  "strategyId": "pbr_value_v1",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-21",
+  "note": "저PBR 가치 팩터, 월별 리밸런싱, 절대 유동성 임계값(turnover20>=1억원) 적용. 사전점검(a5_valuation_factor_precheck_v2_absolute.py, lowPBR_high_liquidity_absoluteThreshold CAGR +7.06%, decile IC t=6.30)을 실제 Strategy Lab 엔진에 연결한 첫 버전 - 이 정책이 그 사전점검 설계를 재구현하는 것이지 새로 발명하는 게 아니다.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection.py가 오프라인으로 읽는 설정이다 - engine/runner.py는 이 블록을 모른다(선택 로직이 selection.json에 이미 구워져 있으므로).",
+    "metric": "pbr",
+    "rankDirection": "ascending",
+    "topN": 30,
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "minTurnoverNote": "절대 임계값 - 상대 tercile 아님(세션인수인계-2026-08-21-c.md, turnover20 rolling tercile이 그 자체로 강한 예측변수였음이 확정된 결함을 피하기 위함)",
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl",
+    "excludesMergerSpinoff": true
+  },
+
+  "signal": {
+    "expression": "그 달 turnover20>=1억원 유니버스 안에서 PBR 오름차순 상위 30개 - build_selection.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "이 전략은 가격 기반 stop/target이 없다 - 순수 시간 기반(월별) 청산. stop_distance·reward_risk를 entry_price 대비 극단적으로 크게 잡아 STOP/TARGET이 절대 안 걸리게 하고, maxHoldingSessions만으로 TIME_EXIT을 강제한다(engine/execution/executor.py의 '초 max_holding_sessions'th session 종가 청산' 규칙 재사용, 새 청산 타입 없음).",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "stopPctTargetPctNote": "engine/live/paperEngine.py(Paper Trading Engine, 백테스트 엔진과 별개)의 poll_once()가 읽는 키 - is_still_selected 콜백이 항상 먼저 REBALANCE_EXIT을 판정하므로 이 값은 실질적으로 절대 안 걸리는 형식상 하한선이다. 2026-08-24 poll_once() is_still_selected 파라미터 추가와 함께 도입.",
+    "maxHoldingSessions": 21,
+    "maxHoldingSessionsNote": "이 값은 다음 리밸런싱일이 없는 마지막 달에만 쓰는 폴백이다 - 그 외 모든 신호는 selection.json에 미리 계산해 둔 정확한 세션수(다음 리밸런싱일 다음 거래일까지, build_selection.py)를 쓴다. 초기 버전은 고정 21일 근사였으나(±2일 오차, 신호 3,774건 중 체결 2,585건=68%에 그쳐 CAGR이 사전점검 +7.06%보다 낮은 +3.52%로 나온 원인으로 추정) 2026-08-21 사용자 확인 후 정확한 계산으로 교체. generate_signals가 features 프레임에 직접 써 넣은 값을 risk_spec_for가 읽는다(rule.py 참고, symbol을 모르는 risk_spec_for의 인터페이스 제약을 엔진 변경 없이 우회).",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "PBR 오름차순 tie-break가 이상적이나 engine.execution.contracts.Order가 metadata를 안 나른다(cci_recovery_desc와 같은 미완성 상태) - selection.json이 이미 top-30만 담고 있어 매달 후보 수가 대개 <=maxPositions라 tie-break가 거의 안 걸린다는 전제로 ticker_ascending 사용."
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "다음 리밸런싱에도 동일 종목이 top-30이면 청산-재진입 없이 원래 진입가로 계속 보유(runner.py의 _merge_continuous_same_symbol_holds, TIME_EXIT 청산만 병합 - STOP/TARGET은 절대 병합 안 함). 2026-08-21 현금타이밍 진단(A/B/C 비교)에서 C 방식이 전 구간 위험조정성과가 가장 우수해 채택 - 이 필드가 없거나 false인 다른 전략(5dc_v1a_p·trend_breakout_v1)은 기존 동작 그대로다."
+  }
+}

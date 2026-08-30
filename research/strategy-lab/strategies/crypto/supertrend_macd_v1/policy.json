@@ -1,0 +1,54 @@
+{
+  "strategyId": "crypto_supertrend_macd_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Supertrend + MACD + ATR (community/GitHub concept, Strategy 5). Entry: Supertrend bullish (ATR(10) x3) AND MACD(12/26/9) line > signal, next bar open. Exit: reuse existing lab ATR stop (2x ATR(14) stop / 3.0 RR / 60-bar time exit). No Supertrend/MACD parameter optimization.",
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "st_atr_period": 10,
+    "st_mult": 3.0,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "Supertrend bullish AND MACD line > signal line (combined edge)",
+    "evaluatedAfter": "bar close confirmed"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(14)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "Community: Supertrend+MACD trend strategies (freqtrade/backtrader/TradingView public descriptions)"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-08-23T14:50:42",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "purpose": "오더닝 페이드 롱숏 net - 비용 20/30/40bp, 드래그=2xRT(두 다리), 호라이즌=당일 3개 + 다일 T+1/5/10/20",
+  "definitions": {
+    "signal": "minute_opening_fade_study.py와 동일(r05 날짜 내 5분위)",
+    "multiDayOutcome": "신호일 09:05 가격 -> T+h 거래일 A2a 종가",
+    "costSplit": "왕복비용 RT를 각 다리 진입/청산 절반씩 -> 페어 총 드래그 2xRT"
+  },
+  "results": {
+    "intraday_to1000": {
+      "rows": 411828,
+      "grossLongShortBp": 21.49,
+      "quintileExcessBp": {
+        "Q1": 8.96,
+        "Q2": 4.59,
+        "Q3": 0.59,
+        "Q4": -1.79,
+        "Q5": -12.52
+      },
+      "netByCostBp": {
+        "cost20": -18.51,
+        "cost30": -38.51,
+        "cost40": -58.51
+      },
+      "breakevenRTbp": 10.74
+    },
+    "intraday_to1100": {
+      "rows": 376586,
+      "grossLongShortBp": 17.92,
+      "quintileExcessBp": {
+        "Q1": 6.29,
+        "Q2": 4.59,
+        "Q3": 2.45,
+        "Q4": -1.97,
+        "Q5": -11.62
+      },
+      "netByCostBp": {
+        "cost20": -22.08,
+        "cost30": -42.08,
+        "cost40": -62.08
+      },
+      "breakevenRTbp": 8.96
+    },
+    "intraday_toClose": {
+      "rows": 492092,
+      "grossLongShortBp": 34.59,
+      "quintileExcessBp": {
+        "Q1": 12.07,
+        "Q2": 8.36,
+        "Q3": 4.48,
+        "Q4": -2.41,
+        "Q5": -22.52
+      },
+      "netByCostBp": {
+        "cost20": -5.41,
+        "cost30": -25.41,
+        "cost40": -45.41
+      },
+      "breakevenRTbp": 17.29
+    },
+    "T+1": {
+      "rows": 464231,
+      "grossLongShortBp": 59.81,
+      "quintileExcessBp": {
+        "Q1": 31.04,
+        "Q2": 11.72,
+        "Q3": -2.95,
+        "Q4": -10.94,
+        "Q5": -28.77
+      },
+      "netByCostBp": {
+        "cost20": 19.81,
+        "cost30": -0.19,
+        "cost40": -20.19
+      },
+      "breakevenRTbp": 29.91
+    },
+    "T+5": {
+      "rows": 456916,
+      "grossLongShortBp": 69.19,
+      "quintileExcessBp": {
+        "Q1": 36.83,
+        "Q2": 12.4,
+        "Q3": -7.73,
+        "Q4": -9.1,
+        "Q5": -32.36
+      },
+      "netByCostBp": {
+        "cost20": 29.19,
+        "cost30": 9.19,
+        "cost40": -10.81
+      },
+      "breakevenRTbp": 34.59
+    },
+    "T+10": {
+      "rows": 447657,
+      "grossLongShortBp": 63.08,
+      "quintileExcessBp": {
+        "Q1": 35.49,
+        "Q2": 12.23,
+        "Q3": -7.47,
+        "Q4": -12.63,
+        "Q5": -27.59
+      },
+      "netByCostBp": {
+        "cost20": 23.08,
+        "cost30": 3.08,
+        "cost40": -16.92
+      },
+      "breakevenRTbp": 31.54
+    },
+    "T+20": {
+      "rows": 428620,
+      "grossLongShortBp": 48.99,
+      "quintileExcessBp": {
+        "Q1": 28.31,
+        "Q2": 10.47,
+        "Q3": -8.47,
+        "Q4": -9.5,
+        "Q5": -20.68
+      },
+      "netByCostBp": {
+        "cost20": 8.99,
+        "cost30": -11.01,
+        "cost40": -31.01
+      },
+      "breakevenRTbp": 24.5
+    }
+  }
+}

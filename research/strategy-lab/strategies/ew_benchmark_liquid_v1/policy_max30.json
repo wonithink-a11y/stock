@@ -1,0 +1,54 @@
+{
+  "strategyId": "ew_benchmark_liquid_v1",
+  "version": "diag-0.1",
+  "note": "진단전용 - pbr_value_v1과 완전히 동일한 엔진 경로로 계산하는 전체유니버스 EW 벤치마크. 매달 turnover20>=1억원 적격종목 전부(랭킹 없음)를 선택 - 리밸런싱·비용·연속보유·포트폴리오 회계는 pbr_value_v1과 동일. maxPositions=30로 팩터 전략과 동일 제약 적용. production/config/policies 아님, 커밋 대상 아님.",
+  "direction": "LONG_ONLY",
+  "factor": {
+    "note": "랭킹 없음 - 매달 turnover20>=1억원인 종목 전부를 선택. build_selection_ew_benchmark.py가 오프라인으로 계산.",
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl (같은 티커 유니버스만 - pbr_value_v1과 동일 비교 기준)"
+  },
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+  "risk": {
+    "note": "pbr_value_v1과 동일 - 가격기반 stop/target 없음, 순수 시간청산.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "maxHoldingSessions": 21,
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "maxPositionsNote": "팩터 전략과 동일하게 maxPositions=30로 제한. 실제 적격수가 30보다 많으면 tie-break(ticker)로 상위 30만 선택.",
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "pbr_value_v1과 동일 정책 - 계속 적격인 종목은 청산-재진입 없이 유지."
+  },
+  "warmup": {
+    "note": "기술적 지표 없음."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "strategyId": "crypto_trend_momentum_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-27",
+  "note": "Trend Following + Momentum for Crypto. Combines dual MA trend filter with momentum filter. Reproduces classic trend following (MA crossover) + cross-sectional momentum (Jegadeesh/Titman 1993) from public sources. Daily and 4H timeframes supported.",
+
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "fast_ma": 20,
+    "slow_ma": 50,
+    "momentum_period": 60,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 0,
+    "use_atr_stop": true
+  },
+
+  "indicators": {
+    "fast_ma": { "period": 20, "type": "SMA" },
+    "slow_ma": { "period": 50, "type": "SMA" },
+    "momentum": { "period": 60, "type": "return" },
+    "atr": { "period": 14, "method": "wilder" }
+  },
+
+  "signal": {
+    "entryExpression": "fast_ma[t] > slow_ma[t] AND close[t] > slow_ma[t] AND momentum[t] > 0",
+    "exitExpression": "fast_ma[t] < slow_ma[t] (trend break) OR ATR stop hit",
+    "evaluatedAfter": "bar close confirmed",
+    "note": "Edge-triggered entry on condition transition from False to True"
+  },
+
+  "entry": {
+    "timing": "next_bar_open",
+    "signalDateField": "t",
+    "entryDateField": "next_bar(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR[t] (if use_atr_stop=true)",
+    "stopFormula": "entry_price - stop_distance",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "rewardRisk": 3.0,
+    "maxHoldingBars": 0,
+    "timeExitRule": "none (hold until trend break or stop)"
+  },
+
+  "cost": {
+    "entryCostBps": 5,
+    "exitCostBps": 5,
+    "roundTripBps": 10,
+    "slippageBps": 5
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA"],
+    "runClassAllowed": ["SMOKE", "BACKTEST"],
+    "primaryRequires": "N/A (crypto research)"
+  },
+
+  "warmup": {
+    "fastMaBars": 20,
+    "slowMaBars": 50,
+    "momentumBars": 60,
+    "atrBars": 14,
+    "effectiveWarmupBars": 120
+  },
+
+  "sources": [
+    "Jegadeesh & Titman (1993) - Returns to Buying Winners and Selling Losers (momentum)",
+    "Moskowitz, Ooi, Pedersen (2012) - Time Series Momentum",
+    "freqtrade/freqtrade-strategies - EMA Crossover, MACD+RSI trend strategies (public)",
+    "mementum/backtrader - SMA crossover, momentum samples (public)"
+  ]
+}

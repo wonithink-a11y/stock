@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-08-23T00:02:56",
+  "method": "±3거래일 겹침률(양방향) + 정확 동일일 - findings/v3-overlap-check와 동일",
+  "toleranceTradingDays": 3,
+  "universe": "a4 패널 2,558종목, 2016-01-04~2026-08-03",
+  "signalSources": {
+    "V3": "v3_bb_rsi_signal_study (entryLow/entryClose)",
+    "V5_divA": "foreign_nb_5d>0 & inst_nb_5d<0",
+    "V6_filtered": "동시순매수 & close<=1.05*매집가(5일 pooled buy VWAP)"
+  },
+  "results": {
+    "V3_entryLow--V5_divA": {
+      "aSize": 160021,
+      "bSize": 1333041,
+      "aCoveredWithin3d": 84021,
+      "aCoveragePct": 52.51,
+      "exactSameDay": 38013,
+      "exactPctOfA": 23.76,
+      "bCoveredWithin3d": 127472,
+      "bCoveragePct": 9.56
+    },
+    "V3_entryClose--V5_divA": {
+      "aSize": 113571,
+      "bSize": 1333041,
+      "aCoveredWithin3d": 58691,
+      "aCoveragePct": 51.68,
+      "exactSameDay": 25382,
+      "exactPctOfA": 22.35,
+      "bCoveredWithin3d": 103013,
+      "bCoveragePct": 7.73
+    },
+    "V3_entryLow--V6_filtered": {
+      "aSize": 160021,
+      "bSize": 955832,
+      "aCoveredWithin3d": 52844,
+      "aCoveragePct": 33.02,
+      "exactSameDay": 19847,
+      "exactPctOfA": 12.4,
+      "bCoveredWithin3d": 67797,
+      "bCoveragePct": 7.09
+    },
+    "V3_entryClose--V6_filtered": {
+      "aSize": 113571,
+      "bSize": 955832,
+      "aCoveredWithin3d": 36840,
+      "aCoveragePct": 32.44,
+      "exactSameDay": 12869,
+      "exactPctOfA": 11.33,
+      "bCoveredWithin3d": 55939,
+      "bCoveragePct": 5.85
+    },
+    "V5_divA--V6_filtered": {
+      "aSize": 1333041,
+      "bSize": 955832,
+      "aCoveredWithin3d": 500249,
+      "aCoveragePct": 37.53,
+      "exactSameDay": 0,
+      "exactPctOfA": 0.0,
+      "bCoveredWithin3d": 467918,
+      "bCoveragePct": 48.95
+    },
+    "V3_entryLow--V3_entryClose": {
+      "aSize": 160021,
+      "bSize": 113571,
+      "aCoveredWithin3d": 147170,
+      "aCoveragePct": 91.97,
+      "exactSameDay": 113571,
+      "exactPctOfA": 70.97,
+      "bCoveredWithin3d": 113571,
+      "bCoveragePct": 100.0
+    }
+  }
+}

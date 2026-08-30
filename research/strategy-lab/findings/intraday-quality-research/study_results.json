@@ -1,0 +1,170 @@
+{
+  "generatedAt": "2026-08-23T04:12:19",
+  "panelRows": 620975,
+  "panelDates": 252,
+  "checks": {
+    "R1_duplicateTickerDays": 0,
+    "R2_nonPositivePrices": {
+      "open_price": 0,
+      "day_close": 0,
+      "day_open": 0,
+      "w_high": 0,
+      "w_low": 0,
+      "p_at30m": 0
+    },
+    "R3_invertedRange": {
+      "open30": 0,
+      "day": 0
+    },
+    "R4_priceOutsideWindow": {
+      "openOutsideOpen30": 29,
+      "p30OutsideOpen30": 25829,
+      "dayOpenCloseOutsideDayRange": 11,
+      "note": "09:00~09:05 opening-auction prints can sit outside the continuous bar H/L (raw audit MEDIUM item 2, 69 rows)"
+    },
+    "R5_limitBreachOrCorpActionSuspects": {
+      "r30_beyond_30pct": 45,
+      "oc_beyond_30pct": 189,
+      "overnightGap_beyond_30pct": 0,
+      "top10WorstOvernightGaps": [],
+      "r30OffendersSample": [
+        {
+          "ticker": "0001A0",
+          "date": "2026-01-30",
+          "r30": 0.3302
+        },
+        {
+          "ticker": "000650",
+          "date": "2025-11-27",
+          "r30": 0.5058
+        },
+        {
+          "ticker": "0011T0",
+          "date": "2026-04-29",
+          "r30": 0.8131
+        },
+        {
+          "ticker": "001210",
+          "date": "2026-01-06",
+          "r30": 0.3088
+        },
+        {
+          "ticker": "0015G0",
+          "date": "2025-11-17",
+          "r30": -0.4222
+        },
+        {
+          "ticker": "002630",
+          "date": "2026-02-12",
+          "r30": 0.3056
+        },
+        {
+          "ticker": "002680",
+          "date": "2026-07-14",
+          "r30": 0.3007
+        },
+        {
+          "ticker": "0039P0",
+          "date": "2026-07-01",
+          "r30": -0.3874
+        },
+        {
+          "ticker": "004710",
+          "date": "2026-04-13",
+          "r30": 0.3184
+        },
+        {
+          "ticker": "008290",
+          "date": "2026-07-03",
+          "r30": 0.322
+        }
+      ]
+    },
+    "R6_sessionCoverage": {
+      "lateStart_firstBar_after_0910_pct": 0.01072,
+      "earlyEnd_lastBar_before_1520_pct": 0.00706,
+      "thinDays_nBars_lt_50_pct": 0.02346,
+      "haltLikeDays_nBars_le_5": 58,
+      "medianBarsPerTickerDay": 273.0
+    },
+    "R7_open30Eligibility": {
+      "minBarsInWindow": 20,
+      "freshnessMinLastBar": 925,
+      "eligibleRows": 450524,
+      "eligibleRate": 0.7255,
+      "excludedRows": 170451
+    },
+    "R8_relVolumeOutliers": {
+      "gt50x_baseline": 1696,
+      "gt50x_sample": [
+        {
+          "ticker": "000020",
+          "date": "2026-07-16",
+          "relVol": 318.6
+        },
+        {
+          "ticker": "000050",
+          "date": "2025-12-12",
+          "relVol": 61.1
+        },
+        {
+          "ticker": "000050",
+          "date": "2025-12-15",
+          "relVol": 450.8
+        },
+        {
+          "ticker": "000050",
+          "date": "2026-02-05",
+          "relVol": 102.3
+        },
+        {
+          "ticker": "000070",
+          "date": "2025-11-24",
+          "relVol": 76.5
+        },
+        {
+          "ticker": "000220",
+          "date": "2026-05-28",
+          "relVol": 404.6
+        },
+        {
+          "ticker": "000230",
+          "date": "2025-09-30",
+          "relVol": 259.3
+        },
+        {
+          "ticker": "000370",
+          "date": "2026-02-23",
+          "relVol": 67.3
+        }
+      ],
+      "finiteRelVolShare": 0.9708
+    },
+    "R9_gridBucketPresence": {
+      "bucketsBelow75pctPresence": [
+        [
+          1525,
+          0.003
+        ]
+      ],
+      "minPresenceBucket": 1525,
+      "minPresence": 0.003,
+      "note": "expected structural liquidity hole around 1204-1227 (raw audit INFO item 4b); not a defect"
+    },
+    "R10_universeJoin": {
+      "marketUnknownPct": 1e-05,
+      "sectorUnknownPct": 1e-05,
+      "markets": {
+        "KOSDAQ": 417628,
+        "KOSPI": 203340,
+        "None": 7
+      }
+    }
+  },
+  "verdict": {
+    "hardIntegrityFailures": 215,
+    "failureRate": 0.000346,
+    "conclusion": "flagged rows must be excluded by studies",
+    "runtimeSec": 1.2
+  }
+}

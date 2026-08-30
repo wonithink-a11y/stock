@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-08-23T01:16:29",
+  "label": "[RESEARCH HYPOTHESIS] - 영상 출처 없는 순수 연구 가설",
+  "context": "분봉 오더닝 페이드/모멘텀 최소 signal study - 첫 실행, threshold 튜닝 없음",
+  "dataSources": [
+    "engine/data/minuteProvider.py 미러 .cache/minute_raw (252거래일 비공식 VM 미러, MN-1.0 매니페스트 없음)"
+  ],
+  "definitions": {
+    "signal": "P(09:05 close)/P(09:00 open) - 1 의 날짜 내 5분위",
+    "outcomes": "P(h)/P(09:05)-1, h=10:00/11:00/close(15:30) - 당일 한정",
+    "benchmark": "같은 날 유니버스 전체 동일가중, 초과수익은 날짜 동일가중 평균",
+    "quintileTieBreak": "날짜 내 rank(method='first') - 티커 순 결정적",
+    "exclusions": "09:00/09:05 봉 결측 또는 가격<=0 종목-일 제외"
+  },
+  "pitNote": "신호는 09:05까지 정보만 사용, 결과는 09:05 이후 - look-ahead 구조적으로 없음. 실행은 09:05 종가 근사(비용 미반영)",
+  "diagnostics": {
+    "days": 250,
+    "tickerDays": 494535,
+    "avgTickersPerDay": 1978.1,
+    "r05MedianAbsBp": 88.7,
+    "posShare": 0.4115
+  },
+  "results": {
+    "09:05→10:00": {
+      "excessByQuintile": {
+        "Q1": 0.000896,
+        "Q2": 0.000459,
+        "Q3": 5.9e-05,
+        "Q4": -0.000179,
+        "Q5": -0.001252
+      },
+      "avgTickersPerDayPerQ": {
+        "Q1": 340.0,
+        "Q2": 328.7,
+        "Q3": 321.8,
+        "Q4": 321.6,
+        "Q5": 335.2
+      },
+      "topMinusBottom": -0.002149,
+      "universeMean": -3e-06,
+      "signGroupsExcess": {
+        "pos": -0.000813,
+        "neg": 0.000381
+      }
+    },
+    "09:05→11:00": {
+      "excessByQuintile": {
+        "Q1": 0.000629,
+        "Q2": 0.000459,
+        "Q3": 0.000245,
+        "Q4": -0.000197,
+        "Q5": -0.001162
+      },
+      "avgTickersPerDayPerQ": {
+        "Q1": 314.9,
+        "Q2": 301.0,
+        "Q3": 291.2,
+        "Q4": 291.9,
+        "Q5": 307.4
+      },
+      "topMinusBottom": -0.001792,
+      "universeMean": -0.000584,
+      "signGroupsExcess": {
+        "pos": -0.000712,
+        "neg": 0.000333
+      }
+    },
+    "09:05→close": {
+      "excessByQuintile": {
+        "Q1": 0.001207,
+        "Q2": 0.000836,
+        "Q3": 0.000448,
+        "Q4": -0.000241,
+        "Q5": -0.002252
+      },
+      "avgTickersPerDayPerQ": {
+        "Q1": 392.8,
+        "Q2": 393.8,
+        "Q3": 393.9,
+        "Q4": 394.0,
+        "Q5": 393.8
+      },
+      "topMinusBottom": -0.003459,
+      "universeMean": -0.001085,
+      "signGroupsExcess": {
+        "pos": -0.001428,
+        "neg": 0.000777
+      }
+    }
+  }
+}

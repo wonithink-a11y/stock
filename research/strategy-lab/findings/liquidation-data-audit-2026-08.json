@@ -1,0 +1,158 @@
+{
+  "design": {
+    "purpose": "Binance USDS-M Futures Liquidation 데이터 2023-05-21~현재 장기 가용성 감사",
+    "method": "실제 공개 API 호출(probe만), 1.5s 페이싱, 418/-1003 즉시 중단",
+    "ref_join_day": "2023-05-21 (연구 결합 기준일)",
+    "endpoints_tested": [
+      "/fapi/v1/forceOrders",
+      "/fapi/v1/liquidationOrders"
+    ]
+  },
+  "endpoints": {
+    "forceOrders": {
+      "endpoint": "/fapi/v1/forceOrders",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "recent_7d": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        },
+        "recent_30d": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        },
+        "recent_60d": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        },
+        "2025_01_01": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        },
+        "2024_01_01": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        },
+        "2023_05_21": {
+          "error": "http_401",
+          "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "http_401",
+        "ETHUSDT": "http_401",
+        "SOLUSDT": "http_401",
+        "DOGEUSDT": "http_401",
+        "NEARUSDT": "http_401",
+        "BNBUSDT": "http_401",
+        "1000PEPEUSDT": "http_401",
+        "XRPUSDT": "http_401",
+        "ADAUSDT": "http_401",
+        "DOTUSDT": "http_401",
+        "ATOMUSDT": "http_401",
+        "AVAXUSDT": "http_401",
+        "LINKUSDT": "http_401",
+        "OPUSDT": "http_401",
+        "UNIUSDT": "http_401",
+        "ARBUSDT": "http_401",
+        "1000SHIBUSDT": "http_401",
+        "AAVEUSDT": "http_401",
+        "APTUSDT": "http_401",
+        "BCHUSDT": "http_401",
+        "FILUSDT": "http_401",
+        "INJUSDT": "http_401",
+        "LTCUSDT": "http_401",
+        "SUIUSDT": "http_401",
+        "TRXUSDT": "http_401",
+        "WLDUSDT": "http_401",
+        "XMRUSDT": "http_401",
+        "ZECUSDT": "http_401"
+      },
+      "field_check": {},
+      "coverage_summary": {
+        "rep_ok": 0,
+        "total_ok": 0,
+        "over28": 0
+      },
+      "limit_probe": {
+        "error": "http_401",
+        "msg": "{\"code\":-2014,\"msg\":\"API-key format invalid.\"}"
+      }
+    },
+    "liquidationOrders": {
+      "endpoint": "/fapi/v1/liquidationOrders",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "recent_7d": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        },
+        "recent_30d": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        },
+        "recent_60d": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        },
+        "2025_01_01": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        },
+        "2024_01_01": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        },
+        "2023_05_21": {
+          "error": "http_404",
+          "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "http_404",
+        "ETHUSDT": "http_404",
+        "SOLUSDT": "http_404",
+        "DOGEUSDT": "http_404",
+        "NEARUSDT": "http_404",
+        "BNBUSDT": "http_404",
+        "1000PEPEUSDT": "http_404",
+        "XRPUSDT": "http_404",
+        "ADAUSDT": "http_404",
+        "DOTUSDT": "http_404",
+        "ATOMUSDT": "http_404",
+        "AVAXUSDT": "http_404",
+        "LINKUSDT": "http_404",
+        "OPUSDT": "http_404",
+        "UNIUSDT": "http_404",
+        "ARBUSDT": "http_404",
+        "1000SHIBUSDT": "http_404",
+        "AAVEUSDT": "http_404",
+        "APTUSDT": "http_404",
+        "BCHUSDT": "http_404",
+        "FILUSDT": "http_404",
+        "INJUSDT": "http_404",
+        "LTCUSDT": "http_404",
+        "SUIUSDT": "http_404",
+        "TRXUSDT": "http_404",
+        "WLDUSDT": "http_404",
+        "XMRUSDT": "http_404",
+        "ZECUSDT": "http_404"
+      },
+      "field_check": {},
+      "coverage_summary": {
+        "rep_ok": 0,
+        "total_ok": 0,
+        "over28": 0
+      },
+      "limit_probe": {
+        "error": "http_404",
+        "msg": "<!DOCTYPE html>\n<!-- saved from url=(0032)https://www.binance.com/en/error -->\n<html>\n\n<head>\n  <meta http-equiv=\"Conten"
+      }
+    }
+  },
+  "ban_aborted": {
+    "aborted": false,
+    "reason": null
+  },
+  "calls_made": 98
+}

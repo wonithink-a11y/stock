@@ -1,0 +1,83 @@
+{
+  "strategyId": "crypto_donchian_atr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-27",
+  "note": "Donchian Breakout + ATR for Crypto. Reproduces classic Turtle/Donchian rules from public sources (freqtrade, Jesse, TurtleTrader). NOT copied - core logic reimplemented from published descriptions. Daily and 4H timeframes supported.",
+
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "donchian_period": 20,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60,
+    "volatility_filter": false,
+    "vol_lookback": 100
+  },
+
+  "indicators": {
+    "donchian": { "period": 20, "source": "high_low" },
+    "atr": { "period": 14, "method": "wilder" }
+  },
+
+  "signal": {
+    "expression": "Close[t-1] <= donchian_high[t-1] AND Close[t] > donchian_high[t]",
+    "evaluatedAfter": "bar close confirmed",
+    "volatilityFilter": "optional: ATR percentile < 80%"
+  },
+
+  "entry": {
+    "timing": "next_bar_open",
+    "signalDateField": "t",
+    "entryDateField": "next_bar(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR[t]",
+    "stopFormula": "entry_price - stop_distance",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "rewardRisk": 3.0,
+    "maxHoldingBars": 60,
+    "timeExitRule": "close of the 60th bar counting entry_bar as bar 1"
+  },
+
+  "cost": {
+    "entryCostBps": 5,
+    "exitCostBps": 5,
+    "roundTripBps": 10,
+    "slippageBps": 5
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA"],
+    "runClassAllowed": ["SMOKE", "BACKTEST"],
+    "primaryRequires": "N/A (crypto research)"
+  },
+
+  "warmup": {
+    "donchianBars": 20,
+    "atrBars": 14,
+    "effectiveWarmupBars": 100
+  },
+
+  "sources": [
+    "Richard Donchian, 'Donchian Channel' (1970s) - classic trend following",
+    "Curtis Faith, 'Way of the Turtle' (2007) - Turtle Trading rules (Donchian 20/55 + ATR)",
+    "freqtrade/freqtrade-strategies - 'Donchian' strategy implementations (public)",
+    "jesse-ai/jesse - Donchian channel strategy examples (public)"
+  ]
+}

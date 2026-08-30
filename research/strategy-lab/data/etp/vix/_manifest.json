@@ -1,0 +1,105 @@
+{
+ "axis": "etp/vix",
+ "generatedAtUTC": "2026-08-23T10:44:37+00:00",
+ "schema": [
+  "metadata.parquet",
+  "daily_prices.parquet",
+  "events.parquet"
+ ],
+ "rowCounts": {
+  "500077": 721,
+  "500095": 288,
+  "510025": 486,
+  "520063": 479,
+  "530130": 375,
+  "530131": 375,
+  "570088": 479
+ },
+ "sources": {
+  "reused_prices": {
+   "500077": {
+    "source": "reuse data/etp/prices (이전 세션 백필)",
+    "rows": 721
+   },
+   "530130": {
+    "source": "reuse data/etp/prices (이전 세션 백필)",
+    "rows": 375
+   },
+   "530131": {
+    "source": "reuse data/etp/prices (이전 세션 백필)",
+    "rows": 375
+   },
+   "510025": {
+    "source": "reuse data/etp/prices (이전 세션 백필)",
+    "rows": 486
+   }
+  },
+  "new_fetch": {
+   "570088": {
+    "source": "fetch_daily (etp_axis, pykrx/naver) year-chunks",
+    "year_log": {
+     "2018": 0,
+     "2019": 0,
+     "2020": 0,
+     "2021": 0,
+     "2022": 0,
+     "2023": 185,
+     "2024": 244,
+     "2025": 50,
+     "2026": 0
+    }
+   },
+   "500095": {
+    "source": "fetch_daily (etp_axis, pykrx/naver) year-chunks",
+    "year_log": {
+     "2018": 0,
+     "2019": 0,
+     "2020": 0,
+     "2021": 0,
+     "2022": 0,
+     "2023": 0,
+     "2024": 0,
+     "2025": 132,
+     "2026": 156
+    }
+   },
+   "520063": {
+    "source": "fetch_daily (etp_axis, pykrx/naver) year-chunks",
+    "year_log": {
+     "2018": 0,
+     "2019": 0,
+     "2020": 0,
+     "2021": 0,
+     "2022": 0,
+     "2023": 185,
+     "2024": 244,
+     "2025": 50,
+     "2026": 0
+    }
+   }
+  },
+  "calendar": "data/backfill/calendar.json",
+  "vix": {
+   "path": "data/market-regime/vix_daily_kr.parquet",
+   "ruleA": "FRED date < KR trade date (asOf 적용본 재사용)",
+   "rows": 3097,
+   "range": [
+    "2014-01-02",
+    "2026-08-14"
+   ]
+  }
+ },
+ "pit_rules": {
+  "A_vixcls": "signal D uses FRED obs dated < D (rule A; vix_daily_kr 재사용)",
+  "B_etn_close": "D close decided after D session; execution from D+1. Primary returns use D-close entry(기존 VIX 연구 관례 동일); next-open entry stored as robustness column.",
+  "C_etn_iv": "IV(D) published D+1 morning → EXCLUDED from strategy inputs (PIT-unresolved; 가격만으로 실행)"
+ },
+ "turnover_definition": "turnover = close * volume (근사치 — KRX 실제 체결대금 아님)",
+ "known_gaps": [
+  "전체 VIX ETN 유니버스 열거는 KRX 로그인 부재로 미해결(마스터 프로브 KeyError 실측)",
+  "2018~2023-03 구간 상품(1세대·B/C타입) 미확보 — 해당 구간 이벤트 커버 불가",
+  "IV/괴리율/NAV 축 미구축(PIT 미확정 상태로 제외)",
+  "VIX 선물지수·커브 데이터 없음 → roll/contango 정량화 불가(구조적 가능성만 기록)"
+ ],
+ "selftest": "reports/2026-08-23-vix-etn-data-axis/selftest_vix_etn_axis.py (offline PASS)"
+}

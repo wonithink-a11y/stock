@@ -1,0 +1,103 @@
+{
+  "strategyId": "crypto_vol_regime_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-27",
+  "note": "Volatility / Market Regime Filter for Crypto. Combines base trend signal (Donchian or Trend+Momentum) with volatility regime overlay. Reproduces volatility targeting (Moreira/Muir 2017) and regime switching (Hamilton 1989) concepts from public sources. Daily and 4H timeframes supported.",
+
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "base_strategy": "donchian",
+    "donchian_period": 20,
+    "fast_ma": 20,
+    "slow_ma": 50,
+    "momentum_period": 60,
+    "atr_period": 14,
+    "vol_lookback": 100,
+    "low_vol_pct": 0.30,
+    "high_vol_pct": 0.70,
+    "low_vol_scale": 1.5,
+    "normal_vol_scale": 1.0,
+    "high_vol_scale": 0.5,
+    "atr_mult_base": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "indicators": {
+    "atr": { "period": 14, "method": "wilder" },
+    "donchian": { "period": 20, "source": "high_low" },
+    "fast_ma": { "period": 20, "type": "SMA" },
+    "slow_ma": { "period": 50, "type": "SMA" },
+    "momentum": { "period": 60, "type": "return" }
+  },
+
+  "signal": {
+    "baseStrategy": "donchian (default) or trend_momentum",
+    "regimeDetection": "ATR percentile over 100 bars",
+    "regimes": {
+      "low_vol": "ATR_pct < 30% -> scale 1.5x, wider stops",
+      "normal": "30% <= ATR_pct < 70% -> scale 1.0x, normal stops",
+      "high_vol": "ATR_pct >= 70% -> scale 0.5x, tighter stops (or cash if 0)"
+    },
+    "entryExpression": "base_signal[t] == True AND regime[t] != high_vol_cash",
+    "evaluatedAfter": "bar close confirmed"
+  },
+
+  "entry": {
+    "timing": "next_bar_open",
+    "signalDateField": "t",
+    "entryDateField": "next_bar(t)",
+    "entryPriceField": "Open[entry_date]",
+    "positionScaling": "by regime (metadata.position_scale)"
+  },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "regime_adjusted: low_vol=3*ATR, normal=2*ATR, high_vol=1.4*ATR",
+    "stopFormula": "entry_price - stop_distance",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "rewardRisk": 3.0,
+    "maxHoldingBars": 60,
+    "timeExitRule": "close of the 60th bar counting entry_bar as bar 1"
+  },
+
+  "cost": {
+    "entryCostBps": 5,
+    "exitCostBps": 5,
+    "roundTripBps": 10,
+    "slippageBps": 5
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA"],
+    "runClassAllowed": ["SMOKE", "BACKTEST"],
+    "primaryRequires": "N/A (crypto research)"
+  },
+
+  "warmup": {
+    "atrBars": 14,
+    "donchianBars": 20,
+    "volLookbackBars": 100,
+    "effectiveWarmupBars": 120
+  },
+
+  "sources": [
+    "Hamilton (1989) - A New Approach to the Economic Analysis of Nonstationary Time Series",
+    "Ang & Bekaert (2002) - International Asset Allocation with Regime Shifts",
+    "Moreira & Muir (2017) - Volatility-Managed Portfolios",
+    "freqtrade/freqtrade-strategies - Volatility Filter strategies (public)",
+    "Classic Turtle Trading - Volatility-based position sizing (Faith 2007)"
+  ]
+}

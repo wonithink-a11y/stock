@@ -1,0 +1,82 @@
+{
+  "strategyId": "dd252_v1",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-26",
+  "note": "DD252(skip-1m) 팩터, 월별 리밸런싱, 고정 120세션 보유, A1A_A1B_MERGED 유니버스. baseline Arm A = 유동성 필터 없음. Arm C에서 amt20≥1억원 추가 예정. lowmom60_v1과 같은 패턴(오프라인 selection.json + PIT-safe 신호 + TIME_EXIT 전용).",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection.py가 오프라인으로 읽는 설정이다 - engine/runner.py는 이 블록을 모른다.",
+    "metric": "dd_252_skip1m",
+    "metricFormula": "close[t-21] / max(close[t-252..t-21]) - 1",
+    "rankDirection": "descending",
+    "rankDirectionNote": "고점근접 프리미엄 - 0에 가까울수록(최근 고점 부근일수록) 선택된다",
+    "topN": 30,
+    "rebalanceFrequency": "monthly",
+    "minHistorySessions": 273,
+    "minHistoryNote": "252+21 skip-1m 창을 위해 최소 273 세션 필요",
+    "sourcePanel": "compute in-process from data/backfill/price/a2a + a2b (build_selection.py) - MERGED universe"
+  },
+
+  "signal": {
+    "expression": "그 달 dd_252_skip1m 내림차순 상위 30개 - build_selection.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "이 전략은 가격 기반 stop/target이 없다 - 순수 시간 기반(120세션) 청산. stop_distance·reward_risk를 entry_price 대비 극단적으로 크게 잡아 STOP/TARGET이 절대 안 걸리게 하고, maxHoldingSessions만으로 TIME_EXIT을 강제한다(lowmom60_v1/pbr_value_v1과 동일 패턴).",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "stopPctTargetPctNote": "engine/live/paperEngine.py(Paper Trading Engine)의 poll_once()가 읽는 키 - is_still_selected 콜백이 항상 먼저 REBALANCE_EXIT을 판정하므로 이 값은 실질적으로 절대 안 걸리는 형식상 하한선이다.",
+    "maxHoldingSessions": 120,
+    "maxHoldingSessionsNote": "기본 홀딩 120세션(≈6M). selection.json에 신호별로 정확히 120으로 저장돼 있으며, 다음 리밸런싱일 없는 마지막 달만 이 폴백을 쓴다.",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal (fixed 120)"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "dd_252_skip1m 내림차순 tie-break가 이상적이나 engine.execution.contracts.Order가 metadata를 안 나른다 - selection.json이 이미 top-30만 담고 있어 매달 후보 수가 <=maxPositions라 tie-break가 거의 안 걸린다."
+  },
+
+  "universe": {
+    "mode": "A1A_A1B_MERGED",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "dd252_survivorship_study.py에서 MERGED 패널로 검증 완료(F6). A1A_ONLY는 bias 게이지용으로만 병행."
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - 신호는 selection.json에 이미 구워져 있다. compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": false,
+    "note": "staggered cohort 근사: 매월 신규 진입 시 120세션 새 클럭 시작(기존 포지션 강제 청산 후 재진입). 동일 종목이 연속 선정돼도 TIME_EXIT(120세션) 후 재진입한다. 이것이 6개 겹치는 코호트(120/20≈6)를 단일 포트폴리오로 근사하는 방식이다. true 연속보유를 쓰면 코호트 독립성이 깨진다."
+  }
+}

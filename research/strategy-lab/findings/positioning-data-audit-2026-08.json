@@ -1,0 +1,455 @@
+{
+  "design": {
+    "purpose": "Funding/Premium/Basis 이후 새 정보축 후보 — Futures Long/Short positioning 데이터 가용성 감사",
+    "method": "실제 공개 API 호출(probe만, 대량 다운로드 없음), 1.4s 페이싱, 418/-1003 수신 시 전체 중단",
+    "ref_start_funding": "2019-09-01T00:00:00+00:00",
+    "ref_join_day": "2023-05-21 (연구 결합 기준일 2023-05-21)"
+  },
+  "endpoints": {
+    "globalLongShortAccountRatio": {
+      "endpoint": "/futures/data/globalLongShortAccountRatio",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "p2023": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2021": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2019": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p5m_refday": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "ok",
+        "ETHUSDT": "ok",
+        "SOLUSDT": "ok",
+        "DOGEUSDT": "ok",
+        "NEARUSDT": "ok",
+        "BNBUSDT": "ok",
+        "1000PEPEUSDT": "ok",
+        "XRPUSDT": "ok",
+        "ADAUSDT": "ok",
+        "DOTUSDT": "ok",
+        "ATOMUSDT": "ok",
+        "AVAXUSDT": "ok",
+        "LINKUSDT": "ok",
+        "OPUSDT": "ok",
+        "UNIUSDT": "ok",
+        "ARBUSDT": "ok",
+        "1000SHIBUSDT": "ok",
+        "AAVEUSDT": "ok",
+        "APTUSDT": "ok",
+        "BCHUSDT": "ok",
+        "FILUSDT": "ok",
+        "INJUSDT": "ok",
+        "LTCUSDT": "ok",
+        "SUIUSDT": "ok",
+        "TRXUSDT": "ok",
+        "WLDUSDT": "ok",
+        "XMRUSDT": "ok",
+        "ZECUSDT": "ok"
+      },
+      "coverage_summary": {
+        "rep_ok": 28,
+        "total_ok": 28,
+        "over28": 28
+      },
+      "limit_cap_probe": {
+        "n_returned": 1000
+      },
+      "observed": {
+        "pacing_s": 1.4,
+        "min_returned_ts": "2026-08-29T04:00:00+00:00",
+        "has_pre2023": false,
+        "has_pre20230521": false
+      },
+      "retention": {
+        "depth_1d": {
+          "count": 31,
+          "oldest": "2026-07-30T00:00:00+00:00",
+          "newest": "2026-08-29T00:00:00+00:00",
+          "span_days": 30.0,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "depth_1h": {
+          "count": 744,
+          "oldest": "2026-07-29T08:00:00+00:00",
+          "newest": "2026-08-29T07:00:00+00:00",
+          "span_days": 30.96,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "startTime_boundary": {
+          "now-30d": {
+            "ok": true,
+            "returned": "2026-08-29T00:00:00+00:00"
+          },
+          "now-60d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-180d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-365d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-730d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-1095d": {
+            "ok": false,
+            "err": "http_400"
+          }
+        },
+        "pagination_window": {
+          "n": 1,
+          "rows": [
+            "2026-08-27T00:00:00+00:00"
+          ]
+        }
+      }
+    },
+    "topLongShortAccountRatio": {
+      "endpoint": "/futures/data/topLongShortAccountRatio",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "p2023": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2021": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2019": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p5m_refday": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "ok",
+        "ETHUSDT": "ok",
+        "SOLUSDT": "ok",
+        "DOGEUSDT": "ok",
+        "NEARUSDT": "ok",
+        "BNBUSDT": "ok",
+        "1000PEPEUSDT": "ok",
+        "XRPUSDT": "ok",
+        "ADAUSDT": "ok",
+        "DOTUSDT": "ok",
+        "ATOMUSDT": "ok",
+        "AVAXUSDT": "ok",
+        "LINKUSDT": "ok",
+        "OPUSDT": "ok",
+        "UNIUSDT": "ok",
+        "ARBUSDT": "ok",
+        "1000SHIBUSDT": "ok",
+        "AAVEUSDT": "ok",
+        "APTUSDT": "ok",
+        "BCHUSDT": "ok",
+        "FILUSDT": "ok",
+        "INJUSDT": "ok",
+        "LTCUSDT": "ok",
+        "SUIUSDT": "ok",
+        "TRXUSDT": "ok",
+        "WLDUSDT": "ok",
+        "XMRUSDT": "ok",
+        "ZECUSDT": "ok"
+      },
+      "coverage_summary": {
+        "rep_ok": 28,
+        "total_ok": 28,
+        "over28": 28
+      },
+      "limit_cap_probe": {
+        "note": "limit cap은 docs(≤500) + 스킵(밴 방지)"
+      },
+      "observed": {
+        "pacing_s": 1.4,
+        "min_returned_ts": "2026-08-29T04:00:00+00:00",
+        "has_pre2023": false,
+        "has_pre20230521": false
+      },
+      "retention": {
+        "depth_1d": {
+          "count": 31,
+          "oldest": "2026-07-30T00:00:00+00:00",
+          "newest": "2026-08-29T00:00:00+00:00",
+          "span_days": 30.0,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "depth_1h": {
+          "count": 744,
+          "oldest": "2026-07-29T08:00:00+00:00",
+          "newest": "2026-08-29T07:00:00+00:00",
+          "span_days": 30.96,
+          "ascending": true,
+          "strictly_increasing": true
+        }
+      }
+    },
+    "topLongShortPositionRatio": {
+      "endpoint": "/futures/data/topLongShortPositionRatio",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "p2023": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2021": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2019": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p5m_refday": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "ok",
+        "ETHUSDT": "ok",
+        "SOLUSDT": "ok",
+        "DOGEUSDT": "ok",
+        "NEARUSDT": "ok",
+        "BNBUSDT": "ok",
+        "1000PEPEUSDT": "ok",
+        "XRPUSDT": "ok",
+        "ADAUSDT": "ok",
+        "DOTUSDT": "ok",
+        "ATOMUSDT": "ok",
+        "AVAXUSDT": "ok",
+        "LINKUSDT": "ok",
+        "OPUSDT": "ok",
+        "UNIUSDT": "ok",
+        "ARBUSDT": "ok",
+        "1000SHIBUSDT": "ok",
+        "AAVEUSDT": "ok",
+        "APTUSDT": "ok",
+        "BCHUSDT": "ok",
+        "FILUSDT": "ok",
+        "INJUSDT": "ok",
+        "LTCUSDT": "ok",
+        "SUIUSDT": "ok",
+        "TRXUSDT": "ok",
+        "WLDUSDT": "ok",
+        "XMRUSDT": "ok",
+        "ZECUSDT": "ok"
+      },
+      "coverage_summary": {
+        "rep_ok": 28,
+        "total_ok": 28,
+        "over28": 28
+      },
+      "limit_cap_probe": {
+        "note": "limit cap은 docs(≤500) + 스킵(밴 방지)"
+      },
+      "observed": {
+        "pacing_s": 1.4,
+        "min_returned_ts": "2026-08-29T04:00:00+00:00",
+        "has_pre2023": false,
+        "has_pre20230521": false
+      },
+      "retention": {
+        "depth_1d": {
+          "count": 31,
+          "oldest": "2026-07-30T00:00:00+00:00",
+          "newest": "2026-08-29T00:00:00+00:00",
+          "span_days": 30.0,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "depth_1h": {
+          "count": 744,
+          "oldest": "2026-07-29T08:00:00+00:00",
+          "newest": "2026-08-29T07:00:00+00:00",
+          "span_days": 30.96,
+          "ascending": true,
+          "strictly_increasing": true
+        }
+      }
+    },
+    "takerlongshortRatio": {
+      "endpoint": "/futures/data/takerlongshortRatio",
+      "auth": "none (public Market Data)",
+      "probes": {
+        "p2023": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2021": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p2019": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        },
+        "p5m_refday": {
+          "error": "http_400",
+          "msg": "{\"msg\":\"parameter 'startTime' is invalid.\",\"code\":-1130}"
+        }
+      },
+      "symbol_coverage": {
+        "BTCUSDT": "ok",
+        "ETHUSDT": "ok",
+        "SOLUSDT": "ok",
+        "DOGEUSDT": "ok",
+        "NEARUSDT": "ok",
+        "BNBUSDT": "ok",
+        "1000PEPEUSDT": "ok",
+        "XRPUSDT": "ok",
+        "ADAUSDT": "ok",
+        "DOTUSDT": "ok",
+        "ATOMUSDT": "ok",
+        "AVAXUSDT": "ok",
+        "LINKUSDT": "ok",
+        "OPUSDT": "ok",
+        "UNIUSDT": "ok",
+        "ARBUSDT": "ok",
+        "1000SHIBUSDT": "ok",
+        "AAVEUSDT": "ok",
+        "APTUSDT": "ok",
+        "BCHUSDT": "ok",
+        "FILUSDT": "ok",
+        "INJUSDT": "ok",
+        "LTCUSDT": "ok",
+        "SUIUSDT": "ok",
+        "TRXUSDT": "ok",
+        "WLDUSDT": "ok",
+        "XMRUSDT": "ok",
+        "ZECUSDT": "ok"
+      },
+      "coverage_summary": {
+        "rep_ok": 28,
+        "total_ok": 28,
+        "over28": 28
+      },
+      "limit_cap_probe": {
+        "note": "limit cap은 docs(≤500) + 스킵(밴 방지)"
+      },
+      "observed": {
+        "pacing_s": 1.4,
+        "min_returned_ts": "2026-08-29T00:00:00+00:00",
+        "has_pre2023": false,
+        "has_pre20230521": false
+      },
+      "retention": {
+        "depth_1d": {
+          "count": 31,
+          "oldest": "2026-07-29T00:00:00+00:00",
+          "newest": "2026-08-28T00:00:00+00:00",
+          "span_days": 30.0,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "depth_1h": {
+          "count": 744,
+          "oldest": "2026-07-29T07:00:00+00:00",
+          "newest": "2026-08-29T06:00:00+00:00",
+          "span_days": 30.96,
+          "ascending": true,
+          "strictly_increasing": true
+        },
+        "startTime_boundary": {
+          "now-30d": {
+            "ok": true,
+            "returned": "2026-08-28T00:00:00+00:00"
+          },
+          "now-60d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-180d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-365d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-730d": {
+            "ok": false,
+            "err": "http_400"
+          },
+          "now-1095d": {
+            "ok": false,
+            "err": "http_400"
+          }
+        }
+      }
+    }
+  },
+  "intervals_supported": {
+    "globalLongShortAccountRatio": [
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "4h",
+      "6h",
+      "12h",
+      "1d"
+    ],
+    "topLongShortAccountRatio": [
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "4h",
+      "6h",
+      "12h",
+      "1d"
+    ],
+    "topLongShortPositionRatio": [
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "4h",
+      "6h",
+      "12h",
+      "1d"
+    ],
+    "takerlongshortRatio": [
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "4h",
+      "6h",
+      "12h",
+      "1d"
+    ]
+  },
+  "ban_aborted": {
+    "aborted": false,
+    "reason": null
+  },
+  "calls_made": 186
+}

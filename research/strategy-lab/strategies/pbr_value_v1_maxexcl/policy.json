@@ -1,0 +1,82 @@
+{
+  "strategyId": "pbr_value_v1_maxexcl",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-26",
+  "note": "pbr_value_v1의 MAX(복권효과) 제외 카운터팩추얼. 신호·체결·비용·portfolio 설정 전부 pbr_value_v1과 동일(무변경 복사) - 차이는 selection.json 하나뿐(build_selection_maxexcl.py). Nartea·Wu·Liu(2014, Applied Financial Economics 24(6))가 한국시장에서 실측한 MAX효과(고MAX 종목이 저수익 - 복권선호 프리미엄)를 그대로 가져와, pbr_value_v1이 이미 뽑은 매달 top-30 중 그 달 적격 유니버스 내 MAX 상위 20%에 해당하는 종목만 제외(대체 없음 - '안 샀으면 어땠을까' 카운터팩추얼)한다. 새로 뽑는 게 아니라 baseline 선택에서 빼기만 하므로 pbr_exposure_overlay_vs_baseline_mtm.py류의 '노출 스칼라' 방식과는 다르다 - 그건 시장전체 타이밍 신호용이고 MAX는 종목별 특성이라 구성(무엇을 들고 있는가) 자체가 바뀌는 게 맞는 방법이다. findings/github-literature-return-enhancement-candidates-2026-08.md 후속.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection_maxexcl.py가 오프라인으로 읽는 설정이다.",
+    "metric": "pbr",
+    "rankDirection": "ascending",
+    "topN": 30,
+    "maxExclusionPercentile": 0.8,
+    "maxExclusionNote": "MAX5(최근 21거래일 일간수익 상위5 평균)가 그 달 적격 유니버스 내 상위 20%(80th percentile 이상)인 종목은 baseline이 뽑았어도 제외 - 대체 종목으로 채우지 않는다(순수 카운터팩추얼, 어떤 달은 30개 미만 보유). Nartea·Wu·Liu(2014) 한국시장 실측",
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "minTurnoverNote": "절대 임계값. pbr_value_v1과 동일.",
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl",
+    "excludesMergerSpinoff": true
+  },
+
+  "signal": {
+    "expression": "pbr_value_v1과 동일한 top-30 PBR 랭킹에서, 그 달 적격 유니버스 내 MAX5 상위 20%에 속하는 종목을 대체 없이 제외 - build_selection_maxexcl.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "pbr_value_v1과 완전 동일 - 가격 기반 stop/target 없는 순수 시간 청산.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "maxHoldingSessions": 21,
+    "maxHoldingSessionsNote": "다음 리밸런싱일이 없는 마지막 달에만 쓰는 폴백. pbr_value_v1과 동일.",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "pbr_value_v1과 동일 이유."
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "pbr_value_v1과 동일 - 다음 리밸런싱에도 selection.json에 남아있으면 청산-재진입 없이 계속 보유."
+  }
+}

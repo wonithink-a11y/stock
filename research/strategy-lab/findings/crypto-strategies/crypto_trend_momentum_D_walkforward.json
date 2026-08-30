@@ -1,0 +1,135 @@
+{
+ "strategy": "crypto_trend_momentum",
+ "timeframe": "D",
+ "splits": {
+  "train": "2023-12-07~2025-07-25",
+  "valid": "2025-07-26~2025-12-22",
+  "test": "2025-12-23~2026-08-28"
+ },
+ "paramGrid": [
+  {
+   "trendPeriod": 200,
+   "momShortPeriod": 20,
+   "momMediumPeriod": 60,
+   "maxHoldingSessions": 60
+  },
+  {
+   "trendPeriod": 150,
+   "momShortPeriod": 20,
+   "momMediumPeriod": 60,
+   "maxHoldingSessions": 60
+  },
+  {
+   "trendPeriod": 200,
+   "momShortPeriod": 10,
+   "momMediumPeriod": 30,
+   "maxHoldingSessions": 60
+  },
+  {
+   "trendPeriod": 200,
+   "momShortPeriod": 20,
+   "momMediumPeriod": 60,
+   "maxHoldingSessions": 30
+  }
+ ],
+ "trainResults": [
+  {
+   "params": {
+    "trendPeriod": 200,
+    "momShortPeriod": 20,
+    "momMediumPeriod": 60,
+    "maxHoldingSessions": 60
+   },
+   "error": "'KRW-ADA'"
+  },
+  {
+   "params": {
+    "trendPeriod": 150,
+    "momShortPeriod": 20,
+    "momMediumPeriod": 60,
+    "maxHoldingSessions": 60
+   },
+   "error": "'KRW-ADA'"
+  },
+  {
+   "totalReturnPct": -5.87,
+   "cagrPct": -5.75,
+   "mddPct": -37.83,
+   "sharpe": -0.153,
+   "sortino": -0.226,
+   "calmar": -0.152,
+   "winRatePct": 34.57,
+   "profitFactor": 0.958,
+   "tradeCount": 243,
+   "avgHoldingDays": 1.3,
+   "turnover": 43.92,
+   "annualReturns": {
+    "2025": -19.33
+   },
+   "nSignals": 591,
+   "nTrades": 564,
+   "maxPositions": 5,
+   "params": {
+    "trendPeriod": 200,
+    "momShortPeriod": 10,
+    "momMediumPeriod": 30,
+    "maxHoldingSessions": 60
+   }
+  },
+  {
+   "params": {
+    "trendPeriod": 200,
+    "momShortPeriod": 20,
+    "momMediumPeriod": 60,
+    "maxHoldingSessions": 30
+   },
+   "error": "'KRW-ADA'"
+  }
+ ],
+ "bestParams": {
+  "trendPeriod": 200,
+  "momShortPeriod": 10,
+  "momMediumPeriod": 30,
+  "maxHoldingSessions": 60
+ },
+ "validMetrics": {
+  "error": "No trades"
+ },
+ "testMetrics": {
+  "totalReturnPct": 6.67,
+  "cagrPct": 4992.5,
+  "mddPct": -1.39,
+  "sharpe": 10.137,
+  "sortino": 33.569,
+  "calmar": 3586.364,
+  "winRatePct": 63.64,
+  "profitFactor": 4.11,
+  "tradeCount": 11,
+  "avgHoldingDays": 1.3,
+  "turnover": 1.72,
+  "annualReturns": {},
+  "nSignals": 34,
+  "nTrades": 26,
+  "maxPositions": 3
+ },
+ "fullMetrics": {
+  "totalReturnPct": -9.36,
+  "cagrPct": -4.54,
+  "mddPct": -41.28,
+  "sharpe": -0.248,
+  "sortino": -0.36,
+  "calmar": -0.11,
+  "winRatePct": 34.15,
+  "profitFactor": 0.946,
+  "tradeCount": 328,
+  "avgHoldingDays": 1.8,
+  "turnover": 54.01,
+  "annualReturns": {
+   "2025": -27.17,
+   "2026": 6.65
+  },
+  "nSignals": 882,
+  "nTrades": 874,
+  "maxPositions": 5
+ }
+}

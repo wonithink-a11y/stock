@@ -1,0 +1,889 @@
+{
+  "design": {
+    "purpose": "Upbit KRW ↔ Binance USDT lead-lag 연구 가용성 감사",
+    "resolutions": [
+      "1d",
+      "4h",
+      "1h"
+    ],
+    "ref_date": "2023-05-21",
+    "constraints": "기존 데이터만, 대량 수집 금지, 추정 금지"
+  },
+  "krw_daily_coverage": {
+    "BTC": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "ETH": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "SOL": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "XRP": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "ADA": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "DOGE": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "DOT": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "ATOM": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "AVAX": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "LINK": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "NEAR": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "OP": {
+      "rows": 396,
+      "start": "2025-07-28",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "UNI": {
+      "rows": 675,
+      "start": "2024-10-22",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    },
+    "ARB": {
+      "rows": 1195,
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "freq": "daily",
+      "tz": "KST (naive)"
+    }
+  },
+  "krw_4h_coverage": {
+    "BTC": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "ETH": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "SOL": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "XRP": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "ADA": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "DOGE": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "DOT": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "ATOM": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "AVAX": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "LINK": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "NEAR": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "OP": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "UNI": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    },
+    "ARB": {
+      "rows": 988,
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "freq": "4h",
+      "tz": "KST (naive)"
+    }
+  },
+  "usdt_daily_coverage": {
+    "BTCUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "ETHUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "SOLUSDT": {
+      "rows": 2206,
+      "start": "2020-08-14",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "XRPUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "ADAUSDT": {
+      "rows": 2414,
+      "start": "2020-01-19",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "DOGEUSDT": {
+      "rows": 2243,
+      "start": "2020-07-08",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "DOTUSDT": {
+      "rows": 2201,
+      "start": "2020-08-19",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "ATOMUSDT": {
+      "rows": 2398,
+      "start": "2020-02-04",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "AVAXUSDT": {
+      "rows": 2167,
+      "start": "2020-09-22",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "LINKUSDT": {
+      "rows": 2418,
+      "start": "2020-01-15",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "NEARUSDT": {
+      "rows": 2145,
+      "start": "2020-10-14",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "OPUSDT": {
+      "rows": 1550,
+      "start": "2022-06-01",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "UNIUSDT": {
+      "rows": 2172,
+      "start": "2020-09-17",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "ARBUSDT": {
+      "rows": 1255,
+      "start": "2023-03-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "1000PEPEUSDT": {
+      "rows": 1212,
+      "start": "2023-05-05",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "1000SHIBUSDT": {
+      "rows": 1937,
+      "start": "2021-05-10",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "AAVEUSDT": {
+      "rows": 2143,
+      "start": "2020-10-16",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "APTUSDT": {
+      "rows": 1410,
+      "start": "2022-10-19",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "BCHUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "BNBUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "FILUSDT": {
+      "rows": 2143,
+      "start": "2020-10-16",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "INJUSDT": {
+      "rows": 2129,
+      "start": "2020-10-30",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "LTCUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "SUIUSDT": {
+      "rows": 1214,
+      "start": "2023-05-03",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "TRXUSDT": {
+      "rows": 2441,
+      "start": "2019-12-23",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "WLDUSDT": {
+      "rows": 1132,
+      "start": "2023-07-24",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "XMRUSDT": {
+      "rows": 2414,
+      "start": "2020-01-19",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    },
+    "ZECUSDT": {
+      "rows": 2398,
+      "start": "2020-02-04",
+      "end": "2026-08-28",
+      "freq": "daily (KST 24:00 close)",
+      "tz": "KST"
+    }
+  },
+  "usdt_4h_coverage": {
+    "BTCUSDT": {
+      "rows": 14644,
+      "start": "2019-12-23",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "ETHUSDT": {
+      "rows": 14644,
+      "start": "2019-12-23",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "SOLUSDT": {
+      "rows": 13054,
+      "start": "2020-09-13",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "XRPUSDT": {
+      "rows": 14562,
+      "start": "2020-01-06",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "ADAUSDT": {
+      "rows": 14483,
+      "start": "2020-01-19",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "DOGEUSDT": {
+      "rows": 13446,
+      "start": "2020-07-10",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "DOTUSDT": {
+      "rows": 13201,
+      "start": "2020-08-20",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "ATOMUSDT": {
+      "rows": 14375,
+      "start": "2020-02-06",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "AVAXUSDT": {
+      "rows": 13001,
+      "start": "2020-09-22",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "LINKUSDT": {
+      "rows": 14495,
+      "start": "2020-01-17",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "NEARUSDT": {
+      "rows": 12869,
+      "start": "2020-10-14",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "OPUSDT": {
+      "rows": 9300,
+      "start": "2022-06-01",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "UNIUSDT": {
+      "rows": 13031,
+      "start": "2020-09-17",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "ARBUSDT": {
+      "rows": 7528,
+      "start": "2023-03-23",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "1000PEPEUSDT": {
+      "rows": 7270,
+      "start": "2023-05-05",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "1000SHIBUSDT": {
+      "rows": 11621,
+      "start": "2021-05-10",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "AAVEUSDT": {
+      "rows": 12858,
+      "start": "2020-10-16",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "APTUSDT": {
+      "rows": 8461,
+      "start": "2022-10-19",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "BCHUSDT": {
+      "rows": 14644,
+      "start": "2019-12-23",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "BNBUSDT": {
+      "rows": 14644,
+      "start": "2019-12-23",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "FILUSDT": {
+      "rows": 12859,
+      "start": "2020-10-16",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "INJUSDT": {
+      "rows": 8843,
+      "start": "2022-08-16",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "LTCUSDT": {
+      "rows": 14544,
+      "start": "2020-01-09",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "SUIUSDT": {
+      "rows": 7282,
+      "start": "2023-05-03",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "TRXUSDT": {
+      "rows": 14508,
+      "start": "2020-01-15",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "WLDUSDT": {
+      "rows": 6791,
+      "start": "2023-07-24",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "XMRUSDT": {
+      "rows": 14483,
+      "start": "2020-01-19",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    },
+    "ZECUSDT": {
+      "rows": 14388,
+      "start": "2020-02-04",
+      "end": "2026-08-29",
+      "freq": "4h (KST)",
+      "tz": "KST"
+    }
+  },
+  "common_symbols": {
+    "daily": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "ADA",
+      "DOGE",
+      "DOT",
+      "ATOM",
+      "AVAX",
+      "LINK",
+      "NEAR",
+      "OP",
+      "UNI",
+      "ARB"
+    ],
+    "4h": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "ADA",
+      "DOGE",
+      "DOT",
+      "ATOM",
+      "AVAX",
+      "LINK",
+      "NEAR",
+      "OP",
+      "UNI",
+      "ARB"
+    ]
+  },
+  "common_period_daily": {
+    "BTC": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "ETH": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "SOL": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "XRP": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "ADA": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "DOGE": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "DOT": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "ATOM": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "AVAX": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "LINK": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "NEAR": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    },
+    "OP": {
+      "start": "2025-07-28",
+      "end": "2026-08-27",
+      "n_days": 396
+    },
+    "UNI": {
+      "start": "2024-10-22",
+      "end": "2026-08-27",
+      "n_days": 675
+    },
+    "ARB": {
+      "start": "2023-05-21",
+      "end": "2026-08-27",
+      "n_days": 1195
+    }
+  },
+  "common_period_4h": {
+    "BTC": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "ETH": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "SOL": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "XRP": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "ADA": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "DOGE": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "DOT": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "ATOM": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "AVAX": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "LINK": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "NEAR": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "OP": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "UNI": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    },
+    "ARB": {
+      "start": "2026-03-16",
+      "end": "2026-08-27",
+      "n_bars": 988
+    }
+  },
+  "alignment_check": {
+    "BTC": {
+      "sample_dates": [
+        "2023-05-21",
+        "2023-05-22",
+        "2023-05-23"
+      ],
+      "krw_close": [
+        36051000.0,
+        35947000.0,
+        36381000.0
+      ],
+      "usdt_close": [
+        26887.9,
+        26945.8,
+        27309.53018563
+      ],
+      "note": "KRW index=KST 00:00, USDT index=KST 24:00 (1일 시차)"
+    },
+    "ETH": {
+      "sample_dates": [
+        "2023-05-21",
+        "2023-05-22",
+        "2023-05-23"
+      ],
+      "krw_close": [
+        2430000.0,
+        2431000.0,
+        2478000.0
+      ],
+      "usdt_close": [
+        1811.45,
+        1818.52,
+        1855.43
+      ],
+      "note": "KRW index=KST 00:00, USDT index=KST 24:00 (1일 시차)"
+    },
+    "SOL": {
+      "sample_dates": [
+        "2023-05-21",
+        "2023-05-22",
+        "2023-05-23"
+      ],
+      "krw_close": [
+        26450.0,
+        26160.0,
+        26740.0
+      ],
+      "usdt_close": [
+        20.1,
+        19.728,
+        19.96086741
+      ],
+      "note": "KRW index=KST 00:00, USDT index=KST 24:00 (1일 시차)"
+    }
+  },
+  "lead_lag_feasibility": {
+    "daily": {
+      "possible": true,
+      "symbols": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "XRP",
+        "ADA",
+        "DOGE",
+        "DOT",
+        "ATOM",
+        "AVAX",
+        "LINK",
+        "NEAR",
+        "OP",
+        "UNI",
+        "ARB"
+      ],
+      "alignment_issue": "KRW 00:00 vs USDT 24:00 = 1일 시차 → shift 필요"
+    },
+    "4h": {
+      "possible": true,
+      "symbols": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "XRP",
+        "ADA",
+        "DOGE",
+        "DOT",
+        "ATOM",
+        "AVAX",
+        "LINK",
+        "NEAR",
+        "OP",
+        "UNI",
+        "ARB"
+      ],
+      "alignment_issue": "KRW 4h UTC 변환 가능, USDT 1h→4h 리샘플 가능",
+      "krw_4h_period": "2026-03-16~ (약 5.5개월만)"
+    },
+    "1h": {
+      "possible": false,
+      "reason": "KRW 1h 데이터 없음 (4h만 존재)"
+    }
+  }
+}

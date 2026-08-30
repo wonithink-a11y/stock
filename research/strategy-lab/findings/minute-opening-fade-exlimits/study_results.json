@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-08-23T01:51:17",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "purpose": "상하한가(시가 대비 ±29% 도달) 종목 제외가 오더닝 페이드 사다리를 얼마나 줄이는지 - 제외 전/후 나란히 비교",
+  "definitions": {
+    "limitMove": "dayHi/P0900-1>=0.29 또는 dayLo/P0900-1<=-0.29 (30% 제한폭 대비 단일 고정 관례값)",
+    "rest": "minute_opening_fade_study.py와 동일"
+  },
+  "diagnostics": {
+    "days": 250,
+    "tickerDaysFull": 494535,
+    "up29Count": 1200,
+    "down29Count": 120,
+    "limitHitCount": 1318,
+    "limitHitSharePct": 0.267
+  },
+  "results": {
+    "before_fullSample": {
+      "→10:00": {
+        "excessByQuintile": {
+          "Q1": 0.0896,
+          "Q2": 0.0459,
+          "Q3": 0.0059,
+          "Q4": -0.0179,
+          "Q5": -0.1252
+        },
+        "spreadQ5mQ1": -0.2149
+      },
+      "→11:00": {
+        "excessByQuintile": {
+          "Q1": 0.0629,
+          "Q2": 0.0459,
+          "Q3": 0.0245,
+          "Q4": -0.0197,
+          "Q5": -0.1162
+        },
+        "spreadQ5mQ1": -0.1792
+      },
+      "→close": {
+        "excessByQuintile": {
+          "Q1": 0.1207,
+          "Q2": 0.0836,
+          "Q3": 0.0448,
+          "Q4": -0.0241,
+          "Q5": -0.2252
+        },
+        "spreadQ5mQ1": -0.3459
+      }
+    },
+    "after_exLimitHit": {
+      "→10:00": {
+        "excessByQuintile": {
+          "Q1": 0.1033,
+          "Q2": 0.0592,
+          "Q3": 0.0165,
+          "Q4": -0.0119,
+          "Q5": -0.169
+        },
+        "spreadQ5mQ1": -0.2723
+      },
+      "→11:00": {
+        "excessByQuintile": {
+          "Q1": 0.0852,
+          "Q2": 0.0635,
+          "Q3": 0.0386,
+          "Q4": -0.0118,
+          "Q5": -0.1777
+        },
+        "spreadQ5mQ1": -0.2628
+      },
+      "→close": {
+        "excessByQuintile": {
+          "Q1": 0.1426,
+          "Q2": 0.1007,
+          "Q3": 0.0605,
+          "Q4": -0.0159,
+          "Q5": -0.2894
+        },
+        "spreadQ5mQ1": -0.4321
+      }
+    }
+  }
+}

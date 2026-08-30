@@ -1,0 +1,42 @@
+{
+  "design": {
+    "purpose": "Risk management experiment for Dual Momentum / EMA Trend",
+    "strategies": [
+      "EMA_Trend",
+      "Dual_Momentum"
+    ],
+    "stop_pcts": [
+      0.03,
+      0.05,
+      0.08,
+      0.1,
+      0.15
+    ],
+    "atr_mults": [
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "tp_pcts": [
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "trail_pcts": [
+      0.02,
+      0.03,
+      0.05,
+      0.08
+    ],
+    "regime_filters": [
+      "all",
+      "bull_only",
+      "bear_only"
+    ]
+  },
+  "valid_top3": [],
+  "test_results": [],
+  "runtime_sec": 0.0
+}

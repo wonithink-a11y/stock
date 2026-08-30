@@ -1,0 +1,76 @@
+{
+  "strategyId": "v3_bollinger_rsi",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-22",
+  "note": "V3 Bollinger+RSI (video candidate). Reuses 5DC-v1A-P/trend-breakout-v1 RiskSpec/executor/portfolio/cost contract verbatim - only indicators (Bollinger lower band + RSI) and signal differ. OBSERVED exit 'High >= UpperBand -> sell' is NOT expressible in the static stop/target/time executor contract; see risk.assumptions.",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "bollinger": { "period": 20, "stddev": 2.0, "source": "close" },
+    "rsi": { "period": 14, "method": "wilder" },
+    "atr": { "period": 14, "method": "wilder" }
+  },
+
+  "signal": {
+    "expression": "Low[t] < bb_lower[t] AND RSI[t] <= 30",
+    "evaluatedAfter": "t close confirmed",
+    "levelTriggered": true,
+    "note": "[OBSERVED] as stated in the source video. Level-triggered (no edge condition given by the video) - every qualifying day is an entry attempt; capacity handled by portfolio.",
+    "observedExit": "[OBSERVED] High[t] >= bb_upper[t] -> sell. Cannot be expressed by this executor contract (stop/target are static prices fixed at entry; band exit is dynamic). Deviation documented in findings/v3-engine-smoke."
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "atrReferenceDate": "t (signal date) - never t+1 or later",
+    "assumptions": "[ASSUMPTION] The video defines NO stop-loss and NO profit target. To satisfy the shared RiskSpec contract without inventing tuned numbers, all three constants are reused VERBATIM from 5dc_v1a_p / trend_breakout_v1 (the frozen contract values), not selected for performance:",
+    "stopDistanceFormula": "2 * ATR[t]",
+    "stopAssumption": "[ASSUMPTION] 2*ATR[t] - same contract constant as 5dc_v1a_p/trend_breakout_v1",
+    "stopFormula": "entry_price - stop_distance",
+    "targetFormula": "entry_price + reward_risk * stop_distance",
+    "rewardRisk": 3.0,
+    "rewardRiskAssumption": "[ASSUMPTION] 3.0 - same contract constant as both existing strategies",
+    "maxHoldingSessions": 60,
+    "maxHoldingAssumption": "[ASSUMPTION] 60 sessions - same contract constant as both existing strategies; exists only to prevent unbounded holds (video has none)"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 10,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "bollingerBars": 20,
+    "rsiBars": 14,
+    "atrBars": 14,
+    "effectiveWarmupBars": 20
+  }
+}

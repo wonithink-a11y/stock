@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-08-23T12:36:53",
+  "label": "[RESEARCH HYPOTHESIS]",
+  "purpose": "페이드 스프레드 세기와 시장 변동성 프록시의 월별 대조 (숫자만)",
+  "proxies": {
+    "rangeMeanBp": "종목별 일중 레인지 (dayHi-dayLo)/P0900 의 날짜 EW 평균",
+    "xsStdBp": "09:05->종가 수익률 횡단면 표준편차",
+    "mktDayRetAbsBp": "날짜 등가중 평균 수익률의 절댓값"
+  },
+  "correlations": {
+    "spreadVsRange": -0.857,
+    "spreadVsXsStd": -0.698,
+    "spreadVsMktDayRetAbs": -0.803
+  },
+  "monthly": [
+    {
+      "month": "2025-08",
+      "nDates": 15,
+      "spreadQ5mQ1Bp": -0.156,
+      "rangeMeanBp": 399.2,
+      "xsStdBp": 252.2,
+      "mktDayRetAbsBp": 34.5
+    },
+    {
+      "month": "2025-09",
+      "nDates": 22,
+      "spreadQ5mQ1Bp": -0.23,
+      "rangeMeanBp": 390.7,
+      "xsStdBp": 252.6,
+      "mktDayRetAbsBp": 36.1
+    },
+    {
+      "month": "2025-10",
+      "nDates": 18,
+      "spreadQ5mQ1Bp": -0.209,
+      "rangeMeanBp": 438.8,
+      "xsStdBp": 274.1,
+      "mktDayRetAbsBp": 61.6
+    },
+    {
+      "month": "2025-11",
+      "nDates": 19,
+      "spreadQ5mQ1Bp": -0.273,
+      "rangeMeanBp": 489.2,
+      "xsStdBp": 283.2,
+      "mktDayRetAbsBp": 90.1
+    },
+    {
+      "month": "2025-12",
+      "nDates": 21,
+      "spreadQ5mQ1Bp": 0.001,
+      "rangeMeanBp": 431.7,
+      "xsStdBp": 289.7,
+      "mktDayRetAbsBp": 50.7
+    },
+    {
+      "month": "2026-01",
+      "nDates": 20,
+      "spreadQ5mQ1Bp": -0.133,
+      "rangeMeanBp": 522.8,
+      "xsStdBp": 341.5,
+      "mktDayRetAbsBp": 63.5
+    },
+    {
+      "month": "2026-02",
+      "nDates": 17,
+      "spreadQ5mQ1Bp": -0.141,
+      "rangeMeanBp": 557.3,
+      "xsStdBp": 347.1,
+      "mktDayRetAbsBp": 82.4
+    },
+    {
+      "month": "2026-03",
+      "nDates": 21,
+      "spreadQ5mQ1Bp": -0.321,
+      "rangeMeanBp": 642.5,
+      "xsStdBp": 347.4,
+      "mktDayRetAbsBp": 128.5
+    },
+    {
+      "month": "2026-04",
+      "nDates": 22,
+      "spreadQ5mQ1Bp": -0.114,
+      "rangeMeanBp": 546.3,
+      "xsStdBp": 329.8,
+      "mktDayRetAbsBp": 104.8
+    },
+    {
+      "month": "2026-05",
+      "nDates": 18,
+      "spreadQ5mQ1Bp": -0.68,
+      "rangeMeanBp": 709.3,
+      "xsStdBp": 379.5,
+      "mktDayRetAbsBp": 121.9
+    },
+    {
+      "month": "2026-06",
+      "nDates": 21,
+      "spreadQ5mQ1Bp": -0.92,
+      "rangeMeanBp": 784.0,
+      "xsStdBp": 392.8,
+      "mktDayRetAbsBp": 172.9
+    },
+    {
+      "month": "2026-07",
+      "nDates": 22,
+      "spreadQ5mQ1Bp": -0.695,
+      "rangeMeanBp": 782.4,
+      "xsStdBp": 387.1,
+      "mktDayRetAbsBp": 189.9
+    },
+    {
+      "month": "2026-08",
+      "nDates": 14,
+      "spreadQ5mQ1Bp": -0.626,
+      "rangeMeanBp": 635.6,
+      "xsStdBp": 339.1,
+      "mktDayRetAbsBp": 103.4
+    }
+  ]
+}

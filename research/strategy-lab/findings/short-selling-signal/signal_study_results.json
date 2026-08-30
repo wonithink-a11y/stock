@@ -1,0 +1,842 @@
+{
+  "generatedAt": "2026-08-22T23:38:35",
+  "label": "[RESEARCH HYPOTHESIS] - 영상 출처 없는 순수 연구 가설",
+  "context": "V9 공매도 최소 signal study - 엔진 미연결 이벤트 스터디. 첫 실행 결과 그대로.",
+  "pitVerdict": "A8 값은 거래일 d 기준이지만 공시는 익일(잔고는 2019-04-05부터 익영업일 공시 의무). 신호일 s는 직전 거래일 분만 사용(shift(1)) - engine signal s->next open 계약과 정합",
+  "dataSources": [
+    "data/backfill/shortSelling/a8/*.jsonl.gz (SS-1.1)",
+    ".cache/v9_shortselling (추출 캐시)",
+    "a4 패널(universe+fwd)"
+  ],
+  "hypotheses": {
+    "H1": "[RESEARCH HYPOTHESIS] shortVolume >= 2 * 직전 20거래일 평균(배율만, 예시값) -> 다음 거래일 신호. 숏스퀴즈 vs 지속하락 방향 확인 목적",
+    "H2": "[RESEARCH HYPOTHESIS] shortBalanceShares 5일 변화율 부호별(up=비관 심화 / down=숏커버링), threshold 없음"
+  },
+  "forwardReturn": "s 종가 → s+h째 행 종가 (A2a adjusted, close-to-close)",
+  "benchmark": "같은 날 패널 전체 종목 동일가중 (신호 종목 포함)",
+  "pitNote": "실거래 계약은 signal s -> s+1 open 체결이므로 이벤트 스터디 근사치",
+  "results": {
+    "diagnostics": {
+      "panelRowsWithA8": 5145539,
+      "coverageShareOfPanel": 0.9621,
+      "sbChangedShareVsPrevDay": 0.4186,
+      "surgeDaysRaw": 584440,
+      "h1SignalRows": 584232,
+      "h2UpRows": 1068157,
+      "h2DownRows": 1179375
+    },
+    "H1_volumeSurge2x_vs20dAvg": {
+      "signalRowsRaw": 584232,
+      "T+1": {
+        "n": 583879,
+        "nDates": 2452,
+        "avgPerDay": 238.1,
+        "mean": 0.0,
+        "median": -0.00111,
+        "winRate": 0.4431,
+        "benchMean": 0.00035,
+        "excessPerDateMatched": -0.00035,
+        "yearly": {
+          "2016": {
+            "n": 22814,
+            "excessMean": -0.00074,
+            "sigMean": -0.00122
+          },
+          "2017": {
+            "n": 57460,
+            "excessMean": -0.00067,
+            "sigMean": -0.00053
+          },
+          "2018": {
+            "n": 59968,
+            "excessMean": -0.00083,
+            "sigMean": -0.00087
+          },
+          "2019": {
+            "n": 62693,
+            "excessMean": -0.00097,
+            "sigMean": -0.00034
+          },
+          "2020": {
+            "n": 50212,
+            "excessMean": -0.00031,
+            "sigMean": -0.00067
+          },
+          "2021": {
+            "n": 44986,
+            "excessMean": -0.00021,
+            "sigMean": 0.00116
+          },
+          "2022": {
+            "n": 49056,
+            "excessMean": -6e-05,
+            "sigMean": -0.00052
+          },
+          "2023": {
+            "n": 45635,
+            "excessMean": -0.00013,
+            "sigMean": 0.00092
+          },
+          "2024": {
+            "n": 52316,
+            "excessMean": 0.00037,
+            "sigMean": -0.00031
+          },
+          "2025": {
+            "n": 87037,
+            "excessMean": -0.00045,
+            "sigMean": 0.00114
+          },
+          "2026": {
+            "n": 51702,
+            "excessMean": 0.00025,
+            "sigMean": 0.00029
+          }
+        }
+      },
+      "T+5": {
+        "n": 582489,
+        "nDates": 2448,
+        "avgPerDay": 237.9,
+        "mean": -0.00014,
+        "median": -0.00452,
+        "winRate": 0.4487,
+        "benchMean": 0.00073,
+        "excessPerDateMatched": -0.00087,
+        "yearly": {
+          "2016": {
+            "n": 22814,
+            "excessMean": -0.00161,
+            "sigMean": -0.0021
+          },
+          "2017": {
+            "n": 57460,
+            "excessMean": -0.00197,
+            "sigMean": -0.00058
+          },
+          "2018": {
+            "n": 59968,
+            "excessMean": -0.00268,
+            "sigMean": -0.00256
+          },
+          "2019": {
+            "n": 62693,
+            "excessMean": -0.00212,
+            "sigMean": 0.00016
+          },
+          "2020": {
+            "n": 50212,
+            "excessMean": -0.00164,
+            "sigMean": -0.0071
+          },
+          "2021": {
+            "n": 44986,
+            "excessMean": -0.00099,
+            "sigMean": 0.0025
+          },
+          "2022": {
+            "n": 49055,
+            "excessMean": 1e-05,
+            "sigMean": -0.00136
+          },
+          "2023": {
+            "n": 45634,
+            "excessMean": -0.00123,
+            "sigMean": 0.00212
+          },
+          "2024": {
+            "n": 52311,
+            "excessMean": 0.00253,
+            "sigMean": -0.00237
+          },
+          "2025": {
+            "n": 87023,
+            "excessMean": -0.00012,
+            "sigMean": 0.00788
+          },
+          "2026": {
+            "n": 50333,
+            "excessMean": -7e-05,
+            "sigMean": -0.0041
+          }
+        }
+      },
+      "T+10": {
+        "n": 581226,
+        "nDates": 2443,
+        "avgPerDay": 237.9,
+        "mean": 0.00045,
+        "median": -0.00741,
+        "winRate": 0.4463,
+        "benchMean": 0.00205,
+        "excessPerDateMatched": -0.0016,
+        "yearly": {
+          "2016": {
+            "n": 22814,
+            "excessMean": -0.00313,
+            "sigMean": -0.00593
+          },
+          "2017": {
+            "n": 57460,
+            "excessMean": -0.00241,
+            "sigMean": 0.00016
+          },
+          "2018": {
+            "n": 59968,
+            "excessMean": -0.00407,
+            "sigMean": -0.00587
+          },
+          "2019": {
+            "n": 62693,
+            "excessMean": -0.00378,
+            "sigMean": 0.00057
+          },
+          "2020": {
+            "n": 50212,
+            "excessMean": -0.00328,
+            "sigMean": -0.00745
+          },
+          "2021": {
+            "n": 44986,
+            "excessMean": -0.00106,
+            "sigMean": 0.00799
+          },
+          "2022": {
+            "n": 49055,
+            "excessMean": -1e-05,
+            "sigMean": -0.00375
+          },
+          "2023": {
+            "n": 45632,
+            "excessMean": -0.00274,
+            "sigMean": 0.00403
+          },
+          "2024": {
+            "n": 52306,
+            "excessMean": 0.00281,
+            "sigMean": -0.00485
+          },
+          "2025": {
+            "n": 87004,
+            "excessMean": 0.00042,
+            "sigMean": 0.01642
+          },
+          "2026": {
+            "n": 49096,
+            "excessMean": -0.00169,
+            "sigMean": -0.00931
+          }
+        }
+      },
+      "T+20": {
+        "n": 578683,
+        "nDates": 2433,
+        "avgPerDay": 237.8,
+        "mean": 0.00308,
+        "median": -0.01135,
+        "winRate": 0.4466,
+        "benchMean": 0.00575,
+        "excessPerDateMatched": -0.00267,
+        "yearly": {
+          "2016": {
+            "n": 22814,
+            "excessMean": -0.00605,
+            "sigMean": -0.01237
+          },
+          "2017": {
+            "n": 57460,
+            "excessMean": -0.00352,
+            "sigMean": 0.00493
+          },
+          "2018": {
+            "n": 59968,
+            "excessMean": -0.00609,
+            "sigMean": -0.00856
+          },
+          "2019": {
+            "n": 62693,
+            "excessMean": -0.00534,
+            "sigMean": 0.00213
+          },
+          "2020": {
+            "n": 50212,
+            "excessMean": -0.00479,
+            "sigMean": 0.00262
+          },
+          "2021": {
+            "n": 44986,
+            "excessMean": -0.00262,
+            "sigMean": 0.01595
+          },
+          "2022": {
+            "n": 49055,
+            "excessMean": -0.00036,
+            "sigMean": -0.0044
+          },
+          "2023": {
+            "n": 45627,
+            "excessMean": -0.00616,
+            "sigMean": 0.00494
+          },
+          "2024": {
+            "n": 52291,
+            "excessMean": 0.00528,
+            "sigMean": -0.00636
+          },
+          "2025": {
+            "n": 86972,
+            "excessMean": -0.00178,
+            "sigMean": 0.02825
+          },
+          "2026": {
+            "n": 46605,
+            "excessMean": 0.0006,
+            "sigMean": -0.01765
+          }
+        }
+      }
+    },
+    "H2a_balanceRising5d_chgPositive": {
+      "signalRowsRaw": 1068157,
+      "T+1": {
+        "n": 1067628,
+        "nDates": 2468,
+        "avgPerDay": 432.6,
+        "mean": -0.00036,
+        "median": -0.00137,
+        "winRate": 0.446,
+        "benchMean": 5e-05,
+        "excessPerDateMatched": -0.00041,
+        "yearly": {
+          "2016": {
+            "n": 50980,
+            "excessMean": -0.00098,
+            "sigMean": -0.00104
+          },
+          "2017": {
+            "n": 102576,
+            "excessMean": -0.00022,
+            "sigMean": 5e-05
+          },
+          "2018": {
+            "n": 111217,
+            "excessMean": -0.00074,
+            "sigMean": -0.00127
+          },
+          "2019": {
+            "n": 122042,
+            "excessMean": -0.00088,
+            "sigMean": -0.00049
+          },
+          "2020": {
+            "n": 106711,
+            "excessMean": -0.00016,
+            "sigMean": 0.00056
+          },
+          "2021": {
+            "n": 102657,
+            "excessMean": -0.00038,
+            "sigMean": 0.0002
+          },
+          "2022": {
+            "n": 89178,
+            "excessMean": -0.00033,
+            "sigMean": -0.0015
+          },
+          "2023": {
+            "n": 82476,
+            "excessMean": -5e-05,
+            "sigMean": 0.00069
+          },
+          "2024": {
+            "n": 74646,
+            "excessMean": 7e-05,
+            "sigMean": -0.00047
+          },
+          "2025": {
+            "n": 129517,
+            "excessMean": -0.00039,
+            "sigMean": 0.00067
+          },
+          "2026": {
+            "n": 95628,
+            "excessMean": -0.00039,
+            "sigMean": -0.00195
+          }
+        }
+      },
+      "T+5": {
+        "n": 1065386,
+        "nDates": 2464,
+        "avgPerDay": 432.4,
+        "mean": -0.00111,
+        "median": -0.00489,
+        "winRate": 0.4511,
+        "benchMean": 0.00049,
+        "excessPerDateMatched": -0.0016,
+        "yearly": {
+          "2016": {
+            "n": 50980,
+            "excessMean": -0.00411,
+            "sigMean": -0.00454
+          },
+          "2017": {
+            "n": 102576,
+            "excessMean": -0.00025,
+            "sigMean": 0.00125
+          },
+          "2018": {
+            "n": 111217,
+            "excessMean": -0.0028,
+            "sigMean": -0.0046
+          },
+          "2019": {
+            "n": 122042,
+            "excessMean": -0.0035,
+            "sigMean": -0.00202
+          },
+          "2020": {
+            "n": 106711,
+            "excessMean": -0.00052,
+            "sigMean": 0.00357
+          },
+          "2021": {
+            "n": 102657,
+            "excessMean": -0.00222,
+            "sigMean": 0.001
+          },
+          "2022": {
+            "n": 89178,
+            "excessMean": -0.00133,
+            "sigMean": -0.00662
+          },
+          "2023": {
+            "n": 82476,
+            "excessMean": -8e-05,
+            "sigMean": 0.00346
+          },
+          "2024": {
+            "n": 74642,
+            "excessMean": 0.00042,
+            "sigMean": -0.00151
+          },
+          "2025": {
+            "n": 129503,
+            "excessMean": -0.00114,
+            "sigMean": 0.00408
+          },
+          "2026": {
+            "n": 93404,
+            "excessMean": -0.00217,
+            "sigMean": -0.00976
+          }
+        }
+      },
+      "T+10": {
+        "n": 1061892,
+        "nDates": 2459,
+        "avgPerDay": 431.8,
+        "mean": -0.00106,
+        "median": -0.00856,
+        "winRate": 0.4465,
+        "benchMean": 0.00145,
+        "excessPerDateMatched": -0.00252,
+        "yearly": {
+          "2016": {
+            "n": 50980,
+            "excessMean": -0.00723,
+            "sigMean": -0.00847
+          },
+          "2017": {
+            "n": 102576,
+            "excessMean": 0.00012,
+            "sigMean": 0.0029
+          },
+          "2018": {
+            "n": 111217,
+            "excessMean": -0.00437,
+            "sigMean": -0.00736
+          },
+          "2019": {
+            "n": 122042,
+            "excessMean": -0.00592,
+            "sigMean": -0.00275
+          },
+          "2020": {
+            "n": 106711,
+            "excessMean": -0.00035,
+            "sigMean": 0.00883
+          },
+          "2021": {
+            "n": 102657,
+            "excessMean": -0.00409,
+            "sigMean": 0.00239
+          },
+          "2022": {
+            "n": 89178,
+            "excessMean": -0.00239,
+            "sigMean": -0.01155
+          },
+          "2023": {
+            "n": 82474,
+            "excessMean": -0.00072,
+            "sigMean": 0.00438
+          },
+          "2024": {
+            "n": 74636,
+            "excessMean": 0.00188,
+            "sigMean": -0.00196
+          },
+          "2025": {
+            "n": 129478,
+            "excessMean": -0.00151,
+            "sigMean": 0.00936
+          },
+          "2026": {
+            "n": 89943,
+            "excessMean": -0.00358,
+            "sigMean": -0.01583
+          }
+        }
+      },
+      "T+20": {
+        "n": 1055464,
+        "nDates": 2449,
+        "avgPerDay": 431.0,
+        "mean": -0.00037,
+        "median": -0.01415,
+        "winRate": 0.4405,
+        "benchMean": 0.00368,
+        "excessPerDateMatched": -0.00406,
+        "yearly": {
+          "2016": {
+            "n": 50980,
+            "excessMean": -0.01374,
+            "sigMean": -0.0169
+          },
+          "2017": {
+            "n": 102576,
+            "excessMean": 0.00173,
+            "sigMean": 0.01033
+          },
+          "2018": {
+            "n": 111217,
+            "excessMean": -0.00825,
+            "sigMean": -0.01372
+          },
+          "2019": {
+            "n": 122042,
+            "excessMean": -0.00997,
+            "sigMean": -0.00451
+          },
+          "2020": {
+            "n": 106711,
+            "excessMean": -0.00151,
+            "sigMean": 0.02165
+          },
+          "2021": {
+            "n": 102656,
+            "excessMean": -0.0073,
+            "sigMean": 0.00205
+          },
+          "2022": {
+            "n": 89178,
+            "excessMean": -0.00492,
+            "sigMean": -0.01835
+          },
+          "2023": {
+            "n": 82467,
+            "excessMean": -7e-05,
+            "sigMean": 0.0076
+          },
+          "2024": {
+            "n": 74626,
+            "excessMean": 0.00417,
+            "sigMean": -0.00318
+          },
+          "2025": {
+            "n": 129442,
+            "excessMean": -0.00092,
+            "sigMean": 0.02077
+          },
+          "2026": {
+            "n": 83569,
+            "excessMean": -0.00553,
+            "sigMean": -0.02968
+          }
+        }
+      }
+    },
+    "H2b_balanceFalling5d_chgNegative": {
+      "signalRowsRaw": 1179375,
+      "T+1": {
+        "n": 1178442,
+        "nDates": 2468,
+        "avgPerDay": 477.5,
+        "mean": 0.00044,
+        "median": 0.0,
+        "winRate": 0.4549,
+        "benchMean": 0.00038,
+        "excessPerDateMatched": 6e-05,
+        "yearly": {
+          "2016": {
+            "n": 57677,
+            "excessMean": -0.0003,
+            "sigMean": -0.00016
+          },
+          "2017": {
+            "n": 113585,
+            "excessMean": 0.00021,
+            "sigMean": 0.00059
+          },
+          "2018": {
+            "n": 127531,
+            "excessMean": -3e-05,
+            "sigMean": -6e-05
+          },
+          "2019": {
+            "n": 137753,
+            "excessMean": 0.0,
+            "sigMean": 0.00058
+          },
+          "2020": {
+            "n": 132158,
+            "excessMean": -4e-05,
+            "sigMean": 0.00157
+          },
+          "2021": {
+            "n": 108784,
+            "excessMean": -0.00015,
+            "sigMean": 0.00086
+          },
+          "2022": {
+            "n": 103050,
+            "excessMean": -0.00011,
+            "sigMean": -0.00119
+          },
+          "2023": {
+            "n": 88296,
+            "excessMean": 7e-05,
+            "sigMean": 0.00087
+          },
+          "2024": {
+            "n": 81153,
+            "excessMean": 0.00019,
+            "sigMean": -0.00029
+          },
+          "2025": {
+            "n": 122142,
+            "excessMean": 0.00044,
+            "sigMean": 0.00137
+          },
+          "2026": {
+            "n": 106313,
+            "excessMean": 0.0002,
+            "sigMean": -0.00012
+          }
+        }
+      },
+      "T+5": {
+        "n": 1174827,
+        "nDates": 2464,
+        "avgPerDay": 476.8,
+        "mean": 0.00143,
+        "median": -0.00353,
+        "winRate": 0.4626,
+        "benchMean": 0.00177,
+        "excessPerDateMatched": -0.00034,
+        "yearly": {
+          "2016": {
+            "n": 57677,
+            "excessMean": -0.00177,
+            "sigMean": -0.00085
+          },
+          "2017": {
+            "n": 113585,
+            "excessMean": 0.00026,
+            "sigMean": 0.00193
+          },
+          "2018": {
+            "n": 127531,
+            "excessMean": -0.00125,
+            "sigMean": -0.00222
+          },
+          "2019": {
+            "n": 137753,
+            "excessMean": -0.00064,
+            "sigMean": 0.00204
+          },
+          "2020": {
+            "n": 132158,
+            "excessMean": -0.00037,
+            "sigMean": 0.01058
+          },
+          "2021": {
+            "n": 108782,
+            "excessMean": -0.00125,
+            "sigMean": 0.00313
+          },
+          "2022": {
+            "n": 103050,
+            "excessMean": -0.00093,
+            "sigMean": -0.00608
+          },
+          "2023": {
+            "n": 88292,
+            "excessMean": -0.00051,
+            "sigMean": 0.00305
+          },
+          "2024": {
+            "n": 81149,
+            "excessMean": 0.00112,
+            "sigMean": -0.00064
+          },
+          "2025": {
+            "n": 122130,
+            "excessMean": 0.0012,
+            "sigMean": 0.00534
+          },
+          "2026": {
+            "n": 102720,
+            "excessMean": 0.00013,
+            "sigMean": -0.00455
+          }
+        }
+      },
+      "T+10": {
+        "n": 1171020,
+        "nDates": 2459,
+        "avgPerDay": 476.2,
+        "mean": 0.00207,
+        "median": -0.00661,
+        "winRate": 0.4573,
+        "benchMean": 0.00334,
+        "excessPerDateMatched": -0.00128,
+        "yearly": {
+          "2016": {
+            "n": 57677,
+            "excessMean": -0.00419,
+            "sigMean": -0.00301
+          },
+          "2017": {
+            "n": 113585,
+            "excessMean": 0.00051,
+            "sigMean": 0.00406
+          },
+          "2018": {
+            "n": 127531,
+            "excessMean": -0.00354,
+            "sigMean": -0.00609
+          },
+          "2019": {
+            "n": 137753,
+            "excessMean": -0.00188,
+            "sigMean": 0.00265
+          },
+          "2020": {
+            "n": 132158,
+            "excessMean": -0.00189,
+            "sigMean": 0.02085
+          },
+          "2021": {
+            "n": 108781,
+            "excessMean": -0.00334,
+            "sigMean": 0.00437
+          },
+          "2022": {
+            "n": 103050,
+            "excessMean": -0.00196,
+            "sigMean": -0.011
+          },
+          "2023": {
+            "n": 88287,
+            "excessMean": -0.00099,
+            "sigMean": 0.00588
+          },
+          "2024": {
+            "n": 81145,
+            "excessMean": 0.00161,
+            "sigMean": -0.00252
+          },
+          "2025": {
+            "n": 122112,
+            "excessMean": 0.00149,
+            "sigMean": 0.00929
+          },
+          "2026": {
+            "n": 98941,
+            "excessMean": -0.00011,
+            "sigMean": -0.01013
+          }
+        }
+      },
+      "T+20": {
+        "n": 1162557,
+        "nDates": 2449,
+        "avgPerDay": 474.7,
+        "mean": 0.00404,
+        "median": -0.01214,
+        "winRate": 0.4485,
+        "benchMean": 0.00692,
+        "excessPerDateMatched": -0.00288,
+        "yearly": {
+          "2016": {
+            "n": 57677,
+            "excessMean": -0.00871,
+            "sigMean": -0.01223
+          },
+          "2017": {
+            "n": 113585,
+            "excessMean": 0.00098,
+            "sigMean": 0.01108
+          },
+          "2018": {
+            "n": 127531,
+            "excessMean": -0.00749,
+            "sigMean": -0.01148
+          },
+          "2019": {
+            "n": 137753,
+            "excessMean": -0.00504,
+            "sigMean": 0.00096
+          },
+          "2020": {
+            "n": 132158,
+            "excessMean": -0.00384,
+            "sigMean": 0.04131
+          },
+          "2021": {
+            "n": 108781,
+            "excessMean": -0.00643,
+            "sigMean": 0.00412
+          },
+          "2022": {
+            "n": 103050,
+            "excessMean": -0.00374,
+            "sigMean": -0.01474
+          },
+          "2023": {
+            "n": 88276,
+            "excessMean": -0.0029,
+            "sigMean": 0.00781
+          },
+          "2024": {
+            "n": 81135,
+            "excessMean": 0.00251,
+            "sigMean": -0.00511
+          },
+          "2025": {
+            "n": 122086,
+            "excessMean": 0.00303,
+            "sigMean": 0.02265
+          },
+          "2026": {
+            "n": 90525,
+            "excessMean": -0.00041,
+            "sigMean": -0.02154
+          }
+        }
+      }
+    }
+  }
+}

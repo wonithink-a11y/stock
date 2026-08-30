@@ -1,0 +1,83 @@
+{
+  "strategyId": "pbr_value_v1_combined",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-26",
+  "note": "pbr_value_v1_dropout(회전율 제한) + pbr_value_v1_maxexcl(MAX 복권효과 제외) 결합. 신호·체결·비용·portfolio 설정 전부 pbr_value_v1과 동일(무변경 복사) - 차이는 selection.json 하나뿐(build_selection_combined.py, dropout의 selection.json 위에 maxexcl과 동일한 방식으로 MAX5 상위 20%를 대체 없이 추가 제외). 두 실험이 각각 CAGR 개선을 보였을 때(findings/pbr-dropout-turnover-limit-2026-08.md· pbr-max-exclusion-2026-08.md) 단순 합산 가정 없이 실제로 함께 적용했을 때 효과가 겹치는지(가산·상쇄·초과) 확인하기 위한 조합. 세션인수인계-2026-08-26.md §5-1.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection_combined.py가 오프라인으로 읽는 설정이다.",
+    "metric": "pbr",
+    "rankDirection": "ascending",
+    "topN": 30,
+    "nDrop": 3,
+    "maxExclusionPercentile": 0.8,
+    "combinationNote": "매달: (1) dropout 규칙으로 전월 보유 중 순위 최하위 nDrop개만 교체해 보유목록 확정(pbr_value_v1_dropout/selection.json, 무변경 재사용) → (2) 그 보유목록 중 MAX5가 그 달 적격 유니버스 내 상위 20%인 종목을 대체 없이 제외. 순서 고정 - MAX제외를 dropout보다 먼저 적용하면 dropout의 nDrop 예산 계산 자체가 달라진다(두 스크립트가 독립적으로 검증된 상태를 그대로 재사용하기 위해 순서를 이렇게 고정).",
+    "rebalanceFrequency": "monthly",
+    "minTurnover20": 100000000,
+    "minTurnoverNote": "절대 임계값. pbr_value_v1과 동일.",
+    "sourcePanel": "research/strategy-lab/reports/2026-08-21-a5-valuation-precheck/valuation-panel.jsonl",
+    "excludesMergerSpinoff": true
+  },
+
+  "signal": {
+    "expression": "pbr_value_v1_dropout이 만든 매달 보유목록에서, 그 달 적격 유니버스 내 MAX5 상위 20%에 속하는 종목을 대체 없이 제외 - build_selection_combined.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장",
+    "evaluatedAfter": "월별 리밸런싱일(data/backfill/calendar.json의 각 월 첫 거래일)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 달 리밸런싱일",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "pbr_value_v1과 완전 동일 - 가격 기반 stop/target 없는 순수 시간 청산.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "maxHoldingSessions": 21,
+    "maxHoldingSessionsNote": "다음 리밸런싱일이 없는 마지막 달에만 쓰는 폴백. pbr_value_v1과 동일.",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "pbr_value_v1과 동일 이유."
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "pbr_value_v1과 동일 - 다음 리밸런싱에도 selection.json에 남아있으면 청산-재진입 없이 계속 보유."
+  }
+}

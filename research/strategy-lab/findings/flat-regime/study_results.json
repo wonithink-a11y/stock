@@ -1,0 +1,102 @@
+{
+ "generatedAt": "2026-08-23T04:54:57",
+ "mode": "full",
+ "definitions": {
+  "regimes": "F1 absolute w30range thresholds; F2 cross-sectional date median; V trailing 20d mean|oc| below expanding median (shift1); combined = F1(2%)&V",
+  "volMetrics": "absRest=|close/p30-1|; pmRange=(pmHi-pmLo)/open over buckets after 09:30"
+ },
+ "results": {
+  "sample": {
+   "rows": 601359,
+   "days": 250
+  },
+  "regimes": {
+   "F1_range<=1%": {
+    "inRegime": {
+     "n": 55042,
+     "meanAbsRest": 0.008446,
+     "medianPmRange": 0.015228,
+     "meanAbsNextDay": 0.009061,
+     "reversion_Q5minusQ1_absExc": 0.000293
+    },
+    "outRegime": {
+     "n": 546317,
+     "meanAbsRest": 0.019982,
+     "medianPmRange": 0.033989,
+     "meanAbsNextDay": 0.027213,
+     "reversion_Q5minusQ1_absExc": 0.002811
+    },
+    "absRestDiff_t": -31.848704
+   },
+   "F1_range<=2%": {
+    "inRegime": {
+     "n": 213105,
+     "meanAbsRest": 0.011001,
+     "medianPmRange": 0.02002,
+     "meanAbsNextDay": 0.012528,
+     "reversion_Q5minusQ1_absExc": 0.000517
+    },
+    "outRegime": {
+     "n": 388254,
+     "meanAbsRest": 0.023276,
+     "medianPmRange": 0.040754,
+     "meanAbsNextDay": 0.0327,
+     "reversion_Q5minusQ1_absExc": 0.003837
+    },
+    "absRestDiff_t": -44.704997
+   },
+   "F2_belowDateMedian": {
+    "inRegime": {
+     "n": 300786,
+     "meanAbsRest": 0.013712,
+     "medianPmRange": 0.024241,
+     "meanAbsNextDay": 0.01616,
+     "reversion_Q5minusQ1_absExc": 0.000559
+    },
+    "outRegime": {
+     "n": 300573,
+     "meanAbsRest": 0.024143,
+     "medianPmRange": 0.041808,
+     "meanAbsNextDay": 0.03495,
+     "reversion_Q5minusQ1_absExc": 0.004885
+    },
+    "absRestDiff_t": -55.514898
+   },
+   "V_volLow20d": {
+    "inRegime": {
+     "n": 240949,
+     "meanAbsRest": 0.01298,
+     "medianPmRange": 0.023134,
+     "meanAbsNextDay": 0.017299,
+     "reversion_Q5minusQ1_absExc": 0.001399
+    },
+    "outRegime": {
+     "n": 360410,
+     "meanAbsRest": 0.022901,
+     "medianPmRange": 0.039548,
+     "meanAbsNextDay": 0.031069,
+     "reversion_Q5minusQ1_absExc": 0.003791
+    },
+    "absRestDiff_t": -43.331024
+   },
+   "F1xV_combined": {
+    "inRegime": {
+     "n": 134563,
+     "meanAbsRest": 0.009697,
+     "medianPmRange": 0.018041,
+     "meanAbsNextDay": 0.011283,
+     "reversion_Q5minusQ1_absExc": 0.000553
+    },
+    "outRegime": {
+     "n": 466796,
+     "meanAbsRest": 0.021586,
+     "medianPmRange": 0.037283,
+     "meanAbsNextDay": 0.029665,
+     "reversion_Q5minusQ1_absExc": 0.00339
+    },
+    "absRestDiff_t": -42.081988
+   }
+  }
+ },
+ "runtimeSec": 10.0
+}

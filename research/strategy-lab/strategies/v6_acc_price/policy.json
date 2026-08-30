@@ -1,0 +1,78 @@
+{
+  "strategyId": "v6_acc_price",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-22",
+  "note": "V6 외국인+기관 동시 순매수 + 매집가 +5% (video candidate). 횡단면 스크리닝 구조라 strategies/pbr_value_v1 패턴을 그대로 따른다: build_selection.py가 오프라인으로 (ticker, date) 선별(selection.json)을 만들고, rule.py는 조회만 한다. engine 코드는 건드리지 않는다. RiskSpec/executor/portfolio/cost 계약은 기존 동결 계약 그대로.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection.py만 읽는다 - engine/runner.py는 모른다(선별이 selection.json에 구워져 있으므로).",
+    "screen": "foreign_nb_5d > 0 AND inst_nb_5d > 0 AND close <= 1.05 * accPrice",
+    "accPriceDefinition": "직전 5거래일 외국인+기관 총매수금액 합 / 총매수수량 합 (pooled gross buy VWAP) - v6_acc_price_signal_study.py와 동일 정의",
+    "priceCap": "[OBSERVED] +5% 이내 = 상한만 적용(close <= 1.05*accPrice), 하한 없음 - 영상 명시 수치",
+    "dataSources": [
+      "research/strategy-lab/data/a4/a4-research-dataset.parquet (foreign_nb_5d, inst_nb_5d, close)",
+      "research/strategy-lab/.cache/v6_acc_price/{year}.parquet (원본 백필에서 추출한 외국인+기관 총매수 금액/수량)"
+    ],
+    "rebalanceFrequency": "daily-screen - 조건 충족일마다 신호. [OBSERVED]에 top-N 랭킹은 없으므로 상한은 포트폴리오 maxPositions가 담당한다"
+  },
+
+  "signal": {
+    "expression": "그날 위 screen을 통과한 (ticker, date) - build_selection.py가 오프라인 계산, selection.json 저장",
+    "evaluatedAfter": "t 종가 확정 후 (a4 수급·close·매집단가 모두 t 종가 시점 산출)"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "pbr_value_v1과 동일 - 가격 기반 stop/target이 없는 순수 시간 청산 전략. stop_distance·reward_risk를 도달 불가 값으로 채워 STOP/TARGET을 봉쇄하고 TIME_EXIT만 발생시킨다(executor의 삼분류 재사용, 새 청산 타입 없음).",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "maxHoldingSessions": 20,
+    "maxHoldingAssumption": "[ASSUMPTION] 영상에 보유기간이 없다. signal study의 T+20 비교 대상과 정렬하기 위한 고정값이며 성능 최적화로 고른 것이 아니다. generate_signals가 selection.json의 holdSessions(20 고정)를 features에 써 넣고 risk_spec_for가 읽는다(pbr_value_v1 방식).",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "maxPositionsAssumption": "[ASSUMPTION] pbr_value_v1 선례(maxPositions=선택 폭)를 따른 값 - [OBSERVED]에 슬롯 수는 없다",
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "A1A_A1B_MERGED universe with full A2a+A2b price coverage"
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - 조건 판정에 필요한 nb_5d/accPrice는 오프라인 selection.json에 이미 구워져 있다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "runner.py의 _merge_continuous_same_symbol_holds opt-in. 연속 보유 중 재발화된 갱신 신호(TIME_EXIT 청산 당일 재진입)가 overlap-avoidance에 버려지지 않고 원래 진입가로 병합된다 - STOP/TARGET은 절대 병합 안 함. V6는 레벨 스크린이라 갱신 빈도가 높아 이 옵션이 사실상 필수(PBR 사례에서 뒤늦게 발견된 항목)."
+  }
+}

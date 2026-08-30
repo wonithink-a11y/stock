@@ -1,0 +1,403 @@
+{
+  "generatedAt": "2026-08-22T23:06:48",
+  "purpose": "V6 엔진 연결 소표본 스모크 - 전체 실행 아님",
+  "assumptions": {
+    "holdSessions": "[ASSUMPTION] 고정 20세션 - 영상 미지정, study T+20 비교 정렬용",
+    "riskEnvelope": "[ASSUMPTION] stop 도달 불가(entry*100)+RR 1.0 - TIME_EXIT 전용(pbr 패턴)",
+    "maxPositions": "[ASSUMPTION] 30 - pbr 선례(선택 폭=슬롯 수) 따름",
+    "scheduling": "continuousHoldOnRenewal=true - 연속 보유 갱신 병합 opt-in",
+    "observedExitDeviation": "[OBSERVED]에 청산 규칙 없음 - 20세션 시간 청산이 유일한 청산"
+  },
+  "engine": {
+    "tickers": [
+      "0004V0",
+      "0017J0",
+      "002020",
+      "002320",
+      "002460",
+      "009160",
+      "009970",
+      "011390",
+      "013360",
+      "021650",
+      "029530",
+      "039490",
+      "047040",
+      "047810",
+      "049070",
+      "052300",
+      "055490",
+      "067920",
+      "069140",
+      "189330",
+      "192390",
+      "192440",
+      "220180",
+      "296640",
+      "353190",
+      "353200",
+      "377030",
+      "432430",
+      "435570",
+      "455900"
+    ],
+    "period": "2016-01-04~2026-08-03",
+    "diag": {
+      "tickersScanned": 30,
+      "suspensionRowsDropped": 37,
+      "signalCount": 10671,
+      "invalidSignalCount": 0,
+      "skippedSignalCount": 8931,
+      "skippedReasons": {
+        "ran_out_of_bars_before_exit_resolved": 125,
+        "no_bar_on_entry_date": 9,
+        "overlaps_open_position_same_symbol": 8797
+      },
+      "executableTradeCount": 10537,
+      "exitTypeCounts": {
+        "TIME_EXIT": 10537
+      },
+      "firstSignalDate": "2016-01-04",
+      "lastSignalDate": "2026-08-03",
+      "maxSimultaneousPositionsObserved": 25,
+      "continuousHoldsMergedCount": 382,
+      "openPositionCountAtEnd": 0
+    },
+    "tradeCount": 1358,
+    "grossReturnPerTrade": {
+      "mean": 0.007561,
+      "median": -0.016997,
+      "winRate": 0.4396
+    },
+    "holdingSessions": {
+      "mean": 36.32
+    },
+    "realizedPortfolioMetrics": {
+      "initialCapital": 100000000,
+      "finalEquity": 109560953.21149999,
+      "totalReturn": 0.09884532942769897,
+      "cagr": 0.009015485161698367,
+      "mdd": -0.18996009705938277,
+      "sharpe": 0.2642571200609355,
+      "sortino": 0.5687563644781025,
+      "calmar": 0.04745988921494427
+    },
+    "yearlyBreakdown": {
+      "2016": {
+        "count": 87,
+        "win": 35,
+        "loss": 52,
+        "grossWin": 8415999.825,
+        "grossLoss": -11012082.982,
+        "net": -2596083.156999999,
+        "winRate": 0.4023,
+        "pf": 0.7643
+      },
+      "2017": {
+        "count": 104,
+        "win": 36,
+        "loss": 68,
+        "grossWin": 8598672.517999997,
+        "grossLoss": -12728797.6915,
+        "net": -4130125.173500001,
+        "winRate": 0.3462,
+        "pf": 0.6755
+      },
+      "2018": {
+        "count": 111,
+        "win": 55,
+        "loss": 56,
+        "grossWin": 28066571.00599999,
+        "grossLoss": -11061957.623,
+        "net": 17004613.383,
+        "winRate": 0.4955,
+        "pf": 2.5372
+      },
+      "2019": {
+        "count": 116,
+        "win": 44,
+        "loss": 72,
+        "grossWin": 11114425.220000003,
+        "grossLoss": -18007463.5855,
+        "net": -6893038.365499996,
+        "winRate": 0.3793,
+        "pf": 0.6172
+      },
+      "2020": {
+        "count": 110,
+        "win": 51,
+        "loss": 59,
+        "grossWin": 14094895.041999996,
+        "grossLoss": -16636254.745000005,
+        "net": -2541359.703000002,
+        "winRate": 0.4636,
+        "pf": 0.8472
+      },
+      "2021": {
+        "count": 130,
+        "win": 59,
+        "loss": 71,
+        "grossWin": 29563659.726500012,
+        "grossLoss": -14153087.022500003,
+        "net": 15410572.704000004,
+        "winRate": 0.4538,
+        "pf": 2.0888
+      },
+      "2022": {
+        "count": 134,
+        "win": 56,
+        "loss": 78,
+        "grossWin": 16157996.449000003,
+        "grossLoss": -25104328.228499997,
+        "net": -8946331.7795,
+        "winRate": 0.4179,
+        "pf": 0.6436
+      },
+      "2023": {
+        "count": 144,
+        "win": 63,
+        "loss": 81,
+        "grossWin": 16106840.023499995,
+        "grossLoss": -18746772.1295,
+        "net": -2639932.106000004,
+        "winRate": 0.4375,
+        "pf": 0.8592
+      },
+      "2024": {
+        "count": 140,
+        "win": 48,
+        "loss": 92,
+        "grossWin": 10620913.509499999,
+        "grossLoss": -17379419.546,
+        "net": -6758506.0365,
+        "winRate": 0.3429,
+        "pf": 0.6111
+      },
+      "2025": {
+        "count": 173,
+        "win": 87,
+        "loss": 86,
+        "grossWin": 27121190.090999994,
+        "grossLoss": -16079283.298000004,
+        "net": 11041906.792999988,
+        "winRate": 0.5029,
+        "pf": 1.6867
+      },
+      "2026": {
+        "count": 109,
+        "win": 51,
+        "loss": 58,
+        "grossWin": 23525744.1695,
+        "grossLoss": -22916507.516999993,
+        "net": 609236.6525000024,
+        "winRate": 0.4679,
+        "pf": 1.0266
+      }
+    },
+    "traces": [
+      {
+        "symbol": "011390",
+        "signalDate": "2016-01-04",
+        "entryDate": "2016-01-05",
+        "entryPrice": 33000.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 3290000.0,
+        "stopPrice": -3257000.0,
+        "targetPrice": 3323000.0,
+        "exitDate": "2016-02-01",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 30150.0,
+        "shares": 100,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": -294472.5
+      },
+      {
+        "symbol": "013360",
+        "signalDate": "2016-01-04",
+        "entryDate": "2016-01-05",
+        "entryPrice": 1130.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 113500.0,
+        "stopPrice": -112370.0,
+        "targetPrice": 114630.0,
+        "exitDate": "2016-03-03",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 1215.0,
+        "shares": 2945,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": 239965.9624999999
+      },
+      {
+        "symbol": "049070",
+        "signalDate": "2016-01-05",
+        "entryDate": "2016-01-06",
+        "entryPrice": 10625.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 1045000.0,
+        "stopPrice": -1034375.0,
+        "targetPrice": 1055625.0,
+        "exitDate": "2016-03-04",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 9623.0,
+        "shares": 292,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": -301452.62399999984
+      },
+      {
+        "symbol": "067920",
+        "signalDate": "2016-01-05",
+        "entryDate": "2016-01-06",
+        "entryPrice": 3880.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 387500.0,
+        "stopPrice": -383620.0,
+        "targetPrice": 391380.0,
+        "exitDate": "2016-02-02",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 4085.0,
+        "shares": 800,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": 154442.0
+      },
+      {
+        "symbol": "009970",
+        "signalDate": "2016-01-06",
+        "entryDate": "2016-01-07",
+        "entryPrice": 65700.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 6680000.0,
+        "stopPrice": -6614300.0,
+        "targetPrice": 6745700.0,
+        "exitDate": "2016-02-03",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 66200.0,
+        "shares": 44,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": 13294.599999999627
+      },
+      {
+        "symbol": "002020",
+        "signalDate": "2016-01-06",
+        "entryDate": "2016-01-07",
+        "entryPrice": 79500.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 7880000.0,
+        "stopPrice": -7800500.0,
+        "targetPrice": 7959500.0,
+        "exitDate": "2016-02-03",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 70600.0,
+        "shares": 36,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": -328505.3999999999
+      },
+      {
+        "symbol": "021650",
+        "signalDate": "2016-01-07",
+        "entryDate": "2016-01-08",
+        "entryPrice": 3379.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 340200.0,
+        "stopPrice": -336821.0,
+        "targetPrice": 343579.0,
+        "exitDate": "2016-03-08",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 4888.0,
+        "shares": 801,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": 1198776.1995
+      },
+      {
+        "symbol": "009160",
+        "signalDate": "2016-01-18",
+        "entryDate": "2016-01-19",
+        "entryPrice": 5720.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 572000.0,
+        "stopPrice": -566280.0,
+        "targetPrice": 577720.0,
+        "exitDate": "2016-02-18",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 4995.0,
+        "shares": 457,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": -338670.13249999983
+      },
+      {
+        "symbol": "039490",
+        "signalDate": "2016-01-22",
+        "entryDate": "2016-01-25",
+        "entryPrice": 55000.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 5400000.0,
+        "stopPrice": -5345000.0,
+        "targetPrice": 5455000.0,
+        "exitDate": "2016-03-23",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 65100.0,
+        "shares": 46,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": 456313.1000000001
+      },
+      {
+        "symbol": "192390",
+        "signalDate": "2016-01-25",
+        "entryDate": "2016-01-26",
+        "entryPrice": 5890.0,
+        "atrAtSignal": 0.0,
+        "stopDistance": 585000.0,
+        "stopPrice": -579110.0,
+        "targetPrice": 590890.0,
+        "exitDate": "2016-02-25",
+        "exitType": "TIME_EXIT",
+        "exitPrice": 5230.0,
+        "shares": 415,
+        "entryCostBps": 15,
+        "exitCostBps": 15,
+        "pnl": -280822.1999999997
+      }
+    ]
+  },
+  "signalStudySameSubset": {
+    "signalRowsRaw": 10671,
+    "T+1": {
+      "n": 10662,
+      "mean": 0.001236,
+      "median": 0.0,
+      "winRate": 0.462
+    },
+    "T+5": {
+      "n": 10620,
+      "mean": 0.00359,
+      "median": -0.003037,
+      "winRate": 0.4645
+    },
+    "T+10": {
+      "n": 10598,
+      "mean": 0.007376,
+      "median": -0.005168,
+      "winRate": 0.4622
+    },
+    "T+20": {
+      "n": 10542,
+      "mean": 0.011001,
+      "median": -0.011719,
+      "winRate": 0.4458
+    }
+  },
+  "studyFullUniverseReference": {
+    "note": "v6_acc_price_signal_study.py 결과(findings/v6-accrual-price) - 초과수익 기준",
+    "T+20excessPerDateMatched": 0.00178,
+    "T+20absoluteMean": 0.00884,
+    "T+20winRate": 0.4583
+  }
+}

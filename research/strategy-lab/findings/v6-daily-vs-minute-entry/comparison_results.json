@@ -1,0 +1,1500 @@
+{
+  "generatedAt": "2026-08-23T02:47:33",
+  "context": "V6 일봉 close-to-close vs 분봉 익일 09:00~09:01 진입 비교 — signal study 근사(종가-종가)의 왜곡 측정. V6 적합성 검증 아님.",
+  "sampleLimitation": "분봉 미러는 2025-08-08~2026-08-21 252거래일뿐 — 전체 10년 기준 아님. 패널은 2026-08-03까지라 (a) 유효 구간은 사실상 ~2026-08-03.",
+  "window": {
+    "start": "2025-08-08",
+    "end": "2026-08-21"
+  },
+  "dataCoverage": {
+    "minuteDates": 252,
+    "minuteRange": [
+      "2025-08-08",
+      "2026-08-21"
+    ],
+    "minuteTickers": 2535,
+    "manifestHash": "unofficial-vm-mirror:a52aca6707fcddd2",
+    "panelEnd": "2026-08-03",
+    "mirrorOpeningHoleDates": [
+      "2025-11-13",
+      "2026-01-02"
+    ],
+    "fastPathVerification": [
+      {
+        "date": "2025-08-08",
+        "tickersProvider": 2382,
+        "tickersMatched": 2382,
+        "maxAbsDiffAvg": 0.0,
+        "maxAbsDiffVwap": 0.0
+      },
+      {
+        "date": "2025-12-12",
+        "tickersProvider": 2409,
+        "tickersMatched": 2409,
+        "maxAbsDiffAvg": 0.0,
+        "maxAbsDiffVwap": 0.0
+      },
+      {
+        "date": "2026-02-13",
+        "tickersProvider": 2448,
+        "tickersMatched": 2448,
+        "maxAbsDiffAvg": 0.0,
+        "maxAbsDiffVwap": 0.0
+      },
+      {
+        "date": "2026-04-20",
+        "tickersProvider": 2356,
+        "tickersMatched": 2356,
+        "maxAbsDiffAvg": 0.0,
+        "maxAbsDiffVwap": 0.0
+      },
+      {
+        "date": "2026-08-21",
+        "tickersProvider": 2328,
+        "tickersMatched": 2328,
+        "maxAbsDiffAvg": 0.0,
+        "maxAbsDiffVwap": 0.0
+      }
+    ]
+  },
+  "conventions": {
+    "aMethod": "t 종가 -> t+h째 패널 행 종가 (A2a adjusted, v5/v6 관례)",
+    "bMethod": "t+1거래일 09:00~09:01 분봉 raw close 등가중 평균 -> t+h+1거래일 같은 시각. 조정계수 K=패널close/당일 마지막봉 raw종가를 곱해 패널 adjusted 단위로 정렬(b_minuteOpenAdj) — 배당·분할이 홀딩 중에 있어도 (a)와 같은 총수익 관례로 비교 가능. K 미보정 raw 변형은 b_minuteOpenRaw_noEventFix(참고용).",
+    "unspecifiedProvisional": {
+      "openAvgDefinition": "ts가 09:00:00~09:01:00인 봉(희소, 보통 1~2개) close 등가중 평균",
+      "missingLegRule": "구간 내 봉이 없으면 NaN -> 해당 다리 탈락 (페어 표본 축소)",
+      "adjustFactorK": "K=패널 adjusted close / 분봉 마지막 봉 raw close (같은 날짜). 패널 종료 2026-08-03 이후는 종목별 마지막 K를 ffill — 그 구간의 신규 기업편입 이벤트는 반영 불가(데이터 한계).",
+      "overnightGapDiagnostic": "raw-to-raw로 재정의: t일 마지막 봉 종가 -> t+1 09:00~09:01 평균가. K가 t->t+1 사이 변한 종목(|dK/K|>=0.1%)는 제외해 조정 오염 차단.",
+      "benchMatching": "1차 비교는 pairedRows: (a-mirror bench) vs (b-minute bench)를 양쪽 모두 유효한 동일 신호 행에서 계산. benchA_mirror=미러종목 한정 패널 fwd 동일가중, benchB=신호일 패널 멤버 중 양다리 유효 종목 동일가중",
+      "aggregationNote": "stats_for 관례(v5/v6와 동일)는 날짜별 스프레드를 신호행 수로 가중 평균한다 — 명칭과 달리 날짜 동일가중이 아니나, (a)(b)가 같은 방식이라 비교(차이)에는 영향 없음"
+    },
+    "vwapSensitivity": "평균가 대신 봉 VWAP(close*volume, 조정 적용) 사용 변형"
+  },
+  "results": {
+    "reproCheckFullSample": {
+      "baseline_divBoth_noFilter": 1156228,
+      "v6_divBoth_plus5pctCap": 955832
+    },
+    "adjustFactorK_firstDate": {
+      "tickersWithFactor": 2513,
+      "shareKOff1_gt0pct5": 0.0096,
+      "quantiles": {
+        "0.01": 0.9993,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.99": 1.0
+      },
+      "min": 0.0578,
+      "max": 10.0
+    },
+    "baseline_divBoth_noFilter": {
+      "signalRowsWindowRaw": 132204,
+      "overnightGapRaw_kStable": {
+        "n": 124405,
+        "mean": 0.00171,
+        "0.1": -0.0169,
+        "0.25": -0.00614,
+        "0.5": 0.0,
+        "0.75": 0.0086,
+        "0.9": 0.0215
+      },
+      "T+1": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 131264,
+          "nDates": 238,
+          "avgPerDay": 551.5,
+          "mean": 0.00087,
+          "median": -0.00123,
+          "winRate": 0.4534,
+          "benchMean": 0.00039,
+          "excessPerDateMatched": 0.00048,
+          "yearly": {
+            "2025": {
+              "n": 51279,
+              "excessMean": 0.0005,
+              "sigMean": 0.00098
+            },
+            "2026": {
+              "n": 79985,
+              "excessMean": 0.00046,
+              "sigMean": 0.0008
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 131264,
+          "nDates": 238,
+          "avgPerDay": 551.5,
+          "mean": 0.00087,
+          "median": -0.00123,
+          "winRate": 0.4534,
+          "benchMean": 0.00039,
+          "excessPerDateMatched": 0.00048,
+          "yearly": {
+            "2025": {
+              "n": 51279,
+              "excessMean": 0.0005,
+              "sigMean": 0.00098
+            },
+            "2026": {
+              "n": 79985,
+              "excessMean": 0.00046,
+              "sigMean": 0.0008
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 125135,
+          "nDates": 235,
+          "avgPerDay": 532.5,
+          "mean": 0.00044,
+          "median": -0.00123,
+          "winRate": 0.4673,
+          "benchMean": 1e-05,
+          "excessPerDateMatched": 0.00043,
+          "yearly": {
+            "2025": {
+              "n": 48001,
+              "excessMean": 0.00046,
+              "sigMean": 0.00059
+            },
+            "2026": {
+              "n": 77134,
+              "excessMean": 0.00041,
+              "sigMean": 0.00035
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 125135,
+          "nDates": 235,
+          "avgPerDay": 532.5,
+          "mean": 0.0005,
+          "median": -0.00123,
+          "winRate": 0.4672,
+          "benchMean": 3e-05,
+          "excessPerDateMatched": 0.00047,
+          "yearly": {
+            "2025": {
+              "n": 48001,
+              "excessMean": 0.00053,
+              "sigMean": 0.00067
+            },
+            "2026": {
+              "n": 77134,
+              "excessMean": 0.00043,
+              "sigMean": 0.00039
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 125065,
+          "nDates": 235,
+          "avgPerDay": 532.2,
+          "mean": 0.00047,
+          "median": -0.00131,
+          "winRate": 0.4726,
+          "benchMean": 3e-05,
+          "excessPerDateMatched": 0.00043,
+          "yearly": {
+            "2025": {
+              "n": 47946,
+              "excessMean": 0.00047,
+              "sigMean": 0.00061
+            },
+            "2026": {
+              "n": 77119,
+              "excessMean": 0.00041,
+              "sigMean": 0.00038
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 124272,
+          "aMirrorBench": {
+            "n": 124272,
+            "nDates": 234,
+            "avgPerDay": 531.1,
+            "mean": 0.0002,
+            "median": -0.0014,
+            "winRate": 0.4502,
+            "benchMean": 0.00036,
+            "excessPerDateMatched": -0.00016,
+            "yearly": {
+              "2025": {
+                "n": 48001,
+                "excessMean": 0.0002,
+                "sigMean": 0.00039
+              },
+              "2026": {
+                "n": 76271,
+                "excessMean": -0.00038,
+                "sigMean": 8e-05
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 124272,
+            "nDates": 234,
+            "avgPerDay": 531.1,
+            "mean": 0.00019,
+            "median": -0.00142,
+            "winRate": 0.4642,
+            "benchMean": -0.00025,
+            "excessPerDateMatched": 0.00045,
+            "yearly": {
+              "2025": {
+                "n": 48001,
+                "excessMean": 0.00046,
+                "sigMean": 0.00059
+              },
+              "2026": {
+                "n": 76271,
+                "excessMean": 0.00044,
+                "sigMean": -6e-05
+              }
+            }
+          },
+          "corrAB": 0.7424,
+          "excessDiff_b_minus_aMirror": 0.00061
+        },
+        "excludedRowComposition": {
+          "nInvalid": 6992,
+          "shareLegOnHoleDate": 0.263,
+          "fwdMeanValid": 0.0002,
+          "fwdMeanInvalid": 0.01275
+        },
+        "coverageN": {
+          "raw": 132204,
+          "aValid": 131264,
+          "bValidAdj": 125135,
+          "paired": 124272
+        }
+      },
+      "T+5": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 128176,
+          "nDates": 234,
+          "avgPerDay": 547.8,
+          "mean": 0.00065,
+          "median": -0.0055,
+          "winRate": 0.447,
+          "benchMean": -0.00038,
+          "excessPerDateMatched": 0.00103,
+          "yearly": {
+            "2025": {
+              "n": 51277,
+              "excessMean": 0.00108,
+              "sigMean": 0.00409
+            },
+            "2026": {
+              "n": 76899,
+              "excessMean": 0.00101,
+              "sigMean": -0.00164
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 128176,
+          "nDates": 234,
+          "avgPerDay": 547.8,
+          "mean": 0.00065,
+          "median": -0.0055,
+          "winRate": 0.447,
+          "benchMean": -0.00038,
+          "excessPerDateMatched": 0.00103,
+          "yearly": {
+            "2025": {
+              "n": 51277,
+              "excessMean": 0.00108,
+              "sigMean": 0.00409
+            },
+            "2026": {
+              "n": 76899,
+              "excessMean": 0.00101,
+              "sigMean": -0.00164
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 124594,
+          "nDates": 235,
+          "avgPerDay": 530.2,
+          "mean": 0.00275,
+          "median": -0.00341,
+          "winRate": 0.469,
+          "benchMean": 0.00203,
+          "excessPerDateMatched": 0.00071,
+          "yearly": {
+            "2025": {
+              "n": 47866,
+              "excessMean": 0.0012,
+              "sigMean": 0.00417
+            },
+            "2026": {
+              "n": 76728,
+              "excessMean": 0.00041,
+              "sigMean": 0.00186
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 124594,
+          "nDates": 235,
+          "avgPerDay": 530.2,
+          "mean": 0.00295,
+          "median": -0.00341,
+          "winRate": 0.4689,
+          "benchMean": 0.00215,
+          "excessPerDateMatched": 0.0008,
+          "yearly": {
+            "2025": {
+              "n": 47866,
+              "excessMean": 0.00122,
+              "sigMean": 0.00425
+            },
+            "2026": {
+              "n": 76728,
+              "excessMean": 0.00054,
+              "sigMean": 0.00213
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 124519,
+          "nDates": 235,
+          "avgPerDay": 529.9,
+          "mean": 0.00279,
+          "median": -0.00339,
+          "winRate": 0.4714,
+          "benchMean": 0.00207,
+          "excessPerDateMatched": 0.00072,
+          "yearly": {
+            "2025": {
+              "n": 47812,
+              "excessMean": 0.00119,
+              "sigMean": 0.0042
+            },
+            "2026": {
+              "n": 76707,
+              "excessMean": 0.00043,
+              "sigMean": 0.00191
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 120985,
+          "aMirrorBench": {
+            "n": 120985,
+            "nDates": 230,
+            "avgPerDay": 526.0,
+            "mean": -5e-05,
+            "median": -0.00526,
+            "winRate": 0.4487,
+            "benchMean": 2e-05,
+            "excessPerDateMatched": -6e-05,
+            "yearly": {
+              "2025": {
+                "n": 47866,
+                "excessMean": 0.00044,
+                "sigMean": 0.00399
+              },
+              "2026": {
+                "n": 73119,
+                "excessMean": -0.00039,
+                "sigMean": -0.00269
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 120985,
+            "nDates": 230,
+            "avgPerDay": 526.0,
+            "mean": 8e-05,
+            "median": -0.00493,
+            "winRate": 0.4557,
+            "benchMean": -0.00107,
+            "excessPerDateMatched": 0.00115,
+            "yearly": {
+              "2025": {
+                "n": 47866,
+                "excessMean": 0.0012,
+                "sigMean": 0.00417
+              },
+              "2026": {
+                "n": 73119,
+                "excessMean": 0.00111,
+                "sigMean": -0.00259
+              }
+            }
+          },
+          "corrAB": 0.9494,
+          "excessDiff_b_minus_aMirror": 0.00121
+        },
+        "excludedRowComposition": {
+          "nInvalid": 7191,
+          "shareLegOnHoleDate": 0.2671,
+          "fwdMeanValid": -5e-05,
+          "fwdMeanInvalid": 0.01245
+        },
+        "coverageN": {
+          "raw": 132204,
+          "aValid": 128176,
+          "bValidAdj": 124594,
+          "paired": 120985
+        }
+      },
+      "T+10": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 125081,
+          "nDates": 229,
+          "avgPerDay": 546.2,
+          "mean": -0.00133,
+          "median": -0.0125,
+          "winRate": 0.4262,
+          "benchMean": -0.00192,
+          "excessPerDateMatched": 0.00059,
+          "yearly": {
+            "2025": {
+              "n": 51277,
+              "excessMean": 0.00075,
+              "sigMean": 0.00804
+            },
+            "2026": {
+              "n": 73804,
+              "excessMean": 0.00047,
+              "sigMean": -0.00784
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 125081,
+          "nDates": 229,
+          "avgPerDay": 546.2,
+          "mean": -0.00133,
+          "median": -0.0125,
+          "winRate": 0.4262,
+          "benchMean": -0.00192,
+          "excessPerDateMatched": 0.00059,
+          "yearly": {
+            "2025": {
+              "n": 51277,
+              "excessMean": 0.00075,
+              "sigMean": 0.00804
+            },
+            "2026": {
+              "n": 73804,
+              "excessMean": 0.00047,
+              "sigMean": -0.00784
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 124002,
+          "nDates": 235,
+          "avgPerDay": 527.7,
+          "mean": 0.0026,
+          "median": -0.0081,
+          "winRate": 0.4534,
+          "benchMean": 0.00221,
+          "excessPerDateMatched": 0.00039,
+          "yearly": {
+            "2025": {
+              "n": 47771,
+              "excessMean": 0.00097,
+              "sigMean": 0.00774
+            },
+            "2026": {
+              "n": 76231,
+              "excessMean": 3e-05,
+              "sigMean": -0.00062
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 124002,
+          "nDates": 235,
+          "avgPerDay": 527.7,
+          "mean": 0.00293,
+          "median": -0.00809,
+          "winRate": 0.4534,
+          "benchMean": 0.00245,
+          "excessPerDateMatched": 0.00048,
+          "yearly": {
+            "2025": {
+              "n": 47771,
+              "excessMean": 0.00115,
+              "sigMean": 0.00807
+            },
+            "2026": {
+              "n": 76231,
+              "excessMean": 7e-05,
+              "sigMean": -0.00029
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 123920,
+          "nDates": 235,
+          "avgPerDay": 527.3,
+          "mean": 0.00263,
+          "median": -0.00819,
+          "winRate": 0.4547,
+          "benchMean": 0.00225,
+          "excessPerDateMatched": 0.00038,
+          "yearly": {
+            "2025": {
+              "n": 47706,
+              "excessMean": 0.00095,
+              "sigMean": 0.00778
+            },
+            "2026": {
+              "n": 76214,
+              "excessMean": 2e-05,
+              "sigMean": -0.0006
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 117687,
+          "aMirrorBench": {
+            "n": 117687,
+            "nDates": 225,
+            "avgPerDay": 523.1,
+            "mean": -0.0021,
+            "median": -0.0122,
+            "winRate": 0.4285,
+            "benchMean": -0.00152,
+            "excessPerDateMatched": -0.00059,
+            "yearly": {
+              "2025": {
+                "n": 47771,
+                "excessMean": -0.00019,
+                "sigMean": 0.00777
+              },
+              "2026": {
+                "n": 69916,
+                "excessMean": -0.00085,
+                "sigMean": -0.00885
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 117687,
+            "nDates": 225,
+            "avgPerDay": 523.1,
+            "mean": -0.00213,
+            "median": -0.01163,
+            "winRate": 0.4337,
+            "benchMean": -0.00318,
+            "excessPerDateMatched": 0.00105,
+            "yearly": {
+              "2025": {
+                "n": 47771,
+                "excessMean": 0.00097,
+                "sigMean": 0.00774
+              },
+              "2026": {
+                "n": 69916,
+                "excessMean": 0.00111,
+                "sigMean": -0.00888
+              }
+            }
+          },
+          "corrAB": 0.9755,
+          "excessDiff_b_minus_aMirror": 0.00164
+        },
+        "excludedRowComposition": {
+          "nInvalid": 7394,
+          "shareLegOnHoleDate": 0.2625,
+          "fwdMeanValid": -0.0021,
+          "fwdMeanInvalid": 0.01096
+        },
+        "coverageN": {
+          "raw": 132204,
+          "aValid": 125081,
+          "bValidAdj": 124002,
+          "paired": 117687
+        }
+      },
+      "T+20": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 118110,
+          "nDates": 219,
+          "avgPerDay": 539.3,
+          "mean": -0.00052,
+          "median": -0.0222,
+          "winRate": 0.4147,
+          "benchMean": -0.00074,
+          "excessPerDateMatched": 0.00022,
+          "yearly": {
+            "2025": {
+              "n": 51274,
+              "excessMean": 0.00015,
+              "sigMean": 0.01994
+            },
+            "2026": {
+              "n": 66836,
+              "excessMean": 0.00028,
+              "sigMean": -0.01621
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 118110,
+          "nDates": 219,
+          "avgPerDay": 539.3,
+          "mean": -0.00052,
+          "median": -0.0222,
+          "winRate": 0.4147,
+          "benchMean": -0.00074,
+          "excessPerDateMatched": 0.00022,
+          "yearly": {
+            "2025": {
+              "n": 51274,
+              "excessMean": 0.00015,
+              "sigMean": 0.01994
+            },
+            "2026": {
+              "n": 66836,
+              "excessMean": 0.00028,
+              "sigMean": -0.01621
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 117824,
+          "nDates": 227,
+          "avgPerDay": 519.0,
+          "mean": 0.00295,
+          "median": -0.01677,
+          "winRate": 0.436,
+          "benchMean": 0.00162,
+          "excessPerDateMatched": 0.00133,
+          "yearly": {
+            "2025": {
+              "n": 47427,
+              "excessMean": 0.00071,
+              "sigMean": 0.01861
+            },
+            "2026": {
+              "n": 70397,
+              "excessMean": 0.00175,
+              "sigMean": -0.0076
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 117824,
+          "nDates": 227,
+          "avgPerDay": 519.0,
+          "mean": 0.00325,
+          "median": -0.01672,
+          "winRate": 0.4361,
+          "benchMean": 0.00193,
+          "excessPerDateMatched": 0.00132,
+          "yearly": {
+            "2025": {
+              "n": 47427,
+              "excessMean": 0.00089,
+              "sigMean": 0.01911
+            },
+            "2026": {
+              "n": 70397,
+              "excessMean": 0.00161,
+              "sigMean": -0.00743
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 117747,
+          "nDates": 227,
+          "avgPerDay": 518.7,
+          "mean": 0.003,
+          "median": -0.01678,
+          "winRate": 0.4369,
+          "benchMean": 0.00166,
+          "excessPerDateMatched": 0.00134,
+          "yearly": {
+            "2025": {
+              "n": 47363,
+              "excessMean": 0.0007,
+              "sigMean": 0.0187
+            },
+            "2026": {
+              "n": 70384,
+              "excessMean": 0.00177,
+              "sigMean": -0.00757
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 110583,
+          "aMirrorBench": {
+            "n": 110583,
+            "nDates": 215,
+            "avgPerDay": 514.3,
+            "mean": -0.00138,
+            "median": -0.02212,
+            "winRate": 0.4159,
+            "benchMean": -0.00082,
+            "excessPerDateMatched": -0.00055,
+            "yearly": {
+              "2025": {
+                "n": 47427,
+                "excessMean": -0.00119,
+                "sigMean": 0.01823
+              },
+              "2026": {
+                "n": 63156,
+                "excessMean": -8e-05,
+                "sigMean": -0.0161
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 110583,
+            "nDates": 215,
+            "avgPerDay": 514.3,
+            "mean": -0.00083,
+            "median": -0.02139,
+            "winRate": 0.4186,
+            "benchMean": -0.00201,
+            "excessPerDateMatched": 0.00117,
+            "yearly": {
+              "2025": {
+                "n": 47427,
+                "excessMean": 0.00071,
+                "sigMean": 0.01861
+              },
+              "2026": {
+                "n": 63156,
+                "excessMean": 0.00152,
+                "sigMean": -0.01543
+              }
+            }
+          },
+          "corrAB": 0.985,
+          "excessDiff_b_minus_aMirror": 0.00172
+        },
+        "excludedRowComposition": {
+          "nInvalid": 7527,
+          "shareLegOnHoleDate": 0.3045,
+          "fwdMeanValid": -0.00138,
+          "fwdMeanInvalid": 0.01207
+        },
+        "coverageN": {
+          "raw": 132204,
+          "aValid": 118110,
+          "bValidAdj": 117824,
+          "paired": 110583
+        }
+      }
+    },
+    "v6_divBoth_plus5pctCap": {
+      "signalRowsWindowRaw": 114413,
+      "overnightGapRaw_kStable": {
+        "n": 107927,
+        "mean": 0.00185,
+        "0.1": -0.01568,
+        "0.25": -0.00569,
+        "0.5": 0.0,
+        "0.75": 0.00847,
+        "0.9": 0.02097
+      },
+      "T+1": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 113819,
+          "nDates": 238,
+          "avgPerDay": 478.2,
+          "mean": 0.00095,
+          "median": -0.00104,
+          "winRate": 0.4567,
+          "benchMean": 0.00044,
+          "excessPerDateMatched": 0.00052,
+          "yearly": {
+            "2025": {
+              "n": 44958,
+              "excessMean": 0.00045,
+              "sigMean": 0.00094
+            },
+            "2026": {
+              "n": 68861,
+              "excessMean": 0.00056,
+              "sigMean": 0.00096
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 113819,
+          "nDates": 238,
+          "avgPerDay": 478.2,
+          "mean": 0.00095,
+          "median": -0.00104,
+          "winRate": 0.4567,
+          "benchMean": 0.00044,
+          "excessPerDateMatched": 0.00052,
+          "yearly": {
+            "2025": {
+              "n": 44958,
+              "excessMean": 0.00045,
+              "sigMean": 0.00094
+            },
+            "2026": {
+              "n": 68861,
+              "excessMean": 0.00056,
+              "sigMean": 0.00096
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 108451,
+          "nDates": 235,
+          "avgPerDay": 461.5,
+          "mean": 0.0005,
+          "median": -0.00108,
+          "winRate": 0.4698,
+          "benchMean": -5e-05,
+          "excessPerDateMatched": 0.00055,
+          "yearly": {
+            "2025": {
+              "n": 42098,
+              "excessMean": 0.00048,
+              "sigMean": 0.00061
+            },
+            "2026": {
+              "n": 66353,
+              "excessMean": 0.00059,
+              "sigMean": 0.00043
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 108451,
+          "nDates": 235,
+          "avgPerDay": 461.5,
+          "mean": 0.00053,
+          "median": -0.00108,
+          "winRate": 0.4697,
+          "benchMean": -3e-05,
+          "excessPerDateMatched": 0.00056,
+          "yearly": {
+            "2025": {
+              "n": 42098,
+              "excessMean": 0.00056,
+              "sigMean": 0.00071
+            },
+            "2026": {
+              "n": 66353,
+              "excessMean": 0.00056,
+              "sigMean": 0.00042
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 108439,
+          "nDates": 235,
+          "avgPerDay": 461.4,
+          "mean": 0.00052,
+          "median": -0.00114,
+          "winRate": 0.4752,
+          "benchMean": -3e-05,
+          "excessPerDateMatched": 0.00055,
+          "yearly": {
+            "2025": {
+              "n": 42088,
+              "excessMean": 0.00049,
+              "sigMean": 0.00064
+            },
+            "2026": {
+              "n": 66351,
+              "excessMean": 0.00058,
+              "sigMean": 0.00044
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 107914,
+          "aMirrorBench": {
+            "n": 107914,
+            "nDates": 234,
+            "avgPerDay": 461.2,
+            "mean": 0.00052,
+            "median": -0.00118,
+            "winRate": 0.4543,
+            "benchMean": 0.00042,
+            "excessPerDateMatched": 0.00011,
+            "yearly": {
+              "2025": {
+                "n": 42098,
+                "excessMean": 0.00028,
+                "sigMean": 0.00048
+              },
+              "2026": {
+                "n": 65816,
+                "excessMean": -1e-05,
+                "sigMean": 0.00055
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 107914,
+            "nDates": 234,
+            "avgPerDay": 461.2,
+            "mean": 0.00036,
+            "median": -0.00117,
+            "winRate": 0.4677,
+            "benchMean": -0.00024,
+            "excessPerDateMatched": 0.0006,
+            "yearly": {
+              "2025": {
+                "n": 42098,
+                "excessMean": 0.00048,
+                "sigMean": 0.00061
+              },
+              "2026": {
+                "n": 65816,
+                "excessMean": 0.00068,
+                "sigMean": 0.0002
+              }
+            }
+          },
+          "corrAB": 0.7321,
+          "excessDiff_b_minus_aMirror": 0.00049
+        },
+        "excludedRowComposition": {
+          "nInvalid": 5905,
+          "shareLegOnHoleDate": 0.2679,
+          "fwdMeanValid": 0.00052,
+          "fwdMeanInvalid": 0.00883
+        },
+        "coverageN": {
+          "raw": 114413,
+          "aValid": 113819,
+          "bValidAdj": 108451,
+          "paired": 107914
+        }
+      },
+      "T+5": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 110971,
+          "nDates": 234,
+          "avgPerDay": 474.2,
+          "mean": 0.0014,
+          "median": -0.0046,
+          "winRate": 0.4526,
+          "benchMean": -0.00033,
+          "excessPerDateMatched": 0.00173,
+          "yearly": {
+            "2025": {
+              "n": 44956,
+              "excessMean": 0.00105,
+              "sigMean": 0.00411
+            },
+            "2026": {
+              "n": 66015,
+              "excessMean": 0.00219,
+              "sigMean": -0.00045
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 110971,
+          "nDates": 234,
+          "avgPerDay": 474.2,
+          "mean": 0.0014,
+          "median": -0.0046,
+          "winRate": 0.4526,
+          "benchMean": -0.00033,
+          "excessPerDateMatched": 0.00173,
+          "yearly": {
+            "2025": {
+              "n": 44956,
+              "excessMean": 0.00105,
+              "sigMean": 0.00411
+            },
+            "2026": {
+              "n": 66015,
+              "excessMean": 0.00219,
+              "sigMean": -0.00045
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 108195,
+          "nDates": 235,
+          "avgPerDay": 460.4,
+          "mean": 0.00316,
+          "median": -0.00268,
+          "winRate": 0.4736,
+          "benchMean": 0.00216,
+          "excessPerDateMatched": 0.00101,
+          "yearly": {
+            "2025": {
+              "n": 41986,
+              "excessMean": 0.00133,
+              "sigMean": 0.00434
+            },
+            "2026": {
+              "n": 66209,
+              "excessMean": 0.0008,
+              "sigMean": 0.00242
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 108195,
+          "nDates": 235,
+          "avgPerDay": 460.4,
+          "mean": 0.00336,
+          "median": -0.00268,
+          "winRate": 0.4735,
+          "benchMean": 0.00227,
+          "excessPerDateMatched": 0.0011,
+          "yearly": {
+            "2025": {
+              "n": 41986,
+              "excessMean": 0.00137,
+              "sigMean": 0.00444
+            },
+            "2026": {
+              "n": 66209,
+              "excessMean": 0.00093,
+              "sigMean": 0.00268
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 108182,
+          "nDates": 235,
+          "avgPerDay": 460.3,
+          "mean": 0.00319,
+          "median": -0.00269,
+          "winRate": 0.4758,
+          "benchMean": 0.00219,
+          "excessPerDateMatched": 0.001,
+          "yearly": {
+            "2025": {
+              "n": 41976,
+              "excessMean": 0.00132,
+              "sigMean": 0.00436
+            },
+            "2026": {
+              "n": 66206,
+              "excessMean": 0.0008,
+              "sigMean": 0.00244
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 105133,
+          "aMirrorBench": {
+            "n": 105133,
+            "nDates": 230,
+            "avgPerDay": 457.1,
+            "mean": 0.00068,
+            "median": -0.00445,
+            "winRate": 0.4541,
+            "benchMean": 0.0001,
+            "excessPerDateMatched": 0.00057,
+            "yearly": {
+              "2025": {
+                "n": 41986,
+                "excessMean": 0.0007,
+                "sigMean": 0.00428
+              },
+              "2026": {
+                "n": 63147,
+                "excessMean": 0.00049,
+                "sigMean": -0.00172
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 105133,
+            "nDates": 230,
+            "avgPerDay": 457.1,
+            "mean": 0.00068,
+            "median": -0.00417,
+            "winRate": 0.4608,
+            "benchMean": -0.00094,
+            "excessPerDateMatched": 0.00163,
+            "yearly": {
+              "2025": {
+                "n": 41986,
+                "excessMean": 0.00133,
+                "sigMean": 0.00434
+              },
+              "2026": {
+                "n": 63147,
+                "excessMean": 0.00182,
+                "sigMean": -0.00175
+              }
+            }
+          },
+          "corrAB": 0.9488,
+          "excessDiff_b_minus_aMirror": 0.00106
+        },
+        "excludedRowComposition": {
+          "nInvalid": 5838,
+          "shareLegOnHoleDate": 0.2838,
+          "fwdMeanValid": 0.00068,
+          "fwdMeanInvalid": 0.01437
+        },
+        "coverageN": {
+          "raw": 114413,
+          "aValid": 110971,
+          "bValidAdj": 108195,
+          "paired": 105133
+        }
+      },
+      "T+10": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 108136,
+          "nDates": 229,
+          "avgPerDay": 472.2,
+          "mean": -0.00041,
+          "median": -0.01114,
+          "winRate": 0.4315,
+          "benchMean": -0.00222,
+          "excessPerDateMatched": 0.0018,
+          "yearly": {
+            "2025": {
+              "n": 44956,
+              "excessMean": 0.0009,
+              "sigMean": 0.0084
+            },
+            "2026": {
+              "n": 63180,
+              "excessMean": 0.00245,
+              "sigMean": -0.00668
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 108136,
+          "nDates": 229,
+          "avgPerDay": 472.2,
+          "mean": -0.00041,
+          "median": -0.01114,
+          "winRate": 0.4315,
+          "benchMean": -0.00222,
+          "excessPerDateMatched": 0.0018,
+          "yearly": {
+            "2025": {
+              "n": 44956,
+              "excessMean": 0.0009,
+              "sigMean": 0.0084
+            },
+            "2026": {
+              "n": 63180,
+              "excessMean": 0.00245,
+              "sigMean": -0.00668
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 107896,
+          "nDates": 235,
+          "avgPerDay": 459.1,
+          "mean": 0.0029,
+          "median": -0.00718,
+          "winRate": 0.4577,
+          "benchMean": 0.00223,
+          "excessPerDateMatched": 0.00067,
+          "yearly": {
+            "2025": {
+              "n": 41925,
+              "excessMean": 0.0012,
+              "sigMean": 0.00818
+            },
+            "2026": {
+              "n": 65971,
+              "excessMean": 0.00034,
+              "sigMean": -0.00046
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 107896,
+          "nDates": 235,
+          "avgPerDay": 459.1,
+          "mean": 0.00323,
+          "median": -0.00716,
+          "winRate": 0.4578,
+          "benchMean": 0.00246,
+          "excessPerDateMatched": 0.00077,
+          "yearly": {
+            "2025": {
+              "n": 41925,
+              "excessMean": 0.00144,
+              "sigMean": 0.00855
+            },
+            "2026": {
+              "n": 65971,
+              "excessMean": 0.00034,
+              "sigMean": -0.00016
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 107888,
+          "nDates": 235,
+          "avgPerDay": 459.1,
+          "mean": 0.00291,
+          "median": -0.00716,
+          "winRate": 0.4588,
+          "benchMean": 0.00227,
+          "excessPerDateMatched": 0.00064,
+          "yearly": {
+            "2025": {
+              "n": 41918,
+              "excessMean": 0.00118,
+              "sigMean": 0.00821
+            },
+            "2026": {
+              "n": 65970,
+              "excessMean": 0.00029,
+              "sigMean": -0.00046
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 102334,
+          "aMirrorBench": {
+            "n": 102334,
+            "nDates": 225,
+            "avgPerDay": 454.8,
+            "mean": -0.0016,
+            "median": -0.01108,
+            "winRate": 0.4328,
+            "benchMean": -0.00169,
+            "excessPerDateMatched": 0.0001,
+            "yearly": {
+              "2025": {
+                "n": 41925,
+                "excessMean": 0.00018,
+                "sigMean": 0.00835
+              },
+              "2026": {
+                "n": 60409,
+                "excessMean": 4e-05,
+                "sigMean": -0.00849
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 102334,
+            "nDates": 225,
+            "avgPerDay": 454.8,
+            "mean": -0.00182,
+            "median": -0.01055,
+            "winRate": 0.4377,
+            "benchMean": -0.00338,
+            "excessPerDateMatched": 0.00156,
+            "yearly": {
+              "2025": {
+                "n": 41925,
+                "excessMean": 0.0012,
+                "sigMean": 0.00818
+              },
+              "2026": {
+                "n": 60409,
+                "excessMean": 0.00181,
+                "sigMean": -0.00876
+              }
+            }
+          },
+          "corrAB": 0.9751,
+          "excessDiff_b_minus_aMirror": 0.00146
+        },
+        "excludedRowComposition": {
+          "nInvalid": 5802,
+          "shareLegOnHoleDate": 0.2877,
+          "fwdMeanValid": -0.0016,
+          "fwdMeanInvalid": 0.02045
+        },
+        "coverageN": {
+          "raw": 114413,
+          "aValid": 108136,
+          "bValidAdj": 107896,
+          "paired": 102334
+        }
+      },
+      "T+20": {
+        "a_dailyCloseToClose_nativeBench": {
+          "n": 101557,
+          "nDates": 219,
+          "avgPerDay": 463.7,
+          "mean": 0.00222,
+          "median": -0.019,
+          "winRate": 0.4232,
+          "benchMean": -0.00079,
+          "excessPerDateMatched": 0.00301,
+          "yearly": {
+            "2025": {
+              "n": 44953,
+              "excessMean": 0.00145,
+              "sigMean": 0.02165
+            },
+            "2026": {
+              "n": 56604,
+              "excessMean": 0.00425,
+              "sigMean": -0.01321
+            }
+          }
+        },
+        "a_dailyCloseToClose_mirrorBench": {
+          "n": 101557,
+          "nDates": 219,
+          "avgPerDay": 463.7,
+          "mean": 0.00222,
+          "median": -0.019,
+          "winRate": 0.4232,
+          "benchMean": -0.00079,
+          "excessPerDateMatched": 0.00301,
+          "yearly": {
+            "2025": {
+              "n": 44953,
+              "excessMean": 0.00145,
+              "sigMean": 0.02165
+            },
+            "2026": {
+              "n": 56604,
+              "excessMean": 0.00425,
+              "sigMean": -0.01321
+            }
+          }
+        },
+        "b_minuteOpenAdj": {
+          "n": 102891,
+          "nDates": 227,
+          "avgPerDay": 453.3,
+          "mean": 0.00448,
+          "median": -0.0142,
+          "winRate": 0.4438,
+          "benchMean": 0.00204,
+          "excessPerDateMatched": 0.00244,
+          "yearly": {
+            "2025": {
+              "n": 41698,
+              "excessMean": 0.00179,
+              "sigMean": 0.02014
+            },
+            "2026": {
+              "n": 61193,
+              "excessMean": 0.00288,
+              "sigMean": -0.00619
+            }
+          }
+        },
+        "b_minuteOpenRaw_noEventFix": {
+          "n": 102891,
+          "nDates": 227,
+          "avgPerDay": 453.3,
+          "mean": 0.00477,
+          "median": -0.01415,
+          "winRate": 0.4439,
+          "benchMean": 0.00235,
+          "excessPerDateMatched": 0.00242,
+          "yearly": {
+            "2025": {
+              "n": 41698,
+              "excessMean": 0.00205,
+              "sigMean": 0.0207
+            },
+            "2026": {
+              "n": 61193,
+              "excessMean": 0.00268,
+              "sigMean": -0.00608
+            }
+          }
+        },
+        "b_minuteVwapAdjSensitivity": {
+          "n": 102882,
+          "nDates": 227,
+          "avgPerDay": 453.2,
+          "mean": 0.00449,
+          "median": -0.01419,
+          "winRate": 0.4447,
+          "benchMean": 0.00209,
+          "excessPerDateMatched": 0.0024,
+          "yearly": {
+            "2025": {
+              "n": 41689,
+              "excessMean": 0.00174,
+              "sigMean": 0.02018
+            },
+            "2026": {
+              "n": 61193,
+              "excessMean": 0.00285,
+              "sigMean": -0.0062
+            }
+          }
+        },
+        "pairedRows": {
+          "n": 95977,
+          "aMirrorBench": {
+            "n": 95977,
+            "nDates": 215,
+            "avgPerDay": 446.4,
+            "mean": 0.00022,
+            "median": -0.01953,
+            "winRate": 0.4225,
+            "benchMean": -0.00066,
+            "excessPerDateMatched": 0.00088,
+            "yearly": {
+              "2025": {
+                "n": 41698,
+                "excessMean": -1e-05,
+                "sigMean": 0.01986
+              },
+              "2026": {
+                "n": 54279,
+                "excessMean": 0.00157,
+                "sigMean": -0.01487
+              }
+            }
+          },
+          "bMinuteAdj": {
+            "n": 95977,
+            "nDates": 215,
+            "avgPerDay": 446.4,
+            "mean": 0.00031,
+            "median": -0.01915,
+            "winRate": 0.4247,
+            "benchMean": -0.00195,
+            "excessPerDateMatched": 0.00226,
+            "yearly": {
+              "2025": {
+                "n": 41698,
+                "excessMean": 0.00179,
+                "sigMean": 0.02014
+              },
+              "2026": {
+                "n": 54279,
+                "excessMean": 0.00262,
+                "sigMean": -0.01493
+              }
+            }
+          },
+          "corrAB": 0.9868,
+          "excessDiff_b_minus_aMirror": 0.00138
+        },
+        "excludedRowComposition": {
+          "nInvalid": 5580,
+          "shareLegOnHoleDate": 0.3443,
+          "fwdMeanValid": 0.00022,
+          "fwdMeanInvalid": 0.03667
+        },
+        "coverageN": {
+          "raw": 114413,
+          "aValid": 101557,
+          "bValidAdj": 102891,
+          "paired": 95977
+        }
+      }
+    }
+  }
+}

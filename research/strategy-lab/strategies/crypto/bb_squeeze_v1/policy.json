@@ -1,0 +1,55 @@
+{
+  "strategyId": "crypto_bb_squeeze_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-28",
+  "note": "Bollinger Squeeze -> Breakout (community/GitHub concept, Strategy 1). Squeeze = BBWidth <= 20th pctile of trailing 100 bars; breakout = fresh close cross above upper band. Baseline params only, no optimization. Exit reuses existing lab ATR risk management (2x ATR(14) stop, 3.0 RR, 60-bar time exit).",
+
+  "direction": "LONG_ONLY",
+
+  "params": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "squeeze_lookback": 100,
+    "squeeze_pct": 0.20,
+    "atr_period": 14,
+    "atr_mult": 2.0,
+    "reward_risk": 3.0,
+    "max_holding": 60
+  },
+
+  "signal": {
+    "expression": "squeeze(t) AND (close[t] > upper[t] AND close[t-1] <= upper[t-1])",
+    "evaluatedAfter": "bar close confirmed"
+  },
+
+  "entry": { "timing": "next_bar_open" },
+
+  "risk": {
+    "atrReferenceDate": "t (signal bar)",
+    "stopDistanceFormula": "2 * ATR(14)[t]",
+    "targetFormula": "entry_price + 3 * stop_distance",
+    "maxHoldingBars": 60
+  },
+
+  "cost": { "entryCostBps": 5, "exitCostBps": 5, "roundTripBps": 10, "slippageBps": 5 },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 5,
+    "equalWeight": true,
+    "fractionalShares": true,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "CRYPTO_FIXED",
+    "symbols": ["KRW-BTC", "KRW-ETH", "KRW-SOL", "KRW-XRP", "KRW-ADA", "KRW-DOGE", "KRW-DOT"]
+  },
+
+  "sources": [
+    "John Bollinger, 'Bollinger on Bollinger Bands' (2002) - BBWidth squeeze/expansion",
+    "Community: freqtrade 'BollingerSqueeze' / TradingView BB Squeeze scripts (public descriptions)"
+  ]
+}

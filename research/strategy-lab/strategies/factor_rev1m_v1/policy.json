@@ -1,0 +1,56 @@
+{
+  "strategyId": "factor_rev1m_v1",
+  "version": "1.0",
+  "note": "Single-factor backtest for rev1m - bottom decile",
+  "direction": "LONG_ONLY",
+  "factor": {
+    "name": "rev1m",
+    "direction": "low",
+    "rebalanceFrequency": "monthly",
+    "decile": "Q1",
+    "sourcePanel": "A4 + valuation-panel + quality-panel + A3/A3b/A3c (PIT)",
+    "universe": "A1A_ONLY",
+    "liquidityGate": "dv20 >= 1e8 KRW (20d mean trading value)"
+  },
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+  "risk": {
+    "note": "No price-based stop/target - pure time exit",
+    "stopDistanceFormula": "entry_price * 100",
+    "rewardRisk": 1.0,
+    "maxHoldingSessions": 21,
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N = holdSessions for that signal"
+  },
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+  "scheduling": {
+    "continuousHoldOnRenewal": true,
+    "note": "Continuous hold on renewal - same thesis continuing"
+  },
+  "warmup": {
+    "note": "Factor values from monthly panel - no technical warmup"
+  }
+}

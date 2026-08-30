@@ -1,0 +1,71 @@
+{
+  "strategyId": "macd_kr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-29",
+  "note": "MACD-KR-V1 baseline (STEP 2). MACD(12,26,9) crossover, Long only. Exit = bearish crossover at next open (NOT the static stop/target/time executor contract). Because the crossover exit is not expressible in engine/execution/executor.py's fixed 3-type (STOP/TARGET/TIME_EXIT) contract, this strategy is driven by a dedicated research driver (run_macd_kr_v1_smoke.py) that reuses the engine DATA layer (A2aProvider/UniverseProvider/calendar/_drop_suspension_rows), the engine PORTFOLIO accounting contract (engine.portfolio.Portfolio), CostModel, and engine.metrics - it does NOT reuse engine.executor.simulate_trade (see engine limitations, STEP-1 report §2.8).",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "macd": { "fast": 12, "slow": 26, "signal": 9, "emaMethod": "ewm_span_adjust_false" }
+  },
+
+  "signal": {
+    "entry": "MACD Line crosses ABOVE Signal Line (hist: - -> +)",
+    "exit": "MACD Line crosses BELOW Signal Line (hist: + -> -)",
+    "evaluatedAt": "t close",
+    "noPyramiding": true,
+    "noShort": true,
+    "noLeverage": true
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "exit": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "exitDateField": "next_session(t)",
+    "exitPriceField": "Open[exit_date]",
+    "note": "Bearish-cross exit is a dynamic (state-machine) exit, NOT a static stop/target/time. Implemented in the research driver, not engine.executor."
+  },
+
+  "pit": {
+    "listingDateGate": "required",
+    "rule": "no signal on/before ticker's A1a listedAt. Gateway applied at the signal date t: t < listedAt -> signal discarded. Entry is at next_session(t) so it is necessarily after listedAt.",
+    "source": "data/backfill/universe/a1a/current.jsonl listedAt"
+  },
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+
+  "period": {
+    "rawDataStart": "2014-05-13",
+    "performanceStart": "2016-01-01",
+    "end": "2026-08-03",
+    "note": "EMA warm-up uses pre-2016 bars; only trades with signal_date >= performanceStart are generated/measured."
+  }
+}

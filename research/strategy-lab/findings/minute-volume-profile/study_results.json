@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-08-23T01:42:18",
+  "purpose": "인프라 진단 - 시간대별 거래량 점유율 x 규모 tercile (숫자만 보고)",
+  "dataSources": [
+    "engine/data/minuteProvider.py 미러 .cache/minute_raw"
+  ],
+  "definitions": {
+    "segments": "S1=09:00-09:59 / S2=10:00-13:59 / S3=14:00-15:30 (봉 타임스탬프 기준)",
+    "sizeTercile": "같은 날 당일 거래대금 프록시 sum(close*volume) 순위 3분위",
+    "aggregation": "날짜 동일가중 평균/중앙값"
+  },
+  "diagnostics": {
+    "days": 252,
+    "avgTickersPerDay": 2464.2
+  },
+  "results": {
+    "전체": {
+      "tickerDays": 620975,
+      "meanSharePct": {
+        "S1": 29.29,
+        "S2": 48.97,
+        "S3": 21.74
+      },
+      "medianSharePct": {
+        "S1": 28.02,
+        "S2": 48.37,
+        "S3": 19.35
+      }
+    },
+    "하위(소형)": {
+      "tickerDays": 206908,
+      "meanSharePct": {
+        "S1": 27.13,
+        "S2": 50.23,
+        "S3": 22.64
+      },
+      "medianSharePct": {
+        "S1": 25.28,
+        "S2": 50.3,
+        "S3": 19.54
+      }
+    },
+    "중위": {
+      "tickerDays": 206989,
+      "meanSharePct": {
+        "S1": 29.33,
+        "S2": 49.56,
+        "S3": 21.11
+      },
+      "medianSharePct": {
+        "S1": 28.35,
+        "S2": 49.2,
+        "S3": 18.93
+      }
+    },
+    "상위(대형)": {
+      "tickerDays": 207078,
+      "meanSharePct": {
+        "S1": 31.4,
+        "S2": 47.12,
+        "S3": 21.48
+      },
+      "medianSharePct": {
+        "S1": 30.01,
+        "S2": 46.44,
+        "S3": 19.6
+      }
+    }
+  }
+}

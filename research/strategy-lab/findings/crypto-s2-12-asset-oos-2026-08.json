@@ -1,0 +1,970 @@
+{
+ "strategy": "bb_squeeze_vol_v1",
+ "universe": {
+  "CORE7": [
+   "KRW-BTC",
+   "KRW-ETH",
+   "KRW-SOL",
+   "KRW-XRP",
+   "KRW-ADA",
+   "KRW-DOGE",
+   "KRW-DOT"
+  ],
+  "ADD5": [
+   "KRW-ARB",
+   "KRW-ATOM",
+   "KRW-AVAX",
+   "KRW-LINK",
+   "KRW-NEAR"
+  ],
+  "ALL12": [
+   "KRW-BTC",
+   "KRW-ETH",
+   "KRW-SOL",
+   "KRW-XRP",
+   "KRW-ADA",
+   "KRW-DOGE",
+   "KRW-DOT",
+   "KRW-ARB",
+   "KRW-ATOM",
+   "KRW-AVAX",
+   "KRW-LINK",
+   "KRW-NEAR"
+  ]
+ },
+ "splits": {
+  "FULL": [
+   "2023-05-21 00:00:00",
+   "2026-08-27 00:00:00"
+  ],
+  "TRAIN": [
+   "2023-05-21 00:00:00",
+   "2025-05-06 00:00:00"
+  ],
+  "VALID": [
+   "2025-05-07 00:00:00",
+   "2025-11-01 00:00:00"
+  ],
+  "TEST": [
+   "2025-11-02 00:00:00",
+   "2026-08-27 00:00:00"
+  ]
+ },
+ "periods": {
+  "CORE7": {
+   "FULL": {
+    "metrics": {
+     "cagr": 0.05476568551161276,
+     "maxDrawdown": -0.1377539168430214,
+     "sharpe_ann": 0.7312791100217721,
+     "calmar": 0.39756173012504203,
+     "totalReturn": 0.19041063167113892,
+     "winRate": 0.5,
+     "profitFactor": 2.03304888101391,
+     "tradeCount": 20
+    }
+   },
+   "TRAIN": {
+    "metrics": {
+     "cagr": 0.0670960168502408,
+     "maxDrawdown": -0.02662297982588928,
+     "sharpe_ann": 1.4135323955292733,
+     "calmar": 2.5202294141767663,
+     "totalReturn": 0.13576204565778438,
+     "winRate": 0.625,
+     "profitFactor": 3.855220692806492,
+     "tradeCount": 8
+    }
+   },
+   "VALID": {
+    "metrics": {
+     "cagr": 0.005576433681205195,
+     "maxDrawdown": -0.11474738493249949,
+     "sharpe_ann": 0.10622592439667278,
+     "calmar": 0.048597479450059364,
+     "totalReturn": 0.002713731215968407,
+     "winRate": 0.25,
+     "profitFactor": 1.0479232474121274,
+     "tradeCount": 4
+    }
+   },
+   "TEST": {
+    "metrics": {
+     "cagr": 0.05669087113283067,
+     "maxDrawdown": -0.08980129088256131,
+     "sharpe_ann": 0.6305830025366332,
+     "calmar": 0.6312923853953148,
+     "totalReturn": 0.046016768799628016,
+     "winRate": 0.5,
+     "profitFactor": 1.7234696784972863,
+     "tradeCount": 8
+    }
+   }
+  },
+  "ADD5": {
+   "FULL": {
+    "metrics": {
+     "cagr": -0.002310620668225072,
+     "maxDrawdown": -0.18503162278910346,
+     "sharpe_ann": 0.020944164450130552,
+     "calmar": -0.012487706876238588,
+     "totalReturn": -0.00753362364535104,
+     "winRate": 0.30434782608695654,
+     "profitFactor": 0.9759523418611852,
+     "tradeCount": 23
+    }
+   },
+   "TRAIN": {
+    "metrics": {
+     "cagr": 0.016712582885838767,
+     "maxDrawdown": -0.11484009013796859,
+     "sharpe_ann": 0.260513101067714,
+     "calmar": 0.14552916900152477,
+     "totalReturn": 0.033024535861428284,
+     "winRate": 0.3,
+     "profitFactor": 1.2466949385284156,
+     "tradeCount": 10
+    }
+   },
+   "VALID": {
+    "metrics": {
+     "cagr": -0.027840609831905283,
+     "maxDrawdown": -0.09000929004669869,
+     "sharpe_ann": -0.1772519317160541,
+     "calmar": -0.30930818160504314,
+     "totalReturn": -0.013665980292511981,
+     "winRate": 0.25,
+     "profitFactor": 0.7927708120022616,
+     "tradeCount": 4
+    }
+   },
+   "TEST": {
+    "metrics": {
+     "cagr": -0.03171216740555827,
+     "maxDrawdown": -0.10348468940281336,
+     "sharpe_ann": -0.22891522453108315,
+     "calmar": -0.30644308436892437,
+     "totalReturn": -0.025949805868757614,
+     "winRate": 0.3333333333333333,
+     "profitFactor": 0.7624113468601961,
+     "tradeCount": 9
+    }
+   }
+  },
+  "ALL12": {
+   "FULL": {
+    "metrics": {
+     "cagr": 0.040464887039934894,
+     "maxDrawdown": -0.21908020510008508,
+     "sharpe_ann": 0.37215063733624953,
+     "calmar": 0.18470352910911703,
+     "totalReturn": 0.13845628135257493,
+     "winRate": 0.3953488372093023,
+     "profitFactor": 1.297412514950684,
+     "tradeCount": 43
+    }
+   },
+   "TRAIN": {
+    "metrics": {
+     "cagr": 0.061650755515360256,
+     "maxDrawdown": -0.10610382378387281,
+     "sharpe_ann": 0.7148628152289043,
+     "calmar": 0.581041788285964,
+     "totalReturn": 0.1244286535737742,
+     "winRate": 0.4444444444444444,
+     "profitFactor": 1.7156467639663036,
+     "tradeCount": 18
+    }
+   },
+   "VALID": {
+    "metrics": {
+     "cagr": -0.015988461288444222,
+     "maxDrawdown": -0.16061770647695603,
+     "sharpe_ann": 0.007799930584896014,
+     "calmar": -0.09954357859504177,
+     "totalReturn": -0.007823969216089632,
+     "winRate": 0.25,
+     "profitFactor": 0.925998876672389,
+     "tradeCount": 8
+    }
+   },
+   "TEST": {
+    "metrics": {
+     "cagr": 0.025104631411703826,
+     "maxDrawdown": -0.15093442471482643,
+     "sharpe_ann": 0.23314167140737085,
+     "calmar": 0.16632806902160455,
+     "totalReturn": 0.020435480175845955,
+     "winRate": 0.4117647058823529,
+     "profitFactor": 1.1317981289170458,
+     "tradeCount": 17
+    }
+   }
+  }
+ },
+ "test_net_pnl": {
+  "CORE7": 460167687.9962785,
+  "ADD5": -259498058.68757772,
+  "ALL12": 204354801.75845897
+ },
+ "cost_sweep": {
+  "CORE7": {
+   "0.0": {
+    "FULL": {
+     "cagr": 0.05696256967440183,
+     "maxDrawdown": -0.13592312468008913,
+     "sharpe_ann": 0.7552038812421176,
+     "calmar": 0.41907931272526183,
+     "totalReturn": 0.19853496946624327,
+     "winRate": 0.5,
+     "profitFactor": 2.0925413402936828,
+     "tradeCount": 20
+    },
+    "TEST": {
+     "cagr": 0.059947627212996624,
+     "maxDrawdown": -0.08936735615618764,
+     "sharpe_ann": 0.6606185964900133,
+     "calmar": 0.6708000526302462,
+     "totalReturn": 0.048646303292557924,
+     "winRate": 0.5,
+     "profitFactor": 1.7778085964917965,
+     "tradeCount": 8
+    }
+   },
+   "1.0": {
+    "FULL": {
+     "cagr": 0.05476568551161276,
+     "maxDrawdown": -0.1377539168430214,
+     "sharpe_ann": 0.7312791100217721,
+     "calmar": 0.39756173012504203,
+     "totalReturn": 0.19041063167113892,
+     "winRate": 0.5,
+     "profitFactor": 2.03304888101391,
+     "tradeCount": 20
+    },
+    "TEST": {
+     "cagr": 0.05669087113283067,
+     "maxDrawdown": -0.08980129088256131,
+     "sharpe_ann": 0.6305830025366332,
+     "calmar": 0.6312923853953148,
+     "totalReturn": 0.046016768799628016,
+     "winRate": 0.5,
+     "profitFactor": 1.7234696784972863,
+     "tradeCount": 8
+    }
+   },
+   "2.0": {
+    "FULL": {
+     "cagr": 0.05286045868888034,
+     "maxDrawdown": -0.13958477044237244,
+     "sharpe_ann": 0.7094849170078009,
+     "calmar": 0.3786978946295848,
+     "totalReturn": 0.18339589478552787,
+     "winRate": 0.5,
+     "profitFactor": 1.9812064558548488,
+     "tradeCount": 20
+    },
+    "TEST": {
+     "cagr": 0.05348493755726769,
+     "maxDrawdown": -0.09018268540886594,
+     "sharpe_ann": 0.6008336984531513,
+     "calmar": 0.5930732414407515,
+     "totalReturn": 0.04342681104811397,
+     "winRate": 0.5,
+     "profitFactor": 1.6718702535783454,
+     "tradeCount": 8
+    }
+   },
+   "4.0": {
+    "FULL": {
+     "cagr": 0.04898446176811189,
+     "maxDrawdown": -0.14321437828385877,
+     "sharpe_ann": 0.6656306512236729,
+     "calmar": 0.3420359209396,
+     "totalReturn": 0.1692137485112537,
+     "winRate": 0.5,
+     "profitFactor": 1.8860737132045318,
+     "tradeCount": 20
+    },
+    "TEST": {
+     "cagr": 0.04581295615953085,
+     "maxDrawdown": -0.09099766923431545,
+     "sharpe_ann": 0.5292221734688539,
+     "calmar": 0.5034519734957636,
+     "totalReturn": 0.0372229916472373,
+     "winRate": 0.5,
+     "profitFactor": 1.557861455731186,
+     "tradeCount": 8
+    }
+   }
+  },
+  "ADD5": {
+   "0.0": {
+    "FULL": {
+     "cagr": -0.00038145032729119954,
+     "maxDrawdown": -0.18209514336516322,
+     "sharpe_ann": 0.041828449301847315,
+     "calmar": -0.00209478583690868,
+     "totalReturn": -0.001246419230514495,
+     "winRate": 0.30434782608695654,
+     "profitFactor": 0.9959843552077982,
+     "tradeCount": 23
+    },
+    "TEST": {
+     "cagr": -0.028642419041583822,
+     "maxDrawdown": -0.10298707174884497,
+     "sharpe_ann": -0.20124506270289563,
+     "calmar": -0.27811664663535846,
+     "totalReturn": -0.023431090648133424,
+     "winRate": 0.3333333333333333,
+     "profitFactor": 0.7829170044848777,
+     "tradeCount": 9
+    }
+   },
+   "1.0": {
+    "FULL": {
+     "cagr": -0.002310620668225072,
+     "maxDrawdown": -0.18503162278910346,
+     "sharpe_ann": 0.020944164450130552,
+     "calmar": -0.012487706876238588,
+     "totalReturn": -0.00753362364535104,
+     "winRate": 0.30434782608695654,
+     "profitFactor": 0.9759523418611852,
+     "tradeCount": 23
+    },
+    "TEST": {
+     "cagr": -0.03171216740555827,
+     "maxDrawdown": -0.10348468940281336,
+     "sharpe_ann": -0.22891522453108315,
+     "calmar": -0.30644308436892437,
+     "totalReturn": -0.025949805868757614,
+     "winRate": 0.3333333333333333,
+     "profitFactor": 0.7624113468601961,
+     "tradeCount": 9
+    }
+   },
+   "2.0": {
+    "FULL": {
+     "cagr": -0.004234291224414988,
+     "maxDrawdown": -0.18795512601308959,
+     "sharpe_ann": -2.093005212571668e-06,
+     "calmar": -0.02252820295052822,
+     "totalReturn": -0.013775497540109649,
+     "winRate": 0.30434782608695654,
+     "profitFactor": 0.9564266100402313,
+     "tradeCount": 23
+    },
+    "TEST": {
+     "cagr": -0.0347698539551663,
+     "maxDrawdown": -0.10398171876060276,
+     "sharpe_ann": -0.2570699587316365,
+     "calmar": -0.33438429725533747,
+     "totalReturn": -0.028460086401437934,
+     "winRate": 0.3333333333333333,
+     "profitFactor": 0.7424521316370685,
+     "tradeCount": 9
+    }
+   },
+   "4.0": {
+    "FULL": {
+     "cagr": -0.008065761514947867,
+     "maxDrawdown": -0.19376397881993812,
+     "sharpe_ann": -0.041852773021275796,
+     "calmar": -0.041626733534633156,
+     "totalReturn": -0.026126474737297678,
+     "winRate": 0.30434782608695654,
+     "profitFactor": 0.9188141374676384,
+     "tradeCount": 23
+    },
+    "TEST": {
+     "cagr": -0.040847056990925834,
+     "maxDrawdown": -0.10497358909981398,
+     "sharpe_ann": -0.3133321171223139,
+     "calmar": -0.38911746603316066,
+     "totalReturn": -0.03345366438708175,
+     "winRate": 0.3333333333333333,
+     "profitFactor": 0.7041038099586048,
+     "tradeCount": 9
+    }
+   }
+  },
+  "ALL12": {
+   "0.0": {
+    "FULL": {
+     "cagr": 0.04415243625930909,
+     "maxDrawdown": -0.21501754579712096,
+     "sharpe_ann": 0.39903507954759126,
+     "calmar": 0.20534341090921465,
+     "totalReturn": 0.15169927528610505,
+     "winRate": 0.3953488372093023,
+     "profitFactor": 1.3287889803468065,
+     "tradeCount": 43
+    },
+    "TEST": {
+     "cagr": 0.030937283245069835,
+     "maxDrawdown": -0.15021221304433413,
+     "sharpe_ann": 0.2681458855543373,
+     "calmar": 0.20595717630455856,
+     "totalReturn": 0.025170070557309243,
+     "winRate": 0.4117647058823529,
+     "profitFactor": 1.1644317269499769,
+     "tradeCount": 17
+    }
+   },
+   "1.0": {
+    "FULL": {
+     "cagr": 0.040464887039934894,
+     "maxDrawdown": -0.21908020510008508,
+     "sharpe_ann": 0.37215063733624953,
+     "calmar": 0.18470352910911703,
+     "totalReturn": 0.13845628135257493,
+     "winRate": 0.3953488372093023,
+     "profitFactor": 1.297412514950684,
+     "tradeCount": 43
+    },
+    "TEST": {
+     "cagr": 0.025104631411703826,
+     "maxDrawdown": -0.15093442471482643,
+     "sharpe_ann": 0.23314167140737085,
+     "calmar": 0.16632806902160455,
+     "totalReturn": 0.020435480175845955,
+     "winRate": 0.4117647058823529,
+     "profitFactor": 1.1317981289170458,
+     "tradeCount": 17
+    }
+   },
+   "2.0": {
+    "FULL": {
+     "cagr": 0.037084286310133274,
+     "maxDrawdown": -0.22312363330199797,
+     "sharpe_ann": 0.34719495244674203,
+     "calmar": 0.1662051023521102,
+     "totalReturn": 0.12640882671880127,
+     "winRate": 0.3953488372093023,
+     "profitFactor": 1.2691649822009987,
+     "tradeCount": 43
+    },
+    "TEST": {
+     "cagr": 0.01934910884059704,
+     "maxDrawdown": -0.15160438994714565,
+     "sharpe_ann": 0.1983030981122344,
+     "calmar": 0.12762894826028973,
+     "totalReturn": 0.015758634128778537,
+     "winRate": 0.4117647058823529,
+     "profitFactor": 1.1003777865236768,
+     "tradeCount": 17
+    }
+   },
+   "4.0": {
+    "FULL": {
+     "cagr": 0.03034109963552778,
+     "maxDrawdown": -0.23118270908846977,
+     "sharpe_ann": 0.29683820350817175,
+     "calmar": 0.1312429452667965,
+     "totalReturn": 0.10264290454237335,
+     "winRate": 0.3953488372093023,
+     "profitFactor": 1.2148622709121095,
+     "tradeCount": 43
+    },
+    "TEST": {
+     "cagr": 0.00788757956111108,
+     "maxDrawdown": -0.15299188459924654,
+     "sharpe_ann": 0.12784018666736785,
+     "calmar": 0.05155554218952294,
+     "totalReturn": 0.006430656336245066,
+     "winRate": 0.4117647058823529,
+     "profitFactor": 1.039969380455697,
+     "tradeCount": 17
+    }
+   }
+  }
+ },
+ "test_per_asset": {
+  "ALL12": {
+   "KRW-BTC": {
+    "trades": 2,
+    "netPnl": 127814989.95524907,
+    "winRate": 0.5,
+    "avgWin": 200618874.2027824
+   },
+   "KRW-ETH": {
+    "trades": 1,
+    "netPnl": -105893210.4800384,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-SOL": {
+    "trades": 2,
+    "netPnl": 191781778.45794988,
+    "winRate": 0.5,
+    "avgWin": 314629703.0449631
+   },
+   "KRW-XRP": {
+    "trades": 0,
+    "netPnl": 0,
+    "winRate": null,
+    "avgWin": null
+   },
+   "KRW-ADA": {
+    "trades": 1,
+    "netPnl": -257558113.85327554,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-DOGE": {
+    "trades": 2,
+    "netPnl": 499265834.0556202,
+    "winRate": 1.0,
+    "avgWin": 249632917.0278101
+   },
+   "KRW-DOT": {
+    "trades": 0,
+    "netPnl": 0,
+    "winRate": null,
+    "avgWin": null
+   },
+   "KRW-ARB": {
+    "trades": 2,
+    "netPnl": -196025655.8624549,
+    "winRate": 0.5,
+    "avgWin": 41624949.43712926
+   },
+   "KRW-ATOM": {
+    "trades": 2,
+    "netPnl": -405135359.0231173,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-AVAX": {
+    "trades": 1,
+    "netPnl": -114088544.70850062,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-LINK": {
+    "trades": 2,
+    "netPnl": -234536036.84626353,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-NEAR": {
+    "trades": 2,
+    "netPnl": 698729120.0632901,
+    "winRate": 1.0,
+    "avgWin": 349364560.03164506
+   }
+  },
+  "ADD5": {
+   "KRW-ARB": {
+    "trades": 2,
+    "netPnl": -204072978.24157214,
+    "winRate": 0.5,
+    "avgWin": 43333755.560997486
+   },
+   "KRW-ATOM": {
+    "trades": 2,
+    "netPnl": -423405337.8424301,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-AVAX": {
+    "trades": 1,
+    "netPnl": -151219219.3485043,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-LINK": {
+    "trades": 2,
+    "netPnl": -270184415.683707,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-NEAR": {
+    "trades": 2,
+    "netPnl": 789383892.4286358,
+    "winRate": 1.0,
+    "avgWin": 394691946.2143179
+   }
+  },
+  "CORE7": {
+   "KRW-BTC": {
+    "trades": 2,
+    "netPnl": 118518273.27640319,
+    "winRate": 0.5,
+    "avgWin": 211177762.31871843
+   },
+   "KRW-ETH": {
+    "trades": 1,
+    "netPnl": -132287013.6927805,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-SOL": {
+    "trades": 2,
+    "netPnl": 170148199.47771358,
+    "winRate": 0.5,
+    "avgWin": 323700216.18472743
+   },
+   "KRW-XRP": {
+    "trades": 0,
+    "netPnl": 0,
+    "winRate": null,
+    "avgWin": null
+   },
+   "KRW-ADA": {
+    "trades": 1,
+    "netPnl": -257558113.85327554,
+    "winRate": 0.0,
+    "avgWin": null
+   },
+   "KRW-DOGE": {
+    "trades": 2,
+    "netPnl": 561346342.7882178,
+    "winRate": 1.0,
+    "avgWin": 280673171.3941089
+   },
+   "KRW-DOT": {
+    "trades": 0,
+    "netPnl": 0,
+    "winRate": null,
+    "avgWin": null
+   }
+  }
+ },
+ "full_per_asset_all12": {
+  "KRW-BTC": {
+   "trades": 4,
+   "netPnl": 282099892.44373083,
+   "winRate": 0.5,
+   "avgWin": 252096369.97145522
+  },
+  "KRW-ETH": {
+   "trades": 2,
+   "netPnl": -309007303.57969165,
+   "winRate": 0.0,
+   "avgWin": null
+  },
+  "KRW-SOL": {
+   "trades": 4,
+   "netPnl": 270081725.75443196,
+   "winRate": 0.5,
+   "avgWin": 306404736.4947418
+  },
+  "KRW-XRP": {
+   "trades": 2,
+   "netPnl": 9756158.593853474,
+   "winRate": 0.5,
+   "avgWin": 154448113.83229566
+  },
+  "KRW-ADA": {
+   "trades": 1,
+   "netPnl": -287344582.8430078,
+   "winRate": 0.0,
+   "avgWin": null
+  },
+  "KRW-DOGE": {
+   "trades": 5,
+   "netPnl": 1178418987.3210278,
+   "winRate": 0.8,
+   "avgWin": 353286004.6881705
+  },
+  "KRW-DOT": {
+   "trades": 2,
+   "netPnl": 260666017.1770959,
+   "winRate": 0.5,
+   "avgWin": 425791819.64994645
+  },
+  "KRW-ARB": {
+   "trades": 5,
+   "netPnl": -914052336.2336099,
+   "winRate": 0.2,
+   "avgWin": 46447830.63898182
+  },
+  "KRW-ATOM": {
+   "trades": 5,
+   "netPnl": -470703673.7118821,
+   "winRate": 0.2,
+   "avgWin": 401827909.23779035
+  },
+  "KRW-AVAX": {
+   "trades": 3,
+   "netPnl": -480428387.8935175,
+   "winRate": 0.0,
+   "avgWin": null
+  },
+  "KRW-LINK": {
+   "trades": 7,
+   "netPnl": 297784016.0994375,
+   "winRate": 0.2857142857142857,
+   "avgWin": 466985124.3250003
+  },
+  "KRW-NEAR": {
+   "trades": 3,
+   "netPnl": 1547292300.3978736,
+   "winRate": 1.0,
+   "avgWin": 515764100.13262457
+  }
+ },
+ "signal_activity": {
+  "KRW-BTC": 4,
+  "KRW-ETH": 2,
+  "KRW-SOL": 4,
+  "KRW-XRP": 2,
+  "KRW-ADA": 1,
+  "KRW-DOGE": 6,
+  "KRW-DOT": 2,
+  "KRW-ARB": 6,
+  "KRW-ATOM": 5,
+  "KRW-AVAX": 4,
+  "KRW-LINK": 8,
+  "KRW-NEAR": 3
+ },
+ "loo_asset": {
+  "KRW-BTC": {
+   "cagr": 0.010253973318536058,
+   "maxDrawdown": -0.13936994970146555,
+   "sharpe_ann": 0.1419049774567967,
+   "calmar": 0.07357377498162528,
+   "totalReturn": 0.008358141394113838,
+   "winRate": 0.4,
+   "profitFactor": 1.0563565976371592,
+   "tradeCount": 15
+  },
+  "KRW-ETH": {
+   "cagr": 0.03942066499237806,
+   "maxDrawdown": -0.13445321364636137,
+   "sharpe_ann": 0.3290312236746635,
+   "calmar": 0.2931924341805785,
+   "totalReturn": 0.03204757159592675,
+   "winRate": 0.4375,
+   "profitFactor": 1.2206474602139084,
+   "tradeCount": 16
+  },
+  "KRW-SOL": {
+   "cagr": 0.0024768865279531926,
+   "maxDrawdown": -0.12989535657994275,
+   "sharpe_ann": 0.08832711713341655,
+   "calmar": 0.01906832232627822,
+   "totalReturn": 0.002020380679756739,
+   "winRate": 0.4,
+   "profitFactor": 1.0140623729213247,
+   "tradeCount": 15
+  },
+  "KRW-XRP": {
+   "cagr": 0.025104631411703826,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.23314167140737085,
+   "calmar": 0.16632806902160455,
+   "totalReturn": 0.020435480175845955,
+   "winRate": 0.4117647058823529,
+   "profitFactor": 1.1317981289170458,
+   "tradeCount": 17
+  },
+  "KRW-ADA": {
+   "cagr": 0.059366242312435924,
+   "maxDrawdown": -0.15058376143882832,
+   "sharpe_ann": 0.43881971721156665,
+   "calmar": 0.39424066542893665,
+   "totalReturn": 0.04817699703493372,
+   "winRate": 0.4375,
+   "profitFactor": 1.3635670202132821,
+   "tradeCount": 16
+  },
+  "KRW-DOGE": {
+   "cagr": -0.03719303899141968,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.18679688275316794,
+   "calmar": -0.24641852951499787,
+   "totalReturn": -0.030450497789475617,
+   "winRate": 0.3333333333333333,
+   "profitFactor": 0.8096045318858204,
+   "tradeCount": 15
+  },
+  "KRW-DOT": {
+   "cagr": 0.025104631411703826,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.23314167140737085,
+   "calmar": 0.16632806902160455,
+   "totalReturn": 0.020435480175845955,
+   "winRate": 0.4117647058823529,
+   "profitFactor": 1.1317981289170458,
+   "tradeCount": 17
+  },
+  "KRW-ARB": {
+   "cagr": 0.05264327491253673,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.4148390328752024,
+   "calmar": 0.3487824266200389,
+   "totalReturn": 0.042746621891347036,
+   "winRate": 0.4,
+   "profitFactor": 1.325598478212861,
+   "tradeCount": 15
+  },
+  "KRW-ATOM": {
+   "cagr": 0.06727533387543172,
+   "maxDrawdown": -0.10102868045370977,
+   "sharpe_ann": 0.5040005102819183,
+   "calmar": 0.6659033214459981,
+   "totalReturn": 0.05455733107955241,
+   "winRate": 0.4666666666666667,
+   "profitFactor": 1.4291705425320567,
+   "tradeCount": 15
+  },
+  "KRW-AVAX": {
+   "cagr": 0.04772232544265487,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.37297729182728595,
+   "calmar": 0.3161791985679928,
+   "totalReturn": 0.03876775209011196,
+   "winRate": 0.4375,
+   "profitFactor": 1.2690747641911622,
+   "tradeCount": 16
+  },
+  "KRW-LINK": {
+   "cagr": 0.06578671886664678,
+   "maxDrawdown": -0.1350520376660899,
+   "sharpe_ann": 0.4992004011356425,
+   "calmar": 0.487121260838,
+   "totalReturn": 0.053357119126001384,
+   "winRate": 0.4666666666666667,
+   "profitFactor": 1.40161277045639,
+   "tradeCount": 15
+  },
+  "KRW-NEAR": {
+   "cagr": -0.06698753153686676,
+   "maxDrawdown": -0.17071375017794369,
+   "sharpe_ann": -0.4131966204423355,
+   "calmar": -0.3923968131860628,
+   "totalReturn": -0.0550000517588074,
+   "winRate": 0.3333333333333333,
+   "profitFactor": 0.6532126586176884,
+   "tradeCount": 15
+  }
+ },
+ "loo_event": {
+  "2025-12-10": {
+   "cagr": 0.059366242312435924,
+   "maxDrawdown": -0.15058376143882832,
+   "sharpe_ann": 0.43881971721156665,
+   "calmar": 0.39424066542893665,
+   "totalReturn": 0.04817699703493372,
+   "winRate": 0.4375,
+   "profitFactor": 1.3635670202132821,
+   "tradeCount": 16
+  },
+  "2026-01-04": {
+   "cagr": 0.03474788040500121,
+   "maxDrawdown": -0.12298540536845075,
+   "sharpe_ann": 0.2982677968415295,
+   "calmar": 0.28253661725877455,
+   "totalReturn": 0.02826061619546172,
+   "winRate": 0.4375,
+   "profitFactor": 1.190381530880329,
+   "tradeCount": 16
+  },
+  "2026-01-06": {
+   "cagr": 0.08581502785586115,
+   "maxDrawdown": -0.08769613374948644,
+   "sharpe_ann": 0.6654832788660531,
+   "calmar": 0.9785497283266914,
+   "totalReturn": 0.06947950082859955,
+   "winRate": 0.5384615384615384,
+   "profitFactor": 1.6067021405896995,
+   "tradeCount": 13
+  },
+  "2026-02-17": {
+   "cagr": 0.057334669784062875,
+   "maxDrawdown": -0.12967740632172195,
+   "sharpe_ann": 0.42777178692047624,
+   "calmar": 0.4421330701341987,
+   "totalReturn": 0.04653669588149856,
+   "winRate": 0.4375,
+   "profitFactor": 1.3475547533861123,
+   "tradeCount": 16
+  },
+  "2026-02-26": {
+   "cagr": -0.03793578665403974,
+   "maxDrawdown": -0.17071375017794369,
+   "sharpe_ann": -0.19242519079855838,
+   "calmar": -0.22221869424400392,
+   "totalReturn": -0.031060777527142536,
+   "winRate": 0.375,
+   "profitFactor": 0.8048547273995799,
+   "tradeCount": 16
+  },
+  "2026-03-17": {
+   "cagr": -0.023457142491693506,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.06720397398079138,
+   "calmar": -0.15541280616408834,
+   "totalReturn": -0.019179918494705794,
+   "winRate": 0.35294117647058826,
+   "profitFactor": 0.888001565406525,
+   "tradeCount": 17
+  },
+  "2026-04-17": {
+   "cagr": 0.035331214710532244,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.29752709657411697,
+   "calmar": 0.23408321048883704,
+   "totalReturn": 0.028733538371273903,
+   "winRate": 0.4117647058823529,
+   "profitFactor": 1.1901761489255593,
+   "tradeCount": 17
+  },
+  "2026-05-07": {
+   "cagr": -0.014666503269668785,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.016333564276628316,
+   "calmar": -0.09717135966416865,
+   "totalReturn": -0.011982350796210905,
+   "winRate": 0.375,
+   "profitFactor": 0.9223469911974331,
+   "tradeCount": 16
+  },
+  "2026-07-10": {
+   "cagr": 0.05792738353929061,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": 0.4324887709374223,
+   "calmar": 0.3837917270943184,
+   "totalReturn": 0.047015315642712885,
+   "winRate": 0.4375,
+   "profitFactor": 1.358112864798407,
+   "tradeCount": 16
+  },
+  "2026-08-20": {
+   "cagr": -0.08332496355737484,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.552738763944711,
+   "calmar": -0.5520606959930312,
+   "totalReturn": -0.06852260101887508,
+   "winRate": 0.23076923076923078,
+   "profitFactor": 0.5580651628880472,
+   "tradeCount": 13
+  }
+ },
+ "explicit": {
+  "remove_2026-08-20": {
+   "cagr": -0.08332496355737484,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.552738763944711,
+   "calmar": -0.5520606959930312,
+   "totalReturn": -0.06852260101887508,
+   "winRate": 0.23076923076923078,
+   "profitFactor": 0.5580651628880472,
+   "tradeCount": 13
+  },
+  "remove_DOGE": {
+   "cagr": -0.03719303899141968,
+   "maxDrawdown": -0.15093442471482643,
+   "sharpe_ann": -0.18679688275316794,
+   "calmar": -0.24641852951499787,
+   "totalReturn": -0.030450497789475617,
+   "winRate": 0.3333333333333333,
+   "profitFactor": 0.8096045318858204,
+   "tradeCount": 15
+  }
+ },
+ "verdict": "WEAK",
+ "verdict_line": "ADD5 TEST -3.17%/PF0.76/N9 (신규 5종목 중 ARB·ATOM·AVAX·LINK 4종목 합 -1,048M vs NEAR +789M 1종목만 수익). 12종목 TEST(+2.51%)는 CORE7(+5.67%)보다 열위이며, 2026-08-20 제거 시 -8.33%, DOGE 제거 시 -3.72%, NEAR 제거 -6.70%로 음수 반전 → 종목/이벤트 의존이 줄어들지 않았고 오히려 신규 NEAR 의존이 추가됨. 비용 4x에서 +0.79%로 간신히 양수."
+}

@@ -1,0 +1,84 @@
+{
+  "strategyId": "foreign_flow5d_v1_top6",
+  "version": "0.1",
+  "contractFrozenAt": "2026-08-30",
+  "note": "foreign_flow5d_v1(topN=30)의 실제 엔진 스모크 테스트가 CAGR -4.26%로 REJECT됐는데, 진단 결과 원인이 신호 소멸이 아니라 tie-break 설계 결함으로 보였다(kr-foreign-flow5d-v1-engine-smoke-2026-08.md 참고) - 일별 top-30 신호가 평균 슬롯여유(~30/5세션≈6개/일)를 5배 초과해 매일 심한 공급초과가 나고, engine.execution.contracts.Order가 신호강도 메타데이터를 안 날라 tieBreak=ticker_ascending(종목코드순)으로 사실상 무작위로 골라진다. 이 변형은 topN을 슬롯여유치에 맞춘 6으로 낮춰 공급초과 자체를 줄인 것 - 신호강도 랭킹은 build_selection.py가 이미 매겼으므로(상위 6개만 뽑음), 공급초과가 줄면 tie-break 발동 빈도도 줄어 원 신호의 랭킹정보가 덜 파괴될 것이라는 가설을 검증한다. 그 외 전부 foreign_flow5d_v1과 동일.",
+
+  "direction": "LONG_ONLY",
+
+  "factor": {
+    "note": "이 블록은 build_selection.py가 오프라인으로 읽는 설정이다 - engine/runner.py는 이 블록을 모른다.",
+    "metric": "foreign_flow_ratio",
+    "metricFormula": "(A4 buyAmount[외국인]+buyAmount[기타외국인]-sellAmount[외국인]-sellAmount[기타외국인]) / buyAmount[전체]",
+    "metricFormulaNote": "실측 대조로 정정된 정의 - '외국인' 카테고리 하나만 쓰면 다른 값이 나온다(kr-foreign-flow-5d-independent-verification-2026-08.md 참고, 000020/2016-01-04 실측: 기타외국인 누락 시 -191,705,420원, 합산 시 정답 -191,673,620원)",
+    "rankDirection": "descending",
+    "rankDirectionNote": "고수급 - foreign_flow_ratio가 높을수록(외국인 순매수 비율이 클수록) 선택된다. 원본 finding의 Q5(최고분위)가 양의 초과수익을 낸 것과 일치",
+    "topN": 6,
+    "topNNote": "foreign_flow5d_v1은 30 - 일별 리밸런싱+5세션 고정보유의 평균 슬롯여유(maxPositions 30 / holdSessions 5 ≈ 6)에 맞춰 낮춤. 공급초과를 줄여 tie-break(ticker_ascending) 발동 빈도를 낮추려는 목적.",
+    "rebalanceFrequency": "daily",
+    "rebalanceFrequencyNote": "원본 finding이 T+5 forward return의 날짜별 cross-sectional 효과를 검증한 것이므로, 월별이 아니라 매 거래일 리밸런싱 + 고정 5세션 보유로 구현한다 - pbr_value_v1/lowmom60_v1(월별)과 근본적으로 다른 카덴스",
+    "minTurnover20": 100000000,
+    "minTurnoverNote": "절대 임계값 - 상대 tercile 아님(세션인수인계-2026-08-21-c 교훈 재사용, LOWMOM60과 동일 값)",
+    "sourcePanel": "compute in-process from data/backfill/price/a2a (close) + data/backfill/supplyDemand/a4 (foreign_net/total_amount) - build_selection.py"
+  },
+
+  "signal": {
+    "expression": "그 날 turnover20>=1억원 유니버스 안에서 foreign_flow_ratio 내림차순 상위 30개 - build_selection.py가 오프라인으로 계산, selection.json에 (ticker, date) 목록으로 저장, holdSessions는 전부 고정 5",
+    "evaluatedAfter": "매 거래일"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "그 날짜",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "risk": {
+    "note": "pbr_value_v1/lowmom60_v1과 동일 패턴 - 가격 기반 stop/target 없이 순수 시간 기반(고정 5세션) 청산.",
+    "stopDistanceFormula": "entry_price * 100 (사실상 도달 불가)",
+    "rewardRisk": 1.0,
+    "stopPct": 0.99,
+    "targetPct": 100.0,
+    "maxHoldingSessions": 5,
+    "maxHoldingSessionsNote": "모든 신호가 고정 5세션 - 원본 finding이 검증한 T+5 forward return 정의 그대로. lowmom60_v1처럼 '다음 리밸런싱일까지' 가변 계산이 필요 없다(일별 리밸런싱이라 항상 5로 고정).",
+    "timeExitRule": "close of the Nth tradable session counting entry_date as session 1, N=5"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending",
+    "tieBreakNote": "일별로 top-30 후보가 나오지만 5세션 겹치는 코호트끼리 maxPositions=30 슬롯을 경쟁한다 - 이게 이 테스트의 핵심 질문(cross-sectional 통계가 실제 슬롯경쟁 하에서도 유지되는가)."
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"],
+    "primaryRequires": "독립재현이 A1A_ONLY 유니버스(A2a+A4 merged, 2,558종목)에서 나온 것이므로 이 버전도 그대로 재구현. A1A_A1B_MERGED 승격은 별도 생존편향 검증 필요."
+  },
+
+  "warmup": {
+    "note": "기술적 지표 없음 - 신호는 selection.json에 이미 구워져 있다. compute_features는 원본 bars를 그대로 통과시킨다."
+  },
+
+  "scheduling": {
+    "continuousHoldOnRenewal": false,
+    "note": "pbr_value_v1/lowmom60_v1의 continuousHoldOnRenewal=true는 '월별 재선정 시 동일종목이면 청산 없이 계속 보유'가 의미가 있는 월별 카덴스 전제다. 이 전략은 일별 신호 + 고정 5세션 청산이라 '갱신 시 계속 보유'라는 개념 자체가 다르게 적용된다 - 기본값(false)을 그대로 쓴다."
+  }
+}

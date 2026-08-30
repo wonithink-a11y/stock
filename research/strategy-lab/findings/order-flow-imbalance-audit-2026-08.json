@@ -1,0 +1,203 @@
+{
+  "design": {
+    "purpose": "Order-flow imbalance data availability audit",
+    "existing_data": "activity/ 1h parquet (taker buy volumes)",
+    "api_endpoints": "fapi/v1/klines, futures/data/takerlongshortRatio, etc.",
+    "constraints": "No bulk download, no existing data modification"
+  },
+  "existing_activity": {
+    "BTCUSDT": {
+      "rows": 61111,
+      "date_range": "2019-09-08 17:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.4975062086391821,
+      "taker_buy_ratio_b_mean": 0.4974538938109649,
+      "total_imbalance_q": -0.004950831409743941
+    },
+    "ETHUSDT": {
+      "rows": 59201,
+      "date_range": "2019-11-27 07:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.4955045370303789,
+      "taker_buy_ratio_b_mean": 0.49543613840014344,
+      "total_imbalance_q": -0.010337054966687262
+    },
+    "SOLUSDT": {
+      "rows": 52193,
+      "date_range": "2020-09-14 07:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.4903180674145641,
+      "taker_buy_ratio_b_mean": 0.49022858527420166,
+      "total_imbalance_q": -0.016755426965306082
+    },
+    "XRPUSDT": {
+      "rows": 58240,
+      "date_range": "2020-01-06 08:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.48782816067939416,
+      "taker_buy_ratio_b_mean": 0.487751520656721,
+      "total_imbalance_q": -0.024605405046056263
+    },
+    "ADAUSDT": {
+      "rows": 57640,
+      "date_range": "2020-01-31 08:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.48949972948294623,
+      "taker_buy_ratio_b_mean": 0.4894178849154236,
+      "total_imbalance_q": -0.026979280643711908
+    },
+    "DOGEUSDT": {
+      "rows": 53775,
+      "date_range": "2020-07-10 09:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.4873798471097388,
+      "taker_buy_ratio_b_mean": 0.4872989734171738,
+      "total_imbalance_q": -0.02339478215793515
+    },
+    "DOTUSDT": {
+      "rows": 52745,
+      "date_range": "2020-08-22 07:00:00+00:00 ~ 2026-08-28 23:00:00+00:00",
+      "columns": [
+        "time",
+        "volume",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume"
+      ],
+      "has_taker_buy_base": true,
+      "has_taker_buy_quote": true,
+      "has_volume": true,
+      "has_quote_volume": true,
+      "has_trades": true,
+      "taker_buy_ratio_q_mean": 0.48686804734865435,
+      "taker_buy_ratio_b_mean": 0.4867716988490424,
+      "total_imbalance_q": -0.033408239209485914
+    }
+  },
+  "api_probe": {
+    "klines": {
+      "status": "error",
+      "error": "http_400",
+      "historical_2023": "ok",
+      "earliest_ts": 1672531200000
+    },
+    "takerlongshortRatio": {
+      "status": "ok",
+      "sample_fields": [
+        "buySellRatio",
+        "sellVol",
+        "buyVol",
+        "timestamp"
+      ],
+      "sample_count": 10
+    },
+    "globalLongShortAccountRatio": {
+      "status": "ok",
+      "sample_fields": [
+        "symbol",
+        "longAccount",
+        "longShortRatio",
+        "shortAccount",
+        "timestamp"
+      ],
+      "sample_count": 10
+    },
+    "topLongShortAccountRatio": {
+      "status": "ok",
+      "sample_fields": [
+        "symbol",
+        "longAccount",
+        "longShortRatio",
+        "shortAccount",
+        "timestamp"
+      ],
+      "sample_count": 10
+    },
+    "topLongShortPositionRatio": {
+      "status": "ok",
+      "sample_fields": [
+        "symbol",
+        "longAccount",
+        "longShortRatio",
+        "shortAccount",
+        "timestamp"
+      ],
+      "sample_count": 10
+    }
+  },
+  "calls_made": 6,
+  "aborted": false
+}

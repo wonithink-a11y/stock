@@ -1,0 +1,235 @@
+{
+ "dataset": "market-regime-feature-dataset v1 (PIT-audited)",
+ "built_at": "2026-08-23T13:55:06+00:00",
+ "source": "C:\\Users\\User\\projects\\stock\\research\\strategy-lab\\data\\market-regime\\market_regime_features.parquet",
+ "row_range": [
+  "2016-01-04",
+  "2026-08-14"
+ ],
+ "rows": 2604,
+ "pit_contract": {
+  "price_derived(A2a)": "observation=date(D 종가), asOf=n/a, usable=usableFromDate(D+1 거래일)",
+  "flow_derived(A4)": "동일 — 장마감 확정치",
+  "macro_daily(VIX·USD_KRW·금리·나스닥·KOSPI·KR금리·스프레드)": "observation=*AsOfDate(< D 보장, 엄격 부등식), asOf 규칙=관측일<D 최근값, usable=D 세션(개장 전 정보 확정)",
+  "macro_monthly(CPI·경기지수)": "observation=참조월 말일, usable=말일+발행lag(보수 추정치, design doc §3.2/§10)"
+ },
+ "features": {
+  "ew_ret": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "trend20": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "trend60": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "adv_pct": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "above_ma20_pct": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "above_ma60_pct": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "nhnl_spread": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "rvol10": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "rvol20": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "rvol60": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "value_a4": {
+   "source": "A4 buyAmount.전체",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "value_z60": {
+   "source": "A4 파생(z60)",
+   "missing_rate": 0.01498,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "foreign_net_pct": {
+   "source": "A4 외국인+기타외국인",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "foreign_net20_pct": {
+   "source": "A4 외국인 20d",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "inst_net_pct": {
+   "source": "A4 기관 7개 합산",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "inst_net20_pct": {
+   "source": "A4 기관 20d",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "xs_disp": {
+   "source": "A2a 파생",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "impl_corr20": {
+   "source": "A2a 파생(implied corr)",
+   "missing_rate": 0.00346,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "usdKrwLevel": {
+   "source": "FRED DEXKOUS(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "usdKrw20dChangePct": {
+   "source": "FRED DEXKOUS(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "date(D 종가/마감확정)",
+   "asof_rule": "동일일 종가 — trailing-only 계약",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "vixLevel": {
+   "source": "FRED VIXCLS(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "usFedFundsRate": {
+   "source": "FRED DFEDTARU/EFFR 계열(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "usTreasury10y": {
+   "source": "FRED DGS10(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "usNasdaq": {
+   "source": "FRED NASDAQCOM(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krKospi": {
+   "source": "pykrx 지수 경로(asOf, raw: krkospi_raw.parquet)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krTreasury3y": {
+   "source": "ECOS/asOf(raw: krtreasury3y_raw)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krCorpAA3y": {
+   "source": "ECOS/asOf",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krCpi": {
+   "source": "ECOS 월간(+lag)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krLeadingCyclical": {
+   "source": "ECOS 월간(+lag)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krCoincidentCyclical": {
+   "source": "ECOS 월간(+lag)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  },
+  "krCreditSpreadBp": {
+   "source": "krCorpAA3y−krTreasury3y 파생(asOf)",
+   "missing_rate": 0.0,
+   "observation_date_rule": "*AsOfDate 컬럼 참조(관측일<date)",
+   "asof_rule": "관측일 < D 엄격",
+   "pit_usable_from": "usableFromDate(D+1 거래일) — 전 feature 공통 감사 컬럼"
+  }
+ }
+}

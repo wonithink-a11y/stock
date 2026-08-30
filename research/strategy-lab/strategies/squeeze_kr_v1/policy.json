@@ -1,0 +1,84 @@
+{
+  "strategyId": "squeeze_kr_v1",
+  "version": "1.0",
+  "contractFrozenAt": "2026-08-29",
+  "note": "SQUEEZE-KR-V1 baseline (STEP 1). TTM Squeeze (John Carter, Mastering the Trade ch.11) as standardized by the LazyBear Squeeze Momentum + StockCharts TTM implementations: squeeze on = BB(20,2.0,pop std) fully inside KC(20,1.5, SMA(TR,20)); RELEASE = previous bar on -> current bar off. Entry on RELEASE with momentum>0; exit on momentum crossing 0 from above. Long only, no pyramiding, no leverage. Momentum = 20-period linear regression endpoint of (Close - composite), composite = ((Highest(H,20)+Lowest(L,20))/2 + SMA(C,20))/2. Dynamic state-machine exit (momentum zero-cross) is not expressible in engine.executor's fixed STOP/TARGET/TIME contract, so this strategy is driver-driven exactly like MACD-KR-V1: engine DATA layer (A2aProvider/UniverseProvider/calendar/_drop_suspension_rows), engine PORTFOLIO accounting (engine.portfolio.Portfolio), CostModel, engine.metrics - not engine.executor.simulate_trade.",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "bollinger": { "length": 20, "mult": 2.0, "source": "close", "stdDev": "population ddof=0" },
+    "keltner": {
+      "length": 20,
+      "rangeMult": 1.5,
+      "rangeMa": "SMA(TR, 20)",
+      "trueRange": "TR = max(H-L, |H-prevClose|, |L-prevClose|), prevClose = prior bar close"
+    },
+    "momentum": {
+      "lookback": 20,
+      "method": "linreg_endpoint_of_close_minus_composite",
+      "composite": "((Highest(H,20)+Lowest(L,20))/2 + SMA(C,20)) / 2"
+    }
+  },
+
+  "signal": {
+    "entry": "RELEASE AND Momentum > 0",
+    "exit": "Momentum crosses 0 from above (Momentum[t] < 0 AND Momentum[t-1] >= 0)",
+    "squeezeOn": "BB_upper < KC_upper AND BB_lower > KC_lower",
+    "release": "squeezeOn[t-1] AND NOT squeezeOn[t]",
+    "evaluatedAt": "t close",
+    "noPyramiding": true,
+    "noShort": true,
+    "noLeverage": true
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "entryDateField": "next_session(t)",
+    "entryPriceField": "Open[entry_date]"
+  },
+
+  "exit": {
+    "timing": "next_tradable_session_open",
+    "signalDateField": "t",
+    "exitDateField": "next_session(t)",
+    "exitPriceField": "Open[exit_date]",
+    "note": "Momentum zero-cross exit is a dynamic (state-machine) exit, NOT a static stop/target/time. Implemented in the research driver, not engine.executor."
+  },
+
+  "pit": {
+    "listingDateGate": "required",
+    "rule": "no signal on/before ticker's A1a listedAt. Gateway applied at the signal date t: t < listedAt -> signal discarded. Entry is at next_session(t) so it is necessarily after listedAt.",
+    "source": "data/backfill/universe/a1a/current.jsonl listedAt"
+  },
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 30,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_ONLY",
+    "runClassAllowed": ["SMOKE"]
+  },
+
+  "period": {
+    "rawDataStart": "2014-05-13",
+    "performanceStart": "2016-01-01",
+    "end": "2026-08-03",
+    "note": "Indicator warm-up uses pre-2016 bars; only trades with signal_date >= performanceStart are generated/measured."
+  }
+}

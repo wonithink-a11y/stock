@@ -1,0 +1,539 @@
+{
+  "design": {
+    "universe": "28 symbols, mom30>0 bull only",
+    "feature": "taker_7d (7d rolling mean of taker buy quote ratio)",
+    "regime_rule": "mom30 > 0 (Step 25 고정, 재최적화 없음)",
+    "costs_bp": [
+      10,
+      30,
+      50
+    ],
+    "quantiles": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "horizons": [
+      "r_1",
+      "r_3",
+      "r_7",
+      "r_14",
+      "r_30"
+    ],
+    "rebal": "daily (next-day r_1 used for daily P&L)",
+    "note": "walk-forward: 파라미터 고정, 매일 rank 갱신, r_1로 일간 P&L 누적"
+  },
+  "ew_benchmark": {
+    "r_1": {
+      "cagr": 1.934283,
+      "sharpe": 2.6335,
+      "max_dd": -0.558575,
+      "win_rate": 0.5636,
+      "ann_vol": 0.734494,
+      "total_return": 123.164982,
+      "n_days": 1636
+    }
+  },
+  "portfolio_results": {
+    "Q10": {
+      "10": {
+        "cagr": -0.542175,
+        "sharpe": -0.4858,
+        "max_dd": -0.991259,
+        "win_rate": 0.5227,
+        "ann_vol": 1.116129,
+        "total_return": -0.925004,
+        "n_days": 1211
+      },
+      "30": {
+        "cagr": -0.907323,
+        "sharpe": -0.8129,
+        "max_dd": -0.99979,
+        "win_rate": 0.4657,
+        "ann_vol": 1.116129,
+        "total_return": -0.999624,
+        "n_days": 1211
+      },
+      "50": {
+        "cagr": -0.981372,
+        "sharpe": -0.8793,
+        "max_dd": -0.999998,
+        "win_rate": 0.4063,
+        "ann_vol": 1.116129,
+        "total_return": -0.999998,
+        "n_days": 1211
+      }
+    },
+    "Q20": {
+      "10": {
+        "cagr": -0.104233,
+        "sharpe": -0.1337,
+        "max_dd": -0.931413,
+        "win_rate": 0.5024,
+        "ann_vol": 0.779331,
+        "total_return": -0.389232,
+        "n_days": 1636
+      },
+      "30": {
+        "cagr": -0.847128,
+        "sharpe": -1.087,
+        "max_dd": -0.999798,
+        "win_rate": 0.4242,
+        "ann_vol": 0.779331,
+        "total_return": -0.999778,
+        "n_days": 1636
+      },
+      "50": {
+        "cagr": -0.974135,
+        "sharpe": -1.25,
+        "max_dd": -1.0,
+        "win_rate": 0.3472,
+        "ann_vol": 0.779331,
+        "total_return": -1.0,
+        "n_days": 1636
+      }
+    },
+    "Q30": {
+      "10": {
+        "cagr": -0.036213,
+        "sharpe": -0.0542,
+        "max_dd": -0.864912,
+        "win_rate": 0.4872,
+        "ann_vol": 0.668388,
+        "total_return": -0.152288,
+        "n_days": 1636
+      },
+      "30": {
+        "cagr": -0.811459,
+        "sharpe": -1.2141,
+        "max_dd": -0.999493,
+        "win_rate": 0.4156,
+        "ann_vol": 0.668388,
+        "total_return": -0.999432,
+        "n_days": 1636
+      },
+      "50": {
+        "cagr": -0.963386,
+        "sharpe": -1.4414,
+        "max_dd": -1.0,
+        "win_rate": 0.3276,
+        "ann_vol": 0.668388,
+        "total_return": -1.0,
+        "n_days": 1636
+      }
+    }
+  },
+  "n_bull_days": 1636,
+  "n_bull_obs": 25011,
+  "avg_turnover": {
+    "Q10": 1.116129,
+    "Q20": 0.779331,
+    "Q30": 0.668388
+  },
+  "by_year": {
+    "2020": {
+      "n_days": 243,
+      "obs": 2647,
+      "Q10": {
+        "r_1": {
+          "cagr": 0.292593,
+          "sharpe": 0.3755,
+          "max_dd": -0.320104,
+          "win_rate": 0.538,
+          "ann_vol": 0.779114,
+          "total_return": 0.117419,
+          "n_days": 158
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 3.526203,
+          "sharpe": 5.3572,
+          "max_dd": -0.222066,
+          "win_rate": 0.5926,
+          "ann_vol": 0.658219,
+          "total_return": 1.730602,
+          "n_days": 243
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 4.376491,
+          "sharpe": 7.4727,
+          "max_dd": -0.150805,
+          "win_rate": 0.5556,
+          "ann_vol": 0.585661,
+          "total_return": 2.061958,
+          "n_days": 243
+        }
+      }
+    },
+    "2021": {
+      "n_days": 275,
+      "obs": 4204,
+      "Q10": {
+        "r_1": {
+          "cagr": -0.851155,
+          "sharpe": -0.4311,
+          "max_dd": -0.889793,
+          "win_rate": 0.5395,
+          "ann_vol": 1.974573,
+          "total_return": -0.695493,
+          "n_days": 228
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 6.427581,
+          "sharpe": 5.1833,
+          "max_dd": -0.568404,
+          "win_rate": 0.5418,
+          "ann_vol": 1.24006,
+          "total_return": 3.525523,
+          "n_days": 275
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 3.831993,
+          "sharpe": 3.742,
+          "max_dd": -0.563777,
+          "win_rate": 0.5309,
+          "ann_vol": 1.024057,
+          "total_return": 2.274046,
+          "n_days": 275
+        }
+      }
+    },
+    "2022": {
+      "n_days": 173,
+      "obs": 2318,
+      "Q10": {
+        "r_1": {
+          "cagr": -0.823892,
+          "sharpe": -0.8151,
+          "max_dd": -0.573452,
+          "win_rate": 0.6053,
+          "ann_vol": 1.010775,
+          "total_return": -0.418437,
+          "n_days": 114
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": -0.726347,
+          "sharpe": -1.2948,
+          "max_dd": -0.536909,
+          "win_rate": 0.4971,
+          "ann_vol": 0.560968,
+          "total_return": -0.458709,
+          "n_days": 173
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": -0.384145,
+          "sharpe": -0.817,
+          "max_dd": -0.402213,
+          "win_rate": 0.5087,
+          "ann_vol": 0.470178,
+          "total_return": -0.205147,
+          "n_days": 173
+        }
+      }
+    },
+    "2023": {
+      "n_days": 276,
+      "obs": 4850,
+      "Q10": {
+        "r_1": {
+          "cagr": -0.476357,
+          "sharpe": -0.7718,
+          "max_dd": -0.426541,
+          "win_rate": 0.5047,
+          "ann_vol": 0.617179,
+          "total_return": -0.315485,
+          "n_days": 214
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": -0.00774,
+          "sharpe": -0.0147,
+          "max_dd": -0.355518,
+          "win_rate": 0.4783,
+          "ann_vol": 0.526503,
+          "total_return": -0.005854,
+          "n_days": 276
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 0.460766,
+          "sharpe": 0.9888,
+          "max_dd": -0.323449,
+          "win_rate": 0.4891,
+          "ann_vol": 0.465986,
+          "total_return": 0.331573,
+          "n_days": 276
+        }
+      }
+    },
+    "2024": {
+      "n_days": 296,
+      "obs": 5292,
+      "Q10": {
+        "r_1": {
+          "cagr": 0.229826,
+          "sharpe": 0.2522,
+          "max_dd": -0.62052,
+          "win_rate": 0.556,
+          "ann_vol": 0.911326,
+          "total_return": 0.146254,
+          "n_days": 241
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 0.573038,
+          "sharpe": 0.78,
+          "max_dd": -0.565827,
+          "win_rate": 0.5372,
+          "ann_vol": 0.734642,
+          "total_return": 0.443571,
+          "n_days": 296
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 0.514463,
+          "sharpe": 0.8503,
+          "max_dd": -0.326769,
+          "win_rate": 0.5439,
+          "ann_vol": 0.605071,
+          "total_return": 0.399853,
+          "n_days": 296
+        }
+      }
+    },
+    "2025": {
+      "n_days": 234,
+      "obs": 3474,
+      "Q10": {
+        "r_1": {
+          "cagr": 23.3293,
+          "sharpe": 31.2711,
+          "max_dd": -0.208718,
+          "win_rate": 0.5862,
+          "ann_vol": 0.746034,
+          "total_return": 2.5504,
+          "n_days": 145
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 2.538293,
+          "sharpe": 3.7764,
+          "max_dd": -0.24186,
+          "win_rate": 0.594,
+          "ann_vol": 0.672152,
+          "total_return": 1.246925,
+          "n_days": 234
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 0.830523,
+          "sharpe": 1.2243,
+          "max_dd": -0.289376,
+          "win_rate": 0.5684,
+          "ann_vol": 0.678345,
+          "total_return": 0.473061,
+          "n_days": 234
+        }
+      }
+    },
+    "2026": {
+      "n_days": 139,
+      "obs": 2226,
+      "Q10": {
+        "r_1": {
+          "cagr": 7.339106,
+          "sharpe": 11.4524,
+          "max_dd": -0.147754,
+          "win_rate": 0.6036,
+          "ann_vol": 0.640837,
+          "total_return": 0.905152,
+          "n_days": 111
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 1.721869,
+          "sharpe": 2.4815,
+          "max_dd": -0.163527,
+          "win_rate": 0.5683,
+          "ann_vol": 0.693892,
+          "total_return": 0.46384,
+          "n_days": 139
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 1.793708,
+          "sharpe": 3.1581,
+          "max_dd": -0.145329,
+          "win_rate": 0.554,
+          "ann_vol": 0.567964,
+          "total_return": 0.478425,
+          "n_days": 139
+        }
+      }
+    }
+  },
+  "recent_halves": {
+    "2025H2": {
+      "n_days": 126,
+      "Q10": {
+        "r_1": {
+          "cagr": 37.524952,
+          "sharpe": 44.9391,
+          "max_dd": -0.109511,
+          "win_rate": 0.5862,
+          "ann_vol": 0.835018,
+          "total_return": 1.386232,
+          "n_days": 87
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 6.350872,
+          "sharpe": 8.8037,
+          "max_dd": -0.24186,
+          "win_rate": 0.6111,
+          "ann_vol": 0.721384,
+          "total_return": 0.990033,
+          "n_days": 126
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 2.915741,
+          "sharpe": 3.7743,
+          "max_dd": -0.289376,
+          "win_rate": 0.5794,
+          "ann_vol": 0.772517,
+          "total_return": 0.60141,
+          "n_days": 126
+        }
+      }
+    },
+    "2026H1": {
+      "n_days": 114,
+      "Q10": {
+        "r_1": {
+          "cagr": 9.632929,
+          "sharpe": 14.759,
+          "max_dd": -0.147754,
+          "win_rate": 0.6111,
+          "ann_vol": 0.652681,
+          "total_return": 0.790499,
+          "n_days": 90
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 1.864109,
+          "sharpe": 2.5016,
+          "max_dd": -0.156204,
+          "win_rate": 0.5702,
+          "ann_vol": 0.745162,
+          "total_return": 0.38878,
+          "n_days": 114
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 1.999498,
+          "sharpe": 3.2605,
+          "max_dd": -0.145329,
+          "win_rate": 0.5439,
+          "ann_vol": 0.61324,
+          "total_return": 0.408945,
+          "n_days": 114
+        }
+      }
+    },
+    "2026H2": {
+      "n_days": 25,
+      "Q10": {
+        "r_1": {
+          "cagr": 1.943293,
+          "sharpe": 3.2436,
+          "max_dd": -0.089137,
+          "win_rate": 0.5714,
+          "ann_vol": 0.599112,
+          "total_return": 0.064034,
+          "n_days": 21
+        }
+      },
+      "Q20": {
+        "r_1": {
+          "cagr": 1.157689,
+          "sharpe": 2.9536,
+          "max_dd": -0.06686,
+          "win_rate": 0.56,
+          "ann_vol": 0.391952,
+          "total_return": 0.054048,
+          "n_days": 25
+        }
+      },
+      "Q30": {
+        "r_1": {
+          "cagr": 1.020344,
+          "sharpe": 3.53,
+          "max_dd": -0.047682,
+          "win_rate": 0.6,
+          "ann_vol": 0.289047,
+          "total_return": 0.049313,
+          "n_days": 25
+        }
+      }
+    }
+  },
+  "nozec": {
+    "Q10": {
+      "r_1": {
+        "cagr": -0.178985,
+        "sharpe": -0.1559,
+        "max_dd": -0.972528,
+        "win_rate": 0.5501,
+        "ann_vol": 1.147787,
+        "total_return": -0.470621,
+        "n_days": 1178
+      }
+    },
+    "Q20": {
+      "r_1": {
+        "cagr": 0.556798,
+        "sharpe": 0.6939,
+        "max_dd": -0.759901,
+        "win_rate": 0.5317,
+        "ann_vol": 0.802405,
+        "total_return": 5.876203,
+        "n_days": 1591
+      }
+    },
+    "Q30": {
+      "r_1": {
+        "cagr": 0.686224,
+        "sharpe": 1.036,
+        "max_dd": -0.555244,
+        "win_rate": 0.5312,
+        "ann_vol": 0.662408,
+        "total_return": 8.919766,
+        "n_days": 1604
+      }
+    }
+  }
+}

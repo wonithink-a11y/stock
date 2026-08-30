@@ -1,0 +1,3352 @@
+{
+  "dataset": "crypto_feature_inventory",
+  "generated": "2026-08-29T08:06:43.753414+00:00",
+  "universe28": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "ADAUSDT",
+    "DOGEUSDT",
+    "DOTUSDT",
+    "ATOMUSDT",
+    "AVAXUSDT",
+    "LINKUSDT",
+    "NEARUSDT",
+    "OPUSDT",
+    "UNIUSDT",
+    "ARBUSDT",
+    "1000PEPEUSDT",
+    "1000SHIBUSDT",
+    "AAVEUSDT",
+    "APTUSDT",
+    "BCHUSDT",
+    "BNBUSDT",
+    "FILUSDT",
+    "INJUSDT",
+    "LTCUSDT",
+    "SUIUSDT",
+    "TRXUSDT",
+    "WLDUSDT",
+    "XMRUSDT",
+    "ZECUSDT"
+  ],
+  "datasets": {
+    "daily_krw": {
+      "dir": "data\\crypto\\daily",
+      "n_symbols": 15,
+      "files": [
+        "data\\crypto\\daily\\KRW-ADA.parquet",
+        "data\\crypto\\daily\\KRW-ARB.parquet",
+        "data\\crypto\\daily\\KRW-ATOM.parquet",
+        "data\\crypto\\daily\\KRW-AVAX.parquet",
+        "data\\crypto\\daily\\KRW-BTC.parquet",
+        "data\\crypto\\daily\\KRW-DOGE.parquet",
+        "data\\crypto\\daily\\KRW-DOT.parquet",
+        "data\\crypto\\daily\\KRW-ETH.parquet",
+        "data\\crypto\\daily\\KRW-LINK.parquet",
+        "data\\crypto\\daily\\KRW-MATIC.parquet",
+        "data\\crypto\\daily\\KRW-NEAR.parquet",
+        "data\\crypto\\daily\\KRW-OP.parquet",
+        "data\\crypto\\daily\\KRW-SOL.parquet",
+        "data\\crypto\\daily\\KRW-UNI.parquet",
+        "data\\crypto\\daily\\KRW-XRP.parquet"
+      ],
+      "columns": {
+        "open": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "high": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "low": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "close": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "volume": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        }
+      },
+      "per_symbol": {
+        "KRW-ADA": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ARB": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ATOM": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-AVAX": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-BTC": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-DOGE": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-DOT": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ETH": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-LINK": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-MATIC": {
+          "rows": 0,
+          "tmin": null,
+          "tmax": null,
+          "nulls": {
+            "open": NaN,
+            "high": NaN,
+            "low": NaN,
+            "close": NaN,
+            "volume": NaN
+          }
+        },
+        "KRW-NEAR": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-OP": {
+          "rows": 396,
+          "tmin": "2025-07-28T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-SOL": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-UNI": {
+          "rows": 675,
+          "tmin": "2024-10-22T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-XRP": {
+          "rows": 1195,
+          "tmin": "2023-05-21T00:00:00",
+          "tmax": "2026-08-27T00:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        }
+      },
+      "coverage": {
+        "min": "2023-05-21T00:00:00",
+        "max": "2026-08-27T00:00:00",
+        "matched_28_universe": 14,
+        "matched_28_list": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "XRPUSDT",
+          "ADAUSDT",
+          "DOGEUSDT",
+          "DOTUSDT",
+          "ATOMUSDT",
+          "AVAXUSDT",
+          "LINKUSDT",
+          "NEARUSDT",
+          "OPUSDT",
+          "UNIUSDT",
+          "ARBUSDT"
+        ],
+        "krw_bases": [
+          "ADA",
+          "ARB",
+          "ATOM",
+          "AVAX",
+          "BTC",
+          "DOGE",
+          "DOT",
+          "ETH",
+          "LINK",
+          "MATIC",
+          "NEAR",
+          "OP",
+          "SOL",
+          "UNI",
+          "XRP"
+        ]
+      }
+    },
+    "4h_krw": {
+      "dir": "data\\crypto\\4h",
+      "n_symbols": 15,
+      "files": [
+        "data\\crypto\\4h\\KRW-ADA.parquet",
+        "data\\crypto\\4h\\KRW-ARB.parquet",
+        "data\\crypto\\4h\\KRW-ATOM.parquet",
+        "data\\crypto\\4h\\KRW-AVAX.parquet",
+        "data\\crypto\\4h\\KRW-BTC.parquet",
+        "data\\crypto\\4h\\KRW-DOGE.parquet",
+        "data\\crypto\\4h\\KRW-DOT.parquet",
+        "data\\crypto\\4h\\KRW-ETH.parquet",
+        "data\\crypto\\4h\\KRW-LINK.parquet",
+        "data\\crypto\\4h\\KRW-MATIC.parquet",
+        "data\\crypto\\4h\\KRW-NEAR.parquet",
+        "data\\crypto\\4h\\KRW-OP.parquet",
+        "data\\crypto\\4h\\KRW-SOL.parquet",
+        "data\\crypto\\4h\\KRW-UNI.parquet",
+        "data\\crypto\\4h\\KRW-XRP.parquet"
+      ],
+      "columns": {
+        "open": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "high": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "low": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "close": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        },
+        "volume": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 14,
+          "n_symbols_gap": 0
+        }
+      },
+      "per_symbol": {
+        "KRW-ADA": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ARB": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ATOM": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-AVAX": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-BTC": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-DOGE": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-DOT": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-ETH": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-LINK": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-MATIC": {
+          "rows": 0,
+          "tmin": null,
+          "tmax": null,
+          "nulls": {
+            "open": NaN,
+            "high": NaN,
+            "low": NaN,
+            "close": NaN,
+            "volume": NaN
+          }
+        },
+        "KRW-NEAR": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-OP": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-SOL": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-UNI": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        },
+        "KRW-XRP": {
+          "rows": 988,
+          "tmin": "2026-03-16T09:00:00",
+          "tmax": "2026-08-27T21:00:00",
+          "nulls": {
+            "open": 0.0,
+            "high": 0.0,
+            "low": 0.0,
+            "close": 0.0,
+            "volume": 0.0
+          }
+        }
+      },
+      "coverage": {
+        "min": "2026-03-16T09:00:00",
+        "max": "2026-08-27T21:00:00",
+        "matched_28_universe": 14,
+        "matched_28_list": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "XRPUSDT",
+          "ADAUSDT",
+          "DOGEUSDT",
+          "DOTUSDT",
+          "ATOMUSDT",
+          "AVAXUSDT",
+          "LINKUSDT",
+          "NEARUSDT",
+          "OPUSDT",
+          "UNIUSDT",
+          "ARBUSDT"
+        ],
+        "krw_bases": [
+          "ADA",
+          "ARB",
+          "ATOM",
+          "AVAX",
+          "BTC",
+          "DOGE",
+          "DOT",
+          "ETH",
+          "LINK",
+          "MATIC",
+          "NEAR",
+          "OP",
+          "SOL",
+          "UNI",
+          "XRP"
+        ]
+      }
+    },
+    "funding_8h": {
+      "dir": "data\\crypto\\funding",
+      "n_symbols": 28,
+      "files": [
+        "data\\crypto\\funding\\1000PEPEUSDT.parquet",
+        "data\\crypto\\funding\\1000SHIBUSDT.parquet",
+        "data\\crypto\\funding\\AAVEUSDT.parquet",
+        "data\\crypto\\funding\\ADAUSDT.parquet",
+        "data\\crypto\\funding\\APTUSDT.parquet",
+        "data\\crypto\\funding\\ARBUSDT.parquet",
+        "data\\crypto\\funding\\ATOMUSDT.parquet",
+        "data\\crypto\\funding\\AVAXUSDT.parquet",
+        "data\\crypto\\funding\\BCHUSDT.parquet",
+        "data\\crypto\\funding\\BNBUSDT.parquet",
+        "data\\crypto\\funding\\BTCUSDT.parquet",
+        "data\\crypto\\funding\\DOGEUSDT.parquet",
+        "data\\crypto\\funding\\DOTUSDT.parquet",
+        "data\\crypto\\funding\\ETHUSDT.parquet",
+        "data\\crypto\\funding\\FILUSDT.parquet",
+        "data\\crypto\\funding\\INJUSDT.parquet",
+        "data\\crypto\\funding\\LINKUSDT.parquet",
+        "data\\crypto\\funding\\LTCUSDT.parquet",
+        "data\\crypto\\funding\\NEARUSDT.parquet",
+        "data\\crypto\\funding\\OPUSDT.parquet",
+        "data\\crypto\\funding\\SOLUSDT.parquet",
+        "data\\crypto\\funding\\SUIUSDT.parquet",
+        "data\\crypto\\funding\\TRXUSDT.parquet",
+        "data\\crypto\\funding\\UNIUSDT.parquet",
+        "data\\crypto\\funding\\WLDUSDT.parquet",
+        "data\\crypto\\funding\\XMRUSDT.parquet",
+        "data\\crypto\\funding\\XRPUSDT.parquet",
+        "data\\crypto\\funding\\ZECUSDT.parquet"
+      ],
+      "columns": {
+        "symbol": {
+          "dtype": "object",
+          "max_null": 0.0,
+          "n_symbols_col": 28,
+          "n_symbols_gap": 0
+        },
+        "fundingRate": {
+          "dtype": "float64",
+          "max_null": 0.0,
+          "n_symbols_col": 28,
+          "n_symbols_gap": 0
+        },
+        "markPrice": {
+          "dtype": "float64",
+          "max_null": 0.5943,
+          "n_symbols_col": 28,
+          "n_symbols_gap": 28
+        }
+      },
+      "per_symbol": {
+        "1000PEPEUSDT": {
+          "rows": 3633,
+          "tmin": "2023-05-05T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.1475
+          }
+        },
+        "1000SHIBUSDT": {
+          "rows": 5808,
+          "tmin": "2021-05-10T16:00:00.013000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.4668
+          }
+        },
+        "AAVEUSDT": {
+          "rows": 6427,
+          "tmin": "2020-10-16T08:00:00.003000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5181
+          }
+        },
+        "ADAUSDT": {
+          "rows": 7204,
+          "tmin": "2020-01-31T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5701
+          }
+        },
+        "APTUSDT": {
+          "rows": 4230,
+          "tmin": "2022-10-18T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.2678
+          }
+        },
+        "ARBUSDT": {
+          "rows": 3763,
+          "tmin": "2023-03-23T08:00:00.001000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.177
+          }
+        },
+        "ATOMUSDT": {
+          "rows": 7182,
+          "tmin": "2020-02-07T16:00:00.001000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5688
+          }
+        },
+        "AVAXUSDT": {
+          "rows": 6496,
+          "tmin": "2020-09-23T08:00:00.001000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5232
+          }
+        },
+        "BCHUSDT": {
+          "rows": 7332,
+          "tmin": "2019-12-19T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5776
+          }
+        },
+        "BNBUSDT": {
+          "rows": 7174,
+          "tmin": "2020-02-10T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5683
+          }
+        },
+        "BTCUSDT": {
+          "rows": 7633,
+          "tmin": "2019-09-10T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5943
+          }
+        },
+        "DOGEUSDT": {
+          "rows": 6720,
+          "tmin": "2020-07-10T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5391
+          }
+        },
+        "DOTUSDT": {
+          "rows": 6592,
+          "tmin": "2020-08-22T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5302
+          }
+        },
+        "ETHUSDT": {
+          "rows": 7399,
+          "tmin": "2019-11-27T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5814
+          }
+        },
+        "FILUSDT": {
+          "rows": 6427,
+          "tmin": "2020-10-16T08:00:00.003000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5181
+          }
+        },
+        "INJUSDT": {
+          "rows": 4419,
+          "tmin": "2022-08-16T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.2992
+          }
+        },
+        "LINKUSDT": {
+          "rows": 7246,
+          "tmin": "2020-01-17T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5726
+          }
+        },
+        "LTCUSDT": {
+          "rows": 7269,
+          "tmin": "2020-01-09T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5739
+          }
+        },
+        "NEARUSDT": {
+          "rows": 6430,
+          "tmin": "2020-10-15T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5184
+          }
+        },
+        "OPUSDT": {
+          "rows": 4648,
+          "tmin": "2022-06-01T08:00:00.011000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.3337
+          }
+        },
+        "SOLUSDT": {
+          "rows": 6598,
+          "tmin": "2020-09-14T08:00:00.008000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5306
+          }
+        },
+        "SUIUSDT": {
+          "rows": 3639,
+          "tmin": "2023-05-03T16:00:00.011000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.1489
+          }
+        },
+        "TRXUSDT": {
+          "rows": 7251,
+          "tmin": "2020-01-15T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5729
+          }
+        },
+        "UNIUSDT": {
+          "rows": 6511,
+          "tmin": "2020-09-18T08:00:00.002000+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5243
+          }
+        },
+        "WLDUSDT": {
+          "rows": 3393,
+          "tmin": "2023-07-24T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.0872
+          }
+        },
+        "XMRUSDT": {
+          "rows": 7195,
+          "tmin": "2020-02-03T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5696
+          }
+        },
+        "XRPUSDT": {
+          "rows": 7278,
+          "tmin": "2020-01-06T16:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5745
+          }
+        },
+        "ZECUSDT": {
+          "rows": 7189,
+          "tmin": "2020-02-05T08:00:00+00:00",
+          "tmax": "2026-08-28T08:00:00+00:00",
+          "nulls": {
+            "symbol": 0.0,
+            "fundingRate": 0.0,
+            "markPrice": 0.5692
+          }
+        }
+      },
+      "coverage": {
+        "min": "2019-09-10T08:00:00+00:00",
+        "max": "2026-08-28T08:00:00+00:00",
+        "matched_28_universe": 28,
+        "matched_28_list": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "XRPUSDT",
+          "ADAUSDT",
+          "DOGEUSDT",
+          "DOTUSDT",
+          "ATOMUSDT",
+          "AVAXUSDT",
+          "LINKUSDT",
+          "NEARUSDT",
+          "OPUSDT",
+          "UNIUSDT",
+          "ARBUSDT",
+          "1000PEPEUSDT",
+          "1000SHIBUSDT",
+          "AAVEUSDT",
+          "APTUSDT",
+          "BCHUSDT",
+          "BNBUSDT",
+          "FILUSDT",
+          "INJUSDT",
+          "LTCUSDT",
+          "SUIUSDT",
+          "TRXUSDT",
+          "WLDUSDT",
+          "XMRUSDT",
+          "ZECUSDT"
+        ],
+        "krw_bases": []
+      }
+    },
+    "basis": {
+      "8h": {
+        "dir": "data\\crypto\\basis",
+        "n_symbols": 28,
+        "files": [
+          "data\\crypto\\basis\\1000PEPEUSDT.parquet",
+          "data\\crypto\\basis\\1000SHIBUSDT.parquet",
+          "data\\crypto\\basis\\AAVEUSDT.parquet",
+          "data\\crypto\\basis\\ADAUSDT.parquet",
+          "data\\crypto\\basis\\APTUSDT.parquet",
+          "data\\crypto\\basis\\ARBUSDT.parquet",
+          "data\\crypto\\basis\\ATOMUSDT.parquet",
+          "data\\crypto\\basis\\AVAXUSDT.parquet",
+          "data\\crypto\\basis\\BCHUSDT.parquet",
+          "data\\crypto\\basis\\BNBUSDT.parquet",
+          "data\\crypto\\basis\\BTCUSDT.parquet",
+          "data\\crypto\\basis\\DOGEUSDT.parquet",
+          "data\\crypto\\basis\\DOTUSDT.parquet",
+          "data\\crypto\\basis\\ETHUSDT.parquet",
+          "data\\crypto\\basis\\FILUSDT.parquet",
+          "data\\crypto\\basis\\INJUSDT.parquet",
+          "data\\crypto\\basis\\LINKUSDT.parquet",
+          "data\\crypto\\basis\\LTCUSDT.parquet",
+          "data\\crypto\\basis\\NEARUSDT.parquet",
+          "data\\crypto\\basis\\OPUSDT.parquet",
+          "data\\crypto\\basis\\SOLUSDT.parquet",
+          "data\\crypto\\basis\\SUIUSDT.parquet",
+          "data\\crypto\\basis\\TRXUSDT.parquet",
+          "data\\crypto\\basis\\UNIUSDT.parquet",
+          "data\\crypto\\basis\\WLDUSDT.parquet",
+          "data\\crypto\\basis\\XMRUSDT.parquet",
+          "data\\crypto\\basis\\XRPUSDT.parquet",
+          "data\\crypto\\basis\\ZECUSDT.parquet"
+        ],
+        "columns": {
+          "time": {
+            "dtype": "datetime64[ns, UTC]",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "mark_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_high": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_low": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_close": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "index_open": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_high": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_low": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_close": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "premium_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "premium_close": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_minus_index_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_minus_index_close": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "futuresPrice": {
+            "dtype": "float64",
+            "max_null": 0.308,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 19
+          },
+          "indexPrice": {
+            "dtype": "float64",
+            "max_null": 0.308,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 19
+          },
+          "basis": {
+            "dtype": "float64",
+            "max_null": 0.308,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 19
+          },
+          "basisRate": {
+            "dtype": "float64",
+            "max_null": 0.308,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 19
+          },
+          "annualizedBasisRate": {
+            "dtype": "float64",
+            "max_null": 1.0,
+            "n_symbols_col": 0,
+            "n_symbols_gap": 28
+          }
+        },
+        "per_symbol": {
+          "1000PEPEUSDT": {
+            "rows": 3636,
+            "tmin": "2023-05-05T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0003,
+              "indexPrice": 0.0003,
+              "basis": 0.0003,
+              "basisRate": 0.0003,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "1000SHIBUSDT": {
+            "rows": 5811,
+            "tmin": "2021-05-10T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "AAVEUSDT": {
+            "rows": 6430,
+            "tmin": "2020-10-16T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "ADAUSDT": {
+            "rows": 7242,
+            "tmin": "2020-01-19T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.005,
+              "indexPrice": 0.005,
+              "basis": 0.005,
+              "basisRate": 0.005,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "APTUSDT": {
+            "rows": 4231,
+            "tmin": "2022-10-19T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "ARBUSDT": {
+            "rows": 3765,
+            "tmin": "2023-03-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "ATOMUSDT": {
+            "rows": 7195,
+            "tmin": "2020-02-04T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.001,
+              "mark_high": 0.001,
+              "mark_low": 0.001,
+              "mark_close": 0.001,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.001,
+              "premium_close": 0.001,
+              "mark_minus_index_open": 0.001,
+              "mark_minus_index_close": 0.001,
+              "futuresPrice": 0.0014,
+              "indexPrice": 0.0014,
+              "basis": 0.0014,
+              "basisRate": 0.0014,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "AVAXUSDT": {
+            "rows": 6501,
+            "tmin": "2020-09-22T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0003,
+              "indexPrice": 0.0003,
+              "basis": 0.0003,
+              "basisRate": 0.0003,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "BCHUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "BNBUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0201,
+              "indexPrice": 0.0201,
+              "basis": 0.0201,
+              "basisRate": 0.0201,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "BTCUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "DOGEUSDT": {
+            "rows": 6730,
+            "tmin": "2020-07-08T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0009,
+              "mark_high": 0.0009,
+              "mark_low": 0.0009,
+              "mark_close": 0.0009,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0009,
+              "premium_close": 0.0009,
+              "mark_minus_index_open": 0.0009,
+              "mark_minus_index_close": 0.0009,
+              "futuresPrice": 0.001,
+              "indexPrice": 0.001,
+              "basis": 0.001,
+              "basisRate": 0.001,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "DOTUSDT": {
+            "rows": 6603,
+            "tmin": "2020-08-19T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0003,
+              "mark_high": 0.0003,
+              "mark_low": 0.0003,
+              "mark_close": 0.0003,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0003,
+              "premium_close": 0.0003,
+              "mark_minus_index_open": 0.0003,
+              "mark_minus_index_close": 0.0003,
+              "futuresPrice": 0.0012,
+              "indexPrice": 0.0012,
+              "basis": 0.0012,
+              "basisRate": 0.0012,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "ETHUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "FILUSDT": {
+            "rows": 6430,
+            "tmin": "2020-10-16T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "INJUSDT": {
+            "rows": 6387,
+            "tmin": "2020-10-30T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.3077,
+              "mark_high": 0.3077,
+              "mark_low": 0.3077,
+              "mark_close": 0.3077,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.3077,
+              "premium_close": 0.3077,
+              "mark_minus_index_open": 0.3077,
+              "mark_minus_index_close": 0.3077,
+              "futuresPrice": 0.308,
+              "indexPrice": 0.308,
+              "basis": 0.308,
+              "basisRate": 0.308,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "LINKUSDT": {
+            "rows": 7255,
+            "tmin": "2020-01-15T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0008,
+              "mark_high": 0.0008,
+              "mark_low": 0.0008,
+              "mark_close": 0.0008,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0008,
+              "premium_close": 0.0008,
+              "mark_minus_index_open": 0.0008,
+              "mark_minus_index_close": 0.0008,
+              "futuresPrice": 0.001,
+              "indexPrice": 0.001,
+              "basis": 0.001,
+              "basisRate": 0.001,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "LTCUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0068,
+              "mark_high": 0.0068,
+              "mark_low": 0.0068,
+              "mark_close": 0.0068,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0068,
+              "premium_close": 0.0068,
+              "mark_minus_index_open": 0.0068,
+              "mark_minus_index_close": 0.0068,
+              "futuresPrice": 0.007,
+              "indexPrice": 0.007,
+              "basis": 0.007,
+              "basisRate": 0.007,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "NEARUSDT": {
+            "rows": 6435,
+            "tmin": "2020-10-14T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0005,
+              "indexPrice": 0.0005,
+              "basis": 0.0005,
+              "basisRate": 0.0005,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "OPUSDT": {
+            "rows": 4651,
+            "tmin": "2022-06-01T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0002,
+              "indexPrice": 0.0002,
+              "basis": 0.0002,
+              "basisRate": 0.0002,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "SOLUSDT": {
+            "rows": 6618,
+            "tmin": "2020-08-14T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0136,
+              "mark_high": 0.0136,
+              "mark_low": 0.0136,
+              "mark_close": 0.0136,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0136,
+              "premium_close": 0.0136,
+              "mark_minus_index_open": 0.0136,
+              "mark_minus_index_close": 0.0136,
+              "futuresPrice": 0.0139,
+              "indexPrice": 0.0139,
+              "basis": 0.0139,
+              "basisRate": 0.0139,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "SUIUSDT": {
+            "rows": 3642,
+            "tmin": "2023-05-03T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0003,
+              "indexPrice": 0.0003,
+              "basis": 0.0003,
+              "basisRate": 0.0003,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "TRXUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0093,
+              "mark_high": 0.0093,
+              "mark_low": 0.0093,
+              "mark_close": 0.0093,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0093,
+              "premium_close": 0.0093,
+              "mark_minus_index_open": 0.0093,
+              "mark_minus_index_close": 0.0093,
+              "futuresPrice": 0.0094,
+              "indexPrice": 0.0094,
+              "basis": 0.0094,
+              "basisRate": 0.0094,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "UNIUSDT": {
+            "rows": 6517,
+            "tmin": "2020-09-17T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0005,
+              "indexPrice": 0.0005,
+              "basis": 0.0005,
+              "basisRate": 0.0005,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "WLDUSDT": {
+            "rows": 3396,
+            "tmin": "2023-07-24T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0,
+              "indexPrice": 0.0,
+              "basis": 0.0,
+              "basisRate": 0.0,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "XMRUSDT": {
+            "rows": 7242,
+            "tmin": "2020-01-19T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0062,
+              "indexPrice": 0.0062,
+              "basis": 0.0062,
+              "basisRate": 0.0062,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "XRPUSDT": {
+            "rows": 7323,
+            "tmin": "2019-12-23T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0056,
+              "mark_high": 0.0056,
+              "mark_low": 0.0056,
+              "mark_close": 0.0056,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0056,
+              "premium_close": 0.0056,
+              "mark_minus_index_open": 0.0056,
+              "mark_minus_index_close": 0.0056,
+              "futuresPrice": 0.0057,
+              "indexPrice": 0.0057,
+              "basis": 0.0057,
+              "basisRate": 0.0057,
+              "annualizedBasisRate": 1.0
+            }
+          },
+          "ZECUSDT": {
+            "rows": 7195,
+            "tmin": "2020-02-04T00:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0,
+              "mark_minus_index_close": 0.0,
+              "futuresPrice": 0.0006,
+              "indexPrice": 0.0006,
+              "basis": 0.0006,
+              "basisRate": 0.0006,
+              "annualizedBasisRate": 1.0
+            }
+          }
+        },
+        "coverage": {
+          "min": "2019-12-23T08:00:00+00:00",
+          "max": "2026-08-29T00:00:00+00:00",
+          "matched_28_universe": 28,
+          "matched_28_list": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "XRPUSDT",
+            "ADAUSDT",
+            "DOGEUSDT",
+            "DOTUSDT",
+            "ATOMUSDT",
+            "AVAXUSDT",
+            "LINKUSDT",
+            "NEARUSDT",
+            "OPUSDT",
+            "UNIUSDT",
+            "ARBUSDT",
+            "1000PEPEUSDT",
+            "1000SHIBUSDT",
+            "AAVEUSDT",
+            "APTUSDT",
+            "BCHUSDT",
+            "BNBUSDT",
+            "FILUSDT",
+            "INJUSDT",
+            "LTCUSDT",
+            "SUIUSDT",
+            "TRXUSDT",
+            "WLDUSDT",
+            "XMRUSDT",
+            "ZECUSDT"
+          ],
+          "krw_bases": []
+        }
+      },
+      "1h": {
+        "dir": "data\\crypto\\basis\\1h",
+        "n_symbols": 28,
+        "files": [
+          "data\\crypto\\basis\\1h\\1000PEPEUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\1000SHIBUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\AAVEUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\ADAUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\APTUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\ARBUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\ATOMUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\AVAXUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\BCHUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\BNBUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\BTCUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\DOGEUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\DOTUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\ETHUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\FILUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\INJUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\LINKUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\LTCUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\NEARUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\OPUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\SOLUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\SUIUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\TRXUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\UNIUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\WLDUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\XMRUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\XRPUSDT_1h.parquet",
+          "data\\crypto\\basis\\1h\\ZECUSDT_1h.parquet"
+        ],
+        "columns": {
+          "time": {
+            "dtype": "datetime64[ns, UTC]",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "mark_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_high": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_low": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_close": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "index_open": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_high": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_low": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "index_close": {
+            "dtype": "float64",
+            "max_null": 0.0,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 0
+          },
+          "premium_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "premium_close": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          },
+          "mark_minus_index_open": {
+            "dtype": "float64",
+            "max_null": 0.3077,
+            "n_symbols_col": 28,
+            "n_symbols_gap": 9
+          }
+        },
+        "per_symbol": {
+          "1000PEPEUSDT": {
+            "rows": 29078,
+            "tmin": "2023-05-05T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "1000SHIBUSDT": {
+            "rows": 46480,
+            "tmin": "2021-05-10T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "AAVEUSDT": {
+            "rows": 51431,
+            "tmin": "2020-10-16T02:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "ADAUSDT": {
+            "rows": 57928,
+            "tmin": "2020-01-19T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "APTUSDT": {
+            "rows": 33840,
+            "tmin": "2022-10-19T01:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "ARBUSDT": {
+            "rows": 30108,
+            "tmin": "2023-03-23T13:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "ATOMUSDT": {
+            "rows": 57548,
+            "tmin": "2020-02-04T05:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0009,
+              "mark_high": 0.0009,
+              "mark_low": 0.0009,
+              "mark_close": 0.0009,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0009,
+              "premium_close": 0.0009,
+              "mark_minus_index_open": 0.0009
+            }
+          },
+          "AVAXUSDT": {
+            "rows": 52000,
+            "tmin": "2020-09-22T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "BCHUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "BNBUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "BTCUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "DOGEUSDT": {
+            "rows": 53827,
+            "tmin": "2020-07-08T06:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0008,
+              "mark_high": 0.0008,
+              "mark_low": 0.0008,
+              "mark_close": 0.0008,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0008,
+              "premium_close": 0.0008,
+              "mark_minus_index_open": 0.0008
+            }
+          },
+          "DOTUSDT": {
+            "rows": 52815,
+            "tmin": "2020-08-19T10:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0003,
+              "mark_high": 0.0003,
+              "mark_low": 0.0003,
+              "mark_close": 0.0003,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0003,
+              "premium_close": 0.0003,
+              "mark_minus_index_open": 0.0003
+            }
+          },
+          "ETHUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "FILUSDT": {
+            "rows": 51431,
+            "tmin": "2020-10-16T02:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "INJUSDT": {
+            "rows": 51089,
+            "tmin": "2020-10-30T08:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.3077,
+              "mark_high": 0.3077,
+              "mark_low": 0.3077,
+              "mark_close": 0.3077,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.3077,
+              "premium_close": 0.3077,
+              "mark_minus_index_open": 0.3077
+            }
+          },
+          "LINKUSDT": {
+            "rows": 58030,
+            "tmin": "2020-01-15T03:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0009,
+              "mark_high": 0.0009,
+              "mark_low": 0.0009,
+              "mark_close": 0.0009,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0009,
+              "premium_close": 0.0009,
+              "mark_minus_index_open": 0.0009
+            }
+          },
+          "LTCUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0068,
+              "mark_high": 0.0068,
+              "mark_low": 0.0068,
+              "mark_close": 0.0068,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0068,
+              "premium_close": 0.0068,
+              "mark_minus_index_open": 0.0068
+            }
+          },
+          "NEARUSDT": {
+            "rows": 51472,
+            "tmin": "2020-10-14T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "OPUSDT": {
+            "rows": 37195,
+            "tmin": "2022-06-01T06:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "SOLUSDT": {
+            "rows": 52933,
+            "tmin": "2020-08-14T12:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0136,
+              "mark_high": 0.0136,
+              "mark_low": 0.0136,
+              "mark_close": 0.0136,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0136,
+              "premium_close": 0.0136,
+              "mark_minus_index_open": 0.0136
+            }
+          },
+          "SUIUSDT": {
+            "rows": 29125,
+            "tmin": "2023-05-03T12:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "TRXUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0093,
+              "mark_high": 0.0093,
+              "mark_low": 0.0093,
+              "mark_close": 0.0093,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0093,
+              "premium_close": 0.0093,
+              "mark_minus_index_open": 0.0093
+            }
+          },
+          "UNIUSDT": {
+            "rows": 52122,
+            "tmin": "2020-09-17T07:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "WLDUSDT": {
+            "rows": 27160,
+            "tmin": "2023-07-24T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "XMRUSDT": {
+            "rows": 57928,
+            "tmin": "2020-01-19T09:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          },
+          "XRPUSDT": {
+            "rows": 58574,
+            "tmin": "2019-12-23T11:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0056,
+              "mark_high": 0.0056,
+              "mark_low": 0.0056,
+              "mark_close": 0.0056,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0056,
+              "premium_close": 0.0056,
+              "mark_minus_index_open": 0.0056
+            }
+          },
+          "ZECUSDT": {
+            "rows": 57548,
+            "tmin": "2020-02-04T05:00:00+00:00",
+            "tmax": "2026-08-29T00:00:00+00:00",
+            "nulls": {
+              "time": 0.0,
+              "mark_open": 0.0,
+              "mark_high": 0.0,
+              "mark_low": 0.0,
+              "mark_close": 0.0,
+              "index_open": 0.0,
+              "index_high": 0.0,
+              "index_low": 0.0,
+              "index_close": 0.0,
+              "premium_open": 0.0,
+              "premium_close": 0.0,
+              "mark_minus_index_open": 0.0
+            }
+          }
+        },
+        "coverage": {
+          "min": "2019-12-23T11:00:00+00:00",
+          "max": "2026-08-29T00:00:00+00:00",
+          "matched_28_universe": 28,
+          "matched_28_list": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "XRPUSDT",
+            "ADAUSDT",
+            "DOGEUSDT",
+            "DOTUSDT",
+            "ATOMUSDT",
+            "AVAXUSDT",
+            "LINKUSDT",
+            "NEARUSDT",
+            "OPUSDT",
+            "UNIUSDT",
+            "ARBUSDT",
+            "1000PEPEUSDT",
+            "1000SHIBUSDT",
+            "AAVEUSDT",
+            "APTUSDT",
+            "BCHUSDT",
+            "BNBUSDT",
+            "FILUSDT",
+            "INJUSDT",
+            "LTCUSDT",
+            "SUIUSDT",
+            "TRXUSDT",
+            "WLDUSDT",
+            "XMRUSDT",
+            "ZECUSDT"
+          ],
+          "krw_bases": []
+        }
+      },
+      "manifest": {
+        "end_target_utc": "2026-08-28T23:59 (grid floor 2026-08-29 00:00Z)",
+        "grid_8h": "00:00/08:00/16:00 UTC",
+        "symbols": {
+          "1000PEPEUSDT": {
+            "rows_8h": 3636,
+            "first": "2023-05-05 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2023-05-05 08:00:00+00:00",
+            "first_index": "2023-05-05 08:00:00+00:00",
+            "first_basis": "2023-05-05 16:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 3636,
+            "index_present": 3636,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 3636,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.006514,
+            "basis_present": 3635,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0003,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 29078,
+            "join": {
+              "funding_events": 3633,
+              "overlap_events": 3633,
+              "matched": 3633,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "1000SHIBUSDT": {
+            "rows_8h": 5811,
+            "first": "2021-05-10 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2021-05-10 08:00:00+00:00",
+            "first_index": "2021-05-10 08:00:00+00:00",
+            "first_basis": "2021-05-10 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 5811,
+            "index_present": 5811,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 5811,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.0534,
+            "basis_present": 5811,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 46480,
+            "join": {
+              "funding_events": 5808,
+              "overlap_events": 5808,
+              "matched": 5808,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "AAVEUSDT": {
+            "rows_8h": 6430,
+            "first": "2020-10-16 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-10-16 00:00:00+00:00",
+            "first_index": "2020-10-16 00:00:00+00:00",
+            "first_basis": "2020-10-16 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6430,
+            "index_present": 6430,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6430,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.011552,
+            "basis_present": 6430,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 51431,
+            "join": {
+              "funding_events": 6427,
+              "overlap_events": 6427,
+              "matched": 6427,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "ADAUSDT": {
+            "rows_8h": 7242,
+            "first": "2020-01-19 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-19 08:00:00+00:00",
+            "first_index": "2020-01-19 08:00:00+00:00",
+            "first_basis": "2020-01-31 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7242,
+            "index_present": 7242,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7242,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.008167,
+            "basis_present": 7206,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.005,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 57928,
+            "join": {
+              "funding_events": 7204,
+              "overlap_events": 7204,
+              "matched": 7204,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 36
+          },
+          "APTUSDT": {
+            "rows_8h": 4231,
+            "first": "2022-10-19 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2022-10-19 00:00:00+00:00",
+            "first_index": "2022-10-19 00:00:00+00:00",
+            "first_basis": "2022-10-19 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 4231,
+            "index_present": 4231,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 4231,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.007053,
+            "basis_present": 4231,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 33840,
+            "join": {
+              "funding_events": 4230,
+              "overlap_events": 4229,
+              "matched": 4229,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "ARBUSDT": {
+            "rows_8h": 3765,
+            "first": "2023-03-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2023-03-23 08:00:00+00:00",
+            "first_index": "2023-03-23 08:00:00+00:00",
+            "first_basis": "2023-03-23 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 3765,
+            "index_present": 3765,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 3765,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.002113,
+            "basis_present": 3765,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 30108,
+            "join": {
+              "funding_events": 3763,
+              "overlap_events": 3763,
+              "matched": 3763,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "ATOMUSDT": {
+            "rows_8h": 7195,
+            "first": "2020-02-04 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-02-06 08:00:00+00:00",
+            "first_index": "2020-02-04 00:00:00+00:00",
+            "first_basis": "2020-02-07 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7188,
+            "index_present": 7195,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7188,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.007741,
+            "basis_present": 7185,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0014,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 57548,
+            "join": {
+              "funding_events": 7182,
+              "overlap_events": 7182,
+              "matched": 7182,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 3
+          },
+          "AVAXUSDT": {
+            "rows_8h": 6501,
+            "first": "2020-09-22 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-09-22 08:00:00+00:00",
+            "first_index": "2020-09-22 08:00:00+00:00",
+            "first_basis": "2020-09-23 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6501,
+            "index_present": 6501,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6501,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.121526,
+            "basis_present": 6499,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0003,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 52000,
+            "join": {
+              "funding_events": 6496,
+              "overlap_events": 6496,
+              "matched": 6496,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 2
+          },
+          "BCHUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2019-12-23 08:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2019-12-23 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7323,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7323,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.044406,
+            "basis_present": 7323,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7332,
+              "overlap_events": 7321,
+              "matched": 7321,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "BNBUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2019-12-23 08:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2020-02-10 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7323,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7323,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.010622,
+            "basis_present": 7176,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0201,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7174,
+              "overlap_events": 7174,
+              "matched": 7174,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 147
+          },
+          "BTCUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2019-12-23 08:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2019-12-23 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7323,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7323,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.002939,
+            "basis_present": 7323,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7633,
+              "overlap_events": 7321,
+              "matched": 7321,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "DOGEUSDT": {
+            "rows_8h": 6730,
+            "first": "2020-07-08 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-07-10 00:00:00+00:00",
+            "first_index": "2020-07-08 00:00:00+00:00",
+            "first_basis": "2020-07-10 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6724,
+            "index_present": 6730,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6724,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.061788,
+            "basis_present": 6723,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.001,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 53827,
+            "join": {
+              "funding_events": 6720,
+              "overlap_events": 6720,
+              "matched": 6720,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "DOTUSDT": {
+            "rows_8h": 6603,
+            "first": "2020-08-19 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-08-20 00:00:00+00:00",
+            "first_index": "2020-08-19 08:00:00+00:00",
+            "first_basis": "2020-08-22 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6601,
+            "index_present": 6603,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6601,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.071057,
+            "basis_present": 6595,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0012,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 52815,
+            "join": {
+              "funding_events": 6592,
+              "overlap_events": 6592,
+              "matched": 6592,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 6
+          },
+          "ETHUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2019-12-23 08:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2019-12-23 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7323,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7323,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.00697,
+            "basis_present": 7323,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7399,
+              "overlap_events": 7321,
+              "matched": 7321,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "FILUSDT": {
+            "rows_8h": 6430,
+            "first": "2020-10-16 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-10-16 00:00:00+00:00",
+            "first_index": "2020-10-16 00:00:00+00:00",
+            "first_basis": "2020-10-16 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6430,
+            "index_present": 6430,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6430,
+            "premium_extreme_gt5pct": 20,
+            "max_abs_premium_open": 0.316634,
+            "basis_present": 6430,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 51431,
+            "join": {
+              "funding_events": 6427,
+              "overlap_events": 6427,
+              "matched": 6427,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "INJUSDT": {
+            "rows_8h": 6387,
+            "first": "2020-10-30 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2022-08-16 08:00:00+00:00",
+            "first_index": "2020-10-30 08:00:00+00:00",
+            "first_basis": "2022-08-17 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 4422,
+            "index_present": 6387,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 4422,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.008902,
+            "basis_present": 4420,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.308,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 51089,
+            "join": {
+              "funding_events": 4419,
+              "overlap_events": 4419,
+              "matched": 4419,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 2
+          },
+          "LINKUSDT": {
+            "rows_8h": 7255,
+            "first": "2020-01-15 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-17 00:00:00+00:00",
+            "first_index": "2020-01-15 00:00:00+00:00",
+            "first_basis": "2020-01-17 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7249,
+            "index_present": 7255,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7249,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.058879,
+            "basis_present": 7248,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.001,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58030,
+            "join": {
+              "funding_events": 7246,
+              "overlap_events": 7246,
+              "matched": 7246,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "LTCUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-09 00:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2020-01-09 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7273,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7273,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.004921,
+            "basis_present": 7272,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.007,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7269,
+              "overlap_events": 7269,
+              "matched": 7269,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "NEARUSDT": {
+            "rows_8h": 6435,
+            "first": "2020-10-14 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-10-14 08:00:00+00:00",
+            "first_index": "2020-10-14 08:00:00+00:00",
+            "first_basis": "2020-10-15 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6435,
+            "index_present": 6435,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6435,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.008983,
+            "basis_present": 6432,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0005,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 51472,
+            "join": {
+              "funding_events": 6430,
+              "overlap_events": 6430,
+              "matched": 6430,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 3
+          },
+          "OPUSDT": {
+            "rows_8h": 4651,
+            "first": "2022-06-01 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2022-06-01 00:00:00+00:00",
+            "first_index": "2022-06-01 00:00:00+00:00",
+            "first_basis": "2022-06-01 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 4651,
+            "index_present": 4651,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 4651,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.004532,
+            "basis_present": 4650,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0002,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 37195,
+            "join": {
+              "funding_events": 4648,
+              "overlap_events": 4648,
+              "matched": 4648,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "SOLUSDT": {
+            "rows_8h": 6618,
+            "first": "2020-08-14 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-09-13 08:00:00+00:00",
+            "first_index": "2020-08-14 08:00:00+00:00",
+            "first_basis": "2020-09-14 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6528,
+            "index_present": 6618,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6528,
+            "premium_extreme_gt5pct": 3,
+            "max_abs_premium_open": 0.193894,
+            "basis_present": 6526,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0139,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 52933,
+            "join": {
+              "funding_events": 6598,
+              "overlap_events": 6598,
+              "matched": 6598,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 2
+          },
+          "SUIUSDT": {
+            "rows_8h": 3642,
+            "first": "2023-05-03 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2023-05-03 08:00:00+00:00",
+            "first_index": "2023-05-03 08:00:00+00:00",
+            "first_basis": "2023-05-03 16:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 3642,
+            "index_present": 3642,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 3642,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.004053,
+            "basis_present": 3641,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0003,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 29125,
+            "join": {
+              "funding_events": 3639,
+              "overlap_events": 3639,
+              "matched": 3639,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "TRXUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-15 00:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2020-01-15 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7255,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7255,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.014276,
+            "basis_present": 7254,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0094,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7251,
+              "overlap_events": 7251,
+              "matched": 7251,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "UNIUSDT": {
+            "rows_8h": 6517,
+            "first": "2020-09-17 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-09-17 00:00:00+00:00",
+            "first_index": "2020-09-17 00:00:00+00:00",
+            "first_basis": "2020-09-18 00:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 6517,
+            "index_present": 6517,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 6517,
+            "premium_extreme_gt5pct": 2,
+            "max_abs_premium_open": 0.078517,
+            "basis_present": 6514,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0005,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 52122,
+            "join": {
+              "funding_events": 6511,
+              "overlap_events": 6511,
+              "matched": 6511,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 3
+          },
+          "WLDUSDT": {
+            "rows_8h": 3396,
+            "first": "2023-07-24 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2023-07-24 08:00:00+00:00",
+            "first_index": "2023-07-24 08:00:00+00:00",
+            "first_basis": "2023-07-24 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 3396,
+            "index_present": 3396,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 3396,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.003367,
+            "basis_present": 3396,
+            "pre2023_05": false,
+            "basisRate_empty_ratio": 0.0,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 27160,
+            "join": {
+              "funding_events": 3393,
+              "overlap_events": 3393,
+              "matched": 3393,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 0
+          },
+          "XMRUSDT": {
+            "rows_8h": 7242,
+            "first": "2020-01-19 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-19 08:00:00+00:00",
+            "first_index": "2020-01-19 08:00:00+00:00",
+            "first_basis": "2020-02-03 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7242,
+            "index_present": 7242,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7242,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.018494,
+            "basis_present": 7197,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0062,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 57928,
+            "join": {
+              "funding_events": 7195,
+              "overlap_events": 7195,
+              "matched": 7195,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 45
+          },
+          "XRPUSDT": {
+            "rows_8h": 7323,
+            "first": "2019-12-23 08:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-01-06 00:00:00+00:00",
+            "first_index": "2019-12-23 08:00:00+00:00",
+            "first_basis": "2020-01-06 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7282,
+            "index_present": 7323,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7282,
+            "premium_extreme_gt5pct": 1,
+            "max_abs_premium_open": 0.051267,
+            "basis_present": 7281,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0057,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 58574,
+            "join": {
+              "funding_events": 7278,
+              "overlap_events": 7278,
+              "matched": 7278,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 1
+          },
+          "ZECUSDT": {
+            "rows_8h": 7195,
+            "first": "2020-02-04 00:00:00+00:00",
+            "last": "2026-08-29 00:00:00+00:00",
+            "first_mark": "2020-02-04 00:00:00+00:00",
+            "first_index": "2020-02-04 00:00:00+00:00",
+            "first_basis": "2020-02-05 08:00:00+00:00",
+            "dup_time_8h": 0,
+            "missing_8h_vs_grid": 0,
+            "mark_present": 7195,
+            "index_present": 7195,
+            "index_zero": 0,
+            "index_nan": 0,
+            "premium_present": 7195,
+            "premium_extreme_gt5pct": 0,
+            "max_abs_premium_open": 0.035744,
+            "basis_present": 7191,
+            "pre2023_05": true,
+            "basisRate_empty_ratio": 0.0006,
+            "annualized_empty_ratio": 1.0,
+            "rows_1h": 57548,
+            "join": {
+              "funding_events": 7189,
+              "overlap_events": 7189,
+              "matched": 7189,
+              "match_ratio": 1.0
+            },
+            "mark_basis_gap": 4
+          }
+        },
+        "exceptions": [
+          {
+            "note": "basis 컬럼은 재수집 성공으로 채워짐(2026-08-29 추가 수집). 최초 fill은 이 워크스테이션 egress IP에서 basis endpoint가 418 -1003 밴(794s~2034s)으로 전량 NaN이었으나, 밴 해소 후 재시도로 26종목 전량 + gap 종목의 활성 기간 커버리지를 채움.",
+            "steps": "fill_basis_step18.py + fix_basis_cols (2026-08-29)"
+          },
+          {
+            "note": "mark/index kline 최초 시각 비대칭: INJ index 2020-10-30 vs mark 2022-08-16(퍼프 재상장 추정); SOL index 2020-08-14 vs mark 2020-09-13; LTC/TRX index 2019-12-23 vs mark 2020-01; ATOM index 2020-02-04 vs mark 2020-02-06; DOGE index 2020-07-08 vs mark 2020-07-10. 주요 종목(BTC/ETH/BNB/BCH) mark/index 공히 2019-12-23 시작 — BTC funding은 2019-09-10부터 존재하여 2019-09~12 구간 funding 이벤트(약 310건)는 premium join 불가(원자료 없음).",
+            "steps": "manifest per-symbol first_mark/first_index 참조"
+          },
+          {
+            "note": "premium_open |.|>5% 이상 극단값은 전부 상장 후 첫 수일 또는 SOL 2022-11-09 FTX 크래시 구간에 집중 (FIL 20회·SOL 3회·UNI 2회·AVAX/DOT/DOGE/SHIB/LINK 각 1회) — 데이터 오염 아님, 실제 프리미엄 디스로케이션.",
+            "steps": "QA premium_extreme_gt5pct 참조"
+          },
+          {
+            "note": "'mark 존재 & basis 결측'(real_gap)은 전 종목에서 mark(리스팅) 시작 직후 수 일~6주 구간에만 존재하며 (BNB 147행:2019-12-23~2020-02-10, ADA 36행, XMR 45행, 그 외 1~6행), Binance /futures/data/basis가 해당 구간을 원천적으로 반환하지 않음(직접 조회 확인: BNB 첫 basis 2020-02-10 08:00, INJ 첫 2022-08-17 00:00). 수집 누락이 아니라 API 데이터 기원상의 부재 → 재수집 대상 아님.",
+            "steps": "step18a_gaps / binance basis endpoint probe 2026-08-29"
+          }
+        ]
+      }
+    }
+  }
+}

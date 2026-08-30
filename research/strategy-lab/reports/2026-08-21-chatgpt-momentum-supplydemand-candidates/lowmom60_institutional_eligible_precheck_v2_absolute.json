@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-08-21T17:38:54",
+  "context": "lowmom60_institutional_eligible_precheck.py 재검토(v2) - 원본이 쓴 T3 상대 tercile을 절대 임계값(1억원, 중립성 검증됨: absolute_turnover_filter_validation.py gap -0.68%p)으로 대체.",
+  "period": "2016-01-01 ~ 2026-08-14",
+  "topN": 30,
+  "costBps": 30.0,
+  "minTurnover": 100000000.0,
+  "v1_tercile_result_forComparison": {
+    "T3_top_liquidity_tercile_cagr": -0.118,
+    "source": "lowmom60_institutional_eligible_precheck.json (오염된 방식)"
+  },
+  "results": {
+    "baseline_no_filter": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "totalReturn": 5.947,
+      "cagr": 0.1927,
+      "maxDD": -0.3845
+    },
+    "high_liquidity_absoluteThreshold": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "totalReturn": 3.1854,
+      "cagr": 0.139,
+      "maxDD": -0.4265
+    },
+    "low_liquidity_absoluteThreshold_control": {
+      "monthsTraded": 123,
+      "avgTickersPerMonth": 30.0,
+      "totalReturn": 31.3101,
+      "cagr": 0.3716,
+      "maxDD": -0.2186
+    }
+  }
+}
