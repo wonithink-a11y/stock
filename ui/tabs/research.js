@@ -501,9 +501,23 @@
 
       let allFindings = [];
       try {
-        const response = await fetch('../data/findings.json');
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
+        // 배포 경로가 도메인 루트인지 서브경로(/paper-trading/)인지에 따라
+        // 같은 파일의 상대 위치가 달라진다 - macro.js의 fetchFirst 패턴과
+        // 동일하게 순서대로 시도한다.
+        const candidates = ['data/findings.json', '../data/findings.json', 'ui/data/findings.json'];
+        let data = null;
+        let lastErr = null;
+        for (const path of candidates) {
+          try {
+            const response = await fetch(path);
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            data = await response.json();
+            break;
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        if (!data) throw lastErr || new Error('findings.json not found');
         allFindings = data.findings || [];
       } catch (e) {
         loadingEl.textContent = '데이터를 불러올 수 없습니다: ' + e.message;
