@@ -1,8 +1,17 @@
 name: backfill-calendar
 
 # A0.5 — 거래일 캘린더. 백필 체인의 첫 고리이며 A1(유니버스)의 입력이다.
-# 수동 실행 전용. 캘린더가 바뀌면 하류 전체의 upstream 해시가 어긋나 재실행이 강제되므로
-# 스케줄로 무심코 갱신되지 않게 한다.
+#
+# schedule 활성화(2026-08-30, 사용자 확인) — 원래 "수동 전용"이었던 근거
+# ("스케줄 걸면 하류 A1~A8 전체 재실행이 파급된다")를 실제로 코드로 확인해보니
+# 성립하지 않았다: A1a~A8은 calendar.json 변경을 감지해 자동으로 도는 데몬이
+# 아니라 각각 사람이 따로 트리거해야 하는 배치 스크립트다. calendar.json이
+# 매일 갱신돼도 그 자체로는 아무 하류 재실행도 강제하지 않는다 — verifyUpstream()은
+# "지금 이 파일과 그 manifest가 서로 일치하는가"만 보는 자기정합성 체크일 뿐,
+# 과거 실행을 흔들거나 재실행을 트리거하지 않는다(A2a 1종목 스모크로 실측 확인:
+# to=calendar.tradingDays[-1]이 새 값을 정상 반영, 부작용 없음). 진짜 비용은
+# "누군가 나중에 A2a/A4/A5/A8을 실제로 재실행하기로 결정하는 순간"에만 발생하고,
+# 그건 이 스케줄과 무관하게 항상 별도 확인을 거친다.
 on:
   workflow_dispatch:
     inputs:
@@ -14,6 +23,8 @@ on:
         description: '종료일 YYYYMMDD (비우면 오늘)'
         required: false
         default: ''
+  schedule:
+    - cron: '0 8 * * 1-5'   # 08:00 UTC = 17:00 KST, 평일 (그날 거래 완전히 종료 후)
 
 concurrency:
   group: backfill-calendar
@@ -46,6 +57,10 @@ jobs:
           KRX_ID: ${{ secrets.KRX_ID }}
           KRX_PW: ${{ secrets.KRX_PW }}
         run: |
+          # schedule 트리거는 github.event.inputs 자체가 없어 CAL_FROM/CAL_TO가
+          # 빈 문자열로 온다 - os.environ.get()의 기본값은 키가 아예 없을 때만
+          # 적용되므로, 빈 값이면 unset해서 스크립트 기본값(20140101/오늘)이 살게 한다.
+          if [ -z "$CAL_FROM" ]; then unset CAL_FROM; fi
           if [ -z "$CAL_TO" ]; then unset CAL_TO; fi
           python scripts/build-calendar.py
 
