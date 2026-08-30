@@ -31,8 +31,8 @@ jobs:
 
       - name: Fetch ETF/ETN snapshot
         env:
-          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
-          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
         run: python scripts/build-etf-etn-daily.py
 
       - name: Commit
