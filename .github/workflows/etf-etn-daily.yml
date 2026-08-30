@@ -1,0 +1,44 @@
+name: ETF/ETN daily snapshot (KIS)
+
+# 국내 ETF/ETN 전 종목(현재 상장분만, 소급 복원 안 함 - 사용자 확인
+# 2026-08-30) 가격·NAV·괴리율을 매일 한 번 찍어 data/etf-etn/에 쌓는다.
+# 상세 설계는 scripts/build-etf-etn-daily.py 상단 주석 참고.
+
+on:
+  schedule:
+    - cron: '50 7 * * 1-5'   # 07:50 UTC = 16:50 KST, 평일 (장마감 15:30 + 80분)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: etf-etn-daily
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Fetch ETF/ETN snapshot
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+        run: python scripts/build-etf-etn-daily.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/etf-etn/
+          git diff --staged --quiet || git commit -m "chore: ETF/ETN daily snapshot"
+          git push
