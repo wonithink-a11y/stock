@@ -1,5 +1,5 @@
 {
-  "count": 237,
+  "count": 238,
   "findings": [
     {
       "file": "research/strategy-lab/findings/factor-composite-verification-2026-08.md",
@@ -13,6 +13,29 @@
       "criteria_version": null,
       "conditions": null,
       "reason": null,
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/factor-earnings-yield-2021-concentration-2026-08.md",
+      "title": "factor-earnings-yield-2021-concentration-2026-08.md",
+      "date": "2026-08-30",
+      "bodyMarkdown": "---\ntrack: kr\nfactor: factor-earnings-yield-2021-concentration\ndate: 2026-08-30\nverdict: HOLD\ncriteria_version: v1\nconditions: [\"연도별 로그초과수익 비중 분해\", \"factor_earnings_yield_v1 vs ew_benchmark_liquid_v1\", \"exit_date 귀속 방식(참고, 아래 한계 참고)\"]\nreason: \"초과 로그수익의 89.2%가 2021년 단 한 해에서 나옴(PBR baseline 98.6%와 같은 종류의 몰림) - 2021 제외해도 잔여는 양(+)이나 크지 않아, 5건의 '즉시 운용 가능' 결론을 보류하고 PBR과 같은 국면조건부 재검증이 먼저 필요\"\n---\n\n# earnings_yield 팩터 — 2021년 연도 집중도 확인 (2026-08-30)\n\n`findings/factor-earnings-yield-*.md`(5건, 전부 KEEP·`performance` 태그)가\nCAGR 4.68% vs EW 벤치마크 2.93%로 \"즉시 운용 가능\"까지 결론 냈으나, 연도별\n수익률 표를 보면 2021년(+31.71%, EW는 +0.10%)이 유독 두드러진다. PBR이\n2026-08-22에 겪은 것과 같은 문제(로그초과수익의 98.6%가 2022년 단 한 해)\n인지 같은 방법론(`pbr_combined_2022_concentration_check.py`)으로 확인했다.\n\n## 방법\n\n`run_factor_backtest.py`(compute_metrics_fast)가 이미 계산해 둔 연도별\narithmetic return(factor_earnings_yield_v1·EW benchmark, 둘 다 같은\n방식으로 계산돼 apples-to-apples)을 `ln(1+r)`로 변환해 연도별 초과\n로그수익 비중을 구했다. 엔진 재실행 없음 - `factor_earnings_yield_\n2021_concentration_check.py`(커밋).\n\n## 결과\n\n| 연도 | earnings_yield | EW | 초과 로그수익 | 비중 |\n|---|---|---|---|---|\n| 2016 | +7.42% | -0.40% | +0.0755 | 24.5% |\n| 2017 | -0.32% | -0.51% | +0.0019 | 0.6% |\n| 2018 | +0.81% | -1.47% | +0.0230 | 7.5% |\n| 2019 | +7.78% | -1.39% | +0.0889 | 28.9% |\n| 2020 | +1.02% | -0.68% | +0.0170 | 5.5% |\n| **2021** | **+31.71%** | +0.10% | **+0.2745** | **89.2%** |\n| 2022 | +7.15% | -0.38% | +0.0729 | 23.7% |\n| 2023 | -3.77% | -1.08% | -0.0276 | -9.0% |\n| 2024 | -4.56% | -2.35% | -0.0229 | -7.4% |\n| 2025 | +11.49% | -2.12% | +0.1301 | 42.3% |\n| **2026** | +6.59% | **+47.60%** | **-0.3256** | **-105.8%** |\n\n총 초과 로그수익: 0.3077\n\n## 해석 — PBR과 같은 몰림, 단 구조는 다름\n\n**2021년 단 한 해가 전체 초과성과의 89.2%** - PBR baseline(98.6%, 단일\n연도)만큼 극단적이다. 다만 PBR과 달리 여기서는 **2026년이 큰 음(-)의\n기여(-105.8%)를 동시에 갖는다** - EW 벤치마크가 2026년 대형주 급등으로\n+47.6%를 낸 반면 전략은 +6.59%에 그쳐, 상대적으로 크게 뒤처졌다. 2021년의\n양(+)과 2026년의 음(-)이 서로 상쇄되면서 전체 초과수익(0.3077)이 두 해\n각각의 절대 기여(0.27, -0.33)보다 작게 나타난다 - \"몰림\"이 한 방향이\n아니라 두 극단 연도의 충돌로 만들어진 결과다.\n\n- **2021년만 제외**: 잔여 초과 로그수익 +0.0332 (여전히 양수이나 10개\n  연도 합산치고는 작음 - 연 환산 약 +0.3%p 수준)\n- **2021+2026 둘 다 제외**: 잔여 +0.3587 (오히려 전체보다 큼 - 2026년의\n  음의 기여가 제거되면서)\n\n즉 \"2021년 하나가 전부다\"라고 단정할 수는 없다(제외해도 잔여가 여전히\n양수) - 그러나 **나머지 9~10개 연도의 순기여가 크지 않다**는 점은 PBR이\n확인한 패턴과 본질적으로 같다. `findings/factor-robustness-kr-2026-08.md`가\n이미 관찰한 \"2016-2020 구간 spread t=0.57(약함)\" · \"2024-now 구간\nspread t=1.73(가장 강함)\"과도 방향이 일치한다 - 최근 몇 년(특히 2021년)에\n힘이 몰려 있다는 관측이 이번 포트폴리오 레벨 분석에서도 재현됐다.\n\n## 한계 — exit_date 귀속 방식\n\n`run_factor_backtest.py`의 연도별 수익률은 포지션의 **청산일(exit_date)**\n기준으로 실현손익을 그 연도에 귀속시킨다(PBR이 겪은 것과 같은 종류의\n집계 방식). earnings_yield는 `maxHoldingSessions=21`(약 1개월)로 보유\n기간이 짧아 PBR(다년 연속보유)만큼 왜곡이 크지는 않을 것으로 추정되나,\n월별 시가평가(MTM) 곡선으로 정밀 검증한 것은 아니다 - 이 검증은 이번\n범위 밖.\n\n## 판정: HOLD\n\n`factor-earnings-yield-*.md` 5건이 내린 \"즉시 운용 가능\" 결론을 **보류**\n한다. 팩터의 방향성 자체(IC t=6.10, decile 단조성 0.867, robustness\ncheck 3구간 전부 부호 유지)는 부정하지 않으나, 두 극단 연도(2021·2026)에\n성과가 강하게 좌우된다는 사실 없이 production 채택을 판단하는 건 PBR이\n이미 한 번 겪은 실수를 반복하는 것이다. 다음 단계(별도 지시 시): PBR이\n밟은 절차(연도 몰림의 매크로 국면 연관성 확인 → 조건 완화책 탐색) 적용,\n또는 정밀 MTM 곡선으로 exit_date 귀속 왜곡 자체를 배제.\n",
+      "category": "performance",
+      "track": "kr",
+      "verdict": "HOLD",
+      "original_verdict": null,
+      "criteria_version": "v1",
+      "conditions": [
+        "연도별 로그초과수익 비중 분해",
+        "factor_earnings_yield_v1 vs ew_benchmark_liquid_v1",
+        "exit_date 귀속 방식(참고, 아래 한계 참고)"
+      ],
+      "reason": "초과 로그수익의 89.2%가 2021년 단 한 해에서 나옴(PBR baseline 98.6%와 같은 종류의 몰림) - 2021 제외해도 잔여는 양(+)이나 크지 않아, 5건의 '즉시 운용 가능' 결론을 보류하고 PBR과 같은 국면조건부 재검증이 먼저 필요",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
