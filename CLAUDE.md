@@ -227,6 +227,24 @@ Validated against
             (TRAIN/VALID/TEST 60/15/25 시간분할, CAND1·Opening Fade와 같은
             원칙 - 파일럿의 "전체기간만 봄" 한계 해소, 부분패널로 코드
             경로 검증 완료)로 재검증 예정.
+            ★ 2026-08-30 후속 — 전면수집 완료 확인 + OOS 검증까지 끝났음을
+            뒤늦게 발견(당시 세션이 인수인계를 안 남기고 넘어감). state
+            파일 실측: `doneKeys` 24,750개 = A3 그리드 전체(위 "25,531"은
+            착수 시점 추정치였고 실제 그리드는 24,750, 2026-08-28 15:07
+            마지막 갱신 이후 미해결 0건 — 부분 성공이 아니라 완전 종료).
+            `analyze_pead_quarterly_oos.py`도 이미 그 완전한 데이터로
+            실행 완료(65,048 quarterly records·2,912 tickers). **결론:
+            기각.** IC 부호는 TRAIN/VALID/TEST 세 구간 전부 양(+)으로
+            유지되나(REV20·Opening Fade가 겪은 "TEST 반전"은 없음),
+            유의성은 TRAIN T+20(t=3.15) 하나뿐이고 나머지 5개 셀(TRAIN
+            T+60·VALID·TEST 전부)은 t<2. 파일럿이 보였던 "T+60이 T+20보다
+            강해진다"는 패턴도 전면수집에서는 재현 안 됨(오히려 정반대).
+            TEST T+20 unfiltered는 IC(+)와 decile 스프레드(-)가 어긋나는
+            내부 불일치까지 있음 — 연간판 기각 근거와 같은 결함. **PEAD는
+            연간판·분기 파일럿·분기 전면수집 세 번 다 이 프로젝트 표준
+            검증(TRAIN 최선이 VALID·TEST까지 유지)을 통과 못 해 최종
+            기각으로 종결한다** — 이 라인은 더 이상 열지 않는다.
+            findings/pead-quarterly-oos-validation-2026-08.md
             ★ 2026-08-26 후속8 — 수집 대기 중 Ox Alpha 엔진개선 제안 중
             역변동성 가중 시도. `engine/portfolio/portfolio.py`의
             `Portfolio.process_day()`에 opt-in `weights` 인자 추가(기본
