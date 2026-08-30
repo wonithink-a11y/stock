@@ -5,6 +5,11 @@ name: Deploy GitHub Pages
 # 배포로 합친다 - docs/는 루트 그대로(기존 URL 안 바뀜), ui/는
 # /paper-trading/ 서브경로. GH Actions가 매일 ui/data/*.json·docs/data/*.json
 # 을 커밋할 때마다 이 워크플로가 다시 돌아 최신 데이터를 반영한다(2026-08-30).
+#
+# ★ workflow_run 추가(2026-08-30) - github-actions[bot]이 기본 GITHUB_TOKEN으로
+# 커밋하면 그 push는 다른 워크플로를 연쇄 트리거하지 않는다(GitHub의 무한루프
+# 방지 설계, 실측 확인: research-lab-ui.yml의 자동 커밋 후 이 워크플로가 저절로
+# 안 돎). ui/data/*.json을 갱신하는 두 워크플로 완료를 직접 구독해 그 간극을 메운다.
 
 on:
   push:
@@ -12,6 +17,11 @@ on:
     paths:
       - "docs/**"
       - "ui/**"
+  workflow_run:
+    workflows:
+      - "Update ui/data/findings.json (Research Lab UI)"
+      - "Update ui/data/macro.json (Research Regime Layer)"
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +35,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
