@@ -28,7 +28,12 @@ research/strategy-lab/data/paper/
 # 차트 UI(오픈코드가 개발)가 읽는 데이터 피드 · 쓰는 주문요청함 - 둘 다
 # build_ui_feed.py/watcher가 매번 새로 만드는 런타임 상태다. ui/ 아래
 # UI 코드 자체(오픈코드 산출물)는 커밋 대상이지만 이 두 폴더는 아니다.
-ui/data/
+# ui/data/macro.json만 예외 - GitHub Actions(macro-regime-ui.yml)가 매일
+# 갱신해 커밋한다(docs/data/macro.json을 macro.yml이 커밋하는 것과 같은
+# 패턴, 2026-08-30) - 로컬에서 매번 build_ui_macro.py를 안 돌려도 최신
+# 상태를 git pull만으로 받게 하기 위한 의도적 예외.
+ui/data/*
+!ui/data/macro.json
 ui/orders/
 
 # 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.
@@ -53,3 +58,4 @@ data/minute/
 # graphify 생성 캐시 — `graphify update .`로 언제든 재생성 가능. 추적 안 함.
 # gitignore해도 graphify 사용에는 영향 없다(로컬 디스크에서 그대로 읽고 쓴다).
 graphify-out/
+research/strategy-lab/.opencode_scratch/
