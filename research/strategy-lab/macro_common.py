@@ -26,7 +26,6 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-CALENDAR_PATH = REPO / "data" / "backfill" / "calendar.json"
 OUT_DIR = HERE / "data" / "market-regime"
 
 UA = "Mozilla/5.0 (macro-fetch; +https://github.com)"
@@ -64,8 +63,61 @@ def fred(series):
 
 
 def load_kr_calendar():
-    cal = json.loads(CALENDAR_PATH.read_text(encoding="utf-8"))
-    return cal["tradingDays"]
+    """KR 거래일 실시간 조회 — scripts/build-calendar.py의 fetch_trading_days()와
+    같은 패턴(원본은 무변경, 여기서 독립 재현). data/backfill/calendar.json(A0.5)은
+    프로덕션 백필 체인(A1a·A2a·A2b·A4·A5·A8)의 필수 상류라 수동 전용으로 동결돼
+    있다(CLAUDE.md) — 이 매크로 리서치 파이프라인은 그 계약에 묶일 이유가 없으므로
+    매 실행마다 직접 조회한다(2026-08-30, 자동화가 calendar.json 동결에 막혀
+    갱신이 안 되던 문제 해소).
+    """
+    import time
+    from pykrx import stock
+
+    to = date.today().strftime("%Y%m%d")
+    years = [(f"{y}0101", f"{y}1231") for y in range(2014, int(to[:4]) + 1)]
+    years[0] = ("20140101", years[0][1])
+    years[-1] = (years[-1][0], to)
+
+    def _retry(fn):
+        last = None
+        for i in range(4):
+            try:
+                return fn()
+            except Exception as e:            # noqa: BLE001 — 어떤 실패든 재시도 대상
+                last = e
+                if i < 3:
+                    time.sleep(2 ** i)
+        print(f"    ! KR 거래일 조회 실패: {type(last).__name__}: {last}")
+        return None
+
+    days = set()
+    for f, t in years:
+        df = _retry(lambda f=f, t=t: stock.get_index_ohlcv_by_date(f, t, "1001", name_display=False))
+        if df is not None and not df.empty:
+            days.update(d.strftime("%Y-%m-%d") for d in df.index)
+
+    need = int((int(to[:4]) - 2014 + 1) * 240 * 0.8)
+    if len(days) < need:
+        for tkr in ("005930", "000660"):          # 지수 경로 실패 시 대형주 합집합 폴백
+            for f, t in years:
+                df = _retry(lambda f=f, t=t, k=tkr: stock.get_market_ohlcv_by_date(f, t, k))
+                if df is not None and not df.empty:
+                    days.update(d.strftime("%Y-%m-%d") for d in df.index)
+
+    if len(days) < need:
+        raise RuntimeError(f"KR 거래일 실시간 조회 실패 — {len(days)}일뿐(기준 {need})")
+
+    sorted_days = sorted(days)
+    per_year = {}
+    for d in sorted_days:
+        per_year[d[:4]] = per_year.get(d[:4], 0) + 1
+    full_years = [y for y in per_year if y not in (sorted_days[0][:4], sorted_days[-1][:4])]
+    bad = {y: per_year[y] for y in full_years if not (200 <= per_year[y] <= 260)}
+    if bad:
+        # 연도별 거래일이 200~260 범위를 벗어나면 그 해가 부분 실패한 것이다(교훈57 —
+        # 모르는 것은 0이 아니다). 조용히 넘기면 이후의 모든 asOf-join이 그 구멍을 안고 간다.
+        raise RuntimeError(f"KR 거래일 연도별 이상치(부분 조회 의심): {bad}")
+    return sorted_days
 
 
 def ecos(stat_code, freq, start, end, *item_codes):

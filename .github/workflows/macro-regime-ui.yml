@@ -44,20 +44,31 @@ jobs:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install --quiet pandas numpy pyarrow
+        run: pip install --quiet pandas numpy pyarrow pykrx
 
       - name: VIX (FRED, 무키)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python build_vix_backfill.py
 
       - name: USD/KRW (FRED, 무키)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python build_usdkrw_backfill.py
 
       - name: KR macro layer (ECOS+Naver)
         env:
           ECOS_API_KEY: ${{ secrets.ECOS_KEY }}
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python build_macro_layer_backfill.py
 
       - name: FRED extended (무키)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python build_fred_extended_backfill.py
 
       - name: Build ui/data/macro.json
