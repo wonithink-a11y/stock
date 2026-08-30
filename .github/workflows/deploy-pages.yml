@@ -1,0 +1,49 @@
+name: Deploy GitHub Pages
+
+# 리포당 Pages 사이트는 하나뿐이라 docs/(운영 스코어링 대시보드, 기존 legacy
+# 배포)와 ui/(Paper Trading Engine, 정적 사이트라 별도 서버 불필요)를 한
+# 배포로 합친다 - docs/는 루트 그대로(기존 URL 안 바뀜), ui/는
+# /paper-trading/ 서브경로. GH Actions가 매일 ui/data/*.json·docs/data/*.json
+# 을 커밋할 때마다 이 워크플로가 다시 돌아 최신 데이터를 반영한다(2026-08-30).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "ui/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble combined site (docs/ at root, ui/ at /paper-trading/)
+        run: |
+          mkdir -p _site
+          cp -r docs/. _site/
+          mkdir -p _site/paper-trading
+          cp -r ui/. _site/paper-trading/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
