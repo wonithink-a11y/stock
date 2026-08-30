@@ -23,6 +23,12 @@ REJECT_KEYWORDS = ["기각", "반려", "채택 불가", "REJECT", "탈락", "폐
 KEEP_KEYWORDS = ["KEEP", "PASS", "채택(", "채택 확정", "채택되었"]
 HOLD_KEYWORDS = ["판단보류", "보류", "HOLD", "연구 후보", "미확정", "미착수"]
 
+# 성과검증(실제 CAGR/Sharpe 백테스트) vs 데이터감사(가용성·독립성 사전점검) 구분 -
+# 감사 키워드가 있으면 감사, 없고 Sharpe/CAGR 언급이 있으면 성과. 둘 다 아니면
+# 억지로 분류하지 않는다(교훈57 - 통계검증만 있고 백테스트가 없는 중간 케이스가 있다).
+AUDIT_KEYWORDS = ["가용성 감사", "데이터 가용성", "Data Audit", "Factor Audit", "신호 독립성", "독립성 검토"]
+PERFORMANCE_KEYWORDS = ["Sharpe", "CAGR"]
+
 NUMERIC_FIELDS = ["cagr", "sharpe", "mdd", "win_rate", "n", "t_stat"]
 VALID_VERDICTS = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
 
@@ -52,6 +58,15 @@ def infer_verdict(text: str) -> str:
     if any(k in scope for k in HOLD_KEYWORDS):
         return "HOLD"
     return "UNCLASSIFIED"
+
+
+def infer_category(text: str):
+    """실적/성과 백테스트인지 데이터·신호 사전점검(감사)인지 best-effort 구분."""
+    if any(k in text for k in AUDIT_KEYWORDS):
+        return "audit"
+    if any(k in text for k in PERFORMANCE_KEYWORDS):
+        return "performance"
+    return None
 
 
 def parse_frontmatter(text: str):

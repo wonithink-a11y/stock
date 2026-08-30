@@ -48,6 +48,12 @@
     return `<span class="v-badge t-${finding.track}">${finding.track}</span>`;
   }
 
+  const CATEGORY_LABEL = { performance: '📊 성과검증', audit: '🔍 데이터감사' };
+  function categoryBadge(finding) {
+    if (!finding.category || !CATEGORY_LABEL[finding.category]) return '';
+    return `<span class="v-badge v-cat-${finding.category}">${CATEGORY_LABEL[finding.category]}</span>`;
+  }
+
   function conditionsHtml(finding) {
     if (!finding.conditions || !finding.conditions.length) return '';
     return '<div class="v-cond">' + finding.conditions.map(c => `<span>${escapeHtml(c)}</span>`).join('') + '</div>';
@@ -130,7 +136,7 @@
   // Hypothesis/Design/Interpretation은 파일마다 절 제목이 제각각이라(교훈57 -
   // 억지로 구조를 지어내지 않는다) 별도 절로 안 쪼개고 원문 그대로 아래에 둔다.
   function detailHtml(finding) {
-    const badges = [trackBadge(finding), verdictBadge(finding)].filter(Boolean).join(' ');
+    const badges = [trackBadge(finding), verdictBadge(finding), categoryBadge(finding)].filter(Boolean).join(' ');
     const cond = conditionsHtml(finding);
     const stats = statsTableHtml(finding);
     const body = simpleMarkdownToHtml(stripFrontmatter(finding.bodyMarkdown));
@@ -217,7 +223,7 @@
         row.className = 'rl-recent-row';
         row.innerHTML = `
           <span class="rl-recent-date mono">${escapeHtml(f.date)}</span>
-          ${trackBadge(f)}${verdictBadge(f)}
+          ${trackBadge(f)}${verdictBadge(f)}${categoryBadge(f)}
           <span class="rl-recent-title">${escapeHtml(f.title)}</span>
         `;
         row.addEventListener('click', () => openDetailModal(f));
@@ -285,7 +291,7 @@
         const row = document.createElement('div');
         row.className = 'rl-exp-row';
         row.innerHTML = `
-          <span class="rl-exp-badges">${trackBadge(f)}${verdictBadge(f)}</span>
+          <span class="rl-exp-badges">${trackBadge(f)}${verdictBadge(f)}${categoryBadge(f)}</span>
           <span class="rl-exp-title">${escapeHtml(f.title)}</span>
           <span class="rl-exp-date dim mono">${f.date ? escapeHtml(f.date) : ''}</span>
           ${statsHtml(f)}
@@ -341,7 +347,7 @@
         const checked = selection.has(f.file);
         row.innerHTML = `
           <input type="checkbox" ${checked ? 'checked' : ''}>
-          ${trackBadge(f)}${verdictBadge(f)}
+          ${trackBadge(f)}${verdictBadge(f)}${categoryBadge(f)}
           <span class="rl-recent-title">${escapeHtml(f.title)}</span>
         `;
         row.querySelector('input').addEventListener('change', (e) => {
@@ -362,7 +368,7 @@
       }
       const rows = [];
       rows.push(['실험', ...chosen.map(f => escapeHtml(f.title))]);
-      rows.push(['Track / Verdict', ...chosen.map(f => `${trackBadge(f)}${verdictBadge(f)}`)]);
+      rows.push(['Track / Verdict', ...chosen.map(f => `${trackBadge(f)}${verdictBadge(f)}${categoryBadge(f)}`)]);
       rows.push(['Conditions', ...chosen.map(f => conditionsHtml(f) || '<span class="dim">-</span>')]);
       METRIC_FIELDS.forEach(field => {
         rows.push([METRIC_LABELS[field], ...chosen.map(f => metricCell(f, field))]);
@@ -428,7 +434,7 @@
         const div = document.createElement('div');
         div.className = 'finding-item';
         div.innerHTML = `
-          <div class="finding-badges">${trackBadge(finding)}${verdictBadge(finding)}</div>
+          <div class="finding-badges">${trackBadge(finding)}${verdictBadge(finding)}${categoryBadge(finding)}</div>
           <div class="finding-title">${escapeHtml(finding.title)}</div>
           <div class="finding-meta">
             <span class="finding-date">${finding.date ? escapeHtml(finding.date) : '날짜 없음'}</span>

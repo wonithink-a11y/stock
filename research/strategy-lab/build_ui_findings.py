@@ -23,7 +23,7 @@ OUT_PATH = os.path.join(REPO_ROOT, "ui", "data", "findings.json")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_findings_registry import (  # noqa: E402
     parse_frontmatter, parse_conditions, parse_float, strip_quotes,
-    infer_track, infer_verdict, NUMERIC_FIELDS,
+    infer_track, infer_verdict, infer_category, NUMERIC_FIELDS,
 )
 
 
@@ -43,6 +43,7 @@ def main():
             "title": title,
             "date": (fm or {}).get("date", date),
             "bodyMarkdown": text,
+            "category": infer_category(text),
         }
         if fm and fm.get("verdict") in ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED"):
             entry["track"] = fm.get("track", infer_track(os.path.basename(path)))

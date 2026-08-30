@@ -259,6 +259,8 @@ th {
 .v-badge.v-hold { color: var(--warn); border-color: var(--warn); }
 .v-badge.v-reject { color: var(--up); border-color: var(--up); }
 .v-badge.v-unclassified { color: var(--text-dim); }
+.v-badge.v-cat-performance { color: var(--accent); border-color: var(--accent); text-transform: none; }
+.v-badge.v-cat-audit { color: var(--text-dim); border-style: dashed; text-transform: none; }
 .v-orig { font-size: 10px; color: var(--text-dim); font-style: italic; }
 .v-reason { font-size: 11.5px; color: var(--text-dim); margin: 3px 0; line-height: 1.4; }
 .v-cond { font-family: var(--mono); font-size: 11px; margin: 4px 0; }
