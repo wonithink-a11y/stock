@@ -13,14 +13,18 @@ name: Update ui/data/macro.json (Research Regime Layer)
 # 대상으로 부적합하다고 판단(build_ui_macro.py 상단 주석 참고). 그 데이터가
 # 다시 필요해지면 build_regime_features_backfill.py를 별도로 수동 실행한다.
 #
-# 처음엔 workflow_dispatch(수동 버튼)만 켠다 - 실제 실행 결과를 몇 번 확인한
-# 뒤에 schedule을 추가한다(2026-08-30, 사용자 확인).
-
+# schedule 활성화(2026-08-30, 사용자 확인) - macro_common.py의 load_kr_calendar()가
+# data/backfill/calendar.json(수동 전용 A0.5) 대신 pykrx로 KR 거래일을 직접
+# 조회하도록 바뀌어(커밋 ff37237) 더 이상 그 동결에 막히지 않는다. cron은
+# macro.yml(07:40 UTC 평일)이 끝난 뒤 여유를 두고 잡는다 - workflow_run이
+# 이미 그 완료에 체이닝돼 있으니 cron은 이중 안전망이다.
 on:
   workflow_run:
     workflows: ["Update macro.json"]
     types: [completed]
   workflow_dispatch:
+  schedule:
+    - cron: '55 7 * * 1-5'   # 07:55 UTC = 16:55 KST, 평일 (macro.yml 15분 뒤)
 
 permissions:
   contents: write
@@ -31,7 +35,7 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     defaults:
       run:
