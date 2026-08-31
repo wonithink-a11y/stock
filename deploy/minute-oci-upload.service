@@ -1,0 +1,35 @@
+[Unit]
+# 분봉 raw+manifest를 OCI Object Storage로 올린다 (MN-1.0 §1.1 오프사이트 사본)
+# 경로는 install-oci-upload.sh가 채운다. 하드코딩하지 않는다(VM 운영 기준 8).
+Description=Minute OCI Object Storage upload (MN-1.0 offsite copy)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@USER@
+WorkingDirectory=@REPO@
+EnvironmentFile=@ENVFILE@
+ExecStart=@PY@ @REPO@/scripts/upload-minute-oci.py --namespace @NAMESPACE@
+
+# 업로드는 하루 13개 조각(수 MB)뿐이라 수집보다 훨씬 가볍다. 그래도 네트워크
+# 대기가 있을 수 있어 여유를 둔다. 밀린 날짜가 있으면 스크립트 자체의
+# --days 기본값(5)이 한 실행에서 올릴 양을 제한한다 - 다음 실행이 이어받는다.
+TimeoutStartSec=1800
+
+# 이 VM에는 기존 모니터·수집기가 함께 산다. minute-collect.service와 같은
+# 원칙이다 - 메모리 부족 시 죽는 쪽이 항상 이 업로더이길 원한다.
+MemoryAccounting=yes
+MemoryMax=320M
+
+Nice=10
+IOSchedulingClass=idle
+CPUSchedulingPolicy=batch
+
+StandardOutput=append:@LOGDIR@/minute-oci-upload.log
+StandardError=append:@LOGDIR@/minute-oci-upload.log
+
+# Instance Principal로 인증한다 - 이 유닛에 시크릿이 없다(VM에 OCI API Key를
+# 두지 않는다, 2026-08-30 확정).
+NoNewPrivileges=yes
+PrivateTmp=yes
