@@ -518,6 +518,34 @@ def adopt_staged_parts(stage_dir):
     return out
 
 
+def revalidate_carried(stage_dir, carried, date, pol):
+    """이월된 조각을 다시 읽어 재검증한다.
+
+    resume은 네트워크 재호출을 피하자는 것이지 검증을 건너뛰자는 것이 아니다.
+    carried는 이미 한 번 FAIL을 낸 하루의 조각이다(_failed manifest가 그
+    사실의 기록이다). 이 조각을 검증 없이 그대로 승격하면 앞 실행이 찾은
+    위반이 재검증 없이 사라진 것처럼 보인다 - 별도 violations 파일로
+    들고 다니지 않는 이유는, 소스(parquet) 자체를 다시 읽는 쪽이 그 파일과
+    실제 데이터가 갈릴 위험이 없기 때문이다(교훈43과 같은 이유).
+    """
+    try:
+        import pyarrow.parquet as pq
+    except ImportError:
+        return [], {}
+    violations, observations = [], {}
+    for p in carried:
+        f = Path(stage_dir) / p["name"]
+        if not f.exists():
+            continue
+        rows = pq.read_table(f).to_pylist()
+        vv, oo = validate_rows(rows, date, pol)
+        if len(violations) < 20:
+            violations.extend(vv[:20 - len(violations)])
+        for k, v in oo.items():
+            observations[k] = observations.get(k, 0) + v
+    return violations, observations
+
+
 def combined_sha(parts):
     """조각들의 결합 해시. 이름으로 정렬해 순서를 고정한다.
 
@@ -674,6 +702,11 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
 
     parts, violations, observations = list(carried), [], {}
     row_count = sum(p["rows"] for p in carried)
+    if carried:
+        cv, co = revalidate_carried(stage_dir, carried, date, pol)
+        violations.extend(cv)
+        for k, v in co.items():
+            observations[k] = observations.get(k, 0) + v
     err = None
     keep = [] if keep_rows else None
     buf, part_i, since = [], next_part_index(stage_dir), 0
@@ -775,9 +808,9 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
     man["symbolsNotQueried"] = sum(1 for o in outcomes
                                    if o.gap_reason == "NOT_QUERIED")
     man["observations"] = observations
-    man["observationsNote"] = ("이 실행이 검증한 행에 대한 수치다. 재개된 날은 "
-                               "이월 조각을 다시 검증하지 않으므로 앞 실행의 "
-                               "_failed manifest가 나머지를 들고 있다.")
+    man["observationsNote"] = ("이 실행이 검증한 행에 대한 수치다. 이월 조각도 "
+                               "이 실행이 다시 읽어 재검증한 결과가 포함된다 "
+                               "(revalidate_carried).")
     if err:
         man["writerError"] = err
     return {"outcomes": outcomes, "rows": keep, "rowCount": row_count,

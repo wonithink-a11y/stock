@@ -662,6 +662,47 @@ def run_all(M=None):
             check("재개 뒤 결합 sha가 실제 파일과 일치",
                   recomb == r2["manifest"]["sha256"])
 
+        # 22b resume이 이월 조각의 검증 위반까지 재검증하는가
+        # 실측 2026-08-31 — KIS Broad 432980 09:02 openOutOfRange.
+        # 22와 다른 지점: 여기선 두 종목 다 API 응답은 OK로 '완료'된다.
+        # 위반은 09:00 예외 밖의 시각에 있는 행 안에만 있어 첫 실행이
+        # 인수 조건에서 걸린다. resume은 두 종목 다 이미 완료로 알아
+        # 다시 부르지 않으므로(정상), 이월 조각을 다시 읽어 재검증하지
+        # 않으면 그 위반은 두 번째 실행에서 조용히 사라져 PASS로
+        # 승격된다 — 이게 2026-08-31 실운영에서 실제로 벌어진 버그다.
+        if have_pa:
+            good_a = candles(sent, n=20)
+            bad_b = candles(sent, n=20)
+            bad_b[5]["stck_oprc"] = "99999"     # 세션 중반, 예외 시각 아님
+            data_v = {("111111", sent): good_a, ("222222", sent): bad_b}
+            polv = json.loads(json.dumps(pol))
+            polv["output"]["flushEverySymbols"] = 1
+            r1 = M.run_day(FakeTransport(data_v), ["111111", "222222"], date,
+                           polv, base_ctx(), tmp / "resumeviol",
+                           tmp / "resumeviolstate", sleeper=slept.append)
+            v_check1 = next(c for c in r1["manifest"]["acceptance"]
+                            if c["항목"].startswith("스키마"))
+            check("22b 첫 실행이 openOutOfRange로 인수 조건 실패",
+                  not r1["acceptancePassed"] and v_check1["실측"]["위반"] >= 1,
+                  v_check1)
+
+            tr2 = FakeTransport({})
+            r2 = M.run_day(tr2, ["111111", "222222"], date, polv, base_ctx(),
+                           tmp / "resumeviol", tmp / "resumeviolstate",
+                           resume=True, sleeper=slept.append)
+            check("22b resume이 완료된 두 종목을 다시 부르지 않는다 "
+                  "(불필요한 재수집 없음)", tr2.calls == [], tr2.calls)
+            v_check2 = next(c for c in r2["manifest"]["acceptance"]
+                            if c["항목"].startswith("스키마"))
+            check("22b resume이 이월 위반을 재검증해 여전히 FAIL "
+                  "(재검증 없이 acceptancePassed=true 금지)",
+                  not r2["acceptancePassed"] and v_check2["실측"]["위반"] >= 1,
+                  v_check2)
+            check("22b 재검증된 위반이 실제로 openOutOfRange다",
+                  any(v["why"] == "openOutOfRange"
+                      for v in v_check2["실측"]["샘플"]),
+                  v_check2["실측"]["샘플"])
+
         # 23 정찰 — 하나라도 캔들이 오면 즉시 멈춘다
         tr_p = FakeTransport({("111111", b): candles(b, n=5)})
         outs = M.probe_market_open(tr_p, ["111111", "333333", "444444"],
