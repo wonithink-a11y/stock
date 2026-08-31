@@ -1,0 +1,242 @@
+{"file": "5dc-riskoff-filter-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "5dc", "stage": "validation", "description": "5DC Risk-Off 신규진입 차단 필터 검증 - CAGR·MDD 개선 확인"}
+{"file": "5dc-riskoff-runner-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "5dc", "stage": "validation", "description": "5DC Risk-Off 차단 필터를 실제 엔진 runner에서 재검증 - 개선 규모 축소 확인"}
+{"file": "5dc-riskoff-vix-refined-filter-rejection-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "5dc", "stage": "rejection", "description": "5DC Risk-Off∧VIX 정제필터가 원본필터에 미달해 기각"}
+{"file": "5dc-v1a-p-macro-regime-check-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "5dc", "stage": "exploration", "description": "5DC-v1A-P 손실의 금리·신용스프레드 국면 조건화 조사"}
+{"file": "RESEARCH-FINDINGS.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "5DC baseline·데이터감사·survivorship 등 누적 연구 로그"}
+{"file": "a3-factor-precheck/study.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "exploration", "description": "A3 미활용 필드(배당수익률·PER·영업이익률) 첫 프리체크"}
+{"file": "a3d-bracket-candidates/README.md", "track": "kr", "category": "kr_data_audit", "sub_category": "data_fields", "stage": "exploration", "description": "A3d 브래킷 후보 선정·PIT 정렬·방향 버그 수정 기록"}
+{"file": "a3d-bracket-candidates/gap-analysis.md", "track": "kr", "category": "kr_data_audit", "sub_category": "data_fields", "stage": "exploration", "description": "A3d 후보 공시일 대비 istcTotqy 점프일 gap 분석"}
+{"file": "a3d-bracket-candidates/other-categories-direction-check.md", "track": "kr", "category": "kr_data_audit", "sub_category": "data_fields", "stage": "exploration", "description": "A3d 무상감자·증자 등 방향모순 의심 집계"}
+{"file": "a3d-bracket-candidates/remaining-outliers-triage.md", "track": "kr", "category": "kr_data_audit", "sub_category": "data_fields", "stage": "exploration", "description": "A3d 허용오차 초과 후보 77건 triage 분류"}
+{"file": "a4-liquidity-factor/study.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "rejection", "description": "A4 유동성 팩터 연구 - 기각 판정"}
+{"file": "a4-liquidity-floor/study.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "validation", "description": "LOWMOM60·REV20에 amt20 유동성 floor 적용 효과 검증"}
+{"file": "afternoon-crash-nextday/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "exploration", "description": "오후 급락 다음날 반등 전향적 조사 표"}
+{"file": "btc-regime-ma-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "regime_ma", "stage": "rejection", "description": "BTC 레짐×MA 20/60/120 전략 감사 FAIL"}
+{"file": "cand1-close-exit-approximation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "rejection", "description": "CAND1 익일 종가 근사 청산이 edge를 침식해 기각"}
+{"file": "cand1-engine-integration-design-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "exploration", "description": "CAND1 엔진 연결 옵션 A/B 비교 설계 문서"}
+{"file": "cand1-execution-microstructure/study.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "validation", "description": "CAND1 체결 미시구조 진단 - 유동성·VWAP 괴리 확인"}
+{"file": "cand1-intraday-exit-engine-verification-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "validation", "description": "CAND1 09:35 청산 엔진(MinuteProvider) 경로 검증"}
+{"file": "cand1-macro-extra-axes-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "exploration", "description": "CAND1 매크로 6축 조건화 - 일반순환지수 축만 판별력"}
+{"file": "cand1-macro-rate-regime-check-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "exploration", "description": "CAND1 미국10Y 금리레짐 조건별 성과 관측"}
+{"file": "cand1-next-stage-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "validation", "description": "CAND1 시간분해·종목집중도 next-stage 검증"}
+{"file": "cand1-regime-conditional-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "exploration", "description": "CAND1의 Risk-On/Neutral/Off 레짐별 성과 비교"}
+{"file": "cand1-regime-decomposition/study.md", "track": "kr", "category": "kr_strategy", "sub_category": "cand1", "stage": "exploration", "description": "CAND1 VALID 약화를 변동성 국면으로 설명 불가 진단"}
+{"file": "chart-techniques-step1-methodology-data-audit-2026-08.md", "track": "kr", "category": "kr_data_audit", "sub_category": "chart_audit", "stage": "exploration", "description": "5개 차트기법 설계 전 데이터·엔진·PIT 사전 감사"}
+{"file": "congress-trading/event_study_report.md", "track": "us", "category": "us_strategy", "sub_category": "congress", "stage": "signal_study", "description": "의회 거래 공개 시차별 이벤트 스터디 산출 보고"}
+{"file": "cross-asset-regime-audit-2026-08.md", "track": "xasset", "category": "xasset_regime", "sub_category": "cross_asset", "stage": "exploration", "description": "BTC를 시장 레짐 팩터로 활용 가능한지 교차자산 감사"}
+{"file": "crypto-community-strategies-1-6-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "community_strategies", "stage": "portfolio_test", "description": "6개 커뮤니티 차트전략 일괄 워크포워드 검증"}
+{"file": "crypto-community-strategies/test_analysis_2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "community_strategies", "stage": "portfolio_test", "description": "커뮤니티 전략 4종 TEST 구간 심층 분석"}
+{"file": "crypto-feature-inventory-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "feature_inventory", "stage": "exploration", "description": "크립토 데이터 스키마 전수 감사 인벤토리"}
+{"file": "crypto-s1-event-independence-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "validation", "description": "S1 bb_squeeze 이벤트 독립성 품질샘플 N=13 HOLD"}
+{"file": "crypto-s2-12-asset-oos-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "validation", "description": "S2 12종목 OOS 검증 - 종목 의존성 WEAK"}
+{"file": "crypto-s2-event-independence-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "signal_study", "description": "S2 성과 단일 이벤트·종목 집중 확인"}
+{"file": "crypto-s2-test-trade-decomposition-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "signal_study", "description": "S2 TEST 순이익의 이벤트/종목 집중 분해"}
+{"file": "crypto-s3a-event-independence-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "validation", "description": "S3-A 이벤트 독립성 품질샘플 N=28 HOLD"}
+{"file": "crypto-s6-event-independence-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "event_independence", "stage": "validation", "description": "S6 이벤트 독립성 품질샘플 N=19 HOLD"}
+{"file": "crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "rejection", "description": "공개 전략 3종 OOS 붕괴 종합 요약 기각"}
+{"file": "crypto-strategies/crypto_donchian_atr_4H_walkforward.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "exploration", "description": "Donchian+ATR 4H 워크포워드 결과 미기재 스텁"}
+{"file": "crypto-strategies/crypto_donchian_atr_D_walkforward.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "rejection", "description": "Donchian+ATR 일봉 워크포워드 OOS 일반화 실패"}
+{"file": "crypto-strategies/crypto_regime_filtered_4H_walkforward.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "exploration", "description": "crypto_regime_filtered 4H 워크포워드 결과 초안"}
+{"file": "crypto-strategies/crypto_regime_filtered_D_walkforward.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "exploration", "description": "crypto_regime_filtered 일봉 워크포워드 - 표본 빈약"}
+{"file": "crypto-strategies/crypto_trend_momentum_D_walkforward.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "walkforward", "stage": "exploration", "description": "crypto_trend_momentum 일봉 워크포워드 결과 기록"}
+{"file": "crypto-strategy-backtest-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "strategy_backtest", "stage": "portfolio_test", "description": "공개 전략 3계열 재현 백테스트"}
+{"file": "crypto-strategy-candidates-verification-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "strategy_backtest", "stage": "rejection", "description": "크립토 전략 후보 3종 독립 검증 - 채택 불가"}
+{"file": "crypto-volatility-breakout-persistence-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "volatility_breakout", "stage": "rejection", "description": "변동성 확장 돌파 지속성 OOS 음수로 기각"}
+{"file": "data-field-inventory-2026-08.md", "track": "kr", "category": "kr_data_audit", "sub_category": "data_fields", "stage": "exploration", "description": "백필 데이터셋 전수 필드 감사 인벤토리"}
+{"file": "dd252-final-rejection-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "dd252", "stage": "rejection", "description": "DD252 최종 기각 - 국면 무관 alpha 아님"}
+{"file": "dd252-skip1m-verification-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "dd252", "stage": "validation", "description": "DD252 신호 skip-1m 계산 재현·NW 보정 검증"}
+{"file": "dd252-strategy-design-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "dd252", "stage": "exploration", "description": "DD252 전략화 설계 문서"}
+{"file": "dd252-universe-gate-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "dd252", "stage": "validation", "description": "DD252 유니버스 게이트(유동성 외) 선행 검증"}
+{"file": "etp-data-axis-build-feasibility-2026-08.md", "track": "kr", "category": "kr_data_audit", "sub_category": "etp_data", "stage": "exploration", "description": "VIX ETN 등 ETP 데이터축 구축 feasibility"}
+{"file": "etp-data-axis-feasibility-2026-08.md", "track": "kr", "category": "kr_data_audit", "sub_category": "etp_data", "stage": "exploration", "description": "ETF/ETN 가격축 무료 소스 feasibility 조사"}
+{"file": "exchange-lead-lag-audit-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "data_sources", "stage": "exploration", "description": "거래소 리드-래그 연구 데이터 가용성 감사"}
+{"file": "exchange-lead-lag-predictive-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "lead_lag", "stage": "rejection", "description": "거래소 일간 리드-래그 예측성 비용 반영 소멸 FAIL"}
+{"file": "factor-composite-verification-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "portfolio_test", "description": "earnings_yield+rv60 복합 팩터 백테스트 검증"}
+{"file": "factor-discovery-kr-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "exploration", "description": "KR 횡단면 팩터 발견 1개월 수익률 설명 요인 스캔"}
+{"file": "factor-earnings-yield-2021-concentration-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "validation", "description": "Earnings Yield 초과수익 2021 연도 집중 분해 HOLD"}
+{"file": "factor-earnings-yield-capacity-test-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "portfolio_test", "description": "Earnings Yield 캐파시티(최대 종목수) 테스트"}
+{"file": "factor-earnings-yield-macro-rate-regime-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "validation", "description": "Earnings Yield 미국10Y 금리레짐 조건부 검증 HOLD"}
+{"file": "factor-earnings-yield-mtm-reverification-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "validation", "description": "Earnings Yield MTM 방식 재검증 - exit_date 귀속 오류 정정"}
+{"file": "factor-earnings-yield-portfolio-validation-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "portfolio_test", "description": "Earnings Yield 포트폴리오 수준 검증"}
+{"file": "factor-earnings-yield-robustness-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "validation", "description": "Earnings Yield KOSPI/기간·비용 견고성 검증"}
+{"file": "factor-earnings-yield-verification-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "earnings_yield", "stage": "validation", "description": "Earnings Yield 팩터 검증"}
+{"file": "factor-robustness-kr-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "validation", "description": "5개 팩터 KOSPI/KOSDAQ·기간별 견고성 검증"}
+{"file": "factor-single-backtest-kr-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "portfolio_test", "description": "개별 팩터 단독 백테스트 검증"}
+{"file": "fear-position-sizing-overlay-2026-08.md", "track": "us", "category": "us_strategy", "sub_category": "sizing", "stage": "rejection", "description": "공포 비례 사이징 오버레이가 상수노출 대비 열위로 기각"}
+{"file": "fibonacci-retracement-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "fibonacci", "stage": "rejection", "description": "Fibonacci 되돌림 전략 감사 - 예측성 없음 FAIL"}
+{"file": "flat-regime/study.md", "track": "macro", "category": "macro_regime", "sub_category": "regime_definition", "stage": "exploration", "description": "횡보/저변동 레짐 조건별 잔여수익률 통계"}
+{"file": "flow-acceleration-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "signal_study", "description": "외국인 수급 변화(가속) 효과 검증 WEAK"}
+{"file": "flow-basic-effect-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "signal_study", "description": "외국인·기관 당일 수급비율 기본 효과 호라이즌별 검증"}
+{"file": "flow-persistence-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "signal_study", "description": "수급 누적(지속성) 효과 검증"}
+{"file": "flow-price-confirmation-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "signal_study", "description": "외국인 강매수×가격 미반응 교차 확인 WEAK"}
+{"file": "flow-price-confirmation-gap-diagnosis-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "validation", "description": "수급×가격 확인 신호 TEST 붕괴 원인 복합 분해"}
+{"file": "flow-price-confirmation-portfolio-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "portfolio_test", "description": "수급×가격 확인 포트폴리오 백테스트 소멸·역전 REJECT"}
+{"file": "flow-regime-effect-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "signal_study", "description": "외국인 수급 단기 효과의 레짐 의존성 WEAK"}
+{"file": "funding-momentum-residual-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "funding", "stage": "signal_study", "description": "모멘텀 통제 잔차의 funding 독립 알파 검증 - 조건부 WEAK"}
+{"file": "funding-predictive-baseline-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "funding", "stage": "signal_study", "description": "funding 예측력 baseline - 모멘텀 부산물 확인"}
+{"file": "funding-premium-independence-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "funding", "stage": "signal_study", "description": "funding과 프리미엄 정보 중복·독립성 FOLLOW-UP"}
+{"file": "github-literature-return-enhancement-candidates-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "exploration", "description": "문헌 인용 대조 리턴 향상 후보 채택 검토"}
+{"file": "github-strategy-reproduction-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "strategy_backtest", "stage": "portfolio_test", "description": "GitHub 공개 크립토 전략 6종 재현 - 대부분 FAIL"}
+{"file": "github-strategy-sources-usability-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "exploration", "description": "GitHub 전략 저장소 10개 활용성 등급 팩트체크"}
+{"file": "growth-screen-venn-decomposition-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "rejection", "description": "성장축 3종 스크리닝 벤 분해 - 완전 폐쇄"}
+{"file": "h6-last30-execution/study.md", "track": "kr", "category": "kr_strategy", "sub_category": "h6", "stage": "signal_study", "description": "H6 15:20 재정의 검증 - 분봉 부재로 결론 무효"}
+{"file": "h6-regime-conditional-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "h6", "stage": "exploration", "description": "H6 마감급등 되돌림 레짐 조건부 성과 관측"}
+{"file": "insider-trading-precheck-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "insider_trading", "stage": "signal_study", "description": "내부자거래 지분변동 breadth 신호 프리체크 HOLD"}
+{"file": "integrated-research-inventory-2026-08.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "Market Regime 축 실측과 전략 결합 키 감사 인벤토리"}
+{"file": "intraday-chart-research-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_chart", "stage": "signal_study", "description": "장중 5분봉 E1~E3·Phase2 6종 첫 정의 검증"}
+{"file": "intraday-data-inventory-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "저장소 일봉 이하 해상도 데이터 전역 실측 인벤토리"}
+{"file": "intraday-data-requirements-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "단기 차트 연구 데이터 요구사항 감사"}
+{"file": "intraday-data-source-study-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "한국 1분봉 데이터 소스(PKIS·대신) 조사"}
+{"file": "intraday-final-report/report.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_chart", "stage": "meta", "description": "1년 분봉 연구 최종 보고 - 채택·기각 종합"}
+{"file": "intraday-quality-research/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "연구스코프 분봉 패널 품질 검증"}
+{"file": "intraday-timeofday/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_chart", "stage": "exploration", "description": "시간대별 창 특성·수익률 5분위 신호 관측"}
+{"file": "intraday-volume-spike-execution-check-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_chart", "stage": "signal_study", "description": "CLOSE 급증 신호 알파의 갭 원인 실행 체크 B"}
+{"file": "intraday-volume-spike-validation-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_chart", "stage": "validation", "description": "거래량 급증(3B) 사후검증 - 유동성·시간대 분해 B"}
+{"file": "kr-amount-shock-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "volatility_atr", "stage": "rejection", "description": "거래대금 급증(shock) 팩터 독립 alpha 아님 REJECT"}
+{"file": "kr-breakout-continuation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "breakout_continuation", "stage": "rejection", "description": "한국 돌파지속 전략 검증 - 부호반전 REJECT"}
+{"file": "kr-foreign-flow-52wlow-per-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "foreign_flow", "stage": "validation", "description": "외국인수급×52주저점×PER 조합 부호반전 HOLD"}
+{"file": "kr-foreign-flow-5d-independent-verification-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "foreign_flow", "stage": "validation", "description": "외국인 5D 수급 원시데이터 독립재구현 KEEP"}
+{"file": "kr-foreign-flow-enhancement-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "foreign_flow", "stage": "signal_study", "description": "외국인 수급 고도화 축(지속·가속 등) 검증 REJECT"}
+{"file": "kr-foreign-flow5d-v1-engine-smoke-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "foreign_flow", "stage": "portfolio_test", "description": "외국인 5D top-30 엔진 스모크 - 구현 형태 REJECT"}
+{"file": "kr-fundamental-quality-value-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "validation", "description": "ROE·성장·부채비율·PBR 질/가치 팩터 검증"}
+{"file": "kr-fundamental-scan-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "signal_study", "description": "미검증 펀더멘털 6종 스크리닝"}
+{"file": "kr-gap-overnight-effect-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "gap_overnight", "stage": "signal_study", "description": "갭·오버나잇 반전 효과 검증 WEAK"}
+{"file": "kr-highshock-reversal-incremental-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "highshock_reversal", "stage": "rejection", "description": "HighShock 반전 LOWMOM60 오버레이 증분 불안정 REJECT"}
+{"file": "kr-highshock-reversal-monetization-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "highshock_reversal", "stage": "signal_study", "description": "HighShock 반전 수익화 - 월간 rebalance만 양호 WEAK"}
+{"file": "kr-institutional-flow-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "institutional_flow", "stage": "signal_study", "description": "기관 수급 잔차 정보 TEST 붕괴 WEAK"}
+{"file": "kr-market-breadth-relative-strength-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "market_breadth", "stage": "rejection", "description": "RS60·시장폭 팩터 - mom 중복으로 REJECT"}
+{"file": "kr-opmargin-incremental-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "op_margin", "stage": "validation", "description": "opMargin ROE 직교 증분 검증 WEAK"}
+{"file": "kr-opmargin-regime-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "op_margin", "stage": "validation", "description": "opMargin 레짐별 방향성 IC 견고성 WEAK"}
+{"file": "kr-opmargin-robustness-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "op_margin", "stage": "validation", "description": "opMargin 견고성 검증 WEAK"}
+{"file": "kr-pbr-incremental-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pbr_factor", "stage": "portfolio_test", "description": "PBR×LOWMOM60 결합 증분 백테스트 REJECT"}
+{"file": "kr-pbr-nonlinearity-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pbr_factor", "stage": "validation", "description": "PBR 비선형성 - 꼬리 집중 효과 WEAK"}
+{"file": "kr-pbr-robustness-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pbr_factor", "stage": "validation", "description": "PBR 견고성 - 구성·기간 특이적 REJECT"}
+{"file": "kr-remaining-scan-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "remaining_scan", "stage": "signal_study", "description": "남은 잔존 팩터 3종 스크리닝"}
+{"file": "kr-reversal-regime-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "short_reversal", "stage": "validation", "description": "HighShock 조건부 단기 반전 레짐 검증 WEAK"}
+{"file": "kr-short-term-reversal-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "short_reversal", "stage": "signal_study", "description": "단기 반전(rev5/rev20) 독립 정보 TEST 붕괴 WEAK"}
+{"file": "kr-squeeze-volume-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "squeeze_volume", "stage": "rejection", "description": "Crypto S2 Squeeze 신호 한국 적용 재현 실패 REJECT"}
+{"file": "kr-volatility-atr-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "volatility_atr", "stage": "validation", "description": "rv/ATR 변동성 팩터 - exclusion 필터로만 유효 WEAK"}
+{"file": "kr23-window-bisection.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "exploration", "description": "기관 수급 d20 부호반전 window 이분 탐색"}
+{"file": "kr23-window-comparison.md", "track": "kr", "category": "kr_factor", "sub_category": "flow_basic", "stage": "exploration", "description": "수급 슬롯 5일 추세 window 5~20 비교"}
+{"file": "krw-usdt-premium-audit-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "data_sources", "stage": "exploration", "description": "KRW-USDT 프리미엄(김치) 계산 데이터 가용성 감사"}
+{"file": "liquidation-data-audit-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "data_sources", "stage": "exploration", "description": "Binance 청산 이력 데이터 가용성 감사 - FAIL"}
+{"file": "liquidity-factor-a4-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "volatility_atr", "stage": "exploration", "description": "Trading Value·거래대금 급증 등 유동성 팩터 횡단면 검증"}
+{"file": "long-term-rebalancing-readiness-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "exploration", "description": "장기 리밸런싱 데이터 준비도 조건부 가능 검토"}
+{"file": "lowmom60-candidate-c-engine-verification-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "lowmom60", "stage": "validation", "description": "LOWMOM60 실제 엔진 연결 검증 HOLD"}
+{"file": "lowmom60-exposure-overlay-timing-value-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "lowmom60", "stage": "validation", "description": "LOWMOM60 노출 오버레이 타이밍가치 검증 HOLD"}
+{"file": "lowmom60-macro-regime-check-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "lowmom60", "stage": "exploration", "description": "LOWMOM60+기관수급 절대수익 금리레짐 조건화"}
+{"file": "lynch-peg-buffett-roe-absolute-reverification-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "rejection", "description": "PEG·ROE 투자대가 팩터 재검증 - 실질 폐쇄"}
+{"file": "macd-information-content-a4-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "exploration", "description": "MACD 관례적 사용 정보량 검증 관측 문서"}
+{"file": "macro-rate-regime-synthesis-2026-08.md", "track": "macro", "category": "macro_data", "sub_category": "rate_regime", "stage": "exploration", "description": "미국10Y 금리레짐을 PBR·CAND1·OF에 적용한 결과 종합"}
+{"file": "macro-regime-layer-backfill-report-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "backfill", "stage": "validation", "description": "Macro Regime Layer 백필 실행·audit 보고"}
+{"file": "macro-regime-layer-data-source-check-2026-08.md", "track": "macro", "category": "macro_data", "sub_category": "data_sources", "stage": "exploration", "description": "Macro Regime Layer 금리·신용·경기 소스 실측"}
+{"file": "macro-regime-layer-design-2026-08.md", "track": "macro", "category": "macro_data", "sub_category": "design", "stage": "exploration", "description": "Macro Regime Layer 10축 스키마·PIT 설계"}
+{"file": "market-regime-build-plan-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "regime_definition", "stage": "exploration", "description": "market-regime 최소 스키마·백필 설계"}
+{"file": "market-regime-classification-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "regime_definition", "stage": "validation", "description": "K-means 시장상태 분류 - 위험선호 축 강건 검증"}
+{"file": "market-regime-data-inventory-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "data_inventory", "stage": "exploration", "description": "중장기 전략 시장국면 데이터 갭 조사"}
+{"file": "market-regime-data-source-check-2026-08.md", "track": "macro", "category": "macro_data", "sub_category": "data_sources", "stage": "exploration", "description": "USD/KRW·VIX 데이터 소스 확정"}
+{"file": "market-regime-definition-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "regime_definition", "stage": "exploration", "description": "VIX·trend·breadth·USD/KRW 4축 레짐 정의"}
+{"file": "market-regime-feature-semantics-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "data_inventory", "stage": "exploration", "description": "market_regime_features 기술통계·상관 감사"}
+{"file": "market-regime-final-data-inventory-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "data_inventory", "stage": "exploration", "description": "Market Regime 데이터축 최종 인벤토리"}
+{"file": "market-regime-final-data-inventory-verification-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "data_inventory", "stage": "validation", "description": "Market Regime 인벤토리 독립 재현 검증"}
+{"file": "market-regime-readiness-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "data_inventory", "stage": "exploration", "description": "보유 데이터로 regime 연구 가능한지 실행 검증"}
+{"file": "minute-data-quality-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "minute_raw 1분봉 품질 감사"}
+{"file": "minute-fade-net-costs/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "minute_fade", "stage": "portfolio_test", "description": "오프닝 페이드 롱숏 비용 반영 net 계산"}
+{"file": "minute-fade-regime/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "minute_fade", "stage": "exploration", "description": "오프닝 페이드 세기와 변동성 프록시 월별 상관"}
+{"file": "minute-opening-fade-comparison/summary.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "signal_study", "description": "오프닝 페이드 5실험 종합 요약"}
+{"file": "minute-opening-fade-cost/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "portfolio_test", "description": "오프닝 페이드 비용 반영 net 스프레드 호라이즌별"}
+{"file": "minute-opening-fade-exlimits/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "validation", "description": "오프닝 페이드 상하한가 도달 종목 제외 영향 검증"}
+{"file": "minute-opening-fade-monthly/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "validation", "description": "오프닝 페이드 월별 분해 - 부호 보편성 확인"}
+{"file": "minute-opening-fade-window/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "validation", "description": "오프닝 페이드 신호 창 1/5/15분 민감도"}
+{"file": "minute-opening-fade/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_study", "stage": "signal_study", "description": "오프닝 페이드 기초 관측 - 초반5분과 잔여 음의 단조"}
+{"file": "minute-vm-inventory-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "intraday_data", "stage": "exploration", "description": "Oracle VM 분봉 데이터 현황 조사 인벤토리"}
+{"file": "minute-volume-profile/study.md", "track": "kr", "category": "kr_intraday", "sub_category": "minute_fade", "stage": "exploration", "description": "분봉 거래량 프로파일 인프라 진단"}
+{"file": "opening-fade-longonly-walkforward-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "portfolio_test", "description": "오프닝 페이드 Q1 롱온리 워크포워드"}
+{"file": "opening-fade-macro-extra-axes-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "exploration", "description": "오프닝 페이드 매크로 6축 조건화"}
+{"file": "opening-fade-macro-rate-regime-check-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "exploration", "description": "오프닝 페이드 미국10Y 금리레짐 소거 검증"}
+{"file": "opening-fade-regime-conditional-2026-08.md", "track": "kr", "category": "kr_intraday", "sub_category": "opening_fade_sub", "stage": "exploration", "description": "오프닝 페이드 레짐 조건부 T+5/T+10 관측"}
+{"file": "order-flow-imbalance-audit-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "data_sources", "stage": "exploration", "description": "order-flow imbalance 데이터 확보 가능성 감사 PASS"}
+{"file": "order-flow-imbalance-predictive-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "order_flow", "stage": "rejection", "description": "order-flow imbalance 예측성 - z-score만 유의 FAIL"}
+{"file": "overnight-macro-regime-cross-candidate-synthesis-2026-08.md", "track": "macro", "category": "macro_regime", "sub_category": "synthesis", "stage": "meta", "description": "6개 후보×매크로축 교차 종합"}
+{"file": "panic-recovery-family-rejection-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "opening_fade", "stage": "rejection", "description": "스인 패닉·회복 이진 구조 9개 변형 기각"}
+{"file": "pbr-combined-2022-concentration-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR combined 연도별 초과수익 몰입 분해 KEEP"}
+{"file": "pbr-combined-exposure-overlay-timing-value-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "rejection", "description": "PBR combined 노출 오버레이 타이밍가치 없음 REJECT"}
+{"file": "pbr-combined-invvol-weighting-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR combined 역변동성 가중 검증 HOLD"}
+{"file": "pbr-combined-oos-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR combined 12격자 OOS 검증 KEEP"}
+{"file": "pbr-combined-paramsweep-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR combined 파라미터 스윕 - pct=0.8 국소최적 HOLD"}
+{"file": "pbr-dropout-maxexcl-combined-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR dropout+MAX제외 결합 초가산적 개선 HOLD"}
+{"file": "pbr-dropout-maxexcl-t1t3-decomposition-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR dropout·MAX제외 T1/T3 유동성 분해 HOLD"}
+{"file": "pbr-dropout-turnover-limit-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR dropout 회전율 제한 개선 검증 HOLD"}
+{"file": "pbr-exposure-overlay-vs-ranking-cut-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "rejection", "description": "PBR 노출 오버레이 vs 랭킹컷 구성효과 폐쇄 REJECT"}
+{"file": "pbr-macro-extra-axes-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "exploration", "description": "PBR 매크로 6축 조건화 - 일반순환지수만 생존"}
+{"file": "pbr-macro-rate-regime-check-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "exploration", "description": "PBR 미국10Y 금리레짐 조건부 유지 검증"}
+{"file": "pbr-max-exclusion-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR MAX 상위 20% 제외 개선 검증 HOLD"}
+{"file": "pbr-ratefilter-backtest-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "rejection", "description": "PBR hiking 필터 백테스트 열위 REJECT"}
+{"file": "pbr-sizing-macro-continuous-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "PBR 미국10Y 연속 비중축소 사이징 HOLD"}
+{"file": "pbr-vs-ew-monthly-mtm-exit-dedup-fix-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "pbr", "stage": "validation", "description": "pbr_vs_ew_monthly_mtm exit 중복 가드 버그 수정"}
+{"file": "pead-annual-precheck-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pead", "stage": "rejection", "description": "연간 SUE 근사 PEAD 프리체크 - 기각"}
+{"file": "pead-quarterly-oos-validation-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pead", "stage": "rejection", "description": "분기 SUE PEAD OOS 검증 - 재현 실패 기각"}
+{"file": "pead-quarterly-pilot-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "pead", "stage": "signal_study", "description": "분기 SUE PEAD 파일럿 - 신호 강화 확인 HOLD"}
+{"file": "per-factor-t1t3-oos-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "per_factor", "stage": "rejection", "description": "PER 팩터 T1/T3 OOS 검증 - 유의성 미달 기각"}
+{"file": "positioning-data-audit-2026-08.md", "track": "crypto", "category": "crypto_data_audit", "sub_category": "data_sources", "stage": "exploration", "description": "Binance futures 포지셔닝 데이터 감사 - 장기 보유 불가"}
+{"file": "premium-vol-stability-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "premium", "stage": "validation", "description": "프리미엄 변동성 데시일 신호의 안정성 검증 WEAK"}
+{"file": "price-structure-sweep-v2-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "price_structure", "stage": "portfolio_test", "description": "가격구조 18개 config OOS 스윕 백테스트(v2 버그수정)"}
+{"file": "quarterly-earnings-growth-factor-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "fundamental_scan", "stage": "rejection", "description": "분기 순이익 성장 팩터 - 불장몰림으로 기각"}
+{"file": "regime-conditional-synthesis-2026-08.md", "track": "kr", "category": "macro_synthesis", "sub_category": "cross_strategy", "stage": "meta", "description": "동일 레짐 정의로 CAND1·OF·H6 종합 재분류"}
+{"file": "research-roadmap-after-regime-audit-2026-08.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "Market Regime 감사 통합 연구 우선순위 로드맵"}
+{"file": "risk-management-experiment-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "risk_management", "stage": "signal_study", "description": "Dual Momentum/EMA 리스크 파라미터 그리드 실험 CONDITIONAL"}
+{"file": "risk-sizing-oos-test-2026-08.md", "track": "crypto", "category": "crypto_strategy", "sub_category": "risk_management", "stage": "rejection", "description": "Dual Momentum/EMA 리스크·사이징 OOS 백테스트 REJECT"}
+{"file": "short-selling-signal/signal_study.md", "track": "kr", "category": "kr_factor", "sub_category": "insider_trading", "stage": "signal_study", "description": "공매도 거래량 급증 신호 단독 가치 관측"}
+{"file": "signal-correlation-v3v5v6/correlation.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "V3·V5·V6 양성 후보 3종 신호 겹침 검사"}
+{"file": "sl2-atr-mae-correlation-reproduction.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "sl2_atre", "stage": "validation", "description": "SL2 ATR%-MAE 상관 재현 검증"}
+{"file": "slot-marginal-contribution/SLOT-MARGINAL-CONTRIBUTION.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "validation", "description": "KR-2.2 19슬롯 LOO 한계기여 분석"}
+{"file": "slot-marginal-contribution/seed-robustness-comparison.md", "track": "kr", "category": "kr_factor", "sub_category": "composite_verification", "stage": "validation", "description": "19개 스코어링 슬롯 LOO 기여 시드 간 강건성 비교"}
+{"file": "sns-hypotheses/study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "sns_hypotheses", "stage": "signal_study", "description": "SNS 급등/급락 패턴 H1~H9 이벤트 스터디"}
+{"file": "strategy-candidates/study.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "전략 후보 CAND1~CAND3 비용별 검증 표 종합"}
+{"file": "strategy-regime-data-sufficiency-2026-08.md", "track": "kr", "category": "meta", "sub_category": "meta", "stage": "meta", "description": "연구 단계별 데이터 가용성 매트릭스"}
+{"file": "strategy-regime-performance-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "5dc", "stage": "exploration", "description": "5DC-v1A-P의 Risk-On 국면 한정 유효성 관측"}
+{"file": "support-resistance/study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "support_resistance", "stage": "signal_study", "description": "지지/저항 돌파·손절 이벤트 스터디"}
+{"file": "taker-funding-interaction-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "taker", "stage": "signal_study", "description": "taker_ratio와 funding 결합 상호작용 - 충돌 확인"}
+{"file": "taker-ratio-oos-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "taker", "stage": "rejection", "description": "taker_ratio 일간 리밸런싱 실전 전략화 불가 기각"}
+{"file": "taker-ratio-regime-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "taker", "stage": "signal_study", "description": "taker_ratio의 mom30 불장 조건부 신호 확인"}
+{"file": "taker-ratio-robustness-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "taker", "stage": "validation", "description": "taker_ratio 강건성 - 레짐조건부로만 사용 가능"}
+{"file": "trade-structure-predictive-2026-08.md", "track": "crypto", "category": "crypto_microstructure", "sub_category": "taker", "stage": "rejection", "description": "거래구조 피처 예측성 - 모멘텀 중복으로 FAIL"}
+{"file": "trend-breakout-macro-regime-check-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "trend_breakout", "stage": "exploration", "description": "TREND-BREAKOUT 손실 금리·국면 조건화"}
+{"file": "trend-breakout-riskoff-runner-validation-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "trend_breakout", "stage": "validation", "description": "TREND-BREAKOUT Risk-Off 차단 필터 runner 검증"}
+{"file": "trendbreakout-5dc-exposure-overlay-timing-value-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "trend_breakout", "stage": "exploration", "description": "TREND-BREAKOUT·5DC 노출 오버레이 타이밍가치 검증"}
+{"file": "us-market-data-gap-2026-08.md", "track": "us", "category": "us_data_audit", "sub_category": "us_data", "stage": "exploration", "description": "미국시장 데이터 갭 우선순위 조사"}
+{"file": "us-market-data-source-check-2026-08.md", "track": "us", "category": "us_data_audit", "sub_category": "us_data", "stage": "exploration", "description": "미국/글로벌 7종 데이터 소스 확인"}
+{"file": "v1-ma-pullback/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "ma_pullback", "stage": "signal_study", "description": "MA5/25/75 Pullback 신호 첫 실행 스터디"}
+{"file": "v2-fvg-pullback/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "fvg_pullback", "stage": "signal_study", "description": "FVG pullback 첫 실행 이벤트 스터디"}
+{"file": "v3-5dc-signal-independence-2026-08.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "bollinger_rsi", "stage": "validation", "description": "V3 Bollinger+RSI 신호와 5DC의 독립성(신호 겹침) 검사"}
+{"file": "v3-bb-rsi/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "bollinger_rsi", "stage": "signal_study", "description": "BB 하단+RSI 반등 신호 첫 실행 스터디"}
+{"file": "v3-bollinger-rsi-full-universe-rejection-2026-08.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "bollinger_rsi", "stage": "rejection", "description": "BB+RSI 전체 유니버스 반전 - 스모크 착시 기각"}
+{"file": "v3-engine-smoke/smoke.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "bollinger_rsi", "stage": "validation", "description": "V3 엔진 스모크 - 계약 연결 확인"}
+{"file": "v3-overlap-check/overlap.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "bollinger_rsi", "stage": "validation", "description": "V3 신호와 5DC 신호의 ±3거래일 겹침률 검사"}
+{"file": "v4-fib-sr/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "fib_sr", "stage": "signal_study", "description": "Fib 38.2/61.8+지지 confluence 첫 실행 스터디"}
+{"file": "v4b-institution-breakdown/breakdown.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "divergence", "stage": "signal_study", "description": "기관 카테고리별(연기금·사모 등) breakdown 관측"}
+{"file": "v5-divergence/audit.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "divergence", "stage": "exploration", "description": "V5 외국인/기관 다이버전스 데이터·PIT 사전 감사"}
+{"file": "v5-divergence/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "divergence", "stage": "signal_study", "description": "V5 외국인 순매수+기관 순매도 다이버전스 첫 실행"}
+{"file": "v5b-expension/comparison.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "divergence", "stage": "validation", "description": "V5 연기금 제외(7합) 비교 - 개선 없음"}
+{"file": "v6-accrual-price/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "accrual_price", "stage": "signal_study", "description": "V6 매집가 +5% 필터 첫 실행 스터디"}
+{"file": "v6-daily-vs-minute-entry/comparison.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "accrual_price", "stage": "validation", "description": "V6 일봉 근사 vs 분봉 진입 비교"}
+{"file": "v6-engine-smoke/smoke.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "accrual_price", "stage": "validation", "description": "V6 엔진 TIME_EXIT 연결 스모크"}
+{"file": "v6-liquidity-check/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "accrual_price", "stage": "validation", "description": "V6 절대유동성 오염 가설 점검"}
+{"file": "v6-window-sensitivity/sensitivity.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "accrual_price", "stage": "validation", "description": "V6 매집가 창 3/5/10일 민감도 검증"}
+{"file": "v7-eod-scanner/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "eod_scanner", "stage": "signal_study", "description": "V7 종가베팅 EOD 스캐너 feature 스태킹 첫 실행"}
+{"file": "v8-amt-breakout/signal_study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "amt_breakout", "stage": "rejection", "description": "V8 거래대금 상위 필터 추가분 증분 가치 없음 REJECT"}
+{"file": "video-strategies-2026-08/audit.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "support_resistance", "stage": "exploration", "description": "영상전략 V1~V8 feasibility audit"}
+{"file": "video-strategies-2026-08/parked.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "support_resistance", "stage": "exploration", "description": "영상전략 V1~V8 보류 항목 기록"}
+{"file": "vix-domestic-etn-etf-data-source-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "data_source", "stage": "exploration", "description": "국내 VIX ETF/ETN 데이터 소스 조사 B"}
+{"file": "vix-etn-data-axis-build-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "data_build", "stage": "exploration", "description": "국내 VIX ETN 데이터축 구축·검증"}
+{"file": "vix-etn-regime-integration-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "etn_strategy", "stage": "signal_study", "description": "VIX z≥2 후 인버스 ETN 레짐 통합 신호 관측"}
+{"file": "vix-etn-regime-robustness-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "etn_strategy", "stage": "validation", "description": "VIX ETN 레짐 조건 전략 견고성 검증"}
+{"file": "vix-etn-strategy-validation-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "etn_strategy", "stage": "portfolio_test", "description": "인버스 VIX ETN 전략 검증 - 표본 부족 B"}
+{"file": "vix-etn-validation-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "etn_strategy", "stage": "exploration", "description": "VIX z 신호→국내 VIX ETN 연결 검증 - 데이터 부족 D"}
+{"file": "vix-incremental-info-check-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "regime_info", "stage": "exploration", "description": "VIX가 Risk-Off 너머 잔여 정보 보유하는지 확인"}
+{"file": "vix-mean-reversion-study-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "mean_reversion", "stage": "signal_study", "description": "VIX(z≥2) 급등 후 평균회귀 실재 여부 스터디"}
+{"file": "vix-regime-integration-2026-08.md", "track": "macro", "category": "macro_vix", "sub_category": "regime_info", "stage": "exploration", "description": "VIX↔regime 시차 분석 - 급등이 Risk-Off 선행 신호"}
+{"file": "volatility-atr-factor-a4-2026-08.md", "track": "kr", "category": "kr_factor", "sub_category": "volatility_atr", "stage": "validation", "description": "변동성 IC·저변동/초고변동 버킷 팩터 검증"}
+{"file": "volatility-structure-predictive-2026-08.md", "track": "crypto", "category": "crypto_signal", "sub_category": "volatility", "stage": "rejection", "description": "변동성 구조(RV·ATR) 예측성 - funding 중복 REJECT"}
+{"file": "volume-price-events/study.md", "track": "kr", "category": "kr_chart_tech", "sub_category": "volume_price", "stage": "signal_study", "description": "거래량×가격 이벤트 결과 테이블"}
+{"file": "wvf-kr-v1-step1-methodology-2026-08.md", "track": "kr", "category": "kr_strategy", "sub_category": "wvf", "stage": "exploration", "description": "WVF-KR-V1 STEP 1 방법론 확정 문서"}
