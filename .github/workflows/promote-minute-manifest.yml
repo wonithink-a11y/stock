@@ -52,7 +52,7 @@ jobs:
           OCI_FINGERPRINT: ${{ secrets.OCI_MINUTE_READ_FINGERPRINT }}
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_PRIVATE_KEY: ${{ secrets.OCI_MINUTE_READ_PRIVATE_KEY }}
-          OCI_NAMESPACE: ${{ secrets.OCI_NAMESPACE }}
+          OCI_NAMESPACE: ax4zjhxnmgyz   # 민감정보 아님(테넌시 네임스페이스 식별자) - secret으로 안 둔다
         run: |
           ARGS=""
           if [ -n "${{ inputs.days }}" ]; then ARGS="--days ${{ inputs.days }}"; fi
