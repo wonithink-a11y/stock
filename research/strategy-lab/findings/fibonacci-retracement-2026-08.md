@@ -1,3 +1,14 @@
+---
+track: crypto
+factor: fibonacci-retracement
+date: 2026-08-29
+verdict: UNCLASSIFIED
+original_verdict: "FAIL"
+criteria_version: backfill-v1
+conditions: ["fib_retracement_0.382/0.5/0.618/0.786", "proximity_0.5pct", "regime_bull_bear_mom30"]
+reason: "피보나치 되돌림 레벨 근처 가격행동이 mom30과 0.66~0.68 상관으로 독립 정보 아니고, funding+mom30 통제 시 방향 반전, 10bp 비용으로 알파 완전 잠식돼 독립적 알파 소스로 부적합"
+---
+
 # Step 38 — Fibonacci Retracement Strategy Audit
 
 날짜: 2026-08-29 | 판정: **FAIL**

@@ -1,11 +1,13 @@
+---
 track: kr
 factor: intraday-volume-spike-validation
 date: 2026-08-22
 verdict: UNCLASSIFIED
-original_verdict: B
+original_verdict: "B"
 criteria_version: backfill-v1
 conditions: ["v>=3x_median_12bar_5m", "liquid_bucket_HIGH/MID/LOW", "time_bucket", "repeat_fire"]
 reason: "거래량 급증 3B 사후검증 - 실행 가능한 고유동성(HIGH)에서는 엣지 0(LOW 86%가 alpha 원천), 남는 excess도 비용 30bp 미달, 반복발화 클러스터링 확인 - 추가 검증 필요(B)"
+---
 
 # Phase 2 실험 3B(거래량 급증 단독) 사후 검증 (2026-08-22)
 

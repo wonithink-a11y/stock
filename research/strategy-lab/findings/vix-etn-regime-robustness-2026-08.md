@@ -1,11 +1,13 @@
+---
 track: macro
 factor: vix-etn-regime-robustness
 date: 2026-08-23
 verdict: UNCLASSIFIED
-original_verdict: C
+original_verdict: "C"
 criteria_version: backfill-v1
 conditions: ["vix_etn_inverse", "episode_first", "2024-08~12_제외"]
 reason: "VIX ETN 인버스 2024-08~12 제외 실험 - 제외 시 전 호른즈 음수 반전(양의 기대값 소멸), 양성/음성 모두 국면 클러스터가 방향 결정(B 판정을 C로 하향) - 잔여 표본 n≤9라 음의 기대값도 강주장 불가"
+---
 
 # VIX ETN 국면 강건성 검증 — 2024-08~12 제외 실험 (2026-08)
 

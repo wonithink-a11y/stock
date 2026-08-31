@@ -1,3 +1,14 @@
+---
+track: crypto
+factor: risk-management-experiment
+date: 2026-08-29
+verdict: UNCLASSIFIED
+original_verdict: "CONDITIONAL"
+criteria_version: backfill-v1
+conditions: ["dual_momentum_ATR2.0x_stop_5pct_trailing", "ema_trend_50_200", "OOS_train_valid_test"]
+reason: "Dual Momentum+ATR 손절이 Test CAGR +24.7%·Sharpe 0.68·MDD -32.1%로 조건부 통과하나 포지션사이징·레버리지제한·레짐필터 등 추가 조건 충족을 전제로 함, production 판단 아님"
+---
+
 # Step 40 — Dual Momentum / EMA Trend 리스크 관리 실험
 
 날짜: 2026-08-29 | 판정: **CONDITIONAL**

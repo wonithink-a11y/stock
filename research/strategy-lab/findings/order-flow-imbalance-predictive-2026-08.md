@@ -1,3 +1,14 @@
+---
+track: crypto
+factor: order-flow-imbalance-predictive
+date: 2026-08-29
+verdict: UNCLASSIFIED
+original_verdict: "FAIL"
+criteria_version: backfill-v1
+conditions: ["taker_buy_ratio_q", "imbalance_q", "imb_q_chg_7d", "imbalance_q_z30"]
+reason: "imbalance_q_z30만 유의한 mean-reversion 신호를 보이나 funding rate와 -0.24 상관으로 독립 정보 아니고 스프레드가 10bp 비용 대비 너무 작아 독립적 알파 소스로 부적합"
+---
+
 # Step 35 — Order-Flow Imbalance Predictive Test
 
 날짜: 2026-08-29 | 판정: **FAIL**

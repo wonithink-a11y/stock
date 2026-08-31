@@ -1,11 +1,13 @@
+---
 track: crypto
 factor: exchange-lead-lag-predictive
 date: 2026-08-29
 verdict: UNCLASSIFIED
-original_verdict: FAIL
+original_verdict: "FAIL"
 criteria_version: backfill-v1
 conditions: ["Binance→Upbit / Upbit→Binance 리드-래그", "funding+mom30 통제", "10/30/50bp 왕복 비용"]
 reason: "일간 리드-래그 신호는 통계적으로 미약하고 Date-CS IC 유의하지 않으며(t<2) 10bp 비용 반영에도 완전 소멸해 실전 전략화 불가(CAGR 음, Sharpe 음, MaxDD -100%)"
+---
 
 # Step 31 — Exchange Lead-Lag Predictive Test (Daily)
 

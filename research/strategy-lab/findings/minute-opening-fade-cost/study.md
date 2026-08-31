@@ -1,3 +1,4 @@
+---
 track: kr
 factor: minute-opening-fade-cost
 date: 2026-08-22
@@ -5,6 +6,7 @@ verdict: UNCLASSIFIED
 criteria_version: backfill-v1
 conditions: ["opening_fade_r05_quintile", "Q1_long_Q5_short", "RT20_30_40bp", "horizon_same-day/multi-day"]
 reason: "오더닝 페이드 롱숏 비용 반영 net 스프레드 - 당일 3개 호라이즌은 전부 음, T+5(+9.2bp)/T+10(+3.1bp)만 손익분기 30bp 근방으로 약간 양, 중복 보유 창 포함 근사치(관측치만)"
+---
 
 # 오더닝 페이드 롱숏 — 비용 반영 net 스프레드 (호라이즌 확장 포함)
 

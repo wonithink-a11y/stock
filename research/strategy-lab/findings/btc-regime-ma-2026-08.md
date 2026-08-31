@@ -1,3 +1,14 @@
+---
+track: crypto
+factor: btc-regime-ma
+date: 2026-08-29
+verdict: UNCLASSIFIED
+original_verdict: "FAIL"
+criteria_version: backfill-v1
+conditions: ["dist_20/60/120", "ma_slope_20/60/120", "regime_bull_bear_mom30"]
+reason: "MA 이격률·기울기 피처가 mom30과 0.67~0.90 상관으로 독립 정보 아님, 레짐별 방향 반전은 있으나 7일 스프레드가 10bp 비용 대비 마진 극히 얇아 독립적 알파 소스로 부적합"
+---
+
 # Step 37 — BTC Regime × 20/60/120 MA Strategy Audit
 
 날짜: 2026-08-29 | 판정: **FAIL**
