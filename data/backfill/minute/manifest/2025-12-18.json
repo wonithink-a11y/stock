@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "MN-1.0",
+  "date": "2025-12-18",
+  "rows": 599209,
+  "symbols": 2579,
+  "sha256": "7acf0cb5f7f75535987724f71299c2b6a0a53a7be9608756bba6629b69b43610",
+  "shaMethod": "combined: sha256 of sorted 'name sha' lines",
+  "parts": [
+    {
+      "name": "part-000.parquet",
+      "rows": 48599,
+      "sha256": "041e9824604e43aef2822f62c8a4dc03a9fda1450adf2f74faed040beec45239"
+    },
+    {
+      "name": "part-001.parquet",
+      "rows": 48824,
+      "sha256": "39a89680d77ad14c474b73fcc5fefcd47a3903ddfa6e90c6ec48ca073f2351e8"
+    },
+    {
+      "name": "part-002.parquet",
+      "rows": 44568,
+      "sha256": "8a85bfaee7c7ae03a5a6744f4032c5848327449b7b11940405557d8b7958f207"
+    },
+    {
+      "name": "part-003.parquet",
+      "rows": 46372,
+      "sha256": "378943199b753741aca475e5fe7958207741f48cb7e3952a5f14c463c4af645c"
+    },
+    {
+      "name": "part-004.parquet",
+      "rows": 41113,
+      "sha256": "3c719f89354bbb44547b6fc325e7e6d5021ef17ad62af95e30743650b8cdd7af"
+    },
+    {
+      "name": "part-005.parquet",
+      "rows": 42013,
+      "sha256": "c895bf1df48620655eaa4195d304cc3310c1a7af0ed97eb9c9cd0a8c537f11c9"
+    },
+    {
+      "name": "part-006.parquet",
+      "rows": 47855,
+      "sha256": "e14eae070a7ab76a4c7a9dcc7b0a4757817603436a0f205132e39022dd1ebb37"
+    },
+    {
+      "name": "part-007.parquet",
+      "rows": 43553,
+      "sha256": "0bc279ae18c8ac9edc86c93ca6d5c7ab533d126a25f41463d3241026199fe2a2"
+    },
+    {
+      "name": "part-008.parquet",
+      "rows": 45555,
+      "sha256": "8c6cc798c26f1bad12b4706016c483333bc16c8967b39769d226289677adf8fa"
+    },
+    {
+      "name": "part-009.parquet",
+      "rows": 45901,
+      "sha256": "c1c4fa413ee96358df84dc689e5bb7d564693de3aee145f818877f4aa6cc34d4"
+    },
+    {
+      "name": "part-010.parquet",
+      "rows": 49052,
+      "sha256": "99414a6c70968a4e55975be45a8534ebce91f453f4499c1234abbdafd5d81908"
+    },
+    {
+      "name": "part-011.parquet",
+      "rows": 48122,
+      "sha256": "62a427a4959458d3bc05449e465f2b7c78267a66b02533e40837ee089a7db392"
+    },
+    {
+      "name": "part-012.parquet",
+      "rows": 47682,
+      "sha256": "ea1f695ee7936f8eef7a185ba6c7fe5cbce802fee00f1495175fd8b85ca32416"
+    }
+  ],
+  "rawPath": "/home/ubuntu/minute-raw/date=2025-12-18",
+  "source": "KIS",
+  "endpoint": "inquire_time_dailychartprice",
+  "adjusted": true,
+  "market": "KR",
+  "requestedAt": "2026-08-19T13:20:05+09:00",
+  "createdAt": "2026-08-19T13:20:05+09:00",
+  "policyVersion": "MN-1.2",
+  "policyHash": "8aaf06c553b55ebc7e55f9460efb7b6e0adbd6058ce11c3fdc1ace9dc2ecde23",
+  "gapReasons": {
+    "PRE_LIST": 30,
+    "EMPTY": 54,
+    "HALT": 13
+  },
+  "unresolved": {},
+  "acceptance": [
+    {
+      "항목": "미해결 비율 상한",
+      "통과": true,
+      "실측": {
+        "미해결": 0,
+        "전체": 2579,
+        "비율": 0.0,
+        "상한": 0.05
+      }
+    },
+    {
+      "항목": "스키마·중복·일자·OHLC 위반 0",
+      "통과": true,
+      "실측": {
+        "위반": 0,
+        "샘플": []
+      }
+    },
+    {
+      "항목": "gapReason이 계약 안의 값",
+      "통과": true,
+      "실측": {
+        "미등록": []
+      }
+    },
+    {
+      "항목": "행이 있거나 전부 결손으로 설명된다",
+      "통과": true,
+      "실측": {
+        "행": 599209
+      }
+    }
+  ],
+  "acceptancePassed": true,
+  "execution": {
+    "runId": null,
+    "runAttempt": null,
+    "workflow": null,
+    "host": "local"
+  },
+  "dayVerdict": "TRADING_CONFIRMED",
+  "dayVerdictBasis": "calendar",
+  "calendarCovered": true,
+  "symbolsWithRows": 2482,
+  "symbolsNotQueried": 0,
+  "observations": {},
+  "observationsNote": "이 실행이 검증한 행에 대한 수치다. 재개된 날은 이월 조각을 다시 검증하지 않으므로 앞 실행의 _failed manifest가 나머지를 들고 있다."
+}
