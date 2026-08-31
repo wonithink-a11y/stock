@@ -356,7 +356,7 @@ def run_all(M=None):
               val.get("requireCloseWithinRange") is True
               and val.get("requireLowLeHigh") is True, val)
         check("정책 버전이 올라갔다 (완화는 버전 승격으로만)",
-              pol["version"] == "MN-1.1", pol["version"])
+              pol["version"] == "MN-1.2", pol["version"])
         # collectionContract가 안 바뀌어야 이미 모은 것을 다시 쓸 수 있다.
         check("면제가 collectionContract를 건드리지 않았다",
               "validation" not in pol["collectionContract"]
@@ -518,8 +518,9 @@ def run_all(M=None):
               cc["pageSize"] == 120, cc["pageSize"])
         check("성공 게이트에 요청일자 검사가 켜져 있다",
               pol["successGate"]["requireRequestedDateInResponse"] is True)
-        check("동시성 초기값이 2 이하 (EGW00201 실측 반영)",
-              pol["concurrency"]["initial"] <= 2, pol["concurrency"]["initial"])
+        check("동시성 초기값이 문서화된 상한 4 이하 "
+              "(EGW00201이 동시 4~6에서 실측, MN-1.2에서 2→4 승격)",
+              pol["concurrency"]["initial"] <= 4, pol["concurrency"]["initial"])
         check("gapReason과 failureClass가 겹치지 않는다",
               not (set(pol["gapReason"]["values"])
                    & set(pol["failureClass"]["values"])),
