@@ -5,7 +5,7 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.1 · SB-1.0 · SD-1.0
+  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.2 · SB-1.0 · SD-1.0
   현재 트랙  A3c·T1·A2b·A4 전부 종료됐다(아래 완료 참고) — A3c는 finalize 완료
                (2026-08-16, a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님),
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
@@ -363,9 +363,13 @@ Validated against
               EGW00201 누적 0건, 루프(`minute-backfill-loop.service`)는
               2026-08-20 23:16에 이미 정상 stop됨(별도 정리 불필요). 단
               **산출물은 여전히 VM `~/minute-raw`에만 있고 GitHub에는 없다**
-              — 승격 파이프라인이 아직 미구현이라(아래 "다음" ★ 분봉 manifest
-              승격 파이프라인 항목) "착수 가능" 목록에 남겨두는 이유가 없다,
-              다음 착수 대상은 그 승격 파이프라인 자체다. 일별 운영 cron
+              — 승격 파이프라인 자체는 2026-09-01에 구현·검증까지 끝났다
+              (아래 "완료" ★ 분봉 manifest 승격 파이프라인 항목 참고, `--all`
+              옵션이 밀린 것 전부를 올릴 수 있다). 단 **이 249일치 과거분을
+              실제로 올리는 것은 아직 별도 미착수**다 — 지금까지 검증한 건
+              `stock-new`의 최근 며칠(08-21·27·28·31)뿐이고, 이 249일치는
+              구 `stock` VM에 있다(같은 Dynamic Group에 이미 포함돼 있어
+              권한은 있다). 착수는 별도 결정. 일별 운영 cron
               (`minute-collect.timer`, `--days` 기본 3)은 이 백필과 무관하게
               정상 작동 중(최근 실행 정상)
             ④ A5-3 valuation/peg 연결(lib/a5/resolver.js, A2a 수정주가 ↔ A3b
@@ -398,48 +402,6 @@ Validated against
               발견해 정정했다
             ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
               emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조)
-            ★ 분봉(MN-1.0) manifest 승격 파이프라인 설계 — VM → Object Storage →
-              Actions 대조 → commit. 「AI 협업 구조」 절이 이미 "아직 미구현"으로
-              적어 둔 그 파이프라인이다. 백필 A2(가격) 스테이지와 무관하다 —
-              착오로 그쪽을 조사했다가 git blame(822971b)으로 바로잡았다
-              (2026-08-12). T1이 끝나 승격 경로를 바꿔도 실험 조건이 흔들리지 않는다.
-              ★ 2026-08-24 착수 시도 — 사용자 선택으로 GATE-EP-1과 무관한 트랙
-              중 이걸 먼저 골랐으나, 실제 SSH·GH Secrets 확인 결과 **OCI
-              Object Storage 쪽이 완전히 처음부터**임이 드러나 보류(사용자
-              결정, "다음으로 미루자"). 실측: 운영 VM은 `stock`(SSH 별칭,
-              hostname `stock-monitor`, 129.225.177.125) — 253개 일별
-              manifest(2025-08-08~2026-08-24 공백 없음)·raw 1.3GB·타이머
-              정상. manifest 자체 구조는 §5 계약대로 잘 갖춰져 있다(sha256·
-              acceptance 게이트·gapReasons 전부 포함, 승격만 안 됐을 뿐).
-              `stock-new`(마이그레이션 대상, 129.225.145.14)는 1일치뿐이라
-              아직 컷오버 안 됨 — 이 트랙과 무관. **OCI 쪽은 VM에도(`~/.oci`
-              없음)·GH Secrets에도(`gh api .../actions/secrets` 직접 확인,
-              정확히 8개뿐 — DART·GEMINI·KIS×2·KRX×2·NAVER×2, OCI 없음)
-              전혀 없다** — 버킷 생성·API 서명키 발급이 계정 소유자만 할 수
-              있는 OCI 콘솔 액션이라 Claude가 대신 못 한다. 재개 조건:
-              사용자가 버킷 이름·네임스페이스·API 키(또는 그것들을 발급할
-              의향)를 갖고 오는 것
-              ★ 2026-08-30 후속 — 사용자가 버킷·Dynamic Group·Policy를 콘솔에서
-              생성해 재개. **VM(Instance Principal) → Object Storage 쓰기 경로
-              검증 완료** — `stock`/`stock-new` 둘 다 포함한 Dynamic Group
-              `stock-minute-object-writer` + Policy(`manage objects ... where
-              all {target.bucket.name=..., any {request.permission=
-              'OBJECT_CREATE','OBJECT_INSPECT'}}`, OVERWRITE·DELETE 제외)로
-              실제 PUT+HEAD 성공 확인(`stock-new`에 격리 venv `~/oci-cli-venv`로
-              OCI CLI 설치, collector-venv와 안 섞음). **버킷 정식 이름은
-              `stock-minute-manifest`(전부 소문자)** — 디버깅 중 두 번의 표기
-              불일치(①"manifest"를 "mainfest"로 오타 ②`Stock-`대문자로 시작해
-              놓고 Policy는 소문자로 조건 검) 때문에 Instance Principal 인증
-              자체는 처음부터 정상이었는데도 4시간 가까이 `BucketNotFound`로
-              막혔었다 — 원인 규명 과정에서 `manage all-resources`(최대 권한)
-              로도 안 되는 것까지 확인해 권한 문제가 아님을 먼저 확정한 뒤,
-              별도 임시 버킷(`stock-minute-ip-test`)에 격리 테스트해 Dynamic
-              Group·Policy 메커니즘 자체는 처음부터 문제없었음을 증명 →
-              버킷명 표기만 맞추자 즉시 해결. **다음 단계(미착수)**: Actions
-              쪽 read-only 사용자/API 키(설계상 계획된 3단계, 아직 안 만듦),
-              그리고 실제 manifest 업로드·검증·commit 파이프라인 스크립트
-              자체. 임시 진단용 버킷(`stock-minute-ip-test`)·정책은 사용자가
-              콘솔에서 직접 정리 예정.
   언제든    perRelative(업종 PER 횡단면) — A5-3 부분 재개(아래) 이후에도 여전히
             미착수. 날짜별·업종별 PIT 중앙값 인프라가 새로 필요해 resolver.js의
             종목 단위 인터페이스에 안 맞는다. 🔴급 설계 결정, 백테스트 eligible
@@ -1273,6 +1235,48 @@ Validated against
             실험실은 GitHub 공개 raw 로 읽는다. 인계서는 docs/control/handoff/
             분봉 T0·커버리지 정찰 · Collector v1 · 상시화 · 첫 Broad 수집
             실측 수치와 근거는 완료기록·계약 문서에 있다. 여기 옮기지 않는다
+  완료      ★ 분봉(MN-1.0) manifest 승격 파이프라인 구현 + resume 재검증
+              버그 수정 (2026-08-31~09-01) — 위 항목들이 "아직 미구현"으로
+              오래 남겨뒀던 VM→Object Storage→Actions→commit 경로가 실제로
+              동작한다. 계기는 `stock-new` 첫 실주행(08-31) 관측 — 16:10
+              실행이 432980 09:02 `openOutOfRange`로 FAIL했는데 17:40
+              재실행(resume)이 이월 스테이징 조각을 재검증 없이 그대로
+              PASS로 승격시켰다(이미 완료로 기록된 티커는 resume 시
+              재조회 안 되고, 그 조각은 flush()의 validate_rows()를 안
+              거친다). `revalidate_carried()` 신설로 이월 조각을 로컬에서
+              재검증(네트워크 재호출 없음) — `scripts/collect-minute-
+              kis.py` 커밋 `2088e47`, 회귀 22b가 432980 사례를 그대로
+              fixture화. 위반 자체(초저유동성 종목의 open이 그 1분의
+              [low,high] 밖으로 나온 것)는 단발성이라 면제 규칙은 넓히지
+              않고 observation으로만 남겼다(`docs/operations/minute-
+              실측기록.md`, 커밋 `4fc4d27`) — 향후 누적 시 종목·유동성·
+              시간대·HALT여부·발생패턴으로 재검토.
+              ★ OCI 콘솔 IAM(Group `github-actions-readers`·User
+              `github-actions-minute-reader`·Policy·API Key, 전부 사용자가
+              콘솔에서 생성)이 준비된 뒤 파이프라인 구현 — `scripts/oci-
+              object-storage.py`(VM Instance Principal·Actions API Key
+              공용 transport, KisTransport와 같은 원칙) · `scripts/upload-
+              minute-oci.py`(VM, 조각 먼저·manifest 마지막 순서로 업로드 -
+              manifest 존재가 "이 날짜가 완전히 올라갔다"는 뜻이 되게 한다,
+              IAM이 OVERWRITE·DELETE를 안 줘 재시도는 멱등이지 덮어쓰기가
+              아니다) · `scripts/promote-minute-manifest.py`(Actions, 인수
+              조건을 다시 계산하지 않고 "OCI 객체가 manifest가 말하는
+              그대로인가"만 본다 - 조각별·결합 sha256과 행 수, 교훈43·50) ·
+              `.github/workflows/promote-minute-manifest.yml`(평일 19:30
+              KST + workflow_dispatch, 날짜 단위로 검증해 배치 일부 실패가
+              나머지 통과분의 커밋을 안 막는다) (커밋 `2385430`). 실제
+              4개 날짜(08-21·27·28·31)로 VM→OCI→Actions→commit 전체
+              round-trip 검증 완료(run 33408137682·33408401163) —
+              `data/backfill/minute/manifest/`가 이 프로젝트 역사상 처음
+              실제 파일을 갖게 됐다. `deploy/install-oci-upload.sh` 신설
+              (이미 잘 작동하는 install-vm.sh는 안 건드림) —
+              `minute-oci-upload.timer`를 stock-new에 설치·활성화, 매일
+              18:00 KST(17:40 수집 뒤) 자동 실행하도록 배선 완료(커밋
+              `f0abedd`). 부수: 스테일 테스트 2건(정책버전 MN-1.1→1.2
+              반영 누락) 정정. **남은 것**: `stock-minute-ip-test` 진단용
+              버킷·정책 정리 여부(사용자 콘솔 확인 대상, 미확인) · 249일
+              전체 과거분 백필 업로드는 아직 미착수(`--all` 옵션은 준비돼
+              있음, 착수는 별도 결정)
   운영 중    ★ 2026-08-30 분봉 수집기 VM 이전 완료(docs/control/VM-이전계획-
             2026-08-23.md 7단계, 사용자 확인 후) — 분봉 수집(16:10·17:40)·
             감시(18:10)는 `stock-new`(VM.Standard.A1.Flex, ARM, 1 OCPU·10GB,
@@ -1461,7 +1465,9 @@ GitHub main
 승격한다. **Actions가 인수 조건을 다시 계산하지 않는다 — 잴 수단이 없다.**
 
 이 구조로 규칙 4는 그대로 유효하다(VM은 Git에 쓰지 않는다).
-**아직 미구현이다.** 그때까지 분봉 manifest는 VM에만 있고 GitHub에 없다.
+**2026-09-01 구현·검증 완료**(위 "완료" ★ 분봉 manifest 승격 파이프라인
+항목 참고) — `stock-new`의 최근 며칠치로 VM→OCI→Actions→commit 전체
+round-trip을 확인했다. 249일치 과거 백필 전체를 올리는 것은 별도 미착수.
 
 ### 같은 작업에서 생산자와 검증자를 겸하지 않는다
 
