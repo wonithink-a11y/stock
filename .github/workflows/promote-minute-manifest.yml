@@ -1,0 +1,86 @@
+name: promote-minute-manifest
+
+# 분봉(MN-1.0) manifest 승격 파이프라인 — VM → OCI Object Storage → 여기(검증·대조)
+# → commit. VM이 만드는 것과 여기가 승격하는 것은 다르다(CLAUDE.md AI협업구조
+# 참고) - 이 워크플로는 인수 조건을 다시 계산하지 않는다(원본 KIS 응답을 본 적이
+# 없어 잴 수단이 없다, 교훈50). 여기서 재는 것은 "OCI 객체가 manifest가 말하는
+# 그대로인가"(sha256·행 수)뿐이다 - scripts/promote-minute-manifest.py.
+#
+# raw parquet 자체는 커밋하지 않는다(§1) - 이 워크플로가 저장소에 쓰는 것은
+# data/backfill/minute/manifest/{date}.json 하나뿐이다.
+on:
+  schedule:
+    - cron: '30 10 * * 1-5'   # 19:30 KST, 평일. VM의 16:10·17:40 수집 뒤
+  workflow_dispatch:
+    inputs:
+      days:
+        description: '이번 실행에서 검증할 최대 날짜 수 (비우면 밀린 것 전부 — 첫 백필용)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: promote-minute-manifest
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet oci pyarrow
+
+      - name: Selftest (네트워크 없음)
+        run: python scripts/promote-minute-manifest.py --selftest
+
+      - name: Promote
+        id: promote
+        continue-on-error: true   # 아래 설명 참고 - 일부 날짜 실패가 통과분 커밋을 막지 않는다
+        env:
+          OCI_USER_OCID: ${{ secrets.OCI_MINUTE_READ_USER_OCID }}
+          OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_FINGERPRINT: ${{ secrets.OCI_MINUTE_READ_FINGERPRINT }}
+          OCI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_PRIVATE_KEY: ${{ secrets.OCI_MINUTE_READ_PRIVATE_KEY }}
+          OCI_NAMESPACE: ${{ secrets.OCI_NAMESPACE }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.days }}" ]; then ARGS="--days ${{ inputs.days }}"; fi
+          python scripts/promote-minute-manifest.py $ARGS
+
+      # 이 워크플로는 날짜 단위로 검증한다(exit-overlay.yml류의 단일 배치
+      # manifest와 다르다). promote-minute-manifest.py는 검증을 통과한 날짜만
+      # 로컬 파일로 쓰고 실패한 날짜는 아예 안 쓴다 - 게이트가 이미 스크립트
+      # 안에서 날짜 단위로 지켜진다(교훈43의 정신 그대로, 단위만 배치가 아니라
+      # 날짜다). 그러므로 "이번 배치의 일부 날짜 실패"가 나머지 통과분의
+      # 커밋까지 막을 이유가 없다 - if: success() 대신 promote 스텝이 실제로
+      # 돌았는지(skipped·cancelled가 아닌지)만 본다.
+      - name: Commit
+        if: steps.promote.outcome == 'success' || steps.promote.outcome == 'failure'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data/backfill/minute/manifest)" ]; then
+            git add data/backfill/minute/manifest
+            git commit -m "chore(minute): 분봉 manifest 승격 (OCI 검증 통과분)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi
+
+      - name: 검증 실패가 있었으면 job을 붉게 만든다 (사람이 보도록 — 커밋 뒤에)
+        if: steps.promote.outcome == 'failure'
+        run: exit 1
