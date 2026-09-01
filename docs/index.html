@@ -944,6 +944,34 @@ function getHistoricalBars(ticker, date) {
   return null;
 }
 
+// 오늘 분봉은 페이지를 연 시점부터 웹소켓 틱으로만 쌓여서 새로고침하면
+// 사라진다. KIS의 날짜지정 분봉조회는 당일도 지금까지 쌓인 걸 그대로
+// 주므로, 그걸로 "라이브가 시작되기 전" 구간을 한 번 채워 넣는다 - 이후는
+// updateCandle()의 실시간 틱이 그대로 이어 붙인다. 티커당 한 번만 시드.
+function seedTodayFromHistory(ticker) {
+  const c = state.live.candles[ticker];
+  if (c && c.seeded) return;
+  const key = `${ticker}_today`;
+  if (state.live.historyLoading[key]) return;
+  state.live.historyLoading[key] = true;
+  const todayYmd = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  fetch(`https://wonithink-stock.duckdns.org/minute-history?ticker=${ticker}&date=${todayYmd}`)
+    .then(r => r.json())
+    .then(d => {
+      const histBars = (d.bars || []).map(b => ({ minute: b.time.slice(0, 4), time: b.time, o: b.open, h: b.high, l: b.low, c: b.close, v: b.volume }));
+      let cc = state.live.candles[ticker];
+      if (!cc) cc = state.live.candles[ticker] = { bars: [], cur: null };
+      // 이미 실시간 틱으로 갖고 있는 분(cur 포함)은 KIS 스냅샷보다 최신일
+      // 수 있으니 덮어쓰지 않는다 - 과거 구간만 앞에 채워 넣는다.
+      const haveMinutes = new Set(cc.bars.map(b => b.minute).concat(cc.cur ? [cc.cur.minute] : []));
+      const fill = histBars.filter(b => !haveMinutes.has(b.minute));
+      cc.bars = fill.concat(cc.bars).sort((a, b) => a.minute.localeCompare(b.minute));
+      cc.seeded = true;
+    })
+    .catch(() => { const cc = state.live.candles[ticker]; if (cc) cc.seeded = true; })
+    .finally(() => { delete state.live.historyLoading[key]; if (state.tab === 'live') render(); });
+}
+
 // bars가 비어도 안전하게 "대기 중" 표시. grid/labels는 상세 차트에서만 켠다.
 function candleSvg(bars, w, h, opts) {
   opts = opts || {};
@@ -1039,6 +1067,7 @@ function supplyDemandSvg(rows, w, h) {
 
 function renderIntradayDetail(code, name) {
   const isToday = !state.live.date;
+  if (isToday) seedTodayFromHistory(code);
   const raw = isToday ? candleSeries(code, 400) : getHistoricalBars(code, state.live.date);
 
   const timeframeCtrl = [1, 5, 15, 60].map(m =>
@@ -1057,7 +1086,7 @@ function renderIntradayDetail(code, name) {
   } else {
     const bars = aggregateBars(raw, state.live.timeframe);
     chartHtml = candleSvg(bars, 640, 220, { grid: true, labels: true, mode: state.live.chartType });
-    countLabel = `${state.live.timeframe}분봉 · ${bars.length}개${isToday ? ' · 실시간 집계(과거이력 없음)' : ''}`;
+    countLabel = `${state.live.timeframe}분봉 · ${bars.length}개${isToday ? ' · 실시간' : ''}`;
   }
 
   return `
