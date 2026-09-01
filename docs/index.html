@@ -82,6 +82,11 @@
   .chip.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
   .chip .cnt { opacity: .6; margin-left: 4px; font-size: 11px; }
 
+  .modal { position: fixed; inset: 0; background: rgba(6,9,16,.72); z-index: 50;
+           display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 24px 12px; }
+  .scd-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+             padding: 18px; width: 100%; max-width: 740px; margin: auto; }
+
   .summary-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .stat { background: #131a29; border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; }
   .stat .k { color: var(--muted); font-size: 11px; display: block; }
@@ -146,6 +151,7 @@
 </nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
+<div id="stockModal" class="modal" hidden></div>
 
 <footer>
   ⚠️ 이 대시보드는 정보 통합·정량화 참고자료이며 투자 자문이 아닙니다. 모든 매매 판단과 책임은 본인에게 있습니다.<br>
@@ -187,6 +193,15 @@ const state = {
   sortDir: 'desc',
   collapsed: {},           // 업종별 접힘 상태
   openNotes: {},           // 업종 비고 펼침
+  prices: null,            // docs/data/prices.json (지연 로드 - 상세 차트를 처음 열 때만)
+  detail: {                // 종목 상세(차트) 모달
+    open: false, ticker: null, name: null, market: null,
+    range: 250,            // 일봉 표시 개수(9999=전체)
+    type: 'candle',        // 'candle' | 'line'
+    intraday: false,       // true면 1D(분) 보기
+    tf: '1m',              // 1m|5m|15m|60m
+    view: null, viewGeom: null,  // 크로스헤어 호버용(렌더 시점에 채움)
+  },
   openRows: {},            // 종목 상세 펼침
 };
 
@@ -259,6 +274,10 @@ function fmtPct(v) {
 }
 
 function fmtNum(v) { return v === null || v === undefined ? '-' : Number(v).toLocaleString(); }
+
+// new Date().toISOString()는 UTC라 KST 자정~오전9시엔 날짜가 하루 밀린다(절대 규칙 3).
+// "오늘"이 필요한 곳은 전부 이걸로 통일한다.
+function kstYmd() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
 
 function fmtEok(v) {
   if (v === null || v === undefined || isNaN(v)) return '-';
@@ -355,7 +374,7 @@ function stockRow(r) {
   const open = !!state.openRows[r.ticker];
   const main = `
     <tr class="${hasNote ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
-      <td><strong>${esc(r.name)}</strong> <span class="muted">${esc(r.ticker)}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}
+      <td><strong data-chart="${esc(r.ticker)}" data-chart-name="${esc(r.name)}" style="cursor:pointer;text-decoration:underline dotted var(--muted)" title="차트 보기">${esc(r.name)}</strong> <span class="muted">${esc(r.ticker)}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}
         ${(r.groups || []).length ? `<br>${(r.groups || []).map(g => `<span class="group-tag">${esc((((state.latest || {}).groupLabels || {})[g] || g).split(' ')[0])}</span>`).join('')}` : ''}</td>
       <td>${r.totalScore ?? '-'}</td>
       <td>${gradeChip(r.grade)}</td>
@@ -943,7 +962,7 @@ function getHistoricalBars(ticker, date) {
         state.live.historyCache[key] = bars;
       })
       .catch(() => { state.live.historyCache[key] = []; })
-      .finally(() => { delete state.live.historyLoading[key]; if (state.tab === 'live') render(); });
+      .finally(() => { delete state.live.historyLoading[key]; if (state.tab === 'live' || state.detail.open) render(); });
   }
   return null;
 }
@@ -958,7 +977,7 @@ function seedTodayFromHistory(ticker) {
   const key = `${ticker}_today`;
   if (state.live.historyLoading[key]) return;
   state.live.historyLoading[key] = true;
-  const todayYmd = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const todayYmd = kstYmd().replace(/-/g, '');
   fetch(`https://wonithink-stock.duckdns.org/minute-history?ticker=${ticker}&date=${todayYmd}`)
     .then(r => r.json())
     .then(d => {
@@ -1046,6 +1065,278 @@ function candleSvg(bars, w, h, opts) {
   return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${grid}${marks}${labels}${xLabels}</svg>`;
 }
 
+// ---------- 종목 상세(차트) 모달 - MA20/60·볼린저·RSI 지표, 옛 Claude Cowork
+// "주식" 프로젝트의 openDetail/renderChart를 이 프로젝트 관례(CSS 변수·색상)로 이식 ----------
+
+function smaArr(a, p) {
+  const out = a.map(() => null); let sum = 0;
+  for (let i = 0; i < a.length; i++) { sum += a[i]; if (i >= p) sum -= a[i - p]; if (i >= p - 1) out[i] = sum / p; }
+  return out;
+}
+function stdArr(a, p, means) {
+  const out = a.map(() => null);
+  for (let i = p - 1; i < a.length; i++) { let s = 0; const m = means[i]; for (let j = i - p + 1; j <= i; j++) { const dd = a[j] - m; s += dd * dd; } out[i] = Math.sqrt(s / p); }
+  return out;
+}
+function rsiArr(a, p) {
+  const out = a.map(() => null);
+  for (let i = p; i < a.length; i++) {
+    let g = 0, l = 0;
+    for (let j = i - p + 1; j <= i; j++) { const df = a[j] - a[j - 1]; if (df > 0) g += df; else l -= df; }
+    if (g + l === 0) { out[i] = 50; continue; }
+    const rs = l === 0 ? Infinity : g / l; out[i] = 100 - 100 / (1 + rs);
+  }
+  return out;
+}
+function retN(closes, k) {
+  const n = closes.length; if (n < k + 1) return null;
+  const base = closes[n - 1 - k]; if (!base) return null;
+  return (closes[n - 1] / base - 1) * 100;
+}
+function retYTD(closes, dates) {
+  const n = closes.length; if (!n) return null;
+  const yr = dates[n - 1].slice(0, 4); let base = null;
+  for (let i = n - 1; i >= 0; i--) { if (dates[i].slice(0, 4) < yr) { base = closes[i]; break; } }
+  if (base === null) base = closes[0]; if (!base) return null;
+  return (closes[n - 1] / base - 1) * 100;
+}
+
+let pricesLoading = false;
+function ensurePrices() {
+  if (state.prices || pricesLoading) return;
+  pricesLoading = true;
+  loadJson('prices').then(d => { state.prices = d || { byTicker: {} }; pricesLoading = false; if (state.detail.open) render(); });
+}
+
+function openStockDetail(ticker, name) {
+  state.detail = { open: true, ticker, name, market: state.detail.market, range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
+  ensurePrices();
+  render();
+}
+function closeStockDetail() { state.detail.open = false; render(); }
+
+// 캔들+MA20/60+볼린저(위) · 거래량(중) · RSI14(아래) 3단 SVG. bars={date|time|minute,o,h,l,c,v}
+function detailChartSvg(bars, w, mode) {
+  if (!bars.length) return '<div class="empty" style="padding:30px;text-align:center">데이터가 없습니다.</div>';
+  const closes = bars.map(b => b.c), highs = bars.map(b => b.h), lows = bars.map(b => b.l), opens = bars.map(b => b.o), vols = bars.map(b => b.v || 0);
+  const ma20a = smaArr(closes, 20), ma60a = smaArr(closes, 60), stdev = stdArr(closes, 20, ma20a);
+  const bbU = ma20a.map((mm, i) => (mm != null && stdev[i] != null) ? mm + 2 * stdev[i] : null);
+  const bbL = ma20a.map((mm, i) => (mm != null && stdev[i] != null) ? mm - 2 * stdev[i] : null);
+  const rsi = rsiArr(closes, 14);
+
+  const PH = 200, VH = 40, RH = 64, GAP = 8, padT = 8, padB = 4, padL = 4, padR = 50;
+  const totalH = padT + PH + GAP + VH + GAP + RH + padB;
+  const m = bars.length;
+  let pmin = Infinity, pmax = -Infinity;
+  for (let i = 0; i < m; i++) {
+    pmin = Math.min(pmin, lows[i], bbL[i] == null ? Infinity : bbL[i]);
+    pmax = Math.max(pmax, highs[i], bbU[i] == null ? -Infinity : bbU[i]);
+  }
+  if (!isFinite(pmin) || !isFinite(pmax)) { pmin = Math.min(...lows); pmax = Math.max(...highs); }
+  const px = (i) => padL + (m <= 1 ? 0 : (i * (w - padL - padR) / (m - 1)));
+  const bw = Math.max(1, (w - padL - padR) / m * 0.62);
+  const py = (v) => padT + PH * (1 - (v - pmin) / ((pmax - pmin) || 1));
+  const vmax = Math.max(1, ...vols);
+  const vTop = padT + PH + GAP;
+  const vy = (v) => vTop + VH * (1 - v / vmax);
+  const rTop = vTop + VH + GAP;
+  const ry = (v) => rTop + RH * (1 - v / 100);
+
+  const line = (arr, fn, color, sw, dash) => {
+    let d = '';
+    for (let i = 0; i < arr.length; i++) { if (arr[i] == null) continue; d += (d ? 'L' : 'M') + px(i).toFixed(1) + ',' + fn(arr[i]).toFixed(1); }
+    return d ? `<path d="${d}" fill="none" stroke="${color}" stroke-width="${sw}"${dash ? ` stroke-dasharray="${dash}"` : ''}/>` : '';
+  };
+
+  let grid = '';
+  for (let k = 0; k <= 3; k++) {
+    const v = pmin + (pmax - pmin) * k / 3, y = py(v);
+    grid += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${(w - padR).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#2a3550" stroke-width="0.5"/><text x="${(w - padR + 4).toFixed(1)}" y="${y.toFixed(1)}" dominant-baseline="middle" font-size="10" fill="#8b96ad">${fmtNum(Math.round(v))}</text>`;
+  }
+
+  let priceBody = '';
+  if (mode === 'line') {
+    priceBody = line(closes, py, '#e6ebf5', 1.5);
+  } else {
+    for (let i = 0; i < m; i++) {
+      const up = closes[i] >= opens[i], col = up ? '#2ecc71' : '#e74c3c';
+      const x = px(i), yO = py(opens[i]), yC = py(closes[i]);
+      const top = Math.min(yO, yC), bh = Math.max(1, Math.abs(yO - yC));
+      priceBody += `<line x1="${x.toFixed(1)}" y1="${py(highs[i]).toFixed(1)}" x2="${x.toFixed(1)}" y2="${py(lows[i]).toFixed(1)}" stroke="${col}" stroke-width="1"/><rect x="${(x - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${col}"/>`;
+    }
+  }
+
+  let volBody = '';
+  for (let i = 0; i < m; i++) {
+    const up = closes[i] >= opens[i], col = up ? 'rgba(46,204,113,.5)' : 'rgba(231,76,60,.5)';
+    const y = vy(vols[i]);
+    volBody += `<rect x="${(px(i) - bw / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, vTop + VH - y).toFixed(1)}" fill="${col}"/>`;
+  }
+
+  const rsiBands = `<rect x="${padL}" y="${ry(70).toFixed(1)}" width="${(w - padL - padR).toFixed(1)}" height="${(ry(30) - ry(70)).toFixed(1)}" fill="#4d9fff" opacity="0.06"/>
+    <line x1="${padL}" y1="${ry(70).toFixed(1)}" x2="${(w - padR).toFixed(1)}" y2="${ry(70).toFixed(1)}" stroke="#e74c3c" stroke-width="0.5" stroke-dasharray="3 3"/>
+    <line x1="${padL}" y1="${ry(30).toFixed(1)}" x2="${(w - padR).toFixed(1)}" y2="${ry(30).toFixed(1)}" stroke="#4d9fff" stroke-width="0.5" stroke-dasharray="3 3"/>
+    <text x="${(w - padR + 4).toFixed(1)}" y="${ry(70).toFixed(1)}" dominant-baseline="middle" font-size="10" fill="#8b96ad">70</text>
+    <text x="${(w - padR + 4).toFixed(1)}" y="${ry(30).toFixed(1)}" dominant-baseline="middle" font-size="10" fill="#8b96ad">30</text>
+    <text x="${padL + 2}" y="${(rTop + 11).toFixed(1)}" font-size="10" fill="#8b96ad">RSI 14</text>`;
+
+  state.detail.view = { bars };
+  state.detail.viewGeom = { w, padL, padR, m };
+
+  return `<div class="scd-chartwrap" style="position:relative">
+    <svg viewBox="0 0 ${w} ${totalH}" preserveAspectRatio="none" style="width:100%;height:auto;display:block">
+      ${grid}
+      ${line(bbU, py, '#4d9fff', 0.8, '3 2')}${line(bbL, py, '#4d9fff', 0.8, '3 2')}
+      ${priceBody}
+      ${line(ma20a, py, '#f1c40f', 1)}${line(ma60a, py, '#8b96ad', 1)}
+      ${volBody}
+      ${rsiBands}${line(rsi, ry, '#c5a8ff', 1.2)}
+    </svg>
+    <div class="scd-cross" style="position:absolute;top:0;bottom:0;width:1px;background:var(--accent);opacity:0.5;display:none;pointer-events:none"></div>
+  </div>
+  <div id="scdOhlc" class="muted" style="font-size:12px;margin-top:4px;font-family:inherit">&nbsp;</div>`;
+}
+
+// 차트 위 커서(모바일은 탭) → 그 봉의 날짜·시고저종·거래량. detailChartSvg가 채운
+// state.detail.view/viewGeom을 읽는다 - innerHTML 교체마다 매번 다시 붙여야 한다.
+function attachDetailHover() {
+  const wrap = document.querySelector('#stockModal .scd-chartwrap');
+  const out = document.getElementById('scdOhlc');
+  const v = state.detail.view, g = state.detail.viewGeom;
+  if (!wrap || !out || !v || !g || !v.bars.length) return;
+  const cross = wrap.querySelector('.scd-cross');
+  const m = v.bars.length;
+  function show(idx) {
+    idx = Math.max(0, Math.min(m - 1, idx));
+    const b = v.bars[idx];
+    const lab = b.date || (b.time ? `${b.time.slice(0, 2)}:${b.time.slice(2, 4)}` : (b.minute ? `${b.minute.slice(0, 2)}:${b.minute.slice(2, 4)}` : ''));
+    const prev = idx > 0 ? v.bars[idx - 1].c : b.o;
+    const chg = prev ? (b.c / prev - 1) * 100 : 0;
+    const cls = chg > 0 ? 'pos' : chg < 0 ? 'neg' : 'muted';
+    out.innerHTML = `<strong>${esc(lab)}</strong> 시${fmtNum(b.o)} 고${fmtNum(b.h)} 저${fmtNum(b.l)} <strong>종${fmtNum(b.c)}</strong> <span class="${cls}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span> 거래량${fmtNum(b.v || 0)}`;
+  }
+  function locate(clientX) {
+    const r = wrap.getBoundingClientRect();
+    const vbX = (clientX - r.left) / r.width * g.w;
+    const step = (g.w - g.padL - g.padR) / Math.max(1, m - 1);
+    const idx = Math.round((vbX - g.padL) / step);
+    if (cross) { cross.style.left = Math.max(0, Math.min(r.width, clientX - r.left)) + 'px'; cross.style.display = 'block'; }
+    show(idx);
+  }
+  wrap.onmousemove = (e) => locate(e.clientX);
+  wrap.onmouseleave = () => { if (cross) cross.style.display = 'none'; show(m - 1); };
+  wrap.ontouchstart = wrap.ontouchmove = (e) => { if (e.touches && e.touches[0]) { locate(e.touches[0].clientX); e.preventDefault(); } };
+  show(m - 1);
+}
+
+// RSI/볼린저%B/52주 위치·고점대비/MA정배열역배열/이격도 - 항상 전체 시계열(daily)
+// 기준으로 계산한다. 표시 범위(1M/3M/...) 버튼은 차트만 잘라 보여줄 뿐 이 값들과 무관하다.
+function badgesFor(dailyBars) {
+  const closes = dailyBars.map(b => b.c), highs = dailyBars.map(b => b.h), lows = dailyBars.map(b => b.l);
+  const n = closes.length; if (!n) return '';
+  const last = closes[n - 1];
+  const ma20a = smaArr(closes, 20), ma60a = smaArr(closes, 60);
+  const ma20 = ma20a[n - 1], ma60 = ma60a[n - 1];
+  const stdev = stdArr(closes, 20, ma20a)[n - 1];
+  const bbU = (ma20 != null && stdev != null) ? ma20 + 2 * stdev : null;
+  const bbL = (ma20 != null && stdev != null) ? ma20 - 2 * stdev : null;
+  const pctB = (bbU != null && bbL != null && bbU !== bbL) ? (last - bbL) / (bbU - bbL) : null;
+  const rsi = rsiArr(closes, 14)[n - 1];
+  const hi = Math.max(...highs), lo = Math.min(...lows);
+  const fromHi = (last / hi - 1) * 100;
+  const posHL = (hi !== lo) ? (last - lo) / (hi - lo) * 100 : null;
+  const disp = ma20 != null ? (last / ma20 - 1) * 100 : null;
+  let arrange = '혼조';
+  if (ma20 != null && ma60 != null) { if (last > ma20 && ma20 > ma60) arrange = '정배열'; else if (last < ma20 && ma20 < ma60) arrange = '역배열'; }
+  const rangeLabel = n >= 200 ? '52주' : `${n}봉`;
+  const badge = (t) => `<span class="chip" style="cursor:default">${t}</span>`;
+  return [
+    rsi != null ? badge(`RSI ${rsi.toFixed(1)} · ${rsi >= 70 ? '과매수' : rsi <= 30 ? '과매도' : '중립'}`) : '',
+    pctB != null ? badge(`볼린저 %B ${pctB.toFixed(2)} · ${pctB >= 1 ? '상단돌파' : pctB >= 0.8 ? '상단권' : pctB <= 0 ? '하단이탈' : pctB <= 0.2 ? '하단권' : '중앙'}`) : '',
+    badge(`${rangeLabel} 고점 대비 ${fromHi >= 0 ? '+' : ''}${fromHi.toFixed(1)}%`),
+    posHL != null ? badge(`${rangeLabel} 위치 ${posHL.toFixed(0)}%`) : '',
+    badge(`MA20·60 ${arrange}`),
+    disp != null ? badge(`MA20 이격도 ${disp >= 0 ? '+' : ''}${disp.toFixed(1)}%`) : '',
+  ].filter(Boolean).join(' ');
+}
+
+function retChip(label, v) {
+  const box = (inner) => `<div class="chip" style="cursor:default;display:flex;flex-direction:column;align-items:center;min-width:52px;gap:2px">${inner}</div>`;
+  if (v === null || v === undefined || Number.isNaN(v)) return box(`<span style="font-size:10px;color:var(--muted)">${label}</span><b class="muted">-</b>`);
+  const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted';
+  return box(`<span style="font-size:10px;color:var(--muted)">${label}</span><b class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(2)}%</b>`);
+}
+
+function modalShell(dt, inner) {
+  return `<div class="scd-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <h3 style="margin:0">${esc(dt.name)} <span class="muted" style="font-weight:400;font-size:13px">${esc(dt.ticker)}</span></h3>
+      <button data-detail-close="1" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">×</button>
+    </div>
+    ${inner}
+  </div>`;
+}
+
+function renderStockModal() {
+  const el = document.getElementById('stockModal');
+  const dt = state.detail;
+  if (!dt.open) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+
+  if (!state.prices) { el.innerHTML = modalShell(dt, '<div class="empty" style="padding:30px;text-align:center">불러오는 중...</div>'); return; }
+  const rec = state.prices.byTicker ? state.prices.byTicker[dt.ticker] : null;
+  if (!rec || !rec.c || rec.c.length < 2) {
+    el.innerHTML = modalShell(dt, '<div class="empty" style="padding:30px;text-align:center">주가 시계열이 아직 없습니다.</div>');
+    return;
+  }
+  dt.market = rec.market;
+  const dailyBars = rec.d.map((d, i) => ({ date: d, o: rec.o[i], h: rec.h[i], l: rec.l[i], c: rec.c[i], v: rec.v[i] }));
+  const n = dailyBars.length;
+  const last = dailyBars[n - 1];
+
+  let bodyHtml, note;
+  if (dt.intraday) {
+    const rawOrNull = getHistoricalBars(dt.ticker, kstYmd().replace(/-/g, ''));
+    const bars = aggregateBars(rawOrNull || [], Number(dt.tf.replace('m', '')));
+    bodyHtml = detailChartSvg(bars, 680, dt.type);
+    note = rawOrNull === null ? '불러오는 중...' : `${dt.tf} 분봉 · ${bars.length}개 · KIS 스냅샷(요청 시점까지, 실시간 갱신 아님)`;
+  } else {
+    const rangeN = dt.range >= 9999 ? n : Math.min(dt.range, n);
+    const sliced = dailyBars.slice(n - rangeN);
+    bodyHtml = detailChartSvg(sliced, 680, dt.type);
+    note = `일봉 ${sliced.length}개`;
+  }
+
+  const d1 = retN(rec.c, 1);
+  const retsHtml = [['1일', 1], ['1주', 5], ['1개월', 20], ['3개월', 60], ['6개월', 120], ['1년', 250]]
+    .map(([lb, k]) => retChip(lb, retN(rec.c, k))).join('') + retChip('YTD', retYTD(rec.c, rec.d));
+
+  const rangeBtns = [['1M', 20], ['3M', 60], ['6M', 120], ['1Y', 250], ['전체', 9999]]
+    .map(([lb, v]) => `<button data-detail-range="${v}" class="chip ${!dt.intraday && (v === 9999 ? dt.range >= n : dt.range === Math.min(v, n)) ? 'active' : ''}">${lb}</button>`).join('');
+  const intradayBtn = `<button data-detail-intraday="1" class="chip ${dt.intraday ? 'active' : ''}">1D(분)</button>`;
+  const tfBtns = dt.intraday ? ['1m', '5m', '15m', '60m'].map(tf => `<button data-detail-tf="${tf}" class="chip ${dt.tf === tf ? 'active' : ''}">${tf.replace('m', '분')}</button>`).join('') : '';
+  const typeBtns = ['candle', 'line'].map(t => `<button data-detail-type="${t}" class="chip ${dt.type === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
+
+  const priceStr = dt.market === 'US' ? '$' + fmtNum(last.c) : fmtNum(last.c) + '원';
+  const cls = d1 > 0 ? 'pos' : d1 < 0 ? 'neg' : 'muted';
+
+  const content = `
+    <div style="margin-bottom:10px">
+      <div style="font-size:13px;color:var(--muted)">${esc(last.date || '')}${dt.market ? mktChip(dt.market) : ''} 종가</div>
+      <div style="font-size:22px;font-weight:700">${priceStr} <span class="${cls}" style="font-size:14px;font-weight:400">${d1 > 0 ? '+' : ''}${d1 != null ? d1.toFixed(2) : '-'}%</span></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${retsHtml}</div>
+    <div class="group-filter" style="margin-bottom:6px">${rangeBtns}${intradayBtn}${tfBtns}</div>
+    <div class="group-filter" style="margin-bottom:12px">${typeBtns}</div>
+    <div class="muted" style="font-size:12px;margin-bottom:4px">${esc(note)}</div>
+    <div class="table-wrap">${bodyHtml}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${badgesFor(dailyBars)}</div>
+    <p class="muted" style="font-size:11px;margin-top:10px">차트 위에 커서를 올리면(모바일은 탭) 그 봉의 날짜·시고저종·거래량이 표시됩니다. 기간 등락률은 거래일 기준(주=5·월=20·년=250 거래일). MA/볼린저/RSI/52주 지표는 참고용이며 투자 자문이 아닙니다.</p>`;
+
+  el.innerHTML = modalShell(dt, content);
+  attachDetailHover();
+}
+
 const PERIOD_DAYS = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
 
 // 오늘(실시간 벽시계) 기준이 아니라 데이터에 실제로 있는 마지막 날짜
@@ -1099,12 +1390,12 @@ function renderIntradayDetail(code, name) {
     `<button data-live-timeframe="${m}" class="chip ${state.live.timeframe === m ? 'active' : ''}">${m}분</button>`).join('');
   const typeCtrl = ['candle', 'line'].map(t =>
     `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = kstYmd();
   // KIS 날짜지정 분봉조회는 오늘 기준 약 1년 전까지만 준다(실측 2026-09-01,
   // 롤링 윈도우라 매일 밀림) - 그 이전은 에러 없이 조용히 빈 데이터만 온다.
   // 여유 5일 두고 min을 걸어 헛조회를 막는다.
-  const minDate = new Date();
-  minDate.setDate(minDate.getDate() - 360);
+  const minDate = new Date(Date.now() + 9 * 3600 * 1000);
+  minDate.setUTCDate(minDate.getUTCDate() - 360);
   const minStr = minDate.toISOString().slice(0, 10);
   const dateVal = state.live.date
     ? `${state.live.date.slice(0, 4)}-${state.live.date.slice(4, 6)}-${state.live.date.slice(6, 8)}`
@@ -1258,6 +1549,7 @@ function render() {
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
+  renderStockModal();
 }
 
 /** 검색어는 innerHTML 재생성 시 포커스를 잃으므로 커서 위치를 복원한다 */
@@ -1326,10 +1618,29 @@ document.getElementById('content').addEventListener('click', (e) => {
   const st = t.closest('[data-sector-toggle]');
   if (st) { const k = st.dataset.sectorToggle; state.collapsed[k] = !state.collapsed[k]; return render(); }
 
+  // 종목명 클릭 → 상세 차트 모달 (비고 토글보다 먼저 처리)
+  const ch = t.closest('[data-chart]');
+  if (ch) { e.stopPropagation(); return openStockDetail(ch.dataset.chart, ch.dataset.chartName); }
+
   // 종목 행 클릭 → 비고 토글
   const row = t.closest('tr.clickable[data-row]');
   if (row) { const k = row.dataset.row; state.openRows[k] = !state.openRows[k]; return render(); }
 });
+
+document.getElementById('stockModal').addEventListener('click', (e) => {
+  const t = e.target;
+  if (t.id === 'stockModal') return closeStockDetail();  // 배경 클릭
+  if (t.closest('[data-detail-close]')) return closeStockDetail();
+  const rb = t.closest('[data-detail-range]');
+  if (rb) { state.detail.intraday = false; state.detail.range = Number(rb.dataset.detailRange); return render(); }
+  const ib = t.closest('[data-detail-intraday]');
+  if (ib) { state.detail.intraday = !state.detail.intraday; return render(); }
+  const tf = t.closest('[data-detail-tf]');
+  if (tf) { state.detail.tf = tf.dataset.detailTf; return render(); }
+  const ty = t.closest('[data-detail-type]');
+  if (ty) { state.detail.type = ty.dataset.detailType; return render(); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.detail.open) closeStockDetail(); });
 
 document.getElementById('content').addEventListener('input', (e) => {
   if (e.target.id !== 'stockSearch') return;
