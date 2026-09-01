@@ -65,11 +65,18 @@ clients = set()
 
 
 def load_env():
+    """systemd의 EnvironmentFile이 이미 os.environ에 값을 넣어준다(운영 경로).
+    로컬에서 systemd 없이 돌릴 때만 .env 파일을 대신 읽는다."""
+    import os
     env = {}
-    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
-        k, _, v = line.partition("=")
-        if k.strip():
-            env[k.strip()] = v.strip()
+    if ENV_PATH.exists():
+        for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+            k, _, v = line.partition("=")
+            if k.strip():
+                env[k.strip()] = v.strip()
+    for k in ("KIS_VTS_APP_KEY", "KIS_VTS_APP_SECRET"):
+        if os.environ.get(k):
+            env[k] = os.environ[k]
     return env
 
 
