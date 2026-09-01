@@ -1,0 +1,23 @@
+name: Probe KOSPI200/KOSDAQ150 members (diagnostic)
+
+# 유니버스 확대 검토용 1회성 정찰 - 실제 데이터 커밋 없음, 로그만 확인.
+# 로컬은 KRX 로그인이 항상 막혀서(이 프로젝트에서 반복 확인) GH Actions에서만 돈다.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet pykrx==1.2.8 pandas
+      - name: Probe index members
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-index-members-kr.py
