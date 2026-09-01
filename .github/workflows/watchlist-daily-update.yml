@@ -31,6 +31,9 @@ jobs:
         run: pip install --quiet pykrx==1.2.8 pandas
 
       - name: Update watchlist daily data
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: python scripts/update-watchlist-daily.py
 
       - name: Commit

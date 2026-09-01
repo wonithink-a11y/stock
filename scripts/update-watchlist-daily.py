@@ -80,8 +80,26 @@ def merge_trim(existing, fresh, keep, key="date"):
     return merged[-keep:]
 
 
+def import_pykrx_stock():
+    """pykrx는 import 시점에 KRX 로그인을 시도한다(KRX_ID/KRX_PW가 있으면) -
+    build-supply-demand-a4.py가 이미 겪은 문제(순간 부하 시 로그인 응답이
+    빈 본문으로 옴)와 같은 실패 모드라 같은 재시도를 쓴다. 이 스크립트는
+    동시 여러 개가 뜨지 않으니 A4만큼 긴 백오프는 필요 없다."""
+    last_err = None
+    for attempt in range(3):
+        try:
+            from pykrx import stock
+            return stock
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+            wait = 10 * (attempt + 1)
+            print(f"  pykrx import/KRX 로그인 실패(시도 {attempt + 1}/3, {wait}초 대기): {type(e).__name__}: {e}")
+            time.sleep(wait)
+    raise last_err
+
+
 def main():
-    from pykrx import stock as stock_mod
+    stock_mod = import_pykrx_stock()
 
     watchlist = load_watchlist()
     out = json.loads(OUT_PATH.read_text(encoding="utf-8")) if OUT_PATH.exists() else {"tickers": {}}
