@@ -8,11 +8,20 @@ build-watchlist-daily.py는 A2a·A4 "전체 유니버스" 백필(2,579종목, �
 발견·수정 - filterByPeriod를 데이터의 마지막 날짜 기준으로 바꿔 표시는
 정상화했지만, 데이터 자체가 계속 밀리는 근본 원인은 그대로 남아 있었다).
 
-이 스크립트는 그 무거운 백필을 다시 돌리지 않는다 — 관심종목 10개만
-pykrx로 직접 증분 조회(종목당 가격 1콜 + 수급 4콜, 하루치면 순식간)해서
-기존 docs/data/watchlist-daily.json에 이어 붙인다. A2a/A4와 소스·필드는
-동일(pykrx get_market_ohlcv_by_date · get_market_trading_{value,volume}_
-by_date) — 나중에 전체 백필이 다시 돌면 그 산출물과 자연스럽게 맞는다.
+이 스크립트는 그 무거운 백필을 다시 돌리지 않는다 — 관심종목 10개만 증분
+조회해서 기존 docs/data/watchlist-daily.json에 이어 붙인다.
+
+가격은 pykrx get_market_ohlcv_by_date(A2a와 동일 소스, 로그인 불요) 그대로.
+수급은 A4(pykrx get_market_trading_*_by_date)를 처음 쓰려 했으나 그
+엔드포인트가 KRX 로그인을 요구한다는 걸 확인(2026-09-01, raw HTTP로 재현 -
+"LOGOUT" 응답)한 뒤, 옛 Claude Cowork "주식" 프로젝트(regime_backtest/
+collect.js)가 이미 로그인 없이 쓰던 네이버 모바일 API로 바꿨다 —
+m.stock.naver.com/api/stock/{code}/trend, 개인/외국인/기관 순매수
+"수량"을 준다(금액이 아님). A4는 원화 금액을 저장하므로 단위를 맞추려고
+수량×종가로 금액을 근사한다 — 그날 각 거래의 실제 체결가가 아니라
+종가 하나로 어림한 값이라 A4의 정밀한 금액과 완전히 같지는 않다(참고용
+추이 차트에는 충분한 근사, 팩터 연구용 정밀 수급 데이터가 필요하면 A4
+원본을 써야 한다).
 
 GitHub Actions에서 평일 저녁(장마감 후) 스케줄로 실행 - 새 워크플로
 .github/workflows/watchlist-daily-update.yml.
@@ -21,8 +30,10 @@ GitHub Actions에서 평일 저녁(장마감 후) 스케줄로 실행 - 새 워�
     python scripts/update-watchlist-daily.py
 """
 import json
+import re
 import sys
 import time
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -32,9 +43,7 @@ OUT_PATH = REPO / "docs" / "data" / "watchlist-daily.json"
 
 PRICE_DAYS_KEEP = 400
 SUPPLY_DAYS_KEEP = 40
-INSTITUTION_KEYS = ["금융투자", "보험", "투신", "사모", "은행", "연기금", "기타금융"]
-MEASURES = [("buyAmount", "value", "매수"), ("sellAmount", "value", "매도"),
-            ("buyVolume", "volume", "매수"), ("sellVolume", "volume", "매도")]
+NAVER_UA = {"User-Agent": "Mozilla/5.0"}
 
 
 def load_watchlist():
@@ -51,24 +60,43 @@ def fetch_price(stock_mod, ticker, frm, to):
              for idx, r in df.iterrows()]
 
 
-def fetch_supply_demand(stock_mod, ticker, frm, to):
-    """A4(build-supply-demand-a4.py)와 동일 패턴 - 4콜 병합, 카테고리별 순매수 계산."""
-    dfs = {}
-    for field, kind_fn, side in MEASURES:
-        fn = getattr(stock_mod, f"get_market_trading_{kind_fn}_by_date")
-        dfs[field] = fn(frm, to, ticker, on=side, detail=True)
-    if any(df is None or df.empty for df in dfs.values()):
-        return []
+def _num(v):
+    """'+333,167' / '-2,293' / '260,000' 같은 네이버 표기를 정수로."""
+    if v is None:
+        return 0
+    s = re.sub(r"[,+]", "", str(v))
+    try:
+        return int(s)
+    except ValueError:
+        return 0
+
+
+def fetch_supply_demand(ticker, frm):
+    """네이버 모바일 API - 개인/외국인/기관 순매수 '수량'을 준다(금액 아님).
+    옛 Claude Cowork 프로젝트(regime_backtest/collect.js fetchSupplyDemandKR)가
+    쓰던 그대로 - 로그인 불요, KRX 투자자별거래실적 API의 대안."""
+    url = f"https://m.stock.naver.com/api/stock/{ticker}/trend?pageSize=30&page=1"
+    req = urllib.request.Request(url, headers=NAVER_UA)
+    with urllib.request.urlopen(req, timeout=15) as r:
+        rows = json.loads(r.read().decode("utf-8"))
     out = []
-    for ts in dfs["buyAmount"].index:
-        date = ts.strftime("%Y-%m-%d")
-        buy = {str(k): int(v) for k, v in dfs["buyAmount"].loc[ts].items()}
-        sell = {str(k): int(v) for k, v in dfs["sellAmount"].loc[ts].items()}
-        individual = buy.get("개인", 0) - sell.get("개인", 0)
-        foreign = buy.get("외국인", 0) - sell.get("외국인", 0)
-        institution = sum(buy.get(k, 0) for k in INSTITUTION_KEYS) - \
-            sum(sell.get(k, 0) for k in INSTITUTION_KEYS)
-        out.append({"date": date, "individual": individual, "foreign": foreign, "institution": institution})
+    for row in rows:
+        bizdate = str(row.get("bizdate", ""))
+        if len(bizdate) != 8:
+            continue
+        date = f"{bizdate[:4]}-{bizdate[4:6]}-{bizdate[6:8]}"
+        if date < f"{frm[:4]}-{frm[4:6]}-{frm[6:8]}":
+            continue
+        close = _num(row.get("closePrice"))
+        # 네이버는 수량만 준다 - A4(원화 금액) 계열 시계열과 단위를 맞추려고
+        # 종가×수량으로 근사한다(그날 실제 체결가 가중평균이 아니라 어림값).
+        out.append({
+            "date": date,
+            "individual": _num(row.get("individualPureBuyQuant")) * close,
+            "foreign": _num(row.get("foreignerPureBuyQuant")) * close,
+            "institution": _num(row.get("organPureBuyQuant")) * close,
+        })
+    out.sort(key=lambda r: r["date"])
     return out
 
 
@@ -125,11 +153,11 @@ def main():
         last_sd = entry["supplyDemand"][-1]["date"].replace("-", "") if entry["supplyDemand"] else "20260101"
         frm_sd = (datetime.strptime(last_sd, "%Y%m%d") + timedelta(days=1)).strftime("%Y%m%d")
         if frm_sd <= today:
-            fresh_sd = fetch_supply_demand(stock_mod, code, frm_sd, today)
-            if not fresh_sd:
-                print(f"  [경고] {code} 수급 갱신 실패 - 빈 응답, 기존 값 유지 "
-                      f"(pykrx get_market_trading_*_by_date가 현재 이 종목에서 빈 응답을 준다 - "
-                      f"KRX/pykrx 쪽 일시적 문제로 보임, 2026-09-01 로컬 정찰에서도 재현됨)")
+            try:
+                fresh_sd = fetch_supply_demand(code, frm_sd)
+            except Exception as e:  # noqa: BLE001
+                print(f"  [경고] {code} 수급 갱신 실패({type(e).__name__}: {e}) - 기존 값 유지")
+                fresh_sd = []
             entry["supplyDemand"] = merge_trim(entry["supplyDemand"], fresh_sd, SUPPLY_DAYS_KEEP)
         time.sleep(0.2)
 
