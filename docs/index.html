@@ -1126,7 +1126,7 @@ function openStockDetail(ticker, name) {
 function closeStockDetail() { state.detail.open = false; render(); }
 
 // 캔들+MA20/60+볼린저(위) · 거래량(중) · RSI14(아래) 3단 SVG. bars={date|time|minute,o,h,l,c,v}
-function detailChartSvg(bars, w, mode) {
+function detailChartSvg(bars, w, mode, target) {
   if (!bars.length) return '<div class="empty" style="padding:30px;text-align:center">데이터가 없습니다.</div>';
   const closes = bars.map(b => b.c), highs = bars.map(b => b.h), lows = bars.map(b => b.l), opens = bars.map(b => b.o), vols = bars.map(b => b.v || 0);
   const ma20a = smaArr(closes, 20), ma60a = smaArr(closes, 60), stdev = stdArr(closes, 20, ma20a);
@@ -1190,8 +1190,8 @@ function detailChartSvg(bars, w, mode) {
     <text x="${(w - padR + 4).toFixed(1)}" y="${ry(30).toFixed(1)}" dominant-baseline="middle" font-size="10" fill="#8b96ad">30</text>
     <text x="${padL + 2}" y="${(rTop + 11).toFixed(1)}" font-size="10" fill="#8b96ad">RSI 14</text>`;
 
-  state.detail.view = { bars };
-  state.detail.viewGeom = { w, padL, padR, m };
+  target.view = { bars };
+  target.viewGeom = { w, padL, padR, m };
 
   return `<div class="scd-chartwrap" style="position:relative">
     <svg viewBox="0 0 ${w} ${totalH}" preserveAspectRatio="none" style="width:100%;height:auto;display:block">
@@ -1204,15 +1204,17 @@ function detailChartSvg(bars, w, mode) {
     </svg>
     <div class="scd-cross" style="position:absolute;top:0;bottom:0;width:1px;background:var(--accent);opacity:0.5;display:none;pointer-events:none"></div>
   </div>
-  <div id="scdOhlc" class="muted" style="font-size:12px;margin-top:4px;font-family:inherit">&nbsp;</div>`;
+  <div class="scdOhlc muted" style="font-size:12px;margin-top:4px;font-family:inherit">&nbsp;</div>`;
 }
 
 // 차트 위 커서(모바일은 탭) → 그 봉의 날짜·시고저종·거래량. detailChartSvg가 채운
-// state.detail.view/viewGeom을 읽는다 - innerHTML 교체마다 매번 다시 붙여야 한다.
-function attachDetailHover() {
-  const wrap = document.querySelector('#stockModal .scd-chartwrap');
-  const out = document.getElementById('scdOhlc');
-  const v = state.detail.view, g = state.detail.viewGeom;
+// target.view/viewGeom을 읽는다 - innerHTML 교체마다 매번 다시 붙여야 한다.
+// containerSel로 모달(#stockModal)·실시간 탭(#content) 등 여러 곳에서 같은
+// 함수를 쓸 수 있게 한다(id 중복 대신 class .scdOhlc + 컨테이너 스코프).
+function attachDetailHover(containerSel, target) {
+  const wrap = document.querySelector(`${containerSel} .scd-chartwrap`);
+  const out = document.querySelector(`${containerSel} .scdOhlc`);
+  const v = target.view, g = target.viewGeom;
   if (!wrap || !out || !v || !g || !v.bars.length) return;
   const cross = wrap.querySelector('.scd-cross');
   const m = v.bars.length;
@@ -1322,20 +1324,23 @@ function renderStockModal() {
     ${body}`;
 
   el.innerHTML = modalShell(dt, content);
-  if (dt.vtab === 'chart') attachDetailHover();
+  if (dt.vtab === 'chart') attachDetailHover('#stockModal', state.detail);
 }
 
 function renderChartTab(dt, dailyBars, n, rec) {
+  const isUS = dt.market === 'US';
+  if (isUS && dt.intraday) dt.intraday = false;  // KIS 분봉조회(FHKST03010230)는 국내주식 전용 - US는 강제로 일봉으로
+
   let bodyHtml, note;
   if (dt.intraday) {
     const rawOrNull = getHistoricalBars(dt.ticker, kstYmd().replace(/-/g, ''));
     const bars = aggregateBars(rawOrNull || [], Number(dt.tf.replace('m', '')));
-    bodyHtml = detailChartSvg(bars, 680, dt.type);
+    bodyHtml = detailChartSvg(bars, 680, dt.type, state.detail);
     note = rawOrNull === null ? '불러오는 중...' : `${dt.tf} 분봉 · ${bars.length}개 · KIS 스냅샷(요청 시점까지, 실시간 갱신 아님)`;
   } else {
     const rangeN = dt.range >= 9999 ? n : Math.min(dt.range, n);
     const sliced = dailyBars.slice(n - rangeN);
-    bodyHtml = detailChartSvg(sliced, 680, dt.type);
+    bodyHtml = detailChartSvg(sliced, 680, dt.type, state.detail);
     note = `일봉 ${sliced.length}개`;
   }
 
@@ -1344,7 +1349,7 @@ function renderChartTab(dt, dailyBars, n, rec) {
 
   const rangeBtns = [['1M', 20], ['3M', 60], ['6M', 120], ['1Y', 250], ['전체', 9999]]
     .map(([lb, v]) => `<button data-detail-range="${v}" class="chip ${!dt.intraday && (v === 9999 ? dt.range >= n : dt.range === Math.min(v, n)) ? 'active' : ''}">${lb}</button>`).join('');
-  const intradayBtn = `<button data-detail-intraday="1" class="chip ${dt.intraday ? 'active' : ''}">1D(분)</button>`;
+  const intradayBtn = isUS ? '' : `<button data-detail-intraday="1" class="chip ${dt.intraday ? 'active' : ''}">1D(분)</button>`;
   const tfBtns = dt.intraday ? ['1m', '5m', '15m', '60m'].map(tf => `<button data-detail-tf="${tf}" class="chip ${dt.tf === tf ? 'active' : ''}">${tf.replace('m', '분')}</button>`).join('') : '';
   const typeBtns = ['candle', 'line'].map(t => `<button data-detail-type="${t}" class="chip ${dt.type === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
 
@@ -1447,14 +1452,19 @@ function renderIntradayDetail(code, name) {
     ? `${state.live.date.slice(0, 4)}-${state.live.date.slice(4, 6)}-${state.live.date.slice(6, 8)}`
     : todayStr;
 
-  let chartHtml, countLabel;
+  let chartHtml, countLabel, badges = '';
   if (raw === null) {
-    chartHtml = candleSvg([], 640, 220, {});
+    chartHtml = '<div class="empty" style="padding:30px;text-align:center">불러오는 중...</div>';
     countLabel = '불러오는 중...';
   } else {
     const bars = aggregateBars(raw, state.live.timeframe);
-    chartHtml = candleSvg(bars, 640, 220, { grid: true, labels: true, mode: state.live.chartType });
+    chartHtml = detailChartSvg(bars, 640, state.live.chartType, state.live);
     countLabel = `${state.live.timeframe}분봉 · ${bars.length}개${isToday ? ' · 실시간' : ''}`;
+    const ticker = state.live.daily && state.live.daily.tickers && state.live.daily.tickers[code];
+    if (ticker && ticker.daily && ticker.daily.length) {
+      const fullBars = ticker.daily.map(d => ({ date: d.date, o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
+      badges = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${badgesFor(fullBars)}</div>`;
+    }
   }
 
   return `
@@ -1467,7 +1477,7 @@ function renderIntradayDetail(code, name) {
         style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px" />
     </div>
     <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">${countLabel}</span></h2>
-    <div class="table-wrap">${chartHtml}</div>`;
+    <div class="table-wrap">${chartHtml}</div>${badges}`;
 }
 
 function renderPeriodDetail(code, name) {
@@ -1484,15 +1494,16 @@ function renderPeriodDetail(code, name) {
       <p class="empty">일봉 데이터(watchlist-daily.json)를 불러오지 못했습니다.</p>`;
   }
 
-  const priceRows = filterByPeriod(ticker.daily, state.live.period);
-  const bars = priceRows.map(d => ({ date: d.date, o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
+  const fullBars = ticker.daily.map(d => ({ date: d.date, o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
+  const bars = filterByPeriod(fullBars, state.live.period);
   const sdRows = filterByPeriod(ticker.supplyDemand, '1m');  // 수급은 기간선택과 무관하게 항상 최근 1개월
 
   return `
     <div class="group-filter" style="margin-bottom:8px">${periodCtrl}</div>
     <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
     <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">일봉 ${bars.length}일 · ${esc(state.live.daily.asOfPrice || '-')} 기준(백필 산출물, 실시간 아님)</span></h2>
-    <div class="table-wrap" style="margin-bottom:20px">${candleSvg(bars, 640, 220, { grid: true, labels: true, mode: state.live.chartType })}</div>
+    <div class="table-wrap" style="margin-bottom:6px">${detailChartSvg(bars, 640, state.live.chartType, state.live)}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${badgesFor(fullBars)}</div>
     <h2>수급 <span class="muted" style="font-weight:400;font-size:12px">개인·외국인·기관 순매수 · 최근 ${sdRows.length}거래일 · ${esc(state.live.daily.asOfSupplyDemand || '-')} 기준</span></h2>
     <div class="table-wrap" style="margin-bottom:6px">${supplyDemandSvg(sdRows, 640, 110)}</div>
     <div style="display:flex;gap:14px;font-size:11px;color:var(--muted)">
@@ -1595,6 +1606,7 @@ function render() {
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
+  if (state.tab === 'live') attachDetailHover('#content', state.live);
   renderStockModal();
 }
 
