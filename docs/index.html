@@ -195,8 +195,10 @@ const state = {
   collapsed: {},           // 업종별 접힘 상태
   openNotes: {},           // 업종 비고 펼침
   prices: null,            // docs/data/prices.json (지연 로드 - 상세 차트를 처음 열 때만)
+  flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
   detail: {                // 종목 상세(차트) 모달
     open: false, ticker: null, name: null, market: null,
+    vtab: 'chart',         // 'chart' | 'flows'
     range: 250,            // 일봉 표시 개수(9999=전체)
     type: 'candle',        // 'candle' | 'line'
     intraday: false,       // true면 1D(분) 보기
@@ -1109,8 +1111,15 @@ function ensurePrices() {
   loadJson('prices').then(d => { state.prices = d || { byTicker: {} }; pricesLoading = false; if (state.detail.open) render(); });
 }
 
+let flowsLoading = false;
+function ensureFlows() {
+  if (state.flows || flowsLoading) return;
+  flowsLoading = true;
+  loadJson('stock-flows').then(d => { state.flows = d || { byTicker: {} }; flowsLoading = false; if (state.detail.open) render(); });
+}
+
 function openStockDetail(ticker, name) {
-  state.detail = { open: true, ticker, name, market: state.detail.market, range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
+  state.detail = { open: true, ticker, name, market: state.detail.market, vtab: 'chart', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
   ensurePrices();
   render();
 }
@@ -1294,7 +1303,29 @@ function renderStockModal() {
   const dailyBars = rec.d.map((d, i) => ({ date: d, o: rec.o[i], h: rec.h[i], l: rec.l[i], c: rec.c[i], v: rec.v[i] }));
   const n = dailyBars.length;
   const last = dailyBars[n - 1];
+  const d1 = retN(rec.c, 1);
+  const priceStr = dt.market === 'US' ? '$' + fmtNum(last.c) : fmtNum(last.c) + '원';
+  const cls = d1 > 0 ? 'pos' : d1 < 0 ? 'neg' : 'muted';
 
+  const vtabBtns = `
+    <button data-detail-vtab="chart" class="chip ${dt.vtab === 'chart' ? 'active' : ''}">📈 차트</button>
+    <button data-detail-vtab="flows" class="chip ${dt.vtab === 'flows' ? 'active' : ''}">💰 수급</button>`;
+
+  const body = dt.vtab === 'flows' ? renderFlowsTab(dt) : renderChartTab(dt, dailyBars, n, rec);
+
+  const content = `
+    <div style="margin-bottom:10px">
+      <div style="font-size:13px;color:var(--muted)">${esc(last.date || '')}${dt.market ? mktChip(dt.market) : ''} 종가</div>
+      <div style="font-size:22px;font-weight:700">${priceStr} <span class="${cls}" style="font-size:14px;font-weight:400">${d1 > 0 ? '+' : ''}${d1 != null ? d1.toFixed(2) : '-'}%</span></div>
+    </div>
+    <div class="group-filter" style="margin-bottom:12px">${vtabBtns}</div>
+    ${body}`;
+
+  el.innerHTML = modalShell(dt, content);
+  if (dt.vtab === 'chart') attachDetailHover();
+}
+
+function renderChartTab(dt, dailyBars, n, rec) {
   let bodyHtml, note;
   if (dt.intraday) {
     const rawOrNull = getHistoricalBars(dt.ticker, kstYmd().replace(/-/g, ''));
@@ -1308,7 +1339,6 @@ function renderStockModal() {
     note = `일봉 ${sliced.length}개`;
   }
 
-  const d1 = retN(rec.c, 1);
   const retsHtml = [['1일', 1], ['1주', 5], ['1개월', 20], ['3개월', 60], ['6개월', 120], ['1년', 250]]
     .map(([lb, k]) => retChip(lb, retN(rec.c, k))).join('') + retChip('YTD', retYTD(rec.c, rec.d));
 
@@ -1318,14 +1348,7 @@ function renderStockModal() {
   const tfBtns = dt.intraday ? ['1m', '5m', '15m', '60m'].map(tf => `<button data-detail-tf="${tf}" class="chip ${dt.tf === tf ? 'active' : ''}">${tf.replace('m', '분')}</button>`).join('') : '';
   const typeBtns = ['candle', 'line'].map(t => `<button data-detail-type="${t}" class="chip ${dt.type === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
 
-  const priceStr = dt.market === 'US' ? '$' + fmtNum(last.c) : fmtNum(last.c) + '원';
-  const cls = d1 > 0 ? 'pos' : d1 < 0 ? 'neg' : 'muted';
-
-  const content = `
-    <div style="margin-bottom:10px">
-      <div style="font-size:13px;color:var(--muted)">${esc(last.date || '')}${dt.market ? mktChip(dt.market) : ''} 종가</div>
-      <div style="font-size:22px;font-weight:700">${priceStr} <span class="${cls}" style="font-size:14px;font-weight:400">${d1 > 0 ? '+' : ''}${d1 != null ? d1.toFixed(2) : '-'}%</span></div>
-    </div>
+  return `
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${retsHtml}</div>
     <div class="group-filter" style="margin-bottom:6px">${rangeBtns}${intradayBtn}${tfBtns}</div>
     <div class="group-filter" style="margin-bottom:12px">${typeBtns}</div>
@@ -1333,9 +1356,31 @@ function renderStockModal() {
     <div class="table-wrap">${bodyHtml}</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${badgesFor(dailyBars)}</div>
     <p class="muted" style="font-size:11px;margin-top:10px">차트 위에 커서를 올리면(모바일은 탭) 그 봉의 날짜·시고저종·거래량이 표시됩니다. 기간 등락률은 거래일 기준(주=5·월=20·년=250 거래일). MA/볼린저/RSI/52주 지표는 참고용이며 투자 자문이 아닙니다.</p>`;
+}
 
-  el.innerHTML = modalShell(dt, content);
-  attachDetailHover();
+function renderFlowsTab(dt) {
+  if (dt.market === 'US') return '<div class="empty" style="padding:30px;text-align:center">미국 종목은 이 수급 데이터를 제공하지 않습니다(KR 전용).</div>';
+  ensureFlows();
+  if (!state.flows) return '<div class="empty" style="padding:30px;text-align:center">불러오는 중...</div>';
+  const rows = (state.flows.byTicker || {})[dt.ticker] || [];
+  if (!rows.length) return '<div class="empty" style="padding:30px;text-align:center">수급 데이터가 없습니다.</div>';
+  const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
+  const sumChip = (label, v) => {
+    const c = v >= 0 ? 'pos' : 'neg';
+    return `<div class="chip" style="cursor:default;display:flex;flex-direction:column;align-items:center;min-width:70px;gap:2px"><span style="font-size:10px;color:var(--muted)">${label}</span><b class="${c}">${v >= 0 ? '+' : ''}${fmtEok(v)}</b></div>`;
+  };
+  return `
+    <p class="muted" style="font-size:12px;margin-bottom:10px">개인/외국인/기관 순매수(금액 근사 - 수량×종가) · 최근 ${rows.length}거래일 · ${esc(rows[0].date)}~${esc(rows[rows.length - 1].date)}</p>
+    <div class="table-wrap" style="margin-bottom:10px">${supplyDemandSvg(rows, 640, 140)}</div>
+    <div style="display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:14px">
+      <span><span style="display:inline-block;width:8px;height:8px;background:#4d9fff;margin-right:4px;vertical-align:middle"></span>개인</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:#2ecc71;margin-right:4px;vertical-align:middle"></span>외국인</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:#f1c40f;margin-right:4px;vertical-align:middle"></span>기관</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${sumChip('개인 합계', sum('individual'))}${sumChip('외국인 합계', sum('foreign'))}${sumChip('기관 합계', sum('institution'))}
+    </div>
+    <p class="muted" style="font-size:11px;margin-top:12px">네이버 모바일 API 기준(로그인 불요) - 수량×종가로 금액을 근사한 참고용 수치이며, 그날 실제 체결가 가중평균과는 다를 수 있습니다.</p>`;
 }
 
 const PERIOD_DAYS = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
@@ -1640,6 +1685,8 @@ document.getElementById('stockModal').addEventListener('click', (e) => {
   if (tf) { state.detail.tf = tf.dataset.detailTf; return render(); }
   const ty = t.closest('[data-detail-type]');
   if (ty) { state.detail.type = ty.dataset.detailType; return render(); }
+  const vt = t.closest('[data-detail-vtab]');
+  if (vt) { state.detail.vtab = vt.dataset.detailVtab; return render(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.detail.open) closeStockDetail(); });
 
