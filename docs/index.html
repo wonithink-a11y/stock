@@ -790,6 +790,27 @@ function renderNews() {
 const FLOW_HEADLINE = ['개인', '외국인', '기관합계'];
 const FLOW_TREND_SERIES = ['외국인', '개인', '기관합계'];
 
+// 투자자구분 하나를 한 줄(라벨 + 일별 초록/빨강 막대 + 우측 기간합계)로 그린다.
+// 시장수급(renderFlows)·종목별 수급(renderFlowsTab) 둘 다 이 한 줄 형태를 쓴다 -
+// 한 그래프에 여러 구분을 욱여넣으면 안 읽힌다는 피드백으로 분리했다.
+function investorTrendRow(label, vals, dateLabels) {
+  const trendH = 40, barW = 8, barGap = 2;
+  const trendMax = Math.max(...vals.map(v => Math.abs(v)), 1);
+  const dayBars = vals.map((v, i) => {
+    const h = Math.max(2, Math.round(Math.abs(v) / trendMax * trendH));
+    const top = v >= 0 ? trendH - h : trendH;
+    return `<div style="width:${barW}px;height:${trendH}px;position:relative" title="${esc(dateLabels[i])} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
+      <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'};border-radius:1px"></div>
+    </div>`;
+  }).join('');
+  const sum = vals.reduce((s, v) => s + v, 0);
+  return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <div style="width:48px;font-size:13px;flex-shrink:0">${esc(label)}</div>
+    <div style="display:flex;align-items:flex-end;gap:${barGap}px;height:${trendH}px;border-bottom:1px solid var(--border);overflow-x:auto">${dayBars}</div>
+    <div class="${sum >= 0 ? 'pos' : 'neg'}" style="min-width:84px;text-align:right;flex-shrink:0">${sum >= 0 ? '+' : ''}${fmtEok(sum)}</div>
+  </div>`;
+}
+
 function renderFlows() {
   const mf = state.marketFlows;
   if (!mf) return '<div class="card empty">시장 수급 데이터(market_flows.json)를 불러오지 못했습니다.</div>';
@@ -823,25 +844,10 @@ function renderFlows() {
   }).join('');
 
   // 일별 추이: 외국인/개인/기관 하루하루 사고파는 방향 + 우측에 기간 합계
-  const trendH = 40, barW = 8, barGap = 2;
+  const trendDateLabels = days.map(d => `${d.date.slice(4, 6)}/${d.date.slice(6, 8)}`);
   const trendChart = FLOW_TREND_SERIES.map(k => {
     const vals = days.map(d => (d.items.find(it => it.name === k) || {}).net || 0);
-    const trendMax = Math.max(...vals.map(Math.abs), 1);
-    const dayBars = days.map((d, i) => {
-      const v = vals[i];
-      const h = Math.max(2, Math.round(Math.abs(v) / trendMax * trendH));
-      const top = v >= 0 ? trendH - h : trendH;
-      const dateLabel = `${d.date.slice(4, 6)}/${d.date.slice(6, 8)}`;
-      return `<div style="width:${barW}px;height:${trendH}px;position:relative" title="${dateLabel} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
-        <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'};border-radius:1px"></div>
-      </div>`;
-    }).join('');
-    const sum = vals.reduce((s, v) => s + v, 0);
-    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-      <div style="width:48px;font-size:13px;flex-shrink:0">${esc(k === '기관합계' ? '기관' : k)}</div>
-      <div style="display:flex;align-items:flex-end;gap:${barGap}px;height:${trendH}px;border-bottom:1px solid var(--border);overflow-x:auto">${dayBars}</div>
-      <div class="${sum >= 0 ? 'pos' : 'neg'}" style="min-width:84px;text-align:right;flex-shrink:0">${sum >= 0 ? '+' : ''}${fmtEok(sum)}</div>
-    </div>`;
+    return investorTrendRow(k === '기관합계' ? '기관' : k, vals, trendDateLabels);
   }).join('');
 
   return `<div class="card">
@@ -1369,23 +1375,13 @@ function renderFlowsTab(dt) {
   if (!state.flows) return '<div class="empty" style="padding:30px;text-align:center">불러오는 중...</div>';
   const rows = (state.flows.byTicker || {})[dt.ticker] || [];
   if (!rows.length) return '<div class="empty" style="padding:30px;text-align:center">수급 데이터가 없습니다.</div>';
-  const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
-  const sumChip = (label, v) => {
-    const c = v >= 0 ? 'pos' : 'neg';
-    return `<div class="chip" style="cursor:default;display:flex;flex-direction:column;align-items:center;min-width:70px;gap:2px"><span style="font-size:10px;color:var(--muted)">${label}</span><b class="${c}">${v >= 0 ? '+' : ''}${fmtEok(v)}</b></div>`;
-  };
+  const dateLabels = rows.map(r => r.date.slice(5).replace('-', '/'));
+  const seriesRows = [['foreign', '외국인'], ['institution', '기관'], ['individual', '개인']]
+    .map(([k, label]) => investorTrendRow(label, rows.map(r => r[k] || 0), dateLabels)).join('');
   return `
-    <p class="muted" style="font-size:12px;margin-bottom:10px">개인/외국인/기관 순매수(금액 근사 - 수량×종가) · 최근 ${rows.length}거래일 · ${esc(rows[0].date)}~${esc(rows[rows.length - 1].date)}</p>
-    <div class="table-wrap" style="margin-bottom:10px">${supplyDemandSvg(rows, 640, 140)}</div>
-    <div style="display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:14px">
-      <span><span style="display:inline-block;width:8px;height:8px;background:#4d9fff;margin-right:4px;vertical-align:middle"></span>개인</span>
-      <span><span style="display:inline-block;width:8px;height:8px;background:#2ecc71;margin-right:4px;vertical-align:middle"></span>외국인</span>
-      <span><span style="display:inline-block;width:8px;height:8px;background:#f1c40f;margin-right:4px;vertical-align:middle"></span>기관</span>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${sumChip('개인 합계', sum('individual'))}${sumChip('외국인 합계', sum('foreign'))}${sumChip('기관 합계', sum('institution'))}
-    </div>
-    <p class="muted" style="font-size:11px;margin-top:12px">네이버 모바일 API 기준(로그인 불요) - 수량×종가로 금액을 근사한 참고용 수치이며, 그날 실제 체결가 가중평균과는 다를 수 있습니다.</p>`;
+    <p class="muted" style="font-size:12px;margin-bottom:10px">개인/외국인/기관 순매수(금액 근사 - 수량×종가) · 최근 ${rows.length}거래일 · ${esc(rows[0].date)}~${esc(rows[rows.length - 1].date)} · 우측=기간합계</p>
+    <div style="margin-top:10px">${seriesRows}</div>
+    <p class="muted" style="font-size:11px;margin-top:8px">네이버 모바일 API 기준(로그인 불요) - 수량×종가로 금액을 근사한 참고용 수치이며, 그날 실제 체결가 가중평균과는 다를 수 있습니다.</p>`;
 }
 
 const PERIOD_DAYS = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
@@ -1405,33 +1401,6 @@ function filterByPeriod(daily, period) {
 }
 
 // 일별 개인/외국인/기관 순매수를 나란히 세 막대로 - 부호에 따라 위/아래로
-function supplyDemandSvg(rows, w, h) {
-  if (!rows.length) {
-    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
-      <text x="${w/2}" y="${h/2}" text-anchor="middle" fill="#8b96ad" font-size="10">수급 데이터 없음</text></svg>`;
-  }
-  const maxAbs = Math.max(1, ...rows.flatMap(r => [Math.abs(r.individual), Math.abs(r.foreign), Math.abs(r.institution)]));
-  const midY = h / 2;
-  const usableH = h / 2 - 6;
-  const bw = w / rows.length;
-  const barW = Math.max(1, bw / 3 - 1);
-  const colors = { individual: '#4d9fff', foreign: '#2ecc71', institution: '#f1c40f' };
-  const bars = rows.map((r, i) => {
-    const x0 = i * bw;
-    return ['individual', 'foreign', 'institution'].map((k, j) => {
-      const v = r[k];
-      const bh = Math.abs(v) / maxAbs * usableH;
-      const x = x0 + j * barW;
-      const y = v >= 0 ? midY - bh : midY;
-      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0.5, bh).toFixed(1)}" fill="${colors[k]}"/>`;
-    }).join('');
-  }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
-    <line x1="0" y1="${midY}" x2="${w}" y2="${midY}" stroke="#2a3550" stroke-width="1"/>
-    ${bars}
-  </svg>`;
-}
-
 function renderIntradayDetail(code, name) {
   const isToday = !state.live.date;
   if (isToday) seedTodayFromHistory(code);
@@ -1504,13 +1473,10 @@ function renderPeriodDetail(code, name) {
     <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">일봉 ${bars.length}일 · ${esc(state.live.daily.asOfPrice || '-')} 기준(백필 산출물, 실시간 아님)</span></h2>
     <div class="table-wrap" style="margin-bottom:6px">${detailChartSvg(bars, 640, state.live.chartType, state.live)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${badgesFor(fullBars)}</div>
-    <h2>수급 <span class="muted" style="font-weight:400;font-size:12px">개인·외국인·기관 순매수 · 최근 ${sdRows.length}거래일 · ${esc(state.live.daily.asOfSupplyDemand || '-')} 기준</span></h2>
-    <div class="table-wrap" style="margin-bottom:6px">${supplyDemandSvg(sdRows, 640, 110)}</div>
-    <div style="display:flex;gap:14px;font-size:11px;color:var(--muted)">
-      <span><span style="display:inline-block;width:8px;height:8px;background:#4d9fff;margin-right:4px;vertical-align:middle"></span>개인</span>
-      <span><span style="display:inline-block;width:8px;height:8px;background:#2ecc71;margin-right:4px;vertical-align:middle"></span>외국인</span>
-      <span><span style="display:inline-block;width:8px;height:8px;background:#f1c40f;margin-right:4px;vertical-align:middle"></span>기관</span>
-    </div>`;
+    <h2>수급 <span class="muted" style="font-weight:400;font-size:12px">개인·외국인·기관 순매수 · 최근 ${sdRows.length}거래일 · ${esc(state.live.daily.asOfSupplyDemand || '-')} 기준 · 우측=기간합계</span></h2>
+    <div style="margin-top:10px">${['foreign', 'institution', 'individual'].map(k =>
+      investorTrendRow({ foreign: '외국인', institution: '기관', individual: '개인' }[k],
+        sdRows.map(r => r[k] || 0), sdRows.map(r => r.date.slice(5).replace('-', '/')))).join('')}</div>`;
 }
 
 function renderLive() {
