@@ -1,0 +1,32 @@
+name: Probe ETF/ETN supply-demand (KRX login)
+
+# ETF/ETN 수급(get_etf_trading_volume_and_value) 착수 전 정찰. 로컬에서는
+# KRX_ID/KRX_PW가 없어 티커목록 조회 단계에서 "LOGOUT"으로 막혔다 - Actions
+# 환경(기존 market-flows.yml·probe-supply-demand-krx.yml과 같은 러너,
+# 이미 KRX 로그인이 되는 것으로 확인됨)에서 ETF/ETN 전용 엔드포인트도
+# 같은지 확인한다. 정찰 전용 — 아무 파일도 커밋하지 않는다.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pykrx
+        run: pip install pykrx
+
+      - name: Probe ETF/ETN supply-demand
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-etf-etn-supply-demand-krx.py
