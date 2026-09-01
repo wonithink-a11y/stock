@@ -1,0 +1,35 @@
+name: Expand universe (KOSPI200/KOSDAQ150/S&P500/NASDAQ100)
+
+# config/watchlist.json을 4대 지수 전체로 확대(scripts/expand-universe.py).
+# 1회성 확대 작업 - dry-run으로 신규 729종목/전체 872종목 확인 후 실행.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet pykrx==1.2.8 pandas lxml
+      - name: Expand universe
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/expand-universe.py
+      - name: Commit watchlist.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/watchlist.json
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "feat: 유니버스 확대 - 코스피200+코스닥150+S&P500+나스닥100"
+          git pull --rebase --autostash origin main
+          git push
