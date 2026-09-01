@@ -139,6 +139,9 @@
   <button data-tab="reco">추천 이력</button>
   <button data-tab="backtest">백테스트</button>
   <button data-tab="cycle">경기사이클🥚</button>
+  <button data-tab="disclosures">공시</button>
+  <button data-tab="news">뉴스</button>
+  <button data-tab="flows">시장수급</button>
 </nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
@@ -153,8 +156,14 @@
 <script>
 const state = {
   latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, macro: null, etf: null,
+  disclosures: null, news: null, marketFlows: null,
   tab: 'scores',
   groupFilter: 'all',
+  // 공시·뉴스·시장수급 탭 전용
+  discFilter: 'all',
+  newsGroup: 'brief',
+  flowsMarket: 'KOSPI',
+  flowsDateIdx: null,       // null = 최신일
   // 종목 스코어 탭 전용
   viewMode: 'sector',      // 'sector' | 'list'
   sectorFilter: 'all',
@@ -240,7 +249,7 @@ function fmtNum(v) { return v === null || v === undefined ? '-' : Number(v).toLo
 function fmtEok(v) {
   if (v === null || v === undefined || isNaN(v)) return '-';
   const n = Number(v);
-  if (n < 1e8) return Math.round(n / 1e4).toLocaleString() + '만';
+  if (Math.abs(n) < 1e8) return Math.round(n / 1e4).toLocaleString() + '만';
   return Math.round(n / 1e8).toLocaleString() + '억';
 }
 
@@ -679,6 +688,130 @@ function renderCycle() {
   return html;
 }
 
+function renderDisclosures() {
+  const d = state.disclosures;
+  if (!d) return '<div class="card empty">공시 데이터(disclosures.json)를 불러오지 못했습니다.</div>';
+  const items = d.items || [];
+  const counts = {};
+  items.forEach(i => counts[i.category] = (counts[i.category] || 0) + 1);
+  const cats = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  const filtered = state.discFilter === 'all' ? items : items.filter(i => i.category === state.discFilter);
+
+  let html = `<div class="card">
+    <h2>DART 공시 <span class="muted" style="font-weight:400">${esc(d.range.bgnDe)}~${esc(d.range.endDe)} · 투자영향 큰 유형만 자동 수집 · ${items.length}건</span></h2>
+    <div class="group-filter">
+      <button data-disc-filter="all" class="chip ${state.discFilter === 'all' ? 'active' : ''}">전체<span class="cnt">${items.length}</span></button>
+      ${cats.map(c => `<button data-disc-filter="${esc(c)}" class="chip ${state.discFilter === c ? 'active' : ''}">${esc(c)}<span class="cnt">${counts[c]}</span></button>`).join('')}
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>일자</th><th>종목</th><th>유형</th><th>보고서</th><th></th></tr></thead><tbody>
+    ${filtered.map(i => `<tr>
+      <td class="muted">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</td>
+      <td>${esc(i.name)}</td>
+      <td>${i.level === 'high' ? `<span class="warn-tag">${esc(i.category)}</span>` : `<span class="group-tag">${esc(i.category)}</span>`}</td>
+      <td style="white-space:normal">${esc(i.reportNm)}</td>
+      <td><a href="${esc(i.url)}" target="_blank" rel="noopener" class="muted" style="text-decoration:none">원문↗</a></td>
+    </tr>`).join('') || `<tr><td colspan="5" class="empty">해당 유형의 공시가 없습니다</td></tr>`}
+    </tbody></table></div>
+  </div>`;
+  return html;
+}
+
+function newsRow(a, showWhy) {
+  const t = new Date(a.pubDate);
+  const timeStr = isNaN(t) ? '' : t.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const lvlCls = a.level === 'bad' ? 'warn-tag' : a.level === 'good' ? 'fit-tag' : 'group-tag';
+  return `<div style="padding:9px 2px;border-bottom:1px solid var(--border)">
+    <a href="${esc(a.link)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;font-size:14px;line-height:1.4">${esc(a.title)}</a>
+    <div class="muted" style="font-size:11px;margin-top:4px">${esc(a.source || '')} · ${timeStr}${showWhy && a.why ? ` · <span class="${lvlCls}">${esc(a.why)}</span>` : ''}</div>
+  </div>`;
+}
+
+function renderNews() {
+  const n = state.news;
+  if (!n) return '<div class="card empty">뉴스 데이터(news.json)를 불러오지 못했습니다.</div>';
+  const g = state.newsGroup;
+  let html = `<div class="card">
+    <h2>뉴스 <span class="muted" style="font-weight:400">최근 ${n.retentionDays}일 · 네이버+구글뉴스 · 갱신 ${new Date(n.updatedAt).toLocaleString('ko-KR')}</span></h2>
+    <div class="group-filter">
+      <button data-news-group="brief" class="chip ${g === 'brief' ? 'active' : ''}">📌 꼭 볼 뉴스<span class="cnt">${n.briefing.length}</span></button>
+      ${(n.groups || []).map(gr => {
+        const cnt = (n.market || []).filter(m => m.group === gr.key).reduce((s, m) => s + (m.items || []).length, 0);
+        return `<button data-news-group="${esc(gr.key)}" class="chip ${g === gr.key ? 'active' : ''}">${esc(gr.label)}<span class="cnt">${cnt}</span></button>`;
+      }).join('')}
+    </div>`;
+
+  let rows;
+  if (g === 'brief') {
+    rows = n.briefing.map(a => newsRow(a, true));
+  } else {
+    rows = (n.market || []).filter(m => m.group === g).flatMap(m => m.items || []).map(a => newsRow(a, false));
+  }
+  html += rows.join('') || '<p class="muted">해당 분류에 최근 기사가 없습니다.</p>';
+  html += `</div>`;
+  return html;
+}
+
+const FLOW_HEADLINE = ['개인', '외국인', '기관합계'];
+
+function renderFlows() {
+  const mf = state.marketFlows;
+  if (!mf) return '<div class="card empty">시장 수급 데이터(market_flows.json)를 불러오지 못했습니다.</div>';
+  const mkt = state.flowsMarket;
+  const days = (mf.markets[mkt] || {}).days || [];
+  if (!days.length) return '<div class="card empty">데이터 없음</div>';
+  const idx = state.flowsDateIdx === null ? days.length - 1 : Math.min(state.flowsDateIdx, days.length - 1);
+  const day = days[idx];
+  const byName = {};
+  day.items.forEach(it => byName[it.name] = it.net);
+  const maxAbs = Math.max(...FLOW_HEADLINE.map(k => Math.abs(byName[k] || 0)), 1);
+
+  const marketTabs = Object.keys(mf.markets).map(m =>
+    `<button data-flows-market="${esc(m)}" class="chip ${mkt === m ? 'active' : ''}">${esc(m)}</button>`).join('');
+  const dateTabs = days.slice(-10).map((d, i) => {
+    const realIdx = days.length - Math.min(10, days.length) + i;
+    const label = `${d.date.slice(4, 6)}/${d.date.slice(6, 8)}`;
+    return `<button data-flows-date="${realIdx}" class="chip ${realIdx === idx ? 'active' : ''}">${label}</button>`;
+  }).join('');
+
+  const bars = FLOW_HEADLINE.map(k => {
+    const v = byName[k] || 0;
+    const pct = Math.round(Math.abs(v) / maxAbs * 100);
+    const cls = v >= 0 ? 'pos' : 'neg';
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:64px;font-size:13px">${esc(k === '기관합계' ? '기관' : k)}</div>
+      <div class="bar-bg" style="width:220px"><span class="bar-fill" style="width:${pct}%;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'}"></span></div>
+      <div class="${cls}" style="font-family:inherit;min-width:90px;text-align:right">${v >= 0 ? '+' : ''}${fmtEok(v)}</div>
+    </div>`;
+  }).join('');
+
+  const subCats = day.items.filter(it => !it.agg && !FLOW_HEADLINE.includes(it.name) && it.name !== '전체')
+    .sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
+
+  const trendRows = days.slice().reverse().map(d => {
+    const b = {};
+    d.items.forEach(it => b[it.name] = it.net);
+    return `<tr><td class="muted">${d.date.slice(4,6)}/${d.date.slice(6,8)}</td>
+      <td class="${(b['개인']||0)>=0?'pos':'neg'}">${fmtEok(b['개인']||0)}</td>
+      <td class="${(b['외국인']||0)>=0?'pos':'neg'}">${fmtEok(b['외국인']||0)}</td>
+      <td class="${(b['기관합계']||0)>=0?'pos':'neg'}">${fmtEok(b['기관합계']||0)}</td></tr>`;
+  }).join('');
+
+  return `<div class="card">
+    <h2>시장 투자자별 순매수 <span class="muted" style="font-weight:400">KRX(pykrx) 일별 확정치</span></h2>
+    <div class="group-filter" style="margin-bottom:4px">${marketTabs}</div>
+    <div class="group-filter">${dateTabs}</div>
+    <p class="muted" style="margin:10px 0 4px">${mkt} · ${day.date.slice(0,4)}-${day.date.slice(4,6)}-${day.date.slice(6,8)}</p>
+    <div style="margin:10px 0 16px">${bars}</div>
+    <details><summary class="muted" style="cursor:pointer;font-size:12px">세부 투자자구분 12종 펼치기</summary>
+      <div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>구분</th><th>순매수</th></tr></thead><tbody>
+      ${subCats.map(it => `<tr><td>${esc(it.name)}</td><td class="${it.net>=0?'pos':'neg'}">${it.net>=0?'+':''}${fmtEok(it.net)}</td></tr>`).join('')}
+      </tbody></table></div>
+    </details>
+    <h2 style="margin-top:18px">최근 ${days.length}일 추이</h2>
+    <div class="table-wrap"><table><thead><tr><th>일자</th><th>개인</th><th>외국인</th><th>기관</th></tr></thead><tbody>${trendRows}</tbody></table></div>
+  </div>`;
+}
+
 // ---------- 탭 전환 ----------
 
 function render() {
@@ -687,6 +820,9 @@ function render() {
   else if (state.tab === 'portfolio') el.innerHTML = renderPortfolio();
   else if (state.tab === 'reco') el.innerHTML = renderReco();
   else if (state.tab === 'cycle') el.innerHTML = renderCycle();
+  else if (state.tab === 'disclosures') el.innerHTML = renderDisclosures();
+  else if (state.tab === 'news') el.innerHTML = renderNews();
+  else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else el.innerHTML = renderBacktest();
 }
 
@@ -713,6 +849,15 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (gr) { state.gradeFilter = gr.dataset.grade; return render(); }
   const gp = t.closest('[data-group]');
   if (gp) { state.groupFilter = gp.dataset.group; return render(); }
+
+  const df = t.closest('[data-disc-filter]');
+  if (df) { state.discFilter = df.dataset.discFilter; return render(); }
+  const ng = t.closest('[data-news-group]');
+  if (ng) { state.newsGroup = ng.dataset.newsGroup; return render(); }
+  const fm = t.closest('[data-flows-market]');
+  if (fm) { state.flowsMarket = fm.dataset.flowsMarket; return render(); }
+  const fd = t.closest('[data-flows-date]');
+  if (fd) { state.flowsDateIdx = Number(fd.dataset.flowsDate); return render(); }
 
   // 업종 비고 펼치기 (업종 헤더 토글보다 먼저 처리)
   const nt = t.closest('[data-note-toggle]');
@@ -756,8 +901,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'),
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;

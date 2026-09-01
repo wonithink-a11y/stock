@@ -12,6 +12,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["research/strategy-lab/dashboard/serve.py", "--port", "8732"],
       "port": 8732
+    },
+    {
+      "name": "stock-dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8733", "--directory", "docs"],
+      "port": 8733
     }
   ]
 }
