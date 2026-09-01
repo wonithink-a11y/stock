@@ -783,6 +783,34 @@ Validated against
               아니라고 스크립트에 명시. 결과: 수급 기준일 08-14→08-31
               (17일 격차 해소), 가격·수급 둘 다 "오늘 대비 하루 이틀" 수준
               신선도로 회복.
+              ★ 같은 세션 마지막 후속 — 사용자가 ChatGPT 조사(pykrxauth·
+              KRX 공식 Open API 언급)를 전달해 "ETN 375종목 가격·ETF/ETN
+              수급 여전히 막힘" 두 항목을 재검증. 결론이 둘 다 갈렸다:
+              (1) **pykrxauth는 실제로 안 맞다** — 그 저장소 소스를 직접
+              열어보니 ETF/ETN 함수 목록이 원본 pykrx와 완전히 동일(인증
+              세션만 고친 포크, ETN 가격조회 함수 자체가 없음 - GitHub
+              최신 pykrx도 확인, 과거에 있었다가 없어진 게 아니라 원래
+              없었다). (2) **대신 이 프로젝트가 이미 쓰던 KRX 공식 Open
+              API(`KRX_OPENAPI_KEY`, `fetch_krx_etf.py`가 이미
+              `etp/etn_bydd_trd`로 당일 스냅샷을 받고 있었다)가 그대로
+              풀었다** — 날짜당 1콜로 그날 ETN 전종목이 나오고 과거
+              날짜도 그대로 조회됨을 실측(2021-06-01까지, 이후 전체
+              백필로 재확인). `scripts/build-etn-price-history.py` +
+              `.github/workflows/build-etn-price-history.yml`로 구현,
+              수동 트리거 3회(5분·30분·5분)로 **2019-01-01~2026-08-31
+              전체 1,881거래일 완전 백필**(빠진 날짜 0건, API 속도제한
+              없음 확인) 완료 후 평일 17:10 KST 자동 실행으로 전환
+              (calendar.yml 17:00 KST 다음 순서). (3) **ETF/ETN 수급도
+              막힌 게 아니었다** — `pykrx.get_etf_trading_volume_and_value()`
+              가 이미 `is_etf()`로 ETF/ETN을 자동분기하는 함수인데, 로컬
+              정찰(KRX_ID/KRX_PW 없음)에서만 "LOGOUT"에 막혔던 것.
+              `probe-etf-etn-supply-demand-krx.yml`(A4가 이미 확인한
+              "Actions 환경은 KRX 로그인이 된다"는 사실의 ETF/ETN판)로
+              실제 자격증명 테스트 결과 ETF·ETN 둘 다 정상 응답 확인 —
+              새 라이브러리·새 등록 없이 기존 자격증명만으로 풀렸다.
+              production 수급 파이프라인 구축은 아직 안 함(정찰만 완료,
+              다음 결정 대상). findings 없음(이 프로젝트 리서치 트랙이
+              아니라 인프라 트랙이라 CLAUDE.md에 직접 기록).
               검증 (2026-08-24) — 재개 전 코드를 직접 확인해보니 "+13.90%로
               재검증됨"이라던 사전점검(`lowmom60_institutional_eligible_
               precheck_v2_absolute.py`)이 실은 A4 기관수급 데이터를 전혀
