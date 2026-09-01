@@ -1072,6 +1072,12 @@ function renderIntradayDetail(code, name) {
   const typeCtrl = ['candle', 'line'].map(t =>
     `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
   const todayStr = new Date().toISOString().slice(0, 10);
+  // KIS 날짜지정 분봉조회는 오늘 기준 약 1년 전까지만 준다(실측 2026-09-01,
+  // 롤링 윈도우라 매일 밀림) - 그 이전은 에러 없이 조용히 빈 데이터만 온다.
+  // 여유 5일 두고 min을 걸어 헛조회를 막는다.
+  const minDate = new Date();
+  minDate.setDate(minDate.getDate() - 360);
+  const minStr = minDate.toISOString().slice(0, 10);
   const dateVal = state.live.date
     ? `${state.live.date.slice(0, 4)}-${state.live.date.slice(4, 6)}-${state.live.date.slice(6, 8)}`
     : todayStr;
@@ -1091,7 +1097,8 @@ function renderIntradayDetail(code, name) {
     <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
       <button data-live-date="today" class="chip ${isToday ? 'active' : ''}">오늘(실시간)</button>
-      <input type="date" id="liveDateInput" value="${dateVal}" max="${todayStr}"
+      <input type="date" id="liveDateInput" value="${dateVal}" max="${todayStr}" min="${minStr}"
+        title="KIS 분봉 조회는 최근 약 1년까지만 가능합니다"
         style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px" />
     </div>
     <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">${countLabel}</span></h2>
