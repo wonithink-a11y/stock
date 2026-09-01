@@ -1,1237 +1,7093 @@
 {
-  "description": "분석 대상 관심종목. market: 'KR'(한국, 6자리 코드) 또는 'US'(미국, 티커). groups로 대시보드에서 필터링됩니다. ※ 한국 종목의 버핏/린치 그룹은 '스타일'(기준 부합 종목 예시)이고, buffett-holdings는 버크셔 13F 공시 기반 실제 보유종목입니다(2026 Q1 기준 - 분기마다 13F 확인 후 갱신 권장). 연기금 그룹은 국민연금 5%+ 보유로 알려진 예시 - DART 대량보유상황보고로 확인하세요. ※ 2026-07-19 코스피 시가총액 상위 100종목으로 확대(기준일 2026-07-16 종가, 코스닥 제외, 우선주 제외). 유니버스 기준을 바꾸면 백테스트 연속성이 끊기므로 universeVersion을 함께 올릴 것.",
-  "universeVersion": "2026-07-30-kospi100-sp40",
-  "universeRule": "[KR] 코스피 시가총액 상위 100 (보통주, 코스닥·우선주 제외). [US] S&P500 구성종목 중 시가총액 상위 40 + 버핏 13F 보유분(AXP). ADR·비S&P 종목(TSM·ASML·ARM·HSBC 등)은 10-K 미제출로 SEC XBRL 폴백이 안 되고 회계기준도 달라 제외. 재선정 시 marketCapRank를 갱신하고 universeVersion을 새로 부여할 것.",
-  "universeAsOf": "2026-07-30",
-  "groupLabels": {
-    "index-core": "지수 대표(KR)",
-    "us-core": "지수 대표(US)",
-    "buffett-holdings": "버핏 실제 보유 (13F)",
-    "buffett-style": "버핏 스타일 (고ROE·저부채·주주환원)",
-    "lynch-style": "린치 스타일 (저PEG 성장)",
-    "pension": "연기금 고지분 (국민연금 5%+)",
-    "kospi100": "코스피 시총 100",
-    "sp40": "S&P 시총 40"
+ "description": "분석 대상 관심종목. market: 'KR'(한국, 6자리 코드) 또는 'US'(미국, 티커). groups로 대시보드에서 필터링됩니다. ※ 한국 종목의 버핏/린치 그룹은 '스타일'(기준 부합 종목 예시)이고, buffett-holdings는 버크셔 13F 공시 기반 실제 보유종목입니다(2026 Q1 기준 - 분기마다 13F 확인 후 갱신 권장). 연기금 그룹은 국민연금 5%+ 보유로 알려진 예시 - DART 대량보유상황보고로 확인하세요. ※ 2026-07-19 코스피 시가총액 상위 100종목으로 확대(기준일 2026-07-16 종가, 코스닥 제외, 우선주 제외). 유니버스 기준을 바꾸면 백테스트 연속성이 끊기므로 universeVersion을 함께 올릴 것.",
+ "universeVersion": "2026-09-01-kospi200-kosdaq150-sp500-nasdaq100",
+ "universeRule": "[KR] 코스피200 + 코스닥150 전체(KRX 공식 구성종목). [US] S&P500 + 나스닥100 전체(위키피디아 구성종목). 기존 kospi100/sp40 태그는 과거 백테스트 라벨 보존용으로 남겨둔다.",
+ "universeAsOf": "2026-09-01",
+ "groupLabels": {
+  "index-core": "지수 대표(KR)",
+  "us-core": "지수 대표(US)",
+  "buffett-holdings": "버핏 실제 보유 (13F)",
+  "buffett-style": "버핏 스타일 (고ROE·저부채·주주환원)",
+  "lynch-style": "린치 스타일 (저PEG 성장)",
+  "pension": "연기금 고지분 (국민연금 5%+)",
+  "kospi100": "코스피 시총 100",
+  "sp40": "S&P 시총 40",
+  "kosdaq150": "코스닥 150",
+  "sp500": "S&P 500",
+  "nasdaq100": "나스닥 100"
+ },
+ "tickers": [
+  {
+   "code": "000080",
+   "name": "하이트진로",
+   "market": "KR",
+   "groups": []
   },
-  "tickers": [
-    {
-      "code": "005930",
-      "name": "삼성전자",
-      "market": "KR",
-      "groups": [
-        "index-core",
-        "pension",
-        "buffett-style",
-        "kospi100"
-      ],
-      "marketCapRank": 1
-    },
-    {
-      "code": "000660",
-      "name": "SK하이닉스",
-      "market": "KR",
-      "groups": [
-        "index-core",
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 2
-    },
-    {
-      "code": "402340",
-      "name": "SK스퀘어",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 3
-    },
-    {
-      "code": "005380",
-      "name": "현대차",
-      "market": "KR",
-      "groups": [
-        "index-core",
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 4
-    },
-    {
-      "code": "009150",
-      "name": "삼성전기",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 5
-    },
-    {
-      "code": "373220",
-      "name": "LG에너지솔루션",
-      "market": "KR",
-      "groups": [
-        "index-core",
-        "kospi100"
-      ],
-      "marketCapRank": 6
-    },
-    {
-      "code": "032830",
-      "name": "삼성생명",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 7
-    },
-    {
-      "code": "207940",
-      "name": "삼성바이오로직스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 8
-    },
-    {
-      "code": "105560",
-      "name": "KB금융",
-      "market": "KR",
-      "groups": [
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 9
-    },
-    {
-      "code": "000270",
-      "name": "기아",
-      "market": "KR",
-      "groups": [
-        "buffett-style",
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 10
-    },
-    {
-      "code": "028260",
-      "name": "삼성물산",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 11
-    },
-    {
-      "code": "055550",
-      "name": "신한지주",
-      "market": "KR",
-      "groups": [
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 12
-    },
-    {
-      "code": "329180",
-      "name": "HD현대중공업",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 13
-    },
-    {
-      "code": "012450",
-      "name": "한화에어로스페이스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 14
-    },
-    {
-      "code": "034020",
-      "name": "두산에너빌리티",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 15
-    },
-    {
-      "code": "012330",
-      "name": "현대모비스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 16
-    },
-    {
-      "code": "034730",
-      "name": "SK",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 17
-    },
-    {
-      "code": "068270",
-      "name": "셀트리온",
-      "market": "KR",
-      "groups": [
-        "lynch-style",
-        "kospi100"
-      ],
-      "marketCapRank": 18
-    },
-    {
-      "code": "086790",
-      "name": "하나금융지주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 19
-    },
-    {
-      "code": "006400",
-      "name": "삼성SDI",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 20
-    },
-    {
-      "code": "000810",
-      "name": "삼성화재",
-      "market": "KR",
-      "groups": [
-        "buffett-style",
-        "kospi100"
-      ],
-      "marketCapRank": 21
-    },
-    {
-      "code": "066570",
-      "name": "LG전자",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 22
-    },
-    {
-      "code": "035420",
-      "name": "NAVER",
-      "market": "KR",
-      "groups": [
-        "lynch-style",
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 23
-    },
-    {
-      "code": "267260",
-      "name": "HD현대일렉트릭",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 24
-    },
-    {
-      "code": "010120",
-      "name": "LS ELECTRIC",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 25
-    },
-    {
-      "code": "042660",
-      "name": "한화오션",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 26
-    },
-    {
-      "code": "298040",
-      "name": "효성중공업",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 27
-    },
-    {
-      "code": "009540",
-      "name": "HD한국조선해양",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 28
-    },
-    {
-      "code": "005490",
-      "name": "POSCO홀딩스",
-      "market": "KR",
-      "groups": [
-        "pension",
-        "kospi100"
-      ],
-      "marketCapRank": 29
-    },
-    {
-      "code": "006800",
-      "name": "미래에셋증권",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 30
-    },
-    {
-      "code": "042700",
-      "name": "한미반도체",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 31
-    },
-    {
-      "code": "316140",
-      "name": "우리금융지주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 32
-    },
-    {
-      "code": "015760",
-      "name": "한국전력",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 33
-    },
-    {
-      "code": "010130",
-      "name": "고려아연",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 34
-    },
-    {
-      "code": "000150",
-      "name": "두산",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 35
-    },
-    {
-      "code": "096770",
-      "name": "SK이노베이션",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 36
-    },
-    {
-      "code": "010140",
-      "name": "삼성중공업",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 37
-    },
-    {
-      "code": "051910",
-      "name": "LG화학",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 38
-    },
-    {
-      "code": "017670",
-      "name": "SK텔레콤",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 39
-    },
-    {
-      "code": "011200",
-      "name": "HMM",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 40
-    },
-    {
-      "code": "033780",
-      "name": "KT&G",
-      "market": "KR",
-      "groups": [
-        "buffett-style",
-        "kospi100"
-      ],
-      "marketCapRank": 41
-    },
-    {
-      "code": "064350",
-      "name": "현대로템",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 42
-    },
-    {
-      "code": "024110",
-      "name": "기업은행",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 43
-    },
-    {
-      "code": "010950",
-      "name": "S-Oil",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 44
-    },
-    {
-      "code": "079550",
-      "name": "LIG넥스원",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 45
-    },
-    {
-      "code": "267250",
-      "name": "HD현대",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 46
-    },
-    {
-      "code": "035720",
-      "name": "카카오",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 47
-    },
-    {
-      "code": "011070",
-      "name": "LG이노텍",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 48
-    },
-    {
-      "code": "018260",
-      "name": "삼성에스디에스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 49
-    },
-    {
-      "code": "003550",
-      "name": "LG",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 50
-    },
-    {
-      "code": "278470",
-      "name": "에이피알",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 52
-    },
-    {
-      "code": "047810",
-      "name": "한국항공우주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 53
-    },
-    {
-      "code": "086280",
-      "name": "현대글로비스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 54
-    },
-    {
-      "code": "071050",
-      "name": "한국금융지주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 55
-    },
-    {
-      "code": "030200",
-      "name": "KT",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 56
-    },
-    {
-      "code": "003670",
-      "name": "포스코퓨처엠",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 57
-    },
-    {
-      "code": "272210",
-      "name": "한화시스템",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 58
-    },
-    {
-      "code": "005940",
-      "name": "NH투자증권",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 59
-    },
-    {
-      "code": "259960",
-      "name": "크래프톤",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 60
-    },
-    {
-      "code": "000720",
-      "name": "현대건설",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 61
-    },
-    {
-      "code": "323410",
-      "name": "카카오뱅크",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 63
-    },
-    {
-      "code": "307950",
-      "name": "현대오토에버",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 65
-    },
-    {
-      "code": "005830",
-      "name": "DB손해보험",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 66
-    },
-    {
-      "code": "0126Z0",
-      "name": "삼성에피스홀딩스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 67
-    },
-    {
-      "code": "003490",
-      "name": "대한항공",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 68
-    },
-    {
-      "code": "016360",
-      "name": "삼성증권",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 69
-    },
-    {
-      "code": "161390",
-      "name": "한국타이어앤테크놀로지",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 70
-    },
-    {
-      "code": "443060",
-      "name": "HD현대마린솔루션",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 71
-    },
-    {
-      "code": "352820",
-      "name": "하이브",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 72
-    },
-    {
-      "code": "006260",
-      "name": "LS",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 73
-    },
-    {
-      "code": "047050",
-      "name": "포스코인터내셔널",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 74
-    },
-    {
-      "code": "039490",
-      "name": "키움증권",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 76
-    },
-    {
-      "code": "003230",
-      "name": "삼양식품",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 77
-    },
-    {
-      "code": "028050",
-      "name": "삼성E&A",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 78
-    },
-    {
-      "code": "078930",
-      "name": "GS",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 79
-    },
-    {
-      "code": "090430",
-      "name": "아모레퍼시픽",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 81
-    },
-    {
-      "code": "180640",
-      "name": "한진칼",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 82
-    },
-    {
-      "code": "000880",
-      "name": "한화",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 83
-    },
-    {
-      "code": "353200",
-      "name": "대덕전자",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 85
-    },
-    {
-      "code": "021240",
-      "name": "코웨이",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 86
-    },
-    {
-      "code": "007660",
-      "name": "이수페타시스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 87
-    },
-    {
-      "code": "064400",
-      "name": "LG씨엔에스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 88
-    },
-    {
-      "code": "267270",
-      "name": "HD건설기계",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 89
-    },
-    {
-      "code": "047040",
-      "name": "대우건설",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 90
-    },
-    {
-      "code": "326030",
-      "name": "SK바이오팜",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 91
-    },
-    {
-      "code": "032640",
-      "name": "LG유플러스",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 92
-    },
-    {
-      "code": "241560",
-      "name": "두산밥캣",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 93
-    },
-    {
-      "code": "000100",
-      "name": "유한양행",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 94
-    },
-    {
-      "code": "138930",
-      "name": "BNK금융지주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 95
-    },
-    {
-      "code": "004170",
-      "name": "신세계",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 97
-    },
-    {
-      "code": "377300",
-      "name": "카카오페이",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 98
-    },
-    {
-      "code": "029780",
-      "name": "삼성카드",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 100
-    },
-    {
-      "code": "001440",
-      "name": "대한전선",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 101
-    },
-    {
-      "code": "034220",
-      "name": "LG디스플레이",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 102
-    },
-    {
-      "code": "062040",
-      "name": "산일전기",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 103
-    },
-    {
-      "code": "175330",
-      "name": "JB금융지주",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 104
-    },
-    {
-      "code": "271560",
-      "name": "오리온",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 105
-    },
-    {
-      "code": "128940",
-      "name": "한미약품",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 106
-    },
-    {
-      "code": "088980",
-      "name": "맥쿼리인프라",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 107
-    },
-    {
-      "code": "036570",
-      "name": "엔씨소프트",
-      "market": "KR",
-      "groups": [
-        "kospi100"
-      ],
-      "marketCapRank": 108
-    },
-    {
-      "code": "NVDA",
-      "name": "엔비디아",
-      "market": "US",
-      "groups": ["us-core", "sp40"],
-      "marketCapRank": 1
-    },
-    {
-      "code": "AAPL",
-      "name": "애플",
-      "market": "US",
-      "groups": ["buffett-holdings", "us-core", "sp40"],
-      "marketCapRank": 2
-    },
-    {
-      "code": "GOOGL",
-      "name": "알파벳",
-      "market": "US",
-      "groups": ["buffett-holdings", "us-core", "sp40"],
-      "marketCapRank": 3
-    },
-    {
-      "code": "MSFT",
-      "name": "마이크로소프트",
-      "market": "US",
-      "groups": ["us-core", "sp40"],
-      "marketCapRank": 4
-    },
-    {
-      "code": "AMZN",
-      "name": "아마존",
-      "market": "US",
-      "groups": ["us-core", "sp40"],
-      "marketCapRank": 5
-    },
-    {
-      "code": "AVGO",
-      "name": "브로드컴",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 7
-    },
-    {
-      "code": "META",
-      "name": "메타",
-      "market": "US",
-      "groups": ["us-core", "sp40"],
-      "marketCapRank": 9
-    },
-    {
-      "code": "TSLA",
-      "name": "테슬라",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 10
-    },
-    {
-      "code": "BRK-B",
-      "name": "버크셔해서웨이B",
-      "market": "US",
-      "groups": ["buffett-holdings", "sp40"],
-      "marketCapRank": 11
-    },
-    {
-      "code": "LLY",
-      "name": "일라이릴리",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 12
-    },
-    {
-      "code": "MU",
-      "name": "마이크론",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 13
-    },
-    {
-      "code": "JPM",
-      "name": "JP모건체이스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 14
-    },
-    {
-      "code": "WMT",
-      "name": "월마트",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 16
-    },
-    {
-      "code": "AMD",
-      "name": "AMD",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 17
-    },
-    {
-      "code": "V",
-      "name": "비자",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 19
-    },
-    {
-      "code": "XOM",
-      "name": "엑슨모빌",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 20
-    },
-    {
-      "code": "JNJ",
-      "name": "존슨앤드존슨",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 21
-    },
-    {
-      "code": "MA",
-      "name": "마스터카드",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 22
-    },
-    {
-      "code": "INTC",
-      "name": "인텔",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 23
-    },
-    {
-      "code": "ABBV",
-      "name": "애브비",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 24
-    },
-    {
-      "code": "CSCO",
-      "name": "시스코",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 25
-    },
-    {
-      "code": "BAC",
-      "name": "뱅크오브아메리카",
-      "market": "US",
-      "groups": ["buffett-holdings", "sp40"],
-      "marketCapRank": 26
-    },
-    {
-      "code": "AMAT",
-      "name": "어플라이드머티리얼즈",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 27
-    },
-    {
-      "code": "COST",
-      "name": "코스트코",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 28
-    },
-    {
-      "code": "CAT",
-      "name": "캐터필러",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 29
-    },
-    {
-      "code": "CVX",
-      "name": "셰브론",
-      "market": "US",
-      "groups": ["buffett-holdings", "sp40"],
-      "marketCapRank": 30
-    },
-    {
-      "code": "UNH",
-      "name": "유나이티드헬스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 31
-    },
-    {
-      "code": "LRCX",
-      "name": "램리서치",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 32
-    },
-    {
-      "code": "GE",
-      "name": "GE에어로스페이스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 33
-    },
-    {
-      "code": "KO",
-      "name": "코카콜라",
-      "market": "US",
-      "groups": ["buffett-holdings", "sp40"],
-      "marketCapRank": 35
-    },
-    {
-      "code": "PG",
-      "name": "프록터앤드갬블",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 36
-    },
-    {
-      "code": "MS",
-      "name": "모건스탠리",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 37
-    },
-    {
-      "code": "HD",
-      "name": "홈디포",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 38
-    },
-    {
-      "code": "ORCL",
-      "name": "오라클",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 39
-    },
-    {
-      "code": "GS",
-      "name": "골드만삭스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 40
-    },
-    {
-      "code": "MRK",
-      "name": "머크",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 41
-    },
-    {
-      "code": "PM",
-      "name": "필립모리스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 42
-    },
-    {
-      "code": "PLTR",
-      "name": "팔란티어",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 44
-    },
-    {
-      "code": "NFLX",
-      "name": "넷플릭스",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 45
-    },
-    {
-      "code": "RTX",
-      "name": "RTX",
-      "market": "US",
-      "groups": ["sp40"],
-      "marketCapRank": 47
-    },
-    {
-      "code": "AXP",
-      "name": "아메리칸익스프레스",
-      "market": "US",
-      "groups": ["buffett-holdings"],
-      "marketCapRank": 61
-    },
-    {
-      "code": "DAL",
-      "name": "델타항공",
-      "market": "US",
-      "groups": ["buffett-holdings"],
-      "marketCapRank": 180
-    },
-    {
-      "code": "M",
-      "name": "메이시스",
-      "market": "US",
-      "groups": ["buffett-holdings"],
-      "marketCapRank": 480
-    }
-  ]
+  {
+   "code": "000100",
+   "name": "유한양행",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 94
+  },
+  {
+   "code": "000120",
+   "name": "CJ대한통운",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "000150",
+   "name": "두산",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 35
+  },
+  {
+   "code": "000210",
+   "name": "DL",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "000240",
+   "name": "한국앤컴퍼니",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "000250",
+   "name": "삼천당제약",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "000270",
+   "name": "기아",
+   "market": "KR",
+   "groups": [
+    "buffett-style",
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 10
+  },
+  {
+   "code": "000660",
+   "name": "SK하이닉스",
+   "market": "KR",
+   "groups": [
+    "index-core",
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 2
+  },
+  {
+   "code": "000670",
+   "name": "영풍",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "000720",
+   "name": "현대건설",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 61
+  },
+  {
+   "code": "000810",
+   "name": "삼성화재",
+   "market": "KR",
+   "groups": [
+    "buffett-style",
+    "kospi100"
+   ],
+   "marketCapRank": 21
+  },
+  {
+   "code": "000880",
+   "name": "한화",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 83
+  },
+  {
+   "code": "000990",
+   "name": "DB하이텍",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "0009K0",
+   "name": "에임드바이오",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "001040",
+   "name": "CJ",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "001430",
+   "name": "세아베스틸지주",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "001440",
+   "name": "대한전선",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 101
+  },
+  {
+   "code": "001450",
+   "name": "현대해상",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "001680",
+   "name": "대상",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "001800",
+   "name": "오리온홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "002030",
+   "name": "아세아",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "002380",
+   "name": "KCC",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "002790",
+   "name": "아모레퍼시픽홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "002840",
+   "name": "미원상사",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "003030",
+   "name": "세아제강지주",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "003090",
+   "name": "대웅",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "003230",
+   "name": "삼양식품",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 77
+  },
+  {
+   "code": "003240",
+   "name": "태광산업",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "003380",
+   "name": "하림지주",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "003490",
+   "name": "대한항공",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 68
+  },
+  {
+   "code": "003550",
+   "name": "LG",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 50
+  },
+  {
+   "code": "003670",
+   "name": "포스코퓨처엠",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 57
+  },
+  {
+   "code": "004000",
+   "name": "롯데정밀화학",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "004020",
+   "name": "현대제철",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "004170",
+   "name": "신세계",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 97
+  },
+  {
+   "code": "004370",
+   "name": "농심",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "004990",
+   "name": "롯데지주",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "005290",
+   "name": "동진쎄미켐",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "005300",
+   "name": "롯데칠성",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "005380",
+   "name": "현대차",
+   "market": "KR",
+   "groups": [
+    "index-core",
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 4
+  },
+  {
+   "code": "005420",
+   "name": "코스모화학",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "005490",
+   "name": "POSCO홀딩스",
+   "market": "KR",
+   "groups": [
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 29
+  },
+  {
+   "code": "005830",
+   "name": "DB손해보험",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 66
+  },
+  {
+   "code": "005850",
+   "name": "에스엘",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "005930",
+   "name": "삼성전자",
+   "market": "KR",
+   "groups": [
+    "index-core",
+    "pension",
+    "buffett-style",
+    "kospi100"
+   ],
+   "marketCapRank": 1
+  },
+  {
+   "code": "005940",
+   "name": "NH투자증권",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 59
+  },
+  {
+   "code": "006040",
+   "name": "동원산업",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "006260",
+   "name": "LS",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 73
+  },
+  {
+   "code": "006280",
+   "name": "녹십자",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "006400",
+   "name": "삼성SDI",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 20
+  },
+  {
+   "code": "006650",
+   "name": "대한유화",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "006730",
+   "name": "서부T&D",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "006800",
+   "name": "미래에셋증권",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 30
+  },
+  {
+   "code": "007070",
+   "name": "GS리테일",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "007310",
+   "name": "오뚜기",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "007340",
+   "name": "DN오토모티브",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "007390",
+   "name": "네이처셀",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "007660",
+   "name": "이수페타시스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 87
+  },
+  {
+   "code": "008730",
+   "name": "율촌화학",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "008770",
+   "name": "호텔신라",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "008930",
+   "name": "한미사이언스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "009150",
+   "name": "삼성전기",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 5
+  },
+  {
+   "code": "009240",
+   "name": "한샘",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "009420",
+   "name": "한올바이오파마",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "009520",
+   "name": "포스코엠텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "009540",
+   "name": "HD한국조선해양",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 28
+  },
+  {
+   "code": "009830",
+   "name": "한화솔루션",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "009970",
+   "name": "영원무역홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "010060",
+   "name": "OCI홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "010120",
+   "name": "LS ELECTRIC",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 25
+  },
+  {
+   "code": "010130",
+   "name": "고려아연",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 34
+  },
+  {
+   "code": "010140",
+   "name": "삼성중공업",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 37
+  },
+  {
+   "code": "010950",
+   "name": "S-Oil",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 44
+  },
+  {
+   "code": "011070",
+   "name": "LG이노텍",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 48
+  },
+  {
+   "code": "011170",
+   "name": "롯데케미칼",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "011200",
+   "name": "HMM",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 40
+  },
+  {
+   "code": "011210",
+   "name": "현대위아",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "011780",
+   "name": "금호석유화학",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "011790",
+   "name": "SKC",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "012330",
+   "name": "현대모비스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 16
+  },
+  {
+   "code": "012450",
+   "name": "한화에어로스페이스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 14
+  },
+  {
+   "code": "0126Z0",
+   "name": "삼성에피스홀딩스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 67
+  },
+  {
+   "code": "012750",
+   "name": "에스원",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "014620",
+   "name": "성광벤드",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "014680",
+   "name": "한솔케미칼",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "014820",
+   "name": "동원시스템즈",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "015750",
+   "name": "성우하이텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "015760",
+   "name": "한국전력",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 33
+  },
+  {
+   "code": "016360",
+   "name": "삼성증권",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 69
+  },
+  {
+   "code": "017670",
+   "name": "SK텔레콤",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 39
+  },
+  {
+   "code": "017800",
+   "name": "현대엘리베이터",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "017960",
+   "name": "한국카본",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "018260",
+   "name": "삼성에스디에스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 49
+  },
+  {
+   "code": "018290",
+   "name": "브이티",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "018880",
+   "name": "한온시스템",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "021240",
+   "name": "코웨이",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 86
+  },
+  {
+   "code": "0220W0",
+   "name": "한화머시너리앤서비스홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "022100",
+   "name": "포스코DX",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "023530",
+   "name": "롯데쇼핑",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "024110",
+   "name": "기업은행",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 43
+  },
+  {
+   "code": "025320",
+   "name": "시노펙스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "025900",
+   "name": "동화기업",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "025980",
+   "name": "아난티",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "026960",
+   "name": "동서",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "028050",
+   "name": "삼성E&A",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 78
+  },
+  {
+   "code": "028260",
+   "name": "삼성물산",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 11
+  },
+  {
+   "code": "028300",
+   "name": "HLB",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "028670",
+   "name": "팬오션",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "029780",
+   "name": "삼성카드",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 100
+  },
+  {
+   "code": "030000",
+   "name": "제일기획",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "030200",
+   "name": "KT",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 56
+  },
+  {
+   "code": "030520",
+   "name": "한컴",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "030530",
+   "name": "원익홀딩스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "031980",
+   "name": "피에스케이홀딩스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "032190",
+   "name": "다우데이타",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "032500",
+   "name": "케이엠더블유",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "032640",
+   "name": "LG유플러스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 92
+  },
+  {
+   "code": "032820",
+   "name": "우리기술",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "032830",
+   "name": "삼성생명",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 7
+  },
+  {
+   "code": "033100",
+   "name": "제룡전기",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "033500",
+   "name": "동성화인텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "033780",
+   "name": "KT&G",
+   "market": "KR",
+   "groups": [
+    "buffett-style",
+    "kospi100"
+   ],
+   "marketCapRank": 41
+  },
+  {
+   "code": "034020",
+   "name": "두산에너빌리티",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 15
+  },
+  {
+   "code": "034220",
+   "name": "LG디스플레이",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 102
+  },
+  {
+   "code": "034230",
+   "name": "파라다이스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "034730",
+   "name": "SK",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 17
+  },
+  {
+   "code": "035250",
+   "name": "강원랜드",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "035420",
+   "name": "NAVER",
+   "market": "KR",
+   "groups": [
+    "lynch-style",
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 23
+  },
+  {
+   "code": "035720",
+   "name": "카카오",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 47
+  },
+  {
+   "code": "035760",
+   "name": "CJ ENM",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "035900",
+   "name": "JYP Ent.",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "036460",
+   "name": "한국가스공사",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "036540",
+   "name": "SFA반도체",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "036570",
+   "name": "엔씨소프트",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 108
+  },
+  {
+   "code": "036620",
+   "name": "감성코퍼레이션",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "036810",
+   "name": "에프에스티",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "036830",
+   "name": "솔브레인홀딩스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "036930",
+   "name": "주성엔지니어링",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "038500",
+   "name": "삼표시멘트",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "039030",
+   "name": "이오테크닉스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "039200",
+   "name": "오스코텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "039490",
+   "name": "키움증권",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 76
+  },
+  {
+   "code": "041190",
+   "name": "우리기술투자",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "041510",
+   "name": "에스엠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "042000",
+   "name": "카페24",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "042660",
+   "name": "한화오션",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 26
+  },
+  {
+   "code": "042700",
+   "name": "한미반도체",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 31
+  },
+  {
+   "code": "043260",
+   "name": "성호전자",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "047040",
+   "name": "대우건설",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 90
+  },
+  {
+   "code": "047050",
+   "name": "포스코인터내셔널",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 74
+  },
+  {
+   "code": "047810",
+   "name": "한국항공우주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 53
+  },
+  {
+   "code": "048410",
+   "name": "현대바이오",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "050890",
+   "name": "쏠리드",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "051600",
+   "name": "한전KPS",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "051900",
+   "name": "LG생활건강",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "051910",
+   "name": "LG화학",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 38
+  },
+  {
+   "code": "052400",
+   "name": "코나아이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "052690",
+   "name": "한전기술",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "053800",
+   "name": "안랩",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "055550",
+   "name": "신한지주",
+   "market": "KR",
+   "groups": [
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 12
+  },
+  {
+   "code": "056080",
+   "name": "유진로봇",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "056190",
+   "name": "SFA",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "058470",
+   "name": "리노공업",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "058610",
+   "name": "에스피지",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "060250",
+   "name": "NHN KCP",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "060280",
+   "name": "큐렉소",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "060370",
+   "name": "LS마린솔루션",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "062040",
+   "name": "산일전기",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 103
+  },
+  {
+   "code": "064350",
+   "name": "현대로템",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 42
+  },
+  {
+   "code": "064400",
+   "name": "LG씨엔에스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 88
+  },
+  {
+   "code": "064760",
+   "name": "티씨케이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "065350",
+   "name": "신성델타테크",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "066570",
+   "name": "LG전자",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 22
+  },
+  {
+   "code": "066970",
+   "name": "엘앤에프",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "067160",
+   "name": "SOOP",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "067310",
+   "name": "하나마이크론",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "068270",
+   "name": "셀트리온",
+   "market": "KR",
+   "groups": [
+    "lynch-style",
+    "kospi100"
+   ],
+   "marketCapRank": 18
+  },
+  {
+   "code": "068760",
+   "name": "셀트리온제약",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "069080",
+   "name": "웹젠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "069260",
+   "name": "TKG휴켐스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "069620",
+   "name": "대웅제약",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "069960",
+   "name": "현대백화점",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "071050",
+   "name": "한국금융지주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 55
+  },
+  {
+   "code": "071320",
+   "name": "지역난방공사",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "071970",
+   "name": "HD현대마린엔진",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "073240",
+   "name": "금호타이어",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "074600",
+   "name": "원익QnC",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "078340",
+   "name": "컴투스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "078600",
+   "name": "대주전자재료",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "078930",
+   "name": "GS",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 79
+  },
+  {
+   "code": "079550",
+   "name": "LIG넥스원",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 45
+  },
+  {
+   "code": "080220",
+   "name": "제주반도체",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "081660",
+   "name": "미스토홀딩스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "082270",
+   "name": "젬백스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "082740",
+   "name": "한화엔진",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "082920",
+   "name": "비츠로셀",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "083650",
+   "name": "비에이치아이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "084370",
+   "name": "유진테크",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "085660",
+   "name": "차바이오텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "086280",
+   "name": "현대글로비스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 54
+  },
+  {
+   "code": "086520",
+   "name": "에코프로",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "086790",
+   "name": "하나금융지주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 19
+  },
+  {
+   "code": "087010",
+   "name": "펩트론",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "088350",
+   "name": "한화생명",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "088980",
+   "name": "맥쿼리인프라",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 107
+  },
+  {
+   "code": "089030",
+   "name": "테크윙",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "089970",
+   "name": "브이엠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "090360",
+   "name": "로보스타",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "090430",
+   "name": "아모레퍼시픽",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 81
+  },
+  {
+   "code": "090710",
+   "name": "휴림로봇",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "093370",
+   "name": "후성",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "095340",
+   "name": "ISC",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "095610",
+   "name": "테스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "095660",
+   "name": "네오위즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "096530",
+   "name": "씨젠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "096770",
+   "name": "SK이노베이션",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 36
+  },
+  {
+   "code": "097950",
+   "name": "CJ제일제당",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "098460",
+   "name": "고영",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "099320",
+   "name": "쎄트렉아이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "100790",
+   "name": "미래에셋벤처투자",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "101490",
+   "name": "에스앤에스텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "101730",
+   "name": "위메이드맥스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "103140",
+   "name": "풍산",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "105560",
+   "name": "KB금융",
+   "market": "KR",
+   "groups": [
+    "pension",
+    "kospi100"
+   ],
+   "marketCapRank": 9
+  },
+  {
+   "code": "108490",
+   "name": "로보티즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "111770",
+   "name": "영원무역",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "112040",
+   "name": "위메이드",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "112610",
+   "name": "씨에스윈드",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "120110",
+   "name": "코오롱인더",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "121600",
+   "name": "나노신소재",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "122870",
+   "name": "와이지엔터테인먼트",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "124500",
+   "name": "아이티센글로벌",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "125490",
+   "name": "한라캐스트",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "128940",
+   "name": "한미약품",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 106
+  },
+  {
+   "code": "131290",
+   "name": "티에스이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "131970",
+   "name": "두산테스나",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "137310",
+   "name": "에스디바이오센서",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "137400",
+   "name": "피엔티",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "138040",
+   "name": "메리츠금융지주",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "138930",
+   "name": "BNK금융지주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 95
+  },
+  {
+   "code": "139130",
+   "name": "iM금융지주",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "139480",
+   "name": "이마트",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "140860",
+   "name": "파크시스템스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "141080",
+   "name": "리가켐바이오",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "145020",
+   "name": "휴젤",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "161390",
+   "name": "한국타이어앤테크놀로지",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 70
+  },
+  {
+   "code": "161580",
+   "name": "필옵틱스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "161890",
+   "name": "한국콜마",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "166090",
+   "name": "하나머티리얼즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "171090",
+   "name": "선익시스템",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "175330",
+   "name": "JB금융지주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 104
+  },
+  {
+   "code": "178320",
+   "name": "서진시스템",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "180640",
+   "name": "한진칼",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 82
+  },
+  {
+   "code": "183300",
+   "name": "코미코",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "185750",
+   "name": "종근당",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "189300",
+   "name": "인텔리안테크",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "192080",
+   "name": "더블유게임즈",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "192820",
+   "name": "코스맥스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "194480",
+   "name": "데브시스터즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "195940",
+   "name": "HK이노엔",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "196170",
+   "name": "알테오젠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "204270",
+   "name": "제이앤티씨",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "204320",
+   "name": "HL만도",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "207940",
+   "name": "삼성바이오로직스",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 8
+  },
+  {
+   "code": "211050",
+   "name": "인카금융서비스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "213420",
+   "name": "덕산네오룩스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "214150",
+   "name": "클래시스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "214370",
+   "name": "케어젠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "214430",
+   "name": "아이쓰리시스템",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "214450",
+   "name": "파마리서치",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "215200",
+   "name": "메가스터디교육",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "218410",
+   "name": "RFHIC",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "222080",
+   "name": "SFA넥셀",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "222800",
+   "name": "심텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "225570",
+   "name": "넥슨게임즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "226950",
+   "name": "올릭스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "232140",
+   "name": "와이씨",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "237690",
+   "name": "에스티팜",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "240810",
+   "name": "원익IPS",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "241560",
+   "name": "두산밥캣",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 93
+  },
+  {
+   "code": "241710",
+   "name": "코스메카코리아",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "247540",
+   "name": "에코프로비엠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "251270",
+   "name": "넷마블",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "251970",
+   "name": "펌텍코리아",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "253450",
+   "name": "스튜디오드래곤",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "253590",
+   "name": "네오셈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "257720",
+   "name": "실리콘투",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "259960",
+   "name": "크래프톤",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 60
+  },
+  {
+   "code": "263750",
+   "name": "펄어비스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "267250",
+   "name": "HD현대",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 46
+  },
+  {
+   "code": "267260",
+   "name": "HD현대일렉트릭",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 24
+  },
+  {
+   "code": "267270",
+   "name": "HD건설기계",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 89
+  },
+  {
+   "code": "268280",
+   "name": "미원에스씨",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "271560",
+   "name": "오리온",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 105
+  },
+  {
+   "code": "272210",
+   "name": "한화시스템",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 58
+  },
+  {
+   "code": "272290",
+   "name": "이녹스첨단소재",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "277810",
+   "name": "레인보우로보틱스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "278280",
+   "name": "천보",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "278470",
+   "name": "에이피알",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 52
+  },
+  {
+   "code": "280360",
+   "name": "롯데웰푸드",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "281740",
+   "name": "레이크머티리얼즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "282330",
+   "name": "BGF리테일",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "285130",
+   "name": "SK케미칼",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "290650",
+   "name": "엘앤씨바이오",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "293490",
+   "name": "카카오게임즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "295310",
+   "name": "에이치브이엠",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "298020",
+   "name": "효성티앤씨",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "298040",
+   "name": "효성중공업",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 27
+  },
+  {
+   "code": "298050",
+   "name": "HS효성첨단소재",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "298380",
+   "name": "에이비엘바이오",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "300720",
+   "name": "한일시멘트",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "302440",
+   "name": "SK바이오사이언스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "307950",
+   "name": "현대오토에버",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 65
+  },
+  {
+   "code": "310210",
+   "name": "보로노이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "316140",
+   "name": "우리금융지주",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 32
+  },
+  {
+   "code": "319400",
+   "name": "현대무벡스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "319660",
+   "name": "피에스케이",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "323280",
+   "name": "태성",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "323410",
+   "name": "카카오뱅크",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 63
+  },
+  {
+   "code": "326030",
+   "name": "SK바이오팜",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 91
+  },
+  {
+   "code": "328130",
+   "name": "루닛",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "329180",
+   "name": "HD현대중공업",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 13
+  },
+  {
+   "code": "347850",
+   "name": "디앤디파마텍",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "348210",
+   "name": "넥스틴",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "348370",
+   "name": "엔켐",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "352480",
+   "name": "씨앤씨인터내셔널",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "352820",
+   "name": "하이브",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 72
+  },
+  {
+   "code": "353200",
+   "name": "대덕전자",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 85
+  },
+  {
+   "code": "357780",
+   "name": "솔브레인",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "358570",
+   "name": "지아이이노베이션",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "361610",
+   "name": "SK아이이테크놀로지",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "373220",
+   "name": "LG에너지솔루션",
+   "market": "KR",
+   "groups": [
+    "index-core",
+    "kospi100"
+   ],
+   "marketCapRank": 6
+  },
+  {
+   "code": "375500",
+   "name": "DL이앤씨",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "376300",
+   "name": "디어유",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "377300",
+   "name": "카카오페이",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 98
+  },
+  {
+   "code": "383220",
+   "name": "F&F",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "388720",
+   "name": "유일로보틱스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "399720",
+   "name": "가온칩스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "402340",
+   "name": "SK스퀘어",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 3
+  },
+  {
+   "code": "403870",
+   "name": "HPSP",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "417200",
+   "name": "LS머트리얼즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "420770",
+   "name": "기가비스",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "437730",
+   "name": "삼현",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "443060",
+   "name": "HD현대마린솔루션",
+   "market": "KR",
+   "groups": [
+    "kospi100"
+   ],
+   "marketCapRank": 71
+  },
+  {
+   "code": "445680",
+   "name": "큐리옥스바이오시스템즈",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "450080",
+   "name": "에코프로머티",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "454910",
+   "name": "두산로보틱스",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "456040",
+   "name": "OCI",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "457190",
+   "name": "이수스페셜티케미컬",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "466100",
+   "name": "클로봇",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "475830",
+   "name": "오름테라퓨틱",
+   "market": "KR",
+   "groups": [
+    "kosdaq150"
+   ]
+  },
+  {
+   "code": "483650",
+   "name": "달바글로벌",
+   "market": "KR",
+   "groups": []
+  },
+  {
+   "code": "A",
+   "name": "Agilent Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AAPL",
+   "name": "애플",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 2
+  },
+  {
+   "code": "ABBV",
+   "name": "애브비",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 24
+  },
+  {
+   "code": "ABNB",
+   "name": "Airbnb",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ABT",
+   "name": "Abbott Laboratories",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ACGL",
+   "name": "Arch Capital Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ACN",
+   "name": "Accenture",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ADBE",
+   "name": "Adobe Inc.",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ADI",
+   "name": "Analog Devices",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ADM",
+   "name": "Archer Daniels Midland",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ADP",
+   "name": "Automatic Data Processing",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ADSK",
+   "name": "Autodesk",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "AEE",
+   "name": "Ameren",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AEP",
+   "name": "American Electric Power",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "AES",
+   "name": "AES Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AFL",
+   "name": "Aflac",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AIG",
+   "name": "American International Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AIZ",
+   "name": "Assurant",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AJG",
+   "name": "Arthur J. Gallagher & Co.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AKAM",
+   "name": "Akamai Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ALAB",
+   "name": "Astera Labs",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ALB",
+   "name": "Albemarle Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ALGN",
+   "name": "Align Technology",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ALL",
+   "name": "Allstate",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ALLE",
+   "name": "Allegion",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ALNY",
+   "name": "Alnylam Pharmaceuticals",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "AMAT",
+   "name": "어플라이드머티리얼즈",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 27
+  },
+  {
+   "code": "AMCR",
+   "name": "Amcor",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AMD",
+   "name": "AMD",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 17
+  },
+  {
+   "code": "AME",
+   "name": "Ametek",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AMGN",
+   "name": "Amgen",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "AMP",
+   "name": "Ameriprise Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AMT",
+   "name": "American Tower",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AMZN",
+   "name": "아마존",
+   "market": "US",
+   "groups": [
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 5
+  },
+  {
+   "code": "ANET",
+   "name": "Arista Networks",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AON",
+   "name": "Aon plc",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AOS",
+   "name": "A. O. Smith",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "APA",
+   "name": "APA Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "APD",
+   "name": "Air Products",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "APH",
+   "name": "Amphenol",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "APO",
+   "name": "Apollo Global Management",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "APP",
+   "name": "AppLovin",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "APTV",
+   "name": "Aptiv",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ARE",
+   "name": "Alexandria Real Estate Equities",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ARES",
+   "name": "Ares Management",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ARM",
+   "name": "Arm Holdings",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ASML",
+   "name": "ASML Holding",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ATO",
+   "name": "Atmos Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AVGO",
+   "name": "브로드컴",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 7
+  },
+  {
+   "code": "AVY",
+   "name": "Avery Dennison",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AWK",
+   "name": "American Water Works",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "AXON",
+   "name": "Axon Enterprise",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "AXP",
+   "name": "아메리칸익스프레스",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp500"
+   ],
+   "marketCapRank": 61
+  },
+  {
+   "code": "AZO",
+   "name": "AutoZone",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BA",
+   "name": "Boeing",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BAC",
+   "name": "뱅크오브아메리카",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 26
+  },
+  {
+   "code": "BALL",
+   "name": "Ball Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BAX",
+   "name": "Baxter International",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BBY",
+   "name": "Best Buy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BDX",
+   "name": "Becton Dickinson",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BEN",
+   "name": "Franklin Resources",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BF-B",
+   "name": "Brown–Forman",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BG",
+   "name": "Bunge Global",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BIIB",
+   "name": "Biogen",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BKNG",
+   "name": "Booking Holdings",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "BKR",
+   "name": "Baker Hughes",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "BLDR",
+   "name": "Builders FirstSource",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BLK",
+   "name": "BlackRock",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BMY",
+   "name": "Bristol Myers Squibb",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BNY",
+   "name": "BNY Mellon",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BR",
+   "name": "Broadridge Financial Solutions",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BRK-B",
+   "name": "버크셔해서웨이B",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 11
+  },
+  {
+   "code": "BRO",
+   "name": "Brown & Brown",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BSX",
+   "name": "Boston Scientific",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BX",
+   "name": "Blackstone Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "BXP",
+   "name": "BXP, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "C",
+   "name": "Citigroup",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CAH",
+   "name": "Cardinal Health",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CARR",
+   "name": "Carrier Global",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CASY",
+   "name": "Casey's",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CAT",
+   "name": "캐터필러",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 29
+  },
+  {
+   "code": "CB",
+   "name": "Chubb Limited",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CBOE",
+   "name": "Cboe Global Markets",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CBRE",
+   "name": "CBRE Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CCEP",
+   "name": "Coca-Cola Europacific Partners",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CCI",
+   "name": "Crown Castle",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CCL",
+   "name": "Carnival Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CDNS",
+   "name": "Cadence Design Systems",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CDW",
+   "name": "CDW Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CEG",
+   "name": "Constellation Energy",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CF",
+   "name": "CF Industries",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CFG",
+   "name": "Citizens Financial Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CHD",
+   "name": "Church & Dwight",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CHRW",
+   "name": "C.H. Robinson",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CHTR",
+   "name": "Charter Communications",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CI",
+   "name": "Cigna",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CIEN",
+   "name": "Ciena",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CINF",
+   "name": "Cincinnati Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CL",
+   "name": "Colgate-Palmolive",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CLX",
+   "name": "Clorox",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CMCSA",
+   "name": "Comcast",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CME",
+   "name": "CME Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CMG",
+   "name": "Chipotle Mexican Grill",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CMI",
+   "name": "Cummins",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CMS",
+   "name": "CMS Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CNC",
+   "name": "Centene Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CNP",
+   "name": "CenterPoint Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COF",
+   "name": "Capital One",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COHR",
+   "name": "Coherent Corp.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COIN",
+   "name": "Coinbase",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COO",
+   "name": "Cooper Companies (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COP",
+   "name": "ConocoPhillips",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COR",
+   "name": "Cencora",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "COST",
+   "name": "코스트코",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 28
+  },
+  {
+   "code": "CPAY",
+   "name": "Corpay",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CPRT",
+   "name": "Copart",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CPT",
+   "name": "Camden Property Trust",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CRH",
+   "name": "CRH plc",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CRL",
+   "name": "Charles River Laboratories",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CRM",
+   "name": "Salesforce",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CRWD",
+   "name": "CrowdStrike",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CRWV",
+   "name": "CoreWeave",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CSCO",
+   "name": "시스코",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 25
+  },
+  {
+   "code": "CSGP",
+   "name": "CoStar Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CSX",
+   "name": "CSX Corporation",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CTAS",
+   "name": "Cintas",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "CTSH",
+   "name": "Cognizant",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CTVA",
+   "name": "Corteva",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CVNA",
+   "name": "Carvana",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CVS",
+   "name": "CVS Health",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "CVX",
+   "name": "셰브론",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 30
+  },
+  {
+   "code": "D",
+   "name": "Dominion Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DAL",
+   "name": "델타항공",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp500"
+   ],
+   "marketCapRank": 180
+  },
+  {
+   "code": "DASH",
+   "name": "DoorDash",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "DD",
+   "name": "DuPont",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DDOG",
+   "name": "Datadog",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "DE",
+   "name": "Deere & Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DECK",
+   "name": "Deckers Brands",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DELL",
+   "name": "Dell Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DG",
+   "name": "Dollar General",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DGX",
+   "name": "Quest Diagnostics",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DHI",
+   "name": "D. R. Horton",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DHR",
+   "name": "Danaher Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DIS",
+   "name": "Walt Disney Company (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DLR",
+   "name": "Digital Realty",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DLTR",
+   "name": "Dollar Tree",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DOC",
+   "name": "Healthpeak Properties",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DOV",
+   "name": "Dover Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DOW",
+   "name": "Dow Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DPZ",
+   "name": "Domino's",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DRI",
+   "name": "Darden Restaurants",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DTE",
+   "name": "DTE Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DUK",
+   "name": "Duke Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DVA",
+   "name": "DaVita",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DVN",
+   "name": "Devon Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "DXCM",
+   "name": "Dexcom",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "EBAY",
+   "name": "eBay Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ECHO",
+   "name": "EchoStar",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ECL",
+   "name": "Ecolab",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ED",
+   "name": "Consolidated Edison",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EFX",
+   "name": "Equifax",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EG",
+   "name": "Everest Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EIX",
+   "name": "Edison International",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EL",
+   "name": "Estée Lauder Companies (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ELV",
+   "name": "Elevance Health",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EME",
+   "name": "Emcor",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EMR",
+   "name": "Emerson Electric",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EOG",
+   "name": "EOG Resources",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EQIX",
+   "name": "Equinix",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EQT",
+   "name": "EQT Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ERIE",
+   "name": "Erie Indemnity",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ES",
+   "name": "Eversource Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ESS",
+   "name": "Essex Property Trust",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ETN",
+   "name": "Eaton Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ETR",
+   "name": "Entergy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EVRG",
+   "name": "Evergy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EW",
+   "name": "Edwards Lifesciences",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EXC",
+   "name": "Exelon",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "EXE",
+   "name": "Expand Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EXPD",
+   "name": "Expeditors International",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EXPE",
+   "name": "Expedia Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "EXR",
+   "name": "Extra Space Storage",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "F",
+   "name": "Ford Motor Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FANG",
+   "name": "Diamondback Energy",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "FAST",
+   "name": "Fastenal",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "FCX",
+   "name": "Freeport-McMoRan",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FDS",
+   "name": "FactSet",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FDX",
+   "name": "FedEx",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FDXF",
+   "name": "FedEx Freight",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FE",
+   "name": "FirstEnergy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FER",
+   "name": "Ferrovial",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "FERG",
+   "name": "Ferguson Enterprises",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FFIV",
+   "name": "F5, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FICO",
+   "name": "Fair Isaac",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FIS",
+   "name": "Fidelity National Information Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FISV",
+   "name": "Fiserv",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FITB",
+   "name": "Fifth Third Bancorp",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FIX",
+   "name": "Comfort Systems USA",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FLEX",
+   "name": "Flex Ltd.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FOX",
+   "name": "Fox Corporation (Class B)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FOXA",
+   "name": "Fox Corporation (Class A)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FRT",
+   "name": "Federal Realty Investment Trust",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FSLR",
+   "name": "First Solar",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "FTNT",
+   "name": "Fortinet",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "FTV",
+   "name": "Fortive",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GD",
+   "name": "General Dynamics",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GDDY",
+   "name": "GoDaddy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GE",
+   "name": "GE에어로스페이스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 33
+  },
+  {
+   "code": "GEHC",
+   "name": "GE HealthCare",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "GEN",
+   "name": "Gen Digital",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GEV",
+   "name": "GE Vernova",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GILD",
+   "name": "Gilead Sciences",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "GIS",
+   "name": "General Mills",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GL",
+   "name": "Globe Life",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GLW",
+   "name": "Corning Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GM",
+   "name": "General Motors",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GNRC",
+   "name": "Generac",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GOOG",
+   "name": "Alphabet Inc. (Class C)",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "GOOGL",
+   "name": "알파벳",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 3
+  },
+  {
+   "code": "GPC",
+   "name": "Genuine Parts Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GPN",
+   "name": "Global Payments",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GRMN",
+   "name": "Garmin",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "GS",
+   "name": "골드만삭스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 40
+  },
+  {
+   "code": "GWW",
+   "name": "W. W. Grainger",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HAL",
+   "name": "Halliburton",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HAS",
+   "name": "Hasbro",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HBAN",
+   "name": "Huntington Bancshares",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HCA",
+   "name": "HCA Healthcare",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HD",
+   "name": "홈디포",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 38
+  },
+  {
+   "code": "HIG",
+   "name": "Hartford (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HII",
+   "name": "Huntington Ingalls Industries",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HLT",
+   "name": "Hilton Worldwide",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HON",
+   "name": "Honeywell Technologies",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "HONA",
+   "name": "Honeywell Aerospace",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "HOOD",
+   "name": "Robinhood Markets",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HPE",
+   "name": "Hewlett Packard Enterprise",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HPQ",
+   "name": "HP Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HRL",
+   "name": "Hormel Foods",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HSIC",
+   "name": "Henry Schein",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HST",
+   "name": "Host Hotels & Resorts",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HSY",
+   "name": "Hershey Company (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HUBB",
+   "name": "Hubbell Incorporated",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HUM",
+   "name": "Humana",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "HWM",
+   "name": "Howmet Aerospace",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IBKR",
+   "name": "Interactive Brokers",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IBM",
+   "name": "IBM",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ICE",
+   "name": "Intercontinental Exchange",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IDXX",
+   "name": "Idexx Laboratories",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "IEX",
+   "name": "IDEX Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IFF",
+   "name": "International Flavors & Fragrances",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "INCY",
+   "name": "Incyte",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "INTC",
+   "name": "인텔",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 23
+  },
+  {
+   "code": "INTU",
+   "name": "Intuit",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "INVH",
+   "name": "Invitation Homes",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IP",
+   "name": "International Paper",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IQV",
+   "name": "IQVIA",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IR",
+   "name": "Ingersoll Rand",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IRM",
+   "name": "Iron Mountain",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ISRG",
+   "name": "Intuitive Surgical",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "IT",
+   "name": "Gartner",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ITW",
+   "name": "Illinois Tool Works",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "IVZ",
+   "name": "Invesco",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "J",
+   "name": "Jacobs Solutions",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "JBHT",
+   "name": "J.B. Hunt",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "JBL",
+   "name": "Jabil",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "JCI",
+   "name": "Johnson Controls",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "JKHY",
+   "name": "Jack Henry & Associates",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "JNJ",
+   "name": "존슨앤드존슨",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 21
+  },
+  {
+   "code": "JPM",
+   "name": "JP모건체이스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 14
+  },
+  {
+   "code": "KDP",
+   "name": "Keurig Dr Pepper",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "KEY",
+   "name": "KeyCorp",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KEYS",
+   "name": "Keysight Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KHC",
+   "name": "Kraft Heinz",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "KIM",
+   "name": "Kimco Realty",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KKR",
+   "name": "KKR & Co.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KLAC",
+   "name": "KLA Corporation",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "KMB",
+   "name": "Kimberly-Clark",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KMI",
+   "name": "Kinder Morgan",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KO",
+   "name": "코카콜라",
+   "market": "US",
+   "groups": [
+    "buffett-holdings",
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 35
+  },
+  {
+   "code": "KR",
+   "name": "Kroger",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "KVUE",
+   "name": "Kenvue",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "L",
+   "name": "Loews Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LDOS",
+   "name": "Leidos",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LEN",
+   "name": "Lennar",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LH",
+   "name": "Labcorp",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LHX",
+   "name": "L3Harris",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LII",
+   "name": "Lennox International",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LIN",
+   "name": "Linde plc",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "LITE",
+   "name": "Lumentum",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "LLY",
+   "name": "일라이릴리",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 12
+  },
+  {
+   "code": "LMT",
+   "name": "Lockheed Martin",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LNT",
+   "name": "Alliant Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LOW",
+   "name": "Lowe's",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LRCX",
+   "name": "램리서치",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 32
+  },
+  {
+   "code": "LULU",
+   "name": "Lululemon Athletica",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LUV",
+   "name": "Southwest Airlines",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LVS",
+   "name": "Las Vegas Sands",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LYB",
+   "name": "LyondellBasell",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "LYV",
+   "name": "Live Nation Entertainment",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "M",
+   "name": "메이시스",
+   "market": "US",
+   "groups": [
+    "buffett-holdings"
+   ],
+   "marketCapRank": 480
+  },
+  {
+   "code": "MA",
+   "name": "마스터카드",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 22
+  },
+  {
+   "code": "MAA",
+   "name": "Mid-America Apartment Communities",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MAR",
+   "name": "Marriott International",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MAS",
+   "name": "Masco",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MCD",
+   "name": "McDonald's",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MCHP",
+   "name": "Microchip Technology",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MCK",
+   "name": "McKesson Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MCO",
+   "name": "Moody's Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MDLZ",
+   "name": "Mondelez International",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MDT",
+   "name": "Medtronic",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MELI",
+   "name": "Mercado Libre",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MET",
+   "name": "MetLife",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "META",
+   "name": "메타",
+   "market": "US",
+   "groups": [
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 9
+  },
+  {
+   "code": "MGM",
+   "name": "MGM Resorts",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MKC",
+   "name": "McCormick & Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MLM",
+   "name": "Martin Marietta Materials",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MMM",
+   "name": "3M",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MNST",
+   "name": "Monster Beverage",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MO",
+   "name": "Altria",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MOS",
+   "name": "Mosaic Company (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MPC",
+   "name": "Marathon Petroleum",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MPWR",
+   "name": "Monolithic Power Systems",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MRK",
+   "name": "머크",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 41
+  },
+  {
+   "code": "MRNA",
+   "name": "Moderna",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MRSH",
+   "name": "Marsh McLennan",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MRVL",
+   "name": "Marvell Technology",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MS",
+   "name": "모건스탠리",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 37
+  },
+  {
+   "code": "MSCI",
+   "name": "MSCI",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MSFT",
+   "name": "마이크로소프트",
+   "market": "US",
+   "groups": [
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 4
+  },
+  {
+   "code": "MSI",
+   "name": "Motorola Solutions",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MSTR",
+   "name": "MicroStrategy",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "MTB",
+   "name": "M&T Bank",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MTD",
+   "name": "Mettler Toledo",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "MU",
+   "name": "마이크론",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 13
+  },
+  {
+   "code": "NBIS",
+   "name": "Nebius Group",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "NCLH",
+   "name": "Norwegian Cruise Line Holdings",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NDAQ",
+   "name": "Nasdaq, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NDSN",
+   "name": "Nordson Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NEE",
+   "name": "NextEra Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NEM",
+   "name": "Newmont",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NFLX",
+   "name": "넷플릭스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 45
+  },
+  {
+   "code": "NI",
+   "name": "NiSource",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NKE",
+   "name": "Nike, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NOC",
+   "name": "Northrop Grumman",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NOW",
+   "name": "ServiceNow",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NRG",
+   "name": "NRG Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NSC",
+   "name": "Norfolk Southern",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NTAP",
+   "name": "NetApp",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NTRS",
+   "name": "Northern Trust",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NUE",
+   "name": "Nucor",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NVDA",
+   "name": "엔비디아",
+   "market": "US",
+   "groups": [
+    "us-core",
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 1
+  },
+  {
+   "code": "NVR",
+   "name": "NVR, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NWS",
+   "name": "News Corp (Class B)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NWSA",
+   "name": "News Corp (Class A)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "NXPI",
+   "name": "NXP Semiconductors",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "O",
+   "name": "Realty Income",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ODFL",
+   "name": "Old Dominion",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "OKE",
+   "name": "Oneok",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "OMC",
+   "name": "Omnicom Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ON",
+   "name": "ON Semiconductor",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ORCL",
+   "name": "오라클",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 39
+  },
+  {
+   "code": "ORLY",
+   "name": "O'Reilly Automotive",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "OTIS",
+   "name": "Otis Worldwide",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "OXY",
+   "name": "Occidental Petroleum",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PANW",
+   "name": "Palo Alto Networks",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "PAYX",
+   "name": "Paychex",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "PCAR",
+   "name": "Paccar",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "PCG",
+   "name": "PG&E Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PDD",
+   "name": "PDD Holdings",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "PEG",
+   "name": "Public Service Enterprise Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PEP",
+   "name": "PepsiCo",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "PFE",
+   "name": "Pfizer",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PFG",
+   "name": "Principal Financial Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PG",
+   "name": "프록터앤드갬블",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 36
+  },
+  {
+   "code": "PGR",
+   "name": "Progressive Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PH",
+   "name": "Parker Hannifin",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PHM",
+   "name": "PulteGroup",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PKG",
+   "name": "Packaging Corporation of America",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PLD",
+   "name": "Prologis",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PLTR",
+   "name": "팔란티어",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 44
+  },
+  {
+   "code": "PM",
+   "name": "필립모리스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 42
+  },
+  {
+   "code": "PNC",
+   "name": "PNC Financial Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PNR",
+   "name": "Pentair",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PNW",
+   "name": "Pinnacle West Capital",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PODD",
+   "name": "Insulet Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PPG",
+   "name": "PPG Industries",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PPL",
+   "name": "PPL Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PRU",
+   "name": "Prudential Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PSA",
+   "name": "Public Storage",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PSKY",
+   "name": "Paramount Skydance Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PSX",
+   "name": "Phillips 66",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PTC",
+   "name": "PTC Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PWR",
+   "name": "Quanta Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "PYPL",
+   "name": "PayPal",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "Q",
+   "name": "Qnity Electronics",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "QCOM",
+   "name": "Qualcomm",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "RCL",
+   "name": "Royal Caribbean Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "RDDT",
+   "name": "Reddit",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "REG",
+   "name": "Regency Centers",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "REGN",
+   "name": "Regeneron Pharmaceuticals",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "RF",
+   "name": "Regions Financial Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "RJF",
+   "name": "Raymond James Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "RKLB",
+   "name": "Rocket Lab",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "RL",
+   "name": "Ralph Lauren Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "RMD",
+   "name": "ResMed|",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ROK",
+   "name": "Rockwell Automation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ROL",
+   "name": "Rollins, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ROP",
+   "name": "Roper Technologies",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "ROST",
+   "name": "Ross Stores",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "RSG",
+   "name": "Republic Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "RTX",
+   "name": "RTX",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 47
+  },
+  {
+   "code": "RVTY",
+   "name": "Revvity",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SBAC",
+   "name": "SBA Communications",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SBUX",
+   "name": "Starbucks",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "SCHW",
+   "name": "Charles Schwab Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SHOP",
+   "name": "Shopify",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "SHW",
+   "name": "Sherwin-Williams",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SJM",
+   "name": "J.M. Smucker Company (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SLB",
+   "name": "Schlumberger",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SMCI",
+   "name": "Supermicro",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SNA",
+   "name": "Snap-on",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SNDK",
+   "name": "Sandisk",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "SNPS",
+   "name": "Synopsys",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "SO",
+   "name": "Southern Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SOLV",
+   "name": "Solventum",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SPCX",
+   "name": "SpaceX",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "SPG",
+   "name": "Simon Property Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SPGI",
+   "name": "S&P Global",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SRE",
+   "name": "Sempra",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "STE",
+   "name": "Steris",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "STLD",
+   "name": "Steel Dynamics",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "STT",
+   "name": "State Street Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "STX",
+   "name": "Seagate Technology",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "STZ",
+   "name": "Constellation Brands",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SW",
+   "name": "Smurfit Westrock",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SWK",
+   "name": "Stanley Black & Decker",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SWKS",
+   "name": "Skyworks Solutions",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SYF",
+   "name": "Synchrony Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SYK",
+   "name": "Stryker Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "SYY",
+   "name": "Sysco",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "T",
+   "name": "AT&T",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TAP",
+   "name": "Molson Coors Beverage Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TDG",
+   "name": "TransDigm Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TDY",
+   "name": "Teledyne Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TECH",
+   "name": "Bio-Techne",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TEL",
+   "name": "TE Connectivity",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TER",
+   "name": "Teradyne",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "TFC",
+   "name": "Truist Financial",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TGT",
+   "name": "Target Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TJX",
+   "name": "TJX Companies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TKO",
+   "name": "TKO Group Holdings",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TMO",
+   "name": "Thermo Fisher Scientific",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TMUS",
+   "name": "T-Mobile US",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "TPL",
+   "name": "Texas Pacific Land Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TPR",
+   "name": "Tapestry, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TRGP",
+   "name": "Targa Resources",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TRI",
+   "name": "Thomson Reuters",
+   "market": "US",
+   "groups": [
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "TRMB",
+   "name": "Trimble Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TROW",
+   "name": "T. Rowe Price",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TRV",
+   "name": "Travelers Companies (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TSCO",
+   "name": "Tractor Supply",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TSLA",
+   "name": "테슬라",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 10
+  },
+  {
+   "code": "TSN",
+   "name": "Tyson Foods",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TT",
+   "name": "Trane Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TTD",
+   "name": "Trade Desk (The)",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TTWO",
+   "name": "Take-Two Interactive",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "TXN",
+   "name": "Texas Instruments",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "TXT",
+   "name": "Textron",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "TYL",
+   "name": "Tyler Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UAL",
+   "name": "United Airlines Holdings",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UBER",
+   "name": "Uber",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UDR",
+   "name": "UDR, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UHS",
+   "name": "Universal Health Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ULTA",
+   "name": "Ulta Beauty",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UNH",
+   "name": "유나이티드헬스",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 31
+  },
+  {
+   "code": "UNP",
+   "name": "Union Pacific Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "UPS",
+   "name": "United Parcel Service",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "URI",
+   "name": "United Rentals",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "USB",
+   "name": "U.S. Bancorp",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "V",
+   "name": "비자",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 19
+  },
+  {
+   "code": "VEEV",
+   "name": "Veeva Systems",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VICI",
+   "name": "Vici Properties",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VLO",
+   "name": "Valero Energy",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VLTO",
+   "name": "Veralto",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VMC",
+   "name": "Vulcan Materials Company",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VMRK",
+   "name": "Vivmark Residential",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VRSK",
+   "name": "Verisk Analytics",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VRSN",
+   "name": "Verisign",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VRT",
+   "name": "Vertiv",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VRTX",
+   "name": "Vertex Pharmaceuticals",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "VST",
+   "name": "Vistra Corp.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VTR",
+   "name": "Ventas",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VTRS",
+   "name": "Viatris",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "VZ",
+   "name": "Verizon",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WAB",
+   "name": "Wabtec",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WAT",
+   "name": "Waters Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WBD",
+   "name": "Warner Bros. Discovery",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "WDAY",
+   "name": "Workday, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "WDC",
+   "name": "Western Digital",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "WEC",
+   "name": "WEC Energy Group",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WELL",
+   "name": "Welltower",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WFC",
+   "name": "Wells Fargo",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WM",
+   "name": "Waste Management",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WMB",
+   "name": "Williams Companies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WMT",
+   "name": "월마트",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500",
+    "nasdaq100"
+   ],
+   "marketCapRank": 16
+  },
+  {
+   "code": "WRB",
+   "name": "W. R. Berkley Corporation",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WSM",
+   "name": "Williams-Sonoma, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WST",
+   "name": "West Pharmaceutical Services",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WTW",
+   "name": "Willis Towers Watson",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WY",
+   "name": "Weyerhaeuser",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "WYNN",
+   "name": "Wynn Resorts",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "XEL",
+   "name": "Xcel Energy",
+   "market": "US",
+   "groups": [
+    "sp500",
+    "nasdaq100"
+   ]
+  },
+  {
+   "code": "XOM",
+   "name": "엑슨모빌",
+   "market": "US",
+   "groups": [
+    "sp40",
+    "sp500"
+   ],
+   "marketCapRank": 20
+  },
+  {
+   "code": "XYL",
+   "name": "Xylem Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "XYZ",
+   "name": "Block, Inc.",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "YUM",
+   "name": "Yum! Brands",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ZBH",
+   "name": "Zimmer Biomet",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ZBRA",
+   "name": "Zebra Technologies",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  },
+  {
+   "code": "ZTS",
+   "name": "Zoetis",
+   "market": "US",
+   "groups": [
+    "sp500"
+   ]
+  }
+ ]
 }
