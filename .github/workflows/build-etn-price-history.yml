@@ -5,11 +5,16 @@ name: Build ETN price history (KRX Open API backfill)
 # (KRX_OPENAPI_KEY, fetch_krx_etf.py와 같은 키)로 대신한다. 날짜당 1콜로 그날
 # ETN 전종목이 나온다 - 이어받기 가능(scripts/build-etn-price-history.py).
 #
-# API 일일 호출 한도를 몰라서 자동 스케줄 없이 수동 트리거만 둔다 - 12년치를
-# 다 채우려면 여러 번 나눠 돌려야 한다. budget_minutes로 한 번에 얼마나
-# 돌릴지 정한다.
+# 2019-01-01~2026-08-31 전체 백필은 완료됨(2026-09-01, 수동 트리거 3회).
+# 이제부터는 calendar.yml이 매일 늘려주는 새 거래일 하루치만 이어 받으면
+# 되므로 매일 자동 실행으로 전환한다(2026-09-01, 사용자 확인) - 하루 1건
+# 콜이라 API 한도 걱정도 거의 없다. calendar.yml(08:00 UTC)이 그날 캘린더를
+# 먼저 채워야 이 스크립트가 그 날짜를 볼 수 있으므로 그 뒤로 시간을 둔다.
+# 수동 트리거는 그대로 남겨서 나중에 과거 구간을 더 당기거나 재보강할 때 쓴다.
 
 on:
+  schedule:
+    - cron: '10 8 * * 1-5'   # 08:10 UTC = 17:10 KST, 평일 (calendar.yml 08:00 UTC 다음)
   workflow_dispatch:
     inputs:
       from_date:
@@ -44,7 +49,10 @@ jobs:
       - name: Build ETN price history
         env:
           KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
-        run: python scripts/build-etn-price-history.py --from-date "${{ inputs.from_date }}" --budget-minutes "${{ inputs.budget_minutes }}"
+        # schedule 트리거는 inputs가 비어있다 - 매일 증분(새 거래일 하루)이니
+        # 5분이면 충분, from_date는 전체 이력 시작점 그대로(이미 있는 날짜는
+        # 스크립트가 알아서 건너뛴다).
+        run: python scripts/build-etn-price-history.py --from-date "${{ inputs.from_date || '20190101' }}" --budget-minutes "${{ inputs.budget_minutes || '5' }}"
 
       - name: Commit
         run: |
