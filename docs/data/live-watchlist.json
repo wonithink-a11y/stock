@@ -1,5 +1,5 @@
 {
-  "description": "실시간 탭(분봉·기간차트·수급) 관심종목 고정 10개 - scripts/kis-live-relay.py, scripts/build-watchlist-daily.py, docs/index.html 셋이 공유하는 단일 출처. 여기 하나만 고치면 세 곳 다 반영된다.",
+  "description": "실시간 탭(분봉·기간차트·수급) 관심종목 - scripts/kis-live-relay.py, scripts/build-watchlist-daily.py, docs/index.html 셋이 공유하는 단일 출처. 여기 하나만 고치면 세 곳 다 반영된다. 2026-09-02: 10->20 확장 테스트(KIS 웹소켓 동시구독 상한 실측 목적).",
   "tickers": [
     { "ticker": "005930", "name": "삼성전자" },
     { "ticker": "000660", "name": "SK하이닉스" },
@@ -10,6 +10,16 @@
     { "ticker": "032830", "name": "삼성생명" },
     { "ticker": "207940", "name": "삼성바이오로직스" },
     { "ticker": "105560", "name": "KB금융" },
-    { "ticker": "000270", "name": "기아" }
+    { "ticker": "000270", "name": "기아" },
+    { "ticker": "016360", "name": "삼성증권" },
+    { "ticker": "071050", "name": "한국금융지주" },
+    { "ticker": "055550", "name": "신한지주" },
+    { "ticker": "086790", "name": "하나금융지주" },
+    { "ticker": "030200", "name": "KT" },
+    { "ticker": "015760", "name": "한국전력" },
+    { "ticker": "009540", "name": "HD한국조선해양" },
+    { "ticker": "036570", "name": "엔씨소프트" },
+    { "ticker": "003230", "name": "삼양식품" },
+    { "ticker": "267250", "name": "HD현대" }
   ]
 }
