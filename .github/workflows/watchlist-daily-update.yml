@@ -1,0 +1,42 @@
+name: Watchlist daily data update (live tab)
+
+# 실시간 탭(docs/index.html)의 기간차트·수급이 읽는 docs/data/watchlist-daily.json을
+# 관심종목 10개(docs/data/live-watchlist.json)만 증분 갱신한다. A2a/A4 전체
+# 유니버스 백필(BF-1.1, 수동 트리거 전용)과는 무관한 별도의 가벼운 파이프라인 -
+# scripts/update-watchlist-daily.py 상단 주석 참고.
+
+on:
+  schedule:
+    - cron: '30 8 * * 1-5'   # 08:30 UTC = 17:30 KST, 평일 (장마감 15:30 + 2시간 여유)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: watchlist-daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet pykrx==1.2.8 pandas
+
+      - name: Update watchlist daily data
+        run: python scripts/update-watchlist-daily.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/watchlist-daily.json
+          git diff --staged --quiet || git commit -m "chore: update watchlist-daily.json (live tab)"
+          git push
