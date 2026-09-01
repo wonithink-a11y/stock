@@ -20,10 +20,13 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "data" / "market_flows.json"
 AGG = {"전체", "기관합계", "기관계", "기타"}
 LOOKBACK = 25  # 최근 약 25일(달력) → 거래일 ~17일
+KST = datetime.timezone(datetime.timedelta(hours=9))
 
 
 def last_biz(off=0):
-    d = datetime.date.today() - datetime.timedelta(days=off)
+    # GH Actions 러너는 UTC. date.today()를 쓰면 cron 시각이 바뀔 때 날짜가 밀릴 수 있어
+    # 항상 KST 기준으로 명시 계산한다(절대 규칙 3).
+    d = datetime.datetime.now(KST).date() - datetime.timedelta(days=off)
     while d.weekday() >= 5:
         d -= datetime.timedelta(days=1)
     return d.strftime("%Y%m%d")

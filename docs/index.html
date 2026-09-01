@@ -766,6 +766,7 @@ function renderNews() {
 }
 
 const FLOW_HEADLINE = ['개인', '외국인', '기관합계'];
+const FLOW_TREND_SERIES = ['외국인', '개인', '기관합계'];
 
 function renderFlows() {
   const mf = state.marketFlows;
@@ -775,9 +776,6 @@ function renderFlows() {
   if (!days.length) return '<div class="card empty">데이터 없음</div>';
   const idx = state.flowsDateIdx === null ? days.length - 1 : Math.min(state.flowsDateIdx, days.length - 1);
   const day = days[idx];
-  const byName = {};
-  day.items.forEach(it => byName[it.name] = it.net);
-  const maxAbs = Math.max(...FLOW_HEADLINE.map(k => Math.abs(byName[k] || 0)), 1);
 
   const marketTabs = Object.keys(mf.markets).map(m =>
     `<button data-flows-market="${esc(m)}" class="chip ${mkt === m ? 'active' : ''}">${esc(m)}</button>`).join('');
@@ -787,42 +785,51 @@ function renderFlows() {
     return `<button data-flows-date="${realIdx}" class="chip ${realIdx === idx ? 'active' : ''}">${label}</button>`;
   }).join('');
 
-  const bars = FLOW_HEADLINE.map(k => {
-    const v = byName[k] || 0;
-    const pct = Math.round(Math.abs(v) / maxAbs * 100);
-    const cls = v >= 0 ? 'pos' : 'neg';
-    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <div style="width:64px;font-size:13px">${esc(k === '기관합계' ? '기관' : k)}</div>
-      <div class="bar-bg" style="width:220px"><span class="bar-fill" style="width:${pct}%;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'}"></span></div>
-      <div class="${cls}" style="font-family:inherit;min-width:90px;text-align:right">${v >= 0 ? '+' : ''}${fmtEok(v)}</div>
+  // 그 날 전 구분(12종)을 |net| 큰 순으로 그대로 막대로 보여준다 - 접어두지 않는다
+  const allCats = day.items.filter(it => it.name !== '전체')
+    .sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
+  const maxAbs = Math.max(...allCats.map(it => Math.abs(it.net)), 1);
+  const bars = allCats.map(it => {
+    const pct = Math.round(Math.abs(it.net) / maxAbs * 100);
+    const cls = it.net >= 0 ? 'pos' : 'neg';
+    const label = it.name === '기관합계' ? '기관' : it.name;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:64px;font-size:13px">${esc(label)}</div>
+      <div class="bar-bg" style="width:220px"><span class="bar-fill" style="width:${pct}%;background:${it.net >= 0 ? 'var(--good)' : 'var(--bad)'}"></span></div>
+      <div class="${cls}" style="font-family:inherit;min-width:90px;text-align:right">${it.net >= 0 ? '+' : ''}${fmtEok(it.net)}</div>
     </div>`;
   }).join('');
 
-  const subCats = day.items.filter(it => !it.agg && !FLOW_HEADLINE.includes(it.name) && it.name !== '전체')
-    .sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
-
-  const trendRows = days.slice().reverse().map(d => {
-    const b = {};
-    d.items.forEach(it => b[it.name] = it.net);
-    return `<tr><td class="muted">${d.date.slice(4,6)}/${d.date.slice(6,8)}</td>
-      <td class="${(b['개인']||0)>=0?'pos':'neg'}">${fmtEok(b['개인']||0)}</td>
-      <td class="${(b['외국인']||0)>=0?'pos':'neg'}">${fmtEok(b['외국인']||0)}</td>
-      <td class="${(b['기관합계']||0)>=0?'pos':'neg'}">${fmtEok(b['기관합계']||0)}</td></tr>`;
+  // 일별 추이: 외국인/개인/기관 하루하루 사고파는 방향 + 우측에 기간 합계
+  const trendH = 40, barW = 8, barGap = 2;
+  const trendChart = FLOW_TREND_SERIES.map(k => {
+    const vals = days.map(d => (d.items.find(it => it.name === k) || {}).net || 0);
+    const trendMax = Math.max(...vals.map(Math.abs), 1);
+    const dayBars = days.map((d, i) => {
+      const v = vals[i];
+      const h = Math.max(2, Math.round(Math.abs(v) / trendMax * trendH));
+      const top = v >= 0 ? trendH - h : trendH;
+      const dateLabel = `${d.date.slice(4, 6)}/${d.date.slice(6, 8)}`;
+      return `<div style="width:${barW}px;height:${trendH}px;position:relative" title="${dateLabel} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
+        <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'};border-radius:1px"></div>
+      </div>`;
+    }).join('');
+    const sum = vals.reduce((s, v) => s + v, 0);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="width:48px;font-size:13px;flex-shrink:0">${esc(k === '기관합계' ? '기관' : k)}</div>
+      <div style="display:flex;align-items:flex-end;gap:${barGap}px;height:${trendH}px;border-bottom:1px solid var(--border);overflow-x:auto">${dayBars}</div>
+      <div class="${sum >= 0 ? 'pos' : 'neg'}" style="min-width:84px;text-align:right;flex-shrink:0">${sum >= 0 ? '+' : ''}${fmtEok(sum)}</div>
+    </div>`;
   }).join('');
 
   return `<div class="card">
-    <h2>시장 투자자별 순매수 <span class="muted" style="font-weight:400">KRX(pykrx) 일별 확정치</span></h2>
+    <h2>시장 투자자별 순매수 <span class="muted" style="font-weight:400">KRX(pykrx) 일별 확정치, KST 기준일</span></h2>
     <div class="group-filter" style="margin-bottom:4px">${marketTabs}</div>
     <div class="group-filter">${dateTabs}</div>
-    <p class="muted" style="margin:10px 0 4px">${mkt} · ${day.date.slice(0,4)}-${day.date.slice(4,6)}-${day.date.slice(6,8)}</p>
+    <p class="muted" style="margin:10px 0 4px">${mkt} · ${day.date.slice(0,4)}-${day.date.slice(4,6)}-${day.date.slice(6,8)} 순매수(금액) · 큰 순 정렬 — 위 날짜를 눌러 다른 날 보기</p>
     <div style="margin:10px 0 16px">${bars}</div>
-    <details><summary class="muted" style="cursor:pointer;font-size:12px">세부 투자자구분 12종 펼치기</summary>
-      <div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>구분</th><th>순매수</th></tr></thead><tbody>
-      ${subCats.map(it => `<tr><td>${esc(it.name)}</td><td class="${it.net>=0?'pos':'neg'}">${it.net>=0?'+':''}${fmtEok(it.net)}</td></tr>`).join('')}
-      </tbody></table></div>
-    </details>
-    <h2 style="margin-top:18px">최근 ${days.length}일 추이</h2>
-    <div class="table-wrap"><table><thead><tr><th>일자</th><th>개인</th><th>외국인</th><th>기관</th></tr></thead><tbody>${trendRows}</tbody></table></div>
+    <h2 style="margin-top:18px">일별 추이 <span class="muted" style="font-weight:400">외국인/개인/기관 순매수(금액) · 우측=기간합계</span></h2>
+    <div style="margin-top:10px">${trendChart}</div>
   </div>`;
 }
 
