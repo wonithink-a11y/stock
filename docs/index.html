@@ -979,7 +979,7 @@ function candleSvg(bars, w, h, opts) {
   const hi = Math.max(...bars.map(b => b.h));
   const lo = Math.min(...bars.map(b => b.l));
   const range = (hi - lo) || Math.max(1, hi * 0.001);
-  const padTop = opts.labels ? 14 : 3, padBottom = 3;
+  const padTop = opts.labels ? 14 : 3, padBottom = opts.labels ? 16 : 3;
   const usableH = h - padTop - padBottom;
   const bw = w / bars.length;
   const bodyW = Math.max(1, bw * 0.6);
@@ -1012,10 +1012,31 @@ function candleSvg(bars, w, h, opts) {
 
   const labels = opts.labels
     ? `<text x="4" y="10" fill="#8b96ad" font-size="10">${fmtNum(hi)}</text>
-       <text x="4" y="${h - 3}" fill="#8b96ad" font-size="10">${fmtNum(lo)}</text>`
+       <text x="4" y="${padTop + usableH - 3}" fill="#8b96ad" font-size="10">${fmtNum(lo)}</text>`
     : '';
 
-  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${grid}${marks}${labels}</svg>`;
+  // x축 시간/날짜 라벨 - 봉마다 찍으면 겹치니 5개 안팎으로만 골라 찍는다.
+  // 분봉이면 time(HHMMSS)/minute(HHMM)을 HH:MM으로, 일봉이면 date를 MM/DD로.
+  const barLabel = (b) => {
+    if (b.time && b.time.length >= 4) return `${b.time.slice(0, 2)}:${b.time.slice(2, 4)}`;
+    if (b.minute && b.minute.length >= 4) return `${b.minute.slice(0, 2)}:${b.minute.slice(2, 4)}`;
+    if (b.date) return b.date.slice(5).replace('-', '/');
+    return '';
+  };
+  let xLabels = '';
+  if (opts.labels && bars.length > 1) {
+    const n = Math.min(5, bars.length);
+    const idxs = Array.from({ length: n }, (_, i) => Math.round(i * (bars.length - 1) / (n - 1)));
+    const uniqIdxs = [...new Set(idxs)];
+    xLabels = uniqIdxs.map(i => {
+      const cx = i * bw + bw / 2;
+      const anchor = i === 0 ? 'start' : i === bars.length - 1 ? 'end' : 'middle';
+      const tx = i === 0 ? 2 : i === bars.length - 1 ? w - 2 : cx;
+      return `<text x="${tx.toFixed(1)}" y="${h - 3}" text-anchor="${anchor}" fill="#8b96ad" font-size="9">${esc(barLabel(bars[i]))}</text>`;
+    }).join('');
+  }
+
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${grid}${marks}${labels}${xLabels}</svg>`;
 }
 
 const PERIOD_DAYS = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
@@ -1120,7 +1141,7 @@ function renderPeriodDetail(code, name) {
   }
 
   const priceRows = filterByPeriod(ticker.daily, state.live.period);
-  const bars = priceRows.map(d => ({ o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
+  const bars = priceRows.map(d => ({ date: d.date, o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
   const sdRows = filterByPeriod(ticker.supplyDemand, '1m');  // 수급은 기간선택과 무관하게 항상 최근 1개월
 
   return `
@@ -1183,10 +1204,18 @@ function renderLive() {
 
   const selWatch = LIVE_WATCHLIST.find(w => w[0] === state.live.selected);
   const detailName = selWatch ? selWatch[1] : state.live.selected;
+  const tickerSelect = `
+    <select id="liveTickerSelect" style="background:var(--card);border:1px solid var(--border);color:var(--text);
+        border-radius:6px;padding:5px 9px;font-size:12px;font-weight:600">
+      ${LIVE_WATCHLIST.map(([code, nm]) => `<option value="${code}" ${code === state.live.selected ? 'selected' : ''}>${esc(nm)}</option>`).join('')}
+    </select>`;
   const viewToggle = `
-    <div class="group-filter" style="margin-bottom:12px">
-      <button data-live-view="intraday" class="chip ${state.live.view === 'intraday' ? 'active' : ''}">분봉(오늘·과거일자)</button>
-      <button data-live-view="period" class="chip ${state.live.view === 'period' ? 'active' : ''}">기간차트·수급</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      ${tickerSelect}
+      <div class="group-filter">
+        <button data-live-view="intraday" class="chip ${state.live.view === 'intraday' ? 'active' : ''}">분봉(오늘·과거일자)</button>
+        <button data-live-view="period" class="chip ${state.live.view === 'period' ? 'active' : ''}">기간차트·수급</button>
+      </div>
     </div>`;
   const detailHtml = state.live.view === 'period'
     ? renderPeriodDetail(state.live.selected, detailName)
@@ -1302,9 +1331,14 @@ document.getElementById('content').addEventListener('input', (e) => {
 });
 
 document.getElementById('content').addEventListener('change', (e) => {
-  if (e.target.id !== 'liveDateInput' || !e.target.value) return;
-  state.live.date = e.target.value.replace(/-/g, '');
-  render();
+  if (e.target.id === 'liveDateInput' && e.target.value) {
+    state.live.date = e.target.value.replace(/-/g, '');
+    return render();
+  }
+  if (e.target.id === 'liveTickerSelect') {
+    state.live.selected = e.target.value;
+    return render();
+  }
 });
 
 document.querySelectorAll('nav button').forEach(btn => {
