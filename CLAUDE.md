@@ -690,7 +690,39 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
-  완료      ★ LOWMOM60+기관수급(ChatGPT A/B/C) 재개 — 후보 C만 실제 엔진
+  완료      ★ docs/index.html 대시보드 신규 탭 4개 + 실시간 상시서버 구축
+              (2026-09-01) — 옛 Claude Cowork "주식" 프로젝트(Claude Code
+              전환 전 로컬 작업 폴더) 잔재 점검 중 발견: 공시(disclosures.json)·
+              뉴스(news.json)·시장수급(market_flows.json)이 GH Actions로
+              이미 매일 수집되고 있었는데 대시보드에 이걸 보여주는 탭이
+              없었다(렌더링 코드 0건, 새 수집기 필요 없음 — 화면 연결만).
+              공시·뉴스·시장수급 3탭 추가(공시는 DART 영향유형 9종 필터,
+              뉴스는 꼭 볼 뉴스 브리핑+그룹 탭, 시장수급은 KOSPI/KOSDAQ
+              개인·외국인·기관 순매수+세부 12구분+17일 추이) — 부수로
+              fmtEok() 음수 단위 버그(n<1e8 → 항상 '만' 단위로 오판) 발견·
+              수정, backtest 탭 손익 표시에도 영향 주던 공유 함수라 같이
+              고침. ★ 이어서 "1분봉 실시간 차트"(옛 프로젝트가 오라클
+              상시서버+KIS로 했던 것) 재현 가능성 검토 — 지금 구조(GH
+              Pages 정적+배치)와 공존하는 하이브리드로 결론(전체 아키텍처
+              되돌리지 않고 탭 하나만 상시서버). 이 프로젝트가 이미 KIS
+              라이브 키(KIS_APP_KEY, A2b·분봉수집·ETF일일수집이 씀)와
+              모의투자 키(KIS_VTS_APP_KEY, 페이퍼트레이딩 엔진 전용)를
+              분리해 둔 걸 재사용해 새 앱키 신청 없이 토큰충돌 회피.
+              KIS 공식 예제(github.com/koreainvestment/open-trading-api)
+              대조 후 모의투자 키로 실시간체결가(H0STCNT0) 웹소켓 실측
+              — 20초간 삼성전자 36틱 정상 수신, "웹소켓은 실전/모의 동일
+              TR_ID" 공식 문서와 일치 확인. `stock-new`(10GB 여유, 분봉
+              수집기 외 유휴)에 nginx+certbot+DuckDNS 무료 서브도메인
+              (`wonithink-stock.duckdns.org`)으로 HTTPS 인증서 발급,
+              `scripts/kis-live-relay.py`(모의투자 웹소켓→브라우저 중계,
+              한 메시지에 여러 틱이 이어붙는 경우까지 처리 — `--selftest`)를
+              systemd 상시 서비스로 등록. `docs/index.html`에 실시간 탭
+              추가(관심종목 10개 고정, 탭을 볼 때만 연결, 틱 폭주는 300ms로
+              묶어 재렌더링). 브라우저에서 `wss://` 라이브 연결·실시간
+              가격 갱신 실제 확인 완료. OCI Security List에 80·443 인바운드
+              직접 추가 필요했음(콘솔 작업, 사용자 진행) — VM 자체
+              iptables는 별도로 열려 있었다. 옛 "주식종목 분석" 폴더는
+              완전히 다른 프로젝트(블로그 콘텐츠 루틴)라 무관 확인.
               검증 (2026-08-24) — 재개 전 코드를 직접 확인해보니 "+13.90%로
               재검증됨"이라던 사전점검(`lowmom60_institutional_eligible_
               precheck_v2_absolute.py`)이 실은 A4 기관수급 데이터를 전혀
