@@ -166,7 +166,17 @@ const state = {
   flowsMarket: 'KOSPI',
   // 실시간 탭 전용 - WebSocket 객체 자체는 render()가 매번 재생성하는
   // innerHTML과 무관하게 살아있어야 하므로 state에 들고 있는다
-  live: { status: 'idle', ticks: {}, ws: null, renderPending: false, candles: {}, selected: null },
+  live: {
+    status: 'idle', ticks: {}, ws: null, renderPending: false, candles: {}, selected: null,
+    daily: null,              // docs/data/watchlist-daily.json (일봉+수급, 페이지 로드시 1회)
+    view: 'intraday',         // 'intraday'(분봉) | 'period'(기간차트+수급)
+    timeframe: 1,             // 분봉 묶음 단위: 1|5|15|60
+    chartType: 'candle',      // 'candle' | 'line'
+    period: '1m',             // 기간차트: '1m'|'3m'|'6m'|'1y'
+    date: null,               // null=오늘(실시간), 'YYYYMMDD'=과거 날짜
+    historyCache: {},         // `${ticker}_${date}` -> bars[] (과거 분봉 조회 캐시)
+    historyLoading: {},       // `${ticker}_${date}` -> true (조회 중인 키)
+  },
   flowsDateIdx: null,       // null = 최신일
   // 종목 스코어 탭 전용
   viewMode: 'sector',      // 'sector' | 'list'
@@ -895,6 +905,45 @@ function candleSeries(ticker, n) {
   return all.slice(-n);
 }
 
+// 1분봉 n개를 묶어 5/15/60분봉으로 만든다. 시가=첫봉 시가, 종가=마지막봉
+// 종가, 고가/저가는 묶음 내 최대/최소, 거래량은 합산 - 표준 리샘플링.
+function aggregateBars(bars, minutes) {
+  if (minutes <= 1) return bars;
+  const out = [];
+  for (let i = 0; i < bars.length; i += minutes) {
+    const chunk = bars.slice(i, i + minutes);
+    if (!chunk.length) continue;
+    out.push({
+      minute: chunk[0].minute || chunk[0].time,
+      o: chunk[0].o, c: chunk[chunk.length - 1].c,
+      h: Math.max(...chunk.map(b => b.h)),
+      l: Math.min(...chunk.map(b => b.l)),
+      v: chunk.reduce((s, b) => s + (b.v || 0), 0),
+    });
+  }
+  return out;
+}
+
+// 과거 날짜 분봉 조회(kis-minute-history-api.py) - 캐시에 없으면 요청하고,
+// 응답이 오면 다시 그리도록 render()를 부른다. 호출 시점엔 그냥 캐시나
+// null을 반환해서 렌더가 막히지 않게 한다(스피너 대신 "불러오는 중" 표시).
+function getHistoricalBars(ticker, date) {
+  const key = `${ticker}_${date}`;
+  if (key in state.live.historyCache) return state.live.historyCache[key];
+  if (!state.live.historyLoading[key]) {
+    state.live.historyLoading[key] = true;
+    fetch(`https://wonithink-stock.duckdns.org/minute-history?ticker=${ticker}&date=${date}`)
+      .then(r => r.json())
+      .then(d => {
+        const bars = (d.bars || []).map(b => ({ minute: b.time.slice(0, 4), time: b.time, o: b.open, h: b.high, l: b.low, c: b.close, v: b.volume }));
+        state.live.historyCache[key] = bars;
+      })
+      .catch(() => { state.live.historyCache[key] = []; })
+      .finally(() => { delete state.live.historyLoading[key]; if (state.tab === 'live') render(); });
+  }
+  return null;
+}
+
 // bars가 비어도 안전하게 "대기 중" 표시. grid/labels는 상세 차트에서만 켠다.
 function candleSvg(bars, w, h, opts) {
   opts = opts || {};
@@ -916,16 +965,25 @@ function candleSvg(bars, w, h, opts) {
     return `<line x1="0" y1="${gy}" x2="${w}" y2="${gy}" stroke="#2a3550" stroke-width="1" stroke-dasharray="2,3"/>`;
   }).join('') : '';
 
-  const marks = bars.map((b, i) => {
-    const cx = i * bw + bw / 2;
-    const up = b.c >= b.o;
-    const color = up ? '#2ecc71' : '#e74c3c';
-    const yO = y(b.o), yC = y(b.c), yH = y(b.h), yL = y(b.l);
-    const bodyTop = Math.min(yO, yC).toFixed(1);
-    const bodyH = Math.max(1, Math.abs(yC - yO)).toFixed(1);
-    return `<line x1="${cx.toFixed(1)}" y1="${yH.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yL.toFixed(1)}" stroke="${color}" stroke-width="1"/>
-      <rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop}" width="${bodyW.toFixed(1)}" height="${bodyH}" rx="0.5" fill="${color}"/>`;
-  }).join('');
+  let marks;
+  if (opts.mode === 'line') {
+    // 종가만 이은 라인 - 기간이 길 때(수백 개 봉) 캔들보다 훨씬 읽기 쉽다
+    const pts = bars.map((b, i) => `${(i * bw + bw / 2).toFixed(1)},${y(b.c).toFixed(1)}`).join(' ');
+    const first = bars[0], lastB = bars[bars.length - 1];
+    const lineColor = lastB.c >= first.o ? '#2ecc71' : '#e74c3c';
+    marks = `<polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round"/>`;
+  } else {
+    marks = bars.map((b, i) => {
+      const cx = i * bw + bw / 2;
+      const up = b.c >= b.o;
+      const color = up ? '#2ecc71' : '#e74c3c';
+      const yO = y(b.o), yC = y(b.c), yH = y(b.h), yL = y(b.l);
+      const bodyTop = Math.min(yO, yC).toFixed(1);
+      const bodyH = Math.max(1, Math.abs(yC - yO)).toFixed(1);
+      return `<line x1="${cx.toFixed(1)}" y1="${yH.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yL.toFixed(1)}" stroke="${color}" stroke-width="1"/>
+        <rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop}" width="${bodyW.toFixed(1)}" height="${bodyH}" rx="0.5" fill="${color}"/>`;
+    }).join('');
+  }
 
   const labels = opts.labels
     ? `<text x="4" y="10" fill="#8b96ad" font-size="10">${fmtNum(hi)}</text>
@@ -933,6 +991,117 @@ function candleSvg(bars, w, h, opts) {
     : '';
 
   return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${grid}${marks}${labels}</svg>`;
+}
+
+const PERIOD_DAYS = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 };
+
+// 오늘(실시간 벽시계) 기준이 아니라 데이터에 실제로 있는 마지막 날짜
+// 기준으로 자른다 - A2a/A4는 예약 실행이 아니라 수동 트리거라 며칠~몇 주
+// 밀려 있을 수 있고, 그러면 "오늘 기준 1개월"엔 데이터가 하루도 안 걸릴 수
+// 있다(실측: 백필 기준일 08-03에 오늘이 09-01이면 "최근 30일"에 딱 하루만
+// 남는다). "최근 N일"은 항상 우리가 가진 데이터의 최근 N일이어야 한다.
+function filterByPeriod(daily, period) {
+  if (!daily.length) return [];
+  const days = PERIOD_DAYS[period] || 30;
+  const lastDate = new Date(daily[daily.length - 1].date);
+  lastDate.setDate(lastDate.getDate() - days);
+  const cutoffStr = lastDate.toISOString().slice(0, 10);
+  return daily.filter(d => d.date >= cutoffStr);
+}
+
+// 일별 개인/외국인/기관 순매수를 나란히 세 막대로 - 부호에 따라 위/아래로
+function supplyDemandSvg(rows, w, h) {
+  if (!rows.length) {
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+      <text x="${w/2}" y="${h/2}" text-anchor="middle" fill="#8b96ad" font-size="10">수급 데이터 없음</text></svg>`;
+  }
+  const maxAbs = Math.max(1, ...rows.flatMap(r => [Math.abs(r.individual), Math.abs(r.foreign), Math.abs(r.institution)]));
+  const midY = h / 2;
+  const usableH = h / 2 - 6;
+  const bw = w / rows.length;
+  const barW = Math.max(1, bw / 3 - 1);
+  const colors = { individual: '#4d9fff', foreign: '#2ecc71', institution: '#f1c40f' };
+  const bars = rows.map((r, i) => {
+    const x0 = i * bw;
+    return ['individual', 'foreign', 'institution'].map((k, j) => {
+      const v = r[k];
+      const bh = Math.abs(v) / maxAbs * usableH;
+      const x = x0 + j * barW;
+      const y = v >= 0 ? midY - bh : midY;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0.5, bh).toFixed(1)}" fill="${colors[k]}"/>`;
+    }).join('');
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+    <line x1="0" y1="${midY}" x2="${w}" y2="${midY}" stroke="#2a3550" stroke-width="1"/>
+    ${bars}
+  </svg>`;
+}
+
+function renderIntradayDetail(code, name) {
+  const isToday = !state.live.date;
+  const raw = isToday ? candleSeries(code, 400) : getHistoricalBars(code, state.live.date);
+
+  const timeframeCtrl = [1, 5, 15, 60].map(m =>
+    `<button data-live-timeframe="${m}" class="chip ${state.live.timeframe === m ? 'active' : ''}">${m}분</button>`).join('');
+  const typeCtrl = ['candle', 'line'].map(t =>
+    `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const dateVal = state.live.date
+    ? `${state.live.date.slice(0, 4)}-${state.live.date.slice(4, 6)}-${state.live.date.slice(6, 8)}`
+    : todayStr;
+
+  let chartHtml, countLabel;
+  if (raw === null) {
+    chartHtml = candleSvg([], 640, 220, {});
+    countLabel = '불러오는 중...';
+  } else {
+    const bars = aggregateBars(raw, state.live.timeframe);
+    chartHtml = candleSvg(bars, 640, 220, { grid: true, labels: true, mode: state.live.chartType });
+    countLabel = `${state.live.timeframe}분봉 · ${bars.length}개${isToday ? ' · 실시간 집계(과거이력 없음)' : ''}`;
+  }
+
+  return `
+    <div class="group-filter" style="margin-bottom:8px">${timeframeCtrl}</div>
+    <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button data-live-date="today" class="chip ${isToday ? 'active' : ''}">오늘(실시간)</button>
+      <input type="date" id="liveDateInput" value="${dateVal}" max="${todayStr}"
+        style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px" />
+    </div>
+    <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">${countLabel}</span></h2>
+    <div class="table-wrap">${chartHtml}</div>`;
+}
+
+function renderPeriodDetail(code, name) {
+  const ticker = state.live.daily && state.live.daily.tickers && state.live.daily.tickers[code];
+  const periodCtrl = ['1m', '3m', '6m', '1y'].map(p => {
+    const label = { '1m': '1개월', '3m': '3개월', '6m': '6개월', '1y': '1년' }[p];
+    return `<button data-live-period="${p}" class="chip ${state.live.period === p ? 'active' : ''}">${label}</button>`;
+  }).join('');
+  const typeCtrl = ['candle', 'line'].map(t =>
+    `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
+
+  if (!ticker) {
+    return `<div class="group-filter" style="margin-bottom:8px">${periodCtrl}</div>
+      <p class="empty">일봉 데이터(watchlist-daily.json)를 불러오지 못했습니다.</p>`;
+  }
+
+  const priceRows = filterByPeriod(ticker.daily, state.live.period);
+  const bars = priceRows.map(d => ({ o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
+  const sdRows = filterByPeriod(ticker.supplyDemand, '1m');  // 수급은 기간선택과 무관하게 항상 최근 1개월
+
+  return `
+    <div class="group-filter" style="margin-bottom:8px">${periodCtrl}</div>
+    <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
+    <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">일봉 ${bars.length}일 · ${esc(state.live.daily.asOfPrice || '-')} 기준(백필 산출물, 실시간 아님)</span></h2>
+    <div class="table-wrap" style="margin-bottom:20px">${candleSvg(bars, 640, 220, { grid: true, labels: true, mode: state.live.chartType })}</div>
+    <h2>수급 <span class="muted" style="font-weight:400;font-size:12px">개인·외국인·기관 순매수 · 최근 ${sdRows.length}거래일 · ${esc(state.live.daily.asOfSupplyDemand || '-')} 기준</span></h2>
+    <div class="table-wrap" style="margin-bottom:6px">${supplyDemandSvg(sdRows, 640, 110)}</div>
+    <div style="display:flex;gap:14px;font-size:11px;color:var(--muted)">
+      <span><span style="display:inline-block;width:8px;height:8px;background:#4d9fff;margin-right:4px;vertical-align:middle"></span>개인</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:#2ecc71;margin-right:4px;vertical-align:middle"></span>외국인</span>
+      <span><span style="display:inline-block;width:8px;height:8px;background:#f1c40f;margin-right:4px;vertical-align:middle"></span>기관</span>
+    </div>`;
 }
 
 function renderLive() {
@@ -981,19 +1150,26 @@ function renderLive() {
 
   const selWatch = LIVE_WATCHLIST.find(w => w[0] === state.live.selected);
   const detailName = selWatch ? selWatch[1] : state.live.selected;
-  const detailBars = candleSeries(state.live.selected, 50);
+  const viewToggle = `
+    <div class="group-filter" style="margin-bottom:12px">
+      <button data-live-view="intraday" class="chip ${state.live.view === 'intraday' ? 'active' : ''}">분봉(오늘·과거일자)</button>
+      <button data-live-view="period" class="chip ${state.live.view === 'period' ? 'active' : ''}">기간차트·수급</button>
+    </div>`;
+  const detailHtml = state.live.view === 'period'
+    ? renderPeriodDetail(state.live.selected, detailName)
+    : renderIntradayDetail(state.live.selected, detailName);
 
   return `<div class="card">
     <h2>실시간 체결가 <span class="${statusCls}" style="font-weight:400;font-size:13px">${statusLabel}</span></h2>
     <p class="muted" style="margin-bottom:10px">
-      한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 10개 고정 · 장중에만 갱신됩니다.
-      1분봉은 이 페이지를 연 시점부터 집계되며 과거 이력은 없습니다. 클릭해서 종목을 바꿀 수 있습니다.
+      한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 10개 고정 · 장중에만 갱신됩니다. 클릭해서 종목을 바꿀 수 있습니다.
     </p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:18px">${miniCards}</div>
 
-    <h2>${esc(detailName)} <span class="muted" style="font-weight:400;font-size:12px">1분봉 · 최근 ${detailBars.length}개</span></h2>
-    <div class="table-wrap" style="margin-bottom:16px">${candleSvg(detailBars, 640, 200, { grid: true, labels: true })}</div>
+    ${viewToggle}
+    ${detailHtml}
 
+    <h2 style="margin-top:20px">종목 현황</h2>
     <div class="table-wrap"><table><thead><tr>
       <th>종목</th><th>코드</th><th>현재가</th><th>전일대비</th><th>누적거래량</th><th>체결시각</th>
     </tr></thead><tbody>${rows}</tbody></table></div>
@@ -1049,6 +1225,16 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (fd) { state.flowsDateIdx = Number(fd.dataset.flowsDate); return render(); }
   const ls = t.closest('[data-live-select]');
   if (ls) { state.live.selected = ls.dataset.liveSelect; return render(); }
+  const lv = t.closest('[data-live-view]');
+  if (lv) { state.live.view = lv.dataset.liveView; return render(); }
+  const ltf = t.closest('[data-live-timeframe]');
+  if (ltf) { state.live.timeframe = Number(ltf.dataset.liveTimeframe); return render(); }
+  const lct = t.closest('[data-live-charttype]');
+  if (lct) { state.live.chartType = lct.dataset.liveCharttype; return render(); }
+  const lp = t.closest('[data-live-period]');
+  if (lp) { state.live.period = lp.dataset.livePeriod; return render(); }
+  const ld = t.closest('[data-live-date]');
+  if (ld) { state.live.date = null; return render(); }  // "오늘(실시간)" 버튼 - 값은 today뿐
 
   // 업종 비고 펼치기 (업종 헤더 토글보다 먼저 처리)
   const nt = t.closest('[data-note-toggle]');
@@ -1082,6 +1268,12 @@ document.getElementById('content').addEventListener('input', (e) => {
   renderKeepingFocus();
 });
 
+document.getElementById('content').addEventListener('change', (e) => {
+  if (e.target.id !== 'liveDateInput' || !e.target.value) return;
+  state.live.date = e.target.value.replace(/-/g, '');
+  render();
+});
+
 document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -1092,9 +1284,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'),
   ]);
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
