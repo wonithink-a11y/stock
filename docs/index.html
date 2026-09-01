@@ -1384,15 +1384,17 @@ function renderChartTab(dt, dailyBars, n, rec) {
   const retsHtml = [['1일', 1], ['1주', 5], ['1개월', 20], ['3개월', 60], ['6개월', 120], ['1년', 250]]
     .map(([lb, k]) => retChip(lb, retN(rec.c, k))).join('') + retChip('YTD', retYTD(rec.c, rec.d));
 
+  // 1D(분)을 먼저 눌러야 분봉 버튼이 나오던 2단계 구조를 없애고 분봉·기간
+  // 버튼을 한 줄에 같이 둔다 - 아무거나 바로 눌러서 전환.
+  const tfBtns = isUS ? '' : ['1m', '5m', '15m', '60m'].map(tf =>
+    `<button data-detail-tf="${tf}" class="chip ${dt.intraday && dt.tf === tf ? 'active' : ''}">${tf.replace('m', '분')}</button>`).join('');
   const rangeBtns = [['1M', 20], ['3M', 60], ['6M', 120], ['1Y', 250], ['전체', 9999]]
     .map(([lb, v]) => `<button data-detail-range="${v}" class="chip ${!dt.intraday && (v === 9999 ? dt.range >= n : dt.range === Math.min(v, n)) ? 'active' : ''}">${lb}</button>`).join('');
-  const intradayBtn = isUS ? '' : `<button data-detail-intraday="1" class="chip ${dt.intraday ? 'active' : ''}">1D(분)</button>`;
-  const tfBtns = dt.intraday ? ['1m', '5m', '15m', '60m'].map(tf => `<button data-detail-tf="${tf}" class="chip ${dt.tf === tf ? 'active' : ''}">${tf.replace('m', '분')}</button>`).join('') : '';
   const typeBtns = ['candle', 'line'].map(t => `<button data-detail-type="${t}" class="chip ${dt.type === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
 
   return `
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${retsHtml}</div>
-    <div class="group-filter" style="margin-bottom:6px">${rangeBtns}${intradayBtn}${tfBtns}</div>
+    <div class="group-filter" style="margin-bottom:6px">${tfBtns}${rangeBtns}</div>
     <div class="group-filter" style="margin-bottom:12px">${typeBtns}</div>
     <div class="muted" style="font-size:12px;margin-bottom:4px">${esc(note)}</div>
     <div class="table-wrap">${bodyHtml}</div>
@@ -1437,10 +1439,6 @@ function renderIntradayDetail(code, name) {
   if (isToday) seedTodayFromHistory(code);
   const raw = isToday ? candleSeries(code, 400) : getHistoricalBars(code, state.live.date);
 
-  const timeframeCtrl = [1, 5, 15, 60].map(m =>
-    `<button data-live-timeframe="${m}" class="chip ${state.live.timeframe === m ? 'active' : ''}">${m}분</button>`).join('');
-  const typeCtrl = ['candle', 'line'].map(t =>
-    `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
   const todayStr = kstYmd();
   // KIS 날짜지정 분봉조회는 오늘 기준 약 1년 전까지만 준다(실측 2026-09-01,
   // 롤링 윈도우라 매일 밀림) - 그 이전은 에러 없이 조용히 빈 데이터만 온다.
@@ -1468,8 +1466,6 @@ function renderIntradayDetail(code, name) {
   }
 
   return `
-    <div class="group-filter" style="margin-bottom:8px">${timeframeCtrl}</div>
-    <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
       <button data-live-date="today" class="chip ${isToday ? 'active' : ''}">오늘(실시간)</button>
       <input type="date" id="liveDateInput" value="${dateVal}" max="${todayStr}" min="${minStr}"
@@ -1482,16 +1478,8 @@ function renderIntradayDetail(code, name) {
 
 function renderPeriodDetail(code, name) {
   const ticker = state.live.daily && state.live.daily.tickers && state.live.daily.tickers[code];
-  const periodCtrl = ['1m', '3m', '6m', '1y'].map(p => {
-    const label = { '1m': '1개월', '3m': '3개월', '6m': '6개월', '1y': '1년' }[p];
-    return `<button data-live-period="${p}" class="chip ${state.live.period === p ? 'active' : ''}">${label}</button>`;
-  }).join('');
-  const typeCtrl = ['candle', 'line'].map(t =>
-    `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
-
   if (!ticker) {
-    return `<div class="group-filter" style="margin-bottom:8px">${periodCtrl}</div>
-      <p class="empty">일봉 데이터(watchlist-daily.json)를 불러오지 못했습니다.</p>`;
+    return '<p class="empty">일봉 데이터(watchlist-daily.json)를 불러오지 못했습니다.</p>';
   }
 
   const fullBars = ticker.daily.map(d => ({ date: d.date, o: d.open, h: d.high, l: d.low, c: d.close, v: d.volume }));
@@ -1499,8 +1487,6 @@ function renderPeriodDetail(code, name) {
   const sdRows = filterByPeriod(ticker.supplyDemand, '1m');  // 수급은 기간선택과 무관하게 항상 최근 1개월
 
   return `
-    <div class="group-filter" style="margin-bottom:8px">${periodCtrl}</div>
-    <div class="group-filter" style="margin-bottom:10px">${typeCtrl}</div>
     <h2>${esc(name)} <span class="muted" style="font-weight:400;font-size:12px">일봉 ${bars.length}일 · ${esc(state.live.daily.asOfPrice || '-')} 기준(백필 산출물, 실시간 아님)</span></h2>
     <div class="table-wrap" style="margin-bottom:6px">${detailChartSvg(bars, 640, state.live.chartType, state.live)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${badgesFor(fullBars)}</div>
@@ -1561,14 +1547,22 @@ function renderLive() {
         border-radius:6px;padding:5px 9px;font-size:12px;font-weight:600">
       ${LIVE_WATCHLIST.map(([code, nm]) => `<option value="${code}" ${code === state.live.selected ? 'selected' : ''}>${esc(nm)}</option>`).join('')}
     </select>`;
+  // 분봉을 먼저 눌러야 나오던 상위 토글을 없애고, 분봉·기간 버튼을 한 줄에
+  // 같이 둔다 - 아무거나 바로 눌러서 전환(종목 상세 모달과 동일 패턴).
+  const timeframeCtrl = [1, 5, 15, 60].map(m =>
+    `<button data-live-timeframe="${m}" class="chip ${state.live.view === 'intraday' && state.live.timeframe === m ? 'active' : ''}">${m}분</button>`).join('');
+  const periodCtrl = ['1m', '3m', '6m', '1y'].map(p => {
+    const label = { '1m': '1개월', '3m': '3개월', '6m': '6개월', '1y': '1년' }[p];
+    return `<button data-live-period="${p}" class="chip ${state.live.view === 'period' && state.live.period === p ? 'active' : ''}">${label}</button>`;
+  }).join('');
+  const typeCtrl = ['candle', 'line'].map(t =>
+    `<button data-live-charttype="${t}" class="chip ${state.live.chartType === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
   const viewToggle = `
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       ${tickerSelect}
-      <div class="group-filter">
-        <button data-live-view="intraday" class="chip ${state.live.view === 'intraday' ? 'active' : ''}">분봉(오늘·과거일자)</button>
-        <button data-live-view="period" class="chip ${state.live.view === 'period' ? 'active' : ''}">기간차트·수급</button>
-      </div>
-    </div>`;
+    </div>
+    <div class="group-filter" style="margin-bottom:8px">${timeframeCtrl}${periodCtrl}</div>
+    <div class="group-filter" style="margin-bottom:12px">${typeCtrl}</div>`;
   const detailHtml = state.live.view === 'period'
     ? renderPeriodDetail(state.live.selected, detailName)
     : renderIntradayDetail(state.live.selected, detailName);
@@ -1641,14 +1635,12 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (fd) { state.flowsDateIdx = Number(fd.dataset.flowsDate); return render(); }
   const ls = t.closest('[data-live-select]');
   if (ls) { state.live.selected = ls.dataset.liveSelect; return render(); }
-  const lv = t.closest('[data-live-view]');
-  if (lv) { state.live.view = lv.dataset.liveView; return render(); }
   const ltf = t.closest('[data-live-timeframe]');
-  if (ltf) { state.live.timeframe = Number(ltf.dataset.liveTimeframe); return render(); }
+  if (ltf) { state.live.view = 'intraday'; state.live.timeframe = Number(ltf.dataset.liveTimeframe); return render(); }
   const lct = t.closest('[data-live-charttype]');
   if (lct) { state.live.chartType = lct.dataset.liveCharttype; return render(); }
   const lp = t.closest('[data-live-period]');
-  if (lp) { state.live.period = lp.dataset.livePeriod; return render(); }
+  if (lp) { state.live.view = 'period'; state.live.period = lp.dataset.livePeriod; return render(); }
   const ld = t.closest('[data-live-date]');
   if (ld) { state.live.date = null; return render(); }  // "오늘(실시간)" 버튼 - 값은 today뿐
 
@@ -1698,10 +1690,8 @@ document.getElementById('stockModal').addEventListener('click', (e) => {
   if (t.closest('[data-detail-close]')) return closeStockDetail();
   const rb = t.closest('[data-detail-range]');
   if (rb) { state.detail.intraday = false; state.detail.range = Number(rb.dataset.detailRange); return render(); }
-  const ib = t.closest('[data-detail-intraday]');
-  if (ib) { state.detail.intraday = !state.detail.intraday; return render(); }
   const tf = t.closest('[data-detail-tf]');
-  if (tf) { state.detail.tf = tf.dataset.detailTf; return render(); }
+  if (tf) { state.detail.intraday = true; state.detail.tf = tf.dataset.detailTf; return render(); }
   const ty = t.closest('[data-detail-type]');
   if (ty) { state.detail.type = ty.dataset.detailType; return render(); }
   const vt = t.closest('[data-detail-vtab]');
