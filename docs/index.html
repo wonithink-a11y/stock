@@ -166,7 +166,7 @@ const state = {
   flowsMarket: 'KOSPI',
   // 실시간 탭 전용 - WebSocket 객체 자체는 render()가 매번 재생성하는
   // innerHTML과 무관하게 살아있어야 하므로 state에 들고 있는다
-  live: { status: 'idle', ticks: {}, ws: null, renderPending: false },
+  live: { status: 'idle', ticks: {}, ws: null, renderPending: false, candles: {}, selected: null },
   flowsDateIdx: null,       // null = 최신일
   // 종목 스코어 탭 전용
   viewMode: 'sector',      // 'sector' | 'list'
@@ -842,6 +842,7 @@ function connectLive() {
     try {
       const tick = JSON.parse(ev.data);
       state.live.ticks[tick.ticker] = tick;
+      updateCandle(tick);
       scheduleLiveRender();
     } catch (e) { /* 파싱 실패한 메시지는 무시 */ }
   };
@@ -865,8 +866,78 @@ function scheduleLiveRender() {
   }, 300);
 }
 
+// 틱을 종목별 1분봉으로 누적한다. 분이 바뀌면 진행 중이던 봉을 확정하고
+// 새 봉을 연다 - 서버는 원 틱만 주므로 이 집계는 순전히 클라이언트 몫이다.
+function updateCandle(t) {
+  if (!t.time || t.time.length !== 6 || !t.price) return;
+  const price = Number(t.price);
+  const vol = Number(t.volume) || 0;
+  if (!isFinite(price)) return;
+  const minute = t.time.slice(0, 4);
+  let c = state.live.candles[t.ticker];
+  if (!c) c = state.live.candles[t.ticker] = { bars: [], cur: null };
+  if (!c.cur || c.cur.minute !== minute) {
+    if (c.cur) c.bars.push(c.cur);
+    if (c.bars.length > 120) c.bars.shift();  // 무한정 안 쌓는다
+    c.cur = { minute, o: price, h: price, l: price, c: price, v: vol };
+  } else {
+    c.cur.h = Math.max(c.cur.h, price);
+    c.cur.l = Math.min(c.cur.l, price);
+    c.cur.c = price;
+    c.cur.v += vol;
+  }
+}
+
+function candleSeries(ticker, n) {
+  const c = state.live.candles[ticker];
+  if (!c) return [];
+  const all = c.cur ? c.bars.concat([c.cur]) : c.bars;
+  return all.slice(-n);
+}
+
+// bars가 비어도 안전하게 "대기 중" 표시. grid/labels는 상세 차트에서만 켠다.
+function candleSvg(bars, w, h, opts) {
+  opts = opts || {};
+  if (!bars.length) {
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+      <text x="${w/2}" y="${h/2}" text-anchor="middle" fill="#8b96ad" font-size="10">대기 중</text></svg>`;
+  }
+  const hi = Math.max(...bars.map(b => b.h));
+  const lo = Math.min(...bars.map(b => b.l));
+  const range = (hi - lo) || Math.max(1, hi * 0.001);
+  const padTop = opts.labels ? 14 : 3, padBottom = 3;
+  const usableH = h - padTop - padBottom;
+  const bw = w / bars.length;
+  const bodyW = Math.max(1, bw * 0.6);
+  const y = (v) => padTop + (hi - v) / range * usableH;
+
+  const grid = opts.grid ? [0.25, 0.5, 0.75].map(f => {
+    const gy = (padTop + f * usableH).toFixed(1);
+    return `<line x1="0" y1="${gy}" x2="${w}" y2="${gy}" stroke="#2a3550" stroke-width="1" stroke-dasharray="2,3"/>`;
+  }).join('') : '';
+
+  const marks = bars.map((b, i) => {
+    const cx = i * bw + bw / 2;
+    const up = b.c >= b.o;
+    const color = up ? '#2ecc71' : '#e74c3c';
+    const yO = y(b.o), yC = y(b.c), yH = y(b.h), yL = y(b.l);
+    const bodyTop = Math.min(yO, yC).toFixed(1);
+    const bodyH = Math.max(1, Math.abs(yC - yO)).toFixed(1);
+    return `<line x1="${cx.toFixed(1)}" y1="${yH.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yL.toFixed(1)}" stroke="${color}" stroke-width="1"/>
+      <rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop}" width="${bodyW.toFixed(1)}" height="${bodyH}" rx="0.5" fill="${color}"/>`;
+  }).join('');
+
+  const labels = opts.labels
+    ? `<text x="4" y="10" fill="#8b96ad" font-size="10">${fmtNum(hi)}</text>
+       <text x="4" y="${h - 3}" fill="#8b96ad" font-size="10">${fmtNum(lo)}</text>`
+    : '';
+
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${grid}${marks}${labels}</svg>`;
+}
+
 function renderLive() {
   if (!state.live.ws && state.live.status !== 'error') connectLive();
+  if (!state.live.selected) state.live.selected = LIVE_WATCHLIST[0][0];
 
   const statusMap = {
     idle: ['muted', '대기'], connecting: ['muted', '접속 중...'],
@@ -891,11 +962,38 @@ function renderLive() {
       <td class="muted">${hhmmss}</td></tr>`;
   }).join('');
 
+  const miniCards = LIVE_WATCHLIST.map(([code, name]) => {
+    const bars = candleSeries(code, 20);
+    const t = state.live.ticks[code];
+    const selected = code === state.live.selected;
+    const chg = t ? Number(t.changePct) : null;
+    const chgCls = chg > 0 ? 'pos' : chg < 0 ? 'neg' : 'muted';
+    return `<div data-live-select="${code}" style="cursor:pointer;border-radius:8px;padding:8px;
+        border:1px solid ${selected ? 'var(--accent)' : 'var(--border)'};
+        background:${selected ? '#1e2a44' : 'var(--card)'}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:600">${esc(name)}</span>
+        <span class="${chgCls}" style="font-size:11px">${t ? (chg > 0 ? '+' : '') + t.changePct + '%' : '-'}</span>
+      </div>
+      ${candleSvg(bars, 130, 40, {})}
+    </div>`;
+  }).join('');
+
+  const selWatch = LIVE_WATCHLIST.find(w => w[0] === state.live.selected);
+  const detailName = selWatch ? selWatch[1] : state.live.selected;
+  const detailBars = candleSeries(state.live.selected, 50);
+
   return `<div class="card">
     <h2>실시간 체결가 <span class="${statusCls}" style="font-weight:400;font-size:13px">${statusLabel}</span></h2>
     <p class="muted" style="margin-bottom:10px">
       한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 10개 고정 · 장중에만 갱신됩니다.
+      1분봉은 이 페이지를 연 시점부터 집계되며 과거 이력은 없습니다. 클릭해서 종목을 바꿀 수 있습니다.
     </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:18px">${miniCards}</div>
+
+    <h2>${esc(detailName)} <span class="muted" style="font-weight:400;font-size:12px">1분봉 · 최근 ${detailBars.length}개</span></h2>
+    <div class="table-wrap" style="margin-bottom:16px">${candleSvg(detailBars, 640, 200, { grid: true, labels: true })}</div>
+
     <div class="table-wrap"><table><thead><tr>
       <th>종목</th><th>코드</th><th>현재가</th><th>전일대비</th><th>누적거래량</th><th>체결시각</th>
     </tr></thead><tbody>${rows}</tbody></table></div>
@@ -949,6 +1047,8 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (fm) { state.flowsMarket = fm.dataset.flowsMarket; return render(); }
   const fd = t.closest('[data-flows-date]');
   if (fd) { state.flowsDateIdx = Number(fd.dataset.flowsDate); return render(); }
+  const ls = t.closest('[data-live-select]');
+  if (ls) { state.live.selected = ls.dataset.liveSelect; return render(); }
 
   // 업종 비고 펼치기 (업종 헤더 토글보다 먼저 처리)
   const nt = t.closest('[data-note-toggle]');
