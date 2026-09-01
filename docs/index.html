@@ -167,6 +167,7 @@ const state = {
   disclosures: null, news: null, marketFlows: null,
   tab: 'scores',
   groupFilter: 'all',
+  marketIndexFilter: 'kospi',  // 코스피(기본)|kosdaq|sp500|nasdaq100 - 상단 배너
   // 공시·뉴스·시장수급 탭 전용
   discFilter: 'all',
   newsGroup: 'brief',
@@ -339,9 +340,22 @@ function avgScore(rows) {
   return Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) / 10;
 }
 
+// KR은 코스닥150 태그가 없으면 코스피로 간주(태그 안 늘려도 됨).
+// US는 sp500/nasdaq100 둘 다 태그된 종목(87개 중복)은 양쪽 배너에 다 나온다 -
+// 실제 지수 소속이 원래 배타적이지 않으므로 자연스러운 동작.
+function matchesMarketIndex(r, idx) {
+  const g = r.groups || [];
+  if (idx === 'kospi') return r.market === 'KR' && !g.includes('kosdaq150');
+  if (idx === 'kosdaq') return r.market === 'KR' && g.includes('kosdaq150');
+  if (idx === 'sp500') return r.market === 'US' && g.includes('sp500');
+  if (idx === 'nasdaq100') return r.market === 'US' && g.includes('nasdaq100');
+  return true;
+}
+
 function applyFilters(all) {
   const q = state.search.trim().toLowerCase();
   return all.filter(r => {
+    if (!matchesMarketIndex(r, state.marketIndexFilter)) return false;
     if (state.groupFilter !== 'all' && !(r.groups || []).includes(state.groupFilter)) return false;
     if (state.sectorFilter !== 'all' && sectorOf(r) !== state.sectorFilter) return false;
     if (state.gradeFilter !== 'all' && gradeKey(r.grade) !== state.gradeFilter) return false;
@@ -490,6 +504,14 @@ function renderScores() {
       ${groups.map(g => chip('group', g, (labels[g] || g).split(' ')[0], all.filter(r => (r.groups || []).includes(g)).length, state.groupFilter)).join('')}
     </div>` : ''}`;
 
+  // ── 시장/지수 배너(코스피 기본) - 전체 종목(all) 기준 개수, 선택은 다른 필터와 별개
+  const marketIndexBanner = [
+    ['kospi', '코스피'], ['kosdaq', '코스닥'], ['sp500', 'S&P500'], ['nasdaq100', '나스닥100'],
+  ].map(([idx, label]) => {
+    const cnt = all.filter(r => matchesMarketIndex(r, idx)).length;
+    return `<button data-market-index="${idx}" class="chip ${state.marketIndexFilter === idx ? 'active' : ''}" style="font-size:14px;padding:8px 18px">${label}<span class="cnt">${cnt}</span></button>`;
+  }).join('');
+
   const filtered = applyFilters(all);
 
   // ── 요약 스트립
@@ -512,7 +534,9 @@ function renderScores() {
 
   const uni = d.universeVersion ? ` · 유니버스 ${esc(d.universeVersion)}(${d.universeSize ?? all.length}종목)` : '';
 
-  return `<div class="card">${toolbar}${filters}${strip}${body}
+  return `<div class="card">
+    <div class="group-filter" style="margin-bottom:12px">${marketIndexBanner}</div>
+    ${toolbar}${filters}${strip}${body}
     <p class="muted" style="margin-top:12px;white-space:normal">
       업종 행을 클릭하면 접고 펼칠 수 있고, 종목 행을 클릭하면 그 업종의 채점 주의사항이 열립니다.
       <strong>'신뢰도 낮음'</strong> 업종은 점수 자체의 예측력이 떨어지므로 비고를 먼저 읽으세요.
@@ -1615,6 +1639,10 @@ document.getElementById('content').addEventListener('click', (e) => {
   // 보기 전환
   const view = t.closest('[data-view]');
   if (view) { state.viewMode = view.dataset.view; return render(); }
+
+  // 시장/지수 배너
+  const mi = t.closest('[data-market-index]');
+  if (mi) { state.marketIndexFilter = mi.dataset.marketIndex; return render(); }
 
   // 필터 칩
   const sec = t.closest('[data-sector]');
