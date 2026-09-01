@@ -142,6 +142,7 @@
   <button data-tab="disclosures">공시</button>
   <button data-tab="news">뉴스</button>
   <button data-tab="flows">시장수급</button>
+  <button data-tab="live">실시간⚡</button>
 </nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
@@ -163,6 +164,9 @@ const state = {
   discFilter: 'all',
   newsGroup: 'brief',
   flowsMarket: 'KOSPI',
+  // 실시간 탭 전용 - WebSocket 객체 자체는 render()가 매번 재생성하는
+  // innerHTML과 무관하게 살아있어야 하므로 state에 들고 있는다
+  live: { status: 'idle', ticks: {}, ws: null, renderPending: false },
   flowsDateIdx: null,       // null = 최신일
   // 종목 스코어 탭 전용
   viewMode: 'sector',      // 'sector' | 'list'
@@ -812,6 +816,92 @@ function renderFlows() {
   </div>`;
 }
 
+const LIVE_WS_URL = 'wss://wonithink-stock.duckdns.org/live-ws';
+// 중계서버(scripts/kis-live-relay.py)의 WATCHLIST와 순서를 맞춘다 - 틱이
+// 아직 안 온 종목도 자리를 잡아 표가 흔들리지 않게 하기 위함
+const LIVE_WATCHLIST = [
+  ['005930', '삼성전자'], ['000660', 'SK하이닉스'], ['402340', 'SK스퀘어'],
+  ['005380', '현대차'], ['009150', '삼성전기'], ['373220', 'LG에너지솔루션'],
+  ['032830', '삼성생명'], ['207940', '삼성바이오로직스'], ['105560', 'KB금융'],
+  ['000270', '기아'],
+];
+
+function connectLive() {
+  if (state.live.ws) return;  // 이미 연결됐거나 연결 시도 중
+  state.live.status = 'connecting';
+  let ws;
+  try {
+    ws = new WebSocket(LIVE_WS_URL);
+  } catch (e) {
+    state.live.status = 'error';
+    return;
+  }
+  state.live.ws = ws;
+  ws.onopen = () => { state.live.status = 'connected'; scheduleLiveRender(); };
+  ws.onmessage = (ev) => {
+    try {
+      const tick = JSON.parse(ev.data);
+      state.live.ticks[tick.ticker] = tick;
+      scheduleLiveRender();
+    } catch (e) { /* 파싱 실패한 메시지는 무시 */ }
+  };
+  ws.onclose = () => {
+    state.live.ws = null;
+    state.live.status = 'disconnected';
+    scheduleLiveRender();
+    if (state.tab === 'live') setTimeout(connectLive, 3000);  // 탭을 보고 있을 때만 재연결
+  };
+  ws.onerror = () => { /* onclose가 뒤이어 호출되므로 여기선 상태만 남겨두고 별도 처리 안 함 */ };
+}
+
+// 틱이 여러 종목에서 초당 여러 번 올 수 있어 매번 innerHTML을 다시 그리면
+// 낭비다 - 300ms 안에 몰린 갱신은 한 번만 반영한다
+function scheduleLiveRender() {
+  if (state.live.renderPending) return;
+  state.live.renderPending = true;
+  setTimeout(() => {
+    state.live.renderPending = false;
+    if (state.tab === 'live') render();
+  }, 300);
+}
+
+function renderLive() {
+  if (!state.live.ws && state.live.status !== 'error') connectLive();
+
+  const statusMap = {
+    idle: ['muted', '대기'], connecting: ['muted', '접속 중...'],
+    connected: ['pos', '● 실시간 연결됨'], disconnected: ['neg', '연결 끊김 - 재접속 중'],
+    error: ['neg', '연결 실패'],
+  };
+  const [statusCls, statusLabel] = statusMap[state.live.status] || statusMap.idle;
+
+  const rows = LIVE_WATCHLIST.map(([code, name]) => {
+    const t = state.live.ticks[code];
+    if (!t) {
+      return `<tr><td>${esc(name)}</td><td class="muted">${code}</td>
+        <td class="muted">-</td><td class="muted">-</td><td class="muted">-</td><td class="muted">-</td></tr>`;
+    }
+    const chg = Number(t.changePct);
+    const cls = chg > 0 ? 'pos' : chg < 0 ? 'neg' : 'muted';
+    const hhmmss = t.time && t.time.length === 6 ? `${t.time.slice(0,2)}:${t.time.slice(2,4)}:${t.time.slice(4,6)}` : '-';
+    return `<tr><td>${esc(name)}</td><td class="muted">${code}</td>
+      <td>${fmtNum(t.price)}원</td>
+      <td class="${cls}">${chg > 0 ? '+' : ''}${t.change} (${chg > 0 ? '+' : ''}${t.changePct}%)</td>
+      <td class="muted">${fmtNum(t.accVolume)}</td>
+      <td class="muted">${hhmmss}</td></tr>`;
+  }).join('');
+
+  return `<div class="card">
+    <h2>실시간 체결가 <span class="${statusCls}" style="font-weight:400;font-size:13px">${statusLabel}</span></h2>
+    <p class="muted" style="margin-bottom:10px">
+      한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 10개 고정 · 장중에만 갱신됩니다.
+    </p>
+    <div class="table-wrap"><table><thead><tr>
+      <th>종목</th><th>코드</th><th>현재가</th><th>전일대비</th><th>누적거래량</th><th>체결시각</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+
 // ---------- 탭 전환 ----------
 
 function render() {
@@ -823,6 +913,7 @@ function render() {
   else if (state.tab === 'disclosures') el.innerHTML = renderDisclosures();
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
+  else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
 }
 
