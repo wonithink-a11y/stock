@@ -1,0 +1,14 @@
+[Unit]
+Description=Update DuckDNS record if stock-new public IP changed
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/home/ubuntu/duckdns/duckdns-update.sh
+StandardOutput=append:/home/ubuntu/duckdns/update.log
+StandardError=append:/home/ubuntu/duckdns/update.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
