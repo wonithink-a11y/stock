@@ -618,16 +618,28 @@ function renderPortfolio() {
 function renderReco() {
   const d = state.reco;
   if (!d || !d.performance || d.performance.length === 0) return '<div class="card empty">추천 이력이 아직 없습니다. B등급 이상 종목이 나오면 자동 기록됩니다.</div>';
-  const rows = d.performance.map(p => `
+  // 추천 당시 점수는 recommendations.json에 박제된 값, 현재 점수는 latest.json의
+  // 오늘자 채점 결과를 티커로 조인한 것 - 두 파일이 갱신 주기가 달라 서로 다른
+  // 시점의 값이다(latest.json이 매번 최신, 추천 당시는 그 추천이 나온 날 그대로).
+  const currentByTicker = {};
+  ((state.latest && state.latest.results) || []).forEach(r => { currentByTicker[r.ticker] = r; });
+  const rows = d.performance.map(p => {
+    const cur = currentByTicker[p.ticker];
+    const curCell = cur
+      ? `${gradeChip(cur.grade)} ${cur.totalScore ?? '-'}`
+      : '<span class="muted" title="현재 채점 유니버스에 없음(상장폐지·유니버스 변경 등)">-</span>';
+    return `
     <tr>
       <td><strong>${esc(p.name)}</strong> <span class="muted">${esc(p.ticker)}</span>${mktChip(p.market)}</td>
       <td>${esc(p.recommendedDate)} <span class="muted">(${p.holdingDays}일)</span></td>
       <td>${gradeChip(p.gradeAtRecommendation)} ${p.scoreAtRecommendation}</td>
+      <td>${curCell}</td>
       <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
       <td>${fmtPct(p.changePct)}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   return `<div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>종목</th><th>추천일</th><th>추천 당시</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
+    <thead><tr><th>종목</th><th>추천일</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
     <tbody>${rows}</tbody></table></div></div>`;
 }
 
