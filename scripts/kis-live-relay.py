@@ -14,9 +14,12 @@
 실측으로도 모의투자 키로 20초간 36틱 정상 수신을 확인했다 — 그 확인을 그대로
 상시 서비스로 옮긴 것이다.
 
-구독 종목은 config/watchlist.json 상위 몇 종목으로 고정한다(v1) — 클라이언트별
+구독 종목은 docs/data/live-watchlist.json 고정 10개다(v1) — 클라이언트별
 동적 구독은 다루지 않는다. 브라우저는 이 서버가 흘려보내는 스트림 중 보고
-싶은 종목만 골라서 표시하면 된다.
+싶은 종목만 골라서 표시하면 된다. 이 종목 목록은 scripts/kis-live-relay.py·
+scripts/build-watchlist-daily.py·docs/index.html 셋이 그대로 공유한다 -
+바꾸려면 docs/data/live-watchlist.json 하나만 고치면 된다(예전엔 세 곳에
+각각 하드코딩돼 있었다).
 
 .env(이 스크립트와 같은 디렉터리)에 KIS_VTS_APP_KEY/KIS_VTS_APP_SECRET 필요.
 """
@@ -30,19 +33,21 @@ import websockets
 
 HERE = Path(__file__).resolve().parent
 ENV_PATH = HERE / ".env"
+REPO_ROOT = HERE.parent
+WATCHLIST_PATH = REPO_ROOT / "docs" / "data" / "live-watchlist.json"
 
 VPS_BASE = "https://openapivts.koreainvestment.com:29443"
 VOPS_WS = "ws://ops.koreainvestment.com:31000"
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = 8765
 
-# v1 고정 구독 목록 - config/watchlist.json 상위 10종목(유동성 큰 대형주 위주)
-WATCHLIST = [
-    ("005930", "삼성전자"), ("000660", "SK하이닉스"), ("402340", "SK스퀘어"),
-    ("005380", "현대차"), ("009150", "삼성전기"), ("373220", "LG에너지솔루션"),
-    ("032830", "삼성생명"), ("207940", "삼성바이오로직스"), ("105560", "KB금융"),
-    ("000270", "기아"),
-]
+
+def load_watchlist():
+    d = json.loads(WATCHLIST_PATH.read_text(encoding="utf-8"))
+    return [(t["ticker"], t["name"]) for t in d["tickers"]]
+
+
+WATCHLIST = load_watchlist()
 
 # H0STCNT0 응답 컬럼 순서 (KIS 공식 예제 domestic_stock_functions_ws.py 그대로)
 COLUMNS = [

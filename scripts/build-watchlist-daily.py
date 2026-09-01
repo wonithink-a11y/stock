@@ -24,15 +24,12 @@ REPO = Path(__file__).resolve().parent.parent
 A2A_DIR = REPO / "data" / "backfill" / "price" / "a2a"
 A4_DIR = REPO / "data" / "backfill" / "supplyDemand" / "a4"
 OUT_PATH = REPO / "docs" / "data" / "watchlist-daily.json"
+WATCHLIST_PATH = REPO / "docs" / "data" / "live-watchlist.json"
 
-# scripts/kis-live-relay.py의 WATCHLIST와 동일 - 세 곳(실시간 틱·과거 분봉·
-# 이 일봉)이 같은 10종목을 가리켜야 화면이 일관된다.
-WATCHLIST = [
-    ("005930", "삼성전자"), ("000660", "SK하이닉스"), ("402340", "SK스퀘어"),
-    ("005380", "현대차"), ("009150", "삼성전기"), ("373220", "LG에너지솔루션"),
-    ("032830", "삼성생명"), ("207940", "삼성바이오로직스"), ("105560", "KB금융"),
-    ("000270", "기아"),
-]
+# docs/data/live-watchlist.json이 단일 출처 - scripts/kis-live-relay.py·
+# docs/index.html도 같은 파일을 읽어 세 곳이 같은 10종목을 가리킨다.
+_wl = json.loads(WATCHLIST_PATH.read_text(encoding="utf-8"))
+WATCHLIST = [(t["ticker"], t["name"]) for t in _wl["tickers"]]
 TICKERS = {t for t, _ in WATCHLIST}
 NAME_BY_TICKER = dict(WATCHLIST)
 

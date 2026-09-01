@@ -827,14 +827,11 @@ function renderFlows() {
 }
 
 const LIVE_WS_URL = 'wss://wonithink-stock.duckdns.org/live-ws';
-// 중계서버(scripts/kis-live-relay.py)의 WATCHLIST와 순서를 맞춘다 - 틱이
-// 아직 안 온 종목도 자리를 잡아 표가 흔들리지 않게 하기 위함
-const LIVE_WATCHLIST = [
-  ['005930', '삼성전자'], ['000660', 'SK하이닉스'], ['402340', 'SK스퀘어'],
-  ['005380', '현대차'], ['009150', '삼성전기'], ['373220', 'LG에너지솔루션'],
-  ['032830', '삼성생명'], ['207940', '삼성바이오로직스'], ['105560', 'KB금융'],
-  ['000270', '기아'],
-];
+// docs/data/live-watchlist.json이 단일 출처 - scripts/kis-live-relay.py·
+// scripts/build-watchlist-daily.py도 같은 파일을 읽는다(예전엔 세 곳에
+// 각각 하드코딩돼 있었다). init()에서 채워지기 전까지는 빈 배열 - 탭을
+// 아직 안 열었으면 렌더 자체가 안 되니 안전하다.
+let LIVE_WATCHLIST = [];
 
 function connectLive() {
   if (state.live.ws) return;  // 이미 연결됐거나 연결 시도 중
@@ -1313,10 +1310,12 @@ document.querySelectorAll('nav button').forEach(btn => {
 });
 
 (async function init() {
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily] = await Promise.all([
+  let liveWatchlistRaw;
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'),
   ]);
+  LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
   document.getElementById('updated').textContent = `마지막 갱신: ${updated}`;
   // 종목이 많을 때만 업종별 보기를 기본값으로 (20종목이면 전체 목록이 더 편하다)
