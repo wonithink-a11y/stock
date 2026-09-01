@@ -38,7 +38,8 @@ TOKEN_CACHE = HERE / ".vts_token_cache.json"
 VPS_BASE = "https://openapivts.koreainvestment.com:29443"
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = 8766
-MAX_BATCHES = 15
+MAX_BATCHES = 30  # 하루치는 페이지 4~5장이면 되지만 빈응답 재시도가 반복이터레이션을
+                  # 같이 소모하므로(각 페이지 최대 3회 재시도) 여유 있게 잡는다
 
 
 def load_env():
@@ -105,14 +106,26 @@ def _fetch_page_sync(token, ticker, date, hour):
 
 
 async def collect_day(ticker, date):
-    """옛 kis.py _collect_minute_day와 동일 페이지네이션 - 09:00까지 뒤로 당긴다."""
+    """옛 kis.py _collect_minute_day와 동일 페이지네이션 - 09:00까지 뒤로 당긴다.
+
+    ★ 실측(2026-09-01): 같은 종목·같은 날짜를 연속 3회 호출해도 381/120/240개로
+    들쭉날쭉했다 - 09:00까지 다 받아야 할 페이지네이션이 중간 페이지에서 빈
+    응답(rows=[])을 만나 조용히 멈춘 것. KIS 초당 요청 제한에 이따금 걸리는
+    것으로 추정(빈 응답이지 에러가 아니라 겉으론 정상 종료로 보인다) - 09:00
+    이전까지 안 갔는데 빈 응답이면 그 자리에서 포기하지 않고 잠깐 쉬었다가
+    같은 시각으로 재시도한다."""
     token = await get_token()
     cur = "153000"
     seen = {}
+    empty_retries = 3
     for _ in range(MAX_BATCHES):
         d = await asyncio.to_thread(_fetch_page_sync, token, ticker, date, cur)
         rows = [r for r in (d.get("output2") or []) if r.get("stck_cntg_hour")]
         if not rows:
+            if empty_retries > 0 and cur > "090000":
+                empty_retries -= 1
+                await asyncio.sleep(1.0)
+                continue  # 같은 cur로 재시도 - 진짜 더 이상 데이터가 없는 경우와 구분 안 되므로 유한 횟수만
             break
         for r in rows:
             t = r["stck_cntg_hour"]
@@ -133,7 +146,7 @@ async def collect_day(ticker, date):
         if m < 9 * 60:
             break
         cur = "%02d%02d00" % (m // 60, m % 60)
-        await asyncio.sleep(0.15)  # 초당 요청 제한 회피(정찰에서 실측된 제약)
+        await asyncio.sleep(0.3)  # 초당 요청 제한 회피 - 0.15초는 간헐적으로 부족했다(위 실측 참고)
     bars = [seen[t] for t in sorted(seen) if seen[t]["close"] > 0]
     return bars
 
