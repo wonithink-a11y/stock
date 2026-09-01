@@ -1576,7 +1576,7 @@ function renderLive() {
   return `<div class="card">
     <h2>실시간 체결가 <span class="${statusCls}" style="font-weight:400;font-size:13px">${statusLabel}</span></h2>
     <p class="muted" style="margin-bottom:10px">
-      한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 10개 고정 · 장중에만 갱신됩니다. 클릭해서 종목을 바꿀 수 있습니다.
+      한국투자증권 모의투자(VTS) 웹소켓 실시간 중계 · 관심종목 ${LIVE_WATCHLIST.length}개 고정 · 장중에만 갱신됩니다. 클릭해서 종목을 바꿀 수 있습니다.
     </p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:18px">${miniCards}</div>
 
