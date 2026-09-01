@@ -206,6 +206,7 @@ const state = {
     view: null, viewGeom: null,  // 크로스헤어 호버용(렌더 시점에 채움)
   },
   openRows: {},            // 종목 상세 펼침
+  recoOpen: {},            // 추천 이력 탭 - 날짜별 펼침(비어있으면 최신 날짜만 기본 펼침)
 };
 
 const MACRO_LABELS = {
@@ -623,24 +624,42 @@ function renderReco() {
   // 시점의 값이다(latest.json이 매번 최신, 추천 당시는 그 추천이 나온 날 그대로).
   const currentByTicker = {};
   ((state.latest && state.latest.results) || []).forEach(r => { currentByTicker[r.ticker] = r; });
-  const rows = d.performance.map(p => {
+
+  // 945건을 한 줄로 나열하면 안 읽히므로 추천일별로 묶어 접는다(최신 날짜만 기본 펼침).
+  const byDate = {};
+  d.performance.forEach(p => { (byDate[p.recommendedDate] = byDate[p.recommendedDate] || []).push(p); });
+  const dates = Object.keys(byDate).sort().reverse();
+
+  const rowHtml = (p) => {
     const cur = currentByTicker[p.ticker];
     const curCell = cur
       ? `${gradeChip(cur.grade)} ${cur.totalScore ?? '-'}`
       : '<span class="muted" title="현재 채점 유니버스에 없음(상장폐지·유니버스 변경 등)">-</span>';
-    return `
-    <tr>
+    return `<tr>
       <td><strong>${esc(p.name)}</strong> <span class="muted">${esc(p.ticker)}</span>${mktChip(p.market)}</td>
-      <td>${esc(p.recommendedDate)} <span class="muted">(${p.holdingDays}일)</span></td>
       <td>${gradeChip(p.gradeAtRecommendation)} ${p.scoreAtRecommendation}</td>
       <td>${curCell}</td>
       <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
       <td>${fmtPct(p.changePct)}</td>
     </tr>`;
+  };
+
+  const blocks = dates.map((date, i) => {
+    const rows = byDate[date];
+    const isOpen = date in state.recoOpen ? state.recoOpen[date] : i === 0;
+    return `<div class="sec-block">
+      <div class="sec-head" data-reco-toggle="${esc(date)}" data-reco-default="${i === 0 ? '1' : '0'}">
+        <span class="caret">${isOpen ? '▼' : '▶'}</span>
+        <span class="sec-name">${esc(date)}</span>
+        <span class="muted" style="margin-left:8px">(${rows[0].holdingDays}일 전 · ${rows.length}건)</span>
+      </div>
+      ${isOpen ? `<div class="sec-body"><div class="table-wrap"><table>
+        <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
+        <tbody>${rows.map(rowHtml).join('')}</tbody></table></div></div>` : ''}
+    </div>`;
   }).join('');
-  return `<div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>종목</th><th>추천일</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
-    <tbody>${rows}</tbody></table></div></div>`;
+
+  return `<div class="card">${blocks}</div>`;
 }
 
 function renderBacktestMarket(title, benchName, d) {
@@ -1653,6 +1672,16 @@ document.getElementById('content').addEventListener('click', (e) => {
   // 업종 블록 접기
   const st = t.closest('[data-sector-toggle]');
   if (st) { const k = st.dataset.sectorToggle; state.collapsed[k] = !state.collapsed[k]; return render(); }
+
+  // 추천 이력 - 날짜별 블록 접기
+  const rt = t.closest('[data-reco-toggle]');
+  if (rt) {
+    const k = rt.dataset.recoToggle;
+    const defaultOpen = rt.dataset.recoDefault === '1';
+    const cur = k in state.recoOpen ? state.recoOpen[k] : defaultOpen;
+    state.recoOpen[k] = !cur;
+    return render();
+  }
 
   // 종목명 클릭 → 상세 차트 모달 (비고 토글보다 먼저 처리)
   const ch = t.closest('[data-chart]');
