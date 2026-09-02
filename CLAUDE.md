@@ -984,6 +984,55 @@ Validated against
               "연구 가치 있는 후보, production alpha 미확정"으로 분류.
               코드는 PBR과 같은 이유로 로컬 미커밋(재현성 사슬 미완성).
               findings/lowmom60-candidate-c-engine-verification-2026-08.md
+  완료      ★ 실시간 탭 관심종목 — 실전계좌 잔고조회 자동연동 (2026-09-02,
+              별도 세션) — 사용자가 "고정 20종목 말고 내가 실제 투자한
+              종목을 보고 싶다"고 요청. 두 갈래(①수동 자유편집 ②실계좌
+              자동연동) 중 ②부터 구현 - ①은 미착수, 필요해지면 별도.
+              **공개 범위 확인이 먼저였다**: 이 저장소·사이트는 전체
+              공개라 실제 보유종목이 그대로 노출되면 안 된다는 점을
+              사용자에게 명시적으로 확인받아 "비공개 유지"로 확정
+              (VM 로컬 파일만, git에 절대 안 올림). `scripts/kis-
+              portfolio-holdings.py` 신설 — 검증된 모의투자 클라이언트
+              (`research/strategy-lab/engine/live/kisVtsClient.py`)의
+              `inquire_balance()`와 완전히 같은 요청 구조를 실전 도메인·
+              TR_ID(TTTC8434R)로 옮긴 것(새로 설계 안 함). 결과는
+              `~/.kis-holdings.json`(홈 디렉터리, 저장소 밖)에만 쓴다.
+              KIS 웹소켓 세션 구독 상한(41건, 2026-04-20 공지 기준 —
+              사용자가 조사해 온 자료를 독립 검증: WikiDocs 변경이력
+              [2022-08-30 20건→2022-09-08 40건]과 별도 개발자 블로그
+              [2025-10-22, "세션당 41건"]로 방향 일치 확인, KIS 원문
+              페이지 자체는 로그인 필요라 직접 열람은 못 함)에 맞춰
+              평가금액 큰 순 41개까지만 남긴다 — 우리 relay는 체결가만
+              구독하고 호가는 안 써서 41건이 그대로 상한. `kis-live-
+              relay.py`의 `load_watchlist()`가 이 로컬 파일을 우선
+              읽고, 없거나·비었거나·깨졌으면 기존 정적 목록(docs/data/
+              live-watchlist.json)으로 조용히 폴백한다(fail-soft) —
+              보유종목 0건이어도 탭이 안 뜨는 일은 없다. 토큰 캐시는
+              build-price-a2b.py 등 기존 실전키 스크립트와 파일을
+              공유해 불필요한 재발급을 줄인다 - 상시 웹소켓(kis-live-
+              relay.py 자체)은 여전히 별도 앱키(KIS_VTS_APP_KEY)라 이
+              재발급과 완전히 무관(EGW00123 무위험 확인, 사용자와 토큰
+              캐시·앱키 분리 이유를 문답으로 재확인).
+              **배포**: `deploy/kis-portfolio-holdings.service/.timer`
+              신설, `stock-new`에 설치·활성화. `~/collector`에 git
+              작업 중 미커밋 로컬 diff 2건 발견(`docs/data/live-
+              watchlist.json`·`kis-minute-history-api.py`) — 둘 다
+              `origin/main`과 diff가 0(다른 경로로 이미 커밋된 내용을
+              VM에 scp로만 올려두고 git엔 안 올린 상태였음), 안전하게
+              폐기 후 pull. 배포 중 버그 1건 발견·즉시 수정 — 새
+              스크립트가 이 VM의 `KIS_ENV_PATH` 간접참조(collector.env
+              → KIS_ENV_PATH → 실제 키 파일, collect-minute-kis.py가
+              이미 쓰던 패턴)를 몰라서 그대로 배포했으면 인증 실패했을
+              것. `KIS_ACCOUNT_NO`는 로컬 `.env`에 이미 저장돼 있던 걸
+              값 노출 없이 파이프로 VM에 전달(`grep ... | ssh ... "cat
+              >>..."`, 값이 커맨드 텍스트·로그 어디에도 안 남음). 실제
+              장중 재현(수동 1회 트리거) — 잔고조회(보유 0건 확인, 폴백
+              경로 정상)→파일 저장→`kis-live-relay` 자동 재시작(systemd
+              `+` 접두사로 User=ubuntu 유닛에서도 이 한 줄만 root 권한,
+              별도 sudoers 불필요)→재구독까지 로그로 전체 확인.
+              ★ 후속 — 사용자 요청으로 주기를 촘촘하게: 장전 08:50 1회 +
+              장중 09:00~15:50 10분 간격(`intraday-check.js`와 동일 주기)
+              으로 변경, 당일 매매도 최대 10분 내 반영되도록 재배포·확인.
   완료      ★ Strategy Lab PRIMARY 정식 승격 — A1A_A1B_MERGED 실제 배선
               (2026-08-24, GATE-EP-1과 무관한 트랙으로 선택) — A2bProvider·
               MergedPriceProvider 신설(PriceProvider 인터페이스가 원래
