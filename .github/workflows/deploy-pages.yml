@@ -21,6 +21,7 @@ on:
     workflows:
       - "Update ui/data/findings.json (Research Lab UI)"
       - "Update ui/data/macro.json (Research Regime Layer)"
+      - "Build ETF price history + returns (KRX Open API)"
     types: [completed]
   workflow_dispatch:
 
