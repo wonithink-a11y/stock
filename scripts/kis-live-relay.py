@@ -14,17 +14,26 @@
 실측으로도 모의투자 키로 20초간 36틱 정상 수신을 확인했다 — 그 확인을 그대로
 상시 서비스로 옮긴 것이다.
 
-구독 종목은 docs/data/live-watchlist.json 고정 10개다(v1) — 클라이언트별
-동적 구독은 다루지 않는다. 브라우저는 이 서버가 흘려보내는 스트림 중 보고
-싶은 종목만 골라서 표시하면 된다. 이 종목 목록은 scripts/kis-live-relay.py·
-scripts/build-watchlist-daily.py·docs/index.html 셋이 그대로 공유한다 -
-바꾸려면 docs/data/live-watchlist.json 하나만 고치면 된다(예전엔 세 곳에
-각각 하드코딩돼 있었다).
+구독 종목은 원래 docs/data/live-watchlist.json 고정 목록이었다(v1) —
+클라이언트별 동적 구독은 다루지 않는다. 브라우저는 이 서버가 흘려보내는
+스트림 중 보고 싶은 종목만 골라서 표시하면 된다. 이 종목 목록은
+scripts/kis-live-relay.py·scripts/build-watchlist-daily.py·docs/index.html
+셋이 그대로 공유한다 - 바꾸려면 docs/data/live-watchlist.json 하나만
+고치면 된다(예전엔 세 곳에 각각 하드코딩돼 있었다).
+
+★ v2(2026-09-02) — scripts/kis-portfolio-holdings.py(실전계좌 잔고조회,
+KIS_APP_KEY 사용 - 이 파일과는 다른 키)가 로컬에 써 둔 보유종목 파일이
+있으면 그걸 우선 쓴다. 이 파일은 저장소 밖(홈 디렉터리)에만 존재하고
+git에 절대 안 올라간다 - 실제 보유종목·수량·평가금액은 이 저장소가
+공개라 노출되면 안 된다(사용자 확인). 그 파일이 없거나·비었거나·깨졌으면
+정적 목록(live-watchlist.json)으로 조용히 폴백한다(fail-soft) - 이 서버가
+"내 보유종목이 없다"는 이유로 안 뜨면 안 된다.
 
 .env(이 스크립트와 같은 디렉터리)에 KIS_VTS_APP_KEY/KIS_VTS_APP_SECRET 필요.
 """
 import asyncio
 import json
+import os
 import time
 from pathlib import Path
 
@@ -35,6 +44,7 @@ HERE = Path(__file__).resolve().parent
 ENV_PATH = HERE / ".env"
 REPO_ROOT = HERE.parent
 WATCHLIST_PATH = REPO_ROOT / "docs" / "data" / "live-watchlist.json"
+HOLDINGS_PATH = Path(os.environ.get("KIS_HOLDINGS_PATH") or (Path.home() / ".kis-holdings.json"))
 
 VPS_BASE = "https://openapivts.koreainvestment.com:29443"
 VOPS_WS = "ws://ops.koreainvestment.com:31000"
@@ -43,6 +53,14 @@ LISTEN_PORT = 8765
 
 
 def load_watchlist():
+    if HOLDINGS_PATH.exists():
+        try:
+            h = json.loads(HOLDINGS_PATH.read_text(encoding="utf-8"))
+            tickers = [(r["ticker"], r["name"]) for r in h.get("holdings", []) if r.get("ticker")]
+            if tickers:
+                return tickers
+        except Exception as e:
+            print(f"보유종목 파일 읽기 실패({e}) - 정적 목록으로 폴백")
     d = json.loads(WATCHLIST_PATH.read_text(encoding="utf-8"))
     return [(t["ticker"], t["name"]) for t in d["tickers"]]
 
