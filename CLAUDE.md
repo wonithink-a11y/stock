@@ -745,12 +745,36 @@ Validated against
             KR-2.2.json, 동결)에는 즉시 반영하지 않는다 — 별도 🔴 결정.
             부수 발견: A5 10년 백필의 supplyDemand 축이 100% 결측(원인
             미조사, 별도 확인 필요). findings/kr-production-technical-
-            macross-reversal-2026-09.md
+            macross-reversal-2026-09.md — ★ 2026-09-02 후속(별도 세션) 원인
+            규명 + 구현 완료, 아래 "완료" A5 supplyDemand 항목 참고
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ A5 10년 백필 supplyDemand 축 연결 + 전체 재백필 완료
+              (2026-09-02, 별도 세션) — `lib/a5/resolver.js`가 애초에
+              supplyDemand 파라미터를 안 받았다는 게 원인(타이밍 문제
+              아님 — A4는 2026-08-18에, A5는 2026-08-24에 각각 완성됐지만
+              아무도 연결을 안 함). `lib/a5/supplyDemandFrom.js` 신설
+              (scripts/collect.js의 `netBuysToTrend()` 재사용, A4 원본에서
+              PIT-safe 5일 외국인/기관 순매수 추세 계산) + resolver.js 연결
+              + `REQUIRED_UPSTREAM['A5']`에 A4 추가 + `build-a5-backfill.js`
+              배선(커밋 `246cd07`). 전체 3,801종목 재백필 트리거 중 버그
+              2건 발견·수정: ①`readJsonl`이 A4(전 시장 일별 수급 540만행)
+              연도 파일을 통째로 하나의 JS 문자열로 만들다 Node 최대 문자열
+              길이(0x1fffffe8)를 넘는 해가 있어 8샤드 전량 `ERR_STRING_
+              TOO_LONG`으로 죽음 → 줄 단위 파싱으로 교체, 이 샤드가 담당
+              하는 ticker만 인덱싱하는 `buildA4Index()`로 바꿔 로컬 재현
+              (universeLimit 10)에서 나던 heap out of memory도 해결(커밋
+              `39fa6ef`). ②finalize의 manifest 작성 단계가 새로 추가된
+              REQUIRED_UPSTREAM의 A4를 반영 못 해 `verifyUpstream`이
+              계약대로 정확히 거부(manifest 계약 §"선언 자체의 누락") →
+              `--upstream` 목록에 A4 추가(커밋 `703b67e`). 세 번째 트리거
+              에서 전 구간 성공 — 1,254,759행·3,801/3,801 corp 완료·
+              assembleFailed 0·검증위반 0(기존 2026-08-24 기록치와 동일,
+              supplyDemand만 추가) · 2022년 표본 커버리지 93.2%. manifest
+              upstream에 A4 반영 확인, 커밋 `ce7a723`.
   완료      ★ ETF 탭 신설(1일~1년 수익률, 정렬·검색) + 유니버스 확대
               4단계 완료 확인 + Pages 재배포 트리거 버그 수정
               (2026-09-02) — KRX Open API(etp/etf_bydd_trd)로 ETF 전종목
@@ -790,7 +814,25 @@ Validated against
               deploy-pages.yml/runs?event=workflow_run&per_page=5"`로
               최근 실행에 이 워크플로 이름이 소스로 찍히는지 확인. 안
               찍히면 workflow_dispatch 가설이 아니라 진짜 문제일 수 있어
-              재조사 필요.
+              재조사 필요. ★ 2026-09-02 후속2(별도 세션) — 아직도 그
+              평일 17:20 KST 스케줄 실행 시점을 못 지나서(세션 진행 시각
+              기준) 이번에도 확인 못 함 — 다음 세션이 여전히 확인할 것.
+              ★ 2026-09-02 후속3(같은 세션) — ETF별 분배금(배당) 현황
+              추가. pykrx·KRX Open API 둘 다 분배금 데이터가 없음을
+              재확인(기존 research 결론과 일치) + KRX 정보데이터시스템
+              구버전 통계는 이 새 마켓플레이스 UI에서 로그인 필수로 바뀌어
+              막힘(딥링크가 전부 로그인 페이지로 리다이렉트) — 대신
+              FunETF(삼성자산운용 계열 공개 ETF 비교 포털, 전체 운용사
+              ETF를 다룸)의 "ETF 분배금 Check" 페이지 공개 API를 발견·
+              실측(로그인 불요 — 세션 쿠키+CSRF만 필요, robots.txt도 이
+              경로를 안 막음, 종목코드(sotCd)가 이 프로젝트 6자리 ticker와
+              이미 같은 값). 955개 ETF(전체의 약 82%)가 분배 이력 보유.
+              `scripts/build-etf-distributions.py` 신설 → docs/data/etf-
+              distributions.json, build-etf-price-history.yml에 단계 추가
+              (continue-on-error — 외부 사이트 구조 변경이 가격/수익률
+              갱신을 막으면 안 됨). ETF 탭에 연분배율·분배횟수 정렬 가능
+              컬럼 추가, 분배 없는 ETF는 '-'(절대 규칙 1). 실제 트리거로
+              커밋 확인(`98ef620`).
   완료      ★ docs/index.html 대시보드 신규 탭 4개 + 실시간 상시서버 구축
               (2026-09-01) — 옛 Claude Cowork "주식" 프로젝트(Claude Code
               전환 전 로컬 작업 폴더) 잔재 점검 중 발견: 공시(disclosures.json)·
