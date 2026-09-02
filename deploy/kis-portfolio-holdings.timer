@@ -2,12 +2,15 @@
 Description=KIS live-account holdings refresh timer (auto watchlist sync)
 
 [Timer]
-# 하루 한 번, 장 시작(09:00 KST) 전에 갱신 - 매매는 하루 안에 자주 안
-# 바뀐다고 보고 v1은 이 정도로 충분하다(사용자가 장중 변경분도 바로
-# 보고 싶으면 이 줄을 더 촘촘히 늘리면 된다, 코드 변경 불필요).
+# 장 시작 전 1회(08:50) + 장중(09:00~15:50, intraday-check.js와 같은 10분
+# 간격) - 당일 매매도 최대 10분 내로 반영되게 한다(사용자 요청,
+# 2026-09-02). 15:30 장마감 이후 두 번(15:40·15:50)은 신규 매매가 있을 수
+# 없어 그냥 같은 결과를 다시 쓰는 것뿐이라 해롭지 않다 - 굳이 경계를 딱
+# 맞추지 않는다.
 OnCalendar=Mon..Fri *-*-* 08:50:00
+OnCalendar=Mon..Fri *-*-* 9..15:00/10:00
 Persistent=true
-RandomizedDelaySec=60
+RandomizedDelaySec=30
 
 [Install]
 WantedBy=timers.target
