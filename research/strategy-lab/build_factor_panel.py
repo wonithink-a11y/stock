@@ -35,6 +35,7 @@ fwd1m 은 타깃(정답)이지 팩터가 아니다. FACTOR_CATALOG 에 안 들�
   python build_factor_panel.py --verify           기존 discovery JSON 과 IC 대조
 """
 import bisect
+import glob
 import gzip
 import json
 import os
@@ -54,6 +55,7 @@ A1A_PATH = os.path.join(REPO_ROOT, "data", "backfill", "universe", "a1a", "curre
 A3_DIR = os.path.join(REPO_ROOT, "data", "backfill", "fundamentals", "a3")
 A3B_DIR = os.path.join(REPO_ROOT, "data", "backfill", "fundamentals", "a3b")
 A3C_DIR = os.path.join(REPO_ROOT, "data", "backfill", "fundamentals", "a3c")
+A8_DIR = os.path.join(REPO_ROOT, "data", "backfill", "shortSelling", "a8")
 KOSPI_PATH = os.path.join(LAB, "data", "market-regime", "krkospi_raw.parquet")
 
 OUT_DIR = os.path.join(LAB, "data", "factor-panel")
@@ -66,6 +68,7 @@ REFERENCE_JSON = os.path.join(LAB, "reports", "2026-08-30-factor-discovery",
 PANEL_VERSION = "kr-monthly-v1"
 LIQUID_THRESHOLD = 1e8       # 랩 표준 유동성 게이트 (dv20 >= 1억원)
 WARM_BETA = 120
+SHORT_LAG_SESSIONS = 2       # KRX 공매도 잔고 공표 지연. 지연을 안 주면 look-ahead 다
 MIN_NAMES = 30               # verify 의 월별 최소 종목수 (원본과 동일)
 
 # ---------------------------------------------------------------------------
@@ -164,6 +167,42 @@ FACTOR_CATALOG = {
                                   "부호가 갈린다. 방향 미확정."},
     "inst_nb5_ratio": {"family": "SupplyDemand", "direction": "high", "established": False,
                        "source": "A4 5일 기관 순매수 / 5일 거래대금"},
+    "flow_accel": {"family": "SupplyDemand", "direction": "high", "established": False,
+                   "source": "foreign_nb5_ratio - foreign_nb20_ratio (수급 가속도)",
+                   "note": "20일 대비 5일이 더 강하면 외국인 매수가 최근 가속됐다는 뜻. "
+                           "수급의 '수준'이 아니라 '변화'를 보는 축이라 nb 비율들과 다르다."},
+    # --- Short (공매도, A8) : 이 프로젝트가 팩터 패널에 처음 넣는 데이터원 ---
+    "short_balance_ratio": {"family": "Short", "direction": "low", "established": False,
+                            "source": "A8 공매도잔고주식수 / A3c 발행주식수 (2세션 지연)",
+                            "note": "문헌은 공매도 잔고가 높을수록 향후 수익이 낮다고 본다(direction=low) - "
+                                    "이 프로젝트에서는 미검증 가설이다."},
+    "short_volume_ratio_20d": {"family": "Short", "direction": "low", "established": False,
+                               "source": "A8 20일 공매도대금 / 20일 거래대금 (2세션 지연)"},
+    "short_balance_chg_20d": {"family": "Short", "direction": "low", "established": False,
+                              "source": "short_balance_ratio 의 20세션 변화 (2세션 지연)",
+                              "note": "잔고의 '수준'이 아니라 '증감'. 두 축이 서로 다른 정보일 수 있어 "
+                                      "같이 넣는다."},
+    # --- SectorRelative (업종 내부 상대) ---
+    "sector_rel_mom6m": {"family": "SectorRelative", "direction": "high", "established": False,
+                         "source": "mom6m - 같은 달·같은 업종 중앙값",
+                         "note": "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀. 업종은 A1a 의 "
+                                 "**현재** 분류라 PIT 가 아니다(업종은 거의 안 바뀌지만 정확히는 근사)."},
+    "sector_rel_pbr": {"family": "SectorRelative", "direction": "low", "established": False,
+                       "source": "pbr 의 같은 달·같은 업종 내 백분위",
+                       "note": "2026-08 섹터중립 재검증에서 PBR 신호가 업종 내부에서도 살아있으나 "
+                               "크기는 절반이었다 - 그 결과를 팩터로 만든 것."},
+    # --- Price (A2a 없이 A4 종가만으로 계산 가능한 구조 축) ---
+    "dist_52w_high": {"family": "Price", "direction": "high", "established": False,
+                      "source": "close / 252세션 최고종가 - 1",
+                      "note": "DD252 는 단독 전략으로는 기각됐지만(2026-08-27) 신호 자체는 "
+                              "NW 보정 후에도 t=2.08 로 살아있었다 - 조합 재료로는 미검증."},
+    "max5_1m": {"family": "Price", "direction": "low", "established": False,
+                "source": "과거 21세션 중 최대 일간수익률 (MAX 효과)",
+                "note": "PBR combined 에서 'MAX 상위 20% 제외' 필터가 4개 실험 중 최대 Sharpe "
+                        "개선(+0.1258)을 냈다 - 그때는 배제 필터였고 랭킹 팩터로는 처음."},
+    "amount_shock": {"family": "Liquidity", "direction": "high", "established": False,
+                     "source": "dv5 / dv20 - 1 (거래대금 급증)",
+                     "note": "거래대금의 '수준'(dv20_log)이 아니라 '급증'을 보는 축."},
     "indiv_nb20_ratio": {"family": "SupplyDemand", "direction": "low", "established": True,
                          "redundant": True,
                          "source": "A4 20일 개인 순매수 / 20일 거래대금",
@@ -172,7 +211,7 @@ FACTOR_CATALOG = {
 }
 
 # 팩터가 아닌, 패널이 같이 들고 다니는 컬럼
-META_COLUMNS = ["ticker", "date", "market", "period", "close", "dv20", "liquid"]
+META_COLUMNS = ["ticker", "date", "market", "sector", "period", "close", "dv20", "liquid"]
 TARGET_COLUMNS = ["fwd1m"]
 
 
@@ -373,6 +412,30 @@ def load_kospi():
     return df.set_index("date")["value"]
 
 
+def load_sector_map():
+    """ticker -> 업종. A1a 의 **현재** 분류라 PIT 가 아니다(업종은 거의 안 바뀌지만 근사)."""
+    m = {}
+    with open(A1A_PATH, encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            if r.get("ticker") and r.get("sector"):
+                m[r["ticker"]] = r["sector"]
+    return m
+
+
+def load_short_selling():
+    """A8 공매도. (ticker, date) -> 잔고주식수 / 공매도대금."""
+    rows = []
+    for fp in sorted(glob.glob(os.path.join(A8_DIR, "*.jsonl.gz"))):
+        with gzip.open(fp, "rt", encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                rows.append((r["ticker"], r["date"],
+                             r.get("shortBalanceShares"), r.get("shortValue")))
+    df = pd.DataFrame(rows, columns=["ticker", "date", "shortBalShares", "shortValue"])
+    return df.drop_duplicates(subset=["ticker", "date"], keep="last")
+
+
 # ---------------------------------------------------------------------------
 # 패널 빌드
 # ---------------------------------------------------------------------------
@@ -408,6 +471,11 @@ def build_panel(max_tickers=None, verbose=True):
     for w in (20, 60, 120):
         ma = g["close"].transform(lambda s, w=w: s.rolling(w, min_periods=20).mean())
         df[f"ma{w}_pos"] = df["close"] / ma - 1
+    # 가격 구조 축
+    df["dist_52w_high"] = df["close"] / g["close"].transform(
+        lambda s: s.rolling(252, min_periods=120).max()) - 1
+    df["ret1d"] = g["close"].pct_change()
+    df["max5_1m"] = g["ret1d"].transform(lambda s: s.rolling(21, min_periods=15).max())
     df["rv20_pct"] = g["logret"].transform(lambda s: s.rolling(20, min_periods=20).std()) * 100
     df["rv60_pct"] = g["logret"].transform(lambda s: s.rolling(60, min_periods=20).std()) * 100
     df["dv20"] = g["total_amount"].transform(lambda s: s.rolling(20, min_periods=20).mean())
@@ -423,6 +491,22 @@ def build_panel(max_tickers=None, verbose=True):
         gs = df.groupby("ticker", sort=False)[src]
         df[f"{prefix}_nb5_ratio"] = gs.transform(lambda s: s.rolling(5, min_periods=1).sum()) / amt5
         df[f"{prefix}_nb20_ratio"] = gs.transform(lambda s: s.rolling(20, min_periods=1).sum()) / amt20
+    df["flow_accel"] = df["foreign_nb5_ratio"] - df["foreign_nb20_ratio"]
+    dv5 = g["total_amount"].transform(lambda s: s.rolling(5, min_periods=5).mean())
+    df["amount_shock"] = dv5 / df["dv20"] - 1
+
+    # --- 공매도 (A8). KRX 공표 지연을 반영해 2세션 지연시킨다 - 안 그러면 look-ahead ---
+    log("공매도(A8) 병합 ...")
+    ss = load_short_selling()
+    df = df.merge(ss, on=["ticker", "date"], how="left")
+    gs2 = df.groupby("ticker", sort=False)
+    df["_svr"] = gs2["shortValue"].transform(lambda s: s.rolling(20, min_periods=5).sum()) / amt20
+    df["_sbal"] = df["shortBalShares"]
+    df["_sbal_prev"] = gs2["shortBalShares"].transform(lambda s: s.shift(20))
+    gs3 = df.groupby("ticker", sort=False)
+    df["short_volume_ratio_20d"] = gs3["_svr"].transform(lambda s: s.shift(SHORT_LAG_SESSIONS))
+    df["_sbal"] = gs3["_sbal"].transform(lambda s: s.shift(SHORT_LAG_SESSIONS))
+    df["_sbal_prev"] = gs3["_sbal_prev"].transform(lambda s: s.shift(SHORT_LAG_SESSIONS))
 
     # --- beta12m ---
     log("KOSPI 병합 / beta12m ...")
@@ -565,7 +649,27 @@ def build_panel(max_tickers=None, verbose=True):
     base["earnings_yield"] = np.where(base["per"].notna() & (base["per"] > 0),
                                       1.0 / base["per"], np.nan)
     base["per"] = base["per"].where(base["per"] > 0)
-    log(f"  재무 팩터 완료 ({time.time() - t0:.0f}s)")
+
+    # 공매도 잔고 비율 - 발행주식수(A3c)가 필요해 재무 루프 뒤에서 계산한다
+    base["short_balance_ratio"] = base["_sbal"].div(base["shares"])
+    base["short_balance_chg_20d"] = (base["_sbal"] - base["_sbal_prev"]).div(base["shares"])
+    # 잔고가 발행주식수를 넘는 것은 물리적으로 불가능하다(A3c 주식수 시점 불일치로 추정).
+    # 랭킹 팩터라 이런 값이 남으면 그 종목이 극단에 박힌다 - 지어내지 않고 유보한다(교훈57).
+    impossible = base["short_balance_ratio"] > 1.0
+    n_bad = int(impossible.sum())
+    base.loc[impossible, ["short_balance_ratio", "short_balance_chg_20d"]] = np.nan
+    if n_bad:
+        log(f"  ! 공매도 잔고비율 >100% {n_bad}행 유보 (발행주식수 시점 불일치 추정)")
+
+    # 업종 상대 - 같은 달·같은 업종 안에서만 비교한다
+    base["sector"] = base["ticker"].map(load_sector_map())
+    grp = base.groupby(["date", "sector"], sort=False)
+    base["sector_rel_mom6m"] = base["mom6m"] - grp["mom6m"].transform("median")
+    base["sector_rel_pbr"] = grp["pbr"].transform(lambda s: s.rank(pct=True))
+    # 업종 표본이 너무 작으면 '업종 내 상대'가 의미 없다 - 지어내지 않고 유보한다
+    small = grp["ticker"].transform("size") < 5
+    base.loc[small, ["sector_rel_mom6m", "sector_rel_pbr"]] = np.nan
+    log(f"  재무·공매도·업종 팩터 완료 ({time.time() - t0:.0f}s)")
 
     keep = META_COLUMNS + TARGET_COLUMNS + list(FACTOR_CATALOG)
     missing = [c for c in keep if c not in base.columns]
@@ -648,7 +752,21 @@ def selftest():
     for f, m in FACTOR_CATALOG.items():
         assert m["direction"] in ("high", "low"), f
         assert "family" in m and "established" in m and "source" in m, f
-    print(f"selftest OK ({len(FACTOR_CATALOG)}개 팩터, 방향 결측 0건, 타깃 누출 0건)")
+
+    # 공매도 지연이 실제로 과거를 보게 하는가 (0 이면 look-ahead)
+    assert SHORT_LAG_SESSIONS >= 1, "공매도에 공표 지연을 안 줬다 - look-ahead"
+    s = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])
+    assert s.shift(SHORT_LAG_SESSIONS).iloc[4] == 3.0, "지연 방향이 반대다(미래를 당겨온다)"
+
+    # 신규 축이 실제로 카탈로그에 들어갔는가
+    for f in ("short_balance_ratio", "short_volume_ratio_20d", "short_balance_chg_20d",
+              "sector_rel_mom6m", "sector_rel_pbr", "dist_52w_high", "max5_1m",
+              "amount_shock", "flow_accel"):
+        assert f in FACTOR_CATALOG, f
+    fams = {m["family"] for m in FACTOR_CATALOG.values()}
+    assert {"Short", "SectorRelative", "Price"} <= fams, fams
+    print(f"selftest OK ({len(FACTOR_CATALOG)}개 팩터, 방향 결측 0건, 타깃 누출 0건, "
+          f"공매도 지연 {SHORT_LAG_SESSIONS}세션)")
 
 
 def verify():

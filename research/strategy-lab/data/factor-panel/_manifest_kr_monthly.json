@@ -1,6 +1,6 @@
 {
   "panelVersion": "kr-monthly-v1",
-  "builtAt": "2026-09-02T21:01:42",
+  "builtAt": "2026-09-02T22:36:22",
   "builtBy": "build_factor_panel.py",
   "movedFrom": [
     "factor_discovery_kr.py",
@@ -15,7 +15,7 @@
     "2026-07-01"
   ],
   "maxTickers": null,
-  "buildSeconds": 43.6,
+  "buildSeconds": 83.6,
   "conventions": {
     "rebalance": "월 첫 세션",
     "entry": "익영업일 종가 (next-open 의 PIT-safe 근사)",
@@ -31,6 +31,7 @@
     "ticker",
     "date",
     "market",
+    "sector",
     "period",
     "close",
     "dv20",
@@ -330,6 +331,86 @@
       "direction": "high",
       "established": false,
       "source": "A4 5일 기관 순매수 / 5일 거래대금",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "flow_accel": {
+      "family": "SupplyDemand",
+      "direction": "high",
+      "established": false,
+      "source": "foreign_nb5_ratio - foreign_nb20_ratio (수급 가속도)",
+      "note": "20일 대비 5일이 더 강하면 외국인 매수가 최근 가속됐다는 뜻. 수급의 '수준'이 아니라 '변화'를 보는 축이라 nb 비율들과 다르다.",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "short_balance_ratio": {
+      "family": "Short",
+      "direction": "low",
+      "established": false,
+      "source": "A8 공매도잔고주식수 / A3c 발행주식수 (2세션 지연)",
+      "note": "문헌은 공매도 잔고가 높을수록 향후 수익이 낮다고 본다(direction=low) - 이 프로젝트에서는 미검증 가설이다.",
+      "nonNull": 217012,
+      "coverage": 0.9304
+    },
+    "short_volume_ratio_20d": {
+      "family": "Short",
+      "direction": "low",
+      "established": false,
+      "source": "A8 20일 공매도대금 / 20일 거래대금 (2세션 지연)",
+      "nonNull": 224208,
+      "coverage": 0.9613
+    },
+    "short_balance_chg_20d": {
+      "family": "Short",
+      "direction": "low",
+      "established": false,
+      "source": "short_balance_ratio 의 20세션 변화 (2세션 지연)",
+      "note": "잔고의 '수준'이 아니라 '증감'. 두 축이 서로 다른 정보일 수 있어 같이 넣는다.",
+      "nonNull": 216976,
+      "coverage": 0.9303
+    },
+    "sector_rel_mom6m": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "mom6m - 같은 달·같은 업종 중앙값",
+      "note": "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀. 업종은 A1a 의 **현재** 분류라 PIT 가 아니다(업종은 거의 안 바뀌지만 정확히는 근사).",
+      "nonNull": 203232,
+      "coverage": 0.8713
+    },
+    "sector_rel_pbr": {
+      "family": "SectorRelative",
+      "direction": "low",
+      "established": false,
+      "source": "pbr 의 같은 달·같은 업종 내 백분위",
+      "note": "2026-08 섹터중립 재검증에서 PBR 신호가 업종 내부에서도 살아있으나 크기는 절반이었다 - 그 결과를 팩터로 만든 것.",
+      "nonNull": 100009,
+      "coverage": 0.4288
+    },
+    "dist_52w_high": {
+      "family": "Price",
+      "direction": "high",
+      "established": false,
+      "source": "close / 252세션 최고종가 - 1",
+      "note": "DD252 는 단독 전략으로는 기각됐지만(2026-08-27) 신호 자체는 NW 보정 후에도 t=2.08 로 살아있었다 - 조합 재료로는 미검증.",
+      "nonNull": 221870,
+      "coverage": 0.9513
+    },
+    "max5_1m": {
+      "family": "Price",
+      "direction": "low",
+      "established": false,
+      "source": "과거 21세션 중 최대 일간수익률 (MAX 효과)",
+      "note": "PBR combined 에서 'MAX 상위 20% 제외' 필터가 4개 실험 중 최대 Sharpe 개선(+0.1258)을 냈다 - 그때는 배제 필터였고 랭킹 팩터로는 처음.",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "amount_shock": {
+      "family": "Liquidity",
+      "direction": "high",
+      "established": false,
+      "source": "dv5 / dv20 - 1 (거래대금 급증)",
+      "note": "거래대금의 '수준'(dv20_log)이 아니라 '급증'을 보는 축.",
       "nonNull": 233240,
       "coverage": 1.0
     },
