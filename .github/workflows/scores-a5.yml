@@ -115,7 +115,7 @@ jobs:
           node scripts/write-manifest.js \
             --stage A5 --stageVersion A5.0 \
             --target data/backfill/scores --kind dir --ext .jsonl.gz \
-            --upstream A0.5,A1a,A1b,A2a,A2b,A3,A3b,A3c,A3d \
+            --upstream A0.5,A1a,A1b,A2a,A2b,A3,A3b,A3c,A3d,A4 \
             --policies universe,price,fundamentals,scores \
             --extra "$EXTRA"
 
