@@ -685,11 +685,91 @@ Validated against
             커버리지·PIT 안전성 전부 미검증이라 순서가 거꾸로다. **A6
             Primary는 이 결정으로 무기한 HOLD가 최종 확정** — 재개하려면
             A6 Primary 결론이 필요한 구체적 이유가 먼저 생겨야 한다.
+            ★ 2026-09-02 후속 — earnings_yield factor TRAIN/VALID/TEST
+            분해 검증 PASS. 기존 `factor-earnings-yield-portfolio-
+            validation-2026-08.md`의 "즉시 운용 가능"이 전체기간 풀링값
+            (IC t=6.10)이었던 걸 발견해 구간 분해 재검증 — TRAIN/VALID/
+            TEST 세 구간 전부 IC t≥2(t=4.07/3.31/3.64), decile slope
+            부호반전 0건, **TEST가 오히려 가장 강함**(REV20·Opening
+            Fade가 겪은 "TEST 반전" 없음). "production 결정을 실제로
+            고려해볼 후보"로 상향(PBR combined와 동일 등급) — "즉시 운용
+            가능" 표현은 과장이었다고 정정. findings/factor-earnings-
+            yield-train-valid-test-2026-09.md
+            ★ 2026-09-02 후속2 — TreasuryRatio factor 3중 문제 발견,
+            "절대수익 전략 근거 사실상 사라짐"으로 정리. ①naive t-stat
+            부풀림(9M IC t=10.4가 자기상관 보정 없는 naive t, Newey-West
+            재계산 시 TRAIN 6M/9M 유의성 상실·TEST는 t=5.4~6.9로 생존).
+            ②2016~2021 6년 연속 스프레드 마이너스, 2022년부터 반전,
+            TEST 구간 안에서도 미완결 2026년이 스프레드의 56~78% 차지.
+            ③가장 심각 — Step20-26이 쓰는 "Treasury_Top20" 전략이 실은
+            Risk-On 구간에서만 Treasury를 쓰고 나머지 58~71%는 LOWMOM60
+            로 조용히 대체하는 혼합 전략이었음을 발견 — Treasury 슬리브가
+            실제로 켜진 달의 수익률은 TRAIN/VALID/TEST 전부 0 이하, 보고된
+            CAGR은 사실상 LOWMOM60 대체분. 상대순위 신호로는 TEST에서
+            견고하나 절대수익 전략으로는 기각. findings/kr-treasury-
+            signal-decay-newey-west-2026-09.md · kr-treasury-yearly-
+            concentration-2026-09.md · kr-treasury-regime-gating-
+            mislabel-2026-09.md
+            ★ 2026-09-02 후속3 — 크립토 Step24-46 요약 검증(검증한 8개
+            항목 전부 소수점까지 일치, Step40 "placeholder를 실제 결과로
+            오기"까지 원본 JSON 대조로 확인) + Step46(코인 간 상대강도)
+            신규 실행 → **REJECT**(Train/Valid Sharpe 2.2~2.4→Test 0.38
+            붕괴, LOO에서 ZEC 제외 시 거의 0, 일일 리밸런스 비용 반영
+            시 Test 마이너스 전환). 이 프로젝트가 크립토에서 시도한 신호
+            탐색 라인(taker ratio·MA·Fibonacci·GitHub 전략·Donchian·
+            상대강도) 전부 REJECT/FAIL로 마무리 — 이 방향은 여기서 접는다
+            (BTC regime 진단만 유일하게 살아남음, 거래신호 아님).
+            findings/crypto-step24-46-summary-verification-2026-09.md ·
+            crypto-step46-relative-strength-2026-09.md
+            ★ 2026-09-02 후속4 — UI 대시보드 백테스트 탭에서 사용자가
+            "A등급 승률 0%·마이너스, 등급 낮을수록 이익률 높음"을 발견해
+            조사. 37일 창(docs/data/history/, 2026-07-12~09-01) IC=-0.245
+            확인 후 4축 분리 측정 — 처음엔 기술·수급(추세추종) 축을
+            의심했으나 반전시켜도 IC가 거의 안 움직임(-0.255→-0.221),
+            실제 범인은 **valuation 단독 반전 시 IC가 +0.088로 뒤집히는
+            것**으로 확인(37일 한정). 그러나 37일은 사건 하나라 쪼개서
+            OOS 검증이 안 됨 — 이미 완료된 A5 10년 백필(data/backfill/
+            scores/, 638,108건)로 같은 분해를 다시 돌리니 **정반대**:
+            10년 통합 IC=+0.052(정상 방향), valuation도 10년 중 9년
+            양수 — 37일의 결론은 그 창 하나의 우연이었음을 확인(단
+            2026-07~09 그 구간 자체는 A5 백필 forward-return 계산 범위
+            (~07-03까지)를 벗어나 직접 재현은 못 함, 정직한 한계로 남김).
+            대신 **technical 축만은 10년 중 9년 지속 마이너스**라는 새
+            사실을 발견 — 하위지표 분해(이동평균크로스·RSI·MACD·거래량
+            동반)로 이동평균크로스(내부가중 35%, 최대)가 주범임을 확인
+            (IC -0.053, 나머지 3개는 -0.02 이하). "MA크로스 반전" 변형을
+            TRAIN(2016-21)에서만 고른 뒤 VALID(22-23상)·TEST(23하-25)
+            에서도 IC가 일관되게 개선(0.0195→0.0341, 0.0031→0.0331,
+            0.0321→0.0438, 부호반전 0건) — **PASS**, "production 결정을
+            실제로 고려해볼 후보"로 상향. 단 production(config/criteria/
+            KR-2.2.json, 동결)에는 즉시 반영하지 않는다 — 별도 🔴 결정.
+            부수 발견: A5 10년 백필의 supplyDemand 축이 100% 결측(원인
+            미조사, 별도 확인 필요). findings/kr-production-technical-
+            macross-reversal-2026-09.md
   안 한다   LAB-1 16종목(13개 신규상장+2개 신탁업+1개 기존확인) 재수집 —
             사용자 결정(2026-08-12). 데이터 없는 종목은 이미 절대 규칙 1대로
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ ETF 탭 신설(1일~1년 수익률, 정렬·검색) + 유니버스 확대
+              4단계 완료 확인 + Pages 재배포 트리거 버그 수정
+              (2026-09-02) — KRX Open API(etp/etf_bydd_trd)로 ETF 전종목
+              일별 종가 이력 백필(scripts/build-etf-price-history.py,
+              기존 ETN 백필과 동일 패턴) + 1일/1주/1개월/3개월/6개월/1년
+              캘린더일 수익률 계산(scripts/build-etf-returns.py) →
+              docs/data/etf-returns.json, 평일 17:20 KST 자동 실행
+              (.github/workflows/build-etf-price-history.yml). 대시보드
+              ETF 탭에서 컬럼 클릭 정렬·이름/코드 검색 브라우저로 확인.
+              이 과정에서 **봇(GITHUB_TOKEN) 커밋은 push 이벤트로 다른
+              워크플로를 연쇄 트리거하지 않는다**는 문제를 다시 발견
+              (기존 findings.json·macro.json 워크플로가 이미 겪은 것과
+              동일 원인) — `deploy-pages.yml`의 workflow_run 구독 목록에
+              이 워크플로도 추가해 근본 수정, 수동 재배포로 즉시 반영.
+              ★ 같은 세션 — 이전 세션이 트리거해 둔 유니버스 확대(코스피
+              200+코스닥150+S&P500+나스닥100, 872종목) 4단계
+              (daily-analysis) 완료 확인 — 코스닥150·S&P500·나스닥100
+              전부 실제 채점 완료(태그는 있지만 0으로 뜨던 문제 해소),
+              브라우저로 시장/지수 배너 필터 4개 전부 동작 확인.
   완료      ★ docs/index.html 대시보드 신규 탭 4개 + 실시간 상시서버 구축
               (2026-09-01) — 옛 Claude Cowork "주식" 프로젝트(Claude Code
               전환 전 로컬 작업 폴더) 잔재 점검 중 발견: 공시(disclosures.json)·
