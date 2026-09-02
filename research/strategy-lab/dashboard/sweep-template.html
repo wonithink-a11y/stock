@@ -1,0 +1,427 @@
+<title>Factor Combination Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* 계기판 단일 테마. 뷰어 테마와 무관하게 전부 명시적으로 칠한다. */
+:root{
+  --ground:#0A0E14; --panel:#121822; --panel-2:#171F2B; --rule:#1E2836;
+  --ink:#C9D3E0; --ink-dim:#93A0B2; --muted:#66748A;
+  --signal:#E8A33D; --signal-dim:#8A6526;
+  --redline:#FF5C3D; --warn:#C2453E; --good:#4FB286;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1440px;margin:0 auto;padding:28px 20px 72px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.lbl{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);
+}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--rule);padding-bottom:20px;margin-bottom:24px}
+.eyebrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+h1{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--ink-dim);font-size:13px;margin-top:8px;max-width:74ch}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule);color:var(--ink-dim);padding:3px 8px;border-radius:2px;
+}
+.chip.hot{border-color:var(--signal-dim);color:var(--signal)}
+
+/* ---------- verdict band ---------- */
+.verdict{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:8px;
+}
+.vcell{background:var(--panel);padding:14px 16px}
+.vnum{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.vnum.red{color:var(--redline)} .vnum.amber{color:var(--signal)}
+.vsub{font-size:11px;color:var(--muted);margin-top:4px}
+.floornote{
+  font-size:12px;color:var(--ink-dim);border-left:2px solid var(--redline);
+  padding:8px 12px;background:var(--panel);margin-bottom:26px;
+}
+
+/* ---------- main grid ---------- */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media(max-width:1000px){.cols{grid-template-columns:minmax(0,1fr)}}
+.panel{border:1px solid var(--rule);background:var(--panel)}
+.phead{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--panel-2);flex-wrap:wrap;
+}
+
+/* ---------- rank chart ---------- */
+.chart{position:relative;padding:14px 14px 8px}
+.floorline{
+  position:absolute;top:8px;bottom:8px;width:0;
+  border-left:2px dashed var(--redline);pointer-events:none;z-index:3;
+}
+.floorline::after{
+  content:attr(data-t);position:absolute;top:-2px;left:6px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--redline);
+  white-space:nowrap;
+}
+.bar{
+  display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:10px;align-items:center;
+  padding:3px 0;cursor:pointer;border:0;background:none;width:100%;text-align:left;
+  font:inherit;color:inherit;
+}
+.bar:hover .btrack,.bar:focus-visible .btrack{outline:1px solid var(--signal-dim)}
+.bar:focus-visible{outline:none}
+.btrack{position:relative;height:20px;background:var(--panel-2);overflow:hidden}
+.bfill{position:absolute;inset:0 auto 0 0;background:var(--signal-dim);opacity:.55}
+.bar.pass .bfill{background:var(--signal);opacity:.32}
+.bar.sel .bfill{opacity:.6}
+.bname{
+  position:absolute;inset:0;display:flex;align-items:center;padding:0 8px;
+  font-family:var(--mono);font-size:11px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;color:var(--ink-dim);z-index:2;
+}
+.bar.pass .bname{color:var(--ink)}
+.bar.sel .bname{color:#fff}
+.bval{font-family:var(--mono);font-size:11px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar.pass .bval{color:var(--signal)}
+
+/* ---------- detail ---------- */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+.tile{background:var(--panel);padding:12px 14px}
+.tnum{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.tnum.pos{color:var(--good)} .tnum.neg{color:var(--warn)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 14px;font-size:12px}
+.kv:nth-child(odd){background:var(--panel-2)}
+.kv span:first-child{color:var(--muted)}
+.kv span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.fchips{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px}
+.fchip{
+  font-family:var(--mono);font-size:11px;padding:3px 7px;border:1px solid var(--rule);
+  background:var(--panel-2);color:var(--ink-dim);
+}
+.fchip b{color:var(--signal);font-weight:500}
+
+/* ---------- controls ---------- */
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--rule)}
+input[type=search],select{
+  background:var(--ground);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:2px;
+}
+input[type=search]{min-width:170px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+.toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);cursor:pointer}
+.fam{
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 8px;border:1px solid var(--rule);background:var(--ground);
+  color:var(--muted);cursor:pointer;border-radius:2px;
+}
+.fam[aria-pressed=true]{border-color:var(--signal-dim);color:var(--signal);background:var(--panel-2)}
+.fam.off{opacity:.4;text-decoration:line-through}
+
+/* ---------- table ---------- */
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:230px}
+th{
+  position:sticky;top:0;background:var(--panel-2);z-index:2;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;
+}
+th:hover{color:var(--ink)}
+th[aria-sort]{color:var(--signal)}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-dim)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr.sel{background:#1B2432}
+tbody tr.below td{color:var(--muted)}
+tbody tr.below td:first-child::before{content:"▽ ";color:var(--muted)}
+tbody tr.pass td:first-child::before{content:"▲ ";color:var(--signal)}
+.trap{color:var(--warn)}
+
+/* ---------- chain ---------- */
+.chain{padding:4px 0}
+.crow{
+  display:grid;grid-template-columns:22px minmax(0,1fr) 62px 62px 70px;gap:8px;
+  align-items:center;padding:7px 14px;border-bottom:1px solid var(--rule);font-size:12px;
+}
+.crow:last-child{border-bottom:0}
+.ck{font-family:var(--mono);color:var(--muted);font-size:11px}
+.cname{font-family:var(--mono);font-size:11px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+.cnum{font-family:var(--mono);font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
+.cdelta.up{color:var(--good)} .cdelta.down{color:var(--warn)}
+
+footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--rule);font-size:11px;color:var(--muted)}
+footer p{margin:5px 0;max-width:88ch}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">
+    <span class="chip hot" id="runTag">SWEEP</span>
+    <span class="chip" id="periodTag">TRAIN</span>
+    <span class="chip" id="panelTag">panel</span>
+  </div>
+  <h1>팩터 조합 실험실</h1>
+  <p class="sub" id="headline"></p>
+</header>
+
+<div class="verdict" id="verdict"></div>
+<p class="floornote" id="floornote"></p>
+
+<div class="cols">
+  <div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="phead">
+        <strong style="font-size:13px">초과수익 t · 순위</strong>
+        <span class="lbl" id="chartCount"></span>
+      </div>
+      <div class="ctl">
+        <input type="search" id="q" placeholder="팩터 이름 검색" aria-label="팩터 이름 검색">
+        <select id="sortby" aria-label="정렬 기준">
+          <option value="t">t (초과수익)</option>
+          <option value="cagr">CAGR</option>
+          <option value="sharpe">Sharpe</option>
+          <option value="calmar">Calmar</option>
+          <option value="mdd">MDD (얕은 순)</option>
+          <option value="hitRate">승률</option>
+          <option value="totalReturn">누적수익</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="onlyPass"> 바닥선 위만</label>
+        <label class="toggle"><input type="checkbox" id="hideLiq"> 유동성 팩터 제외</label>
+      </div>
+      <div class="chart" id="chart"></div>
+    </div>
+
+    <div class="panel" id="chainPanel" hidden>
+      <div class="phead">
+        <strong style="font-size:13px">단계별 증분 — 최고 조합이 만들어진 경로</strong>
+        <span class="lbl">빔서치</span>
+      </div>
+      <div class="crow" style="border-bottom:1px solid var(--rule)">
+        <span class="lbl">k</span><span class="lbl">추가한 팩터</span>
+        <span class="lbl" style="text-align:right">t</span>
+        <span class="lbl" style="text-align:right">Δt</span>
+        <span class="lbl" style="text-align:right">초과/월</span>
+      </div>
+      <div class="chain" id="chain"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="detail"></div>
+</div>
+
+<div class="panel" style="margin-top:20px">
+  <div class="phead">
+    <strong style="font-size:13px">전체 조합</strong>
+    <span class="lbl" id="tblCount"></span>
+  </div>
+  <div class="tblwrap"><table id="tbl">
+    <thead><tr id="thr"></tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div>
+</div>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+
+const FMT = {
+  pct: v => v==null ? "—" : (v*100).toFixed(2)+"%",
+  pct1: v => v==null ? "—" : (v*100).toFixed(1)+"%",
+  pct3: v => v==null ? "—" : (v*100).toFixed(3)+"%",
+  num: (v,d=2) => v==null ? "—" : v.toFixed(d),
+  int: v => v==null ? "—" : String(Math.round(v)),
+};
+const LIQ = new Set(DATA.liquidityFactors || []);
+const bar95 = DATA.gates.nullBar95;
+const rows = DATA.results;
+let sel = rows[0], sortKey = "t", sortDir = -1;
+
+/* ---------- header + verdict ---------- */
+document.getElementById("runTag").textContent = DATA.method || "SWEEP";
+document.getElementById("periodTag").textContent = DATA.period + " 전용";
+document.getElementById("panelTag").textContent = DATA.panelVersion;
+document.getElementById("headline").textContent = DATA.headline;
+
+const tested = DATA.gates.nEvaluations ?? DATA.gates.nCombosTested;
+const passN = rows.filter(r => r.t > bar95).length;
+document.getElementById("verdict").innerHTML = [
+  [tested.toLocaleString(), "시험한 조합", ""],
+  [bar95.toFixed(2), "난수 바닥선 (t)", "red"],
+  [String(passN), "바닥선을 넘은 조합", passN ? "amber" : "red"],
+  [rows.length.toLocaleString(), "게이트 통과 조합", ""],
+  [DATA.gates.nullReps + "회", "난수 재실행", ""],
+].map(([n,s,c]) =>
+  `<div class="vcell"><div class="vnum ${c}">${n}</div><div class="vsub">${s}</div></div>`
+).join("");
+
+document.getElementById("floornote").innerHTML =
+  `<b>난수 바닥선이 이 페이지의 기준선이다.</b> 정답(다음달 수익률)을 매달 무작위로 섞은 뒤 ` +
+  `<b>똑같은 절차를 ${DATA.gates.nullReps}회</b> 다시 돌려, 순전히 운으로 나올 수 있는 최고 t 를 실측했다 ` +
+  `(관측값 ${Math.min(...DATA.gates.nullMaxT).toFixed(2)}~${Math.max(...DATA.gates.nullMaxT).toFixed(2)}, ` +
+  `95분위 <b style="color:var(--redline)">${bar95.toFixed(2)}</b>). ` +
+  `이 선 아래는 알파가 아니라 운과 구분되지 않는다는 뜻이다 — ` +
+  `이 프로젝트의 기존 TRAIN 기준 t≥2.0 은 조합 스윕에서는 전혀 안전하지 않다.`;
+
+/* ---------- filtering / sorting ---------- */
+function view(){
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const onlyPass = document.getElementById("onlyPass").checked;
+  const hideLiq = document.getElementById("hideLiq").checked;
+  let v = rows.filter(r => {
+    if (onlyPass && !(r.t > bar95)) return false;
+    if (hideLiq && r.factors.some(f => LIQ.has(f))) return false;
+    if (q && !r.factors.join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const dir = sortKey === "mdd" ? 1 : sortDir;          // MDD 는 0 에 가까울수록 좋다
+  v.sort((a,b) => {
+    const x = a[sortKey], y = b[sortKey];
+    if (x == null) return 1; if (y == null) return -1;
+    return (x - y) * dir;
+  });
+  return v;
+}
+
+/* ---------- rank chart ---------- */
+function drawChart(v){
+  const top = v.slice(0, 40);
+  const el = document.getElementById("chart");
+  document.getElementById("chartCount").textContent = `상위 ${top.length} / ${v.length.toLocaleString()}`;
+  if (!top.length){ el.innerHTML = `<p style="color:var(--muted);font-size:12px">조건에 맞는 조합이 없다.</p>`; return; }
+  const lo = Math.min(0, ...top.map(r=>r.t)), hi = Math.max(bar95*1.08, ...top.map(r=>r.t));
+  const span = hi - lo || 1;
+  const pos = t => ((t - lo) / span) * 100;
+  el.innerHTML = top.map((r,i) => {
+    const pass = r.t > bar95;
+    const isSel = sel && r.key === sel.key;
+    return `<button class="bar ${pass?"pass":""} ${isSel?"sel":""}" data-key="${r.key}"
+      aria-label="${r.factors.join(" + ")}, t ${r.t.toFixed(2)}">
+      <span class="btrack"><span class="bfill" style="width:${pos(r.t).toFixed(2)}%"></span>
+      <span class="bname">${r.factors.join(" + ")}</span></span>
+      <span class="bval">${r.t.toFixed(2)}</span></button>`;
+  }).join("") +
+  `<div class="floorline" data-t="난수 바닥선 ${bar95.toFixed(2)}"
+     style="left:calc(14px + (100% - 14px - 14px - 64px) * ${(pos(bar95)/100).toFixed(4)})"></div>`;
+  el.querySelectorAll(".bar").forEach(b =>
+    b.addEventListener("click", () => { sel = rows.find(r=>r.key===b.dataset.key); render(); }));
+}
+
+/* ---------- detail ---------- */
+function drawDetail(){
+  const r = sel;
+  const d = document.getElementById("detail");
+  if (!r){ d.innerHTML = ""; return; }
+  const pass = r.t > bar95;
+  const tiles = [
+    ["CAGR", FMT.pct(r.cagr), r.cagr>0?"pos":"neg"],
+    ["MDD", FMT.pct(r.mdd), "neg"],
+    ["Sharpe", FMT.num(r.sharpe), ""],
+    ["승률", FMT.pct1(r.hitRate), ""],
+    ["누적수익", FMT.pct(r.totalReturn), r.totalReturn>0?"pos":"neg"],
+    ["초과 t", FMT.num(r.t), pass?"pos":"neg"],
+  ];
+  const kvs = [
+    ["초과수익 / 월", FMT.pct3(r.meanMonthlyExcess)],
+    ["벤치마크(EW) / 월", FMT.pct3(r.meanMonthlyBench)],
+    ["초과 적중월 비율", FMT.pct1(r.excessHitRate)],
+    ["벤치 누적수익", FMT.pct(r.benchTotalReturn)],
+    ["Calmar", FMT.num(r.calmar)],
+    ["Profit Factor", FMT.num(r.profitFactor)],
+    ["최대 단일연도 기여", r.maxSingleYearPct==null?"—":r.maxSingleYearPct.toFixed(0)+"%"],
+    ["회전율 (월)", FMT.num(r.turnover)],
+    ["월평균 적격종목", FMT.int(r.avgNames)],
+    ["월평균 보유종목", FMT.int(r.avgHeld)],
+    ["유효 개월수", FMT.int(r.nMonths)],
+  ];
+  const trap = r.factors.some(f=>LIQ.has(f));
+  d.innerHTML =
+    `<div class="phead"><strong style="font-size:13px">선택한 조합</strong>
+       <span class="chip ${pass?"hot":""}">${pass?"바닥선 위":"바닥선 이하"}</span></div>
+     <div class="fchips">${r.factors.map(f=>
+        `<span class="fchip">${LIQ.has(f)?`<b>${f}</b>`:f}</span>`).join("")}</div>
+     ${trap?`<p style="padding:0 14px 10px;margin:0;font-size:11px" class="trap">
+        ⚠ 유동성 팩터 포함 — 2026-08-21에 확인된 "유동성이 팩터보다 강한 예측변수" 함정과
+        같은 성격일 수 있다. 좌측 토글로 제외하고 비교할 것.</p>`:""}
+     <div class="tiles">${tiles.map(([l,v,c])=>
+        `<div class="tile"><div class="lbl">${l}</div><div class="tnum ${c}">${v}</div></div>`).join("")}</div>
+     <div>${kvs.map(([k,v])=>`<div class="kv"><span>${k}</span><span>${v}</span></div>`).join("")}</div>`;
+}
+
+/* ---------- chain (beam only) ---------- */
+if (DATA.chain && DATA.chain.length){
+  document.getElementById("chainPanel").hidden = false;
+  document.getElementById("chain").innerHTML = DATA.chain.map(c => {
+    const d = c.deltaT;
+    const cls = d==null ? "" : (d>0 ? "up" : "down");
+    return `<div class="crow"><span class="ck">${c.k}</span>
+      <span class="cname">${c.added}</span>
+      <span class="cnum">${c.t.toFixed(2)}</span>
+      <span class="cnum cdelta ${cls}">${d==null?"—":(d>0?"+":"")+d.toFixed(2)}</span>
+      <span class="cnum">${FMT.pct3(c.excess)}</span></div>`;
+  }).join("");
+}
+
+/* ---------- table ---------- */
+const COLS = [
+  ["factors","조합",r=>r.factors.join(" + ")],
+  ["t","초과 t",r=>r.t.toFixed(2)],
+  ["cagr","CAGR",r=>FMT.pct(r.cagr)],
+  ["totalReturn","누적수익",r=>FMT.pct(r.totalReturn)],
+  ["mdd","MDD",r=>FMT.pct(r.mdd)],
+  ["sharpe","Sharpe",r=>FMT.num(r.sharpe)],
+  ["calmar","Calmar",r=>FMT.num(r.calmar)],
+  ["profitFactor","PF",r=>FMT.num(r.profitFactor)],
+  ["hitRate","승률",r=>FMT.pct1(r.hitRate)],
+  ["maxSingleYearPct","최대연도%",r=>r.maxSingleYearPct==null?"—":r.maxSingleYearPct.toFixed(0)],
+  ["turnover","회전율",r=>FMT.num(r.turnover)],
+  ["avgHeld","보유",r=>FMT.int(r.avgHeld)],
+  ["nMonths","개월",r=>FMT.int(r.nMonths)],
+];
+document.getElementById("thr").innerHTML = COLS.map(([k,l]) =>
+  `<th data-k="${k}" ${k===sortKey?'aria-sort="descending"':""}>${l}</th>`).join("");
+document.getElementById("thr").addEventListener("click", e => {
+  const th = e.target.closest("th"); if(!th) return;
+  const k = th.dataset.k; if (k === "factors") return;
+  if (k === sortKey) sortDir *= -1; else { sortKey = k; sortDir = -1; }
+  document.getElementById("sortby").value = k;
+  render();
+});
+
+function drawTable(v){
+  document.getElementById("tblCount").textContent = `${v.length.toLocaleString()}건`;
+  document.getElementById("tb").innerHTML = v.slice(0,300).map(r => {
+    const pass = r.t > bar95;
+    return `<tr class="${pass?"pass":"below"} ${sel&&r.key===sel.key?"sel":""}" data-key="${r.key}">` +
+      COLS.map(([k,l,f]) => `<td>${f(r)}</td>`).join("") + `</tr>`;
+  }).join("");
+  document.getElementById("tb").querySelectorAll("tr").forEach(tr =>
+    tr.addEventListener("click", () => {
+      sel = rows.find(r=>r.key===tr.dataset.key); render();
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+  document.querySelectorAll("th").forEach(th =>
+    th.toggleAttribute("aria-sort", th.dataset.k === sortKey));
+}
+
+function render(){ const v = view(); drawChart(v); drawDetail(); drawTable(v); }
+["q","onlyPass","hideLiq"].forEach(id =>
+  document.getElementById(id).addEventListener("input", render));
+document.getElementById("sortby").addEventListener("change", e => {
+  sortKey = e.target.value; sortDir = -1; render();
+});
+
+document.getElementById("foot").innerHTML = DATA.footnotes.map(t=>`<p>${t}</p>`).join("");
+render();
+</script>
