@@ -1,0 +1,347 @@
+{
+  "panelVersion": "kr-monthly-v1",
+  "builtAt": "2026-09-02T21:01:42",
+  "builtBy": "build_factor_panel.py",
+  "movedFrom": [
+    "factor_discovery_kr.py",
+    "factor_discovery_kr_extended.py",
+    "build_a4_research_dataset.py (nb ratio 정규화)"
+  ],
+  "rows": 233240,
+  "tickers": 2549,
+  "months": 128,
+  "dateRange": [
+    "2016-02-01",
+    "2026-07-01"
+  ],
+  "maxTickers": null,
+  "buildSeconds": 43.6,
+  "conventions": {
+    "rebalance": "월 첫 세션",
+    "entry": "익영업일 종가 (next-open 의 PIT-safe 근사)",
+    "exit": "익월 첫 세션 종가",
+    "liquidityGate": "dv20 >= 1e8 KRW (절대임계값. 상대 tercile 금지)",
+    "periodSplit": "TRAIN <= 2022-06-30 < VALID <= 2024-01-01 < TEST",
+    "deciles": "월별 횡단면 rank 기반, winsorization 없음"
+  },
+  "targetColumns": [
+    "fwd1m"
+  ],
+  "metaColumns": [
+    "ticker",
+    "date",
+    "market",
+    "period",
+    "close",
+    "dv20",
+    "liquid"
+  ],
+  "periodRows": {
+    "TRAIN": 132424,
+    "VALID": 36836,
+    "TEST": 63980
+  },
+  "factors": {
+    "pbr": {
+      "family": "Value",
+      "direction": "low",
+      "established": true,
+      "source": "valuation-panel",
+      "nonNull": 109914,
+      "coverage": 0.4712
+    },
+    "per": {
+      "family": "Value",
+      "direction": "low",
+      "established": true,
+      "source": "valuation-panel",
+      "nonNull": 83088,
+      "coverage": 0.3562
+    },
+    "earnings_yield": {
+      "family": "Value",
+      "direction": "high",
+      "established": true,
+      "source": "valuation-panel (1/per, per>0)",
+      "nonNull": 83088,
+      "coverage": 0.3562
+    },
+    "roe": {
+      "family": "Quality",
+      "direction": "high",
+      "established": true,
+      "source": "quality-panel",
+      "nonNull": 213773,
+      "coverage": 0.9165
+    },
+    "op_margin": {
+      "family": "Quality",
+      "direction": "high",
+      "established": false,
+      "source": "A3 opProfit/revenue",
+      "nonNull": 209913,
+      "coverage": 0.9
+    },
+    "net_margin": {
+      "family": "Quality",
+      "direction": "high",
+      "established": false,
+      "source": "A3 netIncome/revenue",
+      "nonNull": 209521,
+      "coverage": 0.8983
+    },
+    "retention": {
+      "family": "Quality",
+      "direction": "low",
+      "established": false,
+      "source": "A3b 1-dps/eps",
+      "nonNull": 141692,
+      "coverage": 0.6075
+    },
+    "debt_ratio": {
+      "family": "Quality",
+      "direction": "low",
+      "established": false,
+      "source": "quality-panel",
+      "nonNull": 215666,
+      "coverage": 0.9247
+    },
+    "current_ratio": {
+      "family": "Quality",
+      "direction": "high",
+      "established": false,
+      "source": "A3 currentAssets/currentLiab",
+      "nonNull": 211131,
+      "coverage": 0.9052
+    },
+    "roe_consistency": {
+      "family": "Quality",
+      "direction": "high",
+      "established": false,
+      "source": "quality-panel",
+      "nonNull": 215492,
+      "coverage": 0.9239
+    },
+    "op_margin_trend": {
+      "family": "Quality",
+      "direction": "high",
+      "established": false,
+      "source": "quality-panel",
+      "nonNull": 182498,
+      "coverage": 0.7824
+    },
+    "equity_growth": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "A3 equity YoY",
+      "nonNull": 184196,
+      "coverage": 0.7897
+    },
+    "rev_yoy": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "A3 revenue YoY",
+      "nonNull": 181239,
+      "coverage": 0.777
+    },
+    "op_yoy": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "A3 opProfit YoY",
+      "nonNull": 184086,
+      "coverage": 0.7893
+    },
+    "ni_yoy": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "A3 netIncome YoY",
+      "nonNull": 183058,
+      "coverage": 0.7848
+    },
+    "eps_yoy": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "A3b eps YoY",
+      "nonNull": 172431,
+      "coverage": 0.7393
+    },
+    "qni_yoy": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "quarterly panel netIncome YoY",
+      "nonNull": 217513,
+      "coverage": 0.9326
+    },
+    "growth_accel": {
+      "family": "Growth",
+      "direction": "high",
+      "established": false,
+      "source": "qni_yoy - 직전 qni_yoy",
+      "nonNull": 209254,
+      "coverage": 0.8972
+    },
+    "dv20_log": {
+      "family": "Liquidity",
+      "direction": "low",
+      "established": true,
+      "source": "A4 log 20일 평균 거래대금",
+      "note": "유동성을 '상대 tercile' 로 통제변수화하면 그 자체가 팩터보다 강한 예측변수가 된다(2026-08-21 사고, 7개 가설이 전부 여기 걸렸다). 절대임계값으로만 쓴다.",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "vv20_log": {
+      "family": "Liquidity",
+      "direction": "low",
+      "established": false,
+      "source": "A4 log 20일 평균 거래량",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "turnover_ratio_pct": {
+      "family": "Liquidity",
+      "direction": "high",
+      "established": false,
+      "source": "vv20 / A3c 발행주식수 (PIT)",
+      "nonNull": 225394,
+      "coverage": 0.9664
+    },
+    "rv20_pct": {
+      "family": "Risk",
+      "direction": "low",
+      "established": true,
+      "source": "A4 std(logret,20)*100",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "rv60_pct": {
+      "family": "Risk",
+      "direction": "low",
+      "established": true,
+      "source": "A4 std(logret,60)*100",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "beta12m": {
+      "family": "Risk",
+      "direction": "low",
+      "established": false,
+      "source": "A4 vs KOSPI 252일",
+      "nonNull": 221825,
+      "coverage": 0.9511
+    },
+    "rev1m": {
+      "family": "Reversal",
+      "direction": "low",
+      "established": true,
+      "source": "A4 과거 21세션 수익률",
+      "note": "factor_discovery_kr.py 는 이 컬럼을 rev1m(low), _extended.py 는 mom1m(high) 으로 썼다 - 같은 수식인데 두 스크립트가 방향 가설을 정반대로 잡았다. 랩의 factor_rev1m_v1 전략이 하위 decile 을 쓰므로 low 로 고정한다.",
+      "nonNull": 231713,
+      "coverage": 0.9935
+    },
+    "mom3m": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "A4 과거 63세션 수익률",
+      "nonNull": 227128,
+      "coverage": 0.9738
+    },
+    "mom6m": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "A4 과거 126세션 수익률",
+      "nonNull": 220127,
+      "coverage": 0.9438
+    },
+    "mom12m": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "A4 과거 252세션 수익률",
+      "nonNull": 206312,
+      "coverage": 0.8845
+    },
+    "mom12m_skip1m": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "A4 21..252세션 수익률",
+      "nonNull": 206312,
+      "coverage": 0.8845
+    },
+    "ma20_pos": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "close/MA20 - 1",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "ma60_pos": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "close/MA60 - 1",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "ma120_pos": {
+      "family": "Momentum",
+      "direction": "high",
+      "established": false,
+      "source": "close/MA120 - 1",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "foreign_nb20_ratio": {
+      "family": "SupplyDemand",
+      "direction": "high",
+      "established": false,
+      "source": "A4 20일 외국인 순매수 / 20일 거래대금",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "inst_nb20_ratio": {
+      "family": "SupplyDemand",
+      "direction": "high",
+      "established": false,
+      "source": "A4 20일 기관 순매수 / 20일 거래대금",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "foreign_nb5_ratio": {
+      "family": "SupplyDemand",
+      "direction": "high",
+      "established": false,
+      "source": "A4 5일 외국인 순매수 / 5일 거래대금",
+      "note": "KR-2.2 슬롯 marginal 분석에서 5일 정의는 음(-) IC, A4 의 20일 정의는 양(+) IC 였다 - 같은 수급 정보라도 창 길이로 부호가 갈린다. 방향 미확정.",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "inst_nb5_ratio": {
+      "family": "SupplyDemand",
+      "direction": "high",
+      "established": false,
+      "source": "A4 5일 기관 순매수 / 5일 거래대금",
+      "nonNull": 233240,
+      "coverage": 1.0
+    },
+    "indiv_nb20_ratio": {
+      "family": "SupplyDemand",
+      "direction": "low",
+      "established": true,
+      "redundant": true,
+      "source": "A4 20일 개인 순매수 / 20일 거래대금",
+      "note": "시장청산 항등식으로 foreign+inst+indiv=0 (A4 5,348,454행 전수 오차 0). 정의상 독립 정보가 없으므로 조합 스윕에서 기본 제외.",
+      "nonNull": 233240,
+      "coverage": 1.0
+    }
+  }
+}
