@@ -149,6 +149,7 @@
   <button data-tab="news">뉴스</button>
   <button data-tab="flows">시장수급</button>
   <button data-tab="etf">ETF</button>
+  <button data-tab="sector">섹터강도</button>
   <button data-tab="live">실시간⚡</button>
 </nav>
 
@@ -199,6 +200,8 @@ const state = {
   prices: null,            // docs/data/prices.json (지연 로드 - 상세 차트를 처음 열 때만)
   flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
   etfReturns: null,        // docs/data/etf-returns.json
+  sectorStrength: null,    // docs/data/sector-strength.json (관찰용, 예측 주장 아님)
+  sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
   etfDist: null,           // docs/data/etf-distributions.json
   etfSearch: '',
   etfAssetClass: 'all',
@@ -1717,6 +1720,151 @@ function renderLive() {
   </div>`;
 }
 
+// ---------- 섹터강도 (관찰용) ----------
+// docs/data/sector-strength.json = A1a KSIC 159 세분류를 config/sectorGroups.json 으로
+// 20개 그룹에 묶고, 이미 매일 갱신되는 prices.json 으로 상대강도를 낸 것.
+// ★ 예측력 주장이 아니다 - Step 0 검증에서 섹터 주도권 신호는 난수 바닥선을 못 넘었다.
+const SEC_QUADS = {
+  '주도': { color: '#16a34a', desc: '강하고 더 강해지는 중' },
+  '부상': { color: '#2563eb', desc: '약했는데 강해지는 중' },
+  '둔화': { color: '#d97706', desc: '강했는데 힘이 빠지는 중' },
+  '약세': { color: '#dc2626', desc: '약하고 더 약해지는 중' },
+};
+
+function secPct(v, digits = 1) {
+  if (v === null || v === undefined) return '<span class="muted">-</span>';
+  return pctCell((v * 100).toFixed(digits));
+}
+
+function sectorScatter(groups) {
+  const pts = groups.filter(g => g.rs['3m'] !== null && g.accel !== null);
+  if (!pts.length) return '';
+  const W = 680, H = 380, PAD = 44;
+  const xs = pts.map(p => p.rs['3m']), ys = pts.map(p => p.accel);
+  const span = (a) => {
+    const lo = Math.min(...a, 0), hi = Math.max(...a, 0), m = (hi - lo) * 0.18 || 0.02;
+    return [lo - m, hi + m];
+  };
+  const [x0, x1] = span(xs), [y0, y1] = span(ys);
+  const px = v => PAD + (v - x0) / (x1 - x0) * (W - PAD * 2);
+  const py = v => H - PAD - (v - y0) / (y1 - y0) * (H - PAD * 2);
+  const cx = px(0), cy = py(0);
+  const maxN = Math.max(...pts.map(p => p.n));
+
+  const tint = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${Math.max(0, w)}" height="${Math.max(0, h)}" fill="${c}" opacity="0.13"/>`;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-width:${W}px" role="img" aria-label="섹터 4분면 산점도">`;
+  svg += tint(cx, PAD, W - PAD - cx, cy - PAD, SEC_QUADS['주도'].color);
+  svg += tint(PAD, PAD, cx - PAD, cy - PAD, SEC_QUADS['부상'].color);
+  svg += tint(cx, cy, W - PAD - cx, H - PAD - cy, SEC_QUADS['둔화'].color);
+  svg += tint(PAD, cy, cx - PAD, H - PAD - cy, SEC_QUADS['약세'].color);
+  svg += `<line x1="${PAD}" y1="${cy}" x2="${W - PAD}" y2="${cy}" stroke="var(--border)" stroke-dasharray="4 3"/>`;
+  svg += `<line x1="${cx}" y1="${PAD}" x2="${cx}" y2="${H - PAD}" stroke="var(--border)" stroke-dasharray="4 3"/>`;
+  svg += `<text x="${W - PAD - 4}" y="${PAD + 14}" text-anchor="end" font-size="12" fill="${SEC_QUADS['주도'].color}">주도</text>`;
+  svg += `<text x="${PAD + 4}" y="${PAD + 14}" font-size="12" fill="${SEC_QUADS['부상'].color}">부상</text>`;
+  svg += `<text x="${W - PAD - 4}" y="${H - PAD - 6}" text-anchor="end" font-size="12" fill="${SEC_QUADS['둔화'].color}">둔화</text>`;
+  svg += `<text x="${PAD + 4}" y="${H - PAD - 6}" font-size="12" fill="${SEC_QUADS['약세'].color}">약세</text>`;
+  svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">← 약함    3개월 상대강도    강함 →</text>`;
+  svg += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 14 ${H / 2})">← 둔화    1개월 가속    가속 →</text>`;
+
+  const marks = pts.map(p => {
+    const r = 5 + 9 * Math.sqrt(p.n / maxN);
+    const X = px(p.rs['3m']), Y = py(p.accel);
+    const anchor = X > W - 150 ? 'end' : 'start';
+    return { p, r, X, Y, anchor, lx: X + (anchor === 'end' ? -(r + 4) : (r + 4)), ly: Y + 4 };
+  });
+  // 라벨 겹침 밀어내기: 가까운 라벨이 있으면 아래로 민다.
+  // ponytail: O(n^2) 그리디, 그룹이 20개 남짓이라 충분하다. 더 늘면 격자 인덱스로 바꾼다.
+  marks.sort((a, b) => a.ly - b.ly);
+  for (let i = 0; i < marks.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (Math.abs(marks[i].lx - marks[j].lx) < 110 && Math.abs(marks[i].ly - marks[j].ly) < 13) {
+        marks[i].ly = marks[j].ly + 13;
+      }
+    }
+    marks[i].ly = Math.min(marks[i].ly, H - PAD - 2);
+  }
+  for (const m of marks) {
+    const c = (SEC_QUADS[m.p.quadrant] || {}).color || '#6b7280';
+    svg += `<circle cx="${m.X.toFixed(1)}" cy="${m.Y.toFixed(1)}" r="${m.r.toFixed(1)}" fill="${c}" opacity="0.65"><title>${esc(m.p.group)} · ${m.p.n}종목</title></circle>`;
+    if (Math.abs(m.ly - (m.Y + 4)) > 2) {   // 밀려난 라벨은 실선으로 원과 이어준다
+      svg += `<line x1="${m.X.toFixed(1)}" y1="${m.Y.toFixed(1)}" x2="${m.lx.toFixed(1)}" y2="${(m.ly - 4).toFixed(1)}" stroke="${c}" stroke-width="0.7" opacity="0.5"/>`;
+    }
+    svg += `<text x="${m.lx.toFixed(1)}" y="${m.ly.toFixed(1)}" text-anchor="${m.anchor}" font-size="11" fill="var(--text)">${esc(m.p.group)}</text>`;
+  }
+  return svg + '</svg>';
+}
+
+function renderSector() {
+  const d = state.sectorStrength;
+  if (!d || !d.groups || !d.groups.length) {
+    return '<div class="card empty">섹터강도 데이터가 아직 없습니다. (docs/data/sector-strength.json)</div>';
+  }
+  const b = d.benchmark || {};
+  const counts = {};
+  d.groups.forEach(g => { counts[g.quadrant] = (counts[g.quadrant] || 0) + 1; });
+  const chip = (key, label) => {
+    const on = state.sectorQuad === key ? ' active' : '';
+    const n = key === 'all' ? d.groups.length : (counts[key] || 0);
+    return `<button class="chip${on}" data-secquad="${key}">${label} ${n}</button>`;
+  };
+  const shown = d.groups.filter(g => state.sectorQuad === 'all' || g.quadrant === state.sectorQuad);
+
+  const rows = shown.map(g => {
+    const c = (SEC_QUADS[g.quadrant] || {}).color || '#6b7280';
+    const names = (g.top || []).map(t => esc(t.name)).join(', ');
+    const bd = v => v === null || v === undefined ? '<span class="muted">-</span>' : Math.round(v * 100) + '%';
+    return `<tr>
+      <td><b>${esc(g.group)}</b><br><span class="muted" style="font-size:11px">${g.n}종목</span></td>
+      <td style="text-align:right">${secPct(g.rs['1m'])}</td>
+      <td style="text-align:right">${secPct(g.rs['3m'])}</td>
+      <td style="text-align:right">${secPct(g.rs['6m'])}</td>
+      <td style="text-align:right"><b>${secPct(g.accel)}</b></td>
+      <td style="text-align:right">${bd(g.breadth20)}</td>
+      <td style="text-align:right">${bd(g.breadth60)}</td>
+      <td><span style="color:${c};font-weight:600">${esc(g.quadrant || '-')}</span></td>
+      <td class="muted" style="font-size:12px">${names}</td>
+    </tr>`;
+  }).join('');
+
+  const legend = Object.keys(SEC_QUADS).map(k => k + '=' + SEC_QUADS[k].desc).join(' · ');
+
+  return `
+  <div class="card">
+    <h2 style="margin:0 0 4px">섹터 상대강도 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · KR ${d.universeCount}종목 · ${d.groups.length}개 그룹</span></h2>
+    <p class="muted" style="margin:4px 0 10px;font-size:12px">
+      벤치마크(유니버스 전체 중앙값): 1개월 ${secPct(b['1m'])} · 3개월 ${secPct(b['3m'])} · 6개월 ${secPct(b['6m'])}.
+      표의 값은 <b>이 벤치마크 대비 초과분</b>이고, 그룹 값은 소속 종목 수익률의 <b>중앙값</b>입니다.
+      가속 = 1개월 상대강도 − 3개월 상대강도.
+    </p>
+    <p class="muted" style="margin:0 0 10px;font-size:12px;padding:8px;background:rgba(245,158,11,0.12);border-left:3px solid #f59e0b;color:var(--text)">
+      ⚠️ <b>관찰용 지표입니다.</b> 백테스트로 검증된 매매신호가 아닙니다 — Step 0 검증(2026-09-03)에서
+      섹터 주도권 신호는 난수 바닥선을 넘지 못했습니다. "지금 무엇이 강한가"를 보는 용도로만 쓰세요.
+    </p>
+    ${sectorScatter(d.groups)}
+    <p class="muted" style="font-size:11px;margin:2px 0 0">원 크기 = 그룹 소속 종목 수. ${esc(legend)}</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      ${chip('all', '전체')}${chip('주도', '주도')}${chip('부상', '부상')}${chip('둔화', '둔화')}${chip('약세', '약세')}
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>그룹</th><th style="text-align:right">1M 상대</th><th style="text-align:right">3M 상대</th>
+        <th style="text-align:right">6M 상대</th><th style="text-align:right">가속</th>
+        <th style="text-align:right">20일선 위</th><th style="text-align:right">60일선 위</th>
+        <th>분면</th><th>1개월 상위 종목</th>
+      </tr></thead>
+      <tbody>${rows || '<tr><td colspan="9" class="muted">해당 분면에 그룹이 없습니다.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="font-size:11px;margin:8px 0 0">
+      업종 분류는 A1a의 KSIC 세분류 159개를 20개 투자그룹으로 묶은 것(config/sectorGroups.json)이라
+      일부 종목은 통념과 다른 그룹에 들어갈 수 있습니다. 소속 ${d.minMembers}종목 미만 그룹은 표시하지 않습니다.
+      폐지종목(A1b)에는 업종 정보가 없어 이 화면은 현재 상장 종목만 봅니다.
+    </p>
+  </div>`;
+}
+
 // ---------- 탭 전환 ----------
 
 function render() {
@@ -1729,6 +1877,7 @@ function render() {
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
+  else if (state.tab === 'sector') el.innerHTML = renderSector();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
@@ -1862,6 +2011,13 @@ document.getElementById('content').addEventListener('change', (e) => {
   }
 });
 
+document.addEventListener('click', (e) => {
+  const q = e.target.closest && e.target.closest('[data-secquad]');
+  if (!q) return;
+  state.sectorQuad = q.dataset.secquad;
+  render();
+});
+
 document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -1873,9 +2029,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';

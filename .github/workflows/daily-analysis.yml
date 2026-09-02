@@ -36,6 +36,16 @@ jobs:
       - name: Analyze & score
         run: node scripts/analyze.js
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # prices.json(방금 analyze 가 쓴 것)을 그대로 읽어 섹터 상대강도 스냅샷을 만든다.
+      # 새 수집 없음. 실패해도 일일 파이프라인을 죽이지 않는다(관찰용 지표).
+      - name: Build sector strength snapshot
+        continue-on-error: true
+        run: python scripts/build-sector-strength.py
+
       - name: Notify (telegram/slack)
         continue-on-error: true   # 알림 실패가 파이프라인을 죽이지 않도록
         env:
