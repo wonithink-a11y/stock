@@ -182,15 +182,7 @@ FACTOR_CATALOG = {
                               "source": "short_balance_ratio 의 20세션 변화 (2세션 지연)",
                               "note": "잔고의 '수준'이 아니라 '증감'. 두 축이 서로 다른 정보일 수 있어 "
                                       "같이 넣는다."},
-    # --- SectorRelative (업종 내부 상대) ---
-    "sector_rel_mom6m": {"family": "SectorRelative", "direction": "high", "established": False,
-                         "source": "mom6m - 같은 달·같은 업종 중앙값",
-                         "note": "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀. 업종은 A1a 의 "
-                                 "**현재** 분류라 PIT 가 아니다(업종은 거의 안 바뀌지만 정확히는 근사)."},
-    "sector_rel_pbr": {"family": "SectorRelative", "direction": "low", "established": False,
-                       "source": "pbr 의 같은 달·같은 업종 내 백분위",
-                       "note": "2026-08 섹터중립 재검증에서 PBR 신호가 업종 내부에서도 살아있으나 "
-                               "크기는 절반이었다 - 그 결과를 팩터로 만든 것."},
+    # --- SectorRelative (업종 내부 상대) — SECTOR_NEUTRAL 표에서 자동 생성한다 ---
     # --- Price (A2a 없이 A4 종가만으로 계산 가능한 구조 축) ---
     "dist_52w_high": {"family": "Price", "direction": "high", "established": False,
                       "source": "close / 252세션 최고종가 - 1",
@@ -209,6 +201,38 @@ FACTOR_CATALOG = {
                          "note": "시장청산 항등식으로 foreign+inst+indiv=0 (A4 5,348,454행 전수 "
                                  "오차 0). 정의상 독립 정보가 없으므로 조합 스윕에서 기본 제외."},
 }
+
+# ---------------------------------------------------------------------------
+# 업종중립 변환 — 같은 달·같은 업종 안에서의 백분위로 바꾼다.
+#
+# 왜 이 표가 따로 있나: 2026-09-02 검증에서 sector_rel_pbr 이 이 프로젝트가
+# 반복해 걸려온 저유동성 편향 없이 TRAIN/VALID/TEST 부호 일관성을 통과한
+# **유일한** 축이었다(마진이 슬리피지보다 작아 기각됐을 뿐이다). 그 방향을
+# 한 축이 아니라 계열로 밀어보려고 일반화했다.
+#
+# 백분위를 쓰고 편차(x - 업종중앙값)를 안 쓰는 이유: 편차는 업종별 변동성
+# 차이가 그대로 남아 고변동 업종이 항상 극단을 차지한다.
+# ---------------------------------------------------------------------------
+SECTOR_NEUTRAL = [
+    # (원본 팩터, 방향, 왜 업종 안에서 보는 게 말이 되는가)
+    ("pbr", "low", "업종마다 정상 PBR 수준이 다르다 - 은행 0.4배와 바이오 8배를 직접 비교할 수 없다"),
+    ("earnings_yield", "high", "PER 도 업종별 정상 수준이 다르다"),
+    ("roe", "high", "자본집약도가 업종마다 달라 ROE 절대수준 비교가 어렵다"),
+    ("op_margin", "high", "영업이익률은 업종 구조가 대부분을 결정한다"),
+    ("debt_ratio", "low", "적정 레버리지가 업종마다 다르다(금융 vs 제조)"),
+    ("qni_yoy", "high", "실적 사이클이 업종 단위로 움직인다"),
+    ("growth_accel", "high", "같은 위"),
+    ("mom6m", "high", "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀"),
+    ("foreign_nb20_ratio", "high", "외국인 수급도 업종 단위로 쏠린다"),
+    ("rv60_pct", "low", "업종마다 기본 변동성 수준이 다르다"),
+]
+for _f, _d, _why in SECTOR_NEUTRAL:
+    FACTOR_CATALOG[f"sector_rel_{_f}"] = {
+        "family": "SectorRelative", "direction": _d, "established": False,
+        "source": f"{_f} 의 같은 달·같은 업종 내 백분위",
+        "note": f"{_why}. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다"
+                f"(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+    }
 
 # 팩터가 아닌, 패널이 같이 들고 다니는 컬럼
 META_COLUMNS = ["ticker", "date", "market", "sector", "period", "close", "dv20", "liquid"]
@@ -661,14 +685,17 @@ def build_panel(max_tickers=None, verbose=True):
     if n_bad:
         log(f"  ! 공매도 잔고비율 >100% {n_bad}행 유보 (발행주식수 시점 불일치 추정)")
 
-    # 업종 상대 - 같은 달·같은 업종 안에서만 비교한다
+    # 업종 상대 - 같은 달·같은 업종 안에서의 백분위 (SECTOR_NEUTRAL 표 전체)
     base["sector"] = base["ticker"].map(load_sector_map())
     grp = base.groupby(["date", "sector"], sort=False)
-    base["sector_rel_mom6m"] = base["mom6m"] - grp["mom6m"].transform("median")
-    base["sector_rel_pbr"] = grp["pbr"].transform(lambda s: s.rank(pct=True))
+    sec_cols = []
+    for f, _d, _why in SECTOR_NEUTRAL:
+        col = f"sector_rel_{f}"
+        base[col] = grp[f].transform(lambda s: s.rank(pct=True))
+        sec_cols.append(col)
     # 업종 표본이 너무 작으면 '업종 내 상대'가 의미 없다 - 지어내지 않고 유보한다
     small = grp["ticker"].transform("size") < 5
-    base.loc[small, ["sector_rel_mom6m", "sector_rel_pbr"]] = np.nan
+    base.loc[small, sec_cols] = np.nan
     log(f"  재무·공매도·업종 팩터 완료 ({time.time() - t0:.0f}s)")
 
     keep = META_COLUMNS + TARGET_COLUMNS + list(FACTOR_CATALOG)
@@ -763,6 +790,12 @@ def selftest():
               "sector_rel_mom6m", "sector_rel_pbr", "dist_52w_high", "max5_1m",
               "amount_shock", "flow_accel"):
         assert f in FACTOR_CATALOG, f
+    # 업종중립판은 원본과 방향이 같아야 한다 (백분위는 순서를 보존한다)
+    for f, d, _ in SECTOR_NEUTRAL:
+        assert f in FACTOR_CATALOG, f"업종중립 원본이 카탈로그에 없다: {f}"
+        assert FACTOR_CATALOG[f]["direction"] == d, \
+            f"{f} 방향 불일치: 원본 {FACTOR_CATALOG[f]['direction']} vs 업종중립 {d}"
+        assert FACTOR_CATALOG[f"sector_rel_{f}"]["direction"] == d
     fams = {m["family"] for m in FACTOR_CATALOG.values()}
     assert {"Short", "SectorRelative", "Price"} <= fams, fams
     print(f"selftest OK ({len(FACTOR_CATALOG)}개 팩터, 방향 결측 0건, 타깃 누출 0건, "

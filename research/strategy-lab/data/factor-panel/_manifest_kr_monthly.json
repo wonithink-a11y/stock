@@ -1,6 +1,6 @@
 {
   "panelVersion": "kr-monthly-v1",
-  "builtAt": "2026-09-02T22:36:22",
+  "builtAt": "2026-09-02T22:52:53",
   "builtBy": "build_factor_panel.py",
   "movedFrom": [
     "factor_discovery_kr.py",
@@ -15,7 +15,7 @@
     "2026-07-01"
   ],
   "maxTickers": null,
-  "buildSeconds": 83.6,
+  "buildSeconds": 205.1,
   "conventions": {
     "rebalance": "월 첫 세션",
     "entry": "익영업일 종가 (next-open 의 PIT-safe 근사)",
@@ -369,24 +369,6 @@
       "nonNull": 216976,
       "coverage": 0.9303
     },
-    "sector_rel_mom6m": {
-      "family": "SectorRelative",
-      "direction": "high",
-      "established": false,
-      "source": "mom6m - 같은 달·같은 업종 중앙값",
-      "note": "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀. 업종은 A1a 의 **현재** 분류라 PIT 가 아니다(업종은 거의 안 바뀌지만 정확히는 근사).",
-      "nonNull": 203232,
-      "coverage": 0.8713
-    },
-    "sector_rel_pbr": {
-      "family": "SectorRelative",
-      "direction": "low",
-      "established": false,
-      "source": "pbr 의 같은 달·같은 업종 내 백분위",
-      "note": "2026-08 섹터중립 재검증에서 PBR 신호가 업종 내부에서도 살아있으나 크기는 절반이었다 - 그 결과를 팩터로 만든 것.",
-      "nonNull": 100009,
-      "coverage": 0.4288
-    },
     "dist_52w_high": {
       "family": "Price",
       "direction": "high",
@@ -423,6 +405,96 @@
       "note": "시장청산 항등식으로 foreign+inst+indiv=0 (A4 5,348,454행 전수 오차 0). 정의상 독립 정보가 없으므로 조합 스윕에서 기본 제외.",
       "nonNull": 233240,
       "coverage": 1.0
+    },
+    "sector_rel_pbr": {
+      "family": "SectorRelative",
+      "direction": "low",
+      "established": false,
+      "source": "pbr 의 같은 달·같은 업종 내 백분위",
+      "note": "업종마다 정상 PBR 수준이 다르다 - 은행 0.4배와 바이오 8배를 직접 비교할 수 없다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 100009,
+      "coverage": 0.4288
+    },
+    "sector_rel_earnings_yield": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "earnings_yield 의 같은 달·같은 업종 내 백분위",
+      "note": "PER 도 업종별 정상 수준이 다르다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 75456,
+      "coverage": 0.3235
+    },
+    "sector_rel_roe": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "roe 의 같은 달·같은 업종 내 백분위",
+      "note": "자본집약도가 업종마다 달라 ROE 절대수준 비교가 어렵다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 197430,
+      "coverage": 0.8465
+    },
+    "sector_rel_op_margin": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "op_margin 의 같은 달·같은 업종 내 백분위",
+      "note": "영업이익률은 업종 구조가 대부분을 결정한다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 193759,
+      "coverage": 0.8307
+    },
+    "sector_rel_debt_ratio": {
+      "family": "SectorRelative",
+      "direction": "low",
+      "established": false,
+      "source": "debt_ratio 의 같은 달·같은 업종 내 백분위",
+      "note": "적정 레버리지가 업종마다 다르다(금융 vs 제조). 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 199068,
+      "coverage": 0.8535
+    },
+    "sector_rel_qni_yoy": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "qni_yoy 의 같은 달·같은 업종 내 백분위",
+      "note": "실적 사이클이 업종 단위로 움직인다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 200657,
+      "coverage": 0.8603
+    },
+    "sector_rel_growth_accel": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "growth_accel 의 같은 달·같은 업종 내 백분위",
+      "note": "같은 위. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 193047,
+      "coverage": 0.8277
+    },
+    "sector_rel_mom6m": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "mom6m 의 같은 달·같은 업종 내 백분위",
+      "note": "업종 자체의 등락을 뺀 개별 종목 초과 모멘텀. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 203232,
+      "coverage": 0.8713
+    },
+    "sector_rel_foreign_nb20_ratio": {
+      "family": "SectorRelative",
+      "direction": "high",
+      "established": false,
+      "source": "foreign_nb20_ratio 의 같은 달·같은 업종 내 백분위",
+      "note": "외국인 수급도 업종 단위로 쏠린다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 215165,
+      "coverage": 0.9225
+    },
+    "sector_rel_rv60_pct": {
+      "family": "SectorRelative",
+      "direction": "low",
+      "established": false,
+      "source": "rv60_pct 의 같은 달·같은 업종 내 백분위",
+      "note": "업종마다 기본 변동성 수준이 다르다. 업종은 A1a 의 **현재** 분류라 엄밀히는 PIT 가 아니다(업종은 거의 안 바뀌지만 근사임). 업종 표본 5종목 미만이면 유보.",
+      "nonNull": 215165,
+      "coverage": 0.9225
     }
   }
 }
