@@ -439,6 +439,20 @@ def selftest():
     print("selftest OK (신호탐지·난수기준선·교집합게이트·비용반영·빔체인·지표 6건)")
 
 
+def _run_tag(a, factors):
+    """산출물 파일명에 붙일 실행 지문. 같은 날 다른 조건으로 돌린 결과가
+    서로를 덮어쓰지 않게 한다(2026-09-02 에 실제로 덮어쓰기가 일어났다)."""
+    import hashlib
+    parts = []
+    if a.exclude_family:
+        parts.append("no" + a.exclude_family.replace(",", ""))
+    if a.top_n:
+        parts.append(f"top{a.top_n}")
+    if a.factors != "all":
+        parts.append("f" + hashlib.sha1(",".join(sorted(factors)).encode()).hexdigest()[:6])
+    return ("-" + "-".join(parts)) if parts else ""
+
+
 def run_beam_mode(a, factors, catalog, manifest, R, FWD, TICK, months, t0):
     nm = lambda i: factors[i]
     print(f"\n① TRAIN({a.period}) 빔서치: 폭 {a.beam} x 깊이 {a.beam_k} "
@@ -505,8 +519,8 @@ def run_beam_mode(a, factors, catalog, manifest, R, FWD, TICK, months, t0):
     out_dir = a.out or os.path.join(LAB, "reports",
                                     f"{time.strftime('%Y-%m-%d')}-combo-sweep")
     os.makedirs(out_dir, exist_ok=True)
-    tag = f"-no{a.exclude_family.replace(',', '')}" if a.exclude_family else ""
-    out_path = os.path.join(out_dir, f"beam-{a.period.lower()}-w{a.beam}k{a.beam_k}{tag}.json")
+    out_path = os.path.join(
+        out_dir, f"beam-{a.period.lower()}-w{a.beam}k{a.beam_k}{_run_tag(a, factors)}.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump({
             "experiment": "COMBO-BEAM-KR",
@@ -663,8 +677,10 @@ def main():
         "factorsUsed": factors,
         "results": res,
     }
-    tag = f"-no{a.exclude_family.replace(',', '')}" if a.exclude_family else ""
-    out_path = os.path.join(out_dir, f"combo-sweep-{a.period.lower()}-k{a.max_k}{tag}.json")
+    # 파일명에 팩터셋 지문을 넣는다 - 안 넣었더니 --factors 로 제한한 실행이
+    # 전체 스윕 결과를 조용히 덮어썼다(2026-09-02, 7,806조합 파일이 175조합으로 교체됨).
+    out_path = os.path.join(out_dir,
+                            f"combo-sweep-{a.period.lower()}-k{a.max_k}{_run_tag(a, factors)}.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=1)
     print(f"\n저장: {out_path}")
