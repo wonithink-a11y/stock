@@ -832,7 +832,17 @@ Validated against
               (continue-on-error — 외부 사이트 구조 변경이 가격/수익률
               갱신을 막으면 안 됨). ETF 탭에 연분배율·분배횟수 정렬 가능
               컬럼 추가, 분배 없는 ETF는 '-'(절대 규칙 1). 실제 트리거로
-              커밋 확인(`98ef620`).
+              커밋 확인(`98ef620`). ★ 후속4(같은 세션) — 사용자가 "컬럼은
+              생겼는데 값이 하나도 없다"고 실사이트에서 보고 — 바로 이
+              workflow_run 문제의 실제 사례였다. `index.html`(사람이 직접
+              push, 86887ad)은 push 이벤트로 즉시 배포됐지만, 실제 분배금
+              데이터(`98ef620`, 봇 커밋)는 배포를 못 일으켜 라이브 사이트가
+              "새 컬럼 + 옛 데이터 없음" 상태로 떠 있었다. `deploy-pages.
+              yml` 수동 트리거로 즉시 해결, 실사이트(wonithink-a11y.github.
+              io/stock)에서 값 정상 표시 확인. **교훈: docs/data/를 갱신
+              하는 workflow_dispatch 실행 뒤에는 deploy-pages도 같이 수동
+              트리거해야 한다** — schedule 자동 실행 때만 workflow_run이
+              제대로 붙는다는 가설이 실전에서도 재현된 첫 사례.
   완료      ★ docs/index.html 대시보드 신규 탭 4개 + 실시간 상시서버 구축
               (2026-09-01) — 옛 Claude Cowork "주식" 프로젝트(Claude Code
               전환 전 로컬 작업 폴더) 잔재 점검 중 발견: 공시(disclosures.json)·
