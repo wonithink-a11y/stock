@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-01T16:04:31.012Z",
+  "updatedAt": "2026-09-02T12:52:53.199Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,12 +7,12 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 261000,
-      "currentValue": 2610000,
+      "currentPrice": 250500,
+      "currentValue": 2505000,
       "investedValue": 700000,
-      "unrealizedPnL": 1910000,
-      "unrealizedPnLPct": 272.86,
-      "stockScore": 61,
+      "unrealizedPnL": 1805000,
+      "unrealizedPnLPct": 257.86,
+      "stockScore": 53.9,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "neutral",
@@ -69,17 +69,17 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.03,
+              "raw": 2.91,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.35059880239520963,
+              "peg": 0.33652694610778444,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.2557653708661767,
+              "marginOfSafety": -0.2056975850795535,
               "score": 0
             }
           }
@@ -94,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 57.5,
+              "value": 48.2,
               "score": 70
             },
             "macd": {
@@ -110,17 +110,17 @@
           }
         },
         "supplyDemand": {
-          "score": 51.3,
+          "score": 16,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
-              "trend": "netBuy",
-              "score": 70
+              "trend": "netSell",
+              "score": 30
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
+              "trend": "consistentSell",
+              "score": 0
             },
             "largeShareholderChange": {
               "label": "대주주 지분율 변동",
