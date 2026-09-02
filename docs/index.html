@@ -199,6 +199,7 @@ const state = {
   prices: null,            // docs/data/prices.json (지연 로드 - 상세 차트를 처음 열 때만)
   flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
   etfReturns: null,        // docs/data/etf-returns.json
+  etfDist: null,           // docs/data/etf-distributions.json
   etfSearch: '',
   etfAssetClass: 'all',
   etfSubClass: 'all',
@@ -1468,6 +1469,8 @@ function renderEtf() {
   const d = state.etfReturns;
   if (!d || !d.rows || d.rows.length === 0) return '<div class="card empty">아직 ETF 수익률 데이터가 없습니다. Actions가 처음 실행된 후 표시됩니다.</div>';
   const all = d.rows;
+  const distByCode = {};
+  ((state.etfDist && state.etfDist.rows) || []).forEach(r => { distByCode[r.code] = r; });
 
   const assetChip = (val, label) => {
     const cnt = val === 'all' ? all.length : all.filter(r => r.assetClass === val).length;
@@ -1498,6 +1501,11 @@ function renderEtf() {
   const val = (r) => {
     if (k === 'name') return r.name || '';
     if (k === 'price') return r.price ?? -Infinity;
+    if (k === 'distRate' || k === 'distCnt') {
+      const dist = distByCode[r.code];
+      const v = dist && (k === 'distRate' ? dist.annualDistRatePct : dist.distCountPerYear);
+      return v === null || v === undefined ? -Infinity : v;
+    }
     const c = (r.changes || {})[k];
     return c === null || c === undefined ? -Infinity : c;
   };
@@ -1509,6 +1517,7 @@ function renderEtf() {
 
   const body = rows.map(r => {
     const c = r.changes || {};
+    const dist = distByCode[r.code];
     return `<tr>
       <td><strong>${esc(r.name)}</strong> <span class="muted">${esc(r.code)}</span></td>
       <td>${fmtPrice(r.price, 'KR')}</td>
@@ -1518,6 +1527,8 @@ function renderEtf() {
       <td>${pctCell(c.d90)}</td>
       <td>${pctCell(c.d180)}</td>
       <td>${pctCell(c.d365)}</td>
+      <td>${dist ? pctCell(dist.annualDistRatePct) : '<span class="muted">-</span>'}</td>
+      <td>${dist && dist.distCountPerYear != null ? `${dist.distCountPerYear}회${dist.monthlyPay ? ' (월)' : ''}` : '<span class="muted">-</span>'}</td>
     </tr>`;
   }).join('');
 
@@ -1530,11 +1541,12 @@ function renderEtf() {
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
-        ${etfTh('name', '종목')}${etfTh('price', '현재가')}${etfTh('d1', '1일')}${etfTh('d7', '1주')}${etfTh('d30', '1개월')}${etfTh('d90', '3개월')}${etfTh('d180', '6개월')}${etfTh('d365', '1년')}
+        ${etfTh('name', '종목')}${etfTh('price', '현재가')}${etfTh('d1', '1일')}${etfTh('d7', '1주')}${etfTh('d30', '1개월')}${etfTh('d90', '3개월')}${etfTh('d180', '6개월')}${etfTh('d365', '1년')}${etfTh('distRate', '연분배율')}${etfTh('distCnt', '분배횟수')}
       </tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 캘린더일 기준 수익률(휴장일은 직전 거래일 값 대체) · 컬럼 클릭으로 정렬.</p>
+    <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 캘린더일 기준 수익률(휴장일은 직전 거래일 값 대체) · 컬럼 클릭으로 정렬.
+    분배율/분배횟수는 FunETF 공개 데이터(${esc((state.etfDist && state.etfDist.generatedAtKST || '').slice(0, 10)) || '-'} 기준, 최근 12개월 내 분배 이력이 있는 종목만·연환산 단리 기준) - 분배 안 하는 ETF는 '-'.</p>
   </div>`;
 }
 
@@ -1861,9 +1873,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';

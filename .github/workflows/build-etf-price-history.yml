@@ -51,11 +51,15 @@ jobs:
       - name: Compute ETF returns table
         run: python scripts/build-etf-returns.py
 
+      - name: Fetch ETF distributions (FunETF)
+        continue-on-error: true  # 외부 사이트 구조 변경에 가격/수익률 갱신이 막히면 안 됨
+        run: python scripts/build-etf-distributions.py
+
       - name: Commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/etf-etn/history-etf/ docs/data/etf-returns.json
+          git add data/etf-etn/history-etf/ docs/data/etf-returns.json docs/data/etf-distributions.json
           git diff --staged --quiet || git commit -m "chore: ETF price history + returns table"
           git pull --rebase --autostash origin main
           git push
