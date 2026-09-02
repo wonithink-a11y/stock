@@ -94,7 +94,20 @@ def build_matrices(panel, catalog, factors, period=None):
 # ---------------------------------------------------------------------------
 # 조합 하나 평가
 # ---------------------------------------------------------------------------
-def eval_combo(idx, R, FWD, topq=TOP_QUANTILE, min_names=MIN_NAMES):
+def _threshold(c, topq, top_n):
+    """월별 컷 기준값 (M,1). top_n 이 주어지면 상위 N번째 값, 아니면 분위수."""
+    if not top_n:
+        return np.nanquantile(c, topq, axis=1)[:, None]
+    # NaN 을 -inf 로 채운 뒤 행별 N번째 큰 값. 유효 개수가 N 미만인 행은
+    # min_names 게이트가 이미 걸러내지만, 안전하게 N 을 유효개수로 자른다.
+    filled = np.where(np.isnan(c), -np.inf, c)
+    n_valid = (~np.isnan(c)).sum(axis=1)
+    k = np.minimum(top_n, n_valid) - 1
+    part = -np.partition(-filled, kth=np.unique(np.clip(k, 0, c.shape[1] - 1)), axis=1)
+    return part[np.arange(c.shape[0]), np.clip(k, 0, c.shape[1] - 1)][:, None]
+
+
+def eval_combo(idx, R, FWD, topq=TOP_QUANTILE, min_names=MIN_NAMES, top_n=0):
     """선택 팩터 랭크합의 상위 decile 을 매달 동일가중으로 사는 전략.
 
     핵심 통계량은 **같은 적격집합 동일가중(EW) 대비 초과수익**이다. 절대수익으로
@@ -115,7 +128,7 @@ def eval_combo(idx, R, FWD, topq=TOP_QUANTILE, min_names=MIN_NAMES):
 
     c = comp[live]
     f = FWD[live]
-    thr = np.nanquantile(c, topq, axis=1)[:, None]
+    thr = _threshold(c, topq, top_n)
     sel = (c >= thr) & ~np.isnan(c)
     elig = valid[live] & ~np.isnan(f)                # 벤치마크는 같은 적격집합의 EW
     with np.errstate(invalid="ignore"):
@@ -178,7 +191,7 @@ def stats_from_monthly(net, excess, bench, months, month_index):
             "maxSingleYearPct": max_year_pct}
 
 
-def turnover_of(idx, R, TICK, topq=TOP_QUANTILE, min_names=MIN_NAMES):
+def turnover_of(idx, R, TICK, topq=TOP_QUANTILE, min_names=MIN_NAMES, top_n=0):
     """연속한 두 리밸런스의 보유목록 교체율. 상위 조합에만 계산한다(비싸다)."""
     comp = R[idx].sum(axis=0) if len(idx) > 1 else R[idx[0]]
     prev, rates = None, []
@@ -188,7 +201,7 @@ def turnover_of(idx, R, TICK, topq=TOP_QUANTILE, min_names=MIN_NAMES):
         if v.sum() < min_names:
             prev = None
             continue
-        thr = np.nanquantile(row[v], topq)
+        thr = float(_threshold(row[None, :], topq, top_n)[0, 0])
         cur = set(TICK[mi][v & (row >= thr)].tolist())
         if prev is not None and cur:
             rates.append(1.0 - len(cur & prev) / len(cur))
@@ -199,10 +212,10 @@ def turnover_of(idx, R, TICK, topq=TOP_QUANTILE, min_names=MIN_NAMES):
 # ---------------------------------------------------------------------------
 # 스윕
 # ---------------------------------------------------------------------------
-def run_sweep(combos, R, FWD, months, topq, min_names, min_months):
+def run_sweep(combos, R, FWD, months, topq, min_names, min_months, top_n=0):
     out = []
     for idx in combos:
-        r = eval_combo(idx, R, FWD, topq, min_names)
+        r = eval_combo(idx, R, FWD, topq, min_names, top_n)
         if r is None or len(r["monthly_net"]) < min_months:
             continue
         s = stats_from_monthly(r["monthly_net"], r["monthly_excess"], r["monthly_bench"],
@@ -214,8 +227,8 @@ def run_sweep(combos, R, FWD, months, topq, min_names, min_months):
     return out
 
 
-def _score_one(idx, R, FWD, months, topq, min_names, min_months):
-    r = eval_combo(idx, R, FWD, topq, min_names)
+def _score_one(idx, R, FWD, months, topq, min_names, min_months, top_n=0):
+    r = eval_combo(idx, R, FWD, topq, min_names, top_n)
     if r is None or len(r["monthly_net"]) < min_months:
         return None
     s = stats_from_monthly(r["monthly_net"], r["monthly_excess"], r["monthly_bench"],
@@ -309,7 +322,7 @@ def beam_null_max_t(R, FWD, months, topq, min_names, min_months, width, depth, r
     return maxes
 
 
-def null_max_t(combos, R, FWD, months, topq, min_names, min_months, reps, seed=0):
+def null_max_t(combos, R, FWD, months, topq, min_names, min_months, reps, seed=0, top_n=0):
     """② fwd1m 을 월 내부에서 섞어 같은 스윕을 반복 → '운으로 나올 수 있는 최고 t' 분포.
 
     팩터 행렬 R 은 그대로 두므로 조합끼리의 상관구조(=다중검정 구조)가 보존된다.
@@ -324,7 +337,7 @@ def null_max_t(combos, R, FWD, months, topq, min_names, min_months, reps, seed=0
             v = np.flatnonzero(~np.isnan(row))
             if len(v) > 1:
                 row[v] = row[rng.permutation(v)]
-        res = run_sweep(combos, R, F, months, topq, min_names, min_months)
+        res = run_sweep(combos, R, F, months, topq, min_names, min_months, top_n)
         maxes.append(max((r["t"] for r in res), default=0.0))
         print(f"    null {rep + 1}/{reps}: max t = {maxes[-1]:.2f}", flush=True)
     return maxes
@@ -391,6 +404,19 @@ def selftest():
     # 비용이 실제로 빠지는가
     r = eval_combo([0], R, FWD)
     assert np.allclose(r["monthly_gross"] - r["monthly_net"], ROUNDTRIP_BPS / 10000.0)
+
+    # top-N 고정 선택: 매달 정확히 N개를 고르고, decile 과 다른 결과를 낸다
+    # (이 픽스처는 월 300종목이라 decile 이 정확히 30개다 - top_n 은 그보다 작게 잡는다)
+    r_dec = eval_combo([0], R, FWD, TOP_QUANTILE, MIN_NAMES)
+    r_n10 = eval_combo([0], R, FWD, TOP_QUANTILE, MIN_NAMES, top_n=10)
+    assert abs(r_n10["avg_held"] - 10.0) < 1e-9, r_n10["avg_held"]
+    assert abs(r_dec["avg_held"] - 30.0) < 1e-9, r_dec["avg_held"]
+    assert not np.allclose(r_dec["monthly_gross"], r_n10["monthly_gross"]), \
+        "top_n 을 줬는데 decile 과 같은 결과가 나온다(옵션이 안 먹었다)"
+    # 유효 종목수가 N 보다 적은 달에서도 터지지 않아야 한다
+    R_thin = R.copy()
+    R_thin[0, :, 40:] = np.nan
+    assert eval_combo([0], R_thin, FWD, TOP_QUANTILE, MIN_NAMES, top_n=100) is not None
 
     # 빔서치: 심어둔 신호를 1단계에서 잡고, 체인이 실제로 복원되는가
     steps, bmax, nev = beam_search(R, FWD, months, TOP_QUANTILE, MIN_NAMES, MIN_MONTHS,
@@ -521,6 +547,9 @@ def main():
     ap.add_argument("--period", default="TRAIN")
     ap.add_argument("--factors", default="all")
     ap.add_argument("--top-quantile", type=float, default=TOP_QUANTILE)
+    ap.add_argument("--top-n", type=int, default=0,
+                    help="0 이면 상위 decile(분위수), N 이면 매달 랭크합 상위 N개 고정. "
+                         "엔진의 maxPositions 와 맞춰 재검증할 때 쓴다")
     ap.add_argument("--min-names", type=int, default=MIN_NAMES)
     ap.add_argument("--min-months", type=int, default=MIN_MONTHS)
     ap.add_argument("--include-redundant", action="store_true")
@@ -574,14 +603,14 @@ def main():
               for c in itertools.combinations(range(len(factors)), k)]
     print(f"\n① TRAIN({a.period}) 전용 스윕: {len(combos):,}개 조합 ...", flush=True)
     t1 = time.time()
-    res = run_sweep(combos, R, FWD, months, a.top_quantile, a.min_names, a.min_months)
+    res = run_sweep(combos, R, FWD, months, a.top_quantile, a.min_names, a.min_months, a.top_n)
     sweep_s = time.time() - t1
     print(f"  {len(res):,}개 조합이 게이트 통과 "
           f"({len(combos) - len(res):,}개는 교집합/월수 부족으로 탈락), {sweep_s:.0f}s")
 
     print(f"\n② 난수 귀무분포 {a.nulls}회 (예상 {sweep_s * a.nulls / 60:.0f}분) ...", flush=True)
     nulls = null_max_t(combos, R, FWD, months, a.top_quantile, a.min_names,
-                       a.min_months, a.nulls, seed=20260902)
+                       a.min_months, a.nulls, seed=20260902, top_n=a.top_n)
     bar95 = float(np.quantile(nulls, 0.95))
     bar_max = float(max(nulls))
     print(f"  난수 max-t: 중앙값 {np.median(nulls):.2f} / 95분위 {bar95:.2f} / 최대 {bar_max:.2f}")
@@ -596,7 +625,7 @@ def main():
           f"{'최대연도%':>8} {'월':>4} {'적격':>6} {'회전':>5} 조합")
     print("-" * 118)
     for i, r in enumerate(res[:a.top], 1):
-        r["turnover"] = turnover_of(r["factors"], R, TICK, a.top_quantile, a.min_names)
+        r["turnover"] = turnover_of(r["factors"], R, TICK, a.top_quantile, a.min_names, a.top_n)
         names = "+".join(factors[j] for j in r["factors"])
         my = f"{r['maxSingleYearPct']:.0f}" if r["maxSingleYearPct"] is not None else "-"
         tv = f"{r['turnover']:.2f}" if r["turnover"] is not None else "-"
@@ -624,7 +653,7 @@ def main():
             "nullBarMax": round(bar_max, 3),
             "nSurvivorsAboveNullBar95": len(survivors),
             "minNames": a.min_names, "minMonths": a.min_months,
-            "topQuantile": a.top_quantile, "roundTripBps": ROUNDTRIP_BPS,
+            "topQuantile": a.top_quantile, "topN": a.top_n, "roundTripBps": ROUNDTRIP_BPS,
         },
         "rankingConvention": "팩터별 월내 pct-rank 후 선택팩터 전부 존재하는 종목만(교집합)",
         "warning": "TRAIN 전용 결과다. VALID/TEST 는 이 스윕이 보지 않았다. "
