@@ -200,6 +200,8 @@ const state = {
   flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
   etfReturns: null,        // docs/data/etf-returns.json
   etfSearch: '',
+  etfAssetClass: 'all',
+  etfSubClass: 'all',
   etfSortKey: 'd1',
   etfSortDir: 'desc',
   detail: {                // 종목 상세(차트) 모달
@@ -1453,12 +1455,44 @@ function etfTh(key, label) {
   return `<th class="sortable" data-etf-sort="${key}">${label} <span class="arr">${arr}</span></th>`;
 }
 
+// 자산군은 종목명 키워드로 분류(KRX API가 정형 카테고리를 안 줌) - build-etf-
+// returns.py의 classify_asset()/classify_sub()와 순서·의미 동일(같은 실측 검증).
+const ETF_ASSETCLASS_ORDER = ['국내주식', '해외주식', '채권', '원자재', '통화', '리츠·부동산', '혼합자산'];
+const ETF_SUBCLASS_ORDER = {
+  '해외주식': ['S&P500', '나스닥100', '미국관련', '그외국가'],
+  '채권': ['한국국채', '미국국채', '회사채', '채권혼합형(자산배분·구조화)', '기타채권'],
+  '국내주식': ['코스피·코스닥(지수)', '반도체', '2차전지', 'AI', '배당', '단일종목(개별주식형)', 'TDF(자산배분)', '기타테마'],
+};
+
 function renderEtf() {
   const d = state.etfReturns;
   if (!d || !d.rows || d.rows.length === 0) return '<div class="card empty">아직 ETF 수익률 데이터가 없습니다. Actions가 처음 실행된 후 표시됩니다.</div>';
+  const all = d.rows;
+
+  const assetChip = (val, label) => {
+    const cnt = val === 'all' ? all.length : all.filter(r => r.assetClass === val).length;
+    return `<button data-etf-asset="${esc(val)}" class="chip ${state.etfAssetClass === val ? 'active' : ''}" style="font-size:14px;padding:8px 18px">${esc(label)}<span class="cnt">${cnt}</span></button>`;
+  };
+  const assetBanner = ['all', ...ETF_ASSETCLASS_ORDER].map(v => assetChip(v, v === 'all' ? '전체' : v)).join('');
+
+  const subOptions = ETF_SUBCLASS_ORDER[state.etfAssetClass] || null;
+  let subBanner = '';
+  if (subOptions) {
+    const inAsset = all.filter(r => r.assetClass === state.etfAssetClass);
+    const subChip = (val, label) => {
+      const cnt = val === 'all' ? inAsset.length : inAsset.filter(r => r.subClass === val).length;
+      return `<button data-etf-sub="${esc(val)}" class="chip ${state.etfSubClass === val ? 'active' : ''}">${esc(label)}<span class="cnt">${cnt}</span></button>`;
+    };
+    subBanner = `<div class="filter-row">${['all', ...subOptions].map(v => subChip(v, v === 'all' ? '전체' : v)).join('')}</div>`;
+  }
 
   const q = state.etfSearch.trim().toLowerCase();
-  const filtered = d.rows.filter(r => !q || String(r.name).toLowerCase().includes(q) || String(r.code).toLowerCase().includes(q));
+  const filtered = all.filter(r => {
+    if (state.etfAssetClass !== 'all' && r.assetClass !== state.etfAssetClass) return false;
+    if (subOptions && state.etfSubClass !== 'all' && r.subClass !== state.etfSubClass) return false;
+    if (q && !(String(r.name).toLowerCase().includes(q) || String(r.code).toLowerCase().includes(q))) return false;
+    return true;
+  });
 
   const k = state.etfSortKey, dir = state.etfSortDir === 'asc' ? 1 : -1;
   const val = (r) => {
@@ -1488,9 +1522,11 @@ function renderEtf() {
   }).join('');
 
   return `<div class="card">
-    <div class="toolbar">
+    <div class="group-filter" style="margin-bottom:10px">${assetBanner}</div>
+    ${subBanner}
+    <div class="toolbar" style="margin-top:10px">
       <input class="search" id="etfSearch" placeholder="ETF명·코드 검색" value="${esc(state.etfSearch)}">
-      <span class="muted">${rows.length} / ${d.rows.length}개</span>
+      <span class="muted">${rows.length} / ${all.length}개</span>
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
@@ -1706,6 +1742,12 @@ document.getElementById('content').addEventListener('click', (e) => {
   // 시장/지수 배너
   const mi = t.closest('[data-market-index]');
   if (mi) { state.marketIndexFilter = mi.dataset.marketIndex; return render(); }
+
+  // ETF 자산군/세부 배너
+  const ea = t.closest('[data-etf-asset]');
+  if (ea) { state.etfAssetClass = ea.dataset.etfAsset; state.etfSubClass = 'all'; return render(); }
+  const es = t.closest('[data-etf-sub]');
+  if (es) { state.etfSubClass = es.dataset.etfSub; return render(); }
 
   // 필터 칩
   const sec = t.closest('[data-sector]');
