@@ -84,7 +84,11 @@ def build_matrices(panel, catalog, factors, period=None):
             sign = -1.0 if catalog[f]["direction"] == "low" else 1.0
             # 그 팩터 자신의 non-NaN 집합 안에서 pct-rank. NaN 은 NaN 으로 남는다.
             R[fi, mi, :n] = (g[f].rank(pct=True).to_numpy(dtype=np.float32) * sign)
-    return R, FWD, TICK, months, M, width
+    # TICK 의 정수코드 -> 원래 ticker. simulate_exits.py 가 같은 종목선택을 재현하는 데 쓴다.
+    names = [None] * len(codes)
+    for t, i in codes.items():
+        names[i] = t
+    return R, FWD, TICK, months, M, width, names
 
 
 # ---------------------------------------------------------------------------
@@ -560,7 +564,7 @@ def main():
 
     t0 = time.time()
     print(f"\n패널 {len(panel):,}행 -> {a.period} 행렬 구성 ...", flush=True)
-    R, FWD, TICK, months, M, width = build_matrices(panel, catalog, factors, a.period)
+    R, FWD, TICK, months, M, width, _names = build_matrices(panel, catalog, factors, a.period)
     print(f"  {M}개월 x 최대 {width}종목 x {len(factors)}팩터  ({time.time() - t0:.1f}s)")
 
     if a.beam:
