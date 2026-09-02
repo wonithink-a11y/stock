@@ -1,0 +1,61 @@
+name: Build ETF price history + returns (KRX Open API)
+
+# ETF 전종목 일별 가격 이력 백필(scripts/build-etf-price-history.py, ETN
+# 백필과 동일 패턴) + 1일/1주/1개월/3개월/6개월/1년 수익률 표 계산
+# (scripts/build-etf-returns.py) -> docs/data/etf-returns.json.
+# ETN과 파일이 겹치지 않아 병렬이어도 안전하지만, 같은 docs/data/ 커밋
+# 경합을 줄이려 ETN(17:10 KST)보다 10분 뒤에 돈다.
+
+on:
+  schedule:
+    - cron: '20 8 * * 1-5'   # 08:20 UTC = 17:20 KST, 평일
+  workflow_dispatch:
+    inputs:
+      from_date:
+        description: '이 날짜부터(YYYYMMDD, 포함) 과거 방향으로는 안 감 - 비우면 기본값(1년+버퍼)'
+        required: false
+        default: ''
+        type: string
+      budget_minutes:
+        description: '이번 실행에 쓸 시간(분) - 넘으면 중단하고 다음 실행이 이어받음'
+        required: false
+        default: '10'
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-etf-price-history
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build ETF price history
+        env:
+          KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.from_date }}" ]; then ARGS="--from-date ${{ inputs.from_date }}"; fi
+          python scripts/build-etf-price-history.py $ARGS --budget-minutes "${{ inputs.budget_minutes || '10' }}"
+
+      - name: Compute ETF returns table
+        run: python scripts/build-etf-returns.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/etf-etn/history-etf/ docs/data/etf-returns.json
+          git diff --staged --quiet || git commit -m "chore: ETF price history + returns table"
+          git pull --rebase --autostash origin main
+          git push
