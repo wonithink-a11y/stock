@@ -39,10 +39,27 @@ const SHARD_DIR = path.join(ROOT, 'data/backfill/scores/_shards');
 const OUT_DIR = path.join(ROOT, 'data/backfill/scores');
 
 // ── 공용 로더 (build-a5-pilot.js와 동일 패턴) ──────────────────────
+// A4(전 종목 일별 수급, 540만행)는 gunzip 결과가 Node의 최대 문자열
+// 길이(0x1fffffe8)를 넘는 해가 있어 전체를 하나의 string으로 만들면
+// ERR_STRING_TOO_LONG이 난다 — Buffer 상태에서 줄 단위로만 문자열화한다.
+// 결과는 relPath로 캐시한다 - 이 함수가 corp/ticker마다 호출되므로
+// 캐시 없이는 같은 파일을 수백 번 재압축 해제하게 된다.
+const _readJsonlCache = new Map();
 function readJsonl(relPath) {
+  if (_readJsonlCache.has(relPath)) return _readJsonlCache.get(relPath);
   const buf = fs.readFileSync(path.join(ROOT, relPath));
-  const text = relPath.endsWith('.gz') ? zlib.gunzipSync(buf).toString('utf8') : buf.toString('utf8');
-  return text.split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const data = relPath.endsWith('.gz') ? zlib.gunzipSync(buf) : buf;
+  const records = [];
+  let start = 0;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] === 0x0a) {
+      if (i > start) records.push(JSON.parse(data.toString('utf8', start, i)));
+      start = i + 1;
+    }
+  }
+  if (start < data.length) records.push(JSON.parse(data.toString('utf8', start)));
+  _readJsonlCache.set(relPath, records);
+  return records;
 }
 
 const A3D_CATEGORIES = [
@@ -63,18 +80,33 @@ function findByCorpAcrossYears(dirRel, corp) {
   return records;
 }
 
-/** A4(수급)는 corp가 아니라 ticker로 키가 잡혀 있다 - findByCorpAcrossYears와
- * 같은 패턴, 필터 필드만 다르다. */
-function findByTickerAcrossYears(dirRel, ticker) {
+/** A4(수급)는 corp가 아니라 ticker로 키가 잡혀 있다 - 단 A4는 전체
+ * 2,578종목·540만행짜리 전 시장 데이터라 findByCorpAcrossYears처럼
+ * readJsonl()로 파일 전체를 캐시하면 이 샤드가 안 쓰는 종목분까지 계속
+ * 메모리에 쌓여 OOM 난다(실측: universeLimit 10에서도 heap out of memory).
+ * 이 샤드가 담당하는 ticker만 남기고 한 줄씩 걸러 버린다. */
+function buildA4Index(dirRel, tickerSet) {
   const dir = path.join(ROOT, dirRel);
   const files = fs.readdirSync(dir).filter((f) => /^\d{4}\.jsonl\.gz$/.test(f));
-  const records = [];
+  const byTicker = new Map();
+  const keep = (r) => {
+    if (!tickerSet.has(r.ticker)) return;
+    if (!byTicker.has(r.ticker)) byTicker.set(r.ticker, []);
+    byTicker.get(r.ticker).push(r);
+  };
   for (const f of files) {
-    for (const r of readJsonl(`${dirRel}/${f}`)) {
-      if (r.ticker === ticker) records.push(r);
+    const buf = fs.readFileSync(path.join(dir, f));
+    const data = f.endsWith('.gz') ? zlib.gunzipSync(buf) : buf;
+    let start = 0;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] === 0x0a) {
+        if (i > start) keep(JSON.parse(data.toString('utf8', start, i)));
+        start = i + 1;
+      }
     }
+    if (start < data.length) keep(JSON.parse(data.toString('utf8', start)));
   }
-  return records;
+  return byTicker;
 }
 
 function findCorporateActions(corp) {
@@ -87,13 +119,13 @@ function findCorporateActions(corp) {
   return events;
 }
 
-function loadStaticBundle(corp, ticker) {
+function loadStaticBundle(corp, ticker, a4Index) {
   return {
     a3records: findByCorpAcrossYears('data/backfill/fundamentals/a3', corp),
     a3bRecordsAll: findByCorpAcrossYears('data/backfill/fundamentals/a3b', corp),
     a3cRecordsAll: findByCorpAcrossYears('data/backfill/fundamentals/a3c', corp),
     corporateActions: findCorporateActions(corp),
-    a4records: findByTickerAcrossYears('data/backfill/supplyDemand/a4', ticker),
+    a4records: a4Index.get(ticker) || [],
   };
 }
 
@@ -200,6 +232,8 @@ function runShard(shard, shards, limit, universeLimit) {
 
   console.log(`A5 본백필 샤드 ${shard}/${shards} — 담당 ${mine.length}종목 · 스냅샷 ${snapshotDays.length}주`);
 
+  const a4Index = buildA4Index('data/backfill/supplyDemand/a4', new Set(mine.map((m) => m.ticker)));
+
   const criteria = loadCriteria('KR').criteria;
   const policies = loadPolicies('KR');
   const a1b = loadA1bByCorp();
@@ -224,7 +258,7 @@ function runShard(shard, shards, limit, universeLimit) {
   const t0 = Date.now();
 
   for (const { ticker, corp, name, group } of mine) {
-    const bundle = loadStaticBundle(corp, ticker);
+    const bundle = loadStaticBundle(corp, ticker, a4Index);
     const isActive = group === 'active';
     const exitInfo = isActive ? null : a1b.get(corp);
     const exitAtConfirmed = exitAtConfirmedByCorp.get(corp) || null;
