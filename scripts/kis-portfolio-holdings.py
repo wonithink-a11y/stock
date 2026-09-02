@@ -53,8 +53,11 @@ class HoldingsError(RuntimeError):
 
 
 def _load_env():
+    """collect-minute-kis.py의 load_env_file()과 같은 순서 - KIS_ENV_PATH가
+    있으면 그걸 쓴다(이 VM은 systemd EnvironmentFile에 실제 키를 직접 두지
+    않고 KIS_ENV_PATH로 한 단계 더 가리킨다, collector.env가 이미 그렇다)."""
     env = {}
-    p = REPO_ROOT / ".env"
+    p = Path(os.environ.get("KIS_ENV_PATH") or (REPO_ROOT / ".env")).expanduser()
     if p.exists():
         for line in p.read_text(encoding="utf-8").splitlines():
             k, _, v = line.partition("=")
