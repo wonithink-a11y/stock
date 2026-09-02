@@ -770,6 +770,27 @@ Validated against
               (daily-analysis) 완료 확인 — 코스닥150·S&P500·나스닥100
               전부 실제 채점 완료(태그는 있지만 0으로 뜨던 문제 해소),
               브라우저로 시장/지수 배너 필터 4개 전부 동작 확인.
+              ★ 같은 세션 후속 — `deploy-pages.yml`에 이 워크플로를
+              workflow_run으로 등록해 놓고 실제로 두 번(수동 트리거 직후)
+              테스트했는데 **재배포가 자동으로 안 붙었다.** GitHub API로
+              deploy-pages.yml의 workflow_run 발동 이력을 직접 조회해
+              원인을 좁혔다 — **schedule로 시작된 소스 워크플로 실행은
+              발동하는데(실측: macro.json 워크플로 9/1 schedule 실행 →
+              13분 뒤 deploy-pages 정상 발동), workflow_dispatch(수동)로
+              시작된 실행은 기존 macro.json 항목(8/30, 3건)도 오늘 ETF
+              항목(2건)도 전부 발동 안 했다.** YAML 문법·들여쓰기는
+              정상(재확인함) — 설정 자체는 맞고, "workflow_dispatch로
+              시작된 소스 실행은 workflow_run 리스너에 잘 안 붙는다"는
+              이 저장소에서 경험적으로 확인된 성질로 보인다. **평일
+              17:20 KST 자동(schedule) 실행 때는 정상 발동할 가능성이
+              높다** — macro.json이 이미 그 경로로 증명했다. 100%
+              확신하려면 다음 평일 실제 스케줄 실행 후 deploy-pages가
+              저절로 도는지 직접 봐야 한다 — **다음 세션이 확인할 것**:
+              `gh api "repos/wonithink-a11y/stock/actions/workflows/
+              deploy-pages.yml/runs?event=workflow_run&per_page=5"`로
+              최근 실행에 이 워크플로 이름이 소스로 찍히는지 확인. 안
+              찍히면 workflow_dispatch 가설이 아니라 진짜 문제일 수 있어
+              재조사 필요.
   완료      ★ docs/index.html 대시보드 신규 탭 4개 + 실시간 상시서버 구축
               (2026-09-01) — 옛 Claude Cowork "주식" 프로젝트(Claude Code
               전환 전 로컬 작업 폴더) 잔재 점검 중 발견: 공시(disclosures.json)·
