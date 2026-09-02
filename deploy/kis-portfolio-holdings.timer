@@ -1,0 +1,13 @@
+[Unit]
+Description=KIS live-account holdings refresh timer (auto watchlist sync)
+
+[Timer]
+# 하루 한 번, 장 시작(09:00 KST) 전에 갱신 - 매매는 하루 안에 자주 안
+# 바뀐다고 보고 v1은 이 정도로 충분하다(사용자가 장중 변경분도 바로
+# 보고 싶으면 이 줄을 더 촘촘히 늘리면 된다, 코드 변경 불필요).
+OnCalendar=Mon..Fri *-*-* 08:50:00
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

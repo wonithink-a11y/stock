@@ -1,0 +1,23 @@
+[Unit]
+# 실전계좌 잔고조회 -> 실시간 탭 관심종목 자동연동 (scripts/kis-portfolio-holdings.py)
+# 결과는 저장소 밖 홈 디렉터리(~/.kis-holdings.json)에만 쓴다 - 절대 git에 안 올라간다.
+Description=KIS live-account holdings refresh (auto watchlist sync)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/collector.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/kis-portfolio-holdings.py
+# '+' 접두사 - User=ubuntu인 이 유닛에서도 이 한 줄만 root 권한으로 실행된다
+# (systemd 표준 메커니즘). ubuntu 계정에 별도 sudoers 규칙이 필요 없다.
+ExecStartPost=+/bin/systemctl restart kis-live-relay.service
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/kis-portfolio-holdings.log
+StandardError=append:/home/ubuntu/collector-venv/logs/kis-portfolio-holdings.log
+
+# 자격증명은 EnvironmentFile이 가리키는 파일에만 있다. 여기 쓰지 않는다.
+NoNewPrivileges=yes
+PrivateTmp=yes
