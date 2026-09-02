@@ -328,6 +328,50 @@ try {
 } catch (e) { threwOnFuture = true; }
 ok('asOf 이전 날짜인데 미래 캔들이 섞이면 조용히 넘기지 않고 던진다', threwOnFuture);
 
+console.log('\n[supplyDemand — A4 수급 기반, scripts/collect.js netBuysToTrend 재사용]');
+// 외국인은 buyVolume/sellVolume.외국인만, 기관은 8개 카테고리 중 금융투자 하나에만
+// 몰아넣어도 합산 로직(netVolumeOf)은 동일하게 검증된다.
+function sdRec(date, foreignNet, instNet) {
+  return {
+    ticker: '000001', date,
+    buyVolume: { 외국인: Math.max(foreignNet, 0), 금융투자: Math.max(instNet, 0) },
+    sellVolume: { 외국인: Math.max(-foreignNet, 0), 금융투자: Math.max(-instNet, 0) },
+  };
+}
+const sdConsistentBuy = ['2023-06-26', '2023-06-27', '2023-06-28', '2023-06-29', '2023-06-30']
+  .map((d) => sdRec(d, 100, 100));
+const rSdBuy = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                         fundamentals: restated, supplyDemandRecords: sdConsistentBuy });
+ok('5일 연속 순매수면 consistentBuy',
+   rSdBuy.stockData.supplyDemand.foreignTrend5d === 'consistentBuy' &&
+   rSdBuy.stockData.supplyDemand.institutionTrend5d === 'consistentBuy',
+   J(rSdBuy.stockData.supplyDemand));
+
+const sdMixedNetBuy = [
+  sdRec('2023-06-26', 100, -50), sdRec('2023-06-27', -30, 100),
+  sdRec('2023-06-28', 50, -10), sdRec('2023-06-29', -10, 50), sdRec('2023-06-30', 20, 20),
+];
+const rSdMixed = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                           fundamentals: restated, supplyDemandRecords: sdMixedNetBuy });
+ok('일별 부호가 섞여도 5일 합계가 양수면 netBuy (consistentBuy 아님)',
+   rSdMixed.stockData.supplyDemand.foreignTrend5d === 'netBuy', J(rSdMixed.stockData.supplyDemand));
+
+ok('supplyDemandRecords를 아예 안 넘기면 supplyDemand 키 자체가 없다 (축 미구축과 구분)',
+   r1.stockData.supplyDemand === undefined);
+
+const sdWithFuture = [...sdConsistentBuy, sdRec('2023-07-05', -999, -999)];
+const rSdPit = resolve({ ticker: '000001', corp: '00000001', asOf: '2023-06-30',
+                         fundamentals: restated, supplyDemandRecords: sdWithFuture });
+ok('asOf 이후 레코드가 섞여도 조용히 걸러내고 그 이하만 쓴다 (PIT, 미래의 -999가 안 섞여야 consistentBuy 유지)',
+   rSdPit.stockData.supplyDemand.foreignTrend5d === 'consistentBuy', J(rSdPit.stockData.supplyDemand));
+
+const rSdEmpty = resolve({ ticker: '000005', corp: '00000005', asOf: '2023-06-30',
+                           fundamentals: restated, supplyDemandRecords: [] });
+ok('그 종목 A4 레코드가 아예 없으면 null이다 (지어내지 않는다)',
+   rSdEmpty.stockData.supplyDemand.foreignTrend5d === null &&
+   rSdEmpty.stockData.supplyDemand.institutionTrend5d === null,
+   J(rSdEmpty.stockData.supplyDemand));
+
 console.log('\n[점수 계산을 다시 구현하지 않는다]');
 const src = require('fs').readFileSync(path.join(ROOT, 'lib/a5/resolver.js'), 'utf8');
 ok('리졸버가 categoryWeights를 읽지 않는다 (가중은 엔진의 몫)',

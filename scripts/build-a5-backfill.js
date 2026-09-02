@@ -63,6 +63,20 @@ function findByCorpAcrossYears(dirRel, corp) {
   return records;
 }
 
+/** A4(수급)는 corp가 아니라 ticker로 키가 잡혀 있다 - findByCorpAcrossYears와
+ * 같은 패턴, 필터 필드만 다르다. */
+function findByTickerAcrossYears(dirRel, ticker) {
+  const dir = path.join(ROOT, dirRel);
+  const files = fs.readdirSync(dir).filter((f) => /^\d{4}\.jsonl\.gz$/.test(f));
+  const records = [];
+  for (const f of files) {
+    for (const r of readJsonl(`${dirRel}/${f}`)) {
+      if (r.ticker === ticker) records.push(r);
+    }
+  }
+  return records;
+}
+
 function findCorporateActions(corp) {
   let events = [];
   for (const cat of A3D_CATEGORIES) {
@@ -73,12 +87,13 @@ function findCorporateActions(corp) {
   return events;
 }
 
-function loadStaticBundle(corp) {
+function loadStaticBundle(corp, ticker) {
   return {
     a3records: findByCorpAcrossYears('data/backfill/fundamentals/a3', corp),
     a3bRecordsAll: findByCorpAcrossYears('data/backfill/fundamentals/a3b', corp),
     a3cRecordsAll: findByCorpAcrossYears('data/backfill/fundamentals/a3c', corp),
     corporateActions: findCorporateActions(corp),
+    a4records: findByTickerAcrossYears('data/backfill/supplyDemand/a4', ticker),
   };
 }
 
@@ -209,7 +224,7 @@ function runShard(shard, shards, limit, universeLimit) {
   const t0 = Date.now();
 
   for (const { ticker, corp, name, group } of mine) {
-    const bundle = loadStaticBundle(corp);
+    const bundle = loadStaticBundle(corp, ticker);
     const isActive = group === 'active';
     const exitInfo = isActive ? null : a1b.get(corp);
     const exitAtConfirmed = exitAtConfirmedByCorp.get(corp) || null;
@@ -225,6 +240,7 @@ function runShard(shard, shards, limit, universeLimit) {
           ticker, corp, asOf,
           fundamentals: bundle.a3records, price, dividendEps: bundle.a3bRecordsAll,
           candles, sharesOutstanding: bundle.a3cRecordsAll, corporateActions: bundle.corporateActions,
+          supplyDemandRecords: bundle.a4records,
         });
         const stockData = { ticker, name, dataCutoff: asOf, state: null, ...resolved.stockData };
         const scoreResult = score(stockData, criteria, policies);
