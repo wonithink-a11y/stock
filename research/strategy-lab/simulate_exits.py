@@ -118,8 +118,12 @@ def load_ohlc(verbose=True):
 # ---------------------------------------------------------------------------
 # 경로 시뮬레이션 (코호트 단위 벡터화)
 # ---------------------------------------------------------------------------
-def simulate_cohort(entry_i, cols, O, H, L, C, stop_dist, rr, max_hold):
+def simulate_cohort(entry_i, cols, O, H, L, C, stop_dist, rr, max_hold, slip_bps=0.0):
     """한 코호트(같은 날 진입하는 종목들)를 한 번에 시뮬레이션한다.
+
+    slip_bps 는 엔진 `_apply_slippage` 와 같은 방식이다 - 매수는 시가를 올려서 체결하고,
+    손절/목표/시간청산가는 내려서 체결한다. 손절가·목표가는 **슬리피지가 반영된
+    진입가**에서 계산된다(엔진과 동일). 저유동성 종목을 사는 전략의 생사가 여기 달렸다.
 
     반환: (ret, hold_days, kind) - 유효한 거래만. kind 0=STOP 1=TARGET 2=TIME.
     """
@@ -127,7 +131,7 @@ def simulate_cohort(entry_i, cols, O, H, L, C, stop_dist, rr, max_hold):
     end = min(entry_i + max_hold, n_days)
     if end <= entry_i:
         return None
-    entry = O[entry_i, cols]
+    entry = O[entry_i, cols] * (1 + slip_bps / 1e4)          # 매수 슬리피지
     ok = np.isfinite(entry) & np.isfinite(stop_dist) & (stop_dist > 0)
     if not ok.any():
         return None
@@ -176,12 +180,12 @@ def simulate_cohort(entry_i, cols, O, H, L, C, stop_dist, rr, max_hold):
     if not valid.any():
         return None
     buy = entry[valid] * (1 + ENTRY_BPS / 1e4)
-    sell = exit_p[valid] * (1 - EXIT_BPS / 1e4)
+    sell = exit_p[valid] * (1 - slip_bps / 1e4) * (1 - EXIT_BPS / 1e4)   # 매도 슬리피지
     return sell / buy - 1.0, hold[valid], kind[valid]
 
 
 def run_grid(sel_by_month, dates, tickers, O, H, L, C, ATR,
-             stop_mode, stop_param, rr, max_hold):
+             stop_mode, stop_param, rr, max_hold, slip_bps=0.0):
     """모든 코호트를 한 격자점으로 시뮬레이션하고 거래 단위 통계를 낸다."""
     tix = {t: i for i, t in enumerate(tickers)}
     rets, holds, kinds, monthly = [], [], [], []
@@ -196,7 +200,7 @@ def run_grid(sel_by_month, dates, tickers, O, H, L, C, ATR,
             dist = ATR[ei, cols] * stop_param
         else:
             dist = O[ei, cols] * stop_param
-        out = simulate_cohort(ei, cols, O, H, L, C, dist, rr, max_hold)
+        out = simulate_cohort(ei, cols, O, H, L, C, dist, rr, max_hold, slip_bps)
         if out is None:
             continue
         r, h, k = out
@@ -215,6 +219,7 @@ def run_grid(sel_by_month, dates, tickers, O, H, L, C, ATR,
     avg_hold = float(h.mean())
     return {
         "stopMode": stop_mode, "stopParam": stop_param, "rr": rr, "maxHold": max_hold,
+        "slipBps": slip_bps,
         "nTrades": int(len(r)), "nCohorts": len(m),
         "winRate": round(float((r > 0).mean()), 4),
         "expectancy": round(float(r.mean()), 6),          # 기대값 = 최적화 대상
@@ -306,6 +311,16 @@ def selftest():
     O, H, L, C = bars([[100, 105, 96, 104], [np.nan] * 4])
     out = simulate_cohort(0, np.array([0]), O, H, L, C, np.array([10.0], np.float32), 2.0, 2)
     assert out is None, "마지막 봉이 없는데 거래를 지어냈다"
+
+    # 슬리피지: 매수는 비싸게, 매도는 싸게. 손절가·목표가도 슬리피지 반영 진입가 기준.
+    O, H, L, C = bars([[100, 105, 96, 104], [104, 108, 99, 107]])
+    r0, _, _ = simulate_cohort(0, np.array([0]), O, H, L, C,
+                               np.array([10.0], np.float32), 2.0, 2, slip_bps=0.0)
+    r1, _, _ = simulate_cohort(0, np.array([0]), O, H, L, C,
+                               np.array([10.0], np.float32), 2.0, 2, slip_bps=50.0)
+    assert r1[0] < r0[0], "슬리피지를 넣었는데 수익이 안 줄었다"
+    exp = (107 * (1 - 50e-4) * (1 - 15e-4)) / (100 * (1 + 50e-4) * (1 + 15e-4)) - 1
+    assert abs(r1[0] - exp) < 1e-6, (r1[0], exp)
 
     # 손익비를 올리면 승률은 내려간다(산수) - 착시 방지용 회귀
     rng = np.random.default_rng(3)
