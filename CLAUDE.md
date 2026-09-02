@@ -781,6 +781,34 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ run_pbr_value_v1{,_oos}.py 실현손익 회계 결함 수정 (2026-09-02,
+              세션인수인계-2026-09-02-e.md §5-2) — 함정 ⑤가 지목한 것을 실제로
+              열어 확인. **착시는 실재했고 위험지표에만 있다** — CAGR 4.89%→
+              4.72%(거의 무변화)·finalEquity 완전 동일인데 **MDD -10.47%→
+              -21.70%(절반으로 축소)·Sharpe 2.2486→0.4556(4.9배 부풀림)**.
+              원인 둘: 청산일에만 손익을 적립해 연속보유(평균 149일) 중의
+              미실현 낙폭이 곡선 밖에 있었고, 곡선 시작점이 initial_capital이
+              아니라 첫 청산 직후 자산이라 totalReturn도 어긋났다. **수익은
+              맞고 경로가 틀린** 형태. 전체구간 수치는 2026-08-22에 이미 정정된
+              상태였으나 **스크립트가 여전히 옛 값을 뱉고 있어**(다시 돌리면
+              다시 나옴) 원천을 막았다 — 새로 만들지 않고 기존
+              `pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm`·`curve_metrics`를
+              import, engine·policy·selection.json 미변경. 수정 후 full 구간이
+              08-22 MTM 리포트와 소수점까지 일치(교차검증). `_oos`판 구간별
+              수치는 더 심했으나(OOS 2023 Sharpe 4.442→0.879, OOS 2025-26
+              4.236→0.974) **md 전수 grep 결과 저장소 어디에도 인용된 적 없음**.
+              `realized_pnl_metrics()`는 지우지 않고 리포트의
+              `deprecatedRealizedPnL`("인용 금지")로 남겨 구·신 대조를 보존.
+              ★★ **남은 노출 — 같은 결함이 17개 스크립트에 더 있다**(전부 각자
+              복붙한 사본, 공유 함수 없음, 전부 아직 resultTable에 이 방식을
+              쓴다). CLAUDE.md가 인용 중인 것: `run_lowmom60_v1.py`(CAGR 5.09%·
+              MDD -27.77%·**Sharpe 0.77** — 같은 배율이면 실제 0.2 이하일 수
+              있다, 우선순위 높음) · `run_5dc_v1a_p_merged.py`(5DC 정본
+              baseline, 여러 후속의 기준선) · 5DC/TREND-BREAKOUT riskoff
+              validation 2건(A/B 양쪽 같은 회계라 **방향은 보존, 절대
+              MDD·Sharpe만 무효**) · run_dd252_v1(이미 기각) ·
+              run_foreign_flow5d_v1. 일괄 수정은 별도 판단.
+              findings/pbr-value-v1-realized-pnl-accounting-fix-2026-09.md
   완료      ★ A5 10년 백필 supplyDemand 축 연결 + 전체 재백필 완료
               (2026-09-02, 별도 세션) — `lib/a5/resolver.js`가 애초에
               supplyDemand 파라미터를 안 받았다는 게 원인(타이밍 문제

@@ -19,7 +19,9 @@ from datetime import date as _date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from engine.runner import run_smoke  # noqa: E402
+from engine.portfolio.portfolio import PortfolioConfig  # noqa: E402
 from engine.metrics.metrics import total_return, cagr, max_drawdown, sharpe, sortino, calmar, trade_stats  # noqa: E402
+from pbr_vs_ew_monthly_mtm import schedule_with_monthly_mtm, curve_metrics, annual_returns_mtm  # noqa: E402
 
 PERIODS = {
     "design_2016_2022": ("2016-01-01", "2022-12-31"),
@@ -50,6 +52,10 @@ def trades_from_portfolio(portfolio):
 
 
 def realized_pnl_metrics(portfolio):
+    """폐기된 회계 방식 - 참고·대조용으로만 남긴다(resultTable에 쓰지 않는다).
+    사유는 run_pbr_value_v1.py의 같은 함수 docstring 참고(2026-09-02 수정).
+    구간별 실행에서는 왜곡이 더 크다 - 구간 끝에 열려 있는 포지션의 손익이
+    곡선에 아예 안 들어간다."""
     events = sorted((p["exit_date"], p["pnl"]) for p in portfolio.closed_positions)
     curve, eq = [], portfolio.config.initial_capital
     for d, pnl in events:
@@ -70,9 +76,16 @@ def run_period(repo_root, start, end):
     elapsed = time.time() - t0
 
     diag = result["diag"]
-    portfolio = result["portfolio"]
+    params = result["params"]
+    portfolio_cfg = PortfolioConfig(
+        initial_capital=params["portfolio"]["initialCapital"], max_positions=params["portfolio"]["maxPositions"],
+        equal_weight=params["portfolio"]["equalWeight"], fractional_shares=params["portfolio"]["fractionalShares"],
+        tie_break=params["portfolio"]["tieBreak"])
+    portfolio, snapshots = schedule_with_monthly_mtm(
+        result["resolved"], portfolio_cfg, result["bars_by_ticker"], result["calendar"], start, end)
     trades = trades_from_portfolio(portfolio)
     t_stats = trade_stats(trades)
+    mtm = curve_metrics(snapshots)
     realized = realized_pnl_metrics(portfolio) or {}
 
     return {
@@ -82,11 +95,14 @@ def run_period(repo_root, start, end):
             "executableTradeCount", "portfolioEligibleTradeCount", "closedPositionCount",
             "maxSimultaneousPositionsObserved",
         )},
-        "resultTable": {
-            "finalEquity": realized.get("finalEquity"), "totalReturn": realized.get("totalReturn"),
-            "cagr": realized.get("cagr"), "mdd": realized.get("mdd"), "sharpe": realized.get("sharpe"),
-            "sortino": realized.get("sortino"), "calmar": realized.get("calmar"),
-            **t_stats,
+        "accountingMethod": "monthly mark-to-market (pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm)",
+        "resultTable": {**mtm, **t_stats},
+        "annualReturns": annual_returns_mtm(snapshots),
+        "monthlySnapshotCount": len(snapshots),
+        "openPositionCountAtEnd": len(portfolio.open_positions),
+        "deprecatedRealizedPnL": {
+            "note": "폐기된 실현손익 누적 회계. 인용 금지 - 위 resultTable을 쓴다.",
+            **{k: realized.get(k) for k in ("finalEquity", "totalReturn", "cagr", "mdd", "sharpe", "sortino", "calmar")},
         },
     }
 
