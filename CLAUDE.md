@@ -860,6 +860,36 @@ Validated against
               브라우저 실측 확인(19개 그룹 렌더·필터 동작·콘솔 에러 0).
               ★ 주의 — docs/data/를 갱신하는 workflow_dispatch 실행 뒤에는
               deploy-pages도 같이 수동 트리거해야 한다(위 ETF 항목의 교훈).
+  완료      ★ 시장수급 탭 — 일별추이 막대 수정 + 장중 잠정 수급 신설 (2026-09-03)
+              — 사용자 보고 3건 처리. ①**일별 추이 음수 막대가 안 보였다** —
+              막대 상자가 40px인데 음수를 top:40px에 그려 상자 밖이었고
+              `overflow-x:auto`가 세로 오버플로까지 스크롤로 만들었다. 막대를
+              절반(20px)으로 줄이고 0선을 가운데 배경선으로. ②**09-02 데이터
+              결측** — `market-flows.yml` 09-02 스케줄 실행이 실패(run
+              33637440150). pykrx는 KRX_ID/PW가 있으면 **import 시점에** KRX
+              로그인을 하는데 응답이 비-JSON이면 import 자체가 죽는다
+              (08-28에도 같은 실패). 재시도 3회 추가(스크립트가 최근 25일을
+              통째로 다시 만들어 멱등) + `deploy-pages.yml` workflow_run에
+              이 워크플로 등록(봇 커밋이 Pages 재배포를 못 일으키던 기존 문제).
+              ③**장중 수급** — KIS로는 시장 단위를 못 받았다:
+              `foreign-institution-total`(FHPTJ04400000)은 종목 랭킹 30건만·
+              개인 없음, `inquire-investor-time-by-market`(FHPTJ04030000)은
+              실전·모의 양쪽에서 rt_cd=0인데 **전 필드 0**(교훈 81 재현,
+              `scripts/probe-kis-market-investor-intraday.py`). 대신
+              `m.stock.naver.com/api/index/{KOSPI,KOSDAQ}/trend`가 인증 없이
+              개인·외국인·기관 순매수(억원)를 장중에 준다 — 이미 쓰는 소스
+              (update-watchlist-daily.py). GH Pages가 정적이라 CORS 때문에
+              브라우저에서 직접 못 부르므로 실시간 탭과 같은 구조로
+              `kis-minute-history-api.py`에 `/market-trend` 라우트 추가,
+              대시보드가 60초마다 당겨 확정치 표 위에 표시(엔드포인트가 없으면
+              조용히 접힌다). **VM 배포 완료**(`stock-new`: git pull ·
+              nginx `location /market-trend`→127.0.0.1:8766, `add_header
+              Access-Control-Allow-Origin *`, 백업 .bak-20260903 남김 ·
+              `systemctl restart kis-minute-history-api`) — 공개 URL
+              curl로 실데이터·CORS 헤더 확인, `/minute-history`·`live-ws`
+              무영향 확인. ★ 라이브 화면의 렌더 자체는 **못 봤다** — 이
+              세션의 인앱 브라우저가 duckdns 호스트를 차단한다(기존에 잘 도는
+              live-ws도 같은 브라우저에서 실패하는 것으로 환경 문제임을 확인).
   완료      ★ LOWMOM60·5DC 실현손익 회계 재확인 — 왜곡 배율은 보유기간이 정한다
               (2026-09-03) — 세션인수인계-2026-09-03.md §7 우선순위 1·2.
               **LOWMOM60**(`run_lowmom60_v1.py`)을 PBR과 같은 방식으로 수정·
