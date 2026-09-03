@@ -24,7 +24,8 @@ const SCORES_DIR = path.join(ROOT, 'data', 'backfill', 'scores');
 const EPISODES = [
   { label: '2020 코로나 급락(02-17~04-14, -35.7%)', year: '2020', start: '2020-02-17', end: '2020-04-14' },
   { label: '2020 전체', year: '2020', start: '2020-01-01', end: '2020-12-31' },
-  { label: '2026-07 급락(07-06~08-31, -31%~반등)', year: '2026', start: '2026-07-06', end: '2026-08-31' },
+  { label: '2026-07 급락(07-06~07-31, -30.8%)', year: '2026', start: '2026-07-06', end: '2026-07-31' },
+  { label: '2026 상반기(A5 유효구간, 01-01~07-03)', year: '2026', start: '2026-01-01', end: '2026-07-03' },
 ];
 
 async function readYearFile(year) {
