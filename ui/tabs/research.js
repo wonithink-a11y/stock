@@ -376,8 +376,14 @@
       rows.push(['Reason', ...chosen.map(f => f.reason ? escapeHtml(f.reason) : '<span class="dim">-</span>')]);
 
       const html = ['<h2>비교</h2><div class="rl-compare-scroll"><table class="rl-compare-table">'];
+      // 칸을 좁게 고정하므로(style.css) 잘린 전체 텍스트는 hover로 본다.
+      const plain = html => String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
       rows.forEach((r, i) => {
-        html.push('<tr>' + r.map((cell, j) => `<${i === 0 || j === 0 ? 'th' : 'td'}>${cell}</${i === 0 || j === 0 ? 'th' : 'td'}>`).join('') + '</tr>');
+        html.push('<tr>' + r.map((cell, j) => {
+          const tag = (i === 0 || j === 0) ? 'th' : 'td';
+          const full = plain(cell);
+          return `<${tag}${full ? ` title="${escapeHtml(full)}"` : ''}>${cell}</${tag}>`;
+        }).join('') + '</tr>');
       });
       html.push('</table></div>');
       table.innerHTML = html.join('');

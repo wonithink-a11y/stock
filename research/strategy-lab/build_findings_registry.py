@@ -10,6 +10,9 @@
 import argparse
 import json
 import re
+
+import datetime as dt
+import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -70,9 +73,26 @@ def infer_category(text: str):
 
 
 def parse_frontmatter(text: str):
+    """YAML frontmatter를 진짜 YAML로 읽는다.
+
+    예전엔 줄 단위 정규식(FIELD_RE)이라 `reason: >-` 같은 블록 스칼라는 값이
+    literal ">-"가 되고 이어지는 들여쓴 본문은 통째로 사라졌으며,
+    `conditions: [a, b=1, c]` 같은 flow 시퀀스도 JSON이 아니라 못 읽었다.
+    PyYAML은 이미 설치돼 있다(6.0.3). 파싱 실패 시 예전 정규식으로 폴백한다 —
+    억지로 고치지 않고 읽히는 만큼만 가져온다(교훈57).
+    """
     m = FRONTMATTER_RE.match(text)
     if not m:
         return None
+    try:
+        loaded = yaml.safe_load(m.group(1))
+        if isinstance(loaded, dict) and loaded:
+            # YAML은 `date: 2026-09-02`를 datetime.date로 준다. 이 저장소는 날짜를
+            # 전부 'YYYY-MM-DD' 문자열로 다루므로(정렬·비교 포함) 여기서 되돌린다.
+            return {k: (v.isoformat() if isinstance(v, (dt.date, dt.datetime)) else v)
+                    for k, v in loaded.items()}
+    except yaml.YAMLError:
+        pass
     fields = dict(FIELD_RE.findall(m.group(1)))
     return fields or None
 
@@ -80,7 +100,10 @@ def parse_frontmatter(text: str):
 def strip_quotes(raw: str):
     """reason처럼 자유텍스트 필드는 YAML 관례상 큰따옴표로 감싸 쓰기 쉽다 -
     한 겹만 벗긴다(정규식 파서라 실제 YAML 인용해제는 안 함, 교훈57 - 못 벗기면 원문 그대로)."""
-    if raw and len(raw) >= 2 and raw[0] == '"' and raw[-1] == '"':
+    if not isinstance(raw, str):
+        return raw  # YAML이 이미 풀어준 값(교훈57 - 다시 손대지 않는다)
+    raw = raw.strip()
+    if len(raw) >= 2 and raw[0] == '"' and raw[-1] == '"':
         return raw[1:-1]
     return raw
 
@@ -89,6 +112,10 @@ def parse_conditions(raw: str):
     """frontmatter의 conditions 줄(JSON 배열 리터럴 한 줄)을 파싱. 형식이 안 맞으면
     억지로 고치지 않고 None - 교훈57, 모르는 것은 0이 아니다."""
     if not raw:
+        return None
+    if isinstance(raw, list):
+        return [str(x) for x in raw]  # YAML flow 시퀀스가 이미 리스트로 왔다
+    if not isinstance(raw, str):
         return None
     try:
         parsed = json.loads(raw)
@@ -102,7 +129,7 @@ def parse_float(raw: str):
         return None
     try:
         return float(raw)
-    except ValueError:
+    except (TypeError, ValueError):  # YAML이 list/dict로 준 값도 조용히 유보
         return None
 
 

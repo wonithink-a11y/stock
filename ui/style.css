@@ -342,16 +342,27 @@ th {
 .rl-compare-list { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
 .rl-compare-row { display: flex; align-items: center; gap: 6px; padding: 5px 4px; font-size: 12px; cursor: pointer; border-radius: 4px; }
 .rl-compare-row:hover { background: var(--row-hover); }
-.rl-compare-row .rl-recent-title { flex: 1; }
+.rl-compare-row { white-space: nowrap; overflow: hidden; }
+.rl-compare-row .rl-recent-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 원문 verdict가 문장인 문서가 9건 있다 - 목록에서 줄바꿈되면 행 하나가 화면을
+   반이나 먹는다. 목록에선 감추고 비교표에서 본다(정보 손실 없음). */
+.rl-compare-row .v-orig { display: none; }
 .rl-compare-scroll { overflow-x: auto; }
-.rl-compare-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+/* table-layout:fixed + 좁은 고정폭 - 실험 제목·reason이 길어도 칸이 늘어나지 않아
+   한 화면에 3~4개를 나란히 본다. 잘린 전체 텍스트는 셀 hover(title)로 본다. */
+.rl-compare-table { border-collapse: collapse; width: 100%; font-size: 12px; table-layout: fixed; }
 .rl-compare-table th, .rl-compare-table td {
   border: 1px solid var(--panel-border); padding: 6px 10px; text-align: left; vertical-align: top;
-  white-space: nowrap;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .rl-compare-table tr:first-child th { color: var(--accent); background: var(--surface-2); }
 .rl-compare-table th:first-child, .rl-compare-table td:first-child {
   color: var(--text-dim); font-family: var(--mono); white-space: nowrap; background: var(--surface-2);
+  width: 108px;
+}
+.rl-compare-table th:not(:first-child), .rl-compare-table td:not(:first-child) { width: 190px; }
+.rl-compare-table td .cond-list, .rl-compare-table td .cond-item {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
 }
 @media (max-width: 900px) { .rl-compare-layout { grid-template-columns: 1fr; } }
 

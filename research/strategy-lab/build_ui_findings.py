@@ -31,9 +31,10 @@ def main():
     entries = []
     for path in sorted(glob.glob(os.path.join(FINDINGS_DIR, "**", "*.md"), recursive=True)):
         text = open(path, encoding="utf-8").read()
-        first_line = text.splitlines()[0] if text else ""
-        m = re.match(r"#\s+(.+)", first_line)
-        title = m.group(1) if m else os.path.basename(path)
+        # frontmatter가 있는 문서는 1행이 '---'라 첫 줄만 보면 전부 파일명으로 떨어진다.
+        # 본문 어디든 첫 '# ' 헤딩을 제목으로 쓴다(없으면 파일명).
+        m = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
+        title = m.group(1).strip() if m else os.path.basename(path)
         date_match = re.search(r"\((\d{4}-\d{2}-\d{2})\)", title) or re.search(r"-(\d{4}-\d{2})\.md$", path)
         date = date_match.group(1) if date_match else None
 
@@ -45,10 +46,17 @@ def main():
             "bodyMarkdown": text,
             "category": infer_category(text),
         }
-        if fm and fm.get("verdict") in ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED"):
+        # verdict '값'이 아니라 '존재'로 판단한다. 예전엔 4종 화이트리스트에 없는
+        # verdict(PASS·MIXED·CAUTION·서술형)면 frontmatter를 통째로 버리고 본문에서
+        # verdict를 추측(infer_verdict)했다 — conditions·reason·수치까지 같이 사라졌고
+        # 추측이 원문과 어긋나기도 했다(macross: 원문 PASS → 화면 KEEP). 실측 7건.
+        CANONICAL = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
+        if fm and fm.get("verdict"):
+            raw = str(fm["verdict"]).strip()
             entry["track"] = fm.get("track", infer_track(os.path.basename(path)))
-            entry["verdict"] = fm["verdict"]
-            entry["original_verdict"] = fm.get("original_verdict")
+            entry["verdict"] = raw if raw in CANONICAL else "UNCLASSIFIED"
+            # 정규 4종이 아니면 원문을 지어내지 않고 그대로 남긴다(화면이 '원문:'으로 표시).
+            entry["original_verdict"] = fm.get("original_verdict") or (None if raw in CANONICAL else raw)
             entry["criteria_version"] = fm.get("criteria_version")
             entry["conditions"] = parse_conditions(fm.get("conditions"))
             entry["reason"] = strip_quotes(fm.get("reason"))
