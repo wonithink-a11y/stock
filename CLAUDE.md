@@ -860,6 +860,32 @@ Validated against
               브라우저 실측 확인(19개 그룹 렌더·필터 동작·콘솔 에러 0).
               ★ 주의 — docs/data/를 갱신하는 workflow_dispatch 실행 뒤에는
               deploy-pages도 같이 수동 트리거해야 한다(위 ETF 항목의 교훈).
+  완료      ★ 미커밋 2건 정리 — 둘 다 "지금 상태가 맞다" 로 확정 (2026-09-03) —
+              ① `_manifest_fred_extended.json` **커밋**. 처음엔 "커밋하면
+              저장소에 없는 parquet 을 기술하게 된다"고 봤는데, 열어 보니
+              반대였다 — **커밋돼 있던 manifest 쪽이 커밋된 스크립트보다
+              낡아 있었다.** `build_fred_extended_backfill.py`(커밋됨, 작업트리
+              무변경)는 이미 usTreasury30y(TSY30Y)를 포함하고 usTreasury2y 를
+              2026-08-30 에 FRED DGS2 → Treasury.gov TSY2Y 로 바꿨는데,
+              manifest 는 2026-08-25 값(DGS2·3,097행·30y 없음)에 머물러 있었다.
+              로컬본을 커밋해 **tracked manifest 가 tracked 코드와 다시 일치**
+              한다. `generatedByCommit`(cb591c3) 이 저장소에 실제로 있는
+              커밋이라 추적도 성립. 선례도 있다 — 팩터패널
+              `_manifest_kr_monthly.json` 도 로컬 생성물인데 커밋돼 있다
+              (research/strategy-lab/data/ 는 data/backfill/ 이 아니라 규칙 4
+              대상이 아니다). ② `gen_robustness_continue.py` **삭제 확정**.
+              단순 중복이 아니라 **틀린 비용 규약 시절 산물**이었다 —
+              `entryCostBps = exitCostBps = cost_bps` 로 두고 "cost 50bps" 라
+              부르는데 실제로는 왕복 100bps 다. 바로 그 오류를 고치려고
+              `run_robustness_costfix.py`("previously mislabeled per-side cost
+              keys")·`run_robustness_subgroup_rerun.py`("wrong per-side cost
+              (60bps RT)") 가 나중에 작성됐고, 정본 리포트는
+              `assemble_robustness_report.py` 가 만든다. 게다가 이 스크립트는
+              `results["cost_30bps"]` 를 하드코딩(이전 실행값 복붙)하고
+              권장사항 문구까지 코드에 박아 두며, **정본과 같은 이름의
+              리포트**(factor-earnings-yield-robustness-2026-08.md)를 reports/
+              밑에 쓴다 — 남겨 두면 누군가 다시 돌려 틀린 비용의 partial
+              리포트로 덮어쓸 위험이 있다. 참조처 0건·산출물 0건 확인 후 삭제.
   완료      ★ 조합 스윕 대시보드 최신화 + `--note` 신설 (2026-09-03) —
               세션인수인계-2026-09-02-e.md §5-3. **재빌드만으로는 바뀌는 게
               없었다** — `build_sweep_dashboard.py` 를 그냥 다시 돌리니 기존
@@ -925,12 +951,7 @@ Validated against
               `dashboard/sweep-dashboard.html`(591KB, build_sweep_dashboard.py로
               재생성 가능·Artifact 발행본 존재). 부수: `ui/data/macro.json`의
               로컬 실행분(seriesAsOf 09-01)을 되돌렸다 — 이 파일의 writer는
-              Actions다(정본 writer 하나 원칙). **남은 미해결 2건**(둘 다 이전
-              세션 산물, 이번엔 판단 안 함): `_manifest_fred_extended.json` 로컬
-              수정(usTreasury30y 컬럼 추가·3,097→3,108행, 대응 parquet은
-              gitignore라 커밋하면 저장소에 없는 데이터를 기술하게 된다) ·
-              `gen_robustness_continue.py` 로컬 삭제(2026-08-31 백업 커밋으로
-              들어왔던 것, 참조처 0건 — 삭제 확정할지 미정).
+              Actions다(정본 writer 하나 원칙). **남은 2건도 같은 날 정리 완료**(아래 항목).
   완료      ★ 시장수급 탭 — 일별추이 막대 수정 + 장중 잠정 수급 신설 (2026-09-03)
               — 사용자 보고 3건 처리. ①**일별 추이 음수 막대가 안 보였다** —
               막대 상자가 40px인데 음수를 top:40px에 그려 상자 밖이었고

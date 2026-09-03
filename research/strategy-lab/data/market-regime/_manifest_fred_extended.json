@@ -1,11 +1,12 @@
 {
-  "generatedAtUTC": "2026-08-25T14:26:56+00:00",
+  "generatedAtUTC": "2026-09-01T22:40:06+00:00",
   "purpose": "FRED 확장 매크로 시리즈(금·은 제외 사용자 우선순위 목록) 백필",
   "tierFetchedThisRun": 1,
   "columns": [
     "usSp500",
     "usNasdaq100",
     "usTreasury2y",
+    "usTreasury30y",
     "usYieldSpread10y2y",
     "usYieldSpread10y3m",
     "usInitialClaims",
@@ -21,10 +22,10 @@
     "NASDAQCOM": "usNasdaq으로 이미 존재",
     "DEXKOUS": "usdKrwLevel로 이미 존재(build_usdkrw_backfill.py)"
   },
-  "rowCount": 3097,
+  "rowCount": 3108,
   "dateRange": [
     "2014-01-02",
-    "2026-08-14"
+    "2026-09-01"
   ],
   "lagAssumptions": {
     "usSp500": {
@@ -40,10 +41,16 @@
       "note": "나스닥100 종가, 당일 확정"
     },
     "usTreasury2y": {
-      "seriesId": "DGS2",
+      "seriesId": "TSY2Y",
       "period": "daily",
       "lagDays": 0,
-      "note": "2년물 국채금리, 당일 확정"
+      "note": "2년물 국채금리, Treasury.gov 직접(2026-08-30 FRED DGS2에서 전환 - FRED보다 갱신 빠름)"
+    },
+    "usTreasury30y": {
+      "seriesId": "TSY30Y",
+      "period": "daily",
+      "lagDays": 0,
+      "note": "30년물 국채금리, Treasury.gov 직접(2002-02~2006-02 발행중단 구간은 결측)"
     },
     "usYieldSpread10y2y": {
       "seriesId": "T10Y2Y",
@@ -162,18 +169,19 @@
   },
   "lagAssumptionCaveat": "실제 BLS/BEA/Fed 공표일정 대조는 안 함 - 보수적(실제보다 늦게 알았다고 가정) 추정치다. build_macro_layer_backfill.py의 krCpi lag과 동일한 한계.",
   "missingRateByColumn": {
-    "usSp500": 0.21085,
-    "usNasdaq100": 0.0,
-    "usTreasury2y": 0.0,
-    "usYieldSpread10y2y": 0.0,
-    "usYieldSpread10y3m": 0.0,
-    "usInitialClaims": 0.0,
-    "usFinancialConditionsIndex": 0.0,
-    "usHighYieldSpread": 0.76719,
-    "usIgCreditSpread": 0.76752,
-    "usDollarIndexBroad": 0.0,
-    "krKosdaq": 0.03358
+    "usSp500": 0.21171,
+    "usNasdaq100": 0.03475,
+    "usTreasury2y": 0.03475,
+    "usTreasury30y": 0.03475,
+    "usYieldSpread10y2y": 0.03475,
+    "usYieldSpread10y3m": 0.03475,
+    "usInitialClaims": 0.03475,
+    "usFinancialConditionsIndex": 0.03475,
+    "usHighYieldSpread": 0.76641,
+    "usIgCreditSpread": 0.76641,
+    "usDollarIndexBroad": 0.03475,
+    "krKosdaq": 0.03507
   },
-  "generatedByCommit": "d82a07975651f8eec7bbf535eb63f77b0c25d7ef",
+  "generatedByCommit": "cb591c3f0847829f1213f37def5c90f02e299fd9",
   "note": "market_regime_features.parquet에 아직 병합 안 함(독립 산출물). UI로 뭘 쓸지 정한 뒤 별도 병합 작업."
 }
