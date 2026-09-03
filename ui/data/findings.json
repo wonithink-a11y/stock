@@ -1,5 +1,5 @@
 {
-  "count": 263,
+  "count": 264,
   "findings": [
     {
       "file": "research/strategy-lab/findings/growth-family-bundle-2026-09.md",
@@ -95,6 +95,31 @@
       "mdd": null,
       "win_rate": null,
       "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/sector-neutral-pbr-axis-only-engine-2026-09.md",
+      "title": "sector-neutral-pbr-axis-only-engine-2026-09.md",
+      "date": "2026-09-03",
+      "bodyMarkdown": "---\ntrack: kr\nfactor: sector-neutral-pbr-axis-only-engine\ndate: 2026-09-03\nverdict: REJECT\ncriteria_version: v1\nconditions: [\"sector_rel_pbr 단독(랭크합 아님)\", \"decile 판: 상위 decile 전량, maxPositions=120\", \"top30 판: 상위 30개, maxPositions=30\", \"월별 리밸런스, 연속보유 병합, 비용 30bp, 슬리피지 0\", \"월별 시가평가(MTM) 회계\"]\nreason: \"성장 다리를 떼면 TEST 가 나빠진다. 2축 top30 은 TEST 에서 벤치마크를 +1.24%p 이겼는데 축 단독 top30 은 -0.32%p 로 지고, decile 판은 -2.51%p 에서 -3.50%p 로 더 벌어진다. 전체기간 CAGR 은 오히려 오르는데(8.06%→8.40%) 그 증가분이 전부 TRAIN·VALID 에서 나온다 - 축 단독은 HOLD 의 엔진 관문을 푸는 구현안이 아니다.\"\ncagr: 8.40\nsharpe: 0.76\nmdd: -14.04\nwin_rate: null\nn: 1041\nt_stat: null\nstats:\n  decile_cagr: 5.62\n  decile_mdd: -12.87\n  decile_sharpe: 0.66\n  decile_gap_train_pp: 4.03\n  decile_gap_valid_pp: 6.21\n  decile_gap_test_pp: -3.50\n  top30_cagr: 8.40\n  top30_mdd: -14.04\n  top30_sharpe: 0.76\n  top30_gap_train_pp: 6.47\n  top30_gap_valid_pp: 8.98\n  top30_gap_test_pp: -0.32\n  benchmark_cagr: 3.04\n  benchmark_mdd: -22.61\n  benchmark_sharpe: 0.29\n  sample_size: {train: 79, valid: 18, test: 32}\n---\n\n# 업종중립 PBR **축 단독** — 실제 엔진 검증 (2026-09-03)\n\n`세션인수인계-2026-09-03-b.md` §8 1번. HOLD 후보의 3번 블로커\n(`portfolio_engine_reality_check_required_before_keep`)를 **성장 다리 없이**\n다시 밟은 것이다. 전날 계열 묶기가 REJECT 되면서 성장 다리의 근거가\n\"7개 중 1개를 사후에 고른 것\"으로 약해졌으니, 축만 남기면 그 선택 문제가\n사라진다는 것이 착수 이유였다.\n\n**선택 문제는 사라지지만 성과도 같이 사라진다.**\n\n## 새로 만든 것이 거의 없다\n\n`build_sector_neutral_selection.py` 의 `FACTORS` 상수를 `--factors` 인자로,\n`run_sector_neutral_mtm.py` 의 `STRATEGIES` 상수를 CLI 인자로 바꾼 것이 전부다.\n랭킹은 여전히 `sweep_combos.build_matrices`, 회계는 여전히\n`pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm` 를 그대로 재사용한다.\n\n**리팩터가 결과를 안 바꿨다는 것을 먼저 확인했다** — 기본값으로 2축 판을\n재생성하니 `selection.json` 두 개가 커밋본과 **바이트 동일**(policy.json·rule.py\n는 문구만 일반화). 벤치마크 수치도 09-02 실행과 소수점까지 같다\n(CAGR 3.04% · MDD -22.6% · Sharpe 0.29, 구간별 2.55/0.85/5.59%) — 하네스가\n같은 것을 재고 있다는 교차검증이다.\n\n축 1개면 랭크\"합\"이 아니므로 `comp = R.sum(axis=0)` 으로 통일했다(원소가\n하나면 그 원소 그대로, NaN 보존).\n\n## 선택 구성부터 달라진다\n\n| | 축 단독 | 2축(PBR+성장가속) |\n|---|---|---|\n| 리밸런스 개월 | **124** | 119 |\n| 월평균 선택 | 82.6종목 | 80.5종목 |\n| **누적 종목수** | **467** | 742 |\n| 청산 건수(top30) | **1,041** | 1,398 |\n\n교집합이 없어지니 월 수는 늘고(min-names 게이트를 더 자주 통과), **누적\n종목수와 거래건수는 오히려 줄었다** — 성장 다리가 매달 구성을 흔들던 것이\n빠져 같은 저PBR 종목이 계속 남는다. 회전율이 낮아진 것은 비용 면에서 유리한\n방향인데, 그런데도 TEST 가 나빠졌다.\n\n## 결과 (2016-01~2026-08, 129개월 MTM 스냅샷)\n\n| 전략 | CAGR | MDD | Sharpe | Calmar | 총수익 |\n|---|---|---|---|---|---|\n| 축 단독 decile | 5.62% | -12.9% | 0.66 | 0.44 | 78.3% |\n| **축 단독 top30** | **8.40%** | **-14.0%** | **0.76** | 0.60 | 134.9% |\n| (참고) 2축 decile | 5.22% | -12.5% | 0.59 | 0.42 | 71.3% |\n| (참고) 2축 top30 | 8.06% | -14.0% | 0.70 | 0.58 | 127.1% |\n| EW 벤치마크 | 3.04% | -22.6% | 0.29 | 0.13 | 37.3% |\n\n전체기간만 보면 **축 단독이 2축보다 낫다**(두 판 다 CAGR·Sharpe 우위).\n청산은 전건 `TIME_EXIT`, 종료 시 미청산 0건.\n\n### 구간을 쪼개면 뒤집힌다\n\n| 판 | 구간 | 개월 | CAGR | 벤치 | 격차 | (2축 격차) |\n|---|---|---|---|---|---|---|\n| decile | TRAIN | 79 | 6.58% | 2.55% | +4.03%p | +3.58%p |\n| decile | VALID | 18 | 7.06% | 0.85% | +6.21%p | +2.65%p |\n| **decile** | **TEST** | 32 | 2.09% | 5.59% | **-3.50%p** | -2.51%p |\n| top30 | TRAIN | 79 | 9.02% | 2.55% | +6.47%p | +5.52%p |\n| top30 | VALID | 18 | 9.83% | 0.85% | +8.98%p | +7.75%p |\n| **top30** | **TEST** | 32 | 5.27% | 5.59% | **-0.32%p** | **+1.24%p** |\n\n**전체기간 CAGR 상승분이 전부 TRAIN·VALID 에서 나왔고 TEST 는 두 판 다\n2축보다 나빠졌다.** 특히 top30 은 2축이 유일하게 TEST 를 이기던 판이었는데\n(+1.24%p) 축만 남기자 부호가 바뀐다(-0.32%p).\n\n이 방향은 Tier 1 과도 일치한다 — 09-02 의 top-30 고정 OOS 표에서\n`pbr 단독` TEST +0.521% < `pbr+growth` TEST +0.955% 였다. 엔진이 그 순서를\n재현했다.\n\n### TEST 적자는 어디서 오나 — 연도별\n\n| 연도 | 축 단독 decile | 축 단독 top30 | 벤치 |\n|---|---|---|---|\n| 2024 | -3.5% | -5.0% | **-10.8%** |\n| 2025 | +11.6% | +23.1% | +19.2% |\n| 2026(부분) | -2.9% | -3.4% | **+4.3%** |\n\ntop30 의 TEST 적자(-0.32%p)는 사실상 **진행 중인 2026 부분연도 하나**에서\n온다 — 2024 는 크게 이기고 2025 도 이긴다. 이건 판정을 뒤집는 근거가\n아니라 **불확실성을 키우는 사실**이다: DD252 가 정확히 반대 모양\n(우위가 부분연도 하나에 의존)으로 기각된 전례가 있다. 부분연도 하나에\n의존하는 결론은 어느 방향이든 신뢰하지 않는다.\n\n## 판정: REJECT — \"축 단독\" 이라는 구현안에 한정\n\n무엇을 기각하는지 좁혀 적는다.\n\n- **기각 대상은 `sector_rel_pbr` 단독 구현안이다.** HOLD 후보(업종중립 PBR\n  계열)를 기각하는 것이 아니다.\n- 성장 다리를 떼는 것이 다중검정을 줄이는 대가로 **TEST 성과를 판다.**\n  선택 문제를 없애는 방향은 맞았지만 그 값이 너무 비쌌다.\n- 엔진 관문 자체는 **여전히 안 풀렸다.** 축 단독도, 2축 decile 도 TEST 에서\n  벤치마크에 진다. 2축 top30 만 TEST 를 이기는데 그건 Tier 1 에서 난수선을\n  못 넘은 조합이다(t=2.11 < 3.19).\n\n## 계열 수준으로 보면\n\n세 변형의 TEST 격차를 나란히 두면 순서가 분명하다.\n\n| 구현 | TEST 격차 |\n|---|---|\n| 2축 top30 | **+1.24%p** |\n| 축 단독 top30 | -0.32%p |\n| 2축 decile | -2.51%p |\n| 축 단독 decile | -3.50%p |\n\n**두 축(선택 규칙 top30/decile · 성장 다리 유무) 다 TEST 에 같은 방향으로\n기여한다** — 집중할수록 좋고, 성장 다리가 있을수록 좋다. 그런데 그 둘을\n다 켠 조합(2축 top30)이 하필 Tier 1 난수 바닥선을 못 넘은 것이라, 09-02\nfinding 이 적은 \"변형 간 순위가 지표에 따라 뒤바뀐다\"는 상태가 그대로다.\n\n**HOLD 등급 유지.** 이번 실행은 후보를 올리지도 내리지도 않고, 열려 있던\n구현 선택지 하나(축 단독)를 닫았다.\n\n## 남은 것\n\n축 단독이 닫혔으므로 이 라인에서 다음에 열 수 있는 것은 \"top30 구성으로\nTier 1 을 처음부터 다시 밟기\"뿐이다(09-02 finding 이 이미 지목한 경로).\n그건 새 스윕이라 별도 착수 판단 대상이다.\n\n산출물: `reports/2026-09-03-sector-neutral-pbr-only-smoke/mtm.json`\n",
+      "category": "performance",
+      "track": "kr",
+      "verdict": "REJECT",
+      "original_verdict": null,
+      "criteria_version": "v1",
+      "conditions": [
+        "sector_rel_pbr 단독(랭크합 아님)",
+        "decile 판: 상위 decile 전량, maxPositions=120",
+        "top30 판: 상위 30개, maxPositions=30",
+        "월별 리밸런스, 연속보유 병합, 비용 30bp, 슬리피지 0",
+        "월별 시가평가(MTM) 회계"
+      ],
+      "reason": "성장 다리를 떼면 TEST 가 나빠진다. 2축 top30 은 TEST 에서 벤치마크를 +1.24%p 이겼는데 축 단독 top30 은 -0.32%p 로 지고, decile 판은 -2.51%p 에서 -3.50%p 로 더 벌어진다. 전체기간 CAGR 은 오히려 오르는데(8.06%→8.40%) 그 증가분이 전부 TRAIN·VALID 에서 나온다 - 축 단독은 HOLD 의 엔진 관문을 푸는 구현안이 아니다.",
+      "cagr": 8.4,
+      "sharpe": 0.76,
+      "mdd": -14.04,
+      "win_rate": null,
+      "n": 1041.0,
       "t_stat": null
     },
     {
