@@ -423,7 +423,7 @@ function runFinalize() {
   console.log('[3/4] 상류 검증 + 정책 해시');
   const upstream = verifyUpstream(['A0.5', 'A1a', 'A1b', 'A2a', 'A2b', 'A3', 'A3b', 'A3c', 'A3d']);
   const policyHashes = hashPolicyFiles(['confidence', 'validation', 'missingAxis', 'riskPenalty', 'trading', 'stateMap', 'flagCodes', 'universe', 'price', 'fundamentals', 'scores']);
-  policyHashes.criteria = hashFile('config/criteria/KR-2.2.json');
+  policyHashes.criteria = hashFile(loadCriteria('KR').path);  // registry가 말하는 스냅샷 (버전 승격 시 자동 추종)
 
   const policies = loadPolicies('KR');
   // engineVersion은 score()의 meta에서 얻는다(하드코딩 금지 — 엔진 자신이 유일한 출처).

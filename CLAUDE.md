@@ -5,7 +5,8 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 
 ```
 Validated against
-  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.6 · MN-1.2 · SB-1.0 · SD-1.0
+  정책      UN-1.2 · PR-1.6 · FN-1.6 · REG-1.7 · MN-1.2 · SB-1.0 · SD-1.0
+            criteria  KR-2.3(2026-09-03 승격) · US-2.2
   현재 트랙  A3c·T1·A2b·A4 전부 종료됐다(아래 완료 참고) — A3c는 finalize 완료
                (2026-08-16, a997f9a), T1은 REPRODUCIBILITY FAIL(PASS 아님),
                A2b는 PR-1.6(480/440/20%) 전량 재실행 finalize 통과
@@ -781,6 +782,39 @@ Validated against
             정직하게 '유보'로 뜬다. 13개 전용 스캔 범위 로직을 새로 짜는 비용이
             개인 프로젝트에서 안 맞는다 — 나중에 특정 종목이 실제로 필요해지면
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
+  완료      ★ ★ production 채점 KR-2.3 승격 — MA크로스 반전 반영 (2026-09-03, 🔴 GO) —
+              인수인계 2026-09-03-c §3 3번. findings/kr-production-technical-macross-
+              reversal-2026-09.md 가 PASS 로 두고 "production 즉시 반영 안 함"으로
+              남겨뒀던 것을 사용자 GO 로 반영. **착수 전 재검증부터 했다** — 그 검증은
+              supplyDemand 축이 100% 결측이던 옛 A5 백필로 돌린 것인데 그 뒤
+              2026-09-02(`ce7a723`)에 축을 연결해 전량 재백필했다. 수급 축을 넣어
+              `kr_production_technical_macross_oos.js` 를 다시 돌리니 **변형C(MA크로스
+              반전)가 세 구간 전부 유지**된다 — TRAIN 0.0181→**0.0341** · VALID
+              0.0023→**0.0390** · TEST 0.0305→**0.0461**, 부호반전 0건(옛 수치
+              0.0195/0.0031/0.0321 → 0.0341/0.0331/0.0438 과 거의 같다, 수급 축이
+              결론을 안 바꾼다). 스크립트에 supplyDemand 를 넣은 것도 구·신 백필
+              양쪽에 그대로 쓰이는 형태(결측이면 weightedAverage 가 자동 재정규화).
+              ★ **코드 변경 없는 config 승격이다** — `lib/scoringEngine.js:209` 가
+              signals 표를 criteria 파일에서 그대로 읽으므로 네 숫자만 뒤집으면 된다:
+              goldenCross 100→0 · aboveBothMA 70→30 · belowBothMA 30→70 ·
+              deadCross 0→100. `config/criteria/KR-2.3.json` 신설(규칙 5 — 2.2 는
+              손대지 않는다, CI 가드는 `--diff-filter=MD` 라 신규 추가는 통과),
+              registry `REG-1.6→1.7` + KR criteria 2.2→2.3. **2.2 대비 diff 는 그
+              네 숫자 + logic 주석 + version 뿐**(정렬 JSON 대조로 확인).
+              부수 수정 둘: (1) `scripts/build-a5-backfill.js` 가 criteria 경로를
+              `config/criteria/KR-2.2.json` 으로 하드코딩해 버전 승격을 못 따라오던
+              것을 `loadCriteria('KR').path` 로 — 근본 수정. (2)
+              `scripts/test-engine-v2.js` 의 clamp 경계 테스트 ⑤·⑥ 이 최고/최저 입력을
+              `goldenCross`/`deadCross` 로 하드코딩해 반전 후 ⑥ 이 실패했다 — 이
+              테스트가 재는 건 신호 이름이 아니라 rawScore clamp 이므로 criteria 에서
+              최고/최저를 뽑게 고쳤다(다시 안 낡는다). 루트 회귀 30개 전부 통과,
+              라이브 채점이 실제로 2.3 을 읽는 것 확인(goldenCross technical 60.5 vs
+              deadCross 95.5 — 2.2 와 반대). **한계는 숨기지 않는다**: 효과가 작고
+              (IC 0.02~0.03대→0.03~0.04대) A5 주간 스냅샷 d20 기준이라 실제 매매·비용은
+              안 들어갔다. ★ **A5 10년 백필 재실행은 안 했다** — criteria 해시가
+              바뀌었으므로 manifest 계약상 A5 재실행 대상이지만 그건 '실행'이라 별도
+              사전 확인이다(등급 무관). 재실행 전까지 `data/backfill/scores/` 는
+              2.2 로 채점된 값이다.
   완료      ★ rev_yoy × PBR 라인 — REJECT, 판정 없던 라인 종결 (2026-09-03) —
               세션인수인계-2026-09-03-c.md §3 1번. 스크립트 12건(인수인계는 6건으로
               적었으나 실제 12건, 전부 커밋됨)이 있는데 findings·CLAUDE.md·인수인계

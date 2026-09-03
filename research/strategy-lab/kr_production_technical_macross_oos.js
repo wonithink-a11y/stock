@@ -117,6 +117,7 @@ async function main() {
         fwd20: rec.fwd.d20,
         fundamental: rec.c.fundamental,
         valuation: rec.c.valuation,
+        supplyDemand: rec.c.supplyDemand ?? null,
         techBaseline: weightedAverage([
           { score: maScore, weight: 0.35 }, { score: rsiScore, weight: 0.15 },
           { score: macdScore, weight: 0.25 }, { score: volScore, weight: 0.25 },
@@ -134,12 +135,14 @@ async function main() {
   console.log(`  ${rows.length}건`);
 
   function finalScoreOf(r, techField) {
-    // supplyDemand는 이 백필 전체에서 100% 결측이라 애초에 제외(A5 실제 동작과 동일 -
-    // weightedAverage가 null 항목을 자동으로 빼고 나머지 가중치로 재정규화한다)
+    // supplyDemand는 2026-09-02 재백필(ce7a723)로 실제 값이 들어왔다. 결측이면
+    // weightedAverage가 null 항목을 빼고 나머지 가중치로 재정규화하므로(A5 실제
+    // 동작과 동일) 구·신 백필 어느 쪽에도 그대로 쓸 수 있다.
     return weightedAverage([
       { score: r.fundamental, weight: catWeights.fundamental },
       { score: r.valuation, weight: catWeights.valuation },
       { score: r[techField], weight: catWeights.technical },
+      { score: r.supplyDemand, weight: catWeights.supplyDemand },
     ]);
   }
 

@@ -20,7 +20,7 @@ const base = { ticker: '005930', name: '삼성전자',
 const a = score(base, C, P);
 chk(a.result.finalScore !== null && a.result.finalScore === a.result.rawScore, '① state 없음 → 감점 0, finalScore == rawScore');
 chk(a.result.tradeAllowed === true && a.result.tradingState === 'NORMAL', '① tradingState 기본값 NORMAL');
-chk(a.meta.policies.riskPenalty === 'RP-1.2' && a.meta.policies.criteria === '2.2', '① meta.policies 스탬프');
+chk(a.meta.policies.riskPenalty === 'RP-1.2' && a.meta.policies.criteria === '2.3', '① meta.policies 스탬프');
 chk(a.meta.policies.flagCodes === 'FC-1.1', '① flagCodes 버전 스탬프');
 chk(Object.isFrozen(a.result) && Object.isFrozen(a.meta), '① ScoreResult immutable');
 chk(validate(a, P, { mode: 'strict' }).length === 0, '① strict 검증 위반 0');
@@ -51,12 +51,18 @@ console.log(`\n엔진 V2: ${pass} passed, ${fail} failed`);
 
 // ⑤ rawScore 하한 clamp — 전 지표 최저값 + 정책 최악조합(-43)이 rawScore를
 //    한참 밑돈다. finalScore가 음수로 새지 않고 0에서 멈추는지 확인한다.
+// maSignal 최고/최저는 criteria에서 뽑는다 — v2.3에서 점수 방향이 반전됐고,
+// 이 두 테스트가 재는 것은 신호 이름이 아니라 rawScore clamp 경계다.
+const MA_SIGNALS = C.technical.indicators.movingAverageCross.signals;
+const MA_BEST = Object.keys(MA_SIGNALS).reduce((a, b) => (MA_SIGNALS[b] > MA_SIGNALS[a] ? b : a));
+const MA_WORST = Object.keys(MA_SIGNALS).reduce((a, b) => (MA_SIGNALS[b] < MA_SIGNALS[a] ? b : a));
+
 const worst = {
   ticker: 'WORST', name: '최악케이스',
   fundamental: { roe: 0, roeHistory5y: [0, 0, 0, 0, 0], debtRatio: 300, currentRatio: 50,
                  operatingMarginTrend: -1, revenueGrowthYoY: -10, buybackOrDividendHistory: false },
   valuation: { perRelative: 3, pbr: 5, per: 10, epsGrowthRate: -5, marginOfSafety: -1 },
-  technical: { maSignal: 'deadCross', rsi: 100, macdSignal: 'bearishCross', volumeConfirmed: false },
+  technical: { maSignal: MA_WORST, rsi: 100, macdSignal: 'bearishCross', volumeConfirmed: false },
   supplyDemand: { foreignTrend5d: 'consistentSell', institutionTrend5d: 'consistentSell',
                   largeShareholderChangePct: -5, buybackOrRetirementAnnounced: false },
   state: { riskStates: ['MEZZANINE_ACTIVE', 'RIGHTS_OFFERING_ACTIVE', 'INVESTMENT_WARNING'],
@@ -75,7 +81,7 @@ const best = {
   fundamental: { roe: 15, roeHistory5y: [12, 13, 14, 15, 15], debtRatio: 50, currentRatio: 200,
                  operatingMarginTrend: 0.5, revenueGrowthYoY: 15, buybackOrDividendHistory: true },
   valuation: { perRelative: 0.7, pbr: 0.8, per: 5, epsGrowthRate: 50, marginOfSafety: 0.4 },
-  technical: { maSignal: 'goldenCross', rsi: 55, macdSignal: 'bullishCross', volumeConfirmed: true },
+  technical: { maSignal: MA_BEST, rsi: 55, macdSignal: 'bullishCross', volumeConfirmed: true },
   supplyDemand: { foreignTrend5d: 'consistentBuy', institutionTrend5d: 'consistentBuy',
                   largeShareholderChangePct: 5, buybackOrRetirementAnnounced: true },
 };
