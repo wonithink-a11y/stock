@@ -1,3 +1,17 @@
+---
+# 수치는 이 문서 §1 표의 earnings_yield 열(전략 열)을 그대로 옮긴 것이다.
+# verdict는 적지 않는다 — 원문이 판정을 선언하지 않았고, 지어내지 않는다.
+track: kr
+factor: earnings-yield
+date: 2026-08-30
+conditions: ["A1A_ONLY", "월별 리밸런스", "30bps 왕복", "EW · long-only", "max_positions=30", "dv20>=1억원", "2016-01~2026-08"]
+cagr: 4.68
+sharpe: 0.76
+mdd: -9.90
+win_rate: 50.97
+n: 567
+---
+
 # Earnings Yield Factor — Portfolio Validation (2026-08-30)
 
 - 실험: `EARNINGS-YIELD-PORTFOLIO-VALIDATION-KR-2026-08`

@@ -338,7 +338,7 @@ th {
 .rl-stats-table th, .rl-stats-table td { border: 1px solid var(--panel-border); padding: 4px 12px; text-align: left; }
 .rl-stats-table th { color: var(--text-dim); font-weight: 400; background: var(--surface-2); }
 
-.rl-compare-layout { display: grid; grid-template-columns: 300px 1fr; gap: 12px; align-items: start; }
+.rl-compare-layout { display: grid; grid-template-columns: 236px 1fr; gap: 10px; align-items: start; }
 .rl-compare-list { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
 .rl-compare-row { display: flex; align-items: center; gap: 6px; padding: 5px 4px; font-size: 12px; cursor: pointer; border-radius: 4px; }
 .rl-compare-row:hover { background: var(--row-hover); }
@@ -347,6 +347,8 @@ th {
 /* 원문 verdict가 문장인 문서가 9건 있다 - 목록에서 줄바꿈되면 행 하나가 화면을
    반이나 먹는다. 목록에선 감추고 비교표에서 본다(정보 손실 없음). */
 .rl-compare-row .v-orig { display: none; }
+/* 목록에선 배지가 제목을 밀어낸다 - 카테고리는 비교표에서 보고 여기선 감춘다. */
+.rl-compare-row [class*="v-cat-"] { display: none; }
 .rl-compare-scroll { overflow-x: auto; }
 /* table-layout:fixed + 좁은 고정폭 - 실험 제목·reason이 길어도 칸이 늘어나지 않아
    한 화면에 3~4개를 나란히 본다. 잘린 전체 텍스트는 셀 hover(title)로 본다. */
@@ -358,9 +360,12 @@ th {
 .rl-compare-table tr:first-child th { color: var(--accent); background: var(--surface-2); }
 .rl-compare-table th:first-child, .rl-compare-table td:first-child {
   color: var(--text-dim); font-family: var(--mono); white-space: nowrap; background: var(--surface-2);
-  width: 108px;
+  width: 86px;
 }
-.rl-compare-table th:not(:first-child), .rl-compare-table td:not(:first-child) { width: 190px; }
+/* 데이터 칸은 폭을 고정하지 않는다 - table-layout:fixed 라서 남는 폭을 N개가
+   똑같이 나눠 갖는다. 몇 개를 고르든 항상 한 화면에 들어오고, 길면 잘린다.
+   (고정 190px이던 것 - 폭 1,000px 화면에서 3개밖에 안 들어왔다) */
+.rl-compare-table th, .rl-compare-table td { padding: 5px 7px; }
 .rl-compare-table td .cond-list, .rl-compare-table td .cond-item {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
 }

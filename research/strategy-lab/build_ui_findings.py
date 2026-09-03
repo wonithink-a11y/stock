@@ -22,7 +22,7 @@ OUT_PATH = os.path.join(REPO_ROOT, "ui", "data", "findings.json")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_findings_registry import (  # noqa: E402
-    parse_frontmatter, parse_conditions, parse_float, strip_quotes,
+    parse_frontmatter, strip_frontmatter, parse_conditions, parse_float, strip_quotes,
     infer_track, infer_verdict, infer_category, NUMERIC_FIELDS,
 )
 
@@ -32,8 +32,9 @@ def main():
     for path in sorted(glob.glob(os.path.join(FINDINGS_DIR, "**", "*.md"), recursive=True)):
         text = open(path, encoding="utf-8").read()
         # frontmatter가 있는 문서는 1행이 '---'라 첫 줄만 보면 전부 파일명으로 떨어진다.
-        # 본문 어디든 첫 '# ' 헤딩을 제목으로 쓴다(없으면 파일명).
-        m = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
+        # 본문 첫 '# ' 헤딩을 제목으로 쓴다(없으면 파일명). frontmatter를 먼저
+        # 떼어낸다 — YAML 주석도 '# '로 시작해서 그대로 두면 주석이 제목이 된다.
+        m = re.search(r"^#\s+(.+)$", strip_frontmatter(text), re.MULTILINE)
         title = m.group(1).strip() if m else os.path.basename(path)
         date_match = re.search(r"\((\d{4}-\d{2}-\d{2})\)", title) or re.search(r"-(\d{4}-\d{2})\.md$", path)
         date = date_match.group(1) if date_match else None
@@ -46,31 +47,28 @@ def main():
             "bodyMarkdown": text,
             "category": infer_category(text),
         }
-        # verdict '값'이 아니라 '존재'로 판단한다. 예전엔 4종 화이트리스트에 없는
-        # verdict(PASS·MIXED·CAUTION·서술형)면 frontmatter를 통째로 버리고 본문에서
-        # verdict를 추측(infer_verdict)했다 — conditions·reason·수치까지 같이 사라졌고
-        # 추측이 원문과 어긋나기도 했다(macross: 원문 PASS → 화면 KEEP). 실측 7건.
+        # frontmatter가 있으면 그 값을 그대로 쓴다 — verdict 유무와 무관하게.
+        # 예전엔 (1) verdict '값'이 4종 화이트리스트에 없으면 frontmatter를 통째로
+        # 버리고 본문에서 verdict를 추측했고(실측 7건이 conditions·reason·수치를
+        # 전부 잃었다, macross는 원문 PASS가 화면에서 KEEP이 됐다), (2) 고친 뒤에도
+        # verdict가 있어야만 수치를 읽어서, verdict를 주장하지 않고 수치만 적은
+        # 문서는 여전히 값이 사라졌다. 수치·조건·근거는 verdict와 별개의 사실이다.
         CANONICAL = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
-        if fm and fm.get("verdict"):
-            raw = str(fm["verdict"]).strip()
-            entry["track"] = fm.get("track", infer_track(os.path.basename(path)))
-            entry["verdict"] = raw if raw in CANONICAL else "UNCLASSIFIED"
-            # 정규 4종이 아니면 원문을 지어내지 않고 그대로 남긴다(화면이 '원문:'으로 표시).
-            entry["original_verdict"] = fm.get("original_verdict") or (None if raw in CANONICAL else raw)
-            entry["criteria_version"] = fm.get("criteria_version")
-            entry["conditions"] = parse_conditions(fm.get("conditions"))
-            entry["reason"] = strip_quotes(fm.get("reason"))
-            for f in NUMERIC_FIELDS:
-                entry[f] = parse_float(fm.get(f))
-        else:
-            entry["track"] = infer_track(os.path.basename(path))
-            entry["verdict"] = infer_verdict(text)
-            entry["original_verdict"] = None
-            entry["criteria_version"] = None
-            entry["conditions"] = None
-            entry["reason"] = None
-            for f in NUMERIC_FIELDS:
-                entry[f] = None
+        fm = fm or {}
+        raw_verdict = str(fm["verdict"]).strip() if fm.get("verdict") else None
+        entry["track"] = fm.get("track") or infer_track(os.path.basename(path))
+        entry["verdict"] = (
+            raw_verdict if raw_verdict in CANONICAL
+            else ("UNCLASSIFIED" if raw_verdict else infer_verdict(text))
+        )
+        # 정규 4종이 아닌 verdict는 지어내지 않고 원문 그대로 남긴다(화면이 '원문:'으로 표시).
+        entry["original_verdict"] = fm.get("original_verdict") or (
+            raw_verdict if raw_verdict and raw_verdict not in CANONICAL else None)
+        entry["criteria_version"] = fm.get("criteria_version")
+        entry["conditions"] = parse_conditions(fm.get("conditions"))
+        entry["reason"] = strip_quotes(fm.get("reason"))
+        for f in NUMERIC_FIELDS:
+            entry[f] = parse_float(fm.get(f))
         entries.append(entry)
     entries.sort(key=lambda e: e.get("date") or "", reverse=True)
 

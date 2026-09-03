@@ -72,6 +72,16 @@ def infer_category(text: str):
     return None
 
 
+def strip_frontmatter(text: str) -> str:
+    """YAML frontmatter 블록을 떼고 본문만 돌려준다.
+
+    제목을 찾을 때 필요하다 — YAML 주석도 '# '로 시작해서 frontmatter를 둔 채
+    첫 '# ' 헤딩을 찾으면 주석이 제목이 된다(2026-09-03 실제로 발생).
+    """
+    m = FRONTMATTER_RE.match(text)
+    return text[m.end():] if m else text
+
+
 def parse_frontmatter(text: str):
     """YAML frontmatter를 진짜 YAML로 읽는다.
 

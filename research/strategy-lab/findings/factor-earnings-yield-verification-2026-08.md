@@ -1,3 +1,15 @@
+---
+# 수치는 이 문서 본문의 "Backtest: CAGR 4.68%, Sharpe 0.76, MDD -9.9%" 줄에서
+# 옮긴 것이다(같은 백테스트라 portfolio-validation 문서와 값이 일치한다).
+# verdict는 적지 않는다 — 원문이 판정을 선언하지 않았다.
+track: kr
+factor: earnings-yield
+date: 2026-08-30
+cagr: 4.68
+sharpe: 0.76
+mdd: -9.90
+---
+
 # Earnings Yield Factor Verification (2026-08-30)
 
 ## 실험: `EARNINGS-YIELD-VERIFICATION-KR-2026-08`
