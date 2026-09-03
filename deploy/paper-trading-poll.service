@@ -1,0 +1,24 @@
+[Unit]
+# 페이퍼 트레이딩 일별 폴링 (Paper Trading Engine 5단계) - pbr_value_v1·
+# lowmom60_v1 두 전략의 PENDING_ENTRY/OPEN 상태를 KIS 모의투자 계좌와
+# 동기화한다(research/strategy-lab/run_paper_trading_daily.py).
+# 상태 파일(research/strategy-lab/data/paper/*.json)은 이 VM 로컬에만
+# 남는다 - VM은 GitHub에 쓰지 않는다(AI협업구조 "정본을 쓰는 주체는
+# 하나다" 원칙 그대로).
+Description=Paper trading engine daily poll (pbr_value_v1, lowmom60_v1)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector/research/strategy-lab
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_paper_trading_daily.py
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/paper-trading-poll.log
+StandardError=append:/home/ubuntu/collector-venv/logs/paper-trading-poll.log
+
+# 자격증명은 EnvironmentFile이 가리키는 파일에만 있다. 여기 쓰지 않는다.
+NoNewPrivileges=yes
+PrivateTmp=yes
