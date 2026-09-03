@@ -31,6 +31,17 @@ def monthly_reb(dates):
     return out
 
 
+def january_rebalances(months):
+    """January first-session dates only.
+
+    The original filter was ``m.endswith("-01")``, which matches any date whose
+    DAY is 01 -- every monthly rebalance date in this panel. The
+    "non-overlapping annual" arm was therefore still overlapping (~6 windows a
+    year), so its t-stats treated overlapping observations as independent.
+    """
+    return [m for m in months if m[5:7] == "01"]
+
+
 def normd(s):
     s = str(s)
     if len(s) == 8 and s.isdigit():
@@ -198,7 +209,7 @@ def main():
         base = base[base["liquid"]].copy()
 
     # Annual rebalance dates (January first session each year)
-    annual_months = [m for m in months if m.endswith("-01")]
+    annual_months = january_rebalances(months)
     print(f"Annual rebalance dates: {annual_months}")
 
     a3_rev = build_a3_rev()
@@ -367,5 +378,19 @@ def main():
     print(f"\nTotal time: {time.time()-t0:.0f}s")
 
 
+def selftest():
+    ms = ["2016-01-04", "2016-02-01", "2016-06-01", "2016-12-01",
+          "2017-01-02", "2017-02-01", "2018-01-02"]
+    got = january_rebalances(ms)
+    assert got == ["2016-01-04", "2017-01-02", "2018-01-02"], got
+    # the old filter matched every first-of-month date, not January
+    assert [m for m in ms if m.endswith("-01")] != got
+    assert january_rebalances([]) == []
+    print("selftest ok (3 checks)")
+
+
 if __name__ == "__main__":
-    main()
+    if "--selftest" in sys.argv:
+        selftest()
+    else:
+        main()
