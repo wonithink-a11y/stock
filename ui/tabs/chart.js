@@ -3,14 +3,17 @@ window.TABS.chart = {
   title: "차트",
   render: async function (container) {
     try {
-      const res = await fetch("../data/positions.json");
+      // 경로는 문서 기준 상대경로다. "../data/..." 는 로컬(문서가 서버 루트)에서만
+      // 우연히 동작했다 - 배포본은 /stock/paper-trading/ 이라 "../" 가 /stock/data/
+      // 로 빠져나가 404 였다(2026-09-03 사용자 보고). 다른 탭과 같은 "data/..." 로 통일.
+      const res = await fetch("data/positions.json");
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
 
       // 벤치마크(KOSPI) - Beta·변동성 계산용, 없어도 포지션 화면 자체는
       // 떠야 하니 fail-soft(못 받으면 그 두 컬럼만 "-"로 표시).
       let kospiHistory = null;
-      for (const path of ["data/macro.json", "../data/macro.json", "ui/data/macro.json"]) {
+      for (const path of ["data/macro.json", "ui/data/macro.json"]) {
         try {
           const mRes = await fetch(path);
           if (!mRes.ok) continue;
@@ -23,13 +26,21 @@ window.TABS.chart = {
       // 종목명 조회 - 없어도(신규 상장 등 매핑 누락) 코드만 보이면 되니 fail-soft.
       let tickerNames = {};
       try {
-        const nRes = await fetch("../data/ticker-names.json");
+        const nRes = await fetch("data/ticker-names.json");
         if (nRes.ok) tickerNames = await nRes.json();
       } catch (e) { /* 코드만 표시 */ }
 
       renderChartTab(container, data, kospiHistory, tickerNames);
     } catch (e) {
-      container.innerHTML = '<div class="empty">데이터 로드 실패: ' + String(e && e.message || e) + "</div>";
+      const msg = String((e && e.message) || e);
+      // positions.json 은 KIS 모의계좌를 읽는 로컬 스크립트(build_ui_feed.py)가
+      // 만들고 .gitignore 대상이라 배포본에는 없을 수 있다. 그때 HTTP 404 원문만
+      // 띄우면 "화면이 깨졌다"로 읽힌다 - 무엇이 없는지 그대로 말한다(절대 규칙 1).
+      container.innerHTML = /404/.test(msg)
+        ? '<div class="empty">페이퍼 트레이딩 포지션 데이터(<code>data/positions.json</code>)가 이 배포본에 없습니다.<br>' +
+          'KIS 모의계좌를 조회하는 <code>research/strategy-lab/build_ui_feed.py</code> 가 로컬에서 만드는 파일이고, ' +
+          '아직 이걸 발행하는 워크플로가 없습니다.<br><span class="dim">다른 탭(스코어링·리서치랩·매크로·데이터 상태)은 정상 동작합니다.</span></div>'
+        : '<div class="empty">데이터 로드 실패: ' + msg + "</div>";
     }
   }
 };
