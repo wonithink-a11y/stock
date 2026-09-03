@@ -41,9 +41,14 @@ research/strategy-lab/data/crypto/
 # research-lab-ui.yml)가 갱신해 커밋한다(docs/data/macro.json을 macro.yml이
 # 커밋하는 것과 같은 패턴, 2026-08-30) - 로컬에서 매번 build 스크립트를 안
 # 돌려도 최신 상태를 git pull만으로 받게 하기 위한 의도적 예외.
+# positions.json도 같은 예외(2026-09-03) - 단 여기 자동 워크플로는 아직 없다.
+# 소스인 research/strategy-lab/data/paper/*.json(전략별 보유상태)는 실제 운영
+# 크론이 없는 한 계속 정적 테스트 픽스처라 커밋 안 함 - 로컬에서
+# build_ui_feed.py를 수동 실행해 만든 스냅샷만 발행한다.
 ui/data/*
 !ui/data/macro.json
 !ui/data/findings.json
+!ui/data/positions.json
 ui/orders/
 
 # 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.

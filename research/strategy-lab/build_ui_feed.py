@@ -84,7 +84,7 @@ def main():
         positions = []
         for symbol, pos in state.items():
             row = {"symbol": symbol, "status": pos["status"], "quantity": pos.get("quantity"),
-                   "history": history_by_symbol.get(symbol, [])}
+                   "intentDate": pos.get("intent_date"), "history": history_by_symbol.get(symbol, [])}
             h = holdings_by_symbol.get(symbol)
             if h:  # KIS가 실제로 보유 중으로 잡은 종목 - PENDING/SUBMITTED는 아직 없음
                 row.update({
