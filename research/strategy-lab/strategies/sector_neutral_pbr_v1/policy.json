@@ -1,24 +1,23 @@
 {
- "strategyId": "sector_neutral_pbr_growth_v1_top30",
+ "strategyId": "sector_neutral_pbr_v1",
  "version": "0.1",
- "note": "업종중립 팩터 sector_rel_pbr + sector_rel_growth_accel 를 실제 엔진에 연결한 것 - Tier 1 검증 설계를 재구현하는 것이지 새로 발명하는 게 아니다. 오프라인 랭킹 + 엔진 무변경(pbr_value_v1 패턴).",
+ "note": "업종중립 팩터 sector_rel_pbr 를 실제 엔진에 연결한 것 - Tier 1 검증 설계를 재구현하는 것이지 새로 발명하는 게 아니다. 오프라인 랭킹 + 엔진 무변경(pbr_value_v1 패턴).",
  "direction": "LONG_ONLY",
  "factor": {
   "note": "이 블록은 build_sector_neutral_selection.py 가 오프라인으로 읽는 설정이다 - engine/runner.py 는 모른다(선택이 selection.json 에 이미 구워져 있다).",
   "metrics": [
-   "sector_rel_pbr",
-   "sector_rel_growth_accel"
+   "sector_rel_pbr"
   ],
   "transform": "같은 달·같은 업종 내 백분위(업종 표본 5종목 미만 유보). 업종은 A1a 현재 분류라 엄밀히 PIT 아님",
-  "rankDirection": "sector_rel_pbr 낮을수록 좋음 / sector_rel_growth_accel 높을수록 좋음",
-  "selectionRule": "랭크합 상위 30개",
+  "rankDirection": "sector_rel_pbr 낮을수록 좋음",
+  "selectionRule": "랭크 상위 decile",
   "rebalanceFrequency": "monthly",
   "minTurnover20": 100000000,
   "minTurnoverNote": "절대 임계값 - 상대 tercile 아님(2026-08-21 사고 회피)",
   "sourcePanel": "research/strategy-lab/data/factor-panel/kr-monthly-v1.parquet"
  },
  "signal": {
-  "expression": "그 달 dv20>=1억 유니버스 안에서 업종중립 팩터(sector_rel_pbr, sector_rel_growth_accel) 랭크합 상위 - 오프라인 계산, selection.json 에 (ticker, date) 목록으로 저장",
+  "expression": "그 달 dv20>=1억 유니버스 안에서 업종중립 팩터(sector_rel_pbr) 랭크 상위 - 오프라인 계산, selection.json 에 (ticker, date) 목록으로 저장",
   "evaluatedAfter": "월별 리밸런싱일(패널의 각 월 첫 거래일)"
  },
  "entry": {
@@ -47,8 +46,8 @@
  "portfolio": {
   "initialCapital": 100000000,
   "currency": "KRW",
-  "maxPositions": 30,
-  "maxPositionsNote": "상위 30개만 고르는 축약판이라 슬롯 30 으로 충분하다.",
+  "maxPositions": 120,
+  "maxPositionsNote": "검증한 것은 '상위 decile 전체 동일가중'(월 최대 120종목)이다. 슬롯을 30 으로 두면 엔진이 티커 오름차순으로 잘라내 다른 전략이 되므로 최대 선택수 이상으로 잡았다.",
   "equalWeight": true,
   "fractionalShares": false,
   "sameDayCashReuse": false,

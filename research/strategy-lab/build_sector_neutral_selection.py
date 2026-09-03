@@ -34,7 +34,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(LAB))
 PANEL = os.path.join(LAB, "data", "factor-panel", "kr-monthly-v1.parquet")
 MANIFEST = os.path.join(LAB, "data", "factor-panel", "_manifest_kr_monthly.json")
 
-FACTORS = ["sector_rel_pbr", "sector_rel_growth_accel"]
+DEFAULT_FACTORS = ["sector_rel_pbr", "sector_rel_growth_accel"]
 TOP_QUANTILE = 0.9
 MIN_NAMES = 30
 FALLBACK_HOLD = 21
@@ -42,15 +42,26 @@ FALLBACK_HOLD = 21
 sys.path.insert(0, LAB)
 
 
-def build(top_n=0):
+def _rank_word(factors):
+    return "랭크합" if len(factors) > 1 else "랭크"
+
+
+def _rank_direction(factors):
+    """방향 문구를 손으로 쓰지 않는다 - manifest catalog 의 direction 을 그대로 읽는다."""
+    catalog = json.load(open(MANIFEST, encoding="utf-8"))["factors"]
+    return " / ".join(f"{f} {'낮을수록' if catalog[f]['direction'] == 'low' else '높을수록'} 좋음"
+                      for f in factors)
+
+
+def build(factors, top_n=0):
     import sweep_combos as sw
     from engine.data.calendar import TradingCalendar
 
     catalog = json.load(open(MANIFEST, encoding="utf-8"))["factors"]
     panel = pd.read_parquet(PANEL)
     # period=None -> 전 구간. 엔진은 2016~2026 을 한 번에 돈다.
-    R, FWD, TICK, months, M, W, names = sw.build_matrices(panel, catalog, FACTORS, None)
-    comp = R[[0, 1]].sum(axis=0)
+    R, FWD, TICK, months, M, W, names = sw.build_matrices(panel, catalog, factors, None)
+    comp = R.sum(axis=0)   # 축 1개면 그 축 그대로 (NaN 보존)
 
     picks = {}          # signal_date -> [ticker]
     for mi in range(M):
@@ -94,7 +105,7 @@ def build(top_n=0):
     return selection, picks, counts, reb
 
 
-def emit(strategy_id, selection, picks, counts, top_n):
+def emit(strategy_id, factors, selection, picks, counts, top_n):
     out_dir = os.path.join(LAB, "strategies", strategy_id)
     os.makedirs(out_dir, exist_ok=True)
     max_names = max(counts)
@@ -103,11 +114,13 @@ def emit(strategy_id, selection, picks, counts, top_n):
     with open(os.path.join(out_dir, "selection.json"), "w", encoding="utf-8") as f:
         json.dump({
             "generatedFrom": "build_sector_neutral_selection.py",
-            "factors": FACTORS,
+            "factors": factors,
             "rankingConvention": "sweep_combos.build_matrices - 팩터별 월내 pct-rank 후 "
-                                 "선택 팩터가 전부 있는 종목만(교집합), 방향 반영 랭크합",
-            "selectionRule": (f"랭크합 상위 {top_n}개" if top_n
-                              else f"랭크합 상위 {(1 - TOP_QUANTILE) * 100:.0f}% (decile)"),
+                                 "선택 팩터가 전부 있는 종목만(교집합), 방향 반영 랭크"
+                                 + ("합" if len(factors) > 1 else " (축 1개라 합산 없음)"),
+            "selectionRule": (f"{_rank_word(factors)} 상위 {top_n}개" if top_n
+                              else f"{_rank_word(factors)} 상위 "
+                                   f"{(1 - TOP_QUANTILE) * 100:.0f}% (decile)"),
             "sourcePanel": "data/factor-panel/kr-monthly-v1.parquet",
             "rebalanceMonths": len(picks),
             "avgSelectedPerMonth": round(float(np.mean(counts)), 1),
@@ -119,25 +132,27 @@ def emit(strategy_id, selection, picks, counts, top_n):
     policy = {
         "strategyId": strategy_id,
         "version": "0.1",
-        "note": "업종중립 PBR + 성장가속. findings/sector-neutral-pbr-growth-2026-09.md 의 "
-                "HOLD 후보를 실제 엔진에 연결한 것 - 그 검증 설계를 재구현하는 것이지 "
-                "새로 발명하는 게 아니다. 오프라인 랭킹 + 엔진 무변경(pbr_value_v1 패턴).",
+        "note": f"업종중립 팩터 {' + '.join(factors)} 를 실제 엔진에 연결한 것 - Tier 1 "
+                "검증 설계를 재구현하는 것이지 새로 발명하는 게 아니다. "
+                "오프라인 랭킹 + 엔진 무변경(pbr_value_v1 패턴).",
         "direction": "LONG_ONLY",
         "factor": {
             "note": "이 블록은 build_sector_neutral_selection.py 가 오프라인으로 읽는 설정이다 - "
                     "engine/runner.py 는 모른다(선택이 selection.json 에 이미 구워져 있다).",
-            "metrics": FACTORS,
+            "metrics": factors,
             "transform": "같은 달·같은 업종 내 백분위(업종 표본 5종목 미만 유보). "
                          "업종은 A1a 현재 분류라 엄밀히 PIT 아님",
-            "rankDirection": "sector_rel_pbr 낮을수록 / sector_rel_growth_accel 높을수록 좋음",
-            "selectionRule": (f"랭크합 상위 {top_n}개" if top_n else "랭크합 상위 decile"),
+            "rankDirection": _rank_direction(factors),
+            "selectionRule": (f"{_rank_word(factors)} 상위 {top_n}개" if top_n
+                              else f"{_rank_word(factors)} 상위 decile"),
             "rebalanceFrequency": "monthly",
             "minTurnover20": 100000000,
             "minTurnoverNote": "절대 임계값 - 상대 tercile 아님(2026-08-21 사고 회피)",
             "sourcePanel": "research/strategy-lab/data/factor-panel/kr-monthly-v1.parquet",
         },
         "signal": {
-            "expression": "그 달 dv20>=1억 유니버스 안에서 두 업종중립 팩터의 랭크합 상위 - "
+            "expression": f"그 달 dv20>=1억 유니버스 안에서 업종중립 팩터"
+                          f"({', '.join(factors)}) {_rank_word(factors)} 상위 - "
                           "오프라인 계산, selection.json 에 (ticker, date) 목록으로 저장",
             "evaluatedAfter": "월별 리밸런싱일(패널의 각 월 첫 거래일)",
         },
@@ -187,7 +202,7 @@ def emit(strategy_id, selection, picks, counts, top_n):
     with open(os.path.join(out_dir, "policy.json"), "w", encoding="utf-8") as f:
         json.dump(policy, f, ensure_ascii=False, indent=1)
 
-    rule = '''"""업종중립 PBR + 성장가속. 선택은 selection.json 에 이미 구워져 있다.
+    rule = '''"""업종중립 팩터 전략. 선택은 selection.json 에 이미 구워져 있다.
 
 build_sector_neutral_selection.py 가 생성한다 - 직접 고치지 말 것.
 pbr_value_v1/rule.py 와 같은 구조(오프라인 선택 + 정확한 holdSessions 전달).
@@ -260,23 +275,29 @@ def selftest():
             assert set(e) == {"date", "holdSessions"}
             assert isinstance(e["holdSessions"], int) and e["holdSessions"] > 0
             assert len(e["date"]) == 10 and e["date"][4] == "-"
-    assert FACTORS == ["sector_rel_pbr", "sector_rel_growth_accel"]
+    assert DEFAULT_FACTORS == ["sector_rel_pbr", "sector_rel_growth_accel"]
     print("selftest OK (selection 형태 계약 4건)")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--top-n", type=int, default=0, help="0 이면 상위 decile 전체")
+    ap.add_argument("--factors", default=",".join(DEFAULT_FACTORS),
+                    help="쉼표구분. 축 1개면 랭크합이 아니라 그 축 단독")
+    ap.add_argument("--id", dest="sid", default="",
+                    help="전략 디렉터리 이름 (기본: 2축 판 이름)")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         selftest()
         return 0
     selftest()
-    sid = f"sector_neutral_pbr_growth_v1{'_top' + str(a.top_n) if a.top_n else ''}"
-    selection, picks, counts, reb = build(a.top_n)
-    out_dir, max_pos, max_names = emit(sid, selection, picks, counts, a.top_n)
-    print(f"저장: {out_dir}")
+    factors = [f.strip() for f in a.factors.split(",") if f.strip()]
+    base = a.sid or "sector_neutral_pbr_growth_v1"
+    sid = f"{base}{'_top' + str(a.top_n) if a.top_n else ''}"
+    selection, picks, counts, reb = build(factors, a.top_n)
+    out_dir, max_pos, max_names = emit(sid, factors, selection, picks, counts, a.top_n)
+    print(f"저장: {out_dir}  (축 {len(factors)}개: {', '.join(factors)})")
     print(f"  리밸런스 {len(picks)}개월 ({reb[0]} ~ {reb[-1]})")
     print(f"  월평균 {np.mean(counts):.1f}종목 · 최대 {max_names}종목 · "
           f"연인원 {sum(counts):,}건 · 종목수 {len(selection):,}")

@@ -17,6 +17,7 @@ pbr_vs_ew_monthly_mtm.py 의 `schedule_with_monthly_mtm` 을 **그대로 import 
 
   python run_sector_neutral_mtm.py
 """
+import argparse
 import json
 import os
 import sys
@@ -31,9 +32,9 @@ from engine.portfolio.portfolio import PortfolioConfig  # noqa: E402
 from pbr_vs_ew_monthly_mtm import (  # noqa: E402  — 검증된 MTM 로직을 재사용한다
     schedule_with_monthly_mtm, curve_metrics, annual_returns_mtm, START, END, REPO_ROOT)
 
-STRATEGIES = ["sector_neutral_pbr_growth_v1",
-              "sector_neutral_pbr_growth_v1_top30",
-              "ew_benchmark_liquid_v1"]
+DEFAULT_STRATEGIES = ["sector_neutral_pbr_growth_v1",
+                      "sector_neutral_pbr_growth_v1_top30"]
+BENCHMARK = "ew_benchmark_liquid_v1"   # 항상 마지막에 붙는다 - 구간별 격차의 기준
 PERIODS = [("TRAIN", "2016-01-01", "2022-06-30"),
            ("VALID", "2022-07-01", "2024-01-01"),
            ("TEST", "2024-01-02", "2026-08-14")]
@@ -70,18 +71,25 @@ def sub_metrics(snaps, lo, hi):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("strategies", nargs="*", default=[],
+                    help=f"전략 id (기본: {' '.join(DEFAULT_STRATEGIES)})")
+    ap.add_argument("--tag", default="sector-neutral", help="리포트 디렉터리 이름 조각")
+    args = ap.parse_args()
+    strategies = (args.strategies or DEFAULT_STRATEGIES) + [BENCHMARK]
+
     out = {}
-    for sid in STRATEGIES:
+    for sid in strategies:
         snaps, _ = measure(sid)
         out[sid] = {"overall": curve_metrics(snaps),
                     "annual": annual_returns_mtm(snaps),
                     "byPeriod": {n: sub_metrics(snaps, lo, hi) for n, lo, hi in PERIODS},
                     "monthlySnapshots": len(snaps)}
 
-    bench = out["ew_benchmark_liquid_v1"]
+    bench = out[BENCHMARK]
     print(f"\n{'전략':<36}{'CAGR':>9}{'MDD':>9}{'Sharpe':>8}{'Calmar':>8}{'총수익':>10}")
     print("-" * 80)
-    for sid in STRATEGIES:
+    for sid in strategies:
         r = out[sid]["overall"]
         # curve_metrics 는 calmar 를 안 낸다 - 여기서 계산한다(없는 값을 0 으로 찍지 않는다)
         cal = r["cagr"] / abs(r["mdd"]) if r.get("mdd") else None
@@ -93,7 +101,7 @@ def main():
     print(f"\n구간별 (벤치마크 대비 CAGR 격차)")
     print(f"{'전략':<36}{'구간':<7}{'개월':>5}{'CAGR':>9}{'벤치':>9}{'격차':>9}{'MDD':>9}")
     print("-" * 88)
-    for sid in STRATEGIES[:-1]:
+    for sid in strategies[:-1]:
         for n, _, _ in PERIODS:
             p, b = out[sid]["byPeriod"].get(n), bench["byPeriod"].get(n)
             if not p or not b:
@@ -106,7 +114,7 @@ def main():
         print()
 
     out_dir = os.path.join(REPO_ROOT, "research", "strategy-lab", "reports",
-                           f"{time.strftime('%Y-%m-%d')}-sector-neutral-smoke")
+                           f"{time.strftime('%Y-%m-%d')}-{args.tag}-smoke")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "mtm.json")
     with open(path, "w", encoding="utf-8") as f:

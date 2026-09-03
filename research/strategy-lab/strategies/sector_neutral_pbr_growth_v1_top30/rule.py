@@ -1,4 +1,4 @@
-"""업종중립 PBR + 성장가속. 선택은 selection.json 에 이미 구워져 있다.
+"""업종중립 팩터 전략. 선택은 selection.json 에 이미 구워져 있다.
 
 build_sector_neutral_selection.py 가 생성한다 - 직접 고치지 말 것.
 pbr_value_v1/rule.py 와 같은 구조(오프라인 선택 + 정확한 holdSessions 전달).
