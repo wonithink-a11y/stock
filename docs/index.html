@@ -859,19 +859,21 @@ const FLOW_TREND_SERIES = ['외국인', '개인', '기관합계'];
 // 시장수급(renderFlows)·종목별 수급(renderFlowsTab) 둘 다 이 한 줄 형태를 쓴다 -
 // 한 그래프에 여러 구분을 욱여넣으면 안 읽힌다는 피드백으로 분리했다.
 function investorTrendRow(label, vals, dateLabels) {
-  const trendH = 40, barW = 8, barGap = 2;
+  // 0선을 가운데 두고 위=순매수·아래=순매도. 예전엔 0선이 바닥이라 음수 막대가
+  // 박스 밖으로 나가 세로 스크롤로만 보였다(막대 절반 높이로 줄여 둘 다 보인다).
+  const half = 20, barW = 8, barGap = 2;
   const trendMax = Math.max(...vals.map(v => Math.abs(v)), 1);
   const dayBars = vals.map((v, i) => {
-    const h = Math.max(2, Math.round(Math.abs(v) / trendMax * trendH));
-    const top = v >= 0 ? trendH - h : trendH;
-    return `<div style="width:${barW}px;height:${trendH}px;position:relative" title="${esc(dateLabels[i])} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
+    const h = Math.max(2, Math.round(Math.abs(v) / trendMax * half));
+    const top = v >= 0 ? half - h : half;
+    return `<div style="width:${barW}px;height:${half * 2}px;position:relative;flex-shrink:0" title="${esc(dateLabels[i])} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
       <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'};border-radius:1px"></div>
     </div>`;
   }).join('');
   const sum = vals.reduce((s, v) => s + v, 0);
   return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
     <div style="width:48px;font-size:13px;flex-shrink:0">${esc(label)}</div>
-    <div style="display:flex;align-items:flex-end;gap:${barGap}px;height:${trendH}px;border-bottom:1px solid var(--border);overflow-x:auto">${dayBars}</div>
+    <div style="display:flex;align-items:flex-start;gap:${barGap}px;height:${half * 2}px;overflow-x:auto;background:linear-gradient(var(--border),var(--border)) 0 50%/100% 1px no-repeat">${dayBars}</div>
     <div class="${sum >= 0 ? 'pos' : 'neg'}" style="min-width:84px;text-align:right;flex-shrink:0">${sum >= 0 ? '+' : ''}${fmtEok(sum)}</div>
   </div>`;
 }
