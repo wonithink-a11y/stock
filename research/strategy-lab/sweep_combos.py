@@ -572,7 +572,7 @@ def main():
                          "다른 모든 팩터를 압도하는데, 2026-08-21에 확인된 '유동성이 팩터보다 "
                          "강한 예측변수' 함정과 같은 현상이라 그 아래를 보려면 떼고 돌려야 한다")
     ap.add_argument("--top", type=int, default=25)
-    ap.add_argument("--out", default=None)
+    ap.add_argument("--out", default=None, help="산출물을 쓸 **디렉터리**(파일 경로 아님). 기본 reports/<날짜>-combo-sweep")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--compare-convention", default=None)
     a = ap.parse_args()
