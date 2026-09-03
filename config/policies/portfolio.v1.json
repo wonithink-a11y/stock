@@ -1,10 +1,12 @@
 {
   "version": "PF-1.0",
   "status": "DRAFT_NOT_ADOPTED",
-  "statusNote": "registry 에 등록하지 않았다 = 발효 안 됨. 손절·목표 값은 측정으로 기각됐다 - research/strategy-lab/findings/portfolio-exit-policy-validation-2026-09.md. 이 파일은 '무엇이 정해졌나'가 아니라 '무엇이 아직 안 정해졌나'의 기록이다.",
+  "statusNote": "registry 에 등록하지 않았다 = 발효 안 됨. 2026-09-04 에 두 계층(거래단위·실제엔진)으로 실측했고 초안 숫자는 어느 쪽에서도 최선이 아니었다. 이 파일은 '무엇이 정해졌나'가 아니라 '무엇이 측정됐고 무엇이 아직 안 정해졌나'의 기록이다. 값을 확정하려면 OOS(TRAIN/VALID/TEST) 검증이 먼저다.",
   "measured": {
-    "risk.stopMultiple/rewardRisk/maxHoldingSessions": "REJECT - 60점 격자 평균 14위, 같은 보유기간 무손절보다 기대값이 낮다. TRAIN 에서 값을 고를 수 없고(무작위 진입 순위상관 ~0) 격자를 넓히면 '손절 없음'으로 단조 수렴한다.",
-    "sizing.riskPerTradePct/maxPositionPct": "UNTESTED - 거래단위 시뮬레이터로는 못 잰다. 포트폴리오 회계(실제 엔진)가 필요하다.",
+    "risk.stopMultiple/rewardRisk": "초안값(2xATR/RR3.0) REJECT, 단 두 계층 판정이 갈린다. Tier 1.5(거래단위, portfolio-exit-policy-validation-2026-09.md): 손절이 기대값을 절반 깎아 무손절이 최선. Tier 2(실제 엔진, portfolio-tier2-exit-sizing-2026-09.md): 반대로 손절+목표가 CAGR·MDD 를 개선한다(자본 재투입 효과). 실제 엔진 쪽이 우리가 실제로 돌릴 형태이므로 그쪽을 믿되, 최선은 초안이 아니라 3xATR/RR1.0~1.5 다. OOS 미검증이라 값 확정은 아직 하지 않는다.",
+    "risk.maxHoldingSessions": "UNTESTED - Tier 2 는 전략의 selection.json 보유기간을 그대로 썼다(월별 리밸런싱). 21 이라는 값 자체는 안 쟀다.",
+    "sizing.riskPerTradePct": "REJECT - 균등위험 사이징은 수학적으로 역변동성(1/ATR%) 가중이고, 실제 엔진에서 CAGR 9.14->7.35% · MDD -12.80->-14.07% · Sharpe 0.7318->0.6473 · Calmar 0.714->0.522 로 네 지표 전부 악화했다. 균등금액이 낫다.",
+    "sizing.maxPositionPct": "UNTESTED - 20% 상한은 한 번도 안 걸어봤다.",
     "rebalance/benchmark": "UNTESTED - 선언값이다. 측정 대상이 아니라 평가의 자다."
   },
   "note": "종목별 손절가·목표가·수량 기준. 이 파일은 '무엇을 사라'가 아니라 '샀다면 어디서 자르고 어디서 덜어내는가'를 선언한다. 값은 research/strategy-lab/strategies/5dc_v1a_p/policy.json 의 risk 블록 관례를 그대로 가져온 것이다 - 새로 고른 숫자가 아니다.",
@@ -13,7 +15,7 @@
     "atrPeriod": 14,
     "atrSmoothing": "wilder",
     "atrSmoothingNote": "engine/indicators/atr.py 와 같은 정의. 단순 SMA 가 아니다 - 둘 다 'ATR' 로 불리므로 명시한다.",
-    "stopMultipleNote": "★ 이 값은 검증에서 기각됐다. 남겨 둔 이유는 대시보드가 '지금 규칙대로면 어디서 잘리나'를 보여줄 기준이 있어야 하기 때문이지 이 값이 좋아서가 아니다. 손절값은 성능으로 고르는 값이 아니라 감내할 손실 상한으로 선언하는 값이다(위 findings 판정).",
+    "stopMultipleNote": "★ 이 값(2.0)은 실측에서 최선이 아니었다. 실제 엔진 기준 3.0 근처가 낫다(Calmar 0.260->0.714). 아직 안 바꾼 이유는 OOS 검증 전에 사후 최적값을 정책에 박으면 이 프로젝트가 반복해 겪은 look-ahead 함정이 되기 때문이다. 대시보드는 이 값으로 '지금 규칙대로면 어디서 잘리나'만 보여준다.",
     "stopMultiple": 2.0,
     "stopFormula": "stop = price - 2 * ATR14",
     "rewardRisk": 3.0,

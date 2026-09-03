@@ -52,13 +52,20 @@ def _month_end_dates(calendar, start, end):
     return sorted(out)
 
 
-def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar, start, end):
+def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar, start, end,
+                              weight_fn=None):
     """Verbatim copy of engine/runner.py's _schedule_portfolio() day-loop
     (same-bar retry included, unmodified logic) with one addition: at each
     month-end trading date, snapshot portfolio.equity() using that date's
     close prices for whatever is currently open - independent of when any
     position's own exit event (possibly years later, post-merge) happens to
-    fall."""
+    fall.
+
+    weight_fn: 선택. (order, entry_fill, risk_spec, atr) -> float 를 주면 그 날
+    편입되는 종목들 사이의 상대 비중으로 쓴다(engine Portfolio.process_day 의
+    opt-in weights 인자를 그대로 통과시킬 뿐, 이 함수는 비중을 해석하지 않는다).
+    None(기본)이면 process_day 에 None 이 그대로 가서 기존 동일가중 동작과
+    바이트 단위로 같다 - 2026-09-04 균등위험 사이징 검증에서 추가."""
     portfolio = Portfolio(portfolio_cfg)
     close_lookup = _build_close_lookup(bars_by_ticker)
 
@@ -89,8 +96,13 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
                 exits_today.append((order.symbol, exit_fill, shares))
             elif order.order_date == date:
                 same_bar_exit_candidates.append((order.symbol, exit_fill))
-        candidates_today = [(order, entry_fill) for (_, order, entry_fill, _, _, _) in by_entry_date.get(date, [])]
-        portfolio.process_day(date, exits_today, candidates_today)
+        entries_today = by_entry_date.get(date, [])
+        candidates_today = [(order, entry_fill) for (_, order, entry_fill, _, _, _) in entries_today]
+        weights = None
+        if weight_fn is not None:
+            weights = {order.symbol: weight_fn(order, entry_fill, risk_spec, atr)
+                       for (_, order, entry_fill, _, risk_spec, atr) in entries_today}
+        portfolio.process_day(date, exits_today, candidates_today, weights=weights)
 
         if same_bar_exit_candidates:
             same_bar_exits_admitted = [

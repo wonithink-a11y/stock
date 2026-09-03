@@ -1,0 +1,85 @@
+{
+ "generatedAt": "2026-09-04T03:11:54",
+ "rows": [
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "C 균등금액 (기존)",
+   "stopMultiple": 3.0,
+   "rewardRisk": 1.5,
+   "weightMode": "equalWeight",
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 252421472,
+    "totalReturn": 1.5242,
+    "cagr": 0.0914,
+    "mdd": -0.128,
+    "sharpe": 0.7318
+   },
+   "annualReturns": {
+    "2016": 0.0253,
+    "2017": 0.0198,
+    "2018": 0.0367,
+    "2019": 0.096,
+    "2020": 0.3309,
+    "2021": 0.2349,
+    "2022": 0.0659,
+    "2023": 0.0716,
+    "2024": -0.1018,
+    "2025": 0.2508,
+    "2026": 0.0075
+   },
+   "closedPositionCount": 2079,
+   "exitKinds": {
+    "STOP": 883,
+    "TIME_EXIT": 458,
+    "TARGET": 738
+   },
+   "elapsedSeconds": 861.9
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "C 균등위험 (1/ATR%)",
+   "stopMultiple": 3.0,
+   "rewardRisk": 1.5,
+   "weightMode": "equalrisk",
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 211803261,
+    "totalReturn": 1.118,
+    "cagr": 0.0735,
+    "mdd": -0.1407,
+    "sharpe": 0.6473
+   },
+   "annualReturns": {
+    "2016": 0.0145,
+    "2017": 0.0052,
+    "2018": 0.0098,
+    "2019": 0.0469,
+    "2020": 0.3128,
+    "2021": 0.2185,
+    "2022": 0.0511,
+    "2023": 0.0416,
+    "2024": -0.1033,
+    "2025": 0.23,
+    "2026": 0.017
+   },
+   "closedPositionCount": 2079,
+   "exitKinds": {
+    "STOP": 883,
+    "TIME_EXIT": 458,
+    "TARGET": 738
+   },
+   "elapsedSeconds": 671.1
+  }
+ ]
+}

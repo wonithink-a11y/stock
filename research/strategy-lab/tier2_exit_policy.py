@@ -53,6 +53,31 @@ VARIANTS = [
 
 NO_TARGET_RR = 99.0      # 도달 불가 = 목표 없음 (엔진에 '목표 없음' 타입이 없다)
 
+# 사이징 — PF-1.0 의 '균등금액이 아니라 균등위험' 주장을 잰다.
+#   수량 = 자본 x r / 손절폭  ->  금액 = (자본 x r) x 진입가/손절폭
+#   즉 비중 ∝ 진입가/손절폭 = 1/(손절폭÷가격). 손절폭이 k×ATR 이면 1/ATR% 다.
+#   ★ 그러므로 균등위험 사이징은 수학적으로 **역변동성 가중**이다(추정치만 ATR%).
+#   무손절 변형에서는 손절폭이 가격×100 이라 비중이 전부 같아져 동일가중으로
+#   퇴화한다 - 그래서 사이징 비교는 손절이 실제로 걸린 변형에서만 의미가 있다.
+SIZING_VARIANTS = [
+    ("C 균등금액 (기존)", 3.0, 1.5, None),
+    ("C 균등위험 (1/ATR%)", 3.0, 1.5, "equalrisk"),
+]
+
+
+def parse_variant(tok):
+    """'3.0:1.5' -> ('손절 3.0xATR + 목표 RR1.5', 3.0, 1.5, None). rr 이 none 이면 목표없음."""
+    sm, _, rr = tok.strip().partition(":")
+    sm = float(sm)
+    rr_v = None if rr.strip().lower() in ("none", "") else float(rr)
+    label = "손절 {}xATR + {}".format(sm, "목표없음" if rr_v is None else "목표 RR" + str(rr_v))
+    return (label, sm, rr_v, None)
+
+
+def equal_risk_weight(order, entry_fill, risk_spec, atr):
+    d = float(risk_spec.stop_distance)
+    return (float(entry_fill.fill_price) / d) if d > 0 else 0.0
+
 
 class _AtrMissing:
     """ATR 결측 건수를 세는 카운터. 결측을 조용히 무손절로 흘려보내지 않는다(교훈57)."""
@@ -95,7 +120,7 @@ def make_variant(base, stop_mult, rr, counter):
     )
 
 
-def measure(strategy_id, label, stop_mult, rr, start, end):
+def measure(strategy_id, label, stop_mult, rr, start, end, weight_mode=None):
     t0 = time.time()
     base = load_strategy(strategy_id, REPO_ROOT)
     counter = _AtrMissing()
@@ -108,16 +133,18 @@ def measure(strategy_id, label, stop_mult, rr, start, end):
         equal_weight=p["portfolio"]["equalWeight"],
         fractional_shares=p["portfolio"]["fractionalShares"],
         tie_break=p["portfolio"]["tieBreak"])
+    wf = equal_risk_weight if weight_mode == "equalrisk" else None
     portfolio, snaps = schedule_with_monthly_mtm(
-        run["resolved"], cfg, run["bars_by_ticker"], run["calendar"], start, end)
+        run["resolved"], cfg, run["bars_by_ticker"], run["calendar"], start, end, weight_fn=wf)
     m = curve_metrics(snaps)
+    # closed_positions 는 dict 다(객체가 아니다). 청산 유형은 exit Fill 의 fill_type.
     kinds = {}
     for pos in portfolio.closed_positions:
-        k = getattr(pos, "exit_reason", None) or getattr(pos, "exit_type", "?")
+        k = getattr(pos["exit"], "fill_type", "?")
         kinds[str(k)] = kinds.get(str(k), 0) + 1
     return {
         "strategyId": strategy_id, "variant": label,
-        "stopMultiple": stop_mult, "rewardRisk": rr,
+        "stopMultiple": stop_mult, "rewardRisk": rr, "weightMode": weight_mode or "equalWeight",
         "period": start + " ~ " + end,
         "accountingMethod": "monthly mark-to-market",
         "atrPeriod": ATR_PERIOD, "atrSmoothing": "wilder",
@@ -148,6 +175,10 @@ def main():
     ap.add_argument("--strategies", default="pbr_value_v1,composite_ey_rv60_equal_weight")
     ap.add_argument("--start", default="2016-01-01")
     ap.add_argument("--end", default="2026-08-14")
+    ap.add_argument("--variants", default="",
+                    help="격자를 직접 지정: '3.0:1.5,4.0:1.5,6.0:1.5' (rr 에 none 이면 목표없음)")
+    ap.add_argument("--sizing", action="store_true",
+                    help="청산 대신 사이징(균등금액 vs 균등위험)을 잰다")
     ap.add_argument("--calibrate", action="store_true",
                     help="변형 A(무손절)만 돌려 기존 baseline 수치를 재현하는지 확인")
     ap.add_argument("--out", default="")
@@ -157,14 +188,21 @@ def main():
         return selftest()
     selftest(quiet=True)
 
-    variants = VARIANTS[:1] if a.calibrate else VARIANTS
+    if a.calibrate:
+        variants = [v + (None,) for v in VARIANTS[:1]]
+    elif a.sizing:
+        variants = SIZING_VARIANTS
+    elif a.variants:
+        variants = [parse_variant(tok) for tok in a.variants.split(",")]
+    else:
+        variants = [v + (None,) for v in VARIANTS]
     rows = []
     os.makedirs(OUT_DIR, exist_ok=True)
     out = a.out or os.path.join(OUT_DIR, "tier2-exit-policy.json")
     for sid in a.strategies.split(","):
-        for label, sm, rr in variants:
+        for label, sm, rr, wm in variants:
             print("[{}] {} / {} ...".format(time.strftime("%H:%M:%S"), sid, label), flush=True)
-            r = measure(sid, label, sm, rr, a.start, a.end)
+            r = measure(sid, label, sm, rr, a.start, a.end, wm)
             rows.append(r)
             m = r["resultTable"]
             print("    CAGR {:.2%}  MDD {:.2%}  Sharpe {:.4f}  청산 {}  ({}s)".format(
@@ -216,8 +254,35 @@ def selftest(quiet=False):
     assert "atr" in f.columns and abs(f["atr"].iloc[-1] - 2.0) < 1e-9, f["atr"].iloc[-1]
 
     assert len(VARIANTS) == 5 and VARIANTS[0][1] is None
+    assert len(SIZING_VARIANTS) == 2 and SIZING_VARIANTS[0][3] is None
+
+    # 균등위험 비중 = 진입가/손절폭. 손절폭이 2xATR 이면 1/(2·ATR%) 에 비례한다.
+    class _RS:
+        stop_distance = 50.0
+    class _EF:
+        fill_price = 1000.0
+    assert equal_risk_weight(None, _EF(), _RS(), 25.0) == 20.0
+    class _RS0:
+        stop_distance = 0.0
+    assert equal_risk_weight(None, _EF(), _RS0(), 0.0) == 0.0
+    assert parse_variant("4.0:1.5") == ("손절 4.0xATR + 목표 RR1.5", 4.0, 1.5, None)
+    assert parse_variant("6.0:none")[2] is None and parse_variant("6.0:none")[1] == 6.0
+    # 무손절(가격x100)이면 종목과 무관하게 비중이 1/100 로 같다 = 동일가중 퇴화
+    class _RSHuge:
+        stop_distance = 1000.0 * 100
+    class _EF2:
+        fill_price = 7000.0
+    class _RSHuge2:
+        stop_distance = 7000.0 * 100
+    assert equal_risk_weight(None, _EF(), _RSHuge(), 0.0) ==            equal_risk_weight(None, _EF2(), _RSHuge2(), 0.0)
+
+    # closed_positions 는 dict 다 - getattr(pos, ...) 로는 영원히 "?" 가 나온다(초판 결함)
+    class _F:
+        fill_type = "STOP"
+    assert getattr({"exit": _F()}["exit"], "fill_type", "?") == "STOP"
+
     if not quiet:
-        print("selftest ok (9건)")
+        print("selftest ok (16건)")
 
 
 if __name__ == "__main__":

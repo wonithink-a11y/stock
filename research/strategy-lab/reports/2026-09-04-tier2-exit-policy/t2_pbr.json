@@ -1,0 +1,190 @@
+{
+ "generatedAt": "2026-09-04T02:45:12",
+ "rows": [
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "A 무손절-무목표 (기존)",
+   "stopMultiple": null,
+   "rewardRisk": null,
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 176006040,
+    "totalReturn": 0.7601,
+    "cagr": 0.0549,
+    "mdd": -0.2109,
+    "sharpe": 0.5189
+   },
+   "annualReturns": {
+    "2016": 0.0905,
+    "2017": -0.0016,
+    "2018": -0.029,
+    "2019": 0.0275,
+    "2020": 0.1421,
+    "2021": 0.1798,
+    "2022": -0.0179,
+    "2023": 0.0617,
+    "2024": -0.0403,
+    "2025": 0.1953,
+    "2026": 0.0055
+   },
+   "closedPositionCount": 777,
+   "exitKinds": {
+    "?": 777
+   },
+   "elapsedSeconds": 522.7
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "B 손절 2xATR + 목표 RR3",
+   "stopMultiple": 2.0,
+   "rewardRisk": 3.0,
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 187994636,
+    "totalReturn": 0.8799,
+    "cagr": 0.0615,
+    "mdd": -0.1683,
+    "sharpe": 0.5006
+   },
+   "annualReturns": {
+    "2016": -0.0089,
+    "2017": -0.0179,
+    "2018": -0.0065,
+    "2019": 0.0636,
+    "2020": 0.3775,
+    "2021": 0.178,
+    "2022": 0.0413,
+    "2023": 0.0839,
+    "2024": -0.1515,
+    "2025": 0.2208,
+    "2026": -0.0366
+   },
+   "closedPositionCount": 2392,
+   "exitKinds": {
+    "?": 2392
+   },
+   "elapsedSeconds": 724.6
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "C 손절 3xATR + 목표 RR1.5",
+   "stopMultiple": 3.0,
+   "rewardRisk": 1.5,
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 252421472,
+    "totalReturn": 1.5242,
+    "cagr": 0.0914,
+    "mdd": -0.128,
+    "sharpe": 0.7318
+   },
+   "annualReturns": {
+    "2016": 0.0253,
+    "2017": 0.0198,
+    "2018": 0.0367,
+    "2019": 0.096,
+    "2020": 0.3309,
+    "2021": 0.2349,
+    "2022": 0.0659,
+    "2023": 0.0716,
+    "2024": -0.1018,
+    "2025": 0.2508,
+    "2026": 0.0075
+   },
+   "closedPositionCount": 2079,
+   "exitKinds": {
+    "?": 2079
+   },
+   "elapsedSeconds": 520.6
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "D 손절 2xATR + 목표없음",
+   "stopMultiple": 2.0,
+   "rewardRisk": null,
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 160878685,
+    "totalReturn": 0.6088,
+    "cagr": 0.046,
+    "mdd": -0.2066,
+    "sharpe": 0.3826
+   },
+   "annualReturns": {
+    "2016": 0.0282,
+    "2017": -0.0483,
+    "2018": 0.0002,
+    "2019": 0.0126,
+    "2020": 0.3567,
+    "2021": 0.1329,
+    "2022": 0.0436,
+    "2023": 0.0788,
+    "2024": -0.1846,
+    "2025": 0.2207,
+    "2026": -0.0574
+   },
+   "closedPositionCount": 2120,
+   "exitKinds": {
+    "?": 2120
+   },
+   "elapsedSeconds": 719.0
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "E 손절 3xATR + 목표없음",
+   "stopMultiple": 3.0,
+   "rewardRisk": null,
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 210508018,
+    "totalReturn": 1.1051,
+    "cagr": 0.0729,
+    "mdd": -0.1848,
+    "sharpe": 0.5501
+   },
+   "annualReturns": {
+    "2016": 0.0364,
+    "2017": 0.0006,
+    "2018": 0.0031,
+    "2019": 0.0094,
+    "2020": 0.3247,
+    "2021": 0.2008,
+    "2022": 0.0867,
+    "2023": 0.0702,
+    "2024": -0.1266,
+    "2025": 0.2307,
+    "2026": 0.0082
+   },
+   "closedPositionCount": 1550,
+   "exitKinds": {
+    "?": 1550
+   },
+   "elapsedSeconds": 742.1
+  }
+ ]
+}

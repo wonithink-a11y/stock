@@ -1,0 +1,125 @@
+{
+ "generatedAt": "2026-09-04T03:19:32",
+ "rows": [
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "손절 4.0xATR + 목표 RR1.5",
+   "stopMultiple": 4.0,
+   "rewardRisk": 1.5,
+   "weightMode": "equalWeight",
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 261764691,
+    "totalReturn": 1.6176,
+    "cagr": 0.0952,
+    "mdd": -0.1488,
+    "sharpe": 0.7436
+   },
+   "annualReturns": {
+    "2016": 0.0155,
+    "2017": 0.0323,
+    "2018": 0.0185,
+    "2019": 0.096,
+    "2020": 0.3524,
+    "2021": 0.1869,
+    "2022": 0.0869,
+    "2023": 0.0703,
+    "2024": -0.0615,
+    "2025": 0.2381,
+    "2026": 0.0311
+   },
+   "closedPositionCount": 1554,
+   "exitKinds": {
+    "STOP": 512,
+    "TIME_EXIT": 569,
+    "TARGET": 473
+   },
+   "elapsedSeconds": 856.3
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "손절 6.0xATR + 목표 RR1.5",
+   "stopMultiple": 6.0,
+   "rewardRisk": 1.5,
+   "weightMode": "equalWeight",
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 253530781,
+    "totalReturn": 1.5353,
+    "cagr": 0.0919,
+    "mdd": -0.1873,
+    "sharpe": 0.7322
+   },
+   "annualReturns": {
+    "2016": 0.0225,
+    "2017": 0.0211,
+    "2018": 0.027,
+    "2019": 0.0678,
+    "2020": 0.3282,
+    "2021": 0.159,
+    "2022": 0.0645,
+    "2023": 0.0796,
+    "2024": -0.0311,
+    "2025": 0.2306,
+    "2026": 0.0497
+   },
+   "closedPositionCount": 1083,
+   "exitKinds": {
+    "STOP": 190,
+    "TIME_EXIT": 667,
+    "TARGET": 226
+   },
+   "elapsedSeconds": 664.4
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "손절 3.0xATR + 목표 RR1.0",
+   "stopMultiple": 3.0,
+   "rewardRisk": 1.0,
+   "weightMode": "equalWeight",
+   "period": "2016-01-01 ~ 2026-08-14",
+   "accountingMethod": "monthly mark-to-market",
+   "atrPeriod": 14,
+   "atrSmoothing": "wilder",
+   "atrMissingSignals": 0,
+   "riskSpecCalls": 3774,
+   "resultTable": {
+    "finalEquity": 226422090,
+    "totalReturn": 1.2642,
+    "cagr": 0.0803,
+    "mdd": -0.1093,
+    "sharpe": 0.6895
+   },
+   "annualReturns": {
+    "2016": 0.0103,
+    "2017": 0.0119,
+    "2018": 0.0235,
+    "2019": 0.085,
+    "2020": 0.3142,
+    "2021": 0.2461,
+    "2022": 0.0414,
+    "2023": 0.057,
+    "2024": -0.1057,
+    "2025": 0.212,
+    "2026": 0.0206
+   },
+   "closedPositionCount": 2470,
+   "exitKinds": {
+    "STOP": 857,
+    "TIME_EXIT": 359,
+    "TARGET": 1254
+   },
+   "elapsedSeconds": 472.9
+  }
+ ]
+}
