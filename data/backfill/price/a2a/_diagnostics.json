@@ -1,11 +1,11 @@
 {
   "stage": "A2a",
   "mode": "finalize",
-  "pricePolicy": "PR-1.2",
+  "pricePolicy": "PR-1.6",
   "environment": {
     "pykrx": "1.2.8",
     "pykrxRequired": "1.2.8",
-    "python": "3.11.15"
+    "python": "3.11.16"
   },
   "shardFiles": [
     "shard-0.jsonl",
@@ -18,16 +18,16 @@
     "shard-7.jsonl"
   ],
   "shardCount": 8,
-  "rowCount": 6131865,
-  "calendarStart": "2014-05-13",
-  "calendarEnd": "2026-08-03",
+  "rowCount": 6155484,
+  "calendarStart": "2014-01-02",
+  "calendarEnd": "2026-09-03",
   "actualDataFrom": "2014-05-13",
-  "actualDataTo": "2026-08-03",
+  "actualDataTo": "2026-09-03",
   "datesNotInCalendar": 0,
   "datesNotInCalendarSample": [],
-  "zeroVolumeTransitions": 139199,
+  "zeroVolumeTransitions": 141276,
   "suspendedGapTransitions": 2,
-  "comparableTransitions": 5990085,
+  "comparableTransitions": 6011628,
   "qualityExcluded": [
     {
       "ticker": "041920",
@@ -35,7 +35,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2014-10-07",
@@ -53,7 +53,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2014-12-16",
@@ -66,12 +66,30 @@
       ]
     },
     {
+      "ticker": "096610",
+      "name": "알에프세미",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 3000,
+      "violations": [
+        {
+          "date": "2026-09-02",
+          "prevDate": "2026-09-01",
+          "prevClose": 111,
+          "close": 195,
+          "change": 0.7568,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
       "ticker": "101970",
       "name": "우양에이치씨",
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 4,
-      "rowsDropped": 535,
+      "rowsDropped": 557,
       "violations": [
         {
           "date": "2015-03-10",
@@ -113,7 +131,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 2,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2014-12-22",
@@ -139,7 +157,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2014-12-17",
@@ -157,7 +175,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 1620,
+      "rowsDropped": 1642,
       "violations": [
         {
           "date": "2021-05-26",
@@ -175,7 +193,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2018-02-21",
@@ -193,7 +211,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2998,
+      "rowsDropped": 3000,
       "violations": [
         {
           "date": "2015-11-16",
@@ -211,7 +229,7 @@
       "market": "KOSDAQ",
       "reason": "TRANSIENT_PRICE_SPIKE",
       "violationCount": 1,
-      "rowsDropped": 2935,
+      "rowsDropped": 2957,
       "violations": [
         {
           "date": "2018-10-01",
@@ -229,7 +247,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2723,
+      "rowsDropped": 2745,
       "violations": [
         {
           "date": "2023-02-23",
@@ -247,7 +265,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2462,
+      "rowsDropped": 2484,
       "violations": [
         {
           "date": "2017-11-09",
@@ -265,7 +283,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2606,
+      "rowsDropped": 2628,
       "violations": [
         {
           "date": "2021-06-17",
@@ -283,7 +301,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2372,
+      "rowsDropped": 2394,
       "violations": [
         {
           "date": "2020-09-04",
@@ -301,7 +319,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 2443,
+      "rowsDropped": 2465,
       "violations": [
         {
           "date": "2021-02-16",
@@ -314,12 +332,30 @@
       ]
     },
     {
+      "ticker": "269620",
+      "name": "시스웍",
+      "market": "KOSDAQ",
+      "reason": "UNADJUSTED_CORPORATE_ACTION",
+      "violationCount": 1,
+      "rowsDropped": 2123,
+      "violations": [
+        {
+          "date": "2026-08-24",
+          "prevDate": "2026-08-21",
+          "prevClose": 4,
+          "close": 1,
+          "change": -0.75,
+          "kind": "UNADJUSTED_CORPORATE_ACTION"
+        }
+      ]
+    },
+    {
       "ticker": "270660",
       "name": "에브리봇",
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 2,
-      "rowsDropped": 2212,
+      "rowsDropped": 2234,
       "violations": [
         {
           "date": "2021-02-17",
@@ -345,7 +381,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 1869,
+      "rowsDropped": 1891,
       "violations": [
         {
           "date": "2020-07-21",
@@ -363,7 +399,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 879,
+      "rowsDropped": 901,
       "violations": [
         {
           "date": "2023-07-24",
@@ -381,7 +417,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 1,
-      "rowsDropped": 1176,
+      "rowsDropped": 1198,
       "violations": [
         {
           "date": "2023-04-27",
@@ -399,7 +435,7 @@
       "market": "KOSDAQ",
       "reason": "UNADJUSTED_CORPORATE_ACTION",
       "violationCount": 2,
-      "rowsDropped": 861,
+      "rowsDropped": 883,
       "violations": [
         {
           "date": "2023-12-28",
@@ -425,7 +461,7 @@
       "market": "KOSDAQ",
       "reason": "TRANSIENT_PRICE_SPIKE",
       "violationCount": 1,
-      "rowsDropped": 606,
+      "rowsDropped": 628,
       "violations": [
         {
           "date": "2025-12-30",
@@ -438,547 +474,563 @@
       ]
     }
   ],
-  "qualityExcludedCount": 20,
+  "qualityExcludedCount": 22,
   "qualityExcludedByReason": {
-    "UNADJUSTED_CORPORATE_ACTION": 18,
+    "UNADJUSTED_CORPORATE_ACTION": 20,
     "TRANSIENT_PRICE_SPIKE": 2
   },
-  "qualityExcludedRate": 0.00775,
-  "keptZeroVolumeTransitions": 134919,
-  "keptComparableTransitions": 5951099,
-  "rowsBeforeListedAt": 91499,
+  "qualityExcludedRate": 0.00853,
+  "keptZeroVolumeTransitions": 135321,
+  "keptComparableTransitions": 5968876,
+  "rowsBeforeListedAt": 90859,
   "tickersWithRowsBeforeListedAt": 89,
   "fetchFailedTickers": [],
-  "expectedRows": 6091963,
+  "expectedRows": 6110173,
   "missingRate": 0.00056,
   "perTickerMissingWorst": [
     {
       "ticker": "036220",
       "firstTraded": "2014-05-13",
-      "expected": 3000,
-      "got": 1069,
-      "missingRate": 0.6437
+      "expected": 3022,
+      "got": 1091,
+      "missingRate": 0.639
     },
     {
       "ticker": "198940",
       "firstTraded": "2014-08-12",
-      "expected": 2937,
-      "got": 1483,
-      "missingRate": 0.4951
+      "expected": 2959,
+      "got": 1505,
+      "missingRate": 0.4914
+    },
+    {
+      "ticker": "299900",
+      "firstTraded": "2018-12-20",
+      "expected": 1890,
+      "got": 1877,
+      "missingRate": 0.0069
+    },
+    {
+      "ticker": "031440",
+      "firstTraded": "2014-05-20",
+      "expected": 3017,
+      "got": 3000,
+      "missingRate": 0.0056
+    },
+    {
+      "ticker": "082640",
+      "firstTraded": "2014-06-10",
+      "expected": 3004,
+      "got": 3000,
+      "missingRate": 0.0013
     },
     {
       "ticker": "000020",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "000150",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "000270",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "000480",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "000650",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "0007J0",
       "firstTraded": "2026-04-02",
-      "expected": 83,
-      "got": 83,
+      "expected": 105,
+      "got": 105,
       "missingRate": 0.0
     },
     {
       "ticker": "000950",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001070",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001200",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001360",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001460",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001560",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001720",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "001810",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "002140",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "002290",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "002420",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "002700",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "002820",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003000",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003100",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003300",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003520",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003650",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "003850",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "004090",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "004360",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "004540",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "004770",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "004920",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "005090",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "005360",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "005670",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "005810",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "005940",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "006110",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "006360",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "006660",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "006920",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "007310",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "007570",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "007770",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "008260",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "008600",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     },
     {
       "ticker": "008970",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
-      "missingRate": 0.0
-    },
-    {
-      "ticker": "009240",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
-      "missingRate": 0.0
-    },
-    {
-      "ticker": "009440",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
-      "missingRate": 0.0
-    },
-    {
-      "ticker": "009680",
-      "firstTraded": "2014-05-15",
-      "expected": 2998,
-      "got": 2998,
+      "firstTraded": "2014-06-16",
+      "expected": 3000,
+      "got": 3000,
       "missingRate": 0.0
     }
   ],
-  "frontTruncatedTickers": 1471,
-  "frontTruncatedTickerDays": 2942,
+  "perTickerMissingOver": [
+    {
+      "ticker": "036220",
+      "firstTraded": "2014-05-13",
+      "expected": 3022,
+      "got": 1091,
+      "missingRate": 0.639
+    },
+    {
+      "ticker": "198940",
+      "firstTraded": "2014-08-12",
+      "expected": 2959,
+      "got": 1505,
+      "missingRate": 0.4914
+    }
+  ],
+  "frontTruncatedTickers": 1473,
+  "frontTruncatedTickerDays": 161427,
   "frontTruncatedWorst": [
     {
       "ticker": "000020",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "000150",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "000270",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "000480",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "000650",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "000950",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001070",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001200",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001360",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001460",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001560",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001720",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "001810",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "002140",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "002290",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "002420",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "002700",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "002820",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "003000",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     },
     {
       "ticker": "003100",
-      "firstTraded": "2014-05-15",
-      "missing": 2
+      "firstTraded": "2014-06-16",
+      "missing": 110
     }
   ],
-  "rowCountAfterExclusion": 6088578,
+  "rowCountAfterExclusion": 6106754,
   "acceptanceFails": [],
   "acceptanceWarns": [
-    "종목별 누락률 10% 초과 2종목"
+    "종목별 누락률 10% 초과 2종목 ['036220', '198940'] (장기 거래정지 가능 — 정상 시장 상태)"
   ],
   "acceptancePassed": true,
   "years": {
     "2014": {
-      "rows": 235298,
-      "rawBytes": 27699201,
-      "gzBytes": 4794388
+      "rows": 205071,
+      "rawBytes": 24149027,
+      "gzBytes": 4180193
     },
     "2015": {
-      "rows": 397174,
-      "rawBytes": 46924450,
-      "gzBytes": 8150454
+      "rows": 396678,
+      "rawBytes": 46884982,
+      "gzBytes": 8145553
     },
     "2016": {
-      "rows": 416395,
-      "rawBytes": 49182932,
-      "gzBytes": 8520166
+      "rows": 415903,
+      "rawBytes": 49143359,
+      "gzBytes": 8514680
     },
     "2017": {
-      "rows": 430394,
-      "rawBytes": 50797968,
-      "gzBytes": 8745257
+      "rows": 429905,
+      "rawBytes": 50756976,
+      "gzBytes": 8737930
     },
     "2018": {
-      "rows": 450703,
-      "rawBytes": 53258755,
-      "gzBytes": 9129423
+      "rows": 449971,
+      "rawBytes": 53187604,
+      "gzBytes": 9116183
     },
     "2019": {
-      "rows": 477112,
-      "rawBytes": 56205841,
-      "gzBytes": 9556910
+      "rows": 476374,
+      "rawBytes": 56138391,
+      "gzBytes": 9546120
     },
     "2020": {
-      "rows": 502360,
-      "rawBytes": 59297666,
-      "gzBytes": 10094151
+      "rows": 501616,
+      "rawBytes": 59231351,
+      "gzBytes": 10083849
     },
     "2021": {
-      "rows": 526720,
-      "rawBytes": 62450383,
-      "gzBytes": 10558747
+      "rows": 525976,
+      "rawBytes": 62386760,
+      "gzBytes": 10551558
     },
     "2022": {
-      "rows": 542526,
-      "rawBytes": 64069493,
-      "gzBytes": 10685175
+      "rows": 541788,
+      "rawBytes": 64005727,
+      "gzBytes": 10678675
     },
     "2023": {
-      "rows": 561273,
-      "rawBytes": 66246970,
-      "gzBytes": 11209214
+      "rows": 560538,
+      "rawBytes": 66181099,
+      "gzBytes": 11202569
     },
     "2024": {
-      "rows": 582886,
-      "rawBytes": 68623553,
-      "gzBytes": 11507242
+      "rows": 582154,
+      "rawBytes": 68563803,
+      "gzBytes": 11501771
     },
     "2025": {
-      "rows": 601869,
-      "rawBytes": 70803352,
-      "gzBytes": 11780599
+      "rows": 601143,
+      "rawBytes": 70743458,
+      "gzBytes": 11775219
     },
     "2026": {
-      "rows": 363868,
-      "rawBytes": 42843608,
-      "gzBytes": 7073272
+      "rows": 419637,
+      "rawBytes": 49395789,
+      "gzBytes": 8144957
     }
   },
-  "totalGzBytes": 121806266
+  "totalGzBytes": 122180609
 }
