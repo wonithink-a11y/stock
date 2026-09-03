@@ -39,7 +39,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install --quiet oci pandas requests
+        run: pip install --quiet oci pandas pyarrow requests
 
       - name: Selftest (네트워크 없음)
         run: |
