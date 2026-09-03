@@ -17,6 +17,12 @@ end at its last traded date; positions that cannot resolve a STOP/TARGET before
 data end are skipped by simulate_trade ("ran_out_of_bars") - same natural-end
 handling as the design's option (b). No forced TIME_EXIT is injected.
 """
+
+# --------------------------------------------------------------------------
+# 이 스크립트는 폐기된 실현손익 누적 회계(`eq += pnl`, 청산일에만 적립)를 쓴다 —
+# 미실현 낙폭이 곡선에 안 나타나 MDD를 얕게·Sharpe를 부풀린다(2026-08-22 발견).
+# **대체됐다: mtm_baseline.py (게다가 이 스크립트는 2026-08-16 CI 아티팩트를 필수 인자로 받아 지금 실행 자체가 안 되고, 그 경로는 2026-08-24 PRIMARY 승격으로 대체됐다). 이 스크립트의 절대 MDD·Sharpe를 인용하지 않는다.**
+# --------------------------------------------------------------------------
 import json
 import os
 import sys

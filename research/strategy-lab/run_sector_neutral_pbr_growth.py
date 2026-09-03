@@ -11,6 +11,12 @@ run_smoke() 는 진단만 반환하므로 CAGR/MDD/Sharpe 는 engine/metrics 로
 
   python run_sector_neutral_pbr_growth.py [--strategy <id>]
 """
+
+# --------------------------------------------------------------------------
+# 이 스크립트는 폐기된 실현손익 누적 회계(`eq += pnl`, 청산일에만 적립)를 쓴다 —
+# 미실현 낙폭이 곡선에 안 나타나 MDD를 얕게·Sharpe를 부풀린다(2026-08-22 발견).
+# **대체됐다: run_sector_neutral_mtm.py. 이 스크립트의 절대 MDD·Sharpe를 인용하지 않는다.**
+# --------------------------------------------------------------------------
 import argparse
 import json
 import os

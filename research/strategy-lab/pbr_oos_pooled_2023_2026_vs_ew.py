@@ -23,6 +23,7 @@ import pandas as pd  # noqa: E402
 from engine.runner import run_smoke, _schedule_portfolio, _drop_suspension_rows  # noqa: E402
 from engine.portfolio.portfolio import Portfolio, PortfolioConfig  # noqa: E402
 from engine.metrics.metrics import total_return, cagr, max_drawdown, sharpe, trade_stats  # noqa: E402
+from pbr_vs_ew_monthly_mtm import schedule_with_monthly_mtm, curve_metrics  # noqa: E402
 from engine.data.a2aProvider import A2aProvider  # noqa: E402
 from engine.data.calendar import TradingCalendar  # noqa: E402
 
@@ -70,6 +71,11 @@ def trades_from_portfolio(portfolio):
 
 
 def realized_metrics(portfolio):
+    """폐기된 회계 방식 - 대조용으로만 남긴다(결과표에 쓰지 않는다).
+
+    청산일에만 손익을 적립하므로 연속보유 포지션의 미실현 낙폭이 곡선에 안
+    나타나 MDD를 얕게, Sharpe를 부풀려 낸다(2026-08-22 발견).
+    """
     events = sorted((p["exit_date"], p["pnl"]) for p in portfolio.closed_positions)
     curve, eq = [], portfolio.config.initial_capital
     for d, pnl in events:
@@ -89,9 +95,11 @@ def run_pbr_engine_methodC():
         initial_capital=params["portfolio"]["initialCapital"], max_positions=params["portfolio"]["maxPositions"],
         equal_weight=params["portfolio"]["equalWeight"], fractional_shares=params["portfolio"]["fractionalShares"],
         tie_break=params["portfolio"]["tieBreak"])
-    portfolio = Portfolio(portfolio_cfg)
-    _schedule_portfolio(merged, portfolio, portfolio_cfg)
-    r = realized_metrics(portfolio)
+    # 월말 시가평가로 스케줄한다(_schedule_portfolio() 무수정 복제본 + 월말 스냅샷).
+    portfolio, snapshots = schedule_with_monthly_mtm(
+        merged, portfolio_cfg, base["bars_by_ticker"], base["calendar"], START, END)
+    r = curve_metrics(snapshots)
+    deprecated = realized_metrics(portfolio)
     t_stats = trade_stats(trades_from_portfolio(portfolio))
     print(f"  engine methodC resolved: {len(base['resolved'])} -> merged {len(merged)} trades ({time.time()-t0:.0f}s)")
     return {
@@ -100,6 +108,12 @@ def run_pbr_engine_methodC():
         "sharpe": round(r.get("sharpe"), 4) if r.get("sharpe") is not None else None,
         "tradeCount": t_stats.get("tradeCount"),
         "winRate": round(t_stats.get("winRate", 0), 4) if t_stats.get("winRate") is not None else None,
+        "accountingMethod": "monthly mark-to-market (schedule_with_monthly_mtm)",
+        "monthlySnapshotCount": len(snapshots),
+        "deprecatedRealizedPnL": {
+            "note": "폐기된 실현손익 누적 회계. 인용 금지 - 위 cagr/mdd/sharpe를 쓴다.",
+            **{k: (round(v, 4) if isinstance(v, float) else v) for k, v in deprecated.items()},
+        },
     }, portfolio
 
 

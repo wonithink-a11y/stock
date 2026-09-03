@@ -15,6 +15,8 @@ from datetime import date as _date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from engine.runner import run_smoke  # noqa: E402
+from engine.portfolio.portfolio import PortfolioConfig  # noqa: E402
+from pbr_vs_ew_monthly_mtm import schedule_with_monthly_mtm, curve_metrics, annual_returns_mtm  # noqa: E402
 from engine.metrics.metrics import total_return, cagr, max_drawdown, sharpe, sortino, calmar, trade_stats  # noqa: E402
 
 START = "2016-01-01"
@@ -41,6 +43,12 @@ def trades_from_portfolio(portfolio):
 
 
 def realized_pnl_metrics(portfolio):
+    """폐기된 회계 방식 - 참고·대조용으로만 남긴다(resultTable에 쓰지 않는다).
+
+    청산일에만 손익을 적립하므로 연속보유 포지션의 미실현 낙폭이 곡선에 전혀
+    안 나타난다. 곡선 시작점도 initial_capital이 아니라 '첫 청산 직후 자산'이라
+    totalReturn까지 어긋난다(2026-08-22 발견, run_pbr_value_v1은 2026-09-02 수정).
+    """
     events = sorted((p["exit_date"], p["pnl"]) for p in portfolio.closed_positions)
     curve, eq = [], portfolio.config.initial_capital
     for d, pnl in events:
@@ -62,9 +70,18 @@ def main():
     elapsed = time.time() - t0
 
     diag = result["diag"]
-    portfolio = result["portfolio"]
+    # run_smoke()가 이미 스케줄한 portfolio 대신 같은 로직으로 다시 스케줄하며
+    # 월말 시가평가 스냅샷을 받는다(_schedule_portfolio() 무수정 복제본).
+    params = result["params"]
+    portfolio_cfg = PortfolioConfig(
+        initial_capital=params["portfolio"]["initialCapital"], max_positions=params["portfolio"]["maxPositions"],
+        equal_weight=params["portfolio"]["equalWeight"], fractional_shares=params["portfolio"]["fractionalShares"],
+        tie_break=params["portfolio"]["tieBreak"])
+    portfolio, snapshots = schedule_with_monthly_mtm(
+        result["resolved"], portfolio_cfg, result["bars_by_ticker"], result["calendar"], START, END)
     trades = trades_from_portfolio(portfolio)
     t_stats = trade_stats(trades)
+    mtm = curve_metrics(snapshots)
     realized = realized_pnl_metrics(portfolio) or {}
 
     report = {
@@ -74,11 +91,15 @@ def main():
             "elapsedSeconds": round(elapsed, 1),
         },
         "diag": diag,
-        "resultTable": {
-            "finalEquity": realized.get("finalEquity"), "totalReturn": realized.get("totalReturn"),
-            "cagr": realized.get("cagr"), "mdd": realized.get("mdd"), "sharpe": realized.get("sharpe"),
-            "sortino": realized.get("sortino"), "calmar": realized.get("calmar"),
-            **t_stats,
+        "accountingMethod": "monthly mark-to-market (pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm)",
+        "resultTable": {**mtm, **t_stats},
+        "annualReturns": annual_returns_mtm(snapshots),
+        "monthlySnapshotCount": len(snapshots),
+        "openPositionCountAtEnd": len(portfolio.open_positions),
+        "deprecatedRealizedPnL": {
+            "note": "폐기된 실현손익 누적 회계. 인용 금지 - 위 resultTable을 쓴다. "
+                    "미실현 낙폭이 곡선에 안 나타나 MDD·Sharpe를 크게 왜곡한다.",
+            **{k: realized.get(k) for k in ("finalEquity", "totalReturn", "cagr", "mdd", "sharpe", "sortino", "calmar")},
         },
         "comparisonToSurvivorshipStudy": {
             "note": "dd252_survivorship_study.py의 MERGED 패널 d120 IC +0.0684 / monthly spread +0.0385 (NWT 2.08). "

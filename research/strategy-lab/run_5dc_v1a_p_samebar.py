@@ -9,6 +9,14 @@ strategy-lab engine's read-only A2a provider + local cache), writes nothing to
 git, and saves its report under reports/2026-08-22-convention-standardized-rerun/
 (since 2026-08-22 the frozen 2026-08-16 artifacts are never overwritten).
 """
+
+# --------------------------------------------------------------------------
+# 이 스크립트는 폐기된 실현손익 누적 회계(`eq += pnl`)를 **의도적으로** 유지한다 —
+# 냉동 baseline과 '같은 방법으로' A/B를 재는 것이 목적이라 회계를 바꾸면 비교가
+# 깨진다. **비교의 방향·차분은 유효하나 절대 MDD·Sharpe는 무효다**(2026-08-22
+# 발견, 실측 왜곡 배율은 보유기간이 정한다: PBR 4.9x · dd252 2.2x · LOWMOM60 2.1x
+# · foreign_flow5d 1.0x). 절대값이 필요하면 mtm_baseline.py로 다시 잰다.
+# --------------------------------------------------------------------------
 import sys
 import os
 import json
