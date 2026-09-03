@@ -815,6 +815,26 @@ Validated against
               바뀌었으므로 manifest 계약상 A5 재실행 대상이지만 그건 '실행'이라 별도
               사전 확인이다(등급 무관). 재실행 전까지 `data/backfill/scores/` 는
               2.2 로 채점된 값이다.
+              ★ 같은 세션 후속 — **재백필까지 완료**(사용자 GO, run 33734509133,
+              5분 21초, 커밋 `4f7cef7`). manifest 가 `registryVersion REG-1.7`,
+              레코드 `_meta.policies.criteria` 가 `2.3` 으로 찍혔다 — 위 (1) 근본
+              수정이 실제로 작동했다는 증거(하드코딩이었으면 2.2 해시가 찍혔다).
+              recordCount 1,254,759 · corpsIncomplete 0 · assembleFailed 0 ·
+              validateViolations 0(기존과 동일 격자, supplyDemand 유지). 표본
+              000020/2024-01-05 이 technical 7.6→**5.5**, fin 73.4→71.3 으로 반전
+              반영 확인. **실제 백필로 잰 Spearman IC 가 예측을 넘었다** —
+              TRAIN 0.0368(예측 0.0341) · VALID 0.0513(0.0390) · TEST
+              **0.0649**(0.0461), 2.2 baseline(0.0181/0.0023/0.0305) 대비 세 구간
+              전부 큰 폭 개선. finalScore·rawScore IC 가 소수 4자리까지 같아
+              riskPenalty 는 순위를 안 바꾼다. 검증 스크립트보다 수치가 높은 건
+              스크립트가 A2a 재구성 + MA60 워밍업 59일 필터로 표본이 작았기 때문
+              (104만 vs 113만). ★★ **함정 하나 생겨 같이 고쳤다** —
+              `kr_production_technical_macross_oos.js` 의 `maScoreTable` 이 criteria 를
+              그대로 읽으므로 2.3 승격 후에는 **"원본" 갈래가 곧 반전판**이고
+              "변형C: 반전" 이 옛 2.2 동작이다(라벨이 뒤집힌다). 라벨을
+              "criteria 그대로(KR-2.3) / MA크로스 제외 / MA크로스 반대 방향" 으로
+              고치고 실행 첫 줄에 로드한 criteria 경로·버전·표를 찍게 했다.
+              2.2 결론을 재확인하려면 registry 를 되돌리고 돌려야 한다.
   완료      ★ rev_yoy × PBR 라인 — REJECT, 판정 없던 라인 종결 (2026-09-03) —
               세션인수인계-2026-09-03-c.md §3 1번. 스크립트 12건(인수인계는 6건으로
               적었으나 실제 12건, 전부 커밋됨)이 있는데 findings·CLAUDE.md·인수인계

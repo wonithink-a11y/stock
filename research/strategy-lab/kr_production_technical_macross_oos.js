@@ -40,7 +40,13 @@ async function readJsonlGz(filePath, onLine) {
   }
 }
 
-const crit = loadCriteria('KR').criteria;
+const critEntry = loadCriteria('KR');
+const crit = critEntry.criteria;
+// ★ maScoreTable은 registry가 가리키는 criteria를 그대로 읽는다. KR-2.3(2026-09-03)
+//   승격으로 이 표 자체가 이미 반전판이므로, 아래 세 갈래의 이름을 "원본/반전"으로
+//   읽으면 안 된다 — "지금 criteria 그대로 / MA크로스 제외 / criteria의 반대"다.
+//   2.2에서 이 스크립트가 낸 결론(반전이 세 구간 다 낫다)을 재확인하려면
+//   registry를 2.2로 되돌리고 돌려야 한다.
 const maScoreTable = crit.technical.indicators.movingAverageCross.signals;
 const rsiZones = crit.technical.indicators.rsi.zones;
 const catWeights = crit.categoryWeights; // fundamental .35 / valuation .30 / technical .15 / supplyDemand .20
@@ -75,7 +81,8 @@ function split(date) {
 }
 
 async function main() {
-  console.log('A2a 가격이력 로드 중...');
+  console.log(`criteria: ${critEntry.path} (v${critEntry.version}) — maScoreTable=${JSON.stringify(maScoreTable)}`);
+console.log('A2a 가격이력 로드 중...');
   const byTicker = new Map();
   const priceFiles = fs.readdirSync(PRICE_DIR).filter(f => f.endsWith('.jsonl.gz')).sort();
   for (const f of priceFiles) {
@@ -149,9 +156,9 @@ async function main() {
   function report(subset, label) {
     console.log(`\n--- ${label} (n=${subset.length}) ---`);
     for (const [name, techField] of [
-      ['원본(MA크로스 포함)', 'techBaseline'],
+      [`criteria 그대로(KR-${critEntry.version})`, 'techBaseline'],
       ['변형B: MA크로스 제외', 'techExcludeMA'],
-      ['변형C: MA크로스 반전', 'techInvertMA'],
+      ['변형C: MA크로스 반대 방향', 'techInvertMA'],
     ]) {
       const pairs = [];
       const bucket = {};
