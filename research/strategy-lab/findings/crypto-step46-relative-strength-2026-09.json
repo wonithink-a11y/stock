@@ -1,0 +1,278 @@
+{
+ "design": {
+  "signal": "mom7 cross-sectional percentile rank (rs_pct)",
+  "portfolio": "top-K equal-weight, 1-day hold (r_1), daily rebalance",
+  "universe": [
+   "BTC",
+   "ETH",
+   "SOL",
+   "XRP",
+   "ADA",
+   "DOGE",
+   "DOT",
+   "ATOM",
+   "AVAX",
+   "LINK",
+   "NEAR",
+   "OP",
+   "UNI",
+   "1000PEPE",
+   "1000SHIB",
+   "AAVE",
+   "APT",
+   "BCH",
+   "BNB",
+   "FIL",
+   "INJ",
+   "LTC",
+   "SUI",
+   "TRX",
+   "WLD",
+   "XMR",
+   "ZEC",
+   "ARB"
+  ],
+  "trainEnd": "2024-04-30",
+  "validEnd": "2024-12-31"
+ },
+ "byK": {
+  "K5": {
+   "periodStats": {
+    "TRAIN": {
+     "n": 1584,
+     "cagr": 4.366,
+     "sharpe": 2.188,
+     "mdd": -0.7707
+    },
+    "VALID": {
+     "n": 245,
+     "cagr": 3.5932,
+     "sharpe": 2.424,
+     "mdd": -0.2752
+    },
+    "TEST": {
+     "n": 604,
+     "cagr": 0.0163,
+     "sharpe": 0.379,
+     "mdd": -0.6034
+    }
+   },
+   "symbolDistribution": {
+    "meanOfSymbolMeans": 0.00428,
+    "medianOfSymbolMeans": 0.00381,
+    "topContributor": "DOGE",
+    "topContributorMean": 0.01817,
+    "bottomContributor": "LTC",
+    "bottomContributorMean": -0.00209,
+    "pickFrequencyRange": [
+     0.063,
+     0.261
+    ]
+   },
+   "loo": {
+    "fullTestSharpe": 0.379,
+    "looRange": [
+     -0.056,
+     0.519
+    ],
+    "looSpan": 0.575,
+    "mostInfluentialExclusion": "ZEC"
+   },
+   "regimeStats": {
+    "bull_TRAIN": {
+     "n": 882,
+     "sharpe": 3.898,
+     "meanRet": 0.01087
+    },
+    "bull_VALID": {
+     "n": 155,
+     "sharpe": 2.231,
+     "meanRet": 0.005
+    },
+    "bull_TEST": {
+     "n": 301,
+     "sharpe": 1.558,
+     "meanRet": 0.003
+    },
+    "bear_TRAIN": {
+     "n": 702,
+     "sharpe": -0.127,
+     "meanRet": -0.00032
+    },
+    "bear_VALID": {
+     "n": 90,
+     "sharpe": 2.962,
+     "meanRet": 0.00478
+    },
+    "bear_TEST": {
+     "n": 303,
+     "sharpe": -0.75,
+     "meanRet": -0.00149
+    }
+   },
+   "costSensitivity": {
+    "10bp": {
+     "TRAIN": {
+      "cagr": 2.7289,
+      "sharpe": 1.818
+     },
+     "VALID": {
+      "cagr": 2.1921,
+      "sharpe": 1.931
+     },
+     "TEST": {
+      "cagr": -0.2948,
+      "sharpe": -0.131
+     }
+    },
+    "30bp": {
+     "TRAIN": {
+      "cagr": 0.7987,
+      "sharpe": 1.078
+     },
+     "VALID": {
+      "cagr": 0.5399,
+      "sharpe": 0.945
+     },
+     "TEST": {
+      "cagr": -0.6608,
+      "sharpe": -1.151
+     }
+    },
+    "50bp": {
+     "TRAIN": {
+      "cagr": -0.1336,
+      "sharpe": 0.337
+     },
+     "VALID": {
+      "cagr": -0.2582,
+      "sharpe": -0.041
+     },
+     "TEST": {
+      "cagr": -0.8371,
+      "sharpe": -2.171
+     }
+    }
+   }
+  },
+  "K7": {
+   "periodStats": {
+    "TRAIN": {
+     "n": 1584,
+     "cagr": 3.393,
+     "sharpe": 2.074,
+     "mdd": -0.7721
+    },
+    "VALID": {
+     "n": 245,
+     "cagr": 2.8053,
+     "sharpe": 2.252,
+     "mdd": -0.2803
+    },
+    "TEST": {
+     "n": 604,
+     "cagr": -0.0324,
+     "sharpe": 0.297,
+     "mdd": -0.549
+    }
+   },
+   "symbolDistribution": {
+    "meanOfSymbolMeans": 0.00348,
+    "medianOfSymbolMeans": 0.00286,
+    "topContributor": "DOGE",
+    "topContributorMean": 0.01269,
+    "bottomContributor": "ATOM",
+    "bottomContributorMean": -0.00165,
+    "pickFrequencyRange": [
+     0.091,
+     0.342
+    ]
+   },
+   "loo": {
+    "fullTestSharpe": 0.297,
+    "looRange": [
+     -0.055,
+     0.423
+    ],
+    "looSpan": 0.478,
+    "mostInfluentialExclusion": "ZEC"
+   },
+   "regimeStats": {
+    "bull_TRAIN": {
+     "n": 882,
+     "sharpe": 3.901,
+     "meanRet": 0.00975
+    },
+    "bull_VALID": {
+     "n": 155,
+     "sharpe": 2.028,
+     "meanRet": 0.00432
+    },
+    "bull_TEST": {
+     "n": 301,
+     "sharpe": 1.101,
+     "meanRet": 0.00206
+    },
+    "bear_TRAIN": {
+     "n": 702,
+     "sharpe": -0.209,
+     "meanRet": -0.00052
+    },
+    "bear_VALID": {
+     "n": 90,
+     "sharpe": 2.872,
+     "meanRet": 0.00436
+    },
+    "bear_TEST": {
+     "n": 303,
+     "sharpe": -0.492,
+     "meanRet": -0.00093
+    }
+   },
+   "costSensitivity": {
+    "10bp": {
+     "TRAIN": {
+      "cagr": 2.0523,
+      "sharpe": 1.675
+     },
+     "VALID": {
+      "cagr": 1.6441,
+      "sharpe": 1.732
+     },
+     "TEST": {
+      "cagr": -0.3286,
+      "sharpe": -0.233
+     }
+    },
+    "30bp": {
+     "TRAIN": {
+      "cagr": 0.4719,
+      "sharpe": 0.877
+     },
+     "VALID": {
+      "cagr": 0.2751,
+      "sharpe": 0.692
+     },
+     "TEST": {
+      "cagr": -0.6771,
+      "sharpe": -1.293
+     }
+    },
+    "50bp": {
+     "TRAIN": {
+      "cagr": -0.2912,
+      "sharpe": 0.079
+     },
+     "VALID": {
+      "cagr": -0.386,
+      "sharpe": -0.348
+     },
+     "TEST": {
+      "cagr": -0.8449,
+      "sharpe": -2.353
+     }
+    }
+   }
+  }
+ }
+}
