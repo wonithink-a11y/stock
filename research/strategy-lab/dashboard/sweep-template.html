@@ -50,6 +50,12 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.01em}
   font-size:12px;color:var(--ink-dim);border-left:2px solid var(--redline);
   padding:8px 12px;background:var(--panel);margin-bottom:26px;
 }
+.notes{margin:0 0 12px}
+.notes p{
+  font-size:12.5px;color:var(--ink);border-left:2px solid var(--signal);
+  padding:9px 13px;background:var(--panel);margin:0 0 6px;
+}
+.notes .when{font-family:var(--mono);color:var(--signal);margin-right:8px}
 
 /* ---------- main grid ---------- */
 .cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
@@ -174,6 +180,8 @@ footer p{margin:5px 0;max-width:88ch}
   <p class="sub" id="headline"></p>
 </header>
 
+<div class="notes" id="notes" hidden></div>
+
 <div class="verdict" id="verdict"></div>
 <p class="floornote" id="floornote"></p>
 
@@ -253,6 +261,14 @@ document.getElementById("runTag").textContent = DATA.method || "SWEEP";
 document.getElementById("periodTag").textContent = DATA.period + " 전용";
 document.getElementById("panelTag").textContent = DATA.panelVersion;
 document.getElementById("headline").textContent = DATA.headline;
+
+// 이 화면의 수치가 만들어진 뒤에 바뀐 판단을 위에 얹는다(--note). 데이터가
+// 아니라 사람이 붙인 메모라, 표를 다시 만들지 않고도 최신 상태를 남길 수 있다.
+if (DATA.notes && DATA.notes.length) {
+  const el = document.getElementById("notes");
+  el.hidden = false;
+  el.innerHTML = DATA.notes.map(t => `<p>${t}</p>`).join("");
+}
 
 const tested = DATA.gates.nEvaluations ?? DATA.gates.nCombosTested;
 const passN = rows.filter(r => r.t > bar95).length;

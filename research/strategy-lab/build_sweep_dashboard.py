@@ -59,7 +59,7 @@ def normalize(doc):
     return rows, chain
 
 
-def build(src_path, out_path=OUT):
+def build(src_path, out_path=OUT, notes=None):
     doc = json.load(open(src_path, encoding="utf-8"))
     rows, chain = normalize(doc)
     rows.sort(key=lambda r: (r["t"] is None, -(r["t"] or 0)))
@@ -102,6 +102,7 @@ def build(src_path, out_path=OUT):
     ]
 
     payload = {
+        "notes": list(notes or []),
         "period": doc["period"],
         "panelVersion": doc["panelVersion"],
         "method": "BEAM" if is_beam else f"전수 k≤{max(len(r['factors']) for r in rows) if rows else 0}",
@@ -154,6 +155,8 @@ def selftest():
     assert len(rows2) == 2 and len(chain2) == 2, (len(rows2), len(chain2))
     assert chain2[1]["added"] == "y" and chain2[1]["deltaT"] == 1.0
     assert "/*__DATA__*/" in open(TEMPLATE, encoding="utf-8").read(), "템플릿 자리표시자 없음"
+    tpl = open(TEMPLATE, encoding="utf-8").read()
+    assert 'id="notes"' in tpl and "DATA.notes" in tpl, "템플릿에 notes 슬롯이 없다"
     print("selftest OK (중복제거·결측필드·빔체인·템플릿 4건)")
 
 
@@ -161,6 +164,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=None)
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--note", action="append", default=[],
+                    help="헤드라인 아래에 얹을 메모(여러 번 줄 수 있다). 표가 만들어진 뒤에 "
+                         "바뀐 판단을 스윕 재실행 없이 남기는 용도.")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -168,7 +174,7 @@ def main():
         return 0
     selftest()
     src = a.src or latest_src()
-    out, payload = build(src, a.out)
+    out, payload = build(src, a.out, a.note)
     print(f"입력: {src}")
     print(f"저장: {out}  ({os.path.getsize(out) / 1024:.0f}KB)")
     print(f"  조합 {len(payload['results']):,}건 · 난수 바닥선 "
