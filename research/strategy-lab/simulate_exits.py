@@ -257,6 +257,26 @@ def selections_for(factors, period="TRAIN"):
     return out
 
 
+def random_selections_for(n, period="TRAIN", seed=0):
+    """종목선택 능력이 0인 대조군. 청산규칙이 '종목을 잘 골라서'가 아니라
+    규칙 자체로 이득을 주는지 보려면 이 바닥선이 필요하다(2026-09-02 난수 절차와 같은 취지).
+    유니버스는 팩터 유효성이 아니라 fwd1m 유효성(다음달 거래가능)으로만 잡는다 - 팩터 편향 없음."""
+    import sweep_combos as sw
+    catalog = json.load(open(MANIFEST_PATH, encoding="utf-8"))["factors"]
+    panel = pd.read_parquet(PANEL_PATH)
+    anchor = next(iter(catalog))
+    _, FWD, TICK, months, M, _, names = sw.build_matrices(panel, catalog, [anchor], period)
+    rng = np.random.default_rng(seed)
+    out = []
+    for mi in range(M):
+        v = np.where(~np.isnan(FWD[mi]))[0]
+        if len(v) < n:
+            continue
+        pick = rng.choice(v, size=n, replace=False)
+        out.append((months[mi], [names[c] for c in TICK[mi][pick] if c >= 0]))
+    return out
+
+
 def print_table(res, title):
     print(f"\n{title}")
     print(f"{'손절':>10} {'RR':>4} {'보유':>4} {'거래':>7} {'승률':>6} {'기대값':>8} "
@@ -348,6 +368,9 @@ def main():
     ap.add_argument("--build-cache", action="store_true")
     ap.add_argument("--out", default=None)
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--random-entries", type=int, default=None,
+                    help="종목선택 대조군: 매달 무작위 N종목 (팩터 대신)")
+    ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
 
     if a.selftest:
@@ -358,18 +381,23 @@ def main():
         build_ohlc_cache()
         print(f"저장: {OHLC_CACHE}")
         return 0
-    if not a.factors:
-        raise SystemExit("--factors 가 필요하다 (예: --factors pbr,growth_accel)")
+    if not a.factors and a.random_entries is None:
+        raise SystemExit("--factors 또는 --random-entries 가 필요하다")
 
-    factors = a.factors.split(",")
+    factors = a.factors.split(",") if a.factors else []
     t0 = time.time()
     print(f"A2a 일별 OHLC 적재 ...", flush=True)
     dates, tickers, O, H, L, C, ATR = load_ohlc()
     print(f"  {len(dates):,}일 x {len(tickers):,}종목  ({time.time() - t0:.0f}s)")
 
-    sel = selections_for(factors, a.period)
+    if a.random_entries is not None:
+        sel = random_selections_for(a.random_entries, a.period, a.seed)
+        label = f"무작위 {a.random_entries}종목 seed={a.seed}"
+    else:
+        sel = selections_for(factors, a.period)
+        label = "+".join(factors)
     n_names = np.mean([len(s[1]) for s in sel]) if sel else 0
-    print(f"종목선택({'+'.join(factors)}, {a.period}): {len(sel)}개 코호트, "
+    print(f"종목선택({label}, {a.period}): {len(sel)}개 코호트, "
           f"평균 {n_names:.0f}종목/월")
 
     if a.calibrate:

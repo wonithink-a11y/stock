@@ -1,0 +1,61 @@
+{
+  "version": "PF-1.0",
+  "status": "DRAFT_NOT_ADOPTED",
+  "statusNote": "registry 에 등록하지 않았다 = 발효 안 됨. 손절·목표 값은 측정으로 기각됐다 - research/strategy-lab/findings/portfolio-exit-policy-validation-2026-09.md. 이 파일은 '무엇이 정해졌나'가 아니라 '무엇이 아직 안 정해졌나'의 기록이다.",
+  "measured": {
+    "risk.stopMultiple/rewardRisk/maxHoldingSessions": "REJECT - 60점 격자 평균 14위, 같은 보유기간 무손절보다 기대값이 낮다. TRAIN 에서 값을 고를 수 없고(무작위 진입 순위상관 ~0) 격자를 넓히면 '손절 없음'으로 단조 수렴한다.",
+    "sizing.riskPerTradePct/maxPositionPct": "UNTESTED - 거래단위 시뮬레이터로는 못 잰다. 포트폴리오 회계(실제 엔진)가 필요하다.",
+    "rebalance/benchmark": "UNTESTED - 선언값이다. 측정 대상이 아니라 평가의 자다."
+  },
+  "note": "종목별 손절가·목표가·수량 기준. 이 파일은 '무엇을 사라'가 아니라 '샀다면 어디서 자르고 어디서 덜어내는가'를 선언한다. 값은 research/strategy-lab/strategies/5dc_v1a_p/policy.json 의 risk 블록 관례를 그대로 가져온 것이다 - 새로 고른 숫자가 아니다.",
+
+  "risk": {
+    "atrPeriod": 14,
+    "atrSmoothing": "wilder",
+    "atrSmoothingNote": "engine/indicators/atr.py 와 같은 정의. 단순 SMA 가 아니다 - 둘 다 'ATR' 로 불리므로 명시한다.",
+    "stopMultipleNote": "★ 이 값은 검증에서 기각됐다. 남겨 둔 이유는 대시보드가 '지금 규칙대로면 어디서 잘리나'를 보여줄 기준이 있어야 하기 때문이지 이 값이 좋아서가 아니다. 손절값은 성능으로 고르는 값이 아니라 감내할 손실 상한으로 선언하는 값이다(위 findings 판정).",
+    "stopMultiple": 2.0,
+    "stopFormula": "stop = price - 2 * ATR14",
+    "rewardRisk": 3.0,
+    "targetFormula": "target = price + 3 * (price - stop)",
+    "maxHoldingSessions": 21,
+    "timeExitNote": "21거래일(약 1개월) 안에 손절도 목표도 안 닿으면 종가 청산. 월별 리밸런싱 주기와 맞춘 값이다."
+  },
+
+  "sizing": {
+    "riskPerTradePct": 1.0,
+    "riskPerTradeNote": "1회 거래에서 손절에 닿았을 때 계좌 대비 최대 손실률(%). 수량 = 계좌 * 1% / (price - stop). 종목이 변동성이 크면(ATR 이 크면) 자동으로 적게 산다 - 균등금액이 아니라 균등위험이다.",
+    "maxPositionPct": 20.0,
+    "maxPositionPctNote": "한 종목이 계좌에서 차지할 수 있는 최대 비중(%). 이게 없으면 저변동성 종목(손절폭 2%)에서 규칙이 '계좌의 50%를 넣어라'가 된다 - 균등위험의 알려진 구멍이다. 10종목 균등이 10%이므로 그 2배까지만 허용한다.",
+    "maxPositions": 10,
+    "maxPositionsNote": "10종목 x 1% = 전부 동시에 손절나도 계좌의 10%. riskPerTradePct 를 올리면 이 곱이 같이 커진다는 걸 함께 본다.",
+    "capitalNote": "계좌 금액은 이 저장소에 적지 않는다(공개 저장소). 산출물은 100만원당 수량으로 내고 곱셈은 화면/사용자가 한다."
+  },
+
+  "entryZone": null,
+  "entryZoneNote": [
+    "'얼마 이하면 싸다'는 진입 기준을 이 저장소 근거로는 만들 수 없어 null 로 둔다. 지어내지 않는다(절대 규칙 1).",
+    "이유 1 - 손절/목표가 ATR 비례라 R:R 은 진입가와 무관하게 항상 3.0 이다. R:R 로는 진입가 상한이 나오지 않는다(산술적으로).",
+    "이유 2 - 진입 타이밍 규칙은 이 프로젝트가 5개 후보(PBR·TREND-BREAKOUT-v1·5DC-v1A-P·LOWMOM60·PBR combined)에서 전부 닫았다. '상관관계가 있다'와 '타이밍 규칙으로 쓸 수 있다'는 다른 질문이었고 매번 후자가 아니었다.",
+    "지금 답할 수 있는 것은 '얼마에 사냐'가 아니라 '얼마나 사냐'와 '어디서 자르냐'다."
+  ],
+
+  "rebalance": {
+    "frequency": "monthly",
+    "trigger": "매월 첫 거래일 + 손절/목표/보유상한 도달 시 즉시",
+    "note": "리밸런싱 주기를 줄이면(회전율을 낮추면) 성과가 좋아진다는 것이 PBR dropout 실험에서 관측됐다(CAGR +0.64%p, 회전율 -40.6%). 주기를 짧게 바꿀 때 이 방향을 기억한다."
+  },
+
+  "benchmark": {
+    "KR": ["KOSPI", "EW_UNIVERSE"],
+    "US": ["SPX"],
+    "note": "EW_UNIVERSE 는 같은 유니버스 동일가중. 리서치 백테스트가 이미 이 벤치마크를 쓴다 - 모의계좌 평가도 같은 자로 재야 비교가 된다.",
+    "reportingMetrics": ["CAGR", "MDD", "Sharpe", "Calmar"],
+    "accountingNote": "수익률은 월별 시가평가(MTM)로 잰다. 실현손익 누적 방식은 2026-08-22 에 폐기됐다 - 그 방식은 Sharpe 를 최대 4.9배 부풀렸다."
+  },
+
+  "scope": [
+    "이 정책은 조회·표시용 기준이다. 주문을 내지 않는다.",
+    "config/policies/trading.v1.json 의 blockedStates(거래정지·상장폐지)에 걸린 종목은 여기서도 수량을 내지 않는다."
+  ]
+}
