@@ -23,6 +23,7 @@ on:
       - "Update ui/data/macro.json (Research Regime Layer)"
       - "Build ETF price history + returns (KRX Open API)"
       - "Fetch market flows (KRX)"
+      - "Update ui/data/positions.json (Paper Trading Engine)"
     types: [completed]
   workflow_dispatch:
 

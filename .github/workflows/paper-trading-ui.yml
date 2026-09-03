@@ -1,0 +1,72 @@
+name: Update ui/data/positions.json (Paper Trading Engine)
+
+# VM(stock-new)의 paper-trading-poll.timer가 매 실행 끝에 positionStore
+# 상태를 OCI Object Storage에 올린다(scripts/upload-paper-state-oci.py,
+# 분봉 승격과 같은 버킷·같은 원칙 - VM은 GitHub에 못 쓴다). 여기서 전략별
+# 최신 상태를 내려받아(scripts/sync-paper-state-oci.py) build_ui_feed.py로
+# ui/data/positions.json을 다시 만들고 커밋한다 - macro.json·findings.json을
+# 각자의 워크플로가 커밋하는 것과 같은 패턴.
+#
+# build_ui_feed.py 자체가 KIS 모의계좌를 실시간 조회(inquire_balance)하므로
+# 이 워크플로가 VM 상태 없이도 계좌 잔고는 항상 최신으로 받는다 - VM에서
+# 받아오는 건 "어느 전략이 어느 종목을 PENDING_ENTRY/OPEN으로 보고 있는가"뿐.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '5,35 0-6 * * 1-5'   # 09:05~15:35 KST 30분 간격(평일), VM의 10분
+                                  # 폴링보다 성기다 - 대시보드는 그 정도 지연을
+                                  # 받아들여도 된다(실주문 판단은 VM 쪽 몫이라
+                                  # 여기 지연과 무관).
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trading-ui
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: research/strategy-lab
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet oci pandas requests
+
+      - name: Selftest (네트워크 없음)
+        run: |
+          python ../../scripts/test-sync-paper-state-oci.py
+          python ../../scripts/test-upload-paper-state-oci.py
+
+      - name: Sync latest paper-trading state from OCI
+        env:
+          OCI_USER_OCID: ${{ secrets.OCI_MINUTE_READ_USER_OCID }}
+          OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_FINGERPRINT: ${{ secrets.OCI_MINUTE_READ_FINGERPRINT }}
+          OCI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_PRIVATE_KEY: ${{ secrets.OCI_MINUTE_READ_PRIVATE_KEY }}
+          OCI_NAMESPACE: ax4zjhxnmgyz   # 민감정보 아님(테넌시 네임스페이스 식별자) - secret으로 안 둔다
+        run: python ../../scripts/sync-paper-state-oci.py
+
+      - name: Build ui/data/positions.json
+        env:
+          KIS_VTS_APP_KEY: ${{ secrets.KIS_VTS_APP_KEY }}
+          KIS_VTS_APP_SECRET: ${{ secrets.KIS_VTS_APP_SECRET }}
+          KIS_VTS_ACCOUNT_NO: ${{ secrets.KIS_VTS_ACCOUNT_NO }}
+        run: python build_ui_feed.py
+
+      - name: Commit ui/data/positions.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ../../ui/data/positions.json
+          git diff --staged --quiet || git commit -m "chore: update ui/data/positions.json (paper trading)"
+          git push

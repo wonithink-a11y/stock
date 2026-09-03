@@ -72,6 +72,14 @@ def main():
         print(f"=== {strategy} ({as_of}) ===")
         subprocess.run(cmd, cwd=_THIS_DIR, check=False)
 
+    # VM -> OCI Object Storage 릴레이(scripts/upload-paper-state-oci.py) - VM은
+    # GitHub에 못 쓰므로(AI협업구조 원칙) 대시보드가 이 상태를 보려면 Actions가
+    # 따로 내려받아 커밋해야 한다(scripts/sync-paper-state-oci.py + 새 워크플로).
+    # 상태는 scan_rebalance_signals()가 dry-run에서도 항상 쓰므로 여기도 항상
+    # 올린다 - 지금 VM에 있는 그대로가 정직한 값이다.
+    upload = os.path.join(REPO_ROOT, "scripts", "upload-paper-state-oci.py")
+    subprocess.run([sys.executable, upload, "--namespace", "ax4zjhxnmgyz"], check=False)
+
 
 if __name__ == "__main__":
     main()

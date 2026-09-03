@@ -54,14 +54,15 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
 
   let html = "";
 
-  // 실제 운영 크론이 아직 없다(run_paper_engine.py는 배관 검증 드라이버일 뿐) -
-  // 아래 포지션은 매일 갱신되는 라이브 상태가 아니라 특정 시점에 한 번 만든
-  // 테스트 스냅샷이다. 지어내지 않고 그대로 말한다(절대 규칙 1).
+  // VM(stock-new)의 paper-trading-poll.timer가 장중 10분 간격으로 KIS
+  // 모의투자 계좌에 실제 주문을 낸다(Paper Trading Engine 5단계, 2026-09-04
+  // 착수). "라이브"이되 가상자금·모의계좌라 실제 손익이 아니다 - 둘 다
+  // 지어내지 않고 그대로 말한다(절대 규칙 1).
   html += '<div class="panel" style="border-color:var(--warn);margin-bottom:12px;">' +
-    '<strong style="color:var(--warn)">⚠ 테스트 스냅샷</strong> — 매일 자동으로 갱신되는 ' +
-    '라이브 포지션이 아닙니다. 실제 운영 크론이 아직 없어 계좌 예수금은 전액 미투자 상태이고, ' +
-    '아래 포지션은 신호 발생 시점(<span class="mono">' + (Object.values(strategies)[0]?.positions?.[0]?.intentDate || "-") +
-    '</span> 등) 기준 "이 신호라면" 시뮬레이션입니다.</div>';
+    '<strong style="color:var(--warn)">⚠ 모의투자 파일럿</strong> — KIS 모의계좌(가상자금)에 ' +
+    '실제로 자동 주문이 나갑니다. 실제 돈이 아니고, 월별 리밸런싱일(<span class="mono">' +
+    (Object.values(strategies)[0]?.positions?.[0]?.intentDate || "-") +
+    '</span> 등)마다 새로 선정된 종목만 진입합니다 - 체결은 며칠에 걸쳐 반영될 수 있습니다.</div>';
 
   // 계좌 요약 - 히어로 스탯 바 (전문 트레이딩 터미널의 상단 계좌 바 참고)
   html += '<div class="panel account-hero">';
