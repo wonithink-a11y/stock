@@ -1,5 +1,5 @@
 {
-  "count": 248,
+  "count": 249,
   "findings": [
     {
       "file": "research/strategy-lab/findings/kosdaq-200ma-touch-baseline-2026-09.md",
@@ -19,6 +19,25 @@
         "진입 후 최대낙폭"
       ],
       "reason": "고정창 수익률은 바닥선을 크게 상회(12M 이벤트 +47.2% vs 전체 +6.8%, 백분위 79~100)하나 (1) 터치 시점을 우리 데이터로 재현할 수 없고(200개월 MA 는 1996년 월봉 필요, 보유 데이터는 2014-06 시작) (2) 다섯 사건이 전부 같은 고점(2026-02)을 공유해 독립 관측이 아니며 (3) 클러스터를 묶으면 독립 에피소드가 3개뿐이라 KEEP/REJECT 어느 쪽도 근거 부족",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/lowmom60-5dc-realized-pnl-accounting-fix-2026-09.md",
+      "title": "LOWMOM60·5DC 실현손익 회계 재확인 — 왜곡 배율은 보유기간이 정한다 (2026-09-03)",
+      "date": "2026-09-03",
+      "bodyMarkdown": "# LOWMOM60·5DC 실현손익 회계 재확인 — 왜곡 배율은 보유기간이 정한다 (2026-09-03)\n\n`세션인수인계-2026-09-03.md` §7의 우선순위 1·2. PBR에서 확인된 실현손익 누적\n회계 결함(`pbr-value-v1-realized-pnl-accounting-fix-2026-09.md`)이 CLAUDE.md가\n인용 중인 나머지 두 수치에도 있는지 실제로 재측정했다.\n\n## 1. LOWMOM60(후보 C) — Sharpe 2.1배 부풀림, MDD는 오히려 과대계상\n\n`run_lowmom60_v1.py`를 PBR과 같은 방식으로 고쳐(기존\n`pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm` import, 신규 로직 0) 재실행.\n\n| | 폐기된 실현손익 누적 | 월별 MTM(정정) | 왜곡 |\n|---|---|---|---|\n| CAGR | 5.09% | **4.76%** | -0.33%p |\n| MDD | -27.77% | **-26.47%** | 1.30%p **완화** |\n| Sharpe | 0.7663 | **0.3651** | **2.1배 부풀림** |\n| finalEquity | 163,591,662 | 163,591,662 | 동일 |\n| tradeCount | 2,437 | 2,437 | 동일 |\n\n**인수인계의 예측(\"같은 배율이면 0.2 이하\")은 방향은 맞고 크기는 틀렸다.**\nPBR은 4.9배였는데 여기는 2.1배다. 원인이 설명된다 — **왜곡 배율은 평균\n보유기간에 비례한다.** PBR은 평균 149일(연속보유 병합)이라 위험의 대부분이\n곡선 밖에 있었고, LOWMOM60은 45일이라 미실현 구간이 훨씬 짧다.\n\n**MDD는 PBR과 반대로 움직였다.** PBR은 -10.47%→-21.70%(절반으로 축소돼\n있었음)였는데 LOWMOM60은 -27.77%→-26.47%로 오히려 옛 방식이 더 나쁘게\n찍고 있었다. 실현손익 곡선의 시작점이 `initial_capital`이 아니라 \"첫 청산\n직후 자산\"이라 곡선 자체가 다른 물건이고, 그 왜곡의 부호는 사전에 정해져\n있지 않다 — **\"옛 회계는 위험을 항상 과소평가한다\"고 일반화하면 안 된다.**\n\n판정에 미치는 영향: **없다.** \"연구 후보, production 미확정\" 등급의 근거는\nCAGR(+5.09%→+4.76%, 사전점검 +13.90%보다 훨씬 낮음)과 깊은 MDD였고 둘 다\n그대로다. Sharpe 0.77을 인용한 문장만 0.37로 정정된다.\n\n부수: `maxConsecutiveWins/Losses`가 17/33 → 20/31로 바뀐다. 거래 집합·승률·\n평균손익은 완전히 동일하고 **순서만 다르다** — MTM 스케줄러는 월말 날짜를\nevent_dates에 추가하므로 `closed_positions` 적재 순서가 달라진다. 연속기록은\n순서 의존 통계라 이 값만 움직인다(PBR도 동일).\n\n## 2. 5DC-v1A-P — 인용된 baseline을 만든 스크립트는 이미 재현 불가능하다\n\n`run_5dc_v1a_p_merged.py`를 고치려다 **먼저 그 스크립트가 지금 돌아가지\n않는다는 것을 확인**했다. `--a2b-shard`(2026-08-16 CI 아티팩트\n`a2b-shard-0.jsonl`)를 필수 인자로 받는데 그 파일이 로컬에 없고, A2b는\n그 뒤 정식 finalize돼 `data/backfill/price/a2b/`로 승격됐다(2026-08-17).\n\n그리고 그 경로는 이미 대체됐다 — 2026-08-24 PRIMARY 승격으로\n`strategies/5dc_v1a_p/policy.json`의 `universeMode`가 `A1A_A1B_MERGED`가 됐고\n`A2bProvider`·`MergedPriceProvider`가 배선돼, **지금은 `run_smoke(\"5dc_v1a_p\")`\n자체가 병합 유니버스로 돈다.** 즉 옛 드라이버를 고치는 것은 죽은 코드를\n고치는 일이다.\n\n그래서 스크립트를 고치는 대신 **`mtm_baseline.py`(신규, 얇은 CLI)** 를 만들어\n현재 정본 경로로 다시 쟀다. 새 회계 로직은 0줄이고 `run_smoke` +\n`schedule_with_monthly_mtm` + `curve_metrics`를 그대로 부른다.\n\n### 결과 (A1A_A1B_MERGED · PRIMARY · 2014-05-13 ~ 2026-08-03)\n\n| | 인용돼 온 실현손익 누적 | 월별 MTM(정본 경로 재측정) |\n|---|---|---|\n| CAGR | -7.94% (2026-08-24 재실행) · -8.18% (2026-08-17) | **-7.92%** |\n| MDD | -75.00% (riskoff validation baseline) | **-72.80%** |\n| Sharpe | (인용된 적 없음) | **-0.4984** |\n| closed | 1,592(냉동) → 1,585(08-24) | 1,581 |\n\n**5DC는 CAGR 왜곡이 거의 없다**(-7.94% → -7.92%). LOWMOM60·PBR과 같은 이유로\n설명된다 — 5DC는 ATR 스톱·타깃으로 빨리 잘라내는 단기 전략이라 미실현 구간이\n짧다. **MDD도 -75.00% → -72.80%로 크게 안 움직인다** — 손실이 실현을 통해\n곧바로 곡선에 찍혀 왔기 때문이다.\n\n즉 **인수인계가 \"높음\"으로 잡은 5DC의 재확인 우선순위는 실측 결과 낮았다.**\n왜곡 배율은 회계 방식 자체가 아니라 **평균 보유기간**이 정한다 —\nPBR 149일(Sharpe 4.9배) > LOWMOM60 45일(2.1배) > 5DC(사실상 없음).\n판정에 영향 없음(5DC는 원래 전 구간 마이너스).\n\n단 두 수치의 실행 조건이 다르다는 점은 남겨 둔다 — 인용돼 온 값은 2026-08-17\nCI 아티팩트 기반이고 이번 값은 정식 finalize된 A2b + 그 뒤 여러 번 수정된\nengine으로 돌렸다. 이 프로젝트가 이미 받아들인 \"냉동 baseline은 engine commit\n바운드로만 유효\" 원칙 그대로다.\n\n산출물: `reports/2026-09-03-mtm-baselines/mtm-baselines.json`\n\n\n## 3. 남은 것\n\n`eq += pnl` 패턴은 아직 13개 스크립트에 남아 있다(전부 각자 복붙 사본).\n이번에 고친 것은 `run_lowmom60_v1.py` 하나이고, 5DC는 스크립트를 고치는\n대신 정본 경로로 다시 쟀다.\n\n**A/B 비교 스크립트(`5dc_riskoff_runner_validation.py` ·\n`trend_breakout_riskoff_runner_validation.py`)는 우선순위가 낮다** — 양쪽이\n같은 회계라 방향은 보존된다. 다만 그 문서들이 인용한 **절대 MDD 수치\n(-75.00%→-54.84% 등)는 여전히 무효**다.\n\n앞으로 새 엔진 실행 스크립트를 쓸 때는 `realized_pnl_metrics()`를 복붙하지\n말고 `mtm_baseline.py`나 `schedule_with_monthly_mtm`을 쓴다.\n",
+      "category": "performance",
+      "track": "kr",
+      "verdict": "REJECT",
+      "original_verdict": null,
+      "criteria_version": null,
+      "conditions": null,
+      "reason": null,
       "cagr": null,
       "sharpe": null,
       "mdd": null,
