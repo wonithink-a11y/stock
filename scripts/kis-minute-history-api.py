@@ -25,6 +25,7 @@ KIS_VTS_APP_KEY/KIS_VTS_APP_SECRET 필요.
 import asyncio
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -151,6 +152,54 @@ async def collect_day(ticker, date):
     return bars
 
 
+# 장중(잠정) 시장 투자자별 순매수 - 네이버 모바일 지수 API. 인증 불필요하고
+# 이 프로젝트가 이미 쓰는 소스(update-watchlist-daily.py도 m.stock.naver.com).
+# docs/data/market_flows.json은 pykrx '확정치'라 18:20 KST 이후에만 나오므로,
+# 장중에 대략적인 방향을 보려는 용도로만 쓴다(확정치와 다를 수 있다).
+NAVER_TREND_URL = "https://m.stock.naver.com/api/index/{}/trend"
+NAVER_HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://m.stock.naver.com/"}
+
+
+def parse_eok(v):
+    """'+1,101' -> 1101 (억원). 값이 없거나 못 읽으면 None - 0으로 만들지 않는다."""
+    if not isinstance(v, str):
+        return None
+    t = v.replace(",", "").replace("+", "").strip()
+    if not t or t in ("-",):
+        return None
+    try:
+        return int(t)
+    except ValueError:
+        return None
+
+
+def _fetch_market_trend_sync():
+    out = {}
+    for idx in ("KOSPI", "KOSDAQ"):
+        r = requests.get(NAVER_TREND_URL.format(idx), headers=NAVER_HEADERS, timeout=8)
+        d = r.json()
+        out[idx] = {
+            "bizdate": d.get("bizdate"),
+            "personalEok": parse_eok(d.get("personalValue")),
+            "foreignEok": parse_eok(d.get("foreignValue")),
+            "institutionalEok": parse_eok(d.get("institutionalValue")),
+        }
+    return out
+
+
+async def handle_market_trend(request):
+    try:
+        data = await asyncio.to_thread(_fetch_market_trend_sync)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=502)
+    return web.json_response({
+        "source": "m.stock.naver.com/api/index/{KOSPI,KOSDAQ}/trend",
+        "note": "장중 잠정치(억원). KRX 확정치가 아니다.",
+        "fetchedAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "markets": data,
+    }, headers={"Cache-Control": "no-store"})
+
+
 async def handle_minute_history(request):
     ticker = request.query.get("ticker", "")
     date = request.query.get("date", "")
@@ -165,11 +214,22 @@ async def handle_minute_history(request):
     return web.json_response({"ticker": ticker, "date": date, "bars": bars})
 
 
+def selftest():
+    assert parse_eok("+1,101") == 1101
+    assert parse_eok("-2,364") == -2364
+    assert parse_eok("") is None and parse_eok(None) is None and parse_eok("N/A") is None
+    print("selftest ok (5 assertions)")
+
+
 def main():
+    if "--selftest" in sys.argv:
+        selftest()
+        return
     if not (APP_KEY and APP_SECRET):
         raise SystemExit("KIS_VTS_APP_KEY/KIS_VTS_APP_SECRET이 없다")
     app = web.Application()
     app.router.add_get("/minute-history", handle_minute_history)
+    app.router.add_get("/market-trend", handle_market_trend)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)
 

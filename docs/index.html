@@ -174,6 +174,8 @@ const state = {
   discFilter: 'all',
   newsGroup: 'brief',
   flowsMarket: 'KOSPI',
+  // 장중 잠정 수급(VM /market-trend) - 확정치 market_flows.json과 별개
+  marketTrend: { data: null, error: null, pending: false, fetchedAt: 0 },
   // 실시간 탭 전용 - WebSocket 객체 자체는 render()가 매번 재생성하는
   // innerHTML과 무관하게 살아있어야 하므로 state에 들고 있는다
   live: {
@@ -878,7 +880,42 @@ function investorTrendRow(label, vals, dateLabels) {
   </div>`;
 }
 
+// 장중 잠정 수급 - market_flows.json(pykrx 확정치)은 평일 18:20 KST 이후에야
+// 나온다. 그 전에 대략적인 방향이라도 보려고 VM 중계(scripts/kis-minute-history-api.py
+// /market-trend, 네이버 지수 API 프록시)를 60초마다 당긴다. 실패하면 조용히
+// 접는다 - 확정치 화면은 그대로 보여야 한다.
+function ensureMarketTrend() {
+  const t = state.marketTrend;
+  if (t.pending || (t.fetchedAt && Date.now() - t.fetchedAt < 60000)) return;
+  t.pending = true;
+  fetch('https://wonithink-stock.duckdns.org/market-trend')
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => { t.data = d; t.error = null; })
+    .catch(e => { t.error = String(e); })
+    .finally(() => {
+      t.pending = false; t.fetchedAt = Date.now();
+      if (state.tab === 'flows') render();
+    });
+}
+
+function renderMarketTrendLive() {
+  const t = state.marketTrend;
+  if (!t.data) return t.error ? '' : '<p class="muted" style="margin:6px 0 0">장중 잠정치 불러오는 중…</p>';
+  const rows = Object.entries(t.data.markets || {}).map(([mkt, v]) => {
+    const cells = [['개인', v.personalEok], ['외국인', v.foreignEok], ['기관', v.institutionalEok]].map(([n, x]) =>
+      x === null || x === undefined
+        ? `<span class="muted">${n} -</span>`
+        : `<span>${n} <b class="${x >= 0 ? 'pos' : 'neg'}">${x >= 0 ? '+' : ''}${x.toLocaleString()}억</b></span>`).join('<span class="muted"> · </span>');
+    return `<div style="margin:4px 0"><span style="display:inline-block;width:64px">${esc(mkt)}</span>${cells}</div>`;
+  }).join('');
+  return `<div style="margin:8px 0 14px;padding:10px 12px;border:1px solid var(--border);border-radius:8px">
+    <div class="muted" style="margin-bottom:6px">오늘 장중 <b>잠정치</b> (네이버 지수, 확정치 아님) · ${esc(t.data.markets.KOSPI?.bizdate || '')} · 60초마다 갱신</div>
+    ${rows}
+  </div>`;
+}
+
 function renderFlows() {
+  ensureMarketTrend();
   const mf = state.marketFlows;
   if (!mf) return '<div class="card empty">시장 수급 데이터(market_flows.json)를 불러오지 못했습니다.</div>';
   const mkt = state.flowsMarket;
@@ -919,6 +956,7 @@ function renderFlows() {
 
   return `<div class="card">
     <h2>시장 투자자별 순매수 <span class="muted" style="font-weight:400">KRX(pykrx) 일별 확정치, KST 기준일</span></h2>
+    ${renderMarketTrendLive()}
     <div class="group-filter" style="margin-bottom:4px">${marketTabs}</div>
     <div class="group-filter">${dateTabs}</div>
     <p class="muted" style="margin:10px 0 4px">${mkt} · ${day.date.slice(0,4)}-${day.date.slice(4,6)}-${day.date.slice(6,8)} 순매수(금액) · 큰 순 정렬 — 위 날짜를 눌러 다른 날 보기</p>
