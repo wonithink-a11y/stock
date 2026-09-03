@@ -835,6 +835,47 @@ Validated against
               "criteria 그대로(KR-2.3) / MA크로스 제외 / MA크로스 반대 방향" 으로
               고치고 실행 첫 줄에 로드한 criteria 경로·버전·표를 찍게 했다.
               2.2 결론을 재확인하려면 registry 를 되돌리고 돌려야 한다.
+  완료      ★ 차트 탭 배포본 404 — 상대경로가 /paper-trading/ 밖으로 나갔다
+              (2026-09-03) — 사용자 보고("페이퍼 트레이딩 첫 화면이 404 로 안 보인다").
+              `ui/tabs/chart.js` 가 `fetch("../data/positions.json")` 을 쓰는데
+              상대경로는 **문서 기준**이라 배포본(`/stock/paper-trading/`)에서
+              `/stock/data/` 로 빠져나간다. ★ **로컬은 문서가 서버 루트라 브라우저가
+              `..` 를 잘라 우연히 동작했다** — 그래서 지금까지 로컬 검증을 통과해
+              왔다. `data/...` 로 통일(다른 탭과 동일). 둘째 원인은 데이터 미발행 —
+              `ui/data/*` 는 gitignore 대상이고 macro.json·findings.json 만 예외라
+              `positions.json`·`ticker-names.json` 은 어느 워크플로도 안 만든다.
+              `ticker-names.json` 은 커밋된 A1a/A1b 만 읽는 순수 계산(자격증명
+              불필요)이라 `deploy-pages.yml` 에서 만들도록 배선(continue-on-error).
+              `positions.json` 은 KIS 모의계좌 조회(build_ui_feed.py)라 그대로는 못
+              만들어, 404 원문 대신 무엇이 왜 없는지 화면에 그대로 쓴다(절대 규칙 1).
+              **검증은 배포 레이아웃(`_site/paper-trading/`)을 그대로 만들어서 했다**
+              — 없을 때 안내 문구, 있을 때 정상 렌더, 전 요청이 `/paper-trading/data/`
+              로 200. ★ **교훈: `ui/` 검증은 로컬 루트가 아니라 배포 서브경로에서
+              해야 한다.** 미해결 — positions.json 발행은 워크플로(KIS 모의 자격증명)
+              **와** paper 상태 파일(현재 미추적) 둘 다 필요해 별도 결정.
+  완료      ★ 리서치랩 비교표 — frontmatter 유실 + 칸 폭 + 제목 (2026-09-03) —
+              사용자 보고 2건. ① **"CAGR·승률이 하나도 없다"는 절반이 진짜 버그**였다:
+              `build_ui_findings.py` 가 verdict **값**을 4종 화이트리스트로 검사해
+              없으면 frontmatter 를 통째로 버리고 본문에서 verdict 를 추측했다 —
+              실측 7건이 conditions·reason·수치를 전부 잃었고 **macross 는 원문 PASS 가
+              화면에서 KEEP 이 됐다**(지어낸 값). 줄 단위 정규식 파서라 `reason: >-`
+              (블록 스칼라)는 값이 `">-"` 가 되고 `conditions: [a, b=1]`(flow 시퀀스)도
+              못 읽었다 → 이미 설치된 PyYAML(6.0.3)로 교체(실패 시 정규식 폴백, YAML 이
+              date 를 datetime.date 로 주므로 ISO 문자열로 되돌림). 이어서 **수치를
+              verdict 와도 분리**했다(수치·조건·근거는 verdict 와 별개의 사실).
+              conditions 156→165 · reason 235→242 · win_rate 0→22 · cagr 51→53.
+              ★ **자동 표 파싱은 실측 후 기각** — 본문에 CAGR 행이 있는 6건 중 3건은
+              1열이 전략값이 아니다(`lowmom60` 은 1열이 **폐기된 옛 값** 5.09%,
+              정정값은 2열 4.76%). 자동 추출하면 전날 폐기한 숫자가 화면에 올라간다
+              (교훈57). 대신 본문 값이 명확하고 두 문서가 교차확인되는 earnings_yield
+              2건에만 frontmatter 추가(verdict 는 원문이 선언 안 해서 안 적음).
+              **나머지 "-" 는 정상** — 수치를 선언한 문서가 266건 중 53건뿐이고
+              나머지는 IC·감사·검증 노트다. ② **칸 폭** — 데이터 칸을 190px 로
+              '고정'한 게 원인. `table-layout:fixed` 라 고정폭을 빼면 남는 폭을 N개가
+              나눠 갖는다(1,000px 화면 5개 선택 시 칸당 119px, 가로 스크롤 없음).
+              제목이 전부 파일명이던 것도 고쳤다(1행만 보고 `# ` 헤딩을 찾는데
+              frontmatter 문서는 1행이 `---`). ★ 그 과정에서 자기 버그 — YAML 주석도
+              `# `로 시작해 주석이 제목이 됐다, 공유 헬퍼 `strip_frontmatter()` 추가.
   완료      ★ 업종중립 PBR 계열 — top-30 × 전체 53축 난수 바닥선에서 **REJECT**
               (2026-09-03) — 인수인계 2026-09-03-c §3 4번. **적힌 그대로의 항목은
               이미 끝나 있었다**(top30 Tier 1 재검증은 09-02 실행, `--top-n` 도
