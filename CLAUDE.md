@@ -860,6 +860,30 @@ Validated against
               브라우저 실측 확인(19개 그룹 렌더·필터 동작·콘솔 에러 0).
               ★ 주의 — docs/data/를 갱신하는 workflow_dispatch 실행 뒤에는
               deploy-pages도 같이 수동 트리거해야 한다(위 ETF 항목의 교훈).
+  완료      ★ 미커밋 연구 산출물 46건 커밋 — 인용본이 저장소에 없던 상태 해소
+              (2026-09-03, `949f8c3`·`70ab5aa`) — 세션인수인계-2026-09-03.md §7
+              4번. 단순 정리가 아니라 **CLAUDE.md가 결론으로 인용 중인 findings가
+              저장소에 없던 문제**였다(실측: kr-treasury 3곳·factor-earnings-yield
+              2곳·kr-production-technical-macross-reversal·crypto step46/step24-46·
+              donchian). findings 20건(md+json) + 산출 스크립트 23건을 재현
+              경로째 커밋(2026-08-20 `838512a`와 같은 패턴). 별도로
+              `scripts/build-a5-valuation-panel.js`·`build-a5-quality-panel.js`·
+              `probe-a5-valuation-coverage.js`(2026-08-21 산물, "로컬 미커밋"으로
+              남아 있던 것) 커밋 — **CLAUDE.md가 PBR 라인 재개 선결조건으로 걸어둔
+              "산출 스크립트 정리"가 이걸로 절반 해소**됐다(패널 jsonl 자체는 여전히
+              미커밋, "어떻게 만들었는가"만 복원). ★★ **rev_yoy_*.py 6건은 결론이
+              어디에도 없다** — findings·CLAUDE.md·인수인계 전부에 기록 없는
+              PBR_Q2 × rev_yoy 실험 라인이다. 코드만 보존하고 판정을 지어내지
+              않았다 — 다시 열면 결론부터 새로 내야 한다. 제외한 것:
+              `dashboard/sweep-dashboard.html`(591KB, build_sweep_dashboard.py로
+              재생성 가능·Artifact 발행본 존재). 부수: `ui/data/macro.json`의
+              로컬 실행분(seriesAsOf 09-01)을 되돌렸다 — 이 파일의 writer는
+              Actions다(정본 writer 하나 원칙). **남은 미해결 2건**(둘 다 이전
+              세션 산물, 이번엔 판단 안 함): `_manifest_fred_extended.json` 로컬
+              수정(usTreasury30y 컬럼 추가·3,097→3,108행, 대응 parquet은
+              gitignore라 커밋하면 저장소에 없는 데이터를 기술하게 된다) ·
+              `gen_robustness_continue.py` 로컬 삭제(2026-08-31 백업 커밋으로
+              들어왔던 것, 참조처 0건 — 삭제 확정할지 미정).
   완료      ★ 시장수급 탭 — 일별추이 막대 수정 + 장중 잠정 수급 신설 (2026-09-03)
               — 사용자 보고 3건 처리. ①**일별 추이 음수 막대가 안 보였다** —
               막대 상자가 40px인데 음수를 top:40px에 그려 상자 밖이었고
