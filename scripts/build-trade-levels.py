@@ -176,7 +176,7 @@ def main():
         "entryZone": None,
         "status": policy.get("status", "UNKNOWN"),
         "note": "수량·비중 기준일 뿐 매수 추천이 아니다. 진입가 기준은 근거가 없어 만들지 않았다.",
-        "provisionalNote": ("★ PF-1.1 은 가격 기반 손절·목표를 두지 않는다(exitSource="
+        "provisionalNote": ("★ " + str(policy.get("version", "이 정책")) + " 은 가격 기반 손절·목표를 두지 않는다(exitSource="
                             + str(r["source"]) + ") - OOS 검증에서 손절 초안값이 기각됐고 "
                             "TEST 최선이 무손절이었다(findings/tier2-exit-policy-oos-2026-09.md). "
                             "stop/target 이 null 인 것은 결측이 아니라 정책이 그렇게 정한 것이다. "

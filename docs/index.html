@@ -203,6 +203,7 @@ const state = {
   flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
   etfReturns: null,        // docs/data/etf-returns.json
   sectorStrength: null,    // docs/data/sector-strength.json (관찰용, 예측 주장 아님)
+  tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
   etfDist: null,           // docs/data/etf-distributions.json
   etfSearch: '',
@@ -399,12 +400,52 @@ function th(key, label) {
   return `<th class="sortable" data-sort="${key}">${label} <span class="arr">${arr}</span></th>`;
 }
 
+// docs/data/trade-levels.json = config/policies/portfolio.v1.json(PF-1.2)의 규칙을
+// prices.json 에 적용한 것. 새 규칙이 아니라 정책을 읽어 계산만 한다.
+// ★ 그 정책은 registry 미등록 = 미발효 초안이라 화면도 그 상태를 그대로 쓴다.
+function tradeLevelOf(ticker) {
+  const d = state.tradeLevels;
+  return (d && d.byTicker && d.byTicker[ticker]) || null;
+}
+
+function tradeLevelBlock(tl) {
+  const d = state.tradeLevels || {};
+  const num = (v, digits) => (v === null || v === undefined) ? null
+    : v.toLocaleString('ko-KR', { maximumFractionDigits: digits === undefined ? 0 : digits });
+  const draft = d.status && d.status !== 'ADOPTED'
+    ? `<span class="warn-tag">미발효 초안</span>` : '';
+  const cell = (k, v) => `<div class="sec-metric"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`;
+
+  // 손절·목표가 null 인 것은 결측이 아니라 정책 판단이다(절대 규칙 1) -
+  // 정책이 스스로 적어 보낸 사유를 그대로 쓴다. 화면이 문구를 지어내지 않는다.
+  const hasStop = tl.stop !== null && tl.stop !== undefined;
+  const exitRow = hasStop
+    ? cell('손절', `${num(tl.stop)}<span class="muted"> (${num(tl.stopPct, 1)}%)</span>`)
+      + cell('목표', tl.target === null ? '<span class="muted">없음</span>'
+          : `${num(tl.target)}<span class="muted"> (${num(tl.targetPct, 1)}%)</span>`)
+    : '';
+
+  return `<div class="note-title" style="margin-top:8px">포지션 기준 ${esc(d.policy || '')} ${draft}</div>
+    <div class="sec-metrics" style="margin:4px 0">
+      ${cell('계좌 비중', `${num(tl.positionPct, 2)}%${tl.capped ? ' <span class="muted">(상한)</span>' : ''}`)}
+      ${cell('100만원당', tl.sharesPerMillionKRW < 1 ? '<span class="muted">1주 미만</span>' : `${num(tl.sharesPerMillionKRW)}주`)}
+      ${cell('최소 필요자본', `${num(tl.minCapitalKRW)}원`)}
+      ${cell('ATR14', `${num(tl.atr14)}<span class="muted"> (${num(tl.atrPct, 2)}%)</span>`)}
+      ${exitRow}
+    </div>
+    ${hasStop ? '' : `<div class="adj">${esc(d.provisionalNote || '')}</div>`}
+    ${d.note ? `<div class="adj">${esc(d.note)}</div>` : ''}
+    ${d.tradeStateChecked === false && d.tradeStateNote ? `<div class="adj">${esc(d.tradeStateNote)}</div>` : ''}`;
+}
+
 function stockRow(r) {
   const warns = (r.warnings || []).filter(w => !HIDDEN_WARNINGS.has(w));
   const hasNote = !!r.sectorCaution;
+  const tl = tradeLevelOf(r.ticker);
+  const hasDetail = hasNote || !!tl;
   const open = !!state.openRows[r.ticker];
   const main = `
-    <tr class="${hasNote ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
+    <tr class="${hasDetail ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
       <td><strong data-chart="${esc(r.ticker)}" data-chart-name="${esc(r.name)}" style="cursor:pointer;text-decoration:underline dotted var(--muted)" title="차트 보기">${esc(r.name)}</strong> <span class="muted">${esc(r.ticker)}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}
         ${(r.groups || []).length ? `<br>${(r.groups || []).map(g => `<span class="group-tag">${esc((((state.latest || {}).groupLabels || {})[g] || g).split(' ')[0])}</span>`).join('')}` : ''}</td>
       <td>${r.totalScore ?? '-'}</td>
@@ -413,16 +454,17 @@ function stockRow(r) {
       <td>${fmtPrice(r.currentPrice, r.market)}</td>
       <td>${coverageBar(r.dataCoverage)}</td>
       <td>${warns.map(w => `<span class="warn-tag">${esc(w)}</span>`).join('') || '-'}</td>
-      <td>${hasNote ? `<button class="info-btn" data-row="${esc(r.ticker)}">${open ? '접기' : '비고 ' + r.sectorCaution.notes.length}</button>` : '<span class="muted">-</span>'}</td>
+      <td>${hasDetail ? `<button class="info-btn" data-row="${esc(r.ticker)}">${open ? '접기' : (hasNote ? '비고 ' + r.sectorCaution.notes.length : '기준')}</button>` : '<span class="muted">-</span>'}</td>
     </tr>`;
-  if (!open || !hasNote) return main;
+  if (!open || !hasDetail) return main;
   const c = r.sectorCaution;
   return main + `
     <tr class="row-detail"><td colspan="8">
-      <div class="note-title">${esc(c.label)} — ${esc(c.confidenceLabel || '')}</div>
-      <ol>${c.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>
-      ${c.adjustedMetrics && c.adjustedMetrics.length ? `<div class="adj">업종 기준으로 채점된 지표: ${c.adjustedMetrics.map(esc).join(', ')}</div>` : ''}
-      ${c.excludedMetrics && c.excludedMetrics.length ? `<div class="adj">평가 제외: ${c.excludedMetrics.map(m => esc(m.label) + ' (' + esc(m.reason) + ')').join(' / ')}</div>` : ''}
+      ${tl ? tradeLevelBlock(tl) : ''}
+      ${hasNote ? `<div class="note-title">${esc(c.label)} — ${esc(c.confidenceLabel || '')}</div>
+      <ol>${c.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>` : ''}
+      ${hasNote && c.adjustedMetrics && c.adjustedMetrics.length ? `<div class="adj">업종 기준으로 채점된 지표: ${c.adjustedMetrics.map(esc).join(', ')}</div>` : ''}
+      ${hasNote && c.excludedMetrics && c.excludedMetrics.length ? `<div class="adj">평가 제외: ${c.excludedMetrics.map(m => esc(m.label) + ' (' + esc(m.reason) + ')').join(' / ')}</div>` : ''}
     </td></tr>`;
 }
 
@@ -2069,9 +2111,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';

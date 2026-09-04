@@ -46,6 +46,14 @@ jobs:
         continue-on-error: true
         run: python scripts/build-sector-strength.py
 
+      # 같은 prices.json 을 읽어 종목별 손절가·목표가·수량 기준을 낸다.
+      # config/policies/portfolio.v1.json(PF-1.2)의 규칙을 적용하기만 하고
+      # 새 수집도 새 규칙도 없다. ★ 그 정책은 registry 미등록 = 미발효 초안이라
+      # 산출물도 status: DRAFT_NOT_ADOPTED 를 달고 나온다 - 화면이 그대로 표시한다.
+      - name: Build trade levels
+        continue-on-error: true
+        run: python scripts/build-trade-levels.py
+
       - name: Notify (telegram/slack)
         continue-on-error: true   # 알림 실패가 파이프라인을 죽이지 않도록
         env:
