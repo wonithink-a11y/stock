@@ -37,7 +37,7 @@ def test_no_objects_for_strategy_is_reported_not_fabricated():
     transport = osmod.FakeOciTransport()
     with tempfile.TemporaryDirectory() as tmp:
         result = syncmod.run(transport, tmp, out=lambda *a: None)
-        assert result == {"pbr_value_v1": False, "lowmom60_v1": False}
+        assert result == {s: False for s in syncmod.STRATEGIES}
         assert not (Path(tmp) / "research/strategy-lab/data/paper/pbr_value_v1_positions.json").exists()
 
 

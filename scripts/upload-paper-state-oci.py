@@ -25,7 +25,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_BUCKET = "stock-minute-manifest"
-STRATEGIES = ["pbr_value_v1", "lowmom60_v1"]
+STRATEGIES = ["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined", "factor_earnings_yield_v1"]
 KST = timezone(timedelta(hours=9))
 
 
