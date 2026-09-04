@@ -50,8 +50,16 @@ class _RateLimiter:
     스레드 세이프: 여러 스레드가 동시에 wait()를 불러도 락 안에서
     '마지막 호출 이후 경과 시간'을 확인하고 필요하면 잠들었다가 자기
     차례를 갱신한다 - 두 호출이 동시에 통과하는 경쟁 조건이 없다.
+
+    ★ min_interval_sec가 1.0(=KIS 공지값 그대로)이던 시절 실측(2026-09-04,
+    paper-trading-poll.log) - 이 리미터를 이미 거치는 순차 호출인데도 59건
+    중 2건이 EGW00201(초당 거래건수 초과)로 실패했다. 스로틀이 안 걸린 게
+    아니라(모든 REST 호출이 이 클래스를 거치는 건 test_kis_vts_rate_limit.py
+    가 구조적으로 보증한다) 간격이 KIS 서버 쪽 "초" 경계와 딱 맞아떨어지면
+    네트워크 지연 몇십 ms 차이로도 같은 1초 버킷에 두 요청이 들어갈 수 있는
+    여유 없는 경계값이었다는 뜻 - 그래서 1.2초로 마진을 둔다.
     """
-    def __init__(self, min_interval_sec=1.0):
+    def __init__(self, min_interval_sec=1.2):
         self.min_interval_sec = min_interval_sec
         self._lock = threading.Lock()
         self._next_allowed = 0.0
@@ -66,7 +74,7 @@ class _RateLimiter:
             self._next_allowed = now + self.min_interval_sec
 
 
-_RATE_LIMITER = _RateLimiter(min_interval_sec=1.0)
+_RATE_LIMITER = _RateLimiter(min_interval_sec=1.2)
 
 
 class KisVtsError(RuntimeError):
