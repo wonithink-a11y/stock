@@ -1,10 +1,10 @@
 {
   "stage": "A4",
   "mode": "finalize",
-  "supplyDemandPolicy": "SD-1.0",
+  "supplyDemandPolicy": "SD-1.1",
   "environment": {
     "pykrx": "unknown",
-    "python": "3.11.15"
+    "python": "3.11.16"
   },
   "shardFiles": [
     "shard-0.jsonl",
@@ -25,88 +25,68 @@
     "shard-9.jsonl"
   ],
   "shardCount": 16,
-  "emptyCount": 0,
-  "exceptionCount": 0,
-  "unresolvedCount": 0,
-  "unresolved": [],
+  "emptyCount": 430,
+  "exceptionCount": 2,
+  "unresolvedCount": 2,
+  "shardCollectFrom": [
+    "2026-08-15"
+  ],
+  "unresolved": [
+    {
+      "ticker": "023350",
+      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
+    },
+    {
+      "ticker": "033540",
+      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
+    }
+  ],
   "calendarStart": "2014-01-02",
-  "calendarEnd": "2026-08-14",
-  "rowCount": 5409687,
+  "calendarEnd": "2026-09-03",
+  "rowCount": 27506,
   "actualDataFrom": "2016-01-04",
-  "actualDataTo": "2026-08-14",
+  "actualDataTo": "2026-09-03",
   "dateContractViolations": 0,
   "tickerContractViolations": 0,
   "categoryKeySetViolations": 0,
   "marketClearingViolations": 0,
   "marketClearingViolationSample": [],
   "candidateCount": 2578,
-  "tickersWithData": 2578,
-  "tickersWithDataRate": 1.0,
-  "expectedDaysPerTicker": 2604,
-  "missingRate": 0.19416,
-  "unresolvedRate": 0.0,
-  "rowCountAfterValidation": 5409687,
+  "tickersWithData": 2146,
+  "tickersWithDataRate": 0.8324,
+  "expectedDaysPerTicker": 13,
+  "missingRateFrom": "2026-08-15",
+  "missingRate": 0.01405,
+  "unresolvedRate": 0.0008,
+  "rowCountAfterValidation": 27506,
+  "actualDataFromThisRun": "2026-08-18",
   "acceptanceFails": [],
   "acceptanceWarns": [
-    "누락률 19.42% <= 5% (신규상장 등으로 상장 전 구간이 항상 '누락'으로 잡히는 단순 계산 — 상장일 보정은 다음 버전 과제)"
+    "데이터 확보 종목 2146/2578 (83.2%) >= 90%"
   ],
   "acceptancePassed": true,
   "years": {
-    "2016": {
-      "rows": 414476,
-      "rawBytes": 402947531,
-      "gzBytes": 44602258
-    },
-    "2017": {
-      "rows": 428868,
-      "rawBytes": 417376069,
-      "gzBytes": 46891314
-    },
-    "2018": {
-      "rows": 449454,
-      "rawBytes": 439709862,
-      "gzBytes": 51410788
-    },
-    "2019": {
-      "rows": 471276,
-      "rawBytes": 460132373,
-      "gzBytes": 53144185
-    },
-    "2020": {
-      "rows": 493596,
-      "rawBytes": 486648572,
-      "gzBytes": 59140955
-    },
-    "2021": {
-      "rows": 515957,
-      "rawBytes": 511181519,
-      "gzBytes": 63651754
-    },
-    "2022": {
-      "rows": 534364,
-      "rawBytes": 524845001,
-      "gzBytes": 62833704
-    },
-    "2023": {
-      "rows": 558006,
-      "rawBytes": 549763512,
-      "gzBytes": 67965282
-    },
-    "2024": {
-      "rows": 576689,
-      "rawBytes": 565642094,
-      "gzBytes": 68430377
-    },
-    "2025": {
-      "rows": 592790,
-      "rawBytes": 582642902,
-      "gzBytes": 71765058
-    },
     "2026": {
-      "rows": 374211,
-      "rawBytes": 371654652,
-      "gzBytes": 48426451
+      "rows": 401717,
+      "newRows": 27506,
+      "existingRowsBeforeMerge": 374211,
+      "rawBytes": 398532533,
+      "gzBytes": 51614703
     }
   },
-  "totalGzBytes": 638262126
+  "totalGzBytes": 51614703,
+  "yearsInDataset": [
+    "2016",
+    "2017",
+    "2018",
+    "2019",
+    "2020",
+    "2021",
+    "2022",
+    "2023",
+    "2024",
+    "2025",
+    "2026"
+  ],
+  "totalGzBytesAllYears": 641450378
 }
