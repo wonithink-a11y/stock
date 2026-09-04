@@ -48,6 +48,10 @@ def main():
     ap.add_argument("--strategy", required=True, choices=["pbr_value_v1", "lowmom60_v1"])
     ap.add_argument("--as-of", required=True, help="이번 리밸런싱일 (YYYY-MM-DD, selection.json에 있어야 함)")
     ap.add_argument("--capital", type=int, required=True, help="이 전략에 배정된 가상자금(원)")
+    ap.add_argument("--entry-slices", type=int, default=1,
+                    help="목표수량을 며칠에 나눠 살지(기본 1=하루에 전량). 시장충격은 하루 "
+                         "참여율의 함수라 자금이 크면 늘린다 - findings/sizing-position-"
+                         "count-capacity-2026-09.md 정정 절")
     ap.add_argument("--enable-live-orders", action="store_true",
                      help="실제 KIS 모의투자 주문을 낸다. 없으면 dry-run(broker 전혀 안 부름).")
     args = ap.parse_args()
@@ -62,7 +66,8 @@ def main():
         return
     print(f"[{args.as_of}] {strategy_id} 이번 달 선택 {len(target)}종목")
 
-    events = scan_rebalance_signals(REPO_ROOT, rule, args.as_of, args.capital, log=print)
+    events = scan_rebalance_signals(REPO_ROOT, rule, args.as_of, args.capital, log=print,
+                                     entry_slices=args.entry_slices)
     print(f"신규 진입 의도(로컬 상태 기록) {len(events)}건 - "
           f"나머지는 이미 보유중이거나 슬롯예산/가격데이터 부족으로 스킵")
 

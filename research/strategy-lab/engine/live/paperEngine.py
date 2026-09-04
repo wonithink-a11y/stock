@@ -200,7 +200,8 @@ def scan_signals(repo_root, rule, as_of, log=print, bars_by_ticker=None):
     return events
 
 
-def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_by_ticker=None):
+def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_by_ticker=None,
+                            entry_slices=1):
     """scan_signals()의 월별 교체매매(pbr_value_v1·lowmom60_v1) 버전 - 종목별
     predicate(rule.signal_fires) 대신 rule.selected_symbols(as_of)로 이번
     리밸런싱일의 전체 선택 목록을 한 번에 받는다(횡단면 랭킹이 이미
@@ -210,6 +211,10 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
     재선택된 종목을 다시 사지 않는다. poll_once(is_still_selected=...)가
     그 종목을 계속 들고 간다(continuousHoldOnRenewal 효과, 별도 병합
     로직 없음).
+
+    entry_slices: 목표수량을 며칠에 나눠 살지(기본 1 = 하루에 전량, 기존 동작).
+    시장충격은 하루 참여율의 함수라 큰 자금에서는 이걸 늘린다 - 실측은
+    findings/sizing-position-count-capacity-2026-09.md 정정 절.
 
     capital_krw: 이 전략에 배정된 가상자금 총액(같은 KIS 모의투자 계좌를
     strategy_id별로 나눠 쓴다, positionStore가 이미 strategy_id별 분리
@@ -250,13 +255,29 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
         if quantity < 1:
             log(f"[{as_of}] SKIP {symbol} - 슬롯예산({budget_per_slot:,.0f}) < 가격({price:,.0f})")
             continue
-        state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity, "intent_date": as_of}
+        state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity,
+                          "target_quantity": quantity,
+                          "entry_slices": max(int(entry_slices), 1),
+                          "intent_date": as_of}
         open_or_pending += 1
         events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
         log(f"[{as_of}] SIGNAL -> INTENT  {symbol}  qty={quantity} (실주문은 poll_once가 낸다)")
 
     positionStore.save(repo_root, strategy_id, state)
     return events
+
+
+def _open_from_fills(pos, today, risk):
+    """분할 체결 누적(filled_quantity/entry_cost)을 OPEN 포지션으로 확정한다.
+    entry_price 는 조각들의 가중평균 단가 - stop/target 은 그 위에서 계산한다."""
+    filled = pos.get("filled_quantity", 0)
+    entry_price = round(pos.get("entry_cost", 0.0) / filled, 4) if filled else 0.0
+    return {"status": "OPEN", "quantity": filled, "entry_price": entry_price,
+            "entry_date": pos.get("first_fill_date", today),
+            "stop_price": round(entry_price * (1 - risk["stopPct"]), 2),
+            "target_price": round(entry_price * (1 + risk["targetPct"]), 2),
+            "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
+            "lastCountedDate": None}
 
 
 def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=None,
@@ -312,42 +333,70 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
         status = pos["status"]
 
         if status == "PENDING_ENTRY":
+            # 분할 매수: 목표수량을 entry_slices 일에 나눠 산다(기본 1 = 기존 동작).
+            # 시장충격은 '하루' 참여율의 함수라 며칠에 나누면 그만큼 내려간다
+            # (findings/sizing-position-count-capacity-2026-09.md 정정 절 참고).
+            target = pos.get("target_quantity", pos["quantity"])
+            filled = pos.get("filled_quantity", 0)
+            remaining = target - filled
+            if remaining < 1:                       # 이미 다 샀다(방어적)
+                state[symbol] = _open_from_fills(pos, today, risk)
+                continue
+            if pos.get("last_slice_date") == today:  # 하루 한 조각만 - 폴링은 10분마다다
+                continue
+            slices = max(int(pos.get("entry_slices", 1)), 1)
+            qty = min(remaining, -(-target // slices))   # ceil(target/slices)
             try:
-                order_no = broker.submit_buy(symbol, pos["quantity"])
+                order_no = broker.submit_buy(symbol, qty)
             except Exception as e:  # KisVtsError 등 - 브로커 예외 타입에 결합하지 않는다
                 log(f"[{today}] 매수 제출 실패 {symbol}: {e}")
                 continue
-            state[symbol] = {**pos, "status": "ENTRY_SUBMITTED",
-                              "order_no": order_no, "order_date": today_compact}
-            events.append({"type": "ENTRY_SUBMITTED", "symbol": symbol, "orderNo": order_no})
-            log(f"[{today}] 매수 제출  {symbol}  주문번호={order_no}")
+            state[symbol] = {**pos, "status": "ENTRY_SUBMITTED", "order_quantity": qty,
+                              "order_no": order_no, "order_date": today_compact,
+                              "last_slice_date": today}
+            events.append({"type": "ENTRY_SUBMITTED", "symbol": symbol,
+                            "orderNo": order_no, "quantity": qty})
+            log(f"[{today}] 매수 제출  {symbol}  {qty}주"
+                + (f" ({filled + qty}/{target})" if slices > 1 else "")
+                + f"  주문번호={order_no}")
             continue
 
         if status == "ENTRY_SUBMITTED":
+            order_qty = pos.get("order_quantity", pos["quantity"])
             try:
-                r = broker.check_fill(pos["order_no"], pos["order_date"], pos["quantity"])
+                r = broker.check_fill(pos["order_no"], pos["order_date"], order_qty)
             except Exception as e:
                 log(f"[{today}] 체결조회 실패(매수) {symbol}: {e}")
                 continue
             if r["rejected"]:
-                state[symbol] = {"status": "PENDING_ENTRY", "quantity": pos["quantity"],
-                                  "intent_date": pos.get("intent_date", today)}
+                # 거부는 체결이 아니다 - last_slice_date 를 지워 같은 날 재시도한다
+                state[symbol] = {k: v for k, v in pos.items()
+                                  if k not in ("order_no", "order_date", "order_quantity",
+                                               "last_slice_date")}
+                state[symbol]["status"] = "PENDING_ENTRY"
                 events.append({"type": "ENTRY_REJECTED", "symbol": symbol})
                 log(f"[{today}] 매수 거부됨  {symbol}  - 다음 poll에서 재시도")
                 continue
             if r["fullyFilled"]:
-                entry_price = r["avgPrice"]
-                filled_qty = r["filledQty"]
-                state[symbol] = {
-                    "status": "OPEN", "quantity": filled_qty, "entry_price": entry_price,
-                    "entry_date": today, "stop_price": round(entry_price * (1 - risk["stopPct"]), 2),
-                    "target_price": round(entry_price * (1 + risk["targetPct"]), 2),
-                    "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
-                    "lastCountedDate": None,
-                }
+                filled = pos.get("filled_quantity", 0) + r["filledQty"]
+                cost = pos.get("entry_cost", 0.0) + r["filledQty"] * r["avgPrice"]
+                target = pos.get("target_quantity", pos["quantity"])
+                nxt = {**pos, "filled_quantity": filled, "entry_cost": cost}
+                # 보유일수는 첫 조각이 체결된 날부터 센다(마지막 조각 날이 아니다)
+                nxt.setdefault("first_fill_date", today)
+                for k in ("order_no", "order_date", "order_quantity"):
+                    nxt.pop(k, None)
                 events.append({"type": "FILL_ENTRY", "symbol": symbol,
-                                "price": entry_price, "qty": filled_qty})
-                log(f"[{today}] 매수 체결 확인  {symbol}  qty={filled_qty}  price={entry_price}")
+                                "price": r["avgPrice"], "qty": r["filledQty"]})
+                if filled >= target:
+                    state[symbol] = _open_from_fills(nxt, today, risk)
+                    log(f"[{today}] 매수 체결 완료  {symbol}  qty={filled}  "
+                        f"평균단가={state[symbol]['entry_price']}")
+                else:
+                    nxt["status"] = "PENDING_ENTRY"       # 남은 조각은 다음 거래일에
+                    state[symbol] = nxt
+                    log(f"[{today}] 매수 체결(부분) {symbol}  {filled}/{target}주 "
+                        f"- 남은 조각은 다음 거래일")
             # else: 아직 대기중 - 그대로 둔다(중복 제출 없음)
             continue
 

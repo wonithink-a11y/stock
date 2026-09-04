@@ -31,7 +31,9 @@ sys.path.insert(0, _THIS_DIR)
 REPO_ROOT = os.path.dirname(os.path.dirname(_THIS_DIR))
 KST = timezone(timedelta(hours=9))
 
-STRATEGIES = [("pbr_value_v1", 5_000_000), ("lowmom60_v1", 5_000_000)]
+# (전략, 배정자금, 분할일수). 분할일수는 하루 참여율을 낮추려는 것 -
+# 자금이 커질수록 늘린다(findings/sizing-position-count-capacity-2026-09.md).
+STRATEGIES = [("pbr_value_v1", 5_000_000, 1), ("lowmom60_v1", 5_000_000, 1)]
 
 
 def this_month_rebalance_date():
@@ -64,9 +66,10 @@ def main():
         print("이번 달 거래일이 캘린더에 없음 - 스킵")
         return
 
-    for strategy, capital in STRATEGIES:
+    for strategy, capital, slices in STRATEGIES:
         cmd = [sys.executable, os.path.join(_THIS_DIR, "run_monthly_rebalance.py"),
-               "--strategy", strategy, "--as-of", as_of, "--capital", str(capital)]
+               "--strategy", strategy, "--as-of", as_of, "--capital", str(capital),
+               "--entry-slices", str(slices)]
         if not args.dry_run:
             cmd.append("--enable-live-orders")
         print(f"=== {strategy} ({as_of}) ===")
