@@ -33,7 +33,13 @@ KST = timezone(timedelta(hours=9))
 
 # (전략, 배정자금, 분할일수). 분할일수는 하루 참여율을 낮추려는 것 -
 # 자금이 커질수록 늘린다(findings/sizing-position-count-capacity-2026-09.md).
-STRATEGIES = [("pbr_value_v1", 5_000_000, 1), ("lowmom60_v1", 5_000_000, 1)]
+# ★ 2026-09-04 - 5억 재신청 후 전략당 1억으로 상향(사용자 확인) -
+# engine/portfolio/portfolio.py의 backtest 기본 initial_capital과 정확히
+# 1:1로 맞춰 페이퍼와 백테스트를 직접 비교할 수 있게 한다(maxPositions=30
+# 기준 슬롯예산 333만원, 옛 500만원/30=16.6만원은 유동성 상위 종목도 못 삼).
+# 1억은 5억 참여율 분석(15.6%/일)의 1/5 규모라 entry_slices=1(하루 전량)도
+# 안전 범위 - 5일 분할은 5억 전액을 굴릴 때의 권고였다.
+STRATEGIES = [("pbr_value_v1", 100_000_000, 1), ("lowmom60_v1", 100_000_000, 1)]
 
 
 def this_month_rebalance_date():
