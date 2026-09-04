@@ -68,6 +68,58 @@ def scale_out_events(resolved, bars_by_ticker, trigger_pct, fraction, exit_cost_
     return out
 
 
+def trailing_exit(order, bars, start_date, end_date, peak0, trail_pct,
+                  exit_cost_bps, slippage_bps):
+    """start_date 이후 고가를 따라가다 trail_pct 만큼 밀리면 잔여 전량 청산.
+
+    판정은 **start_date 다음 세션부터** 한다 - 같은 봉 안에서 고가와 저가 중
+    무엇이 먼저였는지 일봉으로는 알 수 없기 때문이다(보수적 쪽).
+    체결가 규약은 executor.py 의 _fill_stop 과 같다: 시가가 이미 손절선 아래로
+    갭했으면 시가에, 아니면 손절선에 체결한다.
+    """
+    peak = peak0
+    for d in [str(x) for x in bars.index.astype(str)]:
+        if d <= start_date or d >= end_date:
+            continue
+        row = bars.loc[d]
+        stop = peak * (1 - trail_pct)
+        if float(row["low"]) <= stop:
+            gapped = float(row["open"]) <= stop
+            price = _sell_slippage(float(row["open"]) if gapped else stop, slippage_bps)
+            return (d, Fill(order, d, price, "STOP", exit_cost_bps, slippage_bps), 1.0)
+        peak = max(peak, float(row["high"]))
+    return None
+
+
+def with_trailing(events, resolved, bars_by_ticker, trail_pct, exit_cost_bps, slippage_bps):
+    """부분 익절 이벤트 뒤에 잔여분 트레일링 손절을 이어 붙인다.
+
+    events 가 비어 있으면(트리거 없음) 진입일부터 전량에 트레일링을 건다 -
+    '부분 익절 없이 트레일링만' 대조군이 된다."""
+    by_key = {(o.symbol, o.order_date): (o, ef, xf) for (_, o, ef, xf, _, _) in resolved}
+    out = {}
+    keys = events.keys() if events else by_key.keys()
+    for key in keys:
+        order, ef, xf = by_key[key]
+        bars = bars_by_ticker.get(key[0])
+        if bars is None:
+            continue
+        chain = []
+        if events:
+            pdate, pfill, frac = events[key]
+            chain.append((pdate, pfill, frac))
+            start, peak0 = pdate, pfill.fill_price
+        else:
+            start, peak0 = ef.fill_date, ef.fill_price
+        tr = trailing_exit(order, bars, start, xf.fill_date, peak0, trail_pct,
+                           exit_cost_bps, slippage_bps)
+        if tr is not None:
+            chain.append(tr)
+        if chain:
+            out[key] = chain
+    return out
+
+
 def random_timing_control(events, resolved, bars_by_ticker, seed):
     """대조군: 같은 거래·같은 비율·같은 건수를 팔되 **파는 날만 무작위**로 바꾼다.
 
@@ -98,7 +150,8 @@ def load_run(strategy_id, start, end):
     return run_smoke(strategy_id, start, end, REPO_ROOT, rule_module=mod)
 
 
-def measure(strategy_id, trigger_pct, fraction, start, end, run, random_seed=None):
+def measure(strategy_id, trigger_pct, fraction, start, end, run, random_seed=None,
+            trail_pct=None):
     t0 = time.time()
     p = run["params"]
     cfg = PortfolioConfig(
@@ -113,6 +166,9 @@ def measure(strategy_id, trigger_pct, fraction, start, end, run, random_seed=Non
                               p["cost"]["exitCostBps"], p["cost"]["slippageBps"])
         if random_seed is not None:
             pe = random_timing_control(pe, run["resolved"], run["bars_by_ticker"], random_seed)
+    if trail_pct is not None:
+        pe = with_trailing(pe or {}, run["resolved"], run["bars_by_ticker"], trail_pct,
+                            p["cost"]["exitCostBps"], p["cost"]["slippageBps"])
     portfolio, snaps = schedule_with_monthly_mtm(
         run["resolved"], cfg, run["bars_by_ticker"], run["calendar"], start, end,
         partial_exits=pe)
@@ -121,6 +177,11 @@ def measure(strategy_id, trigger_pct, fraction, start, end, run, random_seed=Non
              else "+{:.0f}% 에서 {:.0f}% 매도".format(trigger_pct * 100, fraction * 100))
     if random_seed is not None:
         label = "[대조군 seed{}] {:.0f}% 무작위시점 매도".format(random_seed, fraction * 100)
+    if trail_pct is not None:
+        label = (("트레일링 -{:.0f}% 만".format(trail_pct * 100)) if trigger_pct is None
+                 else label + " + 잔여 트레일링 -{:.0f}%".format(trail_pct * 100))
+    trail_fires = sum(1 for evs in (pe or {}).values()
+                      for (_, f, fr) in evs if fr >= 1.0) if trail_pct is not None else 0
     return {"strategyId": strategy_id, "label": label,
             "triggerPct": trigger_pct, "fraction": fraction,
             "period": start + " ~ " + end, "accountingMethod": "monthly mark-to-market",
@@ -128,7 +189,8 @@ def measure(strategy_id, trigger_pct, fraction, start, end, run, random_seed=Non
             "snapshots": [[d, float(e)] for d, e in snaps],
             "segments": segment_metrics([[d, float(e)] for d, e in snaps]),
             "closedPositionCount": len(portfolio.closed_positions),
-            "partialExitCount": partials,
+            "partialExitCount": partials, "trailPct": trail_pct,
+            "trailingExitCount": trail_fires,
             "scaleOutCandidates": len(pe or {}),
             "elapsedSeconds": round(time.time() - t0, 1)}
 
@@ -155,6 +217,8 @@ def main():
     ap.add_argument("--start", default="2016-01-01")
     ap.add_argument("--end", default="2026-08-14")
     ap.add_argument("--random-seeds", default="", help="무작위 시점 대조군 seed, 쉼표 구분")
+    ap.add_argument("--trails", default="", help="잔여분 트레일링 손절 %, 쉼표 구분. "
+                                                  "--triggers none 이면 전량 트레일링만")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -162,22 +226,32 @@ def main():
 
     os.makedirs(OUT_DIR, exist_ok=True)
     seeds = [int(x) for x in a.random_seeds.split(",")] if a.random_seeds else []
-    out = os.path.join(OUT_DIR, a.strategy + ("_control" if seeds else "") + ".json")
-    base = [(float(t) / 100, float(f), None)
-            for t in a.triggers.split(",") for f in a.fractions.split(",")]
-    grid = ([(t, f, sd) for (t, f, _) in base for sd in seeds] if seeds
-            else [(None, None, None)] + base)
+    trails = [float(x) / 100 for x in a.trails.split(",")] if a.trails else []
+    suffix = "_control" if seeds else ("_trail" if trails else "")
+    out = os.path.join(OUT_DIR, a.strategy + suffix + ".json")
+    trigs = [None if t.strip().lower() == "none" else float(t) / 100
+             for t in a.triggers.split(",")]
+    base = [(t, (None if t is None else float(f)))
+            for t in trigs for f in a.fractions.split(",")]
+    if any(t is None for t in trigs):        # 트리거 없음은 매도비율이 의미 없다
+        base = list(dict.fromkeys(base))
+    if seeds:
+        grid = [(t, f, sd, None) for (t, f) in base for sd in seeds]
+    elif trails:
+        grid = [(None, None, None, None)] + [(t, f, None, tr) for (t, f) in base for tr in trails]
+    else:
+        grid = [(None, None, None, None)] + [(t, f, None, None) for (t, f) in base]
     print("[{}] {} run_smoke 1회 로드 ...".format(time.strftime("%H:%M:%S"), a.strategy), flush=True)
     run = load_run(a.strategy, a.start, a.end)
     rows = []
-    for trig, frac, sd in grid:
-        print("[{}] {} trigger={} fraction={} seed={} ...".format(
-            time.strftime("%H:%M:%S"), a.strategy, trig, frac, sd), flush=True)
-        rows.append(measure(a.strategy, trig, frac, a.start, a.end, run, sd))
+    for trig, frac, sd, tr in grid:
+        print("[{}] {} trigger={} fraction={} seed={} trail={} ...".format(
+            time.strftime("%H:%M:%S"), a.strategy, trig, frac, sd, tr), flush=True)
+        rows.append(measure(a.strategy, trig, frac, a.start, a.end, run, sd, tr))
         m = rows[-1]["resultTable"]
-        print("    {:.2%} / {:.2%} / {:.4f}  부분청산 {}건  ({}s)".format(
+        print("    {:.2%} / {:.2%} / {:.4f}  부분 {}건 트레일링 {}건  ({}s)".format(
             m["cagr"], m["mdd"], m["sharpe"] or 0, rows[-1]["partialExitCount"],
-            rows[-1]["elapsedSeconds"]), flush=True)
+            rows[-1]["trailingExitCount"], rows[-1]["elapsedSeconds"]), flush=True)
         with open(out, "w", encoding="utf-8") as f:
             json.dump({"generatedAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "rows": rows},
                       f, ensure_ascii=False, indent=1, default=str)
@@ -219,7 +293,47 @@ def selftest():
     # 슬리피지가 있으면 체결가가 트리거보다 불리하다
     _, f2, _ = scale_out_events(resolved, {"TEST1": bars}, 0.10, 0.5, 15, 50)[("TEST1", "2026-01-02")]
     assert f2.fill_price < 110.0, f2.fill_price
-    print("selftest ok (6건)")
+
+    # --- 트레일링 손절
+    # 고가 100 -> 120 으로 오른 뒤 저가가 -20% 선(96) 아래로 내려오는 날 청산
+    tb = pd.DataFrame(
+        {"high": [100, 120, 118, 118], "low": [95, 110, 100, 90], "open": [100, 112, 115, 115],
+         "close": [100, 118, 110, 92]},
+        index=["2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05"])
+    tro = FakeOrder()
+    got = trailing_exit(tro, tb, "2026-02-02", "2026-02-09", 100.0, 0.20, 15, 0)
+    assert got is not None and got[0] == "2026-02-05", got   # peak 120 -> 손절선 96
+    assert abs(got[1].fill_price - 96.0) < 1e-9, got[1].fill_price
+    assert got[2] == 1.0 and got[1].fill_type == "STOP", got
+
+    # 시작일 당일에는 판정하지 않는다(같은 봉 고가·저가 순서를 모른다)
+    tb2 = tb.copy()
+    tb2.loc["2026-02-02", "low"] = 1
+    got2 = trailing_exit(tro, tb2, "2026-02-02", "2026-02-09", 100.0, 0.20, 15, 0)
+    assert got2[0] == "2026-02-05", got2
+
+    # 시가가 이미 손절선 아래로 갭하면 시가에 체결한다
+    tb3 = tb.copy()
+    tb3.loc["2026-02-05", "open"] = 80
+    got3 = trailing_exit(tro, tb3, "2026-02-02", "2026-02-09", 100.0, 0.20, 15, 0)
+    assert abs(got3[1].fill_price - 80.0) < 1e-9, got3[1].fill_price
+
+    # 안 밀리면 없음
+    assert trailing_exit(tro, tb, "2026-02-02", "2026-02-09", 100.0, 0.90, 15, 0) is None
+
+    # --- 체인: 부분 익절 뒤에 트레일링이 붙는다
+    res2 = [(None, tro, Fill(tro, "2026-02-02", 100.0, "OPEN", 15, 0),
+             Fill(tro, "2026-02-09", 92.0, "TIME_EXIT", 15, 0), None, None)]
+    ev = {("TEST1", "2026-01-02"): ("2026-02-03", Fill(tro, "2026-02-03", 110.0, "TARGET", 15, 0), 0.5)}
+    chained = with_trailing(ev, res2, {"TEST1": tb}, 0.20, 15, 0)
+    chain = chained[("TEST1", "2026-01-02")]
+    assert len(chain) == 2 and chain[0][2] == 0.5 and chain[1][2] == 1.0, chain
+    assert chain[1][0] > chain[0][0], chain                  # 트레일링이 부분 뒤에 온다
+
+    # 이벤트가 없으면 진입일부터 전량 트레일링(대조군)
+    only = with_trailing({}, res2, {"TEST1": tb}, 0.20, 15, 0)
+    assert only[("TEST1", "2026-01-02")][0][2] == 1.0, only
+    print("selftest ok (14건)")
 
 
 if __name__ == "__main__":

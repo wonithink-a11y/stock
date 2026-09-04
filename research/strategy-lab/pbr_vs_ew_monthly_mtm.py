@@ -67,10 +67,12 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
     None(기본)이면 process_day 에 None 이 그대로 가서 기존 동일가중 동작과
     바이트 단위로 같다 - 2026-09-04 균등위험 사이징 검증에서 추가.
 
-    partial_exits: 선택. {(symbol, order_date): (date, fill, fraction)} 을 주면
+    partial_exits: 선택. {(symbol, order_date): [(date, fill, fraction), ...]} 을 주면
     그 날 보유수량의 fraction 만큼을 부분 청산한다(익절 분할매도). None(기본)이면
     이 경로가 통째로 꺼져 기존과 바이트 단위로 같다 - 2026-09-04 부분익절 검증에서
-    추가. 한 거래당 최대 1회만 부분청산한다(격자를 단순하게 두려는 제약)."""
+    추가. 이벤트는 날짜순으로 순차 적용되고 fraction 은 **그 시점 잔여수량 기준**
+    이다. fraction >= 1.0 은 "남은 것 전부"(트레일링 손절)를 뜻하며, 그 경우 원래
+    청산 이벤트는 무효화된다(closed_early). 튜플 하나만 줘도 받는다(하위호환)."""
     portfolio = Portfolio(portfolio_cfg)
     close_lookup = _build_close_lookup(bars_by_ticker)
 
@@ -83,13 +85,18 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
     # 부분청산일도 이벤트로 잡는다 - 이 루프는 event_dates 만 순회하므로
     # 여기 안 넣으면 그날이 통째로 건너뛰어진다.
     by_partial_date = {}
-    for (sym, odate), (pdate, pfill, frac) in (partial_exits or {}).items():
-        by_partial_date.setdefault(pdate, []).append((sym, odate, pfill, frac))
+    for (sym, odate), evs in (partial_exits or {}).items():
+        for i, (pdate, pfill, frac) in enumerate(evs if isinstance(evs, list) else [evs]):
+            by_partial_date.setdefault(pdate, []).append((sym, odate, i, pfill, frac))
 
     month_ends = set(_month_end_dates(calendar, start, end))
     event_dates = sorted(set(by_entry_date) | set(by_exit_date) | month_ends
                           | set(by_partial_date))
     partial_done = set()
+    # 트레일링 손절 등으로 원래 청산일보다 먼저 닫힌 거래. 그 거래의 원래 청산
+    # 이벤트가 나중에 **같은 종목의 새 포지션**을 닫아버리는 것을 막는다 -
+    # by_exit_date 루프는 symbol 만 보고 어느 거래인지 안 보기 때문이다.
+    closed_early = set()
 
     snapshots = [(start, portfolio_cfg.initial_capital)]  # t0 baseline before any trading
 
@@ -103,6 +110,8 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
         exit_symbols_queued = set()
         for item in by_exit_date.get(date, []):
             sig, order, entry_fill, exit_fill, _, _ = item
+            if (order.symbol, order.order_date) in closed_early:
+                continue
             if order.symbol in portfolio.open_positions and order.symbol not in exit_symbols_queued:
                 exit_symbols_queued.add(order.symbol)
                 shares = portfolio.open_positions[order.symbol]["shares"]
@@ -111,17 +120,23 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
                 same_bar_exit_candidates.append((order.symbol, exit_fill))
         # 부분청산은 그 날의 전량청산보다 먼저 큐잉하지 않는다 - 같은 날 둘 다면
         # 전량청산이 이긴다(포지션이 사라지므로 부분청산은 의미가 없다).
-        for sym, odate, pfill, frac in by_partial_date.get(date, []):
-            key = (sym, odate)
+        for sym, odate, idx, pfill, frac in by_partial_date.get(date, []):
+            key = (sym, odate, idx)
             if key in partial_done or sym in exit_symbols_queued:
                 continue
             pos = portfolio.open_positions.get(sym)
             if pos is None:
                 continue
-            sell = int(pos["shares"] * frac)
-            if sell < 1 or sell >= pos["shares"]:
-                continue          # 1주 미만이거나 전량이면 부분청산이 아니다
+            # frac >= 1.0 은 "남은 것 전부"(트레일링 손절). 그 외에는 부분이어야
+            # 하므로 계산 결과가 전량이면 건너뛴다.
+            full = frac >= 1.0
+            sell = pos["shares"] if full else int(pos["shares"] * frac)
+            if sell < 1 or (not full and sell >= pos["shares"]):
+                continue
             partial_done.add(key)
+            if sell >= pos["shares"]:
+                exit_symbols_queued.add(sym)      # 같은 날 중복 청산 큐잉 방지
+                closed_early.add((sym, odate))    # 원래 청산 이벤트를 무효화
             exits_today.append((sym, pfill, sell))
 
         entries_today = by_entry_date.get(date, [])
