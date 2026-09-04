@@ -36,10 +36,15 @@ SERVICES = [
         ("KIS_APP_SECRET", "앱시크릿(APP SECRET)"),
         ("KIS_ACCOUNT_NO", "계좌번호(예: 12345678-01) - 지금은 이걸 쓰는 코드가 없다, 미리 저장만"),
     ]),
-    ("KIS 모의투자(VTS)", [
+    ("KIS 모의투자(VTS) - 주식", [
         ("KIS_VTS_APP_KEY", "앱키(APP KEY)"),
         ("KIS_VTS_APP_SECRET", "앱시크릿(APP SECRET)"),
         ("KIS_VTS_ACCOUNT_NO", "계좌번호(예: 12345678-01)"),
+    ]),
+    ("KIS 모의투자(VTS) - 선물", [
+        ("KIS_VTS_FUTURES_APP_KEY", "앱키(APP KEY)"),
+        ("KIS_VTS_FUTURES_APP_SECRET", "앱시크릿(APP SECRET)"),
+        ("KIS_VTS_FUTURES_ACCOUNT_NO", "계좌번호(예: 12345678-01)"),
     ]),
     ("업비트", [
         ("UPBIT_ACCESS_KEY", "액세스키(Access Key)"),
