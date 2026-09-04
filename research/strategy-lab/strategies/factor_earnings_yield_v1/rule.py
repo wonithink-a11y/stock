@@ -51,6 +51,16 @@ def risk_spec_for(features_row) -> RiskSpec:
                      max_holding_sessions=max_holding)
 
 
+def evaluate_at(pit_features, symbol: str, date: str, prev_date):
+    dates = _SELECTION.get(symbol, {})
+    if date not in dates:
+        return None
+    row = pit_features.at(date)
+    if row is None:
+        return None
+    return Signal(symbol=symbol, signal_date=date, direction="LONG")
+
+
 def selected_symbols(as_of: str) -> list:
     """engine/live/paperEngine.py의 scan_rebalance_signals()가 쓴다 - 이번
     리밸런싱일에 선택된 전체 종목 목록. 백테스트 경로(generate_signals 등)와
@@ -62,13 +72,3 @@ def still_selected(symbol: str, as_of: str) -> bool:
     """engine/live/paperEngine.py의 poll_once(is_still_selected=...)가 쓴다 -
     OPEN 포지션이 이번 리밸런싱에도 선택 목록에 남아있는지."""
     return as_of in _SELECTION.get(symbol, {})
-
-
-def evaluate_at(pit_features, symbol: str, date: str, prev_date):
-    dates = _SELECTION.get(symbol, {})
-    if date not in dates:
-        return None
-    row = pit_features.at(date)
-    if row is None:
-        return None
-    return Signal(symbol=symbol, signal_date=date, direction="LONG")

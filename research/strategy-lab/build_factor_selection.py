@@ -263,8 +263,10 @@ def main():
         vals = (xc.reindex(ec.index) / ec - 1.0)
         fwd.loc[rows] = tks.map(vals).to_numpy(dtype=float)
     base["fwd1m"] = fwd
-    base = base.dropna(subset=["fwd1m"])
-    base = base[base["fwd1m"] > -1].copy()
+    # 마지막 리밸런싱월은 다음 달이 없어 fwd1m을 만들 수 없다. fwd1m은 랭킹에
+    # 안 쓰이고(decile은 factor 값만 본다) 여기 필터로만 쓰이므로 그 달만 면제한다 -
+    # 안 그러면 라이브 조회가 영원히 한 달 뒤처진다. 과거 월의 선택은 안 바뀐다.
+    base = base[(base["fwd1m"] > -1) | (base["date"] == months[-1])].copy()
 
     market_map = load_market_map()
     base["market"] = base["ticker"].map(market_map)
@@ -330,7 +332,8 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
         # Compute decile assignment for each month
-        sub = base[["ticker", "date", "market", "fwd1m", factor_name]].dropna(subset=[factor_name, "fwd1m"])
+        sub = base[["ticker", "date", "market", "fwd1m", factor_name]].dropna(subset=[factor_name])
+        sub = sub[sub["fwd1m"].notna() | (sub["date"] == months[-1])]
         selections = {}
         monthly_counts = {}
 
@@ -509,6 +512,19 @@ def evaluate_at(pit_features, symbol: str, date: str, prev_date):
     if row is None:
         return None
     return Signal(symbol=symbol, signal_date=date, direction="LONG")
+
+
+def selected_symbols(as_of: str) -> list:
+    """engine/live/paperEngine.py의 scan_rebalance_signals()가 쓴다 - 이번
+    리밸런싱일에 선택된 전체 종목 목록. 백테스트 경로(generate_signals 등)와
+    무관한 라이브 전용 진입점."""
+    return [t for t, dates in _SELECTION.items() if as_of in dates]
+
+
+def still_selected(symbol: str, as_of: str) -> bool:
+    """engine/live/paperEngine.py의 poll_once(is_still_selected=...)가 쓴다 -
+    OPEN 포지션이 이번 리밸런싱에도 선택 목록에 남아있는지."""
+    return as_of in _SELECTION.get(symbol, {{}})
 '''
 
         with open(os.path.join(output_dir, "rule.py"), "w", encoding="utf-8") as f:

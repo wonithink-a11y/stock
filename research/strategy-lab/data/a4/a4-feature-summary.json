@@ -3,10 +3,10 @@
   "priceSource": "data/backfill/price/a2a/*.jsonl.gz (A2a, adjusted)",
   "period": [
     "2016-01-04",
-    "2026-08-03"
+    "2026-09-03"
   ],
-  "nRows": 5348454,
-  "nTickers": 2558,
+  "nRows": 5394650,
+  "nTickers": 2556,
   "adjustedPrice": true,
   "adjustNote": "A2a는 수정주가(PR-1.5/1.6, 액면분할·배당 보정). unadjusted는 사용하지 않음. forward return도 adjusted 기준.",
   "pitNote": "파생 feature(rolling netbuy, ratio)는 date t까지의 정보만 사용. forward return은 t 이후 거래일 — feature 계산에 미래 데이터 미사용.",
@@ -44,26 +44,26 @@
     "log_total_amount": "log1p(거래대금) — 유동성 proxy"
   },
   "missing": {
-    "fwd_d120": 0.05471263284680022,
-    "fwd_d60": 0.027345285198302163,
-    "fwd_d20": 0.009165452297056308,
+    "fwd_d120": 0.05330206778938393,
+    "fwd_d60": 0.026385214981509458,
+    "fwd_d20": 0.008218142048140286,
     "total_amount": 0.0
   },
   "basicStats": {
     "foreign_net": {
-      "mean": -32924387.0,
-      "median": -116145.0,
-      "std": 11117287318.0
+      "mean": -34581162.0,
+      "median": -127400.0,
+      "std": 11367260502.0
     },
     "inst_net": {
-      "mean": -7337256.0,
+      "mean": -5513737.0,
       "median": 0.0,
-      "std": 7077871467.0
+      "std": 7275191636.0
     },
     "indiv_net": {
-      "mean": 40261643.0,
-      "median": 307201.0,
-      "std": 12489168825.0
+      "mean": 40094899.0,
+      "median": 310400.0,
+      "std": 12790800696.0
     }
   },
   "notComputable": {
