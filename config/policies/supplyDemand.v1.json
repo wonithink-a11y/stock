@@ -1,7 +1,17 @@
 {
-  "version": "SD-1.0",
+  "version": "SD-1.1",
   "note": "A4(수급) 백필의 수집 파라미터와 인수 조건. price.v1.json·fundamentals.v1.json과 같은 층(dataPolicies)이며 score()도 A6도 읽지 않는다. 3차에 걸친 정찰(세션 2026-08-17)로 KIS·KRX 두 경로를 실제 호출로 검증한 결과 위에서 확정했다 — KIS(inquire-investor)는 최근 ~30거래일 고정창만 주고 날짜 파라미터가 없어 백필 불가, KRX(pykrx get_market_trading_value_by_date/_volume_by_date)가 유일한 백필 경로다. 종목 1개당 단일 호출로 10.6년(2,601행)을 6.78초에 받아온 실측이 이 정책의 근거다.",
   "market": "KR",
+
+  "incremental": {
+    "addedIn": "SD-1.1",
+    "reason": "SD-1.0은 매번 collectFrom(2016-01-04)부터 전량 재수집이 유일한 경로였다 - 종목당 단일 호출이 전체 구간을 싸게 준다는 게 최초 백필 시점의 근거였는데, 이후 A4가 stale해질 때마다(예: 2026-09-04, 3주 밀림) 같은 이유로 매번 16샤드 x 최대 220분짜리 전량 재수집을 반복하게 됐다 - 사용자 지적으로 확인. pykrx 함수 자체는 임의의 (frm,to) 구간을 받으므로 증분이 항상 가능했다.",
+    "howItWorks": "scripts/build-supply-demand-a4.py --start YYYY-MM-DD로 그 날짜부터만 수집한다(비우면 이전처럼 collectFrom 전체). finalize는 이번에 수집한 연도만 기존 data/backfill/supplyDemand/a4/{year}.jsonl.gz와 (ticker,date) 키로 병합한다(merge_year_rows) - 겹치는 키는 새로 받은 값이 이긴다(정정 공시 대응). 손대지 않은 연도의 기존 파일은 절대 안 건드린다.",
+    "scheduling": ".github/workflows/supply-demand-a4.yml의 schedule(매월 2일 09:00 KST)이 자동으로 마지막 수집일(_diagnostics.json의 actualDataTo) 다음날부터를 --start로 계산해 넘긴다. workflow_dispatch로 수동 실행할 때도 start 입력을 비우면 같은 자동계산을 쓴다 - 전량 재수집이 필요하면 start에 collectFrom(2016-01-04)을 명시로 넣는다.",
+    "cadenceNote": "월간으로 정한 이유 - factor_earnings_yield_v1 등 A4에 의존하는 페이퍼 트레이딩 전략이 매달 리밸런싱하므로, 분기 주기면 최대 2개월치가 밀린 채로 리밸런싱을 맞이할 수 있다(2026-09-04에 실제로 3주 밀림만으로도 그 달 선택이 0건이 됐다)."
+  },
+
+  "collectFromNote2": "collectFrom(아래) 자체는 안 바뀐다 - '최초 백필의 시작일'이라는 의미는 SD-1.1에서도 그대로다. 달라진 건 매 실행이 이 날짜부터 다시 긁느냐(SD-1.0) 아니면 마지막 수집일 다음부터만 긁느냐(SD-1.1, 기본)뿐이다.",
 
   "source": {
     "provider": "KRX",

@@ -2,7 +2,7 @@
 """A4 — 종목별 일별 수급(외국인·기관·개인 매수/매도) 원자료
 
 A1a(현재 상장 유니버스)의 종목별 일별 매수/매도 금액·수량을 KRX(pykrx)에서 받아
-연도별로 저장한다. 정의는 config/policies/supplyDemand.v1.json(SD-1.0)이다.
+연도별로 저장한다. 정의는 config/policies/supplyDemand.v1.json(SD-1.1)이다.
 
 3차에 걸친 정찰(세션 2026-08-17)의 결론이 이 수집기의 전제다:
   - KIS(inquire-investor)는 최근 ~30거래일 고정창만 주고 날짜 파라미터가 없어
@@ -171,7 +171,7 @@ def _import_pykrx_stock():
     raise last_err
 
 
-def run_shard(shard, shards, pol, limit):
+def run_shard(shard, shards, pol, limit, start=None):
     stock = _import_pykrx_stock()
 
     sd = pol
@@ -185,7 +185,11 @@ def run_shard(shard, shards, pol, limit):
 
     cand = load_jsonl(UNIVERSE)
     cal = load_json(CALENDAR)
-    frm = sd["collectFrom"].replace("-", "")
+    # ★ SD-1.1 — start가 있으면 증분 수집(마지막 수집일 다음날부터만). 없으면
+    # 정책의 collectFrom(전체, 최초 백필과 동일 동작) - run_finalize()의 연도별
+    # 병합이 두 경우 다 안전하다(기존 파일과 키 단위로 합친다).
+    frm = (start or sd["collectFrom"]).replace("-", "")
+    diag["collectFrom"] = start or sd["collectFrom"]
     to = cal["tradingDays"][-1].replace("-", "")
 
     tickers = sorted(x["ticker"] for x in cand)
@@ -365,12 +369,19 @@ def stream_validate_and_route(shard_files, cand, cal, pol, diag, scratch_dir):
          f"데이터 확보 종목 {tickers_with_data}/{total_candidates} "
          f"({rate*100:.1f}%) >= {a['minTickersWithDataWarn']*100:.0f}%")
 
-    from_d = pol["collectFrom"]
+    # ★ SD-1.1 — 증분 실행이면 이번 실행이 실제로 요청한 구간(diag의
+    # shardCollectFrom, run_finalize가 샤드 진단에서 미리 모아둠)을 분모로
+    # 쓴다. pol["collectFrom"](정책의 전체 시작일 2016-01-04)을 그대로 쓰면
+    # 3주치만 수집한 증분 실행이 "10년 중 3주만 있다 = 거의 100% 누락"으로
+    # 오탐한다.
+    shard_from = (diag.get("shardCollectFrom") or [None])[0]
+    from_d = shard_from or pol["collectFrom"]
     to_d = cal_days[-1]
     expected_days = sum(1 for d in cal_days if from_d <= d <= to_d)
     total_expected = expected_days * max(tickers_with_data, 1)
     missing_rate = 1 - (row_count / total_expected) if total_expected else 1
     diag["expectedDaysPerTicker"] = expected_days
+    diag["missingRateFrom"] = from_d
     diag["missingRate"] = round(missing_rate, 5)
     warn(missing_rate <= a["missingRateWarn"],
          f"누락률 {missing_rate*100:.2f}% <= {a['missingRateWarn']*100:.0f}% "
@@ -386,6 +397,45 @@ def stream_validate_and_route(shard_files, cand, cal, pol, diag, scratch_dir):
     return sorted(year_writers.keys())
 
 
+def merge_year_rows(existing_rows, new_rows):
+    """기존 연도 파일 행 + 새로 수집한 행을 (ticker,date) 키로 병합한다.
+    겹치면 new_rows(방금 수집)가 이긴다 - 재수집이 더 최신 값일 수 있다는
+    전제(예: 정정 공시로 뒤늦게 바뀐 수급). 순수 함수라 네트워크 없이
+    테스트 가능하다(이 파일 하단 self-test 참고). 정렬은 output.sortKey와
+    동일하게 (date, ticker)."""
+    by_key = {(r["ticker"], r["date"]): r for r in existing_rows}
+    for r in new_rows:
+        by_key[(r["ticker"], r["date"])] = r
+    return sorted(by_key.values(), key=lambda x: (x["date"], x["ticker"]))
+
+
+def merge_and_write_year(out_dir, year, new_rows, output_pol):
+    """out_dir/{year}.jsonl.gz가 있으면 읽어 new_rows와 병합해서 다시 쓰고,
+    없으면(신규 연도) new_rows만 쓴다. out_dir의 다른 연도 파일은 절대 열지도
+    지우지도 않는다 - 이 함수가 손대는 건 정확히 이 한 파일뿐이다(증분
+    수집의 안전성이 전부 이 경계에 달려있다). 네트워크 없이 tempdir로
+    테스트 가능하다(이 파일 하단 self-test 참고)."""
+    import gzip
+    path = f"{out_dir}/{year}.jsonl.gz"
+    existing_rows = []
+    if os.path.exists(path):
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            existing_rows = [json.loads(line) for line in f if line.strip()]
+    year_rows = merge_year_rows(existing_rows, new_rows)
+    raw = "\n".join(
+        json.dumps(x, ensure_ascii=False, sort_keys=True) for x in year_rows
+    ).encode("utf-8") + b"\n"
+    os.makedirs(out_dir, exist_ok=True)
+    with open(path, "wb") as f:
+        with gzip.GzipFile(fileobj=f, mode="wb", mtime=output_pol["gzipMtime"]) as gz:
+            gz.compresslevel = output_pol["gzipCompressLevel"]
+            gz.write(raw)
+    gz_bytes = os.path.getsize(path)
+    return {"rows": len(year_rows), "newRows": len(new_rows),
+            "existingRowsBeforeMerge": len(existing_rows),
+            "rawBytes": len(raw), "gzBytes": gz_bytes}
+
+
 # ── finalize ───────────────────────────────────────────────────
 def run_finalize(pol):
     out_dir = pol["output"]["dir"]
@@ -393,6 +443,12 @@ def run_finalize(pol):
     diag_path = f"{out_dir}/_diagnostics.json"
     diag = {"stage": "A4", "mode": "finalize", "supplyDemandPolicy": pol["version"],
             "environment": _environment()}
+    # ★ SD-1.1 — 증분 실행에서는 actualDataFrom이 이번 구간의 시작일로만 잡혀
+    # 전체 데이터셋의 실제 시작일(2016년대)을 잃어버린다. 덮어쓰기 전에 이전
+    # diagnostics의 actualDataFrom을 미리 읽어 더 이른 쪽을 남긴다.
+    prev_actual_from = None
+    if os.path.exists(diag_path):
+        prev_actual_from = load_json(diag_path).get("actualDataFrom")
 
     shard_files = sorted(glob.glob(f"{shard_dir}/shard-*.jsonl"))
     if not shard_files:
@@ -403,6 +459,7 @@ def run_finalize(pol):
 
     empty_n = exc_n = unresolved_n = 0
     unresolved_all = []
+    shard_collect_from = set()
     for p in shard_files:
         d = f"{shard_dir}/_diagnostics-{os.path.basename(p).replace('.jsonl', '')}.json"
         if not os.path.exists(d):
@@ -414,9 +471,14 @@ def run_finalize(pol):
         exc_n += sd_diag.get("exceptionCount", 0)
         unresolved_n += sd_diag.get("unresolvedCount", 0)
         unresolved_all.extend(sd_diag.get("unresolved", []))
+        shard_collect_from.add(sd_diag.get("collectFrom"))
     diag["emptyCount"] = empty_n
     diag["exceptionCount"] = exc_n
     diag["unresolvedCount"] = unresolved_n
+    # ★ SD-1.1 — 이번 실행이 증분(start override)인지 전량(정책 collectFrom
+    # 그대로)인지 manifest에서 바로 알 수 있게 남긴다. 샤드마다 다른 값이면
+    # (워크플로 버그로) 섞여 들어온 것이라 그대로 기록해 드러낸다.
+    diag["shardCollectFrom"] = sorted(x for x in shard_collect_from if x)
     diag["unresolved"] = unresolved_all
 
     cand = load_jsonl(UNIVERSE)
@@ -433,6 +495,9 @@ def run_finalize(pol):
     # validate()는 이 버전에서도 행을 걸러내지 않는다(A2b와 달리 품질 제외가 없다) —
     # 위반이 있으면 FAIL로 전체를 막을 뿐, 통과 시엔 전량을 그대로 쓴다.
     diag["rowCountAfterValidation"] = diag["rowCount"]
+    diag["actualDataFromThisRun"] = diag["actualDataFrom"]
+    if prev_actual_from and prev_actual_from < diag["actualDataFrom"]:
+        diag["actualDataFrom"] = prev_actual_from
     print(f"[2/3] 구간 — 캘린더 {diag['calendarStart']}~{diag['calendarEnd']} / "
           f"실측 {diag['actualDataFrom']}~{diag['actualDataTo']} · "
           f"빈 응답 {empty_n} · 예외/UNRESOLVED {exc_n} · 총 {diag['rowCount']}행")
@@ -457,33 +522,32 @@ def run_finalize(pol):
             os.remove(f2)
         return 1
 
-    print("\n[3/3] 연도별 정렬 · gzip (스크래치 파일 하나씩만 메모리에 올린다)")
-    for old in glob.glob(f"{out_dir}/*.jsonl.gz"):
-        os.remove(old)
-
-    import gzip
+    print("\n[3/3] 연도별 병합 · 정렬 · gzip (스크래치 파일 하나씩만 메모리에 올린다)")
+    # ★ SD-1.1 — years_found에 없는 연도의 기존 파일은 절대 건드리지 않는다.
+    # 옛 방식(out_dir의 *.jsonl.gz를 전량 삭제 후 이번 샤드 데이터로만 재생성)은
+    # 증분 수집(예: 최근 3주치만) 시 그 3주가 속한 연도 말고는 shard 데이터가
+    # 없으므로 나머지 9년치가 전부 사라진다 — 증분을 붙이기 전에 발견해서 고쳤다.
+    # years_found에 있는 연도만 merge_and_write_year()로 기존+신규를 병합한다
+    # (전량 재수집일 때도 새 값이 겹치는 키를 그대로 덮어써서 결과가 동일하다).
     years = {}
     total_rows = 0
     for y in years_found:
-        year_rows = load_jsonl(f"{scratch_dir}/{y}.jsonl")
-        year_rows.sort(key=lambda x: (x["date"], x["ticker"]))
-        path = f"{out_dir}/{y}.jsonl.gz"
-        raw = "\n".join(
-            json.dumps(x, ensure_ascii=False, sort_keys=True) for x in year_rows
-        ).encode("utf-8") + b"\n"
-        with open(path, "wb") as f:
-            with gzip.GzipFile(fileobj=f, mode="wb", mtime=pol["output"]["gzipMtime"]) as gz:
-                gz.compresslevel = pol["output"]["gzipCompressLevel"]
-                gz.write(raw)
-        gz_bytes = os.path.getsize(path)
-        years[y] = {"rows": len(year_rows), "rawBytes": len(raw), "gzBytes": gz_bytes}
-        total_rows += len(year_rows)
-        print(f"  {y}.jsonl.gz  {len(year_rows):>9}행  "
-              f"{len(raw)/1e6:6.1f}MB → {gz_bytes/1e6:5.1f}MB")
+        new_rows = load_jsonl(f"{scratch_dir}/{y}.jsonl")
+        years[y] = merge_and_write_year(out_dir, y, new_rows, pol["output"])
+        total_rows += years[y]["rows"]
+        print(f"  {y}.jsonl.gz  기존 {years[y]['existingRowsBeforeMerge']:>9}행 + "
+              f"신규 {years[y]['newRows']:>7}행 → 병합 {years[y]['rows']:>9}행  "
+              f"{years[y]['rawBytes']/1e6:6.1f}MB → {years[y]['gzBytes']/1e6:5.1f}MB")
         os.remove(f"{scratch_dir}/{y}.jsonl")
 
     diag["years"] = years
     diag["totalGzBytes"] = sum(v["gzBytes"] for v in years.values())
+    # 이번에 안 건드린 연도까지 포함한 전체 데이터셋 현황(디컴프레션 없이 파일
+    # 크기만) - 증분 실행에서 "누적 전체가 지금 몇 개 연도·몇 바이트인가"를 알 수
+    # 있게 한다.
+    all_gz = sorted(glob.glob(f"{out_dir}/*.jsonl.gz"))
+    diag["yearsInDataset"] = [os.path.basename(p)[:4] for p in all_gz]
+    diag["totalGzBytesAllYears"] = sum(os.path.getsize(p) for p in all_gz)
 
     with open(diag_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(diag, f, ensure_ascii=False, indent=2)
@@ -551,6 +615,52 @@ def _selftest() -> int:
         diff = sum(row["buyAmount"].get(k, 0) - row["sellAmount"].get(k, 0) for k in cats2)
         check((diff == 0) == expect_zero, f"시장 청산 조건 — {label}")
 
+    # merge_year_rows: 증분 병합 로직 (SD-1.1)
+    existing = [
+        {"ticker": "005930", "date": "2026-08-01", "buyAmount": {"전체": 1}},
+        {"ticker": "005930", "date": "2026-08-14", "buyAmount": {"전체": 2}},
+        {"ticker": "000660", "date": "2026-08-14", "buyAmount": {"전체": 3}},
+    ]
+    new = [
+        {"ticker": "005930", "date": "2026-08-14", "buyAmount": {"전체": 99}},  # 겹침 - 새 값이 이겨야 함
+        {"ticker": "005930", "date": "2026-08-15", "buyAmount": {"전체": 4}},
+    ]
+    merged = merge_year_rows(existing, new)
+    check(len(merged) == 4, "merge_year_rows: 겹치는 키는 하나로 합쳐진다(3+2-1=4)")
+    check([r["date"] for r in merged] == sorted(r["date"] for r in merged),
+          "merge_year_rows: date 오름차순 정렬")
+    dup = next(r for r in merged if r["ticker"] == "005930" and r["date"] == "2026-08-14")
+    check(dup["buyAmount"]["전체"] == 99, "merge_year_rows: 겹치는 키는 새 값(new_rows)이 이긴다")
+    unchanged = next(r for r in merged if r["ticker"] == "000660")
+    check(unchanged["buyAmount"]["전체"] == 3, "merge_year_rows: 안 겹치는 기존 행은 그대로 보존")
+    check(merge_year_rows([], []) == [], "merge_year_rows: 둘 다 빈 입력이면 빈 출력")
+    check(merge_year_rows(existing, []) == sorted(existing, key=lambda x: (x["date"], x["ticker"])),
+          "merge_year_rows: 신규 없이 기존만 있으면 기존을 정렬만 해서 돌려준다(최초 백필 재실행과 동일 안전성)")
+
+    # merge_and_write_year: 실제 파일 I/O(tempdir) - 다른 연도 파일을 안 건드리는지까지 검증
+    import gzip
+    import tempfile
+    output_pol = {"gzipMtime": 0, "gzipCompressLevel": 6}
+    with tempfile.TemporaryDirectory() as tmp:
+        untouched_path = f"{tmp}/2020.jsonl.gz"
+        untouched_rows = [{"ticker": "005930", "date": "2020-01-02", "buyAmount": {"전체": 7}}]
+        with open(untouched_path, "wb") as f:
+            with gzip.GzipFile(fileobj=f, mode="wb", mtime=0) as gz:
+                gz.write(("\n".join(json.dumps(r, sort_keys=True) for r in untouched_rows) + "\n").encode())
+
+        r1 = merge_and_write_year(tmp, "2026", existing, output_pol)
+        check(r1["existingRowsBeforeMerge"] == 0, "merge_and_write_year: 신규 연도는 기존 0행에서 시작")
+        check(r1["rows"] == len(existing), "merge_and_write_year: 첫 실행은 새로 받은 행 수 그대로")
+
+        r2 = merge_and_write_year(tmp, "2026", new, output_pol)
+        check(r2["existingRowsBeforeMerge"] == len(existing), "merge_and_write_year: 두 번째 실행은 첫 실행 결과를 읽어온다")
+        check(r2["rows"] == 4, "merge_and_write_year: 재실행 결과도 겹치는 키가 하나로 합쳐진다")
+
+        with gzip.open(untouched_path, "rt", encoding="utf-8") as f:
+            still_there = [json.loads(line) for line in f if line.strip()]
+        check(still_there == untouched_rows,
+              "merge_and_write_year: 안 건드린 연도(2020) 파일은 바이트 단위로 그대로 남는다")
+
     print("\n" + ("전체 통과" if ok else "실패 있음"))
     return 0 if ok else 1
 
@@ -562,6 +672,9 @@ def main() -> int:
     ap.add_argument("--finalize", action="store_true")
     ap.add_argument("--limit", type=int, default=0,
                     help="스모크 테스트용. 진단에 smokeTest 플래그가 박힌다")
+    ap.add_argument("--start", type=str, default=None,
+                    help="YYYY-MM-DD. 이 날짜부터만 수집한다(증분) - 비우면 정책의 "
+                         "collectFrom(전체, 최초 백필과 동일)")
     ap.add_argument("--selftest", action="store_true",
                     help="네트워크 없이 merge_dfs·시장청산조건 로직만 검증한다")
     args = ap.parse_args()
@@ -586,7 +699,7 @@ def main() -> int:
     if not (0 <= args.shard < shards):
         print(f"--shard는 0 이상 {shards} 미만이어야 한다")
         return 1
-    return run_shard(args.shard, shards, pol, args.limit)
+    return run_shard(args.shard, shards, pol, args.limit, args.start)
 
 
 if __name__ == "__main__":
