@@ -53,7 +53,7 @@ def _month_end_dates(calendar, start, end):
 
 
 def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar, start, end,
-                              weight_fn=None):
+                              weight_fn=None, partial_exits=None):
     """Verbatim copy of engine/runner.py's _schedule_portfolio() day-loop
     (same-bar retry included, unmodified logic) with one addition: at each
     month-end trading date, snapshot portfolio.equity() using that date's
@@ -65,7 +65,12 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
     편입되는 종목들 사이의 상대 비중으로 쓴다(engine Portfolio.process_day 의
     opt-in weights 인자를 그대로 통과시킬 뿐, 이 함수는 비중을 해석하지 않는다).
     None(기본)이면 process_day 에 None 이 그대로 가서 기존 동일가중 동작과
-    바이트 단위로 같다 - 2026-09-04 균등위험 사이징 검증에서 추가."""
+    바이트 단위로 같다 - 2026-09-04 균등위험 사이징 검증에서 추가.
+
+    partial_exits: 선택. {(symbol, order_date): (date, fill, fraction)} 을 주면
+    그 날 보유수량의 fraction 만큼을 부분 청산한다(익절 분할매도). None(기본)이면
+    이 경로가 통째로 꺼져 기존과 바이트 단위로 같다 - 2026-09-04 부분익절 검증에서
+    추가. 한 거래당 최대 1회만 부분청산한다(격자를 단순하게 두려는 제약)."""
     portfolio = Portfolio(portfolio_cfg)
     close_lookup = _build_close_lookup(bars_by_ticker)
 
@@ -75,8 +80,16 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
         by_entry_date.setdefault(order.order_date, []).append(item)
         by_exit_date.setdefault(exit_fill.fill_date, []).append(item)
 
+    # 부분청산일도 이벤트로 잡는다 - 이 루프는 event_dates 만 순회하므로
+    # 여기 안 넣으면 그날이 통째로 건너뛰어진다.
+    by_partial_date = {}
+    for (sym, odate), (pdate, pfill, frac) in (partial_exits or {}).items():
+        by_partial_date.setdefault(pdate, []).append((sym, odate, pfill, frac))
+
     month_ends = set(_month_end_dates(calendar, start, end))
-    event_dates = sorted(set(by_entry_date) | set(by_exit_date) | month_ends)
+    event_dates = sorted(set(by_entry_date) | set(by_exit_date) | month_ends
+                          | set(by_partial_date))
+    partial_done = set()
 
     snapshots = [(start, portfolio_cfg.initial_capital)]  # t0 baseline before any trading
 
@@ -96,6 +109,21 @@ def schedule_with_monthly_mtm(resolved, portfolio_cfg, bars_by_ticker, calendar,
                 exits_today.append((order.symbol, exit_fill, shares))
             elif order.order_date == date:
                 same_bar_exit_candidates.append((order.symbol, exit_fill))
+        # 부분청산은 그 날의 전량청산보다 먼저 큐잉하지 않는다 - 같은 날 둘 다면
+        # 전량청산이 이긴다(포지션이 사라지므로 부분청산은 의미가 없다).
+        for sym, odate, pfill, frac in by_partial_date.get(date, []):
+            key = (sym, odate)
+            if key in partial_done or sym in exit_symbols_queued:
+                continue
+            pos = portfolio.open_positions.get(sym)
+            if pos is None:
+                continue
+            sell = int(pos["shares"] * frac)
+            if sell < 1 or sell >= pos["shares"]:
+                continue          # 1주 미만이거나 전량이면 부분청산이 아니다
+            partial_done.add(key)
+            exits_today.append((sym, pfill, sell))
+
         entries_today = by_entry_date.get(date, [])
         candidates_today = [(order, entry_fill) for (_, order, entry_fill, _, _, _) in entries_today]
         weights = None

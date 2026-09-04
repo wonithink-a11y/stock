@@ -51,11 +51,22 @@ class Portfolio:
             proceeds = exit_fill.fill_price * shares
             cost = proceeds * (exit_fill.cost_bps / 10000)
             pending_cash += proceeds - cost
-            pos = self.open_positions.pop(symbol)
-            pnl = (proceeds - cost) - pos["cost_basis"]
+            pos = self.open_positions[symbol]
+            held = pos["shares"]
+            # 부분 청산: shares < 보유수량이면 원가를 안분하고 나머지를 남긴다.
+            # shares == held 이면 아래는 기존 경로와 수치가 완전히 같다(basis_sold
+            # = cost_basis, 남는 수량 0 -> pop).
+            basis_sold = pos["cost_basis"] * (shares / held) if held else 0.0
+            pnl = (proceeds - cost) - basis_sold
+            partial = shares < held
+            if partial:
+                pos["shares"] = held - shares
+                pos["cost_basis"] = pos["cost_basis"] - basis_sold
+            else:
+                self.open_positions.pop(symbol)
             self.closed_positions.append({
                 "symbol": symbol, "entry": pos["entry_fill"], "exit": exit_fill,
-                "shares": shares, "pnl": pnl,
+                "shares": shares, "pnl": pnl, "partial": partial,
                 "entry_date": pos["entry_date"], "exit_date": exit_fill.fill_date,
             })
 
