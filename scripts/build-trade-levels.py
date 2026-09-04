@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """종목별 손절가·목표가·수량 -> docs/data/trade-levels.json
 
-config/policies/portfolio.v1.json(PF-1.0)의 규칙을, daily-analysis 가 이미 매일
+config/policies/portfolio.v1.json(PF-1.2, 미발효)의 규칙을, daily-analysis 가 이미 매일
 쓰는 docs/data/prices.json(872종목 OHLCV 250일)에 적용하기만 한다 - 새 수집 없고
 새 규칙도 없다. ATR 정의는 research/strategy-lab/engine/indicators/atr.py 와
 같은 Wilder 방식이다(연구 엔진은 production 과 격리돼 있어 import 하지 않고

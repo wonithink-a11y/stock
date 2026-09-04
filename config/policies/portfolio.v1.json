@@ -1,8 +1,7 @@
 {
- "version": "PF-1.1",
+ "version": "PF-1.2",
  "status": "DRAFT_NOT_ADOPTED",
- "statusNote": "registry 에 등록하지 않았다 = 발효 안 됨. 아무 코드도 이 파일을 읽지 않는다. PF-1.0(2026-09-04 오전) 대비 바뀐 것: (1) 청산 규칙을 OOS 로 재검증해 초안값을 철회하고 현행 라이브 동작을 정책 기본값으로 확정 (2) 사이징의 균등위험을 정식 기각하고 균등금액 확정 (3) 유동성·참여율·분할매수 절 신설 (4) 벤치마크를 '같은 적격 유니버스'로 못 박음 (5) 슬리브 배분 규칙 신설. 여전히 사람 GO 전에는 발효하지 않는다.",
-
+ "statusNote": "registry 에 등록하지 않았다 = 발효 안 됨. ★ 2026-09-04 정정 - PF-1.1 이 '아무 코드도 이 파일을 읽지 않는다' 고 적었던 것은 사실이 아니다: scripts/build-trade-levels.py 가 이미 이 파일을 읽어 docs/data/trade-levels.json 을 만든다. 다만 그 스크립트는 어느 워크플로에도 배선돼 있지 않고 산출물도 미커밋이며 UI 가 읽지도 않는다 - 소비 경로가 떠 있는 상태다. PF-1.0(2026-09-04 오전) 대비 바뀐 것: (1) 청산 규칙을 OOS 로 재검증해 초안값을 철회하고 현행 라이브 동작을 정책 기본값으로 확정 (2) 사이징의 균등위험을 정식 기각하고 균등금액 확정 (3) 유동성·참여율·분할매수 절 신설 (4) 벤치마크를 '같은 적격 유니버스' 로 못 박음 (5) 슬리브 배분 규칙 신설. PF-1.2 에서 바뀐 것: (6) 위 statusNote 사실 정정 (7) allocation.gate 의 적용 범위를 실계좌 배분으로 한정(모의 관측 예외). 여전히 사람 GO 전에는 발효하지 않는다.",
  "measured": {
   "exit.mode": "PF-1.0 초안(2xATR/RR3.0)을 철회한다. findings/tier2-exit-policy-oos-2026-09.md - 전 구간 1회 실행에서는 손절+목표가 CAGR 을 올렸으나(5.49->9.14%) 구간을 TRAIN/VALID/TEST 로 가르니 그 이득이 TRAIN 에 몰려 있었다(TRAIN 6.80->11.85%, TEST 5.50->4.75%). TRAIN 최선(3xATR/RR1.0)이 TEST 에서 3/3 위로 떨어지고 TEST 최선은 아무것도 안 하는 무손절이다. 이 프로젝트 표준 게이트(TRAIN 최선이 VALID·TEST 에서도 상위 유지) 실패 - 청산규칙을 바꿀 근거가 없다.",
   "exit.drawdownOption": "단 MDD 는 3xATR/RR1.5 가 세 구간 전부에서 개선한다(-21.09/-10.34/-12.70 -> -12.80/-6.69/-10.62). 손절은 견고한 낙폭 축소 장치이고 수익 증대 장치가 아니다 - Tier 1.5(거래단위, findings/portfolio-exit-policy-validation-2026-09.md)의 '기대값 절반을 팔아 꼬리 30%를 산다'와 같은 결론. 낙폭을 사려면 켜되 수익과의 교환임을 알고 켠다.",
@@ -15,7 +14,6 @@
   "benchmark.universe": "확정. 벤치마크의 유니버스가 전략의 유니버스와 같아야 한다. 2026-09-04 에 유동성 필터 없는 A1a 전체 EW(게다가 생존편향 있음)를 대조군으로 써서 lowmom60 결론을 한 번 잘못 냈다 - 같은 적격 유니버스 EW 로 다시 재니 뒤집혔다.",
   "rebalance.frequency": "UNTESTED(monthly 존치). 회전율을 낮추면 성과가 좋아진다는 방향은 PBR dropout 실험에서 관측됐다(CAGR +0.64%p, 회전율 -40.6%)."
  },
-
  "exit": {
   "mode": "rebalance_only",
   "modeNote": "월별 리밸런싱에서 선택 목록을 벗어나면 청산한다. 가격 기반 손절·목표는 걸지 않는다 - 현행 라이브(pbr_value_v1·lowmom60_v1 policy.json 의 stopPct 0.99 / targetPct 100.0 = 도달 불가)와 같은 동작이고, OOS 에서 TEST 최선이 이것이다.",
@@ -36,7 +34,6 @@
    "neverStopOnlyNote": "손절만 걸고 목표를 안 거는 조합은 두 계층 실측 모두에서 최악이었다. 켤 거면 목표도 함께 건다."
   }
  },
-
  "sizing": {
   "weighting": "equal_notional",
   "weightingNote": "종목당 배정 = 배정자본 / maxPositions. 균등위험(1/ATR% 역변동성)은 기각됐다 - measured 참고.",
@@ -49,7 +46,6 @@
   "riskPerTradePct": null,
   "riskPerTradePctNote": "PF-1.0 의 1.0 을 기각했다 - measured 참고. 균등위험은 역변동성 가중과 같고 실측 네 지표 전부 악화."
  },
-
  "liquidity": {
   "minTurnover20Krw": 100000000,
   "minTurnover20Note": "전략의 적격 유니버스 필터와 같은 값이어야 한다(pbr_value_v1·lowmom60_v1 의 build_selection.py MIN_TURNOVER). 이 값을 올리면 수용력은 오르지만 유니버스가 바뀐다 - 2026-08-21 에 확인된 '유동성 통제변수가 팩터보다 강한 신호였다' 함정 영역이라 임의로 올리지 않는다.",
@@ -60,40 +56,45 @@
   "entrySlicesTradeoff": "분할하면 시장충격은 줄지만 그 기간의 가격변동(타이밍 리스크)을 새로 진다. 백테스트는 리밸런싱일 종가 단일 체결 + 30bps 를 가정하므로 분할 매수는 백테스트와 추적오차를 만든다(충격을 줄이는 방향이라 30bps 가정 자체는 오히려 더 타당해진다).",
   "capacityNote": "슬리브 하나의 수용력은 minTurnover20 * participationLimit * maxPositions * entrySlices 다. 분할일수가 곱해지므로 자금이 크다는 이유로 슬리브를 늘릴 필요는 없다."
  },
-
  "allocation": {
   "rule": "게이트를 통과한 슬리브에만 자금을 배정한다. 통과한 슬리브가 없는 칸은 현금으로 둔다.",
-  "gate": "TRAIN/VALID/TEST 세 구간에서 같은 적격 유니버스 EW 대비 초과수익의 부호가 유지될 것. TRAIN 최선이 VALID·TEST 에서도 상위를 유지할 것.",
+  "gate": "TRAIN/VALID/TEST 세 구간에서 같은 적격 유니버스 EW 대비 초과수익의 부호가 유지될 것. TRAIN 최선이 VALID·TEST 에서도 상위를 유지할 것. ★ 적용 범위는 위 scope 를 따른다 - 모의 관측 슬리브에는 걸지 않는다.",
   "attributionNote": "슬리브가 같은 종목을 들고 있어도 성과 귀속은 정확하다 - engine/live/positionStore.py 가 strategy_id 별 장부를 따로 쓰고 주식은 대체가능이라 계좌 합산 수량 중 그 슬리브의 수량만 파는 것이 정확히 동작한다.",
   "overlapNote": "다만 유동성 제약은 장부가 아니라 시장이 보는 합산 주문에 걸린다. 같은 날 같은 종목을 두 슬리브가 사면 participationLimit 은 그 합계로 판정한다.",
-  "diversificationNote": "종목 겹침이 낮다고 상관이 낮지 않다 - pbr_value_v1 과 lowmom60_v1 은 종목 겹침 0.6% 인데 월수익 상관 0.679 다(둘 다 롱온리 주식이라 시장 베타가 지배). 분산 효과는 겹침이 아니라 수익 상관으로 판단한다."
+  "diversificationNote": "종목 겹침이 낮다고 상관이 낮지 않다 - pbr_value_v1 과 lowmom60_v1 은 종목 겹침 0.6% 인데 월수익 상관 0.679 다(둘 다 롱온리 주식이라 시장 베타가 지배). 분산 효과는 겹침이 아니라 수익 상관으로 판단한다.",
+  "scope": "실계좌 배분에만 적용한다. KIS 모의계좌 페이퍼 트레이딩의 슬리브 구성은 이 게이트의 대상이 아니다 - 실손실이 0 이라 기각된 전략도 관측용으로 굴릴 수 있고, 실제로 그렇게 하고 있다(2026-09-04 사용자 결정, lowmom60_v1 은 같은 날 REJECT 로 내려갔는데도 존치 - research/strategy-lab/run_paper_trading_daily.py 의 STRATEGIES 주석 참고). 이 절이 없으면 발효하는 순간 자기 정책을 위반한 상태가 된다."
  },
-
  "rebalance": {
   "frequency": "monthly",
   "trigger": "매월 첫 거래일. 선택 목록에서 빠지면 청산(REBALANCE_EXIT), 남으면 계속 보유(continuousHoldOnRenewal).",
   "note": "회전율을 낮추면 성과가 좋아진다는 방향은 관측됐다(PBR dropout: CAGR +0.64%p, 회전율 -40.6%). 주기를 짧게 바꿀 때는 그 반대를 각오한다."
  },
-
  "benchmark": {
   "primary": "EW_ELIGIBLE_UNIVERSE",
   "primaryNote": "그 전략의 적격 유니버스(유동성 필터 적용 후)를 동일가중한 것. research/strategy-lab/strategies/ew_benchmark_liquid_v1 이 이것이다. 반드시 전략과 같은 유니버스를 쓴다 - 다른 유니버스를 쓰면 결론이 뒤집힌다(2026-09-04 실측 사례).",
   "forbidden": [
    "유동성 필터를 적용하지 않은 전체 유니버스 EW(data/market-regime/market_return.parquet 의 ew_ret) - 유니버스가 다르고 A1a 현행상장만이라 생존편향이 있다."
   ],
-  "reference": ["KOSPI", "KOSDAQ"],
+  "reference": [
+   "KOSPI",
+   "KOSDAQ"
+  ],
   "referenceNote": "참고용이다. 2026년처럼 지수와 중앙값 종목이 갈리는 국면이 있다(2026-05 KOSPI +22.33% vs 동일가중 -6.04%) - 지수만 보면 전략 진단을 정반대로 읽는다.",
-  "reportingMetrics": ["CAGR", "MDD", "Sharpe", "Calmar", "excessOverBenchmark"],
+  "reportingMetrics": [
+   "CAGR",
+   "MDD",
+   "Sharpe",
+   "Calmar",
+   "excessOverBenchmark"
+  ],
   "accountingNote": "수익률은 월별 시가평가(MTM)로 잰다. 실현손익 누적 방식은 금지다 - 2026-08-22 에 폐기됐고 그 방식은 Sharpe 를 최대 4.9배 부풀린다."
  },
-
  "entryZone": null,
  "entryZoneNote": [
   "'얼마면 사도 되나'에 이 정책은 답하지 않는다. 지어내지 않는다(절대 규칙 1).",
   "근거 1 - 손절·목표가 ATR 비례면 R:R 이 진입가와 무관하게 일정해 산술적으로 진입 상한이 안 나온다.",
   "근거 2 - 진입 타이밍 규칙은 이 프로젝트에서 5개 후보 전부에서 닫혔다."
  ],
-
  "scope": [
   "이 정책은 조회·지표 표시용이다. 주문을 내지 않는다.",
   "config/policies/trading.v1.json 의 blockedStates(거래정지·관리종목)에 걸린 종목은 여기서도 대상이 되지 않는다.",
