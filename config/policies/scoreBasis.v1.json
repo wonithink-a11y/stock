@@ -1,5 +1,5 @@
 {
-  "version": "SB-1.0",
+  "version": "SB-1.1",
   "note": "점수가 '어떤 축 집합 위에서' 매겨졌는가를 선언한다. missingAxis(MA-1.0)와 다른 질문이다 — 저쪽은 '결측 축을 어떻게 계산하는가'(mode)이고 여기는 '이 산출물은 무슨 모델인가'(선언)다. 한 파일에 두면 승인 목록을 정책에 넣었을 때와 같은 일이 생긴다(registry.approvalsNote 참조).",
   "engineReadsThis": false,
   "engineReadsThisNote": "score()는 이 정책을 읽지 않는다. 그래서 registry.policies가 아니라 analysisPolicies에 있다 — meta.policies는 '그 점수를 만든 정책 전량'이라는 계약이라 여기 섞으면 provenance가 허위가 된다. 엔진은 축을 계산하고 basis 판정은 소비자가 한다(백테스트 표본 편입에서 '엔진이 모집단을 정하지 않는다'로 가른 것과 같다).",
@@ -7,9 +7,11 @@
   "models": {
     "KR_4AXIS": {
       "market": "KR",
-      "basis": ["fundamental", "technical", "valuation", "supplyDemand"],
-      "excludedAxes": {},
-      "note": "운영 대시보드가 매일 내는 KR 점수. 수급을 naver에서 일별로 받아 4축이 다 산다(2026-08-10 실측: 143종목 중 KR 99건이 4축)."
+      "basis": ["fundamental", "technical", "valuation"],
+      "excludedAxes": {
+        "supplyDemand": "KR-2.4부터 categoryWeights.supplyDemand=0 - 데이터는 여전히 매일 들어오지만(2026-08-10 실측대로 naver 수급) 가중치가 0이라 axisBasis.operationalBasis()가 basis에서 뺀다. US_3AXIS·KR_3AXIS 둘과도 성격이 다르다 - US는 시장 자체에 그 개념이 없고(원래부터 0), KR_3AXIS는 데이터가 없어서(A4 미백필)인데, 이건 데이터도 가중치도 예전엔 다 있었는데 axis-weight-sweep-2026-09.md 실측으로 criteria가 의도적으로 0을 선언한 것 - B층에서 축 정의(5일->20일 등)를 고치면 되돌아갈 수 있다."
+      },
+      "note": "운영 대시보드가 매일 내는 KR 점수. ID는 2026-08-10 4축 시절 그대로 유지한다(scripts/analyze.js 등 12곳이 문자열로 참조 - 이름을 바꾸면 참조가 전부 끊긴다) - basis 배열이 실제 운영 축 집합의 근거이지 이름이 아니다."
     },
     "KR_3AXIS": {
       "market": "KR",

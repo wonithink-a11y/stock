@@ -174,7 +174,11 @@ ok('fundamental은 통째로 가용하다 (2026-08-12, shareholderReturn 구현 
 const unlockA3b = reg.weightUnlockedBy(criteria, 'A3b');
 const unlockA4 = reg.weightUnlockedBy(criteria, 'A4');
 ok('A3b가 여는 가중치를 계산한다', unlockA3b > 0, String(unlockA3b));
-ok('A4가 여는 가중치를 계산한다', unlockA4 > 0, String(unlockA4));
+// KR-2.4부터 supplyDemand categoryWeight가 0이다(axis-weight-sweep-2026-09.md,
+// 5일 창 정의가 해로운 IC를 내 뺐다 - 축 자체를 영구 폐기한 게 아니라 B층
+// 재정의 전까지의 상태). A4를 열어도 이제 실제 점수 가중치엔 기여가 없다.
+ok('A4가 여는 가중치를 계산한다 (KR-2.4: supplyDemand=0이라 0이 맞다)',
+   unlockA4 === 0, String(unlockA4));
 ok('A3b + A4로도 marginOfSafety는 안 열린다 (소스 미정)',
    reg.FEATURES.marginOfSafety.stage === null);
 ok('막힌 피처마다 이유가 있다 (blockedBy 없는 false가 없다)',

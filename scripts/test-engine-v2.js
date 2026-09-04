@@ -20,7 +20,7 @@ const base = { ticker: '005930', name: '삼성전자',
 const a = score(base, C, P);
 chk(a.result.finalScore !== null && a.result.finalScore === a.result.rawScore, '① state 없음 → 감점 0, finalScore == rawScore');
 chk(a.result.tradeAllowed === true && a.result.tradingState === 'NORMAL', '① tradingState 기본값 NORMAL');
-chk(a.meta.policies.riskPenalty === 'RP-1.2' && a.meta.policies.criteria === '2.3', '① meta.policies 스탬프');
+chk(a.meta.policies.riskPenalty === 'RP-1.2' && a.meta.policies.criteria === C.version, '① meta.policies 스탬프');
 chk(a.meta.policies.flagCodes === 'FC-1.1', '① flagCodes 버전 스탬프');
 chk(Object.isFrozen(a.result) && Object.isFrozen(a.meta), '① ScoreResult immutable');
 chk(validate(a, P, { mode: 'strict' }).length === 0, '① strict 검증 위반 0');

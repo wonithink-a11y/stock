@@ -204,10 +204,10 @@ console.log('\n[7] 축 basis — 선언과 관측을 대조한다');
 const axisBasis = require('../lib/a5/axisBasis');
 const SB = P.analysis.scoreBasis;
 
-ok('SB-1.0 이 analysisPolicies 로 로드된다 (score() 가 읽는 정책이 아니다)',
-   SB && SB.version === 'SB-1.0', JSON.stringify(SB && SB.version));
+ok('SB-1.1 이 analysisPolicies 로 로드된다 (score() 가 읽는 정책이 아니다)',
+   SB && SB.version === 'SB-1.1', JSON.stringify(SB && SB.version));
 ok('★ scoreBasis 가 meta.policies 에 실리지 않는다 (provenance 허위 방지)',
-   P.versions.scoreBasis === undefined && P.analysisVersions.scoreBasis === 'SB-1.0',
+   P.versions.scoreBasis === undefined && P.analysisVersions.scoreBasis === 'SB-1.1',
    `versions=${P.versions.scoreBasis} analysisVersions=${P.analysisVersions.scoreBasis}`);
 
 ok('가중치 0 인 축은 basis 에 들지 않는다 (US supplyDemand)',
@@ -224,8 +224,12 @@ ok('없는 모델 id 는 조용히 기본값으로 대체되지 않는다',
 
 const M3 = axisBasis.resolveModel(SB, 'KR_3AXIS');
 const M4 = axisBasis.resolveModel(SB, 'KR_4AXIS');
-ok('★ KR_3AXIS 는 운영 모델이 아니다 (criteria 와 대조해 계산한다 — 정책에 적어 둔 값이 아니다)',
-   axisBasis.describeModel(M3, C).matchesOperationalModel === false);
+// KR-2.4부터 supplyDemand 가중치가 0이라 operationalBasis(criteria)가 3축으로 좁아졌다 -
+// KR_3AXIS(원래도 3축 선언)와 basis가 우연히 같아진다(2026-09-04 실측, axis-weight-sweep
+// 승격 중 발견). basis만으로는 두 모델이 이제 구분 안 된다 - promotionRule 경고는
+// matchesOperationalModel과 별개로 살아있다(아래 verdicts 테스트, backtester.js:399 참고).
+ok('KR_3AXIS 는 이제 basis 상 운영 모델과 같다 (KR-2.4: supplyDemand=0이라 3축으로 수렴)',
+   axisBasis.describeModel(M3, C).matchesOperationalModel === true);
 ok('★ KR_4AXIS 는 운영 모델과 같다',
    axisBasis.describeModel(M4, C).matchesOperationalModel === true);
 ok('KR_3AXIS 에 승격 금지 규칙이 붙어 있다 (조건이 정책에 남는다)',
@@ -235,11 +239,13 @@ ok('US_3AXIS 는 US criteria 기준으로 운영 모델이다 (축이 빠진 게
      axisBasis.resolveModel(SB, 'US_3AXIS'),
      loadPolicies('US').criteria).matchesOperationalModel === true);
 
-// FULL 은 4축이 다 사는 입력이다. KR_3AXIS 로 돌리면 전부 basis 가 다르다.
+// FULL 은 4축이 다 사는 입력이다. KR-2.4에서는 supplyDemand 가중치가 0이라
+// basisOf()가 애초에 그 축을 안 세므로(값이 있어도) KR_3AXIS 로 돌려도 더 이상
+// BASIS_MISMATCH 가 안 난다 - 위 matchesOperationalModel 수렴과 같은 원인.
 const s4 = [snap(1), snap(2), snap(3)];
 const r3 = runBacktest(s4, C, { policies: P, axisModel: 'KR_3AXIS' });
-ok('★ 4축으로 채점된 종목은 KR_3AXIS 실행에서 BASIS_MISMATCH 로 빠진다',
-   r3.population.excludedByReason[EXCLUSION.BASIS_MISMATCH] === 3 && r3.population.eligible === 0,
+ok('4축으로 채점된 종목도 KR_3AXIS 실행에서 전부 편입된다 (KR-2.4: supplyDemand는 애초에 basis에 안 셈)',
+   !r3.population.excludedByReason[EXCLUSION.BASIS_MISMATCH] && r3.population.eligible === 3,
    JSON.stringify(r3.population.excludedByReason));
 ok('제외 사유는 여전히 배타적이다 (합 == excluded)',
    Object.values(r3.population.excludedByReason).reduce((a, b) => a + b, 0) === r3.population.excluded);
@@ -253,10 +259,14 @@ ok('★ 모델이 결과에 남는다 — 3축 결과를 4축으로 읽을 수 �
    && r4.population.model.axisModel === 'KR_4AXIS'
    && JSON.stringify(r3.population.model.excludedAxes) !== '{}',
    JSON.stringify(r3.population.model));
-ok('★ 운영 모델이 아니면 판정 요약 첫 줄이 그것을 말한다',
-   r3.verdicts[0].includes('운영 모델이 아닙니다'), r3.verdicts[0]);
-ok('운영 모델이면 그 경고가 없다',
-   !r4.verdicts.some((v) => v.includes('운영 모델이 아닙니다')));
+// KR-2.4 이후 KR_3AXIS는 basis가 운영 모델과 같아졌지만(위 참고) promotionRule이
+// 있는 한 경고는 계속 뜬다(backtester.js:399, matchesOperationalModel과 무관하게
+// promotionRule 존재만으로도 켜지도록 2026-09-04 수정) - 문구만 "빠진 축"에서
+// "승격 금지 규칙"으로 바뀐다.
+ok('★ promotionRule 이 있으면(KR_3AXIS) basis가 같아져도 판정 요약이 경고한다',
+   r3.verdicts[0].includes('승격'), r3.verdicts[0]);
+ok('운영 모델이고 promotionRule 도 없으면(KR_4AXIS) 경고가 없다',
+   !r4.verdicts.some((v) => v.includes('승격') || v.includes('운영 모델이 아닙니다')));
 
 const rU = runBacktest(s4, C, { policies: P });
 ok('★ 선언하지 않으면 basis 를 재지 않는다 (기본 모델을 몰래 고르지 않는다)',
@@ -268,8 +278,8 @@ ok('★ 미선언은 unmeasuredReasons 로 선언된다 (통과가 아니다 —
    JSON.stringify(rU.population.unmeasuredReasons));
 ok('미선언 실행도 판정 요약이 비교 금지를 말한다',
    rU.verdicts[0].includes('비교하지 마세요'), rU.verdicts[0]);
-ok('관측된 basis 분포를 선언과 별개로 남긴다',
-   rU.population.observedBasis['fundamental+supplyDemand+technical+valuation'] === 3,
+ok('관측된 basis 분포를 선언과 별개로 남긴다 (KR-2.4: supplyDemand는 값이 있어도 basis 키에서 빠진다)',
+   rU.population.observedBasis['fundamental+technical+valuation'] === 3,
    JSON.stringify(rU.population.observedBasis));
 
 // V1/V2 가 같은 basis 를 내는가 — 엔진 선택이 모집단을 바꾸지 않는다는 계약의 연장
