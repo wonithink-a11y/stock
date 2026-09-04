@@ -3,7 +3,7 @@
 
 run_monthly_rebalance.py(4단계, 2026-08-24)를 매일 반복 호출하는 얇은
 래퍼일 뿐이다 - 새 신호 로직은 없다. "이번 달 리밸런싱일"(월 첫 거래일)을
-캘린더에서 계산해 pbr_value_v1·lowmom60_v1 두 전략에 그대로 넘긴다.
+캘린더에서 계산해 아래 STRATEGIES 의 각 전략에 그대로 넘긴다.
 
 selection.json에 이번 달이 아직 없으면(A2a·build_selection.py 월간
 리프레시가 안 됐으면) run_monthly_rebalance.py가 스스로 "아무 것도 안 함"
@@ -43,6 +43,15 @@ KST = timezone(timedelta(hours=9))
 # (사용자 확인 후) - CLAUDE.md에서 "production 결정을 실제로 고려해볼 후보"
 # 등급인 둘뿐인 전략. 같은 1억, entry_slices=1. 4개 합산 4억, 5억 계좌에서
 # 1억은 현금 버퍼로 남는다.
+# ★ 2026-09-04 후속2 - lowmom60_v1 은 같은 날 findings/lowmom60-test-negative-
+# regime-diagnosis-2026-09.md 가 HOLD 에서 REJECT 로 내렸지만(무조건부 초과
+# t=0.79) **일부러 남겨 둔다**(사용자 결정). 모의계좌라 실손실이 0 이고,
+# 기각 은 백테스트 구간의 판정이지 앞으로의 관측을 막을 이유가 아니다 -
+# "기각한 전략이 실제로 어떻게 가는가" 가 공짜로 쌓인다. 새 가설이
+# 생기면 그때 바꾸면 된다. ★ 그러므로 config/policies/portfolio.v1.json
+# (PF-1.1, 미발효) 의 allocation.gate("게이트를 통과한 슬리브에만 자금을
+# 준다")를 발효시킬 때는 그 게이트가 실계좌 배분에만 걸리고 모의 관측은
+# 예외라는 것을 같이 명시해야 한다 - 지금 상태는 그 문구와 어긋난다.
 STRATEGIES = [
     ("pbr_value_v1", 100_000_000, 1),
     ("lowmom60_v1", 100_000_000, 1),
