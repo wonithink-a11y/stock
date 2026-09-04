@@ -60,13 +60,20 @@ MAX_PAGES = 20
 
 # 2026-09-03 거래대금 실측으로 고른 것. 금(5억)·위안(4억)·유로(28억)·
 # 엔(218억)·변동성지수(2억)는 30초봉에 체결이 거의 없어 뺐다. 원유는 KRX 미상장.
-# (KRX 접두, ISU_NM 접두, 주간 시장구분)
+# (ISU_NM 접두, 주간 시장구분)
+#
+# ★ ISU_CD 접두로 상품을 가르지 않는다. 코드 체계가 2026년물부터 101* -> A016*
+#   으로 바뀌어서, 접두를 하드코딩하면 2025년 날짜에서 그 시점의 실제 근월
+#   (101W9000)이 통째로 탈락하고 그때 이미 상장만 돼 있던 거래 없는 2026년물이
+#   "거래량 최대"로 뽑힌다. 빠지는 게 아니라 조용히 틀린 계약을 고른다(실측:
+#   2025-09-10 코스피200에 A01603 이 뽑혀 821봉 대신 38봉). 상품 판별은 코드
+#   체계와 무관한 ISU_NM 으로만 한다.
 PRODUCTS = {
-    "kospi200":  ("A016", "코스피200 F", "F"),    # 40.8조/일
-    "kosdaq150": ("A066", "코스닥150 F", "F"),    # 2.9조/일
-    "usd":       ("A756", "미국달러 F", "CF"),     # 10.7조/일
-    "ktb3":      ("A656", "3년국채", "CF"),        # 14.6조/일
-    "ktb10":     ("A676", "10년국채", "CF"),       # 7.0조/일
+    "kospi200":  ("코스피200 F", "F"),    # 40.8조/일
+    "kosdaq150": ("코스닥150 F", "F"),    # 2.9조/일
+    "usd":       ("미국달러 F", "CF"),     # 10.7조/일
+    "ktb3":      ("3년국채", "CF"),        # 14.6조/일
+    "ktb10":     ("10년국채", "CF"),       # 7.0조/일
 }
 # 세션: (마감시각=페이지 시작, 개장시각=여기까지 파면 끝, 야간 시장구분 여부)
 SESSIONS = {
@@ -109,10 +116,9 @@ def pick_front(rows, product):
     거래량 기준이라 롤오버가 자동으로 반영된다. 야간물은 주간물과 ISU_CD 가
     같으므로(실측) 계약 선택은 주간 행만 보면 된다.
     """
-    prefix, nm_prefix, _ = PRODUCTS[product]
+    nm_prefix, _ = PRODUCTS[product]
     cands = [r for r in rows
-             if r.get("ISU_CD", "").startswith(prefix)
-             and r.get("ISU_NM", "").startswith(nm_prefix)
+             if r.get("ISU_NM", "").startswith(nm_prefix)
              and "(주간)" in r.get("ISU_NM", "")
              and expiry_ym(r["ISU_NM"])]
     return max(cands, key=lambda r: int(r.get("ACC_TRDVOL") or 0)) if cands else None
@@ -132,7 +138,7 @@ def trading_dates():
 
 
 def market_div(product, session):
-    return "CM" if SESSIONS[session][2] else PRODUCTS[product][2]
+    return "CM" if SESSIONS[session][2] else PRODUCTS[product][1]
 
 
 # ------------------------------------------------------------ 네트워크
@@ -309,9 +315,16 @@ def selftest():
     assert pick_front(rows, "ktb3")["ISU_CD"] == "A6569000"      # 미니에 안 끌려간다
     assert pick_front(rows, "kosdaq150") is None
     assert pick_front([], "kospi200") is None
+    # ★ 회귀: 옛 코드 체계(101*)와 새 체계(A016*)가 한 날에 섞여 있을 때
+    #    거래량이 큰 그때의 실제 근월을 골라야 한다. ISU_CD 접두로 거르면
+    #    거래 없는 2026년물이 뽑혔다(2025-09-10 실측 버그).
+    mixed = [{"ISU_CD": "101W9000", "ISU_NM": "코스피200 F 202509 (주간)", "ACC_TRDVOL": "180000"},
+             {"ISU_CD": "A0163000", "ISU_NM": "코스피200 F 202603 (주간)", "ACC_TRDVOL": "12"}]
+    assert pick_front(mixed, "kospi200")["ISU_CD"] == "101W9000"
+    assert krx_to_kis_code(pick_front(mixed, "kospi200")["ISU_CD"]) == "101W09"
     ds = trading_dates()
     assert len(ds) > 200 and ds[0] < ds[-1], len(ds)
-    print("selftest 통과 (23건, 거래일 %d개: %s~%s)" % (len(ds), ds[0], ds[-1]))
+    print("selftest 통과 (25건, 거래일 %d개: %s~%s)" % (len(ds), ds[0], ds[-1]))
 
 
 if __name__ == "__main__":
