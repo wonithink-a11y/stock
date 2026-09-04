@@ -39,7 +39,16 @@ KST = timezone(timedelta(hours=9))
 # 기준 슬롯예산 333만원, 옛 500만원/30=16.6만원은 유동성 상위 종목도 못 삼).
 # 1억은 5억 참여율 분석(15.6%/일)의 1/5 규모라 entry_slices=1(하루 전량)도
 # 안전 범위 - 5일 분할은 5억 전액을 굴릴 때의 권고였다.
-STRATEGIES = [("pbr_value_v1", 100_000_000, 1), ("lowmom60_v1", 100_000_000, 1)]
+# ★ 2026-09-04 후속 - pbr_value_v1_combined·factor_earnings_yield_v1 추가
+# (사용자 확인 후) - CLAUDE.md에서 "production 결정을 실제로 고려해볼 후보"
+# 등급인 둘뿐인 전략. 같은 1억, entry_slices=1. 4개 합산 4억, 5억 계좌에서
+# 1억은 현금 버퍼로 남는다.
+STRATEGIES = [
+    ("pbr_value_v1", 100_000_000, 1),
+    ("lowmom60_v1", 100_000_000, 1),
+    ("pbr_value_v1_combined", 100_000_000, 1),
+    ("factor_earnings_yield_v1", 100_000_000, 1),
+]
 
 
 def this_month_rebalance_date():

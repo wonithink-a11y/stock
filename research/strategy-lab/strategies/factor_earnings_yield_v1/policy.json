@@ -36,7 +36,7 @@
   "portfolio": {
     "initialCapital": 100000000,
     "currency": "KRW",
-    "maxPositions": 30,
+    "maxPositions": 200,
     "equalWeight": true,
     "fractionalShares": false,
     "sameDayCashReuse": false,
@@ -44,7 +44,9 @@
   },
   "universe": {
     "mode": "A1A_ONLY",
-    "runClassAllowed": ["SMOKE"]
+    "runClassAllowed": [
+      "SMOKE"
+    ]
   },
   "scheduling": {
     "continuousHoldOnRenewal": true,

@@ -45,7 +45,8 @@ from engine.live.paperEngine import poll_once, scan_rebalance_signals  # noqa: E
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--strategy", required=True, choices=["pbr_value_v1", "lowmom60_v1"])
+    ap.add_argument("--strategy", required=True,
+                     choices=["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined", "factor_earnings_yield_v1"])
     ap.add_argument("--as-of", required=True, help="이번 리밸런싱일 (YYYY-MM-DD, selection.json에 있어야 함)")
     ap.add_argument("--capital", type=int, required=True, help="이 전략에 배정된 가상자금(원)")
     ap.add_argument("--entry-slices", type=int, default=1,

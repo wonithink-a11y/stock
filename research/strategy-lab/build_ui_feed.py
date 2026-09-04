@@ -27,7 +27,7 @@ KST = timezone(timedelta(hours=9))
 # 옛 상태 파일도 같이 있다(글롭으로 다 긁으면 그것도 대시보드에 새 나온다,
 # 실측으로 발견: dummy_sma20에 005930 1건이 남아있었다). 실제 파일럿
 # 전략만 여기 나열한다.
-LIVE_STRATEGIES = ["pbr_value_v1", "lowmom60_v1"]
+LIVE_STRATEGIES = ["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined", "factor_earnings_yield_v1"]
 
 
 HISTORY_SESSIONS = 60  # 차트용 최근 일봉 개수
