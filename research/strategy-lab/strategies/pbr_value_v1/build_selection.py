@@ -40,7 +40,9 @@ START = "2016-01-01"
 # CLI로 넘긴다 - 그 전에 scripts/build-a5-valuation-panel.js --end로 같은
 # 날짜까지 valuation-panel.jsonl을 먼저 확장해야 한다. 로직은 무변경.
 END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else "2026-08-14"
-TOP_N = 30
+# --top-n / --out 은 연구용이다. 기본값을 바꾸지 않으므로 라이브 selection.json 은
+# 인자 없이 돌리면 예전과 바이트 동일하게 나온다(2026-09-04 실측 확인).
+TOP_N = int(sys.argv[sys.argv.index("--top-n") + 1]) if "--top-n" in sys.argv else 30
 MIN_TURNOVER = 100_000_000.0
 
 
@@ -115,14 +117,17 @@ def main():
             continue
         top = g.sort_values("pbr", ascending=True).head(TOP_N)
         monthly_counts[asOf] = len(top)
-        for ticker in top["ticker"]:
+        # rank: 그 달 PBR 오름차순 0-based 순위. rule.py 는 안 읽는다(하위호환) -
+        # top-N 을 N 을 바꿔가며 재계산하지 않고 잘라 보기 위한 필드다.
+        for rank, ticker in enumerate(top["ticker"]):
             selection.setdefault(ticker, []).append(
-                {"date": asOf, "holdSessions": hold_sessions_by_date[asOf]})
+                {"date": asOf, "holdSessions": hold_sessions_by_date[asOf], "rank": rank})
 
     for ticker in selection:
         selection[ticker].sort(key=lambda e: e["date"])
 
-    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "selection.json")
+    out_path = (sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv
+                else os.path.join(os.path.dirname(os.path.abspath(__file__)), "selection.json"))
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump({
             "generatedFrom": "build_selection.py",
