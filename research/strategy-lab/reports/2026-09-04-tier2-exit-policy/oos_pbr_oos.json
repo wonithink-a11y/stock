@@ -1,0 +1,159 @@
+{
+ "rows": [
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "무손절 + 목표없음",
+   "full": {
+    "finalEquity": 176006040,
+    "totalReturn": 0.7601,
+    "cagr": 0.0549,
+    "mdd": -0.2109,
+    "sharpe": 0.5189
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 151674016,
+     "totalReturn": 0.5167,
+     "cagr": 0.068,
+     "mdd": -0.2109,
+     "sharpe": 0.607,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 152606880,
+     "totalReturn": 0.0062,
+     "cagr": 0.0039,
+     "mdd": -0.1034,
+     "sharpe": 0.0913,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 176006040,
+     "totalReturn": 0.1533,
+     "cagr": 0.055,
+     "mdd": -0.127,
+     "sharpe": 0.5793,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "손절 3.0xATR + 목표 RR1.5",
+   "full": {
+    "finalEquity": 252421472,
+    "totalReturn": 1.5242,
+    "cagr": 0.0914,
+    "mdd": -0.128,
+    "sharpe": 0.7318
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 203260768,
+     "totalReturn": 1.0326,
+     "cagr": 0.1185,
+     "mdd": -0.128,
+     "sharpe": 0.8481,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 223026320,
+     "totalReturn": 0.0972,
+     "cagr": 0.0604,
+     "mdd": -0.0669,
+     "sharpe": 0.5099,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 252421472,
+     "totalReturn": 0.1318,
+     "cagr": 0.0475,
+     "mdd": -0.1062,
+     "sharpe": 0.5241,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  },
+  {
+   "strategyId": "pbr_value_v1",
+   "variant": "손절 3.0xATR + 목표 RR1.0",
+   "full": {
+    "finalEquity": 226422090,
+    "totalReturn": 1.2642,
+    "cagr": 0.0803,
+    "mdd": -0.1093,
+    "sharpe": 0.6895
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 193866608,
+     "totalReturn": 0.9387,
+     "cagr": 0.1102,
+     "mdd": -0.109,
+     "sharpe": 0.8509,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 204674304,
+     "totalReturn": 0.0557,
+     "cagr": 0.0349,
+     "mdd": -0.0732,
+     "sharpe": 0.3329,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 226422090,
+     "totalReturn": 0.1063,
+     "cagr": 0.0386,
+     "mdd": -0.1085,
+     "sharpe": 0.4454,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  }
+ ],
+ "verdict": {
+  "signFlips": [],
+  "ranks": {
+   "손절 3.0xATR + 목표 RR1.0": {
+    "TRAIN": 1,
+    "VALID": 2,
+    "TEST": 3
+   },
+   "손절 3.0xATR + 목표 RR1.5": {
+    "TRAIN": 2,
+    "VALID": 1,
+    "TEST": 2
+   },
+   "무손절 + 목표없음": {
+    "TRAIN": 3,
+    "VALID": 3,
+    "TEST": 1
+   }
+  },
+  "trainBest": "손절 3.0xATR + 목표 RR1.0",
+  "trainBestOosRanks": {
+   "TRAIN": 1,
+   "VALID": 2,
+   "TEST": 3
+  }
+ }
+}

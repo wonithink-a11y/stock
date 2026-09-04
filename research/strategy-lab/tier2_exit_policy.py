@@ -68,10 +68,11 @@ SIZING_VARIANTS = [
 def parse_variant(tok):
     """'3.0:1.5' -> ('손절 3.0xATR + 목표 RR1.5', 3.0, 1.5, None). rr 이 none 이면 목표없음."""
     sm, _, rr = tok.strip().partition(":")
-    sm = float(sm)
+    sm_v = None if sm.strip().lower() == "none" else float(sm)
     rr_v = None if rr.strip().lower() in ("none", "") else float(rr)
-    label = "손절 {}xATR + {}".format(sm, "목표없음" if rr_v is None else "목표 RR" + str(rr_v))
-    return (label, sm, rr_v, None)
+    label = ("무손절" if sm_v is None else "손절 {}xATR".format(sm_v)) + " + " + (
+        "목표없음" if rr_v is None else "목표 RR" + str(rr_v))
+    return (label, sm_v, rr_v, None)
 
 
 def equal_risk_weight(order, entry_fill, risk_spec, atr):
@@ -150,6 +151,7 @@ def measure(strategy_id, label, stop_mult, rr, start, end, weight_mode=None):
         "atrPeriod": ATR_PERIOD, "atrSmoothing": "wilder",
         "atrMissingSignals": counter.n, "riskSpecCalls": counter.total,
         "resultTable": m,
+        "snapshots": [[d, float(e)] for d, e in snaps],   # OOS 구간분해용 월별 MTM 곡선
         "annualReturns": annual_returns_mtm(snaps),
         "closedPositionCount": len(portfolio.closed_positions),
         "exitKinds": kinds,
@@ -266,6 +268,7 @@ def selftest(quiet=False):
         stop_distance = 0.0
     assert equal_risk_weight(None, _EF(), _RS0(), 0.0) == 0.0
     assert parse_variant("4.0:1.5") == ("손절 4.0xATR + 목표 RR1.5", 4.0, 1.5, None)
+    assert parse_variant("none:none") == ("무손절 + 목표없음", None, None, None)   # 변형 A 기준선
     assert parse_variant("6.0:none")[2] is None and parse_variant("6.0:none")[1] == 6.0
     # 무손절(가격x100)이면 종목과 무관하게 비중이 1/100 로 같다 = 동일가중 퇴화
     class _RSHuge:

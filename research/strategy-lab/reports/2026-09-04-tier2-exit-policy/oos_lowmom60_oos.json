@@ -1,0 +1,168 @@
+{
+ "rows": [
+  {
+   "strategyId": "lowmom60_v1",
+   "variant": "무손절 + 목표없음",
+   "full": {
+    "finalEquity": 171537492,
+    "totalReturn": 0.7154,
+    "cagr": 0.0523,
+    "mdd": -0.2876,
+    "sharpe": 0.3911
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 171314320,
+     "totalReturn": 0.7131,
+     "cagr": 0.0887,
+     "mdd": -0.1089,
+     "sharpe": 0.6127,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 187099920,
+     "totalReturn": 0.0921,
+     "cagr": 0.0572,
+     "mdd": -0.1361,
+     "sharpe": 0.4016,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 171537492,
+     "totalReturn": -0.0832,
+     "cagr": -0.032,
+     "mdd": -0.2876,
+     "sharpe": -0.1017,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  },
+  {
+   "strategyId": "lowmom60_v1",
+   "variant": "손절 3.0xATR + 목표 RR1.5",
+   "full": {
+    "finalEquity": 264879535,
+    "totalReturn": 1.6488,
+    "cagr": 0.0964,
+    "mdd": -0.2732,
+    "sharpe": 0.5522
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 246805712,
+     "totalReturn": 1.4681,
+     "cagr": 0.1533,
+     "mdd": -0.1442,
+     "sharpe": 0.8101,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 288393056,
+     "totalReturn": 0.1685,
+     "cagr": 0.1034,
+     "mdd": -0.1698,
+     "sharpe": 0.5325,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 264879535,
+     "totalReturn": -0.0815,
+     "cagr": -0.0314,
+     "mdd": -0.2732,
+     "sharpe": -0.0706,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  },
+  {
+   "strategyId": "lowmom60_v1",
+   "variant": "손절 3.0xATR + 목표 RR1.0",
+   "full": {
+    "finalEquity": 351520135,
+    "totalReturn": 2.5152,
+    "cagr": 0.1261,
+    "mdd": -0.1992,
+    "sharpe": 0.7204
+   },
+   "segments": {
+    "TRAIN": {
+     "finalEquity": 285443296,
+     "totalReturn": 1.8544,
+     "cagr": 0.1801,
+     "mdd": -0.1024,
+     "sharpe": 0.9691,
+     "from": "2016-01-01",
+     "to": "2022-05-31",
+     "months": 77
+    },
+    "VALID": {
+     "finalEquity": 347422912,
+     "totalReturn": 0.2171,
+     "cagr": 0.1321,
+     "mdd": -0.106,
+     "sharpe": 0.675,
+     "from": "2022-05-31",
+     "to": "2023-12-28",
+     "months": 19
+    },
+    "TEST": {
+     "finalEquity": 351520135,
+     "totalReturn": 0.0118,
+     "cagr": 0.0044,
+     "mdd": -0.1992,
+     "sharpe": 0.11,
+     "from": "2023-12-28",
+     "to": "2026-08-14",
+     "months": 32
+    }
+   }
+  }
+ ],
+ "verdict": {
+  "signFlips": [
+   [
+    "무손절 + 목표없음",
+    "TEST"
+   ],
+   [
+    "손절 3.0xATR + 목표 RR1.5",
+    "TEST"
+   ]
+  ],
+  "ranks": {
+   "손절 3.0xATR + 목표 RR1.0": {
+    "TRAIN": 1,
+    "VALID": 1,
+    "TEST": 1
+   },
+   "손절 3.0xATR + 목표 RR1.5": {
+    "TRAIN": 2,
+    "VALID": 2,
+    "TEST": 2
+   },
+   "무손절 + 목표없음": {
+    "TRAIN": 3,
+    "VALID": 3,
+    "TEST": 3
+   }
+  },
+  "trainBest": "손절 3.0xATR + 목표 RR1.0",
+  "trainBestOosRanks": {
+   "TRAIN": 1,
+   "VALID": 1,
+   "TEST": 1
+  }
+ }
+}
