@@ -55,8 +55,8 @@ def _linreg_endpoint_reference(y: np.ndarray, n: int) -> np.ndarray:
 # --------------------------------------------------------------------------
 def test_1_linreg_matches_reference():
     close = synthetic_bars(300, seed=3)["close"]
-    delta = close - close.rolling(MOM_LEN).mean()  # dummy composite
     feats = SQUEEZE_RULE.compute_features(synthetic_bars(300, seed=3))
+    delta = close - feats["composite"]   # rule 이 실제로 linreg 에 넣는 입력
     mine = feats["momentum"].to_numpy()
     ref = _linreg_endpoint_reference(delta.to_numpy(), MOM_LEN)
     common = np.isfinite(mine) & np.isfinite(ref)
@@ -90,8 +90,8 @@ def test_3_exit_cross():
     feats["momentum"] = mom
     feats["exit_cross"] = (feats["momentum"] < 0) & (feats["momentum"].shift(1) >= 0)
     cross = feats["exit_cross"]
-    assert cross.iloc[3] is True   # 0.5 -> -0.1
-    assert cross.iloc[6] is True   # 1.0 -> -0.2
+    assert bool(cross.iloc[3])     # 0.5 -> -0.1  (pandas 가 np.bool_ 을 준다 - `is True` 금지)
+    assert bool(cross.iloc[6])     # 1.0 -> -0.2
     assert cross.iloc[[0, 1, 2, 4, 5]].sum() == 0
 
 
