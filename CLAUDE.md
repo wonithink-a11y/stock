@@ -2310,8 +2310,13 @@ git log --oneline $(git log -1 --format=%H -- CLAUDE.md)..HEAD -- lib scripts co
 토큰이 들어가는 작업은 사용 환경·범주와 무관하게 위임 가능 여부부터 검토한다
 — 대량 파일 탐색·반복 분석·1차 조사·단순 집계·자료 취합처럼 판단이 아닌
 기계적 부분은 어디서든 OpenCode로 분리해 위임한다. 실행은 프로젝트 루트에서
-`opencode.cmd run`, 모델은 매 호출 `-m opencode/deepseek-v4-flash-free`를
-명시한다 — 생략하면 다른 기본 모델로 조용히 돈다(실측 2026-08-19).
+`opencode.cmd run`, 모델은 매 호출 `-m`으로 명시한다 — 생략하면 다른 기본
+모델로 조용히 돈다(실측 2026-08-19). **1순위 `opencode/big-pickle`(동시 3개
+병렬 가능) · 2순위 `opencode/nemotron-3-ultra-free`**(2026-09-05 사용자 지정).
+★ 옛 기본값 `opencode/deepseek-v4-flash-free`는 **더 이상 존재하지 않는다** —
+`opencode.cmd models` 실측(2026-09-05) 목록에 없다. 모델 이름은 조용히 사라지므로
+쓰기 전에 `opencode.cmd models`로 확인한다. 지시문 서식과 배치 구성은
+`docs/control/opencode-지시문-2026-09-05.md`.
 
 단 **판단 자체는 토큰량과 무관하게 위임하지 않는다.** 계약·정책·PIT·데이터
 무결성·보안·아키텍처 결정처럼 판단 책임이 큰 작업은 그 작업이 아무리 토큰이
