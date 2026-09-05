@@ -254,31 +254,38 @@ def run(products, sessions, limit=None, since=None, throttle=0.5):
             except Exception as e:
                 print("  %s KRX 실패 %s - 건너뜀" % (date, type(e).__name__), flush=True)
                 continue
-        row = pick_front(krx_cache[d8], product)
-        key = "%s|%s|%s" % (date, product, session)
-        if row is None:
-            done[key] = 0
+        # 한 조합의 실패(일시적 파일 락·네트워크)가 무인 실행 전체를 죽이지 않게 한다.
+        # done 에 안 넣으므로 재실행하면 그 조합만 다시 받는다.
+        try:
+            row = pick_front(krx_cache[d8], product)
+            key = "%s|%s|%s" % (date, product, session)
+            if row is None:
+                done[key] = 0
+                STATE.write_text(json.dumps(state))
+                continue
+            kis = krx_to_kis_code(row["ISU_CD"])
+            if not kis:
+                done[key] = 0
+                STATE.write_text(json.dumps(state))
+                continue
+            bars, mism = fetch_session(kis, market_div(product, session), d8, session, throttle)
+            if bars:
+                frames = [{"date": date, "session": session, "product": product,
+                           "hhmmss": hh, "krxCode": row["ISU_CD"], "kisCode": kis,
+                           "expiryYm": expiry_ym(row["ISU_NM"]),
+                           "open": float(r["futs_oprc"]), "high": float(r["futs_hgpr"]),
+                           "low": float(r["futs_lwpr"]), "close": float(r["futs_prpr"]),
+                           "volume": int(r["cntg_vol"])} for hh, r in bars.items()]
+                sub = OUT_DIR / ("%s_%s" % (product, session))
+                sub.mkdir(exist_ok=True)
+                (pd.DataFrame(frames).sort_values("hhmmss")
+                 .to_parquet(sub / (date + ".parquet"), index=False))
+            done[key] = len(bars)
             STATE.write_text(json.dumps(state))
+        except Exception as e:
+            print("  %s %s %s 실패 %s: %s - 건너뜀"
+                  % (date, product, session, type(e).__name__, e), flush=True)
             continue
-        kis = krx_to_kis_code(row["ISU_CD"])
-        if not kis:
-            done[key] = 0
-            STATE.write_text(json.dumps(state))
-            continue
-        bars, mism = fetch_session(kis, market_div(product, session), d8, session, throttle)
-        if bars:
-            frames = [{"date": date, "session": session, "product": product,
-                       "hhmmss": hh, "krxCode": row["ISU_CD"], "kisCode": kis,
-                       "expiryYm": expiry_ym(row["ISU_NM"]),
-                       "open": float(r["futs_oprc"]), "high": float(r["futs_hgpr"]),
-                       "low": float(r["futs_lwpr"]), "close": float(r["futs_prpr"]),
-                       "volume": int(r["cntg_vol"])} for hh, r in bars.items()]
-            sub = OUT_DIR / ("%s_%s" % (product, session))
-            sub.mkdir(exist_ok=True)
-            (pd.DataFrame(frames).sort_values("hhmmss")
-             .to_parquet(sub / (date + ".parquet"), index=False))
-        done[key] = len(bars)
-        STATE.write_text(json.dumps(state))
         rate = (time.time() - t0) / n
         print("[%d/%d] %s %-9s %-5s %s bars=%d%s  (남은 %.0f분)"
               % (n, len(todo), date, product, session, kis, len(bars),
