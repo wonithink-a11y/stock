@@ -11,12 +11,32 @@ daily-analysis 가 이미 매일 쓰는 docs/data/prices.json(872종목 OHLCV 25
    섹터 주도권 신호는 난수 바닥선을 못 넘어 REJECT 됐다. 그래서 대시보드는
    "지금 무엇이 강한가"만 보여주고 "그래서 사라"는 말은 하지 않는다.
 
+가중 3종을 나란히 낸다(2026-09-06 추가). 셋은 서로 다른 질문에 답한다.
+
+  EW   종목 수익률의 중앙값        "이 그룹의 보통 종목이 강한가"
+  TV   거래대금 가중              "거래가 몰린 종목들이 강했는가"
+  CAP  시가총액 가중              "이 그룹이 지수를 얼마나 밀어올렸는가"
+
+기존 EW 는 대형주를 구조적으로 못 본다 - 삼성전자는 KSIC 상 '통신·네트워크'
+9종목 중 하나라 중앙값에 거의 안 잡힌다. 실측(2026-09-04, 6개월): 유니버스
+EW 중앙값 -7.4% vs 시총가중 +29.7%. 그 격차가 이 추가의 이유다.
+
+★ 가중치는 **각 창의 시작 시점** 기준이다. 종료 시점으로 잡으면 오른 종목에
+  오른 뒤의 비중을 주게 되어 결과가 부풀려진다 - 실측으로 6개월 벤치마크가
+  +29.67%->+47.32%, 전자부품·디스플레이 RS 가 46%p->127%p 로 왜곡됐다.
+
+★ CAP 에는 분면(주도/부상/둔화/약세) 라벨을 붙이지 않는다. 그 라벨은 EW 전용
+  관찰 체계이고, 시총가중에 붙이면 "시총가중 주도"가 매매신호로 읽힌다.
+
   python scripts/build-sector-strength.py
   python scripts/build-sector-strength.py --selftest
 """
 import argparse
+import glob
+import gzip
 import json
 import os
+import re
 import statistics
 from datetime import datetime, timezone, timedelta
 
@@ -24,12 +44,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PRICES = os.path.join(ROOT, "docs", "data", "prices.json")
 A1A = os.path.join(ROOT, "data", "backfill", "universe", "a1a", "current.jsonl")
 ROLLUP = os.path.join(ROOT, "config", "sectorGroups.json")
+A3C = os.path.join(ROOT, "data", "backfill", "fundamentals", "a3c", "*.jsonl.gz")
 OUT = os.path.join(ROOT, "docs", "data", "sector-strength.json")
 
 KST = timezone(timedelta(hours=9))
 WINDOWS = {"1w": 5, "1m": 21, "3m": 63, "6m": 126}
 MIN_MEMBERS = 5          # 이 미만인 그룹은 표시하지 않는다 (절대 규칙 1)
 MIN_BARS = 130           # 6m 창을 채우지 못하는 종목은 그 창에서 제외
+TV_LOOKBACK = 21         # 거래대금 가중치를 재는 구간(창 시작 직전 21세션)
+STALE_WARN_DAYS = 180    # 주식수가 이보다 오래되면 경고. 계산에서 빼지는 않는다
+SPLIT_UP, SPLIT_DOWN = 1.5, 2 / 3   # 주식수 급변 가드(양방향). 분할 판별기가 아니라
+                                     # "현재 가격과 곱하기 위험한 종목" 차단기다.
 
 
 def load_rollup():
@@ -69,9 +94,110 @@ def sma_pos(closes, n):
     return closes[-1] > sum(w) / n
 
 
+def d8(x):
+    """날짜를 숫자 8자리로 정규화. A3 는 '2025-08-14', A3c 는 '20250515' 이고
+    prices.json 의 asOf 는 '20260904' 다 - 셋을 문자열로 직접 비교하면 조용히
+    틀린다."""
+    s = re.sub(r"\D", "", str(x or ""))
+    return s[:8] if len(s) >= 8 else None
+
+
+def load_shares(asof):
+    """A3c(DART 주식총수현황)에서 asof 시점에 공시돼 있던 최신 발행주식총수.
+
+    istcTotqy 를 쓴다 - KRX 시가총액은 자사주를 **포함한** 상장주식수 기준이라
+    distbStockCo(유통주식수)가 아니다. 2026-09-04 외부 대조에서 istcTotqy 는
+    LG에너지솔루션·현대차·한미반도체 3종목이 주 단위로 일치(오차 0.00%)한 반면
+    distbStockCo 는 -0.32~-3.94% 어긋났다. isuStockTotqy 는 수권주식수다.
+
+    가드 둘을 여기서 건다(둘 다 '분할 판별'이 아니라 안전장치다):
+      - 직전 레코드 대비 주식수가 1.5배 이상 늘거나 2/3 이하로 줄면 UNVERIFIED.
+        마지막 공시 이후 액면분할·소각이 났는데 가격만 조정된 상태로 곱하면
+        시총이 몇 배 틀린다(실측: 2025-01 이후 41.8%가 주식수 변경, 최대 +881%).
+      - 발행주식총수가 수권주식수를 넘으면 UNVERIFIED(있을 수 없는 값).
+    """
+    asof = d8(asof)
+    hist = {}
+    for path in sorted(glob.glob(A3C)):
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                t, av = r.get("ticker"), d8(r.get("availableFrom"))
+                if not t or not av or r.get("scanStatus") != "OK":
+                    continue
+                if not isinstance(r.get("istcTotqy"), int) or r["istcTotqy"] <= 0:
+                    continue
+                if asof and av > asof:
+                    continue
+                hist.setdefault(t, []).append((av, r["istcTotqy"], r.get("isuStockTotqy")))
+    out = {}
+    for t, rows in hist.items():
+        rows.sort(key=lambda x: (x[0], x[1]))   # isuStockTotqy 는 None 일 수 있어 정렬키에서 뺀다
+        av, shares, authorized = rows[-1]
+        reason = None
+        if isinstance(authorized, int) and authorized > 0 and shares > authorized:
+            reason = "EXCEEDS_AUTHORIZED"
+        elif len(rows) >= 2:
+            # ★ 비교 대상은 '시간상 직전 레코드'다. '최근에 값이 달랐던 레코드'와
+            #   비교하면 10년 전 사건에 발동한다 - 실제로 한국전력(2017)·삼성E&A
+            #   (2016) 같은 안정된 종목 38건이 걸렸다(2026-09-06 실측). 직전
+            #   레코드 대비로 보면 "마지막 공시 직전에 주식수가 급변했다"만 잡힌다.
+            ratio = shares / rows[-2][1]
+            if ratio >= SPLIT_UP or ratio <= SPLIT_DOWN:
+                reason = "SHARES_JUMP"
+        out[t] = {"shares": shares, "asOf": av, "unverified": reason}
+    return out
+
+
+def stale_days(as_of, ref):
+    a, b = d8(as_of), d8(ref)
+    if not a or not b:
+        return None
+    fmt = "%Y%m%d"
+    return (datetime.strptime(b, fmt) - datetime.strptime(a, fmt)).days
+
+
 def med(vals):
     v = [x for x in vals if x is not None]
     return statistics.median(v) if v else None
+
+
+def wavg(pairs):
+    """(수익률, 가중치) 목록의 가중평균과 커버리지.
+
+    가중치가 없는 종목은 **분자와 분모 양쪽에서** 빠진다 - 분모에만 남기면
+    그 종목 수익률을 0으로 친 것과 같아진다(절대 규칙 1 · 교훈 57).
+    커버리지는 '가중치를 쓸 수 있었던 종목 / 전체 종목'이다."""
+    if not pairs:
+        return None, None
+    ok = [(r, w) for r, w in pairs if r is not None and w is not None and w > 0]
+    cov = len(ok) / len(pairs)
+    if not ok:
+        return None, round(cov, 3)
+    return sum(r * w for r, w in ok) / sum(w for _, w in ok), round(cov, 3)
+
+
+def tv_weight(closes, volumes, n):
+    """창 시작 직전 TV_LOOKBACK 세션의 평균 거래대금. 종료 시점이 아니라 시작
+    시점 기준이라야 '그때 거래가 몰려 있던 종목'에 비중이 간다."""
+    need = n + TV_LOOKBACK
+    if len(closes) < need or len(volumes) < need:
+        return None
+    lo, hi = -1 - n - (TV_LOOKBACK - 1), (-n if n else None)
+    c, v = closes[lo:hi], volumes[lo:hi]
+    if len(c) != TV_LOOKBACK or any(x is None or x < 0 for x in c + v):
+        return None
+    tv = statistics.mean(a * b for a, b in zip(c, v))
+    return tv if tv > 0 else None
+
+
+def cap_weight(closes, shares, n):
+    """창 시작일 종가 × 발행주식총수. 종료일로 잡으면 오른 종목에 오른 뒤의
+    비중을 주게 되어 결과가 부풀려진다(docstring 참고)."""
+    if shares is None or len(closes) < n + 1:
+        return None
+    c = closes[-1 - n]
+    return c * shares if c and c > 0 else None
 
 
 def frac_true(vals):
@@ -88,9 +214,21 @@ def quadrant(rs_level, accel):
     return "부상" if accel >= 0 else "약세"
 
 
-def build(prices, sector_by_ticker, market="KR"):
+def r4(v):
+    return None if v is None else round(v, 4)
+
+
+def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
+    shares_by_ticker = shares_by_ticker or {}
+    as_of = None
+    for rec in prices["byTicker"].values():
+        d = rec.get("d") or []
+        if d:
+            as_of = max(as_of, d[-1]) if as_of else d[-1]
+
     rows = []
     unmapped = 0
+    unverified = []
     for ticker, rec in prices["byTicker"].items():
         if rec.get("market") != market:
             continue
@@ -101,13 +239,25 @@ def build(prices, sector_by_ticker, market="KR"):
         c = [x for x in rec.get("c", [])]
         if len(c) < MIN_BARS:
             continue
+        v = [x for x in rec.get("v", [])]
+        sh = shares_by_ticker.get(ticker) or {}
+        bad = sh.get("unverified")
+        if bad:
+            unverified.append({"ticker": ticker, "name": rec.get("name"), "reason": bad})
+        usable = sh.get("shares") if (sh.get("shares") and not bad) else None
         rows.append({
             "ticker": ticker, "name": rec.get("name"), "group": g,
             "rets": {k: ret(c, n) for k, n in WINDOWS.items()},
+            "capW": {k: cap_weight(c, usable, n) for k, n in WINDOWS.items()},
+            "tvW": {k: tv_weight(c, v, n) for k, n in WINDOWS.items()},
+            "sharesAsOf": sh.get("asOf"),
+            "staleDays": stale_days(sh.get("asOf"), as_of),
             "above20": sma_pos(c, 20), "above60": sma_pos(c, 60),
         })
 
     bench = {k: med([r["rets"][k] for r in rows]) for k in WINDOWS}
+    cap_bench = {k: wavg([(r["rets"][k], r["capW"][k]) for r in rows])[0] for k in WINDOWS}
+    tv_bench = {k: wavg([(r["rets"][k], r["tvW"][k]) for r in rows])[0] for k in WINDOWS}
 
     by_group = {}
     for r in rows:
@@ -121,34 +271,83 @@ def build(prices, sector_by_ticker, market="KR"):
         rs = {k: (None if rets[k] is None or bench[k] is None else rets[k] - bench[k])
               for k in WINDOWS}
         accel = (None if rs["1m"] is None or rs["3m"] is None else rs["1m"] - rs["3m"])
+
+        cap, cap_cov, tv, tv_cov = {}, {}, {}, {}
+        for k in WINDOWS:
+            cap[k], cap_cov[k] = wavg([(m["rets"][k], m["capW"][k]) for m in members])
+            tv[k], tv_cov[k] = wavg([(m["rets"][k], m["tvW"][k]) for m in members])
+        sub = lambda a, b: {k: (None if a[k] is None or b[k] is None else a[k] - b[k]) for k in WINDOWS}
+
+        # capTop 은 장식이 아니다 - KSIC 분류상 삼성전자가 '통신·네트워크' 에
+        # 들어가 그 그룹 시총의 95%를 차지하는 식이라, 이걸 안 보여주면 시총가중
+        # 값을 그룹 이야기로 오독한다(실측 19그룹 중 6개가 단일종목 비중 >= 49%).
+        cap_top, cap_top_w = None, None
+        weighted = [(m, m["capW"]["3m"]) for m in members if m["capW"]["3m"]]
+        if weighted:
+            m, w = max(weighted, key=lambda x: x[1])
+            cap_top = {"ticker": m["ticker"], "name": m["name"],
+                       "sharesAsOf": m["sharesAsOf"], "staleDays": m["staleDays"]}
+            cap_top_w = round(w / sum(x for _, x in weighted), 3)
+
+        stales = [m["staleDays"] for m in members if m["staleDays"] is not None]
         ranked = sorted((m for m in members if m["rets"]["1m"] is not None),
                         key=lambda m: m["rets"]["1m"], reverse=True)
-        brief = lambda m: {"ticker": m["ticker"], "name": m["name"], "ret1m": round(m["rets"]["1m"], 4)}
+        brief = lambda m: {"ticker": m["ticker"], "name": m["name"],
+                           "ret1m": round(m["rets"]["1m"], 4),
+                           "sharesAsOf": m["sharesAsOf"], "staleDays": m["staleDays"]}
         groups.append({
             "group": g, "n": len(members),
-            "ret": {k: (None if v is None else round(v, 4)) for k, v in rets.items()},
-            "rs": {k: (None if v is None else round(v, 4)) for k, v in rs.items()},
-            "accel": None if accel is None else round(accel, 4),
+            "ret": {k: r4(v) for k, v in rets.items()},
+            "rs": {k: r4(v) for k, v in rs.items()},
+            "accel": r4(accel),
             "breadth20": (lambda v: None if v is None else round(v, 3))(frac_true([m["above20"] for m in members])),
             "breadth60": (lambda v: None if v is None else round(v, 3))(frac_true([m["above60"] for m in members])),
-            "quadrant": quadrant(rs["3m"], accel),
+            "quadrant": quadrant(rs["3m"], accel),          # EW 전용. CAP/TV 에는 안 붙인다
+            "capRet": {k: r4(v) for k, v in cap.items()},
+            "capRs": {k: r4(v) for k, v in sub(cap, cap_bench).items()},
+            "capCoverage": cap_cov,
+            "capTop": cap_top, "capTopWeight": cap_top_w,
+            "tvRet": {k: r4(v) for k, v in tv.items()},
+            "tvRs": {k: r4(v) for k, v in sub(tv, tv_bench).items()},
+            "tvCoverage": tv_cov,
+            "maxSharesStaleDays": max(stales) if stales else None,
+            "sharesStale": bool(stales and max(stales) > STALE_WARN_DAYS),
             "top": [brief(m) for m in ranked[:3]],
             "bottom": [brief(m) for m in ranked[-3:]][::-1],
         })
 
     groups.sort(key=lambda x: (x["rs"]["3m"] is None, -(x["rs"]["3m"] or 0)))
-    dates = prices["byTicker"][next(iter(prices["byTicker"]))].get("d", [])
     return {
         "updatedAt": datetime.now(KST).isoformat(timespec="seconds"),
-        "asOf": dates[-1] if dates else None,
+        "asOf": as_of,
         "market": market,
         "universeCount": len(rows),
         "unmappedTickers": unmapped,
         "minMembers": MIN_MEMBERS,
-        "aggregation": "그룹 내 종목 수익률의 중앙값",
-        "benchmark": {k: (None if v is None else round(v, 4)) for k, v in bench.items()},
+        "aggregation": "EW=그룹 내 종목 수익률의 중앙값 · TV=거래대금 가중 · CAP=시가총액 가중",
+        "weightingNote": "TV·CAP 가중치는 **각 창의 시작 시점** 기준이다. 종료 시점으로 "
+                         "잡으면 오른 종목에 오른 뒤의 비중이 가서 결과가 부풀려진다"
+                         "(실측 6개월 벤치마크 +29.67%->+47.32%).",
+        "benchmark": {k: r4(v) for k, v in bench.items()},
         "benchmarkNote": "동일 유니버스 전체(KR) 종목 수익률의 중앙값",
-        "quadrantAxes": {"x": "3개월 상대강도(rs.3m)", "y": "가속(rs.1m - rs.3m)"},
+        "capBenchmark": {k: r4(v) for k, v in cap_bench.items()},
+        "capBenchmarkNote": "Universe Cap-Weighted Benchmark - 이 유니버스"
+                            "(코스피200+코스닥150, 우선주 제외)의 시총가중 수익률이다. "
+                            "**KOSPI·KOSDAQ 지수가 아니다** (2026-09-04 실측 6개월: "
+                            "이 벤치마크 +29.7% vs KOSPI +35.7%).",
+        "tvBenchmark": {k: r4(v) for k, v in tv_bench.items()},
+        "tvBenchmarkNote": "동일 유니버스의 거래대금 가중 수익률. 거래대금은 매수·매도 "
+                           "합산 거래규모이지 순자금 유입이 아니다.",
+        "sharesSource": "A3c istcTotqy(발행주식총수, availableFrom<=asOf·scanStatus=OK 중 최신). "
+                        "KRX 시가총액은 자사주 포함 상장주식수 기준이라 distbStockCo가 아니다.",
+        "sharesUnverified": sorted(unverified, key=lambda x: x["ticker"]),
+        "sharesGuard": {"splitUp": SPLIT_UP, "splitDown": round(SPLIT_DOWN, 4),
+                        "staleWarnDays": STALE_WARN_DAYS,
+                        "note": "주식수가 직전 공시 대비 급변하거나 수권주식수를 넘으면 "
+                                "CAP 계산에서 제외한다(분자·분모 양쪽). stale 은 경고만 "
+                                "하고 제외하지 않는다 - 오래됐다고 틀린 것은 아니다."},
+        "quadrantAxes": {"x": "3개월 상대강도(rs.3m)", "y": "가속(rs.1m - rs.3m)",
+                         "appliesTo": "EW only"},
         "disclaimer": "관찰용 지표다. Step 0 검증에서 섹터 주도권 신호는 난수 "
                       "바닥선을 넘지 못했다(findings/sector-leadership-step0-2026-09.md) - "
                       "예측력 주장이 아니라 현재 상태 표시다.",
@@ -166,14 +365,27 @@ def main():
     with open(PRICES, encoding="utf-8") as f:
         prices = json.load(f)
     k2g = load_rollup()
-    out = build(prices, load_sector_by_ticker(k2g))
+    as_of = max((r["d"][-1] for r in prices["byTicker"].values() if r.get("d")), default=None)
+    shares = load_shares(as_of)
+    out = build(prices, load_sector_by_ticker(k2g), shares_by_ticker=shares)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
-    print("asOf {} · {}종목 · {}개 그룹 · 미매핑 {}".format(
-        out["asOf"], out["universeCount"], len(out["groups"]), out["unmappedTickers"]))
-    for g in out["groups"][:5]:
-        print("  {:<18} n={:<3} 3M RS {:+.1%}  가속 {:+.1%}  {}".format(
-            g["group"], g["n"], g["rs"]["3m"], g["accel"], g["quadrant"]))
+    print("asOf {} · {}종목 · {}개 그룹 · 미매핑 {} · 주식수 확보 {} · UNVERIFIED {}".format(
+        out["asOf"], out["universeCount"], len(out["groups"]), out["unmappedTickers"],
+        len(shares), len(out["sharesUnverified"])))
+    pc = lambda v: "{:>8}".format("None" if v is None else "{:+.1%}".format(v))
+    print("  벤치마크 3M   EW {}  TV {}  CAP {}".format(
+        pc(out["benchmark"]["3m"]), pc(out["tvBenchmark"]["3m"]), pc(out["capBenchmark"]["3m"])))
+    print("  {:<20}{:>4}{:>8}{:>8}{:>8}{:>7}  {:<5} {}".format(
+        "그룹", "n", "EW_RS", "TV_RS", "CAP_RS", "capCov", "분면", "capTop"))
+    for g in out["groups"]:
+        print("  {:<20}{:>4}{}{}{}{:>7}  {:<5} {} {}{}".format(
+            g["group"], g["n"], pc(g["rs"]["3m"]), pc(g["tvRs"]["3m"]), pc(g["capRs"]["3m"]),
+            "{:.0%}".format(g["capCoverage"]["3m"]) if g["capCoverage"]["3m"] is not None else "-",
+            g["quadrant"] or "-",
+            (g["capTop"] or {}).get("name", "-"),
+            "" if g["capTopWeight"] is None else "{:.0%}".format(g["capTopWeight"]),
+            "  ⚠stale" if g["sharesStale"] else ""))
     print("saved:", OUT)
 
 
@@ -212,6 +424,62 @@ def selftest():
     by["C0"] = {"name": "C0", "market": "KR", "c": series(5), "d": ["20260101"] * (MIN_BARS + 1)}
     sec["C0"] = next(k2g[k] for k in ks if k2g[k] not in (g0, other))
 
+    # ── 가중 3종 (2026-09-06 추가) ────────────────────────────────
+    assert d8("2025-08-14") == "20250814" and d8("20250515") == "20250515"
+    assert d8(None) is None and d8("2025") is None          # 8자리 미만은 None
+    assert stale_days("20260310", "20260904") == 178
+    assert stale_days(None, "20260904") is None
+
+    # wavg: 가중치 없는 종목은 분자·분모 양쪽에서 빠지고 커버리지에 남는다
+    v, cov = wavg([(0.1, 1.0), (0.3, 1.0)])
+    assert abs(v - 0.2) < 1e-12 and cov == 1.0
+    v, cov = wavg([(0.1, 3.0), (0.3, 1.0)])          # 가중치가 실제로 먹는다
+    assert abs(v - 0.15) < 1e-12 and cov == 1.0
+    v, cov = wavg([(0.1, 1.0), (0.9, None)])
+    assert v == 0.1 and cov == 0.5, (v, cov)                # 0.9를 0으로 치지 않는다
+    assert wavg([(0.1, None)]) == (None, 0.0)
+    assert wavg([]) == (None, None)
+
+    # 가중치는 창 시작 기준 - 종료 기준이면 값이 달라진다
+    cl = [10, 20, 40, 80]
+    assert cap_weight(cl, 100, 3) == 1000 and cap_weight(cl, 100, 0) == 8000
+    assert cap_weight(cl, None, 1) is None and cap_weight(cl, 100, 9) is None
+    vol = [5] * 4
+    assert tv_weight(cl, vol, 0) is None                    # 21세션 미달 -> None
+    n_ok = TV_LOOKBACK
+    c2, v2 = list(range(1, n_ok + 3)), [2] * (n_ok + 2)
+    w_start, w_end = tv_weight(c2, v2, 1), tv_weight(c2, v2, 0)
+    assert w_start is not None and w_end is not None and w_start < w_end
+
+    # load_shares 가드: 급변(양방향)·수권초과는 UNVERIFIED, 정상은 통과
+    def shares_of(rows):
+        return {"T": rows}
+    mk = lambda av, s, auth=None: {"ticker": "T", "availableFrom": av, "istcTotqy": s,
+                                   "isuStockTotqy": auth, "scanStatus": "OK"}
+    def guard(rows):
+        h = {}
+        for r in rows:
+            h.setdefault(r["ticker"], []).append((d8(r["availableFrom"]), r["istcTotqy"],
+                                                  r.get("isuStockTotqy")))
+        t = "T"; rs = sorted(h[t]); av, sh, auth = rs[-1]
+        if isinstance(auth, int) and auth > 0 and sh > auth:
+            return "EXCEEDS_AUTHORIZED"
+        if len(rs) >= 2:
+            ratio = sh / rs[-2][1]
+            if ratio >= SPLIT_UP or ratio <= SPLIT_DOWN:
+                return "SHARES_JUMP"
+        return None
+    assert guard([mk("20250318", 100), mk("20260318", 500)]) == "SHARES_JUMP"   # 액면분할
+    assert guard([mk("20250318", 500), mk("20260318", 100)]) == "SHARES_JUMP"   # 대규모 소각
+    assert guard([mk("20250318", 100), mk("20260318", 101)]) is None            # 정상 변동
+    assert guard([mk("20260318", 100, 50)]) == "EXCEEDS_AUTHORIZED"
+    assert guard([mk("20260318", 100)]) is None                # 레코드 1개 -> 비교 불가
+    # ★ 오래된 사건에는 발동하지 않는다 - 직전 레코드와만 비교한다
+    assert guard([mk("20160518", 100), mk("20170518", 500),
+                  mk("20250318", 500), mk("20260318", 500)]) is None
+    # ×1000 단위 오류가 최신값이면 잡힌다(A3c 실측: 한국전력·태광산업 과거 행)
+    assert guard([mk("20250318", 641964077), mk("20260318", 641964077000)]) == "SHARES_JUMP"
+
     out = build({"byTicker": by}, sec)
     names = [g["group"] for g in out["groups"]]
     assert g0 in names and other in names
@@ -226,7 +494,45 @@ def selftest():
     # market 필터
     by["US0"] = {"name": "US0", "market": "US", "c": series(9), "d": ["20260101"]}
     assert build({"byTicker": by}, sec)["universeCount"] == out["universeCount"]
-    print("selftest ok (22건)")
+
+    # CAP/TV 필드는 주식수·거래량이 없으면 조용히 0 이 되지 않고 None + 커버리지 0
+    assert a["capRet"]["3m"] is None and a["capCoverage"]["3m"] == 0.0
+    assert a["capTop"] is None and a["capTopWeight"] is None
+    assert out["capBenchmark"]["3m"] is None
+    assert a["quadrant"] is not None                  # 분면은 EW 에만 남는다
+    assert "capQuadrant" not in a and "tvQuadrant" not in a
+
+    # 주식수·거래량을 주면 CAP 이 실제로 대형주를 따라간다.
+    # g0 그룹 5종목 중 A0 만 시총이 100배 - EW 중앙값과 CAP 이 갈려야 한다.
+    for t in list(by):
+        if by[t]["market"] == "KR":
+            by[t]["v"] = [1000] * len(by[t]["c"])
+    by["A0"]["c"] = [100 + 3 * i for i in range(MIN_BARS + 1)]      # 그룹 내 최강
+    sh = {t: {"shares": 1, "asOf": "20260101", "unverified": None} for t in by if by[t]["market"] == "KR"}
+    sh["A0"] = {"shares": 100, "asOf": "20260101", "unverified": None}
+    o2 = build({"byTicker": by}, sec, shares_by_ticker=sh)
+    a2 = next(g for g in o2["groups"] if g["group"] == g0)
+    assert a2["capCoverage"]["3m"] == 1.0 and a2["tvCoverage"]["3m"] == 1.0
+    assert a2["capTop"]["ticker"] == "A0" and a2["capTopWeight"] > 0.9
+    assert a2["capRet"]["3m"] > a2["ret"]["3m"], (a2["capRet"], a2["ret"])   # 대형주가 끌어올린다
+    assert o2["capBenchmark"]["3m"] is not None and o2["tvBenchmark"]["3m"] is not None
+
+    # UNVERIFIED 종목은 CAP 분자·분모 양쪽에서 빠지고 커버리지에 드러난다
+    sh["A0"] = {"shares": 100, "asOf": "20260101", "unverified": "SHARES_JUMP"}
+    o3 = build({"byTicker": by}, sec, shares_by_ticker=sh)
+    a3 = next(g for g in o3["groups"] if g["group"] == g0)
+    assert a3["capCoverage"]["3m"] == 0.8, a3["capCoverage"]
+    assert a3["capTop"]["ticker"] != "A0"
+    assert any(u["ticker"] == "A0" for u in o3["sharesUnverified"])
+    assert a3["capRet"]["3m"] < a2["capRet"]["3m"]      # 대형주가 빠지면 값이 내려간다
+
+    # stale 은 경고만 하고 제외하지 않는다
+    sh = {t: {"shares": 1, "asOf": "20200101", "unverified": None} for t in sh}
+    o4 = build({"byTicker": by}, sec, shares_by_ticker=sh)
+    a4 = next(g for g in o4["groups"] if g["group"] == g0)
+    assert a4["sharesStale"] is True and a4["maxSharesStaleDays"] > STALE_WARN_DAYS
+    assert a4["capCoverage"]["3m"] == 1.0, "stale 을 제외해 버렸다"
+    print("selftest ok (55건)")
 
 
 if __name__ == "__main__":

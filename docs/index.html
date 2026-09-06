@@ -1882,6 +1882,8 @@ function renderSector() {
     return '<div class="card empty">섹터강도 데이터가 아직 없습니다. (docs/data/sector-strength.json)</div>';
   }
   const b = d.benchmark || {};
+  const tb = d.tvBenchmark || {};
+  const cb = d.capBenchmark || {};
   const counts = {};
   d.groups.forEach(g => { counts[g.quadrant] = (counts[g.quadrant] || 0) + 1; });
   const chip = (key, label) => {
@@ -1895,13 +1897,30 @@ function renderSector() {
     const c = (SEC_QUADS[g.quadrant] || {}).color || '#6b7280';
     const names = (g.top || []).map(t => esc(t.name)).join(', ');
     const bd = v => v === null || v === undefined ? '<span class="muted">-</span>' : Math.round(v * 100) + '%';
+    // capTop 은 장식이 아니다 - 삼성전자가 KSIC 상 '통신·네트워크' 라 그 그룹
+    // 시총의 95%를 차지하는 식이라, 이걸 같이 안 보여주면 시총가중 값을
+    // 그룹 전체 이야기로 오독한다.
+    const ct = g.capTop || null;
+    const cov = (g.capCoverage || {})['3m'];
+    const stale = g.sharesStale
+      ? ` <span title="주식수 공시가 ${g.maxSharesStaleDays}일 전 것입니다" style="color:#f59e0b">⚠</span>` : '';
+    const capTopCell = ct
+      ? `${esc(ct.name)} <b>${g.capTopWeight === null || g.capTopWeight === undefined ? '-' : Math.round(g.capTopWeight * 100) + '%'}</b>${stale}`
+        + (cov !== null && cov !== undefined && cov < 1
+            ? `<br><span class="muted" style="font-size:11px">시총 커버리지 ${Math.round(cov * 100)}%</span>` : '')
+      : '<span class="muted">-</span>';
     return `<tr>
       <td><b>${esc(g.group)}</b><br><span class="muted" style="font-size:11px">${g.n}종목</span></td>
       <td style="text-align:right">${secPct(g.rs['1m'])}</td>
       <td style="text-align:right">${secPct(g.rs['3m'])}</td>
       <td style="text-align:right">${secPct(g.rs['6m'])}</td>
       <td style="text-align:right"><b>${secPct(g.accel)}</b></td>
-      <td style="text-align:right">${bd(g.breadth20)}</td>
+      <td style="text-align:right;border-left:1px solid var(--border)">${secPct((g.tvRs || {})['3m'])}</td>
+      <td style="text-align:right">${secPct((g.tvRs || {})['6m'])}</td>
+      <td style="text-align:right;border-left:1px solid var(--border)"><b>${secPct((g.capRs || {})['3m'])}</b></td>
+      <td style="text-align:right"><b>${secPct((g.capRs || {})['6m'])}</b></td>
+      <td style="font-size:12px">${capTopCell}</td>
+      <td style="text-align:right;border-left:1px solid var(--border)">${bd(g.breadth20)}</td>
       <td style="text-align:right">${bd(g.breadth60)}</td>
       <td><span style="color:${c};font-weight:600">${esc(g.quadrant || '-')}</span></td>
       <td class="muted" style="font-size:12px">${names}</td>
@@ -1914,9 +1933,22 @@ function renderSector() {
   <div class="card">
     <h2 style="margin:0 0 4px">섹터 상대강도 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · KR ${d.universeCount}종목 · ${d.groups.length}개 그룹</span></h2>
     <p class="muted" style="margin:4px 0 10px;font-size:12px">
-      벤치마크(유니버스 전체 중앙값): 1개월 ${secPct(b['1m'])} · 3개월 ${secPct(b['3m'])} · 6개월 ${secPct(b['6m'])}.
-      표의 값은 <b>이 벤치마크 대비 초과분</b>이고, 그룹 값은 소속 종목 수익률의 <b>중앙값</b>입니다.
-      가속 = 1개월 상대강도 − 3개월 상대강도.
+      벤치마크 3개월 — <b>EW</b>(유니버스 전체 중앙값) ${secPct(b['3m'])} ·
+      <b>TV</b>(거래대금 가중) ${secPct(tb['3m'])} ·
+      <b>CAP</b>(Universe Cap-Weighted) ${secPct(cb['3m'])}.
+      표의 값은 <b>각 가중 방식의 벤치마크 대비 초과분</b>입니다. 가속 = 1개월 EW 상대강도 − 3개월 EW 상대강도.
+    </p>
+    <p class="muted" style="margin:0 0 10px;font-size:12px;padding:8px;background:rgba(37,99,235,0.10);border-left:3px solid #2563eb;color:var(--text)">
+      <b>세 가중은 서로 다른 질문에 답합니다.</b>
+      <b>EW</b> = "이 그룹의 <i>보통</i> 종목이 강한가" ·
+      <b>TV</b> = "<i>거래가 몰린</i> 종목들이 강했는가" ·
+      <b>CAP</b> = "이 그룹이 <i>지수를</i> 얼마나 밀어올렸는가".
+      EW만 보면 대형주가 안 보입니다 — 삼성전자는 KSIC상 '통신·네트워크' 9종목 중 하나라 중앙값에 거의 안 잡히지만
+      그 그룹 시총의 95%입니다. 그래서 <b>capTop</b>(그룹 시총 1위 종목과 비중)을 같이 표시합니다.
+      <br>· CAP은 <b>KOSPI/KOSDAQ 지수가 아닙니다</b> — 이 유니버스(코스피200+코스닥150, 우선주 제외)의 시총가중입니다.
+      · 가중치는 <b>각 창의 시작 시점</b> 기준입니다(종료 시점으로 잡으면 오른 종목에 오른 뒤의 비중이 가 결과가 부풀려집니다).
+      · TV의 거래대금은 매수·매도 <b>합산 거래규모</b>이지 순자금 유입이 아닙니다.
+      · <b>분면 라벨은 EW에만 붙입니다</b> — TV·CAP에는 숫자만 둡니다.
     </p>
     <p class="muted" style="margin:0 0 10px;font-size:12px;padding:8px;background:rgba(245,158,11,0.12);border-left:3px solid #f59e0b;color:var(--text)">
       ⚠️ <b>관찰용 지표입니다.</b> 백테스트로 검증된 매매신호가 아닙니다 — Step 0 검증(2026-09-03)에서
@@ -1931,18 +1963,34 @@ function renderSector() {
       ${chip('all', '전체')}${chip('주도', '주도')}${chip('부상', '부상')}${chip('둔화', '둔화')}${chip('약세', '약세')}
     </div>
     <div class="table-wrap"><table>
-      <thead><tr>
-        <th>그룹</th><th style="text-align:right">1M 상대</th><th style="text-align:right">3M 상대</th>
-        <th style="text-align:right">6M 상대</th><th style="text-align:right">가속</th>
-        <th style="text-align:right">20일선 위</th><th style="text-align:right">60일선 위</th>
-        <th>분면</th><th>1개월 상위 종목</th>
+      <thead>
+      <tr>
+        <th rowspan="2">그룹</th>
+        <th colspan="4" style="text-align:center">EW · 동일가중(중앙값)</th>
+        <th colspan="2" style="text-align:center;border-left:1px solid var(--border)">TV · 거래대금가중</th>
+        <th colspan="3" style="text-align:center;border-left:1px solid var(--border)">CAP · 시총가중</th>
+        <th colspan="2" style="text-align:center;border-left:1px solid var(--border)">breadth</th>
+        <th rowspan="2">분면<br><span class="muted" style="font-weight:400;font-size:10px">EW 전용</span></th>
+        <th rowspan="2">1개월 상위 종목</th>
+      </tr>
+      <tr>
+        <th style="text-align:right">1M</th><th style="text-align:right">3M</th>
+        <th style="text-align:right">6M</th><th style="text-align:right">가속</th>
+        <th style="text-align:right;border-left:1px solid var(--border)">3M</th><th style="text-align:right">6M</th>
+        <th style="text-align:right;border-left:1px solid var(--border)">3M</th><th style="text-align:right">6M</th>
+        <th>capTop</th>
+        <th style="text-align:right;border-left:1px solid var(--border)">20일선</th><th style="text-align:right">60일선</th>
       </tr></thead>
-      <tbody>${rows || '<tr><td colspan="9" class="muted">해당 분면에 그룹이 없습니다.</td></tr>'}</tbody>
+      <tbody>${rows || '<tr><td colspan="14" class="muted">해당 분면에 그룹이 없습니다.</td></tr>'}</tbody>
     </table></div>
     <p class="muted" style="font-size:11px;margin:8px 0 0">
       업종 분류는 A1a의 KSIC 세분류 159개를 20개 투자그룹으로 묶은 것(config/sectorGroups.json)이라
       일부 종목은 통념과 다른 그룹에 들어갈 수 있습니다. 소속 ${d.minMembers}종목 미만 그룹은 표시하지 않습니다.
       폐지종목(A1b)에는 업종 정보가 없어 이 화면은 현재 상장 종목만 봅니다.
+      <br>시총은 A3c 발행주식총수(istcTotqy) × 종가입니다. 주식수는 분기보고서 기준이라 최신 공시 이후의
+      액면분할·자사주 소각·증자는 반영되지 않습니다 — 직전 공시 대비 주식수가 급변한 종목은
+      CAP 계산에서 제외하고(현재 ${(d.sharesUnverified || []).length}종목), 공시가 오래된 그룹은 ⚠로 표시합니다.
+      제외된 종목은 분자·분모 양쪽에서 빠지며 그 비율이 '시총 커버리지'입니다.
     </p>
   </div>`;
 }
