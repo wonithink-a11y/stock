@@ -60,6 +60,7 @@ LOOKBACK_DAYS = 10       # 달력일. 휴장·연휴를 넘겨 최소 한 영업
 SLEEP_SECONDS = 0.2      # KRX 예의. A4/A8 과 같은 수준
 SOURCE = "KRX_SHORTING_BALANCE"
 SOURCE_FN = "pykrx.stock.get_shorting_balance_by_date"
+MAX_CARRY_DAYS = 14      # 실패 종목에 직전 스냅샷을 이어받는 상한. 넘으면 A3c 로 내려간다
 
 
 def load_universe(market="KR"):
@@ -133,7 +134,43 @@ def collect(stock, tickers, from_date, to_date):
     return shares, failures
 
 
-def build_payload(shares, failures, requested, from_date, to_date):
+def carry_forward(shares, failures, prev, today, max_days=None):
+    """이번에 실패한 종목은 **직전 스냅샷 값을 이어받는다**.
+
+    각 실행이 파일을 통째로 덮어쓰면 부분 실행이 직전의 더 좋은 스냅샷을 지운다
+    (실측 2026-09-06: 353 -> 167 -> 272 로 덮어씀). 그러면 그 종목들은 하루 묵은
+    KRX 값 대신 180일 묵은 A3c 로 내려간다 - 더 나쁜 쪽으로 간다.
+
+    단 무한정 이월하지 않는다. `max_days` 를 넘게 묵은 값은 버리고 소비자가
+    A3c 로 내려가게 둔다 - A3c 에는 자체 가드(SHARES_JUMP·PRICE_BASIS_MISMATCH)
+    가 있지만 이월된 KRX 값에는 없기 때문이다. 오래 이월할수록 그 사이의
+    액면분할을 못 본 채로 신뢰받게 된다.
+
+    이월 여부는 별도 플래그로 표시하지 않는다 - 각 항목이 자기 `sourceDate` 를
+    들고 있고 소비자가 그걸로 staleDays 를 낸다."""
+    max_days = MAX_CARRY_DAYS if max_days is None else max_days
+    if not prev:
+        return shares, failures, 0
+    carried, still_failed = 0, []
+    for f in failures:
+        old = prev.get(f["ticker"])
+        age = days_between(old.get("sourceDate"), today) if old else None
+        if old and old.get("listedShares") and age is not None and age <= max_days:
+            shares[f["ticker"]] = old
+            carried += 1
+        else:
+            still_failed.append(f)
+    return shares, still_failed, carried
+
+
+def days_between(a, b):
+    try:
+        return (datetime.strptime(b, "%Y%m%d") - datetime.strptime(a, "%Y%m%d")).days
+    except (TypeError, ValueError):
+        return None
+
+
+def build_payload(shares, failures, requested, from_date, to_date, carried=0):
     dates = [v["sourceDate"] for v in shares.values() if v.get("sourceDate")]
     status = "OK" if shares and not failures else ("PARTIAL" if shares else "FAILED")
     return {
@@ -145,6 +182,10 @@ def build_payload(shares, failures, requested, from_date, to_date):
         "queryRange": {"from": from_date, "to": to_date},
         "status": status,
         "requestedCount": requested, "okCount": len(shares), "failCount": len(failures),
+        "carriedForwardCount": carried,
+        "carryNote": "이번 실행에서 실패한 종목은 직전 스냅샷 값을 %d일까지 "
+                     "이어받는다. 이월분은 자기 sourceDate 를 그대로 들고 있어 "
+                     "소비자의 staleDays 에 드러난다." % MAX_CARRY_DAYS,
         "marketCapNote": "krxMarketCap 은 KRX 가 함께 준 값으로 **검증용**이다. "
                          "CAP 계산은 조정주가(prices.json) × listedShares 단일 기준.",
         "shares": dict(sorted(shares.items())),
@@ -173,12 +214,20 @@ def main():
     to_date = today.strftime("%Y%m%d")
     print("KRX 상장주식수 스냅샷 · %d종목 · %s~%s" % (len(tickers), from_date, to_date), flush=True)
 
+    prev = {}
+    if os.path.exists(a.out):
+        try:
+            prev = (json.load(open(a.out, encoding="utf-8")) or {}).get("shares") or {}
+        except (ValueError, OSError) as e:
+            print("직전 스냅샷을 못 읽었다(이월 없이 진행): %s" % e)
+
     stock = _import_pykrx_stock()
     shares, failures = collect(stock, tickers, from_date, to_date)
-    payload = build_payload(shares, failures, len(tickers), from_date, to_date)
+    shares, failures, carried = carry_forward(shares, failures, prev, to_date)
+    payload = build_payload(shares, failures, len(tickers), from_date, to_date, carried)
 
-    print("status=%s · 성공 %d · 실패 %d · asOf %s"
-          % (payload["status"], payload["okCount"], payload["failCount"], payload["asOf"]))
+    print("status=%s · 성공 %d · 실패 %d · 이월 %d · asOf %s"
+          % (payload["status"], payload["okCount"], payload["failCount"], carried, payload["asOf"]))
     if payload["status"] == "FAILED":
         # 옛 스냅샷을 덮지 않는다 - 전부 실패한 날의 빈 파일이 어제의 정상 값을
         # 지우면 소비자가 이유도 모른 채 전 종목 폴백을 탄다.
@@ -224,6 +273,19 @@ def selftest():
     # 시가총액이 없어도 상장주식수만 있으면 쓴다(검증용 필드일 뿐)
     assert pick_latest(DF([Row({"상장주식수": 5})], ["2026-09-04"]))["krxMarketCap"] is None
 
+    # 이월: 실패 종목은 직전 값을 이어받되 오래된 것은 버린다
+    prev = {"A": {"listedShares": 10, "sourceDate": "20260901"},
+            "B": {"listedShares": 20, "sourceDate": "20260101"}}
+    sh, fl, n = carry_forward({}, [{"ticker": "A"}, {"ticker": "B"}], prev, "20260904")
+    assert n == 1 and sh["A"]["listedShares"] == 10                  # 3일 전 -> 이월
+    assert [f["ticker"] for f in fl] == ["B"]                        # 246일 전 -> 버린다
+    assert carry_forward({}, [{"ticker": "Z"}], prev, "20260904") == ({}, [{"ticker": "Z"}], 0)
+    assert carry_forward({}, [{"ticker": "A"}], {}, "20260904")[2] == 0      # 직전 없음
+    assert days_between("20260901", "20260904") == 3 and days_between(None, "x") is None
+    # 이월로 전 종목이 채워지면 status 는 OK 가 된다(실패 목록이 비므로)
+    sh2, fl2, _ = carry_forward({}, [{"ticker": "A"}], prev, "20260904")
+    assert build_payload(sh2, fl2, 1, "a", "b")["status"] == "OK"
+
     # 상태 3종
     assert build_payload({"A": {"sourceDate": "20260904"}}, [], 1, "a", "b")["status"] == "OK"
     assert build_payload({"A": {"sourceDate": "20260904"}}, [{"ticker": "B"}], 2, "a", "b")["status"] == "PARTIAL"
@@ -234,7 +296,7 @@ def selftest():
     assert p["asOf"] == "20260904"
 
     assert load_universe() and all(len(t) == 6 for t in load_universe())
-    print("selftest ok (12건)")
+    print("selftest ok (19건)")
 
 
 if __name__ == "__main__":
