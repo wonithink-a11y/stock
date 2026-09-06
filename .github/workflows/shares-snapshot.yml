@@ -1,0 +1,83 @@
+name: shares-snapshot
+
+# KRX 상장주식수 현재 스냅샷 -> docs/data/shares-snapshot.json
+# scripts/build-shares-snapshot.py 참고. 백필 단계가 아니다 - manifest 없고
+# data/backfill/ 에 안 쓴다. sector-strength.json 과 같은 성격의 관찰용 산출물.
+#
+# ★ commit 기본값이 false 다. 처음에는 artifact 로만 받아 값을 확인하고,
+#   확인이 끝난 뒤에 commit=true 로 한 번 올린다. 이후의 일일 갱신은
+#   daily-analysis 에 스텝을 붙여서 한다(이 워크플로는 수동 점검용으로 남는다).
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: '스모크용 종목 수 상한. 0=전체(약 353종목)'
+        required: false
+        default: '10'
+        type: string
+      commit:
+        description: 'true 면 docs/data/shares-snapshot.json 을 커밋한다'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+concurrency:
+  group: shares-snapshot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet "pykrx==1.2.8" pandas
+
+      - name: Build snapshot
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/build-shares-snapshot.py --limit ${{ inputs.limit }}
+
+      # 스냅샷이 실제로 소비자에게 어떻게 보이는지 같은 실행에서 확인한다.
+      # 이 단계는 docs/data/sector-strength.json 을 만들지만 커밋하지 않는다
+      # (그 파일의 writer 는 daily-analysis 다).
+      - name: Consumer check (sector-strength)
+        run: python scripts/build-sector-strength.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shares-snapshot
+          path: |
+            docs/data/shares-snapshot.json
+            docs/data/sector-strength.json
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Commit snapshot
+        if: success() && inputs.commit == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -- docs/data/sector-strength.json || true
+          if [ -n "$(git status --porcelain docs/data/shares-snapshot.json)" ]; then
+            git add docs/data/shares-snapshot.json
+            git commit -m "chore(shares): KRX 상장주식수 스냅샷"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음"
+          fi

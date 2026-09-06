@@ -32,6 +32,7 @@ EW 중앙값 -7.4% vs 시총가중 +29.7%. 그 격차가 이 추가의 이유다
   python scripts/build-sector-strength.py --selftest
 """
 import argparse
+import collections
 import glob
 import gzip
 import json
@@ -45,6 +46,7 @@ PRICES = os.path.join(ROOT, "docs", "data", "prices.json")
 A1A = os.path.join(ROOT, "data", "backfill", "universe", "a1a", "current.jsonl")
 ROLLUP = os.path.join(ROOT, "config", "sectorGroups.json")
 A3C = os.path.join(ROOT, "data", "backfill", "fundamentals", "a3c", "*.jsonl.gz")
+SNAPSHOT = os.path.join(ROOT, "docs", "data", "shares-snapshot.json")
 OUT = os.path.join(ROOT, "docs", "data", "sector-strength.json")
 
 KST = timezone(timedelta(hours=9))
@@ -55,6 +57,8 @@ TV_LOOKBACK = 21         # 거래대금 가중치를 재는 구간(창 시작 �
 STALE_WARN_DAYS = 180    # 주식수가 이보다 오래되면 경고. 계산에서 빼지는 않는다
 SPLIT_UP, SPLIT_DOWN = 1.5, 2 / 3   # 주식수 급변 가드(양방향). 분할 판별기가 아니라
                                      # "현재 가격과 곱하기 위험한 종목" 차단기다.
+A8_RATIO_TOLERANCE = 0.02  # A3c 폴백 경로 전용. 재구성/참조 시총비가 이만큼
+                           # 벗어나면 제외한다 - 원인은 분류하지 않는다.
 
 
 def load_rollup():
@@ -149,6 +153,111 @@ def load_shares(asof):
     return out
 
 
+def load_snapshot(path=SNAPSHOT):
+    """KRX 상장주식수 현재 스냅샷(build-shares-snapshot.py). 없으면 {}."""
+    if not os.path.exists(path):
+        return {}
+    d = json.load(open(path, encoding="utf-8"))
+    if d.get("status") == "FAILED":
+        return {}
+    return d.get("shares") or {}
+
+
+def load_a8_price_ratio(as_of, tickers, closes_by_ticker):
+    """A8(KRX 공매도 잔고)에서 실제 체결 기준 주가를 복원해 prices.json 의
+    조정주가와 비교한 배율. `잔고금액 / 잔고수량` 이 그 날의 실주가다(실측:
+    005930 4일치가 prices.json 종가와 원 단위로 일치).
+
+    쓰임은 하나다 - **A3c 폴백 경로의 안전장치**. A3c 주식수(현재 시점 하나)를
+    조정주가와 곱하는 구성은 분할류를 상쇄하지만, 그 상쇄는 두 값이 같은
+    기준일 때만 성립한다. 마지막 A3c 공시 이후에 자본변동이 나면 prices.json
+    만 소급 재작성돼 기준이 어긋난다 - 그때 이 배율이 1 에서 벗어난다.
+
+    배율의 의미를 원인으로 분류하지 않는다(분할·증자·소각·시점차 전부 섞여
+    있다). 재구성 시총 / 참조 시총의 비로만 읽고, 벗어나면 그 종목을 CAP 에서
+    뺀다. 주식수가 양쪽에서 같으므로 시총비 = 주가비로 약분된다.
+
+    A8 은 갱신이 느리므로(실측 2026-09-06 기준 23일) 이 비교는 **KRX 스냅샷이
+    없는 종목에만** 쓴다 - 최신 KRX 값이 있는데 낡은 A8 때문에 빼면 안 된다.
+
+    ★ 날짜별 배율을 통째로 돌려준다. '가장 최신 날짜 하나'로 비교하면 안 된다 -
+      사건이 지나가면 A8 도 새 기준으로 넘어가 배율이 1 로 돌아오기 때문이다.
+      실측(LS ELECTRIC, 2026-09-06): 2026-04-13 에 5:1 분할이 났고 A3c 최신
+      공시는 2026-03-18(분할 전)인데, 최신 날짜(2026-08-14) 배율은 1.0 이라
+      아무것도 안 잡혔다. 판정은 **주식수 공시일 이후 구간**에서 해야 한다."""
+    out = {}
+    want = set(tickers)
+    for year in sorted({(d8(as_of) or "")[:4], str(int((d8(as_of) or "0001")[:4]) - 1)}):
+        path = os.path.join(ROOT, "data", "backfill", "shortSelling", "a8", year + ".jsonl.gz")
+        if not year.isdigit() or not os.path.exists(path):
+            continue
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                t = r.get("ticker")
+                if t not in want or not r.get("shortBalanceShares") or not r.get("shortBalanceValue"):
+                    continue
+                d = d8(r.get("date"))
+                adj = (closes_by_ticker.get(t) or {}).get(d) if d else None
+                if not adj or adj <= 0:
+                    continue
+                raw = r["shortBalanceValue"] / r["shortBalanceShares"]
+                if raw > 0:
+                    out.setdefault(t, []).append((d, raw / adj))
+    for t in out:
+        out[t].sort()
+    return out
+
+
+def worst_ratio_since(series, since):
+    """`since`(주식수 공시일) 이후 구간에서 1 에서 가장 많이 벗어난 배율.
+
+    그 구간에 배율이 1 이 아닌 날이 있으면, 주식수가 공시된 뒤에 가격 기준이
+    재작성됐다는 뜻이다 - 즉 지금 가진 주식수와 지금 가진 가격이 다른 기준이다.
+    참조할 날이 없으면 None(모르는 것을 1 로 채우지 않는다)."""
+    if not series:
+        return None
+    pool = [(d, r) for d, r in series if since is None or d >= since]
+    if not pool:
+        return None
+    d, r = max(pool, key=lambda x: abs(x[1] - 1.0))
+    return {"ratio": r, "on": d, "n": len(pool)}
+
+
+def resolve_shares(tickers, snapshot, a3c, a8_ratio, as_of):
+    """종목별 주식수를 출처와 함께 확정한다.
+
+      KRX 스냅샷 있음 -> 그 값. A8 배율은 진단으로만 기록하고 제외 게이트로 안 쓴다
+      없음            -> A3c. 이때만 A8 배율 검사를 제외 게이트로 건다
+    """
+    out = {}
+    for t in tickers:
+        snap = snapshot.get(t)
+        series = a8_ratio.get(t)
+        if snap and snap.get("listedShares"):
+            # KRX 는 오늘의 주식수라 A8(23일 낡음) 배율로 제외하지 않는다.
+            # 진단으로 마지막 배율만 남긴다.
+            last = series[-1][1] if series else None
+            out[t] = {"shares": snap["listedShares"], "asOf": d8(snap.get("sourceDate")),
+                      "source": "KRX", "unverified": None,
+                      "krxMarketCap": snap.get("krxMarketCap"),
+                      "a8Ratio": (round(last, 4) if last is not None else None)}
+            continue
+        rec = a3c.get(t)
+        if not rec or not rec.get("shares"):
+            continue
+        # A3c 는 '그 공시일 기준' 주식수다. 그 뒤에 가격 기준이 재작성됐는지를 본다.
+        diag = worst_ratio_since(series, rec.get("asOf"))
+        reason = rec.get("unverified")
+        if reason is None and diag and abs(diag["ratio"] - 1.0) > A8_RATIO_TOLERANCE:
+            reason = "PRICE_BASIS_MISMATCH"
+        out[t] = {"shares": rec["shares"], "asOf": rec.get("asOf"), "source": "A3C",
+                  "unverified": reason, "krxMarketCap": None,
+                  "a8Ratio": (round(diag["ratio"], 4) if diag else None),
+                  "a8RatioOn": (diag["on"] if diag else None)}
+    return out
+
+
 def stale_days(as_of, ref):
     a, b = d8(as_of), d8(ref)
     if not a or not b:
@@ -229,6 +338,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
     rows = []
     unmapped = 0
     unverified = []
+    cap_checks = []
     for ticker, rec in prices["byTicker"].items():
         if rec.get("market") != market:
             continue
@@ -243,14 +353,21 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
         sh = shares_by_ticker.get(ticker) or {}
         bad = sh.get("unverified")
         if bad:
-            unverified.append({"ticker": ticker, "name": rec.get("name"), "reason": bad})
+            unverified.append({"ticker": ticker, "name": rec.get("name"), "reason": bad,
+                               "source": sh.get("source"), "a8Ratio": sh.get("a8Ratio")})
         usable = sh.get("shares") if (sh.get("shares") and not bad) else None
+        # KRX 가 함께 준 시가총액과 우리 재구성값을 대조한다 - **검증용이고
+        # 게이트가 아니다**. CAP 계산 기준은 조정주가 × listedShares 하나뿐이다.
+        if usable and sh.get("krxMarketCap") and sh.get("asOf"):
+            ref_close = dict(zip(rec.get("d") or [], c)).get(sh["asOf"])
+            if ref_close:
+                cap_checks.append(usable * ref_close / sh["krxMarketCap"])
         rows.append({
             "ticker": ticker, "name": rec.get("name"), "group": g,
             "rets": {k: ret(c, n) for k, n in WINDOWS.items()},
             "capW": {k: cap_weight(c, usable, n) for k, n in WINDOWS.items()},
             "tvW": {k: tv_weight(c, v, n) for k, n in WINDOWS.items()},
-            "sharesAsOf": sh.get("asOf"),
+            "sharesAsOf": sh.get("asOf"), "sharesSource": sh.get("source"),
             "staleDays": stale_days(sh.get("asOf"), as_of),
             "above20": sma_pos(c, 20), "above60": sma_pos(c, 60),
         })
@@ -290,6 +407,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
             cap_top_w = round(w / sum(x for _, x in weighted), 3)
 
         stales = [m["staleDays"] for m in members if m["staleDays"] is not None]
+        src = collections.Counter(m["sharesSource"] for m in members if m["sharesSource"])
         ranked = sorted((m for m in members if m["rets"]["1m"] is not None),
                         key=lambda m: m["rets"]["1m"], reverse=True)
         brief = lambda m: {"ticker": m["ticker"], "name": m["name"],
@@ -312,6 +430,8 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
             "tvCoverage": tv_cov,
             "maxSharesStaleDays": max(stales) if stales else None,
             "sharesStale": bool(stales and max(stales) > STALE_WARN_DAYS),
+            "sharesSourceCounts": dict(src),
+            "sharesFallbackCount": src.get("A3C", 0),
             "top": [brief(m) for m in ranked[:3]],
             "bottom": [brief(m) for m in ranked[-3:]][::-1],
         })
@@ -340,7 +460,19 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
                            "합산 거래규모이지 순자금 유입이 아니다.",
         "sharesSource": "A3c istcTotqy(발행주식총수, availableFrom<=asOf·scanStatus=OK 중 최신). "
                         "KRX 시가총액은 자사주 포함 상장주식수 기준이라 distbStockCo가 아니다.",
+        "sharesSourceCounts": dict(collections.Counter(
+            r["sharesSource"] for r in rows if r["sharesSource"])),
+        "sharesFallbackCount": sum(1 for r in rows if r["sharesSource"] == "A3C"),
+        "sharesMissingCount": sum(1 for r in rows if not r["sharesSource"]),
         "sharesUnverified": sorted(unverified, key=lambda x: x["ticker"]),
+        "krxMarketCapCheck": ({
+            "n": len(cap_checks),
+            "medianRatio": round(statistics.median(cap_checks), 5),
+            "maxAbsDeviation": round(max(abs(x - 1) for x in cap_checks), 5),
+            "beyond2pct": sum(1 for x in cap_checks if abs(x - 1) > A8_RATIO_TOLERANCE),
+            "note": "재구성(조정주가 x listedShares) / KRX 시가총액. 검증용이고 "
+                    "게이트가 아니다 - CAP 계산 기준은 재구성값 하나뿐이다.",
+        } if cap_checks else None),
         "sharesGuard": {"splitUp": SPLIT_UP, "splitDown": round(SPLIT_DOWN, 4),
                         "staleWarnDays": STALE_WARN_DAYS,
                         "note": "주식수가 직전 공시 대비 급변하거나 수권주식수를 넘으면 "
@@ -366,8 +498,18 @@ def main():
         prices = json.load(f)
     k2g = load_rollup()
     as_of = max((r["d"][-1] for r in prices["byTicker"].values() if r.get("d")), default=None)
-    shares = load_shares(as_of)
-    out = build(prices, load_sector_by_ticker(k2g), shares_by_ticker=shares)
+    sectors = load_sector_by_ticker(k2g)
+    kr = [t for t, r in prices["byTicker"].items() if r.get("market") == "KR" and sectors.get(t)]
+    closes = {t: dict(zip(prices["byTicker"][t].get("d") or [], prices["byTicker"][t].get("c") or []))
+              for t in kr}
+    snapshot = load_snapshot()
+    a8 = load_a8_price_ratio(as_of, kr, closes)
+    shares = resolve_shares(kr, snapshot, load_shares(as_of), a8, as_of)
+    print("주식수 출처: KRX %d · A3C %d · 없음 %d (스냅샷 %d종목 · A8 참조 %d종목)" % (
+        sum(1 for v in shares.values() if v["source"] == "KRX"),
+        sum(1 for v in shares.values() if v["source"] == "A3C"),
+        len(kr) - len(shares), len(snapshot), len(a8)))
+    out = build(prices, sectors, shares_by_ticker=shares)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     print("asOf {} · {}종목 · {}개 그룹 · 미매핑 {} · 주식수 확보 {} · UNVERIFIED {}".format(
@@ -532,7 +674,72 @@ def selftest():
     a4 = next(g for g in o4["groups"] if g["group"] == g0)
     assert a4["sharesStale"] is True and a4["maxSharesStaleDays"] > STALE_WARN_DAYS
     assert a4["capCoverage"]["3m"] == 1.0, "stale 을 제외해 버렸다"
-    print("selftest ok (55건)")
+
+    # ── ★ EW 완전 불변 (2026-09-06) ─────────────────────────────
+    # **같은 가격 입력에서 주식수만 바꿔** 비교한다. o2~o4 는 위에서 by 의 가격을
+    # 한 번 바꾼 뒤에 만든 것이라 그 이전의 out 과 비교하면 안 된다(이 테스트를
+    # 처음 그렇게 짰다가 스스로 걸렸다 - 기준을 잘못 잡으면 게이트가 오탐한다).
+    EW_KEYS = ("ret", "rs", "accel", "breadth20", "breadth60", "quadrant", "n")
+    # top/bottom 은 EW 순위지만 항목에 sharesAsOf·staleDays 가 함께 실려 있다.
+    # 그건 주식수 출처에 따라 당연히 바뀌므로 EW 부분(순서·종목·수익률)만 본다.
+    trim = lambda xs: [(x["ticker"], x["name"], x["ret1m"]) for x in xs]
+    ew = lambda o: ({g["group"]: (tuple(g[k] for k in EW_KEYS), trim(g["top"]), trim(g["bottom"]))
+                     for g in o["groups"]},
+                    {k: o["benchmark"][k] for k in WINDOWS})
+    o_nosh = build({"byTicker": by}, sec)              # 주식수 없음(전량 폴백 상황)
+    base = ew(o_nosh)
+    for other in (o2, o3, o4):
+        assert ew(other) == base, "EW 값이 바뀌었다 - 이 시점에서 중단해야 한다"
+
+    # ── resolve_shares 우선순위 (합성 fixture — 실제 종목/배율을 박지 않는다) ──
+    snap = {"T1": {"listedShares": 150, "krxMarketCap": 300, "sourceDate": "20260904"}}
+    a3c = {"T1": {"shares": 30, "asOf": "20260318", "unverified": None},
+           "T2": {"shares": 30, "asOf": "20260318", "unverified": None},
+           "T3": {"shares": 30, "asOf": "20260318", "unverified": None}}
+    # T1·T2 는 배율이 크게 어긋난 상태(주식수 30 vs 참조 150 -> 비 0.2)
+    # a8_ratio 는 (날짜, 배율) 시계열이다. T1·T2 는 공시일 이후에 기준이 바뀐 모양
+    # (공시일 직후 0.2 였다가 사건이 지나 1.0 으로 복귀) - '최신 하나'만 보면 못 잡는다.
+    a8r = {"T1": [("20260401", 0.2), ("20260814", 1.0)],
+           "T2": [("20260401", 0.2), ("20260814", 1.0)],
+           "T3": [("20260401", 1.001), ("20260814", 1.0)]}
+    res = resolve_shares(["T1", "T2", "T3"], snap, a3c, a8r, "20260904")
+    # KRX 가 있으면 A8 배율이 아무리 어긋나도 제외하지 않는다(진단으로만 남긴다)
+    assert res["T1"]["source"] == "KRX" and res["T1"]["shares"] == 150
+    assert res["T1"]["unverified"] is None and res["T1"]["a8Ratio"] == 1.0   # 진단은 마지막 값
+    # KRX 가 없으면 A3c + A8 게이트가 걸린다
+    assert res["T2"]["source"] == "A3C" and res["T2"]["unverified"] == "PRICE_BASIS_MISMATCH"
+    # 배율이 허용 범위 안이면 통과
+    assert res["T3"]["source"] == "A3C" and res["T3"]["unverified"] is None
+    # ★ '최신 배율 하나'로 보면 1.0 이라 못 잡는다 - 공시일 이후 구간을 봐야 한다
+    assert worst_ratio_since(a8r["T2"], "20260318")["ratio"] == 0.2
+    assert worst_ratio_since(a8r["T2"], "20260501")["ratio"] == 1.0      # 공시가 사건 뒤면 정상
+    assert worst_ratio_since(a8r["T2"], "20270101") is None              # 참조할 날 없음
+    assert worst_ratio_since([], "20260318") is None
+    # 공시일이 사건 이후면 기준이 같으므로 통과해야 한다
+    res3 = resolve_shares(["T2"], {}, {"T2": {"shares": 30, "asOf": "20260501", "unverified": None}},
+                          a8r, "20260904")
+    assert res3["T2"]["unverified"] is None
+
+    # A3c 자체 가드(SHARES_JUMP)가 A8 게이트보다 앞선다
+    res2 = resolve_shares(["T2"], {}, {"T2": {"shares": 30, "asOf": "20260318", "unverified": "SHARES_JUMP"}},
+                          a8r, "20260904")
+    assert res2["T2"]["unverified"] == "SHARES_JUMP"
+    # 어느 출처에도 없으면 아예 안 담는다(0 으로 지어내지 않는다)
+    assert resolve_shares(["ZZ"], {}, {}, {}, "20260904") == {}
+
+    # UNVERIFIED 는 분자·분모 동시 제외 - 합성 fixture 로 확인
+    sh5 = {t: {"shares": 1, "asOf": "20260901", "source": "KRX", "unverified": None,
+               "krxMarketCap": None, "a8Ratio": None} for t in by if by[t]["market"] == "KR"}
+    sh5["A0"] = {"shares": 100, "asOf": "20260901", "source": "A3C",
+                 "unverified": "PRICE_BASIS_MISMATCH", "krxMarketCap": None, "a8Ratio": 0.2}
+    o5 = build({"byTicker": by}, sec, shares_by_ticker=sh5)
+    assert ew(o5) == base, "EW 값이 바뀌었다"
+    a5 = next(g for g in o5["groups"] if g["group"] == g0)
+    assert a5["capCoverage"]["3m"] == 0.8 and a5["sharesFallbackCount"] == 1
+    assert o5["sharesSourceCounts"].get("A3C") == 1
+    assert any(u["ticker"] == "A0" and u["reason"] == "PRICE_BASIS_MISMATCH"
+               for u in o5["sharesUnverified"])
+    print("selftest ok (76건)")
 
 
 if __name__ == "__main__":
