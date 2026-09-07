@@ -44,3 +44,11 @@ data/**/*.pkl
 # Codex slot-marginal 분석의 원시 스냅샷(33MB, 15,360행×22 config) — 재생성 가능
 # (node slot_marginal_analysis.js). analysis.json(파생 결과)은 계속 추적한다.
 findings/slot-marginal-contribution/snapshots.json
+
+# findings/pbr-reproducibility-anchor-2026-09.md 가 인용하는 패널 앵커.
+# 17MB짜리 valuation-panel.jsonl 은 계속 gitignore - 커밋된 입력에서
+# `node scripts/build-a5-valuation-panel.js` 로 재생성된다. 수백 바이트짜리
+# manifest(sha256·행수·기간)만 예외로 둬서 앵커를 저장소에서 확인할 수 있게 한다.
+!reports/2026-08-21-a5-valuation-precheck/
+reports/2026-08-21-a5-valuation-precheck/*
+!reports/2026-08-21-a5-valuation-precheck/valuation-panel.manifest.json

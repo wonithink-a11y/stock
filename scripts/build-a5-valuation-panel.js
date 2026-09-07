@@ -25,6 +25,7 @@
 const fs = require('fs');
 const zlib = require('zlib');
 const path = require('path');
+const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 
 const { resolve } = require(path.join(ROOT, 'lib/a5/resolver'));
@@ -149,6 +150,35 @@ function main() {
     console.log(`${year} 완료 (누적 ${totalRows}행, pbr커버리지 ${(pbrRows / totalRows * 100).toFixed(1)}%)`);
   }
   out.end();
+  // ★ 재현성 사슬이 끊긴 자리는 '소스가 없다'가 아니라 '출처 기록이 없다'였다.
+  // 이 패널은 전부 커밋된 입력(data/backfill/{calendar,universe/a1a,price/a2a,
+  // fundamentals/a3,a3c,a3d})에서 이 스크립트 한 줄로 재생성된다. 그런데 어떤
+  // 빌드가 어떤 숫자를 냈는지가 어디에도 안 남아, PBR baseline CAGR 이 4.72% ->
+  // 5.49% 로 바뀐 이유를 한참 짚지 못했다(findings/pbr-reproducibility-
+  // anchor-2026-09.md). findings 는 아래 sha256 을 인용한다.
+  out.on('finish', () => {
+    let gitHead = null;
+    try {
+      gitHead = require('child_process')
+        .execSync('git rev-parse HEAD', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
+        .toString().trim();
+    } catch { /* git 없이도 패널은 유효하다 - 기록만 비운다 */ }
+
+    const manifestPath = path.join(outDir, 'valuation-panel.manifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      generator: 'scripts/build-a5-valuation-panel.js',
+      start: START,
+      end: END,
+      rows: totalRows,
+      pbrRows,
+      pbrCoveragePct: Number((pbrRows / totalRows * 100).toFixed(2)),
+      sha256: crypto.createHash('sha256').update(fs.readFileSync(outPath)).digest('hex'),
+      gitHead,
+      note: '이 패널을 쓴 결과를 findings 에 적을 때 sha256 과 end 를 함께 인용한다.',
+    }, null, 2) + '\n');
+    console.log(`manifest → ${manifestPath}`);
+  });
   console.log(`저장 → ${outPath} (${totalRows}행, pbr ${pbrRows}행=${(pbrRows / totalRows * 100).toFixed(1)}%)`);
 }
 

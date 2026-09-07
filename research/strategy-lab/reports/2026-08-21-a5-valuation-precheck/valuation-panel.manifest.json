@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-09-03T23:58:03",
+  "generator": "scripts/build-a5-valuation-panel.js",
+  "start": "2016-01-01",
+  "end": null,
+  "rows": 175250,
+  "pbrRows": 126434,
+  "pbrCoveragePct": 72.14,
+  "sha256": "e55330bf21155a774c6ef0dc9a56243fcb88e3a359c6a5de6e7e6a2ff773b804",
+  "gitHead": null,
+  "note": "사후 기록(2026-09-08). manifest 기능이 없던 시절 빌드라 generatedAt 은 파일 mtime, gitHead 와 CLI --end 는 확인할 수단이 없어 null 이다 - 추정해 채우지 않는다(교훈57). 대신 실측 가능한 asOfRangeObserved 를 남긴다. 이 sha256 이 PBR baseline CAGR 5.49% 를 낸 패널이다. 다음 재생성부터는 생성기가 직접 쓴다.",
+  "asOfRangeObserved": [
+    "2016-01-04",
+    "2026-09-01"
+  ]
+}

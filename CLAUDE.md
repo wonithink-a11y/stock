@@ -38,7 +38,11 @@ Validated against
             Pages는 Free private 불가). 트리거 — **KEEP 전략이 처음 생기면 그것만**
             private 분리.
   다음      PBR 연구 라인 — 세부 실험 종료, **production 결정만 남음(별도 🔴)**.
-            핵심: `pbr_value_v1_combined`(dropout+MAX제외, nDrop=2/pct=0.8)이
+            핵심: `pbr_value_v1_combined`(dropout+MAX제외, **finding 선택값은
+            nDrop=2/pct=0.8 인데 committed policy.json 은 nDrop=3** — 라이브
+            페이퍼 슬리브가 검증된 파라미터로 안 돌고 있다, 2026-09-08 발견.
+            어느 값으로 확정할지는 🔴, 재현에서 TRAIN 최선이 2↔3 으로 뒤집혀
+            노이즈라 임의로 안 바꿨다)이
             OOS 12격자·3구간 전부 Sharpe 양(+)·부호반전 0건으로 "production
             결정을 실제로 고려해볼 후보"로 최종 상향(2026-08-26). 단 초과수익의
             74%가 2022+2024 두 해에 쏠려(원 98.6%보다 완화됐으나 완전분산은
@@ -49,7 +53,13 @@ Validated against
             공통 확인). LOWMOM60+기관수급도 같은 분류(연구 후보, 후보 C만
             구현). PEAD(연간·분기 파일럿·분기 전면수집 3회 검증)·DD252(실제
             롱온리 백테스트까지)는 최종 기각으로 종결, 재개 안 함. 선결 조건
-            (`pbr_value_v1/`재현성 사슬 완성)은 여전히 미해결. 전체 경위
+            (`pbr_value_v1/`재현성 사슬)은 **2026-09-08 해소** — 끊긴 자리는
+            소스가 아니라 출처 기록이었다(입력·전략 디렉터리는 전부 커밋돼
+            있고 패널은 `node scripts/build-a5-valuation-panel.js` 한 줄로
+            재생성된다). 생성기가 manifest(sha256·행수·기간)를 쓰게 하고
+            현재 빌드를 앵커로 고정했다. baseline 정본은 4.72%가 아니라
+            **CAGR 5.49%**(독립 실행 2건 일치, 패널 sha256 e55330bf2115).
+            세부: findings/pbr-reproducibility-anchor-2026-09.md. 전체 경위
             (후속 1~12): docs/control/완료-이력.md 참고.
   착수 가능  ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
             emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조).
