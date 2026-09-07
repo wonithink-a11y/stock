@@ -102,8 +102,11 @@ def main():
         new_cagr = results[sid]["metrics"]["cagr"]
         print(f"  {sid}: exit_date CAGR={old_cagr:+.2%} -> MTM CAGR={new_cagr:+.2%}")
 
+    # 실행일로 디렉터리를 가른다. 날짜를 고정해 두면 재실행이 원본 보고서를
+    # 덮어써서 비교할 기준선이 사라진다 - 이 스크립트의 값은 대부분 "전에
+    # 뭐였는데 지금 뭐가 됐나"에 있다.
     out_dir = os.path.join(REPO_ROOT, "research", "strategy-lab", "reports",
-                            "2026-08-30-factor-earnings-yield-mtm-reverification")
+                            time.strftime("%Y-%m-%d") + "-factor-earnings-yield-mtm-reverification")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "factor-earnings-yield-mtm-reverification.json")
     with open(out_path, "w", encoding="utf-8") as f:

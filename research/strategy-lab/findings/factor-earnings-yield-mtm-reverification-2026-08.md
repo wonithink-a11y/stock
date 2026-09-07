@@ -11,6 +11,11 @@ reason: "CAGR은 exit_date 방식과 MTM이 거의 일치(전 5전략 오차 ±0
 # factor-earnings-yield-{single-backtest,verification,portfolio-validation,
 capacity-test} 4건 — 정밀 MTM 재확인 (2026-08-30)
 
+> **후속(2026-09-08):** selection 갱신·maxPositions 드리프트 복구 후 같은
+> 스크립트로 재실행했고 **이 문서의 수치는 그대로 유효하다**(EY mp=30 CAGR
+> 4.86% → 4.80%). 실험실이 보고한 "갱신으로 1.98% 로 붕괴" 는 재현되지 않았다.
+> 경위와 전체 대조표: `factor-earnings-yield-selection-refresh-recheck-2026-09.md`.
+
 `findings/factor-earnings-yield-2021-concentration-2026-08.md`·
 `factor-earnings-yield-macro-rate-regime-2026-08.md`가 확인한 exit_date
 귀속 왜곡(연도별 몰림 분석)에 이어, 나머지 4개 findings의 **핵심 성과
