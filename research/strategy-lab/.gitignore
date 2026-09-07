@@ -52,3 +52,8 @@ findings/slot-marginal-contribution/snapshots.json
 !reports/2026-08-21-a5-valuation-precheck/
 reports/2026-08-21-a5-valuation-precheck/*
 !reports/2026-08-21-a5-valuation-precheck/valuation-panel.manifest.json
+
+# build_sweep_dashboard.py 가 dashboard/sweep-template.html + reports 데이터로
+# 구워내는 산출물(592KB). 생성기와 템플릿이 둘 다 커밋돼 있어 재생성된다 -
+# valuation-panel.jsonl 과 같은 원칙(산출물 말고 재생성 경로를 커밋한다).
+dashboard/sweep-dashboard.html
