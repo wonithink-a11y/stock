@@ -36,6 +36,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      # build_findings_registry.py가 frontmatter를 PyYAML로 읽는다(856415f).
+      # 로컬에는 있었지만 러너에는 없어 2026-09-03부터 이 워크플로가 죽어 있었다.
+      - name: Install deps
+        run: pip install pyyaml
+
       - name: Build ui/data/findings.json
         run: python build_ui_findings.py
 
