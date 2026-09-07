@@ -16,10 +16,14 @@ reason: >-
   2026-09-01)를 사후 기록해 앵커로 고정했다. 이 패널이 baseline CAGR 5.49%
   (Sharpe 0.521 · MDD -21.09% · 청산 777)를 낸 것이고, 독립 실행 2건이
   소수점까지 일치하므로 5.49% 가 정본이다(기존 인용값 4.72% 는 이전 패널 기준).
-  점검 중에 별건이 하나 나왔다 - pbr_value_v1_combined 의 committed policy 는
-  nDrop=3 인데 KEEP 판정을 받은 finding 이 선택한 값은 nDrop=2 다. 라이브
-  페이퍼 슬리브가 검증된 파라미터가 아닌 값으로 돌고 있다. 파라미터를 임의로
-  바꾸지 않고 보고만 한다(사용자 결정).
+  점검 중에 별건이 하나 나왔다 - pbr_value_v1_combined 의 실물(policy 와 구워진
+  selection 양쪽)은 nDrop=3 인데 KEEP 판정 finding 이 선택했다고 적은 값은
+  nDrop=2 다. 조사 결과 3 은 방치된 기본값이 아니라 사전 근거가 있는 값이고
+  (dropout policy 의 nDropNote: Qlib 예제와 같은 topN 10% 비율), 재현에서
+  TRAIN 최선이 2->3 으로 뒤집혀 차이가 노이즈이며, OOS 부호반전 0건은 두
+  값 모두에서 유지된다. **nDrop=3 으로 확정한다(2026-09-08 사용자 결정).**
+  원 finding 의 frontmatter 는 그 실험이 한 일이므로 고치지 않고 후속 블록만
+  달았다. 확정에 따라 tests/test_paper_sleeve_policy.py 에 factor pin 을 넣었다.
 cagr: 5.49
 sharpe: 0.521
 mdd: -21.09
@@ -132,39 +136,76 @@ KEEP finding 이 선택한 값 nDrop = 2   maxExclusionPercentile = 0.8
 문서 자신의 격자표에서 nDrop=3/0.8 은 **"첫 결합실험 값"**, 즉 선택 이전의
 기본값으로 적혀 있다.
 
-policy.json 은 커밋이 하나뿐이고(`f0c282d`, 2026-08-31 일괄 백업 커밋) 처음부터
-nDrop=3 이었다. **의도적으로 3 으로 맞춘 흔적이 없다** — 선택 결과가 파일에
-반영되지 않은 채로 라이브에 올라간 것으로 보인다.
+### 정정 — "흔적이 없다"는 틀렸다 (2026-09-08 추가 조사)
 
-### 그런데 지금 2 로 바꾸면 안 된다
+이 문서 초판에 `의도적으로 3 으로 맞춘 흔적이 없다`고 적었다. **틀렸다.**
+`pbr_value_v1_dropout/policy.json` 의 `factor.nDropNote` 가 근거를 명시한다.
 
-실험실 재현(`keep-paper-candidate-final-verification-2026-09` §2.1)에서 TRAIN
-최선이 뒤집혔다.
+> Qlib 예제(topk=50, n_drop=5, 비율 10%)와 같은 비율로 topN=30에 맞춰 3 선택.
+
+즉 nDrop=3 은 스윕 이전에 **비율(topN의 10%)로 정한 사전 근거**이지 방치된
+기본값이 아니다. 스윕이 TRAIN 에서 2 를 더 좋게 봤지만 실물은 그 사전 근거를
+유지한 것이다.
+
+### 라이브가 실제로 무엇으로 도는지도 확인했다
+
+policy.json 의 `factor` 블록은 엔진이 읽지 않는다(그 블록 자신의 note:
+`engine/runner.py는 이 블록을 모른다 - 선택 로직이 selection.json에 이미
+구워져 있으므로`). 그래서 파일 값만으로는 라이브 동작을 단정할 수 없어
+selection 쪽 출처를 따라갔다.
 
 ```
-              원본 TRAIN Sharpe    재현 TRAIN Sharpe
-nDrop=2/0.8       0.6943               0.6519
-nDrop=3/0.8       0.6780               0.7171   ← 현재 데이터의 TRAIN 최선
+pbr_value_v1_dropout/selection.json    generatedFrom=build_selection_dropout.py
+                                       nDrop = 3   topN = 30
+                                       period 2016-01-01 ~ 2026-09-03
+pbr_value_v1_combined/selection.json   basedOnSelection = 위 dropout selection
+                                       exclusionPercentile = 0.8
 ```
 
-"TRAIN 최선을 고른다"는 규칙을 지금 데이터에 적용하면 **3 이 나온다.** 즉
-현재 파일이 우연히 지금 규칙과 일치한다. 데이터가 조금 갱신될 때마다 1위가
-2↔3 으로 오가는 것은 **둘이 구분되지 않는다**는 뜻이고, 이 저장소가 반복해서
-데인 패턴이다(`pbr-topn-strength-oos` TRAIN→VALID 순위 완전 역전,
-`pbr-roe-quality-overlay-oos` gate50, `factor-earnings-yield-selection-refresh-
-recheck-2026-09` 의 mp=30↔50). **어느 쪽으로든 지금 바꾸는 것은 노이즈를
-쫓는 행위다.**
+**구워진 selection 자체가 nDrop=3 이다.** policy 와 실물이 일치한다.
+어긋나 있는 것은 policy↔selection 이 아니라 **finding 의 선택 서술↔실물**이다.
 
-OOS 부호 반전 0건은 두 경우 모두 유지되므로 KEEP 판정은 흔들리지 않는다.
+### 결정 — nDrop=3 으로 확정 (2026-09-08, 사용자)
 
-### 남기는 것
+바꾸지 않고 3 을 정본으로 확정한다. 근거 셋.
 
-- 파라미터를 바꾸지 않았다. **문서와 실물이 어긋나 있다는 사실**을 고정한다.
-- 어느 값으로 확정할지는 사용자 결정이다. 확정되면 그때
-  `tests/test_paper_sleeve_policy.py` 에 pin 을 추가한다 — 지금 추가하면
-  미해결 불일치를 테스트가 축복하게 된다.
-- maxPositions tripwire 는 이미 있다(커밋 `41a5732`). 이번 건은 그 tripwire 가
-  보는 필드(`portfolio`) 밖이라 안 걸렸다.
+1. **사전 근거가 있다.** 위 `nDropNote` — topN 의 10% 비율. 스윕 결과에
+   맞춰 사후에 고른 값이 아니다.
+2. **차이가 노이즈다.** 재현에서 TRAIN 최선이 뒤집혔다.
+
+   ```
+                 원본 TRAIN Sharpe    재현 TRAIN Sharpe
+   nDrop=2/0.8       0.6943               0.6519
+   nDrop=3/0.8       0.6780               0.7171   ← 현재 데이터의 TRAIN 최선
+   ```
+
+   데이터가 조금 갱신될 때마다 1위가 2↔3 으로 오간다는 것은 둘이 구분되지
+   않는다는 뜻이다. 이 저장소가 반복해서 데인 패턴이다
+   (`pbr-topn-strength-oos` TRAIN→VALID 순위 완전 역전 ·
+   `pbr-roe-quality-overlay-oos` gate50 ·
+   `factor-earnings-yield-selection-refresh-recheck-2026-09` 의 mp=30↔50).
+3. **판정이 안 흔들린다.** OOS 부호 반전 0건은 12격자 전부에서 유지되므로
+   KEEP 은 어느 값에서도 성립한다. 원 finding 자신도 `"이 불안정성은 어떤
+   파라미터를 고르느냐와 무관하게 전 격자에 걸쳐 있어 선택 자체를..."`
+   이라고 적었다.
+
+확정에 따라 `tests/test_paper_sleeve_policy.py` 에 pin 을 넣었다 — 초판에서
+"불일치가 미해결이라 지금 pin 하면 테스트가 그것을 축복한다"고 미뤘던 항목이다.
+
+### 원 finding 에 남긴 것
+
+`pbr-combined-oos-validation-2026-08.md` 의 frontmatter(`nDrop=2/maxexcl=0.8
+선택`)는 **고치지 않았다.** 그 실험이 실제로 한 일이고, 날짜 박힌 관측치를
+나중 결정으로 덮어쓰지 않는다. 대신 본문 머리에 후속 블록으로 확정 사실과
+이 문서 링크를 달았다.
+
+### 정리
+
+- **파라미터를 바꾸지 않았다.** 3 이 이미 실물이고 사전 근거가 있으며 현재
+  데이터의 TRAIN 최선이기도 하다. 바꿀 이유가 세 겹으로 없다.
+- 고친 것은 **기록**이다 — finding 의 선택 서술과 실물이 어긋나 있던 것.
+- `maxPositions` tripwire(커밋 `41a5732`)는 `portfolio` 블록만 봐서 이 건을
+  못 잡았다. 이번에 `factor` 블록 pin 을 추가해 같은 사각을 닫았다.
 
 ## 5. 남은 것
 

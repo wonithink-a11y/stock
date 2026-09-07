@@ -38,11 +38,13 @@ Validated against
             Pages는 Free private 불가). 트리거 — **KEEP 전략이 처음 생기면 그것만**
             private 분리.
   다음      PBR 연구 라인 — 세부 실험 종료, **production 결정만 남음(별도 🔴)**.
-            핵심: `pbr_value_v1_combined`(dropout+MAX제외, **finding 선택값은
-            nDrop=2/pct=0.8 인데 committed policy.json 은 nDrop=3** — 라이브
-            페이퍼 슬리브가 검증된 파라미터로 안 돌고 있다, 2026-09-08 발견.
-            어느 값으로 확정할지는 🔴, 재현에서 TRAIN 최선이 2↔3 으로 뒤집혀
-            노이즈라 임의로 안 바꿨다)이
+            핵심: `pbr_value_v1_combined`(dropout+MAX제외, **nDrop=3/pct=0.8
+            — 2026-09-08 확정**. KEEP finding 은 nDrop=2 를 선택했다고 적었으나
+            실물은 policy·구워진 selection 양쪽 다 3 이었고, 3 이 사전 근거가
+            있는 값이며(dropout policy 의 nDropNote — Qlib 예제와 같은 topN
+            10% 비율) 재현에서 TRAIN 최선이 2↔3 으로 뒤집혀 차이가 노이즈다.
+            OOS 부호반전 0건은 두 값 모두 유지라 KEEP 은 안 흔들린다.
+            tests/test_paper_sleeve_policy.py 가 pin 한다)이
             OOS 12격자·3구간 전부 Sharpe 양(+)·부호반전 0건으로 "production
             결정을 실제로 고려해볼 후보"로 최종 상향(2026-08-26). 단 초과수익의
             74%가 2022+2024 두 해에 쏠려(원 98.6%보다 완화됐으나 완전분산은

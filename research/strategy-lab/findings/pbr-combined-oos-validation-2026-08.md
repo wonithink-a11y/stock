@@ -9,6 +9,18 @@ reason: "12격자·3구간 전부 Sharpe 양(+)로 OOS 부호 반전 0건, TRAIN
 ---
 # PBR combined 파라미터 스윕 — OOS(TRAIN/VALID/TEST) 검증, 반전 없음 (2026-08-26)
 
+> **후속(2026-09-08) — 실물은 nDrop=3 이고, 그것으로 확정했다.**
+> 이 문서는 TRAIN 최선으로 `nDrop=2/maxexcl=0.8` 을 선택했다고 적었지만,
+> `pbr_value_v1_combined` 의 실물은 policy 와 구워진 selection 양쪽 다
+> **nDrop=3** 이다(`pbr_value_v1_dropout/selection.json` 의 `nDrop: 3` 이
+> 상류). 3 은 방치된 기본값이 아니라 사전 근거가 있는 값이고
+> (`pbr_value_v1_dropout/policy.json` 의 `nDropNote` — Qlib 예제와 같은
+> topN 10% 비율), 2026-09-06 재현에서 TRAIN 최선이 2→3 으로 뒤집혀
+> (0.6943/0.6780 → 0.6519/0.7171) 두 값의 차이는 노이즈다. OOS 부호 반전
+> 0건은 12격자 전부에서 유지되므로 **이 문서의 KEEP 판정은 그대로다.**
+> 아래 frontmatter·본문 수치는 이 실험이 실제로 한 일이라 손대지 않았다.
+> 경위와 결정: `findings/pbr-reproducibility-anchor-2026-09.md` §4.
+
 `findings/pbr-combined-paramsweep-2026-08.md`이 "nDrop=2+pct=0.8이 격자
 전체 최선"이라 찾은 것은 **전체 기간(2016~2026)을 다 보고 사후에 고른
 값**이라는 한계를 그 findings 자신이 적어 뒀다. `run_strategy_validation.py`
