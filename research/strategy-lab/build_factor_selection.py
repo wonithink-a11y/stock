@@ -447,7 +447,22 @@ def main():
             }
         }
 
-        with open(os.path.join(output_dir, "policy.json"), "w", encoding="utf-8") as f:
+        # ★ 이미 있는 policy.json 의 portfolio 블록은 덮지 않는다.
+        # 이 스크립트는 selection 리프레시마다 policy 를 통째로 재생성하는데,
+        # 그때 위 기본값이 손으로 맞춰 둔 값을 조용히 되돌린다 - 2026-09-04
+        # 커밋 bcb3c8a 에서 실제로 maxPositions 가 30 -> 200 으로 밀렸고
+        # (커밋 메시지에 없다), paperEngine.py:229 가 이 값으로 슬롯예산
+        # (capital // maxPositions)을 잡기 때문에 라이브 모의계좌가 333만원이
+        # 아니라 50만원 슬롯으로 돌았다. portfolio 는 검증된 백테스트가 쓴
+        # 파라미터라 selection 갱신이 건드릴 자리가 아니다.
+        policy_path = os.path.join(output_dir, "policy.json")
+        if os.path.exists(policy_path):
+            with open(policy_path, encoding="utf-8") as f:
+                kept = json.load(f).get("portfolio")
+            if kept:
+                policy["portfolio"] = kept
+
+        with open(policy_path, "w", encoding="utf-8") as f:
             json.dump(policy, f, ensure_ascii=False, indent=2)
 
         # Create rule.py

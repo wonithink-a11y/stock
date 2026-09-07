@@ -77,10 +77,12 @@ def compute_metrics_fast(portfolio, calendar, diag, initial_capital=100_000_000)
         dd = (equity / peak) - 1
         mdd = min(mdd, dd)
     
-    # Exposure: average fraction of max_positions actually used
-    # Use maxSimultaneousPositionsObserved / max_positions (30)
+    # Exposure: average fraction of max_positions actually used.
+    # 분모를 30으로 하드코딩해 뒀었다 - policy 의 maxPositions 가 200 으로
+    # 밀렸을 때(2026-09-04 드리프트) Exposure 가 283%·667% 같은 불가능한 값으로
+    # 찍혀 committed findings 를 오염시켰다. 실제 쓰는 config 에서 읽는다.
     max_simul = diag.get("maxSimultaneousPositionsObserved", 0)
-    max_pos = 30
+    max_pos = getattr(getattr(portfolio, "config", None), "max_positions", 0) or 30
     avg_exposure = max_simul / max_pos if max_pos > 0 else 0
     
     # Total costs
