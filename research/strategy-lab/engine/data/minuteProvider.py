@@ -22,6 +22,23 @@ from .priceProvider import PriceProvider
 
 MINUTE_DIR = "research/strategy-lab/.cache/minute_raw"
 _SCHEMA_FIELDS = ("ticker", "ts", "open", "high", "low", "close", "volume")
+# MN-1.1(2026-09-09)이 더한 열. 그 이전 파티션에는 없다 - 있으면 읽고 없으면 만다.
+_OPTIONAL_FIELDS = ("tradingValue",)
+
+
+def _present_columns(part, wanted):
+    """그 파일에 실제로 있는 열만 고른다.
+
+    파티션마다 schemaVersion 이 다르다(MN-1.0 6열 / MN-1.1 7열). 없는 열을
+    read_parquet(columns=...) 에 넣으면 옛 파티션에서 그대로 깨진다. 스키마는
+    파일 메타데이터만 읽으므로 비용이 사실상 없다.
+    """
+    try:
+        import pyarrow.parquet as pq
+        have = set(pq.ParquetFile(part).schema_arrow.names)
+    except Exception:                                          # noqa: BLE001
+        return list(_SCHEMA_FIELDS)
+    return [c for c in wanted if c in have]
 
 
 class MinuteProvider(PriceProvider):
@@ -59,7 +76,8 @@ class MinuteProvider(PriceProvider):
                 continue
             date_dir = os.path.join(self.repo_root, MINUTE_DIR, f"date={d}")
             for part in sorted(glob.glob(os.path.join(date_dir, "part-*.parquet"))):
-                df = pd.read_parquet(part, columns=list(_SCHEMA_FIELDS))
+                cols = _present_columns(part, _SCHEMA_FIELDS + _OPTIONAL_FIELDS)
+                df = pd.read_parquet(part, columns=cols)
                 df = df[df["ticker"].isin(tickers)]
                 if df.empty:
                     continue

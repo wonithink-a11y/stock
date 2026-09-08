@@ -3,7 +3,7 @@
 **범위는 저장이다.** 무엇을 어떻게 남기고 무엇으로 그것이 옳다고 말하는가만 정한다.
 수집 주기·배치 크기·재시도는 T0 정찰이 수치를 준 뒤에 정한다(§6).
 
-작성 2026-08-07 · 갱신 2026-08-09
+작성 2026-08-07 · 갱신 2026-08-09 · **MN-1.1 2026-09-09**(§2.0 `tradingValue` 추가)
 상태 **TBD 없음** — §6 T0 실측 · §6.2 커버리지 실측 · §6.3 정책 · §1.1 환경 확정.
 남은 것은 약관 Q1/Q2(§7)와 T1 정찰(§6.1)이다.
 근거 `data/backfill/_probe-minute-kis.json` · `_probe-minute-coverage.json`
@@ -177,7 +177,36 @@ ticker      [0-9A-Z]{6}   normalizeTicker 단일 창구. 문자 제거 금지
 ts          KST 분 시각    YYYY-MM-DDTHH:MM+09:00. UTC 저장 금지
 open  high  low  close     정수(원)
 volume                     그 1분의 거래량. 누적 아님 — 누적이면 여기서 차분해 넣는다
+tradingValue               그 1분의 거래대금(원). MN-1.1 신설. null 허용
 ```
+
+### 2.0 tradingValue — MN-1.1 (2026-09-09 신설)
+
+소스(`output2`)가 `acml_tr_pbmn`(**당일 누적** 거래대금)을 이미 주고 있는데
+MN-1.0 스키마가 6열 고정이라 버리고 있었다(실측: `_probe-minute-kis.json`
+`/evidence/output2Fields`). 이 값은 **KIS 보존 246영업일 밖으로 나가면 영영 못
+얻는다** — 이 저장소에서 시간이 지나며 영구 소실되는 유일한 장중 원천이다.
+
+**누적을 그대로 넣지 않고 차분해 넣는다.** 위 `volume` 줄이 정한 규칙 그대로다 —
+같은 스키마 안에서 한 열은 누적이고 다른 열은 아니면 읽는 쪽이 매번 틀린다.
+
+```
+tradingValue[t] = acml_tr_pbmn[t] - acml_tr_pbmn[t-1]     (t-1 은 그 날 직전 행)
+tradingValue[첫 행] = acml_tr_pbmn[첫 행]                  (누적 시작이 0)
+```
+
+체결 없는 분은 행 자체가 없으므로 차분이 그 구간의 거래대금과 같다(거래가 없으면
+누적이 안 늘어난다). 텔레스코핑으로 **`sum(tradingValue) == 그 날 마지막
+`acml_tr_pbmn`** 이 성립하며, 이것이 이 열의 검증식이다.
+
+**없으면 0 이 아니라 `null` 이다**(교훈57 — 모르는 것은 0이 아니다). 소스 행에
+`acml_tr_pbmn` 이 없으면 그 행의 `tradingValue` 는 null 이고 관측
+`tradingValueMissing` 으로 센다. 0 으로 채우면 그 분의 거래대금이 0 이었다는
+거짓 사실이 되고, 하류의 VWAP·거래대금 급증 계산이 조용히 틀린다.
+
+**소급하지 않는다.** MN-1.0 으로 쓰인 기존 파티션은 6열 그대로 둔다. 재수집으로
+7열화하는 것은 대량 수집(별도 결정)이며 246영업일 창 밖 구간은 어차피 불가능하다.
+따라서 **파티션마다 schemaVersion 이 다르다** — §4 참고.
 
 `open/high/low`가 이 계약의 존재 이유다. naver 경로는 종가만 주고 그것으로 만든
 캔들 폭은 실측 7~10% 과소였다(§부록). **OHLC가 없는 소스로 이 스키마를 채우지 않는다.**
@@ -310,8 +339,17 @@ endpoint      inquire_time_dailychartprice
 market        KRX
 adjusted      true | false
 requestedAt   KST
-schemaVersion MN-1.0
+schemaVersion MN-1.0 | MN-1.1        ← 파티션마다 다르다
 ```
+
+**schemaVersion 은 저장소 전체의 값이 아니라 그 파티션의 값이다.** MN-1.1(2026-09-09)
+이 `tradingValue` 를 더하면서 기존 파티션은 6열로 남았다. 그러므로 **읽는 쪽은
+열의 존재를 가정하지 않는다** — parquet 스키마를 먼저 보고 없는 열은 요청하지
+않는다(`engine/data/minuteProvider.py` · `research/strategy-lab/intraday/loader.py`
+가 그렇게 한다). 이것을 안 지키면 옛 파티션을 읽는 순간 깨진다.
+
+새 열을 더할 때 이 규칙이 반복되므로 여기 한 번만 적는다 —
+**열 추가는 하위호환이고, 열 삭제·의미 변경은 아니다.** 후자는 새 스키마 계열이다.
 
 `adjusted`가 특히 중요하다. **수정주가면 과거 분봉이 나중에 바뀐다** — 액면분할이
 일어나면 어제 받은 2024년 분봉과 오늘 받은 같은 날 분봉의 값이 다르다. 이것은

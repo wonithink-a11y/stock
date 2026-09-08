@@ -58,6 +58,7 @@ def candles(date, n=381, price=1000):
         "stck_oprc": str(price), "stck_hgpr": str(price + 10),
         "stck_lwpr": str(price - 10), "stck_prpr": str(price + 5),
         "cntg_vol": str(100 + i),
+        "acml_tr_pbmn": str(1000 * (i + 1)),      # 당일 누적. 분당 1000원씩
     } for i, h in enumerate(use)]
 
 
@@ -275,9 +276,10 @@ def run_all(M=None):
             check("계약 변경 시 resume 거부", True)
 
         # 14 검증기 — 중복·OHLC·일자
-        def row(ts, o, h, l, c, v_=1, tk="111111"):
+        def row(ts, o, h, l, c, v_=1, tk="111111", tv=1000):
             return {"ticker": tk, "ts": "2026-08-03T" + ts + "+09:00",
-                    "open": o, "high": h, "low": l, "close": c, "volume": v_}
+                    "open": o, "high": h, "low": l, "close": c, "volume": v_,
+                    "tradingValue": tv}
 
         bad = [row("09:00", 10, 20, 5, 15), row("09:00", 10, 20, 5, 15)]
         v, _ = M.validate_rows(bad, date, pol)
@@ -289,10 +291,44 @@ def run_all(M=None):
               any(x["why"] == "lowAboveHigh" for x in v2), v2)
 
         bad3 = [{"ticker": "111111", "ts": "2026-07-31T09:00+09:00", "open": 10,
-                 "high": 20, "low": 5, "close": 15, "volume": 1}]
+                 "high": 20, "low": 5, "close": 15, "volume": 1,
+                 "tradingValue": 1000}]
         v3, _ = M.validate_rows(bad3, date, pol)
         check("다른 날짜 행을 잡는다",
               any(x["why"] == "dateMismatch" for x in v3), v3)
+
+        # 14b MN-1.1 tradingValue — 누적을 차분해 넣는가
+        tv_candles = [{"stck_bsop_date": sent, "stck_cntg_hour": h,
+                       "stck_oprc": "100", "stck_hgpr": "110",
+                       "stck_lwpr": "90", "stck_prpr": "105",
+                       "cntg_vol": "10", "acml_tr_pbmn": str(cum)}
+                      for h, cum in (("090000", 500), ("090100", 1200), ("090200", 1200))]
+        tp = FakeTransport({("111111", sent): tv_candles})
+        oc = M.collect_symbol_day(tp, "111111", date, pol, base_ctx(), sleeper=lambda *_: None)
+        tvs = [r["tradingValue"] for r in oc.rows]
+        check("tradingValue: 첫 행은 누적 그대로, 이후는 차분", tvs == [500, 700, 0], tvs)
+        check("tradingValue: 합이 마지막 누적과 같다(텔레스코핑)",
+              sum(tvs) == 1200, (sum(tvs), 1200))
+
+        # acml_tr_pbmn 이 없으면 0 이 아니라 null 이고, 관측으로 센다(교훈57)
+        no_tv = [{"stck_bsop_date": sent, "stck_cntg_hour": "090000",
+                  "stck_oprc": "100", "stck_hgpr": "110", "stck_lwpr": "90",
+                  "stck_prpr": "105", "cntg_vol": "10"}]
+        oc2 = M.collect_symbol_day(FakeTransport({("111111", sent): no_tv}),
+                                   "111111", date, pol, base_ctx(), sleeper=lambda *_: None)
+        check("tradingValue: 소스에 없으면 null (0 으로 지어내지 않는다)",
+              oc2.rows[0]["tradingValue"] is None, oc2.rows[0])
+        _, obs_tv = M.validate_rows(oc2.rows, date, pol)
+        check("tradingValue: null 은 위반이 아니라 관측이다",
+              obs_tv.get("tradingValueMissing") == 1, obs_tv)
+
+        v_neg, _ = M.validate_rows([row("09:00", 10, 20, 5, 15, tv=-1)], date, pol)
+        check("tradingValue: 음수는 위반이다(누적이 되돌아간 것)",
+              any(x["why"] == "negativeTradingValue" for x in v_neg), v_neg)
+
+        check("MN-1.1: schemaVersion 이 파티션에 박힌다",
+              M.SCHEMA_VERSION == "MN-1.1" and M.SCHEMA[-1] == "tradingValue",
+              (M.SCHEMA_VERSION, M.SCHEMA))
 
         # 14b 09:00의 open 면제 — 실측 2026-08-10 (3일 중 2일이 이것으로 떨어졌다)
         # 09:00 봉의 open은 시가단일가 체결가라 그 1분의 [low,high] 밖일 수 있다.
@@ -415,8 +451,9 @@ def run_all(M=None):
                   back == res3["rows"],
                   next((i for i, (a, b) in enumerate(zip(back, res3["rows"]))
                         if a != b), None))
-            check("왕복: 필수 필드에 null이 없다",
-                  all(all(r[k] is not None for k in M.SCHEMA) for r in back))
+            required = [k for k in M.SCHEMA if k != "tradingValue"]
+            check("왕복: 필수 필드에 null이 없다 (tradingValue 만 null 허용)",
+                  all(all(r[k] is not None for k in required) for r in back))
             check("왕복: ticker가 6자 유지 (선행 0 소실 없음)",
                   all(len(r["ticker"]) == 6 for r in back))
 

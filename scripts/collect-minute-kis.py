@@ -52,7 +52,8 @@ KST = timezone(timedelta(hours=9))
 BASE = "https://openapi.koreainvestment.com:9443"
 PATH_MIN = "/uapi/domestic-stock/v1/quotations/inquire-time-dailychartprice"
 
-SCHEMA = ["ticker", "ts", "open", "high", "low", "close", "volume"]
+SCHEMA = ["ticker", "ts", "open", "high", "low", "close", "volume", "tradingValue"]
+SCHEMA_VERSION = "MN-1.1"   # tradingValue 추가(2026-09-09). 옛 파티션은 MN-1.0 6열
 
 
 # ---------------------------------------------------------------- 기본
@@ -67,6 +68,14 @@ def stamp():
 
 def compact(date):
     return "".join(c for c in str(date) if c.isdigit())
+
+
+def _int_or_none(x):
+    """소스 문자열을 int 로. 없거나 못 읽으면 None - 0 으로 지어내지 않는다(교훈57)."""
+    try:
+        return int(x)
+    except (TypeError, ValueError):
+        return None
 
 
 def dashed(yyyymmdd):
@@ -364,14 +373,22 @@ def collect_symbol_day(transport, ticker, date, pol, ctx, sleeper=time.sleep,
 
     rows = []
     d = dashed(date)
+    prev_cum = 0            # acml_tr_pbmn 은 당일 누적이다 - 차분해 넣는다(MN-1.1 §2.0)
     for h in sorted(seen):
         r = seen[h]
+        cum = _int_or_none(r.get("acml_tr_pbmn"))
+        if cum is None:
+            tv = None       # 없으면 0 이 아니라 null 이다(교훈57)
+        else:
+            tv = cum - prev_cum
+            prev_cum = cum
         rows.append({
             "ticker": ticker,
             "ts": d + "T" + h[:2] + ":" + h[2:4] + "+09:00",
             "open": int(r["stck_oprc"]), "high": int(r["stck_hgpr"]),
             "low": int(r["stck_lwpr"]), "close": int(r["stck_prpr"]),
             "volume": int(r.get("cntg_vol", 0)),
+            "tradingValue": tv,
         })
     return Outcome(ticker, date, "OK", rows=rows, attempts=attempts)
 
@@ -421,6 +438,15 @@ def validate_rows(rows, date, pol):
                 v.append({"row": i, "why": "openOutOfRange", "key": list(k)})
         if r["volume"] < 0:
             v.append({"row": i, "why": "negativeVolume", "key": list(k)})
+
+        # tradingValue 는 누적의 차분이다. 음수면 소스의 누적이 되돌아간 것이라
+        # 차분 규칙이 깨진 것이고, null 은 소스가 acml_tr_pbmn 을 안 준 것이다.
+        # 앞은 위반이고 뒤는 관측이다 - 둘을 같은 칸에 넣지 않는다(교훈67).
+        tv = r.get("tradingValue")
+        if tv is None:
+            obs["tradingValueMissing"] = obs.get("tradingValueMissing", 0) + 1
+        elif tv < 0:
+            v.append({"row": i, "why": "negativeTradingValue", "key": list(k)})
     return v, obs
 
 
@@ -568,7 +594,7 @@ def build_manifest(date, outcomes, row_count, pol, sha, checks, passed,
         if o.status == "UNRESOLVED":
             unresolved[o.failure_class] = unresolved.get(o.failure_class, 0) + 1
     return {
-        "schemaVersion": "MN-1.0",
+        "schemaVersion": SCHEMA_VERSION,
         "date": dashed(date),
         "rows": row_count,
         "symbols": len(outcomes),
