@@ -62,6 +62,20 @@ SOURCE = "KRX_SHORTING_BALANCE"
 SOURCE_FN = "pykrx.stock.get_shorting_balance_by_date"
 MAX_CARRY_DAYS = 14      # 실패 종목에 직전 스냅샷을 이어받는 상한. 넘으면 A3c 로 내려간다
 
+# 2차 패스 — 실패분만 재시도한다 (2026-09-09 신설)
+#
+# 왜 SLEEP_SECONDS 를 올리는 게 아니라 이쪽인가: 실측 곡선이 353 -> 167 -> 272
+# -> 273(2026-09-06, 30분 안에 5회)이다. **막힌 뒤 천천히 회복한다**는 모양이지
+# 호출 간격이 좁아서 막히는 모양이 아니다. 한도에 부딪힌 뒤 더 천천히 미는 것은
+# 같은 벽이고, 쉬었다가 남은 것만 다시 미는 것이 실측에 맞는다.
+#
+# 353종목을 다시 도는 게 아니라 **실패분만** 돈다 - 80종목이면 한 패스가 16초다.
+MAX_PASSES = 2           # 1차 + 재시도 1회. 인수인계가 말한 "2차 패스" 그대로다
+RETRY_PAUSE_SECONDS = 600  # 패스 사이 대기. 위 회복 곡선(30분에 167->273)에서 잡았다
+# ★ 워크플로 timeout-minutes 가 30 이다. 2패스 = 대기 10분 + 수집 약 5분이라 들어간다.
+# MAX_PASSES 를 3 으로 올리면 대기만 20분이라 타임아웃에 닿는다 - 올릴 때 워크플로도
+# 같이 올린다. 함수는 max_passes 를 받으므로 코드 수정 없이 CLI 로 실험할 수 있다.
+
 
 def load_universe(market="KR"):
     with open(WATCHLIST, encoding="utf-8") as f:
@@ -134,6 +148,37 @@ def collect(stock, tickers, from_date, to_date):
     return shares, failures
 
 
+def collect_with_retries(stock, tickers, from_date, to_date, max_passes=MAX_PASSES,
+                         pause=RETRY_PAUSE_SECONDS, sleeper=None):
+    """1차 수집 후 **실패분만** 재시도한다. 패스별 관측치를 함께 돌려준다.
+
+    패스 기록을 남기는 이유: 2차 패스가 값을 했는지 안 했는지를 다음에 판정하려면
+    '몇 개를 다시 시도해서 몇 개가 살아났는가'가 있어야 한다. 최종 failCount 만
+    보면 재시도가 0을 건졌는지 전부 건졌는지 구분이 안 된다(교훈61 - 통과가
+    정보를 주는지 먼저 묻는다).
+    """
+    sleeper = time.sleep if sleeper is None else sleeper
+    shares, passes = {}, []
+    pending = list(tickers)
+    for p in range(1, max_passes + 1):
+        if not pending:
+            break
+        if p > 1:
+            print("  2차 패스 대기 %d초 (실패 %d종목 재시도)" % (pause, len(pending)), flush=True)
+            sleeper(pause)
+        got, failures = collect(stock, pending, from_date, to_date)
+        shares.update(got)
+        passes.append({"pass": p, "attempted": len(pending),
+                       "recovered": len(got), "failed": len(failures)})
+        print("  패스 %d: 시도 %d · 성공 %d · 실패 %d"
+              % (p, len(pending), len(got), len(failures)), flush=True)
+        pending = [f["ticker"] for f in failures]
+        last_failures = failures
+    if not passes:
+        return {}, [], []
+    return shares, last_failures, passes
+
+
 def carry_forward(shares, failures, prev, today, max_days=None):
     """이번에 실패한 종목은 **직전 스냅샷 값을 이어받는다**.
 
@@ -170,7 +215,7 @@ def days_between(a, b):
         return None
 
 
-def build_payload(shares, failures, requested, from_date, to_date, carried=0):
+def build_payload(shares, failures, requested, from_date, to_date, carried=0, passes=None):
     dates = [v["sourceDate"] for v in shares.values() if v.get("sourceDate")]
     status = "OK" if shares and not failures else ("PARTIAL" if shares else "FAILED")
     return {
@@ -183,6 +228,9 @@ def build_payload(shares, failures, requested, from_date, to_date, carried=0):
         "status": status,
         "requestedCount": requested, "okCount": len(shares), "failCount": len(failures),
         "carriedForwardCount": carried,
+        "passes": passes or [],
+        "passNote": "실패분만 재시도한 패스별 관측치. 2차 패스가 실제로 값을 했는지 "
+                    "판정하려면 최종 failCount 가 아니라 pass 별 recovered 를 본다.",
         "carryNote": "이번 실행에서 실패한 종목은 직전 스냅샷 값을 %d일까지 "
                      "이어받는다. 이월분은 자기 sourceDate 를 그대로 들고 있어 "
                      "소비자의 staleDays 에 드러난다." % MAX_CARRY_DAYS,
@@ -197,6 +245,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--limit", type=int, default=0, help="스모크용 종목 수 상한. 0=전체")
+    ap.add_argument("--passes", type=int, default=MAX_PASSES,
+                    help="1차 포함 최대 패스 수. 1이면 재시도 없음(옛 동작)")
+    ap.add_argument("--retry-pause", type=int, default=RETRY_PAUSE_SECONDS,
+                    help="패스 사이 대기 초")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -222,12 +274,14 @@ def main():
             print("직전 스냅샷을 못 읽었다(이월 없이 진행): %s" % e)
 
     stock = _import_pykrx_stock()
-    shares, failures = collect(stock, tickers, from_date, to_date)
+    shares, failures, passes = collect_with_retries(
+        stock, tickers, from_date, to_date, max_passes=a.passes, pause=a.retry_pause)
     shares, failures, carried = carry_forward(shares, failures, prev, to_date)
-    payload = build_payload(shares, failures, len(tickers), from_date, to_date, carried)
+    payload = build_payload(shares, failures, len(tickers), from_date, to_date, carried, passes)
 
-    print("status=%s · 성공 %d · 실패 %d · 이월 %d · asOf %s"
-          % (payload["status"], payload["okCount"], payload["failCount"], carried, payload["asOf"]))
+    print("status=%s · 성공 %d · 실패 %d · 이월 %d · asOf %s · 패스 %d"
+          % (payload["status"], payload["okCount"], payload["failCount"], carried,
+             payload["asOf"], len(passes)))
     if payload["status"] == "FAILED":
         # 옛 스냅샷을 덮지 않는다 - 전부 실패한 날의 빈 파일이 어제의 정상 값을
         # 지우면 소비자가 이유도 모른 채 전 종목 폴백을 탄다.
@@ -296,7 +350,45 @@ def selftest():
     assert p["asOf"] == "20260904"
 
     assert load_universe() and all(len(t) == 6 for t in load_universe())
-    print("selftest ok (19건)")
+
+    # --- 2차 패스 ---------------------------------------------------------
+    class FakeStock:
+        """1차에서 B·C 가 빈 응답, 2차에서 B 만 살아난다(회복 곡선 흉내)."""
+
+        def __init__(self):
+            self.calls = []
+
+        def get_shorting_balance_by_date(self, f, t, ticker):
+            self.calls.append(ticker)
+            blocked = {"B", "C"} if self.calls.count(ticker) == 1 else {"C"}
+            if ticker in blocked:
+                return DF([], [])
+            return DF([Row({"상장주식수": 7, "시가총액": 70})], ["2026-09-04"])
+
+    global SLEEP_SECONDS
+    saved, SLEEP_SECONDS = SLEEP_SECONDS, 0
+    slept = []
+    fake = FakeStock()
+    sh3, fl3, passes = collect_with_retries(fake, ["A", "B", "C"], "a", "b",
+                                            max_passes=3, pause=5, sleeper=slept.append)
+    SLEEP_SECONDS = saved
+
+    # 재시도는 **실패분만** 돈다: 1차 3종목 -> 2차 2종목(B,C) -> 3차 1종목(C)
+    assert [p["attempted"] for p in passes] == [3, 2, 1], passes
+    assert [p["recovered"] for p in passes] == [1, 1, 0], passes
+    assert set(sh3) == {"A", "B"} and [f["ticker"] for f in fl3] == ["C"], (sh3, fl3)
+    assert fake.calls.count("A") == 1, "성공한 종목을 다시 부르면 안 된다"
+    assert slept == [5, 5], "패스 사이에만 쉰다(1차 앞에서는 안 쉰다)"
+
+    # passes=1 이면 옛 동작 그대로 - 재시도도 대기도 없다
+    slept2 = []
+    sh4, fl4, p4 = collect_with_retries(FakeStock(), ["A", "B"], "a", "b",
+                                        max_passes=1, pause=5, sleeper=slept2.append)
+    assert len(p4) == 1 and slept2 == [] and [f["ticker"] for f in fl4] == ["B"]
+
+    # 패스 기록이 payload 에 실린다
+    assert build_payload(sh3, fl3, 3, "a", "b", 0, passes)["passes"] == passes
+    print("selftest ok (25건)")
 
 
 if __name__ == "__main__":
