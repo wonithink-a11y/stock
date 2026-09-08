@@ -1,0 +1,1795 @@
+{
+  "experiment": "DMA + Stochastic-50 (영상 유래) 일봉 proxy SMOKE",
+  "sourceCaveat": "Claude 는 원본 영상을 보지 못했다. 사용자가 옮겨 적은 규칙만 입력이다.",
+  "dataCaveat": "일봉이다. 영상의 단타(분봉) 체결구조는 재현하지 않는다.",
+  "universeMode": "A1A_A1B_MERGED",
+  "tickersWithData": 465,
+  "tickersRequested": 600,
+  "seed": 42,
+  "period": {
+    "rawStart": "2014-05-13",
+    "perfStart": "2016-01-01",
+    "end": "2026-08-14",
+    "split": "TRAIN <= 2022-06-30 < VALID <= 2024-01-01 < TEST"
+  },
+  "costBps": {
+    "entry": 15,
+    "exit": 15,
+    "slippage": 0
+  },
+  "portfolio": "슬롯 상한 없는 동일가중 신호 포트폴리오 (활성 N개면 각 1/N, N=0 이면 현금). capacity 미검증.",
+  "accounting": "일별 MTM (open->open 분해). 실현손익 누적 아님.",
+  "benchmarks": {
+    "EW_universe": {
+      "totalReturn": 142.17,
+      "CAGR": 8.69,
+      "MDD": -47.21,
+      "Sharpe": 0.498,
+      "yearly": {
+        "2016": 17.01,
+        "2017": 5.1,
+        "2018": -1.14,
+        "2019": 10.99,
+        "2020": 44.71,
+        "2021": 23.85,
+        "2022": -20.54,
+        "2023": 11.55,
+        "2024": -11.18,
+        "2025": 31.62,
+        "2026": -3.37
+      },
+      "TRAIN": {
+        "totalReturn": 102.75,
+        "CAGR": 11.51,
+        "MDD": -47.21,
+        "Sharpe": 0.603
+      },
+      "VALID": {
+        "totalReturn": 7.17,
+        "CAGR": 4.75,
+        "MDD": -18.95,
+        "Sharpe": 0.346
+      },
+      "TEST": {
+        "totalReturn": 12.44,
+        "CAGR": 4.59,
+        "MDD": -39.03,
+        "Sharpe": 0.32
+      }
+    },
+    "KOSPI": {
+      "totalReturn": 263.67,
+      "CAGR": 12.94,
+      "MDD": -43.9,
+      "Sharpe": 0.655,
+      "yearly": {
+        "2016": 5.61,
+        "2017": 21.76,
+        "2018": -17.28,
+        "2019": 7.67,
+        "2020": 30.75,
+        "2021": 3.63,
+        "2022": -24.89,
+        "2023": 18.73,
+        "2024": -9.63,
+        "2025": 75.63,
+        "2026": 65.58
+      },
+      "TRAIN": {
+        "totalReturn": 21.57,
+        "CAGR": 3.06,
+        "MDD": -43.9,
+        "Sharpe": 0.267
+      },
+      "VALID": {
+        "totalReturn": 15.18,
+        "CAGR": 9.93,
+        "MDD": -14.92,
+        "Sharpe": 0.672
+      },
+      "TEST": {
+        "totalReturn": 161.36,
+        "CAGR": 44.4,
+        "MDD": -38.63,
+        "Sharpe": 1.227
+      }
+    }
+  },
+  "variants": [
+    {
+      "id": "sma5_st5",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 5,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 7836,
+      "forcedExits": 174,
+      "avgHoldBars": 44.6,
+      "medHoldBars": 28,
+      "winRate": 39.9,
+      "avgTradeGrossPct": 1.565,
+      "avgTradeNetPct": 1.26,
+      "exposure": 0.999,
+      "avgActivePositions": 134.2,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 157.41,
+        "CAGR": 9.32,
+        "MDD": -48.98,
+        "Sharpe": 0.538
+      },
+      "net": {
+        "totalReturn": 115.88,
+        "CAGR": 7.52,
+        "MDD": -50.44,
+        "Sharpe": 0.458
+      },
+      "yearly": {
+        "2016": 17.33,
+        "2017": 1.4,
+        "2018": -0.53,
+        "2019": 3.51,
+        "2020": 38.01,
+        "2021": 24.54,
+        "2022": -16.18,
+        "2023": 8.79,
+        "2024": -15.05,
+        "2025": 33.24,
+        "2026": -0.66
+      },
+      "tVsEW": -0.7,
+      "tVsKOSPI": -0.78,
+      "TRAIN": {
+        "totalReturn": 80.17,
+        "CAGR": 9.5,
+        "MDD": -50.44,
+        "Sharpe": 0.529,
+        "tVsEW": -0.75,
+        "trades": 4372
+      },
+      "VALID": {
+        "totalReturn": 7.14,
+        "CAGR": 4.73,
+        "MDD": -16.63,
+        "Sharpe": 0.357,
+        "tVsEW": 0.08,
+        "trades": 1206
+      },
+      "TEST": {
+        "totalReturn": 12.58,
+        "CAGR": 4.64,
+        "MDD": -36.36,
+        "Sharpe": 0.333,
+        "tVsEW": -0.21,
+        "trades": 2258
+      }
+    },
+    {
+      "id": "abl_line_D",
+      "group": "ablation",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "d",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3847,
+      "forcedExits": 252,
+      "avgHoldBars": 99.6,
+      "medHoldBars": 66,
+      "winRate": 43.5,
+      "avgTradeGrossPct": 3.62,
+      "avgTradeNetPct": 3.309,
+      "exposure": 0.999,
+      "avgActivePositions": 147.1,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 126.95,
+        "CAGR": 8.03,
+        "MDD": -45.11,
+        "Sharpe": 0.475
+      },
+      "net": {
+        "totalReturn": 109.23,
+        "CAGR": 7.21,
+        "MDD": -45.8,
+        "Sharpe": 0.439
+      },
+      "yearly": {
+        "2016": 7.53,
+        "2017": 0.66,
+        "2018": -4.04,
+        "2019": 12.83,
+        "2020": 38.61,
+        "2021": 20.91,
+        "2022": -20.54,
+        "2023": 9.65,
+        "2024": -9.15,
+        "2025": 35.73,
+        "2026": -0.84
+      },
+      "tVsEW": -1.05,
+      "tVsKOSPI": -0.81,
+      "TRAIN": {
+        "totalReturn": 66.53,
+        "CAGR": 8.18,
+        "MDD": -45.8,
+        "Sharpe": 0.474,
+        "tVsEW": -1.69,
+        "trades": 2195
+      },
+      "VALID": {
+        "totalReturn": 4.05,
+        "CAGR": 2.7,
+        "MDD": -19.09,
+        "Sharpe": 0.24,
+        "tVsEW": -0.77,
+        "trades": 567
+      },
+      "TEST": {
+        "totalReturn": 22.27,
+        "CAGR": 7.99,
+        "MDD": -40.06,
+        "Sharpe": 0.474,
+        "tVsEW": 1.28,
+        "trades": 1091
+      }
+    },
+    {
+      "id": "sma20_st14",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 20,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 5413,
+      "forcedExits": 253,
+      "avgHoldBars": 72.0,
+      "medHoldBars": 44,
+      "winRate": 39.8,
+      "avgTradeGrossPct": 2.451,
+      "avgTradeNetPct": 2.144,
+      "exposure": 0.999,
+      "avgActivePositions": 149.7,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 132.48,
+        "CAGR": 8.28,
+        "MDD": -48.62,
+        "Sharpe": 0.483
+      },
+      "net": {
+        "totalReturn": 107.83,
+        "CAGR": 7.14,
+        "MDD": -49.49,
+        "Sharpe": 0.433
+      },
+      "yearly": {
+        "2016": 13.83,
+        "2017": -0.17,
+        "2018": -3.07,
+        "2019": 7.37,
+        "2020": 40.78,
+        "2021": 27.28,
+        "2022": -19.59,
+        "2023": 9.21,
+        "2024": -7.66,
+        "2025": 31.4,
+        "2026": -7.95
+      },
+      "tVsEW": -1.01,
+      "tVsKOSPI": -0.8,
+      "TRAIN": {
+        "totalReturn": 77.55,
+        "CAGR": 9.25,
+        "MDD": -49.49,
+        "Sharpe": 0.512,
+        "tVsEW": -1.0,
+        "trades": 3091
+      },
+      "VALID": {
+        "totalReturn": 5.96,
+        "CAGR": 3.96,
+        "MDD": -16.74,
+        "Sharpe": 0.311,
+        "tVsEW": -0.27,
+        "trades": 841
+      },
+      "TEST": {
+        "totalReturn": 11.43,
+        "CAGR": 4.23,
+        "MDD": -40.02,
+        "Sharpe": 0.306,
+        "tVsEW": -0.21,
+        "trades": 1486
+      }
+    },
+    {
+      "id": "sma10_st5",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 11113,
+      "forcedExits": 238,
+      "avgHoldBars": 36.7,
+      "medHoldBars": 23,
+      "winRate": 38.4,
+      "avgTradeGrossPct": 1.163,
+      "avgTradeNetPct": 0.86,
+      "exposure": 0.999,
+      "avgActivePositions": 156.5,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 147.67,
+        "CAGR": 8.92,
+        "MDD": -47.01,
+        "Sharpe": 0.507
+      },
+      "net": {
+        "totalReturn": 100.28,
+        "CAGR": 6.77,
+        "MDD": -48.74,
+        "Sharpe": 0.415
+      },
+      "yearly": {
+        "2016": 24.53,
+        "2017": 2.27,
+        "2018": -7.0,
+        "2019": 8.76,
+        "2020": 34.99,
+        "2021": 14.35,
+        "2022": -17.98,
+        "2023": 10.02,
+        "2024": -11.58,
+        "2025": 31.44,
+        "2026": -3.96
+      },
+      "tVsEW": -0.97,
+      "tVsKOSPI": -0.84,
+      "TRAIN": {
+        "totalReturn": 67.03,
+        "CAGR": 8.23,
+        "MDD": -48.74,
+        "Sharpe": 0.466,
+        "tVsEW": -1.08,
+        "trades": 6386
+      },
+      "VALID": {
+        "totalReturn": 8.65,
+        "CAGR": 5.72,
+        "MDD": -17.77,
+        "Sharpe": 0.399,
+        "tVsEW": 0.41,
+        "trades": 1693
+      },
+      "TEST": {
+        "totalReturn": 10.8,
+        "CAGR": 4.0,
+        "MDD": -38.93,
+        "Sharpe": 0.297,
+        "tVsEW": -0.24,
+        "trades": 3045
+      }
+    },
+    {
+      "id": "ema20_st14",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 20,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 4574,
+      "forcedExits": 253,
+      "avgHoldBars": 85.5,
+      "medHoldBars": 55,
+      "winRate": 41.4,
+      "avgTradeGrossPct": 2.28,
+      "avgTradeNetPct": 1.973,
+      "exposure": 0.999,
+      "avgActivePositions": 150.2,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 107.03,
+        "CAGR": 7.1,
+        "MDD": -49.9,
+        "Sharpe": 0.433
+      },
+      "net": {
+        "totalReturn": 88.22,
+        "CAGR": 6.14,
+        "MDD": -50.64,
+        "Sharpe": 0.39
+      },
+      "yearly": {
+        "2016": 12.39,
+        "2017": 1.97,
+        "2018": -5.19,
+        "2019": 4.87,
+        "2020": 32.42,
+        "2021": 29.11,
+        "2022": -21.61,
+        "2023": 7.48,
+        "2024": -12.76,
+        "2025": 37.84,
+        "2026": -4.65
+      },
+      "tVsEW": -1.75,
+      "tVsKOSPI": -0.95,
+      "TRAIN": {
+        "totalReturn": 61.04,
+        "CAGR": 7.62,
+        "MDD": -50.64,
+        "Sharpe": 0.445,
+        "tVsEW": -1.84,
+        "trades": 2623
+      },
+      "VALID": {
+        "totalReturn": 3.15,
+        "CAGR": 2.1,
+        "MDD": -18.2,
+        "Sharpe": 0.208,
+        "tVsEW": -0.97,
+        "trades": 715
+      },
+      "TEST": {
+        "totalReturn": 14.01,
+        "CAGR": 5.14,
+        "MDD": -38.42,
+        "Sharpe": 0.351,
+        "tVsEW": 0.14,
+        "trades": 1240
+      }
+    },
+    {
+      "id": "dsma10_st5",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 7999,
+      "forcedExits": 240,
+      "avgHoldBars": 51.9,
+      "medHoldBars": 33,
+      "winRate": 37.0,
+      "avgTradeGrossPct": 1.299,
+      "avgTradeNetPct": 0.995,
+      "exposure": 0.999,
+      "avgActivePositions": 159.4,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 117.42,
+        "CAGR": 7.6,
+        "MDD": -45.4,
+        "Sharpe": 0.451
+      },
+      "net": {
+        "totalReturn": 86.7,
+        "CAGR": 6.06,
+        "MDD": -46.68,
+        "Sharpe": 0.384
+      },
+      "yearly": {
+        "2016": 4.28,
+        "2017": 1.73,
+        "2018": -4.69,
+        "2019": 12.06,
+        "2020": 36.54,
+        "2021": 21.99,
+        "2022": -16.65,
+        "2023": 8.52,
+        "2024": -11.16,
+        "2025": 28.25,
+        "2026": -4.01
+      },
+      "tVsEW": -1.98,
+      "tVsKOSPI": -0.94,
+      "TRAIN": {
+        "totalReturn": 59.4,
+        "CAGR": 7.45,
+        "MDD": -46.68,
+        "Sharpe": 0.436,
+        "tVsEW": -2.3,
+        "trades": 4504
+      },
+      "VALID": {
+        "totalReturn": 8.22,
+        "CAGR": 5.44,
+        "MDD": -17.62,
+        "Sharpe": 0.383,
+        "tVsEW": 0.31,
+        "trades": 1276
+      },
+      "TEST": {
+        "totalReturn": 8.84,
+        "CAGR": 3.29,
+        "MDD": -39.38,
+        "Sharpe": 0.263,
+        "tVsEW": -0.53,
+        "trades": 2226
+      }
+    },
+    {
+      "id": "ema5_st5",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 5,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 9254,
+      "forcedExits": 207,
+      "avgHoldBars": 40.6,
+      "medHoldBars": 25,
+      "winRate": 40.7,
+      "avgTradeGrossPct": 1.135,
+      "avgTradeNetPct": 0.831,
+      "exposure": 0.999,
+      "avgActivePositions": 144.2,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 119.28,
+        "CAGR": 7.68,
+        "MDD": -46.83,
+        "Sharpe": 0.458
+      },
+      "net": {
+        "totalReturn": 80.85,
+        "CAGR": 5.74,
+        "MDD": -48.52,
+        "Sharpe": 0.373
+      },
+      "yearly": {
+        "2016": 14.39,
+        "2017": 1.62,
+        "2018": -6.19,
+        "2019": 7.64,
+        "2020": 38.73,
+        "2021": 16.18,
+        "2022": -19.01,
+        "2023": 8.0,
+        "2024": -14.13,
+        "2025": 25.99,
+        "2026": 1.03
+      },
+      "tVsEW": -1.55,
+      "tVsKOSPI": -1.0,
+      "TRAIN": {
+        "totalReturn": 57.75,
+        "CAGR": 7.28,
+        "MDD": -48.52,
+        "Sharpe": 0.43,
+        "tVsEW": -1.43,
+        "trades": 5241
+      },
+      "VALID": {
+        "totalReturn": 5.66,
+        "CAGR": 3.76,
+        "MDD": -19.66,
+        "Sharpe": 0.298,
+        "tVsEW": -0.22,
+        "trades": 1422
+      },
+      "TEST": {
+        "totalReturn": 8.83,
+        "CAGR": 3.29,
+        "MDD": -36.77,
+        "Sharpe": 0.265,
+        "tVsEW": -0.59,
+        "trades": 2596
+      }
+    },
+    {
+      "id": "dsma20_st5",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 20,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 4802,
+      "forcedExits": 243,
+      "avgHoldBars": 87.0,
+      "medHoldBars": 54,
+      "winRate": 33.8,
+      "avgTradeGrossPct": 0.626,
+      "avgTradeNetPct": 0.324,
+      "exposure": 0.999,
+      "avgActivePositions": 160.5,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 98.09,
+        "CAGR": 6.65,
+        "MDD": -47.56,
+        "Sharpe": 0.409
+      },
+      "net": {
+        "totalReturn": 80.37,
+        "CAGR": 5.72,
+        "MDD": -48.3,
+        "Sharpe": 0.368
+      },
+      "yearly": {
+        "2016": 13.13,
+        "2017": 5.93,
+        "2018": -2.97,
+        "2019": 8.62,
+        "2020": 34.14,
+        "2021": 21.05,
+        "2022": -19.83,
+        "2023": 6.8,
+        "2024": -11.59,
+        "2025": 29.34,
+        "2026": -10.19
+      },
+      "tVsEW": -2.09,
+      "tVsKOSPI": -0.98,
+      "TRAIN": {
+        "totalReturn": 70.9,
+        "CAGR": 8.61,
+        "MDD": -48.3,
+        "Sharpe": 0.483,
+        "tVsEW": -1.35,
+        "trades": 2756
+      },
+      "VALID": {
+        "totalReturn": 3.69,
+        "CAGR": 2.46,
+        "MDD": -18.86,
+        "Sharpe": 0.226,
+        "tVsEW": -0.78,
+        "trades": 730
+      },
+      "TEST": {
+        "totalReturn": 2.32,
+        "CAGR": 0.88,
+        "MDD": -41.85,
+        "Sharpe": 0.154,
+        "tVsEW": -1.62,
+        "trades": 1317
+      }
+    },
+    {
+      "id": "ema10_st5",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 9706,
+      "forcedExits": 272,
+      "avgHoldBars": 41.5,
+      "medHoldBars": 26,
+      "winRate": 40.7,
+      "avgTradeGrossPct": 0.957,
+      "avgTradeNetPct": 0.654,
+      "exposure": 0.999,
+      "avgActivePositions": 154.8,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 115.8,
+        "CAGR": 7.52,
+        "MDD": -49.47,
+        "Sharpe": 0.448
+      },
+      "net": {
+        "totalReturn": 78.73,
+        "CAGR": 5.63,
+        "MDD": -50.97,
+        "Sharpe": 0.366
+      },
+      "yearly": {
+        "2016": 18.43,
+        "2017": 0.52,
+        "2018": -5.11,
+        "2019": 3.09,
+        "2020": 31.61,
+        "2021": 18.53,
+        "2022": -18.27,
+        "2023": 10.26,
+        "2024": -11.16,
+        "2025": 27.69,
+        "2026": -3.76
+      },
+      "tVsEW": -1.64,
+      "tVsKOSPI": -1.01,
+      "TRAIN": {
+        "totalReturn": 51.54,
+        "CAGR": 6.62,
+        "MDD": -50.97,
+        "Sharpe": 0.401,
+        "tVsEW": -1.7,
+        "trades": 5570
+      },
+      "VALID": {
+        "totalReturn": 9.08,
+        "CAGR": 6.0,
+        "MDD": -19.01,
+        "Sharpe": 0.415,
+        "tVsEW": 0.51,
+        "trades": 1500
+      },
+      "TEST": {
+        "totalReturn": 8.55,
+        "CAGR": 3.19,
+        "MDD": -39.84,
+        "Sharpe": 0.259,
+        "tVsEW": -0.61,
+        "trades": 2646
+      }
+    },
+    {
+      "id": "sma20_st5",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 20,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 5539,
+      "forcedExits": 252,
+      "avgHoldBars": 74.3,
+      "medHoldBars": 47,
+      "winRate": 35.3,
+      "avgTradeGrossPct": 0.659,
+      "avgTradeNetPct": 0.357,
+      "exposure": 0.999,
+      "avgActivePositions": 158.1,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 98.49,
+        "CAGR": 6.68,
+        "MDD": -47.5,
+        "Sharpe": 0.41
+      },
+      "net": {
+        "totalReturn": 78.21,
+        "CAGR": 5.6,
+        "MDD": -48.32,
+        "Sharpe": 0.363
+      },
+      "yearly": {
+        "2016": 15.95,
+        "2017": 2.88,
+        "2018": -2.52,
+        "2019": 9.95,
+        "2020": 30.71,
+        "2021": 20.13,
+        "2022": -21.54,
+        "2023": 4.24,
+        "2024": -15.56,
+        "2025": 31.45,
+        "2026": -2.2
+      },
+      "tVsEW": -2.19,
+      "tVsKOSPI": -1.0,
+      "TRAIN": {
+        "totalReturn": 65.87,
+        "CAGR": 8.11,
+        "MDD": -48.32,
+        "Sharpe": 0.464,
+        "tVsEW": -1.68,
+        "trades": 3158
+      },
+      "VALID": {
+        "totalReturn": -0.21,
+        "CAGR": -0.14,
+        "MDD": -21.66,
+        "Sharpe": 0.086,
+        "tVsEW": -1.78,
+        "trades": 839
+      },
+      "TEST": {
+        "totalReturn": 8.26,
+        "CAGR": 3.08,
+        "MDD": -39.88,
+        "Sharpe": 0.253,
+        "tVsEW": -0.6,
+        "trades": 1543
+      }
+    },
+    {
+      "id": "dsma20_st14",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 20,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 4801,
+      "forcedExits": 249,
+      "avgHoldBars": 83.0,
+      "medHoldBars": 53,
+      "winRate": 37.3,
+      "avgTradeGrossPct": 1.956,
+      "avgTradeNetPct": 1.651,
+      "exposure": 0.999,
+      "avgActivePositions": 153.1,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 95.23,
+        "CAGR": 6.51,
+        "MDD": -49.59,
+        "Sharpe": 0.405
+      },
+      "net": {
+        "totalReturn": 76.88,
+        "CAGR": 5.52,
+        "MDD": -50.34,
+        "Sharpe": 0.361
+      },
+      "yearly": {
+        "2016": 7.23,
+        "2017": -0.27,
+        "2018": -2.51,
+        "2019": 7.9,
+        "2020": 35.15,
+        "2021": 20.09,
+        "2022": -19.45,
+        "2023": 11.52,
+        "2024": -12.91,
+        "2025": 30.88,
+        "2026": -5.38
+      },
+      "tVsEW": -2.27,
+      "tVsKOSPI": -1.02,
+      "TRAIN": {
+        "totalReturn": 55.12,
+        "CAGR": 7.0,
+        "MDD": -50.34,
+        "Sharpe": 0.418,
+        "tVsEW": -2.26,
+        "trades": 2754
+      },
+      "VALID": {
+        "totalReturn": 7.25,
+        "CAGR": 4.8,
+        "MDD": -17.09,
+        "Sharpe": 0.355,
+        "tVsEW": -0.05,
+        "trades": 721
+      },
+      "TEST": {
+        "totalReturn": 7.61,
+        "CAGR": 2.85,
+        "MDD": -39.91,
+        "Sharpe": 0.243,
+        "tVsEW": -0.81,
+        "trades": 1333
+      }
+    },
+    {
+      "id": "ema20_st5",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 20,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 6253,
+      "forcedExits": 248,
+      "avgHoldBars": 65.8,
+      "medHoldBars": 40,
+      "winRate": 36.4,
+      "avgTradeGrossPct": 0.908,
+      "avgTradeNetPct": 0.606,
+      "exposure": 0.999,
+      "avgActivePositions": 158.0,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 97.48,
+        "CAGR": 6.62,
+        "MDD": -48.09,
+        "Sharpe": 0.411
+      },
+      "net": {
+        "totalReturn": 74.91,
+        "CAGR": 5.41,
+        "MDD": -49.12,
+        "Sharpe": 0.358
+      },
+      "yearly": {
+        "2016": 6.46,
+        "2017": 6.46,
+        "2018": -4.12,
+        "2019": 6.23,
+        "2020": 31.0,
+        "2021": 22.39,
+        "2022": -20.12,
+        "2023": 7.96,
+        "2024": -13.11,
+        "2025": 33.23,
+        "2026": -5.34
+      },
+      "tVsEW": -2.56,
+      "tVsKOSPI": -1.05,
+      "TRAIN": {
+        "totalReturn": 54.09,
+        "CAGR": 6.89,
+        "MDD": -49.12,
+        "Sharpe": 0.417,
+        "tVsEW": -2.59,
+        "trades": 3642
+      },
+      "VALID": {
+        "totalReturn": 4.62,
+        "CAGR": 3.07,
+        "MDD": -19.07,
+        "Sharpe": 0.259,
+        "tVsEW": -0.57,
+        "trades": 934
+      },
+      "TEST": {
+        "totalReturn": 9.36,
+        "CAGR": 3.48,
+        "MDD": -39.69,
+        "Sharpe": 0.272,
+        "tVsEW": -0.54,
+        "trades": 1678
+      }
+    },
+    {
+      "id": "dsma5_st14",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 5,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3943,
+      "forcedExits": 195,
+      "avgHoldBars": 83.4,
+      "medHoldBars": 51,
+      "winRate": 36.7,
+      "avgTradeGrossPct": 1.637,
+      "avgTradeNetPct": 1.333,
+      "exposure": 0.999,
+      "avgActivePositions": 126.2,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 85.85,
+        "CAGR": 6.02,
+        "MDD": -51.27,
+        "Sharpe": 0.385
+      },
+      "net": {
+        "totalReturn": 68.51,
+        "CAGR": 5.04,
+        "MDD": -51.98,
+        "Sharpe": 0.342
+      },
+      "yearly": {
+        "2016": 6.78,
+        "2017": -1.98,
+        "2018": -9.06,
+        "2019": 7.55,
+        "2020": 31.67,
+        "2021": 31.2,
+        "2022": -21.16,
+        "2023": 5.56,
+        "2024": -11.06,
+        "2025": 29.78,
+        "2026": -0.81
+      },
+      "tVsEW": -2.25,
+      "tVsKOSPI": -1.08,
+      "TRAIN": {
+        "totalReturn": 47.3,
+        "CAGR": 6.15,
+        "MDD": -51.98,
+        "Sharpe": 0.381,
+        "tVsEW": -2.4,
+        "trades": 2293
+      },
+      "VALID": {
+        "totalReturn": 0.93,
+        "CAGR": 0.62,
+        "MDD": -17.61,
+        "Sharpe": 0.125,
+        "tVsEW": -1.15,
+        "trades": 635
+      },
+      "TEST": {
+        "totalReturn": 14.25,
+        "CAGR": 5.23,
+        "MDD": -33.39,
+        "Sharpe": 0.361,
+        "tVsEW": 0.04,
+        "trades": 1018
+      }
+    },
+    {
+      "id": "dsma5_st5",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 5,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 15597,
+      "forcedExits": 263,
+      "avgHoldBars": 26.1,
+      "medHoldBars": 15,
+      "winRate": 37.5,
+      "avgTradeGrossPct": 0.902,
+      "avgTradeNetPct": 0.6,
+      "exposure": 0.999,
+      "avgActivePositions": 156.6,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 125.85,
+        "CAGR": 7.98,
+        "MDD": -48.49,
+        "Sharpe": 0.473
+      },
+      "net": {
+        "totalReturn": 68.31,
+        "CAGR": 5.03,
+        "MDD": -50.88,
+        "Sharpe": 0.342
+      },
+      "yearly": {
+        "2016": 10.06,
+        "2017": -1.13,
+        "2018": -5.85,
+        "2019": 6.05,
+        "2020": 33.79,
+        "2021": 17.76,
+        "2022": -19.01,
+        "2023": 5.29,
+        "2024": -12.08,
+        "2025": 31.78,
+        "2026": -0.47
+      },
+      "tVsEW": -2.59,
+      "tVsKOSPI": -1.12,
+      "TRAIN": {
+        "totalReturn": 43.98,
+        "CAGR": 5.78,
+        "MDD": -50.88,
+        "Sharpe": 0.37,
+        "tVsEW": -2.93,
+        "trades": 9063
+      },
+      "VALID": {
+        "totalReturn": 2.56,
+        "CAGR": 1.71,
+        "MDD": -19.25,
+        "Sharpe": 0.186,
+        "tVsEW": -1.07,
+        "trades": 2453
+      },
+      "TEST": {
+        "totalReturn": 14.71,
+        "CAGR": 5.39,
+        "MDD": -38.36,
+        "Sharpe": 0.362,
+        "tVsEW": 0.23,
+        "trades": 4106
+      }
+    },
+    {
+      "id": "sma5_st14",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 5,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3044,
+      "forcedExits": 188,
+      "avgHoldBars": 117.2,
+      "medHoldBars": 74,
+      "winRate": 37.3,
+      "avgTradeGrossPct": 1.141,
+      "avgTradeNetPct": 0.837,
+      "exposure": 0.999,
+      "avgActivePositions": 137.0,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 73.39,
+        "CAGR": 5.32,
+        "MDD": -49.33,
+        "Sharpe": 0.35
+      },
+      "net": {
+        "totalReturn": 60.67,
+        "CAGR": 4.57,
+        "MDD": -49.88,
+        "Sharpe": 0.318
+      },
+      "yearly": {
+        "2016": -6.21,
+        "2017": 2.94,
+        "2018": -7.45,
+        "2019": 10.85,
+        "2020": 32.16,
+        "2021": 20.41,
+        "2022": -18.22,
+        "2023": 6.21,
+        "2024": -10.56,
+        "2025": 34.97,
+        "2026": -2.78
+      },
+      "tVsEW": -2.28,
+      "tVsKOSPI": -1.11,
+      "TRAIN": {
+        "totalReturn": 35.53,
+        "CAGR": 4.8,
+        "MDD": -49.88,
+        "Sharpe": 0.323,
+        "tVsEW": -2.51,
+        "trades": 1756
+      },
+      "VALID": {
+        "totalReturn": 2.22,
+        "CAGR": 1.48,
+        "MDD": -17.95,
+        "Sharpe": 0.174,
+        "tVsEW": -1.07,
+        "trades": 479
+      },
+      "TEST": {
+        "totalReturn": 17.29,
+        "CAGR": 6.29,
+        "MDD": -39.03,
+        "Sharpe": 0.398,
+        "tVsEW": 0.56,
+        "trades": 809
+      }
+    },
+    {
+      "id": "ema10_st14",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3728,
+      "forcedExits": 204,
+      "avgHoldBars": 90.6,
+      "medHoldBars": 56,
+      "winRate": 39.1,
+      "avgTradeGrossPct": 1.136,
+      "avgTradeNetPct": 0.833,
+      "exposure": 0.999,
+      "avgActivePositions": 129.7,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 73.93,
+        "CAGR": 5.36,
+        "MDD": -48.17,
+        "Sharpe": 0.358
+      },
+      "net": {
+        "totalReturn": 58.86,
+        "CAGR": 4.46,
+        "MDD": -48.86,
+        "Sharpe": 0.317
+      },
+      "yearly": {
+        "2016": 6.97,
+        "2017": 2.34,
+        "2018": -5.3,
+        "2019": 7.41,
+        "2020": 25.15,
+        "2021": 26.71,
+        "2022": -20.97,
+        "2023": 2.6,
+        "2024": -7.56,
+        "2025": 28.57,
+        "2026": -6.65
+      },
+      "tVsEW": -2.69,
+      "tVsKOSPI": -1.19,
+      "TRAIN": {
+        "totalReturn": 47.85,
+        "CAGR": 6.21,
+        "MDD": -48.86,
+        "Sharpe": 0.387,
+        "tVsEW": -2.34,
+        "trades": 2149
+      },
+      "VALID": {
+        "totalReturn": -1.98,
+        "CAGR": -1.33,
+        "MDD": -19.85,
+        "Sharpe": 0.009,
+        "tVsEW": -1.77,
+        "trades": 564
+      },
+      "TEST": {
+        "totalReturn": 10.74,
+        "CAGR": 3.98,
+        "MDD": -37.25,
+        "Sharpe": 0.3,
+        "tVsEW": -0.38,
+        "trades": 1017
+      }
+    },
+    {
+      "id": "dsma10_st14",
+      "group": "core",
+      "spec": {
+        "ma": "dsma",
+        "n": 10,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 4606,
+      "forcedExits": 217,
+      "avgHoldBars": 74.6,
+      "medHoldBars": 47,
+      "winRate": 37.3,
+      "avgTradeGrossPct": 1.375,
+      "avgTradeNetPct": 1.071,
+      "exposure": 0.999,
+      "avgActivePositions": 131.9,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 75.95,
+        "CAGR": 5.47,
+        "MDD": -47.52,
+        "Sharpe": 0.366
+      },
+      "net": {
+        "totalReturn": 57.68,
+        "CAGR": 4.39,
+        "MDD": -48.39,
+        "Sharpe": 0.316
+      },
+      "yearly": {
+        "2016": -4.12,
+        "2017": -0.25,
+        "2018": -9.55,
+        "2019": 12.01,
+        "2020": 25.65,
+        "2021": 30.71,
+        "2022": -19.27,
+        "2023": 4.89,
+        "2024": -9.08,
+        "2025": 30.18,
+        "2026": -1.14
+      },
+      "tVsEW": -2.67,
+      "tVsKOSPI": -1.23,
+      "TRAIN": {
+        "totalReturn": 32.83,
+        "CAGR": 4.47,
+        "MDD": -48.39,
+        "Sharpe": 0.315,
+        "tVsEW": -3.14,
+        "trades": 2682
+      },
+      "VALID": {
+        "totalReturn": 2.73,
+        "CAGR": 1.82,
+        "MDD": -17.81,
+        "Sharpe": 0.193,
+        "tVsEW": -0.83,
+        "trades": 678
+      },
+      "TEST": {
+        "totalReturn": 16.89,
+        "CAGR": 6.15,
+        "MDD": -36.17,
+        "Sharpe": 0.407,
+        "tVsEW": 0.31,
+        "trades": 1249
+      }
+    },
+    {
+      "id": "ema5_st14",
+      "group": "core",
+      "spec": {
+        "ma": "ema",
+        "n": 5,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3015,
+      "forcedExits": 175,
+      "avgHoldBars": 114.1,
+      "medHoldBars": 69,
+      "winRate": 36.3,
+      "avgTradeGrossPct": 1.111,
+      "avgTradeNetPct": 0.808,
+      "exposure": 0.999,
+      "avgActivePositions": 132.2,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 68.63,
+        "CAGR": 5.05,
+        "MDD": -46.43,
+        "Sharpe": 0.341
+      },
+      "net": {
+        "totalReturn": 56.03,
+        "CAGR": 4.28,
+        "MDD": -46.95,
+        "Sharpe": 0.307
+      },
+      "yearly": {
+        "2016": 0.2,
+        "2017": -2.89,
+        "2018": -4.69,
+        "2019": 8.24,
+        "2020": 32.55,
+        "2021": 26.62,
+        "2022": -20.76,
+        "2023": 2.28,
+        "2024": -9.31,
+        "2025": 29.23,
+        "2026": -2.51
+      },
+      "tVsEW": -2.51,
+      "tVsKOSPI": -1.19,
+      "TRAIN": {
+        "totalReturn": 39.87,
+        "CAGR": 5.31,
+        "MDD": -46.95,
+        "Sharpe": 0.347,
+        "tVsEW": -2.38,
+        "trades": 1727
+      },
+      "VALID": {
+        "totalReturn": -1.6,
+        "CAGR": -1.08,
+        "MDD": -18.99,
+        "Sharpe": 0.026,
+        "tVsEW": -1.6,
+        "trades": 486
+      },
+      "TEST": {
+        "totalReturn": 13.93,
+        "CAGR": 5.11,
+        "MDD": -38.91,
+        "Sharpe": 0.348,
+        "tVsEW": 0.12,
+        "trades": 803
+      }
+    },
+    {
+      "id": "sma10_st14",
+      "group": "core",
+      "spec": {
+        "ma": "sma",
+        "n": 10,
+        "stoch": [
+          14,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "AND"
+      },
+      "trades": 3627,
+      "forcedExits": 183,
+      "avgHoldBars": 91.7,
+      "medHoldBars": 56,
+      "winRate": 36.3,
+      "avgTradeGrossPct": 1.192,
+      "avgTradeNetPct": 0.889,
+      "exposure": 0.999,
+      "avgActivePositions": 127.8,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": 69.04,
+        "CAGR": 5.07,
+        "MDD": -48.6,
+        "Sharpe": 0.347
+      },
+      "net": {
+        "totalReturn": 54.47,
+        "CAGR": 4.18,
+        "MDD": -49.27,
+        "Sharpe": 0.306
+      },
+      "yearly": {
+        "2016": -0.42,
+        "2017": -2.27,
+        "2018": -5.24,
+        "2019": 6.82,
+        "2020": 34.26,
+        "2021": 18.96,
+        "2022": -18.79,
+        "2023": 3.74,
+        "2024": -8.58,
+        "2025": 33.52,
+        "2026": -4.51
+      },
+      "tVsEW": -2.89,
+      "tVsKOSPI": -1.25,
+      "TRAIN": {
+        "totalReturn": 31.42,
+        "CAGR": 4.3,
+        "MDD": -49.27,
+        "Sharpe": 0.306,
+        "tVsEW": -3.44,
+        "trades": 2101
+      },
+      "VALID": {
+        "totalReturn": 2.01,
+        "CAGR": 1.35,
+        "MDD": -18.87,
+        "Sharpe": 0.165,
+        "tVsEW": -0.92,
+        "trades": 563
+      },
+      "TEST": {
+        "totalReturn": 16.04,
+        "CAGR": 5.86,
+        "MDD": -36.41,
+        "Sharpe": 0.394,
+        "tVsEW": 0.24,
+        "trades": 966
+      }
+    },
+    {
+      "id": "abl_stoch_only",
+      "group": "ablation",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "STOCH",
+        "exit": "STOCH"
+      },
+      "trades": 64345,
+      "forcedExits": 296,
+      "avgHoldBars": 5.7,
+      "medHoldBars": 4,
+      "winRate": 33.1,
+      "avgTradeGrossPct": 0.135,
+      "avgTradeNetPct": -0.165,
+      "exposure": 0.999,
+      "avgActivePositions": 141.9,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": -60.36,
+        "CAGR": -8.35,
+        "MDD": -69.3,
+        "Sharpe": -0.381
+      },
+      "net": {
+        "totalReturn": -90.83,
+        "CAGR": -20.16,
+        "MDD": -92.43,
+        "Sharpe": -1.129
+      },
+      "yearly": {
+        "2016": -12.29,
+        "2017": -21.5,
+        "2018": -30.88,
+        "2019": -23.3,
+        "2020": 14.54,
+        "2021": -11.54,
+        "2022": -47.88,
+        "2023": -23.5,
+        "2024": -25.82,
+        "2025": 5.51,
+        "2026": -20.55
+      },
+      "tVsEW": -9.94,
+      "tVsKOSPI": -5.25,
+      "TRAIN": {
+        "totalReturn": -75.25,
+        "CAGR": -19.37,
+        "MDD": -76.94,
+        "Sharpe": -1.072,
+        "tVsEW": -7.98,
+        "trades": 37050
+      },
+      "VALID": {
+        "totalReturn": -39.71,
+        "CAGR": -28.76,
+        "MDD": -45.83,
+        "Sharpe": -2.037,
+        "tVsEW": -6.81,
+        "trades": 10118
+      },
+      "TEST": {
+        "totalReturn": -37.67,
+        "CAGR": -16.54,
+        "MDD": -48.41,
+        "Sharpe": -0.821,
+        "tVsEW": -3.35,
+        "trades": 17238
+      }
+    },
+    {
+      "id": "abl_dma_only",
+      "group": "ablation",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "DMA",
+        "exit": "DMA"
+      },
+      "trades": 78920,
+      "forcedExits": 325,
+      "avgHoldBars": 5.0,
+      "medHoldBars": 3,
+      "winRate": 27.6,
+      "avgTradeGrossPct": 0.193,
+      "avgTradeNetPct": -0.107,
+      "exposure": 0.999,
+      "avgActivePositions": 151.0,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": -57.44,
+        "CAGR": -7.74,
+        "MDD": -67.94,
+        "Sharpe": -0.311
+      },
+      "net": {
+        "totalReturn": -92.19,
+        "CAGR": -21.36,
+        "MDD": -93.68,
+        "Sharpe": -1.116
+      },
+      "yearly": {
+        "2016": -13.54,
+        "2017": -26.97,
+        "2018": -33.31,
+        "2019": -20.22,
+        "2020": 7.68,
+        "2021": 1.56,
+        "2022": -44.94,
+        "2023": -27.66,
+        "2024": -28.42,
+        "2025": 7.01,
+        "2026": -30.33
+      },
+      "tVsEW": -9.6,
+      "tVsKOSPI": -5.23,
+      "TRAIN": {
+        "totalReturn": -74.54,
+        "CAGR": -19.02,
+        "MDD": -81.37,
+        "Sharpe": -0.96,
+        "tVsEW": -7.71,
+        "trades": 44503
+      },
+      "VALID": {
+        "totalReturn": -42.22,
+        "CAGR": -30.76,
+        "MDD": -47.42,
+        "Sharpe": -2.16,
+        "tVsEW": -6.03,
+        "trades": 12224
+      },
+      "TEST": {
+        "totalReturn": -46.78,
+        "CAGR": -21.43,
+        "MDD": -54.64,
+        "Sharpe": -1.03,
+        "tVsEW": -3.51,
+        "trades": 22233
+      }
+    },
+    {
+      "id": "abl_exit_OR",
+      "group": "ablation",
+      "spec": {
+        "ma": "ema",
+        "n": 10,
+        "stoch": [
+          5,
+          3,
+          3
+        ],
+        "line": "k",
+        "entry": "AND",
+        "exit": "OR"
+      },
+      "trades": 15738,
+      "forcedExits": 82,
+      "avgHoldBars": 4.4,
+      "medHoldBars": 3,
+      "winRate": 30.4,
+      "avgTradeGrossPct": 0.248,
+      "avgTradeNetPct": -0.053,
+      "exposure": 0.998,
+      "avgActivePositions": 26.8,
+      "sameBarExecutions": 0,
+      "gross": {
+        "totalReturn": -51.24,
+        "CAGR": -6.55,
+        "MDD": -80.27,
+        "Sharpe": -0.081
+      },
+      "net": {
+        "totalReturn": -92.66,
+        "CAGR": -21.82,
+        "MDD": -95.01,
+        "Sharpe": -0.683
+      },
+      "yearly": {
+        "2016": 7.31,
+        "2017": -17.92,
+        "2018": -31.35,
+        "2019": -36.76,
+        "2020": 102.26,
+        "2021": -18.25,
+        "2022": -48.94,
+        "2023": -20.74,
+        "2024": -17.7,
+        "2025": -20.46,
+        "2026": -56.18
+      },
+      "tVsEW": -4.03,
+      "tVsKOSPI": -3.61,
+      "TRAIN": {
+        "totalReturn": -52.17,
+        "CAGR": -10.75,
+        "MDD": -76.48,
+        "Sharpe": -0.232,
+        "tVsEW": -2.07,
+        "trades": 9014
+      },
+      "VALID": {
+        "totalReturn": -45.97,
+        "CAGR": -33.81,
+        "MDD": -49.76,
+        "Sharpe": -1.714,
+        "tVsEW": -3.23,
+        "trades": 2442
+      },
+      "TEST": {
+        "totalReturn": -71.39,
+        "CAGR": -38.04,
+        "MDD": -75.94,
+        "Sharpe": -1.32,
+        "tVsEW": -2.77,
+        "trades": 4298
+      }
+    }
+  ],
+  "elapsedSeconds": 133.4
+}
