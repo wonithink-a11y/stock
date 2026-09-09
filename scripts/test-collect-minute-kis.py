@@ -842,6 +842,50 @@ def run_all(M=None):
                 else:
                     os.environ[k] = v
 
+        # 25 sessionBounds - 조용한 잘림을 관측 가능한 사실로 바꾼다
+        #    수집기는 cursorSeed 에서 거꾸로 페이지를 넘기므로, 장 마감이
+        #    뒤로 밀리면 그 뒤 구간을 '요청하지 않고' 끝난다. 요청하지 않은
+        #    것은 오류도 갭도 아니라 인수 조건이 그대로 통과한다 - 그래서
+        #    관측된 경계를 남긴다(교훈75).
+        res_sb = M.run_day(FakeTransport({("111111", sent): candles(sent)}),
+                           ["111111"], date, pol, base_ctx(),
+                           tmp / "sbraw", tmp / "sbst", sleeper=slept.append)
+        sb = res_sb["manifest"]["sessionBounds"]
+        check("manifest가 관측된 세션 경계를 들고 있다", sb is not None, sb)
+        check("첫 봉이 09:00", sb["firstBar"] == "09:00", sb)
+        check("마지막 봉이 15:30", sb["lastBar"] == "15:30", sb)
+        check("관측 분 수가 정책 sessionMinutes 와 일치(현행 381)",
+              sb["distinctMinutes"] == sb["policySessionMinutes"] == 381, sb)
+
+        #    잘린 하루: 15:30 쪽 뒤 60분이 안 온 경우. 인수 조건은 여전히
+        #    통과하지만(그게 문제였다) sessionBounds 가 그 사실을 말한다.
+        truncated = candles(sent)[:321]     # 앞(이른 시각)부터 321개만 왔다
+        res_tr = M.run_day(FakeTransport({("111111", sent): truncated}),
+                           ["111111"], date, pol, base_ctx(),
+                           tmp / "traw", tmp / "tst", sleeper=slept.append)
+        tb = res_tr["manifest"]["sessionBounds"]
+        check("잘린 하루도 인수 조건은 통과한다 (그래서 이 칸이 필요하다)",
+              res_tr["acceptancePassed"],
+              [c for c in res_tr["manifest"]["acceptance"] if not c["통과"]])
+        check("잘린 하루의 마지막 봉 시각이 다르게 남는다",
+              tb["lastBar"] != "15:30" and tb["firstBar"] == "09:00", tb)
+        check("잘린 하루는 관측 분 수가 정책값보다 작다",
+              tb["distinctMinutes"] < tb["policySessionMinutes"], tb)
+
+        # 26 판정하지 않는다 - 세어서 남기기만 한다
+        check("sessionBounds 가 인수 조건 목록을 늘리지 않는다",
+              len(res_sb["manifest"]["acceptance"])
+              == len(res_ex["manifest"]["acceptance"]))
+
+        # 27 validate_rows 의 minutes_seen 은 선택 인자다 (기존 호출자 무변경)
+        v_no, o_no = M.validate_rows([row("09:00", 10, 20, 5, 15)], date, pol)
+        seen = set()
+        v_yes, o_yes = M.validate_rows([row("09:00", 10, 20, 5, 15)], date, pol,
+                                       minutes_seen=seen)
+        check("minutes_seen 을 안 주면 결과가 이전과 같다",
+              (v_no, o_no) == (v_yes, o_yes))
+        check("minutes_seen 을 주면 봉 시각이 모인다", seen == {"09:00"}, seen)
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

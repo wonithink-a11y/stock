@@ -395,7 +395,7 @@ def collect_symbol_day(transport, ticker, date, pol, ctx, sleeper=time.sleep,
 
 # ---------------------------------------------------------------- 검증
 
-def validate_rows(rows, date, pol):
+def validate_rows(rows, date, pol, minutes_seen=None):
     """스키마·중복·일자·OHLC를 본다. 위반을 말하고 복구는 말하지 않는다(교훈74).
 
     (위반, 관측)을 돌려준다.
@@ -406,7 +406,15 @@ def validate_rows(rows, date, pol):
     다르다 - 하나는 수집을 멈출 일이고 하나는 세어 두기만 할 일이다.
 
     관측은 계약이 면제한 것을 그래도 센 것이다. 면제는 눈감는 것이 아니다.
+
+    minutes_seen: 선택. set 을 주면 이 행들의 봉 시각("HH:MM")을 거기 모은다.
+    session_bounds() 가 그것으로 그날 실제 세션 경계를 만든다. None(기본)이면
+    아무 것도 하지 않아 기존 호출자와 바이트 단위로 같다.
     """
+    if minutes_seen is not None:
+        # 위반 여부와 무관하게 '이 시각의 봉을 봤다'는 원시 사실이다.
+        minutes_seen.update(str(r["ts"])[11:16] for r in rows if "ts" in r)
+
     val = pol.get("validation") or {}
     exempt = set(val.get("openWithinRangeExemptMinutes") or [])
     v, obs = [], {}
@@ -544,7 +552,7 @@ def adopt_staged_parts(stage_dir):
     return out
 
 
-def revalidate_carried(stage_dir, carried, date, pol):
+def revalidate_carried(stage_dir, carried, date, pol, minutes_seen=None):
     """이월된 조각을 다시 읽어 재검증한다.
 
     resume은 네트워크 재호출을 피하자는 것이지 검증을 건너뛰자는 것이 아니다.
@@ -564,12 +572,42 @@ def revalidate_carried(stage_dir, carried, date, pol):
         if not f.exists():
             continue
         rows = pq.read_table(f).to_pylist()
-        vv, oo = validate_rows(rows, date, pol)
+        vv, oo = validate_rows(rows, date, pol, minutes_seen=minutes_seen)
         if len(violations) < 20:
             violations.extend(vv[:20 - len(violations)])
         for k, v in oo.items():
             observations[k] = observations.get(k, 0) + v
     return violations, observations
+
+
+def session_bounds(minutes_seen, pol):
+    """그날 실제로 관측된 세션 경계.
+
+    정책의 sessionMinutes 는 '계약이 기대하는 길이'이고 이것은 '이번 실행이
+    실제로 본 길이'다. 둘이 갈리면 제도가 바뀌었거나 수집이 잘린 것이다.
+
+    ★ 왜 필요한가: 수집기는 cursorSeed(현재 "153000")에서 거꾸로 페이지를
+    넘긴다. 장 마감이 뒤로 밀리면 그 뒤 구간을 **요청하지 않고** 끝나는데,
+    요청하지 않은 것은 오류도 갭도 아니라서 인수 조건이 그대로 통과한다 -
+    조용히 잘린 하루가 온전한 하루로 기록된다. 관측된 첫·마지막 봉 시각을
+    남겨 두면 그 잘림이 manifest 하나만 봐도 드러난다(교훈75: 없는 행은
+    이유를 말하지 않는다. 원시 사실은 수집 단계에서 남긴다).
+
+    판정하지 않는다 - 세어서 남기기만 한다. 무엇이 정상인지는 제도가 정하고
+    그것은 이 수집기가 알 수 있는 것이 아니다.
+    """
+    if not minutes_seen:
+        return None
+    ordered = sorted(minutes_seen)
+    return {
+        "firstBar": ordered[0],
+        "lastBar": ordered[-1],
+        "distinctMinutes": len(ordered),
+        "policySessionMinutes": pol["collectionContract"].get("sessionMinutes"),
+        "note": ("이번 실행이 검증한 행 기준(이월 조각 포함). distinctMinutes 가 "
+                 "policySessionMinutes 와 다르면 제도 변경이거나 수집 잘림이다 - "
+                 "이 필드는 세기만 하고 판정하지 않는다."),
+    }
 
 
 def combined_sha(parts):
@@ -727,9 +765,11 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
                 f.unlink()
 
     parts, violations, observations = list(carried), [], {}
+    minutes_seen = set()      # 이월분과 이번 수집분을 함께 모은다
     row_count = sum(p["rows"] for p in carried)
     if carried:
-        cv, co = revalidate_carried(stage_dir, carried, date, pol)
+        cv, co = revalidate_carried(stage_dir, carried, date, pol,
+                                    minutes_seen=minutes_seen)
         violations.extend(cv)
         for k, v in co.items():
             observations[k] = observations.get(k, 0) + v
@@ -744,7 +784,7 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
         buf.sort(key=lambda r: (r["ticker"], r["ts"]))
         # 검증은 항상 돌린다. 상한은 '보관하는 표본'에만 건다 - 검증 자체를
         # 건너뛰면 관측치가 20건 이후로 조용히 멈춘다.
-        vv, oo = validate_rows(buf, date, pol)
+        vv, oo = validate_rows(buf, date, pol, minutes_seen=minutes_seen)
         if len(violations) < 20:
             violations.extend(vv[:20])
         for ok_, on_ in oo.items():
@@ -833,6 +873,7 @@ def run_day(transport, tickers, date, pol, ctx, out_root, state_root,
     man["symbolsWithRows"] = sum(1 for o in outcomes if o.status == "OK")
     man["symbolsNotQueried"] = sum(1 for o in outcomes
                                    if o.gap_reason == "NOT_QUERIED")
+    man["sessionBounds"] = session_bounds(minutes_seen, pol)
     man["observations"] = observations
     man["observationsNote"] = ("이 실행이 검증한 행에 대한 수치다. 이월 조각도 "
                                "이 실행이 다시 읽어 재검증한 결과가 포함된다 "
