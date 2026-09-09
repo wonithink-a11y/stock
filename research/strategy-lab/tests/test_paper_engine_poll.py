@@ -394,6 +394,36 @@ def test_fresh_entry_still_starts_its_clock_at_zero():
     _reset()
 
 
+
+def test_fill_uses_signal_hold_sessions_over_policy_default():
+    """FakeRule.PARAMS 의 risk.maxHoldingSessions 는 3 이지만, 신호가 실은
+    hold_sessions=23 이 이긴다. 정책 고정값은 신호가 없을 때의 기본값이다."""
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 5, "intent_date": "2026-08-20",
+                      "order_no": "ORD1", "order_date": "20260821", "hold_sessions": 23}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": True, "rejected": False, "filledQty": 5, "avgPrice": 100.0, "pending": False},
+    ])
+    poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("신호의 보유일수가 정책 기본값을 이긴다", st["max_holding_sessions"] == 23, st)
+    ok("hold_sessions 도 남는다(다음 체결에서 또 쓴다)", st["hold_sessions"] == 23, st)
+    _reset()
+
+
+def test_fill_without_signal_hold_sessions_uses_policy_default():
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 5, "intent_date": "2026-08-20",
+                      "order_no": "ORD1", "order_date": "20260821"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": True, "rejected": False, "filledQty": 5, "avgPrice": 100.0, "pending": False},
+    ])
+    poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("없으면 정책 기본값 3", st["max_holding_sessions"] == 3, st)
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -413,6 +443,8 @@ def main():
     test_untradable_pending_entry_is_dropped_without_touching_broker()
     test_topup_fill_averages_entry_price_and_keeps_position_history()
     test_fresh_entry_still_starts_its_clock_at_zero()
+    test_fill_uses_signal_hold_sessions_over_policy_default()
+    test_fill_without_signal_hold_sessions_uses_policy_default()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:

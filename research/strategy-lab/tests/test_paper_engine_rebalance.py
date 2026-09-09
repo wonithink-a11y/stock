@@ -211,6 +211,60 @@ def test_untradable_symbol_never_becomes_pending_entry():
     _reset()
 
 
+
+class HoldRule:
+    """rule.hold_sessions()를 제공하는 전략 - 라이브 4전략과 같은 모양."""
+    PARAMS = {"strategyId": STRATEGY_ID, "portfolio": {"maxPositions": 3}}
+    HOLD = {"CHEAP": 23}
+
+    @staticmethod
+    def selected_symbols(as_of):
+        return ["CHEAP"] if as_of == AS_OF else []
+
+    @classmethod
+    def hold_sessions(cls, symbol, as_of):
+        return cls.HOLD.get(symbol) if as_of == AS_OF else None
+
+
+def test_new_entry_records_signal_hold_sessions():
+    """★ 2026-09-09. 백테스트는 리밸런싱일마다 정확한 보유일수(18~23)를 쓰는데
+    페이퍼는 정책 고정값 21 을 썼다. 2026년 리밸런싱일 9개 중 5개가 22~23 이라,
+    고정 21 이면 다음 리밸런싱 1~2세션 전에 팔고 곧바로 다시 산다."""
+    _reset()
+    scan_rebalance_signals(REPO_ROOT, HoldRule(), AS_OF, capital_krw=300_000,
+                            log=lambda *a: None, bars_by_ticker=BARS)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    ok("신호의 보유일수를 상태에 싣는다", st.get("hold_sessions") == 23, st)
+    _reset()
+
+
+def test_existing_open_position_is_corrected_not_only_new_entries():
+    """지금 굳어 있는 책도 고쳐야 한다 - '다음 진입부터'만 듣는 수정은 탑업에서
+    이미 한 번 겪은 실패 모양이다."""
+    _reset()
+    positionStore.save(REPO_ROOT, STRATEGY_ID,
+                        {"CHEAP": _open_pos(10, max_holding_sessions=21)})
+    events = scan_rebalance_signals(REPO_ROOT, HoldRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    ok("기존 OPEN 도 보정", st["max_holding_sessions"] == 23, st)
+    ok("보정이 이벤트로 보인다",
+       {"type": "HOLD_SESSIONS_SYNCED", "symbol": "CHEAP", "holdSessions": 23} in events, events)
+    _reset()
+
+
+def test_rule_without_hold_sessions_falls_back_silently():
+    """옛 전략(dummy_sma20 등)은 hold_sessions 를 안 준다 - 죽지 않고 정책
+    기본값 경로로 떨어져야 한다."""
+    _reset()
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    ok("hold_sessions 키 자체가 없다", "hold_sessions" not in st, st)
+    ok("진입은 정상", st["status"] == "PENDING_ENTRY", st)
+    _reset()
+
+
 def main():
     test_affordable_symbol_gets_pending_entry_within_slot_budget()
     test_already_held_symbol_at_budget_is_not_rebought()
@@ -219,6 +273,9 @@ def main():
     test_topup_never_shrinks_a_position()
     test_topup_skips_positions_that_are_mid_entry()
     test_slot_budget_expands_when_book_exceeds_max_positions()
+    test_new_entry_records_signal_hold_sessions()
+    test_existing_open_position_is_corrected_not_only_new_entries()
+    test_rule_without_hold_sessions_falls_back_silently()
     test_max_positions_cap_stops_new_entries()
     test_untradable_symbol_never_becomes_pending_entry()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})

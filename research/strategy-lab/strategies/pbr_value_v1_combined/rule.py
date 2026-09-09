@@ -99,6 +99,19 @@ def still_selected(symbol: str, as_of: str) -> bool:
     return as_of in _SELECTION.get(symbol, {})
 
 
+def hold_sessions(symbol: str, as_of: str):
+    """그 리밸런싱일에 이 종목을 며칠 들고 가기로 했는가(다음 리밸런싱일까지의
+    실제 거래일수). 없으면 None - 호출부가 정책 기본값으로 떨어진다.
+
+    백테스트는 generate_signals -> risk_spec_for 경로로 이 값을 쓰는데,
+    페이퍼 엔진(poll_once)에는 그 경로가 없어 정책의 고정 maxHoldingSessions(21)
+    를 썼다. 2026년 리밸런싱일 9개 중 5개가 22~23세션이라, 고정 21이면 다음
+    리밸런싱 1~2세션 전에 시간청산으로 팔고 곧바로 다시 사는 헛회전이 난다
+    (백테스트에 없는 왕복비용 30~60bp). 2026-09-09 확인.
+    """
+    return _SELECTION.get(symbol, {}).get(as_of)
+
+
 def evaluate_at(pit_features, symbol: str, date: str, prev_date):
     """generate_signals와 동일한 조회 로직, PIT 래퍼를 거쳐서. selection.json
     자체가 이미 PIT 안전하다 - build_selection.py가 쓴 valuation-panel.jsonl은

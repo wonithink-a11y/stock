@@ -248,8 +248,26 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
     slots = max(max_positions, len(state))
     budget_per_slot = capital_krw // slots
 
+    # rule 이 이 리밸런싱일의 보유일수를 알려주면 쓴다(라이브 4전략 전부 제공).
+    # 없으면 None -> _open_from_fills 가 정책 기본값으로 떨어진다(옛 전략 호환).
+    _hs = getattr(rule, "hold_sessions", None)
+    hold_sessions_of = (lambda sym: _hs(sym, as_of)) if _hs else (lambda sym: None)
+
     for symbol in target:
         if symbol in state:
+            # 이미 보유 중인 포지션도 이번 리밸런싱일 값으로 맞춘다 - 안 그러면
+            # 이 수정이 "다음 진입부터"만 듣고 지금 굳어 있는 책은 고정 21 로
+            # 남는다(탑업에서 이미 한 번 겪은 실패 모양이다).
+            pos = state[symbol]
+            hs = hold_sessions_of(symbol)
+            if hs is not None and pos.get("hold_sessions") != hs:
+                pos["hold_sessions"] = hs
+                if pos["status"] == "OPEN" and pos.get("max_holding_sessions") != hs:
+                    log(f"[{as_of}] HOLD 보정  {symbol}  "
+                        f"{pos.get('max_holding_sessions')} -> {hs}세션")
+                    pos["max_holding_sessions"] = hs
+                    events.append({"type": "HOLD_SESSIONS_SYNCED", "symbol": symbol,
+                                    "holdSessions": hs})
             bars = bars_by_ticker.get(symbol)
             if bars is None or as_of_ts not in bars.index:
                 continue
@@ -287,6 +305,8 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
                           "target_quantity": quantity,
                           "entry_slices": max(int(entry_slices), 1),
                           "intent_date": as_of}
+        if hold_sessions_of(symbol) is not None:
+            state[symbol]["hold_sessions"] = hold_sessions_of(symbol)
         open_or_pending += 1
         events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
         log(f"[{as_of}] SIGNAL -> INTENT  {symbol}  qty={quantity} (실주문은 poll_once가 낸다)")
@@ -316,15 +336,22 @@ def _open_from_fills(pos, today, risk):
             "entry_date": pos.get("first_fill_date", today),
             "stop_price": round(entry_price * (1 - stop_pct), 2) if stop_pct is not None else None,
             "target_price": round(entry_price * (1 + target_pct), 2) if target_pct is not None else None,
-            "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
+            # 그 리밸런싱일의 실제 보유일수(다음 리밸런싱일까지의 거래일수)를
+            # 우선한다 - 백테스트는 generate_signals -> risk_spec_for 경로로 이
+            # 값을 쓰는데 페이퍼에는 그 경로가 없어 정책 고정값(21)을 썼다.
+            # 2026년 리밸런싱일 9개 중 5개가 22~23세션이라(01-02·03-03·04-01·
+            # 06-01·07-01) 고정 21이면 다음 리밸런싱 1~2세션 전에 팔고 곧바로
+            # 다시 사는 헛회전이 난다 - 백테스트에 없는 왕복비용 30~60bp다.
+            "max_holding_sessions": pos.get("hold_sessions") or risk["maxHoldingSessions"],
+            "sessions_held": 0,
             "lastCountedDate": None,
             # 신규 진입에는 없는 키들 - 있으면 그대로 이어받는다. 탑업(아래
             # _plan_topup)은 OPEN 을 잠깐 PENDING_ENTRY 로 되돌렸다가 여기로
             # 돌아오는데, 그때 보유일수가 0 으로 리셋되거나 topup_as_of 가
             # 지워지면 (a) 시간청산 시계가 되감기고 (b) 다음 날 가격이 내리면
             # 예산 나눗셈이 커져 또 사들인다(눌림목 매수 드리프트).
-            **{k: pos[k] for k in ("sessions_held", "lastCountedDate", "topup_as_of")
-               if k in pos}}
+            **{k: pos[k] for k in ("sessions_held", "lastCountedDate", "topup_as_of",
+                                    "hold_sessions") if k in pos}}
 
 
 
