@@ -17,6 +17,17 @@ on:
         required: false
         default: ''
         type: string
+  schedule:
+    # ★ 월 1회다. A2a 는 매 실행이 **전 연도 파일을 다시 쓴다** - "현재 상장분"만
+    # 담는 정의라 상장폐지분이 과거에서도 빠지고 수정주가 재산정이 소급된다
+    # (실측 2026-09-03 커밋: 2014년 파일까지 4,794,388 -> 4,180,193 bytes 변경).
+    # 한 번에 약 122MB 의 새 blob 이 생기므로 일간이면 연 30GB 다 - .git 이 지금
+    # 1.6GB 인 저장소에서 붙일 수 없는 스케줄이다. 월 1회면 연 1.5GB 로 지금
+    # 수동 주기와 같다.
+    #
+    # cron 은 "매월 첫 거래일"을 못 쓴다. 1~5일에 걸어두고 check 잡이 이번 달
+    # 데이터가 이미 있으면 스킵해 실제 수집을 한 번으로 만든다.
+    - cron: '0 10 1-5 * *'   # 19:00 KST. 첫 거래일 장 마감 뒤
 
 concurrency:
   group: backfill-price-a2a
@@ -32,7 +43,24 @@ env:
   PYKRX_VERSION: 1.2.8
 
 jobs:
+  # 이번 달 수집이 이미 끝났는지만 본다(수 초). workflow_dispatch 는 항상 통과 -
+  # 사람이 직접 부른 실행을 게이트가 막으면 디버깅이 불가능해진다.
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      needed: ${{ steps.gate.outputs.needed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python scripts/check-a2a-refresh-needed.py --selftest
+      - id: gate
+        run: python scripts/check-a2a-refresh-needed.py >> "$GITHUB_OUTPUT"
+
   collect:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' || needs.check.outputs.needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
