@@ -39,7 +39,22 @@ START = "2016-01-01"
 # 월별 라이브 리프레시 시 `python build_selection.py --end 2026-09-02`처럼
 # CLI로 넘긴다 - 그 전에 scripts/build-a5-valuation-panel.js --end로 같은
 # 날짜까지 valuation-panel.jsonl을 먼저 확장해야 한다. 로직은 무변경.
-END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else "2026-08-14"
+
+def _default_end():
+    """기본 END 는 캘린더의 마지막 거래일이다.
+
+    ★ 예전에는 기준일이 코드에 박혀 있었다("2026-08-14" 등). 그 날짜가 지나면
+    인자 없이 돌릴 때 **조용히 과거까지만** 만든다 - 실측 2026-09-09: 인자 없이
+    돌렸더니 라이브 리밸런싱일(2026-09-01)이 통째로 빠진 selection.json 이
+    생성됐다. 그 파일로는 run_monthly_rebalance.py 가 "이 날짜가 없음"으로
+    조용히 종료하고, poll_once 를 아예 안 불러 **청산·체결확인까지 멈춘다.**
+    자동화가 이 스크립트를 매달 돌릴 것이므로 기준일을 손으로 적지 않는다.
+    """
+    with open(os.path.join(REPO_ROOT, "data", "backfill", "calendar.json"),
+              encoding="utf-8") as f:
+        return json.load(f)["tradingDays"][-1]
+
+END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else _default_end()
 # --top-n / --out 은 연구용이다. 기본값을 바꾸지 않으므로 라이브 selection.json 은
 # 인자 없이 돌리면 예전과 바이트 동일하게 나온다(2026-09-04 실측 확인).
 TOP_N = int(sys.argv[sys.argv.index("--top-n") + 1]) if "--top-n" in sys.argv else 30

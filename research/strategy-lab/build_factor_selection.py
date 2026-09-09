@@ -44,7 +44,22 @@ FACTOR_CONFIGS = {
 
 # Common params
 START = "2016-01-01"
-END = "2026-09-03"
+def _default_end():
+    """기본 END 는 캘린더의 마지막 거래일이다.
+
+    ★ 예전에는 기준일이 코드에 박혀 있었다("2026-08-14" 등). 그 날짜가 지나면
+    인자 없이 돌릴 때 **조용히 과거까지만** 만든다 - 실측 2026-09-09: 인자 없이
+    돌렸더니 라이브 리밸런싱일(2026-09-01)이 통째로 빠진 selection.json 이
+    생성됐다. 그 파일로는 run_monthly_rebalance.py 가 "이 날짜가 없음"으로
+    조용히 종료하고, poll_once 를 아예 안 불러 **청산·체결확인까지 멈춘다.**
+    자동화가 이 스크립트를 매달 돌릴 것이므로 기준일을 손으로 적지 않는다.
+    """
+    with open(os.path.join(REPO_ROOT, "data", "backfill", "calendar.json"),
+              encoding="utf-8") as f:
+        return json.load(f)["tradingDays"][-1]
+
+END = (sys.argv[sys.argv.index("--end") + 1]
+       if "--end" in sys.argv else _default_end())
 MIN_TURNOVER = 100_000_000.0
 WARM_BETA = 120
 
