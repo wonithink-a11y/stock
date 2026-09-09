@@ -1,0 +1,75 @@
+{
+  "strategyId": "lw3_donchian_v1",
+  "version": "0.1-research",
+  "status": "RESEARCH_ONLY",
+  "note": "'래리 윌리엄스 3박자'(돈치안20 돌파 + 거래량MA20 + LWTI) 의 실험용 재현. production 정책이 아니다 - config/policies 에 등록하지 않는다. 판정 전까지 어떤 슬리브도 이 전략을 읽지 않는다.",
+
+  "direction": "LONG_ONLY",
+
+  "indicators": {
+    "donchian": { "period": 20, "source": "priorHighLow" },
+    "volumeMa": { "period": 20, "method": "sma" },
+    "lwti": { "period": 25, "colorRule": "slope" },
+    "atr": { "period": 14, "method": "wilder" }
+  },
+
+  "filters": { "volume": true, "lwti": true },
+
+  "signal": {
+    "expression": "Close[t] > DonchianHigh[t] AND Close[t-1] <= DonchianHigh[t-1] AND (거래량필터: Volume[t] > SMA(Volume,20)[t]) AND (LWTI필터: lwtiMode에 따라 green[t] 또는 turned_green[t])",
+    "lwtiMode": "state",
+    "lwtiModeNote": "state = 돌파일에 LWTI가 녹색이면 통과. transition = 돌파일 당일에 빨강->녹색 전환이 일어나야 통과. 원문('3가지가 동시에 일치하는 순간')은 후자로도 읽히지만, 차트 트레이더의 실제 판독은 '돌파가 사건이고 나머지 둘은 그 시점의 확인'이라 state를 기준으로 둔다. 둘 다 실측해 거래 수 차이를 보고한다 - 어느 쪽이 옳은지는 공개 정의로 가릴 수 없다.",
+    "evaluatedAfter": "t close confirmed"
+  },
+
+  "entry": {
+    "timing": "next_tradable_session_open",
+    "entryPriceField": "Open[next_session(t)]",
+    "intrabarNote": "원문은 '3박자가 일치하는 순간 즉시 매수'이나 일봉으로는 장중 그 시점을 알 수 없다. 즉시 체결을 가장하지 않고 T+1 시가로 잡는다 - 이 전략에 불리한 쪽이다."
+  },
+
+  "risk": {
+    "stopDistanceFormula": "Close[t] - DonchianMid[t]",
+    "stopFormula": "entry_price - stop_distance",
+    "stopNote": "손절선은 '돈치안 중간선 그 자체'가 아니라 '신호일 종가 기준 중간선까지의 거리'다. 엔진의 RiskSpec 은 신호일 데이터만으로 거리를 확정하고(ATR TIMING CONTRACT) 진입가는 다음날 시가라, 중간선을 절대가격으로 쓰면 신호일 이후 정보가 섞인다. 갭이 없으면 둘은 사실상 같다.",
+    "targetFormula": "entry_price + rewardRisk * stop_distance",
+    "rewardRisk": 2.0,
+    "maxHoldingSessions": 60,
+    "timeExitRule": "60번째 거래일 종가"
+  },
+
+  "sameBarRule": "STOP_FIRST",
+  "gapRule": "fill at session Open if Open already through stop_price",
+  "entryDaySameBarCheck": true,
+
+  "cost": {
+    "entryCostBps": 15,
+    "exitCostBps": 15,
+    "roundTripBps": 30,
+    "slippageBps": 0
+  },
+
+  "portfolio": {
+    "initialCapital": 100000000,
+    "currency": "KRW",
+    "maxPositions": 10,
+    "equalWeight": true,
+    "fractionalShares": false,
+    "sameDayCashReuse": false,
+    "tieBreak": "ticker_ascending"
+  },
+
+  "universe": {
+    "mode": "A1A_A1B_MERGED",
+    "runClassAllowed": ["SMOKE", "PRIMARY"],
+    "coverageNote": "생존편향을 피하려면 상장폐지분(A1b/A2b)이 있어야 한다. 5dc_v1a_p·pbr_value_v1 과 같은 유니버스라 결과를 나란히 놓을 수 있다."
+  },
+
+  "warmup": {
+    "donchianBars": 21,
+    "volumeMaBars": 20,
+    "lwtiBars": 26,
+    "atrBars": 14,
+    "effectiveWarmupBars": 26
+  }
+}
