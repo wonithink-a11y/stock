@@ -19,11 +19,13 @@ import argparse
 import importlib.util
 import json
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_BUCKET = "stock-minute-manifest"
 STRATEGIES = ["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined", "factor_earnings_yield_v1"]
+KST = timezone(timedelta(hours=9))
 
 
 def load_module(name):
@@ -34,13 +36,36 @@ def load_module(name):
     return m
 
 
-def latest_key(transport, strategy):
-    keys = sorted(transport.list_names(prefix=f"paper-state/{strategy}/"))
-    return keys[-1] if keys else None
+# 최신 하나를 찾을 때 먼저 보는 창(일). 업로드는 평일 장중 10분 간격이라
+# 정상 상태에서는 첫 창에서 반드시 걸린다 - 한국 증시 최장 연휴(약 5일)의
+# 두 배 여유다. 비면 전체를 훑는 경로로 떨어진다(아래).
+RECENT_WINDOW_DAYS = 14
 
 
-def sync_one(transport, strategy, out_dir, out=print):
-    key = latest_key(transport, strategy)
+def latest_key(transport, strategy, now=None):
+    """전략별 최신 객체 키. **prefix 전체를 훑지 않는다.**
+
+    키가 paper-state/{전략}/{YYYYmmddTHHMMSS}.json 이라 사전순 == 시간순이고,
+    필요한 건 맨 뒤 하나뿐이다. 그런데 이 버킷은 IAM이 DELETE를 안 줘서
+    객체가 계속 쌓인다(upload-paper-state-oci.py docstring) - 전체를 훑으면
+    조회 비용이 누적에 비례해 는다(1,000개마다 요청 1회). 최근 창부터 보면
+    누적과 무관하게 요청 1회로 끝난다.
+
+    ★ 창이 비어도 "없음"으로 단정하지 않는다(교훈57) - 파이프라인이 오래
+    멈춰 있었을 수 있으므로 전체 조회로 한 번 더 확인한 뒤에 None을 낸다.
+    느린 경로지만 그때는 이미 비정상이라 비용이 문제가 아니다.
+    """
+    prefix = f"paper-state/{strategy}/"
+    cutoff = ((now or datetime.now(KST)) - timedelta(days=RECENT_WINDOW_DAYS)).strftime("%Y%m%d")
+    for start in (prefix + cutoff, None):
+        keys = sorted(transport.list_names(prefix=prefix, start=start))
+        if keys:
+            return keys[-1]
+    return None
+
+
+def sync_one(transport, strategy, out_dir, out=print, now=None):
+    key = latest_key(transport, strategy, now=now)
     if key is None:
         out(f"  {strategy}  없음 - OCI에 올라온 상태 없음(아직 신호가 안 났거나 relay 전)")
         return False
@@ -57,9 +82,10 @@ def sync_one(transport, strategy, out_dir, out=print):
     return True
 
 
-def run(transport, repo_root, out=print):
+def run(transport, repo_root, out=print, now=None):
+    """now: 테스트가 '최근 창'을 고정하려고 넣는다(None이면 현재 KST)."""
     out_dir = Path(repo_root) / "research/strategy-lab/data/paper"
-    return {s: sync_one(transport, s, out_dir, out=out) for s in STRATEGIES}
+    return {s: sync_one(transport, s, out_dir, out=out, now=now) for s in STRATEGIES}
 
 
 def main():

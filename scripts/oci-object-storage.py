@@ -29,10 +29,16 @@ class OciTransport:
         self.namespace = namespace
         self.bucket = bucket
 
-    def list_names(self, prefix=None):
-        """버킷 안 객체 이름 전부. 페이지네이션을 여기서 흡수한다."""
+    def list_names(self, prefix=None, start=None):
+        """버킷 안 객체 이름. 페이지네이션을 여기서 흡수한다.
+
+        start: 이 이름부터(포함) 사전순 뒤쪽만 받는다 - OCI list_objects의
+        start를 그대로 노출한 것이다(내부 페이지 커서와 같은 파라미터라
+        시드로 넣으면 그만이다). 키에 시각이 들어 있으면(paper-state/
+        {전략}/{YYYYmmddTHHMMSS}.json) 사전순 == 시간순이라 "최근 것만"을
+        O(전체)가 아니라 O(창)으로 받을 수 있다.
+        """
         names = set()
-        start = None
         while True:
             resp = self.client.list_objects(
                 self.namespace, self.bucket, prefix=prefix,
@@ -62,8 +68,9 @@ class FakeOciTransport:
         self.objects = dict(existing or {})
         self.puts = []
 
-    def list_names(self, prefix=None):
-        return {n for n in self.objects if not prefix or n.startswith(prefix)}
+    def list_names(self, prefix=None, start=None):
+        return {n for n in self.objects
+                if (not prefix or n.startswith(prefix)) and (start is None or n >= start)}
 
     def put(self, name, data):
         if name in self.objects:
