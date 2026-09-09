@@ -68,8 +68,41 @@ def test_default_end_is_calendar_last_session():
     ok("그 값이 이번 달을 포함한다", mod.END[:7] >= last[:7], mod.END)
 
 
+
+# 라이브 슬리브의 rule.py 가 엔진에 제공해야 하는 진입점.
+# hold_sessions 는 월별 교체매매 4슬리브만 - foreign_flow5d_v1 은 5세션 고정이라
+# 정책 기본값이 정답이고 이 함수가 없는 게 맞다.
+RULE_ACCESSORS = {
+    "pbr_value_v1": ["selected_symbols", "still_selected", "hold_sessions"],
+    "lowmom60_v1": ["selected_symbols", "still_selected", "hold_sessions"],
+    "pbr_value_v1_combined": ["selected_symbols", "still_selected", "hold_sessions"],
+    "factor_earnings_yield_v1": ["selected_symbols", "still_selected", "hold_sessions"],
+    "foreign_flow5d_v1": ["selected_symbols", "still_selected"],
+}
+
+
+def test_live_rules_expose_engine_accessors():
+    for sid, names in RULE_ACCESSORS.items():
+        src = open(os.path.join(LAB, "strategies", sid, "rule.py"), encoding="utf-8").read()
+        for n in names:
+            ok(f"{sid}.rule.{n}", f"def {n}(" in src)
+
+
+def test_generator_template_keeps_hold_sessions():
+    """★ 2026-09-09. build_factor_selection.py 는 rule.py 를 템플릿에서 **매번 새로
+    쓴다.** 그 템플릿에 hold_sessions 가 없어서, selection 을 갱신할 때마다 그날
+    넣은 보유일수 수정이 factor_earnings_yield_v1 에서 조용히 지워졌다(실측:
+    재생성 후 rule.py 에서 13줄 삭제). 자동화가 매달 이걸 돌리므로 템플릿 쪽에서
+    막는다 - 41a5732 가 portfolio 블록을 보존하게 만든 것과 같은 자리다."""
+    src = open(os.path.join(LAB, "build_factor_selection.py"), encoding="utf-8").read()
+    ok("생성기 템플릿에 hold_sessions 가 있다", "def hold_sessions(" in src)
+    ok("생성기 템플릿에 still_selected 가 있다", "def still_selected(" in src)
+
+
 if __name__ == "__main__":
     test_no_frozen_end_default()
     test_default_end_is_calendar_last_session()
+    test_live_rules_expose_engine_accessors()
+    test_generator_template_keeps_hold_sessions()
     print(f"test_selection_builder_defaults: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)
