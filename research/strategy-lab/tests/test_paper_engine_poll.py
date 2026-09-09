@@ -278,6 +278,64 @@ def test_is_still_selected_true_keeps_holding_continuous_hold():
     _reset()
 
 
+
+class NoStopRule:
+    """가격 기반 stop/target이 없는 순수 시간청산 전략 - risk에 stopPct/targetPct
+    키가 아예 없다(factor_earnings_yield_v1/policy.json 그대로의 모양)."""
+    PARAMS = {
+        "strategyId": STRATEGY_ID,
+        "testUniverse": ["TEST1"],
+        "risk": {"note": "No price-based stop/target - pure time exit", "maxHoldingSessions": 3},
+        "position": {"notionalPerPosition": 1000000, "maxPositions": 1},
+    }
+
+
+def test_no_stop_pct_policy_opens_position_instead_of_crashing():
+    """★ 2026-09-09 회귀. 옛 _open_from_fills는 risk["stopPct"]를 필수로 읽어
+    이 정책에서 KeyError로 poll_once 전체를 죽였다 - 상태가 저장되지 않아
+    factor_earnings_yield_v1 61종목이 전량 체결됐는데도 ENTRY_SUBMITTED로
+    5거래일 묶였다. stop/target이 없으면 None이지 예외가 아니다."""
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 5, "intent_date": "2026-08-20",
+                      "order_no": "ORD1", "order_date": "20260821"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": True, "rejected": False, "filledQty": 5, "avgPrice": 100.0, "pending": False},
+    ])
+    events = poll_once(REPO_ROOT, NoStopRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    ok("체결이 FILL_ENTRY로 보고된다", [e["type"] for e in events] == ["FILL_ENTRY"], events)
+    state = positionStore.load(REPO_ROOT, STRATEGY_ID)
+    ok("ENTRY_SUBMITTED -> OPEN 전이", state["TEST1"]["status"] == "OPEN", state)
+    ok("stop_price는 None (0이나 sentinel이 아니다)", state["TEST1"]["stop_price"] is None, state)
+    ok("target_price는 None", state["TEST1"]["target_price"] is None, state)
+    _reset()
+
+
+def test_no_stop_pct_open_position_still_time_exits():
+    """stop/target이 None이어도 OPEN 분기가 터지지 않고 시간청산은 그대로 걸린다."""
+    _reset()
+    _seed({"TEST1": {"status": "OPEN", "quantity": 5, "entry_price": 100.0,
+                      "entry_date": "2026-08-21", "stop_price": None, "target_price": None,
+                      "max_holding_sessions": 3, "sessions_held": 3, "lastCountedDate": "2026-08-20"}})
+    broker = FakeBroker(price=100.0)
+    events = poll_once(REPO_ROOT, NoStopRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    ok("None stop/target에도 TIME_EXIT이 난다",
+       [(e["type"], e.get("reason")) for e in events] == [("EXIT_SUBMITTED", "TIME_EXIT")], events)
+    _reset()
+
+
+def test_no_stop_pct_open_position_does_not_exit_early():
+    """가격이 아무리 움직여도 STOP/TARGET으로는 안 나간다 - None은 '없음'이다."""
+    _reset()
+    _seed({"TEST1": {"status": "OPEN", "quantity": 5, "entry_price": 100.0,
+                      "entry_date": "2026-08-21", "stop_price": None, "target_price": None,
+                      "max_holding_sessions": 3, "sessions_held": 1, "lastCountedDate": "2026-08-20"}})
+    broker = FakeBroker(price=0.01)   # 폭락해도 stop이 없으므로 청산 없음
+    events = poll_once(REPO_ROOT, NoStopRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    ok("stop_price None이면 STOP 청산 없음", events == [], events)
+    ok("매도 제출 없음", broker.sell_calls == 0, broker.sell_calls)
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -291,6 +349,9 @@ def main():
     test_rejected_exit_reverts_to_open_no_duplicate_sell()
     test_is_still_selected_false_triggers_rebalance_exit_without_price_check()
     test_is_still_selected_true_keeps_holding_continuous_hold()
+    test_no_stop_pct_policy_opens_position_instead_of_crashing()
+    test_no_stop_pct_open_position_still_time_exits()
+    test_no_stop_pct_open_position_does_not_exit_early()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:

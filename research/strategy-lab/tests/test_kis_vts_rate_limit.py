@@ -99,6 +99,9 @@ def test_all_five_rest_methods_route_through_shared_limiter():
 
     class _FakeResp:
         status_code = 200
+        # 진짜 requests.Response는 항상 headers를 갖는다 - inquire_balance가
+        # tr_cont(연속조회 플래그)를 읽으므로 가짜도 갖고 있어야 한다.
+        headers = {}
 
         def json(self):
             return {

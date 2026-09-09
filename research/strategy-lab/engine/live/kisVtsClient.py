@@ -38,6 +38,9 @@ TR_BALANCE = "VTTC8434R"
 # 시세 조회는 실전/모의 구분이 없다(계정에 안 묶인 공개 시세라 KIS가 같은
 # TR_ID를 쓴다) - 그래도 도메인은 항상 BASE_URL(모의투자)로만 부른다.
 TR_PRICE = "FHKST01010100"
+# 잔고 연속조회 페이지 상한. 실측 20종목/페이지(2026-09-09)라 2,000종목까지
+# 커버한다 - 무한 루프 방지용 안전판이지 정상 동작에서 닿는 값이 아니다.
+MAX_BALANCE_PAGES = 100
 
 
 class _RateLimiter:
@@ -189,19 +192,42 @@ class KisVtsClient:
         return resp
 
     def inquire_balance(self):
-        """반환: (holdings: list[dict], cash: str, eval_total: str)."""
+        """반환: (holdings: list[dict], cash: str, eval_total: str).
+
+        ★ 연속조회 필수. KIS는 output1을 한 번에 20종목까지만 준다 - 더
+        있으면 응답 헤더 tr_cont가 F/M이고 ctx_area_fk100/nk100이 다음
+        페이지 커서다. 첫 페이지만 읽으면 종목코드 순 앞쪽 20개만 보이고
+        나머지는 "보유하지 않음"과 구분이 안 된다(교훈57 - 모르는 것은
+        0이 아니다). 실측 2026-09-09: 실제 101종목 중 20종목만 보였고,
+        그래서 ui/data/positions.json의 전략별 평가손익이 계좌 주식평가액
+        130.5백만원 중 38.6백만원(29.6%)만 반영하고 있었다.
+        """
         params = {
             "CANO": self.cano, "ACNT_PRDT_CD": self.acnt_prdt_cd,
             "AFHR_FLPR_YN": "N", "OFL_YN": "", "INQR_DVSN": "02", "UNPR_DVSN": "01",
             "FUND_STTL_ICLD_YN": "N", "FNCG_AMT_AUTO_RDPT_YN": "N", "PRCS_DVSN": "00",
             "CTX_AREA_FK100": "", "CTX_AREA_NK100": "",
         }
-        r = _request("GET", BASE_URL + PATH_BALANCE, headers=self._headers(TR_BALANCE),
-                      params=params, timeout=20)
-        resp = r.json()
-        if r.status_code != 200 or resp.get("rt_cd") != "0":
-            raise KisVtsError(f"잔고 조회 실패: {resp.get('msg_cd')} {resp.get('msg1')}")
-        holdings = [h for h in resp.get("output1", []) if h.get("hldg_qty", "0") != "0"]
+        holdings = []
+        headers = self._headers(TR_BALANCE)
+        for page in range(1, MAX_BALANCE_PAGES + 1):
+            r = _request("GET", BASE_URL + PATH_BALANCE, headers=headers,
+                          params=params, timeout=20)
+            resp = r.json()
+            if r.status_code != 200 or resp.get("rt_cd") != "0":
+                raise KisVtsError(f"잔고 조회 실패(page {page}): "
+                                   f"{resp.get('msg_cd')} {resp.get('msg1')}")
+            holdings += [h for h in resp.get("output1", []) if h.get("hldg_qty", "0") != "0"]
+            if r.headers.get("tr_cont") not in ("F", "M"):
+                break
+            headers = {**self._headers(TR_BALANCE), "tr_cont": "N"}
+            params = {**params, "CTX_AREA_FK100": resp.get("ctx_area_fk100", ""),
+                                "CTX_AREA_NK100": resp.get("ctx_area_nk100", "")}
+        else:
+            # 커서가 안 끝났는데 상한에 걸렸다 - 부분 잔고를 전체인 척 돌려주면
+            # 하류가 빠진 종목을 "판 종목"으로 읽는다. 잘린 것은 실패로 만든다.
+            raise KisVtsError(f"잔고 연속조회가 {MAX_BALANCE_PAGES}페이지에서 안 끝났다 "
+                               f"(누적 {len(holdings)}종목) - 부분 잔고를 반환하지 않는다")
         summary = resp.get("output2") or [{}]
         return holdings, summary[0].get("dnca_tot_amt"), summary[0].get("tot_evlu_amt")
 

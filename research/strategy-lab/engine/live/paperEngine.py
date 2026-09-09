@@ -269,13 +269,25 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
 
 def _open_from_fills(pos, today, risk):
     """분할 체결 누적(filled_quantity/entry_cost)을 OPEN 포지션으로 확정한다.
-    entry_price 는 조각들의 가중평균 단가 - stop/target 은 그 위에서 계산한다."""
+    entry_price 는 조각들의 가중평균 단가 - stop/target 은 그 위에서 계산한다.
+
+    ★ stopPct/targetPct 는 선택이다. 가격 기반 청산이 없는 순수 시간청산
+    전략(factor_earnings_yield_v1 등)은 정책에 이 키가 아예 없고, 그때는
+    stop_price/target_price 를 None 으로 둔다 - 없는 값을 0 이나 sentinel 로
+    지어내지 않는다(교훈57). poll_once 의 OPEN 분기가 None 을 건너뛴다.
+
+    이 키를 필수로 읽던 옛 코드는 첫 체결 확인에서 KeyError('stopPct') 로
+    poll_once 전체를 죽였고, 상태가 저장되지 않아 factor_earnings_yield_v1
+    61종목이 실제로는 전량 체결됐는데도 ENTRY_SUBMITTED 로 5거래일(2026-09-04
+    ~09-09) 묶여 있었다.
+    """
     filled = pos.get("filled_quantity", 0)
     entry_price = round(pos.get("entry_cost", 0.0) / filled, 4) if filled else 0.0
+    stop_pct, target_pct = risk.get("stopPct"), risk.get("targetPct")
     return {"status": "OPEN", "quantity": filled, "entry_price": entry_price,
             "entry_date": pos.get("first_fill_date", today),
-            "stop_price": round(entry_price * (1 - risk["stopPct"]), 2),
-            "target_price": round(entry_price * (1 + risk["targetPct"]), 2),
+            "stop_price": round(entry_price * (1 - stop_pct), 2) if stop_pct is not None else None,
+            "target_price": round(entry_price * (1 + target_pct), 2) if target_pct is not None else None,
             "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
             "lastCountedDate": None}
 
@@ -416,9 +428,10 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 except Exception as e:
                     log(f"[{today}] 시세 조회 실패 {symbol}: {e}")
                     continue
-                if price <= pos["stop_price"]:
+                stop_price, target_price = pos.get("stop_price"), pos.get("target_price")
+                if stop_price is not None and price <= stop_price:
                     reason = "STOP"
-                elif price >= pos["target_price"]:
+                elif target_price is not None and price >= target_price:
                     reason = "TARGET"
                 elif pos["sessions_held"] >= pos["max_holding_sessions"]:
                     reason = "TIME_EXIT"
