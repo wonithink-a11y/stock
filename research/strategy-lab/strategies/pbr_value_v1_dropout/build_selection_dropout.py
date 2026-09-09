@@ -51,7 +51,18 @@ REPO_ROOT = os.path.dirname(os.path.dirname(_STRATEGY_LAB_DIR))
 VALUATION_PANEL = os.path.join(REPO_ROOT, "research", "strategy-lab", "reports",
                                 "2026-08-21-a5-valuation-precheck", "valuation-panel.jsonl")
 START = "2016-01-01"
-END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else "2026-08-14"
+def _default_end():
+    """기본 END 는 캘린더의 마지막 거래일. 박힌 날짜를 두면 그 날짜가 지난 뒤
+    조용히 과거까지만 만든다. ★ 이 파일의 산출물은 pbr_value_v1_combined 의
+    baseline 이라(build_selection_combined.py 가 period 를 여기서 읽는다) 여기서
+    한 달 밀리면 라이브 슬리브 하나가 통째로 한 달 밀린다.
+    """
+    with open(os.path.join(REPO_ROOT, "data", "backfill", "calendar.json"),
+              encoding="utf-8") as f:
+        return json.load(f)["tradingDays"][-1]
+
+
+END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else _default_end()
 TOP_N = 30
 N_DROP = 3  # policy.json factor.nDrop과 맞춰야 한다 (문서화만, 코드가 policy.json을 읽지는 않음 - build_selection.py 원본도 그렇다)
 MIN_TURNOVER = 100_000_000.0

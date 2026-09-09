@@ -52,11 +52,25 @@ KST = timezone(timedelta(hours=9))
 # (PF-1.1, 미발효) 의 allocation.gate("게이트를 통과한 슬리브에만 자금을
 # 준다")를 발효시킬 때는 그 게이트가 실계좌 배분에만 걸리고 모의 관측은
 # 예외라는 것을 같이 명시해야 한다 - 지금 상태는 그 문구와 어긋난다.
+# ★ 2026-09-09 - 단기 관측 슬리브 추가(사용자 확인). (전략, 배정자금, 분할일수, 주기)
+# foreign_flow5d_v1 은 **검증을 통과한 전략이 아니다.** 신호 자체는 순수 통계로
+# KEEP(NW t=15.53)이지만 실제 엔진에 연결하니 CAGR -4.26% / Sharpe -0.37 /
+# MDD -38.2% 로 REJECT 됐다(findings/kr-foreign-flow5d-v1-engine-smoke-2026-08.md).
+# 그래도 넣는 이유는 lowmom60_v1 을 REJECT 후에도 남겨 둔 것과 같다 - 모의계좌라
+# 실손실이 0 이고, "기각한 전략이 실제로 어떻게 가는가"가 공짜로 쌓인다. 배정을
+# 5천만원으로 낮춘 건 5억 계좌에서 1억 현금버퍼를 지키기 위해서다(4전략 x 1억 +
+# 이 슬리브 5천만 = 4.5억).
+#
+# 주기 "daily": --as-of latest 로 selection.json 의 최신 리밸런싱일을 스스로 찾고,
+# --fixed-hold 로 is_still_selected 를 넘기지 않는다. 이 전략은 5세션 고정보유가
+# 검증된 계약이라(policy.json risk.maxHoldingSessionsNote) "다음 리밸런싱에도
+# 뽑혔나"로 청산하면 다음 날 대부분 빠져서 계약이 깨진다.
 STRATEGIES = [
-    ("pbr_value_v1", 100_000_000, 1),
-    ("lowmom60_v1", 100_000_000, 1),
-    ("pbr_value_v1_combined", 100_000_000, 1),
-    ("factor_earnings_yield_v1", 100_000_000, 1),
+    ("pbr_value_v1", 100_000_000, 1, "monthly"),
+    ("lowmom60_v1", 100_000_000, 1, "monthly"),
+    ("pbr_value_v1_combined", 100_000_000, 1, "monthly"),
+    ("factor_earnings_yield_v1", 100_000_000, 1, "monthly"),
+    ("foreign_flow5d_v1", 50_000_000, 1, "daily"),
 ]
 
 
@@ -85,15 +99,22 @@ def main():
         _selftest()
         return
 
-    as_of = this_month_rebalance_date()
-    if as_of is None:
-        print("이번 달 거래일이 캘린더에 없음 - 스킵")
-        return
+    month_as_of = this_month_rebalance_date()
+    if month_as_of is None:
+        # ★ 월간 전략만 멈춘다. 예전에는 여기서 return 해서 일별 전략은 물론
+        # **모든 전략의 청산·체결확인까지** 멈췄다 - 캘린더가 그 달 첫 거래일을
+        # 아직 모르는 매월 1일 아침이 정확히 그 상태다.
+        print("이번 달 거래일이 캘린더에 없음 - 월간 전략만 스킵(일별은 계속)")
 
-    for strategy, capital, slices in STRATEGIES:
+    for strategy, capital, slices, cadence in STRATEGIES:
+        as_of = "latest" if cadence == "daily" else month_as_of
+        if as_of is None:
+            continue
         cmd = [sys.executable, os.path.join(_THIS_DIR, "run_monthly_rebalance.py"),
                "--strategy", strategy, "--as-of", as_of, "--capital", str(capital),
                "--entry-slices", str(slices)]
+        if cadence == "daily":
+            cmd.append("--fixed-hold")
         if not args.dry_run:
             cmd.append("--enable-live-orders")
         print(f"=== {strategy} ({as_of}) ===")

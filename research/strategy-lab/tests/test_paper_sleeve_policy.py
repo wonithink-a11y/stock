@@ -21,6 +21,10 @@ EXPECTED_MAX_POSITIONS = {
     "lowmom60_v1": 30,
     "pbr_value_v1_combined": 30,
     "factor_earnings_yield_v1": 30,
+    # 단기 관측 슬리브(2026-09-09). 검증 통과 전략이 아니다 - 엔진 스모크에서
+    # CAGR -4.26% 로 REJECT 됐고, "기각한 게 실제로 어떻게 가는가"를 보려고 둔다.
+    # 슬롯예산 5천만/30 = 166만원.
+    "foreign_flow5d_v1": 30,
 }
 
 

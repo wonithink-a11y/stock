@@ -34,7 +34,17 @@ from engine.runner import _drop_suspension_rows  # noqa: E402
 REPO_ROOT = os.path.dirname(os.path.dirname(_STRATEGY_LAB_DIR))
 A4_DIR = os.path.join(REPO_ROOT, "data", "backfill", "supplyDemand", "a4")
 START = "2016-01-01"
-END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else "2026-08-03"
+def _default_end():
+    """기본 END 는 캘린더의 마지막 거래일. 박힌 날짜를 기본값으로 두면 그 날짜가
+    지난 뒤 조용히 과거까지만 만든다 - 일별 전략이라 하루만 밀려도 어제 신호로
+    오늘 사게 된다(월별보다 훨씬 빨리 틀어진다).
+    """
+    with open(os.path.join(REPO_ROOT, "data", "backfill", "calendar.json"),
+              encoding="utf-8") as f:
+        return json.load(f)["tradingDays"][-1]
+
+
+END = sys.argv[sys.argv.index("--end") + 1] if "--end" in sys.argv else _default_end()
 TOP_N = 30
 MIN_TURNOVER = 100_000_000.0
 HOLD_SESSIONS = 5

@@ -23,6 +23,9 @@ LIVE_BUILDERS = [
     "strategies/pbr_value_v1/build_selection.py",
     "strategies/lowmom60_v1/build_selection.py",
     "build_factor_selection.py",
+    "strategies/foreign_flow5d_v1/build_selection.py",   # 단기 관측 슬리브(일별)
+    # combined 의 baseline - 여기가 밀리면 combined 도 같이 밀린다
+    "strategies/pbr_value_v1_dropout/build_selection_dropout.py",
 ]
 FROZEN_DATE_DEFAULT = re.compile(r'^END\s*=.*else\s*"\d{4}-\d{2}-\d{2}"', re.M)
 
