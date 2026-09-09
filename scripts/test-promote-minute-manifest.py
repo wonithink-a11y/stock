@@ -57,6 +57,15 @@ def good_day(date, transport, osmod, n_parts=2):
     return man
 
 
+def closed_day(date, transport, verdict="CLOSED_CONFIRMED", rows=0):
+    """휴장일. 수집기는 acceptance를 통과시키되 조각을 만들지 않는다."""
+    man = {"date": date, "acceptancePassed": True, "parts": [],
+           "rows": rows, "sha256": None, "dayVerdict": verdict}
+    transport.objects["_manifest/" + date + ".json"] = (
+        json.dumps(man, ensure_ascii=False).encode("utf-8"))
+    return man
+
+
 def run_all():
     M = load("promote-minute-manifest")
     osmod = load("oci-object-storage")
@@ -117,7 +126,58 @@ def run_all():
         check("이미 승격된 날짜(2026-08-27)를 건너뛴다",
               len(list(mandir.glob("*.json"))) == 1)
 
-        # 8 combined_sha가 collect-minute-kis.py와 정확히 같은 알고리즘
+        # 8 휴장일 - 조각이 없는 것이 정상이다. 거부가 아니라 승격이다.
+        #   (거부하면 백로그에 영원히 남아 매 실행을 붉게 만든다. 실제로
+        #    2026-08-17이 5회 연속 job을 붉게 만들었다)
+        tr6 = osmod.FakeOciTransport()
+        closed_day("2026-08-17", tr6)
+        ok, why, man = M.verify_day(tr6, "2026-08-17")
+        check("휴장일(CLOSED_CONFIRMED)이 통과한다", ok and why is None, why)
+        tr6b = osmod.FakeOciTransport()
+        closed_day("2026-08-17", tr6b, verdict="CLOSED_INFERRED")
+        ok, why, _ = M.verify_day(tr6b, "2026-08-17")
+        check("휴장일(CLOSED_INFERRED)이 통과한다", ok and why is None, why)
+
+        # 9 UNKNOWN은 휴장이 아니다 - 장애와 휴장을 구분 못 한 상태다(교훈57)
+        tr7 = osmod.FakeOciTransport()
+        closed_day("2026-08-20", tr7, verdict="UNKNOWN")
+        ok, why, _ = M.verify_day(tr7, "2026-08-20")
+        check("dayVerdict=UNKNOWN + 조각 없음은 여전히 거부된다",
+              not ok and "parts" in why, why)
+        tr7b = osmod.FakeOciTransport()
+        closed_day("2026-08-21", tr7b, verdict=None)
+        ok, why, _ = M.verify_day(tr7b, "2026-08-21")
+        check("dayVerdict 없음 + 조각 없음은 여전히 거부된다",
+              not ok and "parts" in why, why)
+
+        # 10 휴장이라면서 rows가 있다 - 모순이다. 통과시키지 않는다
+        tr8 = osmod.FakeOciTransport()
+        closed_day("2026-08-22", tr8, rows=17)
+        ok, why, _ = M.verify_day(tr8, "2026-08-22")
+        check("CLOSED_*인데 rows>0인 모순은 거부된다",
+              not ok and "parts" in why, why)
+
+        # 11 run() — 휴장일도 파일로 남고(다시 안 본다) job은 붉어지지 않는다
+        tr9 = osmod.FakeOciTransport()
+        good_day("2026-08-18", tr9, osmod)
+        closed_day("2026-08-17", tr9)
+        mandir2 = tmp / "manifest2"
+        code = M.run(tr9, mandir2, out=lambda s: None)
+        check("휴장일만 섞인 실행의 exit code가 0", code == 0, code)
+        check("휴장일이 manifest 파일로 남는다",
+              (mandir2 / "2026-08-17.json").exists()
+              and (mandir2 / "2026-08-18.json").exists(),
+              list(mandir2.glob("*.json")))
+        written = json.loads((mandir2 / "2026-08-17.json").read_text("utf-8"))
+        check("남은 휴장 manifest가 rows=0·dayVerdict를 그대로 담는다",
+              written["rows"] == 0
+              and written["dayVerdict"] == "CLOSED_CONFIRMED", written)
+        M.run(tr9, mandir2, out=lambda s: None)
+        check("휴장일이 백로그에서 빠진다(재실행해도 다시 안 본다)",
+              len(list(mandir2.glob("*.json"))) == 2,
+              list(mandir2.glob("*.json")))
+
+        # 12 combined_sha가 collect-minute-kis.py와 정확히 같은 알고리즘
         kismod = load("collect-minute-kis")
         sample = [{"name": "b.parquet", "sha256": "22"},
                   {"name": "a.parquet", "sha256": "11"}]

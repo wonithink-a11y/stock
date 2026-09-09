@@ -31,6 +31,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_BUCKET = "stock-minute-manifest"
 
+# collect-minute-kis.py의 day_verdict()가 내는 값 중 '장이 안 섰다'를
+# 뜻하는 것. UNKNOWN은 여기 없다 - 그것은 장애와 휴장을 구분하지 못한
+# 상태이지 휴장이 아니다.
+CLOSED_VERDICTS = ("CLOSED_CONFIRMED", "CLOSED_INFERRED")
+
 
 def load_module(name):
     spec = importlib.util.spec_from_file_location(
@@ -81,6 +86,19 @@ def verify_day(transport, date):
 
     parts = man.get("parts") or []
     if not parts:
+        # 휴장일은 조각이 없는 것이 정상이다. 그 경계는 수집기가 이미
+        # 갈라 뒀다(교훈75) - '조회했더니 장이 안 섰다'(CLOSED_*)와
+        # '조회하지 못했다'(UNKNOWN)는 다르다. 후자는 여전히 거부다:
+        # 모르는 것은 0이 아니다(교훈57).
+        #
+        # 거부가 아니라 승격으로 보내는 이유: 거부하면 이 날짜가
+        # 백로그에 영원히 남아 매 실행을 붉게 만든다. 영원히 참인
+        # 경고는 모두가 무시하는 법을 배운다 - 실제로 2026-08-17
+        # (광복절 대체공휴일)이 5회 연속 job을 붉게 만들었다. manifest를
+        # 쓰면 저장소가 "그날은 봤고 장이 안 섰다"를 기록한다 - 날짜가
+        # 아예 없는 것과 구분된다(교훈75).
+        if man.get("dayVerdict") in CLOSED_VERDICTS and not man.get("rows"):
+            return True, None, man
         return False, "parts가 비었다", man
 
     computed, total_rows = [], 0
@@ -127,21 +145,26 @@ def run(transport, manifest_dir, days=None, out=print):
         return 0
 
     Path(manifest_dir).mkdir(parents=True, exist_ok=True)
-    promoted, failed = [], []
+    promoted, closed, failed = [], [], []
     for d in todo:
         ok, why, man = verify_day(transport, d)
         if ok:
             (Path(manifest_dir) / (d + ".json")).write_text(
                 json.dumps(man, ensure_ascii=False, indent=2) + "\n",
                 encoding="utf-8")
-            promoted.append(d)
-            out("  " + d + "  승격  rows=" + str(man.get("rows")))
+            if man.get("parts"):
+                promoted.append(d)
+                out("  " + d + "  승격  rows=" + str(man.get("rows")))
+            else:
+                closed.append(d)
+                out("  " + d + "  휴장  " + str(man.get("dayVerdict")))
         else:
             failed.append((d, why))
             out("  " + d + "  거부  " + why)
 
     out("")
-    out("  승격 %d · 거부 %d" % (len(promoted), len(failed)))
+    out("  승격 %d · 휴장 %d · 거부 %d"
+        % (len(promoted), len(closed), len(failed)))
     return 1 if failed else 0
 
 
