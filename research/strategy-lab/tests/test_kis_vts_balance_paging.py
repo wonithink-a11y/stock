@@ -45,7 +45,7 @@ def _client():
     return c
 
 
-def _install_pages(pages):
+def _install_pages(pages, bodies=None):
     """pages: [(output1, tr_cont)] 순서대로 돌려준다. 요청 params를 기록한다."""
     seen = []
     orig = kis_vts.requests.request
@@ -55,6 +55,8 @@ def _install_pages(pages):
     def fake_request(method, url, **kw):
         i = len(seen)
         seen.append({"params": dict(kw.get("params") or {}), "headers": dict(kw.get("headers") or {})})
+        if bodies and i < len(bodies):
+            return _FakeResp(bodies[i], {"tr_cont": "F"})
         rows, cont = pages[min(i, len(pages) - 1)]
         return _FakeResp(
             {"rt_cd": "0", "output1": rows,
@@ -123,9 +125,46 @@ def test_page_cap_raises_instead_of_returning_partial():
         kis_vts.MAX_BALANCE_PAGES = orig_cap
 
 
+
+def test_egw00201_is_retried_not_raised():
+    """★ 2026-09-09. 유량 제한은 **계좌 단위**라 이 프로세스의 리미터로는 못
+    막는다 - VM 의 10분 폴링과 Actions 의 UI 빌드가 같은 모의계좌를 동시에 친다.
+    연속조회로 요청이 1회에서 6회로 늘면서 실제로 걸렸다(Actions 로그:
+    "잔고 조회 실패(page 2): EGW00201"). 그 결과 계좌 정보 없이 UI 가 만들어져
+    전략별 평가금액이 전부 0 으로 나갔다. EGW00201 은 재시도한다
+    (CLAUDE.md 수집 VM 운영 기준 3 의 분류 그대로)."""
+    throttled = {"rt_cd": "1", "msg_cd": "EGW00201", "msg1": "초당 거래건수를 초과하였습니다."}
+    seen, restore = _install_pages([(_rows(3, 100), "D")], bodies=[throttled, throttled])
+    orig_sleep = kis_vts.time.sleep
+    kis_vts.time.sleep = lambda s: None          # 테스트를 느리게 만들지 않는다
+    try:
+        holdings, _, _ = _client().inquire_balance()
+    finally:
+        kis_vts.time.sleep = orig_sleep
+        restore()
+    ok("스로틀을 넘기고 결과를 낸다", len(holdings) == 3, len(holdings))
+    ok("두 번 재시도했다", len(seen) == 3, len(seen))
+
+
+def test_non_retryable_error_still_raises():
+    """재시도 목록에 없는 오류는 그대로 올린다 - 전부 재시도하면 진짜 실패가
+    3배 느리게 같은 실패를 낸다."""
+    bad = {"rt_cd": "1", "msg_cd": "40910000", "msg1": "모의투자 주문이 불가한 계좌입니다."}
+    seen, restore = _install_pages([(_rows(3, 100), "D")], bodies=[bad])
+    try:
+        _client().inquire_balance()
+        ok("재시도 불가 오류는 예외", False, "예외가 안 났다")
+    except kis_vts.KisVtsError as e:
+        ok("재시도 불가 오류는 예외", "40910000" in str(e), str(e))
+        ok("재시도하지 않았다", len(seen) == 1, len(seen))
+    finally:
+        restore()
+
+
 if __name__ == "__main__":
     for fn in (test_follows_tr_cont_until_done, test_zero_quantity_rows_still_filtered,
-               test_single_page_does_not_paginate, test_page_cap_raises_instead_of_returning_partial):
+               test_single_page_does_not_paginate, test_page_cap_raises_instead_of_returning_partial,
+               test_egw00201_is_retried_not_raised, test_non_retryable_error_still_raises):
         fn()
     print(f"test_kis_vts_balance_paging: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

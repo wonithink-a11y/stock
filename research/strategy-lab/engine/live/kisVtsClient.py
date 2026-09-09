@@ -94,6 +94,32 @@ def _request(method, url, **kwargs):
     return requests.request(method, url, **kwargs)
 
 
+# 계좌 단위 유량 제한이라 _RATE_LIMITER(프로세스 지역)로는 못 막는 경합이 있다 -
+# VM 의 10분 폴링과 GitHub Actions 의 UI 빌드가 **같은 모의계좌**를 동시에 친다.
+# EGW00201(초당 거래건수 초과)은 그 경합의 이름이고, CLAUDE.md 수집 VM 운영 기준 3
+# 이 이미 "재시도 가능"으로 분류해 둔 코드다. 잔고 연속조회가 요청 1회에서 6회로
+# 늘면서 실제로 걸렸다(2026-09-09, Actions: "잔고 조회 실패(page 2): EGW00201").
+_RETRYABLE = {"EGW00201"}
+
+
+def _call(method, url, label, retries=3, **kwargs):
+    """rt_cd 검사까지 하는 읽기 전용 호출. (response, body) 반환.
+
+    ★ 주문(order_cash)에는 쓰지 않는다. EGW00201 이 "접수 전에 막혔다"는 뜻인지
+    확신할 수 없고, 확신 없이 주문을 재시도하면 중복 매수의 대가가 조회 실패보다
+    훨씬 크다. 조회는 다시 물으면 그만이다.
+    """
+    for attempt in range(retries):
+        r = _request(method, url, **kwargs)
+        resp = r.json()
+        if r.status_code == 200 and resp.get("rt_cd") == "0":
+            return r, resp
+        if resp.get("msg_cd") in _RETRYABLE and attempt < retries - 1:
+            time.sleep(_RATE_LIMITER.min_interval_sec * (attempt + 1))
+            continue
+        raise KisVtsError(f"{label}: {resp.get('msg_cd')} {resp.get('msg1')}")
+
+
 def _load_env():
     env = {}
     p = REPO_ROOT / ".env"
@@ -211,12 +237,8 @@ class KisVtsClient:
         holdings = []
         headers = self._headers(TR_BALANCE)
         for page in range(1, MAX_BALANCE_PAGES + 1):
-            r = _request("GET", BASE_URL + PATH_BALANCE, headers=headers,
-                          params=params, timeout=20)
-            resp = r.json()
-            if r.status_code != 200 or resp.get("rt_cd") != "0":
-                raise KisVtsError(f"잔고 조회 실패(page {page}): "
-                                   f"{resp.get('msg_cd')} {resp.get('msg1')}")
+            r, resp = _call("GET", BASE_URL + PATH_BALANCE, f"잔고 조회 실패(page {page})",
+                             headers=headers, params=params, timeout=20)
             holdings += [h for h in resp.get("output1", []) if h.get("hldg_qty", "0") != "0"]
             if r.headers.get("tr_cont") not in ("F", "M"):
                 break
@@ -236,11 +258,8 @@ class KisVtsClient:
         구분이 없는 공개 엔드포인트라 TR_ID가 하나뿐이다 - 그래도 호출은
         항상 BASE_URL(모의투자 도메인)로만 나간다."""
         params = {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": symbol}
-        r = _request("GET", BASE_URL + PATH_PRICE, headers=self._headers(TR_PRICE),
-                      params=params, timeout=20)
-        resp = r.json()
-        if r.status_code != 200 or resp.get("rt_cd") != "0":
-            raise KisVtsError(f"시세 조회 실패({symbol}): {resp.get('msg_cd')} {resp.get('msg1')}")
+        _, resp = _call("GET", BASE_URL + PATH_PRICE, f"시세 조회 실패({symbol})",
+                         headers=self._headers(TR_PRICE), params=params, timeout=20)
         return float(resp["output"]["stck_prpr"])
 
     def get_order_status(self, order_no, order_date_yyyymmdd, requested_qty):
@@ -257,11 +276,9 @@ class KisVtsClient:
             "ODNO": order_no, "INQR_DVSN_1": "",
             "CTX_AREA_FK100": "", "CTX_AREA_NK100": "", "EXCG_ID_DVSN_CD": "KRX",
         }
-        r = _request("GET", BASE_URL + "/uapi/domestic-stock/v1/trading/inquire-daily-ccld",
-                      headers=self._headers("VTTC0081R"), params=params, timeout=20)
-        resp = r.json()
-        if r.status_code != 200 or resp.get("rt_cd") != "0":
-            raise KisVtsError(f"체결조회 실패(주문번호 {order_no}): {resp.get('msg_cd')} {resp.get('msg1')}")
+        _, resp = _call("GET", BASE_URL + "/uapi/domestic-stock/v1/trading/inquire-daily-ccld",
+                         f"체결조회 실패(주문번호 {order_no})",
+                         headers=self._headers("VTTC0081R"), params=params, timeout=20)
         rows = [row for row in resp.get("output1", []) if row.get("odno") == order_no]
         if not rows:
             # 접수 직후라 아직 조회에 안 잡힐 수 있다 - 실패가 아니라 "아직 모름".
