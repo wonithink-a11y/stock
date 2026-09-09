@@ -42,7 +42,10 @@ jobs:
         with:
           node-version: '20'
       - name: Install deps
-        run: pip install --quiet pandas numpy pytest
+        # pyarrow: A2aProvider 가 로드한 일봉을 parquet 로 캐시한다
+        # (engine/data/a2aProvider.py _write_cache) - 없으면 첫 빌더에서 죽는다.
+        # CLAUDE.md '로컬 실행'의 의존성 목록과 같은 이유다.
+        run: pip install --quiet pandas numpy pyarrow pytest
 
       # 계약을 먼저 건다. 갱신 스크립트가 policy.json 을 재생성하는 경로가 있고
       # (build_factor_selection.py), 2026-09-04 에 그게 maxPositions 를 30 -> 200 으로
