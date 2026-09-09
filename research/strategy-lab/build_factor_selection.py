@@ -14,7 +14,9 @@ import pandas as pd
 # Paths
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LAB = os.path.join(REPO_ROOT, "research", "strategy-lab")
-A4_PATH = os.path.join(LAB, "data", "a4", "a4-research-dataset.parquet")
+A4_PATH = os.path.join(LAB, "data", "a4", "a4-research-dataset.parquet")   # 참고용 - 더는 안 읽는다
+A4_RAW_DIR = os.path.join(REPO_ROOT, "data", "backfill", "supplyDemand", "a4")
+A2A_DIR = os.path.join(REPO_ROOT, "data", "backfill", "price", "a2a")
 QUALITY_PANEL = os.path.join(LAB, "reports", "2026-08-21-buffett-quality-precheck", "quality-panel.jsonl")
 VALUATION_PANEL = os.path.join(LAB, "reports", "2026-08-21-a5-valuation-precheck", "valuation-panel.jsonl")
 A1A_PATH = os.path.join(REPO_ROOT, "data", "backfill", "universe", "a1a", "current.jsonl")
@@ -236,9 +238,56 @@ def period_of(d):
         return "TEST"
 
 
+
+def _read_gz_jsonl(path):
+    import gzip
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                yield json.loads(line)
+
+
+def load_a4_slice():
+    """factor 선택에 필요한 5개 컬럼만 **커밋된 원자료에서 직접** 만든다.
+
+    ★ 왜 바꿨나 (2026-09-09)
+    예전에는 a4-research-dataset.parquet(958MB, gitignore 대상)에서
+    columns=["ticker","date","close","total_amount","total_volume"] 로 5개만
+    읽었다. 라이브 슬리브의 selection 을 만들려고 연구용 파생 산출물 1GB 를
+    통째로 다시 만들어야 했고, GitHub 호스티드 러너에서 두 번 죽었다
+    (CI 5회차 "The operation was canceled", 6회차 exit 143 = SIGTERM, 약 35분).
+
+    5개 컬럼은 전부 저장소에 커밋된 원자료에서 나온다:
+        close          A2a 수정주가 (data/backfill/price/a2a)
+        total_amount   A4 buyAmount["전체"]  (data/backfill/supplyDemand/a4)
+        total_volume   A4 buyVolume["전체"]  - 이 스크립트는 실제로 안 쓴다.
+                       예전 read_parquet 의 columns 목록에 있었을 뿐이라 형태만 맞춘다.
+
+    build_a4_research_dataset.py 의 해당 부분을 그대로 옮겼다 - 같은 필드,
+    같은 결측 규칙(close 가 없거나 <= 0 이면 그 행을 버린다). 전략 로직은
+    건드리지 않았고, 산출물이 이전 경로와 **바이트 동일**함을 대조로 확인했다.
+    """
+    import glob
+    close_by = {}
+    for path in sorted(glob.glob(os.path.join(A2A_DIR, "[0-9][0-9][0-9][0-9].jsonl.gz"))):
+        for rec in _read_gz_jsonl(path):
+            close_by.setdefault(rec["ticker"], {})[rec["date"]] = rec["close"]
+
+    rows = []
+    for path in sorted(glob.glob(os.path.join(A4_RAW_DIR, "[0-9][0-9][0-9][0-9].jsonl.gz"))):
+        for rec in _read_gz_jsonl(path):
+            t, d = rec["ticker"], rec["date"]
+            c = close_by.get(t, {}).get(d)
+            if c is None or c <= 0:          # build_a4_research_dataset.py 의 n_no_close 규칙
+                continue
+            rows.append((t, d, float(c),
+                          rec["buyAmount"].get("전체", 0), rec["buyVolume"].get("전체", 0)))
+    return pd.DataFrame(rows, columns=["ticker", "date", "close", "total_amount", "total_volume"])
+
+
 def main():
-    print("Loading A4 ...", flush=True)
-    df = pd.read_parquet(A4_PATH, columns=["ticker", "date", "close", "total_amount", "total_volume"])
+    print("Loading A4 (원자료에서 직접) ...", flush=True)
+    df = load_a4_slice()
     df = df.drop_duplicates(subset=["ticker", "date"], keep="last")
     df["date"] = df["date"].astype(str)
     df = df.sort_values(["ticker", "date"]).reset_index(drop=True)

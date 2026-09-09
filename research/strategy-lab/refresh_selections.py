@@ -50,11 +50,6 @@ STEPS = [
     ("pbr_value_v1_combined", "python",
      "research/strategy-lab/strategies/pbr_value_v1_combined/build_selection_combined.py", False),
     ("lowmom60_v1", "python", "research/strategy-lab/strategies/lowmom60_v1/build_selection.py", True),
-    # ★ build_factor_selection.py 는 research/strategy-lab/data/a4/의 파생 데이터셋
-    # (958MB, gitignore 대상)을 읽는다. 저장소에 없으므로 CI 에서는 먼저 만들어야
-    # 한다 - 로컬에는 이미 있어서 이 의존이 안 보였고, CI 4회차에서 드러났다
-    # (FileNotFoundError: a4-research-dataset.parquet).
-    ("a4-research-dataset", "python", "research/strategy-lab/build_a4_research_dataset.py", False),
     ("factor_earnings_yield_v1", "python", "research/strategy-lab/build_factor_selection.py", True),
     ("foreign_flow5d_v1", "python",
      "research/strategy-lab/strategies/foreign_flow5d_v1/build_selection.py", True),
@@ -159,12 +154,6 @@ def main():
     t0 = time.time()
     for label, runner, rel, takes_end in STEPS:
         if only and label not in only:
-            continue
-        if label == "a4-research-dataset" and os.path.exists(os.path.join(
-                REPO_ROOT, "research", "strategy-lab", "data", "a4",
-                "a4-research-dataset.parquet")):
-            print(f"\n=== {label} ===\n"
-                  "  이미 있음 - 건너뜀(958MB). 원자료가 바뀌면 지우고 다시 돌린다.")
             continue
         exe = sys.executable if runner == "python" else "node"
         cmd = [exe, os.path.join(REPO_ROOT, rel)]
