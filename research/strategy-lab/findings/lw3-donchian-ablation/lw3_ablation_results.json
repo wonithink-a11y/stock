@@ -1,0 +1,432 @@
+{
+  "generatedAt": "2026-09-10T01:26:17+09:00",
+  "strategyId": "lw3_donchian_v1",
+  "window": {
+    "start": "2016-01-01",
+    "end": "2026-08-14"
+  },
+  "accounting": "monthly mark-to-market (pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm)",
+  "results": [
+    {
+      "variant": "A_donchian",
+      "label": "A  돈치안20 돌파만",
+      "overrides": {
+        "filters.volume": false,
+        "filters.lwti": false
+      },
+      "signalCount": 149279,
+      "portfolioEligibleTradeCount": 92512,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 92512,
+        "avgReturnNet": -0.00184,
+        "medianReturnNet": -0.05754,
+        "winRate": 0.36,
+        "profitFactor": 0.9734,
+        "avgWin": 0.18739,
+        "avgLoss": -0.10827,
+        "avgHoldingSessions": 27.6,
+        "tStat": -3.308,
+        "exitTypeCounts": {
+          "TIME_EXIT": 8316,
+          "STOP": 55259,
+          "TARGET": 28937
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 50686915,
+        "totalReturn": -0.4931,
+        "cagr": -0.0622,
+        "mdd": -0.5814,
+        "sharpe": -0.2747
+      },
+      "annualReturnsMTM": {
+        "2016": 0.0541,
+        "2017": -0.0445,
+        "2018": -0.1017,
+        "2019": -0.0513,
+        "2020": 0.0624,
+        "2021": 0.0719,
+        "2022": -0.2221,
+        "2023": 0.0424,
+        "2024": -0.2026,
+        "2025": 0.1986,
+        "2026": -0.331
+      },
+      "tradeStats": {
+        "tradeCount": 1697,
+        "winRate": 0.3424,
+        "avgWin": 811401.4904,
+        "avgLoss": -466610.5298,
+        "winLossRatio": 1.7389,
+        "profitFactor": 0.9053,
+        "expectancy": -29058.9778,
+        "avgHoldingPeriod": 22.4555,
+        "maxConsecutiveWins": 10,
+        "maxConsecutiveLosses": 32
+      },
+      "avgTradeReturn": -0.0063,
+      "exitTypeCounts": {
+        "TARGET": 513,
+        "STOP": 1052,
+        "TIME_EXIT": 132
+      },
+      "closedPositionCount": 1697,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 586.7
+    },
+    {
+      "variant": "B_donchian_volume",
+      "label": "B  + 거래량MA20",
+      "overrides": {
+        "filters.volume": true,
+        "filters.lwti": false
+      },
+      "signalCount": 133009,
+      "portfolioEligibleTradeCount": 87189,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 87189,
+        "avgReturnNet": -0.00232,
+        "medianReturnNet": -0.05908,
+        "winRate": 0.3578,
+        "profitFactor": 0.9668,
+        "avgWin": 0.1884,
+        "avgLoss": -0.10858,
+        "avgHoldingSessions": 27.5,
+        "tStat": -4.048,
+        "exitTypeCounts": {
+          "TARGET": 27123,
+          "STOP": 52240,
+          "TIME_EXIT": 7826
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 77174601,
+        "totalReturn": -0.2283,
+        "cagr": -0.0242,
+        "mdd": -0.498,
+        "sharpe": -0.0364
+      },
+      "annualReturnsMTM": {
+        "2016": 0.0828,
+        "2017": 0.1149,
+        "2018": -0.0116,
+        "2019": -0.0578,
+        "2020": 0.0789,
+        "2021": -0.0468,
+        "2022": -0.1746,
+        "2023": 0.0567,
+        "2024": -0.0444,
+        "2025": 0.2884,
+        "2026": -0.3785
+      },
+      "tradeStats": {
+        "tradeCount": 1727,
+        "winRate": 0.3422,
+        "avgWin": 1143962.0387,
+        "avgLoss": -615235.003,
+        "winLossRatio": 1.8594,
+        "profitFactor": 0.9673,
+        "expectancy": -13216.7913,
+        "avgHoldingPeriod": 22.0625,
+        "maxConsecutiveWins": 12,
+        "maxConsecutiveLosses": 25
+      },
+      "avgTradeReturn": -0.0015,
+      "exitTypeCounts": {
+        "TARGET": 525,
+        "STOP": 1070,
+        "TIME_EXIT": 132
+      },
+      "closedPositionCount": 1727,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 515.1
+    },
+    {
+      "variant": "D_three_slope",
+      "label": "D  + LWTI(slope)  = 3박자",
+      "overrides": {
+        "filters.volume": true,
+        "filters.lwti": true
+      },
+      "signalCount": 125564,
+      "portfolioEligibleTradeCount": 84225,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 84225,
+        "avgReturnNet": -0.00251,
+        "medianReturnNet": -0.05979,
+        "winRate": 0.3575,
+        "profitFactor": 0.9644,
+        "avgWin": 0.18988,
+        "avgLoss": -0.10957,
+        "avgHoldingSessions": 27.6,
+        "tStat": -4.282,
+        "exitTypeCounts": {
+          "STOP": 50444,
+          "TIME_EXIT": 7668,
+          "TARGET": 26113
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 59590336,
+        "totalReturn": -0.4041,
+        "cagr": -0.0477,
+        "mdd": -0.4355,
+        "sharpe": -0.1725
+      },
+      "annualReturnsMTM": {
+        "2016": -0.0934,
+        "2017": 0.0384,
+        "2018": -0.0935,
+        "2019": -0.12,
+        "2020": 0.1403,
+        "2021": -0.0049,
+        "2022": -0.2148,
+        "2023": 0.113,
+        "2024": -0.0857,
+        "2025": 0.2313,
+        "2026": -0.2893
+      },
+      "tradeStats": {
+        "tradeCount": 1684,
+        "winRate": 0.345,
+        "avgWin": 796973.6776,
+        "avgLoss": -456438.2327,
+        "winLossRatio": 1.7461,
+        "profitFactor": 0.9197,
+        "expectancy": -23996.2375,
+        "avgHoldingPeriod": 22.6039,
+        "maxConsecutiveWins": 10,
+        "maxConsecutiveLosses": 30
+      },
+      "avgTradeReturn": -0.004,
+      "exitTypeCounts": {
+        "STOP": 1043,
+        "TARGET": 511,
+        "TIME_EXIT": 130
+      },
+      "closedPositionCount": 1684,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 470.6
+    },
+    {
+      "variant": "D_three_midline",
+      "label": "D' LWTI 색상규칙을 midline 으로",
+      "overrides": {
+        "filters.volume": true,
+        "filters.lwti": true,
+        "indicators.lwti.colorRule": "midline"
+      },
+      "signalCount": 125271,
+      "portfolioEligibleTradeCount": 82270,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 82270,
+        "avgReturnNet": -0.00301,
+        "medianReturnNet": -0.06043,
+        "winRate": 0.3561,
+        "profitFactor": 0.9577,
+        "avgWin": 0.1912,
+        "avgLoss": -0.11041,
+        "avgHoldingSessions": 27.8,
+        "tStat": -5.046,
+        "exitTypeCounts": {
+          "TARGET": 25407,
+          "STOP": 49292,
+          "TIME_EXIT": 7571
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 65400697,
+        "totalReturn": -0.346,
+        "cagr": -0.0393,
+        "mdd": -0.4643,
+        "sharpe": -0.1431
+      },
+      "annualReturnsMTM": {
+        "2016": -0.0302,
+        "2017": 0.045,
+        "2018": -0.0833,
+        "2019": -0.0276,
+        "2020": 0.0992,
+        "2021": 0.046,
+        "2022": -0.1165,
+        "2023": 0.1371,
+        "2024": -0.1609,
+        "2025": 0.1849,
+        "2026": -0.3697
+      },
+      "tradeStats": {
+        "tradeCount": 1645,
+        "winRate": 0.3392,
+        "avgWin": 998374.069,
+        "avgLoss": -544334.8977,
+        "winLossRatio": 1.8341,
+        "profitFactor": 0.9415,
+        "expectancy": -21033.0111,
+        "avgHoldingPeriod": 23.1502,
+        "maxConsecutiveWins": 10,
+        "maxConsecutiveLosses": 37
+      },
+      "avgTradeReturn": -0.0033,
+      "exitTypeCounts": {
+        "TARGET": 492,
+        "STOP": 1022,
+        "TIME_EXIT": 131
+      },
+      "closedPositionCount": 1645,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 537.0
+    },
+    {
+      "variant": "D_three_transition",
+      "label": "D\" LWTI 를 당일 전환으로 (엄격)",
+      "overrides": {
+        "filters.volume": true,
+        "filters.lwti": true,
+        "signal.lwtiMode": "transition"
+      },
+      "signalCount": 45362,
+      "portfolioEligibleTradeCount": 37382,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 37382,
+        "avgReturnNet": -0.00423,
+        "medianReturnNet": -0.06158,
+        "winRate": 0.3511,
+        "profitFactor": 0.9406,
+        "avgWin": 0.19101,
+        "avgLoss": -0.10986,
+        "avgHoldingSessions": 27.8,
+        "tStat": -4.829,
+        "exitTypeCounts": {
+          "STOP": 22682,
+          "TIME_EXIT": 3324,
+          "TARGET": 11376
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 29963768,
+        "totalReturn": -0.7004,
+        "cagr": -0.1076,
+        "mdd": -0.7235,
+        "sharpe": -0.6672
+      },
+      "annualReturnsMTM": {
+        "2016": -0.0838,
+        "2017": -0.1142,
+        "2018": -0.0966,
+        "2019": -0.1211,
+        "2020": 0.0777,
+        "2021": 0.0516,
+        "2022": -0.3148,
+        "2023": -0.0304,
+        "2024": -0.1616,
+        "2025": 0.0938,
+        "2026": -0.3265
+      },
+      "tradeStats": {
+        "tradeCount": 1508,
+        "winRate": 0.3243,
+        "avgWin": 620455.3043,
+        "avgLoss": -366475.8345,
+        "winLossRatio": 1.693,
+        "profitFactor": 0.8125,
+        "expectancy": -46443.1244,
+        "avgHoldingPeriod": 25.1008,
+        "maxConsecutiveWins": 11,
+        "maxConsecutiveLosses": 27
+      },
+      "avgTradeReturn": -0.0145,
+      "exitTypeCounts": {
+        "STOP": 953,
+        "TARGET": 424,
+        "TIME_EXIT": 131
+      },
+      "closedPositionCount": 1508,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 446.2
+    },
+    {
+      "variant": "E_no_target",
+      "label": "E  D에서 2:1 익절 제거 (손절·시간청산만)",
+      "overrides": {
+        "filters.volume": true,
+        "filters.lwti": true,
+        "risk.rewardRisk": 1000000000.0
+      },
+      "signalCount": 125564,
+      "portfolioEligibleTradeCount": 64948,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 64948,
+        "avgReturnNet": -0.00572,
+        "medianReturnNet": -0.06706,
+        "winRate": 0.2372,
+        "profitFactor": 0.9226,
+        "avgWin": 0.28724,
+        "avgLoss": -0.0968,
+        "avgHoldingSessions": 42.1,
+        "tStat": -5.444,
+        "exitTypeCounts": {
+          "STOP": 46229,
+          "TIME_EXIT": 18719
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 13382808,
+        "totalReturn": -0.8662,
+        "cagr": -0.1731,
+        "mdd": -0.8783,
+        "sharpe": -0.8852
+      },
+      "annualReturnsMTM": {
+        "2016": -0.1457,
+        "2017": 0.0709,
+        "2018": -0.1362,
+        "2019": -0.1071,
+        "2020": 0.0378,
+        "2021": -0.1531,
+        "2022": -0.2771,
+        "2023": -0.0004,
+        "2024": -0.2631,
+        "2025": -0.0845,
+        "2026": -0.5574
+      },
+      "tradeStats": {
+        "tradeCount": 1161,
+        "winRate": 0.1826,
+        "avgWin": 873793.1101,
+        "avgLoss": -286471.3708,
+        "winLossRatio": 3.0502,
+        "profitFactor": 0.6814,
+        "expectancy": -74605.6775,
+        "avgHoldingPeriod": 32.8028,
+        "maxConsecutiveWins": 5,
+        "maxConsecutiveLosses": 39
+      },
+      "avgTradeReturn": -0.0314,
+      "exitTypeCounts": {
+        "STOP": 902,
+        "TIME_EXIT": 259
+      },
+      "closedPositionCount": 1161,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 532.3
+    }
+  ]
+}
