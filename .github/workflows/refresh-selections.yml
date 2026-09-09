@@ -1,0 +1,90 @@
+name: Refresh strategy selections
+
+# 페이퍼 엔진은 selection.json 에 **그 리밸런싱일이 있어야만** 움직인다. 없으면
+# run_monthly_rebalance.py 가 poll_once 를 부르기 전에 return 하고, 신규매수뿐
+# 아니라 청산·체결확인까지 전부 멈춘다(로그는 정상처럼 보인다).
+#
+# 그 갱신을 A2a 수집 완료에 물린다 - selection 은 A2a 가치·가격을 입력으로 쓰므로
+# A2a 보다 먼저 돌면 낡은 가격으로 이번 달을 만든다. price-a2a 는 매월 1~5일에
+# 걸려 있고 게이트로 실제 수집은 월 1회로 수렴한다(scripts/check-a2a-refresh-needed.py).
+#
+# ★ A4(수급)는 별 워크플로(supply-demand-a4.yml, 매월 2일)라 A2a 가 1일에 돌면
+# 그 달 A4 는 아직 없다. foreign_flow5d_v1 만 그만큼 늦게 반영된다 - 관측 슬리브라
+# 허용한다(월별 4슬리브는 A4 를 안 쓴다).
+on:
+  workflow_run:
+    workflows: ["backfill-price-a2a"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-selections
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    # A2a 가 실패했거나 게이트로 스킵됐으면 갱신할 새 가격이 없다 - 낡은 입력으로
+    # selection 을 다시 만들면 "갱신했다"는 흔적만 남고 내용은 그대로다.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: pip install --quiet pandas numpy
+
+      # 계약을 먼저 건다. 갱신 스크립트가 policy.json 을 재생성하는 경로가 있고
+      # (build_factor_selection.py), 2026-09-04 에 그게 maxPositions 를 30 -> 200 으로
+      # 조용히 밀어 모의계좌가 4일간 50만원 슬롯으로 돌았다. 전/후로 두 번 본다.
+      - name: 슬리브 계약 (갱신 전)
+        working-directory: research/strategy-lab
+        run: python -m pytest tests/test_paper_sleeve_policy.py tests/test_selection_builder_defaults.py -q
+
+      - name: selection 재생성
+        working-directory: research/strategy-lab
+        run: python refresh_selections.py
+
+      # refresh_selections.py 가 이미 산출물을 읽어 "이번 리밸런싱일이 있는가"를
+      # 확인하고 없으면 exit 1 한다(교훈43 - 돌았다와 통과했다는 다른 말이다).
+      # 여기서는 그 사이 policy.json 이 밀리지 않았는지만 다시 본다.
+      - name: 슬리브 계약 (갱신 후)
+        working-directory: research/strategy-lab
+        run: python -m pytest tests/test_paper_sleeve_policy.py -q
+
+      - name: Commit selection.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # selection.json 만 담는다. policy.json 은 재생성 부산물이라 커밋하면
+          # 드리프트가 조용히 정본이 된다 - 위 tripwire 가 잡되 커밋은 안 한다.
+          git add research/strategy-lab/strategies/*/selection.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(selection): 라이브 슬리브 selection 갱신 (자동)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음 - 이미 최신이다"
+          fi
+
+      - name: 진단 아티팩트
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-selections-diagnostics
+          path: |
+            research/strategy-lab/strategies/*/selection.json
+          retention-days: 7
+          if-no-files-found: warn

@@ -1,0 +1,21 @@
+[Unit]
+Description=Pull collector repo daily (before market open)
+
+[Timer]
+# 06:30 KST. 두 가지를 피해 고른 시각이다.
+#   - 장중(09:00~15:30)을 피한다: paper-trading-poll 이 10분마다 돌고, 그 안에서
+#     전략별로 run_monthly_rebalance.py 를 하나씩 subprocess 로 띄운다. pull 이
+#     그 사이에 끼면 한 실행 안에서 전략마다 다른 버전의 코드가 돌 수 있다.
+#   - 전날 밤 Actions 커밋(selection 갱신·분봉 승격) 이후여야 한다.
+# 하루 한 번이면 충분하다 - 급한 코드 반영은 사람이 직접 pull 한다.
+OnCalendar=*-*-* 06:30:00
+
+# VM 이 꺼져 있었거나 트리거를 놓쳤으면 다음 부팅에 따라잡는다. 월초 selection
+# 갱신을 놓치면 그 달이 통째로 안 도므로 이건 특히 중요하다.
+Persistent=true
+RandomizedDelaySec=120
+
+Unit=collector-pull.service
+
+[Install]
+WantedBy=timers.target

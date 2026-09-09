@@ -1,0 +1,29 @@
+[Unit]
+# 저장소 정본을 VM 워킹트리로 당겨온다. **읽기 전용이다** - VM 은 GitHub 에
+# 쓰지 않는다(CLAUDE.md "정본을 쓰는 주체는 하나다"). 공개 저장소라 pull 에
+# 자격증명이 필요 없으므로 그 원칙과 충돌하지 않는다 - 금지된 것은 write 다.
+#
+# 왜 필요한가: minute-collect.service 도 paper-trading-poll.service 도 워킹트리의
+# 코드와 데이터를 그대로 돈다. pull 하지 않으면 새 코드도, 새 selection.json 도
+# 영원히 안 보인다. 실측 2026-09-09 - VM 이 5커밋 뒤처져 MN-1.1 이 발효되지
+# 않았고 그날 수집분은 옛 스키마로 확정됐다(KIS 보존 246영업일이라 복구 불가).
+# 그리고 매월 selection 갱신이 Actions 에서 커밋돼도 VM 이 안 당기면 그 달
+# 리밸런싱이 통째로 안 돈다.
+Description=Pull collector repo (read-only, fast-forward only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@USER@
+WorkingDirectory=@REPO@
+# --ff-only: 로컬에 갈라진 게 있으면 덮어쓰지 않고 **실패한다.** VM 워킹트리는
+# 깨끗해야 정상이고(산출물은 전부 gitignore 대상), 안 깨끗하면 조용히 뭉개는
+# 것보다 멈추고 사람이 보는 게 맞다.
+ExecStart=/usr/bin/git -C @REPO@ pull --ff-only
+
+StandardOutput=append:@LOGDIR@/collector-pull.log
+StandardError=append:@LOGDIR@/collector-pull.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
