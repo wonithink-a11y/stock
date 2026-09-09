@@ -42,14 +42,20 @@ jobs:
         with:
           node-version: '20'
       - name: Install deps
-        run: pip install --quiet pandas numpy
+        run: pip install --quiet pandas numpy pytest
 
       # 계약을 먼저 건다. 갱신 스크립트가 policy.json 을 재생성하는 경로가 있고
       # (build_factor_selection.py), 2026-09-04 에 그게 maxPositions 를 30 -> 200 으로
       # 조용히 밀어 모의계좌가 4일간 50만원 슬롯으로 돌았다. 전/후로 두 번 본다.
       - name: 슬리브 계약 (갱신 전)
         working-directory: research/strategy-lab
-        run: python -m pytest tests/test_paper_sleeve_policy.py tests/test_selection_builder_defaults.py -q
+        # ★ 러너를 섞지 않는다. test_selection_builder_defaults.py 는 ok() 카운터
+        # 방식이라 실패해도 예외를 안 던진다 - pytest 로 돌리면 FAIL 을 출력하면서
+        # **통과로 집계된다**(거짓 게이트). 스크립트로 돌려야 exit 1 이 나온다.
+        # test_paper_sleeve_policy.py 는 진짜 assert 라 pytest 가 맞다.
+        run: |
+          python -m pytest tests/test_paper_sleeve_policy.py -q
+          python tests/test_selection_builder_defaults.py
 
       - name: selection 재생성
         working-directory: research/strategy-lab
