@@ -3,7 +3,6 @@
 import json
 import os
 import sys
-import shutil
 import time
 
 import numpy as np
@@ -11,7 +10,7 @@ import numpy as np
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(REPO_ROOT, "research", "strategy-lab"))
 
-from engine.runner import run_smoke
+from engine.runner import run_smoke, load_strategy
 
 
 def compute_metrics(portfolio, diag, initial_capital=100_000_000):
@@ -73,28 +72,28 @@ def compute_metrics(portfolio, diag, initial_capital=100_000_000):
 
 
 def run_one(max_pos):
-    """Run backtest with specific max_positions."""
-    # Backup original policy
-    policy_path = os.path.join(REPO_ROOT, "research", "strategy-lab", "strategies", "factor_earnings_yield_v1", "policy.json")
-    backup_path = policy_path + ".bak"
-    shutil.copy2(policy_path, backup_path)
-    
-    # Write new policy
-    policy_new = os.path.join(REPO_ROOT, "research", "strategy-lab", "strategies", "factor_earnings_yield_v1", f"policy_{max_pos}.json")
-    shutil.copy2(policy_new, policy_path)
-    
-    try:
-        print(f"  Running max_positions={max_pos}...", flush=True)
-        result = run_smoke("factor_earnings_yield_v1", "2016-01-01", "2026-08-14", REPO_ROOT, trace_limit=0)
-        diag = result["diag"]
-        portfolio = result["portfolio"]
-        metrics = compute_metrics(portfolio, diag)
-        metrics["max_positions"] = max_pos
-        return metrics
-    finally:
-        # Restore original
-        shutil.copy2(backup_path, policy_path)
-        os.remove(backup_path)
+    """max_positions 만 바꿔 백테스트를 한 번 돌린다.
+
+    ★ 라이브 policy.json 을 제자리에서 바꿔치기하지 않는다. 페이퍼 엔진이
+    10분마다 같은 파일을 읽고(strategies/<id>/rule.py 가 import 시점에 로드한다)
+    이 스크립트는 조합 하나에 수십 분을 쓴다 - 그 사이 실주문이 100포지션
+    정책으로 나간다. try/finally 복구는 크래시만 막지 이 경합은 못 막는다.
+
+    load_strategy 는 호출마다 exec_module 로 새 모듈을 만들므로 여기서 PARAMS 를
+    고쳐도 다음 호출이나 다른 프로세스로 새지 않는다. 그래서 policy_20/50/100.json
+    도 지웠다(라이브 policy.json 과 maxPositions 한 줄만 달랐다).
+    policy_30.json 만 남긴다 - market_comparison_kr_2026_09.py 가 그걸 **동결된
+    기준본**으로 읽는다(이 스크립트의 임시 사본이 아니라 그쪽 계약이다).
+    """
+    rule = load_strategy("factor_earnings_yield_v1", REPO_ROOT)
+    rule.PARAMS["portfolio"]["maxPositions"] = max_pos
+
+    print(f"  Running max_positions={max_pos}...", flush=True)
+    result = run_smoke("factor_earnings_yield_v1", "2016-01-01", "2026-08-14", REPO_ROOT,
+                       trace_limit=0, rule_module=rule)
+    metrics = compute_metrics(result["portfolio"], result["diag"])
+    metrics["max_positions"] = max_pos
+    return metrics
 
 
 def main():
