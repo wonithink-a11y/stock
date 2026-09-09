@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 
 from engine.live import positionStore
 from engine.live.paperEngine import poll_once
+from engine.live.untradableVts import UNTRADABLE_VTS
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 STRATEGY_ID = "test_poll_engine_synth"
@@ -336,6 +337,22 @@ def test_no_stop_pct_open_position_does_not_exit_early():
     _reset()
 
 
+
+def test_untradable_pending_entry_is_dropped_without_touching_broker():
+    """목록에 오르기 전에 쌓인 PENDING_ENTRY 정리. 제출이 전부 거부됐으므로
+    KIS에 취소할 주문이 없다 - 상태에서 지우는 것으로 끝난다."""
+    _reset()
+    sym = sorted(UNTRADABLE_VTS)[0]
+    _seed({sym: {"status": "PENDING_ENTRY", "quantity": 5, "intent_date": "2026-08-03"}})
+    broker = FakeBroker()
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    ok("DROP_UNTRADABLE 이벤트", [e["type"] for e in events] == ["DROP_UNTRADABLE"], events)
+    ok("상태에서 제거", sorted(positionStore.load(REPO_ROOT, STRATEGY_ID)) == [], positionStore.load(REPO_ROOT, STRATEGY_ID))
+    ok("브로커를 건드리지 않는다", broker.buy_calls == 0 and broker.check_fill_calls == 0,
+       (broker.buy_calls, broker.check_fill_calls))
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -352,6 +369,7 @@ def main():
     test_no_stop_pct_policy_opens_position_instead_of_crashing()
     test_no_stop_pct_open_position_still_time_exits()
     test_no_stop_pct_open_position_does_not_exit_early()
+    test_untradable_pending_entry_is_dropped_without_touching_broker()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:

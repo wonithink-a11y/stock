@@ -13,6 +13,7 @@ import pandas as pd
 
 from engine.live import positionStore
 from engine.live.paperEngine import scan_rebalance_signals
+from engine.live.untradableVts import UNTRADABLE_VTS
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 STRATEGY_ID = "test_rebalance_scan_synth"
@@ -96,10 +97,40 @@ def test_max_positions_cap_stops_new_entries():
     _reset()
 
 
+UNTRADABLE_ONE = sorted(UNTRADABLE_VTS)[0]   # 실제 목록에서 하나 - 목록이 비면 이 테스트가 먼저 깨진다
+
+
+class UntradableRule:
+    PARAMS = {"strategyId": STRATEGY_ID, "portfolio": {"maxPositions": 3}}
+
+    @staticmethod
+    def selected_symbols(as_of):
+        return [UNTRADABLE_ONE, "CHEAP"] if as_of == AS_OF else []
+
+
+def test_untradable_symbol_never_becomes_pending_entry():
+    """★ 2026-09-09. 모의계좌가 못 사는 종목에 진입 의도를 만들면 체결되지 않는
+    PENDING_ENTRY로 남아 폴링(10분)마다 영원히 재시도한다 - 실측으로 12종목이
+    08-03 이후 91~93회 전부 거부됐다. 선택 목록에는 그대로 두고(백테스트와
+    표본을 안 가른다) 진입 단계에서만 거른다."""
+    _reset()
+    bars = dict(BARS)
+    bars[UNTRADABLE_ONE] = _bars(10_000.0)     # 가격은 멀쩡하다 - 스킵 사유가 가격이 아님을 못박는다
+    events = scan_rebalance_signals(REPO_ROOT, UntradableRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=bars)
+    state = positionStore.load(REPO_ROOT, STRATEGY_ID)
+    ok("매매불가 종목은 상태에 안 들어간다", UNTRADABLE_ONE not in state, state)
+    ok("스킵이 이벤트로 보인다(조용히 사라지지 않는다)",
+       {"type": "SKIP_UNTRADABLE", "symbol": UNTRADABLE_ONE, "date": AS_OF} in events, events)
+    ok("같은 스캔의 정상 종목은 그대로 진입", state.get("CHEAP", {}).get("status") == "PENDING_ENTRY", state)
+    _reset()
+
+
 def main():
     test_affordable_symbol_gets_pending_entry_within_slot_budget()
     test_already_held_symbol_is_not_rebought()
     test_max_positions_cap_stops_new_entries()
+    test_untradable_symbol_never_becomes_pending_entry()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} \xb7 failed {failed}")
     if failed:

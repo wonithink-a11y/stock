@@ -42,6 +42,7 @@ from engine.data.calendar import TradingCalendar
 from engine.live import positionStore
 from engine.live.contracts import OrderIntent
 from engine.live.paperBroker import PaperBroker
+from engine.live.untradableVts import UNTRADABLE_VTS
 
 KST = timezone(timedelta(hours=9))
 
@@ -244,6 +245,14 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
     for symbol in target:
         if symbol in state:
             continue
+        if symbol in UNTRADABLE_VTS:
+            # 모의계좌가 못 사는 종목은 의도조차 만들지 않는다 - 만들면
+            # 체결되지 않는 PENDING_ENTRY 로 남아 폴링마다 재시도만 한다
+            # (실측: 12종목이 08-03 이후 91~93회 전부 거부).
+            log(f"[{as_of}] SKIP {symbol} - 모의계좌 매매불가 "
+                f"({UNTRADABLE_VTS[symbol]}, engine/live/untradableVts.py)")
+            events.append({"type": "SKIP_UNTRADABLE", "symbol": symbol, "date": as_of})
+            continue
         if open_or_pending >= max_positions:
             continue
         bars = bars_by_ticker.get(symbol)
@@ -345,6 +354,15 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
         status = pos["status"]
 
         if status == "PENDING_ENTRY":
+            if symbol in UNTRADABLE_VTS:
+                # 목록에 오르기 전에 기록된 의도 - 주문이 나간 적이 없으므로
+                # (제출이 전부 거부됐다) 상태에서 지우는 것으로 끝난다.
+                # KIS 에는 취소할 것이 없다.
+                del state[symbol]
+                events.append({"type": "DROP_UNTRADABLE", "symbol": symbol})
+                log(f"[{today}] 진입의도 취소  {symbol}  - 모의계좌 매매불가 "
+                    f"({UNTRADABLE_VTS[symbol]})")
+                continue
             # 분할 매수: 목표수량을 entry_slices 일에 나눠 산다(기본 1 = 기존 동작).
             # 시장충격은 '하루' 참여율의 함수라 며칠에 나누면 그만큼 내려간다
             # (findings/sizing-position-count-capacity-2026-09.md 정정 절 참고).
