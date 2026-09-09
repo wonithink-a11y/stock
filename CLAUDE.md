@@ -8,6 +8,16 @@ Validated against
   정책      UN-1.2 · PR-1.6 · FN-1.8 · REG-1.8 · MN-1.2 · SB-1.1 · SD-1.1
             PF-1.2는 registry 미등록 = 미발효(자리가 없다 — 아래 완료 참고)
             criteria  KR-2.4(2026-09-04 승격) · US-2.2
+  다음      ★ 모의투자 월간 자동화 — 시한이 있는 유일한 항목. A2a(월 1~5일) →
+            refresh-selections(workflow_run) → VM pull(06:30) → 페이퍼 엔진
+            (10분). CI 8회차 완주·자동 커밋까지 확인했지만 **2026-10-01이 첫
+            실물 검증이다** — workflow_run 물림은 그날 처음 돈다(여태
+            workflow_dispatch 로만 태웠다). 실패하면 notify-failure.yml 이
+            텔레그램(@wonistock_bot)으로 알린다 — 대상 4개, '성공→실패'
+            전이에만(페이퍼 엔진이 10분 주기라 매번 보내면 하루 144통).
+            세부·함정: docs/control/세션인수인계-2026-09-09-b.md. 단 그
+            인수인계의 "남은 것" 중 4건은 2026-09-10 실측으로 이미 닫혔다
+            (아래 완료 참고) — 그 목록을 그대로 착수 목록으로 삼지 않는다.
   다음      ★ 2026-09-02 팩터 조합 실험 인프라 신설 — 사용자 요청("여러 조합을
             자동 백테스트해 코스피 최적안 찾기")으로 4종 구축. 세부는
             docs/control/세션인수인계-2026-09-02-e.md, 판정은 findings 4건
@@ -92,12 +102,17 @@ Validated against
             그때 1회성으로 처리한다(docs/verification/LAB-1-조기종료-결과.md)
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
-            없음, 원본 그대로 이동). 최신 항목: 선물 lead-lag(코스닥150·USD)
-            REJECT 확정(2026-09-06, findings/futures-leadlag-s3-kosdaq150-
-            artifact-verdict-2026-09.md) · KR-2.4 criteria 승격 + A5
-            재백필(2026-09-04) · PF-1.2 소비경로 배선(2026-09-04, 발효는
-            registry 미등록으로 아직). 분봉 수집기는 stock-new VM, 메인
-            스코어링은 기존 stock VM에서 계속 운영 중(전체 배경은 위 파일).
+            없음, 원본 그대로 이동). 최신 항목:
+            모의투자 월간 자동화 5링크 + 실패 알림 신설(2026-09-09~10,
+            알림 채널이 애초에 저장소에 없어 notify.js 가 여태 무음이었다) ·
+            인수인계 "남은 것" 4건 실측 종결(2026-09-10) · capacity test 의
+            라이브 policy.json 바꿔치기 제거 + 폴 타이머 15:30 컷(2026-09-10) ·
+            선물 lead-lag(코스닥150·USD) REJECT 확정(2026-09-06,
+            findings/futures-leadlag-s3-kosdaq150-artifact-verdict-2026-09.md) ·
+            KR-2.4 criteria 승격 + A5 재백필(2026-09-04) · PF-1.2 소비경로
+            배선(2026-09-04, 발효는 registry 미등록으로 아직).
+            분봉 수집기는 stock-new VM, 메인 스코어링은 기존 stock VM에서
+            계속 운영 중(전체 배경은 위 파일).
 ```
 
 ### 문서 지도
