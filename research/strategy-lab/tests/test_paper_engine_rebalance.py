@@ -67,21 +67,106 @@ def test_affordable_symbol_gets_pending_entry_within_slot_budget():
     _reset()
 
 
-def test_already_held_symbol_is_not_rebought():
+def _open_pos(qty, **kw):
+    base = {"status": "OPEN", "quantity": qty, "entry_price": 9_000.0,
+            "entry_date": "2026-07-01", "stop_price": 1.0, "target_price": 999_999.0,
+            "max_holding_sessions": 999, "sessions_held": 10, "lastCountedDate": "2026-08-01"}
+    base.update(kw)
+    return base
+
+
+def test_already_held_symbol_at_budget_is_not_rebought():
     """continuousHoldOnRenewal - 이미 보유중(OPEN)인 종목이 이번에도 선택됐다고
-    다시 PENDING_ENTRY를 만들면 안 된다(poll_once의 is_still_selected가
-    계속 들고 간다)."""
+    새 포지션을 만들면 안 된다(poll_once의 is_still_selected가 계속 들고 간다).
+    슬롯예산(100,000 = 300,000//3)을 이미 채운 10주라 탑업도 할 일이 없다."""
     _reset()
-    positionStore.save(REPO_ROOT, STRATEGY_ID, {
-        "CHEAP": {"status": "OPEN", "quantity": 5, "entry_price": 9_000.0,
-                  "entry_date": "2026-07-01", "stop_price": 1.0, "target_price": 999_999.0,
-                  "max_holding_sessions": 999, "sessions_held": 10, "lastCountedDate": "2026-08-01"},
-    })
+    positionStore.save(REPO_ROOT, STRATEGY_ID, {"CHEAP": _open_pos(10)})   # 10 x 10,000 = 예산 전액
     events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
                                      log=lambda *a: None, bars_by_ticker=BARS)
     ok("no new intent for already-held CHEAP", all(e["symbol"] != "CHEAP" for e in events), events)
     state = positionStore.load(REPO_ROOT, STRATEGY_ID)
-    ok("CHEAP position untouched", state["CHEAP"]["status"] == "OPEN" and state["CHEAP"]["quantity"] == 5, state)
+    ok("CHEAP position untouched", state["CHEAP"]["status"] == "OPEN" and state["CHEAP"]["quantity"] == 10, state)
+    _reset()
+
+
+def test_underfunded_position_is_topped_up_to_slot_budget():
+    """★ 2026-09-09. 배정액을 올려도 기존 포지션에는 반영되지 않아 실측으로
+    pbr_value_v1 이 배정의 7.5%, lowmom60_v1 이 3.2%만 투자돼 있었다. 이번
+    리밸런싱일의 슬롯예산까지 끌어올린다 - 새 상태를 만들지 않고 분할매수와
+    같은 모양의 PENDING_ENTRY 로 되돌린다."""
+    _reset()
+    positionStore.save(REPO_ROOT, STRATEGY_ID, {"CHEAP": _open_pos(2)})    # 예산 100,000 중 20,000만
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    ok("탑업 이벤트가 난다",
+       {"type": "INTENT_TOPUP", "symbol": "CHEAP", "date": AS_OF,
+        "quantity": 8, "targetQuantity": 10} in events, events)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    ok("분할매수와 같은 모양으로 되돌린다", st["status"] == "PENDING_ENTRY"
+       and st["target_quantity"] == 10 and st["filled_quantity"] == 2, st)
+    ok("이미 산 것의 원가를 이어받는다", st["entry_cost"] == 2 * 9_000.0, st)
+    ok("보유일 기산일은 원래 진입일", st["first_fill_date"] == "2026-07-01", st)
+    _reset()
+
+
+def test_topup_runs_once_per_rebalance_date():
+    """매 폴링마다 '예산 대비 부족한가'를 다시 물으면 가격이 내릴 때마다 더 사게
+    된다 - 그건 배정액 반영이 아니라 전략 변경이다. 리밸런싱일당 한 번만."""
+    _reset()
+    positionStore.save(REPO_ROOT, STRATEGY_ID, {"CHEAP": _open_pos(2)})
+    scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
+                            log=lambda *a: None, bars_by_ticker=BARS)
+    # 탑업이 체결돼 OPEN 으로 돌아온 뒤(topup_as_of 는 _open_from_fills 가 이어받는다)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    positionStore.save(REPO_ROOT, STRATEGY_ID,
+                        {"CHEAP": _open_pos(10, topup_as_of=st["topup_as_of"])})
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=900_000,  # 예산 3배
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    ok("같은 리밸런싱일에는 두 번 안 한다", all(e["symbol"] != "CHEAP" for e in events), events)
+    _reset()
+
+
+def test_topup_never_shrinks_a_position():
+    """예산보다 많이 들고 있어도 팔지 않는다 - 탑업은 한 방향이다."""
+    _reset()
+    positionStore.save(REPO_ROOT, STRATEGY_ID, {"CHEAP": _open_pos(50)})   # 예산의 5배
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    ok("줄이지 않는다", all(e["symbol"] != "CHEAP" for e in events), events)
+    ok("수량 그대로", positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]["quantity"] == 50)
+    _reset()
+
+
+def test_topup_skips_positions_that_are_mid_entry():
+    """PENDING_ENTRY/ENTRY_SUBMITTED 는 target_quantity 가 이미 현재 예산이다 -
+    거기에 탑업을 겹치면 목표가 두 번 잡힌다."""
+    _reset()
+    positionStore.save(REPO_ROOT, STRATEGY_ID, {
+        "CHEAP": {"status": "ENTRY_SUBMITTED", "quantity": 2, "target_quantity": 2,
+                  "order_no": "ORD1", "order_date": "20260803", "intent_date": AS_OF},
+    })
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=300_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["CHEAP"]
+    ok("진입 중인 포지션은 안 건드린다",
+       all(e["symbol"] != "CHEAP" for e in events) and st["status"] == "ENTRY_SUBMITTED", (events, st))
+    _reset()
+
+
+def test_slot_budget_expands_when_book_exceeds_max_positions():
+    """★ factor_earnings_yield_v1 실사례 - maxPositions 30 인데 장부가 61종목이다
+    (maxPositions 가 200 으로 드리프트했던 09-04 에 진입). capital//30 으로 탑업하면
+    목표 합이 배정액의 2배가 된다. 장부가 더 크면 실제 보유 수로 나눈다."""
+    _reset()
+    book = {f"X{i}": _open_pos(1) for i in range(6)}      # maxPositions=3 인데 6종목
+    book["CHEAP"] = _open_pos(1)
+    positionStore.save(REPO_ROOT, STRATEGY_ID, book)
+    events = scan_rebalance_signals(REPO_ROOT, FakeRule(), AS_OF, capital_krw=700_000,
+                                     log=lambda *a: None, bars_by_ticker=BARS)
+    # slots = max(3, 7) = 7 -> 슬롯예산 100,000 -> CHEAP(10,000) 목표 10주
+    topups = [e for e in events if e["type"] == "INTENT_TOPUP"]
+    ok("장부 크기로 나눈 예산을 쓴다", [e["targetQuantity"] for e in topups] == [10], topups)
+    ok("목표 합이 배정액을 안 넘는다", 7 * 100_000 <= 700_000)
     _reset()
 
 
@@ -128,7 +213,12 @@ def test_untradable_symbol_never_becomes_pending_entry():
 
 def main():
     test_affordable_symbol_gets_pending_entry_within_slot_budget()
-    test_already_held_symbol_is_not_rebought()
+    test_already_held_symbol_at_budget_is_not_rebought()
+    test_underfunded_position_is_topped_up_to_slot_budget()
+    test_topup_runs_once_per_rebalance_date()
+    test_topup_never_shrinks_a_position()
+    test_topup_skips_positions_that_are_mid_entry()
+    test_slot_budget_expands_when_book_exceeds_max_positions()
     test_max_positions_cap_stops_new_entries()
     test_untradable_symbol_never_becomes_pending_entry()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})

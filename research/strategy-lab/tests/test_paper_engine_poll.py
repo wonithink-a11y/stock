@@ -353,6 +353,47 @@ def test_untradable_pending_entry_is_dropped_without_touching_broker():
     _reset()
 
 
+
+def test_topup_fill_averages_entry_price_and_keeps_position_history():
+    """탑업이 체결되면 옛 체결과 새 체결의 가중평균 단가로 OPEN 이 복원돼야
+    한다. 그리고 보유일수·topup_as_of 가 리셋되면 (a) 시간청산 시계가 되감기고
+    (b) 다음 날 가격이 내렸을 때 또 사들인다(눌림목 매수 드리프트)."""
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 10, "target_quantity": 10,
+                      "filled_quantity": 4, "entry_cost": 4 * 100.0,   # 기존 4주 @100
+                      "entry_slices": 1, "order_no": "ORD1", "order_date": "20260821",
+                      "order_quantity": 6, "first_fill_date": "2026-07-01",
+                      "sessions_held": 10, "lastCountedDate": "2026-08-01",
+                      "topup_as_of": "2026-08-03"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": True, "rejected": False, "filledQty": 6, "avgPrice": 200.0, "pending": False},
+    ])
+    poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("OPEN 으로 복원", st["status"] == "OPEN" and st["quantity"] == 10, st)
+    # (4*100 + 6*200) / 10 = 160
+    ok("가중평균 단가", st["entry_price"] == 160.0, st["entry_price"])
+    ok("보유일 기산일 유지", st["entry_date"] == "2026-07-01", st)
+    ok("보유일수 리셋 안 됨", st["sessions_held"] == 10, st)
+    ok("topup_as_of 유지(재탑업 방지)", st["topup_as_of"] == "2026-08-03", st)
+    _reset()
+
+
+def test_fresh_entry_still_starts_its_clock_at_zero():
+    """위 이어받기가 신규 진입까지 바꾸면 안 된다 - 없는 키는 그대로 없다."""
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 5, "intent_date": "2026-08-20",
+                      "order_no": "ORD1", "order_date": "20260821"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": True, "rejected": False, "filledQty": 5, "avgPrice": 100.0, "pending": False},
+    ])
+    poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    st = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("신규 진입은 0 에서 시작", st["sessions_held"] == 0 and st["lastCountedDate"] is None, st)
+    ok("신규 진입에 topup_as_of 없음", "topup_as_of" not in st, st)
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -370,6 +411,8 @@ def main():
     test_no_stop_pct_open_position_still_time_exits()
     test_no_stop_pct_open_position_does_not_exit_early()
     test_untradable_pending_entry_is_dropped_without_touching_broker()
+    test_topup_fill_averages_entry_price_and_keeps_position_history()
+    test_fresh_entry_still_starts_its_clock_at_zero()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:

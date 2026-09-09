@@ -227,7 +227,6 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
     params = rule.PARAMS
     strategy_id = params["strategyId"]
     max_positions = params["portfolio"]["maxPositions"]
-    budget_per_slot = capital_krw // max_positions
 
     calendar = TradingCalendar(repo_root=repo_root)
     target = rule.selected_symbols(as_of)
@@ -242,8 +241,28 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
     as_of_ts = pd.Timestamp(as_of)
     open_or_pending = len(state)
 
+    # 슬롯 수는 정책의 maxPositions 다. 단 장부가 그보다 많으면(옛 설정에서 굳은
+    # 책 - factor_earnings_yield_v1 이 maxPositions 30 인데 61종목) 실제 보유 수로
+    # 나눈다. 안 그러면 탑업 목표 합이 배정액을 넘는다(61 x 333만 = 2.03억 > 1억).
+    # 장부가 maxPositions 이내면 값이 같아 기존 동작 그대로다.
+    slots = max(max_positions, len(state))
+    budget_per_slot = capital_krw // slots
+
     for symbol in target:
         if symbol in state:
+            bars = bars_by_ticker.get(symbol)
+            if bars is None or as_of_ts not in bars.index:
+                continue
+            plan = _plan_topup(state[symbol], float(bars.loc[as_of_ts, "close"]),
+                                budget_per_slot, as_of)
+            if plan is not None:
+                add = plan["target_quantity"] - plan["filled_quantity"]
+                state[symbol] = plan
+                events.append({"type": "INTENT_TOPUP", "symbol": symbol, "date": as_of,
+                                "quantity": add, "targetQuantity": plan["target_quantity"]})
+                log(f"[{as_of}] TOPUP -> INTENT  {symbol}  +{add}주 "
+                    f"({plan['filled_quantity']} -> {plan['target_quantity']}주, "
+                    f"슬롯예산 {budget_per_slot:,.0f})")
             continue
         if symbol in UNTRADABLE_VTS:
             # 모의계좌가 못 사는 종목은 의도조차 만들지 않는다 - 만들면
@@ -298,7 +317,51 @@ def _open_from_fills(pos, today, risk):
             "stop_price": round(entry_price * (1 - stop_pct), 2) if stop_pct is not None else None,
             "target_price": round(entry_price * (1 + target_pct), 2) if target_pct is not None else None,
             "max_holding_sessions": risk["maxHoldingSessions"], "sessions_held": 0,
-            "lastCountedDate": None}
+            "lastCountedDate": None,
+            # 신규 진입에는 없는 키들 - 있으면 그대로 이어받는다. 탑업(아래
+            # _plan_topup)은 OPEN 을 잠깐 PENDING_ENTRY 로 되돌렸다가 여기로
+            # 돌아오는데, 그때 보유일수가 0 으로 리셋되거나 topup_as_of 가
+            # 지워지면 (a) 시간청산 시계가 되감기고 (b) 다음 날 가격이 내리면
+            # 예산 나눗셈이 커져 또 사들인다(눌림목 매수 드리프트).
+            **{k: pos[k] for k in ("sessions_held", "lastCountedDate", "topup_as_of")
+               if k in pos}}
+
+
+
+def _plan_topup(pos, price, budget_per_slot, as_of):
+    """이미 보유 중인 종목을 이번 리밸런싱일의 슬롯예산까지 끌어올리는 계획.
+    할 일이 없으면 None.
+
+    왜 필요한가: scan_rebalance_signals 는 이미 보유한 종목을 건너뛴다(재선택된
+    종목을 다시 사지 않는다 - continuousHoldOnRenewal). 그래서 **배정액을 바꿔도
+    기존 포지션에는 영영 반영되지 않는다.** 실측 2026-09-09 - 전략당 배정을
+    500만원에서 1억으로 올린 뒤에도 pbr_value_v1 은 배정의 7.5%, lowmom60_v1 은
+    3.2%만 투자돼 있었다(둘 다 08-03 진입, 당시 슬롯예산 166,667원 그대로).
+    factor_earnings_yield_v1 은 maxPositions 가 200 으로 드리프트했던 09-04 에
+    진입해 슬롯예산 50만원으로 굳어 29.2%였다.
+
+    상태기계를 새로 만들지 않는다 - OPEN 을 분할매수와 똑같은 모양의
+    PENDING_ENTRY(target_quantity/filled_quantity/entry_cost)로 되돌리면
+    기존 경로가 그대로 처리하고, _open_from_fills 가 옛 체결과 새 체결의
+    가중평균 단가로 다시 OPEN 을 만든다.
+
+    ★ 리밸런싱일당 한 번만 한다(topup_as_of). 매 폴링마다 "예산 대비 부족한가"를
+    다시 물으면 가격이 내릴 때마다 더 사게 되는데, 그건 배정액 반영이 아니라
+    전략 변경이다.
+    """
+    if pos["status"] != "OPEN":
+        return None          # 진입 중이면 target_quantity 가 이미 현재 예산이다
+    if pos.get("topup_as_of") == as_of:
+        return None
+    have = int(pos.get("quantity") or 0)
+    target = int(budget_per_slot // price)
+    if target <= have:
+        return None          # 이미 예산만큼(또는 그 이상) 들고 있다 - 줄이지는 않는다
+    return {**pos, "status": "PENDING_ENTRY",
+            "quantity": target, "target_quantity": target,
+            "filled_quantity": have, "entry_cost": have * float(pos["entry_price"]),
+            "entry_slices": 1, "intent_date": as_of,
+            "first_fill_date": pos.get("entry_date"), "topup_as_of": as_of}
 
 
 def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=None,

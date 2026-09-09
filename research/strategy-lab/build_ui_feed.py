@@ -87,12 +87,24 @@ def main():
                    "intentDate": pos.get("intent_date"), "history": history_by_symbol.get(symbol, [])}
             h = holdings_by_symbol.get(symbol)
             if h:  # KIS가 실제로 보유 중으로 잡은 종목 - PENDING/SUBMITTED는 아직 없음
+                # ★ 수량·진입단가는 계좌가 아니라 **전략 장부**의 것을 쓴다.
+                # 같은 종목을 두 전략이 들고 있으면(pbr_value_v1 ∩
+                # pbr_value_v1_combined 이 29종목 중 25종목) 계좌 수량은 그
+                # 합계다 - 그걸 전략마다 그대로 넣으면 전략별 노출이 전량으로
+                # 부풀고, 그 값을 합산하는 UI 도넛의 "예수금(미배분)"이 그만큼
+                # 줄어 보인다(실측 2026-09-09: 전략 합 262.9백만원 vs 실제
+                # 주식평가액 130.5백만원, 예수금 233.8백만 표시 vs 실제 368.2백만).
+                # 계좌의 pchs_avg_pric 도 전략들이 섞인 가중평균이라 한 전략의
+                # 손익을 못 낸다. 실측으로 Σ(전략 장부 수량) == 계좌 보유수량이
+                # 101종목 전부 일치하므로, 장부 기준이면 전략별 합이 계좌와 맞는다.
+                qty = pos.get("quantity") or 0
+                current = float(h["prpr"])
+                entry = float(pos.get("entry_price") or h["pchs_avg_pric"] or 0)
                 row.update({
-                    "quantity": int(h["hldg_qty"]),
-                    "avgEntryPrice": float(h["pchs_avg_pric"]),
-                    "currentPrice": float(h["prpr"]),
-                    "unrealizedPnlKrw": float(h["evlu_pfls_amt"]),
-                    "unrealizedPnlPct": float(h["evlu_pfls_rt"]),
+                    "avgEntryPrice": entry or None,
+                    "currentPrice": current,
+                    "unrealizedPnlKrw": round((current - entry) * qty) if entry else None,
+                    "unrealizedPnlPct": round((current / entry - 1) * 100, 2) if entry else None,
                 })
             positions.append(row)
         strategies[strategy_id] = {"positions": positions}
