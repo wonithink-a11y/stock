@@ -42,10 +42,15 @@ jobs:
         with:
           node-version: '20'
       - name: Install deps
-        # pyarrow: A2aProvider 가 로드한 일봉을 parquet 로 캐시한다
-        # (engine/data/a2aProvider.py _write_cache) - 없으면 첫 빌더에서 죽는다.
-        # CLAUDE.md '로컬 실행'의 의존성 목록과 같은 이유다.
-        run: pip install --quiet pandas numpy pyarrow pytest
+        run: pip install --quiet pandas numpy scipy pyarrow pytest
+
+      # ★ 의존성을 CI 실행마다 하나씩 발견하며 세 번 실패했다(pytest -> pyarrow
+      # -> scipy). 그중 pyarrow 는 import 문에 안 나온다 - pandas 의 to_parquet 이
+      # 런타임에 찾는 엔진이라 정적 스캔으로 못 잡는다. 목록을 스크립트 안에
+      # 모아 두고 여기서 먼저 확인한다 - 30초 뒤가 아니라 지금 깨지게.
+      - name: 의존성 사전 확인
+        working-directory: research/strategy-lab
+        run: python refresh_selections.py --check-deps
 
       # 계약을 먼저 건다. 갱신 스크립트가 policy.json 을 재생성하는 경로가 있고
       # (build_factor_selection.py), 2026-09-04 에 그게 maxPositions 를 30 -> 200 으로

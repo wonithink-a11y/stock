@@ -66,6 +66,30 @@ LIVE_SELECTIONS = {
 }
 
 
+# 체인이 실제로 쓰는 서드파티. pyarrow 는 **import 문에 안 나온다** - pandas 의
+# to_parquet 이 런타임에 찾는 엔진이라(engine/data/a2aProvider.py 가 일봉을
+# parquet 로 캐시한다) 정적 스캔으로는 절대 안 잡힌다. 실제로 CI 에서 의존성을
+# 한 번에 하나씩 발견하며 세 번 실패했다(pytest -> pyarrow -> scipy).
+# 여기 한 줄로 모아 두고 --check-deps 로 먼저 확인한다.
+REQUIRED_IMPORTS = ["pandas", "numpy", "scipy", "pyarrow"]
+
+
+def check_deps(out=print):
+    import importlib
+    missing = []
+    for m in REQUIRED_IMPORTS:
+        try:
+            importlib.import_module(m)
+            out(f"  {m:<10} OK")
+        except ImportError as e:
+            missing.append(m)
+            out(f"  {m:<10} 없음 - {e}")
+    if missing:
+        out("\n★ 빠진 의존성: " + " ".join(missing))
+        out("   pip install " + " ".join(missing))
+    return missing
+
+
 def calendar_last_session():
     with open(os.path.join(REPO_ROOT, "data", "backfill", "calendar.json"), encoding="utf-8") as f:
         return json.load(f)["tradingDays"][-1]
@@ -114,8 +138,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--end", default=None, help="기준일. 생략하면 각 빌더가 캘린더 마지막 거래일을 쓴다")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--check-deps", action="store_true",
+                     help="체인이 쓰는 서드파티가 다 있는지만 확인하고 끝낸다")
     ap.add_argument("--only", default=None, help="쉼표로 구분한 라벨만 실행(디버깅용)")
     args = ap.parse_args()
+
+    if args.check_deps:
+        return 1 if check_deps() else 0
 
     last = calendar_last_session()
     month_date = this_month_rebalance_date(last)
