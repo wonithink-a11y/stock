@@ -99,10 +99,25 @@ def test_generator_template_keeps_hold_sessions():
     ok("생성기 템플릿에 still_selected 가 있다", "def still_selected(" in src)
 
 
+
+def test_node_valuation_panel_has_no_frozen_end():
+    """★ 2026-09-09 CI 5회차. 체인의 **첫 단계**인 node 패널 빌더에도 박힌 기본
+    종료일('2026-08-14')이 있었다. Python 빌더 넷만 고쳤더니 자동 갱신이 패널을
+    2026-08-03 까지만 만들었고, 그 위에 얹힌 pbr_value_v1 이 128개월 -> 127개월로
+    줄어 라이브 리밸런싱일(2026-09-01)이 통째로 빠졌다. 여기가 잘리면 pbr 계열
+    selection 이 전부 잘린다."""
+    src = open(os.path.join(os.path.dirname(os.path.dirname(LAB)), "scripts",
+                            "build-a5-valuation-panel.js"), encoding="utf-8").read()
+    m = re.search(r"const END = argEnd \|\| '\d{4}-\d{2}-\d{2}'", src)
+    ok("node 패널 빌더에 박힌 종료일이 없다", m is None, m.group(0) if m else "")
+    ok("node 패널 빌더가 defaultEnd() 를 쓴다", "defaultEnd()" in src)
+
+
 if __name__ == "__main__":
     test_no_frozen_end_default()
     test_default_end_is_calendar_last_session()
     test_live_rules_expose_engine_accessors()
     test_generator_template_keeps_hold_sessions()
+    test_node_valuation_panel_has_no_frozen_end()
     print(f"test_selection_builder_defaults: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

@@ -44,7 +44,17 @@ const START = '2016-01-01';
 // 아님). 로직은 무변경, 종료일만 바뀐다.
 const argEnd = process.argv.find((a) => a.startsWith('--end='))?.split('=')[1]
   || (process.argv.includes('--end') ? process.argv[process.argv.indexOf('--end') + 1] : null);
-const END = argEnd || '2026-08-14';
+// 기본 종료일은 캘린더의 마지막 거래일이다. 박힌 날짜를 기본값으로 두면
+// 그 날짜가 지난 뒤 조용히 과거까지만 만든다 - 이 패널은 체인의 **첫 단계**라
+// 여기서 잘리면 pbr 계열 selection 이 전부 그만큼 잘린다. 실측 2026-09-09 CI:
+// 자동 갱신이 패널을 2026-08-03 까지만 만들어 pbr_value_v1 이 128개월 -> 127개월,
+// 라이브 리밸런싱일(2026-09-01)이 통째로 빠졌다. Python 빌더 넷은 같은 이유로
+// 이미 _default_end() 를 쓴다.
+function defaultEnd() {
+  const { tradingDays } = require(path.join(ROOT, 'data/backfill/calendar.json'));
+  return tradingDays[tradingDays.length - 1];
+}
+const END = argEnd || defaultEnd();
 
 function readJsonl(relPath) {
   const buf = fs.readFileSync(path.join(ROOT, relPath));
