@@ -12,12 +12,18 @@ run_monthly_rebalance.py 가 poll_once 를 부르기 전에 return 하고, 신�
 의존 순서 (지켜야 한다)
 -----------------------
   1. valuation-panel        (node)  - pbr 계열 전부의 입력
-  2. pbr_value_v1
-  3. pbr_value_v1_dropout           - combined 의 baseline
-  4. pbr_value_v1_combined          - period 를 baseline 에서 읽는다(3 다음이어야 함)
-  5. lowmom60_v1
-  6. factor_earnings_yield_v1
-  7. foreign_flow5d_v1              - 일별. 다른 것과 무관하지만 같이 돌린다
+  2. quality-panel          (node)  - factor_earnings_yield_v1 의 입력
+  3. pbr_value_v1
+  4. pbr_value_v1_dropout           - combined 의 baseline
+  5. pbr_value_v1_combined          - period 를 baseline 에서 읽는다(4 다음이어야 함)
+  6. lowmom60_v1
+  7. factor_earnings_yield_v1       - 1·2 의 패널을 둘 다 읽는다
+  8. foreign_flow5d_v1              - 일별. 다른 것과 무관하지만 같이 돌린다
+
+★ 1·2 는 reports/ 아래에 쓰는데 그 경로가 gitignore 대상이다. 즉 **러너에는
+없다** - 체인이 매번 먼저 만들어야 한다. 로컬에는 이미 있어서 이 의존이 안
+보였고, CI 5회차(패널이 낡은 기본 END 로 잘림)와 7회차(quality-panel 자체가
+없음)에서야 드러났다.
 
 기준일
 ------
@@ -44,6 +50,9 @@ REPO_ROOT = os.path.dirname(os.path.dirname(_THIS))
 # (라벨, 실행기, 스크립트경로(REPO_ROOT 기준), --end 를 받는가)
 STEPS = [
     ("valuation-panel", "node", "scripts/build-a5-valuation-panel.js", True),
+    # factor_earnings_yield_v1 의 입력. reports/ 아래라 gitignore 대상이고
+    # 러너에 없다 - CI 7회차가 FileNotFoundError 로 잡았다.
+    ("quality-panel", "node", "scripts/build-a5-quality-panel.js", True),
     ("pbr_value_v1", "python", "research/strategy-lab/strategies/pbr_value_v1/build_selection.py", True),
     ("pbr_value_v1_dropout", "python",
      "research/strategy-lab/strategies/pbr_value_v1_dropout/build_selection_dropout.py", True),

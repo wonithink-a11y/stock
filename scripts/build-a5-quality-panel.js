@@ -24,7 +24,17 @@ const ROOT = path.join(__dirname, '..');
 const { resolve } = require(path.join(ROOT, 'lib/a5/resolver'));
 
 const START = '2016-01-01';
-const END = '2026-08-14';
+// 기본 종료일은 캘린더의 마지막 거래일. 박힌 날짜를 두면 그 날짜가 지난 뒤
+// 조용히 과거까지만 만든다 - 이 패널은 factor_earnings_yield_v1 의 입력이라
+// 여기서 잘리면 라이브 슬리브 하나가 그만큼 잘린다. 다른 빌더 다섯과 같은 규칙
+// (2026-09-09 - 박힌 날짜가 여섯 군데 있었고 이게 마지막이다).
+const argEnd = process.argv.find((a) => a.startsWith('--end='))?.split('=')[1]
+  || (process.argv.includes('--end') ? process.argv[process.argv.indexOf('--end') + 1] : null);
+function defaultEnd() {
+  const { tradingDays } = require(path.join(ROOT, 'data/backfill/calendar.json'));
+  return tradingDays[tradingDays.length - 1];
+}
+const END = argEnd || defaultEnd();
 
 function readJsonl(relPath) {
   const buf = fs.readFileSync(path.join(ROOT, relPath));

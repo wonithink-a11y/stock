@@ -111,6 +111,12 @@ def test_node_valuation_panel_has_no_frozen_end():
     m = re.search(r"const END = argEnd \|\| '\d{4}-\d{2}-\d{2}'", src)
     ok("node 패널 빌더에 박힌 종료일이 없다", m is None, m.group(0) if m else "")
     ok("node 패널 빌더가 defaultEnd() 를 쓴다", "defaultEnd()" in src)
+    # quality-panel 도 같은 규칙. factor_earnings_yield_v1 의 입력이다.
+    q = open(os.path.join(os.path.dirname(os.path.dirname(LAB)), "scripts",
+                          "build-a5-quality-panel.js"), encoding="utf-8").read()
+    m2 = re.search(r"const END = '\d{4}-\d{2}-\d{2}'", q)
+    ok("quality 패널 빌더에 박힌 종료일이 없다", m2 is None, m2.group(0) if m2 else "")
+    ok("quality 패널 빌더가 defaultEnd() 를 쓴다", "defaultEnd()" in q)
 
 
 if __name__ == "__main__":
