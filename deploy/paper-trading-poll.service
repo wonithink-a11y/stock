@@ -5,7 +5,7 @@
 # 상태 파일(research/strategy-lab/data/paper/*.json)은 이 VM 로컬에만
 # 남는다 - VM은 GitHub에 쓰지 않는다(AI협업구조 "정본을 쓰는 주체는
 # 하나다" 원칙 그대로).
-Description=Paper trading engine daily poll (pbr_value_v1, lowmom60_v1)
+Description=Paper trading engine daily poll (모든 라이브 슬리브)
 After=network-online.target
 Wants=network-online.target
 

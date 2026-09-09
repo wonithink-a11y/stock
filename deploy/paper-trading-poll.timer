@@ -1,12 +1,21 @@
 [Unit]
-Description=Paper trading engine daily poll timer (pbr_value_v1, lowmom60_v1)
+Description=Paper trading engine daily poll timer (모든 라이브 슬리브)
 
 [Timer]
-# 장중(09:00~15:50, kis-portfolio-holdings.timer와 같은 10분 간격) - 매수/매도
-# 제출 후 체결 확인까지 며칠 걸릴 수 있어(poll_once 자체 설계, 비동기) 자주
-# 확인해야 놓치지 않는다. 장마감 이후 회차는 신규 신호가 없어 그냥 같은
-# 결과를 다시 확인하는 것뿐이라 해롭지 않다.
-OnCalendar=Mon..Fri *-*-* 9..15:00/10:00
+# 장중(09:00~15:30, KRX 정규장) 10분 간격 - 제출 후 체결 확인까지 며칠 걸릴 수
+# 있어(poll_once 자체 설계, 비동기) 자주 확인해야 놓치지 않는다.
+#
+# ★ 15:40·15:50 회차를 뺐다(2026-09-10). 옛 주석은 "장마감 이후 회차는 신규
+# 신호가 없어 같은 결과를 다시 확인하는 것뿐이라 해롭지 않다"고 했는데 실측과
+# 다르다 - 남아 있는 PENDING_ENTRY 를 회차마다 다시 제출하고 40580000(모의투자
+# 장종료)으로 거부당한다. 하루 60건이 로그에 쌓였다(2026-09-09 실측 30건 x 2회).
+# 엔진에는 장중 판정이 없으므로(engine/ 전체 grep 결과 없음) 그 경계를 정하는
+# 것은 이 타이머뿐이다.
+#
+# 장마감 후 체결·취소 정산을 같은 날 관측하지는 못한다. 다음 영업일 09:00
+# 회차가 잡으며, run_paper_trading_daily.py 는 반복 실행에 안전하다(그 docstring).
+OnCalendar=Mon..Fri *-*-* 09..14:00/10:00
+OnCalendar=Mon..Fri *-*-* 15:00,10,20,30:00
 Persistent=true
 RandomizedDelaySec=30
 
