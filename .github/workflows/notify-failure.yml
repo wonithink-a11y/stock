@@ -1,0 +1,79 @@
+name: notify-failure
+
+# 자동화는 실패해도 조용하다 - Actions 에 빨간 표시가 남지만 아무도 안 본다.
+# 특히 월간 리밸런싱 체인(A2a -> refresh-selections)은 한 달에 한 번만 도므로
+# 그 달을 통째로 건너뛴 걸 다음 달에야 알게 된다.
+#
+# 워크플로마다 `if: failure()` 스텝을 붙이지 않는다 - 대상이 늘 때마다 N군데를
+# 고쳐야 하고, 빠뜨린 하나는 여전히 조용하다. 여기 한 곳에서 workflow_run 으로
+# 받는다.
+#
+# ★ 알림 채널이 저장소에 없다(2026-09-09 실측: gh secret list 에 TELEGRAM_* 없음).
+# 그래서 scripts/notify.js 도 여태 "(알림 채널 미설정)" 만 찍고 있었다.
+# 시크릿이 등록되기 전까지 이 워크플로는 조용히 통과한다(no-op).
+#   gh secret set TELEGRAM_BOT_TOKEN
+#   gh secret set TELEGRAM_CHAT_ID
+
+on:
+  workflow_run:
+    workflows:
+      - backfill-price-a2a
+      - Refresh strategy selections
+      - backfill-supply-demand-a4
+      - Update ui/data/positions.json (Paper Trading Engine)
+    types: [completed]
+  workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  notify:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      # 페이퍼 엔진은 10분마다 돈다. 한 번 깨지면 하루 144통이 오고, 그러면
+      # 사용자가 채널을 끈다 - 알림이 있는 것보다 나쁜 상태가 된다.
+      # '실패했다'가 아니라 '성공하다가 실패로 바뀌었다'에만 보낸다.
+      - name: 직전 실행도 실패였는지
+        id: dedupe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "skip=0" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          prev=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/${{ github.event.workflow_run.workflow_id }}/runs?status=completed&per_page=3" \
+            --jq "[.workflow_runs[] | select(.id != ${{ github.event.workflow_run.id }})][0].conclusion")
+          echo "직전 실행: ${prev:-없음}"
+          if [ "$prev" = "failure" ]; then
+            echo "이미 실패 중 - 중복 알림 생략"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 텔레그램
+        if: steps.dedupe.outputs.skip == '0'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WF_NAME: ${{ github.event.workflow_run.name || '(수동 테스트)' }}
+          WF_URL: ${{ github.event.workflow_run.html_url || format('https://github.com/{0}/actions', github.repository) }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::warning::알림 채널 미설정 - gh secret set TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID"
+            exit 0
+          fi
+          now=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')   # 절대 규칙 3
+          text=$(printf '\xf0\x9f\x94\xb4 워크플로 실패\n%s\n%s\n%s' "$WF_NAME" "$now" "$WF_URL")
+          curl -sS --fail-with-body \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${text}" \
+            -o /dev/null
+          echo "전송 완료"
