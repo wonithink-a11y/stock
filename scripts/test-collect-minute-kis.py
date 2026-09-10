@@ -741,6 +741,65 @@ def run_all(M=None):
                       for v in v_check2["실측"]["샘플"]),
                   v_check2["실측"]["샘플"])
 
+        # 22c 이월 조각을 읽을 때 hive 파티션 컬럼이 되붙지 않는가
+        # 실측 2026-09-10 — 09-04·09-07 이 영원히 FAIL 로 고착됐다. 조각은
+        # 'date=YYYY-MM-DD/_staging/' 밑에 사는데 pq.read_table 이 그 상위
+        # 디렉터리를 hive 파티션으로 읽어 date 컬럼을 되붙였고(VM pyarrow
+        # 17.0.0), 스키마 검사가 전 행을 schemaMismatch 로 세웠다. 로컬
+        # pyarrow 25.0.0 은 되붙이지 않아 22b 가 초록으로 남았다 - 그래서
+        # 이 검사는 '실제 위반이 나오는가'를 보지 스키마 검사를 안 보면
+        # 안 된다(버전이 갈려도 같은 것을 재려면).
+        if have_pa:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+
+            dv = "2026-09-04"
+            stage = tmp / "carry" / ("date=" + dv) / "_staging"
+            stage.mkdir(parents=True, exist_ok=True)
+
+            def mn10_rows(bad_open=False):
+                # MN-1.0 7열 - tradingValue 가 없다(2026-09-09 이전 조각)
+                out = []
+                for i, hhmm in enumerate(["09:01", "09:02", "09:08"]):
+                    o = 99999 if (bad_open and hhmm == "09:08") else 1000
+                    out.append({"ticker": "127710",
+                                "ts": "%sT%s+09:00" % (dv, hhmm),
+                                "open": o, "high": 1010, "low": 990,
+                                "close": 1000, "volume": 10 + i})
+                return out
+
+            def write_mn10(rows, name="part-000.parquet"):
+                cols = ["ticker", "ts", "open", "high", "low", "close", "volume"]
+                t = pa.table({k: [r[k] for r in rows] for k in cols})
+                pq.write_table(t, stage / name)
+                return [{"name": name, "rows": len(rows)}]
+
+            carried = write_mn10(mn10_rows())
+            v, o = M.revalidate_carried(stage, carried, dv, pol)
+            check("22c MN-1.0 이월 조각이 schemaMismatch 를 안 낸다",
+                  not any(x["why"] == "schemaMismatch" for x in v), v)
+            check("22c 깨끗한 MN-1.0 이월 조각은 위반 0", v == [], v)
+            check("22c 없는 tradingValue 는 위반이 아니라 관측이다",
+                  o.get("tradingValueMissing") == 3, o)
+
+            carried = write_mn10(mn10_rows(bad_open=True))
+            v, _ = M.revalidate_carried(stage, carried, dv, pol)
+            check("22c 이월 조각의 실제 위반은 그대로 잡힌다 "
+                  "(스키마 잡음에 가려지지 않는다)",
+                  [x["why"] for x in v] == ["openOutOfRange"], v)
+
+            # 진짜 낯선 컬럼은 여전히 위반이다 - 되붙임을 막았다고
+            # 스키마 검사 자체를 무르게 만들지 않는다
+            rows = [dict(r, surprise=1) for r in mn10_rows()]
+            cols = ["ticker", "ts", "open", "high", "low", "close",
+                    "volume", "surprise"]
+            pq.write_table(pa.table({k: [r[k] for r in rows] for k in cols}),
+                           stage / "part-000.parquet")
+            v, _ = M.revalidate_carried(stage, [{"name": "part-000.parquet"}],
+                                        dv, pol)
+            check("22c 낯선 컬럼은 여전히 schemaMismatch",
+                  any(x["why"] == "schemaMismatch" for x in v), v)
+
         # 23 정찰 — 하나라도 캔들이 오면 즉시 멈춘다
         tr_p = FakeTransport({("111111", b): candles(b, n=5)})
         outs = M.probe_market_open(tr_p, ["111111", "333333", "444444"],

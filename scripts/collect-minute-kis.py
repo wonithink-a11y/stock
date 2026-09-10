@@ -53,7 +53,7 @@ BASE = "https://openapi.koreainvestment.com:9443"
 PATH_MIN = "/uapi/domestic-stock/v1/quotations/inquire-time-dailychartprice"
 
 SCHEMA = ["ticker", "ts", "open", "high", "low", "close", "volume", "tradingValue"]
-SCHEMA_VERSION = "MN-1.1"   # tradingValue 추가(2026-09-09). 옛 파티션은 MN-1.0 6열
+SCHEMA_VERSION = "MN-1.1"   # tradingValue 추가(2026-09-09). 옛 파티션은 MN-1.0 7열
 
 
 # ---------------------------------------------------------------- 기본
@@ -571,7 +571,24 @@ def revalidate_carried(stage_dir, carried, date, pol, minutes_seen=None):
         f = Path(stage_dir) / p["name"]
         if not f.exists():
             continue
-        rows = pq.read_table(f).to_pylist()
+        # ★ read_table 을 쓰지 않는다. 조각은 'date=YYYY-MM-DD/_staging/' 밑에
+        # 살고, pyarrow 는 버전에 따라 그 상위 디렉터리를 hive 파티션으로 읽어
+        # 없던 date 컬럼을 되붙인다(VM 17.0.0 실측: 되붙임 / 로컬 25.0.0: 안 함).
+        # 그러면 아래 validate_rows 의 스키마 검사가 전 행을 schemaMismatch 로
+        # 세워 이월된 하루가 영원히 FAIL 한다 - 2026-09-04·09-07 이 그렇게
+        # 고착됐다. ParquetFile.read() 는 파일 자체 스키마만 읽는다.
+        t = pq.ParquetFile(str(f)).read()
+        rows = t.to_pylist()
+        if t.schema.names != SCHEMA:
+            # MN-1.0 조각에는 tradingValue 가 없다. 그 하나만 빠진 것은 알려진
+            # 옛 스키마이므로 None 으로 채워 validate_rows 가 위반이 아니라
+            # 관측(tradingValueMissing)으로 세게 한다 - 모르는 것은 0이 아니다(교훈57).
+            # 그 밖의 어긋남은 그대로 위반이다.
+            if [c for c in SCHEMA if c not in t.schema.names] != ["tradingValue"]:
+                violations.append({"row": 0, "why": "schemaMismatch",
+                                   "got": t.schema.names})
+                continue
+            rows = [dict(r, tradingValue=None) for r in rows]
         vv, oo = validate_rows(rows, date, pol, minutes_seen=minutes_seen)
         if len(violations) < 20:
             violations.extend(vv[:20 - len(violations)])
