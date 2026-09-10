@@ -238,6 +238,15 @@ A2b는 수집 상한을 캘린더 끝으로 잡으므로 지금 돌리면 08-04~
 **단발성이라 지금은 면제 규칙을 넓히지 않는다**
 (`config/policies/minute.v1.json`의 `openWithinRangeExemptMinutes`는 여전히
 `["09:00"]` 하나뿐, 정책 버전도 그대로다 — 규칙 6, 완화는 버전 승격으로만).
+
+> **[2026-09-10 종결]** 아래에 적어 둔 축(시간대별·발생 패턴)으로 263거래일을
+> 실제로 집계했고, 그 결과 면제를 넓히는 대신 **`openOutOfRange` 자체를 위반에서
+> 관측으로 강등했다**(MN-1.3). 위반 77건 중 69건 전수 분해에서 75%가 그 종목의
+> 그날 첫 봉, 25%가 직전 체결 봉의 close 이월 — 설명 불가 0건, 진양성 0건이었다.
+> `openWithinRangeExemptMinutes` 는 폐기됐고 관측 카운터는
+> `observations.openOutOfRange`(시각 무관)로 바뀌었다. 근거 전문:
+> `docs/operations/minute-open-out-of-range-2026-09.md`.
+> 아래 본문은 그 시점의 기록으로 그대로 둔다.
 대신 향후 1~2주 누적을 본다. 아래 축으로 집계하면 그때 면제(또는 다른 대응)
 규칙을 만들 근거가 생긴다.
 
@@ -250,7 +259,8 @@ openOutOfRange 전체 발생률
 └─ 발생 패턴    항상 위로 벗어나는가/아래로도 벗어나는가 (09:00 면제처럼 양방향인가)
 ```
 
-manifest의 `observations.openOutOfRangeAtSessionOpen`은 09:00 면제분만 센다 -
+manifest의 `observations.openOutOfRangeAtSessionOpen`은 09:00 면제분만 센다
+(MN-1.3에서 `observations.openOutOfRange`로 바뀌어 시각과 무관하게 전부 센다) -
 09:00이 아닌 위반은 `acceptance` 배열의 "스키마·중복·일자·OHLC 위반 0" 항목
 `실측.샘플`에 최대 20건까지만 남는다. manifest 하나로는 "전체 발생률" 집계가
 안 된다 — 검사가 어디까지 잴 수 있는지 먼저 정한다는 원칙(교훈73)대로,

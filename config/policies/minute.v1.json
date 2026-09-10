@@ -1,7 +1,8 @@
 {
-  "version": "MN-1.2",
+  "version": "MN-1.3",
   "note": "분봉 수집 정책. 계약 문서는 docs/MN-1.0-분봉Raw저장계약.md다. 이 파일은 수집기가 읽는 값만 담는다.",
   "versionHistory": {
+    "MN-1.3": "2026-09-10. openOutOfRange 를 위반에서 관측으로 강등하고 시각 면제 목록(openWithinRangeExemptMinutes)을 없앤다. 263거래일 실측에서 위반 77건 · 위양성 69건 전수 설명 · 진양성 0건이었다(docs/operations/minute-open-out-of-range-2026-09.md). 소스는 open 을 '이 분의 첫 체결가'로 주지 않는다 - 75%가 그 종목의 그날 첫 봉(시가단일가 체결가), 25%가 직전 체결 봉의 close 이월이다. 09:00 이 특별한 것이 아니라 대부분의 종목이 그때 처음 체결될 뿐이고, 09:07 에 처음 거래되는 종목은 09:07 에 같은 일이 생긴다(11:00 실측 1건). MN-1.1 의 면제 근거였던 '09:01 이후로는 한 건도 없다'가 28건으로 깨졌다. collectionContract 는 건드리지 않으므로 resume 상태와 이미 통과한 manifest 는 영향받지 않는다. requireCloseWithinRange · requireLowLeHigh · negativeVolume 은 그대로 강제한다(실측 0건).",
     "MN-1.2": "2026-08-18. concurrency.initial을 2→4로 승격 (사용자 GO, 과거 246영업일 백필 속도 개선). 4는 이미 이 파일에 문서화돼 있던 상한이고, 첫 EGW00201이 실측된 6보다 낮다. concurrency는 collectionContract 밖이라 resume 상태·이미 통과한 manifest는 영향받지 않는다. 운영 daily 수집에도 동일 적용됨 — 관찰 필요.",
     "MN-1.1": "2026-08-10. validation 블록 추가 - 09:00 봉의 open 불변식을 면제하고 관측치로 센다. collectionContract는 건드리지 않았으므로 resume 상태가 그대로 살고 재수집이 필요 없다.",
     "MN-1.0": "2026-08-09. 최초."
@@ -158,14 +159,10 @@
     "note": "행 단위 불변식. 소스가 약속한 것만 강제한다 - 약속하지 않은 것을 단언하면 정상 데이터가 위반으로 잡힌다. 실측으로 3일 중 2일이 이것 때문에 떨어졌다(2026-08-10).",
     "requireLowLeHigh": true,
     "requireCloseWithinRange": true,
-    "requireOpenWithinRange": true,
-    "openWithinRangeExemptMinutes": [
-      "09:00"
-    ],
-    "openWithinRangeExemptNote": "실측 2026-08-10. 08-06 2건(036220 6880>6810 · 063440 1130>1129) · 08-07 3건(272550 9360<9390 · 378850 2740>2735 · 400760 2940>2935) / 종목 약 2,453. 09:00 봉의 open은 시가단일가 체결가이고 H·L·C·V는 그 직후 연속 체결 구간의 집계다. 둘이 갈리는 종목에서 open이 [low,high] 밖으로 나간다. 위로 4건 아래로 1건이라 한쪽으로 치우친 계산 오류가 아니며, 09:01 이후로는 한 건도 없다. 다섯 건 모두 close는 범위 안이었다 - 깨지는 것은 open 하나뿐이다.",
-    "exemptMinutesNote": "리터럴 목록으로 고정한다. '장 시작 캔들'처럼 적으면 세션 정의가 바뀔 때 조용히 범위가 달라진다(교훈59).",
-    "exemptionIsObserved": true,
-    "exemptionIsObservedNote": "면제는 눈감는 것이 아니다. 면제한 건수를 manifest의 observations에 남긴다. 지금 하루 2~3건인 것이 500건이 되면 다른 일이 벌어진 것이고, 그것을 보려면 세고 있어야 한다."
+    "requireOpenWithinRange": false,
+    "openWithinRangeNote": "실측 2026-09-10 · 263거래일(2025-08-08~2026-09-10) · 위반 77건 · 위반이 있는 날 33일. 소스가 open 을 '이 분의 첫 체결가'로 약속하지 않는다: 69건 전수 분해에서 75%(52건)가 그 종목의 그날 첫 봉이고(시가단일가 체결가) 25%(17건)는 open == 직전 체결 봉의 close 인 이월값이다(그 중 7건은 거래 공백 뒤). 남는 설명 불가 건수 0. 이 검사의 위양성 69 · 진양성 0 이었고 그 대가로 2026-09-04·09-07 두 날(110만 봉)이 통째로 버려졌다. 그래서 판정하지 않는다 - 세기만 한다. 근거 전문: docs/operations/minute-open-out-of-range-2026-09.md",
+    "openOutOfRangeIsObserved": true,
+    "openOutOfRangeIsObservedNote": "판정하지 않는 것은 눈감는 것이 아니다. 건수를 manifest의 observations.openOutOfRange 에 남긴다. 지금 하루 0~3건인 것이 500건이 되면 다른 일이 벌어진 것이고, 그것을 보려면 세고 있어야 한다. 그 자리에서 안 남기면 재수집 없이는 영영 얻을 수 없다(교훈75)."
   },
   "acceptance": {
     "note": "하루치 수집이 인수 조건을 통과했는가. 실패하면 parquet를 쓰지 않는다(교훈43).",

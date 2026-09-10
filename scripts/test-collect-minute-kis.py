@@ -330,33 +330,38 @@ def run_all(M=None):
               M.SCHEMA_VERSION == "MN-1.1" and M.SCHEMA[-1] == "tradingValue",
               (M.SCHEMA_VERSION, M.SCHEMA))
 
-        # 14b 09:00의 open 면제 — 실측 2026-08-10 (3일 중 2일이 이것으로 떨어졌다)
-        # 09:00 봉의 open은 시가단일가 체결가라 그 1분의 [low,high] 밖일 수 있다.
-        # 소스가 약속하지 않은 것을 단언하면 정상 데이터가 위반이 된다.
-        # 면제가 어디까지인지를 여기서 못 박는다 - 넓어지면 진짜 손상이 숨는다.
+        # 14b open 범위 이탈은 판정하지 않고 센다 (MN-1.3, 2026-09-10)
+        # 263거래일 실측 69건이 전부 두 가지로 설명됐다 - 75% 그 종목의 그날
+        # 첫 봉(시가단일가), 25% 직전 체결 봉의 close 이월. 진양성 0건.
+        # MN-1.1의 시각 면제(09:00만)는 근거였던 "09:01 이후 0건"이 28건으로
+        # 깨져 폐기했다. 여기서 못 박는 것은 '시각과 무관하게' 라는 점이다.
         v4, o4 = M.validate_rows([row("09:00", 6880, 6810, 6810, 6810, 63)],
                                  date, pol)       # 실측 036220
         check("09:00의 open이 high 위여도 위반이 아니다", not v4, v4)
-        check("면제한 것을 관측치로 센다",
-              o4.get("openOutOfRangeAtSessionOpen") == 1, o4)
+        check("센 것을 관측치로 남긴다", o4.get("openOutOfRange") == 1, o4)
 
         v5, o5 = M.validate_rows([row("09:00", 9360, 9420, 9390, 9420, 603)],
                                  date, pol)       # 실측 272550 (아래로 벗어남)
         check("09:00의 open이 low 아래여도 위반이 아니다 (양방향)", not v5, v5)
         check("아래로 벗어난 것도 관측치로 센다",
-              o5.get("openOutOfRangeAtSessionOpen") == 1, o5)
+              o5.get("openOutOfRange") == 1, o5)
 
-        # ★ 면제는 09:00 하나뿐이다. 여기가 새면 A의 근거가 사라진다.
+        # ★ 시각과 무관하다. 09:01·11:00·15:30 전부 같게 다룬다 - 실측에서
+        # 위반 시각이 09:00~09:08 에 흩어졌고 11:00 도 1건 나왔다.
         v6, o6 = M.validate_rows([row("09:01", 6880, 6810, 6810, 6810)],
                                  date, pol)
-        check("09:01의 open 범위 이탈은 여전히 위반",
-              any(x["why"] == "openOutOfRange" for x in v6), v6)
-        check("09:01은 관측치로 새지 않는다", not o6, o6)
-        v7, _ = M.validate_rows([row("15:30", 100, 90, 90, 90)], date, pol)
-        check("종가단일가(15:30)도 면제 대상이 아니다",
-              any(x["why"] == "openOutOfRange" for x in v7), v7)
+        check("09:01의 open 범위 이탈도 위반이 아니다", not v6, v6)
+        check("09:01도 관측치로 센다", o6.get("openOutOfRange") == 1, o6)
+        v6b, o6b = M.validate_rows([row("11:00", 68200, 68100, 68100, 68100)],
+                                   date, pol)     # 실측 2025-11-21 107590
+        check("장중(11:00) 이탈도 위반이 아니라 관측이다",
+              not v6b and o6b.get("openOutOfRange") == 1, (v6b, o6b))
+        v7, o7 = M.validate_rows([row("15:30", 100, 90, 90, 90)], date, pol)
+        check("종가단일가(15:30)도 같게 다룬다",
+              not v7 and o7.get("openOutOfRange") == 1, (v7, o7))
 
-        # ★ close는 09:00에서도 강제된다. 실측 5건 모두 close는 범위 안이었다.
+        # ★ close는 여전히 강제된다. 실측에서 close 이탈은 263일 0건이었다 -
+        # 소스가 실제로 약속하는 값이라 여기가 새면 진짜 손상이 숨는다.
         v8, _ = M.validate_rows([row("09:00", 6810, 6810, 6810, 9999)],
                                 date, pol)
         check("09:00이어도 close 범위 이탈은 위반",
@@ -366,33 +371,36 @@ def run_all(M=None):
         check("09:00이어도 low > high는 위반",
               any(x["why"] == "lowAboveHigh" for x in v9), v9)
 
-        # 14c 면제가 인수 조건까지 통과시키는가 (실운영에서 깨진 자리다)
+        # 14c 관측 강등이 인수 조건까지 통과시키는가 (실운영에서 깨진 자리다)
         opened = candles(sent)
         opened[0]["stck_oprc"] = "99999"       # 09:00 봉의 open만 범위 밖으로
         res_ex = M.run_day(FakeTransport({("111111", sent): opened}),
                            ["111111"], date, pol, base_ctx(),
                            tmp / "exempt", tmp / "exemptst",
                            sleeper=slept.append)
-        check("09:00 이상치가 있어도 하루가 인수 조건을 통과한다",
+        check("open 이상치가 있어도 하루가 인수 조건을 통과한다",
               res_ex["acceptancePassed"],
               [c for c in res_ex["manifest"]["acceptance"] if not c["통과"]])
-        check("manifest가 면제 건수를 들고 있다",
-              res_ex["manifest"]["observations"]
-              .get("openOutOfRangeAtSessionOpen") == 1,
+        check("manifest가 그 건수를 들고 있다",
+              res_ex["manifest"]["observations"].get("openOutOfRange") == 1,
               res_ex["manifest"]["observations"])
 
         # 14d 정책이 계약을 단일 출처로 들고 있는가
         val = pol.get("validation") or {}
-        check("면제 시각이 정책에 리터럴로 있다",
-              val.get("openWithinRangeExemptMinutes") == ["09:00"],
-              val.get("openWithinRangeExemptMinutes"))
-        check("면제 사유가 실측과 함께 적혀 있다",
-              "2026-08-10" in str(val.get("openWithinRangeExemptNote")))
+        check("open 불변식이 정책에서 꺼져 있다",
+              val.get("requireOpenWithinRange") is False,
+              val.get("requireOpenWithinRange"))
+        # ★ 시각 면제 목록이 되살아나면 '어떤 시각은 특별하다'는 폐기된
+        # 전제가 조용히 돌아온다. 되살리려면 이 회귀를 먼저 지워야 한다.
+        check("시각 면제 목록은 없다 (MN-1.3에서 폐기)",
+              "openWithinRangeExemptMinutes" not in val, val.keys())
+        check("끈 근거가 실측과 함께 적혀 있다",
+              "2026-09-10" in str(val.get("openWithinRangeNote")))
         check("close·low<=high는 정책에서도 강제로 남아 있다",
               val.get("requireCloseWithinRange") is True
               and val.get("requireLowLeHigh") is True, val)
         check("정책 버전이 올라갔다 (완화는 버전 승격으로만)",
-              pol["version"] == "MN-1.2", pol["version"])
+              pol["version"] == "MN-1.3", pol["version"])
         # collectionContract가 안 바뀌어야 이미 모은 것을 다시 쓸 수 있다.
         check("면제가 collectionContract를 건드리지 않았다",
               "validation" not in pol["collectionContract"]
@@ -711,7 +719,7 @@ def run_all(M=None):
         if have_pa:
             good_a = candles(sent, n=20)
             bad_b = candles(sent, n=20)
-            bad_b[5]["stck_oprc"] = "99999"     # 세션 중반, 예외 시각 아님
+            bad_b[5]["stck_prpr"] = "99999"     # close 를 범위 밖으로
             data_v = {("111111", sent): good_a, ("222222", sent): bad_b}
             polv = json.loads(json.dumps(pol))
             polv["output"]["flushEverySymbols"] = 1
@@ -720,7 +728,7 @@ def run_all(M=None):
                            tmp / "resumeviolstate", sleeper=slept.append)
             v_check1 = next(c for c in r1["manifest"]["acceptance"]
                             if c["항목"].startswith("스키마"))
-            check("22b 첫 실행이 openOutOfRange로 인수 조건 실패",
+            check("22b 첫 실행이 closeOutOfRange로 인수 조건 실패",
                   not r1["acceptancePassed"] and v_check1["실측"]["위반"] >= 1,
                   v_check1)
 
@@ -736,8 +744,8 @@ def run_all(M=None):
                   "(재검증 없이 acceptancePassed=true 금지)",
                   not r2["acceptancePassed"] and v_check2["실측"]["위반"] >= 1,
                   v_check2)
-            check("22b 재검증된 위반이 실제로 openOutOfRange다",
-                  any(v["why"] == "openOutOfRange"
+            check("22b 재검증된 위반이 실제로 closeOutOfRange다",
+                  any(v["why"] == "closeOutOfRange"
                       for v in v_check2["실측"]["샘플"]),
                   v_check2["실측"]["샘플"])
 
@@ -757,15 +765,15 @@ def run_all(M=None):
             stage = tmp / "carry" / ("date=" + dv) / "_staging"
             stage.mkdir(parents=True, exist_ok=True)
 
-            def mn10_rows(bad_open=False):
+            def mn10_rows(bad_close=False):
                 # MN-1.0 7열 - tradingValue 가 없다(2026-09-09 이전 조각)
                 out = []
                 for i, hhmm in enumerate(["09:01", "09:02", "09:08"]):
-                    o = 99999 if (bad_open and hhmm == "09:08") else 1000
+                    c = 99999 if (bad_close and hhmm == "09:08") else 1000
                     out.append({"ticker": "127710",
                                 "ts": "%sT%s+09:00" % (dv, hhmm),
-                                "open": o, "high": 1010, "low": 990,
-                                "close": 1000, "volume": 10 + i})
+                                "open": 1000, "high": 1010, "low": 990,
+                                "close": c, "volume": 10 + i})
                 return out
 
             def write_mn10(rows, name="part-000.parquet"):
@@ -782,11 +790,11 @@ def run_all(M=None):
             check("22c 없는 tradingValue 는 위반이 아니라 관측이다",
                   o.get("tradingValueMissing") == 3, o)
 
-            carried = write_mn10(mn10_rows(bad_open=True))
+            carried = write_mn10(mn10_rows(bad_close=True))
             v, _ = M.revalidate_carried(stage, carried, dv, pol)
             check("22c 이월 조각의 실제 위반은 그대로 잡힌다 "
                   "(스키마 잡음에 가려지지 않는다)",
-                  [x["why"] for x in v] == ["openOutOfRange"], v)
+                  [x["why"] for x in v] == ["closeOutOfRange"], v)
 
             # 진짜 낯선 컬럼은 여전히 위반이다 - 되붙임을 막았다고
             # 스키마 검사 자체를 무르게 만들지 않는다

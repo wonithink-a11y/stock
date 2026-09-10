@@ -416,7 +416,6 @@ def validate_rows(rows, date, pol, minutes_seen=None):
         minutes_seen.update(str(r["ts"])[11:16] for r in rows if "ts" in r)
 
     val = pol.get("validation") or {}
-    exempt = set(val.get("openWithinRangeExemptMinutes") or [])
     v, obs = [], {}
     d = dashed(date)
     keys = set()
@@ -437,12 +436,15 @@ def validate_rows(rows, date, pol, minutes_seen=None):
                 and not (r["low"] <= r["close"] <= r["high"])):
             v.append({"row": i, "why": "closeOutOfRange", "key": list(k)})
         if not (r["low"] <= r["open"] <= r["high"]):
-            # 09:00의 open은 시가단일가 체결가라 그 1분의 체결 범위 밖일 수
-            # 있다. 소스가 약속하지 않은 것을 위반으로 세지 않는다.
-            if str(r["ts"])[11:16] in exempt:
-                obs["openOutOfRangeAtSessionOpen"] = (
-                    obs.get("openOutOfRangeAtSessionOpen", 0) + 1)
-            elif val.get("requireOpenWithinRange", True):
+            # 소스는 open 을 '이 분의 첫 체결가'로 주지 않는다. 263거래일
+            # 실측(MN-1.3)에서 69건이 전부 두 가지로 설명됐다 - 75%가 그
+            # 종목의 그날 첫 봉(시가단일가 체결가), 25%가 직전 체결 봉의
+            # close 이월. 설명 불가 0건, 진양성 0건이었다. 그래서 판정하지
+            # 않고 센다. 옛 이름(openOutOfRangeAtSessionOpen)은 버렸다 -
+            # 11:00 실측 1건이 '세션 시작'이라는 단언을 반증했고, 거짓을
+            # 말하는 이름은 남겨 두는 쪽이 더 나쁘다.
+            obs["openOutOfRange"] = obs.get("openOutOfRange", 0) + 1
+            if val.get("requireOpenWithinRange", False):
                 v.append({"row": i, "why": "openOutOfRange", "key": list(k)})
         if r["volume"] < 0:
             v.append({"row": i, "why": "negativeVolume", "key": list(k)})
