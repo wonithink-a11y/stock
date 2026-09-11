@@ -1,0 +1,50 @@
+name: probe-krx-wall
+
+# KRX '벽' 진단 — 세션인가 IP인가. 수집이 아니라 판정이다.
+#
+# shares-snapshot 이 매 실행 어느 지점에서 성공이 얼어붙고 그 뒤 100% 실패한다
+# (112/166/214/233/107). 600초 쉬어도 안 풀리고, 우리 KRX 워크플로끼리 겹친 적도
+# 없다(Actions 전수 대조 2026-09-11). 원인을 모르는 채 남아 있다.
+#
+# ★ 이 프로브는 KRX 에 로그인한다. pykrx 는 CD011(중복 로그인)에 skipDup=Y 로
+#   대응하므로 **먼저 붙어 있던 세션을 쫓아낸다** — 다른 KRX 워크플로
+#   (calendar · macro-regime-ui · market-flows · supply-demand-a4 · short-selling-a8)
+#   가 도는 중에 돌리지 않는다. 수동 전용이고 스케줄을 달지 않는 이유가 이것이다.
+#
+# 쓰기 없음 — 저장소에 아무것도 커밋하지 않는다. 로그가 산출물이다.
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: '밀어볼 종목 수 상한'
+        required: false
+        default: '400'
+        type: string
+
+concurrency:
+  group: krx-login          # KRX 로그인을 쓰는 것들과 같은 그룹으로 묶는다
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet "pykrx==1.2.8" pandas       # shares-snapshot 과 동일 버전
+
+      - name: Probe
+        timeout-minutes: 12
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-krx-wall.py --limit ${{ inputs.limit || 400 }}
