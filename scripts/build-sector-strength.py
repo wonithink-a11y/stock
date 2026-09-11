@@ -54,7 +54,8 @@ WINDOWS = {"1w": 5, "1m": 21, "3m": 63, "6m": 126}
 MIN_MEMBERS = 5          # 이 미만인 그룹은 표시하지 않는다 (절대 규칙 1)
 MIN_BARS = 130           # 6m 창을 채우지 못하는 종목은 그 창에서 제외
 TV_LOOKBACK = 21         # 거래대금 가중치를 재는 구간(창 시작 직전 21세션)
-STALE_WARN_DAYS = 180    # 주식수가 이보다 오래되면 경고. 계산에서 빼지는 않는다
+STALE_WARN_DAYS = 180    # KRX 출처 주식수가 이보다 오래되면 경고. 계산에서 빼지는
+                         # 않는다. A3C 폴백에는 안 건다 - 아래 krx_stales 주석 참고
 SPLIT_UP, SPLIT_DOWN = 1.5, 2 / 3   # 주식수 급변 가드(양방향). 분할 판별기가 아니라
                                      # "현재 가격과 곱하기 위험한 종목" 차단기다.
 A8_RATIO_TOLERANCE = 0.02  # A3c 폴백 경로 전용. 재구성/참조 시총비가 이만큼
@@ -407,6 +408,16 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
             cap_top_w = round(w / sum(x for _, x in weighted), 3)
 
         stales = [m["staleDays"] for m in members if m["staleDays"] is not None]
+        # ★ 경고는 KRX 출처에만 건다. A3C 폴백의 나이는 수집 범위(fundamentals.v1
+        # 의 fiscalYearTo)의 함수라 한 해의 3/4 은 180일을 넘는다 - 2026-09-11
+        # 실측으로 3,197종목 중 2,378개(74%)가 FY2025 사업보고서(2026-03)에 멈춰
+        # 있고 다음 레코드는 2027-04 이후다. 그대로 두면 ~13개월 내내 켜져 있는
+        # 경고가 되고, 늘 참인 경고는 아무도 안 본다.
+        # KRX 스냅샷은 매일 갱신되므로(실측 7~8일) 180일 낡았다면 진짜 고장이다.
+        # A3C 의 나이는 maxSharesStaleDays 로 계속 보인다 - 숫자는 안 지운다.
+        # 근거: docs/operations/a3c-shares-staleness-2026-09.md
+        krx_stales = [m["staleDays"] for m in members
+                      if m["staleDays"] is not None and m["sharesSource"] == "KRX"]
         src = collections.Counter(m["sharesSource"] for m in members if m["sharesSource"])
         ranked = sorted((m for m in members if m["rets"]["1m"] is not None),
                         key=lambda m: m["rets"]["1m"], reverse=True)
@@ -429,7 +440,8 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
             "tvRs": {k: r4(v) for k, v in sub(tv, tv_bench).items()},
             "tvCoverage": tv_cov,
             "maxSharesStaleDays": max(stales) if stales else None,
-            "sharesStale": bool(stales and max(stales) > STALE_WARN_DAYS),
+            "maxKrxSharesStaleDays": max(krx_stales) if krx_stales else None,
+            "sharesStale": bool(krx_stales and max(krx_stales) > STALE_WARN_DAYS),
             "sharesSourceCounts": dict(src),
             "sharesFallbackCount": src.get("A3C", 0),
             "top": [brief(m) for m in ranked[:3]],
@@ -477,7 +489,10 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
                         "staleWarnDays": STALE_WARN_DAYS,
                         "note": "주식수가 직전 공시 대비 급변하거나 수권주식수를 넘으면 "
                                 "CAP 계산에서 제외한다(분자·분모 양쪽). stale 은 경고만 "
-                                "하고 제외하지 않는다 - 오래됐다고 틀린 것은 아니다."},
+                                "하고 제외하지 않는다 - 오래됐다고 틀린 것은 아니다. "
+                                "★ sharesStale 은 KRX 출처에만 건다(maxKrxSharesStaleDays "
+                                "기준) - A3C 폴백이 6개월 낡은 것은 수집 범위의 함수라 "
+                                "고장이 아니다. 그 나이는 maxSharesStaleDays 로 본다."},
         "quadrantAxes": {"x": "3개월 상대강도(rs.3m)", "y": "가속(rs.1m - rs.3m)",
                          "appliesTo": "EW only"},
         "disclaimer": "관찰용 지표다. Step 0 검증에서 섹터 주도권 신호는 난수 "
@@ -668,12 +683,22 @@ def selftest():
     assert any(u["ticker"] == "A0" for u in o3["sharesUnverified"])
     assert a3["capRet"]["3m"] < a2["capRet"]["3m"]      # 대형주가 빠지면 값이 내려간다
 
-    # stale 은 경고만 하고 제외하지 않는다
-    sh = {t: {"shares": 1, "asOf": "20200101", "unverified": None} for t in sh}
+    # stale 은 경고만 하고 제외하지 않는다. 단 **경고는 KRX 출처에만** 건다.
+    sh = {t: {"shares": 1, "asOf": "20200101", "source": "KRX", "unverified": None} for t in sh}
     o4 = build({"byTicker": by}, sec, shares_by_ticker=sh)
     a4 = next(g for g in o4["groups"] if g["group"] == g0)
-    assert a4["sharesStale"] is True and a4["maxSharesStaleDays"] > STALE_WARN_DAYS
+    assert a4["sharesStale"] is True and a4["maxKrxSharesStaleDays"] > STALE_WARN_DAYS
+    assert a4["maxSharesStaleDays"] == a4["maxKrxSharesStaleDays"]
     assert a4["capCoverage"]["3m"] == 1.0, "stale 을 제외해 버렸다"
+
+    # 같은 나이라도 A3C 폴백이면 경고가 아니다 - 나이는 숫자로 계속 보인다.
+    # (A3C 는 fiscalYearTo 때문에 한 해의 3/4 이 180일을 넘는다 - 늘 참인 경고가 된다)
+    sh_a3c = {t: {**v, "source": "A3C"} for t, v in sh.items()}
+    o4b = build({"byTicker": by}, sec, shares_by_ticker=sh_a3c)
+    a4b = next(g for g in o4b["groups"] if g["group"] == g0)
+    assert a4b["sharesStale"] is False, "A3C 폴백에 경고가 붙었다"
+    assert a4b["maxKrxSharesStaleDays"] is None
+    assert a4b["maxSharesStaleDays"] > STALE_WARN_DAYS, "나이 자체는 계속 보여야 한다"
 
     # ── ★ EW 완전 불변 (2026-09-06) ─────────────────────────────
     # **같은 가격 입력에서 주식수만 바꿔** 비교한다. o2~o4 는 위에서 by 의 가격을

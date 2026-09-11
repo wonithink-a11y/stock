@@ -120,8 +120,9 @@ Validated against
             사업보고서(2026-03)고 3,197종목 중 2,378개(74%)가 거기 멈춰 있다.
             다음 레코드는 2027-04 이후 — 즉 sharesStale 은 앞으로 ~13개월 켜져
             있는다. 임계는 안 올렸다(올려도 같은 자리에 다시 온다).
-            근거: docs/operations/a3c-shares-staleness-2026-09.md. **미결**: 그
-            경고를 KRX 출처로 좁힐지. ★ chart.js "한 행 밀기" 폴백 제거 —
+            근거: docs/operations/a3c-shares-staleness-2026-09.md. 경고는 같은 날
+            **KRX 출처로 좁혔다**(사용자 GO) — 19그룹 전부 꺼졌고(KRX 나이 2~8일)
+            A3C 나이는 maxSharesStaleDays 로 계속 보인다. ★ chart.js "한 행 밀기" 폴백 제거 —
             생산자가 asOf 를 낸다(krKospi·krKosdaq 250/250 확인).
             ★ 09-14 거래시간 연장 = **정규장 불변**, 애프터마켓 16:00~20:00 신설
             (2026-09-11, 세션인수인계-2026-09-11.md §0). cursorSeed·sessionMinutes·
