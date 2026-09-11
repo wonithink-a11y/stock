@@ -236,8 +236,14 @@ Validated against
 교훈      docs/LESSONS.md                       51개 전문. 아래에는 일곱만 둔다
 운영      docs/operations/test-guide.md         테스트·수집·게이트 검증 명령 전문
           docs/operations/data-source-availability.md   막힌 소스 (재론 금지)
-결정 대기  docs/A3b-결정브리프.md · docs/FN-1.4-measured승격절차.md
-          (A2a 증분화는 2026-09-11 **STOP 으로 종결** — 아래 완료 참고)
+결정 기록  **셋 다 닫혔다 — 대기 중인 🔴은 없다**(2026-09-11 확인). 셋을 지우지 않고
+          기록으로 남기는 이유는 '무엇을 왜 그렇게 정했나'가 재론을 막기 때문이다
+          docs/A3b-결정브리프.md            안 A 채택(2026-08-10) · 실행 08-11~12 완료
+                                          "이후 판단은 계약 문서가 갖는다"(§6)
+          docs/FN-1.4-measured승격절차.md   승격 실행 2026-08-10 · 절차 문서지 브리프가
+                                          아니다. 값·근거의 단일 출처는 정책의
+                                          `promotion` 블록(현 파일은 이미 FN-1.8)
+          docs/A2a-증분화-결정브리프.md      STOP 종결(2026-09-11) — 아래 완료 참고
 협업      CHATGPT.md                            ChatGPT의 진입 규칙
           docs/AI협업-업무분담.md               업무 경계 · 인계 형식 · 출처 규칙
           docs/control/TASKS.md                 현재 업무 배정. 정본이 아니다 —
