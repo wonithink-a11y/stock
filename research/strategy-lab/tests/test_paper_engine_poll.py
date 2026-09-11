@@ -461,6 +461,12 @@ def test_submit_records_order_ledger_for_strategy_attribution():
     sells = [v for v in ledger.values() if v["side"] == "SELL"]
     ok("매도도 원장에 남는다", len(sells) == 1, ledger)
     ok("매도 사유까지", sells and sells[0]["reason"] == "STOP", sells)
+    # 진입가를 같이 남긴다 - 체결되면 포지션이 삭제돼 그 뒤로는 알 데가 없고,
+    # 이게 없으면 전략별 실현손익을 영영 못 낸다. 손익 자체는 안 적는다
+    # (청산가는 KIS 가 준다 - 유도값을 저장하면 원본과 갈린다).
+    ok("매도 원장에 진입가", sells and sells[0]["entryPrice"] == 200.0, sells)
+    ok("매도 원장에 진입일", sells and sells[0]["entryDate"] == "2026-08-20", sells)
+    ok("손익은 원장에 안 적는다", sells and "pnl" not in sells[0], sells)
     _reset()
 
 

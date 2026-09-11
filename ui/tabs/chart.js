@@ -500,7 +500,10 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       out += '<div class="empty">이 기간에 체결된 매매가 없습니다.</div>';
       return out + "</div>";
     }
-    const sum = days.reduce((a, d) => ({ buy: a.buy + d.buyKrw, sell: a.sell + d.sellKrw }), { buy: 0, sell: 0 });
+    const sum = days.reduce((a, d) => ({
+      buy: a.buy + d.buyKrw, sell: a.sell + d.sellKrw,
+      realized: a.realized + (d.realizedKrw || 0), rFrom: a.rFrom + (d.realizedFrom || 0),
+    }), { buy: 0, sell: 0, realized: 0, rFrom: 0 });
 
     // 날짜 -> 전략 -> 그날 합계. 전략 귀속은 주문 원장(주문번호->전략)으로만
     // 하고, 원장에 없는 주문은 날짜별 잔차를 그대로 "기록없음"으로 낸다 -
@@ -512,7 +515,7 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
     });
 
     out += '<h3 style="margin:12px 0 6px">날짜별 체결 ' + days.length + "일</h3>";
-    out += '<table><thead><tr><th>날짜</th><th>전략</th><th>매수금액</th><th>매수건</th><th>매도금액</th><th>매도건</th><th>순매수</th></tr></thead><tbody>';
+    out += '<table><thead><tr><th>날짜</th><th>전략</th><th>매수금액</th><th>매수건</th><th>매도금액</th><th>매도건</th><th>순매수</th><th>실현손익</th></tr></thead><tbody>';
     const dayRow = (dateCell, label, labelClass, d) =>
       "<tr>" +
       '<td class="mono">' + dateCell + "</td>" +
@@ -522,6 +525,12 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       '<td class="mono down">' + (d.sellKrw ? formatAccount(d.sellKrw) : "-") + "</td>" +
       '<td class="mono dim">' + (d.sellCount || "-") + "</td>" +
       '<td class="mono ' + getPnlClass(d.netKrw) + '">' + formatPnl(d.netKrw) + "</td>" +
+      // 잰 건이 0이면 "-" 다. 0원이 아니다 - 원장 이전 매도는 진입가를 모른다.
+      '<td class="mono ' + (d.realizedFrom ? getPnlClass(d.realizedKrw) : "dim") + '">' +
+        (d.realizedFrom ? formatPnl(d.realizedKrw) +
+          (d.realizedFrom < d.sellCount ? ' <span class="dim" style="font-size:10px">' +
+            d.realizedFrom + "/" + d.sellCount + "</span>" : "")
+         : (d.sellCount ? "기록없음" : "-")) + "</td>" +
       "</tr>";
     days.forEach((d) => {
       const parts = perDate[d.date] || [];
@@ -532,6 +541,7 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
         sellKrw: d.sellKrw - parts.reduce((a, p) => a + p.d.sellKrw, 0),
         buyCount: d.buyCount - parts.reduce((a, p) => a + p.d.buyCount, 0),
         sellCount: d.sellCount - parts.reduce((a, p) => a + p.d.sellCount, 0),
+        realizedKrw: 0, realizedFrom: 0,   // 원장에 없는 주문이라 진입가가 없다
       };
       rest.netKrw = rest.buyKrw - rest.sellKrw;
       if (rest.buyKrw || rest.sellKrw) {
@@ -541,7 +551,9 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
     out += '</tbody><tfoot><tr><th>합계</th><th class="dim">계좌 전체</th>' +
       '<th class="mono up">' + formatAccount(sum.buy) + "</th><th></th>" +
       '<th class="mono down">' + formatAccount(sum.sell) + "</th><th></th>" +
-      '<th class="mono ' + getPnlClass(sum.buy - sum.sell) + '">' + formatPnl(sum.buy - sum.sell) + "</th></tr></tfoot>";
+      '<th class="mono ' + getPnlClass(sum.buy - sum.sell) + '">' + formatPnl(sum.buy - sum.sell) + "</th>" +
+      '<th class="mono ' + (sum.rFrom ? getPnlClass(sum.realized) : "dim") + '">' +
+        (sum.rFrom ? formatPnl(sum.realized) : "-") + "</th></tr></tfoot>";
     out += "</table>";
     const un = trades.unattributed || {};
     out += '<div class="dim" style="font-size:11px;margin-top:6px">체결분만 셉니다(미체결은 위 표로 갑니다). ' +
@@ -549,6 +561,9 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
            '계좌 응답에는 전략이 없고, 종목·수량으로 되짚는 건 겹쳐 든 종목에서 짐작이 됩니다.' +
            (un.count ? ' <b>기록없음 ' + un.count + '건</b>(매수 ' + formatAccount(un.buyKrw) +
                        ' · 매도 ' + formatAccount(un.sellKrw) + ')은 원장 이전 주문이라 되살릴 수 없습니다.' : "") +
+           ' 실현손익 = (체결평균가 − 진입가) × 체결수량, <b>수수료·세금 전</b>입니다 — ' +
+           '진입가는 원장에만 있어서(매도가 체결되면 포지션이 삭제됩니다) 원장 이전 매도는 잴 수 없고, ' +
+           '0원으로 메우지 않고 "기록없음"으로 둡니다.' +
            ' KIS 일별주문체결 조회는 3개월까지만 줍니다.</div>';
     return out + "</div>";
   }

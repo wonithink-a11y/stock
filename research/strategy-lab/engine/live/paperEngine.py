@@ -560,9 +560,15 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                               "order_date": today_compact, "exitReason": reason}
             # 매도는 체결되면 포지션이 통째로 삭제된다(아래 del state[symbol]) -
             # 매수보다 더 급하게 지금 남겨야 한다.
+            # entryPrice 를 같이 남기면 실현손익이 나온다 - 청산가는 KIS 체결내역이
+            # 주므로(avg_prvs) 여기 적을 필요가 없고, 진입가는 여기 말고는 알 데가
+            # 없다(체결되면 이 포지션은 삭제된다). 손익 자체는 적지 않는다 -
+            # 유도값을 저장하면 원본과 갈린다(교훈72·75).
             positionStore.record_order(repo_root, strategy_id, order_no,
                                         {"date": today, "symbol": symbol, "side": "SELL",
-                                         "quantity": pos["quantity"], "reason": reason})
+                                         "quantity": pos["quantity"], "reason": reason,
+                                         "entryPrice": pos.get("entry_price"),
+                                         "entryDate": pos.get("entry_date")})
             events.append({"type": "EXIT_SUBMITTED", "symbol": symbol, "reason": reason, "orderNo": order_no})
             log(f"[{today}] 매도 제출  {symbol}  사유={reason}  주문번호={order_no}")
             continue

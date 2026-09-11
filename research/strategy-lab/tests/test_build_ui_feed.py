@@ -90,10 +90,10 @@ def test_strategy_rows_sum_to_account_when_books_are_consistent():
 # UI 의 "리밸런싱 내역"이 읽는 날짜별 매수·매도 합계. 이게 틀리면 화면이
 # 조용히 틀린 금액을 말한다 - 원본이 계좌 체결내역이라 대조할 데가 화면뿐이다.
 
-def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=False, order_no=""):
+def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=False, order_no="", avg=100.0):
     return {"orderNo": order_no, "date": date, "symbol": symbol, "name": symbol, "side": side,
             "orderedQty": ordered if ordered is not None else filled + pending,
-            "filledQty": filled, "avgPrice": 100.0, "amountKrw": amount,
+            "filledQty": filled, "avgPrice": avg, "amountKrw": amount,
             "pendingQty": pending, "rejectedQty": 0, "canceled": canceled}
 
 
@@ -157,8 +157,9 @@ def test_aggregate_trades_splits_by_strategy_via_order_ledger():
         _exec("2026-09-04", "021820", "BUY", 16, 165_000, order_no="A2"),
         _exec("2026-09-04", "058450", "SELL", 100, 140_000, order_no="A3"),
     ]
-    owner = {"A1": "pbr_value_v1", "A2": "pbr_value_v1_combined", "A3": "pbr_value_v1"}
-    out = feed._aggregate_trades(rows, order_owner=owner)
+    owner = {k: {"strategy": v} for k, v in
+             {"A1": "pbr_value_v1", "A2": "pbr_value_v1_combined", "A3": "pbr_value_v1"}.items()}
+    out = feed._aggregate_trades(rows, order_meta=owner)
     a = out["byStrategy"]["pbr_value_v1"][0]
     b = out["byStrategy"]["pbr_value_v1_combined"][0]
     ok("전략A 매수", a["buyKrw"] == 3_400_000, a)
@@ -175,7 +176,7 @@ def test_aggregate_trades_unknown_order_is_unattributed_not_guessed():
         _exec("2026-08-03", "021820", "BUY", 330, 3_400_000, order_no="OLD"),
         _exec("2026-09-04", "001080", "BUY", 42, 165_000, order_no="NEW"),
     ]
-    out = feed._aggregate_trades(rows, order_owner={"NEW": "pbr_value_v1"})
+    out = feed._aggregate_trades(rows, order_meta={"NEW": {"strategy": "pbr_value_v1"}})
     ok("모르는 주문은 전략에 안 들어간다",
        list(out["byStrategy"]) == ["pbr_value_v1"], out["byStrategy"])
     ok("귀속된 전략 금액은 그것만",
@@ -186,9 +187,42 @@ def test_aggregate_trades_unknown_order_is_unattributed_not_guessed():
        sum(d["buyKrw"] for d in out["days"]) == 3_565_000, out["days"])
 
 
+def test_realized_pnl_from_ledger_entry_price():
+    """실현손익 = (체결평균가 - 진입가) x 체결수량. 진입가는 원장에만 있다 -
+    매도가 체결되면 포지션이 삭제돼서 그 뒤로는 알 데가 없다."""
+    rows = [_exec("2026-09-04", "021820", "SELL", 100, 1_100_000, order_no="S1", avg=11_000.0)]
+    meta = {"S1": {"strategy": "pbr_value_v1", "side": "SELL", "entryPrice": 10_000.0}}
+    out = feed._aggregate_trades(rows, order_meta=meta)
+    ok("실현손익 = (11000-10000)*100", out["days"][0]["realizedKrw"] == 100_000, out["days"])
+    ok("몇 건으로 쟀는지도 남는다", out["days"][0]["realizedFrom"] == 1, out["days"])
+    ok("전략별에도 같은 값",
+       out["byStrategy"]["pbr_value_v1"][0]["realizedKrw"] == 100_000, out["byStrategy"])
+
+
+def test_realized_pnl_is_unmeasured_not_zero_without_entry_price():
+    """원장 이전 매도는 진입가를 모른다. 0 으로 메우면 '손익 0 으로 팔았다'가
+    되고 그건 거짓이다(교훈57) - 안 세고, 몇 건으로 쟀는지를 같이 낸다."""
+    rows = [
+        _exec("2026-09-04", "021820", "SELL", 100, 1_100_000, order_no="OLD", avg=11_000.0),
+        _exec("2026-09-04", "001080", "SELL", 10, 110_000, order_no="S2", avg=11_000.0),
+    ]
+    meta = {"S2": {"strategy": "pbr_value_v1", "entryPrice": 10_000.0}}
+    out = feed._aggregate_trades(rows, order_meta=meta)
+    ok("잰 것만 더한다", out["days"][0]["realizedKrw"] == 10_000, out["days"])
+    ok("분모를 숨기지 않는다 (2건 중 1건)", out["days"][0]["realizedFrom"] == 1, out["days"])
+    ok("매도금액은 둘 다 센다", out["days"][0]["sellKrw"] == 1_210_000, out["days"])
+
+
+def test_realized_pnl_not_attached_to_buys():
+    rows = [_exec("2026-09-04", "021820", "BUY", 100, 1_000_000, order_no="B1", avg=10_000.0)]
+    meta = {"B1": {"strategy": "pbr_value_v1", "entryPrice": 9_000.0}}   # 매수엔 의미 없다
+    out = feed._aggregate_trades(rows, order_meta=meta)
+    ok("매수는 실현손익이 없다", out["days"][0]["realizedFrom"] == 0, out["days"])
+
+
 def test_aggregate_trades_pending_carries_strategy():
     rows = [_exec("2026-09-11", "021820", "BUY", 0, 0, pending=10, order_no="P1")]
-    out = feed._aggregate_trades(rows, today="2026-09-11", order_owner={"P1": "lowmom60_v1"})
+    out = feed._aggregate_trades(rows, today="2026-09-11", order_meta={"P1": {"strategy": "lowmom60_v1"}})
     ok("진행 중 주문도 전략을 단다", out["pending"][0]["strategy"] == "lowmom60_v1", out["pending"])
     out2 = feed._aggregate_trades(rows, today="2026-09-11")
     ok("원장 없으면 None - 지어내지 않는다", out2["pending"][0]["strategy"] is None, out2["pending"])
@@ -207,7 +241,10 @@ if __name__ == "__main__":
                test_aggregate_trades_empty_is_empty_not_error,
                test_aggregate_trades_splits_by_strategy_via_order_ledger,
                test_aggregate_trades_unknown_order_is_unattributed_not_guessed,
-               test_aggregate_trades_pending_carries_strategy):
+               test_aggregate_trades_pending_carries_strategy,
+               test_realized_pnl_from_ledger_entry_price,
+               test_realized_pnl_is_unmeasured_not_zero_without_entry_price,
+               test_realized_pnl_not_attached_to_buys):
         fn()
     print(f"test_build_ui_feed: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

@@ -63,16 +63,32 @@ def _price_history(repo_root, symbols):
 
 
 def _blank_day(date_str):
-    return {"date": date_str, "buyKrw": 0, "sellKrw": 0, "buyCount": 0, "sellCount": 0}
+    return {"date": date_str, "buyKrw": 0, "sellKrw": 0, "buyCount": 0, "sellCount": 0,
+            "realizedKrw": 0, "realizedFrom": 0}
 
 
-def _add_fill(day, row):
+def _realized(row, meta):
+    """실현손익 = (체결평균가 - 진입가) x 체결수량. None 이면 잴 수 없다는 뜻이고
+    0 이 아니다(교훈57) - 진입가는 원장에만 있고, 원장 이전 매도는 영영 모른다.
+    수수료·세금은 안 뺀다(KIS 체결금액이 세전이다) - 화면이 그렇게 말한다."""
+    if not meta or row["side"] != "SELL":
+        return None
+    entry = meta.get("entryPrice")
+    if not entry or not row.get("avgPrice") or row["filledQty"] <= 0:
+        return None
+    return round((row["avgPrice"] - entry) * row["filledQty"])
+
+
+def _add_fill(day, row, realized=None):
     if row["side"] == "SELL":
         day["sellKrw"] += row["amountKrw"]
         day["sellCount"] += 1
     else:
         day["buyKrw"] += row["amountKrw"]
         day["buyCount"] += 1
+    if realized is not None:
+        day["realizedKrw"] += realized
+        day["realizedFrom"] += 1          # 몇 건으로 잰 값인가 - 분모를 숨기지 않는다
 
 
 def _finish_days(by_date):
@@ -82,13 +98,17 @@ def _finish_days(by_date):
     return days
 
 
-def _aggregate_trades(rows, today=None, order_owner=None):
+def _aggregate_trades(rows, today=None, order_meta=None):
     """체결내역 원시행 -> {"days", "byStrategy", "pending", "unattributed"}.
 
     days 는 날짜별 매수·매도 합계다 - "며칠에 얼마 팔고 얼마 샀다"가 UI 가
     묻는 전부이고, 종목 단위는 pending(진행 중)에만 필요하다.
 
-    ★ 전략 귀속은 order_owner(주문번호 -> strategy_id)로만 한다. 계좌 응답에는
+    realizedKrw 는 매도 체결에만 붙는다 - 원장이 그 주문의 진입가를 들고 있고
+    청산가는 KIS 가 준다. 원장 이전 매도는 진입가를 알 데가 없어 realizedFrom
+    (몇 건으로 쟀나)이 그만큼 작게 나온다. 0 으로 메우지 않는다(교훈57).
+
+    ★ 전략 귀속은 order_meta(주문번호 -> 원장 항목)로만 한다. 계좌 응답에는
     전략이 없고, 그 매핑은 주문을 내는 순간에만 존재했다가 체결 확인과 동시에
     사라진다 - 그래서 엔진이 제출 시점에 원장으로 남긴다
     (positionStore.record_order, 교훈75). **추측으로 메우지 않는다**: 원장에
@@ -103,13 +123,15 @@ def _aggregate_trades(rows, today=None, order_owner=None):
 
     순수 함수라 네트워크 없이 테스트된다.
     """
-    order_owner = order_owner or {}
+    order_meta = order_meta or {}
     by_date = {}
     by_strategy = {}
     pending = []
     unattributed = {"buyKrw": 0, "sellKrw": 0, "count": 0}
     for r in rows:
-        owner = order_owner.get(str(r.get("orderNo") or ""))
+        meta = order_meta.get(str(r.get("orderNo") or ""))
+        owner = meta.get("strategy") if meta else None
+        realized = _realized(r, meta)
         if r["pendingQty"] > 0 and not r["canceled"] and (today is None or r["date"] == today):
             entry = {k: r[k] for k in
                      ("date", "symbol", "name", "side", "orderedQty",
@@ -118,10 +140,10 @@ def _aggregate_trades(rows, today=None, order_owner=None):
             pending.append(entry)
         if r["filledQty"] <= 0:
             continue
-        _add_fill(by_date.setdefault(r["date"], _blank_day(r["date"])), r)
+        _add_fill(by_date.setdefault(r["date"], _blank_day(r["date"])), r, realized)
         if owner:
             days = by_strategy.setdefault(owner, {})
-            _add_fill(days.setdefault(r["date"], _blank_day(r["date"])), r)
+            _add_fill(days.setdefault(r["date"], _blank_day(r["date"])), r, realized)
         else:
             unattributed["count"] += 1
             if r["side"] == "SELL":
@@ -135,15 +157,16 @@ def _aggregate_trades(rows, today=None, order_owner=None):
             "unattributed": unattributed}
 
 
-def _order_owner_map(repo_root, strategies):
-    """주문번호 -> strategy_id. 원장은 전략마다 따로 있고 주문번호는 계좌
-    전역이라 한 장으로 합친다. 충돌은 구조적으로 없다(한 주문은 한 전략이 냈다)."""
+def _order_ledger_map(repo_root, strategies):
+    """주문번호 -> {strategy, side, entryPrice, ...}. 원장은 전략마다 따로 있고
+    주문번호는 계좌 전역이라 한 장으로 합친다. 충돌은 구조적으로 없다
+    (한 주문은 한 전략이 냈다)."""
     from engine.live import positionStore
-    owner = {}
+    meta = {}
     for strategy_id in strategies:
-        for order_no in positionStore.load_orders(repo_root, strategy_id):
-            owner[str(order_no)] = strategy_id
-    return owner
+        for order_no, entry in positionStore.load_orders(repo_root, strategy_id).items():
+            meta[str(order_no)] = {**entry, "strategy": strategy_id}
+    return meta
 
 
 def _trades_block(client):
@@ -164,10 +187,12 @@ def _trades_block(client):
         print(f"[경고] KIS 체결내역 조회 실패, 매매 내역 없이 계속: {e}")
         block["error"] = str(e)
         return block
-    owner = _order_owner_map(REPO_ROOT, LIVE_STRATEGIES)
-    block.update(_aggregate_trades(rows, today=today.isoformat(), order_owner=owner))
+    meta = _order_ledger_map(REPO_ROOT, LIVE_STRATEGIES)
+    block.update(_aggregate_trades(rows, today=today.isoformat(), order_meta=meta))
     print(f"체결내역: {len(block['days'])}일 · 진행 중 주문 {len(block['pending'])}건 · "
-          f"전략귀속 {len(block['byStrategy'])}전략 · 미귀속 {block['unattributed']['count']}건")
+          f"전략귀속 {len(block['byStrategy'])}전략 · 미귀속 {block['unattributed']['count']}건 · "
+          f"실현손익 {sum(d['realizedKrw'] for d in block['days']):,}원"
+          f"({sum(d['realizedFrom'] for d in block['days'])}건으로 잼)")
     return block
 
 
