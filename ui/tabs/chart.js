@@ -78,6 +78,68 @@ window.TABS.chart = {
   }
 };
 
+/* 해외 슬리브(분할매수 사이클) - 국내 전략과 계좌·통화가 달라 표를 따로 낸다.
+   ★ 모드 둘을 같은 표에 두되 행을 갈라 보여준다. `vts` 는 실제로 주문이 나간 것,
+   `paper` 는 규칙대로(LOC) 돈 것이다. KIS 모의투자가 지정가만 받아 둘이 갈라지므로
+   (실측: 사이클 45% 감소·MDD 6~9%p 악화) 어느 쪽 숫자인지를 화면이 말해야 한다. */
+function overseasPanelHtml(overseas) {
+  if (!overseas || !(overseas.sleeves || []).length) return "";
+  const usd = (v, d) =>
+    v === null || v === undefined ? '<span class="dim">-</span>'
+      : "$" + v.toLocaleString("en-US", { minimumFractionDigits: d === undefined ? 2 : d,
+                                          maximumFractionDigits: d === undefined ? 2 : d });
+  const pct = (v) =>
+    v === null || v === undefined ? '<span class="dim">-</span>'
+      : '<span class="' + (v > 0 ? "up" : v < 0 ? "down" : "") + '">' +
+        (v > 0 ? "+" : "") + v.toFixed(2) + "%</span>";
+
+  const acct = overseas.account;
+  let out = '<div class="panel" style="margin-top:12px;">';
+  out += "  <h2>해외 슬리브 — 분할매수 사이클 (TQQQ · SOXL)</h2>";
+  if (overseas.error) {
+    out += '  <div class="dim" style="margin-bottom:8px;">계좌 조회 실패 — 저장된 상태만 표시합니다: <code>' +
+      String(overseas.error).replace(/</g, "&lt;") + "</code></div>";
+  }
+  if (acct) {
+    out += '  <div class="dim mono" style="margin-bottom:8px;">외화 주문가능 ' +
+      usd(acct.orderableCashUsd) + "  ·  환율 " + acct.fxRate +
+      "  ·  원화 환산 약 " +
+      Math.round(acct.orderableCashUsd * acct.fxRate).toLocaleString("ko-KR") + "원</div>";
+  }
+  out += '  <div class="dim" style="margin-bottom:8px;">' +
+    "<b>vts</b> = 모의계좌 실주문(지정가만 — LOC 불가) · " +
+    "<b>paper</b> = 규칙대로(LOC) 돈 전략 판정용 정본. 두 숫자는 갈라지는 게 정상입니다.</div>";
+  out += '  <table class="tbl"><thead><tr>' +
+    "<th>종목</th><th>모드</th><th>분할</th><th>회차 T</th><th>진행</th>" +
+    "<th>보유</th><th>평단</th><th>현재가</th><th>투입</th><th>평가손익</th><th>잔금</th>" +
+    "</tr></thead><tbody>";
+  overseas.sleeves.slice().sort((a, b) =>
+    a.ticker.localeCompare(b.ticker) || a.mode.localeCompare(b.mode)
+  ).forEach((s) => {
+    const rev = s.reverseDay > 0 ? ' <span class="down">역전 ' + s.reverseDay + "일</span>" : "";
+    out += "<tr>";
+    out += "<td><b>" + s.ticker + "</b></td>";
+    out += '<td class="mono">' + s.mode + rev + "</td>";
+    out += '<td class="mono">' + (s.splits || "-") + "</td>";
+    out += '<td class="mono">' + s.t.toFixed(2) + "</td>";
+    out += '<td class="mono">' + (s.progressPct === null ? "-" : s.progressPct.toFixed(1) + "%") + "</td>";
+    out += '<td class="mono">' + s.qty + "주</td>";
+    out += '<td class="mono">' + usd(s.avgPriceUsd) + "</td>";
+    out += '<td class="mono">' + usd(s.lastPriceUsd) + "</td>";
+    out += '<td class="mono">' + usd(s.costUsd) + "</td>";
+    out += '<td class="mono">' + usd(s.pnlUsd) + " (" + pct(s.pnlPct) + ")</td>";
+    out += '<td class="mono">' + usd(s.cashUsd, 0) + "</td>";
+    out += "</tr>";
+  });
+  out += "</tbody></table>";
+  const asOf = overseas.sleeves.map((s) => s.lastDate).filter(Boolean).sort().pop();
+  out += '  <div class="dim mono" style="margin-top:6px;">기준 세션 ' + (asOf || "-") +
+    "  ·  진행 100% = 분할 전량 소진(그 뒤 역전 국면)</div>";
+  out += "</div>";
+  return out;
+}
+
+
 function renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistory, equityHistory) {
   const { updatedAt, historyAsOf, account, strategies, trades } = data;
   const strategyEntries = Object.entries(strategies);
@@ -137,6 +199,7 @@ function renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistor
   html += compositionBarsHtml(strategyEntries, account);
   html += "</div>";
 
+  html += overseasPanelHtml(data.overseas);
   html += benchmarkPanelHtml(kospiHistory, kosdaqHistory, equityHistory);
   html += tradesPanelHtml(trades);
 

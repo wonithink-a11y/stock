@@ -33,6 +33,10 @@ LIVE_STRATEGIES = ["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined",
                     "factor_earnings_yield_v1", "foreign_flow5d_v1"]
 
 
+# 해외 슬리브(분할매수 사이클). 국내 전략과 계좌·통화가 달라 블록을 따로 낸다.
+OVERSEAS_STATE_DIR = os.path.join(_THIS_DIR, "data", "leveraged-etf", "state")
+OVERSEAS_SLEEVES = ["TQQQ", "SOXL"]
+
 HISTORY_SESSIONS = 60  # 차트용 최근 일봉 개수
 TRADE_LOOKBACK_DAYS = 90  # KIS 일별주문체결 조회 상한이 3개월이다
 
@@ -190,6 +194,86 @@ def _account_block(cash, eval_total, summary):
     }
 
 
+def _overseas_block():
+    """해외 슬리브 현황. 실패해도 국내 피드를 죽이지 않는다.
+
+    ★ 모드 둘을 같이 낸다. `vts` 는 실제로 주문이 나간 것이고 `paper` 는 규칙대로
+    (LOC) 돈 것이다. KIS 모의투자가 지정가만 받아 둘이 갈라지므로(실측: 사이클 45%
+    감소·MDD 6~9%p 악화) 화면에서 섞으면 안 된다 - 어느 쪽 숫자인지가 판정을 가른다.
+
+    ★ 보유·평단·예수금은 **계좌에서** 읽는다. 상태 파일에서 읽으면 화면이 장부를
+    비추게 되고, 장부가 틀려도 화면은 맞아 보인다(교훈72).
+    """
+    out = {"sleeves": [], "account": None, "error": None}
+    states = {}
+    for t in OVERSEAS_SLEEVES:
+        for mode in ("vts", "paper"):
+            fp = os.path.join(OVERSEAS_STATE_DIR, f"{t}_{mode}.json")
+            if os.path.exists(fp):
+                with open(fp, encoding="utf-8") as f:
+                    states[(t, mode)] = json.load(f)
+    if not states:
+        return out
+
+    # paper 모드는 브로커를 안 본다(그게 설계다) - 평가액은 저장된 일봉 종가로 낸다.
+    # 없으면 None 으로 둔다. 0 으로 채우면 "손익 0" 으로 읽혀 조용히 틀린다(교훈57).
+    last_close = {}
+    try:
+        import pandas as pd
+
+        for t in OVERSEAS_SLEEVES:
+            fp = os.path.join(_THIS_DIR, "data", "leveraged-etf", f"{t}.parquet")
+            if os.path.exists(fp):
+                df = pd.read_parquet(fp, columns=["date", "close"])
+                last_close[t] = float(df["close"].iloc[-1])
+    except Exception:
+        pass
+
+    held, acct = {}, None
+    try:
+        from engine.live.kisVtsOverseasClient import KisVtsOverseasClient
+
+        c = KisVtsOverseasClient()
+        held = {h["symbol"]: h for h in c.holdings()}
+        ref = next((h["lastPrice"] for h in held.values() if h["lastPrice"]), 100.0)
+        bp = c.buying_power(OVERSEAS_SLEEVES[0], ref)
+        acct = {"orderableCashUsd": bp["orderableCash"], "fxRate": bp["fxRate"],
+                "currency": bp["currency"]}
+    except Exception as e:        # 자격증명 없음·네트워크·API 변경 전부 여기로 온다
+        out["error"] = f"{type(e).__name__}: {e}"
+
+    for (t, mode), d in sorted(states.items()):
+        st = d.get("state", {})
+        h = held.get(t) if mode == "vts" else None
+        qty = h["qty"] if h else int(st.get("qty") or 0)
+        cost = (h["qty"] * h["avgPrice"]) if h else float(st.get("cost") or 0.0)
+        last = (h["lastPrice"] if h else last_close.get(t, 0.0))
+        splits = d.get("splits")
+        seed = round(float(st.get("cash") or 0.0) + cost, 2)
+        out["sleeves"].append({
+            "ticker": t, "mode": mode, "splits": splits,
+            "t": round(float(st.get("t") or 0.0), 3),
+            "progressPct": (round(float(st.get("t") or 0.0) / splits * 100, 2)
+                            if splits else None),
+            "qty": qty,
+            "avgPriceUsd": round(cost / qty, 4) if qty else None,
+            "lastPriceUsd": last or None,
+            "costUsd": round(cost, 2),
+            "valueUsd": round(qty * last, 2) if last else None,
+            "pnlUsd": round(qty * last - cost, 2) if last else None,
+            "pnlPct": (round((qty * last - cost) / cost * 100, 2)
+                       if last and cost else None),
+            "cashUsd": round(float(st.get("cash") or 0.0), 2),
+            "seedUsd": seed,
+            "deployedPct": round(cost / seed * 100, 2) if seed else None,
+            "reverseDay": int(st.get("reverse_day") or 0),
+            "lastDate": d.get("lastDate"),
+            "updatedAtKst": d.get("updatedAtKst"),
+        })
+    out["account"] = acct
+    return out
+
+
 def _append_equity(account, today=None, path=EQUITY_PATH):
     """계좌 총평가액을 하루 한 줄로 누적한다 - **여태 아무도 안 적었다.**
     positions.json 은 스냅샷이라 어제 계좌가 얼마였는지가 남지 않고, 그래서
@@ -337,10 +421,14 @@ def main():
         "account": _account_block(cash, eval_total, summary),
         "strategies": strategies,
         "trades": _trades_block(client),
+        "overseas": _overseas_block(),
     }
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
+    ov = out["overseas"]
+    print(f"해외 슬리브: {len(ov['sleeves'])}건"
+          + (f" (계좌조회 실패: {ov['error']})" if ov["error"] else ""))
     print(f"저장: {OUT_PATH} ({sum(len(s['positions']) for s in strategies.values())}건)")
     rows = _append_equity(out["account"])
     print(f"계좌 이력: {EQUITY_PATH} ({len(rows)}일)" if rows else "계좌 이력: 총평가액이 없어 건너뜀")

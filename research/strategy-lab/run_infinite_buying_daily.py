@@ -46,15 +46,29 @@ def state_path(ticker: str, mode: str) -> Path:
     return STATE_DIR / f"{ticker}_{mode}.json"
 
 
-def load_state(ticker: str, mode: str, seed: float) -> tuple[E.State, dict]:
+def load_state(ticker: str, mode: str, seed: float,
+               splits: int | None = None) -> tuple[E.State, dict]:
+    """저장된 상태를 읽는다. ★ 분할수가 바뀌면 이어가지 않고 막는다.
+
+    T 는 '분할수 분의 몇 회차'라 분모가 바뀌면 같은 T 가 다른 뜻이 된다. 조용히
+    이어가면 후반전 경계(T = N/2)와 소진 판정이 통째로 어긋난다 - 잴 수 없는 상태로
+    넘어가느니 시끄럽게 막는다(교훈57).
+    """
     p = state_path(ticker, mode)
     if not p.exists():
-        return E.State(cash=seed), {"lastDate": None, "log": [], "lastUnit": None}
+        return E.State(cash=seed), {"lastDate": None, "log": [], "lastUnit": None,
+                                    "splits": splits}
     d = json.loads(p.read_text(encoding="utf-8"))
+    prev = d.get("splits")
+    if splits is not None and prev is not None and prev != splits and d["state"]["qty"] > 0:
+        raise SystemExit(
+            f"{ticker}/{mode}: 분할수가 {prev} -> {splits} 로 바뀌었는데 보유가 남아 있다"
+            f"(T {d['state']['t']:.2f}). T 의 분모가 바뀌면 같은 값이 다른 뜻이 된다. "
+            f"사이클을 끝내고 바꾸거나, 상태 파일을 지우고 새로 시작한다.")
     s = E.State(**{k: v for k, v in d["state"].items()
                    if k in E.State.__dataclass_fields__})
     return s, {"lastDate": d.get("lastDate"), "log": d.get("log", []),
-               "lastUnit": d.get("lastUnit")}
+               "lastUnit": d.get("lastUnit"), "splits": splits if splits is not None else prev}
 
 
 def save_state(ticker: str, mode: str, s: E.State, meta: dict) -> None:
@@ -64,6 +78,7 @@ def save_state(ticker: str, mode: str, s: E.State, meta: dict) -> None:
         "updatedAtKst": datetime.now(KST).isoformat(),
         "lastDate": meta["lastDate"],
         "lastUnit": meta.get("lastUnit"),
+        "splits": meta.get("splits"),
         "state": asdict(s),
         "log": meta["log"][-400:],   # 최근 400건만 - 무한히 자라지 않게
     }, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -99,10 +114,11 @@ def recent_bars(ticker: str, days: int = 30) -> list[dict]:
 # ---------------------------------------------------------------- 모드
 
 
-def run_paper(ticker: str, rules_path: Path, seed: float, verbose: bool) -> dict:
+def run_paper(ticker: str, rules_path: Path, seed: float, splits: int,
+              verbose: bool) -> dict:
     """규칙대로(LOC) 하루를 진행한다. 주문 없음. 마지막 처리일 이후만 따라잡는다."""
-    r = E.Rules.load(rules_path, ticker, 40, seed=seed)
-    s, meta = load_state(ticker, "paper", seed)
+    r = E.Rules.load(rules_path, ticker, splits, seed=seed)
+    s, meta = load_state(ticker, "paper", seed, splits)
     bars = recent_bars(ticker)
     closes = [b["close"] for b in bars]
 
@@ -134,14 +150,14 @@ def run_paper(ticker: str, rules_path: Path, seed: float, verbose: bool) -> dict
             "date": meta["lastDate"], "state": s}
 
 
-def run_vts(ticker: str, rules_path: Path, seed: float, execute: bool,
-            verbose: bool) -> dict:
+def run_vts(ticker: str, rules_path: Path, seed: float, splits: int,
+            execute: bool, verbose: bool) -> dict:
     """모의투자 계좌에 그날 주문을 낸다. **지정가만** - LOC 가 아니다(모듈 docstring)."""
     from engine.live.kisVtsOverseasClient import KisVtsOverseasClient
 
     c = KisVtsOverseasClient()
-    r = E.Rules.load(rules_path, ticker, 40, seed=seed)
-    s, meta = load_state(ticker, "vts", seed)
+    r = E.Rules.load(rules_path, ticker, splits, seed=seed)
+    s, meta = load_state(ticker, "vts", seed, splits)
 
     bars = recent_bars(ticker)
     last = bars[-1]
@@ -254,6 +270,22 @@ def selftest() -> int:
         save_state("TQQQ", "paper", s0, m0)
         ck("로그가 무한히 자라지 않는다", len(load_state("TQQQ", "paper", 1000.0)[1]["log"]) == 400)
 
+        # 분할수가 바뀌면 조용히 이어가지 않는다 - T 의 분모가 달라지기 때문이다
+        s2, m2 = load_state("SOXL", "paper", 1000.0, 40)
+        s2.qty, s2.t = 5, 3.0
+        m2["splits"] = 40
+        save_state("SOXL", "paper", s2, m2)
+        ck("같은 분할수면 이어간다", load_state("SOXL", "paper", 1000.0, 40)[0].t == 3.0)
+        try:
+            load_state("SOXL", "paper", 1000.0, 20)
+            ck("분할수가 바뀌고 보유가 있으면 막는다", False)
+        except SystemExit:
+            ck("분할수가 바뀌고 보유가 있으면 막는다", True)
+        s2.qty = 0
+        save_state("SOXL", "paper", s2, m2)
+        ck("보유가 0 이면 분할수를 바꿔도 된다",
+           load_state("SOXL", "paper", 1000.0, 20)[1]["splits"] == 20)
+
         STATE_DIR = saved
 
     # 계획 기준일 - 같은 종가가 반복돼도 위치로 잘라야 한다
@@ -281,7 +313,16 @@ def selftest() -> int:
     ck("vts 잔금이 이미 투입한 원가를 뺀 값이다 (배정액 전부로 세지 않는다)",
        _frag("min(seed ", "- s.cost") in src_vts)
 
-    total = 16
+    # ★ selftest 가 main() 을 안 불러서 CLI 배선 오류를 놓쳤다(2026-09-12, --splits 추가
+    # 직후 TypeError). 인자 수가 맞는지 서명으로 직접 본다 - 문자열 검사보다 정확하다.
+    import inspect as _insp
+    main_src = src[src.index("def main("):]
+    ck("main 이 run_paper/run_vts 에 splits 를 넘긴다",
+       "a.splits, verbose" in main_src and "a.splits, a.execute" in main_src)
+    ck("run_paper 서명에 splits 가 있다", "splits" in _insp.signature(run_paper).parameters)
+    ck("run_vts 서명에 splits 가 있다", "splits" in _insp.signature(run_vts).parameters)
+
+    total = 22
     print(f"\nselftest {total - len(fails)}/{total}" + ("" if not fails else f"  FAILED: {fails}"))
     return 1 if fails else 0
 
@@ -291,8 +332,9 @@ def main() -> int:
     ap.add_argument("--mode", choices=("paper", "vts"), default="paper")
     ap.add_argument("--rules", type=Path, default=DEFAULT_RULES)
     ap.add_argument("--tickers", nargs="+", default=list(SLEEVES))
-    ap.add_argument("--seed-usd", type=float, default=37133.0,
-                    help="슬리브당 배정 (기본 = 5,000만원 상당)")
+    ap.add_argument("--seed-usd", type=float, default=50000.0, help="슬리브당 배정")
+    ap.add_argument("--splits", type=int, default=40, choices=(20, 30, 40),
+                    help="분할수. 작을수록 공격적 - 자금 소진이 빠르고 MDD 가 커진다")
     ap.add_argument("--execute", action="store_true",
                     help="vts 모드에서 실제로 주문을 접수한다. 없으면 dry-run")
     ap.add_argument("--selftest", action="store_true")
@@ -308,11 +350,11 @@ def main() -> int:
     verbose = not a.quiet
     print(f"모드 {a.mode}"
           + (f"  (dry-run - 주문 안 나감)" if a.mode == "vts" and not a.execute else "")
-          + f"  슬리브당 ${a.seed_usd:,.0f}")
+          + f"  슬리브당 ${a.seed_usd:,.0f}  {a.splits}분할")
     for t in a.tickers:
         print(f"\n[{t}]")
-        res = (run_paper(t, a.rules, a.seed_usd, verbose) if a.mode == "paper"
-               else run_vts(t, a.rules, a.seed_usd, a.execute, verbose))
+        res = (run_paper(t, a.rules, a.seed_usd, a.splits, verbose) if a.mode == "paper"
+               else run_vts(t, a.rules, a.seed_usd, a.splits, a.execute, verbose))
         s = res["state"]
         eq = s.cash + s.qty * (s.cost / s.qty if s.qty else 0.0)
         print(f"  -> 보유 {s.qty}주  평단 ${(s.cost / s.qty if s.qty else 0):.2f}  "
