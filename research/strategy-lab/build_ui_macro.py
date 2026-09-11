@@ -73,15 +73,36 @@ NOT_AVAILABLE = ["gold", "silver"]
 
 
 def _series_from(df, spec):
+    """★ date 와 asOf 는 다르다. 섞으면 화면이 조용히 틀린다.
+
+    parquet 의 date 는 **그 값을 쓸 수 있게 된 KR 거래일**이고, 값 자체는
+    asof_join_kr() 의 PIT 규칙(allow_exact_matches=False - "D당일 관측치를
+    쓰지 않는다")에 따라 **그 전 관측일**의 것이다. 둘의 간격이 실제 출처
+    날짜를 담은 <col>AsOfDate 컬럼이다.
+
+    여태 date 만 내보내서 소비자가 "그날 종가"로 읽었다 - 실측 2026-09-11:
+    docs/data/history(KIS 일봉과 일치 확인) 대비 41일 중 39일이 한 행 밀림,
+    같은 날 일치 0건. 그 결과 UI 의 코스피 비교가 하루 어긋났고 Beta 가
+    하루 밀린 두 계열의 상관이 되어 전부 0 근처로 나왔다.
+
+    parquet 은 안 건드린다 - 거기 date 는 PIT 가 맞고, 바꾸면 레짐 연구에
+    lookahead 가 들어간다. 고칠 자리는 **라벨을 잃은 이 피드**다. 둘 다 낸다:
+    date = 쓸 수 있게 된 날(PIT), asOf = 그 값이 실제로 관측된 날.
+    """
     out = {}
     for col, label in spec.items():
         if col not in df.columns:
             continue
-        rows = df[["date", col]].dropna()
-        out[col] = {
-            "label": label,
-            "history": [{"date": str(r["date"]), "value": float(r[col])} for _, r in rows.iterrows()],
-        }
+        asof_col = col + "AsOfDate"
+        cols = ["date", col] + ([asof_col] if asof_col in df.columns else [])
+        rows = df[cols].dropna(subset=["date", col])
+        history = []
+        for _, r in rows.iterrows():
+            point = {"date": str(r["date"]), "value": float(r[col])}
+            if asof_col in cols and r[asof_col] is not None and str(r[asof_col]) != "NaT":
+                point["asOf"] = str(r[asof_col])
+            history.append(point)
+        out[col] = {"label": label, "history": history}
     return out
 
 

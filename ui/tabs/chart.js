@@ -1,15 +1,23 @@
-// macro.json 의 krKospi·krKosdaq 는 **전 거래일 종가를 오늘 날짜로** 찍는다.
-// 실측 2026-09-11: docs/data/history(날짜 라벨이 KIS 일봉과 일치함을 확인)와
-// 겹치는 41일 중 39일이 정확히 한 행 밀림 · 같은 날 일치 0건.
+// macro.json 의 지수 계열은 point 마다 **date 와 asOf 가 다르다.**
+//   date = 그 값을 쓸 수 있게 된 KR 거래일 (asof_join_kr 의 PIT 규칙 -
+//          "D당일 관측치를 쓰지 않는다", allow_exact_matches=False)
+//   asOf = 그 값이 실제로 관측된 날 = 진짜 종가 날짜
 //
-// 안 고치면 두 군데가 조용히 틀린다 - 벤치마크 비교가 하루 어긋나고,
-// Beta 가 하루 밀린 두 계열의 상관으로 계산돼 전부 0 근처로 나온다
-// (표의 -0.04 · 0.01 · -0.06 이 그것이다 - 한국 주식 베타가 0 일 리 없다).
+// 차트·Beta 는 "그날 종가"가 필요하므로 asOf 를 쓴다. parquet 의 date 를
+// 고치는 건 **틀린 수정**이다 - 그건 PIT 를 깨서 레짐 연구에 lookahead 를
+// 넣는다. 라벨만 바로잡는다.
 //
-// ★ 뿌리는 여기가 아니라 macro_layer_daily_kr.parquet 생산자다. 여기 보정은
-// 소비 시점 응급처치이고, 생산자를 고치면 이 함수는 지워야 한다.
+// 실측 2026-09-11: date 로 읽으면 docs/data/history(KIS 일봉과 일치 확인)
+// 대비 41일 중 39일이 한 행 밀렸다. 그 탓에 Beta 가 하루 밀린 두 계열의
+// 상관이 되어 전부 0 근처(-0.04 · 0.01 · -0.06)로 나왔다.
+//
+// asOf 가 없는 옛 피드(build_ui_macro 갱신 전에 만들어진 macro.json)는 한 행
+// 밀기로 폴백한다 - 같은 보정이고, 새 피드가 올라오면 저절로 정확해진다.
 function realignMacroHistory(history) {
   if (!history || history.length < 2) return history || [];
+  if (history.some((h) => h.asOf)) {
+    return history.filter((h) => h.asOf).map((h) => ({ date: h.asOf, value: h.value }));
+  }
   const out = [];
   for (let i = 1; i < history.length; i++) {
     out.push({ date: history[i - 1].date, value: history[i].value });
