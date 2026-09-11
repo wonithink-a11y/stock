@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-10T13:08:21.578Z",
+  "updatedAt": "2026-09-11T13:08:13.761Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,12 +7,12 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 269000,
-      "currentValue": 2690000,
+      "currentPrice": 259500,
+      "currentValue": 2595000,
       "investedValue": 700000,
-      "unrealizedPnL": 1990000,
-      "unrealizedPnLPct": 284.29,
-      "stockScore": 61.9,
+      "unrealizedPnL": 1895000,
+      "unrealizedPnLPct": 270.71,
+      "stockScore": 62.7,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "neutral",
@@ -69,23 +69,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.13,
+              "raw": 3.02,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.36137724550898204,
+              "peg": 0.3485029940119761,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.29578976346902475,
+              "marginOfSafety": -0.24993866516188157,
               "score": 0
             }
           }
         },
         "technical": {
-          "score": 51.3,
+          "score": 55,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -94,8 +94,8 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 42,
-              "score": 45
+              "value": 52,
+              "score": 70
             },
             "macd": {
               "label": "MACD",
@@ -110,7 +110,7 @@
           }
         },
         "supplyDemand": {
-          "score": 62.7,
+          "score": 48.7,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
@@ -119,8 +119,8 @@
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
-              "trend": "consistentBuy",
-              "score": 100
+              "trend": "netBuy",
+              "score": 70
             },
             "largeShareholderChange": {
               "label": "대주주 지분율 변동",
