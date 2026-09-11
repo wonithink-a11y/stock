@@ -589,6 +589,14 @@ interactive.py`(또는 `setup-keys.bat` 더블클릭)를 쓴다 - 서비스당 �
 **회귀는 `scripts/test-*.{py,js}` 다. `ls`로 찾아 전부 돌린다** — 변경 위험과
 무관하게, 전체 7.8초다(위 '검증 강도'). npm이 아니라 자동 발견이 없으므로(규칙 8)
 돌리지 않으면 아무도 대신 돌려주지 않는다.
+`export PYTHONIOENCODING=utf-8` 를 **먼저** 한다 — 없으면 cp949가 이모지에서
+죽어 가짜 실패 3건이 난다.
+
+★ **`research/strategy-lab/tests/` 는 `pytest` 로 돌리면 조용히 초록이다.**
+그쪽 `ok()` 헬퍼가 예외를 안 내고 실패를 세기만 하며 `main()`이 `exit(1)` 한다 —
+pytest는 `main()`을 안 부르므로 **9개 파일 212건의 체크가 안 보인다**(2026-09-11
+실측, 실제로 한 번 속았다). 그 파일들은 `python tests/test_*.py` 로 돌린다.
+미착수 수정안: `tests/conftest.py` 의 `pytest_runtest_teardown` 하나.
 
 수집·분석 스크립트의 사용법은 각 파일 docstring에 있다. `--dry-run`·`--selftest`·
 `--report`가 붙은 것은 네트워크 없이 돈다.
