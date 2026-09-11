@@ -764,5 +764,107 @@ def main():
     say()
 
 
+# ------------------------------------------- 세션 경계 정찰 (거래시간 변경 대비)
+
+def session_bounds(date=None, seed="235959", tickers=(TICKER, TICKER_THIN)):
+    """그날 분봉이 실제로 몇 시에 시작해 몇 시에 끝나는가.
+
+    main()의 [10]은 커서를 정책과 같은 "153000"에서 시작한다. 마감이 뒤로
+    밀리면 밀린 구간을 아예 요청하지 않으므로 오류도 갭도 없이 정상으로
+    보인다 — 자기 눈가리개를 자기가 검사하는 꼴이다(교훈72·81).
+    그래서 여기서는 늦은 시각에서 시작해 거꾸로 넘긴다.
+
+    seed가 거부되면(빈 응답·날짜 불일치) 정책 cursorSeed로 물러서고 그
+    사실을 함께 적는다 — 그때 끝시각은 "15:30까지만 봤다"는 뜻이지
+    "장이 15:30에 끝났다"는 뜻이 아니다(교훈57).
+    """
+    if not KEY or not SECRET:
+        raise SystemExit("KIS_APP_KEY / KIS_APP_SECRET 이 없다. .env를 본다.")
+    get_token()
+
+    pol = json.loads((REPO / "config" / "policies" / "minute.v1.json")
+                     .read_text(encoding="utf-8"))["collectionContract"]
+    day = date or trading_days()[-1]
+    out = {"date": day, "seed": seed, "policyCursorSeed": pol["cursorSeed"],
+           "policySessionMinutes": pol["sessionMinutes"], "tickers": {}}
+
+    say()
+    say("  세션 경계 정찰 — " + day + "   seed=" + seed)
+    say()
+
+    for tk in tickers:
+        used, fellBack = seed, False
+        probe = call_minute(tk, day, hour=used)
+        if not ok(probe):
+            used, fellBack = pol["cursorSeed"], True
+            probe = call_minute(tk, day, hour=used)
+        if not ok(probe):
+            out["tickers"][tk] = {"측정실패": {k: probe.get(k) for k in
+                                              ("rtCd", "msgCd", "msg", "rows",
+                                               "respDates", "dateHonored")}}
+            say("  " + tk + "  측정실패  rt_cd=" + str(probe.get("rtCd")) +
+                " rows=" + str(probe.get("rows")) +
+                " dateHonored=" + str(probe.get("dateHonored")))
+            continue
+
+        times, cursor, pages = set(), used, 0
+        for _ in range(12):
+            r = probe if pages == 0 else call_minute(tk, day, hour=cursor)
+            pages += 1
+            if not ok(r):
+                break
+            got = [x["stck_cntg_hour"] for x in r["output2"]
+                   if x.get("stck_bsop_date") == compact(day)]
+            if not got:
+                break
+            new = len(set(got) - times)
+            times |= set(got)
+            mn = min(got)
+            if new == 0 or mn == cursor:
+                break
+            cursor = mn
+            time.sleep(0.15)
+
+        t = sorted(times)
+        rec = {"첫시각": t[0], "끝시각": t[-1], "분캔들수": len(t),
+               "pages": pages, "usedSeed": used, "seedFellBack": fellBack,
+               "정책끝시각초과": t[-1] > pol["cursorSeed"]}
+        out["tickers"][tk] = rec
+        say("  " + tk + "  " + t[0] + " ~ " + t[-1] +
+            "  캔들 " + str(len(t)) + "  pages=" + str(pages) +
+            ("  [seed 거부 → " + used + " 로 후퇴]" if fellBack else ""))
+
+    last = [v["끝시각"] for v in out["tickers"].values() if "끝시각" in v]
+    fell = any(v.get("seedFellBack") for v in out["tickers"].values())
+    if not last:
+        out["판정"] = "측정실패 — 판정하지 않는다"
+    elif fell:
+        out["판정"] = ("판정보류 — 늦은 seed 가 거부돼 " + pol["cursorSeed"] +
+                      " 까지만 봤다. 그 이후 구간은 '없음'이 아니라 '안 봄'이다")
+    elif max(last) > pol["cursorSeed"]:
+        out["판정"] = ("정책 개정 필요 — cursorSeed " + pol["cursorSeed"] +
+                      " 는 실측 끝시각 " + max(last) + " 를 못 덮는다")
+    else:
+        out["판정"] = ("정책 유효 — 실측 끝시각 " + max(last) + " 가 cursorSeed " +
+                      pol["cursorSeed"] + " 안에 있다")
+
+    say()
+    say("  판정  " + out["판정"])
+    say()
+    p = OUT.parent / "_probe-session-bounds.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(out, ensure_ascii=False, indent=2))
+    say("  " + str(p.relative_to(REPO)))
+    say()
+    return out
+
+
 if __name__ == "__main__":
-    main()
+    if "--session-bounds" in sys.argv:
+        _a = sys.argv
+        _d = _a[_a.index("--date") + 1] if "--date" in _a else None
+        _s = _a[_a.index("--seed") + 1] if "--seed" in _a else "235959"
+        session_bounds(date=_d, seed=_s)
+    else:
+        main()
