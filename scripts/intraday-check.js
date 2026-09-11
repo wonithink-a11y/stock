@@ -1,17 +1,23 @@
 /**
  * intraday-check.js
  *
- * 장중 급등락 감시 (준실시간, GitHub Actions 10분 간격 실행용).
- * PC 없이 동작하지만 "10분 간격 + Actions 실행 지연 1~3분"의 한계가 있습니다 -
- * 초 단위 실시간이 필요하면 증권사 MTS 앱의 조건 알림을 병행하세요.
+ * 장중 급등락 감시 (GitHub Actions 실행용).
+ *
+ * ★ 실측(2026-09-11): cron 은 10분 간격이지만 GitHub 이 고빈도 schedule 을 흘려서
+ *   **하루 약 1회** 돈다. 그래서 '직전 체크'는 10분 전이 아니라 하루 전일 수 있다 -
+ *   규칙이 그 사실을 알고 움직인다(아래 suddenMaxGapMinutes). 초 단위 실시간이
+ *   필요하면 증권사 MTS 앱의 조건 알림을 병행하세요.
  *
  * 동작:
  *  1. 현재 UTC 시각으로 열려 있는 시장(KR 09:00~15:30 KST / US 09:30~16:00 ET) 판별
  *  2. 열린 시장의 관심종목 현재가 조회 (KR: 네이버 fchart / US: stooq 실시간 quote)
  *  3. 감지 규칙 통과 시 텔레그램/슬랙 알림
  *     - dailyMove: 전일 종가 대비 ±5% 이상
- *     - suddenMove: 직전 체크(약 10분 전) 대비 ±3% 이상
+ *     - suddenMove: 직전 체크 대비 ±3% 이상. ★ 직전 체크가 suddenMaxGapMinutes
+ *       보다 오래됐으면 **판정하지 않는다** - 그 간격은 '급변동'이 아니다(교훈57)
  *  4. 같은 종목·같은 규칙 재알림은 쿨다운(기본 90분)으로 제한
+ *     ★ 쿨다운 도장은 **전송 성공 뒤에만** 찍는다. 안 그러면 배달 안 된 알림이
+ *       쿨다운을 먹고, 다음 기회까지 조용해진다
  *
  * 상태 파일: docs/data/intraday-state.json (Actions가 커밋해서 실행 간 유지)
  */
@@ -26,6 +32,17 @@ const RULES = {
   dailyMovePct: 5.0, // 전일 종가 대비
   suddenMovePct: 3.0, // 직전 체크 대비
   cooldownMinutes: 90,
+
+  // ★ 이 둘은 2026-09-11 실측으로 들어왔다. cron '*/10' 은 한국장 창에서 하루 42회
+  //   기대인데 GitHub 이 고빈도 schedule 을 흘려서 **실측 하루 1회**다
+  //   (docs/operations/shares-snapshot-timeout-2026-09.md 와 같은 날 감사).
+  //   그래서 '직전 체크'가 10분 전이 아니라 **약 24시간 전**이었고:
+  //     - 24시간 변화에 3% 임계를 걸면 353종목 중 269종목이 걸린다(실측)
+  //     - 한 메시지에 133줄이 실려 텔레그램이 HTTP 400 으로 거부했다(실측)
+  //     - 즉 이 알림은 **한 번도 배달되지 않은 채** 워크플로는 초록이었다
+  //   cron 으로는 못 고친다. 그러니 **잴 수 있는 것만 판정한다**(교훈57).
+  suddenMaxGapMinutes: 30, // 직전 체크가 이보다 오래됐으면 suddenMove 를 건너뛴다
+  maxAlertsPerMessage: 40, // 텔레그램 4096자 제한. 넘으면 잘라내고 몇 건 생략했는지 밝힌다
 };
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; stock-scoring-app)' };
@@ -100,16 +117,39 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
     alerts.push({ rule: 'dailyMove', message: `${name}(${ticker}) 전일 대비 ${dailyPct > 0 ? '+' : ''}${dailyPct}%` });
   }
 
-  if (tickerState && typeof tickerState.lastPrice === 'number') {
+  // suddenMove 는 **간격을 알 때만** 판정한다. lastCheckAt 이 없으면 간격을 모르는
+  // 것이지 0 이 아니다(교훈57) - 모르면 판정하지 않는다.
+  const lastCheckAt = tickerState && tickerState.lastCheckAt;
+  const gapMin = typeof lastCheckAt === 'number' ? Math.round((now - lastCheckAt) / 60000) : null;
+  const gapOk = gapMin !== null && gapMin >= 0 && gapMin <= rules.suddenMaxGapMinutes;
+  if (gapOk && tickerState && typeof tickerState.lastPrice === 'number') {
     const suddenPct = pct(tickerState.lastPrice, quote.price);
     if (suddenPct !== null && Math.abs(suddenPct) >= rules.suddenMovePct && canAlert('suddenMove')) {
-      alerts.push({ rule: 'suddenMove', message: `${name}(${ticker}) 직전 체크 대비 ${suddenPct > 0 ? '+' : ''}${suddenPct}% 급변동` });
+      alerts.push({ rule: 'suddenMove', message: `${name}(${ticker}) 직전 체크(${gapMin}분 전) 대비 ${suddenPct > 0 ? '+' : ''}${suddenPct}% 급변동` });
     }
   }
 
+  // ★ lastAlertAt 은 여기서 안 찍는다 - 전송 성공 뒤에 stampAlerts() 가 찍는다.
   const newState = { lastPrice: quote.price, lastCheckAt: now, lastAlertAt: { ...lastAlertAt } };
-  for (const a of alerts) newState.lastAlertAt[a.rule] = now;
-  return { alerts, newState };
+  return { alerts, newState, skippedSudden: !gapOk, gapMin };
+}
+
+/** 전송에 성공한 알림에만 쿨다운 도장을 찍는다. 실패하면 상태를 안 건드려 다음 기회에 다시 뜬다. */
+function stampAlerts(state, fired, now = Date.now()) {
+  for (const { ticker, rule } of fired) {
+    const st = state[ticker];
+    if (!st) continue;
+    st.lastAlertAt = { ...(st.lastAlertAt || {}), [rule]: now };
+  }
+  return state;
+}
+
+/** 메시지를 길이 제한 안으로 자른다. 잘라낸 건수를 숨기지 않는다. */
+function buildMessage(lines, max) {
+  const shown = lines.slice(0, max);
+  const omitted = lines.length - shown.length;
+  const tail = omitted > 0 ? `\n… 외 ${omitted}건 생략(총 ${lines.length}건)` : '';
+  return `🚨 [장중 급등락 알림]\n${shown.join('\n')}${tail}\n\n※ 자동 감시 결과이며 투자 자문이 아닙니다.`;
 }
 
 // ---------- 알림 전송 ----------
@@ -161,7 +201,7 @@ async function main() {
       const quote = market === 'US' ? await fetchQuoteUS(t.code) : await fetchQuoteKR(t.code);
       const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code]);
       state[t.code] = newState;
-      allAlerts.push(...alerts.map((a) => `[${market}] ${a.message}`));
+      for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, line: `[${market}] ${a.message}` });
     } catch (e) {
       console.warn(`  [경고] ${t.code} 시세 조회 실패: ${e.message}`);
     }
@@ -189,4 +229,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detect, marketsOpenNow };
+module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, RULES };
