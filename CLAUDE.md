@@ -184,6 +184,7 @@ Validated against
 운영      docs/operations/test-guide.md         테스트·수집·게이트 검증 명령 전문
           docs/operations/data-source-availability.md   막힌 소스 (재론 금지)
 결정 대기  docs/A3b-결정브리프.md · docs/FN-1.4-measured승격절차.md
+          docs/A2a-증분화-결정브리프.md        🔴 GO/STOP 대기 (2026-09-11)
 협업      CHATGPT.md                            ChatGPT의 진입 규칙
           docs/AI협업-업무분담.md               업무 경계 · 인계 형식 · 출처 규칙
           docs/control/TASKS.md                 현재 업무 배정. 정본이 아니다 —
