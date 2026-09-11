@@ -1,3 +1,22 @@
+// macro.json 의 krKospi·krKosdaq 는 **전 거래일 종가를 오늘 날짜로** 찍는다.
+// 실측 2026-09-11: docs/data/history(날짜 라벨이 KIS 일봉과 일치함을 확인)와
+// 겹치는 41일 중 39일이 정확히 한 행 밀림 · 같은 날 일치 0건.
+//
+// 안 고치면 두 군데가 조용히 틀린다 - 벤치마크 비교가 하루 어긋나고,
+// Beta 가 하루 밀린 두 계열의 상관으로 계산돼 전부 0 근처로 나온다
+// (표의 -0.04 · 0.01 · -0.06 이 그것이다 - 한국 주식 베타가 0 일 리 없다).
+//
+// ★ 뿌리는 여기가 아니라 macro_layer_daily_kr.parquet 생산자다. 여기 보정은
+// 소비 시점 응급처치이고, 생산자를 고치면 이 함수는 지워야 한다.
+function realignMacroHistory(history) {
+  if (!history || history.length < 2) return history || [];
+  const out = [];
+  for (let i = 1; i < history.length; i++) {
+    out.push({ date: history[i - 1].date, value: history[i].value });
+  }
+  return out;
+}
+
 window.TABS = window.TABS || {};
 window.TABS.chart = {
   title: "차트",
@@ -20,8 +39,8 @@ window.TABS.chart = {
           if (!mRes.ok) continue;
           const mData = await mRes.json();
           const series = mData.series || {};
-          kospiHistory = series.krKospi && series.krKospi.history;
-          kosdaqHistory = series.krKosdaq && series.krKosdaq.history;
+          kospiHistory = realignMacroHistory(series.krKospi && series.krKospi.history);
+          kosdaqHistory = realignMacroHistory(series.krKosdaq && series.krKosdaq.history);
           if (kospiHistory) break;
         } catch (e) { /* 다음 경로 시도 */ }
       }
@@ -482,6 +501,42 @@ function renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistor
       ';stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round" /></svg>';
   }
 
+  // 포트폴리오가 **아직 사는 중**이던 구간은 지수와 직접 비교할 수 없다.
+  // 현금이 대부분이면 지수가 올라도 계좌는 안 오른다 - 그건 성과가 아니라
+  // 현금 비중의 산수다. 실측 2026-09-04: 투자비중 2.1% 로 시작해 09-10 에
+  // 80% 가 됐고, 그 구간만 보면 계좌 +0.28% vs 코스피 +7.18% 로 보인다.
+  // 안 밝히면 "내 전략이 5% 뒤진다"로 읽히는데 사실이 아니다.
+  function rampNoteHtml(equity, series, start) {
+    const rows = (equity || []).filter((r) => r.date >= start && r.totalKrw && r.stockKrw != null);
+    if (rows.length < 2) return "";
+    const ratio = (r) => (r.stockKrw / r.totalKrw) * 100;
+    const lo = Math.min(...rows.map(ratio)), hi = Math.max(...rows.map(ratio));
+    if (hi - lo < 5) return "";            // 비중이 안정적이면 할 말이 없다
+
+    // 램프 끝 = 비중이 마지막으로 2%p 넘게 오른 날(= 마지막 매수일)
+    let rampEnd = rows[0].date;
+    for (let i = 1; i < rows.length; i++) {
+      if (ratio(rows[i]) - ratio(rows[i - 1]) > 2) rampEnd = rows[i].date;
+    }
+    let out = '<div class="warn" style="font-size:11px;margin-top:8px">' +
+      "⚠ " + start + " ~ " + rampEnd + " 는 <b>아직 매수 중이던 구간</b>입니다 (투자비중 " +
+      lo.toFixed(1) + "% → " + hi.toFixed(1) + "%). 현금이 대부분이면 지수가 올라도 계좌는 안 오릅니다 — " +
+      "이 구간의 격차는 성과가 아니라 현금 비중입니다.</div>";
+
+    // 램프 이후만 다시 비교한다 - 이게 실제로 견줄 수 있는 구간이다.
+    const after = series.map((s) => {
+      const r = s.rows.filter((x) => x.date >= rampEnd && x.v);
+      return r.length >= 2 ? { label: s.label, color: s.color, pct: (r[r.length - 1].v / r[0].v - 1) * 100 } : null;
+    }).filter(Boolean);
+    if (after.length) {
+      out += '<div style="font-size:12px;margin-top:6px">전액 투자 이후(' + rampEnd + " 기준): " +
+        after.map((a) => '<span style="margin-right:14px"><span class="legend-dot" style="display:inline-block;background:' +
+          a.color + '"></span> ' + a.label + ' <span class="mono ' + getPnlClass(a.pct) + '">' +
+          formatPnlPct(a.pct) + "</span></span>").join("") + "</div>";
+    }
+    return out;
+  }
+
   // 벤치마크 비교 - 코스피·코스닥·내 계좌를 한 그림에 겹친다.
   //
   // 절대수준이 자릿수가 달라(지수 2,500 vs 계좌 5억) 같은 축에 못 놓는다 -
@@ -533,16 +588,26 @@ function renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistor
     });
     svg += "</svg>";
 
+    // 범례는 "같은 자리에서 출발해 지금 몇 퍼센트" 를 그대로 읽게 쓴다 -
+    // 정규화 값(100 기준)이 아니라 **각 계열의 실제 수준**을 같이 보인다.
+    // 지수 6,562 -> 7,033 와 계좌 5억 -> 5.01억이 같은 줄에서 비교된다.
     const legend = norm.map((s) => {
-      const last = s.pts[s.pts.length - 1].y - 100;
-      return '<span style="margin-right:16px"><span class="legend-dot" style="display:inline-block;background:' +
-        s.color + '"></span> ' + s.label + ' <span class="mono ' + getPnlClass(last) + '">' +
-        formatPnlPct(last) + "</span></span>";
+      const raw = s.rows.filter((r) => r.date >= start && r.v);
+      const a = raw[0].v, b = raw[raw.length - 1].v;
+      const pct = (b / a - 1) * 100;
+      const fmt = (v) => (v >= 1e8 ? (v / 1e8).toFixed(2) + "억" : formatPriceShort(Math.round(v * 100) / 100));
+      return '<tr><td><span class="legend-dot" style="display:inline-block;background:' + s.color +
+        '"></span> ' + s.label + '</td>' +
+        '<td class="mono dim">' + fmt(a) + "</td><td class='dim'>→</td>" +
+        '<td class="mono">' + fmt(b) + "</td>" +
+        '<td class="mono ' + getPnlClass(pct) + '" style="font-weight:700">' + formatPnlPct(pct) + "</td></tr>";
     }).join("");
 
-    out += '<div class="dim mono" style="font-size:11px;margin-bottom:4px">' + start +
-           " = 100 기준 · " + dates.length + "일</div>";
-    out += svg + '<div style="font-size:12px;margin-top:6px">' + legend + "</div>";
+    out += '<div class="dim mono" style="font-size:11px;margin-bottom:4px">기준일 ' + start +
+           " (세 계열 모두 이 날 = 같은 출발점) · " + dates.length + "일</div>";
+    out += svg + '<table class="bench-legend" style="font-size:12px;margin-top:6px;width:auto">' +
+           legend + "</table>";
+    out += rampNoteHtml(equity, series, start);
     if (!acct) {
       out += '<div class="dim" style="font-size:11px;margin-top:6px">계좌 곡선은 이력이 쌓이는 대로 붙습니다 — ' +
              '총평가액을 하루 한 줄로 적기 시작한 게 2026-09-11 이고, 그 전은 기록이 없어 소급되지 않습니다.</div>';

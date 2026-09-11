@@ -128,7 +128,12 @@ def _request(method, url, **kwargs):
 # EGW00201(초당 거래건수 초과)은 그 경합의 이름이고, CLAUDE.md 수집 VM 운영 기준 3
 # 이 이미 "재시도 가능"으로 분류해 둔 코드다. 잔고 연속조회가 요청 1회에서 6회로
 # 늘면서 실제로 걸렸다(2026-09-09, Actions: "잔고 조회 실패(page 2): EGW00201").
-_RETRYABLE = {"EGW00201"}
+# EGW00201 유량초과 · EGW00300 게이트웨이 라우팅 오류. 둘 다 **조회에서만**
+# 재시도한다(_call 주석 - 주문에는 안 쓴다).
+# EGW00300 실측 2026-09-11: 체결내역 연속조회 2페이지에서 한 번 나고 같은
+# 요청이 곧바로 성공했다. 일시적이라 한 번 나면 그 실행이 통째로 죽는 게
+# 아니라 다시 물으면 된다 - 안 그러면 잘린 내역을 전부인 척 쓰게 된다(교훈57).
+_RETRYABLE = {"EGW00201", "EGW00300"}
 
 
 def _call(method, url, label, retries=3, **kwargs):
@@ -139,7 +144,17 @@ def _call(method, url, label, retries=3, **kwargs):
     훨씬 크다. 조회는 다시 물으면 그만이다.
     """
     for attempt in range(retries):
-        r = _request(method, url, **kwargs)
+        try:
+            r = _request(method, url, **kwargs)
+        except requests.RequestException as e:
+            # 전송 오류(타임아웃·연결끊김)도 재시도한다. 연속조회는 한 번에
+            # 6~20 요청이 나가므로 그중 하나가 끊기면 조회 전체가 죽고, 호출부는
+            # 그걸 "거래가 없다"로 읽는다(교훈57). 모르는 실패의 기본값은
+            # 재시도 가능이다(교훈56 - minute.v1.json retryOnTransport 와 같은 분류).
+            if attempt >= retries - 1:
+                raise KisVtsError(f"{label}: 전송 실패 {e}") from e
+            time.sleep(_RATE_LIMITER.min_interval_sec * (attempt + 1))
+            continue
         resp = r.json()
         if r.status_code == 200 and resp.get("rt_cd") == "0":
             return r, resp
@@ -288,6 +303,29 @@ class KisVtsClient:
         base = (holdings, summary.get("dnca_tot_amt"), summary.get("tot_evlu_amt"))
         return (*base, summary) if with_summary else base
 
+    def get_daily_closes(self, symbol, start_yyyymmdd, end_yyyymmdd, retries=3):
+        """기간 일봉 종가. 반환: {"YYYY-MM-DD": close(float)}. 한 종목 한 번,
+        최대 100영업일까지 한 응답에 온다.
+
+        시세 엔드포인트라 실전/모의 구분이 없다(get_current_price 와 같다).
+        FID_ORG_ADJ_PRC="0" = 수정주가 - A2a·분봉과 같은 축이다(실측
+        2026-09-11: 021820 09-03 종가 10,650 이 A2a 와 일치).
+        """
+        params = {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": symbol,
+                  "FID_INPUT_DATE_1": start_yyyymmdd, "FID_INPUT_DATE_2": end_yyyymmdd,
+                  "FID_PERIOD_DIV_CODE": "D", "FID_ORG_ADJ_PRC": "0"}
+        _, resp = _call("GET", BASE_URL + "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice",
+                         f"일봉 조회 실패({symbol})", retries=retries,
+                         headers=self._headers("FHKST03010100"),
+                         params=params, timeout=30)
+        out = {}
+        for row in (resp.get("output2") or []):
+            d = row.get("stck_bsop_date") or ""
+            close = row.get("stck_clpr")
+            if len(d) == 8 and close:
+                out[f"{d[:4]}-{d[4:6]}-{d[6:8]}"] = float(close)
+        return out
+
     def get_current_price(self, symbol):
         """현재가(stck_prpr) 하나만 float로 반환한다. 시세 조회는 실전/모의
         구분이 없는 공개 엔드포인트라 TR_ID가 하나뿐이다 - 그래도 호출은
@@ -330,6 +368,10 @@ class KisVtsClient:
             rows += [_execution_row(row) for row in (resp.get("output1") or [])]
             if r.headers.get("tr_cont") not in ("F", "M"):
                 break
+            # ★ 커서는 100자 **패딩 그대로** 보낸다. strip 하면 게이트웨이가
+            # 응답 자체를 안 준다(실측 2026-09-11: rstrip 한 요청은 30초 타임아웃,
+            # 패딩한 요청은 같은 조건에서 정상). 오류 코드가 아니라 침묵이라
+            # 한 번 잘못 고치면 "그 뒤로 거래가 없다"로 조용히 읽힌다.
             headers = {**self._headers(TR_CCLD), "tr_cont": "N"}
             params = {**params, "CTX_AREA_FK100": resp.get("ctx_area_fk100", ""),
                                 "CTX_AREA_NK100": resp.get("ctx_area_nk100", "")}
