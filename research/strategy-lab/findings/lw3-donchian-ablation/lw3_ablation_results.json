@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-10T01:26:17+09:00",
+  "generatedAt": "2026-09-11T14:28:07+09:00",
   "strategyId": "lw3_donchian_v1",
   "window": {
     "start": "2016-01-01",
@@ -146,6 +146,76 @@
       "openPositionCountAtEnd": 0,
       "monthlySnapshots": 129,
       "elapsedSec": 515.1
+    },
+    {
+      "variant": "C_donchian_lwti",
+      "label": "C  + LWTI(slope) (거래량 없음)",
+      "overrides": {
+        "filters.volume": false,
+        "filters.lwti": true
+      },
+      "signalCount": 139641,
+      "portfolioEligibleTradeCount": 89190,
+      "tickersScanned": 3016,
+      "runClass": "PRIMARY",
+      "resolvedTradeStats": {
+        "tradeCount": 89190,
+        "avgReturnNet": -0.00204,
+        "medianReturnNet": -0.05823,
+        "winRate": 0.3597,
+        "profitFactor": 0.9708,
+        "avgWin": 0.18891,
+        "avgLoss": -0.1093,
+        "avgHoldingSessions": 27.8,
+        "tStat": -3.568,
+        "exitTypeCounts": {
+          "TARGET": 27787,
+          "STOP": 53244,
+          "TIME_EXIT": 8159
+        }
+      },
+      "metricsMTM": {
+        "finalEquity": 64557604,
+        "totalReturn": -0.3544,
+        "cagr": -0.0405,
+        "mdd": -0.504,
+        "sharpe": -0.1384
+      },
+      "annualReturnsMTM": {
+        "2016": -0.1215,
+        "2017": 0.0736,
+        "2018": 0.0495,
+        "2019": -0.0223,
+        "2020": 0.1341,
+        "2021": 0.004,
+        "2022": -0.1789,
+        "2023": 0.0747,
+        "2024": -0.2119,
+        "2025": 0.2105,
+        "2026": -0.3042
+      },
+      "tradeStats": {
+        "tradeCount": 1670,
+        "winRate": 0.3515,
+        "avgWin": 916609.5135,
+        "avgLoss": -529540.3325,
+        "winLossRatio": 1.731,
+        "profitFactor": 0.9382,
+        "expectancy": -21222.9914,
+        "avgHoldingPeriod": 22.7994,
+        "maxConsecutiveWins": 9,
+        "maxConsecutiveLosses": 37
+      },
+      "avgTradeReturn": -0.0033,
+      "exitTypeCounts": {
+        "STOP": 1022,
+        "TARGET": 516,
+        "TIME_EXIT": 132
+      },
+      "closedPositionCount": 1670,
+      "openPositionCountAtEnd": 0,
+      "monthlySnapshots": 129,
+      "elapsedSec": 478.7
     },
     {
       "variant": "D_three_slope",

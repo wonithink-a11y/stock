@@ -43,6 +43,9 @@ NO_TARGET = 1e9
 VARIANTS = {
     "A_donchian":         {"filters.volume": False, "filters.lwti": False},
     "B_donchian_volume":  {"filters.volume": True,  "filters.lwti": False},
+    # C 는 LWTI 단독 기여를 분리한다. D-B 는 "거래량이 이미 있는 상태에서의
+    # LWTI 한계 기여"라 두 필터의 상호작용과 섞인다 - C-A 가 순수 LWTI 다.
+    "C_donchian_lwti":    {"filters.volume": False, "filters.lwti": True},
     "D_three_slope":      {"filters.volume": True,  "filters.lwti": True},
     "D_three_midline":    {"filters.volume": True,  "filters.lwti": True,
                            "indicators.lwti.colorRule": "midline"},
@@ -55,6 +58,7 @@ VARIANTS = {
 LABELS = {
     "A_donchian":         "A  돈치안20 돌파만",
     "B_donchian_volume":  "B  + 거래량MA20",
+    "C_donchian_lwti":    "C  + LWTI(slope) (거래량 없음)",
     "D_three_slope":      "D  + LWTI(slope)  = 3박자",
     "D_three_midline":    "D' LWTI 색상규칙을 midline 으로",
     "D_three_transition": "D\" LWTI 를 당일 전환으로 (엄격)",
@@ -200,12 +204,30 @@ def main():
                  m.get("cagr"), m.get("mdd"), m.get("sharpe"), r["elapsedSec"]))
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    # ★ 부분 실행이 기존 결과를 지우지 않는다. --variants 로 한 변형만 돌리면
+    # 예전에는 나머지 다섯이 파일에서 사라졌다(2026-09-11 수정). 같은 창이 아닌
+    # 결과는 섞지 않는다 - 창이 바뀌면 이전 결과를 버린다(비교가 안 되는 값이다).
+    prior = []
+    if os.path.exists(args.out):
+        try:
+            old = json.load(open(args.out, encoding="utf-8"))
+            if old.get("window") == {"start": args.start, "end": args.end}:
+                done = {r["variant"] for r in results}
+                prior = [r for r in old.get("results", []) if r["variant"] not in done]
+            else:
+                print("  (창이 달라 이전 결과 %d건을 버린다: %s)"
+                      % (len(old.get("results", [])), old.get("window")))
+        except (ValueError, KeyError) as e:
+            print("  (이전 결과를 못 읽었다, 새로 쓴다: %s)" % e)
+    order = list(VARIANTS)
+    merged = sorted(prior + results, key=lambda r: order.index(r["variant"])
+                    if r["variant"] in order else len(order))
     payload = {
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%S+09:00"),
         "strategyId": STRATEGY_ID,
         "window": {"start": args.start, "end": args.end},
         "accounting": "monthly mark-to-market (pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm)",
-        "results": results,
+        "results": merged,
     }
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
