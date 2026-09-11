@@ -415,12 +415,16 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
         ENTRY_SUBMITTED  -> check_fill: 체결확인 -> OPEN
                                          거부     -> PENDING_ENTRY(재시도)
                                          대기중   -> 그대로(중복 제출 없음)
+                                         주문일경과 -> 체결분 확정 후
+                                                     PENDING_ENTRY(남은 수량 재주문)
         OPEN             -> (is_still_selected가 있으면 그 판정 우선,
                              없거나 True면) stop/target/time 판정
                              -> submit_sell -> EXIT_SUBMITTED
         EXIT_SUBMITTED   -> check_fill: 체결확인 -> 상태 삭제(포지션 종료)
                                          거부     -> OPEN(재시도)
                                          대기중   -> 그대로(중복 제출 없음)
+                                         주문일경과 -> 체결분 반영 후
+                                                     남은 수량만 OPEN 복귀
 
     각 분기는 상태값으로 완전히 배타적이라, 같은 poll_once() 호출 안에서도
     한 심볼에 두 번 주문이 나갈 수 없다 - '이미 SUBMITTED인 걸 다시 사려는'
@@ -502,17 +506,27 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 events.append({"type": "ENTRY_REJECTED", "symbol": symbol})
                 log(f"[{today}] 매수 거부됨  {symbol}  - 다음 poll에서 재시도")
                 continue
-            if r["fullyFilled"]:
-                filled = pos.get("filled_quantity", 0) + r["filledQty"]
-                cost = pos.get("entry_cost", 0.0) + r["filledQty"] * r["avgPrice"]
+            # 주문일이 지났으면 그 주문은 끝났다 - KRX 주문은 당일물이고 장 마감에
+            # 잔여가 취소된다. 부분체결로 끝나면 fullyFilled(잔량 0 + 전량)를 영영
+            # 못 만족해 ENTRY_SUBMITTED 에 갇힌다(실측 2026-09-09: 호가 얇은 소형주
+            # 5건). 취소된 행이 어떤 모양인지 추측하지 않는다 - 거래일 경계와
+            # filledQty 만 쓴다(교훈50).
+            expired = pos["order_date"] != today_compact
+            if r["fullyFilled"] or expired:
+                got = r["filledQty"]
+                filled = pos.get("filled_quantity", 0) + got
+                cost = pos.get("entry_cost", 0.0) + (got * r["avgPrice"] if got else 0.0)
                 target = pos.get("target_quantity", pos["quantity"])
                 nxt = {**pos, "filled_quantity": filled, "entry_cost": cost}
-                # 보유일수는 첫 조각이 체결된 날부터 센다(마지막 조각 날이 아니다)
-                nxt.setdefault("first_fill_date", today)
+                if got:
+                    # 보유일수는 첫 조각이 체결된 날부터 센다(마지막 조각 날이 아니다).
+                    # 만료분은 오늘이 아니라 그 주문일에 체결된 것이다.
+                    d = pos["order_date"]
+                    nxt.setdefault("first_fill_date", f"{d[:4]}-{d[4:6]}-{d[6:]}")
+                    events.append({"type": "FILL_ENTRY", "symbol": symbol,
+                                    "price": r["avgPrice"], "qty": got})
                 for k in ("order_no", "order_date", "order_quantity"):
                     nxt.pop(k, None)
-                events.append({"type": "FILL_ENTRY", "symbol": symbol,
-                                "price": r["avgPrice"], "qty": r["filledQty"]})
                 if filled >= target:
                     state[symbol] = _open_from_fills(nxt, today, risk)
                     log(f"[{today}] 매수 체결 완료  {symbol}  qty={filled}  "
@@ -520,8 +534,8 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 else:
                     nxt["status"] = "PENDING_ENTRY"       # 남은 조각은 다음 거래일에
                     state[symbol] = nxt
-                    log(f"[{today}] 매수 체결(부분) {symbol}  {filled}/{target}주 "
-                        f"- 남은 조각은 다음 거래일")
+                    log(f"[{today}] 매수 체결(부분) {symbol}  {filled}/{target}주 - "
+                        + ("주문 만료, 남은 수량 재주문" if expired else "남은 조각은 다음 거래일"))
             # else: 아직 대기중 - 그대로 둔다(중복 제출 없음)
             continue
 
@@ -587,13 +601,28 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 events.append({"type": "EXIT_REJECTED", "symbol": symbol})
                 log(f"[{today}] 매도 거부됨  {symbol}  - OPEN으로 복귀, 다음 poll에서 재시도")
                 continue
-            if r["fullyFilled"]:
-                exit_price = r["avgPrice"]
-                pnl = round((exit_price - pos["entry_price"]) * r["filledQty"], 2)
-                events.append({"type": f"FILL_EXIT_{pos['exitReason']}", "symbol": symbol,
-                                "price": exit_price, "pnl": pnl})
-                log(f"[{today}] 매도 체결 확인  {symbol}  price={exit_price}  pnl={pnl}")
-                del state[symbol]
+            # 매수와 같은 이유로 주문일이 지나면 끝난 주문이다. 여기서 안 풀면
+            # 포지션이 EXIT_SUBMITTED 에 갇혀 영영 안 팔린다 - 매수 쪽보다 나쁘다.
+            expired = pos["order_date"] != today_compact
+            if r["fullyFilled"] or expired:
+                got = r["filledQty"]
+                if got:
+                    exit_price = r["avgPrice"]
+                    pnl = round((exit_price - pos["entry_price"]) * got, 2)
+                    events.append({"type": f"FILL_EXIT_{pos['exitReason']}", "symbol": symbol,
+                                    "price": exit_price, "pnl": pnl, "qty": got})
+                    log(f"[{today}] 매도 체결 확인  {symbol}  price={exit_price}  "
+                        f"qty={got}  pnl={pnl}")
+                if got >= pos["quantity"]:
+                    del state[symbol]
+                else:
+                    # 부분·미체결로 만료 - 남은 수량만 OPEN 으로 되돌린다. 청산 사유는
+                    # 그대로라 다음 poll 이 남은 수량을 다시 낸다.
+                    state[symbol] = {**{k: v for k, v in pos.items()
+                                        if k not in ("order_no", "order_date", "exitReason")},
+                                      "status": "OPEN", "quantity": pos["quantity"] - got}
+                    log(f"[{today}] 매도 주문 만료  {symbol}  {got}/{pos['quantity']}주 체결 "
+                        f"- 남은 {pos['quantity'] - got}주 OPEN 복귀")
             # else: 아직 대기중 - 그대로 둔다(중복 제출 없음)
             continue
 

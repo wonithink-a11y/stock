@@ -129,7 +129,9 @@ def test_pending_fill_does_not_resubmit():
     broker = FakeBroker(fill_script=[
         {"fullyFilled": False, "rejected": False, "filledQty": 0, "avgPrice": None, "pending": True},
     ])
-    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    # 주문일 당일이어야 "아직 대기중"이다 - 날이 바뀌면 그 주문은 만료다(아래 두 테스트)
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        now=datetime(2026, 8, 21, 10, 0, tzinfo=KST))
     ok("no resubmission while pending", broker.buy_calls == 0, broker.buy_calls)
     ok("no fill event yet", events == [], events)
     state = positionStore.load(REPO_ROOT, STRATEGY_ID)
@@ -505,6 +507,65 @@ def test_order_ledger_write_failure_does_not_break_trading():
     _reset()
 
 
+def test_expired_entry_order_settles_partial_fill_and_retries_remainder():
+    """부분체결로 끝난 매수 주문 - 장 마감에 잔여가 취소되면 fullyFilled 가
+    영영 안 온다. 주문일이 지나면 체결분만 확정하고 남은 수량을 다시 낸다
+    (실측 2026-09-09: 호가 얇은 소형주 5건이 ENTRY_SUBMITTED 에 갇혔다)."""
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 10, "target_quantity": 10,
+                      "intent_date": "2026-08-20", "order_no": "ORD1",
+                      "order_date": "20260821", "order_quantity": 10}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": False, "rejected": False, "filledQty": 4, "avgPrice": 200.0, "pending": True},
+    ])
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        now=datetime(2026, 8, 24, 10, 0, tzinfo=KST))
+    ok("체결된 4주만 FILL_ENTRY", [(e["type"], e["qty"]) for e in events] == [("FILL_ENTRY", 4)], events)
+    pos = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("PENDING_ENTRY 로 풀려 재주문 가능", pos["status"] == "PENDING_ENTRY", pos)
+    ok("주문 흔적이 지워졌다", "order_no" not in pos and "order_date" not in pos, pos)
+    ok("체결분 누적 4주 · 원가 800", pos["filled_quantity"] == 4 and pos["entry_cost"] == 800.0, pos)
+    ok("보유일수 시계는 주문일부터", pos["first_fill_date"] == "2026-08-21", pos)
+    _reset()
+
+
+def test_expired_entry_order_with_zero_fill_retries_whole_quantity():
+    _reset()
+    _seed({"TEST1": {"status": "ENTRY_SUBMITTED", "quantity": 5, "intent_date": "2026-08-20",
+                      "order_no": "ORD1", "order_date": "20260821"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": False, "rejected": False, "filledQty": 0, "avgPrice": None, "pending": True},
+    ])
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        now=datetime(2026, 8, 24, 10, 0, tzinfo=KST))
+    ok("미체결 만료는 체결 이벤트를 안 만든다", events == [], events)
+    pos = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("PENDING_ENTRY · 체결 0", pos["status"] == "PENDING_ENTRY" and pos.get("filled_quantity", 0) == 0, pos)
+    ok("첫 체결일을 지어내지 않는다", "first_fill_date" not in pos, pos)
+    _reset()
+
+
+def test_expired_exit_order_returns_unsold_quantity_to_open():
+    """매도 만료가 더 나쁘다 - 안 풀면 포지션이 영영 안 팔린다."""
+    _reset()
+    _seed({"TEST1": {"status": "EXIT_SUBMITTED", "quantity": 10, "entry_price": 200.0,
+                      "entry_date": "2026-08-20", "stop_price": 190.0, "target_price": 220.0,
+                      "max_holding_sessions": 3, "sessions_held": 5,
+                      "order_no": "ORD1", "order_date": "20260821", "exitReason": "TIME_EXIT"}})
+    broker = FakeBroker(fill_script=[
+        {"fullyFilled": False, "rejected": False, "filledQty": 3, "avgPrice": 210.0, "pending": True},
+    ])
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True,
+                        now=datetime(2026, 8, 24, 10, 0, tzinfo=KST))
+    ok("체결된 3주만 손익에 잡힌다",
+       any(e["type"] == "FILL_EXIT_TIME_EXIT" and e["qty"] == 3
+           and e["pnl"] == round((210.0 - 200.0) * 3, 2) for e in events), events)
+    pos = positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]
+    ok("남은 7주가 OPEN 으로 복귀", pos["status"] == "OPEN" and pos["quantity"] == 7, pos)
+    ok("청산 사유가 지워져 다음 poll 이 다시 판정", "exitReason" not in pos, pos)
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -528,6 +589,9 @@ def main():
     test_fill_without_signal_hold_sessions_uses_policy_default()
     test_submit_records_order_ledger_for_strategy_attribution()
     test_order_ledger_write_failure_does_not_break_trading()
+    test_expired_entry_order_settles_partial_fill_and_retries_remainder()
+    test_expired_entry_order_with_zero_fill_retries_whole_quantity()
+    test_expired_exit_order_returns_unsold_quantity_to_open()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:
