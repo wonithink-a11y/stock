@@ -267,3 +267,72 @@ manifest의 `observations.openOutOfRangeAtSessionOpen`은 09:00 면제분만 센
 이 집계는 `data/backfill/minute/manifest/*.json`이 여러 날짜치 쌓인 뒤 그걸
 스캔해야 가능하다. OCI 승격 파이프라인(2026-08-31 착수, `scripts/upload-
 minute-oci.py` · `scripts/promote-minute-manifest.py`)이 그 전제조건이다.
+
+---
+
+## EMPTY 는 데이터 손실이 아니다 — 일봉 거래량 대조 (2026-09-11)
+
+`minute.v1.json` 의 `pendingT1` 을 승격할지 판단하려다 나온 실측이다.
+**저장소 데이터만 쓴다**(네트워크 없음). 재현:
+
+```bash
+python scripts/probe-minute-empty-accounting.py
+```
+
+### 왜 쟀나 — 옛 전제가 틀렸다
+
+CLAUDE.md 가 한 달 넘게 이렇게 적고 있었다:
+
+> `emptyResponseRetries` 는 T1 이 못 답했다(**관측 기회 0건**)
+
+**0건이었던 건 T1 표본(6종목 × 7일)이지 운영이 아니다.** production manifest 는
+하루 `EMPTY` 40~54건이다. 관측 기회가 없던 게 아니라 아무도 안 본 것이다.
+
+### EMPTY 의 정의
+
+`collect-minute-kis.py` 기준으로 `EMPTY` 는 **KIS 가 `rt_cd` 정상으로 답했는데
+`output2` 가 0행**이고, 그 종목이 상장 중이며 거래정지도 폐지도 아니고 그날이
+거래일인 경우다. 둘 중 하나다.
+
+```
+(a) 그 종목이 그날 한 주도 안 팔렸다        -> EMPTY 가 진실. 재시도해도 0
+(b) 응답이 새서 그날 분봉을 통째로 잃었다   -> 하루 수십 종목씩 조용한 손실
+```
+
+### 가른 방법 — 일봉 거래량으로 대조한다
+
+거래가 없었다면 **일봉 거래량도 0**이어야 한다. 거래정지(`HALT`)도 거래량 0이므로
+함께 센다. A2a 일봉은 저장소에 있다.
+
+```
+EMPTY + HALT  ~=  일봉 거래량 0 종목 수      -> (a)
+EMPTY + HALT  <   일봉 거래량 0 종목 수      -> 설명 안 되는 결손 = (b)
+```
+
+### 결과 — 165거래일 전부 (a)
+
+```
+잔차 = EMPTY+HALT − 일봉거래량0
+  최소 3 · 최대 7 · 중앙값 4 · 표준편차 0.64
+  ★ 잔차가 음수인 날(설명 안 되는 결손): 0건
+
+  2026-01-02   EMPTY 54 · HALT 10 · 합  64 · 일봉0  60 · 잔차 +4
+  2026-09-03   EMPTY 43 · HALT 77 · 합 120 · 일봉0 113 · 잔차 +7
+```
+
+잔차가 **양수로 일정한 것**은 분봉 유니버스가 A2a 보다 그만큼 크기 때문이다.
+`HALT` 가 연초 10 → 9월 77 로 크게 움직이는 동안에도 잔차는 3~7 에 머물렀다 —
+우연한 상쇄로는 안 나오는 모양이다.
+
+**판정: `emptyResponseRetries` 를 올려도 얻을 봉이 없다.** 보수적 기본값 1 이 맞다.
+
+### 곁가지 — pendingT1 네 손잡이는 코드가 안 읽는다
+
+같이 확인했다. `emptyResponseRetries` 는 테스트가 '블록이 존재하는가'만 보고,
+`recollectHaltedSymbols` · `versionRetention` · `correctionHandling` 은 참조가
+아예 없다. 수집기의 언급은 전부 주석이다. **값을 바꿔도 아무 일도 안 일어난다** —
+`PF-1.2` 의 "registry 미등록 = 자리가 없다"와 같은 모양이다.
+
+그러므로 승격은 데이터도 실험도 안 바꾸고, `pendingT1` 주석("기본값을 '확정'으로
+읽지 않는다")만 참에서 거짓으로 만든다. **재개 조건은 그 손잡이를 읽는 코드가
+생길 때**이고, 그때 값부터 정한다.

@@ -79,8 +79,25 @@ Validated against
             **CAGR 5.49%**(독립 실행 2건 일치, 패널 sha256 e55330bf2115).
             세부: findings/pbr-reproducibility-anchor-2026-09.md. 전체 경위
             (후속 1~12): docs/control/완료-이력.md 참고.
-  착수 가능  ★ minute.v1.json의 pendingT1 승격 — 🔴. T1이 답한 것만 승격한다.
-            emptyResponseRetries는 T1이 못 답했다(관측 기회 0건, 실측기록 참조).
+  안 한다   ★ minute.v1.json의 pendingT1 승격 — **승격할 근거가 없다**(2026-09-11
+            실측으로 닫음. 🔴이라 승격 자체는 사용자 GO 대상이지만, GO 를 요청할
+            근거가 없다). 두 가지가 나왔다.
+            (1) **네 손잡이 중 어느 것도 코드가 안 읽는다** — `emptyResponseRetries`
+            는 테스트가 '블록이 존재하는가'만 보고, `recollectHaltedSymbols`·
+            `versionRetention`·`correctionHandling` 은 아예 참조가 없다(수집기의
+            언급은 전부 주석이다). PF-1.2의 '자리가 없다'와 같은 모양 — 값을
+            바꿔도 데이터도 실험도 안 바뀐다. 그리고 `pendingT1` 주석("기본값을
+            '확정'으로 읽지 않는다")은 지금 **참이고 유용하다**. 승격은 그걸
+            거짓으로 만드는 일이다.
+            (2) 옛 전제 **"emptyResponseRetries는 관측 기회 0건"이 틀렸다** —
+            그건 T1 표본(6종목×7일) 얘기지 운영이 아니다. production 은 하루
+            EMPTY 40~54건이다. 그래서 실제로 쟀다: `EMPTY` 는 KIS 가 rt_cd
+            정상으로 답했는데 0행인 경우인데, **일봉 거래량 0 종목 수와 대조하니
+            165거래일 전부 `EMPTY+HALT ≈ 거래량0`**(잔차 +3~7, 표준편차 0.64,
+            설명 안 되는 날 **0건**). 즉 EMPTY 는 손실이 아니라 "그날 거래가
+            없었다"다 — 재시도해도 얻을 봉이 없다.
+            재현: `python scripts/probe-minute-empty-accounting.py`(네트워크 없음).
+            재개 조건: 그 손잡이를 **읽는 코드가 생길 때**. 그때 값부터 정한다.
             (A2b 종료로 풀렸던 나머지 4항목 — priceSource.js·043090 처리·
             Strategy Lab PRIMARY 승격·분봉 전체 백필·A5-3 valuation 연결 —
             전부 완료됨. docs/control/완료-이력.md 참고)
