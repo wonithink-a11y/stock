@@ -53,6 +53,18 @@ import time
 import datetime as dt
 from pathlib import Path
 
+# ★ GH Actions 러너는 UTC 다(워크플로에 TZ 설정이 없다). 이 워크플로는 22:00 UTC
+# 에 도는데 그건 KST 로 **다음 날 07:00** 이다 - dt.date.today() 를 쓰면 날짜
+# 라벨이 하루 전으로 찍힌다. 절대 규칙 3(시각은 항상 KST).
+# 2026-09-02 실행은 우연히 맞았다: 23:48 UTC 에 시작해 00:14 UTC 에 기록해서
+# UTC 날짜가 마침 넘어가 있었다. 제때(22:00) 돌면 틀린다 - 달마다 맞았다
+# 틀렸다 하는 라벨이라 아무도 못 알아챈다.
+KST = dt.timezone(dt.timedelta(hours=9))
+
+
+def today_kst():
+    return dt.datetime.now(KST).date()
+
 ROOT = Path(__file__).resolve().parent.parent
 FUND_PATH = ROOT / "config" / "fundamentals.json"
 WATCHLIST_PATH = ROOT / "config" / "watchlist.json"
@@ -546,7 +558,7 @@ def build_entry(ticker, m, src, smap, prev_entry):
         "yfSector": m.get("sector"),
         "yfIndustry": m.get("industry"),
         "_source": "yfinance+SEC XBRL",
-        "_asOf": dt.date.today().isoformat(),
+        "_asOf": today_kst().isoformat(),
         "_fields": {k: v for k, v in src.items() if v},
     }
 
@@ -660,8 +672,8 @@ def main():
         return 0
 
     by_ticker.update(entries)
-    fund["updatedAt"] = dt.date.today().isoformat()
-    fund["usUpdatedAt"] = dt.date.today().isoformat()
+    fund["updatedAt"] = today_kst().isoformat()
+    fund["usUpdatedAt"] = today_kst().isoformat()
     fund["usSectorPer"] = sector_per
     FUND_PATH.write_text(json.dumps(fund, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\n완료: {len(entries)}종목 → config/fundamentals.json")

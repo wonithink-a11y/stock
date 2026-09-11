@@ -4,7 +4,7 @@ name: weekly-backtest
 
 on:
   schedule:
-    - cron: '0 8 * * 0'
+    - cron: '0 8 * * 0'   # 08:00 UTC = 17:00 KST, 일요일
   workflow_dispatch:
 
 permissions:

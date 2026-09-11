@@ -8,8 +8,9 @@ name: intraday-alert
 
 on:
   schedule:
-    - cron: '*/10 0-6 * * 1-5'    # 한국장
-    - cron: '*/10 13-21 * * 1-5'  # 미국장
+    # cron 은 UTC 만 받는다(GitHub 제약). KST 를 같이 적어 산수를 검증 가능하게 둔다.
+    - cron: '*/10 0-6 * * 1-5'    # 00:00~06:50 UTC = 09:00~15:50 KST  한국장
+    - cron: '*/10 13-21 * * 1-5'  # 13:00~21:50 UTC = 22:00~06:50 KST(+1일)  미국장
   workflow_dispatch:
 
 permissions:
