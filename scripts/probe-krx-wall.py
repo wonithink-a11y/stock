@@ -76,34 +76,48 @@ def relogin():
     if s is None:
         print("  재로그인 불가 - 인증 세션이 없다", flush=True)
         return False
-    ok = s.refresh(os.environ.get("KRX_ID"), os.environ.get("KRX_PW"))
+    try:
+        ok = s.refresh(os.environ.get("KRX_ID"), os.environ.get("KRX_PW"))
+    except Exception as e:                                        # noqa: BLE001
+        # ★ 실측(2026-09-11): 막힌 뒤에는 **로그인 엔드포인트도** 같은 비-JSON 을 준다.
+        #   로그인 URL 은 데이터 URL 과 다른 주소다 - 즉 세션 무효화가 아니라
+        #   호출자 단위(IP 또는 계정) 차단이다. 죽지 말고 기록한다.
+        print("  재로그인 예외: %s: %s" % (type(e).__name__, e), flush=True)
+        describe_last("로그인 엔드포인트의 막힌 응답")
+        return False
     print("  재로그인 %s" % ("성공" if ok else "실패"), flush=True)
     return ok
 
 
 def run_batch(stock, tickers, from_date, to_date, label):
-    ok = fail = 0
+    """★ pykrx 는 JSONDecodeError 를 **스스로 잡아 찍고 빈 df 를 준다**(실측 2026-09-11).
+    그래서 막힘은 예외가 아니라 '빈 응답'으로 온다 - 두 경로를 같은 실패로 센다."""
+    ok = fail = streak = 0
     first_fail_at = None
     for i, t in enumerate(tickers, 1):
+        got = False
         try:
             df = stock.get_shorting_balance_by_date(from_date, to_date, t)
-            if df is None or len(df) == 0:
-                fail += 1
-                if first_fail_at is None:
-                    first_fail_at = i
-            else:
-                ok += 1
+            got = df is not None and len(df) > 0
+            why = "빈 응답"
         except Exception as e:                                    # noqa: BLE001
+            why = "%s: %s" % (type(e).__name__, e)
+
+        if got:
+            ok += 1
+            streak = 0
+        else:
             fail += 1
+            streak += 1
             if first_fail_at is None:
                 first_fail_at = i
-                print("  [%s] 첫 실패 %d번째 (%s): %s: %s"
-                      % (label, i, t, type(e).__name__, e), flush=True)
+                print("  [%s] 첫 실패 %d번째 (%s) - %s" % (label, i, t, why), flush=True)
                 describe_last("막힌 응답 원문")
+
         if i % 25 == 0:
             print("  [%s] %d개 · 성공 %d · 실패 %d" % (label, i, ok, fail), flush=True)
-        if fail >= 25 and ok == 0:
-            print("  [%s] 25연속 실패 - 조기 중단" % label, flush=True)
+        if streak >= 25:
+            print("  [%s] %d연속 실패 - 조기 중단" % (label, streak), flush=True)
             break
         time.sleep(SLEEP_SECONDS)
     return ok, fail, first_fail_at

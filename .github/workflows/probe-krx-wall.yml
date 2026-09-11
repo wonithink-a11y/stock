@@ -42,6 +42,11 @@ jobs:
       - name: Install deps
         run: pip install --quiet "pykrx==1.2.8" pandas       # shares-snapshot 과 동일 버전
 
+      # IP 단위 차단인지 가르려면 두 실행이 실제로 다른 IP 였는지 증명해야 한다.
+      # 러너 IP 는 실행마다 다르다 - 그게 이 프로브의 대조군이다.
+      - name: Runner egress IP
+        run: echo "runner egress IP = $(curl -s --max-time 10 https://api.ipify.org)"
+
       - name: Probe
         timeout-minutes: 12
         env:
