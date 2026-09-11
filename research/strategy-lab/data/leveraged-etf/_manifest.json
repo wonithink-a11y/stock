@@ -1,0 +1,29 @@
+{
+ "axis": "leveraged-etf/daily",
+ "generatedAtUTC": "2026-09-11T16:02:24.243695+00:00",
+ "source": "yfinance history(period=max, auto_adjust=False, actions=True)",
+ "note": "분할 조정만. 배당 미조정 — dividends 열을 따로 저장한다",
+ "tickers": {
+  "TQQQ": {
+   "rows": 4171,
+   "from": "2010-02-11",
+   "to": "2026-09-11",
+   "sha256": "f1d82701e3bb5f9e",
+   "reverseSplits": 8
+  },
+  "SOXL": {
+   "rows": 4152,
+   "from": "2010-03-11",
+   "to": "2026-09-11",
+   "sha256": "9ac974e48f607f67",
+   "reverseSplits": 2
+  },
+  "KORU": {
+   "rows": 3377,
+   "from": "2013-04-10",
+   "to": "2026-09-11",
+   "sha256": "f5d5ed233deaaee6",
+   "reverseSplits": 2
+  }
+ }
+}
