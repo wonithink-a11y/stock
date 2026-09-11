@@ -246,8 +246,13 @@ class KisVtsClient:
             raise KisVtsError(f"{side} 주문 실패: {resp.get('msg_cd')} {resp.get('msg1')}")
         return resp
 
-    def inquire_balance(self):
-        """반환: (holdings: list[dict], cash: str, eval_total: str).
+    def inquire_balance(self, with_summary=False):
+        """반환: (holdings, cash, eval_total) - with_summary=True 면 output2[0]
+        원본 dict 를 네 번째로 더 준다.
+
+        요약 세 값만 주면 호출부가 예수금이 둘이라는 걸 모른다 - dnca_tot_amt
+        (D+0)와 prvs_rcdl_excc_amt(D+2)는 결제대기만큼 다르고, tot_evlu_amt 는
+        **D+2** 쪽을 더한 값이다. 원본을 그대로 넘겨 해석은 호출부가 한다.
 
         ★ 연속조회 필수. KIS는 output1을 한 번에 20종목까지만 준다 - 더
         있으면 응답 헤더 tr_cont가 F/M이고 ctx_area_fk100/nk100이 다음
@@ -279,8 +284,9 @@ class KisVtsClient:
             # 하류가 빠진 종목을 "판 종목"으로 읽는다. 잘린 것은 실패로 만든다.
             raise KisVtsError(f"잔고 연속조회가 {MAX_BALANCE_PAGES}페이지에서 안 끝났다 "
                                f"(누적 {len(holdings)}종목) - 부분 잔고를 반환하지 않는다")
-        summary = resp.get("output2") or [{}]
-        return holdings, summary[0].get("dnca_tot_amt"), summary[0].get("tot_evlu_amt")
+        summary = (resp.get("output2") or [{}])[0]
+        base = (holdings, summary.get("dnca_tot_amt"), summary.get("tot_evlu_amt"))
+        return (*base, summary) if with_summary else base
 
     def get_current_price(self, symbol):
         """현재가(stck_prpr) 하나만 float로 반환한다. 시세 조회는 실전/모의

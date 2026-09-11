@@ -13,15 +13,26 @@ window.TABS.chart = {
       // 벤치마크(KOSPI) - Beta·변동성 계산용, 없어도 포지션 화면 자체는
       // 떠야 하니 fail-soft(못 받으면 그 두 컬럼만 "-"로 표시).
       let kospiHistory = null;
+      let kosdaqHistory = null;
       for (const path of ["data/macro.json", "ui/data/macro.json"]) {
         try {
           const mRes = await fetch(path);
           if (!mRes.ok) continue;
           const mData = await mRes.json();
-          kospiHistory = mData.series && mData.series.krKospi && mData.series.krKospi.history;
+          const series = mData.series || {};
+          kospiHistory = series.krKospi && series.krKospi.history;
+          kosdaqHistory = series.krKosdaq && series.krKosdaq.history;
           if (kospiHistory) break;
         } catch (e) { /* 다음 경로 시도 */ }
       }
+
+      // 계좌 총평가 이력 - build_ui_feed.py 가 하루 한 줄씩 쌓는다(2026-09-11
+      // 신설). 그 전 기간은 없다(소급 불가) - 없으면 벤치마크만 그린다.
+      let equityHistory = null;
+      try {
+        const eRes = await fetch("data/equity-history.json");
+        if (eRes.ok) equityHistory = (await eRes.json()).history;
+      } catch (e) { /* 벤치마크만 그린다 */ }
 
       // 종목명 조회 - 없어도(신규 상장 등 매핑 누락) 코드만 보이면 되니 fail-soft.
       let tickerNames = {};
@@ -30,7 +41,7 @@ window.TABS.chart = {
         if (nRes.ok) tickerNames = await nRes.json();
       } catch (e) { /* 코드만 표시 */ }
 
-      renderChartTab(container, data, kospiHistory, tickerNames);
+      renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistory, equityHistory);
     } catch (e) {
       const msg = String((e && e.message) || e);
       // positions.json 은 KIS 모의계좌를 읽는 로컬 스크립트(build_ui_feed.py)가
@@ -45,7 +56,7 @@ window.TABS.chart = {
   }
 };
 
-function renderChartTab(container, data, kospiHistory, tickerNames) {
+function renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistory, equityHistory) {
   const { updatedAt, historyAsOf, account, strategies, trades } = data;
   const strategyEntries = Object.entries(strategies);
   const totalPositions = strategyEntries.reduce((n, [, s]) => n + (s.positions || []).length, 0);
@@ -66,8 +77,22 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
 
   // 계좌 요약 - 히어로 스탯 바 (전문 트레이딩 터미널의 상단 계좌 바 참고)
   html += '<div class="panel account-hero">';
-  html += '  <div class="hero-stat"><div class="stat-label">예수금</div><div class="stat-value-lg mono">' + formatAccount(account?.cashKrw) + "</div></div>";
-  html += '  <div class="hero-stat"><div class="stat-label">평가금액</div><div class="stat-value-lg mono">' + formatAccount(account?.totalValueKrw) + "</div></div>";
+  // 예수금은 둘이다 - 한국 주식은 D+2 결제라 어제 산 값이 아직 안 빠진
+  // 잔고(dnca)와 실제로 쓸 수 있는 돈(D+2)이 다르다. 하나만 보이면 도넛의
+  // 예수금과 어긋나 보인다(실측 2026-09-11: 150,278,637 vs 100,596,273,
+  // 차이 49,682,364 = 어제 매수대금 + 제비용).
+  const settling = (account?.settlingKrw || 0) + (account?.settlingFeeKrw || 0);
+  html += '  <div class="hero-stat"><div class="stat-label">예수금</div><div class="stat-value-lg mono">' +
+    formatAccount(account?.cashKrw) + "</div>" +
+    (account?.cashAvailableKrw != null
+      ? '<div class="dim mono" style="font-size:11px">가용(D+2) ' + formatAccount(account.cashAvailableKrw) +
+        (settling ? " · 결제대기 " + formatAccount(settling) : "") + "</div>"
+      : "") + "</div>";
+  html += '  <div class="hero-stat"><div class="stat-label">평가금액</div><div class="stat-value-lg mono">' +
+    formatAccount(account?.totalValueKrw) + "</div>" +
+    (account?.stockValueKrw != null
+      ? '<div class="dim mono" style="font-size:11px">주식 ' + formatAccount(account.stockValueKrw) + "</div>"
+      : "") + "</div>";
   html += '  <div class="hero-stat"><div class="stat-label">보유/전체 포지션</div><div class="stat-value-lg mono">' + openCount + " / " + totalPositions + "</div></div>";
   html += '  <div class="hero-stat"><div class="stat-label">기준일</div><div class="stat-value-lg mono" style="font-size:18px">' + (historyAsOf || "-") + "</div></div>";
   html += '  <div class="dim mono account-hero-updated">최종 갱신 ' + (updatedAt || "-") + "</div>";
@@ -90,6 +115,7 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
   html += compositionBarsHtml(strategyEntries, account);
   html += "</div>";
 
+  html += benchmarkPanelHtml(kospiHistory, kosdaqHistory, equityHistory);
   html += tradesPanelHtml(trades);
 
   let selectedSymbol = null;
@@ -456,6 +482,74 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       ';stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round" /></svg>';
   }
 
+  // 벤치마크 비교 - 코스피·코스닥·내 계좌를 한 그림에 겹친다.
+  //
+  // 절대수준이 자릿수가 달라(지수 2,500 vs 계좌 5억) 같은 축에 못 놓는다 -
+  // **공통 시작일 = 100** 으로 정규화한다. 시작일은 세 계열이 다 있는 첫 날이고,
+  // 계좌 이력이 2026-09-11 부터라 그 전은 지수만 그린다(소급 불가).
+  //
+  // canvas 대신 SVG 폴리라인이다 - 축 눈금과 툴팁이 필요 없는 비교선이라
+  // 가격 차트의 캔버스 기계를 다시 쓸 이유가 없다.
+  function benchmarkPanelHtml(kospi, kosdaq, equity) {
+    const series = [
+      { key: "kospi", label: "코스피", color: "var(--accent)",
+        rows: (kospi || []).map((h) => ({ date: h.date, v: h.value })) },
+      { key: "kosdaq", label: "코스닥", color: "var(--warn)",
+        rows: (kosdaq || []).map((h) => ({ date: h.date, v: h.value })) },
+      { key: "acct", label: "내 계좌", color: "var(--good)",
+        rows: (equity || []).map((h) => ({ date: h.date, v: h.totalKrw })) },
+    ].filter((s) => s.rows.length >= 2);
+
+    let out = '<div class="panel" style="margin-top:12px;"><h2>벤치마크 비교 — 코스피 · 코스닥 · 내 계좌</h2>';
+    if (!series.length) return out + '<div class="empty">비교할 계열이 없습니다.</div></div>';
+
+    // 계좌가 있으면 그 시작일부터 - 비교는 셋이 다 있는 구간에서만 뜻이 있다.
+    const acct = series.find((s) => s.key === "acct");
+    const start = acct ? acct.rows[0].date : series[0].rows[0].date;
+    const norm = series.map((s) => {
+      const rows = s.rows.filter((r) => r.date >= start && r.v);
+      const base = rows.length ? rows[0].v : null;
+      return { ...s, pts: base ? rows.map((r) => ({ date: r.date, y: (r.v / base) * 100 })) : [] };
+    }).filter((s) => s.pts.length >= 2);
+
+    if (!norm.length) {
+      return out + '<div class="empty">계좌 이력이 아직 2일치가 안 됩니다 — ' +
+        '<code>build_ui_feed.py</code> 가 오늘부터 하루 한 줄씩 쌓습니다(소급 불가).</div></div>';
+    }
+
+    const w = 900, h = 260, pad = 34;
+    const dates = [...new Set(norm.flatMap((s) => s.pts.map((p) => p.date)))].sort();
+    const xOf = (d) => pad + (dates.indexOf(d) / Math.max(1, dates.length - 1)) * (w - pad * 2);
+    const ys = norm.flatMap((s) => s.pts.map((p) => p.y));
+    const lo = Math.min(100, ...ys), hi = Math.max(100, ...ys), span = hi - lo || 1;
+    const yOf = (v) => h - pad - ((v - lo) / span) * (h - pad * 2);
+
+    let svg = '<svg viewBox="0 0 ' + w + " " + h + '" style="width:100%;height:auto" preserveAspectRatio="none">';
+    svg += '<line x1="' + pad + '" y1="' + yOf(100) + '" x2="' + (w - pad) + '" y2="' + yOf(100) +
+           '" style="stroke:var(--text-dim);stroke-width:1;stroke-dasharray:4 4;opacity:.5" />';
+    norm.forEach((s) => {
+      svg += '<polyline points="' + s.pts.map((p) => xOf(p.date).toFixed(1) + "," + yOf(p.y).toFixed(1)).join(" ") +
+             '" fill="none" style="stroke:' + s.color + ';stroke-width:2;stroke-linejoin:round" />';
+    });
+    svg += "</svg>";
+
+    const legend = norm.map((s) => {
+      const last = s.pts[s.pts.length - 1].y - 100;
+      return '<span style="margin-right:16px"><span class="legend-dot" style="display:inline-block;background:' +
+        s.color + '"></span> ' + s.label + ' <span class="mono ' + getPnlClass(last) + '">' +
+        formatPnlPct(last) + "</span></span>";
+    }).join("");
+
+    out += '<div class="dim mono" style="font-size:11px;margin-bottom:4px">' + start +
+           " = 100 기준 · " + dates.length + "일</div>";
+    out += svg + '<div style="font-size:12px;margin-top:6px">' + legend + "</div>";
+    if (!acct) {
+      out += '<div class="dim" style="font-size:11px;margin-top:6px">계좌 곡선은 이력이 쌓이는 대로 붙습니다 — ' +
+             '총평가액을 하루 한 줄로 적기 시작한 게 2026-09-11 이고, 그 전은 기록이 없어 소급되지 않습니다.</div>';
+    }
+    return out + "</div>";
+  }
+
   // 매매(리밸런싱) 내역 - 금액·체결가는 KIS 일별주문체결 조회가 정본이고,
   // 전략 귀속은 엔진이 주문을 낼 때 남긴 주문번호->전략 원장으로 붙인다
   // (positionStore.record_order). 계좌 응답 자체에는 전략이 없다.
@@ -594,7 +688,14 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       return { label: strategyId, value: t.value, totals: t, color: palette[i % palette.length] };
     });
     const committedTotal = rows.reduce((s, r) => s + r.value, 0);
-    rows.push({ label: "예수금(미배분)", value: Math.max(0, total - committedTotal), color: "var(--surface-3)" });
+    // ★ 예수금을 '총평가 - 전략합'으로 유도하지 않는다. 유도하면 전략 장부가
+    // 계좌와 어긋나도 예수금이 그 차이를 흡수해 버려 영원히 맞아 보인다
+    // (교훈72). 계좌가 말하는 D+2 예수금을 그대로 쓰고, 남는 차이는 아래
+    // 한 줄로 드러낸다.
+    const cashSlice = account?.cashAvailableKrw != null
+      ? account.cashAvailableKrw : Math.max(0, total - committedTotal);
+    rows.push({ label: "예수금(D+2 가용)", value: cashSlice, color: "var(--surface-3)" });
+    const bookGap = account?.stockValueKrw != null ? committedTotal - account.stockValueKrw : null;
 
     // conic-gradient 세그먼트 문자열 - 누적 %로 이어붙인다.
     let cursor = 0;
@@ -629,7 +730,12 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       '<div class="donut-center"><span class="stat-label">총 평가금액</span>' +
       '<span class="mono" style="font-size:15px;font-weight:700">' + formatAccount(total) + "</span></div></div>" +
       '<div class="donut-legend">' + legend +
-      '<div class="dim" style="font-size:11px;margin-top:6px">매수 = 체결된 평단가×수량(원가) · 금액 = 현재가 평가액 · 손익 = 미실현(원가 대비). 실현손익과 수수료·세금은 빠져 있습니다.</div>' +
+      '<div class="dim" style="font-size:11px;margin-top:6px">매수 = 체결된 평단가×수량(원가) · 금액 = 현재가 평가액 · 손익 = 미실현(원가 대비). 수수료·세금 전.</div>' +
+      (bookGap != null && Math.abs(bookGap) > total * 0.005
+        ? '<div class="warn" style="font-size:11px;margin-top:4px">전략 장부 합이 계좌 유가증권평가액과 ' +
+          formatPnl(Math.round(bookGap)) + '원 다릅니다 (장부 ' + formatAccount(committedTotal) +
+          ' vs 계좌 ' + formatAccount(account.stockValueKrw) + ').</div>'
+        : "") +
       "</div></div>";
   }
 

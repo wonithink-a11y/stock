@@ -22,6 +22,8 @@ _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _THIS_DIR)
 REPO_ROOT = os.path.dirname(os.path.dirname(_THIS_DIR))
 OUT_PATH = os.path.join(REPO_ROOT, "ui", "data", "positions.json")
+EQUITY_PATH = os.path.join(REPO_ROOT, "ui", "data", "equity-history.json")
+EQUITY_KEEP_DAYS = 750   # 약 3년치. 차트가 읽는 것 말고는 쓸 데가 없다
 KST = timezone(timedelta(hours=9))
 # 명시적 allowlist - data/paper/에는 dummy_sma20·각종 테스트(test_*_synth)의
 # 옛 상태 파일도 같이 있다(글롭으로 다 긁으면 그것도 대시보드에 새 나온다,
@@ -157,6 +159,72 @@ def _aggregate_trades(rows, today=None, order_meta=None):
             "unattributed": unattributed}
 
 
+def _num(summary, key):
+    v = summary.get(key)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _account_block(cash, eval_total, summary):
+    """예수금은 **두 개**다. 한국 주식은 D+2 결제라 어제 산 값이 아직 안 빠진
+    잔고(dnca_tot_amt)와 실제로 쓸 수 있는 돈(prvs_rcdl_excc_amt)이 다르다.
+
+    실측 2026-09-11: dnca 150,278,637 · D+2 100,596,273 · 차이 49,682,364 =
+    bfdy_buy_amt 49,675,474 + bfdy_tlex_amt 6,890 (어제 매수대금 + 제비용).
+    화면이 하나만 보여주면 나머지 하나와 어긋나 보인다 - 둘 다 낸다.
+
+    ★ totalValueKrw(tot_evlu_amt) = 유가증권평가 + **D+2 예수금**이다. dnca 가
+    아니다 - 여기서 dnca 를 빼면 주식평가액이 결제대기만큼 작게 나온다.
+    stockValueKrw 는 빼서 구하지 않고 scts_evlu_amt 를 그대로 쓴다(교훈72 -
+    유도한 값으로 그 값을 낳은 식을 검사하면 항상 통과한다)."""
+    return {
+        "cashKrw": float(cash) if cash is not None else None,          # dnca_tot_amt (D+0)
+        "cashAvailableKrw": _num(summary, "prvs_rcdl_excc_amt"),        # D+2 - 실제 가용
+        "settlingKrw": _num(summary, "bfdy_buy_amt"),                   # 결제대기 매수대금
+        "settlingFeeKrw": _num(summary, "bfdy_tlex_amt"),
+        "stockValueKrw": _num(summary, "scts_evlu_amt"),                # 유가증권평가 - 안 유도한다
+        "stockCostKrw": _num(summary, "pchs_amt_smtl_amt"),             # 매입금액 합계
+        "totalValueKrw": float(eval_total) if eval_total is not None else None,
+    }
+
+
+def _append_equity(account, today=None, path=EQUITY_PATH):
+    """계좌 총평가액을 하루 한 줄로 누적한다 - **여태 아무도 안 적었다.**
+    positions.json 은 스냅샷이라 어제 계좌가 얼마였는지가 남지 않고, 그래서
+    "코스피 대비 내 계좌" 같은 걸 그릴 수가 없었다(교훈75).
+
+    하루 여러 번(10:10·13:10·15:40) 돌므로 같은 날짜는 **덮어쓴다** - 마지막
+    회차가 그날 종가 스냅샷이다. 소급은 안 된다: 오늘부터 쌓인다.
+
+    총평가액이 없으면(조회 실패) 줄을 안 쓴다 - 0 이나 직전 값으로 메우면
+    차트가 '그날 계좌가 0이었다' 또는 '안 움직였다'고 거짓말한다(교훈57).
+    """
+    if account.get("totalValueKrw") is None:
+        return None
+    today = today or datetime.now(KST).date().isoformat()
+    rows = []
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                rows = json.load(f).get("history") or []
+        except ValueError:
+            rows = []
+    rows = [r for r in rows if r.get("date") != today]
+    rows.append({"date": today,
+                 "totalKrw": round(account["totalValueKrw"]),
+                 "stockKrw": round(account["stockValueKrw"]) if account.get("stockValueKrw") else None,
+                 "cashKrw": round(account["cashKrw"]) if account.get("cashKrw") else None})
+    rows.sort(key=lambda r: r["date"])
+    rows = rows[-EQUITY_KEEP_DAYS:]
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"updatedAt": datetime.now(KST).isoformat(), "history": rows},
+                  f, ensure_ascii=False, indent=2)
+    return rows
+
+
 def _order_ledger_map(repo_root, strategies):
     """주문번호 -> {strategy, side, entryPrice, ...}. 원장은 전략마다 따로 있고
     주문번호는 계좌 전역이라 한 장으로 합친다. 충돌은 구조적으로 없다
@@ -236,9 +304,10 @@ def main():
     from engine.live.kisVtsClient import KisVtsClient, KisVtsError
 
     client = None
+    summary = {}
     try:
         client = KisVtsClient()          # __init__ 이 .env 누락으로 던질 수 있다
-        holdings, cash, eval_total = client.inquire_balance()
+        holdings, cash, eval_total, summary = client.inquire_balance(with_summary=True)
     except KisVtsError as e:
         print(f"[경고] KIS 잔고 조회 실패, 계좌 정보 없이 계속: {e}")
         holdings, cash, eval_total = [], None, None
@@ -265,10 +334,7 @@ def main():
     out = {
         "updatedAt": datetime.now(KST).isoformat(),
         "historyAsOf": history_as_of,  # 실제로 받은 일봉 중 최신일 - UI가 반드시 표시할 것
-        "account": {
-            "cashKrw": float(cash) if cash is not None else None,
-            "totalValueKrw": float(eval_total) if eval_total is not None else None,
-        },
+        "account": _account_block(cash, eval_total, summary),
         "strategies": strategies,
         "trades": _trades_block(client),
     }
@@ -276,6 +342,8 @@ def main():
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
     print(f"저장: {OUT_PATH} ({sum(len(s['positions']) for s in strategies.values())}건)")
+    rows = _append_equity(out["account"])
+    print(f"계좌 이력: {EQUITY_PATH} ({len(rows)}일)" if rows else "계좌 이력: 총평가액이 없어 건너뜀")
 
 
 if __name__ == "__main__":

@@ -49,6 +49,10 @@ ui/data/*
 !ui/data/macro.json
 !ui/data/findings.json
 !ui/data/positions.json
+# 계좌 총평가 이력 - build_ui_feed.py 가 하루 한 줄씩 쌓고 paper-trading-ui.yml 이
+# 커밋한다. 예외로 안 빼면 git add 가 조용히 아무 것도 안 해 이력이 영영 안 쌓인다
+# (소급 불가라 빠진 날은 되살릴 수 없다).
+!ui/data/equity-history.json
 ui/orders/
 
 # 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.

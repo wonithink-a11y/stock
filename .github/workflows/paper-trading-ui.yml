@@ -77,7 +77,9 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ../../ui/data/positions.json
+          # equity-history.json 은 누적본이다 - 하루 한 줄(같은 날은 덮어쓰기).
+          # 소급이 안 되므로 커밋을 빼먹으면 그날이 영영 빈다.
+          git add ../../ui/data/positions.json ../../ui/data/equity-history.json
           if ! git diff --staged --quiet; then
             git commit -m "chore: update ui/data/positions.json (paper trading)"
             for i in 1 2 3 4 5; do

@@ -97,6 +97,55 @@ def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=
             "pendingQty": pending, "rejectedQty": 0, "canceled": canceled}
 
 
+def test_account_block_keeps_both_cash_figures():
+    """예수금이 둘이다 - D+0(dnca)와 D+2(가용). 하나만 내면 화면의 다른 숫자와
+    어긋나 보인다. 실측 2026-09-11 값 그대로."""
+    summary = {"prvs_rcdl_excc_amt": "100596273", "bfdy_buy_amt": "49675474",
+               "bfdy_tlex_amt": "6890", "scts_evlu_amt": "400812136",
+               "pchs_amt_smtl_amt": "399348207"}
+    a = feed._account_block("150278637", "501408409", summary)
+    ok("D+0 예수금", a["cashKrw"] == 150278637, a)
+    ok("D+2 가용", a["cashAvailableKrw"] == 100596273, a)
+    ok("차이 = 결제대기 + 제비용",
+       round(a["cashKrw"] - a["cashAvailableKrw"]) == round(a["settlingKrw"] + a["settlingFeeKrw"]), a)
+    ok("총평가 = 유가증권 + D+2 예수금",
+       round(a["stockValueKrw"] + a["cashAvailableKrw"]) == round(a["totalValueKrw"]), a)
+    ok("주식평가액은 빼서 구하지 않는다(scts 그대로)", a["stockValueKrw"] == 400812136, a)
+
+
+def test_account_block_survives_missing_summary():
+    a = feed._account_block(None, None, {})
+    ok("조회 실패면 전부 None - 0으로 메우지 않는다",
+       all(a[k] is None for k in a), a)
+
+
+def test_equity_history_appends_one_row_per_day():
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as tmp:
+        p = str(Path(tmp) / "equity-history.json")
+        acct = {"totalValueKrw": 501408409.0, "stockValueKrw": 400812136.0, "cashKrw": 150278637.0}
+        feed._append_equity(acct, today="2026-09-11", path=p)
+        rows = feed._append_equity({**acct, "totalValueKrw": 502000000.0},
+                                    today="2026-09-11", path=p)
+        ok("같은 날은 덮어쓴다(하루 여러 번 돈다)", len(rows) == 1, rows)
+        ok("마지막 회차 값이 남는다", rows[0]["totalKrw"] == 502000000, rows)
+        rows = feed._append_equity(acct, today="2026-09-14", path=p)
+        ok("다음 날은 새 줄", [r["date"] for r in rows] == ["2026-09-11", "2026-09-14"], rows)
+
+
+def test_equity_history_skips_when_value_unknown():
+    """조회 실패를 0이나 직전 값으로 메우면 차트가 '그날 계좌가 0이었다' 또는
+    '안 움직였다'고 거짓말한다(교훈57). 줄을 안 쓴다."""
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as tmp:
+        p = str(Path(tmp) / "equity-history.json")
+        ok("총평가액 없으면 안 쓴다",
+           feed._append_equity({"totalValueKrw": None}, today="2026-09-11", path=p) is None)
+        ok("파일도 안 만든다", not Path(p).exists())
+
+
 def test_aggregate_trades_sums_buy_and_sell_per_day():
     out = feed._aggregate_trades([
         _exec("2026-09-04", "021820", "BUY", 10, 1_000),
@@ -235,6 +284,10 @@ if __name__ == "__main__":
                test_not_in_account_is_left_unmarked,
                test_falls_back_to_account_avg_when_book_has_no_entry_price,
                test_strategy_rows_sum_to_account_when_books_are_consistent,
+               test_account_block_keeps_both_cash_figures,
+               test_account_block_survives_missing_summary,
+               test_equity_history_appends_one_row_per_day,
+               test_equity_history_skips_when_value_unknown,
                test_aggregate_trades_sums_buy_and_sell_per_day,
                test_aggregate_trades_excludes_unfilled_from_amounts_but_lists_them_pending,
                test_aggregate_trades_pending_is_today_only,
