@@ -26,9 +26,11 @@ import io
 import json
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+KST = timezone(timedelta(hours=9))
 DEFAULT_BUCKET = "stock-minute-manifest"
 
 # collect-minute-kis.py의 day_verdict()가 내는 값 중 '장이 안 섰다'를
@@ -131,7 +133,28 @@ def already_promoted_dates(manifest_dir):
     return {p.stem for p in Path(manifest_dir).glob("*.json")}
 
 
-def run(transport, manifest_dir, days=None, out=print):
+def repo_holes(have, trading_days, today, lookback=10, grace=1):
+    """저장소에 뚫린 구멍. '무엇이 실패했나'가 아니라 '무엇이 없나'를 본다.
+
+    워크플로가 전부 녹색인데 데이터가 없을 수 있다 - VM 실패는 Actions 에
+    아예 나타나지 않는다(2026-09-10 실측: 09-04·09-07 2일이 6일간 조용히
+    없었다). 실패를 감시하면 그 경로만 잡지만 결과를 감시하면 원인과
+    무관하게 잡는다 - VM 죽음·수집 FAIL·OCI 업로드 중단·승격 거부 전부.
+
+    grace: 가장 최근 거래일은 아직 안 올라왔을 수 있다(VM 18:00 → 승격
+        19:30 KST). 하루 늦게 알리는 대신 거짓 경보를 안 낸다.
+    lookback: 못 메우는 하루가 영원히 붉은 경고가 되지 않게 창을 둔다 -
+        영원히 참인 경고는 모두가 무시하는 법을 배운다(CLAUDE.md).
+        캘린더가 최근을 못 덮으면 창이 그만큼 일찍 끝난다(거짓 경보 없음).
+    """
+    days = [d for d in sorted(trading_days) if d <= today]
+    if grace:
+        days = days[:-grace]
+    return [d for d in days[-lookback:] if d not in have]
+
+
+def run(transport, manifest_dir, days=None, out=print, trading_days=None,
+        today=None):
     all_dates = sorted({n[len("_manifest/"):-len(".json")]
                         for n in transport.list_names(prefix="_manifest/")
                         if n.endswith(".json")})
@@ -140,9 +163,22 @@ def run(transport, manifest_dir, days=None, out=print):
     if days:
         todo = todo[:days]
 
+    def holes_after(code):
+        if not trading_days:
+            return code
+        h = repo_holes(already_promoted_dates(manifest_dir), trading_days,
+                       today or datetime.now(KST).date().isoformat())
+        if not h:
+            return code
+        out("")
+        out("  [구멍] 최근 거래일 중 저장소에 manifest 가 없는 날: " + ", ".join(h))
+        out("         OCI 에도 없으면 VM 쪽이다 - Actions 에는 안 나타난다.")
+        out("         복구: VM 에서 run-minute-daily.py --date <날짜>")
+        return 1
+
     if not todo:
         out("  승격할 것 없다")
-        return 0
+        return holes_after(0)
 
     Path(manifest_dir).mkdir(parents=True, exist_ok=True)
     promoted, closed, failed = [], [], []
@@ -165,7 +201,7 @@ def run(transport, manifest_dir, days=None, out=print):
     out("")
     out("  승격 %d · 휴장 %d · 거부 %d"
         % (len(promoted), len(closed), len(failed)))
-    return 1 if failed else 0
+    return holes_after(1 if failed else 0)
 
 
 def main():
@@ -201,7 +237,14 @@ def main():
     manifest_dir = (Path(args.manifest_dir) if args.manifest_dir
                     else (REPO / pol["output"]["manifestDir"]))
 
-    sys.exit(run(transport, manifest_dir, days=args.days))
+    # 캘린더가 없으면 구멍 검사를 건너뛴다 - 모르는 것은 0이 아니다(교훈57).
+    try:
+        cal = kis_mod.load_context()["tradingDays"]
+    except Exception as e:
+        print("  [구멍검사 생략] 캘린더를 못 읽었다: " + str(e))
+        cal = None
+
+    sys.exit(run(transport, manifest_dir, days=args.days, trading_days=cal))
 
 
 if __name__ == "__main__":

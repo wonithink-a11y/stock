@@ -8,11 +8,9 @@ name: notify-failure
 # 고쳐야 하고, 빠뜨린 하나는 여전히 조용하다. 여기 한 곳에서 workflow_run 으로
 # 받는다.
 #
-# ★ 알림 채널이 저장소에 없다(2026-09-09 실측: gh secret list 에 TELEGRAM_* 없음).
-# 그래서 scripts/notify.js 도 여태 "(알림 채널 미설정)" 만 찍고 있었다.
-# 시크릿이 등록되기 전까지 이 워크플로는 조용히 통과한다(no-op).
-#   gh secret set TELEGRAM_BOT_TOKEN
-#   gh secret set TELEGRAM_CHAT_ID
+# TELEGRAM_BOT_TOKEN · TELEGRAM_CHAT_ID 는 2026-09-09 에 등록됐다(gh secret list).
+# 둘 중 하나라도 없으면 scripts/notify.js 가 "(알림 채널 미설정)" 만 찍고
+# 조용히 통과한다 - 알림이 없는 것보다 나쁜 건 없다고 믿는 것이다.
 
 on:
   workflow_run:
@@ -21,6 +19,10 @@ on:
       - Refresh strategy selections
       - backfill-supply-demand-a4
       - Update ui/data/positions.json (Paper Trading Engine)
+      # 승격 실패만이 아니라 '저장소에 구멍이 있다'도 여기서 붉어진다
+      # (promote-minute-manifest.py repo_holes). VM 실패는 Actions 에
+      # 아예 안 나타나므로 결과를 감시하는 이 경로가 유일한 통로다.
+      - promote-minute-manifest
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 

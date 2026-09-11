@@ -184,6 +184,38 @@ def run_all():
         check("combined_sha가 VM 쪽 구현과 동일",
               M.combined_sha(sample) == kismod.combined_sha(sample))
 
+        # 13 저장소 구멍 검사 — 2026-09-10 사고(워크플로 녹색 · 데이터 없음)
+        cal = ["2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04",
+               "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10"]
+        full = set(cal)
+        check("구멍이 없으면 빈 목록",
+              M.repo_holes(full, cal, "2026-09-10") == [])
+        check("실종된 날을 집어낸다",
+              M.repo_holes(full - {"2026-09-04", "2026-09-07"}, cal,
+                           "2026-09-10") == ["2026-09-04", "2026-09-07"])
+        check("가장 최근 거래일은 grace 로 봐준다(아직 안 올 수 있다)",
+              M.repo_holes(full - {"2026-09-10"}, cal, "2026-09-10") == [])
+        check("미래 거래일은 후보가 아니다",
+              M.repo_holes(full - {"2026-09-09", "2026-09-10"}, cal,
+                           "2026-09-08") == [])
+        check("lookback 밖의 옛 구멍은 영원히 붉지 않다",
+              M.repo_holes(full - {"2026-09-01"}, cal, "2026-09-10",
+                           lookback=3) == [])
+
+        # 구멍이 있으면 '승격할 것 없다' 경로에서도 exit 1 이다.
+        # 이 경로가 이번 사고에서 6일간 녹색이었다.
+        tr13 = osmod.FakeOciTransport()
+        mandir13 = tmp / "m13"
+        mandir13.mkdir()
+        for d in cal[:-2]:
+            (mandir13 / (d + ".json")).write_text("{}", encoding="utf-8")
+        check("구멍이 있으면 승격할 게 없어도 exit 1",
+              M.run(tr13, mandir13, out=lambda s: None, trading_days=cal,
+                    today="2026-09-10") == 1)
+        check("구멍이 없으면 그대로 exit 0",
+              M.run(tr13, mandir13, out=lambda s: None, trading_days=cal,
+                    today="2026-09-09") == 0)
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
