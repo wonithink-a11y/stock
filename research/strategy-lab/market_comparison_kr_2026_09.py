@@ -7,9 +7,13 @@
   1. 회계는 정본 MTM 하나뿐이다 - `pbr_vs_ew_monthly_mtm.schedule_with_monthly_mtm`
      을 그대로 import 한다. 실현손익 누적(`eq += pnl`)은 쓰지 않는다.
   2. 전략 정의(유니버스·리밸런싱·보유기간·비용·PIT)는 각 strategies/*/policy.json
-     을 그대로 읽는다. 재최적화 없음. 유일한 예외는 factor_earnings_yield_v1 의
-     maxPositions 로, 같은 디렉터리의 **동결된 policy_30.json** 을 쓴다(DRIFT 항목
-     참고 - 현 policy.json 의 mp=200 도 따로 같이 잰다).
+     을 그대로 읽는다. 재최적화 없음. factor_earnings_yield_v1 만 동결본
+     **policy_30.json** 을 쓴다 - 2026-09-04 에 build_factor_selection.py 가
+     policy.json 을 mp=200 으로 덮어쓴 적이 있어 앵커를 따로 둔 것이다.
+     ★ 그 드리프트는 2026-09-08(`bcc999c`)에 mp=30 으로 복구됐다. 그래서 이
+     스크립트의 옛 "mp=200" 비교 행은 지웠다 - 지금 돌리면 같은 설정을 다른
+     이름으로 두 번 재게 된다. mp=200 실측치는 findings/market-benchmark-
+     comparison-2026-09.md 에 그대로 남아 있다(그때는 진짜 mp=200 이었다).
   3. 비용은 전 전략 동일하게 policy.json 값(왕복 30bp, 슬리피지 0). 지수
      벤치마크에도 같은 진입/청산 15bp 를 1회씩 물린다(바이앤홀드 1회 왕복).
   4. 계산하지 않은 값은 None 으로 남긴다. 추정·0·N/A 로 채우지 않는다.
@@ -72,8 +76,6 @@ CANDIDATES = [
      "sector-neutral-engine-verification-2026-09.md"),
     ("factor_earnings_yield_v1", "Earnings Yield (mp=30)", "HOLD", "policy_30.json",
      "factor-earnings-yield-mtm-reverification-2026-08.md (HOLD, mp=30 정본)"),
-    ("factor_earnings_yield_v1", "Earnings Yield (mp=200, 현 policy.json)", "HOLD-DRIFT",
-     "policy.json", "DRIFT - build_factor_selection.py 가 2026-09-04 에 덮어쓴 값"),
     ("ew_benchmark_liquid_v1", "적격 유니버스 EW", "BENCHMARK", "policy.json",
      "build_selection_ew_benchmark.py (진단 전용 벤치마크)"),
 ]
