@@ -1,9 +1,14 @@
 {
-  "updatedAt": "2026-09-10T20:46:45.633561+09:00",
+  "updatedAt": "2026-09-11T14:58:01.475947+09:00",
   "historyAsOf": "2026-09-03",
   "account": {
     "cashKrw": 150278637.0,
-    "totalValueKrw": 502933418.0
+    "cashAvailableKrw": 100596273.0,
+    "settlingKrw": 49675474.0,
+    "settlingFeeKrw": 6890.0,
+    "stockValueKrw": 401323732.0,
+    "stockCostKrw": 399348207.0,
+    "totalValueKrw": 501920005.0
   },
   "strategies": {
     "pbr_value_v1": {
@@ -14,10 +19,6 @@
           "quantity": 330,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 12240.0
-            },
             {
               "date": "2026-06-17",
               "close": 12090.0
@@ -240,9 +241,9 @@
             }
           ],
           "avgEntryPrice": 10425.9818,
-          "currentPrice": 10600.0,
-          "unrealizedPnlKrw": 57426,
-          "unrealizedPnlPct": 1.67
+          "currentPrice": 10590.0,
+          "unrealizedPnlKrw": 54126,
+          "unrealizedPnlPct": 1.57
         },
         {
           "symbol": "001080",
@@ -250,10 +251,6 @@
           "quantity": 822,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4200.0
-            },
             {
               "date": "2026-06-17",
               "close": 4300.0
@@ -476,9 +473,9 @@
             }
           ],
           "avgEntryPrice": 3943.4915,
-          "currentPrice": 4005.0,
-          "unrealizedPnlKrw": 50560,
-          "unrealizedPnlPct": 1.56
+          "currentPrice": 4025.0,
+          "unrealizedPnlKrw": 67000,
+          "unrealizedPnlPct": 2.07
         },
         {
           "symbol": "058430",
@@ -486,10 +483,6 @@
           "quantity": 702,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5610.0
-            },
             {
               "date": "2026-06-17",
               "close": 6580.0
@@ -712,9 +705,9 @@
             }
           ],
           "avgEntryPrice": 4787.5214,
-          "currentPrice": 4860.0,
-          "unrealizedPnlKrw": 50880,
-          "unrealizedPnlPct": 1.51
+          "currentPrice": 4880.0,
+          "unrealizedPnlKrw": 64920,
+          "unrealizedPnlPct": 1.93
         },
         {
           "symbol": "013580",
@@ -722,10 +715,6 @@
           "quantity": 156,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 21150.0
-            },
             {
               "date": "2026-06-17",
               "close": 20600.0
@@ -948,9 +937,9 @@
             }
           ],
           "avgEntryPrice": 22238.7821,
-          "currentPrice": 22550.0,
-          "unrealizedPnlKrw": 48550,
-          "unrealizedPnlPct": 1.4
+          "currentPrice": 23000.0,
+          "unrealizedPnlKrw": 118750,
+          "unrealizedPnlPct": 3.42
         },
         {
           "symbol": "000140",
@@ -958,10 +947,6 @@
           "quantity": 407,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8400.0
-            },
             {
               "date": "2026-06-17",
               "close": 8360.0
@@ -1184,9 +1169,9 @@
             }
           ],
           "avgEntryPrice": 8019.0491,
-          "currentPrice": 8050.0,
-          "unrealizedPnlKrw": 12597,
-          "unrealizedPnlPct": 0.39
+          "currentPrice": 8020.0,
+          "unrealizedPnlKrw": 387,
+          "unrealizedPnlPct": 0.01
         },
         {
           "symbol": "023600",
@@ -1194,10 +1179,6 @@
           "quantity": 352,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8890.0
-            },
             {
               "date": "2026-06-17",
               "close": 8890.0
@@ -1431,10 +1412,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 2785.0
-            },
-            {
               "date": "2026-06-17",
               "close": 2790.0
             },
@@ -1656,9 +1633,9 @@
             }
           ],
           "avgEntryPrice": 2538.3816,
-          "currentPrice": 2505.0,
-          "unrealizedPnlKrw": -43296,
-          "unrealizedPnlPct": -1.32
+          "currentPrice": 2510.0,
+          "unrealizedPnlKrw": -36811,
+          "unrealizedPnlPct": -1.12
         },
         {
           "symbol": "101930",
@@ -1666,10 +1643,6 @@
           "quantity": 490,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 9350.0
-            },
             {
               "date": "2026-06-17",
               "close": 9340.0
@@ -1892,9 +1865,9 @@
             }
           ],
           "avgEntryPrice": 6414.2939,
-          "currentPrice": 6340.0,
-          "unrealizedPnlKrw": -36404,
-          "unrealizedPnlPct": -1.16
+          "currentPrice": 6310.0,
+          "unrealizedPnlKrw": -51104,
+          "unrealizedPnlPct": -1.63
         },
         {
           "symbol": "001130",
@@ -1902,10 +1875,6 @@
           "quantity": 282,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 11930.0
-            },
             {
               "date": "2026-06-17",
               "close": 11910.0
@@ -2128,9 +2097,9 @@
             }
           ],
           "avgEntryPrice": 11447.0142,
-          "currentPrice": 11520.0,
-          "unrealizedPnlKrw": 20582,
-          "unrealizedPnlPct": 0.64
+          "currentPrice": 11490.0,
+          "unrealizedPnlKrw": 12122,
+          "unrealizedPnlPct": 0.38
         },
         {
           "symbol": "000850",
@@ -2138,10 +2107,6 @@
           "quantity": 93,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 33300.0
-            },
             {
               "date": "2026-06-17",
               "close": 33100.0
@@ -2364,9 +2329,9 @@
             }
           ],
           "avgEntryPrice": 35694.5054,
-          "currentPrice": 36700.0,
-          "unrealizedPnlKrw": 93511,
-          "unrealizedPnlPct": 2.82
+          "currentPrice": 35900.0,
+          "unrealizedPnlKrw": 19111,
+          "unrealizedPnlPct": 0.58
         },
         {
           "symbol": "004360",
@@ -2374,10 +2339,6 @@
           "quantity": 244,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 13570.0
-            },
             {
               "date": "2026-06-17",
               "close": 13570.0
@@ -2600,9 +2561,9 @@
             }
           ],
           "avgEntryPrice": 13452.7541,
-          "currentPrice": 13550.0,
-          "unrealizedPnlKrw": 23728,
-          "unrealizedPnlPct": 0.72
+          "currentPrice": 13700.0,
+          "unrealizedPnlKrw": 60328,
+          "unrealizedPnlPct": 1.84
         },
         {
           "symbol": "084690",
@@ -2610,10 +2571,6 @@
           "quantity": 416,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8390.0
-            },
             {
               "date": "2026-06-17",
               "close": 8350.0
@@ -2836,9 +2793,9 @@
             }
           ],
           "avgEntryPrice": 7961.7404,
-          "currentPrice": 7940.0,
-          "unrealizedPnlKrw": -9044,
-          "unrealizedPnlPct": -0.27
+          "currentPrice": 7970.0,
+          "unrealizedPnlKrw": 3436,
+          "unrealizedPnlPct": 0.1
         },
         {
           "symbol": "002820",
@@ -2846,10 +2803,6 @@
           "quantity": 1923,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2035.0
-            },
             {
               "date": "2026-06-17",
               "close": 1983.0
@@ -3072,9 +3025,9 @@
             }
           ],
           "avgEntryPrice": 1654.5897,
-          "currentPrice": 1627.0,
-          "unrealizedPnlKrw": -53055,
-          "unrealizedPnlPct": -1.67
+          "currentPrice": 1481.0,
+          "unrealizedPnlKrw": -333813,
+          "unrealizedPnlPct": -10.49
         },
         {
           "symbol": "065130",
@@ -3082,10 +3035,6 @@
           "quantity": 1143,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3355.0
-            },
             {
               "date": "2026-06-17",
               "close": 3300.0
@@ -3308,9 +3257,9 @@
             }
           ],
           "avgEntryPrice": 2762.5407,
-          "currentPrice": 2760.0,
-          "unrealizedPnlKrw": -2904,
-          "unrealizedPnlPct": -0.09
+          "currentPrice": 2770.0,
+          "unrealizedPnlKrw": 8526,
+          "unrealizedPnlPct": 0.27
         },
         {
           "symbol": "101330",
@@ -3318,10 +3267,6 @@
           "quantity": 938,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3800.0
-            },
             {
               "date": "2026-06-17",
               "close": 3825.0
@@ -3544,9 +3489,9 @@
             }
           ],
           "avgEntryPrice": 3520.0,
-          "currentPrice": 3585.0,
-          "unrealizedPnlKrw": 60970,
-          "unrealizedPnlPct": 1.85
+          "currentPrice": 3535.0,
+          "unrealizedPnlKrw": 14070,
+          "unrealizedPnlPct": 0.43
         },
         {
           "symbol": "032190",
@@ -3554,10 +3499,6 @@
           "quantity": 165,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 20150.0
-            },
             {
               "date": "2026-06-17",
               "close": 19810.0
@@ -3780,9 +3721,9 @@
             }
           ],
           "avgEntryPrice": 19552.303,
-          "currentPrice": 19980.0,
-          "unrealizedPnlKrw": 70570,
-          "unrealizedPnlPct": 2.19
+          "currentPrice": 20500.0,
+          "unrealizedPnlKrw": 156370,
+          "unrealizedPnlPct": 4.85
         },
         {
           "symbol": "071840",
@@ -3790,10 +3731,6 @@
           "quantity": 518,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 6820.0
-            },
             {
               "date": "2026-06-17",
               "close": 6750.0
@@ -4016,9 +3953,9 @@
             }
           ],
           "avgEntryPrice": 6300.1718,
-          "currentPrice": 6270.0,
-          "unrealizedPnlKrw": -15629,
-          "unrealizedPnlPct": -0.48
+          "currentPrice": 6250.0,
+          "unrealizedPnlKrw": -25989,
+          "unrealizedPnlPct": -0.8
         },
         {
           "symbol": "104480",
@@ -4026,10 +3963,6 @@
           "quantity": 1909,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1767.0
-            },
             {
               "date": "2026-06-17",
               "close": 1783.0
@@ -4252,9 +4185,9 @@
             }
           ],
           "avgEntryPrice": 1725.2892,
-          "currentPrice": 1726.0,
-          "unrealizedPnlKrw": 1357,
-          "unrealizedPnlPct": 0.04
+          "currentPrice": 1720.0,
+          "unrealizedPnlKrw": -10097,
+          "unrealizedPnlPct": -0.31
         },
         {
           "symbol": "460850",
@@ -4262,10 +4195,6 @@
           "quantity": 626,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5360.0
-            },
             {
               "date": "2026-06-17",
               "close": 5380.0
@@ -4488,9 +4417,9 @@
             }
           ],
           "avgEntryPrice": 5132.516,
-          "currentPrice": 5250.0,
-          "unrealizedPnlKrw": 73545,
-          "unrealizedPnlPct": 2.29
+          "currentPrice": 5230.0,
+          "unrealizedPnlKrw": 61025,
+          "unrealizedPnlPct": 1.9
         },
         {
           "symbol": "013120",
@@ -4498,10 +4427,6 @@
           "quantity": 1522,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2355.0
-            },
             {
               "date": "2026-06-17",
               "close": 2345.0
@@ -4724,9 +4649,9 @@
             }
           ],
           "avgEntryPrice": 2148.6478,
-          "currentPrice": 2150.0,
-          "unrealizedPnlKrw": 2058,
-          "unrealizedPnlPct": 0.06
+          "currentPrice": 2155.0,
+          "unrealizedPnlKrw": 9668,
+          "unrealizedPnlPct": 0.3
         },
         {
           "symbol": "446070",
@@ -4734,10 +4659,6 @@
           "quantity": 844,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2420.0
-            },
             {
               "date": "2026-06-17",
               "close": 2375.0
@@ -4960,9 +4881,9 @@
             }
           ],
           "avgEntryPrice": 3767.2607,
-          "currentPrice": 3760.0,
-          "unrealizedPnlKrw": -6128,
-          "unrealizedPnlPct": -0.19
+          "currentPrice": 3910.0,
+          "unrealizedPnlKrw": 120472,
+          "unrealizedPnlPct": 3.79
         },
         {
           "symbol": "000670",
@@ -4970,10 +4891,6 @@
           "quantity": 82,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 48800.0
-            },
             {
               "date": "2026-06-17",
               "close": 48150.0
@@ -5196,9 +5113,9 @@
             }
           ],
           "avgEntryPrice": 39489.0,
-          "currentPrice": 39400.0,
-          "unrealizedPnlKrw": -7298,
-          "unrealizedPnlPct": -0.23
+          "currentPrice": 38550.0,
+          "unrealizedPnlKrw": -76998,
+          "unrealizedPnlPct": -2.38
         },
         {
           "symbol": "016710",
@@ -5206,10 +5123,6 @@
           "quantity": 473,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7420.0
-            },
             {
               "date": "2026-06-17",
               "close": 7290.0
@@ -5432,9 +5345,9 @@
             }
           ],
           "avgEntryPrice": 6978.4778,
-          "currentPrice": 7040.0,
-          "unrealizedPnlKrw": 29100,
-          "unrealizedPnlPct": 0.88
+          "currentPrice": 7110.0,
+          "unrealizedPnlKrw": 62210,
+          "unrealizedPnlPct": 1.88
         },
         {
           "symbol": "008250",
@@ -5442,10 +5355,6 @@
           "quantity": 1073,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2965.0
-            },
             {
               "date": "2026-06-17",
               "close": 2985.0
@@ -5668,9 +5577,9 @@
             }
           ],
           "avgEntryPrice": 3070.4203,
-          "currentPrice": 3125.0,
-          "unrealizedPnlKrw": 58564,
-          "unrealizedPnlPct": 1.78
+          "currentPrice": 3145.0,
+          "unrealizedPnlKrw": 80024,
+          "unrealizedPnlPct": 2.43
         },
         {
           "symbol": "406820",
@@ -5678,10 +5587,6 @@
           "quantity": 1654,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2110.0
-            },
             {
               "date": "2026-06-17",
               "close": 2085.0
@@ -5904,9 +5809,9 @@
             }
           ],
           "avgEntryPrice": 1839.1149,
-          "currentPrice": 1881.0,
-          "unrealizedPnlKrw": 69278,
-          "unrealizedPnlPct": 2.28
+          "currentPrice": 1952.0,
+          "unrealizedPnlKrw": 186712,
+          "unrealizedPnlPct": 6.14
         },
         {
           "symbol": "032560",
@@ -5914,10 +5819,6 @@
           "quantity": 587,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5560.0
-            },
             {
               "date": "2026-06-17",
               "close": 5470.0
@@ -6140,9 +6041,9 @@
             }
           ],
           "avgEntryPrice": 5618.2862,
-          "currentPrice": 5590.0,
-          "unrealizedPnlKrw": -16604,
-          "unrealizedPnlPct": -0.5
+          "currentPrice": 5540.0,
+          "unrealizedPnlKrw": -45954,
+          "unrealizedPnlPct": -1.39
         },
         {
           "symbol": "001630",
@@ -6150,10 +6051,6 @@
           "quantity": 84,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 41600.0
-            },
             {
               "date": "2026-06-17",
               "close": 41800.0
@@ -6376,9 +6273,9 @@
             }
           ],
           "avgEntryPrice": 38972.619,
-          "currentPrice": 39000.0,
-          "unrealizedPnlKrw": 2300,
-          "unrealizedPnlPct": 0.07
+          "currentPrice": 38800.0,
+          "unrealizedPnlKrw": -14500,
+          "unrealizedPnlPct": -0.44
         },
         {
           "symbol": "024880",
@@ -6386,10 +6283,6 @@
           "quantity": 878,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4470.0
-            },
             {
               "date": "2026-06-17",
               "close": 4510.0
@@ -6612,9 +6505,9 @@
             }
           ],
           "avgEntryPrice": 3786.2528,
-          "currentPrice": 3830.0,
-          "unrealizedPnlKrw": 38410,
-          "unrealizedPnlPct": 1.16
+          "currentPrice": 3840.0,
+          "unrealizedPnlKrw": 47190,
+          "unrealizedPnlPct": 1.42
         },
         {
           "symbol": "002030",
@@ -6622,10 +6515,6 @@
           "quantity": 15,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 202000.0
-            },
             {
               "date": "2026-06-17",
               "close": 194500.0
@@ -6848,9 +6737,9 @@
             }
           ],
           "avgEntryPrice": 205866.0,
-          "currentPrice": 226500.0,
-          "unrealizedPnlKrw": 309510,
-          "unrealizedPnlPct": 10.02
+          "currentPrice": 219500.0,
+          "unrealizedPnlKrw": 204510,
+          "unrealizedPnlPct": 6.62
         }
       ]
     },
@@ -6862,10 +6751,6 @@
           "quantity": 1933,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4980.0
-            },
             {
               "date": "2026-06-17",
               "close": 4655.0
@@ -7088,9 +6973,9 @@
             }
           ],
           "avgEntryPrice": 1559.2054,
-          "currentPrice": 1400.0,
-          "unrealizedPnlKrw": -307744,
-          "unrealizedPnlPct": -10.21
+          "currentPrice": 1359.0,
+          "unrealizedPnlKrw": -386997,
+          "unrealizedPnlPct": -12.84
         },
         {
           "symbol": "102940",
@@ -7098,10 +6983,6 @@
           "quantity": 219,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 50300.0
-            },
             {
               "date": "2026-06-17",
               "close": 52100.0
@@ -7324,9 +7205,9 @@
             }
           ],
           "avgEntryPrice": 14595.9452,
-          "currentPrice": 14620.0,
-          "unrealizedPnlKrw": 5268,
-          "unrealizedPnlPct": 0.16
+          "currentPrice": 14370.0,
+          "unrealizedPnlKrw": -49482,
+          "unrealizedPnlPct": -1.55
         },
         {
           "symbol": "101000",
@@ -7334,10 +7215,6 @@
           "quantity": 4257,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1688.0
-            },
             {
               "date": "2026-06-17",
               "close": 1707.0
@@ -7560,9 +7437,9 @@
             }
           ],
           "avgEntryPrice": 1260.249,
-          "currentPrice": 1430.0,
-          "unrealizedPnlKrw": 722630,
-          "unrealizedPnlPct": 13.47
+          "currentPrice": 1435.0,
+          "unrealizedPnlKrw": 743915,
+          "unrealizedPnlPct": 13.87
         },
         {
           "symbol": "950160",
@@ -7570,10 +7447,6 @@
           "quantity": 185,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 105100.0
-            },
             {
               "date": "2026-06-17",
               "close": 112900.0
@@ -7796,9 +7669,9 @@
             }
           ],
           "avgEntryPrice": 17368.173,
-          "currentPrice": 17260.0,
-          "unrealizedPnlKrw": -20012,
-          "unrealizedPnlPct": -0.62
+          "currentPrice": 16930.0,
+          "unrealizedPnlKrw": -81062,
+          "unrealizedPnlPct": -2.52
         },
         {
           "symbol": "288620",
@@ -7806,10 +7679,6 @@
           "quantity": 900,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7280.0
-            },
             {
               "date": "2026-06-17",
               "close": 7390.0
@@ -8032,9 +7901,9 @@
             }
           ],
           "avgEntryPrice": 4212.5,
-          "currentPrice": 3960.0,
-          "unrealizedPnlKrw": -227250,
-          "unrealizedPnlPct": -5.99
+          "currentPrice": 4085.0,
+          "unrealizedPnlKrw": -114750,
+          "unrealizedPnlPct": -3.03
         },
         {
           "symbol": "032500",
@@ -8042,10 +7911,6 @@
           "quantity": 227,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 26700.0
-            },
             {
               "date": "2026-06-17",
               "close": 25750.0
@@ -8268,9 +8133,9 @@
             }
           ],
           "avgEntryPrice": 15200.5286,
-          "currentPrice": 15770.0,
-          "unrealizedPnlKrw": 129270,
-          "unrealizedPnlPct": 3.75
+          "currentPrice": 15550.0,
+          "unrealizedPnlKrw": 79330,
+          "unrealizedPnlPct": 2.3
         },
         {
           "symbol": "062970",
@@ -8278,10 +8143,6 @@
           "quantity": 1667,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4031.0
-            },
             {
               "date": "2026-06-17",
               "close": 3967.0
@@ -8504,9 +8365,9 @@
             }
           ],
           "avgEntryPrice": 1924.9046,
-          "currentPrice": 1904.0,
-          "unrealizedPnlKrw": -34848,
-          "unrealizedPnlPct": -1.09
+          "currentPrice": 1990.0,
+          "unrealizedPnlKrw": 108514,
+          "unrealizedPnlPct": 3.38
         },
         {
           "symbol": "179900",
@@ -8514,10 +8375,6 @@
           "quantity": 1145,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 16550.0
-            },
             {
               "date": "2026-06-17",
               "close": 16470.0
@@ -8740,9 +8597,9 @@
             }
           ],
           "avgEntryPrice": 2170.952,
-          "currentPrice": 2500.0,
-          "unrealizedPnlKrw": 376760,
-          "unrealizedPnlPct": 15.16
+          "currentPrice": 2365.0,
+          "unrealizedPnlKrw": 222185,
+          "unrealizedPnlPct": 8.94
         },
         {
           "symbol": "123010",
@@ -8750,10 +8607,6 @@
           "quantity": 1511,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4272.0
-            },
             {
               "date": "2026-06-17",
               "close": 4412.0
@@ -8976,9 +8829,9 @@
             }
           ],
           "avgEntryPrice": 2625.8829,
-          "currentPrice": 2745.0,
-          "unrealizedPnlKrw": 179986,
-          "unrealizedPnlPct": 4.54
+          "currentPrice": 2830.0,
+          "unrealizedPnlKrw": 308421,
+          "unrealizedPnlPct": 7.77
         },
         {
           "symbol": "230240",
@@ -8986,10 +8839,6 @@
           "quantity": 269,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 25850.0
-            },
             {
               "date": "2026-06-17",
               "close": 26650.0
@@ -9212,9 +9061,9 @@
             }
           ],
           "avgEntryPrice": 11916.9814,
-          "currentPrice": 12040.0,
-          "unrealizedPnlKrw": 33092,
-          "unrealizedPnlPct": 1.03
+          "currentPrice": 11600.0,
+          "unrealizedPnlKrw": -85268,
+          "unrealizedPnlPct": -2.66
         },
         {
           "symbol": "357880",
@@ -9222,10 +9071,6 @@
           "quantity": 1830,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4165.0
-            },
             {
               "date": "2026-06-17",
               "close": 4075.0
@@ -9448,9 +9293,9 @@
             }
           ],
           "avgEntryPrice": 1874.5798,
-          "currentPrice": 1834.0,
-          "unrealizedPnlKrw": -74261,
-          "unrealizedPnlPct": -2.16
+          "currentPrice": 1821.0,
+          "unrealizedPnlKrw": -98051,
+          "unrealizedPnlPct": -2.86
         },
         {
           "symbol": "452280",
@@ -9458,10 +9303,6 @@
           "quantity": 323,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 18800.0
-            },
             {
               "date": "2026-06-17",
               "close": 17200.0
@@ -9684,9 +9525,9 @@
             }
           ],
           "avgEntryPrice": 10752.9598,
-          "currentPrice": 10680.0,
-          "unrealizedPnlKrw": -23566,
-          "unrealizedPnlPct": -0.68
+          "currentPrice": 10670.0,
+          "unrealizedPnlKrw": -26796,
+          "unrealizedPnlPct": -0.77
         },
         {
           "symbol": "027360",
@@ -9694,10 +9535,6 @@
           "quantity": 1022,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7330.0
-            },
             {
               "date": "2026-06-17",
               "close": 6650.0
@@ -9920,9 +9757,9 @@
             }
           ],
           "avgEntryPrice": 3270.5088,
-          "currentPrice": 3300.0,
-          "unrealizedPnlKrw": 30140,
-          "unrealizedPnlPct": 0.9
+          "currentPrice": 3270.0,
+          "unrealizedPnlKrw": -520,
+          "unrealizedPnlPct": -0.02
         },
         {
           "symbol": "100790",
@@ -9930,10 +9767,6 @@
           "quantity": 219,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 29800.0
-            },
             {
               "date": "2026-06-17",
               "close": 27200.0
@@ -10156,9 +9989,9 @@
             }
           ],
           "avgEntryPrice": 16312.0457,
-          "currentPrice": 16500.0,
-          "unrealizedPnlKrw": 41162,
-          "unrealizedPnlPct": 1.15
+          "currentPrice": 16140.0,
+          "unrealizedPnlKrw": -37678,
+          "unrealizedPnlPct": -1.05
         },
         {
           "symbol": "036420",
@@ -10166,10 +9999,6 @@
           "quantity": 2087,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4995.0
-            },
             {
               "date": "2026-06-17",
               "close": 4995.0
@@ -10392,9 +10221,9 @@
             }
           ],
           "avgEntryPrice": 1542.6512,
-          "currentPrice": 1548.0,
-          "unrealizedPnlKrw": 11163,
-          "unrealizedPnlPct": 0.35
+          "currentPrice": 1649.0,
+          "unrealizedPnlKrw": 221950,
+          "unrealizedPnlPct": 6.89
         },
         {
           "symbol": "043260",
@@ -10402,10 +10231,6 @@
           "quantity": 202,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 40600.0
-            },
             {
               "date": "2026-06-17",
               "close": 42700.0
@@ -10628,9 +10453,9 @@
             }
           ],
           "avgEntryPrice": 17961.7228,
-          "currentPrice": 18560.0,
-          "unrealizedPnlKrw": 120852,
-          "unrealizedPnlPct": 3.33
+          "currentPrice": 17630.0,
+          "unrealizedPnlKrw": -67008,
+          "unrealizedPnlPct": -1.85
         },
         {
           "symbol": "397030",
@@ -10638,10 +10463,6 @@
           "quantity": 184,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 43500.0
-            },
             {
               "date": "2026-06-17",
               "close": 46500.0
@@ -10864,9 +10685,9 @@
             }
           ],
           "avgEntryPrice": 17551.8478,
-          "currentPrice": 17250.0,
-          "unrealizedPnlKrw": -55540,
-          "unrealizedPnlPct": -1.72
+          "currentPrice": 17140.0,
+          "unrealizedPnlKrw": -75780,
+          "unrealizedPnlPct": -2.35
         },
         {
           "symbol": "242040",
@@ -10874,10 +10695,6 @@
           "quantity": 1064,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7210.0
-            },
             {
               "date": "2026-06-17",
               "close": 7010.0
@@ -11100,9 +10917,9 @@
             }
           ],
           "avgEntryPrice": 3092.3102,
-          "currentPrice": 3150.0,
-          "unrealizedPnlKrw": 61382,
-          "unrealizedPnlPct": 1.87
+          "currentPrice": 3055.0,
+          "unrealizedPnlKrw": -39698,
+          "unrealizedPnlPct": -1.21
         },
         {
           "symbol": "274090",
@@ -11110,10 +10927,6 @@
           "quantity": 337,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 18370.0
-            },
             {
               "date": "2026-06-17",
               "close": 17700.0
@@ -11336,9 +11149,9 @@
             }
           ],
           "avgEntryPrice": 9939.089,
-          "currentPrice": 10100.0,
-          "unrealizedPnlKrw": 54227,
-          "unrealizedPnlPct": 1.62
+          "currentPrice": 10010.0,
+          "unrealizedPnlKrw": 23897,
+          "unrealizedPnlPct": 0.71
         }
       ]
     },
@@ -11350,10 +11163,6 @@
           "quantity": 330,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 12240.0
-            },
             {
               "date": "2026-06-17",
               "close": 12090.0
@@ -11576,9 +11385,9 @@
             }
           ],
           "avgEntryPrice": 10629.0,
-          "currentPrice": 10600.0,
-          "unrealizedPnlKrw": -9570,
-          "unrealizedPnlPct": -0.27
+          "currentPrice": 10590.0,
+          "unrealizedPnlKrw": -12870,
+          "unrealizedPnlPct": -0.37
         },
         {
           "symbol": "001080",
@@ -11586,10 +11395,6 @@
           "quantity": 822,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4200.0
-            },
             {
               "date": "2026-06-17",
               "close": 4300.0
@@ -11812,9 +11617,9 @@
             }
           ],
           "avgEntryPrice": 4024.0,
-          "currentPrice": 4005.0,
-          "unrealizedPnlKrw": -15618,
-          "unrealizedPnlPct": -0.47
+          "currentPrice": 4025.0,
+          "unrealizedPnlKrw": 822,
+          "unrealizedPnlPct": 0.02
         },
         {
           "symbol": "058430",
@@ -11822,10 +11627,6 @@
           "quantity": 702,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5610.0
-            },
             {
               "date": "2026-06-17",
               "close": 6580.0
@@ -12048,9 +11849,9 @@
             }
           ],
           "avgEntryPrice": 4660.0,
-          "currentPrice": 4860.0,
-          "unrealizedPnlKrw": 140400,
-          "unrealizedPnlPct": 4.29
+          "currentPrice": 4880.0,
+          "unrealizedPnlKrw": 154440,
+          "unrealizedPnlPct": 4.72
         },
         {
           "symbol": "002030",
@@ -12058,10 +11859,6 @@
           "quantity": 15,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 202000.0
-            },
             {
               "date": "2026-06-17",
               "close": 194500.0
@@ -12284,9 +12081,9 @@
             }
           ],
           "avgEntryPrice": 207133.0,
-          "currentPrice": 226500.0,
-          "unrealizedPnlKrw": 290505,
-          "unrealizedPnlPct": 9.35
+          "currentPrice": 219500.0,
+          "unrealizedPnlKrw": 185505,
+          "unrealizedPnlPct": 5.97
         },
         {
           "symbol": "092230",
@@ -12294,10 +12091,6 @@
           "quantity": 32,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 83100.0
-            },
             {
               "date": "2026-06-17",
               "close": 82900.0
@@ -12520,9 +12313,9 @@
             }
           ],
           "avgEntryPrice": 98506.0,
-          "currentPrice": 100500.0,
-          "unrealizedPnlKrw": 63808,
-          "unrealizedPnlPct": 2.02
+          "currentPrice": 98700.0,
+          "unrealizedPnlKrw": 6208,
+          "unrealizedPnlPct": 0.2
         },
         {
           "symbol": "013580",
@@ -12530,10 +12323,6 @@
           "quantity": 156,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 21150.0
-            },
             {
               "date": "2026-06-17",
               "close": 20600.0
@@ -12756,9 +12545,9 @@
             }
           ],
           "avgEntryPrice": 21700.0,
-          "currentPrice": 22550.0,
-          "unrealizedPnlKrw": 132600,
-          "unrealizedPnlPct": 3.92
+          "currentPrice": 23000.0,
+          "unrealizedPnlKrw": 202800,
+          "unrealizedPnlPct": 5.99
         },
         {
           "symbol": "000140",
@@ -12766,10 +12555,6 @@
           "quantity": 407,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8400.0
-            },
             {
               "date": "2026-06-17",
               "close": 8360.0
@@ -12992,9 +12777,9 @@
             }
           ],
           "avgEntryPrice": 8009.0,
-          "currentPrice": 8050.0,
-          "unrealizedPnlKrw": 16687,
-          "unrealizedPnlPct": 0.51
+          "currentPrice": 8020.0,
+          "unrealizedPnlKrw": 4477,
+          "unrealizedPnlPct": 0.14
         },
         {
           "symbol": "101930",
@@ -13002,10 +12787,6 @@
           "quantity": 490,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 9350.0
-            },
             {
               "date": "2026-06-17",
               "close": 9340.0
@@ -13228,9 +13009,9 @@
             }
           ],
           "avgEntryPrice": 6440.0,
-          "currentPrice": 6340.0,
-          "unrealizedPnlKrw": -49000,
-          "unrealizedPnlPct": -1.55
+          "currentPrice": 6310.0,
+          "unrealizedPnlKrw": -63700,
+          "unrealizedPnlPct": -2.02
         },
         {
           "symbol": "001130",
@@ -13238,10 +13019,6 @@
           "quantity": 282,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 11930.0
-            },
             {
               "date": "2026-06-17",
               "close": 11910.0
@@ -13464,9 +13241,9 @@
             }
           ],
           "avgEntryPrice": 11704.0,
-          "currentPrice": 11520.0,
-          "unrealizedPnlKrw": -51888,
-          "unrealizedPnlPct": -1.57
+          "currentPrice": 11490.0,
+          "unrealizedPnlKrw": -60348,
+          "unrealizedPnlPct": -1.83
         },
         {
           "symbol": "084690",
@@ -13474,10 +13251,6 @@
           "quantity": 416,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8390.0
-            },
             {
               "date": "2026-06-17",
               "close": 8350.0
@@ -13700,9 +13473,9 @@
             }
           ],
           "avgEntryPrice": 7810.0,
-          "currentPrice": 7940.0,
-          "unrealizedPnlKrw": 54080,
-          "unrealizedPnlPct": 1.66
+          "currentPrice": 7970.0,
+          "unrealizedPnlKrw": 66560,
+          "unrealizedPnlPct": 2.05
         },
         {
           "symbol": "004360",
@@ -13710,10 +13483,6 @@
           "quantity": 244,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 13570.0
-            },
             {
               "date": "2026-06-17",
               "close": 13570.0
@@ -13936,9 +13705,9 @@
             }
           ],
           "avgEntryPrice": 13350.0,
-          "currentPrice": 13550.0,
-          "unrealizedPnlKrw": 48800,
-          "unrealizedPnlPct": 1.5
+          "currentPrice": 13700.0,
+          "unrealizedPnlKrw": 85400,
+          "unrealizedPnlPct": 2.62
         },
         {
           "symbol": "002820",
@@ -13946,10 +13715,6 @@
           "quantity": 1923,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2035.0
-            },
             {
               "date": "2026-06-17",
               "close": 1983.0
@@ -14172,9 +13937,9 @@
             }
           ],
           "avgEntryPrice": 1698.0,
-          "currentPrice": 1627.0,
-          "unrealizedPnlKrw": -136533,
-          "unrealizedPnlPct": -4.18
+          "currentPrice": 1481.0,
+          "unrealizedPnlKrw": -417291,
+          "unrealizedPnlPct": -12.78
         },
         {
           "symbol": "001940",
@@ -14182,10 +13947,6 @@
           "quantity": 119,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 24350.0
-            },
             {
               "date": "2026-06-17",
               "close": 24350.0
@@ -14419,10 +14180,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 3800.0
-            },
-            {
               "date": "2026-06-17",
               "close": 3825.0
             },
@@ -14644,9 +14401,9 @@
             }
           ],
           "avgEntryPrice": 3540.0,
-          "currentPrice": 3585.0,
-          "unrealizedPnlKrw": 42210,
-          "unrealizedPnlPct": 1.27
+          "currentPrice": 3535.0,
+          "unrealizedPnlKrw": -4690,
+          "unrealizedPnlPct": -0.14
         },
         {
           "symbol": "032190",
@@ -14654,10 +14411,6 @@
           "quantity": 165,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 20150.0
-            },
             {
               "date": "2026-06-17",
               "close": 19810.0
@@ -14880,9 +14633,9 @@
             }
           ],
           "avgEntryPrice": 20161.0,
-          "currentPrice": 19980.0,
-          "unrealizedPnlKrw": -29865,
-          "unrealizedPnlPct": -0.9
+          "currentPrice": 20500.0,
+          "unrealizedPnlKrw": 55935,
+          "unrealizedPnlPct": 1.68
         },
         {
           "symbol": "065130",
@@ -14890,10 +14643,6 @@
           "quantity": 1143,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3355.0
-            },
             {
               "date": "2026-06-17",
               "close": 3300.0
@@ -15116,9 +14865,9 @@
             }
           ],
           "avgEntryPrice": 2863.0,
-          "currentPrice": 2760.0,
-          "unrealizedPnlKrw": -117729,
-          "unrealizedPnlPct": -3.6
+          "currentPrice": 2770.0,
+          "unrealizedPnlKrw": -106299,
+          "unrealizedPnlPct": -3.25
         },
         {
           "symbol": "014790",
@@ -15126,10 +14875,6 @@
           "quantity": 1297,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2785.0
-            },
             {
               "date": "2026-06-17",
               "close": 2790.0
@@ -15352,9 +15097,9 @@
             }
           ],
           "avgEntryPrice": 2560.0,
-          "currentPrice": 2505.0,
-          "unrealizedPnlKrw": -71335,
-          "unrealizedPnlPct": -2.15
+          "currentPrice": 2510.0,
+          "unrealizedPnlKrw": -64850,
+          "unrealizedPnlPct": -1.95
         },
         {
           "symbol": "104480",
@@ -15362,10 +15107,6 @@
           "quantity": 1909,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1767.0
-            },
             {
               "date": "2026-06-17",
               "close": 1783.0
@@ -15588,9 +15329,9 @@
             }
           ],
           "avgEntryPrice": 1758.0,
-          "currentPrice": 1726.0,
-          "unrealizedPnlKrw": -61088,
-          "unrealizedPnlPct": -1.82
+          "currentPrice": 1720.0,
+          "unrealizedPnlKrw": -72542,
+          "unrealizedPnlPct": -2.16
         },
         {
           "symbol": "038540",
@@ -15598,10 +15339,6 @@
           "quantity": 1654,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1888.0
-            },
             {
               "date": "2026-06-17",
               "close": 2065.0
@@ -15824,9 +15561,9 @@
             }
           ],
           "avgEntryPrice": 2048.0,
-          "currentPrice": 1972.0,
-          "unrealizedPnlKrw": -125704,
-          "unrealizedPnlPct": -3.71
+          "currentPrice": 1983.0,
+          "unrealizedPnlKrw": -107510,
+          "unrealizedPnlPct": -3.17
         },
         {
           "symbol": "460850",
@@ -15834,10 +15571,6 @@
           "quantity": 626,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5360.0
-            },
             {
               "date": "2026-06-17",
               "close": 5380.0
@@ -16060,9 +15793,9 @@
             }
           ],
           "avgEntryPrice": 5241.0,
-          "currentPrice": 5250.0,
-          "unrealizedPnlKrw": 5634,
-          "unrealizedPnlPct": 0.17
+          "currentPrice": 5230.0,
+          "unrealizedPnlKrw": -6886,
+          "unrealizedPnlPct": -0.21
         },
         {
           "symbol": "000670",
@@ -16070,10 +15803,6 @@
           "quantity": 82,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 48800.0
-            },
             {
               "date": "2026-06-17",
               "close": 48150.0
@@ -16296,9 +16025,9 @@
             }
           ],
           "avgEntryPrice": 39079.0,
-          "currentPrice": 39400.0,
-          "unrealizedPnlKrw": 26322,
-          "unrealizedPnlPct": 0.82
+          "currentPrice": 38550.0,
+          "unrealizedPnlKrw": -43378,
+          "unrealizedPnlPct": -1.35
         },
         {
           "symbol": "016710",
@@ -16306,10 +16035,6 @@
           "quantity": 473,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7420.0
-            },
             {
               "date": "2026-06-17",
               "close": 7290.0
@@ -16532,9 +16257,9 @@
             }
           ],
           "avgEntryPrice": 6870.0,
-          "currentPrice": 7040.0,
-          "unrealizedPnlKrw": 80410,
-          "unrealizedPnlPct": 2.47
+          "currentPrice": 7110.0,
+          "unrealizedPnlKrw": 113520,
+          "unrealizedPnlPct": 3.49
         },
         {
           "symbol": "071840",
@@ -16542,10 +16267,6 @@
           "quantity": 518,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 6820.0
-            },
             {
               "date": "2026-06-17",
               "close": 6750.0
@@ -16768,9 +16489,9 @@
             }
           ],
           "avgEntryPrice": 6322.0,
-          "currentPrice": 6270.0,
-          "unrealizedPnlKrw": -26936,
-          "unrealizedPnlPct": -0.82
+          "currentPrice": 6250.0,
+          "unrealizedPnlKrw": -37296,
+          "unrealizedPnlPct": -1.14
         },
         {
           "symbol": "446070",
@@ -16778,10 +16499,6 @@
           "quantity": 844,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2420.0
-            },
             {
               "date": "2026-06-17",
               "close": 2375.0
@@ -17004,9 +16721,9 @@
             }
           ],
           "avgEntryPrice": 3922.0,
-          "currentPrice": 3760.0,
-          "unrealizedPnlKrw": -136728,
-          "unrealizedPnlPct": -4.13
+          "currentPrice": 3910.0,
+          "unrealizedPnlKrw": -10128,
+          "unrealizedPnlPct": -0.31
         },
         {
           "symbol": "013120",
@@ -17014,10 +16731,6 @@
           "quantity": 1522,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2355.0
-            },
             {
               "date": "2026-06-17",
               "close": 2345.0
@@ -17240,9 +16953,9 @@
             }
           ],
           "avgEntryPrice": 2174.0,
-          "currentPrice": 2150.0,
-          "unrealizedPnlKrw": -36528,
-          "unrealizedPnlPct": -1.1
+          "currentPrice": 2155.0,
+          "unrealizedPnlKrw": -28918,
+          "unrealizedPnlPct": -0.87
         },
         {
           "symbol": "406820",
@@ -17250,10 +16963,6 @@
           "quantity": 1654,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2110.0
-            },
             {
               "date": "2026-06-17",
               "close": 2085.0
@@ -17476,9 +17185,9 @@
             }
           ],
           "avgEntryPrice": 1900.0,
-          "currentPrice": 1881.0,
-          "unrealizedPnlKrw": -31426,
-          "unrealizedPnlPct": -1.0
+          "currentPrice": 1952.0,
+          "unrealizedPnlKrw": 86008,
+          "unrealizedPnlPct": 2.74
         },
         {
           "symbol": "001630",
@@ -17486,10 +17195,6 @@
           "quantity": 84,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 41600.0
-            },
             {
               "date": "2026-06-17",
               "close": 41800.0
@@ -17712,9 +17417,9 @@
             }
           ],
           "avgEntryPrice": 38821.0,
-          "currentPrice": 39000.0,
-          "unrealizedPnlKrw": 15036,
-          "unrealizedPnlPct": 0.46
+          "currentPrice": 38800.0,
+          "unrealizedPnlKrw": -1764,
+          "unrealizedPnlPct": -0.05
         },
         {
           "symbol": "032560",
@@ -17722,10 +17427,6 @@
           "quantity": 587,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5560.0
-            },
             {
               "date": "2026-06-17",
               "close": 5470.0
@@ -17948,9 +17649,9 @@
             }
           ],
           "avgEntryPrice": 5711.0,
-          "currentPrice": 5590.0,
-          "unrealizedPnlKrw": -71027,
-          "unrealizedPnlPct": -2.12
+          "currentPrice": 5540.0,
+          "unrealizedPnlKrw": -100377,
+          "unrealizedPnlPct": -2.99
         }
       ]
     },
@@ -17962,10 +17663,6 @@
           "quantity": 95,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 17900.0
-            },
             {
               "date": "2026-06-17",
               "close": 18080.0
@@ -18188,9 +17885,9 @@
             }
           ],
           "avgEntryPrice": 16933.0316,
-          "currentPrice": 16880.0,
-          "unrealizedPnlKrw": -5038,
-          "unrealizedPnlPct": -0.31
+          "currentPrice": 16660.0,
+          "unrealizedPnlKrw": -25938,
+          "unrealizedPnlPct": -1.61
         },
         {
           "symbol": "002460",
@@ -18198,10 +17895,6 @@
           "quantity": 150,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 13620.0
-            },
             {
               "date": "2026-06-17",
               "close": 13500.0
@@ -18424,9 +18117,9 @@
             }
           ],
           "avgEntryPrice": 10924.3,
-          "currentPrice": 10680.0,
-          "unrealizedPnlKrw": -36645,
-          "unrealizedPnlPct": -2.24
+          "currentPrice": 10840.0,
+          "unrealizedPnlKrw": -12645,
+          "unrealizedPnlPct": -0.77
         },
         {
           "symbol": "003650",
@@ -18434,10 +18127,6 @@
           "quantity": 12,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 126000.0
-            },
             {
               "date": "2026-06-17",
               "close": 125700.0
@@ -18660,9 +18349,9 @@
             }
           ],
           "avgEntryPrice": 130082.75,
-          "currentPrice": 130500.0,
-          "unrealizedPnlKrw": 5007,
-          "unrealizedPnlPct": 0.32
+          "currentPrice": 130900.0,
+          "unrealizedPnlKrw": 9807,
+          "unrealizedPnlPct": 0.63
         },
         {
           "symbol": "009970",
@@ -18670,10 +18359,6 @@
           "quantity": 9,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 188300.0
-            },
             {
               "date": "2026-06-17",
               "close": 184800.0
@@ -18896,9 +18581,9 @@
             }
           ],
           "avgEntryPrice": 169666.4444,
-          "currentPrice": 171000.0,
-          "unrealizedPnlKrw": 12002,
-          "unrealizedPnlPct": 0.79
+          "currentPrice": 169800.0,
+          "unrealizedPnlKrw": 1202,
+          "unrealizedPnlPct": 0.08
         },
         {
           "symbol": "013580",
@@ -18906,10 +18591,6 @@
           "quantity": 76,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 21150.0
-            },
             {
               "date": "2026-06-17",
               "close": 20600.0
@@ -19132,9 +18813,9 @@
             }
           ],
           "avgEntryPrice": 22083.5526,
-          "currentPrice": 22550.0,
-          "unrealizedPnlKrw": 35450,
-          "unrealizedPnlPct": 2.11
+          "currentPrice": 23000.0,
+          "unrealizedPnlKrw": 69650,
+          "unrealizedPnlPct": 4.15
         },
         {
           "symbol": "015760",
@@ -19142,10 +18823,6 @@
           "quantity": 50,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 39800.0
-            },
             {
               "date": "2026-06-17",
               "close": 40500.0
@@ -19368,9 +19045,9 @@
             }
           ],
           "avgEntryPrice": 33350.0,
-          "currentPrice": 32750.0,
-          "unrealizedPnlKrw": -30000,
-          "unrealizedPnlPct": -1.8
+          "currentPrice": 33300.0,
+          "unrealizedPnlKrw": -2500,
+          "unrealizedPnlPct": -0.15
         },
         {
           "symbol": "021820",
@@ -19378,10 +19055,6 @@
           "quantity": 162,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 12240.0
-            },
             {
               "date": "2026-06-17",
               "close": 12090.0
@@ -19604,9 +19277,9 @@
             }
           ],
           "avgEntryPrice": 10459.7963,
-          "currentPrice": 10600.0,
-          "unrealizedPnlKrw": 22713,
-          "unrealizedPnlPct": 1.34
+          "currentPrice": 10590.0,
+          "unrealizedPnlKrw": 21093,
+          "unrealizedPnlPct": 1.24
         },
         {
           "symbol": "024880",
@@ -19614,10 +19287,6 @@
           "quantity": 431,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4470.0
-            },
             {
               "date": "2026-06-17",
               "close": 4510.0
@@ -19840,9 +19509,9 @@
             }
           ],
           "avgEntryPrice": 3810.6195,
-          "currentPrice": 3830.0,
-          "unrealizedPnlKrw": 8353,
-          "unrealizedPnlPct": 0.51
+          "currentPrice": 3840.0,
+          "unrealizedPnlKrw": 12663,
+          "unrealizedPnlPct": 0.77
         },
         {
           "symbol": "036530",
@@ -19850,10 +19519,6 @@
           "quantity": 35,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 52500.0
-            },
             {
               "date": "2026-06-17",
               "close": 52400.0
@@ -20076,9 +19741,9 @@
             }
           ],
           "avgEntryPrice": 46490.7143,
-          "currentPrice": 48850.0,
-          "unrealizedPnlKrw": 82575,
-          "unrealizedPnlPct": 5.07
+          "currentPrice": 47650.0,
+          "unrealizedPnlKrw": 40575,
+          "unrealizedPnlPct": 2.49
         },
         {
           "symbol": "042420",
@@ -20086,10 +19751,6 @@
           "quantity": 67,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 22150.0
-            },
             {
               "date": "2026-06-17",
               "close": 22200.0
@@ -20312,9 +19973,9 @@
             }
           ],
           "avgEntryPrice": 23805.8209,
-          "currentPrice": 24000.0,
-          "unrealizedPnlKrw": 13010,
-          "unrealizedPnlPct": 0.82
+          "currentPrice": 23950.0,
+          "unrealizedPnlKrw": 9660,
+          "unrealizedPnlPct": 0.61
         },
         {
           "symbol": "058430",
@@ -20322,10 +19983,6 @@
           "quantity": 345,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5610.0
-            },
             {
               "date": "2026-06-17",
               "close": 6580.0
@@ -20548,9 +20205,9 @@
             }
           ],
           "avgEntryPrice": 4737.6522,
-          "currentPrice": 4860.0,
-          "unrealizedPnlKrw": 42210,
-          "unrealizedPnlPct": 2.58
+          "currentPrice": 4880.0,
+          "unrealizedPnlKrw": 49110,
+          "unrealizedPnlPct": 3.0
         },
         {
           "symbol": "069730",
@@ -20558,10 +20215,6 @@
           "quantity": 291,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5300.0
-            },
             {
               "date": "2026-06-17",
               "close": 5230.0
@@ -20784,9 +20437,9 @@
             }
           ],
           "avgEntryPrice": 5401.6735,
-          "currentPrice": 5360.0,
-          "unrealizedPnlKrw": -12127,
-          "unrealizedPnlPct": -0.77
+          "currentPrice": 5330.0,
+          "unrealizedPnlKrw": -20857,
+          "unrealizedPnlPct": -1.33
         },
         {
           "symbol": "092230",
@@ -20794,10 +20447,6 @@
           "quantity": 16,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 83100.0
-            },
             {
               "date": "2026-06-17",
               "close": 82900.0
@@ -21020,9 +20669,9 @@
             }
           ],
           "avgEntryPrice": 97706.0,
-          "currentPrice": 100500.0,
-          "unrealizedPnlKrw": 44704,
-          "unrealizedPnlPct": 2.86
+          "currentPrice": 98700.0,
+          "unrealizedPnlKrw": 15904,
+          "unrealizedPnlPct": 1.02
         },
         {
           "symbol": "071320",
@@ -21030,10 +20679,6 @@
           "quantity": 21,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 73100.0
-            },
             {
               "date": "2026-06-17",
               "close": 72300.0
@@ -21267,10 +20912,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 9350.0
-            },
-            {
               "date": "2026-06-17",
               "close": 9340.0
             },
@@ -21492,9 +21133,9 @@
             }
           ],
           "avgEntryPrice": 6429.5187,
-          "currentPrice": 6340.0,
-          "unrealizedPnlKrw": -21574,
-          "unrealizedPnlPct": -1.39
+          "currentPrice": 6310.0,
+          "unrealizedPnlKrw": -28804,
+          "unrealizedPnlPct": -1.86
         },
         {
           "symbol": "089470",
@@ -21502,10 +21143,6 @@
           "quantity": 415,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4185.0
-            },
             {
               "date": "2026-06-17",
               "close": 4105.0
@@ -21728,9 +21365,9 @@
             }
           ],
           "avgEntryPrice": 3877.0193,
-          "currentPrice": 3900.0,
-          "unrealizedPnlKrw": 9537,
-          "unrealizedPnlPct": 0.59
+          "currentPrice": 3930.0,
+          "unrealizedPnlKrw": 21987,
+          "unrealizedPnlPct": 1.37
         },
         {
           "symbol": "004360",
@@ -21738,10 +21375,6 @@
           "quantity": 120,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 13570.0
-            },
             {
               "date": "2026-06-17",
               "close": 13570.0
@@ -21964,9 +21597,9 @@
             }
           ],
           "avgEntryPrice": 13431.1,
-          "currentPrice": 13550.0,
-          "unrealizedPnlKrw": 14268,
-          "unrealizedPnlPct": 0.89
+          "currentPrice": 13700.0,
+          "unrealizedPnlKrw": 32268,
+          "unrealizedPnlPct": 2.0
         },
         {
           "symbol": "003100",
@@ -21974,10 +21607,6 @@
           "quantity": 78,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 19200.0
-            },
             {
               "date": "2026-06-17",
               "close": 19590.0
@@ -22200,9 +21829,9 @@
             }
           ],
           "avgEntryPrice": 20742.359,
-          "currentPrice": 20750.0,
-          "unrealizedPnlKrw": 596,
-          "unrealizedPnlPct": 0.04
+          "currentPrice": 20700.0,
+          "unrealizedPnlKrw": -3304,
+          "unrealizedPnlPct": -0.2
         },
         {
           "symbol": "003350",
@@ -22210,10 +21839,6 @@
           "quantity": 117,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8200.0
-            },
             {
               "date": "2026-06-17",
               "close": 8290.0
@@ -22436,9 +22061,9 @@
             }
           ],
           "avgEntryPrice": 12921.9145,
-          "currentPrice": 13160.0,
-          "unrealizedPnlKrw": 27856,
-          "unrealizedPnlPct": 1.84
+          "currentPrice": 15790.0,
+          "unrealizedPnlKrw": 335566,
+          "unrealizedPnlPct": 22.2
         },
         {
           "symbol": "005710",
@@ -22446,10 +22071,6 @@
           "quantity": 149,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 11110.0
-            },
             {
               "date": "2026-06-17",
               "close": 11090.0
@@ -22672,9 +22293,9 @@
             }
           ],
           "avgEntryPrice": 10575.3289,
-          "currentPrice": 10430.0,
-          "unrealizedPnlKrw": -21654,
-          "unrealizedPnlPct": -1.37
+          "currentPrice": 10510.0,
+          "unrealizedPnlKrw": -9734,
+          "unrealizedPnlPct": -0.62
         },
         {
           "symbol": "019180",
@@ -22682,10 +22303,6 @@
           "quantity": 312,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7500.0
-            },
             {
               "date": "2026-06-17",
               "close": 7350.0
@@ -22908,9 +22525,9 @@
             }
           ],
           "avgEntryPrice": 5151.5769,
-          "currentPrice": 5070.0,
-          "unrealizedPnlKrw": -25452,
-          "unrealizedPnlPct": -1.58
+          "currentPrice": 5100.0,
+          "unrealizedPnlKrw": -16092,
+          "unrealizedPnlPct": -1.0
         },
         {
           "symbol": "037350",
@@ -22918,10 +22535,6 @@
           "quantity": 224,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 9090.0
-            },
             {
               "date": "2026-06-17",
               "close": 9250.0
@@ -23144,9 +22757,9 @@
             }
           ],
           "avgEntryPrice": 7287.8036,
-          "currentPrice": 7340.0,
-          "unrealizedPnlKrw": 11692,
-          "unrealizedPnlPct": 0.72
+          "currentPrice": 7290.0,
+          "unrealizedPnlKrw": 492,
+          "unrealizedPnlPct": 0.03
         },
         {
           "symbol": "072710",
@@ -23154,10 +22767,6 @@
           "quantity": 17,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 94200.0
-            },
             {
               "date": "2026-06-17",
               "close": 93900.0
@@ -23380,9 +22989,9 @@
             }
           ],
           "avgEntryPrice": 92834.8235,
-          "currentPrice": 93500.0,
-          "unrealizedPnlKrw": 11308,
-          "unrealizedPnlPct": 0.72
+          "currentPrice": 92900.0,
+          "unrealizedPnlKrw": 1108,
+          "unrealizedPnlPct": 0.07
         },
         {
           "symbol": "101330",
@@ -23390,10 +22999,6 @@
           "quantity": 461,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3800.0
-            },
             {
               "date": "2026-06-17",
               "close": 3825.0
@@ -23616,9 +23221,9 @@
             }
           ],
           "avgEntryPrice": 3519.2885,
-          "currentPrice": 3585.0,
-          "unrealizedPnlKrw": 30293,
-          "unrealizedPnlPct": 1.87
+          "currentPrice": 3535.0,
+          "unrealizedPnlKrw": 7243,
+          "unrealizedPnlPct": 0.45
         },
         {
           "symbol": "019540",
@@ -23626,10 +23231,6 @@
           "quantity": 302,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 6430.0
-            },
             {
               "date": "2026-06-17",
               "close": 6430.0
@@ -23852,9 +23453,9 @@
             }
           ],
           "avgEntryPrice": 5295.5563,
-          "currentPrice": 5290.0,
-          "unrealizedPnlKrw": -1678,
-          "unrealizedPnlPct": -0.1
+          "currentPrice": 5160.0,
+          "unrealizedPnlKrw": -40938,
+          "unrealizedPnlPct": -2.56
         },
         {
           "symbol": "041930",
@@ -23862,10 +23463,6 @@
           "quantity": 330,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5570.0
-            },
             {
               "date": "2026-06-17",
               "close": 5530.0
@@ -24088,9 +23685,9 @@
             }
           ],
           "avgEntryPrice": 5170.7273,
-          "currentPrice": 5160.0,
-          "unrealizedPnlKrw": -3540,
-          "unrealizedPnlPct": -0.21
+          "currentPrice": 5080.0,
+          "unrealizedPnlKrw": -29940,
+          "unrealizedPnlPct": -1.75
         },
         {
           "symbol": "088130",
@@ -24098,10 +23695,6 @@
           "quantity": 292,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 6800.0
-            },
             {
               "date": "2026-06-17",
               "close": 6610.0
@@ -24324,9 +23917,9 @@
             }
           ],
           "avgEntryPrice": 5381.4521,
-          "currentPrice": 5580.0,
-          "unrealizedPnlKrw": 57976,
-          "unrealizedPnlPct": 3.69
+          "currentPrice": 5680.0,
+          "unrealizedPnlKrw": 87176,
+          "unrealizedPnlPct": 5.55
         },
         {
           "symbol": "068790",
@@ -24334,10 +23927,6 @@
           "quantity": 228,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5230.0
-            },
             {
               "date": "2026-06-17",
               "close": 5210.0
@@ -24560,9 +24149,9 @@
             }
           ],
           "avgEntryPrice": 6677.4737,
-          "currentPrice": 7190.0,
-          "unrealizedPnlKrw": 116856,
-          "unrealizedPnlPct": 7.68
+          "currentPrice": 6830.0,
+          "unrealizedPnlKrw": 34776,
+          "unrealizedPnlPct": 2.28
         },
         {
           "symbol": "001630",
@@ -24570,10 +24159,6 @@
           "quantity": 41,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 41600.0
-            },
             {
               "date": "2026-06-17",
               "close": 41800.0
@@ -24796,9 +24381,9 @@
             }
           ],
           "avgEntryPrice": 38885.3659,
-          "currentPrice": 39000.0,
-          "unrealizedPnlKrw": 4700,
-          "unrealizedPnlPct": 0.29
+          "currentPrice": 38800.0,
+          "unrealizedPnlKrw": -3500,
+          "unrealizedPnlPct": -0.22
         },
         {
           "symbol": "024800",
@@ -24806,10 +24391,6 @@
           "quantity": 364,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4635.0
-            },
             {
               "date": "2026-06-17",
               "close": 4715.0
@@ -25032,9 +24613,9 @@
             }
           ],
           "avgEntryPrice": 4673.6868,
-          "currentPrice": 4695.0,
-          "unrealizedPnlKrw": 7758,
-          "unrealizedPnlPct": 0.46
+          "currentPrice": 4690.0,
+          "unrealizedPnlKrw": 5938,
+          "unrealizedPnlPct": 0.35
         },
         {
           "symbol": "010960",
@@ -25042,10 +24623,6 @@
           "quantity": 530,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3315.0
-            },
             {
               "date": "2026-06-17",
               "close": 3260.0
@@ -25268,9 +24845,9 @@
             }
           ],
           "avgEntryPrice": 3097.0358,
-          "currentPrice": 3100.0,
-          "unrealizedPnlKrw": 1571,
-          "unrealizedPnlPct": 0.1
+          "currentPrice": 3080.0,
+          "unrealizedPnlKrw": -9029,
+          "unrealizedPnlPct": -0.55
         },
         {
           "symbol": "094970",
@@ -25278,10 +24855,6 @@
           "quantity": 580,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3040.0
-            },
             {
               "date": "2026-06-17",
               "close": 2955.0
@@ -25504,9 +25077,9 @@
             }
           ],
           "avgEntryPrice": 2697.2138,
-          "currentPrice": 2720.0,
-          "unrealizedPnlKrw": 13216,
-          "unrealizedPnlPct": 0.84
+          "currentPrice": 2695.0,
+          "unrealizedPnlKrw": -1284,
+          "unrealizedPnlPct": -0.08
         },
         {
           "symbol": "267290",
@@ -25514,10 +25087,6 @@
           "quantity": 74,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 20400.0
-            },
             {
               "date": "2026-06-17",
               "close": 20000.0
@@ -25740,9 +25309,9 @@
             }
           ],
           "avgEntryPrice": 22070.2703,
-          "currentPrice": 22300.0,
-          "unrealizedPnlKrw": 17000,
-          "unrealizedPnlPct": 1.04
+          "currentPrice": 22100.0,
+          "unrealizedPnlKrw": 2200,
+          "unrealizedPnlPct": 0.13
         },
         {
           "symbol": "284740",
@@ -25750,10 +25319,6 @@
           "quantity": 70,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 22800.0
-            },
             {
               "date": "2026-06-17",
               "close": 22250.0
@@ -25976,9 +25541,9 @@
             }
           ],
           "avgEntryPrice": 23269.0,
-          "currentPrice": 23250.0,
-          "unrealizedPnlKrw": -1330,
-          "unrealizedPnlPct": -0.08
+          "currentPrice": 23150.0,
+          "unrealizedPnlKrw": -8330,
+          "unrealizedPnlPct": -0.51
         },
         {
           "symbol": "002350",
@@ -25986,10 +25551,6 @@
           "quantity": 257,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7440.0
-            },
             {
               "date": "2026-06-17",
               "close": 7390.0
@@ -26212,9 +25773,9 @@
             }
           ],
           "avgEntryPrice": 5882.642,
-          "currentPrice": 5870.0,
-          "unrealizedPnlKrw": -3249,
-          "unrealizedPnlPct": -0.21
+          "currentPrice": 5830.0,
+          "unrealizedPnlKrw": -13529,
+          "unrealizedPnlPct": -0.89
         },
         {
           "symbol": "003480",
@@ -26222,10 +25783,6 @@
           "quantity": 342,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5020.0
-            },
             {
               "date": "2026-06-17",
               "close": 4925.0
@@ -26448,9 +26005,9 @@
             }
           ],
           "avgEntryPrice": 4733.3918,
-          "currentPrice": 4720.0,
-          "unrealizedPnlKrw": -4580,
-          "unrealizedPnlPct": -0.28
+          "currentPrice": 4690.0,
+          "unrealizedPnlKrw": -14840,
+          "unrealizedPnlPct": -0.92
         },
         {
           "symbol": "054040",
@@ -26458,10 +26015,6 @@
           "quantity": 359,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5010.0
-            },
             {
               "date": "2026-06-17",
               "close": 5000.0
@@ -26684,9 +26237,9 @@
             }
           ],
           "avgEntryPrice": 4480.1978,
-          "currentPrice": 4500.0,
-          "unrealizedPnlKrw": 7109,
-          "unrealizedPnlPct": 0.44
+          "currentPrice": 4465.0,
+          "unrealizedPnlKrw": -5456,
+          "unrealizedPnlPct": -0.34
         },
         {
           "symbol": "015890",
@@ -26694,10 +26247,6 @@
           "quantity": 339,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4765.0
-            },
             {
               "date": "2026-06-17",
               "close": 4790.0
@@ -26920,9 +26469,9 @@
             }
           ],
           "avgEntryPrice": 4784.7729,
-          "currentPrice": 4830.0,
-          "unrealizedPnlKrw": 15332,
-          "unrealizedPnlPct": 0.95
+          "currentPrice": 4840.0,
+          "unrealizedPnlKrw": 18722,
+          "unrealizedPnlPct": 1.15
         },
         {
           "symbol": "020710",
@@ -26930,10 +26479,6 @@
           "quantity": 447,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3885.0
-            },
             {
               "date": "2026-06-17",
               "close": 3885.0
@@ -27156,9 +26701,9 @@
             }
           ],
           "avgEntryPrice": 3652.0403,
-          "currentPrice": 3670.0,
-          "unrealizedPnlKrw": 8028,
-          "unrealizedPnlPct": 0.49
+          "currentPrice": 3705.0,
+          "unrealizedPnlKrw": 23673,
+          "unrealizedPnlPct": 1.45
         },
         {
           "symbol": "069510",
@@ -27166,10 +26711,6 @@
           "quantity": 130,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 12180.0
-            },
             {
               "date": "2026-06-17",
               "close": 12210.0
@@ -27392,9 +26933,9 @@
             }
           ],
           "avgEntryPrice": 12910.1,
-          "currentPrice": 12890.0,
-          "unrealizedPnlKrw": -2613,
-          "unrealizedPnlPct": -0.16
+          "currentPrice": 12880.0,
+          "unrealizedPnlKrw": -3913,
+          "unrealizedPnlPct": -0.23
         },
         {
           "symbol": "032190",
@@ -27402,10 +26943,6 @@
           "quantity": 81,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 20150.0
-            },
             {
               "date": "2026-06-17",
               "close": 19810.0
@@ -27628,9 +27165,9 @@
             }
           ],
           "avgEntryPrice": 19730.5185,
-          "currentPrice": 19980.0,
-          "unrealizedPnlKrw": 20208,
-          "unrealizedPnlPct": 1.26
+          "currentPrice": 20500.0,
+          "unrealizedPnlKrw": 62328,
+          "unrealizedPnlPct": 3.9
         },
         {
           "symbol": "046940",
@@ -27638,10 +27175,6 @@
           "quantity": 550,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3410.0
-            },
             {
               "date": "2026-06-17",
               "close": 3525.0
@@ -27864,9 +27397,9 @@
             }
           ],
           "avgEntryPrice": 2884.36,
-          "currentPrice": 2905.0,
-          "unrealizedPnlKrw": 11352,
-          "unrealizedPnlPct": 0.72
+          "currentPrice": 2895.0,
+          "unrealizedPnlKrw": 5852,
+          "unrealizedPnlPct": 0.37
         },
         {
           "symbol": "227840",
@@ -27874,10 +27407,6 @@
           "quantity": 125,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 12210.0
-            },
             {
               "date": "2026-06-17",
               "close": 12080.0
@@ -28100,9 +27629,9 @@
             }
           ],
           "avgEntryPrice": 13000.504,
-          "currentPrice": 12890.0,
-          "unrealizedPnlKrw": -13813,
-          "unrealizedPnlPct": -0.85
+          "currentPrice": 13130.0,
+          "unrealizedPnlKrw": 16187,
+          "unrealizedPnlPct": 1.0
         },
         {
           "symbol": "040610",
@@ -28110,10 +27639,6 @@
           "quantity": 511,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3205.0
-            },
             {
               "date": "2026-06-17",
               "close": 3240.0
@@ -28336,9 +27861,9 @@
             }
           ],
           "avgEntryPrice": 3150.5264,
-          "currentPrice": 3165.0,
-          "unrealizedPnlKrw": 7396,
-          "unrealizedPnlPct": 0.46
+          "currentPrice": 3150.0,
+          "unrealizedPnlKrw": -269,
+          "unrealizedPnlPct": -0.02
         },
         {
           "symbol": "035610",
@@ -28346,10 +27871,6 @@
           "quantity": 329,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3495.0
-            },
             {
               "date": "2026-06-17",
               "close": 3475.0
@@ -28572,9 +28093,9 @@
             }
           ],
           "avgEntryPrice": 4846.2432,
-          "currentPrice": 4990.0,
-          "unrealizedPnlKrw": 47296,
-          "unrealizedPnlPct": 2.97
+          "currentPrice": 5040.0,
+          "unrealizedPnlKrw": 63746,
+          "unrealizedPnlPct": 4.0
         },
         {
           "symbol": "064820",
@@ -28582,10 +28103,6 @@
           "quantity": 212,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 11110.0
-            },
             {
               "date": "2026-06-17",
               "close": 11190.0
@@ -28808,9 +28325,9 @@
             }
           ],
           "avgEntryPrice": 7640.6792,
-          "currentPrice": 7840.0,
-          "unrealizedPnlKrw": 42256,
-          "unrealizedPnlPct": 2.61
+          "currentPrice": 7910.0,
+          "unrealizedPnlKrw": 57096,
+          "unrealizedPnlPct": 3.52
         },
         {
           "symbol": "104480",
@@ -28818,10 +28335,6 @@
           "quantity": 938,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1767.0
-            },
             {
               "date": "2026-06-17",
               "close": 1783.0
@@ -29044,9 +28557,9 @@
             }
           ],
           "avgEntryPrice": 1733.2814,
-          "currentPrice": 1726.0,
-          "unrealizedPnlKrw": -6830,
-          "unrealizedPnlPct": -0.42
+          "currentPrice": 1720.0,
+          "unrealizedPnlKrw": -12458,
+          "unrealizedPnlPct": -0.77
         },
         {
           "symbol": "137080",
@@ -29054,10 +28567,6 @@
           "quantity": 252,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5150.0
-            },
             {
               "date": "2026-06-17",
               "close": 5090.0
@@ -29280,9 +28789,9 @@
             }
           ],
           "avgEntryPrice": 6448.6111,
-          "currentPrice": 6460.0,
-          "unrealizedPnlKrw": 2870,
-          "unrealizedPnlPct": 0.18
+          "currentPrice": 6430.0,
+          "unrealizedPnlKrw": -4690,
+          "unrealizedPnlPct": -0.29
         },
         {
           "symbol": "007980",
@@ -29290,10 +28799,6 @@
           "quantity": 942,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1839.0
-            },
             {
               "date": "2026-06-17",
               "close": 1838.0
@@ -29516,9 +29021,9 @@
             }
           ],
           "avgEntryPrice": 1700.5308,
-          "currentPrice": 1718.0,
-          "unrealizedPnlKrw": 16456,
-          "unrealizedPnlPct": 1.03
+          "currentPrice": 1702.0,
+          "unrealizedPnlKrw": 1384,
+          "unrealizedPnlPct": 0.09
         },
         {
           "symbol": "004690",
@@ -29526,10 +29031,6 @@
           "quantity": 12,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 126100.0
-            },
             {
               "date": "2026-06-17",
               "close": 123800.0
@@ -29752,9 +29253,9 @@
             }
           ],
           "avgEntryPrice": 133916.5,
-          "currentPrice": 138000.0,
-          "unrealizedPnlKrw": 49002,
-          "unrealizedPnlPct": 3.05
+          "currentPrice": 137000.0,
+          "unrealizedPnlKrw": 37002,
+          "unrealizedPnlPct": 2.3
         },
         {
           "symbol": "378850",
@@ -29762,10 +29263,6 @@
           "quantity": 539,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3150.0
-            },
             {
               "date": "2026-06-17",
               "close": 3130.0
@@ -29988,9 +29485,9 @@
             }
           ],
           "avgEntryPrice": 2960.7347,
-          "currentPrice": 2930.0,
-          "unrealizedPnlKrw": -16566,
-          "unrealizedPnlPct": -1.04
+          "currentPrice": 2965.0,
+          "unrealizedPnlKrw": 2299,
+          "unrealizedPnlPct": 0.14
         },
         {
           "symbol": "000540",
@@ -29998,10 +29495,6 @@
           "quantity": 443,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3785.0
-            },
             {
               "date": "2026-06-17",
               "close": 3640.0
@@ -30224,9 +29717,9 @@
             }
           ],
           "avgEntryPrice": 3646.3409,
-          "currentPrice": 3705.0,
-          "unrealizedPnlKrw": 25986,
-          "unrealizedPnlPct": 1.61
+          "currentPrice": 3700.0,
+          "unrealizedPnlKrw": 23771,
+          "unrealizedPnlPct": 1.47
         },
         {
           "symbol": "007210",
@@ -30234,10 +29727,6 @@
           "quantity": 1131,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1682.0
-            },
             {
               "date": "2026-06-17",
               "close": 1657.0
@@ -30460,9 +29949,9 @@
             }
           ],
           "avgEntryPrice": 1419.5252,
-          "currentPrice": 1418.0,
-          "unrealizedPnlKrw": -1725,
-          "unrealizedPnlPct": -0.11
+          "currentPrice": 1419.0,
+          "unrealizedPnlKrw": -594,
+          "unrealizedPnlPct": -0.04
         },
         {
           "symbol": "015860",
@@ -30470,10 +29959,6 @@
           "quantity": 245,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7440.0
-            },
             {
               "date": "2026-06-17",
               "close": 7280.0
@@ -30696,9 +30181,9 @@
             }
           ],
           "avgEntryPrice": 6734.4571,
-          "currentPrice": 6870.0,
-          "unrealizedPnlKrw": 33208,
-          "unrealizedPnlPct": 2.01
+          "currentPrice": 6850.0,
+          "unrealizedPnlKrw": 28308,
+          "unrealizedPnlPct": 1.72
         },
         {
           "symbol": "014580",
@@ -30706,10 +30191,6 @@
           "quantity": 420,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 4095.0
-            },
             {
               "date": "2026-06-17",
               "close": 4085.0
@@ -30932,9 +30413,9 @@
             }
           ],
           "avgEntryPrice": 3799.2762,
-          "currentPrice": 3785.0,
-          "unrealizedPnlKrw": -5996,
-          "unrealizedPnlPct": -0.38
+          "currentPrice": 3805.0,
+          "unrealizedPnlKrw": 2404,
+          "unrealizedPnlPct": 0.15
         },
         {
           "symbol": "096760",
@@ -30942,10 +30423,6 @@
           "quantity": 389,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 3905.0
-            },
             {
               "date": "2026-06-17",
               "close": 3910.0
@@ -31168,9 +30645,9 @@
             }
           ],
           "avgEntryPrice": 4171.5167,
-          "currentPrice": 4205.0,
-          "unrealizedPnlKrw": 13025,
-          "unrealizedPnlPct": 0.8
+          "currentPrice": 4265.0,
+          "unrealizedPnlKrw": 36365,
+          "unrealizedPnlPct": 2.24
         },
         {
           "symbol": "187420",
@@ -31178,10 +30655,6 @@
           "quantity": 856,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2230.0
-            },
             {
               "date": "2026-06-17",
               "close": 2375.0
@@ -31404,9 +30877,9 @@
             }
           ],
           "avgEntryPrice": 1844.4439,
-          "currentPrice": 1834.0,
-          "unrealizedPnlKrw": -8940,
-          "unrealizedPnlPct": -0.57
+          "currentPrice": 1820.0,
+          "unrealizedPnlKrw": -20924,
+          "unrealizedPnlPct": -1.33
         },
         {
           "symbol": "030720",
@@ -31414,10 +30887,6 @@
           "quantity": 297,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 6070.0
-            },
             {
               "date": "2026-06-17",
               "close": 6010.0
@@ -31640,9 +31109,9 @@
             }
           ],
           "avgEntryPrice": 5186.9697,
-          "currentPrice": 5140.0,
-          "unrealizedPnlKrw": -13950,
-          "unrealizedPnlPct": -0.91
+          "currentPrice": 5260.0,
+          "unrealizedPnlKrw": 21690,
+          "unrealizedPnlPct": 1.41
         },
         {
           "symbol": "000950",
@@ -31650,10 +31119,6 @@
           "quantity": 47,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 26900.0
-            },
             {
               "date": "2026-06-17",
               "close": 26900.0
@@ -31876,9 +31341,9 @@
             }
           ],
           "avgEntryPrice": 31716.3404,
-          "currentPrice": 32000.0,
-          "unrealizedPnlKrw": 13332,
-          "unrealizedPnlPct": 0.89
+          "currentPrice": 31100.0,
+          "unrealizedPnlKrw": -28968,
+          "unrealizedPnlPct": -1.94
         },
         {
           "symbol": "298000",
@@ -31886,10 +31351,6 @@
           "quantity": 28,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 51900.0
-            },
             {
               "date": "2026-06-17",
               "close": 67400.0
@@ -32112,9 +31573,9 @@
             }
           ],
           "avgEntryPrice": 57271.4286,
-          "currentPrice": 55400.0,
-          "unrealizedPnlKrw": -52400,
-          "unrealizedPnlPct": -3.27
+          "currentPrice": 56400.0,
+          "unrealizedPnlKrw": -24400,
+          "unrealizedPnlPct": -1.52
         },
         {
           "symbol": "037030",
@@ -32122,10 +31583,6 @@
           "quantity": 505,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 5670.0
-            },
             {
               "date": "2026-06-17",
               "close": 5630.0
@@ -32348,9 +31805,9 @@
             }
           ],
           "avgEntryPrice": 3195.4752,
-          "currentPrice": 3250.0,
-          "unrealizedPnlKrw": 27535,
-          "unrealizedPnlPct": 1.71
+          "currentPrice": 3230.0,
+          "unrealizedPnlKrw": 17435,
+          "unrealizedPnlPct": 1.08
         }
       ]
     },
@@ -32362,10 +31819,6 @@
           "quantity": 63,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 31250.0
-            },
             {
               "date": "2026-06-17",
               "close": 30500.0
@@ -32588,9 +32041,9 @@
             }
           ],
           "avgEntryPrice": 26890.0,
-          "currentPrice": 27000.0,
-          "unrealizedPnlKrw": 6930,
-          "unrealizedPnlPct": 0.41
+          "currentPrice": 27350.0,
+          "unrealizedPnlKrw": 28980,
+          "unrealizedPnlPct": 1.71
         },
         {
           "symbol": "058470",
@@ -32598,10 +32051,6 @@
           "quantity": 25,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 94700.0
-            },
             {
               "date": "2026-06-17",
               "close": 94700.0
@@ -32824,9 +32273,9 @@
             }
           ],
           "avgEntryPrice": 68682.0,
-          "currentPrice": 69300.0,
-          "unrealizedPnlKrw": 15450,
-          "unrealizedPnlPct": 0.9
+          "currentPrice": 66900.0,
+          "unrealizedPnlKrw": -44550,
+          "unrealizedPnlPct": -2.59
         },
         {
           "symbol": "017940",
@@ -32834,10 +32283,6 @@
           "quantity": 16,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 87600.0
-            },
             {
               "date": "2026-06-17",
               "close": 85400.0
@@ -33071,10 +32516,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 2020.0
-            },
-            {
               "date": "2026-06-17",
               "close": 2090.0
             },
@@ -33296,9 +32737,9 @@
             }
           ],
           "avgEntryPrice": 2052.0,
-          "currentPrice": 2070.0,
-          "unrealizedPnlKrw": 14814,
-          "unrealizedPnlPct": 0.88
+          "currentPrice": 2080.0,
+          "unrealizedPnlKrw": 23044,
+          "unrealizedPnlPct": 1.36
         },
         {
           "symbol": "003120",
@@ -33306,10 +32747,6 @@
           "quantity": 80,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 19890.0
-            },
             {
               "date": "2026-06-17",
               "close": 19700.0
@@ -33532,9 +32969,9 @@
             }
           ],
           "avgEntryPrice": 20910.0,
-          "currentPrice": 21650.0,
-          "unrealizedPnlKrw": 59200,
-          "unrealizedPnlPct": 3.54
+          "currentPrice": 22000.0,
+          "unrealizedPnlKrw": 87200,
+          "unrealizedPnlPct": 5.21
         },
         {
           "symbol": "084370",
@@ -33542,10 +32979,6 @@
           "quantity": 12,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 176700.0
-            },
             {
               "date": "2026-06-17",
               "close": 175100.0
@@ -33768,9 +33201,9 @@
             }
           ],
           "avgEntryPrice": 140300.0,
-          "currentPrice": 139500.0,
-          "unrealizedPnlKrw": -9600,
-          "unrealizedPnlPct": -0.57
+          "currentPrice": 132100.0,
+          "unrealizedPnlKrw": -98400,
+          "unrealizedPnlPct": -5.84
         },
         {
           "symbol": "029780",
@@ -33778,10 +33211,6 @@
           "quantity": 35,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 53300.0
-            },
             {
               "date": "2026-06-17",
               "close": 49650.0
@@ -34015,10 +33444,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 7330.0
-            },
-            {
               "date": "2026-06-17",
               "close": 7120.0
             },
@@ -34240,9 +33665,9 @@
             }
           ],
           "avgEntryPrice": 5910.0,
-          "currentPrice": 6220.0,
-          "unrealizedPnlKrw": 88660,
-          "unrealizedPnlPct": 5.25
+          "currentPrice": 6020.0,
+          "unrealizedPnlKrw": 31460,
+          "unrealizedPnlPct": 1.86
         },
         {
           "symbol": "071050",
@@ -34250,10 +33675,6 @@
           "quantity": 8,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 252500.0
-            },
             {
               "date": "2026-06-17",
               "close": 240000.0
@@ -34476,9 +33897,9 @@
             }
           ],
           "avgEntryPrice": 192300.0,
-          "currentPrice": 193400.0,
-          "unrealizedPnlKrw": 8800,
-          "unrealizedPnlPct": 0.57
+          "currentPrice": 193600.0,
+          "unrealizedPnlKrw": 10400,
+          "unrealizedPnlPct": 0.68
         },
         {
           "symbol": "051360",
@@ -34486,10 +33907,6 @@
           "quantity": 145,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 10669.0
-            },
             {
               "date": "2026-06-17",
               "close": 10744.0
@@ -34712,9 +34129,9 @@
             }
           ],
           "avgEntryPrice": 11520.0,
-          "currentPrice": 11650.0,
-          "unrealizedPnlKrw": 18850,
-          "unrealizedPnlPct": 1.13
+          "currentPrice": 11680.0,
+          "unrealizedPnlKrw": 23200,
+          "unrealizedPnlPct": 1.39
         },
         {
           "symbol": "000320",
@@ -34722,10 +34139,6 @@
           "quantity": 98,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 17900.0
-            },
             {
               "date": "2026-06-17",
               "close": 18080.0
@@ -34948,9 +34361,9 @@
             }
           ],
           "avgEntryPrice": 16814.0,
-          "currentPrice": 16880.0,
-          "unrealizedPnlKrw": 6468,
-          "unrealizedPnlPct": 0.39
+          "currentPrice": 16660.0,
+          "unrealizedPnlKrw": -15092,
+          "unrealizedPnlPct": -0.92
         },
         {
           "symbol": "014680",
@@ -34958,10 +34371,6 @@
           "quantity": 8,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 299000.0
-            },
             {
               "date": "2026-06-17",
               "close": 301000.0
@@ -35184,9 +34593,9 @@
             }
           ],
           "avgEntryPrice": 200187.0,
-          "currentPrice": 202000.0,
-          "unrealizedPnlKrw": 14504,
-          "unrealizedPnlPct": 0.91
+          "currentPrice": 200500.0,
+          "unrealizedPnlKrw": 2504,
+          "unrealizedPnlPct": 0.16
         },
         {
           "symbol": "033640",
@@ -35194,10 +34603,6 @@
           "quantity": 77,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 38950.0
-            },
             {
               "date": "2026-06-17",
               "close": 37800.0
@@ -35420,9 +34825,9 @@
             }
           ],
           "avgEntryPrice": 22788.0,
-          "currentPrice": 23300.0,
-          "unrealizedPnlKrw": 39424,
-          "unrealizedPnlPct": 2.25
+          "currentPrice": 22550.0,
+          "unrealizedPnlKrw": -18326,
+          "unrealizedPnlPct": -1.04
         },
         {
           "symbol": "009410",
@@ -35430,10 +34835,6 @@
           "quantity": 995,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1838.0
-            },
             {
               "date": "2026-06-17",
               "close": 1836.0
@@ -35656,9 +35057,9 @@
             }
           ],
           "avgEntryPrice": 1688.0,
-          "currentPrice": 1698.0,
-          "unrealizedPnlKrw": 9950,
-          "unrealizedPnlPct": 0.59
+          "currentPrice": 1687.0,
+          "unrealizedPnlKrw": -995,
+          "unrealizedPnlPct": -0.06
         },
         {
           "symbol": "006800",
@@ -35666,10 +35067,6 @@
           "quantity": 50,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 51300.0
-            },
             {
               "date": "2026-06-17",
               "close": 50400.0
@@ -35892,9 +35289,9 @@
             }
           ],
           "avgEntryPrice": 34355.0,
-          "currentPrice": 34750.0,
-          "unrealizedPnlKrw": 19750,
-          "unrealizedPnlPct": 1.15
+          "currentPrice": 33650.0,
+          "unrealizedPnlKrw": -35250,
+          "unrealizedPnlPct": -2.05
         },
         {
           "symbol": "049430",
@@ -35902,10 +35299,6 @@
           "quantity": 78,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 19350.0
-            },
             {
               "date": "2026-06-17",
               "close": 19220.0
@@ -36128,9 +35521,9 @@
             }
           ],
           "avgEntryPrice": 22460.0,
-          "currentPrice": 23350.0,
-          "unrealizedPnlKrw": 69420,
-          "unrealizedPnlPct": 3.96
+          "currentPrice": 22800.0,
+          "unrealizedPnlKrw": 26520,
+          "unrealizedPnlPct": 1.51
         },
         {
           "symbol": "016360",
@@ -36138,10 +35531,6 @@
           "quantity": 19,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 124600.0
-            },
             {
               "date": "2026-06-17",
               "close": 123900.0
@@ -36364,9 +35753,9 @@
             }
           ],
           "avgEntryPrice": 86900.0,
-          "currentPrice": 87400.0,
-          "unrealizedPnlKrw": 9500,
-          "unrealizedPnlPct": 0.58
+          "currentPrice": 87800.0,
+          "unrealizedPnlKrw": 17100,
+          "unrealizedPnlPct": 1.04
         },
         {
           "symbol": "053050",
@@ -36374,10 +35763,6 @@
           "quantity": 893,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 2030.0
-            },
             {
               "date": "2026-06-17",
               "close": 2030.0
@@ -36600,9 +35985,9 @@
             }
           ],
           "avgEntryPrice": 2006.0,
-          "currentPrice": 2065.0,
-          "unrealizedPnlKrw": 52687,
-          "unrealizedPnlPct": 2.94
+          "currentPrice": 1990.0,
+          "unrealizedPnlKrw": -14288,
+          "unrealizedPnlPct": -0.8
         },
         {
           "symbol": "033270",
@@ -36610,10 +35995,6 @@
           "quantity": 90,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 18640.0
-            },
             {
               "date": "2026-06-17",
               "close": 18590.0
@@ -36836,9 +36217,9 @@
             }
           ],
           "avgEntryPrice": 18397.0,
-          "currentPrice": 18380.0,
-          "unrealizedPnlKrw": -1530,
-          "unrealizedPnlPct": -0.09
+          "currentPrice": 18190.0,
+          "unrealizedPnlKrw": -18630,
+          "unrealizedPnlPct": -1.13
         },
         {
           "symbol": "241710",
@@ -36846,10 +36227,6 @@
           "quantity": 12,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 67800.0
-            },
             {
               "date": "2026-06-17",
               "close": 70100.0
@@ -37072,9 +36449,9 @@
             }
           ],
           "avgEntryPrice": 120400.0,
-          "currentPrice": 120900.0,
-          "unrealizedPnlKrw": 6000,
-          "unrealizedPnlPct": 0.42
+          "currentPrice": 126100.0,
+          "unrealizedPnlKrw": 68400,
+          "unrealizedPnlPct": 4.73
         },
         {
           "symbol": "045340",
@@ -37082,10 +36459,6 @@
           "quantity": 242,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7350.0
-            },
             {
               "date": "2026-06-17",
               "close": 7230.0
@@ -37308,9 +36681,9 @@
             }
           ],
           "avgEntryPrice": 6762.0,
-          "currentPrice": 6850.0,
-          "unrealizedPnlKrw": 21296,
-          "unrealizedPnlPct": 1.3
+          "currentPrice": 6840.0,
+          "unrealizedPnlKrw": 18876,
+          "unrealizedPnlPct": 1.15
         },
         {
           "symbol": "008350",
@@ -37318,10 +36691,6 @@
           "quantity": 1554,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1266.0
-            },
             {
               "date": "2026-06-17",
               "close": 1266.0
@@ -37544,9 +36913,9 @@
             }
           ],
           "avgEntryPrice": 1048.0,
-          "currentPrice": 1059.0,
-          "unrealizedPnlKrw": 17094,
-          "unrealizedPnlPct": 1.05
+          "currentPrice": 1069.0,
+          "unrealizedPnlKrw": 32634,
+          "unrealizedPnlPct": 2.0
         },
         {
           "symbol": "011200",
@@ -37554,10 +36923,6 @@
           "quantity": 78,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 22150.0
-            },
             {
               "date": "2026-06-17",
               "close": 22100.0
@@ -37791,10 +37156,6 @@
           "intentDate": null,
           "history": [
             {
-              "date": "2026-06-16",
-              "close": 2555.0
-            },
-            {
               "date": "2026-06-17",
               "close": 2570.0
             },
@@ -38016,9 +37377,9 @@
             }
           ],
           "avgEntryPrice": 2369.0,
-          "currentPrice": 2400.0,
-          "unrealizedPnlKrw": 21421,
-          "unrealizedPnlPct": 1.31
+          "currentPrice": 2405.0,
+          "unrealizedPnlKrw": 24876,
+          "unrealizedPnlPct": 1.52
         },
         {
           "symbol": "009420",
@@ -38026,10 +37387,6 @@
           "quantity": 30,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 52100.0
-            },
             {
               "date": "2026-06-17",
               "close": 56000.0
@@ -38252,9 +37609,9 @@
             }
           ],
           "avgEntryPrice": 52720.0,
-          "currentPrice": 52600.0,
-          "unrealizedPnlKrw": -3600,
-          "unrealizedPnlPct": -0.23
+          "currentPrice": 50100.0,
+          "unrealizedPnlKrw": -78600,
+          "unrealizedPnlPct": -4.97
         },
         {
           "symbol": "300080",
@@ -38262,10 +37619,6 @@
           "quantity": 191,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 8000.0
-            },
             {
               "date": "2026-06-17",
               "close": 8170.0
@@ -38488,9 +37841,9 @@
             }
           ],
           "avgEntryPrice": 10062.0,
-          "currentPrice": 10200.0,
-          "unrealizedPnlKrw": 26358,
-          "unrealizedPnlPct": 1.37
+          "currentPrice": 9180.0,
+          "unrealizedPnlKrw": -168462,
+          "unrealizedPnlPct": -8.77
         },
         {
           "symbol": "137310",
@@ -38498,10 +37851,6 @@
           "quantity": 269,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 7160.0
-            },
             {
               "date": "2026-06-17",
               "close": 7210.0
@@ -38724,9 +38073,9 @@
             }
           ],
           "avgEntryPrice": 6149.0,
-          "currentPrice": 6100.0,
-          "unrealizedPnlKrw": -13181,
-          "unrealizedPnlPct": -0.8
+          "currentPrice": 6170.0,
+          "unrealizedPnlKrw": 5649,
+          "unrealizedPnlPct": 0.34
         },
         {
           "symbol": "396690",
@@ -38734,10 +38083,6 @@
           "quantity": 1068,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 1508.0
-            },
             {
               "date": "2026-06-17",
               "close": 1552.0
@@ -38960,9 +38305,9 @@
             }
           ],
           "avgEntryPrice": 1443.0,
-          "currentPrice": 1441.0,
-          "unrealizedPnlKrw": -2136,
-          "unrealizedPnlPct": -0.14
+          "currentPrice": 1429.0,
+          "unrealizedPnlKrw": -14952,
+          "unrealizedPnlPct": -0.97
         },
         {
           "symbol": "475830",
@@ -38970,10 +38315,6 @@
           "quantity": 30,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 63700.0
-            },
             {
               "date": "2026-06-17",
               "close": 70000.0
@@ -39196,9 +38537,9 @@
             }
           ],
           "avgEntryPrice": 51900.0,
-          "currentPrice": 53100.0,
-          "unrealizedPnlKrw": 36000,
-          "unrealizedPnlPct": 2.31
+          "currentPrice": 50700.0,
+          "unrealizedPnlKrw": -36000,
+          "unrealizedPnlPct": -2.31
         },
         {
           "symbol": "439260",
@@ -39206,10 +38547,6 @@
           "quantity": 35,
           "intentDate": null,
           "history": [
-            {
-              "date": "2026-06-16",
-              "close": 64700.0
-            },
             {
               "date": "2026-06-17",
               "close": 64900.0
@@ -39432,11 +38769,65 @@
             }
           ],
           "avgEntryPrice": 47400.0,
-          "currentPrice": 47400.0,
-          "unrealizedPnlKrw": 0,
-          "unrealizedPnlPct": 0.0
+          "currentPrice": 47450.0,
+          "unrealizedPnlKrw": 1750,
+          "unrealizedPnlPct": 0.11
         }
       ]
     }
+  },
+  "trades": {
+    "fromDate": "2026-06-13",
+    "toDate": "2026-09-11",
+    "days": [
+      {
+        "date": "2026-09-10",
+        "buyKrw": 49675474,
+        "sellKrw": 0,
+        "buyCount": 30,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 49675474
+      },
+      {
+        "date": "2026-09-09",
+        "buyKrw": 217925559,
+        "sellKrw": 0,
+        "buyCount": 108,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 217925559
+      },
+      {
+        "date": "2026-09-07",
+        "buyKrw": 121326307,
+        "sellKrw": 0,
+        "buyCount": 90,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 121326307
+      },
+      {
+        "date": "2026-09-04",
+        "buyKrw": 10420867,
+        "sellKrw": 0,
+        "buyCount": 47,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 10420867
+      }
+    ],
+    "byStrategy": {},
+    "pending": [],
+    "unattributed": {
+      "buyKrw": 399348207,
+      "sellKrw": 0,
+      "count": 275
+    },
+    "error": null
   }
 }
