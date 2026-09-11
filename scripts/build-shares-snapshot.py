@@ -62,6 +62,29 @@ SOURCE = "KRX_SHORTING_BALANCE"
 SOURCE_FN = "pykrx.stock.get_shorting_balance_by_date"
 MAX_CARRY_DAYS = 14      # 실패 종목에 직전 스냅샷을 이어받는 상한. 넘으면 A3c 로 내려간다
 
+# 출발점 로테이션 (2026-09-11 신설)
+#
+# KRX 는 출처(IP) 단위로 1~3분 안에 100~230건쯤에서 차단한다
+# (docs/operations/shares-snapshot-timeout-2026-09.md §6). 매 실행이 유니버스를
+# **같은 순서로 처음부터** 돌았기 때문에 결과가 이랬다:
+#
+#   스냅샷 보유 = 유니버스 인덱스 0~272 · 없음 = 273~352   (실측, 예외 0건)
+#
+# 즉 뒤쪽 80종목은 **영영 KRX 값을 못 받는다.** carry_forward 도 못 구한다 -
+# 한 번도 받은 적이 없어 이월할 값이 없다. 그래서 그 종목들은 늘 A3c 폴백이고,
+# A3c 는 KRX 와 꽤 다르다(실측 271종목 대조: 완전일치 61.6% · >1% 26.2% ·
+# >5% 7.7% · >20% 2.2%, 최대 400%=액면분할). 시총이 그만큼 틀어진다.
+#
+# 고치는 방법이 셋이었다 - 늦추기(미검증, 이겨도 6~12분 직렬) · 샤딩(A4/A8 의
+# 검증된 패턴이나 matrix->artifact->finalize 배관이 필요) · **출발점 회전**.
+# 셋째가 한 줄이고 같은 피해를 없앤다. 하루 관측 최소치(107)보다 작게 돌려
+# 빈틈이 안 생기게 하고, 4일이면 353종목을 한 바퀴 돈다(carry 14일 안).
+#
+# ponytail: 회전으로 충분한 이유는 '당일 전종목'이 필요 없어서다. 하루 안에
+# 353개가 다 필요해지면 그때 A8 처럼 matrix 샤딩으로 올린다(샤드당 러너가 달라
+# IP 예산이 각각이다). 그 전에는 배관을 늘리지 않는다.
+ROTATE_STRIDE = 100
+
 # 2차 패스 — 기본 꺼짐 (2026-09-11 실측으로 되돌림)
 #
 # 신설(2026-09-09) 당시 근거는 "막힌 뒤 천천히 회복한다"였다(353->167->272->273,
@@ -108,6 +131,17 @@ def load_universe(market="KR"):
     with open(WATCHLIST, encoding="utf-8") as f:
         rows = json.load(f)["tickers"]
     return [r["code"] for r in rows if r.get("market") == market and r.get("code")]
+
+
+def rotate(tickers, day, stride=ROTATE_STRIDE):
+    """그날의 출발점으로 유니버스를 회전한다 - 날짜의 함수라 재현 가능하다.
+
+    난수를 쓰지 않는 이유: 같은 날 두 번 돌리면 같은 목록이어야 재현이 된다.
+    stride 를 관측된 최소 벽(107)보다 작게 잡아 연속된 날들이 빈틈을 안 남기게 한다."""
+    if not tickers:
+        return tickers
+    off = (day.toordinal() * stride) % len(tickers)
+    return tickers[off:] + tickers[:off]
 
 
 def _import_pykrx_stock():
@@ -286,9 +320,10 @@ def main():
         return
 
     tickers = load_universe()
+    today = datetime.now(KST).date()
+    tickers = rotate(tickers, today)
     if a.limit:
         tickers = tickers[:a.limit]
-    today = datetime.now(KST).date()
     from_date = (today - timedelta(days=LOOKBACK_DAYS)).strftime("%Y%m%d")
     to_date = today.strftime("%Y%m%d")
     print("KRX 상장주식수 스냅샷 · %d종목 · %s~%s" % (len(tickers), from_date, to_date), flush=True)
@@ -435,7 +470,24 @@ def selftest():
     assert _el < 10, "타임아웃이 안 듣는다(%.1fs 걸렸다)" % _el
     _srv.close()
 
-    print("selftest ok (27건)")
+    # 출발점 로테이션 - 재현성 · 무유실 · 빈틈없는 커버리지
+    import datetime as _dt
+    uni = ["%06d" % i for i in range(353)]
+    d0 = _dt.date(2026, 9, 11)
+    assert rotate(uni, d0) == rotate(uni, d0), "같은 날은 같은 목록이어야 재현된다"
+    assert sorted(rotate(uni, d0)) == sorted(uni), "회전은 순열이다 - 빠지는 종목이 없다"
+    assert rotate(uni, d0) != rotate(uni, d0 + _dt.timedelta(days=1)), "날이 바뀌면 출발점도 바뀐다"
+    assert rotate([], d0) == [] and rotate(["A"], d0) == ["A"], "빈/단일 유니버스에서 안 터진다"
+
+    # ★ 핵심 성질: **관측된 최소 벽(107)** 에서도 연속된 날들이 빈틈을 안 남긴다.
+    #   stride(100) 가 107 보다 작아야 창이 겹친다 - stride 를 올리면 여기가 붉어진다.
+    WORST_WALL = 107
+    seen = set()
+    for k in range(4):                      # 353 / stride 100 -> 4일이면 한 바퀴
+        seen |= set(rotate(uni, d0 + _dt.timedelta(days=k))[:WORST_WALL])
+    assert seen == set(uni), "4일 안에 전 종목이 덮여야 한다 (미커버 %d개)" % len(set(uni) - seen)
+
+    print("selftest ok (33건)")
 
 
 if __name__ == "__main__":
