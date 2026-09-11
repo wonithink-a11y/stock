@@ -49,11 +49,12 @@ def state_path(ticker: str, mode: str) -> Path:
 def load_state(ticker: str, mode: str, seed: float) -> tuple[E.State, dict]:
     p = state_path(ticker, mode)
     if not p.exists():
-        return E.State(cash=seed), {"lastDate": None, "log": []}
+        return E.State(cash=seed), {"lastDate": None, "log": [], "lastUnit": None}
     d = json.loads(p.read_text(encoding="utf-8"))
     s = E.State(**{k: v for k, v in d["state"].items()
                    if k in E.State.__dataclass_fields__})
-    return s, {"lastDate": d.get("lastDate"), "log": d.get("log", [])}
+    return s, {"lastDate": d.get("lastDate"), "log": d.get("log", []),
+               "lastUnit": d.get("lastUnit")}
 
 
 def save_state(ticker: str, mode: str, s: E.State, meta: dict) -> None:
@@ -62,6 +63,7 @@ def save_state(ticker: str, mode: str, s: E.State, meta: dict) -> None:
         "ticker": ticker, "mode": mode,
         "updatedAtKst": datetime.now(KST).isoformat(),
         "lastDate": meta["lastDate"],
+        "lastUnit": meta.get("lastUnit"),
         "state": asdict(s),
         "log": meta["log"][-400:],   # 최근 400건만 - 무한히 자라지 않게
     }, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -147,20 +149,36 @@ def run_vts(ticker: str, rules_path: Path, seed: float, execute: bool,
     # 브로커가 정본이다 - 보유/평단을 로컬 장부로 추측하지 않고 계좌에서 읽는다(교훈75).
     held = {h["symbol"]: h for h in c.holdings()}
     h = held.get(ticker)
-    qty_before = s.qty
+    qty_before, cost_before = s.qty, s.cost
     s.qty = h["qty"] if h else 0
     s.cost = (h["qty"] * h["avgPrice"]) if h else 0.0
-    if qty_before and s.qty != qty_before:
-        s.t = s.t * (s.qty / qty_before) if qty_before else 0.0
+
+    # ★ 회차(T)는 브로커가 안 준다 - 보유수량만으로는 복원되지 않으므로 여기서 잇는다.
+    # 엔진과 **같은 규칙**을 쓴다: 매수는 T += 체결금액/1회매수금, 매도는 남은 수량 비율.
+    # 처음엔 감소분만 반영해서 T 가 영원히 0 에 머물렀다 - 그러면 후반전·소진 판정이
+    # 아예 오지 않는다(2026-09-12 첫 실주문 직후 발견). 조용히 틀리는 자리라 회귀로 핀한다.
+    last_unit = float(meta.get("lastUnit") or 0.0)
+    if s.qty > qty_before and last_unit > 0:
+        s.t += max(0.0, s.cost - cost_before) / last_unit
+    elif qty_before and s.qty < qty_before:
+        s.t = s.t * (s.qty / qty_before)
 
     bp = c.buying_power(ticker, last["close"])
-    s.cash = min(seed, bp["orderableCash"])   # 슬리브 배정액을 넘겨 쓰지 않는다
+    # 이 슬리브의 잔금 = 배정액에서 **이미 투입된 원가**를 뺀 것. 그리고 계좌에 실제로
+    # 있는 돈을 넘지 않는다. min(seed, orderable) 로만 두면 이미 쓴 만큼을 또 남은 것으로
+    # 세어 1회매수금이 계속 부풀고, 그 오차는 T 가 오를수록 커진다(2026-09-12 첫 실주문
+    # 직후 발견 - $1,071 을 쓰고도 잔금이 $50,000 으로 찍혔다).
+    # ★ 두 슬리브가 **하나의 외화 예수금을 공유**한다. 각 슬리브를 자기 배정액으로
+    # 묶어 두는 것이 교차 초과를 막는 장치이고, 합이 예수금을 넘으면 브로커가 거절한다
+    # (여기서 배분기를 새로 짜지 않는다 - 필요해지면 그때).
+    s.cash = max(0.0, min(seed - s.cost, bp["orderableCash"]))
 
     # ★ 여기서 내는 주문은 **다음 세션**의 것이다. 그러니 기준이 되는 "직전 종가"는
     # 마지막 완료 세션이다. 끝에서 하나를 잘라내면 한 세션 옛 종가로 큰수를 잡는다
     # (2026-09-12 dry-run 에서 $79.59 로 드러났다 - 71.57x1.15 = $82.31 이어야 한다).
     # 역전모드의 5일 평균도 같은 이유로 전부 넘긴다. 아래 selftest 가 이 자리를 핀한다.
     orders = E.plan_orders(s, r, [b["close"] for b in bars])
+    meta["lastUnit"] = E.unit_amount(s, r)   # 다음 실행이 T 를 이을 때 쓴다
     placed = []
     for side, kind, limit, q in orders:
         if limit is None or q <= 0:
@@ -256,7 +274,14 @@ def selftest() -> int:
        _frag('[b["close"] ', 'for b in bars]') in src
        and _frag("bars[", ":-1]") not in src)
 
-    total = 13
+    src_vts = src[src.index("def run_vts"):src.index("# ---", src.index("def run_vts"))]
+    ck("vts 가 매수에서도 T 를 올린다 (감소분만 반영하면 T 가 영원히 0 이다)",
+       "s.t +=" in src_vts and "lastUnit" in src_vts)
+    ck("vts 의 T 증가가 엔진과 같은 규칙(체결금액/1회매수금)이다", "/ last_unit" in src_vts)
+    ck("vts 잔금이 이미 투입한 원가를 뺀 값이다 (배정액 전부로 세지 않는다)",
+       _frag("min(seed ", "- s.cost") in src_vts)
+
+    total = 16
     print(f"\nselftest {total - len(fails)}/{total}" + ("" if not fails else f"  FAILED: {fails}"))
     return 1 if fails else 0
 
