@@ -32,6 +32,7 @@ LIVE_STRATEGIES = ["pbr_value_v1", "lowmom60_v1", "pbr_value_v1_combined",
 
 
 HISTORY_SESSIONS = 60  # 차트용 최근 일봉 개수
+TRADE_LOOKBACK_DAYS = 90  # KIS 일별주문체결 조회 상한이 3개월이다
 
 
 def _price_history(repo_root, symbols):
@@ -59,6 +60,68 @@ def _price_history(repo_root, symbols):
             max_date = last
     return out, max_date
 
+
+
+def _aggregate_trades(rows, today=None):
+    """체결내역 원시행 -> {"days": [...], "pending": [...]}.
+
+    days 는 날짜별 매수·매도 합계다 - "며칠에 얼마 팔고 얼마 샀다"가 UI 가
+    묻는 전부이고, 종목 단위는 아래 pending(진행 중)에만 필요하다.
+    pending 은 미체결 잔량이 남은 주문 - "지금 매매가 돌고 있나"의 답이다.
+
+    ★ pending 은 **today 인 주문만** 센다. KRX 주문은 당일 유효라 어제의
+    미체결은 장 종료로 실효됐는데, 조회 응답의 rmn_qty 는 그대로 남는다 -
+    날짜로 안 자르면 "진행 중인 주문"에 죽은 주문이 영원히 쌓인다.
+    today 가 None 이면 자르지 않는다(테스트·과거 분석용).
+
+    ★ 전략별로 안 쪼갠다. 주문에 전략 표시가 없고 전략들이 같은 종목을
+    겹쳐 들어서, 쪼개면 지어내는 것이 된다(kisVtsClient.list_executions 주석).
+    순수 함수라 네트워크 없이 테스트된다.
+    """
+    by_date = {}
+    pending = []
+    for r in rows:
+        if r["pendingQty"] > 0 and not r["canceled"] and (today is None or r["date"] == today):
+            pending.append({k: r[k] for k in
+                            ("date", "symbol", "name", "side", "orderedQty",
+                             "filledQty", "pendingQty")})
+        if r["filledQty"] <= 0:
+            continue
+        day = by_date.setdefault(r["date"], {"date": r["date"], "buyKrw": 0, "sellKrw": 0,
+                                             "buyCount": 0, "sellCount": 0})
+        if r["side"] == "SELL":
+            day["sellKrw"] += r["amountKrw"]
+            day["sellCount"] += 1
+        else:
+            day["buyKrw"] += r["amountKrw"]
+            day["buyCount"] += 1
+    days = sorted(by_date.values(), key=lambda d: d["date"], reverse=True)
+    for day in days:
+        day["netKrw"] = day["buyKrw"] - day["sellKrw"]
+    pending.sort(key=lambda p: (p["date"], p["symbol"]), reverse=True)
+    return {"days": days, "pending": pending}
+
+
+def _trades_block(client):
+    """조회 실패는 치명적이지 않다 - 포지션 표는 그대로 나와야 한다. 다만
+    실패를 빈 내역으로 위장하지 않는다(교훈57): error 를 담아 UI 가 말하게 한다."""
+    from engine.live.kisVtsClient import KisVtsError
+    today = datetime.now(KST).date()
+    start = today - timedelta(days=TRADE_LOOKBACK_DAYS)
+    block = {"fromDate": start.isoformat(), "toDate": today.isoformat(),
+             "days": [], "pending": [], "error": None}
+    if client is None:
+        block["error"] = "KIS 클라이언트를 만들지 못했다(.env 누락)"
+        return block
+    try:
+        rows = client.list_executions(start.strftime("%Y%m%d"), today.strftime("%Y%m%d"))
+    except KisVtsError as e:
+        print(f"[경고] KIS 체결내역 조회 실패, 매매 내역 없이 계속: {e}")
+        block["error"] = str(e)
+        return block
+    block.update(_aggregate_trades(rows, today=today.isoformat()))
+    print(f"체결내역: {len(block['days'])}일 · 진행 중 주문 {len(block['pending'])}건")
+    return block
 
 
 def _position_row(symbol, pos, holding, history):
@@ -100,8 +163,10 @@ def main():
     from engine.live import positionStore
     from engine.live.kisVtsClient import KisVtsClient, KisVtsError
 
+    client = None
     try:
-        holdings, cash, eval_total = KisVtsClient().inquire_balance()
+        client = KisVtsClient()          # __init__ 이 .env 누락으로 던질 수 있다
+        holdings, cash, eval_total = client.inquire_balance()
     except KisVtsError as e:
         print(f"[경고] KIS 잔고 조회 실패, 계좌 정보 없이 계속: {e}")
         holdings, cash, eval_total = [], None, None
@@ -133,6 +198,7 @@ def main():
             "totalValueKrw": float(eval_total) if eval_total is not None else None,
         },
         "strategies": strategies,
+        "trades": _trades_block(client),
     }
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:

@@ -41,6 +41,34 @@ TR_PRICE = "FHKST01010100"
 # 잔고 연속조회 페이지 상한. 실측 20종목/페이지(2026-09-09)라 2,000종목까지
 # 커버한다 - 무한 루프 방지용 안전판이지 정상 동작에서 닿는 값이 아니다.
 MAX_BALANCE_PAGES = 100
+MAX_CCLD_PAGES = 100
+PATH_CCLD = "/uapi/domestic-stock/v1/trading/inquire-daily-ccld"
+TR_CCLD = "VTTC0081R"
+
+
+def _execution_row(row):
+    """일별주문체결 한 줄 정규화. 빈 문자열이 섞여 오므로 숫자는 전부 방어한다.
+    sll_buy_dvsn_cd: 01=매도 · 02=매수."""
+    def _i(key):
+        try:
+            return int(row.get(key) or 0)
+        except (TypeError, ValueError):
+            return 0
+    ord_dt = (row.get("ord_dt") or "")
+    filled = _i("tot_ccld_qty")
+    return {
+        "date": f"{ord_dt[:4]}-{ord_dt[4:6]}-{ord_dt[6:8]}" if len(ord_dt) == 8 else ord_dt,
+        "symbol": row.get("pdno") or "",
+        "name": (row.get("prdt_name") or "").strip(),
+        "side": "SELL" if row.get("sll_buy_dvsn_cd") == "01" else "BUY",
+        "orderedQty": _i("ord_qty"),
+        "filledQty": filled,
+        "avgPrice": float(row["avg_prvs"]) if filled and row.get("avg_prvs") else None,
+        "amountKrw": _i("tot_ccld_amt"),
+        "pendingQty": _i("rmn_qty"),
+        "rejectedQty": _i("rjct_qty"),
+        "canceled": row.get("cncl_yn") == "Y",
+    }
 
 
 class _RateLimiter:
@@ -262,6 +290,44 @@ class KisVtsClient:
                          headers=self._headers(TR_PRICE), params=params, timeout=20)
         return float(resp["output"]["stck_prpr"])
 
+    def list_executions(self, start_yyyymmdd, end_yyyymmdd):
+        """기간 체결내역(inquire-daily-ccld, 3개월 이내). 반환: list[dict]
+        {date, symbol, name, side, orderedQty, filledQty, avgPrice, amountKrw,
+         pendingQty, rejectedQty, canceled}.
+
+        get_order_status()와 같은 엔드포인트지만 ODNO를 비워 기간 전체를 받는다.
+        ★ 연속조회를 따라간다 - 한 페이지만 읽으면 나머지가 "거래 없음"과
+        구분이 안 된다(inquire_balance와 같은 이유, 교훈57).
+
+        ★★ 이건 **계좌 단위**다. 전략별로 못 가른다 - 전략들이 같은 종목을
+        겹쳐 들고(pbr_value_v1의 29종목 중 25종목이 pbr_value_v1_combined와
+        겹친다) 주문에는 전략 표시가 없다. 하류는 이걸 전략별로 쪼개서
+        보여주면 안 된다(지어내는 것이 된다).
+        """
+        params = {
+            "CANO": self.cano, "ACNT_PRDT_CD": self.acnt_prdt_cd,
+            "INQR_STRT_DT": start_yyyymmdd, "INQR_END_DT": end_yyyymmdd,
+            "SLL_BUY_DVSN_CD": "00", "PDNO": "", "CCLD_DVSN": "00",
+            "INQR_DVSN": "00", "INQR_DVSN_3": "00", "ORD_GNO_BRNO": "",
+            "ODNO": "", "INQR_DVSN_1": "",
+            "CTX_AREA_FK100": "", "CTX_AREA_NK100": "", "EXCG_ID_DVSN_CD": "KRX",
+        }
+        rows = []
+        headers = self._headers(TR_CCLD)
+        for page in range(1, MAX_CCLD_PAGES + 1):
+            r, resp = _call("GET", BASE_URL + PATH_CCLD, f"체결내역 조회 실패(page {page})",
+                             headers=headers, params=params, timeout=20)
+            rows += [_execution_row(row) for row in (resp.get("output1") or [])]
+            if r.headers.get("tr_cont") not in ("F", "M"):
+                break
+            headers = {**self._headers(TR_CCLD), "tr_cont": "N"}
+            params = {**params, "CTX_AREA_FK100": resp.get("ctx_area_fk100", ""),
+                                "CTX_AREA_NK100": resp.get("ctx_area_nk100", "")}
+        else:
+            raise KisVtsError(f"체결내역 연속조회가 {MAX_CCLD_PAGES}페이지에서 안 끝났다 "
+                               f"(누적 {len(rows)}건) - 부분 내역을 반환하지 않는다")
+        return rows
+
     def get_order_status(self, order_no, order_date_yyyymmdd, requested_qty):
         """order_no(주문번호)로 그날의 체결 상세를 조회한다(inquire-daily-ccld,
         3개월 이내). 반환: {"fullyFilled": bool, "rejected": bool,
@@ -276,9 +342,9 @@ class KisVtsClient:
             "ODNO": order_no, "INQR_DVSN_1": "",
             "CTX_AREA_FK100": "", "CTX_AREA_NK100": "", "EXCG_ID_DVSN_CD": "KRX",
         }
-        _, resp = _call("GET", BASE_URL + "/uapi/domestic-stock/v1/trading/inquire-daily-ccld",
+        _, resp = _call("GET", BASE_URL + PATH_CCLD,
                          f"체결조회 실패(주문번호 {order_no})",
-                         headers=self._headers("VTTC0081R"), params=params, timeout=20)
+                         headers=self._headers(TR_CCLD), params=params, timeout=20)
         rows = [row for row in resp.get("output1", []) if row.get("odno") == order_no]
         if not rows:
             # 접수 직후라 아직 조회에 안 잡힐 수 있다 - 실패가 아니라 "아직 모름".

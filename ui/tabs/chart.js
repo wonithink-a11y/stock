@@ -46,7 +46,7 @@ window.TABS.chart = {
 };
 
 function renderChartTab(container, data, kospiHistory, tickerNames) {
-  const { updatedAt, historyAsOf, account, strategies } = data;
+  const { updatedAt, historyAsOf, account, strategies, trades } = data;
   const strategyEntries = Object.entries(strategies);
   const totalPositions = strategyEntries.reduce((n, [, s]) => n + (s.positions || []).length, 0);
   const openCount = strategyEntries.reduce((n, [, s]) =>
@@ -85,9 +85,12 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
   // 전량이 PENDING_ENTRY라 "이미 투자된 비중"이 아니라 "체결되면"의
   // 추정치임을 라벨로 명시한다 - 실제로 안 산 걸 산 것처럼 보이면 안 된다.
   html += '<div class="panel">';
-  html += '  <h2>자산 배분 — 전략별 예정(체결 전, 최근 종가 추정)</h2>';
+  html += '  <h2>자산 배분 — 전략별' +
+    (openCount === totalPositions ? " 보유 평가액" : " (일부 미체결 — 체결되면의 추정 포함)") + "</h2>";
   html += compositionBarsHtml(strategyEntries, account);
   html += "</div>";
+
+  html += tradesPanelHtml(trades);
 
   let selectedSymbol = null;
   let selectedPosition = null;
@@ -107,11 +110,22 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       const positions = strategy.positions || [];
       if (positions.length === 0) return;
 
+      const totals = strategyTotals(positions);
       tablesHtml += '<div class="panel" style="margin-top:12px;">';
       tablesHtml += '  <h2>' + strategyId + ' (' + positions.length + "건)</h2>";
+      tablesHtml += '  <div class="strategy-totals mono">' +
+        '<span>매수금액 <b>' + formatAccount(totals.cost) + "</b></span>" +
+        '<span>평가금액 <b>' + formatAccount(totals.value) + "</b></span>" +
+        '<span>평가손익 <b class="' + getPnlClass(totals.cost ? totals.pnl : null) + '">' +
+          (totals.cost ? formatPnl(totals.pnl) + " (" + formatPnlPct(totals.pnlPct) + ")" : "-") +
+        "</b></span>" +
+        (totals.priced < positions.length
+          ? '<span class="dim">' + (positions.length - totals.priced) + "건은 평단가 없음(미체결)</span>"
+          : "") +
+        "</div>";
       tablesHtml += '  <table>';
       tablesHtml += "    <thead><tr>";
-      tablesHtml += '      <th>종목</th><th>추이</th><th>Beta</th><th>변동성(연)</th><th>상태</th><th>수량</th><th>평단가</th><th>현재가</th><th>미실현손익(원)</th><th>미실현손익(%)</th><th>액션</th>';
+      tablesHtml += '      <th>종목</th><th>추이</th><th>Beta</th><th>변동성(연)</th><th>상태</th><th>수량</th><th>평단가</th><th>매수금액</th><th>현재가</th><th>평가금액</th><th>미실현손익(원)</th><th>미실현손익(%)</th><th>액션</th>';
       tablesHtml += "    </tr></thead><tbody>";
 
       positions.forEach((pos) => {
@@ -129,7 +143,11 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
         tablesHtml += '      <td><span class="badge ' + getStatusBadgeClass(pos.status) + '">' + pos.status + "</span></td>";
         tablesHtml += '      <td class="mono">' + (pos.quantity ?? "-") + "</td>";
         tablesHtml += '      <td class="mono">' + formatPrice(pos.avgEntryPrice) + "</td>";
+        tablesHtml += '      <td class="mono">' +
+          (pos.avgEntryPrice ? formatAccount(pos.avgEntryPrice * (pos.quantity || 0)) : "-") + "</td>";
         tablesHtml += '      <td class="mono">' + formatPrice(pos.currentPrice) + "</td>";
+        tablesHtml += '      <td class="mono">' +
+          (pos.currentPrice ? formatAccount(pos.currentPrice * (pos.quantity || 0)) : "-") + "</td>";
         tablesHtml += '      <td class="mono ' + getPnlClass(pos.unrealizedPnlKrw) + '">' + formatPnl(pos.unrealizedPnlKrw) + "</td>";
         tablesHtml += '      <td class="mono ' + getPnlClass(pos.unrealizedPnlPct) + '">' + formatPnlPct(pos.unrealizedPnlPct) + "</td>";
         tablesHtml += '      <td>';
@@ -438,16 +456,95 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       ';stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round" /></svg>';
   }
 
+  // 매매(리밸런싱) 내역 - KIS 일별주문체결 조회 그대로.
+  //
+  // ★ 계좌 단위다. 전략별로 안 쪼갠다 - 주문에 전략 표시가 없고 전략들이 같은
+  // 종목을 겹쳐 든다(pbr_value_v1 29종목 중 25종목이 combined 와 겹친다).
+  // 쪼개 보여주면 지어내는 것이 된다(절대 규칙 1).
+  function tradesPanelHtml(trades) {
+    if (!trades) return "";
+    let out = '<div class="panel" style="margin-top:12px;">';
+    out += '  <h2>매매 내역 — 계좌 전체 (' + (trades.fromDate || "?") + " ~ " + (trades.toDate || "?") + ")</h2>";
+
+    if (trades.error) {
+      out += '<div class="empty">체결내역을 못 읽었습니다: ' + trades.error +
+             '<br><span class="dim">없는 것이 아니라 못 본 것입니다 - 금액을 0으로 표시하지 않습니다.</span></div>';
+      return out + "</div>";
+    }
+
+    const pending = trades.pending || [];
+    if (pending.length) {
+      out += '<h3 style="margin:4px 0 6px">진행 중인 주문 ' + pending.length + '건 <span class="dim" style="font-weight:400;font-size:11px">— 오늘 주문만(KRX 주문은 당일 유효)</span></h3>';
+      out += '<table><thead><tr><th>주문일</th><th>종목</th><th>구분</th><th>주문</th><th>체결</th><th>미체결</th></tr></thead><tbody>';
+      pending.forEach((o) => {
+        out += "<tr>" +
+          '<td class="mono">' + o.date + "</td>" +
+          '<td style="text-align:left">' + (o.name || "") + ' <span class="mono dim" style="font-size:11px">' + o.symbol + "</span></td>" +
+          '<td><span class="badge ' + (o.side === "SELL" ? "status-submitted" : "status-pending") + '">' +
+            (o.side === "SELL" ? "매도" : "매수") + "</span></td>" +
+          '<td class="mono">' + o.orderedQty + "</td>" +
+          '<td class="mono">' + o.filledQty + "</td>" +
+          '<td class="mono warn">' + o.pendingQty + "</td>" +
+          "</tr>";
+      });
+      out += "</tbody></table>";
+    } else {
+      out += '<div class="dim" style="margin-bottom:8px">진행 중인 주문 없음 — 오늘 낸 주문 중 미체결 잔량이 남은 것이 없습니다.</div>';
+    }
+
+    const days = trades.days || [];
+    if (!days.length) {
+      out += '<div class="empty">이 기간에 체결된 매매가 없습니다.</div>';
+      return out + "</div>";
+    }
+    const sum = days.reduce((a, d) => ({ buy: a.buy + d.buyKrw, sell: a.sell + d.sellKrw }), { buy: 0, sell: 0 });
+    out += '<h3 style="margin:12px 0 6px">날짜별 체결 ' + days.length + "일</h3>";
+    out += '<table><thead><tr><th>날짜</th><th>매수금액</th><th>매수건</th><th>매도금액</th><th>매도건</th><th>순매수</th></tr></thead><tbody>';
+    days.forEach((d) => {
+      out += "<tr>" +
+        '<td class="mono">' + d.date + "</td>" +
+        '<td class="mono up">' + (d.buyKrw ? formatAccount(d.buyKrw) : "-") + "</td>" +
+        '<td class="mono dim">' + (d.buyCount || "-") + "</td>" +
+        '<td class="mono down">' + (d.sellKrw ? formatAccount(d.sellKrw) : "-") + "</td>" +
+        '<td class="mono dim">' + (d.sellCount || "-") + "</td>" +
+        '<td class="mono ' + getPnlClass(d.netKrw) + '">' + formatPnl(d.netKrw) + "</td>" +
+        "</tr>";
+    });
+    out += '</tbody><tfoot><tr><th>합계</th>' +
+      '<th class="mono up">' + formatAccount(sum.buy) + "</th><th></th>" +
+      '<th class="mono down">' + formatAccount(sum.sell) + "</th><th></th>" +
+      '<th class="mono ' + getPnlClass(sum.buy - sum.sell) + '">' + formatPnl(sum.buy - sum.sell) + "</th></tr></tfoot>";
+    out += "</table>";
+    out += '<div class="dim" style="font-size:11px;margin-top:6px">체결분만 셉니다(미체결은 위 표로 갑니다). ' +
+           '전략별로 나누지 않습니다 — 주문에 전략 표시가 없고 전략들이 같은 종목을 겹쳐 듭니다. ' +
+           'KIS 일별주문체결 조회는 3개월까지만 줍니다.</div>';
+    return out + "</div>";
+  }
+
+  // 전략 한 덩어리의 원가·평가·손익. 도넛 범례와 전략별 표 머리가 같은 것을
+  // 쓴다 - 두 벌로 계산하면 언젠가 갈리고, 갈린 쪽이 맞는지 화면으로는 못 가린다.
+  // 원가는 평단가가 있는 포지션만 센다(PENDING_ENTRY 는 아직 산 게 아니다 -
+  // 0 으로 세면 손익률 분모가 부풀어 수익률이 작아 보인다, 교훈57).
+  function strategyTotals(positions) {
+    let cost = 0, value = 0, pnl = 0, priced = 0;
+    (positions || []).forEach((p) => {
+      const qty = p.quantity || 0;
+      const lastClose = p.history && p.history.length ? p.history[p.history.length - 1].close : null;
+      const mark = p.currentPrice ?? lastClose;
+      if (mark) value += mark * qty;
+      if (p.avgEntryPrice) { cost += p.avgEntryPrice * qty; priced += 1; }
+      if (typeof p.unrealizedPnlKrw === "number") pnl += p.unrealizedPnlKrw;
+    });
+    return { cost, value, pnl, pnlPct: cost ? (pnl / cost) * 100 : null, priced };
+  }
+
   function compositionBarsHtml(strategyEntries, account) {
     const total = account?.totalValueKrw;
     if (!total) return '<div class="empty">계좌 정보 없음</div>';
     const palette = ["var(--accent)", "var(--warn)", "var(--good)", "var(--up)"];
     const rows = strategyEntries.map(([strategyId, strategy], i) => {
-      const committed = (strategy.positions || []).reduce((sum, p) => {
-        const lastClose = p.history && p.history.length ? p.history[p.history.length - 1].close : null;
-        return sum + (lastClose ? lastClose * (p.quantity || 0) : 0);
-      }, 0);
-      return { label: strategyId, value: committed, color: palette[i % palette.length] };
+      const t = strategyTotals(strategy.positions);
+      return { label: strategyId, value: t.value, totals: t, color: palette[i % palette.length] };
     });
     const committedTotal = rows.reduce((s, r) => s + r.value, 0);
     rows.push({ label: "예수금(미배분)", value: Math.max(0, total - committedTotal), color: "var(--surface-3)" });
@@ -463,10 +560,20 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
 
     const legend = rows.map((r) => {
       const pct = total ? (r.value / total) * 100 : 0;
+      const t = r.totals;
+      const pnlCell = t && t.cost
+        ? '<span class="legend-value ' + getPnlClass(t.pnl) + '" style="min-width:150px">' +
+            formatPnl(t.pnl) + " (" + formatPnlPct(t.pnlPct) + ")</span>"
+        : (t ? '<span class="legend-value dim" style="min-width:150px">미체결</span>' : "");
+      const costCell = t
+        ? '<span class="legend-value dim" style="min-width:110px">매수 ' + formatAccount(t.cost) + "</span>"
+        : "";
       return '<div class="legend-row">' +
         '<span class="legend-dot" style="background:' + r.color + '"></span>' +
         '<span class="legend-label">' + r.label + "</span>" +
+        costCell +
         '<span class="legend-value">' + pct.toFixed(1) + "% · " + formatAccount(r.value) + "</span>" +
+        pnlCell +
         "</div>";
     }).join("");
 
@@ -475,7 +582,7 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       '<div class="donut-center"><span class="stat-label">총 평가금액</span>' +
       '<span class="mono" style="font-size:15px;font-weight:700">' + formatAccount(total) + "</span></div></div>" +
       '<div class="donut-legend">' + legend +
-      '<div class="dim" style="font-size:11px;margin-top:6px">실제 계좌 예수금은 전량 미배분 상태(주문 미체결) - 전략별 비중은 지금 체결된다면의 추정치입니다.</div>' +
+      '<div class="dim" style="font-size:11px;margin-top:6px">매수 = 체결된 평단가×수량(원가) · 금액 = 현재가 평가액 · 손익 = 미실현(원가 대비). 실현손익과 수수료·세금은 빠져 있습니다.</div>' +
       "</div></div>";
   }
 

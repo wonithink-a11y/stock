@@ -161,10 +161,34 @@ def test_non_retryable_error_still_raises():
         restore()
 
 
+def test_execution_row_maps_sell_buy_code_and_survives_blank_numbers():
+    """sll_buy_dvsn_cd 01=매도 · 02=매수. 이게 뒤집히면 UI 가 산 날을 판 날로
+    말하는데 화면 말고는 대조할 데가 없다. KIS 는 숫자 칸에 빈 문자열을 섞어
+    보내므로 int() 가 그대로 터지지 않는지도 같이 본다."""
+    sell = kis_vts._execution_row({
+        "ord_dt": "20260904", "pdno": "021820", "prdt_name": " 세원정공 ",
+        "sll_buy_dvsn_cd": "01", "ord_qty": "10", "tot_ccld_qty": "10",
+        "avg_prvs": "10600", "tot_ccld_amt": "106000", "rmn_qty": "0", "rjct_qty": "0"})
+    ok("01 은 매도", sell["side"] == "SELL", sell)
+    ok("날짜에 하이픈", sell["date"] == "2026-09-04", sell)
+    ok("종목명 trim", sell["name"] == "세원정공", sell)
+    ok("체결금액", sell["amountKrw"] == 106000, sell)
+
+    buy = kis_vts._execution_row({
+        "ord_dt": "20260904", "pdno": "001080", "sll_buy_dvsn_cd": "02",
+        "ord_qty": "5", "tot_ccld_qty": "", "avg_prvs": "", "tot_ccld_amt": "",
+        "rmn_qty": "5", "rjct_qty": ""})
+    ok("02 는 매수", buy["side"] == "BUY", buy)
+    ok("빈 숫자는 0", (buy["filledQty"], buy["amountKrw"]) == (0, 0), buy)
+    ok("미체결 잔량", buy["pendingQty"] == 5, buy)
+    ok("체결 0이면 평단 None", buy["avgPrice"] is None, buy)
+
+
 if __name__ == "__main__":
     for fn in (test_follows_tr_cont_until_done, test_zero_quantity_rows_still_filtered,
                test_single_page_does_not_paginate, test_page_cap_raises_instead_of_returning_partial,
-               test_egw00201_is_retried_not_raised, test_non_retryable_error_still_raises):
+               test_egw00201_is_retried_not_raised, test_non_retryable_error_still_raises,
+               test_execution_row_maps_sell_buy_code_and_survives_blank_numbers):
         fn()
     print(f"test_kis_vts_balance_paging: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

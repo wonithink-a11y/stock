@@ -86,13 +86,78 @@ def test_strategy_rows_sum_to_account_when_books_are_consistent():
     ok("두 전략 합 == 계좌", a["quantity"] + b["quantity"] == 346, (a["quantity"], b["quantity"]))
 
 
+# --- _aggregate_trades (2026-09-11 신설) -------------------------------------
+# UI 의 "리밸런싱 내역"이 읽는 날짜별 매수·매도 합계. 이게 틀리면 화면이
+# 조용히 틀린 금액을 말한다 - 원본이 계좌 체결내역이라 대조할 데가 화면뿐이다.
+
+def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=False):
+    return {"date": date, "symbol": symbol, "name": symbol, "side": side,
+            "orderedQty": ordered if ordered is not None else filled + pending,
+            "filledQty": filled, "avgPrice": 100.0, "amountKrw": amount,
+            "pendingQty": pending, "rejectedQty": 0, "canceled": canceled}
+
+
+def test_aggregate_trades_sums_buy_and_sell_per_day():
+    out = feed._aggregate_trades([
+        _exec("2026-09-04", "021820", "BUY", 10, 1_000),
+        _exec("2026-09-04", "001080", "BUY", 5, 500),
+        _exec("2026-09-04", "058430", "SELL", 3, 300),
+        _exec("2026-09-07", "013580", "SELL", 7, 700),
+    ])
+    days = {d["date"]: d for d in out["days"]}
+    ok("매수 합", days["2026-09-04"]["buyKrw"] == 1_500, days["2026-09-04"])
+    ok("매도 합", days["2026-09-04"]["sellKrw"] == 300, days["2026-09-04"])
+    ok("건수", (days["2026-09-04"]["buyCount"], days["2026-09-04"]["sellCount"]) == (2, 1), days["2026-09-04"])
+    ok("순매수 = 매수-매도", days["2026-09-04"]["netKrw"] == 1_200, days["2026-09-04"])
+    ok("매도만 있는 날", days["2026-09-07"]["netKrw"] == -700, days["2026-09-07"])
+    ok("최신 날짜가 먼저", [d["date"] for d in out["days"]] == ["2026-09-07", "2026-09-04"], out["days"])
+
+
+def test_aggregate_trades_excludes_unfilled_from_amounts_but_lists_them_pending():
+    """미체결 주문을 금액에 넣으면 '안 산 걸 샀다'가 된다(절대 규칙 1).
+    그렇다고 버리면 '지금 매매가 도는 중'을 못 본다 - 다른 칸으로 보낸다."""
+    out = feed._aggregate_trades([
+        _exec("2026-09-11", "021820", "BUY", 0, 0, pending=10),
+        _exec("2026-09-11", "001080", "BUY", 4, 400, pending=6),
+    ])
+    ok("체결분만 금액에", out["days"][0]["buyKrw"] == 400, out["days"])
+    ok("부분체결도 1건", out["days"][0]["buyCount"] == 1, out["days"])
+    ok("미체결 2건이 pending 에", len(out["pending"]) == 2, out["pending"])
+    ok("부분체결은 양쪽에 다 뜬다",
+       {p["symbol"] for p in out["pending"]} == {"021820", "001080"}, out["pending"])
+
+
+def test_aggregate_trades_pending_is_today_only():
+    """KRX 주문은 당일 유효다. 어제의 미체결은 장 종료로 실효됐는데 응답의
+    rmn_qty 는 그대로 남는다 - 날짜로 안 자르면 죽은 주문이 "진행 중"에
+    영원히 쌓인다. 취소된 주문도 진행 중이 아니다."""
+    rows = [
+        _exec("2026-09-11", "021820", "BUY", 0, 0, pending=10),
+        _exec("2026-09-04", "001080", "BUY", 0, 0, pending=42),   # 어제 미체결 - 실효
+        _exec("2026-09-11", "058430", "SELL", 0, 0, pending=5, canceled=True),
+    ]
+    out = feed._aggregate_trades(rows, today="2026-09-11")
+    ok("오늘 것만 진행 중", [p["symbol"] for p in out["pending"]] == ["021820"], out["pending"])
+    ok("today 없으면 안 자른다", len(feed._aggregate_trades(rows)["pending"]) == 2,
+       feed._aggregate_trades(rows)["pending"])
+
+
+def test_aggregate_trades_empty_is_empty_not_error():
+    out = feed._aggregate_trades([])
+    ok("빈 입력", out == {"days": [], "pending": []}, out)
+
+
 if __name__ == "__main__":
     for fn in (test_open_uses_strategy_book_not_account_quantity,
                test_mid_entry_uses_filled_quantity_not_target,
                test_fresh_pending_entry_holds_nothing,
                test_not_in_account_is_left_unmarked,
                test_falls_back_to_account_avg_when_book_has_no_entry_price,
-               test_strategy_rows_sum_to_account_when_books_are_consistent):
+               test_strategy_rows_sum_to_account_when_books_are_consistent,
+               test_aggregate_trades_sums_buy_and_sell_per_day,
+               test_aggregate_trades_excludes_unfilled_from_amounts_but_lists_them_pending,
+               test_aggregate_trades_pending_is_today_only,
+               test_aggregate_trades_empty_is_empty_not_error):
         fn()
     print(f"test_build_ui_feed: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)
