@@ -62,44 +62,88 @@ def _price_history(repo_root, symbols):
 
 
 
-def _aggregate_trades(rows, today=None):
-    """체결내역 원시행 -> {"days": [...], "pending": [...]}.
+def _blank_day(date_str):
+    return {"date": date_str, "buyKrw": 0, "sellKrw": 0, "buyCount": 0, "sellCount": 0}
+
+
+def _add_fill(day, row):
+    if row["side"] == "SELL":
+        day["sellKrw"] += row["amountKrw"]
+        day["sellCount"] += 1
+    else:
+        day["buyKrw"] += row["amountKrw"]
+        day["buyCount"] += 1
+
+
+def _finish_days(by_date):
+    days = sorted(by_date.values(), key=lambda d: d["date"], reverse=True)
+    for day in days:
+        day["netKrw"] = day["buyKrw"] - day["sellKrw"]
+    return days
+
+
+def _aggregate_trades(rows, today=None, order_owner=None):
+    """체결내역 원시행 -> {"days", "byStrategy", "pending", "unattributed"}.
 
     days 는 날짜별 매수·매도 합계다 - "며칠에 얼마 팔고 얼마 샀다"가 UI 가
-    묻는 전부이고, 종목 단위는 아래 pending(진행 중)에만 필요하다.
-    pending 은 미체결 잔량이 남은 주문 - "지금 매매가 돌고 있나"의 답이다.
+    묻는 전부이고, 종목 단위는 pending(진행 중)에만 필요하다.
+
+    ★ 전략 귀속은 order_owner(주문번호 -> strategy_id)로만 한다. 계좌 응답에는
+    전략이 없고, 그 매핑은 주문을 내는 순간에만 존재했다가 체결 확인과 동시에
+    사라진다 - 그래서 엔진이 제출 시점에 원장으로 남긴다
+    (positionStore.record_order, 교훈75). **추측으로 메우지 않는다**: 원장에
+    없는 주문(원장 도입 이전 것)은 전략에 안 넣고 unattributed 로 따로 센다.
+    같은 종목을 여러 전략이 겹쳐 들기 때문에(pbr_value_v1 29종목 중 25종목이
+    combined 와 겹친다) 종목·수량으로 되짚는 건 짐작이지 기록이 아니다.
 
     ★ pending 은 **today 인 주문만** 센다. KRX 주문은 당일 유효라 어제의
     미체결은 장 종료로 실효됐는데, 조회 응답의 rmn_qty 는 그대로 남는다 -
     날짜로 안 자르면 "진행 중인 주문"에 죽은 주문이 영원히 쌓인다.
     today 가 None 이면 자르지 않는다(테스트·과거 분석용).
 
-    ★ 전략별로 안 쪼갠다. 주문에 전략 표시가 없고 전략들이 같은 종목을
-    겹쳐 들어서, 쪼개면 지어내는 것이 된다(kisVtsClient.list_executions 주석).
     순수 함수라 네트워크 없이 테스트된다.
     """
+    order_owner = order_owner or {}
     by_date = {}
+    by_strategy = {}
     pending = []
+    unattributed = {"buyKrw": 0, "sellKrw": 0, "count": 0}
     for r in rows:
+        owner = order_owner.get(str(r.get("orderNo") or ""))
         if r["pendingQty"] > 0 and not r["canceled"] and (today is None or r["date"] == today):
-            pending.append({k: r[k] for k in
-                            ("date", "symbol", "name", "side", "orderedQty",
-                             "filledQty", "pendingQty")})
+            entry = {k: r[k] for k in
+                     ("date", "symbol", "name", "side", "orderedQty",
+                      "filledQty", "pendingQty")}
+            entry["strategy"] = owner
+            pending.append(entry)
         if r["filledQty"] <= 0:
             continue
-        day = by_date.setdefault(r["date"], {"date": r["date"], "buyKrw": 0, "sellKrw": 0,
-                                             "buyCount": 0, "sellCount": 0})
-        if r["side"] == "SELL":
-            day["sellKrw"] += r["amountKrw"]
-            day["sellCount"] += 1
+        _add_fill(by_date.setdefault(r["date"], _blank_day(r["date"])), r)
+        if owner:
+            days = by_strategy.setdefault(owner, {})
+            _add_fill(days.setdefault(r["date"], _blank_day(r["date"])), r)
         else:
-            day["buyKrw"] += r["amountKrw"]
-            day["buyCount"] += 1
-    days = sorted(by_date.values(), key=lambda d: d["date"], reverse=True)
-    for day in days:
-        day["netKrw"] = day["buyKrw"] - day["sellKrw"]
+            unattributed["count"] += 1
+            if r["side"] == "SELL":
+                unattributed["sellKrw"] += r["amountKrw"]
+            else:
+                unattributed["buyKrw"] += r["amountKrw"]
     pending.sort(key=lambda p: (p["date"], p["symbol"]), reverse=True)
-    return {"days": days, "pending": pending}
+    return {"days": _finish_days(by_date),
+            "byStrategy": {k: _finish_days(v) for k, v in by_strategy.items()},
+            "pending": pending,
+            "unattributed": unattributed}
+
+
+def _order_owner_map(repo_root, strategies):
+    """주문번호 -> strategy_id. 원장은 전략마다 따로 있고 주문번호는 계좌
+    전역이라 한 장으로 합친다. 충돌은 구조적으로 없다(한 주문은 한 전략이 냈다)."""
+    from engine.live import positionStore
+    owner = {}
+    for strategy_id in strategies:
+        for order_no in positionStore.load_orders(repo_root, strategy_id):
+            owner[str(order_no)] = strategy_id
+    return owner
 
 
 def _trades_block(client):
@@ -109,7 +153,8 @@ def _trades_block(client):
     today = datetime.now(KST).date()
     start = today - timedelta(days=TRADE_LOOKBACK_DAYS)
     block = {"fromDate": start.isoformat(), "toDate": today.isoformat(),
-             "days": [], "pending": [], "error": None}
+             "days": [], "byStrategy": {}, "pending": [],
+             "unattributed": {"buyKrw": 0, "sellKrw": 0, "count": 0}, "error": None}
     if client is None:
         block["error"] = "KIS 클라이언트를 만들지 못했다(.env 누락)"
         return block
@@ -119,8 +164,10 @@ def _trades_block(client):
         print(f"[경고] KIS 체결내역 조회 실패, 매매 내역 없이 계속: {e}")
         block["error"] = str(e)
         return block
-    block.update(_aggregate_trades(rows, today=today.isoformat()))
-    print(f"체결내역: {len(block['days'])}일 · 진행 중 주문 {len(block['pending'])}건")
+    owner = _order_owner_map(REPO_ROOT, LIVE_STRATEGIES)
+    block.update(_aggregate_trades(rows, today=today.isoformat(), order_owner=owner))
+    print(f"체결내역: {len(block['days'])}일 · 진행 중 주문 {len(block['pending'])}건 · "
+          f"전략귀속 {len(block['byStrategy'])}전략 · 미귀속 {block['unattributed']['count']}건")
     return block
 
 

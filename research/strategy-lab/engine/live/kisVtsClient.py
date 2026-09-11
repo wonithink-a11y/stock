@@ -57,6 +57,7 @@ def _execution_row(row):
     ord_dt = (row.get("ord_dt") or "")
     filled = _i("tot_ccld_qty")
     return {
+        "orderNo": (row.get("odno") or "").strip(),
         "date": f"{ord_dt[:4]}-{ord_dt[4:6]}-{ord_dt[6:8]}" if len(ord_dt) == 8 else ord_dt,
         "symbol": row.get("pdno") or "",
         "name": (row.get("prdt_name") or "").strip(),
@@ -292,8 +293,11 @@ class KisVtsClient:
 
     def list_executions(self, start_yyyymmdd, end_yyyymmdd):
         """기간 체결내역(inquire-daily-ccld, 3개월 이내). 반환: list[dict]
-        {date, symbol, name, side, orderedQty, filledQty, avgPrice, amountKrw,
-         pendingQty, rejectedQty, canceled}.
+        {orderNo, date, symbol, name, side, orderedQty, filledQty, avgPrice,
+         amountKrw, pendingQty, rejectedQty, canceled}.
+
+        orderNo 는 주문 원장(positionStore.load_orders)과 조인해 전략을 되찾는
+        키다 - 계좌 응답 자체에는 전략이 없다.
 
         get_order_status()와 같은 엔드포인트지만 ODNO를 비워 기간 전체를 받는다.
         ★ 연속조회를 따라간다 - 한 페이지만 읽으면 나머지가 "거래 없음"과

@@ -80,6 +80,11 @@ def ok(name, cond, detail=""):
 
 def _reset():
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
+    # 주문 원장도 비운다 - 안 그러면 테스트끼리 원장이 누적돼 다음 테스트가
+    # 앞 테스트의 주문번호를 자기 것으로 본다.
+    ledger = positionStore._orders_path(REPO_ROOT, STRATEGY_ID)
+    if ledger.exists():
+        ledger.unlink()
 
 
 def _seed(state):
@@ -424,6 +429,76 @@ def test_fill_without_signal_hold_sessions_uses_policy_default():
     _reset()
 
 
+def test_submit_records_order_ledger_for_strategy_attribution():
+    """★ 2026-09-11. 전략 귀속은 주문을 내는 순간에만 존재했다 - order_no 는
+    체결 확인과 동시에 state 에서 지워지고 매도가 체결되면 포지션 자체가
+    삭제된다. 그래서 "어느 전략이 언제 얼마 샀나"를 나중에 물으면 답할 데가
+    없었다(교훈75). 제출 시점에 원장을 남긴다.
+
+    이 테스트가 깨지는 방식: record_order 호출을 빼면 원장이 비고, UI 의
+    전략별 매매 내역이 통째로 '미귀속'으로 떨어진다(조용히 - 계좌 합계는
+    그대로 맞으므로 화면만 보면 모른다)."""
+    _reset()
+    _seed({"TEST1": {"status": "PENDING_ENTRY", "quantity": 5, "intent_date": "2026-08-20"}})
+    now = datetime(2026, 8, 21, 9, 5, tzinfo=KST)
+    poll_once(REPO_ROOT, FakeRule(), FakeBroker(), log=lambda *a: None,
+              enable_live_orders=True, now=now)
+    ledger = positionStore.load_orders(REPO_ROOT, STRATEGY_ID)
+    ok("매수 주문번호가 원장에", "ORD1" in ledger, ledger)
+    ok("원장에 날짜·종목·side·수량",
+       ledger.get("ORD1") == {"date": "2026-08-21", "symbol": "TEST1",
+                               "side": "BUY", "quantity": 5, "reason": "ENTRY"}, ledger)
+
+    # 매도도 같은 자리에 남는다 - 체결되면 포지션이 삭제되므로 더 급하다.
+    _reset()
+    _seed({"TEST1": {"status": "OPEN", "quantity": 5, "entry_price": 200.0,
+                      "entry_date": "2026-08-20", "stop_price": 190.0, "target_price": 220.0,
+                      "max_holding_sessions": 3, "sessions_held": 0,
+                      "lastCountedDate": "2026-08-20"}})
+    poll_once(REPO_ROOT, FakeRule(), FakeBroker(price=185.0), log=lambda *a: None,
+              enable_live_orders=True, now=now)
+    ledger = positionStore.load_orders(REPO_ROOT, STRATEGY_ID)
+    sells = [v for v in ledger.values() if v["side"] == "SELL"]
+    ok("매도도 원장에 남는다", len(sells) == 1, ledger)
+    ok("매도 사유까지", sells and sells[0]["reason"] == "STOP", sells)
+    _reset()
+
+
+def test_order_ledger_write_failure_does_not_break_trading():
+    """원장은 편의다. 쓰기가 실패해도 주문은 나가고 상태는 저장돼야 한다 -
+    기록하려던 편의가 매매를 깨면 안 된다.
+
+    실패를 진짜로 만든다(함수를 통째로 바꿔치기하면 record_order 안의 방어를
+    건너뛰어 '있지도 않은 실패'를 시험하게 된다, 교훈72): 원장 경로의 부모가
+    파일이면 mkdir 이 실제로 터진다."""
+    _reset()
+    _seed({"TEST1": {"status": "PENDING_ENTRY", "quantity": 5, "intent_date": "2026-08-20"}})
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as tmp:
+        blocker = Path(tmp) / "notadir"
+        blocker.write_text("", encoding="utf-8")      # 디렉터리 자리에 파일
+        orig = positionStore._orders_path
+        positionStore._orders_path = lambda repo_root, sid: blocker / f"{sid}_orders.json"
+        try:
+            ok("원장 쓰기 실패는 예외가 아니라 False",
+               positionStore.record_order(REPO_ROOT, STRATEGY_ID, "X",
+                                           {"date": "2026-08-21", "symbol": "T", "side": "BUY",
+                                            "quantity": 1, "reason": "ENTRY"}) is False)
+            broker = FakeBroker()
+            events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None,
+                                enable_live_orders=True,
+                                now=datetime(2026, 8, 21, 9, 5, tzinfo=KST))
+            ok("원장이 못 써져도 주문은 나갔다", broker.buy_calls == 1, broker.buy_calls)
+            ok("원장이 못 써져도 상태는 저장됐다",
+               positionStore.load(REPO_ROOT, STRATEGY_ID)["TEST1"]["status"] == "ENTRY_SUBMITTED",
+               positionStore.load(REPO_ROOT, STRATEGY_ID))
+            ok("이벤트도 그대로", [e["type"] for e in events] == ["ENTRY_SUBMITTED"], events)
+        finally:
+            positionStore._orders_path = orig
+    _reset()
+
+
 def main():
     test_disabled_flag_never_touches_broker()
     test_pending_entry_submits_once_then_waits_for_fill()
@@ -445,6 +520,8 @@ def main():
     test_fresh_entry_still_starts_its_clock_at_zero()
     test_fill_uses_signal_hold_sessions_over_policy_default()
     test_fill_without_signal_hold_sessions_uses_policy_default()
+    test_submit_records_order_ledger_for_strategy_attribution()
+    test_order_ledger_write_failure_does_not_break_trading()
     positionStore.save(REPO_ROOT, STRATEGY_ID, {})
     print(f"\n{'='*40}\npassed {passed} · failed {failed}")
     if failed:

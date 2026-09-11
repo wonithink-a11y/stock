@@ -43,7 +43,7 @@ def load_module(name):
 RECENT_WINDOW_DAYS = 14
 
 
-def latest_key(transport, strategy, now=None):
+def latest_key(transport, strategy, now=None, prefix_root="paper-state"):
     """전략별 최신 객체 키. **prefix 전체를 훑지 않는다.**
 
     키가 paper-state/{전략}/{YYYYmmddTHHMMSS}.json 이라 사전순 == 시간순이고,
@@ -56,7 +56,7 @@ def latest_key(transport, strategy, now=None):
     멈춰 있었을 수 있으므로 전체 조회로 한 번 더 확인한 뒤에 None을 낸다.
     느린 경로지만 그때는 이미 비정상이라 비용이 문제가 아니다.
     """
-    prefix = f"paper-state/{strategy}/"
+    prefix = f"{prefix_root}/{strategy}/"
     cutoff = ((now or datetime.now(KST)) - timedelta(days=RECENT_WINDOW_DAYS)).strftime("%Y%m%d")
     for start in (prefix + cutoff, None):
         keys = sorted(transport.list_names(prefix=prefix, start=start))
@@ -65,10 +65,11 @@ def latest_key(transport, strategy, now=None):
     return None
 
 
-def sync_one(transport, strategy, out_dir, out=print, now=None):
-    key = latest_key(transport, strategy, now=now)
+def sync_one(transport, strategy, out_dir, out=print, now=None,
+              suffix="positions", prefix_root="paper-state"):
+    key = latest_key(transport, strategy, now=now, prefix_root=prefix_root)
     if key is None:
-        out(f"  {strategy}  없음 - OCI에 올라온 상태 없음(아직 신호가 안 났거나 relay 전)")
+        out(f"  {strategy}  없음 - OCI에 올라온 {suffix} 없음(아직 신호가 안 났거나 relay 전)")
         return False
     raw = transport.get(key)
     try:
@@ -76,7 +77,7 @@ def sync_one(transport, strategy, out_dir, out=print, now=None):
     except (ValueError, UnicodeDecodeError) as e:
         out(f"  {strategy}  거부 - {key} 파싱 실패: {e}")
         return False
-    dest = Path(out_dir) / f"{strategy}_positions.json"
+    dest = Path(out_dir) / f"{strategy}_{suffix}.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(raw)
     out(f"  {strategy}  받음  {key}")
@@ -84,9 +85,18 @@ def sync_one(transport, strategy, out_dir, out=print, now=None):
 
 
 def run(transport, repo_root, out=print, now=None):
-    """now: 테스트가 '최근 창'을 고정하려고 넣는다(None이면 현재 KST)."""
+    """now: 테스트가 '최근 창'을 고정하려고 넣는다(None이면 현재 KST).
+
+    반환은 **positionStore 것만** 담는다 - 주문 원장은 주문이 한 번이라도
+    나간 뒤에야 생겨서 "없음"이 정상이고, 그걸 같은 표에 섞으면 호출부가
+    정상을 실패로 읽는다. 원장은 있으면 받고 없으면 넘어간다(귀속만 빈다).
+    """
     out_dir = Path(repo_root) / "research/strategy-lab/data/paper"
-    return {s: sync_one(transport, s, out_dir, out=out, now=now) for s in STRATEGIES}
+    result = {s: sync_one(transport, s, out_dir, out=out, now=now) for s in STRATEGIES}
+    for s in STRATEGIES:
+        sync_one(transport, s, out_dir, out=out, now=now,
+                  suffix="orders", prefix_root="paper-orders")
+    return result
 
 
 def main():

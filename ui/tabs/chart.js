@@ -456,15 +456,17 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       ';stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round" /></svg>';
   }
 
-  // 매매(리밸런싱) 내역 - KIS 일별주문체결 조회 그대로.
+  // 매매(리밸런싱) 내역 - 금액·체결가는 KIS 일별주문체결 조회가 정본이고,
+  // 전략 귀속은 엔진이 주문을 낼 때 남긴 주문번호->전략 원장으로 붙인다
+  // (positionStore.record_order). 계좌 응답 자체에는 전략이 없다.
   //
-  // ★ 계좌 단위다. 전략별로 안 쪼갠다 - 주문에 전략 표시가 없고 전략들이 같은
-  // 종목을 겹쳐 든다(pbr_value_v1 29종목 중 25종목이 combined 와 겹친다).
-  // 쪼개 보여주면 지어내는 것이 된다(절대 규칙 1).
+  // 원장에 없는 주문(원장 도입 이전)은 날짜별 잔차로 "기록없음" 행이 된다 -
+  // 뺄셈이라 짐작이 아니다. 종목·수량으로 되짚어 어느 전략에 밀어 넣지
+  // 않는다(같은 종목을 여러 전략이 겹쳐 들어서 그건 짐작이 된다, 절대 규칙 1).
   function tradesPanelHtml(trades) {
     if (!trades) return "";
     let out = '<div class="panel" style="margin-top:12px;">';
-    out += '  <h2>매매 내역 — 계좌 전체 (' + (trades.fromDate || "?") + " ~ " + (trades.toDate || "?") + ")</h2>";
+    out += '  <h2>매매 내역 — 리밸런싱 (' + (trades.fromDate || "?") + " ~ " + (trades.toDate || "?") + ")</h2>";
 
     if (trades.error) {
       out += '<div class="empty">체결내역을 못 읽었습니다: ' + trades.error +
@@ -475,10 +477,11 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
     const pending = trades.pending || [];
     if (pending.length) {
       out += '<h3 style="margin:4px 0 6px">진행 중인 주문 ' + pending.length + '건 <span class="dim" style="font-weight:400;font-size:11px">— 오늘 주문만(KRX 주문은 당일 유효)</span></h3>';
-      out += '<table><thead><tr><th>주문일</th><th>종목</th><th>구분</th><th>주문</th><th>체결</th><th>미체결</th></tr></thead><tbody>';
+      out += '<table><thead><tr><th>주문일</th><th>전략</th><th>종목</th><th>구분</th><th>주문</th><th>체결</th><th>미체결</th></tr></thead><tbody>';
       pending.forEach((o) => {
         out += "<tr>" +
           '<td class="mono">' + o.date + "</td>" +
+          '<td class="mono' + (o.strategy ? '">' + o.strategy : ' dim">기록없음') + "</td>" +
           '<td style="text-align:left">' + (o.name || "") + ' <span class="mono dim" style="font-size:11px">' + o.symbol + "</span></td>" +
           '<td><span class="badge ' + (o.side === "SELL" ? "status-submitted" : "status-pending") + '">' +
             (o.side === "SELL" ? "매도" : "매수") + "</span></td>" +
@@ -498,26 +501,55 @@ function renderChartTab(container, data, kospiHistory, tickerNames) {
       return out + "</div>";
     }
     const sum = days.reduce((a, d) => ({ buy: a.buy + d.buyKrw, sell: a.sell + d.sellKrw }), { buy: 0, sell: 0 });
-    out += '<h3 style="margin:12px 0 6px">날짜별 체결 ' + days.length + "일</h3>";
-    out += '<table><thead><tr><th>날짜</th><th>매수금액</th><th>매수건</th><th>매도금액</th><th>매도건</th><th>순매수</th></tr></thead><tbody>';
-    days.forEach((d) => {
-      out += "<tr>" +
-        '<td class="mono">' + d.date + "</td>" +
-        '<td class="mono up">' + (d.buyKrw ? formatAccount(d.buyKrw) : "-") + "</td>" +
-        '<td class="mono dim">' + (d.buyCount || "-") + "</td>" +
-        '<td class="mono down">' + (d.sellKrw ? formatAccount(d.sellKrw) : "-") + "</td>" +
-        '<td class="mono dim">' + (d.sellCount || "-") + "</td>" +
-        '<td class="mono ' + getPnlClass(d.netKrw) + '">' + formatPnl(d.netKrw) + "</td>" +
-        "</tr>";
+
+    // 날짜 -> 전략 -> 그날 합계. 전략 귀속은 주문 원장(주문번호->전략)으로만
+    // 하고, 원장에 없는 주문은 날짜별 잔차를 그대로 "기록없음"으로 낸다 -
+    // 종목·수량으로 되짚어 어느 전략에 밀어 넣지 않는다(그건 짐작이다).
+    const byStrategy = trades.byStrategy || {};
+    const perDate = {};
+    Object.entries(byStrategy).forEach(([sid, sdays]) => {
+      (sdays || []).forEach((d) => { (perDate[d.date] = perDate[d.date] || []).push({ sid, d }); });
     });
-    out += '</tbody><tfoot><tr><th>합계</th>' +
+
+    out += '<h3 style="margin:12px 0 6px">날짜별 체결 ' + days.length + "일</h3>";
+    out += '<table><thead><tr><th>날짜</th><th>전략</th><th>매수금액</th><th>매수건</th><th>매도금액</th><th>매도건</th><th>순매수</th></tr></thead><tbody>';
+    const dayRow = (dateCell, label, labelClass, d) =>
+      "<tr>" +
+      '<td class="mono">' + dateCell + "</td>" +
+      '<td class="mono ' + labelClass + '">' + label + "</td>" +
+      '<td class="mono up">' + (d.buyKrw ? formatAccount(d.buyKrw) : "-") + "</td>" +
+      '<td class="mono dim">' + (d.buyCount || "-") + "</td>" +
+      '<td class="mono down">' + (d.sellKrw ? formatAccount(d.sellKrw) : "-") + "</td>" +
+      '<td class="mono dim">' + (d.sellCount || "-") + "</td>" +
+      '<td class="mono ' + getPnlClass(d.netKrw) + '">' + formatPnl(d.netKrw) + "</td>" +
+      "</tr>";
+    days.forEach((d) => {
+      const parts = perDate[d.date] || [];
+      parts.forEach(({ sid, d: sd }, i) => { out += dayRow(i === 0 ? d.date : "", sid, "", sd); });
+      // 잔차 = 계좌 - 귀속된 것. 뺄셈이라 짐작이 아니다.
+      const rest = {
+        buyKrw: d.buyKrw - parts.reduce((a, p) => a + p.d.buyKrw, 0),
+        sellKrw: d.sellKrw - parts.reduce((a, p) => a + p.d.sellKrw, 0),
+        buyCount: d.buyCount - parts.reduce((a, p) => a + p.d.buyCount, 0),
+        sellCount: d.sellCount - parts.reduce((a, p) => a + p.d.sellCount, 0),
+      };
+      rest.netKrw = rest.buyKrw - rest.sellKrw;
+      if (rest.buyKrw || rest.sellKrw) {
+        out += dayRow(parts.length ? "" : d.date, "기록없음", "dim", rest);
+      }
+    });
+    out += '</tbody><tfoot><tr><th>합계</th><th class="dim">계좌 전체</th>' +
       '<th class="mono up">' + formatAccount(sum.buy) + "</th><th></th>" +
       '<th class="mono down">' + formatAccount(sum.sell) + "</th><th></th>" +
       '<th class="mono ' + getPnlClass(sum.buy - sum.sell) + '">' + formatPnl(sum.buy - sum.sell) + "</th></tr></tfoot>";
     out += "</table>";
+    const un = trades.unattributed || {};
     out += '<div class="dim" style="font-size:11px;margin-top:6px">체결분만 셉니다(미체결은 위 표로 갑니다). ' +
-           '전략별로 나누지 않습니다 — 주문에 전략 표시가 없고 전략들이 같은 종목을 겹쳐 듭니다. ' +
-           'KIS 일별주문체결 조회는 3개월까지만 줍니다.</div>';
+           '전략 귀속은 엔진이 주문을 낼 때 남긴 <b>주문번호→전략</b> 원장으로만 합니다 — ' +
+           '계좌 응답에는 전략이 없고, 종목·수량으로 되짚는 건 겹쳐 든 종목에서 짐작이 됩니다.' +
+           (un.count ? ' <b>기록없음 ' + un.count + '건</b>(매수 ' + formatAccount(un.buyKrw) +
+                       ' · 매도 ' + formatAccount(un.sellKrw) + ')은 원장 이전 주문이라 되살릴 수 없습니다.' : "") +
+           ' KIS 일별주문체결 조회는 3개월까지만 줍니다.</div>';
     return out + "</div>";
   }
 

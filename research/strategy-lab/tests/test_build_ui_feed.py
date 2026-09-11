@@ -90,8 +90,8 @@ def test_strategy_rows_sum_to_account_when_books_are_consistent():
 # UI 의 "리밸런싱 내역"이 읽는 날짜별 매수·매도 합계. 이게 틀리면 화면이
 # 조용히 틀린 금액을 말한다 - 원본이 계좌 체결내역이라 대조할 데가 화면뿐이다.
 
-def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=False):
-    return {"date": date, "symbol": symbol, "name": symbol, "side": side,
+def _exec(date, symbol, side, filled, amount, pending=0, ordered=None, canceled=False, order_no=""):
+    return {"orderNo": order_no, "date": date, "symbol": symbol, "name": symbol, "side": side,
             "orderedQty": ordered if ordered is not None else filled + pending,
             "filledQty": filled, "avgPrice": 100.0, "amountKrw": amount,
             "pendingQty": pending, "rejectedQty": 0, "canceled": canceled}
@@ -144,7 +144,54 @@ def test_aggregate_trades_pending_is_today_only():
 
 def test_aggregate_trades_empty_is_empty_not_error():
     out = feed._aggregate_trades([])
-    ok("빈 입력", out == {"days": [], "pending": []}, out)
+    ok("빈 입력", out["days"] == [] and out["pending"] == [], out)
+    ok("빈 입력 - 전략도 빔", out["byStrategy"] == {}, out)
+    ok("빈 입력 - 미귀속 0", out["unattributed"]["count"] == 0, out)
+
+
+def test_aggregate_trades_splits_by_strategy_via_order_ledger():
+    """같은 종목을 두 전략이 같은 날 사도 주문번호가 다르므로 갈린다 -
+    이게 원장을 넣은 이유다. 수량·종목으로 되짚는 짐작과 다르다."""
+    rows = [
+        _exec("2026-09-04", "021820", "BUY", 330, 3_400_000, order_no="A1"),
+        _exec("2026-09-04", "021820", "BUY", 16, 165_000, order_no="A2"),
+        _exec("2026-09-04", "058450", "SELL", 100, 140_000, order_no="A3"),
+    ]
+    owner = {"A1": "pbr_value_v1", "A2": "pbr_value_v1_combined", "A3": "pbr_value_v1"}
+    out = feed._aggregate_trades(rows, order_owner=owner)
+    a = out["byStrategy"]["pbr_value_v1"][0]
+    b = out["byStrategy"]["pbr_value_v1_combined"][0]
+    ok("전략A 매수", a["buyKrw"] == 3_400_000, a)
+    ok("전략A 매도", a["sellKrw"] == 140_000, a)
+    ok("전략B 매수", b["buyKrw"] == 165_000, b)
+    ok("계좌 합계는 그대로", out["days"][0]["buyKrw"] == 3_565_000, out["days"])
+    ok("전부 귀속되면 미귀속 0", out["unattributed"]["count"] == 0, out["unattributed"])
+
+
+def test_aggregate_trades_unknown_order_is_unattributed_not_guessed():
+    """원장에 없는 주문(원장 도입 이전 것)을 종목·수량으로 어느 전략에 밀어
+    넣으면 지어내는 것이 된다(절대 규칙 1). 따로 세서 화면이 말하게 한다."""
+    rows = [
+        _exec("2026-08-03", "021820", "BUY", 330, 3_400_000, order_no="OLD"),
+        _exec("2026-09-04", "001080", "BUY", 42, 165_000, order_no="NEW"),
+    ]
+    out = feed._aggregate_trades(rows, order_owner={"NEW": "pbr_value_v1"})
+    ok("모르는 주문은 전략에 안 들어간다",
+       list(out["byStrategy"]) == ["pbr_value_v1"], out["byStrategy"])
+    ok("귀속된 전략 금액은 그것만",
+       out["byStrategy"]["pbr_value_v1"][0]["buyKrw"] == 165_000, out["byStrategy"])
+    ok("미귀속으로 센다", out["unattributed"] == {"buyKrw": 3_400_000, "sellKrw": 0, "count": 1},
+       out["unattributed"])
+    ok("계좌 합계에는 둘 다 들어간다",
+       sum(d["buyKrw"] for d in out["days"]) == 3_565_000, out["days"])
+
+
+def test_aggregate_trades_pending_carries_strategy():
+    rows = [_exec("2026-09-11", "021820", "BUY", 0, 0, pending=10, order_no="P1")]
+    out = feed._aggregate_trades(rows, today="2026-09-11", order_owner={"P1": "lowmom60_v1"})
+    ok("진행 중 주문도 전략을 단다", out["pending"][0]["strategy"] == "lowmom60_v1", out["pending"])
+    out2 = feed._aggregate_trades(rows, today="2026-09-11")
+    ok("원장 없으면 None - 지어내지 않는다", out2["pending"][0]["strategy"] is None, out2["pending"])
 
 
 if __name__ == "__main__":
@@ -157,7 +204,10 @@ if __name__ == "__main__":
                test_aggregate_trades_sums_buy_and_sell_per_day,
                test_aggregate_trades_excludes_unfilled_from_amounts_but_lists_them_pending,
                test_aggregate_trades_pending_is_today_only,
-               test_aggregate_trades_empty_is_empty_not_error):
+               test_aggregate_trades_empty_is_empty_not_error,
+               test_aggregate_trades_splits_by_strategy_via_order_ledger,
+               test_aggregate_trades_unknown_order_is_unattributed_not_guessed,
+               test_aggregate_trades_pending_carries_strategy):
         fn()
     print(f"test_build_ui_feed: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

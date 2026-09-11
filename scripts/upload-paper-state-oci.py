@@ -38,23 +38,34 @@ def load_module(name):
     return m
 
 
-def upload_state(transport, strategy, state_path, now=None, out=print):
+def upload_state(transport, strategy, state_path, now=None, out=print, prefix="paper-state"):
     """state_path가 없으면(아직 신호가 한 번도 안 났다) 조용히 건너뛴다 -
-    빈 상태를 굳이 올릴 이유가 없다."""
+    빈 상태를 굳이 올릴 이유가 없다.
+
+    prefix: "paper-state"(positionStore) 또는 "paper-orders"(주문 원장 -
+    주문번호->전략 매핑, positionStore.record_order 가 쓴다). 둘 다 누적본
+    전체를 매번 올리므로 받는 쪽은 최신 하나만 보면 된다."""
     if not state_path.exists():
-        out(f"  {strategy}  건너뜀 - 로컬 상태 파일 없음")
+        out(f"  {strategy}  건너뜀 - 로컬 상태 파일 없음 ({prefix})")
         return False
     ts = (now or datetime.now(KST)).strftime("%Y%m%dT%H%M%S")
-    key = f"paper-state/{strategy}/{ts}.json"
+    key = f"{prefix}/{strategy}/{ts}.json"
     transport.put(key, state_path.read_bytes())
     out(f"  {strategy}  올림  {key}")
     return True
 
 
+# (파일 접미사, OCI prefix). 원장은 주문이 한 번이라도 나간 뒤에야 생기므로
+# 없는 것이 정상이다 - upload_state 가 건너뛴다.
+KINDS = [("positions", "paper-state"), ("orders", "paper-orders")]
+
+
 def run(transport, repo_root, out=print):
+    paper_dir = Path(repo_root) / "research/strategy-lab/data/paper"
     for strategy in STRATEGIES:
-        state_path = Path(repo_root) / "research/strategy-lab/data/paper" / f"{strategy}_positions.json"
-        upload_state(transport, strategy, state_path, out=out)
+        for suffix, prefix in KINDS:
+            upload_state(transport, strategy, paper_dir / f"{strategy}_{suffix}.json",
+                          out=out, prefix=prefix)
 
 
 def main():

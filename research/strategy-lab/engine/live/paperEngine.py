@@ -474,6 +474,11 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
             state[symbol] = {**pos, "status": "ENTRY_SUBMITTED", "order_quantity": qty,
                               "order_no": order_no, "order_date": today_compact,
                               "last_slice_date": today}
+            # 전략 귀속은 지금만 안다 - 체결 확인과 동시에 order_no 가 지워진다.
+            # 여기서 안 남기면 영영 못 얻는다(교훈75, positionStore 주문 원장 주석).
+            positionStore.record_order(repo_root, strategy_id, order_no,
+                                        {"date": today, "symbol": symbol, "side": "BUY",
+                                         "quantity": qty, "reason": "ENTRY"})
             events.append({"type": "ENTRY_SUBMITTED", "symbol": symbol,
                             "orderNo": order_no, "quantity": qty})
             log(f"[{today}] 매수 제출  {symbol}  {qty}주"
@@ -553,6 +558,11 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 continue
             state[symbol] = {**pos, "status": "EXIT_SUBMITTED", "order_no": order_no,
                               "order_date": today_compact, "exitReason": reason}
+            # 매도는 체결되면 포지션이 통째로 삭제된다(아래 del state[symbol]) -
+            # 매수보다 더 급하게 지금 남겨야 한다.
+            positionStore.record_order(repo_root, strategy_id, order_no,
+                                        {"date": today, "symbol": symbol, "side": "SELL",
+                                         "quantity": pos["quantity"], "reason": reason})
             events.append({"type": "EXIT_SUBMITTED", "symbol": symbol, "reason": reason, "orderNo": order_no})
             log(f"[{today}] 매도 제출  {symbol}  사유={reason}  주문번호={order_no}")
             continue
