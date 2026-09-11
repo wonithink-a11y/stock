@@ -62,19 +62,46 @@ SOURCE = "KRX_SHORTING_BALANCE"
 SOURCE_FN = "pykrx.stock.get_shorting_balance_by_date"
 MAX_CARRY_DAYS = 14      # 실패 종목에 직전 스냅샷을 이어받는 상한. 넘으면 A3c 로 내려간다
 
-# 2차 패스 — 실패분만 재시도한다 (2026-09-09 신설)
+# 2차 패스 — 기본 꺼짐 (2026-09-11 실측으로 되돌림)
 #
-# 왜 SLEEP_SECONDS 를 올리는 게 아니라 이쪽인가: 실측 곡선이 353 -> 167 -> 272
-# -> 273(2026-09-06, 30분 안에 5회)이다. **막힌 뒤 천천히 회복한다**는 모양이지
-# 호출 간격이 좁아서 막히는 모양이 아니다. 한도에 부딪힌 뒤 더 천천히 미는 것은
-# 같은 벽이고, 쉬었다가 남은 것만 다시 미는 것이 실측에 맞는다.
+# 신설(2026-09-09) 당시 근거는 "막힌 뒤 천천히 회복한다"였다(353->167->272->273,
+# 2026-09-06). 그 곡선은 **별개 실행 5회**였다 - 매번 프로세스도 KRX 로그인도 새것.
+# 같은 세션 안의 재시도는 다른 것이었고, 실측이 그렇게 말한다:
 #
-# 353종목을 다시 도는 게 아니라 **실패분만** 돈다 - 80종목이면 한 패스가 16초다.
-MAX_PASSES = 2           # 1차 + 재시도 1회. 인수인계가 말한 "2차 패스" 그대로다
-RETRY_PAUSE_SECONDS = 600  # 패스 사이 대기. 위 회복 곡선(30분에 167->273)에서 잡았다
-# ★ 워크플로 timeout-minutes 가 30 이다. 2패스 = 대기 10분 + 수집 약 5분이라 들어간다.
-# MAX_PASSES 를 3 으로 올리면 대기만 20분이라 타임아웃에 닿는다 - 올릴 때 워크플로도
-# 같이 올린다. 함수는 max_passes 를 받으므로 코드 수정 없이 CLI 로 실험할 수 있다.
+#   09-10  패스2 를 완주한 유일한 실행 · 시도 139 · 성공 0
+#   09-09  패스2 25분간 로그 0줄        · 09-11  16분간 0줄   <- 매달렸다
+#
+# 매달리면 30분 잡 타임아웃에 걸려 conclusion 이 cancelled 가 되고, 그러면
+# **패스1 이 이미 건진 233종목까지 통째로 버려진다**(commit 스텝이 skip).
+# 0을 건지려고 그날 데이터를 전부 잃는 거래다. 함수는 max_passes 를 그대로 받으므로
+# 재개는 `--passes 2` 한 줄이다 - 재개 조건은 **세션을 새로 여는 재시도**를 만들 때다.
+MAX_PASSES = 1
+RETRY_PAUSE_SECONDS = 600  # --passes 2 로 실험할 때만 쓰인다
+
+# 매달림의 정지선. pykrx 는 timeout 없이 requests 를 부르고, requests 의 기본은
+# **무한 대기**다. ★ socket.setdefaulttimeout 은 듣지 않는다 - urllib3 2.x 는 자기
+# 기본값을 쓴다(실측: 전역 3초를 걸어도 60초를 기다렸다). 어댑터에 넣어야 걸린다.
+HTTP_TIMEOUT_SECONDS = 30
+
+
+def install_http_timeout(seconds=HTTP_TIMEOUT_SECONDS):
+    """timeout 없이 나가는 모든 requests 호출에 기본 타임아웃을 준다.
+
+    없으면 한 호출이 영영 매달려 30분 잡 예산을 다 먹고, conclusion 이 cancelled 가
+    되어 **그때까지 건진 종목까지 통째로 버려진다**(commit 스텝이 skip). 명시적으로
+    timeout 을 준 호출은 건드리지 않는다."""
+    from requests.adapters import HTTPAdapter
+    if getattr(HTTPAdapter, "_sharesSnapshotTimeout", None):
+        return
+    send = HTTPAdapter.send
+
+    def send_with_timeout(self, request, **kw):
+        if kw.get("timeout") is None:
+            kw["timeout"] = seconds
+        return send(self, request, **kw)
+
+    HTTPAdapter.send = send_with_timeout
+    HTTPAdapter._sharesSnapshotTimeout = True
 
 
 def load_universe(market="KR"):
@@ -273,6 +300,7 @@ def main():
         except (ValueError, OSError) as e:
             print("직전 스냅샷을 못 읽었다(이월 없이 진행): %s" % e)
 
+    install_http_timeout()
     stock = _import_pykrx_stock()
     shares, failures, passes = collect_with_retries(
         stock, tickers, from_date, to_date, max_passes=a.passes, pause=a.retry_pause)
@@ -388,7 +416,26 @@ def selftest():
 
     # 패스 기록이 payload 에 실린다
     assert build_payload(sh3, fl3, 3, "a", "b", 0, passes)["passes"] == passes
-    print("selftest ok (25건)")
+    # install_http_timeout 이 **실제로 끊는지** 잰다. 응답을 안 주는 소켓에 붙어
+    # 시한 안에 끊기는지 본다 - socket.setdefaulttimeout 로 되돌리면 여기가 붉어진다
+    # (urllib3 2.x 는 전역값을 안 본다, 실측 2026-09-11).
+    import socket as _sk, threading as _th, time as _tm
+    import requests as _rq
+    _srv = _sk.socket(); _srv.bind(("127.0.0.1", 0)); _srv.listen(1)
+    _port = _srv.getsockname()[1]
+    _th.Thread(target=lambda: (_srv.accept(), _tm.sleep(30)), daemon=True).start()
+    install_http_timeout(2)
+    _t0 = _tm.time()
+    try:
+        _rq.get("http://127.0.0.1:%d/" % _port)
+        raise AssertionError("타임아웃이 안 걸렸다 - 매달린 호출이 잡 예산을 먹는다")
+    except _rq.exceptions.RequestException:
+        pass
+    _el = _tm.time() - _t0
+    assert _el < 10, "타임아웃이 안 듣는다(%.1fs 걸렸다)" % _el
+    _srv.close()
+
+    print("selftest ok (27건)")
 
 
 if __name__ == "__main__":
