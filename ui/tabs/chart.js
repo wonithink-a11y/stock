@@ -11,18 +11,13 @@
 // 대비 41일 중 39일이 한 행 밀렸다. 그 탓에 Beta 가 하루 밀린 두 계열의
 // 상관이 되어 전부 0 근처(-0.04 · 0.01 · -0.06)로 나왔다.
 //
-// asOf 가 없는 옛 피드(build_ui_macro 갱신 전에 만들어진 macro.json)는 한 행
-// 밀기로 폴백한다 - 같은 보정이고, 새 피드가 올라오면 저절로 정확해진다.
+// asOf 가 없으면 빈 배열을 낸다 - 벤치마크가 안 그려지는 것이 보이는 실패다.
+// 옛 "한 행 밀기" 폴백은 지웠다(2026-09-11, 생산자가 asOf 를 내기 시작했다 -
+// krKospi·krKosdaq 250/250 점 확인). 폴백을 남겨두면 생산자가 망가진 날
+// 추측으로 그린 선이 정상처럼 보인다.
 function realignMacroHistory(history) {
-  if (!history || history.length < 2) return history || [];
-  if (history.some((h) => h.asOf)) {
-    return history.filter((h) => h.asOf).map((h) => ({ date: h.asOf, value: h.value }));
-  }
-  const out = [];
-  for (let i = 1; i < history.length; i++) {
-    out.push({ date: history[i - 1].date, value: history[i].value });
-  }
-  return out;
+  if (!history) return [];
+  return history.filter((h) => h.asOf).map((h) => ({ date: h.asOf, value: h.value }));
 }
 
 window.TABS = window.TABS || {};
@@ -49,7 +44,7 @@ window.TABS.chart = {
           const series = mData.series || {};
           kospiHistory = realignMacroHistory(series.krKospi && series.krKospi.history);
           kosdaqHistory = realignMacroHistory(series.krKosdaq && series.krKosdaq.history);
-          if (kospiHistory) break;
+          if (kospiHistory.length) break;   // [] 는 truthy - 길이로 본다
         } catch (e) { /* 다음 경로 시도 */ }
       }
 
