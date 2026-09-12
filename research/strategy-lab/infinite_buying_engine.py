@@ -192,8 +192,11 @@ def fill(o: Order, c: dict) -> "tuple[float, int] | None":
     return (limit, qty) if hit else None
 
 
-def step(s: State, r: Rules, c: dict, orders: list[Order]) -> bool:
-    """하루치를 반영하고 사이클 종료 여부를 돌려준다. 매도를 먼저 본다."""
+def step(s: State, r: Rules, c: dict, orders: list[Order], daybook: dict | None = None) -> bool:
+    """하루치를 반영하고 사이클 종료 여부를 돌려준다. 매도를 먼저 본다.
+
+    daybook 이 주어지면 그날의 실제 체결 수량(buy_qty/sell_qty)을 채워 넣는다 —
+    상태 로그(위기 경로 해부용)를 위한 부가 출력일 뿐 기존 동작은 안 바뀐다."""
     reverse = in_reverse(s)
     qty_before, avg_before = s.qty, avg(s)
 
@@ -207,6 +210,7 @@ def step(s: State, r: Rules, c: dict, orders: list[Order]) -> bool:
         s.cash += price * q
         s.sell_notional += price * q
         s.fills += 1
+    qty_after_sell = s.qty
     if s.qty != qty_before:
         # 남은 수량 비율만큼 회차를 줄인다 — 부분매도 계수들이 전부 여기서 파생된다.
         s.t = s.t * (s.qty / qty_before) if qty_before else 0.0
@@ -242,6 +246,9 @@ def step(s: State, r: Rules, c: dict, orders: list[Order]) -> bool:
             s.cash = r.seed
     else:
         s.reverse_day = _next_reverse_day(s, r, c)
+    if daybook is not None:
+        daybook["buy_qty"] = s.qty - qty_after_sell
+        daybook["sell_qty"] = qty_before - qty_after_sell
     return closed
 
 
@@ -263,17 +270,19 @@ class Result:
     state: "State | None" = None
 
 
-def backtest(candles: list[dict], r: Rules, plan_fn=plan_orders) -> Result:
+def backtest(candles: list[dict], r: Rules, plan_fn=plan_orders, trace: list | None = None) -> Result:
     s = State(cash=r.seed)
     closes: list[float] = []
     res = Result()
     peak = r.seed
+    price_peak, price_peak_i = (candles[0]["close"], 0) if candles else (0.0, 0)
     cycle_start_eq, cycle_start_i = r.seed, 0
 
     for i, c in enumerate(candles):
         orders = plan_fn(s, r, closes)
         buy_before, sell_before = s.buy_notional, s.sell_notional
-        closed = step(s, r, c, orders)
+        daybook: dict = {} if trace is not None else None
+        closed = step(s, r, c, orders, daybook)
         traded = (s.buy_notional - buy_before) + (s.sell_notional - sell_before)
         if traded and r.commission:
             fee = traded * r.commission
@@ -300,6 +309,23 @@ def backtest(candles: list[dict], r: Rules, plan_fn=plan_orders) -> Result:
             res.mdd = max(res.mdd, (peak - eq) / peak * 100)
         if s.reverse_day > 0:
             res.reverse_days += 1
+        if c["close"] >= price_peak:
+            price_peak, price_peak_i = c["close"], i
+
+        if trace is not None:
+            trace.append({
+                "date": c["date"], "close": c["close"], "t": s.t, "avg": avg(s),
+                "star": star_price(s, r) if s.qty > 0 else None,
+                "cash": s.cash, "qty": s.qty,
+                "buy_qty": daybook["buy_qty"], "sell_qty": daybook["sell_qty"],
+                "reverse": in_reverse(s), "reverse_day": s.reverse_day,
+                "cycle_id": len(res.cycles), "cycle_elapsed_days": i - cycle_start_i + 1,
+                "exhausted": exhausted(s, r), "realized_pnl": s.realized,
+                "equity": eq, "peak_equity": peak,
+                "drawdown_pct": (peak - eq) / peak * 100 if peak > 0 else 0.0,
+                "price_drawdown_pct": (price_peak - c["close"]) / price_peak * 100 if price_peak > 0 else 0.0,
+                "days_since_price_peak": i - price_peak_i,
+            })
 
     res.final_equity = s.cash + s.qty * candles[-1]["close"] + s.realized
     yrs = (_ordinal(candles[-1]["date"]) - _ordinal(candles[0]["date"])) / 365.25
