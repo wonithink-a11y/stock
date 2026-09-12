@@ -410,6 +410,7 @@ def main() -> int:
     ap.add_argument("--ladder", type=int, default=None)
     ap.add_argument("--commission", type=float, default=0.0)
     ap.add_argument("--tax", type=float, default=0.0)
+    ap.add_argument("--seed", type=float, default=None)
     ap.add_argument("--from", dest="start", default=None)
     ap.add_argument("--to", dest="end", default=None)
     ap.add_argument("--data", type=Path,
@@ -422,6 +423,8 @@ def main() -> int:
     import pandas as pd
 
     over: dict = {"commission": a.commission, "tax": a.tax}
+    if a.seed is not None:
+        over["seed"] = a.seed
     if a.ladder is not None:
         over["ladder_tiers"] = a.ladder
     if a.base is not None:
