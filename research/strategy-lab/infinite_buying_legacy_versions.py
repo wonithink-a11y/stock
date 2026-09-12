@@ -235,7 +235,8 @@ def _apply_fills(s: LState, orders: list[Order], c: dict, commission: float) -> 
 
 
 def backtest(candles: list[dict], version: str, base: float, splits: int, seed: float,
-             tick: float = 0.01, commission: float = 0.0, tax: float = 0.0) -> Result:
+             tick: float = 0.01, commission: float = 0.0, tax: float = 0.0,
+             trace: list | None = None) -> Result:
     s = LState(cash=seed, unit=seed / splits)
     closes: list[float] = []
     res = Result()
@@ -316,6 +317,14 @@ def backtest(candles: list[dict], version: str, base: float, splits: int, seed: 
         peak = max(peak, eq)
         if peak > 0:
             res.mdd = max(res.mdd, (peak - eq) / peak * 100)
+
+        if trace is not None:
+            trace.append({
+                "date": c["date"], "close": c["close"], "t": s.t, "cash": s.cash,
+                "qty": s.qty, "equity": eq, "peak_equity": peak,
+                "drawdown_pct": (peak - eq) / peak * 100 if peak > 0 else 0.0,
+                "exhausted": s.ql, "cycle_id": len(res.cycles),
+            })
 
     res.final_equity = s.cash + s.qty * candles[-1]["close"]
     yrs = (_ordinal(candles[-1]["date"]) - _ordinal(candles[0]["date"])) / 365.25
