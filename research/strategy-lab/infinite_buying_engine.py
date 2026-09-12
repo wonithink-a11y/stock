@@ -263,7 +263,7 @@ class Result:
     state: "State | None" = None
 
 
-def backtest(candles: list[dict], r: Rules) -> Result:
+def backtest(candles: list[dict], r: Rules, plan_fn=plan_orders) -> Result:
     s = State(cash=r.seed)
     closes: list[float] = []
     res = Result()
@@ -271,7 +271,7 @@ def backtest(candles: list[dict], r: Rules) -> Result:
     cycle_start_eq, cycle_start_i = r.seed, 0
 
     for i, c in enumerate(candles):
-        orders = plan_orders(s, r, closes)
+        orders = plan_fn(s, r, closes)
         buy_before, sell_before = s.buy_notional, s.sell_notional
         closed = step(s, r, c, orders)
         traded = (s.buy_notional - buy_before) + (s.sell_notional - sell_before)
