@@ -1,6 +1,25 @@
 {
-  "count": 304,
+  "count": 305,
   "findings": [
+    {
+      "file": "research/strategy-lab/findings/infinite-buying-crisis-path-decomposition-2022-2026-09-12.md",
+      "title": "V4.0 Crisis Path Decomposition — 2022위기 일별 상태 로그 (2026-09-12)",
+      "date": "2026-09-12",
+      "bodyMarkdown": "# V4.0 Crisis Path Decomposition — 2022위기 일별 상태 로그 (2026-09-12)\n\n`infinite-buying-reverse-mode-sensitivity-2026-09-12.md` 후속, 2단계 실행분.\n\n> ★ **이 분석은 현재 엔진의 리버스 해석(후보A)을 전제로 한다.** 원문 규칙 확정 전\n> 절대 성과값(CAGR/MDD)은 잠정치다 — 위 문서 참고.\n\n## 방법\n\n`infinite_buying_engine.py`의 `backtest()`에 `trace` 파라미터를 추가(daybook 경유,\n기본 None 이면 기존 동작 완전히 동일 — trace 유무로 CAGR/MDD 가 안 바뀜을 직접 확인).\n날짜별 T·평단·별지점·현금·보유·매수매도체결량·역전여부·drawdown(자본/가격 둘 다)을\n전부 남긴다. `infinite_buying_crisis_decomposition.py`가 TQQQ/SOXL 2022위기 구간\n(2021-11-01~2022-12-30)을 이 로그로 재생하고 역전모드 episode·후반전 구간을 요약한다.\n\n## 핵심 수치\n\n| | TQQQ | SOXL |\n|---|---|---|\n| 가격 기준 최대낙폭 | 81.8%(2022-12-28) | 90.5%(2022-10-14) |\n| 창 종료 시점 낙폭 | 80.5% | 86.8% |\n| 역전모드 총 체류일 / 진입횟수 | 51일 / 2회 | 60일 / 3회 |\n| 매도체결일(역전중/일반중) | 48일(23/25) | 54일(32/22) |\n\n## 발견 1 — TQQQ는 위기 후반부 내내 \"일반모드 후반전\"에 갇혀 있었다\n\n일반모드에서 T>20(\"후반전\", 하이브리드 v1이 건드리는 구간)인 날을 뽑아보면:\n\n```\nTQQQ: 2022-01-24 ~ 2022-12-30 (105일, 창 끝까지) — 가격 $28.75 → $8.65, 매도체결 8/105일\nSOXL: 2022-02-10 ~ 2022-11-22 (112일, 창 끝나기 38일 전 종료) — 가격 $46.42 → $12.90, 매도체결 8/112일\n```\n\n**TQQQ는 이 구간이 관측 window 마지막 날(2022-12-30)까지 그대로 이어진다** — 즉 이\n구간에서 팔았어도 그 뒤에 반등해서 득을 볼 기회 자체가 데이터에 없다. SOXL은 이\n구간이 창 종료 38일 전에 끝나 그나마 여유가 있다(다만 그 뒤 30일도 $12.90→$9.67로\n더 떨어져 \"반등해서 득을 봤다\"고 단정하긴 이르다 — 아래 한계 참고).\n\n이게 하이브리드 v1(§ `infinite-buying-hybrid-v1-quarterfrac-sweep`, 후반전 매도비중\n확대)이 **TQQQ 2022는 라이브 분할수(40)에서 예외 없이 악화시키고 SOXL 2022는 예외\n없이 개선시킨** 이유의 유력한 후보다 — TQQQ 후반전은 관측기간 끝까지 회복 기회가\n없는 채로 더 많이 팔렸을 것이고, SOXL은 상대적으로 덜 그렇다.\n\n**다만 완전히 결론짓지 않는다** — SOXL도 그 구간 종료 후 30일간 계속 하락했다(반등\n없음). \"TQQQ만 회복을 못 했다\"보다는 \"TQQQ가 SOXL보다 회복 여유 기간이 더 짧았다\"는\n정도의 상대적 차이로 읽는 게 정확하다. 하이브리드와 베이스라인의 자본 경로를\n직접 나란히 놓고 비교해야 완전히 닫힌다(다음 단계 후보).\n\n## 발견 2 — 리버스모드는 하이브리드 실험과 무관한 별도 메커니즘이었다\n\n재확인: 하이브리드 v1의 `quarter_frac` 확대는 `plan_orders`의 일반모드 매도 블록에만\n적용되고, `_plan_reverse`(리버스 전용 매도 로직)는 건드리지 않는다 — `plan_orders`가\n`in_reverse(s)`이면 곧바로 `_plan_reverse`로 분기하기 때문이다. 즉 위 발견1의 \"일반모드\n후반전\"과 이 문서 상단의 \"역전모드\"는 같은 메커니즘이 아니다. 이전 세션 요약에서\n이 둘을 섞어 말하지 않도록 구분해 둔다.\n\n## 재현\n\n```bash\npython research/strategy-lab/infinite_buying_crisis_decomposition.py\n# --csv-out <dir> 로 일별 로그를 CSV로 저장 가능(기본은 저장 안 함, 화면 출력만)\n```\n\n## 다음 단계 후보 (미착수)\n\n사용자가 제안한 대로, 2022 하나로 끝내지 않고 **TQQQ/SOXL 전체 역사(2010~2026)에서\n고점→급락→저점→회복 구간을 자동 탐지**해 실제 사례끼리 비교하는 게 다음이다.\n합성 가격경로 대신 실제 구간을 쓰는 이유는 이전 논의 그대로(시나리오를 이론에\n맞춰 설계하는 위험 회피). 이 문서 시점까지는 2022 하나만 했다 — 자동 탐지 알고리즘\n설계·실행은 다음 턴으로 미룬다(사용자 확인 후 진행).\n",
+      "category": "performance",
+      "track": "kr",
+      "verdict": "HOLD",
+      "original_verdict": null,
+      "criteria_version": null,
+      "conditions": null,
+      "reason": null,
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
     {
       "file": "research/strategy-lab/findings/infinite-buying-hybrid-v1-quarterfrac-sweep-2026-09-12.md",
       "title": "무한매수법 하이브리드 v1 — 후반전 매도비중 확대, max_frac×분할수 스윕 (2026-09-12)",
