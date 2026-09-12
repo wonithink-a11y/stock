@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""TQQQ 단일 종목으로 V2.1 vs V3.0 vs V4.0 최종 비교 — 종목 효과와 버전 효과를 분리.
+"""단일 종목으로 V2.1 vs V3.0 vs V4.0 최종 비교 — 종목 효과와 버전 효과를 분리.
 
-3A 에서 확정한 TQQQ 16개 episode(재선정 없음)에 세 버전을 그대로 적용해 episode 별
+3A 에서 확정한 episode(재선정 없음)에 세 버전을 그대로 적용해 episode 별
 CAGR·MDD·저점현금비중·"가격은 회복했는데 전략은 아직 손실"(전략 자체 회복 실패)을 본다.
 
     python research/strategy-lab/infinite_buying_tqqq_version_episode_compare.py
+    python research/strategy-lab/infinite_buying_tqqq_version_episode_compare.py --ticker SOXL --base 20
 """
+import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -18,7 +20,7 @@ ROOT = Path(__file__).resolve().parent
 RULES = ROOT / "data" / "leveraged-etf" / "_rules.local.json"
 THRESHOLD = 0.25
 TICKER = "TQQQ"
-BASE_PCT = 15.0  # V2.1/V3.0 TQQQ 공식값(quantstack 검증), V4.0 은 rules 파일에서 옴
+BASE_PCT = 15.0  # V2.1/V3.0 공식값(quantstack 검증) — SOXL 은 --base 20
 
 
 def load_engine_candles(ticker: str) -> list[dict]:
@@ -79,9 +81,16 @@ def selftest() -> int:
 
 
 def main() -> int:
-    import sys
-    if "--selftest" in sys.argv:
+    global TICKER, BASE_PCT
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--ticker", default="TQQQ")
+    ap.add_argument("--base", type=float, default=15.0)
+    a = ap.parse_args()
+    if a.selftest:
         return selftest()
+    TICKER, BASE_PCT = a.ticker, a.base
+
     r = Rules.load(RULES, TICKER, 40)
     price_candles = load_price_candles(TICKER)
     episodes = detect_episodes(price_candles, THRESHOLD)
@@ -124,7 +133,7 @@ def main() -> int:
 
     R = pd.DataFrame(rows)
 
-    print(f"===== TQQQ episode 별 V2.1 vs V3.0 vs V4.0 (episode={len(R)}건, 3A 확정 그대로) =====\n")
+    print(f"===== {TICKER} episode 별 V2.1 vs V3.0 vs V4.0 (episode={len(R)}건, 3A 확정 그대로) =====\n")
     for label in versions:
         print(f"--- {label} ---")
         cols = ["peak_date", "recovered", "dd_pct", f"{label}_cagr", f"{label}_mdd",
