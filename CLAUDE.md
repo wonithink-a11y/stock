@@ -8,7 +8,22 @@ Validated against
   정책      UN-1.2 · PR-1.6 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1
             PF-1.2는 registry 미등록 = 미발효(자리가 없다 — 아래 완료 참고)
             criteria  KR-2.4(2026-09-04 승격) · US-2.2
-  다음      ★ 모의투자 월간 자동화 — 시한이 있는 유일한 항목. A2a(월 1~5일) →
+  다음      ★★ RV20 선물 sizing 규칙 모의투자 자동화 — 2026-09-14 09:05 KST
+            **오늘** 첫 실주문 예정(이 문서 갱신 시점엔 아직 발생 전). 가장
+            먼저 VM(`stock`)의 `~/collector-venv/logs/rv20-futures-paper-order.log`
+            를 확인한다. 배경: futures Stage 6-1(OpenCode) 독립검증에서
+            "Strict Holdout OOS"가 실은 discovery 표본 재게시였음을 발견 →
+            규칙을 2026-09-13 시점으로 동결(`futures-rv20-sizing-rule-freeze-
+            2026-09-13.md`, Rule B: RV20 rolling252 percentile Q5(0.8)→0x) →
+            KIS 모의투자 국내선물 계좌(자본 50%)에 실제 적용. kill switch
+            (`research/strategy-lab/futures/rv20_automation_enabled.json`,
+            GitHub Actions "RV20 futures automation on/off switch"로만
+            켜고 끔)는 2026-09-14 00:55 사용자가 직접 켰다(enabled: true).
+            VM 배선 중 실측 버그 2건 수정(REPO 하드코딩 절대경로·`.env`
+            로딩이 systemd EnvironmentFile을 안 읽던 것) — 둘 다
+            `collect_kospi200_daily_krx.py`/`stage5_1_volatility_event_study.py`.
+            세부: docs/control/세션인수인계-2026-09-14.md.
+  다음      ★ 모의투자 월간 자동화 — 시한이 있는 항목 중 하나. A2a(월 1~5일) →
             refresh-selections(workflow_run) → VM pull(06:30) → 페이퍼 엔진
             (10분). CI 8회차 완주·자동 커밋까지 확인했지만 **2026-10-01이 첫
             실물 검증이다** — workflow_run 물림은 그날 처음 돈다(여태
@@ -153,6 +168,25 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            ★★★ 2026-09-14 RV20 선물 sizing 규칙 모의투자 상시 자동화
+            구축·가동(세션인수인계-2026-09-14.md, 커밋 97026eb~a9e6c44).
+            futures Stage 6-1 독립검증(REPRODUCED)·provenance 감사("OOS"가
+            discovery 표본 재게시였음 확인)·Stage 5-4 독립재현(12/12 일치)
+            까지 마친 뒤, 규칙을 동결하고 그날 안에 KIS 모의투자 국내선물
+            자동화 파이프라인 전체(신호계산·잔고조회·front-month조회·
+            주문·kill switch·VM systemd timer·UI 카드)를 구축·VM 배선·
+            검증까지 완주 — **2026-09-14 09:05 KST 첫 실주문**(위 "다음"
+            항목 참고). 같은 세션에서 **업비트·빗썸 모의매매 인프라**도
+            신설(빗썸은 신규, 업비트는 이전 세션 산출물 재사용) —
+            apidocs.bithumb.com 공식 문서로 스펙 확인(JWT HS256·timestamp
+            필수·주문엔드포인트 /v2, 업비트와 다름), 실계좌 주문 어댑터는
+            업비트처럼 dormant(코드는 있으나 실행 드라이버 없음), 키
+            연결까지 실측 확인. **실계좌 자동매매(진짜 돈)는 명확히
+            거절** — Claude 운영원칙상 금융거래 실행은 항상 사용자 본인이
+            해야 한다. Claude가 시스템 스케줄러(schtasks)나 GitHub Actions
+            kill switch를 스스로 켜는 것도 auto-mode classifier가 두 번
+            막았다 — 우회 시도 안 하고 전부 사용자가 직접 실행하도록
+            안내(설계 의도 그대로 존중).
             ★★ 2026-09-13 하루 연구 종료 4갈래(세션인수인계-2026-09-13.md ·
             -b.md, 커밋 aaccb8c·ca5f1f1·c699c7f·aecf422·3aa488c·e43391b).
             (1) 크립토 funding carry(perp short+spot long 1x) **REJECT** —
