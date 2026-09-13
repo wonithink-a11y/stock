@@ -25,6 +25,7 @@ data/backfill/scores/_shards/
 # Paper Trading Engine 포지션 상태 — 실행마다 바뀌는 로컬 상태다. 연구
 # 산출물이 아니라 재시작 안전성을 위한 캐시라 커밋 대상이 아니다.
 research/strategy-lab/data/paper/
+research/strategy-lab/data/paper-futures/
 
 # 실험실 캐시·대용량 원본 — 전부 재생성 가능하고 4.5GB에 달해(2026-08-30 실측:
 # .cache 3.1GB·data/a4 948MB·data/crypto 398MB) 지금까지 .gitignore 누락으로
