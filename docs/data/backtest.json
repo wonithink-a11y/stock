@@ -1,31 +1,31 @@
 {
-  "updatedAt": "2026-09-06T11:53:16.035Z",
+  "updatedAt": "2026-09-13T13:03:26.681Z",
   "status": "ok",
-  "historyDays": 42,
+  "historyDays": 47,
   "markets": {
     "KR": {
-      "sampleCount": 1503,
+      "sampleCount": 1998,
       "transactionCostPct": 0.3,
       "ic": {
-        "d20": -0.193,
+        "d20": -0.154,
         "d60": null,
         "d120": null
       },
       "icSampleCount": {
-        "d20": 1503,
+        "d20": 1998,
         "d60": 0,
         "d120": 0
       },
       "population": {
-        "totalCandidates": 1584,
-        "eligible": 1503,
-        "excluded": 81,
+        "totalCandidates": 2084,
+        "eligible": 1998,
+        "excluded": 86,
         "excludedByReason": {
-          "INSUFFICIENT_COVERAGE": 81
+          "INSUFFICIENT_COVERAGE": 86
         },
         "byHorizon": {
           "d20": {
-            "eligible": 1503,
+            "eligible": 1998,
             "excludedByReason": {
               "NO_FORWARD_RETURN": 0
             }
@@ -33,13 +33,13 @@
           "d60": {
             "eligible": 0,
             "excludedByReason": {
-              "NO_FORWARD_RETURN": 1503
+              "NO_FORWARD_RETURN": 1998
             }
           },
           "d120": {
             "eligible": 0,
             "excludedByReason": {
-              "NO_FORWARD_RETURN": 1503
+              "NO_FORWARD_RETURN": 1998
             }
           }
         },
@@ -48,9 +48,9 @@
           "note": "axisModel을 선언하지 않은 실행이다. basis를 재지 않았으므로 이 산출물이 어느 모델인지 알 수 없다. population.unmeasuredReasons 참조."
         },
         "observedBasis": {
-          "fundamental+technical+valuation": 1503,
+          "fundamental+technical+valuation": 1998,
           "technical+valuation": 66,
-          "technical": 15
+          "technical": 20
         },
         "unmeasuredReasons": [
           "DELISTED_STATUS_UNMEASURED",
@@ -58,20 +58,20 @@
           "AXIS_MODEL_UNDECLARED"
         ],
         "pitCheckedCount": 0,
-        "pitUnmeasuredCount": 1584
+        "pitUnmeasuredCount": 2084
       },
       "byGrade": {
         "A": {
-          "count": 110,
+          "count": 147,
           "horizons": {
             "d20": {
-              "count": 110,
-              "avgReturnPct": -4.24,
-              "medianReturnPct": -3.68,
-              "winRatePct": 33.6,
-              "avgExcessVsBenchmarkPct": -10.32,
-              "expectancyPct": -4.24,
-              "payoffRatio": 0.4
+              "count": 147,
+              "avgReturnPct": -3.93,
+              "medianReturnPct": -3.79,
+              "winRatePct": 32.7,
+              "avgExcessVsBenchmarkPct": -10.1,
+              "expectancyPct": -3.93,
+              "payoffRatio": 0.44
             },
             "d60": {
               "count": 0,
@@ -94,16 +94,16 @@
           }
         },
         "B": {
-          "count": 245,
+          "count": 337,
           "horizons": {
             "d20": {
-              "count": 245,
-              "avgReturnPct": 5.19,
-              "medianReturnPct": 2.92,
-              "winRatePct": 62,
-              "avgExcessVsBenchmarkPct": -0.95,
-              "expectancyPct": 5.19,
-              "payoffRatio": 2.11
+              "count": 337,
+              "avgReturnPct": 4.77,
+              "medianReturnPct": 3.1,
+              "winRatePct": 63.5,
+              "avgExcessVsBenchmarkPct": -1.31,
+              "expectancyPct": 4.77,
+              "payoffRatio": 1.78
             },
             "d60": {
               "count": 0,
@@ -126,16 +126,16 @@
           }
         },
         "C": {
-          "count": 514,
+          "count": 672,
           "horizons": {
             "d20": {
-              "count": 514,
-              "avgReturnPct": 7.22,
-              "medianReturnPct": 4.22,
-              "winRatePct": 66.9,
-              "avgExcessVsBenchmarkPct": 1.9,
-              "expectancyPct": 7.22,
-              "payoffRatio": 2.29
+              "count": 672,
+              "avgReturnPct": 5.64,
+              "medianReturnPct": 2.61,
+              "winRatePct": 59.7,
+              "avgExcessVsBenchmarkPct": 0.14,
+              "expectancyPct": 5.64,
+              "payoffRatio": 2.12
             },
             "d60": {
               "count": 0,
@@ -158,16 +158,16 @@
           }
         },
         "D": {
-          "count": 314,
+          "count": 414,
           "horizons": {
             "d20": {
-              "count": 314,
-              "avgReturnPct": 5.87,
-              "medianReturnPct": 4.37,
-              "winRatePct": 61.8,
-              "avgExcessVsBenchmarkPct": 0.38,
-              "expectancyPct": 5.87,
-              "payoffRatio": 2.36
+              "count": 414,
+              "avgReturnPct": 4.22,
+              "medianReturnPct": 1.57,
+              "winRatePct": 55.8,
+              "avgExcessVsBenchmarkPct": -1.36,
+              "expectancyPct": 4.22,
+              "payoffRatio": 2.14
             },
             "d60": {
               "count": 0,
@@ -190,16 +190,16 @@
           }
         },
         "E": {
-          "count": 320,
+          "count": 428,
           "horizons": {
             "d20": {
-              "count": 320,
-              "avgReturnPct": 9.5,
-              "medianReturnPct": 8.65,
-              "winRatePct": 74.1,
-              "avgExcessVsBenchmarkPct": 4.31,
-              "expectancyPct": 9.5,
-              "payoffRatio": 1.79
+              "count": 428,
+              "avgReturnPct": 7.51,
+              "medianReturnPct": 6.49,
+              "winRatePct": 69.4,
+              "avgExcessVsBenchmarkPct": 2.11,
+              "expectancyPct": 7.51,
+              "payoffRatio": 1.73
             },
             "d60": {
               "count": 0,
@@ -227,16 +227,16 @@
         "available": true,
         "byRegime": {
           "neutral": {
-            "count": 309,
+            "count": 408,
             "horizons": {
               "d20": {
-                "count": 309,
-                "avgReturnPct": 5.74,
-                "medianReturnPct": 5.43,
-                "winRatePct": 67.6,
-                "avgExcessVsBenchmarkPct": 4.18,
-                "expectancyPct": 5.74,
-                "payoffRatio": 1.73
+                "count": 408,
+                "avgReturnPct": 4.34,
+                "medianReturnPct": 3.54,
+                "winRatePct": 61.8,
+                "avgExcessVsBenchmarkPct": 2.37,
+                "expectancyPct": 4.34,
+                "payoffRatio": 1.64
               },
               "d60": {
                 "count": 0,
@@ -258,22 +258,22 @@
               }
             },
             "ic": {
-              "d20": -0.282,
+              "d20": -0.226,
               "d60": null,
               "d120": null
             }
           },
           "caution": {
-            "count": 1188,
+            "count": 1584,
             "horizons": {
               "d20": {
-                "count": 1188,
-                "avgReturnPct": 6.45,
-                "medianReturnPct": 3.38,
-                "winRatePct": 63.4,
-                "avgExcessVsBenchmarkPct": -0.15,
-                "expectancyPct": 6.45,
-                "payoffRatio": 2.16
+                "count": 1584,
+                "avgReturnPct": 5.08,
+                "medianReturnPct": 2.38,
+                "winRatePct": 59.2,
+                "avgExcessVsBenchmarkPct": -1.55,
+                "expectancyPct": 5.08,
+                "payoffRatio": 1.99
               },
               "d60": {
                 "count": 0,
@@ -295,7 +295,7 @@
               }
             },
             "ic": {
-              "d20": -0.171,
+              "d20": -0.136,
               "d60": null,
               "d120": null
             }
@@ -304,16 +304,16 @@
         "byRegimeAndGrade": {
           "neutral": {
             "A": {
-              "count": 19,
+              "count": 26,
               "horizons": {
                 "d20": {
-                  "count": 19,
-                  "avgReturnPct": -6.14,
-                  "medianReturnPct": -6.98,
-                  "winRatePct": 26.3,
-                  "avgExcessVsBenchmarkPct": -7.09,
-                  "expectancyPct": -6.14,
-                  "payoffRatio": 0.19
+                  "count": 26,
+                  "avgReturnPct": -5.35,
+                  "medianReturnPct": -5.94,
+                  "winRatePct": 23.1,
+                  "avgExcessVsBenchmarkPct": -6.92,
+                  "expectancyPct": -5.35,
+                  "payoffRatio": 0.29
                 },
                 "d60": {
                   "count": 0,
@@ -336,16 +336,16 @@
               }
             },
             "B": {
-              "count": 44,
+              "count": 64,
               "horizons": {
                 "d20": {
-                  "count": 44,
-                  "avgReturnPct": 4.96,
-                  "medianReturnPct": 2.74,
-                  "winRatePct": 63.6,
-                  "avgExcessVsBenchmarkPct": 3.17,
-                  "expectancyPct": 4.96,
-                  "payoffRatio": 1.86
+                  "count": 64,
+                  "avgReturnPct": 4.42,
+                  "medianReturnPct": 3.08,
+                  "winRatePct": 65.6,
+                  "avgExcessVsBenchmarkPct": 2.19,
+                  "expectancyPct": 4.42,
+                  "payoffRatio": 1.6
                 },
                 "d60": {
                   "count": 0,
@@ -368,16 +368,16 @@
               }
             },
             "C": {
-              "count": 107,
+              "count": 137,
               "horizons": {
                 "d20": {
-                  "count": 107,
-                  "avgReturnPct": 5.39,
-                  "medianReturnPct": 5.16,
-                  "winRatePct": 72,
-                  "avgExcessVsBenchmarkPct": 3.74,
-                  "expectancyPct": 5.39,
-                  "payoffRatio": 1.74
+                  "count": 137,
+                  "avgReturnPct": 3.99,
+                  "medianReturnPct": 3.85,
+                  "winRatePct": 63.5,
+                  "avgExcessVsBenchmarkPct": 1.99,
+                  "expectancyPct": 3.99,
+                  "payoffRatio": 1.53
                 },
                 "d60": {
                   "count": 0,
@@ -400,16 +400,16 @@
               }
             },
             "D": {
-              "count": 71,
+              "count": 92,
               "horizons": {
                 "d20": {
-                  "count": 71,
-                  "avgReturnPct": 6.5,
-                  "medianReturnPct": 6.29,
-                  "winRatePct": 63.4,
-                  "avgExcessVsBenchmarkPct": 5.15,
-                  "expectancyPct": 6.5,
-                  "payoffRatio": 2.49
+                  "count": 92,
+                  "avgReturnPct": 4.72,
+                  "medianReturnPct": 4.72,
+                  "winRatePct": 57.6,
+                  "avgExcessVsBenchmarkPct": 2.94,
+                  "expectancyPct": 4.72,
+                  "payoffRatio": 2.18
                 },
                 "d60": {
                   "count": 0,
@@ -432,16 +432,16 @@
               }
             },
             "E": {
-              "count": 68,
+              "count": 89,
               "horizons": {
                 "d20": {
-                  "count": 68,
-                  "avgReturnPct": 9.29,
-                  "medianReturnPct": 10.33,
-                  "winRatePct": 79.4,
-                  "avgExcessVsBenchmarkPct": 7.64,
-                  "expectancyPct": 9.29,
-                  "payoffRatio": 1.37
+                  "count": 89,
+                  "avgReturnPct": 7.24,
+                  "medianReturnPct": 8.38,
+                  "winRatePct": 71.9,
+                  "avgExcessVsBenchmarkPct": 5.21,
+                  "expectancyPct": 7.24,
+                  "payoffRatio": 1.49
                 },
                 "d60": {
                   "count": 0,
@@ -466,16 +466,16 @@
           },
           "caution": {
             "A": {
-              "count": 91,
+              "count": 121,
               "horizons": {
                 "d20": {
-                  "count": 91,
-                  "avgReturnPct": -3.84,
-                  "medianReturnPct": -3.56,
-                  "winRatePct": 35.2,
-                  "avgExcessVsBenchmarkPct": -10.99,
-                  "expectancyPct": -3.84,
-                  "payoffRatio": 0.44
+                  "count": 121,
+                  "avgReturnPct": -3.62,
+                  "medianReturnPct": -3.57,
+                  "winRatePct": 34.7,
+                  "avgExcessVsBenchmarkPct": -10.79,
+                  "expectancyPct": -3.62,
+                  "payoffRatio": 0.46
                 },
                 "d60": {
                   "count": 0,
@@ -498,16 +498,16 @@
               }
             },
             "B": {
-              "count": 201,
+              "count": 273,
               "horizons": {
                 "d20": {
-                  "count": 201,
-                  "avgReturnPct": 5.25,
-                  "medianReturnPct": 2.92,
-                  "winRatePct": 61.7,
-                  "avgExcessVsBenchmarkPct": -1.85,
-                  "expectancyPct": 5.25,
-                  "payoffRatio": 2.17
+                  "count": 273,
+                  "avgReturnPct": 4.85,
+                  "medianReturnPct": 3.1,
+                  "winRatePct": 63,
+                  "avgExcessVsBenchmarkPct": -2.12,
+                  "expectancyPct": 4.85,
+                  "payoffRatio": 1.83
                 },
                 "d60": {
                   "count": 0,
@@ -530,16 +530,16 @@
               }
             },
             "C": {
-              "count": 401,
+              "count": 529,
               "horizons": {
                 "d20": {
-                  "count": 401,
-                  "avgReturnPct": 7.91,
-                  "medianReturnPct": 3.74,
-                  "winRatePct": 66.1,
-                  "avgExcessVsBenchmarkPct": 1.43,
-                  "expectancyPct": 7.91,
-                  "payoffRatio": 2.53
+                  "count": 529,
+                  "avgReturnPct": 6.19,
+                  "medianReturnPct": 2.38,
+                  "winRatePct": 59,
+                  "avgExcessVsBenchmarkPct": -0.34,
+                  "expectancyPct": 6.19,
+                  "payoffRatio": 2.32
                 },
                 "d60": {
                   "count": 0,
@@ -562,16 +562,16 @@
               }
             },
             "D": {
-              "count": 243,
+              "count": 322,
               "horizons": {
                 "d20": {
-                  "count": 243,
-                  "avgReturnPct": 5.69,
-                  "medianReturnPct": 3,
-                  "winRatePct": 61.3,
-                  "avgExcessVsBenchmarkPct": -1.01,
-                  "expectancyPct": 5.69,
-                  "payoffRatio": 2.33
+                  "count": 322,
+                  "avgReturnPct": 4.08,
+                  "medianReturnPct": 1.33,
+                  "winRatePct": 55.3,
+                  "avgExcessVsBenchmarkPct": -2.59,
+                  "expectancyPct": 4.08,
+                  "payoffRatio": 2.13
                 },
                 "d60": {
                   "count": 0,
@@ -594,16 +594,16 @@
               }
             },
             "E": {
-              "count": 252,
+              "count": 339,
               "horizons": {
                 "d20": {
-                  "count": 252,
-                  "avgReturnPct": 9.56,
-                  "medianReturnPct": 7.97,
-                  "winRatePct": 72.6,
-                  "avgExcessVsBenchmarkPct": 3.42,
-                  "expectancyPct": 9.56,
-                  "payoffRatio": 1.91
+                  "count": 339,
+                  "avgReturnPct": 7.58,
+                  "medianReturnPct": 5.6,
+                  "winRatePct": 68.7,
+                  "avgExcessVsBenchmarkPct": 1.3,
+                  "expectancyPct": 7.58,
+                  "payoffRatio": 1.8
                 },
                 "d60": {
                   "count": 0,
@@ -636,16 +636,16 @@
             "favorable"
           ],
           "allRegimes": {
-            "count": 355,
+            "count": 484,
             "horizons": {
               "d20": {
-                "count": 355,
-                "avgReturnPct": 2.27,
-                "medianReturnPct": 0.43,
-                "winRatePct": 53.2,
-                "avgExcessVsBenchmarkPct": -3.85,
-                "expectancyPct": 2.27,
-                "payoffRatio": 1.52
+                "count": 484,
+                "avgReturnPct": 2.13,
+                "medianReturnPct": 0.61,
+                "winRatePct": 54.1,
+                "avgExcessVsBenchmarkPct": -3.98,
+                "expectancyPct": 2.13,
+                "payoffRatio": 1.43
               },
               "d60": {
                 "count": 0,
@@ -700,16 +700,16 @@
             }
           },
           "unfavorableOnly": {
-            "count": 355,
+            "count": 484,
             "horizons": {
               "d20": {
-                "count": 355,
-                "avgReturnPct": 2.27,
-                "medianReturnPct": 0.43,
-                "winRatePct": 53.2,
-                "avgExcessVsBenchmarkPct": -3.85,
-                "expectancyPct": 2.27,
-                "payoffRatio": 1.52
+                "count": 484,
+                "avgReturnPct": 2.13,
+                "medianReturnPct": 0.61,
+                "winRatePct": 54.1,
+                "avgExcessVsBenchmarkPct": -3.98,
+                "expectancyPct": 2.13,
+                "payoffRatio": 1.43
               },
               "d60": {
                 "count": 0,
@@ -739,40 +739,40 @@
           }
         },
         "verdicts": [
-          "국면별 표본이 부족합니다(우호 0건 / 비우호 355건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
+          "국면별 표본이 부족합니다(우호 0건 / 비우호 484건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
         ]
       },
       "verdicts": [
         "axisModel 을 선언하지 않은 실행입니다. 이 결과가 어떤 축 집합 위에서 나온 것인지 기록되지 않았으므로 다른 실행과 비교하지 마세요 (SB-1.0).",
         "표본 부족: d60 0건 · d120 0건 (최소 30건, 권장 100건). 이 구간의 IC·등급 성과는 판단 근거가 되지 않습니다.",
-        "후보 1584건 중 1503건이 표본이고 81건을 제외했습니다 (INSUFFICIENT_COVERAGE 81). 폐지 여부와 PIT 는 이 백테스터가 재지 못합니다 — population.unmeasuredReasons 참조.",
-        "평균 IC -0.193: 점수가 오히려 역방향입니다. 모델 구조를 재검토하세요.",
+        "후보 2084건 중 1998건이 표본이고 86건을 제외했습니다 (INSUFFICIENT_COVERAGE 86). 폐지 여부와 PIT 는 이 백테스터가 재지 못합니다 — population.unmeasuredReasons 참조.",
+        "평균 IC -0.154: 점수가 오히려 역방향입니다. 모델 구조를 재검토하세요.",
         "등급 단조성 불충족: 등급이 성과 순서를 예측하지 못합니다. categoryWeights 튜닝이 필요합니다.",
         "A등급이 거래비용 차감 후 벤치마크를 이기지 못했습니다. 이 상태로는 지수 추종보다 나을 근거가 없습니다.",
-        "국면별 표본이 부족합니다(우호 0건 / 비우호 355건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
+        "국면별 표본이 부족합니다(우호 0건 / 비우호 484건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
       ]
     },
     "US": {
-      "sampleCount": 254,
+      "sampleCount": 469,
       "transactionCostPct": 0.1,
       "ic": {
-        "d20": 0.16,
+        "d20": 0.102,
         "d60": null,
         "d120": null
       },
       "icSampleCount": {
-        "d20": 254,
+        "d20": 469,
         "d60": 0,
         "d120": 0
       },
       "population": {
-        "totalCandidates": 254,
-        "eligible": 254,
+        "totalCandidates": 469,
+        "eligible": 469,
         "excluded": 0,
         "excludedByReason": {},
         "byHorizon": {
           "d20": {
-            "eligible": 254,
+            "eligible": 469,
             "excludedByReason": {
               "NO_FORWARD_RETURN": 0
             }
@@ -780,13 +780,13 @@
           "d60": {
             "eligible": 0,
             "excludedByReason": {
-              "NO_FORWARD_RETURN": 254
+              "NO_FORWARD_RETURN": 469
             }
           },
           "d120": {
             "eligible": 0,
             "excludedByReason": {
-              "NO_FORWARD_RETURN": 254
+              "NO_FORWARD_RETURN": 469
             }
           }
         },
@@ -795,7 +795,7 @@
           "note": "axisModel을 선언하지 않은 실행이다. basis를 재지 않았으므로 이 산출물이 어느 모델인지 알 수 없다. population.unmeasuredReasons 참조."
         },
         "observedBasis": {
-          "fundamental+technical+valuation": 254
+          "fundamental+technical+valuation": 469
         },
         "unmeasuredReasons": [
           "DELISTED_STATUS_UNMEASURED",
@@ -803,7 +803,7 @@
           "AXIS_MODEL_UNDECLARED"
         ],
         "pitCheckedCount": 0,
-        "pitUnmeasuredCount": 254
+        "pitUnmeasuredCount": 469
       },
       "byGrade": {
         "A": {
@@ -839,16 +839,16 @@
           }
         },
         "B": {
-          "count": 71,
+          "count": 125,
           "horizons": {
             "d20": {
-              "count": 71,
-              "avgReturnPct": 3.21,
-              "medianReturnPct": 1.57,
-              "winRatePct": 69,
-              "avgExcessVsBenchmarkPct": 1.71,
-              "expectancyPct": 3.21,
-              "payoffRatio": 1.23
+              "count": 125,
+              "avgReturnPct": 0.98,
+              "medianReturnPct": 0.84,
+              "winRatePct": 56,
+              "avgExcessVsBenchmarkPct": 0.61,
+              "expectancyPct": 0.98,
+              "payoffRatio": 1.11
             },
             "d60": {
               "count": 0,
@@ -871,16 +871,16 @@
           }
         },
         "C": {
-          "count": 126,
+          "count": 241,
           "horizons": {
             "d20": {
-              "count": 126,
-              "avgReturnPct": 1.05,
-              "medianReturnPct": -0.56,
-              "winRatePct": 47.6,
-              "avgExcessVsBenchmarkPct": -0.62,
-              "expectancyPct": 1.05,
-              "payoffRatio": 1.53
+              "count": 241,
+              "avgReturnPct": 0.1,
+              "medianReturnPct": -0.5,
+              "winRatePct": 46.1,
+              "avgExcessVsBenchmarkPct": -0.23,
+              "expectancyPct": 0.1,
+              "payoffRatio": 1.21
             },
             "d60": {
               "count": 0,
@@ -903,16 +903,16 @@
           }
         },
         "D": {
-          "count": 50,
+          "count": 91,
           "horizons": {
             "d20": {
-              "count": 50,
-              "avgReturnPct": -3.14,
-              "medianReturnPct": -2.79,
-              "winRatePct": 22,
-              "avgExcessVsBenchmarkPct": -4.65,
-              "expectancyPct": -3.14,
-              "payoffRatio": 1.13
+              "count": 91,
+              "avgReturnPct": -3.4,
+              "medianReturnPct": -3.42,
+              "winRatePct": 23.1,
+              "avgExcessVsBenchmarkPct": -3.7,
+              "expectancyPct": -3.4,
+              "payoffRatio": 1.01
             },
             "d60": {
               "count": 0,
@@ -935,15 +935,15 @@
           }
         },
         "E": {
-          "count": 6,
+          "count": 11,
           "horizons": {
             "d20": {
-              "count": 6,
-              "avgReturnPct": 13.21,
-              "medianReturnPct": 12.07,
+              "count": 11,
+              "avgReturnPct": 11.21,
+              "medianReturnPct": 10.93,
               "winRatePct": 100,
-              "avgExcessVsBenchmarkPct": 11.56,
-              "expectancyPct": 13.21,
+              "avgExcessVsBenchmarkPct": 10.84,
+              "expectancyPct": 11.21,
               "payoffRatio": null
             },
             "d60": {
@@ -972,16 +972,16 @@
         "available": true,
         "byRegime": {
           "caution": {
-            "count": 254,
+            "count": 426,
             "horizons": {
               "d20": {
-                "count": 254,
-                "avgReturnPct": 1.09,
-                "medianReturnPct": -0.21,
-                "winRatePct": 49.6,
-                "avgExcessVsBenchmarkPct": -0.5,
-                "expectancyPct": 1.09,
-                "payoffRatio": 1.41
+                "count": 426,
+                "avgReturnPct": 0.04,
+                "medianReturnPct": -0.65,
+                "winRatePct": 46.2,
+                "avgExcessVsBenchmarkPct": -0.48,
+                "expectancyPct": 0.04,
+                "payoffRatio": 1.18
               },
               "d60": {
                 "count": 0,
@@ -1003,7 +1003,44 @@
               }
             },
             "ic": {
-              "d20": 0.16,
+              "d20": 0.119,
+              "d60": null,
+              "d120": null
+            }
+          },
+          "neutral": {
+            "count": 43,
+            "horizons": {
+              "d20": {
+                "count": 43,
+                "avgReturnPct": -1.45,
+                "medianReturnPct": -0.98,
+                "winRatePct": 37.2,
+                "avgExcessVsBenchmarkPct": 0,
+                "expectancyPct": -1.45,
+                "payoffRatio": 1.01
+              },
+              "d60": {
+                "count": 0,
+                "avgReturnPct": null,
+                "medianReturnPct": null,
+                "winRatePct": null,
+                "avgExcessVsBenchmarkPct": null,
+                "expectancyPct": null,
+                "payoffRatio": null
+              },
+              "d120": {
+                "count": 0,
+                "avgReturnPct": null,
+                "medianReturnPct": null,
+                "winRatePct": null,
+                "avgExcessVsBenchmarkPct": null,
+                "expectancyPct": null,
+                "payoffRatio": null
+              }
+            },
+            "ic": {
+              "d20": -0.05,
               "d60": null,
               "d120": null
             }
@@ -1044,16 +1081,16 @@
               }
             },
             "B": {
-              "count": 71,
+              "count": 114,
               "horizons": {
                 "d20": {
-                  "count": 71,
-                  "avgReturnPct": 3.21,
-                  "medianReturnPct": 1.57,
-                  "winRatePct": 69,
-                  "avgExcessVsBenchmarkPct": 1.71,
-                  "expectancyPct": 3.21,
-                  "payoffRatio": 1.23
+                  "count": 114,
+                  "avgReturnPct": 1.35,
+                  "medianReturnPct": 1.01,
+                  "winRatePct": 58.8,
+                  "avgExcessVsBenchmarkPct": 0.81,
+                  "expectancyPct": 1.35,
+                  "payoffRatio": 1.11
                 },
                 "d60": {
                   "count": 0,
@@ -1076,16 +1113,16 @@
               }
             },
             "C": {
-              "count": 126,
+              "count": 218,
               "horizons": {
                 "d20": {
-                  "count": 126,
-                  "avgReturnPct": 1.05,
-                  "medianReturnPct": -0.56,
-                  "winRatePct": 47.6,
-                  "avgExcessVsBenchmarkPct": -0.62,
-                  "expectancyPct": 1.05,
-                  "payoffRatio": 1.53
+                  "count": 218,
+                  "avgReturnPct": 0.25,
+                  "medianReturnPct": -0.4,
+                  "winRatePct": 46.8,
+                  "avgExcessVsBenchmarkPct": -0.26,
+                  "expectancyPct": 0.25,
+                  "payoffRatio": 1.24
                 },
                 "d60": {
                   "count": 0,
@@ -1108,16 +1145,16 @@
               }
             },
             "D": {
-              "count": 50,
+              "count": 83,
               "horizons": {
                 "d20": {
-                  "count": 50,
-                  "avgReturnPct": -3.14,
-                  "medianReturnPct": -2.79,
-                  "winRatePct": 22,
-                  "avgExcessVsBenchmarkPct": -4.65,
-                  "expectancyPct": -3.14,
-                  "payoffRatio": 1.13
+                  "count": 83,
+                  "avgReturnPct": -3.57,
+                  "medianReturnPct": -3.42,
+                  "winRatePct": 21.7,
+                  "avgExcessVsBenchmarkPct": -4.04,
+                  "expectancyPct": -3.57,
+                  "payoffRatio": 0.99
                 },
                 "d60": {
                   "count": 0,
@@ -1140,15 +1177,145 @@
               }
             },
             "E": {
-              "count": 6,
+              "count": 10,
               "horizons": {
                 "d20": {
-                  "count": 6,
-                  "avgReturnPct": 13.21,
-                  "medianReturnPct": 12.07,
+                  "count": 10,
+                  "avgReturnPct": 11.12,
+                  "medianReturnPct": 10.73,
                   "winRatePct": 100,
-                  "avgExcessVsBenchmarkPct": 11.56,
-                  "expectancyPct": 13.21,
+                  "avgExcessVsBenchmarkPct": 10.56,
+                  "expectancyPct": 11.12,
+                  "payoffRatio": null
+                },
+                "d60": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                },
+                "d120": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                }
+              }
+            }
+          },
+          "neutral": {
+            "B": {
+              "count": 11,
+              "horizons": {
+                "d20": {
+                  "count": 11,
+                  "avgReturnPct": -2.85,
+                  "medianReturnPct": -1.15,
+                  "winRatePct": 27.3,
+                  "avgExcessVsBenchmarkPct": -1.4,
+                  "expectancyPct": -2.85,
+                  "payoffRatio": 0.4
+                },
+                "d60": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                },
+                "d120": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                }
+              }
+            },
+            "C": {
+              "count": 23,
+              "horizons": {
+                "d20": {
+                  "count": 23,
+                  "avgReturnPct": -1.32,
+                  "medianReturnPct": -0.98,
+                  "winRatePct": 39.1,
+                  "avgExcessVsBenchmarkPct": 0.13,
+                  "expectancyPct": -1.32,
+                  "payoffRatio": 0.99
+                },
+                "d60": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                },
+                "d120": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                }
+              }
+            },
+            "D": {
+              "count": 8,
+              "horizons": {
+                "d20": {
+                  "count": 8,
+                  "avgReturnPct": -1.61,
+                  "medianReturnPct": -2.57,
+                  "winRatePct": 37.5,
+                  "avgExcessVsBenchmarkPct": -0.16,
+                  "expectancyPct": -1.61,
+                  "payoffRatio": 1.04
+                },
+                "d60": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                },
+                "d120": {
+                  "count": 0,
+                  "avgReturnPct": null,
+                  "medianReturnPct": null,
+                  "winRatePct": null,
+                  "avgExcessVsBenchmarkPct": null,
+                  "expectancyPct": null,
+                  "payoffRatio": null
+                }
+              }
+            },
+            "E": {
+              "count": 1,
+              "horizons": {
+                "d20": {
+                  "count": 1,
+                  "avgReturnPct": 12.2,
+                  "medianReturnPct": 12.2,
+                  "winRatePct": 100,
+                  "avgExcessVsBenchmarkPct": 13.65,
+                  "expectancyPct": 12.2,
                   "payoffRatio": null
                 },
                 "d60": {
@@ -1182,16 +1349,16 @@
             "favorable"
           ],
           "allRegimes": {
-            "count": 72,
+            "count": 126,
             "horizons": {
               "d20": {
-                "count": 72,
-                "avgReturnPct": 3.09,
-                "medianReturnPct": 1.57,
-                "winRatePct": 68.1,
-                "avgExcessVsBenchmarkPct": 1.58,
-                "expectancyPct": 3.09,
-                "payoffRatio": 1.24
+                "count": 126,
+                "avgReturnPct": 0.93,
+                "medianReturnPct": 0.69,
+                "winRatePct": 55.6,
+                "avgExcessVsBenchmarkPct": 0.55,
+                "expectancyPct": 0.93,
+                "payoffRatio": 1.11
               },
               "d60": {
                 "count": 0,
@@ -1246,16 +1413,16 @@
             }
           },
           "unfavorableOnly": {
-            "count": 72,
+            "count": 126,
             "horizons": {
               "d20": {
-                "count": 72,
-                "avgReturnPct": 3.09,
-                "medianReturnPct": 1.57,
-                "winRatePct": 68.1,
-                "avgExcessVsBenchmarkPct": 1.58,
-                "expectancyPct": 3.09,
-                "payoffRatio": 1.24
+                "count": 126,
+                "avgReturnPct": 0.93,
+                "medianReturnPct": 0.69,
+                "winRatePct": 55.6,
+                "avgExcessVsBenchmarkPct": 0.55,
+                "expectancyPct": 0.93,
+                "payoffRatio": 1.11
               },
               "d60": {
                 "count": 0,
@@ -1285,16 +1452,16 @@
           }
         },
         "verdicts": [
-          "국면별 표본이 부족합니다(우호 0건 / 비우호 72건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
+          "국면별 표본이 부족합니다(우호 0건 / 비우호 126건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
         ]
       },
       "verdicts": [
         "axisModel 을 선언하지 않은 실행입니다. 이 결과가 어떤 축 집합 위에서 나온 것인지 기록되지 않았으므로 다른 실행과 비교하지 마세요 (SB-1.0).",
         "표본 부족: d60 0건 · d120 0건 (최소 30건, 권장 100건). 이 구간의 IC·등급 성과는 판단 근거가 되지 않습니다.",
-        "평균 IC 0.16: 점수에 유의미한 예측력이 있어 보입니다.",
+        "평균 IC 0.102: 점수에 유의미한 예측력이 있어 보입니다.",
         "등급 단조성 불충족: 등급이 성과 순서를 예측하지 못합니다. categoryWeights 튜닝이 필요합니다.",
         "A등급이 거래비용 차감 후 벤치마크를 이기지 못했습니다. 이 상태로는 지수 추종보다 나을 근거가 없습니다.",
-        "국면별 표본이 부족합니다(우호 0건 / 비우호 72건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
+        "국면별 표본이 부족합니다(우호 0건 / 비우호 126건). 각 30건 이상 쌓이기 전 결과는 참고용으로만 보세요."
       ]
     }
   }
