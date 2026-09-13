@@ -1,0 +1,30 @@
+[Unit]
+# RV20 sizing 규칙(동결, futures-rv20-sizing-rule-freeze-2026-09-13.md, Rule B)
+# 선물 모의투자 일일 실행 - research/strategy-lab/futures/rv20_paper_order.py.
+#
+# 이 서비스는 항상 --confirm-live로 부르지만 실제 주문은
+# research/strategy-lab/futures/rv20_automation_enabled.json 의 enabled가
+# true일 때만 나간다(rv20_paper_order.py 자체 안전장치) - false면 조용히
+# dry-run으로 강등되고 로그에 그 사실이 남는다. 이 파일은 git pull로만
+# 바뀌므로, 매 실행 전 git pull이 최신 스위치 상태를 반영한다.
+#
+# 자격증명(KIS_VTS_FUTURES_*)은 EnvironmentFile이 가리키는 .env에만 있다.
+# 여기 쓰지 않는다(paper-trading-poll.service와 동일 원칙).
+Description=RV20 futures sizing rule paper order (daily, kill-switch gated)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/collect_kospi200_daily_krx.py
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/futures/rv20_paper_order.py --capital 250000000 --confirm-live
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/rv20-futures-paper-order.log
+StandardError=append:/home/ubuntu/collector-venv/logs/rv20-futures-paper-order.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes

@@ -64,6 +64,18 @@ window.TABS.chart = {
       } catch (e) { /* 코드만 표시 */ }
 
       renderChartTab(container, data, kospiHistory, tickerNames, kosdaqHistory, equityHistory);
+
+      // RV20 선물 sizing 자동화 on/off 상태 - fail-soft(파일 없으면 그냥 카드 생략,
+      // 기존 포지션 화면은 이 실패와 무관하게 뜬다). 이 값은 저장소에 커밋된
+      // rv20_automation_enabled.json 그대로다 - VM의 "지금 이 순간" 실행 여부가
+      // 아니라 "다음 실행부터 어떻게 될지"라는 스위치 값이라는 점에 유의.
+      try {
+        const aRes = await fetch("data/rv20-futures-automation.json");
+        if (aRes.ok) {
+          const a = await aRes.json();
+          container.insertAdjacentHTML("afterbegin", rv20AutomationStatusHtml(a));
+        }
+      } catch (e) { /* 카드 생략 */ }
     } catch (e) {
       const msg = String((e && e.message) || e);
       // positions.json 은 KIS 모의계좌를 읽는 로컬 스크립트(build_ui_feed.py)가
@@ -77,6 +89,25 @@ window.TABS.chart = {
     }
   }
 };
+
+/* RV20 선물 sizing 규칙(동결, futures-rv20-sizing-rule-freeze-2026-09-13.md)의
+   VM 자동실행 on/off 카드. 스위치는 GitHub Actions
+   'rv20-futures-automation-toggle' 워크플로(Actions 탭 > Run workflow)로만
+   바꾼다 - 이 화면은 표시 전용이고 클릭해서 끄고 켜는 버튼이 아니다(그러려면
+   이 정적 페이지가 쓰기 권한을 가져야 하는데, 공개 저장소 페이지에 그런
+   자격증명을 두지 않는다). */
+function rv20AutomationStatusHtml(a) {
+  const on = !!a.enabled;
+  const changedAt = a.lastChangedAt ? new Date(a.lastChangedAt).toLocaleString("ko-KR") : "-";
+  return (
+    '<div class="card" style="margin-bottom:12px;border-left:4px solid ' + (on ? "#2a9d5c" : "#999") + '">' +
+    '<b>RV20 선물 모의주문 자동실행: ' + (on ? '<span style="color:#2a9d5c">켜짐</span>' : '<span class="dim">꺼짐</span>') + '</b>' +
+    '<div class="dim" style="margin-top:4px">마지막 변경: ' + changedAt +
+    (a.lastChangedBy ? " (" + a.lastChangedBy + ")" : "") + '<br>' +
+    '켜고 끄려면 GitHub Actions의 "RV20 futures automation on/off switch" 워크플로를 수동 실행한다.</div>' +
+    "</div>"
+  );
+}
 
 /* 해외 슬리브(분할매수 사이클) - 국내 전략과 계좌·통화가 달라 표를 따로 낸다.
    ★ 모드 둘을 같은 표에 두되 행을 갈라 보여준다. `vts` 는 실제로 주문이 나간 것,

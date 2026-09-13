@@ -1,0 +1,66 @@
+name: RV20 futures automation on/off switch
+
+# 수동 트리거 전용(workflow_dispatch) - Actions 탭 > 이 워크플로 > "Run workflow"에서
+# enabled 를 true/false로 골라 실행하면 research/strategy-lab/futures/
+# rv20_automation_enabled.json 을 그 값으로 고쳐 커밋한다.
+#
+# VM(deploy/rv20-futures-paper-order.timer)이 매일 실행 전 git pull로 이 파일의
+# 최신값을 그대로 읽는다 - 여기서 커밋한 게 곧 다음 VM 실행부터 반영되는
+# "스위치"다. 이 워크플로 자체는 KIS 자격증명을 전혀 쓰지 않는다(순수 git
+# 커밋) - 그래서 secrets 추가 없이 안전하게 이 저장소(PUBLIC)에 둘 수 있다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      enabled:
+        description: "RV20 선물 모의주문 자동실행 켜기/끄기"
+        required: true
+        type: choice
+        options:
+          - "true"
+          - "false"
+        default: "false"
+
+permissions:
+  contents: write
+
+jobs:
+  toggle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update enabled flag
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          from datetime import datetime, timezone, timedelta
+
+          path = "research/strategy-lab/futures/rv20_automation_enabled.json"
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          data["enabled"] = "${{ inputs.enabled }}" == "true"
+          data["lastChangedBy"] = "github-actions-workflow-dispatch (${{ github.actor }})"
+          kst = timezone(timedelta(hours=9))
+          data["lastChangedAt"] = datetime.now(kst).isoformat()
+
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          PYEOF
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add research/strategy-lab/futures/rv20_automation_enabled.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: RV20 futures automation ${{ inputs.enabled }} (by ${{ github.actor }})"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push 재시도 $i"; sleep 5
+            done
+          else
+            echo "변경 없음 - 이미 ${{ inputs.enabled }} 상태"
+          fi

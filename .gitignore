@@ -54,6 +54,9 @@ ui/data/*
 # 커밋한다. 예외로 안 빼면 git add 가 조용히 아무 것도 안 해 이력이 영영 안 쌓인다
 # (소급 불가라 빠진 날은 되살릴 수 없다).
 !ui/data/equity-history.json
+# RV20 선물 자동화 on/off 표시용 - paper-trading-ui.yml이 research/strategy-lab/
+# futures/rv20_automation_enabled.json(정본, 커밋됨)을 그대로 복사해 커밋한다.
+!ui/data/rv20-futures-automation.json
 ui/orders/
 
 # 자격증명 메모 파일 - 저장소 안에 두지 않는다. 실수로 들어와도 커밋되지 않게 막는다.

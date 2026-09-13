@@ -10,18 +10,36 @@ Rule B: Q5->0x) 신호를 KIS 모의투자 선물 계좌에 실제로 반영하�
 3. 전광판에서 오늘 front-month 계약 코드를 조회(읽기 전용).
 4. 목표 계약수 - 현재 보유 = 주문 수량. 0이면 아무 것도 안 한다.
 5. **기본값은 항상 dry-run**이다 - 실제 주문은 `--confirm-live`를
-   명시적으로 줘야만 나간다. 이 스크립트는 자동화(cron/VM)에 연결돼
-   있지 않다 - 매번 사람이 실행하고 사람이 --confirm-live를 붙인다.
+   명시적으로 줘야만 나간다.
+6. `--confirm-live`가 있어도 `rv20_automation_enabled.json`의 `enabled`가
+   false면 주문을 내지 않는다(dry-run으로 강등, 이유를 출력) - VM
+   자동실행(deploy/rv20-futures-paper-order.timer)이 매일 이 스크립트를
+   `--confirm-live`로 부르지만, 이 파일이 꺼져 있으면 아무 일도 안
+   일어난다. 이 파일은 저장소에 커밋돼 있어 GitHub 웹 편집이나
+   `.github/workflows/rv20-futures-automation-toggle.yml`(Actions 탭)로
+   켜고 끈다 - VM은 매 실행 전 `git pull`로 최신값을 그대로 읽는다.
 
     python rv20_paper_order.py --capital 250000000                # dry-run(기본)
-    python rv20_paper_order.py --capital 250000000 --confirm-live  # 실제 주문
+    python rv20_paper_order.py --capital 250000000 --confirm-live  # 실제 주문(enabled=true일 때만)
 """
 import argparse
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+ENABLED_FLAG_PATH = Path(__file__).resolve().parent / "rv20_automation_enabled.json"
+
+
+def automation_enabled() -> bool:
+    if not ENABLED_FLAG_PATH.exists():
+        return False
+    try:
+        return bool(json.loads(ENABLED_FLAG_PATH.read_text(encoding="utf-8")).get("enabled", False))
+    except (ValueError, OSError):
+        return False
 
 from rv20_sizing_paper_signal import compute_today_signal
 from engine.live.kisVtsFuturesClient import KisVtsFuturesClient, KisVtsFuturesError
@@ -57,6 +75,14 @@ def main():
     ap.add_argument("--capital", type=float, required=True, help="이 실험에 배정한 자본(원)")
     ap.add_argument("--confirm-live", action="store_true", help="실제로 주문을 낸다(기본은 dry-run)")
     args = ap.parse_args()
+
+    live_requested = args.confirm_live
+    if live_requested and not automation_enabled():
+        print(f"[자동실행 꺼짐] {ENABLED_FLAG_PATH.name}의 enabled=false - "
+              f"--confirm-live를 받았지만 dry-run으로 강등한다.")
+        print(f"켜려면: GitHub Actions 'rv20-futures-automation-toggle' 워크플로 실행"
+              f" 또는 {ENABLED_FLAG_PATH} 직접 편집(enabled: true).\n")
+        args.confirm_live = False
 
     print("=== 1) 동결 규칙 신호 계산 (네트워크 없음) ===")
     signal = compute_today_signal()
