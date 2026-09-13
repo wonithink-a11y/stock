@@ -94,9 +94,27 @@ t_stat: null
 - SEMI Billings 유료 접근을 실제로 고려할 상황이 되면(별도 비용 승인
   필요, 이 연구축과 별개 결정).
 
+## 6b. 후속 — 가격(PPI) 축도 같은 날 시험·종료 (2026-09-13 추가)
+
+이 문서가 열어뒀던 "가격" 후보를 바로 이어서 시험했다 —
+[infinite-buying-soxl-semiconductor-ppi-pilot-2026-09-13.md](infinite-buying-soxl-semiconductor-ppi-pilot-2026-09-13.md).
+FRED `WPU1178`(반도체 PPI, 1965~2026, 무료·무가입, n=198)로 동일 배터리
+(Spearman+HAC+비중첩+분위수+전환이벤트)를 돌렸으나 **동일한 반증 패턴**이
+나왔다 — naive 전부 무의미, HAC에서 딱 하나(ppi_yoy_accel/1개월,
+p=0.001) 유의했지만 다른 horizon·다른 검증에서 전혀 안 받쳐줘 다중검정
+잡음으로 판단, 상승/하락전환 이벤트 수익률이 방향 무관 거의 동일(TSMC와
+같은 모양). 커밋 전 독립검토에서 "WPU1178이 FRED 블로그 인용 표준계열"
+이라던 근거가 틀렸다는 게 드러나(실제 인용 계열은 산업기준 `PCU3344133441`)
+그 계열로도 재검증했고, 결과는 동일했다(HAC p=0.012, 나머지 전부 무의미
+또는 반증). **DART(기업매출)·TSMC(산업매출)·PPI(가격, 2계열) 전부
+REJECT로 수렴**했다 — 이 문서 §6이 열어뒀던 유일한 후보(가격)까지
+남은 구멍 없이 닫혔으므로, 남은 재개 조건은 위 목록 중 DRAM/NAND 현물가·
+주문기반 지표뿐이다.
+
 ## 7. 관련 문서
 
 - [infinite-buying-soxl-semiconductor-cycle-feasibility-2026-09-13.md](infinite-buying-soxl-semiconductor-cycle-feasibility-2026-09-13.md)
 - [infinite-buying-soxl-semiconductor-cycle-dart-pilot-2026-09-13.md](infinite-buying-soxl-semiconductor-cycle-dart-pilot-2026-09-13.md)
 - [infinite-buying-soxl-tsmc-monthly-revenue-pilot-2026-09-13.md](infinite-buying-soxl-tsmc-monthly-revenue-pilot-2026-09-13.md)
+- [infinite-buying-soxl-semiconductor-ppi-pilot-2026-09-13.md](infinite-buying-soxl-semiconductor-ppi-pilot-2026-09-13.md)
 - [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) — 복귀할 가격/시장구조 라인

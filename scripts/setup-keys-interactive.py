@@ -59,6 +59,9 @@ SERVICES = [
     ("한국은행 ECOS", [
         ("ECOS_API_KEY", "API 키"),
     ]),
+    ("공공데이터포털(data.go.kr) - 관세청 수출입무역통계", [
+        ("DATA_GO_KR_API_KEY", "일반 인증키(Encoding)"),
+    ]),
 ]
 
 
