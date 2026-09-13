@@ -8,6 +8,7 @@
 """
 import datetime as dt
 import json
+import os
 import ssl
 import time
 import urllib.request
@@ -27,12 +28,19 @@ _CTX.verify_mode = ssl.CERT_NONE
 
 
 def load_env():
+    """저장소 루트 .env(로컬 개발환경)와 systemd EnvironmentFile(VM, 파일이
+    collector-venv/.env처럼 다른 자리에 있고 os.environ으로 이미 주입돼
+    있음) 둘 다 지원한다 - kisVtsClient.py/_load_env()와 같은 패턴
+    (2026-09-14, VM 실측: REPO/.env가 없어 FileNotFoundError로 죽던 문제)."""
     env = {}
     p = REPO / ".env"
-    for line in p.read_text(encoding="utf-8").splitlines():
-        k, _, v = line.partition("=")
-        if k.strip():
-            env[k.strip()] = v.strip()
+    if p.exists():
+        for line in p.read_text(encoding="utf-8").splitlines():
+            k, _, v = line.partition("=")
+            if k.strip():
+                env[k.strip()] = v.strip()
+    if os.environ.get("KRX_OPENAPI_KEY"):
+        env["KRX_OPENAPI_KEY"] = os.environ["KRX_OPENAPI_KEY"]
     return env
 
 
