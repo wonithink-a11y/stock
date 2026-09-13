@@ -56,9 +56,14 @@ def _ordinal(iso: str) -> int:
 
 
 def compute_position_by_date(qqq_candles: list[dict], band_mode: str,
-                              sma_window: int = SMA_WINDOW, band: float = BAND) -> dict:
+                              sma_window: int = SMA_WINDOW, band: float = BAND,
+                              confirm_days: int = 2) -> dict:
     """{date: 그날 보유해야 할 포지션(bool)}. 룩어헤드 없음 — signal(d)는
-    d일 종가까지 정보로 정해지고 d+1일의 포지션으로 한 칸 밀려 들어간다."""
+    d일 종가까지 정보로 정해지고 d+1일의 포지션으로 한 칸 밀려 들어간다.
+
+    confirm_days: 원형(auto-trade.app)은 2일 연속. 그 값을 바꾸는 실험은
+    파라미터 튜닝이므로 스윕 결과는 in-sample로만 취급한다(호출부 참고:
+    infinite_buying_regime_hybrid.py --confirm-sweep)."""
     closes = [c["close"] for c in qqq_candles]
     dates = [c["date"] for c in qqq_candles]
     sma = pd.Series(closes).rolling(sma_window).mean()
@@ -82,13 +87,13 @@ def compute_position_by_date(qqq_candles: list[dict], band_mode: str,
             consec_above = consec_below = 0
             zone = "band"
 
-        if zone == "above" and consec_above >= 2:
+        if zone == "above" and consec_above >= confirm_days:
             position = True
-        elif zone == "below" and consec_below >= 2:
+        elif zone == "below" and consec_below >= confirm_days:
             position = False
         elif zone == "band" and band_mode == "cash":
             position = False
-        # else: 아직 확정 안 됨(밴드+hold, 또는 1일차 above/below) -> 기존 포지션 유지
+        # else: 아직 확정 안 됨(밴드+hold, 또는 확인일수 미달) -> 기존 포지션 유지
         signal_today.append(position)
 
     result = {}
