@@ -15,7 +15,9 @@ from pathlib import Path
 
 import pandas as pd
 
-REPO = Path(r"C:\Users\User\projects\stock")
+REPO = Path(__file__).resolve().parents[2]  # 로컬 Windows 전용 하드코딩이던 것을
+# 2026-09-14에 포터블로 바꿈 - VM(Linux)에서 rv20-futures-paper-order.timer가
+# 이 스크립트를 직접 부르면서 처음 걸림(FileNotFoundError: 'C:\...\.env' 없음).
 OUT_DIR = REPO / "research" / "strategy-lab" / ".cache" / "kospi200_daily"
 STATE = OUT_DIR / "_state.json"
 

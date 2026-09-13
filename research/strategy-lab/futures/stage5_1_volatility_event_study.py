@@ -15,7 +15,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path(r"C:\Users\User\projects\stock")
+REPO = Path(__file__).resolve().parents[3]  # 로컬 Windows 전용 하드코딩이던 것을
+# 2026-09-14에 포터블로 바꿈 - rv20_paper_order.py가 VM(Linux)에서 이 모듈을
+# import할 때 CACHE 경로가 존재하지 않는 Windows 절대경로로 잡혀 load()가
+# 0개 파일을 읽는 문제가 있었다(scipy 설치 후 드러날 다음 실패).
 CACHE = REPO / "research" / "strategy-lab" / ".cache" / "kospi200_daily"
 OUTDIR = REPO / "research" / "strategy-lab" / "futures"
 HORIZONS = [1, 5, 20]
