@@ -50,6 +50,10 @@ SERVICES = [
         ("UPBIT_ACCESS_KEY", "액세스키(Access Key)"),
         ("UPBIT_SECRET_KEY", "시크릿키(Secret Key)"),
     ]),
+    ("빗썸", [
+        ("BITHUMB_ACCESS_KEY", "액세스키(Access Key)"),
+        ("BITHUMB_SECRET_KEY", "시크릿키(Secret Key)"),
+    ]),
     ("DART", [
         ("DART_API_KEY", "API 키"),
     ]),
