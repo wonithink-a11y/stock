@@ -60,6 +60,19 @@ window.CryptoTicker = (function () {
     return (await res.json())[0].trade_price;
   }
 
+  // 업비트가 요청이 몰리면 429를 CORS 헤더 없이 돌려준다 - 브라우저가
+  // 상태코드를 읽기 전에 막아버려서 fetch()가 "Failed to fetch"로 뭉뚱그린다
+  // (2026-09-15 실측). 그 창이 초 단위로 리셋되니 한 번 더 시도한다.
+  async function withRetry(fn, retries) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (retries <= 0) throw e;
+      await new Promise((r) => setTimeout(r, 1200));
+      return withRetry(fn, retries - 1);
+    }
+  }
+
   // 업비트는 자체 캔들 API, 빗썸은 자체 캔들 API를 각각 쓴다(교차로 빌리지
   // 않는다) - 같은 코인이라도 두 거래소 가격이 갈릴 수 있어 탭이 보여주는
   // 시세와 다른 거래소 차트를 섞으면 헷갈린다.
@@ -90,24 +103,40 @@ window.CryptoTicker = (function () {
       '<polyline points="' + pts + '" fill="none" style="stroke:' + color + ';stroke-width:1.5;stroke-linejoin:round" /></svg>';
   }
 
+  // 3개 출처(국내가·바이낸스가·USDT환율) 중 하나가 막혀도 나머지는 보여준다
+  // - Promise.all은 하나만 실패해도 전체를 던져 패널이 통째로 비었다(교훈57과
+  // 같은 모양: 모르는 값이 하나 있다고 아는 값까지 숨기지 않는다).
   async function renderPanel(container, exchange) {
     const PT = window.PT;
     container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">불러오는 중...</div></div>';
     const codes = COINS.map((c) => c.code);
     const fetchDomestic = exchange === "upbit" ? fetchUpbitTickers : fetchBithumbTickers;
 
-    let domestic, binance, usdtKrw;
-    try {
-      [domestic, binance, usdtKrw] = await Promise.all([fetchDomestic(codes), fetchBinanceUsdt(codes), fetchUsdtKrwRate()]);
-    } catch (e) {
-      container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">시세 조회 실패: ' +
-        String((e && e.message) || e) + "</div></div>";
+    const [domesticR, binanceR, usdtKrwR] = await Promise.allSettled([
+      withRetry(() => fetchDomestic(codes), 1),
+      withRetry(() => fetchBinanceUsdt(codes), 1),
+      withRetry(() => fetchUsdtKrwRate(), 1),
+    ]);
+    const domestic = domesticR.status === "fulfilled" ? domesticR.value : {};
+    const binance = binanceR.status === "fulfilled" ? binanceR.value : {};
+    const usdtKrw = usdtKrwR.status === "fulfilled" ? usdtKrwR.value : null;
+
+    if (domesticR.status === "rejected" && binanceR.status === "rejected" && usdtKrwR.status === "rejected") {
+      container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">시세 조회 실패(거래소 API 응답 없음) — 새로고침으로 다시 시도해주세요.</div></div>';
       return;
     }
 
+    const failedParts = [];
+    if (domesticR.status === "rejected") failedParts.push((exchange === "upbit" ? "업비트" : "빗썸") + " 시세");
+    if (binanceR.status === "rejected") failedParts.push("바이낸스 시세");
+    if (usdtKrwR.status === "rejected") failedParts.push("USDT/KRW 환율");
+
     let html = '<div class="panel"><h2>시세 · 김치프리미엄</h2>' +
-      '<div class="dim" style="font-size:11px;margin-bottom:8px">USDT/KRW 기준환율(업비트) ' + PT.formatPrice(usdtKrw) +
-      "원 · 해외가는 바이낸스 USDT 마켓 · 종목을 클릭하면 차트가 표시됩니다</div>" +
+      '<div class="dim" style="font-size:11px;margin-bottom:8px">USDT/KRW 기준환율(업비트) ' +
+      (usdtKrw ? PT.formatPrice(usdtKrw) + "원" : "—") +
+      " · 해외가는 바이낸스 USDT 마켓 · 종목을 클릭하면 차트가 표시됩니다</div>" +
+      (failedParts.length ? '<div class="warn" style="font-size:11px;margin-bottom:8px">조회 실패로 일부 값 비어있음: ' +
+        failedParts.join(", ") + " (새로고침으로 재시도 가능)</div>" : "") +
       '<table><thead><tr><th>코인</th><th>현재가</th><th>24H 등락</th><th>김치프리미엄</th></tr></thead><tbody>';
     COINS.forEach((c) => {
       const d = domestic[c.code];
@@ -130,7 +159,7 @@ window.CryptoTicker = (function () {
         const name = COINS.find((c) => c.code === code).name;
         slot.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
         try {
-          const candles = await fetchCandles(exchange, code, 168);
+          const candles = await withRetry(() => fetchCandles(exchange, code, 168), 1);
           slot.innerHTML = '<div class="dim" style="font-size:11px;margin-bottom:4px">' + name + " · 최근 7일(1시간봉)</div>" +
             lineChartSvg(candles);
         } catch (e) {
