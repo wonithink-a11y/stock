@@ -1,0 +1,12 @@
+[Unit]
+Description=Crypto real-account holdings refresh timer (%i)
+
+[Timer]
+# 크립토 거래소는 24시간 열려 있어 KIS(장중 09:00~15:50)처럼 시간창을
+# 둘 이유가 없다 - 하루 종일 15분 간격.
+OnCalendar=*-*-* *:0/15:00
+Persistent=true
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

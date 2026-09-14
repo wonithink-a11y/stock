@@ -214,6 +214,38 @@ async def handle_minute_history(request):
     return web.json_response({"ticker": ticker, "date": date, "bars": bars})
 
 
+# 실계좌(업비트·빗썸) 잔고 - scripts/crypto-real-holdings.py가 홈 디렉터리에
+# 써 둔 파일을 그대로 읽어 UI로 내보낸다(절대 git에 안 올라가는 파일이라
+# GH Pages 정적 배치로는 못 낸다 - 이 상시 서버가 유일한 통로). 파일이
+# 없거나(타이머 미설치·최초 실행 전) 깨졌으면 그 거래소만 null - 없는 걸
+# 0으로 보이면 안 된다(교훈57).
+UPBIT_HOLDINGS_PATH = Path(os.environ.get("UPBIT_HOLDINGS_PATH") or (Path.home() / ".upbit-holdings.json"))
+BITHUMB_HOLDINGS_PATH = Path(os.environ.get("BITHUMB_HOLDINGS_PATH") or (Path.home() / ".bithumb-holdings.json"))
+
+
+def _read_holdings_file(path):
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+async def handle_accounts(request):
+    # market-trend·minute-history의 CORS 허용은 nginx location 블록이 주는
+    # 것으로 보인다(이 파일 안에는 없다) - /accounts는 새 경로라 nginx가
+    # 그 블록을 안 타면 헤더가 안 붙는다. 여기서 직접 붙여 nginx 설정 여부와
+    # 무관하게 동작하게 한다(실측: 로컬 프리뷰에서 CORS 차단 확인 후 추가).
+    return web.json_response({
+        "fetchedAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "real": {
+            "upbit": _read_holdings_file(UPBIT_HOLDINGS_PATH),
+            "bithumb": _read_holdings_file(BITHUMB_HOLDINGS_PATH),
+        },
+    }, headers={"Cache-Control": "no-store", "Access-Control-Allow-Origin": "*"})
+
+
 def selftest():
     assert parse_eok("+1,101") == 1101
     assert parse_eok("-2,364") == -2364
@@ -230,6 +262,7 @@ def main():
     app = web.Application()
     app.router.add_get("/minute-history", handle_minute_history)
     app.router.add_get("/market-trend", handle_market_trend)
+    app.router.add_get("/accounts", handle_accounts)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)
 

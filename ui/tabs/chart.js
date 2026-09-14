@@ -76,6 +76,17 @@ window.TABS.chart = {
           container.insertAdjacentHTML("afterbegin", rv20AutomationStatusHtml(a));
         }
       } catch (e) { /* 카드 생략 */ }
+
+      // 실계좌(업비트·빗썸) - kis-minute-history-api.py의 /accounts가 VM
+      // 홈 디렉터리 격리 파일을 직접 읽어 내려준다(git에 안 올라가는 데이터라
+      // 정적 배치로는 못 낸다). fail-soft - 서버가 죽었거나 아직 그 파일이
+      // 없으면(타이머 미설치·최초 실행 전) 카드만 생략한다.
+      let realAccounts = null;
+      try {
+        const rRes = await fetch("https://wonithink-stock.duckdns.org/accounts");
+        if (rRes.ok) realAccounts = (await rRes.json()).real;
+      } catch (e) { /* 카드 생략 */ }
+      container.insertAdjacentHTML("afterbegin", accountsSummaryPanelHtml(data.account, realAccounts));
     } catch (e) {
       const msg = String((e && e.message) || e);
       // positions.json 은 KIS 모의계좌를 읽는 로컬 스크립트(build_ui_feed.py)가
@@ -89,6 +100,60 @@ window.TABS.chart = {
     }
   }
 };
+
+/* 모의투자 vs 실계좌 총자본 요약 + 실계좌(업비트·빗썸) 카드.
+   ★ 둘을 하나로 합쳐 보여주지 않는다(사용자 지시, 2026-09-14) - 가상자금과
+   실제 돈을 더한 "총자산"은 숫자로는 계산되지만 의미가 없는 값이라 절대
+   규칙 1("정직한 점수")과 같은 이유로 분리한다.
+   모의투자 총자본은 지금 KIS 국내주식(무한매수법)만 집계된다 - RV20 선물·
+   크립토 모의계좌는 아직 원화 평가액을 내는 산출물이 없어(RV20은 상태만,
+   크립토 모의는 poll-once 스모크 단계) 없는 걸 0으로 넣지 않는다. */
+function accountsSummaryPanelHtml(kisPaperAccount, real) {
+  const won = (v) => v === null || v === undefined
+    ? '<span class="dim">-</span>'
+    : Math.round(v).toLocaleString("ko-KR") + "원";
+
+  const paperTotal = kisPaperAccount ? kisPaperAccount.totalValueKrw : null;
+
+  const realEntries = [
+    { key: "upbit", label: "업비트" },
+    { key: "bithumb", label: "빗썸" },
+  ].map(({ key, label }) => ({ label, data: real && real[key] }));
+  const realTotal = realEntries.some((e) => e.data)
+    ? realEntries.reduce((sum, e) => sum + (e.data ? e.data.totalKrw : 0), 0)
+    : null;
+
+  let html = '<div class="panel" style="margin-bottom:12px">';
+  html += '  <div class="account-hero" style="padding:12px 16px">';
+  html += '    <div class="hero-stat"><div class="stat-label">모의투자 총자본</div>' +
+    '<div class="stat-value-lg mono">' + won(paperTotal) + '</div>' +
+    '<div class="dim" style="font-size:11px">국내주식(무한매수법)만 집계 - RV20 선물·크립토 모의는 별도 표시</div></div>';
+  html += '    <div class="hero-stat"><div class="stat-label">실계좌 총자본</div>' +
+    '<div class="stat-value-lg mono">' + won(realTotal) + '</div>' +
+    '<div class="dim" style="font-size:11px">업비트·빗썸 실계좌 합계(원화 환산)</div></div>';
+  html += "  </div>";
+
+  html += '  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:0 16px 12px">';
+  realEntries.forEach(({ label, data }) => {
+    html += '    <div class="card" style="flex:1;min-width:160px">';
+    html += '      <div class="dim" style="margin-bottom:4px">' + label + ' 실계좌</div>';
+    if (!data) {
+      html += '      <div class="dim">데이터 없음(VM 실계좌 조회 타이머 미실행 또는 응답 없음)</div>';
+    } else {
+      html += '      <div class="mono" style="font-size:18px;font-weight:600">' + won(data.totalKrw) + "</div>";
+      html += '      <div class="dim" style="font-size:11px">갱신 ' +
+        (data.generatedAtKST ? new Date(data.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div>";
+      if ((data.unresolvedCurrencies || []).length) {
+        html += '      <div class="warn" style="font-size:11px">시세 조회 실패로 합계 제외: ' +
+          data.unresolvedCurrencies.join(", ") + "</div>";
+      }
+    }
+    html += "    </div>";
+  });
+  html += "  </div>";
+  html += "</div>";
+  return html;
+}
 
 /* RV20 선물 sizing 규칙(동결, futures-rv20-sizing-rule-freeze-2026-09-13.md)의
    VM 자동실행 on/off 카드. 스위치는 GitHub Actions

@@ -1,0 +1,21 @@
+[Unit]
+# 업비트·빗썸 실계좌 잔고조회(scripts/crypto-real-holdings.py --exchange %i)
+# 결과는 저장소 밖 홈 디렉터리(~/.upbit-holdings.json · ~/.bithumb-holdings.json)에만
+# 쓴다 - 절대 git에 안 올라간다. 인스턴스 유닛이라 %i에 upbit|bithumb가 들어간다.
+Description=Crypto real-account holdings refresh (%i, read-only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/collector.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/crypto-real-holdings.py --exchange %i
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/crypto-real-holdings-%i.log
+StandardError=append:/home/ubuntu/collector-venv/logs/crypto-real-holdings-%i.log
+
+# 자격증명은 EnvironmentFile이 가리키는 파일에만 있다. 여기 쓰지 않는다.
+NoNewPrivileges=yes
+PrivateTmp=yes
