@@ -110,13 +110,29 @@ window.CryptoTicker = (function () {
     const PT = window.PT;
     container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">불러오는 중...</div></div>';
     const codes = COINS.map((c) => c.code);
-    const fetchDomestic = exchange === "upbit" ? fetchUpbitTickers : fetchBithumbTickers;
 
-    const [domesticR, binanceR, usdtKrwR] = await Promise.allSettled([
-      withRetry(() => fetchDomestic(codes), 1),
-      withRetry(() => fetchBinanceUsdt(codes), 1),
-      withRetry(() => fetchUsdtKrwRate(), 1),
-    ]);
+    let domesticR, binanceR, usdtKrwR;
+    if (exchange === "upbit") {
+      // 업비트 국내가·USDT환율을 한 호출로 합친다(markets에 KRW-USDT를 같이
+      // 넣는다) - 따로 두 번 부르면 업비트의 초당 요청 한도에 둘이 같이
+      // 걸려 가격은 뜨는데 환율만 실패하는 경우가 있었다(2026-09-15 실측 -
+      // 김치프리미엄 칸만 전부 빈 증상으로 나타났다).
+      const [combinedR, binR] = await Promise.allSettled([
+        withRetry(() => fetchUpbitTickers(codes.concat(["USDT"])), 1),
+        withRetry(() => fetchBinanceUsdt(codes), 1),
+      ]);
+      domesticR = combinedR;
+      binanceR = binR;
+      usdtKrwR = (combinedR.status === "fulfilled" && combinedR.value.USDT)
+        ? { status: "fulfilled", value: combinedR.value.USDT.price }
+        : { status: "rejected" };
+    } else {
+      [domesticR, binanceR, usdtKrwR] = await Promise.allSettled([
+        withRetry(() => fetchBithumbTickers(codes), 1),
+        withRetry(() => fetchBinanceUsdt(codes), 1),
+        withRetry(() => fetchUsdtKrwRate(), 1),
+      ]);
+    }
     const domestic = domesticR.status === "fulfilled" ? domesticR.value : {};
     const binance = binanceR.status === "fulfilled" ? binanceR.value : {};
     const usdtKrw = usdtKrwR.status === "fulfilled" ? usdtKrwR.value : null;

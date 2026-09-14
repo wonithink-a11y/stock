@@ -52,6 +52,13 @@ def _client_for(exchange):
     raise CryptoHoldingsError(f"알 수 없는 거래소: {exchange}")
 
 
+# 거래 지원이 끊겨 시세 자체가 없는 통화 - get_ticker를 불러봐야 항상
+# 실패하니(교훈57과 반대 방향: 이건 "모르는 값"이 아니라 "낼 수 없는 값"이다)
+# 아예 조회하지 않고 건너뛴다. PSG - 업비트 유의종목 지정 후 거래지원 종료
+# (2026-09-15 사용자 확인, 대시보드에 "시세 조회 실패"로만 뜨던 걸 신고).
+UNSUPPORTED_CURRENCIES = {"PSG"}
+
+
 def to_rows(client, accounts):
     """잔고 0(청산 완료 잔여 레코드)은 뺀다. KRW는 환산 없이 그대로,
     그 외 통화는 시세 조회로 원화 평가액을 계산한다 - 조회 실패한 자산은
@@ -64,6 +71,8 @@ def to_rows(client, accounts):
     rows = []
     for a in accounts:
         currency = a.get("currency")
+        if currency in UNSUPPORTED_CURRENCIES:
+            continue
         balance = float(a.get("balance") or 0) + float(a.get("locked") or 0)
         if balance <= 0:
             continue
@@ -96,9 +105,11 @@ def selftest():
         {"currency": "KRW", "balance": "500000", "locked": "0", "unit_currency": "KRW"},
         {"currency": "BTC", "balance": "0.001", "locked": "0", "unit_currency": "KRW"},
         {"currency": "ETH", "balance": "0", "locked": "0", "unit_currency": "KRW"},  # 0잔고 - 제외
+        {"currency": "PSG", "balance": "0.2", "locked": "0", "unit_currency": "KRW"},  # 거래지원 종료 - 제외, get_ticker도 안 불림
     ]
     rows = to_rows(_FakeClient(), accounts)
-    assert len(rows) == 2, "0잔고 통화는 빠져야 한다"
+    assert len(rows) == 2, "0잔고·거래지원종료 통화는 빠져야 한다"
+    assert not any(r["currency"] == "PSG" for r in rows), "PSG는 목록에 없어야 한다"
     krw_row = next(r for r in rows if r["currency"] == "KRW")
     assert krw_row["evalKrw"] == 500000, "KRW는 환산 없이 그대로여야 한다"
     assert krw_row["pnlKrw"] is None, "KRW는 손익 개념이 없어야 한다"

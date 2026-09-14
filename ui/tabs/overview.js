@@ -112,14 +112,14 @@ function renderRealAccountSubtab(container, label, acctData) {
   if (!holdings.length) {
     html += '<div class="empty">보유 자산이 없습니다.</div>';
   } else {
-    html += '<table><thead><tr><th>통화</th><th>보유수량</th><th>평균매입가</th><th>평가금액</th><th>평가손익</th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>통화</th><th>평가금액</th><th>평가손익</th><th>평균매입가</th><th>보유수량</th></tr></thead><tbody>';
     holdings.forEach((h) => {
       html += "<tr><td style='text-align:left'>" + h.currency + "</td>" +
-        '<td class="mono">' + h.balance + "</td>" +
-        '<td class="mono dim">' + (h.avgBuyPrice ? PT.formatAccount(h.avgBuyPrice) + "원" : "—") + "</td>" +
         '<td class="mono' + (h.evalKrw === null ? ' warn">시세 조회 실패' : '">' + PT.formatAccount(h.evalKrw) + "원") + "</td>" +
         '<td class="mono ' + PT.getPnlClass(h.pnlKrw) + '">' +
-        (h.pnlKrw == null ? "—" : PT.formatPnl(h.pnlKrw) + "원 (" + PT.formatPnlPct(h.pnlPct) + ")") + "</td></tr>";
+        (h.pnlKrw == null ? "—" : PT.formatPnl(h.pnlKrw) + "원 (" + PT.formatPnlPct(h.pnlPct) + ")") + "</td>" +
+        '<td class="mono dim">' + (h.avgBuyPrice ? PT.formatAccount(h.avgBuyPrice) + "원" : "—") + "</td>" +
+        '<td class="mono">' + h.balance + "</td></tr>";
     });
     html += "</tbody></table>";
   }
