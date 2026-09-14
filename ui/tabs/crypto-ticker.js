@@ -1,18 +1,18 @@
 /* 업비트·빗썸 실계좌 서브탭에 얹는 실시간 시세 패널 - 주요 10종목 현재가·
    24시간 등락률·프리미엄, 코인을 클릭하면 그 행 바로 아래에 캔들 차트가
    인라인으로 펼쳐진다(타임프레임 1분/5분/30분/1시간/일봉 선택 + 이동평균선
-   5/20/60/120 토글, TradingView의 오픈소스 lightweight-charts로 그린다 -
-   캔들·오버레이 렌더링을 손으로 새로 짜지 않는다, 필요할 때만 CDN에서
-   불러온다). RSI·MACD·이격도·매수매도비율은 이번 범위에 없다(2026-09-15
-   사용자 확인 - 핵심만 먼저).
+   5/20/60/120·RSI·MACD를 전부 체크박스로 켜고 끈다). 캔들·오버레이 렌더링은
+   TradingView의 오픈소스 lightweight-charts로 그린다(손으로 새로 안 짠다,
+   필요할 때만 CDN에서 불러온다). RSI·MACD는 lightweight-charts v4가
+   멀티패널을 지원 안 해서 별도 차트 인스턴스를 아래에 만들고 시간축을
+   동기화하는 방식이다. 이격도·매수매도비율은 이번 범위에 없다.
 
    거래소 공개 API(Upbit/Bithumb/Binance)는 Access-Control-Allow-Origin: *
    를 낸다(2026-09-14 실측) - 백엔드 없이 브라우저에서 바로 조회한다. 조회
    전용 원칙과도 맞다(주문 API는 안 쓴다).
 
    프리미엄 = 국내가 / (바이낸스 USDT가 × USDT/KRW) - 1. USDT/KRW는 업비트
-   KRW-USDT 시장가를 업비트·빗썸 공통 기준으로 쓴다 - 거래소마다 따로 재면
-   각자의 USDT 마켓 유동성 차이가 프리미엄값에 섞여 들어간다.
+   KRW-USDT 시장가를 업비트·빗썸 공통 기준으로 쓴다.
 
    30초 자동 갱신은 가격 셀만 제자리에서 바꾼다(테이블 구조를 다시 안
    그린다) - 열려있는 인라인 차트를 갱신 때마다 부수고 다시 만들면 pan/zoom
@@ -47,6 +47,7 @@ window.CryptoTicker = (function () {
   ];
   const MA_PERIODS = [5, 20, 60, 120];
   const MA_COLORS = { 5: "#f5a623", 20: "#4f8ef7", 60: "#b45cff", 120: "#2ecc71" };
+  const PANEL_H = 100; // RSI/MACD 보조 패널 높이(px) - 캔들 패널(280px)보다 작게
 
   function cssVar(name, fallback) {
     const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -163,8 +164,8 @@ window.CryptoTicker = (function () {
     }));
   }
 
-  // 이동평균 - 닫힌 봉의 종가만 쓴다(진행 중인 마지막 봉 포함 여부로 값이
-  // 흔들리지 않게 캔들 API가 준 값을 그대로 신뢰한다).
+  // ---- 지표 계산 (전부 로컬 계산, API 호출 없음) ----
+
   function computeMA(bars, period) {
     const out = [];
     let sum = 0;
@@ -176,9 +177,52 @@ window.CryptoTicker = (function () {
     return out;
   }
 
-  // TradingView 오픈소스 lightweight-charts(MIT) - 캔들·오버레이 렌더링을
-  // 직접 짜지 않는다. 코인을 처음 클릭할 때만 불러온다(페이지 로드마다
-  // 160KB를 얹지 않는다).
+  // Wilder 방식 14기간 RSI - 표준 공식(처음 period개 변화의 단순평균으로
+  // 시작 → 이후는 지수적 평활).
+  function computeRSI(bars, period) {
+    const out = [];
+    if (bars.length <= period) return out;
+    let gainSum = 0, lossSum = 0;
+    for (let i = 1; i <= period; i++) {
+      const change = bars[i].close - bars[i - 1].close;
+      gainSum += Math.max(change, 0);
+      lossSum += Math.max(-change, 0);
+    }
+    let avgGain = gainSum / period, avgLoss = lossSum / period;
+    out.push({ time: bars[period].time, value: avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss) });
+    for (let i = period + 1; i < bars.length; i++) {
+      const change = bars[i].close - bars[i - 1].close;
+      avgGain = (avgGain * (period - 1) + Math.max(change, 0)) / period;
+      avgLoss = (avgLoss * (period - 1) + Math.max(-change, 0)) / period;
+      out.push({ time: bars[i].time, value: avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss) });
+    }
+    return out;
+  }
+
+  function computeEMASeries(values, period) {
+    const k = 2 / (period + 1);
+    const out = new Array(values.length);
+    let prev = values[0];
+    out[0] = prev;
+    for (let i = 1; i < values.length; i++) {
+      prev = values[i] * k + prev * (1 - k);
+      out[i] = prev;
+    }
+    return out;
+  }
+
+  // MACD(12,26,9) 표준 - EMA 시드를 첫 값으로 두는 간이 방식(초반 몇 봉의
+  // 오차는 있지만 일반적인 차트 라이브러리들의 관행과 같다).
+  function computeMACD(bars, fast, slow, signalPeriod) {
+    const closes = bars.map((b) => b.close);
+    const emaFast = computeEMASeries(closes, fast);
+    const emaSlow = computeEMASeries(closes, slow);
+    const macdLine = closes.map((_, i) => emaFast[i] - emaSlow[i]);
+    const signalLine = computeEMASeries(macdLine, signalPeriod);
+    return bars.map((b, i) => ({ time: b.time, macd: macdLine[i], signal: signalLine[i], hist: macdLine[i] - signalLine[i] }));
+  }
+
+  // ---- TradingView 오픈소스 lightweight-charts(MIT) 지연 로드 ----
   let chartsLibPromise = null;
   function loadChartsLib() {
     if (window.LightweightCharts) return Promise.resolve(window.LightweightCharts);
@@ -194,22 +238,69 @@ window.CryptoTicker = (function () {
     return chartsLibPromise;
   }
 
+  function baseChartOptions(width, height, timeVisible) {
+    return {
+      width, height,
+      layout: { background: { color: "transparent" }, textColor: cssVar("--text-dim", "#888") },
+      grid: { vertLines: { visible: false }, horzLines: { color: "rgba(128,128,128,0.12)" } },
+      rightPriceScale: { borderVisible: false },
+      timeScale: { borderVisible: false, timeVisible, secondsVisible: false, visible: false },
+    };
+  }
+
   // 한 번에 하나만 연다 - 여러 코인 차트를 동시에 띄우면 어느 게 어느
   // 프리미엄 행 아래 것인지 헷갈린다.
-  let openChart = null; // { code, exchange, timeframeId, activeMAs, row, tr, lwChart, maSeries, bars, cleanupResize }
+  let openChart = null;
 
   function closeOpenChart() {
     if (!openChart) return;
-    if (openChart.cleanupResize) openChart.cleanupResize();
-    if (openChart.lwChart) openChart.lwChart.remove();
+    openChart.cleanupFns.forEach((fn) => fn());
+    [openChart.mainChart, openChart.rsiChart, openChart.macdChart].forEach((c) => { if (c) c.remove(); });
     if (openChart.row) openChart.row.style.background = "";
     if (openChart.tr) openChart.tr.remove();
     openChart = null;
   }
 
-  async function drawChart(bodyEl) {
+  // 여러 차트 인스턴스의 시간축을 동기화한다(lightweight-charts v4는 한
+  // 차트 안에 여러 패널을 못 넣어서 RSI/MACD를 별도 차트로 만든다 - 대신
+  // 보이는 시간 범위를 서로 맞춘다). syncing 플래그로 상호 호출 루프를 막는다.
+  function syncTimeScales(charts) {
+    let syncing = false;
+    const unsubs = [];
+    charts.forEach((c) => {
+      const handler = (range) => {
+        if (syncing || !range) return;
+        syncing = true;
+        charts.forEach((other) => { if (other !== c) other.timeScale().setVisibleLogicalRange(range); });
+        syncing = false;
+      };
+      c.timeScale().subscribeVisibleLogicalRangeChange(handler);
+      unsubs.push(() => c.timeScale().unsubscribeVisibleLogicalRangeChange(handler));
+    });
+    return () => unsubs.forEach((u) => u());
+  }
+
+  // 활성 패널(캔들+선택된 RSI/MACD) 중 맨 아래 것만 시간축 눈금을 보여준다.
+  function resyncPanels(state) {
+    if (state.timeScaleCleanup) { state.timeScaleCleanup(); state.timeScaleCleanup = null; }
+    const active = [state.mainChart, state.rsiChart, state.macdChart].filter(Boolean);
+    active.forEach((c, i) => c.applyOptions({ timeScale: { visible: i === active.length - 1 } }));
+    if (active.length > 1) state.timeScaleCleanup = syncTimeScales(active);
+    active[active.length - 1].timeScale().fitContent();
+  }
+
+  function makePanel(container, height, timeVisible) {
+    const el = document.createElement("div");
+    el.style.width = "100%";
+    el.style.height = height + "px";
+    container.appendChild(el);
+    return el;
+  }
+
+  async function drawChart(td) {
     const state = openChart;
-    bodyEl.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
+    const body = td.querySelector('[data-role="body"]');
+    body.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
     let LW, bars;
     try {
       [LW, bars] = await Promise.all([
@@ -217,31 +308,25 @@ window.CryptoTicker = (function () {
         withRetry(() => fetchOhlc(state.exchange, state.code, state.timeframeId, 200), 1),
       ]);
     } catch (e) {
-      if (openChart === state) bodyEl.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) + "</div>";
+      if (openChart === state) body.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) + "</div>";
       return;
     }
     if (openChart !== state) return; // 로딩 중 닫히거나 다른 코인으로 바뀌었으면 그린다
-    bodyEl.innerHTML = "";
-    const chartEl = document.createElement("div");
-    chartEl.style.width = "100%";
-    chartEl.style.height = "280px";
-    bodyEl.appendChild(chartEl);
 
-    const chart = LW.createChart(chartEl, {
-      width: chartEl.clientWidth, height: 280,
-      layout: { background: { color: "transparent" }, textColor: cssVar("--text-dim", "#888") },
-      grid: { vertLines: { visible: false }, horzLines: { color: "rgba(128,128,128,0.12)" } },
-      rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false, timeVisible: state.timeframeId !== "1d", secondsVisible: false },
-    });
+    state.cleanupFns.forEach((fn) => fn());
+    state.cleanupFns = [];
+    body.innerHTML = "";
+    const mainEl = makePanel(body, 280, state.timeframeId !== "1d");
+    const chart = LW.createChart(mainEl, baseChartOptions(mainEl.clientWidth, 280, state.timeframeId !== "1d"));
     const up = cssVar("--up", "#e0384a"), down = cssVar("--down", "#2f6fe0");
     const candleSeries = chart.addCandlestickSeries({
       upColor: up, downColor: down, borderVisible: false, wickUpColor: up, wickDownColor: down,
     });
     candleSeries.setData(bars);
 
-    state.lwChart = chart;
     state.bars = bars;
+    state.mainChart = chart;
+    state.candleSeries = candleSeries;
     state.maSeries = {};
     MA_PERIODS.forEach((p) => {
       if (!state.activeMAs.has(p)) return;
@@ -249,24 +334,71 @@ window.CryptoTicker = (function () {
       s.setData(computeMA(bars, p));
       state.maSeries[p] = s;
     });
-    chart.timeScale().fitContent();
 
-    const onResize = () => { if (openChart === state) chart.applyOptions({ width: chartEl.clientWidth }); };
+    const rsiHost = td.querySelector('[data-role="rsi-panel"]');
+    const macdHost = td.querySelector('[data-role="macd-panel"]');
+    rebuildIndicatorPanels(state, LW, rsiHost, macdHost);
+
+    const onResize = () => {
+      if (openChart !== state) return;
+      const w = mainEl.clientWidth;
+      [state.mainChart, state.rsiChart, state.macdChart].forEach((c) => { if (c) c.applyOptions({ width: w }); });
+    };
     window.addEventListener("resize", onResize);
-    state.cleanupResize = () => window.removeEventListener("resize", onResize);
+    state.cleanupFns.push(() => window.removeEventListener("resize", onResize));
+  }
+
+  // RSI/MACD 체크박스가 바뀔 때마다 부른다 - 캔들 데이터(state.bars)는 이미
+  // 있으니 다시 받지 않고 패널만 만들거나 지운다.
+  function rebuildIndicatorPanels(state, LW, rsiHost, macdHost) {
+    if (state.rsiChart) { state.rsiChart.remove(); state.rsiChart = null; }
+    if (state.macdChart) { state.macdChart.remove(); state.macdChart = null; }
+    rsiHost.innerHTML = "";
+    macdHost.innerHTML = "";
+
+    if (state.rsiOn && state.bars) {
+      const el = makePanel(rsiHost, PANEL_H, state.timeframeId !== "1d");
+      const chart = LW.createChart(el, baseChartOptions(el.clientWidth, PANEL_H, state.timeframeId !== "1d"));
+      const series = chart.addLineSeries({ color: "#facc15", lineWidth: 1, priceLineVisible: false, lastValueVisible: true });
+      series.setData(computeRSI(state.bars, 14));
+      series.createPriceLine({ price: 70, color: "rgba(224,56,74,0.4)", lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
+      series.createPriceLine({ price: 30, color: "rgba(47,111,224,0.4)", lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
+      state.rsiChart = chart;
+    }
+
+    if (state.macdOn && state.bars) {
+      const el = makePanel(macdHost, PANEL_H, state.timeframeId !== "1d");
+      const chart = LW.createChart(el, baseChartOptions(el.clientWidth, PANEL_H, state.timeframeId !== "1d"));
+      const up = cssVar("--up", "#e0384a"), down = cssVar("--down", "#2f6fe0");
+      const macdData = computeMACD(state.bars, 12, 26, 9);
+      const histSeries = chart.addHistogramSeries({ priceLineVisible: false, lastValueVisible: false });
+      histSeries.setData(macdData.map((d) => ({ time: d.time, value: d.hist, color: d.hist >= 0 ? up : down })));
+      const macdSeries = chart.addLineSeries({ color: "#4f8ef7", lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+      macdSeries.setData(macdData.map((d) => ({ time: d.time, value: d.macd })));
+      const signalSeries = chart.addLineSeries({ color: "#f5a623", lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+      signalSeries.setData(macdData.map((d) => ({ time: d.time, value: d.signal })));
+      state.macdChart = chart;
+    }
+
+    resyncPanels(state);
   }
 
   function toggleMA(period) {
-    if (!openChart || !openChart.lwChart) return;
+    if (!openChart || !openChart.mainChart) return;
     if (openChart.activeMAs.has(period)) {
       openChart.activeMAs.delete(period);
-      if (openChart.maSeries[period]) { openChart.lwChart.removeSeries(openChart.maSeries[period]); delete openChart.maSeries[period]; }
+      if (openChart.maSeries[period]) { openChart.mainChart.removeSeries(openChart.maSeries[period]); delete openChart.maSeries[period]; }
     } else {
       openChart.activeMAs.add(period);
-      const s = openChart.lwChart.addLineSeries({ color: MA_COLORS[period], lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+      const s = openChart.mainChart.addLineSeries({ color: MA_COLORS[period], lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
       s.setData(computeMA(openChart.bars, period));
       openChart.maSeries[period] = s;
     }
+  }
+
+  function checkboxLabel(value, text, color) {
+    return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;cursor:pointer' +
+      (color ? ";color:" + color : "") + '"><input type="checkbox" value="' + value + '" style="cursor:pointer">' + text + "</label>";
   }
 
   function chartControlsHtml() {
@@ -274,13 +406,17 @@ window.CryptoTicker = (function () {
       '<div class="v-chip-row" data-role="tf" style="margin:0">' +
         TIMEFRAMES.map((t) => '<button class="v-chip" data-tf="' + t.id + '">' + t.label + "</button>").join("") +
       "</div>" +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        '<div class="v-chip-row" data-role="ma" style="margin:0">' +
-          MA_PERIODS.map((p) => '<button class="v-chip" data-ma="' + p + '" style="border-color:' + MA_COLORS[p] + '">MA' + p + "</button>").join("") +
-        "</div>" +
-        '<button class="v-chip" data-role="close">닫기 ✕</button>' +
-      "</div></div>" +
-      '<div data-role="body"><div class="empty">차트 불러오는 중...</div></div>';
+      '<button class="v-chip" data-role="close">닫기 ✕</button>' +
+      "</div>" +
+      '<div data-role="indicators" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;padding:6px 0;border-top:1px solid var(--panel-border);border-bottom:1px solid var(--panel-border)">' +
+        '<span class="dim" style="font-size:11px">지표</span>' +
+        MA_PERIODS.map((p) => checkboxLabel("ma" + p, "MA" + p, MA_COLORS[p])).join("") +
+        checkboxLabel("rsi", "RSI") +
+        checkboxLabel("macd", "MACD") +
+      "</div>" +
+      '<div data-role="body"><div class="empty">차트 불러오는 중...</div></div>' +
+      '<div data-role="rsi-panel" style="margin-top:4px"></div>' +
+      '<div data-role="macd-panel" style="margin-top:4px"></div>';
   }
 
   function openInlineChart(row, code, exchange) {
@@ -297,7 +433,12 @@ window.CryptoTicker = (function () {
     row.after(tr);
     row.style.background = "var(--surface-3)";
 
-    openChart = { code, exchange, timeframeId: "1h", activeMAs: new Set(), row, tr, lwChart: null, maSeries: {}, bars: null };
+    openChart = {
+      code, exchange, timeframeId: "1h", activeMAs: new Set(), rsiOn: false, macdOn: false,
+      row, tr, bars: null, mainChart: null, candleSeries: null, maSeries: {},
+      rsiChart: null, macdChart: null, timeScaleCleanup: null, cleanupFns: [],
+    };
+
     td.querySelector('[data-tf="1h"]').classList.add("active");
     td.querySelectorAll("[data-tf]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -305,19 +446,22 @@ window.CryptoTicker = (function () {
         td.querySelectorAll("[data-tf]").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         openChart.timeframeId = btn.dataset.tf;
-        drawChart(td.querySelector('[data-role="body"]'));
+        drawChart(td);
       });
     });
-    td.querySelectorAll("[data-ma]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        toggleMA(Number(btn.dataset.ma));
+    td.querySelectorAll('[data-role="indicators"] input[type="checkbox"]').forEach((box) => {
+      box.addEventListener("change", () => {
+        if (!openChart) return;
+        const v = box.value;
+        if (v === "rsi") { openChart.rsiOn = box.checked; loadChartsLib().then((LW) => rebuildIndicatorPanels(openChart, LW, td.querySelector('[data-role="rsi-panel"]'), td.querySelector('[data-role="macd-panel"]'))); return; }
+        if (v === "macd") { openChart.macdOn = box.checked; loadChartsLib().then((LW) => rebuildIndicatorPanels(openChart, LW, td.querySelector('[data-role="rsi-panel"]'), td.querySelector('[data-role="macd-panel"]'))); return; }
+        toggleMA(Number(v.replace("ma", "")));
       });
     });
     td.querySelector('[data-role="close"]').addEventListener("click", closeOpenChart);
 
     tr.scrollIntoView({ behavior: "smooth", block: "center" });
-    drawChart(td.querySelector('[data-role="body"]'));
+    drawChart(td);
   }
 
   function rowHtml(c) {
