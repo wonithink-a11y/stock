@@ -171,6 +171,46 @@ function renderKisRealSubtab(container, acctData) {
   container.innerHTML = html;
 }
 
+// ★ KIS 공식 문서로 검증한 게 아니라, 실측 응답(2026-09-14, capital
+// 250,000,000 dry-run)의 네이밍 규칙(dnca=예수금·evlu=평가·pfls=손익·
+// smtl=합계·pchs=매입·mgna=증거금·psbl=가능)과 실제 숫자(예: futr_evlu_
+// pfls_amt=-849999가 pchs_amt_smtl 262,950,000 대비 매입/평가 262,950,000
+// vs 262,100,000의 차이 -850,000과 거의 일치)를 대조해서 붙인 추정 라벨이다.
+// 틀렸을 수 있다 - 그래서 원문 필드명을 항상 같이 보여준다.
+const RV20_FIELD_LABELS = {
+  dnca_cash: "예수금(현금)", tot_dncl_amt: "총예탁금액", frcr_dncl_amt: "외화예탁금액",
+  dnca_sbst: "대용예수금", tot_ccld_amt: "총체결금액",
+  cash_mgna: "현금증거금", sbst_mgna: "대용증거금", mgna_tota: "증거금총액",
+  nxdy_dnca: "익일예수금", nxdy_dncl_amt: "익일예탁금액",
+  prsm_dpast: "추정예탁자산", prsm_dpast_amt: "추정예탁자산금액",
+  pprt_ord_psbl_cash: "주문가능현금", ord_psbl_cash: "주문가능현금", ord_psbl_sbst: "주문가능대용", ord_psbl_tota: "주문가능총액",
+  wdrw_psbl_tot_amt: "인출가능총액",
+  add_mgna_cash: "추가증거금(현금)", add_mgna_tota: "추가증거금총액",
+  futr_trad_pfls_amt: "선물매매손익(실현)", opt_trad_pfls_amt: "옵션매매손익(실현)",
+  futr_evlu_pfls_amt: "선물평가손익(미실현)", opt_evlu_pfls_amt: "옵션평가손익(미실현)",
+  trad_pfls_amt_smtl: "매매손익합계(실현)", evlu_pfls_amt_smtl: "평가손익합계(미실현)",
+  pchs_amt_smtl: "매입금액합계", evlu_amt_smtl: "평가금액합계",
+  fee: "수수료", opt_dfpa: "옵션차금", thdt_dfpa: "당일차금", rnwl_dfpa: "갱신차금",
+};
+
+// 선물평가손익(미실현)·매입/평가금액합계 - 추정이지만 가장 확인하고 싶을
+// 값이라 원문 표(스크롤 필요) 대신 상단 KPI로 먼저 보여준다.
+function rv20PnlKpiHtml(raw) {
+  const PT = window.PT;
+  const pnl = raw.futr_evlu_pfls_amt != null ? Number(raw.futr_evlu_pfls_amt) : null;
+  const cost = raw.pchs_amt_smtl != null ? Number(raw.pchs_amt_smtl) : null;
+  const evlu = raw.evlu_amt_smtl != null ? Number(raw.evlu_amt_smtl) : null;
+  if (pnl == null && cost == null && evlu == null) return "";
+  const cardHtml = (label, v) => '<div class="kpi-card"><div class="kpi-label">' + label + '</div>' +
+    '<div class="kpi-value mono' + (v == null ? "" : " " + PT.getPnlClass(v)) + '">' +
+    (v == null ? "—" : PT.formatPnl(v) + "원") + "</div></div>";
+  return '<div class="dim" style="font-size:11px;margin:8px 0 4px">아래 3개는 추정 라벨입니다(확실치 않음, 원문은 표에서 확인):</div>' +
+    '<div class="kpi-grid">' + cardHtml("선물평가손익(추정)", pnl) +
+    '<div class="kpi-card"><div class="kpi-label">매입금액합계(추정)</div><div class="kpi-value mono">' + (cost == null ? "—" : PT.formatAccount(cost) + "원") + "</div></div>" +
+    '<div class="kpi-card"><div class="kpi-label">평가금액합계(추정)</div><div class="kpi-value mono">' + (evlu == null ? "—" : PT.formatAccount(evlu) + "원") + "</div></div>" +
+    "</div>";
+}
+
 function renderRv20Subtab(container, rv20, holdings) {
   const PT = window.PT;
   const on = !!(rv20 && rv20.enabled);
@@ -204,13 +244,18 @@ function renderRv20Subtab(container, rv20, holdings) {
   html += "</div>";
 
   const raw = holdings.rawSummary || {};
+  html += rv20PnlKpiHtml(raw);
+
   const keys = Object.keys(raw);
-  html += '<div class="panel" style="margin-top:12px"><h2>계좌 잔고 원문 <span class="dim" style="font-size:11px;font-weight:400">— KIS 선물 응답 필드명 미검증, 재해석 없이 그대로 표시</span></h2>';
+  html += '<div class="panel" style="margin-top:12px"><h2>계좌 잔고 원문 <span class="dim" style="font-size:11px;font-weight:400">— 라벨은 KIS 공식 문서가 아니라 네이밍 규칙+실측값 대조로 추정, 원문 필드명도 같이 표시</span></h2>';
   if (!keys.length) {
     html += '<div class="empty">원문 데이터가 비어 있습니다.</div>';
   } else {
-    html += '<table><thead><tr><th>필드</th><th>값</th></tr></thead><tbody>';
-    keys.forEach((k) => { html += "<tr><td class='mono dim' style='text-align:left'>" + k + "</td><td class='mono'>" + String(raw[k]) + "</td></tr>"; });
+    html += '<table><thead><tr><th>항목(추정)</th><th>필드</th><th>값</th></tr></thead><tbody>';
+    keys.forEach((k) => {
+      html += "<tr><td style='text-align:left'>" + (RV20_FIELD_LABELS[k] || '<span class="dim">—</span>') + "</td>" +
+        "<td class='mono dim' style='text-align:left'>" + k + "</td><td class='mono'>" + String(raw[k]) + "</td></tr>";
+    });
     html += "</tbody></table>";
   }
   html += "</div>";
