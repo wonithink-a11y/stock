@@ -103,16 +103,20 @@ window.CryptoTicker = (function () {
     return (await res.json())[0].trade_price;
   }
 
-  // 업비트가 요청이 몰리면 429를 CORS 헤더 없이 돌려준다 - 브라우저가
-  // 상태코드를 읽기 전에 막아버려서 fetch()가 "Failed to fetch"로 뭉뚱그린다
-  // (2026-09-15 실측). 그 창이 초 단위로 리셋되니 한 번 더 시도한다.
-  async function withRetry(fn, retries) {
+  // 업비트는 브라우저에서 오는 CORS 요청에 서버 대 서버 호출(분당 수백회)과
+  // 완전히 다른, 훨씬 빡빡한 별도 한도를 건다 - 실측(2026-09-15)으로 IP당
+  // 분당 6회 수준까지 확인했다(Origin 헤더가 있으면 무조건 이 좁은 통로).
+  // 막히면 CORS 헤더 없는 429를 돌려줘 브라우저가 상태코드를 읽기도 전에
+  // "Failed to fetch"로 뭉뚱그린다. 분당 한도라 1.2초 뒤 한 번만 다시
+  // 시도하는 걸로는 부족할 때가 많아 지수 백오프로 최대 2번 더 시도한다.
+  async function withRetry(fn, retries, delayMs) {
+    const delay = delayMs || 1500;
     try {
       return await fn();
     } catch (e) {
       if (retries <= 0) throw e;
-      await new Promise((r) => setTimeout(r, 1200));
-      return withRetry(fn, retries - 1);
+      await new Promise((r) => setTimeout(r, delay));
+      return withRetry(fn, retries - 1, delay * 2);
     }
   }
 
@@ -126,8 +130,8 @@ window.CryptoTicker = (function () {
       // 넣는다) - 따로 두 번 부르면 업비트의 초당 요청 한도에 둘이 같이
       // 걸려 가격은 뜨는데 환율만 실패하는 경우가 있었다(2026-09-15 실측).
       const [combinedR, binR] = await Promise.allSettled([
-        withRetry(() => fetchUpbitTickers(codes.concat(["USDT"])), 1),
-        withRetry(() => fetchBinanceUsdt(codes), 1),
+        withRetry(() => fetchUpbitTickers(codes.concat(["USDT"])), 2),
+        withRetry(() => fetchBinanceUsdt(codes), 2),
       ]);
       domesticR = combinedR;
       binanceR = binR;
@@ -136,9 +140,9 @@ window.CryptoTicker = (function () {
         : { status: "rejected" };
     } else {
       [domesticR, binanceR, usdtKrwR] = await Promise.allSettled([
-        withRetry(() => fetchBithumbTickers(codes), 1),
-        withRetry(() => fetchBinanceUsdt(codes), 1),
-        withRetry(() => fetchUsdtKrwRate(), 1),
+        withRetry(() => fetchBithumbTickers(codes), 2),
+        withRetry(() => fetchBinanceUsdt(codes), 2),
+        withRetry(() => fetchUsdtKrwRate(), 2),
       ]);
     }
     const domestic = domesticR.status === "fulfilled" ? domesticR.value : {};
@@ -326,10 +330,15 @@ window.CryptoTicker = (function () {
     try {
       [LW, bars] = await Promise.all([
         loadChartsLib(),
-        withRetry(() => fetchOhlc(state.exchange, state.code, state.timeframeId, 200), 1),
+        withRetry(() => fetchOhlc(state.exchange, state.code, state.timeframeId, 200), 2),
       ]);
     } catch (e) {
-      if (openChart === state) body.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) + "</div>";
+      if (openChart === state) {
+        body.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) +
+          '<br><button class="v-chip" data-role="retry-chart" style="margin-top:6px">다시 시도</button></div>';
+        const retryBtn = body.querySelector('[data-role="retry-chart"]');
+        if (retryBtn) retryBtn.addEventListener("click", () => { if (openChart === state) drawChart(td); });
+      }
       return;
     }
     if (openChart !== state) return; // 로딩 중 닫히거나 다른 코인으로 바뀌었으면 그린다
