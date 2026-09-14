@@ -10,18 +10,17 @@ Wants=network-online.target
 Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
-# ★ kis-portfolio-holdings.service와 다르다 - upbitClient.py/bithumbClient.py는
-# systemd EnvironmentFile 간접 지시(KIS_ENV_PATH류)를 안 쓰고 저장소 루트
-# .env(REPO_ROOT = Path(__file__)에서 5단계 위)를 파이썬 코드가 직접 읽는다.
-# 그래서 여기 EnvironmentFile을 안 둔다 - systemd의 엄격한 파서(따옴표·주석
-# 형식에 민감)를 안 거치고 클라이언트 자체 파서(관대함)로 읽는 게 더 안전하다.
-# 실측(2026-09-14): collector-venv/collector.env를 EnvironmentFile로 뒀더니
-# 두 클라이언트 다 "UPBIT_ACCESS_KEY/SECRET_KEY 중 하나가 .env에 없다"로 실패했다.
+# ★ 실측(2026-09-14, 사용자가 수동 테스트로 확인) - UPBIT/BITHUMB 키는
+# /home/ubuntu/collector/.env도 collector-venv/collector.env도 아니라
+# ~/collector-venv/.env에 있다. 수동 테스트는 "set -a; source
+# ~/collector-venv/.env; set +a"로 여기서 주입한다 - systemd는
+# EnvironmentFile로 같은 일을 한다.
+EnvironmentFile=/home/ubuntu/collector-venv/.env
 ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/crypto-real-holdings.py --exchange %i
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/crypto-real-holdings-%i.log
 StandardError=append:/home/ubuntu/collector-venv/logs/crypto-real-holdings-%i.log
 
-# 자격증명은 저장소 루트 .env에만 있다. 여기 쓰지 않는다.
+# 자격증명은 EnvironmentFile이 가리키는 파일에만 있다. 여기 쓰지 않는다.
 NoNewPrivileges=yes
 PrivateTmp=yes
