@@ -97,7 +97,7 @@ function renderRealAccountSubtab(container, label, acctData) {
   html += '<div class="kpi-grid">' +
     '<div class="kpi-card"><div class="kpi-label">총 평가금액(원화 환산)</div><div class="kpi-value mono">' + won(acctData.totalKrw) + "</div>" +
     '<div class="kpi-sub">갱신 ' + (acctData.generatedAtKST ? new Date(acctData.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>" +
-    '<div class="kpi-card"><div class="kpi-label">평가손익 <span class="dim" style="font-weight:400">(매입가 아는 자산만)</span></div>' +
+    '<div class="kpi-card"><div class="kpi-label">평가손익</div>' +
     '<div class="kpi-value mono ' + PT.getPnlClass(acctData.totalPnlKrw) + '">' +
     (acctData.totalPnlKrw == null ? "—" : PT.formatPnl(acctData.totalPnlKrw) + "원") + "</div>" +
     (acctData.totalCostKrw ? '<div class="kpi-sub">매입원가 ' + PT.formatAccount(acctData.totalCostKrw) + "원</div>" : "") + "</div></div>";
@@ -204,8 +204,7 @@ function rv20PnlKpiHtml(raw) {
   const cardHtml = (label, v) => '<div class="kpi-card"><div class="kpi-label">' + label + '</div>' +
     '<div class="kpi-value mono' + (v == null ? "" : " " + PT.getPnlClass(v)) + '">' +
     (v == null ? "—" : PT.formatPnl(v) + "원") + "</div></div>";
-  return '<div class="dim" style="font-size:11px;margin:8px 0 4px">아래 3개는 추정 라벨입니다(확실치 않음, 원문은 표에서 확인):</div>' +
-    '<div class="kpi-grid">' + cardHtml("선물평가손익(추정)", pnl) +
+  return '<div class="kpi-grid">' + cardHtml("선물평가손익(추정)", pnl) +
     '<div class="kpi-card"><div class="kpi-label">매입금액합계(추정)</div><div class="kpi-value mono">' + (cost == null ? "—" : PT.formatAccount(cost) + "원") + "</div></div>" +
     '<div class="kpi-card"><div class="kpi-label">평가금액합계(추정)</div><div class="kpi-value mono">' + (evlu == null ? "—" : PT.formatAccount(evlu) + "원") + "</div></div>" +
     "</div>";
@@ -227,7 +226,7 @@ function renderRv20Subtab(container, rv20, holdings) {
   // ★ 선물 잔고조회(output2) 필드명은 검증된 적이 없어(KIS futures TR -
   // 국내주식 TR과 스키마가 다를 수 있음) 재해석하지 않고 원문(rawSummary)을
   // 그대로 나열한다 - 의미를 지어내는 것보다 정직하다.
-  html += '<div class="panel" style="margin-top:12px"><h2>계좌 스냅샷 <span class="dim" style="font-size:11px;font-weight:400">— 매일 자동실행 시점 기준</span></h2>';
+  html += '<div class="panel" style="margin-top:12px"><h2>계좌 스냅샷</h2>';
   if (!holdings) {
     html += '<div class="empty">데이터 없음 — VM의 다음 자동실행(평일 09:05 KST)까지 기다리거나, 아직 이 버전이 VM에 배포되지 않았을 수 있습니다.</div></div>';
     container.innerHTML = html;
