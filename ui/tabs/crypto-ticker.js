@@ -1,18 +1,20 @@
 /* 업비트·빗썸 실계좌 서브탭에 얹는 실시간 시세 패널 - 주요 10종목 현재가·
    24시간 등락률·프리미엄, 코인을 클릭하면 그 행 바로 아래에 캔들 차트가
    인라인으로 펼쳐진다(타임프레임 1분/5분/30분/1시간/일봉 선택 + 이동평균선
-   5/20/60/120·RSI·MACD·이격도를 전부 체크박스로 켜고 끈다 + 매수매도비율).
-   캔들·오버레이 렌더링은 TradingView의 오픈소스 lightweight-charts로
-   그린다(손으로 새로 안 짠다, 필요할 때만 CDN에서 불러온다). RSI·MACD·
-   이격도는 lightweight-charts v4가 멀티패널을 지원 안 해서 별도 차트
+   5/20/60/120·RSI·MACD·이격도·거래량을 전부 체크박스로 켜고 끈다). 캔들·
+   오버레이 렌더링은 TradingView의 오픈소스 lightweight-charts로 그린다
+   (손으로 새로 안 짠다, 필요할 때만 CDN에서 불러온다). RSI·MACD·이격도·
+   거래량은 lightweight-charts v4가 멀티패널을 지원 안 해서 별도 차트
    인스턴스를 아래에 만들고 시간축을 동기화하는 방식이다.
 
-   매수매도비율은 시계열이 아니다(업비트/빗썸 공개 API에 호가창 과거
-   이력이 없다) - "지금 이 순간" 호가창 상위 15호가 합계를 스냅샷으로
-   보여준다. ★ 매수>매도인 쪽만 단색으로 보이는 문제(2026-09-15 사용자
-   지적, 매수100·매도95여도 매수만 보임)는 승자독식 막대가 원인이다 -
-   전체 폭을 매수/매도 비율로 나눠 항상 두 구간을 다 그리는 막대로
-   바꿨다(둘 다 %와 실제 수량을 라벨로 표시, 한쪽이 0이 아닌 한 안 사라짐).
+   ★ 매수매도비율(호가창 스냅샷)은 시도했다가 뺐다(2026-09-15) - 업비트/
+   빗썸 공개 API에 호가창의 과거 이력이 없어서 "지금 이 순간" 값 하나만
+   낼 수 있었는데, 그러면 RSI/MACD처럼 캔들과 같은 시간축을 따라 막대로
+   계속 이어지는 모양이 안 나온다(사용자가 기대한 모양과 다름). 대신
+   캔들에 이미 있는 거래량을 캔들 방향(상승=빨강/하락=파랑)으로 색칠한
+   막대로 넣었다 - 진짜 매수/매도 주체 구분은 아니지만(그건 체결
+   tick 단위 buyer/seller 판별이 필요해 API 호출량이 훨씬 커진다),
+   추가 API 호출 없이 캔들과 완전히 같은 시간축으로 계속 이어진다.
 
    거래소 공개 API(Upbit/Bithumb/Binance)는 Access-Control-Allow-Origin: *
    를 낸다(2026-09-14 실측) - 백엔드 없이 브라우저에서 바로 조회한다. 조회
@@ -24,8 +26,7 @@
    30초 자동 갱신은 가격 셀만 제자리에서 바꾼다(테이블 구조를 다시 안
    그린다) - 열려있는 인라인 차트를 갱신 때마다 부수고 다시 만들면 pan/zoom
    위치가 매번 날아간다. 캔들·지표는 타임프레임을 바꾸거나 다시 열 때만
-   새로 받는다. 매수매도비율만 예외로 같은 30초 주기에 얹어 새로 조회한다
-   (실시간성이 값 자체라 캔들과 달리 묵혀두면 의미가 없다).*/
+   새로 받는다.*/
 window.CryptoTicker = (function () {
   const REFRESH_MS = 30000;
   let refreshTimer = null;
@@ -162,6 +163,7 @@ window.CryptoTicker = (function () {
       return (await res.json()).reverse().map((r) => ({
         time: Math.floor(new Date(r.candle_date_time_kst + "+09:00").getTime() / 1000),
         open: r.opening_price, high: r.high_price, low: r.low_price, close: r.trade_price,
+        volume: r.candle_acc_trade_volume,
       }));
     }
     const res = await fetch("https://api.bithumb.com/public/candlestick/" + code + "_KRW/" + tf.bithumbInterval);
@@ -170,25 +172,8 @@ window.CryptoTicker = (function () {
     if (j.status !== "0000") throw new Error("빗썸 차트 응답 오류 (status " + j.status + ")");
     return j.data.slice(-count).map((r) => ({
       time: Math.floor(r[0] / 1000), open: Number(r[1]), close: Number(r[2]), high: Number(r[3]), low: Number(r[4]),
+      volume: Number(r[5]),
     }));
-  }
-
-  // 호가창 상위 매수·매도 합계 - 업비트는 15호가 합계를 total_bid_size/
-  // total_ask_size로 이미 계산해서 준다, 빗썸은 각 호가 quantity를 직접
-  // 더한다. 시계열이 아니라 이 순간의 스냅샷이다.
-  async function fetchOrderbookVolumes(exchange, code) {
-    if (exchange === "upbit") {
-      const res = await fetch("https://api.upbit.com/v1/orderbook?markets=KRW-" + code);
-      if (!res.ok) throw new Error("업비트 호가 HTTP " + res.status);
-      const j = (await res.json())[0];
-      return { bid: j.total_bid_size, ask: j.total_ask_size };
-    }
-    const res = await fetch("https://api.bithumb.com/public/orderbook/" + code + "_KRW");
-    if (!res.ok) throw new Error("빗썸 호가 HTTP " + res.status);
-    const j = await res.json();
-    if (j.status !== "0000") throw new Error("빗썸 호가 응답 오류 (status " + j.status + ")");
-    const sum = (rows) => (rows || []).reduce((s, r) => s + Number(r.quantity), 0);
-    return { bid: sum(j.data.bids), ask: sum(j.data.asks) };
   }
 
   // ---- 지표 계산 (전부 로컬 계산, API 호출 없음) ----
@@ -289,7 +274,7 @@ window.CryptoTicker = (function () {
   function closeOpenChart() {
     if (!openChart) return;
     openChart.cleanupFns.forEach((fn) => fn());
-    [openChart.mainChart, openChart.rsiChart, openChart.macdChart, openChart.disparityChart].forEach((c) => { if (c) c.remove(); });
+    [openChart.mainChart, openChart.rsiChart, openChart.macdChart, openChart.disparityChart, openChart.volumeChart].forEach((c) => { if (c) c.remove(); });
     if (openChart.row) openChart.row.style.background = "";
     if (openChart.tr) openChart.tr.remove();
     openChart = null;
@@ -315,11 +300,11 @@ window.CryptoTicker = (function () {
     return () => unsubs.forEach((u) => u());
   }
 
-  // 활성 패널(캔들+선택된 RSI/MACD/이격도) 중 맨 아래 것만 시간축 눈금을
-  // 보여준다.
+  // 활성 패널(캔들+선택된 RSI/MACD/이격도/거래량) 중 맨 아래 것만 시간축
+  // 눈금을 보여준다.
   function resyncPanels(state) {
     if (state.timeScaleCleanup) { state.timeScaleCleanup(); state.timeScaleCleanup = null; }
-    const active = [state.mainChart, state.rsiChart, state.macdChart, state.disparityChart].filter(Boolean);
+    const active = [state.mainChart, state.rsiChart, state.macdChart, state.disparityChart, state.volumeChart].filter(Boolean);
     active.forEach((c, i) => c.applyOptions({ timeScale: { visible: i === active.length - 1 } }));
     if (active.length > 1) state.timeScaleCleanup = syncTimeScales(active);
     active[active.length - 1].timeScale().fitContent();
@@ -376,24 +361,27 @@ window.CryptoTicker = (function () {
     const onResize = () => {
       if (openChart !== state) return;
       const w = mainEl.clientWidth;
-      [state.mainChart, state.rsiChart, state.macdChart, state.disparityChart].forEach((c) => { if (c) c.applyOptions({ width: w }); });
+      [state.mainChart, state.rsiChart, state.macdChart, state.disparityChart, state.volumeChart].forEach((c) => { if (c) c.applyOptions({ width: w }); });
     };
     window.addEventListener("resize", onResize);
     state.cleanupFns.push(() => window.removeEventListener("resize", onResize));
   }
 
-  // RSI/MACD/이격도 체크박스가 바뀔 때마다 부른다 - 캔들 데이터(state.bars)는
-  // 이미 있으니 다시 받지 않고 패널만 만들거나 지운다.
+  // RSI/MACD/이격도/거래량 체크박스가 바뀔 때마다 부른다 - 캔들 데이터
+  // (state.bars)는 이미 있으니 다시 받지 않고 패널만 만들거나 지운다.
   function rebuildIndicatorPanels(state, LW, td) {
     const rsiHost = td.querySelector('[data-role="rsi-panel"]');
     const macdHost = td.querySelector('[data-role="macd-panel"]');
     const dispHost = td.querySelector('[data-role="disparity-panel"]');
+    const volHost = td.querySelector('[data-role="volume-panel"]');
     if (state.rsiChart) { state.rsiChart.remove(); state.rsiChart = null; }
     if (state.macdChart) { state.macdChart.remove(); state.macdChart = null; }
     if (state.disparityChart) { state.disparityChart.remove(); state.disparityChart = null; }
+    if (state.volumeChart) { state.volumeChart.remove(); state.volumeChart = null; }
     rsiHost.innerHTML = "";
     macdHost.innerHTML = "";
     dispHost.innerHTML = "";
+    volHost.innerHTML = "";
     if (!state.bars) return;
     const timeVisible = state.timeframeId !== "1d";
 
@@ -430,6 +418,15 @@ window.CryptoTicker = (function () {
       state.disparityChart = chart;
     }
 
+    if (state.volumeOn) {
+      const el = makePanel(volHost, PANEL_H);
+      const chart = LW.createChart(el, baseChartOptions(el.clientWidth, PANEL_H, timeVisible));
+      const up = cssVar("--up", "#e0384a"), down = cssVar("--down", "#2f6fe0");
+      const series = chart.addHistogramSeries({ priceLineVisible: false, lastValueVisible: false, priceFormat: { type: "volume" } });
+      series.setData(state.bars.map((b) => ({ time: b.time, value: b.volume || 0, color: b.close >= b.open ? up : down })));
+      state.volumeChart = chart;
+    }
+
     resyncPanels(state);
   }
 
@@ -443,44 +440,6 @@ window.CryptoTicker = (function () {
       const s = openChart.mainChart.addLineSeries({ color: MA_COLORS[period], lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
       s.setData(computeMA(openChart.bars, period));
       openChart.maSeries[period] = s;
-    }
-  }
-
-  // 매수/매도 비율 막대 - 전체 폭을 두 값의 비율로 나눠서 둘 다 항상
-  // 보이게 그린다(승자독식 막대였다면 매수100·매도95도 매수만 꽉 찬
-  // 것처럼 보인다, 2026-09-15 사용자 지적).
-  // 매수는 위로(빨강), 매도는 아래로(파랑) 뻗는 대칭 막대 - 가운데 기준선에서
-  // 각자 비율만큼 자란다(둘 다 같은 척도라 매수6%·매도94%처럼 한쪽이 작아도
-  // 파묻히지 않는다, 2026-09-15 사용자 지적으로 가로 100% 막대에서 변경).
-  const BS_BAR_HALF_H = 70;
-  function bsRatioHtml(bid, ask) {
-    const total = bid + ask;
-    if (!total) return '<div class="empty">호가 데이터 없음</div>';
-    const bidPct = (bid / total) * 100, askPct = 100 - bidPct;
-    const up = "var(--up)", down = "var(--down)";
-    const fmt = (v) => v.toFixed(4);
-    const redH = (bidPct / 100) * BS_BAR_HALF_H, blueH = (askPct / 100) * BS_BAR_HALF_H;
-    return '<div style="display:flex;flex-direction:column;align-items:center;width:160px;margin:0 auto">' +
-      '<div style="font-size:12px;font-weight:700;color:' + up + '">매수 ' + bidPct.toFixed(1) + "%</div>" +
-      '<div style="display:flex;flex-direction:column-reverse;height:' + BS_BAR_HALF_H + 'px;width:100%">' +
-        '<div style="width:100%;height:' + redH.toFixed(1) + 'px;background:' + up + ';border-radius:3px 3px 0 0;min-height:' + (bid > 0 ? "2px" : "0") + '"></div>' +
-      "</div>" +
-      '<div style="width:100%;height:1px;background:var(--text-dim);opacity:.4"></div>' +
-      '<div style="height:' + BS_BAR_HALF_H + 'px;width:100%">' +
-        '<div style="width:100%;height:' + blueH.toFixed(1) + 'px;background:' + down + ';border-radius:0 0 3px 3px;min-height:' + (ask > 0 ? "2px" : "0") + '"></div>' +
-      "</div>" +
-      '<div style="font-size:12px;font-weight:700;color:' + down + '">매도 ' + askPct.toFixed(1) + "%</div>" +
-      '<div class="dim mono" style="font-size:11px;margin-top:6px;text-align:center">호가창 상위 합계 · 매수 ' + fmt(bid) + " · 매도 " + fmt(ask) +
-      "<br>" + new Date().toLocaleTimeString("ko-KR") + "</div>" +
-      "</div>";
-  }
-
-  async function renderBsRatio(host, exchange, code) {
-    try {
-      const { bid, ask } = await withRetry(() => fetchOrderbookVolumes(exchange, code), 1);
-      host.innerHTML = bsRatioHtml(bid, ask);
-    } catch (e) {
-      host.innerHTML = '<div class="empty">호가 조회 실패: ' + String((e && e.message) || e) + "</div>";
     }
   }
 
@@ -502,13 +461,13 @@ window.CryptoTicker = (function () {
         checkboxLabel("rsi", "RSI") +
         checkboxLabel("macd", "MACD") +
         checkboxLabel("disparity", "이격도(" + DISPARITY_PERIOD + ")") +
-        checkboxLabel("bs", "매수매도비율") +
+        checkboxLabel("volume", "거래량") +
       "</div>" +
       '<div data-role="body"><div class="empty">차트 불러오는 중...</div></div>' +
       '<div data-role="rsi-panel" style="margin-top:4px"></div>' +
       '<div data-role="macd-panel" style="margin-top:4px"></div>' +
       '<div data-role="disparity-panel" style="margin-top:4px"></div>' +
-      '<div data-role="bs-panel" style="margin-top:8px"></div>';
+      '<div data-role="volume-panel" style="margin-top:4px"></div>';
   }
 
   function openInlineChart(row, code, exchange) {
@@ -527,9 +486,9 @@ window.CryptoTicker = (function () {
 
     openChart = {
       code, exchange, timeframeId: "1h", activeMAs: new Set(),
-      rsiOn: false, macdOn: false, disparityOn: false, bsOn: false,
+      rsiOn: false, macdOn: false, disparityOn: false, volumeOn: false,
       row, tr, bars: null, mainChart: null, candleSeries: null, maSeries: {},
-      rsiChart: null, macdChart: null, disparityChart: null, timeScaleCleanup: null, cleanupFns: [],
+      rsiChart: null, macdChart: null, disparityChart: null, volumeChart: null, timeScaleCleanup: null, cleanupFns: [],
     };
 
     td.querySelector('[data-tf="1h"]').classList.add("active");
@@ -546,16 +505,10 @@ window.CryptoTicker = (function () {
       box.addEventListener("change", () => {
         if (!openChart) return;
         const v = box.value;
-        if (v === "bs") {
-          openChart.bsOn = box.checked;
-          const bsHost = td.querySelector('[data-role="bs-panel"]');
-          if (box.checked) { bsHost.innerHTML = '<div class="empty">호가 불러오는 중...</div>'; renderBsRatio(bsHost, exchange, code); }
-          else bsHost.innerHTML = "";
-          return;
-        }
         if (v === "rsi") openChart.rsiOn = box.checked;
         else if (v === "macd") openChart.macdOn = box.checked;
         else if (v === "disparity") openChart.disparityOn = box.checked;
+        else if (v === "volume") openChart.volumeOn = box.checked;
         else { toggleMA(Number(v.replace("ma", ""))); return; }
         loadChartsLib().then((LW) => rebuildIndicatorPanels(openChart, LW, td));
       });
@@ -599,12 +552,6 @@ window.CryptoTicker = (function () {
     refreshTimer = setInterval(() => {
       if (!container.offsetParent) { clearInterval(refreshTimer); refreshTimer = null; return; }
       renderPanel(container, exchange, true);
-      // 매수매도비율은 캔들과 달리 "지금 이 순간"이 값 자체라 같은 30초
-      // 주기에 얹어 다시 조회한다(캔들·지표는 타임프레임 변경 시에만 갱신).
-      if (openChart && openChart.bsOn && openChart.exchange === exchange && openChart.tr) {
-        const bsHost = openChart.tr.querySelector('[data-role="bs-panel"]');
-        if (bsHost) renderBsRatio(bsHost, openChart.exchange, openChart.code);
-      }
     }, REFRESH_MS);
   }
 
