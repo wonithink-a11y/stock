@@ -119,7 +119,7 @@ window.CryptoTicker = (function () {
     if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
     if (!isAutoRefresh) {
       selectedCode = null;
-      container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">불러오는 중...</div></div>';
+      container.innerHTML = '<div class="panel"><h2>시세 · 프리미엄</h2><div class="empty">불러오는 중...</div></div>';
     }
     const codes = COINS.map((c) => c.code);
 
@@ -150,7 +150,7 @@ window.CryptoTicker = (function () {
     const usdtKrw = usdtKrwR.status === "fulfilled" ? usdtKrwR.value : null;
 
     if (domesticR.status === "rejected" && binanceR.status === "rejected" && usdtKrwR.status === "rejected") {
-      container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">시세 조회 실패(거래소 API 응답 없음) — 새로고침으로 다시 시도해주세요.</div></div>';
+      container.innerHTML = '<div class="panel"><h2>시세 · 프리미엄</h2><div class="empty">시세 조회 실패(거래소 API 응답 없음) — 새로고침으로 다시 시도해주세요.</div></div>';
       return;
     }
 
@@ -159,14 +159,14 @@ window.CryptoTicker = (function () {
     if (binanceR.status === "rejected") failedParts.push("바이낸스 시세");
     if (usdtKrwR.status === "rejected") failedParts.push("USDT/KRW 환율");
 
-    let html = '<div class="panel"><h2>시세 · 김치프리미엄</h2>' +
+    let html = '<div class="panel"><h2>시세 · 프리미엄</h2>' +
       '<div class="dim" style="font-size:11px;margin-bottom:8px">USDT/KRW 기준환율(업비트) ' +
       (usdtKrw ? PT.formatPrice(usdtKrw) + "원" : "—") +
       " · 해외가는 바이낸스 USDT 마켓 · 종목을 클릭하면 차트가 표시됩니다 · " +
       (REFRESH_MS / 1000) + "초마다 자동 갱신</div>" +
       (failedParts.length ? '<div class="warn" style="font-size:11px;margin-bottom:8px">조회 실패로 일부 값 비어있음: ' +
         failedParts.join(", ") + " (새로고침으로 재시도 가능)</div>" : "") +
-      '<table><thead><tr><th>코인</th><th>현재가</th><th>24H 등락</th><th>김치프리미엄</th></tr></thead><tbody>';
+      '<table><thead><tr><th>코인</th><th>현재가</th><th>24H 등락</th><th>프리미엄</th></tr></thead><tbody>';
     COINS.forEach((c) => {
       const d = domestic[c.code];
       const b = binance[c.code];
@@ -182,9 +182,18 @@ window.CryptoTicker = (function () {
     container.innerHTML = html;
 
     const slot = document.getElementById("ct-chart-slot");
-    async function openChart(code) {
+    function highlightRow(code) {
+      container.querySelectorAll(".ct-row").forEach((r) => {
+        r.style.background = r.dataset.code === code ? "var(--surface-3)" : "";
+      });
+    }
+    // silent: 자동 갱신 뒤 선택을 복원할 때는 화면을 다시 스크롤하지 않는다
+    // - 사용자가 직접 클릭했을 때만 차트 위치로 스크롤해서 반응을 바로 보여준다.
+    async function openChart(code, silent) {
+      highlightRow(code);
       const name = COINS.find((c) => c.code === code).name;
       slot.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
+      if (!silent) slot.scrollIntoView({ behavior: "smooth", block: "center" });
       try {
         const candles = await withRetry(() => fetchCandles(exchange, code, 168), 1);
         slot.innerHTML = '<div class="dim" style="font-size:11px;margin-bottom:4px">' + name + " · 최근 7일(1시간봉)</div>" +
@@ -196,7 +205,7 @@ window.CryptoTicker = (function () {
     container.querySelectorAll(".ct-row").forEach((row) => {
       row.addEventListener("click", () => { selectedCode = row.dataset.code; openChart(row.dataset.code); });
     });
-    if (selectedCode) openChart(selectedCode);
+    if (selectedCode) openChart(selectedCode, true);
 
     // 탭이 다른 서브탭/화면으로 가려지면(offsetParent가 null) 백그라운드에서
     // 계속 조회하지 않고 스스로 멈춘다 - display:none인 .tab-panel 안 요소는
