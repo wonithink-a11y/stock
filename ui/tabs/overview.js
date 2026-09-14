@@ -193,60 +193,50 @@ const RV20_FIELD_LABELS = {
   fee: "수수료", opt_dfpa: "옵션차금", thdt_dfpa: "당일차금", rnwl_dfpa: "갱신차금",
 };
 
-// 선물평가손익(미실현)·매입/평가금액합계 - 추정이지만 가장 확인하고 싶을
-// 값이라 원문 표(스크롤 필요) 대신 상단 KPI로 먼저 보여준다.
-function rv20PnlKpiHtml(raw) {
-  const PT = window.PT;
-  const pnl = raw.futr_evlu_pfls_amt != null ? Number(raw.futr_evlu_pfls_amt) : null;
-  const cost = raw.pchs_amt_smtl != null ? Number(raw.pchs_amt_smtl) : null;
-  const evlu = raw.evlu_amt_smtl != null ? Number(raw.evlu_amt_smtl) : null;
-  if (pnl == null && cost == null && evlu == null) return "";
-  const cardHtml = (label, v) => '<div class="kpi-card"><div class="kpi-label">' + label + '</div>' +
-    '<div class="kpi-value mono' + (v == null ? "" : " " + PT.getPnlClass(v)) + '">' +
-    (v == null ? "—" : PT.formatPnl(v) + "원") + "</div></div>";
-  return '<div class="kpi-grid">' + cardHtml("선물평가손익(추정)", pnl) +
-    '<div class="kpi-card"><div class="kpi-label">매입금액합계(추정)</div><div class="kpi-value mono">' + (cost == null ? "—" : PT.formatAccount(cost) + "원") + "</div></div>" +
-    '<div class="kpi-card"><div class="kpi-label">평가금액합계(추정)</div><div class="kpi-value mono">' + (evlu == null ? "—" : PT.formatAccount(evlu) + "원") + "</div></div>" +
-    "</div>";
-}
-
 function renderRv20Subtab(container, rv20, holdings) {
   const PT = window.PT;
   const on = !!(rv20 && rv20.enabled);
   const changedAt = rv20 && rv20.lastChangedAt ? new Date(rv20.lastChangedAt).toLocaleString("ko-KR") : "-";
   let html = modeBadgeHtml("paper");
-  html += '<div class="panel"><h2>RV20 선물 sizing 자동실행</h2>';
-  html += '<div class="sys-source-row"><span class="sys-source-name">상태</span>' +
-    '<span class="pill ' + (on ? "pill-good" : "pill-dim") + '"><span class="pill-dot"></span>' + (on ? "켜짐" : "꺼짐") + "</span></div>";
-  html += '<div class="dim" style="font-size:11.5px;margin-top:8px">마지막 변경: ' + changedAt +
-    (rv20 && rv20.lastChangedBy ? " (" + rv20.lastChangedBy + ")" : "") +
-    '<br>켜고 끄려면 GitHub Actions의 "RV20 futures automation on/off switch" 워크플로를 수동 실행합니다.</div>';
-  html += "</div>";
+  html += '<div class="panel" style="border-color:var(--warn)"><div style="display:flex;align-items:center;justify-content:space-between">' +
+    "<div><b>RV20 선물 sizing 자동실행</b><div class=\"dim\" style=\"font-size:11px;margin-top:2px\">" + changedAt +
+    (rv20 && rv20.lastChangedBy ? " · " + rv20.lastChangedBy : "") + "</div></div>" +
+    '<span class="pill ' + (on ? "pill-good" : "pill-dim") + '"><span class="pill-dot"></span>' + (on ? "켜짐" : "꺼짐") + "</span></div></div>";
 
-  // ★ 선물 잔고조회(output2) 필드명은 검증된 적이 없어(KIS futures TR -
-  // 국내주식 TR과 스키마가 다를 수 있음) 재해석하지 않고 원문(rawSummary)을
-  // 그대로 나열한다 - 의미를 지어내는 것보다 정직하다.
-  html += '<div class="panel" style="margin-top:12px"><h2>계좌 스냅샷</h2>';
   if (!holdings) {
-    html += '<div class="empty">데이터 없음 — VM의 다음 자동실행(평일 09:05 KST)까지 기다리거나, 아직 이 버전이 VM에 배포되지 않았을 수 있습니다.</div></div>';
+    html += '<div class="panel" style="margin-top:12px"><div class="empty">계좌 스냅샷 없음 — VM의 다음 자동실행(평일 09:05 KST)까지 기다리거나, 아직 이 버전이 VM에 배포되지 않았을 수 있습니다.</div></div>';
     container.innerHTML = html;
     return;
   }
-  html += '<div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">보유 계약수</div>' +
-    '<div class="kpi-value mono">' + holdings.heldContracts + "</div>" +
-    '<div class="kpi-sub">갱신 ' + (holdings.generatedAtKST ? new Date(holdings.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>";
-  if (holdings.frontMonth) {
-    html += '<div class="kpi-card"><div class="kpi-label">Front-month</div><div class="kpi-value mono" style="font-size:16px">' +
-      (holdings.frontMonth.name || holdings.frontMonth.code) + '</div><div class="kpi-sub">현재가 ' +
-      (holdings.frontMonth.price != null ? PT.formatPrice(holdings.frontMonth.price) : "—") + "</div></div>";
-  }
-  html += "</div>";
 
+  // 다른 모의투자 탭과 같은 모양의 KPI 한 줄로 - 보유계약수·front-month·
+  // 선물평가손익·매입/평가금액합계 5개. 원문 필드 전체는 접어서 감춘다
+  // (필요할 때만 펼침, 기본 화면은 다른 탭만큼 단순하게).
   const raw = holdings.rawSummary || {};
-  html += rv20PnlKpiHtml(raw);
+  const pnl = raw.futr_evlu_pfls_amt != null ? Number(raw.futr_evlu_pfls_amt) : null;
+  const cost = raw.pchs_amt_smtl != null ? Number(raw.pchs_amt_smtl) : null;
+  const evlu = raw.evlu_amt_smtl != null ? Number(raw.evlu_amt_smtl) : null;
 
+  html += '<div class="kpi-grid" style="margin-top:12px">' +
+    '<div class="kpi-card"><div class="kpi-label">보유 계약수</div><div class="kpi-value mono">' + holdings.heldContracts + "</div>" +
+    '<div class="kpi-sub">갱신 ' + (holdings.generatedAtKST ? new Date(holdings.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>" +
+    (holdings.frontMonth
+      ? '<div class="kpi-card"><div class="kpi-label">Front-month</div><div class="kpi-value mono" style="font-size:16px">' +
+        (holdings.frontMonth.name || holdings.frontMonth.code) + '</div><div class="kpi-sub">현재가 ' +
+        (holdings.frontMonth.price != null ? PT.formatPrice(holdings.frontMonth.price) : "—") + "</div></div>"
+      : "") +
+    '<div class="kpi-card"><div class="kpi-label">선물평가손익(추정)</div><div class="kpi-value mono' + (pnl == null ? "" : " " + PT.getPnlClass(pnl)) + '">' +
+    (pnl == null ? "—" : PT.formatPnl(pnl) + "원") + "</div></div>" +
+    '<div class="kpi-card"><div class="kpi-label">매입금액합계(추정)</div><div class="kpi-value mono">' + (cost == null ? "—" : PT.formatAccount(cost) + "원") + "</div></div>" +
+    '<div class="kpi-card"><div class="kpi-label">평가금액합계(추정)</div><div class="kpi-value mono">' + (evlu == null ? "—" : PT.formatAccount(evlu) + "원") + "</div></div>" +
+    "</div>";
+
+  // ★ 선물 잔고조회(output2) 필드명은 검증된 적이 없어(KIS futures TR -
+  // 국내주식 TR과 스키마가 다를 수 있음) 재해석하지 않고 원문을 그대로
+  // 접어서 보여준다 - 필요할 때만 열어보는 감사(audit)용.
   const keys = Object.keys(raw);
-  html += '<div class="panel" style="margin-top:12px"><h2>계좌 잔고 원문 <span class="dim" style="font-size:11px;font-weight:400">— 라벨은 KIS 공식 문서가 아니라 네이밍 규칙+실측값 대조로 추정, 원문 필드명도 같이 표시</span></h2>';
+  html += '<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--text-dim);font-size:12px;padding:4px 0">원문 필드 전체 보기 (' + keys.length + '개, 라벨은 추정치) ▾</summary>';
+  html += '<div class="panel" style="margin-top:8px">';
   if (!keys.length) {
     html += '<div class="empty">원문 데이터가 비어 있습니다.</div>';
   } else {
@@ -257,7 +247,7 @@ function renderRv20Subtab(container, rv20, holdings) {
     });
     html += "</tbody></table>";
   }
-  html += "</div>";
+  html += "</div></details>";
   container.innerHTML = html;
 }
 
