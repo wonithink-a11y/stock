@@ -449,21 +449,30 @@ window.CryptoTicker = (function () {
   // 매수/매도 비율 막대 - 전체 폭을 두 값의 비율로 나눠서 둘 다 항상
   // 보이게 그린다(승자독식 막대였다면 매수100·매도95도 매수만 꽉 찬
   // 것처럼 보인다, 2026-09-15 사용자 지적).
+  // 매수는 위로(빨강), 매도는 아래로(파랑) 뻗는 대칭 막대 - 가운데 기준선에서
+  // 각자 비율만큼 자란다(둘 다 같은 척도라 매수6%·매도94%처럼 한쪽이 작아도
+  // 파묻히지 않는다, 2026-09-15 사용자 지적으로 가로 100% 막대에서 변경).
+  const BS_BAR_HALF_H = 70;
   function bsRatioHtml(bid, ask) {
-    const PT = window.PT;
     const total = bid + ask;
     if (!total) return '<div class="empty">호가 데이터 없음</div>';
     const bidPct = (bid / total) * 100, askPct = 100 - bidPct;
     const up = "var(--up)", down = "var(--down)";
     const fmt = (v) => v.toFixed(4);
-    return '<div style="display:flex;height:24px;border-radius:4px;overflow:hidden;font-size:11px;font-weight:600">' +
-      '<div style="width:' + bidPct.toFixed(1) + '%;background:' + up + ';color:#fff;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">' +
-        "매수 " + bidPct.toFixed(1) + "%</div>" +
-      '<div style="width:' + askPct.toFixed(1) + '%;background:' + down + ';color:#fff;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">' +
-        "매도 " + askPct.toFixed(1) + "%</div>" +
+    const redH = (bidPct / 100) * BS_BAR_HALF_H, blueH = (askPct / 100) * BS_BAR_HALF_H;
+    return '<div style="display:flex;flex-direction:column;align-items:center;width:160px;margin:0 auto">' +
+      '<div style="font-size:12px;font-weight:700;color:' + up + '">매수 ' + bidPct.toFixed(1) + "%</div>" +
+      '<div style="display:flex;flex-direction:column-reverse;height:' + BS_BAR_HALF_H + 'px;width:100%">' +
+        '<div style="width:100%;height:' + redH.toFixed(1) + 'px;background:' + up + ';border-radius:3px 3px 0 0;min-height:' + (bid > 0 ? "2px" : "0") + '"></div>' +
       "</div>" +
-      '<div class="dim mono" style="font-size:11px;margin-top:4px">호가창 상위 합계 · 매수 ' + fmt(bid) + " · 매도 " + fmt(ask) +
-      " · " + new Date().toLocaleTimeString("ko-KR") + "</div>";
+      '<div style="width:100%;height:1px;background:var(--text-dim);opacity:.4"></div>' +
+      '<div style="height:' + BS_BAR_HALF_H + 'px;width:100%">' +
+        '<div style="width:100%;height:' + blueH.toFixed(1) + 'px;background:' + down + ';border-radius:0 0 3px 3px;min-height:' + (ask > 0 ? "2px" : "0") + '"></div>' +
+      "</div>" +
+      '<div style="font-size:12px;font-weight:700;color:' + down + '">매도 ' + askPct.toFixed(1) + "%</div>" +
+      '<div class="dim mono" style="font-size:11px;margin-top:6px;text-align:center">호가창 상위 합계 · 매수 ' + fmt(bid) + " · 매도 " + fmt(ask) +
+      "<br>" + new Date().toLocaleTimeString("ko-KR") + "</div>" +
+      "</div>";
   }
 
   async function renderBsRatio(host, exchange, code) {
