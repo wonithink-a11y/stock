@@ -2,21 +2,44 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paper Trading Engine</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%93%88</text></svg>">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>Paper Trading Engine</h1>
-  <nav id="tab-nav"></nav>
-  <button id="theme-toggle" class="theme-toggle" title="다크/라이트 테마 전환" aria-label="테마 전환">🌙</button>
-</header>
-<main id="tab-main"></main>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon" aria-hidden="true">📈</span>
+      <div>
+        <div class="brand-title">Paper Trading</div>
+        <div class="brand-sub">KIS VTS · PAPER</div>
+      </div>
+    </div>
+    <nav id="tab-nav" class="sidebar-nav" aria-label="탭 메뉴"></nav>
+  </aside>
+  <div class="app-content">
+    <header class="app-header">
+      <span id="market-status-slot"></span>
+      <div class="app-header-right">
+        <button id="refresh-btn" class="btn-icon" aria-label="새로고침" title="새로고침">↻</button>
+        <button id="theme-toggle" class="btn-icon theme-toggle" title="다크/라이트 테마 전환" aria-label="테마 전환">🌙</button>
+      </div>
+    </header>
+    <main id="tab-main"></main>
+  </div>
+</div>
 
-<!-- 탭 모듈 - 로드되면서 window.TABS.<id>를 등록한다. 순서는 app.js의
-     TAB_ORDER와 맞춰야 함(현재: chart, scoring, research, macro, datahealth). -->
-<script src="tabs/chart.js"></script>
+<!-- 탭 모듈 - 로드되면서 window.TABS.<id>를 등록한다. lib.js가 공용
+     포맷/계산 유틸(window.PT)을 먼저 제공해야 하므로 가장 먼저 로드한다.
+     순서는 app.js의 TAB_ORDER와 맞춰야 함. -->
+<script src="tabs/lib.js"></script>
+<script src="tabs/overview.js"></script>
+<script src="tabs/positions.js"></script>
+<script src="tabs/activity.js"></script>
+<script src="tabs/performance.js"></script>
+<script src="tabs/system.js"></script>
 <script src="tabs/scoring.js"></script>
 <script src="tabs/research.js"></script>
 <script src="tabs/macro.js"></script>
