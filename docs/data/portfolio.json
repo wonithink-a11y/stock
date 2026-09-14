@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T13:08:13.761Z",
+  "updatedAt": "2026-09-14T15:09:33.963Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,12 +7,12 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 259500,
-      "currentValue": 2595000,
+      "currentPrice": 248500,
+      "currentValue": 2485000,
       "investedValue": 700000,
-      "unrealizedPnL": 1895000,
-      "unrealizedPnLPct": 270.71,
-      "stockScore": 62.7,
+      "unrealizedPnL": 1785000,
+      "unrealizedPnLPct": 255,
+      "stockScore": 59.4,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
       "marketRegime": "neutral",
@@ -69,23 +69,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.02,
+              "raw": 2.89,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.3485029940119761,
+              "peg": 0.33383233532934137,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.24993866516188157,
+              "marginOfSafety": -0.19672701797676306,
               "score": 0
             }
           }
         },
         "technical": {
-          "score": 55,
+          "score": 38.8,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -94,13 +94,13 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 52,
-              "score": 70
+              "value": 44.3,
+              "score": 45
             },
             "macd": {
               "label": "MACD",
-              "signal": "neutral",
-              "score": 50
+              "signal": "bearishCross",
+              "score": 0
             },
             "volumeConfirmation": {
               "label": "거래량 동반 여부",
