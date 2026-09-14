@@ -85,12 +85,17 @@ function renderPaperSubtab(container, data, equity, macro) {
 function renderRealAccountSubtab(container, label, acctData) {
   const PT = window.PT;
   const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
+  const exchange = label === "업비트" ? "upbit" : "bithumb";
 
   let html = modeBadgeHtml("real");
 
   if (!acctData) {
     html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
     container.innerHTML = html;
+    const tickerSlot0 = document.createElement("div");
+    tickerSlot0.style.marginTop = "12px";
+    container.appendChild(tickerSlot0);
+    window.CryptoTicker.renderPanel(tickerSlot0, exchange);
     return;
   }
 
@@ -123,6 +128,11 @@ function renderRealAccountSubtab(container, label, acctData) {
   }
   html += "</div>";
   container.innerHTML = html;
+
+  const tickerSlot = document.createElement("div");
+  tickerSlot.style.marginTop = "12px";
+  container.appendChild(tickerSlot);
+  window.CryptoTicker.renderPanel(tickerSlot, exchange);
 }
 
 // KIS 실계좌 - 업비트·빗썸과 파일 스키마가 다르다(거래소 API가 아니라 KIS
