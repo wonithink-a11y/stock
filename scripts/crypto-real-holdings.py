@@ -55,7 +55,12 @@ def _client_for(exchange):
 def to_rows(client, accounts):
     """잔고 0(청산 완료 잔여 레코드)은 뺀다. KRW는 환산 없이 그대로,
     그 외 통화는 시세 조회로 원화 평가액을 계산한다 - 조회 실패한 자산은
-    건너뛰지 않고 evalKrw=None으로 남긴다(교훈57 - 모르는 건 0이 아니다)."""
+    건너뛰지 않고 evalKrw=None으로 남긴다(교훈57 - 모르는 건 0이 아니다).
+
+    avg_buy_price(평균매입단가)는 업비트·빗썸 계좌조회 응답에 이미 있다 -
+    거래소가 계산한 값을 그대로 쓰고 재계산하지 않는다. avg_buy_price가
+    0이거나 없으면(무상 입금 등) costKrw·pnlKrw를 안 낸다(0으로 채우면
+    거짓 손익이 된다)."""
     rows = []
     for a in accounts:
         currency = a.get("currency")
@@ -63,15 +68,21 @@ def to_rows(client, accounts):
         if balance <= 0:
             continue
         unit = a.get("unit_currency") or "KRW"
+        avg_buy_price = float(a.get("avg_buy_price") or 0) or None
         if currency == unit:
-            rows.append({"currency": currency, "balance": balance, "evalKrw": balance})
+            rows.append({"currency": currency, "balance": balance, "evalKrw": balance,
+                         "avgBuyPrice": None, "costKrw": None, "pnlKrw": None, "pnlPct": None})
             continue
         try:
             price = client.get_ticker(f"{unit}-{currency}")
             eval_krw = balance * price
         except Exception:
             eval_krw = None
-        rows.append({"currency": currency, "balance": balance, "evalKrw": eval_krw})
+        cost_krw = balance * avg_buy_price if avg_buy_price else None
+        pnl_krw = (eval_krw - cost_krw) if (eval_krw is not None and cost_krw is not None) else None
+        pnl_pct = (pnl_krw / cost_krw * 100) if (pnl_krw is not None and cost_krw) else None
+        rows.append({"currency": currency, "balance": balance, "evalKrw": eval_krw,
+                     "avgBuyPrice": avg_buy_price, "costKrw": cost_krw, "pnlKrw": pnl_krw, "pnlPct": pnl_pct})
     return rows
 
 
@@ -90,8 +101,18 @@ def selftest():
     assert len(rows) == 2, "0잔고 통화는 빠져야 한다"
     krw_row = next(r for r in rows if r["currency"] == "KRW")
     assert krw_row["evalKrw"] == 500000, "KRW는 환산 없이 그대로여야 한다"
+    assert krw_row["pnlKrw"] is None, "KRW는 손익 개념이 없어야 한다"
     btc_row = next(r for r in rows if r["currency"] == "BTC")
     assert btc_row["evalKrw"] == 100_000.0, "BTC 평가액이 잘못됐다"
+    assert btc_row["avgBuyPrice"] is None and btc_row["pnlKrw"] is None, \
+        "avg_buy_price 없으면 손익도 없어야 한다(0으로 채우면 거짓 손익)"
+
+    accounts2 = [{"currency": "BTC", "balance": "0.001", "locked": "0",
+                  "unit_currency": "KRW", "avg_buy_price": "80000000"}]
+    rows2 = to_rows(_FakeClient(), accounts2)
+    assert rows2[0]["costKrw"] == 80_000.0, "매입원가 계산이 틀렸다"
+    assert rows2[0]["pnlKrw"] == 20_000.0, "평가손익 계산이 틀렸다"
+    assert round(rows2[0]["pnlPct"], 2) == 25.0, "수익률 계산이 틀렸다"
     print("selftest OK")
 
 
@@ -115,11 +136,18 @@ def main():
     rows = to_rows(client, accounts)
     total_krw = sum(r["evalKrw"] for r in rows if r["evalKrw"] is not None)
     unresolved = [r["currency"] for r in rows if r["evalKrw"] is None]
+    # 총 손익은 avg_buy_price가 있는(=원가를 아는) 보유만 더한다 - 모르는 걸
+    # 0으로 채우면 실제보다 손익이 부풀거나 줄어 보인다(교훈57).
+    priced = [r for r in rows if r["pnlKrw"] is not None]
+    total_pnl_krw = sum(r["pnlKrw"] for r in priced) if priced else None
+    total_cost_krw = sum(r["costKrw"] for r in priced) if priced else None
 
     payload = {
         "exchange": args.exchange,
         "generatedAtKST": datetime.now(KST).isoformat(),
         "totalKrw": total_krw,
+        "totalPnlKrw": total_pnl_krw,
+        "totalCostKrw": total_cost_krw,
         "unresolvedCurrencies": unresolved,  # 시세 조회 실패 - 합계에서 빠졌다는 걸 숨기지 않는다
         "holdings": rows,
     }

@@ -30,6 +30,7 @@ window.TABS.overview = {
 
     const subtabs = [
       { id: "paper", label: "모의투자" },
+      { id: "kis", label: "KIS 실계좌" },
       { id: "upbit", label: "업비트 실계좌" },
       { id: "bithumb", label: "빗썸 실계좌" },
       { id: "rv20", label: "RV20 선물" },
@@ -43,6 +44,7 @@ window.TABS.overview = {
     const content = document.getElementById("ov-subtab-content");
     const renderers = {
       paper: () => renderPaperSubtab(content, data, equity, macro),
+      kis: () => renderKisRealSubtab(content, real && real.kis),
       upbit: () => renderRealAccountSubtab(content, "업비트", real && real.upbit),
       bithumb: () => renderRealAccountSubtab(content, "빗썸", real && real.bithumb),
       rv20: () => renderRv20Subtab(content, rv20),
@@ -64,10 +66,7 @@ function renderPaperSubtab(container, data, equity, macro) {
   const eqHistory = (equity && equity.history) || [];
 
   container.innerHTML =
-    '<div class="panel" style="border-color:var(--warn);margin-bottom:12px">' +
-    '<strong style="color:var(--warn)">⚠ 모의투자(가상자금)</strong> — 이 화면의 숫자는 ' +
-    "실제 돈이 아닙니다. KIS 모의계좌(VTS)에 실제로 자동 주문이 나가지만 가상자금 기준이고, " +
-    "실전 계좌와 체결 방식·수수료가 다를 수 있습니다.</div>" +
+    modeBadgeHtml("paper") +
     kpiGridHtml(account, eqHistory) +
     '<div class="grid grid-2">' +
       equityChartCardHtml() +
@@ -87,9 +86,7 @@ function renderRealAccountSubtab(container, label, acctData) {
   const PT = window.PT;
   const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
 
-  let html = '<div class="panel" style="border-color:var(--good);margin-bottom:12px">' +
-    '<strong style="color:var(--good)">● 실계좌</strong> — ' + label + "는 실제 자산입니다(모의투자 아님). " +
-    "15분 간격으로 VM이 직접 조회해 갱신합니다.</div>";
+  let html = modeBadgeHtml("real");
 
   if (!acctData) {
     html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
@@ -97,20 +94,27 @@ function renderRealAccountSubtab(container, label, acctData) {
     return;
   }
 
-  html += '<div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">총 평가금액(원화 환산)</div>' +
-    '<div class="kpi-value mono">' + won(acctData.totalKrw) + "</div>" +
-    '<div class="kpi-sub">갱신 ' + (acctData.generatedAtKST ? new Date(acctData.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div></div>";
+  html += '<div class="kpi-grid">' +
+    '<div class="kpi-card"><div class="kpi-label">총 평가금액(원화 환산)</div><div class="kpi-value mono">' + won(acctData.totalKrw) + "</div>" +
+    '<div class="kpi-sub">갱신 ' + (acctData.generatedAtKST ? new Date(acctData.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>" +
+    '<div class="kpi-card"><div class="kpi-label">평가손익 <span class="dim" style="font-weight:400">(매입가 아는 자산만)</span></div>' +
+    '<div class="kpi-value mono ' + PT.getPnlClass(acctData.totalPnlKrw) + '">' +
+    (acctData.totalPnlKrw == null ? "—" : PT.formatPnl(acctData.totalPnlKrw) + "원") + "</div>" +
+    (acctData.totalCostKrw ? '<div class="kpi-sub">매입원가 ' + PT.formatAccount(acctData.totalCostKrw) + "원</div>" : "") + "</div></div>";
 
   html += '<div class="panel"><h2>보유 자산</h2>';
   const holdings = acctData.holdings || [];
   if (!holdings.length) {
     html += '<div class="empty">보유 자산이 없습니다.</div>';
   } else {
-    html += '<table><thead><tr><th>통화</th><th>보유수량</th><th>평가금액(원)</th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>통화</th><th>보유수량</th><th>평균매입가</th><th>평가금액</th><th>평가손익</th></tr></thead><tbody>';
     holdings.forEach((h) => {
       html += "<tr><td style='text-align:left'>" + h.currency + "</td>" +
         '<td class="mono">' + h.balance + "</td>" +
-        '<td class="mono' + (h.evalKrw === null ? ' warn">시세 조회 실패' : '">' + PT.formatAccount(h.evalKrw) + "원") + "</td></tr>";
+        '<td class="mono dim">' + (h.avgBuyPrice ? PT.formatAccount(h.avgBuyPrice) + "원" : "—") + "</td>" +
+        '<td class="mono' + (h.evalKrw === null ? ' warn">시세 조회 실패' : '">' + PT.formatAccount(h.evalKrw) + "원") + "</td>" +
+        '<td class="mono ' + PT.getPnlClass(h.pnlKrw) + '">' +
+        (h.pnlKrw == null ? "—" : PT.formatPnl(h.pnlKrw) + "원 (" + PT.formatPnlPct(h.pnlPct) + ")") + "</td></tr>";
     });
     html += "</tbody></table>";
   }
@@ -121,13 +125,56 @@ function renderRealAccountSubtab(container, label, acctData) {
   container.innerHTML = html;
 }
 
+// KIS 실계좌 - 업비트·빗썸과 파일 스키마가 다르다(거래소 API가 아니라 KIS
+// TR 그대로라 ticker/avgEntryPrice/pnlKrw 같은 이름). kis-portfolio-
+// holdings.py가 원래 실시간 탭 워치리스트용으로 홈디렉터리에 쓰던 파일에
+// 2026-09-14부터 account 요약도 같이 담는다 - 새 수집 경로 아니다.
+function renderKisRealSubtab(container, acctData) {
+  const PT = window.PT;
+  const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
+  let html = modeBadgeHtml("real");
+
+  if (!acctData) {
+    html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
+    container.innerHTML = html;
+    return;
+  }
+
+  const acct = acctData.account || {};
+  html += '<div class="kpi-grid">' +
+    '<div class="kpi-card"><div class="kpi-label">총평가금액</div><div class="kpi-value mono">' + won(acct.totalValueKrw) + "</div>" +
+    '<div class="kpi-sub">갱신 ' + (acctData.generatedAtKST ? new Date(acctData.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>" +
+    '<div class="kpi-card"><div class="kpi-label">현금</div><div class="kpi-value mono">' + won(acct.cashKrw) + "</div>" +
+    (acct.cashAvailableKrw != null ? '<div class="kpi-sub">가용(D+2) ' + PT.formatAccount(acct.cashAvailableKrw) + "원</div>" : "") + "</div>" +
+    '<div class="kpi-card"><div class="kpi-label">주식평가액</div><div class="kpi-value mono">' + won(acct.stockValueKrw) + "</div></div>" +
+    "</div>";
+
+  html += '<div class="panel"><h2>보유 종목 <span class="dim" style="font-size:11px;font-weight:400">— 최대 41종목까지 표시(실시간 탭 워치리스트 한도 공유)</span></h2>';
+  const holdings = acctData.holdings || [];
+  if (!holdings.length) {
+    html += '<div class="empty">보유 종목이 없습니다.</div>';
+  } else {
+    html += '<table><thead><tr><th>종목</th><th>수량</th><th>평균단가</th><th>현재가</th><th>평가금액</th><th>평가손익</th></tr></thead><tbody>';
+    holdings.forEach((h) => {
+      html += "<tr><td style='text-align:left'>" + (h.name || h.ticker) +
+        ' <span class="mono dim" style="font-size:11px">' + h.ticker + "</span></td>" +
+        '<td class="mono">' + h.quantity + "</td>" +
+        '<td class="mono dim">' + (h.avgEntryPrice ? PT.formatPrice(h.avgEntryPrice) : "—") + "</td>" +
+        '<td class="mono">' + (h.currentPrice ? PT.formatPrice(h.currentPrice) : "—") + "</td>" +
+        '<td class="mono">' + PT.formatAccount(h.evalAmount) + "원</td>" +
+        '<td class="mono ' + PT.getPnlClass(h.pnlKrw) + '">' +
+        (h.pnlKrw == null ? "—" : PT.formatPnl(h.pnlKrw) + "원 (" + PT.formatPnlPct(h.pnlPct) + ")") + "</td></tr>";
+    });
+    html += "</tbody></table>";
+  }
+  html += "</div>";
+  container.innerHTML = html;
+}
+
 function renderRv20Subtab(container, rv20) {
   const on = !!(rv20 && rv20.enabled);
   const changedAt = rv20 && rv20.lastChangedAt ? new Date(rv20.lastChangedAt).toLocaleString("ko-KR") : "-";
-  let html = '<div class="panel" style="border-color:var(--warn);margin-bottom:12px">' +
-    '<strong style="color:var(--warn)">⚠ 이것도 모의투자입니다</strong> — RV20 선물은 KIS 국내선물 ' +
-    "모의계좌(VTS)에 실제 자동 주문이 나가는 별도 전략입니다. 국내주식 모의투자와 같은 계좌가 아니라 자산이 안 섞이고, " +
-    "실제 돈도 아닙니다.</div>";
+  let html = modeBadgeHtml("paper");
   html += '<div class="panel"><h2>RV20 선물 sizing 자동실행</h2>';
   html += '<div class="sys-source-row"><span class="sys-source-name">상태</span>' +
     '<span class="pill ' + (on ? "pill-good" : "pill-dim") + '"><span class="pill-dot"></span>' + (on ? "켜짐" : "꺼짐") + "</span></div>";
@@ -137,6 +184,14 @@ function renderRv20Subtab(container, rv20) {
   html += '<div class="dim" style="font-size:11.5px;margin-top:8px">계약수·평가손익 등 계좌 상세는 이 정적 사이트에 발행되지 않습니다(VM 로컬에만 있음) — on/off 상태만 확인 가능합니다.</div>';
   html += "</div>";
   container.innerHTML = html;
+}
+
+// 모의투자 vs 실계좌 배지 - 원래 문장형 경고 박스였는데 너무 길다는
+// 피드백(2026-09-14)으로 짧은 pill 하나로 줄였다.
+function modeBadgeHtml(kind) {
+  const isPaper = kind === "paper";
+  return '<div style="margin-bottom:12px"><span class="pill ' + (isPaper ? "pill-warn" : "pill-good") + '">' +
+    '<span class="pill-dot"></span>' + (isPaper ? "모의투자 (가상자금)" : "실계좌 (실제 자산)") + "</span></div>";
 }
 
 function kpiGridHtml(account, eqHistory) {

@@ -221,6 +221,10 @@ async def handle_minute_history(request):
 # 0으로 보이면 안 된다(교훈57).
 UPBIT_HOLDINGS_PATH = Path(os.environ.get("UPBIT_HOLDINGS_PATH") or (Path.home() / ".upbit-holdings.json"))
 BITHUMB_HOLDINGS_PATH = Path(os.environ.get("BITHUMB_HOLDINGS_PATH") or (Path.home() / ".bithumb-holdings.json"))
+# kis-portfolio-holdings.py(실전계좌, 기존에 실시간 탭 워치리스트 용도로만
+# 쓰던 것)가 같은 파일에 2026-09-14부터 account 요약도 같이 쓴다 - 새 파일
+# 아니다, 기존 파일을 재사용한다.
+KIS_HOLDINGS_PATH = Path(os.environ.get("KIS_HOLDINGS_PATH") or (Path.home() / ".kis-holdings.json"))
 
 
 def _read_holdings_file(path):
@@ -242,6 +246,7 @@ async def handle_accounts(request):
         "real": {
             "upbit": _read_holdings_file(UPBIT_HOLDINGS_PATH),
             "bithumb": _read_holdings_file(BITHUMB_HOLDINGS_PATH),
+            "kis": _read_holdings_file(KIS_HOLDINGS_PATH),
         },
     }, headers={"Cache-Control": "no-store"})
 

@@ -122,12 +122,16 @@ def fetch_holdings():
     resp = r.json()
     if r.status_code != 200 or resp.get("rt_cd") != "0":
         raise HoldingsError(f"잔고 조회 실패: {resp.get('msg_cd')} {resp.get('msg1')}")
-    return resp.get("output1", [])
+    output2 = resp.get("output2") or [{}]
+    summary = output2[0] if isinstance(output2, list) else output2
+    return resp.get("output1", []), summary
 
 
 def to_rows(raw_holdings):
     """0주 보유(과거 매도 완료 잔여 레코드)는 뺀다. 평가금액 내림차순 -
-    41종목을 넘으면 큰 것부터 남긴다(잘라내는 건 작은 포지션이어야 한다)."""
+    41종목을 넘으면 큰 것부터 남긴다(잘라내는 건 작은 포지션이어야 한다).
+    매입평균가·평가손익은 KIS가 이미 계산해 주는 값(pchs_avg_pric·
+    evlu_pfls_amt·evlu_pfls_rt)을 그대로 쓴다 - 재계산하지 않는다."""
     rows = []
     for h in raw_holdings:
         qty = int(h.get("hldg_qty") or 0)
@@ -137,10 +141,29 @@ def to_rows(raw_holdings):
             "ticker": h.get("pdno"),
             "name": h.get("prdt_name"),
             "quantity": qty,
+            "avgEntryPrice": float(h["pchs_avg_pric"]) if h.get("pchs_avg_pric") else None,
+            "currentPrice": float(h["prpr"]) if h.get("prpr") else None,
             "evalAmount": int(h.get("evlu_amt") or 0),
+            "pnlKrw": int(h["evlu_pfls_amt"]) if h.get("evlu_pfls_amt") not in (None, "") else None,
+            "pnlPct": float(h["evlu_pfls_rt"]) if h.get("evlu_pfls_rt") not in (None, "") else None,
         })
     rows.sort(key=lambda r: r["evalAmount"], reverse=True)
     return rows[:MAX_TICKERS]
+
+
+def to_account_summary(summary):
+    """output2 요약 - VTS(kisVtsClient.py)와 같은 스키마(T/V 접두사만
+    다름). 키 이름을 positions.json의 account 객체와 맞춰 프론트 포맷
+    함수를 그대로 재사용할 수 있게 한다."""
+    def num(key):
+        v = summary.get(key)
+        return int(v) if v not in (None, "") else None
+    return {
+        "cashKrw": num("dnca_tot_amt"),
+        "cashAvailableKrw": num("prvs_rcdl_excc_amt"),
+        "stockValueKrw": num("scts_evlu_amt"),
+        "totalValueKrw": num("tot_evlu_amt"),
+    }
 
 
 def selftest():
@@ -159,6 +182,18 @@ def selftest():
     capped = to_rows(many)
     assert len(capped) == MAX_TICKERS, "KIS 웹소켓 세션 한도(41건)를 넘으면 안 된다"
     assert capped[0]["evalAmount"] == 59, "잘리는 건 평가금액이 작은 쪽이어야 한다"
+
+    priced = to_rows([{"pdno": "005930", "prdt_name": "삼성전자", "hldg_qty": "10",
+                        "pchs_avg_pric": "58000", "prpr": "62300", "evlu_amt": "623000",
+                        "evlu_pfls_amt": "43000", "evlu_pfls_rt": "7.41"}])
+    assert priced[0]["avgEntryPrice"] == 58000.0
+    assert priced[0]["pnlKrw"] == 43000
+    assert priced[0]["pnlPct"] == 7.41
+
+    summary = to_account_summary({"dnca_tot_amt": "100596273", "prvs_rcdl_excc_amt": "100596273",
+                                   "scts_evlu_amt": "401309173", "tot_evlu_amt": "501905446"})
+    assert summary["totalValueKrw"] == 501905446
+    assert summary["cashKrw"] == 100596273
     print("selftest OK")
 
 
@@ -170,12 +205,16 @@ def main():
     if args.selftest:
         return selftest()
 
-    raw = fetch_holdings()
+    raw, summary_raw = fetch_holdings()
     rows = to_rows(raw)
     if not rows:
         print("보유종목 0건 - kis-live-relay.py는 docs/data/live-watchlist.json으로 폴백한다", file=sys.stderr)
 
-    payload = {"generatedAtKST": datetime.now(KST).isoformat(), "holdings": rows}
+    payload = {
+        "generatedAtKST": datetime.now(KST).isoformat(),
+        "holdings": rows,
+        "account": to_account_summary(summary_raw),
+    }
     if args.dry_run:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
