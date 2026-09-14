@@ -24,13 +24,22 @@ Rule B: Q5->0x) 신호를 KIS 모의투자 선물 계좌에 실제로 반영하�
 """
 import argparse
 import json
+import os
 import sys
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 ENABLED_FLAG_PATH = Path(__file__).resolve().parent / "rv20_automation_enabled.json"
+# Overview "RV20 선물" 서브탭이 읽는 스냅샷 - 홈 디렉터리 격리(다른 실계좌
+# 파일들과 같은 원칙, 절대 git에 안 올라간다). ★ 선물 잔고조회(output2) 필드
+# 이름은 이 저장소 어디서도 검증된 적이 없다(스톡 TR의 dnca_tot_amt류와
+# 스키마가 다를 수 있음) - 임의로 재해석하지 않고 원문 그대로(summary)
+# 통째로 남긴다. 화면 쪽도 필드명을 안다고 가정하지 않고 그대로 나열한다.
+KST = timezone(timedelta(hours=9))
+HOLDINGS_PATH = Path(os.environ.get("RV20_HOLDINGS_PATH") or (Path.home() / ".rv20-futures-holdings.json"))
 
 
 def automation_enabled() -> bool:
@@ -45,6 +54,29 @@ from rv20_sizing_paper_signal import compute_today_signal
 from engine.live.kisVtsFuturesClient import KisVtsFuturesClient, KisVtsFuturesError
 
 MULT = 250_000.0
+
+
+def write_holdings_snapshot(positions, summary, held_qty, front):
+    """Overview "RV20 선물" 서브탭용 스냅샷. summary(output2)는 필드명을
+    검증한 적이 없어 그대로 통째로 남긴다 - held_qty·front(둘 다 이미 이
+    스크립트가 검증해 쓰고 있는 값)만 별도 필드로 뽑아 화면이 최소한
+    "몇 계약 보유 중인지"는 확실히 알 수 있게 한다. 쓰기 실패는 조용히
+    넘어간다(홈 디렉터리 문제로 본 주문 로직까지 죽이지 않는다)."""
+    try:
+        payload = {
+            "generatedAtKST": datetime.now(KST).isoformat(),
+            "heldContracts": held_qty,
+            "frontMonth": {"code": front.get("code"), "name": front.get("name"), "price": front.get("price")},
+            "rawSummary": summary,
+        }
+        HOLDINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        HOLDINGS_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        try:
+            os.chmod(HOLDINGS_PATH, 0o600)
+        except Exception:
+            pass
+    except Exception as e:
+        print(f"[경고] 잔고 스냅샷 쓰기 실패(주문 로직과 무관, 계속 진행): {e}")
 
 
 def current_position_qty(positions):
@@ -100,6 +132,8 @@ def main():
     front = client.resolve_front_month()
     print(f"front: {front['name']} ({front['code']})  현재가 {front['price']}  "
           f"매도호가 {front['ask']}  매수호가 {front['bid']}  거래량 {front['volume']}")
+
+    write_holdings_snapshot(positions, summary, held_qty, front)
 
     notional_per_contract = front["price"] * MULT
     target_notional = args.capital * signal["targetWeight"]

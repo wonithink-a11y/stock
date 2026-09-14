@@ -22,10 +22,10 @@ window.TABS.overview = {
     const equity = await PT.tryFetchJson("data/equity-history.json");
     const macro = await PT.tryFetchJson("data/macro.json");
     const rv20 = await PT.tryFetchJson("data/rv20-futures-automation.json");
-    let real = null;
+    let real = null, paper = null;
     try {
       const r = await fetch("https://wonithink-stock.duckdns.org/accounts?t=" + Date.now());
-      if (r.ok) real = (await r.json()).real;
+      if (r.ok) { const j = await r.json(); real = j.real; paper = j.paper; }
     } catch (e) { /* 서브탭에서 카드만 생략 */ }
 
     const subtabs = [
@@ -47,7 +47,7 @@ window.TABS.overview = {
       kis: () => renderKisRealSubtab(content, real && real.kis),
       upbit: () => renderRealAccountSubtab(content, "업비트", real && real.upbit),
       bithumb: () => renderRealAccountSubtab(content, "빗썸", real && real.bithumb),
-      rv20: () => renderRv20Subtab(content, rv20),
+      rv20: () => renderRv20Subtab(content, rv20, paper && paper.rv20),
     };
     document.querySelectorAll("#ov-subtab-nav .v-chip").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -171,7 +171,8 @@ function renderKisRealSubtab(container, acctData) {
   container.innerHTML = html;
 }
 
-function renderRv20Subtab(container, rv20) {
+function renderRv20Subtab(container, rv20, holdings) {
+  const PT = window.PT;
   const on = !!(rv20 && rv20.enabled);
   const changedAt = rv20 && rv20.lastChangedAt ? new Date(rv20.lastChangedAt).toLocaleString("ko-KR") : "-";
   let html = modeBadgeHtml("paper");
@@ -181,7 +182,37 @@ function renderRv20Subtab(container, rv20) {
   html += '<div class="dim" style="font-size:11.5px;margin-top:8px">마지막 변경: ' + changedAt +
     (rv20 && rv20.lastChangedBy ? " (" + rv20.lastChangedBy + ")" : "") +
     '<br>켜고 끄려면 GitHub Actions의 "RV20 futures automation on/off switch" 워크플로를 수동 실행합니다.</div>';
-  html += '<div class="dim" style="font-size:11.5px;margin-top:8px">계약수·평가손익 등 계좌 상세는 이 정적 사이트에 발행되지 않습니다(VM 로컬에만 있음) — on/off 상태만 확인 가능합니다.</div>';
+  html += "</div>";
+
+  // ★ 선물 잔고조회(output2) 필드명은 검증된 적이 없어(KIS futures TR -
+  // 국내주식 TR과 스키마가 다를 수 있음) 재해석하지 않고 원문(rawSummary)을
+  // 그대로 나열한다 - 의미를 지어내는 것보다 정직하다.
+  html += '<div class="panel" style="margin-top:12px"><h2>계좌 스냅샷 <span class="dim" style="font-size:11px;font-weight:400">— 매일 자동실행 시점 기준</span></h2>';
+  if (!holdings) {
+    html += '<div class="empty">데이터 없음 — VM의 다음 자동실행(평일 09:05 KST)까지 기다리거나, 아직 이 버전이 VM에 배포되지 않았을 수 있습니다.</div></div>';
+    container.innerHTML = html;
+    return;
+  }
+  html += '<div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">보유 계약수</div>' +
+    '<div class="kpi-value mono">' + holdings.heldContracts + "</div>" +
+    '<div class="kpi-sub">갱신 ' + (holdings.generatedAtKST ? new Date(holdings.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div>";
+  if (holdings.frontMonth) {
+    html += '<div class="kpi-card"><div class="kpi-label">Front-month</div><div class="kpi-value mono" style="font-size:16px">' +
+      (holdings.frontMonth.name || holdings.frontMonth.code) + '</div><div class="kpi-sub">현재가 ' +
+      (holdings.frontMonth.price != null ? PT.formatPrice(holdings.frontMonth.price) : "—") + "</div></div>";
+  }
+  html += "</div>";
+
+  const raw = holdings.rawSummary || {};
+  const keys = Object.keys(raw);
+  html += '<div class="panel" style="margin-top:12px"><h2>계좌 잔고 원문 <span class="dim" style="font-size:11px;font-weight:400">— KIS 선물 응답 필드명 미검증, 재해석 없이 그대로 표시</span></h2>';
+  if (!keys.length) {
+    html += '<div class="empty">원문 데이터가 비어 있습니다.</div>';
+  } else {
+    html += '<table><thead><tr><th>필드</th><th>값</th></tr></thead><tbody>';
+    keys.forEach((k) => { html += "<tr><td class='mono dim' style='text-align:left'>" + k + "</td><td class='mono'>" + String(raw[k]) + "</td></tr>"; });
+    html += "</tbody></table>";
+  }
   html += "</div>";
   container.innerHTML = html;
 }

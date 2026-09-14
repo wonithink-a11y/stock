@@ -225,6 +225,9 @@ BITHUMB_HOLDINGS_PATH = Path(os.environ.get("BITHUMB_HOLDINGS_PATH") or (Path.ho
 # 쓰던 것)가 같은 파일에 2026-09-14부터 account 요약도 같이 쓴다 - 새 파일
 # 아니다, 기존 파일을 재사용한다.
 KIS_HOLDINGS_PATH = Path(os.environ.get("KIS_HOLDINGS_PATH") or (Path.home() / ".kis-holdings.json"))
+# RV20 선물은 모의계좌(가상자금)라 위 셋(실계좌)과 다른 키(paper)에 둔다 -
+# rv20_paper_order.py가 매 실행 후 같은 VM의 홈 디렉터리에 쓴다.
+RV20_HOLDINGS_PATH = Path(os.environ.get("RV20_HOLDINGS_PATH") or (Path.home() / ".rv20-futures-holdings.json"))
 
 
 def _read_holdings_file(path):
@@ -247,6 +250,9 @@ async def handle_accounts(request):
             "upbit": _read_holdings_file(UPBIT_HOLDINGS_PATH),
             "bithumb": _read_holdings_file(BITHUMB_HOLDINGS_PATH),
             "kis": _read_holdings_file(KIS_HOLDINGS_PATH),
+        },
+        "paper": {
+            "rv20": _read_holdings_file(RV20_HOLDINGS_PATH),
         },
     }, headers={"Cache-Control": "no-store"})
 
