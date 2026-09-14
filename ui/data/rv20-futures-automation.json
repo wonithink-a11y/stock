@@ -1,6 +1,6 @@
 {
-  "enabled": false,
+  "enabled": true,
   "note": "true/false로 VM 자동 실행 여부를 제어한다. 이 파일 자체는 저장소에 커밋돼 있어 GitHub 웹에서 직접 편집하거나 .github/workflows/rv20-futures-automation-toggle.yml(Actions 탭 > Run workflow)로 바꾼다. VM은 매 실행 전 git pull로 이 파일의 최신값을 읽는다 - 수동으로 VM에 SSH해서 바꿀 필요 없다.",
-  "lastChangedBy": "initial",
-  "lastChangedAt": "2026-09-13T00:00:00+09:00"
+  "lastChangedBy": "github-actions-workflow-dispatch (wonithink-a11y)",
+  "lastChangedAt": "2026-09-14T00:55:26.014877+09:00"
 }

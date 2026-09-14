@@ -50,11 +50,19 @@ jobs:
               f.write("\n")
           PYEOF
 
+      - name: Copy flag to ui/data (UI가 읽는 사본)
+        # ★ paper-trading-ui.yml도 같은 복사를 하지만 하루 3번(10:10/13:10/15:40
+        # KST)뿐이라, 토글 직후 화면이 옛 상태를 보여주는 채로 최대 몇 시간
+        # 남아 있었다(실측 2026-09-14 - enabled:true로 켠 지 13시간이 지나도
+        # 화면은 "꺼짐"). 원본을 고치는 이 워크플로에서 바로 같이 복사해
+        # 그 창을 없앤다 - 두 파일이 다른 커밋에서 갱신될 일이 없다.
+        run: cp research/strategy-lab/futures/rv20_automation_enabled.json ui/data/rv20-futures-automation.json
+
       - name: Commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add research/strategy-lab/futures/rv20_automation_enabled.json
+          git add research/strategy-lab/futures/rv20_automation_enabled.json ui/data/rv20-futures-automation.json
           if ! git diff --staged --quiet; then
             git commit -m "chore: RV20 futures automation ${{ inputs.enabled }} (by ${{ github.actor }})"
             for i in 1 2 3 4 5; do
