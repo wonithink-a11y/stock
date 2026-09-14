@@ -1,8 +1,9 @@
-/* Overview 탭 - 계좌 상태를 5~10초 안에 파악하는 첫 화면(2026-09-14 전면 개편).
-   1차 버전은 KIS 국내주식 Paper Trading/VTS만 대상 - RV20 선물·업비트·빗썸은
-   여기 KPI에 안 섞는다(System 탭에 별도 "다른 브로커" 섹션으로 둔다).
-   데이터: ui/data/positions.json(account/strategies/trades) + equity-history.json
-   (계좌 자산 추이) + macro.json(코스피·코스닥 벤치마크). */
+/* Overview 탭 - 계좌 상태를 5~10초 안에 파악하는 첫 화면(2026-09-14 전면 개편,
+   같은 날 계좌 전환 서브탭 추가). 1차 KIS 국내주식 Paper Trading/VTS를
+   기본으로 하되, 업비트·빗썸 실계좌·RV20 선물(다른 브로커, System 탭에
+   있던 것)을 서브탭으로 옮겨와 한 곳에서 오갈 수 있게 한다 - Overview
+   총자산·KPI에는 여전히 안 섞는다(모의투자 vs 실제 돈은 절대 같은 숫자로
+   안 더한다). */
 window.TABS = window.TABS || {};
 window.TABS.overview = {
   title: "Overview",
@@ -20,35 +21,129 @@ window.TABS.overview = {
     }
     const equity = await PT.tryFetchJson("data/equity-history.json");
     const macro = await PT.tryFetchJson("data/macro.json");
+    const rv20 = await PT.tryFetchJson("data/rv20-futures-automation.json");
+    let real = null;
+    try {
+      const r = await fetch("https://wonithink-stock.duckdns.org/accounts?t=" + Date.now());
+      if (r.ok) real = (await r.json()).real;
+    } catch (e) { /* 서브탭에서 카드만 생략 */ }
 
-    const { account, strategies, trades, updatedAt, historyAsOf } = data;
-    const strategyEntries = Object.entries(strategies || {});
-    const eqHistory = (equity && equity.history) || [];
-
+    const subtabs = [
+      { id: "paper", label: "모의투자" },
+      { id: "upbit", label: "업비트 실계좌" },
+      { id: "bithumb", label: "빗썸 실계좌" },
+      { id: "rv20", label: "RV20 선물" },
+    ];
     container.innerHTML =
-      kpiGridHtml(account, eqHistory) +
-      '<div class="grid grid-2">' +
-        equityChartCardHtml(eqHistory, macro) +
-        strategyStatusCardHtml(strategyEntries, account) +
+      '<div class="v-chip-row" id="ov-subtab-nav" style="margin-bottom:12px">' +
+      subtabs.map((s, i) => '<button class="v-chip' + (i === 0 ? " active" : "") + '" data-subtab="' + s.id + '">' + s.label + "</button>").join("") +
       "</div>" +
-      '<div class="grid grid-2">' +
-        positionsSummaryCardHtml(strategyEntries) +
-        recentActivityCardHtml(trades) +
-      "</div>";
+      '<div id="ov-subtab-content"></div>';
 
-    wireEquityChart(eqHistory, macro);
+    const content = document.getElementById("ov-subtab-content");
+    const renderers = {
+      paper: () => renderPaperSubtab(content, data, equity, macro),
+      upbit: () => renderRealAccountSubtab(content, "업비트", real && real.upbit),
+      bithumb: () => renderRealAccountSubtab(content, "빗썸", real && real.bithumb),
+      rv20: () => renderRv20Subtab(content, rv20),
+    };
+    document.querySelectorAll("#ov-subtab-nav .v-chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#ov-subtab-nav .v-chip").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderers[btn.dataset.subtab]();
+      });
+    });
+    renderers.paper();
   },
 };
+
+function renderPaperSubtab(container, data, equity, macro) {
+  const { account, strategies, trades } = data;
+  const strategyEntries = Object.entries(strategies || {});
+  const eqHistory = (equity && equity.history) || [];
+
+  container.innerHTML =
+    '<div class="panel" style="border-color:var(--warn);margin-bottom:12px">' +
+    '<strong style="color:var(--warn)">⚠ 모의투자(가상자금)</strong> — 이 화면의 숫자는 ' +
+    "실제 돈이 아닙니다. KIS 모의계좌(VTS)에 실제로 자동 주문이 나가지만 가상자금 기준이고, " +
+    "실전 계좌와 체결 방식·수수료가 다를 수 있습니다.</div>" +
+    kpiGridHtml(account, eqHistory) +
+    '<div class="grid grid-2">' +
+      equityChartCardHtml() +
+      strategyStatusCardHtml(strategyEntries, account) +
+    "</div>" +
+    '<div class="grid grid-2">' +
+      positionsSummaryCardHtml(strategyEntries) +
+      recentActivityCardHtml(trades) +
+    "</div>";
+
+  wireEquityChart(eqHistory, macro);
+}
+
+// 업비트·빗썸은 실계좌(진짜 자산) - 모의투자와 반대되는 경고를 준다.
+// evalKrw가 null인(시세 조회 실패) 보유는 합계에서 빠진 이유를 그대로 보여준다.
+function renderRealAccountSubtab(container, label, acctData) {
+  const PT = window.PT;
+  const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
+
+  let html = '<div class="panel" style="border-color:var(--good);margin-bottom:12px">' +
+    '<strong style="color:var(--good)">● 실계좌</strong> — ' + label + "는 실제 자산입니다(모의투자 아님). " +
+    "15분 간격으로 VM이 직접 조회해 갱신합니다.</div>";
+
+  if (!acctData) {
+    html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
+    container.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">총 평가금액(원화 환산)</div>' +
+    '<div class="kpi-value mono">' + won(acctData.totalKrw) + "</div>" +
+    '<div class="kpi-sub">갱신 ' + (acctData.generatedAtKST ? new Date(acctData.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div></div></div>";
+
+  html += '<div class="panel"><h2>보유 자산</h2>';
+  const holdings = acctData.holdings || [];
+  if (!holdings.length) {
+    html += '<div class="empty">보유 자산이 없습니다.</div>';
+  } else {
+    html += '<table><thead><tr><th>통화</th><th>보유수량</th><th>평가금액(원)</th></tr></thead><tbody>';
+    holdings.forEach((h) => {
+      html += "<tr><td style='text-align:left'>" + h.currency + "</td>" +
+        '<td class="mono">' + h.balance + "</td>" +
+        '<td class="mono' + (h.evalKrw === null ? ' warn">시세 조회 실패' : '">' + PT.formatAccount(h.evalKrw) + "원") + "</td></tr>";
+    });
+    html += "</tbody></table>";
+  }
+  if ((acctData.unresolvedCurrencies || []).length) {
+    html += '<div class="warn" style="font-size:11px;margin-top:8px">시세 조회 실패로 합계 제외: ' + acctData.unresolvedCurrencies.join(", ") + "</div>";
+  }
+  html += "</div>";
+  container.innerHTML = html;
+}
+
+function renderRv20Subtab(container, rv20) {
+  const on = !!(rv20 && rv20.enabled);
+  const changedAt = rv20 && rv20.lastChangedAt ? new Date(rv20.lastChangedAt).toLocaleString("ko-KR") : "-";
+  let html = '<div class="panel" style="border-color:var(--warn);margin-bottom:12px">' +
+    '<strong style="color:var(--warn)">⚠ 이것도 모의투자입니다</strong> — RV20 선물은 KIS 국내선물 ' +
+    "모의계좌(VTS)에 실제 자동 주문이 나가는 별도 전략입니다. 국내주식 모의투자와 같은 계좌가 아니라 자산이 안 섞이고, " +
+    "실제 돈도 아닙니다.</div>";
+  html += '<div class="panel"><h2>RV20 선물 sizing 자동실행</h2>';
+  html += '<div class="sys-source-row"><span class="sys-source-name">상태</span>' +
+    '<span class="pill ' + (on ? "pill-good" : "pill-dim") + '"><span class="pill-dot"></span>' + (on ? "켜짐" : "꺼짐") + "</span></div>";
+  html += '<div class="dim" style="font-size:11.5px;margin-top:8px">마지막 변경: ' + changedAt +
+    (rv20 && rv20.lastChangedBy ? " (" + rv20.lastChangedBy + ")" : "") +
+    '<br>켜고 끄려면 GitHub Actions의 "RV20 futures automation on/off switch" 워크플로를 수동 실행합니다.</div>';
+  html += '<div class="dim" style="font-size:11.5px;margin-top:8px">계약수·평가손익 등 계좌 상세는 이 정적 사이트에 발행되지 않습니다(VM 로컬에만 있음) — on/off 상태만 확인 가능합니다.</div>';
+  html += "</div>";
+  container.innerHTML = html;
+}
 
 function kpiGridHtml(account, eqHistory) {
   const PT = window.PT;
   const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
   const total = account ? account.totalValueKrw : null;
 
-  // 오늘 손익 = 이력의 마지막-직전 일 차이. 누적손익 = 이력 시작일 대비
-  // (계좌 개설 이후 누적이 아니다 - equity-history가 2026-09-11부터 쌓이기
-  // 시작했으므로, 기록 시작 전 손익은 알 수 없다. "누적"이라는 말이
-  // 오해를 부르지 않게 캡션으로 밝힌다).
   let todayPnl = null, todayPnlPct = null, cumPnl = null, cumPnlPct = null, sinceDate = null;
   if (eqHistory.length >= 2) {
     const last = eqHistory[eqHistory.length - 1], prev = eqHistory[eqHistory.length - 2];
@@ -68,7 +163,7 @@ function kpiGridHtml(account, eqHistory) {
     (sub ? '<div class="kpi-sub">' + sub + "</div>" : "") + "</div>";
 
   return '<div class="kpi-grid">' +
-    card("총자산", won(total), historyAsOfSub(account)) +
+    card("총자산", won(total), "") +
     card("오늘 손익", todayPnl === null ? "—" : PT.formatPnl(todayPnl) + "원",
       todayPnlPct === null ? "" : PT.formatPnlPct(todayPnlPct), PT.getPnlClass(todayPnl)) +
     card("누적 손익", cumPnl === null ? "—" : PT.formatPnl(cumPnl) + "원",
@@ -79,8 +174,6 @@ function kpiGridHtml(account, eqHistory) {
       account && account.stockValueKrw != null ? "주식 " + PT.formatAccount(account.stockValueKrw) + "원" : "") +
     "</div>";
 }
-
-function historyAsOfSub() { return ""; }
 
 function equityChartCardHtml() {
   return '<div class="panel">' +
@@ -96,9 +189,6 @@ function equityChartCardHtml() {
     "</div>";
 }
 
-// 벤치마크 비교 - 코스피·코스닥·내 계좌를 공통 시작일=100으로 정규화해
-// 한 그림에 겹친다(chart.js의 benchmarkPanelHtml과 같은 방식, 재사용).
-// 절대수준이 자릿수가 달라(지수 2,500 vs 계좌 5억) 같은 축에 못 놓는다.
 function wireEquityChart(eqHistory, macro) {
   const slot = document.getElementById("eq-chart-slot");
   const group = document.getElementById("eq-period-group");
@@ -175,8 +265,6 @@ function benchmarkChartHtml(kospi, kosdaq, equity) {
     svg + '<table class="bench-legend" style="font-size:12px;margin-top:6px;width:auto">' + legend + "</table>";
 }
 
-// 전략 상태 - ACTIVE/WAITING/ERROR라는 개념은 저장되지 않는다(엔진이 그런
-// 상태를 안 남김). 대신 실제로 있는 포지션 status에서 정직하게 유도한다.
 function strategyStatusCardHtml(strategyEntries, account) {
   const PT = window.PT;
   const total = account && account.totalValueKrw;
@@ -230,8 +318,6 @@ function positionsSummaryCardHtml(strategyEntries) {
   return html + "</div>";
 }
 
-// "최근 신호"는 저장이 안 되므로(엔진이 방향/확률을 남기지 않음) 실제로
-// 존재하는 가장 가까운 정보인 "오늘 낸 주문"을 정직하게 보여준다.
 function recentActivityCardHtml(trades) {
   const PT = window.PT;
   let html = '<div class="panel"><h2>최근 주문 <span class="dim" style="font-size:11px;font-weight:400">— 신호(방향·확률 예측)는 이 엔진이 기록하지 않습니다, 실제 접수된 주문만 표시</span></h2>';

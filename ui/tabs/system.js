@@ -1,8 +1,8 @@
-/* System 탭 - 데이터 소스별 최신성 + 브로커 연결상태(2026-09-14 개편).
+/* System 탭 - 데이터 소스별 최신성 + KIS 연결상태(2026-09-14 개편).
    ★ 라이브 헬스체크가 없다 - "KIS Connected"를 실측 없이 "정상"이라고
    보여주지 않는다. 확인 가능한 건 "마지막으로 받은 데이터가 언제인지"뿐이라
-   그것만 정직하게 보여준다. RV20 선물·업비트·빗썸은 KIS 국내주식과 다른
-   브로커라 별도 섹션("다른 브로커")으로 둔다 - Overview KPI엔 안 섞는다. */
+   그것만 정직하게 보여준다. RV20 선물·업비트·빗썸 실계좌는 Overview
+   서브탭으로 옮겼다(2026-09-14) - 여기 남은 건 해외 슬리브(TQQQ·SOXL)뿐. */
 window.TABS = window.TABS || {};
 window.TABS.system = {
   title: "System",
@@ -11,17 +11,12 @@ window.TABS.system = {
     const positions = await PT.tryFetchJson("data/positions.json");
     const equity = await PT.tryFetchJson("data/equity-history.json");
     const macro = await PT.tryFetchJson("data/macro.json");
-    const rv20 = await PT.tryFetchJson("data/rv20-futures-automation.json");
-    let real = null;
-    try {
-      const r = await fetch("https://wonithink-stock.duckdns.org/accounts?t=" + Date.now());
-      if (r.ok) real = (await r.json()).real;
-    } catch (e) { /* 카드 생략 */ }
 
+    // RV20·업비트·빗썸 계좌 현황은 Overview 서브탭("모의투자" 옆)으로
+    // 옮겼다(2026-09-14, 사용자 요청) - 여기 중복 표시 안 함.
     container.innerHTML =
       dataSourcesCardHtml(positions, equity, macro) +
       kisStatusCardHtml(positions) +
-      otherBrokersCardHtml(rv20, real) +
       overseasCardHtml(positions && positions.overseas);
   },
 };
@@ -91,25 +86,5 @@ function kisStatusCardHtml(positions) {
     (positions && positions.trades && !positions.trades.error ? "정상" : "실패") + "</span></div>";
   html += '<div class="sys-source-row"><span class="sys-source-name">주문 실행(Paper Engine 스캐너·폴러)</span>' +
     '<span class="pill pill-dim"><span class="pill-dot"></span>마지막 실행시각 미공개(로그가 VM에만 있음)</span></div>';
-  return html + "</div>";
-}
-
-function otherBrokersCardHtml(rv20, real) {
-  const PT = window.PT;
-  const won = (v) => v === null || v === undefined ? "—" : PT.formatAccount(v) + "원";
-  let html = '<div class="panel" style="margin-top:12px"><h2>다른 브로커 <span class="dim" style="font-size:11px;font-weight:400">— Overview 총자산에 합산하지 않음</span></h2>';
-
-  const on = !!(rv20 && rv20.enabled);
-  html += '<div class="sys-source-row"><span class="sys-source-name">RV20 선물 모의주문 자동실행</span>' +
-    '<span class="pill ' + (on ? "pill-good" : "pill-dim") + '"><span class="pill-dot"></span>' + (on ? "켜짐" : "꺼짐") + "</span></div>";
-
-  const realEntries = [{ key: "upbit", label: "업비트 실계좌" }, { key: "bithumb", label: "빗썸 실계좌" }];
-  realEntries.forEach(({ key, label }) => {
-    const d = real && real[key];
-    html += '<div class="sys-source-row"><span class="sys-source-name">' + label + "</span>" +
-      (d
-        ? '<span class="mono">' + won(d.totalKrw) + '</span> <span class="pill pill-good" style="margin-left:8px"><span class="pill-dot"></span>정상</span>'
-        : '<span class="pill pill-dim"><span class="pill-dot"></span>데이터 없음</span>') + "</div>";
-  });
   return html + "</div>";
 }
