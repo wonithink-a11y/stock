@@ -8,6 +8,10 @@
    업비트 KRW-USDT 시장가를 업비트·빗썸 공통 기준으로 쓴다 - 거래소마다
    따로 재면 각자의 USDT 마켓 유동성 차이가 프리미엄값에 섞여 들어간다. */
 window.CryptoTicker = (function () {
+  const REFRESH_MS = 30000;
+  let refreshTimer = null;
+  let selectedCode = null; // 자동 갱신으로 테이블을 다시 그려도 열려있던 차트를 유지한다
+
   const COINS = [
     { code: "BTC", name: "비트코인" },
     { code: "ETH", name: "이더리움" },
@@ -106,9 +110,17 @@ window.CryptoTicker = (function () {
   // 3개 출처(국내가·바이낸스가·USDT환율) 중 하나가 막혀도 나머지는 보여준다
   // - Promise.all은 하나만 실패해도 전체를 던져 패널이 통째로 비었다(교훈57과
   // 같은 모양: 모르는 값이 하나 있다고 아는 값까지 숨기지 않는다).
-  async function renderPanel(container, exchange) {
+  //
+  // isAutoRefresh: 타이머가 부른 재호출이면 "불러오는 중" 깜빡임을 건너뛰고
+  // 열려있던 차트를 그대로 복원한다 - 사용자가 직접 서브탭을 눌러 들어온
+  // 최초 호출과는 다르게 취급한다.
+  async function renderPanel(container, exchange, isAutoRefresh) {
     const PT = window.PT;
-    container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">불러오는 중...</div></div>';
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+    if (!isAutoRefresh) {
+      selectedCode = null;
+      container.innerHTML = '<div class="panel"><h2>시세 · 김치프리미엄</h2><div class="empty">불러오는 중...</div></div>';
+    }
     const codes = COINS.map((c) => c.code);
 
     let domesticR, binanceR, usdtKrwR;
@@ -150,7 +162,8 @@ window.CryptoTicker = (function () {
     let html = '<div class="panel"><h2>시세 · 김치프리미엄</h2>' +
       '<div class="dim" style="font-size:11px;margin-bottom:8px">USDT/KRW 기준환율(업비트) ' +
       (usdtKrw ? PT.formatPrice(usdtKrw) + "원" : "—") +
-      " · 해외가는 바이낸스 USDT 마켓 · 종목을 클릭하면 차트가 표시됩니다</div>" +
+      " · 해외가는 바이낸스 USDT 마켓 · 종목을 클릭하면 차트가 표시됩니다 · " +
+      (REFRESH_MS / 1000) + "초마다 자동 갱신</div>" +
       (failedParts.length ? '<div class="warn" style="font-size:11px;margin-bottom:8px">조회 실패로 일부 값 비어있음: ' +
         failedParts.join(", ") + " (새로고침으로 재시도 가능)</div>" : "") +
       '<table><thead><tr><th>코인</th><th>현재가</th><th>24H 등락</th><th>김치프리미엄</th></tr></thead><tbody>';
@@ -169,20 +182,29 @@ window.CryptoTicker = (function () {
     container.innerHTML = html;
 
     const slot = document.getElementById("ct-chart-slot");
+    async function openChart(code) {
+      const name = COINS.find((c) => c.code === code).name;
+      slot.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
+      try {
+        const candles = await withRetry(() => fetchCandles(exchange, code, 168), 1);
+        slot.innerHTML = '<div class="dim" style="font-size:11px;margin-bottom:4px">' + name + " · 최근 7일(1시간봉)</div>" +
+          lineChartSvg(candles);
+      } catch (e) {
+        slot.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) + "</div>";
+      }
+    }
     container.querySelectorAll(".ct-row").forEach((row) => {
-      row.addEventListener("click", async () => {
-        const code = row.dataset.code;
-        const name = COINS.find((c) => c.code === code).name;
-        slot.innerHTML = '<div class="empty">차트 불러오는 중...</div>';
-        try {
-          const candles = await withRetry(() => fetchCandles(exchange, code, 168), 1);
-          slot.innerHTML = '<div class="dim" style="font-size:11px;margin-bottom:4px">' + name + " · 최근 7일(1시간봉)</div>" +
-            lineChartSvg(candles);
-        } catch (e) {
-          slot.innerHTML = '<div class="empty">차트 조회 실패: ' + String((e && e.message) || e) + "</div>";
-        }
-      });
+      row.addEventListener("click", () => { selectedCode = row.dataset.code; openChart(row.dataset.code); });
     });
+    if (selectedCode) openChart(selectedCode);
+
+    // 탭이 다른 서브탭/화면으로 가려지면(offsetParent가 null) 백그라운드에서
+    // 계속 조회하지 않고 스스로 멈춘다 - display:none인 .tab-panel 안 요소는
+    // offsetParent가 항상 null이라 이 컨테이너가 보이는지 그대로 알 수 있다.
+    refreshTimer = setInterval(() => {
+      if (!container.offsetParent) { clearInterval(refreshTimer); refreshTimer = null; return; }
+      renderPanel(container, exchange, true);
+    }, REFRESH_MS);
   }
 
   return { renderPanel };
