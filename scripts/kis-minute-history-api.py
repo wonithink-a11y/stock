@@ -233,17 +233,17 @@ def _read_holdings_file(path):
 
 
 async def handle_accounts(request):
-    # market-trend·minute-history의 CORS 허용은 nginx location 블록이 주는
-    # 것으로 보인다(이 파일 안에는 없다) - /accounts는 새 경로라 nginx가
-    # 그 블록을 안 타면 헤더가 안 붙는다. 여기서 직접 붙여 nginx 설정 여부와
-    # 무관하게 동작하게 한다(실측: 로컬 프리뷰에서 CORS 차단 확인 후 추가).
+    # CORS 허용은 nginx location 블록(/accounts)이 add_header로 준다 - 여기서
+    # 또 붙이면 헤더가 두 번(*, *) 나가 브라우저가 무효로 본다(실측 2026-09-14,
+    # 로컬 프리뷰는 nginx를 안 거쳐서 이 중복이 안 보였다). market-trend와
+    # 똑같이 여기서는 안 붙인다.
     return web.json_response({
         "fetchedAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "real": {
             "upbit": _read_holdings_file(UPBIT_HOLDINGS_PATH),
             "bithumb": _read_holdings_file(BITHUMB_HOLDINGS_PATH),
         },
-    }, headers={"Cache-Control": "no-store", "Access-Control-Allow-Origin": "*"})
+    }, headers={"Cache-Control": "no-store"})
 
 
 def selftest():

@@ -122,29 +122,33 @@ function accountsSummaryPanelHtml(kisPaperAccount, real) {
   const realTotal = realEntries.some((e) => e.data)
     ? realEntries.reduce((sum, e) => sum + (e.data ? e.data.totalKrw : 0), 0)
     : null;
+  const dot = (on) => '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;' +
+    "background:" + (on ? "var(--good)" : "var(--text-dim)") + ';margin-right:6px;flex-shrink:0"></span>';
 
   let html = '<div class="panel" style="margin-bottom:12px">';
-  html += '  <div class="account-hero" style="padding:12px 16px">';
+  html += '  <h2>계좌 현황 — 모의투자 · 실계좌</h2>';
+  html += '  <div class="account-hero" style="padding:0 0 16px">';
   html += '    <div class="hero-stat"><div class="stat-label">모의투자 총자본</div>' +
     '<div class="stat-value-lg mono">' + won(paperTotal) + '</div>' +
-    '<div class="dim" style="font-size:11px">국내주식(무한매수법)만 집계 - RV20 선물·크립토 모의는 별도 표시</div></div>';
+    '<div class="dim" style="font-size:11px;margin-top:2px">국내주식(무한매수법)만 집계 · RV20 선물·크립토 모의는 별도</div></div>';
   html += '    <div class="hero-stat"><div class="stat-label">실계좌 총자본</div>' +
     '<div class="stat-value-lg mono">' + won(realTotal) + '</div>' +
-    '<div class="dim" style="font-size:11px">업비트·빗썸 실계좌 합계(원화 환산)</div></div>';
+    '<div class="dim" style="font-size:11px;margin-top:2px">업비트·빗썸 합계(원화 환산)</div></div>';
   html += "  </div>";
 
-  html += '  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:0 16px 12px">';
+  html += '  <div class="grid grid-2">';
   realEntries.forEach(({ label, data }) => {
-    html += '    <div class="card" style="flex:1;min-width:160px">';
-    html += '      <div class="dim" style="margin-bottom:4px">' + label + ' 실계좌</div>';
+    html += '    <div style="background:var(--surface-2);border-radius:8px;padding:10px 14px">';
+    html += '      <div style="display:flex;align-items:center;margin-bottom:6px">' +
+      dot(!!data) + '<span class="dim" style="font-size:12px">' + label + " 실계좌</span></div>";
     if (!data) {
-      html += '      <div class="dim">데이터 없음(VM 실계좌 조회 타이머 미실행 또는 응답 없음)</div>';
+      html += '      <div class="dim" style="font-size:12px">데이터 없음(VM 실계좌 조회 타이머 미실행 또는 응답 없음)</div>';
     } else {
-      html += '      <div class="mono" style="font-size:18px;font-weight:600">' + won(data.totalKrw) + "</div>";
-      html += '      <div class="dim" style="font-size:11px">갱신 ' +
+      html += '      <div class="mono" style="font-size:20px;font-weight:600">' + won(data.totalKrw) + "</div>";
+      html += '      <div class="dim" style="font-size:11px;margin-top:2px">갱신 ' +
         (data.generatedAtKST ? new Date(data.generatedAtKST).toLocaleString("ko-KR") : "-") + "</div>";
       if ((data.unresolvedCurrencies || []).length) {
-        html += '      <div class="warn" style="font-size:11px">시세 조회 실패로 합계 제외: ' +
+        html += '      <div style="font-size:11px;color:var(--warn);margin-top:2px">시세 조회 실패로 합계 제외: ' +
           data.unresolvedCurrencies.join(", ") + "</div>";
       }
     }
