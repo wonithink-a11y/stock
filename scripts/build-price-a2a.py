@@ -232,10 +232,19 @@ def find_violations(by_ticker, cal_idx, pol, diag):
     거래량 0인 행의 종가는 체결가가 아니라 거래정지 중 기준가 표기이므로, 그것을
     실제 체결가와 비교하는 것은 품질 검사가 아니라 서로 다른 의미의 값을 비교하는 것이다.
     임계는 그대로 두고 비교 대상만 정정한다 — 완화가 아니다.
+
+    ★ 정지 직전 마지막 실거래일 ↔ 재개 직후 첫 실거래일은 위 루프에서 둘 다
+    스킵된다(한쪽이 거래량 0이거나 캘린더가 안 붙어서) — 그런데 감자·병합처럼
+    정지 "중에" 실제로 가격이 재조정되는 이벤트가 정확히 이 틈에 숨는다(실측
+    2026-09, 한국첨단소재 062970 정지 전 2,325원 → 재개 첫날 3,020원 +29.9%,
+    KS인더스트리 101000도 감자 전후로 유사. 둘 다 지금까지 위반 0건으로
+    통과해 검사를 무의미하게 만들었다). 거래량>0 행만 남긴 부분수열에서
+    "원본상 인접하지 않았던" 쌍만 추가로 잰다 — 이미 인접했던 쌍은 위 루프가
+    담당하므로 다시 세지 않는다(이중 계상 방지).
     """
     dc = pol["dailyChange"]
     limit = pol["acceptance"]["dailyChangeAbsMax"]
-    zero_vol = susp_gap = comparable = 0
+    zero_vol = susp_gap = comparable = resume_after_halt = 0
     viol = defaultdict(list)
 
     for tk, xs in by_ticker.items():
@@ -261,12 +270,39 @@ def find_violations(by_ticker, cal_idx, pol, diag):
                     "kind": "TRANSIENT_PRICE_SPIKE" if transient else "UNADJUSTED_CORPORATE_ACTION",
                 })
 
+        real = [(i, x) for i, x in enumerate(xs) if x["volume"] > 0]
+        for k in range(1, len(real)):
+            bi, b_ = real[k]
+            ai, a_ = real[k - 1]
+            if bi - ai == 1:
+                continue  # xs상 바로 다음 행 — 이미 인접(정상) 또는 susp_gap으로
+                          # 위 루프가 이미 담당한 쌍이다. 새로 볼 정보가 없다.
+            ia, ib = cal_idx.get(a_["date"]), cal_idx.get(b_["date"])
+            if ia is None or ib is None or ib - ia != bi - ai:
+                continue  # 캘린더 간격과 행 간격이 다르면 그 사이 며칠이 행
+                          # 자체가 없는(수집 공백) 구간이다 — 명시적으로 거래량 0
+                          # 행이 매일 찍혀 있는 "관측된 정지"만 다리를 놓는다.
+                          # 모르면 제외하고 추정하지 않는다(교훈57).
+            resume_after_halt += 1
+            if a_["close"] > 0 and abs(b_["close"] / a_["close"] - 1) > limit:
+                base = a_["close"]
+                fwd = [xs[j]["close"] for j in range(bi + 1, min(bi + 1 + dc["transientReturnDays"], len(xs)))]
+                transient = any(abs(c / base - 1) < dc["transientReturnTolerance"] for c in fwd)
+                viol[tk].append({
+                    "date": b_["date"], "prevDate": a_["date"],
+                    "prevClose": base, "close": b_["close"],
+                    "change": round(b_["close"] / base - 1, 4),
+                    "kind": "TRANSIENT_PRICE_SPIKE" if transient else "UNADJUSTED_CORPORATE_ACTION",
+                    "afterHalt": True,
+                })
+
     # 카운터를 diag에 직접 쓰지 않는다 — 이 함수는 잔여 위반 확인을 위해 제외 후
     # 부분집합으로 한 번 더 호출되고, 그때 전체 기준 관측치가 조용히 덮이기 때문이다.
     # 무엇을 기록할지는 호출부가 정한다.
     return viol, {"zeroVolumeTransitions": zero_vol,
                   "suspendedGapTransitions": susp_gap,
-                  "comparableTransitions": comparable}
+                  "comparableTransitions": comparable,
+                  "resumeAfterHaltTransitions": resume_after_halt}
 
 
 def build_exclusions(viol, uni_by_ticker, by_ticker):

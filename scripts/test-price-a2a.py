@@ -176,5 +176,31 @@ assert d["zeroVolumeTransitions"] > d["keptZeroVolumeTransitions"], (
 print(f"        전체 {d['zeroVolumeTransitions']} / 제외후 {d['keptZeroVolumeTransitions']} "
       "(둘 다 남는다)")
 
+# 10. 정지 직전 마지막 실거래일 ↔ 재개 직후 첫 실거래일도 잰다 (실측 2026-09,
+#     한국첨단소재 062970 - 정지 전 2,325원 → 재개 첫날 3,020원 +29.9%. 사이의
+#     거래정지 구간(거래량 0)이 위 두 검사(둘 다 volume>0 요구·캘린더 인접 요구)를
+#     각각 따로 빠져나가, 이 틈은 지금까지 아무 검사도 통과하지 않은 채 넘어갔다.
+resume = flat("000007")
+for i in range(10, 15):
+    resume[i] = row("000007", i, 1000, vol=0)   # 거래정지 - 기준가 동결, 거래량 0
+for i in range(15, 20):
+    resume[i] = row("000007", i, 2000)          # 재개 후 +100% 수준에서 유지(영구)
+d, _, excl = case("정지 재개 직후 급변도 검사한다 → UNADJUSTED_CORPORATE_ACTION",
+                   BASE + resume, uni_of(*BASE_TK, "000007"),
+                   {"000007": "UNADJUSTED_CORPORATE_ACTION"})
+assert d["resumeAfterHaltTransitions"] >= 1, "정지 재개 전이가 진단에 기록되지 않았다"
+after_halt = [v for v in excl[0]["violations"] if v.get("afterHalt")]
+assert after_halt and after_halt[0]["prevClose"] == 1000 and after_halt[0]["close"] == 2000, (
+    "정지 직전 실거래가(1000)와 재개 직후 실거래가(2000)를 비교하지 않았다")
+print(f"        resumeAfterHaltTransitions={d['resumeAfterHaltTransitions']}")
+
+# 11. 정지 구간이 있어도 재개 후 가격이 직전 수준으로 돌아오면 위반이 아니다
+resume_ok = flat("000008")
+for i in range(10, 15):
+    resume_ok[i] = row("000008", i, 1000, vol=0)
+resume_ok[15] = row("000008", 15, 1050)          # 재개해도 +5%면 정상 변동
+case("정지 재개 후 소폭 변동은 위반이 아니다",
+     BASE + resume_ok, uni_of(*BASE_TK, "000008"), {})
+
 print(f"\n{'✅' if not failed else '❌'} A2a 품질 판별 {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)
