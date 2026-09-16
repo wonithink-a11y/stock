@@ -5,34 +5,34 @@
   "target": "data/backfill/price/a2a",
   "targetKind": "dir",
   "targetExt": ".jsonl.gz",
-  "hash": "sha256:59a1fe6edf91292c",
+  "hash": "sha256:dca86fa7e3087408",
   "fileCount": 14,
   "upstream": {
-    "A0.5": "sha256:a58d13b7ffc2dcfb",
+    "A0.5": "sha256:102740a4c6d5c185",
     "A1a": "sha256:3543c5a084d46438"
   },
   "policyHash": {
-    "registry": "sha256:07c050116f65b37e",
-    "registryVersion": "REG-1.7",
+    "registry": "sha256:d1c2a4032d71418f",
+    "registryVersion": "REG-1.8",
     "universe": "sha256:1325e19e37807f9a",
     "price": "sha256:f2c34e0879f72c00"
   },
-  "recordCount": 6106754,
-  "recordCountBeforeExclusion": 6155484,
+  "recordCount": 6031354,
+  "recordCountBeforeExclusion": 6165117,
   "calendarStart": "2014-01-02",
   "actualDataFrom": "2014-05-13",
-  "actualDataTo": "2026-09-03",
-  "missingRate": 0.00056,
-  "qualityExcludedCount": 22,
+  "actualDataTo": "2026-09-16",
+  "missingRate": 0.00001,
+  "qualityExcludedCount": 54,
   "qualityExcludedByReason": {
-    "UNADJUSTED_CORPORATE_ACTION": 20,
-    "TRANSIENT_PRICE_SPIKE": 2
+    "UNADJUSTED_CORPORATE_ACTION": 53,
+    "TRANSIENT_PRICE_SPIKE": 1
   },
-  "frontTruncatedTickerDays": 161427,
+  "frontTruncatedTickerDays": 174654,
   "environment": {
     "pykrx": "1.2.8",
     "pykrxRequired": "1.2.8",
     "python": "3.11.16"
   },
-  "generatedAt": "2026-09-03T14:55:31.133Z"
+  "generatedAt": "2026-09-16T14:38:52.400Z"
 }
