@@ -2,10 +2,20 @@
 track: kr
 factor: foreign-flow-52wlow-per
 date: 2026-08-30
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: v1
 conditions: ["ff_bucket=20-40%", "l2w_bucket=0-10%", "per_bucket=low"]
-reason: "TRAIN 유의(t=3.06)했으나 TEST에서 부호반전, PER유효값 요구로 유니버스가 2558->1315종목으로 좁아지며 발생 - HOLD"
+reason: >-
+  TRAIN 유의(t=3.06)했으나 TEST에서 부호반전(t=-4.119), PER유효값 요구로
+  유니버스가 2558->1315종목으로 좁아지며 발생 - HOLD. 재판정(2026-09-18,
+  새 분석 아님 — 이 문서 §6·7이 이미 적어둔 사실을 판정 기준(rule_discovery_
+  criteria.json v1 "VALID/TEST 부호일관성")에 그대로 대입): 이 문서 §6이
+  "설계 결함(절대임계 버킷이 분위 아님, PER 서브유니버스가 전체 KEEP
+  결론과 다른 표본) 때문에 결론이 안 선다"고 스스로 적어뒀으나, **지금
+  정의된 이 규칙 그대로는** VALID t=0.476(미유의)·TEST t=-4.119(유의하게
+  반대부호)로 판정기준을 명시적으로 어긴다 - 실행 후보로는 REJECT.
+  quantile 버킷 재설계는 이 finding의 재개가 아니라 별개의 새 연구다.
 n: 184
 t_stat: 3.055
 

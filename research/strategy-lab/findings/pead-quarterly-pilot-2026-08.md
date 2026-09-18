@@ -2,10 +2,11 @@
 track: kr
 factor: pead-quarterly-pilot
 date: 2026-08-26
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: backfill-v1
 conditions: ["quarterly SUE", "reprtCode 11012/11014 분기 단독값", "T+60 drift"]
-reason: "분기 SUE 파일럿이 T+60에서 IC t=1.96으로 신호 강화(연간판과 반대 패턴, PEAD 문헌 그림에 근접) - 표본 100종목·28공시월이라 확실·기각 모두 못하고 OOS 재확인이 다음 단계"
+reason: "분기 SUE 파일럿이 T+60에서 IC t=1.96으로 신호 강화(연간판과 반대 패턴, PEAD 문헌 그림에 근접) - 표본 100종목·28공시월이라 확실·기각 모두 못하고 OOS 재확인이 다음 단계. 2026-08-28 OOS 재확인(`pead-quarterly-oos-validation-2026-08.md`)이 VALID·TEST t<2·T+60 재현 실패로 최종 REJECT — 이 문서의 HOLD는 그 재확인 이전 단계라 라벨을 갱신한다(2026-09-18, 재분석 아님)."
 ---
 # PEAD 분기 SUE 로컬 파일럿 — 경계선 신호, 연간판과 반대 패턴 (2026-08-26)
 

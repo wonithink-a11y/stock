@@ -2,10 +2,11 @@
 track: kr
 factor: lowmom60-candidate-c
 date: 2026-08-24
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: backfill-v1
 conditions: ["lowmom60","absolute_liquidity_filter","continuousHoldOnRenewal"]
-reason: "실제 엔진에서 사전점검 대비 낙폭 큼(+13.9%→+5.09% CAGR, MDD -27.77%) - 버그 신호 없으나 채택할 만큼 강하진 않아 연구 후보(production 미확정)"
+reason: "실제 엔진에서 사전점검 대비 낙폭 큼(+13.9%→+5.09% CAGR, MDD -27.77%) - 버그 신호 없으나 채택할 만큼 강하진 않아 연구 후보(production 미확정). 2026-09-04 국면진단(`lowmom60-test-negative-regime-diagnosis-2026-09.md`)이 무조건부 초과 t=0.79로 애초에 유의하지 않았음을 확인해 lowmom60_v1 전체가 최종 REJECT — 이 문서의 HOLD는 그 진단 이전 엔진검증 단계라 라벨을 갱신한다(2026-09-18, 재분석 아님). 모의투자에는 관측용으로 계속 남겨둔다(사용자 결정, run_paper_trading_daily.py 주석)."
 cagr: 5.09
 mdd: -27.77
 sharpe: 0.77

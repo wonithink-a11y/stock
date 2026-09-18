@@ -2,9 +2,10 @@
 track: kr
 factor: dd252-skip1m
 date: 2026-08
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 conditions: ["dd_252_skip1m(52주 고점 대비 낙폭)", "fwd_d120 decile 스프레드", "IC 자기상관 보정", "Newey-West 월별 스프레드 t", "모멘텀 직교화"]
-reason: "신호 계산 정확성·재현성은 통과했으나 naive-t가 유의성을 부풀린 문제 발견, NW보정 t=2.08 경계선 신호로 확신도를 재조정하고 연구 후보로 유지 — 채택은 이후 백테스트 단계 후 판단"
+reason: "신호 계산 정확성·재현성은 통과했으나 naive-t가 유의성을 부풀린 문제 발견, NW보정 t=2.08 경계선 신호로 확신도를 재조정하고 연구 후보로 유지 — 채택은 이후 백테스트 단계 후 판단. 2026-08-28 실제 롱온리 백테스트(`dd252-final-rejection-2026-08.md`)가 2026 제외 시 벤치마크 이하·초과수익 93% 불장 5개년 쏠림·종목 집중도 높음으로 최종 REJECT — 이 문서의 HOLD는 그 백테스트 이전 단계라 라벨을 갱신한다(2026-09-18, 재분석 아님)."
 t_stat: 2.08
 ---
 # DD252(skip-1m) 팩터 후보 — Ox Alpha 산출 검증 (2026-08-26)

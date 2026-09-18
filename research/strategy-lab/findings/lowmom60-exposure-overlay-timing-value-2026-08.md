@@ -2,10 +2,11 @@
 track: kr
 factor: lowmom60-exposure-overlay-timing-value
 date: 2026-08-24
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: backfill-v1
 conditions: ["us_treasury10y_chg6m", "exposure_frac_overlay", "constant_exposure_control"]
-reason: "순수 타이밍가치 CAGR +1.90%p(뚜렷한 양)이나 MDD -6.73%p 악화·Calmar 열위·Sharpe 오차범위 - 지표별로 갈려 순채택 근거 아님, 미국10Y 사이징 방향은 4후보 전부 폐쇄"
+reason: "순수 타이밍가치 CAGR +1.90%p(뚜렷한 양)이나 MDD -6.73%p 악화·Calmar 열위·Sharpe 오차범위 - 지표별로 갈려 순채택 근거 아님, 미국10Y 사이징 방향은 4후보 전부 폐쇄. 2026-09-04(`lowmom60-test-negative-regime-diagnosis-2026-09.md` §해당절)가 PBR·TREND-BREAKOUT·5DC·LOWMOM60·pbr_combined 5개 후보 전부 '상관관계≠타이밍가치'로 최종 기각됨을 재확인 — lowmom60 자신이 그 다섯 중 하나로 명시됨. 이 문서의 HOLD는 그 재확인 이전 단계라 라벨을 갱신한다(2026-09-18, 재분석 아님)."
 cagr: 14.73
 sharpe: 0.5303
 mdd: -42.65
