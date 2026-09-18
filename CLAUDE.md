@@ -95,7 +95,19 @@ Validated against
             공개범위: PUBLIC 유지 확정(Actions 월 6,300분 vs Free private 2,000분,
             Pages는 Free private 불가). 트리거 — **KEEP 전략이 처음 생기면 그것만**
             private 분리.
-  다음      PBR 연구 라인 — 세부 실험 종료, **production 결정만 남음(별도 🔴)**.
+  다음      PBR 연구 라인 — **production 🔴 결정: `pbr_value_v1_combined` GO,
+            `factor_earnings_yield_v1`(EY) 보류(2026-09-18 사용자 확정)**. EY는
+            세 경로 전부 막혔다 — 단독(PBR로 잔차화하면 포트 알파 1/3로 퇴색,
+            findings/earnings-yield-final-robustness-2026-09.md) · PBR과 raw
+            50:50 결합(REJECT, findings/pbr-ey-composite-oos-2026-09.md) ·
+            PBR과 잔차화 결합(HOLD — TEST는 실질동등이나 하락장 2018·2022·2024
+            전부 PBR 단독보다 더 잃음, 2022는 거의 2배, findings/pbr-ey-
+            resid-composite-oos-2026-09.md). EY는 모의투자 관측용으로는 계속
+            둔다(실손실 0). **실계좌 배분 실행(계좌 개설·자금 이체·실주문
+            제출)은 Claude가 하지 않는다** — 금융거래 실행은 항상 사용자
+            본인이 한다는 원칙 그대로(세션인수인계-2026-09-14.md 참고). 이
+            섹션은 "채택 근거가 있다"는 연구 결정까지만이고, 그 다음은
+            사용자가 직접 진행한다.
             핵심: `pbr_value_v1_combined`(dropout+MAX제외, **nDrop=3/pct=0.8
             — 2026-09-08 확정**. KEEP finding 은 nDrop=2 를 선택했다고 적었으나
             실물은 policy·구워진 selection 양쪽 다 3 이었고, 3 이 사전 근거가
