@@ -2,10 +2,24 @@
 track: kr
 factor: sector-neutral-pbr-growth
 date: 2026-09-02
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: v1
 conditions: ["sector_rel_pbr(low) + sector_rel_growth_accel(high) 랭크합 상위 decile", "업종 내 백분위(A1a sector 159종, 표본 5종목 미만 유보)", "월별 리밸런스", "dv20>=1e8 절대 유동성 게이트"]
-reason: "부호 일관성·t컷·회전율 반영 슬리피지 20bp·유동성 프로파일을 모두 통과한 이 세션 유일의 후보. 다만 (1) 난수 바닥선이 업종중립 계열로 제한한 175조합 기준(3.23)이라 전체 53축 기준(~4.3)에는 못 미치고 (2) VALID 연도집중도 74%가 자동기각 구간이며 (3) rule_discovery_criteria 가 KEEP 전제로 요구하는 실제 포트폴리오 엔진 검증이 미실행이다."
+reason: >-
+  부호 일관성·t컷·회전율 반영 슬리피지 20bp·유동성 프로파일을 모두 통과한 이
+  세션 유일의 후보. 다만 (1) 난수 바닥선이 업종중립 계열로 제한한 175조합
+  기준(3.23)이라 전체 53축 기준(~4.3)에는 못 미치고 (2) VALID 연도집중도
+  74%가 자동기각 구간이며 (3) rule_discovery_criteria 가 KEEP 전제로 요구하는
+  실제 포트폴리오 엔진 검증이 미실행이다. 세 블로커 전부 다음날(09-03)
+  순서대로 검증됐다 — 성장계열 묶기 REJECT(growth-family-bundle-2026-09.md,
+  묶으면 난수 계열과 구별 안 됨)·축 단독 REJECT(sector-neutral-pbr-axis-
+  only-engine-2026-09.md, 다중검정은 없어지는데 TEST 성과도 사라짐)·
+  마지막으로 top-30 선택규칙으로 전체 53축 난수 바닥선에 재니(진짜 블로커
+  1번) 후보가 1,431조합 중 76위(t=2.11, 바닥선 3.52의 60% 수준)로
+  기각(sector-neutral-pbr-top30-full-universe-nullbar-2026-09.md, "라인을
+  종료한다"). 이 문서의 HOLD는 그 최종 검증 이전 단계라 라벨을 갱신한다
+  (2026-09-18, 재분석 아님).
 cagr: 7.23
 sharpe: 0.41
 mdd: -36.1

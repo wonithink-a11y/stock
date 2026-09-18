@@ -2,10 +2,20 @@
 track: kr
 factor: sector-neutral-pbr-growth-engine
 date: 2026-09-02
-verdict: HOLD
+verdict: REJECT
+original_verdict: "HOLD"
 criteria_version: v1
 conditions: ["sector_rel_pbr(low) + sector_rel_growth_accel(high) 랭크합", "decile 판: 상위 decile 전량, maxPositions=120", "top30 판: 상위 30개, maxPositions=30", "월별 리밸런스, 연속보유 병합, 비용 30bp, 슬리피지 0"]
-reason: "실제 엔진(Tier 2) 검증 결과가 갈렸다. Tier 1 에서 검증한 decile 판은 엔진에서 TEST 구간 벤치마크에 -2.51%p 로 진다. 사전에 같이 만든 top30 판은 세 구간 전부 벤치마크를 이기지만(+5.52/+7.75/+1.24%p) 이건 Tier 1 에서 검증한 대상이 아니다."
+reason: >-
+  실제 엔진(Tier 2) 검증 결과가 갈렸다. Tier 1 에서 검증한 decile 판은
+  엔진에서 TEST 구간 벤치마크에 -2.51%p 로 진다. 사전에 같이 만든 top30
+  판은 세 구간 전부 벤치마크를 이기지만(+5.52/+7.75/+1.24%p) 이건 Tier 1
+  에서 검증한 대상이 아니다. 이 문서 자신의 "다음 단계"(top30 구성으로
+  Tier 1을 전체 53축 기준으로 재검증)가 같은 날 실행돼 REJECT로 닫혔다
+  (sector-neutral-pbr-top30-full-universe-nullbar-2026-09.md — top30 판이
+  1,431조합 중 76위 t=2.11로 진짜 난수 바닥선 3.52에 크게 못 미침, "라인을
+  종료한다"). 이 문서의 HOLD는 그 최종 검증 이전 단계라 라벨을 갱신한다
+  (2026-09-18, 재분석 아님).
 cagr: 8.06
 sharpe: 0.70
 mdd: -13.96
