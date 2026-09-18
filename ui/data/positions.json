@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-18T17:59:40.480864+09:00",
+  "updatedAt": "2026-09-18T20:44:54.853956+09:00",
   "historyAsOf": "2026-09-16",
   "account": {
     "cashKrw": 98725883.0,
@@ -41699,15 +41699,123 @@
   "trades": {
     "fromDate": "2026-06-20",
     "toDate": "2026-09-18",
-    "days": [],
-    "byStrategy": {},
+    "days": [
+      {
+        "date": "2026-09-17",
+        "buyKrw": 12400379,
+        "sellKrw": 10786500,
+        "buyCount": 4,
+        "sellCount": 3,
+        "realizedKrw": 792450,
+        "realizedFrom": 3,
+        "netKrw": 1613879
+      },
+      {
+        "date": "2026-09-16",
+        "buyKrw": 48975785,
+        "sellKrw": 48855404,
+        "buyCount": 30,
+        "sellCount": 30,
+        "realizedKrw": -818827,
+        "realizedFrom": 30,
+        "netKrw": 120381
+      },
+      {
+        "date": "2026-09-10",
+        "buyKrw": 49675474,
+        "sellKrw": 0,
+        "buyCount": 30,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 49675474
+      },
+      {
+        "date": "2026-09-09",
+        "buyKrw": 217925559,
+        "sellKrw": 0,
+        "buyCount": 108,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 217925559
+      },
+      {
+        "date": "2026-09-07",
+        "buyKrw": 121326307,
+        "sellKrw": 0,
+        "buyCount": 90,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 121326307
+      },
+      {
+        "date": "2026-09-04",
+        "buyKrw": 10420867,
+        "sellKrw": 0,
+        "buyCount": 47,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 10420867
+      }
+    ],
+    "byStrategy": {
+      "pbr_value_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 6431375,
+          "sellKrw": 6924480,
+          "buyCount": 2,
+          "sellCount": 2,
+          "realizedKrw": 279903,
+          "realizedFrom": 2,
+          "netKrw": -493105
+        }
+      ],
+      "lowmom60_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 5969004,
+          "sellKrw": 3862020,
+          "buyCount": 2,
+          "sellCount": 1,
+          "realizedKrw": 512547,
+          "realizedFrom": 1,
+          "netKrw": 2106984
+        }
+      ],
+      "foreign_flow5d_v1": [
+        {
+          "date": "2026-09-16",
+          "buyKrw": 48975785,
+          "sellKrw": 48855404,
+          "buyCount": 30,
+          "sellCount": 30,
+          "realizedKrw": -818827,
+          "realizedFrom": 30,
+          "netKrw": 120381
+        },
+        {
+          "date": "2026-09-10",
+          "buyKrw": 1751900,
+          "sellKrw": 0,
+          "buyCount": 1,
+          "sellCount": 0,
+          "realizedKrw": 0,
+          "realizedFrom": 0,
+          "netKrw": 1751900
+        }
+      ]
+    },
     "pending": [],
     "unattributed": {
-      "buyKrw": 0,
+      "buyKrw": 397596307,
       "sellKrw": 0,
-      "count": 0
+      "count": 274
     },
-    "error": "체결내역 조회 실패(page 1): 90020000 모의투자 서비스가 지연되고 있습니다. 잠시후 재시도 바랍니다.                    "
+    "error": null
   },
   "overseas": {
     "sleeves": [
@@ -41739,11 +41847,11 @@
         "progressPct": 1.98,
         "qty": 8,
         "avgPriceUsd": 123.58,
-        "lastPriceUsd": 118.6647,
+        "lastPriceUsd": 116.57,
         "costUsd": 988.64,
-        "valueUsd": 949.32,
-        "pnlUsd": -39.32,
-        "pnlPct": -3.98,
+        "valueUsd": 932.56,
+        "pnlUsd": -56.08,
+        "pnlPct": -5.67,
         "cashUsd": 49011.36,
         "seedUsd": 50000.0,
         "deployedPct": 1.98,
@@ -41779,11 +41887,11 @@
         "progressPct": 2.14,
         "qty": 15,
         "avgPriceUsd": 71.419,
-        "lastPriceUsd": 72.56,
+        "lastPriceUsd": 72.06,
         "costUsd": 1071.28,
-        "valueUsd": 1088.4,
-        "pnlUsd": 17.12,
-        "pnlPct": 1.6,
+        "valueUsd": 1080.9,
+        "pnlUsd": 9.62,
+        "pnlPct": 0.9,
         "cashUsd": 48928.71,
         "seedUsd": 50000.0,
         "deployedPct": 2.14,
