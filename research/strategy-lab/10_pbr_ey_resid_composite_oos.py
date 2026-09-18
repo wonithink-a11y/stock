@@ -157,6 +157,27 @@ def strategy_block(panel, sig, recs, ew_series):
     return out
 
 
+def annual_breakdown(recs, ew_series, cost_bps=30):
+    """연도별 net 복리수익 + EW벤치마크 대비 초과 (portfolio-exit-policy 류와 같은 방식)."""
+    out = {}
+    for d, _, r, _ in recs:
+        year = str(d)[:4]
+        net = r - cost_bps / 10000
+        bench = float(ew_series.loc[d]) if d in ew_series.index else None
+        out.setdefault(year, {"net": [], "bench": []})
+        out[year]["net"].append(net)
+        if bench is not None:
+            out[year]["bench"].append(bench)
+    rows = {}
+    for year, v in sorted(out.items()):
+        net_cagr = float(np.prod([1 + x for x in v["net"]])) - 1
+        bench_cagr = float(np.prod([1 + x for x in v["bench"]])) - 1 if v["bench"] else None
+        rows[year] = {"nMonths": len(v["net"]), "cagr": round(net_cagr, 4),
+                      "benchCagr": round(bench_cagr, 4) if bench_cagr is not None else None,
+                      "excess": round(net_cagr - bench_cagr, 4) if bench_cagr is not None else None}
+    return rows
+
+
 def build_panel():
     df = pd.read_parquet(PANEL).copy()
     df = df[df["liquid"] & df["pbr"].notna() & df["earnings_yield"].notna()].copy()
@@ -198,6 +219,7 @@ def main():
     for label, sig in variants:
         recs = month_top(panel, sig)
         blk = strategy_block(panel, sig, recs, ew_series)
+        blk["annual"] = annual_breakdown(recs, ew_series)
         results[label] = blk
         print(f"  {label}: TEST icT={blk['ic']['t']} TEST_p30 cagr={blk['TEST']['portfolio30']['cagr']} "
               f"sh={blk['TEST']['portfolio30']['sharpe']}", flush=True)
