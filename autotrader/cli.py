@@ -171,6 +171,24 @@ def cmd_notify(args) -> int:
     return 0
 
 
+def cmd_chat_id(args) -> int:
+    """내 텔레그램 채팅 번호 찾기 — 봇에게 아무 말이나 보낸 뒤 실행한다. 필요한 값은 TELEGRAM_BOT_TOKEN 하나뿐."""
+    from .notify import find_chat_ids
+    env = load_env()
+    tok = env.get("TELEGRAM_BOT_TOKEN")
+    if not tok:
+        print("환경변수 TELEGRAM_BOT_TOKEN 이 없다(값은 출력하지 않는다)", file=sys.stderr)
+        return 2
+    found = find_chat_ids(tok)
+    if not found:
+        print("찾은 대화가 없다. 텔레그램에서 봇에게 아무 말이나(예: 안녕) 보낸 뒤 다시 실행한다.")
+        return 1
+    for c in found:
+        print(f"채팅 번호: {c['id']}   (종류: {c['type']}, 이름: {c['name']})")
+    print("1:1 대화(private)의 번호를 TELEGRAM_CHAT_ID= 에 넣는다.")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="autotrader")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -187,12 +205,13 @@ def main(argv=None) -> int:
     nt = sub.add_parser("notify-logins")
     nt.add_argument("--test", action="store_true", help="테스트 메시지 한 통만 보내고 끝낸다")
     nt.add_argument("--once", action="store_true", help="한 번만 확인하고 끝낸다(기본은 계속 감시)")
+    sub.add_parser("telegram-chat-id")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
-          "serve": cmd_serve, "web-setup": cmd_web_setup, "notify-logins": cmd_notify}[args.cmd]
+          "serve": cmd_serve, "web-setup": cmd_web_setup, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

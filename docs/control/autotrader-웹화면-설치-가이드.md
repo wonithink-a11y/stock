@@ -270,7 +270,9 @@ nginx에 추가한 길은 남아 있어도 안내판이 꺼져 있으면 `502` �
 
 1. **봇 토큰**: 텔레그램에서 `@BotFather` 를 검색해서 대화를 열고 `/mybots` → `@wonistock_bot` 선택 → **API Token** 을 누르면 긴 글자가 나옵니다. (토큰은 `숫자:영어숫자` 모양이에요.)
    - 토큰은 **새로 만들지 마세요.**(새로 만들면 기존 알림이 끊겨요.) 그냥 **보기**만 하세요.
-2. **내 채팅 번호(숫자)**: 텔레그램에서 `@userinfobot` 을 검색해서 `/start` 를 누르면 `Id: 123456789` 처럼 숫자가 나옵니다.
+2. **내 채팅 번호(숫자)**: 두 가지 방법이 있어요.
+   - (쉬운 방법) 텔레그램에서 `@userinfobot` 에게 `/start` 를 누르면 `Id: 123456789` 처럼 숫자가 나와요. **안 나오면 (요즘 자주 그래요) 아래 방법을 쓰세요.**
+   - (확실한 방법) 우리 봇에게 말을 걸고, VM에서 명령 하나로 알아내요 → 아래 **8-2-b**.
 3. **봇에게 먼저 말 걸기**: `@wonistock_bot` 대화방을 열어서 `/start` 를 한 번 눌러 두세요. (안 하면 봇이 나에게 메시지를 못 보내요.)
 
 > ⚠️ 토큰과 채팅 번호는 **저(Claude)에게도, 다른 사람에게도 알려주면 안 돼요.**
@@ -285,6 +287,19 @@ TELEGRAM_BOT_TOKEN=여기에토큰
 TELEGRAM_CHAT_ID=여기에숫자
 ```
 - 저장: `Ctrl+O` → Enter, 나가기: `Ctrl+X`.
+
+### 8-2-b) 채팅 번호를 명령으로 알아내기 (`@userinfobot` 이 안 될 때)
+1. 먼저 8-2에서 **`TELEGRAM_BOT_TOKEN=` 한 줄만** 넣어 저장하세요. (채팅 번호 줄은 아직 없어도 돼요.)
+2. 텔레그램에서 `@wonistock_bot` 대화방을 열고 아무 말이나(예: `안녕`) **보내세요.**
+3. VM에서 아래를 실행합니다.
+```bash
+cd ~/collector && git pull
+```
+```bash
+AUTOTRADER_ENV_FILE=~/collector-venv/.env ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json telegram-chat-id
+```
+4. `채팅 번호: 123456789   (종류: private, 이름: …)` 처럼 나와요. **종류가 `private`** 인 번호가 내 번호예요. 이걸 `~/collector-venv/.env` 에 `TELEGRAM_CHAT_ID=번호` 로 추가하세요.
+   - `찾은 대화가 없다` 라고 나오면 2번(봇에게 말 걸기)을 하고 다시 실행하세요.
 
 ### 8-3) 테스트 메시지 보내기 (VM 안에서)
 ```bash

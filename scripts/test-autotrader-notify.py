@@ -137,6 +137,30 @@ def main():
     src = (ROOT / "autotrader" / "notify.py").read_text(encoding="utf-8")
     ck("알림 소스에 토큰 리터럴이 없다", "123456:" not in src and "bot" + "token=" not in src)
 
+    fake = {"ok": True, "result": [
+        {"update_id": 1, "message": {"chat": {"id": 111, "type": "private", "first_name": "원", "last_name": "이"}, "text": "안녕 비밀내용"}},
+        {"update_id": 2, "message": {"chat": {"id": 111, "type": "private", "first_name": "원"}}},
+        {"update_id": 3, "message": {"chat": {"id": -222, "type": "group", "title": "그룹"}}}]}
+    ids = notify.find_chat_ids("TOK", get=lambda url: fake)
+    ck("채팅 번호 찾기: 중복 없이 번호·종류·이름만", [(c["id"], c["type"]) for c in ids] == [(111, "private"), (-222, "group")]
+       and all("text" not in c for c in ids) and "비밀내용" not in str(ids))
+    ck("채팅 번호 찾기: 결과가 없으면 빈 목록", notify.find_chat_ids("TOK", get=lambda url: {"ok": True, "result": []}) == [])
+
+    def bad(url):
+        raise OSError("connection to " + url)
+    try:
+        notify.find_chat_ids("123456:SECRET-TOKEN-VALUE", get=bad)
+        leak = True
+    except RuntimeError as e:
+        leak = "SECRET" in str(e) or "123456" in str(e)
+    ck("채팅 번호 찾기: 실패 예외에 토큰(URL)이 새지 않는다", not leak)
+    try:
+        notify.find_chat_ids("TOK", get=lambda url: {"ok": False})
+        raised = False
+    except RuntimeError:
+        raised = True
+    ck("채팅 번호 찾기: ok=false(토큰 오류)는 실패", raised)
+
     total = COUNT[0]
     print(f"\ntest-autotrader-notify {total - len(FAILS)}/{total}" + ("" if not FAILS else f"  FAILED: {FAILS}"))
     return 1 if FAILS else 0

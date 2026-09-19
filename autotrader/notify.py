@@ -33,6 +33,27 @@ def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) ->
         raise RuntimeError(f"telegram 전송 실패({type(e).__name__})") from None
 
 
+def find_chat_ids(token: str, get: Optional[Callable[[str], dict]] = None, timeout: float = 10.0) -> List[dict]:
+    """봇이 최근에 받은 메시지에서 채팅 번호를 뽑는다(getUpdates). 봇에게 먼저 아무 말이나 보내 두어야 나온다.
+    토큰이 URL 에 들어가므로 예외 문구에는 절대 원문을 싣지 않는다. 결과에는 번호·종류·이름만 넣는다(메시지 내용은 안 본다)."""
+    def _default_get(url: str) -> dict:
+        with urllib.request.urlopen(url, timeout=timeout) as r:
+            return json.loads(r.read().decode("utf-8"))
+    try:
+        body = (get or _default_get)(f"https://api.telegram.org/bot{token}/getUpdates")
+    except Exception as e:                       # noqa: BLE001 — URL(토큰) 원문 버림
+        raise RuntimeError(f"telegram 조회 실패({type(e).__name__})") from None
+    if not body.get("ok"):
+        raise RuntimeError("telegram 조회 실패(토큰이 맞는지 확인)")
+    seen = {}
+    for u in body.get("result", []):
+        chat = (u.get("message") or u.get("edited_message") or u.get("channel_post") or {}).get("chat")
+        if chat and chat.get("id") is not None and chat["id"] not in seen:
+            name = chat.get("title") or " ".join(x for x in (chat.get("first_name"), chat.get("last_name")) if x) or chat.get("username") or ""
+            seen[chat["id"]] = {"id": chat["id"], "type": chat.get("type", ""), "name": name}
+    return list(seen.values())
+
+
 def parse_line(line: str):
     """'2026-09-21T10:00:00+09:00 1.2.3.4 login-ok' -> (ts, ip, event). 형식이 다르면 None."""
     parts = line.strip().split(" ")
