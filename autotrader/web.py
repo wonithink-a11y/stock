@@ -90,7 +90,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "") -> bytes:
         snap_line = (f'<span class="{"warn" if stale else "ok"}">{int(age // 60)}분 전 갱신'
                      + (" — 오래됨(스냅샷 작업 확인)" if stale else "") + "</span>")
         ex = (snap.get("gates") or {}).get("execute") or []
-        gates = ('<span class="ok">모든 조건 충족(주문 가능 상태)</span>' if not ex
+        gates = ('<span class="ok">실행 조건 충족 — 주문은 --execute 로 실행할 때만 나갑니다(지금 자동 실행 중이라는 뜻이 아님)</span>' if not ex
                  else f'<span class="warn">주문 잠김 — 미충족 {len(ex)}개</span>')
         gate_items = "".join(f"<div class='mut'>· {E(str(x))}</div>" for x in ex)
     else:
