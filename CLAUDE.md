@@ -8,10 +8,13 @@ Validated against
   정책      UN-1.2 · PR-1.6 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1
             PF-1.2는 registry 미등록 = 미발효(자리가 없다 — 아래 완료 참고)
             criteria  KR-2.4(2026-09-04 승격) · US-2.2
-  다음      ★★ RV20 선물 sizing 규칙 모의투자 자동화 — 2026-09-14 09:05 KST
-            **오늘** 첫 실주문 예정(이 문서 갱신 시점엔 아직 발생 전). 가장
-            먼저 VM(`stock`)의 `~/collector-venv/logs/rv20-futures-paper-order.log`
-            를 확인한다. 배경: futures Stage 6-1(OpenCode) 독립검증에서
+  다음      ★★ RV20 선물 sizing 규칙 모의투자 자동화 — **2026-09-14 09:05 KST
+            첫 실주문 성공**(사용자가 VM 로그 직접 확인: 신호일 09-11·
+            percentile 0.492→1.0x·F 202612 BUY 1계약·주문번호 0000001627,
+            세션인수인계-2026-09-14.md §①). 이후는 평일 09:05 상시 가동 —
+            점검은 VM(`stock`)의 `~/collector-venv/logs/rv20-futures-paper-order.log`
+            (Claude는 VM 접근 권한이 없어 사용자가 tail해서 넘긴다).
+            배경: futures Stage 6-1(OpenCode) 독립검증에서
             "Strict Holdout OOS"가 실은 discovery 표본 재게시였음을 발견 →
             규칙을 2026-09-13 시점으로 동결(`futures-rv20-sizing-rule-freeze-
             2026-09-13.md`, Rule B: RV20 rolling252 percentile Q5(0.8)→0x) →
