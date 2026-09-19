@@ -195,6 +195,12 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            ★ 2026-09-20 **밤샘 단기·초단기·크립토 실험**(사전등록 9건, 셀 60+개, 세션인수인계-2026-09-20-b.md) — **KEEP 0**.
+            지수 일봉 16년·주식 5분(Failed ORB·압축·소진)·미국/해외 ETF·크립토 10셀(ChatGPT 제안) 전부 REJECT. 남은 것 둘:
+            (1) **KR 장중 음·밤사이 양**(유동 종목 11/11년, ≥200억 −24bp/일, 고변동·급등에 집중) — 사실 SUPPORTED, PBR 체결
+            적용·밤사이 보유는 둘 다 막힘(HOLD, findings/kr-intraday-overnight-asymmetry) (2) **크립토 상승충격 → 다음날 지속**
+            (2015~19 +144bp REPLICATED · 2020~26 +81bp CONFIRMED, 전액 포트폴리오 MDD −87% — 크기 설계 후 모의 관측 후보, 사용자 GO 대기).
+            ChatGPT 크립토 가설 방향(과열→반전)은 실측과 반대(지속)였다.
             ★ 2026-09-19 **autotrader 신설**(사용자 요청: 자기 키로 돌리는 전략 교체형 자동매매, 한국투자증권) —
             `autotrader/`(README 참고) · 설계 docs/control/autotrader-설계-2026-09-19.md. 기본 dry-run, 실계좌는
             7겹 게이트(설정 2 + tr_ids_reviewed + 환경변수 확인 문구 + 키 + 킬 스위치 + --execute) 뒤에 잠김, 모든 주문이 위험 검사
