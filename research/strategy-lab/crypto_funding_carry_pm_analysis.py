@@ -3,7 +3,8 @@
 
     python research/strategy-lab/crypto_funding_carry_pm_analysis.py
 
-설계 문서 `docs/control/펀딩캐리-PortfolioMargin-설계-2026-09-19.md` 의 §2·§5 숫자가 여기서 나온다.
+설계 문서 `docs/control/펀딩캐리-PortfolioMargin-설계-2026-09-19.md` 의 §2·§5.1 숫자가 여기서 나온다.
+(초안에 있던 '음수잔고 이자' 계산은 미실현 손실을 잔고로 잘못 취급해 삭제했다 — 문서 §5.2 정정 참고.)
 입력은 로컬 `data/crypto/funding/BTCUSDT.parquet`·`data/crypto/basis/1h/BTCUSDT_1h.parquet`(gitignore, 로컬 전용).
 모델은 단순화다: 현물 1 BTC(담보율 c 적용) + USDT-M 1 BTC 숏, 수량 고정(재조정 없음), 펀딩은 USDT 로 누적.
 """
@@ -56,26 +57,7 @@ def unimmr_stress(price: pd.Series, f: pd.Series) -> None:
                 print(f"  {c:.2f}  {mmr * 100:4.1f}%  {buf * 100:4.0f}%   {(eq / (mmr * p)).min():8.2f}")
 
 
-def negative_balance_drag(price: pd.Series, f: pd.Series) -> None:
-    fh = f.copy()
-    fh.index = fh.index.floor("h")
-    fund = fh.groupby(level=0).sum().reindex(price.index).fillna(0.0)
-    print("== 1년 정적 보유 시 USDT 음수잔고와 이자 부담(연 r 가정, 명목 대비 %p)")
-    print("  진입     BTC변화%  funding%  최대음수잔고%  이자10%APR  이자20%APR")
-    for start in pd.date_range("2020-01-01", "2025-08-01", freq="6MS", tz="UTC"):
-        i0 = int(np.argmax(price.index >= start))
-        i1 = min(i0 + 8760, len(price) - 1)
-        p, fu = price.iloc[i0:i1 + 1], fund.iloc[i0:i1 + 1]
-        p0 = p.iloc[0]
-        cumf = (fu * p).cumsum()
-        neg = (-(-(p - p0) + cumf)).clip(lower=0)
-        i10 = neg.sum() * 0.10 / 8760 / p0 * 100
-        print(f"  {start:%Y-%m}  {(p.iloc[-1] / p0 - 1) * 100:8.1f}  {cumf.iloc[-1] / p0 * 100:8.1f}  "
-              f"{neg.max() / p0 * 100:12.1f}  {i10:9.2f}  {i10 * 2:9.2f}")
-
-
 if __name__ == "__main__":
     px, fr = load()
     funding_stats(fr)
     unimmr_stress(px, fr)
-    negative_balance_drag(px, fr)
