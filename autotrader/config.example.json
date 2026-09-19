@@ -28,6 +28,12 @@
       "allow_sell": true
     }
   },
+  "web": {
+    "idle_min": 30,
+    "session_hours": 8,
+    "require_reauth_for_details": false,
+    "reauth_min": 5
+  },
   "live": {
     "enabled": false,
     "tr_ids_reviewed": false

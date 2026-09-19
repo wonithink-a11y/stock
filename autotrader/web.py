@@ -79,7 +79,7 @@ def load_view(cfg: dict, sdir: Path, now: datetime) -> dict:
             "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent}
 
 
-def render_dashboard(v: dict, csrf: str, base: str = "") -> bytes:
+def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False) -> bytes:
     mode_txt = "실전(실계좌)" if v["mode"] == "live" else "모의투자"
     kill = ('<span class="pill bad">킬 스위치 ON — 주문 중단</span>' if v["kill"]
             else '<span class="pill ok">킬 스위치 OFF</span>')
@@ -115,12 +115,12 @@ def render_dashboard(v: dict, csrf: str, base: str = "") -> bytes:
 <div class="row"><span>오류</span><span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></div></div>
 <div class="card"><h2>한도 사용률</h2>{limits or '<span class="mut">-</span>'}</div>
 <div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
-<div class="card"><a href="{base}/details">보유·주문 상세 보기 (인증앱 코드 재입력)</a></div>
+<div class="card"><a href="{base}/details">보유·주문 상세 보기{" (인증앱 코드 재입력)" if strict else ""}</a></div>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
     return _page("autotrader", body, refresh=True)
 
 
-def render_details(v: dict, csrf: str, base: str = "") -> bytes:
+def render_details(v: dict, csrf: str, base: str = "", strict: bool = False) -> bytes:
     snap = v["snapshot"] or {}
     rows = []
     for m, d in (snap.get("markets") or {}).items():
@@ -148,7 +148,7 @@ def render_details(v: dict, csrf: str, base: str = "") -> bytes:
                            f' — {E(str(x.get("reason", "")))}</div>' for x in (last.get(k) or []) if isinstance(x, dict))
         lastblk = (f'<div class="card"><h2>마지막 실행 {E(str(last.get("at", ""))[5:16].replace("T", " "))}</h2>'
                    + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
-    body = f'''<h1>상세 (5분간 열림)</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
+    body = f'''<h1>상세{" (재인증 후 5분간 열림)" if strict else ""}</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
 <div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
 <div class="card"><a href="{base}/">← 요약으로</a></div>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
@@ -178,11 +178,13 @@ class WebApp:
 
     def __init__(self, cfg: dict, sdir: Path, store: AuthStore, sessions: Sessions, lockout: Lockout,
                  clock: Callable[[], float] = time.time, secure_cookie: bool = True,
-                 fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = ""):
+                 fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = "",
+                 require_reauth: bool = False):
         self.cfg, self.sdir, self.store = cfg, Path(sdir), store
         self.sessions, self.lockout, self.clock = sessions, lockout, clock
         self.secure_cookie, self.fail_delay, self._sleep = secure_cookie, fail_delay, sleep
         self.base = "/" + base.strip("/") if base.strip("/") else ""      # 예: "/autotrader" (앞단이 이 접두사 아래로 넘겨준다)
+        self.require_reauth = require_reauth                              # True 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다
         self.log_path = self.sdir / "web_login.log"
 
     # -------------------------------------------------------------- 유틸
@@ -248,13 +250,13 @@ class WebApp:
         if method == "GET" and path in ("/", "/index.html"):
             if not sess:
                 return 200, self._hdrs(), render_login(base=self.base)
-            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base)
+            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
             return self._not_found()
         if method == "GET" and path == "/details":
-            if not self.sessions.is_fresh(sess):
+            if self.require_reauth and not self.sessions.is_fresh(sess):
                 return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
-            return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base)
+            return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -344,8 +346,12 @@ def make_handler(app: WebApp):
 
 def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "") -> None:
     sdir = state_dir(cfg)
-    app = WebApp(cfg, sdir, AuthStore(sdir / "web_auth.json"), Sessions(), Lockout(),
-                 secure_cookie=secure_cookie, fail_delay=0.5, base=base)
+    w = cfg.get("web", {})
+    sessions = Sessions(idle_sec=int(w.get("idle_min", 30)) * 60, absolute_sec=int(w.get("session_hours", 8)) * 3600,
+                        reauth_sec=int(w.get("reauth_min", 5)) * 60)
+    app = WebApp(cfg, sdir, AuthStore(sdir / "web_auth.json"), sessions, Lockout(),
+                 secure_cookie=secure_cookie, fail_delay=0.5, base=base,
+                 require_reauth=bool(w.get("require_reauth_for_details", False)))
     httpd = ThreadingHTTPServer((host, port), make_handler(app))
     print(f"autotrader web — http://{host}:{port} (앞단 HTTPS 프록시 뒤에서만 쓴다)", flush=True)
     httpd.serve_forever()

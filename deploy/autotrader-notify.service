@@ -1,0 +1,28 @@
+[Unit]
+# 로그인 알림 — 웹 화면의 로그인 기록(state/web_login.log)을 읽어 텔레그램으로 보낸다. 안내서: docs/control/autotrader-웹화면-설치-가이드.md
+#
+# ★ 텔레그램 토큰은 **이 프로세스만** 가진다(EnvironmentFile). 웹 화면 프로세스(autotrader-web.service)는 토큰을 못 본다 —
+#   화면이 뚫려도 토큰은 안전하다. 증권사 키(KIS_*)는 이 프로세스가 쓰지 않는다(읽어도 무시된다).
+# 시크릿을 이 파일에 쓰지 않는다. ~/collector-venv/.env 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID 두 줄이 필요하다.
+Description=autotrader login notifier (Telegram)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json notify-logins
+Restart=always
+RestartSec=10
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/autotrader-notify.log
+StandardError=append:/home/ubuntu/collector-venv/logs/autotrader-notify.log
+
+[Install]
+WantedBy=multi-user.target

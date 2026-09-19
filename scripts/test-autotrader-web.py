@@ -47,6 +47,15 @@ def cookie_of(headers):
     return sc.split(";")[0] if sc.startswith(web.COOKIE) else ""
 
 
+def _raises_cfg(extra):
+    from autotrader.config import ConfigError
+    try:
+        normalize_config({"strategy": "x", "mode": "paper", "markets": ["KR"], **extra})
+    except ConfigError:
+        return True
+    return False
+
+
 def main():
     # ---------------------------------------------------------------- TOTP·비밀번호
     rfc = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"          # RFC 6238 부록 B 의 시험 비밀("12345678901234567890")
@@ -110,7 +119,7 @@ def main():
         clk = Clock(datetime(2026, 9, 21, 10, 0, tzinfo=KST).timestamp())
         secret = A.new_totp_secret()
         store = A.AuthStore(sdir / "web_auth.json")
-        app = web.WebApp(cfg, sdir, store, A.Sessions(clock=clk), A.Lockout(clock=clk), clock=clk)
+        app = web.WebApp(cfg, sdir, store, A.Sessions(clock=clk), A.Lockout(clock=clk), clock=clk, require_reauth=True)   # 엄격 모드(상세마다 재인증)
         ip = "10.0.0.1"
 
         st, h, b = app.handle("GET", "/healthz", {}, b"", ip)
@@ -215,8 +224,22 @@ def main():
         st, h, b = login("a-very-long-password", A.totp_now(secret, clk()), "10.0.0.10")
         ck("킬 스위치가 켜져 있으면 요약에 표시", "킬 스위치 ON".encode() in app.handle("GET", "/", {"cookie": cookie_of(h)}, b"", "10.0.0.10")[2])
 
+        # ---------------------------------------------------------------- 기본 모드: 로그인 한 번으로 상세까지(재인증 없음)
+        easy = web.WebApp(cfg, sdir, store, A.Sessions(idle_sec=1800, clock=clk), A.Lockout(clock=clk), clock=clk)
+        clk.t += 30
+        st, h, b = easy.handle("POST", "/login", {}, f"password=a-very-long-password&code={A.totp_now(secret, clk())}".encode(), "10.2.0.1")
+        ec = {"cookie": cookie_of(h)}
+        st, h, b = easy.handle("GET", "/details", ec, b"", "10.2.0.1")
+        ck("기본 모드: 로그인 한 번으로 상세가 바로 보인다(재인증 없음)", st == 200 and b"SECRETSYM" in b and "한 번 더 확인".encode() not in b)
+        ck("기본 모드: 요약의 링크에 '인증앱 코드 재입력' 문구가 없다", "재입력".encode() not in easy.handle("GET", "/", ec, b"", "10.2.0.1")[2])
+        ck("기본 모드도 로그인 전에는 상세가 404", easy.handle("GET", "/details", {}, b"", "10.2.0.9")[0] == 404)
+        clk.t += 20 * 60
+        ck("유휴 30분 설정이면 20분 뒤에도 세션이 산다", b"SECRETSYM" in easy.handle("GET", "/details", ec, b"", "10.2.0.1")[2])
+        clk.t += 31 * 60
+        ck("유휴 30분을 넘기면 만료", b"SECRETSYM" not in easy.handle("GET", "/details", ec, b"", "10.2.0.1")[2])
+
         # ---------------------------------------------------------------- 경로 접두사(/autotrader) — 기존 nginx 뒤에서 쓰는 방식
-        pref = web.WebApp(cfg, sdir, store, A.Sessions(clock=clk), A.Lockout(clock=clk), clock=clk, base="/autotrader")
+        pref = web.WebApp(cfg, sdir, store, A.Sessions(clock=clk), A.Lockout(clock=clk), clock=clk, base="/autotrader", require_reauth=True)
         st, h, b = pref.handle("GET", "/autotrader/", {}, b"", "10.1.0.1")
         page = b.decode()
         ck("접두사: 로그인 폼의 action 이 접두사를 포함", st == 200 and 'action="/autotrader/login"' in page)
@@ -282,6 +305,11 @@ def main():
     web_src = (ROOT / "autotrader" / "web.py").read_text(encoding="utf-8") + (ROOT / "autotrader" / "web_auth.py").read_text(encoding="utf-8")
     ck("웹 소스는 KIS 키·환경 로더·브로커를 가져오지 않는다", "KIS_" not in web_src and "load_env" not in web_src
        and "from .kis" not in web_src and "make_broker" not in web_src and ".place(" not in web_src and ".cancel(" not in web_src)
+
+    ck("설정: web 섹션 검증(알 수 없는 키·음수·잘못된 타입은 오류)", all(_bad for _bad in (
+        _raises_cfg({"web": {"idle_min": -1}}), _raises_cfg({"web": {"nope": 1}}), _raises_cfg({"web": {"require_reauth_for_details": "yes"}}))))
+    ck("설정: web 기본값이 채워진다", normalize_config({"strategy": "x", "mode": "paper", "markets": ["KR"]})["web"] == {})
+    ck("웹 소스는 텔레그램·알림 모듈을 모른다(토큰이 웹 프로세스에 없다)", "TELEGRAM" not in web_src and "notify" not in web_src.lower())
 
     total = COUNT[0]
     print(f"\ntest-autotrader-web {total - len(FAILS)}/{total}" + ("" if not FAILS else f"  FAILED: {FAILS}"))

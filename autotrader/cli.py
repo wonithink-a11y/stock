@@ -148,6 +148,29 @@ def cmd_web_setup(args) -> int:
     return 0
 
 
+def cmd_notify(args) -> int:
+    """로그인 기록을 텔레그램으로 알린다. 토큰은 이 프로세스만 가진다(웹 프로세스는 없다)."""
+    from .notify import LoginNotifier, run_loop, send_telegram
+    cfg = _cfg(args)
+    env = load_env()
+    tok, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
+    if not (tok and chat):
+        print("환경변수 TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 가 없다(값은 출력하지 않는다)", file=sys.stderr)
+        return 2
+    send = lambda text: send_telegram(tok, chat, text)   # noqa: E731
+    if args.test:
+        send("🔔 autotrader 텔레그램 알림 테스트 — 이 메시지가 보이면 연결이 정상입니다.")
+        print("테스트 메시지를 보냈다")
+        return 0
+    sdir = state_dir(cfg)
+    n = LoginNotifier(sdir / "web_login.log", sdir / "notify_offset.txt", send)
+    if args.once:
+        print(f"보낸 알림 {n.poll()}통")
+        return 0
+    run_loop(n)
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="autotrader")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -161,12 +184,15 @@ def main(argv=None) -> int:
     sv.add_argument("--port", type=int, default=8787)
     sv.add_argument("--base-path", default="", help="앞단 프록시가 이 경로 아래로 넘겨줄 때(예: /autotrader). 비우면 루트")
     sv.add_argument("--insecure-cookie", action="store_true", help="HTTPS 없이 로컬 시험할 때만")
+    nt = sub.add_parser("notify-logins")
+    nt.add_argument("--test", action="store_true", help="테스트 메시지 한 통만 보내고 끝낸다")
+    nt.add_argument("--once", action="store_true", help="한 번만 확인하고 끝낸다(기본은 계속 감시)")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
-          "serve": cmd_serve, "web-setup": cmd_web_setup}[args.cmd]
+          "serve": cmd_serve, "web-setup": cmd_web_setup, "notify-logins": cmd_notify}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

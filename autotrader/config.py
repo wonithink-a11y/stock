@@ -16,7 +16,7 @@ LIVE_ACK = "I-ACCEPT-REAL-TRADES"          # 환경변수 AUTOTRADER_ALLOW_LIVE 
 
 PAPER_KEYS = ("KIS_VTS_APP_KEY", "KIS_VTS_APP_SECRET", "KIS_VTS_ACCOUNT_NO")
 LIVE_KEYS = ("KIS_LIVE_APP_KEY", "KIS_LIVE_APP_SECRET", "KIS_LIVE_ACCOUNT_NO")   # 시세용 KIS_APP_KEY 와 이름을 분리했다
-ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE",)
+ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
 
 # 보수적 기본값 — 사용자가 설정에서 명시적으로 올려야 커진다. 통화는 시장 기준(KR=원, US=달러).
 RISK_DEFAULTS = {
@@ -82,6 +82,7 @@ def normalize_config(cfg: dict) -> dict:
     out = dict(cfg)
     out.setdefault("params", {})
     out.setdefault("symbol_allowlist", [])
+    out.setdefault("web", {})
     out.setdefault("live", {})
     out["live"] = {"enabled": False, "tr_ids_reviewed": False, **out["live"]}
     out.setdefault("state_dir", "autotrader/state")
@@ -106,6 +107,19 @@ def validate_config(cfg: dict) -> List[str]:
     al = cfg.get("symbol_allowlist", [])
     if not isinstance(al, list) or any(not isinstance(s, str) for s in al):
         errs.append("symbol_allowlist 는 종목코드 문자열 목록")
+    w = cfg.get("web", {})
+    if not isinstance(w, dict):
+        errs.append("web 은 객체")
+    else:
+        for k, v in w.items():
+            if k == "require_reauth_for_details":
+                if not isinstance(v, bool):
+                    errs.append("web.require_reauth_for_details 는 true|false")
+            elif k in ("idle_min", "session_hours", "reauth_min"):
+                if not isinstance(v, (int, float)) or isinstance(v, bool) or v <= 0:
+                    errs.append(f"web.{k} 는 양수")
+            else:
+                errs.append(f"web.{k} 는 알 수 없는 키")
     for m, r in (cfg.get("risk") or {}).items():
         if m not in ("KR", "US") or not isinstance(r, dict):
             errs.append(f"risk.{m} 형식 오류")
