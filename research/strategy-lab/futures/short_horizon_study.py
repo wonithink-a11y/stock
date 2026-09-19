@@ -146,8 +146,8 @@ def minute_events() -> tuple[dict, list]:
                 ev["M5"].append((dt, -np.sign(dd) * (c[EXIT] / e - 1) * 1e4, cost_bp(e)))
     dts = [pd.Timestamp(str(d["date"])[:10]) for d in days]
     b1, b2 = dts[M_SPLITS[0]], dts[M_SPLITS[0] + M_SPLITS[1]]
-    tr = [(dt, abs(v)) for (dt, v, _), a in zip(ev["M2"], m2_abs) if dt < b1]
-    thr = np.quantile([a for (dt, _), a in zip(ev["M2"], m2_abs) if dt < b1], 2 / 3) if tr else np.inf
+    tr = [a for e, a in zip(ev["M2"], m2_abs) if e[0] < b1]
+    thr = np.quantile(tr, 2 / 3) if tr else np.inf
     ev["M3"] = [e for e, a in zip(ev["M2"], m2_abs) if a >= thr]
     return ev, [b1, b2, float(thr)]
 
