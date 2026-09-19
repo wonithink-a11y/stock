@@ -138,8 +138,8 @@ class Strategy:
 ## 11. 웹 화면(폰 확인) — 2026-09-19 추가
 
 사용자 요구: VM 에서 실행되고 폰에서 확인, 지문 등 인증 필요, Tailscale(항상 켜야 하는 VPN)은 부담. 결정: **기존 인프라(VM + DuckDNS)에
-HTTPS(Caddy) + 강한 인증을 붙인 읽기 전용 화면**. 구현: `autotrader/web.py`·`web_auth.py`·`snapshot.py`, 회귀 `scripts/test-autotrader-web.py`,
-배포 `deploy/autotrader-web.service`·`autotrader-snapshot.{service,timer}`·`Caddyfile.autotrader.example`, 안내서 `autotrader-웹화면-설치-가이드.md`.
+HTTPS + 강한 인증을 붙인 읽기 전용 화면**. 저장소 기록(완료-이력)에 VM 이 이미 nginx+certbot+DuckDNS(`wonithink-stock.duckdns.org`)로 HTTPS 를 서비스 중이라, **Caddy 를 새로 깔지 않고 기존 nginx 에 `/autotrader/` 경로 하나만 추가**한다(기존 서비스 무영향, 접두사 밖 경로는 404). 구현: `autotrader/web.py`·`web_auth.py`·`snapshot.py`, 회귀 `scripts/test-autotrader-web.py`,
+배포 `deploy/autotrader-web.service`·`autotrader-snapshot.{service,timer}`·`nginx-autotrader.location.example`(Caddy 예시는 nginx 를 안 쓰는 환경용 대안), 안내서 `autotrader-웹화면-설치-가이드.md`.
 
 - 웹 프로세스는 키를 못 읽는다(유닛 `InaccessiblePaths=.env`, 소스에 키·브로커 import 없음을 회귀가 핀). 화면 데이터는 스냅샷 작업이 만든 파일뿐.
 - 3단계 노출(로그인 전 폼뿐 / 로그인 후 요약 / TOTP 재입력 5분 상세)·읽기 전용(주문·킬·설정 경로 없음, 404).

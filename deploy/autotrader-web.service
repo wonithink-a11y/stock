@@ -3,7 +3,8 @@
 #
 # ★ 이 서비스에는 EnvironmentFile 이 **없다**. 그리고 InaccessiblePaths 로 KIS 키가 든 .env 를 읽지 못하게 막는다 —
 #   웹 프로세스는 키를 볼 수 없다(화면이 뚫려도 키는 안전). 키는 스냅샷 작업(autotrader-snapshot.service)만 쓴다.
-# ★ 127.0.0.1 에만 붙는다. 바깥(HTTPS)은 Caddy 가 맡는다(deploy/Caddyfile.autotrader.example).
+# ★ 127.0.0.1 에만 붙는다. 바깥(HTTPS)은 **기존 nginx**(wonithink-stock.duckdns.org, certbot 인증서)가 /autotrader/ 경로로 넘겨준다
+#   (deploy/nginx-autotrader.location.example). 같은 도메인의 다른 서비스와 섞이지 않게 접두사 밖 경로는 404 를 낸다.
 # 비밀번호·인증앱 설정은 서버에서 한 번: python3 -m autotrader --config <설정> web-setup
 Description=autotrader web view (read-only, no broker keys)
 After=network.target
@@ -13,7 +14,7 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json serve --host 127.0.0.1 --port 8787
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json serve --host 127.0.0.1 --port 8787 --base-path /autotrader
 Restart=on-failure
 RestartSec=5
 

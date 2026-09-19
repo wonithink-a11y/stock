@@ -120,7 +120,7 @@ def cmd_snapshot(args) -> int:
 
 def cmd_serve(args) -> int:
     from .web import serve
-    serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie)
+    serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie, base=args.base_path)
     return 0
 
 
@@ -159,6 +159,7 @@ def main(argv=None) -> int:
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1", help="기본 127.0.0.1 — 앞단 HTTPS 프록시 뒤에서만 쓴다")
     sv.add_argument("--port", type=int, default=8787)
+    sv.add_argument("--base-path", default="", help="앞단 프록시가 이 경로 아래로 넘겨줄 때(예: /autotrader). 비우면 루트")
     sv.add_argument("--insecure-cookie", action="store_true", help="HTTPS 없이 로컬 시험할 때만")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")

@@ -79,7 +79,7 @@ def load_view(cfg: dict, sdir: Path, now: datetime) -> dict:
             "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent}
 
 
-def render_dashboard(v: dict, csrf: str) -> bytes:
+def render_dashboard(v: dict, csrf: str, base: str = "") -> bytes:
     mode_txt = "실전(실계좌)" if v["mode"] == "live" else "모의투자"
     kill = ('<span class="pill bad">킬 스위치 ON — 주문 중단</span>' if v["kill"]
             else '<span class="pill ok">킬 스위치 OFF</span>')
@@ -115,12 +115,12 @@ def render_dashboard(v: dict, csrf: str) -> bytes:
 <div class="row"><span>오류</span><span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></div></div>
 <div class="card"><h2>한도 사용률</h2>{limits or '<span class="mut">-</span>'}</div>
 <div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
-<div class="card"><a href="/details">보유·주문 상세 보기 (인증앱 코드 재입력)</a></div>
-<form method="post" action="/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
+<div class="card"><a href="{base}/details">보유·주문 상세 보기 (인증앱 코드 재입력)</a></div>
+<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
     return _page("autotrader", body, refresh=True)
 
 
-def render_details(v: dict, csrf: str) -> bytes:
+def render_details(v: dict, csrf: str, base: str = "") -> bytes:
     snap = v["snapshot"] or {}
     rows = []
     for m, d in (snap.get("markets") or {}).items():
@@ -150,27 +150,27 @@ def render_details(v: dict, csrf: str) -> bytes:
                    + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
     body = f'''<h1>상세 (5분간 열림)</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
 <div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
-<div class="card"><a href="/">← 요약으로</a></div>
-<form method="post" action="/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
+<div class="card"><a href="{base}/">← 요약으로</a></div>
+<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
     return _page("autotrader 상세", body, refresh=False)
 
 
-def render_login(msg: str = "") -> bytes:
+def render_login(msg: str = "", base: str = "") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
     return _page("로그인", f'''<h1>로그인</h1><div class="card">{m}
-<form method="post" action="/login" autocomplete="off">
+<form method="post" action="{base}/login" autocomplete="off">
 <input type="password" name="password" placeholder="비밀번호" autocomplete="current-password" required>
 <input name="code" placeholder="인증앱 6자리 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
 <button>로그인</button></form></div>''')
 
 
-def render_reauth(csrf: str, msg: str = "") -> bytes:
+def render_reauth(csrf: str, msg: str = "", base: str = "") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
     return _page("재인증", f'''<h1>한 번 더 확인</h1><div class="card">{m}
 <div class="mut">금액·보유 내용은 인증앱 코드를 <b>새로</b> 입력해야 열립니다. 방금 로그인에 쓴 코드는 못 씁니다 — 코드가 바뀔 때까지(최대 30초) 기다렸다가 입력하세요.</div>
-<form method="post" action="/reauth"><input type="hidden" name="csrf" value="{E(csrf)}">
+<form method="post" action="{base}/reauth"><input type="hidden" name="csrf" value="{E(csrf)}">
 <input name="code" placeholder="인증앱 6자리 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-<button>확인</button></form></div><div class="card"><a href="/">← 요약으로</a></div>''')
+<button>확인</button></form></div><div class="card"><a href="{base}/">← 요약으로</a></div>''')
 
 
 class WebApp:
@@ -178,10 +178,11 @@ class WebApp:
 
     def __init__(self, cfg: dict, sdir: Path, store: AuthStore, sessions: Sessions, lockout: Lockout,
                  clock: Callable[[], float] = time.time, secure_cookie: bool = True,
-                 fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep):
+                 fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = ""):
         self.cfg, self.sdir, self.store = cfg, Path(sdir), store
         self.sessions, self.lockout, self.clock = sessions, lockout, clock
         self.secure_cookie, self.fail_delay, self._sleep = secure_cookie, fail_delay, sleep
+        self.base = "/" + base.strip("/") if base.strip("/") else ""      # 예: "/autotrader" (앞단이 이 접두사 아래로 넘겨준다)
         self.log_path = self.sdir / "web_login.log"
 
     # -------------------------------------------------------------- 유틸
@@ -205,7 +206,7 @@ class WebApp:
         return h
 
     def _cookie(self, tok: str, max_age: int) -> str:
-        return f"{COOKIE}={tok}; HttpOnly; SameSite=Strict; Path=/; Max-Age={max_age}" + ("; Secure" if self.secure_cookie else "")
+        return f"{COOKIE}={tok}; HttpOnly; SameSite=Strict; Path={self.base or '/'}; Max-Age={max_age}" + ("; Secure" if self.secure_cookie else "")
 
     @staticmethod
     def _session_token(headers: Dict[str, str]) -> Optional[str]:
@@ -219,13 +220,20 @@ class WebApp:
         return 404, self._hdrs(), _page("404", "<h1>404</h1>")
 
     def _redirect(self, to: str, extra: Optional[Dict[str, str]] = None):
-        return 303, self._hdrs({"Location": to, **(extra or {})}), b""
+        return 303, self._hdrs({"Location": self.base + to, **(extra or {})}), b""
 
     # -------------------------------------------------------------- 진입점
     def handle(self, method: str, raw_path: str, headers: Dict[str, str], body: bytes,
                ip: str) -> Tuple[int, Dict[str, str], bytes]:
         headers = {k.lower(): v for k, v in headers.items()}
         path = urlsplit(raw_path).path
+        if self.base:                                   # 접두사 밖의 경로는 존재하지 않는 것으로 취급
+            if path == self.base:
+                path = "/"
+            elif path.startswith(self.base + "/"):
+                path = path[len(self.base):]
+            else:
+                return self._not_found()
         if path == "/healthz":
             return 200, {"Content-Type": "text/plain", "Cache-Control": "no-store"}, b"ok"
         if not self.store.exists():
@@ -239,14 +247,14 @@ class WebApp:
             return self._login(field("password"), field("code"), ip)
         if method == "GET" and path in ("/", "/index.html"):
             if not sess:
-                return 200, self._hdrs(), render_login()
-            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, self._now()), sess["csrf"])
+                return 200, self._hdrs(), render_login(base=self.base)
+            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
             return self._not_found()
         if method == "GET" and path == "/details":
             if not self.sessions.is_fresh(sess):
-                return 200, self._hdrs(), render_reauth(sess["csrf"])
-            return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"])
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
+            return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base)
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -262,7 +270,7 @@ class WebApp:
     def _login(self, password: str, code: str, ip: str):
         if self.lockout.is_locked(ip):
             self._log(ip, "locked")
-            return 429, self._hdrs(), render_login("잠시 후 다시 시도하세요.")
+            return 429, self._hdrs(), render_login("잠시 후 다시 시도하세요.", self.base)
         rec = self.store.load()
         pw_ok = verify_password(password, rec["password"])                       # 둘 다 항상 계산(어느 쪽이 틀렸는지 안 알려 준다)
         step = totp_verify(rec["totpSecret"], code, t=self.clock(), last_step=rec.get("lastTotpStep"))
@@ -276,11 +284,11 @@ class WebApp:
         self._log(ip, "login-fail")
         if self.fail_delay:
             self._sleep(self.fail_delay)
-        return 401, self._hdrs(), render_login("로그인할 수 없습니다.")
+        return 401, self._hdrs(), render_login("로그인할 수 없습니다.", self.base)
 
     def _reauth(self, code: str, tok: str, sess: dict, ip: str):
         if self.lockout.is_locked(ip):
-            return 429, self._hdrs(), render_reauth(sess["csrf"], "잠시 후 다시 시도하세요.")
+            return 429, self._hdrs(), render_reauth(sess["csrf"], "잠시 후 다시 시도하세요.", self.base)
         rec = self.store.load()
         step = totp_verify(rec["totpSecret"], code, t=self.clock(), last_step=rec.get("lastTotpStep"))
         if step is None:
@@ -288,7 +296,7 @@ class WebApp:
             self._log(ip, "reauth-fail")
             if self.fail_delay:
                 self._sleep(self.fail_delay)
-            return 401, self._hdrs(), render_reauth(sess["csrf"], "코드가 맞지 않습니다.")
+            return 401, self._hdrs(), render_reauth(sess["csrf"], "코드가 맞지 않습니다.", self.base)
         self.store.set_last_step(step)
         self.lockout.ok(ip)
         self.sessions.mark_reauth(tok)
@@ -334,10 +342,10 @@ def make_handler(app: WebApp):
     return H
 
 
-def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True) -> None:
+def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "") -> None:
     sdir = state_dir(cfg)
     app = WebApp(cfg, sdir, AuthStore(sdir / "web_auth.json"), Sessions(), Lockout(),
-                 secure_cookie=secure_cookie, fail_delay=0.5)
+                 secure_cookie=secure_cookie, fail_delay=0.5, base=base)
     httpd = ThreadingHTTPServer((host, port), make_handler(app))
     print(f"autotrader web — http://{host}:{port} (앞단 HTTPS 프록시 뒤에서만 쓴다)", flush=True)
     httpd.serve_forever()

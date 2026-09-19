@@ -215,6 +215,25 @@ def main():
         st, h, b = login("a-very-long-password", A.totp_now(secret, clk()), "10.0.0.10")
         ck("킬 스위치가 켜져 있으면 요약에 표시", "킬 스위치 ON".encode() in app.handle("GET", "/", {"cookie": cookie_of(h)}, b"", "10.0.0.10")[2])
 
+        # ---------------------------------------------------------------- 경로 접두사(/autotrader) — 기존 nginx 뒤에서 쓰는 방식
+        pref = web.WebApp(cfg, sdir, store, A.Sessions(clock=clk), A.Lockout(clock=clk), clock=clk, base="/autotrader")
+        st, h, b = pref.handle("GET", "/autotrader/", {}, b"", "10.1.0.1")
+        page = b.decode()
+        ck("접두사: 로그인 폼의 action 이 접두사를 포함", st == 200 and 'action="/autotrader/login"' in page)
+        ck("접두사: 접두사 밖의 경로는 404(같은 도메인의 다른 서비스와 섞이지 않는다)", pref.handle("GET", "/", {}, b"", "10.1.0.1")[0] == 404
+           and pref.handle("GET", "/accounts", {}, b"", "10.1.0.1")[0] == 404 and pref.handle("GET", "/autotrader-x", {}, b"", "10.1.0.1")[0] == 404)
+        ck("접두사: /autotrader 도 로그인 폼", pref.handle("GET", "/autotrader", {}, b"", "10.1.0.1")[0] == 200)
+        ck("접두사: healthz", pref.handle("GET", "/autotrader/healthz", {}, b"", "10.1.0.1")[2] == b"ok")
+        clk.t += 30
+        st, h, b = pref.handle("POST", "/autotrader/login", {}, f"password=a-very-long-password&code={A.totp_now(secret, clk())}".encode(), "10.1.0.1")
+        ck("접두사: 로그인 성공 → Location 과 쿠키 Path 가 접두사", st == 303 and h["Location"] == "/autotrader/"
+           and "Path=/autotrader;" in h["Set-Cookie"])
+        pc = {"cookie": cookie_of(h)}
+        st, h, b = pref.handle("GET", "/autotrader/", pc, b"", "10.1.0.1")
+        ck("접두사: 요약의 링크·로그아웃이 접두사를 포함", 'href="/autotrader/details"' in b.decode() and 'action="/autotrader/logout"' in b.decode())
+        st, h, b = pref.handle("GET", "/autotrader/details", pc, b"", "10.1.0.1")
+        ck("접두사: 재인증 폼 action 이 접두사를 포함", 'action="/autotrader/reauth"' in b.decode())
+
         # ---------------------------------------------------------------- 실제 소켓 (서버 통합)
         (sdir / "KILL").unlink()
         app2 = web.WebApp(cfg, sdir, store, A.Sessions(), A.Lockout(), secure_cookie=False)
