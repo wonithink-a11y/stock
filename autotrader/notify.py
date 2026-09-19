@@ -54,6 +54,20 @@ def find_chat_ids(token: str, get: Optional[Callable[[str], dict]] = None, timeo
     return list(seen.values())
 
 
+def bot_username(token: str, get: Optional[Callable[[str], dict]] = None, timeout: float = 10.0) -> str:
+    """이 토큰이 어느 봇의 것인지(사용자 이름) — getMe. 토큰-봇 짝을 눈으로 확인하는 용도. 실패 시 원문(URL)을 싣지 않는다."""
+    def _default_get(url: str) -> dict:
+        with urllib.request.urlopen(url, timeout=timeout) as r:
+            return json.loads(r.read().decode("utf-8"))
+    try:
+        body = (get or _default_get)(f"https://api.telegram.org/bot{token}/getMe")
+    except Exception as e:                       # noqa: BLE001
+        raise RuntimeError(f"telegram 조회 실패({type(e).__name__})") from None
+    if not body.get("ok"):
+        raise RuntimeError("telegram 조회 실패(토큰이 맞는지 확인)")
+    return "@" + (body.get("result") or {}).get("username", "?")
+
+
 def parse_line(line: str):
     """'2026-09-21T10:00:00+09:00 1.2.3.4 login-ok' -> (ts, ip, event). 형식이 다르면 None."""
     parts = line.strip().split(" ")

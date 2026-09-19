@@ -161,6 +161,17 @@ def main():
         raised = True
     ck("채팅 번호 찾기: ok=false(토큰 오류)는 실패", raised)
 
+    ck("봇 이름 확인(getMe)", notify.bot_username("TOK", get=lambda url: {"ok": True, "result": {"username": "wonistock_bot"}}) == "@wonistock_bot")
+
+    def bad2(url):
+        raise OSError("x " + url)
+    try:
+        notify.bot_username("123456:SECRET-TOKEN-VALUE", get=bad2)
+        leak2 = True
+    except RuntimeError as e:
+        leak2 = "SECRET" in str(e) or "123456" in str(e)
+    ck("봇 이름 확인: 실패 예외에 토큰이 새지 않는다", not leak2)
+
     total = COUNT[0]
     print(f"\ntest-autotrader-notify {total - len(FAILS)}/{total}" + ("" if not FAILS else f"  FAILED: {FAILS}"))
     return 1 if FAILS else 0

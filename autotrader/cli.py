@@ -179,9 +179,11 @@ def cmd_chat_id(args) -> int:
     if not tok:
         print("환경변수 TELEGRAM_BOT_TOKEN 이 없다(값은 출력하지 않는다)", file=sys.stderr)
         return 2
+    from .notify import bot_username
+    print(f"이 토큰의 봇: {bot_username(tok)}   ← 텔레그램에서 **이 봇**에게 말을 걸어야 한다")
     found = find_chat_ids(tok)
     if not found:
-        print("찾은 대화가 없다. 텔레그램에서 봇에게 아무 말이나(예: 안녕) 보낸 뒤 다시 실행한다.")
+        print("찾은 대화가 없다. 텔레그램에서 위의 봇에게 아무 말이나(예: 안녕) 보낸 뒤 다시 실행한다.")
         return 1
     for c in found:
         print(f"채팅 번호: {c['id']}   (종류: {c['type']}, 이름: {c['name']})")
