@@ -133,6 +133,12 @@ def main():
         (Path(td) / ".env").write_text("KIS_VTS_APP_KEY=abc\nDART_API_KEY=zzz\nOTHER=1\n", encoding="utf-8")
         e = load_env(Path(td), environ={})
         ck(".env 로더는 관련 키만 읽는다(다른 시크릿은 안 본다)", e == {"KIS_VTS_APP_KEY": "abc"})
+        other = Path(td) / "elsewhere.env"
+        other.write_text("KIS_VTS_APP_KEY=fromfile\nKIS_VTS_APP_SECRET=sec\nDART_API_KEY=zzz\n", encoding="utf-8")
+        e2 = load_env(Path(td), environ={"AUTOTRADER_ENV_FILE": str(other)})
+        ck("AUTOTRADER_ENV_FILE: 저장소 밖 키 파일도 읽되 관련 키만(우선순위: 나중 파일 > .env)",
+           e2 == {"KIS_VTS_APP_KEY": "fromfile", "KIS_VTS_APP_SECRET": "sec"})
+        ck("AUTOTRADER_ENV_FILE 이 없는 파일이면 조용히 무시", load_env(Path(td), environ={"AUTOTRADER_ENV_FILE": str(Path(td) / "nope")}) == {"KIS_VTS_APP_KEY": "abc"})
         ck("환경변수가 .env 를 이긴다", load_env(Path(td), environ={"KIS_VTS_APP_KEY": "env"})["KIS_VTS_APP_KEY"] == "env")
         ck("마스킹", mask("12345678-01") == "12*********" and mask("") == "")
 

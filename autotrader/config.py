@@ -39,17 +39,27 @@ class GateError(RuntimeError):
         self.problems = problems
 
 
+def _read_env_file(p: Path, env: Dict[str, str]) -> None:
+    if not p.exists():
+        return
+    for line in p.read_text(encoding="utf-8").splitlines():
+        k, _, v = line.partition("=")
+        k = k.strip()
+        if k in ENV_KEYS:
+            env[k] = v.strip().strip('"').strip("'")
+
+
 def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dict[str, str]:
-    """`.env` 와 환경변수에서 우리가 쓰는 키만 읽는다(환경변수가 이긴다). 다른 값은 읽지도 않는다."""
-    env: Dict[str, str] = {}
-    p = repo_root / ".env"
-    if p.exists():
-        for line in p.read_text(encoding="utf-8").splitlines():
-            k, _, v = line.partition("=")
-            k = k.strip()
-            if k in ENV_KEYS:
-                env[k] = v.strip().strip('"').strip("'")
+    """`.env` 와 환경변수에서 우리가 쓰는 키만 읽는다(환경변수가 이긴다). 다른 값은 읽지도 않는다.
+
+    키 파일이 저장소 밖에 있으면(VM: ~/collector-venv/.env) 환경변수 `AUTOTRADER_ENV_FILE` 로 위치를 알려 준다.
+    (systemd 유닛은 EnvironmentFile 로 같은 효과를 낸다 — 이 옵션은 손으로 시험할 때를 위한 것이다.)
+    """
     src = os.environ if environ is None else environ
+    env: Dict[str, str] = {}
+    _read_env_file(repo_root / ".env", env)
+    if src.get("AUTOTRADER_ENV_FILE"):
+        _read_env_file(Path(src["AUTOTRADER_ENV_FILE"]).expanduser(), env)
     for k in ENV_KEYS:
         if src.get(k):
             env[k] = src[k]

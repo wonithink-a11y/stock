@@ -99,15 +99,22 @@ sed -i 's#"state_dir": "autotrader/state"#"state_dir": "/home/ubuntu/collector-v
 cp autotrader/targets.example.json autotrader/targets.local.json
 ```
 
-**4) 설정이 맞는지 확인**
+**3-1) 증권사 키 이름이 있는지만 확인** (값은 안 보이고 이름만 나와요)
 ```bash
-~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json check-config
+grep -o '^KIS_VTS[A-Z_]*=' ~/collector-venv/.env
 ```
-`설정 OK` 라는 글자가 나오면 성공.
+`KIS_VTS_APP_KEY=` `KIS_VTS_APP_SECRET=` `KIS_VTS_ACCOUNT_NO=` 세 줄이 보이면 정상입니다. (값은 화면에 안 나와요.)
+
+**4) 설정이 맞는지 확인**
+손으로 실행할 때는 "키 파일이 어디 있는지"를 앞에 붙여 알려줘야 해요. (자동으로 돌 때는 필요 없어요.)
+```bash
+AUTOTRADER_ENV_FILE=~/collector-venv/.env ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json check-config
+```
+`설정 OK` 다음에 `dry-run: 통과` 가 나오면 성공. (`--execute: 통과` 는 모의 계좌라서 정상이에요. 이 프로그램은 `--execute` 를 붙이지 않으면 주문을 안 내요.)
 
 **5) 잔고를 한 번 읽어 보기 (주문은 안 나가요, 읽기만)**
 ```bash
-~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json snapshot
+AUTOTRADER_ENV_FILE=~/collector-venv/.env ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json snapshot
 ```
 `스냅샷 저장` 이라고 나오면 성공.
 
