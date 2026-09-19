@@ -1,0 +1,11 @@
+[Unit]
+Description=autotrader snapshot every 5 minutes
+
+[Timer]
+# 5분마다 잔고·보유·미체결을 읽어 둔다(KIS 조회 몇 건뿐이라 부담이 작다).
+OnCalendar=*:0/5
+Persistent=true
+RandomizedDelaySec=20
+
+[Install]
+WantedBy=timers.target

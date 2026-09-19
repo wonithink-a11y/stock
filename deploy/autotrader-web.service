@@ -1,0 +1,31 @@
+[Unit]
+# autotrader 웹 화면(읽기 전용) — 폰에서 상태를 본다. 설치·설명: docs/control/autotrader-웹화면-설치-가이드.md
+#
+# ★ 이 서비스에는 EnvironmentFile 이 **없다**. 그리고 InaccessiblePaths 로 KIS 키가 든 .env 를 읽지 못하게 막는다 —
+#   웹 프로세스는 키를 볼 수 없다(화면이 뚫려도 키는 안전). 키는 스냅샷 작업(autotrader-snapshot.service)만 쓴다.
+# ★ 127.0.0.1 에만 붙는다. 바깥(HTTPS)은 Caddy 가 맡는다(deploy/Caddyfile.autotrader.example).
+# 비밀번호·인증앱 설정은 서버에서 한 번: python3 -m autotrader --config <설정> web-setup
+Description=autotrader web view (read-only, no broker keys)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json serve --host 127.0.0.1 --port 8787
+Restart=on-failure
+RestartSec=5
+
+InaccessiblePaths=/home/ubuntu/collector-venv/.env
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/collector-venv/autotrader/state
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/autotrader-web.log
+StandardError=append:/home/ubuntu/collector-venv/logs/autotrader-web.log
+
+[Install]
+WantedBy=multi-user.target

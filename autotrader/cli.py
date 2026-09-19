@@ -102,17 +102,70 @@ def cmd_resume(args) -> int:
     return 0
 
 
+def cmd_snapshot(args) -> int:
+    """브로커를 읽기 전용으로 조회해 state/snapshot.json 을 갱신한다(웹 화면이 읽는다). 주문은 절대 안 낸다."""
+    from .snapshot import build_snapshot, write_snapshot
+    cfg = _cfg(args)
+    env = load_env()
+    problems = gate_problems(cfg, env, False)
+    if problems:
+        print("스냅샷 거부 — 키가 없다:", "; ".join(problems), file=sys.stderr)
+        return 2
+    snap = build_snapshot(cfg, make_broker(cfg, env, False), env, datetime.now(KST))
+    p = write_snapshot(cfg, snap)
+    errs = [f"{m}: {d['error']}" for m, d in snap["markets"].items() if d.get("error")]
+    print(f"스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
+    return 1 if errs else 0
+
+
+def cmd_serve(args) -> int:
+    from .web import serve
+    serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie)
+    return 0
+
+
+def cmd_web_setup(args) -> int:
+    """웹 화면의 비밀번호와 인증앱(TOTP)을 처음 설정한다. 비밀번호는 화면에 안 보이게 입력받는다(getpass)."""
+    import getpass
+    from .web_auth import AuthStore, hash_password, new_totp_secret, otpauth_uri
+    cfg = _cfg(args)
+    store = AuthStore(state_dir(cfg) / "web_auth.json")
+    if store.exists() and not args.reset:
+        print("이미 설정돼 있다. 다시 하려면 --reset", file=sys.stderr)
+        return 2
+    pw = getpass.getpass("새 비밀번호(12자 이상): ")
+    if len(pw) < 12:
+        print("12자 이상이어야 한다", file=sys.stderr)
+        return 2
+    if getpass.getpass("한 번 더: ") != pw:
+        print("두 번이 다르다", file=sys.stderr)
+        return 2
+    secret = new_totp_secret()
+    store.save({"password": hash_password(pw), "totpSecret": secret})
+    print("\n설정 완료. 인증앱(Google Authenticator·Microsoft Authenticator 등)에 아래 키를 '직접 입력'으로 등록하세요.")
+    print(f"  계정 이름: autotrader   키(공백 없이): {secret}")
+    print("  (이 키는 지금 한 번만 보여 줍니다. 화면을 닫기 전에 등록하세요. 다른 사람에게 보여주지 마세요.)")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="autotrader")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("--execute", action="store_true", help="실제 주문을 낸다. 없으면 dry-run")
-    for name in ("check-config", "status", "kill", "resume"):
+    for name in ("check-config", "status", "kill", "resume", "snapshot"):
         sub.add_parser(name)
+    sv = sub.add_parser("serve")
+    sv.add_argument("--host", default="127.0.0.1", help="기본 127.0.0.1 — 앞단 HTTPS 프록시 뒤에서만 쓴다")
+    sv.add_argument("--port", type=int, default=8787)
+    sv.add_argument("--insecure-cookie", action="store_true", help="HTTPS 없이 로컬 시험할 때만")
+    ws = sub.add_parser("web-setup")
+    ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
-          "kill": cmd_kill, "resume": cmd_resume}[args.cmd]
+          "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
+          "serve": cmd_serve, "web-setup": cmd_web_setup}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

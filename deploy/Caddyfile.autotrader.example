@@ -1,0 +1,7 @@
+# Caddy 설정 예시 — 내도메인 자리에 사용자의 DuckDNS 주소를 넣는다. (이 파일은 예시일 뿐이다 — VM 의 /etc/caddy/Caddyfile 에 넣는다)
+# Caddy 가 HTTPS 인증서를 스스로 받아서 갱신한다(80·443 포트가 열려 있어야 한다).
+내도메인.duckdns.org {
+	encode gzip
+	header -Server
+	reverse_proxy 127.0.0.1:8787
+}

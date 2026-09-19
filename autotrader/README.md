@@ -97,3 +97,15 @@ sudo systemctl edit autotrader.service                       # 주문을 켜려�
 - 잔고 기준 정합(브로커가 정본)이지만 부분체결·정정·호가단위·거래정지 종목 등은 전략이 다룬다.
 - 선물·옵션·크립토는 이 프로그램 범위가 아니다(기존 RV20 선물 자동화는 별도 경로로 돈다).
 - 예제 전략 `target_weights` 는 구조를 보여주는 예시다 — 수익성을 검증한 전략이 아니다.
+
+## 7. 폰에서 보는 웹 화면 (읽기 전용)
+
+VM 에서 돌리고 폰으로 본다. **보기만 가능**하다(주문·킬 스위치 버튼 없음). 설치는 `docs/control/autotrader-웹화면-설치-가이드.md`(초등학생용 순서 안내).
+
+- `python -m autotrader snapshot` — 브로커를 읽기 전용으로 조회해 `state/snapshot.json` 갱신(5분 타이머 `autotrader-snapshot`)
+- `python -m autotrader serve` — 127.0.0.1:8787 웹 서버(HTTPS 는 앞단 Caddy). **KIS 키를 못 읽는다**(유닛이 `.env` 접근 차단)
+- `python -m autotrader web-setup` — 비밀번호(12자 이상)와 인증앱(TOTP) 등록. 비밀번호는 화면에 안 보이게 입력, 인증앱 키는 그때 한 번만 출력
+- 노출 3단계: 로그인 전 = 로그인 폼뿐 · 로그인 후 = 요약(종목·금액 없음) · **인증앱 코드 재입력 5분간** = 보유·잔고·주문 상세(계좌번호는 어디에도 안 나옴)
+- 잠금: 같은 IP 5번 실패 15분 · 전체 20번/시간 실패 30분 · 유휴 15분 로그아웃 · 쿠키 HttpOnly/Secure/SameSite=Strict
+- 한계: 패스키(지문) 인증은 아직 없다(다음 단계). 인터넷에 열리는 주소이므로 인증 코드의 결함이 가장 큰 위험이다 —
+  회귀 `scripts/test-autotrader-web.py`(52건)와 변이 테스트로 핀했지만 외부 보안 검토는 받지 않았다.

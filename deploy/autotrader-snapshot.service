@@ -1,0 +1,19 @@
+[Unit]
+# 상태 스냅샷 — 브로커를 **읽기 전용**으로 조회(잔고·보유·미체결)해 state/snapshot.json 을 갱신한다. 주문은 절대 안 낸다.
+# 웹 화면은 이 파일만 읽는다. 키는 이 작업만 쓴다(EnvironmentFile). 시크릿을 이 파일에 쓰지 않는다.
+Description=autotrader read-only snapshot for the web view
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json snapshot
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/autotrader-snapshot.log
+StandardError=append:/home/ubuntu/collector-venv/logs/autotrader-snapshot.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes

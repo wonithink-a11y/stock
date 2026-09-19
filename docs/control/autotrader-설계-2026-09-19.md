@@ -134,3 +134,16 @@ class Strategy:
 - **KIS 모의 서버 대상 읽기 전용 dry-run 성공**: 잔고·예수금·시세 조회 정상, 주문 없음. 목표비중이 커서 468만원 주문이 계획됐고
   주문당 한도(30만원)에서 위험 검사가 거부했다.
 - **검증 못 한 것**: 실전 TR_ID·도메인(실계좌 호출 없음), 해외(US) 조회·주문 경로의 실서버 호출, 모의 `--execute` 실주문(사용자 몫), 해외 매도 `SLL_TYPE`.
+
+## 11. 웹 화면(폰 확인) — 2026-09-19 추가
+
+사용자 요구: VM 에서 실행되고 폰에서 확인, 지문 등 인증 필요, Tailscale(항상 켜야 하는 VPN)은 부담. 결정: **기존 인프라(VM + DuckDNS)에
+HTTPS(Caddy) + 강한 인증을 붙인 읽기 전용 화면**. 구현: `autotrader/web.py`·`web_auth.py`·`snapshot.py`, 회귀 `scripts/test-autotrader-web.py`,
+배포 `deploy/autotrader-web.service`·`autotrader-snapshot.{service,timer}`·`Caddyfile.autotrader.example`, 안내서 `autotrader-웹화면-설치-가이드.md`.
+
+- 웹 프로세스는 키를 못 읽는다(유닛 `InaccessiblePaths=.env`, 소스에 키·브로커 import 없음을 회귀가 핀). 화면 데이터는 스냅샷 작업이 만든 파일뿐.
+- 3단계 노출(로그인 전 폼뿐 / 로그인 후 요약 / TOTP 재입력 5분 상세)·읽기 전용(주문·킬·설정 경로 없음, 404).
+- 인증: 비밀번호(PBKDF2-SHA256 20만회)+TOTP(RFC 6238, 표준 시험 벡터 통과, 코드 재사용 방지), 같은 IP 5회 실패 15분·전체 20회/시간 30분 잠금,
+  세션 유휴 15분·절대 8시간, CSRF 토큰, 보안 헤더(CSP 등), 로그인 시도 기록(비밀번호·코드는 기록 안 함).
+- **패스키(지문)는 2단계** — WebAuthn 은 검증된 외부 라이브러리가 필요해 1단계(TOTP)로 먼저 열고, 그 뒤에 재인증 자리(현재 TOTP 재입력)를 지문으로 교체한다.
+- 남는 위험: 공개 주소는 스캔·시도를 받는다(잠금·기록으로 대응), 인증 코드 결함(외부 검토 없음), Python 3.8 VM 에서의 실제 동작은 로컬 3.13 시험 + 3.8 문법 검사까지만 확인.
