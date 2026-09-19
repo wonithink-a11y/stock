@@ -1,0 +1,15 @@
+[Unit]
+Description=Infinite-buying sleeve paper-account daily timer
+
+[Timer]
+# 21:30 KST(VM 시각대 = KST, 다른 타이머와 동일 전제). 미국 정규장 개장은 서머타임
+# 22:30 / 표준시 23:30 KST — 어느 쪽이든 개장 전이다. 직전 세션 종가는 05:00 KST 에
+# 확정돼 있다. 주문이 개장 전에 들어가 정규장에서 체결을 기다린다.
+# 미국 휴장일에는 직전 종가로 다시 계획하고 접수한다 — 다음 실행이 잔존 주문을
+# 취소하고 재접수하므로 쌓이지 않는다.
+OnCalendar=Mon..Fri *-*-* 21:30:00
+Persistent=true
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

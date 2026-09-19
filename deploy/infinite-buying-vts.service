@@ -1,0 +1,39 @@
+[Unit]
+# 무한매수 슬리브(TQQQ·SOXL) 모의투자 일일 실행 — run_infinite_buying_daily.py --mode vts
+#
+# ★ 이 파일은 **dry-run 으로 배포된다**(--execute 없음). 주문을 켜는 것은 사용자가
+#   VM 에서 직접 한다: `sudo systemctl edit infinite-buying-vts.service` 로
+#   ExecStart 를 비우고 --execute 를 붙여 다시 쓴다. (RV20 은 kill switch JSON 이
+#   있지만 이쪽은 없다 — 켜는 행위 자체가 그 스위치다.)
+#
+# 순서: 잔존 미체결 취소 -> 계좌 조회 -> 재계획 -> 재접수. 취소가 확인되지 않은
+# 종목은 그날 주문을 내지 않는다(run_vts / cancel_open_orders).
+#
+# ★ 규칙 값 파일은 저장소에 없다(원작자 재배포 금지, gitignore). 사용자가 한 번
+#   직접 복사해 둔다:
+#     mkdir -p ~/collector-venv/infbuy/state
+#     scp _rules.local.json <vm>:~/collector-venv/infbuy/
+#     scp state/TQQQ_vts.json state/SOXL_vts.json <vm>:~/collector-venv/infbuy/state/
+#   상태를 저장소 밖(INFBUY_STATE_DIR)에 두는 이유: state/*.json 이 git 추적 파일이라
+#   VM 에서 고치면 다음 git pull --ff-only 가 막힌다. VM 은 커밋하지 않는다.
+#
+# 자격증명(KIS_VTS_*)은 EnvironmentFile 의 .env 에만 있다. 여기 쓰지 않는다.
+# 필요 패키지: pandas·pyarrow·yfinance (없으면 dry-run 첫 실행이 ImportError 로 알려준다).
+Description=Infinite-buying sleeve (TQQQ/SOXL) paper-account daily run
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=INFBUY_STATE_DIR=/home/ubuntu/collector-venv/infbuy/state
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_infinite_buying_daily.py --mode vts --rules /home/ubuntu/collector-venv/infbuy/_rules.local.json
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/infinite-buying-vts.log
+StandardError=append:/home/ubuntu/collector-venv/logs/infinite-buying-vts.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
