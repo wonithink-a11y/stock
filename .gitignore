@@ -87,3 +87,7 @@ research/strategy-lab/.opencode_scratch/
 # 명시적으로 금지했고 이 저장소는 PUBLIC 이다. 로컬 연구 자료로만 둔다.
 research/strategy-lab/findings/infinite-buying-rule-spec-*.md
 research/strategy-lab/data/leveraged-etf/_rules*.json
+
+# autotrader — 사용자 설정·상태·토큰·원장은 저장소에 절대 안 들어간다
+autotrader/*.local.json
+autotrader/state/

@@ -1,0 +1,36 @@
+{
+  "strategy": "target_weights",
+  "params": {
+    "targets_file": "autotrader/targets.local.json",
+    "band_pct": 2.0,
+    "kr_order_type": "market",
+    "us_order_type": "limit",
+    "limit_offset_bps": 10
+  },
+  "mode": "paper",
+  "markets": ["KR"],
+  "symbol_allowlist": ["005930"],
+  "risk": {
+    "KR": {
+      "max_order_value": 300000,
+      "max_daily_value": 1000000,
+      "max_orders_per_run": 5,
+      "price_band_pct": 5,
+      "max_position_value": 1000000,
+      "allow_sell": true
+    },
+    "US": {
+      "max_order_value": 300,
+      "max_daily_value": 1000,
+      "max_orders_per_run": 5,
+      "price_band_pct": 5,
+      "max_position_value": 1000,
+      "allow_sell": true
+    }
+  },
+  "live": {
+    "enabled": false,
+    "tr_ids_reviewed": false
+  },
+  "state_dir": "autotrader/state"
+}

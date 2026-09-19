@@ -1,0 +1,99 @@
+# autotrader — 내 API 키로 돌리는 전략 교체형 자동매매 (한국투자증권)
+
+전략을 파일 하나로 갈아끼우고, 모의투자와 실계좌를 같은 코드 경로로 돌린다. **기본은 항상 dry-run(주문 없음)** 이다.
+설계 근거: `docs/control/autotrader-설계-2026-09-19.md`
+
+> **이 프로그램은 수익을 보장하지 않는다.** 전략의 좋고 나쁨과 무관하게, 버그·API 변경·체결 차이로 손실이 날 수 있다.
+> 실계좌 경로는 만든 쪽(Claude)이 실계좌로 시험하지 못했다 — 모의·가짜 브로커로만 검증됐다. **소액·낮은 한도로 시작한다.**
+
+## 1. 빠른 시작 (모의투자)
+
+```bash
+# 1) 키는 저장소 루트 .env (gitignore) 또는 환경변수에만 넣는다 — 코드·설정 파일·커밋에 절대 넣지 않는다
+KIS_VTS_APP_KEY=...        # 모의투자 앱키
+KIS_VTS_APP_SECRET=...
+KIS_VTS_ACCOUNT_NO=12345678-01
+
+# 2) 설정 복사 (autotrader.local.json 은 gitignore)
+cp autotrader/config.example.json autotrader/autotrader.local.json
+cp autotrader/targets.example.json autotrader/targets.local.json     # 예시 전략용 목표 비중
+
+# 3) 점검 → dry-run → (원하면) 모의 주문
+python -m autotrader check-config
+python -m autotrader run                 # 주문 없음, 계획·위험 검사 결과만 출력
+python -m autotrader run --execute       # 모의투자 계좌에 실제 주문
+```
+
+## 2. 내 전략 만들기
+
+`autotrader/strategies/_template.py` 를 `내전략.py` 로 복사하고 `decide(ctx)` 에서 **`Intent` 목록**을 돌려준다.
+설정 파일에 `"strategy": "내전략"`, `"params": {...}` 를 적으면 끝이다.
+
+```python
+class MyStrategy(Strategy):
+    name = "my_strategy"; markets = ["KR"]
+    def decide(self, ctx):
+        if "005930" not in ctx.positions("KR"):
+            return [Intent("005930", "BUY", 1, market="KR", order_type="market", reason="예시")]
+        return []
+STRATEGY = MyStrategy
+```
+
+전략은 **브로커를 직접 부르지 않는다.** 주문은 엔진이 위험 검사를 거쳐 낸다 — 전략 버그가 한도를 뚫을 수 없다.
+`ctx` 로 쓸 수 있는 것: `positions(market)` · `cash(market)` · `quote(symbol, market)` · `now` · `params` · `state`(실행 사이에 유지).
+국내 지정가는 **호가단위**를 전략이 맞춰야 한다(안 맞으면 KIS 가 거절하고 그 실행이 중단된다). 시장가는 그런 걱정이 없다.
+
+## 3. 안전장치 (엔진이 강제)
+
+| 장치 | 내용 |
+|---|---|
+| dry-run 기본 | `--execute` 없으면 주문이 안 나간다 |
+| 허용 종목 | `symbol_allowlist` 에 없는 종목은 거부, 목록이 비면 `--execute` 자체가 막힘 |
+| 금액 한도 | 주문당 · 일일(원장 누적, 실행이 달라도 합산) · 실행당 주문 수 · 종목당 보유금액. 기본값이 보수적이다 |
+| 가격 밴드 | 지정가가 직전 시세에서 ±5% 를 넘으면 거부(호가 착오 방지) |
+| 공매도·신용 없음 | 가진 수량 이상 매도 거부, 현금 초과 매수 거부 |
+| 킬 스위치 | `python -m autotrader kill` — 주문 **직전마다** 다시 확인. 해제 `resume` |
+| 우리 주문만 취소 | 원장에 주문번호가 있는 것만 취소. 수동으로 낸 주문은 안 건드리고 그 종목은 건너뜀 |
+| 주문 무재시도 | 주문 실패는 재시도 없이 그 실행을 중단(중복 주문 방지) |
+| 시크릿 | 키는 환경변수/.env 에서만. 로그·리포트에 안 남고, 토큰·원장·상태는 `autotrader/state/`(gitignore) |
+
+모든 실행은 `autotrader/state/runs/<시각>.json` 리포트와 `ledger.jsonl`(실행된 주문) 을 남긴다. `python -m autotrader status`.
+
+## 4. 실전 전환 (전부 사용자가 직접) — 체크리스트
+
+1. **모의로 충분히 돌린다.** 전략이 낸 주문, 체결, 미체결 처리를 모의에서 관찰한다.
+2. KIS Open API **실전 앱키**를 발급한다. 가능하면 **주문 권한만, IP 제한 포함**. 키 이름은 시세용 `KIS_APP_KEY` 와 섞이지 않게
+   `KIS_LIVE_APP_KEY` / `KIS_LIVE_APP_SECRET` / `KIS_LIVE_ACCOUNT_NO` 를 쓴다.
+3. **실전 TR_ID 를 공식 예제와 대조한다.** 이 프로그램의 실전 TR_ID 는 공식 문서로 확인하지 못했다(모의 값에서 "V→T" 규칙으로 유도).
+   `autotrader/kis.py` 의 `TR_IDS` 표를 KIS 공식 저장소(`koreainvestment/open-trading-api`, `examples_user/`)와 맞춰 보고,
+   해외 매도의 `SLL_TYPE` 필드도 확인한다. 맞으면 설정의 `"live": {"tr_ids_reviewed": true}` 로 표시한다.
+4. 설정 `"mode": "live"` 로 바꾸고 **먼저 `--execute` 없이 dry-run** — 실전 키로 잔고·시세 조회만 확인한다(읽기 전용).
+5. 한도를 **아주 작게** 잡는다(`risk`). 실계좌 `--execute` 는 아래 셋이 **모두** 있어야 열린다:
+   - 설정 `"live": {"enabled": true, "tr_ids_reviewed": true}`
+   - 환경변수 `AUTOTRADER_ALLOW_LIVE=I-ACCEPT-REAL-TRADES` (설정 파일만 고쳐서는 못 켠다 — 서비스 환경에만 둔다)
+   - 실행 인자 `--execute`
+6. 며칠 관찰한 뒤 한도를 올린다. **킬 스위치 사용법을 미리 익혀 둔다.**
+
+하나라도 빠지면 실행이 거부된다(조용히 강등하지 않는다). `python -m autotrader check-config` 가 무엇이 빠졌는지 알려 준다.
+
+## 5. 서버(VM)에서 자동으로 돌리기
+
+`deploy/autotrader.service` / `.timer` 는 **dry-run 으로 배포**된다(`--execute` 없음). 설치와 주문 켜기는 사용자가 한다:
+
+```bash
+sudo cp deploy/autotrader.service deploy/autotrader.timer /etc/systemd/system/ && sudo systemctl daemon-reload
+sudo systemctl enable --now autotrader.timer                 # 먼저 dry-run 으로 로그 확인
+sudo systemctl edit autotrader.service                       # 주문을 켜려면 ExecStart 에 --execute 추가,
+                                                             # 실전이면 Environment=AUTOTRADER_ALLOW_LIVE=... 도 여기에만
+```
+
+타이머 시각은 전략에 맞게 고친다(국내 장은 09:00~15:30 KST, 해외는 개장 전). VM 에는 GitHub 자격증명을 두지 않는다(프로젝트 규칙) —
+`autotrader/state/` 는 VM 로컬이고 커밋되지 않는다.
+
+## 6. 한계 (정직하게)
+
+- 실전 TR_ID·해외 매도 `SLL_TYPE`·시세 TR 은 공식 문서 대조가 안 됐다(§4-3). 조회 TR 이 틀리면 조회가 실패할 뿐이지만 **주문 TR 이 틀리면 거절되거나 다른 동작일 수 있다.**
+- 해외는 나스닥(NASD)만. 국내 주문 취소는 지원하지 않는다(KRX 당일물 — 장 마감에 소멸, 남은 미체결이 있으면 그 종목은 그날 건너뜀).
+- 잔고 기준 정합(브로커가 정본)이지만 부분체결·정정·호가단위·거래정지 종목 등은 전략이 다룬다.
+- 선물·옵션·크립토는 이 프로그램 범위가 아니다(기존 RV20 선물 자동화는 별도 경로로 돈다).
+- 예제 전략 `target_weights` 는 구조를 보여주는 예시다 — 수익성을 검증한 전략이 아니다.
