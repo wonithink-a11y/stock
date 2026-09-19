@@ -22,7 +22,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+import time
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -34,7 +36,9 @@ import infinite_buying_engine as E  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
 DATA = _HERE / "data" / "leveraged-etf"
-STATE_DIR = DATA / "state"
+# VM 은 git pull 을 하므로 저장소 안의 추적 파일(state/*.json)을 거기서 고치면 다음
+# pull 이 막힌다. VM 은 이 환경변수로 상태를 저장소 밖에 둔다.
+STATE_DIR = Path(os.environ.get("INFBUY_STATE_DIR") or DATA / "state")
 DEFAULT_RULES = DATA / "_rules.local.json"
 SLEEVES = ("TQQQ", "SOXL")
 
@@ -150,6 +154,51 @@ def run_paper(ticker: str, rules_path: Path, seed: float, splits: int,
             "date": meta["lastDate"], "state": s}
 
 
+def cancel_open_orders(c, ticker: str, execute: bool, verbose: bool = True,
+                       sleep=time.sleep, tries: int = 3) -> dict:
+    """이 종목의 잔존 미체결을 취소하고, 0 이 될 때까지 확인한다.
+
+    ★ 새 주문은 이 함수가 `blocked=False` 를 돌려줬을 때만 낸다. 취소가 실패했거나
+    미체결이 남았는데 재접수하면 같은 주문이 쌓인다(중복 매수). 하루 건너뛰는 게 낫다.
+    부분체결은 계좌 보유로 이미 반영되므로(run_vts 가 브로커를 읽는다) 여기서는
+    **취소 후 계좌를 다시 읽는 순서**만 지키면 된다 - 호출부가 그 순서를 지킨다.
+    dry-run 이면 조회만 하고 취소하지 않는다(`blocked` 도 False - 아무것도 안 냈다).
+    """
+    def mine():
+        return [o for o in c.open_orders() if o["symbol"] == ticker]
+
+    found = mine()
+    out = {"found": len(found), "cancelled": 0, "remaining": len(found), "blocked": False}
+    if not found:
+        return out
+    if verbose:
+        print(f"  잔존 미체결 {len(found)}건: "
+              + ", ".join(f"{o['side']} {o['qty'] - o['filledQty']}주@{o['price']:.2f}"
+                          for o in found))
+    if not execute:
+        if verbose:
+            print("  DRY  취소하지 않음(--execute 아님)")
+        return out
+    for o in found:
+        left = o["qty"] - o["filledQty"]
+        if left <= 0:
+            continue
+        try:
+            c.cancel(ticker, o["orderNo"], left, dry_run=False)
+            out["cancelled"] += 1
+        except Exception as e:  # noqa: BLE001 - 실패는 아래 재조회가 판정한다
+            print(f"  취소 실패 {o['orderNo']}: {e}", file=sys.stderr)
+    for k in range(tries):
+        rem = mine()
+        if not rem:
+            break
+        if k < tries - 1:
+            sleep(1.0)
+    out["remaining"] = len(rem)
+    out["blocked"] = bool(rem)
+    return out
+
+
 def run_vts(ticker: str, rules_path: Path, seed: float, splits: int,
             execute: bool, verbose: bool) -> dict:
     """모의투자 계좌에 그날 주문을 낸다. **지정가만** - LOC 가 아니다(모듈 docstring)."""
@@ -158,6 +207,16 @@ def run_vts(ticker: str, rules_path: Path, seed: float, splits: int,
     c = KisVtsOverseasClient()
     r = E.Rules.load(rules_path, ticker, splits, seed=seed)
     s, meta = load_state(ticker, "vts", seed, splits)
+
+    # ★ 순서가 계약이다: 잔존 주문 취소 -> (그 뒤에) 계좌 조회 -> 재계획 -> 재접수.
+    # 취소 전에 계좌를 읽으면 그 사이 체결된 분이 T 에 안 잡힌다.
+    co = cancel_open_orders(c, ticker, execute, verbose)
+    if co["blocked"]:
+        print(f"  ★ 미체결 {co['remaining']}건이 안 없어져서 {ticker} 는 오늘 주문을 내지 않는다",
+              file=sys.stderr)
+        return {"ticker": ticker, "mode": "vts", "planned": 0, "placed": 0,
+                "skippedMOC": 0, "executed": execute, "blocked": True,
+                "cancel": co, "state": s}
 
     bars = recent_bars(ticker)
     last = bars[-1]
@@ -210,13 +269,13 @@ def run_vts(ticker: str, rules_path: Path, seed: float, splits: int,
     meta["log"].append({"date": last["date"], "close": last["close"],
                         "planned": len(orders), "placed": len(placed),
                         "skippedMOC": len(skipped), "executed": execute,
-                        "qty": s.qty, "t": round(s.t, 3),
+                        "cancelled": co["cancelled"], "qty": s.qty, "t": round(s.t, 3),
                         "orderableCash": bp["orderableCash"], "fx": bp["fxRate"]})
     meta["lastDate"] = last["date"]
     save_state(ticker, "vts", s, meta)
     return {"ticker": ticker, "mode": "vts", "planned": len(orders),
             "placed": len(placed), "skippedMOC": len(skipped),
-            "executed": execute, "buyingPower": bp, "state": s}
+            "executed": execute, "buyingPower": bp, "cancel": co, "state": s}
 
 
 # ---------------------------------------------------------------- selftest
@@ -310,6 +369,47 @@ def selftest() -> int:
     ck("vts 가 매수에서도 T 를 올린다 (감소분만 반영하면 T 가 영원히 0 이다)",
        "s.t +=" in src_vts and "lastUnit" in src_vts)
     ck("vts 의 T 증가가 엔진과 같은 규칙(체결금액/1회매수금)이다", "/ last_unit" in src_vts)
+    # 취소-후-재접수 계약 - 가짜 브로커로 실제 동작을 본다(문자열 검사가 아니다)
+    class _Fake:
+        def __init__(self, stuck=False, fail=False):
+            self.book = [{"orderNo": "1", "symbol": "TQQQ", "side": "BUY", "qty": 4,
+                          "filledQty": 1, "price": 71.0},
+                         {"orderNo": "2", "symbol": "SOXL", "side": "BUY", "qty": 2,
+                          "filledQty": 0, "price": 120.0}]
+            self.stuck, self.fail, self.calls = stuck, fail, []
+
+        def open_orders(self):
+            return list(self.book)
+
+        def cancel(self, sym, no, qty, dry_run=True):
+            self.calls.append((sym, no, qty, dry_run))
+            if self.fail:
+                raise RuntimeError("거절")
+            if not self.stuck:
+                self.book = [o for o in self.book if o["orderNo"] != no]
+
+    nosleep = lambda _s: None  # noqa: E731
+    f = _Fake()
+    o = cancel_open_orders(f, "TQQQ", True, False, sleep=nosleep)
+    ck("잔량(원수량-체결분)만 취소한다", f.calls == [("TQQQ", "1", 3, False)])
+    ck("다른 종목 주문은 안 건드린다", all(c_[0] == "TQQQ" for c_ in f.calls))
+    ck("취소가 확인되면 blocked 가 아니다", o["cancelled"] == 1 and not o["blocked"])
+    f = _Fake()
+    o = cancel_open_orders(f, "TQQQ", False, False, sleep=nosleep)
+    ck("dry-run 은 취소를 부르지 않는다", f.calls == [] and o["found"] == 1 and not o["blocked"])
+    f = _Fake(stuck=True)
+    o = cancel_open_orders(f, "TQQQ", True, False, sleep=nosleep)
+    ck("취소했는데 남아 있으면 blocked (재접수 금지)", o["blocked"] and o["remaining"] == 1)
+    f = _Fake(fail=True)
+    o = cancel_open_orders(f, "TQQQ", True, False, sleep=nosleep)
+    ck("취소가 실패하면 blocked (재접수 금지)", o["blocked"])
+    f = _Fake()
+    ck("미체결이 없으면 아무것도 안 한다",
+       cancel_open_orders(f, "QQQQ", True, False, sleep=nosleep)["found"] == 0 and f.calls == [])
+    ck("run_vts 가 blocked 면 주문 전에 돌아간다",
+       src_vts.index('co["blocked"]') < src_vts.index("c.place("))
+    ck("run_vts 가 취소를 계좌 조회보다 먼저 한다",
+       src_vts.index("cancel_open_orders(") < src_vts.index("c.holdings()"))
     ck("vts 잔금이 이미 투입한 원가를 뺀 값이다 (배정액 전부로 세지 않는다)",
        _frag("min(seed ", "- s.cost") in src_vts)
 
@@ -322,7 +422,7 @@ def selftest() -> int:
     ck("run_paper 서명에 splits 가 있다", "splits" in _insp.signature(run_paper).parameters)
     ck("run_vts 서명에 splits 가 있다", "splits" in _insp.signature(run_vts).parameters)
 
-    total = 22
+    total = 31
     print(f"\nselftest {total - len(fails)}/{total}" + ("" if not fails else f"  FAILED: {fails}"))
     return 1 if fails else 0
 

@@ -16,6 +16,8 @@ overseas_stock_functions.py, 2026-09-12 확인) 그대로다:
     잔고      GET  /uapi/overseas-stock/v1/trading/inquire-balance      VTTS3012R
     매수가능  GET  /uapi/overseas-stock/v1/trading/inquire-psamount     VTTS3007R
     미체결    GET  /uapi/overseas-stock/v1/trading/inquire-nccs         VTTS3018R
+    정정취소  POST /uapi/overseas-stock/v1/trading/order-rvsecncl       VTTT1004U
+              (취소는 RVSE_CNCL_DVSN_CD=02·단가 "0", 같은 예제 파일에서 2026-09-19 확인)
 
 ★★ 모의투자는 **ORD_DVSN 00(지정가)만** 받는다. 실전(TTTT1002U/TTTT1006U)에만
    34(LOC)·32(LOO)·31(MOO)·33(MOC) 이 있다 - 공식 예제 원문에
@@ -32,12 +34,14 @@ PATH_ORDER = "/uapi/overseas-stock/v1/trading/order"
 PATH_BALANCE = "/uapi/overseas-stock/v1/trading/inquire-balance"
 PATH_PSAMOUNT = "/uapi/overseas-stock/v1/trading/inquire-psamount"
 PATH_NCCS = "/uapi/overseas-stock/v1/trading/inquire-nccs"
+PATH_CANCEL = "/uapi/overseas-stock/v1/trading/order-rvsecncl"
 
 TR_BUY = "VTTT1002U"
 TR_SELL = "VTTT1001U"
 TR_BALANCE = "VTTS3012R"
 TR_PSAMOUNT = "VTTS3007R"
 TR_NCCS = "VTTS3018R"
+TR_CANCEL = "VTTT1004U"
 
 # 모의투자가 받는 유일한 주문구분. 실전의 LOC(34)는 여기 없다 - 위 모듈 docstring 참고.
 ORD_DVSN_LIMIT = "00"
@@ -199,6 +203,42 @@ class KisVtsOverseasClient:
             "orderTime": (out.get("ORD_TMD") or "").strip(),
         }
 
+    def cancel(self, symbol: str, order_no: str, qty: int, dry_run: bool = True) -> dict:
+        """미체결 주문 취소(잔량 전량). **기본이 dry_run 이다.** 재시도하지 않는다.
+
+        `qty` 는 취소할 잔량이다 - 원주문 수량이 아니라 `open_orders()` 의
+        `qty - filledQty`. 정정(01)은 만들지 않는다: 쓸 데가 없다.
+        """
+        if not order_no:
+            raise ValueError("원주문번호가 비었다")
+        if qty <= 0:
+            raise ValueError(f"취소 수량이 0 이하다: {qty}")
+        payload = {
+            **self._acct(),
+            "OVRS_EXCG_CD": EXCHANGE,
+            "PDNO": symbol,
+            "ORGN_ODNO": order_no,
+            "RVSE_CNCL_DVSN_CD": "02",
+            "ORD_QTY": str(int(qty)),
+            "OVRS_ORD_UNPR": "0",
+            "MGCO_APTM_ODNO": "",
+            "ORD_SVR_DVSN_CD": "0",
+        }
+        if dry_run:
+            return {"dryRun": True, "symbol": symbol, "orderNo": order_no,
+                    "qty": int(qty), "payload": payload}
+
+        import json as _json
+
+        r = _request("POST", BASE_URL + PATH_CANCEL, headers=self._headers(TR_CANCEL),
+                     data=_json.dumps(payload), timeout=20)
+        body = r.json()
+        if r.status_code != 200 or body.get("rt_cd") != "0":
+            raise KisVtsError(
+                f"취소 실패({symbol} 원주문 {order_no} {qty}주): "
+                f"{body.get('msg_cd')} {body.get('msg1')}")
+        return {"dryRun": False, "symbol": symbol, "orderNo": order_no, "qty": int(qty)}
+
 
 def selftest() -> int:
     """네트워크 없이 도는 계약 검사. 조용히 틀릴 수 있는 것만 본다."""
@@ -252,10 +292,23 @@ def selftest() -> int:
         except ValueError:
             ck(f"{why} 를 거절한다", True)
 
+    ck("취소 TR_ID 가 모의투자 전용(V 로 시작)", TR_CANCEL.startswith("V"))
+    cd = c.cancel("TQQQ", "0000044470", 3)
+    ck("취소도 기본이 dry_run", cd["dryRun"] is True)
+    ck("취소 페이로드: 구분 02·단가 0·원주문번호",
+       (cd["payload"]["RVSE_CNCL_DVSN_CD"], cd["payload"]["OVRS_ORD_UNPR"],
+        cd["payload"]["ORGN_ODNO"]) == ("02", "0", "0000044470"))
+    for args, why in ((("TQQQ", "", 3), "빈 원주문번호"), (("TQQQ", "1", 0), "취소 수량 0")):
+        try:
+            c.cancel(*args)
+            ck(f"{why} 를 거절한다", False)
+        except ValueError:
+            ck(f"{why} 를 거절한다", True)
+
     ck("빈 문자열 파싱이 0 으로 떨어진다", _f("") == 0.0 and _i("") == 0)
     ck("숫자 문자열 파싱", _f("100000.00") == 100000.0 and _i("1382") == 1382)
 
-    total = 14
+    total = 20
     print(f"\nselftest {total - len(fails)}/{total}" + ("" if not fails else f"  FAILED: {fails}"))
     return 1 if fails else 0
 
