@@ -1,6 +1,12 @@
 [Unit]
 Description=Infinite-buying sleeve paper-account daily timer
 
+# 타이머 자신의 실패도 알린다. 서비스의 OnFailure 로는 안 잡힌다 — 유닛 파일이
+# 깨지면(예: 치환 안 된 @REPO@) 로드가 막혀 **실행 자체가 없고**, 실패하는 것은
+# 타이머 쪽이다(`Failed to queue unit startup job`). 2026-09-20 에 실제로 그렇게
+# 분봉 수집이 조용히 멈췄다. 타이머 OnFailure 가 이 모양에서 발화함은 실측 확인.
+OnFailure=unit-failure-notify@%n.service
+
 [Timer]
 # 21:30 KST(VM 시각대 = KST, 다른 타이머와 동일 전제). 미국 정규장 개장은 서머타임
 # 22:30 / 표준시 23:30 KST — 어느 쪽이든 개장 전이다. 직전 세션 종가는 05:00 KST 에

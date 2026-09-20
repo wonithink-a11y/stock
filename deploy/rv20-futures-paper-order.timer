@@ -1,6 +1,12 @@
 [Unit]
 Description=RV20 futures sizing rule paper order daily timer
 
+# 타이머 자신의 실패도 알린다. 서비스의 OnFailure 로는 안 잡힌다 — 유닛 파일이
+# 깨지면(예: 치환 안 된 @REPO@) 로드가 막혀 **실행 자체가 없고**, 실패하는 것은
+# 타이머 쪽이다(`Failed to queue unit startup job`). 2026-09-20 에 실제로 그렇게
+# 분봉 수집이 조용히 멈췄다. 타이머 OnFailure 가 이 모양에서 발화함은 실측 확인.
+OnFailure=unit-failure-notify@%n.service
+
 [Timer]
 # KOSPI200 선물 주간 정규장 09:00 개장 - 몇 분 뒤(09:05) 한 번만.
 # 이 규칙은 일봉 종가 기준 신호를 다음날 시가부터 적용하는 설계라(동결
