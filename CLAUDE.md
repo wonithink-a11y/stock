@@ -793,7 +793,7 @@ A5가 A1b를 인용하지 않으면 생존편향 상태로 채점되므로, 이 
 조용히 틀린다 — 엉뚱한 기계에 붙으면 오류가 아니라 "파일이 없다"로 나온다.
 
 ```
-ssh stock-new   129.225.145.14   hostname: stock           ← 작업 VM. 전부 여기다
+ssh stock-new   129.225.145.14   hostname: stock           ← 작업 VM(1 OCPU · 10GB). 전부 여기다
                 수집·페이퍼엔진·rv20·autotrader·크립토 슬리브·nginx·~/collector
 ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시 대시보드 하나뿐
                 stock.service(포트 8000, ~/stock/server.py, git 아님) · 프로젝트 타이머 0개
@@ -811,10 +811,15 @@ ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시
 기계로 옮겨갔는데 이 절은 따라오지 않았다 — 5주 넘게 없는 제약을 기술하고 있었다.
 
 ```
-지금 도는 곳   ssh stock-new · 1코어 Neoverse-N1(ARM) · 9.7GB · Ubuntu 24.04 · Python 3.12
-               pyarrow 17.0.0 · pandas 2.3.3 (2026-09-20 실측)
+지금 도는 곳   ssh stock-new · VM.Standard.A1.Flex · 1 OCPU(Neoverse-N1/ARM) · 10GB
+               Ubuntu 24.04 · Python 3.12 · pyarrow 17.0.0 · pandas 2.3.3
+               (OCI 메타데이터 실측 2026-09-20. OS 는 9.7Gi 로 보고 - 펌웨어 예약분)
+               실사용 717MB/9.7Gi · load avg 0.16 - 지금 사양이 이미 과잉이다
 옛 전제        VM.Standard.E2.1.Micro · 1 OCPU · 1GB · Ubuntu 20.04 · Python 3.8
-               = 지금은 폐기 시험 중인 stock-monitor 의 사양이다
+               = 지금은 폐기 시험 중인 stock-monitor(x86) 의 사양이다
+무료 한도      A1.Flex 는 월 1,500 OCPU시간 + 9,000 GB시간 = 상시 구동 기준
+               **2 OCPU · 12GB 가 상한**(MN-1.0 §확인한 한도, docs.oracle.com).
+               널리 인용되는 "4 OCPU/24GB" 는 이 테넌시에 해당하지 않는다.
 ```
 
 **그래서 아래 9개 제약은 "지금의 물리적 한계"가 아니라 "그때 그렇게 만든 이유"다.**

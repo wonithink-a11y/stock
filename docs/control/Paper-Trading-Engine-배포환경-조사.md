@@ -1,5 +1,12 @@
 # Paper Trading Engine — 배포 환경(Oracle VM) 타당성 조사
 
+> ★ **이 문서는 2026-08-21 시점의 이력이다(본문 안 고침).** 여기서 재고 있는
+> "1 OCPU/1GB"는 그때의 유일한 운영 박스(`stock-Monitor`, x86)였다. 그 뒤
+> 2026-08-23 이전으로 수집·페이퍼엔진이 `Stock`(`VM.Standard.A1.Flex` · 1 OCPU ·
+> **10GB** · ARM · Python 3.12)으로 옮겨갔다 — `VM-이전계획-2026-08-23.md` 참고.
+> **여기 수치를 현재 환경으로 읽지 않는다.** 현재 사양은 CLAUDE.md "수집 VM
+> 운영 기준" 맨 앞이 정본이다.
+
 ```
 발행   2026-08-21 · Claude
 배경   Paper Trading Engine 1~2단계(engine/live/*, 커밋 b23de4d) 완료 후
