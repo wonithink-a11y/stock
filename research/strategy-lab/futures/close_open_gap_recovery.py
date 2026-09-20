@@ -126,9 +126,9 @@ def main():
              "R2": O5[0](u) & (u.prev_ret < 0)}
     for cid, cond in rules.items():
         d, n = daily(u, cond, "on")
-        rec[cid] = {"events": int(n), "report": cell_report(d, None, rng)}
+        rec[cid] = {"events": int(n), "report": cell_report(d, 1, rng)}
     d3, n3 = daily(u, O5[0](u), "ocn")
-    rec["R3_ocn"] = {"events": int(n3), "report": cell_report(d3, None, rng)}
+    rec["R3_ocn"] = {"events": int(n3), "report": cell_report(d3, 1, rng)}
     # 겹침, 연도별 net
     o5_mask, r1_mask = O5[0](u), rules["R1"]
     both = int((o5_mask & r1_mask & (u.ret < p5.LIMIT_UP)).sum())
@@ -183,7 +183,7 @@ def render(o):
          f"| VALID+TEST t(방향 gross) | {f(b['report']['VT']['t_gross'], 2)} |",
          f"| 판정불가 구간(사건일<30) | {b['thin_windows'] or '없음'} |\n",
          "## 2. gross · 손익분기 · net (표준 열, bp)\n",
-         "gross 는 TRAIN 부호를 곱한 방향 수익, 괄호는 일자 단위 부트스트랩 95% 신뢰구간.\n",
+         "gross 는 **롱(매수) 방향 수익**(사전등록: 전 셀 롱), 괄호는 일자 단위 부트스트랩 95% 신뢰구간. 음수 = 롱이 손실.\n",
          "| 셀 | TRAIN gross | VALID gross | TEST gross | VALID+TEST gross | **손익분기 비용** | net 23.54 / 스트레스 / 이벤트20 |",
          "|---|---|---|---|---|---|---|",
          row("**O5 (판정)**", b)]
@@ -209,6 +209,7 @@ def render(o):
     L.append("- 데이터는 사전등록대로 `.cache/a2a_parquet`(2016~2026-08-03). 커밋된 a2a jsonl.gz(~09-16)와 끝이 다르다.")
     L.append(f"- 가족 바닥선은 사전등록대로 부호 반전 1,000회로 다시 계산했다(기존 14셀 보고값 2.98 은 500회).")
     L.append("- 정보 t·INFORMATION 판정은 기존 `family()`/`judge()` 를 그대로 썼다. 새로 더한 것: 일자 부트스트랩 신뢰구간, 가족 백분위, 사건일<30 판정불가 규칙, 손익분기(= 방향 gross).")
+    L.append("- **정정(초판 오류)**: 초판은 기록 전용 R1~R3 의 gross 에 TRAIN 정보 부호를 곱했다. R3 의 TRAIN 부호가 음이라 롱 −57bp 가 **숏 +57bp 로 뒤집혀** 표시됐다(R1·R2 도 같은 이유로 뒤집힘). 사전등록은 전 셀 롱이므로 롱 gross 로 고쳐 다시 산출했다. 판정 셀 O5 는 TRAIN 부호가 +라 영향이 없다.")
     L.append("- 종가 동시 체결형(신호 = 최종 종가·최종 CLV)이라 경제성 통과는 낙관이다 — 15:20 재검증 전 채택 후보 아님.")
     return "\n".join(L) + "\n"
 
