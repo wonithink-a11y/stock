@@ -115,8 +115,28 @@ def run(broker, bars_by_market, now_utc, execute, log=print):
 
 
 def _selftest():
-    """네트워크 없이 규칙과 배관을 확인한다."""
+    """네트워크 없이 규칙과 배관을 확인한다.
+
+    ★ 실전 strategyId 를 쓰면 안 된다 - poll_once 가 record_order() 로 주문
+    원장에 쓰기 때문에 합성 주문이 진짜 관측 원장에 섞인다(2026-09-20 실제로
+    한 번 오염시킨 뒤 격리했다). positions 만 비우는 것으로는 안 지워진다.
+    """
+    import copy
+
     import numpy as np
+
+    global PARAMS, STRATEGY_ID
+    _orig_params, _orig_id = rule.PARAMS, STRATEGY_ID
+    rule.PARAMS = copy.deepcopy(_orig_params)
+    rule.PARAMS["strategyId"] = _orig_id + "_selftest"
+    PARAMS, STRATEGY_ID = rule.PARAMS, rule.PARAMS["strategyId"]
+    try:
+        return _selftest_body(np)
+    finally:
+        rule.PARAMS, PARAMS, STRATEGY_ID = _orig_params, _orig_params, _orig_id
+
+
+def _selftest_body(np):
 
     class FakeBroker:
         def __init__(self):
