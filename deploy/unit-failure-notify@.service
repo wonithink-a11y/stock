@@ -1,0 +1,29 @@
+[Unit]
+# VM systemd 유닛이 실패했을 때 텔레그램 '장애 전용' 방으로 알린다.
+# 감시 대상 유닛이 `OnFailure=unit-failure-notify@%n.service` 로 이걸 부른다 —
+# %n 이 실패한 유닛의 전체 이름이라 인스턴스 이름(%i)으로 그대로 들어온다.
+#
+# 왜 필요한가(2026-09-20 실측): VM 타이머 실패는 아무 데도 안 뜬다.
+# GitHub Actions 의 notify-failure.yml 은 Actions 만 본다 — rv20 선물이
+# 2026-09-18 09:36 에 KIS 잔고조회 타임아웃으로 죽었는데(ExecMainStatus=1)
+# 주말 내내 아무도 몰랐다. CLAUDE.md 의 "VM 실패는 Actions 에 안 나타난다" 그대로다.
+#
+# ★ 이 유닛에는 OnFailure 를 걸지 않는다 — 알림이 실패했다고 다시 알림을 부르면
+#   서로를 무한히 부른다. 이게 실패하면 저널에만 남는다(journalctl -u this).
+#
+# 시크릿을 이 파일에 쓰지 않는다. ~/collector-venv/.env 에
+# TELEGRAM_BOT_TOKEN 과 TELEGRAM_ALERT_CHAT_ID 두 줄이 필요하다.
+# ALERT 쪽이 없으면 스크립트가 **콘텐츠 방으로 흘려보내지 않고 실패한다**(의도된 동작).
+Description=Telegram alert for failed unit %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/notify-unit-failure.py %i
+
+NoNewPrivileges=yes
+PrivateTmp=yes

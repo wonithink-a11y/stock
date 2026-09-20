@@ -12,6 +12,9 @@
 Description=Pull collector repo (read-only, fast-forward only)
 After=network-online.target
 Wants=network-online.target
+# 실패하면 텔레그램 '장애 전용' 방으로 알린다(unit-failure-notify@.service).
+# 없으면 조용히 실패한다 - VM 실패는 GitHub Actions 에 안 나타난다(2026-09-20 rv20 실측).
+OnFailure=unit-failure-notify@%n.service
 
 [Service]
 Type=oneshot
