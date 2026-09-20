@@ -1,5 +1,5 @@
 {
-  "count": 342,
+  "count": 343,
   "findings": [
     {
       "file": "research/strategy-lab/findings/crypto-short-horizon-preregistration-2026-09.md",
@@ -42,6 +42,25 @@
         "상승충격 지속: 2015~2019 yfinance 15종 일봉 → 규칙 동결 → 2020~2026 바이낸스 일봉"
       ],
       "reason": "ChatGPT 제안 계열 10셀 전부 REJECT(무료 수수료 3bp 기준으로도 0개), 시각 효과 NO SIGNAL. 반전 가설(급등+펀딩/프리미엄 과열 → 되돌림)은 오히려 **지속**으로 나왔고(C2·C4, 바닥선 미달), 이를 '일간 r>2σ → 다음날 롱' 규칙으로 고정해 안 본 2015~2019 에서 REPLICATED(+144bp, t 2.58, 5년 전부 양), 최근 2020~2026 에서 CONFIRMED(+81bp, net10 t 2.44, 2023~ +61bp). 단 롱 전용 전액 배분 포트폴리오는 CAGR 65%·MDD −87%·Sharpe 0.94 로 28종 균등보유(0.95)와 같다 — 신호는 실재, 이 형태로는 위험 대비 이득 없음. 크기 설계 후 모의 관측 후보 — HOLD.",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md",
+      "title": "크립토 상승충격 지속 — 모의 슬리브 사전등록 (2026-09-20)",
+      "date": "2026-09-20",
+      "bodyMarkdown": "---\ntrack: crypto\nfactor: crypto-upshock-paper-sleeve\ndate: 2026-09-20\nverdict: PREREGISTERED\ncriteria_version: research-only (결과 전 등록)\ndepends_on: findings/crypto-short-horizon-results-2026-09.md\n---\n\n# 크립토 상승충격 지속 — 모의 슬리브 사전등록 (2026-09-20)\n\n**이 문서는 결과가 나오기 전에 커밋된다.** 사용자 GO(2026-09-20)로 착수.\n근거는 `crypto-short-horizon-results-2026-09.md` — 규칙 자체는 이미 두 독립 표본에서 확인됐고\n(2015~19 REPLICATED +144bp · 2020~26 CONFIRMED +81bp), **남은 미지수는 크기 설계 하나**다.\n과거 표본은 이미 전부 봤으므로 크기는 forward 관측으로만 판정할 수 있다.\n\n## 1. 동결하는 규칙 (탐색 없음)\n\n신호는 `futures/crypto_upshock_recent.py` 의 것을 **한 글자도 안 바꾸고** 옮긴다.\n\n```\n일 경계     UTC 00:00 (= KST 09:00). 업비트 일봉이 이미 UTC 경계다(실측: candle_date_time_utc = T00:00:00)\nr[d]        close[d-1] / close[d-2] - 1      (경계 시점에 이미 확정된 값)\nsd[d]       r 의 30일 rolling std, shift(1), min_periods=20\n신호        r[d] > 2 * sd[d]\n진입        신호 확인 즉시 시장가 매수 (UTC 일 시가 ≈ KST 09:05)\n청산        정확히 24시간 뒤 (다음 UTC 일 경계)\n손절·익절   없음 (순수 시간청산 — 연구 규칙에 가격 기반 청산이 없다)\n```\n\n파라미터(2σ · 30일 · 24시간 보유)는 **연구에서 동결된 값 그대로**다. 여기서 다시 고르지 않는다.\n\n## 2. 유니버스 — 교집합으로 정한다 (24개)\n\n연구 28개(바이낸스 무기한) ∩ 업비트 KRW 상장 = **24개**. 고르는 행위 자체를 없애기 위해 교집합을 쓴다.\n\n```\nKRW-AAVE KRW-ADA  KRW-APT  KRW-ARB  KRW-ATOM KRW-AVAX KRW-BCH  KRW-BTC\nKRW-DOGE KRW-DOT  KRW-ETH  KRW-FIL  KRW-INJ  KRW-LINK KRW-NEAR KRW-OP\nKRW-PEPE KRW-SHIB KRW-SOL  KRW-SUI  KRW-TRX  KRW-UNI  KRW-WLD  KRW-XRP\n```\n\n제외 4개는 업비트 KRW 미상장이라 빠진 것이다 — 성과를 보고 뺀 게 아니다: `BNB` · `LTC` · `XMR` · `ZEC`.\n\n## 3. 크기 설계 — 이번에 새로 정하는 유일한 것\n\n연구의 포트폴리오는 신호가 난 코인에 **전액**을 실었다. 그래서 Sharpe 0.94 가 28종 균등보유\n0.95 와 같았고 MDD 가 −87% 였다. 즉 신호는 실재하는데 그 크기 설계로는 이득이 없었다.\n\n여기서 바꾸는 것은 크기 **하나**다. 고정 명목금액으로 간다 — 집중도를 구성상 못 올리게 막는다.\n\n```\n슬리브 자본        1,000,000 KRW (모의 장부상 명목)\n포지션당 명목       100,000 KRW  (= 자본의 10%, 고정. 신호 강도에 비례시키지 않는다)\n최대 동시 포지션    5            (= 최대 투입 50%. 나머지는 항상 현금)\n```\n\n**왜 고정비율인가(사후 근거가 아니라 사전 근거)**: −87% MDD 의 원인은 신호의 질이 아니라\n\"그날 급등한 1~2 종목에 전액\"이라는 구조다. 포지션당 명목을 상수로 고정하면 단일 종목 노출이\n정의상 10% 를 못 넘는다. 변동성 역가중 같은 대안도 있으나 **추정 파라미터가 하나 늘어난다** —\n지금은 크기 설계가 미검증이라 파라미터가 가장 적은 안부터 잰다. 역가중은 이 안의 결과가\n나온 뒤에야 후보가 된다(지금 같이 돌리면 둘 중 좋은 쪽을 고르게 되고, 그게 곧 과최적화다).\n\n## 4. 비용\n\n업비트 KRW 현물 수수료 0.05%/편도 = **왕복 10bp**. 연구의 `cost10` 과 같은 자릿수라\n판정 기준을 그대로 쓸 수 있다. 무료 수수료 이벤트는 쓰지 않는다(연구 결론: 판정을 안 바꾼다).\n\n## 5. 알려진 이탈 — 이것도 관측 대상이다\n\n연구와 다른 점을 숨기지 않고 적는다. **셋 다 \"실제로 거래할 수단\"으로 옮기면서 생기는 차이**이고,\n이 슬리브의 목적 자체가 그 수단에서 신호가 살아남는지 보는 것이다.\n\n1. **무기한 선물(USDT) → 현물(KRW)**. 일간 수익률에 원/달러 변동과 김치프리미엄 변화가 섞인다.\n   2σ 충격 대비로는 작지만 0 은 아니다.\n2. **펀딩비 없음**. 현물이라 펀딩 수취·지급이 사라진다 — 연구의 순익에 펀딩은 안 들어가 있었으므로\n   방향성 있는 왜곡은 아니다.\n3. **24종 ≠ 28종**. 위 4개 미상장분이 빠진다.\n\n## 6. 판정 기준 — 지금 정한다\n\n**최소 표본: 신호일 60일** (연구의 재개 조건 그대로). 그 전에는 어떤 판정도 하지 않는다.\n중간에 숫자가 좋아 보인다는 이유로 조기 판정하지 않는다.\n\n```\nKEEP          거래당 순수익(비용 10bp 차감) > 0 이고 t >= 2.0 이고\n              같은 기간 24종 균등보유 대비 Sharpe 가 높다\nHOLD          부호는 양이나 t < 2.0  → 표본을 더 쌓는다\nREJECT        순수익 <= 0 이거나, 균등보유 대비 Sharpe 가 낮다\n```\n\n★ **세 번째 조건(균등보유 대비)이 핵심이다.** 연구에서 이 규칙이 죽은 자리가 정확히 거기였다\n— 수익은 났지만 그냥 다 들고 있는 것과 같았다. 크기 설계를 바꾼 이유가 그것이므로,\n\"수익이 났다\"만으로 KEEP 하지 않는다.\n\n## 7. 범위\n\n- **모의 전용.** `UpbitPaperBroker`(로컬 시뮬레이션, 인증 메서드를 아예 안 부른다)만 쓴다.\n- 실계좌 주문은 이 슬리브의 범위 밖이다. 금융거래 실행은 사용자 본인이 한다는 원칙 그대로.\n- 빗썸은 쓰지 않는다 — `bithumbClient` 에 캔들 엔드포인트가 없어 신호를 계산할 수단이 없다.\n\n## 8. 재개·종료 조건\n\n- 60 신호일 도달 → 위 기준으로 1회 판정. 그 판정으로 이 사전등록은 닫힌다.\n- REJECT 면 크기 설계 라인 전체를 닫는다(역가중 대안도 재론 안 함) — 연구가 이미\n  \"신호는 실재하나 이득 없음\"을 보였고, 고정비율이 그중 가장 단순한 반례 시도였기 때문이다.\n- 규칙(2σ·30일·24시간)을 도중에 바꾸면 표본은 0 에서 다시 시작한다.\n",
+      "category": "performance",
+      "track": "crypto",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only (결과 전 등록)",
+      "conditions": null,
+      "reason": null,
       "cagr": null,
       "sharpe": null,
       "mdd": null,
