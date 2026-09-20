@@ -212,6 +212,27 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            ★★ 2026-09-20 **VM 유닛 실패 알림 신설** — 무음 실패를 닫았다.
+            VM systemd 타이머는 실패해도 아무 데도 안 떴다(notify-failure.yml 은
+            Actions 만 본다). 실제로 **rv20 선물이 09-18 09:36 에 KIS 잔고조회
+            타임아웃으로 죽었는데 주말 내내 아무도 몰랐다** — 실패 지점이 주문
+            직전이라 주문은 안 나갔다. `deploy/unit-failure-notify@.service` +
+            감시 6개에 `OnFailure=` (rv20 · 크립토슬리브 · paper-trading-poll ·
+            minute-collect · minute-oci-upload · collector-pull). 알림 유닛
+            자신에겐 안 건다(무한루프).
+            ★ **방을 분리했다** — 뉴스·공시·장중급등락·로그인이 같은 대화로 와서
+            장애가 묻힌다. 새 그룹 `주식 알림`(chat_id 음수)을 쓰고 env 는
+            `TELEGRAM_ALERT_CHAT_ID`. **없으면 콘텐츠 방으로 안 보내고 실패한다** —
+            조용히 새는 것이 분리 실패의 가장 흔한 모양이다.
+            ★ 메시지는 **3줄**이다(사용자 지시). 폰에서 읽히는 게 목적이고 자세한
+            건 VM 에 있다. 저널 15줄을 싣던 것을 원인 한 줄로 줄였다.
+            ★★ 함정 둘을 실측으로 닫았다 — (1) **저널만 보면 원인이 없다**:
+            이 저장소 유닛 14개가 전부 `StandardOutput=append:<파일>` 이라
+            트레이스백이 파일에 있고 저널엔 systemd 잡음만 있다 (2) **경로는
+            `systemctl show -p StandardOutput` 이 안 준다**(값이 그냥 "append") —
+            `systemctl cat` 의 유닛 본문에서 읽어야 한다. 셀프테스트가 show 와 cat 을
+            구분 안 해 **구성상 통과**하던 것도 같이 고쳤다(교훈72).
+            회귀 15건(네트워크 없음). 커밋 ef3c7be~.
             ★★ 2026-09-20 **페이퍼 엔진 소수 수량 버그**(14b53ec) — poll_once 의
             `remaining < 1` 이 0.0001 BTC 를 "이미 다 샀다"로 읽어 **매수를 한 번도
             안 내고** OPEN 이 됐다. 그러면 entry_price 가 0 이라 target_price 도 0 이고,
