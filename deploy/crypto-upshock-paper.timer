@@ -1,0 +1,18 @@
+[Unit]
+Description=Crypto upshock persistence paper sleeve daily timer
+
+[Timer]
+# KST 09:05 = UTC 00:05 - 업비트 일봉 경계(UTC 00:00) 직후.
+# **주 7일이다.** 크립토는 휴장이 없어 RV20 선물(Mon..Fri)과 다르다 -
+# 여기에 Mon..Fri 를 쓰면 주말 신호가 통째로 사라지고 금요일 포지션이
+# 월요일까지 3일 묶인다(규칙은 24시간 보유다).
+#
+# 늦게 떠도 규칙이 조용히 바뀌지는 않는다 - run_crypto_upshock_paper.py 가
+# policy.json 의 maxEntryDelayMinutes(120) 를 넘기면 진입을 건너뛰고 청산만
+# 처리한다. 그래서 RandomizedDelaySec 은 작게 둔다.
+OnCalendar=*-*-* 09:05:00
+Persistent=true
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

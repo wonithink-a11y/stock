@@ -8,6 +8,23 @@ Validated against
   정책      UN-1.2 · PR-1.6 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1
             PF-1.2는 registry 미등록 = 미발효(자리가 없다 — 아래 완료 참고)
             criteria  KR-2.4(2026-09-04 승격) · US-2.2
+  다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
+            관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
+            사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
+            규칙 `strategies/crypto_upshock_v1/`, 실행 `run_crypto_upshock_paper.py`.
+            동결: 2σ · 30일 rolling std(shift 1) · 24시간 보유 · 업비트 KRW 24종
+            (연구 28종과의 교집합). **새로 정한 건 크기뿐** — 포지션당 10만원 고정,
+            최대 5종. 연구의 MDD −87%는 '그날 급등 1~2종에 전액' 구조에서 나왔다.
+            **판정은 신호일 60일 도달 후 1회**, KEEP 조건에 '24종 균등보유 대비
+            Sharpe 우위'가 들어간다(연구가 죽은 자리가 정확히 거기다 — 수익은
+            났으나 그냥 들고 있는 것과 같았다). 그 전엔 중간 숫자로 판정 안 함.
+            ★ **남은 건 사용자의 타이머 설치뿐** — `deploy/crypto-upshock-paper.
+            {service,timer}` (주 7일 09:05 KST, 크립토는 휴장이 없어 RV20의
+            Mon..Fri와 다르다). 안 걸면 오늘 산 2종이 청산되지 않고 관측도
+            안 쌓인다. 상태는 `data/paper/`(gitignore)라 **도는 기계에만** 남는다.
+            ★ 모의 전용 — UpbitPaperBroker(로컬 시뮬레이션, 인증 메서드 미호출),
+            실주문 경로가 코드에 없다. 빗썸은 캔들 엔드포인트가 없어 제외.
+            ★ 선결로 **페이퍼 엔진의 소수 수량 버그**를 고쳤다(아래 완료 참고).
   다음      ★★ RV20 선물 sizing 규칙 모의투자 자동화 — **2026-09-14 09:05 KST
             첫 실주문 성공**(사용자가 VM 로그 직접 확인: 신호일 09-11·
             percentile 0.492→1.0x·F 202612 BUY 1계약·주문번호 0000001627,
@@ -195,11 +212,23 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            ★★ 2026-09-20 **페이퍼 엔진 소수 수량 버그**(14b53ec) — poll_once 의
+            `remaining < 1` 이 0.0001 BTC 를 "이미 다 샀다"로 읽어 **매수를 한 번도
+            안 내고** OPEN 이 됐다. 그러면 entry_price 가 0 이라 target_price 도 0 이고,
+            다음 poll 이 즉시 TARGET 청산하며 **체결가 전액을 이익으로 기록**한다 —
+            장부가 통째로 거짓이 되는 조용한 실패다. 의도가 '남은 게 없다'이므로
+            `<= 0` 이 맞고 정수 수량에선 두 식이 항상 같아 **기존 전략(KIS 실주문
+            경로 포함)은 안 바뀐다**. `int(notional // price)` 도 `_entry_quantity()`
+            로 묶고 `position.fractionalQuantity` 옵트인을 붙였다. 회귀 5건 신설
+            (test_paper_engine_fractional.py) — 되돌리면 3건이 붉어진다(실측).
+            전체 301건 통과. **되돌리려면 그 커밋 revert.**
+            ★ 같은 날 selftest 가 실전 주문 원장을 오염시키던 것도 격리(e90c23c) —
+            실전 strategyId 를 써서 합성 주문이 진짜 원장에 남았다(1건 제거).
             ★ 2026-09-20 **밤샘 단기·초단기·크립토 실험**(사전등록 9건, 셀 60+개, 세션인수인계-2026-09-20-b.md) — **KEEP 0**.
             지수 일봉 16년·주식 5분(Failed ORB·압축·소진)·미국/해외 ETF·크립토 10셀(ChatGPT 제안) 전부 REJECT. 남은 것 둘:
             (1) **KR 장중 음·밤사이 양**(유동 종목 11/11년, ≥200억 −24bp/일, 고변동·급등에 집중) — 사실 SUPPORTED, PBR 체결
             적용·밤사이 보유는 둘 다 막힘(HOLD, findings/kr-intraday-overnight-asymmetry) (2) **크립토 상승충격 → 다음날 지속**
-            (2015~19 +144bp REPLICATED · 2020~26 +81bp CONFIRMED, 전액 포트폴리오 MDD −87% — 크기 설계 후 모의 관측 후보, 사용자 GO 대기).
+            (2015~19 +144bp REPLICATED · 2020~26 +81bp CONFIRMED, 전액 포트폴리오 MDD −87% — **2026-09-20 사용자 GO, 모의 슬리브 가동**, 아래 "다음" 참고).
             ChatGPT 크립토 가설 방향(과열→반전)은 실측과 반대(지속)였다.
             ★ 2026-09-19 **autotrader 신설**(사용자 요청: 자기 키로 돌리는 전략 교체형 자동매매, 한국투자증권) —
             `autotrader/`(README 참고) · 설계 docs/control/autotrader-설계-2026-09-19.md. 기본 dry-run, 실계좌는

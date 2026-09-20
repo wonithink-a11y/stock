@@ -1,0 +1,27 @@
+[Unit]
+# 크립토 상승충격 지속 규칙 - 업비트 모의 슬리브 일일 실행.
+# 사전등록: research/strategy-lab/findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md
+#
+# 자격증명이 필요 없다 - UpbitPaperBroker 는 로컬 시뮬레이션이고 시세·일봉은
+# 업비트 공개 엔드포인트다(인증 메서드를 아예 안 부른다). 그래서
+# EnvironmentFile 이 없다. 실주문 경로가 코드에 없으므로 kill switch 도 없다 -
+# 끄려면 타이머를 멈춘다(systemctl disable --now crypto-upshock-paper.timer).
+#
+# --execute 가 하는 일은 "상태 파일에 기록"뿐이다. 이걸 빼면 dry-run 으로
+# 신호만 출력하고 관측이 쌓이지 않는다.
+Description=Crypto upshock persistence paper sleeve (daily, paper only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_crypto_upshock_paper.py --execute
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/crypto-upshock-paper.log
+StandardError=append:/home/ubuntu/collector-venv/logs/crypto-upshock-paper.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
