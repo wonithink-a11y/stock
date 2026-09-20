@@ -106,7 +106,8 @@ def d_mss_fvg(A, p, j0, j1, side):
         fv[mq] = gapok[mq]
         gap[mq] = (h[:, j - 2] if side > 0 else l[:, j - 2])[mq]
         s[(s >= 0) & (q < 0) & (j > s + p["mss"])] = -1
-        touch = ((l[:, j] <= gap) if side > 0 else (h[:, j] >= gap))
+        thru = p.get("thru", 0.0)                                      # 진단용(기본 0 = 접촉이면 체결). >0 이면 관통해야 체결
+        touch = ((l[:, j] <= gap * (1 - thru)) if side > 0 else (h[:, j] >= gap * (1 + thru)))
         m = (q >= 0) & fv & (t < 0) & (j > q) & (j <= q + p["retr"]) & touch
         t[m] = j
     return q, t, gap
