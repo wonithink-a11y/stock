@@ -60,12 +60,29 @@ def _run(cmd):
 
 
 def collect(unit, run=_run):
-    """유닛의 실패 사실과 마지막 로그를 모은다. 파생값을 저장하지 않고 그때그때 읽는다(교훈75)."""
+    """유닛의 실패 사실과 마지막 로그를 모은다. 파생값을 저장하지 않고 그때그때 읽는다(교훈75).
+
+    ★ 저널만 보면 안 된다(2026-09-20 실측). 이 저장소의 유닛 14개가 전부
+    `StandardOutput=append:<파일>` 로 stdout 을 파일에 보내므로, 저널에는 systemd
+    자체 줄만 남고 **진짜 트레이스백은 그 파일에 있다**. rv20 로 시험했을 때 알림이
+    "(로그 없음)" 으로 나온 것이 이 때문이었다. 그래서 StandardOutput 을 읽어
+    파일이면 그쪽을 먼저 본다 - 유닛 이름을 하드코딩하지 않고 systemd 가 말해주는
+    경로를 쓴다(규칙: 경로를 하드코딩하지 않는다).
+    """
     show = run(["systemctl", "show", unit, "--no-pager",
                 "-p", "Result", "-p", "ExecMainStatus", "-p", "ExecMainExitTimestamp",
-                "-p", "Description"])
+                "-p", "Description", "-p", "StandardOutput"])
     fields = dict(line.split("=", 1) for line in show.splitlines() if "=" in line)
-    log = run(["journalctl", "-u", unit, "-n", str(JOURNAL_LINES), "--no-pager", "-o", "cat"])
+
+    path = ""
+    std = fields.get("StandardOutput", "")
+    for prefix in ("append:", "file:", "truncate:"):
+        if std.startswith(prefix):
+            path = std[len(prefix):]
+            break
+    log = run(["tail", "-n", str(JOURNAL_LINES), path]) if path else ""
+    if not log.strip():          # 파일이 없거나 비었으면 저널로 물러선다
+        log = run(["journalctl", "-u", unit, "-n", str(JOURNAL_LINES), "--no-pager", "-o", "cat"])
     return fields, log
 
 
@@ -149,6 +166,7 @@ def _selftest():
             print(f"  FAIL {label}")
 
     fake_show = ("Description=RV20 futures paper order\nResult=exit-code\n"
+                 "StandardOutput=append:/home/ubuntu/logs/rv20.log\n"
                  "ExecMainStatus=1\nExecMainExitTimestamp=Fri 2026-09-18 09:36:15 KST")
     real_log = (
         "Starting rv20-futures-paper-order.service - RV20 futures...\n"
@@ -162,10 +180,24 @@ def _selftest():
         "rv20-futures-paper-order.service: Consumed 4.655s CPU time.\n")
 
     def fake_run(cmd):
-        return fake_show if cmd[0] == "systemctl" else real_log
+        if cmd[0] == "systemctl":
+            return fake_show
+        if cmd[0] == "tail":
+            return real_log if cmd[-1] == "/home/ubuntu/logs/rv20.log" else ""
+        return "Starting x\nFinished x"          # 저널에는 systemd 잡음만 있다
 
     fields, log = collect("rv20-futures-paper-order.service", run=fake_run)
     ok(fields["ExecMainStatus"] == "1", "systemctl show 파싱")
+    # ★ 유닛이 stdout 을 파일로 보내면 저널이 아니라 그 파일을 읽어야 한다
+    ok("ReadTimeout" in log, "StandardOutput=append: 의 로그 파일을 읽는다")
+
+    def journal_only(cmd):
+        if cmd[0] == "systemctl":
+            return "Result=exit-code\nExecMainStatus=1"      # StandardOutput 없음
+        return real_log if cmd[0] == "journalctl" else ""
+
+    _f2, l2 = collect("x.service", run=journal_only)
+    ok("ReadTimeout" in l2, "파일 경로가 없으면 저널로 물러선다")
 
     msg = build_message("rv20-futures-paper-order.service", fields, log)
     lines = msg.splitlines()
