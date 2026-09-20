@@ -764,7 +764,16 @@ ssh stock-new   129.225.145.14   hostname: stock           ← 작업 VM. 전부
                 수집·페이퍼엔진·rv20·autotrader·크립토 슬리브·nginx·~/collector
 ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시 대시보드 하나뿐
                 stock.service(포트 8000, ~/stock/server.py, git 아님) · 프로젝트 타이머 0개
+                ★ 2026-09-20 stock.service disable --now 로 **정지**(폐기 시험 중).
+                  ~/stock 앱은 git 에 없어 PC 로 백업해 뒀다(저장소 밖, KIS 키 포함).
+                  ~/minute-raw 257일은 전수 대조 결과 저장소에 **전부 승격**돼 있다.
+                  2주쯤 아쉬운 게 없으면 VM 삭제. 되살리려면 enable --now.
 ```
+
+사양(2026-09-20 실측): stock-new 는 1코어 Neoverse-N1 · **9.7GB** · Ubuntu 24.04 · Python 3.12.
+stock-monitor 가 2코어 AMD · **952MB** · Ubuntu 20.04 · Python 3.8 다 — **아래 블록의
+`1 OCPU · 1GB · Python 3.8` 은 그 폐기 예정 기계의 사양이지 지금 수집이 도는 환경이 아니다.**
+그 메모리 제약들은 현 실행 환경 기준으로는 실제보다 보수적이다(아직 재검토 안 함).
 
 **문서·인수인계가 쓰는 "VM(`stock`)"은 hostname 기준이라 접속은 `ssh stock-new` 다.**
 아래 본문의 `stock-monitor` 언급도 같은 함정이다 — 그 이름은 옛 대시보드 기계를 가리킨다.
