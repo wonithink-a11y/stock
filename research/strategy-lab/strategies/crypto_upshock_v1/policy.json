@@ -1,0 +1,55 @@
+{
+  "strategyId": "crypto_upshock_v1",
+  "version": "1.0",
+  "note": "크립토 상승충격 지속 - 모의 관측 전용. 사전등록 findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md. 규칙 값(2sigma/30일/24시간)은 futures/crypto_upshock_recent.py 에서 동결된 것을 그대로 옮긴 것이다 - 여기서 다시 고르지 않는다.",
+  "direction": "LONG_ONLY",
+
+  "testUniverse": [
+    "KRW-AAVE", "KRW-ADA", "KRW-APT", "KRW-ARB", "KRW-ATOM", "KRW-AVAX",
+    "KRW-BCH", "KRW-BTC", "KRW-DOGE", "KRW-DOT", "KRW-ETH", "KRW-FIL",
+    "KRW-INJ", "KRW-LINK", "KRW-NEAR", "KRW-OP", "KRW-PEPE", "KRW-SHIB",
+    "KRW-SOL", "KRW-SUI", "KRW-TRX", "KRW-UNI", "KRW-WLD", "KRW-XRP"
+  ],
+  "universeNote": "연구 28종(바이낸스 무기한) 교집합 업비트 KRW 상장 = 24종. 미상장 제외 4종: BNB LTC XMR ZEC. 성과를 보고 고른 게 아니라 교집합이다.",
+
+  "signal": {
+    "expression": "ret[d-1] > 2.0 * rollingStd(ret, 30).shift(1)",
+    "sigmaMultiple": 2.0,
+    "stdWindow": 30,
+    "stdMinPeriods": 20,
+    "dayBoundary": "UTC 00:00 (= KST 09:00). 업비트 일봉이 이미 UTC 경계다(실측 candle_date_time_utc=T00:00:00)",
+    "note": "ret[d-1] 은 경계 시점에 이미 확정된 값이다 - lookahead 없음"
+  },
+
+  "entry": {
+    "timing": "utc_day_open",
+    "maxEntryDelayMinutes": 120,
+    "note": "UTC 일 시가에서 120분을 넘겨 실행되면 그 날은 진입하지 않는다. 늦게 돌아도 조용히 다른 전략이 되지 않게 막는다(교훈57 - 간격 밖이면 판정하지 않는다)."
+  },
+
+  "risk": {
+    "note": "가격 기반 stop/target 없음 - 순수 시간청산. stopPct/targetPct 키를 일부러 두지 않는다(_open_from_fills 가 None 으로 읽는다).",
+    "maxHoldingSessions": 2,
+    "timeExitRule": "보유일수는 KST 날짜가 바뀔 때 1 씩 오른다. 매일 KST 09:05 에 1회 돌면 매수 다음날 같은 시각에 청산되어 보유기간이 정확히 24시간이 된다."
+  },
+
+  "position": {
+    "notionalPerPosition": 100000,
+    "maxPositions": 5,
+    "fractionalQuantity": true,
+    "sleeveCapitalKrw": 1000000,
+    "note": "고정 명목금액. 신호 강도에 비례시키지 않는다 - 연구의 MDD -87% 는 신호가 아니라 '전액 집중' 구조에서 나왔다. 포지션당 10%, 최대 투입 50%."
+  },
+
+  "cost": {
+    "feeBpPerSide": 5.0,
+    "roundTripBp": 10.0,
+    "note": "업비트 KRW 현물 0.05%/편도. 연구의 cost10 과 같은 자릿수라 판정 기준을 그대로 쓴다."
+  },
+
+  "scope": {
+    "paperOnly": true,
+    "broker": "UpbitPaperBroker (로컬 시뮬레이션, 인증 메서드 미호출)",
+    "note": "실계좌 주문은 범위 밖이다."
+  }
+}
