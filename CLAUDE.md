@@ -62,10 +62,15 @@ Validated against
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
             2026-09-19 구현**(c605be5 — 취소→확인→계좌조회→재접수, 취소 미확인 시
             그 종목 그날 주문 안 냄, 가짜 브로커 회귀) + systemd 유닛 배포(3ecedc4,
-            **dry-run 상태**, 평일 21:30 KST). **남은 건 사용자의 VM 작업뿐**:
-            `_rules.local.json`·vts 상태 2개를 ~/collector-venv/infbuy/ 로 복사 →
-            유닛 설치·dry-run 확인 → `systemctl edit` 로 --execute 를 붙이면 주문이
-            켜진다(그 스위치는 사용자 몫, 상태 파일을 빼먹으면 T 가 0 에서 시작한다).
+            **dry-run 상태**, 평일 21:30 KST). **2026-09-20 VM 배선 완료** —
+            `_rules.local.json`·vts 상태 2개를 ~/collector-venv/infbuy/ 로 복사
+            (sha256 일치 확인, 규칙 파일은 600) · yfinance 설치 · 유닛+타이머 설치·
+            **타이머 활성**(평일 21:30, 다음 09-21) · dry-run 1회 성공.
+            이월 확인: **T 가 0 이 아니다**(TQQQ 0.86 · SOXL 0.79, lastDate 09-11) —
+            상태 파일을 빼먹으면 여기가 0 이 된다. 실패 알림도 붙였다.
+            **남은 건 주문 스위치 하나뿐이고 그건 사용자 몫이다**:
+            `sudo systemctl edit infinite-buying-vts.service` 로 ExecStart 를 비우고
+            --execute 를 붙여 다시 쓴다. Claude 는 이 스위치를 켜지 않는다.
             ★★ 같은 날 버전 선택 연구 완주 — V2.0~V4.0 백테스트 → 하이브리드
             (후반전 매도확대, NOT SUPPORTED로 기각) → 위기episode 자동탐지
             (TQQQ 16·SOXL 12, 3A) → 저점현금비중 가설(NOT SUPPORTED, 3C) →
