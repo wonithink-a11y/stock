@@ -60,3 +60,6 @@ reports/2026-08-21-a5-valuation-precheck/*
 # 구워내는 산출물(592KB). 생성기와 템플릿이 둘 다 커밋돼 있어 재생성된다 -
 # valuation-panel.jsonl 과 같은 원칙(산출물 말고 재생성 경로를 커밋한다).
 dashboard/sweep-dashboard.html
+
+# 미국 유니버스 스냅샷 수집기 상태(매 실행 덮어씀) - 가격 parquet 은 data/**/*.parquet 로 이미 제외
+data/us-universe/_status.json
