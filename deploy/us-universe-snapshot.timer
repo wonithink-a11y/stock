@@ -1,0 +1,17 @@
+[Unit]
+Description=US S&P500 membership and price snapshot daily timer
+
+# 타이머 자신의 실패도 알린다(서비스의 OnFailure 로는 유닛 파일 깨짐이 안 잡힌다 - CLAUDE.md 참고).
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 미국 정규장은 월~금 마감(KST 05:00/06:00, 서머타임에 따라) - 그 다음 KST 화~토 아침에 전날 봉이 확정돼 있다.
+# 07:30 KST 는 겨울철 마감(06:00 KST) 뒤에도 1시간 이상 여유가 있다. collector-pull(06:30)·분봉 수집과
+# 겹치지 않는다. 미국 휴장일에는 새 봉이 없을 뿐 오류가 아니다(증분이 겹치는 날짜를 덮어쓴다).
+# 주말을 건너뛰면 그 사이 명단 변화는 다음 화요일 스냅샷 하나에 합쳐진다 - 명단 변경일이 하루 늦게 기록될 수 있다.
+OnCalendar=Tue..Sat *-*-* 07:30:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

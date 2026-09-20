@@ -21,6 +21,7 @@ close = Yahoo 'Close'(분할조정, 배당 미조정). 'Adj Close' 는 배당이
 import argparse
 import io
 import json
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -28,7 +29,8 @@ from pathlib import Path
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE / "data" / "us-universe"
+# VM 에서는 저장소 밖 경로를 준다(US_UNIVERSE_DIR) — 저장소 안에 새 명단 CSV 가 생기면 나중에 git pull --ff-only 가 충돌한다.
+ROOT = Path(os.environ.get("US_UNIVERSE_DIR") or HERE / "data" / "us-universe")
 WIKI = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 CHUNK = 50
 STALE_DAYS = 45          # 명단에 없고 마지막 봉이 이보다 오래면 '멈춘 종목'(상장폐지 의심) — 더 갱신하지 않는다
@@ -147,6 +149,14 @@ def update_prices(symbols, cur_members, today):
     return status
 
 
+def too_many_failures(status, cur_members, limit=0.2):
+    """현재 명단 중 error/no_data 비율이 limit 을 넘으면 True — Yahoo 차단·구조 변경이 조용한 성공으로 넘어가지 않게 한다."""
+    if not cur_members:
+        return False
+    bad = sum(1 for s in cur_members if status.get(s, {}).get("state") in ("error", "no_data"))
+    return bad / len(cur_members) > limit
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
@@ -188,6 +198,9 @@ def main():
     meta_f.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     from collections import Counter
     print("상태:", dict(Counter(v["state"] for v in status.values())), "| 추적 종목", len(symbols))
+    if not a.limit and too_many_failures(status, cur_set):
+        print("실패 종목이 20% 를 넘었다 — Yahoo 차단 또는 응답 구조 변경 의심", file=sys.stderr)
+        sys.exit(1)
 
 
 def selftest():
@@ -210,6 +223,8 @@ def selftest():
                        index=pd.to_datetime(["2026-01-01", "2026-01-02"]))
     b = to_bars(raw)
     check("Close 없는 행 제거·배당/분할 열 기본 0", len(b) == 1 and list(b.columns) == COLS and b.dividends.iloc[0] == 0.0)
+    st = {"A": {"state": "current"}, "B": {"state": "error"}, "C": {"state": "no_data"}, "D": {"state": "current"}, "E": {"state": "current"}}
+    check("실패 20% 초과 감지", too_many_failures(st, set("ABCDE")) and not too_many_failures(st, set("ADE")))
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)

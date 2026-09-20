@@ -1,0 +1,30 @@
+[Unit]
+# 미국 S&P500 명단·가격 일일 스냅샷 - 생존편향 공백 방지용 누적 수집.
+# 설계·한계: research/strategy-lab/us_universe_snapshot.py 상단 docstring.
+#
+# 자격증명이 필요 없다(Wikipedia 명단 + Yahoo 공개 시세). 그래서 EnvironmentFile 이 없다.
+# 데이터는 저장소 밖(US_UNIVERSE_DIR)에 쌓는다 - 저장소 안에 새 명단 CSV 가 생기면 나중에
+# git pull --ff-only 가 충돌한다. 가격 parquet 은 재배포 금지 소스라 어차피 커밋하지 않는다.
+#
+# 실패하면 스크립트가 exit 1 을 낸다(현재 명단의 20% 초과가 error/no_data 일 때) - Yahoo 가
+# 클라우드 IP 를 막거나 응답 구조가 바뀌어도 조용히 성공으로 끝나지 않는다.
+Description=US S&P500 membership and price snapshot (daily, accumulation only)
+After=network-online.target
+Wants=network-online.target
+# 실패하면 텔레그램 '장애 전용' 방으로 알린다(unit-failure-notify@.service).
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+Environment=US_UNIVERSE_DIR=/home/ubuntu/collector-venv/us-universe
+Environment=PYTHONIOENCODING=utf-8
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/us_universe_snapshot.py
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/us-universe-snapshot.log
+StandardError=append:/home/ubuntu/collector-venv/logs/us-universe-snapshot.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
