@@ -8,7 +8,9 @@ name: notify-failure
 # 고쳐야 하고, 빠뜨린 하나는 여전히 조용하다. 여기 한 곳에서 workflow_run 으로
 # 받는다.
 #
-# TELEGRAM_BOT_TOKEN · TELEGRAM_CHAT_ID 는 2026-09-09 에 등록됐다(gh secret list).
+# TELEGRAM_BOT_TOKEN 은 2026-09-09, TELEGRAM_ALERT_CHAT_ID 는 2026-09-20 에
+# 등록됐다(gh secret list). ★ 이 워크플로는 **장애 전용 방**으로 보낸다 —
+# 콘텐츠용 TELEGRAM_CHAT_ID 가 아니다(아래 전송 스텝 주석 참고).
 # 둘 중 하나라도 없으면 scripts/notify.js 가 "(알림 채널 미설정)" 만 찍고
 # 조용히 통과한다 - 알림이 없는 것보다 나쁜 건 없다고 믿는 것이다.
 
@@ -72,19 +74,24 @@ jobs:
         if: steps.dedupe.outputs.skip == '0'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ★ 장애 전용 방으로 보낸다(2026-09-20). 콘텐츠 방(TELEGRAM_CHAT_ID)에는
+          #   뉴스·공시·장중급등락·로그인 알림이 계속 오므로 거기 섞으면 실패가 묻힌다.
+          #   없으면 콘텐츠 방으로 **물러서지 않는다** - 조용히 새는 것이 분리 실패의
+          #   가장 흔한 모양이다. VM 쪽 scripts/notify-unit-failure.py 와 같은 원칙.
+          TELEGRAM_ALERT_CHAT_ID: ${{ secrets.TELEGRAM_ALERT_CHAT_ID }}
           WF_NAME: ${{ github.event.workflow_run.name || '(수동 테스트)' }}
           WF_URL: ${{ github.event.workflow_run.html_url || format('https://github.com/{0}/actions', github.repository) }}
         run: |
-          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
-            echo "::warning::알림 채널 미설정 - gh secret set TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID"
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_ALERT_CHAT_ID" ]; then
+            echo "::warning::알림 채널 미설정 - gh secret set TELEGRAM_BOT_TOKEN / TELEGRAM_ALERT_CHAT_ID"
             exit 0
           fi
           now=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')   # 절대 규칙 3
-          text=$(printf '\xf0\x9f\x94\xb4 워크플로 실패\n%s\n%s\n%s' "$WF_NAME" "$now" "$WF_URL")
+          # VM 유닛 알림과 같은 모양으로 3줄 - 한 방에 섞여도 균일하게 읽힌다
+          text=$(printf '[실패] 워크플로 %s\n%s\n%s' "$WF_NAME" "$now" "$WF_URL")
           curl -sS --fail-with-body \
             "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "chat_id=${TELEGRAM_ALERT_CHAT_ID}" \
             --data-urlencode "text=${text}" \
             -o /dev/null
           echo "전송 완료"
