@@ -9,12 +9,15 @@ deploy/unit-failure-notify@.service 가 `OnFailure=` 로 이걸 부른다.
 
 왜 필요한가(2026-09-20 실측): VM systemd 타이머는 실패해도 아무 데도 안 뜬다 —
 GitHub Actions 의 notify-failure.yml 은 Actions 만 본다. 실제로 rv20 선물이
-2026-09-18 09:36 에 KIS 잔고조회 타임아웃으로 죽었는데(ExecMainStatus=1) 아무도
-몰랐다. CLAUDE.md 가 스스로 적어둔 "VM 실패는 Actions 에 안 나타난다"가 그대로
-발생한 것이다.
+2026-09-18 09:36 에 KIS 잔고조회 타임아웃으로 죽었는데(ExecMainStatus=1) 주말 내내
+아무도 몰랐다. CLAUDE.md 의 "VM 실패는 Actions 에 안 나타난다" 그대로다.
+
+**메시지는 2~3줄이다**(2026-09-20 사용자 지시). 폰 알림으로 읽히는 것이 목적이고,
+자세한 로그는 VM 에 있다(journalctl -u <unit>). 그래서 저널은 넉넉히 읽되
+**원인을 말해주는 한 줄만** 싣는다.
 
 **보내는 방은 콘텐츠 방과 분리한다.** 뉴스·공시·장중 급등락·로그인 알림이 같은
-대화로 오고 있어서, 거기에 장애까지 섞으면 급한 것이 묻힌다. 그래서 chat id 는
+대화로 오고 있어서, 거기에 장애까지 섞으면 급한 것이 묻힌다. chat id 는
 `TELEGRAM_ALERT_CHAT_ID` 를 쓰고, 없으면 **`TELEGRAM_CHAT_ID` 로 흘려보내지 않고
 실패한다** — 조용히 콘텐츠 방으로 새는 것이 분리 실패의 가장 흔한 모양이다.
 """
@@ -33,11 +36,19 @@ for _s in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
-# 텔레그램 한 메시지 상한은 4096자다. 넘기면 HTTP 400 으로 **배달 자체가 실패**한다
-# (2026-09-11 intraday-alert 가 133줄 메시지로 이걸 맞았고, 그때는 실패를 '채널
-# 미설정'으로 오진했다). 여유를 두고 자른다.
-TELEGRAM_LIMIT = 3900
-JOURNAL_LINES = 15
+# 상한은 배달 실패를 막는 안전장치로만 남긴다 - 텔레그램은 4096자를 넘기면 HTTP 400 으로
+# **배달 자체가 실패**한다(2026-09-11 intraday 가 이걸 맞았고 '채널 미설정'으로 오진했다).
+# 목표 길이는 그보다 훨씬 짧다.
+TELEGRAM_LIMIT = 600
+JOURNAL_LINES = 40          # 읽어오는 양. 메시지에 싣는 것은 이 중 한 줄이다
+ERROR_LINE_MAX = 300
+
+# systemd 가 스스로 찍는 줄 - 무엇이 깨졌는지 말해주지 않으므로 건너뛴다
+_NOISE = ("Starting ", "Finished ", "Deactivated successfully", "Consumed ",
+          "Main process exited", "Failed with result", "Failed to start",
+          "Scheduled restart", "Triggering OnFailure", "Succeeded.")
+_ERRORISH = ("Error", "error", "Exception", "Traceback", "timed out", "Timeout",
+             "timeout", "FAILED", "Failed", "failed", "Errno", "오류", "실패")
 
 
 def _run(cmd):
@@ -58,24 +69,39 @@ def collect(unit, run=_run):
     return fields, log
 
 
-def build_message(unit, fields, log, host=None):
-    host = host or os.uname().nodename if hasattr(os, "uname") else "?"
-    head = [
-        f"🔴 VM 유닛 실패 — {unit}",
-        f"호스트: {host}",
-        f"설명: {fields.get('Description', '(없음)')}",
-        f"결과: {fields.get('Result', '?')} · 종료코드 {fields.get('ExecMainStatus', '?')}",
-        f"시각: {fields.get('ExecMainExitTimestamp') or '(없음)'}",
-        "",
-        "마지막 로그:",
-    ]
-    body = "\n".join(head)
-    room = TELEGRAM_LIMIT - len(body) - 20
-    if room > 0 and log:
-        # 뒤에서부터 남긴다 - 예외는 끝에 있다
-        trimmed = log if len(log) <= room else "…(앞부분 생략)\n" + log[-room:]
-        body += "\n" + trimmed
-    return body[:TELEGRAM_LIMIT]
+def error_line(log):
+    """로그에서 **원인을 말해주는 한 줄**만 고른다.
+
+    파이썬 트레이스백은 마지막 줄이 `타입: 메시지` 라 가장 정보가 많다. systemd 자체
+    줄은 무엇이 깨졌는지 말해주지 않으므로 건너뛴다. 오류처럼 보이는 줄이 하나도
+    없으면 마지막 실내용 줄을 쓴다 - 없는 것을 지어내지 않는다(교훈57).
+    """
+    lines = [x.strip() for x in (log or "").splitlines() if x.strip()]
+    meaningful = [x for x in lines if not any(n in x for n in _NOISE)]
+    for x in reversed(meaningful):
+        if any(k in x for k in _ERRORISH):
+            return x[:ERROR_LINE_MAX]
+    return meaningful[-1][:ERROR_LINE_MAX] if meaningful else "(로그 없음)"
+
+
+def _short_time(stamp):
+    """'Fri 2026-09-18 09:36:15 KST' -> '09-18 09:36'. 못 읽으면 원문을 그대로 둔다."""
+    for tok in (stamp or "").split():
+        if tok.count("-") == 2 and len(tok) == 10:
+            rest = (stamp or "").split(tok, 1)[1].split()
+            hhmm = rest[0][:5] if rest else ""
+            return f"{tok[5:]} {hhmm}".strip()
+    return (stamp or "").strip() or "(시각 없음)"
+
+
+def build_message(unit, fields, log):
+    """폰에서 한눈에 읽히는 3줄. 자세한 건 VM 에 있다(journalctl -u <unit>)."""
+    name = unit[:-len(".service")] if unit.endswith(".service") else unit
+    return "\n".join([
+        f"[실패] {name}",
+        f"종료 {fields.get('ExecMainStatus', '?')} · {_short_time(fields.get('ExecMainExitTimestamp'))}",
+        error_line(log),
+    ])[:TELEGRAM_LIMIT]
 
 
 def main(argv=None):
@@ -124,23 +150,42 @@ def _selftest():
 
     fake_show = ("Description=RV20 futures paper order\nResult=exit-code\n"
                  "ExecMainStatus=1\nExecMainExitTimestamp=Fri 2026-09-18 09:36:15 KST")
+    real_log = (
+        "Starting rv20-futures-paper-order.service - RV20 futures...\n"
+        "=== 2) 계좌 잔고 조회 (읽기 전용) ===\n"
+        "Traceback (most recent call last):\n"
+        "  File \"/home/ubuntu/collector-venv/lib/python3.12/site-packages/requests/adapters.py\", line 713\n"
+        "requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='openapivts.koreainvestment.com', "
+        "port=29443): Read timed out. (read timeout=20)\n"
+        "rv20-futures-paper-order.service: Main process exited, code=exited, status=1/FAILURE\n"
+        "rv20-futures-paper-order.service: Failed with result 'exit-code'.\n"
+        "rv20-futures-paper-order.service: Consumed 4.655s CPU time.\n")
 
     def fake_run(cmd):
-        return fake_show if cmd[0] == "systemctl" else "Traceback...\nReadTimeout"
+        return fake_show if cmd[0] == "systemctl" else real_log
 
-    fields, log = collect("x.service", run=fake_run)
+    fields, log = collect("rv20-futures-paper-order.service", run=fake_run)
     ok(fields["ExecMainStatus"] == "1", "systemctl show 파싱")
-    ok("ReadTimeout" in log, "journal 수집")
 
-    msg = build_message("x.service", fields, log, host="stock")
-    ok("🔴" in msg and "x.service" in msg, "헤더에 유닛 이름")
-    ok("exit-code" in msg and "ReadTimeout" in msg, "결과와 로그가 함께 들어간다")
+    msg = build_message("rv20-futures-paper-order.service", fields, log)
+    lines = msg.splitlines()
+    ok(len(lines) <= 3, f"3줄 이내 ({len(lines)}줄)")
+    ok(len(msg) <= TELEGRAM_LIMIT, f"길이 상한 이내 ({len(msg)}자)")
+    ok(lines[0].endswith("rv20-futures-paper-order"), "1줄: 유닛 이름(.service 없이)")
+    ok("종료 1" in lines[1] and "09-18 09:36" in lines[1], f"2줄: 종료코드·시각 ({lines[1]})")
+    ok("ReadTimeout" in lines[2], "3줄: systemd 잡음이 아니라 진짜 원인")
+    ok("Main process exited" not in msg and "Consumed" not in msg, "systemd 잡음 제외")
+    ok("Traceback" not in lines[2], "트레이스백 머리말이 아니라 마지막 예외 줄")
 
-    # ★ 4096 초과는 배달 자체를 실패시킨다 - 반드시 잘려야 한다
-    huge = build_message("x.service", fields, "L" * 50000, host="stock")
-    ok(len(huge) <= TELEGRAM_LIMIT, f"긴 로그가 잘린다 ({len(huge)}자)")
-    ok("x.service" in huge and "exit-code" in huge, "잘려도 헤더는 남는다")
-    ok("…(앞부분 생략)" in huge, "생략 사실을 밝힌다")
+    # 오류처럼 보이는 줄이 없으면 마지막 실내용 줄
+    ok(error_line("Starting x\n평소 출력 한 줄\nFinished x") == "평소 출력 한 줄",
+       "오류 줄이 없으면 마지막 실내용 줄")
+    ok(error_line("") == "(로그 없음)", "로그가 비면 지어내지 않는다")
+
+    # 아주 긴 한 줄도 상한을 넘기지 않는다
+    huge = build_message("x.service", fields, "Error: " + "L" * 50000)
+    ok(len(huge) <= TELEGRAM_LIMIT, f"긴 오류 줄이 잘린다 ({len(huge)}자)")
+    ok(len(huge.splitlines()) <= 3, "잘려도 3줄")
 
     # 분리 보장: ALERT chat id 가 없으면 보내지 않고 실패한다
     saved = {k: os.environ.pop(k, None) for k in ("TELEGRAM_ALERT_CHAT_ID", "TELEGRAM_BOT_TOKEN")}
