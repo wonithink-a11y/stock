@@ -222,9 +222,19 @@ Validated against
             Actions 만 본다). 실제로 **rv20 선물이 09-18 09:36 에 KIS 잔고조회
             타임아웃으로 죽었는데 주말 내내 아무도 몰랐다** — 실패 지점이 주문
             직전이라 주문은 안 나갔다. `deploy/unit-failure-notify@.service` +
-            감시 6개에 `OnFailure=` (rv20 · 크립토슬리브 · paper-trading-poll ·
-            minute-collect · minute-oci-upload · collector-pull). 알림 유닛
-            자신에겐 안 건다(무한루프).
+            감시 7개에 `OnFailure=` (rv20 · 크립토슬리브 · paper-trading-poll ·
+            minute-collect · minute-oci-upload · collector-pull · infinite-buying-vts)
+            **및 같은 7개의 타이머**. 알림 유닛 자신에겐 안 건다(무한루프).
+            ★ **서비스에만 걸면 구멍이 남는다**(09-20 실측으로 닫음) — 유닛 파일이
+            깨지면 로드가 막혀 **실행 자체가 없으므로** 서비스의 OnFailure 가 발화하지
+            않는다. 실패하는 것은 타이머 쪽이다(`Failed to queue unit startup job`).
+            그날 실제로 유닛 3개가 치환 안 된 경로 플레이스홀더로 덮여 bad-setting 이
+            됐고 `minute-collect.timer` 의 **다음 스케줄이 사라졌다** — 내일 분봉이
+            통째로 안 돌 상태였고 KIS 보존기간 때문에 영구 손실이 됐을 자리다.
+            타이머 OnFailure 가 이 모양에서 발화함은 재현으로 확인했다(커밋 040157d).
+            ★ 알림 이름이 `*.timer` 로 오면 그건 이 종류다(로그 파일이 없어 저널로
+            물러서고 `ExecMainStatus` 가 '?' 가 된다 — 3번째 줄이 원인을 말한다).
+            ★ **경로 배달까지 실물 확인**(09-20, 사용자가 폰에서 수신 확인).
             ★ **방을 분리했다** — 뉴스·공시·장중급등락·로그인이 같은 대화로 와서
             장애가 묻힌다. 새 그룹 `주식 알림`(chat_id 음수)을 쓰고 env 는
             `TELEGRAM_ALERT_CHAT_ID`. **없으면 콘텐츠 방으로 안 보내고 실패한다** —
