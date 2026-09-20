@@ -461,8 +461,12 @@ Validated against
           docs/A2a-증분화-결정브리프.md      STOP 종결(2026-09-11) — 아래 완료 참고
 협업      CHATGPT.md                            ChatGPT의 진입 규칙
           docs/AI협업-업무분담.md               업무 경계 · 인계 형식 · 출처 규칙
-          docs/control/TASKS.md                 현재 업무 배정. 정본이 아니다 —
-                                                코드·계약·실측과 다르면 그쪽이 맞다
+          docs/control/TASKS.md                 **이력이지 착수 목록이 아니다**.
+                                                다음에 할 일은 위 상태 블록이 정한다.
+                                                2026-09-20 점검 — 명백히 낡은 행만
+                                                고쳤고 나머지는 그대로 믿지 않는다.
+                                                안 지우는 이유: A5-1.0 계약이
+                                                그 파일의 LAB-* 주석을 인용한다
 인수인계   docs/control/세션인수인계-YYYY-MM-DD[-b].md   ★ 저장소 루트에 쓰지 않는다
 ```
 

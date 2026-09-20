@@ -2,7 +2,14 @@
 
 ```
 갱신   2026-08-14
+점검   2026-09-20 — 전면 재검증이 아니라 **명백히 낡은 행만** 고쳤다(A5-3·CODEX-1·
+       LAB-* 리뷰어). 나머지 행은 5주 넘게 손대지 않았으니 그대로 믿지 않는다.
 ```
+
+> ★ **이 표를 착수 목록으로 삼지 않는다.** 무엇을 다음에 할지는 `CLAUDE.md` 상태
+> 블록이 정한다. 여기는 "누가 무엇에 막혀 있었는가"의 이력이고, 그 둘이 다르면
+> CLAUDE.md 가 맞다. 이 파일을 지우지 않는 이유는 `docs/A5-1.0-입출력계약.md` 가
+> 아래 `LAB-*` 공통 주석을 근거로 인용하기 때문이다 — 계약의 인용을 끊지 않는다.
 
 **이 파일은 프로젝트 상태 정본이 아니다.** 답하는 질문은 하나다 — *지금 누가 무엇을 하고
 있고 무엇에 막혀 있는가.* 나머지는 저마다 정본이 따로 있다.
@@ -37,9 +44,9 @@
 | SL-2 | TREND-BREAKOUT-v1 후속 — 재확인·재실행 결정·다음 실험 (3건, 전부 미착수) | Claude | — | `PLANNED` (1) 1,400건 기준 이전 분석(연도별·국면연결·초기 MFE/MAE)을 2,154건(same-bar 수정 후)으로 재확인 (2) same-bar 수정이 5DC-v1A-P의 2026-08-14 baseline에 주는 영향 및 재실행 여부 결정 — (2026-08-17) 5DC-v1A-P post-fix(1,592건) same-bar 130건(STOP120/TARGET10) 확정, production 정의와 일치. 경쟁 수치 231건은 TREND-BREAKOUT-v1 pkl 오사용으로 판명(재조사 종결). 재실행 채택 여부는 여전히 미결정 (3) stop_distance를 ATR 비례 대신 고정폭/상한으로 바꿨을 때 고변동 구간 손실이 실제로 줄어드는지 검증 — (2026-08-19) `sl2_3_stop_distance_summary.json`의 세 방식 summary 전 수치는 독립 재현으로 확인(일치), 단 ATR%-MAE 상관계수(r=0.82, ρ=0.878)는 재현 안 됨(STOP-exit 부분집합이면 근접하나 확정 못 함) — 채택 여부는 여전히 미결정 | 셋 다 서로 독립, 착수 순서 미정 | `docs/control/세션인수인계-2026-08-14-b.md` · `docs/control/세션인수인계-2026-08-16.md` · `docs/verification/SL-2-stop-distance-재현-결과.md` |
 | A5-5 | ★ availableFrom 형식 불일치 대응 | Claude | ChatGPT | `DONE` (1) pitSelector · (2) 정책 확정(2026-08-12, 사용자 GO) | — | `lib/a5/pitSelector.js` · `docs/A5-1.0-입출력계약.md` |
 | A5-2 | 게이트 2 — A2b 수집 (생존편향) | Claude | — | `DONE` (2026-08-17) PR-1.6(480/440/20%)로 전량 재실행, finalize 통과 — 확보 508·분석구간 460·품질제외율 19.37%, 실패·EGW00201·EGW00316 0건 | — | `data/backfill/manifest/A2b.json` · `docs/control/세션인수인계-2026-08-16.md` |
-| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `IN PROGRESS` shareholderReturn·technical 구현 완료(5bcd738), peg는 A3c 데이터 확보됨(2026-08-16) — resolver.js 연결은 별도 승인 필요·미착수, perRelative는 별건 보류 | peg 연결 착수는 별도 사용자 승인 | `lib/a5/resolver.js` |
+| A5-3 | 게이트 3 — availableWeight ≥ 0.6 | Claude | — | `DONE` (2026-09-20 정정) shareholderReturn·technical(5bcd738) + **peg/valuation resolver 연결 완료**(2026-08-21, 커밋 `4e9716a`) — 이 행은 "resolver.js 연결 미착수"로 5주간 틀려 있었다. 근거: 완료-이력 "A5-3 V7 최종 수직 슬라이스 — valuation(D4) 실데이터 연결 확인 … 연결 트랙 전체가 이걸로 종료", `lib/a5/resolver.js` 에 peg 경로 존재. **perRelative 만 별건 미착수**(CLAUDE.md '언제든') | — | `lib/a5/resolver.js` · `docs/A5-3-peg-조정기준-결정브리프.md` |
 | A3c | 발행주식총수(istc_totqy) 수집 — peg 조정 기준 불일치 해결 | Claude | — | `DONE` finalize 완료(2026-08-16, a997f9a). 격자 134,112셀 전수·istcTotqyRowFoundRate 95.257%·레코드 98,684 | — | `data/backfill/fundamentals/a3c/` · `data/backfill/manifest/A3c.json` |
-| A2-M | A2 manifest 승격 설계 | Claude | — | `PLANNED` | — | — |
+| A2-M | A2 manifest 승격 설계 | Claude | — | `TBD` (2026-09-20) `data/backfill/manifest/` 에 A2a.json·A2b.json 이 실제로 있으나, 그게 이 설계 과제의 산출물인지 확인하지 못했다 — 완료-이력에 A2-M 언급이 없다. **모르는 것을 DONE 으로 적지 않는다**(교훈57). 필요해지면 그때 실측한다 | 확인 안 됨 | — |
 | BF-1.1 | 10년 Historical Backfill — 소급 스코어 재현 | — | — | `PLANNED` 수직 슬라이스 GO(820f097) + resolver 필드명 버그 수정(7a4c00c). data/backfill/scores/ 전체 실행은 여전히 미착수 | 다음 재개는 A5-3 재검토 사용자 GO부터 | `docs/verification/BF-1.1-수직슬라이스-결과.md` |
 | T1-1 | 분봉 재현성 정찰 | VM | ChatGPT (검토 대기) | `DONE` REPRODUCIBILITY FAIL(2026-08-16, Day1~7 완주) — KIS 데이터 자체가 아니라 재조회 동치 가설의 FAIL. KIS는 계속 사용, snapshot이 기준 원본 | — | `docs/operations/T1-Day1to7-최종판정-2026-08-16.md` · `docs/operations/T1-후속검토-판정명칭및운영권고-2026-08-16.md` |
 | LAB-8 | 공시 선택 불일치 63건 (A5-5 입력) | Claude★ | Codex(정량 재확인 완료) | `DONE(잠정)` 49 정상·12 반대·2 다단계, 63/13 분할 Codex 독립 재현 일치 | 원문 대조는 아직 Claude 단일 출처 | `docs/verification/LAB-8-공시선택-불일치-결과.md` |
@@ -50,7 +57,7 @@
 | LAB-4 | 백테스트 입력 구조 · basis 시계열 | Claude★ | Codex(대기) | `DONE(잠정)` ★ raw join 30 돌파, eligible은 아직 3 | — | `docs/verification/LAB-4-백테스트입력구조-결과.md` |
 | LAB-3 | score distribution · 이상치 | — | — | `안 함` 인계서 없음, 스코프 미확정 상태로 방치돼 있었다(2026-08-12 확인). 사용자가 실행하지 않기로 결정 | — | 없음 |
 | LAB-7 | 발행주식수·수급 소스 정찰 | Claude | — | `DONE(정찰)` DART 공개 문서 기준(실API 호출 아님) — istc_totqy(주식의 총수 현황) 확보 가능, PIT 가능(rcept_no). A3c 착수는 별도 🔴 GO 대기 | 실제 착수(새 DART 엔드포인트 수집)는 사용자 GO 필요 | `docs/verification/LAB-7-발행주식수-소스정찰-결과.md` |
-| CODEX-1 | Claude 잠정 결과 6건 독립 재확인 | Codex | Claude | `PLANNED` | 사용자가 Codex에 인계서 전달 | `docs/control/handoff/CODEX-1-잠정결과-재확인.md` |
+| CODEX-1 | Claude 잠정 결과 6건 독립 재확인 | ~~Codex~~ | — | `무효` (2026-09-20 정정) **Codex 는 2026-08-21 사용자 결정으로 중단됐다**(AGENTS.md §맨앞). 이 행은 한 달간 `PLANNED` 로 남아 영원히 안 오는 것을 기다리고 있었다. 후임인 OpenCode 는 **판단을 위임받지 않으므로 이 자리를 대신하지 않는다**(CLAUDE.md 'OpenCode 위임 기준'). 독립 재확인이 필요하면 사람 확인이나 ChatGPT 계약 대조로 대체한다 | 대행자 없음 — 되살릴 계획 없다 | `docs/control/handoff/CODEX-1-잠정결과-재확인.md`(이력) |
 | GRAPHIFY-1 | graphify 설치·전체 그래프 초기화 + 토큰 정책 수립 | Claude | — | `DONE` 2,238 노드·3,937 엣지·200 커뮤니티(AST+Gemini 문서 86/98). ★ 서브에이전트로 71만 토큰 날린 뒤 정책 확정: Gemini 키 우선 → 서브 개발자 위임 → 그래도 안 되면 사전 승인 | — | `docs/control/세션인수인계-2026-08-17-graphify.md` |
 
 ### 주석 — 상태의 근거
@@ -67,10 +74,15 @@ T1-1   ★ 2026-08-16 종료 — REPRODUCIBILITY FAIL. 원본(t1.log·_t1/*.json
        LAB-3은 인계서가 없어 실행하지 않기로 함(사용자 결정). LAB-7은 대행
        대상 아님(계약 변경 별건).
        원인·복구 시점은 저장소에서 잴 수 없다 — TBD
-       ★ Codex 합류(2026-08-12, AGENTS.md) — 실험실 대신 이 6건을 독립
-       재확인하는 역할을 맡는다(CODEX-1). Codex는 Claude와 다른 계열이라
-       이 재확인은 진짜 독립 검증이다 — 실험실 복구를 기다릴 필요가 줄었다.
-       Codex는 읽기 전용이라 결과는 Claude가 대신 옮겨 적는다
+       ~~★ Codex 합류(2026-08-12) — 실험실 대신 이 6건을 독립 재확인한다~~
+       ★★ **위 한 줄은 2026-08-21 에 무효가 됐다**(사용자 결정, AGENTS.md).
+       Codex 는 더 이상 쓰지 않고, 후임 OpenCode 는 **판단을 위임받지 않으므로
+       이 자리를 대신하지 않는다**(CLAUDE.md 'OpenCode 위임 기준'). 실험실도
+       여전히 GitHub 을 못 읽는다. 즉 **독립 재확인 대행자가 지금 없다** —
+       2026-09-20 확인. 그러므로 위 여섯 건의 `DONE(잠정)` 은 **앞으로도
+       잠정이다**: 생산자와 검증자를 겸하지 않는다는 원칙이 이 기간 구조적으로
+       깨져 있고, 그래서 이 결과만으로 🔴 결정을 확정하지 않는다.
+       필요하면 사람 확인이나 ChatGPT 계약 대조로 보완한다.
 
 A5-5   ★ 두 갈래였다. (1)은 닫혔고 (2)만 남았다
        (1) 날짜 형식 — A3 "2024-03-21" · A3b "20240321". lib/a5/pitSelector.js 가
