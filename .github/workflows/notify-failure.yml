@@ -28,6 +28,18 @@ on:
       # 30분 잡 타임아웃에 걸리면 conclusion 이 cancelled 다 - 그날 상장주식수가
       # 안 들어오고 소비자 스텝도 skip 된다(2026-09-11 실측, 4회 중 2회).
       - shares-snapshot
+      # 2026-09-21 추가 - 실패하면 하위 데이터가 조용히 낡는 것들. 최근 30회 실패율을 재고
+      # 넣었다(실패는 전부 09-01~09-02 의 일회성 push 충돌·exit 1 이고 이후 초록).
+      # ★ market-flows 는 일부러 뺐다 - KRX 가 JSON 대신 차단 페이지를 주는 자가회복형 실패가
+      #   30회 중 3회라 알림 피로가 이득보다 크다(교훈81, shares-snapshot 과 같은 벽).
+      #   news·disclosures·intraday-alert·daily-analysis 도 콘텐츠·고빈도라 뺐다 - 장애 방은
+      #   '뭐가 뜨면 무조건 고장'이어야 한다.
+      - fundamentals-us
+      - Update macro.json
+      - ETF/ETN daily snapshot (KIS)
+      - Stock flows update (per-stock 수급 tab)
+      - Update fundamentals (DART)
+      - backfill-dart-corpcode-a07
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 

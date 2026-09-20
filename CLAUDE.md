@@ -66,7 +66,7 @@ Validated against
             (10분). CI 8회차 완주·자동 커밋까지 확인했지만 **2026-10-01이 첫
             실물 검증이다** — workflow_run 물림은 그날 처음 돈다(여태
             workflow_dispatch 로만 태웠다). 실패하면 notify-failure.yml 이
-            텔레그램(@wonistock_bot)으로 알린다 — 대상 5개, '성공→실패'
+            텔레그램(@wonistock_bot)으로 알린다 — 대상 12개(09-21 에 6개 추가 — notify-failure.yml 주석에 제외 사유), '성공→실패'
             전이에만(페이퍼 엔진이 10분 주기라 매번 보내면 하루 144통).
             2026-09-11 에 promote-minute-manifest 가 5번째로 들어갔다 —
             그 단계가 승격 실패만이 아니라 **저장소 구멍**(최근 거래일 중
