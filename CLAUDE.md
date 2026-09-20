@@ -403,8 +403,10 @@ Validated against
             findings/futures-leadlag-s3-kosdaq150-artifact-verdict-2026-09.md) ·
             KR-2.4 criteria 승격 + A5 재백필(2026-09-04) · PF-1.2 소비경로
             배선(2026-09-04, 발효는 registry 미등록으로 아직).
-            분봉 수집기는 stock-new VM, 메인 스코어링은 기존 stock VM에서
-            계속 운영 중(전체 배경은 위 파일).
+            분봉 수집기는 stock-new VM에서 계속 운영 중(전체 배경은 위 파일).
+            ★ 이 줄은 "메인 스코어링은 기존 stock VM"이라고 적고 있었으나 **틀렸다**
+            (2026-09-20 실측) — 프로젝트 타이머는 전부 한 기계(별칭 stock-new)에
+            있고 다른 기계엔 0개다. 아래 "수집 VM 운영 기준" 맨 앞 표 참고.
 ```
 
 ### 문서 지도
@@ -752,6 +754,20 @@ A5가 A1b를 인용하지 않으면 생존편향 상태로 채점되므로, 이 
 ---
 
 ## 수집 VM 운영 기준 (2026-08-09 고정)
+
+### ★ 기계가 둘이고 ssh 별칭이 hostname과 어긋난다 (2026-09-20 실측)
+
+조용히 틀린다 — 엉뚱한 기계에 붙으면 오류가 아니라 "파일이 없다"로 나온다.
+
+```
+ssh stock-new   129.225.145.14   hostname: stock           ← 작업 VM. 전부 여기다
+                수집·페이퍼엔진·rv20·autotrader·크립토 슬리브·nginx·~/collector
+ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시 대시보드 하나뿐
+                stock.service(포트 8000, ~/stock/server.py, git 아님) · 프로젝트 타이머 0개
+```
+
+**문서·인수인계가 쓰는 "VM(`stock`)"은 hostname 기준이라 접속은 `ssh stock-new` 다.**
+아래 본문의 `stock-monitor` 언급도 같은 함정이다 — 그 이름은 옛 대시보드 기계를 가리킨다.
 
 Oracle에서 추가 VM 생성이 계속 실패했다. **기존 `stock-MonitorAlways`를 그대로 쓴다.**
 새 VM을 전제로 코드를 쓰지 않는다 — 나중에 큰 VM이 생기면 코드가 아니라 실행 환경만 옮긴다.
