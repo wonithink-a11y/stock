@@ -191,6 +191,11 @@ Validated against
             · 09-20 **VM 유닛 실패 알림** — 서비스 7개+타이머 7개에 OnFailure, 알림은 장애 전용 그룹 `주식 알림`
               (`TELEGRAM_ALERT_CHAT_ID`, 없으면 콘텐츠 방으로 안 보내고 실패). 알림 이름이 `*.timer` 면
               유닛 파일 깨짐(로드 실패)이다. 그룹에 뭐가 뜨면 무조건 고장.
+            · 09-21 **미국 S&P500 스냅샷 수집기**(us_universe_snapshot.py, 503종목) — yfinance 는 상장폐지 종목의 과거를
+              지우므로 명단·가격을 매일 쌓아 앞으로의 공백을 막는다. **첫 스냅샷(2026-09-20) 이전 가격은 생존자 표본** —
+              그 날짜 이후만 PIT (`_meta.json`). VM 타이머 `deploy/us-universe-snapshot.{service,timer}` 화~토 07:30,
+              데이터는 VM `~/collector-venv/us-universe`(저장소 밖). 설치는 사용자 몫. 방식 A(미국 ETF 30주선 기울기)는 REJECT.
+              과거 26년 PIT 는 못 채운다(Sharadar/MarketParquet 조사: docs/control/미국종목-유니버스-PIT-데이터-조사-2026-09-21.md).
             · 09-20 **페이퍼 엔진 소수 수량 버그**(14b53ec) — `remaining < 1` 이 소수 수량 매수를 "이미 다 샀다"로
               읽어 장부가 거짓이 됐다. `<= 0` 으로 수정, 정수 수량 전략(KIS 실주문 포함)은 불변. 되돌리려면 revert.
             · 09-20 밤샘 단기·크립토 실험 9건 — KEEP 0. 09-19 autotrader 신설(기본 dry-run, 실계좌 7겹 게이트,
