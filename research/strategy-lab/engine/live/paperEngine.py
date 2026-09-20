@@ -47,6 +47,19 @@ from engine.live.untradableVts import UNTRADABLE_VTS
 KST = timezone(timedelta(hours=9))
 
 
+def _entry_quantity(position_cfg, price):
+    """주문 수량. 기본은 정수(주식 1주 미만을 못 산다).
+
+    fractionalQuantity=True 면 나눗셈 결과를 그대로 쓴다 - 크립토는 0.0001 BTC
+    처럼 소수 수량이 정상이고, 거기에 int() 를 씌우면 notional 1만원짜리 의도가
+    1 BTC(약 1억) 주문이 된다. 옵트인이라 이 키가 없는 기존 전략은 안 바뀐다.
+    """
+    notional = position_cfg["notionalPerPosition"]
+    if position_cfg.get("fractionalQuantity"):
+        return notional / price
+    return max(1, int(notional // price))
+
+
 def run_once(repo_root, rule, as_of, log=print, bars_by_ticker=None, calendar=None):
     """rule: a strategy module exposing PARAMS, compute_features(bars),
     signal_fires(features, as_of). Returns the list of events this call
@@ -142,7 +155,7 @@ def run_once(repo_root, rule, as_of, log=print, bars_by_ticker=None, calendar=No
         if not rule.signal_fires(features, as_of):
             continue
         entry_price_hint = float(features.loc[as_of_ts, "close"])
-        quantity = max(1, int(position_cfg["notionalPerPosition"] // entry_price_hint))
+        quantity = _entry_quantity(position_cfg, entry_price_hint)
         state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity, "intent_date": as_of}
         open_or_pending += 1
         events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
@@ -191,7 +204,7 @@ def scan_signals(repo_root, rule, as_of, log=print, bars_by_ticker=None):
         if not rule.signal_fires(features, as_of):
             continue
         entry_price_hint = float(features.loc[as_of_ts, "close"])
-        quantity = max(1, int(position_cfg["notionalPerPosition"] // entry_price_hint))
+        quantity = _entry_quantity(position_cfg, entry_price_hint)
         state[symbol] = {"status": "PENDING_ENTRY", "quantity": quantity, "intent_date": as_of}
         open_or_pending += 1
         events.append({"type": "INTENT_ENTRY", "symbol": symbol, "date": as_of, "quantity": quantity})
@@ -463,7 +476,13 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
             target = pos.get("target_quantity", pos["quantity"])
             filled = pos.get("filled_quantity", 0)
             remaining = target - filled
-            if remaining < 1:                       # 이미 다 샀다(방어적)
+            # `remaining < 1` 이었다 - 정수 주식에서는 `<= 0` 과 같지만 소수 수량
+            # (크립토 0.0001 BTC)에서는 "다 샀다"로 오판해 매수를 아예 안 낸 채
+            # _open_from_fills(filled=0) 로 넘어갔다. 그러면 entry_price 가 0 이 되고
+            # target_price 도 0 이라 다음 poll 이 즉시 TARGET 청산하며 체결가 전액을
+            # 이익으로 기록한다(실측 2026-09-20). 의도는 '남은 게 없다'이므로 <= 0 이
+            # 맞고, 정수 수량에서는 두 식이 항상 같아 기존 전략의 동작은 안 바뀐다.
+            if remaining <= 0:                      # 이미 다 샀다(방어적)
                 state[symbol] = _open_from_fills(pos, today, risk)
                 continue
             if pos.get("last_slice_date") == today:  # 하루 한 조각만 - 폴링은 10분마다다
