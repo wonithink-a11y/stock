@@ -59,6 +59,26 @@ def _run(cmd):
         return f"(조회 실패: {type(e).__name__})"
 
 
+def log_path(unit, run=_run):
+    """유닛이 stdout 을 보내는 파일 경로. 없으면 빈 문자열.
+
+    ★ `systemctl show -p StandardOutput` 은 **모드만** 준다(실측: 값이 그냥 "append").
+    경로는 유닛 파일 본문에만 있으므로 `systemctl cat` 에서 읽는다. 드롭인이 덮어쓸 수
+    있으니 마지막 매치를 쓴다. 유닛 이름이나 로그 경로를 하드코딩하지 않는다.
+    """
+    text = run(["systemctl", "cat", unit])
+    found = ""
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("StandardOutput="):
+            continue
+        val = line.split("=", 1)[1]
+        for prefix in ("append:", "file:", "truncate:"):
+            if val.startswith(prefix):
+                found = val[len(prefix):].strip()
+    return found
+
+
 def collect(unit, run=_run):
     """유닛의 실패 사실과 마지막 로그를 모은다. 파생값을 저장하지 않고 그때그때 읽는다(교훈75).
 
@@ -71,15 +91,9 @@ def collect(unit, run=_run):
     """
     show = run(["systemctl", "show", unit, "--no-pager",
                 "-p", "Result", "-p", "ExecMainStatus", "-p", "ExecMainExitTimestamp",
-                "-p", "Description", "-p", "StandardOutput"])
+                "-p", "Description"])
     fields = dict(line.split("=", 1) for line in show.splitlines() if "=" in line)
-
-    path = ""
-    std = fields.get("StandardOutput", "")
-    for prefix in ("append:", "file:", "truncate:"):
-        if std.startswith(prefix):
-            path = std[len(prefix):]
-            break
+    path = log_path(unit, run)
     log = run(["tail", "-n", str(JOURNAL_LINES), path]) if path else ""
     if not log.strip():          # 파일이 없거나 비었으면 저널로 물러선다
         log = run(["journalctl", "-u", unit, "-n", str(JOURNAL_LINES), "--no-pager", "-o", "cat"])
@@ -165,9 +179,17 @@ def _selftest():
             failed += 1
             print(f"  FAIL {label}")
 
+    # ★ 실제 systemd 동작을 그대로 흉내 낸다(2026-09-20 VM 실측):
+    #   `show -p StandardOutput` 은 **모드만**("append") 주고 경로는 안 준다.
+    #   경로는 `systemctl cat` 의 유닛 파일 본문에만 있다.
+    #   이 둘을 구분하지 않으면 테스트가 구성상 통과해 버려 버그를 못 잡는다(교훈72).
     fake_show = ("Description=RV20 futures paper order\nResult=exit-code\n"
-                 "StandardOutput=append:/home/ubuntu/logs/rv20.log\n"
+                 "StandardOutput=append\n"
                  "ExecMainStatus=1\nExecMainExitTimestamp=Fri 2026-09-18 09:36:15 KST")
+    fake_cat = ("# /etc/systemd/system/rv20-futures-paper-order.service\n"
+                "[Service]\nExecStart=/usr/bin/true\n"
+                "StandardOutput=append:/home/ubuntu/logs/rv20.log\n"
+                "StandardError=append:/home/ubuntu/logs/rv20.log\n")
     real_log = (
         "Starting rv20-futures-paper-order.service - RV20 futures...\n"
         "=== 2) 계좌 잔고 조회 (읽기 전용) ===\n"
@@ -180,8 +202,10 @@ def _selftest():
         "rv20-futures-paper-order.service: Consumed 4.655s CPU time.\n")
 
     def fake_run(cmd):
-        if cmd[0] == "systemctl":
+        if cmd[:2] == ["systemctl", "show"]:
             return fake_show
+        if cmd[:2] == ["systemctl", "cat"]:
+            return fake_cat
         if cmd[0] == "tail":
             return real_log if cmd[-1] == "/home/ubuntu/logs/rv20.log" else ""
         return "Starting x\nFinished x"          # 저널에는 systemd 잡음만 있다
