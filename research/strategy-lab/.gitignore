@@ -63,3 +63,6 @@ dashboard/sweep-dashboard.html
 
 # 미국 유니버스 스냅샷 수집기 상태(매 실행 덮어씀) - 가격 parquet 은 data/**/*.parquet 로 이미 제외
 data/us-universe/_status.json
+
+# A3e 확장 재무 연구 패널(수집 중, 재생성 가능) - 매일 커지는 원시 수집물이라 추적하지 않는다
+data/fundamentals-ext/
