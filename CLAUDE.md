@@ -11,7 +11,8 @@ Validated against
   다음      ★★ 2026-09-21 **진행 중 3건**(세션인수인계-2026-09-21.md). (1) **A3e 확장 재무 — 수집 완료·계정 매핑 감사 완료**(연구 전용) —
             패널 24,749행(`data/fundamentals-ext/`, gitignore), 매핑 `research/strategy-lab/a3e_account_map.py`(**a3e-map-1.1 동결**),
             감사 docs/control/A3e-계정매핑감사-2026-09-21.md. 다음은 **가치 계열(EV/EBIT·EV/FCF·EV/매출총이익, PBR 잔차화 후 추가 정보)
-            사전등록**. **EV/EBITDA 는 감가상각비 커버리지 19% 라 전면 불가.** 차입금 모호 4.4%는 주 분석 제외·무차입 가정 17.3%는 민감도 필수.
+            사전등록**(6b9c2b52) → **결과 세 셀 전부 REJECT**(11_ev_value_family_oos.py, findings/a3e-ev-value-family-results-2026-09.md).
+            **EV/EBITDA 는 감가상각비 커버리지 19% 라 전면 불가.** 다음 후보 = 품질 계열 사전등록(가치와 독립인지 잔차화 먼저) · 고부채 쏠림 통제 검증.
             (2) **모의 동시호가 1주 시험** — 09-21 매수 **PASS**(체결가=공식 종가 274,000, 차이 0.0bp). 09-22 08:45 매도 → 09:05 대조가 남았다
             (VM cron 일회성, 로그 `~/collector-venv/logs/auction-probe.log`). 통과해야 O2b·O3u 모의 실행(설계 동결
             docs/control/단기규칙-모의실행-설계-2026-09-20.md, 슬리브당 4천만원)이 이어진다 — **실패하면 그 실험 중단**.
@@ -201,6 +202,9 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            · 09-21 **EV 가치 계열(EBIT/EV·FCF/EV·GP/EV) × PBR 잔차화 결합 — 세 셀 전부 REJECT**(가족 난수 바닥선 p95 0.104,
+              TRAIN ΔSharpe −0.200/+0.011/−0.054 · TEST 전부 PBR 단독보다 나쁨 · 하락장 2018·2022 세 셀 모두 PBR 보다 나쁨 — EY 잔차화 결합과 같은 패턴).
+              결합 상위 10분위 부채/EV 0.42~0.46(유니버스 0.22) 고부채 쏠림. A3e 매핑 감사·v1.1 동결(docs/control/A3e-계정매핑감사-2026-09-21.md).
             · 09-21 미국 ETF 30주선 기울기 **REJECT**(VALID/TEST 부호 반전) · 분기 순이익 가속 ACC2 **REJECT**(TRAIN 바닥선 미달) ·
               기업행사 공시(무상증자·유상증자) 이벤트 3셀 **REJECT**(TRAIN 바닥선 미달이나 부호·OOS t 일관 — 검출력 문제 가능, E1 은 권리락
               수정주가 점검 필요) · 비용 축 조사(국내 주식형 ETF 는 거래세·매매차익 과세 모두 비대상 — 원문 확인, 지수형 수단은 gross 가
