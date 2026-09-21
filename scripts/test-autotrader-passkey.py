@@ -129,9 +129,12 @@ def main():
 
         # ---- 등록
         ck("등록 시작 전엔 옵션 거부", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
-        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code=000000".encode(), "1.1.1.1")
-        ck("틀린 코드로는 등록 시작 안 됨", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
         app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={code()}".encode(), "1.1.1.1")
+        ck("인증앱 코드로는 등록 시작 안 됨(피싱된 코드로 패스키 추가 불가 — M4)", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
+        ek = store.issue_enroll_code(clk[0])
+        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code=AAAA-BBBB-CCCC".encode(), "1.1.1.1")
+        ck("틀린 등록 코드 거부", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
+        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={ek}".encode(), "1.1.1.1")
         ck("CSRF 없으면 거부", pj("/passkey/register-options", {})[0] == 403)
         st, opts = pj("/passkey/register-options", {"csrf": csrf})
         ck("코드 확인 뒤 등록 옵션", st == 200 and json.loads(opts)["rp"]["id"] == RP)
@@ -139,7 +142,11 @@ def main():
         phish = dev.register(opts, origin="https://evil.test")
         st, _ = pj("/passkey/register", {"csrf": csrf, "credential": phish})
         ck("다른 출처(피싱)의 등록 응답 거부", st == 400 and not store.load().get("passkeys"))
-        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={code()}".encode(), "1.1.1.1")
+        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={ek}".encode(), "1.1.1.1")
+        ck("등록 코드는 1회용", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
+        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={store.issue_enroll_code(clk[0] - 1000)}".encode(), "1.1.1.1")
+        ck("15분 지난 등록 코드 거부", pj("/passkey/register-options", {"csrf": csrf})[0] == 403)
+        app.handle("POST", "/passkey/begin", h, f"csrf={csrf}&code={store.issue_enroll_code(clk[0])}".encode(), "1.1.1.1")
         st, opts = pj("/passkey/register-options", {"csrf": csrf})
         cred = dev.register(opts)
         st, body = pj("/passkey/register", {"csrf": csrf, "credential": cred})
@@ -158,9 +165,10 @@ def main():
         other = SoftAuthenticator().key
         st, _ = pj("/passkey/action", {**req, "credential": dev.assert_(ao, key=other)})
         ck("다른 키의 서명 거부", st == 401 and load_profile(main_p, "la")["auto"] == "off")
-        st, ao = pj("/passkey/action-options", {**req, "op": "run"})
+        st, ao = pj("/passkey/action-options", {**req, "op": "resume"})
         st, _ = pj("/passkey/action", {**req, "credential": dev.assert_(ao)})
-        ck("확인은 요청한 조작에만 묶인다(run 으로 받은 확인으로 주문 켜기 불가)", st == 403 and load_profile(main_p, "la")["auto"] == "off")
+        ck("확인은 요청한 조작에만 묶인다(킬 해제로 받은 확인으로 주문 켜기 불가)", st == 403 and load_profile(main_p, "la")["auto"] == "off")
+        ck("실계좌 주문성 조작이 아니면 패스키 확인을 안 준다", pj("/passkey/action-options", {**req, "op": "auto-off"})[0] == 404)
         st, ao = pj("/passkey/action-options", req)
         st, _ = pj("/passkey/action", {**req, "phrase": "", "credential": dev.assert_(ao)})
         ck("확인 문구 없으면 거부", st == 400 and load_profile(main_p, "la")["auto"] == "off")
@@ -174,6 +182,12 @@ def main():
         st, _ = pj("/passkey/action", {**req, "credential": dev.assert_(ao, origin="https://evil.test")})
         ck("피싱 출처의 서명 거부", st == 401)
         ck("서명 카운트 저장", store.load()["passkeys"][0]["count"] >= 1)
+        from autotrader.config import kill_file
+        la = load_profile(main_p, "la")
+        kill_file(la).write_text("x", encoding="utf-8")
+        st, ao = pj("/passkey/action-options", {**req, "op": "resume"})
+        st, _ = pj("/passkey/action", {**req, "op": "resume", "credential": dev.assert_(ao)})
+        ck("실계좌 킬 해제는 패스키로 된다", st == 200 and not kill_file(la).exists())
 
         # ---- 삭제는 서버에서만, 알림, rp 미설정
         ck("웹에 패스키 삭제 경로 없음", pj("/passkey/delete", {"csrf": csrf})[0] == 404)

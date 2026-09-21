@@ -53,7 +53,9 @@ LISTEN_PORT = 8765
 
 
 def load_watchlist():
-    if HOLDINGS_PATH.exists():
+    # ★ 2026-09-22 보안 검토(H1): 이 중계는 인증 없이 wss://…/live-ws 로 **누구에게나** 방송한다. 보유 종목으로 구독하면
+    #   종목 목록 자체가 실계좌 보유를 드러낸다. 그래서 기본은 공개 정적 목록만 쓰고, 보유 종목은 환경변수로 명시할 때만.
+    if os.environ.get("LIVE_RELAY_USE_HOLDINGS") == "1" and HOLDINGS_PATH.exists():
         try:
             h = json.loads(HOLDINGS_PATH.read_text(encoding="utf-8"))
             tickers = [(r["ticker"], r["name"]) for r in h.get("holdings", []) if r.get("ticker")]

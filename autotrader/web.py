@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import html
 import json
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -122,7 +123,7 @@ def render_sells(snap: Optional[dict]) -> str:
     for m, r in ((snap or {}).get("realized") or {}).items():
         for x in reversed(r.get("sells", [])[-30:]):
             cls = "ok" if x["pnl"] >= 0 else "bad"
-            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{E(x["symbol"])}</td><td>{x["qty"]}</td>'
+            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{E(x["symbol"])}</td><td>{E(str(x["qty"]))}</td>'
                         f'<td>{x["avg"]:,.2f} → {x["price"]:,.2f}</td><td class="{cls}">{_money(m, x["pnl"])}</td></tr>')
     if "realized" not in (snap or {}):
         return ""
@@ -206,31 +207,32 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
 
 
 def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False) -> str:
-    """프로필 조작 폼. 킬 스위치 켜기만 코드 없이 되고, 나머지는 인증앱 코드를 **매번 새로** 넣어야 한다."""
+    """프로필 조작 폼. 킬 켜기만 코드 없이. 모의는 인증앱 코드, **실계좌의 주문 켜기·실행·킬 해제는 패스키로만**
+    (2026-09-22 보안 검토 M2·M3·M4 — 피싱된 인증앱 코드로는 실계좌 주문에 닿지 않는다)."""
     name = str(cfg.get("profile", ""))
     live = cfg.get("mode") == "live"
     web_live = live and bool(cfg.get("web_live_allowed"))
     opts = [("auto-off", "자동 끄기"), ("auto-dry", "자동 dry-run (주문 없이 계획만)")]
     if not live:
-        opts.append(("auto-execute", "자동 주문 켜기 (모의투자)"))
-    elif web_live and not has_pk:
-        opts.append(("auto-execute", "⚠ 실계좌 자동 주문 켜기"))
-    opts += [("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"), ("resume", "킬 스위치 해제")]
+        opts += [("auto-execute", "자동 주문 켜기 (모의투자)"), ("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"),
+                 ("resume", "킬 스위치 해제")]
+    else:
+        opts.append(("run", "지금 한 번 실행 — 자동이 '주문'이 아닐 때만(dry-run)"))
     sel = "".join(f'<option value="{k}">{E(t)}</option>' for k, t in opts)
     m = f'<div class="warn">{E(msg)}</div>' if msg else ""
-    if web_live:
-        note = (f"<div class='warn'>실계좌 프로필이다. 주문을 켜거나 '지금 실행'하려면 확인 문구 <b>{E(LIVE_PHRASE)}</b> 를 입력한다."
-                " 한도·종목은 서버 설정 그대로다.</div>")
-    elif live:
-        note = "<div class='mut'>이 실전 프로필은 서버가 웹 켜기를 허락하지 않았다(끄기만 가능).</div>"
-    else:
+    if not live:
         note = "<div class='mut'>'주문'은 서버 타이머에도 --execute 가 있어야 실제로 나간다.</div>"
-    phrase = (f'<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if web_live and not has_pk else "")
+    elif not has_pk:
+        note = ("<div class='warn'>실계좌의 주문 켜기·실행·킬 해제는 <b>패스키로만</b> 된다 — 먼저 '패스키(지문) 관리'에서 등록"
+                "(등록 코드는 서버에서 발급).</div>")
+    else:
+        note = ""
     pk_form = ""
-    if web_live and has_pk:                            # 패스키가 있으면 실계좌 주문 켜기·실행은 패스키로만(인증앱 코드는 안 받는다)
+    if live and has_pk:
+        pk_ops = ('<option value="auto-execute">⚠ 실계좌 자동 주문 켜기</option><option value="run">⚠ 실계좌 지금 한 번 실행</option>'
+                  if web_live else "") + '<option value="resume">실계좌 킬 스위치 해제</option>'
         pk_form = f'''<form id="pk-action" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin-top:10px">
-<h2>🔑 실계좌 주문 (패스키)</h2><select name="op"><option value="auto-execute">⚠ 실계좌 자동 주문 켜기</option>
-<option value="run">⚠ 실계좌 지금 한 번 실행</option></select>
+<h2>🔑 실계좌 (패스키)</h2><select name="op">{pk_ops}</select>
 <input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off" required>
 <button>패스키(지문)로 확인</button><div id="pk-action-msg"></div></form>
 <script src="{E(base)}/static/passkey.js"></script>'''
@@ -239,7 +241,7 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
 <form method="post" action="{base}/action"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <select name="op">{sel}</select>
 <input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-{phrase}<button>적용</button></form>{note}
+<button>적용</button></form>{note}
 <form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <input type="hidden" name="op" value="kill"><button style="background:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form>{pk_form}</div>'''
 
@@ -256,11 +258,11 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
             pnl = (px - p["avgPrice"]) * p["qty"] if px else None
             pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
             cls = "" if pnl is None else ("ok" if pnl >= 0 else "bad")
-            return (f'<tr><td>{E(str(p["symbol"]))}</td><td>{p["qty"]}</td><td>{p["avgPrice"]:,.2f}</td>'
+            return (f'<tr><td>{E(str(p["symbol"]))}</td><td>{E(str(p["qty"]))}</td><td>{p["avgPrice"]:,.2f}</td>'
                     f'<td>{f"{px:,.2f}" if px else "-"}</td><td class="{cls}">{"-" if pnl is None else f"{pnl:+,.2f}"}'
                     f'{"" if pc is None else f" ({pc:+.1f}%)"}</td></tr>')
         pos = "".join(prow(p) for p in d.get("positions", []))
-        oo = "".join(f'<tr><td>{E(str(o["symbol"]))}</td><td>{E(str(o["side"]))}</td><td>{o["remaining"]}/{o["qty"]}</td>'
+        oo = "".join(f'<tr><td>{E(str(o["symbol"]))}</td><td>{E(str(o["side"]))}</td><td>{E(str(o["remaining"]))}/{E(str(o["qty"]))}</td>'
                      f'<td>{o["price"]:,.2f}</td></tr>' for o in d.get("openOrders", []))
         cash = d.get("cash")
         rows.append(f'''<div class="card"><h2>{E(m)}</h2>
@@ -287,6 +289,11 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
     return _page("autotrader 상세", body, refresh=False)
 
 
+def is_live_order(c: dict, op: str) -> bool:
+    """실계좌 주문으로 이어질 수 있는 조작 — 주문 켜기, 주문 상태의 지금 실행, 킬 해제(M2: 해제하면 예약 주문이 다시 나간다)."""
+    return c.get("mode") == "live" and (op in ("auto-execute", "resume") or (op == "run" and c.get("auto") == "execute"))
+
+
 def _fetch_accounts() -> dict:
     import urllib.request
     with urllib.request.urlopen(ACCOUNTS_URL, timeout=10) as r:        # 127.0.0.1 고정 — 외부 주소를 받지 않는다
@@ -310,7 +317,7 @@ def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> b
             continue
         pnl = a.get("totalPnlKrw")
         rows = "".join(
-            f'<tr><td>{E(str(h.get("currency")))}</td><td>{h.get("balance")}</td><td>{won(h.get("evalKrw"))}</td>'
+            f'<tr><td>{E(str(h.get("currency")))}</td><td>{E(str(h.get("balance")))}</td><td>{won(h.get("evalKrw"))}</td>'
             f'<td class="{"" if h.get("pnlKrw") is None else ("ok" if h["pnlKrw"] >= 0 else "bad")}">{won(h.get("pnlKrw"))}'
             f'{_pct(h.get("pnlPct"))}</td></tr>'
             for h in a.get("holdings") or [])
@@ -331,8 +338,8 @@ def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> b
     if rv:
         fm = rv.get("frontMonth") or {}
         cards.append(f'''<div class="card"><h2>RV20 선물 (모의)</h2>
-<div class="row"><span>보유 계약</span><span>{rv.get("heldContracts")}</span></div>
-<div class="row"><span>근월물</span><span>{E(str(fm.get("name", "-")))} {fm.get("price", "")}</span></div>
+<div class="row"><span>보유 계약</span><span>{E(str(rv.get("heldContracts")))}</span></div>
+<div class="row"><span>근월물</span><span>{E(str(fm.get("name", "-")))} {E(str(fm.get("price", "")))}</span></div>
 <div class="mut">갱신 {E(str(rv.get("generatedAtKST", "-")))}</div></div>''')
     body = (f'<h1>실계좌 요약</h1><div class="card mut">수집 {E(str((d or {}).get("fetchedAt", "-")))} · '
             f'업비트·빗썸·KIS 실계좌는 조회만 한다(autotrader 주문과 무관)</div>{"".join(cards)}'
@@ -349,8 +356,10 @@ def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "")
         inner = (f'<button id="pk-register" data-base="{E(base)}" data-csrf="{E(csrf)}">이 기기로 패스키 등록(지문·화면잠금)</button>'
                  f'<div id="pk-msg" class="mut">5분 안에 누르세요.</div><script src="{E(base)}/static/passkey.js"></script>')
     else:
-        inner = (f'<form method="post" action="{base}/passkey/begin"><input type="hidden" name="csrf" value="{E(csrf)}">'
-                 '<input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>'
+        inner = ('<div class="mut">등록 코드는 서버에서만 나온다(피싱된 인증앱 코드로 남의 패스키를 추가하지 못하게):<br>'
+                 '<code>python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-enroll</code> (15분·1회용)</div>'
+                 f'<form method="post" action="{base}/passkey/begin"><input type="hidden" name="csrf" value="{E(csrf)}">'
+                 '<input name="code" placeholder="서버 등록 코드 (예: 3F2A-9C01-77BE)" autocomplete="off" maxlength="20" required>'
                  '<button>등록 시작</button></form>')
     body = (f'<h1>패스키(지문)</h1><div class="card"><div class="row"><span>등록된 패스키</span><span>{n}개</span></div>'
             '<div class="mut">패스키가 하나라도 있으면 <b>실계좌 주문 켜기·실행은 패스키로만</b> 된다(인증앱 코드는 안 받는다 — 피싱 방지). '
@@ -392,6 +401,7 @@ class WebApp:
         self.require_reauth = require_reauth                              # True 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다
         self.log_path = self.sdir / "web_login.log"
         self._msgs: set = set()
+        self._auth_lock = threading.Lock()
         self.fetch_accounts = accounts_fetch or _fetch_accounts
         self.rp_id, self.origin = rp_id, origin                            # 패스키: 도메인·출처(설정 web.rp_id / web.origin)
         self.profiles = profiles or (lambda: [])                          # 프로필 설정 목록(키 없음 — 파일만 읽는다)
@@ -466,6 +476,12 @@ class WebApp:
             return 200, self._hdrs({"Content-Type": "application/javascript; charset=utf-8"}), js
         if not self.store.exists():
             return 503, self._hdrs(), _page("설정 필요", "<h1>설정 필요</h1><div class='card mut'>서버에서 web-setup 을 먼저 실행해야 한다.</div>")
+        if method == "POST":
+            with self._auth_lock:                       # 동시 요청으로 잠금 검사를 한꺼번에 통과하지 못하게 — 1인용이라 직렬로 충분
+                return self._handle(method, path, raw_path, headers, body, ip)
+        return self._handle(method, path, raw_path, headers, body, ip)
+
+    def _handle(self, method, path, raw_path, headers, body, ip):
         tok = self._session_token(headers)
         sess = self.sessions.get(tok)
         form = parse_qs(body.decode("utf-8", "replace"), keep_blank_values=True) if method == "POST" else {}
@@ -533,11 +549,11 @@ class WebApp:
         c = match[0]
         live = c.get("mode") == "live"
         # 실계좌 주문으로 이어질 수 있는 조작(주문 켜기·주문 상태의 지금 실행)은 확인 문구까지 요구한다
-        live_order = live and (op == "auto-execute" or (op == "run" and c.get("auto") == "execute"))
+        live_order = is_live_order(c, op)
         def back(m: str):
             return self._redirect(self._back_url(name, m))
-        if live_order and self._passkeys() and not self._pk_disabled():
-            return back("실계좌 주문 켜기·실행은 패스키로만 됩니다 — 아래 '패스키(지문)로 확인'")
+        if live_order:                                  # 패스키가 없거나 쓸 수 없어도 코드로 내려가지 않는다(M3)
+            return back("실계좌 주문 켜기·실행·킬 해제는 패스키로만 됩니다 — 아래 '패스키(지문)로 확인'")
         if op != "kill":                                # 킬 켜기(안전 쪽)만 코드 없이. 나머지는 새 인증앱 코드
             if self.lockout.is_locked(ip):
                 return back("잠시 후 다시 시도하세요")
@@ -551,9 +567,6 @@ class WebApp:
                 return back("인증앱 코드가 맞지 않습니다(방금 쓴 코드는 못 씁니다 — 새 코드를 기다리세요)")
             self.store.set_last_step(step)
             self.lockout.ok(ip)
-        if live_order and phrase.strip() != LIVE_PHRASE:
-            self._log(ip, "action-fail")
-            return back(f"실계좌 조작은 확인 문구({LIVE_PHRASE})를 정확히 입력해야 합니다")
         return back(self._execute(c, name, op, ip))
 
     def _back_url(self, name: str, m: str) -> str:
@@ -592,18 +605,15 @@ class WebApp:
                                                      sess.get("pkRegUntil", 0) > now, self.base)
         if method != "POST" or self._pk_disabled():
             return self._not_found()
-        if path == "/passkey/begin":                    # 등록 시작 = 새 인증앱 코드 확인 → 5분간 등록 허용
+        if path == "/passkey/begin":                    # 등록 시작 = 서버가 발급한 1회용 등록 코드 → 5분간 등록 허용
             if field("csrf") != sess["csrf"]:
                 return 403, self._hdrs(), _page("403", "<h1>요청이 거부됨</h1>")
             if self.lockout.is_locked(ip):
                 return self._redirect("/passkey")
-            rec = self.store.load()
-            step = totp_verify(rec["totpSecret"], field("code"), t=now, last_step=rec.get("lastTotpStep"))
-            if step is None:
+            if not self.store.take_enroll_code(field("code"), now):
                 self.lockout.fail(ip)
                 self._log(ip, "passkey-fail")
                 return self._redirect("/passkey")
-            self.store.set_last_step(step)
             self.lockout.ok(ip)
             sess["pkRegUntil"] = now + 300
             return self._redirect("/passkey")
@@ -630,14 +640,13 @@ class WebApp:
             except Exception:                           # noqa: BLE001 — 라이브러리 검증 실패
                 self._log(ip, "passkey-fail")
                 return self._json(400, {"error": "패스키 검증 실패"})
-            rec = self.store.load()
-            rec["passkeys"] = (rec.get("passkeys") or []) + [{**rec_pk, "added": self._now().isoformat()}]
-            self.store.save(rec)
+            added = {**rec_pk, "added": self._now().isoformat()}
+            self.store.update(lambda r: r.__setitem__("passkeys", (r.get("passkeys") or []) + [added]))
             self._log(ip, "passkey-added")
             return self._json(200, {"message": "패스키를 등록했습니다"})
         if path == "/passkey/action-options":
             match = [c for c in self.profiles() if c.get("profile") == j.get("p")]
-            if not match or j.get("op") not in ("auto-execute", "run") or not self._passkeys():
+            if not match or not is_live_order(match[0], j.get("op")) or not self._passkeys():
                 return self._json(404, {"error": "없음"})
             opts, chal = passkey_auth_options(self.rp_id, [p["id"] for p in self._passkeys()])
             sess["pkAct"] = {"chal": chal, "p": j["p"], "op": j["op"], "until": now + 120}   # 이 조작에만 묶인다
@@ -656,11 +665,11 @@ class WebApp:
                 self._log(ip, "passkey-fail")
                 return self._json(401, {"error": "패스키 확인 실패"})
             self.lockout.ok(ip)
-            rec = self.store.load()
-            for pk in rec.get("passkeys") or []:
-                if pk["id"] == cid:
-                    pk["count"] = count
-            self.store.save(rec)
+            def bump(r):
+                for pk in r.get("passkeys") or []:
+                    if pk["id"] == cid:
+                        pk["count"] = max(int(pk.get("count") or 0), count)
+            self.store.update(bump)
             c = [x for x in self.profiles() if x.get("profile") == pend["p"]][0]
             live = c.get("mode") == "live"
             if live and str(j.get("phrase", "")).strip() != LIVE_PHRASE:

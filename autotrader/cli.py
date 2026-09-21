@@ -312,6 +312,18 @@ def cmd_web_setup(args) -> int:
     return 0
 
 
+def cmd_passkey_enroll(args) -> int:
+    """패스키 등록 코드(1회용·15분)를 발급한다 — **서버에서만**. 웹의 '패스키 관리'에 이 코드를 넣어야 등록이 시작된다."""
+    import time as _t
+    from .web_auth import AuthStore
+    store = AuthStore(state_dir(_cfg(args)) / "web_auth.json")
+    if not store.exists():
+        print("웹 인증 설정이 없다(web-setup 먼저)", file=sys.stderr)
+        return 2
+    print(f"패스키 등록 코드: {store.issue_enroll_code(_t.time())}   (15분 안에 한 번만 쓸 수 있다)")
+    return 0
+
+
 def cmd_passkey_reset(args) -> int:
     """등록된 패스키를 전부 지운다 — **서버에서만**(웹에는 삭제 기능이 없다: 지울 수 있으면 공격자가 지우고 코드 방식으로 되돌린다)."""
     from .web_auth import AuthStore
@@ -397,6 +409,7 @@ def main(argv=None) -> int:
     nt.add_argument("--once", action="store_true", help="한 번만 확인하고 끝낸다(기본은 계속 감시)")
     sub.add_parser("telegram-chat-id")
     sub.add_parser("passkey-reset")
+    sub.add_parser("passkey-enroll")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
@@ -404,7 +417,7 @@ def main(argv=None) -> int:
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
-          "passkey-reset": cmd_passkey_reset}[args.cmd]
+          "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

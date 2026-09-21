@@ -187,11 +187,25 @@ def _fetch_market_trend_sync():
     return out
 
 
+# ★ 2026-09-22 보안 검토(M6·L5): 공개 주소라 누구나 부른다. KIS 는 전체에서 한 번에 한 건만(같은 모의 키를 쓰는
+#   주문·수집이 EGW00201 로 막히지 않게), 지난 날짜 분봉은 바뀌지 않으니 캐시, 네이버 추세는 30초 캐시,
+#   오류 원문은 밖으로 내보내지 않는다(로그에만).
+_KIS_GATE = asyncio.Semaphore(1)
+_DAY_CACHE = {}
+_DAY_CACHE_MAX = 300
+_TREND_CACHE = {"at": 0.0, "data": None}
+
+
 async def handle_market_trend(request):
-    try:
-        data = await asyncio.to_thread(_fetch_market_trend_sync)
-    except Exception as e:
-        return web.json_response({"error": str(e)}, status=502)
+    if _TREND_CACHE["data"] is not None and time.time() - _TREND_CACHE["at"] < 30:
+        data = _TREND_CACHE["data"]
+    else:
+        try:
+            data = await asyncio.to_thread(_fetch_market_trend_sync)
+        except Exception as e:
+            print(f"market-trend 실패: {type(e).__name__}: {e}")
+            return web.json_response({"error": "조회 실패"}, status=502)
+        _TREND_CACHE.update(at=time.time(), data=data)
     return web.json_response({
         "source": "m.stock.naver.com/api/index/{KOSPI,KOSDAQ}/trend",
         "note": "장중 잠정치(억원). KRX 확정치가 아니다.",
@@ -207,10 +221,26 @@ async def handle_minute_history(request):
         return web.json_response({"error": "ticker는 6자리 숫자여야 한다"}, status=400)
     if not (date.isdigit() and len(date) == 8):
         return web.json_response({"error": "date는 YYYYMMDD 형식이어야 한다"}, status=400)
+    today = time.strftime("%Y%m%d")
     try:
-        bars = await collect_day(ticker, date)
+        d = time.strptime(date, "%Y%m%d")
+    except ValueError:
+        return web.json_response({"error": "없는 날짜"}, status=400)
+    if date > today or time.mktime(d) < time.time() - 400 * 86400:     # KIS 분봉 보존은 약 1년 — 그 밖은 부르지 않는다
+        return web.json_response({"error": "조회 범위 밖 날짜"}, status=400)
+    key = (ticker, date)
+    if key in _DAY_CACHE:
+        return web.json_response({"ticker": ticker, "date": date, "bars": _DAY_CACHE[key]})
+    try:
+        async with _KIS_GATE:
+            bars = await collect_day(ticker, date)
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=502)
+        print(f"minute-history 실패 {ticker} {date}: {type(e).__name__}: {e}")
+        return web.json_response({"error": "조회 실패"}, status=502)
+    if date < today and bars:                           # 끝난 날만 캐시(오늘은 계속 바뀐다)
+        if len(_DAY_CACHE) >= _DAY_CACHE_MAX:
+            _DAY_CACHE.pop(next(iter(_DAY_CACHE)))
+        _DAY_CACHE[key] = bars
     return web.json_response({"ticker": ticker, "date": date, "bars": bars})
 
 
@@ -240,6 +270,10 @@ def _read_holdings_file(path):
 
 
 async def handle_accounts(request):
+    # ★ 2026-09-22(L4): 인터넷에서는 nginx 가 403 으로 막는다. 두 번째 겹 — 공개 경로는 nginx 가 X-Forwarded-For 를
+    #   붙여 넘기므로, 그 헤더가 있으면(=바깥에서 온 요청) 여기서도 거부한다. autotrader 웹은 127.0.0.1 로 직접 부른다.
+    if request.headers.get("X-Forwarded-For"):
+        return web.json_response({"error": "forbidden"}, status=403)
     # CORS 허용은 nginx location 블록(/accounts)이 add_header로 준다 - 여기서
     # 또 붙이면 헤더가 두 번(*, *) 나가 브라우저가 무효로 본다(실측 2026-09-14,
     # 로컬 프리뷰는 nginx를 안 거쳐서 이 중복이 안 보였다). market-trend와

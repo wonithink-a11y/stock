@@ -118,29 +118,23 @@ def main():
         ck("허락 값은 true/false 만", web is not None and __import__("autotrader.config", fromlist=["x"]).validate_config(
             {**BASE, "web_live_allowed": "yes"}) != [])
         clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}")
-        ck("확인 문구 없으면 실계좌 주문 안 켜진다", load_profile(main_p, "la")["auto"] == "off")
-        clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}&phrase=%EC%8B%A4%EA%B3%84%EC%A2%8C")
-        ck("틀린 확인 문구도 거부", load_profile(main_p, "la")["auto"] == "off")
-        clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=auto-execute&phrase={web.LIVE_PHRASE}&code=000000")
-        ck("문구가 맞아도 코드가 틀리면 거부", load_profile(main_p, "la")["auto"] == "off")
         post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}&phrase={web.LIVE_PHRASE}")
-        ck("코드 + 문구면 실계좌 자동 주문 켜짐", load_profile(main_p, "la")["auto"] == "execute")
+        ck("허락된 실전이라도 인증앱 코드 + 문구로는 주문이 안 켜진다(패스키로만)", load_profile(main_p, "la")["auto"] == "off")
         la = load_profile(main_p, "la")
+        kill_file(la).parent.mkdir(parents=True, exist_ok=True)
+        kill_file(la).write_text("x", encoding="utf-8")
         clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=run&code={A.totp_now(secret, clk[0])}")
-        ck("주문 상태 실계좌의 '지금 실행'도 문구가 있어야", not (state_dir_of(la) / "run_request.json").exists())
+        post(f"csrf={csrf}&p=la&op=resume&code={A.totp_now(secret, clk[0])}")
+        ck("실계좌 킬 해제도 인증앱 코드로는 안 된다(M2)", kill_file(la).exists())
         clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=run&code={A.totp_now(secret, clk[0])}&phrase={web.LIVE_PHRASE}")
-        ck("문구가 있으면 실행 요청", (state_dir_of(la) / "run_request.json").exists())
-        clk[0] += 30
-        post(f"csrf={csrf}&p=la&op=auto-off&code={A.totp_now(secret, clk[0])}")
-        ck("실계좌 끄기는 문구 없이 된다", load_profile(main_p, "la")["auto"] == "off")
+        post(f"csrf={csrf}&p=la&op=auto-dry&code={A.totp_now(secret, clk[0])}")
+        ck("실계좌를 dry-run 으로 내리는 건 코드로 된다", load_profile(main_p, "la")["auto"] == "dry")
+        post(f"csrf={csrf}&p=la&op=kill")
+        ck("실계좌 킬 켜기는 코드 없이", kill_file(la).exists())
+        st, _, b = app.handle("GET", "/details?p=la", h, b"", "1.1.1.1")
+        ck("패스키 없으면 실계좌 조작 안내만(주문 켜기 선택지 없음)", "패스키로만" in b.decode() and "auto-execute" not in b.decode())
         lg = (sdir / "web_login.log").read_text(encoding="utf-8").splitlines()
-        ck("실계좌 조작은 텔레그램에 실계좌로 표시",
-           any("실계좌 자동 주문 켬" in m for m in notify.build_messages(lg)))
+        ck("실계좌 조작은 텔레그램에 실계좌로 표시", any("실계좌 킬 스위치 켬" in m for m in notify.build_messages(lg)))
         (td / "profiles" / "la.json").unlink()
 
         # ---- 실계좌 요약(전엔 인터넷에 인증 없이 열려 있던 /accounts) — 로그인 뒤에서만
@@ -194,6 +188,24 @@ def main():
         ck("자동이 꺼진 프로필의 '지금 실행'은 dry-run(주문 없음)", len(brokers) == 1 and brokers[0].placed == [])
         cli.cmd_run_due(type("A", (), {"config": main_p, "execute": True})())
         ck("요청은 한 번만 실행", len(brokers) == 1)
+
+    # ---- H2: 동시 요청으로 잠금을 한꺼번에 통과하지 못한다(검증이 끝나야 다음 요청이 잠금을 본다)
+    import threading
+    import time as _time
+    with tempfile.TemporaryDirectory() as td2:
+        sd = Path(td2)
+        st2 = A.AuthStore(sd / "web_auth.json")
+        st2.save({"password": A.hash_password("pw-long-enough-1"), "totpSecret": A.new_totp_secret()})
+        app2 = web.WebApp(normalize_config({**BASE, "state_dir": str(sd)}), sd, st2, A.Sessions(), A.Lockout(), secure_cookie=False)
+        codes = []
+        th = [threading.Thread(target=lambda: codes.append(app2.handle("POST", "/login", {}, b"password=wrong&code=000000",
+                                                                      "9.9.9.9")[0])) for _ in range(20)]
+        [t.start() for t in th]
+        [t.join() for t in th]
+        ck("동시 20건 중 실제 검증은 잠금 한도(5)까지만, 나머지는 잠김", codes.count(401) == 5 and codes.count(429) == 15)
+        code_txt = st2.issue_enroll_code(_time.time())
+        ck("등록 코드 형식·대소문자 무관·1회용", len(code_txt) == 14 and st2.take_enroll_code(code_txt.lower(), _time.time())
+           and not st2.take_enroll_code(code_txt, _time.time()))
 
     print(f"\ntest-autotrader-webctl {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0

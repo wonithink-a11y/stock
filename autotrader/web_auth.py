@@ -12,6 +12,7 @@ import json
 import os
 import secrets
 import struct
+import threading
 import time
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
@@ -70,6 +71,9 @@ def otpauth_uri(secret_b32: str, account: str, issuer: str = "autotrader") -> st
 
 # ---------------------------------------------------------------- 저장소
 class AuthStore:
+    """web_auth.json — 비밀번호 해시·TOTP 비밀·패스키·등록 코드. 쓰기는 잠금 + 임시파일 교체(동시 저장으로 깨지거나 패스키가 사라지지 않게)."""
+    _lock = threading.RLock()
+
     def __init__(self, path: Path):
         self.path = Path(path)
 
@@ -80,17 +84,48 @@ class AuthStore:
         return json.loads(self.path.read_text(encoding="utf-8"))
 
     def save(self, rec: dict) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(rec), encoding="utf-8")
-        try:
-            os.chmod(self.path, 0o600)
-        except OSError:
-            pass
+        with self._lock:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(rec), encoding="utf-8")
+            try:
+                os.chmod(tmp, 0o600)
+            except OSError:
+                pass
+            os.replace(tmp, self.path)
+
+    def update(self, fn: Callable[[dict], None]) -> dict:
+        """읽기-수정-쓰기를 한 덩어리로(다른 스레드의 변경을 덮어쓰지 않게)."""
+        with self._lock:
+            rec = self.load()
+            fn(rec)
+            self.save(rec)
+            return rec
 
     def set_last_step(self, step: int) -> None:
-        rec = self.load()
-        rec["lastTotpStep"] = step
-        self.save(rec)
+        # 되돌아가지 않는다 — 늦게 끝난 요청이 더 옛 스텝으로 덮어쓰면 쓴 코드가 다시 통한다
+        self.update(lambda r: r.__setitem__("lastTotpStep", max(int(r.get("lastTotpStep") or 0), step)))
+
+    # ---- 패스키 등록 코드(서버 CLI 가 발급, 1회용·15분) — 피싱된 인증앱 코드로는 패스키를 추가할 수 없게
+    def issue_enroll_code(self, now: float, ttl: int = 900) -> str:
+        code = "-".join(secrets.token_hex(2).upper() for _ in range(3))           # 예: 3F2A-9C01-77BE
+        h = hashlib.sha256(code.encode()).hexdigest()
+        self.update(lambda r: r.__setitem__("enroll", {"hash": h, "until": now + ttl}))
+        return code
+
+    def take_enroll_code(self, code: str, now: float) -> bool:
+        """맞으면 소비(삭제)하고 True. 틀리면 그대로 두고 False(잠금은 호출부가 센다)."""
+        ok = [False]
+
+        def fn(r):
+            e = r.get("enroll") or {}
+            want = e.get("hash", "")
+            got = hashlib.sha256((code or "").strip().upper().encode()).hexdigest()
+            if want and e.get("until", 0) > now and hmac.compare_digest(want, got):
+                r.pop("enroll", None)
+                ok[0] = True
+        self.update(fn)
+        return ok[0]
 
 
 # ---------------------------------------------------------------- 잠금
