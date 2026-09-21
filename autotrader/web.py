@@ -26,6 +26,7 @@ from .web_auth import AuthStore, Lockout, Sessions, totp_verify, verify_password
 
 KST = timezone(timedelta(hours=9))
 COOKIE = "at_sess"
+LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입력하는 확인 문구(실수 클릭 방지 — 보안은 인증앱 코드와 서버 한도가 맡는다)
 SNAPSHOT_STALE_SEC = 30 * 60
 
 CSS = """
@@ -204,20 +205,29 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "") -> str:
     """프로필 조작 폼. 킬 스위치 켜기만 코드 없이 되고, 나머지는 인증앱 코드를 **매번 새로** 넣어야 한다."""
     name = str(cfg.get("profile", ""))
     live = cfg.get("mode") == "live"
+    web_live = live and bool(cfg.get("web_live_allowed"))
     opts = [("auto-off", "자동 끄기"), ("auto-dry", "자동 dry-run (주문 없이 계획만)")]
     if not live:
         opts.append(("auto-execute", "자동 주문 켜기 (모의투자)"))
+    elif web_live:
+        opts.append(("auto-execute", "⚠ 실계좌 자동 주문 켜기"))
     opts += [("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"), ("resume", "킬 스위치 해제")]
     sel = "".join(f'<option value="{k}">{E(t)}</option>' for k, t in opts)
     m = f'<div class="warn">{E(msg)}</div>' if msg else ""
-    note = ("<div class='mut'>실전 프로필은 여기서 주문을 켤 수 없다(서버에서만).</div>" if live else
-            "<div class='mut'>'주문'은 서버 타이머에도 --execute 가 있어야 실제로 나간다.</div>")
+    if web_live:
+        note = (f"<div class='warn'>실계좌 프로필이다. 주문을 켜거나 '지금 실행'하려면 확인 문구 <b>{E(LIVE_PHRASE)}</b> 를 입력한다."
+                " 한도·종목은 서버 설정 그대로다.</div>")
+    elif live:
+        note = "<div class='mut'>이 실전 프로필은 서버가 웹 켜기를 허락하지 않았다(끄기만 가능).</div>"
+    else:
+        note = "<div class='mut'>'주문'은 서버 타이머에도 --execute 가 있어야 실제로 나간다.</div>"
+    phrase = (f'<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if web_live else "")
     return f'''<div class="card"><h2>조작</h2>{m}
 <div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
 <form method="post" action="{base}/action"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <select name="op">{sel}</select>
 <input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-<button>적용</button></form>{note}
+{phrase}<button>적용</button></form>{note}
 <form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <input type="hidden" name="op" value="kill"><button style="background:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form></div>'''
 
@@ -386,7 +396,7 @@ class WebApp:
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
                 return 403, self._hdrs(), _page("403", "<h1>요청이 거부됨</h1>")
-            return self._action(field("p"), field("op"), field("code"), ip)
+            return self._action(field("p"), field("op"), field("code"), ip, field("phrase"))
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -401,11 +411,14 @@ class WebApp:
     # -------------------------------------------------------------- 조작(요청 파일만 쓴다 — 주문은 키를 가진 run-due 가 낸다)
     OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
 
-    def _action(self, name: str, op: str, code: str, ip: str):
+    def _action(self, name: str, op: str, code: str, ip: str, phrase: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
         if not match or op not in self.OPS:
             return self._not_found()
         c = match[0]
+        live = c.get("mode") == "live"
+        # 실계좌 주문으로 이어질 수 있는 조작(주문 켜기·주문 상태의 지금 실행)은 확인 문구까지 요구한다
+        live_order = live and (op == "auto-execute" or (op == "run" and c.get("auto") == "execute"))
         def back(m: str):
             self._msgs.add(m)                           # 이 서버가 낸 문구만 화면에 띄운다(주소창으로 가짜 안내를 못 넣게)
             return self._redirect(f"/details?p={quote(name)}&m={quote(m)}")
@@ -422,6 +435,9 @@ class WebApp:
                 return back("인증앱 코드가 맞지 않습니다(방금 쓴 코드는 못 씁니다 — 새 코드를 기다리세요)")
             self.store.set_last_step(step)
             self.lockout.ok(ip)
+        if live_order and phrase.strip() != LIVE_PHRASE:
+            self._log(ip, "action-fail")
+            return back(f"실계좌 조작은 확인 문구({LIVE_PHRASE})를 정확히 입력해야 합니다")
         now = self._now()
         if op.startswith("auto-"):
             err = web_set_auto(c, op[5:], now)
@@ -440,7 +456,7 @@ class WebApp:
         else:
             kill_file(c).unlink(missing_ok=True)
             msg = "킬 스위치를 해제했습니다"
-        self._log(ip, f"action:{name}:{op}")
+        self._log(ip, f"action:{name}:{op}{'-live' if live else ''}")
         return back(msg)
 
     # -------------------------------------------------------------- 로그인·재인증

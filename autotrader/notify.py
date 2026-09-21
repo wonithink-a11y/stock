@@ -20,7 +20,10 @@ OK_EVENTS = {"login-ok": "✅ 로그인 성공", "reauth-ok": "✅ 재인증 성
 FAIL_EVENTS = {"login-fail": "로그인 실패", "reauth-fail": "재인증 실패", "csrf-fail": "요청 검증 실패", "locked": "잠금 상태에서 시도",
                "action-fail": "조작 코드 실패"}
 ACTION_TEXT = {"auto-off": "자동 실행 끔", "auto-dry": "자동 dry-run", "auto-execute": "⚠️ 자동 주문 켬",
-               "run": "지금 실행 요청", "kill": "🛑 킬 스위치 켬", "resume": "킬 스위치 해제"}
+               "run": "지금 실행 요청", "kill": "🛑 킬 스위치 켬", "resume": "킬 스위치 해제",
+               "auto-execute-live": "🚨 실계좌 자동 주문 켬", "run-live": "🚨 실계좌 프로필 지금 실행 요청",
+               "auto-off-live": "실계좌 자동 끔", "auto-dry-live": "실계좌 dry-run", "kill-live": "🛑 실계좌 킬 스위치 켬",
+               "resume-live": "실계좌 킬 스위치 해제"}
 
 
 def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) -> None:

@@ -132,6 +132,8 @@ def validate_config(cfg: dict) -> List[str]:
     ra = cfg.get("run_at", [])
     if not isinstance(ra, list) or any(not (isinstance(t, str) and re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", t)) for t in ra):
         errs.append("run_at 은 \"HH:MM\"(KST) 목록")
+    if not isinstance(cfg.get("web_live_allowed", False), bool):
+        errs.append("web_live_allowed 는 true|false")
     if cfg.get("days", "weekdays") not in ("weekdays", "daily"):
         errs.append("days 는 weekdays|daily")
     w = cfg.get("web", {})
@@ -251,11 +253,12 @@ def read_control(cfg: dict) -> dict:
 
 
 def effective_auto(cfg: dict, web_auto: Optional[str]) -> str:
-    """웹 값이 있으면 그것을 쓴다. 단 **실전(live)은 웹이 파일 값보다 올릴 수 없다** — 실계좌 주문 켜기는 SSH 로만."""
+    """웹 값이 있으면 그것을 쓴다. 단 **실전(live)은 서버가 프로필 파일에 web_live_allowed: true 를 적어 둔 경우에만**
+    웹이 파일 값보다 올릴 수 있다. 한도·종목·키는 여전히 파일(서버)이 정한다 — 웹이 뚫려도 손실 상한은 서버 한도다."""
     file_auto = cfg.get("auto", "off")
     if web_auto not in _AUTO_RANK:
         return file_auto
-    if cfg.get("mode") == "live" and _AUTO_RANK[web_auto] > _AUTO_RANK[file_auto]:
+    if cfg.get("mode") == "live" and not cfg.get("web_live_allowed") and _AUTO_RANK[web_auto] > _AUTO_RANK[file_auto]:
         return file_auto
     return web_auto
 
@@ -264,8 +267,8 @@ def web_set_auto(cfg: dict, auto: str, now: datetime) -> Optional[str]:
     """웹에서 자동 여부를 바꾼다. 거부 사유 문자열(None=성공)."""
     if auto not in _AUTO_RANK:
         return "알 수 없는 값"
-    if cfg.get("mode") == "live" and _AUTO_RANK[auto] > _AUTO_RANK[cfg.get("auto_file", "off")]:
-        return "실전 프로필의 주문 켜기는 웹에서 할 수 없다(서버에서 프로필 파일로만)"
+    if cfg.get("mode") == "live" and not cfg.get("web_live_allowed")             and _AUTO_RANK[auto] > _AUTO_RANK[cfg.get("auto_file", "off")]:
+        return "이 실전 프로필은 서버가 웹 켜기를 허락하지 않았다(프로필 파일 web_live_allowed)"
     p = control_path(cfg)
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(".tmp")

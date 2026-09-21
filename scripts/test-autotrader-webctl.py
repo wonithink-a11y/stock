@@ -24,6 +24,7 @@ from autotrader.config import (effective_auto, kill_file, load_profile, normaliz
 from autotrader.engine import KST                                             # noqa: E402
 from autotrader.models import Position                                        # noqa: E402
 from autotrader.snapshot import build_snapshot, totals                        # noqa: E402
+from autotrader.config import state_dir as state_dir_of                       # noqa: E402
 
 FAILS, COUNT = [], [0]
 
@@ -110,6 +111,38 @@ def main():
         clk[0] += 30
         post(f"csrf={csrf}&p=lv&op=auto-execute&code={A.totp_now(secret, clk[0])}")
         ck("실전 프로필은 웹에서 주문을 못 켠다", load_profile(main_p, "lv")["auto"] == "dry")
+        # ---- 서버가 허락한 실전 프로필(web_live_allowed): 코드 + 확인 문구가 있어야 켜진다
+        (td / "profiles" / "la.json").write_text(json.dumps({**BASE, "mode": "live", "auto": "off", "web_live_allowed": True}),
+                                                 encoding="utf-8")
+        ck("허락된 실전은 웹이 올릴 수 있다", effective_auto({"mode": "live", "auto": "off", "web_live_allowed": True}, "execute") == "execute")
+        ck("허락 값은 true/false 만", web is not None and __import__("autotrader.config", fromlist=["x"]).validate_config(
+            {**BASE, "web_live_allowed": "yes"}) != [])
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}")
+        ck("확인 문구 없으면 실계좌 주문 안 켜진다", load_profile(main_p, "la")["auto"] == "off")
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}&phrase=%EC%8B%A4%EA%B3%84%EC%A2%8C")
+        ck("틀린 확인 문구도 거부", load_profile(main_p, "la")["auto"] == "off")
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=auto-execute&phrase={web.LIVE_PHRASE}&code=000000")
+        ck("문구가 맞아도 코드가 틀리면 거부", load_profile(main_p, "la")["auto"] == "off")
+        post(f"csrf={csrf}&p=la&op=auto-execute&code={A.totp_now(secret, clk[0])}&phrase={web.LIVE_PHRASE}")
+        ck("코드 + 문구면 실계좌 자동 주문 켜짐", load_profile(main_p, "la")["auto"] == "execute")
+        la = load_profile(main_p, "la")
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=run&code={A.totp_now(secret, clk[0])}")
+        ck("주문 상태 실계좌의 '지금 실행'도 문구가 있어야", not (state_dir_of(la) / "run_request.json").exists())
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=run&code={A.totp_now(secret, clk[0])}&phrase={web.LIVE_PHRASE}")
+        ck("문구가 있으면 실행 요청", (state_dir_of(la) / "run_request.json").exists())
+        clk[0] += 30
+        post(f"csrf={csrf}&p=la&op=auto-off&code={A.totp_now(secret, clk[0])}")
+        ck("실계좌 끄기는 문구 없이 된다", load_profile(main_p, "la")["auto"] == "off")
+        lg = (sdir / "web_login.log").read_text(encoding="utf-8").splitlines()
+        ck("실계좌 조작은 텔레그램에 실계좌로 표시",
+           any("실계좌 자동 주문 켬" in m for m in notify.build_messages(lg)))
+        (td / "profiles" / "la.json").unlink()
+
         post(f"csrf={csrf}&p=pp&op=kill")
         ck("킬 켜기는 코드 없이 즉시", kill_file(pp).exists())
         post(f"csrf={csrf}&p=pp&op=resume")

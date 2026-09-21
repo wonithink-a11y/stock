@@ -159,3 +159,24 @@ python3 -m autotrader --profile samsung kill                                    
   (서로의 미체결은 "남의 주문"으로 보고 그 종목을 건너뛰긴 하지만, 그건 겹침을 늦게 막는 장치이지 막는 방법이 아니다.)
 - 모의투자는 LOC 를 못 받아 지정가로 낸다 — 이 숫자는 전략 판정용이 아니다(판정 정본은 옛 러너 `--mode paper`).
 - MOC(역전 첫날 매도)는 autotrader 에 없는 주문이라 건너뛰고 상태에 `skippedMOC` 로 남긴다 — **실전에서는 규칙과 다르다**.
+
+## 9. 웹 화면에서 조작하기 — 모의는 바로, 실계좌는 서버가 허락한 것만
+
+상세 화면의 "조작" 칸: 자동 끄기·dry-run·주문 켜기, 지금 실행, 킬 스위치. 웹은 **요청 파일만** 쓰고(키 없음) 주문은 `run-due` 가 낸다.
+킬 켜기 말고는 매번 새 인증앱 코드가 필요하고, 모든 조작은 텔레그램으로 즉시 온다.
+
+**실계좌 프로필을 웹에서 켜려면 서버에서 먼저 한 번**(전부 사용자가 한다):
+
+1. 실전 키를 `.env` 에 `KIS_LIVE_APP_KEY` / `_APP_SECRET` / `_ACCOUNT_NO`(또는 원하는 접두사)로 넣는다.
+2. 실전 TR_ID 를 공식 문서와 대조한다(§4-3).
+3. 프로필 파일에 아래를 적는다. **한도는 작게** — 웹이 뚫렸을 때의 손실 상한이 이 값이다(웹은 한도·종목·키를 못 바꾼다).
+   ```json
+   "mode": "live", "key_prefix": "KIS_LIVE", "web_live_allowed": true, "auto": "off",
+   "live": {"enabled": true, "tr_ids_reviewed": true},
+   "risk": {"US": {"max_order_value": 300, "max_daily_value": 1000, ...}}
+   ```
+4. `sudo systemctl edit autotrader.service` 에 `Environment=AUTOTRADER_ALLOW_LIVE=I-ACCEPT-REAL-TRADES` 와 `run-due --execute`.
+
+그 뒤로는 웹에서 켜고 끈다. 실계좌 **주문 켜기**와 주문 상태의 **지금 실행**에는 인증앱 코드 + 확인 문구 `실계좌주문` 이 필요하다.
+끄기·킬 스위치는 문구 없이 된다. `web_live_allowed` 가 없는 실전 프로필은 웹에서 끄기만 된다.
+실계좌 프로필을 연결하면 그 보유·손익이 웹 화면에 보인다(계좌번호는 안 보인다).
