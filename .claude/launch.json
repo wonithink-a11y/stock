@@ -4,20 +4,44 @@
     {
       "name": "chart-trader-ui",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8731", "--directory", "ui"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8731",
+        "--directory",
+        "ui"
+      ],
       "port": 8731
     },
     {
       "name": "rule-discovery-lab",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["research/strategy-lab/dashboard/serve.py", "--port", "8732"],
+      "runtimeArgs": [
+        "research/strategy-lab/dashboard/serve.py",
+        "--port",
+        "8732"
+      ],
       "port": 8732
     },
     {
       "name": "stock-dashboard",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8733", "--directory", "docs"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8733",
+        "--directory",
+        "docs"
+      ],
       "port": 8733
+    },
+    {
+      "name": "autotrader-web-demo",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "scripts/autotrader-web-demo.py"
+      ],
+      "port": 8799
     }
   ]
 }

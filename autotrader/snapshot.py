@@ -29,7 +29,8 @@ def build_snapshot(cfg: dict, broker: Broker, env: Dict[str, str], now: datetime
             if cfg.get("profile"):                      # 프로필은 자기 종목만(같은 계좌를 여러 전략이 나눠 쓴다)
                 allow = set(cfg.get("symbol_allowlist") or [])
                 pos = [p for p in pos if p.symbol in allow]
-            d["positions"] = [{"symbol": p.symbol, "qty": p.qty, "avgPrice": p.avg_price, "price": p.price} for p in pos]
+            d["positions"] = [{"symbol": p.symbol, "name": p.name, "qty": p.qty, "avgPrice": p.avg_price, "price": p.price}
+                              for p in pos]
             d["totals"] = totals(d["positions"])
             d["openOrders"] = [{"orderNo": o.order_no, "symbol": o.symbol, "side": o.side, "qty": o.qty,
                                 "remaining": o.remaining, "price": o.price} for o in broker.open_orders(m)]

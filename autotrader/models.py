@@ -52,6 +52,7 @@ class Position:
     qty: int
     avg_price: float
     price: float = 0.0              # 현재가(브로커 잔고 응답). 0 = 모름 — 손익 계산에서 빠진다
+    name: str = ""                  # 종목명(브로커 잔고 응답). 없으면 화면이 유니버스에서 찾는다
 
 
 @dataclass(frozen=True)

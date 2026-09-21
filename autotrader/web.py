@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -23,6 +24,7 @@ from urllib.parse import parse_qs, quote, urlsplit
 from .config import (ConfigError, kill_file, list_profiles, load_profile, state_dir, web_request_run,
                      web_set_auto)
 from .engine import Ledger
+from .names import names_for
 from .web_auth import (AuthStore, Lockout, Sessions, passkey_auth_options, passkey_auth_verify, passkey_available,
                        passkey_reg_options, passkey_reg_verify, totp_verify, verify_password)
 
@@ -33,27 +35,58 @@ LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입�
 SNAPSHOT_STALE_SEC = 30 * 60
 
 CSS = """
-:root{--bg:#f6f7f9;--fg:#1c1f24;--card:#fff;--mut:#6b7280;--ok:#0a7d3c;--bad:#b42318;--warn:#b54708;--line:#e5e7eb}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e8eaed;--card:#181b21;--mut:#9aa0a6;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--line:#2a2f37}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Malgun Gothic",sans-serif}
-main{max-width:720px;margin:0 auto;padding:16px}h1{font-size:20px;margin:8px 0 12px}h2{font-size:16px;margin:0 0 8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 12px}
-.row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
-.mut{color:var(--mut);font-size:14px}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
-.pill{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid var(--line);font-size:13px;margin-right:6px}
-input,button{font:inherit;padding:12px;border-radius:8px;border:1px solid var(--line);width:100%;margin:6px 0;background:var(--card);color:var(--fg)}
-button{background:var(--fg);color:var(--bg);cursor:pointer}a{color:inherit}table{width:100%;border-collapse:collapse;font-size:14px}
-td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+:root{--bg:#f2f4f8;--fg:#111827;--card:#fff;--mut:#6b7280;--line:#e6e8ee;--chip:#f4f5f9;--acc:#4f46e5;--acc2:#7c3aed;
+--up:#e0284a;--dn:#2563eb;--ok:#059669;--bad:#dc2626;--warn:#d97706;--sh:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06)}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0d12;--fg:#e8eaf0;--card:#151922;--mut:#9aa3b2;--line:#252a35;--chip:#1c212b;
+--acc:#818cf8;--acc2:#a78bfa;--up:#fb7185;--dn:#60a5fa;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",system-ui,sans-serif;
+font-variant-numeric:tabular-nums}
+.top{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:14px 16px 12px;box-shadow:0 2px 10px rgba(79,70,229,.25)}
+.top .in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top .brand{font-weight:800;font-size:18px;letter-spacing:-.3px;color:#fff;text-decoration:none}.top .sub{font-size:12px;opacity:.85}
+.top .tp{display:inline-block;background:rgba(255,255,255,.18);border-radius:99px;padding:2px 10px;font-size:12px;margin-left:4px}
+main{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+h1{font-size:21px;margin:10px 2px 12px;letter-spacing:-.4px}h2{font-size:15px;margin:0 0 10px;letter-spacing:-.2px}
+.sec{font-size:13px;font-weight:700;color:var(--mut);margin:20px 4px 8px;letter-spacing:.2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px;box-shadow:var(--sh)}
+.card.hl{border-left:4px solid var(--acc)}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.hd h2{margin:0;font-size:17px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row>span:first-child{color:var(--mut);font-size:14px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 10px}
+.kpi{background:var(--chip);border-radius:12px;padding:10px 12px;min-width:0}
+.kpi .l{font-size:12px;color:var(--mut)}.kpi .v{font-size:17px;font-weight:700;letter-spacing:-.3px;overflow-wrap:anywhere}
+.kpi .s{font-size:12px;font-weight:600}
+.mut{color:var(--mut);font-size:13px}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.up{color:var(--up)}.dn{color:var(--dn)}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--chip);font-size:12px;font-weight:600;margin:0 4px 4px 0}
+.pill.ok{background:rgba(5,150,105,.12)}.pill.bad{background:rgba(220,38,38,.12)}.pill.warn{background:rgba(217,119,6,.12)}.pill.acc{background:rgba(79,70,229,.12);color:var(--acc)}
+input,button,select{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);width:100%;margin:6px 0;background:var(--card);color:var(--fg)}
+button{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700;cursor:pointer}button.ghost{background:transparent;color:var(--fg)}
+a{color:var(--acc);text-decoration:none}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
+.nav a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--fg);font-weight:600;box-shadow:var(--sh)}
+.nav a small{display:block;color:var(--mut);font-weight:400;font-size:12px;margin-top:2px}
+.btn{display:block;text-align:center;background:var(--acc);color:#fff;border-radius:12px;padding:11px;font-weight:700;margin-top:8px}
+.tw{overflow-x:auto;margin:0 -4px}table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;color:var(--mut);font-weight:600;text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;white-space:nowrap}
+.nm{font-weight:700;display:block;line-height:1.3}.code{font-size:11px;color:var(--mut)}
+.bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:var(--acc)}
+code{background:var(--chip);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
 """
 
 E = html.escape
 
 
-def _page(title: str, body: str, refresh: bool = False) -> bytes:
+def _page(title: str, body: str, refresh: bool = False, base: str = "", sub: str = "") -> bytes:
     meta = '<meta http-equiv="refresh" content="30">' if refresh else ""
+    top = (f'<header class="top"><div class="in"><a class="brand" href="{E(base)}/">📈 autotrader</a>'
+           f'<span class="sub">{sub}</span></div></header>')
     return (f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="robots" content="noindex,nofollow">{meta}<title>{E(title)}</title><style>{CSS}</style></head>'
-            f'<body><main>{body}</main></body></html>').encode("utf-8")
+            f'<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#4f46e5">{meta}<title>{E(title)}</title>'
+            f'<style>{CSS}</style></head><body>{top}<main>{body}</main></body></html>').encode("utf-8")
 
 
 def _load_json(p: Path):
@@ -81,7 +114,8 @@ def load_view(cfg: dict, sdir: Path, now: datetime) -> dict:
         spent[m] = {"used": used, "limit": lim.get("max_daily_value", 0)}
     today_runs = [r for r in runs if str(r.get("at", "")).startswith(day)]
     return {"now": now, "day": day, "mode": cfg.get("mode"), "kill": (Path(sdir) / "KILL").exists(),
-            "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent}
+            "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent,
+            "names": names_for([snap])}
 
 
 def _money(m: str, x) -> str:
@@ -90,120 +124,157 @@ def _money(m: str, x) -> str:
     return f"${x:,.2f}" if m == "US" else f"{x:,.0f}원"
 
 
+def _px(m: str, x) -> str:
+    """가격 표기 — 국내는 원 단위 정수, 해외는 센트까지."""
+    return "-" if not x else (f"{x:,.2f}" if m == "US" else f"{x:,.0f}")
+
+
+def _sign_cls(x) -> str:
+    """국내 관례: 오르면 빨강(up), 내리면 파랑(dn)."""
+    return "" if x is None else ("up" if x > 0 else ("dn" if x < 0 else ""))
+
+
+def _signed(m: str, x) -> str:
+    return "-" if x is None else ("+" if x > 0 else "") + _money(m, x)
+
+
+_KR_CODE = re.compile(r"^[0-9][0-9A-Z]{5}$")
+
+
+def _sym(sym, names: Optional[Dict[str, str]] = None) -> str:
+    """종목 이름 + 코드. 이름을 모르면 코드만."""
+    s = str(sym or "")
+    n = (names or {}).get(s, "")
+    if not n:
+        return f'<span class="nm">{E(s)}</span>'
+    if _KR_CODE.match(s):                               # 국내: 숫자 코드보다 이름이 알아보기 쉽다
+        return f'<span class="nm">{E(n)}</span><span class="code">{E(s)}</span>'
+    return f'<span class="nm">{E(s)}</span><span class="code">{E(n.title())}</span>'   # 해외: 티커가 이름보다 짧고 익숙하다
+
+
+def _ago(v: dict, snap: Optional[dict]) -> str:
+    if not snap:
+        return '<span class="warn">조회 없음</span>'
+    age = (v["now"] - datetime.fromisoformat(snap["at"])).total_seconds()
+    return f'<span class="{"warn" if age > SNAPSHOT_STALE_SEC else "mut"}">{int(age // 60)}분 전 갱신</span>'
+
+
 def _pnl_html(m: str, t: dict) -> str:
     if not t or t.get("pnl") is None:
         return '<span class="mut">현재가 없음</span>'
-    cls = "ok" if t["pnl"] >= 0 else "bad"
     pct = f' ({t["pnlPct"]:+.2f}%)' if t.get("pnlPct") is not None else ""
-    return f'<span class="{cls}">{"+" if t["pnl"] >= 0 else ""}{_money(m, t["pnl"])}{pct}</span>'
+    return f'<span class="{_sign_cls(t["pnl"])}">{_signed(m, t["pnl"])}{pct}</span>'
+
+
+def _kpi(label: str, value: str, sub: str = "") -> str:
+    return f'<div class="kpi"><div class="l">{label}</div><div class="v">{value}</div>{f"<div class=s>{sub}</div>" if sub else ""}</div>'
 
 
 def render_money_rows(snap: Optional[dict]) -> str:
+    """시장별 투자금·평가·평가손익·실현손익 타일."""
     out = []
     rz = (snap or {}).get("realized") or {}
     for m, d in ((snap or {}).get("markets") or {}).items():
         t = d.get("totals")
         if not t:
             continue
-        out.append(f'<div class="row"><span>{E(m)} 투자금(원가) · 평가</span><span>{_money(m, t["cost"])} · {_money(m, t["value"])}</span></div>'
-                   f'<div class="row"><span>{E(m)} 평가손익(보유분)</span>{_pnl_html(m, t)}</div>')
+        tiles = [_kpi(f"{E(m)} 투자금(원가)", _money(m, t["cost"])), _kpi(f"{E(m)} 평가금액", _money(m, t["value"])),
+                 _kpi(f"{E(m)} 평가손익(보유분)", _pnl_html(m, t))]
         if "realized" in (snap or {}):
             r = rz.get(m) or {"realized": 0.0, "incomplete": False}
-            cls = "ok" if r["realized"] >= 0 else "bad"
-            warn = ' <span class="warn">(원가 모르는 매도 있음)</span>' if r["incomplete"] else ""
-            out.append(f'<div class="row"><span>{E(m)} 실현손익(수수료·세금 전)</span><span class="{cls}">'
-                       f'{"+" if r["realized"] >= 0 else ""}{_money(m, r["realized"])}{warn}</span></div>')
+            warn = '<span class="warn">원가 모르는 매도 있음</span>' if r["incomplete"] else "수수료·세금 전"
+            tiles.append(_kpi(f"{E(m)} 실현손익", f'<span class="{_sign_cls(r["realized"])}">{_signed(m, r["realized"])}</span>', warn))
+        out.append('<div class="kpis">' + "".join(tiles) + "</div>")
     if (snap or {}).get("realizedError"):
-        out.append(f'<div class="row"><span>실현손익</span><span class="warn">체결 조회 실패 — 다음 갱신에 다시</span></div>')
+        out.append('<div class="row"><span>실현손익</span><span class="warn">체결 조회 실패 — 다음 갱신에 다시</span></div>')
     return "".join(out)
 
 
-def render_sells(snap: Optional[dict]) -> str:
+def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -> str:
     rows = []
     for m, r in ((snap or {}).get("realized") or {}).items():
         for x in reversed(r.get("sells", [])[-30:]):
-            cls = "ok" if x["pnl"] >= 0 else "bad"
-            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{E(x["symbol"])}</td><td>{E(str(x["qty"]))}</td>'
-                        f'<td>{x["avg"]:,.2f} → {x["price"]:,.2f}</td><td class="{cls}">{_money(m, x["pnl"])}</td></tr>')
+            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{_sym(x["symbol"], names)}</td><td class="n">{E(str(x["qty"]))}</td>'
+                        f'<td class="n">{_px(m, x["avg"])}<br><small class="mut">→ {_px(m, x["price"])}</small></td><td class="n {_sign_cls(x["pnl"])}">{_signed(m, x["pnl"])}</td></tr>')
     if "realized" not in (snap or {}):
         return ""
-    return ('<div class="card"><h2>실현손익 내역(매도 체결, 최근 30)</h2><table><tr><th>날짜</th><th>종목</th><th>수량</th>'
-            '<th>평단 → 체결가</th><th>손익</th></tr>' + ("".join(rows) or "<tr><td colspan=5 class=mut>아직 매도 체결 없음</td></tr>")
-            + "</table></div>")
+    return ('<div class="card"><h2>실현손익 내역 <span class="mut">매도 체결 · 최근 30</span></h2><div class="tw"><table><tr><th>날짜</th><th>종목</th>'
+            '<th class="n">수량</th><th class="n">평단 → 체결가</th><th class="n">손익</th></tr>'
+            + ("".join(rows) or "<tr><td colspan=5 class=mut>아직 매도 체결 없음</td></tr>") + "</table></div></div>")
+
+
+AUTO_TXT = {"off": "자동 꺼짐", "dry": "자동 dry-run", "execute": "자동 주문"}
 
 
 def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
-    # 프로필(키 묶음+전략)마다 한 장. 금액·종목은 없다 — 상세 링크에서 본다.
+    """프로필(키 묶음+전략)마다 한 장 — 투자금·손익 타일, 상태, 상세 링크."""
     out = []
     for cfg, v in items:
         name = str(cfg.get("profile", ""))
         snap = v["snapshot"]
-        if snap:
-            age = (v["now"] - datetime.fromisoformat(snap["at"])).total_seconds()
-            snap_txt = f'<span class="{"warn" if age > SNAPSHOT_STALE_SEC else "ok"}">{int(age // 60)}분 전</span>'
-        else:
-            snap_txt = '<span class="warn">없음</span>'
         t = v["todayRuns"]
         cnt = lambda k: sum(len(r.get(k) or []) for r in t)   # noqa: E731
         last = v["runs"][-1] if v["runs"] else None
         last_txt = (f'<span class="{"ok" if last.get("status") == "ok" else "bad"}">{E(str(last.get("at", ""))[5:16].replace("T", " "))}'
-                    f' {E("주문" if last.get("execute") else "dry-run")} {E(str(last.get("status")))}</span>') if last else '<span class="mut">-</span>'
+                    f' · {E("주문" if last.get("execute") else "dry-run")} · {E(str(last.get("status")))}</span>') if last else '<span class="mut">아직 없음</span>'
         auto = cfg.get("auto", "off")
-        auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "mut")
-        out.append(f'''<div class="card"><h2>{E(name)}</h2>
-<span class="pill">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
-<span class="pill {auto_cls}">자동 {E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
+        auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "")
+        held = []
+        for m, d in ((snap or {}).get("markets") or {}).items():
+            for p in d.get("positions") or []:
+                px = p.get("price") or 0
+                pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
+                held.append(f'<tr><td>{_sym(p["symbol"], v["names"])}</td><td class="n">{E(str(p["qty"]))}</td>'
+                            f'<td class="n {_sign_cls(pc)}">{"-" if pc is None else f"{pc:+.1f}%"}</td></tr>')
+        held_tbl = (f'<div class="tw"><table><tr><th>보유</th><th class="n">수량</th><th class="n">수익률</th></tr>{"".join(held[:8])}</table></div>'
+                    + (f'<div class="mut">외 {len(held) - 8}종목 — 상세에서</div>' if len(held) > 8 else "")) if held else ""
+        out.append(f'''<div class="card hl"><div class="hd"><h2>{E(name)}</h2>{_ago(v, snap)}</div>
+<span class="pill acc">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
+<span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
 {'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
-<div class="row"><span>상태 조회</span>{snap_txt}</div>
 {render_money_rows(snap)}
+{held_tbl}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
 <div class="row"><span>마지막 실행</span>{last_txt}</div>
-<a href="{base}/details?p={quote(name)}">상세 보기</a></div>''')
-    return ("<h1 style='margin-top:20px'>프로필</h1>" + "".join(out)) if out else ""
+<a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a></div>''')
+    return ('<div class="sec">프로필</div>' + "".join(out)) if out else ""
 
 
 def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, extra: str = "") -> bytes:
     mode_txt = "실전(실계좌)" if v["mode"] == "live" else "모의투자"
-    kill = ('<span class="pill bad">킬 스위치 ON — 주문 중단</span>' if v["kill"]
-            else '<span class="pill ok">킬 스위치 OFF</span>')
     snap = v["snapshot"]
-    if snap:
-        age = (v["now"] - datetime.fromisoformat(snap["at"])).total_seconds()
-        stale = age > SNAPSHOT_STALE_SEC
-        snap_line = (f'<span class="{"warn" if stale else "ok"}">{int(age // 60)}분 전 갱신'
-                     + (" — 오래됨(스냅샷 작업 확인)" if stale else "") + "</span>")
-        ex = (snap.get("gates") or {}).get("execute") or []
-        gates = ('<span class="ok">실행 조건 충족 — 주문은 --execute 로 실행할 때만 나갑니다(지금 자동 실행 중이라는 뜻이 아님)</span>' if not ex
-                 else f'<span class="warn">주문 잠김 — 미충족 {len(ex)}개</span>')
-        gate_items = "".join(f"<div class='mut'>· {E(str(x))}</div>" for x in ex)
-    else:
-        snap_line, gates, gate_items = '<span class="warn">스냅샷 없음</span>', "-", ""
+    ex = ((snap or {}).get("gates") or {}).get("execute") or []
+    gates = ('<span class="ok">주문 조건 충족</span> <span class="mut">— --execute 로 실행할 때만 나간다</span>' if snap and not ex
+             else (f'<span class="warn">주문 잠김 · 미충족 {len(ex)}개</span>' if snap else '<span class="mut">-</span>'))
+    gate_items = "".join(f"<div class='mut'>· {E(str(x))}</div>" for x in ex)
     t = v["todayRuns"]
     cnt = lambda k: sum(len(r.get(k) or []) for r in t)   # noqa: E731
     limits = "".join(
         f'<div class="row"><span>{E(m)} 일일 한도</span><span>{s["used"] / s["limit"] * 100 if s["limit"] else 0:.0f}% 사용</span></div>'
+        f'<div class="bar"><i style="width:{min(100, s["used"] / s["limit"] * 100 if s["limit"] else 0):.0f}%"></i></div>'
         for m, s in v["spent"].items())
     recent = "".join(
         f'<div class="row"><span>{E(str(r.get("at", ""))[5:16].replace("T", " "))} {E("주문" if r.get("execute") else "dry-run")}</span>'
         f'<span class="{"ok" if r.get("status") == "ok" else "bad"}">{E(str(r.get("status")))} · 접수 {len(r.get("placed") or [])}'
         f' 거부 {len(r.get("rejected") or [])}</span></div>' for r in reversed(v["runs"][-5:]))
-    body = f'''<h1>autotrader</h1>
-<div class="card"><span class="pill">{mode_txt}</span>{kill}<div class="mut" style="margin-top:6px">상태 조회: {snap_line}</div></div>
-<div class="card"><h2>실주문 게이트</h2><div>{gates}</div>{gate_items}</div>
-<div class="card"><h2>오늘 ({E(v["day"])})</h2>
-<div class="row"><span>실행 횟수</span><span>{len(t)}</span></div>
-<div class="row"><span>접수된 주문</span><span>{cnt("placed")}</span></div>
-<div class="row"><span>위험 검사 거부</span><span>{cnt("rejected")}</span></div>
-<div class="row"><span>건너뜀</span><span>{cnt("skipped")}</span></div>
-<div class="row"><span>오류</span><span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></div></div>
-<div class="card"><h2>한도 사용률</h2>{limits or '<span class="mut">-</span>'}</div>
-<div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
-<div class="card"><a href="{base}/details">보유·주문 상세 보기{" (인증앱 코드 재입력)" if strict else ""}</a></div>
-<div class="card"><a href="{base}/accounts">실계좌 요약 (업비트·빗썸·KIS·RV20){" (인증앱 코드 재입력)" if strict else ""}</a></div>
-<div class="card"><a href="{base}/passkey">🔑 패스키(지문) 관리</a></div>
+    reauth = " (인증앱 코드 재입력)" if strict else ""
+    err_html = f'<span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span>'
+    body = f'''<div class="nav">
+<a href="{base}/accounts">💰 실계좌 요약<small>업비트·빗썸·KIS·RV20{reauth}</small></a>
+<a href="{base}/details">📋 기본 계좌 상세<small>보유·주문·원장{reauth}</small></a>
+<a href="{base}/passkey">🔑 패스키 관리<small>지문 등록·상태</small></a>
+<a href="#today">🗓 오늘 기록<small>실행·한도·게이트</small></a></div>
 {extra}
-<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
-    return _page("autotrader", body, refresh=True)
+<div class="sec" id="today">기본 설정 · 오늘 {E(v["day"])}</div>
+<div class="card"><div class="hd"><h2>{mode_txt}</h2>{_ago(v, snap)}</div>
+<span class="pill {"bad" if v["kill"] else "ok"}">{"킬 스위치 ON — 주문 중단" if v["kill"] else "킬 스위치 OFF"}</span>
+<div class="kpis">{_kpi("실행", str(len(t)))}{_kpi("접수된 주문", str(cnt("placed")))}{_kpi("위험 검사 거부", str(cnt("rejected")))}
+{_kpi("오류", err_html)}</div>
+<div class="row"><span>실주문 게이트</span><span>{gates}</span></div>{gate_items}
+{limits}</div>
+<div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
+<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>'''
+    return _page("autotrader", body, refresh=True, base=base, sub=f'<span class="tp">{mode_txt}</span>')
 
 
 def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False) -> str:
@@ -243,50 +314,57 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
 <input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
 <button>적용</button></form>{note}
 <form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
-<input type="hidden" name="op" value="kill"><button style="background:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form>{pk_form}</div>'''
+<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form>{pk_form}</div>'''
 
 
 def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "", controls: str = "") -> bytes:
     snap = v["snapshot"] or {}
+    names = v.get("names") or {}
     rows = []
     for m, d in (snap.get("markets") or {}).items():
         if d.get("error"):
             rows.append(f'<div class="card"><h2>{E(m)}</h2><span class="bad">{E(str(d["error"]))}</span></div>')
             continue
-        def prow(p):
+
+        def prow(p, m=m):
             px = p.get("price") or 0
             pnl = (px - p["avgPrice"]) * p["qty"] if px else None
             pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
-            cls = "" if pnl is None else ("ok" if pnl >= 0 else "bad")
-            return (f'<tr><td>{E(str(p["symbol"]))}</td><td>{E(str(p["qty"]))}</td><td>{p["avgPrice"]:,.2f}</td>'
-                    f'<td>{f"{px:,.2f}" if px else "-"}</td><td class="{cls}">{"-" if pnl is None else f"{pnl:+,.2f}"}'
-                    f'{"" if pc is None else f" ({pc:+.1f}%)"}</td></tr>')
+            cls = _sign_cls(pnl)
+            return (f'<tr><td>{_sym(p["symbol"], names)}</td><td class="n">{E(str(p["qty"]))}</td>'
+                    f'<td class="n">{_px(m, p["avgPrice"])}<br><small class="mut">→ {_px(m, px)}</small></td>'
+                    f'<td class="n {cls}">{_signed(m, pnl)}{"" if pc is None else f"<br><small>{pc:+.1f}%</small>"}</td></tr>')
         pos = "".join(prow(p) for p in d.get("positions", []))
-        oo = "".join(f'<tr><td>{E(str(o["symbol"]))}</td><td>{E(str(o["side"]))}</td><td>{E(str(o["remaining"]))}/{E(str(o["qty"]))}</td>'
-                     f'<td>{o["price"]:,.2f}</td></tr>' for o in d.get("openOrders", []))
+        oo = "".join(f'<tr><td>{_sym(o["symbol"], names)}</td><td>{"매수" if o["side"] == "BUY" else "매도"}</td>'
+                     f'<td class="n">{E(str(o["remaining"]))}/{E(str(o["qty"]))}</td><td class="n">{_px(m, o["price"])}</td></tr>'
+                     for o in d.get("openOrders", []))
         cash = d.get("cash")
-        rows.append(f'''<div class="card"><h2>{E(m)}</h2>
-<div class="row"><span>주문가능 현금</span><span>{"-" if cash is None else _money(m, cash)}</span></div>
-{render_money_rows({"markets": {m: d}, **({"realized": snap["realized"]} if "realized" in snap else {})})}
-<h2 style="margin-top:10px">보유</h2><table><tr><th>종목</th><th>수량</th><th>평단</th><th>현재가</th><th>손익</th></tr>{pos or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table>
-<h2 style="margin-top:10px">미체결</h2><table><tr><th>종목</th><th>방향</th><th>잔량/수량</th><th>가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>''')
+        rz = {"realized": snap["realized"]} if "realized" in snap else {}
+        rows.append(f'''<div class="card"><div class="hd"><h2>{E(m)} {"국내" if m == "KR" else "해외"}</h2><span class="mut">주문가능 {"-" if cash is None else _money(m, cash)}</span></div>
+{render_money_rows({"markets": {m: d}, **rz})}
+<h2 style="margin-top:6px">보유 <span class="mut">{len(d.get("positions") or [])}종목</span></h2><div class="tw"><table><tr><th>종목</th><th class="n">수량</th><th class="n">평단→현재</th><th class="n">손익</th></tr>{pos or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>
+<h2 style="margin-top:12px">미체결</h2><div class="tw"><table><tr><th>종목</th><th>방향</th><th class="n">잔량/수량</th><th class="n">가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>''')
     led = "".join(
-        f'<tr><td>{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</td><td>{E(str(r.get("market")))}</td><td>{E(str(r.get("symbol")))}</td>'
-        f'<td>{E(str(r.get("side")))}</td><td>{E(str(r.get("qty")))}</td><td>{E(str(r.get("kind")))}</td></tr>'
+        f'<tr><td>{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</td><td>{_sym(r.get("symbol"), names)}</td>'
+        f'<td>{"매수" if r.get("side") == "BUY" else ("매도" if r.get("side") == "SELL" else E(str(r.get("side"))))}</td>'
+        f'<td class="n">{E(str(r.get("qty")))}</td><td class="{"bad" if r.get("kind") == "error" else "mut"}">{E(str(r.get("kind")))}</td></tr>'
         for r in reversed(v["ledger"][-30:]))
     last = v["runs"][-1] if v["runs"] else None
     lastblk = ""
     if last:
         def lines(k, label):
-            return "".join(f'<div class="mut">{label} {E(str(x.get("symbol", "")))} {E(str(x.get("side", "")))} {E(str(x.get("qty", "")))}'
-                           f' — {E(str(x.get("reason", "")))}</div>' for x in (last.get(k) or []) if isinstance(x, dict))
-        lastblk = (f'<div class="card"><h2>마지막 실행 {E(str(last.get("at", ""))[5:16].replace("T", " "))}</h2>'
-                   + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
-    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{controls}{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{render_sells(snap)}{lastblk}
-<div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
-<div class="card"><a href="{base}/">← 요약으로</a></div>
-<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
-    return _page("autotrader 상세", body, refresh=False)
+            return "".join(f'<tr><td>{label}</td><td>{_sym(x.get("symbol", ""), names)}</td><td>{E(str(x.get("side", "")))} {E(str(x.get("qty", "")))}</td>'
+                           f'<td class="mut">{E(str(x.get("reason", "")))}</td></tr>' for x in (last.get(k) or []) if isinstance(x, dict))
+        body_rows = lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀")
+        lastblk = (f'<div class="card"><h2>마지막 실행 <span class="mut">{E(str(last.get("at", ""))[5:16].replace("T", " "))} · '
+                   f'{"주문" if last.get("execute") else "dry-run"} · {E(str(last.get("status")))}</span></h2>'
+                   + (f'<div class="tw"><table>{body_rows}</table></div>' if body_rows else '<span class="mut">낸 주문 없음</span>') + "</div>")
+    head = f'<h1>{E(title) if title else "기본 계좌"}{" <span class=mut>(재인증 후 5분)</span>" if strict else ""}</h1>'
+    body = f'''{head}{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{controls}{render_sells(snap, names)}{lastblk}
+<div class="card"><h2>주문 원장 <span class="mut">최근 30</span></h2><div class="tw"><table><tr><th>시각</th><th>종목</th><th>방향</th><th class="n">수량</th><th>종류</th></tr>{led or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table></div></div>
+<a class="btn" href="{base}/">← 요약으로</a>
+<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>'''
+    return _page(f"상세 · {title}" if title else "상세", body, refresh=False, base=base, sub=E(f"상세 · {title}" if title else "상세"))
 
 
 def is_live_order(c: dict, op: str) -> bool:
@@ -307,6 +385,7 @@ def _pct(v) -> str:
 def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> bytes:
     # 실계좌 요약(업비트·빗썸·KIS 실계좌·RV20 선물). 전엔 인터넷에 인증 없이 열려 있던 /accounts 의 내용이다.
     won = lambda v: "-" if v is None else f"{v:,.0f}원"                   # noqa: E731
+    sw = lambda v: "-" if v is None else ("+" if v > 0 else "") + f"{v:,.0f}원"   # noqa: E731
     cards = []
     if err:
         cards.append(f'<div class="card"><span class="bad">실계좌 요약을 못 읽었다: {E(err)}</span></div>')
@@ -315,37 +394,37 @@ def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> b
         a = real.get(key)
         if not a:
             continue
-        pnl = a.get("totalPnlKrw")
+        pnl, cost = a.get("totalPnlKrw"), a.get("totalCostKrw")
+        pct = (pnl / cost * 100) if (pnl is not None and cost) else None
         rows = "".join(
-            f'<tr><td>{E(str(h.get("currency")))}</td><td>{E(str(h.get("balance")))}</td><td>{won(h.get("evalKrw"))}</td>'
-            f'<td class="{"" if h.get("pnlKrw") is None else ("ok" if h["pnlKrw"] >= 0 else "bad")}">{won(h.get("pnlKrw"))}'
-            f'{_pct(h.get("pnlPct"))}</td></tr>'
+            f'<tr><td><span class="nm">{E(str(h.get("currency")))}</span></td><td class="n">{E(str(h.get("balance")))}</td>'
+            f'<td class="n">{won(h.get("evalKrw"))}</td><td class="n {_sign_cls(h.get("pnlKrw"))}">{sw(h.get("pnlKrw"))}'
+            f'{_pct_small(h.get("pnlPct"))}</td></tr>'
             for h in a.get("holdings") or [])
-        cards.append(f'''<div class="card"><h2>{label} 실계좌</h2>
-<div class="row"><span>평가 합계</span><span>{won(a.get("totalKrw"))}</span></div>
-<div class="row"><span>매입 합계 · 평가손익</span><span>{won(a.get("totalCostKrw"))} · <span class="{"" if pnl is None else ("ok" if pnl >= 0 else "bad")}">{won(pnl)}</span></span></div>
-<table><tr><th>자산</th><th>수량</th><th>평가</th><th>손익</th></tr>{rows or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table>
-<div class="mut">갱신 {E(str(a.get("generatedAtKST", "-")))}</div></div>''')
+        cards.append(f'''<div class="card hl"><div class="hd"><h2>{label} 실계좌</h2><span class="mut">갱신 {E(str(a.get("generatedAtKST", "-"))[5:16].replace("T", " "))}</span></div>
+<div class="kpis">{_kpi("평가 합계", won(a.get("totalKrw")))}{_kpi("매입 합계", won(cost))}
+{_kpi("평가손익", f'<span class="{_sign_cls(pnl)}">{sw(pnl)}</span>', "" if pct is None else f'<span class="{_sign_cls(pnl)}">{pct:+.2f}%</span>')}</div>
+<div class="tw"><table><tr><th>자산</th><th class="n">수량</th><th class="n">평가</th><th class="n">손익</th></tr>{rows or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>''')
     k = real.get("kis")
     if k:
         acc = k.get("account") or {}
-        cards.append(f'''<div class="card"><h2>KIS 실계좌</h2>
-<div class="row"><span>총평가</span><span>{won(acc.get("totalValueKrw"))}</span></div>
-<div class="row"><span>주식 평가 · 예수금</span><span>{won(acc.get("stockValueKrw"))} · {won(acc.get("cashKrw"))}</span></div>
-<div class="row"><span>보유 종목 수</span><span>{len(k.get("holdings") or [])}</span></div>
-<div class="mut">갱신 {E(str(k.get("generatedAtKST", "-")))}</div></div>''')
+        cards.append(f'''<div class="card hl"><div class="hd"><h2>KIS 실계좌</h2><span class="mut">갱신 {E(str(k.get("generatedAtKST", "-"))[5:16].replace("T", " "))}</span></div>
+<div class="kpis">{_kpi("총평가", won(acc.get("totalValueKrw")))}{_kpi("예수금", won(acc.get("cashKrw")))}
+{_kpi("주식 평가", won(acc.get("stockValueKrw")))}{_kpi("보유 종목", f'{len(k.get("holdings") or [])}개')}</div></div>''')
     rv = ((d or {}).get("paper") or {}).get("rv20")
     if rv:
         fm = rv.get("frontMonth") or {}
-        cards.append(f'''<div class="card"><h2>RV20 선물 (모의)</h2>
-<div class="row"><span>보유 계약</span><span>{E(str(rv.get("heldContracts")))}</span></div>
-<div class="row"><span>근월물</span><span>{E(str(fm.get("name", "-")))} {E(str(fm.get("price", "")))}</span></div>
-<div class="mut">갱신 {E(str(rv.get("generatedAtKST", "-")))}</div></div>''')
-    body = (f'<h1>실계좌 요약</h1><div class="card mut">수집 {E(str((d or {}).get("fetchedAt", "-")))} · '
-            f'업비트·빗썸·KIS 실계좌는 조회만 한다(autotrader 주문과 무관)</div>{"".join(cards)}'
-            f'<div class="card"><a href="{base}/">← 요약으로</a></div>'
-            f'<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>')
-    return _page("실계좌 요약", body)
+        cards.append(f'''<div class="card hl"><div class="hd"><h2>RV20 선물 <span class="pill">모의</span></h2><span class="mut">갱신 {E(str(rv.get("generatedAtKST", "-"))[5:16].replace("T", " "))}</span></div>
+<div class="kpis">{_kpi("보유 계약", E(str(rv.get("heldContracts"))))}{_kpi("근월물", E(str(fm.get("name", "-"))), E(str(fm.get("price", ""))))}</div></div>''')
+    body = (f'<h1>실계좌 요약</h1><div class="mut" style="margin:-4px 2px 12px">수집 {E(str((d or {}).get("fetchedAt", "-")))[5:16].replace("T", " ")} · '
+            f'조회만 한다(autotrader 주문과 무관)</div>{"".join(cards)}'
+            f'<a class="btn" href="{base}/">← 요약으로</a>'
+            f'<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>')
+    return _page("실계좌 요약", body, base=base, sub="실계좌 요약")
+
+
+def _pct_small(v) -> str:
+    return "" if v is None else f"<br><small>{v:+.1f}%</small>"
 
 
 def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "") -> bytes:
@@ -365,16 +444,16 @@ def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "")
             '<div class="mut">패스키가 하나라도 있으면 <b>실계좌 주문 켜기·실행은 패스키로만</b> 된다(인증앱 코드는 안 받는다 — 피싱 방지). '
             '삭제는 서버에서만: <code>cd ~/collector &amp;&amp; ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-reset</code></div></div>'
             f'<div class="card">{inner}</div><div class="card"><a href="{base}/">← 요약으로</a></div>')
-    return _page("패스키", body)
+    return _page("패스키", body, base=base, sub="패스키")
 
 
 def render_login(msg: str = "", base: str = "") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
-    return _page("로그인", f'''<h1>로그인</h1><div class="card">{m}
+    return _page("로그인", f'''<h1 style="margin-top:28px">안녕하세요 👋</h1><div class="card">{m}
 <form method="post" action="{base}/login" autocomplete="off">
 <input type="password" name="password" placeholder="비밀번호" autocomplete="current-password" required>
 <input name="code" placeholder="인증앱 6자리 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-<button>로그인</button></form></div>''')
+<button>로그인</button></form><div class="mut" style="margin-top:8px">비밀번호 + 인증앱 코드. 실계좌 주문은 로그인 뒤 패스키(지문)로 한 번 더 확인한다.</div></div>''', base=base, sub="로그인")
 
 
 def render_reauth(csrf: str, msg: str = "", base: str = "") -> bytes:
@@ -383,7 +462,7 @@ def render_reauth(csrf: str, msg: str = "", base: str = "") -> bytes:
 <div class="mut">금액·보유 내용은 인증앱 코드를 <b>새로</b> 입력해야 열립니다. 방금 로그인에 쓴 코드는 못 씁니다 — 코드가 바뀔 때까지(최대 30초) 기다렸다가 입력하세요.</div>
 <form method="post" action="{base}/reauth"><input type="hidden" name="csrf" value="{E(csrf)}">
 <input name="code" placeholder="인증앱 6자리 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-<button>확인</button></form></div><div class="card"><a href="{base}/">← 요약으로</a></div>''')
+<button>확인</button></form></div><a class="btn" href="{base}/">← 요약으로</a>''', base=base, sub="재인증")
 
 
 class WebApp:

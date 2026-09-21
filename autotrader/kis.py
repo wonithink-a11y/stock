@@ -230,14 +230,14 @@ class KisBroker(Broker):
             rows = self.c.paginate("KR", "balance", params, "국내 잔고", "output1",
                                    ("ctx_area_fk100", "ctx_area_nk100"), ("CTX_AREA_FK100", "CTX_AREA_NK100"))
             return [Position((r.get("pdno") or "").strip(), "KR", _i(r.get("hldg_qty")), _f(r.get("pchs_avg_pric")),
-                             _f(r.get("prpr")))
+                             _f(r.get("prpr")), (r.get("prdt_name") or "").strip())
                     for r in rows if _i(r.get("hldg_qty")) > 0]
         params = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "OVRS_EXCG_CD": US_EXCHANGE,
                   "TR_CRCY_CD": "USD", "CTX_AREA_FK200": "", "CTX_AREA_NK200": ""}
         rows = self.c.paginate("US", "balance", params, "해외 잔고", "output1",
                                ("ctx_area_fk200", "ctx_area_nk200"), ("CTX_AREA_FK200", "CTX_AREA_NK200"))
         return [Position((r.get("ovrs_pdno") or "").strip(), "US", _i(r.get("ovrs_cblc_qty")), _f(r.get("pchs_avg_pric")),
-                         _f(r.get("now_pric2")))
+                         _f(r.get("now_pric2")), (r.get("ovrs_item_name") or "").strip())
                 for r in rows if _i(r.get("ovrs_cblc_qty")) > 0]
 
     def cash(self, market: str, ref_symbol: Optional[str] = None) -> float:

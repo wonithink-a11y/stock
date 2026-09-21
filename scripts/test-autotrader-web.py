@@ -192,7 +192,7 @@ def main():
         ck("새 코드로 재인증 → 상세로 이동", st == 303 and h["Location"] == "/details")
         st, h, b = app.handle("GET", "/details", ck_cookie, b"", ip2)
         d = b.decode()
-        ck("L2: 재인증 후에는 보유·잔고가 보인다", "SECRETSYM" in d and "5,000,000" in d and "123,456.00" in d)
+        ck("L2: 재인증 후에는 보유·잔고가 보인다", "SECRETSYM" in d and "5,000,000" in d and "123,456" in d)
         ck("XSS: 이유 문구의 스크립트가 이스케이프된다", "<script>" not in d and "&lt;script&gt;" in d)
         ck("계좌번호 관련 문자열이 어디에도 없다", "12345678" not in d and "12345678" not in body)
         clk.t += 301
