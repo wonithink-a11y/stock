@@ -312,6 +312,20 @@ def cmd_web_setup(args) -> int:
     return 0
 
 
+def cmd_passkey_reset(args) -> int:
+    """등록된 패스키를 전부 지운다 — **서버에서만**(웹에는 삭제 기능이 없다: 지울 수 있으면 공격자가 지우고 코드 방식으로 되돌린다)."""
+    from .web_auth import AuthStore
+    store = AuthStore(state_dir(_cfg(args)) / "web_auth.json")
+    if not store.exists():
+        print("웹 인증 설정이 없다", file=sys.stderr)
+        return 2
+    rec = store.load()
+    n = len(rec.pop("passkeys", None) or [])
+    store.save(rec)
+    print(f"패스키 {n}개를 지웠다. 웹 서비스 재시작은 필요 없다.")
+    return 0
+
+
 def cmd_notify(args) -> int:
     """로그인 기록을 텔레그램으로 알린다. 토큰은 이 프로세스만 가진다(웹 프로세스는 없다)."""
     from .notify import LoginNotifier, run_loop, send_telegram
@@ -382,13 +396,15 @@ def main(argv=None) -> int:
     nt.add_argument("--test", action="store_true", help="테스트 메시지 한 통만 보내고 끝낸다")
     nt.add_argument("--once", action="store_true", help="한 번만 확인하고 끝낸다(기본은 계속 감시)")
     sub.add_parser("telegram-chat-id")
+    sub.add_parser("passkey-reset")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
-          "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id}[args.cmd]
+          "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
+          "passkey-reset": cmd_passkey_reset}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

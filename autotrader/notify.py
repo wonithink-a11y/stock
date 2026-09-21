@@ -16,9 +16,9 @@ from collections import Counter
 from pathlib import Path
 from typing import Callable, List, Optional
 
-OK_EVENTS = {"login-ok": "✅ 로그인 성공", "reauth-ok": "✅ 재인증 성공"}
+OK_EVENTS = {"login-ok": "✅ 로그인 성공", "reauth-ok": "✅ 재인증 성공", "passkey-added": "🔑 패스키 새로 등록됨"}
 FAIL_EVENTS = {"login-fail": "로그인 실패", "reauth-fail": "재인증 실패", "csrf-fail": "요청 검증 실패", "locked": "잠금 상태에서 시도",
-               "action-fail": "조작 코드 실패"}
+               "action-fail": "조작 코드 실패", "passkey-fail": "패스키 확인 실패"}
 ACTION_TEXT = {"auto-off": "자동 실행 끔", "auto-dry": "자동 dry-run", "auto-execute": "⚠️ 자동 주문 켬",
                "run": "지금 실행 요청", "kill": "🛑 킬 스위치 켬", "resume": "킬 스위치 해제",
                "auto-execute-live": "🚨 실계좌 자동 주문 켬", "run-live": "🚨 실계좌 프로필 지금 실행 요청",

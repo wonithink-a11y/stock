@@ -14,7 +14,7 @@ import secrets
 import struct
 import time
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 PBKDF2_ITERS = 200_000
 
@@ -161,3 +161,62 @@ class Sessions:
 
     def destroy(self, tok: Optional[str]) -> None:
         self._s.pop(tok or "", None)
+
+
+# ---------------------------------------------------------------- 패스키(WebAuthn) — 검증은 webauthn(Duo Labs) 라이브러리가 한다
+# 우리는 JSON 을 넘기고 결과만 저장한다. 라이브러리는 이 함수들 안에서만 import 한다(없으면 패스키만 꺼지고 나머지는 돈다).
+def passkey_available() -> bool:
+    try:
+        import webauthn  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def passkey_reg_options(rp_id: str, existing_ids: List[str]):
+    """등록 옵션 JSON 과 챌린지(bytes). 지문·화면잠금 등 **사용자 확인 필수**."""
+    import webauthn
+    from webauthn.helpers import base64url_to_bytes
+    from webauthn.helpers.structs import (AuthenticatorSelectionCriteria, PublicKeyCredentialDescriptor,
+                                          ResidentKeyRequirement, UserVerificationRequirement)
+    o = webauthn.generate_registration_options(
+        rp_id=rp_id, rp_name="autotrader", user_name="autotrader", user_id=b"autotrader-owner",
+        authenticator_selection=AuthenticatorSelectionCriteria(user_verification=UserVerificationRequirement.REQUIRED,
+                                                               resident_key=ResidentKeyRequirement.PREFERRED),
+        exclude_credentials=[PublicKeyCredentialDescriptor(id=base64url_to_bytes(i)) for i in existing_ids])
+    return webauthn.options_to_json(o), o.challenge
+
+
+def passkey_reg_verify(credential: str, challenge: bytes, rp_id: str, origin: str) -> dict:
+    """등록 응답 검증 → 저장할 {id, pk, count}. 실패하면 예외."""
+    import webauthn
+    from webauthn.helpers import bytes_to_base64url
+    v = webauthn.verify_registration_response(credential=credential, expected_challenge=challenge, expected_rp_id=rp_id,
+                                              expected_origin=origin, require_user_verification=True)
+    return {"id": bytes_to_base64url(v.credential_id), "pk": bytes_to_base64url(v.credential_public_key),
+            "count": int(v.sign_count)}
+
+
+def passkey_auth_options(rp_id: str, ids: List[str]):
+    import webauthn
+    from webauthn.helpers import base64url_to_bytes
+    from webauthn.helpers.structs import PublicKeyCredentialDescriptor, UserVerificationRequirement
+    o = webauthn.generate_authentication_options(
+        rp_id=rp_id, allow_credentials=[PublicKeyCredentialDescriptor(id=base64url_to_bytes(i)) for i in ids],
+        user_verification=UserVerificationRequirement.REQUIRED)
+    return webauthn.options_to_json(o), o.challenge
+
+
+def passkey_auth_verify(credential: str, challenge: bytes, rp_id: str, origin: str, stored: List[dict]) -> Tuple[str, int]:
+    """인증 응답 검증 → (쓴 패스키 id, 새 서명 카운트). 등록되지 않은 패스키·서명 불일치·카운트 역행이면 예외."""
+    import webauthn
+    from webauthn.helpers import base64url_to_bytes
+    cid = json.loads(credential).get("id")
+    rec = next((p for p in stored if p["id"] == cid), None)
+    if rec is None:
+        raise ValueError("등록되지 않은 패스키")
+    v = webauthn.verify_authentication_response(
+        credential=credential, expected_challenge=challenge, expected_rp_id=rp_id, expected_origin=origin,
+        credential_public_key=base64url_to_bytes(rec["pk"]), credential_current_sign_count=int(rec.get("count", 0)),
+        require_user_verification=True)
+    return cid, int(v.new_sign_count)

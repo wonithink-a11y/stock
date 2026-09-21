@@ -144,6 +144,9 @@ def validate_config(cfg: dict) -> List[str]:
             if k == "require_reauth_for_details":
                 if not isinstance(v, bool):
                     errs.append("web.require_reauth_for_details 는 true|false")
+            elif k in ("rp_id", "origin"):              # 패스키: 도메인(rp_id)·출처(origin, https://도메인)
+                if not isinstance(v, str) or (k == "origin" and v and not v.startswith("https://")):
+                    errs.append(f"web.{k} 는 문자열(origin 은 https:// 로 시작)")
             elif k in ("idle_min", "session_hours", "reauth_min"):
                 if not isinstance(v, (int, float)) or isinstance(v, bool) or v <= 0:
                     errs.append(f"web.{k} 는 양수")
