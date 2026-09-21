@@ -26,6 +26,7 @@ from .web_auth import AuthStore, Lockout, Sessions, totp_verify, verify_password
 
 KST = timezone(timedelta(hours=9))
 COOKIE = "at_sess"
+ACCOUNTS_URL = "http://127.0.0.1:8766/accounts"   # 같은 VM 의 실계좌 요약 API. 2026-09-22 부터 인터넷에는 닫고(nginx) 여기서만 보여 준다
 LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입력하는 확인 문구(실수 클릭 방지 — 보안은 인증앱 코드와 서버 한도가 맡는다)
 SNAPSHOT_STALE_SEC = 30 * 60
 
@@ -196,6 +197,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
 <div class="card"><h2>한도 사용률</h2>{limits or '<span class="mut">-</span>'}</div>
 <div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
 <div class="card"><a href="{base}/details">보유·주문 상세 보기{" (인증앱 코드 재입력)" if strict else ""}</a></div>
+<div class="card"><a href="{base}/accounts">실계좌 요약 (업비트·빗썸·KIS·RV20){" (인증앱 코드 재입력)" if strict else ""}</a></div>
 {extra}
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
     return _page("autotrader", body, refresh=True)
@@ -275,6 +277,60 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
     return _page("autotrader 상세", body, refresh=False)
 
 
+def _fetch_accounts() -> dict:
+    import urllib.request
+    with urllib.request.urlopen(ACCOUNTS_URL, timeout=10) as r:        # 127.0.0.1 고정 — 외부 주소를 받지 않는다
+        return json.loads(r.read().decode("utf-8"))
+
+
+def _pct(v) -> str:
+    return "" if v is None else f" ({v:+.1f}%)"
+
+
+def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> bytes:
+    # 실계좌 요약(업비트·빗썸·KIS 실계좌·RV20 선물). 전엔 인터넷에 인증 없이 열려 있던 /accounts 의 내용이다.
+    won = lambda v: "-" if v is None else f"{v:,.0f}원"                   # noqa: E731
+    cards = []
+    if err:
+        cards.append(f'<div class="card"><span class="bad">실계좌 요약을 못 읽었다: {E(err)}</span></div>')
+    real = (d or {}).get("real") or {}
+    for key, label in (("upbit", "업비트"), ("bithumb", "빗썸")):
+        a = real.get(key)
+        if not a:
+            continue
+        pnl = a.get("totalPnlKrw")
+        rows = "".join(
+            f'<tr><td>{E(str(h.get("currency")))}</td><td>{h.get("balance")}</td><td>{won(h.get("evalKrw"))}</td>'
+            f'<td class="{"" if h.get("pnlKrw") is None else ("ok" if h["pnlKrw"] >= 0 else "bad")}">{won(h.get("pnlKrw"))}'
+            f'{_pct(h.get("pnlPct"))}</td></tr>'
+            for h in a.get("holdings") or [])
+        cards.append(f'''<div class="card"><h2>{label} 실계좌</h2>
+<div class="row"><span>평가 합계</span><span>{won(a.get("totalKrw"))}</span></div>
+<div class="row"><span>매입 합계 · 평가손익</span><span>{won(a.get("totalCostKrw"))} · <span class="{"" if pnl is None else ("ok" if pnl >= 0 else "bad")}">{won(pnl)}</span></span></div>
+<table><tr><th>자산</th><th>수량</th><th>평가</th><th>손익</th></tr>{rows or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table>
+<div class="mut">갱신 {E(str(a.get("generatedAtKST", "-")))}</div></div>''')
+    k = real.get("kis")
+    if k:
+        acc = k.get("account") or {}
+        cards.append(f'''<div class="card"><h2>KIS 실계좌</h2>
+<div class="row"><span>총평가</span><span>{won(acc.get("totalValueKrw"))}</span></div>
+<div class="row"><span>주식 평가 · 예수금</span><span>{won(acc.get("stockValueKrw"))} · {won(acc.get("cashKrw"))}</span></div>
+<div class="row"><span>보유 종목 수</span><span>{len(k.get("holdings") or [])}</span></div>
+<div class="mut">갱신 {E(str(k.get("generatedAtKST", "-")))}</div></div>''')
+    rv = ((d or {}).get("paper") or {}).get("rv20")
+    if rv:
+        fm = rv.get("frontMonth") or {}
+        cards.append(f'''<div class="card"><h2>RV20 선물 (모의)</h2>
+<div class="row"><span>보유 계약</span><span>{rv.get("heldContracts")}</span></div>
+<div class="row"><span>근월물</span><span>{E(str(fm.get("name", "-")))} {fm.get("price", "")}</span></div>
+<div class="mut">갱신 {E(str(rv.get("generatedAtKST", "-")))}</div></div>''')
+    body = (f'<h1>실계좌 요약</h1><div class="card mut">수집 {E(str((d or {}).get("fetchedAt", "-")))} · '
+            f'업비트·빗썸·KIS 실계좌는 조회만 한다(autotrader 주문과 무관)</div>{"".join(cards)}'
+            f'<div class="card"><a href="{base}/">← 요약으로</a></div>'
+            f'<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>')
+    return _page("실계좌 요약", body)
+
+
 def render_login(msg: str = "", base: str = "") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
     return _page("로그인", f'''<h1>로그인</h1><div class="card">{m}
@@ -299,7 +355,8 @@ class WebApp:
     def __init__(self, cfg: dict, sdir: Path, store: AuthStore, sessions: Sessions, lockout: Lockout,
                  clock: Callable[[], float] = time.time, secure_cookie: bool = True,
                  fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = "",
-                 require_reauth: bool = False, profiles: Optional[Callable[[], List[dict]]] = None):
+                 require_reauth: bool = False, profiles: Optional[Callable[[], List[dict]]] = None,
+                 accounts_fetch: Optional[Callable[[], dict]] = None):
         self.cfg, self.sdir, self.store = cfg, Path(sdir), store
         self.sessions, self.lockout, self.clock = sessions, lockout, clock
         self.secure_cookie, self.fail_delay, self._sleep = secure_cookie, fail_delay, sleep
@@ -307,6 +364,7 @@ class WebApp:
         self.require_reauth = require_reauth                              # True 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다
         self.log_path = self.sdir / "web_login.log"
         self._msgs: set = set()
+        self.fetch_accounts = accounts_fetch or _fetch_accounts
         self.profiles = profiles or (lambda: [])                          # 프로필 설정 목록(키 없음 — 파일만 읽는다)
 
     # -------------------------------------------------------------- 유틸
@@ -378,6 +436,14 @@ class WebApp:
                                                        self.require_reauth, extra)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
             return self._not_found()
+        if method == "GET" and path == "/accounts":
+            if self.require_reauth and not self.sessions.is_fresh(sess):
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
+            try:
+                d, err = self.fetch_accounts(), ""
+            except Exception as e:                      # noqa: BLE001 — API 가 죽어도 화면은 뜬다
+                d, err = None, type(e).__name__
+            return 200, self._hdrs(), render_accounts(d, err, sess["csrf"], self.base)
         if method == "GET" and path == "/details":
             if self.require_reauth and not self.sessions.is_fresh(sess):
                 return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)

@@ -143,6 +143,26 @@ def main():
            any("실계좌 자동 주문 켬" in m for m in notify.build_messages(lg)))
         (td / "profiles" / "la.json").unlink()
 
+        # ---- 실계좌 요약(전엔 인터넷에 인증 없이 열려 있던 /accounts) — 로그인 뒤에서만
+        fake = {"fetchedAt": "t", "real": {"upbit": {"totalKrw": 1000.0, "totalCostKrw": 900.0, "totalPnlKrw": 100.0,
+                                                      "holdings": [{"currency": "BTC", "balance": 0.1, "evalKrw": 1000.0,
+                                                                    "pnlKrw": 100.0, "pnlPct": 11.1}]},
+                                            "kis": {"account": {"totalValueKrw": 5000}, "holdings": []}},
+                "paper": {"rv20": {"heldContracts": 1, "frontMonth": {"name": "F 202612"}}}}
+        app.fetch_accounts = lambda: fake
+        ck("로그인 없이 실계좌 요약 404", app.handle("GET", "/accounts", {}, b"", "1.1.1.1")[0] == 404)
+        st, _, body = app.handle("GET", "/accounts", h, b"", "1.1.1.1")
+        pg = body.decode()
+        ck("로그인하면 실계좌 요약", st == 200 and "업비트 실계좌" in pg and "BTC" in pg and "+11.1%" in pg
+           and "5,000원" in pg and "F 202612" in pg)
+
+        def boom():
+            raise OSError("down")
+        app.fetch_accounts = boom
+        st, _, body = app.handle("GET", "/accounts", h, b"", "1.1.1.1")
+        ck("요약 API 가 죽어도 화면은 뜬다", st == 200 and "못 읽었다" in body.decode())
+        ck("주소는 127.0.0.1 고정", web.ACCOUNTS_URL.startswith("http://127.0.0.1:"))
+
         post(f"csrf={csrf}&p=pp&op=kill")
         ck("킬 켜기는 코드 없이 즉시", kill_file(pp).exists())
         post(f"csrf={csrf}&p=pp&op=resume")

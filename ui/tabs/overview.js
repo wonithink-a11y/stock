@@ -90,7 +90,7 @@ function renderRealAccountSubtab(container, label, acctData) {
   let html = modeBadgeHtml("real");
 
   if (!acctData) {
-    html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
+    html += '<div class="panel"><div class="empty">실계좌 정보는 보안상 공개 화면에서 뺐습니다(2026-09-22) — 폰 화면(autotrader, 로그인)의 '실계좌 요약'에서 보세요.</div></div>';
     container.innerHTML = html;
     const tickerSlot0 = document.createElement("div");
     tickerSlot0.style.marginTop = "12px";
@@ -145,7 +145,7 @@ function renderKisRealSubtab(container, acctData) {
   let html = modeBadgeHtml("real");
 
   if (!acctData) {
-    html += '<div class="panel"><div class="empty">데이터 없음 — VM의 실계좌 조회 타이머가 아직 안 돌았거나 응답이 없습니다.</div></div>';
+    html += '<div class="panel"><div class="empty">실계좌 정보는 보안상 공개 화면에서 뺐습니다(2026-09-22) — 폰 화면(autotrader, 로그인)의 '실계좌 요약'에서 보세요.</div></div>';
     container.innerHTML = html;
     return;
   }
