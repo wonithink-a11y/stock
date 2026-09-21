@@ -27,6 +27,12 @@ Validated against
             노출 0.1% 라 시험 대상 없음으로 종결(findings/overissue-filter-exposure-check-2026-09.md).
             ★ **남은 사용자 몫**: DataGuide 문의(초안: 소스 조사 §4 — 컨센서스 이력·PIT·로컬 저장 허용) · ETF 횡단면(국내 주식형 152/263) 데이터 수집 승인
             (동시호가 시험 결과 뒤). 새 연구 착수 전 새 데이터·새 표본 없이는 회계·가치·품질 축 재시도 금지(각 사전등록 §6).
+  다음      ★★ autotrader — 2026-09-22 프로필(키·전략·한도·예약)·무한매수 플러그인(옛 러너와 VM 8/8 일치)·웹 조작·
+            투자금/평가/실현손익·패스키·보안 정리(/accounts 공개 차단, 독립 검토 반영)까지 완료. **지금 주문 0**
+            (타이머 dry-run, 프로필 auto off). 동시호가 매도가 통과하면 O2b·O3u 는 **autotrader 전략 파일로** 만든다.
+            ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
+            nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-22.md ·
+            보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토).
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
