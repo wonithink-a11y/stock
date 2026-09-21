@@ -116,6 +116,17 @@ def main():
                          sleep=slept.append, min_interval=0)
         ck("발급 제한이면 61초 기다려 한 번 재시도", kc._get_token() == "T" and 61 in slept)
 
+        asked = []
+
+        def quote_http(method, url, **kw):
+            ex = (kw.get("params") or {}).get("EXCD")
+            asked.append(ex)
+            return R({"rt_cd": "0", "output": {"last": "40.10" if ex == "AMS" else ""}})
+        kc2 = K.KisClient("paper", "k", "s", "1-01", Path(td) / "tok", http=quote_http, sleep=lambda _: None, min_interval=0)
+        kc2._token = "T"
+        ck("나스닥에 없는 종목(SOXL=Arca)은 AMS 로 다시 묻는다",
+           K.KisBroker(kc2).quote("SOXL", "US") == 40.10 and asked == ["NAS", "AMS"])
+
         # ---- run-due (가짜 브로커·고정 시각)
         brokers = {}
 

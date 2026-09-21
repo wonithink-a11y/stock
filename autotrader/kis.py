@@ -61,7 +61,7 @@ PATHS = {
 _RETRYABLE = {"EGW00201", "EGW00300"}
 MAX_PAGES = 100
 US_EXCHANGE = "NASD"          # 주문·잔고용
-US_QUOTE_EXCHANGE = "NAS"     # 시세용 코드가 다르다
+US_QUOTE_EXCHANGES = ("NAS", "AMS", "NYS")    # 시세용 코드가 다르다. 앞에서부터 값이 나올 때까지
 
 
 class KisError(RuntimeError):
@@ -280,9 +280,15 @@ class KisBroker(Broker):
             _, body = self.c.get("KR", "price", {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": symbol},
                                  f"국내 시세({symbol})")
             return _f((body.get("output") or {}).get("stck_prpr"))
-        _, body = self.c.get("US", "price", {"AUTH": "", "EXCD": US_QUOTE_EXCHANGE, "SYMB": symbol},
-                             f"해외 시세({symbol})")
-        return _f((body.get("output") or {}).get("last"))
+        # 시세 TR 은 거래소를 정확히 줘야 한다 — SOXL 같은 NYSE Arca 상장 ETF 는 NAS 로 물으면 빈 값(0)이 온다
+        # (2026-09-22 VM 실측). 주문·잔고의 NASD 는 그대로 통한다. 나스닥 → 아멕스(Arca) → 뉴욕 순으로 묻는다.
+        for excd in US_QUOTE_EXCHANGES:
+            _, body = self.c.get("US", "price", {"AUTH": "", "EXCD": excd, "SYMB": symbol},
+                                 f"해외 시세({symbol} {excd})")
+            px = _f((body.get("output") or {}).get("last"))
+            if px > 0:
+                return px
+        return 0.0
 
     # ---------------------------------------------------------------- 주문
     def _guard_orders(self, dry_run: bool) -> None:
