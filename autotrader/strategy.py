@@ -31,6 +31,7 @@ class Context:
     def __init__(self, broker: Broker, now: datetime, params: dict, state: dict):
         self._broker = broker
         self.now = now                      # KST
+        self.mode = broker.mode             # "paper" | "live" — 모의는 LOC 를 못 받는 등 주문 유형이 갈린다
         self.params = params                # 설정의 params
         self.state = state                  # 실행 사이에 유지되는 dict — 전략이 자유롭게 쓴다
         self._pos: Dict[str, Dict[str, Position]] = {}

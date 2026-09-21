@@ -160,9 +160,10 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
         if it.symbol in blocked:
             report["skipped"].append({**rec, "reason": "미체결/충돌로 이 종목은 오늘 건너뜀"})
             continue
-        key = (it.market, it.symbol, it.side)
+        # 같은 종목·방향이라도 주문유형·가격이 다르면 별개 주문이다(분할매수의 여러 호가). 완전히 같은 것만 중복.
+        key = (it.market, it.symbol, it.side, it.order_type, it.limit_price)
         if key in seen:
-            report["rejected"].append({**rec, "reason": "같은 실행 안에 같은 종목·방향이 중복"})
+            report["rejected"].append({**rec, "reason": "같은 실행 안에 같은 종목·방향·가격이 중복"})
             continue
         seen.add(key)
         try:
