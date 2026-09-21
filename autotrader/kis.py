@@ -41,6 +41,7 @@ TR_IDS: Dict[Tuple[str, str], Tuple[str, str]] = {
     ("US", "balance"): ("VTTS3012R", "TTTS3012R"),
     ("US", "nccs"): ("VTTS3018R", "TTTS3018R"),
     ("US", "psamount"): ("VTTS3007R", "TTTS3007R"),
+    ("US", "ccnl"): ("VTTS3035R", "TTTS3035R"),             # 체결내역 — 모의는 2026-09-22 실측, 실전은 V→T 유도(조회 전용)
     ("US", "price"): ("HHDFS00000300", "HHDFS00000300"),
 }
 QUOTE_KEYS = {("KR", "price"), ("US", "price")}       # 모의/실전 구분 없는 시세 TR
@@ -55,6 +56,7 @@ PATHS = {
     ("US", "balance"): "/uapi/overseas-stock/v1/trading/inquire-balance",
     ("US", "nccs"): "/uapi/overseas-stock/v1/trading/inquire-nccs",
     ("US", "psamount"): "/uapi/overseas-stock/v1/trading/inquire-psamount",
+    ("US", "ccnl"): "/uapi/overseas-stock/v1/trading/inquire-ccnl",
     ("US", "price"): "/uapi/overseas-price/v1/quotations/price",
 }
 
@@ -254,6 +256,29 @@ class KisBroker(Broker):
                   "OVRS_ORD_UNPR": f"{px:.2f}", "ITEM_CD": ref_symbol}
         _, body = self.c.get("US", "psamount", params, "해외 매수가능")
         return _f((body.get("output") or {}).get("ord_psbl_frcr_amt"))
+
+    def fills(self, market: str, start: str, end: str) -> List[dict]:
+        """기간(YYYYMMDD) 체결내역 — 주문번호별 **누적** 체결수량·평균체결가. 계좌 단위라 호출부가 우리 주문번호로 거른다."""
+        if market == "KR":
+            params = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "INQR_STRT_DT": start, "INQR_END_DT": end,
+                      "SLL_BUY_DVSN_CD": "00", "PDNO": "", "CCLD_DVSN": "00", "INQR_DVSN": "00",
+                      "INQR_DVSN_3": "00", "ORD_GNO_BRNO": "", "ODNO": "", "INQR_DVSN_1": "",
+                      "CTX_AREA_FK100": "", "CTX_AREA_NK100": "", "EXCG_ID_DVSN_CD": "KRX"}
+            rows = self.c.paginate("KR", "ccld", params, "국내 체결", "output1",
+                                   ("ctx_area_fk100", "ctx_area_nk100"), ("CTX_AREA_FK100", "CTX_AREA_NK100"))
+            q, px = "tot_ccld_qty", "avg_prvs"
+        else:
+            params = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "PDNO": "%", "ORD_STRT_DT": start,
+                      "ORD_END_DT": end, "SLL_BUY_DVSN": "00", "CCLD_NCCS_DVSN": "00", "OVRS_EXCG_CD": "%",
+                      "SORT_SQN": "DS", "ORD_DT": "", "ORD_GNO_BRNO": "", "ODNO": "",
+                      "CTX_AREA_NK200": "", "CTX_AREA_FK200": ""}
+            rows = self.c.paginate("US", "ccnl", params, "해외 체결", "output",
+                                   ("ctx_area_fk200", "ctx_area_nk200"), ("CTX_AREA_FK200", "CTX_AREA_NK200"))
+            q, px = "ft_ccld_qty", "ft_ccld_unpr3"
+        return [{"orderNo": (r.get("odno") or "").strip(), "symbol": (r.get("pdno") or "").strip(),
+                 "side": "SELL" if r.get("sll_buy_dvsn_cd") == "01" else "BUY", "qty": _i(r.get(q)),
+                 "price": _f(r.get(px)), "day": (r.get("ord_dt") or "").strip()}
+                for r in rows if _i(r.get(q)) > 0]
 
     def open_orders(self, market: str) -> List[OpenOrder]:
         if market == "KR":

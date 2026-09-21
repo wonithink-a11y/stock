@@ -96,13 +96,36 @@ def _pnl_html(m: str, t: dict) -> str:
 
 def render_money_rows(snap: Optional[dict]) -> str:
     out = []
+    rz = (snap or {}).get("realized") or {}
     for m, d in ((snap or {}).get("markets") or {}).items():
         t = d.get("totals")
         if not t:
             continue
         out.append(f'<div class="row"><span>{E(m)} 투자금(원가) · 평가</span><span>{_money(m, t["cost"])} · {_money(m, t["value"])}</span></div>'
-                   f'<div class="row"><span>{E(m)} 평가손익</span>{_pnl_html(m, t)}</div>')
+                   f'<div class="row"><span>{E(m)} 평가손익(보유분)</span>{_pnl_html(m, t)}</div>')
+        if "realized" in (snap or {}):
+            r = rz.get(m) or {"realized": 0.0, "incomplete": False}
+            cls = "ok" if r["realized"] >= 0 else "bad"
+            warn = ' <span class="warn">(원가 모르는 매도 있음)</span>' if r["incomplete"] else ""
+            out.append(f'<div class="row"><span>{E(m)} 실현손익(수수료·세금 전)</span><span class="{cls}">'
+                       f'{"+" if r["realized"] >= 0 else ""}{_money(m, r["realized"])}{warn}</span></div>')
+    if (snap or {}).get("realizedError"):
+        out.append(f'<div class="row"><span>실현손익</span><span class="warn">체결 조회 실패 — 다음 갱신에 다시</span></div>')
     return "".join(out)
+
+
+def render_sells(snap: Optional[dict]) -> str:
+    rows = []
+    for m, r in ((snap or {}).get("realized") or {}).items():
+        for x in reversed(r.get("sells", [])[-30:]):
+            cls = "ok" if x["pnl"] >= 0 else "bad"
+            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{E(x["symbol"])}</td><td>{x["qty"]}</td>'
+                        f'<td>{x["avg"]:,.2f} → {x["price"]:,.2f}</td><td class="{cls}">{_money(m, x["pnl"])}</td></tr>')
+    if "realized" not in (snap or {}):
+        return ""
+    return ('<div class="card"><h2>실현손익 내역(매도 체결, 최근 30)</h2><table><tr><th>날짜</th><th>종목</th><th>수량</th>'
+            '<th>평단 → 체결가</th><th>손익</th></tr>' + ("".join(rows) or "<tr><td colspan=5 class=mut>아직 매도 체결 없음</td></tr>")
+            + "</table></div>")
 
 
 def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
@@ -220,7 +243,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
         cash = d.get("cash")
         rows.append(f'''<div class="card"><h2>{E(m)}</h2>
 <div class="row"><span>주문가능 현금</span><span>{"-" if cash is None else _money(m, cash)}</span></div>
-{render_money_rows({"markets": {m: d}})}
+{render_money_rows({"markets": {m: d}, **({"realized": snap["realized"]} if "realized" in snap else {})})}
 <h2 style="margin-top:10px">보유</h2><table><tr><th>종목</th><th>수량</th><th>평단</th><th>현재가</th><th>손익</th></tr>{pos or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table>
 <h2 style="margin-top:10px">미체결</h2><table><tr><th>종목</th><th>방향</th><th>잔량/수량</th><th>가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>''')
     led = "".join(
@@ -235,7 +258,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
                            f' — {E(str(x.get("reason", "")))}</div>' for x in (last.get(k) or []) if isinstance(x, dict))
         lastblk = (f'<div class="card"><h2>마지막 실행 {E(str(last.get("at", ""))[5:16].replace("T", " "))}</h2>'
                    + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
-    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{controls}{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
+    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{controls}{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{render_sells(snap)}{lastblk}
 <div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
 <div class="card"><a href="{base}/">← 요약으로</a></div>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''

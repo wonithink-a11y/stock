@@ -24,6 +24,10 @@ class Broker:
     def open_orders(self, market: str) -> List[OpenOrder]:
         raise NotImplementedError
 
+    def fills(self, market: str, start: str, end: str) -> List[dict]:
+        """기간 체결내역: [{orderNo, symbol, side, qty(누적 체결), price(평균 체결가), day}]."""
+        raise NotImplementedError
+
     def quote(self, symbol: str, market: str) -> float:
         raise NotImplementedError
 
@@ -52,6 +56,7 @@ class FakeBroker(Broker):
         self.placed: List[dict] = []
         self.cancelled: List[dict] = []
         self._seq = 1000
+        self.fill_rows: List[dict] = []            # 테스트가 체결을 직접 넣는다
 
     def positions(self, market):
         return list(self._pos.get(market, []))
@@ -61,6 +66,9 @@ class FakeBroker(Broker):
 
     def open_orders(self, market):
         return [o for o in self._open if o.market == market]
+
+    def fills(self, market, start, end):
+        return [dict(f) for f in self.fill_rows if f.get("market", market) == market]
 
     def quote(self, symbol, market):
         if symbol not in self._quotes:

@@ -261,11 +261,19 @@ def cmd_snapshot(args) -> int:
             print(f"[{tag}] 키 없음 — 건너뜀", file=sys.stderr)
             continue
         try:
-            snap = build_snapshot(c, make_broker(c, env, False), env, datetime.now(KST))
+            broker, now = make_broker(c, env, False), datetime.now(KST)
+            snap = build_snapshot(c, broker, env, now)
         except Exception as e:                          # noqa: BLE001 — 한 프로필의 실패가 다른 프로필을 막지 않는다
             print(f"[{tag}] 스냅샷 실패: {type(e).__name__}: {e}", file=sys.stderr)
             worst = 1
             continue
+        if c is not cfg:                                # 프로필만 실현손익(우리 주문번호의 체결 → fills.json)
+            from .pnl import realized, sync_fills
+            try:
+                snap["realized"] = realized(sync_fills(c, broker, snap, now))
+            except Exception as e:                      # noqa: BLE001 — 체결 조회 실패가 보유 화면을 막지 않는다
+                snap["realizedError"] = f"{type(e).__name__}: {e}"[:200]
+                print(f"[{tag}] 체결 조회 실패: {snap['realizedError']}", file=sys.stderr)
         p = write_snapshot(c, snap)
         errs = [f"{m}: {d['error']}" for m, d in snap["markets"].items() if d.get("error")]
         print(f"[{tag}] 스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
