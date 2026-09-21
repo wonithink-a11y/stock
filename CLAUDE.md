@@ -12,7 +12,7 @@ Validated against
             패널 24,749행(`data/fundamentals-ext/`, gitignore), 매핑 `research/strategy-lab/a3e_account_map.py`(**a3e-map-1.1 동결**),
             감사 docs/control/A3e-계정매핑감사-2026-09-21.md. 다음은 **가치 계열(EV/EBIT·EV/FCF·EV/매출총이익, PBR 잔차화 후 추가 정보)
             사전등록**(6b9c2b52) → **결과 세 셀 전부 REJECT**(11_ev_value_family_oos.py, findings/a3e-ev-value-family-results-2026-09.md).
-            **EV/EBITDA 는 감가상각비 커버리지 19% 라 전면 불가.** 고부채 쏠림 통제도 **REJECT**(기전 NOT SUPPORTED — 쏠림을 없앴는데 하락장 격차 그대로, 가치 결합 라인 종결). 다음 후보 = **품질 계열 사전등록**(결합 전 각 축 단독의 하락장 성과부터).
+            **EV/EBITDA 는 감가상각비 커버리지 19% 라 전면 불가.** 고부채 쏠림 통제도 **REJECT**(기전 NOT SUPPORTED — 쏠림을 없앴는데 하락장 격차 그대로, 가치 결합 라인 종결). **품질 계열(GP/A·발생액·자산성장)도 1단계 단독에서 세 축 REJECT** — A3e 회계 축 탐색 라인 종결(PBR 이 유일한 생존 축).
             (2) **모의 동시호가 1주 시험** — 09-21 매수 **PASS**(체결가=공식 종가 274,000, 차이 0.0bp). 09-22 08:45 매도 → 09:05 대조가 남았다
             (VM cron 일회성, 로그 `~/collector-venv/logs/auction-probe.log`). 통과해야 O2b·O3u 모의 실행(설계 동결
             docs/control/단기규칙-모의실행-설계-2026-09-20.md, 슬리브당 4천만원)이 이어진다 — **실패하면 그 실험 중단**.
@@ -202,6 +202,8 @@ Validated against
   완료      상세 이력은 docs/control/완료-이력.md 참고(2026-09-06, CLAUDE.md가
             2,720줄까지 커져 절반 이상이던 "완료" 전체를 분리 — 내용 손실
             없음, 원본 그대로 이동). 최신 항목:
+            · 09-21 **A3e 품질 계열(GP/A·발생액·자산성장) — 1단계(단독 vs EW) 세 축 전부 REJECT, 2단계 미실행**(findings/a3e-quality-family-results-2026-09.md).
+              TEST 에서 셋 다 EW 보다 월 34~41bp 나쁨 · 하락장 단독 방어 9번 중 1번 · AGR 만 TRAIN 바닥선 통과 후 TEST 붕괴. GP/A 는 ROE·op_margin 과 상관 0.5(기존 REJECT 계열과 겹침).
             · 09-21 **고부채 쏠림 통제(부채/EV 상위 1/3 제외) — 4셀(EV 3+EY) 전부 REJECT · 기전 NOT SUPPORTED**(사후 가설, findings/leverage-control-results-2026-09.md).
               결합 상위 10분위 부채/EV 0.42~0.57 → 0.03~0.05 로 쏠림을 없앴는데도 하락장 격차 그대로(무작위 동수 제외 p95 +30bp 미달) → **PBR 에 가치 계열을 섞는 라인 종결**.
               단 하락장 36개월이라 ~30bp 미만 효과는 탐지 못 함. 기록 전용: 제한 표본에서 PBR 단독 TRAIN Sharpe 가 절반(고부채 종목이 TRAIN 성과 일부) — 새 가설, 미검증.
