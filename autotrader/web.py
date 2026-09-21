@@ -357,13 +357,13 @@ def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "")
                  f'<div id="pk-msg" class="mut">5분 안에 누르세요.</div><script src="{E(base)}/static/passkey.js"></script>')
     else:
         inner = ('<div class="mut">등록 코드는 서버에서만 나온다(피싱된 인증앱 코드로 남의 패스키를 추가하지 못하게):<br>'
-                 '<code>python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-enroll</code> (15분·1회용)</div>'
+                 '<code>cd ~/collector &amp;&amp; ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-enroll</code> (15분·1회용)</div>'
                  f'<form method="post" action="{base}/passkey/begin"><input type="hidden" name="csrf" value="{E(csrf)}">'
                  '<input name="code" placeholder="서버 등록 코드 (예: 3F2A-9C01-77BE)" autocomplete="off" maxlength="20" required>'
                  '<button>등록 시작</button></form>')
     body = (f'<h1>패스키(지문)</h1><div class="card"><div class="row"><span>등록된 패스키</span><span>{n}개</span></div>'
             '<div class="mut">패스키가 하나라도 있으면 <b>실계좌 주문 켜기·실행은 패스키로만</b> 된다(인증앱 코드는 안 받는다 — 피싱 방지). '
-            '삭제는 서버에서만: <code>python3 -m autotrader passkey-reset</code></div></div>'
+            '삭제는 서버에서만: <code>cd ~/collector &amp;&amp; ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-reset</code></div></div>'
             f'<div class="card">{inner}</div><div class="card"><a href="{base}/">← 요약으로</a></div>')
     return _page("패스키", body)
 

@@ -189,5 +189,6 @@ python3 -m autotrader --profile samsung kill                                    
 - 서버 준비(한 번): `~/collector-venv/bin/pip install "webauthn>=2.2,<3"`, 기본 설정 `web` 에
   `"rp_id": "wonithink-stock.duckdns.org", "origin": "https://wonithink-stock.duckdns.org"` → `sudo systemctl restart autotrader-web`
 - 등록: 폰 화면 → "🔑 패스키(지문) 관리" → 인증앱 코드 → "이 기기로 패스키 등록". 여러 기기 등록 가능. 등록은 텔레그램으로 알린다.
-- 삭제는 **서버에서만**: `python3 -m autotrader passkey-reset` (웹에서 지울 수 있으면 공격자가 지우고 코드 방식으로 되돌린다).
+- 등록 코드(서버): `cd ~/collector && ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-enroll`
+- 삭제는 **서버에서만**: 같은 명령의 끝을 `passkey-reset` 으로 (웹에서 지울 수 있으면 공격자가 지우고 코드 방식으로 되돌린다).
 - 폰을 잃어버리면 서버에서 `passkey-reset` 후 새 폰으로 다시 등록한다. 로그인은 여전히 비밀번호 + 인증앱 코드다.
