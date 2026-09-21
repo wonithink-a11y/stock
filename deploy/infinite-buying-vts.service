@@ -32,7 +32,7 @@ User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
 EnvironmentFile=/home/ubuntu/collector-venv/.env
 Environment=INFBUY_STATE_DIR=/home/ubuntu/collector-venv/infbuy/state
-ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only origin main
 ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_infinite_buying_daily.py --mode vts --rules /home/ubuntu/collector-venv/infbuy/_rules.local.json
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/infinite-buying-vts.log

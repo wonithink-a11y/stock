@@ -20,7 +20,7 @@ User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
 Environment=US_UNIVERSE_DIR=/home/ubuntu/collector-venv/us-universe
 Environment=PYTHONIOENCODING=utf-8
-ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only origin main
 ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/us_universe_snapshot.py
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/us-universe-snapshot.log

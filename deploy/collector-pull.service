@@ -23,7 +23,7 @@ WorkingDirectory=@REPO@
 # --ff-only: 로컬에 갈라진 게 있으면 덮어쓰지 않고 **실패한다.** VM 워킹트리는
 # 깨끗해야 정상이고(산출물은 전부 gitignore 대상), 안 깨끗하면 조용히 뭉개는
 # 것보다 멈추고 사람이 보는 게 맞다.
-ExecStart=/usr/bin/git -C @REPO@ pull --ff-only
+ExecStart=/usr/bin/git -C @REPO@ pull --ff-only origin main
 
 StandardOutput=append:@LOGDIR@/collector-pull.log
 StandardError=append:@LOGDIR@/collector-pull.log

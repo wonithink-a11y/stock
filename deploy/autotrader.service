@@ -19,7 +19,7 @@ Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
 EnvironmentFile=/home/ubuntu/collector-venv/.env
-ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only origin main
 ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json run
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/autotrader.log

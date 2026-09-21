@@ -20,7 +20,7 @@ OnFailure=unit-failure-notify@%n.service
 Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
-ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only
+ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only origin main
 ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_crypto_upshock_paper.py --execute
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/crypto-upshock-paper.log
