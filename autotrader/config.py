@@ -225,7 +225,83 @@ def load_profile(config_path, name: str, main_cfg: Optional[dict] = None) -> dic
     main_cfg = main_cfg or load_config(config_path)
     cfg = normalize_config({**raw, "state_dir": str(state_dir(main_cfg) / "profiles" / name)})
     cfg["profile"] = name
+    cfg["auto_file"] = cfg.get("auto", "off")
+    cfg["auto"] = effective_auto(cfg, read_control(cfg).get("auto"))
     return cfg
+
+
+# ------------------------------------------------------------------ 웹 제어(요청 파일)
+# 웹 화면은 키를 못 읽는다. 대신 프로필 상태 폴더에 **요청 파일**만 쓴다 — control.json(자동 여부)·run_request.json(지금 실행).
+# 실제 실행은 키를 가진 run-due 가 한다. 웹이 바꿀 수 있는 것은 자동 여부·지금 실행·킬 스위치뿐이다
+# (전략·키·한도·종목·모드는 프로필 파일 = SSH 에서만).
+_AUTO_RANK = {"off": 0, "dry": 1, "execute": 2}
+RUN_REQUEST_MAX_MIN = 15      # 이보다 오래된 실행 요청은 버린다(몇 시간 뒤 뜬금없이 주문하지 않게)
+
+
+def control_path(cfg: dict) -> Path:
+    return state_dir(cfg) / "control.json"
+
+
+def read_control(cfg: dict) -> dict:
+    try:
+        d = json.loads(control_path(cfg).read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def effective_auto(cfg: dict, web_auto: Optional[str]) -> str:
+    """웹 값이 있으면 그것을 쓴다. 단 **실전(live)은 웹이 파일 값보다 올릴 수 없다** — 실계좌 주문 켜기는 SSH 로만."""
+    file_auto = cfg.get("auto", "off")
+    if web_auto not in _AUTO_RANK:
+        return file_auto
+    if cfg.get("mode") == "live" and _AUTO_RANK[web_auto] > _AUTO_RANK[file_auto]:
+        return file_auto
+    return web_auto
+
+
+def web_set_auto(cfg: dict, auto: str, now: datetime) -> Optional[str]:
+    """웹에서 자동 여부를 바꾼다. 거부 사유 문자열(None=성공)."""
+    if auto not in _AUTO_RANK:
+        return "알 수 없는 값"
+    if cfg.get("mode") == "live" and _AUTO_RANK[auto] > _AUTO_RANK[cfg.get("auto_file", "off")]:
+        return "실전 프로필의 주문 켜기는 웹에서 할 수 없다(서버에서 프로필 파일로만)"
+    p = control_path(cfg)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"auto": auto, "at": now.isoformat()}), encoding="utf-8")
+    os.replace(tmp, p)
+    return None
+
+
+def run_request_path(cfg: dict) -> Path:
+    return state_dir(cfg) / "run_request.json"
+
+
+def web_request_run(cfg: dict, now: datetime) -> None:
+    p = run_request_path(cfg)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"at": now.isoformat()}), encoding="utf-8")
+
+
+def take_run_request(cfg: dict, now: datetime) -> Optional[str]:
+    """실행 요청을 **소비**한다(먼저 지운다 — 두 번 실행하지 않게). 유효하면 요청 시각, 아니면 None."""
+    p = run_request_path(cfg)
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        d = None
+    try:
+        p.unlink()
+    except OSError:
+        pass
+    if not d:
+        return None
+    try:
+        at = datetime.fromisoformat(d["at"])
+    except (KeyError, ValueError, TypeError):
+        return None
+    return d["at"] if timedelta(0) <= now - at <= timedelta(minutes=RUN_REQUEST_MAX_MIN) else None
 
 
 def list_profiles(config_path) -> List[str]:

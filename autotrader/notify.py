@@ -17,7 +17,10 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 OK_EVENTS = {"login-ok": "✅ 로그인 성공", "reauth-ok": "✅ 재인증 성공"}
-FAIL_EVENTS = {"login-fail": "로그인 실패", "reauth-fail": "재인증 실패", "csrf-fail": "요청 검증 실패", "locked": "잠금 상태에서 시도"}
+FAIL_EVENTS = {"login-fail": "로그인 실패", "reauth-fail": "재인증 실패", "csrf-fail": "요청 검증 실패", "locked": "잠금 상태에서 시도",
+               "action-fail": "조작 코드 실패"}
+ACTION_TEXT = {"auto-off": "자동 실행 끔", "auto-dry": "자동 dry-run", "auto-execute": "⚠️ 자동 주문 켬",
+               "run": "지금 실행 요청", "kill": "🛑 킬 스위치 켬", "resume": "킬 스위치 해제"}
 
 
 def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) -> None:
@@ -88,6 +91,9 @@ def build_messages(lines: List[str]) -> List[str]:
         when = ts[5:16].replace("T", " ")
         if ev in OK_EVENTS:
             msgs.append(f"{OK_EVENTS[ev]}\nautotrader · {when} · IP {ip}\n본인이 아니면 즉시 비밀번호·인증앱 재설정(web-setup --reset)")
+        elif ev.startswith("action:") and ev.count(":") == 2:     # 웹 조작 — 즉시 알린다(본인이 아니면 바로 알아채게)
+            _, prof, op = ev.split(":")
+            msgs.append(f"🛠 웹 조작: {prof} · {ACTION_TEXT.get(op, op)}\nautotrader · {when} · IP {ip}")
         elif ev in FAIL_EVENTS:
             fails[ip] += 1
             fail_kinds[FAIL_EVENTS[ev]] += 1

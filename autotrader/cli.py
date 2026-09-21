@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Optional
 
 from .config import (ConfigError, GateError, REPO_ROOT, due_slots, gate_problems, key_names, kill_file,
-                     list_profiles, load_config, load_env, load_profile, profiles_dir, state_dir)
+                     list_profiles, load_config, load_env, load_profile, profiles_dir, state_dir, take_run_request)
 from .engine import KST, Ledger, run_once
 from .kis import make_broker
 from .strategy import load_strategy
@@ -114,12 +114,15 @@ def cmd_run_due(args) -> int:
         sfile = state_dir(cfg) / "schedule.json"
         done = json.loads(sfile.read_text(encoding="utf-8")) if sfile.exists() else []
         slots = due_slots(cfg, now, done)
-        if not slots:
+        asked = take_run_request(cfg, now)              # 웹의 "지금 실행" — 소비하고 나서 돈다
+        if not slots and not asked:
             continue
-        sfile.parent.mkdir(parents=True, exist_ok=True)
-        sfile.write_text(json.dumps((done + slots)[-50:]), encoding="utf-8")    # 실행 전에 기록 — 도중에 죽어도 같은 회차를 다시 안 돈다
+        if slots:
+            sfile.parent.mkdir(parents=True, exist_ok=True)
+            sfile.write_text(json.dumps((done + slots)[-50:]), encoding="utf-8")    # 실행 전에 기록 — 도중에 죽어도 같은 회차를 다시 안 돈다
         execute = args.execute and cfg["auto"] == "execute"
-        print(f"[{name}] {now.isoformat()[:19]} 예약 {slots[-1]} · {'주문' if execute else 'dry-run'}", flush=True)
+        why = f"예약 {slots[-1]}" if slots else f"웹 요청 {asked[11:16]}"
+        print(f"[{name}] {now.isoformat()[:19]} {why} · {'주문' if execute else 'dry-run'}", flush=True)
         try:
             code, rep = _run(cfg, env, execute)
         except Exception as e:                          # noqa: BLE001 — 한 프로필의 실패가 다른 프로필을 막지 않는다
@@ -127,7 +130,7 @@ def cmd_run_due(args) -> int:
             code, rep = 1, {"strategy": cfg["strategy"], "mode": cfg["mode"], "execute": execute,
                             "status": "crash", "errors": [f"{type(e).__name__}: {e}"]}
         worst = max(worst, code)
-        if (rep is None or rep.get("placed") or rep.get("errors")) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
+        if (rep is None or rep.get("placed") or rep.get("errors") or asked) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
             try:
                 send_telegram(env["TELEGRAM_BOT_TOKEN"], env["TELEGRAM_CHAT_ID"], run_summary(name, rep))
             except Exception as e:                      # noqa: BLE001 — 알림 실패가 실행 결과를 바꾸지 않는다

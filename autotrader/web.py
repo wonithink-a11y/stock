@@ -19,7 +19,8 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, quote, urlsplit
 
-from .config import ConfigError, list_profiles, load_profile, state_dir
+from .config import (ConfigError, kill_file, list_profiles, load_profile, state_dir, web_request_run,
+                     web_set_auto)
 from .engine import Ledger
 from .web_auth import AuthStore, Lockout, Sessions, totp_verify, verify_password
 
@@ -79,6 +80,31 @@ def load_view(cfg: dict, sdir: Path, now: datetime) -> dict:
             "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent}
 
 
+def _money(m: str, x) -> str:
+    if x is None:
+        return "-"
+    return f"${x:,.2f}" if m == "US" else f"{x:,.0f}원"
+
+
+def _pnl_html(m: str, t: dict) -> str:
+    if not t or t.get("pnl") is None:
+        return '<span class="mut">현재가 없음</span>'
+    cls = "ok" if t["pnl"] >= 0 else "bad"
+    pct = f' ({t["pnlPct"]:+.2f}%)' if t.get("pnlPct") is not None else ""
+    return f'<span class="{cls}">{"+" if t["pnl"] >= 0 else ""}{_money(m, t["pnl"])}{pct}</span>'
+
+
+def render_money_rows(snap: Optional[dict]) -> str:
+    out = []
+    for m, d in ((snap or {}).get("markets") or {}).items():
+        t = d.get("totals")
+        if not t:
+            continue
+        out.append(f'<div class="row"><span>{E(m)} 투자금(원가) · 평가</span><span>{_money(m, t["cost"])} · {_money(m, t["value"])}</span></div>'
+                   f'<div class="row"><span>{E(m)} 평가손익</span>{_pnl_html(m, t)}</div>')
+    return "".join(out)
+
+
 def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
     # 프로필(키 묶음+전략)마다 한 장. 금액·종목은 없다 — 상세 링크에서 본다.
     out = []
@@ -102,6 +128,7 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
 <span class="pill {auto_cls}">자동 {E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
 {'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
 <div class="row"><span>상태 조회</span>{snap_txt}</div>
+{render_money_rows(snap)}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
 <div class="row"><span>마지막 실행</span>{last_txt}</div>
 <a href="{base}/details?p={quote(name)}">상세 보기</a></div>''')
@@ -150,21 +177,51 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
     return _page("autotrader", body, refresh=True)
 
 
-def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "") -> bytes:
+def render_controls(cfg: dict, csrf: str, base: str, msg: str = "") -> str:
+    """프로필 조작 폼. 킬 스위치 켜기만 코드 없이 되고, 나머지는 인증앱 코드를 **매번 새로** 넣어야 한다."""
+    name = str(cfg.get("profile", ""))
+    live = cfg.get("mode") == "live"
+    opts = [("auto-off", "자동 끄기"), ("auto-dry", "자동 dry-run (주문 없이 계획만)")]
+    if not live:
+        opts.append(("auto-execute", "자동 주문 켜기 (모의투자)"))
+    opts += [("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"), ("resume", "킬 스위치 해제")]
+    sel = "".join(f'<option value="{k}">{E(t)}</option>' for k, t in opts)
+    m = f'<div class="warn">{E(msg)}</div>' if msg else ""
+    note = ("<div class='mut'>실전 프로필은 여기서 주문을 켤 수 없다(서버에서만).</div>" if live else
+            "<div class='mut'>'주문'은 서버 타이머에도 --execute 가 있어야 실제로 나간다.</div>")
+    return f'''<div class="card"><h2>조작</h2>{m}
+<div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
+<form method="post" action="{base}/action"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
+<select name="op">{sel}</select>
+<input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
+<button>적용</button></form>{note}
+<form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
+<input type="hidden" name="op" value="kill"><button style="background:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form></div>'''
+
+
+def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "", controls: str = "") -> bytes:
     snap = v["snapshot"] or {}
     rows = []
     for m, d in (snap.get("markets") or {}).items():
         if d.get("error"):
             rows.append(f'<div class="card"><h2>{E(m)}</h2><span class="bad">{E(str(d["error"]))}</span></div>')
             continue
-        pos = "".join(f'<tr><td>{E(str(p["symbol"]))}</td><td>{p["qty"]}</td><td>{p["avgPrice"]:,.2f}</td></tr>'
-                      for p in d.get("positions", []))
+        def prow(p):
+            px = p.get("price") or 0
+            pnl = (px - p["avgPrice"]) * p["qty"] if px else None
+            pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
+            cls = "" if pnl is None else ("ok" if pnl >= 0 else "bad")
+            return (f'<tr><td>{E(str(p["symbol"]))}</td><td>{p["qty"]}</td><td>{p["avgPrice"]:,.2f}</td>'
+                    f'<td>{f"{px:,.2f}" if px else "-"}</td><td class="{cls}">{"-" if pnl is None else f"{pnl:+,.2f}"}'
+                    f'{"" if pc is None else f" ({pc:+.1f}%)"}</td></tr>')
+        pos = "".join(prow(p) for p in d.get("positions", []))
         oo = "".join(f'<tr><td>{E(str(o["symbol"]))}</td><td>{E(str(o["side"]))}</td><td>{o["remaining"]}/{o["qty"]}</td>'
                      f'<td>{o["price"]:,.2f}</td></tr>' for o in d.get("openOrders", []))
         cash = d.get("cash")
         rows.append(f'''<div class="card"><h2>{E(m)}</h2>
-<div class="row"><span>주문가능 현금</span><span>{"-" if cash is None else f"{cash:,.0f}"}</span></div>
-<h2 style="margin-top:10px">보유</h2><table><tr><th>종목</th><th>수량</th><th>평단</th></tr>{pos or "<tr><td colspan=3 class=mut>없음</td></tr>"}</table>
+<div class="row"><span>주문가능 현금</span><span>{"-" if cash is None else _money(m, cash)}</span></div>
+{render_money_rows({"markets": {m: d}})}
+<h2 style="margin-top:10px">보유</h2><table><tr><th>종목</th><th>수량</th><th>평단</th><th>현재가</th><th>손익</th></tr>{pos or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table>
 <h2 style="margin-top:10px">미체결</h2><table><tr><th>종목</th><th>방향</th><th>잔량/수량</th><th>가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>''')
     led = "".join(
         f'<tr><td>{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</td><td>{E(str(r.get("market")))}</td><td>{E(str(r.get("symbol")))}</td>'
@@ -178,7 +235,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
                            f' — {E(str(x.get("reason", "")))}</div>' for x in (last.get(k) or []) if isinstance(x, dict))
         lastblk = (f'<div class="card"><h2>마지막 실행 {E(str(last.get("at", ""))[5:16].replace("T", " "))}</h2>'
                    + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
-    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
+    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{controls}{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
 <div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
 <div class="card"><a href="{base}/">← 요약으로</a></div>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
@@ -216,6 +273,7 @@ class WebApp:
         self.base = "/" + base.strip("/") if base.strip("/") else ""      # 예: "/autotrader" (앞단이 이 접두사 아래로 넘겨준다)
         self.require_reauth = require_reauth                              # True 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다
         self.log_path = self.sdir / "web_login.log"
+        self._msgs: set = set()
         self.profiles = profiles or (lambda: [])                          # 프로필 설정 목록(키 없음 — 파일만 읽는다)
 
     # -------------------------------------------------------------- 유틸
@@ -297,8 +355,15 @@ class WebApp:
             if not match:
                 return self._not_found()
             c = match[0]
+            msg = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
+            msg = msg if msg in self._msgs else ""
             return 200, self._hdrs(), render_details(load_view(c, state_dir(c), self._now()), sess["csrf"], self.base,
-                                                     self.require_reauth, want)
+                                                     self.require_reauth, want, render_controls(c, sess["csrf"], self.base, msg))
+        if method == "POST" and path == "/action":
+            if field("csrf") != sess["csrf"]:
+                self._log(ip, "csrf-fail")
+                return 403, self._hdrs(), _page("403", "<h1>요청이 거부됨</h1>")
+            return self._action(field("p"), field("op"), field("code"), ip)
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -309,6 +374,51 @@ class WebApp:
                 return self._redirect("/", {"Set-Cookie": self._cookie("", 0)})
             return self._reauth(field("code"), tok, sess, ip)
         return self._not_found()
+
+    # -------------------------------------------------------------- 조작(요청 파일만 쓴다 — 주문은 키를 가진 run-due 가 낸다)
+    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
+
+    def _action(self, name: str, op: str, code: str, ip: str):
+        match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
+        if not match or op not in self.OPS:
+            return self._not_found()
+        c = match[0]
+        def back(m: str):
+            self._msgs.add(m)                           # 이 서버가 낸 문구만 화면에 띄운다(주소창으로 가짜 안내를 못 넣게)
+            return self._redirect(f"/details?p={quote(name)}&m={quote(m)}")
+        if op != "kill":                                # 킬 켜기(안전 쪽)만 코드 없이. 나머지는 새 인증앱 코드
+            if self.lockout.is_locked(ip):
+                return back("잠시 후 다시 시도하세요")
+            rec = self.store.load()
+            step = totp_verify(rec["totpSecret"], code, t=self.clock(), last_step=rec.get("lastTotpStep"))
+            if step is None:
+                self.lockout.fail(ip)
+                self._log(ip, "action-fail")
+                if self.fail_delay:
+                    self._sleep(self.fail_delay)
+                return back("인증앱 코드가 맞지 않습니다(방금 쓴 코드는 못 씁니다 — 새 코드를 기다리세요)")
+            self.store.set_last_step(step)
+            self.lockout.ok(ip)
+        now = self._now()
+        if op.startswith("auto-"):
+            err = web_set_auto(c, op[5:], now)
+            if err:
+                return back(err)
+            msg = {"off": "자동 실행을 껐습니다", "dry": "자동 dry-run 으로 바꿨습니다",
+                   "execute": "자동 주문을 켰습니다(서버 타이머에 --execute 가 있어야 실제 주문)"}[op[5:]]
+        elif op == "run":
+            web_request_run(c, now)
+            msg = "실행을 요청했습니다 — 5분 안에 돌고 결과는 텔레그램·최근 실행에 뜹니다"
+        elif op == "kill":
+            kf = kill_file(c)
+            kf.parent.mkdir(parents=True, exist_ok=True)
+            kf.write_text(now.isoformat(), encoding="utf-8")
+            msg = "킬 스위치를 켰습니다 — 이 프로필의 주문이 멈춥니다"
+        else:
+            kill_file(c).unlink(missing_ok=True)
+            msg = "킬 스위치를 해제했습니다"
+        self._log(ip, f"action:{name}:{op}")
+        return back(msg)
 
     # -------------------------------------------------------------- 로그인·재인증
     def _login(self, password: str, code: str, ip: str):

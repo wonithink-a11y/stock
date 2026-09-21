@@ -25,7 +25,12 @@ def build_snapshot(cfg: dict, broker: Broker, env: Dict[str, str], now: datetime
     for m in cfg["markets"]:
         d: dict = {}
         try:
-            d["positions"] = [{"symbol": p.symbol, "qty": p.qty, "avgPrice": p.avg_price} for p in broker.positions(m)]
+            pos = broker.positions(m)
+            if cfg.get("profile"):                      # 프로필은 자기 종목만(같은 계좌를 여러 전략이 나눠 쓴다)
+                allow = set(cfg.get("symbol_allowlist") or [])
+                pos = [p for p in pos if p.symbol in allow]
+            d["positions"] = [{"symbol": p.symbol, "qty": p.qty, "avgPrice": p.avg_price, "price": p.price} for p in pos]
+            d["totals"] = totals(d["positions"])
             d["openOrders"] = [{"orderNo": o.order_no, "symbol": o.symbol, "side": o.side, "qty": o.qty,
                                 "remaining": o.remaining, "price": o.price} for o in broker.open_orders(m)]
             ref = cfg.get("params", {}).get("snapshot_ref_symbol_us") if m == "US" else None
@@ -34,6 +39,15 @@ def build_snapshot(cfg: dict, broker: Broker, env: Dict[str, str], now: datetime
             d["error"] = f"{type(e).__name__}: {e}"[:200]
         snap["markets"][m] = d
     return snap
+
+
+def totals(positions) -> dict:
+    """투자금(매입원가)·평가금액·평가손익. 현재가를 모르는 종목이 하나라도 있으면 평가·손익은 None(모르는 것은 0 이 아니다)."""
+    cost = sum(p["qty"] * p["avgPrice"] for p in positions)
+    if any(not p.get("price") for p in positions):
+        return {"cost": cost, "value": None, "pnl": None, "pnlPct": None}
+    value = sum(p["qty"] * p["price"] for p in positions)
+    return {"cost": cost, "value": value, "pnl": value - cost, "pnlPct": (value / cost - 1) * 100 if cost else None}
 
 
 def write_snapshot(cfg: dict, snap: dict, repo_root: Optional[Path] = None) -> Path:

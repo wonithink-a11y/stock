@@ -51,6 +51,7 @@ class Position:
     market: str
     qty: int
     avg_price: float
+    price: float = 0.0              # 현재가(브로커 잔고 응답). 0 = 모름 — 손익 계산에서 빠진다
 
 
 @dataclass(frozen=True)
