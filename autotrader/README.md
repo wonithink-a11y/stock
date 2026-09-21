@@ -137,3 +137,25 @@ python3 -m autotrader --profile samsung kill                                    
 - 주문 접수·오류·실행 거부는 텔레그램(`TELEGRAM_CHAT_ID`)으로 요약이 온다. 깨진 프로필 파일은 하루 한 번 알린다.
 - 공휴일은 모른다 — 장이 닫힌 날 국내 주문은 KIS 가 거절하고 그 회차가 오류로 끝난다(다음 회차에 영향 없음).
 - 같은 계좌를 여러 프로필이 쓰면, 서로의 미체결 주문을 "남의 주문"으로 보고 그 종목을 건너뛴다(안전 쪽).
+
+### 8-1. 무한매수법 프로필 (`strategies/infinite_buying.py`)
+
+옛 러너(`research/strategy-lab/run_infinite_buying_daily.py --mode vts`)와 **같은 엔진·같은 계약**이다. 2026-09-22 VM 에서
+같은 계좌·같은 상태로 dry-run 해 8건(TQQQ·SOXL 각 4건)의 가격·수량이 옛 러너와 완전히 같음을 확인했다.
+
+```json
+"strategy": "infinite_buying",
+"params": {"rules_file": "/home/ubuntu/collector-venv/infbuy/_rules.local.json", "tickers": ["TQQQ", "SOXL"],
+           "seed_usd": 50000, "splits": 40, "import_state_dir": "/home/ubuntu/collector-venv/infbuy/state"},
+"markets": ["US"], "symbol_allowlist": ["TQQQ", "SOXL"], "run_at": ["21:30"],
+"risk": {"US": {"max_order_value": 3000, "max_daily_value": 10000, "max_orders_per_run": 20, "price_band_pct": 30,
+                "max_position_value": 60000, "allow_sell": true}}
+```
+
+- `import_state_dir` 는 옛 러너의 회차(T)를 **처음 한 번만** 이어받는다. 이후엔 프로필 상태만 쓴다.
+- 한도는 기본값(주문당 $300·가격밴드 5%)으로는 전부 거부된다 — 위처럼 넓힌다(큰수 매도가 시세보다 +15% 안팎).
+- **옛 러너 타이머(`infinite-buying-vts`)와 둘 다 주문을 켜지 않는다** — 같은 계좌에 같은 주문이 두 번 나간다.
+  프로필로 옮기면 `sudo systemctl disable --now infinite-buying-vts.timer` 후 프로필 `auto` 를 올린다.
+  (서로의 미체결은 "남의 주문"으로 보고 그 종목을 건너뛰긴 하지만, 그건 겹침을 늦게 막는 장치이지 막는 방법이 아니다.)
+- 모의투자는 LOC 를 못 받아 지정가로 낸다 — 이 숫자는 전략 판정용이 아니다(판정 정본은 옛 러너 `--mode paper`).
+- MOC(역전 첫날 매도)는 autotrader 에 없는 주문이라 건너뛰고 상태에 `skippedMOC` 로 남긴다 — **실전에서는 규칙과 다르다**.
