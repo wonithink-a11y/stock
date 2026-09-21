@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -130,11 +131,17 @@ class KisClient:
                     return self._token
             except (ValueError, KeyError, OSError):
                 pass
-        r = self._request("POST", self.base + "/oauth2/tokenP",
-                          data=json.dumps({"grant_type": "client_credentials",
-                                           "appkey": self.key, "appsecret": self.secret}),
-                          headers={"content-type": "application/json"}, timeout=20)
-        body = r.json()
+        for attempt in range(2):
+            r = self._request("POST", self.base + "/oauth2/tokenP",
+                              data=json.dumps({"grant_type": "client_credentials",
+                                               "appkey": self.key, "appsecret": self.secret}),
+                              headers={"content-type": "application/json"}, timeout=20)
+            body = r.json()
+            # 같은 앱키로 다른 작업(스냅샷·다른 러너)이 방금 받았으면 "1분당 1회"로 거절된다 — 발급은 주문이 아니라 한 번 기다려도 안전
+            if attempt == 0 and "1분당" in str(body.get("error_description", "")):
+                self._sleep(61)
+                continue
+            break
         if r.status_code != 200 or "access_token" not in body:
             raise KisError("토큰 발급 실패: " + str(body.get("error_description", body.get("msg1", "")))[:200])
         self._token = body["access_token"]
@@ -335,5 +342,9 @@ def make_broker(cfg: dict, env: Dict[str, str], execute: bool, repo_root: Path =
     """설정의 mode·key_prefix 에 맞는 키로 브로커를 만든다. 주문 잠금 해제(orders_enabled)는 --execute 일 때만."""
     mode = cfg["mode"]
     keys = key_names(cfg)
-    client = KisClient(mode, env[keys[0]], env[keys[1]], env[keys[2]], state_dir(cfg, repo_root), http=http)
+    # 토큰은 앱키 단위로 공유한다 — 프로필마다 따로 받으면 같은 키의 "1분당 1회" 발급 제한에 서로 걸린다.
+    sdir = state_dir(cfg, repo_root)
+    main_state = sdir.parent.parent if cfg.get("profile") else sdir
+    tok_dir = main_state / "tokens" / hashlib.sha256(env[keys[0]].encode()).hexdigest()[:12]
+    client = KisClient(mode, env[keys[0]], env[keys[1]], env[keys[2]], tok_dir, http=http)
     return KisBroker(client, orders_enabled=execute)

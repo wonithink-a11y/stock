@@ -94,6 +94,28 @@ def main():
         ck("경로 조작 이름 거부", raises(ConfigError, load_profile, main_p, "../a"))
         (Path(td) / "profiles" / "bad.json").unlink()
 
+        # ---- 토큰: 같은 앱키는 프로필이 달라도 한 파일 · 발급 제한이면 1분 기다려 한 번 재시도
+        from autotrader import kis as K
+        b_main = K.make_broker(normalize_config({**BASE, "state_dir": str(Path(td) / "state")}), PAPER, False)
+        b_a = K.make_broker(a, PAPER, False)
+        ck("같은 앱키면 프로필이 달라도 토큰 파일 공유", b_main.c.token_file == b_a.c.token_file)
+        b_k2 = K.make_broker({**a, "key_prefix": "KIS_VTS2"}, {**PAPER, "KIS_VTS2_APP_KEY": "k2", "KIS_VTS2_APP_SECRET": "s",
+                                                             "KIS_VTS2_ACCOUNT_NO": "1-01"}, False)
+        ck("다른 앱키면 다른 토큰 파일", b_k2.c.token_file != b_a.c.token_file)
+
+        class R:
+            def __init__(self, body, code=200):
+                self._b, self.status_code = body, code
+
+            def json(self):
+                return self._b
+        seq = [R({"error_description": "접근토큰 발급 잠시 후 다시 시도하세요(1분당 1회)"}, 403),
+               R({"access_token": "T", "access_token_token_expired": "2099-01-01 00:00:00"})]
+        slept = []
+        kc = K.KisClient("paper", "k", "s", "1-01", Path(td) / "tok", http=lambda *a, **k: seq.pop(0),
+                         sleep=slept.append, min_interval=0)
+        ck("발급 제한이면 61초 기다려 한 번 재시도", kc._get_token() == "T" and 61 in slept)
+
         # ---- run-due (가짜 브로커·고정 시각)
         brokers = {}
 
