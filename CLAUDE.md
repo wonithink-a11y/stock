@@ -8,22 +8,25 @@ Validated against
   정책      UN-1.2 · PR-1.6 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1
             PF-1.2는 registry 미등록 = 미발효(자리가 없다 — 완료-이력.md 참고)
             criteria  KR-2.4(2026-09-04 승격) · US-2.2
-  다음      ★★ 2026-09-21 **진행 중 3건**(세션인수인계-2026-09-21.md). (1) **A3e 확장 재무 — 수집 완료·계정 매핑 감사 완료**(연구 전용) —
-            패널 24,749행(`data/fundamentals-ext/`, gitignore), 매핑 `research/strategy-lab/a3e_account_map.py`(**a3e-map-1.1 동결**),
-            감사 docs/control/A3e-계정매핑감사-2026-09-21.md. 다음은 **가치 계열(EV/EBIT·EV/FCF·EV/매출총이익, PBR 잔차화 후 추가 정보)
-            사전등록**(6b9c2b52) → **결과 세 셀 전부 REJECT**(11_ev_value_family_oos.py, findings/a3e-ev-value-family-results-2026-09.md).
-            **EV/EBITDA 는 감가상각비 커버리지 19% 라 전면 불가.** 고부채 쏠림 통제도 **REJECT**(기전 NOT SUPPORTED — 쏠림을 없앴는데 하락장 격차 그대로, 가치 결합 라인 종결). **품질 계열(GP/A·발생액·자산성장)도 1단계 단독에서 세 축 REJECT** — A3e 회계 축 탐색 라인 종결(PBR 이 유일한 생존 축).
-            (2) **모의 동시호가 1주 시험** — 09-21 매수 **PASS**(체결가=공식 종가 274,000, 차이 0.0bp). 09-22 08:45 매도 → 09:05 대조가 남았다
-            (VM cron 일회성, 로그 `~/collector-venv/logs/auction-probe.log`). 통과해야 O2b·O3u 모의 실행(설계 동결
-            docs/control/단기규칙-모의실행-설계-2026-09-20.md, 슬리브당 4천만원)이 이어진다 — **실패하면 그 실험 중단**.
-            (3) **미국 S&P500 스냅샷 타이머**(화~토 07:30, 첫 자동 실행 09-22 — 로그·`_status.json` 확인). 생존편향 경계는 `_meta.json`.
-            ETF 횡단면(국내 주식형 152/263)은 **데이터 수집 승인 대기**(시험 결과 뒤).
-            ★ **09-21 09:05 RV20·크립토 유닛이 ExecStartPre `git pull --ff-only` 실패로 실행 못 했다**(`Cannot fast-forward to multiple
-            branches`, 원격에 새 브랜치가 생긴 시점 — 원인 미확정·재현 불가). 5개 유닛을 `pull --ff-only origin main` 으로 고쳐 VM 에 설치 완료
-            (b61f5882). 09-18 RV20 도 KIS 모의 서버 ReadTimeout 으로 실패했다. **09-22 09:05 실행이 정상인지 VM 에서 확인** — 크립토 슬리브는
-            09-21 청산 판정이 빠져 AVAX·INJ 보유가 약 48시간이 된다(사후 해석 때 편차로 기록).
-            **애널리스트 목표가·투자의견**은 KIS 오픈API `invest-opinion`(FHKST663300C0)으로 2010년부터 받을 수 있음을 확인(무료, 100행/호출).
-            **다음 세션 착수: ① ~~KIS 목표가 수집 설계~~ **종결**(커버리지 프로브: PBR 슬리브 보유 종목 커버율 9%(6/69) < 사전 기준 50% → 접음, docs/control/KIS-목표가-커버리지-프로브-2026-09-21.md) ② ~~유상증자 회피 필터~~ **종결**(PBR 슬리브 노출 0.1% — 시험 대상 없음, findings/overissue-filter-exposure-check-2026-09.md) ③ ~~애널리스트 추정치 소스 조사~~ **완료**(docs/control/애널리스트-추정치-소스조사-2026-09-21.md — PIT 10년 추정치를 로컬 DB 로 합법 보유할 상품은 공개 정보로 미확인, FnGuide·한경은 DB화 금지, 무료 구조화 이력은 KIS 목표가뿐. 프로브 실행 결과 **접음** — DataGuide 문의만 사용자 몫)** — 상세는 세션인수인계-2026-09-21.md §6.
+  다음      ★★ 2026-09-22 **아침 VM 확인 3건 + 연구 라인 전부 종결**(세션인수인계-2026-09-21-b.md).
+            (1) **09-22 아침 확인**(`ssh stock-new`): ① 07:30 미국 S&P500 스냅샷 첫 자동 실행(로그·`_status.json`, 생존편향 경계
+            `_meta.json`) ② 08:45 동시호가 1주 **매도** → 09:05 대조. 09-21 매수는 **PASS**(체결가=공식 종가 274,000, 0.0bp) — 매도까지
+            통과해야 O2b·O3u 모의 실행(설계 동결 docs/control/단기규칙-모의실행-설계-2026-09-20.md, 슬리브당 4천만원)이 이어지고
+            **실패하면 그 실험 중단**(로그 `~/collector-venv/logs/auction-probe.log`, cron 4줄은 09:05 에 자동 제거) ③ 09:05 RV20·크립토
+            유닛 정상 실행 여부. `systemctl --failed` 의 두 항목은 09-21 실패의 잔상이라 09:05 성공하면 사라진다.
+            ★ 09-21 09:05 RV20·크립토가 ExecStartPre `git pull --ff-only` 실패(`Cannot fast-forward to multiple branches`, 원격에 새 브랜치가
+            생긴 시점 — 원인 미확정·재현 불가)로 미실행. 5개 유닛을 `pull --ff-only origin main` 으로 고쳐 VM 설치 완료(b61f5882) —
+            **09-22 09:05 가 그 수정의 첫 검증**이다. 크립토 슬리브는 09-21 청산 판정이 빠져 AVAX·INJ 보유가 ~48시간(사후 해석 때 편차로 기록).
+            09-18 RV20 도 KIS 모의 서버 ReadTimeout 으로 실패했었다(별건).
+            (2) **A3e 확장 재무·회계 축 탐색 종결** — 패널 24,749행(`data/fundamentals-ext/`, gitignore)·매핑 `a3e_account_map.py`(a3e-map-1.1 동결).
+            EV 가치 3셀 × PBR 잔차화 **전부 REJECT** · 고부채 쏠림 통제 4셀 **REJECT**(기전 NOT SUPPORTED — 쏠림을 없앴는데 하락장 격차 그대로) ·
+            품질 3축(GP/A·발생액·자산성장) 1단계 **전부 REJECT**. **PBR 이 유일한 생존 회계·가치 축.** EV/EBITDA 는 감가상각비 커버리지 19% 라 불가.
+            (3) **애널리스트 목표가·추정치 라인 종결** — 소스 조사(docs/control/애널리스트-추정치-소스조사-2026-09-21.md): PIT 10년 추정치를 로컬 DB 로
+            합법 보유할 상품은 공개 정보로 미확인(FnGuide·한경은 DB화 금지·수집 방어, 네이버는 도구 제한으로 미확인). KIS invest-opinion 커버리지 프로브
+            (docs/control/KIS-목표가-커버리지-프로브-2026-09-21.md): PBR 슬리브 보유 69종목 중 6개(9%)만 커버 < 사전 기준 50% → 접음. 유상증자 회피 필터도 PBR 슬리브
+            노출 0.1% 라 시험 대상 없음으로 종결(findings/overissue-filter-exposure-check-2026-09.md).
+            ★ **남은 사용자 몫**: DataGuide 문의(초안: 소스 조사 §4 — 컨센서스 이력·PIT·로컬 저장 허용) · ETF 횡단면(국내 주식형 152/263) 데이터 수집 승인
+            (동시호가 시험 결과 뒤). 새 연구 착수 전 새 데이터·새 표본 없이는 회계·가치·품질 축 재시도 금지(각 사전등록 §6).
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
