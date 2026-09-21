@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -17,6 +19,13 @@ LIVE_ACK = "I-ACCEPT-REAL-TRADES"          # 환경변수 AUTOTRADER_ALLOW_LIVE 
 PAPER_KEYS = ("KIS_VTS_APP_KEY", "KIS_VTS_APP_SECRET", "KIS_VTS_ACCOUNT_NO")
 LIVE_KEYS = ("KIS_LIVE_APP_KEY", "KIS_LIVE_APP_SECRET", "KIS_LIVE_ACCOUNT_NO")   # 시세용 KIS_APP_KEY 와 이름을 분리했다
 ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
+# 키 묶음 교체: 설정 "key_prefix": "KIS_VTS2" → KIS_VTS2_APP_KEY / _APP_SECRET / _ACCOUNT_NO 를 쓴다.
+# 접두사 뒤에 한 마디 이상을 강제한다 — 시세용 KIS_APP_KEY(접두사 "KIS")는 고를 수 없다.
+_PREFIX = re.compile(r"^KIS_[A-Z0-9]+(_[A-Z0-9]+)*$")
+_KEYSET_ENV = re.compile(r"^KIS_[A-Z0-9_]+_(APP_KEY|APP_SECRET|ACCOUNT_NO)$")
+_PROFILE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
+AUTO_MODES = ("off", "dry", "execute")
+RUN_GRACE_MIN = 20          # 예약 시각에서 이만큼 지나면 그 회차는 건너뛴다(몇 시간 늦게 몰아서 주문하지 않게)
 
 # 보수적 기본값 — 사용자가 설정에서 명시적으로 올려야 커진다. 통화는 시장 기준(KR=원, US=달러).
 RISK_DEFAULTS = {
@@ -45,7 +54,7 @@ def _read_env_file(p: Path, env: Dict[str, str]) -> None:
     for line in p.read_text(encoding="utf-8").splitlines():
         k, _, v = line.partition("=")
         k = k.strip()
-        if k in ENV_KEYS:
+        if k in ENV_KEYS or _KEYSET_ENV.match(k):
             env[k] = v.strip().strip('"').strip("'")
 
 
@@ -60,10 +69,18 @@ def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dic
     _read_env_file(repo_root / ".env", env)
     if src.get("AUTOTRADER_ENV_FILE"):
         _read_env_file(Path(src["AUTOTRADER_ENV_FILE"]).expanduser(), env)
-    for k in ENV_KEYS:
-        if src.get(k):
-            env[k] = src[k]
+    for k, v in src.items():
+        if v and (k in ENV_KEYS or _KEYSET_ENV.match(k)):
+            env[k] = v
     return env
+
+
+def key_names(cfg: dict) -> tuple:
+    """이 설정이 쓰는 키 환경변수 이름 3개(앱키·시크릿·계좌). 기본은 모드별 KIS_VTS_* / KIS_LIVE_*."""
+    pre = cfg.get("key_prefix")
+    if not pre:
+        return PAPER_KEYS if cfg.get("mode") == "paper" else LIVE_KEYS
+    return (f"{pre}_APP_KEY", f"{pre}_APP_SECRET", f"{pre}_ACCOUNT_NO")
 
 
 def load_config(path) -> dict:
@@ -107,6 +124,16 @@ def validate_config(cfg: dict) -> List[str]:
     al = cfg.get("symbol_allowlist", [])
     if not isinstance(al, list) or any(not isinstance(s, str) for s in al):
         errs.append("symbol_allowlist 는 종목코드 문자열 목록")
+    pre = cfg.get("key_prefix")
+    if pre is not None and not (isinstance(pre, str) and _PREFIX.match(pre)):
+        errs.append("key_prefix 는 KIS_ 로 시작하는 대문자 이름(예: KIS_VTS2). 시세용 KIS 키는 쓸 수 없다")
+    if cfg.get("auto", "off") not in AUTO_MODES:
+        errs.append("auto 는 off|dry|execute")
+    ra = cfg.get("run_at", [])
+    if not isinstance(ra, list) or any(not (isinstance(t, str) and re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", t)) for t in ra):
+        errs.append("run_at 은 \"HH:MM\"(KST) 목록")
+    if cfg.get("days", "weekdays") not in ("weekdays", "daily"):
+        errs.append("days 는 weekdays|daily")
     w = cfg.get("web", {})
     if not isinstance(w, dict):
         errs.append("web 은 객체")
@@ -150,10 +177,9 @@ def gate_problems(cfg: dict, env: Dict[str, str], execute: bool,
     """
     p: List[str] = []
     mode = cfg.get("mode")
-    if mode == "paper":
-        p += [f"환경변수 {k} 가 없다(모의투자 키)" for k in PAPER_KEYS if not env.get(k)]
-    elif mode == "live":
-        p += [f"환경변수 {k} 가 없다(실전 키)" for k in LIVE_KEYS if not env.get(k)]
+    if mode in ("paper", "live"):
+        kind = "모의투자 키" if mode == "paper" else "실전 키"
+        p += [f"환경변수 {k} 가 없다({kind})" for k in key_names(cfg) if not env.get(k)]
     else:
         p.append("mode 는 paper|live")
     if not execute:
@@ -178,3 +204,46 @@ def mask(value: str, keep: int = 2) -> str:
     if not value:
         return ""
     return value[:keep] + "*" * max(0, len(value) - keep)
+
+
+# ------------------------------------------------------------------ 프로필(키 묶음 + 전략 + 한도 + 일정)
+def profiles_dir(config_path) -> Path:
+    """프로필은 기본 설정 파일 옆 profiles/ 폴더의 <이름>.json 이다(VM: ~/collector-venv/autotrader/profiles/)."""
+    return Path(config_path).resolve().parent / "profiles"
+
+
+def load_profile(config_path, name: str, main_cfg: Optional[dict] = None) -> dict:
+    """프로필 하나를 읽는다. 상태 폴더는 강제로 <기본 상태>/profiles/<이름> — 원장·토큰·킬 스위치가 프로필끼리 안 섞인다."""
+    if not _PROFILE.match(name or ""):
+        raise ConfigError(f"프로필 이름은 소문자·숫자·-·_ 만(32자 이내): {name!r}")
+    p = profiles_dir(config_path) / f"{name}.json"
+    if not p.exists():
+        raise ConfigError(f"프로필이 없다: {p}")
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    if "state_dir" in raw:
+        raise ConfigError(f"프로필 {name}: state_dir 는 쓰지 않는다(자동으로 정해진다)")
+    main_cfg = main_cfg or load_config(config_path)
+    cfg = normalize_config({**raw, "state_dir": str(state_dir(main_cfg) / "profiles" / name)})
+    cfg["profile"] = name
+    return cfg
+
+
+def list_profiles(config_path) -> List[str]:
+    d = profiles_dir(config_path)
+    return sorted(p.stem for p in d.glob("*.json") if _PROFILE.match(p.stem)) if d.exists() else []
+
+
+def due_slots(cfg: dict, now: datetime, done: List[str]) -> List[str]:
+    """지금 돌아야 할 예약 회차("YYYY-MM-DD HH:MM"). 예약 시각 ≤ 지금 < 예약 + RUN_GRACE_MIN, 아직 안 돈 것만."""
+    if cfg.get("auto", "off") == "off":
+        return []
+    if cfg.get("days", "weekdays") == "weekdays" and now.weekday() >= 5:
+        return []
+    out = []
+    for t in cfg.get("run_at", []):
+        h, m = map(int, t.split(":"))
+        at = now.replace(hour=h, minute=m, second=0, microsecond=0)
+        slot = at.strftime("%Y-%m-%d %H:%M")
+        if at <= now < at + timedelta(minutes=RUN_GRACE_MIN) and slot not in done:
+            out.append(slot)
+    return out

@@ -1,26 +1,27 @@
 [Unit]
-# autotrader(사용자 키·전략 교체형 자동매매) 1회 실행 — README.md §5.
+# autotrader 예약 실행 — 5분마다 깨어 "예약 시각이 된 프로필"만 돈다(README.md §8). 프로필이 없으면 아무것도 안 한다.
 #
 # ★ 이 파일은 **dry-run 으로 배포된다**(--execute 없음). 주문을 켜는 것은 사용자가 VM 에서 직접 한다:
-#   `sudo systemctl edit autotrader.service` 로 ExecStart 를 비우고 --execute 를 붙여 다시 쓴다.
+#   `sudo systemctl edit autotrader.service` 로 ExecStart 를 비우고 run-due --execute 로 다시 쓴다.
+#   그래도 주문은 프로필 파일에 "auto": "execute" 라고 적힌 프로필만 나간다(둘 다 있어야 한다).
 #   실전이면 같은 자리에 Environment=AUTOTRADER_ALLOW_LIVE=I-ACCEPT-REAL-TRADES 를 둔다(설정 파일에는 두지 않는다).
 #
 # 설정·키는 저장소 밖 ~/collector-venv/autotrader/ 에 둔다(VM 은 git pull 만 한다 — 추적 파일을 고치면 pull 이 막힌다):
-#     mkdir -p ~/collector-venv/autotrader/state
-#     autotrader.local.json   (config.example.json 복사, state_dir 을 ~/collector-venv/autotrader/state 로)
-#     키는 EnvironmentFile(~/collector-venv/.env): KIS_VTS_* 또는 KIS_LIVE_*
-# 시크릿을 이 파일에 쓰지 않는다.
-Description=autotrader (strategy plug-in auto-trading, dry-run by default)
+#     autotrader.local.json          기본 설정(웹 화면 설정·상태 폴더)
+#     profiles/<이름>.json            프로필 = 키 묶음(key_prefix) + 전략 + 한도 + 예약 시각(run_at)
+#     키는 EnvironmentFile(~/collector-venv/.env): <key_prefix>_APP_KEY / _APP_SECRET / _ACCOUNT_NO
+# 코드 갱신은 collector-pull(매일 06:30)이 한다 — 5분마다 pull 하지 않는다. 시크릿을 이 파일에 쓰지 않는다.
+Description=autotrader scheduled profile runs (dry-run by default)
 After=network-online.target
 Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
 
 [Service]
 Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/collector
 EnvironmentFile=/home/ubuntu/collector-venv/.env
-ExecStartPre=/usr/bin/git -C /home/ubuntu/collector pull --ff-only origin main
-ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json run
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json run-due
 
 StandardOutput=append:/home/ubuntu/collector-venv/logs/autotrader.log
 StandardError=append:/home/ubuntu/collector-venv/logs/autotrader.log

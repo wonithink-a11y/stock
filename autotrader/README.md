@@ -78,17 +78,17 @@ STRATEGY = MyStrategy
 
 ## 5. 서버(VM)에서 자동으로 돌리기
 
-`deploy/autotrader.service` / `.timer` 는 **dry-run 으로 배포**된다(`--execute` 없음). 설치와 주문 켜기는 사용자가 한다:
+`deploy/autotrader.service` / `.timer` 는 5분마다 `run-due` 를 부른다 — **프로필(§8)의 예약 시각이 된 것만** 돈다. **dry-run 으로 배포**된다:
 
 ```bash
 sudo cp deploy/autotrader.service deploy/autotrader.timer /etc/systemd/system/ && sudo systemctl daemon-reload
-sudo systemctl enable --now autotrader.timer                 # 먼저 dry-run 으로 로그 확인
-sudo systemctl edit autotrader.service                       # 주문을 켜려면 ExecStart 에 --execute 추가,
+sudo systemctl enable --now autotrader.timer                 # 먼저 dry-run 으로 로그 확인(~/collector-venv/logs/autotrader.log)
+sudo systemctl edit autotrader.service                       # 주문을 켜려면 ExecStart 를 비우고 run-due --execute 로,
                                                              # 실전이면 Environment=AUTOTRADER_ALLOW_LIVE=... 도 여기에만
 ```
 
-타이머 시각은 전략에 맞게 고친다(국내 장은 09:00~15:30 KST, 해외는 개장 전). VM 에는 GitHub 자격증명을 두지 않는다(프로젝트 규칙) —
-`autotrader/state/` 는 VM 로컬이고 커밋되지 않는다.
+`--execute` 를 붙여도 주문은 프로필 파일에 `"auto": "execute"` 인 프로필만 나간다. VM 에는 GitHub 자격증명을 두지 않는다(프로젝트 규칙) —
+`state/` 는 VM 로컬이고 커밋되지 않는다. 코드 갱신은 매일 06:30 `collector-pull` 이 한다.
 
 ## 6. 한계 (정직하게)
 
@@ -111,3 +111,29 @@ VM 에서 돌리고 폰으로 본다. **보기만 가능**하다(주문·킬 스
 - 잠금: 같은 IP 5번 실패 15분 · 전체 20번/시간 실패 30분 · 유휴 15분 로그아웃 · 쿠키 HttpOnly/Secure/SameSite=Strict
 - 한계: 패스키(지문) 인증은 아직 없다(다음 단계). 인터넷에 열리는 주소이므로 인증 코드의 결함이 가장 큰 위험이다 —
   회귀 `scripts/test-autotrader-web.py`(52건)와 변이 테스트로 핀했지만 외부 보안 검토는 받지 않았다.
+
+## 8. 프로필 — 키와 전략을 바꿔 끼우기
+
+프로필 = **키 묶음 + 전략 + 한도 + 예약 시각**을 이름 하나로 묶은 JSON 파일이다. 기본 설정 파일 옆 `profiles/<이름>.json`
+(VM: `~/collector-venv/autotrader/profiles/`). 여러 개를 동시에 둘 수 있고, 각자 원장·킬 스위치·토큰·전략 상태가 따로다
+(`state/profiles/<이름>/`). 웹 화면에 프로필마다 카드가 한 장씩 뜬다.
+
+```bash
+python3 -m autotrader new-profile samsung --strategy target_weights --key-prefix KIS_VTS      # 파일 생성(auto=off)
+python3 -m autotrader profiles                                                              # 목록·키 유무·마지막 예약 실행
+python3 -m autotrader --profile samsung run                                                 # 손으로 한 번(dry-run)
+python3 -m autotrader --profile samsung kill                                                # 이 프로필만 킬 스위치
+```
+
+| 키 | 뜻 |
+|---|---|
+| `key_prefix` | 키 묶음. `KIS_VTS2` 면 `.env` 의 `KIS_VTS2_APP_KEY` / `KIS_VTS2_APP_SECRET` / `KIS_VTS2_ACCOUNT_NO` 를 쓴다. **키를 바꾸려면 .env 에 새 이름으로 넣고 여기만 바꾼다.** 시세용 `KIS_APP_KEY` 는 고를 수 없다 |
+| `strategy` · `params` | 전략 파일 이름(`strategies/<이름>.py`)과 그 설정. **전략을 바꾸려면 여기만 바꾼다** |
+| `auto` | `off`(예약 실행 안 함) · `dry`(예약 시각에 주문 없이 계획만) · `execute`(예약 시각에 주문 — 타이머에도 `--execute` 가 있어야) |
+| `run_at` · `days` | 예약 시각 KST 목록(`["09:10","15:00"]`) · `weekdays`(기본) 또는 `daily`. 예약 뒤 20분 안에만 돈다 |
+| `mode` · `markets` · `symbol_allowlist` · `risk` · `live` | §1~§4 와 같다 |
+
+- 같은 회차는 한 번만 돈다(성공·실패 무관, 실행 **전에** 기록 — 재시도로 중복 주문을 내지 않는다).
+- 주문 접수·오류·실행 거부는 텔레그램(`TELEGRAM_CHAT_ID`)으로 요약이 온다. 깨진 프로필 파일은 하루 한 번 알린다.
+- 공휴일은 모른다 — 장이 닫힌 날 국내 주문은 KIS 가 거절하고 그 회차가 오류로 끝난다(다음 회차에 영향 없음).
+- 같은 계좌를 여러 프로필이 쓰면, 서로의 미체결 주문을 "남의 주문"으로 보고 그 종목을 건너뛴다(안전 쪽).

@@ -1,12 +1,12 @@
 [Unit]
-Description=autotrader daily timer (edit the schedule to fit your strategy)
+Description=autotrader profile scheduler tick (every 5 minutes)
 
 [Timer]
-# 기본: 평일 09:10 KST(국내 장 개장 직후) 1회. VM 시각대 = KST 전제(다른 타이머와 동일).
-# 해외 전략이면 미국 개장(서머 22:30 / 표준 23:30 KST) 전으로 옮긴다. 전략이 하루 여러 번 필요하면 OnCalendar 를 추가한다.
-OnCalendar=Mon..Fri *-*-* 09:10:00
-Persistent=true
-RandomizedDelaySec=30
+# 5분마다 깨어 프로필의 run_at(KST)이 된 것만 돈다. 실행 시각은 프로필 파일에서 고친다 — 이 파일은 고칠 일이 없다.
+# 예약 시각에서 20분이 지나면 그 회차는 건너뛴다(늦게 깬 타이머가 몰아서 주문하지 않게). VM 시각대 = KST 전제.
+OnCalendar=*:0/5
+Persistent=false
+RandomizedDelaySec=15
 
 [Install]
 WantedBy=timers.target

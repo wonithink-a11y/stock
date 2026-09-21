@@ -17,9 +17,9 @@ from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 
-from .config import state_dir
+from .config import ConfigError, list_profiles, load_profile, state_dir
 from .engine import Ledger
 from .web_auth import AuthStore, Lockout, Sessions, totp_verify, verify_password
 
@@ -79,7 +79,36 @@ def load_view(cfg: dict, sdir: Path, now: datetime) -> dict:
             "runs": runs, "todayRuns": today_runs, "ledger": ledger, "snapshot": snap, "spent": spent}
 
 
-def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False) -> bytes:
+def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
+    # 프로필(키 묶음+전략)마다 한 장. 금액·종목은 없다 — 상세 링크에서 본다.
+    out = []
+    for cfg, v in items:
+        name = str(cfg.get("profile", ""))
+        snap = v["snapshot"]
+        if snap:
+            age = (v["now"] - datetime.fromisoformat(snap["at"])).total_seconds()
+            snap_txt = f'<span class="{"warn" if age > SNAPSHOT_STALE_SEC else "ok"}">{int(age // 60)}분 전</span>'
+        else:
+            snap_txt = '<span class="warn">없음</span>'
+        t = v["todayRuns"]
+        cnt = lambda k: sum(len(r.get(k) or []) for r in t)   # noqa: E731
+        last = v["runs"][-1] if v["runs"] else None
+        last_txt = (f'<span class="{"ok" if last.get("status") == "ok" else "bad"}">{E(str(last.get("at", ""))[5:16].replace("T", " "))}'
+                    f' {E("주문" if last.get("execute") else "dry-run")} {E(str(last.get("status")))}</span>') if last else '<span class="mut">-</span>'
+        auto = cfg.get("auto", "off")
+        auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "mut")
+        out.append(f'''<div class="card"><h2>{E(name)}</h2>
+<span class="pill">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
+<span class="pill {auto_cls}">자동 {E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
+{'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
+<div class="row"><span>상태 조회</span>{snap_txt}</div>
+<div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
+<div class="row"><span>마지막 실행</span>{last_txt}</div>
+<a href="{base}/details?p={quote(name)}">상세 보기</a></div>''')
+    return ("<h1 style='margin-top:20px'>프로필</h1>" + "".join(out)) if out else ""
+
+
+def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, extra: str = "") -> bytes:
     mode_txt = "실전(실계좌)" if v["mode"] == "live" else "모의투자"
     kill = ('<span class="pill bad">킬 스위치 ON — 주문 중단</span>' if v["kill"]
             else '<span class="pill ok">킬 스위치 OFF</span>')
@@ -116,11 +145,12 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False) -
 <div class="card"><h2>한도 사용률</h2>{limits or '<span class="mut">-</span>'}</div>
 <div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
 <div class="card"><a href="{base}/details">보유·주문 상세 보기{" (인증앱 코드 재입력)" if strict else ""}</a></div>
+{extra}
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
     return _page("autotrader", body, refresh=True)
 
 
-def render_details(v: dict, csrf: str, base: str = "", strict: bool = False) -> bytes:
+def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "") -> bytes:
     snap = v["snapshot"] or {}
     rows = []
     for m, d in (snap.get("markets") or {}).items():
@@ -148,7 +178,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False) -> 
                            f' — {E(str(x.get("reason", "")))}</div>' for x in (last.get(k) or []) if isinstance(x, dict))
         lastblk = (f'<div class="card"><h2>마지막 실행 {E(str(last.get("at", ""))[5:16].replace("T", " "))}</h2>'
                    + lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀") + "</div>")
-    body = f'''<h1>상세{" (재인증 후 5분간 열림)" if strict else ""}</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
+    body = f'''<h1>상세{" · " + E(title) if title else ""}{" (재인증 후 5분간 열림)" if strict else ""}</h1>{"".join(rows) or '<div class="card mut">스냅샷이 없다</div>'}{lastblk}
 <div class="card"><h2>주문 원장(최근 30)</h2><table><tr><th>시각</th><th>시장</th><th>종목</th><th>방향</th><th>수량</th><th>종류</th></tr>{led or "<tr><td colspan=6 class=mut>없음</td></tr>"}</table></div>
 <div class="card"><a href="{base}/">← 요약으로</a></div>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button>로그아웃</button></form>'''
@@ -179,13 +209,14 @@ class WebApp:
     def __init__(self, cfg: dict, sdir: Path, store: AuthStore, sessions: Sessions, lockout: Lockout,
                  clock: Callable[[], float] = time.time, secure_cookie: bool = True,
                  fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = "",
-                 require_reauth: bool = False):
+                 require_reauth: bool = False, profiles: Optional[Callable[[], List[dict]]] = None):
         self.cfg, self.sdir, self.store = cfg, Path(sdir), store
         self.sessions, self.lockout, self.clock = sessions, lockout, clock
         self.secure_cookie, self.fail_delay, self._sleep = secure_cookie, fail_delay, sleep
         self.base = "/" + base.strip("/") if base.strip("/") else ""      # 예: "/autotrader" (앞단이 이 접두사 아래로 넘겨준다)
         self.require_reauth = require_reauth                              # True 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다
         self.log_path = self.sdir / "web_login.log"
+        self.profiles = profiles or (lambda: [])                          # 프로필 설정 목록(키 없음 — 파일만 읽는다)
 
     # -------------------------------------------------------------- 유틸
     def _now(self) -> datetime:
@@ -250,13 +281,24 @@ class WebApp:
         if method == "GET" and path in ("/", "/index.html"):
             if not sess:
                 return 200, self._hdrs(), render_login(base=self.base)
-            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
+            now = self._now()
+            extra = render_profiles([(c, load_view(c, state_dir(c), now)) for c in self.profiles()], self.base)
+            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, now), sess["csrf"], self.base,
+                                                       self.require_reauth, extra)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
             return self._not_found()
         if method == "GET" and path == "/details":
             if self.require_reauth and not self.sessions.is_fresh(sess):
                 return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
-            return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
+            want = (parse_qs(urlsplit(raw_path).query).get("p") or [""])[0]
+            if not want:
+                return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
+            match = [c for c in self.profiles() if c.get("profile") == want]     # 목록에 있는 이름만 — 경로로 쓰지 않는다
+            if not match:
+                return self._not_found()
+            c = match[0]
+            return 200, self._hdrs(), render_details(load_view(c, state_dir(c), self._now()), sess["csrf"], self.base,
+                                                     self.require_reauth, want)
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -344,14 +386,28 @@ def make_handler(app: WebApp):
     return H
 
 
-def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "") -> None:
+def _profile_loader(cfg: dict, config_path) -> Callable[[], List[dict]]:
+    def load() -> List[dict]:
+        out = []
+        for n in list_profiles(config_path):
+            try:
+                out.append(load_profile(config_path, n, cfg))
+            except (ConfigError, ValueError):
+                continue                                # 깨진 프로필 하나가 화면 전체를 막지 않는다
+        return out
+    return load
+
+
+def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "",
+          config_path=None) -> None:
     sdir = state_dir(cfg)
     w = cfg.get("web", {})
     sessions = Sessions(idle_sec=int(w.get("idle_min", 30)) * 60, absolute_sec=int(w.get("session_hours", 8)) * 3600,
                         reauth_sec=int(w.get("reauth_min", 5)) * 60)
     app = WebApp(cfg, sdir, AuthStore(sdir / "web_auth.json"), sessions, Lockout(),
                  secure_cookie=secure_cookie, fail_delay=0.5, base=base,
-                 require_reauth=bool(w.get("require_reauth_for_details", False)))
+                 require_reauth=bool(w.get("require_reauth_for_details", False)),
+                 profiles=_profile_loader(cfg, config_path) if config_path else None)
     httpd = ThreadingHTTPServer((host, port), make_handler(app))
     print(f"autotrader web — http://{host}:{port} (앞단 HTTPS 프록시 뒤에서만 쓴다)", flush=True)
     httpd.serve_forever()

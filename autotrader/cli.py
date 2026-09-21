@@ -5,6 +5,12 @@
     python -m autotrader run --config autotrader/autotrader.local.json --execute   # 주문 (게이트 통과 시)
     python -m autotrader kill   /  python -m autotrader resume                     # 킬 스위치
     python -m autotrader status
+
+프로필(키 묶음 + 전략 + 한도 + 일정을 이름 하나로) — README §8:
+    python -m autotrader profiles                                   # 목록·키 유무·마지막 예약 실행
+    python -m autotrader new-profile 이름 --strategy target_weights --key-prefix KIS_VTS
+    python -m autotrader --profile 이름 run                         # 모든 명령에 --profile 을 붙일 수 있다
+    python -m autotrader run-due [--execute]                         # 타이머가 5분마다 부른다 — 예약 시각이 된 프로필만 실행
 """
 from __future__ import annotations
 
@@ -13,8 +19,10 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
-from .config import (ConfigError, GateError, REPO_ROOT, gate_problems, kill_file, load_config, load_env, state_dir)
+from .config import (ConfigError, GateError, REPO_ROOT, due_slots, gate_problems, key_names, kill_file,
+                     list_profiles, load_config, load_env, load_profile, profiles_dir, state_dir)
 from .engine import KST, Ledger, run_once
 from .kis import make_broker
 from .strategy import load_strategy
@@ -39,26 +47,150 @@ def _print_report(r: dict) -> None:
 
 
 def _cfg(args):
+    if getattr(args, "profile", None):
+        return load_profile(args.config, args.profile)
     return load_config(args.config)
 
 
-def cmd_run(args) -> int:
-    cfg = _cfg(args)
-    env = load_env()
+def _run(cfg: dict, env: dict, execute: bool):
+    """한 설정(프로필)을 한 번 돌린다 → (종료코드, 리포트 또는 None=게이트 거부)."""
     try:
         strategy = load_strategy(cfg["strategy"])
-        problems = gate_problems(cfg, env, args.execute)
+        problems = gate_problems(cfg, env, execute)
         if problems:
             raise GateError(problems)
-        broker = make_broker(cfg, env, args.execute)
-        report = run_once(cfg, broker, strategy, execute=args.execute, env=env)
+        broker = make_broker(cfg, env, execute)
+        report = run_once(cfg, broker, strategy, execute=execute, env=env)
     except GateError as e:
         print("실행 거부 — 아래 조건이 안 맞는다:", file=sys.stderr)
         for p in e.problems:
             print(f"  - {p}", file=sys.stderr)
-        return 2
+        return 2, None
     _print_report(report)
-    return 0 if report["status"] == "ok" else 1
+    return (0 if report["status"] == "ok" else 1), report
+
+
+def cmd_run(args) -> int:
+    return _run(_cfg(args), load_env(), args.execute)[0]
+
+
+def run_summary(name: str, r: Optional[dict]) -> str:
+    """텔레그램용 한 덩어리 요약. 계좌번호·금액 한도 같은 건 넣지 않는다."""
+    if r is None:
+        return f"[autotrader] {name}: 실행 거부(조건 미충족) — autotrader.log 확인"
+    lines = [f"[autotrader] {name} · {r.get('strategy')} · {'모의' if r.get('mode') == 'paper' else '실전'}"
+             f" · {'주문' if r.get('execute') else 'dry-run'} · {r.get('status')}"]
+    for x in r.get("placed") or []:
+        lines.append(f"접수 {x.get('market')} {x.get('symbol')} {x.get('side')} {x.get('qty')}")
+    lines += [f"오류 {e}"[:200] for e in r.get("errors") or []]
+    return "\n".join(lines)
+
+
+def cmd_run_due(args) -> int:
+    """예약 시각이 된 프로필을 돈다. 주문은 `--execute` **와** 프로필 auto=execute 가 둘 다 있어야 나간다.
+    회차는 성공·실패와 무관하게 한 번만 돈다(재시도로 중복 주문을 내지 않는다). 주문 접수·오류·거부는 텔레그램으로 알린다."""
+    import json
+    from .notify import send_telegram
+    main_cfg = load_config(args.config)
+    env = load_env()
+    now = datetime.now(KST)
+    worst = 0
+    for name in list_profiles(args.config):
+        try:
+            cfg = load_profile(args.config, name, main_cfg)
+        except (ConfigError, ValueError) as e:
+            # 5분마다 불리므로 종료코드로 알리면 장애 알림이 하루 288통이 된다 — 프로필당 하루 한 번만 텔레그램.
+            print(f"[{name}] 프로필 오류: {e}", file=sys.stderr)
+            flag = state_dir(main_cfg) / f"profile_error_{name}.txt"
+            day = now.strftime("%Y-%m-%d")
+            if not (flag.exists() and flag.read_text(encoding="utf-8") == day) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
+                try:
+                    send_telegram(env["TELEGRAM_BOT_TOKEN"], env["TELEGRAM_CHAT_ID"], f"[autotrader] 프로필 {name} 설정 오류 — 실행 안 함: {e}"[:300])
+                    flag.parent.mkdir(parents=True, exist_ok=True)
+                    flag.write_text(day, encoding="utf-8")
+                except Exception as te:                 # noqa: BLE001
+                    print(f"[{name}] 텔레그램 실패: {te}", file=sys.stderr)
+            continue
+        sfile = state_dir(cfg) / "schedule.json"
+        done = json.loads(sfile.read_text(encoding="utf-8")) if sfile.exists() else []
+        slots = due_slots(cfg, now, done)
+        if not slots:
+            continue
+        sfile.parent.mkdir(parents=True, exist_ok=True)
+        sfile.write_text(json.dumps((done + slots)[-50:]), encoding="utf-8")    # 실행 전에 기록 — 도중에 죽어도 같은 회차를 다시 안 돈다
+        execute = args.execute and cfg["auto"] == "execute"
+        print(f"[{name}] {now.isoformat()[:19]} 예약 {slots[-1]} · {'주문' if execute else 'dry-run'}", flush=True)
+        try:
+            code, rep = _run(cfg, env, execute)
+        except Exception as e:                          # noqa: BLE001 — 한 프로필의 실패가 다른 프로필을 막지 않는다
+            print(f"[{name}] 실행 오류: {type(e).__name__}: {e}", file=sys.stderr)
+            code, rep = 1, {"strategy": cfg["strategy"], "mode": cfg["mode"], "execute": execute,
+                            "status": "crash", "errors": [f"{type(e).__name__}: {e}"]}
+        worst = max(worst, code)
+        if (rep is None or rep.get("placed") or rep.get("errors")) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
+            try:
+                send_telegram(env["TELEGRAM_BOT_TOKEN"], env["TELEGRAM_CHAT_ID"], run_summary(name, rep))
+            except Exception as e:                      # noqa: BLE001 — 알림 실패가 실행 결과를 바꾸지 않는다
+                print(f"[{name}] 텔레그램 실패: {e}", file=sys.stderr)
+    return worst
+
+
+def cmd_profiles(args) -> int:
+    import json
+    main_cfg = load_config(args.config)
+    env = load_env()
+    print(f"프로필 폴더: {profiles_dir(args.config)}")
+    sdir = Path(__file__).resolve().parent / "strategies"
+    print("쓸 수 있는 전략:", ", ".join(sorted(p.stem for p in sdir.glob("*.py") if not p.stem.startswith("_"))))
+    names = list_profiles(args.config)
+    if not names:
+        print("프로필이 없다 — new-profile 로 만든다")
+    for n in names:
+        try:
+            c = load_profile(args.config, n, main_cfg)
+        except (ConfigError, ValueError) as e:
+            print(f"- {n}: 설정 오류 — {e}")
+            continue
+        keys = key_names(c)
+        miss = [k for k in keys if not env.get(k)]
+        sfile = state_dir(c) / "schedule.json"
+        last = ((json.loads(sfile.read_text(encoding="utf-8")) or ["-"])[-1]) if sfile.exists() else "-"
+        print(f"- {n}: 전략 {c['strategy']} · {c['mode']} · 키 {keys[0][:-len('_APP_KEY')]}"
+              f"({'있음' if not miss else '없음: ' + ', '.join(miss)}) · 자동 {c['auto']} {','.join(c['run_at']) or '-'}"
+              f" {c['days']} · 킬 {'ON' if kill_file(c).exists() else 'OFF'} · 마지막 예약 실행 {last}")
+    return 0
+
+
+def cmd_new_profile(args) -> int:
+    """프로필 파일을 만든다. 자동 실행은 꺼진(auto=off) 상태, 허용 종목은 빈 상태로 — 채우는 건 사용자."""
+    import json
+    from .config import _PROFILE
+    if not _PROFILE.match(args.name):
+        print("프로필 이름은 소문자·숫자·-·_ 만(32자 이내)", file=sys.stderr)
+        return 2
+    try:
+        load_strategy(args.strategy)                    # 없는 전략이면 여기서 멈춘다
+    except (ImportError, ValueError) as e:
+        print(f"전략을 불러올 수 없다({args.strategy}): {e} — `profiles` 로 쓸 수 있는 전략을 본다", file=sys.stderr)
+        return 2
+    d = profiles_dir(args.config)
+    p = d / f"{args.name}.json"
+    if p.exists():
+        print(f"이미 있다: {p}", file=sys.stderr)
+        return 2
+    ex = json.loads((Path(__file__).resolve().parent / "config.example.json").read_text(encoding="utf-8"))
+    markets = args.markets.split(",")
+    prof = {"strategy": args.strategy, "params": ex["params"] if args.strategy == ex["strategy"] else {},
+            "mode": args.mode, "key_prefix": args.key_prefix, "markets": markets, "symbol_allowlist": [],
+            "risk": {m: ex["risk"][m] for m in markets if m in ex["risk"]},
+            "auto": "off", "run_at": ["09:10"], "days": "weekdays", "live": ex["live"]}
+    from .config import normalize_config
+    normalize_config({**prof, "state_dir": "x"})         # 쓰기 전에 형식 검증(틀리면 설정 오류로 멈춘다)
+    d.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(prof, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"만들었다: {p}")
+    print("다음: 파일을 열어 symbol_allowlist·params·run_at 을 채우고, 먼저 auto 를 \"dry\" 로 둔다")
+    return 0
 
 
 def cmd_check(args) -> int:
@@ -111,16 +243,37 @@ def cmd_snapshot(args) -> int:
     if problems:
         print("스냅샷 거부 — 키가 없다:", "; ".join(problems), file=sys.stderr)
         return 2
-    snap = build_snapshot(cfg, make_broker(cfg, env, False), env, datetime.now(KST))
-    p = write_snapshot(cfg, snap)
-    errs = [f"{m}: {d['error']}" for m, d in snap["markets"].items() if d.get("error")]
-    print(f"스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
-    return 1 if errs else 0
+    worst = 0
+    targets = [cfg]
+    if not getattr(args, "profile", None):              # 기본 설정 + 모든 프로필(웹 화면이 전부 보여 준다)
+        for n in list_profiles(args.config):
+            try:
+                targets.append(load_profile(args.config, n, cfg))
+            except (ConfigError, ValueError) as e:
+                print(f"[{n}] 프로필 오류: {e}", file=sys.stderr)
+                worst = 1
+    for c in targets:
+        tag = c.get("profile", "기본")
+        if c is not cfg and gate_problems(c, env, False):
+            print(f"[{tag}] 키 없음 — 건너뜀", file=sys.stderr)
+            continue
+        try:
+            snap = build_snapshot(c, make_broker(c, env, False), env, datetime.now(KST))
+        except Exception as e:                          # noqa: BLE001 — 한 프로필의 실패가 다른 프로필을 막지 않는다
+            print(f"[{tag}] 스냅샷 실패: {type(e).__name__}: {e}", file=sys.stderr)
+            worst = 1
+            continue
+        p = write_snapshot(c, snap)
+        errs = [f"{m}: {d['error']}" for m, d in snap["markets"].items() if d.get("error")]
+        print(f"[{tag}] 스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
+        worst = max(worst, 1 if errs else 0)
+    return worst
 
 
 def cmd_serve(args) -> int:
     from .web import serve
-    serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie, base=args.base_path)
+    serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie, base=args.base_path,
+          config_path=args.config)
     return 0
 
 
@@ -194,9 +347,19 @@ def cmd_chat_id(args) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="autotrader")
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    ap.add_argument("--profile", help="기본 설정 대신 profiles/<이름>.json 으로 실행")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("--execute", action="store_true", help="실제 주문을 낸다. 없으면 dry-run")
+    rd = sub.add_parser("run-due")
+    rd.add_argument("--execute", action="store_true", help="auto=execute 프로필만 주문. 없으면 전부 dry-run")
+    sub.add_parser("profiles")
+    npf = sub.add_parser("new-profile")
+    npf.add_argument("name")
+    npf.add_argument("--strategy", required=True)
+    npf.add_argument("--key-prefix", default="KIS_VTS", help="키 이름 앞부분(예: KIS_VTS → KIS_VTS_APP_KEY ...)")
+    npf.add_argument("--mode", choices=("paper", "live"), default="paper")
+    npf.add_argument("--markets", default="KR", help="KR 또는 US 또는 KR,US")
     for name in ("check-config", "status", "kill", "resume", "snapshot"):
         sub.add_parser(name)
     sv = sub.add_parser("serve")
@@ -213,7 +376,8 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
-          "serve": cmd_serve, "web-setup": cmd_web_setup, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id}[args.cmd]
+          "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
+          "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

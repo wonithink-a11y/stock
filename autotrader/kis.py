@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
 from .broker import Broker
-from .config import LIVE_KEYS, PAPER_KEYS, REPO_ROOT, state_dir
+from .config import REPO_ROOT, key_names, state_dir
 from .models import Intent, OpenOrder, Position
 
 KST = timezone(timedelta(hours=9))
@@ -332,8 +332,8 @@ class KisBroker(Broker):
 
 def make_broker(cfg: dict, env: Dict[str, str], execute: bool, repo_root: Path = REPO_ROOT,
                 http: Optional[Callable] = None) -> KisBroker:
-    """설정의 mode 에 맞는 키로 브로커를 만든다. 주문 잠금 해제(orders_enabled)는 --execute 일 때만."""
+    """설정의 mode·key_prefix 에 맞는 키로 브로커를 만든다. 주문 잠금 해제(orders_enabled)는 --execute 일 때만."""
     mode = cfg["mode"]
-    keys = PAPER_KEYS if mode == "paper" else LIVE_KEYS
+    keys = key_names(cfg)
     client = KisClient(mode, env[keys[0]], env[keys[1]], env[keys[2]], state_dir(cfg, repo_root), http=http)
     return KisBroker(client, orders_enabled=execute)
