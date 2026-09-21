@@ -23,7 +23,7 @@ Validated against
             (b61f5882). 09-18 RV20 도 KIS 모의 서버 ReadTimeout 으로 실패했다. **09-22 09:05 실행이 정상인지 VM 에서 확인** — 크립토 슬리브는
             09-21 청산 판정이 빠져 AVAX·INJ 보유가 약 48시간이 된다(사후 해석 때 편차로 기록).
             **애널리스트 목표가·투자의견**은 KIS 오픈API `invest-opinion`(FHKST663300C0)으로 2010년부터 받을 수 있음을 확인(무료, 100행/호출).
-            **다음 세션 착수: ① KIS 목표가 수집 설계 ② ~~유상증자 회피 필터~~ **종결**(PBR 슬리브 노출 0.1% — 시험 대상 없음, findings/overissue-filter-exposure-check-2026-09.md) ③ 애널리스트 추정치(EPS·영업이익 리비전) 소스 조사** — 상세는 세션인수인계-2026-09-21.md §6.
+            **다음 세션 착수: ① KIS 목표가 수집 설계 ② ~~유상증자 회피 필터~~ **종결**(PBR 슬리브 노출 0.1% — 시험 대상 없음, findings/overissue-filter-exposure-check-2026-09.md) ③ ~~애널리스트 추정치 소스 조사~~ **완료**(docs/control/애널리스트-추정치-소스조사-2026-09-21.md — PIT 10년 추정치를 로컬 DB 로 합법 보유할 상품은 공개 정보로 미확인, FnGuide·한경은 DB화 금지, 무료 구조화 이력은 KIS 목표가뿐. 권고: **KIS invest-opinion 커버리지 프로브(~70~140콜)를 먼저** — 낮으면 접고, DataGuide 문의는 사용자 몫)** — 상세는 세션인수인계-2026-09-21.md §6.
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
