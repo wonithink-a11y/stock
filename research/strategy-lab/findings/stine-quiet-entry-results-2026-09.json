@@ -1,0 +1,529 @@
+{
+ "prereg": "stine-quiet-entry-preregistration-2026-09.md",
+ "variants": {
+  "core": {
+   "params": {
+    "base_width_max": 1.6,
+    "volume_mult": 5.0
+   },
+   "judged": true,
+   "bar": 2.26,
+   "cells": {
+    "A": {
+     "verdict": "REJECT",
+     "train_sign": -1,
+     "t_train": -0.87,
+     "t_oos_dir": 6.66,
+     "net1_oos_bp": 599.71,
+     "net2_oos_bp": 589.75,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 73,
+      "info_bp": -107.39,
+      "gross_bp": -135.08,
+      "t": -0.87
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -489.35,
+      "gross_bp": -783.82,
+      "t": -3.09
+     },
+     "TEST": {
+      "n": 45,
+      "info_bp": -554.51,
+      "gross_bp": -537.61,
+      "t": -7.4
+     }
+    },
+    "B": {
+     "verdict": "REJECT",
+     "train_sign": 1,
+     "t_train": 0.19,
+     "t_oos_dir": -2.62,
+     "net1_oos_bp": -257.56,
+     "net2_oos_bp": -267.52,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 65,
+      "info_bp": 25.72,
+      "gross_bp": 133.04,
+      "t": 0.19
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -126.79,
+      "gross_bp": -305.64,
+      "t": -1.06
+     },
+     "TEST": {
+      "n": 43,
+      "info_bp": -145.67,
+      "gross_bp": -194.04,
+      "t": -1.67
+     }
+    }
+   },
+   "stats": {
+    "A": {
+     "trades": 3788,
+     "tickers": 1805,
+     "months": {
+      "TRAIN": 73,
+      "VALID": 24,
+      "TEST": 45
+     },
+     "max_trades_per_month": 81,
+     "top5_month_share": 0.094,
+     "trade_info_mean_bp": -282.3,
+     "trade_gross_mean_bp": -291.0,
+     "trade_gross_median_bp": -927.3,
+     "oos_gross_month_bp": -623.2,
+     "oos_gross_ci95": [
+      -793.8,
+      -436.3
+     ],
+     "oos_net_month_bp": -646.8,
+     "breakeven_cost_roundtrip_bp": -623.2,
+     "hold_weeks_mean": 7.2,
+     "hold_weeks_median": 6.0,
+     "exit_reasons": {
+      "ma10": 3729,
+      "stop": 38,
+      "censored": 17,
+      "delisted": 4
+     },
+     "yearly_info_bp": {
+      "2014": -2687.6,
+      "2015": -81.1,
+      "2016": -223.5,
+      "2017": 68.0,
+      "2018": 20.5,
+      "2019": -147.8,
+      "2020": -65.5,
+      "2021": -535.3,
+      "2022": -443.4,
+      "2023": -404.0,
+      "2024": -664.2,
+      "2025": -502.4,
+      "2026": -678.5
+     },
+     "stress_delisted_minus100": {
+      "t_train": -0.93,
+      "oos_info_bp": -538.9
+     }
+    },
+    "B": {
+     "trades": 1005,
+     "tickers": 810,
+     "months": {
+      "TRAIN": 65,
+      "VALID": 24,
+      "TEST": 43
+     },
+     "max_trades_per_month": 34,
+     "top5_month_share": 0.125,
+     "trade_info_mean_bp": -46.1,
+     "trade_gross_mean_bp": -9.7,
+     "trade_gross_median_bp": -352.0,
+     "oos_gross_month_bp": -234.0,
+     "oos_gross_ci95": [
+      -401.1,
+      -49.3
+     ],
+     "oos_net_month_bp": -257.6,
+     "breakeven_cost_roundtrip_bp": -234.0,
+     "hold_weeks_mean": 4.8,
+     "hold_weeks_median": 4.0,
+     "exit_reasons": {
+      "ma10": 996,
+      "censored": 2,
+      "stop": 4,
+      "delisted": 3
+     },
+     "yearly_info_bp": {
+      "2015": -223.8,
+      "2016": 249.7,
+      "2017": -40.0,
+      "2018": 283.5,
+      "2019": -192.3,
+      "2020": -8.3,
+      "2021": -135.1,
+      "2022": -118.5,
+      "2023": -413.7,
+      "2024": -112.6,
+      "2025": 2.9,
+      "2026": 2.4
+     },
+     "stress_delisted_minus100": {
+      "t_train": 0.11,
+      "oos_info_bp": -154.6
+     }
+    }
+   },
+   "counts": {
+    "breakouts": 3800,
+    "ca_halt": 34,
+    "ca_factor": 22
+   },
+   "B_minus_A": {
+    "months_both": 132,
+    "train_bp": 54.7,
+    "oos_bp": 375.1,
+    "oos_ci95": [
+     181.9,
+     575.5
+    ]
+   }
+  },
+  "loose": {
+   "params": {
+    "base_width_max": 1.8,
+    "volume_mult": 3.0
+   },
+   "judged": false,
+   "bar": 2.31,
+   "cells": {
+    "A": {
+     "verdict": "REJECT",
+     "train_sign": -1,
+     "t_train": -1.1,
+     "t_oos_dir": 5.09,
+     "net1_oos_bp": 460.07,
+     "net2_oos_bp": 450.11,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 73,
+      "info_bp": -108.14,
+      "gross_bp": -39.14,
+      "t": -1.1
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -286.87,
+      "gross_bp": -631.95,
+      "t": -2.39
+     },
+     "TEST": {
+      "n": 45,
+      "info_bp": -412.55,
+      "gross_bp": -404.5,
+      "t": -5.37
+     }
+    },
+    "B": {
+     "verdict": "REJECT",
+     "train_sign": 1,
+     "t_train": 0.29,
+     "t_oos_dir": -2.52,
+     "net1_oos_bp": -225.97,
+     "net2_oos_bp": -235.93,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 71,
+      "info_bp": 34.15,
+      "gross_bp": 70.45,
+      "t": 0.29
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -121.34,
+      "gross_bp": -283.95,
+      "t": -0.93
+     },
+     "TEST": {
+      "n": 43,
+      "info_bp": -123.41,
+      "gross_bp": -156.93,
+      "t": -1.38
+     }
+    }
+   },
+   "stats": {
+    "A": {
+     "trades": 5251,
+     "tickers": 2133,
+     "months": {
+      "TRAIN": 73,
+      "VALID": 24,
+      "TEST": 45
+     },
+     "max_trades_per_month": 116,
+     "top5_month_share": 0.089,
+     "trade_info_mean_bp": -234.4,
+     "trade_gross_mean_bp": -225.6,
+     "trade_gross_median_bp": -850.4,
+     "oos_gross_month_bp": -483.6,
+     "oos_gross_ci95": [
+      -662.8,
+      -301.4
+     ],
+     "oos_net_month_bp": -507.2,
+     "breakeven_cost_roundtrip_bp": -483.6,
+     "hold_weeks_mean": 7.3,
+     "hold_weeks_median": 7.0,
+     "exit_reasons": {
+      "ma10": 5166,
+      "stop": 49,
+      "censored": 32,
+      "delisted": 4
+     },
+     "yearly_info_bp": {
+      "2014": -2788.1,
+      "2015": -209.5,
+      "2016": -324.2,
+      "2017": 129.0,
+      "2018": 53.4,
+      "2019": -16.4,
+      "2020": -57.8,
+      "2021": -123.8,
+      "2022": -450.0,
+      "2023": -363.7,
+      "2024": -492.5,
+      "2025": -409.4,
+      "2026": -375.3
+     },
+     "stress_delisted_minus100": {
+      "t_train": -1.17,
+      "oos_info_bp": -373.3
+     }
+    },
+    "B": {
+     "trades": 1373,
+     "tickers": 1040,
+     "months": {
+      "TRAIN": 71,
+      "VALID": 24,
+      "TEST": 43
+     },
+     "max_trades_per_month": 39,
+     "top5_month_share": 0.117,
+     "trade_info_mean_bp": -38.5,
+     "trade_gross_mean_bp": -29.0,
+     "trade_gross_median_bp": -349.6,
+     "oos_gross_month_bp": -202.4,
+     "oos_gross_ci95": [
+      -351.8,
+      -32.8
+     ],
+     "oos_net_month_bp": -226.0,
+     "breakeven_cost_roundtrip_bp": -202.4,
+     "hold_weeks_mean": 4.8,
+     "hold_weeks_median": 3.0,
+     "exit_reasons": {
+      "ma10": 1363,
+      "censored": 3,
+      "stop": 4,
+      "delisted": 3
+     },
+     "yearly_info_bp": {
+      "2015": -72.9,
+      "2016": 108.5,
+      "2017": -145.4,
+      "2018": 285.0,
+      "2019": -25.6,
+      "2020": 57.3,
+      "2021": -204.6,
+      "2022": -38.0,
+      "2023": -352.7,
+      "2024": -59.8,
+      "2025": 15.4,
+      "2026": -77.4
+     },
+     "stress_delisted_minus100": {
+      "t_train": 0.23,
+      "oos_info_bp": -135.6
+     }
+    }
+   },
+   "counts": {
+    "breakouts": 5287,
+    "ca_halt": 51,
+    "ca_factor": 26
+   },
+   "B_minus_A": {
+    "months_both": 138,
+    "train_bp": 74.7,
+    "oos_bp": 262.4,
+    "oos_ci95": [
+     105.3,
+     434.0
+    ]
+   }
+  },
+  "strict": {
+   "params": {
+    "base_width_max": 1.4,
+    "volume_mult": 8.0
+   },
+   "judged": false,
+   "bar": 2.09,
+   "cells": {
+    "A": {
+     "verdict": "REJECT",
+     "train_sign": 1,
+     "t_train": 0.94,
+     "t_oos_dir": -4.96,
+     "net1_oos_bp": -614.93,
+     "net2_oos_bp": -624.89,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 70,
+      "info_bp": 176.29,
+      "gross_bp": 54.26,
+      "t": 0.94
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -311.86,
+      "gross_bp": -602.67,
+      "t": -1.32
+     },
+     "TEST": {
+      "n": 44,
+      "info_bp": -656.36,
+      "gross_bp": -585.24,
+      "t": -5.54
+     }
+    },
+    "B": {
+     "verdict": "REJECT",
+     "train_sign": 1,
+     "t_train": 0.46,
+     "t_oos_dir": -1.75,
+     "net1_oos_bp": -204.34,
+     "net2_oos_bp": -214.3,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 58,
+      "info_bp": 76.17,
+      "gross_bp": 227.56,
+      "t": 0.46
+     },
+     "VALID": {
+      "n": 21,
+      "info_bp": -122.22,
+      "gross_bp": -341.17,
+      "t": -0.81
+     },
+     "TEST": {
+      "n": 41,
+      "info_bp": -92.72,
+      "gross_bp": -98.67,
+      "t": -0.87
+     }
+    }
+   },
+   "stats": {
+    "A": {
+     "trades": 2353,
+     "tickers": 1363,
+     "months": {
+      "TRAIN": 70,
+      "VALID": 24,
+      "TEST": 44
+     },
+     "max_trades_per_month": 51,
+     "top5_month_share": 0.102,
+     "trade_info_mean_bp": -178.1,
+     "trade_gross_mean_bp": -219.7,
+     "trade_gross_median_bp": -880.0,
+     "oos_gross_month_bp": -591.4,
+     "oos_gross_ci95": [
+      -822.3,
+      -362.1
+     ],
+     "oos_net_month_bp": -614.9,
+     "breakeven_cost_roundtrip_bp": -591.4,
+     "hold_weeks_mean": 7.3,
+     "hold_weeks_median": 6.0,
+     "exit_reasons": {
+      "ma10": 2318,
+      "stop": 29,
+      "censored": 3,
+      "delisted": 3
+     },
+     "yearly_info_bp": {
+      "2015": 747.6,
+      "2016": 50.1,
+      "2017": 245.3,
+      "2018": 69.2,
+      "2019": -52.7,
+      "2020": -37.3,
+      "2021": -226.5,
+      "2022": -397.2,
+      "2023": -212.1,
+      "2024": -879.4,
+      "2025": -492.1,
+      "2026": -1234.6
+     },
+     "stress_delisted_minus100": {
+      "t_train": 0.9,
+      "oos_info_bp": -549.7
+     }
+    },
+    "B": {
+     "trades": 701,
+     "tickers": 587,
+     "months": {
+      "TRAIN": 58,
+      "VALID": 21,
+      "TEST": 41
+     },
+     "max_trades_per_month": 24,
+     "top5_month_share": 0.124,
+     "trade_info_mean_bp": -3.2,
+     "trade_gross_mean_bp": 34.1,
+     "trade_gross_median_bp": -339.3,
+     "oos_gross_month_bp": -180.8,
+     "oos_gross_ci95": [
+      -383.8,
+      28.0
+     ],
+     "oos_net_month_bp": -204.3,
+     "breakeven_cost_roundtrip_bp": -180.8,
+     "hold_weeks_mean": 4.9,
+     "hold_weeks_median": 4.0,
+     "exit_reasons": {
+      "ma10": 693,
+      "stop": 4,
+      "delisted": 3,
+      "censored": 1
+     },
+     "yearly_info_bp": {
+      "2015": 313.0,
+      "2016": 56.6,
+      "2017": -15.4,
+      "2018": 158.8,
+      "2019": -153.2,
+      "2020": 164.3,
+      "2021": -145.9,
+      "2022": -90.6,
+      "2023": -172.2,
+      "2024": -319.4,
+      "2025": 18.4,
+      "2026": 284.2
+     },
+     "stress_delisted_minus100": {
+      "t_train": 0.37,
+      "oos_info_bp": -125.7
+     }
+    }
+   },
+   "counts": {
+    "breakouts": 2355,
+    "ca_halt": 22,
+    "ca_factor": 11
+   },
+   "B_minus_A": {
+    "months_both": 119,
+    "train_bp": -205.6,
+    "oos_bp": 356.5,
+    "oos_ci95": [
+     102.7,
+     616.7
+    ]
+   }
+  }
+ }
+}
