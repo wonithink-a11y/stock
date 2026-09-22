@@ -230,7 +230,7 @@ def cmd_run() -> int:
     for name, (bw, vm) in VARIANTS.items():
         tr, rec = run_variant(name, bw, vm, w, halts, delisted, O, Cl)
         mo = {cid: monthly(df) for cid, df in tr.items()}
-        cells = {cid: [(m, r.info, r.g, C1, C2) for m, r in mm.iterrows()] for cid, mm in mo.items()}
+        cells = {cid: [(m, r["info"], r["g"], C1, C2) for m, r in mm.iterrows()] for cid, mm in mo.items()}
         fam = family(cells, split, np.random.default_rng(SEED), {"A": {"long_only": True}, "B": {"long_only": True}})
         stats = {}
         for cid, df in tr.items():

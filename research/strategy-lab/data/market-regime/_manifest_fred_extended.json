@@ -1,5 +1,5 @@
 {
-  "generatedAtUTC": "2026-09-20T22:39:11+00:00",
+  "generatedAtUTC": "2026-09-22T10:20:00+00:00",
   "purpose": "FRED 확장 매크로 시리즈(금·은 제외 사용자 우선순위 목록) 백필",
   "tierFetchedThisRun": 1,
   "columns": [
@@ -22,10 +22,10 @@
     "NASDAQCOM": "usNasdaq으로 이미 존재",
     "DEXKOUS": "usdKrwLevel로 이미 존재(build_usdkrw_backfill.py)"
   },
-  "rowCount": 3121,
+  "rowCount": 3123,
   "dateRange": [
     "2014-01-02",
-    "2026-09-18"
+    "2026-09-22"
   ],
   "lagAssumptions": {
     "usSp500": {
@@ -169,19 +169,19 @@
   },
   "lagAssumptionCaveat": "실제 BLS/BEA/Fed 공표일정 대조는 안 함 - 보수적(실제보다 늦게 알았다고 가정) 추정치다. build_macro_layer_backfill.py의 krCpi lag과 동일한 한계.",
   "missingRateByColumn": {
-    "usSp500": 0.21371,
-    "usNasdaq100": 0.03877,
-    "usTreasury2y": 0.03877,
-    "usTreasury30y": 0.03877,
-    "usYieldSpread10y2y": 0.03877,
-    "usYieldSpread10y3m": 0.03877,
-    "usInitialClaims": 0.03877,
-    "usFinancialConditionsIndex": 0.03877,
-    "usHighYieldSpread": 0.76674,
-    "usIgCreditSpread": 0.76674,
-    "usDollarIndexBroad": 0.03877,
-    "krKosdaq": 0.03909
+    "usSp500": 0.21454,
+    "usNasdaq100": 0.03939,
+    "usTreasury2y": 0.03939,
+    "usTreasury30y": 0.03939,
+    "usYieldSpread10y2y": 0.03939,
+    "usYieldSpread10y3m": 0.03939,
+    "usInitialClaims": 0.03939,
+    "usFinancialConditionsIndex": 0.03939,
+    "usHighYieldSpread": 0.76721,
+    "usIgCreditSpread": 0.76721,
+    "usDollarIndexBroad": 0.03939,
+    "krKosdaq": 0.03971
   },
-  "generatedByCommit": "29f66cbe62968d976177d5b0126ff508154a1611",
+  "generatedByCommit": "f51488d0d7fbca326947180dfa8900af1a423463",
   "note": "market_regime_features.parquet에 아직 병합 안 함(독립 산출물). UI로 뭘 쓸지 정한 뒤 별도 병합 작업."
 }
