@@ -110,7 +110,8 @@ VM 에서 돌리고 폰으로 본다. **보기만 가능**하다(주문·킬 스
   **30일 유지**(설정 `web.session_hours`, 기본 720 · 세션은 `state/web_sessions.json` 에 토큰 해시만 — 웹 재시작에도 유지).
   **패스키가 있으면 조작(켜기·끄기·실행·킬 해제)과 금액 보기(상세·실계좌 요약, 5분)는 전부 지문**이고 인증앱 코드는 거부한다.
   킬 켜기만 확인 없이 즉시. 패스키가 없으면 예전처럼 인증앱 코드. 금액 보기 재확인을 끄려면 `web.require_reauth_for_details: false`.
-  **전 기기 로그아웃**(폰 분실 등): `rm ~/collector-venv/autotrader/state/web_sessions.json && sudo systemctl restart autotrader-web`.
+  **전 기기 로그아웃**(폰 분실 등, 재시작 불필요): `cd ~/collector && ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json logout-all`.
+  `web-setup --reset`·`passkey-reset` 도 모든 로그인을 끊는다(세션 세대 — 보안 재검토 N3). 요약 첫 화면도 재확인 전에는 금액·보유를 숨긴다(N2).
 - **로그인 알림**: `python -m autotrader notify-logins`(유닛 `autotrader-notify`)가 로그인 기록을 읽어 텔레그램으로 알린다 — 성공 즉시, 실패는 묶어서, 시간당 상한. **토큰은 이 프로세스만** 가진다(웹 프로세스는 못 봄). `--test` 로 연결 확인.
 - 잠금: 같은 IP 5번 실패 15분 · 전체 20번/시간 실패 30분 · 유휴 15분 로그아웃 · 쿠키 HttpOnly/Secure/SameSite=Strict
 - 한계: 패스키(지문) 인증은 아직 없다(다음 단계). 인터넷에 열리는 주소이므로 인증 코드의 결함이 가장 큰 위험이다 —

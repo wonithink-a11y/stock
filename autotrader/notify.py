@@ -93,7 +93,7 @@ def build_messages(lines: List[str]) -> List[str]:
         ts, ip, ev = p
         when = ts[5:16].replace("T", " ")
         if ev in OK_EVENTS:
-            msgs.append(f"{OK_EVENTS[ev]}\nautotrader · {when} · IP {ip}\n본인이 아니면 즉시 비밀번호·인증앱 재설정(web-setup --reset)")
+            msgs.append(f"{OK_EVENTS[ev]}\nautotrader · {when} · IP {ip}\n본인이 아니면 즉시 서버에서 web-setup --reset (비밀번호·인증앱 재설정 + 모든 로그인 끊김)")
         elif ev.startswith("action:") and ev.count(":") == 2:     # 웹 조작 — 즉시 알린다(본인이 아니면 바로 알아채게)
             _, prof, op = ev.split(":")
             msgs.append(f"🛠 웹 조작: {prof} · {ACTION_TEXT.get(op, op)}\nautotrader · {when} · IP {ip}")

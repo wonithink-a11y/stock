@@ -305,7 +305,8 @@ def cmd_web_setup(args) -> int:
         print("두 번이 다르다", file=sys.stderr)
         return 2
     secret = new_totp_secret()
-    store.save({"password": hash_password(pw), "totpSecret": secret})
+    gen = max(store.session_gen(), 0) + 1 if store.exists() else 0     # 재설정이면 그 전의 모든 로그인을 끊는다(N3)
+    store.save({"password": hash_password(pw), "totpSecret": secret, "sessGen": gen})
     print("\n설정 완료. 인증앱(Google Authenticator·Microsoft Authenticator 등)에 아래 키를 '직접 입력'으로 등록하세요.")
     print(f"  계정 이름: autotrader   키(공백 없이): {secret}")
     print("  (이 키는 지금 한 번만 보여 줍니다. 화면을 닫기 전에 등록하세요. 다른 사람에게 보여주지 마세요.)")
@@ -331,10 +332,25 @@ def cmd_passkey_reset(args) -> int:
     if not store.exists():
         print("웹 인증 설정이 없다", file=sys.stderr)
         return 2
-    rec = store.load()
-    n = len(rec.pop("passkeys", None) or [])
-    store.save(rec)
-    print(f"패스키 {n}개를 지웠다. 웹 서비스 재시작은 필요 없다.")
+    n = [0]
+
+    def fn(r):
+        n[0] = len(r.pop("passkeys", None) or [])
+        r["sessGen"] = int(r.get("sessGen") or 0) + 1          # 모든 로그인도 끊는다(N3)
+    store.update(fn)
+    print(f"패스키 {n[0]}개를 지우고 모든 기기를 로그아웃시켰다. 웹 서비스 재시작은 필요 없다. 웹 '패스키 관리'가 0개인지 확인.")
+    return 0
+
+
+def cmd_logout_all(args) -> int:
+    """모든 기기의 웹 로그인을 끊는다 — **서버에서만**. 재시작 필요 없음(웹이 요청마다 세대를 확인한다)."""
+    from .web_auth import AuthStore
+    store = AuthStore(state_dir(_cfg(args)) / "web_auth.json")
+    if not store.exists():
+        print("웹 인증 설정이 없다", file=sys.stderr)
+        return 2
+    store.bump_session_gen()
+    print("모든 기기를 로그아웃시켰다. 다시 로그인하려면 비밀번호 + 인증앱 코드.")
     return 0
 
 
@@ -409,6 +425,7 @@ def main(argv=None) -> int:
     nt.add_argument("--once", action="store_true", help="한 번만 확인하고 끝낸다(기본은 계속 감시)")
     sub.add_parser("telegram-chat-id")
     sub.add_parser("passkey-reset")
+    sub.add_parser("logout-all")
     sub.add_parser("passkey-enroll")
     ws = sub.add_parser("web-setup")
     ws.add_argument("--reset", action="store_true")
@@ -417,7 +434,7 @@ def main(argv=None) -> int:
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
-          "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll}[args.cmd]
+          "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

@@ -106,6 +106,17 @@ class AuthStore:
         # 되돌아가지 않는다 — 늦게 끝난 요청이 더 옛 스텝으로 덮어쓰면 쓴 코드가 다시 통한다
         self.update(lambda r: r.__setitem__("lastTotpStep", max(int(r.get("lastTotpStep") or 0), step)))
 
+    # ---- 세션 세대(보안 재검토 N3) — 올리면 그 전의 모든 로그인이 무효. 웹·CLI 가 같은 파일을 보므로 프로세스를 넘어 듣는다
+    def session_gen(self) -> int:
+        try:
+            return int(self.load().get("sessGen") or 0)
+        except (OSError, ValueError):
+            return -1                                   # 못 읽으면 어떤 세션과도 안 맞게(안전 쪽)
+
+    def bump_session_gen(self) -> int:
+        rec = self.update(lambda r: r.__setitem__("sessGen", int(r.get("sessGen") or 0) + 1))
+        return rec["sessGen"]
+
     # ---- 패스키 등록 코드(서버 CLI 가 발급, 1회용·15분) — 피싱된 인증앱 코드로는 패스키를 추가할 수 없게
     def issue_enroll_code(self, now: float, ttl: int = 900) -> str:
         code = "-".join(secrets.token_hex(2).upper() for _ in range(3))           # 예: 3F2A-9C01-77BE
@@ -166,8 +177,8 @@ class Lockout:
 class Sessions:
     """세션. `path` 를 주면 파일에 남겨 웹 재시작에도 로그인이 유지된다(2026-09-22 사용자 요청 — 오래 가는 로그인 +
     조작은 지문). 파일에는 **토큰의 sha256 만** 남는다(파일이 새도 쿠키를 만들 수 없다). 챌린지 같은 임시 값은 메모리에만.
-    전 기기 로그아웃: 이 파일을 지우고 웹 유닛을 재시작한다."""
-    KEEP = ("created", "reauth", "csrf")
+    전 기기 로그아웃: CLI `logout-all`(AuthStore 의 세션 세대를 올린다 — 웹이 요청마다 비교, 재시작 불필요)."""
+    KEEP = ("created", "reauth", "csrf", "gen")
 
     def __init__(self, idle_sec: int = 900, absolute_sec: int = 8 * 3600, reauth_sec: int = 300,
                  clock: Callable[[], float] = time.time, path: Optional[Path] = None):
@@ -182,7 +193,7 @@ class Sessions:
                 for h, s in json.loads(self.path.read_text(encoding="utf-8")).items():
                     if now - float(s["created"]) <= self.absolute:
                         self._s[h] = {"created": float(s["created"]), "seen": now, "reauth": float(s.get("reauth", 0.0)),
-                                      "csrf": str(s["csrf"])}
+                                      "csrf": str(s["csrf"]), "gen": int(s.get("gen", 0))}
             except (OSError, ValueError, KeyError, TypeError, AttributeError):
                 self._s = {}                            # 깨진 파일 = 전부 로그아웃(안전 쪽)
 
@@ -203,10 +214,10 @@ class Sessions:
                 pass
             os.replace(tmp, self.path)
 
-    def create(self) -> str:
+    def create(self, gen: int = 0) -> str:
         tok = secrets.token_urlsafe(32)
         now = self.clock()
-        self._s[self._h(tok)] = {"created": now, "seen": now, "reauth": 0.0, "csrf": secrets.token_urlsafe(16)}
+        self._s[self._h(tok)] = {"created": now, "seen": now, "reauth": 0.0, "csrf": secrets.token_urlsafe(16), "gen": gen}
         self._save()
         return tok
 

@@ -1,11 +1,12 @@
-"""읽기 전용 웹 화면 — 폰에서 autotrader 상태를 본다.
+"""웹 화면 — 폰에서 autotrader 상태를 보고 프로필을 조작한다.
 
-★ 이 프로세스는 **KIS 키를 읽지 않는다**(systemd 유닛이 `.env` 접근을 막는다). 상태 파일(`state/`)만 읽는다.
-★ **읽기 전용**이다. 주문·킬 스위치·설정 변경 기능이 없다 — 화면이 뚫려도 볼 수만 있다.
-★ 로그인하지 않으면 아무것도 안 보인다(404 만 나간다). 3단계 노출:
-    L0 로그인 전   : 로그인 폼 하나
-    L1 로그인 후   : 모드·게이트·킬 스위치·오늘 실행 횟수·한도 사용률(금액·종목 없음)
-    L2 재인증 5분  : 보유·잔고·미체결·주문 내역(인증앱 코드를 **다시** 입력해야 열린다, 계좌번호는 어디에도 안 나온다)
+★ 이 프로세스는 **KIS 키를 읽지 않는다**(systemd 유닛이 허용목록 격리). 주문을 직접 내지 않는다 — 조작은 요청 파일·킬 파일만
+  쓰고, 주문은 키를 가진 run-due 가 모든 게이트를 통과해야 낸다.
+★ 로그인하지 않으면 아무것도 안 보인다(404 만 나간다). 노출 단계:
+    L0 로그인 전   : 로그인 폼 하나(비밀번호 + 인증앱 코드). 로그인은 30일 유지(세션 세대로 일괄 무효화 가능)
+    L1 로그인 후   : 모드·게이트·킬·오늘 실행·한도 사용률 — **금액·보유 없음**(보안 재검토 N2)
+    L2 재확인 5분  : 금액·보유·주문 내역·실계좌 요약. 패스키가 있으면 지문으로만(N1), 계좌번호는 어디에도 안 나온다
+★ 조작(켜기·끄기·실행·킬 해제)은 패스키가 있으면 지문으로만. 실계좌 주문성 조작은 지문 + 확인 문구. 킬 켜기만 확인 없이.
 HTTPS 는 앞단(Caddy/nginx)이 맡는다 — 이 서버는 127.0.0.1 에만 붙는다.
 """
 from __future__ import annotations
@@ -206,8 +207,8 @@ def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -
 AUTO_TXT = {"off": "자동 꺼짐", "dry": "자동 dry-run", "execute": "자동 주문"}
 
 
-def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
-    """프로필(키 묶음+전략)마다 한 장 — 투자금·손익 타일, 상태, 상세 링크."""
+def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: bool = False) -> str:
+    """프로필(키 묶음+전략)마다 한 장 — 투자금·손익 타일, 상태, 상세 링크. hide_money 면 금액·보유를 빼고 상태만(N2)."""
     out = []
     for cfg, v in items:
         name = str(cfg.get("profile", ""))
@@ -232,8 +233,8 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "") -> str:
 <span class="pill acc">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
 <span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
 {'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
-{render_money_rows(snap)}
-{held_tbl}
+{"" if hide_money else render_money_rows(snap)}
+{"" if hide_money else held_tbl}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
 <div class="row"><span>마지막 실행</span>{last_txt}</div>
 <a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a></div>''')
@@ -257,7 +258,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
         f'<div class="row"><span>{E(str(r.get("at", ""))[5:16].replace("T", " "))} {E("주문" if r.get("execute") else "dry-run")}</span>'
         f'<span class="{"ok" if r.get("status") == "ok" else "bad"}">{E(str(r.get("status")))} · 접수 {len(r.get("placed") or [])}'
         f' 거부 {len(r.get("rejected") or [])}</span></div>' for r in reversed(v["runs"][-5:]))
-    reauth = " (인증앱 코드 재입력)" if strict else ""
+    reauth = " (재확인)" if strict else ""
     err_html = f'<span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span>'
     body = f'''<div class="nav">
 <a href="{base}/accounts">💰 실계좌 요약<small>업비트·빗썸·KIS·RV20{reauth}</small></a>
@@ -572,6 +573,9 @@ class WebApp:
     def _handle(self, method, path, raw_path, headers, body, ip):
         tok = self._session_token(headers)
         sess = self.sessions.get(tok)
+        if sess and sess.get("gen", 0) != self.store.session_gen():     # 비밀번호·패스키 재설정·logout-all 뒤의 옛 로그인(N3)
+            self.sessions.destroy(tok)
+            sess = None
         form = parse_qs(body.decode("utf-8", "replace"), keep_blank_values=True) if method == "POST" else {}
         field = lambda k: (form.get(k) or [""])[0]   # noqa: E731
 
@@ -581,7 +585,12 @@ class WebApp:
             if not sess:
                 return 200, self._hdrs(), render_login(base=self.base)
             now = self._now()
-            extra = render_profiles([(c, load_view(c, state_dir(c), now)) for c in self.profiles()], self.base)
+            locked = self.require_reauth and not self.sessions.is_fresh(sess)     # N2: 금액·보유는 재확인 뒤에만
+            unlock = (f'<div class="card"><div class="mut">🔒 금액·보유 종목은 확인 뒤에 보입니다(5분).</div>'
+                      + (f'<button id="pk-reauth" data-base="{E(self.base)}" data-csrf="{E(sess["csrf"])}" data-next="/">지문으로 보기</button>'
+                         f'<div id="pk-reauth-msg"></div><script src="{E(self.base)}/static/passkey.js"></script>' if self._pk_ready()
+                         else f'<a class="btn" href="{self.base}/details">인증앱 코드로 확인</a>') + '</div>') if locked else ""
+            extra = unlock + render_profiles([(c, load_view(c, state_dir(c), now)) for c in self.profiles()], self.base, hide_money=locked)
             return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, now), sess["csrf"], self.base,
                                                        self.require_reauth, extra)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
@@ -758,7 +767,7 @@ class WebApp:
             self._bump(cid, count)
             self.sessions.mark_reauth(tok)
             self._log(ip, "reauth-ok")
-            ok_next = {"/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            ok_next = {"/", "/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})
         if path == "/passkey/action-options":
@@ -808,7 +817,7 @@ class WebApp:
         if pw_ok and step is not None:
             self.store.set_last_step(step)
             self.lockout.ok(ip)
-            tok = self.sessions.create()
+            tok = self.sessions.create(gen=self.store.session_gen())
             self._log(ip, "login-ok")
             return self._redirect("/", {"Set-Cookie": self._cookie(tok, int(self.sessions.absolute))})
         self.lockout.fail(ip)

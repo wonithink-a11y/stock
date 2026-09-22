@@ -233,6 +233,40 @@ def main():
         ck("재인증 뒤 보던 프로필로 돌아감", json.loads(body)["redirect"] == "/details?p=pa")
         ck("재인증 CSRF 없으면 거부", pj3("/passkey/reauth-options", {})[0] == 403)
 
+        # ---- N2: 재확인 전 요약(/)에는 금액·보유가 없다
+        from autotrader.config import state_dir as _sd
+        pa_dir = _sd(load_profile(main_p, "pa"))
+        pa_dir.mkdir(parents=True, exist_ok=True)
+        (pa_dir / "snapshot.json").write_text(json.dumps({"at": "2026-09-22T10:00:00+09:00", "markets": {"KR": {
+            "totals": {"cost": 1000000, "value": 1100000, "pnl": 100000, "pct": 10.0},
+            "positions": [{"symbol": "005930", "qty": 3, "avgPrice": 60000, "price": 66000}]}}}), encoding="utf-8")
+        t4 = strict.sessions.create()
+        c4, h4 = strict.sessions.get(t4)["csrf"], {"Cookie": f"at_sess={t4}"}
+        page = strict.handle("GET", "/", h4, b"", "1.1.1.1")[2].decode()
+        ck("재확인 전 요약: 금액·보유 없음 + 지문 버튼", "투자금" not in page and "005930" not in page
+           and 'id="pk-reauth"' in page and 'data-next="/"' in page)
+        st, ao = strict.handle("POST", "/passkey/reauth-options", h4, json.dumps({"csrf": c4}).encode(), "1.1.1.1")[:3:2]
+        st, _, body = strict.handle("POST", "/passkey/reauth", h4, json.dumps({"csrf": c4, "next": "/", "credential": dev.assert_(ao.decode())}).encode(), "1.1.1.1")
+        ck("지문 재확인 뒤 요약으로 돌아감", st == 200 and json.loads(body)["redirect"] == "/")
+        page = strict.handle("GET", "/", h4, b"", "1.1.1.1")[2].decode()
+        ck("재확인 뒤 요약: 금액·보유 보임", "투자금" in page and "005930" in page and 'id="pk-reauth"' not in page)
+        clk[0] += 301
+        page = strict.handle("GET", "/", h4, b"", "1.1.1.1")[2].decode()
+        ck("5분 지나면 다시 숨김", "투자금" not in page)
+
+        # ---- N3: 세대를 올리면(logout-all·passkey-reset·web-setup --reset) 옛 로그인은 전부 무효
+        from autotrader import cli as _cli
+        ck("세대 올리기 전엔 로그인 유지", strict.handle("GET", "/details?p=pa", h4, b"", "1.1.1.1")[0] == 200)
+        _cli.cmd_logout_all(type("A", (), {"config": main_p, "profile": None})())
+        ck("logout-all 뒤 옛 로그인 무효(로그인 화면)", "비밀번호" in strict.handle("GET", "/", h4, b"", "1.1.1.1")[2].decode()
+           and strict.handle("GET", "/details?p=pa", h4, b"", "1.1.1.1")[0] == 404)
+        st, hd, _ = strict.handle("POST", "/login", {}, f"password=pw-long-enough-1&code={code()}".encode(), "3.3.3.3")
+        t5 = hd.get("Set-Cookie", "").split("at_sess=")[1].split(";")[0]
+        ck("새로 로그인하면 새 세대로 통과", st == 303 and strict.handle("GET", "/details?p=pa", {"Cookie": f"at_sess={t5}"}, b"", "3.3.3.3")[0] == 200)
+        g = store.session_gen()
+        store.save({k: v for k, v in store.load().items()})            # 아무 변경 없는 저장은 세대 유지
+        ck("세대는 명령으로만 오른다", store.session_gen() == g)
+
         # ---- 오래 가는 로그인: 파일에 남아 재시작에도 유지, 토큰 원문은 파일에 없다
         sp = sdir / "web_sessions.json"
         D30 = 30 * 86400
@@ -264,12 +298,13 @@ def main():
         log = (sdir / "web_login.log").read_text(encoding="utf-8").splitlines()
         ck("등록은 텔레그램 알림", any("패스키 새로 등록됨" in m for m in notify.build_messages(log)))
         off = mk(rp="", origin="")
-        t2 = off.sessions.create()
+        t2 = off.sessions.create(gen=store.session_gen())
         st, _, b = off.handle("GET", "/passkey", {"Cookie": f"at_sess={t2}"}, b"", "1.1.1.1")
         ck("rp 설정 없으면 패스키 꺼짐 안내", st == 200 and "꺼져 있다" in b.decode())
         from autotrader import cli
+        g0 = store.session_gen()
         cli.cmd_passkey_reset(type("A", (), {"config": main_p, "profile": None})())
-        ck("서버 명령으로 삭제", not store.load().get("passkeys"))
+        ck("서버 명령으로 삭제 + 모든 로그인 끊김(세대 +1)", not store.load().get("passkeys") and store.session_gen() == g0 + 1)
 
     print(f"\ntest-autotrader-passkey {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0
