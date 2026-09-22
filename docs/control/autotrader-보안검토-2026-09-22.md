@@ -82,6 +82,9 @@ nginx(`deploy/nginx-*.conf`), 같은 도메인의 공개 API `scripts/kis-minute
 | N7 | 낮음 | 30일 세션에 유휴 만료가 사실상 없고, 패스키 확인은 폰 PIN 으로도 통과 — 폰+PIN 이면 실계좌 주문성 조작까지. 손실 상한은 서버 한도뿐 | 확인 | 운영으로 — 실계좌 프로필 `web_live_allowed:false`·최소 한도 |
 | N8 | 낮음 | `web.py` 모듈 설명이 "읽기 전용"으로 낡음 | 확인 | 미결(문서) |
 
+**이 재검토가 보지 않은 것**: e7baf4bc(실전 TR 대조 D1·D2 — 해외 주문 거래소 코드·국내 KRX 필드)는 검토가 도는 **도중에** 들어갔다.
+주문 본문만 공식 예제대로 맞춘 것이고 게이트는 안 바꿨지만, 기준상 '실계좌에 닿는 경로'라 **다음 검토 범위에 넣는다**.
+
 **실계좌 연결 전 필수**: N2·N3 수정 · 서버 설정(rp_id·origin·패스키 1개 이상) · 실계좌 프로필은 `web_live_allowed:false`·처음 `auto:"dry"`·
 최소 `symbol_allowlist`·명시적 작은 `risk` · `AUTOTRADER_ALLOW_LIVE`·`--execute` 는 `autotrader.service` 하나에 걸려 **모든 프로필 공통**임을 인지.
 
