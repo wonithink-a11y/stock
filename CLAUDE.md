@@ -28,8 +28,8 @@ Validated against
   다음      ★★ autotrader — 2026-09-22 프로필(키·전략·한도·예약)·무한매수 플러그인(옛 러너와 VM 8/8 일치)·웹 조작·
             투자금/평가/실현손익·패스키·보안 정리(/accounts 공개 차단, 독립 검토 반영)까지 완료. **지금 주문 0**
             (타이머 dry-run, 프로필 auto off). O2b·O3u 전략 파일은 **만들지 않는다**(동시호가 시험 실패).
-            ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 이후 **disabled** — 무한매수 dry-run 관측도 지금 안 돈다
-            (`infbuy` 프로필 auto off). 의도인지 사용자 확인 대기.
+            ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 에 **의도적으로 disabled**(autotrader 전환 절차, README §무한매수 —
+            sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
             ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
             nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-22.md ·
             보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토).
