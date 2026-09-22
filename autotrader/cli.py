@@ -298,6 +298,12 @@ def _notify_fills(c: dict, env: dict, fills: list) -> None:
             return
 
 
+def cmd_channels_fetch(args) -> int:
+    """텔레그램 공개 채널(매경 3개) 소식을 state/channels.json 에 쌓는다 — 개인 열람용, 키 없음(autotrader/channels.py)."""
+    from .channels import fetch_all
+    return fetch_all(state_dir(_cfg(args)) / "channels.json", datetime.now(KST))
+
+
 def cmd_serve(args) -> int:
     from .web import serve
     serve(_cfg(args), host=args.host, port=args.port, secure_cookie=not args.insecure_cookie, base=args.base_path,
@@ -431,7 +437,7 @@ def main(argv=None) -> int:
     npf.add_argument("--key-prefix", default="KIS_VTS", help="키 이름 앞부분(예: KIS_VTS → KIS_VTS_APP_KEY ...)")
     npf.add_argument("--mode", choices=("paper", "live"), default="paper")
     npf.add_argument("--markets", default="KR", help="KR 또는 US 또는 KR,US")
-    for name in ("check-config", "status", "kill", "resume", "snapshot"):
+    for name in ("check-config", "status", "kill", "resume", "snapshot", "channels-fetch"):
         sub.add_parser(name)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1", help="기본 127.0.0.1 — 앞단 HTTPS 프록시 뒤에서만 쓴다")
@@ -452,7 +458,8 @@ def main(argv=None) -> int:
           "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
-          "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all}[args.cmd]
+          "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all,
+          "channels-fetch": cmd_channels_fetch}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

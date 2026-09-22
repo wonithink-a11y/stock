@@ -263,6 +263,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
     body = f'''<div class="nav">
 <a href="{base}/accounts">💰 실계좌 요약<small>업비트·빗썸·KIS·RV20{reauth}</small></a>
 <a href="{base}/details">📋 기본 계좌 상세<small>보유·주문·원장{reauth}</small></a>
+<a href="{base}/channels">📰 채널 소식<small>매경 자이앤트·크립토·월가월부</small></a>
 <a href="{base}/passkey">🔑 패스키 관리<small>지문 등록·상태</small></a>
 <a href="#today">🗓 오늘 기록<small>실행·한도·게이트</small></a></div>
 {extra}
@@ -448,6 +449,32 @@ def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "")
     return _page("패스키", body, base=base, sub="패스키")
 
 
+def render_channels(d: Optional[dict], want: str, base: str = "") -> bytes:
+    """텔레그램 채널 소식(개인 열람 — 로그인 뒤에만). 글자는 전부 이스케이프, 원문은 t.me 링크."""
+    from .channels import CHANNELS
+    posts = [p for p in (d or {}).get("posts") or [] if not want or p.get("channel") == want][:150]
+    tabs = "".join(f'<a class="pill{" acc" if k == want else ""}" href="{base}/channels{("?c=" + quote(k)) if k else ""}">{E(v)}</a>'
+                   for k, v in [("", "전체")] + list(CHANNELS.items()))
+    items = []
+    for p in posts:
+        try:
+            when = datetime.fromisoformat(p["at"]).astimezone(KST).strftime("%m-%d %H:%M")
+        except (KeyError, ValueError):
+            when = ""
+        text = str(p.get("text") or "") or "(사진·영상)"
+        head, rest = text[:280], text[280:]
+        br = lambda s: E(s).replace(chr(10), "<br>")   # noqa: E731
+        body = br(head) + (f'<details><summary>더 보기</summary>{br(rest)}</details>' if rest else "")
+        items.append(f'<div class="card"><div class="hd"><span class="pill">{E(CHANNELS.get(p.get("channel"), p.get("channel", "")))}</span>'
+                     f'<span class="mut">{E(when)}</span></div><div>{body}</div>'
+                     f'<a class="mut" href="https://t.me/{quote(str(p.get("id", "")))}" target="_blank" rel="noopener noreferrer">원문 ↗</a></div>')
+    errs = "".join(f'<div class="warn">{E(CHANNELS.get(k, k))}: 읽기 실패 — {E(v)}</div>' for k, v in ((d or {}).get("errors") or {}).items())
+    upd = E(str((d or {}).get("updatedAt", ""))[5:16].replace("T", " ")) or "아직 없음"
+    body = (f'<h1>채널 소식</h1><div>{tabs}</div><div class="mut">갱신 {upd} · 15분마다 · 개인 열람용(공유 금지)</div>{errs}'
+            + ("".join(items) or '<div class="card mut">아직 읽은 글이 없습니다.</div>') + f'<a class="btn" href="{base}/">← 요약으로</a>')
+    return _page("채널 소식", body, base=base, sub="채널 소식")
+
+
 def render_login(msg: str = "", base: str = "") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
     return _page("로그인", f'''<h1 style="margin-top:28px">안녕하세요 👋</h1><div class="card">{m}
@@ -619,6 +646,11 @@ class WebApp:
             has_pk = self._pk_ready()
             return 200, self._hdrs(), render_details(load_view(c, state_dir(c), self._now()), sess["csrf"], self.base,
                                                      self.require_reauth, want, render_controls(c, sess["csrf"], self.base, msg, has_pk))
+        if method == "GET" and path == "/channels":
+            from .channels import CHANNELS
+            want = (parse_qs(urlsplit(raw_path).query).get("c") or [""])[0]
+            want = want if want in CHANNELS else ""        # 목록에 있는 채널만
+            return 200, self._hdrs(), render_channels(_load_json(self.sdir / "channels.json"), want, self.base)
         if path.startswith("/passkey"):
             return self._passkey_route(method, path, sess, tok, body, field, ip)
         if method == "POST" and path == "/action":

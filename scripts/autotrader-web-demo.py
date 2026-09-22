@@ -53,12 +53,17 @@ snap_pbr = {"at": (now - timedelta(minutes=41)).isoformat(), "mode": "paper", "m
     "totals": {"cost": 640000, "value": 655900, "pnl": 15900, "pnlPct": 2.48}}}, "realized": {}}
 (sd / "profiles" / "pbr" / "snapshot.json").write_text(json.dumps(snap_pbr), encoding="utf-8")
 
+(sd / "channels.json").write_text(json.dumps({"updatedAt": "2026-09-22T21:00:00+09:00", "errors": {}, "posts": [   # 가짜 글(실제 채널 글은 저장소에 넣지 않는다)
+    {"id": "mk_giant/1", "channel": "mk_giant", "at": "2026-09-22T11:28:00+00:00", "text": "✅ 예시전기 : +6.0% 상승 중\n\n현재주가 : 1,000,000원\n- 데모 문장입니다."},
+    {"id": "wcforumxyz/2", "channel": "wcforumxyz", "at": "2026-09-22T09:10:00+00:00", "text": "비트코인 데모 소식 " + "긴 본문 " * 60},
+    {"id": "mkglobalinvest/3", "channel": "mkglobalinvest", "at": "2026-09-22T06:00:00+00:00", "text": ""}]}), encoding="utf-8")
+
 store = A.AuthStore(sd / "web_auth.json")
 store.save({"password": A.hash_password("pw-long-enough-1"), "totpSecret": A.new_totp_secret()})
 cfg = normalize_config({**BASE, "state_dir": str(sd)})
 sessions = A.Sessions(idle_sec=86400)
-sessions._s["demo"] = {"created": 9e18, "seen": 9e18, "reauth": 0.0, "csrf": "c"}
-sessions._s["demo"].update(created=__import__("time").time(), seen=__import__("time").time())
+sessions._s[A.Sessions._h("demo")] = {"created": 9e18, "seen": 9e18, "reauth": 0.0, "csrf": "c", "gen": 0}   # 세션은 토큰 해시로 찾는다
+sessions._s[A.Sessions._h("demo")].update(created=__import__("time").time(), seen=__import__("time").time())
 app = web.WebApp(cfg, sd, store, sessions, A.Lockout(), secure_cookie=False, profiles=web._profile_loader(cfg, main_p),
                  rp_id="localhost", origin="http://localhost:8799",
                  accounts_fetch=lambda: {"fetchedAt": now.isoformat()[:19], "real": {"upbit": {"totalKrw": 1523000.0, "totalCostKrw": 1600000.0,

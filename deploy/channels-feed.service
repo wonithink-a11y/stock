@@ -1,0 +1,17 @@
+[Unit]
+# 텔레그램 공개 채널(매경 자이앤트·크립토·월가월부) 소식 → state/channels.json. 키 없음, 공개 웹 미리보기만 읽는다.
+# 개인 열람 전용 — 저장소·공개 대시보드에 올리지 않는다(autotrader/channels.py 머리말).
+Description=Telegram public channel feed for the autotrader web (personal reading)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+ExecStart=/home/ubuntu/collector-venv/bin/python3 -m autotrader --config /home/ubuntu/collector-venv/autotrader/autotrader.local.json channels-fetch
+StandardOutput=append:/home/ubuntu/collector-venv/logs/channels-feed.log
+StandardError=append:/home/ubuntu/collector-venv/logs/channels-feed.log
+NoNewPrivileges=yes
+PrivateTmp=yes

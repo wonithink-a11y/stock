@@ -1,0 +1,12 @@
+[Unit]
+Description=Telegram channel feed every 15 minutes
+# 타이머 자신의 실패도 알린다(서비스의 OnFailure 로는 유닛 파일 깨짐이 안 잡힌다 - CLAUDE.md 참고).
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target
