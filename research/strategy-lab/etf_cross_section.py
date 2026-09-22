@@ -102,6 +102,42 @@ def cmd_universe() -> int:
     return 0
 
 
+FIXED_BP = 2 * 1.40527 + 2 * 0.3640                        # 3.54bp — 세금 0(사전등록 §4)
+
+
+def build_panel(dom: set, start: str = START, end: str = END):
+    """유동 국내주식형 ETF 종목일 패널(on·ret·pdh·volr·tk) + 거래일 목록. 결과 실험과 forward 그림자가 같은 코드를 쓴다.
+    on(밤사이)은 다음 거래일 시가가 있어야 값이 있다 — 그림자는 on 이 빈 마지막 날을 다음 실행으로 미룬다."""
+    import numpy as np
+    import pandas as pd
+    rows, _ = load_rows()
+    num = lambda v: float(str(v).replace(",", "")) if str(v).replace(",", "").replace(".", "", 1).isdigit() else np.nan   # noqa: E731
+    recs = [{"date": d, "ticker": c, "open": num(r.get("TDD_OPNPRC")), "high": num(r.get("TDD_HGPRC")),
+             "low": num(r.get("TDD_LWPRC")), "close": num(r.get("TDD_CLSPRC")), "volume": num(r.get("ACC_TRDVOL")),
+             "value": num(r.get("ACC_TRDVAL"))} for (d, c), r in rows.items() if start.replace("-", "") <= d <= end.replace("-", "")]
+    a = pd.DataFrame(recs)
+    valid = (a[["open", "high", "low", "close"]] > 0).all(axis=1) & (a.volume > 0)
+    tdays = np.sort(a.loc[valid, "date"].unique())                # 거래일 = 거래가 한 건이라도 있는 날(휴장일 행 제외, §2-부록)
+    a = a[valid & a.ticker.isin(dom)].copy()
+    a["di"] = np.searchsorted(tdays, a.date)
+    a = a.sort_values(["ticker", "di"]).reset_index(drop=True)
+    g = a.groupby("ticker")
+    prev_ok = g.di.shift(1) == a.di - 1                            # 바로 전 거래일에 이 종목이 있었나
+    next_ok = g.di.shift(-1) == a.di + 1
+    a["pc"] = np.where(prev_ok, g.close.shift(1), np.nan)
+    a["pdh"] = np.where(prev_ok, g.high.shift(1), np.nan)
+    a["ret"] = a.close / a.pc - 1
+    cont20 = (a.di - g.di.shift(20)) == 20                         # 직전 20거래일이 빠짐없이 있다(§1: 20일 미만 이력 제외)
+    a["liq"] = np.where(cont20, g.value.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
+    a["volr"] = a.volume / np.where(cont20, g.volume.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
+    a["on"] = np.where(next_ok, g.open.shift(-1) / a.close - 1, np.nan) * 1e4
+    a["date"] = pd.to_datetime(a.date)
+    u = a[(a.liq >= 2e9) & a.ret.notna()].copy()
+    tick = np.where((u.date >= "2023-12-11") & (u.close < 2000), 1.0, 5.0)   # ETF 호가단위(§4, 날짜별)
+    u["tk"] = tick / u.close * 1e4
+    return u, tdays, {"etf_total": len({c for _, c in rows}), "domestic_traded": int(a.ticker.nunique())}
+
+
 def _committed_clean(p: Path) -> bool:
     rel = str(p.relative_to(REPO)).replace("\\", "/")
     tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=REPO, capture_output=True).returncode == 0
@@ -124,32 +160,9 @@ def cmd_run() -> int:
     from short_horizon_study import tstat
 
     dom = {r["code"] for r in csv.DictReader(UNIV.open(encoding="utf-8")) if r["class"] == "국내주식형"}
-    rows, _ = load_rows()
-    num = lambda v: float(str(v).replace(",", "")) if str(v).replace(",", "").replace(".", "", 1).isdigit() else np.nan   # noqa: E731
-    recs = [{"date": d, "ticker": c, "open": num(r.get("TDD_OPNPRC")), "high": num(r.get("TDD_HGPRC")),
-             "low": num(r.get("TDD_LWPRC")), "close": num(r.get("TDD_CLSPRC")), "volume": num(r.get("ACC_TRDVOL")),
-             "value": num(r.get("ACC_TRDVAL"))} for (d, c), r in rows.items() if START.replace("-", "") <= d <= END.replace("-", "")]
-    a = pd.DataFrame(recs)
-    valid = (a[["open", "high", "low", "close"]] > 0).all(axis=1) & (a.volume > 0)
-    tdays = np.sort(a.loc[valid, "date"].unique())                # 거래일 = 거래가 한 건이라도 있는 날(휴장일 행 제외, §2-부록)
-    a = a[valid & a.ticker.isin(dom)].copy()
-    a["di"] = np.searchsorted(tdays, a.date)
-    a = a.sort_values(["ticker", "di"]).reset_index(drop=True)
-    g = a.groupby("ticker")
-    prev_ok = g.di.shift(1) == a.di - 1                            # 바로 전 거래일에 이 종목이 있었나
-    next_ok = g.di.shift(-1) == a.di + 1
-    a["pc"] = np.where(prev_ok, g.close.shift(1), np.nan)
-    a["pdh"] = np.where(prev_ok, g.high.shift(1), np.nan)
-    a["ret"] = a.close / a.pc - 1
-    cont20 = (a.di - g.di.shift(20)) == 20                         # 직전 20거래일이 빠짐없이 있다(§1: 20일 미만 이력 제외)
-    a["liq"] = np.where(cont20, g.value.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
-    a["volr"] = a.volume / np.where(cont20, g.volume.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
-    a["on"] = np.where(next_ok, g.open.shift(-1) / a.close - 1, np.nan) * 1e4
-    a["date"] = pd.to_datetime(a.date)
-    u = a[(a.liq >= 2e9) & a.on.notna() & a.ret.notna()].copy()
-    fixed = 2 * 1.40527 + 2 * 0.3640                                # 3.54bp — 세금 0(§4)
-    tick = np.where((u.date >= "2023-12-11") & (u.close < 2000), 1.0, 5.0)   # ETF 호가단위(§4, 날짜별)
-    u["tk"] = tick / u.close * 1e4
+    u, tdays, meta = build_panel(dom)
+    u = u[u.on.notna()].copy()
+    fixed = FIXED_BP
     cells_def = {"O0": u.ret.notna(), "O2b": (u.close > u.pdh) & (u.volr >= 1.5), "O3u": u.ret >= 0.05}
     mkt = u.groupby("date").on.mean()
     split = lambda d: "TRAIN" if d.year <= 2020 else ("VALID" if d.year <= 2022 else "TEST")   # noqa: E731
@@ -170,8 +183,8 @@ def cmd_run() -> int:
                       "oos_tick_bp": round(float(df[df.index.year >= 2021].tk.mean()), 2) if len(oos) else None}
     fam = family({c: cells[c] for c in ("O2b", "O3u")}, split, np.random.default_rng(20260922), {"O2b": {"long_only": True}, "O3u": {"long_only": True}})
     res = {"bar": fam["bar"], "cells": fam["cells"], "stats": stats, "cost_fixed_bp": round(fixed, 2),
-           "universe": {"etf_total": len({c for _, c in rows}), "domestic": len(dom),
-                        "domestic_traded": int(a.ticker.nunique()), "liquid_etfs": int(u.ticker.nunique()),
+           "universe": {"etf_total": meta["etf_total"], "domestic": len(dom),
+                        "domestic_traded": meta["domestic_traded"], "liquid_etfs": int(u.ticker.nunique()),
                         "liquid_rows": int(len(u)), "trading_days": int(len(tdays))}}
     # O0 은 가족 밖 기준선(§3) — 같은 판정을 참고로만
     parts = {k: tuple(np.array(x, float) for x in zip(*[e[1:] for e in cells["O0"] if split(e[0]) == k]) or ([], [], [], [])) for k in ("TRAIN", "VALID", "TEST")}
