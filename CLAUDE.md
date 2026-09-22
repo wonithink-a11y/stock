@@ -119,6 +119,9 @@ Validated against
             밀릴 수 있어 "닫힌 거래 없음"이면 오류가 아니다 — A2a 창(1~5일) 안에 다시 본다.
             ★ **같은 점검에 O2b 그림자도 돌린다**: `python research/strategy-lab/futures/run_close_open_shadow.py`
             (같은 신호일은 중복 기록 안 함) 후 observations.jsonl 커밋.
+            ★ **ETF 그림자도 같이**(09-22 사전등록 c42e17dc): `python research/strategy-lab/run_etf_close_open_shadow.py`
+            (KRX 증분 수집 포함, 로컬 .env 의 KRX_OPENAPI_KEY) 후 `reports/2026-09-etf-shadow/observations.jsonl` 커밋.
+            O2b·O0 셀별 250 신호일(≈2027-09~2028-01)에 1회 판정 — 그 전엔 기록만.
   다음      ★ 무한매수법 해외 슬리브 — 09-14 잔존 주문 확인 **완료**(미체결 0건,
             2026-09-12). 두 주문이 확인 시점에 이미 전량체결이라 "당일물인지"
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
