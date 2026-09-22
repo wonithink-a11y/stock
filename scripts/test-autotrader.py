@@ -338,8 +338,42 @@ def main():
         ck("KR 시장가 페이로드", d["dryRun"] and d["payload"]["ORD_DVSN"] == "01" and d["payload"]["ORD_UNPR"] == "0")
         d = b.place(Intent("005930", "BUY", 2, order_type="limit", limit_price=70100.4), dry_run=True)
         ck("KR 지정가는 정수 가격", d["payload"]["ORD_DVSN"] == "00" and d["payload"]["ORD_UNPR"] == "70100")
-        d = b.place(Intent("TQQQ", "SELL", 3, market="US", order_type="limit", limit_price=70.0), dry_run=True)
-        ck("US 매도 페이로드(SLL_TYPE)", d["payload"]["SLL_TYPE"] == "00" and d["payload"]["OVRS_ORD_UNPR"] == "70.00")
+        ck("KR 주문에 거래소 구분 KRX(공식 [필수], D2)", d["payload"]["EXCG_ID_DVSN_CD"] == "KRX" and d["payload"]["SLL_TYPE"] == "")
+        d = b.place(kr("005930", "SELL", 1), dry_run=True)
+        ck("KR 매도는 SLL_TYPE 01(일반매도)", d["payload"]["SLL_TYPE"] == "01" and d["payload"]["EXCG_ID_DVSN_CD"] == "KRX")
+
+        # 해외 주문 거래소 코드(D1): 시세에서 값이 나온 거래소 -> 주문 코드. 모르면 주문하지 않는다
+        qh = Http([("/oauth2/tokenP", token)])
+        def us_http(method, url, **kw):
+            qh.calls.append((method, url, kw))
+            if "tokenP" in url:
+                return token
+            if "quotations/price" in url:
+                ex = (kw.get("params") or {}).get("EXCD")
+                return Resp({"rt_cd": "0", "output": {"last": {"NAS": {"TQQQ": "70"}, "AMS": {"SOXL": "40.1"},
+                                                               "NYS": {"KO": "60"}}.get(ex, {}).get(kw["params"]["SYMB"], "")}})
+            if "order-rvsecncl" in url or "trading/order" in url:
+                return Resp({"rt_cd": "0", "output": {"ODNO": "9", "ORD_TMD": "0"}})
+            raise AssertionError("예상 못 한 호출 " + url)
+        ucl = kis.KisClient("paper", "KEY1234", "SEC", "12345678-01", Path(td) / "u", http=us_http, sleep=lambda s: None, min_interval=0)
+        ub = kis.KisBroker(ucl, orders_enabled=True)
+        d = ub.place(Intent("TQQQ", "SELL", 3, market="US", order_type="limit", limit_price=70.0), dry_run=True)
+        ck("US 매도 페이로드(SLL_TYPE 00·나스닥 NASD)", d["payload"]["SLL_TYPE"] == "00" and d["payload"]["OVRS_ORD_UNPR"] == "70.00"
+           and d["payload"]["OVRS_EXCG_CD"] == "NASD")
+        d = ub.place(Intent("SOXL", "BUY", 1, market="US", order_type="limit", limit_price=40.0), dry_run=True)
+        ck("SOXL(Arca)은 AMEX 로 주문, 매수 SLL_TYPE 빈 값", d["payload"]["OVRS_EXCG_CD"] == "AMEX" and d["payload"]["SLL_TYPE"] == "")
+        ck("뉴욕 종목은 NYSE", ub.place(Intent("KO", "BUY", 1, market="US", order_type="limit", limit_price=60.0), True)["payload"]["OVRS_EXCG_CD"] == "NYSE")
+        ub.place(Intent("SOXL", "BUY", 1, market="US", order_type="limit", limit_price=40.0), dry_run=False)
+        sent = [c for c in qh.calls if c[1].endswith("/trading/order")][-1]
+        ck("실제 전송 본문도 AMEX", json.loads(sent[2]["data"])["OVRS_EXCG_CD"] == "AMEX")
+        fresh = kis.KisBroker(ucl, orders_enabled=True)
+        fresh.cancel(OpenOrder("7", "SOXL", "US", "BUY", 2, 0, 40.0), dry_run=False)
+        sent = [c for c in qh.calls if "order-rvsecncl" in c[1]][-1]
+        ck("취소는 거래소를 모르면 시세로 확인해 AMEX", json.loads(sent[2]["data"])["OVRS_EXCG_CD"] == "AMEX")
+        n = len([c for c in qh.calls if "/trading/order" in c[1]])
+        ck("거래소를 못 찾으면 주문하지 않는다(추측 금지)",
+           raises(kis.KisError, fresh.place, Intent("ZZZZ", "BUY", 1, market="US", order_type="limit", limit_price=1.0), False)
+           and len([c for c in qh.calls if "/trading/order" in c[1]]) == n)
         ck("모의는 loc 를 거부", raises(kis.KisError, b.place, Intent("TQQQ", "BUY", 1, market="US", order_type="loc", limit_price=70.0), True))
         n = len(h.calls)
         ck("주문이 잠긴 브로커는 실주문을 안 보낸다(요청 0건)", raises(kis.KisError, b.place, kr("005930", "BUY", 1), False)

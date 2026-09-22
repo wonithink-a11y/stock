@@ -1,8 +1,8 @@
 """한국투자증권(KIS) Open API 어댑터 — 국내(KR)·해외 나스닥(US), 모의/실전 겸용.
 
-★ 이 파일의 실전 TR_ID 는 **공식 문서로 대조하지 못했다**(설계 문서 §3). 모의 값은 기존 클라이언트로 검증됐고,
-   실전 값은 KIS 의 "모의 앞 글자 V → T" 규칙과 기존 코드 주석에서 가져왔다. 그래서 실전 주문에는 사용자의 대조
-   확인(`live.tr_ids_reviewed`)이 게이트로 걸려 있다(config.gate_problems). 조회 TR_ID 가 틀리면 조회가 실패할 뿐이다.
+★ 실전 TR_ID 는 2026-09-22 KIS 공식 저장소(open-trading-api @b4e6249)와 대조해 **13개 전부 일치**했다
+   (docs/control/autotrader-실전TRID-대조-2026-09-22.md). 같은 대조에서 주문 본문 2건(해외 거래소 코드 D1·국내
+   EXCG_ID_DVSN_CD D2)을 공식대로 고쳤다. 실전 주문에는 여전히 사용자 확인(`live.tr_ids_reviewed`) 게이트가 걸려 있다.
 ★ 주문은 재시도하지 않는다(중복 매수의 대가가 조회 실패보다 훨씬 크다). 조회만 EGW00201/EGW00300 에서 재시도.
 ★ 실전 주문은 어댑터도 한 번 더 잠근다: `orders_enabled` 가 True 로 만들어진 인스턴스만 실주문을 낸다
    (CLI 가 게이트를 통과한 `--execute` 실행에만 True 를 준다).
@@ -28,7 +28,7 @@ DOMAINS = {
     "live": "https://openapi.koreainvestment.com:9443",
 }
 
-# (시장, 용도) -> (모의 TR_ID, 실전 TR_ID). 실전 값은 미확인(모듈 docstring).
+# (시장, 용도) -> (모의 TR_ID, 실전 TR_ID). 실전 값은 공식 예제와 대조 완료(모듈 docstring).
 TR_IDS: Dict[Tuple[str, str], Tuple[str, str]] = {
     ("KR", "buy"): ("VTTC0012U", "TTTC0012U"),
     ("KR", "sell"): ("VTTC0011U", "TTTC0011U"),
@@ -62,8 +62,11 @@ PATHS = {
 
 _RETRYABLE = {"EGW00201", "EGW00300"}
 MAX_PAGES = 100
-US_EXCHANGE = "NASD"          # 주문·잔고용
+US_EXCHANGE = "NASD"          # 잔고·미체결 조회용 — 실전에서 NASD 는 '미국 전체'(공식 예제 inquire_balance/nccs)
 US_QUOTE_EXCHANGES = ("NAS", "AMS", "NYS")    # 시세용 코드가 다르다. 앞에서부터 값이 나올 때까지
+# 주문·취소·매수가능은 **종목의 거래소 코드**를 따로 준다(공식 예제 overseas_stock/order: NASD·NYSE·AMEX).
+# 시세에서 값이 나온 거래소를 주문 코드로 바꿔 쓴다. SOXL(NYSE Arca)은 KIS 분류로 AMEX(2026-09-22 실전 TR 대조 D1).
+US_ORDER_EXCHANGE = {"NAS": "NASD", "AMS": "AMEX", "NYS": "NYSE"}
 
 
 class KisError(RuntimeError):
@@ -220,6 +223,15 @@ class KisBroker(Broker):
         self.c = client
         self.mode = client.mode
         self.orders_enabled = orders_enabled
+        self._us_excg: Dict[str, str] = {}             # 종목 -> 주문용 거래소 코드(시세 조회가 채운다)
+
+    def us_order_exchange(self, symbol: str) -> str:
+        """해외 주문·취소·매수가능에 쓸 거래소 코드. 모르면 시세로 확인하고, 그래도 모르면 **추측하지 않고** 실패한다."""
+        if symbol not in self._us_excg:
+            self.quote(symbol, "US")
+        if symbol not in self._us_excg:
+            raise KisError(f"{symbol}: 거래소를 확인하지 못했다(NAS·AMS·NYS 시세 모두 없음) — 주문하지 않는다")
+        return self._us_excg[symbol]
 
     # ---------------------------------------------------------------- 조회
     def positions(self, market: str) -> List[Position]:
@@ -252,7 +264,7 @@ class KisBroker(Broker):
         if not ref_symbol:
             raise KisError("해외 주문가능 금액은 기준 종목(ref_symbol)이 필요하다")
         px = self.quote(ref_symbol, "US")
-        params = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "OVRS_EXCG_CD": US_EXCHANGE,
+        params = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "OVRS_EXCG_CD": self.us_order_exchange(ref_symbol),
                   "OVRS_ORD_UNPR": f"{px:.2f}", "ITEM_CD": ref_symbol}
         _, body = self.c.get("US", "psamount", params, "해외 매수가능")
         return _f((body.get("output") or {}).get("ord_psbl_frcr_amt"))
@@ -314,6 +326,7 @@ class KisBroker(Broker):
                                  f"해외 시세({symbol} {excd})")
             px = _f((body.get("output") or {}).get("last"))
             if px > 0:
+                self._us_excg[symbol] = US_ORDER_EXCHANGE[excd]
                 return px
         return 0.0
 
@@ -346,20 +359,21 @@ class KisBroker(Broker):
     def _order_payload(self, it: Intent) -> dict:
         base = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "PDNO": it.symbol, "ORD_QTY": str(int(it.qty))}
         if it.market == "KR":
+            # 거래소 구분(KRX)은 공식 예제가 [필수] 로 표시한다(넥스트레이드 이후). 매도유형 01 = 일반매도(D2).
+            kr = {**base, "EXCG_ID_DVSN_CD": "KRX", "SLL_TYPE": "01" if it.side == "SELL" else "", "CNDT_PRIC": ""}
             if it.order_type == "market":
-                return {**base, "ORD_DVSN": "01", "ORD_UNPR": "0"}
-            return {**base, "ORD_DVSN": "00", "ORD_UNPR": str(int(round(it.limit_price)))}
+                return {**kr, "ORD_DVSN": "01", "ORD_UNPR": "0"}
+            return {**kr, "ORD_DVSN": "00", "ORD_UNPR": str(int(round(it.limit_price)))}
         dvsn = "34" if it.order_type == "loc" else "00"
-        payload = {**base, "OVRS_EXCG_CD": US_EXCHANGE, "OVRS_ORD_UNPR": f"{it.limit_price:.2f}",
-                   "ORD_SVR_DVSN_CD": "0", "ORD_DVSN": dvsn}
-        if it.side == "SELL":
-            payload["SLL_TYPE"] = "00"        # 해외 매도 표시 — 미확인 필드(README §실전 전환)
-        return payload
+        # 해외 매도유형: 매도 "00", 매수 "" (공식 예제 overseas_stock/order 그대로)
+        return {**base, "OVRS_EXCG_CD": self.us_order_exchange(it.symbol), "OVRS_ORD_UNPR": f"{it.limit_price:.2f}",
+                "CTAC_TLNO": "", "MGCO_APTM_ODNO": "", "SLL_TYPE": "00" if it.side == "SELL" else "",
+                "ORD_SVR_DVSN_CD": "0", "ORD_DVSN": dvsn}
 
     def cancel(self, order: OpenOrder, dry_run: bool = True) -> dict:
         if order.market != "US":
             raise KisError("국내 주문 취소는 지원하지 않는다(당일물 — 장 마감에 소멸)")
-        payload = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "OVRS_EXCG_CD": US_EXCHANGE,
+        payload = {"CANO": self.c.cano, "ACNT_PRDT_CD": self.c.prdt, "OVRS_EXCG_CD": self.us_order_exchange(order.symbol),
                    "PDNO": order.symbol, "ORGN_ODNO": order.order_no, "RVSE_CNCL_DVSN_CD": "02",
                    "ORD_QTY": str(order.remaining), "OVRS_ORD_UNPR": "0", "MGCO_APTM_ODNO": "",
                    "ORD_SVR_DVSN_CD": "0"}
