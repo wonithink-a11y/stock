@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT))
 
 from autotrader import notify, web                                            # noqa: E402
 from autotrader import web_auth as A                                          # noqa: E402
-from autotrader.config import load_profile, normalize_config                  # noqa: E402
+from autotrader.config import kill_file, load_profile, normalize_config       # noqa: E402
 from autotrader.engine import KST                                             # noqa: E402
 
 FAILS, COUNT = [], [0]
@@ -97,6 +97,7 @@ def main():
         (td / "profiles").mkdir()
         (td / "profiles" / "la.json").write_text(json.dumps({**BASE, "mode": "live", "auto": "off", "web_live_allowed": True}),
                                                  encoding="utf-8")
+        (td / "profiles" / "pa.json").write_text(json.dumps({**BASE, "mode": "paper", "auto": "off"}), encoding="utf-8")
         sdir = td / "state"
         store = A.AuthStore(sdir / "web_auth.json")
         secret = A.new_totp_secret()
@@ -168,7 +169,8 @@ def main():
         st, ao = pj("/passkey/action-options", {**req, "op": "resume"})
         st, _ = pj("/passkey/action", {**req, "credential": dev.assert_(ao)})
         ck("확인은 요청한 조작에만 묶인다(킬 해제로 받은 확인으로 주문 켜기 불가)", st == 403 and load_profile(main_p, "la")["auto"] == "off")
-        ck("실계좌 주문성 조작이 아니면 패스키 확인을 안 준다", pj("/passkey/action-options", {**req, "op": "auto-off"})[0] == 404)
+        ck("킬 켜기·모르는 조작은 패스키 확인 대상이 아니다", pj("/passkey/action-options", {**req, "op": "kill"})[0] == 404
+           and pj("/passkey/action-options", {**req, "op": "nope"})[0] == 404)
         st, ao = pj("/passkey/action-options", req)
         st, _ = pj("/passkey/action", {**req, "phrase": "", "credential": dev.assert_(ao)})
         ck("확인 문구 없으면 거부", st == 400 and load_profile(main_p, "la")["auto"] == "off")
@@ -182,14 +184,80 @@ def main():
         st, _ = pj("/passkey/action", {**req, "credential": dev.assert_(ao, origin="https://evil.test")})
         ck("피싱 출처의 서명 거부", st == 401)
         ck("서명 카운트 저장", store.load()["passkeys"][0]["count"] >= 1)
-        from autotrader.config import kill_file
+
         la = load_profile(main_p, "la")
         kill_file(la).write_text("x", encoding="utf-8")
         st, ao = pj("/passkey/action-options", {**req, "op": "resume"})
         st, _ = pj("/passkey/action", {**req, "op": "resume", "credential": dev.assert_(ao)})
         ck("실계좌 킬 해제는 패스키로 된다", st == 200 and not kill_file(la).exists())
 
+        # ---- 패스키가 있으면 모의 조작도 지문으로(2026-09-22) — 인증앱 코드는 거부
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=pa&op=auto-dry&code={code()}".encode(), "1.1.1.1")
+        ck("패스키가 있으면 모의 조작도 인증앱 코드로 안 됨", load_profile(main_p, "pa")["auto"] == "off")
+        st, _, b = app.handle("GET", "/details?p=pa", h, b"", "1.1.1.1")
+        ck("모의 상세에도 지문 폼(인증앱 칸 없음)", 'id="pk-action"' in b.decode() and "인증앱 6자리" not in b.decode())
+        preq = {"csrf": csrf, "p": "pa", "op": "auto-dry"}
+        st, ao = pj("/passkey/action-options", preq)
+        st, _ = pj("/passkey/action", {**preq, "credential": dev.assert_(ao)})
+        ck("모의 조작은 지문만으로(확인 문구 없이)", st == 200 and load_profile(main_p, "pa")["auto"] == "dry")
+        st, ao = pj("/passkey/action-options", {**req, "op": "auto-off"})
+        st, _ = pj("/passkey/action", {**req, "op": "auto-off", "phrase": "", "credential": dev.assert_(ao)})
+        ck("실계좌 끄기(안전 쪽)는 문구 없이 지문만", st == 200 and load_profile(main_p, "la")["auto"] == "off")
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=pa&op=kill".encode(), "1.1.1.1")
+        ck("킬 켜기는 여전히 확인 없이 즉시", kill_file(load_profile(main_p, "pa")).exists())
+
+        # ---- 재인증(금액 보기)도 지문으로
+        strict = web.WebApp(cfg, sdir, store, A.Sessions(clock=lambda: clk[0]), A.Lockout(clock=lambda: clk[0]),
+                            clock=lambda: clk[0], secure_cookie=False, profiles=web._profile_loader(cfg, main_p),
+                            rp_id=RP, origin=ORIGIN, require_reauth=True, accounts_fetch=lambda: {})
+        t3 = strict.sessions.create()
+        c3, h3 = strict.sessions.get(t3)["csrf"], {"Cookie": f"at_sess={t3}"}
+
+        def pj3(path, obj):
+            st, _, b = strict.handle("POST", path, h3, json.dumps(obj).encode(), "1.1.1.1")
+            return st, b.decode()
+        st, _, b = strict.handle("GET", "/accounts", h3, b"", "1.1.1.1")
+        ck("재인증 화면에 지문 버튼(인증앱 칸 없음)", 'id="pk-reauth"' in b.decode() and "인증앱 6자리" not in b.decode())
+        ck("재인증 전엔 실계좌 요약 안 열림", "한 번 더 확인" in b.decode())
+        st, ao = pj3("/passkey/reauth-options", {"csrf": c3})
+        st, _ = pj3("/passkey/reauth", {"csrf": c3, "next": "/accounts", "credential": dev.assert_(ao, key=SoftAuthenticator().key)})
+        ck("다른 키로는 재인증 안 됨", st == 401 and not strict.sessions.is_fresh(strict.sessions.get(t3)))
+        st, ao = pj3("/passkey/reauth-options", {"csrf": c3})
+        st, body = pj3("/passkey/reauth", {"csrf": c3, "next": "https://evil.test/", "credential": dev.assert_(ao)})
+        ck("지문 재인증 성공 + 외부 주소로는 안 보냄", st == 200 and json.loads(body)["redirect"] == "/details"
+           and strict.sessions.is_fresh(strict.sessions.get(t3)))
+        st, ao = pj3("/passkey/reauth-options", {"csrf": c3})
+        st, body = pj3("/passkey/reauth", {"csrf": c3, "next": "/details?p=pa", "credential": dev.assert_(ao)})
+        ck("재인증 뒤 보던 프로필로 돌아감", json.loads(body)["redirect"] == "/details?p=pa")
+        ck("재인증 CSRF 없으면 거부", pj3("/passkey/reauth-options", {})[0] == 403)
+
+        # ---- 오래 가는 로그인: 파일에 남아 재시작에도 유지, 토큰 원문은 파일에 없다
+        sp = sdir / "web_sessions.json"
+        D30 = 30 * 86400
+
+        def S():
+            return A.Sessions(idle_sec=D30, absolute_sec=D30, clock=lambda: clk[0], path=sp)
+        s1 = S()
+        tk = s1.create()
+        ck("세션 파일에 토큰 원문 없음", tk not in sp.read_text(encoding="utf-8"))
+        ck("재시작 뒤에도 로그인 유지(같은 CSRF)", S().get(tk) is not None and S().get(tk)["csrf"] == s1.get(tk)["csrf"])
+        clk[0] += 29 * 86400
+        ck("29일 뒤에도 유지", S().get(tk) is not None)
+        clk[0] += 2 * 86400
+        ck("30일 지나면 끝", S().get(tk) is None)
+        s3 = S()
+        tk2 = s3.create()
+        s3.destroy(tk2)
+        ck("로그아웃은 파일에서도 지워진다", S().get(tk2) is None)
+        sp.write_text("{깨짐", encoding="utf-8")
+        ck("깨진 세션 파일 = 전부 로그아웃(안전 쪽)", S().get(tk2) is None)
+        lg = web.WebApp(cfg, sdir, store, A.Sessions(absolute_sec=D30, idle_sec=D30, clock=lambda: clk[0]), A.Lockout(clock=lambda: clk[0]),
+                        clock=lambda: clk[0], secure_cookie=False)
+        st, hd, _ = lg.handle("POST", "/login", {}, f"password=pw-long-enough-1&code={code()}".encode(), "2.2.2.2")
+        ck("로그인 쿠키 수명 = 세션 수명(30일)", st == 303 and f"Max-Age={D30}" in hd.get("Set-Cookie", ""))
+
         # ---- 삭제는 서버에서만, 알림, rp 미설정
+
         ck("웹에 패스키 삭제 경로 없음", pj("/passkey/delete", {"csrf": csrf})[0] == 404)
         log = (sdir / "web_login.log").read_text(encoding="utf-8").splitlines()
         ck("등록은 텔레그램 알림", any("패스키 새로 등록됨" in m for m in notify.build_messages(log)))

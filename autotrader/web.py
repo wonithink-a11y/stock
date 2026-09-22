@@ -278,8 +278,8 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
 
 
 def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False) -> str:
-    """프로필 조작 폼. 킬 켜기만 코드 없이. 모의는 인증앱 코드, **실계좌의 주문 켜기·실행·킬 해제는 패스키로만**
-    (2026-09-22 보안 검토 M2·M3·M4 — 피싱된 인증앱 코드로는 실계좌 주문에 닿지 않는다)."""
+    """프로필 조작 폼. 킬 켜기만 확인 없이. 패스키가 있으면 **모든 조작을 지문으로**(2026-09-22 사용자 요청), 없으면 인증앱 코드.
+    실계좌의 주문 켜기·실행·킬 해제는 패스키로만 + 확인 문구(보안 검토 M2·M3·M4 — 피싱된 인증앱 코드로는 실계좌 주문에 닿지 않는다)."""
     name = str(cfg.get("profile", ""))
     live = cfg.get("mode") == "live"
     web_live = live and bool(cfg.get("web_live_allowed"))
@@ -287,6 +287,8 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
     if not live:
         opts += [("auto-execute", "자동 주문 켜기 (모의투자)"), ("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"),
                  ("resume", "킬 스위치 해제")]
+    elif has_pk:
+        opts += ([("auto-execute", "⚠ 실계좌 자동 주문 켜기")] if web_live else []) +                 [("run", "지금 한 번 실행 (자동이 '주문'이면 ⚠ 실계좌 주문)"), ("resume", "실계좌 킬 스위치 해제")]
     else:
         opts.append(("run", "지금 한 번 실행 — 자동이 '주문'이 아닐 때만(dry-run)"))
     sel = "".join(f'<option value="{k}">{E(t)}</option>' for k, t in opts)
@@ -298,23 +300,21 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
                 "(등록 코드는 서버에서 발급).</div>")
     else:
         note = ""
-    pk_form = ""
-    if live and has_pk:
-        pk_ops = ('<option value="auto-execute">⚠ 실계좌 자동 주문 켜기</option><option value="run">⚠ 실계좌 지금 한 번 실행</option>'
-                  if web_live else "") + '<option value="resume">실계좌 킬 스위치 해제</option>'
-        pk_form = f'''<form id="pk-action" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin-top:10px">
-<h2>🔑 실계좌 (패스키)</h2><select name="op">{pk_ops}</select>
-<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off" required>
-<button>패스키(지문)로 확인</button><div id="pk-action-msg"></div></form>
+    if has_pk:
+        phrase = (f'<input name="phrase" placeholder="실계좌 주문일 때만 확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if live else "")
+        form = f'''<form id="pk-action" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}">
+<select name="op">{sel}</select>{phrase}<button>🔑 지문으로 확인</button><div id="pk-action-msg"></div></form>
 <script src="{E(base)}/static/passkey.js"></script>'''
-    return f'''<div class="card"><h2>조작</h2>{m}
-<div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
-<form method="post" action="{base}/action"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
+    else:
+        form = f'''<form method="post" action="{base}/action"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <select name="op">{sel}</select>
 <input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
-<button>적용</button></form>{note}
+<button>적용</button></form>'''
+    return f'''<div class="card"><h2>조작</h2>{m}
+<div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
+{form}{note}
 <form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
-<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad)">킬 스위치 켜기 (코드 없이 즉시 — 주문 중단)</button></form>{pk_form}</div>'''
+<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad)">킬 스위치 켜기 (확인 없이 즉시 — 주문 중단)</button></form></div>'''
 
 
 def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "", controls: str = "") -> bytes:
@@ -456,8 +456,14 @@ def render_login(msg: str = "", base: str = "") -> bytes:
 <button>로그인</button></form><div class="mut" style="margin-top:8px">비밀번호 + 인증앱 코드. 실계좌 주문은 로그인 뒤 패스키(지문)로 한 번 더 확인한다.</div></div>''', base=base, sub="로그인")
 
 
-def render_reauth(csrf: str, msg: str = "", base: str = "") -> bytes:
+def render_reauth(csrf: str, msg: str = "", base: str = "", pk: bool = False, nxt: str = "/details") -> bytes:
     m = f'<div class="bad">{E(msg)}</div>' if msg else ""
+    if pk:
+        return _page("재인증", f'''<h1>한 번 더 확인</h1><div class="card">{m}
+<div class="mut">금액·보유 내용은 지문(패스키)으로 확인해야 열립니다.</div>
+<button id="pk-reauth" data-base="{E(base)}" data-csrf="{E(csrf)}" data-next="{E(nxt)}">지문으로 확인</button>
+<div id="pk-reauth-msg"></div></div><a class="btn" href="{base}/">← 요약으로</a>
+<script src="{E(base)}/static/passkey.js"></script>''', base=base, sub="재인증")
     return _page("재인증", f'''<h1>한 번 더 확인</h1><div class="card">{m}
 <div class="mut">금액·보유 내용은 인증앱 코드를 <b>새로</b> 입력해야 열립니다. 방금 로그인에 쓴 코드는 못 씁니다 — 코드가 바뀔 때까지(최대 30초) 기다렸다가 입력하세요.</div>
 <form method="post" action="{base}/reauth"><input type="hidden" name="csrf" value="{E(csrf)}">
@@ -523,6 +529,9 @@ class WebApp:
     def _passkeys(self) -> list:
         return self.store.load().get("passkeys") or []
 
+    def _pk_ready(self) -> bool:
+        return bool(self._passkeys()) and not self._pk_disabled()
+
     def _pk_disabled(self) -> str:
         if not (self.rp_id and self.origin):
             return "서버 설정에 web.rp_id / web.origin 이 없어 패스키가 꺼져 있다"
@@ -579,16 +588,17 @@ class WebApp:
             return self._not_found()
         if method == "GET" and path == "/accounts":
             if self.require_reauth and not self.sessions.is_fresh(sess):
-                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/accounts")
             try:
                 d, err = self.fetch_accounts(), ""
             except Exception as e:                      # noqa: BLE001 — API 가 죽어도 화면은 뜬다
                 d, err = None, type(e).__name__
             return 200, self._hdrs(), render_accounts(d, err, sess["csrf"], self.base)
         if method == "GET" and path == "/details":
-            if self.require_reauth and not self.sessions.is_fresh(sess):
-                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base)
             want = (parse_qs(urlsplit(raw_path).query).get("p") or [""])[0]
+            if self.require_reauth and not self.sessions.is_fresh(sess):
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(),
+                                                            nxt="/details" + (f"?p={quote(want)}" if want else ""))
             if not want:
                 return 200, self._hdrs(), render_details(load_view(self.cfg, self.sdir, self._now()), sess["csrf"], self.base, self.require_reauth)
             match = [c for c in self.profiles() if c.get("profile") == want]     # 목록에 있는 이름만 — 경로로 쓰지 않는다
@@ -597,7 +607,7 @@ class WebApp:
             c = match[0]
             msg = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
             msg = msg if msg in self._msgs else ""
-            has_pk = bool(self._passkeys()) and not self._pk_disabled()
+            has_pk = self._pk_ready()
             return 200, self._hdrs(), render_details(load_view(c, state_dir(c), self._now()), sess["csrf"], self.base,
                                                      self.require_reauth, want, render_controls(c, sess["csrf"], self.base, msg, has_pk))
         if path.startswith("/passkey"):
@@ -633,6 +643,8 @@ class WebApp:
             return self._redirect(self._back_url(name, m))
         if live_order:                                  # 패스키가 없거나 쓸 수 없어도 코드로 내려가지 않는다(M3)
             return back("실계좌 주문 켜기·실행·킬 해제는 패스키로만 됩니다 — 아래 '패스키(지문)로 확인'")
+        if op != "kill" and self._pk_ready():           # 패스키가 있으면 조작은 지문으로만(인증앱 코드는 패스키가 없을 때의 대체)
+            return back("조작은 지문(패스키)으로 확인합니다 — 아래 '지문으로 확인'")
         if op != "kill":                                # 킬 켜기(안전 쪽)만 코드 없이. 나머지는 새 인증앱 코드
             if self.lockout.is_locked(ip):
                 return back("잠시 후 다시 시도하세요")
@@ -723,9 +735,35 @@ class WebApp:
             self.store.update(lambda r: r.__setitem__("passkeys", (r.get("passkeys") or []) + [added]))
             self._log(ip, "passkey-added")
             return self._json(200, {"message": "패스키를 등록했습니다"})
+        if path == "/passkey/reauth-options":
+            if not self._passkeys():
+                return self._json(404, {"error": "없음"})
+            opts, chal = passkey_auth_options(self.rp_id, [p["id"] for p in self._passkeys()])
+            sess["pkReauth"] = {"chal": chal, "until": now + 120}
+            return 200, self._hdrs({"Content-Type": "application/json; charset=utf-8"}), opts.encode()
+        if path == "/passkey/reauth":
+            pend = sess.pop("pkReauth", None)           # 챌린지는 한 번만
+            if not pend or pend["until"] <= now:
+                return self._json(403, {"error": "확인 요청이 만료됐다 — 다시"})
+            if self.lockout.is_locked(ip):
+                return self._json(429, {"error": "잠시 후 다시 시도하세요"})
+            try:
+                cid, count = passkey_auth_verify(json.dumps(j.get("credential")), pend["chal"], self.rp_id, self.origin,
+                                                 self._passkeys())
+            except Exception:                           # noqa: BLE001
+                self.lockout.fail(ip)
+                self._log(ip, "reauth-fail")
+                return self._json(401, {"error": "패스키 확인 실패"})
+            self.lockout.ok(ip)
+            self._bump(cid, count)
+            self.sessions.mark_reauth(tok)
+            self._log(ip, "reauth-ok")
+            ok_next = {"/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
+            return self._json(200, {"redirect": self.base + nxt})
         if path == "/passkey/action-options":
             match = [c for c in self.profiles() if c.get("profile") == j.get("p")]
-            if not match or not is_live_order(match[0], j.get("op")) or not self._passkeys():
+            if not match or j.get("op") not in self.OPS or j.get("op") == "kill" or not self._passkeys():
                 return self._json(404, {"error": "없음"})
             opts, chal = passkey_auth_options(self.rp_id, [p["id"] for p in self._passkeys()])
             sess["pkAct"] = {"chal": chal, "p": j["p"], "op": j["op"], "until": now + 120}   # 이 조작에만 묶인다
@@ -744,18 +782,20 @@ class WebApp:
                 self._log(ip, "passkey-fail")
                 return self._json(401, {"error": "패스키 확인 실패"})
             self.lockout.ok(ip)
-            def bump(r):
-                for pk in r.get("passkeys") or []:
-                    if pk["id"] == cid:
-                        pk["count"] = max(int(pk.get("count") or 0), count)
-            self.store.update(bump)
+            self._bump(cid, count)
             c = [x for x in self.profiles() if x.get("profile") == pend["p"]][0]
-            live = c.get("mode") == "live"
-            if live and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
+            if is_live_order(c, pend["op"]) and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
                 return self._json(400, {"error": f"확인 문구({LIVE_PHRASE})를 정확히 입력"})
             msg = self._execute(c, pend["p"], pend["op"], ip)
             return self._json(200, {"redirect": self.base + self._back_url(pend["p"], msg)})
         return self._not_found()
+
+    def _bump(self, cid: str, count: int) -> None:
+        def fn(r):
+            for pk in r.get("passkeys") or []:
+                if pk["id"] == cid:
+                    pk["count"] = max(int(pk.get("count") or 0), count)
+        self.store.update(fn)
 
     # -------------------------------------------------------------- 로그인·재인증
     def _login(self, password: str, code: str, ip: str):
@@ -770,7 +810,7 @@ class WebApp:
             self.lockout.ok(ip)
             tok = self.sessions.create()
             self._log(ip, "login-ok")
-            return self._redirect("/", {"Set-Cookie": self._cookie(tok, 8 * 3600)})
+            return self._redirect("/", {"Set-Cookie": self._cookie(tok, int(self.sessions.absolute))})
         self.lockout.fail(ip)
         self._log(ip, "login-fail")
         if self.fail_delay:
@@ -849,11 +889,12 @@ def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: b
           config_path=None) -> None:
     sdir = state_dir(cfg)
     w = cfg.get("web", {})
-    sessions = Sessions(idle_sec=int(w.get("idle_min", 30)) * 60, absolute_sec=int(w.get("session_hours", 8)) * 3600,
-                        reauth_sec=int(w.get("reauth_min", 5)) * 60)
+    hours = float(w.get("session_hours", 30 * 24))     # 기본 30일 유지 — 조작·실계좌 보기는 매번 지문(패스키)이 막는다
+    sessions = Sessions(idle_sec=int(float(w.get("idle_min", hours * 60)) * 60), absolute_sec=int(hours * 3600),
+                        reauth_sec=int(w.get("reauth_min", 5)) * 60, path=sdir / "web_sessions.json")
     app = WebApp(cfg, sdir, AuthStore(sdir / "web_auth.json"), sessions, Lockout(),
                  secure_cookie=secure_cookie, fail_delay=0.5, base=base,
-                 require_reauth=bool(w.get("require_reauth_for_details", False)),
+                 require_reauth=bool(w.get("require_reauth_for_details", True)),
                  profiles=_profile_loader(cfg, config_path) if config_path else None,
                  rp_id=str(w.get("rp_id", "")), origin=str(w.get("origin", "")))
     httpd = ThreadingHTTPServer((host, port), make_handler(app))

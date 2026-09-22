@@ -1,4 +1,4 @@
-"""웹 화면 인증 — 비밀번호 + 인증앱(TOTP), 세션, 로그인 잠금. **표준 라이브러리만** 쓴다(의존성 0).
+"""웹 화면 인증 — 비밀번호 + 인증앱(TOTP) 로그인, 오래 가는 세션(파일), 로그인 잠금, 패스키(조작·재인증). **표준 라이브러리만** 쓴다(의존성 0).
 
 이 모듈과 웹 서버는 KIS 키를 읽지 않는다. 인증 정보(비밀번호 해시·TOTP 비밀)는 `state/web_auth.json`(0600, gitignore)에만 있다.
 시계는 함수 인자로 주입할 수 있다(회귀 테스트가 시간을 조작한다).
@@ -164,38 +164,79 @@ class Lockout:
 
 # ---------------------------------------------------------------- 세션
 class Sessions:
+    """세션. `path` 를 주면 파일에 남겨 웹 재시작에도 로그인이 유지된다(2026-09-22 사용자 요청 — 오래 가는 로그인 +
+    조작은 지문). 파일에는 **토큰의 sha256 만** 남는다(파일이 새도 쿠키를 만들 수 없다). 챌린지 같은 임시 값은 메모리에만.
+    전 기기 로그아웃: 이 파일을 지우고 웹 유닛을 재시작한다."""
+    KEEP = ("created", "reauth", "csrf")
+
     def __init__(self, idle_sec: int = 900, absolute_sec: int = 8 * 3600, reauth_sec: int = 300,
-                 clock: Callable[[], float] = time.time):
+                 clock: Callable[[], float] = time.time, path: Optional[Path] = None):
         self.idle, self.absolute, self.reauth_ttl = idle_sec, absolute_sec, reauth_sec
         self.clock = clock
+        self.path = Path(path) if path else None
+        self._lock = threading.Lock()
         self._s: Dict[str, dict] = {}
+        if self.path and self.path.exists():
+            try:
+                now = self.clock()
+                for h, s in json.loads(self.path.read_text(encoding="utf-8")).items():
+                    if now - float(s["created"]) <= self.absolute:
+                        self._s[h] = {"created": float(s["created"]), "seen": now, "reauth": float(s.get("reauth", 0.0)),
+                                      "csrf": str(s["csrf"])}
+            except (OSError, ValueError, KeyError, TypeError, AttributeError):
+                self._s = {}                            # 깨진 파일 = 전부 로그아웃(안전 쪽)
+
+    @staticmethod
+    def _h(tok: Optional[str]) -> str:
+        return hashlib.sha256((tok or "").encode()).hexdigest()
+
+    def _save(self) -> None:
+        if not self.path:
+            return
+        with self._lock:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_suffix(".tmp")
+            tmp.write_text(json.dumps({h: {k: s[k] for k in self.KEEP} for h, s in list(self._s.items())}), encoding="utf-8")
+            try:
+                os.chmod(tmp, 0o600)
+            except OSError:
+                pass
+            os.replace(tmp, self.path)
 
     def create(self) -> str:
         tok = secrets.token_urlsafe(32)
         now = self.clock()
-        self._s[tok] = {"created": now, "seen": now, "reauth": 0.0, "csrf": secrets.token_urlsafe(16)}
+        self._s[self._h(tok)] = {"created": now, "seen": now, "reauth": 0.0, "csrf": secrets.token_urlsafe(16)}
+        self._save()
         return tok
 
     def get(self, tok: Optional[str]) -> Optional[dict]:
-        s = self._s.get(tok or "")
+        if not tok:
+            return None
+        h = self._h(tok)
+        s = self._s.get(h)
         if not s:
             return None
         now = self.clock()
         if now - s["seen"] > self.idle or now - s["created"] > self.absolute:
-            self._s.pop(tok, None)
+            self._s.pop(h, None)
+            self._save()
             return None
         s["seen"] = now
         return s
 
     def mark_reauth(self, tok: str) -> None:
-        if tok in self._s:
-            self._s[tok]["reauth"] = self.clock()
+        s = self._s.get(self._h(tok))
+        if s:
+            s["reauth"] = self.clock()
+            self._save()
 
     def is_fresh(self, s: dict) -> bool:
         return self.clock() - s["reauth"] <= self.reauth_ttl
 
     def destroy(self, tok: Optional[str]) -> None:
-        self._s.pop(tok or "", None)
+        if self._s.pop(self._h(tok), None) is not None:
+            self._save()
 
 
 # ---------------------------------------------------------------- 패스키(WebAuthn) — 검증은 webauthn(Duo Labs) 라이브러리가 한다

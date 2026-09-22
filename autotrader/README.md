@@ -105,8 +105,11 @@ VM 에서 돌리고 폰으로 본다. **보기만 가능**하다(주문·킬 스
 - `python -m autotrader snapshot` — 브로커를 읽기 전용으로 조회해 `state/snapshot.json` 갱신(5분 타이머 `autotrader-snapshot`)
 - `python -m autotrader serve` — 127.0.0.1:8787 웹 서버(HTTPS·주소는 **기존 nginx** 가 `/autotrader/` 경로로 넘겨준다 — `--base-path /autotrader`, 예시 `deploy/nginx-autotrader.location.example`). **KIS 키를 못 읽는다**(유닛이 `.env` 접근 차단)
 - `python -m autotrader web-setup` — 비밀번호(12자 이상)와 인증앱(TOTP) 등록. 비밀번호는 화면에 안 보이게 입력, 인증앱 키는 그때 한 번만 출력
-- 노출: 로그인 전 = 로그인 폼뿐 · 로그인 후 = 요약 + 상세(보유·잔고·주문, 계좌번호는 어디에도 안 나옴). 로그인은 비밀번호 + 인증앱 한 번, 유휴 30분 로그아웃(설정 `web.idle_min`).
-  더 엄격하게: `web.require_reauth_for_details: true` 면 상세를 볼 때마다 인증앱 코드를 다시 묻는다.
+- 노출: 로그인 전 = 로그인 폼뿐 · 로그인 후 = 요약 + 상세(보유·잔고·주문, 계좌번호는 어디에도 안 나옴). 로그인은 비밀번호 + 인증앱 한 번,
+  **30일 유지**(설정 `web.session_hours`, 기본 720 · 세션은 `state/web_sessions.json` 에 토큰 해시만 — 웹 재시작에도 유지).
+  **패스키가 있으면 조작(켜기·끄기·실행·킬 해제)과 금액 보기(상세·실계좌 요약, 5분)는 전부 지문**이고 인증앱 코드는 거부한다.
+  킬 켜기만 확인 없이 즉시. 패스키가 없으면 예전처럼 인증앱 코드. 금액 보기 재확인을 끄려면 `web.require_reauth_for_details: false`.
+  **전 기기 로그아웃**(폰 분실 등): `rm ~/collector-venv/autotrader/state/web_sessions.json && sudo systemctl restart autotrader-web`.
 - **로그인 알림**: `python -m autotrader notify-logins`(유닛 `autotrader-notify`)가 로그인 기록을 읽어 텔레그램으로 알린다 — 성공 즉시, 실패는 묶어서, 시간당 상한. **토큰은 이 프로세스만** 가진다(웹 프로세스는 못 봄). `--test` 로 연결 확인.
 - 잠금: 같은 IP 5번 실패 15분 · 전체 20번/시간 실패 30분 · 유휴 15분 로그아웃 · 쿠키 HttpOnly/Secure/SameSite=Strict
 - 한계: 패스키(지문) 인증은 아직 없다(다음 단계). 인터넷에 열리는 주소이므로 인증 코드의 결함이 가장 큰 위험이다 —

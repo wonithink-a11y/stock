@@ -107,7 +107,7 @@ def main():
     sess = ss.get(tok)
     ck("재인증 직후는 fresh", ss.is_fresh(sess))
     c.t = 400.0
-    ss._s[tok]["seen"] = c.t
+    ss._s[ss._h(tok)]["seen"] = c.t
     ck("5분 뒤에는 fresh 가 아니다", not ss.is_fresh(ss.get(tok)))
 
     # ---------------------------------------------------------------- 웹 앱 (소켓 없이)

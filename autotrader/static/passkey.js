@@ -1,4 +1,4 @@
-// autotrader 패스키(지문) — 등록과 실계좌 조작 확인. 서버가 검증한다(이 스크립트는 브라우저 API 호출과 형식 변환만).
+// autotrader 패스키(지문) — 등록, 조작 확인, 재인증(금액 보기). 서버가 검증한다(이 스크립트는 브라우저 API 호출과 형식 변환만).
 // 인라인 스크립트를 쓰지 않는다(CSP script-src 'self'). 값은 data-* 속성으로 받는다.
 (function () {
   "use strict";
@@ -44,23 +44,40 @@
     });
   }
 
-  // ---- 실계좌 조작 확인
+  // ---- 서명(조작 확인·재인증 공통)
+  var sign = function (o) {
+    o.challenge = dec(o.challenge);
+    (o.allowCredentials || []).forEach(function (c) { c.id = dec(c.id); });
+    return navigator.credentials.get({ publicKey: o }).then(function (c) {
+      return { id: c.id, rawId: enc(c.rawId), type: c.type, authenticatorAttachment: c.authenticatorAttachment || null,
+        clientExtensionResults: c.getClientExtensionResults ? c.getClientExtensionResults() : {},
+        response: { clientDataJSON: enc(c.response.clientDataJSON), authenticatorData: enc(c.response.authenticatorData),
+                    signature: enc(c.response.signature),
+                    userHandle: c.response.userHandle ? enc(c.response.userHandle) : null } };
+    });
+  };
+
+  // ---- 재인증(금액·보유 보기)
+  var re = document.getElementById("pk-reauth");
+  if (re) {
+    re.addEventListener("click", function () {
+      var base = re.dataset.base, csrf = re.dataset.csrf, out = document.getElementById("pk-reauth-msg");
+      post(base + "/passkey/reauth-options", { csrf: csrf }).then(sign).then(function (cred) {
+        return post(base + "/passkey/reauth", { csrf: csrf, next: re.dataset.next, credential: cred });
+      }).then(function (j) { location.href = j.redirect; })
+        .catch(function (e) { say(out, "실패: " + e.message, true); });
+    });
+  }
+
+  // ---- 조작 확인
   var act = document.getElementById("pk-action");
   if (act) {
     act.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var base = act.dataset.base, csrf = act.dataset.csrf, out = document.getElementById("pk-action-msg");
-      var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase.value };
-      post(base + "/passkey/action-options", req).then(function (o) {
-        o.challenge = dec(o.challenge);
-        (o.allowCredentials || []).forEach(function (c) { c.id = dec(c.id); });
-        return navigator.credentials.get({ publicKey: o });
-      }).then(function (c) {
-        req.credential = { id: c.id, rawId: enc(c.rawId), type: c.type, authenticatorAttachment: c.authenticatorAttachment || null,
-          clientExtensionResults: c.getClientExtensionResults ? c.getClientExtensionResults() : {},
-          response: { clientDataJSON: enc(c.response.clientDataJSON), authenticatorData: enc(c.response.authenticatorData),
-                      signature: enc(c.response.signature),
-                      userHandle: c.response.userHandle ? enc(c.response.userHandle) : null } };
+      var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase ? act.elements.phrase.value : "" };
+      post(base + "/passkey/action-options", req).then(sign).then(function (cred) {
+        req.credential = cred;
         return post(base + "/passkey/action", req);
       }).then(function (j) { location.href = j.redirect; })
         .catch(function (e) { say(out, "실패: " + e.message, true); });
