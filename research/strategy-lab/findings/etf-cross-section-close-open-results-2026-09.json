@@ -1,0 +1,151 @@
+{
+ "bar": 1.95,
+ "cells": {
+  "O2b": {
+   "verdict": "REJECT",
+   "train_sign": 1,
+   "t_train": 0.54,
+   "t_oos_dir": 5.75,
+   "net1_oos_bp": 18.16,
+   "net2_oos_bp": 14.25,
+   "cost_bp": 3.54,
+   "TRAIN": {
+    "n": 734,
+    "info_bp": 1.15,
+    "gross_bp": 9.17,
+    "t": 0.54
+   },
+   "VALID": {
+    "n": 268,
+    "info_bp": 7.44,
+    "gross_bp": 8.87,
+    "t": 2.23
+   },
+   "TEST": {
+    "n": 650,
+    "info_bp": 17.65,
+    "gross_bp": 26.99,
+    "t": 4.86
+   }
+  },
+  "O3u": {
+   "verdict": "INCONCLUSIVE(표본 부족)",
+   "train_sign": -1,
+   "t_train": -1.15,
+   "t_oos_dir": -4.42,
+   "net1_oos_bp": -49.56,
+   "net2_oos_bp": -53.65,
+   "cost_bp": 3.54,
+   "TRAIN": {
+    "n": 35,
+    "info_bp": -45.84,
+    "gross_bp": -61.29,
+    "t": -1.15
+   },
+   "VALID": {
+    "n": 26,
+    "info_bp": 13.17,
+    "gross_bp": 19.1,
+    "t": 0.72
+   },
+   "TEST": {
+    "n": 284,
+    "info_bp": 32.69,
+    "gross_bp": 48.49,
+    "t": 3.73
+   }
+  }
+ },
+ "stats": {
+  "O0": {
+   "events": 112834,
+   "etfs": 289,
+   "days": {
+    "TRAIN": 2694,
+    "VALID": 494,
+    "TEST": 907
+   },
+   "gross_mean_bp": 13.62,
+   "gross_median_bp": 8.06,
+   "oos_gross_day_bp": 10.21,
+   "oos_gross_ci95": [
+    4.44,
+    16.13
+   ],
+   "breakeven_cost_bp": 10.21,
+   "oos_tick_bp": 3.76
+  },
+  "O2b": {
+   "events": 7259,
+   "etfs": 247,
+   "days": {
+    "TRAIN": 734,
+    "VALID": 268,
+    "TEST": 650
+   },
+   "gross_mean_bp": 25.53,
+   "gross_median_bp": 13.93,
+   "oos_gross_day_bp": 21.7,
+   "oos_gross_ci95": [
+    14.19,
+    29.28
+   ],
+   "breakeven_cost_bp": 21.7,
+   "oos_tick_bp": 3.91
+  },
+  "O3u": {
+   "events": 3491,
+   "etfs": 228,
+   "days": {
+    "TRAIN": 35,
+    "VALID": 26,
+    "TEST": 284
+   },
+   "gross_mean_bp": 5.44,
+   "gross_median_bp": 4.11,
+   "oos_gross_day_bp": 46.02,
+   "oos_gross_ci95": [
+    25.68,
+    67.08
+   ],
+   "breakeven_cost_bp": 46.02,
+   "oos_tick_bp": 4.09
+  }
+ },
+ "cost_fixed_bp": 3.54,
+ "universe": {
+  "etf_total": 1428,
+  "domestic": 502,
+  "domestic_traded": 502,
+  "liquid_etfs": 289,
+  "liquid_rows": 112852,
+  "trading_days": 4116
+ },
+ "O0_reference": {
+  "verdict": "REJECT",
+  "train_sign": -1,
+  "t_train": -0.87,
+  "t_oos_dir": -3.41,
+  "net1_oos_bp": -13.75,
+  "net2_oos_bp": -17.51,
+  "cost_bp": 3.54,
+  "TRAIN": {
+   "n": 2694,
+   "info_bp": -0.0,
+   "gross_bp": 5.49,
+   "t": -0.87
+  },
+  "VALID": {
+   "n": 494,
+   "info_bp": 0.0,
+   "gross_bp": 2.58,
+   "t": 0.39
+  },
+  "TEST": {
+   "n": 907,
+   "info_bp": 0.09,
+   "gross_bp": 14.36,
+   "t": 1.25
+  }
+ }
+}
