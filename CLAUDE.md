@@ -32,7 +32,8 @@ Validated against
             sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
             ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
             nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-22.md ·
-            보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토).
+            보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토 — **미룬 변경 f51488d0
+            로그인 30일·지문 조작 포함**, 검토 필요 기준표도 거기). 09-22 부터 로그인 30일 유지, 조작·금액 보기는 지문.
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
