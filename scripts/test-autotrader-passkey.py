@@ -219,6 +219,8 @@ def main():
         st, _, b = strict.handle("GET", "/accounts", h3, b"", "1.1.1.1")
         ck("재인증 화면에 지문 버튼(인증앱 칸 없음)", 'id="pk-reauth"' in b.decode() and "인증앱 6자리" not in b.decode())
         ck("재인증 전엔 실계좌 요약 안 열림", "한 번 더 확인" in b.decode())
+        st, _, _ = strict.handle("POST", "/reauth", h3, f"csrf={c3}&code={code()}".encode(), "1.1.1.1")
+        ck("패스키가 있으면 인증앱 코드 재인증 거부(N1)", st == 403 and not strict.sessions.is_fresh(strict.sessions.get(t3)))
         st, ao = pj3("/passkey/reauth-options", {"csrf": c3})
         st, _ = pj3("/passkey/reauth", {"csrf": c3, "next": "/accounts", "credential": dev.assert_(ao, key=SoftAuthenticator().key)})
         ck("다른 키로는 재인증 안 됨", st == 401 and not strict.sessions.is_fresh(strict.sessions.get(t3)))

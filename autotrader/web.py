@@ -818,6 +818,9 @@ class WebApp:
         return 401, self._hdrs(), render_login("로그인할 수 없습니다.", self.base)
 
     def _reauth(self, code: str, tok: str, sess: dict, ip: str):
+        if self._pk_ready():                            # 패스키가 있으면 재인증도 지문으로만(보안 재검토 N1 — 피싱된 인증앱 코드로 금액 보기 차단)
+            self._log(ip, "reauth-totp-refused")
+            return 403, self._hdrs(), render_reauth(sess["csrf"], "지문(패스키)으로 확인하세요.", self.base, pk=True)
         if self.lockout.is_locked(ip):
             return 429, self._hdrs(), render_reauth(sess["csrf"], "잠시 후 다시 시도하세요.", self.base)
         rec = self.store.load()
