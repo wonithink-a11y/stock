@@ -1,0 +1,231 @@
+{
+ "bar": 2.55,
+ "cells": {
+  "W6": {
+   "verdict": "INCONCLUSIVE(표본 부족)",
+   "train_sign": 1,
+   "t_train": 0.72,
+   "t_oos_dir": 1.01,
+   "net1_oos_bp": 141.17,
+   "net2_oos_bp": 136.57,
+   "cost_bp": 1.74,
+   "TRAIN": {
+    "n": 15,
+    "info_bp": 69.92,
+    "gross_bp": 300.15,
+    "t": 0.72
+   },
+   "VALID": {
+    "n": 24,
+    "info_bp": -163.89,
+    "gross_bp": -227.85,
+    "t": -1.93
+   },
+   "TEST": {
+    "n": 43,
+    "info_bp": 148.43,
+    "gross_bp": 349.85,
+    "t": 1.53
+   }
+  },
+  "L6": {
+   "verdict": "INCONCLUSIVE(표본 부족)",
+   "train_sign": -1,
+   "t_train": -0.63,
+   "t_oos_dir": 0.41,
+   "net1_oos_bp": 45.05,
+   "net2_oos_bp": 38.74,
+   "cost_bp": 1.58,
+   "TRAIN": {
+    "n": 15,
+    "info_bp": -53.47,
+    "gross_bp": 176.76,
+    "t": -0.63
+   },
+   "VALID": {
+    "n": 24,
+    "info_bp": -30.45,
+    "gross_bp": -94.42,
+    "t": -0.43
+   },
+   "TEST": {
+    "n": 43,
+    "info_bp": -221.39,
+    "gross_bp": -19.97,
+    "t": -1.92
+   }
+  }
+ },
+ "stats": {
+  "W6": {
+   "months": {
+    "TRAIN": 15,
+    "VALID": 24,
+    "TEST": 43
+   },
+   "gross_month_bp": 171.7,
+   "oos_gross_month_bp": 142.9,
+   "oos_gross_ci95": [
+    -123.4,
+    423.5
+   ],
+   "mean_turnover": 0.517,
+   "breakeven_cost_per_switch_bp": 276.4,
+   "yearly_info_bp": {
+    "2017": -239.5,
+    "2018": 7.9,
+    "2020": 115.0,
+    "2021": -152.5,
+    "2022": -175.3,
+    "2023": 93.2,
+    "2024": 45.1,
+    "2025": 273.6,
+    "2026": 205.6
+   },
+   "top_held": [
+    [
+     "FnGuide 2차전지 산업 지수",
+     20
+    ],
+    [
+     "코스피 200 중공업",
+     18
+    ],
+    [
+     "WISE 2차전지 테마 지수",
+     18
+    ],
+    [
+     "FnGuide K-방위산업 지수",
+     13
+    ],
+    [
+     "iSelect 원자력지수 (시장가격)",
+     11
+    ],
+    [
+     "KRX 반도체",
+     10
+    ],
+    [
+     "KRX 철강",
+     10
+    ],
+    [
+     "WISE 미디어컨텐츠 지수",
+     10
+    ],
+    [
+     "FnGuide K-반도체 지수",
+     10
+    ],
+    [
+     "FnGuide 조선TOP3플러스지수(PR)",
+     10
+    ],
+    [
+     "KRX 헬스케어",
+     9
+    ],
+    [
+     "코스피 200 정보기술",
+     9
+    ]
+   ]
+  },
+  "L6": {
+   "months": {
+    "TRAIN": 15,
+    "VALID": 24,
+    "TEST": 43
+   },
+   "gross_month_bp": -5.8,
+   "oos_gross_month_bp": -46.6,
+   "oos_gross_ci95": [
+    -264.4,
+    177.1
+   ],
+   "mean_turnover": 0.488,
+   "breakeven_cost_per_switch_bp": -95.6,
+   "yearly_info_bp": {
+    "2017": 29.9,
+    "2018": 197.1,
+    "2020": -129.4,
+    "2021": 4.4,
+    "2022": -65.3,
+    "2023": -122.2,
+    "2024": -114.3,
+    "2025": -132.9,
+    "2026": -726.7
+   },
+   "top_held": [
+    [
+     "WISE 미디어컨텐츠 지수",
+     19
+    ],
+    [
+     "WISE 화장품 지수",
+     18
+    ],
+    [
+     "KRX 헬스케어",
+     18
+    ],
+    [
+     "KRX 인터넷 TOP 10 지수",
+     17
+    ],
+    [
+     "FnGuide 배당주 지수",
+     15
+    ],
+    [
+     "FnGuide 2차전지 산업 지수",
+     15
+    ],
+    [
+     "KRX 바이오 TOP 10 지수",
+     15
+    ],
+    [
+     "FnGuide 2차전지핵심소재10 지수",
+     15
+    ],
+    [
+     "FnGuide 소프트웨어 지수",
+     14
+    ],
+    [
+     "FnGuide 2차전지소재 (Price Return) 지수",
+     14
+    ],
+    [
+     "KRX 은행",
+     13
+    ],
+    [
+     "FnGuide 2차전지 소부장 지수(PR)",
+     13
+    ]
+   ]
+  }
+ },
+ "cost_fixed_bp": 3.54,
+ "universe": {
+  "etf_domestic": 502,
+  "index_units": 379,
+  "units_kept": 344,
+  "eligible_per_month": {
+   "min": 0,
+   "median": 10.0,
+   "max": 164
+  },
+  "months_total": 199,
+  "months_skipped_lt15": 117
+ },
+ "kospi200_069500": {
+  "months": 82,
+  "mean_month_bp": 181.3,
+  "oos_mean_month_bp": 185.0
+ }
+}
