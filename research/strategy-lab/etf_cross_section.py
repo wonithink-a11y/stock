@@ -117,7 +117,72 @@ def cmd_run() -> int:
     if not UNIV.exists():
         print("유니버스 CSV 가 없다 — universe 부터")
         return 2
-    print("2단계(수익률·판정)는 유니버스 커밋 뒤에 구현·실행한다.")
+    import numpy as np
+    import pandas as pd
+    sys.path.insert(0, str(REPO / "research" / "strategy-lab" / "futures"))
+    from structure_phase4 import family, judge          # 개별주 실험과 같은 판정·바닥선(사전등록 §5)
+    from short_horizon_study import tstat
+
+    dom = {r["code"] for r in csv.DictReader(UNIV.open(encoding="utf-8")) if r["class"] == "국내주식형"}
+    rows, _ = load_rows()
+    num = lambda v: float(str(v).replace(",", "")) if str(v).replace(",", "").replace(".", "", 1).isdigit() else np.nan   # noqa: E731
+    recs = [{"date": d, "ticker": c, "open": num(r.get("TDD_OPNPRC")), "high": num(r.get("TDD_HGPRC")),
+             "low": num(r.get("TDD_LWPRC")), "close": num(r.get("TDD_CLSPRC")), "volume": num(r.get("ACC_TRDVOL")),
+             "value": num(r.get("ACC_TRDVAL"))} for (d, c), r in rows.items() if START.replace("-", "") <= d <= END.replace("-", "")]
+    a = pd.DataFrame(recs)
+    valid = (a[["open", "high", "low", "close"]] > 0).all(axis=1) & (a.volume > 0)
+    tdays = np.sort(a.loc[valid, "date"].unique())                # 거래일 = 거래가 한 건이라도 있는 날(휴장일 행 제외, §2-부록)
+    a = a[valid & a.ticker.isin(dom)].copy()
+    a["di"] = np.searchsorted(tdays, a.date)
+    a = a.sort_values(["ticker", "di"]).reset_index(drop=True)
+    g = a.groupby("ticker")
+    prev_ok = g.di.shift(1) == a.di - 1                            # 바로 전 거래일에 이 종목이 있었나
+    next_ok = g.di.shift(-1) == a.di + 1
+    a["pc"] = np.where(prev_ok, g.close.shift(1), np.nan)
+    a["pdh"] = np.where(prev_ok, g.high.shift(1), np.nan)
+    a["ret"] = a.close / a.pc - 1
+    cont20 = (a.di - g.di.shift(20)) == 20                         # 직전 20거래일이 빠짐없이 있다(§1: 20일 미만 이력 제외)
+    a["liq"] = np.where(cont20, g.value.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
+    a["volr"] = a.volume / np.where(cont20, g.volume.transform(lambda s: s.shift(1).rolling(20, min_periods=20).mean()), np.nan)
+    a["on"] = np.where(next_ok, g.open.shift(-1) / a.close - 1, np.nan) * 1e4
+    a["date"] = pd.to_datetime(a.date)
+    u = a[(a.liq >= 2e9) & a.on.notna() & a.ret.notna()].copy()
+    fixed = 2 * 1.40527 + 2 * 0.3640                                # 3.54bp — 세금 0(§4)
+    tick = np.where((u.date >= "2023-12-11") & (u.close < 2000), 1.0, 5.0)   # ETF 호가단위(§4, 날짜별)
+    u["tk"] = tick / u.close * 1e4
+    cells_def = {"O0": u.ret.notna(), "O2b": (u.close > u.pdh) & (u.volr >= 1.5), "O3u": u.ret >= 0.05}
+    mkt = u.groupby("date").on.mean()
+    split = lambda d: "TRAIN" if d.year <= 2020 else ("VALID" if d.year <= 2022 else "TEST")   # noqa: E731
+    cells, stats = {}, {}
+    for cid, cond in cells_def.items():
+        ev = u[cond & (u.ret < 0.28)]
+        df = pd.DataFrame({"date": ev.date, "i": ev.on - ev.date.map(mkt), "g": ev.on, "tk": ev.tk}).groupby("date").mean()
+        cells[cid] = [(dt, r.i, r.g, fixed, fixed + r.tk) for dt, r in df.iterrows()]
+        rng = np.random.default_rng(7)
+        oos = df[df.index.year >= 2021].g.to_numpy()
+        boot = [rng.choice(oos, len(oos)).mean() for _ in range(2000)] if len(oos) else [np.nan]
+        stats[cid] = {"events": int(len(ev)), "etfs": int(ev.ticker.nunique()), "days": {k: int(sum(split(d) == k for d in df.index)) for k in ("TRAIN", "VALID", "TEST")},
+                      "gross_mean_bp": round(float(ev.on.mean()), 2) if len(ev) else None,
+                      "gross_median_bp": round(float(ev.on.median()), 2) if len(ev) else None,
+                      "oos_gross_day_bp": round(float(oos.mean()), 2) if len(oos) else None,
+                      "oos_gross_ci95": [round(float(np.quantile(boot, q)), 2) for q in (0.025, 0.975)],
+                      "breakeven_cost_bp": round(float(oos.mean()), 2) if len(oos) else None,
+                      "oos_tick_bp": round(float(df[df.index.year >= 2021].tk.mean()), 2) if len(oos) else None}
+    fam = family({c: cells[c] for c in ("O2b", "O3u")}, split, np.random.default_rng(20260922), {"O2b": {"long_only": True}, "O3u": {"long_only": True}})
+    res = {"bar": fam["bar"], "cells": fam["cells"], "stats": stats, "cost_fixed_bp": round(fixed, 2),
+           "universe": {"etf_total": len({c for _, c in rows}), "domestic": len(dom),
+                        "domestic_traded": int(a.ticker.nunique()), "liquid_etfs": int(u.ticker.nunique()),
+                        "liquid_rows": int(len(u)), "trading_days": int(len(tdays))}}
+    # O0 은 가족 밖 기준선(§3) — 같은 판정을 참고로만
+    parts = {k: tuple(np.array(x, float) for x in zip(*[e[1:] for e in cells["O0"] if split(e[0]) == k]) or ([], [], [], [])) for k in ("TRAIN", "VALID", "TEST")}
+    res["O0_reference"] = judge(parts, fam["bar"], long_only=True)
+    for cid in ("O2b", "O3u"):                                    # 표본 부족 규칙(§5)
+        d = stats[cid]["days"]
+        if d["TRAIN"] < 100 or d["VALID"] < 30 or d["TEST"] < 30:
+            res["cells"][cid]["verdict"] = "INCONCLUSIVE(표본 부족)"
+    out = REPO / "research" / "strategy-lab" / "findings" / "etf-cross-section-close-open-results-2026-09.json"
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    print(json.dumps(res, ensure_ascii=False, indent=1, default=str))
     return 0
 
 
