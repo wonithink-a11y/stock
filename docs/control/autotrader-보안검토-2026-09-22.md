@@ -84,6 +84,8 @@ nginx(`deploy/nginx-*.conf`), 같은 도메인의 공개 API `scripts/kis-minute
 
 **이 재검토가 보지 않은 것**: e7baf4bc(실전 TR 대조 D1·D2 — 해외 주문 거래소 코드·국내 KRX 필드)는 검토가 도는 **도중에** 들어갔다.
 주문 본문만 공식 예제대로 맞춘 것이고 게이트는 안 바꿨지만, 기준상 '실계좌에 닿는 경로'라 **다음 검토 범위에 넣는다**.
+같은 이유로 재검토 뒤에 들어간 것: 40117f9d(체결 알림·매매 방 `TELEGRAM_TRADE_CHAT_ID`) · 5a395381(새 웹 경로 `/channels` — 로그인 뒤,
+외부 텔레그램 글을 이스케이프해 표시, `?c=` 허용목록, 새 VM 유닛 `channels-feed`). 둘 다 **다음 검토 범위**.
 
 **실계좌 연결 전 필수**: ~~N2·N3 수정~~(완료) · 서버 설정(rp_id·origin·패스키 1개 이상) · 실계좌 프로필은 `web_live_allowed:false`·처음 `auto:"dry"`·
 최소 `symbol_allowlist`·명시적 작은 `risk` · `AUTOTRADER_ALLOW_LIVE`·`--execute` 는 `autotrader.service` 하나에 걸려 **모든 프로필 공통**임을 인지.

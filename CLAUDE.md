@@ -37,6 +37,9 @@ Validated against
             ★ 텔레그램은 **세 갈래**(봇은 @wonistock_bot 하나): 1:1 대화 = 뉴스·공시·일일분석·장중급등락 ·
             그룹 `주식 알림`(TELEGRAM_ALERT_CHAT_ID) = 장애 전용 · 그룹 `매매•보안`(TELEGRAM_TRADE_CHAT_ID, 09-22) =
             로그인·웹 조작·주문 접수·체결. 체결 알림은 스냅샷(5분)이 늘어난 체결만 보낸다.
+            ★ 웹 `/channels` = 매경 자이앤트·크립토·월가월부 공개 채널 글(유닛 channels-feed 15분, VM state 에만 — **개인 열람,
+            저장소·공개 대시보드 금지**). 비트캐쳐는 미리보기가 꺼져 불가. 자이앤트 목표가 글은 연구용 부적합(움직인 종목만·
+            2025-05 시작) — 맥락 표시 전용(절대 규칙 1).
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
