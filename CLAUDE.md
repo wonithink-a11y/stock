@@ -26,7 +26,9 @@ Validated against
             ★ **남은 사용자 몫**: DataGuide 문의 **발송**(09-22 문안 확정, 수신 marketing@fnguide.com — Gmail 커넥터가 끊겨 초안
             자동 생성 실패). ★ ETF 횡단면 **수집 승인(09-22)** → `research/strategy-lab/collect_etf_ohlc_krx.py`(KRX Open API 전 필드,
             2010~, 폐지 ETF 포함·기초지수명으로 국내/해외 분류 가능, gitignore). 다음은 **사전등록**(분류 규칙·신호 2셀·비용 23.5bp→ETF 3.54bp
-            결과 전 고정). ★ 신호 원천 O2b·O3u 의 모의 실행은 중단됐지만(동시호가 체결 불일치) **연구 백테스트는 공식 OHLC 라 무관**. 새 연구 착수 전 새 데이터·새 표본 없이는 회계·가치·품질 축 재시도 금지(각 사전등록 §6).
+            결과 전 고정). → **09-22 결과: O2b REJECT(TRAIN t 0.54 < 바닥선 1.95 — 2010~20 ETF 에서 신호 없음, 2021~ 에만 양·OOS net +18bp
+            는 기록만) · O3u INCONCLUSIVE(표본 부족)**. findings/etf-cross-section-close-open-results-2026-09.md. 기간 재절단·재시험 금지,
+            남은 길은 forward 그림자(별도 사전등록). 새 연구 착수 전 새 데이터·새 표본 없이는 회계·가치·품질 축 재시도 금지(각 사전등록 §6).
   다음      ★★ autotrader — 2026-09-22 프로필(키·전략·한도·예약)·무한매수 플러그인(옛 러너와 VM 8/8 일치)·웹 조작·
             투자금/평가/실현손익·패스키·보안 정리(/accounts 공개 차단, 독립 검토 반영)까지 완료. **지금 주문 0**
             (타이머 dry-run, 프로필 auto off). O2b·O3u 전략 파일은 **만들지 않는다**(동시호가 시험 실패).
