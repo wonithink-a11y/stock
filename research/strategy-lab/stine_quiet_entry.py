@@ -242,8 +242,8 @@ def cmd_run() -> int:
             rng = np.random.default_rng(7)
             boot = [rng.choice(oos.g.values, len(oos)).mean() for _ in range(2000)]
             st = monthly(df, stress_delisted=True)
-            st_tr = st[[split(d) == "TRAIN" for d in st.index]].info.values
-            st_oos = st[[split(d) != "TRAIN" for d in st.index]].info.values
+            st_tr = st[[split(d) == "TRAIN" for d in st.index]]["info"].values
+            st_oos = st[[split(d) != "TRAIN" for d in st.index]]["info"].values
             top5 = mm.n.sort_values(ascending=False).head(5).sum() / mm.n.sum()
             stats[cid] = {
                 "trades": int(len(df)), "tickers": int(df.t.nunique()), "months": n,
@@ -256,10 +256,10 @@ def cmd_run() -> int:
                 "breakeven_cost_roundtrip_bp": round(float(oos.g.mean()), 1),
                 "hold_weeks_mean": round(float(df.wk.mean()), 1), "hold_weeks_median": float(df.wk.median()),
                 "exit_reasons": dict(Counter(df.why)),
-                "yearly_info_bp": {int(y): round(float(x), 1) for y, x in mm.info.groupby(mm.index.year).mean().items()},
+                "yearly_info_bp": {int(y): round(float(x), 1) for y, x in mm["info"].groupby(mm.index.year).mean().items()},
                 "stress_delisted_minus100": {"t_train": round(tstat(st_tr), 2), "oos_info_bp": round(float(st_oos.mean()), 1)},
             }
-        a, b = mo["A"].info, mo["B"].info
+        a, b = mo["A"]["info"], mo["B"]["info"]
         both = (b - a).dropna()
         oosd = both[[split(d) != "TRAIN" for d in both.index]].values
         rng = np.random.default_rng(11)
