@@ -17,7 +17,7 @@ from autotrader import kis, risk                                              # 
 from autotrader.broker import FakeBroker                                      # noqa: E402
 from autotrader.config import (LIVE_ACK, ConfigError, GateError, gate_problems, load_env,   # noqa: E402
                                mask, normalize_config)
-from autotrader.engine import KST, Ledger, run_once                           # noqa: E402
+from autotrader.engine import KST, Ledger, broker_spent_today, run_once       # noqa: E402
 from autotrader.models import Intent, OpenOrder, Position                    # noqa: E402
 from autotrader.strategy import Strategy, load_strategy                       # noqa: E402
 
@@ -213,6 +213,27 @@ def main():
             run_once(cfg, fb, big_buy, execute=True, env=PAPER_ENV, repo_root=Path(td), now=now)
         rr = run_once(cfg, fb, big_buy, execute=True, env=PAPER_ENV, repo_root=Path(td), now=now)
         ck("일일 한도가 실행 사이에 누적된다(원장 기반)", len(rr["rejected"]) == 1 and "일일 한도" in rr["rejected"][0]["reason"])
+        # N5: 원장이 지워져도 증권사의 오늘 주문(체결 + 미체결 잔량)으로 한도가 지켜진다
+        (Path(td) / "state" / "ledger.jsonl").unlink()
+        ymd = now.strftime("%Y%m%d")
+        fb.fill_rows = [{"orderNo": "x1", "symbol": "005930", "side": "BUY", "qty": 10, "price": 70_000.0, "day": ymd, "market": "KR"},
+                        {"orderNo": "x2", "symbol": "999999", "side": "BUY", "qty": 100, "price": 70_000.0, "day": ymd, "market": "KR"}]
+        fb._open = [OpenOrder("x3", "005930", "KR", "BUY", 5, 1, 70_000.0)]
+        ck("증권사 기준 오늘 금액 = 허용 종목 체결 + 미체결 잔량(남의 종목 제외)",
+           broker_spent_today(fb, "KR", {"005930"}, now.strftime("%Y-%m-%d")) == 10 * 70_000 + 4 * 70_000)
+        fb._open = []
+        fb.fill_rows[0]["qty"] = 12                                          # 840,000 — 원장은 비었지만 증권사는 안다
+        rr = run_once(cfg, fb, big_buy, execute=True, env=PAPER_ENV, repo_root=Path(td), now=now)
+        ck("원장이 지워져도 증권사 기록으로 일일 한도 거부(N5)", len(rr["rejected"]) == 1 and "일일 한도" in rr["rejected"][0]["reason"])
+        orig_fills = fb.fills
+        fb.fills = lambda *a: (_ for _ in ()).throw(RuntimeError("조회 실패"))
+        n0 = len(fb.placed)
+        rr = run_once(cfg, fb, big_buy, execute=True, env=PAPER_ENV, repo_root=Path(td), now=now)
+        ck("증권사 조회가 실패하면 주문 안 냄(fail-closed)", len(fb.placed) == n0 and "교차 확인" in rr["rejected"][0]["reason"])
+        rr = run_once(cfg, fb, big_buy, execute=False, env=PAPER_ENV, repo_root=Path(td), now=now)
+        ck("dry-run 은 조회 실패여도 계획은 보여 준다", len(rr["planned"]) == 1 and any("교차 확인" in e for e in rr["errors"]))
+        fb.fills = orig_fills
+        fb.fill_rows = []
         # 위험 거부·중복·허용목록
         r = run_once(cfg, fb, Fixed([kr("005930", "BUY", 100)]), execute=True, env=PAPER_ENV, repo_root=Path(td),
                      now=datetime(2026, 9, 22, 10, 0, tzinfo=KST))

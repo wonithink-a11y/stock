@@ -111,6 +111,16 @@ def _reconcile(broker: Broker, market: str, ledger: Ledger, execute: bool, repor
         report["skipped"].append({"symbol": o.symbol, "reason": f"취소를 확인하지 못했다({o.order_no}) — 오늘 주문 안 냄"})
 
 
+def broker_spent_today(broker: Broker, market: str, allow: set, day: str) -> float:
+    """증권사가 아는 오늘 주문 금액 — 체결분(수량×평균가) + 미체결 잔량(잔량×주문가). 허용 종목만(한 종목은 한 프로그램만
+    매매하므로 이 프로필의 몫이다). 비어 있으면 전 종목(보수적). 원장(state/ledger.jsonl)은 웹 프로세스가 쓸 수 있는
+    폴더에 있어서, 한도의 근거를 원장 하나에만 두지 않는다(보안 재검토 N5)."""
+    ymd = day.replace("-", "")
+    hit = (lambda s: s in allow) if allow else (lambda s: True)
+    v = sum(float(f["qty"]) * float(f["price"]) for f in broker.fills(market, ymd, ymd) if hit(f["symbol"]))
+    return v + sum(o.remaining * float(o.price) for o in broker.open_orders(market) if hit(o.symbol))
+
+
 def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, env: Dict[str, str],
              repo_root: Path = REPO_ROOT, now: Optional[datetime] = None,
              sleep: Callable[[float], None] = time.sleep) -> dict:
@@ -150,6 +160,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
     seen: set = set()
     kill = kill_file(cfg, repo_root)
     aborted = False
+    bspent: Dict[str, Optional[float]] = {}              # 시장별 증권사 기준 오늘 주문 금액(None = 조회 실패)
 
     for it in intents:
         rec = {"symbol": it.symbol, "side": it.side, "qty": it.qty, "market": it.market,
@@ -180,10 +191,19 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
             except Exception as e:                      # noqa: BLE001
                 report["rejected"].append({**rec, "reason": f"현금 조회 실패: {e}"})
                 continue
+        if it.market not in bspent:
+            try:
+                bspent[it.market] = broker_spent_today(broker, it.market, set(cfg.get("symbol_allowlist") or []), day)
+            except Exception as e:                      # noqa: BLE001 — 주문이면 막고(fail-closed), dry-run 은 원장만으로
+                bspent[it.market] = None if execute else 0.0
+                report["errors"].append(f"당일 주문 조회 실패({it.market}) — 한도 교차 확인 불가: {e}"[:200])
+        if bspent[it.market] is None:
+            report["rejected"].append({**rec, "reason": "당일 주문 조회 실패 — 일일 한도를 교차 확인할 수 없어 주문 안 냄"})
+            continue
         why = risk.check_intent(
             it, risk=cfg["risk"][it.market], allowlist=cfg.get("symbol_allowlist", []),
             last_price=last, sellable_qty=sellable, cash=cash_left.get(it.market, 0.0),
-            held_value=held_value, spent_today=ledger.spent_today(it.market, day),
+            held_value=held_value, spent_today=max(ledger.spent_today(it.market, day), bspent[it.market]),
             spent_run=spent_run[it.market], orders_run=orders_run[it.market])
         if why:
             report["rejected"].append({**rec, "reason": why})

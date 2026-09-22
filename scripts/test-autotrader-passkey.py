@@ -292,6 +292,40 @@ def main():
         st, hd, _ = lg.handle("POST", "/login", {}, f"password=pw-long-enough-1&code={code()}".encode(), "2.2.2.2")
         ck("로그인 쿠키 수명 = 세션 수명(30일)", st == 303 and f"Max-Age={D30}" in hd.get("Set-Cookie", ""))
 
+        # ---- N4: 전역 잠금은 비밀번호·코드 경로만 — 익명 공격자가 실패를 쌓아도 주인의 지문 조작은 된다
+        lk = A.Lockout(clock=lambda: clk[0])
+        n4 = web.WebApp(cfg, sdir, store, A.Sessions(clock=lambda: clk[0]), lk, clock=lambda: clk[0], secure_cookie=False,
+                        profiles=web._profile_loader(cfg, main_p), rp_id=RP, origin=ORIGIN)
+        for i in range(25):
+            n4.handle("POST", "/login", {}, b"password=x&code=000000", f"9.9.{i}.1")
+        ck("익명 실패 25회 → 전역 잠금(로그인은 막힘)", lk.is_locked("1.1.1.1") and n4.handle(
+            "POST", "/login", {}, f"password=pw-long-enough-1&code={code()}".encode(), "1.1.1.1")[0] == 429)
+        t6 = n4.sessions.create(gen=store.session_gen())
+        h6 = {"Cookie": f"at_sess={t6}"}
+        c6 = n4.sessions.get(t6)["csrf"]
+        r6 = {"csrf": c6, "p": "pa", "op": "auto-off"}
+        ao = n4.handle("POST", "/passkey/action-options", h6, json.dumps(r6).encode(), "1.1.1.1")[2].decode()
+        st6 = n4.handle("POST", "/passkey/action", h6, json.dumps({**r6, "credential": dev.assert_(ao)}).encode(), "1.1.1.1")[0]
+        ck("전역 잠금 중에도 지문 조작은 된다(N4)", st6 == 200 and load_profile(main_p, "pa")["auto"] == "off")
+        for _ in range(5):
+            ao = n4.handle("POST", "/passkey/action-options", h6, json.dumps(r6).encode(), "7.7.7.7")[2].decode()
+            n4.handle("POST", "/passkey/action", h6, json.dumps({**r6, "credential": dev.assert_(ao, key=SoftAuthenticator().key)}).encode(), "7.7.7.7")
+        ck("지문 실패도 IP 별로는 잠긴다", lk.is_locked("7.7.7.7", include_global=False))
+
+        # ---- N6: 웹·CLI 프로세스 사이 파일 잠금(flock — 리눅스에서만 잴 수 있다)
+        try:
+            import fcntl
+            import subprocess
+            with store._lock:
+                probe = ("import fcntl,sys; f=open(sys.argv[1],'a')\n"
+                         "try:\n fcntl.flock(f, fcntl.LOCK_EX|fcntl.LOCK_NB); print('free')\n"
+                         "except BlockingIOError:\n print('held')")
+                got = subprocess.run([sys.executable, "-c", probe, str(store._lock.path)], capture_output=True, text=True).stdout.strip()
+            after = subprocess.run([sys.executable, "-c", probe, str(store._lock.path)], capture_output=True, text=True).stdout.strip()
+            ck("저장 중엔 다른 프로세스가 잠금을 못 잡고, 끝나면 풀린다(N6)", got == "held" and after == "free")
+        except ImportError:
+            print("skip N6 — flock 없음(Windows). VM 에서 잰다")
+
         # ---- 삭제는 서버에서만, 알림, rp 미설정
 
         ck("웹에 패스키 삭제 경로 없음", pj("/passkey/delete", {"csrf": csrf})[0] == 404)

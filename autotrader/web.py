@@ -786,13 +786,13 @@ class WebApp:
             pend = sess.pop("pkReauth", None)           # 챌린지는 한 번만
             if not pend or pend["until"] <= now:
                 return self._json(403, {"error": "확인 요청이 만료됐다 — 다시"})
-            if self.lockout.is_locked(ip):
+            if self.lockout.is_locked(ip, include_global=False):
                 return self._json(429, {"error": "잠시 후 다시 시도하세요"})
             try:
                 cid, count = passkey_auth_verify(json.dumps(j.get("credential")), pend["chal"], self.rp_id, self.origin,
                                                  self._passkeys())
             except Exception:                           # noqa: BLE001
-                self.lockout.fail(ip)
+                self.lockout.fail(ip, count_global=False)
                 self._log(ip, "reauth-fail")
                 return self._json(401, {"error": "패스키 확인 실패"})
             self.lockout.ok(ip)
@@ -813,13 +813,13 @@ class WebApp:
             pend = sess.pop("pkAct", None)              # 챌린지는 한 번만
             if not pend or pend["until"] <= now or pend["p"] != j.get("p") or pend["op"] != j.get("op"):
                 return self._json(403, {"error": "확인 요청이 만료됐거나 조작이 다르다 — 다시"})
-            if self.lockout.is_locked(ip):
+            if self.lockout.is_locked(ip, include_global=False):
                 return self._json(429, {"error": "잠시 후 다시 시도하세요"})
             stored = self._passkeys()
             try:
                 cid, count = passkey_auth_verify(json.dumps(j.get("credential")), pend["chal"], self.rp_id, self.origin, stored)
             except Exception:                           # noqa: BLE001
-                self.lockout.fail(ip)
+                self.lockout.fail(ip, count_global=False)
                 self._log(ip, "passkey-fail")
                 return self._json(401, {"error": "패스키 확인 실패"})
             self.lockout.ok(ip)

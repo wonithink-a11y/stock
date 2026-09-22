@@ -70,12 +70,44 @@ def otpauth_uri(secret_b32: str, account: str, issuer: str = "autotrader") -> st
 
 
 # ---------------------------------------------------------------- 저장소
+class _FileLock:
+    """스레드 잠금 + 프로세스 간 잠금(flock). 웹 프로세스와 서버 CLI(passkey-reset·logout-all)가 같은 파일을 고칠 때
+    한쪽의 변경이 다른 쪽에 덮이지 않게(보안 재검토 N6). flock 이 없는 환경(Windows 로컬 회귀)은 스레드 잠금만."""
+    _tl = threading.RLock()
+    _held: Dict[str, list] = {}                         # 경로 -> [깊이, 파일] — 같은 파일을 다른 인스턴스가 겹쳐 잡아도 교착 없음
+
+    def __init__(self, path: Path):
+        self.path = Path(str(path) + ".lock")
+
+    def __enter__(self):
+        self._tl.acquire()
+        h = self._held.setdefault(str(self.path), [0, None])
+        if h[0] == 0:
+            try:
+                import fcntl
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                h[1] = open(self.path, "a")
+                fcntl.flock(h[1], fcntl.LOCK_EX)
+            except ImportError:
+                h[1] = None
+        h[0] += 1
+        return self
+
+    def __exit__(self, *exc):
+        h = self._held[str(self.path)]
+        h[0] -= 1
+        if h[0] == 0 and h[1] is not None:
+            h[1].close()                                # 닫으면 flock 도 풀린다
+            h[1] = None
+        self._tl.release()
+
+
 class AuthStore:
     """web_auth.json — 비밀번호 해시·TOTP 비밀·패스키·등록 코드. 쓰기는 잠금 + 임시파일 교체(동시 저장으로 깨지거나 패스키가 사라지지 않게)."""
-    _lock = threading.RLock()
 
     def __init__(self, path: Path):
         self.path = Path(path)
+        self._lock = _FileLock(self.path)
 
     def exists(self) -> bool:
         return self.path.exists()
@@ -153,17 +185,20 @@ class Lockout:
         self._all: list = []
         self._global_until = 0.0
 
-    def is_locked(self, ip: str) -> bool:
+    def is_locked(self, ip: str, include_global: bool = True) -> bool:
+        """include_global=False: 패스키 확인용 — 서명은 추측으로 뚫을 수 없어 전역 잠금이 필요 없고, 전역 잠금을
+        걸면 익명 공격자가 로그인 실패만 반복해 주인의 지문 조작까지 막는다(보안 재검토 N4)."""
         now = self.clock()
-        if now < self._global_until:
+        if include_global and now < self._global_until:
             return True
         return now < self._locked.get(ip, 0.0)
 
-    def fail(self, ip: str) -> None:
+    def fail(self, ip: str, count_global: bool = True) -> None:
         now = self.clock()
-        self._all = [t for t in self._all if now - t < self.global_window] + [now]
-        if len(self._all) >= self.global_max:
-            self._global_until = now + self.global_lock
+        if count_global:
+            self._all = [t for t in self._all if now - t < self.global_window] + [now]
+            if len(self._all) >= self.global_max:
+                self._global_until = now + self.global_lock
         f = [t for t in self._fails.get(ip, []) if now - t < self.lock_sec] + [now]
         self._fails[ip] = f
         if len(f) >= self.max_fail:
