@@ -19,7 +19,8 @@ from autotrader import web                                                    # 
 from autotrader.broker import FakeBroker                                      # noqa: E402
 from autotrader.config import normalize_config                                # noqa: E402
 from autotrader.engine import KST, Ledger                                     # noqa: E402
-from autotrader.pnl import realized, sync_fills                               # noqa: E402
+from autotrader.pnl import new_fills, realized, sync_fills                    # noqa: E402
+from autotrader import notify                                                 # noqa: E402
 
 FAILS, COUNT = [], [0]
 
@@ -78,6 +79,22 @@ def main():
         ck("화면에 실현손익 줄", "실현손익" in html and "$51.25" in html)
         ck("매도 내역 표", "81.67" in web.render_sells({"realized": {"US": rr}}))
         ck("체결 조회 실패는 표시만", "체결 조회 실패" in web.render_money_rows({"markets": {}, "realizedError": "x"}))
+
+        # ---- 체결 알림: 늘어난 것만, 같은 체결은 두 번 안 알린다
+        prev = {"fills": {"200": {"orderNo": "200", "symbol": "SOXL", "side": "BUY", "qty": 2, "price": 40.0, "market": "US"}}}
+        cur = {"fills": {"200": {"orderNo": "200", "symbol": "SOXL", "side": "BUY", "qty": 5, "price": 40.1, "market": "US"},
+                         "201": {"orderNo": "201", "symbol": "005930", "side": "SELL", "qty": 1, "price": 283000, "market": "KR"}}}
+        nf = {f["orderNo"]: f["delta"] for f in new_fills(prev, cur)}
+        ck("새 체결은 증가분만(부분체결 2→5 = 3주, 새 주문 1주)", nf == {"200": 3, "201": 1})
+        ck("변화 없으면 알림 없음", new_fills(cur, cur) == [])
+        ck("원장이 처음 생겨도 이전 없음 = 전부가 아니라 원장 내용만", len(new_fills(None, {"fills": {}})) == 0)
+        m = notify.fill_message("infbuy", "paper", new_fills(prev, cur)[0])
+        ck("체결 문구: 종목·수량·가격·누적·모의, 계좌번호 없음", "SOXL 매수 3주 @ $40.10" in m and "누적 5주" in m and "모의" in m
+           and m.count("\n") == 2 and "12345678" not in m)
+        ck("국내 매도 문구", "005930 매도 1주 @ 283,000원" in notify.fill_message("x", "live", new_fills(prev, cur)[1]))
+        ck("매매 방이 있으면 그리로, 없으면 콘텐츠 방, 장애 방은 안 씀",
+           notify.trade_chat({"TELEGRAM_TRADE_CHAT_ID": "T", "TELEGRAM_CHAT_ID": "C", "TELEGRAM_ALERT_CHAT_ID": "A"}) == "T"
+           and notify.trade_chat({"TELEGRAM_CHAT_ID": "C", "TELEGRAM_ALERT_CHAT_ID": "A"}) == "C")
 
     print(f"\ntest-autotrader-pnl {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0

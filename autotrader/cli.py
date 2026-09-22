@@ -90,7 +90,7 @@ def cmd_run_due(args) -> int:
     """예약 시각이 된 프로필을 돈다. 주문은 `--execute` **와** 프로필 auto=execute 가 둘 다 있어야 나간다.
     회차는 성공·실패와 무관하게 한 번만 돈다(재시도로 중복 주문을 내지 않는다). 주문 접수·오류·거부는 텔레그램으로 알린다."""
     import json
-    from .notify import send_telegram
+    from .notify import send_telegram, trade_chat
     main_cfg = load_config(args.config)
     env = load_env()
     now = datetime.now(KST)
@@ -103,9 +103,9 @@ def cmd_run_due(args) -> int:
             print(f"[{name}] 프로필 오류: {e}", file=sys.stderr)
             flag = state_dir(main_cfg) / f"profile_error_{name}.txt"
             day = now.strftime("%Y-%m-%d")
-            if not (flag.exists() and flag.read_text(encoding="utf-8") == day) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
+            if not (flag.exists() and flag.read_text(encoding="utf-8") == day) and env.get("TELEGRAM_BOT_TOKEN") and trade_chat(env):
                 try:
-                    send_telegram(env["TELEGRAM_BOT_TOKEN"], env["TELEGRAM_CHAT_ID"], f"[autotrader] 프로필 {name} 설정 오류 — 실행 안 함: {e}"[:300])
+                    send_telegram(env["TELEGRAM_BOT_TOKEN"], trade_chat(env), f"[autotrader] 프로필 {name} 설정 오류 — 실행 안 함: {e}"[:300])
                     flag.parent.mkdir(parents=True, exist_ok=True)
                     flag.write_text(day, encoding="utf-8")
                 except Exception as te:                 # noqa: BLE001
@@ -130,9 +130,9 @@ def cmd_run_due(args) -> int:
             code, rep = 1, {"strategy": cfg["strategy"], "mode": cfg["mode"], "execute": execute,
                             "status": "crash", "errors": [f"{type(e).__name__}: {e}"]}
         worst = max(worst, code)
-        if (rep is None or rep.get("placed") or rep.get("errors") or asked) and env.get("TELEGRAM_BOT_TOKEN") and env.get("TELEGRAM_CHAT_ID"):
+        if (rep is None or rep.get("placed") or rep.get("errors") or asked) and env.get("TELEGRAM_BOT_TOKEN") and trade_chat(env):
             try:
-                send_telegram(env["TELEGRAM_BOT_TOKEN"], env["TELEGRAM_CHAT_ID"], run_summary(name, rep))
+                send_telegram(env["TELEGRAM_BOT_TOKEN"], trade_chat(env), run_summary(name, rep))
             except Exception as e:                      # noqa: BLE001 — 알림 실패가 실행 결과를 바꾸지 않는다
                 print(f"[{name}] 텔레그램 실패: {e}", file=sys.stderr)
     return worst
@@ -268,9 +268,12 @@ def cmd_snapshot(args) -> int:
             worst = 1
             continue
         if c is not cfg:                                # 프로필만 실현손익(우리 주문번호의 체결 → fills.json)
-            from .pnl import realized, sync_fills
+            from .pnl import load_book, new_fills, realized, sync_fills
             try:
-                snap["realized"] = realized(sync_fills(c, broker, snap, now))
+                prev = load_book(c)
+                book = sync_fills(c, broker, snap, now)
+                snap["realized"] = realized(book)
+                _notify_fills(c, env, new_fills(prev, book))
             except Exception as e:                      # noqa: BLE001 — 체결 조회 실패가 보유 화면을 막지 않는다
                 snap["realizedError"] = f"{type(e).__name__}: {e}"[:200]
                 print(f"[{tag}] 체결 조회 실패: {snap['realizedError']}", file=sys.stderr)
@@ -279,6 +282,20 @@ def cmd_snapshot(args) -> int:
         print(f"[{tag}] 스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
         worst = max(worst, 1 if errs else 0)
     return worst
+
+
+def _notify_fills(c: dict, env: dict, fills: list) -> None:
+    """새 체결을 텔레그램으로(매매·보안 방). 알림 실패는 원장·화면을 바꾸지 않는다."""
+    from .notify import fill_message, send_telegram, trade_chat
+    chat = trade_chat(env)
+    if not (fills and env.get("TELEGRAM_BOT_TOKEN") and chat):
+        return
+    for f in fills[:10]:                                # 한 번에 폭주하지 않게(나머지는 화면·원장에 있다)
+        try:
+            send_telegram(env["TELEGRAM_BOT_TOKEN"], chat, fill_message(c.get("profile", "기본"), c.get("mode", ""), f))
+        except Exception as e:                          # noqa: BLE001
+            print(f"[{c.get('profile')}] 체결 알림 실패: {e}", file=sys.stderr)
+            return
 
 
 def cmd_serve(args) -> int:
@@ -359,7 +376,8 @@ def cmd_notify(args) -> int:
     from .notify import LoginNotifier, run_loop, send_telegram
     cfg = _cfg(args)
     env = load_env()
-    tok, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
+    from .notify import trade_chat
+    tok, chat = env.get("TELEGRAM_BOT_TOKEN"), trade_chat(env)
     if not (tok and chat):
         print("환경변수 TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 가 없다(값은 출력하지 않는다)", file=sys.stderr)
         return 2

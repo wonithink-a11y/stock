@@ -14,7 +14,7 @@
  * 아래 검사들은 그 사슬의 각 고리를 하나씩 붙잡는다.
  */
 const assert = require('assert');
-const { detect, stampAlerts, buildMessage, RULES } = require('./intraday-check.js');
+const { detect, stampAlerts, buildMessage, deliver, RULES } = require('./intraday-check.js');
 
 let n = 0;
 const ok = (name, fn) => { fn(); n += 1; };
@@ -94,4 +94,22 @@ ok('한도 안이면 생략 문구가 없다', () => {
   assert(!/생략/.test(text));
 });
 
-console.log(`test-intraday-check: ${n}건 통과`);
+// ── 전송(main 의 접착부) ──────────────────────────────────────────
+const pending = [];
+function okAsync(name, fn) { pending.push(fn().then(() => { n++; console.log(`  ok  ${name}`); })); }
+okAsync('★ 보내는 문구는 사람이 읽는 줄이다([object Object] 금지)', async () => {
+  let got = '';
+  const state = { '005930': {} };
+  await deliver(state, [{ ticker: '005930', rule: 'dailyMove', line: '[KR] 삼성전자(005930) 전일 대비 +7.7%' }],
+    async (t) => { got = t; return true; }, NOW);
+  assert(!got.includes('[object Object]') && got.includes('삼성전자(005930) 전일 대비 +7.7%'));
+  assert.strictEqual(state['005930'].lastAlertAt.dailyMove, NOW, '보냈으면 쿨다운 도장');
+});
+okAsync('보내기 실패면 쿨다운 도장을 안 찍는다', async () => {
+  const state = { '005930': {} };
+  await deliver(state, [{ ticker: '005930', rule: 'dailyMove', line: 'x' }], async () => false, NOW);
+  assert(!state['005930'].lastAlertAt);
+});
+
+Promise.all(pending).then(() => console.log(`test-intraday-check: ${n}건 통과`))
+  .catch((e) => { console.error('FAIL', e.message); process.exit(1); });

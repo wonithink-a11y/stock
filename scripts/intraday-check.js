@@ -179,6 +179,18 @@ async function sendSlack(text) {
   return res.ok;
 }
 
+/**
+ * 알림을 보내고, **보낸 뒤에만** 쿨다운 도장을 찍는다. send(text) -> Promise<boolean>.
+ * main 이 한때 객체 배열을 그대로 join 해 '[object Object]' 만 보냈고 도장도 안 찍어 체크마다 같은 알림이 반복됐다(2026-09-22).
+ */
+async function deliver(state, allAlerts, send, now = Date.now()) {
+  const text = buildMessage(allAlerts.map((a) => a.line), RULES.maxAlertsPerMessage);
+  console.log(text);
+  const sent = await send(text);
+  if (sent) stampAlerts(state, allAlerts, now);
+  return sent;
+}
+
 // ---------- 메인 ----------
 
 async function main() {
@@ -207,19 +219,19 @@ async function main() {
     }
   }
 
-  fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
-  fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2), 'utf-8');
-
   if (allAlerts.length === 0) {
     console.log('감지된 급등락 없음.');
-    return;
+  } else {
+    const sent = await deliver(state, allAlerts, async (text) => {
+      const tg = await sendTelegram(text);
+      const slack = await sendSlack(text);
+      return tg || slack;
+    });
+    if (!sent) console.log('(전송 실패 또는 알림 채널 미설정 - 쿨다운을 찍지 않았다, 다음 체크에 다시 뜬다)');
   }
 
-  const text = `🚨 [장중 급등락 알림]\n${allAlerts.join('\n')}\n\n※ 약 10분 간격 체크 기준이며 투자 자문이 아닙니다.`;
-  console.log(text);
-  const tg = await sendTelegram(text);
-  const slack = await sendSlack(text);
-  if (!tg && !slack) console.log('(알림 채널 미설정 - Secrets 등록 필요)');
+  fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
+  fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2), 'utf-8'); // 도장까지 반영한 뒤 저장
 }
 
 if (require.main === module) {
@@ -229,4 +241,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, RULES };
+module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, RULES };

@@ -39,6 +39,23 @@ def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) ->
         raise RuntimeError(f"telegram 전송 실패({type(e).__name__})") from None
 
 
+def trade_chat(env: dict) -> Optional[str]:
+    """매매·보안 알림(로그인·웹 조작·주문 접수·체결)을 보낼 방. `TELEGRAM_TRADE_CHAT_ID` 가 있으면 그 방(뉴스와 분리),
+    없으면 예전처럼 콘텐츠 방 `TELEGRAM_CHAT_ID`. 장애 전용 `TELEGRAM_ALERT_CHAT_ID` 에는 보내지 않는다(거기는 고장만)."""
+    return env.get("TELEGRAM_TRADE_CHAT_ID") or env.get("TELEGRAM_CHAT_ID")
+
+
+def fill_message(profile: str, mode: str, f: dict) -> str:
+    """체결 알림 한 건. 계좌번호는 넣지 않는다."""
+    us = f.get("market") == "US"
+    px = f"${float(f.get('price') or 0):,.2f}" if us else f"{float(f.get('price') or 0):,.0f}원"
+    side = "매도" if f.get("side") == "SELL" else "매수"
+    more = f" (누적 {f.get('qty')}주)" if f.get("qty") != f.get("delta") else ""
+    return "\n".join([f"{'💰' if side == '매도' else '🛒'} 체결 · {profile} · {'모의' if mode == 'paper' else '⚠실전'}",
+                      f"{f.get('market')} {f.get('symbol')} {side} {f.get('delta')}주 @ {px}(평균){more}",
+                      f"주문 {f.get('orderNo')}"])
+
+
 def find_chat_ids(token: str, get: Optional[Callable[[str], dict]] = None, timeout: float = 10.0) -> List[dict]:
     """봇이 최근에 받은 메시지에서 채팅 번호를 뽑는다(getUpdates). 봇에게 먼저 아무 말이나 보내 두어야 나온다.
     토큰이 URL 에 들어가므로 예외 문구에는 절대 원문을 싣지 않는다. 결과에는 번호·종류·이름만 넣는다(메시지 내용은 안 본다)."""

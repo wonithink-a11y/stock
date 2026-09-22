@@ -14,7 +14,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from .config import state_dir
 from .engine import Ledger
@@ -58,6 +58,17 @@ def sync_fills(cfg: dict, broker, snap: dict, now: datetime) -> dict:
     tmp.write_text(json.dumps(book, ensure_ascii=False, indent=1), encoding="utf-8")
     os.replace(tmp, p)
     return book
+
+
+def new_fills(prev: Optional[dict], book: Optional[dict]) -> List[dict]:
+    """이번 동기화에서 **늘어난** 체결만(주문별 누적 수량의 증가분 `delta`). 체결 알림용 — 같은 체결을 두 번 알리지 않는다."""
+    before = (prev or {}).get("fills") or {}
+    out = []
+    for no, f in ((book or {}).get("fills") or {}).items():
+        d = int(f.get("qty") or 0) - int((before.get(no) or {}).get("qty") or 0)
+        if d > 0:
+            out.append({**f, "orderNo": no, "delta": d})
+    return out
 
 
 def realized(book: Optional[dict]) -> Dict[str, dict]:
