@@ -70,7 +70,128 @@ def cmd_run() -> int:
     if not UNITS.exists():
         print("단위 CSV 가 없다 — units 부터")
         return 2
-    print("2단계는 단위 목록 커밋 뒤에 구현·실행한다.")
+    import numpy as np
+    import pandas as pd
+    sys.path.insert(0, str(HERE / "futures"))
+    from structure_phase4 import family                 # 이전 실험과 같은 판정·바닥선(§4)
+    from short_horizon_study import tstat
+
+    units = {r["unit_key"]: r for r in csv.DictReader(UNITS.open(encoding="utf-8"))}
+    manual = json.loads(MANUAL.read_text(encoding="utf-8")) if MANUAL.exists() else {}
+    keymap = {k: (manual[k][2] if k in manual and manual[k][0] == "병합" else k) for k in units}
+    keep = {k for k, r in units.items() if r["class"] == "포함"}
+    dom = {r["code"] for r in csv.DictReader(X.UNIV.open(encoding="utf-8")) if r["class"] == "국내주식형"}
+    rows, _ = X.load_rows()
+    num = lambda v: float(str(v).replace(",", "")) if str(v).replace(",", "").replace(".", "", 1).isdigit() else np.nan   # noqa: E731
+    recs, all_valid_days = [], set()
+    for (d, c), r in rows.items():
+        if not (X.START.replace("-", "") <= d <= X.END.replace("-", "")):
+            continue
+        o, cl, v, val = num(r.get("TDD_OPNPRC")), num(r.get("TDD_CLSPRC")), num(r.get("ACC_TRDVOL")), num(r.get("ACC_TRDVAL"))
+        ok = o > 0 and cl > 0 and v > 0 and num(r.get("TDD_HGPRC")) > 0 and num(r.get("TDD_LWPRC")) > 0
+        if ok:
+            all_valid_days.add(d)                       # 거래일 = 거래가 한 건이라도 있는 날(ETF 횡단면과 같다)
+        if ok and c in dom:
+            recs.append((d, c, o, cl, val, keymap.get(norm(r.get("IDX_IND_NM") or ""), "")))
+    tdays = sorted(all_valid_days)
+    a = pd.DataFrame(recs, columns=["date", "code", "open", "close", "value", "unit"])
+    O, C, V, U = (a.pivot(index="date", columns="code", values=k).reindex(tdays) for k in ("open", "close", "value", "unit"))
+    ok = C.notna()
+    liq = V.shift(1).rolling(20, min_periods=20).mean()                         # 직전 20거래일(T 제외), 빠짐없이
+    hist = ok.astype(int).rolling(127, min_periods=127).sum() == 127            # T 포함 127일 연속 = 126거래일 이력
+    mom = C / C.shift(126) - 1
+    day = pd.Series(range(len(tdays)), index=tdays)
+    ym = pd.Series([d[:6] for d in tdays], index=tdays)
+    rebal = [d for d, n in zip(tdays, tdays[1:] + [None]) if n is None or n[:6] != d[:6]]   # 월 마지막 거래일
+
+    def tick_bp(px, d):
+        return (1.0 if (d >= "20231211" and px < 2000) else 5.0) / px * 1e4
+
+    def hold_ret(code, i_in, i_out):
+        """T+1 시가 진입 → T'+1 시가 청산. 청산일에 없으면 그 전 마지막 종가(폐지·정지)."""
+        po = O.iat[i_in, O.columns.get_loc(code)]
+        if not po > 0:
+            return None
+        px = O.iat[i_out, O.columns.get_loc(code)] if i_out < len(tdays) else np.nan
+        if not px > 0:
+            closes = C[code].iloc[i_in:i_out + 1].dropna()
+            px = closes.iloc[-1] if len(closes) else np.nan
+        return (px / po - 1) * 1e4 if px > 0 else None
+
+    cells = {"W6": [], "L6": []}
+    prev = {"W6": set(), "L6": set()}
+    rec = {"eligible": [], "kospi200": [], "turnover": {"W6": [], "L6": []}, "held": {"W6": defaultdict(int), "L6": defaultdict(int)},
+           "skipped_months": 0}
+    for k, T in enumerate(rebal[:-1]):
+        i, j = day[T], day[rebal[k + 1]]
+        if j + 1 >= len(tdays):
+            break
+        cand = {}
+        for code in C.columns[ok.iloc[i].to_numpy()]:
+            un = U.at[T, code]
+            if un not in keep or not (liq.at[T, code] >= 0):
+                continue
+            if un not in cand or liq.at[T, code] > liq.at[T, cand[un]]:
+                cand[un] = code
+        elig = {un: c for un, c in cand.items() if liq.at[T, c] >= 5e8 and hist.at[T, c] and pd.notna(mom.at[T, c])}
+        rec["eligible"].append(len(elig))
+        if len(elig) < 15:
+            rec["skipped_months"] += 1
+            prev = {"W6": set(), "L6": set()}
+            continue
+        ranked = sorted(elig, key=lambda un: mom.at[T, elig[un]])
+        picks = {"W6": ranked[-5:], "L6": ranked[:5]}
+        base = [r for r in (hold_ret(c, i + 1, j + 1) for c in elig.values()) if r is not None]
+        bmean = float(np.mean(base))
+        for cid, us in picks.items():
+            codes = [elig[un] for un in us]
+            rs = [(c, hold_ret(c, i + 1, j + 1)) for c in codes]
+            rs = [(c, r) for c, r in rs if r is not None]
+            if not rs:
+                continue
+            g = float(np.mean([r for _, r in rs]))
+            now = {c for c, _ in rs}
+            turn = (len(now - prev[cid]) / len(now)) if prev[cid] else 1.0
+            tk = float(np.mean([tick_bp(O.iat[i + 1, O.columns.get_loc(c)], tdays[i + 1]) for c in now]))
+            c1 = turn * X.FIXED_BP
+            cells[cid].append((pd.Timestamp(T), g - bmean, g, c1, c1 + turn * 2 * tk))
+            rec["turnover"][cid].append(turn)
+            for un in us:
+                rec["held"][cid][units[un]["index_names"].split(" | ")[0]] += 1
+            prev[cid] = now
+        k2 = hold_ret("069500", i + 1, j + 1) if "069500" in O.columns else None
+        rec["kospi200"].append((T, k2))
+    split = lambda d: "TRAIN" if d.year <= 2020 else ("VALID" if d.year <= 2022 else "TEST")   # noqa: E731
+    fam = family(cells, split, np.random.default_rng(20260922), {"W6": {"long_only": True}, "L6": {"long_only": True}})
+    stats = {}
+    for cid, ev in cells.items():
+        ev_dates = [e[0] for e in ev]
+        n = {k: sum(split(d) == k for d in ev_dates) for k in ("TRAIN", "VALID", "TEST")}
+        oos = np.array([e[2] for e in ev if split(e[0]) != "TRAIN"])
+        rng = np.random.default_rng(7)
+        boot = [rng.choice(oos, len(oos)).mean() for _ in range(2000)] if len(oos) else [np.nan]
+        turn = np.mean(rec["turnover"][cid]) if rec["turnover"][cid] else np.nan
+        yearly = pd.Series([e[1] for e in ev], index=pd.to_datetime(ev_dates)).groupby(lambda x: x.year).mean()
+        stats[cid] = {"months": n, "gross_month_bp": round(float(np.mean([e[2] for e in ev])), 1),
+                      "oos_gross_month_bp": round(float(oos.mean()), 1) if len(oos) else None,
+                      "oos_gross_ci95": [round(float(np.quantile(boot, q)), 1) for q in (0.025, 0.975)],
+                      "mean_turnover": round(float(turn), 3),
+                      "breakeven_cost_per_switch_bp": round(float(oos.mean() / turn), 1) if len(oos) and turn else None,
+                      "yearly_info_bp": {int(y): round(float(v), 1) for y, v in yearly.items()},
+                      "top_held": sorted(rec["held"][cid].items(), key=lambda kv: -kv[1])[:12]}
+        if n["TRAIN"] < 48 or n["VALID"] < 18 or n["TEST"] < 24:
+            fam["cells"][cid]["verdict"] = "INCONCLUSIVE(표본 부족)"
+    kv = [(T, r) for T, r in rec["kospi200"] if r is not None]
+    el = rec["eligible"]
+    res = {"bar": fam["bar"], "cells": fam["cells"], "stats": stats, "cost_fixed_bp": round(X.FIXED_BP, 2),
+           "universe": {"etf_domestic": len(dom), "index_units": len(units), "units_kept": len(keep),
+                        "eligible_per_month": {"min": int(min(el)), "median": float(np.median(el)), "max": int(max(el))} if el else None,
+                        "months_total": len(el), "months_skipped_lt15": rec["skipped_months"]},
+           "kospi200_069500": {"months": len(kv), "mean_month_bp": round(float(np.mean([r for _, r in kv])), 1) if kv else None,
+                               "oos_mean_month_bp": round(float(np.mean([r for T, r in kv if T[:4] >= "2021"])), 1) if kv else None}}
+    out = HERE / "findings" / "etf-sector-momentum-results-2026-09.json"
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    print(json.dumps(res, ensure_ascii=False, indent=1, default=str))
     return 0
 
 
