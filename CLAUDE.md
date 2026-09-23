@@ -37,7 +37,7 @@ Validated against
             ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 에 **의도적으로 disabled**(autotrader 전환 절차, README §무한매수 —
             sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
             ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
-            nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-23.md(최신) · -2026-09-22-b.md · -2026-09-22.md ·
+            nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-24.md(최신 — 09-28 국내 모의 1주 시험 예약) · -2026-09-23.md · -2026-09-22-b.md · -2026-09-22.md ·
             보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토 — **미룬 변경 f51488d0
             로그인 30일·지문 조작 포함**, 검토 필요 기준표도 거기). 09-22 부터 로그인 30일 유지, 조작·금액 보기는 지문.
             ★ 텔레그램은 **세 갈래**(봇은 @wonistock_bot 하나): 1:1 대화 = 뉴스·공시·일일분석·장중급등락 ·
