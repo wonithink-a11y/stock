@@ -53,6 +53,12 @@ jobs:
         continue-on-error: true
         run: python scripts/build-sector-strength.py
 
+      # config/themeTree.json(손으로 고른 현재 기준 테마) 강도. 같은 prices.json + 거기 없는
+      # 테마 종목만 네이버 일봉으로 보충(~36콜, collect.js 와 같은 출처). 관찰용, 실패 무해.
+      - name: Build theme tree snapshot
+        continue-on-error: true
+        run: python scripts/build-theme-strength.py
+
       # 같은 prices.json 을 읽어 종목별 손절가·목표가·수량 기준을 낸다.
       # config/policies/portfolio.v1.json(PF-1.2)의 규칙을 적용하기만 하고
       # 새 수집도 새 규칙도 없다. ★ 그 정책은 registry 미등록 = 미발효 초안이라
