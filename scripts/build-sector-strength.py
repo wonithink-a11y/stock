@@ -50,7 +50,7 @@ SNAPSHOT = os.path.join(ROOT, "docs", "data", "shares-snapshot.json")
 OUT = os.path.join(ROOT, "docs", "data", "sector-strength.json")
 
 KST = timezone(timedelta(hours=9))
-WINDOWS = {"1w": 5, "1m": 21, "3m": 63, "6m": 126}
+WINDOWS = {"1d": 1, "1w": 5, "1m": 21, "3m": 63, "6m": 126}
 MIN_MEMBERS = 5          # 이 미만인 그룹은 표시하지 않는다 (절대 규칙 1)
 MIN_BARS = 130           # 6m 창을 채우지 못하는 종목은 그 창에서 제외
 TV_LOOKBACK = 21         # 거래대금 가중치를 재는 구간(창 시작 직전 21세션)
@@ -328,7 +328,10 @@ def r4(v):
     return None if v is None else round(v, 4)
 
 
-def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
+def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_members=MIN_MEMBERS):
+    """sector_by_ticker 값은 그룹 이름 하나 또는 **리스트**(테마처럼 여러 그룹 소속).
+    빈 리스트 = 어느 그룹에도 안 들지만 벤치마크에는 들어간다. 종목 행은 한 번만
+    만들어지므로 벤치마크는 겹침 소속으로 이중 계산되지 않는다."""
     shares_by_ticker = shares_by_ticker or {}
     as_of = None
     for rec in prices["byTicker"].values():
@@ -344,7 +347,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
         if rec.get("market") != market:
             continue
         g = sector_by_ticker.get(ticker)
-        if not g:
+        if g is None or g == "":
             unmapped += 1
             continue
         c = [x for x in rec.get("c", [])]
@@ -364,7 +367,8 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
             if ref_close:
                 cap_checks.append(usable * ref_close / sh["krxMarketCap"])
         rows.append({
-            "ticker": ticker, "name": rec.get("name"), "group": g,
+            "ticker": ticker, "name": rec.get("name"),
+            "groups": g if isinstance(g, list) else [g],
             "rets": {k: ret(c, n) for k, n in WINDOWS.items()},
             "capW": {k: cap_weight(c, usable, n) for k, n in WINDOWS.items()},
             "tvW": {k: tv_weight(c, v, n) for k, n in WINDOWS.items()},
@@ -379,11 +383,12 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
 
     by_group = {}
     for r in rows:
-        by_group.setdefault(r["group"], []).append(r)
+        for g in r["groups"]:
+            by_group.setdefault(g, []).append(r)
 
     groups = []
     for g, members in by_group.items():
-        if len(members) < MIN_MEMBERS:
+        if len(members) < min_members:
             continue
         rets = {k: med([m["rets"][k] for m in members]) for k in WINDOWS}
         rs = {k: (None if rets[k] is None or bench[k] is None else rets[k] - bench[k])
@@ -455,7 +460,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None):
         "market": market,
         "universeCount": len(rows),
         "unmappedTickers": unmapped,
-        "minMembers": MIN_MEMBERS,
+        "minMembers": min_members,
         "aggregation": "EW=그룹 내 종목 수익률의 중앙값 · TV=거래대금 가중 · CAP=시가총액 가중",
         "weightingNote": "TV·CAP 가중치는 **각 창의 시작 시점** 기준이다. 종료 시점으로 "
                          "잡으면 오른 종목에 오른 뒤의 비중이 가서 결과가 부풀려진다"

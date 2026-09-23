@@ -206,6 +206,9 @@ const state = {
   sectorStrength: null,    // docs/data/sector-strength.json (관찰용, 예측 주장 아님)
   tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
+  themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
+  themeWin: '1d',          // 테마 트리 기간
+  themeOpen: {},           // 테마 트리 펼침 상태(key -> true)
   etfDist: null,           // docs/data/etf-distributions.json
   etfSearch: '',
   etfAssetClass: 'all',
@@ -1877,6 +1880,81 @@ function sectorScatter(groups) {
   return svg + '</svg>';
 }
 
+// ---------- 테마 트리 (관찰용) ----------
+// docs/data/theme-strength.json = config/themeTree.json(손으로 고른 현재 기준 테마)을
+// 업종 탭과 같은 build() 로 계산한 것. 값은 EW(소속 종목 수익률 중앙값).
+const THEME_WINS = [['1d', '1일'], ['1w', '1주'], ['1m', '1개월'], ['3m', '3개월']];
+
+function renderThemeTree() {
+  const d = state.themeStrength;
+  if (!d || !d.tree) return '';
+  const w = state.themeWin;
+  const val = s => s && s.ret ? s.ret[w] : null;
+  const vals = [];
+  d.tree.forEach(b => { vals.push(val(b.stats)); b.subs.forEach(k => vals.push(val(k.stats))); });
+  const scale = Math.max(0.01, ...vals.filter(v => v !== null && v !== undefined).map(Math.abs));
+  const bar = v => {
+    if (v === null || v === undefined) return '';
+    const pct = Math.min(100, Math.abs(v) / scale * 100).toFixed(1);
+    return `<div style="height:8px;border-radius:2px;width:${pct}%;background:var(${v >= 0 ? '--good' : '--bad'});opacity:.75;${v < 0 ? 'margin-left:auto' : ''}"></div>`;
+  };
+  const barCell = v => `<td style="width:34%;min-width:90px"><div style="display:flex">
+      <div style="flex:1;display:flex">${v !== null && v !== undefined && v < 0 ? bar(v) : ''}</div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="flex:1">${v !== null && v !== undefined && v >= 0 ? bar(v) : ''}</div></div></td>`;
+  const lead = (L, members) => {
+    if (!L) return '<span class="muted">-</span>';
+    const m = (members || []).find(x => x.t === L.t);
+    const r = m && m.ret ? m.ret[w] : null;
+    return `${esc(L.name)}${L.primary ? '' : ' <span class="muted">(부)</span>'} ${secPct(r)}`;
+  };
+  const row = (key, label, depth, s, extra, members, L) => {
+    const open = state.themeOpen[key];
+    const caret = extra === null ? '' : `<span class="muted" style="display:inline-block;width:12px">${open ? '▾' : '▸'}</span>`;
+    return `<tr ${extra === null ? '' : `data-themetoggle="${esc(key)}" style="cursor:pointer"`}>
+      <td style="padding-left:${6 + depth * 16}px;white-space:nowrap">${caret}${depth === 0 ? `<b>${esc(label)}</b>` : esc(label)}
+        <span class="muted" style="font-size:11px">${s ? s.n : 0}종목</span></td>
+      <td style="text-align:right">${secPct(val(s))}</td>${barCell(val(s))}
+      <td style="text-align:right">${s ? secPct(s.rs[w]) : '<span class="muted">-</span>'}</td>
+      <td style="text-align:right">${s && s.breadth20 !== null ? Math.round(s.breadth20 * 100) + '%' : '<span class="muted">-</span>'}</td>
+      <td style="font-size:12px">${lead(L, members)}</td></tr>`;
+  };
+  let rows = '';
+  d.tree.forEach(b => {
+    const allMembers = b.subs.flatMap(k => k.members);
+    rows += row(b.key, b.theme, 0, b.stats, '', allMembers, b.leader);
+    if (!state.themeOpen[b.key]) return;
+    b.subs.forEach(k => {
+      rows += row(k.key, k.theme, 1, k.stats, '', k.members, k.leader);
+      if (!state.themeOpen[k.key]) return;
+      k.members.slice().sort((x, y) => ((y.ret || {})[w] ?? -9) - ((x.ret || {})[w] ?? -9)).forEach(m => {
+        const r = m.ret ? m.ret[w] : null;
+        rows += `<tr><td style="padding-left:${6 + 2 * 16 + 12}px;font-size:12px">${esc(m.name)} <span class="muted">${esc(m.t)}</span>${m.primary ? '' : ' <span class="muted" title="부 테마 — 주 테마는 다른 곳">(부)</span>'}</td>
+          <td style="text-align:right;font-size:12px">${m.hasPrice ? secPct(r) : '<span class="muted">가격 없음</span>'}</td>${barCell(r)}<td></td><td></td><td></td></tr>`;
+      });
+    });
+  });
+  const chips = THEME_WINS.map(([k, l]) =>
+    `<button class="chip${state.themeWin === k ? ' active' : ''}" data-themewin="${k}">${l}</button>`).join('');
+  return `
+  <div class="card">
+    <h2 style="margin:0 0 4px">테마 트리 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · 분류 v${esc(d.treeVersion || '-')}(${esc(d.treeAsOf || '-')}) · 벤치마크 ${esc(w)} ${secPct((d.benchmark || {})[w])}</span></h2>
+    <p class="muted" style="margin:4px 0 10px;font-size:12px;padding:8px;background:rgba(245,158,11,0.12);border-left:3px solid #f59e0b;color:var(--text)">
+      ⚠️ <b>관찰용입니다.</b> 테마 소속은 지금 기준으로 손으로 고른 것이라(config/themeTree.json) 과거 검증에 쓰지 않습니다.
+      값 = 소속 종목 수익률의 <b>중앙값</b>, 상대 = 벤치마크(가격 있는 전 종목 중앙값) 대비 초과분, 20일선 = 20일 이동평균 위 종목 비율,
+      대장주 = 지금 시총 1위(주 테마 종목 중). <b>(부)</b> 종목은 두 테마에 모두 들어가 두 테마가 같이 움직여 보일 수 있습니다.
+      줄을 누르면 펼쳐집니다.
+    </p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${chips}
+      <button class="chip" data-themetoggle="__all">전체 펼치기/접기</button></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>테마</th><th style="text-align:right">수익률</th><th style="text-align:center">−  |  +</th>
+        <th style="text-align:right">상대</th><th style="text-align:right">20일선</th><th>대장주</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    ${(d.fetchFailed || []).length ? `<p class="muted" style="font-size:11px">가격을 못 받은 종목: ${d.fetchFailed.map(x => esc(x.name)).join(', ')}</p>` : ''}
+  </div>`;
+}
+
 function renderSector() {
   const d = state.sectorStrength;
   if (!d || !d.groups || !d.groups.length) {
@@ -2008,7 +2086,7 @@ function render() {
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
-  else if (state.tab === 'sector') el.innerHTML = renderSector();
+  else if (state.tab === 'sector') el.innerHTML = renderThemeTree() + renderSector();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
@@ -2149,6 +2227,23 @@ document.addEventListener('click', (e) => {
   render();
 });
 
+document.addEventListener('click', (e) => {
+  const w = e.target.closest && e.target.closest('[data-themewin]');
+  if (w) { state.themeWin = w.dataset.themewin; return render(); }
+  const t = e.target.closest && e.target.closest('[data-themetoggle]');
+  if (!t) return;
+  const key = t.dataset.themetoggle;
+  if (key === '__all') {
+    const tree = (state.themeStrength || {}).tree || [];
+    const keys = tree.flatMap(b => [b.key, ...b.subs.map(k => k.key)]);
+    const openAll = !keys.every(k => state.themeOpen[k]);
+    state.themeOpen = openAll ? Object.fromEntries(keys.map(k => [k, true])) : {};
+  } else {
+    state.themeOpen[key] = !state.themeOpen[key];
+  }
+  render();
+});
+
 document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -2160,9 +2255,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
