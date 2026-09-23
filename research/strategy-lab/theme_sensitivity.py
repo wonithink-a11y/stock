@@ -53,8 +53,9 @@ def fetch_factor(src, code):
 
 def align(kr_dates, us, kind):
     """한국 t 에 u(t) = t 보다 엄격히 이전 최신 미국 관측. f_t = u(t_prev)→u(t) 변화, 같은 관측이면 결측(0 금지)."""
-    kr = pd.DataFrame({"date": pd.DatetimeIndex(kr_dates)})
-    u = pd.DataFrame({"u": us.index, "lvl": us.values})
+    # 날짜 단위를 ns 로 맞춘다 — pandas 버전에 따라 s/us 가 섞여 merge_asof 가 거부한다(Actions 실측 2026-09-24)
+    kr = pd.DataFrame({"date": pd.DatetimeIndex(kr_dates).astype("datetime64[ns]")})
+    u = pd.DataFrame({"u": pd.DatetimeIndex(us.index).astype("datetime64[ns]"), "lvl": us.values})
     j = pd.merge_asof(kr, u, left_on="date", right_on="u", direction="backward", allow_exact_matches=False)
     lvl, prev, same = j["lvl"], j["lvl"].shift(1), j["u"].eq(j["u"].shift(1))
     if kind == "pct":
@@ -232,6 +233,9 @@ def selftest():
     hol = pd.Series([1.0, 2.0], index=pd.to_datetime(["2020-04-16", "2020-04-17"]))
     fh, _ = align(pd.to_datetime(["2020-04-20", "2020-04-21"]), hol, "diff")
     assert np.isnan(fh.iloc[1])                                                                # 새 관측 없음 → 결측(0 아님)
+    mixed = pd.Series([10.0, 12.0], index=pd.DatetimeIndex(["2020-04-17", "2020-04-20"]).astype("datetime64[s]"))
+    fm, _ = align(pd.DatetimeIndex(kr[:2]).astype("datetime64[us]"), mixed, "pct")        # 날짜 단위 s/us 혼재(Actions)
+    assert abs(fm.iloc[1] - 0.2) < 1e-12
     fb, _ = align(kr[:2], pd.Series([4.0, 4.1], index=pd.to_datetime(["2020-04-17", "2020-04-20"])), "bp")
     assert abs(fb.iloc[1] - 10.0) < 1e-9                                                       # 4.0%→4.1% = 10bp
     # 계수 복원 · NW lag0 = White
