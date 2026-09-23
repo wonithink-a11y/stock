@@ -6,6 +6,7 @@
 
   python research/strategy-lab/theme_sensitivity.py --selftest   # 네트워크·데이터 없음
   python research/strategy-lab/theme_sensitivity.py              # FRED·yfinance 수집 + 계산(수 분)
+  python research/strategy-lab/theme_sensitivity.py --dashboard  # docs/data/theme-sensitivity.json (Actions 월 1회)
 """
 import argparse
 import hashlib
@@ -130,20 +131,49 @@ def heatmap(M, Tm, rows, cols, title, path, vmax=None):
     plt.close(fig)
 
 
-def main():
+def inputs():
     tree, members, names, R, C, m = LL.build_inputs()
     cap = LL.pit_cap(R.index, LL.load_vwap(), C, LL.load_a3c_records())
     LL.check_samsung(cap)
     s = LL.size_factor(R, cap, m)
     T = LL.CM.theme_returns(R, members)
     ctrl = pd.DataFrame({"m": m, "s": s})
-
     raw, F, U = [], {}, {}
     for name, src, code, kind in FACTORS:
         us = fetch_factor(src, code)
         raw.append(pd.DataFrame({"factor": name, "code": code, "usDate": us.index.strftime("%Y-%m-%d"), "value": us.values}))
         F[name], U[name] = align(R.index, us, kind)
-    F = pd.DataFrame(F)
+    return members, R, T, ctrl, pd.DataFrame(F), U, raw
+
+
+def dashboard():
+    """대시보드용(월 1회, Actions): 정의의 주 모형 · 2023– 구간만 docs/data/theme-sensitivity.json 으로."""
+    members, R, T, ctrl, F, U, _ = inputs()
+    lo = "2023-01-02"
+    sl = T.index >= lo
+    cols = [f[0] for f in FACTORS]
+    themes, n_sig, n_cells = [], 0, 0
+    for k in members:
+        r = fit(T.loc[sl, k], F.loc[sl], ctrl.loc[sl])
+        big, sub = k.split(" · ", 1)
+        themes.append({"big": big, "sub": sub, "cells": r})
+        if r:
+            n_cells += len(cols)
+            n_sig += sum(abs(r[c]["t"]) > 2 for c in cols)
+    out = {"updatedAt": pd.Timestamp.now(tz="Asia/Seoul").isoformat(timespec="seconds"),
+           "window": [lo, str(R.index[-1].date())], "factors": cols,
+           "factorLastUsDate": {c: str(U[c].dropna().iloc[-1].date()) for c in cols},
+           "absTgt2": n_sig, "cells": n_cells, "expectedByChance": round(0.05 * n_cells, 1),
+           "definition": "research/strategy-lab/findings/theme-sensitivity-definition-2026-09.md",
+           "note": "동시 민감도이며 예측 신호가 아니다. 값 = 요인 1σ 움직인 날 시장·규모 대비 추가 반응(bp). |t|<2 는 흐리게.",
+           "themes": themes}
+    path = os.path.join(LL.ROOT, "docs", "data", "theme-sensitivity.json")
+    json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    print(f"saved {path} · 창 {out['window']} · |t|>2 {n_sig}/{n_cells} (우연 {out['expectedByChance']})")
+
+
+def main():
+    members, R, T, ctrl, F, U, raw = inputs()
     os.makedirs(OUT_DIR, exist_ok=True)
     rawdf = pd.concat(raw)
     buf = rawdf.to_csv(index=False, lineterminator="\n")
@@ -224,4 +254,6 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
-    selftest() if ap.parse_args().selftest else main()
+    ap.add_argument("--dashboard", action="store_true", help="docs/data/theme-sensitivity.json 만 쓴다(Actions 월 1회)")
+    a = ap.parse_args()
+    selftest() if a.selftest else dashboard() if a.dashboard else main()

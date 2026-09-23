@@ -1,0 +1,50 @@
+name: Update theme-sensitivity.json (monthly)
+
+# 테마 × 외부요인(나스닥100·SOX·원/달러·미10Y·VIX·WTI) 동시 민감도 — 관찰용, 예측 아님.
+# 정의 고정: research/strategy-lab/findings/theme-sensitivity-definition-2026-09.md (67577fe3).
+# A2a(월 1회, 1~5일)가 끝나면 이어서 돈다 — 새 가격으로 2023– 구간을 다시 잰다.
+# FRED·yfinance 는 무키(이미 쓰는 출처). A2a 전량 + A4 파싱이라 수 분 걸린다.
+# 결과는 docs/data/theme-sensitivity.json 하나(대시보드 섹터강도 탭).
+on:
+  workflow_run:
+    workflows: ["backfill-price-a2a"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: theme-sensitivity
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install --quiet pandas numpy pyarrow yfinance
+
+      - name: Build docs/data/theme-sensitivity.json
+        run: python research/strategy-lab/theme_sensitivity.py --dashboard
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/theme-sensitivity.json
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore: update docs/data/theme-sensitivity.json (monthly)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push 재시도 $i..."; sleep 5
+          done
+          echo "push 최종 실패"; exit 1

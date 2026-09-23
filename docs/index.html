@@ -209,6 +209,7 @@ const state = {
   themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
   themeWin: '1d',          // 테마 트리 기간
   themeOpen: {},           // 테마 트리 펼침 상태(key -> true)
+  themeSensitivity: null,  // docs/data/theme-sensitivity.json (외부요인 동시 민감도, 월 1회, 관찰용)
   etfDist: null,           // docs/data/etf-distributions.json
   etfSearch: '',
   etfAssetClass: 'all',
@@ -1955,6 +1956,56 @@ function renderThemeTree() {
   </div>`;
 }
 
+// ---------- 테마 × 외부요인 민감도 (관찰용, 월 1회) ----------
+// docs/data/theme-sensitivity.json = theme_sensitivity.py --dashboard. 정의 고정 문서:
+// research/strategy-lab/findings/theme-sensitivity-definition-2026-09.md
+const SENS_LABEL = {
+  'Nasdaq-100': ['나스닥100', '나스닥100과 SOX를 함께 넣은 회귀라 두 값은 서로를 통제한 조건부 계수입니다. 예: 게임·인터넷의 나스닥 + / SOX − 는 "반도체를 뺀 나머지 나스닥 기술주"에 대한 노출이지, SOX가 오르면 떨어진다는 뜻이 아닙니다.'],
+  'SOX': ['반도체지수(SOX)', '나스닥100과 함께 넣은 회귀라 조건부 계수입니다 — 나스닥 전체 움직임을 통제한 뒤의 반도체 노출.'],
+  'USD/KRW': ['원/달러', '+ = 원화 약세(환율 상승) 날 테마가 시장보다 더 오름. 뉴욕 정오 환율 기준이라 한국 장과 시점이 어긋날 수 있습니다.'],
+  'US10Y': ['미 10년 금리', '금리가 1σ(bp) 오른 날의 반응'],
+  'VIX': ['VIX(공포)', 'VIX 가 오른 날 시장보다 덜/더 빠지는지'],
+  'WTI': ['유가(WTI)', '유가 1σ 상승일의 반응'],
+};
+
+function renderThemeSensitivity() {
+  const d = state.themeSensitivity;
+  if (!d || !d.themes) return '';
+  const VMAX = 80;
+  const cell = c => {
+    if (!c) return '<td class="muted" style="text-align:center">-</td>';
+    const strong = Math.abs(c.t) >= 2;
+    const pct = Math.round(Math.min(Math.abs(c.bp) / VMAX, 1) * (strong ? 70 : 18));
+    const col = c.bp >= 0 ? 'var(--good)' : 'var(--bad)';
+    return `<td title="t = ${c.t} · 표본 ${c.n}일" style="text-align:center;font-size:12px;background:color-mix(in srgb, ${col} ${pct}%, transparent);${strong ? 'font-weight:600' : 'color:var(--muted)'}">${c.bp > 0 ? '+' : ''}${Math.round(c.bp)}</td>`;
+  };
+  let rows = '', prevBig = null;
+  d.themes.forEach(th => {
+    if (th.big !== prevBig) {
+      rows += `<tr><td colspan="${d.factors.length + 1}" style="padding-top:8px"><b>${esc(th.big)}</b></td></tr>`;
+      prevBig = th.big;
+    }
+    rows += `<tr><td style="padding-left:16px;white-space:nowrap">${esc(th.sub)}</td>${d.factors.map(f => cell(th.cells && th.cells[f])).join('')}</tr>`;
+  });
+  const head = d.factors.map(f => {
+    const [lab, tip] = SENS_LABEL[f] || [f, ''];
+    return `<th style="text-align:center;cursor:help" title="${esc(tip)}">${esc(lab)}${f === 'Nasdaq-100' || f === 'SOX' ? ' ⓘ' : ''}</th>`;
+  }).join('');
+  return `
+  <div class="card">
+    <h2 style="margin:0 0 4px">테마 × 외부요인 민감도 <span class="muted" style="font-weight:400;font-size:13px">${esc(d.window[0])} ~ ${esc(d.window[1])} · 월 1회 갱신</span></h2>
+    <p class="muted" style="margin:4px 0 10px;font-size:12px;padding:8px;background:rgba(245,158,11,0.12);border-left:3px solid #f59e0b;color:var(--text)">
+      ⚠️ <b>동시 민감도이며 예측 신호가 아닙니다.</b> 값 = 요인이 평소 크기(1σ)만큼 움직인 날, 테마가 <b>시장·규모 대비 추가로</b> 반응한 정도(bp).
+      흐린 칸은 |t| &lt; 2(우연과 구분 어려움). 이 창에서 |t| &gt; 2 는 ${d.absTgt2}칸 / ${d.cells}칸 — 우연만으로도 약 ${d.expectedByChance}칸이 나오므로
+      칸 하나가 아니라 <b>여러 테마에 걸친 패턴</b>으로 읽으세요. 미국 요인은 한국 장 전날 밤 값이고, 그 영향은 대개 한국 시초가에 이미 반영됩니다.
+      ⓘ 표시 열은 제목에 마우스를 올리면 해석 주의가 나옵니다.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>테마</th>${head}</tr></thead>
+      <tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+
 function renderSector() {
   const d = state.sectorStrength;
   if (!d || !d.groups || !d.groups.length) {
@@ -2086,7 +2137,7 @@ function render() {
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
-  else if (state.tab === 'sector') el.innerHTML = renderThemeTree() + renderSector();
+  else if (state.tab === 'sector') el.innerHTML = renderThemeTree() + renderThemeSensitivity() + renderSector();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
@@ -2255,9 +2306,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
