@@ -9,12 +9,12 @@
    Performance/System)을 1군으로, 기존 리서치 도구 4개를 2군으로 나눴다. */
 const TAB_GROUPS = [
   { label: null, ids: ["overview", "positions", "activity", "performance", "system"] },
-  { label: "리서치", ids: ["scoring", "research", "macro", "datahealth"] },
+  { label: "리서치", ids: ["scoring", "research", "macro", "themes", "datahealth"] },
 ];
 const TAB_ORDER = TAB_GROUPS.flatMap((g) => g.ids);
 const TAB_ICONS = {
   overview: "📊", positions: "💼", activity: "🧾", performance: "📈", system: "⚙️",
-  scoring: "🧮", research: "🔬", macro: "🌐", datahealth: "🩺",
+  scoring: "🧮", research: "🔬", macro: "🌐", themes: "🗂️", datahealth: "🩺",
 };
 
 /* 다크/라이트 테마 - localStorage에 기억, 기본은 다크(기존 동작 무변경).
