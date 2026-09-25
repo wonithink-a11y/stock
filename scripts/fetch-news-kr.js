@@ -460,6 +460,13 @@ async function main() {
       + ' (네이버 수집은 정상). NEWS_GOOGLE=0 으로 끌 수 있습니다.');
   }
 
+  // 네이버가 전부 실패하면(키 오류 401 등) 직전분으로 파일은 채워지고 초록으로 끝난다 - 2026-09-25 VM 첫 실행이
+  // 정확히 그랬다. 알림이 영영 안 오는데 아무도 모르게 되므로 실패로 끝내 장애 알림을 부른다.
+  if (tickers.length && calls === 0) {
+    console.error('❌ 네이버 검색 호출이 전부 실패했습니다(키·한도 확인). 알림 판정 불가.');
+    process.exit(1);
+  }
+
   if (freshAlerts.length) {
     // 보유종목을 먼저, 그 다음 악재 순으로 — 알림이 잘려도 중요한 것이 남게
     freshAlerts.sort((a, b) => (b.held - a.held) || ((a.level === 'bad' ? -1 : 1) - (b.level === 'bad' ? -1 : 1)));
