@@ -1,10 +1,11 @@
 [Unit]
-Description=Watchlist news keyword alert every 10 minutes, weekdays 07:00-19:50 KST
+Description=Watchlist news keyword alert every 30 minutes, weekdays 08:00-18:30 KST
 OnFailure=unit-failure-notify@%n.service
 
 [Timer]
-# 1회 네이버 ~160콜 x 78회 = 하루 ~12,500콜 (한도 25,000)
-OnCalendar=Mon..Fri *-*-* 07..19:00/10
+# 1회 네이버 ~900콜(관심종목 872 = KR 353 + US 519, 2026-09-25 실측) x 22회 = 하루 ~19,800콜.
+# 한도 25,000 에서 Actions news.yml(하루 ~2회 x 900)을 빼면 이게 상한 근처다 - 간격을 줄이려면 종목부터 줄인다.
+OnCalendar=Mon..Fri *-*-* 08..18:00/30
 
 [Install]
 WantedBy=timers.target
