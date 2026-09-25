@@ -45,8 +45,8 @@ jobs:
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 텔레그램 키를 주지 않는다 - 키워드 알림은 2026-09-25 부터 VM(deploy/news-alert.timer)이 보낸다.
+          # 여기서도 보내면 같은 기사가 두 번 온다. 이 워크플로는 대시보드 news.json 만 만든다.
           # 아래는 전부 선택값(스크립트에 기본값 있음). 코드를 고치지 않고 여기서 조정한다.
           NEWS_RETENTION_DAYS: ${{ github.event.inputs.retention_days || '3' }}
           NEWS_GOOGLE: ${{ github.event.inputs.use_google || '1' }}

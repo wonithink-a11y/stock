@@ -1,0 +1,22 @@
+[Unit]
+# 관심종목 뉴스 키워드 알림(scripts/fetch-news-kr.js) → 텔레그램 1:1 방(TELEGRAM_CHAT_ID).
+# GitHub Actions cron 이 하루 2회만 돌아 2026-09-25 VM 으로 옮겼다. 대시보드 news.json 은 Actions 가 계속 만든다.
+# 알림 중복방지 원장(_seen)은 NEWS_OUT_PATH 파일에 산다 - 지우면 최근 3일 기사가 한꺼번에 다시 온다.
+# ~/collector-venv/.env 에 NAVER_CLIENT_ID · NAVER_CLIENT_SECRET 이 필요하다.
+Description=Watchlist news keyword alert (Naver search)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=NEWS_OUT_PATH=/home/ubuntu/collector-venv/news/news.json
+# 구글뉴스는 대시보드 시장 탭용이라 알림엔 안 쓴다
+Environment=NEWS_GOOGLE=0
+ExecStart=/usr/bin/node /home/ubuntu/collector/scripts/fetch-news-kr.js
+TimeoutStartSec=8min
+NoNewPrivileges=yes
+PrivateTmp=yes

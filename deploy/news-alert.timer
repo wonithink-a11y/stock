@@ -1,0 +1,10 @@
+[Unit]
+Description=Watchlist news keyword alert every 10 minutes, weekdays 07:00-19:50 KST
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 1회 네이버 ~160콜 x 78회 = 하루 ~12,500콜 (한도 25,000)
+OnCalendar=Mon..Fri *-*-* 07..19:00/10
+
+[Install]
+WantedBy=timers.target

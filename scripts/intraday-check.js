@@ -1,16 +1,17 @@
 /**
  * intraday-check.js
  *
- * 장중 급등락 감시 (GitHub Actions 실행용).
+ * 장중 급등락 감시. 2026-09-25 부터 **VM systemd 타이머**(deploy/intraday-alert.*)가 10분마다 돌린다.
  *
- * ★ 실측(2026-09-11): cron 은 10분 간격이지만 GitHub 이 고빈도 schedule 을 흘려서
- *   **하루 약 1회** 돈다. 그래서 '직전 체크'는 10분 전이 아니라 하루 전일 수 있다 -
- *   규칙이 그 사실을 알고 움직인다(아래 suddenMaxGapMinutes). 초 단위 실시간이
- *   필요하면 증권사 MTS 앱의 조건 알림을 병행하세요.
+ * ★ 실측(2026-09-11·09-25): GitHub Actions cron 은 공개 저장소의 고빈도 schedule 을 흘려서
+ *   하루 5회 안팎만 돌았다 - 그래서 VM 으로 옮겼다. 규칙은 여전히 실제 간격을 확인한다
+ *   (아래 suddenMaxGapMinutes) - VM 이 멈췄다 살아나도 긴 간격을 '급변동'으로 읽지 않는다.
  *
  * 동작:
  *  1. 현재 UTC 시각으로 열려 있는 시장(KR 09:00~15:30 KST / US 09:30~16:00 ET) 판별
- *  2. 열린 시장의 관심종목 현재가 조회 (KR: 네이버 fchart / US: stooq 실시간 quote)
+ *  2. 열린 시장의 관심종목 현재가 조회 (KR: 네이버 fchart / US: Yahoo spark 20종목 일괄)
+ *     ★ 시세 날짜가 그 시장의 '오늘'이 아니면 건너뛴다 - 휴장일엔 직전 거래일 봉이 그대로
+ *       와서(교훈81) 지난 등락을 90분마다 다시 알린다
  *  3. 감지 규칙 통과 시 텔레그램/슬랙 알림
  *     - dailyMove: 전일 종가 대비 ±5% 이상
  *     - suddenMove: 직전 체크 대비 ±3% 이상. ★ 직전 체크가 suddenMaxGapMinutes
@@ -19,14 +20,15 @@
  *     ★ 쿨다운 도장은 **전송 성공 뒤에만** 찍는다. 안 그러면 배달 안 된 알림이
  *       쿨다운을 먹고, 다음 기회까지 조용해진다
  *
- * 상태 파일: docs/data/intraday-state.json (Actions가 커밋해서 실행 간 유지)
+ * 상태 파일: INTRADAY_STATE_PATH (VM: ~/collector-venv/intraday/state.json).
+ *   없으면 docs/data/intraday-state.json (옛 Actions 경로, 수동 실행용)
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const STATE_PATH = path.join(ROOT, 'docs', 'data', 'intraday-state.json');
+const STATE_PATH = process.env.INTRADAY_STATE_PATH || path.join(ROOT, 'docs', 'data', 'intraday-state.json');
 
 const RULES = {
   dailyMovePct: 5.0, // 전일 종가 대비
@@ -69,35 +71,49 @@ function marketsOpenNow(now = new Date()) {
 
 // ---------- 현재가 조회 ----------
 
+/** 그 시장 시간대의 오늘 날짜 'YYYYMMDD'. 시세 날짜와 대조해 휴장일의 직전 봉을 거른다. */
+function localYmd(now, timeZone) {
+  return new Date(now).toLocaleDateString('en-CA', { timeZone }).replace(/-/g, '');
+}
+const MARKET_TZ = { KR: 'Asia/Seoul', US: 'America/New_York' };
+
 async function fetchQuoteKR(code) {
-  // fchart 일봉 최근 3개: 마지막 캔들은 장중 현재가로 갱신됨
+  // fchart 일봉 최근 3개: 마지막 캔들은 장중 현재가로 갱신됨. data="YYYYMMDD|시|고|저|종|량"
   const url = `https://fchart.stock.naver.com/sise.nhn?symbol=${code}&timeframe=day&count=3&requestType=0`;
   const xml = await fetchText(url);
   const rows = [...xml.matchAll(/<item data="([^"]+)"\s*\/>/g)].map((m) => m[1].split('|'));
   if (rows.length < 2) throw new Error(`시세 파싱 실패: ${code}`);
   const last = rows[rows.length - 1];
   const prev = rows[rows.length - 2];
-  return { price: Number(last[4]), prevClose: Number(prev[4]) };
+  return { price: Number(last[4]), prevClose: Number(prev[4]), date: last[0] };
 }
 
-async function fetchQuoteUS(ticker) {
-  // stooq 실시간(지연 가능) quote CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
-  const quoteCsv = await fetchText(`https://stooq.com/q/l/?s=${ticker.toLowerCase()}.us&f=sd2t2ohlcv&h&e=csv`);
-  const qLine = quoteCsv.trim().split('\n')[1];
-  if (!qLine) throw new Error(`quote 파싱 실패: ${ticker}`);
-  const qParts = qLine.split(',');
-  const price = Number(qParts[6]);
-  const quoteDate = qParts[1]; // YYYY-MM-DD
-
-  // 전일 종가: 일봉 CSV의 마지막 행이 오늘이면 그 전 행 사용
-  const dailyCsv = await fetchText(`https://stooq.com/q/d/l/?s=${ticker.toLowerCase()}.us&i=d`);
-  const dLines = dailyCsv.trim().split('\n');
-  const lastRow = dLines[dLines.length - 1].split(',');
-  const prevRow = dLines.length >= 3 ? dLines[dLines.length - 2].split(',') : null;
-  const prevClose = lastRow[0] === quoteDate && prevRow ? Number(prevRow[4]) : Number(lastRow[4]);
-
-  if (Number.isNaN(price) || Number.isNaN(prevClose)) throw new Error(`시세 값 오류: ${ticker}`);
-  return { price, prevClose };
+/**
+ * Yahoo spark 로 US 종목을 20개씩 묶어 조회한다(한도 20, 실측). range=1d 의 chartPreviousClose 가 전일 종가다.
+ * stooq 는 2026-09 에 전 종목 fetch failed/404 였다 - 미국장 알림이 그동안 한 번도 판정되지 않았다.
+ * 반환: Map(code → {price, prevClose, date}). 빠진 종목은 조회 실패로 센다.
+ */
+async function fetchQuotesUS(codes) {
+  const out = new Map();
+  for (let i = 0; i < codes.length; i += 20) {
+    const batch = codes.slice(i, i + 20);
+    try {
+      const url = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${batch.join(',')}&range=1d&interval=1d`;
+      const j = JSON.parse(await fetchText(url));
+      for (const r of (j.spark && j.spark.result) || []) {
+        const m = r.response && r.response[0] && r.response[0].meta;
+        if (!m || typeof m.regularMarketPrice !== 'number' || typeof m.chartPreviousClose !== 'number') continue;
+        out.set(r.symbol, {
+          price: m.regularMarketPrice,
+          prevClose: m.chartPreviousClose,
+          date: localYmd(m.regularMarketTime * 1000, MARKET_TZ.US),
+        });
+      }
+    } catch (e) {
+      console.warn(`  [경고] US 일괄조회 실패(${batch[0]}~): ${e.message}`);
+    }
+  }
+  return out;
 }
 
 // ---------- 감지 로직 (순수 함수 - 테스트 가능) ----------
@@ -206,18 +222,29 @@ async function main() {
 
   const state = fs.existsSync(STATE_PATH) ? JSON.parse(fs.readFileSync(STATE_PATH, 'utf-8')) : {};
   const allAlerts = [];
+  const now = Date.now();
+  const usQuotes = open.includes('US')
+    ? await fetchQuotesUS(targets.filter((t) => t.market === 'US').map((t) => t.code)) : new Map();
+  let failed = 0;
+  let stale = 0;
 
   for (const t of targets) {
     const market = t.market || 'KR';
     try {
-      const quote = market === 'US' ? await fetchQuoteUS(t.code) : await fetchQuoteKR(t.code);
-      const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code]);
+      const quote = market === 'US' ? usQuotes.get(t.code) : await fetchQuoteKR(t.code);
+      if (!quote) { failed++; continue; }
+      if (quote.date !== localYmd(now, MARKET_TZ[market])) { stale++; continue; } // 휴장일·개장 전
+      const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code], now);
       state[t.code] = newState;
       for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, line: `[${market}] ${a.message}` });
     } catch (e) {
+      failed++;
       console.warn(`  [경고] ${t.code} 시세 조회 실패: ${e.message}`);
     }
   }
+  console.log(`조회 실패 ${failed} · 오늘 시세 아님(휴장·개장 전) ${stale} / ${targets.length}`);
+  // 전부 실패는 소스가 죽은 것이다 - 초록으로 끝내면 stooq 처럼 몇 주를 모른다
+  if (targets.length && failed === targets.length) throw new Error(`시세 소스 전멸: ${failed}종목 전부 실패`);
 
   if (allAlerts.length === 0) {
     console.log('감지된 급등락 없음.');
@@ -241,4 +268,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, RULES };
+module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, localYmd, RULES };

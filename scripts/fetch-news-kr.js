@@ -3,7 +3,8 @@
  * 네이버 검색 API(뉴스) → 관심종목 뉴스 피드 + 시장 주요뉴스 + 악재/호재 키워드 알림
  *
  *   - docs/data/news.json  (대시보드 뉴스 탭·시장 헤드라인용)
- *   - 텔레그램 알림          (키워드에 걸린 신규 기사만)
+ *   - 텔레그램 알림          (키워드에 걸린 신규 기사만) — 2026-09-25 부터 VM 타이머(deploy/news-alert.*)만
+ *                              보낸다. Actions 는 공개 저장소 고빈도 cron 이 흘려져 하루 2회뿐이었다.
  *
  * 네이버 검색 API는 '실시간 스트림'이 아니라 최신순 검색 폴링입니다.
  * 하루 25,000 호출 한도 — 종목 20개 + 시장쿼리 몇 개면 1회 실행에 ~25콜, 부담 없음.
@@ -31,7 +32,8 @@ const TG_CHAT = process.env.TELEGRAM_CHAT_ID || '';
 const ROOT = path.resolve(__dirname, '..');
 const WATCHLIST_PATH = path.join(ROOT, 'config', 'watchlist.json');
 const HOLDINGS_PATH = path.join(ROOT, 'config', 'holdings.json');
-const OUT_PATH = path.join(ROOT, 'docs', 'data', 'news.json');
+// VM 알림 실행은 저장소 밖 파일에 쓴다(알림 중복방지 원장 _seen 이 여기 산다). 기본값은 대시보드용.
+const OUT_PATH = process.env.NEWS_OUT_PATH || path.join(ROOT, 'docs', 'data', 'news.json');
 
 const PER_STOCK = Number(process.env.NEWS_PER_STOCK || 5);   // 종목당 저장 기사 수
 const USE_GOOGLE = process.env.NEWS_GOOGLE !== '0';           // 구글뉴스 RSS 병행(무키). 0이면 끔

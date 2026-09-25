@@ -14,7 +14,7 @@
  * 아래 검사들은 그 사슬의 각 고리를 하나씩 붙잡는다.
  */
 const assert = require('assert');
-const { detect, stampAlerts, buildMessage, deliver, RULES } = require('./intraday-check.js');
+const { detect, stampAlerts, buildMessage, deliver, localYmd, RULES } = require('./intraday-check.js');
 
 let n = 0;
 const ok = (name, fn) => { fn(); n += 1; };
@@ -92,6 +92,13 @@ ok('★ 메시지가 텔레그램 한도 안에 들어온다', () => {
 ok('한도 안이면 생략 문구가 없다', () => {
   const text = buildMessage(['a', 'b'], RULES.maxAlertsPerMessage);
   assert(!/생략/.test(text));
+});
+
+ok('★ 시세 날짜 대조는 시장 시간대의 오늘이다(휴장일 직전 봉 거르기)', () => {
+  const t = Date.UTC(2026, 8, 25, 14, 30); // 09-25 23:30 KST = 09-25 10:30 ET
+  assert.strictEqual(localYmd(t, 'Asia/Seoul'), '20260925');
+  assert.strictEqual(localYmd(Date.UTC(2026, 8, 25, 16, 0), 'Asia/Seoul'), '20260926', 'KST 자정 넘김');
+  assert.strictEqual(localYmd(Date.UTC(2026, 8, 26, 1, 0), 'America/New_York'), '20260925', '미국은 아직 전날');
 });
 
 // ── 전송(main 의 접착부) ──────────────────────────────────────────

@@ -1,0 +1,19 @@
+[Unit]
+# 장중 급등락 알림(scripts/intraday-check.js) → 텔레그램 1:1 방(TELEGRAM_CHAT_ID).
+# GitHub Actions cron 이 하루 5회만 돌아 2026-09-25 VM 으로 옮겼다. 상태는 저장소 밖에 둔다
+# (VM 에 GitHub 자격증명을 넣지 않는다 - 커밋할 게 없게 만든다).
+Description=Intraday big-move alert (KR/US watchlist)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=INTRADAY_STATE_PATH=/home/ubuntu/collector-venv/intraday/state.json
+ExecStart=/usr/bin/node /home/ubuntu/collector/scripts/intraday-check.js
+TimeoutStartSec=8min
+NoNewPrivileges=yes
+PrivateTmp=yes
