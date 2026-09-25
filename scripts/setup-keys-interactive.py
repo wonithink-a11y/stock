@@ -66,6 +66,9 @@ SERVICES = [
     ("공공데이터포털(data.go.kr) - 관세청 수출입무역통계", [
         ("DATA_GO_KR_API_KEY", "일반 인증키(Encoding)"),
     ]),
+    ("Tiingo - 미국 폐지 종목 가격(docs/control/미국-폐지종목-가격-무료소스-조사-2026-09-25.md)", [
+        ("TIINGO_API_KEY", "API 토큰(tiingo.com/account/api/token)"),
+    ]),
 ]
 
 
