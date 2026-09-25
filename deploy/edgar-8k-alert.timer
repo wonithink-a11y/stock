@@ -1,0 +1,10 @@
+[Unit]
+Description=SEC EDGAR 8-K alert every 15 minutes
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 피드 1회 호출(+드물게 페이지 넘김). EDGAR 는 06:00~22:00 ET 평일에 접수하지만 호출이 싸서 창을 두지 않는다.
+OnCalendar=*:0/15
+
+[Install]
+WantedBy=timers.target

@@ -42,6 +42,7 @@ Validated against
             로그인 30일·지문 조작 포함**, 검토 필요 기준표도 거기). 09-22 부터 로그인 30일 유지, 조작·금액 보기는 지문.
             ★ 1:1 방의 **뉴스 키워드·장중 급등락은 09-25 부터 VM 타이머**(`news-alert` 15분·국내만·제목에 종목명 있는 기사만 · `intraday-alert` 10분 — Actions cron 이
             하루 2회·5회만 돌았다, b4228ceb). 상태는 ~/collector-venv/{news,intraday}. 미국 시세는 stooq 전멸 → Yahoo spark.
+            미국 관심종목은 뉴스 대신 **SEC 8-K 공시**(`edgar-8k-alert` 15분, 항목 번호로 거름 — VM .env SEC_USER_AGENT).
             공시·일일분석은 여전히 Actions(4~5시간 늦게 돈다). news-alert 는 VM .env 에 NAVER 키가 들어가야 켠다.
             ★ 텔레그램은 **세 갈래**(봇은 @wonistock_bot 하나): 1:1 대화 = 뉴스·공시·일일분석·장중급등락 ·
             그룹 `주식 알림`(TELEGRAM_ALERT_CHAT_ID) = 장애 전용 · 그룹 `매매•보안`(TELEGRAM_TRADE_CHAT_ID, 09-22) =

@@ -1,0 +1,18 @@
+[Unit]
+# 미국 관심종목 8-K 공시(중요 항목만) → 텔레그램 1:1 방. scripts/edgar-8k-alert.py 머리말 참고.
+# ~/collector-venv/.env 에 SEC_USER_AGENT(연락처 - SEC 요구) · TELEGRAM_BOT_TOKEN · TELEGRAM_CHAT_ID 필요.
+Description=SEC EDGAR 8-K alert for US watchlist
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=EDGAR_STATE_DIR=/home/ubuntu/collector-venv/edgar
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/edgar-8k-alert.py
+TimeoutStartSec=5min
+NoNewPrivileges=yes
+PrivateTmp=yes
