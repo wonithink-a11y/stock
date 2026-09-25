@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-24T21:10:10.108797+09:00",
+  "updatedAt": "2026-09-25T15:10:01.035075+09:00",
   "historyAsOf": "2026-09-16",
   "account": {
     "cashKrw": 100129381.0,
@@ -39005,17 +39005,165 @@
     }
   },
   "trades": {
-    "fromDate": "2026-06-26",
-    "toDate": "2026-09-24",
-    "days": [],
-    "byStrategy": {},
+    "fromDate": "2026-06-27",
+    "toDate": "2026-09-25",
+    "days": [
+      {
+        "date": "2026-09-22",
+        "buyKrw": 47585175,
+        "sellKrw": 49374889,
+        "buyCount": 29,
+        "sellCount": 31,
+        "realizedKrw": 112174,
+        "realizedFrom": 29,
+        "netKrw": -1789714
+      },
+      {
+        "date": "2026-09-21",
+        "buyKrw": 274000,
+        "sellKrw": 0,
+        "buyCount": 1,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 274000
+      },
+      {
+        "date": "2026-09-17",
+        "buyKrw": 12400379,
+        "sellKrw": 10786500,
+        "buyCount": 4,
+        "sellCount": 3,
+        "realizedKrw": 792450,
+        "realizedFrom": 3,
+        "netKrw": 1613879
+      },
+      {
+        "date": "2026-09-16",
+        "buyKrw": 48975785,
+        "sellKrw": 48855404,
+        "buyCount": 30,
+        "sellCount": 30,
+        "realizedKrw": -818827,
+        "realizedFrom": 30,
+        "netKrw": 120381
+      },
+      {
+        "date": "2026-09-10",
+        "buyKrw": 49675474,
+        "sellKrw": 0,
+        "buyCount": 30,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 49675474
+      },
+      {
+        "date": "2026-09-09",
+        "buyKrw": 217925559,
+        "sellKrw": 0,
+        "buyCount": 108,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 217925559
+      },
+      {
+        "date": "2026-09-07",
+        "buyKrw": 121326307,
+        "sellKrw": 0,
+        "buyCount": 90,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 121326307
+      },
+      {
+        "date": "2026-09-04",
+        "buyKrw": 10420867,
+        "sellKrw": 0,
+        "buyCount": 47,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 10420867
+      }
+    ],
+    "byStrategy": {
+      "foreign_flow5d_v1": [
+        {
+          "date": "2026-09-22",
+          "buyKrw": 47585175,
+          "sellKrw": 47575189,
+          "buyCount": 29,
+          "sellCount": 29,
+          "realizedKrw": 112174,
+          "realizedFrom": 29,
+          "netKrw": 9986
+        },
+        {
+          "date": "2026-09-16",
+          "buyKrw": 48975785,
+          "sellKrw": 48855404,
+          "buyCount": 30,
+          "sellCount": 30,
+          "realizedKrw": -818827,
+          "realizedFrom": 30,
+          "netKrw": 120381
+        },
+        {
+          "date": "2026-09-10",
+          "buyKrw": 1751900,
+          "sellKrw": 0,
+          "buyCount": 1,
+          "sellCount": 0,
+          "realizedKrw": 0,
+          "realizedFrom": 0,
+          "netKrw": 1751900
+        },
+        {
+          "date": "2026-09-07",
+          "buyKrw": 3697020,
+          "sellKrw": 0,
+          "buyCount": 2,
+          "sellCount": 0,
+          "realizedKrw": 0,
+          "realizedFrom": 0,
+          "netKrw": 3697020
+        }
+      ],
+      "pbr_value_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 6431375,
+          "sellKrw": 6924480,
+          "buyCount": 2,
+          "sellCount": 2,
+          "realizedKrw": 279903,
+          "realizedFrom": 2,
+          "netKrw": -493105
+        }
+      ],
+      "lowmom60_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 5969004,
+          "sellKrw": 3862020,
+          "buyCount": 2,
+          "sellCount": 1,
+          "realizedKrw": 512547,
+          "realizedFrom": 1,
+          "netKrw": 2106984
+        }
+      ]
+    },
     "pending": [],
     "unattributed": {
-      "buyKrw": 0,
-      "sellKrw": 0,
-      "count": 0
+      "buyKrw": 394173287,
+      "sellKrw": 1799700,
+      "count": 275
     },
-    "error": "체결내역 조회 실패(page 26): EGW00201 초당 거래건수를 초과하였습니다."
+    "error": null
   },
   "overseas": {
     "sleeves": [
@@ -39047,11 +39195,11 @@
         "progressPct": 1.98,
         "qty": 8,
         "avgPriceUsd": 126.3,
-        "lastPriceUsd": 137.44,
+        "lastPriceUsd": 146.33,
         "costUsd": 1010.4,
-        "valueUsd": 1099.52,
-        "pnlUsd": 89.12,
-        "pnlPct": 8.82,
+        "valueUsd": 1170.64,
+        "pnlUsd": 160.24,
+        "pnlPct": 15.86,
         "cashUsd": 49011.36,
         "seedUsd": 50021.76,
         "deployedPct": 2.02,
@@ -39087,11 +39235,11 @@
         "progressPct": 2.14,
         "qty": 15,
         "avgPriceUsd": 71.419,
-        "lastPriceUsd": 76.13,
+        "lastPriceUsd": 78.58,
         "costUsd": 1071.28,
-        "valueUsd": 1141.95,
-        "pnlUsd": 70.66,
-        "pnlPct": 6.6,
+        "valueUsd": 1178.7,
+        "pnlUsd": 107.42,
+        "pnlPct": 10.03,
         "cashUsd": 48928.71,
         "seedUsd": 50000.0,
         "deployedPct": 2.14,
@@ -39101,7 +39249,7 @@
       }
     ],
     "account": {
-      "orderableCashUsd": 97934.11,
+      "orderableCashUsd": 97936.48,
       "fxRate": 1360.0,
       "currency": "USD"
     },
