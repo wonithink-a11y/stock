@@ -83,7 +83,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // 투자 영향 큰 키워드 (제목·요약에서 탐지) → 알림·태그
 const BAD = ['유상증자', '무상감자', '감자', '횡령', '배임', '소송', '고소', '피소', '압수수색',
   '리콜', '결함', '어닝쇼크', '적자전환', '영업손실', '하한가', '상장폐지', '관리종목',
-  '불성실공시', '실권주', '과징금', '분식', '영업정지', '해킹', '유출'];
+  '불성실공시', '실권주', '과징금', '분식', '영업정지', '해킹', '유출',
+  // 2026-09-25: "루푸스 임상 실패·중단" 이 '임상' 때문에 호재로 나갔다. BAD 를 먼저 보므로 여기 두면 악재가 된다.
+  // '중단' 단독은 '중단기 전망' 을 잡아서 뺐다. "좌절 딛고 FDA 허가" 처럼 둘 다 걸리면 악재로 뜨되 flags 에 둘 다 보인다.
+  '실패', '좌절', '철회', '임상 중단', '개발 중단', '임상중단', '개발중단'];
 const GOOD = ['자사주', '자기주식취득', '수주', '공급계약', '계약체결', '흑자전환', '어닝서프라이즈',
   '최대실적', '사상최대', '신약', '임상', '품목허가', '승인', '특허', '상한가', '배당확대', '인수'];
 
@@ -91,7 +94,7 @@ function classifyNews(text) {
   const t = String(text || '');
   const bad = BAD.filter((k) => t.includes(k));
   const good = GOOD.filter((k) => t.includes(k));
-  if (bad.length) return { level: 'bad', flags: bad.slice(0, 3) };
+  if (bad.length) return { level: 'bad', flags: [...bad, ...good].slice(0, 3) };
   if (good.length) return { level: 'good', flags: good.slice(0, 3) };
   return { level: 'neutral', flags: [] };
 }
@@ -261,7 +264,9 @@ async function tgNotify(text) {
 
 async function main() {
   const watchlist = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-  const tickers = watchlist.tickers || [];
+  // NEWS_MARKETS=KR (VM 알림): 네이버 한국어 검색은 미국 종목엔 본문 언급뿐이었다(3일치 31건 중 제목 2건, 2026-09-25)
+  const MARKETS = process.env.NEWS_MARKETS ? process.env.NEWS_MARKETS.split(',') : null;
+  const tickers = (watchlist.tickers || []).filter((t) => !MARKETS || MARKETS.includes(t.market || 'KR'));
   const nameByCode = Object.fromEntries(tickers.map((t) => [t.code, t.name]));
   const qCount = MARKET_GROUPS.reduce((a, g) => a + g.queries.length, 0);
   console.log(`대상 종목 ${tickers.length}개 + 시장쿼리 ${qCount}개(${MARKET_GROUPS.length}그룹)`
@@ -318,7 +323,8 @@ async function main() {
       // 키워드에 걸린 신규 기사 알림 대상 수집
       for (const it of uniq) {
         const key = it.originallink || it.link;
-        if (it.level !== 'neutral' && !seenLedger[key]) {
+        // 제목에 종목명이 있을 때만 알린다 - 요약에만 스친 기사가 85%였고 대부분 무관했다(2026-09-25 실측 171/202)
+        if (it.level !== 'neutral' && it.title.includes(t.name) && !seenLedger[key]) {
           freshAlerts.push({ code: t.code, name: t.name, held: heldCodes.has(t.code), ...it });
         }
         seenLedger[key] = new Date().toISOString();

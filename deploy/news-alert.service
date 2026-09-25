@@ -16,6 +16,8 @@ EnvironmentFile=/home/ubuntu/collector-venv/.env
 Environment=NEWS_OUT_PATH=/home/ubuntu/collector-venv/news/news.json
 # 구글뉴스는 대시보드 시장 탭용이라 알림엔 안 쓴다
 Environment=NEWS_GOOGLE=0
+# 국내만 - 미국 종목은 네이버 한국어 검색이 안 맞는다(대시보드 news.json 은 Actions 가 미국 포함으로 계속 만든다)
+Environment=NEWS_MARKETS=KR
 ExecStart=/usr/bin/node /home/ubuntu/collector/scripts/fetch-news-kr.js
 TimeoutStartSec=8min
 NoNewPrivileges=yes

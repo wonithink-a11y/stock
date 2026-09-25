@@ -40,7 +40,7 @@ Validated against
             nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-09-24.md(최신 — 09-28 국내 모의 1주 시험 예약) · -2026-09-23.md · -2026-09-22-b.md · -2026-09-22.md ·
             보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토 — **미룬 변경 f51488d0
             로그인 30일·지문 조작 포함**, 검토 필요 기준표도 거기). 09-22 부터 로그인 30일 유지, 조작·금액 보기는 지문.
-            ★ 1:1 방의 **뉴스 키워드·장중 급등락은 09-25 부터 VM 타이머**(`news-alert` 30분·`intraday-alert` 10분 — Actions cron 이
+            ★ 1:1 방의 **뉴스 키워드·장중 급등락은 09-25 부터 VM 타이머**(`news-alert` 15분·국내만·제목에 종목명 있는 기사만 · `intraday-alert` 10분 — Actions cron 이
             하루 2회·5회만 돌았다, b4228ceb). 상태는 ~/collector-venv/{news,intraday}. 미국 시세는 stooq 전멸 → Yahoo spark.
             공시·일일분석은 여전히 Actions(4~5시간 늦게 돈다). news-alert 는 VM .env 에 NAVER 키가 들어가야 켠다.
             ★ 텔레그램은 **세 갈래**(봇은 @wonistock_bot 하나): 1:1 대화 = 뉴스·공시·일일분석·장중급등락 ·
