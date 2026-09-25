@@ -7,6 +7,8 @@ FB 는 지금 다른 ETF 를 가리키고, MON 은 몬산토가 아니다(2026-0
   python research/strategy-lab/us_pit_master.py intervals      # S1: fja05680 받아 고정 + 2016~ 구간 추림
   python research/strategy-lab/us_pit_master.py tiingo-meta    # 편출 구간 티커의 Tiingo 메타(재개 가능, 시간당 48회)
   python research/strategy-lab/us_pit_master.py build          # S2: 규칙 R1~R5 → security_master.csv · review.csv
+  python research/strategy-lab/us_pit_master.py edgar-facts [--limit N]  # S4: CIK 별 companyfacts 원본(gzip, 재개 가능)
+                                                              #   대상 = security_master 의 CIK, 없으면 현재 멤버(SEC 티커맵)
 
 env: TIINGO_API_KEY(.env 가능) · SEC_USER_AGENT(연락처 — SEC 요구, 코드에 안 쓴다)
 
@@ -244,14 +246,23 @@ def cmd_build(_):
     by_ticker, by_name = sec_files(ua)
     ren_p = OUT / "renames.csv"
     renames = {r.old: r for r in pd.read_csv(ren_p, dtype=str).itertuples()} if ren_p.exists() else {}
+    # R1 교차확인용: 저장소에 커밋된 위키 스냅샷(us_universe_snapshot)의 CIK 열
+    snaps = sorted((HERE / "data" / "us-universe" / "membership").glob("*.csv"))
+    wiki_cik = {}
+    if snaps:
+        w = pd.read_csv(snaps[0], dtype=str)
+        wiki_cik = {r.symbol: int(r.cik) for r in w.itertuples() if str(r.cik).isdigit()}
     rows, review = [], []
     for r in iv.itertuples():
         t, s, e = r.ticker, r.start, r.end
         base = {"ticker": t, "start": s, "end": e}
         if not e:                                                   # R1
-            cik = by_ticker.get(t)
+            cik, w = by_ticker.get(t), wiki_cik.get(t)
+            bad = "SEC 티커맵에 없음" if not cik else (f"위키 CIK {w} ≠ SEC {cik}" if w and w != cik else "")
             rows.append({**base, "rule": "R1", "cik": cik, "price_symbol": t, "price_source": "yfinance",
-                         "status": "OK" if cik else "REVIEW", "note": "" if cik else "SEC 티커맵에 없음"})
+                         "status": "REVIEW" if bad else "OK", "note": bad or ("위키 CIK 일치" if w else "위키 스냅샷에 없음")})
+            if bad:
+                review.append(rows[-1])
             continue
         m = tiingo_meta(t, key)
         rule, sym = (("R3", t) if covers(m, s, e) else (None, None))
@@ -290,12 +301,45 @@ def cmd_build(_):
     ms["cik"] = ms["cik"].astype("Int64")
     ms.to_csv(OUT / "security_master.csv", index=False)
     pd.DataFrame(review).to_csv(OUT / "review.csv", index=False)
-    # R1 CIK 교차확인: VM 위키 스냅샷이 로컬에 있으면 CIK 열과 대조
     cnt = ms.groupby(["rule", "status"]).size().to_dict()
     _manifest(master_counts={f"{k[0]}/{k[1]}": int(v) for k, v in cnt.items()},
               sec_company_tickers_sha256=hashlib.sha256((RAW / "sec_company_tickers.json").read_bytes()).hexdigest())
     for k, v in sorted(cnt.items()):
         print(f"  {k[0]} {k[1]:12} {v}")
+
+
+# ── S4 재무 원본 ─────────────────────────────────────────────────────
+def cmd_edgar_facts(args):
+    """companyfacts 원본을 그대로 gzip 보관한다 - 항목 매핑(us-map)은 감사 후 따로 동결하므로 여기선 고르지 않는다."""
+    ua = _key("SEC_USER_AGENT")
+    d = RAW / "edgar_facts"
+    d.mkdir(parents=True, exist_ok=True)
+    mp = OUT / "security_master.csv"
+    if mp.exists():
+        ciks = sorted({int(c) for c in pd.read_csv(mp)["cik"].dropna()})
+    else:
+        iv = pd.read_csv(OUT / "membership_intervals.csv", dtype=str, keep_default_na=False)
+        by_ticker, _ = sec_files(ua)
+        ciks = sorted({by_ticker[t] for t in iv.loc[iv["end"] == "", "ticker"] if t in by_ticker})
+    todo = [c for c in ciks if not (d / f"{c}.json.gz").exists()][: args.limit or None]
+    print(f"CIK {len(ciks)} · 남은 {len(todo)}", flush=True)
+    miss = []
+    for i, c in enumerate(todo, 1):
+        try:
+            b = _get(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{c:010d}.json", {"User-Agent": ua}, True)
+            (d / f"{c}.json.gz").write_bytes(gzip.compress(b))
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
+            miss.append(c)                                          # XBRL 이 없는 회사(오래된 폐지 등) - 기록만
+        time.sleep(0.12)                                            # SEC 초당 10회 한도
+        if i % 50 == 0:
+            print(f"  {i}/{len(todo)}", flush=True)
+    if miss:
+        (RAW / "edgar_facts_404.json").write_text(json.dumps(sorted(set(miss) | set(
+            json.loads((RAW / "edgar_facts_404.json").read_text()) if (RAW / "edgar_facts_404.json").exists() else []))))
+    tot = sum(f.stat().st_size for f in d.glob("*.json.gz"))
+    print(f"완료 · 404 {len(miss)} · 보관 {len(list(d.glob('*.json.gz')))}건 {tot / 1e6:.0f}MB(gzip)")
 
 
 # ── 셀프테스트 ────────────────────────────────────────────────────────
@@ -319,13 +363,14 @@ def selftest():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", nargs="?", choices=["intervals", "tiingo-meta", "build"])
+    ap.add_argument("cmd", nargs="?", choices=["intervals", "tiingo-meta", "build", "edgar-facts"])
+    ap.add_argument("--limit", type=int)
     ap.add_argument("--symbols", nargs="*")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest or not a.cmd:
         return selftest()
-    {"intervals": cmd_intervals, "tiingo-meta": cmd_tiingo_meta, "build": cmd_build}[a.cmd](a)
+    {"intervals": cmd_intervals, "tiingo-meta": cmd_tiingo_meta, "build": cmd_build, "edgar-facts": cmd_edgar_facts}[a.cmd](a)
 
 
 if __name__ == "__main__":
