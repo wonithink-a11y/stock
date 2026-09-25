@@ -70,3 +70,8 @@ data/fundamentals-ext/
 # 미국 PIT 수집(docs/control/미국-PIT-수집설계-2026-09-26.md) - Tiingo 는 Internal Use, 원자료·캐시는 로컬 전용
 data/us-pit/raw/
 data/us-pit/*.log
+
+# FRED 확장 백필 기록 - PC 예약작업(run-fred-tier*.bat)이 매일 날짜·행수만 바꿔 pull 을 막았다(2026-09-26 추적 해제, 09-03-b 결정 번복)
+data/market-regime/_manifest_fred_extended.json
+# 미국 PIT 체인 상태 파일
+data/us-pit/chain_status.txt
