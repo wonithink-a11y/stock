@@ -279,7 +279,7 @@ def cmd_build(_):
             rule, sym = "R2", n.new
             m = {"name": n.name}
         if not rule:                                                # R5
-            why = "Tiingo 없음" if m.get("_notFound") else f"Tiingo 기간 {m.get('startDate', '')[:10]}~{m.get('endDate', '')[:10]} 이 구간을 못 덮음(재사용·잘림)"
+            why = "Tiingo 없음" if m.get("_notFound") else f"Tiingo 기간 {(m.get('startDate') or '')[:10]}~{(m.get('endDate') or '')[:10]} 이 구간을 못 덮음(재사용·잘림)"
             rows.append({**base, "rule": "R5", "cik": None, "price_symbol": None, "price_source": None,
                          "status": "UNREACHABLE", "note": why})
             continue
@@ -288,7 +288,7 @@ def cmd_build(_):
             mn = tiingo_meta(sym)                                   # 캐시 필요: tiingo-meta --symbols <새 티커들>
             if not covers(mn, s, e):
                 rows.append({**base, "rule": "R2", "cik": None, "price_symbol": sym, "price_source": src, "status": "REVIEW",
-                             "note": f"새 티커 {sym} Tiingo 기간 {mn.get('startDate', '')[:10]}~{mn.get('endDate', '')[:10]} 이 구간을 못 덮음"})
+                             "note": f"새 티커 {sym} Tiingo 기간 {(mn.get('startDate') or '')[:10]}~{(mn.get('endDate') or '')[:10]} 이 구간을 못 덮음"})
                 review.append(rows[-1])
                 continue
         # yfinance 원천(현재 멤버)의 기간 확인은 S3 가격 게이트 3 이 한다 - 여기엔 가격이 없다
