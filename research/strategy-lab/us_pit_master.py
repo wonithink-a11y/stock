@@ -168,22 +168,29 @@ def tiingo_meta(sym, key=None):
         return json.loads(f.read_text(encoding="utf-8"))
     if key is None:
         raise SystemExit(f"Tiingo 메타 캐시에 {sym} 이 없다 - tiingo-meta 를 먼저 끝까지 돌린다")
+    b = tiingo_get(f"/tiingo/daily/{sym}", sym, key)
+    m = {"_notFound": True} if b is None else json.loads(b)
+    m["_fetched"] = datetime.now().isoformat(timespec="seconds")
+    f.write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+    return m
+
+
+def tiingo_get(path, sym, key):
+    """Tiingo 호출은 전부 여기로 — 월 고유 종목 상한 확인·사용 기록·호출 뒤 75초 대기. 404 는 None."""
     p, u, used, month = _tiingo_budget()
     if sym not in used and len(used) >= TIINGO_MONTH_CAP:
         raise SystemExit(f"Tiingo 월 고유 종목 {len(used)} — 한도 근처라 멈춘다(다음 달 재개)")
     try:
-        m = json.loads(_get(f"https://api.tiingo.com/tiingo/daily/{sym}", {"Authorization": "Token " + key}))
+        b = _get("https://api.tiingo.com" + path, {"Authorization": "Token " + key}, True)
     except urllib.error.HTTPError as e:
         if e.code != 404:
             raise
-        m = {"_notFound": True}
-    m["_fetched"] = datetime.now().isoformat(timespec="seconds")
-    f.write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+        b = None
     used.add(sym)
     u[month] = sorted(used)
     p.write_text(json.dumps(u))
     time.sleep(3600 / TIINGO_PER_HOUR)
-    return m
+    return b
 
 
 def cmd_tiingo_meta(args):
