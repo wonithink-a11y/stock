@@ -33,7 +33,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -73,15 +73,20 @@ def _get(url, headers, binary=False):
 
 def norm_name(s):
     """회사명 정규화 — 대문자·구두점 제거·법인 접미어 제거. 'Twitter, Inc.' == 'TWITTER INC'."""
-    s = str(s).upper().replace("&", " AND ")
+    s = str(s).upper().replace("&", " AND ").replace("`", "").replace("'", "")   # Kohl`s → KOHLS
     s = re.sub(r"\s-\s.*$", "", s)            # 'META PLATFORMS INC - CLASS A' → 앞부분
     s = re.sub(r"/[A-Z]{2}/?$", "", s)        # SEC 의 'ACME CORP /DE/'
-    toks = re.sub(r"[^A-Z0-9 ]", " ", s).split()
+    toks = [{"COS": "COMPANIES"}.get(t, t) for t in re.sub(r"[^A-Z0-9 ]", " ", s).split()]
     while toks and toks[-1] in SUFFIXES:
         toks.pop()
     while toks and toks[0] == "THE":
         toks.pop(0)
     return " ".join(toks)
+
+
+def name_key(s):
+    """매칭 키 - 공백까지 없앤다('V F CORP' == 'VF Corp')."""
+    return norm_name(s).replace(" ", "")
 
 
 def covers(meta, start, end):
@@ -93,14 +98,28 @@ def covers(meta, start, end):
     return (ms - s).days <= TOL_DAYS and (e - me).days <= TOL_DAYS
 
 
-def filed_in(sub_filings, start, end, forms=("10-K", "10-Q", "10-K/A", "10-Q/A", "20-F", "40-F")):
-    """EDGAR submissions 의 filings 목록(열 딕셔너리들)에 구간 안 정기보고서가 있는가."""
-    lo, hi = max(start, STUDY_START), end or "9999-12-31"
-    for f in sub_filings:
-        for form, d in zip(f.get("form", []), f.get("filingDate", [])):
-            if form in forms and lo <= d <= hi:
-                return True
-    return False
+def filed_count(sub_filings, start, end, forms=("10-K", "10-Q", "10-K/A", "10-Q/A", "20-F", "40-F")):
+    """구간 앞 400일 ~ 뒤 120일 안의 정기보고서 수. 넓히는 이유: 2016 안의 구간이 며칠뿐이거나(FOSL 5일)
+    연 1회 보고(20-F)면 구간 안에 한 건도 없을 수 있다 - 그 회사가 그때 존재했는지만 보면 된다."""
+    lo = (date.fromisoformat(max(start, STUDY_START)) - timedelta(days=400)).isoformat()
+    hi = (date.fromisoformat(end) + timedelta(days=120)).isoformat() if end else "9999-12-31"
+    return sum(form in forms and lo <= d <= hi
+               for f in sub_filings for form, d in zip(f.get("form", []), f.get("filingDate", [])))
+
+
+def filed_in(sub_filings, start, end):
+    return filed_count(sub_filings, start, end) > 0
+
+
+def name_active(sub, key, start, end):
+    """submissions 의 현재·옛 이름 중 key 와 같은 이름이 [구간 시작-400일, 구간 끝] 에 쓰였는가.
+    formerNames 는 {name, from, to}; 현재 이름은 마지막 옛 이름의 to 부터 지금까지."""
+    lo = (date.fromisoformat(max(start, STUDY_START)) - timedelta(days=400)).isoformat()
+    hi = end or "9999-12-31"
+    spans = [(f["name"], (f.get("from") or "0000")[:10], (f.get("to") or "9999")[:10]) for f in sub.get("formerNames", [])]
+    cur_from = max((t for _, _, t in spans), default="0000")
+    spans.append((sub.get("name") or "", cur_from, "9999"))
+    return any(name_key(nm) == key and fr <= hi and to >= lo for nm, fr, to in spans)
 
 
 # ── S1 ────────────────────────────────────────────────────────────────
@@ -204,7 +223,7 @@ def sec_files(ua):
     for line in gzip.decompress(lk.read_bytes()).decode("latin-1").splitlines():
         m = re.match(r"^(.*):(\d{10}):$", line)
         if m:
-            by_name.setdefault(norm_name(m.group(1)), set()).add(int(m.group(2)))
+            by_name.setdefault(name_key(m.group(1)), set()).add(int(m.group(2)))
     return by_ticker, by_name
 
 
@@ -230,13 +249,23 @@ def submissions(cik, ua):
 
 def resolve_cik(name, hint_cik, start, end, by_name, ua):
     """이름·힌트로 후보 CIK → 구간 안 정기보고서를 낸 후보만 남긴다. (cik, 근거) 또는 (None, 사유)."""
-    cands = set(by_name.get(norm_name(name), set())) if name else set()
+    key = name_key(name) if name else None
+    cands = set(by_name.get(key, set())) if key else set()
+    # 이름이 '그 구간에' 그 CIK 의 이름이었어야 한다 - Overstock 은 2023 에 'Bed Bath & Beyond, Inc.' 로 개명했다(BBBY 실측).
+    # 이름을 산 다른 회사가 정기보고서 수로만 비교하면 조용히 섞인다. 힌트 CIK(R2 새 티커)는 이름이 달라도 된다.
+    # 후보가 하나면 거르지 않는다 - 폐지 뒤 개명한 회사(CNX·O-I Glass)는 Tiingo 가 새 이름을 줘서 구간 당시 이름이 아니다.
+    if len(cands) > 1:
+        cands = {c for c in cands if name_active(submissions(c, ua), key, start, end)}
     if hint_cik:
         cands.add(hint_cik)
-    ok = [c for c in sorted(cands) if filed_in(submissions(c, ua)["filings"], start, end)]
+    n = {c: filed_count(submissions(c, ua)["filings"], start, end) for c in sorted(cands)}
+    ok = sorted((c for c in n if n[c]), key=lambda c: -n[c])
     if len(ok) == 1:
-        return ok[0], f"후보{len(cands)}→정기보고서 1"
-    return None, f"후보 {len(cands)} · 구간 정기보고서 {len(ok)}"
+        return ok[0], f"후보{len(cands)}→정기보고서 있는 1"
+    if len(ok) > 1 and n[ok[0]] > n[ok[1]]:
+        # 지주·자회사가 함께 내는 경우(Xerox Corp/Holdings, BHGE/LLC) - 보고서가 더 많은 쪽. 동률이면 판정 안 함
+        return ok[0], f"후보{len(cands)}→정기보고서 최다 {n[ok[0]]}건(차순 {n[ok[1]]})"
+    return None, (f"후보 {len(cands)} · 정기보고서 있는 후보 {len(ok)}(동률)" if ok else f"후보 {len(cands)} · 정기보고서 0")
 
 
 def cmd_build(_):
@@ -252,10 +281,14 @@ def cmd_build(_):
     if snaps:
         w = pd.read_csv(snaps[0], dtype=str)
         wiki_cik = {r.symbol: int(r.cik) for r in w.itertuples() if str(r.cik).isdigit()}
+    ov_p = OUT / "cik_overrides.csv"
+    overrides = ({(o.ticker, o.start): o for o in pd.read_csv(ov_p, dtype=str, keep_default_na=False).itertuples()}
+                 if ov_p.exists() else {})
     rows, review = [], []
     for r in iv.itertuples():
         t, s, e = r.ticker, r.start, r.end
         base = {"ticker": t, "start": s, "end": e}
+        o = overrides.get((t, s))
         if not e:                                                   # R1
             cik, w = by_ticker.get(t), wiki_cik.get(t)
             bad = "SEC 티커맵에 없음" if not cik else (f"위키 CIK {w} ≠ SEC {cik}" if w and w != cik else "")
@@ -265,7 +298,13 @@ def cmd_build(_):
                 review.append(rows[-1])
             continue
         m = tiingo_meta(t, key)
-        rule, sym = (("R3", t) if covers(m, s, e) else (None, None))
+        rule, sym = None, None
+        if t in renames:                                            # R2 먼저 - 사람이 검증한 목록이 Tiingo 메타보다 믿을 만하다.
+            n = renames[t]                                          # BBT: Tiingo 가 옛 BB&T 기간을 덮지만 이름은 지금 Beacon Financial
+            rule, sym = "R2", n.new
+            m = {"name": n.name}
+        if not rule and covers(m, s, e):                            # R3
+            rule, sym = "R3", t
         if not rule:
             for q in (t + "Q", t + "QQ"):                            # R4
                 if not (RAW / "tiingo_meta" / f"{q}.json").exists():
@@ -274,10 +313,6 @@ def cmd_build(_):
                 if covers(mq, s, e):
                     rule, sym, m = "R4", q, mq
                     break
-        if not rule and t in renames:                               # R2
-            n = renames[t]
-            rule, sym = "R2", n.new
-            m = {"name": n.name}
         if not rule:                                                # R5
             why = "Tiingo 없음" if m.get("_notFound") else f"Tiingo 기간 {(m.get('startDate') or '')[:10]}~{(m.get('endDate') or '')[:10]} 이 구간을 못 덮음(재사용·잘림)"
             rows.append({**base, "rule": "R5", "cik": None, "price_symbol": None, "price_source": None,
@@ -286,12 +321,25 @@ def cmd_build(_):
         src = "yfinance" if rule == "R2" and sym in set(iv.loc[iv["end"] == "", "ticker"]) else "tiingo"
         if rule == "R2" and src == "tiingo":
             mn = tiingo_meta(sym)                                   # 캐시 필요: tiingo-meta --symbols <새 티커들>
-            if not covers(mn, s, e):
+            if not covers(mn, s, e) and o is None:
                 rows.append({**base, "rule": "R2", "cik": None, "price_symbol": sym, "price_source": src, "status": "REVIEW",
                              "note": f"새 티커 {sym} Tiingo 기간 {(mn.get('startDate') or '')[:10]}~{(mn.get('endDate') or '')[:10]} 이 구간을 못 덮음"})
                 review.append(rows[-1])
                 continue
         # yfinance 원천(현재 멤버)의 기간 확인은 S3 가격 게이트 3 이 한다 - 여기엔 가격이 없다
+        if o is not None:                                           # 수동 지정(근거는 cik_overrides.csv)
+            cik = int(o.cik) if o.cik else None
+            if o.status in ("UNREACHABLE", "PRICE_ONLY"):
+                keep = o.status == "PRICE_ONLY"
+                rows.append({**base, "rule": rule, "cik": cik, "price_symbol": sym if keep else None,
+                             "price_source": src if keep else None, "status": o.status, "note": "수동: " + o.basis})
+                continue
+            ok = filed_in(submissions(cik, ua)["filings"], s, e)
+            rows.append({**base, "rule": rule, "cik": cik, "price_symbol": sym, "price_source": src,
+                         "status": "OK" if ok else "REVIEW", "note": ("수동: " if ok else "수동 CIK 정기보고서 없음: ") + o.basis})
+            if not ok:
+                review.append(rows[-1])
+            continue
         cik, why = resolve_cik(m.get("name"), by_ticker.get(sym) if rule == "R2" else None, s, e, by_name, ua)
         rows.append({**base, "rule": rule, "cik": cik, "price_symbol": sym, "price_source": src,
                      "status": "OK" if cik else "REVIEW", "note": f"{m.get('name')} · {why}"})
@@ -300,7 +348,7 @@ def cmd_build(_):
     ms = pd.DataFrame(rows)
     ms["cik"] = ms["cik"].astype("Int64")
     ms.to_csv(OUT / "security_master.csv", index=False)
-    pd.DataFrame(review).to_csv(OUT / "review.csv", index=False)
+    pd.DataFrame(review, columns=ms.columns).to_csv(OUT / "review.csv", index=False)
     cnt = ms.groupby(["rule", "status"]).size().to_dict()
     _manifest(master_counts={f"{k[0]}/{k[1]}": int(v) for k, v in cnt.items()},
               sec_company_tickers_sha256=hashlib.sha256((RAW / "sec_company_tickers.json").read_bytes()).hexdigest())
@@ -355,9 +403,19 @@ def selftest():
     assert covers({"startDate": "2016-01-04", "endDate": "2016-02-09"}, "2010-01-01", "2016-02-01"), "2016~ 만 보므로 BRCM 잘림은 문제 아님"
     assert not covers({"_notFound": True}, "2016-01-01", "2020-01-01")
     fl = [{"form": ["4", "10-Q", "8-K"], "filingDate": ["2017-01-01", "2015-05-01", "2018-01-01"]}]
-    assert not filed_in(fl, "2016-01-01", "2020-01-01"), "10-Q 는 2015 — 구간 밖"
-    assert filed_in(fl, "2014-01-01", "2020-01-01") is False, "2016 이전은 STUDY_START 로 잘린다"
+    assert filed_in(fl, "2016-01-01", "2020-01-01"), "2015-05 10-Q 는 구간 앞 400일 안 — 그때 존재한 회사"
+    assert not filed_in(fl, "2017-01-01", "2020-01-01"), "2015-05 는 2017 시작의 400일 밖, Form 4·8-K 는 안 센다"
+    assert filed_in([{"form": ["10-K"], "filingDate": ["2016-03-01"]}], "2012-04-04", "2016-01-05"), "FOSL: 5일 구간도 직후 10-K 로 확인"
     assert filed_in([{"form": ["10-K"], "filingDate": ["2019-02-01"]}], "2010-01-01", "")
+    ov = {"name": "NEIGHBORHOOD INTELLIGENCE, INC.", "formerNames": [
+        {"name": "OVERSTOCK.COM, INC", "from": "2002-01-01", "to": "2023-06-01"},
+        {"name": "BED BATH & BEYOND, INC.", "from": "2023-06-01", "to": "2025-03-01"}]}
+    assert not name_active(ov, name_key("Bed Bath & Beyond Inc"), "1999-10-01", "2017-07-26"), "이름을 2023 에 산 회사는 1999~2017 구간 후보가 아니다"
+    assert name_active(ov, name_key("Overstock.com Inc"), "2016-01-01", "2020-01-01")
+    assert name_active({"name": "ACME CORP", "formerNames": []}, "ACME", "2016-01-01", "")
+    assert name_key("V F CORP /PA/") == name_key("VF Corp") == "VF"
+    assert name_key("Kohl`s Corp") == name_key("KOHLS CORP")
+    assert name_key("Interpublic Group Of Cos. Inc") == name_key("INTERPUBLIC GROUP OF COMPANIES, INC.")
     print("us_pit_master selftest: 통과")
 
 
