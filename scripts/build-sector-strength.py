@@ -431,6 +431,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
                            "sharesAsOf": m["sharesAsOf"], "staleDays": m["staleDays"]}
         groups.append({
             "group": g, "n": len(members),
+            "tickers": sorted(m["ticker"] for m in members),   # 종목 → 소속 업종 역조회(기업 해독 카드). 2026-09-26
             "ret": {k: r4(v) for k, v in rets.items()},
             "rs": {k: r4(v) for k, v in rs.items()},
             "accel": r4(accel),

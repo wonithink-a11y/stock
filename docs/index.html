@@ -1458,6 +1458,10 @@ function renderStockModal() {
   if (!dt.open) { el.hidden = true; el.innerHTML = ''; return; }
   el.hidden = false;
 
+  if (dt.vtab === 'decode') {   // 기업 해독은 가격 시계열이 없어도 열린다
+    el.innerHTML = modalShell(dt, `<div class="group-filter" style="margin-bottom:12px">${detailVtabBtns(dt)}</div>${renderDecodeTab(dt)}`);
+    return;
+  }
   if (!state.prices) { el.innerHTML = modalShell(dt, '<div class="empty" style="padding:30px;text-align:center">불러오는 중...</div>'); return; }
   const rec = state.prices.byTicker ? state.prices.byTicker[dt.ticker] : null;
   if (!rec || !rec.c || rec.c.length < 2) {
@@ -1472,9 +1476,7 @@ function renderStockModal() {
   const priceStr = dt.market === 'US' ? '$' + fmtNum(last.c) : fmtNum(last.c) + '원';
   const cls = d1 > 0 ? 'pos' : d1 < 0 ? 'neg' : 'muted';
 
-  const vtabBtns = `
-    <button data-detail-vtab="chart" class="chip ${dt.vtab === 'chart' ? 'active' : ''}">📈 차트</button>
-    <button data-detail-vtab="flows" class="chip ${dt.vtab === 'flows' ? 'active' : ''}">💰 수급</button>`;
+  const vtabBtns = detailVtabBtns(dt);
 
   const body = dt.vtab === 'flows' ? renderFlowsTab(dt) : renderChartTab(dt, dailyBars, n, rec);
 
@@ -1488,6 +1490,179 @@ function renderStockModal() {
 
   el.innerHTML = modalShell(dt, content);
   if (dt.vtab === 'chart') attachDetailHover('#stockModal', state.detail);
+}
+
+function detailVtabBtns(dt) {
+  return `
+    <button data-detail-vtab="chart" class="chip ${dt.vtab === 'chart' ? 'active' : ''}">📈 차트</button>
+    <button data-detail-vtab="flows" class="chip ${dt.vtab === 'flows' ? 'active' : ''}">💰 수급</button>
+    <button data-detail-vtab="decode" class="chip ${dt.vtab === 'decode' ? 'active' : ''}">🔎 해독</button>`;
+}
+
+// ---------- 기업 해독 카드 v0 (자동 데이터만 · 관찰용 · 점수·추천을 바꾸지 않는다) ----------
+// 기준표(criteria)는 registry 가 가리키는 버전을 GitHub 에서 읽는다 — 채점에 쓰인 것과 같은 파일. 근거는 docs/factor-evidence.json(손 관리).
+const RAW_BASE = 'https://raw.githubusercontent.com/wonithink-a11y/stock/main/';
+function ensureDecodeRefs() {
+  if (state.decodeRefs || state.decodeRefsLoading) return;
+  state.decodeRefsLoading = true;
+  Promise.all([
+    fetch('factor-evidence.json').then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(RAW_BASE + 'config/policies/registry.json').then(r => r.ok ? r.json() : null).catch(() => null),
+  ]).then(async ([evidence, registry]) => {
+    const criteria = {};
+    for (const mk of ['KR', 'US']) {
+      const ent = registry && registry.criteria && registry.criteria[mk];
+      if (ent) criteria[mk] = { version: ent.version, path: ent.path, data: await fetch(RAW_BASE + ent.path).then(r => r.ok ? r.json() : null).catch(() => null) };
+    }
+    state.decodeRefs = { evidence, criteria };
+    state.decodeRefsLoading = false;
+    render();
+  });
+}
+
+const DECODE_CATS = [['fundamental', '재무'], ['valuation', '밸류에이션'], ['technical', '기술'], ['supplyDemand', '수급']];
+const EVIDENCE_BADGE = { validated: ['검증됨(조건부)', 'pos'], reversed: ['반대 방향으로 검증', 'pos'], weak: ['약함·미확정', 'muted'], rejected: ['기각', 'neg'], untested: ['미검증', 'muted'] };
+
+function decodeSection(title, basis, inner) {
+  return `<div style="margin:14px 0 4px"><h4 style="margin:0 0 4px">${title}</h4><div class="muted" style="font-size:11px;margin-bottom:6px">${basis}</div>${inner}</div>`;
+}
+
+function fmtRaw(d) {
+  const v = d.raw !== undefined ? d.raw : d.value !== undefined ? d.value : d.signal !== undefined ? d.signal : d.trend !== undefined ? d.trend
+    : d.peg !== undefined ? d.peg : d.marginOfSafety !== undefined ? d.marginOfSafety : d.confirmed !== undefined ? d.confirmed : null;
+  if (v === null || v === undefined) return '<span class="muted">-</span>';
+  if (typeof v === 'number') return esc(String(Math.round(v * 1000) / 1000));
+  return esc(String(v));
+}
+
+function renderDecodeTab(dt) {
+  ensureDecodeRefs();
+  const results = (state.latest && state.latest.results) || [];
+  const r = results.find(x => x.ticker === dt.ticker);
+  if (!r) return '<div class="empty" style="padding:20px">이 종목은 스코어링 대상(latest.json)에 없습니다 — 해독할 점수가 없습니다.</div>';
+  const refs = state.decodeRefs;
+  const crit = refs && refs.criteria[r.market] && refs.criteria[r.market].data;
+  const critVer = refs && refs.criteria[r.market] ? `${r.market}-${refs.criteria[r.market].version}` : '(불러오는 중)';
+  // 근거 표는 국내 연구 결과다 — 미국 종목에 붙이면 검증 범위 밖 일반화가 된다(표시하지 않는다)
+  const ev = r.market === 'KR' ? ((refs && refs.evidence && refs.evidence.factors) || {}) : {};
+  const evBase = (refs && refs.evidence && refs.evidence.base) || '';
+  const asOf = (state.latest.updatedAt || '').slice(0, 16).replace('T', ' ');
+
+  // ① 점수 해부
+  const ov = crit && r.sectorType && r.sectorType !== 'general' && crit.sectorOverrides ? crit.sectorOverrides[r.sectorType] : null;
+  const weights = (ov && ov.categoryWeights) || (crit && crit.categoryWeights) || {};
+  let wsum = 0, wacc = 0;
+  const catRows = DECODE_CATS.map(([k, label]) => {
+    const b = (r.breakdown || {})[k];
+    const cov = ((r.dataCoverage || {}).byCategory || {})[k];
+    const w = weights[k];
+    if (b && b.score !== null && b.score !== undefined && w) { wsum += w; wacc += b.score * w; }
+    return `<tr><td>${label}</td><td>${b && b.score != null ? b.score : '<span class="muted">결측</span>'}</td><td>${w != null ? Math.round(w * 100) + '%' : '-'}</td>
+      <td>${cov ? `${cov.valid}/${cov.total}` : '-'}</td></tr>`;
+  }).join('');
+  const recomputed = wsum ? Math.round(wacc / wsum * 10) / 10 : null;
+  const check = recomputed === null ? '' : Math.abs(recomputed - r.totalScore) <= 0.5
+    ? `<span class="muted">검산: 범주 점수 × 가중치 = ${recomputed} (일치)</span>`
+    : `<span class="neg">검산 불일치: 단순 가중합 ${recomputed} ≠ 총점 ${r.totalScore} — 엔진이 추가 보정을 한다(원인 미확인)</span>`;
+  const factorRows = DECODE_CATS.map(([k, label]) => {
+    const det = ((r.breakdown || {})[k] || {}).detail || {};
+    const metricDefs = crit && crit[k] ? (crit[k].metrics || crit[k].indicators || {}) : {};
+    return Object.entries(det).map(([fk, d]) => {
+      const e = ev[fk];
+      const badge = e ? `<span class="${EVIDENCE_BADGE[e.status][1]}">${EVIDENCE_BADGE[e.status][0]}</span>` : `<span class="muted">${r.market === 'KR' ? '근거 표 없음' : '미국 미검증'}</span>`;
+      const fw = metricDefs[fk] && metricDefs[fk].weight != null ? Math.round(metricDefs[fk].weight * 100) + '%' : '';
+      const score = d.score === null || d.score === undefined ? '<span class="muted">결측(분모 제외)</span>' : Math.round(d.score * 10) / 10;
+      return `<tr><td class="muted">${label}</td><td>${esc(d.label || fk)}</td><td>${fmtRaw(d)}</td><td>${score}</td><td class="muted">${fw}</td><td>${badge}</td></tr>`;
+    }).join('');
+  }).join('');
+  const cov = r.dataCoverage || {};
+  const minCov = crit ? crit.minimumDataCoverage : null;
+  const warns = (r.warnings || []).map(w => `<li>${esc(typeof w === 'string' ? w : (w.label || w.message || JSON.stringify(w)))}</li>`).join('');
+  const cautions = ov && ov.cautions ? `<div style="margin-top:6px"><strong>업종 보정(${esc(ov.label || r.sectorType)}) 주의</strong><ul style="margin:4px 0;padding-left:18px">${ov.cautions.map(c => `<li class="muted">${esc(c)}</li>`).join('')}</ul></div>` : '';
+  const sec1 = decodeSection('① 왜 이 점수인가', `기준 ${esc(critVer)} · 채점 ${esc(asOf)} · 출처 latest.json(스코어링 엔진) · 결측 지표는 0점이 아니라 분모에서 뺀다(절대 규칙 1)`,
+    `<div><strong style="font-size:18px">${r.totalScore}</strong> <span class="muted">${esc(r.grade || '')}</span> · 데이터 커버리지 ${Math.round((cov.overall || 0) * 100)}%${minCov ? ` (기준 ${Math.round(minCov * 100)}% 미만이면 등급 '유보')` : ''} · ${check}</div>
+     <div class="table-wrap"><table><thead><tr><th>범주</th><th>범주 점수</th><th>가중치</th><th>유효 지표</th></tr></thead><tbody>${catRows}</tbody></table></div>
+     <div class="table-wrap" style="margin-top:6px"><table><thead><tr><th></th><th>지표</th><th>원값</th><th>점수</th><th>지표 가중</th><th>연구 근거 ②</th></tr></thead><tbody>${factorRows}</tbody></table></div>
+     ${warns ? `<div style="margin-top:6px"><strong>경고</strong><ul style="margin:4px 0;padding-left:18px">${warns}</ul></div>` : ''}${cautions}`);
+
+  // ② 연구 근거 상세
+  const used = new Set(DECODE_CATS.flatMap(([k]) => Object.keys(((r.breakdown || {})[k] || {}).detail || {})));
+  const evRows = [...used].filter(k => ev[k]).map(k => {
+    const e = ev[k];
+    const links = e.files.map(f => `<a href="${esc(evBase + f)}" target="_blank" rel="noopener">${esc(f.replace(/\.md$/, ''))}</a>`).join(' · ');
+    return `<li><strong>${esc(k)}</strong> <span class="${EVIDENCE_BADGE[e.status][1]}">${EVIDENCE_BADGE[e.status][0]}</span> — ${esc(e.summary)}${links ? `<br><span class="muted" style="font-size:11px">${links}</span>` : ''}</li>`;
+  }).join('');
+  const sec2 = decodeSection('② 이 점수의 근거는 검증됐나', `출처 docs/factor-evidence.json(${esc((refs && refs.evidence && refs.evidence.updated) || '-')} 갱신) · 국내 백테스트 결과이며 그 기간·방식 밖으로 일반화하지 않는다`,
+    r.market !== 'KR' ? '<p class="muted">우리 연구 결과는 국내 표본이다 — 미국 종목의 팩터는 검증한 적이 없다(미국 PIT 재검증 준비 중).</p>'
+      : evRows ? `<ul style="margin:0;padding-left:18px">${evRows}</ul>` : '<p class="muted">불러오는 중...</p>');
+
+  // ⑤ 업종·테마 상태 — 측정값 우선
+  let sec5 = '';
+  if (r.market === 'KR') {
+    const ss = state.sectorStrength, ts = state.themeStrength;
+    const pctv = v => v == null ? '-' : pctCell(Math.round(v * 1000) / 10);
+    const W = ['1w', '1m', '3m', '6m'];
+    const g = ss && (ss.groups || []).find(x => (x.tickers || []).includes(r.ticker));
+    const cells = st => W.map(k => `<td>${pctv(st.ret[k])}<br><span class="muted" style="font-size:11px">시장 대비 ${pctv(st.rs[k])}</span></td>`).join('');
+    const br = st => `${st.breadth20 != null ? Math.round(st.breadth20 * 100) + '%' : '-'} / ${st.breadth60 != null ? Math.round(st.breadth60 * 100) + '%' : '-'}`;
+    const secRow = g ? `<tr><td>업종 <strong>${esc(g.group)}</strong> (${g.n}종목)</td>${cells(g)}<td>${br(g)}</td><td>${esc(g.quadrant || '-')}</td></tr>` : '';
+    const themes = [];
+    for (const node of ((ts && ts.tree) || [])) for (const sub of (node.subs || [])) {
+      const m = (sub.members || []).find(x => x.t === r.ticker);
+      if (m && sub.stats) themes.push({ node, sub, m });
+    }
+    const thRows = themes.map(({ node, sub, m }) => `<tr><td>테마 <strong>${esc(node.theme)} › ${esc(sub.theme)}</strong> (${sub.stats.n}종목${m.primary ? '' : ' · 부 테마'})</td>${cells(sub.stats)}<td>${br(sub.stats)}</td><td>${esc(sub.stats.quadrant || '-')}</td></tr>`).join('');
+    const top = g && g.capTop && g.capTopWeight >= 0.49 ? `<p class="muted" style="font-size:11px">이 업종 시총의 ${Math.round(g.capTopWeight * 100)}%가 ${esc(g.capTop.name)} 한 종목 — 수익률은 종목 중앙값이라 영향은 작지만 업종 해석 시 주의.</p>` : '';
+    const noTickers = ss && ss.groups && ss.groups.length && !ss.groups[0].tickers;
+    sec5 = decodeSection('⑤ 업종·테마 상태', `기준 ${esc((ss && ss.asOf) || '-')} · 수익률 = 그룹 종목 중앙값, 시장 대비 = 그룹 − 추천범위 전체 중앙값 · 상승비율 = 20일/60일선 위 종목 비율 · 사분면은 규칙(3개월 상대강도 × 가속 = 1개월−3개월 상대강도)으로 붙인 이름일 뿐 — 측정값을 본다. 관찰용`,
+      (secRow || thRows) ? `<div class="table-wrap"><table><thead><tr><th>그룹</th><th>1주</th><th>1개월</th><th>3개월</th><th>6개월</th><th>상승비율 20/60일</th><th>사분면(규칙)</th></tr></thead><tbody>${secRow}${thRows}</tbody></table></div>${top}`
+        : `<p class="muted">업종·테마 소속 정보가 없습니다${noTickers ? '(업종 파일에 종목 목록이 아직 없음 — 다음 일일 분석 뒤 표시)' : ''}.</p>`);
+  }
+
+  // ⑥ 재무·이익의 질 — 원값만
+  const f = ((r.breakdown || {}).fundamental || {}).detail || {};
+  const fin = Object.entries(f).map(([k, d]) => `<li>${esc(d.label || k)}: <strong>${fmtRaw(d)}</strong></li>`).join('');
+  const sec6 = decodeSection('⑥ 재무·이익의 질', '출처 latest.json 재무 원값(스코어링 입력) · 현금흐름·일회성 이익 구분은 v0 에 없다(데이터 미연결)', fin ? `<ul style="margin:0;padding-left:18px">${fin}</ul>` : '<p class="muted">재무 데이터 없음</p>');
+
+  // ⑦ PBR 비교값 — 저평가 판정 아님
+  const pbrOf = x => { const d = (((x.breakdown || {}).valuation || {}).detail || {}).pbr; return d && typeof d.raw === 'number' && d.raw > 0 ? d.raw : null; };
+  const mine = pbrOf(r);
+  let sec7 = '';
+  if (mine != null) {
+    const pool = results.filter(x => x.market === r.market && pbrOf(x) != null).map(pbrOf).sort((a, b) => a - b);
+    const below = pool.filter(v => v < mine).length;
+    const g = state.sectorStrength && (state.sectorStrength.groups || []).find(x => (x.tickers || []).includes(r.ticker));
+    let inSec = '';
+    if (g) {
+      const sp = results.filter(x => g.tickers.includes(x.ticker) && pbrOf(x) != null).map(pbrOf);
+      inSec = ` · 같은 업종(${esc(g.group)}) ${sp.length}종목 중 낮은 쪽에서 ${sp.filter(v => v < mine).length + 1}번째`;
+    }
+    sec7 = decodeSection('⑦ PBR 비교값', `출처 latest.json · 비교 대상 = 추천범위(${r.market}) 중 PBR>0 인 ${pool.length}종목 · <strong>비교값일 뿐 '저평가' 판정이 아니다</strong> — ② 의 PBR 항목(조건부 검증 · 자기 과거 PBR 밴드 기각) 참고`,
+      `<p style="margin:0">PBR <strong>${mine.toFixed(2)}</strong>배 · 전체 ${pool.length}종목 중 낮은 쪽에서 ${below + 1}번째(하위 ${Math.round((below + 1) / pool.length * 100)}%)${inSec}</p>`);
+  }
+
+  // ⑧ 수급 — 수급 탭과 같은 데이터
+  let sec8 = '';
+  if (r.market === 'KR') {
+    ensureFlows();
+    const rows = state.flows && (state.flows.byTicker || {})[r.ticker];
+    const sum = (k, n) => rows.slice(-n).reduce((a, x) => a + (x[k] || 0), 0);
+    const eokFmt = v => `${v >= 0 ? '+' : ''}${(v / 1e8).toFixed(0)}억`;
+    sec8 = decodeSection('⑧ 수급', `출처 수급 탭과 같은 데이터(네이버, 수량×종가 금액 근사) · 수급 범주 가중치 ${weights.supplyDemand != null ? Math.round(weights.supplyDemand * 100) + '%' : '-'}`,
+      !state.flows ? '<p class="muted">불러오는 중...</p>' : !rows || !rows.length ? '<p class="muted">수급 데이터 없음</p>'
+        : `<p style="margin:0">외국인 5일 ${eokFmt(sum('foreign', 5))} · 20일 ${eokFmt(sum('foreign', 20))} / 기관 5일 ${eokFmt(sum('institution', 5))} · 20일 ${eokFmt(sum('institution', 20))} <span class="muted">(최근 ${rows.length}거래일 데이터)</span></p>`);
+  }
+
+  // ⑨ 일정·최근 공시
+  const evs = ((state.events && state.events.events) || []).filter(e => e.code === r.ticker);
+  const disc = ((state.disclosures && state.disclosures.items) || []).filter(d => d.ticker === r.ticker).slice(0, 8);
+  const evHtml = evs.length ? evs.map(e => `<li>${esc(e.date)} ${esc(e.title)} <span class="muted">(${e.status === 'yahoo' ? (e.confirmedBy ? 'Nasdaq 확인' : 'Yahoo 예상') : esc(e.status)})</span></li>`).join('') : '<li class="muted">앞으로 90일 안 수집된 일정 없음(없다는 뜻은 아님)</li>';
+  const discHtml = disc.length ? disc.map(d => `<li>${esc(d.rceptDt)} <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(String(d.reportNm).replace(/\s+/g, ' '))}</a></li>`).join('') : '<li class="muted">최근 공시 목록(공시 탭 범위) 안에 없음</li>';
+  const sec9 = decodeSection('⑨ 일정·최근 공시', `출처 events.json(${esc((state.events && state.events.asOf) || '-')}) · disclosures.json(${esc(((state.disclosures && state.disclosures.range) || {}).bgnDe || '-')}~)`,
+    `<ul style="margin:0 0 6px;padding-left:18px">${evHtml}</ul><ul style="margin:0;padding-left:18px">${discHtml}</ul>`);
+
+  return `<div style="font-size:13px">${sec1}${sec2}${sec5}${sec6}${sec7}${sec8}${sec9}
+    <p class="muted" style="font-size:11px;margin-top:10px">기업 해독 v0 — 자동 데이터만 쓴다. 사업 구조·성장 동력·약세 시나리오 같은 정성 분석은 아직 없다(v1). 이 화면은 점수·추천·매매를 바꾸지 않는다.</p></div>`;
 }
 
 function renderChartTab(dt, dailyBars, n, rec) {

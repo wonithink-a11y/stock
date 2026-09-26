@@ -1,0 +1,34 @@
+{
+  "_note": "기업 해독 카드 ② '연구 근거' — 스코어링 팩터(KR-2.4 키)별로 우리 연구가 무엇을 확인했는지. 판정은 findings 파일의 verdict 그대로, 요약은 그 파일의 검증 범위(국내·기간·방식)를 넘지 않는다. 손으로 관리 — 새 결과가 나오면 갱신. 점수에 쓰지 않는다(표시 전용).",
+  "updated": "2026-09-26",
+  "base": "https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/",
+  "status_legend": {
+    "validated": "검증됨 — 사전 기준을 통과(조건 있음)",
+    "reversed": "검증됨(반대 방향) — 원래 해석의 반대로 채택",
+    "weak": "약함·미확정 — 통계는 있으나 포트폴리오 성과가 불안정",
+    "rejected": "기각 — 초과수익 증거 없음",
+    "untested": "미검증 — 이 팩터 자체를 시험한 적 없음"
+  },
+  "factors": {
+    "pbr": {"status": "validated", "summary": "국내 2016~ 유일하게 살아남은 가치 축(PBR 슬리브 production GO). 단 초과수익 74%가 2022·2024(금리 상승기)에 몰린 조건부 성격이고, 극저PBR 꼬리에 의존한다. '자기 과거보다 싸진' PBR 밴드는 2010~2015 새 표본에서 기각 — 낮은 PBR 을 저평가 판정으로 읽지 않는다.", "files": ["pbr-combined-oos-validation-2026-08.md", "pbr-combined-2022-concentration-2026-08.md", "kr-pbr-robustness-2026-08.md", "kr-own-pbr-band-results-2026-09.md"]},
+    "perRelative": {"status": "untested", "summary": "업종 평균 대비 PER 은 시험한 적 없다. 관련: 이익수익률(1/PER)은 TEST IC 는 유의했으나 단독·결합 세 경로 모두 막혀 보류(모의 관측용).", "files": ["earnings-yield-final-robustness-2026-09.md", "pbr-ey-composite-oos-2026-09.md"]},
+    "peg": {"status": "rejected", "summary": "PEG 는 OOS TEST 에서 소멸(t=0.64).", "files": ["lynch-peg-buffett-roe-absolute-reverification-2026-08.md"]},
+    "marginOfSafety": {"status": "untested", "summary": "그레이엄 안전마진 자체는 시험 기록이 없다.", "files": []},
+    "roe": {"status": "rejected", "summary": "ROE 는 절대 임계값에서도 반전·IC t=0.47 로 기각. 수익성 결합(QCOMP)도 상위 10분위가 TEST 에서만 나와 기각.", "files": ["lynch-peg-buffett-roe-absolute-reverification-2026-08.md", "06-quality-composite-oos-2026-09.md"]},
+    "roeConsistency": {"status": "rejected", "summary": "품질 결합(QCOMP)의 구성요소로 시험 — 결합 전체가 기각. 단독 시험은 없다.", "files": ["06-quality-composite-oos-2026-09.md"]},
+    "debtRatio": {"status": "rejected", "summary": "품질 결합 구성요소로 기각. 저PBR 위 '하위 품질 20% 제외' 필터도 개선 증거 없음.", "files": ["06-quality-composite-oos-2026-09.md", "07-pbr-quality-vt-filter-oos-2026-09.md"]},
+    "currentRatio": {"status": "weak", "summary": "단독 스크리닝에서 WEAK, 품질 결합으로는 기각.", "files": ["kr-fundamental-scan-2026-08.md", "06-quality-composite-oos-2026-09.md"]},
+    "operatingMarginTrend": {"status": "weak", "summary": "영업이익률 '수준'은 ROE 와 독립적인 정보가 있으나 포트폴리오 증분이 TRAIN 에서 불안정(WEAK). 추세 항목은 품질 결합 구성요소로 기각.", "files": ["kr-opmargin-incremental-2026-08.md", "06-quality-composite-oos-2026-09.md"]},
+    "revenueGrowthYoY": {"status": "rejected", "summary": "성장축(매출·자산·영업이익 성장)은 단독으로도 알파 없음, 교집합일수록 악화. 성장 계열 묶음도 난수와 구별 안 됨.", "files": ["growth-screen-venn-decomposition-2026-08.md", "growth-family-bundle-2026-09.md"]},
+    "shareholderReturn": {"status": "untested", "summary": "배당·자사주 이력 자체는 시험 기록이 없다. 유상증자 회피 필터는 PBR 슬리브 노출 0.1% 라 시험 대상 없음으로 종결.", "files": []},
+    "movingAverageCross": {"status": "reversed", "summary": "골든크로스=저점, 데드크로스=고점으로 점수 방향을 뒤집어 채택(KR-2.3/2.4). 원래 해석(골든크로스 매수)은 반대로 작동했다.", "files": ["kr-production-technical-macross-reversal-2026-09.md"]},
+    "rsi": {"status": "untested", "summary": "RSI 단독 점수는 시험 기록이 없다. 관련: 볼린저 하단+RSI 반등 조합은 전체 유니버스에서 기각.", "files": ["v3-bollinger-rsi-full-universe-rejection-2026-08.md"]},
+    "macd": {"status": "rejected", "summary": "관례적 사용(상향 교차)은 모든 보유 기간에서 음의 초과수익(관측 문서).", "files": ["macd-information-content-a4-2026-08.md"]},
+    "volumeConfirmation": {"status": "rejected", "summary": "거래량 필터는 더할수록 성과가 단조 악화(돌파 전략), 스퀴즈+거래량 신호도 기각.", "files": ["lw3-donchian-lwti-volume-ablation-2026-09.md", "kr-squeeze-volume-2026-08.md"]},
+    "foreignNetBuy5d": {"status": "weak", "summary": "순수 통계(횡단면)는 독립 재구현까지 유지되나, 포트폴리오로 만들면 기각. 수급 범주 가중치는 KR-2.4 에서 0.", "files": ["kr-foreign-flow-5d-independent-verification-2026-08.md", "kr-foreign-flow5d-v1-engine-smoke-2026-08.md", "supply-demand-window-2026-09.md"]},
+    "institutionNetBuy5d": {"status": "weak", "summary": "TRAIN·VALID 는 유의했으나 TEST 에서 0/음으로 붕괴 — OOS 안정 증분 없음. 수급 범주 가중치 0.", "files": ["kr-institutional-flow-2026-08.md"]},
+    "deadCatBounce": {"status": "untested", "summary": "경고 플래그(급락 후 거래량 없는 반등). 점수가 아니라 경고용이며 시험 기록 없음.", "files": []},
+    "largeShareholderChange": {"status": "untested", "summary": "시험 기록 없음(수급 범주 가중치 0).", "files": []},
+    "buybackOrRetirement": {"status": "untested", "summary": "시험 기록 없음(수급 범주 가중치 0).", "files": []}
+  }
+}
