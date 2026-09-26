@@ -1,0 +1,58 @@
+name: decode-gemini
+
+# 공시 계기 자동 해독 — 관심종목(KR) 중 새 정기보고서(분기·반기·사업)가 나온 종목만 Gemini 로 해독해
+# docs/data/decode/{ticker}.json 에 쓴다. 인용은 코드가 DART 원문과 대조해 통과한 것만 남는다
+# (scripts/decode-gemini.py). 관찰용 — 점수·매매에 쓰지 않는다(절대 규칙 1).
+#
+# 한도(무료, 3.5 Flash-Lite): 하루 500 요청 — 태평양 자정(KST 16~17시) 재설정. 한 종목 ~35초라
+# 353종목 전량은 ~3.5시간 → 실행당 150분 예산, 남은 것은 다음 실행이 이어 간다(index.json 이 상태).
+# 평시엔 새 보고서가 나온 날만 몇 건이다.
+
+on:
+  schedule:
+    - cron: '0 11 * * *'     # 20:00 KST — 그날 제출분 반영, 한도 재설정 뒤
+  workflow_dispatch:
+    inputs:
+      max:
+        description: '이번 실행 최대 건수'
+        default: '450'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: decode-gemini
+  cancel-in-progress: false
+
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 175
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Decode new periodic reports
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PYTHONIOENCODING: utf-8
+          MAX: ${{ github.event.inputs.max || '450' }}
+        run: python scripts/decode-gemini.py --auto --max "$MAX" --budget-min 150
+
+      - name: Commit decode results
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          [ -d docs/data/decode ] || exit 0
+          git add docs/data/decode
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update docs/data/decode (Gemini 공시 해독)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

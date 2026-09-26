@@ -3,6 +3,9 @@
 
   python scripts/decode-gemini.py --ticker 005930 --name 삼성전자 --rcept 20260814003699 --out docs/cards/005930-gemini-pilot-2026-09.md
   python scripts/decode-gemini.py --selftest        (네트워크 없음)
+  python scripts/decode-gemini.py --auto [--max N] [--budget-min M] [--outdir DIR]
+      관심종목(config/watchlist.json KR) 중 새 정기보고서(분기·반기·사업)가 나온 종목만 해독 →
+      docs/data/decode/{ticker}.json + index.json. ★ docs/data 는 Actions(decode.yml)만 쓴다 — 로컬은 --outdir 로.
 
 흐름: DART document.xml(보고서 원문) → 'II. 사업의 내용'만 자름 → Gemini(JSON 스키마, 항목마다 원문 인용)
       → 검사: ① 인용이 원문에 그대로 있다(공백 무시) ② 주장 속 숫자가 전부 인용 안에 있다 → 통과만 본문, 탈락은 부록.
@@ -19,12 +22,18 @@ import time
 import urllib.error
 import urllib.request
 import zipfile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 # 2026-09-26 실측(삼성전자 반기보고서, 같은 지시문): 3.5-flash 첫 시도 응답·인용 통과 24/25 로 가장 안정.
 # 3.6·3.7-flash 는 503 연속, 3.8-flash 통과 11/17, 2.5-flash 22/32. Pro 계열은 무료 한도 0(결제 필요), 2.5-pro 는 신규 사용자 차단.
-MODEL = "gemini-3.5-flash"     # --model 로 바꾼다
+# 무료 등급 한도(AI Studio 실측, 모델마다 따로): Flash 계열 분당 5·하루 **20**, 3.5 Flash-Lite 분당 15·하루 **500**
+# (분당 입력 25만 토큰 공통). 자동 해독은 353종목이라 Lite 가 기본 — 같은 두 종목에서 Lite 인용 통과 30/32·27/27,
+# 정답지 핵심 사실 12/15(Flash 13/15). 한 종목을 공들여 볼 때만 --model gemini-3.5-flash.
+MODEL = "gemini-3.5-flash-lite"     # --model 로 바꾼다
+AUTO_DIR = ROOT / "docs" / "data" / "decode"
+MAX_TRIES = 2          # 같은 보고서가 이만큼 실패하면 다음 보고서까지 건너뛴다(매일 같은 실패로 한도를 쓰지 않게)
 MAX_CHARS = 180_000     # 사업의 내용만이면 대형주도 이 안이다(넘으면 자르고 표시)
 
 SECTIONS = {
@@ -241,22 +250,12 @@ def selftest():
     print("selftest ok (14)")
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--ticker"), ap.add_argument("--name"), ap.add_argument("--rcept"), ap.add_argument("--out")
-    ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--model", default=MODEL)
-    a = ap.parse_args()
-    if a.selftest:
-        return selftest()
-    env = load_env()
-    if not env.get("DART_API_KEY") or not env.get("GEMINI_API_KEY"):
-        raise SystemExit(".env 에 DART_API_KEY · GEMINI_API_KEY 가 필요하다")
-    text, truncated = business_section(dart_text(a.rcept, env["DART_API_KEY"]))
-    print(f"원문 사업의 내용 {len(text):,}자" + (" (잘림)" if truncated else ""))
+def decode(ticker, name, rcept, env, model):
+    """한 보고서를 해독하고 검사한다. 반환: (out, kept, dropped, usage, truncated)."""
+    text, truncated = business_section(dart_text(rcept, env["DART_API_KEY"]))
     prompt = PROMPT.format(sections="\n".join(f"- {k}: {v}" for k, v in SECTIONS.items()),
-                           name=a.name, ticker=a.ticker, text=text)
-    out, usage = gemini(prompt, env["GEMINI_API_KEY"], a.model)
+                           name=name, ticker=ticker, text=text)
+    out, usage = gemini(prompt, env["GEMINI_API_KEY"], model)
     src = squash(text)
     kept, dropped = [], []
     for it in out.get("items", []):
@@ -271,6 +270,131 @@ def main():
     bad = [t for t in out.get("insights") or [] if not loose(t)]
     dropped += [({"section": "insights", "claim": t, "quote": ""}, "원문에 없는 숫자") for t in bad]
     out["insights"] = [t for t in out.get("insights") or [] if loose(t)]
+    return out, kept, dropped, usage, truncated
+
+
+def kst_now():
+    return datetime.now(timezone(timedelta(hours=9)))
+
+
+def periodic_reports(key, days=88):
+    """최근 정기보고서 — 시장 전체 목록을 날짜로 훑어 종목코드로 거른다(종목마다 부르면 353콜).
+    corp_code 없이 부르면 DART 가 조회 기간을 3개월로 막는다 — 88일. 그보다 오래된 보고서는 이미 해독됐다."""
+    end = kst_now()
+    bgn = end - timedelta(days=days)
+    latest, page = {}, 1
+    while True:
+        url = (f"https://opendart.fss.or.kr/api/list.json?crtfc_key={key}&bgn_de={bgn:%Y%m%d}&end_de={end:%Y%m%d}"
+               f"&pblntf_ty=A&page_no={page}&page_count=100")
+        d = json.load(urllib.request.urlopen(url, timeout=60))
+        if d.get("status") == "013":             # 조회된 데이터 없음
+            break
+        if d.get("status") != "000":
+            raise SystemExit(f"DART 목록 조회 실패: {d.get('status')} {d.get('message')}")
+        for x in d.get("list", []):
+            sc = x.get("stock_code")
+            if sc and re.search(r"(사업|반기|분기)보고서", x.get("report_nm", "")):
+                if sc not in latest or x["rcept_no"] > latest[sc]["rcept_no"]:
+                    latest[sc] = x
+        if page >= int(d.get("total_page") or 1):
+            break
+        page += 1
+    return latest
+
+
+def _fail(items, t, r):
+    cur = items.setdefault(t, {})
+    cur["tries"] = cur.get("tries", 0) + 1 if cur.get("failedRcept") == r["rcept_no"] else 1
+    cur["failedRcept"] = r["rcept_no"]
+
+
+def auto(a, env):
+    outdir = Path(a.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    idx_path = outdir / "index.json"
+    index = json.loads(idx_path.read_text(encoding="utf-8")) if idx_path.exists() else {}
+    items = index.setdefault("items", {})
+    wl = json.loads((ROOT / "config" / "watchlist.json").read_text(encoding="utf-8"))
+    targets = {t["code"]: t.get("name") for t in wl["tickers"] if (t.get("market") or "KR") == "KR"}
+    try:                                         # 시총 큰 순 — 한도가 먼저 닿으면 작은 종목이 다음 날로 밀린다
+        cap = {s["t"]: s["cap"] for s in json.loads(
+            (ROOT / "docs" / "data" / "sector-strength.json").read_text(encoding="utf-8")).get("stocks", [])}
+    except Exception:
+        cap = {}
+    latest = periodic_reports(env["DART_API_KEY"])
+    pending = []
+    for t, name in targets.items():
+        r, cur = latest.get(t), items.get(t, {})
+        if not r or cur.get("rceptNo") == r["rcept_no"]:
+            continue
+        if cur.get("failedRcept") == r["rcept_no"] and cur.get("tries", 0) >= MAX_TRIES:
+            continue
+        pending.append((t, name, r))
+    pending.sort(key=lambda x: -cap.get(x[0], 0))
+    print(f"대상 {len(targets)} · 최근 정기보고서 있음 {sum(1 for t in targets if t in latest)} · 대기 {len(pending)}")
+
+    def save():
+        index["updatedAt"] = kst_now().isoformat(timespec="seconds")
+        idx_path.write_text(json.dumps(index, ensure_ascii=False, indent=0), encoding="utf-8")
+
+    start, done, failed = time.time(), 0, 0
+    for t, name, r in pending[: a.max]:
+        if time.time() - start > a.budget_min * 60:
+            print("시간 예산 소진 — 다음 실행에서 이어 간다")
+            break
+        try:
+            out, kept, dropped, usage, truncated = decode(t, name, r["rcept_no"], env, a.model)
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "replace")
+            if e.code == 429 and "PerDay" in body:
+                print("하루 한도 소진 — 다음 실행에서 이어 간다")
+                break
+            if e.code == 429:                    # 분당 한도 — 쉬고 다음 종목(이 종목은 다음 실행에서 다시)
+                time.sleep(65)
+            print(f"  {t} {name} 실패 HTTP {e.code}")
+            failed += 1
+            _fail(items, t, r)
+            continue
+        except Exception as e:
+            print(f"  {t} {name} 실패 {type(e).__name__}: {str(e)[:120]}")
+            failed += 1
+            _fail(items, t, r)
+            continue
+        rec = {"ticker": t, "name": name, "rceptNo": r["rcept_no"], "reportNm": r["report_nm"].strip(),
+               "rceptDt": r["rcept_dt"], "model": a.model, "decodedAt": kst_now().isoformat(timespec="seconds"),
+               "summary": out.get("summary"), "insights": out.get("insights") or [],
+               "items": [{k: i.get(k) for k in ("section", "claim", "stage", "quote")} for i in kept],
+               "kept": len(kept), "dropped": len(dropped), "truncated": truncated,
+               "note": "AI 요약·사람 검토 안 됨. 인용은 코드가 DART 원문과 대조해 통과한 것만. 점수·매매에 쓰지 않는다."}
+        (outdir / f"{t}.json").write_text(json.dumps(rec, ensure_ascii=False), encoding="utf-8")
+        items[t] = {k: rec[k] for k in ("rceptNo", "reportNm", "rceptDt", "decodedAt", "model", "kept", "dropped")}
+        done += 1
+        print(f"  {t} {name} {rec['reportNm']} · 통과 {len(kept)} 탈락 {len(dropped)}")
+        save()                                   # 종목마다 — 도중에 끊겨도 한 것은 남는다
+    save()
+    print(f"완료 {done} · 실패 {failed} · 남은 대기 {len(pending) - done - failed}")
+    if pending and done == 0 and failed:
+        raise SystemExit("전부 실패 — 소스나 키가 죽었다")   # 초록으로 끝내면 몇 주를 모른다
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ticker"), ap.add_argument("--name"), ap.add_argument("--rcept"), ap.add_argument("--out")
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--model", default=MODEL)
+    ap.add_argument("--auto", action="store_true")
+    ap.add_argument("--max", type=int, default=450)          # 하루 500(Lite) 중 여유를 남긴다
+    ap.add_argument("--budget-min", type=float, default=150)
+    ap.add_argument("--outdir", default=str(AUTO_DIR))
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    env = load_env()
+    if not env.get("DART_API_KEY") or not env.get("GEMINI_API_KEY"):
+        raise SystemExit(".env 에 DART_API_KEY · GEMINI_API_KEY 가 필요하다")
+    if a.auto:
+        return auto(a, env)
+    out, kept, dropped, usage, truncated = decode(a.ticker, a.name, a.rcept, env, a.model)
     print(f"항목 {len(kept) + len(dropped)} · 통과 {len(kept)} · 탈락 {len(dropped)} · 토큰 {usage}")
     Path(a.out).write_text(render(a.name, a.ticker, a.rcept, out, kept, dropped, usage, truncated, a.model), encoding="utf-8")
     print("saved:", a.out)
