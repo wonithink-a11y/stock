@@ -33,6 +33,9 @@ ROOT = Path(__file__).resolve().parent.parent
 # 정답지 핵심 사실 12/15(Flash 13/15). 한 종목을 공들여 볼 때만 --model gemini-3.5-flash.
 MODEL = "gemini-3.5-flash-lite"     # --model 로 바꾼다
 AUTO_DIR = ROOT / "docs" / "data" / "decode"
+# 해독 방식 버전 — 원문 자르기·지시문·검사를 바꿔 기존 결과가 낡으면 올린다. 올리면 다음 --auto 가 전 종목을 다시 한다.
+# 1: 첫 전체 실행(09-26) · 2: 섹션 경계를 줄 맨 앞 제목만(본문 속 'III. 재무에 관한 사항 참조' 에서 잘리던 것)
+DECODE_VERSION = 2
 MAX_TRIES = 2          # 같은 보고서가 이만큼 실패하면 다음 보고서까지 건너뛴다(매일 같은 실패로 한도를 쓰지 않게)
 MAX_CHARS = 180_000     # 사업의 내용만이면 대형주도 이 안이다(넘으면 자르고 표시)
 
@@ -133,9 +136,11 @@ def dart_text(rcept, key):
 def business_section(text):
     # 목차에도 'II. 사업의 내용 … III. 재무에 관한 사항' 이 있다 — 가장 긴 구간이 본문이다
     # (2026-09-26 SK하이닉스: 첫 일치 = 목차 338자 → 모델이 '원문에 정보 없음'만 냈다)
+    # ★ 경계는 **줄 맨 앞**의 제목만 — 본문 속 "'III. 재무에 관한 사항'을 참조" 를 끝으로 읽으면 LG생활건강 5.2만 자가
+    #   1,483자로 잘린다(2026-09-26 첫 전체 실행, 통과 10 미만 28종목 중 9종목이 이것)
     best = ""
-    for s in re.finditer(r"II\.\s*사업의\s*내용", text):
-        e = re.search(r"III\.\s*재무에\s*관한\s*사항", text[s.end():])
+    for s in re.finditer(r"(?m)^[ \t]*II\.\s*사업의\s*내용", text):
+        e = re.search(r"(?m)^[ \t]*III\.\s*재무에\s*관한\s*사항", text[s.end():])
         body = text[s.start(): s.end() + e.start()] if e else text[s.start():]
         if len(body) > len(best):
             best = body
@@ -330,7 +335,8 @@ def auto(a, env):
     pending = []
     for t, name in targets.items():
         r, cur = latest.get(t), items.get(t, {})
-        if not r or (cur.get("rceptNo") == r["rcept_no"] and cur.get("kept")):   # 통과 0 은 완료가 아니다
+        if not r or (cur.get("rceptNo") == r["rcept_no"] and cur.get("kept")      # 통과 0 은 완료가 아니다
+                     and cur.get("ver", 1) >= DECODE_VERSION):                   # 옛 방식 결과는 다시
             continue
         if cur.get("failedRcept") == r["rcept_no"] and cur.get("tries", 0) >= MAX_TRIES:
             continue
@@ -374,10 +380,10 @@ def auto(a, env):
                "rceptDt": r["rcept_dt"], "model": a.model, "decodedAt": kst_now().isoformat(timespec="seconds"),
                "summary": out.get("summary"), "insights": out.get("insights") or [],
                "items": [{k: i.get(k) for k in ("section", "claim", "stage", "quote")} for i in kept],
-               "kept": len(kept), "dropped": len(dropped), "truncated": truncated,
+               "kept": len(kept), "dropped": len(dropped), "truncated": truncated, "ver": DECODE_VERSION,
                "note": "AI 요약·사람 검토 안 됨. 인용은 코드가 DART 원문과 대조해 통과한 것만. 점수·매매에 쓰지 않는다."}
         (outdir / f"{t}.json").write_text(json.dumps(rec, ensure_ascii=False), encoding="utf-8")
-        items[t] = {k: rec[k] for k in ("rceptNo", "reportNm", "rceptDt", "decodedAt", "model", "kept", "dropped")}
+        items[t] = {k: rec[k] for k in ("rceptNo", "reportNm", "rceptDt", "decodedAt", "model", "kept", "dropped", "ver")}
         done += 1
         print(f"  {t} {name} {rec['reportNm']} · 통과 {len(kept)} 탈락 {len(dropped)}")
         save()                                   # 종목마다 — 도중에 끊겨도 한 것은 남는다
