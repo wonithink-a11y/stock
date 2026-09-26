@@ -24,7 +24,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   th { color: var(--muted); font-weight: 600; font-size: 12px; }
-  .table-wrap { overflow-x: auto; }
+  .table-wrap { overflow-x: auto; container-type: inline-size; }   /* 펼침 행 요약을 보이는 폭에 맞춘다(100cqw) */
   .grade { font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-block; }
   .grade-A { background: #14532d; color: #6ee7a0; }
   .grade-B { background: #1e3a5f; color: #7cc0ff; }
@@ -452,7 +452,7 @@ function stockRow(r) {
   const warns = (r.warnings || []).filter(w => !HIDDEN_WARNINGS.has(w));
   const hasNote = !!r.sectorCaution;
   const tl = tradeLevelOf(r.ticker);
-  const hasDetail = hasNote || !!tl;
+  const hasDetail = true;   // 펼치면 해독 요약(그래픽)이 나온다 — 모든 종목
   const open = !!state.openRows[r.ticker];
   const main = `
     <tr class="${hasDetail ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
@@ -464,18 +464,22 @@ function stockRow(r) {
       <td>${fmtPrice(r.currentPrice, r.market)}</td>
       <td>${coverageBar(r.dataCoverage)}</td>
       <td>${warns.map(w => `<span class="warn-tag">${esc(w)}</span>`).join('') || '-'}</td>
-      <td>${hasDetail ? `<button class="info-btn" data-row="${esc(r.ticker)}">${open ? '접기' : (hasNote ? '비고 ' + r.sectorCaution.notes.length : '기준')}</button>` : '<span class="muted">-</span>'}</td>
+      <td>${hasDetail ? `<button class="info-btn" data-row="${esc(r.ticker)}">${open ? '접기' : '요약'}</button>` : '<span class="muted">-</span>'}</td>
     </tr>`;
   if (!open || !hasDetail) return main;
   const c = r.sectorCaution;
   return main + `
-    <tr class="row-detail"><td colspan="8">
+    <tr class="row-detail"><td colspan="8"><div style="position:sticky;left:10px;max-width:calc(100cqw - 20px)">
+      ${decodeSummaryHtml(r)}
+      <button class="chip" data-chart="${esc(r.ticker)}" data-chart-name="${esc(r.name)}" data-chart-vtab="decode" style="margin-top:8px">🔎 전체 해독 — 점수 구성·업종 흐름·수급 차트</button>
+      ${tl || hasNote ? `<details style="margin-top:8px"><summary class="muted" style="cursor:pointer;font-size:12px">포지션 기준·업종 비고 (글)</summary>` : ''}
       ${tl ? tradeLevelBlock(tl) : ''}
       ${hasNote ? `<div class="note-title">${esc(c.label)} — ${esc(c.confidenceLabel || '')}</div>
       <ol>${c.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>` : ''}
       ${hasNote && c.adjustedMetrics && c.adjustedMetrics.length ? `<div class="adj">업종 기준으로 채점된 지표: ${c.adjustedMetrics.map(esc).join(', ')}</div>` : ''}
       ${hasNote && c.excludedMetrics && c.excludedMetrics.length ? `<div class="adj">평가 제외: ${c.excludedMetrics.map(m => esc(m.label) + ' (' + esc(m.reason) + ')').join(' / ')}</div>` : ''}
-    </td></tr>`;
+      ${tl || hasNote ? '</details>' : ''}
+    </div></td></tr>`;
 }
 
 function tableFor(rows) {
@@ -1278,11 +1282,11 @@ let flowsLoading = false;
 function ensureFlows() {
   if (state.flows || flowsLoading) return;
   flowsLoading = true;
-  loadJson('stock-flows').then(d => { state.flows = d || { byTicker: {} }; flowsLoading = false; if (state.detail.open) render(); });
+  loadJson('stock-flows').then(d => { state.flows = d || { byTicker: {} }; flowsLoading = false; render(); });
 }
 
-function openStockDetail(ticker, name) {
-  state.detail = { open: true, ticker, name, market: state.detail.market, vtab: 'chart', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
+function openStockDetail(ticker, name, vtab) {
+  state.detail = { open: true, ticker, name, market: state.detail.market, vtab: vtab || 'chart', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
   ensurePrices();
   render();
 }
@@ -1629,6 +1633,11 @@ function decodeBars(items) {   // items: [{label, v}] v = 비율(±) → 0 기�
   }).join('');
 }
 
+function fmtEok(v) {   // 원 → '−2.1조' / '+3,217억'
+  const a = Math.abs(v), sg = v < 0 ? '−' : '+';
+  return a >= 1e12 ? `${sg}${(a / 1e12).toFixed(1)}조` : `${sg}${(a / 1e8).toLocaleString('ko-KR', { maximumFractionDigits: 0 })}억`;
+}
+
 function decodeFlowSvg(rows) {   // 최근 20거래일 누적 순매수(외국인·기관)
   const last = rows.slice(-20);
   const cum = k => { let a = 0; return last.map(x => (a += (x[k] || 0))); };
@@ -1637,21 +1646,19 @@ function decodeFlowSvg(rows) {   // 최근 20거래일 누적 순매수(외국�
   const y = v => P + (H - 2 * P) * (1 - (v - mn) / ((mx - mn) || 1));
   const x = i => P + i * (W - 2 * P) / Math.max(1, last.length - 1);
   const line = (arr, col) => `<polyline fill="none" stroke="${col}" stroke-width="2" points="${arr.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}"/>`;
-  const eok = v => `${v >= 0 ? '+' : ''}${(v / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억`;
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:420px;height:auto">
     <line x1="${P}" x2="${W - P}" y1="${y(0)}" y2="${y(0)}" stroke="rgba(148,163,184,.5)" stroke-dasharray="3 3"/>
     ${line(f, '#60a5fa')}${line(g, '#f59e0b')}</svg>
-    <div style="font-size:12px"><span style="color:#60a5fa">━ 외국인 ${eok(f[f.length - 1])}</span> · <span style="color:#f59e0b">━ 기관 ${eok(g[g.length - 1])}</span>
+    <div style="font-size:12px"><span style="color:#60a5fa">━ 외국인 ${fmtEok(f[f.length - 1])}</span> · <span style="color:#f59e0b">━ 기관 ${fmtEok(g[g.length - 1])}</span>
     <span class="muted"> · 최근 ${last.length}거래일 누적(${esc(last[0].date)}~${esc(last[last.length - 1].date)}, 수량×종가 근사)</span></div>`;
 }
 
-function renderDecodeTab(dt) {
+// 한 줄 결론·신호등 5칸·재무 칩·보고서 링크 — 해독 탭 맨 위와 메인 표 펼침 행이 같이 쓴다
+function decodeSummaryHtml(r, c) {
   ensureDecodeRefs();
-  const results = (state.latest && state.latest.results) || [];
-  const r = results.find(x => x.ticker === dt.ticker);
-  if (!r) return '<div class="empty" style="padding:20px">이 종목은 스코어링 대상(latest.json)에 없습니다 — 해독할 점수가 없습니다.</div>';
   if (!state.decodeRefs) return '<p class="muted">기준표·근거를 불러오는 중...</p>';
-  const c = decodeCompute(r), R = DECODE_RULES;
+  c = c || decodeCompute(r);
+  const R = DECODE_RULES;
   const vs = c.validatedShare;
   const tiles = [
     r.market !== 'KR' ? decodeTile('점수 신뢰도', '미검증', '미국 지표는 검증 전', 'neutral')
@@ -1662,9 +1669,30 @@ function renderDecodeTab(dt) {
     (() => { if (r.market !== 'KR') return decodeTile('수급', '-', '미국 미제공', 'neutral');
       if (!c.flows || !c.flows.length) return decodeTile('수급 20일', '-', state.flows ? '데이터 없음' : '불러오는 중', 'neutral');
       const s = k => c.flows.slice(-20).reduce((a, x) => a + (x[k] || 0), 0); const fo = s('foreign'), ins = s('institution');
-      return decodeTile('수급 20일', `${fo + ins >= 0 ? '순매수' : '순매도'}`, `외국인 ${(fo / 1e8).toFixed(0)}억 · 기관 ${(ins / 1e8).toFixed(0)}억`, fo + ins >= 0 ? 'good' : 'bad'); })(),
+      return decodeTile('수급 20일', `${fo + ins >= 0 ? '순매수' : '순매도'}`, `외국인 ${fmtEok(fo)} · 기관 ${fmtEok(ins)}`, fo + ins >= 0 ? 'good' : 'bad'); })(),
     decodeTile('다음 일정', c.next ? (c.next.d === 0 ? '오늘' : 'D-' + c.next.d) : '-', c.next ? `${c.next.date.slice(5)} ${esc(c.next.title)}` : '수집된 일정 없음', c.next && c.next.d <= R.soonDays ? 'mid' : 'neutral'),
   ].join('');
+
+  // 재무 한 줄 — 기준 시점 명시
+  const f = c.fin, fv = k => f[k] && f[k].raw != null ? f[k].raw : null;
+  const finRow = Object.keys(f).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:6px">
+    ${[['ROE', fv('roe'), '%'], ['부채비율', fv('debtRatio'), '%'], ['매출성장', fv('revenueGrowthYoY'), '%'], ['유동비율', fv('currentRatio'), '%']].filter(x => x[1] != null).map(([l, v, u]) => `<span style="background:rgba(148,163,184,.12);border-radius:6px;padding:4px 8px">${l} <strong>${Math.round(v * 10) / 10}${u}</strong></span>`).join('')}
+    </div><div class="muted" style="font-size:11px;margin-top:4px">재무는 <strong>최근 사업보고서(연간) 기준</strong> — 올해 분기 실적은 점수에 반영되지 않는다(시스템 한계).</div>` : '';
+
+  const report = DECODE_REPORTS[r.ticker] ? `<a href="https://github.com/wonithink-a11y/stock/blob/main/${DECODE_REPORTS[r.ticker]}" target="_blank" rel="noopener" style="display:block;margin:10px 0;padding:10px 12px;border:1px solid rgba(96,165,250,.5);border-radius:10px;text-decoration:none;color:#93c5fd">📄 이 회사 사업 분석 보고서 보기 — 무엇으로 돈을 버는지 · 성장 동력 단계 · 위험·재검토 조건 (공시 원문 인용)</a>` : '';
+
+  return `<div style="padding:10px 12px;border-radius:10px;background:rgba(148,163,184,.12);line-height:1.6;margin-bottom:10px">${esc(decodeHeadline(r, c))}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">${tiles}</div>
+    ${finRow}${report}`;
+}
+
+function renderDecodeTab(dt) {
+  ensureDecodeRefs();
+  const results = (state.latest && state.latest.results) || [];
+  const r = results.find(x => x.ticker === dt.ticker);
+  if (!r) return '<div class="empty" style="padding:20px">이 종목은 스코어링 대상(latest.json)에 없습니다 — 해독할 점수가 없습니다.</div>';
+  if (!state.decodeRefs) return '<p class="muted">기준표·근거를 불러오는 중...</p>';
+  const c = decodeCompute(r);
 
   // 차트 1: 점수를 무엇이 만들었나(지표별 기여, 근거 색)
   const scoreBar = c.parts.filter(p => p.pts > 0.05).sort((a, b) => b.pts - a.pts);
@@ -1683,18 +1711,7 @@ function renderDecodeTab(dt) {
   // 차트 3: 수급
   const chart3 = r.market !== 'KR' || !c.flows || !c.flows.length ? '' : `<div><h4 style="margin:0 0 2px">누가 사고 있나 (20거래일 누적)</h4>${decodeFlowSvg(c.flows)}</div>`;
 
-  // 재무 한 줄 — 기준 시점 명시
-  const f = c.fin, fv = k => f[k] && f[k].raw != null ? f[k].raw : null;
-  const finRow = Object.keys(f).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:6px">
-    ${[['ROE', fv('roe'), '%'], ['부채비율', fv('debtRatio'), '%'], ['매출성장', fv('revenueGrowthYoY'), '%'], ['유동비율', fv('currentRatio'), '%']].filter(x => x[1] != null).map(([l, v, u]) => `<span style="background:rgba(148,163,184,.12);border-radius:6px;padding:4px 8px">${l} <strong>${Math.round(v * 10) / 10}${u}</strong></span>`).join('')}
-    </div><div class="muted" style="font-size:11px;margin-top:4px">재무는 <strong>최근 사업보고서(연간) 기준</strong> — 올해 분기 실적은 점수에 반영되지 않는다(시스템 한계).</div>` : '';
-
-  const report = DECODE_REPORTS[r.ticker] ? `<a href="https://github.com/wonithink-a11y/stock/blob/main/${DECODE_REPORTS[r.ticker]}" target="_blank" rel="noopener" style="display:block;margin:10px 0;padding:10px 12px;border:1px solid rgba(96,165,250,.5);border-radius:10px">📄 이 회사 사업 분석 보고서 보기 — 무엇으로 돈을 버는지 · 성장 동력 단계 · 위험·재검토 조건 (공시 원문 인용)</a>` : '';
-
-  return `<div style="font-size:13px">
-    <div style="padding:10px 12px;border-radius:10px;background:rgba(148,163,184,.12);line-height:1.6;margin-bottom:10px">${esc(decodeHeadline(r, c))}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px">${tiles}</div>
-    ${finRow}${report}
+  return `<div style="font-size:13px">${decodeSummaryHtml(r, c)}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px">${chart1}${chart2}${chart3}</div>
     <details style="margin-top:14px"><summary style="cursor:pointer">자세히 보기 — 지표별 점수·연구 근거·공시 목록</summary>${renderDecodeDetails(dt)}</details>
     <p class="muted" style="font-size:11px;margin-top:10px">판정은 모두 정해진 규칙으로 만든다(같은 데이터면 같은 문장). 매수·매도 신호가 아니며 점수·추천·매매를 바꾸지 않는다.</p></div>`;
@@ -2665,7 +2682,7 @@ document.getElementById('content').addEventListener('click', (e) => {
 
   // 종목명 클릭 → 상세 차트 모달 (비고 토글보다 먼저 처리)
   const ch = t.closest('[data-chart]');
-  if (ch) { e.stopPropagation(); return openStockDetail(ch.dataset.chart, ch.dataset.chartName); }
+  if (ch) { e.stopPropagation(); return openStockDetail(ch.dataset.chart, ch.dataset.chartName, ch.dataset.chartVtab); }
 
   // 종목 행 클릭 → 비고 토글
   const row = t.closest('tr.clickable[data-row]');
