@@ -73,6 +73,9 @@ SERVICES = [
     ("Tiingo - 미국 폐지 종목 가격(docs/control/미국-폐지종목-가격-무료소스-조사-2026-09-25.md)", [
         ("TIINGO_API_KEY", "API 토큰(tiingo.com/account/api/token)"),
     ]),
+    ("Google Gemini - 공시 계기 자동 해독(aistudio.google.com/apikey)", [
+        ("GEMINI_API_KEY", "API 키"),
+    ]),
 ]
 
 
@@ -221,9 +224,28 @@ def main():
         say("  [알림] git 저장소가 아닙니다. 파일 권한으로만 보호됩니다.")
         say()
 
+    for i, (service_name, _) in enumerate(SERVICES, 1):
+        say(f"  {i:>2}. {service_name}")
+    say()
+    services = SERVICES
+    if sys.stdin.isatty():
+        try:
+            pick = input("  넣을 서비스 번호(여러 개는 쉼표, 그냥 Enter = 전부): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            fail("입력이 취소됐다.")
+        if pick:
+            try:
+                idx = [int(x) for x in pick.replace(" ", "").split(",") if x]
+                services = [SERVICES[i - 1] for i in idx if 1 <= i <= len(SERVICES)]
+            except ValueError:
+                fail("번호만 넣는다(예: 3 또는 3,5).")
+            if not services:
+                fail("그 번호의 서비스가 없다.")
+        say()
+
     collected = {}
     seen_values = set()
-    for service_name, fields in SERVICES:
+    for service_name, fields in services:
         say(f"--- {service_name} ---")
         for env_name, label in fields:
             v = read_one(env_name, label, seen_values)
