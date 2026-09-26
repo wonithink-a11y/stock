@@ -24,8 +24,8 @@ Validated against
             합법 보유할 상품은 공개 정보로 미확인(FnGuide·한경은 DB화 금지·수집 방어, 네이버는 도구 제한으로 미확인). KIS invest-opinion 커버리지 프로브
             (docs/control/KIS-목표가-커버리지-프로브-2026-09-21.md): PBR 슬리브 보유 69종목 중 6개(9%)만 커버 < 사전 기준 50% → 접음. 유상증자 회피 필터도 PBR 슬리브
             노출 0.1% 라 시험 대상 없음으로 종결(findings/overissue-filter-exposure-check-2026-09.md).
-            ★ **남은 사용자 몫**: DataGuide 문의 **발송**(09-22 문안 확정, 수신 marketing@fnguide.com — Gmail 커넥터가 끊겨 초안
-            자동 생성 실패). ★ ETF 횡단면 **수집 승인(09-22)** → `research/strategy-lab/collect_etf_ohlc_krx.py`(KRX Open API 전 필드,
+            ★ **DataGuide 회신(09-26): PIT 아님(정정 덮어쓰기)·DB 저장 금지·연 720만원 → 추정치 라인 종결 유지**(소스조사 문서 §7).
+            ★ ETF 횡단면 **수집 승인(09-22)** → `research/strategy-lab/collect_etf_ohlc_krx.py`(KRX Open API 전 필드,
             2010~, 폐지 ETF 포함·기초지수명으로 국내/해외 분류 가능, gitignore). 다음은 **사전등록**(분류 규칙·신호 2셀·비용 23.5bp→ETF 3.54bp
             결과 전 고정). → **09-22 결과: O2b REJECT(TRAIN t 0.54 < 바닥선 1.95 — 2010~20 ETF 에서 신호 없음, 2021~ 에만 양·OOS net +18bp
             는 기록만) · O3u INCONCLUSIVE(표본 부족)**. findings/etf-cross-section-close-open-results-2026-09.md. 기간 재절단·재시험 금지,
