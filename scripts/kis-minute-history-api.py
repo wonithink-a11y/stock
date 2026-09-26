@@ -291,6 +291,22 @@ async def handle_accounts(request):
     }, headers={"Cache-Control": "no-store"})
 
 
+# 국내 장중 스냅샷 - scripts/intraday-check.js(VM intraday-alert, 10분)가 쓴 파일을 그대로 내보낸다.
+# 공개 시세(현재가·전일종가)뿐이다. 대시보드 시장 히트맵 '장중'이 읽는다(2026-09-26).
+KR_SNAPSHOT_PATH = Path(os.environ.get("KR_SNAPSHOT_PATH") or (Path.home() / "collector-venv" / "intraday" / "kr-snapshot.json"))
+
+
+async def handle_kr_intraday(request):
+    try:
+        data = json.loads(KR_SNAPSHOT_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return web.json_response({"error": "스냅샷 없음"}, status=404)
+    except Exception as e:
+        print(f"kr-intraday 실패: {type(e).__name__}: {e}")
+        return web.json_response({"error": "조회 실패"}, status=502)
+    return web.json_response(data, headers={"Cache-Control": "no-store"})
+
+
 def selftest():
     assert parse_eok("+1,101") == 1101
     assert parse_eok("-2,364") == -2364
@@ -307,6 +323,7 @@ def main():
     app = web.Application()
     app.router.add_get("/minute-history", handle_minute_history)
     app.router.add_get("/market-trend", handle_market_trend)
+    app.router.add_get("/kr-intraday", handle_kr_intraday)
     app.router.add_get("/accounts", handle_accounts)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)

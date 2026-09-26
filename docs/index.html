@@ -215,7 +215,8 @@ const state = {
   tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
   heatMarket: 'KR',        // 시장 히트맵: KR(자체) | US(TradingView 위젯)
-  heatWin: '1d',           // 시장 히트맵 기간
+  heatWin: 'live',         // 시장 히트맵 기간(live = VM 장중 스냅샷, 실패하면 1d 로)
+  heatLive: null,          // VM /kr-intraday 응답 + fetchedAt
   heatSize: 'cap',         // 시장 히트맵 면적: cap(시총) | eq(동일)
   themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
   themeWin: '1d',          // 테마 트리 기간
@@ -2497,7 +2498,7 @@ function squarify(items, x, y, w, h) {
   return out;
 }
 
-const HEAT_WINS = { '1d': ['1일', 0.03], '1w': ['1주', 0.06], '1m': ['1개월', 0.12], '3m': ['3개월', 0.20] };
+const HEAT_WINS = { live: ['장중', 0.03], '1d': ['1일', 0.03], '1w': ['1주', 0.06], '1m': ['1개월', 0.12], '3m': ['3개월', 0.20] };
 
 function heatColor(r, cap) {
   if (r === null || r === undefined) return '#333a48';
@@ -2524,6 +2525,27 @@ function mountTvHeatmap() {
   box.querySelector('.tradingview-widget-container').appendChild(s);
 }
 
+// 국내 장중: VM intraday-alert(10분)가 받은 네이버 현재가 스냅샷. 2분마다 다시 당긴다(VM 갱신이 10분이라 충분).
+const KR_INTRADAY_URL = 'https://wonithink-stock.duckdns.org/kr-intraday';
+function loadHeatLive() {
+  if (state.heatLiveLoading) return;
+  state.heatLiveLoading = true;
+  fetch(KR_INTRADAY_URL, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+    .then(j => { state.heatLive = { ...j, fetchedAt: Date.now() }; })
+    .catch(() => { state.heatLive = { error: true, fetchedAt: Date.now() }; if (state.heatWin === 'live') state.heatWin = '1d'; })
+    .finally(() => {
+      state.heatLiveLoading = false;
+      const card = document.getElementById('heatCard');   // 탭 전체를 다시 그리면 펼친 접기가 닫힌다 - 카드만 바꾼다
+      if (card && state.tab === 'sector') card.outerHTML = marketHeatmap(state.sectorStrength || {});
+    });
+}
+function heatLiveDue() {
+  return state.tab === 'sector' && state.heatMarket === 'KR' && state.heatWin === 'live'
+    && (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000);
+}
+setInterval(() => { if (heatLiveDue() && !document.hidden) loadHeatLive(); }, 30000);
+
 function marketHeatmap(d) {
   const mk = (key, label) => `<button class="chip${state.heatMarket === key ? ' active' : ''}" data-heatmarket="${key}">${label}</button>`;
   const title = t => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t} ${mk('KR', '국내')}${mk('US', '미국')}</h2>`;
@@ -2537,6 +2559,12 @@ function marketHeatmap(d) {
   const st = d.stocks || [];
   if (!st.length) return `<div class="card">${title('시장 히트맵')}<p class="muted">국내 데이터가 아직 없습니다(sector-strength.json stocks).</p></div>`;
   const win = state.heatWin, [winLabel, cap] = HEAT_WINS[win], eq = state.heatSize === 'eq';
+  const lq = win === 'live' && state.heatLive && state.heatLive.quotes;
+  const rOf = s => {
+    if (win !== 'live') return s.r[win];
+    const q = lq && lq[s.t];
+    return q && q[1] ? q[0] / q[1] - 1 : null;
+  };
   // 폰은 세로로 길게. 렌더 시점 창 폭으로 한 번 정한다(리사이즈 재배치는 안 한다)
   const W = Math.min(Math.max((window.innerWidth || 1000) - 80, 280), 1400);
   const H = Math.round(W < 700 ? W * 1.6 : W * 0.55);
@@ -2551,10 +2579,15 @@ function marketHeatmap(d) {
   let html = '';
   for (const G of squarify(groups, 0, 0, W, H)) {
     const head = G.w > 50 && G.h > 40 ? 16 : 0;
-    const gr = gcap[G.g];
+    let gr = gcap[G.g];
+    if (win === 'live') {   // 장중은 표에 값이 없어 여기서 시총가중(현재 시총 — 하루 안이라 비중 차이는 무시할 만하다)
+      const pts = G.m.map(s => [rOf(s), s.cap]).filter(([r]) => r !== null);
+      const wsum = pts.reduce((a, [, c]) => a + c, 0);
+      gr = wsum ? pts.reduce((a, [r, c]) => a + r * c, 0) / wsum : null;
+    }
     html += `<div class="hm-g" style="${box(G.x, G.y, G.w, G.h)}">${head ? `<div class="hm-gh">${esc(G.g)}${gr === null || gr === undefined ? '' : ' ' + pct(gr)}</div>` : ''}</div>`;
     for (const s of squarify(G.m, G.x + 1, G.y + head + 1, G.w - 2, G.h - head - 2)) {
-      const r = s.r[win], fs = Math.max(9, Math.min(22, Math.min(s.w / 6, s.h / 2.6)));
+      const r = rOf(s), fs = Math.max(9, Math.min(22, Math.min(s.w / 6, s.h / 2.6)));
       const label = s.w > 38 && s.h > 22
         ? `<span style="font-size:${fs.toFixed(0)}px">${esc(s.n)}</span>${s.h > 36 ? `<span style="font-size:${Math.max(9, fs * 0.8).toFixed(0)}px">${r === null || r === undefined ? '-' : pct(r)}</span>` : ''}` : '';
       const tip = `${s.n} · ${s.g}\n${winLabel} ${r === null || r === undefined ? '-' : pct(r)} · 시총 ${jo(s.cap)}`;
@@ -2562,14 +2595,20 @@ function marketHeatmap(d) {
     }
   }
   const chip = (attr, key, label, cur) => `<button class="chip${cur === key ? ' active' : ''}" data-${attr}="${key}">${label}</button>`;
+  const hl = state.heatLive;
+  const liveNote = hl && hl.error && win === '1d' ? '장중 시세를 못 받아 1일로 표시합니다(VM 응답 없음). "장중"을 누르면 다시 시도합니다.'
+    : win !== 'live' ? '' : !hl || hl.error ? '장중 시세 불러오는 중…'
+    : `장중 기준 <b>${esc(String(hl.atKst || '').slice(5, 16))}</b> KST · ${hl.n}종목 · VM이 10분마다 갱신, 화면은 2분마다 확인. 장이 끝나면 마지막 스냅샷이 남습니다.`;
+  const asOfLabel = win === 'live' && hl && hl.atKst ? `장중 ${esc(String(hl.atKst).slice(5, 16))}` : `기준일 ${esc(d.asOf || '-')}`;
   return `
-  <div class="card">
-    ${title(`시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · ${st.length}종목</span>`)}
+  <div class="card" id="heatCard">
+    ${title(`시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">${asOfLabel} · ${st.length}종목</span>`)}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px">
       ${Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
       <span style="width:10px"></span>
       ${chip('heatsize', 'cap', '면적 = 시총', state.heatSize)}${chip('heatsize', 'eq', '면적 = 동일', state.heatSize)}
     </div>
+    ${liveNote ? `<p class="muted" style="font-size:11px;margin:0 0 6px">${liveNote}</p>` : ''}
     <div class="hm" style="aspect-ratio:${W}/${H}">${html}</div>
     <p class="muted" style="font-size:11px;margin:6px 0 0">
       유니버스 = 코스피200+코스닥150(우선주 제외)이지 시장 전체가 아닙니다. 시총 = 최근 종가 × KRX 상장주식수.
@@ -2720,7 +2759,7 @@ function render() {
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
-  if (state.tab === 'sector') mountTvHeatmap();
+  if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
   renderStockModal();
 }
 
@@ -2870,7 +2909,10 @@ document.addEventListener('click', (e) => {
   const w = e.target.closest && e.target.closest('[data-heatwin],[data-heatsize],[data-heatmarket]');
   if (!w) return;
   if (w.dataset.heatmarket) state.heatMarket = w.dataset.heatmarket;
-  if (w.dataset.heatwin) state.heatWin = w.dataset.heatwin;
+  if (w.dataset.heatwin) {
+    state.heatWin = w.dataset.heatwin;
+    if (state.heatWin === 'live' && state.heatLive && state.heatLive.error) state.heatLive = null;   // 다시 시도
+  }
   if (w.dataset.heatsize) state.heatSize = w.dataset.heatsize;
   render();
 });

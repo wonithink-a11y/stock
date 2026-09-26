@@ -22,6 +22,9 @@
  *
  * 상태 파일: INTRADAY_STATE_PATH (VM: ~/collector-venv/intraday/state.json).
  *   없으면 docs/data/intraday-state.json (옛 Actions 경로, 수동 실행용)
+ * 국내 스냅샷: 상태 파일 옆 kr-snapshot.json (INTRADAY_SNAPSHOT_PATH 로 바꿀 수 있다).
+ *   국내장이 열린 실행마다 받은 현재가·전일종가를 그대로 남긴다 → VM 의 kis-minute-history-api
+ *   /kr-intraday 가 내보내고 대시보드 시장 히트맵 '장중'이 읽는다(2026-09-26). 공개 시세뿐이다.
  */
 
 const fs = require('fs');
@@ -29,6 +32,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const STATE_PATH = process.env.INTRADAY_STATE_PATH || path.join(ROOT, 'docs', 'data', 'intraday-state.json');
+const SNAPSHOT_PATH = process.env.INTRADAY_SNAPSHOT_PATH || path.join(path.dirname(STATE_PATH), 'kr-snapshot.json');
 
 const RULES = {
   dailyMovePct: 5.0, // 전일 종가 대비
@@ -227,6 +231,7 @@ async function main() {
     ? await fetchQuotesUS(targets.filter((t) => t.market === 'US').map((t) => t.code)) : new Map();
   let failed = 0;
   let stale = 0;
+  const krQuotes = {};   // code → [현재가, 전일종가]. 오늘 시세만(휴장일 직전 봉은 위에서 걸러진다)
 
   for (const t of targets) {
     const market = t.market || 'KR';
@@ -234,6 +239,7 @@ async function main() {
       const quote = market === 'US' ? usQuotes.get(t.code) : await fetchQuoteKR(t.code);
       if (!quote) { failed++; continue; }
       if (quote.date !== localYmd(now, MARKET_TZ[market])) { stale++; continue; } // 휴장일·개장 전
+      if (market === 'KR') krQuotes[t.code] = [quote.price, quote.prevClose];
       const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code], now);
       state[t.code] = newState;
       for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, line: `[${market}] ${a.message}` });
@@ -259,6 +265,14 @@ async function main() {
 
   fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2), 'utf-8'); // 도장까지 반영한 뒤 저장
+  if (Object.keys(krQuotes).length) {
+    // 임시 파일 → rename: 서버가 쓰는 도중의 반쪽 파일을 읽지 않게
+    const snap = { at: now, atKst: new Date(now).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }),
+      date: localYmd(now, MARKET_TZ.KR), n: Object.keys(krQuotes).length, quotes: krQuotes };
+    fs.writeFileSync(SNAPSHOT_PATH + '.tmp', JSON.stringify(snap), 'utf-8');
+    fs.renameSync(SNAPSHOT_PATH + '.tmp', SNAPSHOT_PATH);
+    console.log(`국내 스냅샷 ${snap.n}종목 → ${SNAPSHOT_PATH}`);
+  }
 }
 
 if (require.main === module) {
