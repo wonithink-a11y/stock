@@ -1708,6 +1708,43 @@ function decodeSummaryHtml(r, c) {
     ${finRow}${report}`;
 }
 
+// 지분·이벤트 — Actions stock-events 가 매일 쓰는 docs/data/stock-events.json(DART majorstock·elestock·주요 공시 1년).
+// 해독 탭을 처음 열 때 한 번만 받는다. 관찰용.
+const EVENT_COLOR = { 수주: '#22c55e', 희석: '#ef4444', 자사주: '#3b82f6', '출자·인수': '#a855f7', '기술·계약': '#14b8a6',
+  주주환원: '#0ea5e9', '감자·최대주주': '#f97316', 해명: '#9ca3af' };
+function stockEventsHtml(ticker) {
+  if (state.stockEvents === undefined) {
+    state.stockEvents = 'loading';
+    fetch('data/stock-events.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)
+      .then(j => { state.stockEvents = j; if (state.detail.open && state.detail.vtab === 'decode') renderStockModal(); });
+    return '';
+  }
+  const v = state.stockEvents && state.stockEvents !== 'loading' && state.stockEvents.items[ticker];
+  if (!v) return '';
+  const pct = x => x == null ? '-' : x.toFixed(2) + '%';
+  const chg = x => x == null ? '<span class="muted">첫 보고</span>' : `<span class="${x > 0 ? 'pos' : x < 0 ? 'neg' : 'muted'}">${x > 0 ? '+' : ''}${x.toFixed(2)}%p</span>`;
+  const hist = h => (h || []).map(p => pct(p[1])).join(' → ');
+  const ymd = s => s ? `${s.slice(2, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}` : '';
+  const major = v.major.length ? `<table style="font-size:12px;margin:4px 0"><thead><tr><th>보고자</th><th style="text-align:right">보유</th><th style="text-align:right">직전 대비</th><th>흐름</th><th>보고일</th></tr></thead><tbody>${v.major.slice(0, 8).map(m =>
+    `<tr${/국민연금/.test(m.who) ? ' style="background:rgba(59,130,246,.12)"' : ''}><td>${esc(m.who)}</td><td style="text-align:right">${pct(m.rate)}</td><td style="text-align:right">${chg(m.chg)}</td><td class="muted">${esc(hist(m.hist))}</td><td class="muted">${ymd(m.date)}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="muted" style="font-size:12px">최근 2년 안에 5% 보고가 없습니다.</p>';
+  const big = v.bigHolders.length ? `<p style="font-size:12px;margin:4px 0">10% 이상 주주: ${v.bigHolders.slice(0, 4).map(b => `${esc(b.who)} ${pct(b.rate)}${b.first ? ' <span class="muted">(첫 보고)</span>' : ''}`).join(' · ')}</p>` : '';
+  const ex = v.execs6m;
+  const execLine = ex.n ? `<p class="muted" style="font-size:11px;margin:2px 0">임원 지분 보고 6개월 ${ex.n}건(늘어남 ${ex.up} · 줄어듦 ${ex.down}) — 주식보상과 장내매수가 구분되지 않아 매수 신호로 읽지 않습니다.</p>` : '';
+  const cats = {};
+  v.events.forEach(e => { cats[e.cat] = (cats[e.cat] || 0) + 1; });
+  const chips = Object.entries(cats).map(([c, n]) => `<span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;margin:2px;background:${EVENT_COLOR[c] || '#6b7280'}33;border:1px solid ${EVENT_COLOR[c] || '#6b7280'}">${esc(c)} ${n}</span>`).join('');
+  const evList = v.events.slice(0, 12).map(e => `<li style="margin:2px 0"><span class="muted">${ymd(e.d)}</span> <span style="color:${EVENT_COLOR[e.cat] || '#9ca3af'}">[${esc(e.cat)}]</span> <a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${esc(e.rcept)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(e.nm)}</a></li>`).join('');
+  return `<div style="margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:10px">
+    <h4 style="margin:0 0 4px">🏦 지분·이벤트 <span class="muted" style="font-weight:400;font-size:12px">DART · ${esc((state.stockEvents.updatedAt || '').slice(0, 10))}</span></h4>
+    <div style="font-size:12px;font-weight:600;margin-top:6px">누가 들고 있나 — 5% 이상 주주</div>${major}${big}${execLine}
+    <div style="font-size:12px;font-weight:600;margin-top:10px">회사가 한 일 — 최근 1년 주요 공시 ${v.events.length}건</div>
+    <div style="margin:4px 0">${chips || '<span class="muted" style="font-size:12px">해당 공시 없음</span>'}</div>
+    ${evList ? `<details><summary style="cursor:pointer;font-size:12px">최근 공시 목록</summary><ul style="margin:4px 0 0;padding-left:18px;font-size:12px">${evList}</ul></details>` : ''}
+    <p class="muted" style="font-size:11px;margin:6px 0 0">지분 API 는 최근 약 2년치만 제공 — 그 안에 보고가 없는 주주(변동 1%p 미만인 국민연금 등)는 빠집니다. 5% 보고는 매매보다 늦게(기관은 다음 달 10일까지) 나옵니다. 관찰용 — 점수·매매에 쓰지 않습니다.</p>
+  </div>`;
+}
+
 // AI 공시 해독 — Actions decode-gemini 가 새 정기보고서마다 쓰는 docs/data/decode/{ticker}.json.
 // 인용은 코드가 DART 원문과 대조해 통과한 것만 있다. 없으면(아직 안 돌았거나 대상 밖) 칸을 조용히 뺀다.
 const AI_SECTIONS = { A_사업구조: '사업 구조', A_고객: '고객', A_시장지위: '시장 지위', A_원재료: '원재료', A_주요계약: '주요 계약',
@@ -1765,7 +1802,7 @@ function renderDecodeTab(dt) {
 
   return `<div style="font-size:13px">${decodeSummaryHtml(r, c)}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px">${chart1}${chart2}${chart3}</div>
-    ${r.market === 'KR' ? aiDecodeHtml(dt.ticker) : ''}
+    ${r.market === 'KR' ? stockEventsHtml(dt.ticker) + aiDecodeHtml(dt.ticker) : ''}
     <details style="margin-top:14px"><summary style="cursor:pointer">자세히 보기 — 지표별 점수·연구 근거·공시 목록</summary>${renderDecodeDetails(dt)}</details>
     <p class="muted" style="font-size:11px;margin-top:10px">판정은 모두 정해진 규칙으로 만든다(같은 데이터면 같은 문장). 매수·매도 신호가 아니며 점수·추천·매매를 바꾸지 않는다.</p></div>`;
 }

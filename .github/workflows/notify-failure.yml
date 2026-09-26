@@ -43,6 +43,7 @@ on:
       # 2026-09-26 — 공시 해독(Gemini). 하루 한도 소진은 실패가 아니라 정상 종료다(스크립트가 멈추고 초록).
       #   붉어지는 건 '전부 실패'(키·소스 사망)와 175분 타임아웃뿐이다
       - decode-gemini
+      - stock-events
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 

@@ -1,0 +1,47 @@
+name: stock-events
+
+# 종목별 '지분·이벤트' 맥락(5% 대량보유·10% 주주·임원 건수·최근 1년 주요 공시) → docs/data/stock-events.json.
+# scripts/build-stock-events.py — DART 4콜 × 관심종목 KR ≈ 1,400콜(한도 2만), 로컬 실측 3분.
+# 관찰용 — 점수·매매에 쓰지 않는다. 20% 넘게 실패하면 파일을 쓰지 않고 붉어진다(직전 파일 유지).
+
+on:
+  schedule:
+    - cron: '40 10 * * 1-5'   # 19:40 KST — 공시 수집(18:10) 뒤
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stock-events
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build stock events
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: python -u scripts/build-stock-events.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/stock-events.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update docs/data/stock-events.json (지분·이벤트)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
