@@ -214,6 +214,7 @@ const state = {
   sectorStrength: null,    // docs/data/sector-strength.json (관찰용, 예측 주장 아님)
   tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
+  heatMarket: 'KR',        // 시장 히트맵: KR(자체) | US(TradingView 위젯)
   heatWin: '1d',           // 시장 히트맵 기간
   heatSize: 'cap',         // 시장 히트맵 면적: cap(시총) | eq(동일)
   themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
@@ -2505,9 +2506,36 @@ function heatColor(r, cap) {
   return `rgb(${base.map((b, i) => Math.round(b + (to[i] - b) * t)).join(',')})`;
 }
 
+// 미국은 TradingView 공식 임베드 위젯(S&P500, 무료). 데이터를 우리가 모으지 않는다.
+// innerHTML 로 넣은 <script> 는 실행되지 않아서 render() 뒤에 DOM 으로 붙인다.
+function mountTvHeatmap() {
+  const box = document.getElementById('tvHeatmap');
+  if (!box || box.dataset.mounted) return;
+  box.dataset.mounted = '1';
+  const s = document.createElement('script');
+  s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js';
+  s.async = true;
+  s.textContent = JSON.stringify({
+    exchanges: [], dataSource: 'SPX500', grouping: 'sector', blockSize: 'market_cap_basic',
+    blockColor: 'change', locale: 'kr', symbolUrl: '', colorTheme: 'dark', hasTopBar: true,
+    isDataSetEnabled: true, isZoomEnabled: true, hasSymbolTooltip: true, isMonoSize: false,
+    width: '100%', height: '100%',
+  });
+  box.querySelector('.tradingview-widget-container').appendChild(s);
+}
+
 function marketHeatmap(d) {
+  const mk = (key, label) => `<button class="chip${state.heatMarket === key ? ' active' : ''}" data-heatmarket="${key}">${label}</button>`;
+  const title = t => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t} ${mk('KR', '국내')}${mk('US', '미국')}</h2>`;
+  if (state.heatMarket === 'US') {
+    return `<div class="card">${title('시장 히트맵')}
+      <div id="tvHeatmap" style="height:${(window.innerWidth || 1000) < 700 ? 520 : 620}px"><div class="tradingview-widget-container" style="height:100%;width:100%">
+        <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div></div>
+      <p class="muted" style="font-size:11px;margin:6px 0 0">TradingView 제공 위젯(실시간·지연 시세는 TradingView 기준). 위쪽 막대에서 나스닥100 등으로 바꿀 수 있습니다. 관찰용 — 매매신호가 아닙니다.</p>
+    </div>`;
+  }
   const st = d.stocks || [];
-  if (!st.length) return '';
+  if (!st.length) return `<div class="card">${title('시장 히트맵')}<p class="muted">국내 데이터가 아직 없습니다(sector-strength.json stocks).</p></div>`;
   const win = state.heatWin, [winLabel, cap] = HEAT_WINS[win], eq = state.heatSize === 'eq';
   // 폰은 세로로 길게. 렌더 시점 창 폭으로 한 번 정한다(리사이즈 재배치는 안 한다)
   const W = Math.min(Math.max((window.innerWidth || 1000) - 80, 280), 1400);
@@ -2536,7 +2564,7 @@ function marketHeatmap(d) {
   const chip = (attr, key, label, cur) => `<button class="chip${cur === key ? ' active' : ''}" data-${attr}="${key}">${label}</button>`;
   return `
   <div class="card">
-    <h2 style="margin:0 0 4px">국내 시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · ${st.length}종목</span></h2>
+    ${title(`시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · ${st.length}종목</span>`)}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px">
       ${Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
       <span style="width:10px"></span>
@@ -2688,10 +2716,11 @@ function render() {
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
-  else if (state.tab === 'sector') el.innerHTML = (state.sectorStrength ? marketHeatmap(state.sectorStrength) : '') + renderThemeTree() + renderThemeSensitivity() + renderSector();
+  else if (state.tab === 'sector') el.innerHTML = marketHeatmap(state.sectorStrength || {}) + renderThemeTree() + renderThemeSensitivity() + renderSector();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
+  if (state.tab === 'sector') mountTvHeatmap();
   renderStockModal();
 }
 
@@ -2838,8 +2867,9 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-  const w = e.target.closest && e.target.closest('[data-heatwin],[data-heatsize]');
+  const w = e.target.closest && e.target.closest('[data-heatwin],[data-heatsize],[data-heatmarket]');
   if (!w) return;
+  if (w.dataset.heatmarket) state.heatMarket = w.dataset.heatmarket;
   if (w.dataset.heatwin) state.heatWin = w.dataset.heatwin;
   if (w.dataset.heatsize) state.heatSize = w.dataset.heatsize;
   render();
