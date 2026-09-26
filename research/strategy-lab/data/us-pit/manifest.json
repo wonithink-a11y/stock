@@ -1,44 +1,54 @@
 {
-  "fja_sha": "a2430f2af0c79ddf0748e91de11bdeb1616ab5a7",
-  "fja_sha256": "b2f4fe2f2e4dce8eaf0eb4fbd3946a32a20c1ddfe69687dfca3b6b59a0b71f9f",
-  "membership_as_of": "2026-08-18",
-  "intervals": 753,
-  "open_intervals": 503,
-  "updated": "2026-09-26T16:36:12",
-  "master_counts": {
-    "R1/OK": 493,
-    "R1/SEG/OK": 19,
-    "R1/SEG/UNREACHABLE": 2,
-    "R2/OK": 34,
-    "R2/PRICE_ONLY": 1,
-    "R2/UNREACHABLE": 2,
-    "R2/SEG/OK": 1,
-    "R2/SEG/UNREACHABLE": 1,
-    "R3/OK": 184,
-    "R3/PRICE_ONLY": 1,
-    "R3/UNREACHABLE": 1,
-    "R4/OK": 3,
-    "R5/UNREACHABLE": 23
-  },
-  "sec_company_tickers_sha256": "3749c0b4a6197feb35e91a6704b3836e45f245dbc2dec1ffa559d1c028852d23",
-  "compare_gate": {
-    "symbols": 50,
-    "median_rel_diff": 0.0,
-    "p99_rel_diff": 0.0,
-    "rule": "중앙 < 0.001 · p99 < 0.01 · 40종목 이상",
-    "passed": true
-  },
-  "price_panel_gate": {
-    "member_days": 1347473,
-    "coverage": 0.98918,
-    "unreachable_days": 14490,
-    "unexplained_days": 91,
-    "unexplained_ratio": 6.8e-05,
-    "interval_check_fails": 0,
-    "interval_check_excused": 1,
-    "rule": "coverage ≥ 0.97 · unexplained ≤ 0.001 · 구간 검사 실패 0(수동 판정 뒤 예외 기록)",
-    "passed": true,
-    "panel_sha256": "88683ee5bdcd3ed34bffceb06a7e2be8cdaa3534a1e1e78b68c49b467df37254",
-    "rows": 1788042
-  }
+ "fja_sha": "a2430f2af0c79ddf0748e91de11bdeb1616ab5a7",
+ "fja_sha256": "b2f4fe2f2e4dce8eaf0eb4fbd3946a32a20c1ddfe69687dfca3b6b59a0b71f9f",
+ "membership_as_of": "2026-08-18",
+ "intervals": 753,
+ "open_intervals": 503,
+ "updated": "2026-09-26T16:50:46",
+ "master_counts": {
+  "R1/OK": 493,
+  "R1/SEG/OK": 19,
+  "R1/SEG/UNREACHABLE": 2,
+  "R2/OK": 34,
+  "R2/PRICE_ONLY": 1,
+  "R2/SEG/OK": 3,
+  "R2/SEG/UNREACHABLE": 1,
+  "R3/OK": 183,
+  "R3/PRICE_ONLY": 1,
+  "R3/UNREACHABLE": 1,
+  "R3/SEG/OK": 1,
+  "R4/OK": 3,
+  "R5/UNREACHABLE": 23
+ },
+ "sec_company_tickers_sha256": "3749c0b4a6197feb35e91a6704b3836e45f245dbc2dec1ffa559d1c028852d23",
+ "compare_gate": {
+  "symbols": 50,
+  "median_rel_diff": 0.0,
+  "p99_rel_diff": 0.0,
+  "rule": "중앙 < 0.001 · p99 < 0.01 · 40종목 이상",
+  "passed": true
+ },
+ "price_panel_gate": {
+  "member_days": 1347473,
+  "coverage": 0.99033,
+  "unreachable_days": 12945,
+  "unexplained_days": 91,
+  "unexplained_ratio": 6.8e-05,
+  "interval_check_fails": 0,
+  "interval_check_excused": 1,
+  "rule": "coverage ≥ 0.97 · unexplained ≤ 0.001 · 구간 검사 실패 0(수동 판정 뒤 예외 기록)",
+  "passed": true,
+  "panel_sha256": "1489d7f8fc4b491edc95a6bdf006de111aa3b45eea8a64d9654ffd275c99bb21",
+  "rows": 1792629
+ },
+ "us_map_audit": {
+  "map_version": "us-map-1.0",
+  "rows": 64392,
+  "complete_ratio": 0.98514,
+  "v4_pass": "12/12",
+  "v3_jumps": 36,
+  "v9_mcap_jumps": 7,
+  "v5_small_rows": 0,
+  "sha256": "613d61fe1d15ed976d82b0f821c1f93238037df5076752360fe968a191c57251"
+ }
 }

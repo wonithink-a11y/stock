@@ -124,7 +124,7 @@ CAT,1996-01-02,,R1,18230,CAT,yfinance,OK,위키 CIK 일치
 CB,1996-01-02,,R1,896159,CB,yfinance,OK,위키 CIK 일치
 CBOE,2017-03-01,,R1,1374310,CBOE,yfinance,OK,위키 CIK 일치
 CBRE,2006-11-10,,R1,1138118,CBRE,yfinance,OK,위키 CIK 일치
-CBS,1996-01-02,2019-12-05,R2,813828,,,UNREACHABLE,수동: Paramount Global 이력은 Tiingo PARA(지금 Banzai International 2021~)·PSKY(2025-08~) 어디에도 없다
+CBS,1996-01-02,2019-12-05,R2/SEG,813828,PSKY,yfinance,OK,구간 분할: CBS Corp(=Paramount Global 과 같은 CIK·같은 B주 증권). yfinance PSKY 이력이 2005-12~ CBS→ViacomCBS→Paramount 를 이어 담는다(2019-12 ≈$40·2022-02 ≈$35 확인)
 CCE,1998-10-08,2016-05-31,R5,,,,UNREACHABLE,Tiingo 기간 ~ 이 구간을 못 덮음(재사용·잘림)
 CCEP,2016-01-04,2016-05-31,R3,,,,UNREACHABLE,수동: fja 에 CCE(~2016-05-31)와 겹쳐 적힌 구간 — 옛 Coca-Cola Enterprises 가격은 없음(CCE UNREACHABLE 과 같은 회사)
 CCI,2012-03-13,,R1,1051470,CCI,yfinance,OK,위키 CIK 일치
@@ -533,7 +533,7 @@ ORLY,2009-03-27,,R1,898173,ORLY,yfinance,OK,위키 CIK 일치
 OTIS,2020-04-03,,R1,1781335,OTIS,yfinance,OK,위키 CIK 일치
 OXY,1996-01-02,,R1,797468,OXY,yfinance,OK,위키 CIK 일치
 PANW,2023-06-20,,R1,1327567,PANW,yfinance,OK,위키 CIK 일치
-PARA,2022-02-17,2025-08-08,R3,1826011,PARA,tiingo,OK,Banzai International Inc - Class A · 후보2→정기보고서 있는 1
+PARA,2022-02-17,2025-08-08,R3/SEG,813828,PSKY,yfinance,OK,구간 분할: Paramount Global. Tiingo PARA 는 2021-02~ SPAC(7GC→Banzai) 시계열($10 평탄)이라 다른 회사 가격이었다 — R3 가 이름으로 Banzai CIK 1826011 을 골랐다
 PAYC,2020-01-28,2026-03-23,R3,1590955,PAYC,tiingo,OK,Paycom Software Inc · 후보1→정기보고서 있는 1
 PAYX,1998-10-01,,R1,723531,PAYX,yfinance,OK,위키 CIK 일치
 PBCT,2008-11-13,2022-04-04,R3,1378946,PBCT,tiingo,OK,People`s United Financial Inc · 후보1→정기보고서 있는 1
@@ -708,7 +708,7 @@ VAR,2007-02-12,2021-04-20,R3,203527,VAR,tiingo,OK,Varian Medical Systems Inc · 
 VEEV,2026-05-07,,R1,1393052,VEEV,yfinance,OK,위키 CIK 일치
 VFC,1996-01-02,2024-04-01,R3,103379,VFC,tiingo,OK,VF Corp · 후보2→정기보고서 있는 1
 VIAB,2006-01-03,2019-12-05,R3,1339947,VIAB,tiingo,OK,Viacom Inc · 후보1→정기보고서 있는 1
-VIAC,2019-12-05,2022-02-17,R2,813828,,,UNREACHABLE,수동: CBS 와 같음
+VIAC,2019-12-05,2022-02-17,R2/SEG,813828,PSKY,yfinance,OK,구간 분할: ViacomCBS — CBS 와 같은 사유
 VICI,2022-06-08,,R1,1705696,VICI,yfinance,OK,위키 CIK 일치
 VLO,2004-04-29,,R1,1035002,VLO,yfinance,OK,위키 CIK 일치
 VLTO,2023-10-02,,R1,1967680,VLTO,yfinance,OK,위키 CIK 일치
