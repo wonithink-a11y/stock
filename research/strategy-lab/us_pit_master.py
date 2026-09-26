@@ -19,6 +19,9 @@ env: TIINGO_API_KEY(.env 가능) · SEC_USER_AGENT(연락처 — SEC 요구, 코
   R2 개명                   renames.csv(손으로 관리) — 새 티커 가격이 구간 시작 이전부터 있어야 한다
   R5 UNREACHABLE            나머지. 사유를 남긴다 — 이 명단이 사전등록의 결손 목록이 된다
 CIK 는 '그 CIK 가 구간 안에 10-K/10-Q 를 냈다'로 검증한다. 후보가 여럿이거나 검증이 안 되면 review.csv 로 뺀다.
+R1 도 검사한다: 현재 CIK 의 첫 정기보고서(companyfacts 캐시)가 구간 시작(2016~ 로 자름)보다 120일 넘게 늦으면
+  그 앞 기간의 멤버는 **같은 티커를 쓰던 다른 회사**다(IR = 2020-03 전엔 옛 Ingersoll-Rand, 지금 TT) → REVIEW.
+segments.csv(손으로 관리): 한 멤버 구간을 회사별 조각으로 나눈다 — 조각마다 CIK·가격·상태·근거. build 끝에 원 행을 대체한다.
 
 저장: data/us-pit/ (커밋: fja05680 사본·LICENSE·intervals·security_master·review·renames·manifest)
       data/us-pit/raw/ (gitignore: tiingo 메타·SEC 파일·EDGAR submissions 캐시 — Tiingo 는 Internal Use)
@@ -275,6 +278,36 @@ def resolve_cik(name, hint_cik, start, end, by_name, ua):
     return None, (f"후보 {len(cands)} · 정기보고서 있는 후보 {len(ok)}(동률)" if ok else f"후보 {len(cands)} · 정기보고서 0")
 
 
+FIRST_FILING_SLACK = 120      # 일. 첫 10-Q 는 상장 뒤 한 분기 안에 나온다
+
+
+def first_periodic(cik):
+    """companyfacts 캐시에서 10-K/10-Q/20-F/40-F 첫 제출일. 캐시가 없으면 None(모름 — 판정 안 한다)."""
+    f = RAW / "edgar_facts" / f"{cik}.json.gz"
+    if not cik or not f.exists():
+        return None
+    j = json.loads(gzip.decompress(f.read_bytes()))
+    fs = [x["filed"] for tax in j.get("facts", {}).values() for tag in tax.values() for u in tag["units"].values()
+          for x in u if x.get("form") in ("10-K", "10-Q", "20-F", "40-F") and x.get("filed")]
+    return min(fs) if fs else None
+
+
+def apply_segments(ms, seg):
+    """segments.csv 의 (ticker, start) 원 행을 조각 행으로 바꾼다. 원 행이 없으면 실패(오타가 조용히 무시되지 않게)."""
+    keys = set(zip(ms["ticker"], ms["start"]))
+    rows = []
+    for r in seg.itertuples():
+        if (r.ticker, r.start) not in keys:
+            raise SystemExit(f"segments.csv: 원 구간 없음 {r.ticker}@{r.start}")
+        rule = ms.loc[(ms["ticker"] == r.ticker) & (ms["start"] == r.start), "rule"].iloc[0]
+        rows.append({"ticker": r.ticker, "start": r.seg_start, "end": r.seg_end, "rule": rule + "/SEG",
+                     "cik": int(r.cik) if r.cik else None, "price_symbol": r.price_symbol or None,
+                     "price_source": r.price_source or None, "status": r.status, "note": "구간 분할: " + r.basis})
+    drop = set(zip(seg["ticker"], seg["start"]))
+    keep = ms[[k not in drop for k in zip(ms["ticker"], ms["start"])]]
+    return pd.concat([keep, pd.DataFrame(rows)], ignore_index=True).sort_values(["ticker", "start"], ignore_index=True)
+
+
 def cmd_build(_):
     ua = _key("SEC_USER_AGENT")
     key = None  # build 는 Tiingo 를 부르지 않는다 - 캐시만 읽는다(속도 제한은 tiingo-meta 에서)
@@ -299,6 +332,10 @@ def cmd_build(_):
         if not e:                                                   # R1
             cik, w = by_ticker.get(t), wiki_cik.get(t)
             bad = "SEC 티커맵에 없음" if not cik else (f"위키 CIK {w} ≠ SEC {cik}" if w and w != cik else "")
+            fp = first_periodic(cik)
+            lo = max(s, STUDY_START)
+            if not bad and fp and fp > (date.fromisoformat(lo) + timedelta(days=FIRST_FILING_SLACK)).isoformat():
+                bad = f"현재 CIK 첫 정기보고서 {fp} > 구간 {lo} — 앞 기간은 다른 회사(티커 재사용) → segments.csv"
             rows.append({**base, "rule": "R1", "cik": cik, "price_symbol": t, "price_source": "yfinance",
                          "status": "REVIEW" if bad else "OK", "note": bad or ("위키 CIK 일치" if w else "위키 스냅샷에 없음")})
             if bad:
@@ -353,9 +390,12 @@ def cmd_build(_):
         if not cik:
             review.append(rows[-1])
     ms = pd.DataFrame(rows)
+    seg_p = OUT / "segments.csv"
+    if seg_p.exists():
+        ms = apply_segments(ms, pd.read_csv(seg_p, dtype=str, keep_default_na=False))
     ms["cik"] = ms["cik"].astype("Int64")
     ms.to_csv(OUT / "security_master.csv", index=False)
-    pd.DataFrame(review, columns=ms.columns).to_csv(OUT / "review.csv", index=False)
+    ms[ms["status"] == "REVIEW"].to_csv(OUT / "review.csv", index=False)
     cnt = ms.groupby(["rule", "status"]).size().to_dict()
     _manifest(master_counts={f"{k[0]}/{k[1]}": int(v) for k, v in cnt.items()},
               sec_company_tickers_sha256=hashlib.sha256((RAW / "sec_company_tickers.json").read_bytes()).hexdigest())
@@ -423,6 +463,22 @@ def selftest():
     assert name_key("V F CORP /PA/") == name_key("VF Corp") == "VF"
     assert name_key("Kohl`s Corp") == name_key("KOHLS CORP")
     assert name_key("Interpublic Group Of Cos. Inc") == name_key("INTERPUBLIC GROUP OF COMPANIES, INC.")
+    ms = pd.DataFrame([{"ticker": "IR", "start": "2010-11-17", "end": "", "rule": "R1", "cik": 1699150, "price_symbol": "IR",
+                        "price_source": "yfinance", "status": "REVIEW", "note": ""},
+                       {"ticker": "AAPL", "start": "1982-11-30", "end": "", "rule": "R1", "cik": 320193, "price_symbol": "AAPL",
+                        "price_source": "yfinance", "status": "OK", "note": ""}])
+    seg = pd.DataFrame([["IR", "2010-11-17", "2010-11-17", "2020-03-02", "1466258", "TT", "yfinance", "OK", "옛 IR"],
+                        ["IR", "2010-11-17", "2020-03-03", "", "1699150", "IR", "yfinance", "OK", "새 IR"]],
+                       columns=["ticker", "start", "seg_start", "seg_end", "cik", "price_symbol", "price_source", "status", "basis"])
+    out = apply_segments(ms, seg)
+    assert list(zip(out["ticker"], out["start"], out["cik"])) == [("AAPL", "1982-11-30", 320193), ("IR", "2010-11-17", 1466258),
+                                                                  ("IR", "2020-03-03", 1699150)], out
+    assert (out["status"] == "OK").all()
+    try:
+        apply_segments(ms, seg.assign(start="2011-01-01"))
+        raise AssertionError("없는 원 구간은 실패해야 한다")
+    except SystemExit:
+        pass
     print("us_pit_master selftest: 통과")
 
 

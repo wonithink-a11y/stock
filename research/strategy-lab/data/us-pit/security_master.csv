@@ -52,7 +52,8 @@ ANSS,2017-06-19,2025-07-18,R3,1013462,ANSS,tiingo,OK,Ansys Inc · 후보1→정�
 ANTM,2002-07-25,2022-06-28,R2,1156039,ELV,yfinance,OK,Elevance Health · 후보1→정기보고서 있는 1
 AON,1996-04-23,,R1,315293,AON,yfinance,OK,위키 CIK 일치
 AOS,2017-07-26,,R1,91142,AOS,yfinance,OK,위키 CIK 일치
-APA,1997-07-28,,R1,1841666,APA,yfinance,OK,위키 CIK 일치
+APA,1997-07-28,2021-05-06,R1/SEG,6769,APA,yfinance,OK,구간 분할: Apache Corp — 2021-03 APA Corp 지주사 전환(주식 1:1·같은 가격). 재무는 새 CIK 첫 정기보고서 전날까지 옛 CIK
+APA,2021-05-07,,R1/SEG,1841666,APA,yfinance,OK,구간 분할: APA Corp(새 CIK 첫 정기보고서 2021-05-07)
 APC,1997-07-28,2019-08-09,R5,,,,UNREACHABLE,Tiingo 기간 2026-02-12~2026-09-24 이 구간을 못 덮음(재사용·잘림)
 APD,1996-01-02,,R1,2969,APD,yfinance,OK,위키 CIK 일치
 APH,2008-09-30,,R1,820313,APH,yfinance,OK,위키 CIK 일치
@@ -62,11 +63,14 @@ APTV,2012-12-24,,R1,1521332,APTV,yfinance,OK,위키 CIK 일치
 ARE,2017-03-20,,R1,1035443,ARE,yfinance,OK,위키 CIK 일치
 ARES,2025-12-11,,R1,1176948,ARES,yfinance,OK,위키 CIK 일치
 ARG,2009-09-09,2016-05-23,R3,804212,ARG,tiingo,OK,Airgas Inc · 후보1→정기보고서 있는 1
-ARNC,1996-01-02,2020-04-06,R2,4281,HWM,yfinance,OK,Howmet Aerospace · 후보1→정기보고서 있는 1
+ARNC,1996-01-02,2016-10-31,R2/SEG,4281,,,UNREACHABLE,구간 분할: Alcoa Inc 시절(티커 AA) — AA 는 지금 분할된 새 Alcoa Corp·HWM yfinance 이력은 2016-11-01~ 라 옛 증권 가격 무료 소스 없음
+ARNC,2016-11-01,2020-04-06,R2/SEG,4281,HWM,yfinance,OK,구간 분할: Arconic(2016-11 Alcoa Inc 개명) → Howmet(HWM) 같은 CIK·같은 증권
 ATO,2019-02-15,,R1,731802,ATO,yfinance,OK,위키 CIK 일치
 ATVI,2015-08-31,2023-10-18,R3,718877,ATVI,tiingo,OK,Activision Blizzard Inc · 후보1→정기보고서 있는 1
 AVB,2007-01-10,2026-08-18,R3,915912,AVB,tiingo,OK,Avalonbay Communities Inc · 후보1→정기보고서 있는 1
-AVGO,2014-05-08,,R1,1730168,AVGO,yfinance,OK,위키 CIK 일치
+AVGO,2014-05-08,2016-03-09,R1/SEG,1441634,AVGO,yfinance,OK,구간 분할: Avago Technologies Ltd
+AVGO,2016-03-10,2018-06-13,R1/SEG,1649338,AVGO,yfinance,OK,구간 분할: Broadcom Ltd(Avago 가 Broadcom Corp 인수 2016-02) — 새 CIK 첫 정기보고서 2016-03-10
+AVGO,2018-06-14,,R1/SEG,1730168,AVGO,yfinance,OK,구간 분할: Broadcom Inc 미국 이전(2018-04) — 새 CIK 첫 정기보고서 2018-06-14
 AVY,1996-01-02,,R1,8818,AVY,yfinance,OK,위키 CIK 일치
 AWK,2016-03-04,,R1,1410636,AWK,yfinance,OK,위키 CIK 일치
 AXON,2023-05-04,,R1,1069183,AXON,yfinance,OK,위키 CIK 일치
@@ -85,7 +89,8 @@ BCR,1996-01-02,2017-12-29,R3,9892,BCR,tiingo,OK,수동: C.R. Bard — SEC 이름
 BDX,1996-01-02,,R1,10795,BDX,yfinance,OK,위키 CIK 일치
 BEN,1998-04-29,,R1,38777,BEN,yfinance,OK,위키 CIK 일치
 BF-B,1996-01-02,,R1,14693,BF-B,yfinance,OK,위키 CIK 일치
-BG,2023-03-15,,R1,1996862,BG,yfinance,OK,위키 CIK 일치
+BG,2023-03-15,2024-02-21,R1/SEG,1144519,BG,yfinance,OK,구간 분할: Bunge Ltd — 2023-11 Bunge Global SA 스위스 이전(같은 가격)
+BG,2024-02-22,,R1/SEG,1996862,BG,yfinance,OK,구간 분할: Bunge Global SA(새 CIK 첫 정기보고서 2024-02-22)
 BHF,2017-08-07,2019-04-02,R3,1685040,BHF,tiingo,OK,Brighthouse Financial Inc · 후보1→정기보고서 있는 1
 BHGE,1996-01-02,2019-10-18,R2,808362,BKR,yfinance,OK,Baker Hughes · 후보2→정기보고서 최다 22건(차순 11)
 BIIB,2003-11-13,,R1,875045,BIIB,yfinance,OK,위키 CIK 일치
@@ -94,7 +99,8 @@ BK,1996-01-02,2026-05-21,R2,1390777,BNY,yfinance,OK,BNY · 후보1→정기보�
 BKNG,2009-11-06,,R1,1075531,BKNG,yfinance,OK,위키 CIK 일치
 BKR,2019-10-18,,R1,1701605,BKR,yfinance,OK,위키 CIK 일치
 BLDR,2023-12-18,,R1,1316835,BLDR,yfinance,OK,위키 CIK 일치
-BLK,2011-04-04,,R1,2012383,BLK,yfinance,OK,위키 CIK 일치
+BLK,2011-04-04,2024-11-05,R1/SEG,1364742,BLK,yfinance,OK,구간 분할: 옛 BlackRock Inc — 2024-10 GIP 인수 때 새 지주사(같은 가격)
+BLK,2024-11-06,,R1/SEG,2012383,BLK,yfinance,OK,구간 분할: 새 BlackRock Inc(새 CIK 첫 정기보고서 2024-11-06)
 BLL,1996-01-02,2022-05-10,R2,9389,BALL,yfinance,OK,Ball Corp · 후보5→정기보고서 있는 1
 BMY,1996-01-02,,R1,14272,BMY,yfinance,OK,위키 CIK 일치
 BNY,2026-05-21,,R1,1390777,BNY,yfinance,OK,위키 CIK 일치
@@ -136,7 +142,8 @@ CHD,2015-12-29,,R1,313927,CHD,yfinance,OK,위키 CIK 일치
 CHK,2006-03-03,2018-03-19,R3,895126,CHK,tiingo,OK,Chesapeake Energy Corp · 후보1→정기보고서 있는 1
 CHRW,2007-03-02,,R1,1043277,CHRW,yfinance,OK,위키 CIK 일치
 CHTR,2016-09-08,,R1,1091667,CHTR,yfinance,OK,위키 CIK 일치
-CI,1996-01-02,,R1,1739940,CI,yfinance,OK,위키 CIK 일치
+CI,1996-01-02,2019-02-27,R1/SEG,701221,CI,yfinance,OK,구간 분할: 옛 Cigna Corp — 2018-12 Express Scripts 합병 때 새 지주사(같은 가격)
+CI,2019-02-28,,R1/SEG,1739940,CI,yfinance,OK,구간 분할: The Cigna Group(새 CIK 첫 정기보고서 2019-02-28)
 CIEN,2026-02-09,,R1,936395,CIEN,yfinance,OK,위키 CIK 일치
 CINF,1997-12-18,,R1,20286,CINF,yfinance,OK,위키 CIK 일치
 CL,1996-01-02,,R1,21665,CL,yfinance,OK,위키 CIK 일치
@@ -202,7 +209,8 @@ DG,2012-12-03,,R1,29534,DG,yfinance,OK,위키 CIK 일치
 DGX,2002-12-12,,R1,1022079,DGX,yfinance,OK,위키 CIK 일치
 DHI,2005-07-05,,R1,882184,DHI,yfinance,OK,위키 CIK 일치
 DHR,1998-11-18,,R1,313616,DHR,yfinance,OK,위키 CIK 일치
-DIS,1996-01-02,,R1,1744489,DIS,yfinance,OK,위키 CIK 일치
+DIS,1996-01-02,2019-05-07,R1/SEG,1001039,DIS,yfinance,OK,구간 분할: 옛 Walt Disney Co(지금 TWDC Enterprises 18) — 2019-03 21CF 인수 때 새 지주사(같은 가격)
+DIS,2019-05-08,,R1/SEG,1744489,DIS,yfinance,OK,구간 분할: 새 Walt Disney Co(새 CIK 첫 정기보고서 2019-05-08)
 DISCA,2010-03-01,2022-04-11,R2,1437107,WBD,yfinance,OK,Warner Bros. Discovery · 후보1→정기보고서 있는 1
 DISCK,2014-08-07,2022-04-11,R3,1437107,DISCK,tiingo,OK,Warner Bros. Discovery Inc - Series C · 후보1→정기보고서 있는 1
 DISH,2017-03-13,2023-06-20,R3,1001082,DISH,tiingo,OK,Dish Network Corp - Class A · 후보2→정기보고서 있는 1
@@ -243,7 +251,7 @@ ENPH,2021-01-07,2025-09-22,R3,1463101,ENPH,tiingo,OK,Enphase Energy Inc · 후�
 EOG,2000-11-02,,R1,821189,EOG,yfinance,OK,위키 CIK 일치
 EPAM,2021-12-14,2026-06-02,R3,1352010,EPAM,tiingo,OK,EPAM Systems Inc · 후보1→정기보고서 있는 1
 EQIX,2015-03-23,,R1,1101239,EQIX,yfinance,OK,위키 CIK 일치
-EQR,2001-12-03,2026-08-18,R3,906107,EQR,tiingo,OK,Vivmark Residential · 후보1→정기보고서 있는 1
+EQR,2001-12-03,2026-08-18,R2,906107,VMRK,yfinance,OK,Vivmark Residential · 후보1→정기보고서 있는 1
 EQT,2008-12-19,2018-11-13,R3,33213,EQT,tiingo,OK,EQT Corp · 후보2→정기보고서 있는 1
 EQT,2022-10-03,,R1,33213,EQT,yfinance,OK,위키 CIK 일치
 ERIE,2024-09-23,,R1,922621,ERIE,yfinance,OK,위키 CIK 일치
@@ -290,8 +298,10 @@ FLS,2008-10-02,2021-03-22,R3,30625,FLS,tiingo,OK,Flowserve Corp · 후보2→정
 FLT,2018-06-20,2024-03-25,R2,1175454,CPAY,yfinance,OK,Corpay · 후보1→정기보고서 있는 1
 FMC,2009-08-19,2025-03-24,R3,37785,FMC,tiingo,OK,FMC Corp · 후보2→정기보고서 있는 1
 FOSL,2012-04-04,2016-01-05,R3,883569,FOSL,tiingo,OK,Fossil Group Inc · 후보1→정기보고서 있는 1
-FOX,2015-09-21,,R1,1754301,FOX,yfinance,OK,위키 CIK 일치
-FOXA,2004-12-20,,R1,1754301,FOXA,yfinance,OK,위키 CIK 일치
+FOX,2015-09-21,2019-03-18,R1/SEG,1308161,,,UNREACHABLE,구간 분할: 옛 21st Century Fox B주 — FOXA 와 같은 사유
+FOX,2019-03-19,,R1/SEG,1754301,FOX,yfinance,OK,구간 분할: Fox Corp B주
+FOXA,2004-12-20,2019-03-18,R1/SEG,1308161,,,UNREACHABLE,구간 분할: 옛 21st Century Fox(Disney 2019-03 인수). FOXA 티커를 새 Fox Corp 가 재사용 — yfinance FOXA 는 2019-03-12~ 새 회사라 옛 증권 가격 무료 소스 없음
+FOXA,2019-03-19,,R1/SEG,1754301,FOXA,yfinance,OK,구간 분할: Fox Corp(2019-03-19 정규 거래 시작)
 FRC,2019-01-02,2023-05-04,R2,,FRCB,tiingo,PRICE_ONLY,수동: First Republic Bank 는 FDIC 에 공시 — 가격(FRCB)만 · EDGAR 재무 없음
 FRT,2016-02-01,,R1,34903,FRT,yfinance,OK,위키 CIK 일치
 FSLR,2009-10-16,2017-03-20,R3,1274494,FSLR,tiingo,OK,First Solar Inc · 후보1→정기보고서 있는 1
@@ -372,7 +382,8 @@ IP,1996-01-02,,R1,51434,IP,yfinance,OK,위키 CIK 일치
 IPG,1996-01-02,2025-11-28,R3,51644,IPG,tiingo,OK,수동: Interpublic Group of Companies(Cos. 약어)
 IPGP,2018-03-07,2022-06-21,R3,1111928,IPGP,tiingo,OK,IPG Photonics Corp · 후보1→정기보고서 있는 1
 IQV,2017-08-29,,R1,1478242,IQV,yfinance,OK,위키 CIK 일치
-IR,2010-11-17,,R1,1699150,IR,yfinance,OK,위키 CIK 일치
+IR,2010-11-17,2020-03-02,R1/SEG,1466258,TT,yfinance,OK,구간 분할: 옛 Ingersoll-Rand plc = 지금 Trane(TT·같은 CIK·같은 증권·2020-03 개명). yfinance IR 는 Gardner Denver(2017-05 상장)라 그대로면 2017-05~2020-02 가 다른 회사 가격
+IR,2020-03-03,,R1/SEG,1699150,IR,yfinance,OK,구간 분할: Ingersoll Rand Inc(옛 Gardner Denver) — fja 는 2020-03-03 부터 연속 멤버로 기록
 IRM,2009-01-06,,R1,1020569,IRM,yfinance,OK,위키 CIK 일치
 ISRG,2008-06-02,,R1,1035267,ISRG,yfinance,OK,위키 CIK 일치
 IT,2017-04-05,,R1,749251,IT,yfinance,OK,위키 CIK 일치
@@ -742,7 +753,8 @@ XEC,2014-06-20,2020-03-03,R3,1168054,XEC,tiingo,OK,Cimarex Energy Company · 후
 XEL,1996-01-02,,R1,72903,XEL,yfinance,OK,위키 CIK 일치
 XL,2001-09-04,2018-09-12,R3,875159,XL,tiingo,OK,XL Group plc · 후보1→정기보고서 있는 1
 XLNX,1999-11-08,2022-02-15,R3,743988,XLNX,tiingo,OK,Xilinx Inc · 후보1→정기보고서 있는 1
-XOM,1996-01-02,,R1,2115436,XOM,yfinance,OK,위키 CIK 일치
+XOM,1996-01-02,2026-08-02,R1/SEG,34088,XOM,yfinance,OK,구간 분할: Exxon Mobil Corp — ExxonMobil Holdings Corp 지주사 전환(같은 가격)
+XOM,2026-08-03,,R1/SEG,2115436,XOM,yfinance,OK,구간 분할: ExxonMobil Holdings Corp(새 CIK 첫 정기보고서 2026-08-03)
 XRAY,2008-11-14,2024-04-02,R3,818479,XRAY,tiingo,OK,DENTSPLY Sirona Inc · 후보1→정기보고서 있는 1
 XRX,1996-01-02,2021-03-22,R3,108772,XRX,tiingo,OK,Xerox Holdings Corp · 후보2→정기보고서 최다 27건(차순 8)
 XYL,2011-11-01,,R1,1524472,XYL,yfinance,OK,위키 CIK 일치

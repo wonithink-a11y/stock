@@ -1,0 +1,24 @@
+ticker,start,seg_start,seg_end,cik,price_symbol,price_source,status,basis
+APA,1997-07-28,1997-07-28,2021-05-06,6769,APA,yfinance,OK,Apache Corp — 2021-03 APA Corp 지주사 전환(주식 1:1·같은 가격). 재무는 새 CIK 첫 정기보고서 전날까지 옛 CIK
+APA,1997-07-28,2021-05-07,,1841666,APA,yfinance,OK,APA Corp(새 CIK 첫 정기보고서 2021-05-07)
+AVGO,2014-05-08,2014-05-08,2016-03-09,1441634,AVGO,yfinance,OK,Avago Technologies Ltd
+AVGO,2014-05-08,2016-03-10,2018-06-13,1649338,AVGO,yfinance,OK,Broadcom Ltd(Avago 가 Broadcom Corp 인수 2016-02) — 새 CIK 첫 정기보고서 2016-03-10
+AVGO,2014-05-08,2018-06-14,,1730168,AVGO,yfinance,OK,Broadcom Inc 미국 이전(2018-04) — 새 CIK 첫 정기보고서 2018-06-14
+BG,2023-03-15,2023-03-15,2024-02-21,1144519,BG,yfinance,OK,Bunge Ltd — 2023-11 Bunge Global SA 스위스 이전(같은 가격)
+BG,2023-03-15,2024-02-22,,1996862,BG,yfinance,OK,Bunge Global SA(새 CIK 첫 정기보고서 2024-02-22)
+BLK,2011-04-04,2011-04-04,2024-11-05,1364742,BLK,yfinance,OK,옛 BlackRock Inc — 2024-10 GIP 인수 때 새 지주사(같은 가격)
+BLK,2011-04-04,2024-11-06,,2012383,BLK,yfinance,OK,새 BlackRock Inc(새 CIK 첫 정기보고서 2024-11-06)
+CI,1996-01-02,1996-01-02,2019-02-27,701221,CI,yfinance,OK,옛 Cigna Corp — 2018-12 Express Scripts 합병 때 새 지주사(같은 가격)
+CI,1996-01-02,2019-02-28,,1739940,CI,yfinance,OK,The Cigna Group(새 CIK 첫 정기보고서 2019-02-28)
+DIS,1996-01-02,1996-01-02,2019-05-07,1001039,DIS,yfinance,OK,옛 Walt Disney Co(지금 TWDC Enterprises 18) — 2019-03 21CF 인수 때 새 지주사(같은 가격)
+DIS,1996-01-02,2019-05-08,,1744489,DIS,yfinance,OK,새 Walt Disney Co(새 CIK 첫 정기보고서 2019-05-08)
+XOM,1996-01-02,1996-01-02,2026-08-02,34088,XOM,yfinance,OK,Exxon Mobil Corp — ExxonMobil Holdings Corp 지주사 전환(같은 가격)
+XOM,1996-01-02,2026-08-03,,2115436,XOM,yfinance,OK,ExxonMobil Holdings Corp(새 CIK 첫 정기보고서 2026-08-03)
+FOXA,2004-12-20,2004-12-20,2019-03-18,1308161,,,UNREACHABLE,옛 21st Century Fox(Disney 2019-03 인수). FOXA 티커를 새 Fox Corp 가 재사용 — yfinance FOXA 는 2019-03-12~ 새 회사라 옛 증권 가격 무료 소스 없음
+FOXA,2004-12-20,2019-03-19,,1754301,FOXA,yfinance,OK,Fox Corp(2019-03-19 정규 거래 시작)
+FOX,2015-09-21,2015-09-21,2019-03-18,1308161,,,UNREACHABLE,옛 21st Century Fox B주 — FOXA 와 같은 사유
+FOX,2015-09-21,2019-03-19,,1754301,FOX,yfinance,OK,Fox Corp B주
+IR,2010-11-17,2010-11-17,2020-03-02,1466258,TT,yfinance,OK,옛 Ingersoll-Rand plc = 지금 Trane(TT·같은 CIK·같은 증권·2020-03 개명). yfinance IR 는 Gardner Denver(2017-05 상장)라 그대로면 2017-05~2020-02 가 다른 회사 가격
+IR,2010-11-17,2020-03-03,,1699150,IR,yfinance,OK,Ingersoll Rand Inc(옛 Gardner Denver) — fja 는 2020-03-03 부터 연속 멤버로 기록
+ARNC,1996-01-02,1996-01-02,2016-10-31,4281,,,UNREACHABLE,Alcoa Inc 시절(티커 AA) — AA 는 지금 분할된 새 Alcoa Corp·HWM yfinance 이력은 2016-11-01~ 라 옛 증권 가격 무료 소스 없음
+ARNC,1996-01-02,2016-11-01,2020-04-06,4281,HWM,yfinance,OK,Arconic(2016-11 Alcoa Inc 개명) → Howmet(HWM) 같은 CIK·같은 증권

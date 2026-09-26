@@ -163,7 +163,9 @@ def cmd_panel(_):
         raise SystemExit("대조 게이트(compare)를 통과하지 않았다 - 두 소스를 섞지 않는다")
     as_of = pd.Timestamp(man["membership_as_of"])
     m = master()
-    parts, fails = [], []
+    exc_p = OUT / "price_check_exceptions.csv"   # 손으로 판정한 정상 사례(파산 급락 등) — 사유 접두어가 맞을 때만 면제
+    exc = ({(e.ticker, e.start): e.reason_prefix for e in pd.read_csv(exc_p, dtype=str).itertuples()} if exc_p.exists() else {})
+    parts, fails, excused = [], [], []
     for r in m.itertuples():
         if r.status not in ("OK", "PRICE_ONLY"):
             continue
@@ -173,7 +175,9 @@ def cmd_panel(_):
             continue
         px = cut(px, r.start, r.end or None)
         bad = check_interval(px, r.start, r.end or None)
-        if bad:
+        if bad and (r.ticker, r.start) in exc and all(b.startswith(exc[(r.ticker, r.start)]) for b in bad):
+            excused.append((r.ticker, r.start, "예외(판정됨): " + " · ".join(bad)))
+        elif bad:
             fails.append((r.ticker, r.start, " · ".join(bad)))
         px = px.assign(ticker=r.ticker, start=r.start, cik=r.cik, price_symbol=r.price_symbol, source=r.price_source,
                        member=(px["date"] >= pd.Timestamp(r.start)) & (px["date"] <= (pd.Timestamp(r.end) if r.end else pd.Timestamp.max)))
@@ -199,12 +203,12 @@ def cmd_panel(_):
     cov = 1 - (expl + miss) / need
     unexpl = miss / need
     gate = {"member_days": need, "coverage": round(cov, 5), "unreachable_days": expl, "unexplained_days": miss,
-            "unexplained_ratio": round(unexpl, 6), "interval_check_fails": len(fails),
+            "unexplained_ratio": round(unexpl, 6), "interval_check_fails": len(fails), "interval_check_excused": len(excused),
             "rule": "coverage ≥ 0.97 · unexplained ≤ 0.001 · 구간 검사 실패 0(수동 판정 뒤 예외 기록)",
             "passed": bool(cov >= 0.97 and unexpl <= 0.001 and not fails)}
     PANEL.mkdir(parents=True, exist_ok=True)
     (OUT / "price_check_fails.csv").write_text(
-        pd.DataFrame(fails, columns=["ticker", "start", "reason"]).to_csv(index=False), encoding="utf-8")
+        pd.DataFrame(fails + excused, columns=["ticker", "start", "reason"]).to_csv(index=False), encoding="utf-8")
     top = sorted(miss_by.items(), key=lambda x: -x[1])[:15]
     print(f"거래일 {len(cal)} · 멤버-일 {need:,} · 커버리지 {cov:.4f} · 설명 안 되는 결손 {miss:,}({unexpl:.5f}) · 구간 검사 실패 {len(fails)}")
     print("결손 상위:", top)
