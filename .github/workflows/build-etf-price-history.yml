@@ -40,6 +40,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install deps (build-etf-compare.py)
+        run: pip install --quiet pandas numpy
+
       - name: Build ETF price history
         env:
           KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
@@ -51,6 +54,9 @@ jobs:
       - name: Compute ETF returns table
         run: python scripts/build-etf-returns.py
 
+      - name: Compute same-index comparison + correlation neighbors
+        run: python scripts/build-etf-compare.py
+
       - name: Fetch ETF distributions (FunETF)
         continue-on-error: true  # 외부 사이트 구조 변경에 가격/수익률 갱신이 막히면 안 됨
         run: python scripts/build-etf-distributions.py
@@ -59,7 +65,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/etf-etn/history-etf/ docs/data/etf-returns.json docs/data/etf-distributions.json
+          git add data/etf-etn/history-etf/ docs/data/etf-returns.json docs/data/etf-distributions.json docs/data/etf-compare.json
           git diff --staged --quiet || git commit -m "chore: ETF price history + returns table"
           git pull --rebase --autostash origin main
           git push

@@ -54,7 +54,15 @@ def row_to_record(date_iso, r):
         "changePct": r.get("FLUC_RT") or None,
         "volume": r.get("ACC_TRDVOL") or None,
         "value": r.get("ACC_TRDVAL") or None,
+        # 2026-09-26 추가 - 동일 지수 비교·추적 차이(scripts/build-etf-compare.py). 이 키가 없는 옛 날짜는 다시 받는다(SCHEMA_KEY)
+        "nav": r.get("NAV") or None,
+        "mktcap": r.get("MKTCAP") or None,
+        "idx": r.get("IDX_IND_NM") or None,
+        "idxChangePct": r.get("FLUC_RT_IDX") or None,
     }
+
+
+SCHEMA_KEY = "idx"  # 이 키가 없는 날짜 = 필드 확장 전 레코드 - 재수집 대상
 
 
 def load_year(year):
@@ -92,6 +100,7 @@ def main():
                                              "TDD_CLSPRC": "38500", "CMPPREVDD_PRC": "150",
                                              "FLUC_RT": "0.39", "ACC_TRDVOL": "1234567", "ACC_TRDVAL": "47569000000"})
         assert rec["ticker"] == "069500" and rec["close"] == "38500", rec
+        assert SCHEMA_KEY in rec and rec["nav"] is None, "필드 확장 - 응답에 없으면 None"
         rec_empty = row_to_record("2026-01-01", {"ISU_CD": "069500", "ISU_NM": "x", "TDD_CLSPRC": ""})
         assert rec_empty["close"] is None, rec_empty  # 휴장일 빈 문자열은 None으로 정직하게
         print("selftest OK")
@@ -116,7 +125,8 @@ def main():
         year = date_iso[:4]
         if year not in year_cache:
             year_cache[year] = load_year(year)
-        if date_iso in year_cache[year]:
+        have = year_cache[year].get(date_iso)
+        if have is not None and (not have or SCHEMA_KEY in have[0]):  # 빈 날(휴장 확인) 또는 새 필드까지 있는 날
             skipped += 1
             continue
 

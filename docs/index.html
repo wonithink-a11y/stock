@@ -211,6 +211,8 @@ const state = {
   themeOpen: {},           // 테마 트리 펼침 상태(key -> true)
   themeSensitivity: null,  // docs/data/theme-sensitivity.json (외부요인 동시 민감도, 월 1회, 관찰용)
   etfDist: null,           // docs/data/etf-distributions.json
+  etfCompare: null,        // docs/data/etf-compare.json (동일 지수 비교·상관 이웃, 관찰용)
+  etfPick: null,           // ETF 탭에서 비교 패널을 연 종목 코드
   etfSearch: '',
   etfAssetClass: 'all',
   etfSubClass: 'all',
@@ -1609,7 +1611,7 @@ function renderEtf() {
     const c = r.changes || {};
     const dist = distByCode[r.code];
     return `<tr>
-      <td><strong>${esc(r.name)}</strong> <span class="muted">${esc(r.code)}</span></td>
+      <td><strong class="etf-pick" data-etf-pick="${esc(r.code)}" title="동일 지수 비교·비슷한 ETF 보기">${esc(r.name)}</strong> <span class="muted">${esc(r.code)}</span></td>
       <td>${fmtPrice(r.price, 'KR')}</td>
       <td>${pctCell(c.d1)}</td>
       <td>${pctCell(c.d7)}</td>
@@ -1622,7 +1624,7 @@ function renderEtf() {
     </tr>`;
   }).join('');
 
-  return `<div class="card">
+  return `${renderEtfCompare()}<div class="card">
     <div class="group-filter" style="margin-bottom:10px">${assetBanner}</div>
     ${subBanner}
     <div class="toolbar" style="margin-top:10px">
@@ -1637,6 +1639,47 @@ function renderEtf() {
     </table></div>
     <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 캘린더일 기준 수익률(휴장일은 직전 거래일 값 대체) · 컬럼 클릭으로 정렬.
     분배율/분배횟수는 FunETF 공개 데이터(${esc((state.etfDist && state.etfDist.generatedAtKST || '').slice(0, 10)) || '-'} 기준, 최근 12개월 내 분배 이력이 있는 종목만·연환산 단리 기준) - 분배 안 하는 ETF는 '-'.</p>
+  </div>`;
+}
+
+// ETF 동일 지수 비교 패널 — scripts/build-etf-compare.py. 관찰·선택용(점수·추천에 안 쓴다)
+function renderEtfCompare() {
+  const cmp = state.etfCompare, code = state.etfPick;
+  if (!code) return '';
+  const E = (cmp && cmp.etfs) || {};
+  const me = E[code];
+  if (!me) return `<div class="card"><div class="toolbar"><strong>${esc(code)}</strong><button class="chip" data-etf-pick="">닫기</button></div><p class="muted">비교 데이터가 아직 없습니다(etf-compare.json 갱신 전이거나 최근 상장).</p></div>`;
+  const pct = (v, d = 2) => (v === null || v === undefined) ? '<span class="muted">-</span>' : pctCell(Number((v * 100).toFixed(d)));
+  const eok = v => (v === null || v === undefined) ? '-' : `${Math.round(v / 1e8).toLocaleString()}억`;
+  const nameBtn = c => `<span class="etf-pick" data-etf-pick="${esc(c)}" style="cursor:pointer;text-decoration:underline dotted">${esc((E[c] || {}).name || c)}</span>`;
+  const gkey = Object.keys(cmp.groups || {}).find(k => cmp.groups[k].includes(code));
+  const mult = me.multiplier === null || me.multiplier === undefined ? '측정 불가' : `${me.multiplier}배`;
+  let groupHtml = '<p class="muted">같은 지수·같은 배수·같은 환헤지로 묶이는 다른 ETF가 없습니다(또는 액티브·배수 측정 불가).</p>';
+  if (gkey) {
+    const rows = cmp.groups[gkey].map(c => {
+      const e = E[c];
+      return `<tr${c === code ? ' style="background:var(--hl,rgba(255,200,0,.12))"' : ''}>
+        <td>${c === code ? `<strong>${esc(e.name)}</strong>` : nameBtn(c)} <span class="muted">${esc(c)}</span></td>
+        <td>${eok(e.aum)}</td><td>${eok(e.value20)}</td><td>${pct(e.premium)}</td><td>${pct(e.ret, 1)}</td>
+        <td>${e.short ? '<span class="muted">상장 1년 미만</span>' : pct(e.retVsGroup)}</td>
+        <td>${e.trackErrVsGroup === null || e.trackErrVsGroup === undefined ? '<span class="muted">-</span>' : (e.trackErrVsGroup * 100).toFixed(2) + '%'}</td>
+      </tr>`;
+    }).join('');
+    groupHtml = `<div class="table-wrap"><table><thead><tr><th>종목</th><th>규모(시총)</th><th>20일 평균 거래대금</th><th>괴리율</th><th>1년 수익률</th><th>그룹 대비(%p)</th><th>그룹 대비 추적오차</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  const near = (me.near || []).map(([c, r]) => `<li>${nameBtn(c)} <span class="muted">${esc(c)} · 상관 ${r.toFixed(3)}</span></li>`).join('') || '<li class="muted">-</li>';
+  const anchorName = { KOSPI200: '코스피200', SP500: 'S&P500', NDX100: '나스닥100' };
+  const anchors = Object.entries(me.anchorCorr || {}).map(([a, r]) => `${anchorName[a] || a} ${r.toFixed(2)}`).join(' · ') || '-';
+  return `<div class="card">
+    <div class="toolbar"><div><strong>${esc(me.name)}</strong> <span class="muted">${esc(code)} · 기초지수 ${esc(me.idx || '-')} · ${mult}${me.hedged ? ' · 환헤지(H)' : ''}${me.active ? ' · 액티브' : ''}</span></div>
+      <button class="chip" data-etf-pick="">닫기</button></div>
+    <h4 style="margin:10px 0 6px">동일 지수 비교</h4>${groupHtml}
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:10px">
+      <div><h4 style="margin:0 0 6px">비슷하게 움직이는 ETF <span class="muted">(같은 그룹 제외)</span></h4><ul style="margin:0;padding-left:18px">${near}</ul></div>
+      <div><h4 style="margin:0 0 6px">대표 지수와의 상관</h4><p style="margin:0">${anchors}</p></div>
+    </div>
+    <p class="muted" style="margin-top:8px">기준 ${esc(cmp.asOf || '-')} · 최근 ${esc(String(cmp.window || '-'))}거래일 가격 기준(분배금 미포함) · 배수는 이름이 아니라 지수 대비 실측(시차 흡수) ·
+    '그룹 대비'는 그룹 전원이 거래된 날만으로 잰 기간 수익률에서 그룹 중앙값을 뺀 값 — 같은 지수끼리는 환율·시차가 상쇄돼서 지수 대비보다 정확하다. 추적오차에는 분배락일 차이가 들어간다. 총보수는 KRX 일별 데이터에 없어 표시하지 않는다. 관찰용 — 점수·추천에 쓰지 않는다.</p>
   </div>`;
 }
 
@@ -2169,6 +2212,8 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (ea) { state.etfAssetClass = ea.dataset.etfAsset; state.etfSubClass = 'all'; return render(); }
   const es = t.closest('[data-etf-sub]');
   if (es) { state.etfSubClass = es.dataset.etfSub; return render(); }
+  const ep = t.closest('[data-etf-pick]');
+  if (ep) { state.etfPick = ep.dataset.etfPick || null; render(); if (state.etfPick) window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
   // 필터 칩
   const sec = t.closest('[data-sector]');
@@ -2306,9 +2351,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
