@@ -76,6 +76,11 @@ def load_sector_by_ticker(k2g):
             t, s = r.get("ticker"), r.get("sector")
             if t and s and s in k2g:
                 out[t] = k2g[s]
+    # KSIC 가 사업 실체와 어긋나는 종목만 손 지정(예: 삼성전자 = KSIC 통신장비 → 반도체)
+    with open(ROLLUP, encoding="utf-8") as f:
+        for t, g in json.load(f).get("tickerOverrides", {}).items():
+            if not t.startswith("_") and t in out:
+                out[t] = g
     return out
 
 
