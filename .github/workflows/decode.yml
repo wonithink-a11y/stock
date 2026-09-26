@@ -41,7 +41,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PYTHONIOENCODING: utf-8
           MAX: ${{ github.event.inputs.max || '450' }}
-        run: python scripts/decode-gemini.py --auto --max "$MAX" --budget-min 150
+        run: python -u scripts/decode-gemini.py --auto --max "$MAX" --budget-min 150
 
       - name: Commit decode results
         run: |
