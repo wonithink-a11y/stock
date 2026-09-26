@@ -1,0 +1,33 @@
+name: probe-fundamental-krx
+
+# KRX PER/PBR/BPS 정찰(scouting) 전용 - 로그인 세션(KRX_ID/KRX_PW)으로 2016 이전 PBR 이력이 받아지는지만 본다.
+# data/backfill/ 에 아무것도 안 쓰고 commit 도 없다 - scripts/probe-fundamental-krx.py 참고. 결과는 artifact 로만.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet "pykrx==1.2.8" pandas
+
+      - name: Probe KRX fundamentals (PER/PBR/BPS)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
+        run: python scripts/probe-fundamental-krx.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-fundamental-krx-result
+          path: probe-fundamental-krx-result.json
+          retention-days: 7
+          if-no-files-found: warn
