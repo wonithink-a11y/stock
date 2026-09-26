@@ -67,8 +67,8 @@ def fetch(sym: str) -> pd.DataFrame:
         rows.append(d)
     d = pd.concat(rows, ignore_index=True)
     d.columns = ["t", "open", "high", "low", "close"]
-    unit = "us" if d["t"].max() > 1e14 else "ms"     # 2025 이후 바이낸스 자료실은 마이크로초
-    d["date"] = pd.to_datetime(d["t"], unit=unit).dt.normalize()
+    t = d["t"].astype("int64")
+    d["date"] = pd.to_datetime(t.where(t < 1e14, t // 1000), unit="ms").dt.normalize()   # 2025 이후 자료실은 마이크로초 — 행마다 판별
     d = d.drop(columns="t").drop_duplicates("date").sort_values("date").reset_index(drop=True)
     d.to_parquet(f)
     return d
