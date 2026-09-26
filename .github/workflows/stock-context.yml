@@ -3,9 +3,16 @@ name: Stock context (manual)
 # 화면 맥락만 다시 만든다 — 수동 전용: 52주 고저·증권사 목표가(stock-context.json) + 업종 강도(sector-strength.json) + 테마 트리 강도(theme-strength.json).
 # 정기 실행은 daily-analysis 의 같은 단계가 한다. 이건 그 사이에 급히 갱신할 때:
 # 일일 분석 전체를 돌리면 history 스냅샷·previous.json·추천 이력·텔레그램까지 따라 움직인다.
+# ★ 기본은 KIS 를 안 부른다(--no-kis, 목표가는 직전 값 유지). 실행마다 토큰이 새로 발급되고 KIS 가 발급 알림을 보낸다
+#   (2026-09-26 업종 재생성 8회 = 토큰 8회 발급 사고). 목표가가 필요할 때만 kis 체크.
 
 on:
   workflow_dispatch:
+    inputs:
+      kis:
+        description: '증권사 목표가도 다시 받기(KIS 토큰 새로 발급 — Actions 는 매번 새 기계라 캐시가 없다)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,7 +33,7 @@ jobs:
         env:
           KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
           KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
-        run: pip install --quiet requests && python scripts/build-stock-context.py
+        run: pip install --quiet requests && python scripts/build-stock-context.py ${{ inputs.kis && ' ' || '--no-kis' }}
       - name: Build sector strength
         run: python scripts/build-sector-strength.py
       - name: Build theme tree snapshot
