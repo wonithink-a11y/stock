@@ -1,0 +1,16 @@
+[Unit]
+# 아침 D-day 텔레그램(1:1 방) — scripts/events-dday-alert.py. docs/data/events.json 은 Actions 가 만들고 collector-pull(06:30)이 받는다.
+Description=Morning D-day calendar alert
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/events-dday-alert.py
+TimeoutStartSec=2min
+NoNewPrivileges=yes
+PrivateTmp=yes

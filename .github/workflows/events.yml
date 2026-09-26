@@ -1,0 +1,45 @@
+name: Build events calendar (D-day)
+
+# 다가오는 일정(실적·배당락·FOMC·금통위·옵션만기) → docs/data/events.json (scripts/build-events.py).
+# 대시보드 '일정' 탭과 VM 아침 텔레그램(deploy/events-dday.*)이 읽는다. 관심종목 872개 Yahoo 조회 ~7분.
+# Yahoo 가 절반 넘게 실패하면 파일을 덮어쓰지 않고 실패한다(빈 목록을 '일정 없음'으로 내보내지 않는다).
+
+on:
+  schedule:
+    - cron: '0 20 * * *'   # 20:00 UTC = 05:00 KST 매일 (VM 07:50 텔레그램 전에 끝나도록 — Actions 지연 감안)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: events-calendar
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet yfinance
+      - name: Build events
+        env:
+          KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
+        run: python scripts/build-events.py
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/events.json
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore: update docs/data/events.json (D-day calendar)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push 재시도 $i..."; sleep 5
+          done
+          echo "push 최종 실패"; exit 1

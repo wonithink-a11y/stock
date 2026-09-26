@@ -146,6 +146,7 @@
   <button data-tab="reco">추천 이력</button>
   <button data-tab="backtest">백테스트</button>
   <button data-tab="cycle">경기사이클🥚</button>
+  <button data-tab="events">일정📅</button>
   <button data-tab="disclosures">공시</button>
   <button data-tab="news">뉴스</button>
   <button data-tab="flows">시장수급</button>
@@ -213,6 +214,8 @@ const state = {
   etfDist: null,           // docs/data/etf-distributions.json
   etfCompare: null,        // docs/data/etf-compare.json (동일 지수 비교·상관 이웃, 관찰용)
   etfPick: null,           // ETF 탭에서 비교 패널을 연 종목 코드
+  events: null,            // docs/data/events.json (다가오는 일정 D-day, 관찰용)
+  eventsScope: 'key',      // key(보유·거시·국내) | all | macro | kr | us
   etfSearch: '',
   etfAssetClass: 'all',
   etfSubClass: 'all',
@@ -1642,6 +1645,46 @@ function renderEtf() {
   </div>`;
 }
 
+// 다가오는 일정 D-day — scripts/build-events.py. 관찰용. 목록에 없다고 일정이 없는 게 아니다(출처가 모를 뿐)
+function renderEvents() {
+  const d = state.events;
+  if (!d || !d.events) return '<div class="card empty">일정 데이터가 아직 없습니다(events.json 첫 생성 전).</div>';
+  const kstToday = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })); kstToday.setHours(0, 0, 0, 0);
+  const dday = s => Math.round((new Date(s + 'T00:00:00') - kstToday) / 864e5);
+  const pass = e => {
+    const sc = state.eventsScope;
+    if (sc === 'all') return true;
+    if (sc === 'macro') return e.scope === 'macro';
+    if (sc === 'kr') return e.market === 'KR';
+    if (sc === 'us') return e.market === 'US';
+    return e.scope === 'held' || e.scope === 'macro' || e.market === 'KR';   // key: 보유 + 거시 + 국내
+  };
+  const list = d.events.filter(e => dday(e.date) >= 0 && pass(e));
+  const chip = (v, label) => `<button data-events-scope="${v}" class="chip ${state.eventsScope === v ? 'active' : ''}">${label}</button>`;
+  const kindIcon = { earnings: '📊', exdiv: '💰', fomc: '🇺🇸', bok: '🇰🇷', expiry: '⏳' };
+  const statusBadge = e => e.status === 'official' ? '<span class="muted">공식</span>'
+    : e.status === 'rule' ? '<span class="muted">규칙</span>'
+    : e.status === 'range' ? `<span class="muted">미정(${esc(e.date)}~${esc(e.dateEnd)})</span>`
+    : e.confirmedBy === 'nasdaq' ? '<span class="muted">Nasdaq 확인</span>' : '<span class="muted">Yahoo 예상</span>';
+  let lastDate = '';
+  const rows = list.map(e => {
+    const n = dday(e.date);
+    const head = e.date !== lastDate ? `<tr><td colspan="4" style="padding-top:12px"><strong>${esc(e.date)}</strong> <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span></td></tr>` : '';
+    lastDate = e.date;
+    const who = e.code ? `<span data-chart="${esc(e.code)}" data-chart-name="${esc(e.name)}" style="cursor:pointer">${e.scope === 'held' ? '📌 ' : ''}<strong>${esc(e.name)}</strong></span> <span class="muted">${esc(e.code)}</span>` : '';
+    return head + `<tr><td>${kindIcon[e.kind] || ''} ${esc(e.title)}</td><td>${who}</td><td>${statusBadge(e)}</td><td class="muted">${esc(e.note || '')}</td></tr>`;
+  }).join('');
+  const warn = (d.warnings || []).map(w => `<p class="neg">⚠ ${esc(w)}</p>`).join('');
+  return `<div class="card">
+    <div class="filter-row">${chip('key', '핵심(보유·거시·국내)')}${chip('macro', '거시')}${chip('kr', '국내')}${chip('us', '미국')}${chip('all', '전체')}</div>
+    ${warn}
+    <div class="table-wrap"><table><tbody>${rows || '<tr><td class="muted">표시할 일정이 없습니다.</td></tr>'}</tbody></table></div>
+    <p class="muted" style="margin-top:8px">기준 ${esc(d.asOf)} · 앞으로 ${d.horizonDays}일 · 관심종목 ${d.counts.watchlist}개 조회(실패 ${d.counts.yahooFail}) ·
+    실적·배당락은 Yahoo 기준 — 확정 여부를 Yahoo 가 알려주지 않는다. 미국은 Nasdaq 실적 캘린더에 같은 날 있으면 'Nasdaq 확인'. 국내는 Yahoo 가 다루는 대형주만 나온다 —
+    <strong>목록에 없다고 일정이 없는 것이 아니다.</strong> FOMC·금통위는 공식 페이지에서 옮긴 값, 옵션 만기는 규칙 계산(휴장이면 직전 영업일). 관찰용.</p>
+  </div>`;
+}
+
 // ETF 동일 지수 비교 패널 — scripts/build-etf-compare.py. 관찰·선택용(점수·추천에 안 쓴다)
 function renderEtfCompare() {
   const cmp = state.etfCompare, code = state.etfPick;
@@ -2176,6 +2219,7 @@ function render() {
   else if (state.tab === 'portfolio') el.innerHTML = renderPortfolio();
   else if (state.tab === 'reco') el.innerHTML = renderReco();
   else if (state.tab === 'cycle') el.innerHTML = renderCycle();
+  else if (state.tab === 'events') el.innerHTML = renderEvents();
   else if (state.tab === 'disclosures') el.innerHTML = renderDisclosures();
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
@@ -2212,6 +2256,8 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (ea) { state.etfAssetClass = ea.dataset.etfAsset; state.etfSubClass = 'all'; return render(); }
   const es = t.closest('[data-etf-sub]');
   if (es) { state.etfSubClass = es.dataset.etfSub; return render(); }
+  const evs = t.closest('[data-events-scope]');
+  if (evs) { state.eventsScope = evs.dataset.eventsScope; return render(); }
   const ep = t.closest('[data-etf-pick]');
   if (ep) { state.etfPick = ep.dataset.etfPick || null; render(); if (state.etfPick) window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
@@ -2351,9 +2397,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare, state.events] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'), loadJson('events'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';

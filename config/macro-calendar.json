@@ -1,0 +1,29 @@
+{
+  "_note": "거시 일정 — 손으로 관리한다. 매년 공식 페이지에서 확인해 추가(확인일 기록). scripts/build-events.py 가 앞으로 120일 안에 FOMC·금통위가 하나도 없으면 경고한다.",
+  "fomc": {
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+    "checked": "2026-09-26",
+    "note": "회의 둘째 날 14:00 ET 결정 발표 = 한국시간 다음 날 새벽 03:00(서머타임)·04:00. date 는 미국 날짜(둘째 날). * = 경제전망(SEP) 동반",
+    "meetings": [
+      {"date": "2026-10-28", "days": "10-27~28", "sep": false},
+      {"date": "2026-12-09", "days": "12-08~09", "sep": true},
+      {"date": "2027-01-27", "days": "01-26~27", "sep": false},
+      {"date": "2027-03-17", "days": "03-16~17", "sep": true},
+      {"date": "2027-04-28", "days": "04-27~28", "sep": false},
+      {"date": "2027-06-09", "days": "06-08~09", "sep": true},
+      {"date": "2027-07-28", "days": "07-27~28", "sep": false},
+      {"date": "2027-09-15", "days": "09-14~15", "sep": true},
+      {"date": "2027-10-27", "days": "10-26~27", "sep": false},
+      {"date": "2027-12-08", "days": "12-07~08", "sep": true}
+    ]
+  },
+  "bok": {
+    "source": "https://www.bok.or.kr/portal/singl/crncyPolicyDrcMtg/listYear.do?mtgSe=A&menuNo=200755",
+    "checked": "2026-09-26",
+    "note": "통화정책방향 결정회의(기준금리 결정). 2027년 일정은 2026-09-26 현재 미게시 — 게시되면 추가",
+    "meetings": [
+      {"date": "2026-10-22"},
+      {"date": "2026-11-26"}
+    ]
+  }
+}

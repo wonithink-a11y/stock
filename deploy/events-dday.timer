@@ -1,0 +1,9 @@
+[Unit]
+Description=Morning D-day calendar alert, weekdays 07:50 KST
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 07:50:00
+
+[Install]
+WantedBy=timers.target

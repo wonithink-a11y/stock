@@ -25,6 +25,7 @@ on:
       - "Fetch market flows (KRX)"
       - "Update ui/data/positions.json (Paper Trading Engine)"
       - "Update theme-sensitivity.json (monthly)"
+      - "Build events calendar (D-day)"
     types: [completed]
   workflow_dispatch:
 
