@@ -513,6 +513,59 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
     }
 
 
+MISFIT_DAYS = 126       # 오분류 의심: 최근 6개월 일수익률
+MISFIT_GAP = 0.10       # 다른 그룹과의 상관이 자기 그룹보다 이만큼 높으면 후보
+MISFIT_MIN_DAYS = 100
+
+
+def misfits(prices, sector_by_ticker, market="KR", min_members=MIN_MEMBERS, days=MISFIT_DAYS, gap=MISFIT_GAP):
+    """업종 오분류 의심 목록 — 자기 그룹보다 다른 그룹과 더 같이 움직이는 종목.
+
+    그룹 수익률 = 그날 소속 종목 일수익률의 중앙값(자기 그룹은 **자기 자신을 뺀** 중앙값 —
+    넣으면 자기 상관이 부풀려져 오분류가 가려진다). 자동으로 옮기지 않는다: 사람이 보고
+    config/sectorGroups.json tickerOverrides 로 옮길지 정한다. 관찰용."""
+    recs = {t: r for t, r in prices["byTicker"].items() if r.get("market") == market and sector_by_ticker.get(t)}
+    dates = sorted({d for r in recs.values() for d in (r.get("d") or [])})[-(days + 1):]
+    rets = {}
+    for t, r in recs.items():
+        c = dict(zip(r.get("d") or [], r.get("c") or []))
+        rets[t] = [(c[b] / c[a] - 1) if c.get(a) and c.get(b) else None for a, b in zip(dates, dates[1:])]
+    members = collections.defaultdict(list)
+    for t in rets:
+        members[sector_by_ticker[t]].append(t)
+    members = {g: ts for g, ts in members.items() if len(ts) >= min_members}
+
+    def gret(ts):
+        return [med([rets[t][i] for t in ts]) for i in range(len(dates) - 1)]
+
+    def corr(x, y):
+        pts = [(a, b) for a, b in zip(x, y) if a is not None and b is not None]
+        if len(pts) < MISFIT_MIN_DAYS:
+            return None
+        try:
+            return statistics.correlation([a for a, _ in pts], [b for _, b in pts])
+        except statistics.StatisticsError:      # 분산 0(거래정지 등)
+            return None
+
+    full = {g: gret(ts) for g, ts in members.items()}
+    out = []
+    for t, x in rets.items():
+        own = sector_by_ticker[t]
+        if own not in members:
+            continue
+        c_own = corr(x, gret([u for u in members[own] if u != t]))
+        others = [(corr(x, y), g) for g, y in full.items() if g != own]
+        others = [(c, g) for c, g in others if c is not None]
+        if c_own is None or not others:
+            continue
+        c_best, g_best = max(others)
+        if c_best - c_own >= gap:
+            out.append({"ticker": t, "name": recs[t].get("name"), "group": own, "corrOwn": round(c_own, 3),
+                        "bestGroup": g_best, "corrBest": round(c_best, 3)})
+    out.sort(key=lambda m: m["corrOwn"] - m["corrBest"])
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
@@ -536,6 +589,9 @@ def main():
         sum(1 for v in shares.values() if v["source"] == "A3C"),
         len(kr) - len(shares), len(snapshot), len(a8)))
     out = build(prices, sectors, shares_by_ticker=shares)
+    out["misfits"] = misfits(prices, sectors)
+    out["misfitNote"] = (f"최근 {MISFIT_DAYS}거래일 일수익률 상관: 다른 업종과의 상관이 자기 업종(자신 제외 중앙값)보다 "
+                         f"{MISFIT_GAP:.2f} 이상 높은 종목. 자동으로 옮기지 않는다 — 사람이 보고 tickerOverrides 로 정한다.")
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     print("asOf {} · {}종목 · {}개 그룹 · 미매핑 {} · 주식수 확보 {} · UNVERIFIED {}".format(
@@ -554,6 +610,9 @@ def main():
             (g["capTop"] or {}).get("name", "-"),
             "" if g["capTopWeight"] is None else "{:.0%}".format(g["capTopWeight"]),
             "  ⚠stale" if g["sharesStale"] else ""))
+    print("오분류 의심 %d종목:" % len(out["misfits"]))
+    for m in out["misfits"][:15]:
+        print("  {} {:<12} {} {:.2f} → {} {:.2f}".format(m["ticker"], m["name"] or "", m["group"], m["corrOwn"], m["bestGroup"], m["corrBest"]))
     print("saved:", OUT)
 
 
@@ -569,6 +628,25 @@ def selftest():
     assert quadrant(0.1, 0.1) == "주도" and quadrant(0.1, -0.1) == "둔화"
     assert quadrant(-0.1, 0.1) == "부상" and quadrant(-0.1, -0.1) == "약세"
     assert quadrant(None, 0.1) is None
+    # 오분류 의심: X 는 A 그룹 소속이지만 B 그룹과 똑같이 움직인다
+    import random
+    rnd = random.Random(1)
+    fa = [rnd.gauss(0, .02) for _ in range(130)]
+    fb = [rnd.gauss(0, .02) for _ in range(130)]
+    def path(f):
+        c = [100.0]
+        for r in f:
+            c.append(c[-1] * (1 + r + rnd.gauss(0, .003)))
+        return c
+    ds = ["d%03d" % i for i in range(131)]
+    px = {"byTicker": {}}
+    sec = {}
+    for i in range(5):
+        px["byTicker"]["A%d" % i] = {"market": "KR", "d": ds, "c": path(fa)}; sec["A%d" % i] = "A"
+        px["byTicker"]["B%d" % i] = {"market": "KR", "d": ds, "c": path(fb)}; sec["B%d" % i] = "B"
+    px["byTicker"]["X"] = {"market": "KR", "d": ds, "c": path(fb)}; sec["X"] = "A"
+    mf = misfits(px, sec, min_members=5)
+    assert [m["ticker"] for m in mf] == ["X"] and mf[0]["bestGroup"] == "B", mf
 
     k2g = load_rollup()
     assert len(k2g) == 159, len(k2g)

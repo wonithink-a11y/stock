@@ -2577,6 +2577,11 @@ function renderSector() {
       CAP 계산에서 제외하고(현재 ${(d.sharesUnverified || []).length}종목), 공시가 오래된 그룹은 ⚠로 표시합니다.
       제외된 종목은 분자·분모 양쪽에서 빠지며 그 비율이 '시총 커버리지'입니다.
     </p>
+    ${(d.misfits || []).length ? `<details style="margin-top:10px"><summary style="cursor:pointer">업종 오분류 의심 ${d.misfits.length}종목 — 자기 업종보다 다른 업종과 더 같이 움직인다</summary>
+      <p class="muted" style="font-size:11px;margin:6px 0">${esc(d.misfitNote || '')} 지주사는 자회사 업종을 따라가는 게 정상이다.</p>
+      <div class="table-wrap"><table><thead><tr><th>종목</th><th>지금 업종</th><th style="text-align:right">상관</th><th>더 닮은 업종</th><th style="text-align:right">상관</th></tr></thead><tbody>
+      ${d.misfits.slice(0, 30).map(m => `<tr><td>${esc(m.name || m.ticker)} <span class="muted">${esc(m.ticker)}</span></td><td>${esc(m.group)}</td><td style="text-align:right">${m.corrOwn.toFixed(2)}</td><td><strong>${esc(m.bestGroup)}</strong></td><td style="text-align:right">${m.corrBest.toFixed(2)}</td></tr>`).join('')}
+      </tbody></table></div>${d.misfits.length > 30 ? `<p class="muted" style="font-size:11px">상위 30개만 표시(차이 큰 순)</p>` : ''}</details>` : ''}
   </div>`;
 }
 
