@@ -66,6 +66,10 @@ SERVICES = [
     ("공공데이터포털(data.go.kr) - 관세청 수출입무역통계", [
         ("DATA_GO_KR_API_KEY", "일반 인증키(Encoding)"),
     ]),
+    ("KRX 정보데이터시스템 회원(data.krx.co.kr) - 국내 과거 PBR 수집(findings/kr-own-pbr-band-preregistration-2026-09.md)", [
+        ("KRX_ID", "회원 아이디(Open API 키 아님)"),
+        ("KRX_PW", "회원 비밀번호"),
+    ]),
     ("Tiingo - 미국 폐지 종목 가격(docs/control/미국-폐지종목-가격-무료소스-조사-2026-09-25.md)", [
         ("TIINGO_API_KEY", "API 토큰(tiingo.com/account/api/token)"),
     ]),
