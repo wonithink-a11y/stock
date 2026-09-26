@@ -39,12 +39,14 @@ SECTIONS = {
 }
 
 PROMPT = """너는 한국 상장사 사업보고서를 읽고 투자 판단의 '맥락'을 정리하는 분석가다.
-아래 원문(보고서의 '사업의 내용')만 근거로, 섹션별로 3~6개 항목을 쓴다.
+아래 원문(보고서의 '사업의 내용')만 근거로, 섹션별로 4~8개 항목을 쓴다(전체 25개 이상 — 원문에 근거가 있는 한 많이, 짧게).
 
 규칙:
 - claim: 한국어 한두 문장. 해석은 짧게. 원문에 없는 사실·숫자·외부 지식을 넣지 않는다.
 - quote: claim 의 근거가 되는 원문 구절을 **글자 그대로** 복사한다(요약·수정 금지, 40~200자).
-- claim 에 쓴 숫자는 반드시 quote 안에 그대로 있어야 한다. 계산한 숫자(비중·배수)를 새로 만들지 않는다.
+- claim 에 쓴 숫자는 반드시 quote 안에 **표기 그대로** 있어야 한다. 계산한 숫자(비중·배수)를 새로 만들지 않는다.
+  단위 환산·반올림·'억/만'으로 바꿔 쓰기 금지 — 116,364,754 는 116,364,754, US$1,373,000,000 은 US$1,373,000,000 그대로.
+  단위는 원문(표 머리의 '단위: 천원' 등)에 적힌 것만 붙이고, 모르면 붙이지 않는다.
 - B_성장동력은 stage 에 ①~⑤ 중 하나를 넣는다. 다른 섹션은 stage 를 비운다.
 - 원문에 근거가 없는 섹션은 항목을 넣지 않는다.
 - 표는 한 행이 한 줄('칸 | 칸 | …')이다. 표에서 인용할 때는 그 행을 그대로 복사한다.
@@ -52,7 +54,7 @@ PROMPT = """너는 한국 상장사 사업보고서를 읽고 투자 판단의 '
 - insights: 여러 항목을 엮은 해석 2~3문장(예: '이익이 한 부문에 몰려 있어 그 제품 가격에 민감하다').
   새 사실을 만들지 않는다. 숫자를 쓰면 원문에 있는 숫자만.
 
-반드시 확인할 것(원문에 있으면 **빠짐없이** 항목으로 쓴다):
+반드시 확인할 것 — 아래 7개 각각, 원문에 있으면 **최소 1개 이상** 항목으로 쓴다(표에 여러 행이면 행마다):
 1. 부문별 매출과 영업이익 — 가장 큰 부문과 그 영업이익·매출 수치
 2. 주요 제품·원재료의 가격 변화(몇 % 올랐나/내렸나)
 3. 주요 매출처 이름과 상위 매출처 비중
@@ -151,8 +153,19 @@ def squash(s):
     return re.sub(r"[\s|]+", "", s or "").replace(",", "")   # 표 칸 구분자도 무시
 
 
+def dates(s):
+    """날짜 표기를 하나로 — '2025.07.26' 과 '2025년 7월 26일' 은 같은 숫자 D20250726 (월까지만이면 D202507)."""
+    d = lambda y, m, dd="": f" D{y}{int(m):02d}{'' if not dd else f'{int(dd):02d}'} "
+    s = re.sub(r"(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일", lambda m: d(*m.groups()), s or "")
+    s = re.sub(r"(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})", lambda m: d(*m.groups()), s)
+    s = re.sub(r"(\d{4})\s*년\s*(\d{1,2})\s*월", lambda m: d(*m.groups()), s)
+    return re.sub(r"(?<!\d)(\d{4})\.(\d{1,2})(?![\d.])", lambda m: d(*m.groups()) if 1 <= int(m.group(2)) <= 12 else m.group(0), s)
+
+
 def numbers(s):
-    return [n.rstrip(".") for n in re.findall(r"\d[\d,]*\.?\d*", s or "")]
+    # 영문자에 붙은 숫자는 제품 코드다(ALT-B4·HBM4E·1c D램) — 숫자로 세지 않는다. 날짜는 D+숫자 토큰 하나
+    s = dates(s)
+    return re.findall(r"D\d{6,8}", s) + [n.rstrip(".,") for n in re.findall(r"(?<![A-Za-z\d.,])\d[\d,]*\.?\d*(?![A-Za-z\d])", s)]
 
 
 def check(item, source_sq):
@@ -168,9 +181,11 @@ def check(item, source_sq):
         return "인용 조각이 너무 짧다"                           # 짧은 조각을 이곳저곳에서 이어 붙이는 것을 막는다
     if any(p not in source_sq for p in parts):
         return "인용이 원문에 없다"
+    # 숫자는 **토큰 단위**로 맞춘다 — 부분 문자열이면 '5,794만 달러'가 '57,941,459' 안에서 통과한다(알테오젠 실측).
     # 연도는 맥락 표시라 원문 어딘가에만 있으면 된다
+    qnums = {n.replace(",", "") for n in numbers(item.get("quote"))}
     missing = [n for n in numbers(item.get("claim"))
-               if n.replace(",", "") not in q and not (re.fullmatch(r"(19|20)\d\d", n) and n in source_sq)]
+               if n.replace(",", "") not in qnums and not (re.fullmatch(r"(19|20)\d\d", n) and n in source_sq)]
     if missing:
         return "인용에 없는 숫자: " + ", ".join(missing)
     return None
@@ -215,7 +230,15 @@ def selftest():
     assert check({**row, "quote": "제 품 | 2026년 반기\\nDRAM | 41.0% | 34.0%"}, tsrc) == "인용이 원문에 없다"
     assert check({"claim": "2026년 반기 DRAM 39.4%", "quote": "DRAM | 39.4% | 34.0%"}, tsrc) is None   # 연도는 원문에만 있으면 됨
     assert check({"claim": "2031년 DRAM 39.4%", "quote": "DRAM | 39.4% | 34.0%"}, tsrc).startswith("인용에 없는 숫자")
-    print("selftest ok (9)")
+    csrc = squash("B사 | 기술용역 및 위탁생산 | 57,941,459 | 100%")
+    assert check({"claim": "B사와 약 5,794만 달러 계약", "quote": "B사 | 기술용역 및 위탁생산 | 57,941,459"}, csrc).startswith("인용에 없는 숫자")
+    assert check({"claim": "B사 계약 57,941,459", "quote": "B사 | 기술용역 및 위탁생산 | 57,941,459"}, csrc) is None
+    tq = "Tesla, Inc. | 반도체 위탁생산 | 2025.07.26 | 2033.12.31 | 16,544"
+    tsq = squash(tq)
+    assert check({"claim": "Tesla 와 2025년 7월 26일부터 2033년 12월 31일까지 16,544", "quote": tq}, tsq) is None
+    assert check({"claim": "Tesla 와 2025년 7월 27일부터", "quote": tq}, tsq).startswith("인용에 없는 숫자")
+    assert numbers("2019.02.27~2027.03.31 · 2026년 3월 · 2026.03") == ["D20190227", "D20270331", "D202603", "D202603"]
+    print("selftest ok (14)")
 
 
 def main():
@@ -240,7 +263,8 @@ def main():
         why = check(it, src)
         (dropped.append((it, why)) if why else kept.append(it))
     # 요약·해석은 인용이 없다 — 숫자가 원문에 있는지만 본다. 없으면 그 문장을 버린다
-    loose = lambda t: all(n.replace(",", "") in src for n in numbers(t))
+    src_nums = {n.replace(",", "") for n in numbers(text)}           # 토큰 단위(부분 문자열 아님)
+    loose = lambda t: all(n.replace(",", "") in src_nums for n in numbers(t))
     if out.get("summary") and not loose(out["summary"]):
         dropped.append(({"section": "summary", "claim": out["summary"], "quote": ""}, "원문에 없는 숫자"))
         out["summary"] = None
