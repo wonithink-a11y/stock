@@ -33,6 +33,13 @@
   .grade-E { background: #4c1d1d; color: #f38b8b; }
   .grade-H { background: #333a47; color: #aab4c8; } /* 유보 */
   .pos { color: var(--good); } .neg { color: var(--bad); }
+  .hm { position: relative; width: 100%; background: var(--bg); border-radius: 6px; overflow: hidden; }
+  .hm-g { position: absolute; box-sizing: border-box; border: 1px solid var(--bg); }
+  .hm-gh { font-size: 11px; font-weight: 600; padding: 1px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .hm-s { position: absolute; box-sizing: border-box; border: 1px solid rgba(15,20,32,.6); cursor: pointer; overflow: hidden;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; line-height: 1.15; }
+  .hm-s span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+  .hm-s:hover { outline: 2px solid #fff; z-index: 2; }
   .warn-tag { display: inline-block; background: #4c1d1d; color: #f38b8b; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
   .group-tag { display: inline-block; background: #1e3a5f; color: #9ecbff; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
   .mkt-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
@@ -207,6 +214,8 @@ const state = {
   sectorStrength: null,    // docs/data/sector-strength.json (관찰용, 예측 주장 아님)
   tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
+  heatWin: '1d',           // 시장 히트맵 기간
+  heatSize: 'cap',         // 시장 히트맵 면적: cap(시총) | eq(동일)
   themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
   themeWin: '1d',          // 테마 트리 기간
   themeOpen: {},           // 테마 트리 펼침 상태(key -> true)
@@ -2461,6 +2470,87 @@ function renderThemeSensitivity() {
   </div>`;
 }
 
+// squarified treemap. items: [{v>0, ...}] 큰 순 정렬. 반환 좌표는 입력과 같은 단위.
+function squarify(items, x, y, w, h) {
+  const out = [];
+  let rest = items.filter(i => i.v > 0), total = rest.reduce((s, i) => s + i.v, 0);
+  while (rest.length && w > 0 && h > 0) {
+    const side = Math.min(w, h), scale = (w * h) / total;
+    let row = [], best = Infinity;
+    for (const it of rest) {
+      const r = row.concat(it), vs = r.map(q => q.v * scale), s = vs.reduce((a, b) => a + b, 0);
+      const worst = Math.max(side * side * Math.max(...vs) / (s * s), (s * s) / (side * side * Math.min(...vs)));
+      if (worst > best) break;
+      best = worst; row = r;
+    }
+    const rv = row.reduce((a, b) => a + b.v, 0), thick = rv * scale / side;
+    let off = 0;
+    for (const it of row) {
+      const len = it.v * scale / thick;
+      out.push(w >= h ? { ...it, x, y: y + off, w: thick, h: len } : { ...it, x: x + off, y, w: len, h: thick });
+      off += len;
+    }
+    if (w >= h) { x += thick; w -= thick; } else { y += thick; h -= thick; }
+    total -= rv; rest = rest.slice(row.length);
+  }
+  return out;
+}
+
+const HEAT_WINS = { '1d': ['1일', 0.03], '1w': ['1주', 0.06], '1m': ['1개월', 0.12], '3m': ['3개월', 0.20] };
+
+function heatColor(r, cap) {
+  if (r === null || r === undefined) return '#333a48';
+  const t = Math.min(Math.abs(r) / cap, 1), base = [58, 66, 86];
+  const to = r >= 0 ? [30, 170, 90] : [214, 69, 65];
+  return `rgb(${base.map((b, i) => Math.round(b + (to[i] - b) * t)).join(',')})`;
+}
+
+function marketHeatmap(d) {
+  const st = d.stocks || [];
+  if (!st.length) return '';
+  const win = state.heatWin, [winLabel, cap] = HEAT_WINS[win], eq = state.heatSize === 'eq';
+  // 폰은 세로로 길게. 렌더 시점 창 폭으로 한 번 정한다(리사이즈 재배치는 안 한다)
+  const W = Math.min(Math.max((window.innerWidth || 1000) - 80, 280), 1400);
+  const H = Math.round(W < 700 ? W * 1.6 : W * 0.55);
+  const byG = {};
+  st.forEach(s => (byG[s.g] = byG[s.g] || []).push({ ...s, v: eq ? 1 : s.cap }));
+  const gcap = Object.fromEntries((d.groups || []).map(g => [g.group, (g.capRet || {})[win]]));
+  const groups = Object.entries(byG).map(([g, m]) => ({ g, m: m.sort((a, b) => b.v - a.v), v: m.reduce((s, x) => s + x.v, 0) }))
+    .sort((a, b) => b.v - a.v);
+  const pct = v => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+  const jo = v => v >= 1e12 ? Math.round(v / 1e12).toLocaleString() + '조' : Math.round(v / 1e8).toLocaleString() + '억';
+  const box = (x, y, w, h) => `left:${(x / W * 100).toFixed(3)}%;top:${(y / H * 100).toFixed(3)}%;width:${(w / W * 100).toFixed(3)}%;height:${(h / H * 100).toFixed(3)}%`;
+  let html = '';
+  for (const G of squarify(groups, 0, 0, W, H)) {
+    const head = G.w > 50 && G.h > 40 ? 16 : 0;
+    const gr = gcap[G.g];
+    html += `<div class="hm-g" style="${box(G.x, G.y, G.w, G.h)}">${head ? `<div class="hm-gh">${esc(G.g)}${gr === null || gr === undefined ? '' : ' ' + pct(gr)}</div>` : ''}</div>`;
+    for (const s of squarify(G.m, G.x + 1, G.y + head + 1, G.w - 2, G.h - head - 2)) {
+      const r = s.r[win], fs = Math.max(9, Math.min(22, Math.min(s.w / 6, s.h / 2.6)));
+      const label = s.w > 38 && s.h > 22
+        ? `<span style="font-size:${fs.toFixed(0)}px">${esc(s.n)}</span>${s.h > 36 ? `<span style="font-size:${Math.max(9, fs * 0.8).toFixed(0)}px">${r === null || r === undefined ? '-' : pct(r)}</span>` : ''}` : '';
+      const tip = `${s.n} · ${s.g}\n${winLabel} ${r === null || r === undefined ? '-' : pct(r)} · 시총 ${jo(s.cap)}`;
+      html += `<div class="hm-s" data-chart="${esc(s.t)}" data-chart-name="${esc(s.n)}" title="${esc(tip)}" style="${box(s.x, s.y, s.w, s.h)};background:${heatColor(r, cap)}">${label}</div>`;
+    }
+  }
+  const chip = (attr, key, label, cur) => `<button class="chip${cur === key ? ' active' : ''}" data-${attr}="${key}">${label}</button>`;
+  return `
+  <div class="card">
+    <h2 style="margin:0 0 4px">국내 시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · ${st.length}종목</span></h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px">
+      ${Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
+      <span style="width:10px"></span>
+      ${chip('heatsize', 'cap', '면적 = 시총', state.heatSize)}${chip('heatsize', 'eq', '면적 = 동일', state.heatSize)}
+    </div>
+    <div class="hm" style="aspect-ratio:${W}/${H}">${html}</div>
+    <p class="muted" style="font-size:11px;margin:6px 0 0">
+      유니버스 = 코스피200+코스닥150(우선주 제외)이지 시장 전체가 아닙니다. 시총 = 최근 종가 × KRX 상장주식수.
+      색: 초록 오름 · 빨강 내림, ±${Math.round(cap * 100)}%에서 가장 진함. 업종 옆 숫자 = 시총가중 수익률(창 시작 시점 비중).
+      종목을 누르면 상세가 열립니다. 관찰용 — 매매신호가 아닙니다.
+    </p>
+  </div>`;
+}
+
 function renderSector() {
   const d = state.sectorStrength;
   if (!d || !d.groups || !d.groups.length) {
@@ -2516,7 +2606,7 @@ function renderSector() {
 
   return `
   <div class="card">
-    <h2 style="margin:0 0 4px">섹터 상대강도 <span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · KR ${d.universeCount}종목 · ${d.groups.length}개 그룹</span></h2>
+    <h2 style="margin:0 0 4px">섹터 상대강도<span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · KR ${d.universeCount}종목 · ${d.groups.length}개 그룹</span></h2>
     <p class="muted" style="margin:4px 0 10px;font-size:12px">
       벤치마크 3개월 — <b>EW</b>(유니버스 전체 중앙값) ${secPct(b['3m'])} ·
       <b>TV</b>(거래대금 가중) ${secPct(tb['3m'])} ·
@@ -2598,7 +2688,7 @@ function render() {
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
-  else if (state.tab === 'sector') el.innerHTML = renderThemeTree() + renderThemeSensitivity() + renderSector();
+  else if (state.tab === 'sector') el.innerHTML = (state.sectorStrength ? marketHeatmap(state.sectorStrength) : '') + renderThemeTree() + renderThemeSensitivity() + renderSector();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
@@ -2744,6 +2834,14 @@ document.addEventListener('click', (e) => {
   const q = e.target.closest && e.target.closest('[data-secquad]');
   if (!q) return;
   state.sectorQuad = q.dataset.secquad;
+  render();
+});
+
+document.addEventListener('click', (e) => {
+  const w = e.target.closest && e.target.closest('[data-heatwin],[data-heatsize]');
+  if (!w) return;
+  if (w.dataset.heatwin) state.heatWin = w.dataset.heatwin;
+  if (w.dataset.heatsize) state.heatSize = w.dataset.heatsize;
   render();
 });
 

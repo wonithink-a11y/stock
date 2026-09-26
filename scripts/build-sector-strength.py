@@ -376,6 +376,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
             "groups": g if isinstance(g, list) else [g],
             "rets": {k: ret(c, n) for k, n in WINDOWS.items()},
             "capW": {k: cap_weight(c, usable, n) for k, n in WINDOWS.items()},
+            "capNow": cap_weight(c, usable, 0),   # 히트맵 면적용(최근 종가). 수익률 가중엔 안 쓴다
             "tvW": {k: tv_weight(c, v, n) for k, n in WINDOWS.items()},
             "sharesAsOf": sh.get("asOf"), "sharesSource": sh.get("source"),
             "staleDays": stale_days(sh.get("asOf"), as_of),
@@ -510,6 +511,11 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
                       "바닥선을 넘지 못했다(findings/sector-leadership-step0-2026-09.md) - "
                       "예측력 주장이 아니라 현재 상태 표시다.",
         "groups": groups,
+        # 시장 히트맵(업종 탭) — 면적 = 최근 종가 × 주식수, 색 = 창 수익률. 주식수 UNVERIFIED 는 빠진다.
+        # 그룹은 첫 소속 하나(KR 업종은 단일 소속). 2026-09-26
+        "stocks": [{"t": r["ticker"], "n": r["name"], "g": r["groups"][0], "cap": round(r["capNow"]),
+                    "r": {k: r4(r["rets"][k]) for k in ("1d", "1w", "1m", "3m")}}
+                   for r in rows if r["capNow"] and r["groups"]],
     }
 
 
