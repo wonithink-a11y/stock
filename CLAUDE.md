@@ -50,6 +50,9 @@ Validated against
             ★ **AI 공시 해독**(09-26): Actions `decode-gemini`(매일 20:00 KST)가 관심종목 KR 중 새 정기보고서만 Gemini 3.5 Flash-Lite 로
             해독 → docs/data/decode/, 해독 탭 'AI 공시 해독' 칸. 인용은 코드가 DART 원문과 대조(scripts/decode-gemini.py). 무료 한도 실측:
             Flash 하루 20 · Flash-Lite 500 · Pro 0(모델별). 관찰용 — 점수·매매 불사용. 시범·정답지 대조: docs/cards/*-gemini-pilot-2026-09.md.
+            ★ **지분·이벤트 카드**(09-26): Actions `stock-events`(평일 19:40) → docs/data/stock-events.json — 5% 주주(국민연금 포함)·10% 주주·
+            최근 1년 주요 공시 8분류. DART 지분 API 는 **최근 ~2년치만**(맥락 전용) · 임원 증감은 보상·매수 구분 불가.
+            세부·함정: docs/control/세션인수인계-2026-09-26-d.md(최신).
             ★ 텔레그램은 **세 갈래**(봇은 @wonistock_bot 하나): 1:1 대화 = 뉴스·공시·일일분석·장중급등락 ·
             그룹 `주식 알림`(TELEGRAM_ALERT_CHAT_ID) = 장애 전용 · 그룹 `매매•보안`(TELEGRAM_TRADE_CHAT_ID, 09-22) =
             로그인·웹 조작·주문 접수·체결. 체결 알림은 스냅샷(5분)이 늘어난 체결만 보낸다.
