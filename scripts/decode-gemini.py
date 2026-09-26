@@ -131,12 +131,17 @@ def dart_text(rcept, key):
 
 
 def business_section(text):
-    s = re.search(r"II\.\s*사업의\s*내용", text)
-    e = re.search(r"III\.\s*재무에\s*관한\s*사항", text[s.end():]) if s else None
-    if not s:
+    # 목차에도 'II. 사업의 내용 … III. 재무에 관한 사항' 이 있다 — 가장 긴 구간이 본문이다
+    # (2026-09-26 SK하이닉스: 첫 일치 = 목차 338자 → 모델이 '원문에 정보 없음'만 냈다)
+    best = ""
+    for s in re.finditer(r"II\.\s*사업의\s*내용", text):
+        e = re.search(r"III\.\s*재무에\s*관한\s*사항", text[s.end():])
+        body = text[s.start(): s.end() + e.start()] if e else text[s.start():]
+        if len(body) > len(best):
+            best = body
+    if not best:
         return text[:MAX_CHARS], False
-    body = text[s.start(): s.end() + e.start()] if e else text[s.start():]
-    return body[:MAX_CHARS], len(body) > MAX_CHARS
+    return best[:MAX_CHARS], len(best) > MAX_CHARS
 
 
 def gemini(prompt, key, model=MODEL):
@@ -325,7 +330,7 @@ def auto(a, env):
     pending = []
     for t, name in targets.items():
         r, cur = latest.get(t), items.get(t, {})
-        if not r or cur.get("rceptNo") == r["rcept_no"]:
+        if not r or (cur.get("rceptNo") == r["rcept_no"] and cur.get("kept")):   # 통과 0 은 완료가 아니다
             continue
         if cur.get("failedRcept") == r["rcept_no"] and cur.get("tries", 0) >= MAX_TRIES:
             continue
@@ -357,6 +362,11 @@ def auto(a, env):
             continue
         except Exception as e:
             print(f"  {t} {name} 실패 {type(e).__name__}: {str(e)[:120]}")
+            failed += 1
+            _fail(items, t, r)
+            continue
+        if not kept:                             # 원문을 못 찾았거나 모델이 빈 답 — 파일을 쓰지 않는다
+            print(f"  {t} {name} 실패: 통과 항목 0 (탈락 {len(dropped)})")
             failed += 1
             _fail(items, t, r)
             continue
