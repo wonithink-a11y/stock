@@ -32,6 +32,7 @@ SECTIONS = {
     "A_고객": "주요 매출처와 집중도",
     "A_시장지위": "시장 점유율·경쟁 구도(공시에 있는 것만)",
     "A_원재료": "주요 원재료·공급처·가격 변화",
+    "A_주요계약": "주요 계약·수주 — 상대방·내용·기간·금액(표 행 그대로)",
     "B_성장동력": "성장 동력마다 단계 판정 ①개발·기술 ②고객·수주 ③생산·양산 ④매출 ⑤이익·현금",
     "C_전망": "회사가 스스로 밝힌 업황·수요 전망",
     "E_위험": "약세 시나리오 — 이 회사의 이익을 줄일 수 있는 요인",
@@ -46,7 +47,19 @@ PROMPT = """너는 한국 상장사 사업보고서를 읽고 투자 판단의 '
 - claim 에 쓴 숫자는 반드시 quote 안에 그대로 있어야 한다. 계산한 숫자(비중·배수)를 새로 만들지 않는다.
 - B_성장동력은 stage 에 ①~⑤ 중 하나를 넣는다. 다른 섹션은 stage 를 비운다.
 - 원문에 근거가 없는 섹션은 항목을 넣지 않는다.
+- 표는 한 행이 한 줄('칸 | 칸 | …')이다. 표에서 인용할 때는 그 행을 그대로 복사한다.
 - summary: 이 회사의 지금 상태를 한 문장으로(숫자는 원문에 있는 것만).
+- insights: 여러 항목을 엮은 해석 2~3문장(예: '이익이 한 부문에 몰려 있어 그 제품 가격에 민감하다').
+  새 사실을 만들지 않는다. 숫자를 쓰면 원문에 있는 숫자만.
+
+반드시 확인할 것(원문에 있으면 **빠짐없이** 항목으로 쓴다):
+1. 부문별 매출과 영업이익 — 가장 큰 부문과 그 영업이익·매출 수치
+2. 주요 제품·원재료의 가격 변화(몇 % 올랐나/내렸나)
+3. 주요 매출처 이름과 상위 매출처 비중
+4. 시장점유율 표 — 제품별 최신 연도 수치와 직전 연도 수치
+5. 주요 계약·수주 표 — 상대방·내용·기간·금액
+6. 신제품·신기술·신사업 각각의 단계(개발·샘플·수주·양산·매출)
+7. 회사의 수요·공급 전망과, 수요를 둔화시킬 수 있다고 회사가 언급한 요인
 
 섹션: {sections}
 
@@ -60,6 +73,7 @@ SCHEMA = {
     "type": "OBJECT",
     "properties": {
         "summary": {"type": "STRING"},
+        "insights": {"type": "ARRAY", "items": {"type": "STRING"}},
         "items": {"type": "ARRAY", "items": {
             "type": "OBJECT",
             "properties": {
@@ -95,8 +109,11 @@ def dart_text(rcept, key):
     z = zipfile.ZipFile(io.BytesIO(raw))
     main = max(z.namelist(), key=lambda n: z.getinfo(n).file_size)   # 본문이 가장 크다(첨부는 작다)
     x = z.read(main).decode("utf-8", "replace")
-    x = re.sub(r"</(TR|P|TITLE|SECTION-\d)>", "\n", x)
-    x = re.sub(r"<(TD|TE|TU)[^>]*>", " | ", x)
+    # 표는 행 하나 = 한 줄('칸 | 칸 | 칸'). 칸마다 줄이 갈리면 모델이 행을 못 읽는다(2026-09-26: Tesla 계약·DRAM 점유율 놓침)
+    cell = lambda c: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", c)).strip()
+    x = re.sub(r"<TR[^>]*>(.*?)</TR>", lambda m: " | ".join(
+        cell(c) for _, c in re.findall(r"<(TD|TE|TU|TH)[^>]*>(.*?)</\1>", m.group(1), re.S)) + "\n", x, flags=re.S)
+    x = re.sub(r"</(P|TITLE|SECTION-\d)>", "\n", x)
     x = re.sub(r"<[^>]+>", "", x)
     x = re.sub(r"&nbsp;|&#160;", " ", x).replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     return re.sub(r"[ \t]+", " ", re.sub(r"\n\s*\n+", "\n", x))
@@ -131,7 +148,7 @@ def gemini(prompt, key, model=MODEL):
 
 
 def squash(s):
-    return re.sub(r"\s+", "", s or "").replace(",", "")
+    return re.sub(r"[\s|]+", "", s or "").replace(",", "")   # 표 칸 구분자도 무시
 
 
 def numbers(s):
@@ -140,12 +157,20 @@ def numbers(s):
 
 def check(item, source_sq):
     """통과면 None, 아니면 탈락 사유."""
-    q = squash(item.get("quote"))
+    # 표는 머리행과 데이터행을 이어 인용한다(원문에선 떨어져 있다) — 줄·'…' 단위 조각마다 원문에 그대로 있으면 통과.
+    # 모델이 줄바꿈을 글자 '\n' 으로 내는 경우도 있다(실측).
+    parts = [squash(p) for p in re.split(r"\\n|\n|…|\.\.\.", item.get("quote") or "")]
+    parts = [p for p in parts if p]
+    q = "".join(parts)
     if len(q) < 10:
         return "인용이 너무 짧다"
-    if q not in source_sq:
+    if len(parts) > 1 and min(map(len, parts)) < 6:
+        return "인용 조각이 너무 짧다"                           # 짧은 조각을 이곳저곳에서 이어 붙이는 것을 막는다
+    if any(p not in source_sq for p in parts):
         return "인용이 원문에 없다"
-    missing = [n for n in numbers(item.get("claim")) if n.replace(",", "") not in q]
+    # 연도는 맥락 표시라 원문 어딘가에만 있으면 된다
+    missing = [n for n in numbers(item.get("claim"))
+               if n.replace(",", "") not in q and not (re.fullmatch(r"(19|20)\d\d", n) and n in source_sq)]
     if missing:
         return "인용에 없는 숫자: " + ", ".join(missing)
     return None
@@ -156,7 +181,9 @@ def render(name, ticker, rcept, out, kept, dropped, usage, truncated, model=MODE
              f"> 자동 생성·**사람 검토 안 됨**. 근거 = DART 보고서 원문(rcept {rcept}) '사업의 내용'. "
              "모든 항목의 인용은 코드가 원문과 대조해 통과한 것만 실었다(공백 무시 완전 일치 + 주장 속 숫자가 인용 안에 있음). "
              "**매수·매도 추천이 아니며 점수에 쓰지 않는다.**", "",
-             f"## 한 줄 요약", "", out.get("summary", "-"), ""]
+             f"## 한 줄 요약", "", out.get("summary") or "-", ""]
+    if out.get("insights"):
+        lines += ["## 해석 (AI, 원문 사실을 엮은 것 — 새 숫자 없음을 코드가 확인)", ""] + [f"- {t}" for t in out["insights"]] + [""]
     for sec, desc in SECTIONS.items():
         its = [i for i in kept if i["section"] == sec]
         if not its:
@@ -182,7 +209,13 @@ def selftest():
     assert check({**ok, "quote": "메모리 가격이 크게 올랐다고 회사가 밝혔습니다"}, src) == "인용이 원문에 없다"
     assert check({"claim": "x", "quote": "짧다"}, src) == "인용이 너무 짧다"
     assert numbers("매출 1,234.5조 · 97%") == ["1,234.5", "97"]
-    print("selftest ok (5)")
+    tsrc = squash("제 품 | 2026년 반기 | 2025년\nTV | 30.6% | 29.1%\nDRAM | 39.4% | 34.0%")
+    row = {"claim": "DRAM 점유율 39.4%", "quote": "제 품 | 2026년 반기 | 2025년\\nDRAM | 39.4% | 34.0%"}
+    assert check(row, tsrc) is None                               # 떨어진 머리행+데이터행, 글자 '\n'
+    assert check({**row, "quote": "제 품 | 2026년 반기\\nDRAM | 41.0% | 34.0%"}, tsrc) == "인용이 원문에 없다"
+    assert check({"claim": "2026년 반기 DRAM 39.4%", "quote": "DRAM | 39.4% | 34.0%"}, tsrc) is None   # 연도는 원문에만 있으면 됨
+    assert check({"claim": "2031년 DRAM 39.4%", "quote": "DRAM | 39.4% | 34.0%"}, tsrc).startswith("인용에 없는 숫자")
+    print("selftest ok (9)")
 
 
 def main():
@@ -206,6 +239,14 @@ def main():
     for it in out.get("items", []):
         why = check(it, src)
         (dropped.append((it, why)) if why else kept.append(it))
+    # 요약·해석은 인용이 없다 — 숫자가 원문에 있는지만 본다. 없으면 그 문장을 버린다
+    loose = lambda t: all(n.replace(",", "") in src for n in numbers(t))
+    if out.get("summary") and not loose(out["summary"]):
+        dropped.append(({"section": "summary", "claim": out["summary"], "quote": ""}, "원문에 없는 숫자"))
+        out["summary"] = None
+    bad = [t for t in out.get("insights") or [] if not loose(t)]
+    dropped += [({"section": "insights", "claim": t, "quote": ""}, "원문에 없는 숫자") for t in bad]
+    out["insights"] = [t for t in out.get("insights") or [] if loose(t)]
     print(f"항목 {len(kept) + len(dropped)} · 통과 {len(kept)} · 탈락 {len(dropped)} · 토큰 {usage}")
     Path(a.out).write_text(render(a.name, a.ticker, a.rcept, out, kept, dropped, usage, truncated, a.model), encoding="utf-8")
     print("saved:", a.out)
