@@ -67,6 +67,16 @@ jobs:
         continue-on-error: true
         run: python scripts/build-trade-levels.py
 
+      # 종목 맥락: 52주 고저(같은 prices.json, 새 수집 없음) + 증권사 목표가(KIS invest-opinion,
+      # KR ~351콜 읽기 전용, ~6분). 화면 맥락 전용 — 점수에 안 쓴다. 키가 없거나 실패 20% 초과면
+      # 목표가는 직전 값을 그 asOf 그대로 유지. 실패해도 일일 파이프라인을 죽이지 않는다.
+      - name: Build stock context (52w · target price)
+        continue-on-error: true
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
+        run: pip install --quiet requests && python scripts/build-stock-context.py
+
       - name: Notify (telegram/slack)
         continue-on-error: true   # 알림 실패가 파이프라인을 죽이지 않도록
         env:

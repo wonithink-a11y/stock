@@ -215,6 +215,7 @@ const state = {
   etfCompare: null,        // docs/data/etf-compare.json (동일 지수 비교·상관 이웃, 관찰용)
   etfPick: null,           // ETF 탭에서 비교 패널을 연 종목 코드
   events: null,            // docs/data/events.json (다가오는 일정 D-day, 관찰용)
+  stockContext: null,      // docs/data/stock-context.json (52주 고저·증권사 목표가 — 맥락 전용, 점수에 안 씀)
   eventsScope: 'key',      // key(보유·거시·국내) | all | macro | kr | us
   etfSearch: '',
   etfAssetClass: 'all',
@@ -1670,6 +1671,16 @@ function decodeSummaryHtml(r, c) {
       if (!c.flows || !c.flows.length) return decodeTile('수급 20일', '-', state.flows ? '데이터 없음' : '불러오는 중', 'neutral');
       const s = k => c.flows.slice(-20).reduce((a, x) => a + (x[k] || 0), 0); const fo = s('foreign'), ins = s('institution');
       return decodeTile('수급 20일', `${fo + ins >= 0 ? '순매수' : '순매도'}`, `외국인 ${fmtEok(fo)} · 기관 ${fmtEok(ins)}`, fo + ins >= 0 ? 'good' : 'bad'); })(),
+    (() => { const w = ((state.stockContext || {}).week52 || {})[r.ticker], px = r.currentPrice;
+      if (!w || !px) return decodeTile('52주 위치', '-', '이력 부족', 'neutral');
+      const hi = Math.max(w.high, px), lo = Math.min(w.low, px), pos = hi > lo ? (px - lo) / (hi - lo) : null;
+      return decodeTile('52주 위치', pos == null ? '-' : Math.round(pos * 100) + '%', `고점 ${fmtPrice(hi, r.market)} 대비 ${((px / hi - 1) * 100).toFixed(1)}%`, 'neutral'); })(),
+    (() => { if (r.market !== 'KR') return decodeTile('증권사 목표가', '-', '국내 종목만', 'neutral');
+      const T = (state.stockContext || {}).targets, t = T && T.byTicker[r.ticker];
+      if (!t) return decodeTile('증권사 목표가', '-', '수집 전', 'neutral');
+      if (t.status !== 'ok') return decodeTile('증권사 목표가', '-', t.status === 'none' ? `최근 ${T.windowDays}일 목표가 없음` : '조회 실패', 'neutral');
+      const up = r.currentPrice ? t.median / r.currentPrice - 1 : null;
+      return decodeTile('증권사 목표가', up == null ? '-' : `${up >= 0 ? '+' : ''}${(up * 100).toFixed(0)}%`, `중앙 ${fmtPrice(t.median, 'KR')} · ${t.brokers}곳${t.brokers < 3 ? '뿐' : ''}`, 'neutral'); })(),
     decodeTile('다음 일정', c.next ? (c.next.d === 0 ? '오늘' : 'D-' + c.next.d) : '-', c.next ? `${c.next.date.slice(5)} ${esc(c.next.title)}` : '수집된 일정 없음', c.next && c.next.d <= R.soonDays ? 'mid' : 'neutral'),
   ].join('');
 
@@ -1677,7 +1688,7 @@ function decodeSummaryHtml(r, c) {
   const f = c.fin, fv = k => f[k] && f[k].raw != null ? f[k].raw : null;
   const finRow = Object.keys(f).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:6px">
     ${[['ROE', fv('roe'), '%'], ['부채비율', fv('debtRatio'), '%'], ['매출성장', fv('revenueGrowthYoY'), '%'], ['유동비율', fv('currentRatio'), '%']].filter(x => x[1] != null).map(([l, v, u]) => `<span style="background:rgba(148,163,184,.12);border-radius:6px;padding:4px 8px">${l} <strong>${Math.round(v * 10) / 10}${u}</strong></span>`).join('')}
-    </div><div class="muted" style="font-size:11px;margin-top:4px">재무는 <strong>최근 사업보고서(연간) 기준</strong> — 올해 분기 실적은 점수에 반영되지 않는다(시스템 한계).</div>` : '';
+    </div><div class="muted" style="font-size:11px;margin-top:4px">재무는 <strong>최근 사업보고서(연간) 기준</strong> — 올해 분기 실적은 점수에 반영되지 않는다(시스템 한계).${r.market === 'KR' ? ' 목표가는 KIS 회원 증권사별 최근 목표가의 중앙값(최근 180일) — 맥락용, 점수에 안 쓴다.' : ''}</div>` : '';
 
   const report = DECODE_REPORTS[r.ticker] ? `<a href="https://github.com/wonithink-a11y/stock/blob/main/${DECODE_REPORTS[r.ticker]}" target="_blank" rel="noopener" style="display:block;margin:10px 0;padding:10px 12px;border:1px solid rgba(96,165,250,.5);border-radius:10px;text-decoration:none;color:#93c5fd">📄 이 회사 사업 분석 보고서 보기 — 무엇으로 돈을 버는지 · 성장 동력 단계 · 위험·재검토 조건 (공시 원문 인용)</a>` : '';
 
@@ -2759,9 +2770,9 @@ document.querySelectorAll('nav button').forEach(btn => {
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare, state.events] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare, state.events, state.stockContext] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'), loadJson('events'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'), loadJson('events'), loadJson('stock-context'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';
