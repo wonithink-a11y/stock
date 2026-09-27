@@ -23,7 +23,8 @@ ACTION_TEXT = {"auto-off": "자동 실행 끔", "auto-dry": "자동 dry-run", "a
                "run": "지금 실행 요청", "kill": "🛑 킬 스위치 켬", "resume": "킬 스위치 해제",
                "auto-execute-live": "🚨 실계좌 자동 주문 켬", "run-live": "🚨 실계좌 프로필 지금 실행 요청",
                "auto-off-live": "실계좌 자동 끔", "auto-dry-live": "실계좌 dry-run", "kill-live": "🛑 실계좌 킬 스위치 켬",
-               "resume-live": "실계좌 킬 스위치 해제"}
+               "resume-live": "실계좌 킬 스위치 해제",
+               "plan-new": "📝 매매 계획 추가", "plan-cancel": "매매 계획 취소", "plan-close": "⚠️ 계획 종목 지금 청산 요청"}
 
 
 def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) -> None:

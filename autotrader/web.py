@@ -237,7 +237,8 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: 
 {"" if hide_money else held_tbl}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
 <div class="row"><span>마지막 실행</span>{last_txt}</div>
-<a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a></div>''')
+<a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a>
+{f'<a class="btn" href="{base}/plans?p={quote(name)}">📝 매매 계획</a>' if cfg.get("strategy") == "plan_trader" else ""}</div>''')
     return ('<div class="sec">프로필</div>' + "".join(out)) if out else ""
 
 
@@ -367,6 +368,84 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
 <a class="btn" href="{base}/">← 요약으로</a>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>'''
     return _page(f"상세 · {title}" if title else "상세", body, refresh=False, base=base, sub=E(f"상세 · {title}" if title else "상세"))
+
+
+PLAN_FIELDS = ("symbol", "entryLow", "entryHigh", "stop", "target", "riskPct", "validDays", "invalidation", "thesis", "tag")
+
+
+def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "") -> bytes:
+    """직접매매 계획 카드(plan_trader 프로필) — 입력 폼·진행 중·종료(R 배수)·통계. 재확인(지문) 뒤에만 불린다."""
+    from .plans import (CLOSED, MIN_SAMPLE, MIN_TAG_SAMPLE, STATUS_KO, fills_by_plan, load_plans, outcome,
+                        reward_risk, summarize)
+    from .pnl import load_book
+    name = str(c.get("profile", ""))
+    plans = load_plans(sdir)
+    st = ((_load_json(Path(sdir) / "strategy_plan_trader.json") or {}).get("plans")) or {}
+    fb = fills_by_plan(Ledger(sdir).rows(), load_book(c))
+    names = names_for([_load_json(Path(sdir) / "snapshot.json")])
+    hid = f'<input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">'
+
+    def btn(pid, op, label):
+        return (f'<form method="post" action="{base}/plans" style="margin:0">{hid}<input type="hidden" name="op" value="{op}">'
+                f'<input type="hidden" name="id" value="{E(pid)}"><button class="ghost" style="padding:6px;margin:2px 0">{label}</button></form>')
+
+    act, done, rs, tags = [], [], [], {}
+    for p in reversed(plans):
+        s = st.get(p["id"]) or {"status": "wait"}
+        status = s.get("status", "wait")
+        rr = reward_risk((p["entryLow"] + p["entryHigh"]) / 2, p["stop"], p["target"])
+        head = (f'<td>{_sym(p["symbol"], names)}<small class="mut">{E(p.get("tag") or "")}</small></td>'
+                f'<td>{E(STATUS_KO.get(status, status))}</td>')
+        if status in CLOSED:
+            o = outcome(p, fb.get(p["id"], {}))
+            if o["R"] is not None:
+                rs.append(o["R"])
+                tags.setdefault(p.get("tag") or "(없음)", []).append(o["R"])
+            done.append(f'<tr>{head}<td class="n">{_px("KR", o["entry"]) if o["entry"] else "-"} → {_px("KR", o["exit"]) if o["exit"] else "-"}'
+                        f'<br><small class="mut">{E(str(s.get("exitReason") or ""))}</small></td>'
+                        f'<td class="n {_sign_cls(o["R"])}">{"-" if o["R"] is None else format(o["R"], "+.2f") + "R"}</td></tr>')
+            continue
+        req = "취소 요청됨" if p.get("cancel") else ("청산 요청됨" if p.get("closeReq") else "")
+        ctl = (f'<span class="warn">{req}</span>' if req else
+               btn(p["id"], "cancel", "취소") if status == "wait" else
+               btn(p["id"], "close", "지금 청산") if status in ("held", "exiting") else "")
+        act.append(f'<tr>{head}<td class="n">{p["entryLow"]:,.0f}~{p["entryHigh"]:,.0f}<br><small class="mut">손절 {p["stop"]:,.0f} · 목표 {p["target"]:,.0f}</small></td>'
+                   f'<td class="n">{p["qty"]}주<br><small class="mut">손익비 {"-" if rr is None else "1:" + format(rr, ".2f")} · ~{E(p["validUntil"][5:])}</small></td>'
+                   f'<td>{ctl}</td></tr>'
+                   + (f'<tr><td colspan=5 class="mut">무효: {E(p["invalidation"])}</td></tr>' if p.get("invalidation") else ""))
+    sm = summarize(rs)
+    if sm["n"]:
+        f2 = lambda x: "-" if x is None else format(x, "+.2f")     # noqa: E731
+        n, short = sm["n"], ("" if sm["enough"] else f"표본 부족 {sm['n']}/{MIN_SAMPLE}")
+        stat = (f'<div class="kpis">{_kpi("종료(체결 확인)", str(n) + "건")}{_kpi("승률", format(sm["winRate"] * 100, ".0f") + "%")}'
+                f'{_kpi("기대값", f2(sm["expectancy"]) + "R", short)}'
+                f'{_kpi("평균 이익 / 손실", f2(sm["avgWin"]) + " / " + f2(sm["avgLoss"]))}</div>'
+                f'<div class="row"><span>−1R 보다 크게 잃은 건(손절 밀림·갭)</span><span>{sm["worseThan1R"]}</span></div>'
+                + "".join(f'<div class="row"><span>{E(t)} <small class="mut">n={len(v)}{"" if len(v) >= MIN_TAG_SAMPLE else " · 비교 불가"}</small></span>'
+                          f'<span>{f2(sum(v) / len(v))}R</span></div>' for t, v in sorted(tags.items())))
+    else:
+        stat = '<span class="mut">아직 체결로 끝난 계획이 없다</span>'
+    cap = (c.get("params") or {}).get("capital")
+    m = f'<div class="warn">{E(msg)}</div>' if msg else ""
+    body = f'''<h1>매매 계획 · {E(name)} <span class="pill">모의</span></h1>{m}
+<div class="card"><h2>새 계획</h2><div class="mut">자본 {"미설정 — 프로필 params.capital" if not cap else f"{float(cap):,.0f}원"} ·
+수량은 (자본 × 1회 손실 %) ÷ (진입 상단 − 손절). 진입 구간에 들어오면 시장가로 사고, 손절·목표에 닿으면 시장가로 판다(5분마다 점검, 장중만).</div>
+<form method="post" action="{base}/plans">{hid}<input type="hidden" name="op" value="new">
+<input name="symbol" placeholder="종목코드 6자리 (허용 종목만)" maxlength="6" required autocomplete="off">
+<input name="entryLow" placeholder="진입 하단" inputmode="decimal" required><input name="entryHigh" placeholder="진입 상단(비우면 하단과 같게)" inputmode="decimal">
+<input name="stop" placeholder="손절가" inputmode="decimal" required><input name="target" placeholder="목표가" inputmode="decimal" required>
+<input name="riskPct" value="1" placeholder="1회 손실 한도 %(자본 대비)" inputmode="decimal" required>
+<input name="validDays" value="14" placeholder="진입 대기 일수" inputmode="numeric">
+<input name="invalidation" placeholder="무효 조건(이게 깨지면 계획을 버린다)" maxlength="200">
+<input name="thesis" placeholder="근거 한 줄" maxlength="200"><input name="tag" placeholder="분류(돌파·눌림·실적 …)" maxlength="20">
+<button>계획 저장</button></form></div>
+<div class="card"><h2>진행 중</h2><div class="tw"><table><tr><th>종목</th><th>상태</th><th class="n">진입 · 손절/목표</th><th class="n">수량</th><th></th></tr>
+{"".join(act) or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table></div></div>
+<div class="card"><h2>결과 <span class="mut">실제 체결가 기준 R 배수</span></h2>{stat}
+<div class="mut" style="margin-top:6px">종료 {MIN_SAMPLE}건 전에는 기대값으로 판단하지 않는다 · 태그별 비교는 {MIN_TAG_SAMPLE}건부터 · 계획을 적은 매매만 센다.</div>
+<div class="tw"><table><tr><th>종목</th><th>상태</th><th class="n">진입 → 청산</th><th class="n">R</th></tr>{"".join(done[:50]) or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>
+<a class="btn" href="{base}/details?p={quote(name)}">← 프로필 상세</a>'''
+    return _page(f"매매 계획 · {name}", body, base=base, sub="매매 계획")
 
 
 def is_live_order(c: dict, op: str) -> bool:
@@ -651,6 +730,8 @@ class WebApp:
             want = (parse_qs(urlsplit(raw_path).query).get("c") or [""])[0]
             want = want if want in CHANNELS else ""        # 목록에 있는 채널만
             return 200, self._hdrs(), render_channels(_load_json(self.sdir / "channels.json"), want, self.base)
+        if path == "/plans":
+            return self._plans(method, raw_path, sess, field, ip)
         if path.startswith("/passkey"):
             return self._passkey_route(method, path, sess, tok, body, field, ip)
         if method == "POST" and path == "/action":
@@ -669,8 +750,50 @@ class WebApp:
             return self._reauth(field("code"), tok, sess, ip)
         return self._not_found()
 
+    # -------------------------------------------------------------- 매매 계획(plan_trader 프로필만)
+    def _plans(self, method, raw_path, sess, field, ip):
+        """보기·입력 모두 재확인(지문) 5분 안에서만. 웹은 plans.json 만 쓴다 — 주문은 run-due 가 엔진 검사를 거쳐 낸다."""
+        from .plans import CLOSED, build_plan, load_plans, save_plans
+        q = parse_qs(urlsplit(raw_path).query)
+        name = field("p") if method == "POST" else (q.get("p") or [""])[0]
+        match = [c for c in self.profiles() if c.get("profile") == name and c.get("strategy") == "plan_trader"]
+        if not match:
+            return self._not_found()
+        c = match[0]
+        url = f"/plans?p={quote(name)}"
+        if method == "POST" and field("csrf") != sess["csrf"]:
+            self._log(ip, "csrf-fail")
+            return 403, self._hdrs(), _page("403", "<h1>요청이 거부됨</h1>")
+        if self.require_reauth and not self.sessions.is_fresh(sess):
+            return 200, self._hdrs(), render_reauth(sess["csrf"], "확인 5분이 지났습니다 — 다시 확인 뒤 입력하세요" if method == "POST" else "",
+                                                    base=self.base, pk=self._pk_ready(), nxt=url)
+        sdir = state_dir(c)
+        if method == "GET":
+            msg = (q.get("m") or [""])[0]
+            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, msg if msg in self._msgs else "")
+        op, plans = field("op"), load_plans(sdir)
+        if op == "new":
+            st = ((_load_json(sdir / "strategy_plan_trader.json") or {}).get("plans")) or {}
+            active = sum(1 for p in plans if (st.get(p["id"]) or {}).get("status", "wait") not in CLOSED)
+            plan, msg = build_plan({k: field(k) for k in PLAN_FIELDS}, c, self._now(), active)
+            if plan:
+                save_plans(sdir, plans + [plan])
+                msg = f"계획을 저장했습니다 — {plan['symbol']} {plan['qty']}주, 다음 점검(5분, 장중)부터 봅니다"
+        elif op in ("cancel", "close"):
+            hit = [p for p in plans if p["id"] == field("id")]
+            if not hit:
+                return self._not_found()
+            hit[0]["cancel" if op == "cancel" else "closeReq"] = True
+            save_plans(sdir, plans)
+            msg = "취소를 요청했습니다(진입 전일 때만)" if op == "cancel" else "청산을 요청했습니다 — 다음 점검에서 시장가로 팝니다(장중)"
+        else:
+            return self._not_found()
+        self._log(ip, f"action:{name}:plan-{op}")
+        self._msgs.add(msg)
+        return self._redirect(f"{url}&m={quote(msg)}")
+
     # -------------------------------------------------------------- 조작(요청 파일만 쓴다 — 주문은 키를 가진 run-due 가 낸다)
-    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
+    OPS =("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
 
     def _action(self, name: str, op: str, code: str, ip: str, phrase: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
@@ -799,7 +922,8 @@ class WebApp:
             self._bump(cid, count)
             self.sessions.mark_reauth(tok)
             self._log(ip, "reauth-ok")
-            ok_next = {"/", "/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            ok_next = ({"/", "/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+                       | {f"/plans?p={quote(str(c.get('profile', '')))}" for c in self.profiles() if c.get("strategy") == "plan_trader"})
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})
         if path == "/passkey/action-options":

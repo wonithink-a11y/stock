@@ -24,6 +24,8 @@ ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKE
 _PREFIX = re.compile(r"^KIS_[A-Z0-9]+(_[A-Z0-9]+)*$")
 _KEYSET_ENV = re.compile(r"^KIS_[A-Z0-9_]+_(APP_KEY|APP_SECRET|ACCOUNT_NO)$")
 _PROFILE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
+_HM = r"([01]\d|2[0-3]):[0-5]\d"
+_RUN_AT = re.compile(rf"{_HM}(-{_HM}/([5-9]|[1-5]\d|60))?")       # "09:10" 또는 "09:05-15:15/5"(5~60분 간격)
 AUTO_MODES = ("off", "dry", "execute")
 RUN_GRACE_MIN = 20          # 예약 시각에서 이만큼 지나면 그 회차는 건너뛴다(몇 시간 늦게 몰아서 주문하지 않게)
 
@@ -130,8 +132,8 @@ def validate_config(cfg: dict) -> List[str]:
     if cfg.get("auto", "off") not in AUTO_MODES:
         errs.append("auto 는 off|dry|execute")
     ra = cfg.get("run_at", [])
-    if not isinstance(ra, list) or any(not (isinstance(t, str) and re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", t)) for t in ra):
-        errs.append("run_at 은 \"HH:MM\"(KST) 목록")
+    if not isinstance(ra, list) or any(not (isinstance(t, str) and _RUN_AT.fullmatch(t)) for t in ra):
+        errs.append("run_at 은 \"HH:MM\" 또는 \"HH:MM-HH:MM/분\"(KST) 목록")
     if not isinstance(cfg.get("web_live_allowed", False), bool):
         errs.append("web_live_allowed 는 true|false")
     if cfg.get("days", "weekdays") not in ("weekdays", "daily"):
@@ -315,6 +317,19 @@ def list_profiles(config_path) -> List[str]:
     return sorted(p.stem for p in d.glob("*.json") if _PROFILE.match(p.stem)) if d.exists() else []
 
 
+def expand_run_at(items: List[str]) -> List[str]:
+    """"09:05-15:15/5" → ["09:05", "09:10", …, "15:15"]. 단일 시각은 그대로."""
+    out = []
+    for t in items:
+        if "-" not in t:
+            out.append(t)
+            continue
+        span, step = t.split("/")
+        a, b = (int(x[:2]) * 60 + int(x[3:]) for x in span.split("-"))
+        out += [f"{m // 60:02d}:{m % 60:02d}" for m in range(a, b + 1, int(step))]
+    return out
+
+
 def due_slots(cfg: dict, now: datetime, done: List[str]) -> List[str]:
     """지금 돌아야 할 예약 회차("YYYY-MM-DD HH:MM"). 예약 시각 ≤ 지금 < 예약 + RUN_GRACE_MIN, 아직 안 돈 것만."""
     if cfg.get("auto", "off") == "off":
@@ -322,7 +337,7 @@ def due_slots(cfg: dict, now: datetime, done: List[str]) -> List[str]:
     if cfg.get("days", "weekdays") == "weekdays" and now.weekday() >= 5:
         return []
     out = []
-    for t in cfg.get("run_at", []):
+    for t in expand_run_at(cfg.get("run_at", [])):
         h, m = map(int, t.split(":"))
         at = now.replace(hour=h, minute=m, second=0, microsecond=0)
         slot = at.strftime("%Y-%m-%d %H:%M")

@@ -197,3 +197,20 @@ python3 -m autotrader --profile samsung kill                                    
 - 등록 코드(서버): `cd ~/collector && ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-enroll`
 - 삭제는 **서버에서만**: 같은 명령의 끝을 `passkey-reset` 으로 (웹에서 지울 수 있으면 공격자가 지우고 코드 방식으로 되돌린다).
 - 폰을 잃어버리면 서버에서 `passkey-reset` 후 새 폰으로 다시 등록한다. 로그인은 여전히 비밀번호 + 인증앱 코드다.
+
+## 10. 직접매매 계획 카드 — `plan_trader` (모의투자 전용, 국내)
+
+웹 `/plans` 에서 진입 구간·손절·목표·1회 손실 %를 적으면, 5분마다 현재가를 보고 **모의투자 계좌에서** 시장가로 사고판다.
+결과는 실제 체결가 기준 R 배수로 쌓인다(종료 30건 전엔 판단하지 않는다). 설계: `docs/control/직접매매-계획카드-설계-2026-09-27.md` §10.
+
+프로필 예(`profiles/plans.json`):
+```json
+{"strategy": "plan_trader", "mode": "paper", "key_prefix": "KIS_VTS", "markets": ["KR"],
+ "symbol_allowlist": ["005930", "000660"], "params": {"capital": 10000000},
+ "risk": {"KR": {"max_order_value": 5000000, "max_position_value": 5000000, "max_daily_value": 20000000}},
+ "auto": "off", "run_at": ["09:05-15:15/5"], "days": "weekdays"}
+```
+- `run_at` 의 `"HH:MM-HH:MM/분"` 은 그 사이를 분 간격으로 편다(5~60분).
+- 수량 = floor(capital × 위험% ÷ (진입 상단 − 손절)). 허용 종목 밖·한도 초과 계획은 **입력 단계에서** 거부한다.
+- 실계좌(`mode: live`)면 전략이 오류로 끝난다 — 주문 없음. 전환은 별도 결정.
+- 5분 폴링이라 손절이 늦고 갭은 못 막는다. 화면의 '−1R 보다 크게 잃은 건'이 그 비용이다.

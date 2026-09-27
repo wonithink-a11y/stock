@@ -28,8 +28,9 @@ class Strategy:
 class Context:
     """전략에 주는 읽기 전용 시야. 조회는 실행 안에서 캐시된다(같은 값을 두 번 묻지 않는다)."""
 
-    def __init__(self, broker: Broker, now: datetime, params: dict, state: dict):
+    def __init__(self, broker: Broker, now: datetime, params: dict, state: dict, state_dir=None):
         self._broker = broker
+        self.state_dir = state_dir          # 이 설정(프로필)의 상태 폴더 — 웹이 쓴 입력 파일(plans.json 등)을 읽을 때
         self.now = now                      # KST
         self.mode = broker.mode             # "paper" | "live" — 모의는 LOC 를 못 받는 등 주문 유형이 갈린다
         self.params = params                # 설정의 params

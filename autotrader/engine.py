@@ -145,7 +145,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
     for m in markets:
         _reconcile(broker, m, ledger, execute, report, blocked, sleep)
 
-    ctx = Context(broker, now, cfg.get("params", {}), state)
+    ctx = Context(broker, now, cfg.get("params", {}), state, sdir)
     try:
         intents = [i for i in strategy.decide(ctx) if i.market in markets]
     except Exception as e:                              # noqa: BLE001 — 전략 오류는 주문 없이 종료
@@ -239,7 +239,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
                        "strategy": strategy.name, "kind": "order", "market": it.market,
                        "symbol": it.symbol, "side": it.side, "qty": it.qty,
                        "price": it.limit_price if it.limit_price else last, "value": round(value, 2),
-                       "orderNo": res.get("orderNo"), "executed": True})
+                       "orderNo": res.get("orderNo"), "executed": True, "reason": it.reason})
         report["placed"].append({**rec, "value": round(value, 2), "orderNo": res.get("orderNo")})
 
     _save_json(Path(sdir) / f"strategy_{strategy.name}.json", ctx.state)

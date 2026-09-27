@@ -81,7 +81,8 @@ def run_summary(name: str, r: Optional[dict]) -> str:
     lines = [f"[autotrader] {name} · {r.get('strategy')} · {'모의' if r.get('mode') == 'paper' else '실전'}"
              f" · {'주문' if r.get('execute') else 'dry-run'} · {r.get('status')}"]
     for x in r.get("placed") or []:
-        lines.append(f"접수 {x.get('market')} {x.get('symbol')} {x.get('side')} {x.get('qty')}")
+        lines.append(f"접수 {x.get('market')} {x.get('symbol')} {x.get('side')} {x.get('qty')}"
+                     + (f" · {x['reason']}" if x.get("reason") else ""))
     lines += [f"오류 {e}"[:200] for e in r.get("errors") or []]
     return "\n".join(lines)
 
