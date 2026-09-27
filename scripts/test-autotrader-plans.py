@@ -338,6 +338,30 @@ def switch_tests(now):
         cli.cmd_run_due(A_())
         hb = json.loads((sdir / "run_due.json").read_text(encoding="utf-8"))
         ck("run-due 가 heartbeat 를 남긴다(--execute 여부)", hb["execute"] is False and hb["at"])
+        # ---- 새 탭 화면: 로그인 필수, 주문 탭은 재확인 뒤에만
+        store = A.AuthStore(sdir / "web_auth.json")
+        store.save({"password": A.hash_password("pw-long-enough-1"), "totpSecret": A.new_totp_secret()})
+        clk = [now.timestamp()]
+        mc = normalize_config({**base, "state_dir": str(sdir)})
+        app = web.WebApp(mc, sdir, store, A.Sessions(clock=lambda: clk[0]), A.Lockout(clock=lambda: clk[0]), clock=lambda: clk[0],
+                         secure_cookie=False, require_reauth=True, profiles=web._profile_loader(mc, main_p))
+        get = lambda path, hh: app.handle("GET", path, hh, b"", "1.1.1.1")                          # noqa: E731
+        ck("탭: 로그인 없이는 전부 404", all(get(x, {})[0] == 404 for x in ("/strategies", "/orders", "/log", "/settings")))
+        tok = app.sessions.create()
+        h = {"Cookie": f"at_sess={tok}"}
+        ck("탭: 전략 목록(상태·스위치)", "계획 매매" in get("/strategies", h)[2].decode() and 'class="tabbar"' in get("/strategies", h)[2].decode())
+        ck("탭: 기록(실행 목록)", "실행 기록" in get("/log", h)[2].decode())
+        ck("탭: 주문은 재확인 전엔 재인증 화면", "한 번 더 확인" in get("/orders", h)[2].decode())
+        Ledger(load_profile(main_p, "pl")["state_dir"]).append({"ts": now.isoformat(), "kind": "order", "executed": True, "orderNo": "7",
+                                                                 "symbol": "005930", "side": "BUY", "qty": 3, "market": "KR",
+                                                                 "reason": "plan:x 진입"})
+        app.sessions.mark_reauth(tok)
+        page = get("/orders", h)[2].decode()
+        ck("탭: 재확인 뒤 주문 기록(매수·접수·사유)", "주문 기록" in page and "매수" in page and "접수" in page and "plan:x 진입" in page)
+        home = get("/", h)[2].decode()
+        ck("홈: 오늘 숫자·서버 허용·전략 카드·탭 막대", "오늘 실행" in home and "서버 주문 허용" in home and "계획 매매" in home
+           and home.count('class="tabbar"') == 1 and 'class="on"' in home)
+        ck("탭: 설정에 로그아웃", 'action="/logout"' in get("/settings", h)[2].decode())
         pe = {"updatedAt": "2026-09-25T21:09", "strategies": {"pbr_value_v1_combined": {"positions": [{"status": "OPEN"}, {"status": "CLOSED"}]}}}
         ck("페이퍼 엔진 슬리브는 상태만(버튼 없음)", "pbr_value_v1_combined" in web.render_switches([], sdir, "c", "", now, True, pe)
            and "보유 1종목" in web.render_switches([], sdir, "c", "", now, True, pe))

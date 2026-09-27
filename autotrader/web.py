@@ -31,45 +31,67 @@ from .web_auth import (AuthStore, Lockout, Sessions, passkey_auth_options, passk
 
 KST = timezone(timedelta(hours=9))
 COOKIE = "at_sess"
-ACCOUNTS_URL = "http://127.0.0.1:8766/accounts"
-KR_INTRADAY_URL = "http://127.0.0.1:8766/kr-intraday"   # 장중 알림(10분)이 남긴 관심종목 현재가 — 키 없이 같은 VM 에서   # 같은 VM 의 실계좌 요약 API. 2026-09-22 부터 인터넷에는 닫고(nginx) 여기서만 보여 준다
+ACCOUNTS_URL = "http://127.0.0.1:8766/accounts"   # 같은 VM 의 실계좌 요약 API. 2026-09-22 부터 인터넷에는 닫고(nginx) 여기서만 보여 준다
+KR_INTRADAY_URL = "http://127.0.0.1:8766/kr-intraday"   # 장중 알림(10분)이 남긴 관심종목 현재가 — 키 없이 같은 VM 에서
 LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입력하는 확인 문구(실수 클릭 방지 — 보안은 인증앱 코드와 서버 한도가 맡는다)
 SNAPSHOT_STALE_SEC = 30 * 60
 
 CSS = """
-:root{--bg:#f2f4f8;--fg:#111827;--card:#fff;--mut:#6b7280;--line:#e6e8ee;--chip:#f4f5f9;--acc:#4f46e5;--acc2:#7c3aed;
---up:#e0284a;--dn:#2563eb;--ok:#059669;--bad:#dc2626;--warn:#d97706;--sh:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06)}
-@media(prefers-color-scheme:dark){:root{--bg:#0b0d12;--fg:#e8eaf0;--card:#151922;--mut:#9aa3b2;--line:#252a35;--chip:#1c212b;
---acc:#818cf8;--acc2:#a78bfa;--up:#fb7185;--dn:#60a5fa;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}}
-*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+:root{--bg:#0b1020;--fg:#e7e9f3;--card:#121933;--card2:#172042;--mut:#8a93ad;--line:#232c4d;--chip:#1b2447;
+--acc:#6d6ff5;--acc2:#8b7cf6;--accs:rgba(109,111,245,.16);--up:#f25f6e;--dn:#5b8cff;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;
+--oks:rgba(52,211,153,.13);--bads:rgba(248,113,113,.14);--warns:rgba(251,191,36,.14);--r:18px}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",system-ui,sans-serif;
-font-variant-numeric:tabular-nums}
-.top{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:14px 16px 12px;box-shadow:0 2px 10px rgba(79,70,229,.25)}
+font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+svg.i{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.top{position:sticky;top:0;z-index:5;background:rgba(11,16,32,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 16px}
 .top .in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.top .brand{font-weight:800;font-size:18px;letter-spacing:-.3px;color:#fff;text-decoration:none}.top .sub{font-size:12px;opacity:.85}
-.top .tp{display:inline-block;background:rgba(255,255,255,.18);border-radius:99px;padding:2px 10px;font-size:12px;margin-left:4px}
-main{max-width:760px;margin:0 auto;padding:14px 14px 40px}
-h1{font-size:21px;margin:10px 2px 12px;letter-spacing:-.4px}h2{font-size:15px;margin:0 0 10px;letter-spacing:-.2px}
-.sec{font-size:13px;font-weight:700;color:var(--mut);margin:20px 4px 8px;letter-spacing:.2px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px;box-shadow:var(--sh)}
-.card.hl{border-left:4px solid var(--acc)}
+.top .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.4px;color:var(--fg);text-decoration:none}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff}
+.logo svg.i{width:20px;height:20px}
+.top .sub{font-size:12px;font-weight:600;color:var(--fg);background:var(--chip);border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+main{max-width:760px;margin:0 auto;padding:14px 14px 96px}
+h1{font-size:22px;margin:10px 2px 12px;letter-spacing:-.5px}h2{font-size:15px;margin:0 0 10px;letter-spacing:-.2px}
+.sec{font-size:19px;font-weight:800;color:var(--fg);margin:22px 4px 10px;letter-spacing:-.4px}
+.sec small{font-size:12px;font-weight:500;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:0 0 12px}
+.card.hl{background:linear-gradient(180deg,var(--card2),var(--card))}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.hd h2{margin:0;font-size:17px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
 .row>span:first-child{color:var(--mut);font-size:14px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 10px}
-.kpi{background:var(--chip);border-radius:12px;padding:10px 12px;min-width:0}
-.kpi .l{font-size:12px;color:var(--mut)}.kpi .v{font-size:17px;font-weight:700;letter-spacing:-.3px;overflow-wrap:anywhere}
+.kpi{background:var(--chip);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.kpi .l{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px}.kpi .v{font-size:18px;font-weight:800;letter-spacing:-.3px;overflow-wrap:anywhere}
 .kpi .s{font-size:12px;font-weight:600}
+.stat{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:8px;align-items:stretch}
+.stat .kpi{padding:10px}.stat .kpi .v{font-size:26px;margin-top:4px}.stat .kpi .l{white-space:nowrap;font-size:12.5px}
+.stat .kill{display:flex;align-items:center}
+@media(max-width:420px){.stat{grid-template-columns:repeat(3,1fr)}.stat .kill{grid-column:1/-1}}
+.ic{width:24px;height:24px;border-radius:8px;display:inline-grid;place-items:center}.ic svg.i{width:16px;height:16px}
+.ic.g{background:var(--oks);color:var(--ok)}.ic.b{background:var(--accs);color:var(--acc)}.ic.y{background:var(--warns);color:var(--warn)}.ic.r{background:var(--bads);color:var(--bad)}
+.tile{width:46px;height:46px;border-radius:14px;background:var(--accs);color:#a5a7ff;display:grid;place-items:center;flex:none}
+.tile svg.i{width:24px;height:24px}
+.sc-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}.sc-h .t{flex:1;min-width:0}
+.sc-h .nm{font-size:19px;font-weight:800;letter-spacing:-.4px;display:inline}.sc-h .pf{color:var(--mut);font-size:14px;margin-left:6px}
+.sc-h .go{color:var(--mut)}
 .mut{color:var(--mut);font-size:13px}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.up{color:var(--up)}.dn{color:var(--dn)}
-.pill{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--chip);font-size:12px;font-weight:600;margin:0 4px 4px 0}
-.pill.ok{background:rgba(5,150,105,.12)}.pill.bad{background:rgba(220,38,38,.12)}.pill.warn{background:rgba(217,119,6,.12)}.pill.acc{background:rgba(79,70,229,.12);color:var(--acc)}
-input,button,select{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);width:100%;margin:6px 0;background:var(--card);color:var(--fg)}
-button{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700;cursor:pointer}button.ghost{background:transparent;color:var(--fg)}
-a{color:var(--acc);text-decoration:none}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:99px;background:var(--chip);border:1px solid var(--line);font-size:12.5px;font-weight:600;margin:0 4px 4px 0;color:var(--fg)}
+.pill.ok{background:var(--oks);border-color:rgba(52,211,153,.35);color:var(--ok)}
+.pill.bad{background:var(--bads);border-color:rgba(248,113,113,.35);color:var(--bad)}
+.pill.warn{background:var(--warns);border-color:rgba(251,191,36,.35);color:var(--warn)}
+.pill.acc{background:var(--accs);border-color:rgba(109,111,245,.35);color:#a5a7ff}
+input,button,select{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);width:100%;margin:6px 0;background:var(--chip);color:var(--fg)}
+input::placeholder{color:#5f6886}
+button{background:linear-gradient(135deg,var(--acc),var(--acc2));border:0;color:#fff;font-weight:700;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--acc);color:#a5a7ff}
+a{color:#a5a7ff;text-decoration:none}
 .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
-.nav a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--fg);font-weight:600;box-shadow:var(--sh)}
+.nav a{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--fg);font-weight:700}
 .nav a small{display:block;color:var(--mut);font-weight:400;font-size:12px;margin-top:2px}
-.btn{display:block;text-align:center;background:var(--acc);color:#fff;border-radius:12px;padding:11px;font-weight:700;margin-top:8px}
+.nav a .tile{width:40px;height:40px;border-radius:12px}
+.btn{display:block;text-align:center;border:1px solid var(--acc);color:#a5a7ff;border-radius:12px;padding:10px;font-weight:700;margin-top:8px}
+.btn.fill{background:linear-gradient(135deg,var(--acc),var(--acc2));border:0;color:#fff}
+.btns{display:flex;gap:8px;flex-wrap:wrap}.btns>*{flex:1;min-width:120px}
 .tw{overflow-x:auto;margin:0 -4px}table{width:100%;border-collapse:collapse;font-size:14px}
 th{font-size:12px;color:var(--mut);font-weight:600;text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}
@@ -78,18 +100,61 @@ td.n,th.n{text-align:right;white-space:nowrap}
 .bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:var(--acc)}
 .pf label{display:block;font-size:12px;color:var(--mut);margin:8px 2px -2px}
 code{background:var(--chip);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+.side{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:2px 6px;font-size:12px;font-weight:700}
+.side.b{background:var(--bads);color:var(--up)}.side.s{background:rgba(91,140,255,.16);color:var(--dn)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(14,20,40,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+.tabbar .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);font-size:12px;font-weight:600}
+.tabbar a.on{color:#8f91ff}.tabbar svg.i{width:24px;height:24px}
 """
 
 E = html.escape
 
 
-def _page(title: str, body: str, refresh: bool = False, base: str = "", sub: str = "") -> bytes:
+_ICON = {
+    "trend": '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+    "home": '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    "orders": '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    "clock": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    "gear": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+    "inf": '<path d="M7 9c-4 0-4 6 0 6 2.5 0 3.5-3 5-3s2.5 3 5 3c4 0 4-6 0-6-2.5 0-3.5 3-5 3S9.5 9 7 9z"/>',
+    "cal": '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+    "target": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+    "play": '<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',
+    "clip": '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 11h6M9 15h4"/>',
+    "alert": '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
+    "shield": '<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+    "user": '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+    "doc": '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+    "news": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h6M7 13h10M7 16h10"/>',
+    "key": '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',
+    "chev": '<path d="M9 6l6 6-6 6"/>',
+    "out": '<path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/>',
+    "wallet": '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h.01"/>',
+    "server": '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>',
+}
+STRAT_ICON = {"plan_trader": "cal", "infinite_buying": "inf", "target_weights": "target"}
+TABS = (("home", "/", "홈"), ("strat", "/strategies", "전략"), ("orders", "/orders", "주문"), ("log", "/log", "기록"),
+        ("set", "/settings", "설정"))
+TAB_ICON = {"home": "home", "strat": "trend", "orders": "orders", "log": "clock", "set": "gear"}
+
+
+def ic(name: str) -> str:
+    return f'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">{_ICON.get(name, "")}</svg>'
+
+
+def _page(title: str, body: str, refresh: bool = False, base: str = "", sub: str = "", tab: Optional[str] = None) -> bytes:
+    """tab 을 주면 아래 탭 막대를 붙인다(로그인 뒤 화면). 로그인·재인증 화면은 탭 없이."""
     meta = '<meta http-equiv="refresh" content="30">' if refresh else ""
-    top = (f'<header class="top"><div class="in"><a class="brand" href="{E(base)}/">📈 autotrader</a>'
-           f'<span class="sub">{sub}</span></div></header>')
-    return (f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#4f46e5">{meta}<title>{E(title)}</title>'
-            f'<style>{CSS}</style></head><body>{top}<main>{body}</main></body></html>').encode("utf-8")
+    top = (f'<header class="top"><div class="in"><a class="brand" href="{E(base)}/"><span class="logo">{ic("trend")}</span>autotrader</a>'
+           + (f'<span class="sub">{sub}</span>' if sub else "") + '</div></header>')
+    bar = ("" if tab is None else '<nav class="tabbar"><div class="in">' + "".join(
+        f'<a href="{E(base)}{path}" class="{"on" if key == tab else ""}">{ic(TAB_ICON[key])}{label}</a>' for key, path, label in TABS)
+        + "</div></nav>")
+    return (f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+            f'<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1020">{meta}<title>{E(title)}</title>'
+            f'<style>{CSS}</style></head><body>{top}<main>{body}</main>{bar}</body></html>').encode("utf-8")
 
 
 def _load_json(p: Path):
@@ -207,63 +272,87 @@ def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -
 
 
 AUTO_TXT = {"off": "자동 꺼짐", "dry": "자동 dry-run", "execute": "자동 주문"}
-STRAT_KO = {"plan_trader": "📝 계획 매매", "infinite_buying": "♾ 무한매수", "target_weights": "⚖ 목표 비중"}
+STRAT_KO = {"plan_trader": "계획 매매", "infinite_buying": "무한매수", "target_weights": "목표 비중"}
 HEARTBEAT_STALE_SEC = 12 * 60        # run-due 는 5분마다 — 두 번 넘게 빠지면 '타이머가 안 돈다'
 
 
-def render_switches(items: List[dict], sdir: Path, csrf: str, base: str, now: datetime, pk: bool,
-                    paper_engine: Optional[dict] = None) -> str:
-    """전략 스위치 — 프로필마다 현재 상태 + 한 번 누르는 켜기/끄기(지문). 주문 = 서버 허용(타이머 --execute) × 프로필 '주문'.
-    실계좌 프로필은 여기서 켜지 않는다(확인 문구가 있는 상세 화면으로). 금액은 없다 — 로그인만으로 보인다."""
+def server_state(sdir: Path, now: datetime) -> Tuple[bool, str]:
+    """서버 주문 허용(타이머 --execute) — run-due 가 5분마다 남기는 run_due.json. 묵었으면 켜짐으로 읽지 않는다."""
     hb = _load_json(Path(sdir) / "run_due.json") or {}
     try:
         age = (now - datetime.fromisoformat(hb["at"])).total_seconds()
     except (KeyError, ValueError, TypeError):
         age = None
-    server_on = bool(hb.get("execute")) and age is not None and age <= HEARTBEAT_STALE_SEC
     if age is None:
-        srv = '<span class="warn">모름 — 예약 타이머 기록이 아직 없다</span>'
-    elif age > HEARTBEAT_STALE_SEC:
-        srv = f'<span class="bad">타이머 멈춤? 마지막 {age / 60:.0f}분 전</span>'
-    else:
-        srv = ('<span class="ok">켜짐</span>' if hb.get("execute") else '<span class="warn">꺼짐 — 전부 계획만</span>') \
-              + f'<br><small class="mut">{age / 60:.0f}분 전 확인</small>'
+        return False, '<span class="warn">모름 — 예약 타이머 기록이 아직 없다</span>'
+    if age > HEARTBEAT_STALE_SEC:
+        return False, f'<span class="bad">타이머 멈춤? 마지막 {age / 60:.0f}분 전</span>'
+    return bool(hb.get("execute")), (('<span class="pill ok" style="margin:0">켜짐</span>' if hb.get("execute")
+                                      else '<span class="pill warn" style="margin:0">꺼짐</span>')
+                                     + f'<br><small class="mut">{age / 60:.0f}분 전</small>')
+
+
+def server_card(srv: str) -> str:
+    return (f'<div class="card"><div class="row"><span style="display:flex;align-items:center;gap:10px"><span class="ic b">{ic("server")}</span>'
+            f'<span style="color:var(--fg);font-weight:700">서버 주문 허용<br><small class="mut" style="font-weight:400">VM · 전략 공통</small></span></span><span style="text-align:right">{srv}</span></div>'
+            '<div class="mut">서버 허용이 꺼져 있으면 모든 전략이 계획만 낸다. 주문은 서버 허용 + 그 전략의 "주문 켜짐"일 때만. 버튼은 지문 한 번.</div></div>')
+
+
+def switch_pill(c: dict, server_on: bool) -> str:
+    auto = c.get("auto", "off")
+    if kill_file(c).exists():
+        return '<span class="pill bad">킬 ON</span>'
+    if auto == "execute":
+        return '<span class="pill ok">주문 켜짐</span>' if server_on else '<span class="pill warn">주문 대기(서버 허용 꺼짐)</span>'
+    return '<span class="pill">계획만</span>' if auto == "dry" else '<span class="pill">꺼짐</span>'
+
+
+def switch_btn(c: dict, csrf: str, base: str, pk: bool) -> str:
+    """켜기/끄기 한 번(지문). 실계좌·패스키 없음은 상세 화면으로(확인 문구·인증앱 코드 흐름)."""
+    name = str(c.get("profile", ""))
+    if c.get("mode") == "live" or not pk:
+        return f'<a class="mut" href="{base}/details?p={quote(name)}">상세에서 조작 →</a>'
+    on = c.get("auto") == "execute"
+    style = ";background:var(--bads);color:var(--bad);border:1px solid rgba(248,113,113,.4)" if on else ""
+    return (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin:0">'
+            f'<input type="hidden" name="op" value="{"auto-off" if on else "auto-execute"}">'
+            f'<button style="padding:8px 16px;margin:0;width:auto{style}">{"끄기" if on else "주문 켜기"}</button><div class="pk-msg"></div></form>')
+
+
+def _tile(strategy: str) -> str:
+    return f'<span class="tile">{ic(STRAT_ICON.get(strategy, "trend"))}</span>'
+
+
+def _strat_name(c: dict) -> str:
+    return E(STRAT_KO.get(c.get("strategy"), str(c.get("strategy"))))
+
+
+def render_switches(items: List[dict], sdir: Path, csrf: str, base: str, now: datetime, pk: bool,
+                    paper_engine: Optional[dict] = None) -> str:
+    """전략 목록(전략 탭) — 프로필마다 상태 + 켜기/끄기(지문). 금액 없음 — 로그인만으로 보인다."""
+    server_on, srv = server_state(sdir, now)
     rows = []
     for c in items:
-        name, auto, live = str(c.get("profile", "")), c.get("auto", "off"), c.get("mode") == "live"
-        kill = kill_file(c).exists()
-        if kill:
-            st = '<span class="pill bad">킬 ON</span>'
-        elif auto == "execute":
-            st = '<span class="pill ok">주문 켜짐</span>' if server_on else '<span class="pill warn">주문 대기(서버 허용 꺼짐)</span>'
-        elif auto == "dry":
-            st = '<span class="pill">계획만</span>'
-        else:
-            st = '<span class="pill">꺼짐</span>'
-        if live or not pk:
-            btn = f'<a class="mut" href="{base}/details?p={quote(name)}">상세에서 조작 →</a>'
-        else:
-            on = auto == "execute"
-            btn = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin:0">'
-                   f'<input type="hidden" name="op" value="{"auto-off" if on else "auto-execute"}">'
-                   f'<button style="padding:8px 14px;margin:0;width:auto{";background:var(--bad);border-color:var(--bad)" if on else ""}">'
-                   f'{"끄기" if on else "주문 켜기"}</button><div class="pk-msg"></div></form>')
-        rows.append(f'<div class="row"><span><b style="color:var(--fg)">{E(STRAT_KO.get(c.get("strategy"), str(c.get("strategy"))))}</b>'
-                    f' <small class="mut">{E(name)} · {"실전" if live else "모의"}</small><br>{st}</span>{btn}</div>')
+        name, live = str(c.get("profile", "")), c.get("mode") == "live"
+        rows.append(f'<div class="card"><div class="sc-h">{_tile(c.get("strategy"))}<div class="t">'
+                    f'<span class="nm">{_strat_name(c)}</span><span class="pf">{E(name)}</span><br>'
+                    f'<span class="pill">{"실전" if live else "모의"}</span>{switch_pill(c, server_on)}</div>'
+                    f'{switch_btn(c, csrf, base, pk)}</div></div>')
     pe = ""
     if paper_engine:
         strat = paper_engine.get("strategies") or {}
-        pe = ('<div class="sec" style="margin-top:12px">페이퍼 엔진 슬리브 <small>(별도 엔진 · 항상 켜짐 · 여기서 조작 안 함)</small></div>'
-              + "".join(f'<div class="row"><span>{E(k)}</span><span class="mut">보유 {sum(1 for p in (v.get("positions") or []) if p.get("status") == "OPEN")}종목</span></div>'
+        pe = ('<div class="sec">페이퍼 엔진 슬리브 <small>별도 엔진 · 항상 켜짐 · 여기서 조작 안 함</small></div><div class="card">'
+              + "".join(f'<div class="row"><span style="color:var(--fg)">{E(k)}</span><span class="mut">보유 '
+                        f'{sum(1 for p in (v.get("positions") or []) if p.get("status") == "OPEN")}종목</span></div>'
                         for k, v in strat.items())
-              + f'<div class="mut">기준 {E(str(paper_engine.get("updatedAt", ""))[:16].replace("T", " "))}</div>')
-    return (f'<div class="sec">전략 스위치</div><div class="card"><div class="row"><span>서버 주문 허용<br><small class="mut">VM 타이머 · 전략 공통</small></span><span style="text-align:right">{srv}</span></div>'
-            + ("".join(rows) or '<div class="mut">프로필이 없다</div>') + pe
-            + '<div class="mut" style="margin-top:6px">주문은 서버 허용과 그 전략의 \'주문 켜짐\'이 둘 다일 때만 나간다. 버튼은 지문 한 번.</div></div>')
+              + f'<div class="mut">기준 {E(str(paper_engine.get("updatedAt", ""))[:16].replace("T", " "))}</div></div>')
+    return (f'<div class="sec">전략 스위치</div>{server_card(srv)}'
+            + ("".join(rows) or '<div class="card mut">프로필이 없다</div>') + pe)
 
 
-def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: bool = False) -> str:
-    """프로필(키 묶음+전략)마다 한 장 — 투자금·손익 타일, 상태, 상세 링크. hide_money 면 금액·보유를 빼고 상태만(N2)."""
+def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: bool = False, csrf: str = "", pk: bool = False,
+                    server_on: bool = False) -> str:
+    """프로필(키 묶음+전략)마다 한 장 — 상태·켜기/끄기·투자금·손익·보유·상세 링크. hide_money 면 금액·보유를 빼고 상태만(N2)."""
     out = []
     for cfg, v in items:
         name = str(cfg.get("profile", ""))
@@ -284,20 +373,27 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: 
                             f'<td class="n {_sign_cls(pc)}">{"-" if pc is None else f"{pc:+.1f}%"}</td></tr>')
         held_tbl = (f'<div class="tw"><table><tr><th>보유</th><th class="n">수량</th><th class="n">수익률</th></tr>{"".join(held[:8])}</table></div>'
                     + (f'<div class="mut">외 {len(held) - 8}종목 — 상세에서</div>' if len(held) > 8 else "")) if held else ""
-        out.append(f'''<div class="card hl"><div class="hd"><h2>{E(name)}</h2>{_ago(v, snap)}</div>
+        sw = f'<div class="row"><span>{switch_pill(cfg, server_on)}</span>{switch_btn(cfg, csrf, base, pk)}</div>' if csrf else ""
+        plan_btn = f'<a class="btn fill" href="{base}/plans?p={quote(name)}">매매 계획</a>' if cfg.get("strategy") == "plan_trader" else ""
+        out.append(f'''<div class="card hl"><div class="sc-h">{_tile(cfg.get("strategy"))}<div class="t">
+<span class="nm">{_strat_name(cfg)}</span><span class="pf">{E(name)}</span></div>
+<a class="go" href="{base}/details?p={quote(name)}">{ic("chev")}</a></div>
 <span class="pill acc">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
 <span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
 {'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
 {"" if hide_money else render_money_rows(snap)}
 {"" if hide_money else held_tbl}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
+{sw}
 <div class="row"><span>마지막 실행</span>{last_txt}</div>
-<a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a>
-{f'<a class="btn" href="{base}/plans?p={quote(name)}">📝 매매 계획</a>' if cfg.get("strategy") == "plan_trader" else ""}</div>''')
-    return ('<div class="sec">프로필</div>' + "".join(out)) if out else ""
+<div class="row"><span>스냅샷</span>{_ago(v, snap)}</div>
+<div class="btns"><a class="btn" href="{base}/details?p={quote(name)}">상세 보기 · 조작</a>{plan_btn}</div></div>''')
+    return ('<div class="sec">전략 스위치</div>' + "".join(out)) if out else ""
 
 
-def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, extra: str = "") -> bytes:
+def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, extra: str = "", top: str = "",
+                     agg: Optional[dict] = None) -> bytes:
+    """홈 — 오늘 숫자(전체 합) · 서버 주문 허용 · 전략 카드(extra) · 계좌 바로가기 · 기본 설정(게이트·한도·최근 실행)."""
     mode_txt = "실전(실계좌)" if v["mode"] == "live" else "모의투자"
     snap = v["snapshot"]
     ex = ((snap or {}).get("gates") or {}).get("execute") or []
@@ -306,6 +402,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
     gate_items = "".join(f"<div class='mut'>· {E(str(x))}</div>" for x in ex)
     t = v["todayRuns"]
     cnt = lambda k: sum(len(r.get(k) or []) for r in t)   # noqa: E731
+    a = agg or {"runs": len(t), "placed": cnt("placed"), "errors": cnt("errors"), "kill": v["kill"]}
     limits = "".join(
         f'<div class="row"><span>{E(m)} 일일 한도</span><span>{s["used"] / s["limit"] * 100 if s["limit"] else 0:.0f}% 사용</span></div>'
         f'<div class="bar"><i style="width:{min(100, s["used"] / s["limit"] * 100 if s["limit"] else 0):.0f}%"></i></div>'
@@ -315,24 +412,108 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
         f'<span class="{"ok" if r.get("status") == "ok" else "bad"}">{E(str(r.get("status")))} · 접수 {len(r.get("placed") or [])}'
         f' 거부 {len(r.get("rejected") or [])}</span></div>' for r in reversed(v["runs"][-5:]))
     reauth = " (재확인)" if strict else ""
-    err_html = f'<span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span>'
-    body = f'''<div class="nav">
-<a href="{base}/accounts">💰 실계좌 요약<small>업비트·빗썸·KIS·RV20{reauth}</small></a>
-<a href="{base}/details">📋 기본 계좌 상세<small>보유·주문·원장{reauth}</small></a>
-<a href="{base}/channels">📰 채널 소식<small>매경 자이앤트·크립토·월가월부</small></a>
-<a href="{base}/passkey">🔑 패스키 관리<small>지문 등록·상태</small></a>
-<a href="#today">🗓 오늘 기록<small>실행·한도·게이트</small></a></div>
-{extra}
-<div class="sec" id="today">기본 설정 · 오늘 {E(v["day"])}</div>
+
+    def kpi(i, cls, label, val):
+        return f'<div class="kpi"><div class="l"><span class="ic {cls}">{ic(i)}</span>{label}</div><div class="v">{val}</div></div>'
+    err = f'<span class="{"bad" if a["errors"] else ""}">{a["errors"]}</span>'
+    kill = (f'<span class="pill {"bad" if a["kill"] else "ok"}" style="padding:8px 14px;margin:0">{ic("shield")}'
+            f'{"킬 스위치 ON" if a["kill"] else "킬 스위치 OFF"}</span>')
+    body = f'''<div class="card"><div class="stat">{kpi("play", "g", "오늘 실행", a["runs"])}{kpi("clip", "b", "접수된 주문", a["placed"])}
+{kpi("alert", "r" if a["errors"] else "y", "오류", err)}<div class="kill">{kill}</div></div></div>
+{top}{extra}
+<div class="sec">계좌 바로가기</div><div class="nav">
+<a href="{base}/accounts"><span class="tile">{ic("user")}</span><span>실계좌 요약<small>업비트·빗썸·KIS·RV20{reauth}</small></span></a>
+<a href="{base}/details"><span class="tile">{ic("doc")}</span><span>기본 계좌 상세<small>보유·주문·원장{reauth}</small></span></a>
+<a href="{base}/channels"><span class="tile">{ic("news")}</span><span>채널 소식<small>자이앤트·크립토·월가월부</small></span></a>
+<a href="{base}/passkey"><span class="tile">{ic("key")}</span><span>패스키 관리<small>지문 등록·상태</small></span></a></div>
+<div class="sec" id="today">기본 설정 <small>오늘 {E(v["day"])}</small></div>
 <div class="card"><div class="hd"><h2>{mode_txt}</h2>{_ago(v, snap)}</div>
-<span class="pill {"bad" if v["kill"] else "ok"}">{"킬 스위치 ON — 주문 중단" if v["kill"] else "킬 스위치 OFF"}</span>
-<div class="kpis">{_kpi("실행", str(len(t)))}{_kpi("접수된 주문", str(cnt("placed")))}{_kpi("위험 검사 거부", str(cnt("rejected")))}
-{_kpi("오류", err_html)}</div>
 <div class="row"><span>실주문 게이트</span><span>{gates}</span></div>{gate_items}
-{limits}</div>
-<div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>
-<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>'''
-    return _page("autotrader", body, refresh=True, base=base, sub=f'<span class="tp">{mode_txt}</span>')
+{limits}
+<div class="row"><span>위험 검사 거부(오늘)</span><span>{cnt("rejected")}</span></div></div>
+<div class="card"><h2>최근 실행</h2>{recent or '<span class="mut">아직 실행 기록 없음</span>'}</div>'''
+    return _page("autotrader", body, refresh=True, base=base, sub=mode_txt, tab="home")
+
+
+def render_log(profiles: List[dict], base: str = "") -> bytes:
+    """기록 탭 — 모든 프로필의 최근 실행(금액 없음 — 로그인만으로 보인다)."""
+    rows = []
+    for c in profiles:
+        rdir = state_dir(c) / "runs"
+        for p in (sorted(rdir.glob("*.json"))[-30:] if rdir.exists() else []):
+            r = _load_json(p)
+            if r:
+                rows.append((str(r.get("at", "")), c, r))
+    rows.sort(key=lambda x: x[0], reverse=True)
+    html_rows = "".join(
+        f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">{_tile(c.get("strategy"))}'
+        f'<span>{_strat_name(c)} <small class="mut">{E(str(c.get("profile", "")))}</small><br>'
+        f'<small class="mut">{E(at[5:16].replace("T", " "))} · {"주문" if r.get("execute") else "dry-run"}</small></span></span>'
+        f'<span style="text-align:right"><span class="pill {"ok" if r.get("status") == "ok" else "bad"}">{E(str(r.get("status")))}</span><br>'
+        f'<small class="mut">접수 {len(r.get("placed") or [])} · 거부 {len(r.get("rejected") or [])} · 오류 {len(r.get("errors") or [])}</small></span></div>'
+        for at, c, r in rows[:60])
+    body = f'<h1>실행 기록</h1><div class="card">{html_rows or "<span class=mut>아직 실행 기록 없음</span>"}</div>'
+    return _page("기록", body, base=base, sub="기록", tab="log")
+
+
+def render_orders(profiles: List[dict], base: str = "") -> bytes:
+    """주문 탭 — 프로필마다 우리가 낸 주문(원장)과 체결(스냅샷 체결 원장)·미체결. 재확인(지문) 뒤에만."""
+    from .pnl import load_book
+    items, opens, snaps = [], [], []
+    for c in profiles:
+        sdir = state_dir(c)
+        snap = _load_json(sdir / "snapshot.json")
+        snaps.append(snap)
+        fills = ((load_book(c) or {}).get("fills")) or {}
+        for r in Ledger(sdir).rows():
+            if r.get("kind") in ("order", "error"):
+                items.append((str(r.get("ts", "")), c, r, fills.get(r.get("orderNo") or "")))
+        for m, d in ((snap or {}).get("markets") or {}).items():
+            for o in d.get("openOrders") or []:
+                opens.append((c, m, o))
+    names = names_for(snaps)
+    items.sort(key=lambda x: x[0], reverse=True)
+
+    def side(sd):
+        return f'<span class="side {"b" if sd == "BUY" else "s"}">{"매수" if sd == "BUY" else "매도"}</span>'
+
+    def state(r, f):
+        if r.get("kind") == "error":
+            return '<span class="pill bad">실패</span>'
+        if f and float(f.get("qty") or 0) >= float(r.get("qty") or 0):
+            return '<span class="pill ok">체결</span>'
+        if f and float(f.get("qty") or 0) > 0:
+            return f'<span class="pill warn">일부 {E(str(f.get("qty")))}</span>'
+        return '<span class="pill">접수</span>'
+    rows = "".join(
+        f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">{side(r.get("side"))}'
+        f'<span>{_sym(r.get("symbol"), names)}<small class="mut">{E(str(r.get("qty")))}주'
+        f'{" · " + _px(r.get("market", "KR"), f["price"]) if f and f.get("price") else ""} · {_strat_name(c)}</small></span></span>'
+        f'<span style="text-align:right">{state(r, f)}<br><small class="mut">{E(ts[5:16].replace("T", " "))}</small></span></div>'
+        + (f'<div class="mut" style="margin:-4px 0 6px">{E(str(r.get("reason")))}</div>' if r.get("reason") else "")
+        for ts, c, r, f in items[:80])
+    ot = "".join(f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">{side(o["side"])}{_sym(o["symbol"], names)}</span>'
+                 f'<span class="mut">{E(str(o["remaining"]))}/{E(str(o["qty"]))} · {_px(m, o["price"])}</span></div>' for c, m, o in opens)
+    body = (f'<h1>주문 · 거래 내역</h1><div class="sec">미체결</div><div class="card">{ot or "<span class=mut>없음</span>"}</div>'
+            f'<div class="sec">주문 기록 <small>최근 80 · 체결은 5분마다 갱신</small></div><div class="card">{rows or "<span class=mut>아직 낸 주문이 없다</span>"}</div>')
+    return _page("주문", body, base=base, sub="주문", tab="orders")
+
+
+def render_settings(csrf: str, base: str, n_pk: int, pk_disabled: str) -> bytes:
+    def item(icon, href, label, sub):
+        return (f'<a class="row" href="{base}{href}" style="color:var(--fg)"><span style="display:flex;gap:12px;align-items:center;color:var(--fg)">'
+                f'<span class="tile" style="width:40px;height:40px">{ic(icon)}</span><span>{label}<br><small class="mut">{sub}</small></span></span>'
+                f'<span class="mut">{ic("chev")}</span></a>')
+    pk = pk_disabled or f"등록 {n_pk}개 — 조작·금액 보기는 지문"
+    body = f'''<h1>설정</h1><div class="card">
+{item("key", "/passkey", "패스키(지문) 관리", E(pk))}
+{item("user", "/accounts", "실계좌 요약", "업비트·빗썸·KIS·RV20 (재확인)")}
+{item("doc", "/details", "기본 계좌 상세", "보유·주문·원장 (재확인)")}
+{item("news", "/channels", "채널 소식", "매경 자이앤트·크립토·월가월부")}</div>
+<div class="card mut">키·한도·허용 종목·전략 규칙은 서버의 프로필 파일에서만 바뀐다 — 웹이 뚫려도 손실 상한은 서버 한도다.</div>
+<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}">
+<button style="background:var(--bads);color:var(--bad);border:1px solid rgba(248,113,113,.4)">로그아웃</button></form>'''
+    return _page("설정", body, base=base, sub="설정", tab="set")
 
 
 def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False) -> str:
@@ -422,7 +603,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
 <div class="card"><h2>주문 원장 <span class="mut">최근 30</span></h2><div class="tw"><table><tr><th>시각</th><th>종목</th><th>방향</th><th class="n">수량</th><th>종류</th></tr>{led or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table></div></div>
 <a class="btn" href="{base}/">← 요약으로</a>
 <form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>'''
-    return _page(f"상세 · {title}" if title else "상세", body, refresh=False, base=base, sub=E(f"상세 · {title}" if title else "상세"))
+    return _page(f"상세 · {title}" if title else "상세", body, refresh=False, base=base, sub=E(f"상세 · {title}" if title else "상세"), tab="strat")
 
 
 PLAN_FIELDS = ("symbol", "entryLow", "entryHigh", "stop", "target", "riskPct", "validDays", "invalidation", "thesis", "tag")
@@ -564,7 +745,7 @@ def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "", 
 <div class="mut" style="margin-top:6px">종료 {MIN_SAMPLE}건 전에는 기대값으로 판단하지 않는다 · 태그별 비교는 {MIN_TAG_SAMPLE}건부터 · 계획을 적은 매매만 센다.</div>
 <div class="tw"><table><tr><th>종목</th><th>상태</th><th class="n">진입 → 청산</th><th class="n">R</th></tr>{"".join(done[:50]) or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>
 <a class="btn" href="{base}/details?p={quote(name)}">← 프로필 상세</a>'''
-    return _page(f"매매 계획 · {name}", body, base=base, sub="매매 계획")
+    return _page(f"매매 계획 · {name}", body, base=base, sub="매매 계획", tab="strat")
 
 
 def is_live_order(c: dict, op: str) -> bool:
@@ -626,7 +807,7 @@ def render_accounts(d: Optional[dict], err: str, csrf: str, base: str = "") -> b
             f'조회만 한다(autotrader 주문과 무관)</div>{"".join(cards)}'
             f'<a class="btn" href="{base}/">← 요약으로</a>'
             f'<form method="post" action="{base}/logout"><input type="hidden" name="csrf" value="{E(csrf)}"><button class="ghost">로그아웃</button></form>')
-    return _page("실계좌 요약", body, base=base, sub="실계좌 요약")
+    return _page("실계좌 요약", body, base=base, sub="실계좌 요약", tab="home")
 
 
 def _pct_small(v) -> str:
@@ -650,7 +831,7 @@ def render_passkey(n: int, enabled: str, csrf: str, ready: bool, base: str = "")
             '<div class="mut">패스키가 하나라도 있으면 <b>실계좌 주문 켜기·실행은 패스키로만</b> 된다(인증앱 코드는 안 받는다 — 피싱 방지). '
             '삭제는 서버에서만: <code>cd ~/collector &amp;&amp; ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json passkey-reset</code></div></div>'
             f'<div class="card">{inner}</div><div class="card"><a href="{base}/">← 요약으로</a></div>')
-    return _page("패스키", body, base=base, sub="패스키")
+    return _page("패스키", body, base=base, sub="패스키", tab="set")
 
 
 def render_channels(d: Optional[dict], want: str, base: str = "") -> bytes:
@@ -676,7 +857,7 @@ def render_channels(d: Optional[dict], want: str, base: str = "") -> bytes:
     upd = E(str((d or {}).get("updatedAt", ""))[5:16].replace("T", " ")) or "아직 없음"
     body = (f'<h1>채널 소식</h1><div>{tabs}</div><div class="mut">갱신 {upd} · 15분마다 · 개인 열람용(공유 금지)</div>{errs}'
             + ("".join(items) or '<div class="card mut">아직 읽은 글이 없습니다.</div>') + f'<a class="btn" href="{base}/">← 요약으로</a>')
-    return _page("채널 소식", body, base=base, sub="채널 소식")
+    return _page("채널 소식", body, base=base, sub="채널 소식", tab="set")
 
 
 def render_login(msg: str = "", base: str = "") -> bytes:
@@ -826,14 +1007,35 @@ class WebApp:
                          else f'<a class="btn" href="{self.base}/details">인증앱 코드로 확인</a>') + '</div>') if locked else ""
             from .stockcard import _load as _load_repo
             profs = self.profiles()
-            pe = _load_repo("ui/data/positions.json", *([self.data_root] if self.data_root else []))
-            js = f'<script src="{E(self.base)}/static/passkey.js"></script>' if self._pk_ready() else ""   # 한 번만 — 두 번 실으면 버튼마다 지문이 두 번 뜬다
-            extra = (render_switches(profs, self.sdir, sess["csrf"], self.base, now, self._pk_ready(), pe) + unlock + js
-                     + render_profiles([(c, load_view(c, state_dir(c), now)) for c in profs], self.base, hide_money=locked))
-            return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, now), sess["csrf"], self.base,
-                                                       self.require_reauth, extra)
+            pk = self._pk_ready()
+            js = f'<script src="{E(self.base)}/static/passkey.js"></script>' if pk else ""   # 한 번만 — 두 번 실으면 버튼마다 지문이 두 번 뜬다
+            server_on, srv = server_state(self.sdir, now)
+            base_v = load_view(self.cfg, self.sdir, now)
+            views = [(c, load_view(c, state_dir(c), now)) for c in profs]
+            allv = [base_v] + [pv for _, pv in views]
+            n = lambda k: sum(len(r.get(k) or []) for x in allv for r in x["todayRuns"])   # noqa: E731
+            agg = {"runs": sum(len(x["todayRuns"]) for x in allv), "placed": n("placed"), "errors": n("errors"),
+                   "kill": any(x["kill"] for x in allv)}
+            extra = unlock + js + render_profiles(views, self.base, hide_money=locked, csrf=sess["csrf"], pk=pk, server_on=server_on)
+            return 200, self._hdrs(), render_dashboard(base_v, sess["csrf"], self.base, self.require_reauth, extra,
+                                                       server_card(srv), agg)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
             return self._not_found()
+        if method == "GET" and path == "/strategies":
+            from .stockcard import _load as _load_repo
+            pk = self._pk_ready()
+            pe = _load_repo("ui/data/positions.json", *([self.data_root] if self.data_root else []))
+            body = (render_switches(self.profiles(), self.sdir, sess["csrf"], self.base, self._now(), pk, pe)
+                    + (f'<script src="{E(self.base)}/static/passkey.js"></script>' if pk else ""))
+            return 200, self._hdrs(), _page("전략", body, base=self.base, sub="전략", tab="strat")
+        if method == "GET" and path == "/log":
+            return 200, self._hdrs(), render_log(self.profiles(), self.base)
+        if method == "GET" and path == "/orders":
+            if self.require_reauth and not self.sessions.is_fresh(sess):
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/orders")
+            return 200, self._hdrs(), render_orders(self.profiles(), self.base)
+        if method == "GET" and path == "/settings":
+            return 200, self._hdrs(), render_settings(sess["csrf"], self.base, len(self._passkeys()), self._pk_disabled())
         if method == "GET" and path == "/accounts":
             if self.require_reauth and not self.sessions.is_fresh(sess):
                 return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/accounts")
@@ -1089,7 +1291,7 @@ class WebApp:
             self._bump(cid, count)
             self.sessions.mark_reauth(tok)
             self._log(ip, "reauth-ok")
-            ok_next = ({"/", "/accounts", "/details"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            ok_next = ({"/", "/accounts", "/details", "/orders"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
                        | {f"/plans?p={quote(str(c.get('profile', '')))}" for c in self.profiles() if c.get("strategy") == "plan_trader"})
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})

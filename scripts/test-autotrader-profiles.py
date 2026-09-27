@@ -177,7 +177,7 @@ def main():
         h = {"Cookie": f"at_sess={tok}"}
         st, _, body = app.handle("GET", "/", h, b"", "1.1.1.1")
         page = body.decode()
-        ck("대시보드에 프로필 카드", st == 200 and "<h2>a</h2>" in page and "<h2>b</h2>" in page and "자동 주문" in page)
+        ck("대시보드에 프로필 카드", st == 200 and 'class="pf">a<' in page and 'class="pf">b<' in page and "자동 주문" in page)
         st, _, body = app.handle("GET", "/details?p=a", h, b"", "1.1.1.1")
         ck("프로필 상세 200", st == 200 and "상세 · a" in body.decode())
         ck("없는 프로필 상세 404", app.handle("GET", "/details?p=zz", h, b"", "1.1.1.1")[0] == 404)

@@ -253,7 +253,9 @@ def main():
            and "Path=/autotrader;" in h["Set-Cookie"])
         pc = {"cookie": cookie_of(h)}
         st, h, b = pref.handle("GET", "/autotrader/", pc, b"", "10.1.0.1")
-        ck("접두사: 요약의 링크·로그아웃이 접두사를 포함", 'href="/autotrader/details"' in b.decode() and 'action="/autotrader/logout"' in b.decode())
+        ck("접두사: 요약의 링크·탭이 접두사를 포함", 'href="/autotrader/details"' in b.decode() and 'href="/autotrader/settings"' in b.decode())
+        st, h, b = pref.handle("GET", "/autotrader/settings", pc, b"", "10.1.0.1")
+        ck("접두사: 설정의 로그아웃이 접두사를 포함", st == 200 and 'action="/autotrader/logout"' in b.decode())
         st, h, b = pref.handle("GET", "/autotrader/details", pc, b"", "10.1.0.1")
         ck("접두사: 재인증 폼 action 이 접두사를 포함", 'action="/autotrader/reauth"' in b.decode())
 
