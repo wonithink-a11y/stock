@@ -25,6 +25,11 @@ main_p.write_text(json.dumps({**BASE, "state_dir": str(td / "state")}), encoding
     "symbol_allowlist": ["TQQQ", "SOXL"], "auto": "dry", "run_at": ["21:30"], "params": {}}), encoding="utf-8")
 (td / "profiles" / "pbr.json").write_text(json.dumps({**BASE, "symbol_allowlist": ["005930", "000660", "035420", "0218L0"],
     "auto": "off", "run_at": ["09:10"]}), encoding="utf-8")
+_kr = [k for k, v in json.loads((Path(__file__).resolve().parent.parent / "docs/data/prices.json").read_text(encoding="utf-8"))["byTicker"].items()
+       if v.get("market") == "KR"]                      # 계획 카드: 저장소의 실제 관심종목 데이터로 종목 카드를 띄운다
+(td / "profiles" / "plans.json").write_text(json.dumps({"strategy": "plan_trader", "mode": "paper", "markets": ["KR"],
+    "symbol_allowlist": _kr, "params": {"capital": 10_000_000}, "risk": {"KR": {"max_order_value": 5_000_000, "max_position_value": 5_000_000}},
+    "auto": "off", "run_at": ["09:05-15:15/5"]}), encoding="utf-8")
 sd = td / "state"
 (sd / "profiles" / "infbuy" / "runs").mkdir(parents=True)
 (sd / "profiles" / "pbr").mkdir(parents=True)

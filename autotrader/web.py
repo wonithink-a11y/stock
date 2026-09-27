@@ -31,7 +31,8 @@ from .web_auth import (AuthStore, Lockout, Sessions, passkey_auth_options, passk
 
 KST = timezone(timedelta(hours=9))
 COOKIE = "at_sess"
-ACCOUNTS_URL = "http://127.0.0.1:8766/accounts"   # 같은 VM 의 실계좌 요약 API. 2026-09-22 부터 인터넷에는 닫고(nginx) 여기서만 보여 준다
+ACCOUNTS_URL = "http://127.0.0.1:8766/accounts"
+KR_INTRADAY_URL = "http://127.0.0.1:8766/kr-intraday"   # 장중 알림(10분)이 남긴 관심종목 현재가 — 키 없이 같은 VM 에서   # 같은 VM 의 실계좌 요약 API. 2026-09-22 부터 인터넷에는 닫고(nginx) 여기서만 보여 준다
 LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입력하는 확인 문구(실수 클릭 방지 — 보안은 인증앱 코드와 서버 한도가 맡는다)
 SNAPSHOT_STALE_SEC = 30 * 60
 
@@ -75,6 +76,7 @@ td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 td.n,th.n{text-align:right;white-space:nowrap}
 .nm{font-weight:700;display:block;line-height:1.3}.code{font-size:11px;color:var(--mut)}
 .bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:var(--acc)}
+.pf label{display:block;font-size:12px;color:var(--mut);margin:8px 2px -2px}
 code{background:var(--chip);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
 """
 
@@ -373,7 +375,80 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
 PLAN_FIELDS = ("symbol", "entryLow", "entryHigh", "stop", "target", "riskPct", "validDays", "invalidation", "thesis", "tag")
 
 
-def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "") -> bytes:
+def _spct(x) -> str:
+    return "-" if x is None else f"{x:+.1f}%"
+
+
+def _won(x) -> str:
+    return "-" if x is None else f"{x:,.0f}"
+
+
+def _plan_search(base: str, name: str, q: str, matches) -> str:
+    rows = "".join(f'<div class="row"><a href="{base}/plans?p={quote(name)}&q={quote(code)}">{E(nm)}</a><span class="code">{E(code)}</span></div>'
+                   for code, nm in (matches or []))
+    none = '<div class="mut">찾는 종목이 없다 — 관심종목 국내만 조회된다</div>' if q and matches == [] else ""
+    return f'''<div class="card"><h2>종목 조회</h2><form method="get" action="{base}/plans"><input type="hidden" name="p" value="{E(name)}">
+<input name="q" value="{E(q)}" placeholder="종목명 또는 코드 (예: 삼성전자)" autocomplete="off"><button>조회</button></form>{rows}{none}</div>'''
+
+
+def render_card(card: Optional[dict]) -> str:
+    """종목 분석 카드 — 참고 자료 + 규칙 계산값(검증 결과를 같이 적는다). 투자 자문 아님."""
+    if not card:
+        return ""
+    from .stockcard import RULE_NOTE
+    t, sc, lv = card.get("target"), card.get("score"), card.get("levels")
+    row = lambda a, b: f'<div class="row"><span>{a}</span><span>{b}</span></div>'   # noqa: E731
+    pbr = ("-" if card["pbr"] is None else f'{card["pbr"]:.2f}배'
+           + ("" if card["pbrPct"] is None else f' <small class="mut">관심종목 중 낮은 순 {card["pbrPct"]:.0f}% 지점(0%=가장 쌈)</small>'))
+    sec = ("-" if not card.get("sectorMedianPbr") else
+           f'{E(str(card["sector"]))} 중앙 {card["sectorMedianPbr"]:.2f}배 ({card["sectorPeers"]}종목) → 그 PBR 이면 {_won(card["sectorFairPrice"])}원 <small class="mut">검증 안 된 참고치</small>')
+    lvl = (f'''<h2 style="margin-top:12px">규칙 계산값</h2>
+{row("진입 구간", f"{_won(lv['entryLow'])} ~ {_won(lv['entryHigh'])}")}
+{row("손절가", f"<span class=dn>{_won(lv['stop'])}</span> <small class=mut>{_spct(lv['stopPct'])}</small>")}
+{row("목표가", f"<span class=up>{_won(lv['target'])}</span> <small class=mut>{_spct(lv['targetPct'])}</small>")}
+<div class="mut" style="margin-top:6px">{E(RULE_NOTE)}</div>''' if lv else '<div class="warn">ATR 을 몰라 손절·목표를 계산하지 않았다(지어내지 않는다)</div>')
+    return f'''<div class="card hl"><div class="hd"><h2>{E(card["name"])} <span class="code">{E(card["code"])}</span></h2>
+<span class="mut">{E(card["priceSrc"])}</span></div>
+<div class="kpis">{_kpi("현재가", _won(card["price"]) + "원", _spct(card["chg1d"]) + " 오늘")}
+{_kpi("1주 · 1달", _spct(card["chg1w"]) + " · " + _spct(card["chg1m"]))}
+{_kpi("52주 위치", "-" if card["pos52"] is None else f'{card["pos52"]:.0f}%', f'{_won(card["lo52"])} ~ {_won(card["hi52"])}')}
+{_kpi("하루 평균 변동폭(ATR14)", _won(card["atr"]) + "원", "-" if card["atrPct"] is None else f'{card["atrPct"]:.1f}%')}</div>
+{row("20일선 · 60일선", f"{_won(card['ma20'])} · {_won(card['ma60'])}")}
+{row("PBR", pbr)}
+{row("업종 PBR 기준", sec)}
+{row("PBR 전략(모의) 보유", "<span class=ok>보유 중 — 이번 달 편입 조건 충족</span>" if card["pbrSleeve"] else "<span class=mut>아님</span>")}
+{row("증권사 목표가", f"{_won(t['median'])} <small class=mut>중앙값 · {t['brokers']}개사 · {E(str(t['lastDate']))}</small>" if t else "<span class=mut>없음</span>")}
+{row("우리 점수", f"{sc['total']} · {E(str(sc['grade']))}" if sc and sc.get("total") is not None else "<span class=mut>-</span>")}
+<div class="mut">일봉 기준일 {E(card["dailyAsOf"])} · ATR 기준일 {E(str(card.get("atrAsOf") or "-"))} · 뉴스·목표가·점수는 맥락일 뿐 매매 신호가 아니다</div>
+{lvl}</div>'''
+
+
+def _plan_form(base: str, hid: str, cap, card: Optional[dict], vals: Optional[dict], notes) -> str:
+    """입력 폼. 값 우선순위: 미리보기로 돌아온 입력 > 카드의 규칙 계산값 > 빈칸. '미리보기'는 저장하지 않고 점검만 보여 준다."""
+    v = dict(vals or {})
+    if not vals and card:
+        v["symbol"] = card["code"]
+        for k in ("entryLow", "entryHigh", "stop", "target"):
+            if card.get("levels"):
+                v[k] = str(card["levels"][k])
+    val = lambda k, d="": E(str(v.get(k) or d))   # noqa: E731
+    nts = "".join(f'<div class="{"warn" if lvl == "warn" else "mut"}">· {E(t)}</div>' for lvl, t in (notes or []))
+    return f'''<div class="card"><h2>새 계획</h2><div class="mut">자본 {"미설정 — 프로필 params.capital" if not cap else f"{float(cap):,.0f}원"} ·
+수량은 (자본 × 1회 손실 %) ÷ (진입 상단 − 손절). 진입 구간에 들어오면 시장가로 사고, 손절·목표에 닿으면 시장가로 판다(5분마다 점검, 장중만).</div>
+{('<h2 style="margin-top:10px">점검</h2>' + nts) if nts else ""}
+<form method="post" action="{base}/plans" class="pf">{hid}
+<label>종목코드</label><input name="symbol" value="{val("symbol")}" placeholder="종목코드 6자리 (허용 종목만)" maxlength="6" required autocomplete="off">
+<label>진입 하단 · 상단</label><input name="entryLow" value="{val("entryLow")}" placeholder="진입 하단" inputmode="decimal" required><input name="entryHigh" value="{val("entryHigh")}" placeholder="진입 상단(비우면 하단과 같게)" inputmode="decimal">
+<label>손절가</label><input name="stop" value="{val("stop")}" placeholder="손절가" inputmode="decimal" required><label>목표가</label><input name="target" value="{val("target")}" placeholder="목표가" inputmode="decimal" required>
+<label>1회 손실 한도 % (자본 대비)</label><input name="riskPct" value="{val("riskPct", "1")}" placeholder="1회 손실 한도 %(자본 대비)" inputmode="decimal" required>
+<label>진입 대기 일수</label><input name="validDays" value="{val("validDays", "14")}" placeholder="진입 대기 일수" inputmode="numeric">
+<label>무효 조건 · 근거 · 분류 (선택)</label><input name="invalidation" value="{val("invalidation")}" placeholder="무효 조건(이게 깨지면 계획을 버린다)" maxlength="200">
+<input name="thesis" value="{val("thesis")}" placeholder="근거 한 줄" maxlength="200"><input name="tag" value="{val("tag")}" placeholder="분류(돌파·눌림·실적 …)" maxlength="20">
+<button name="op" value="preview" class="ghost">미리보기 (저장 안 함)</button><button name="op" value="new">계획 저장</button></form></div>'''
+
+
+def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "", q: str = "", matches=None,
+                 card: Optional[dict] = None, vals: Optional[dict] = None, notes=None) -> bytes:
     """직접매매 계획 카드(plan_trader 프로필) — 입력 폼·진행 중·종료(R 배수)·통계. 재확인(지문) 뒤에만 불린다."""
     from .plans import (CLOSED, MIN_SAMPLE, MIN_TAG_SAMPLE, STATUS_KO, fills_by_plan, load_plans, outcome,
                         reward_risk, summarize)
@@ -426,19 +501,10 @@ def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "") 
     else:
         stat = '<span class="mut">아직 체결로 끝난 계획이 없다</span>'
     cap = (c.get("params") or {}).get("capital")
+    search_html, card_html, form_html = _plan_search(base, name, q, matches), render_card(card), _plan_form(base, hid, cap, card, vals, notes)
     m = f'<div class="warn">{E(msg)}</div>' if msg else ""
     body = f'''<h1>매매 계획 · {E(name)} <span class="pill">모의</span></h1>{m}
-<div class="card"><h2>새 계획</h2><div class="mut">자본 {"미설정 — 프로필 params.capital" if not cap else f"{float(cap):,.0f}원"} ·
-수량은 (자본 × 1회 손실 %) ÷ (진입 상단 − 손절). 진입 구간에 들어오면 시장가로 사고, 손절·목표에 닿으면 시장가로 판다(5분마다 점검, 장중만).</div>
-<form method="post" action="{base}/plans">{hid}<input type="hidden" name="op" value="new">
-<input name="symbol" placeholder="종목코드 6자리 (허용 종목만)" maxlength="6" required autocomplete="off">
-<input name="entryLow" placeholder="진입 하단" inputmode="decimal" required><input name="entryHigh" placeholder="진입 상단(비우면 하단과 같게)" inputmode="decimal">
-<input name="stop" placeholder="손절가" inputmode="decimal" required><input name="target" placeholder="목표가" inputmode="decimal" required>
-<input name="riskPct" value="1" placeholder="1회 손실 한도 %(자본 대비)" inputmode="decimal" required>
-<input name="validDays" value="14" placeholder="진입 대기 일수" inputmode="numeric">
-<input name="invalidation" placeholder="무효 조건(이게 깨지면 계획을 버린다)" maxlength="200">
-<input name="thesis" placeholder="근거 한 줄" maxlength="200"><input name="tag" placeholder="분류(돌파·눌림·실적 …)" maxlength="20">
-<button>계획 저장</button></form></div>
+{search_html}{card_html}{form_html}
 <div class="card"><h2>진행 중</h2><div class="tw"><table><tr><th>종목</th><th>상태</th><th class="n">진입 · 손절/목표</th><th class="n">수량</th><th></th></tr>
 {"".join(act) or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table></div></div>
 <div class="card"><h2>결과 <span class="mut">실제 체결가 기준 R 배수</span></h2>{stat}
@@ -451,6 +517,12 @@ def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "") 
 def is_live_order(c: dict, op: str) -> bool:
     """실계좌 주문으로 이어질 수 있는 조작 — 주문 켜기, 주문 상태의 지금 실행, 킬 해제(M2: 해제하면 예약 주문이 다시 나간다)."""
     return c.get("mode") == "live" and (op in ("auto-execute", "resume") or (op == "run" and c.get("auto") == "execute"))
+
+
+def _fetch_intraday() -> dict:
+    import urllib.request
+    with urllib.request.urlopen(KR_INTRADAY_URL, timeout=3) as r:     # 127.0.0.1 고정
+        return json.loads(r.read().decode("utf-8"))
 
 
 def _fetch_accounts() -> dict:
@@ -585,7 +657,8 @@ class WebApp:
                  clock: Callable[[], float] = time.time, secure_cookie: bool = True,
                  fail_delay: float = 0.0, sleep: Callable[[float], None] = time.sleep, base: str = "",
                  require_reauth: bool = False, profiles: Optional[Callable[[], List[dict]]] = None,
-                 accounts_fetch: Optional[Callable[[], dict]] = None, rp_id: str = "", origin: str = ""):
+                 accounts_fetch: Optional[Callable[[], dict]] = None, rp_id: str = "", origin: str = "",
+                 intraday_fetch: Optional[Callable[[], dict]] = None, data_root: Optional[Path] = None):
         self.cfg, self.sdir, self.store = cfg, Path(sdir), store
         self.sessions, self.lockout, self.clock = sessions, lockout, clock
         self.secure_cookie, self.fail_delay, self._sleep = secure_cookie, fail_delay, sleep
@@ -595,6 +668,8 @@ class WebApp:
         self._msgs: set = set()
         self._auth_lock = threading.Lock()
         self.fetch_accounts = accounts_fetch or _fetch_accounts
+        self.fetch_intraday = intraday_fetch or _fetch_intraday
+        self.data_root = data_root                                        # 종목 카드 데이터(저장소 루트). None = 기본
         self.rp_id, self.origin = rp_id, origin                            # 패스키: 도메인·출처(설정 web.rp_id / web.origin)
         self.profiles = profiles or (lambda: [])                          # 프로필 설정 목록(키 없음 — 파일만 읽는다)
 
@@ -770,13 +845,30 @@ class WebApp:
         sdir = state_dir(c)
         if method == "GET":
             msg = (q.get("m") or [""])[0]
-            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, msg if msg in self._msgs else "")
+            qs = (q.get("q") or [""])[0].strip()[:30]
+            matches = self._search(qs) if qs else None
+            card = self._card(matches[0][0]) if matches and len(matches) == 1 else None
+            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, msg if msg in self._msgs else "",
+                                                   qs, None if card else matches, card)
         op, plans = field("op"), load_plans(sdir)
+        if op == "preview":                             # 저장하지 않고 점검만 — 같은 폼을 값 그대로 다시 그린다
+            from .stockcard import checks
+            vals = {k: field(k) for k in PLAN_FIELDS}
+            card = self._card(vals["symbol"].strip().upper())
+            plan, why = build_plan(vals, c, self._now(), 0)
+            notes = [("warn", why)] if why else [("info", f"수량 {plan['qty']}주 · 금액 약 {plan['qty'] * plan['entryHigh']:,.0f}원 · 손익비 1:"
+                                                          f"{(plan['target'] - plan['entryHigh']) / (plan['entryHigh'] - plan['stop']):.2f}"
+                                                          f" · 손절 시 약 −{plan['qty'] * (plan['entryHigh'] - plan['stop']):,.0f}원")]
+            if plan:
+                notes += checks(card, plan["entryLow"], plan["entryHigh"], plan["stop"], plan["target"])
+            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, "", "", None, card, vals, notes)
         if op == "new":
             st = ((_load_json(sdir / "strategy_plan_trader.json") or {}).get("plans")) or {}
             active = sum(1 for p in plans if (st.get(p["id"]) or {}).get("status", "wait") not in CLOSED)
             plan, msg = build_plan({k: field(k) for k in PLAN_FIELDS}, c, self._now(), active)
             if plan:
+                from .stockcard import context_for_plan
+                plan["context"] = context_for_plan(self._card(plan["symbol"]))       # 30건 뒤 내 데이터로 규칙을 보려고
                 save_plans(sdir, plans + [plan])
                 msg = f"계획을 저장했습니다 — {plan['symbol']} {plan['qty']}주, 다음 점검(5분, 장중)부터 봅니다"
         elif op in ("cancel", "close"):
@@ -793,7 +885,24 @@ class WebApp:
         return self._redirect(f"{url}&m={quote(msg)}")
 
     # -------------------------------------------------------------- 조작(요청 파일만 쓴다 — 주문은 키를 가진 run-due 가 낸다)
-    OPS =("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
+    def _search(self, qs: str):
+        from .stockcard import search
+        return search(qs, **({"root": self.data_root} if self.data_root else {}))
+
+    def _card(self, code: str) -> Optional[dict]:
+        """종목 카드. 장중 현재가는 오늘 날짜 스냅샷일 때만 쓴다 — 못 가져오면 종가로(화면에 어느 쪽인지 적힌다)."""
+        from .stockcard import build_card
+        try:
+            intra = self.fetch_intraday()
+            intra = intra if str(intra.get("date")) == self._now().strftime("%Y%m%d") else None
+        except Exception:                               # noqa: BLE001 — 장 밖·API 없음이면 종가 기준
+            intra = None
+        try:
+            return build_card(code, intra, **({"root": self.data_root} if self.data_root else {}))
+        except Exception:                               # noqa: BLE001 — 데이터 파일이 깨져도 계획 화면은 뜬다
+            return None
+
+    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
 
     def _action(self, name: str, op: str, code: str, ip: str, phrase: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다

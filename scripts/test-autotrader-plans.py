@@ -202,10 +202,102 @@ def main():
         home = app.handle("GET", "/", h, b"", "1.1.1.1")[2].decode()
         ck("요약 화면에 계획 링크(계획 프로필만)", home.count("/plans?p=") == 1)
 
+    card_tests(now)
     print(f"\n{COUNT[0] - len(FAILS)}/{COUNT[0]} 통과")
     if FAILS:
         print("실패:", *FAILS, sep="\n  ")
         sys.exit(1)
+
+
+def _data_root(td: Path) -> Path:
+    """종목 카드용 가짜 저장소 데이터 — 30일, 종가 100→129, 고저 ±2."""
+    d = td / "repo"
+    (d / "docs" / "data").mkdir(parents=True)
+    (d / "ui" / "data").mkdir(parents=True)
+    c = [100 + i for i in range(30)]
+    days = [f"202609{i + 1:02d}" for i in range(30)]
+    w = lambda rel, obj: (d / rel).write_text(json.dumps(obj, ensure_ascii=False), encoding="utf-8")   # noqa: E731
+    w("docs/data/prices.json", {"byTicker": {
+        "005930": {"name": "삼성전자", "market": "KR", "d": days, "o": c, "h": [x + 2 for x in c], "l": [x - 2 for x in c], "c": c, "v": c},
+        "009150": {"name": "삼성전기", "market": "KR", "d": days, "o": c, "h": c, "l": c, "c": c, "v": c},
+        "AAPL": {"name": "Apple", "market": "US", "d": days, "o": c, "h": c, "l": c, "c": c, "v": c}}})
+    w("docs/data/trade-levels.json", {"byTicker": {"005930": {"atr14": 4.0, "asOf": days[-1]}}})
+    w("docs/data/stock-context.json", {"targets": {"byTicker": {"005930": {"status": "ok", "median": 140, "brokers": 5, "lastDate": days[-1]}}}})
+    res = [{"ticker": f"{i:06d}", "market": "KR", "breakdown": {"valuation": {"detail": {"pbr": {"raw": 1.0 + i}}}}} for i in range(1, 7)]
+    res.append({"ticker": "005930", "market": "KR", "totalScore": 60, "grade": "B", "dataCoverage": {"overall": 0.9},
+                "breakdown": {"valuation": {"detail": {"pbr": {"raw": 2.0}}}}})
+    w("docs/data/latest.json", {"results": res})
+    w("docs/data/sector-strength.json", {"stocks": [{"t": f"{i:06d}", "g": "반도체"} for i in range(1, 7)] + [{"t": "005930", "g": "반도체"}]})
+    w("ui/data/positions.json", {"strategies": {"pbr_value_v1_combined": {"positions": [{"symbol": "005930", "status": "OPEN"}]}}})
+    return d
+
+
+def card_tests(now):
+    from autotrader import stockcard as sc
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        root = _data_root(td)
+        ck("검색: 코드 정확히", sc.search("005930", root) == [("005930", "삼성전자")])
+        ck("검색: 이름 일부 → 여러 개, 해외 제외", [x[0] for x in sc.search("삼성", root)] == ["005930", "009150"]
+           and sc.search("Apple", root) == [])
+        card = sc.build_card("005930", None, root)
+        ck("카드: 현재가 = 마지막 종가, 출처 표시", card["price"] == 129 and card["priceSrc"].startswith("종가"))
+        ck("카드: 52주 위치 = (129−98)/(131−98)", abs(card["pos52"] - 31 / 33 * 100) < 1e-9)
+        lv = card["levels"]
+        ck("규칙: 손절 = 진입 상단 − 3×ATR = 117, 목표 = +1.5×12 = 147", lv["entryHigh"] == 129 and lv["stop"] == 117 and lv["target"] == 147)
+        ck("카드: 업종 중앙 PBR(자기 포함 7종목 2,2,3,4,5,6,7 → 4) 기준 가격 = 129×4/2", card["sectorMedianPbr"] == 4.0
+           and abs(card["sectorFairPrice"] - 258) < 1e-9)
+        ck("카드: PBR 순위(자기보다 싼 종목 0 → 0%)·PBR 슬리브 보유", card["pbrPct"] == 0 and card["pbrSleeve"] is True)
+        intra = {"date": "20260928", "atKst": "2026-09-28 10:20:00", "quotes": {"005930": [130, 129]}}
+        c2 = sc.build_card("005930", intra, root)
+        ck("장중 스냅샷이 있으면 장중가·전일 대비", c2["price"] == 130 and c2["priceSrc"] == "장중 10:20" and abs(c2["chg1d"] - (130 / 129 - 1) * 100) < 1e-9)
+        ck("ATR 모르면 손절·목표를 안 만든다", sc.build_card("009150", None, root)["levels"] is None)
+        ck("없는 종목은 카드 없음", sc.build_card("000000", None, root) is None)
+        n = sc.checks(card, 128, 129, 128.5, 140)
+        ck("점검: 지금 가격이 구간 안이면 경고", any("구간 안" in t for _, t in n))
+        ck("점검: 손절 폭이 ATR 1배 미만이면 경고", any(l == "warn" and "평소 흔들림" in t for l, t in n))
+        ck("점검: 목표가 52주 고점 위·증권사 목표 위", any("52주" in t for _, t in sc.checks(card, 120, 125, 110, 150))
+           and any("증권사" in t for _, t in sc.checks(card, 120, 125, 110, 150)))
+
+        # ---- 웹: 조회·카드·미리보기·저장 때 당시 상태 기록
+        main_p = td / "autotrader.local.json"
+        base = {"strategy": "target_weights", "mode": "paper", "markets": ["KR"], "symbol_allowlist": ["005930"]}
+        main_p.write_text(json.dumps({**base, "state_dir": str(td / "state")}), encoding="utf-8")
+        (td / "profiles").mkdir()
+        (td / "profiles" / "pl.json").write_text(json.dumps({**PROF, "params": {"capital": 100_000}}), encoding="utf-8")
+        sdir = td / "state"
+        store = A.AuthStore(sdir / "web_auth.json")
+        store.save({"password": A.hash_password("pw-long-enough-1"), "totpSecret": A.new_totp_secret()})
+        clk = [now.timestamp()]
+        mc = normalize_config({**base, "state_dir": str(sdir)})
+        app = web.WebApp(mc, sdir, store, A.Sessions(clock=lambda: clk[0]), A.Lockout(clock=lambda: clk[0]), clock=lambda: clk[0],
+                         secure_cookie=False, require_reauth=True, profiles=web._profile_loader(mc, main_p),
+                         intraday_fetch=lambda: intra, data_root=root)
+        tok = app.sessions.create()
+        csrf = app.sessions.get(tok)["csrf"]
+        app.sessions.mark_reauth(tok)
+        h = {"Cookie": f"at_sess={tok}"}
+        from urllib.parse import quote as uq
+        page = app.handle("GET", f"/plans?p=pl&q={uq('삼성')}", h, b"", "1.1.1.1")[2].decode()
+        ck("웹: 이름 검색 → 목록", "삼성전기" in page and "q=005930" in page)
+        page = app.handle("GET", "/plans?p=pl&q=005930", h, b"", "1.1.1.1")[2].decode()
+        ck("웹: 한 종목이면 카드 + 장중가 130 기준 규칙값(118·148)이 폼에 채워진다", "규칙 계산값" in page and 'value="118"' in page and 'value="148"' in page
+           and "장중 10:20" in page and "투자 자문이 아니라" in page)
+        ck("웹: 조회어는 이스케이프", "<script>" not in app.handle("GET", "/plans?p=pl&q=%3Cscript%3E", h, b"", "1.1.1.1")[2].decode())
+        pl = load_profile(main_p, "pl")
+        form = "symbol=005930&entryLow=128&entryHigh=129&stop=117&target=147&riskPct=1&validDays=14"
+        page = app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=preview&{form}".encode(), "1.1.1.1")[2].decode()
+        ck("미리보기: 저장 안 하고 수량·손절 금액·점검을 보여 준다", load_plans(Path(pl["state_dir"])) == []
+           and "수량 83주" in page and "내려와야 산다" in page and 'value="117"' in page)
+        page = app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=preview&{form.replace('005930', '035720')}".encode(), "1.1.1.1")[2].decode()
+        ck("미리보기: 허용 종목 밖이면 거부 사유", "허용 종목" in page)
+        app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=new&{form}".encode(), "1.1.1.1")
+        saved = load_plans(Path(pl["state_dir"]))
+        ck("저장: 당시 상태(ATR·52주 위치·PBR)를 같이 남긴다", len(saved) == 1 and saved[0]["context"]["atr"] == 4.0
+           and saved[0]["context"]["pbrSleeve"] is True and saved[0]["context"]["priceSrc"] == "장중 10:20")
+        app.fetch_intraday = lambda: {**intra, "date": "20260925"}
+        page = app.handle("GET", "/plans?p=pl&q=005930", h, b"", "1.1.1.1")[2].decode()
+        ck("다른 날 장중 스냅샷은 안 쓰고 종가로", "종가 2026-09-30" in page)
 
 
 if __name__ == "__main__":
