@@ -5,7 +5,7 @@
     "usdKrw20dChangePct": 0
   },
   "usRatePolicy": {
-    "fedFundsRateDirection": "holding",
+    "fedFundsRateDirection": "hiking",
     "us10yTreasuryYieldTrend": "rising"
   },
   "sectorCycle": {
@@ -17,6 +17,6 @@
     "foreignTrend20d": "netSell",
     "indexRebalancingWindow": false
   },
-  "fomcMeetingWithin7Days": true,
+  "fomcMeetingWithin7Days": false,
   "majorPensionFundPolicyChange": false
 }
