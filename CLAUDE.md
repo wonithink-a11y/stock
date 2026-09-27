@@ -36,6 +36,8 @@ Validated against
             (타이머 dry-run, 프로필 auto off). O2b·O3u 전략 파일은 **만들지 않는다**(동시호가 시험 실패).
             ★ **직접매매 계획 카드 `plan_trader`(09-27 사용자 GO, 모의 전용·국내)** — 웹 `/plans` 에 진입·손절·목표·위험%를 적으면 5분마다
             시장가로 사고판다. 실계좌면 전략이 거부. 켜기(타이머 --execute·웹 자동 주문)는 사용자 몫. 결과는 체결가 R 배수, 30건 전 판단 금지.
+            ★ 타이머 `--execute` 는 **프로필 공용** — `infbuy` 가 09-22 웹에서 auto=execute 라 같이 켜진다(09-27 VM 확인). VM 프로필 `plans` 생성(auto off,
+            허용 = 관심종목 KR 353, capital 1천만). 모의 계좌에 다른 프로그램 몫 22종목이 이미 있다 — 계획은 자기 주문 수량만 센다.
             설계 docs/control/직접매매-계획카드-설계-2026-09-27.md §10.
             ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 에 **의도적으로 disabled**(autotrader 전환 절차, README §무한매수 —
             sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
