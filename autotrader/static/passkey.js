@@ -69,18 +69,21 @@
     });
   }
 
-  // ---- 조작 확인
-  var act = document.getElementById("pk-action");
-  if (act) {
+  // ---- 조작 확인 — 상세 화면의 폼(#pk-action)과 요약 화면의 전략 스위치 버튼(form.pk-act, 제자리 새로고침)
+  var bind = function (act, out, stay) {
     act.addEventListener("submit", function (ev) {
       ev.preventDefault();
-      var base = act.dataset.base, csrf = act.dataset.csrf, out = document.getElementById("pk-action-msg");
+      var base = act.dataset.base, csrf = act.dataset.csrf;
       var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase ? act.elements.phrase.value : "" };
+      say(out, "지문 확인 중…", false);
       post(base + "/passkey/action-options", req).then(sign).then(function (cred) {
         req.credential = cred;
         return post(base + "/passkey/action", req);
-      }).then(function (j) { location.href = j.redirect; })
+      }).then(function (j) { if (stay) location.reload(); else location.href = j.redirect; })
         .catch(function (e) { say(out, "실패: " + e.message, true); });
     });
-  }
+  };
+  var act = document.getElementById("pk-action");
+  if (act) bind(act, document.getElementById("pk-action-msg"), false);
+  Array.prototype.forEach.call(document.querySelectorAll("form.pk-act"), function (f) { bind(f, f.querySelector(".pk-msg"), true); });
 })();

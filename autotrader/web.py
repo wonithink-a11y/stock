@@ -207,6 +207,59 @@ def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -
 
 
 AUTO_TXT = {"off": "자동 꺼짐", "dry": "자동 dry-run", "execute": "자동 주문"}
+STRAT_KO = {"plan_trader": "📝 계획 매매", "infinite_buying": "♾ 무한매수", "target_weights": "⚖ 목표 비중"}
+HEARTBEAT_STALE_SEC = 12 * 60        # run-due 는 5분마다 — 두 번 넘게 빠지면 '타이머가 안 돈다'
+
+
+def render_switches(items: List[dict], sdir: Path, csrf: str, base: str, now: datetime, pk: bool,
+                    paper_engine: Optional[dict] = None) -> str:
+    """전략 스위치 — 프로필마다 현재 상태 + 한 번 누르는 켜기/끄기(지문). 주문 = 서버 허용(타이머 --execute) × 프로필 '주문'.
+    실계좌 프로필은 여기서 켜지 않는다(확인 문구가 있는 상세 화면으로). 금액은 없다 — 로그인만으로 보인다."""
+    hb = _load_json(Path(sdir) / "run_due.json") or {}
+    try:
+        age = (now - datetime.fromisoformat(hb["at"])).total_seconds()
+    except (KeyError, ValueError, TypeError):
+        age = None
+    server_on = bool(hb.get("execute")) and age is not None and age <= HEARTBEAT_STALE_SEC
+    if age is None:
+        srv = '<span class="warn">모름 — 예약 타이머 기록이 아직 없다</span>'
+    elif age > HEARTBEAT_STALE_SEC:
+        srv = f'<span class="bad">타이머 멈춤? 마지막 {age / 60:.0f}분 전</span>'
+    else:
+        srv = ('<span class="ok">켜짐</span>' if hb.get("execute") else '<span class="warn">꺼짐 — 전부 계획만</span>') \
+              + f'<br><small class="mut">{age / 60:.0f}분 전 확인</small>'
+    rows = []
+    for c in items:
+        name, auto, live = str(c.get("profile", "")), c.get("auto", "off"), c.get("mode") == "live"
+        kill = kill_file(c).exists()
+        if kill:
+            st = '<span class="pill bad">킬 ON</span>'
+        elif auto == "execute":
+            st = '<span class="pill ok">주문 켜짐</span>' if server_on else '<span class="pill warn">주문 대기(서버 허용 꺼짐)</span>'
+        elif auto == "dry":
+            st = '<span class="pill">계획만</span>'
+        else:
+            st = '<span class="pill">꺼짐</span>'
+        if live or not pk:
+            btn = f'<a class="mut" href="{base}/details?p={quote(name)}">상세에서 조작 →</a>'
+        else:
+            on = auto == "execute"
+            btn = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin:0">'
+                   f'<input type="hidden" name="op" value="{"auto-off" if on else "auto-execute"}">'
+                   f'<button style="padding:8px 14px;margin:0;width:auto{";background:var(--bad);border-color:var(--bad)" if on else ""}">'
+                   f'{"끄기" if on else "주문 켜기"}</button><div class="pk-msg"></div></form>')
+        rows.append(f'<div class="row"><span><b style="color:var(--fg)">{E(STRAT_KO.get(c.get("strategy"), str(c.get("strategy"))))}</b>'
+                    f' <small class="mut">{E(name)} · {"실전" if live else "모의"}</small><br>{st}</span>{btn}</div>')
+    pe = ""
+    if paper_engine:
+        strat = paper_engine.get("strategies") or {}
+        pe = ('<div class="sec" style="margin-top:12px">페이퍼 엔진 슬리브 <small>(별도 엔진 · 항상 켜짐 · 여기서 조작 안 함)</small></div>'
+              + "".join(f'<div class="row"><span>{E(k)}</span><span class="mut">보유 {sum(1 for p in (v.get("positions") or []) if p.get("status") == "OPEN")}종목</span></div>'
+                        for k, v in strat.items())
+              + f'<div class="mut">기준 {E(str(paper_engine.get("updatedAt", ""))[:16].replace("T", " "))}</div>')
+    return (f'<div class="sec">전략 스위치</div><div class="card"><div class="row"><span>서버 주문 허용<br><small class="mut">VM 타이머 · 전략 공통</small></span><span style="text-align:right">{srv}</span></div>'
+            + ("".join(rows) or '<div class="mut">프로필이 없다</div>') + pe
+            + '<div class="mut" style="margin-top:6px">주문은 서버 허용과 그 전략의 \'주문 켜짐\'이 둘 다일 때만 나간다. 버튼은 지문 한 번.</div></div>')
 
 
 def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: bool = False) -> str:
@@ -769,9 +822,14 @@ class WebApp:
             locked = self.require_reauth and not self.sessions.is_fresh(sess)     # N2: 금액·보유는 재확인 뒤에만
             unlock = (f'<div class="card"><div class="mut">🔒 금액·보유 종목은 확인 뒤에 보입니다(5분).</div>'
                       + (f'<button id="pk-reauth" data-base="{E(self.base)}" data-csrf="{E(sess["csrf"])}" data-next="/">지문으로 보기</button>'
-                         f'<div id="pk-reauth-msg"></div><script src="{E(self.base)}/static/passkey.js"></script>' if self._pk_ready()
+                         f'<div id="pk-reauth-msg"></div>' if self._pk_ready()
                          else f'<a class="btn" href="{self.base}/details">인증앱 코드로 확인</a>') + '</div>') if locked else ""
-            extra = unlock + render_profiles([(c, load_view(c, state_dir(c), now)) for c in self.profiles()], self.base, hide_money=locked)
+            from .stockcard import _load as _load_repo
+            profs = self.profiles()
+            pe = _load_repo("ui/data/positions.json", *([self.data_root] if self.data_root else []))
+            js = f'<script src="{E(self.base)}/static/passkey.js"></script>' if self._pk_ready() else ""   # 한 번만 — 두 번 실으면 버튼마다 지문이 두 번 뜬다
+            extra = (render_switches(profs, self.sdir, sess["csrf"], self.base, now, self._pk_ready(), pe) + unlock + js
+                     + render_profiles([(c, load_view(c, state_dir(c), now)) for c in profs], self.base, hide_money=locked))
             return 200, self._hdrs(), render_dashboard(load_view(self.cfg, self.sdir, now), sess["csrf"], self.base,
                                                        self.require_reauth, extra)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼

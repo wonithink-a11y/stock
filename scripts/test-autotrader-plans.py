@@ -203,6 +203,7 @@ def main():
         ck("요약 화면에 계획 링크(계획 프로필만)", home.count("/plans?p=") == 1)
 
     card_tests(now)
+    switch_tests(now)
     print(f"\n{COUNT[0] - len(FAILS)}/{COUNT[0]} 통과")
     if FAILS:
         print("실패:", *FAILS, sep="\n  ")
@@ -298,6 +299,48 @@ def card_tests(now):
         app.fetch_intraday = lambda: {**intra, "date": "20260925"}
         page = app.handle("GET", "/plans?p=pl&q=005930", h, b"", "1.1.1.1")[2].decode()
         ck("다른 날 장중 스냅샷은 안 쓰고 종가로", "종가 2026-09-30" in page)
+
+
+def switch_tests(now):
+    """전략 스위치 — 상태 표시(서버 허용 × 프로필 주문)·실전은 버튼 없음·타이머 heartbeat."""
+    from datetime import timedelta
+    from autotrader import cli
+    from autotrader.config import web_set_auto
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        main_p = td / "autotrader.local.json"
+        base = {"strategy": "target_weights", "mode": "paper", "markets": ["KR"], "symbol_allowlist": ["005930"]}
+        main_p.write_text(json.dumps({**base, "state_dir": str(td / "state")}), encoding="utf-8")
+        (td / "profiles").mkdir()
+        (td / "profiles" / "pl.json").write_text(json.dumps({**PROF, "auto": "off"}), encoding="utf-8")
+        (td / "profiles" / "ib.json").write_text(json.dumps({**base, "strategy": "infinite_buying", "markets": ["US"],
+                                                             "symbol_allowlist": ["TQQQ"], "auto": "execute"}), encoding="utf-8")
+        (td / "profiles" / "lv.json").write_text(json.dumps({**base, "mode": "live", "auto": "dry"}), encoding="utf-8")
+        sdir = td / "state"
+        profs = [load_profile(main_p, n) for n in ("pl", "ib", "lv")]
+        html = web.render_switches(profs, sdir, "c", "", now, True)
+        ck("스위치: 타이머 기록 없으면 '모름'", "모름" in html)
+        ck("스위치: 전략 이름·상태", "계획 매매" in html and "무한매수" in html and "꺼짐" in html)
+        ck("스위치: 서버 허용 없으면 '주문 대기'", "주문 대기" in html)
+        ck("스위치: 모의는 버튼(켜기·끄기), 실전은 상세로", html.count('class="pk-act"') == 2 and "상세에서 조작" in html
+           and 'value="auto-execute"' in html and 'value="auto-off"' in html)
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "run_due.json").write_text(json.dumps({"at": now.isoformat(), "execute": True}), encoding="utf-8")
+        html = web.render_switches(profs, sdir, "c", "", now + timedelta(minutes=3), True)
+        ck("스위치: 서버 허용 켜짐 → '주문 켜짐'", 'pill ok">주문 켜짐' in html and "주문 대기" not in html)
+        html = web.render_switches(profs, sdir, "c", "", now + timedelta(minutes=30), True)
+        ck("스위치: 기록이 30분 묵으면 '타이머 멈춤?' — 켜짐으로 안 읽는다", "타이머 멈춤" in html and 'pill ok">주문 켜짐' not in html)
+        ck("스위치: 패스키 없으면 버튼 대신 상세로", 'class="pk-act"' not in web.render_switches(profs, sdir, "c", "", now, False))
+        web_set_auto(profs[0], "execute", now)
+        ck("웹 켜기 → 다음 로드에서 '주문' 상태", load_profile(main_p, "pl")["auto"] == "execute")
+        class A_:
+            config, execute = str(main_p), False
+        cli.cmd_run_due(A_())
+        hb = json.loads((sdir / "run_due.json").read_text(encoding="utf-8"))
+        ck("run-due 가 heartbeat 를 남긴다(--execute 여부)", hb["execute"] is False and hb["at"])
+        pe = {"updatedAt": "2026-09-25T21:09", "strategies": {"pbr_value_v1_combined": {"positions": [{"status": "OPEN"}, {"status": "CLOSED"}]}}}
+        ck("페이퍼 엔진 슬리브는 상태만(버튼 없음)", "pbr_value_v1_combined" in web.render_switches([], sdir, "c", "", now, True, pe)
+           and "보유 1종목" in web.render_switches([], sdir, "c", "", now, True, pe))
 
 
 if __name__ == "__main__":

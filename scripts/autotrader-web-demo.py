@@ -33,6 +33,7 @@ _kr = [k for k, v in json.loads((Path(__file__).resolve().parent.parent / "docs/
 sd = td / "state"
 (sd / "profiles" / "infbuy" / "runs").mkdir(parents=True)
 (sd / "profiles" / "pbr").mkdir(parents=True)
+(sd / "run_due.json").write_text(json.dumps({"at": now.isoformat(), "execute": False}), encoding="utf-8")   # 전략 스위치: 서버 허용 꺼짐
 (sd / "runs").mkdir(parents=True)
 
 snap_main = {"at": now.isoformat(), "mode": "paper", "markets": {"KR": {"cash": 98451853.0, "openOrders": [],

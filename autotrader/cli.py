@@ -96,6 +96,12 @@ def cmd_run_due(args) -> int:
     env = load_env()
     now = datetime.now(KST)
     worst = 0
+    try:                                                # 웹의 '서버 주문 허용' 표시 — 타이머가 --execute 로 도는지·살아 있는지
+        hb = state_dir(main_cfg) / "run_due.json"
+        hb.parent.mkdir(parents=True, exist_ok=True)
+        hb.write_text(json.dumps({"at": now.isoformat(), "execute": bool(args.execute)}), encoding="utf-8")
+    except OSError as e:
+        print(f"heartbeat 기록 실패: {e}", file=sys.stderr)
     for name in list_profiles(args.config):
         try:
             cfg = load_profile(args.config, name, main_cfg)
