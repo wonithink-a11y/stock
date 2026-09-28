@@ -24,6 +24,7 @@ from .models import Intent
 from .strategy import Context, Strategy
 
 KST = timezone(timedelta(hours=9))
+ORDER_GAP_SEC = 1.0
 
 
 class Ledger:
@@ -224,6 +225,8 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
         if not execute:
             report["planned"].append({**rec, "value": round(value, 2), "lastPrice": last})
             continue
+        if report["placed"]:                             # 주문 사이 간격 — KIS 모의투자 초당 한도(EGW00201)
+            sleep(ORDER_GAP_SEC)                         # 09-28 무한매수 7번째 주문이 걸렸다. 재시도가 아니라 속도만 늦춘다
         try:
             res = broker.place(it, dry_run=False)
         except Exception as e:                          # noqa: BLE001 — 재시도하지 않고 중단

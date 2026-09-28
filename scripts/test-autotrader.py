@@ -310,6 +310,11 @@ def main():
         fb = FakeBroker(cash={"US": 1000.0}, quotes=q, open_orders=[mine], cancel_removes=False)
         r = run_once(cfg, fb, Fixed([us_intent]), execute=True, env=PAPER_ENV, repo_root=Path(td), now=now, sleep=lambda s: None)
         ck("취소가 확인되지 않으면 그 종목은 주문하지 않는다(중복 방지)", fb.placed == [] and any("취소를 확인" in s["reason"] for s in r["skipped"]))
+        naps = []
+        two = [us_intent, Intent("TQQQ", "BUY", 1, market="US", order_type="limit", limit_price=69.0)]
+        fb = FakeBroker(cash={"US": 1000.0}, quotes=q)
+        run_once(cfg, fb, Fixed(two), execute=True, env=PAPER_ENV, repo_root=Path(td), now=now, sleep=naps.append)
+        ck("주문 사이에 간격을 둔다(09-28 모의 EGW00201) — 첫 주문 앞에는 없다", len(fb.placed) == 2 and naps.count(1.0) == 1)
         fb = FakeBroker(cash={"US": 1000.0}, quotes=q, open_orders=[mine])
         r = run_once(cfg, fb, Fixed([us_intent]), execute=False, env=PAPER_ENV, repo_root=Path(td), now=now)
         ck("dry-run 은 취소도 하지 않는다", fb.cancelled == [] and len(r["reconcile"]) == 1)
