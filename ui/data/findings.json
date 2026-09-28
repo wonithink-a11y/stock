@@ -1,5 +1,5 @@
 {
-  "count": 400,
+  "count": 401,
   "findings": [
     {
       "file": "research/strategy-lab/findings/crypto-k1-replication-preregistration-2026-09.md",
@@ -89,6 +89,30 @@
         "3배 8종(UPRO TECL TNA FAS LABU NAIL GUSH DPST) · 2배 8종(QLD SSO USD ROM UWM UYG 122630.KS 233740.KS)"
       ],
       "reason": "신호: 없음(넓은 효과 아님) · 경제성: 판정 대상 아님. 3배 그룹 NOT REPLICATED(ΔCAGR 양 4/8, 중앙값 +0.38%p, ΔMDD 중앙값 +2.75%p 악화) · 2배 그룹 PARTIAL(양 5/8, 중앙값 +0.40%p, ΔMDD 중앙값 +1.2%p 악화). SOXL 에서 본 큰 개선(+6%p·MDD −14%p)은 레버리지 ETF 일반의 성질이 아니다. 개선된 종목은 TECL +2.4 · NAIL +3.9 · USD(반도체 2배) +1.9 · UYG +3.6 등 일부, 낙폭은 대부분 나빠졌다(FAS +21 · TNA +16 · 122630 +11%p).",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/infinite-buying-single-stock-synthetic-preregistration-2026-09.md",
+      "title": "무한매수 '하락일 2배' — 단일종목 합성 레버리지 재현 (사전등록, 2026-09-29)",
+      "date": "2026-09-29",
+      "bodyMarkdown": "---\ntrack: us\nfactor: infinite-buying-single-stock-synthetic\ndate: 2026-09-29\nverdict: PREREGISTERED\ncriteria_version: research-only\nconditions: [\"기초 13종 = 미국 단일종목 2배 상품의 기초 주식: NVDA TSLA AAPL AMZN MSFT GOOGL META COIN AMD PLTR MSTR TSM AVGO\", \"합성 레버리지 L ∈ {2, 3}: 매일 L × 기초 일수익 − (보수 0.95% + 차입 3% × (L−1))/252, 시가·고가·저가도 전일 종가 대비 L 배\", \"V4.0 vs '하락일 2배'(dip-double 사전등록 1970c643 과 같은 규칙·base%·시드·실현 10bp)\", \"판정: 레버리지별 13종 중 ΔCAGR 양 ≥ 9 ∧ 중앙값 > 0 ∧ ΔMDD 중앙값 ≤ 0 → REPLICATED\"]\nreason: >-\n  신호: (미측정) · 경제성: (미측정). 실제 단일종목 레버리지 상품은 이력이 2~4년뿐(2022-08~)이라, 기초 주식 일봉(2010~)으로 2배·3배를 합성해\n  '하락일 2배' 변형이 단일종목에서도 V4.0 보다 나은지 본다. 이 문서를 쓰는 시점에 기초 13종 자료는 받지 않았다.\n---\n\n# 무한매수 '하락일 2배' — 단일종목 합성 레버리지 재현 (사전등록, 2026-09-29)\n\n> **동결(2026-09-29 사용자 GO \"단일종목 합성으로 사전등록해줘\").** 이 커밋 이후 종목·합성식·규칙·판정을 바꾸지 않는다.\n\n## 0. 이 문서를 쓰는 시점의 지식\n\n- 같은 변형이 레버리지 ETF 16종에서 3배 NOT REPLICATED(4/8)·2배 PARTIAL(5/8), 낙폭 중앙값은 둘 다 악화였다(c5d21136). SOXL 에선 크게 좋았다.\n- 기초 13종은 **지금 레버리지 상품이 있는 인기 종목**이다 — 과거에 크게 오른 승자라 **생존자 편향이 크다.** 그래서 절대 수익률은 믿지 않고 **같은 종목 안의 V4.0 대 변형 비교만** 본다.\n- 기대치: 반반. 급등주 위주라 V4.0 자체가 보유 대비 불리하고, 변형의 '더 싸게 많이 사기'가 급락 뒤 회복이 빠른 승자에서 유리할 수 있다(편향과 같은 방향이라 결과가 좋아도 할인해서 읽는다).\n\n## 1. 합성 (결과 전 고정)\n\n- 기초: yfinance `auto_adjust=True`(분할·배당 조정) 일봉 OHLC, **2010-01-04 이후**(그 뒤 상장은 상장일부터). 기초 이력 5년 미만이면 제외(현재 해당 없음).\n- 레버리지 L 합성: 합성 종가 `S_t = S_{t−1} × (1 + L × (C_t/C_{t−1} − 1) − k)`, `k = (0.95% + 3% × (L−1)) / 252`(보수 + 차입, 고정).\n  시가·고가·저가 = `S_{t−1} × (1 + L × (X_t/C_{t−1} − 1))`. 합성값이 0 이하가 되면 `S_{t−1} × 0.01` 로 막는다(상품 청산에 해당 — 발생 횟수를 기록).\n  시작값 100.\n- **대조(기록 전용)**: 실제 상품(NVDL·TSLL·AAPU·AMZU·MSFU·GGLL·METU·CONL·AMDL·PLTU·MSTU·TSMX·AVGX)과 겹치는 구간의 일수익 상관·연율 수익 차이 — 합성 오차의 크기.\n\n## 2. 비교 · 판정\n\n- 규칙: `make_plan(0.02, 2.0, 1.0)` vs `plan_orders`(V4.0), 40분할, base% = TQQQ 규칙 값, 시드 $1,000,000, 실현 체결 10bp — **dip-double 사전등록과 동일.**\n- 종목별: 전 기간 ΔCAGR·ΔMDD, 앞·뒤 절반 ΔCAGR. 레버리지(2배·3배)별로:\n  - **REPLICATED**: 13종 중 ΔCAGR > 0 이 **9개 이상** ∧ ΔCAGR 중앙값 > 0 ∧ ΔMDD 중앙값 ≤ 0.\n  - **PARTIAL**: ΔCAGR > 0 이 8개 이상 ∧ 중앙값 > 0.\n  - 그 외 **NOT REPLICATED**.\n- 기록 전용: 기초 종목 보유(B&H) 대비 V4.0·변형의 CAGR·MDD(생존자 편향 주의 문구와 함께), 합성 0 이하 발생 횟수, −2% 이하 날 수.\n\n## 3. 하지 않는 것\n\n종목·L·합성 비용·X·배수·분할·base%·판정 문턱을 결과 보고 바꾸는 것. 결과가 좋은 종목만 골라 운용·그림자에 넣는 것. 통과해도 채택 아님 —\n단일종목 레버리지 운용은 🔴 별도 GO(미국 단일종목 3배는 일반 투자자가 살 수 없다).\n",
+      "category": "performance",
+      "track": "us",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only",
+      "conditions": [
+        "기초 13종 = 미국 단일종목 2배 상품의 기초 주식: NVDA TSLA AAPL AMZN MSFT GOOGL META COIN AMD PLTR MSTR TSM AVGO",
+        "합성 레버리지 L ∈ {2, 3}: 매일 L × 기초 일수익 − (보수 0.95% + 차입 3% × (L−1))/252, 시가·고가·저가도 전일 종가 대비 L 배",
+        "V4.0 vs '하락일 2배'(dip-double 사전등록 1970c643 과 같은 규칙·base%·시드·실현 10bp)",
+        "판정: 레버리지별 13종 중 ΔCAGR 양 ≥ 9 ∧ 중앙값 > 0 ∧ ΔMDD 중앙값 ≤ 0 → REPLICATED"
+      ],
+      "reason": "신호: (미측정) · 경제성: (미측정). 실제 단일종목 레버리지 상품은 이력이 2~4년뿐(2022-08~)이라, 기초 주식 일봉(2010~)으로 2배·3배를 합성해 '하락일 2배' 변형이 단일종목에서도 V4.0 보다 나은지 본다. 이 문서를 쓰는 시점에 기초 13종 자료는 받지 않았다.",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
