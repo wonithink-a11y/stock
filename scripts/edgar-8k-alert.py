@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -87,10 +88,19 @@ def format_alert(a):
     return f"{icon} {name}({code}) {what}\n{a['updated'][:16].replace('T', ' ')} ET\n{a['link']}"
 
 
-def get(url, ua):
+def get(url, ua, tries=3):
+    # SEC 가 가끔 읽기 시간초과를 낸다(09-26·09-28 8회, 전부 다음 15분 회차엔 정상). 한 번에 장애 알림을 부르지 않게
+    # 두 번 더 해 보고, 그래도 안 되면 실패로 끝낸다(원장을 안 쓰니 다음 회차가 이어받는다).
     req = urllib.request.Request(url, headers={'User-Agent': ua, 'Accept-Encoding': 'identity'})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode('utf-8')
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return r.read().decode('utf-8')
+        except (TimeoutError, urllib.error.URLError) as e:
+            if i == tries - 1:
+                raise
+            print(f'  [재시도 {i + 1}] {type(e).__name__}: {e}')
+            time.sleep(10 * (i + 1))
 
 
 def watch_map(state_dir, ua):
