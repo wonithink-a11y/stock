@@ -194,6 +194,9 @@ Validated against
             크립토 1분봉 VWAP ±kσ: 하단 회귀 롱 16셀 전부 |t|≤1.07(신호 없음) · 국내 ORB 돌파 즉시 매수: 롱 gross 음(TEST −32~−128bp, K6 눌림과 같은 반전) ·
             크립토 1분봉 거래량 급증 모멘텀: TRAIN t 5.30 이 BTC 2022~ OOS +0.01bp 로 소멸. 호가 불균형은 데이터 없음(바이낸스 bookDepth 2023~ 는
             ±1~5% 묶음 깊이라 대기열 모델 불가 — 수집 안 함 권고). findings/scalping-candidates-results-2026-09.md · scalping-volsurge-results-2026-09.md.
+  안 한다   ★ 크립토 포지션 쏠림(2026-09-29, 사전등록 14a3322a) — **기록 종결**(사용자 확정). K1 상위 트레이더 롱숏 쏠림 역행 INFORMATION
+            (TRAIN t 2.71, OOS +11.9bp)이나 비용 10bp 미달·연도별 감소 · K2·K3 REJECT. 비용을 결과 뒤 낮춰 재판정 금지.
+            OI·롱숏 비율은 data.binance.vision metrics 에 2020-10~ 무료(옛 '취득 불가' 기록 정정). findings/crypto-positioning-results-2026-09.md.
   안 한다   ★ 미국 S&P500 저PBR 재현(2026-09-26, 사전등록 a881dc18 · 구현 40930672) — **REJECT**. B/M 상위 10% 월 +43.6bp(t 1.44 < 2.0),
             20% +18bp. 방향은 양·두 반기 양이나 유의 미달 → 한국 저PBR 의 '일반성' 근거 없음(한국 production 불변). 기록 전용: 금리 상승 달 +120bp/하락 −37bp
             (상관 +0.30)이나 셀의 58% 가 금융이라 은행 금리 민감도와 못 가른다. 재료: us-pit 가격 패널·us-map-1.0(docs/control/미국-재무매핑감사-2026-09-26.md).
