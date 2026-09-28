@@ -18,7 +18,9 @@ LIVE_ACK = "I-ACCEPT-REAL-TRADES"          # 환경변수 AUTOTRADER_ALLOW_LIVE 
 
 PAPER_KEYS = ("KIS_VTS_APP_KEY", "KIS_VTS_APP_SECRET", "KIS_VTS_ACCOUNT_NO")
 LIVE_KEYS = ("KIS_LIVE_APP_KEY", "KIS_LIVE_APP_SECRET", "KIS_LIVE_ACCOUNT_NO")   # 시세용 KIS_APP_KEY 와 이름을 분리했다
-ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
+# TELEGRAM_TRADE_CHAT_ID 가 여기 없어서 09-22~09-28 매매·보안 알림이 전부 1:1 콘텐츠 방으로 갔다(trade_chat 대체 경로)
+ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID",
+                                     "TELEGRAM_TRADE_CHAT_ID")
 # 키 묶음 교체: 설정 "key_prefix": "KIS_VTS2" → KIS_VTS2_APP_KEY / _APP_SECRET / _ACCOUNT_NO 를 쓴다.
 # 접두사 뒤에 한 마디 이상을 강제한다 — 시세용 KIS_APP_KEY(접두사 "KIS")는 고를 수 없다.
 _PREFIX = re.compile(r"^KIS_[A-Z0-9]+(_[A-Z0-9]+)*$")

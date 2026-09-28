@@ -140,6 +140,9 @@ def main():
            e2 == {"KIS_VTS_APP_KEY": "fromfile", "KIS_VTS_APP_SECRET": "sec"})
         ck("AUTOTRADER_ENV_FILE 이 없는 파일이면 조용히 무시", load_env(Path(td), environ={"AUTOTRADER_ENV_FILE": str(Path(td) / "nope")}) == {"KIS_VTS_APP_KEY": "abc"})
         ck("환경변수가 .env 를 이긴다", load_env(Path(td), environ={"KIS_VTS_APP_KEY": "env"})["KIS_VTS_APP_KEY"] == "env")
+        from autotrader.notify import trade_chat
+        e3 = load_env(Path(td), environ={"TELEGRAM_CHAT_ID": "1", "TELEGRAM_TRADE_CHAT_ID": "-2"})
+        ck("매매·보안 방 id 를 버리지 않는다(09-28 1:1 방으로 새던 버그)", trade_chat(e3) == "-2")
         ck("마스킹", mask("12345678-01") == "12*********" and mask("") == "")
 
     # ---------------------------------------------------------------- 위험 검사
