@@ -1,6 +1,30 @@
 {
-  "count": 392,
+  "count": 393,
   "findings": [
+    {
+      "file": "research/strategy-lab/findings/crypto-positioning-results-2026-09.md",
+      "title": "크립토 포지션 쏠림 — 결과 (2026-09-29)",
+      "date": "2026-09-29",
+      "bodyMarkdown": "---\ntrack: crypto\nfactor: crypto-positioning\ndate: 2026-09-29\nverdict: HOLD\ncriteria_version: research-only\nconditions: [\"사전등록 14a3322a(crypto-positioning-preregistration-2026-09.md) 그대로 1회 실행\", \"28종 · metrics 시작 BTC 2020-09, 대부분 2021-12, 늦은 코인 2023-07 · 가격 자료 끝 2026-08-29(시험 구간 실제 끝)\", \"바닥선(3셀 TRAIN 부호반전 500회) |t| 2.42\", \"비용 왕복 10bp(K3 두 다리 20bp), 스트레스 2배\"]\nreason: >-\n  신호: 있음(K1) · 경제성: 미달. K1 상위 트레이더 롱숏 계정 비율 극단 역행(12h)은 TRAIN t 2.71 ≥ 바닥선 2.42, VALID +15.4bp · TEST +10.6bp 로\n  세 구간 같은 방향 → INFORMATION. 그러나 OOS gross +11.9bp[5.4, 17.9] 가 비용 10bp 를 겨우 넘어 net +1.9bp(t 0.58), 스트레스 20bp 에선 −8.1bp →\n  ECONOMIC 미달(손익분기 11.9bp). 연도별로 2021 +49bp → 2024~26 +9~13bp 로 줄었다. K2 테이커 쏠림 역행 REJECT(TRAIN t 0.65) ·\n  K3 급등 중 OI 유입−이탈 REJECT(TRAIN t 1.06, TEST −33bp).\n---\n\n# 크립토 포지션 쏠림 — 결과 (2026-09-29)\n\n실행: `python research/strategy-lab/futures/crypto_positioning_study.py` → `futures/crypto-positioning.json`. 수집: `collect_binance_metrics.py`(28종, 오류 5일 재수집 완료).\n\n## 1. 판정 (바닥선 |t| 2.42)\n\n| 셀 | 판정 | TRAIN t | 관측 TRAIN/VALID/TEST | gross bp TRAIN/VALID/TEST | OOS gross(95% CI) | 비용 | net(스트레스) | 손익분기 |\n|---|---|---|---|---|---|---|---|---|\n| **K1 롱숏 쏠림 역행** | **INFORMATION** | **2.71** | 594/1,963/5,266 | 37.6/15.4/10.6 | **+11.9 [5.4, 17.9]** | 10bp | +1.9 (−8.1) | 11.9bp |\n| K2 테이커 쏠림 역행 | REJECT | 0.65 | 1,677/2,011/5,477 | 4.4/10.7/5.0 | +6.5 [0.9, 12.0] | 10bp | −3.5 (−13.5) | 6.5bp |\n| K3 급등 중 OI 유입 − 이탈 | REJECT | 1.06 | 65/84/247 | 57.3/27.5/−33.2 | −17.8 [−71, 31] | 20bp | −37.8 (−57.8) | — |\n\nK1 연도별(셀 방향 bp): 2020 35.9 · 2021 49.4 · 2022 23.8 · 2023 15.4 · 2024 9.3 · 2025 10.4 · 2026 12.8.\n\n## 2. 읽기\n\n- **K1 은 이 연구 계열에서 처음 나온 OOS 부호 유지 신호다.** 상위 트레이더 계정이 한쪽으로 극단적으로 몰리면(과거 30일 중 상·하위 10%)\n  다음 12시간은 반대쪽이 조금 낫다. 펀딩 분위와의 상관은 +0.15 로 낮다 — **펀딩 극단(C6, t 0.76)과 다른 정보**다.\n- **그러나 크기가 비용과 같다.** OOS 평균 +11.9bp 에 왕복 10bp 를 빼면 거의 0 이고, 해마다 줄었다(2021 49bp → 최근 10bp 안팎).\n  알려지고 쓰이면서 사라지는 모양과 맞다.\n- K2(테이커 과열) 는 신호 없음. K3(급등 + OI 유입이면 더 간다)는 표본이 작고(TEST 247) TEST 에서 뒤집혔다 — 상승 충격 지속 효과 안에서 OI 는 더할 게 없다.\n- TRAIN 이 짧다: 대부분 코인의 metrics 가 2021-12 부터라 TRAIN(~2022)은 약 1년, 관측 594. 사전등록대로 문턱은 바꾸지 않았다.\n\n## 3. 기록 전용\n\n- K3 거울(급락 중 OI 유입 = 신규 숏 쪽이 더 내리는가): n 378, +18.6bp(가설 방향), t 1.33 — 신호 아님.\n- K1·K2 와 펀딩 분위 상관(코인 평균): K1 +0.147 · K2 −0.020.\n- (판정 밖 참고) 바이낸스 무기한 메이커 수수료(편도 약 2bp)로만 체결되면 비용이 10bp 보다 낮아질 수 있다. **비용은 결과 전에 10bp 로 고정했고,\n  결과를 본 뒤 낮은 비용을 찾아 판정을 바꾸는 것은 사후 조건 변경이다** — 하려면 새 표본(forward)으로 별도 사전등록.\n\n## 4. 다음\n\n- 채택 없음. 실주문 근거 아님.\n- K1 을 계속 보고 싶다면 선택지는 **forward 그림자 관측**(지금부터 쌓이는 자료로만, 비용 10bp 고정) — 별도 사전등록·사용자 GO 가 필요하다.\n  크기가 비용과 같고 줄어드는 추세라 **권고는 기록 종결**.\n",
+      "category": null,
+      "track": "crypto",
+      "verdict": "HOLD",
+      "original_verdict": null,
+      "criteria_version": "research-only",
+      "conditions": [
+        "사전등록 14a3322a(crypto-positioning-preregistration-2026-09.md) 그대로 1회 실행",
+        "28종 · metrics 시작 BTC 2020-09, 대부분 2021-12, 늦은 코인 2023-07 · 가격 자료 끝 2026-08-29(시험 구간 실제 끝)",
+        "바닥선(3셀 TRAIN 부호반전 500회) |t| 2.42",
+        "비용 왕복 10bp(K3 두 다리 20bp), 스트레스 2배"
+      ],
+      "reason": "신호: 있음(K1) · 경제성: 미달. K1 상위 트레이더 롱숏 계정 비율 극단 역행(12h)은 TRAIN t 2.71 ≥ 바닥선 2.42, VALID +15.4bp · TEST +10.6bp 로 세 구간 같은 방향 → INFORMATION. 그러나 OOS gross +11.9bp[5.4, 17.9] 가 비용 10bp 를 겨우 넘어 net +1.9bp(t 0.58), 스트레스 20bp 에선 −8.1bp → ECONOMIC 미달(손익분기 11.9bp). 연도별로 2021 +49bp → 2024~26 +9~13bp 로 줄었다. K2 테이커 쏠림 역행 REJECT(TRAIN t 0.65) · K3 급등 중 OI 유입−이탈 REJECT(TRAIN t 1.06, TEST −33bp).",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
     {
       "file": "research/strategy-lab/findings/us-overnight-kospi-intraday-preregistration-2026-09.md",
       "title": "미국 밤사이 → 코스피200 장중 — 사전등록 (2026-09-29)",
