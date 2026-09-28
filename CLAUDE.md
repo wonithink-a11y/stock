@@ -145,6 +145,9 @@ Validated against
             O2b·O0 셀별 250 신호일(≈2027-09~2028-01)에 1회 판정 — 그 전엔 기록만.
             ★ **M2 그림자도 같이**(09-29 사전등록): `python research/strategy-lab/run_us_overnight_shadow.py`(선물 증분·미국 4종 새로 받기)
             후 `reports/2026-09-us-overnight-shadow/observations.jsonl` 커밋. 250 거래일(≈2027-10) 1회 판정, 현실적 기대 INCONCLUSIVE/REJECT.
+            ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`
+            후 `reports/2026-09-infbuy-dip-shadow/observations.jsonl` 커밋. 2년(2028-09-29) 1회. 다른 레버리지 16종 재현은 3배 NOT·2배 PARTIAL
+            (낙폭 악화) — SOXL 전용 효과, V4.0 운용 불변(findings/infinite-buying-dip-double-replication-results-2026-09.md).
   다음      ★ 무한매수법 해외 슬리브 — 09-14 잔존 주문 확인 **완료**(미체결 0건,
             2026-09-12). 두 주문이 확인 시점에 이미 전량체결이라 "당일물인지"
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
