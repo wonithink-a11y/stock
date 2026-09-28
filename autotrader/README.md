@@ -152,11 +152,13 @@ python3 -m autotrader --profile samsung kill                                    
 "strategy": "infinite_buying",
 "params": {"rules_file": "/home/ubuntu/collector-venv/infbuy/_rules.local.json", "tickers": ["TQQQ", "SOXL"],
            "seed_usd": 50000, "splits": 40, "import_state_dir": "/home/ubuntu/collector-venv/infbuy/state"},
-"markets": ["US"], "symbol_allowlist": ["TQQQ", "SOXL"], "run_at": ["21:30"],
+"markets": ["US"], "symbol_allowlist": ["TQQQ", "SOXL"], "run_at": ["23:35"],
 "risk": {"US": {"max_order_value": 3000, "max_daily_value": 10000, "max_orders_per_run": 20, "price_band_pct": 30,
                 "max_position_value": 60000, "allow_sell": true}}
 ```
 
+- `run_at` 은 **미국 정규장 안**이어야 한다 — KIS 모의투자는 개장 전 해외 주문을 `40570000 모의투자 장시작전` 으로 거절한다
+  (2026-09-28 21:30 첫 실주문 회차 실측). 23:35 KST 는 서머타임(개장 22:30)·표준시(23:30) 둘 다 장중이다.
 - `import_state_dir` 는 옛 러너의 회차(T)를 **처음 한 번만** 이어받는다. 이후엔 프로필 상태만 쓴다.
 - 한도는 기본값(주문당 $300·가격밴드 5%)으로는 전부 거부된다 — 위처럼 넓힌다(큰수 매도가 시세보다 +15% 안팎).
 - **옛 러너 타이머(`infinite-buying-vts`)와 둘 다 주문을 켜지 않는다** — 같은 계좌에 같은 주문이 두 번 나간다.
