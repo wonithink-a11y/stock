@@ -42,6 +42,7 @@ const BRIEF_MAX = Number(process.env.NEWS_BRIEF_MAX || 15);   // '꼭 볼 뉴스
 const SEEN_TTL_DAYS = 7;                                      // 알림 중복방지 원장 보존일
 
 const CUTOFF = Date.now() - RETENTION_DAYS * 86400e3;
+const KST_DAY = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);  // 알림 주제 중복방지 단위(절대 규칙 3)
 
 // 네이버는 최신 기사가 없으면 몇 주 전 기사를 그대로 돌려준다. 그대로 두면 낡은 뉴스가
 // 계속 화면에 남고 파일만 커지므로, 수집 시점에 컷오프로 잘라낸다.
@@ -323,9 +324,14 @@ async function main() {
       // 키워드에 걸린 신규 기사 알림 대상 수집
       for (const it of uniq) {
         const key = it.originallink || it.link;
+        // 같은 사건을 매체마다 다시 써서 링크만으로는 못 거른다(2026-09-28 HLB FDA 허가 하루 40건+).
+        // 종목·키워드별 하루 1회 — 이미 알린 키워드가 하나라도 겹치면 같은 이야기로 본다. 새 키워드(횡령 등)는 통과.
+        const topics = it.flags.map((f) => `topic:${t.code}:${f}:${KST_DAY}`);
         // 제목에 종목명이 있을 때만 알린다 - 요약에만 스친 기사가 85%였고 대부분 무관했다(2026-09-25 실측 171/202)
-        if (it.level !== 'neutral' && it.title.includes(t.name) && !seenLedger[key]) {
+        if (it.level !== 'neutral' && it.title.includes(t.name) && !seenLedger[key]
+          && !topics.some((k) => seenLedger[k])) {
           freshAlerts.push({ code: t.code, name: t.name, held: heldCodes.has(t.code), ...it });
+          for (const k of topics) seenLedger[k] = new Date().toISOString();
         }
         seenLedger[key] = new Date().toISOString();
       }

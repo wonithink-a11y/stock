@@ -1,11 +1,11 @@
 [Unit]
-Description=Watchlist news keyword alert every 15 minutes, weekdays 08:00-18:45 KST
+Description=Watchlist news keyword alert hourly, weekdays 08:00-18:00 KST
 OnFailure=unit-failure-notify@%n.service
 
 [Timer]
-# 1회 네이버 ~380콜(국내 353 + 시장쿼리 27, NEWS_MARKETS=KR) x 44회 = 하루 ~16,700콜.
-# 한도 25,000 에서 Actions news.yml(하루 ~2회 x 900)을 뺀 여유 안이다.
-OnCalendar=Mon..Fri *-*-* 08..18:00/15
+# 1회 네이버 ~380콜(국내 353 + 시장쿼리 27, NEWS_MARKETS=KR) x 11회 = 하루 ~4,200콜.
+# 2026-09-28 15분 → 1시간(사용자 요청 — 알림이 너무 잦았다. 같은 이야기 거르기는 fetch-news-kr.js).
+OnCalendar=Mon..Fri *-*-* 08..18:00:00
 
 [Install]
 WantedBy=timers.target
