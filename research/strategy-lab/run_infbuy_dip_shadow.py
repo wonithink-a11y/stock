@@ -39,16 +39,23 @@ def main():
             if not win:
                 continue
             tr = {}
-            for name, plan in (("v4", eng.plan_orders), ("dip2", make_plan(0.02, 2.0, 1.0))):
+            cells = [("v4", eng.plan_orders), ("dip2", make_plan(0.02, 2.0, 1.0))]
+            if t == "SOXL":                       # SOXL 전용 3배 칸 — 사전등록 infinite-buying-soxl-dip-triple-shadow-preregistration-2026-09.md
+                cells.append(("dip3", make_plan(0.02, 3.0, 1.0)))
+            for name, plan in cells:
                 tr[name] = []
                 eng.backtest(win, r, plan_fn=plan, trace=tr[name])
             closes = prev_close + [x["close"] for x in win]
             for i, x in enumerate(win):
                 a4, ad = tr["v4"][i], tr["dip2"][i]
-                rows.append({"ticker": t, "date": x["date"], "close": x["close"],
+                row = {"ticker": t, "date": x["date"], "close": x["close"],
                              "dip": bool(closes[i] and x["close"] <= closes[i] * 0.98),
                              "v4": {"equity": round(a4["equity"], 2), "qty": a4["qty"], "t": round(a4["t"], 3), "reverse": a4["reverse"], "dd": round(a4["drawdown_pct"], 2)},
-                             "dip2": {"equity": round(ad["equity"], 2), "qty": ad["qty"], "t": round(ad["t"], 3), "reverse": ad["reverse"], "dd": round(ad["drawdown_pct"], 2)}})
+                             "dip2": {"equity": round(ad["equity"], 2), "qty": ad["qty"], "t": round(ad["t"], 3), "reverse": ad["reverse"], "dd": round(ad["drawdown_pct"], 2)}}
+                if "dip3" in tr:
+                    a3 = tr["dip3"][i]
+                    row["dip3"] = {"equity": round(a3["equity"], 2), "qty": a3["qty"], "t": round(a3["t"], 3), "reverse": a3["reverse"], "dd": round(a3["drawdown_pct"], 2)}
+                rows.append(row)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in rows), encoding="utf-8")
     print(f"기록 {len(rows)}행(종목×거래일) → {OUT} · 판정은 2028-09-29 이후 1회 — 그 전엔 기록만")
