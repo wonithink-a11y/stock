@@ -66,7 +66,7 @@ reason: "기존 crypto 데이터 스키마 전수 감사 - futures 거래활동 
 | **taker buy base/quote** | 전무 → Binance klines `takerBuy*` (장기) 후보 |
 | **KRW 거래대금** | Upbit daily에 없음 → `candle_acc_trade_price`로 재수집 가능 |
 | annualizedBasisRate | 전 종목 100% NaN → 만기시간 산식 또는 생략 |
-| Open Interest | Step 16에서 최근 30일 한정 확인 → **연구기간 기준 취득 불가** |
+| Open Interest | Step 16에서 최근 30일 한정 확인 → **연구기간 기준 취득 불가** · ★ **2026-09-28 정정: 틀렸다** — 그건 REST API 한계다. `data.binance.vision/data/futures/um/daily/metrics/{SYM}/{SYM}-metrics-YYYY-MM-DD.zip` 에 OI·상위 트레이더 롱숏 비율·테이커 매수/매도 비율이 5분 단위로 **2020-10 부터 무료**(BTCUSDT 2020-10-01·2022-06-01·2026-09-27 실측) |
 | Positioning(L/S ratio) | Step 21에서 4종 모두 최근 30일 한정 확인 → **취득 불가(FAIL)** |
 
 ## 결론 — "아직 실험 안 한 정보축" 우선순위
