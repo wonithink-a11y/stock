@@ -54,10 +54,33 @@ ok('임계 = 간격 규칙과 무관하게 dailyMove 는 그대로 뜬다', () =
   assert(alerts.some((a) => a.rule === 'dailyMove'), '전일 종가 대비는 간격과 무관한 규칙이다');
 });
 
-ok('쿨다운 안이면 안 뜬다', () => {
-  const st = { lastPrice: 100, lastCheckAt: NOW - 5 * MIN, lastAlertAt: { dailyMove: NOW - 10 * MIN } };
-  const { alerts } = detect('005930', '삼성전자', 'KR', q(110, 100), st, NOW);
-  assert(!alerts.some((a) => a.rule === 'dailyMove'));
+// ── 전일 대비는 단계가 새로 넘을 때만(09-28 HLB +27.9% 가 90분마다 반복됐다) ──
+const qd = (price, prevClose, date = '20260928') => ({ price, prevClose, date });
+const daily = (st, quote) => detect('028300', 'HLB', 'KR', quote, st, NOW).alerts.some((a) => a.rule === 'dailyMove');
+ok('★ 같은 날 같은 단계면 다시 안 뜬다(쿨다운이 지나도)', () => {
+  assert(!daily({ dailyStep: { day: '20260928', step: 5 } }, qd(127.9, 100)));
+});
+ok('다음 단계로 더 가면 뜬다 · 방향이 바뀌면 뜬다 · 다음 날이면 뜬다', () => {
+  assert(daily({ dailyStep: { day: '20260928', step: 1 } }, qd(110, 100)), '5% → 10%');
+  assert(daily({ dailyStep: { day: '20260928', step: 1 } }, qd(94, 100)), '+5% → -6%');
+  assert(daily({ dailyStep: { day: '20260927', step: 5 } }, qd(127.9, 100)), '새 날');
+  assert(!daily({ dailyStep: { day: '20260928', step: 2 } }, qd(107, 100)), '10% 찍고 7% 로 내려오면 조용');
+});
+ok('★ 같은 회차에 전일 대비가 뜨면 급변동 줄은 안 붙인다(두 줄 겹침)', () => {
+  const st = { lastPrice: 100, lastCheckAt: NOW - 10 * MIN, lastAlertAt: {} };
+  const rules = detect('011070', 'LG이노텍', 'KR', qd(111, 100), st, NOW).alerts.map((a) => a.rule);
+  assert.deepStrictEqual(rules, ['dailyMove']);
+});
+ok('급변동 기준은 5% — 10분에 3~4% 는 안 뜬다', () => {
+  const st = { lastPrice: 100, lastCheckAt: NOW - 10 * MIN, lastAlertAt: {} };
+  assert(!detect('005930', '삼성전자', 'KR', qd(104, 103), st, NOW).alerts.length);
+});
+ok('단계 도장은 전송 뒤에 찍힌다', () => {
+  const state = { '028300': {} };
+  stampAlerts(state, [{ ticker: '028300', rule: 'dailyMove', step: 5, day: '20260928' }], NOW);
+  assert.deepStrictEqual(state['028300'].dailyStep, { day: '20260928', step: 5 });
+  const { newState } = detect('028300', 'HLB', 'KR', qd(130, 100), {}, NOW);
+  assert(!newState.dailyStep, 'detect() 는 단계를 찍지 않는다');
 });
 
 // ── 쿨다운 도장은 전송 뒤에 찍힌다 ───────────────────────────────────

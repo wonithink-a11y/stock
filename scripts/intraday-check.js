@@ -34,10 +34,13 @@ const ROOT = path.join(__dirname, '..');
 const STATE_PATH = process.env.INTRADAY_STATE_PATH || path.join(ROOT, 'docs', 'data', 'intraday-state.json');
 const SNAPSHOT_PATH = process.env.INTRADAY_SNAPSHOT_PATH || path.join(path.dirname(STATE_PATH), 'kr-snapshot.json');
 
+// 2026-09-28 사용자 요청으로 줄였다 — 353종목·90분 반복·두 줄 겹침으로 하루 37통·194줄+ 였다.
+//   전일 대비: 종목마다 하루 한 번, 5%p 단계(5→10→15…)를 새로 넘거나 방향이 바뀔 때만 다시(쿨다운 대신 단계).
+//   급변동: 3% → 5%, 같은 회차에 전일 대비 줄이 있으면 뺀다. 같은 날 적용하면 약 73줄.
 const RULES = {
-  dailyMovePct: 5.0, // 전일 종가 대비
-  suddenMovePct: 3.0, // 직전 체크 대비
-  cooldownMinutes: 90,
+  dailyMovePct: 5.0, // 전일 종가 대비 — 이 폭 단위로 단계를 센다
+  suddenMovePct: 5.0, // 직전 체크 대비
+  cooldownMinutes: 90, // suddenMove 에만
 
   // ★ 이 둘은 2026-09-11 실측으로 들어왔다. cron '*/10' 은 한국장 창에서 하루 42회
   //   기대인데 GitHub 이 고빈도 schedule 을 흘려서 **실측 하루 1회**다
@@ -133,8 +136,14 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
   const canAlert = (rule) => !lastAlertAt[rule] || now - lastAlertAt[rule] >= cooldownMs;
 
   const dailyPct = pct(quote.prevClose, quote.price);
-  if (dailyPct !== null && Math.abs(dailyPct) >= rules.dailyMovePct && canAlert('dailyMove')) {
-    alerts.push({ rule: 'dailyMove', message: `${name}(${ticker}) 전일 대비 ${dailyPct > 0 ? '+' : ''}${dailyPct}%` });
+  const day = quote.date || localYmd(now, MARKET_TZ[market] || MARKET_TZ.KR);
+  const step = dailyPct === null ? 0 : Math.sign(dailyPct) * Math.floor(Math.abs(dailyPct) / rules.dailyMovePct);
+  const prev = tickerState && tickerState.dailyStep;
+  const newStep = step !== 0 && (!prev || prev.day !== day || Math.sign(prev.step) !== Math.sign(step)
+    || Math.abs(step) > Math.abs(prev.step));
+  if (newStep) {
+    alerts.push({ rule: 'dailyMove', step, day,
+      message: `${name}(${ticker}) 전일 대비 ${dailyPct > 0 ? '+' : ''}${dailyPct}%` });
   }
 
   // suddenMove 는 **간격을 알 때만** 판정한다. lastCheckAt 이 없으면 간격을 모르는
@@ -142,7 +151,7 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
   const lastCheckAt = tickerState && tickerState.lastCheckAt;
   const gapMin = typeof lastCheckAt === 'number' ? Math.round((now - lastCheckAt) / 60000) : null;
   const gapOk = gapMin !== null && gapMin >= 0 && gapMin <= rules.suddenMaxGapMinutes;
-  if (gapOk && tickerState && typeof tickerState.lastPrice === 'number') {
+  if (gapOk && !newStep && tickerState && typeof tickerState.lastPrice === 'number') {
     const suddenPct = pct(tickerState.lastPrice, quote.price);
     if (suddenPct !== null && Math.abs(suddenPct) >= rules.suddenMovePct && canAlert('suddenMove')) {
       alerts.push({ rule: 'suddenMove', message: `${name}(${ticker}) 직전 체크(${gapMin}분 전) 대비 ${suddenPct > 0 ? '+' : ''}${suddenPct}% 급변동` });
@@ -151,15 +160,17 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
 
   // ★ lastAlertAt 은 여기서 안 찍는다 - 전송 성공 뒤에 stampAlerts() 가 찍는다.
   const newState = { lastPrice: quote.price, lastCheckAt: now, lastAlertAt: { ...lastAlertAt } };
+  if (prev) newState.dailyStep = prev;   // 단계도 전송 뒤에만 바뀐다(stampAlerts)
   return { alerts, newState, skippedSudden: !gapOk, gapMin };
 }
 
 /** 전송에 성공한 알림에만 쿨다운 도장을 찍는다. 실패하면 상태를 안 건드려 다음 기회에 다시 뜬다. */
 function stampAlerts(state, fired, now = Date.now()) {
-  for (const { ticker, rule } of fired) {
+  for (const { ticker, rule, step, day } of fired) {
     const st = state[ticker];
     if (!st) continue;
     st.lastAlertAt = { ...(st.lastAlertAt || {}), [rule]: now };
+    if (rule === 'dailyMove' && step) st.dailyStep = { day, step };
   }
   return state;
 }
@@ -242,7 +253,7 @@ async function main() {
       if (market === 'KR') krQuotes[t.code] = [quote.price, quote.prevClose];
       const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code], now);
       state[t.code] = newState;
-      for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, line: `[${market}] ${a.message}` });
+      for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, step: a.step, day: a.day, line: `[${market}] ${a.message}` });
     } catch (e) {
       failed++;
       console.warn(`  [경고] ${t.code} 시세 조회 실패: ${e.message}`);
