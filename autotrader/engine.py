@@ -162,6 +162,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
     kill = kill_file(cfg, repo_root)
     aborted = False
     bspent: Dict[str, Optional[float]] = {}              # 시장별 증권사 기준 오늘 주문 금액(None = 조회 실패)
+    lspent: Dict[str, float] = {}                        # 시장별 원장 기준 오늘 주문 금액 — 실행 시작 시점 고정(이중 집계 방지)
 
     for it in intents:
         rec = {"symbol": it.symbol, "side": it.side, "qty": it.qty, "market": it.market,
@@ -193,6 +194,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
                 report["rejected"].append({**rec, "reason": f"현금 조회 실패: {e}"})
                 continue
         if it.market not in bspent:
+            lspent[it.market] = ledger.spent_today(it.market, day)   # 실행 시작 시점 값 — 이후 접수분은 spent_run 이 센다
             try:
                 bspent[it.market] = broker_spent_today(broker, it.market, set(cfg.get("symbol_allowlist") or []), day)
             except Exception as e:                      # noqa: BLE001 — 주문이면 막고(fail-closed), dry-run 은 원장만으로
@@ -204,7 +206,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
         why = risk.check_intent(
             it, risk=cfg["risk"][it.market], allowlist=cfg.get("symbol_allowlist", []),
             last_price=last, sellable_qty=sellable, cash=cash_left.get(it.market, 0.0),
-            held_value=held_value, spent_today=max(ledger.spent_today(it.market, day), bspent[it.market]),
+            held_value=held_value, spent_today=max(lspent[it.market], bspent[it.market]),
             spent_run=spent_run[it.market], orders_run=orders_run[it.market])
         if why:
             report["rejected"].append({**rec, "reason": why})

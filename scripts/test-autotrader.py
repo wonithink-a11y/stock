@@ -200,6 +200,14 @@ def main():
     def mk(td, **kw):
         return base_cfg(td, allow=("005930", "000660", "TQQQ"), markets=("KR", "US"), **kw)
 
+    # 09-29 무한매수: 한 실행 안에서 접수한 주문이 원장(오늘)과 spent_run 에 두 번 잡혀 마지막 주문이 한도로 거부됐다
+    with tempfile.TemporaryDirectory() as td:
+        cfg = mk(td)
+        fb = FakeBroker(positions={"KR": []}, cash={"KR": 5_000_000.0}, quotes={"005930": 70_000.0})
+        three = Fixed([kr("005930", "BUY", 4, order_type="limit", limit_price=p) for p in (70_000.0, 69_000.0, 68_000.0)])
+        r = run_once(cfg, fb, three, execute=True, env=PAPER_ENV, repo_root=Path(td), now=now)   # 3×~280k = 836k < 한도 1,000,000
+        ck("한 실행 안에서 접수분을 두 번 세지 않는다(한도 안이면 전부 접수)", len(r["placed"]) == 3 and r["rejected"] == [])
+
     with tempfile.TemporaryDirectory() as td:
         cfg = mk(td)
         q = {"005930": 70_000.0, "000660": 200_000.0, "TQQQ": 70.0}
