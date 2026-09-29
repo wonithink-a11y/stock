@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60         # Actions 에서 DART 353종목이 ~29분 걸린다(09-28 실측, 로컬은 3분) — 30 이면 커밋 직후 잘린다
     steps:
       - uses: actions/checkout@v4
 
