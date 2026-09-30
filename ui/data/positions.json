@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-30T19:27:31.418986+09:00",
+  "updatedAt": "2026-09-30T21:58:48.416789+09:00",
   "historyAsOf": "2026-09-16",
   "account": {
     "cashKrw": 99801862.0,
@@ -37663,15 +37663,183 @@
   "trades": {
     "fromDate": "2026-07-02",
     "toDate": "2026-09-30",
-    "days": [],
-    "byStrategy": {},
+    "days": [
+      {
+        "date": "2026-09-28",
+        "buyKrw": 47570472,
+        "sellKrw": 47350805,
+        "buyCount": 30,
+        "sellCount": 30,
+        "realizedKrw": -517203,
+        "realizedFrom": 29,
+        "netKrw": 219667
+      },
+      {
+        "date": "2026-09-22",
+        "buyKrw": 47585175,
+        "sellKrw": 49374889,
+        "buyCount": 29,
+        "sellCount": 31,
+        "realizedKrw": 112174,
+        "realizedFrom": 29,
+        "netKrw": -1789714
+      },
+      {
+        "date": "2026-09-21",
+        "buyKrw": 274000,
+        "sellKrw": 0,
+        "buyCount": 1,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 274000
+      },
+      {
+        "date": "2026-09-17",
+        "buyKrw": 12400379,
+        "sellKrw": 10786500,
+        "buyCount": 4,
+        "sellCount": 3,
+        "realizedKrw": 792450,
+        "realizedFrom": 3,
+        "netKrw": 1613879
+      },
+      {
+        "date": "2026-09-16",
+        "buyKrw": 48975785,
+        "sellKrw": 48855404,
+        "buyCount": 30,
+        "sellCount": 30,
+        "realizedKrw": -818827,
+        "realizedFrom": 30,
+        "netKrw": 120381
+      },
+      {
+        "date": "2026-09-10",
+        "buyKrw": 49675474,
+        "sellKrw": 0,
+        "buyCount": 30,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 49675474
+      },
+      {
+        "date": "2026-09-09",
+        "buyKrw": 217925559,
+        "sellKrw": 0,
+        "buyCount": 108,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 217925559
+      },
+      {
+        "date": "2026-09-07",
+        "buyKrw": 121326307,
+        "sellKrw": 0,
+        "buyCount": 90,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 121326307
+      },
+      {
+        "date": "2026-09-04",
+        "buyKrw": 10420867,
+        "sellKrw": 0,
+        "buyCount": 47,
+        "sellCount": 0,
+        "realizedKrw": 0,
+        "realizedFrom": 0,
+        "netKrw": 10420867
+      }
+    ],
+    "byStrategy": {
+      "foreign_flow5d_v1": [
+        {
+          "date": "2026-09-28",
+          "buyKrw": 47286972,
+          "sellKrw": 47068555,
+          "buyCount": 29,
+          "sellCount": 29,
+          "realizedKrw": -517203,
+          "realizedFrom": 29,
+          "netKrw": 218417
+        },
+        {
+          "date": "2026-09-22",
+          "buyKrw": 47585175,
+          "sellKrw": 47575189,
+          "buyCount": 29,
+          "sellCount": 29,
+          "realizedKrw": 112174,
+          "realizedFrom": 29,
+          "netKrw": 9986
+        },
+        {
+          "date": "2026-09-16",
+          "buyKrw": 48975785,
+          "sellKrw": 48855404,
+          "buyCount": 30,
+          "sellCount": 30,
+          "realizedKrw": -818827,
+          "realizedFrom": 30,
+          "netKrw": 120381
+        },
+        {
+          "date": "2026-09-10",
+          "buyKrw": 1751900,
+          "sellKrw": 0,
+          "buyCount": 1,
+          "sellCount": 0,
+          "realizedKrw": 0,
+          "realizedFrom": 0,
+          "netKrw": 1751900
+        },
+        {
+          "date": "2026-09-07",
+          "buyKrw": 8512400,
+          "sellKrw": 0,
+          "buyCount": 6,
+          "sellCount": 0,
+          "realizedKrw": 0,
+          "realizedFrom": 0,
+          "netKrw": 8512400
+        }
+      ],
+      "pbr_value_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 6431375,
+          "sellKrw": 6924480,
+          "buyCount": 2,
+          "sellCount": 2,
+          "realizedKrw": 279903,
+          "realizedFrom": 2,
+          "netKrw": -493105
+        }
+      ],
+      "lowmom60_v1": [
+        {
+          "date": "2026-09-17",
+          "buyKrw": 5969004,
+          "sellKrw": 3862020,
+          "buyCount": 2,
+          "sellCount": 1,
+          "realizedKrw": 512547,
+          "realizedFrom": 1,
+          "netKrw": 2106984
+        }
+      ]
+    },
     "pending": [],
     "unattributed": {
-      "buyKrw": 0,
-      "sellKrw": 0,
-      "count": 0
+      "buyKrw": 389641407,
+      "sellKrw": 2081950,
+      "count": 273
     },
-    "error": "체결내역 조회 실패(page 10): 전송 실패 HTTPSConnectionPool(host='openapivts.koreainvestment.com', port=29443): Read timed out. (read timeout=20)"
+    "error": null
   },
   "overseas": {
     "sleeves": [
@@ -37703,11 +37871,11 @@
         "progressPct": 1.98,
         "qty": 4,
         "avgPriceUsd": 150.55,
-        "lastPriceUsd": 146.0,
+        "lastPriceUsd": 147.8,
         "costUsd": 602.2,
-        "valueUsd": 584.0,
-        "pnlUsd": -18.2,
-        "pnlPct": -3.02,
+        "valueUsd": 591.2,
+        "pnlUsd": -11.0,
+        "pnlPct": -1.83,
         "cashUsd": 49011.36,
         "seedUsd": 49613.56,
         "deployedPct": 1.21,
@@ -37743,11 +37911,11 @@
         "progressPct": 2.14,
         "qty": 29,
         "avgPriceUsd": 74.331,
-        "lastPriceUsd": 77.38,
+        "lastPriceUsd": 78.04,
         "costUsd": 2155.6,
-        "valueUsd": 2244.02,
-        "pnlUsd": 88.42,
-        "pnlPct": 4.1,
+        "valueUsd": 2263.16,
+        "pnlUsd": 107.56,
+        "pnlPct": 4.99,
         "cashUsd": 48928.71,
         "seedUsd": 51084.31,
         "deployedPct": 4.22,
