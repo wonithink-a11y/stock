@@ -218,6 +218,64 @@ ok("원하는 방향(up)의 변화가 끝까지 없으면(감소만 있음) None
    "감소를 억지로 받지 않는다(교훈57)",
    ratio_wrong_dir_only is None, str(ratio_wrong_dir_only))
 
+print("\n[a3c_bracket_ratio — ★ clean: 035720 카카오 실사례(2026-09-30) — 분할 전 소폭 증자가 먼저 잡힌 경우]")
+# 2021-02-25 분할결정 공시(5:1, 효력 2021-04). 1분기보고서(2021-05-17)는 3/31 기준 주식 수라
+# 아직 분할 전이고(+0.6%, 무관한 소폭 증가), 5:1 은 반기보고서(2021-08-17)에서야 나타난다.
+timeline_kakao = {
+    "035720": [
+        ("20200330", 2019, "11011", 86222636), ("20200515", 2020, "11013", 86957175),
+        ("20200814", 2020, "11012", 87846158), ("20201116", 2020, "11014", 88247819),
+        ("20210517", 2021, "11013", 88761861), ("20210817", 2021, "11012", 444460230),
+        ("20211115", 2021, "11014", 445361320),
+    ]
+}
+CLEAN = (A3D["multiplierSource"]["a3cBracketToleranceWarn"],
+         A3D["multiplierSource"]["a3cBracketCleanSearchWindowDays"],
+         A3D["multiplierSource"]["a3cBracketCleanMaxMultiple"])
+ok("정책에 a3cBracketCleanSearchWindowDays·a3cBracketCleanMaxMultiple 이 양의 정수로 있다(하드코딩 방지)",
+   isinstance(CLEAN[1], int) and CLEAN[1] > 0 and isinstance(CLEAN[2], int) and CLEAN[2] >= 2, str(CLEAN))
+legacy_k = m.a3c_bracket_ratio("035720", "20210225", timeline_kakao, "up")
+ok("clean 없이(기존 동작) 소폭 증가 1.005825 를 받는다 — 이 결함이 재현된다",
+   abs(legacy_k - 88761861 / 88247819) < 1e-9, str(legacy_k))
+clean_k = m.a3c_bracket_ratio("035720", "20210225", timeline_kakao, "up", clean=CLEAN)
+ok("clean 을 주면 5:1 의 **단계 비율**(88761861→444460230 = 5.0077, 소폭 증자 드리프트 제외)을 고른다",
+   abs(clean_k - 444460230 / 88761861) < 1e-9 and m._clean_multiple(clean_k, CLEAN[0], CLEAN[2]) == 5,
+   str(clean_k))
+narrow = m.a3c_bracket_ratio("035720", "20210225", timeline_kakao, "up", clean=(CLEAN[0], 100, CLEAN[2]))
+ok("탐색 창(100일) 밖이면 정수배가 있어도 안 고르고 기존 동작으로 되돌아간다 — 창은 정책이 정한다",
+   abs(narrow - legacy_k) < 1e-9, str(narrow))
+# NAVER 035420 — 분할(5:1) 공시 2018-07-26, 반영은 FY2018 사업보고서(2019-04-01)
+timeline_naver = {
+    "035420": [
+        ("20180402", 2017, "11011", 32962679), ("20180515", 2018, "11013", 32962679),
+        ("20181114", 2018, "11012", 32962679), ("20181114", 2018, "11014", 32962679),
+        ("20190401", 2018, "11011", 164813395), ("20190515", 2019, "11013", 164813395),
+    ]
+}
+ok("이미 정상(정수배에 가까운)이던 종목(NAVER 5.0)은 clean 유무와 무관하게 같은 값이다 — 정상 행은 값이 안 바뀐다",
+   abs(m.a3c_bracket_ratio("035420", "20180726", timeline_naver, "up")
+       - m.a3c_bracket_ratio("035420", "20180726", timeline_naver, "up", clean=CLEAN)) < 1e-12)
+# 병합(down): 소폭 감소가 먼저, 실제 1/5 병합이 나중
+timeline_rev = {"R": [("20200101", 2019, "11011", 1000), ("20200515", 2020, "11013", 990),
+                      ("20200814", 2020, "11012", 200)]}
+ok("병합(down)도 같다: clean 없이 0.99, clean 이면 단계 비율 200/990 ≈ 0.202(=1/5 의 1% 이내)",
+   abs(m.a3c_bracket_ratio("R", "20200110", timeline_rev, "down") - 0.99) < 1e-9
+   and abs(m.a3c_bracket_ratio("R", "20200110", timeline_rev, "down", clean=CLEAN) - 200 / 990) < 1e-9)
+# 삼성전자 실사례 — 기존 비율이 이미 정수에 가깝다(49.4675 ≈ 50, 1.1%) → clean 을 줘도 값이 안 바뀐다
+timeline_samsung = {"005930": [("20180515", 2018, "11013", 128386494), ("20170331", 2016, "11011", 129000000),
+                               ("20180814", 2018, "11012", 6419324700)]}
+ok("기존 비율이 이미 정수배(≤2%)면 clean 을 줘도 그 값 그대로다 — 삼성 스타일 49.4675 불변",
+   abs(m.a3c_bracket_ratio("005930", "20180131", timeline_samsung, "up")
+       - m.a3c_bracket_ratio("005930", "20180131", timeline_samsung, "up", clean=CLEAN)) < 1e-12)
+ok("정수배가 끝까지 없으면 기존처럼 방향이 맞는 첫 변화를 낸다(001140 성격) — 지어내지 않는다",
+   abs(m.a3c_bracket_ratio("001140", "20230228", timeline_001140, "down", clean=CLEAN)
+       - m.a3c_bracket_ratio("001140", "20230228", timeline_001140, "down")) < 1e-12)
+ok("_clean_multiple: 1.0058 은 '1배'라 정수배 아님 · 1.99→2 · 0.5→2 · 0.6→None · 5.4→None(허용오차 2%)",
+   m._clean_multiple(1.0058, 0.02) is None and m._clean_multiple(1.99, 0.02) == 2
+   and m._clean_multiple(0.5, 0.02) == 2 and m._clean_multiple(0.6, 0.02) is None
+   and m._clean_multiple(5.4, 0.02) is None
+   and m._clean_multiple(7806.66, 0.02, 100) is None and m._clean_multiple(7806.66, 0.02) == 7807)
+
 print("\n[_dedup_same_event — ★ 011040 실사례: '결정'+'변경상장' 같은 사건 2단계]")
 a3d_pol = A3D
 counters_dedup = {"dedupSameEvent": 0}

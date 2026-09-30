@@ -291,7 +291,7 @@ def _pit_select_asof(rows, asof_date):
     return max(candidates, key=lambda r: (r[1], r[0], _REPRT_PRIORITY.get(r[2], 0)))
 
 
-def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None):
+def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None, clean=None):
     """disclosure_date 시점의 PIT 선택값(before)과, 그 뒤로 **PIT 선택값이
     실제로 달라지는 첫 시점**(after)의 비율.
 
@@ -322,6 +322,22 @@ def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None
     0.81038처럼 지저분하게 나왔다 — PIT 규칙(최댓값 회계연도 우선)을 쓰면
     올바른 값으로 좁혀진다.
 
+    ★ clean=(tolerance, windowDays, maxMultiple) (2026-09-30 추가, 정책
+    a3cBracketToleranceWarn·a3cBracketCleanSearchWindowDays·
+    a3cBracketCleanMaxMultiple) — 카카오 035720 실사례: 분할 공시 뒤 '방향이
+    맞는 첫 변화'가 1분기보고서의 +0.6%(무관한 소폭 증가)였고 실제 5:1 은
+    반기보고서(공시 +173일)에서야 나타나 배수가 1.005825 로 나왔다.
+    clean 을 주면 —
+      1) 기존 방식(공시 시점 값 → 방향이 맞는 첫 변화)의 비율이 이미 정수 N(2..max)
+         또는 1/N 의 tolerance 이내면 **그대로 낸다**(정상 행은 값이 안 바뀐다 —
+         삼성 49.4675 도 그대로).
+      2) 아니면 windowDays 안에서 **연속한 두 PIT 값 사이의 단계 비율**(직전 값 →
+         다음 값, 소폭 증자 드리프트 제외)이 정수배인 첫 스텝의 그 단계 비율을 낸다
+         (카카오: 88,761,861 → 444,460,230 = 5.0077).
+      3) 그런 스텝이 없으면 1) 의 비율을 낸다(그 경우는 bracketOutOfTolerance 로
+         계속 진단에 잡힌다).
+    None 이면 기존 동작 그대로(하위호환·회귀용).
+
     before가 아예 없으면(그 corp의 첫 레코드보다도 이른 공시) None. after를
     못 찾으면(그 뒤로 영영 안 바뀜 — 아직 반영 전이거나 데이터 끝) None.
     지어내지 않는다(교훈57)."""
@@ -330,22 +346,55 @@ def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None
     if before_row is None:
         return None
     before = before_row[3]
+    if before == 0:
+        return None
 
     future_dates = sorted({af for af, *_ in rows if af > disclosure_date})
-    after = None
+    steps = []  # [(availableFrom, 직전 PIT 값, 새 PIT 값)] — 값이 달라진 첫 시점들
+    prev = before
     for af in future_dates:
         val = _pit_select_asof(rows, af)[3]
-        if val == before:
-            continue
-        if expected_direction == "up" and val <= before:
-            continue
-        if expected_direction == "down" and val >= before:
-            continue
-        after = val
-        break
-    if after is None or before == 0:
+        if val != prev:
+            steps.append((af, prev, val))
+            prev = val
+
+    def _dir_ok(val):
+        return not ((expected_direction == "up" and val <= before)
+                    or (expected_direction == "down" and val >= before))
+
+    after = next((val for _af, _p, val in steps if _dir_ok(val)), None)
+    if after is None:
         return None
-    return after / before
+    legacy = after / before
+    if clean is None:
+        return legacy
+    tol, window, max_n = clean
+    if _clean_multiple(legacy, tol, max_n) is not None:
+        return legacy
+    for af, p, val in steps:
+        if _epoch_days(af) - _epoch_days(disclosure_date) > window:
+            break
+        step = val / p
+        if p > 0 and ((expected_direction == "up" and step <= 1)
+                      or (expected_direction == "down" and step >= 1)):
+            continue
+        if p > 0 and _clean_multiple(step, tol, max_n) is not None:
+            return step
+    return legacy
+
+
+def _clean_multiple(ratio, tolerance, max_multiple=None):
+    """ratio 가 정수 N(2 ≤ N ≤ max_multiple) 또는 1/N 의 tolerance(상대오차) 이내면
+    그 N, 아니면 None. 1 은 정수배 사건이 아니므로 제외한다(소폭 증감이 '깨끗한
+    1배'로 읽히는 것을 막고), 상한이 없으면 큰 수에서 허용오차가 커져 아무 값이나
+    정수배로 읽힌다(실측: 7,806배가 통과했다)."""
+    if ratio is None or ratio <= 0:
+        return None
+    n = round(ratio) if ratio >= 1 else round(1 / ratio)
+    if n < 2 or (max_multiple is not None and n > max_multiple):
+        return None
+    target = n if ratio >= 1 else 1 / n
+    return n if abs(ratio - target) / target <= tolerance else None
 
 
 def _clean_ratio_distance(ratio):
@@ -448,7 +497,11 @@ def scan_corp(corp, ticker, pol, timeline, counters):
                 counters["rejected"]["RCEPT_OR_DATE_INVALID"] += 1
                 continue
             expected_direction = "up" if base_cat == "split" else "down"
-            ratio = a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction)
+            ms = a3d["multiplierSource"]
+            ratio = a3c_bracket_ratio(
+                ticker, disclosure_date, timeline, expected_direction,
+                clean=(ms["a3cBracketToleranceWarn"], ms["a3cBracketCleanSearchWindowDays"],
+                       ms["a3cBracketCleanMaxMultiple"]))
             if ratio is None:
                 counters["rejected"][f"{base_cat}:BRACKET_MISSING"] += 1
                 continue
