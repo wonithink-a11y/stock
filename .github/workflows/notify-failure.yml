@@ -44,6 +44,7 @@ on:
       #   붉어지는 건 '전부 실패'(키·소스 사망)와 175분 타임아웃뿐이다
       - decode-gemini
       - stock-events
+      - eps-ttm
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 

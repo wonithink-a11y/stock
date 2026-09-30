@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import re
 import threading
 import time
@@ -625,6 +626,78 @@ def _plan_search(base: str, name: str, q: str, matches) -> str:
 <input name="q" value="{E(q)}" placeholder="종목명 또는 코드 (예: 삼성전자)" autocomplete="off"><button>조회</button></form>{rows}{none}</div>'''
 
 
+_EPS_FLAGS = {
+    "restated": "정정 재공시로 원본 EPS 가 없는 기간이 있다(그 구간 TTM 은 결측일 수 있다)",
+    "split_uncertain": "액면분할 기준 판정이 약한 공시가 있다",
+    "discontinued_ops": "중단영업 일회성 이익·손실이 총 EPS 에 섞인 기간이 있다(계속영업 기준으로 계산)",
+    "eps_row_fallback": "주당이익 행 이름이 비표준이라 대체 규칙으로 읽었다",
+}
+_EPS_NONE = {"non_december_fy": "12월 결산이 아니라 분기 라벨을 다루지 않는다", "fy_unknown": "결산월을 몰라 계산하지 않았다",
+             "no_corp": "DART 법인코드가 없다", "no_filings": "분기 공시를 아직 못 받았다(수집 중)",
+             "quarter_gap": "최근 4개 분기가 다 모이지 않았다(정정 재공시로 4분기가 비는 경우 포함) — 지어내지 않는다"}
+
+
+def _render_eps(e: Optional[dict]) -> str:
+    """이익 대비 가격(EPS × PER) — 공시 EPS 로 계산한 값. 저평가·고평가 신호가 아니다."""
+    h = '<h2 style="margin-top:12px">이익 대비 가격 (EPS × PER)</h2>'
+    if not e or e.get("status") == "nofile":
+        return h + '<div class="mut">분기 EPS 데이터가 아직 없다(수집 전)</div>'
+    if e.get("status") == "pending":
+        return h + f'<div class="mut">이 종목의 분기 EPS 를 아직 못 받았다 — 수집 중(남은 조회 {E(str(e.get("pending")))}건)</div>'
+    if e.get("status") == "none":
+        return h + f'<div class="mut">TTM PER 없음 — {E(_EPS_NONE.get(e.get("reason"), str(e.get("reason"))))}</div>'
+    row = lambda a, b: f'<div class="row"><span>{a}</span><span>{b}</span></div>'   # noqa: E731
+    eps = e["ttmEps"]
+    if e.get("per"):
+        per = f'{e["per"]:.1f}배'
+    else:
+        per = '<span class="mut">' + ("적자(EPS ≤ 0) — PER 없음" if e.get("perNote") == "loss" else "EPS 가 주가의 1% 미만 — 숫자가 의미 낮음") + "</span>"
+    if e.get("perTotal"):
+        per += f' <small class="mut">총 EPS(중단영업 포함) 기준 {e["perTotal"]:.1f}배</small>'
+    per_range = (f'{e["periods"][0]} ~ {e["periods"][-1]}' if e.get("periods") else "-")
+    ann = e.get("annual")
+    ann_txt = ("-" if not ann else (f'FY{ann["fy"]} EPS {_won(ann["eps"])}원 → ' + (f'{ann["per"]:.1f}배' if ann.get("per") else "PER 없음")
+                                    + ' <small class="mut">최대 12개월 묵은 값 — 비교용</small>'))
+    rows = [row("TTM EPS (최근 4분기)", f'{_won(eps)}원 <small class="mut">{E(per_range)} · 최신 공시 {e["ageDays"]}일 전'
+                + (f' · 총 EPS {_won(e["ttmEpsTotal"])}원' if e.get("ttmEpsTotal") is not None else "") + "</small>"),
+            row("TTM PER (현재가 ÷ TTM EPS)", per), row("연간 EPS 기준 PER", ann_txt)]
+    notes = "".join(f'<div class="warn">{E(_EPS_FLAGS[f])}</div>' for f in e.get("flags", []) if f in _EPS_FLAGS)
+    ys = [y for y in e.get("yearly", []) if y.get("price")][-7:]
+    tbl = ""
+    if ys:
+        body = ""
+        for i, y in enumerate(ys):
+            a = y.get("attr")
+            if a:
+                dec = (f'가격 {(math.exp(a["lnP"]) - 1) * 100:+.0f}% = EPS {(math.exp(a["lnEps"]) - 1) * 100:+.0f}% × PER {(math.exp(a["lnPer"]) - 1) * 100:+.0f}%')
+            elif i == 0:
+                dec = "<span class=mut>-</span>"
+            elif y.get("ttmEps") is None:
+                dec = "<span class=mut>TTM 결측(분기 공시 부족·정정 재공시) — 분해 없음</span>"
+            elif y["ttmEps"] <= 0:
+                dec = "<span class=mut>적자 — 분해 없음</span>"
+            elif y.get("tiny"):
+                dec = "<span class=mut>EPS 가 너무 작아 PER·분해 의미 낮음</span>"
+            elif ys[i - 1].get("ttmEps") is None:
+                dec = "<span class=mut>전 연말 TTM 결측 — 분해 없음</span>"
+            elif ys[i - 1]["ttmEps"] <= 0:
+                dec = "<span class=mut>전 연말이 적자 — 분해 없음</span>"
+            else:
+                dec = "<span class=mut>전 연말 EPS 가 너무 작아 분해 의미 낮음</span>"
+            per_ = "-" if not y.get("per") else f'{y["per"]:.1f}'
+            d_ = str(y["d"])
+            label = d_ if not d_.isdigit() else d_[:4] + "-" + d_[4:6] + "-" + d_[6:]
+            body += (f'<tr><td>{E(label)}</td><td class="n">{_won(y["price"])}</td>'
+                     f'<td class="n">{"-" if y.get("ttmEps") is None else _won(y["ttmEps"])}</td><td class="n">{per_}</td>'
+                     f'<td class="n">{"-" if not y.get("annPer") else format(y["annPer"], ".1f")}</td><td>{dec}</td></tr>')
+        tbl = ('<details><summary class="mut">연말별 분해 — 가격 변화가 이익 증가인지 PER 재평가인지 (수정주가 · 공시된 TTM 기준)</summary>'
+               '<div class="tw"><table><tr><th>기준일</th><th class="n">가격</th><th class="n">TTM EPS</th><th class="n">TTM PER</th><th class="n">연간 PER</th><th>전 연말 대비</th></tr>'
+               f'{body}</table></div></details>')
+    foot = ('<div class="mut" style="margin-top:6px">공시된 분기 EPS 의 합으로 계산한 값(기본 계속영업). 저평가·고평가 신호가 아니다 — 자기 과거 대비 밸류에이션 밴드는 시험에서 기각됐다. '
+            f'공시 기준일 {E(str(e.get("asOf") or "-"))} · 데이터 갱신 {E(str(e.get("updatedAt") or "-")[:10])}</div>')
+    return h + "".join(rows) + notes + tbl + foot
+
+
 def render_card(card: Optional[dict]) -> str:
     """종목 분석 카드 — 참고 자료 + 규칙 계산값(검증 결과를 같이 적는다). 투자 자문 아님."""
     if not card:
@@ -650,6 +723,7 @@ def render_card(card: Optional[dict]) -> str:
 {row("20일선 · 60일선", f"{_won(card['ma20'])} · {_won(card['ma60'])}")}
 {row("PBR", pbr)}
 {row("업종 PBR 기준", sec)}
+{_render_eps(card.get("eps"))}
 {row("PBR 전략(모의) 보유", "<span class=ok>보유 중 — 이번 달 편입 조건 충족</span>" if card["pbrSleeve"] else "<span class=mut>아님</span>")}
 {row("증권사 목표가", f"{_won(t['median'])} <small class=mut>중앙값 · {t['brokers']}개사 · {E(str(t['lastDate']))}</small>" if t else "<span class=mut>없음</span>")}
 {row("우리 점수", f"{sc['total']} · {E(str(sc['grade']))}" if sc and sc.get("total") is not None else "<span class=mut>-</span>")}

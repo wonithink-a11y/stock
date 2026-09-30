@@ -12,6 +12,7 @@ latest.json(점수·PBR) · sector-strength.json(업종 대분류) · positions.
 from __future__ import annotations
 
 import json
+import math
 import statistics
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -22,6 +23,7 @@ STOP_ATR = 3.0            # 연구 변형 C
 REWARD_RISK = 1.5         # 연구 변형 C
 ZONE_PCT = 1.0            # 체결 여유(규칙 아님)
 PBR_SLEEVE = "pbr_value_v1_combined"
+EPS_TINY = 0.01           # EPS/주가 < 1% 면 PER 을 숫자로 안 낸다(내가 정한 표시 기준 — 검증 안 됨. 두산 TTM PER 137·284배 같은 값)
 RULE_NOTE = ("손절 = 진입 상단 − 3×ATR, 목표 = 진입 상단 + 1.5×손절폭. PBR 포트폴리오 연구에서 시험한 값이다 — 최대 낙폭은 줄었고, "
              "마지막 25% 구간 연수익은 손절 없이 들고 간 쪽보다 낮았다(4.75% 대 5.50%). 한 종목을 골라 매매할 때의 성과는 검증되지 않았다. "
              "진입 구간(현재가 −1%~현재가)은 체결 여유일 뿐 규칙이 아니다. 투자 자문이 아니라 규칙 계산값이다.")
@@ -80,6 +82,66 @@ def levels(price: float, atr: Optional[float]) -> Optional[dict]:
             "stopPct": (stop / hi - 1) * 100, "targetPct": (target / hi - 1) * 100}
 
 
+def eps_block(code: str, price: float, root: Path = REPO_ROOT) -> Optional[dict]:
+    """분기 EPS 로 만든 TTM(최근 연속 4분기 합) PER — scripts/build-eps-ttm.py 가 만든 docs/data/eps-ttm.json 만 읽는다.
+    기본 EPS 는 계속영업(중단영업 일회성 제외), 총 EPS 가 다르면 따로 남긴다. 모르는 값은 None — 0 이 아니다.
+    PER 은 여기서 **현재가**로 계산한다(파일에는 가격이 없다). EPS ≤ 0 이거나 주가의 1% 미만이면 PER 을 안 낸다."""
+    d = _load("docs/data/eps-ttm.json", root)
+    if not d:
+        return {"status": "nofile"}
+    it = (d.get("items") or {}).get(code)
+    if not it:
+        return {"status": "pending", "pending": d.get("pending")}
+    out = {"status": "ok", "flags": it.get("flags") or [], "asOf": it.get("asOf"), "filings": it.get("filings"),
+           "updatedAt": d.get("updatedAt"), "pending": d.get("pending")}
+    tt = it.get("ttm")
+    if not tt:
+        out["status"] = "none"
+        out["reason"] = it.get("ttmReason")
+    else:
+        eps = tt["epsCont"] if tt.get("epsCont") is not None else tt["eps"]
+        tot = tt["eps"]
+        out.update({"ttmEps": eps, "ttmEpsTotal": tot if abs(tot - eps) > 0.02 * max(abs(eps), 1) else None,
+                    "ageDays": tt["ageDays"], "periods": tt["periods"], "late": tt.get("late")})
+        if eps <= 0:
+            out["perNote"] = "loss"
+        elif eps / price < EPS_TINY:
+            out["perNote"] = "tiny"
+        else:
+            out["per"] = price / eps
+        if out["ttmEpsTotal"] and out["ttmEpsTotal"] > 0:
+            out["perTotal"] = price / out["ttmEpsTotal"]
+    an = it.get("annual")
+    if an:
+        ae = an["epsCont"] if an.get("epsCont") is not None else an["eps"]
+        out["annual"] = {"fy": an["fy"], "eps": ae, "per": price / ae if ae > 0 and ae / price >= EPS_TINY else None, "f": an["f"]}
+    out["yearly"] = _yearly_rows(it.get("yearly") or [], out, price, str(d.get("updatedAt") or "")[:4])
+    return out
+
+
+def _yearly_rows(ys: List[dict], out: dict, price: float, this_year: str) -> List[dict]:
+    """연말표 — ① 올해 중간 날짜(연말 아님)는 빼고 카드의 **현재가·현재 TTM** 으로 '현재' 줄을 만든다 ② EPS 가 주가의 1% 미만인 해는
+    PER·분해를 안 낸다(위 카드와 같은 기준) ③ 앞쪽의 TTM 결측 줄은 뺀다. 분해 = 연속한 두 줄의 ln P = ln EPS + ln PER."""
+    rows = [dict(y) for y in ys if not (str(y["d"])[:4] == this_year and str(y["d"])[4:6] != "12")]
+    if out.get("ttmEps") is not None:
+        rows.append({"y": "now", "d": "현재", "price": price, "ttmEps": out["ttmEps"], "per": out.get("per"),
+                     "annEps": (out.get("annual") or {}).get("eps"), "annPer": (out.get("annual") or {}).get("per")})
+    for r in rows:
+        r.pop("attr", None)
+        if r.get("ttmEps") is not None and r.get("price") and r["ttmEps"] > 0 and r["ttmEps"] / r["price"] < EPS_TINY:
+            r["per"] = None
+            r["tiny"] = True
+        if r.get("annEps") is not None and r.get("price") and r["annEps"] > 0 and r["annEps"] / r["price"] < EPS_TINY:
+            r["annPer"] = None
+    while rows and rows[0].get("ttmEps") is None:
+        rows.pop(0)
+    for a, b in zip(rows, rows[1:]):
+        if a.get("per") and b.get("per") and a["price"] and b["price"]:
+            b["attr"] = {"lnP": math.log(b["price"] / a["price"]), "lnEps": math.log(b["ttmEps"] / a["ttmEps"]),
+                         "lnPer": math.log(b["per"] / a["per"])}
+    return rows
+
+
 def build_card(code: str, intraday: Optional[dict] = None, root: Path = REPO_ROOT) -> Optional[dict]:
     """intraday = /kr-intraday 응답(오늘 날짜인 것만 넘긴다). 가격 데이터가 없는 종목이면 None."""
     px = _kr_prices(root).get(code)
@@ -131,6 +193,7 @@ def build_card(code: str, intraday: Optional[dict] = None, root: Path = REPO_ROO
         "pbr": pbr, "pbrPct": pbr_pct, "sector": grp, "sectorPeers": len(peers), "sectorMedianPbr": sec_med,
         "sectorFairPrice": price * sec_med / pbr if pbr and sec_med else None,
         "pbrSleeve": held, "levels": levels(price, atr),
+        "eps": eps_block(code, price, root),
     }
 
 
@@ -166,4 +229,7 @@ def context_for_plan(card: Optional[dict]) -> dict:
     """계획 저장 때 같이 남기는 당시 상태 — 30건 뒤 '손절을 몇 ATR 로 둔 계획이 나았나'를 내 데이터로 보려고."""
     if not card:
         return {}
-    return {k: card.get(k) for k in ("price", "priceSrc", "atr", "atrPct", "pos52", "pbr", "pbrPct", "sector", "pbrSleeve")}
+    ctx = {k: card.get(k) for k in ("price", "priceSrc", "atr", "atrPct", "pos52", "pbr", "pbrPct", "sector", "pbrSleeve")}
+    e = card.get("eps") or {}
+    ctx.update({"ttmEps": e.get("ttmEps"), "ttmPer": e.get("per")})     # 종료 30건 뒤 '진입 시 PER'별 결과를 볼 수 있게
+    return ctx

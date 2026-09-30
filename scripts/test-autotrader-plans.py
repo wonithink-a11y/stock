@@ -9,6 +9,7 @@
     python scripts/test-autotrader-plans.py
 """
 import json
+import math
 import sys
 import tempfile
 from datetime import datetime
@@ -229,6 +230,15 @@ def _data_root(td: Path) -> Path:
                 "breakdown": {"valuation": {"detail": {"pbr": {"raw": 2.0}}}}})
     w("docs/data/latest.json", {"results": res})
     w("docs/data/sector-strength.json", {"stocks": [{"t": f"{i:06d}", "g": "반도체"} for i in range(1, 7)] + [{"t": "005930", "g": "반도체"}]})
+    w("docs/data/eps-ttm.json", {"updatedAt": "2026-09-30T20:30:00+09:00", "pending": 0, "items": {
+        "005930": {"flags": ["discontinued_ops"], "asOf": "20260814", "filings": 42,
+                   "ttm": {"eps": 20, "epsCont": 10, "ageDays": 30, "late": False, "periods": ["2025Q3", "2025Q4", "2026Q1", "2026Q2"]},
+                   "annual": {"fy": 2025, "eps": 6, "epsCont": 6, "f": "20260310"},
+                   "yearly": [{"y": 2024, "d": "20241230", "price": 100, "ttmEps": 5, "per": 20, "annEps": 4, "annPer": 25},
+                              {"y": 2025, "d": "20251230", "price": 130, "ttmEps": 8, "per": 16.25, "annEps": 6, "annPer": 21.67,
+                               "attr": {"lnP": 0.262364, "lnEps": 0.470004, "lnPer": -0.20764}}]},
+        "009150": {"flags": [], "asOf": "20260814", "filings": 42,
+                   "ttm": {"eps": 0.5, "epsCont": 0.5, "ageDays": 30, "late": False, "periods": ["2025Q3", "2025Q4", "2026Q1", "2026Q2"]}, "yearly": []}}})
     w("ui/data/positions.json", {"strategies": {"pbr_value_v1_combined": {"positions": [{"symbol": "005930", "status": "OPEN"}]}}})
     return d
 
@@ -254,6 +264,20 @@ def card_tests(now):
         ck("장중 스냅샷이 있으면 장중가·전일 대비", c2["price"] == 130 and c2["priceSrc"] == "장중 10:20" and abs(c2["chg1d"] - (130 / 129 - 1) * 100) < 1e-9)
         ck("ATR 모르면 손절·목표를 안 만든다", sc.build_card("009150", None, root)["levels"] is None)
         ck("없는 종목은 카드 없음", sc.build_card("000000", None, root) is None)
+        e = card["eps"]
+        ck("EPS: 기본은 계속영업 TTM EPS 10 · PER = 현재가 129 ÷ 10 = 12.9 · 총 EPS(20)는 따로 → 총 PER 6.45",
+           e["status"] == "ok" and e["ttmEps"] == 10 and abs(e["per"] - 12.9) < 1e-9 and e["ttmEpsTotal"] == 20 and abs(e["perTotal"] - 6.45) < 1e-9)
+        ck("EPS: 연간 EPS(FY2025 6) 기준 PER 은 비교용으로 따로 = 21.5", e["annual"]["fy"] == 2025 and abs(e["annual"]["per"] - 21.5) < 1e-9)
+        yr = e["yearly"]
+        ck("연말표: 마지막 줄은 카드의 현재가(129)·현재 TTM(10)으로 만든 '현재' — 전 연말(2025: 130·8) 대비 분해 = 가격 −0.8% = EPS +25% × PER −20.6%",
+           yr[-1]["y"] == "now" and yr[-1]["price"] == 129 and abs(yr[-1]["attr"]["lnEps"] - math.log(10 / 8)) < 1e-9
+           and abs(yr[-1]["attr"]["lnP"] - math.log(129 / 130)) < 1e-9 and abs(yr[-1]["attr"]["lnP"] - yr[-1]["attr"]["lnEps"] - yr[-1]["attr"]["lnPer"]) < 1e-9)
+        ck("연말표: 올해 중간 날짜(9월 등)는 연말이 아니라 뺀다", all(not (str(r["d"]).isdigit() and str(r["d"])[:4] == "2026" and str(r["d"])[4:6] != "12") for r in yr))
+        ck("EPS: EPS 가 주가의 1% 미만이면 PER 을 숫자로 안 낸다(0.5/129 < 1%)", sc.build_card("009150", None, root)["eps"].get("per") is None
+           and sc.build_card("009150", None, root)["eps"]["perNote"] == "tiny")
+        ck("EPS: 파일에 없는 종목은 '수집 중' 상태(0 으로 지어내지 않는다)", sc.eps_block("000001", 100, root)["status"] == "pending")
+        ck("EPS: 파일 자체가 없으면 nofile", sc.eps_block("005930", 100, root / "nowhere")["status"] == "nofile")
+        ck("계획 저장 때 당시 TTM EPS·PER 도 남긴다", sc.context_for_plan(card)["ttmEps"] == 10 and abs(sc.context_for_plan(card)["ttmPer"] - 12.9) < 1e-9)
         n = sc.checks(card, 128, 129, 128.5, 140)
         ck("점검: 지금 가격이 구간 안이면 경고", any("구간 안" in t for _, t in n))
         ck("점검: 손절 폭이 ATR 1배 미만이면 경고", any(l == "warn" and "평소 흔들림" in t for l, t in n))
@@ -284,6 +308,8 @@ def card_tests(now):
         page = app.handle("GET", "/plans?p=pl&q=005930", h, b"", "1.1.1.1")[2].decode()
         ck("웹: 한 종목이면 카드 + 장중가 130 기준 규칙값(118·148)이 폼에 채워진다", "규칙 계산값" in page and 'value="118"' in page and 'value="148"' in page
            and "장중 10:20" in page and "투자 자문이 아니라" in page)
+        ck("웹: 카드에 'EPS × PER' 절 — 장중가 130 → TTM PER 13.0·계속영업 기준·연간 PER·연말 분해·신호 아님 문구", "EPS × PER" in page and "13.0배" in page
+           and "연간 EPS 기준 PER" in page and "EPS +60% × PER -19%" in page and "신호가 아니다" in page and "중단영업" in page)
         ck("웹: 조회어는 이스케이프", "<script>" not in app.handle("GET", "/plans?p=pl&q=%3Cscript%3E", h, b"", "1.1.1.1")[2].decode())
         pl = load_profile(main_p, "pl")
         form = "symbol=005930&entryLow=128&entryHigh=129&stop=117&target=147&riskPct=1&validDays=14"
