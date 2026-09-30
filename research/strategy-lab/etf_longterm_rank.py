@@ -47,7 +47,13 @@ def load():
     return recs
 
 
-def category(reason: str, cls: str):
+import re
+NOT_EQUITY = re.compile(r"레버리지|인버스|2X|커버드콜|원유|농산물|달러|엔선물|구리|WTI|천연가스|콩|옥수수|선물\(H\)?$")
+
+
+def category(reason: str, cls: str, name: str = ""):
+    if cls != "국내주식형" and NOT_EQUITY.search(name or "") and (reason or "").startswith("해외"):
+        return None
     if cls == "국내주식형":
         return "국내 주식"
     r = reason or ""
@@ -85,7 +91,7 @@ def run():
         for code, dd in recs.items():
             if code not in uni.index:
                 continue
-            cat = category(uni.at[code, "reason"], uni.at[code, "class"])
+            cat = category(uni.at[code, "reason"], uni.at[code, "class"], next(iter(dd.values()))[3])
             if cat is None:
                 continue
             ser = pd.Series({pd.Timestamp(k): v[0] for k, v in dd.items()}).sort_index()
@@ -119,14 +125,50 @@ def run():
         bm = df[df.code == "069500"]
         res["kodex200"] = bm[["cagr", "vol", "sharpe", "mdd"]].to_dict("records")
         out[tag] = res
+    out["core"] = core_table()
     OUT_JSON.write_text(json.dumps(out, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
     print("wrote", OUT_JSON)
+
+
+CORE = re.compile(r"S&P ?500|NASDAQ.?100|나스닥 ?100|Nasdaq", re.I)
+CORE_X = re.compile(r"레버리지|인버스|2X|커버드콜|혼합|채권|배당|동일|위클리|프리미엄|타겟|ESG|Value|Growth|TOP|Top|고배당|모멘텀|퀄리티|Quality|엔화|빅테크|반도체|헬스|바이오", re.I)
+
+
+def core_table():
+    """S&P500·나스닥100 국내 상장 ETF — 코호트 규모 조건 없이 상장 후 자료로(핵심 관심 대상). 공통 5년(2021-09-21~)·10년(2016-09-21~) 창."""
+    uni = pd.read_csv(LAB / "findings" / "etf-cross-section-universe-2026-09.csv", dtype=str, encoding="utf-8").set_index("code")
+    recs = load()
+    rows = []
+    for code, dd in recs.items():
+        if code not in uni.index:
+            continue
+        idxn = str(uni.at[code, "index_names"])
+        nm = next(iter(dd.values()))[3]
+        if not CORE.search(idxn) or CORE_X.search(nm):
+            continue
+        ser = pd.Series({pd.Timestamp(k): v[0] for k, v in dd.items()}).sort_index()
+        tv = pd.Series({pd.Timestamp(k): v[1] for k, v in dd.items()}).sort_index()
+        na = pd.Series({pd.Timestamp(k): v[2] for k, v in dd.items()}).sort_index()
+        if ser.pct_change().abs().max() > 0.30:
+            continue
+        row = dict(code=code, name=dd[max(dd)][3], index=idxn.split("|")[0].strip(), first=str(ser.index[0].date()), alive=bool(ser.index[-1] >= pd.Timestamp(END)),
+                   nav_eok=float(na.iloc[-1] / 1e8), tv20_eok=float(tv.tail(20).mean() / 1e8))
+        for tag, d0s in STARTS.items():
+            d0 = pd.Timestamp(d0s)
+            if ser.index[0] <= d0 + pd.Timedelta(days=7):
+                st = stats_between(ser, ser[ser.index <= d0].index[-1])
+                row[tag] = st
+        if ser.index[0] < pd.Timestamp("2021-09-21"):
+            row["since_listing"] = stats_between(ser, ser.index[0])
+        rows.append(row)
+    return rows
 
 
 def selftest():
     s = pd.Series(np.linspace(100, 200, 800), index=pd.bdate_range("2020-01-01", periods=800))
     st = stats_between(s, s.index[0])
     assert st["cagr"] > 0.2 and st["mdd"] == 0.0
+    assert category("해외:미국", "제외", "TIGER 미국S&P500") == "해외 주식" and category("해외:미국", "제외", "KIWOOM 미국달러선물레버리지") is None
     assert category("해외:미국", "제외") == "해외 주식" and category("구조가 다른 상품:레버리지", "제외") is None
     assert category("", "국내주식형") == "국내 주식" and category("수동: 채권(x)", "제외") == "채권"
     print("selftest ok")
