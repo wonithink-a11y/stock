@@ -60,6 +60,7 @@ def load():
 
 
 def prepare(O: pd.DataFrame, C: pd.DataFrame, V: pd.DataFrame):
+    O = O.where(O > 0)            # 거래정지일 시가 0 기록은 결측(정제, 설계 밖)
     V = V.where(V > 0)
     v5 = V.rolling(5, min_periods=4).mean()
     v20 = V.shift(5).rolling(20, min_periods=15).mean()
@@ -119,6 +120,7 @@ def evaluate(P, idx):
         stock = xo / eo - 1
         bench = np.exp(cum[x] - cum[t_i + 1]) - 1
         ex = stock - bench
+        ex = np.where(np.isfinite(ex), ex, np.nan)
         out[r] = (ex, H)
     return t_i, out
 
@@ -181,7 +183,8 @@ def analyze(P, idx, dates_month, rng, n_plc=100):
         e, H = out[r]
         ok = ~np.isnan(e)
         q = lambda a, p: float(np.quantile(a, p) * 1e4)
-        res[r] = dict(n=int(ok.sum()), mean_bp=float(np.mean(e[ok]) * 1e4), net_bp=float((np.mean(e[ok]) - RT) * 1e4), median_bp=float(np.median(e[ok]) * 1e4),
+        lo, hi = np.quantile(e[ok], [.01, .99])
+        res[r] = dict(n=int(ok.sum()), mean_bp=float(np.mean(e[ok]) * 1e4), mean_wins_bp=float(np.mean(np.clip(e[ok], lo, hi)) * 1e4), net_bp=float((np.mean(e[ok]) - RT) * 1e4), median_bp=float(np.median(e[ok]) * 1e4),
                       hit=float((e[ok] > 0).mean()), avg_hold=float(H[ok].mean()), per_day_bp=float(np.sum(e[ok]) / np.sum(H[ok]) * 1e4),
                       ci=[q(boots[r], .025), q(boots[r], .975)], ci_per_day=[q(pday[r], .025), q(pday[r], .975)],
                       placebo_mean_bp=float(np.mean(plc[r]) * 1e4), placebo_p5_bp=q(plc[r], .05), placebo_p95_bp=q(plc[r], .95),
