@@ -3,7 +3,7 @@ track: us
 factor: pension-dca10y
 date: 2026-09-30
 verdict: INFORMATION
-criteria_version: research-only (설계는 pension_dca10y_sim.py 머리말, 실행 전 커밋 cf924f90)
+criteria_version: research-only (설계는 pension_dca10y_sim.py 머리말, 실행 전 커밋 984bb8d0)
 conditions: ["월 50만원 x 120개월 = 원금 6,000만원, 부족 자산에만 매수(매도 없음)", "배분 A~F(주식·장기채·중기채·현금·금)", "역사 롤링 285창(1993-02~) · 블록 부트스트랩 5,000 · 시작 시점 5개 · 30년물 금리 시나리오 4개", "USD 로컬 총수익, 매수 편도 5bp"]
 reason: >-
   신호: 해당 없음(시나리오) · 경제성: 해당 없음 — 역사 10년 창에서 주식100% 는 중앙 1.68배(원금 6,000만원 → 1억 80만원)이나 최악 0.68배(원금 손실 확률 4.6%),

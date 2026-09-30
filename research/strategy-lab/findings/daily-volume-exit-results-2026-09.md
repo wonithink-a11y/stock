@@ -3,7 +3,7 @@ track: kr
 factor: daily-volume-exit
 date: 2026-09-30
 verdict: REJECT
-criteria_version: research-only (설계는 daily_volume_exit_test.py 머리말, 실행 전 커밋 8d8160b2)
+criteria_version: research-only (설계는 daily_volume_exit_test.py 머리말, 실행 전 커밋 20e803fe)
 conditions: ["A2a 일봉 2016-01~2026-08, 적격 = 직전 20일 평균 거래대금 >= 20억, 진입 35,025건(가격 조건 포함)", "진입 = 5일 평균 거래량 / 직전 20일 평균 >= 1.5 첫 날 AND 5일 수익 >= +3%, T+1 시가", "이탈 6규칙(고정 5·20·60일 · 거래량 소진 · 거래량 고점 절반 · 가격 -10% 손절), 왕복 33.5bp, 난수 진입 플라시보 100회, 12개월 블록 부트스트랩"]
 reason: >-
   신호: 있음(반대 방향, TRAIN·VALID 한정) · 경제성: 미달 — 거래량이 늘며 오른 종목에 올라타면 20거래일 보유가 시장 대비 −41bp(구간 [−78, −7], 난수 진입 p5 +2bp 미만)이나 2023~ TEST 는 +11bp 로 사라진다.

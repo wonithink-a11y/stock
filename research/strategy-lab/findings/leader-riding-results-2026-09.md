@@ -3,7 +3,7 @@ track: kr
 factor: leader-riding
 date: 2026-09-30
 verdict: REJECT
-criteria_version: research-only (설계는 leader_riding_test.py 머리말, 실행 전 커밋 5b058324)
+criteria_version: research-only (설계는 leader_riding_test.py 머리말, 실행 전 커밋 f00e6be0)
 conditions: ["T1 미국 SPDR 9섹터 2000-01~2026-09(321개월) 코어(SPY) 50% + 분기·반기 주도 섹터 위성 50%, 4셀 · 한국 20그룹 위성 초과만", "T2 한국 개별종목 월 패널 2016-02~2026-07, 거래대금(dv20 >= 20억) 3개월 증가 상위 10% 신규 진입 6,396건", "비용: T1 편도 10bp, T2 왕복 33.5bp"]
 reason: >-
   신호: 없음(T1)·있음(반대 방향, T2) · 경제성: 미달 — 코어 50%+주도 섹터 위성 50% 는 분기·반기 4셀 모두 SPY 100% 와 구분되지 않는다(ΔSharpe −0.048~+0.043, 난수 편승 p95 +0.064~+0.082 미달, 위성 초과 −90~+48bp/기간 구간이 0 포함),

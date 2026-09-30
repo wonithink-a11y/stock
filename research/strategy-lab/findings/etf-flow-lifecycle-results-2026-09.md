@@ -3,7 +3,7 @@ track: kr
 factor: etf-flow-lifecycle
 date: 2026-09-30
 verdict: REJECT
-criteria_version: research-only (설계는 etf_flow_lifecycle.py 머리말, 실행 전 커밋 14c89851)
+criteria_version: research-only (설계는 etf_flow_lifecycle.py 머리말, 실행 전 커밋 bec355d2)
 conditions: ["국내주식형 섹터 ETF 13테마 106개월(2015-06~2026-08)", "자금 흐름 F = 설정·환매(상장좌수 변화 x NAV / 20세션 전 순자산)", "진입 = F 순위 새로 상위 3, 사건 169건", "퇴출 규칙 8개, 난수 진입 플라시보 300회, 12개월 블록 부트스트랩, 비용 편도 10bp"]
 reason: >-
   신호: 없음 · 경제성: 미달 — ETF 설정·환매 기준으로는 진입 우위가 없다(보유 3개월 월 +19bp, 난수 진입 p95 +46bp 미달, 구간 [−30, +72]). 월별 순위상관 IC +0.016(t 0.5).

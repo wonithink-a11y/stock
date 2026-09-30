@@ -13,7 +13,7 @@ reason: >-
 
 # 연금계좌용 주도섹터·국채 시험 — 결과 (2026-09-30)
 
-사전등록 `pension-sector-bond-preregistration-2026-09.md`(ebcfc57b, 정정 §8 계산 전) · 코드 `pension_sector_bond_test.py`(실행 전 커밋, selftest 통과) · 산출 `pension-sector-bond-results-2026-09.json`.
+사전등록 `pension-sector-bond-preregistration-2026-09.md`(1f48954c, 정정 §8 계산 전) · 코드 `pension_sector_bond_test.py`(실행 전 커밋, selftest 통과) · 산출 `pension-sector-bond-results-2026-09.json`.
 **하나의 역사 경로**를 잰 것이고 투자 자문이 아니다. 환율·환헤지 비용·세금·연금 수령은 모형 밖이다(§6).
 
 ## 1. 질문 1 — 주도 섹터는 몇 개월 가는가 (A)
