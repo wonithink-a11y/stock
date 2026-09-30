@@ -173,9 +173,9 @@ def t2():
     T, N = DV.shape
     elig = (DV >= 2e9).values
     dv = DV.values
-    ret = np.where(elig, RET.values, np.nan)
-    ret = np.clip(ret, -0.6, 1.5)
-    bench = np.nanmean(ret, axis=1)
+    raw = np.clip(RET.values, -0.6, 1.5)
+    bench = np.nanmean(np.where(elig, raw, np.nan), axis=1)      # 벤치마크 = 그 달 적격 종목 평균
+    ret = np.nan_to_num(raw, nan=0.0)                            # 자료가 끊긴 종목은 이후 월 수익 0(현금)으로 둔다. 적격 탈락으로 표본을 지우지 않는다.
     vol3 = dv / np.vstack([np.full((3, N), np.nan), dv[:-3]]) - 1
     vol3 = np.where(elig, vol3, np.nan)
     pr = pd.DataFrame(vol3).rank(axis=1, pct=True).values
@@ -234,7 +234,7 @@ def t2():
         return t_i, out
 
     valid = np.zeros((T, N), bool)
-    valid[1:T - H2] = elig[1:T - H2]
+    valid[1:T - H2] = elig[1:T - H2] & ~np.isnan(RET.values[1:T - H2])
     ent_mask = new & valid
     variants = {"거래대금증가": ent_mask, "거래대금증가+3개월수익 상위1/3(기록)": ent_mask & (mrk >= 2 / 3)}
     rng = np.random.default_rng(13)
