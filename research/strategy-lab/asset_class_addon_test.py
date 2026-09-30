@@ -8,7 +8,7 @@
 - 코어 80 + 후보 20, 연 1회 12월 리밸런스, 편도 5bp, 월간 USD 총수익(yfinance auto_adjust). 기간 2006-03~2026-09(DBC 이력 기준).
 - 지표: 코어 대비 ΔCAGR ΔSharpe ΔMDD Δ최악12개월, 코어와 월수익 상관, 코어 최악 낙폭 두 구간(2007-11~2009-02, 2021-12~2022-09)의 후보 수익.
 - ΔSharpe 신뢰구간 = 12개월 블록 부트스트랩 2,000회(같은 표본 인덱스로 두 포트폴리오). 구간 나눔 2006-2012 · 2013-2021 · 2022~.
-- 판정 규칙(결과 전): "분산 효과 있음" = ΔMDD 가 음(낙폭 축소)이고 ΔSharpe 95% 구간 하한이 −0.1 이상이며 세 구간 중 두 구간에서 ΔSharpe ≥ 0.
+- 판정 규칙(결과 전): "분산 효과 있음" = ΔMDD 가 양(MDD 는 음수라 덜 음수 = 낙폭 축소)이고 ΔSharpe 95% 구간 하한이 −0.1 이상이며 세 구간 중 두 구간에서 ΔSharpe ≥ 0.
   "샤프 개선" 은 ΔSharpe 95% 구간 하한 > 0 일 때만 쓴다. 나머지는 "구분 불가". 결과를 보고 비중·후보를 바꿔 재시험하지 않는다.
 - 한계: 하나의 역사 경로, 환율·환헤지·세금 미반영, 미국 대형주 우위 기간(2010~)에 치우침.
 """
@@ -113,7 +113,7 @@ def run():
             row["d_slices"] = {k: float(sharpe(comb[a:b]) - sharpe(core_only[a:b])) for k, (a, b) in SLICES.items() if k != "전체"}
             row["episodes"] = {k: dict(cand=float(np.prod(1 + X[c][a:b]) - 1), core=float(np.prod(1 + core_only[a:b]) - 1))
                                for k, (a, b) in EPIS.items()}
-            div = (row["d"]["mdd"] < 0 and lo >= -0.1 and sum(v >= 0 for v in row["d_slices"].values()) >= 2)
+            div = (row["d"]["mdd"] > 0 and lo >= -0.1 and sum(v >= 0 for v in row["d_slices"].values()) >= 2)
             row["label"] = ("샤프 개선" if lo > 0 else "분산 효과 있음" if div else "구분 불가")
             res[core_name][c] = row
     out = LAB / "findings" / "asset-class-addon-results-2026-09.json"
