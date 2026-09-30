@@ -3,7 +3,7 @@ name: eps-ttm
 # 종목별 분기 EPS → TTM PER (종목 분석 카드용) → docs/data/eps-ttm.json + data/eps-ttm/quarters.json(캐시).
 # scripts/build-eps-ttm.py — 설계: docs/control/종목분석카드-EPS-PER-분해-설계-2026-09-30.md
 # 관심종목 KR 12월 결산 × 분기 보고서. 최신 분기부터 채우고 호출 예산(budget) 안에서 멈춘다 — 첫 백필은 며칠에 걸쳐 끝나고,
-# 이후엔 새 공시만 부른다. DART 일일 한도(2만)는 stock-events·공시 수집과 나눠 쓰므로 budget 기본 4,000.
+# 이후엔 새 공시만 부른다. DART 일일 한도는 40,000(사용자 확인 2026-08-13, fundamentals.v1.json quota)이고 stock-events·공시 수집과 나눠 쓴다 — budget 기본 4,000 은 보수적이다(올려도 된다).
 # Actions 에서 DART 는 ~1.2초/콜(09-28 실측) → 4,000콜 ≈ 80분. 한도 소진(020)은 실패가 아니라 정상 종료다.
 # 관찰용 — 점수·매매에 쓰지 않는다.
 
