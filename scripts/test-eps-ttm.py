@@ -117,5 +117,68 @@ cache["BBB"]["2026|11012"] = {"none": "20260901"}
 ok("6일 넘으면 다시 묻는다", any(t[2] == 2026 and t[3] == "11012" for t in b.plan_tasks(cache, ["BBB"], today)))
 ok("오래된 기간(2016 이전 아님, 240일 초과)의 '없음'은 확정 — 다시 안 묻는다", not any(t[2] == 2025 and t[3] == "11011" for t in b.plan_tasks(cache, ["BBB"], today)))
 
+print("\n[run_fetch — 병렬 수집: 예산·한도(020)·연속 실패·동시성]")
+import threading
+import time as _time
+
+
+def fake_factory(cost=1, fail_at=None, none_all=False, delay=0.01):
+    lock, state = threading.Lock(), {"cur": 0, "max": 0, "n": 0}
+
+    def fake(key, corp, y, rc):
+        with lock:
+            state["cur"] += 1
+            state["max"] = max(state["max"], state["cur"])
+            state["n"] += 1
+            n = state["n"]
+        _time.sleep(delay)
+        with lock:
+            state["cur"] -= 1
+        if fail_at and n >= fail_at:
+            raise RuntimeError("DART 020 일일 한도 초과")
+        if none_all:
+            return None, 1
+        return {"f": "20260515", "div": "CFS", "q": 1, "cum": 1, "qc": 1, "cumc": 1, "rule": "plain"}, cost
+    return fake, state
+
+
+tasks = [(date(2026, 3, 31), f"T{i:03d}", 2026, "11013") for i in range(40)]
+corp = {f"T{i:03d}": f"C{i}" for i in range(40)}
+orig = b.fetch_entry
+try:
+    fake, st = fake_factory()
+    b.fetch_entry = fake
+    cache = {}
+    f_, c_, e_ = b.run_fetch(tasks, cache, "k", corp, 1000, 5, 4, lambda: None)
+    ok("예산이 넉넉하면 40건 전부 받아 캐시에 넣는다", f_ == 40 and c_ == 40 and sum(len(v) for v in cache.values()) == 40)
+    ok("스레드 4개가 실제로 동시에 돈다(최대 동시 4)", st["max"] == 4, str(st))
+    fake, st = fake_factory()
+    b.fetch_entry = fake
+    f_, c_, _ = b.run_fetch(tasks, {}, "k", corp, 10, 5, 4, lambda: None)
+    ok("예산 10콜이면 초과하지 않는다(제출 시점에 지킨다)", 0 < c_ <= 10, str(c_))
+    fake, st = fake_factory(cost=2)
+    b.fetch_entry = fake
+    f_, c_, _ = b.run_fetch(tasks, {}, "k", corp, 10, 5, 4, lambda: None)
+    ok("작업당 2콜(OFS 재조회)이어도 예산 10 을 넘지 않는다", c_ <= 10, str(c_))
+    fake, st = fake_factory(fail_at=6)
+    b.fetch_entry = fake
+    f_, c_, _ = b.run_fetch(tasks, {}, "k", corp, 1000, 5, 4, lambda: None)
+    ok("020 이면 새 제출을 멈춘다 — 40건을 다 시도하지 않는다", f_ < 40 and st["n"] < 20, f"{f_} {st}")
+    fake, st = fake_factory(none_all=True)
+    b.fetch_entry = fake
+    saved = []
+    try:
+        b.run_fetch(tasks, {}, "k", corp, 1000, 5, 4, lambda: saved.append(1))
+        raised = False
+    except SystemExit:
+        raised = True
+    ok("연속 30건 비정상이면 저장하고 SystemExit(붉어진다)", raised and saved and st["n"] < 40, f"{raised} {saved} {st}")
+    fake, st = fake_factory()
+    b.fetch_entry = fake
+    f_, c_, _ = b.run_fetch(tasks, {}, "k", corp, 1000, 0, 4, lambda: None)
+    ok("시간 상한(0분)이면 거의 시작 못 한다 — 무한히 안 돈다", f_ <= 5, str(f_))
+finally:
+    b.fetch_entry = orig
+
 print(f"\n통과 {passed} · 실패 {failed}")
 sys.exit(1 if failed else 0)

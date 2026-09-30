@@ -24,6 +24,7 @@ import re
 import sys
 import time
 import urllib.request
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -279,7 +280,7 @@ def dart_fnltt(key, corp, y, rc, div):
     q = f"crtfc_key={key}&corp_code={corp}&bsns_year={y}&reprt_code={rc}&fs_div={div}"
     for attempt in range(3):
         try:
-            return json.load(urllib.request.urlopen(f"https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json?{q}", timeout=60))
+            return json.load(urllib.request.urlopen(f"https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json?{q}", timeout=25))
         except Exception:
             if attempt == 2:
                 raise
@@ -335,6 +336,54 @@ def plan_tasks(cache, targets, today):
                 out.append((pe, t, y, rc))
     out.sort(key=lambda z: (-z[0].toordinal(), z[1]))
     return out
+
+
+def run_fetch(tasks, cache, key, corp, budget, max_minutes, workers, save):
+    """계획된 조회를 스레드 `workers` 개로 병렬 수집한다 → (받은 건, 호출 수, 오류 수).
+    예산은 **제출 시점**에 지킨다(작업당 최대 2콜 — CFS 없으면 OFS 한 번 더). 캐시·카운터는 이 스레드에서만 만진다.
+    020(일일 한도)이면 새 제출을 멈추고 이미 나간 것만 받는다. 연속 30건 비정상이면 저장하고 붉어진다."""
+    t0 = time.time()
+    calls = fetched = errs = bad_run = 0
+    stop = False
+    it = iter(tasks)
+    pending = {}
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        while True:
+            while (not stop and len(pending) < workers and calls + 2 * (len(pending) + 1) <= budget + 1
+                   and (time.time() - t0) / 60 <= max_minutes):
+                task = next(it, None)
+                if task is None:
+                    break
+                _pe, t, y, rc = task
+                pending[ex.submit(fetch_entry, key, corp[t], y, rc)] = task
+            if not pending:
+                break
+            done, _ = wait(pending, return_when=FIRST_COMPLETED)
+            for f in done:
+                _pe, t, y, rc = pending.pop(f)
+                try:
+                    e, c = f.result()
+                except RuntimeError as exc:          # 020 — 이어서 불러 봐야 전부 실패다
+                    if not stop:
+                        print("  중단:", exc)
+                    stop = True
+                    continue
+                except Exception as exc:             # 네트워크 — 이 건만 건너뛴다(캐시 안 함)
+                    errs += 1
+                    print(f"  {t} {y} {rc} 실패 {type(exc).__name__}: {str(exc)[:80]}")
+                    continue
+                calls += c
+                bad_run = 0 if e is not None else bad_run + 1
+                if bad_run >= 30:                    # 키·소스 사망 — 예산만 태우지 말고 붉어진다(notify-failure)
+                    save()
+                    raise SystemExit("DART 응답이 연속 30건 비정상 — 중단(받은 것은 저장함)")
+                if e is not None:
+                    cache.setdefault(t, {})[f"{y}|{rc}"] = e
+                    fetched += 1
+                    if fetched % 300 == 0:
+                        save()
+                        print(f"  {fetched}건 · {calls}콜 · {(time.time() - t0) / 60:.1f}분")
+    return fetched, calls, errs
 
 
 def cache_to_F(cache_t):
@@ -404,8 +453,9 @@ def load_year_end_prices(tickers):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only")
-    ap.add_argument("--budget", type=int, default=4000, help="이번 실행의 DART 호출 상한")
+    ap.add_argument("--budget", type=int, default=15000, help="이번 실행의 DART 호출 상한")
     ap.add_argument("--max-minutes", type=float, default=100)
+    ap.add_argument("--workers", type=int, default=6, help="병렬 스레드 수(DART 호출) — 8스레드 초당 ≈25콜이 오류 없이 돌았다(2026-10-01 로컬 시험)")
     ap.add_argument("--cache", default=str(CACHE))
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--no-fetch", action="store_true")
@@ -432,35 +482,13 @@ def main():
         key = load_env().get("DART_API_KEY")
         if not key:
             raise SystemExit("DART_API_KEY 가 필요하다")
-        t0, calls, fetched, errs, bad_run = time.time(), 0, 0, 0, 0
-        for pe, t, y, rc in tasks:
-            if calls >= a.budget or (time.time() - t0) / 60 > a.max_minutes:
-                break
-            try:
-                e, c = fetch_entry(key, corp[t], y, rc)
-            except RuntimeError as ex:            # 020 한도 — 이어서 불러 봐야 전부 실패다
-                print("  중단:", ex)
-                break
-            except Exception as ex:               # 네트워크 — 이 건만 건너뛴다(캐시 안 함)
-                errs += 1
-                print(f"  {t} {y} {rc} 실패 {type(ex).__name__}: {str(ex)[:80]}")
-                continue
-            calls += c
-            bad_run = 0 if e is not None else bad_run + 1
-            if bad_run >= 30:                     # 키·소스 사망 — 예산만 태우지 말고 붉어진다(notify-failure)
-                cp.parent.mkdir(parents=True, exist_ok=True)
-                cp.write_text(json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-                raise SystemExit("DART 응답이 연속 30건 비정상 — 중단(받은 것은 저장함)")
-            if e is not None:
-                cache.setdefault(t, {})[f"{y}|{rc}"] = e
-                fetched += 1
-            if fetched % 300 == 0 and fetched:
-                cp.parent.mkdir(parents=True, exist_ok=True)
-                cp.write_text(json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-                print(f"  {fetched}건 · {calls}콜 · {(time.time() - t0) / 60:.1f}분")
-        print(f"수집 {fetched}건 · {calls}콜 · 오류 {errs} · {(time.time() - t0) / 60:.1f}분")
-        cp.parent.mkdir(parents=True, exist_ok=True)
-        cp.write_text(json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        def save():
+            cp.parent.mkdir(parents=True, exist_ok=True)
+            cp.write_text(json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        t0 = time.time()
+        fetched, calls, errs = run_fetch(tasks, cache, key, corp, a.budget, a.max_minutes, a.workers, save)
+        print(f"수집 {fetched}건 · {calls}콜 · 오류 {errs} · {time.time() - t0:.0f}초 · 스레드 {a.workers}")
+        save()
 
     shares = load_shares(targets)
     ye = load_year_end_prices(targets)
