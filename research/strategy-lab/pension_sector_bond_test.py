@@ -498,11 +498,49 @@ def domestic_check():
     return out
 
 
+
+def extras():
+    """기록 전용(사후 확인, 판정 아님): 현재 금리 근처 구간 · 10년 시나리오 · 현금 금리."""
+    y = monthly_last("_TYX")
+    b30 = par_bond_tr(y, 30.0)
+    ys = y.reindex(b30.index)
+    out = {"irx_now": float(monthly_last("_IRX").iloc[-1]), "tnx_now": float(monthly_last("_TNX").iloc[-1])}
+    for lab, lo, hi in (("5.5-7", 5.5, 7.0), ("7+", 7.0, 99)):
+        rows = {}
+        for H in (1, 3, 5, 10):
+            n = 12 * H
+            fb = np.expm1(np.log1p(b30).rolling(n).sum().shift(-n) * 12 / n)
+            m = (ys >= lo) & (ys < hi) & fb.notna()
+            if m.sum():
+                rows[f"{H}y"] = dict(months=int(m.sum()), first=str(b30.index[m][0].date()), last=str(b30.index[m][-1].date()),
+                                     median=float(fb[m].median()), p10=float(fb[m].quantile(.1)), min=float(fb[m].min()),
+                                     pct_neg=float((fb[m] < 0).mean()))
+        # 시작 후 3년 안 최대 낙폭
+        w = (1 + b30).cumprod()
+        mdd = []
+        for t in np.where((ys >= lo) & (ys < hi))[0]:
+            seg = w.iloc[t:t + 37]
+            mdd.append(float((seg / seg.cummax() - 1).min()))
+        rows["mdd3y_median"] = float(np.median(mdd)) if mdd else None
+        rows["mdd3y_worst"] = float(np.min(mdd)) if mdd else None
+        out[lab] = rows
+    # 10년 시나리오: 지금 30년 par 채권 매수, 10년 뒤 20년 잔존·수익률 yT, 쿠폰은 지금 금리로 재투자
+    y0 = float(y.iloc[-1]) / 100
+    sc = {}
+    for yT in (0.035, 0.045, 0.055, y0, 0.065, 0.075, 0.085):
+        price = float(par_bond_price(y0, yT, 20.0))
+        fv = price + sum(y0 / 2 * (1 + y0 / 2) ** (20 - k - 1) for k in range(20))   # 반기 쿠폰 20회 재투자
+        sc[f"{yT*100:.2f}"] = float(fv ** (1 / 10) - 1)
+    out["scenario_10y_annualized"] = sc
+    return out
+
+
 # ---------------------------------------------------------------- 실행
 def kr_returns():
     panel = pd.read_parquet(LAB / "data" / "factor-panel" / "kr-monthly-v1.parquet")
     agg = build_sector_panel(panel, load_rollup())
     M = agg.pivot(index="date", columns="group", values="fwd1m").sort_index()
+    M.index = pd.to_datetime(M.index)
     M = M.dropna(axis=1, thresh=int(len(M) * 0.9)).dropna(how="any")
     return M
 
@@ -557,5 +595,13 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--extras", action="store_true")
     a = ap.parse_args()
-    selftest() if a.selftest else main_run()
+    if a.extras:
+        f = LAB / "findings" / "pension-sector-bond-results-2026-09.json"
+        r = json.loads(f.read_text(encoding="utf-8"))
+        r["extras_record_only"] = extras()
+        f.write_text(json.dumps(r, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(json.dumps(r["extras_record_only"], ensure_ascii=False, indent=1))
+    else:
+        selftest() if a.selftest else main_run()
