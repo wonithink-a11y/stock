@@ -21,6 +21,8 @@
   nav button.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
   #nav { margin-bottom: 8px; }
   #subnav button { padding: 5px 12px; font-size: 13px; }
+  .today-compact th, .today-compact td { padding: 6px 8px; font-size: 12px; }
+  @media (max-width: 480px) { #nav button { padding: 8px 10px; font-size: 13px; } #nav { gap: 4px; } }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
   h2 { font-size: 15px; margin-bottom: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -166,7 +168,7 @@
 const state = {
   latest: null, regime: null, portfolio: null, reco: null, backtest: null, cycle: null, macro: null, etf: null,
   disclosures: null, news: null, marketFlows: null,
-  tab: 'scores',
+  tab: 'today',
   groupFilter: 'all',
   marketIndexFilter: 'kospi',  // 코스피(기본)|kosdaq|sp500|nasdaq100 - 상단 배너
   // 공시·뉴스·시장수급 탭 전용
@@ -2864,7 +2866,8 @@ function renderSectorTab() {
 
 function render() {
   const el = document.getElementById('content');
-  if (state.tab === 'scores') el.innerHTML = renderScores();
+  if (state.tab === 'today') el.innerHTML = renderToday();
+  else if (state.tab === 'scores') el.innerHTML = renderScores();
   else if (state.tab === 'regime') el.innerHTML = renderPortfolio('regime');
   else if (state.tab === 'holdings') el.innerHTML = renderPortfolio('holdings');
   else if (state.tab === 'etfwatch') el.innerHTML = renderPortfolio('etfwatch');
@@ -3066,8 +3069,87 @@ document.addEventListener('click', (e) => {
   render();
 });
 
+// ---------- 오늘 (첫 화면): 기존 데이터를 카드로 모아 보여 준다. 새 계산 없음 ----------
+const TODAY_MACRO = ['vix', 'yieldcurve', 'hyspread', 'usdkrw', 'us10y', 'kospi'];
+function renderToday() {
+  const link = (to, label) => `<button class="chip" data-goto="${to}" style="font-size:12px;padding:3px 10px">${label} →</button>`;
+  const card = (title, to, label, body) => `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
+    <h2 style="margin:0;font-size:16px">${title}</h2>${link(to, label)}</div>${body}</div>`;
+  const empty = '<p class="muted" style="margin:0">데이터가 아직 없습니다.</p>';
+  const cards = [];
+
+  // 1) 시장 국면 + 핵심 매크로
+  const rg = state.regime, mi = (state.macro && state.macro.indicators) || [];
+  if (rg || mi.length) {
+    const macro = TODAY_MACRO.map(k => mi.find(x => x.key === k)).filter(Boolean).map(it => {
+      const c = (it.changes || {}).d1, unit = it.changeUnit || '%';
+      return `<div class="stat"><span class="k">${esc(MACRO_LABELS[it.key] || it.key)}</span><span class="v" style="font-size:16px">${esc(it.display != null ? it.display : it.value)}</span>${c == null ? '' : `<span class="${c >= 0 ? 'pos' : 'neg'}" style="font-size:11px">${c >= 0 ? '+' : ''}${c}${unit}</span>`}</div>`;
+    }).join('');
+    cards.push(card('시장 국면', 'regime', '국면·매크로',
+      `${rg ? `<div class="regime" style="margin-bottom:10px"><span class="score regime-${rg.grade}">${rg.score}</span>
+        <div><div><strong>${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div></div></div>` : ''}
+       <div class="summary-strip" style="margin:0">${macro}</div>`));
+  }
+
+  // 2) 시장 수급 (가장 최근 확정일)
+  const mf = state.marketFlows;
+  if (mf && mf.markets) {
+    const rows = ['KOSPI', 'KOSDAQ'].map(m => {
+      const days = (mf.markets[m] || {}).days || [], d = days[days.length - 1];
+      if (!d) return '';
+      const cell = n => { const it = d.items.find(x => x.name === n); return it ? `<td class="${it.net >= 0 ? 'pos' : 'neg'}" style="text-align:right">${fmtEok(it.net)}</td>` : '<td class="muted" style="text-align:right">-</td>'; };
+      return `<tr><td><b>${m}</b> <span class="muted">${d.date.slice(4, 6)}/${d.date.slice(6, 8)}</span></td>${cell('외국인')}${cell('기관합계')}${cell('개인')}</tr>`;
+    }).join('');
+    cards.push(card('시장 수급', 'flows', '시장수급',
+      rows ? `<div class="table-wrap"><table class="today-compact"><thead><tr><th>시장</th><th style="text-align:right">외국인</th><th style="text-align:right">기관</th><th style="text-align:right">개인</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="muted" style="margin:6px 0 0;font-size:11px">순매수, 가장 최근 확정일 기준</p>` : empty));
+  }
+
+  // 3) 앞으로 7일 일정 (핵심: 보유·거시·국내)
+  const ev = state.events;
+  if (ev && ev.events) {
+    const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })); kst.setHours(0, 0, 0, 0);
+    const dday = x => Math.round((new Date(x + 'T00:00:00') - kst) / 864e5);
+    const icon = { earnings: '📊', exdiv: '💰', fomc: '🇺🇸', bok: '🇰🇷', expiry: '⏳' };
+    const list = ev.events.filter(e => { const n = dday(e.date); return n >= 0 && n <= 7 && (e.scope === 'held' || e.scope === 'macro' || e.market === 'KR'); });
+    const rows = list.slice(0, 6).map(e => {
+      const n = dday(e.date);
+      return `<tr><td class="${n <= 3 ? 'neg' : 'muted'}" style="white-space:nowrap">${n === 0 ? '오늘' : 'D-' + n}</td><td>${icon[e.kind] || ''} ${esc(e.title)}${e.name ? ` · <b>${esc(e.name)}</b>` : ''}</td></tr>`;
+    }).join('');
+    cards.push(card('7일 안 일정', 'events', '일정',
+      rows ? `<div class="table-wrap"><table><tbody>${rows}</tbody></table></div>${list.length > 6 ? `<p class="muted" style="margin:6px 0 0;font-size:11px">외 ${list.length - 6}건</p>` : ''}`
+        : '<p class="muted" style="margin:0">앞으로 7일 안에 핵심 일정이 없습니다.</p>'));
+  }
+
+  // 4) 꼭 볼 뉴스 5개
+  const nb = state.news && state.news.briefing;
+  if (nb && nb.length) cards.push(card('꼭 볼 뉴스', 'news', '뉴스', nb.slice(0, 5).map(a => newsRow(a, true)).join('')));
+
+  // 5) 새 공시 (투자영향 큰 유형)
+  const di = (state.disclosures && state.disclosures.items) || [];
+  const high = di.filter(i => i.level === 'high').sort((a, b) => b.rceptDt.localeCompare(a.rceptDt));
+  if (di.length) {
+    const rows = high.slice(0, 6).map(i => `<tr><td class="muted" style="white-space:nowrap">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</td><td>${esc(i.name)}</td><td><span class="warn-tag">${esc(i.category)}</span></td><td><a href="${esc(i.url)}" target="_blank" rel="noopener" class="muted" style="text-decoration:none">원문↗</a></td></tr>`).join('');
+    cards.push(card('새 공시', 'disclosures', '공시',
+      rows ? `<div class="table-wrap"><table><tbody>${rows}</tbody></table></div><p class="muted" style="margin:6px 0 0;font-size:11px">투자영향 큰 유형 ${high.length}건 중 최근 6건</p>`
+        : '<p class="muted" style="margin:0">투자영향 큰 공시가 없습니다.</p>'));
+  }
+
+  // 6) 내 보유종목
+  const hs = (state.portfolio && state.portfolio.holdings) || [];
+  if (hs.length) {
+    const rows = hs.map(h => `<tr><td><strong>${esc(h.name)}</strong> <span class="muted">${esc(h.ticker)}</span></td><td style="text-align:right">${fmtPct(h.unrealizedPnLPct)}</td><td>${h.stockScore ?? '-'} ${gradeChip(h.stockGrade)}</td></tr>`).join('');
+    cards.push(card('내 보유종목', 'holdings', '내 포트폴리오',
+      `<div class="table-wrap"><table><thead><tr><th>종목</th><th style="text-align:right">손익</th><th>점수</th></tr></thead><tbody>${rows}</tbody></table></div>`));
+  }
+
+  if (!cards.length) return '<div class="card empty">표시할 데이터가 아직 없습니다.</div>';
+  return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px;align-items:start">${cards.join('')}</div>`;
+}
+
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
+  ['today', '오늘', [['today', '요약']]],
   ['stock', '종목', [['scores', '스코어'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
@@ -3078,13 +3160,17 @@ function renderNav() {
   const g = NAV_GROUPS.find(x => x[2].some(t => t[0] === state.tab)) || NAV_GROUPS[0];
   lastSub[g[0]] = state.tab;
   document.getElementById('nav').innerHTML = NAV_GROUPS.map(x => `<button data-navgroup="${x[0]}"${x[0] === g[0] ? ' class="active"' : ''}>${x[1]}</button>`).join('');
-  document.getElementById('subnav').innerHTML = g[2].map(t => `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active"' : ''}>${t[1]}</button>`).join('');
+  document.getElementById('subnav').innerHTML = g[2].length < 2 ? '' : g[2].map(t => `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active"' : ''}>${t[1]}</button>`).join('');
 }
 document.addEventListener('click', (e) => {
   const gb = e.target.closest && e.target.closest('button[data-navgroup]');
   const tb = e.target.closest && e.target.closest('button[data-tab]');
-  if (!gb && !tb) return;
-  if (gb) {
+  const go = e.target.closest && e.target.closest('[data-goto]');
+  if (!gb && !tb && !go) return;
+  if (go) {
+    state.tab = go.dataset.goto;
+    window.scrollTo(0, 0);
+  } else if (gb) {
     const g = NAV_GROUPS.find(x => x[0] === gb.dataset.navgroup);
     state.tab = lastSub[g[0]] || g[2][0][0];
   } else {
