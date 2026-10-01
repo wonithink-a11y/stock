@@ -291,6 +291,9 @@ def _pit_select_asof(rows, asof_date):
     return max(candidates, key=lambda r: (r[1], r[0], _REPRT_PRIORITY.get(r[2], 0)))
 
 
+NEAR_CLEAN_TOL = 0.05   # 2% 에는 못 미치지만 정수배에 5% 이내인 단계 = 증자가 섞인 '실제 정수배 사건'(224060 ×0.2063). 실측: 사건 앞의 별개 증자는 정수에서 14~25% 떨어져 있었다
+
+
 def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None, clean=None):
     """disclosure_date 시점의 PIT 선택값(before)과, 그 뒤로 **PIT 선택값이
     실제로 달라지는 첫 시점**(after)의 비율.
@@ -334,6 +337,10 @@ def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None
       2) 아니면 windowDays 안에서 **연속한 두 PIT 값 사이의 단계 비율**(직전 값 →
          다음 값, 소폭 증자 드리프트 제외)이 정수배인 첫 스텝의 그 단계 비율을 낸다
          (카카오: 88,761,861 → 444,460,230 = 5.0077).
+         단 방향이 맞는 단계가 정수배에 NEAR_CLEAN_TOL(5%) 이내면 거기서 탐색을 멈춘다 —
+         224060(2022-08-10 병합, 실제 ×0.2063 은 0.2 에서 3.1% 벗어나 탈락)이 278일 뒤의
+         **별개의 두 번째 병합**(×0.0565 ≈ 1/18, 2% 이내로 통과)을 잡았다. 소폭 드리프트와
+         정수에서 먼 큰 증자(×1.5·×2.33 등)는 계속 건너뛴다(그 뒤에 실제 5·10배 분할이 온다).
       3) 그런 스텝이 없으면 1) 의 비율을 낸다(그 경우는 bracketOutOfTolerance 로
          계속 진단에 잡힌다).
     None 이면 기존 동작 그대로(하위호환·회귀용).
@@ -380,6 +387,8 @@ def a3c_bracket_ratio(ticker, disclosure_date, timeline, expected_direction=None
             continue
         if p > 0 and _clean_multiple(step, tol, max_n) is not None:
             return step
+        if p > 0 and _clean_multiple(step, NEAR_CLEAN_TOL, max_n) is not None:
+            break       # 증자가 섞여 2% 는 못 맞췄지만 정수배 사건인 단계 — 그 뒤 별개 사건으로 넘어가지 않는다(224060)
     return legacy
 
 
