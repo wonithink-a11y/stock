@@ -1,0 +1,552 @@
+{
+ "prereg": "supply-mcap-flow-preregistration-2026-10.md",
+ "variants": {
+  "core": {
+   "params": {
+    "col": "S",
+    "thr": 0.009
+   },
+   "events_by_cell": {
+    "A": 18041,
+    "B": 18041,
+    "C": 17996
+   },
+   "counts": {
+    "event_censored_C": 210,
+    "event_censored_A": 165,
+    "event_censored_B": 165,
+    "no_ret_event": 2
+   },
+   "bar": 2.36,
+   "cells": {
+    "A": {
+     "verdict": "REJECT",
+     "train_sign": -1,
+     "t_train": -0.44,
+     "t_oos_dir": 5.74,
+     "net1_oos_bp": 22.14,
+     "net2_oos_bp": 12.18,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 60,
+      "info_bp": -3.89,
+      "gross_bp": -8.61,
+      "t": -0.44
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -27.89,
+      "gross_bp": -38.12,
+      "t": -2.31
+     },
+     "TEST": {
+      "n": 45,
+      "info_bp": -25.3,
+      "gross_bp": -49.71,
+      "t": -2.51
+     }
+    },
+    "B": {
+     "verdict": "REJECT",
+     "train_sign": -1,
+     "t_train": -1.23,
+     "t_oos_dir": 3.26,
+     "net1_oos_bp": 37.71,
+     "net2_oos_bp": 27.75,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 60,
+      "info_bp": -19.04,
+      "gross_bp": -24.14,
+      "t": -1.23
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -40.94,
+      "gross_bp": -58.52,
+      "t": -2.1
+     },
+     "TEST": {
+      "n": 45,
+      "info_bp": -54.73,
+      "gross_bp": -62.71,
+      "t": -2.82
+     }
+    },
+    "C": {
+     "verdict": "INFORMATION",
+     "train_sign": -1,
+     "t_train": -2.51,
+     "t_oos_dir": 1.59,
+     "net1_oos_bp": 125.24,
+     "net2_oos_bp": 115.28,
+     "cost_bp": 23.54,
+     "TRAIN": {
+      "n": 60,
+      "info_bp": -99.38,
+      "gross_bp": -62.73,
+      "t": -2.51
+     },
+     "VALID": {
+      "n": 24,
+      "info_bp": -130.84,
+      "gross_bp": -218.89,
+      "t": -1.86
+     },
+     "TEST": {
+      "n": 44,
+      "info_bp": -136.24,
+      "gross_bp": -110.54,
+      "t": -2.18
+     }
+    }
+   },
+   "stats": {
+    "A": {
+     "events": 18041,
+     "tickers": 1841,
+     "months": {
+      "TRAIN": 60,
+      "VALID": 24,
+      "TEST": 45
+     },
+     "event_gross_mean_bp": -33.4,
+     "event_info_mean_bp": -18.0,
+     "oos_gross_month_bp": -45.7,
+     "oos_gross_ci95": [
+      -60.6,
+      -30.6
+     ],
+     "oos_net_month_bp": -69.2,
+     "breakeven_cost_roundtrip_bp": -45.7,
+     "max_events_per_month": 461,
+     "top5_month_share": 0.113,
+     "yearly_info_bp": {
+      "2016": 3.1,
+      "2017": -14.7,
+      "2018": 14.9,
+      "2019": -3.1,
+      "2020": -19.7,
+      "2021": -23.2,
+      "2022": -32.6,
+      "2023": -45.2,
+      "2024": -46.6,
+      "2025": -3.1,
+      "2026": 0.1
+     },
+     "overnight_gap_bp": {
+      "event": 195.9,
+      "control": 179.5
+     },
+     "hit_rate": {
+      "event": 0.427,
+      "control": 0.417
+     },
+     "date_size_only_control": {
+      "TRAIN": {
+       "info_bp": -4.1,
+       "t": -0.45
+      },
+      "VALID": {
+       "info_bp": -35.8,
+       "t": -3.01
+      },
+      "TEST": {
+       "info_bp": -43.3,
+       "t": -4.18
+      }
+     }
+    },
+    "B": {
+     "events": 18041,
+     "tickers": 1841,
+     "months": {
+      "TRAIN": 60,
+      "VALID": 24,
+      "TEST": 45
+     },
+     "event_gross_mean_bp": -31.5,
+     "event_info_mean_bp": -25.7,
+     "oos_gross_month_bp": -61.3,
+     "oos_gross_ci95": [
+      -97.5,
+      -25.8
+     ],
+     "oos_net_month_bp": -84.8,
+     "breakeven_cost_roundtrip_bp": -61.3,
+     "max_events_per_month": 461,
+     "top5_month_share": 0.113,
+     "yearly_info_bp": {
+      "2016": -15.4,
+      "2017": -66.7,
+      "2018": 3.6,
+      "2019": -11.6,
+      "2020": -5.1,
+      "2021": -22.7,
+      "2022": -59.2,
+      "2023": -64.5,
+      "2024": -103.8,
+      "2025": -27.9,
+      "2026": -12.1
+     },
+     "overnight_gap_bp": {
+      "event": 195.9,
+      "control": 179.5
+     },
+     "hit_rate": {
+      "event": 0.427,
+      "control": 0.436
+     },
+     "date_size_only_control": {
+      "TRAIN": {
+       "info_bp": -27.2,
+       "t": -1.76
+      },
+      "VALID": {
+       "info_bp": -51.8,
+       "t": -2.98
+      },
+      "TEST": {
+       "info_bp": -69.3,
+       "t": -3.42
+      }
+     }
+    },
+    "C": {
+     "events": 17996,
+     "tickers": 1841,
+     "months": {
+      "TRAIN": 60,
+      "VALID": 24,
+      "TEST": 44
+     },
+     "event_gross_mean_bp": -63.6,
+     "event_info_mean_bp": -73.3,
+     "oos_gross_month_bp": -148.8,
+     "oos_gross_ci95": [
+      -338.7,
+      28.5
+     ],
+     "oos_net_month_bp": -172.3,
+     "breakeven_cost_roundtrip_bp": -148.8,
+     "max_events_per_month": 459,
+     "top5_month_share": 0.113,
+     "yearly_info_bp": {
+      "2016": -103.7,
+      "2017": -212.7,
+      "2018": -103.8,
+      "2019": -82.0,
+      "2020": 5.3,
+      "2021": -14.9,
+      "2022": -246.8,
+      "2023": -130.6,
+      "2024": -309.9,
+      "2025": 40.6,
+      "2026": -149.4
+     },
+     "overnight_gap_bp": {
+      "event": 196.4,
+      "control": 179.8
+     },
+     "hit_rate": {
+      "event": 0.397,
+      "control": 0.425
+     },
+     "date_size_only_control": {
+      "TRAIN": {
+       "info_bp": -113.5,
+       "t": -2.62
+      },
+      "VALID": {
+       "info_bp": -159.1,
+       "t": -2.27
+      },
+      "TEST": {
+       "info_bp": -144.2,
+       "t": -1.89
+      }
+     }
+    }
+   }
+  },
+  "th0.5": {
+   "params": {
+    "col": "S",
+    "thr": 0.005
+   },
+   "events_by_cell": {
+    "A": 56590,
+    "B": 56590,
+    "C": 56474
+   },
+   "counts": {
+    "event_censored_C": 529,
+    "event_censored_A": 413,
+    "event_censored_B": 413,
+    "no_ret_event": 10
+   },
+   "record_only": {
+    "A": {
+     "TRAIN": {
+      "info_bp": -0.9,
+      "t": -0.19,
+      "gross_bp": -11.4
+     },
+     "VALID": {
+      "info_bp": -26.4,
+      "t": -6.08,
+      "gross_bp": -32.1
+     },
+     "TEST": {
+      "info_bp": -19.7,
+      "t": -3.85,
+      "gross_bp": -37.8
+     }
+    },
+    "B": {
+     "TRAIN": {
+      "info_bp": -6.3,
+      "t": -0.68,
+      "gross_bp": -10.4
+     },
+     "VALID": {
+      "info_bp": -30.0,
+      "t": -3.28,
+      "gross_bp": -42.5
+     },
+     "TEST": {
+      "info_bp": -36.9,
+      "t": -3.02,
+      "gross_bp": -40.1
+     }
+    },
+    "C": {
+     "TRAIN": {
+      "info_bp": -50.1,
+      "t": -1.81,
+      "gross_bp": -20.3
+     },
+     "VALID": {
+      "info_bp": -88.4,
+      "t": -2.16,
+      "gross_bp": -157.4
+     },
+     "TEST": {
+      "info_bp": -104.6,
+      "t": -2.41,
+      "gross_bp": -64.6
+     }
+    }
+   }
+  },
+  "th1.5": {
+   "params": {
+    "col": "S",
+    "thr": 0.015
+   },
+   "events_by_cell": {
+    "A": 5206,
+    "B": 5206,
+    "C": 5194
+   },
+   "counts": {
+    "event_censored_C": 55,
+    "event_censored_A": 43,
+    "event_censored_B": 43
+   },
+   "record_only": {
+    "A": {
+     "TRAIN": {
+      "info_bp": 0.6,
+      "t": 0.04,
+      "gross_bp": -6.3
+     },
+     "VALID": {
+      "info_bp": -39.8,
+      "t": -2.26,
+      "gross_bp": -46.5
+     },
+     "TEST": {
+      "info_bp": -46.6,
+      "t": -2.9,
+      "gross_bp": -72.3
+     }
+    },
+    "B": {
+     "TRAIN": {
+      "info_bp": -55.2,
+      "t": -1.8,
+      "gross_bp": -74.7
+     },
+     "VALID": {
+      "info_bp": -49.2,
+      "t": -1.44,
+      "gross_bp": -65.3
+     },
+     "TEST": {
+      "info_bp": -100.4,
+      "t": -3.68,
+      "gross_bp": -113.6
+     }
+    },
+    "C": {
+     "TRAIN": {
+      "info_bp": -30.5,
+      "t": -0.43,
+      "gross_bp": 3.6
+     },
+     "VALID": {
+      "info_bp": -144.9,
+      "t": -1.69,
+      "gross_bp": -277.9
+     },
+     "TEST": {
+      "info_bp": -195.9,
+      "t": -2.3,
+      "gross_bp": -184.5
+     }
+    }
+   }
+  },
+  "foreign0.9": {
+   "params": {
+    "col": "Sf",
+    "thr": 0.009
+   },
+   "events_by_cell": {
+    "A": 11786,
+    "B": 11786,
+    "C": 11750
+   },
+   "counts": {
+    "event_censored_C": 128,
+    "event_censored_A": 92,
+    "event_censored_B": 92,
+    "no_ret_event": 1
+   },
+   "record_only": {
+    "A": {
+     "TRAIN": {
+      "info_bp": -35.9,
+      "t": -2.63,
+      "gross_bp": -34.9
+     },
+     "VALID": {
+      "info_bp": -64.2,
+      "t": -7.31,
+      "gross_bp": -70.5
+     },
+     "TEST": {
+      "info_bp": -38.9,
+      "t": -2.73,
+      "gross_bp": -57.5
+     }
+    },
+    "B": {
+     "TRAIN": {
+      "info_bp": -59.9,
+      "t": -2.34,
+      "gross_bp": -61.4
+     },
+     "VALID": {
+      "info_bp": -87.5,
+      "t": -4.59,
+      "gross_bp": -90.1
+     },
+     "TEST": {
+      "info_bp": -62.8,
+      "t": -3.29,
+      "gross_bp": -59.0
+     }
+    },
+    "C": {
+     "TRAIN": {
+      "info_bp": -167.2,
+      "t": -2.72,
+      "gross_bp": -116.8
+     },
+     "VALID": {
+      "info_bp": -155.2,
+      "t": -2.4,
+      "gross_bp": -237.9
+     },
+     "TEST": {
+      "info_bp": -156.2,
+      "t": -2.4,
+      "gross_bp": -105.1
+     }
+    }
+   }
+  },
+  "inst0.9": {
+   "params": {
+    "col": "Si",
+    "thr": 0.009
+   },
+   "events_by_cell": {
+    "A": 4934,
+    "B": 4934,
+    "C": 4913
+   },
+   "counts": {
+    "event_censored_C": 80,
+    "event_censored_A": 59,
+    "event_censored_B": 59,
+    "no_ret_event": 4
+   },
+   "record_only": {
+    "A": {
+     "TRAIN": {
+      "info_bp": 10.9,
+      "t": 1.17,
+      "gross_bp": -5.2
+     },
+     "VALID": {
+      "info_bp": 24.4,
+      "t": 1.27,
+      "gross_bp": -2.9
+     },
+     "TEST": {
+      "info_bp": -3.2,
+      "t": -0.2,
+      "gross_bp": -28.4
+     }
+    },
+    "B": {
+     "TRAIN": {
+      "info_bp": -5.0,
+      "t": -0.27,
+      "gross_bp": -29.3
+     },
+     "VALID": {
+      "info_bp": -0.2,
+      "t": -0.0,
+      "gross_bp": -45.2
+     },
+     "TEST": {
+      "info_bp": -64.2,
+      "t": -2.91,
+      "gross_bp": -73.2
+     }
+    },
+    "C": {
+     "TRAIN": {
+      "info_bp": -8.8,
+      "t": -0.18,
+      "gross_bp": 33.0
+     },
+     "VALID": {
+      "info_bp": 43.2,
+      "t": 0.41,
+      "gross_bp": -61.1
+     },
+     "TEST": {
+      "info_bp": -74.9,
+      "t": -0.96,
+      "gross_bp": -89.2
+     }
+    }
+   }
+  }
+ }
+}
