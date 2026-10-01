@@ -2420,10 +2420,32 @@ function sectorScatter(groups) {
 // 업종 탭과 같은 build() 로 계산한 것. 값은 EW(소속 종목 수익률 중앙값).
 const THEME_WINS = [['1d', '1일'], ['1w', '1주'], ['1m', '1개월'], ['3m', '3개월']];
 
+// 오늘 +5% 이상 오른 종목이 여러 하위 테마에 겹친 수(1일 창만). 표시 전용 — 점수·매매에 쓰지 않는다.
+const OVERLAP_MIN_RET = 0.05, OVERLAP_COLOR = { 2: '#22c55e', 3: '#eab308', 4: '#f97316' };
+function themeOverlap(tree) {
+  const sets = {}, names = {};
+  tree.forEach(b => b.subs.forEach(k => k.members.forEach(m => {
+    const r = m.ret ? m.ret['1d'] : null;
+    if (r === null || r === undefined || r < OVERLAP_MIN_RET) return;
+    (sets[m.t] = sets[m.t] || new Set()).add(k.key);
+    (names[m.t] = names[m.t] || []).push(k.theme);
+  })));
+  return { n: t => (sets[t] ? sets[t].size : 0), names: t => names[t] || [] };
+}
+// 시총대비 수급 = (외국인+기관 순매수) ÷ 시가총액, 가장 최근 일자. 수량×종가 근사 값이라 대략치다.
+function flowOverMcap(m) {
+  const rows = state.flows && (state.flows.byTicker || {})[m.t];
+  if (!rows || !rows.length || !m.capNow) return null;
+  const x = rows[rows.length - 1];
+  return { v: (x.foreign + x.institution) / m.capNow, date: x.date };
+}
+
 function renderThemeTree() {
   const d = state.themeStrength;
   if (!d || !d.tree) return '';
+  ensureFlows();
   const w = state.themeWin;
+  const ov = w === '1d' ? themeOverlap(d.tree) : null;
   const val = s => s && s.ret ? s.ret[w] : null;
   const vals = [];
   d.tree.forEach(b => { vals.push(val(b.stats)); b.subs.forEach(k => vals.push(val(k.stats))); });
@@ -2452,7 +2474,7 @@ function renderThemeTree() {
       <td style="text-align:right">${secPct(val(s))}</td>${barCell(val(s))}
       <td style="text-align:right">${s ? secPct(s.rs[w]) : '<span class="muted">-</span>'}</td>
       <td style="text-align:right">${s && s.breadth20 !== null ? Math.round(s.breadth20 * 100) + '%' : '<span class="muted">-</span>'}</td>
-      <td style="font-size:12px">${lead(L, members)}</td></tr>`;
+      <td style="font-size:12px">${lead(L, members)}</td><td></td></tr>`;
   };
   let rows = '';
   d.tree.forEach(b => {
@@ -2464,8 +2486,13 @@ function renderThemeTree() {
       if (!state.themeOpen[k.key]) return;
       k.members.slice().sort((x, y) => ((y.ret || {})[w] ?? -9) - ((x.ret || {})[w] ?? -9)).forEach(m => {
         const r = m.ret ? m.ret[w] : null;
-        rows += `<tr><td style="padding-left:${6 + 2 * 16 + 12}px;font-size:12px">${esc(m.name)} <span class="muted">${esc(m.t)}</span>${m.primary ? '' : ' <span class="muted" title="부 테마 — 주 테마는 다른 곳">(부)</span>'}</td>
-          <td style="text-align:right;font-size:12px">${m.hasPrice ? secPct(r) : '<span class="muted">가격 없음</span>'}</td>${barCell(r)}<td></td><td></td><td></td></tr>`;
+        const n = ov ? ov.n(m.t) : 0;
+        const col = n >= 2 ? OVERLAP_COLOR[Math.min(n, 4)] : '';
+        const tag = n >= 2 ? ` <span style="font-size:10px;color:${col}" title="오늘 +5% 이상 · ${esc(ov.names(m.t).join(', '))}">●${n}테마</span>` : '';
+        const f = flowOverMcap(m);
+        const fcell = f ? `<span title="${esc(f.date)} 외국인+기관 순매수 ÷ 시총 (수량×종가 근사)">${pctCell((f.v * 100).toFixed(2))}</span>` : '<span class="muted">-</span>';
+        rows += `<tr><td style="padding-left:${6 + 2 * 16 + 12}px;font-size:12px${col ? `;color:${col};font-weight:600` : ''}">${esc(m.name)} <span class="muted" style="font-weight:400">${esc(m.t)}</span>${tag}${m.primary ? '' : ' <span class="muted" title="부 테마 — 주 테마는 다른 곳">(부)</span>'}</td>
+          <td style="text-align:right;font-size:12px">${m.hasPrice ? secPct(r) : '<span class="muted">가격 없음</span>'}</td>${barCell(r)}<td></td><td></td><td></td><td style="text-align:right;font-size:12px">${fcell}</td></tr>`;
       });
     });
   });
@@ -2478,13 +2505,15 @@ function renderThemeTree() {
       ⚠️ <b>관찰용입니다.</b> 테마 소속은 지금 기준으로 손으로 고른 것이라(config/themeTree.json) 과거 검증에 쓰지 않습니다.
       값 = 소속 종목 수익률의 <b>중앙값</b>, 상대 = 벤치마크(가격 있는 전 종목 중앙값) 대비 초과분, 20일선 = 20일 이동평균 위 종목 비율,
       대장주 = 지금 시총 1위(주 테마 종목 중). <b>(부)</b> 종목은 두 테마에 모두 들어가 두 테마가 같이 움직여 보일 수 있습니다.
-      줄을 누르면 펼쳐집니다.
+      줄을 누르면 펼쳐집니다.<br>
+      <b>1일</b> 창에서는 오늘 +5% 이상 오른 종목이 <b>여러 하위 테마에 겹치면</b> 이름 색이 바뀝니다(<span style="color:#22c55e">초록 2</span> · <span style="color:#eab308">노랑 3</span> · <span style="color:#f97316">주황 4+</span>).
+      <b>시총대비 수급</b> = 가장 최근 일자의 (외국인+기관 순매수) ÷ 시총(수량×종가 근사). 둘 다 <b>표시 전용</b>입니다 — 2026-10-01 검증에서 이 지표는 다음 날 이후 수익을 예측하지 못했고(오히려 덜 오름), 매매 신호가 아닙니다.
     </p>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${chips}
       <button class="chip" data-themetoggle="__all">전체 펼치기/접기</button></div>
     <div class="table-wrap"><table>
       <thead><tr><th>테마</th><th style="text-align:right">수익률</th><th style="text-align:center">−  |  +</th>
-        <th style="text-align:right">상대</th><th style="text-align:right">20일선</th><th>대장주</th></tr></thead>
+        <th style="text-align:right">상대</th><th style="text-align:right">20일선</th><th>대장주</th><th style="text-align:right" title="종목 줄만 · 가장 최근 일자 (외국인+기관 순매수) ÷ 시총">시총대비 수급</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
     ${(d.fetchFailed || []).length ? `<p class="muted" style="font-size:11px">가격을 못 받은 종목: ${d.fetchFailed.map(x => esc(x.name)).join(', ')}</p>` : ''}
   </div>`;
