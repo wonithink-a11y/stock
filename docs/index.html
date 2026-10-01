@@ -22,6 +22,21 @@
   #nav { margin-bottom: 8px; }
   #subnav button { padding: 5px 12px; font-size: 13px; }
   .today-compact th, .today-compact td { padding: 6px 8px; font-size: 12px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .cal-h { text-align: center; color: var(--muted); font-size: 12px; padding: 2px 0; }
+  .cal-c { min-height: 74px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 5px; background: var(--card); font-size: 11px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+  .cal-c.out { background: transparent; border-color: transparent; }
+  .cal-c.empty { opacity: .55; }
+  .cal-c[data-events-day] { cursor: pointer; }
+  .cal-c[data-events-day]:hover { border-color: var(--accent); }
+  .cal-c.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .cal-c.sel { background: #1e2a44; border-color: var(--accent); }
+  .cal-d { font-size: 12px; color: var(--muted); }
+  .cal-b { white-space: nowrap; }
+  .cal-agenda { display: none; }
+  .cal-ag { display: flex; justify-content: space-between; gap: 8px; padding: 9px 8px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 4px; cursor: pointer; font-size: 13px; }
+  .cal-ag.sel { background: #1e2a44; border-color: var(--accent); }
+  @media (max-width: 640px) { .cal-grid { display: none; } .cal-agenda { display: block; } }
   @media (max-width: 480px) { #nav button { padding: 8px 10px; font-size: 13px; } #nav { gap: 4px; } }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
   h2 { font-size: 15px; margin-bottom: 10px; }
@@ -221,6 +236,8 @@ const state = {
   etfPick: null,           // ETF 탭에서 비교 패널을 연 종목 코드
   events: null,            // docs/data/events.json (다가오는 일정 D-day, 관찰용)
   stockContext: null,      // docs/data/stock-context.json (52주 고저·증권사 목표가 — 맥락 전용, 점수에 안 씀)
+  eventsMonth: null,       // 일정 달력의 표시 월(YYYY-MM, 없으면 이번 달)
+  eventsDay: null,         // 일정 달력에서 고른 날짜
   eventsScope: 'key',      // key(보유·거시·국내) | all | macro | kr | us
   etfSearch: '',
   etfAssetClass: 'all',
@@ -2106,8 +2123,10 @@ function renderEtf() {
 function renderEvents() {
   const d = state.events;
   if (!d || !d.events) return '<div class="card empty">일정 데이터가 아직 없습니다(events.json 첫 생성 전).</div>';
-  const kstToday = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })); kstToday.setHours(0, 0, 0, 0);
-  const dday = s => Math.round((new Date(s + 'T00:00:00') - kstToday) / 864e5);
+  const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })); kst.setHours(0, 0, 0, 0);
+  const pad = n => String(n).padStart(2, '0');
+  const todayStr = `${kst.getFullYear()}-${pad(kst.getMonth() + 1)}-${pad(kst.getDate())}`;
+  const dday = s => Math.round((new Date(s + 'T00:00:00') - kst) / 864e5);
   const pass = e => {
     const sc = state.eventsScope;
     if (sc === 'all') return true;
@@ -2117,25 +2136,75 @@ function renderEvents() {
     return e.scope === 'held' || e.scope === 'macro' || e.market === 'KR';   // key: 보유 + 거시 + 국내
   };
   const list = d.events.filter(e => dday(e.date) >= 0 && pass(e));
-  const chip = (v, label) => `<button data-events-scope="${v}" class="chip ${state.eventsScope === v ? 'active' : ''}">${label}</button>`;
+  const byDate = {};
+  list.forEach(e => (byDate[e.date] = byDate[e.date] || []).push(e));
+
+  // 월 범위: 오늘이 속한 달 ~ 일정이 있는 마지막 달
+  const minM = todayStr.slice(0, 7);
+  const lastDate = d.events.map(e => e.date).sort().pop() || todayStr;
+  const maxM = lastDate.slice(0, 7) > minM ? lastDate.slice(0, 7) : minM;
+  let month = state.eventsMonth || minM;
+  if (month < minM) month = minM;
+  if (month > maxM) month = maxM;
+  const shiftM = (m, k) => { const [y, mo] = m.split('-').map(Number); const t = new Date(y, mo - 1 + k, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; };
+  const [Y, M] = month.split('-').map(Number);
+
   const kindIcon = { earnings: '📊', exdiv: '💰', fomc: '🇺🇸', bok: '🇰🇷', expiry: '⏳' };
+  // 칸에는 요약만 둔다 — 거시 일정은 아이콘, 보유종목은 📌, 나머지(실적·배당)는 건수 하나. 73건짜리 날도 같은 높이를 유지한다.
+  const badges = evs => {
+    const macro = ['fomc', 'bok', 'expiry'].filter(k => evs.some(e => e.kind === k)).map(k => kindIcon[k]).join('');
+    const held = evs.some(e => e.scope === 'held') ? '📌' : '';
+    const ne = evs.filter(e => e.kind === 'earnings').length, nx = evs.filter(e => e.kind === 'exdiv').length;
+    return `${macro + held ? `<span class="cal-b">${macro}${held}</span>` : ''}${ne ? `<span class="cal-b muted">📊${ne}</span>` : ''}${nx ? `<span class="cal-b muted">💰${nx}</span>` : ''}`;
+  };
+
+  const monthDates = Object.keys(byDate).filter(x => x.slice(0, 7) === month).sort();
+  let sel = state.eventsDay && byDate[state.eventsDay] && state.eventsDay.slice(0, 7) === month ? state.eventsDay : null;
+  if (!sel) sel = monthDates.find(x => x >= todayStr) || monthDates[0] || null;
+
+  const dow = ['일', '월', '화', '수', '목', '금', '토'];
+  const startDow = new Date(Y, M - 1, 1).getDay(), daysIn = new Date(Y, M, 0).getDate();
+  let cells = dow.map(x => `<div class="cal-h">${x}</div>`).join('');
+  for (let i = 0; i < Math.ceil((startDow + daysIn) / 7) * 7; i++) {
+    const day = i - startDow + 1;
+    if (day < 1 || day > daysIn) { cells += '<div class="cal-c out"></div>'; continue; }
+    const ds = `${Y}-${pad(M)}-${pad(day)}`, evs = byDate[ds];
+    cells += `<div class="cal-c${ds === todayStr ? ' today' : ''}${ds === sel ? ' sel' : ''}${evs ? '' : ' empty'}"${evs ? ` data-events-day="${ds}"` : ''}><span class="cal-d">${day}</span>${evs ? badges(evs) : ''}</div>`;
+  }
+  // 좁은 화면에서는 7열 달력 대신 일정 있는 날만 한 줄씩
+  const agenda = monthDates.map(ds => {
+    const n = dday(ds), w = dow[new Date(ds + 'T00:00:00').getDay()];
+    return `<div class="cal-ag${ds === sel ? ' sel' : ''}" data-events-day="${ds}"><span><b>${ds.slice(5, 7)}/${ds.slice(8, 10)}</b> (${w}) <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span></span><span>${badges(byDate[ds])}</span></div>`;
+  }).join('');
+
   const statusBadge = e => e.status === 'official' ? '<span class="muted">공식</span>'
     : e.status === 'rule' ? '<span class="muted">규칙</span>'
     : e.status === 'range' ? `<span class="muted">미정(${esc(e.date)}~${esc(e.dateEnd)})</span>`
     : e.confirmedBy === 'nasdaq' ? '<span class="muted">Nasdaq 확인</span>' : '<span class="muted">Yahoo 예상</span>';
-  let lastDate = '';
-  const rows = list.map(e => {
-    const n = dday(e.date);
-    const head = e.date !== lastDate ? `<tr><td colspan="4" style="padding-top:12px"><strong>${esc(e.date)}</strong> <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span></td></tr>` : '';
-    lastDate = e.date;
-    const who = e.code ? `<span data-chart="${esc(e.code)}" data-chart-name="${esc(e.name)}" style="cursor:pointer">${e.scope === 'held' ? '📌 ' : ''}<strong>${esc(e.name)}</strong></span> <span class="muted">${esc(e.code)}</span>` : '';
-    return head + `<tr><td>${kindIcon[e.kind] || ''} ${esc(e.title)}</td><td>${who}</td><td>${statusBadge(e)}</td><td class="muted">${esc(e.note || '')}</td></tr>`;
-  }).join('');
+  let detail = '';
+  if (sel) {
+    const rows = byDate[sel].map(e => {
+      const who = e.code ? `<span data-chart="${esc(e.code)}" data-chart-name="${esc(e.name)}" style="cursor:pointer">${e.scope === 'held' ? '📌 ' : ''}<strong>${esc(e.name)}</strong></span> <span class="muted">${esc(e.code)}</span>` : '';
+      return `<tr><td>${kindIcon[e.kind] || ''} ${esc(e.title)}</td><td>${who}</td><td>${statusBadge(e)}</td><td class="muted">${esc(e.note || '')}</td></tr>`;
+    });
+    const lim = limited('evday', sel + '|' + state.eventsScope, rows);
+    const n = dday(sel);
+    detail = `<div style="margin-top:12px"><strong>${esc(sel)}</strong> <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span> <span class="muted">· ${rows.length}건</span></div>
+      <div class="table-wrap"><table><tbody>${lim.shown.join('')}</tbody></table></div>${lim.more}`;
+  }
+
+  const chip = (v, label) => `<button data-events-scope="${v}" class="chip ${state.eventsScope === v ? 'active' : ''}">${label}</button>`;
+  const navBtn = (m, label, ok) => `<button class="chip"${ok ? ` data-events-month="${m}"` : ' disabled style="opacity:.35;cursor:default"'}>${label}</button>`;
   const warn = (d.warnings || []).map(w => `<p class="neg">⚠ ${esc(w)}</p>`).join('');
   return `<div class="card">
     <div class="filter-row">${chip('key', '핵심(보유·거시·국내)')}${chip('macro', '거시')}${chip('kr', '국내')}${chip('us', '미국')}${chip('all', '전체')}</div>
     ${warn}
-    <div class="table-wrap"><table><tbody>${rows || '<tr><td class="muted">표시할 일정이 없습니다.</td></tr>'}</tbody></table></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0 4px">${navBtn(shiftM(month, -1), '‹', month > minM)}<strong style="font-size:16px;white-space:nowrap">${Y}년 ${M}월</strong>${navBtn(shiftM(month, 1), '›', month < maxM)}</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">🇺🇸 FOMC · 🇰🇷 금통위 · ⏳ 옵션 만기 · 📌 보유 · 📊 실적 · 💰 배당락</div>
+    ${monthDates.length ? '' : '<p class="muted">이 달에 표시할 일정이 없습니다.</p>'}
+    <div class="cal-grid">${cells}</div>
+    <div class="cal-agenda">${agenda}</div>
+    ${detail}
     <p class="muted" style="margin-top:8px">기준 ${esc(d.asOf)} · 앞으로 ${d.horizonDays}일 · 관심종목 ${d.counts.watchlist}개 조회(실패 ${d.counts.yahooFail}) · <strong>목록에 없다고 일정이 없는 것은 아닙니다</strong> · 관찰용
       <span style="cursor:help" title="실적·배당락은 Yahoo 기준이며 확정 여부를 Yahoo 가 알려주지 않습니다. 미국은 Nasdaq 실적 캘린더에 같은 날 있으면 'Nasdaq 확인'. 국내는 Yahoo 가 다루는 대형주만 나옵니다. FOMC·금통위는 공식 페이지에서 옮긴 값, 옵션 만기는 규칙 계산(휴장이면 직전 영업일)입니다.">ⓘ</span></p>
   </div>`;
@@ -2912,6 +2981,10 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (es) { state.etfSubClass = es.dataset.etfSub; return render(); }
   const evs = t.closest('[data-events-scope]');
   if (evs) { state.eventsScope = evs.dataset.eventsScope; return render(); }
+  const em = t.closest('[data-events-month]');
+  if (em) { state.eventsMonth = em.dataset.eventsMonth; state.eventsDay = null; return render(); }
+  const ed = t.closest('[data-events-day]');
+  if (ed) { state.eventsDay = ed.dataset.eventsDay; return render(); }
   const ep = t.closest('[data-etf-pick]');
   if (ep) { state.etfPick = ep.dataset.etfPick || null; render(); if (state.etfPick) window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
