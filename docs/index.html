@@ -196,7 +196,8 @@ const state = {
   search: '',
   sortKey: 'totalScore',
   sortDir: 'desc',
-  collapsed: {},           // 업종별 접힘 상태
+  secOpen: {},             // 업종별 펼침 상태(기본은 접힘)
+  lim: {},                 // 긴 표의 '더 보기' 상태 {key: {sig, n}}
   openNotes: {},           // 업종 비고 펼침
   prices: null,            // docs/data/prices.json (지연 로드 - 상세 차트를 처음 열 때만)
   flows: null,             // docs/data/stock-flows.json (지연 로드 - 수급 탭을 처음 열 때만, KR만)
@@ -451,6 +452,15 @@ function tradeLevelBlock(tl) {
     ${d.tradeStateChecked === false && d.tradeStateNote ? `<div class="adj">${esc(d.tradeStateNote)}</div>` : ''}`;
 }
 
+// 긴 표는 처음 LIMIT_STEP 행만 보이고 '더 보기'로 늘린다. sig(필터·정렬을 이은 문자열)가 바뀌면 처음으로 돌아간다.
+const LIMIT_STEP = 50;
+function limited(key, sig, rows) {
+  const st = state.lim[key] && state.lim[key].sig === sig ? state.lim[key] : (state.lim[key] = { sig, n: LIMIT_STEP });
+  const more = rows.length > st.n
+    ? `<div style="text-align:center;margin:8px 0"><button class="chip" data-more="${esc(key)}">더 보기 (${st.n}/${rows.length})</button> <button class="chip" data-more="${esc(key)}" data-all="1">전체 보기</button></div>` : '';
+  return { shown: rows.slice(0, st.n), more };
+}
+
 function stockRow(r) {
   const warns = (r.warnings || []).filter(w => !HIDDEN_WARNINGS.has(w));
   const hasNote = !!r.sectorCaution;
@@ -485,10 +495,12 @@ function stockRow(r) {
     </div></td></tr>`;
 }
 
-function tableFor(rows) {
+function tableFor(rows, key) {
+  const sig = [state.search, state.sectorFilter, state.gradeFilter, state.groupFilter, state.marketIndexFilter, state.sortKey, state.sortDir].join('|');
+  const { shown, more } = limited('sc:' + key, sig, rows);
   return `<div class="table-wrap"><table>
     <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
-    <tbody>${rows.map(stockRow).join('')}</tbody></table></div>`;
+    <tbody>${shown.map(stockRow).join('')}</tbody></table></div>${more}`;
 }
 
 function renderSectorView(filtered) {
@@ -505,7 +517,7 @@ function renderSectorView(filtered) {
     const sample = rows.find(r => r.sectorCaution) || rows[0];
     const caution = sample && sample.sectorCaution;
     const label = caution ? caution.label : (SECTOR_LABEL[k] || k);
-    const isCollapsed = state.collapsed[k] === true;
+    const isCollapsed = !state.secOpen[k] && !state.search.trim() && state.sectorFilter === 'all';
     const notesOpen = !!state.openNotes[k];
     const avg = avgScore(rows);
 
@@ -528,7 +540,7 @@ function renderSectorView(filtered) {
         ${notesOpen ? `<ol>${caution.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ol>` : ''}
       </div>` : '';
 
-    return `<div class="sec-block">${head}<div class="sec-body">${noteBox}${tableFor(rows)}</div></div>`;
+    return `<div class="sec-block">${head}<div class="sec-body">${noteBox}${tableFor(rows, k)}</div></div>`;
   }).join('');
 }
 
@@ -602,7 +614,7 @@ function renderScores() {
 
   const body = state.viewMode === 'sector'
     ? renderSectorView(filtered)
-    : (filtered.length ? tableFor(sortRows(filtered)) : '<div class="empty">조건에 맞는 종목이 없습니다.</div>');
+    : (filtered.length ? tableFor(sortRows(filtered), 'list') : '<div class="empty">조건에 맞는 종목이 없습니다.</div>');
 
   const uni = d.universeVersion ? ` · 유니버스 ${esc(d.universeVersion)}(${d.universeSize ?? all.length}종목)` : '';
 
@@ -735,6 +747,7 @@ function renderReco() {
   }).join('');
 
   const rows = byDate[activeDate];
+  const rl = limited('reco', activeDate, rows);
   const rowHtml = (p) => {
     const cur = currentByTicker[p.ticker];
     const curCell = cur
@@ -754,7 +767,7 @@ function renderReco() {
     <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>
     <div class="table-wrap"><table>
       <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
-      <tbody>${rows.map(rowHtml).join('')}</tbody></table></div>
+      <tbody>${rl.shown.map(rowHtml).join('')}</tbody></table></div>${rl.more}
   </div>`;
 }
 
@@ -860,6 +873,7 @@ function renderDisclosures() {
   const cats = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
   const filtered = state.discFilter === 'all' ? items : items.filter(i => i.category === state.discFilter);
 
+  const dl = limited('disc', state.discFilter, filtered);
   let html = `<div class="card">
     <h2>DART 공시 <span class="muted" style="font-weight:400">${esc(d.range.bgnDe)}~${esc(d.range.endDe)} · 투자영향 큰 유형만 자동 수집 · ${items.length}건</span></h2>
     <div class="group-filter">
@@ -867,14 +881,14 @@ function renderDisclosures() {
       ${cats.map(c => `<button data-disc-filter="${esc(c)}" class="chip ${state.discFilter === c ? 'active' : ''}">${esc(c)}<span class="cnt">${counts[c]}</span></button>`).join('')}
     </div>
     <div class="table-wrap"><table><thead><tr><th>일자</th><th>종목</th><th>유형</th><th>보고서</th><th></th></tr></thead><tbody>
-    ${filtered.map(i => `<tr>
+    ${dl.shown.map(i => `<tr>
       <td class="muted">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</td>
       <td>${esc(i.name)}</td>
       <td>${i.level === 'high' ? `<span class="warn-tag">${esc(i.category)}</span>` : `<span class="group-tag">${esc(i.category)}</span>`}</td>
       <td style="white-space:normal">${esc(i.reportNm)}</td>
       <td><a href="${esc(i.url)}" target="_blank" rel="noopener" class="muted" style="text-decoration:none">원문↗</a></td>
     </tr>`).join('') || `<tr><td colspan="5" class="empty">해당 유형의 공시가 없습니다</td></tr>`}
-    </tbody></table></div>
+    </tbody></table></div>${dl.more}
   </div>`;
   return html;
 }
@@ -2050,7 +2064,8 @@ function renderEtf() {
     return (x - y) * dir;
   });
 
-  const body = rows.map(r => {
+  const lim = limited('etf', [state.etfAssetClass, state.etfSubClass, state.etfSearch, state.etfSortKey, state.etfSortDir].join('|'), rows);
+  const body = lim.shown.map(r => {
     const c = r.changes || {};
     const dist = distByCode[r.code];
     return `<tr>
@@ -2079,7 +2094,7 @@ function renderEtf() {
         ${etfTh('name', '종목')}${etfTh('price', '현재가')}${etfTh('d1', '1일')}${etfTh('d7', '1주')}${etfTh('d30', '1개월')}${etfTh('d90', '3개월')}${etfTh('d180', '6개월')}${etfTh('d365', '1년')}${etfTh('distRate', '연분배율')}${etfTh('distCnt', '분배횟수')}
       </tr></thead>
       <tbody>${body}</tbody>
-    </table></div>
+    </table></div>${lim.more}
     <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 캘린더일 기준 수익률(휴장일은 직전 거래일 값 대체) · 컬럼 클릭으로 정렬.
     분배율/분배횟수는 FunETF 공개 데이터(${esc((state.etfDist && state.etfDist.generatedAtKST || '').slice(0, 10)) || '-'} 기준, 최근 12개월 내 분배 이력이 있는 종목만·연환산 단리 기준) - 분배 안 하는 ETF는 '-'.</p>
   </div>`;
@@ -2951,9 +2966,13 @@ document.getElementById('content').addEventListener('click', (e) => {
     return render();
   }
 
+  // 긴 표 더 보기
+  const mb = t.closest('[data-more]');
+  if (mb) { const st = state.lim[mb.dataset.more]; if (st) st.n = mb.dataset.all ? Infinity : st.n + LIMIT_STEP; return render(); }
+
   // 업종 블록 접기
   const st = t.closest('[data-sector-toggle]');
-  if (st) { const k = st.dataset.sectorToggle; state.collapsed[k] = !state.collapsed[k]; return render(); }
+  if (st) { const k = st.dataset.sectorToggle; state.secOpen[k] = !state.secOpen[k]; return render(); }
 
   // 추천 이력 - 날짜 칩 선택
   const rd = t.closest('[data-reco-date]');
