@@ -145,6 +145,8 @@ Validated against
             O2b·O0 셀별 250 신호일(≈2027-09~2028-01)에 1회 판정 — 그 전엔 기록만.
             ★ **M2 그림자도 같이**(09-29 사전등록): `python research/strategy-lab/run_us_overnight_shadow.py`(선물 증분·미국 4종 새로 받기)
             후 `reports/2026-09-us-overnight-shadow/observations.jsonl` 커밋. 250 거래일(≈2027-10) 1회 판정, 현실적 기대 INCONCLUSIVE/REJECT.
+            ★ **뉴스 그림자도 같이**(10-02 사전등록 1ee09ba7): `python research/strategy-lab/run_news_shadow.py` 후 `reports/2026-10-news-shadow/observations.jsonl` 커밋.
+            원자료만(국내·제목에 종목명·good/bad). 사건 정의·판정은 양쪽 각 150건(≈6개월) 뒤 1회 — 그 전엔 기록만, 점수·매매 불사용.
             ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`
             후 `reports/2026-09-infbuy-dip-shadow/observations.jsonl` 커밋. 2년(2028-09-29) 1회. 다른 레버리지 16종 재현은 3배 NOT·2배 PARTIAL
             (낙폭 악화) — SOXL 전용 효과, V4.0 운용 불변(findings/infinite-buying-dip-double-replication-results-2026-09.md).
@@ -205,6 +207,9 @@ Validated against
   안 한다   ★ 공시 오버레이(뉴스·공시로 점수/진입 제한, 2026-09-30) — **노출 점검에서 종결**(사용자 확정). 규칙 1 은 그대로. pbr_value_v1_combined 3,402슬롯에서
             유상증자 0.1%·계약 해지 0.18%·횡령배임 0.15%·거래정지 0.26% 전부 기준(≥100슬롯·≥30종목) 미달, 통과 전략(노출 있음)은 전부 기각/관측용.
             재개 조건: 전략 구성이 바뀌어 노출 1% 초과. DART 목록 API 는 제목·접수일뿐(금액·시각 없음). findings/event-overlay-exposure-step0-2-2026-09.md.
+  안 한다   ★ 공시·뉴스 점수화 A/B(2026-10-02, 사전등록 1ee09ba7 · 사용자 요청) — **REJECT·규칙 1 유지**. 연구 A(전 종목 공시 4유형 h=20): 사전 방향 지지 0/4(희석(−) 방향 일치하나 TRAIN t −1.5 < 바닥선 2.57 · 자사주 VALID 부호 반전 · 수주(+)는 반대 방향 · 중대위험 미달) · 연구 B(PBR 순위 ±10점 가감 A/B): ΔSharpe 세 구간 양이나 TRAIN +0.10 < 난수 95백분위 +0.16, 월평균 차 t ≤1.1 →
+            채택 후보 아님(가중 ±5·±20 은 구간별 부호가 바뀜). 사후 해석 금지: 수주 반전·희석 회피는 새 사전등록·새 표본으로만. ★ 재구성 A 가 production selection.json 과 월 일치 16/127(자카드 0.89, 경로 의존 누적 추정·미규명) —
+            상대 비교는 유효하나 production 대비 숫자 아님. 공시 제목 캐시 `research/strategy-lab/data/dart_event_titles/`(1,724종목 I+B, gitignore). 뉴스는 과거 이력 없어 forward 그림자(위 월간 점검). findings/disclosure-score-ab-results-2026-10.md.
   안 한다   ★ 주도 섹터 지속·로테이션(미국 SPDR 9섹터 1999~ 새 표본, 2026-09-30, 사전등록 1f48954c) — **REJECT·종결**. 리더 유지 6M창 평균 3.4개월(중앙 2)은 순서 순열
             귀무(겹치는 창의 기계적 지속)와 같고 35칸 전부 95백분위 이하, 로테이션 4셀 t −0.2~0.6(바닥선 2.03). 연금계좌 시험 부산물(기록·비자문): 30년물 5.59% 듀레이션 14.5·
             3년내 낙폭 중앙 −13%, 60/40 국채는 낙폭 절반이나 2022~ 는 단기채 승(P7 금리규칙 기각), 리밸런스 주기 차이 오차 범위. findings/pension-sector-bond-results-2026-09.md.
