@@ -2440,10 +2440,52 @@ function flowOverMcap(m) {
   return { v: (x.foreign + x.institution) / m.capNow, date: x.date };
 }
 
+// 수급대장 = 시총대비 수급 0.9% 이상(외부 사이트 정의). 테마 줄 = 소속 종목 값의 중앙값 + 대장 수. 표시 전용.
+const FLOW_LEAD = 0.009;
+function themeFlowStat(members) {
+  const v = (members || []).map(flowOverMcap).filter(Boolean).map(f => f.v).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const mid = v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2;
+  return { med: mid, lead: v.filter(x => x >= FLOW_LEAD).length, n: v.length };
+}
+// 맥락 칩 — 최근 3일 안의 뉴스(good/bad 키워드 규칙)·DART 공시 분류. 방향 판단이 아니라 "무슨 일이 있었나"만 보여 준다.
+function ensureStockEvents() {
+  if (state.stockEvents !== undefined) return;
+  state.stockEvents = 'loading';
+  fetch('data/stock-events.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)
+    .then(j => { state.stockEvents = j; render(); if (state.detail.open && state.detail.vtab === 'decode') renderStockModal(); });
+}
+function ctxChips(m, asOf) {
+  const day = String(asOf || '').replace(/^(\d{4})-?(\d{2})-?(\d{2})$/, '$1-$2-$3');   // asOf 는 20261001 형태로 온다
+  const base = new Date(day + 'T00:00:00+09:00').getTime() - 2 * 86400000;
+  if (isNaN(base)) return '';
+  const out = [];
+  const nv = state.news && state.news.byTicker && state.news.byTicker[m.t];
+  if (nv) {
+    const seen = {};
+    (nv.items || []).forEach(it => {
+      if (it.level === 'neutral' || seen[it.level] || !(m.name && (it.title || '').includes(m.name))) return;
+      if (new Date(it.pubDate).getTime() < base) return;
+      seen[it.level] = 1;
+      const col = it.level === 'bad' ? 'var(--bad)' : 'var(--good)';
+      out.push(`<span title="${esc(it.title)}" style="font-size:10px;color:${col};border:1px solid ${col};border-radius:8px;padding:0 4px;margin-left:3px;white-space:nowrap">뉴스 ${it.level === 'bad' ? '악재' : '호재'} ${esc((it.flags || []).slice(0, 2).join('·'))}</span>`);
+    });
+  }
+  const ev = state.stockEvents && state.stockEvents !== 'loading' && state.stockEvents.items && state.stockEvents.items[m.t];
+  if (ev) {
+    const lo = new Date(base).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(/-/g, '');
+    const cats = {};
+    (ev.events || []).forEach(e => { if (e.d >= lo && !/정정/.test(e.nm)) (cats[e.cat] = cats[e.cat] || e); });   // 정정 공시는 원공시와 중복
+    Object.keys(cats).forEach(c => out.push(`<span title="${esc(cats[c].nm)} (접수 ${esc(cats[c].d)})" style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:0 4px;margin-left:3px;white-space:nowrap">공시 ${esc(c)}</span>`));
+  }
+  return out.join('');
+}
+
 function renderThemeTree() {
   const d = state.themeStrength;
   if (!d || !d.tree) return '';
   ensureFlows();
+  ensureStockEvents();
   const w = state.themeWin;
   const ov = w === '1d' ? themeOverlap(d.tree) : null;
   const val = s => s && s.ret ? s.ret[w] : null;
@@ -2474,7 +2516,11 @@ function renderThemeTree() {
       <td style="text-align:right">${secPct(val(s))}</td>${barCell(val(s))}
       <td style="text-align:right">${s ? secPct(s.rs[w]) : '<span class="muted">-</span>'}</td>
       <td style="text-align:right">${s && s.breadth20 !== null ? Math.round(s.breadth20 * 100) + '%' : '<span class="muted">-</span>'}</td>
-      <td style="font-size:12px">${lead(L, members)}</td><td></td></tr>`;
+      <td style="font-size:12px">${lead(L, members)}</td><td style="text-align:right;font-size:12px">${(() => {
+        const fs = themeFlowStat(members);
+        if (!fs) return '<span class="muted">-</span>';
+        return `<span title="소속 ${fs.n}종목 값의 중앙값 · 0.9% 이상(수급대장) ${fs.lead}종목">${pctCell((fs.med * 100).toFixed(2))}${fs.lead ? ` <b style="color:var(--good)">대장 ${fs.lead}</b>` : ''}</span>`;
+      })()}</td></tr>`;
   };
   let rows = '';
   d.tree.forEach(b => {
@@ -2490,8 +2536,8 @@ function renderThemeTree() {
         const col = n >= 2 ? OVERLAP_COLOR[Math.min(n, 4)] : '';
         const tag = n >= 2 ? ` <span style="font-size:10px;color:${col}" title="오늘 +5% 이상 · ${esc(ov.names(m.t).join(', '))}">●${n}테마</span>` : '';
         const f = flowOverMcap(m);
-        const fcell = f ? `<span title="${esc(f.date)} 외국인+기관 순매수 ÷ 시총 (수량×종가 근사)">${pctCell((f.v * 100).toFixed(2))}</span>` : '<span class="muted">-</span>';
-        rows += `<tr><td style="padding-left:${6 + 2 * 16 + 12}px;font-size:12px${col ? `;color:${col};font-weight:600` : ''}">${esc(m.name)} <span class="muted" style="font-weight:400">${esc(m.t)}</span>${tag}${m.primary ? '' : ' <span class="muted" title="부 테마 — 주 테마는 다른 곳">(부)</span>'}</td>
+        const fcell = f ? `<span title="${esc(f.date)} 외국인+기관 순매수 ÷ 시총 (수량×종가 근사)">${pctCell((f.v * 100).toFixed(2))}${f.v >= FLOW_LEAD ? ' <b style="color:var(--good);font-size:10px">대장</b>' : ''}</span>` : '<span class="muted">-</span>';
+        rows += `<tr><td style="padding-left:${6 + 2 * 16 + 12}px;font-size:12px${col ? `;color:${col};font-weight:600` : ''}">${esc(m.name)} <span class="muted" style="font-weight:400">${esc(m.t)}</span>${tag}${ctxChips(m, d.asOf)}${m.primary ? '' : ' <span class="muted" title="부 테마 — 주 테마는 다른 곳">(부)</span>'}</td>
           <td style="text-align:right;font-size:12px">${m.hasPrice ? secPct(r) : '<span class="muted">가격 없음</span>'}</td>${barCell(r)}<td></td><td></td><td></td><td style="text-align:right;font-size:12px">${fcell}</td></tr>`;
       });
     });
@@ -2507,7 +2553,8 @@ function renderThemeTree() {
       대장주 = 지금 시총 1위(주 테마 종목 중). <b>(부)</b> 종목은 두 테마에 모두 들어가 두 테마가 같이 움직여 보일 수 있습니다.
       줄을 누르면 펼쳐집니다.<br>
       <b>1일</b> 창에서는 오늘 +5% 이상 오른 종목이 <b>여러 하위 테마에 겹치면</b> 이름 색이 바뀝니다(<span style="color:#22c55e">초록 2</span> · <span style="color:#eab308">노랑 3</span> · <span style="color:#f97316">주황 4+</span>).
-      <b>시총대비 수급</b> = 가장 최근 일자의 (외국인+기관 순매수) ÷ 시총(수량×종가 근사). 둘 다 <b>표시 전용</b>입니다 — 2026-10-01 검증에서 이 지표는 다음 날 이후 수익을 예측하지 못했고(오히려 덜 오름), 매매 신호가 아닙니다.
+      <b>시총대비 수급</b> = 가장 최근 일자의 (외국인+기관 순매수) ÷ 시총(수량×종가 근사). 테마 줄은 소속 종목 값의 <b>중앙값</b>과 <b>대장 수</b>(0.9% 이상 종목 수).
+      종목 이름 옆 <b>뉴스·공시 칩</b>은 최근 3일 안에 있었던 일을 규칙(키워드·보고서명)으로 분류해 보여 줄 뿐 호재·악재 판단이 아닙니다(2026-10-02 검증: 공시 종류만으로는 이후 수익을 가르지 못했습니다). 둘 다 <b>표시 전용</b>입니다 — 2026-10-01 검증에서 이 지표는 다음 날 이후 수익을 예측하지 못했고(오히려 덜 오름), 매매 신호가 아닙니다.
     </p>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${chips}
       <button class="chip" data-themetoggle="__all">전체 펼치기/접기</button></div>
