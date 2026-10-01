@@ -1,13 +1,13 @@
 {
   "generatedFrom": "build_selection.py",
   "sourcePanel": "computed in-process from A2a bars (mom60, turnover20) - no external panel file",
-  "period": "2016-01-01 ~ 2026-09-16",
+  "period": "2016-01-01 ~ 2026-09-30",
   "momWindow": 60,
   "topN": 30,
   "minTurnover": 100000000.0,
   "rebalanceMonths": 126,
   "avgSelectedPerMonth": 30.0,
-  "tickersEverSelected": 1252,
+  "tickersEverSelected": 1251,
   "selection": {
     "109070": [
       {
@@ -43,6 +43,10 @@
         "holdSessions": 22
       },
       {
+        "date": "2017-10-10",
+        "holdSessions": 17
+      },
+      {
         "date": "2017-11-01",
         "holdSessions": 23
       },
@@ -55,24 +59,12 @@
         "holdSessions": 21
       },
       {
-        "date": "2020-02-03",
-        "holdSessions": 21
-      },
-      {
-        "date": "2025-03-04",
-        "holdSessions": 21
-      },
-      {
-        "date": "2025-04-01",
+        "date": "2019-04-01",
         "holdSessions": 23
       },
       {
-        "date": "2025-05-02",
-        "holdSessions": 20
-      },
-      {
-        "date": "2025-06-02",
-        "holdSessions": 20
+        "date": "2020-04-01",
+        "holdSessions": 21
       }
     ],
     "064090": [
@@ -3329,10 +3321,6 @@
         "holdSessions": 24
       },
       {
-        "date": "2020-11-02",
-        "holdSessions": 22
-      },
-      {
         "date": "2022-02-03",
         "holdSessions": 19
       },
@@ -3539,6 +3527,10 @@
         "holdSessions": 23
       },
       {
+        "date": "2025-05-02",
+        "holdSessions": 20
+      },
+      {
         "date": "2025-06-02",
         "holdSessions": 20
       },
@@ -3661,10 +3653,6 @@
       {
         "date": "2021-04-01",
         "holdSessions": 23
-      },
-      {
-        "date": "2021-05-03",
-        "holdSessions": 20
       }
     ],
     "032850": [
@@ -4203,20 +4191,6 @@
         "holdSessions": 21
       }
     ],
-    "005030": [
-      {
-        "date": "2017-02-01",
-        "holdSessions": 21
-      },
-      {
-        "date": "2017-03-02",
-        "holdSessions": 23
-      },
-      {
-        "date": "2017-04-03",
-        "holdSessions": 21
-      }
-    ],
     "112610": [
       {
         "date": "2017-02-01",
@@ -4287,6 +4261,56 @@
       {
         "date": "2025-07-01",
         "holdSessions": 24
+      }
+    ],
+    "224060": [
+      {
+        "date": "2017-02-01",
+        "holdSessions": 21
+      },
+      {
+        "date": "2017-03-02",
+        "holdSessions": 23
+      },
+      {
+        "date": "2017-08-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2018-12-03",
+        "holdSessions": 20
+      },
+      {
+        "date": "2020-07-01",
+        "holdSessions": 24
+      },
+      {
+        "date": "2020-08-03",
+        "holdSessions": 21
+      },
+      {
+        "date": "2020-09-01",
+        "holdSessions": 22
+      },
+      {
+        "date": "2021-04-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2021-06-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2022-10-04",
+        "holdSessions": 20
+      },
+      {
+        "date": "2022-12-01",
+        "holdSessions": 22
+      },
+      {
+        "date": "2023-01-02",
+        "holdSessions": 21
       }
     ],
     "014910": [
@@ -4391,52 +4415,6 @@
         "holdSessions": 22
       }
     ],
-    "224060": [
-      {
-        "date": "2017-03-02",
-        "holdSessions": 23
-      },
-      {
-        "date": "2017-08-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2018-12-03",
-        "holdSessions": 20
-      },
-      {
-        "date": "2020-07-01",
-        "holdSessions": 24
-      },
-      {
-        "date": "2020-08-03",
-        "holdSessions": 21
-      },
-      {
-        "date": "2020-09-01",
-        "holdSessions": 22
-      },
-      {
-        "date": "2021-04-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2021-06-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2022-10-04",
-        "holdSessions": 20
-      },
-      {
-        "date": "2022-12-01",
-        "holdSessions": 22
-      },
-      {
-        "date": "2023-01-02",
-        "holdSessions": 21
-      }
-    ],
     "109610": [
       {
         "date": "2017-03-02",
@@ -4503,6 +4481,32 @@
       {
         "date": "2023-08-01",
         "holdSessions": 23
+      }
+    ],
+    "045660": [
+      {
+        "date": "2017-03-02",
+        "holdSessions": 23
+      },
+      {
+        "date": "2018-07-02",
+        "holdSessions": 23
+      },
+      {
+        "date": "2022-04-01",
+        "holdSessions": 22
+      },
+      {
+        "date": "2025-06-02",
+        "holdSessions": 20
+      },
+      {
+        "date": "2025-07-01",
+        "holdSessions": 24
+      },
+      {
+        "date": "2025-08-01",
+        "holdSessions": 21
       }
     ],
     "065420": [
@@ -4643,6 +4647,20 @@
       {
         "date": "2017-04-03",
         "holdSessions": 21
+      }
+    ],
+    "109740": [
+      {
+        "date": "2017-04-03",
+        "holdSessions": 21
+      },
+      {
+        "date": "2017-05-02",
+        "holdSessions": 20
+      },
+      {
+        "date": "2017-06-01",
+        "holdSessions": 22
       }
     ],
     "020180": [
@@ -4891,16 +4909,6 @@
       {
         "date": "2017-05-02",
         "holdSessions": 20
-      }
-    ],
-    "109740": [
-      {
-        "date": "2017-05-02",
-        "holdSessions": 20
-      },
-      {
-        "date": "2017-06-01",
-        "holdSessions": 22
       }
     ],
     "060260": [
@@ -5749,10 +5757,6 @@
       {
         "date": "2017-09-01",
         "holdSessions": 22
-      },
-      {
-        "date": "2017-10-10",
-        "holdSessions": 17
       }
     ],
     "107590": [
@@ -6487,6 +6491,10 @@
         "holdSessions": 20
       },
       {
+        "date": "2022-05-02",
+        "holdSessions": 22
+      },
+      {
         "date": "2023-04-03",
         "holdSessions": 21
       },
@@ -7159,10 +7167,6 @@
         "holdSessions": 22
       },
       {
-        "date": "2021-01-04",
-        "holdSessions": 21
-      },
-      {
         "date": "2024-03-04",
         "holdSessions": 21
       }
@@ -7375,6 +7379,10 @@
       {
         "date": "2023-03-02",
         "holdSessions": 23
+      },
+      {
+        "date": "2025-03-04",
+        "holdSessions": 21
       }
     ],
     "054920": [
@@ -7737,28 +7745,6 @@
       {
         "date": "2025-09-01",
         "holdSessions": 23
-      }
-    ],
-    "045660": [
-      {
-        "date": "2018-07-02",
-        "holdSessions": 23
-      },
-      {
-        "date": "2022-04-01",
-        "holdSessions": 22
-      },
-      {
-        "date": "2025-06-02",
-        "holdSessions": 20
-      },
-      {
-        "date": "2025-07-01",
-        "holdSessions": 24
-      },
-      {
-        "date": "2025-08-01",
-        "holdSessions": 21
       }
     ],
     "021040": [
@@ -8711,6 +8697,10 @@
         "holdSessions": 23
       },
       {
+        "date": "2019-02-01",
+        "holdSessions": 18
+      },
+      {
         "date": "2021-06-01",
         "holdSessions": 23
       },
@@ -9217,32 +9207,6 @@
         "holdSessions": 18
       }
     ],
-    "196490": [
-      {
-        "date": "2019-02-01",
-        "holdSessions": 18
-      },
-      {
-        "date": "2019-10-01",
-        "holdSessions": 22
-      },
-      {
-        "date": "2019-12-02",
-        "holdSessions": 21
-      },
-      {
-        "date": "2020-02-03",
-        "holdSessions": 21
-      },
-      {
-        "date": "2022-05-02",
-        "holdSessions": 22
-      },
-      {
-        "date": "2024-05-02",
-        "holdSessions": 21
-      }
-    ],
     "290270": [
       {
         "date": "2019-02-01",
@@ -9520,12 +9484,6 @@
       }
     ],
     "106190": [
-      {
-        "date": "2019-04-01",
-        "holdSessions": 23
-      }
-    ],
-    "004540": [
       {
         "date": "2019-04-01",
         "holdSessions": 23
@@ -10425,6 +10383,10 @@
         "holdSessions": 22
       },
       {
+        "date": "2020-08-03",
+        "holdSessions": 21
+      },
+      {
         "date": "2020-09-01",
         "holdSessions": 22
       },
@@ -10488,6 +10450,12 @@
       }
     ],
     "236200": [
+      {
+        "date": "2019-10-01",
+        "holdSessions": 22
+      }
+    ],
+    "256630": [
       {
         "date": "2019-10-01",
         "holdSessions": 22
@@ -10745,6 +10713,44 @@
         "holdSessions": 21
       }
     ],
+    "011000": [
+      {
+        "date": "2019-12-02",
+        "holdSessions": 21
+      },
+      {
+        "date": "2020-01-02",
+        "holdSessions": 21
+      },
+      {
+        "date": "2021-02-01",
+        "holdSessions": 19
+      },
+      {
+        "date": "2021-03-02",
+        "holdSessions": 23
+      },
+      {
+        "date": "2021-04-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2023-07-03",
+        "holdSessions": 22
+      },
+      {
+        "date": "2026-03-03",
+        "holdSessions": 22
+      },
+      {
+        "date": "2026-04-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2026-05-04",
+        "holdSessions": 19
+      }
+    ],
     "195500": [
       {
         "date": "2020-01-02",
@@ -10811,40 +10817,6 @@
       {
         "date": "2026-04-01",
         "holdSessions": 23
-      }
-    ],
-    "011000": [
-      {
-        "date": "2020-01-02",
-        "holdSessions": 21
-      },
-      {
-        "date": "2021-02-01",
-        "holdSessions": 19
-      },
-      {
-        "date": "2021-03-02",
-        "holdSessions": 23
-      },
-      {
-        "date": "2021-04-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2023-07-03",
-        "holdSessions": 22
-      },
-      {
-        "date": "2026-03-03",
-        "holdSessions": 22
-      },
-      {
-        "date": "2026-04-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2026-05-04",
-        "holdSessions": 19
       }
     ],
     "053950": [
@@ -11009,6 +10981,26 @@
       {
         "date": "2020-02-03",
         "holdSessions": 21
+      }
+    ],
+    "239340": [
+      {
+        "date": "2020-02-03",
+        "holdSessions": 21
+      }
+    ],
+    "010170": [
+      {
+        "date": "2020-02-03",
+        "holdSessions": 21
+      },
+      {
+        "date": "2025-04-01",
+        "holdSessions": 23
+      },
+      {
+        "date": "2025-05-02",
+        "holdSessions": 20
       }
     ],
     "011690": [
@@ -11357,12 +11349,6 @@
         "holdSessions": 21
       }
     ],
-    "317830": [
-      {
-        "date": "2020-04-01",
-        "holdSessions": 21
-      }
-    ],
     "086900": [
       {
         "date": "2020-05-04",
@@ -11671,6 +11657,10 @@
       {
         "date": "2024-11-01",
         "holdSessions": 22
+      },
+      {
+        "date": "2025-08-01",
+        "holdSessions": 21
       }
     ],
     "145210": [
@@ -11875,16 +11865,6 @@
         "holdSessions": 21
       }
     ],
-    "008290": [
-      {
-        "date": "2020-08-03",
-        "holdSessions": 21
-      },
-      {
-        "date": "2023-10-04",
-        "holdSessions": 20
-      }
-    ],
     "025440": [
       {
         "date": "2020-08-03",
@@ -11919,16 +11899,8 @@
         "holdSessions": 23
       },
       {
-        "date": "2025-03-04",
-        "holdSessions": 21
-      },
-      {
-        "date": "2025-08-01",
-        "holdSessions": 21
-      },
-      {
-        "date": "2025-09-01",
-        "holdSessions": 23
+        "date": "2021-05-03",
+        "holdSessions": 20
       }
     ],
     "050120": [
@@ -12099,6 +12071,24 @@
       {
         "date": "2020-11-02",
         "holdSessions": 22
+      }
+    ],
+    "084650": [
+      {
+        "date": "2020-11-02",
+        "holdSessions": 22
+      },
+      {
+        "date": "2020-12-01",
+        "holdSessions": 22
+      },
+      {
+        "date": "2021-01-04",
+        "holdSessions": 21
+      },
+      {
+        "date": "2021-02-01",
+        "holdSessions": 19
       }
     ],
     "205470": [
@@ -12282,12 +12272,6 @@
       }
     ],
     "045300": [
-      {
-        "date": "2020-12-01",
-        "holdSessions": 22
-      }
-    ],
-    "092190": [
       {
         "date": "2020-12-01",
         "holdSessions": 22
@@ -12481,20 +12465,6 @@
         "holdSessions": 21
       }
     ],
-    "153710": [
-      {
-        "date": "2021-02-01",
-        "holdSessions": 19
-      },
-      {
-        "date": "2021-03-02",
-        "holdSessions": 23
-      },
-      {
-        "date": "2021-11-01",
-        "holdSessions": 23
-      }
-    ],
     "109820": [
       {
         "date": "2021-03-02",
@@ -12534,6 +12504,16 @@
     "130500": [
       {
         "date": "2021-03-02",
+        "holdSessions": 23
+      }
+    ],
+    "153710": [
+      {
+        "date": "2021-03-02",
+        "holdSessions": 23
+      },
+      {
+        "date": "2021-11-01",
         "holdSessions": 23
       }
     ],
@@ -12975,6 +12955,10 @@
       {
         "date": "2025-02-03",
         "holdSessions": 21
+      },
+      {
+        "date": "2025-06-02",
+        "holdSessions": 20
       }
     ],
     "033540": [
@@ -13514,6 +13498,10 @@
       },
       {
         "date": "2023-09-01",
+        "holdSessions": 20
+      },
+      {
+        "date": "2023-10-04",
         "holdSessions": 20
       },
       {
@@ -14791,7 +14779,7 @@
         "holdSessions": 21
       }
     ],
-    "328380": [
+    "084440": [
       {
         "date": "2023-01-02",
         "holdSessions": 21
@@ -16155,6 +16143,10 @@
       {
         "date": "2025-05-02",
         "holdSessions": 20
+      },
+      {
+        "date": "2025-09-01",
+        "holdSessions": 23
       }
     ],
     "022100": [
@@ -16184,6 +16176,12 @@
       }
     ],
     "003240": [
+      {
+        "date": "2024-05-02",
+        "holdSessions": 21
+      }
+    ],
+    "271830": [
       {
         "date": "2024-05-02",
         "holdSessions": 21
@@ -16861,6 +16859,10 @@
       {
         "date": "2025-02-03",
         "holdSessions": 21
+      },
+      {
+        "date": "2025-03-04",
+        "holdSessions": 21
       }
     ],
     "408900": [
@@ -16943,16 +16945,6 @@
         "holdSessions": 23
       }
     ],
-    "010170": [
-      {
-        "date": "2025-04-01",
-        "holdSessions": 23
-      },
-      {
-        "date": "2025-05-02",
-        "holdSessions": 20
-      }
-    ],
     "370090": [
       {
         "date": "2025-04-01",
@@ -16960,6 +16952,12 @@
       }
     ],
     "387570": [
+      {
+        "date": "2025-04-01",
+        "holdSessions": 23
+      }
+    ],
+    "174900": [
       {
         "date": "2025-04-01",
         "holdSessions": 23
