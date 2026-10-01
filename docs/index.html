@@ -19,6 +19,8 @@
   nav { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
   nav button { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
   nav button.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
+  #nav { margin-bottom: 8px; }
+  #subnav button { padding: 5px 12px; font-size: 13px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
   h2 { font-size: 15px; margin-bottom: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -147,20 +149,8 @@
   <span id="updated">로딩 중...</span>
 </header>
 
-<nav>
-  <button data-tab="scores" class="active">종목 스코어</button>
-  <button data-tab="portfolio">국면·포트폴리오</button>
-  <button data-tab="reco">추천 이력</button>
-  <button data-tab="backtest">백테스트</button>
-  <button data-tab="cycle">경기사이클🥚</button>
-  <button data-tab="events">일정📅</button>
-  <button data-tab="disclosures">공시</button>
-  <button data-tab="news">뉴스</button>
-  <button data-tab="flows">시장수급</button>
-  <button data-tab="etf">ETF</button>
-  <button data-tab="sector">섹터강도</button>
-  <button data-tab="live">실시간⚡</button>
-</nav>
+<nav id="nav"></nav>
+<nav id="subnav"></nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
 <div id="stockModal" class="modal" hidden></div>
@@ -627,19 +617,20 @@ function renderScores() {
 
 // ---------- 나머지 탭 (기존 유지) ----------
 
-function renderPortfolio() {
+function renderPortfolio(part) {
+  const want = k => !part || part === k;
   const rg = state.regime;
   const mc = state.macro;
   const pf = state.portfolio;
   let html = '';
-  if (rg) {
+  if (rg && want('regime')) {
     html += `<div class="card"><div class="regime">
       <span class="score regime-${rg.grade}">${rg.score}</span>
       <div><div><strong>시장 국면: ${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div>
       ${(rg.specialFlags || []).length ? `<div class="muted">⚑ ${rg.specialFlags.map(esc).join(', ')}</div>` : ''}</div>
     </div></div>`;
   }
-  if (mc && mc.indicators && mc.indicators.length > 0) {
+  if (want('regime') && mc && mc.indicators && mc.indicators.length > 0) {
     const chgCell = (v, unit) => {
       if (v == null) return '<span class="muted">-</span>';
       const cls = v >= 0 ? 'pos' : 'neg';
@@ -668,7 +659,7 @@ function renderPortfolio() {
     </div>`;
   }
   const etf = state.etf;
-  if (etf && etf.curated && etf.curated.length > 0) {
+  if (want('etfwatch') && etf && etf.curated && etf.curated.length > 0) {
     const watchRows = [...etf.curated.map(r => ({ ...r, name: r.label })),
       ...(etf.vixEtn || []).map(r => ({ ...r, name: r.label })), etf.gold].filter(Boolean).map(r => `
       <tr>
@@ -685,7 +676,7 @@ function renderPortfolio() {
       <p class="muted" style="margin-top:8px">기준일 ${esc(etf.updatedAt || '-')}</p>
     </div>`;
   }
-  if (etf && etf.top50 && etf.top50.length > 0) {
+  if (want('etfwatch') && etf && etf.top50 && etf.top50.length > 0) {
     const top50Rows = etf.top50.map((r, i) => `
       <tr>
         <td>${i + 1}</td>
@@ -702,7 +693,7 @@ function renderPortfolio() {
       </table></div>
     </div>`;
   }
-  if (pf && pf.holdings && pf.holdings.length > 0) {
+  if (want('holdings') && pf && pf.holdings && pf.holdings.length > 0) {
     const rows = pf.holdings.map(h => `
       <tr>
         <td><strong>${esc(h.name)}</strong> <span class="muted">${esc(h.ticker)}</span>${mktChip(h.market)}</td>
@@ -716,10 +707,10 @@ function renderPortfolio() {
       <thead><tr><th>종목</th><th>수량</th><th>평단→현재</th><th>손익</th><th>점수</th><th>참고 신호</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
       <p class="muted" style="margin-top:10px">신호는 손익과 무관하게 종목 자체 점수 + 시장 국면으로만 산출됩니다.</p></div>`;
-  } else {
+  } else if (want('holdings')) {
     html += '<div class="card empty">보유 종목이 없습니다. config/holdings.json에 추가하세요.</div>';
   }
-  return html;
+  return html || '<div class="card empty">데이터가 아직 없습니다.</div>';
 }
 
 function renderReco() {
@@ -2859,7 +2850,9 @@ function renderSectorTab() {
 function render() {
   const el = document.getElementById('content');
   if (state.tab === 'scores') el.innerHTML = renderScores();
-  else if (state.tab === 'portfolio') el.innerHTML = renderPortfolio();
+  else if (state.tab === 'regime') el.innerHTML = renderPortfolio('regime');
+  else if (state.tab === 'holdings') el.innerHTML = renderPortfolio('holdings');
+  else if (state.tab === 'etfwatch') el.innerHTML = renderPortfolio('etfwatch');
   else if (state.tab === 'reco') el.innerHTML = renderReco();
   else if (state.tab === 'cycle') el.innerHTML = renderCycle();
   else if (state.tab === 'events') el.innerHTML = renderEvents();
@@ -3054,14 +3047,34 @@ document.addEventListener('click', (e) => {
   render();
 });
 
-document.querySelectorAll('nav button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.tab = btn.dataset.tab;
-    render();
-  });
+// ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
+const NAV_GROUPS = [
+  ['stock', '종목', [['scores', '스코어'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
+  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['cycle', '경기사이클🥚']]],
+  ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
+  ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
+];
+const lastSub = {};   // 그룹별로 마지막에 보던 서브탭
+function renderNav() {
+  const g = NAV_GROUPS.find(x => x[2].some(t => t[0] === state.tab)) || NAV_GROUPS[0];
+  lastSub[g[0]] = state.tab;
+  document.getElementById('nav').innerHTML = NAV_GROUPS.map(x => `<button data-navgroup="${x[0]}"${x[0] === g[0] ? ' class="active"' : ''}>${x[1]}</button>`).join('');
+  document.getElementById('subnav').innerHTML = g[2].map(t => `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active"' : ''}>${t[1]}</button>`).join('');
+}
+document.addEventListener('click', (e) => {
+  const gb = e.target.closest && e.target.closest('button[data-navgroup]');
+  const tb = e.target.closest && e.target.closest('button[data-tab]');
+  if (!gb && !tb) return;
+  if (gb) {
+    const g = NAV_GROUPS.find(x => x[0] === gb.dataset.navgroup);
+    state.tab = lastSub[g[0]] || g[2][0][0];
+  } else {
+    state.tab = tb.dataset.tab;
+  }
+  renderNav();
+  render();
 });
+renderNav();
 
 (async function init() {
   let liveWatchlistRaw;
