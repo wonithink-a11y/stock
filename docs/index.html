@@ -623,10 +623,8 @@ function renderScores() {
   return `<div class="card">
     <div class="group-filter" style="margin-bottom:12px">${marketIndexBanner}</div>
     ${toolbar}${filters}${strip}${body}
-    <p class="muted" style="margin-top:12px;white-space:normal">
-      업종 행을 클릭하면 접고 펼칠 수 있고, 종목 행을 클릭하면 그 업종의 채점 주의사항이 열립니다.
-      <strong>'신뢰도 낮음'</strong> 업종은 점수 자체의 예측력이 떨어지므로 비고를 먼저 읽으세요.
-      커버리지가 낮으면 config/fundamentals.json 보강으로 유보가 해제됩니다.${uni}</p></div>`;
+    <p class="muted" style="margin-top:12px;white-space:normal">업종 행 = 접기·펼치기 · <strong>'신뢰도 낮음'</strong> 업종은 비고를 먼저 읽으세요${uni}
+      <span style="cursor:help" title="종목 행을 클릭하면 그 업종의 채점 주의사항이 열립니다. '신뢰도 낮음' 업종은 점수 자체의 예측력이 떨어집니다. 커버리지가 낮으면 config/fundamentals.json 보강으로 유보가 해제됩니다.">ⓘ</span></p></div>`;
 }
 
 // ---------- 나머지 탭 (기존 유지) ----------
@@ -787,7 +785,8 @@ function renderBacktestMarket(title, benchName, d) {
   html += `<div class="table-wrap" style="margin-top:10px"><table>
     <thead><tr><th>등급</th><th>20일 평균</th><th>60일 평균</th><th>120일 평균</th></tr></thead>
     <tbody>${gradeRows}</tbody></table></div>`;
-  html += `${(d.verdicts || []).map(v => `<p class="muted" style="margin-top:6px">• ${esc(v)}</p>`).join('')}</div>`;
+  const vs = d.verdicts || [];
+  html += `${vs.length ? `<details style="margin-top:8px"><summary class="muted" style="cursor:pointer;font-size:12px">검증 메모 ${vs.length}개</summary>${vs.map(v => `<p class="muted" style="margin-top:6px">• ${esc(v)}</p>`).join('')}</details>` : ''}</div>`;
   return html;
 }
 
@@ -846,14 +845,15 @@ function renderCycle() {
     html += `<div class="card"><div class="egg-wrap">${renderEggSvg(c)}
       <div style="flex:1;min-width:260px">
         <h2><span class="phase-tag ph-${cp.id}">${cp.id}</span>현재 국면: ${esc(cp.label)}</h2>
-        <p class="muted" style="margin-top:6px;line-height:1.6">${esc(cp.note)}</p>
+        <details style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:12px">근거 보기</summary>
+          <p class="muted" style="margin-top:6px;line-height:1.6">${esc(cp.note)}</p></details>
         <p style="margin-top:10px;font-size:13px">역사적 강세 섹터:
           ${(cp.favorableSectors || []).map(s => `<span class="sector-tag">${esc(s)}</span>`).join('')}</p>
         <p class="muted" style="margin-top:6px;font-size:12px">주의: ${(cp.cautionSectors || []).map(esc).join(', ')}
           <span class="muted">| 기준금리 ${cp.rateKR}% (${esc(cp.asOf)})</span></p>
       </div></div></div>`;
   }
-  html += `<div class="card"><h2>2000년 이후 사이클 타임라인</h2><p class="muted" style="margin-bottom:12px">${c.theory ? esc(c.theory.summary) : ''}</p><div class="cyc-tl">`;
+  html += `<div class="card"><h2>2000년 이후 사이클 타임라인 <span style="cursor:help;font-weight:400" title="${c.theory ? esc(c.theory.summary) : ''}">ⓘ</span></h2><div class="cyc-tl">`;
   html += (c.timeline || []).map((t, i) => `
     <div class="cyc-item${i === 0 ? ' now' : ''}">
       <div><span class="phase-tag ph-${t.phaseId}">${esc(t.phase)}</span><strong>${esc(t.period)}</strong>
@@ -862,7 +862,7 @@ function renderCycle() {
       <div>${(t.leaders || []).map(l => `<span class="sector-tag">${esc(l)}</span>`).join('')}</div>
       <div class="muted" style="font-size:12px;margin-top:3px">${esc(t.events)}</div>
     </div>`).join('');
-  html += `</div><p class="muted" style="margin-top:8px">⚠️ 과거 국면별 주도 섹터는 "그때 그랬다"는 기록이며, 같은 국면이 와도 같은 섹터가 주도한다는 보장은 없습니다. 참고 프레임으로만 사용하세요.</p></div>`;
+  html += `</div><p class="muted" style="margin-top:8px">⚠️ 과거 기록이며 같은 국면이 와도 같은 섹터가 주도한다는 보장은 없습니다(참고용).</p></div>`;
   return html;
 }
 
@@ -2097,8 +2097,8 @@ function renderEtf() {
       </tr></thead>
       <tbody>${body}</tbody>
     </table></div>${lim.more}
-    <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 캘린더일 기준 수익률(휴장일은 직전 거래일 값 대체) · 컬럼 클릭으로 정렬.
-    분배율/분배횟수는 FunETF 공개 데이터(${esc((state.etfDist && state.etfDist.generatedAtKST || '').slice(0, 10)) || '-'} 기준, 최근 12개월 내 분배 이력이 있는 종목만·연환산 단리 기준) - 분배 안 하는 ETF는 '-'.</p>
+    <p class="muted" style="margin-top:8px">기준일 ${esc(d.asOf || '-')} · 국내 상장 ETF(현재 상장분만) · 컬럼 클릭으로 정렬
+      <span style="cursor:help" title="수익률은 캘린더일 기준(휴장일은 직전 거래일 값 대체). 분배율/분배횟수는 FunETF 공개 데이터(${esc((state.etfDist && state.etfDist.generatedAtKST || '').slice(0, 10)) || '-'} 기준, 최근 12개월 내 분배 이력이 있는 종목만·연환산 단리 기준)이며 분배 안 하는 ETF는 '-'입니다.">ⓘ</span></p>
   </div>`;
 }
 
@@ -2136,9 +2136,8 @@ function renderEvents() {
     <div class="filter-row">${chip('key', '핵심(보유·거시·국내)')}${chip('macro', '거시')}${chip('kr', '국내')}${chip('us', '미국')}${chip('all', '전체')}</div>
     ${warn}
     <div class="table-wrap"><table><tbody>${rows || '<tr><td class="muted">표시할 일정이 없습니다.</td></tr>'}</tbody></table></div>
-    <p class="muted" style="margin-top:8px">기준 ${esc(d.asOf)} · 앞으로 ${d.horizonDays}일 · 관심종목 ${d.counts.watchlist}개 조회(실패 ${d.counts.yahooFail}) ·
-    실적·배당락은 Yahoo 기준 — 확정 여부를 Yahoo 가 알려주지 않는다. 미국은 Nasdaq 실적 캘린더에 같은 날 있으면 'Nasdaq 확인'. 국내는 Yahoo 가 다루는 대형주만 나온다 —
-    <strong>목록에 없다고 일정이 없는 것이 아니다.</strong> FOMC·금통위는 공식 페이지에서 옮긴 값, 옵션 만기는 규칙 계산(휴장이면 직전 영업일). 관찰용.</p>
+    <p class="muted" style="margin-top:8px">기준 ${esc(d.asOf)} · 앞으로 ${d.horizonDays}일 · 관심종목 ${d.counts.watchlist}개 조회(실패 ${d.counts.yahooFail}) · <strong>목록에 없다고 일정이 없는 것은 아닙니다</strong> · 관찰용
+      <span style="cursor:help" title="실적·배당락은 Yahoo 기준이며 확정 여부를 Yahoo 가 알려주지 않습니다. 미국은 Nasdaq 실적 캘린더에 같은 날 있으면 'Nasdaq 확인'. 국내는 Yahoo 가 다루는 대형주만 나옵니다. FOMC·금통위는 공식 페이지에서 옮긴 값, 옵션 만기는 규칙 계산(휴장이면 직전 영업일)입니다.">ⓘ</span></p>
   </div>`;
 }
 
