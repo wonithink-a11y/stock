@@ -2769,6 +2769,8 @@ function loadHeatLive() {
       state.heatLiveLoading = false;
       const card = document.getElementById('heatCard');   // 탭 전체를 다시 그리면 펼친 접기가 닫힌다 - 카드만 바꾼다
       if (card && state.tab === 'sector') card.outerHTML = marketHeatmap(state.sectorStrength || {});
+      const sc = document.getElementById('surgeCard');
+      if (sc && state.tab === 'sector') sc.outerHTML = surgeClusterCard();
     });
 }
 function heatLiveDue() {
@@ -2943,11 +2945,55 @@ function renderSector() {
 }
 
 // ---------- 섹터강도 서브탭 ----------
+// 오늘 급등이 몰린 곳 — 업종·테마별 전일 대비 +5% 이상 종목 수·비율. 텔레그램 장중 알림(전일 대비 ±5%)과 같은 기준.
+// 표시 전용: 예측·추천이 아니다(절대 규칙 1). 섹터 주도권 신호는 검증에서 난수 바닥선을 넘지 못했고(findings/sector-leadership-step0),
+// 급등·돌파 추격은 기존 시험에서 음의 방향이었다 - '유망 섹터'가 아니라 '오늘 어디가 움직였나'만 보여준다.
+const SURGE_PCT = 0.05, SURGE_MIN_HITS = 2, SURGE_MIN_MEMBERS = 5, SURGE_ROWS = 8;
+function surgeClusterCard() {
+  if (state.heatMarket !== 'KR') return '';
+  const d = state.sectorStrength;
+  if (!d || !(d.stocks || []).length) return '';
+  const hl = state.heatLive, lq = hl && hl.quotes;
+  const useLive = state.heatWin === 'live' && !!lq;
+  const rOf = x => { if (useLive) { const q = lq[x.t]; return q && q[1] ? q[0] / q[1] - 1 : null; } const v = x.r && x.r['1d']; return v == null ? null : v; };
+  const byT = new Map(d.stocks.map(x => [x.t, x]));
+  const basis = useLive && hl.atKst ? `장중 ${esc(String(hl.atKst).slice(5, 16))}` : `${esc(String(d.asOf || '-').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'))} 종가 기준`;
+  const rowOf = (name, tickers, st) => {
+    const ms = [...new Set(tickers)].map(t => byT.get(t)).filter(Boolean).map(x => ({ x, r: rOf(x) })).filter(m => m.r != null);
+    if (ms.length < SURGE_MIN_MEMBERS) return null;
+    const up = ms.filter(m => m.r >= SURGE_PCT), dn = ms.filter(m => m.r <= -SURGE_PCT);
+    if (up.length < SURGE_MIN_HITS) return null;
+    const rs = st && st.rs ? st.rs['1m'] : null;
+    return { name, n: ms.length, up: up.length, dn: dn.length, share: up.length / ms.length, quad: st && st.quadrant, rs,
+      top: up.sort((a, b) => b.r - a.r).slice(0, 3).map(m => `${esc(m.x.n)} ${(m.r * 100).toFixed(1)}%`).join(' · ') };
+  };
+  const secRows = (d.groups || []).map(g => rowOf(g.group, g.tickers || [], g)).filter(Boolean);
+  const ts = state.themeStrength, thRows = [];
+  for (const node of ((ts && ts.tree) || [])) for (const sub of (node.subs || [])) {
+    const r = rowOf(`${node.theme} › ${sub.theme}`, (sub.members || []).map(m => m.t), sub.stats);
+    if (r) thRows.push(r);
+  }
+  const order = (a, b) => b.share - a.share || b.up - a.up;
+  const tbl = (rows, withQuad) => !rows.length ? '<p class="muted" style="margin:6px 0">해당 없음(급등 2종목 이상·종목 5개 이상 기준).</p>' :
+    `<div class="table-wrap"><table><thead><tr><th>${withQuad ? '업종' : '테마'}</th><th>급등</th><th>비율</th><th>급락</th>${withQuad ? '<th>4분면</th>' : ''}<th>1개월 상대강도</th><th>급등 상위</th></tr></thead><tbody>${
+      rows.sort(order).slice(0, SURGE_ROWS).map(r => `<tr><td>${esc(r.name)}</td><td>${r.up}/${r.n}</td>
+        <td><div style="display:flex;align-items:center;gap:6px"><div style="width:60px;height:8px;background:rgba(148,163,184,.25);border-radius:4px;overflow:hidden"><div style="width:${Math.round(r.share * 100)}%;height:100%;background:#ef4444"></div></div>${Math.round(r.share * 100)}%</div></td>
+        <td>${r.dn || '-'}</td>${withQuad ? `<td>${esc(r.quad || '-')}</td>` : ''}
+        <td class="${r.rs == null ? '' : r.rs >= 0 ? 'pos' : 'neg'}">${r.rs == null ? '-' : (r.rs >= 0 ? '+' : '') + (r.rs * 100).toFixed(1) + '%p'}</td>
+        <td class="muted" style="font-size:12px">${r.top}</td></tr>`).join('')}</tbody></table></div>`;
+  const total = d.stocks.filter(x => { const r = rOf(x); return r != null && r >= SURGE_PCT; }).length;
+  return `<div class="card" id="surgeCard"><h2 style="margin:0 0 4px">오늘 급등이 몰린 곳 <span class="muted" style="font-weight:400;font-size:13px">${basis} · 전일 대비 +${SURGE_PCT * 100}% 이상 ${total}종목</span></h2>
+    <div class="muted" style="font-size:12px;margin-bottom:6px">관찰용 — <strong>유망 섹터 판정이 아니다.</strong> 텔레그램 장중 알림과 같은 기준(전일 대비 ±5%)으로 업종·테마별 몰림만 센다. 섹터 신호는 검증에서 예측력이 확인되지 않았고 급등 추격은 기존 시험에서 손실 방향이었다.</div>
+    <h4 style="margin:8px 0 2px">업종</h4>${tbl(secRows, true)}
+    <h4 style="margin:10px 0 2px">테마</h4>${tbl(thRows, false)}
+  </div>`;
+}
+
 const SECTOR_SUBS = [['heat', '히트맵'], ['tree', '테마 트리'], ['sens', '민감도'], ['rs', '상대강도']];
 function renderSectorTab() {
   const bar = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${SECTOR_SUBS.map(([k, l]) =>
     `<button class="chip${state.sectorSub === k ? ' active' : ''}" data-secsub="${k}">${l}</button>`).join('')}</div>`;
-  const f = { heat: () => marketHeatmap(state.sectorStrength || {}), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
+  const f = { heat: () => surgeClusterCard() + marketHeatmap(state.sectorStrength || {}), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
   return bar + (f() || '<div class="card empty">데이터가 아직 없습니다.</div>');
 }
 
