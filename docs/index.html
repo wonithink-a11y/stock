@@ -784,9 +784,8 @@ function renderReco() {
     <div class="group-filter" style="margin-bottom:10px">${dateTabs}</div>
     <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th><th title="오늘(장중 또는 직전 종가) 전일 대비 +5% 이상 종목 비율. 추천·점수와 무관한 현재 상태 표시">업종 현재 급등</th></tr></thead>
+      <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th><th title="지금 기준 · 전일 대비 +5% 이상 / 업종 종목">업종 현재 급등</th></tr></thead>
       <tbody>${rl.shown.map(rowHtml).join('')}</tbody></table></div>${rl.more}
-    <p class="muted" style="font-size:11px;margin-top:6px">‘업종 현재 급등’은 추천 당시가 아니라 <strong>지금</strong> 그 종목이 속한 업종에서 전일 대비 +5% 이상인 종목 수/업종 종목 수와 기존 4분면이다. 점수·추천 기준과 무관한 관찰용 표시다.</p>
   </div>`;
 }
 
@@ -2973,10 +2972,47 @@ function sectorSurgeCell(ticker, market) {
   return `${esc(g.group)} <strong>${up}/${rs.length}</strong> <span class="muted">(${Math.round(up / rs.length * 100)}%) · ${esc(g.quadrant || '-')}</span>`;
 }
 
+// 시장 전체 급등 군집 — Actions market-movers 가 쓰는 docs/data/market-movers.json (KRX 전 종목, 거래대금 10억↑ 보통주). 관찰용.
+function ensureMarketMovers() {
+  if (state.marketMovers !== undefined || state._mmLoading) return;
+  state._mmLoading = true;
+  loadJson('market-movers').then(d => {
+    state.marketMovers = d || null; state._mmLoading = false;
+    const c = document.getElementById('surgeCard');
+    if (c && state.tab === 'sector') c.outerHTML = surgeClusterCard();
+  });
+}
 function surgeClusterCard() {
   if (state.heatMarket !== 'KR') return '';
   const d = state.sectorStrength;
   if (!d || !(d.stocks || []).length) return '';
+  ensureMarketMovers();
+  const mm = state.marketMovers;
+  const scope = state.surgeScope === 'watch' || !mm ? 'watch' : 'market';
+  const chip = (k, l) => `<button class="chip${scope === k ? ' active' : ''}" data-surgescope="${k}">${l}</button>`;
+  const order = (a, b) => b.share - a.share || b.up - a.up;
+  const tbl = (rows, withQuad) => !rows.length ? '<p class="muted" style="margin:6px 0">해당 없음</p>' :
+    `<div class="table-wrap"><table><thead><tr><th>${withQuad ? '업종' : '테마'}</th><th>급등</th><th>비율</th><th>급락</th>${withQuad ? '<th>4분면</th>' : ''}<th>1개월 상대강도</th><th>급등 상위</th></tr></thead><tbody>${
+      rows.sort(order).slice(0, SURGE_ROWS).map(r => `<tr><td>${esc(r.name)}</td><td>${r.up}/${r.n}</td>
+        <td><div style="display:flex;align-items:center;gap:6px"><div style="width:60px;height:8px;background:rgba(148,163,184,.25);border-radius:4px;overflow:hidden"><div style="width:${Math.round(r.share * 100)}%;height:100%;background:#ef4444"></div></div>${Math.round(r.share * 100)}%</div></td>
+        <td>${r.dn || '-'}</td>${withQuad ? `<td>${esc(r.quad || '-')}</td>` : ''}
+        <td class="${r.rs == null ? '' : r.rs >= 0 ? 'pos' : 'neg'}">${r.rs == null ? '-' : (r.rs >= 0 ? '+' : '') + (r.rs * 100).toFixed(1) + '%p'}</td>
+        <td class="muted" style="font-size:12px">${r.top}</td></tr>`).join('')}</tbody></table></div>`;
+  const head = (basis, total) => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">오늘 급등이 몰린 곳 ${chip('watch', '관심종목')}${chip('market', '시장 전체')}
+    <span class="muted" style="font-weight:400;font-size:13px">${basis} · +${SURGE_PCT * 100}% 이상 ${total}종목</span></h2>`;
+
+  if (scope === 'market') {
+    const gmap = new Map((d.groups || []).map(g => [g.group, g]));
+    const rows = (mm.groups || []).filter(g => g.up >= SURGE_MIN_HITS).map(g => {
+      const sg = gmap.get(g.group);
+      return { name: g.group, n: g.n, up: g.up, dn: g.dn, share: g.up / g.n, quad: sg && sg.quadrant, rs: sg && sg.rs ? sg.rs['1m'] : null,
+        top: (g.top || []).map(t => `${esc(t[1])} ${(t[2] * 100).toFixed(1)}%`).join(' · ') };
+    });
+    const asOf = String(mm.asOf).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
+    return `<div class="card" id="surgeCard">${head(`KRX ${esc(asOf)} 종가 · 거래대금 10억↑ 보통주 ${mm.universe.eligible}개`, mm.universe.up)}
+      ${tbl(rows, true)}</div>`;
+  }
+
   const { rOf, basis } = surgeBasis(d);
   const byT = new Map(d.stocks.map(x => [x.t, x]));
   const rowOf = (name, tickers, st) => {
@@ -2994,17 +3030,8 @@ function surgeClusterCard() {
     const r = rowOf(`${node.theme} › ${sub.theme}`, (sub.members || []).map(m => m.t), sub.stats);
     if (r) thRows.push(r);
   }
-  const order = (a, b) => b.share - a.share || b.up - a.up;
-  const tbl = (rows, withQuad) => !rows.length ? '<p class="muted" style="margin:6px 0">해당 없음(급등 2종목 이상·종목 5개 이상 기준).</p>' :
-    `<div class="table-wrap"><table><thead><tr><th>${withQuad ? '업종' : '테마'}</th><th>급등</th><th>비율</th><th>급락</th>${withQuad ? '<th>4분면</th>' : ''}<th>1개월 상대강도</th><th>급등 상위</th></tr></thead><tbody>${
-      rows.sort(order).slice(0, SURGE_ROWS).map(r => `<tr><td>${esc(r.name)}</td><td>${r.up}/${r.n}</td>
-        <td><div style="display:flex;align-items:center;gap:6px"><div style="width:60px;height:8px;background:rgba(148,163,184,.25);border-radius:4px;overflow:hidden"><div style="width:${Math.round(r.share * 100)}%;height:100%;background:#ef4444"></div></div>${Math.round(r.share * 100)}%</div></td>
-        <td>${r.dn || '-'}</td>${withQuad ? `<td>${esc(r.quad || '-')}</td>` : ''}
-        <td class="${r.rs == null ? '' : r.rs >= 0 ? 'pos' : 'neg'}">${r.rs == null ? '-' : (r.rs >= 0 ? '+' : '') + (r.rs * 100).toFixed(1) + '%p'}</td>
-        <td class="muted" style="font-size:12px">${r.top}</td></tr>`).join('')}</tbody></table></div>`;
   const total = d.stocks.filter(x => { const r = rOf(x); return r != null && r >= SURGE_PCT; }).length;
-  return `<div class="card" id="surgeCard"><h2 style="margin:0 0 4px">오늘 급등이 몰린 곳 <span class="muted" style="font-weight:400;font-size:13px">${basis} · 전일 대비 +${SURGE_PCT * 100}% 이상 ${total}종목</span></h2>
-    <div class="muted" style="font-size:12px;margin-bottom:6px">관찰용 — <strong>유망 섹터 판정이 아니다.</strong> 텔레그램 장중 알림과 같은 기준(전일 대비 ±5%)으로 업종·테마별 몰림만 센다. 섹터 신호는 검증에서 예측력이 확인되지 않았고 급등 추격은 기존 시험에서 손실 방향이었다.</div>
+  return `<div class="card" id="surgeCard">${head(basis, total)}
     <h4 style="margin:8px 0 2px">업종</h4>${tbl(secRows, true)}
     <h4 style="margin:10px 0 2px">테마</h4>${tbl(thRows, false)}
   </div>`;
@@ -3210,6 +3237,11 @@ document.addEventListener('click', (e) => {
   }
   if (w.dataset.heatsize) state.heatSize = w.dataset.heatsize;
   render();
+});
+
+document.addEventListener('click', (e) => {
+  const w = e.target.closest && e.target.closest('[data-surgescope]');
+  if (w) { state.surgeScope = w.dataset.surgescope; render(); }
 });
 
 document.addEventListener('click', (e) => {
