@@ -30,6 +30,7 @@ TRAIL, TRAIL_MIN = 250, 150
 K = 3
 NS = (5, 20)
 MIN_N = 5
+CACHE_START = "2015-12-01"     # 공시 제목 캐시 시작일(collect_dart_event_titles.BGN) - 이전은 미관측
 E3_RX = re.compile(r"단일판매.?공급계약체결")
 
 
@@ -48,10 +49,11 @@ def build_P(E3):
     return P
 
 
-def catalyst_series(P, elig, covered, gid, ngroups):
+def catalyst_series(P, elig, covered, gid, ngroups, start=0):
+    """start = 공시 캐시가 시작되는 날짜 인덱스. 그 전(과 직전 20거래일 창이 캐시 시작 전에 걸치는 날)은 '공시 없음'이 아니라 '미관측'이라 NaN."""
     D = P.shape[0]
     c = np.full((D, ngroups), np.nan)
-    for t in range(WIN + 1, D):
+    for t in range(max(WIN + 1, start + WIN + 1), D):
         for g in range(ngroups):
             m = elig[t] & covered & (gid == g)
             if m.sum() >= MIN_COVER:
@@ -166,6 +168,8 @@ def selftest():
     tm = trailing_mean(c, 360, 0)
     ok(c[360, 0] > tm and not (c[360, 1] > trailing_mean(c, 360, 1)), "촉매 높음/낮음(자기 평균 위/아래)")
     ok(np.isnan(trailing_mean(c, 100, 0)), "1년 이력이 모자라면 제외")
+    c_late = catalyst_series(P, elig, covered, gid, 2, start=200)
+    ok(np.isnan(c_late[200:221]).all() and not np.isnan(c_late[221, 0]), "캐시 시작 전 구간은 미관측(NaN)")
     cov = covered.copy(); cov[:25] = False       # 업종 0 커버 5개 → 10 미만
     ok(np.isnan(catalyst_series(P, elig, cov, gid, 2)[360, 0]), "커버 종목 10개 미만이면 제외")
     evs = [{"date": "2020-03-01", "high": True, "up": True, "p5": 0.01, "p20": 0.03}, {"date": "2020-04-01", "high": False, "up": True, "p5": 0.0, "p20": 0.01},
@@ -195,7 +199,8 @@ def main():
     E3, covered = load_e3(dates, tickers)
     print(f"A2a {dates[0]} ~ {dates[-1]} · 공시 캐시 커버 종목 {int(covered.sum())} · E3 접수 {int(E3.sum())}건")
     P = build_P(E3)
-    c = catalyst_series(P, elig, covered, gid, ng)
+    start = bisect.bisect_left(dates, CACHE_START)
+    c = catalyst_series(P, elig, covered, gid, ng, start)
     mk20 = np.full(len(dates), np.nan)
     for i in range(20, len(dates)):
         if elig[i].sum() >= 50:
