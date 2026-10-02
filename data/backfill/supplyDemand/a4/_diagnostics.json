@@ -25,56 +25,64 @@
     "shard-9.jsonl"
   ],
   "shardCount": 16,
-  "emptyCount": 430,
-  "exceptionCount": 2,
-  "unresolvedCount": 2,
+  "emptyCount": 553,
+  "exceptionCount": 4,
+  "unresolvedCount": 4,
   "shardCollectFrom": [
-    "2026-08-15"
+    "2026-09-04"
   ],
   "unresolved": [
     {
-      "ticker": "023350",
+      "ticker": "018680",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     },
     {
-      "ticker": "033540",
+      "ticker": "020560",
+      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
+    },
+    {
+      "ticker": "034810",
+      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
+    },
+    {
+      "ticker": "018290",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     }
   ],
   "calendarStart": "2014-01-02",
-  "calendarEnd": "2026-09-03",
-  "rowCount": 27506,
+  "calendarEnd": "2026-10-02",
+  "rowCount": 37841,
   "actualDataFrom": "2016-01-04",
-  "actualDataTo": "2026-09-03",
+  "actualDataTo": "2026-10-02",
   "dateContractViolations": 0,
   "tickerContractViolations": 0,
   "categoryKeySetViolations": 0,
   "marketClearingViolations": 0,
   "marketClearingViolationSample": [],
   "candidateCount": 2578,
-  "tickersWithData": 2146,
-  "tickersWithDataRate": 0.8324,
-  "expectedDaysPerTicker": 13,
-  "missingRateFrom": "2026-08-15",
-  "missingRate": 0.01405,
-  "unresolvedRate": 0.0008,
-  "rowCountAfterValidation": 27506,
-  "actualDataFromThisRun": "2026-08-18",
+  "tickersWithData": 2021,
+  "tickersWithDataRate": 0.7839,
+  "expectedDaysPerTicker": 19,
+  "missingRateFrom": "2026-09-04",
+  "missingRate": 0.01453,
+  "unresolvedRate": 0.0016,
+  "rowCountAfterValidation": 37841,
+  "actualDataFromThisRun": "2026-09-04",
   "acceptanceFails": [],
   "acceptanceWarns": [
-    "데이터 확보 종목 2146/2578 (83.2%) >= 90%"
+    "데이터 확보 종목 2021/2578 (78.4%) >= 90%"
   ],
   "acceptancePassed": true,
   "years": {
     "2026": {
-      "rows": 401717,
-      "newRows": 27506,
-      "existingRowsBeforeMerge": 374211,
-      "rawBytes": 398532533,
-      "gzBytes": 51614703
+      "rows": 439558,
+      "newRows": 37841,
+      "existingRowsBeforeMerge": 401717,
+      "rawBytes": 435453780,
+      "gzBytes": 55963914
     }
   },
-  "totalGzBytes": 51614703,
+  "totalGzBytes": 55963914,
   "yearsInDataset": [
     "2016",
     "2017",
@@ -88,5 +96,5 @@
     "2025",
     "2026"
   ],
-  "totalGzBytesAllYears": 641450378
+  "totalGzBytesAllYears": 645799589
 }
