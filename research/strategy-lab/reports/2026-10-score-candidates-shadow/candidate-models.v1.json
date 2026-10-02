@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "SCS-1.0",
+  "freezeDate": "2026-10-02",
+  "status": "EXPLORATORY_CANDIDATES_NOT_PRESELECTED",
+  "preregistration": "research/strategy-lab/findings/score-candidates-shadow-preregistration-2026-10.md",
+  "axisWeights": { "fundamental": 0.3, "valuation": 0.5, "technical": 0.2 },
+  "topFraction": 0.2,
+  "population": {
+    "listingStatus": "ACTIVE",
+    "tradingState": "NORMAL",
+    "requireFin": true,
+    "requireAxes": ["valuation", "technical"]
+  },
+  "models": [
+    { "id": "M0", "kind": "fin", "note": "현행 KR-2.4 최종점수(패널 fin)" },
+    { "id": "M1", "kind": "axes", "weights": { "valuation": 1.0 }, "note": "가치 100" },
+    { "id": "M2", "kind": "axes", "weights": { "valuation": 0.5, "technical": 0.2 }, "note": "가치 50 : 기술 20 (정규화 71.4:28.6)" }
+  ]
+}
