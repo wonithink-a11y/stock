@@ -418,6 +418,8 @@ async function main() {
   for (const [code, v] of Object.entries(byTicker)) {
     let neutralQuota = 2;
     for (const it of v.items) {
+      // 요약에만 사명이 나오는 기사(타 종목 기사 속 언급)는 브리핑에서 뺀다 — 알림 경로(331행)와 같은 조건
+      if (!it.title.includes(v.name)) continue;
       const ref = { code, name: v.name, held: !!v.held };
       if (v.held && it.level === 'bad') addBrief(it, 100, '보유종목 악재', ref);
       else if (v.held && it.level === 'good') addBrief(it, 85, '보유종목 호재', ref);
