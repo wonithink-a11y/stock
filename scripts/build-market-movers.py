@@ -37,7 +37,7 @@ UP_PCT = 5.0
 MIN_TV = 1_000_000_000      # 거래대금 10억 원
 MIN_MEMBERS = 5
 TOP_N = 3
-SCHEMA = "MM-1.0"
+SCHEMA = "MM-1.1"   # 1.1: groups[].members(적격 종목 코드) 추가 - 급등 군집 기록(C)이 쓴다
 
 
 def _sector_mod():
@@ -105,7 +105,8 @@ def build(rows, sector_by_ticker, ymd):
         up = sorted([m for m in ms if m["r"] >= UP_PCT / 100], key=lambda m: (-m["r"], m["t"]))
         dn = [m for m in ms if m["r"] <= -UP_PCT / 100]
         groups.append({"group": g, "n": len(ms), "up": len(up), "dn": len(dn),
-                       "top": [[m["t"], m["n"], m["r"]] for m in up[:TOP_N]]})
+                       "top": [[m["t"], m["n"], m["r"]] for m in up[:TOP_N]],
+                       "members": sorted(m["t"] for m in ms)})
     groups.sort(key=lambda x: (-(x["up"] / x["n"]), -x["up"], x["group"]))
     movers = sorted([s for s in elig if s["r"] >= UP_PCT / 100], key=lambda s: (-s["r"], s["t"]))
     return {
@@ -138,6 +139,7 @@ def selftest():
     g = o["groups"][0]
     ok(g["group"] == "반도체" and g["n"] == 6 and g["up"] == 3 and g["dn"] == 1, f"그룹 {g}")   # A,B,G 급등 / D 급락, 매핑 없는 H 는 그룹에서 빠짐
     ok([t[0] for t in g["top"]] == ["000070", "000010", "000020"], f"상위 정렬 {g['top']}")
+    ok(g["members"] == sorted(g["members"]) and len(g["members"]) == g["n"], "members")
     ok(build(rows[:3], sec, "x")["groups"] == [], "5개 미만 그룹은 표시 안 함")
     ok(json.dumps(build(rows, sec, "20261001")) == json.dumps(o), "결정적")
     print("selftest OK - build-market-movers")
