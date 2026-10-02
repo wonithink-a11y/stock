@@ -1,0 +1,1433 @@
+{
+ "schemaVersion": "VS-1.0",
+ "asOf": "2026-09-30",
+ "note": "PIT 가치(PER/PBR) 산출 가능 여부. 점수·정책과 무관한 표시용 범위표 — 값 대체·신뢰도 평가 아님.",
+ "summary": {
+  "total": 353,
+  "inScope": 163,
+  "outOfScope": 190,
+  "reasons": {
+   "COMPOUND_EVENT": 66,
+   "MERGER_UNHANDLED": 70,
+   "RIGHTS_FORMULA_UNVERIFIED": 37,
+   "CAPITAL_REDUCTION_TYPE_UNKNOWN": 13,
+   "NOT_IN_UNIVERSE": 1,
+   "NO_VALUATION_INPUT": 1,
+   "NO_PRICE": 2
+  }
+ },
+ "byTicker": {
+  "100790": {
+   "inScope": true,
+   "reason": null
+  },
+  "101490": {
+   "inScope": true,
+   "reason": null
+  },
+  "101730": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "103140": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "105560": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "108490": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "111770": {
+   "inScope": true,
+   "reason": null
+  },
+  "112040": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "112610": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "120110": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "121600": {
+   "inScope": true,
+   "reason": null
+  },
+  "122870": {
+   "inScope": true,
+   "reason": null
+  },
+  "124500": {
+   "inScope": false,
+   "reason": "NO_PRICE"
+  },
+  "125490": {
+   "inScope": true,
+   "reason": null
+  },
+  "128940": {
+   "inScope": true,
+   "reason": null
+  },
+  "131290": {
+   "inScope": true,
+   "reason": null
+  },
+  "131970": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "137310": {
+   "inScope": true,
+   "reason": null
+  },
+  "137400": {
+   "inScope": true,
+   "reason": null
+  },
+  "138040": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "138930": {
+   "inScope": true,
+   "reason": null
+  },
+  "139130": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "139480": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "140860": {
+   "inScope": true,
+   "reason": null
+  },
+  "141080": {
+   "inScope": true,
+   "reason": null
+  },
+  "145020": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "161390": {
+   "inScope": true,
+   "reason": null
+  },
+  "161580": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "161890": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "166090": {
+   "inScope": true,
+   "reason": null
+  },
+  "171090": {
+   "inScope": true,
+   "reason": null
+  },
+  "175330": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "178320": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "180640": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "183300": {
+   "inScope": true,
+   "reason": null
+  },
+  "185750": {
+   "inScope": true,
+   "reason": null
+  },
+  "189300": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "192080": {
+   "inScope": true,
+   "reason": null
+  },
+  "192820": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "194480": {
+   "inScope": true,
+   "reason": null
+  },
+  "195940": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "196170": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "204270": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "204320": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "207940": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "211050": {
+   "inScope": false,
+   "reason": "NO_PRICE"
+  },
+  "213420": {
+   "inScope": true,
+   "reason": null
+  },
+  "214150": {
+   "inScope": true,
+   "reason": null
+  },
+  "214370": {
+   "inScope": true,
+   "reason": null
+  },
+  "214430": {
+   "inScope": true,
+   "reason": null
+  },
+  "214450": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "215200": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "218410": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "222080": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "222800": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "225570": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "226950": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "232140": {
+   "inScope": true,
+   "reason": null
+  },
+  "237690": {
+   "inScope": true,
+   "reason": null
+  },
+  "240810": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "241560": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "241710": {
+   "inScope": true,
+   "reason": null
+  },
+  "247540": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "251270": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "251970": {
+   "inScope": true,
+   "reason": null
+  },
+  "253450": {
+   "inScope": true,
+   "reason": null
+  },
+  "253590": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "257720": {
+   "inScope": true,
+   "reason": null
+  },
+  "259960": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "263750": {
+   "inScope": true,
+   "reason": null
+  },
+  "267250": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "267260": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "267270": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "268280": {
+   "inScope": true,
+   "reason": null
+  },
+  "271560": {
+   "inScope": true,
+   "reason": null
+  },
+  "272210": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "272290": {
+   "inScope": true,
+   "reason": null
+  },
+  "277810": {
+   "inScope": true,
+   "reason": null
+  },
+  "278280": {
+   "inScope": true,
+   "reason": null
+  },
+  "278470": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "280360": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "281740": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "282330": {
+   "inScope": true,
+   "reason": null
+  },
+  "285130": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "290650": {
+   "inScope": true,
+   "reason": null
+  },
+  "293490": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "295310": {
+   "inScope": true,
+   "reason": null
+  },
+  "298020": {
+   "inScope": true,
+   "reason": null
+  },
+  "298040": {
+   "inScope": true,
+   "reason": null
+  },
+  "298050": {
+   "inScope": true,
+   "reason": null
+  },
+  "298380": {
+   "inScope": true,
+   "reason": null
+  },
+  "300720": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "302440": {
+   "inScope": true,
+   "reason": null
+  },
+  "307950": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "310210": {
+   "inScope": true,
+   "reason": null
+  },
+  "316140": {
+   "inScope": true,
+   "reason": null
+  },
+  "319400": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "319660": {
+   "inScope": true,
+   "reason": null
+  },
+  "323280": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "323410": {
+   "inScope": true,
+   "reason": null
+  },
+  "326030": {
+   "inScope": true,
+   "reason": null
+  },
+  "328130": {
+   "inScope": true,
+   "reason": null
+  },
+  "329180": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "347850": {
+   "inScope": true,
+   "reason": null
+  },
+  "348210": {
+   "inScope": true,
+   "reason": null
+  },
+  "348370": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "352480": {
+   "inScope": true,
+   "reason": null
+  },
+  "352820": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "353200": {
+   "inScope": true,
+   "reason": null
+  },
+  "357780": {
+   "inScope": true,
+   "reason": null
+  },
+  "358570": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "361610": {
+   "inScope": true,
+   "reason": null
+  },
+  "373220": {
+   "inScope": true,
+   "reason": null
+  },
+  "375500": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "376300": {
+   "inScope": true,
+   "reason": null
+  },
+  "377300": {
+   "inScope": true,
+   "reason": null
+  },
+  "383220": {
+   "inScope": true,
+   "reason": null
+  },
+  "388720": {
+   "inScope": true,
+   "reason": null
+  },
+  "399720": {
+   "inScope": true,
+   "reason": null
+  },
+  "402340": {
+   "inScope": true,
+   "reason": null
+  },
+  "403870": {
+   "inScope": true,
+   "reason": null
+  },
+  "417200": {
+   "inScope": true,
+   "reason": null
+  },
+  "420770": {
+   "inScope": true,
+   "reason": null
+  },
+  "437730": {
+   "inScope": true,
+   "reason": null
+  },
+  "443060": {
+   "inScope": true,
+   "reason": null
+  },
+  "445680": {
+   "inScope": true,
+   "reason": null
+  },
+  "450080": {
+   "inScope": true,
+   "reason": null
+  },
+  "454910": {
+   "inScope": true,
+   "reason": null
+  },
+  "456040": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "457190": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "466100": {
+   "inScope": true,
+   "reason": null
+  },
+  "475830": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "483650": {
+   "inScope": true,
+   "reason": null
+  },
+  "000080": {
+   "inScope": true,
+   "reason": null
+  },
+  "000100": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "000120": {
+   "inScope": true,
+   "reason": null
+  },
+  "000150": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "000210": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "000240": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "000250": {
+   "inScope": true,
+   "reason": null
+  },
+  "000270": {
+   "inScope": true,
+   "reason": null
+  },
+  "000660": {
+   "inScope": true,
+   "reason": null
+  },
+  "000670": {
+   "inScope": true,
+   "reason": null
+  },
+  "000720": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "000810": {
+   "inScope": true,
+   "reason": null
+  },
+  "000880": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "000990": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "0009K0": {
+   "inScope": true,
+   "reason": null
+  },
+  "001040": {
+   "inScope": true,
+   "reason": null
+  },
+  "001430": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "001440": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "001450": {
+   "inScope": true,
+   "reason": null
+  },
+  "001680": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "001800": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "002030": {
+   "inScope": true,
+   "reason": null
+  },
+  "002380": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "002790": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "002840": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "003030": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "003090": {
+   "inScope": true,
+   "reason": null
+  },
+  "003230": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "003240": {
+   "inScope": true,
+   "reason": null
+  },
+  "003380": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "003490": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "003550": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "003670": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "004000": {
+   "inScope": true,
+   "reason": null
+  },
+  "004020": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "004170": {
+   "inScope": true,
+   "reason": null
+  },
+  "004370": {
+   "inScope": true,
+   "reason": null
+  },
+  "004990": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "005290": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "005300": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "005380": {
+   "inScope": true,
+   "reason": null
+  },
+  "005420": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "005490": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "005830": {
+   "inScope": true,
+   "reason": null
+  },
+  "005850": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "005930": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "005940": {
+   "inScope": true,
+   "reason": null
+  },
+  "006040": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "006260": {
+   "inScope": true,
+   "reason": null
+  },
+  "006280": {
+   "inScope": true,
+   "reason": null
+  },
+  "006400": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "006650": {
+   "inScope": true,
+   "reason": null
+  },
+  "006730": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "006800": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "007070": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "007310": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "007340": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "007390": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "007660": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "008730": {
+   "inScope": true,
+   "reason": null
+  },
+  "008770": {
+   "inScope": true,
+   "reason": null
+  },
+  "008930": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "009150": {
+   "inScope": true,
+   "reason": null
+  },
+  "009240": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "009420": {
+   "inScope": true,
+   "reason": null
+  },
+  "009520": {
+   "inScope": true,
+   "reason": null
+  },
+  "009540": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "009830": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "009970": {
+   "inScope": true,
+   "reason": null
+  },
+  "010060": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "010120": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "010130": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "010140": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "010950": {
+   "inScope": true,
+   "reason": null
+  },
+  "011070": {
+   "inScope": true,
+   "reason": null
+  },
+  "011170": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "011200": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "011210": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "011780": {
+   "inScope": true,
+   "reason": null
+  },
+  "011790": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "012330": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "012450": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "0126Z0": {
+   "inScope": true,
+   "reason": null
+  },
+  "012750": {
+   "inScope": true,
+   "reason": null
+  },
+  "014620": {
+   "inScope": true,
+   "reason": null
+  },
+  "014680": {
+   "inScope": true,
+   "reason": null
+  },
+  "014820": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "015750": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "015760": {
+   "inScope": true,
+   "reason": null
+  },
+  "016360": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "017670": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "017800": {
+   "inScope": true,
+   "reason": null
+  },
+  "017960": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "018260": {
+   "inScope": true,
+   "reason": null
+  },
+  "018290": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "018880": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "021240": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "0220W0": {
+   "inScope": false,
+   "reason": "NOT_IN_UNIVERSE"
+  },
+  "022100": {
+   "inScope": true,
+   "reason": null
+  },
+  "023530": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "024110": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "025320": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "025900": {
+   "inScope": true,
+   "reason": null
+  },
+  "025980": {
+   "inScope": true,
+   "reason": null
+  },
+  "026960": {
+   "inScope": true,
+   "reason": null
+  },
+  "028050": {
+   "inScope": true,
+   "reason": null
+  },
+  "028260": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "028300": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "028670": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "029780": {
+   "inScope": true,
+   "reason": null
+  },
+  "030000": {
+   "inScope": true,
+   "reason": null
+  },
+  "030200": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "030520": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "030530": {
+   "inScope": true,
+   "reason": null
+  },
+  "031980": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "032190": {
+   "inScope": true,
+   "reason": null
+  },
+  "032500": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "032640": {
+   "inScope": true,
+   "reason": null
+  },
+  "032820": {
+   "inScope": true,
+   "reason": null
+  },
+  "032830": {
+   "inScope": true,
+   "reason": null
+  },
+  "033100": {
+   "inScope": true,
+   "reason": null
+  },
+  "033500": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "033780": {
+   "inScope": true,
+   "reason": null
+  },
+  "034020": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "034220": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "034230": {
+   "inScope": true,
+   "reason": null
+  },
+  "034730": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "035250": {
+   "inScope": true,
+   "reason": null
+  },
+  "035420": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "035720": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "035760": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "035900": {
+   "inScope": true,
+   "reason": null
+  },
+  "036460": {
+   "inScope": true,
+   "reason": null
+  },
+  "036540": {
+   "inScope": true,
+   "reason": null
+  },
+  "036570": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "036620": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "036810": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "036830": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "036930": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "038500": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "039030": {
+   "inScope": true,
+   "reason": null
+  },
+  "039200": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "039490": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "041190": {
+   "inScope": true,
+   "reason": null
+  },
+  "041510": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "042000": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "042660": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "042700": {
+   "inScope": true,
+   "reason": null
+  },
+  "043260": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "047040": {
+   "inScope": true,
+   "reason": null
+  },
+  "047050": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "047810": {
+   "inScope": true,
+   "reason": null
+  },
+  "048410": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "050890": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "051600": {
+   "inScope": true,
+   "reason": null
+  },
+  "051900": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "051910": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "052400": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "052690": {
+   "inScope": true,
+   "reason": null
+  },
+  "053800": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "055550": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "056080": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "056190": {
+   "inScope": true,
+   "reason": null
+  },
+  "058470": {
+   "inScope": true,
+   "reason": null
+  },
+  "058610": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "060250": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "060280": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "060370": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "062040": {
+   "inScope": true,
+   "reason": null
+  },
+  "064350": {
+   "inScope": true,
+   "reason": null
+  },
+  "064400": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "064760": {
+   "inScope": true,
+   "reason": null
+  },
+  "065350": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "066570": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "066970": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "067160": {
+   "inScope": true,
+   "reason": null
+  },
+  "067310": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "068270": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "068760": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "069080": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "069260": {
+   "inScope": true,
+   "reason": null
+  },
+  "069620": {
+   "inScope": true,
+   "reason": null
+  },
+  "069960": {
+   "inScope": false,
+   "reason": "CAPITAL_REDUCTION_TYPE_UNKNOWN"
+  },
+  "071050": {
+   "inScope": true,
+   "reason": null
+  },
+  "071320": {
+   "inScope": true,
+   "reason": null
+  },
+  "071970": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "073240": {
+   "inScope": true,
+   "reason": null
+  },
+  "074600": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "078340": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "078600": {
+   "inScope": true,
+   "reason": null
+  },
+  "078930": {
+   "inScope": true,
+   "reason": null
+  },
+  "079550": {
+   "inScope": true,
+   "reason": null
+  },
+  "080220": {
+   "inScope": true,
+   "reason": null
+  },
+  "081660": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "082270": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "082740": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "082920": {
+   "inScope": true,
+   "reason": null
+  },
+  "083650": {
+   "inScope": true,
+   "reason": null
+  },
+  "084370": {
+   "inScope": true,
+   "reason": null
+  },
+  "085660": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "086280": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "086520": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "086790": {
+   "inScope": true,
+   "reason": null
+  },
+  "087010": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "088350": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "088980": {
+   "inScope": false,
+   "reason": "NO_VALUATION_INPUT"
+  },
+  "089030": {
+   "inScope": true,
+   "reason": null
+  },
+  "089970": {
+   "inScope": true,
+   "reason": null
+  },
+  "090360": {
+   "inScope": true,
+   "reason": null
+  },
+  "090430": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "090710": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "093370": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "095340": {
+   "inScope": false,
+   "reason": "MERGER_UNHANDLED"
+  },
+  "095610": {
+   "inScope": true,
+   "reason": null
+  },
+  "095660": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "096530": {
+   "inScope": true,
+   "reason": null
+  },
+  "096770": {
+   "inScope": false,
+   "reason": "RIGHTS_FORMULA_UNVERIFIED"
+  },
+  "097950": {
+   "inScope": false,
+   "reason": "COMPOUND_EVENT"
+  },
+  "098460": {
+   "inScope": true,
+   "reason": null
+  },
+  "099320": {
+   "inScope": true,
+   "reason": null
+  }
+ }
+}
