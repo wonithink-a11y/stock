@@ -1316,6 +1316,26 @@ function ensurePrices() {
 }
 
 let flowsLoading = false;
+// PIT 가치 검증 범위 — scripts/build-value-scope.js 가 주 1회 쓰는 docs/data/value-scope.json. 표시 전용(점수와 무관).
+let valueScopeLoading = false;
+function ensureValueScope() {
+  if (state.valueScope !== undefined || valueScopeLoading) return;
+  valueScopeLoading = true;
+  loadJson('value-scope').then(d => { state.valueScope = d || null; valueScopeLoading = false; render(); });
+}
+const VALUE_SCOPE_REASON = { COMPOUND_EVENT: '기업행위 중첩', MERGER_UNHANDLED: '합병·분할 미처리', RIGHTS_FORMULA_UNVERIFIED: '권리 공식 미검증',
+  CAPITAL_REDUCTION_TYPE_UNKNOWN: '감자 유형 미상', NO_PRICE: '가격 없음', NOT_IN_UNIVERSE: '검증 유니버스 밖', NO_VALUATION_INPUT: '입력 부족', RESOLVE_ERROR: '산출 오류' };
+function valueScopeTile(r) {
+  const label = 'PIT 가치 범위';
+  if (r.market !== 'KR') return decodeTile(label, '-', '국내 종목만', 'neutral');
+  ensureValueScope();
+  const vs = state.valueScope, v = vs && vs.byTicker && vs.byTicker[r.ticker];
+  if (!vs) return decodeTile(label, '-', state.valueScope === undefined ? '불러오는 중' : '수집 전', 'neutral');
+  if (!v) return decodeTile(label, '-', '관심종목 아님', 'neutral');
+  if (v.inScope) return decodeTile(label, '범위 안', `PER/PBR 시점 보정됨 · ${esc(vs.asOf)}`, 'neutral');
+  return decodeTile(label, '범위 밖', `${esc(v.reason)} · ${esc(VALUE_SCOPE_REASON[v.reason] || '')} (검증 안 된 가치)`, 'neutral');
+}
+
 function ensureFlows() {
   if (state.flows || flowsLoading) return;
   flowsLoading = true;
@@ -1700,6 +1720,7 @@ function decodeSummaryHtml(r, c) {
   const tiles = [
     r.market !== 'KR' ? decodeTile('점수 신뢰도', '미검증', '미국 지표는 검증 전', 'neutral')
       : decodeTile('점수 신뢰도', vs == null ? '-' : vs < R.lowTrust ? '낮음' : vs < R.midTrust ? '보통' : '높음', `검증 지표 몫 ${vs == null ? '-' : Math.round(vs * 100) + '%'}`, vs == null ? 'neutral' : vs < R.lowTrust ? 'bad' : vs < R.midTrust ? 'mid' : 'good'),
+    valueScopeTile(r),
     decodeTile('가격(PBR)', c.mine == null ? '-' : c.mine.toFixed(2) + '배', c.pbrPct == null ? '비교 불가' : `${c.poolN}종목 중 비싼 쪽 ${Math.round((1 - c.pbrPct) * 100)}%`, c.pbrPct == null ? 'neutral' : c.pbrPct >= R.pricey ? 'bad' : c.pbrPct <= R.cheap ? 'good' : 'mid'),
     (() => { const g = c.theme ? c.theme.st : c.sector; const rs = g && g.rs ? g.rs['1m'] : null;
       return decodeTile(c.theme ? '테마 흐름(1개월)' : '업종 흐름(1개월)', rs == null ? '-' : `${rs >= 0 ? '+' : ''}${(rs * 100).toFixed(1)}%p`, rs == null ? '소속 정보 없음' : '시장 대비', rs == null ? 'neutral' : rs >= R.strongRs ? 'good' : rs <= -R.strongRs ? 'bad' : 'mid'); })(),
