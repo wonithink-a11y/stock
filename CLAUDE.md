@@ -146,6 +146,7 @@ Validated against
             후 `reports/2026-09-us-overnight-shadow/observations.jsonl` 커밋. 250 거래일(≈2027-10) 1회 판정, 현실적 기대 INCONCLUSIVE/REJECT.
             ★ **뉴스 그림자도 같이**(10-02 사전등록 1ee09ba7): `python research/strategy-lab/run_news_shadow.py` 후 `reports/2026-10-news-shadow/observations.jsonl` 커밋.
             원자료만(국내·제목에 종목명·good/bad). 사건 정의·판정은 양쪽 각 150건(≈6개월) 뒤 1회 — 그 전엔 기록만, 점수·매매 불사용.
+            ★ **업종 부상 forward 기록도 같이**(10-02 사전등록 ed36f0c2): `python research/strategy-lab/run_sector_rise_study.py --forward` 후 `reports/2026-10-sector-rise-forward/events.jsonl` 커밋(탐지만 기록·수익률 없음). 월별 성과는 `--forward-report`. 급등 군집 `clusters.jsonl` 은 market-movers 워크플로가 자동 추가(사전등록 fa918497). 점수 후보 3종 스냅샷은 11월 초 A5 갱신 뒤 `run_score_candidates_shadow.py --snapshot`(76c30dad).
             ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`
             후 `reports/2026-09-infbuy-dip-shadow/observations.jsonl` 커밋. 2년(2028-09-29) 1회. 다른 레버리지 16종 재현은 3배 NOT·2배 PARTIAL
             (낙폭 악화) — SOXL 전용 효과, V4.0 운용 불변(findings/infinite-buying-dip-double-replication-results-2026-09.md).
