@@ -776,6 +776,7 @@ function renderReco() {
       <td>${curCell}</td>
       <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
       <td>${fmtPct(p.changePct)}</td>
+      <td style="font-size:12px">${sectorSurgeCell(p.ticker, p.market)}</td>
     </tr>`;
   };
 
@@ -783,8 +784,9 @@ function renderReco() {
     <div class="group-filter" style="margin-bottom:10px">${dateTabs}</div>
     <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th></tr></thead>
+      <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th><th title="오늘(장중 또는 직전 종가) 전일 대비 +5% 이상 종목 비율. 추천·점수와 무관한 현재 상태 표시">업종 현재 급등</th></tr></thead>
       <tbody>${rl.shown.map(rowHtml).join('')}</tbody></table></div>${rl.more}
+    <p class="muted" style="font-size:11px;margin-top:6px">‘업종 현재 급등’은 추천 당시가 아니라 <strong>지금</strong> 그 종목이 속한 업종에서 전일 대비 +5% 이상인 종목 수/업종 종목 수와 기존 4분면이다. 점수·추천 기준과 무관한 관찰용 표시다.</p>
   </div>`;
 }
 
@@ -2949,15 +2951,34 @@ function renderSector() {
 // 표시 전용: 예측·추천이 아니다(절대 규칙 1). 섹터 주도권 신호는 검증에서 난수 바닥선을 넘지 못했고(findings/sector-leadership-step0),
 // 급등·돌파 추격은 기존 시험에서 음의 방향이었다 - '유망 섹터'가 아니라 '오늘 어디가 움직였나'만 보여준다.
 const SURGE_PCT = 0.05, SURGE_MIN_HITS = 2, SURGE_MIN_MEMBERS = 5, SURGE_ROWS = 8;
+// 급등 비율의 수익률 기준: 히트맵이 '장중'이고 VM 시세가 있으면 장중, 아니면 sector-strength 의 1일(종가). 카드·추천 목록이 같이 쓴다.
+function surgeBasis(d) {
+  const hl = state.heatLive, lq = hl && hl.quotes;
+  const useLive = state.heatWin === 'live' && !!lq;
+  const rOf = x => { if (useLive) { const q = lq[x.t]; return q && q[1] ? q[0] / q[1] - 1 : null; } const v = x.r && x.r['1d']; return v == null ? null : v; };
+  const basis = useLive && hl.atKst ? `장중 ${esc(String(hl.atKst).slice(5, 16))}` : `${esc(String(d.asOf || '-').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'))} 종가 기준`;
+  return { rOf, basis };
+}
+// 종목이 속한 업종의 급등 비율·4분면 — 추천 목록 표시용(점수·추천과 무관, 원자료와 기존 4분면만). KR 만.
+function sectorSurgeCell(ticker, market) {
+  const d = state.sectorStrength;
+  if (market !== 'KR' || !d || !(d.stocks || []).length) return '<span class="muted">-</span>';
+  const g = (d.groups || []).find(x => (x.tickers || []).includes(ticker));
+  if (!g) return '<span class="muted" title="업종 미분류">-</span>';
+  const { rOf } = surgeBasis(d);
+  const byT = new Map(d.stocks.map(x => [x.t, x]));
+  const rs = (g.tickers || []).map(t => byT.get(t)).filter(Boolean).map(rOf).filter(v => v != null);
+  if (!rs.length) return '<span class="muted">-</span>';
+  const up = rs.filter(v => v >= SURGE_PCT).length;
+  return `${esc(g.group)} <strong>${up}/${rs.length}</strong> <span class="muted">(${Math.round(up / rs.length * 100)}%) · ${esc(g.quadrant || '-')}</span>`;
+}
+
 function surgeClusterCard() {
   if (state.heatMarket !== 'KR') return '';
   const d = state.sectorStrength;
   if (!d || !(d.stocks || []).length) return '';
-  const hl = state.heatLive, lq = hl && hl.quotes;
-  const useLive = state.heatWin === 'live' && !!lq;
-  const rOf = x => { if (useLive) { const q = lq[x.t]; return q && q[1] ? q[0] / q[1] - 1 : null; } const v = x.r && x.r['1d']; return v == null ? null : v; };
+  const { rOf, basis } = surgeBasis(d);
   const byT = new Map(d.stocks.map(x => [x.t, x]));
-  const basis = useLive && hl.atKst ? `장중 ${esc(String(hl.atKst).slice(5, 16))}` : `${esc(String(d.asOf || '-').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3'))} 종가 기준`;
   const rowOf = (name, tickers, st) => {
     const ms = [...new Set(tickers)].map(t => byT.get(t)).filter(Boolean).map(x => ({ x, r: rOf(x) })).filter(m => m.r != null);
     if (ms.length < SURGE_MIN_MEMBERS) return null;
