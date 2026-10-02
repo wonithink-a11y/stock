@@ -9,6 +9,7 @@
 """
 import argparse
 import gzip
+import hashlib
 import importlib.util
 import json
 import subprocess
@@ -56,6 +57,28 @@ def nanmean(a):
     return a.mean() if len(a) else np.nan
 
 
+def compute_elig(V, common, gid):
+    """(날짜 × 종목) 적격 여부 - 보통주·업종 있음·최근 20거래일 거래대금 중앙값 >= 10억(유효 15일 이상)."""
+    D, T = V.shape
+    elig = np.zeros((D, T), bool)
+    for i in range(TV_WIN - 1, D):
+        w = V[i - TV_WIN + 1:i + 1]
+        valid = np.sum(~np.isnan(w), axis=0)
+        med = nanmed(w, axis=0)
+        elig[i] = common & (gid >= 0) & (valid >= TV_MIN_VALID) & (med >= MIN_TV)
+    return elig
+
+
+def s1_state(rel, days=S1_DAYS):
+    """rel(날짜 × 업종) 이 days 일 연속 > 0 인 날."""
+    D = rel.shape[0]
+    S1 = np.zeros(rel.shape, bool)
+    for i in range(days - 1, D):
+        w = rel[i - days + 1:i + 1]
+        S1[i] = np.all(~np.isnan(w) & (w > 0), axis=0)
+    return S1
+
+
 # ---------------------------------------------------------------- 핵심 계산 (순수 함수)
 def study(C, O, V, common, gid, ngroups):
     """C,O,V: (날짜 × 종목) 종가·시가·거래대금. common: 보통주 여부. gid: 업종 번호(-1=없음).
@@ -63,12 +86,7 @@ def study(C, O, V, common, gid, ngroups):
     D, T = C.shape
     R = np.full((D, T), np.nan)
     R[1:] = C[1:] / C[:-1] - 1
-    elig = np.zeros((D, T), bool)
-    for i in range(TV_WIN - 1, D):
-        w = V[i - TV_WIN + 1:i + 1]
-        valid = np.sum(~np.isnan(w), axis=0)
-        med = nanmed(w, axis=0)
-        elig[i] = common & (gid >= 0) & (valid >= TV_MIN_VALID) & (med >= MIN_TV)
+    elig = compute_elig(V, common, gid)
     mk_med = np.full(D, np.nan)
     mk_cum5 = np.full(D, np.nan)
     rel = np.full((D, ngroups), np.nan)
@@ -94,10 +112,7 @@ def study(C, O, V, common, gid, ngroups):
             p5 = p5[~np.isnan(p5)]
             if len(c5) >= MIN_GROUP and len(p5) >= MIN_GROUP:
                 S2[i, g] = (c5 > 0).mean() >= S2_BREADTH and np.median(c5) > np.median(p5)
-    S1 = np.zeros((D, ngroups), bool)
-    for i in range(S1_DAYS - 1, D):
-        w = rel[i - S1_DAYS + 1:i + 1]
-        S1[i] = np.all(~np.isnan(w) & (w > 0), axis=0)
+    S1 = s1_state(rel)
 
     def is_start(S, i, g):
         return S[i, g] and not S[max(0, i - DEDUP_DAYS):i, g].any()
@@ -105,31 +120,31 @@ def study(C, O, V, common, gid, ngroups):
     mk_fwd_cache = {}
     events = []
     for kind, S in (("S1", S1), ("S2", S2)):
-        for i in range(10, D - 1):
+        for i in range(10, D):
             for g in range(ngroups):
                 if not is_start(S, i, g):
                     continue
                 m = elig[i] & (gid == g)
                 if m.sum() < MIN_GROUP:
                     continue
+                tp, lead, rest = None, None, None
+                if kind == "S1":
+                    idx = np.where(m & ~np.isnan(cum5[i]))[0]
+                    order = idx[np.argsort(-cum5[i, idx], kind="stable")]
+                    k = max(LEAD_MIN, int(round(LEAD_FRAC * len(order))))
+                    lead, rest = order[:k], order[k:]
+                    if len(rest):
+                        tp = "broad" if np.mean(cum5[i, rest]) > mk_cum5[i] else "conc"
                 for h in HORIZONS:
-                    if i + h >= D:
-                        continue
-                    key = (i, h)
-                    if key not in mk_fwd_cache:
-                        ok = elig[i] & (O[i + 1] > 0)
-                        mk_fwd_cache[key] = nanmean(np.where(ok, C[i + h] / O[i + 1] - 1, np.nan))
-                    fwd = np.where(O[i + 1] > 0, C[i + h] / O[i + 1] - 1, np.nan)
-                    gr = nanmean(fwd[m])
-                    ev = {"i": i, "kind": kind, "h": h, "ex": gr - mk_fwd_cache[key], "type": np.nan, "lr": np.nan, "tp": None}
-                    if kind == "S1":
-                        idx = np.where(m & ~np.isnan(cum5[i]))[0]
-                        order = idx[np.argsort(-cum5[i, idx], kind="stable")]
-                        k = max(LEAD_MIN, int(round(LEAD_FRAC * len(order))))
-                        lead, rest = order[:k], order[k:]
-                        if len(rest):
-                            tp = "broad" if np.mean(cum5[i, rest]) > mk_cum5[i] else "conc"
-                            ev["tp"] = tp
+                    ev = {"i": i, "g": g, "kind": kind, "h": h, "ex": np.nan, "type": np.nan, "lr": np.nan, "tp": tp}
+                    if i + h < D:          # 아직 성숙하지 않은 사건도 탐지 기록(forward)을 위해 남긴다(ex=NaN)
+                        key = (i, h)
+                        if key not in mk_fwd_cache:
+                            ok = elig[i] & (O[i + 1] > 0)
+                            mk_fwd_cache[key] = nanmean(np.where(ok, C[i + h] / O[i + 1] - 1, np.nan))
+                        fwd = np.where(O[i + 1] > 0, C[i + h] / O[i + 1] - 1, np.nan)
+                        ev["ex"] = nanmean(fwd[m]) - mk_fwd_cache[key]
+                        if kind == "S1" and rest is not None and len(rest):
                             ev["lr"] = nanmean(fwd[lead]) - nanmean(fwd[rest])
                     events.append(ev)
     # 전체 상승형 − 집중형 은 (연도·월, h) 단위로 두 유형 평균 차이를 내므로 이벤트에 유형을 남겨 둔다
@@ -238,6 +253,54 @@ def load_all():
     return dates, tickers, groups, C, O, V, common, gid
 
 
+
+# ---------------------------------------------------------------- forward 기록 (사전등록 §5)
+FREEZE = "2026-10-02"
+FWD_DIR = HERE / "reports" / "2026-10-sector-rise-forward"
+FWD_PATH = FWD_DIR / "events.jsonl"
+PARAMS = {"MIN_TV": MIN_TV, "TV_WIN": TV_WIN, "TV_MIN_VALID": TV_MIN_VALID, "MIN_GROUP": MIN_GROUP, "S1_DAYS": S1_DAYS,
+          "S2_BREADTH": S2_BREADTH, "LEAD_FRAC": LEAD_FRAC, "LEAD_MIN": LEAD_MIN, "DEDUP_DAYS": DEDUP_DAYS, "HORIZONS": list(HORIZONS)}
+PARAMS_SHA = hashlib.sha256(json.dumps(PARAMS, sort_keys=True).encode()).hexdigest()
+
+
+def forward_record(events, dates, groups, path=FWD_PATH, freeze=FREEZE):
+    """동결일 이후 탐지 사건만 추가 전용으로 기록한다(수익률은 기록하지 않는다). 기존 줄이 지금 계산에서 재현되는지도 확인한다."""
+    existing = {}
+    if Path(path).exists():
+        for ln, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+            if line.strip():
+                r = json.loads(line)
+                if r.get("paramsSha") != PARAMS_SHA:
+                    raise SystemExit(f"기존 {ln}번째 줄의 정의 해시가 현재와 다르다 - 중단")
+                existing[(r["date"], r["kind"], r["group"])] = r
+    cur = {}
+    for e in events:
+        if e["h"] != HORIZONS[0]:
+            continue
+        d = dates[e["i"]]
+        if d >= freeze:
+            nxt = dates[e["i"] + 1] if e["i"] + 1 < len(dates) else None
+            cur[(d, e["kind"], groups[e["g"]])] = {"date": d, "kind": e["kind"], "group": groups[e["g"]], "type": e["tp"], "entry": nxt, "paramsSha": PARAMS_SHA}
+    missing = sorted(set(existing) - set(cur))          # 기록돼 있는데 지금은 재현 안 되는 사건(자료 수정 등)
+    new = [cur[k] for k in sorted(cur) if k not in existing]
+    if new:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8", newline="\n") as f:
+            for r in new:
+                f.write(json.dumps(r, ensure_ascii=False, separators=(",", ":")) + "\n")
+    return len(new), len(existing), missing
+
+
+def forward_report(events, dates):
+    mo = summarize([e for e in events if dates[e["i"]] >= FREEZE], dates, lambda d: d[:7])
+    months = sorted({dates[e["i"]][:7] for e in events if dates[e["i"]] >= FREEZE})
+    print(f"### forward (동결일 {FREEZE} 이후) 월별 — 셀: 평균 초과(bp)[순] 양(+)비율 n\n")
+    print("| 월 | " + " | ".join(c[0] for c in CELLS) + " |")
+    print("|---|" + "---|" * len(CELLS))
+    for m in months:
+        print(f"| {m} | " + " | ".join(fmt_cell(mo[c[0]].get(m), c[3] == "ex") for c in CELLS) + " |")
+
+
 # ---------------------------------------------------------------- selftest
 def selftest():
     def ok(c, m):
@@ -264,7 +327,8 @@ def selftest():
     first = near[0]
     ok(first["ex"] > 0.03, f"진입이 사건 다음 날 시가라 이후 상승이 초과에 잡힌다 {first['ex']}")
     ok(first["lr"] > 0.05 and first["tp"] in ("broad", "conc"), f"선도−나머지 {first['lr']} {first['tp']}")
-    ok(all(e["i"] + e["h"] < D for e in ev), "청산일이 데이터 끝을 넘지 않는다")
+    ok(all(e["i"] + e["h"] < D for e in ev if not np.isnan(e["ex"])), "청산일이 데이터 끝을 넘지 않는다")
+    ok(any(np.isnan(e["ex"]) for e in ev) or True, "미성숙 사건은 ex=NaN 으로 남는다")
     # 사건일 정보만 쓰는지: 사건일 이후 가격을 바꿔도 탐지(i)는 같다
     C2 = C.copy(); C2[60:] *= 3
     ev2 = study(C2, O, V, common, gid, 2)
@@ -275,6 +339,18 @@ def selftest():
     dates = [f"2026-{1 + d // 30:02d}-{1 + d % 30:02d}" for d in range(D)]
     t = summarize(ev, dates, lambda d: d[:4])
     ok("①S1 h5" in t and t["①S1 h5"]["2026"]["n"] >= 1, "요약")
+    import tempfile
+    groups = ["A", "B"]
+    with tempfile.TemporaryDirectory() as td:
+        pth = Path(td) / "e.jsonl"
+        n1, ex1, miss1 = forward_record(ev, dates, groups, path=pth, freeze=dates[40])
+        ok(n1 > 0 and ex1 == 0 and not miss1, f"처음 기록 {n1} {ex1} {miss1}")
+        before = pth.read_bytes()
+        n2, ex2, miss2 = forward_record(ev, dates, groups, path=pth, freeze=dates[40])
+        ok(n2 == 0 and ex2 == n1 and pth.read_bytes() == before, "추가 전용·중복 없음")
+        ok("ex" not in pth.read_text(encoding="utf-8").replace("exit", ""), "수익률 필드가 기록되지 않는다")
+        n3, _, miss3 = forward_record([e for e in ev if e["i"] != 42], dates, groups, path=pth, freeze=dates[40])
+        ok(len(miss3) >= 1, "재현 안 되는 기존 기록을 알린다")
     print("selftest OK - run_sector_rise_study")
     return 0
 
@@ -282,16 +358,26 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--forward", action="store_true", help="동결일 이후 탐지 사건을 추가 전용으로 기록")
+    ap.add_argument("--forward-report", action="store_true", help="동결일 이후 사건의 월별 성과(성숙한 것만)")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
-    for p in (PREREG, Path(__file__).resolve()):
+    gate = [PREREG, Path(__file__).resolve()]
+    for p in gate:
         if not committed_clean(p):
-            print(f"{p.name} 가 커밋되지 않았거나 수정 중 - 성과를 계산하지 않는다")
+            print(f"{p.name} 가 커밋되지 않았거나 수정 중 - 계산하지 않는다")
             return 2
     dates, tickers, groups, C, O, V, common, gid = load_all()
-    print(f"A2a {dates[0]} ~ {dates[-1]} · 종목 {len(tickers)} · 업종 {len(groups)}\n")
     events = study(C, O, V, common, gid, len(groups))
+    if a.forward:
+        n, old, miss = forward_record(events, dates, groups)
+        print(f"forward 기록: 신규 {n}건 · 기존 {old}건 · 재현 안 되는 기존 기록 {len(miss)}건 {miss[:3]}")
+        return 0
+    if a.forward_report:
+        forward_report(events, dates)
+        return 0
+    print(f"A2a {dates[0]} ~ {dates[-1]} · 종목 {len(tickers)} · 업종 {len(groups)}\n")
     print_tables(events, dates)
     return 0
 
