@@ -93,6 +93,29 @@ def load_e3(dates, tickers):
     return E3, covered
 
 
+def cache_through_iso(cache_dir=CACHE, default="20260930"):
+    """공시 캐시가 확실히 포함하는 마지막 날짜(YYYY-MM-DD) = 파일별 `_through`(없으면 최초 수집 END)의 최소값. forward 평가는 이 날짜까지만 믿는다."""
+    vals = []
+    for f in Path(cache_dir).glob("*.json"):
+        if not f.name.startswith("_"):
+            vals.append(json.loads(f.read_text(encoding="utf-8")).get("_through") or default)
+    m = min(vals) if vals else default
+    return f"{m[:4]}-{m[4:6]}-{m[6:]}"
+
+
+def forward_events(evs, dates, through_iso):
+    """동결일 이후 사건 중, 직전 거래일까지의 공시가 캐시에 들어 있는 사건만. (제외 건수도 돌려준다)"""
+    keep, dropped = [], 0
+    for e in evs:
+        if e["date"] < rs.FREEZE:
+            continue
+        if dates[e["i"] - 1] <= through_iso:
+            keep.append(e)
+        else:
+            dropped += 1
+    return keep, dropped
+
+
 def events(C, O, V, elig, gid, rel, c, dates, ngroups, mk20):
     out, skipped = [], {"cover": 0, "history": 0}
     S = rs.s1_state(rel, K)
@@ -108,7 +131,7 @@ def events(C, O, V, elig, gid, rel, c, dates, ngroups, mk20):
                 skipped["history"] += 1
                 continue
             p = vc.path_excess(C, O, elig, gid, i, g, NS)
-            out.append({"date": dates[i], "high": bool(c[i, g] > tm), "up": bool(mk20[i] > 0), "p5": p[0], "p20": p[1]})
+            out.append({"i": i, "date": dates[i], "high": bool(c[i, g] > tm), "up": bool(mk20[i] > 0), "p5": p[0], "p20": p[1]})
     return out, skipped
 
 
@@ -176,6 +199,17 @@ def selftest():
            {"date": "2021-01-01", "high": True, "up": False, "p5": 0.0, "p20": -0.02}]
     r = aggregate(evs, lambda d: d[:4])
     ok(sorted(r) == ["2020", "2021"] and abs(diff(r["2020"], lambda e: e["high"], lambda e: not e["high"]) - 0.02) < 1e-12, "X1 차이")
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        (Path(td) / "1.json").write_text(json.dumps({"I": [], "B": [], "_through": "20261010"}), encoding="utf-8")
+        (Path(td) / "2.json").write_text(json.dumps({"I": [], "B": []}), encoding="utf-8")          # _through 없음 → 최초 수집 END
+        ok(cache_through_iso(td) == "2026-09-30", "파일별 최소 기준일")
+        (Path(td) / "2.json").write_text(json.dumps({"I": [], "B": [], "_through": "20261008"}), encoding="utf-8")
+        ok(cache_through_iso(td) == "2026-10-08", "전부 갱신되면 최소 기준일이 올라간다")
+    dts = ["2026-10-01", "2026-10-02", "2026-10-05", "2026-10-06"]
+    evs2 = [{"i": 1, "date": "2026-10-02"}, {"i": 3, "date": "2026-10-06"}, {"i": 0, "date": "2026-10-01"}]
+    keep, dropped = forward_events(evs2, dts, "2026-10-02")
+    ok([e["date"] for e in keep] == ["2026-10-02"] and dropped == 1, f"동결일 이전 제외·캐시 미갱신 제외 {keep} {dropped}")
     print("selftest OK - run_sector_catalyst_study")
     return 0
 
@@ -183,6 +217,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--forward-report", action="store_true", help="동결일 이후 사건만, 월별(공시 캐시가 갱신된 구간까지)")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
@@ -207,6 +242,15 @@ def main():
             mk20[i] = rs.nanmed((C[i] / C[i - 20] - 1)[elig[i]])
     evs, sk = events(C, O, V, elig, gid, rel, c, dates, ng, mk20)
     print(f"S1(k=3) 사건 중 분석 대상 {len(evs)}건 · 제외: 커버 종목 10개 미만 {sk['cover']}건, 1년 이력 부족 {sk['history']}건\n")
+    if a.forward_report:
+        th = cache_through_iso()
+        fe, dropped = forward_events(evs, dates, th)
+        print(f"### forward (동결일 {rs.FREEZE} 이후) — 공시 캐시 기준일 {th} · 분석 대상 {len(fe)}건 · 캐시가 갱신되지 않아 제외 {dropped}건")
+        if dropped:
+            print("※ 제외된 사건이 있다 — `python research/strategy-lab/collect_dart_event_titles.py --update` 로 캐시를 갱신한 뒤 다시 실행한다.")
+        months = sorted({e["date"][:7] for e in fe})
+        print_table(aggregate(fe, lambda d: d[:7]), months or ["(아직 없음)"], "월별")
+        return 0
     years = sorted({e["date"][:4] for e in evs})
     print("### 연도별")
     print_table(aggregate(evs, lambda d: d[:4]), years, "연도별")
