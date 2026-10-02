@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-01T15:34:10.559Z",
+  "updatedAt": "2026-10-02T14:52:57.778Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,11 +7,11 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 274500,
-      "currentValue": 2745000,
+      "currentPrice": 276000,
+      "currentValue": 2760000,
       "investedValue": 700000,
-      "unrealizedPnL": 2045000,
-      "unrealizedPnLPct": 292.14,
+      "unrealizedPnL": 2060000,
+      "unrealizedPnLPct": 294.29,
       "stockScore": 59.9,
       "stockGrade": "C (중립/관찰)",
       "stockWarnings": [],
@@ -69,17 +69,17 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 3.19,
+              "raw": 3.21,
               "score": 0
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.36856287425149703,
+              "peg": 0.37065868263473056,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.3210921407852083,
+              "marginOfSafety": -0.32898959113054516,
               "score": 0
             }
           }
@@ -94,7 +94,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 52.7,
+              "value": 53.8,
               "score": 70
             },
             "macd": {
@@ -110,12 +110,12 @@
           }
         },
         "supplyDemand": {
-          "score": 30,
+          "score": 14,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
+              "trend": "consistentSell",
+              "score": 0
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
