@@ -135,7 +135,8 @@ def _aggregate_trades(rows, today=None, order_meta=None):
     pending = []
     unattributed = {"buyKrw": 0, "sellKrw": 0, "count": 0}
     for r in rows:
-        meta = order_meta.get(str(r.get("orderNo") or ""))
+        no = str(r.get("orderNo") or "")
+        meta = order_meta.get(f"{r['date']}|{no}") or order_meta.get(no)
         owner = meta.get("strategy") if meta else None
         realized = _realized(r, meta)
         if r["pendingQty"] > 0 and not r["canceled"] and (today is None or r["date"] == today):
@@ -310,14 +311,15 @@ def _append_equity(account, today=None, path=EQUITY_PATH):
 
 
 def _order_ledger_map(repo_root, strategies):
-    """주문번호 -> {strategy, side, entryPrice, ...}. 원장은 전략마다 따로 있고
-    주문번호는 계좌 전역이라 한 장으로 합친다. 충돌은 구조적으로 없다
-    (한 주문은 한 전략이 냈다)."""
+    """"날짜|주문번호" -> {strategy, side, entryPrice, ...}. 원장은 전략마다 따로
+    있어 한 장으로 합친다. ★ KIS 주문번호는 **날마다 다시 쓰인다** - 번호만으로
+    잇으면 10-06 EY 매도가 09-28 외국인수급 원장(진입가 144,200)에 붙어 실현손익
+    -1.2억이 찍혔다(2026-10-06 실측). 그래서 원장의 주문일과 함께 키로 쓴다."""
     from engine.live import positionStore
     meta = {}
     for strategy_id in strategies:
         for order_no, entry in positionStore.load_orders(repo_root, strategy_id).items():
-            meta[str(order_no)] = {**entry, "strategy": strategy_id}
+            meta[f"{entry.get('date')}|{order_no}"] = {**entry, "strategy": strategy_id}
     return meta
 
 

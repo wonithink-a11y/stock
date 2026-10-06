@@ -269,6 +269,17 @@ def test_realized_pnl_not_attached_to_buys():
     ok("매수는 실현손익이 없다", out["days"][0]["realizedFrom"] == 0, out["days"])
 
 
+def test_reused_order_no_joins_by_date():
+    """KIS 주문번호는 날마다 다시 쓰인다(2026-10-06 실측: 0000004119 가
+    09-28 외국인수급 매도·10-06 EY 매도). 날짜 없이 이으면 남의 진입가가 붙는다."""
+    rows = [_exec("2026-10-06", "187420", "SELL", 855, 1_576_962, order_no="0000004119", avg=1_844.0)]
+    meta = {"2026-09-28|0000004119": {"strategy": "foreign_flow5d_v1", "entryPrice": 144_200.0},
+            "2026-10-06|0000004119": {"strategy": "factor_earnings_yield_v1", "entryPrice": 1_800.0}}
+    out = feed._aggregate_trades(rows, order_meta=meta)
+    ok("그날 원장에 붙는다", list(out["byStrategy"]) == ["factor_earnings_yield_v1"], out["byStrategy"])
+    ok("실현손익 = (1844-1800)*855", out["days"][0]["realizedKrw"] == 37_620, out["days"])
+
+
 def test_aggregate_trades_pending_carries_strategy():
     rows = [_exec("2026-09-11", "021820", "BUY", 0, 0, pending=10, order_no="P1")]
     out = feed._aggregate_trades(rows, today="2026-09-11", order_meta={"P1": {"strategy": "lowmom60_v1"}})
@@ -294,6 +305,7 @@ if __name__ == "__main__":
                test_aggregate_trades_empty_is_empty_not_error,
                test_aggregate_trades_splits_by_strategy_via_order_ledger,
                test_aggregate_trades_unknown_order_is_unattributed_not_guessed,
+               test_reused_order_no_joins_by_date,
                test_aggregate_trades_pending_carries_strategy,
                test_realized_pnl_from_ledger_entry_price,
                test_realized_pnl_is_unmeasured_not_zero_without_entry_price,
