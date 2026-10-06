@@ -281,6 +281,8 @@ def scan_rebalance_signals(repo_root, rule, as_of, capital_krw, log=print, bars_
                     pos["max_holding_sessions"] = hs
                     events.append({"type": "HOLD_SESSIONS_SYNCED", "symbol": symbol,
                                     "holdSessions": hs})
+            if symbol in UNTRADABLE_VTS:
+                continue     # 보유 중에 매매불가가 된 종목 - 탑업 의도를 만들어도 거부만 쌓인다
             bars = bars_by_ticker.get(symbol)
             if bars is None or as_of_ts not in bars.index:
                 continue
@@ -465,6 +467,15 @@ def poll_once(repo_root, rule, broker, log=print, enable_live_orders=False, now=
                 # 목록에 오르기 전에 기록된 의도 - 주문이 나간 적이 없으므로
                 # (제출이 전부 거부됐다) 상태에서 지우는 것으로 끝난다.
                 # KIS 에는 취소할 것이 없다.
+                # ★ 단 탑업(보유 중 추가매수)은 이미 산 주식이 filled_quantity 에
+                # 있다 - 지우면 계좌엔 주식이 남고 장부에서만 사라져 영영 안 판다
+                # (2026-10-06: 058450·002820 이 보유 중에 매매불가가 됐다).
+                if pos.get("filled_quantity", 0) > 0:
+                    state[symbol] = _open_from_fills(pos, today, risk)
+                    events.append({"type": "TOPUP_CANCELLED_UNTRADABLE", "symbol": symbol})
+                    log(f"[{today}] 탑업 취소  {symbol}  - 모의계좌 매매불가, "
+                        f"보유 {pos['filled_quantity']}주는 OPEN 으로 유지")
+                    continue
                 del state[symbol]
                 events.append({"type": "DROP_UNTRADABLE", "symbol": symbol})
                 log(f"[{today}] 진입의도 취소  {symbol}  - 모의계좌 매매불가 "

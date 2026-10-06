@@ -361,6 +361,27 @@ def test_untradable_pending_entry_is_dropped_without_touching_broker():
 
 
 
+def test_untradable_topup_restores_open_instead_of_dropping_held_shares():
+    """보유 중에 매매불가가 된 종목의 탑업 의도를 지우면 이미 산 주식까지 장부에서
+    사라진다(2026-10-06 058450 1,933주). 탑업만 취소하고 원래 OPEN 으로 돌린다."""
+    _reset()
+    sym = sorted(UNTRADABLE_VTS)[0]
+    _seed({sym: {"status": "PENDING_ENTRY", "quantity": 30, "target_quantity": 30,
+                 "filled_quantity": 10, "entry_cost": 10 * 100.0, "entry_slices": 1,
+                 "intent_date": "2026-10-01", "first_fill_date": "2026-09-04",
+                 "entry_price": 100.0, "sessions_held": 19, "lastCountedDate": "2026-09-30",
+                 "topup_as_of": "2026-10-01"}})
+    broker = FakeBroker()
+    events = poll_once(REPO_ROOT, FakeRule(), broker, log=lambda *a: None, enable_live_orders=True)
+    pos = positionStore.load(REPO_ROOT, STRATEGY_ID).get(sym, {})
+    ok("탑업 취소 이벤트", [e["type"] for e in events][:1] == ["TOPUP_CANCELLED_UNTRADABLE"], events)
+    ok("보유분은 OPEN 으로 남는다", pos.get("status") == "OPEN" and pos.get("quantity") == 10, pos)
+    ok("진입가·진입일·보유일수 유지",
+       (pos.get("entry_price"), pos.get("entry_date"), pos.get("sessions_held")) == (100.0, "2026-09-04", 19), pos)
+    ok("매수 주문을 안 낸다", broker.buy_calls == 0, broker.buy_calls)
+    _reset()
+
+
 def test_topup_fill_averages_entry_price_and_keeps_position_history():
     """탑업이 체결되면 옛 체결과 새 체결의 가중평균 단가로 OPEN 이 복원돼야
     한다. 그리고 보유일수·topup_as_of 가 리셋되면 (a) 시간청산 시계가 되감기고
@@ -583,6 +604,7 @@ def main():
     test_no_stop_pct_open_position_still_time_exits()
     test_no_stop_pct_open_position_does_not_exit_early()
     test_untradable_pending_entry_is_dropped_without_touching_broker()
+    test_untradable_topup_restores_open_instead_of_dropping_held_shares()
     test_topup_fill_averages_entry_price_and_keeps_position_history()
     test_fresh_entry_still_starts_its_clock_at_zero()
     test_fill_uses_signal_hold_sessions_over_policy_default()
