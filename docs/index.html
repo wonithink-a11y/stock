@@ -108,6 +108,9 @@
           padding: 4px 11px; border-radius: 14px; cursor: pointer; font-size: 12px; }
   .chip.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
   .chip .cnt { opacity: .6; margin-left: 4px; font-size: 11px; }
+  .a5bar { display: inline-block; width: 56px; height: 6px; background: var(--border); border-radius: 3px; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .a5bar i { display: block; height: 100%; background: var(--accent); }
+  .a5v { font-variant-numeric: tabular-nums; font-size: 13px; }
 
   .modal[hidden] { display: none; }
   .modal { position: fixed; inset: 0; background: rgba(6,9,16,.72); z-index: 50;
@@ -572,6 +575,44 @@ function renderSectorView(filtered) {
 
     return `<div class="sec-block">${head}<div class="sec-body">${noteBox}${tableFor(rows, k)}</div></div>`;
   }).join('');
+}
+
+// ---------- 전 종목(A5) — 관심종목 밖까지 KR 전 종목의 주간 PIT 점수. 라이브 스코어와 섞지 않는다 ----------
+const A5_AXES = [['재무', 30], ['밸류', 50], ['기술', 20]];   // KR-2.4 categoryWeights × 100 = 기여 최대치
+const A5_FLAG = { VERY_LOW_CONFIDENCE: '신뢰 매우 낮음', LOW_CONFIDENCE: '신뢰 낮음', MISSING_DATA: '결측', PARTIAL_CALCULATION: '부분 계산' };
+function renderA5() {
+  if (state.a5 === undefined) {
+    state.a5 = null;
+    loadJson('a5-latest').then(x => { state.a5 = x || false; if (state.tab === 'a5') render(); });
+  }
+  if (state.a5 === null) return '<div class="card empty">전 종목 점수를 불러오는 중...</div>';
+  if (state.a5 === false) return '<div class="card empty">A5 점수 파일이 아직 없습니다.</div>';
+  const d = state.a5, q = (state.a5Search || '').trim(), mk = state.a5Market || 'all', lim = state.a5Limit || 100;
+  const mine = new Set(((state.latest && state.latest.results) || []).map(r => r.ticker));
+  const rows = d.items.filter(x => (mk === 'all' || x.m === mk) && (!q || x.t.startsWith(q) || (x.n || '').includes(q)));
+  const bar = (v, max) => v == null ? '<span class="muted">—</span>'
+    : `<span class="a5bar"><i style="width:${Math.max(0, Math.min(100, v / max * 100))}%"></i></span><span class="a5v">${v.toFixed(1)}</span>`;
+  const chip = (val, text) => `<button class="chip ${mk === val ? 'active' : ''}" data-a5-market="${val}">${text}</button>`;
+  const body = rows.slice(0, lim).map(x => `<tr>
+      <td class="muted" title="${x.p == null ? '커버리지 60% 미만' : '상위 ' + x.p.toFixed(1) + '%'}">${x.r == null ? '유보' : x.r.toLocaleString() + '위'}</td>
+      <td><strong>${esc(x.n || x.t)}</strong> <span class="muted">${esc(x.t)}</span>${mine.has(x.t) ? ' <span class="chip" style="padding:1px 6px;font-size:11px">관심</span>' : ''}</td>
+      <td class="muted">${esc(x.m || '-')}</td>
+      <td style="text-align:right"><strong>${x.f == null ? '-' : x.f.toFixed(1)}</strong></td>
+      ${A5_AXES.map(([, max], i) => `<td>${bar(x.c[i], max)}</td>`).join('')}
+      <td class="muted" style="text-align:right">${x.cov == null ? '-' : Math.round(x.cov) + '%'}</td>
+      <td class="muted" style="white-space:normal;max-width:220px">${esc(x.s || '')}${x.fl.length ? ' · ' + x.fl.map(f => esc(A5_FLAG[f] || f)).join(' · ') : ''}</td>
+    </tr>`).join('');
+  return `<div class="toolbar">
+      <input class="search" id="a5Search" placeholder="종목명·코드 검색" value="${esc(state.a5Search || '')}">
+      ${chip('all', '전체')}${chip('KOSPI', 'KOSPI')}${chip('KOSDAQ', 'KOSDAQ')}
+      <span class="muted">기준일 ${esc(d.asOf)} · ${esc(d.criteria)} · ${rows.length.toLocaleString()}종목</span>
+    </div>
+    <p class="muted" style="margin:0 0 10px;font-size:12px">${esc(d.note)} · 기여 점수 = 축 점수 × 가중치(재무 30 · 밸류 50 · 기술 20 · 수급 0) · 커버리지 60% 미만은 유보(순위 제외)</p>
+    <div class="card" style="padding:0"><div class="table-wrap"><table>
+      <thead><tr><th>순위</th><th>종목</th><th>시장</th><th style="text-align:right">총점</th>${A5_AXES.map(([n, m]) => `<th>${n} /${m}</th>`).join('')}<th style="text-align:right">커버리지</th><th>업종 · 표시</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="9" class="muted">검색 결과 없음</td></tr>'}</tbody>
+    </table></div></div>
+    ${rows.length > lim ? `<div style="text-align:center;margin-top:10px"><button class="chip" data-a5-more="1">더 보기 (${(rows.length - lim).toLocaleString()}종목 남음)</button></div>` : ''}`;
 }
 
 function renderScores() {
@@ -3062,6 +3103,7 @@ function render() {
   const el = document.getElementById('content');
   if (state.tab === 'today') el.innerHTML = renderToday();
   else if (state.tab === 'scores') el.innerHTML = renderScores();
+  else if (state.tab === 'a5') el.innerHTML = renderA5();
   else if (state.tab === 'regime') el.innerHTML = renderPortfolio('regime');
   else if (state.tab === 'holdings') el.innerHTML = renderPortfolio('holdings');
   else if (state.tab === 'etfwatch') el.innerHTML = renderPortfolio('etfwatch');
@@ -3091,6 +3133,10 @@ function renderKeepingFocus(inputId = 'stockSearch') {
 
 document.getElementById('content').addEventListener('click', (e) => {
   const t = e.target;
+
+  const a5m = t.closest('[data-a5-market]');
+  if (a5m) { state.a5Market = a5m.dataset.a5Market; state.a5Limit = 100; return render(); }
+  if (t.closest('[data-a5-more]')) { state.a5Limit = (state.a5Limit || 100) + 200; return render(); }
 
   // 보기 전환
   const view = t.closest('[data-view]');
@@ -3208,6 +3254,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.de
 function onSearchInput(e) {
   if (e.target.id === 'stockSearch') { state.search = e.target.value; return renderKeepingFocus('stockSearch'); }
   if (e.target.id === 'etfSearch') { state.etfSearch = e.target.value; return renderKeepingFocus('etfSearch'); }
+  if (e.target.id === 'a5Search') { state.a5Search = e.target.value; state.a5Limit = 100; return renderKeepingFocus('a5Search'); }
 }
 document.getElementById('content').addEventListener('input', (e) => { if (!e.isComposing) onSearchInput(e); });
 document.getElementById('content').addEventListener('compositionend', onSearchInput);
@@ -3353,7 +3400,7 @@ function renderToday() {
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약']]],
-  ['stock', '종목', [['scores', '스코어'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
+  ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],

@@ -10,6 +10,10 @@ name: backfill-scores-a5
 # A2b와 같다: matrix 수집 → artifact → 단일 finalize job. 실패한 샤드는
 # 재실행하면 그만이다(표본 실측 기준 샤드당 약 7~8분, scores.v1.json 참고).
 on:
+  # 2026-10-06 월 1회 자동 — 일봉 증분(A2a, 매월 1~5일)·수급(A4, 2일) 뒤. 새 주차가 붙고 화면용
+  # docs/data/a5-latest.json 은 a5-latest.yml 이 이어서 만든다. 저장소 데이터만 쓰는 순수 계산.
+  schedule:
+    - cron: '0 12 6 * *'   # 매월 6일 21:00 KST
   workflow_dispatch:
     inputs:
       failInjection:
@@ -52,7 +56,7 @@ jobs:
         timeout-minutes: 50
         run: |
           ARGS="--shard ${{ matrix.shard }} --shards $SHARDS"
-          if [ "${{ inputs.universeLimit }}" != "0" ]; then
+          if [ "${{ inputs.universeLimit || '0' }}" != "0" ]; then   # 스케줄 실행은 inputs 가 비어 있다 — 0(전체)으로 읽는다
             ARGS="$ARGS --universeLimit ${{ inputs.universeLimit }}"
           fi
           node scripts/build-a5-backfill.js $ARGS

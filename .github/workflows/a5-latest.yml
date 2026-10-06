@@ -1,0 +1,51 @@
+name: a5-latest
+
+# A5 백필(backfill-scores-a5)의 최신 주차만 -> docs/data/a5-latest.json (scripts/build-a5-latest.py).
+# 스코어링 화면 '종목 › 전 종목(A5)' 서브탭이 읽는다. 저장소 데이터만 읽는 순수 계산(수 초) —
+# 점수·정책 불변, 표시 전용. 같은 데이터면 바이트 동일이라 커밋하지 않는다.
+
+on:
+  workflow_run:
+    workflows: [backfill-scores-a5]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: a5-latest
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # A5 가 방금 커밋한 산출물을 읽는다
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Selftest
+        run: python scripts/build-a5-latest.py --selftest
+
+      - name: Build
+        run: python scripts/build-a5-latest.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/a5-latest.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update docs/data/a5-latest.json (A5 전 종목 최신 주차)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

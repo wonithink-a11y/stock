@@ -45,6 +45,9 @@ on:
       - decode-gemini
       - stock-events
       - eps-ttm
+      # 2026-10-06 — A5 월간 자동 실행(매월 6일)과 화면용 최신 주차 파일. 한 달에 한 번이라 놓치면 한 달 낡는다
+      - backfill-scores-a5
+      - a5-latest
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 
