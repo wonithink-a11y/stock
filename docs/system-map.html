@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주식 시스템 지도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 위에서 아래로 "어디서 → 어떤 순서로 → 부서별 상세 → 얼마나 엄격한가 → 빈칸" 순서. 기계 세 곳을 색으로 구분한다 */
+:root {
+  --bg: #f2f4f3;
+  --surface: #ffffff;
+  --ink: #17201d;
+  --muted: #5d6965;
+  --line: #d6dcda;
+  --accent: #0f6b5c;
+  --gh: #4a4fb0;      /* GitHub Actions */
+  --vm: #0f7a68;      /* VM stock-new */
+  --pc: #a3610b;      /* PC · Claude 세션 · 사람 */
+  --gh-soft: #e7e8f7;
+  --vm-soft: #dff1ec;
+  --pc-soft: #f6ead8;
+  --ok: #1f7a3d; --ok-soft: #e1f2e6;
+  --watch: #2f5fa8; --watch-soft: #e3ebf7;
+  --stop: #6b6f6e; --stop-soft: #e9ebea;
+  --gap: #b23a26; --gap-soft: #f8e3de;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201d; --ink: #e4ebe8; --muted: #9aa8a3; --line: #2c3834;
+    --accent: #5cc4ae; --gh: #9da2f0; --vm: #5cc4ae; --pc: #e2a453;
+    --gh-soft: #262947; --vm-soft: #173530; --pc-soft: #3a2c17;
+    --ok: #6fd18e; --ok-soft: #1c3424; --watch: #8fb4ef; --watch-soft: #1f2c42;
+    --stop: #a7adab; --stop-soft: #262c2a; --gap: #f08a74; --gap-soft: #3d221c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201d; --ink: #e4ebe8; --muted: #9aa8a3; --line: #2c3834;
+  --accent: #5cc4ae; --gh: #9da2f0; --vm: #5cc4ae; --pc: #e2a453;
+  --gh-soft: #262947; --vm-soft: #173530; --pc-soft: #3a2c17;
+  --ok: #6fd18e; --ok-soft: #1c3424; --watch: #8fb4ef; --watch-soft: #1f2c42;
+  --stop: #a7adab; --stop-soft: #262c2a; --gap: #f08a74; --gap-soft: #3d221c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 21px; font-weight: 700; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 68ch; margin-top: 8px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
+.section-head { display: grid; gap: 6px; margin-bottom: 16px; }
+.section-head p { color: var(--muted); max-width: 72ch; }
+
+/* 기계 세 곳 */
+.machines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.machine { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 8px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+.machine .name { font-weight: 700; display: flex; gap: 8px; align-items: center; }
+.machine p { color: var(--muted); font-size: 14px; }
+.m-gh { --c: var(--gh); } .m-vm { --c: var(--vm); } .m-pc { --c: var(--pc); }
+
+.chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; line-height: 1.7; }
+.c-gh { background: var(--gh-soft); color: var(--gh); }
+.c-vm { background: var(--vm-soft); color: var(--vm); }
+.c-pc { background: var(--pc-soft); color: var(--pc); }
+.s-ok { background: var(--ok-soft); color: var(--ok); }
+.s-watch { background: var(--watch-soft); color: var(--watch); }
+.s-stop { background: var(--stop-soft); color: var(--stop); }
+.s-gap { background: var(--gap-soft); color: var(--gap); }
+
+/* 흐름 */
+.flow-scroll { overflow-x: auto; }
+.flow { display: grid; grid-template-columns: repeat(8, minmax(118px, 1fr)); gap: 0; min-width: 960px; list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.flow li { position: relative; padding: 14px 18px 14px 14px; background: var(--surface); border: 1px solid var(--line); border-right: none; display: grid; gap: 4px; align-content: start; }
+.flow li:last-child { border-right: 1px solid var(--line); border-radius: 0 8px 8px 0; }
+.flow li:first-child { border-radius: 8px 0 0 8px; }
+.flow li::before { counter-increment: step; content: counter(step); font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.flow li::after { content: ""; position: absolute; right: -7px; top: 50%; width: 12px; height: 12px; background: var(--surface); border-top: 1px solid var(--line); border-right: 1px solid var(--line); transform: translateY(-50%) rotate(45deg); z-index: 1; }
+.flow li:last-child::after { display: none; }
+.flow .t { font-weight: 700; }
+.flow .d { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.flow li.human { background: var(--pc-soft); }
+.flow li.human::after { background: var(--pc-soft); }
+
+/* 부서 */
+.depts { display: grid; gap: 20px; }
+.dept { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.dept-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 14px; padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
+.dept-no { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--accent); line-height: 1; padding-top: 2px; }
+.dept-head .ad { font-size: 13.5px; color: var(--muted); }
+.dept-head .ad b { color: var(--ink); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px; }
+th { text-align: left; font-size: 11.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--bg); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td.what { width: 30%; }
+td.what b { display: block; font-weight: 600; }
+td.what span { color: var(--muted); font-size: 13px; }
+td.when { width: 22%; font-variant-numeric: tabular-nums; }
+td.where code { color: var(--muted); word-break: break-all; }
+td.see { width: 18%; font-size: 13.5px; }
+.note { padding: 12px 20px; font-size: 13.5px; border-top: 1px solid var(--line); display: flex; gap: 10px; align-items: baseline; }
+.note.gap { background: var(--gap-soft); }
+.note.rej { background: var(--stop-soft); }
+
+/* 엄격함 */
+.strict { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.funnel { display: grid; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 52px; gap: 10px; align-items: center; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.bar { height: 14px; border-radius: 3px; background: var(--bar, var(--accent)); min-width: 3px; }
+.bar-row .n { text-align: right; font-weight: 600; }
+.gates { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: g; }
+.gates li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.gates li::before { counter-increment: g; content: counter(g); font-family: var(--font-mono); width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-size: 12px; }
+.gates b { font-weight: 600; }
+.gates span { color: var(--muted); }
+
+/* 슬리브 */
+.sleeves td { white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; text-align: right; }
+.neg { color: var(--gap); } .pos { color: var(--ok); }
+
+.gaps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gapcard { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--k); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.gapcard p { font-size: 14px; color: var(--muted); }
+.k-gap { --k: var(--gap); } .k-stop { --k: var(--stop); } .k-watch { --k: var(--watch); }
+
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 4px; }
+
+@media (max-width: 760px) {
+  .machines, .strict, .gaps { grid-template-columns: 1fr; }
+  .wrap { gap: 32px; padding-inline: 16px; }
+}
+
+body { margin: 0; }
+.wrap > *, .depts > * { min-width: 0; }
+.sitenav { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 20px; background: var(--surface); border-bottom: 1px solid var(--line); font-size: 13px; }
+.sitenav a { color: var(--muted); text-decoration: none; padding: 5px 12px; border-radius: 6px; }
+.sitenav a:hover { color: var(--ink); background: var(--bg); }
+.sitenav a[aria-current="page"] { color: var(--ink); background: var(--bg); font-weight: 600; }
+.sitenav .ext { margin-left: auto; }
+</style>
+</head>
+<body>
+<nav class="sitenav" aria-label="사이트 메뉴">
+  <a href="./">스코어링</a>
+  <a href="paper-trading/">모의투자</a>
+  <a href="system-map.html" aria-current="page">시스템 지도</a>
+  <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
+</nav>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">2026-10-06 기준 · KST</div>
+  <h1>주식 시스템 지도</h1>
+  <p class="lede">부서별 실행 위치 · 스케줄 · 코드 · 산출물</p>
+</header>
+
+<section>
+  <div class="section-head"><h2>실행 위치</h2></div>
+  <div class="machines">
+    <div class="machine m-gh">
+      <div class="name"><span class="chip c-gh">Actions</span>GitHub Actions</div>
+      <p>정시 수집 · 저장소 커밋 · 화면 빌드</p>
+      <p>유일한 자동 Git writer</p>
+      <p class="mono">.github/workflows · 65개</p>
+    </div>
+    <div class="machine m-vm">
+      <div class="name"><span class="chip c-vm">VM</span>오라클 VM <code>stock-new</code></div>
+      <p>24시간 상시 가동 · 장중 감시 · 모의 주문 · 분봉 수집 · 웹(/plans)</p>
+      <p>저장소 쓰기 권한 없음</p>
+      <p class="mono">deploy/*.service · *.timer</p>
+    </div>
+    <div class="machine m-pc">
+      <div class="name"><span class="chip c-pc">PC</span>PC · Claude 세션 · 사용자</div>
+      <p>연구 · 판정 · 코드 변경 · 월간 점검</p>
+      <p>실계좌 · 킬 해제 · 정책 변경 승인</p>
+      <p class="mono">research/strategy-lab · findings</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>처리 흐름</h2><p>주황: 사용자 결정</p></div>
+  <div class="flow-scroll">
+    <ol class="flow">
+      <li><span class="t">탐색</span><span class="d">월간 종목 선정 · 급등 군집 · 장중 급등락</span></li>
+      <li><span class="t">검증</span><span class="d">사전등록 백테스트 · 신호·비용 판정</span></li>
+      <li class="human"><span class="t">채택</span><span class="d">통과 전략 GO (현재 1개)</span></li>
+      <li><span class="t">계획</span><span class="d">진입 · 손절 · 목표 · 위험%</span></li>
+      <li><span class="t">위험 점검</span><span class="d">한도 · 허용 종목 · 킬 스위치 · 매매불가 제외</span></li>
+      <li class="human"><span class="t">승인</span><span class="d">실계좌 · 실행 · 킬 해제 패스키</span></li>
+      <li><span class="t">실행</span><span class="d">KIS 모의계좌 (실계좌 주문 0)</span></li>
+      <li><span class="t">감시·기록</span><span class="d">체결·장애 알림 · 그림자 관측 · 지정일 판정</span></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>여섯 부서</h2>
+    <p><span class="chip s-ok">가동</span> <span class="chip s-watch">관측</span> <span class="chip s-stop">정지</span> <span class="chip s-stop">기각</span> <span class="chip s-gap">빈칸</span></p>
+  </div>
+
+  <div class="depts">
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">1</div><h3>스크리닝</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>월간 전략 종목 선정</b><span>일봉 갱신 → 전략 5개 종목 선정</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 매월 1~5일 19:00 → 연쇄 실행</td>
+              <td class="where"><code>price-a2a.yml → refresh-selections.yml · strategies/*/selection.json</code></td>
+              <td class="see">모의투자 화면</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>시장 급등 군집</b><span>동일 거래일 동반 급등 종목군</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 08:40 · 20:10</td>
+              <td class="where"><code>market-movers.yml · docs/data/market-movers.json</code></td>
+              <td class="see">스코어링</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>장중 급등락 알림</b><span>관심종목 국내 · 미국</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 10분</td>
+              <td class="where"><code>intraday-alert.timer</code></td>
+              <td class="see">텔레그램 1:1</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>뉴스 · 공시 알림</b><span>국내 뉴스(제목 종목명) · 미국 8-K · DART</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 15분 · <span class="chip c-gh">Actions</span> 평일 18:10</td>
+              <td class="where"><code>news-alert · edgar-8k-alert · disclosures.yml</code></td>
+              <td class="see">텔레그램 1:1</td><td><span class="chip s-ok">가동</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">2</div><h3>분석·검증</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>연구 백테스트 · 판정</b><span>사전등록 → 실행 → 판정 문서</span></td>
+              <td class="when"><span class="chip c-pc">PC</span> 수시</td>
+              <td class="where"><code>research/strategy-lab · findings/*-results-*.md</code></td>
+              <td class="see">모의투자 화면 · 리서치</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>연구 결과 집계</b><span>판정 문서 435건</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 17:00</td>
+              <td class="where"><code>research-lab-ui.yml · ui/data/findings.json</code></td>
+              <td class="see">모의투자 화면 · 리서치</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>종목 스코어</b><span>KR-2.4 · 결측 = 유보</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 16:40</td>
+              <td class="where"><code>daily-analysis.yml · scripts/analyze.js · config/criteria</code></td>
+              <td class="see">스코어링 · 스코어</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>종목 카드 데이터</b><span>분기 EPS·PER(TTM) · 지분·이벤트 · AI 공시 해독(관찰용)</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 19:40 · 20:00 · 20:30</td>
+              <td class="where"><code>stock-events.yml · decode.yml · eps-ttm.yml</code></td>
+              <td class="see">/plans 종목 카드 · 스코어링 해독</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>주간 백테스트</b><span>운용 전략 재계산</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 일 17:00</td>
+              <td class="where"><code>weekly-backtest.yml</code></td>
+              <td class="see">스코어링 · 검증</td><td><span class="chip s-ok">가동</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">3</div><h3>마켓</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>거시 국면</b><span>금리 · 환율 · 지수 · 관찰용</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 16:40 · 16:55</td>
+              <td class="where"><code>macro.yml · macro-regime-ui.yml</code></td>
+              <td class="see">스코어링 · 국면·매크로</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>섹터 강도 · 히트맵 · 테마 트리</b><span>장중 히트맵: VM 스냅샷</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 16:40 · <span class="chip c-vm">VM</span> 장중</td>
+              <td class="where"><code>daily-analysis.yml · config/themeTree.json</code></td>
+              <td class="see">스코어링 · 섹터강도</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>시장 수급</b><span>외국인 · 기관 · 개인</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 18:20</td>
+              <td class="where"><code>market-flows.yml</code></td>
+              <td class="see">스코어링 · 시장수급</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>RV20 변동성 비중</b><span>RV20 백분위 상위 20% → 선물 0계약</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 평일 09:05</td>
+              <td class="where"><code>rv20-futures-paper-order.timer</code></td>
+              <td class="see">VM 로그</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>국면 기반 전략 선택</b><span>금리 필터 · 섹터 로테이션 · 주도 섹터 편승</span></td>
+              <td class="when">—</td>
+              <td class="where"><code>findings/*-results-*.md</code></td>
+              <td class="see">판정 문서</td><td><span class="chip s-stop">기각</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">4</div><h3>리스크관리</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>autotrader 안전장치</b><span>실계좌 7중 게이트 · 킬 스위치 · 허용 종목 · 주문당/종목당 한도</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 5분 (dry-run)</td>
+              <td class="where"><code>autotrader/ · autotrader.timer</code></td>
+              <td class="see">웹 · 텔레그램 매매·보안</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>계획 카드 입력 검증</b><span>위험 5% 초과 · 한도 초과 · 활성 계획 20개 상한</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 저장 시</td>
+              <td class="where"><code>plan_trader · /plans</code></td>
+              <td class="see">/plans</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>매매불가 종목 제외</b><span>관리종목·증거금 100% 등 22종목 · 보유분 유지, 추가매수만 취소</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 장중 폴링</td>
+              <td class="where"><code>engine/live/untradableVts.py · paperEngine.py</code></td>
+              <td class="see">VM 로그</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>장애 알림</b><span>워크플로 12개 · VM 서비스 실패</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 실패 시 · <span class="chip c-vm">VM</span> OnFailure</td>
+              <td class="where"><code>notify-failure.yml · deploy/*.service</code></td>
+              <td class="see">텔레그램 주식 알림</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>계획 전체 위험 합계 한도</b><span>계획당 5% × 최대 20개 · 합계 상한 없음</span></td>
+              <td class="when">—</td>
+              <td class="where"><code>plan_trader</code></td>
+              <td class="see">—</td><td><span class="chip s-gap">빈칸</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">5</div><h3>운용</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>월간 전략 모의 운용</b><span>전략 5개 · KIS 모의계좌 실주문</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 장중 10분</td>
+              <td class="where"><code>paper-trading-poll.timer · engine/live</code></td>
+              <td class="see">모의투자 화면</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>직접매매 계획 카드</b><span>손절 = 진입 상단 − 3×ATR · 목표 +1.5× · 모의 전용</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 5분 · 주문 스위치 OFF</td>
+              <td class="where"><code>plan_trader · /plans</code></td>
+              <td class="see">/plans</td><td><span class="chip s-stop">정지</span></td></tr>
+          <tr><td class="what"><b>RV20 선물 모의</b><span>KOSPI200 선물 1계약 기준</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 평일 09:05</td>
+              <td class="where"><code>rv20-futures-paper-order.timer</code></td>
+              <td class="see">VM 로그</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>크립토 상승충격 모의</b><span>로컬 시뮬레이션 · 포지션당 10만원</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 매일 09:05</td>
+              <td class="where"><code>crypto-upshock-paper.timer</code></td>
+              <td class="see">VM 로그</td><td><span class="chip s-watch">관측</span></td></tr>
+          <tr><td class="what"><b>무한매수 (TQQQ · SOXL)</b><span>구 타이머 비활성 · autotrader 이관 미완</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 평일 21:30 (예정)</td>
+              <td class="where"><code>autotrader 프로필 infbuy</code></td>
+              <td class="see">웹</td><td><span class="chip s-stop">정지</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="dept">
+      <div class="dept-head"><div class="dept-no">6</div><h3>감시·기록</h3></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>구성 요소</th><th>실행 · 스케줄</th><th>코드</th><th>산출물</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td class="what"><b>모의투자 화면 갱신</b><span>포지션 · 체결 · 실현손익</span></td>
+              <td class="when"><span class="chip c-gh">Actions</span> 평일 10:10 · 13:10 · 15:40</td>
+              <td class="where"><code>paper-trading-ui.yml · build_ui_feed.py</code></td>
+              <td class="see">모의투자 화면</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>체결 · 로그인 · 조작 알림</b><span>체결 증가분만 발송</span></td>
+              <td class="when"><span class="chip c-vm">VM</span> 즉시</td>
+              <td class="where"><code>autotrader-notify.service</code></td>
+              <td class="see">텔레그램 매매·보안</td><td><span class="chip s-ok">가동</span></td></tr>
+          <tr><td class="what"><b>월간 점검 · 그림자 관측</b><span>부분 익절 · O2b · ETF · 미국 야간 · 뉴스 · 무한매수 하락일 2배 · 업종</span></td>
+              <td class="when"><span class="chip c-pc">PC</span> 매월 1~5일 (일봉 갱신 후)</td>
+              <td class="where"><code>run_*_shadow.py → reports/*/observations.jsonl</code></td>
+              <td class="see">저장소 기록</td><td><span class="chip s-watch">관측</span></td></tr>
+          <tr><td class="what"><b>판정일 고정</b><span>부분 익절 300건 · ETF·O2b 250 신호일(2027-09~) · 테마 B형 2028-10 · 크립토 60 신호일</span></td>
+              <td class="when"><span class="chip c-pc">PC</span> 지정일 1회</td>
+              <td class="where"><code>findings/*-preregistration-*.md</code></td>
+              <td class="see">판정 문서</td><td><span class="chip s-watch">관측</span></td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>연구 판정</h2><p>판정 160건 기준 (전체 435건)</p></div>
+  <div class="strict">
+    <div class="panel">
+      <h3>판정 결과</h3>
+      <div class="funnel">
+        <div class="bar-row"><span>REJECT</span><div class="bar" style="width:100%; --bar: var(--stop)"></div><span class="n">114</span></div>
+        <div class="bar-row"><span>HOLD</span><div class="bar" style="width:28.1%; --bar: var(--watch)"></div><span class="n">32</span></div>
+        <div class="bar-row"><span>중간 단계 KEEP</span><div class="bar" style="width:12.3%; --bar: var(--accent)"></div><span class="n">14</span></div>
+        <div class="bar-row"><span>운용 GO</span><div class="bar" style="width:0.9%; --bar: var(--pc)"></div><span class="n">1</span></div>
+      </div>
+      <p style="color:var(--muted); font-size:13.5px">운용 GO: 저PBR 결합 (2026-09-18) · 초과수익 74% 2022·2024 집중</p>
+    </div>
+    <div class="panel">
+      <h3>판정 관문</h3>
+      <ol class="gates">
+        <li><div><b>사전등록</b> <span>신호 · 기간 · 비용 · 기준 사전 커밋</span></div></li>
+        <li><div><b>신호</b> <span>학습 구간 t값 &gt; 난수 팩터 바닥선</span></div></li>
+        <li><div><b>비용</b> <span>왕복 국내 33.5bp · 단일가 23.5bp · 선물 1.4bp · ETF 5bp</span></div></li>
+        <li><div><b>견고성</b> <span>학습 · 검증 · 테스트 3구간 부호 일치</span></div></li>
+        <li><div><b>사후 수정 금지</b> <span>기각 후 기간 · 조건 변경 재시험 불가</span></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>모의투자 9월</h2><p>10-02 종가 평가 · 세전 · 판정 미사용 · 저모멘텀: 매매불가 9종목 제외 20종목</p></div>
+  <div class="dept"><div class="tbl-scroll"><table class="sleeves">
+    <thead><tr><th>전략</th><th>구분</th><th class="num">보유</th><th class="num">승률</th><th class="num">손익</th><th class="num">수익률</th></tr></thead>
+    <tbody>
+      <tr><td><b>저PBR 결합</b></td><td><span class="chip s-ok">운용 GO</span></td><td class="num">28</td><td class="num">36%</td><td class="num neg">−138만</td><td class="num neg">−1.5%</td></tr>
+      <tr><td>저PBR</td><td><span class="chip s-watch">비교</span></td><td class="num">29</td><td class="num">41%</td><td class="num neg">−37만</td><td class="num neg">−0.4%</td></tr>
+      <tr><td>이익수익률(EY)</td><td><span class="chip s-watch">보류·관측</span></td><td class="num">61</td><td class="num">44%</td><td class="num pos">+45만</td><td class="num pos">+0.5%</td></tr>
+      <tr><td>저모멘텀</td><td><span class="chip s-watch">연구 후보</span></td><td class="num">20</td><td class="num">60%</td><td class="num pos">+890만</td><td class="num pos">+13.1%</td></tr>
+      <tr><td>외국인 수급 5일</td><td><span class="chip s-watch">주간 교체</span></td><td class="num">4회</td><td class="num">2/4회</td><td class="num neg">−41만</td><td class="num neg">−0.9%</td></tr>
+    </tbody>
+  </table></div></div>
+</section>
+
+<section>
+  <div class="section-head"><h2>현황</h2></div>
+  <div class="gaps">
+    <div class="gapcard k-gap"><span class="chip s-gap">빈칸</span><b>계획 카드 총 노출 한도</b><p>계획당 5% · 최대 20개 · 합계 상한 없음</p></div>
+    <div class="gapcard k-watch"><span class="chip s-watch">점검</span><b>보유 중 관리종목 지정 3종목</b><p>058450 · 002820 · 007110 · 11월 리밸런스 매도 거부 여부</p></div>
+    <div class="gapcard k-stop"><span class="chip s-stop">정지</span><b>무한매수</b><p>구 타이머 09-22 비활성 · autotrader 프로필 활성화 대기</p></div>
+    <div class="gapcard k-watch"><span class="chip s-ok">수정 완료</span><b>모의투자 실현손익 집계</b><p>KIS 주문번호 일자별 재사용 → 날짜+번호 조인 · 10-06 실현손익 +1,466만</p></div>
+  </div>
+</section>
+
+<footer>
+  <p>Actions 예정 시각 지연 가능 · 실제 실행 기준: Actions 실행 목록 · VM <code>systemctl list-timers</code></p>
+  <p>실계좌 주문 · 킬 해제 · 정책 변경: 사용자 전용</p>
+</footer>
+
+</div>
+
+</body>
+</html>

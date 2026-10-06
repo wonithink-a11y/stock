@@ -461,3 +461,10 @@ th {
 :root:not([data-theme="light"]) .kpi-card {
   box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
 }
+
+/* 사이트 공통 상단 메뉴(스코어링 · 모의투자 · 시스템 지도 · 매매) - docs/index.html·docs/system-map.html 과 같은 링크 */
+.sitenav { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 12px; background: var(--panel); border-bottom: 1px solid var(--panel-border); font-size: 13px; }
+.sitenav a { color: var(--text-dim); text-decoration: none; padding: 5px 12px; border-radius: 6px; }
+.sitenav a:hover { color: var(--text); background: var(--surface-3); }
+.sitenav a[aria-current="page"] { color: var(--text); background: var(--surface-3); font-weight: 600; }
+.sitenav .ext { margin-left: auto; }

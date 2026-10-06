@@ -158,9 +158,20 @@
   .info-btn:hover { color: var(--text); border-color: var(--accent); }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover td { background: #1c263c; }
+  .sitenav { gap: 4px; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .sitenav a { color: var(--muted); text-decoration: none; padding: 5px 12px; border-radius: 6px; }
+  .sitenav a:hover { color: var(--text); background: var(--card); }
+  .sitenav a[aria-current="page"] { color: var(--text); background: var(--card); font-weight: 600; }
+  .sitenav .ext { margin-left: auto; }
 </style>
 </head>
 <body>
+<nav class="sitenav" aria-label="사이트 메뉴">
+  <a href="./" aria-current="page">스코어링</a>
+  <a href="paper-trading/">모의투자</a>
+  <a href="system-map.html">시스템 지도</a>
+  <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
+</nav>
 <header>
   <h1>📊 주식 스코어링 대시보드</h1>
   <span id="updated">로딩 중...</span>
