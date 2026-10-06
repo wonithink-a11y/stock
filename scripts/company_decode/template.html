@@ -1,0 +1,262 @@
+<title>기업 해독</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 종목 탭 → 머리말(요약·3축) → 2열 카드 격자(실적·이익의 질·구성·성장 단계·동종사·주가·밸류·재검토·사실·공시). scripts/company_decode/cli.py render 가 DATA 를 채운다 */
+:root {
+  --bg: #f1f3f4; --surface: #ffffff; --ink: #1a1f24; --muted: #5f6b73; --line: #d9dee2;
+  --accent: #1d5f8a; --accent-soft: #dbe8f1; --bar: #9db7cb; --bar2: #1d5f8a; --neg: #b8442f; --ok: #237a45; --ok-soft: #e0f1e6;
+  --warn: #b8442f; --warn-soft: #f7e2dc; --watch: #9a6a10; --watch-soft: #f5ebd6; --pend: #66707a; --pend-soft: #e8ebee;
+  --mix1: #1d5f8a; --mix2: #4f8fb8; --mix3: #8fb9d4; --mix4: #c98b3c; --mix5: #7c8d99;
+  --font: "IBM Plex Sans KR", "Malgun Gothic", sans-serif; --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171b; --surface: #1a2126; --ink: #e2e8ec; --muted: #94a2ab; --line: #2b353c;
+  --accent: #6db3e0; --accent-soft: #1d3342; --bar: #3d5c72; --bar2: #6db3e0; --neg: #ef8a73; --ok: #6fcf8f; --ok-soft: #1c3326;
+  --warn: #ef8a73; --warn-soft: #3d241e; --watch: #e0b45a; --watch-soft: #3a2f18; --pend: #9aa6ae; --pend-soft: #262e33;
+  --mix1: #6db3e0; --mix2: #4a8ab5; --mix3: #2f6286; --mix4: #d9a159; --mix5: #7f909b; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171b; --surface: #1a2126; --ink: #e2e8ec; --muted: #94a2ab; --line: #2b353c;
+  --accent: #6db3e0; --accent-soft: #1d3342; --bar: #3d5c72; --bar2: #6db3e0; --neg: #ef8a73; --ok: #6fcf8f; --ok-soft: #1c3326;
+  --warn: #ef8a73; --warn-soft: #3d241e; --watch: #e0b45a; --watch-soft: #3a2f18; --pend: #9aa6ae; --pend-soft: #262e33;
+  --mix1: #6db3e0; --mix2: #4a8ab5; --mix3: #2f6286; --mix4: #d9a159; --mix5: #7f909b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.55; margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: grid; gap: 16px; }
+.wrap > * { min-width: 0; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tabs button { font: inherit; font-weight: 600; padding: 7px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+.tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.head { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; }
+.head-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.head h1 { font-size: 24px; }
+.mono { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+.price { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; margin-left: auto; }
+.summary { font-size: 15px; }
+.axes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.axis { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; display: grid; gap: 2px; }
+.axis .k { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; color: var(--muted); }
+.axis .v { font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card h2 { font-size: 15px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.card h2 small { font-size: 11.5px; font-weight: 400; color: var(--muted); }
+.card.wide { grid-column: 1 / -1; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { font-family: var(--font); font-size: 10.5px; fill: var(--muted); }
+svg .lbl { fill: var(--ink); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.note { font-size: 12px; color: var(--muted); }
+.stages { display: grid; gap: 10px; }
+.stage-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 4px 12px; align-items: center; }
+.stage-row .n { font-weight: 600; font-size: 13.5px; }
+.stage-row .d { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.dots { display: flex; align-items: center; }
+.dots span { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: var(--surface); flex: none; }
+.dots span.on { background: var(--accent); }
+.dots b { height: 2px; flex: 1; background: var(--line); }
+.dots b.on { background: var(--accent); }
+.stage-axis { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; font-size: 10.5px; color: var(--muted); }
+.stage-axis div:last-child { display: flex; justify-content: space-between; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; gap: 1px; }
+.tile .k { font-size: 11.5px; color: var(--muted); }
+.tile .v { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tile .s { font-size: 11.5px; color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); padding: 5px 6px; border-bottom: 1px solid var(--line); }
+td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.c-ok { background: var(--ok-soft); color: var(--ok); } .c-warn { background: var(--warn-soft); color: var(--warn); }
+.c-watch { background: var(--watch-soft); color: var(--watch); } .c-pending { background: var(--pend-soft); color: var(--pend); }
+dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 0; font-size: 13px; }
+dt { color: var(--muted); } dd { margin: 0; }
+.ev { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 4px 10px; font-size: 13px; }
+.ev span:nth-child(odd) { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 3px; }
+.tbl-scroll { overflow-x: auto; }
+@media (max-width: 760px) { .grid, .axes { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .price { margin-left: 0; } }
+</style>
+
+<div class="wrap">
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <section class="head" id="head"></section>
+  <div class="grid" id="grid"></div>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const $ = s => document.querySelector(s);
+const fmt = (v, d = 1) => v == null ? "—" : v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const won = v => v == null ? "—" : Math.round(v).toLocaleString("ko-KR");
+const NS = "http://www.w3.org/2000/svg";
+
+function svg(w, h, body) { return `<svg viewBox="0 0 ${w} ${h}" role="img">${body}</svg>`; }
+function scale(d0, d1, r0, r1) { return v => r0 + (v - d0) / (d1 - d0 || 1) * (r1 - r0); }
+function nice(lo, hi) { const span = hi - lo || 1, step = Math.pow(10, Math.floor(Math.log10(span / 4))); const m = [1, 2, 2.5, 5, 10].find(m => span / (m * step) <= 5) * step; return { lo: Math.floor(lo / m) * m, hi: Math.ceil(hi / m) * m, step: m }; }
+
+// 막대(매출) + 선(영업이익률)
+function revenueChart(a, half) {
+  const labels = a.years.map(String).concat(half.label), rev = a.revenue.concat(half.revenue), op = a.op.concat(half.op);
+  const opm = rev.map((r, i) => r && op[i] != null ? op[i] / r * 100 : null);
+  const W = 560, H = 230, L = 40, R = 40, T = 12, B = 34, n = labels.length, bw = (W - L - R) / n;
+  const ys = nice(0, Math.max(...rev.filter(v => v != null))), y = scale(ys.lo, ys.hi, H - B, T);
+  const mv = opm.filter(v => v != null), ms = nice(Math.min(0, ...mv), Math.max(...mv)), y2 = scale(ms.lo, ms.hi, H - B, T);
+  let g = "";
+  for (let v = ys.lo; v <= ys.hi + 1e-9; v += ys.step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${fmt(v, 0)}</text>`;
+  for (let v = ms.lo; v <= ms.hi + 1e-9; v += ms.step) g += `<text x="${W - R + 6}" y="${y2(v) + 3}">${fmt(v, 0)}%</text>`;
+  rev.forEach((v, i) => { if (v == null) return; const x = L + i * bw + bw * .18, isHalf = i >= a.years.length;
+    g += `<rect x="${x}" y="${y(v)}" width="${bw * .64}" height="${y(0) - y(v)}" fill="${isHalf ? "var(--bar2)" : "var(--bar)"}" rx="2"><title>${labels[i]} 매출 ${fmt(v)}억</title></rect>`;
+    g += `<text x="${L + i * bw + bw / 2}" y="${H - B + 14}" text-anchor="middle">${labels[i].replace("FY", "").replace(" 20", "'")}</text>`; });
+  const pts = opm.map((v, i) => v == null ? null : [L + i * bw + bw / 2, y2(v)]);
+  const seg = (a0, a1) => pts.slice(a0, a1).filter(Boolean).map((p, j) => (j ? "L" : "M") + p.join(",")).join("");
+  g += `<path d="${seg(0, a.years.length)}" fill="none" stroke="var(--watch)" stroke-width="2"/>`;
+  g += `<path d="${seg(a.years.length, n)}" fill="none" stroke="var(--watch)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  pts.forEach((p, i) => { if (p) g += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="var(--watch)"><title>${labels[i]} 영업이익률 ${fmt(opm[i])}%</title></circle>`; });
+  g += `<line x1="${L + a.years.length * bw}" x2="${L + a.years.length * bw}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="2 3"/>`;
+  return svg(W, H, g);
+}
+
+// 순이익 vs 영업현금흐름
+function qualityChart(a, half) {
+  const labels = a.years.map(String).concat(half.label), ni = a.ni.concat(half.ni), cf = a.ocf.concat(half.ocf);
+  const vals = ni.concat(cf).filter(v => v != null), s = nice(Math.min(0, ...vals), Math.max(0, ...vals));
+  const W = 560, H = 210, L = 40, R = 10, T = 10, B = 30, n = labels.length, bw = (W - L - R) / n, y = scale(s.lo, s.hi, H - B, T);
+  let g = "";
+  for (let v = s.lo; v <= s.hi + 1e-9; v += s.step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${fmt(v, 0)}</text>`;
+  g += `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)"/>`;
+  labels.forEach((lb, i) => {
+    [[ni[i], "var(--bar)", "순이익"], [cf[i], "var(--accent)", "영업CF"]].forEach(([v, c, nm], k) => { if (v == null) return;
+      const x = L + i * bw + bw * (.14 + k * .36), top = Math.min(y(v), y(0));
+      g += `<rect x="${x}" y="${top}" width="${bw * .34}" height="${Math.abs(y(v) - y(0))}" fill="${c}" rx="1.5"><title>${lb} ${nm} ${fmt(v)}억</title></rect>`; });
+    g += `<text x="${L + i * bw + bw / 2}" y="${H - B + 14}" text-anchor="middle">${lb.replace("FY", "").replace(" 20", "'")}</text>`; });
+  g += `<line x1="${L + a.years.length * bw}" x2="${L + a.years.length * bw}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="2 3"/>`;
+  return svg(W, H, g);
+}
+
+function mixChart(mix) {
+  const per = Object.entries(mix.periods), W = 560, rowH = 30, L = 92, R = 8, H = per.length * rowH + 6;
+  const colors = ["var(--mix1)", "var(--mix2)", "var(--mix3)", "var(--mix4)", "var(--mix5)"];
+  let g = "";
+  per.forEach(([p, vals], r) => { let x = L; const yy = r * rowH + 4;
+    g += `<text x="0" y="${yy + 15}" class="lbl">${p.length > 12 ? p.slice(0, 12) + "…" : p}</text>`;
+    vals.forEach((v, i) => { const w = (W - L - R) * v / 100;
+      g += `<rect x="${x}" y="${yy}" width="${Math.max(w - 1, 0)}" height="${rowH - 10}" fill="${colors[i]}"><title>${mix.cats[i]} ${fmt(v)}%</title></rect>`;
+      if (w > 34) g += `<text x="${x + w / 2}" y="${yy + 14}" text-anchor="middle" style="fill:#fff;font-weight:600">${fmt(v, 0)}%</text>`;
+      x += w; }); });
+  const lg = mix.cats.map((c, i) => `<span><i style="background:${colors[i]}"></i>${c}</span>`).join("");
+  return svg(W, H, g) + `<div class="legend">${lg}</div>`;
+}
+
+function stagesHtml(dr, stages) {
+  const rows = dr.map(([n, st, d]) => {
+    let dots = "";
+    for (let i = 1; i <= 5; i++) { dots += `<span class="${i <= st ? "on" : ""}" title="${stages[i - 1]}"></span>`; if (i < 5) dots += `<b class="${i < st ? "on" : ""}"></b>`; }
+    return `<div class="stage-row"><div class="n">${n}</div><div class="dots" aria-label="${stages[st - 1]} 단계">${dots}</div><div class="d">${stages[st - 1]} · ${d}</div></div>`; }).join("");
+  return `<div class="stage-axis"><div></div><div>${stages.map(s => `<span>${s}</span>`).join("")}</div></div><div class="stages">${rows}</div>`;
+}
+
+function peerChart(peers) {
+  const pts = peers.filter(p => p.revYoY != null && p.opMargin != null);
+  const W = 560, H = 250, L = 40, R = 16, T = 14, B = 34;
+  const xs = nice(Math.min(0, ...pts.map(p => p.revYoY)), Math.max(...pts.map(p => p.revYoY))), ys = nice(Math.min(0, ...pts.map(p => p.opMargin)), Math.max(...pts.map(p => p.opMargin)));
+  const x = scale(xs.lo, xs.hi, L, W - R), y = scale(ys.lo, ys.hi, H - B, T);
+  let g = "";
+  for (let v = ys.lo; v <= ys.hi + 1e-9; v += ys.step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${fmt(v, 0)}%</text>`;
+  for (let v = xs.lo; v <= xs.hi + 1e-9; v += xs.step) g += `<text x="${x(v)}" y="${H - B + 14}" text-anchor="middle">${fmt(v, 0)}%</text>`;
+  g += `<line x1="${x(0)}" x2="${x(0)}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="2 3"/>`;
+  g += `<text x="${W - R}" y="${H - 4}" text-anchor="end">매출 성장률 FY2025 →</text><text x="${L}" y="${T - 4}">↑ 영업이익률</text>`;
+  const placed = [];   // 라벨 겹침 회피: 가까운 라벨이 있으면 아래로 13px씩 민다
+  [...pts].sort((a, b) => y(a.opMargin) - y(b.opMargin)).forEach(p => { const cx = x(p.revYoY), cy = y(p.opMargin), anchor = p.self ? "middle" : (cx > W - 170 ? "end" : "start"), dx = anchor === "end" ? -9 : anchor === "start" ? 9 : 0;
+    let ly = p.self ? cy - 12 : cy + 4;
+    while (placed.some(q => Math.abs(q.y - ly) < 13 && Math.abs(q.x - (cx + dx)) < 150)) ly += p.self ? -13 : 13;
+    placed.push({ x: cx + dx, y: ly });
+    g += `<circle cx="${cx}" cy="${cy}" r="${p.self ? 7 : 5}" fill="${p.self ? "var(--accent)" : "var(--bar)"}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (!p.self && ly !== cy + 4) g += `<line x1="${cx}" y1="${cy}" x2="${cx + dx * .6}" y2="${ly - 4}" stroke="var(--muted)" stroke-width=".7"/>`;
+    g += `<text x="${cx + dx}" y="${ly}" text-anchor="${anchor}" class="${p.self ? "lbl" : ""}">${p.name} · PBR ${p.pbr == null ? "—" : fmt(p.pbr, 2)}</text>`; });
+  const missing = peers.filter(p => p.revYoY == null || p.opMargin == null).map(p => `${p.name}(PBR ${p.pbr == null ? "—" : fmt(p.pbr, 2)})`);
+  return svg(W, H, g) + (missing.length ? `<div class="note">재무 결측으로 점 제외: ${missing.join(" · ")}</div>` : "");
+}
+
+function priceChart(pr) {
+  const s = pr.series, W = 560, H = 220, L = 46, R = 70, T = 10, B = 26;
+  const vals = s.map(p => p.c).concat([pr.stop, pr.target]), ys = nice(Math.min(...vals), Math.max(...vals));
+  const x = scale(0, s.length - 1, L, W - R), y = scale(ys.lo, ys.hi, H - B, T);
+  let g = "";
+  for (let v = ys.lo; v <= ys.hi + 1e-9; v += ys.step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${won(v)}</text>`;
+  const i52 = Math.max(0, s.length - 51);
+  g += `<rect x="${x(i52)}" y="${y(pr.hi52)}" width="${x(s.length - 1) - x(i52)}" height="${y(pr.lo52) - y(pr.hi52)}" fill="var(--accent-soft)" opacity=".7"><title>52주 범위 ${won(pr.lo52)}~${won(pr.hi52)}</title></rect>`;
+  let lastYear = "";
+  s.forEach((p, i) => { const yr = p.d.slice(0, 4); if (yr !== lastYear) { lastYear = yr; g += `<text x="${x(i)}" y="${H - B + 14}">${yr}</text>`; } });
+  g += `<path d="${s.map((p, i) => (i ? "L" : "M") + x(i) + "," + y(p.c)).join("")}" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;
+  [[pr.target, "var(--ok)", "목표"], [pr.stop, "var(--warn)", "손절"]].forEach(([v, c, nm]) => {
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-dasharray="5 4"/><text x="${W - R + 4}" y="${y(v) + 4}" style="fill:${c};font-weight:600">${nm} ${won(v)}</text>`; });
+  g += `<circle cx="${x(s.length - 1)}" cy="${y(pr.last)}" r="3.5" fill="var(--ink)"/><text x="${W - R + 4}" y="${y(pr.last) + 4}" class="lbl">${won(pr.last)}</text>`;
+  return svg(W, H, g);
+}
+
+const CHK = { ok: ["c-ok", "정상"], watch: ["c-watch", "주의"], warn: ["c-warn", "경고"], pending: ["c-pending", "대기"] };
+
+function render(i) {
+  const c = DATA.companies[i];
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.i == i));
+  const cnt = k => c.checks.filter(x => x[3] === k).length;
+  const a5 = c.score.a5, lv = c.score.live, pr = c.price, n = (v, d = 1) => v == null ? "—" : fmt(v, d);
+  const quant = a5 ? `A5 ${n(a5.f)}점 · ${a5.r == null ? "유보" : a5.r.toLocaleString() + "위 (상위 " + n(a5.p) + "%)"} · ${a5.asOf}` : "A5 점수 없음";
+  const strat = c.strategies.length ? `이번 달 선정 ${c.strategies.length}/5 · ${c.strategies.join(" · ")}` : "이번 달 선정 0/5";
+  $("#head").innerHTML = `
+    <div class="head-top"><h1>${c.name}</h1><span class="mono">${c.ticker} · ${c.market} · ${c.sector}</span>
+      <span class="price">${won(pr.price)}원 <span class="mono">${pr.asOf || ""}</span></span></div>
+    <p class="summary">${c.summary}</p>
+    <div class="axes">
+      <div class="axis"><span class="k">정량</span><span class="v">${quant}</span><span class="note">${lv ? "라이브 " + n(lv.total) + "점 · " + lv.grade + " · " : ""}${strat}</span></div>
+      <div class="axis"><span class="k">사업</span><span class="v">성장 동력 ${c.drivers.length}개 · 매출 발생 이상 ${c.drivers.filter(d => d[1] >= 4).length}개</span><span class="note">${c.driversBy} · 추출 인용 ${c.extract.quotesOk ?? "—"}/${c.extract.quotes ?? "—"}</span></div>
+      <div class="axis"><span class="k">위험</span><span class="v">경고 ${cnt("warn")} · 주의 ${cnt("watch")} · 정상 ${cnt("ok")}</span><span class="note">재검토 기준 ${c.checks.length}개 (제안값 · 미검증)</span></div>
+    </div>`;
+  const per = c.period, fy = c.annual.ni.length ? c.annual.ni[c.annual.ni.length - 1] : null;
+  const ttm = per.ni && fy != null && c.report.kind !== "사업보고서" ? fy - per.ni[0] + per.ni[1] : null;
+  const perTTM = pr.per && ttm > 0 && fy > 0 ? pr.per * fy / ttm : null;
+  const tiles = [
+    ["PBR", n(pr.pbr, 2), `KRX BPS ${pr.krxAsOf || ""}`],
+    ["PER (TTM)", n(perTTM, 1), `직전 연간 기준 ${n(pr.per, 1)}`],
+    ["배당수익률", pr.divYield == null ? "—" : n(pr.divYield, 2) + "%", "직전 DPS 기준"],
+    ["52주 위치", pr.hi52 ? n((pr.price - pr.lo52) / (pr.hi52 - pr.lo52) * 100, 0) + "%" : "—", `${won(pr.lo52)} ~ ${won(pr.hi52)}`],
+    ["ATR14", pr.atr ? n(pr.atr / pr.price * 100, 1) + "%" : "—", `하루 평균 변동 ${won(pr.atr)}원`],
+    ["부채비율", c.bs.liabilities && c.bs.equity && c.bs.equity[1] ? n(c.bs.liabilities[1] / c.bs.equity[1] * 100, 0) + "%" : "—", `${c.report.name} 기준`],
+  ];
+  const half = { label: per.label, revenue: per.revenue || [null, null], op: per.op || [null, null], ni: per.ni || [null, null], ocf: per.ocf || [null, null] };
+  $("#grid").innerHTML = `
+    <div class="card"><h2>실적 추세 <small>매출(억원) · 영업이익률 · 점선 오른쪽 ${per.label.join(" vs ")}</small></h2>${c.annual.years.length ? revenueChart(c.annual, half) : '<p class="note">연간 재무 패널 없음</p>'}
+      <div class="legend"><span><i style="background:var(--bar)"></i>연간 매출</span><span><i style="background:var(--bar2)"></i>최근 기간</span><span><i style="background:var(--watch)"></i>영업이익률</span></div>
+      ${c.annual.fs.some(f => f === "OFS") ? `<div class="note">${c.annual.years.filter((y, k) => c.annual.fs[k] === "OFS").join("·")}년 별도 기준 · 나머지 연결 기준</div>` : ""}</div>
+    <div class="card"><h2>이익의 질 <small>순이익 vs 영업현금흐름(억원)</small></h2>${c.annual.years.length ? qualityChart(c.annual, half) : ""}
+      <div class="legend"><span><i style="background:var(--bar)"></i>순이익</span><span><i style="background:var(--accent)"></i>영업현금흐름</span></div></div>
+    <div class="card"><h2>매출 구성 <small>공시 사업부문 · OpenCode 추출 · 인용 대조</small></h2>${c.mix && c.mix.cats.length ? mixChart(c.mix) : '<p class="note">부문 비중 표 없음</p>'}</div>
+    <div class="card"><h2>성장 동력 · 실현 단계 <small>${c.driversBy} · 미공시는 낮은 단계로</small></h2>${c.drivers.length ? stagesHtml(c.drivers, DATA.stages) : '<p class="note">원문에 성장 동력 서술 없음</p>'}</div>
+    <div class="card"><h2>동종사 <small>최근 연간 · PBR = 종가 ÷ KRX BPS</small></h2>${peerChart(c.peers)}<div class="note">${c.peerNote}</div></div>
+    <div class="card"><h2>주가 · 손절 · 목표 <small>주간 종가 · 52주 범위 음영</small></h2>${pr.series && pr.series.length ? priceChart({ ...pr, last: pr.price }) : '<p class="note">일봉 없음</p>'}
+      <div class="note">손절 = 현재가 − 3×ATR14 · 목표 = 현재가 + 1.5×손절폭 · 낙폭 관리용 규칙값 · 단일 종목 미검증</div></div>
+    <div class="card"><h2>밸류에이션 <small>${pr.asOf || ""} 종가</small></h2>
+      <div class="tiles">${tiles.map(([k, v, s]) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("")}</div></div>
+    <div class="card"><h2>재검토 체크리스트 <small>${per.label[1]} vs ${per.label[0]} · 재고·채권은 전기말 대비 · 기준 제안값</small></h2>
+      <div class="tbl-scroll"><table><thead><tr><th>관측 지표</th><th>재검토 기준</th><th>현재</th><th>상태</th></tr></thead><tbody>
+      ${c.checks.map(([nm, th, cur, st]) => `<tr><td>${nm}</td><td class="mono">${th}</td><td>${cur}</td><td><span class="chip ${CHK[st][0]}">${CHK[st][1]}</span></td></tr>`).join("")}
+      </tbody></table></div></div>
+    <div class="card"><h2>핵심 사실 <small>${c.report.name} 원문</small></h2><dl>${c.facts.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join("")}</dl></div>
+    <div class="card"><h2>공시 타임라인 <small>DART 최근 2년 · 정기보고서 제외</small></h2><div class="ev">${c.events.slice(0, 14).map(e => `<span>${e[0]}</span><span>${e[1]}</span>`).join("")}</div>
+      ${c.events.length > 14 ? `<div class="note">외 ${c.events.length - 14}건</div>` : ""}</div>`;
+  $("#foot").innerHTML = `<span>출처: DART ${c.report.name} (${c.report.rcept}) · 재무 ${c.report.fs} · 연간 패널 a3e-map-1.1 · A2a 일봉 · KRX 월말 BPS/EPS/DPS · A5 ${a5 ? a5.asOf : "—"}</span>
+    <span>추출: ${c.extract.model || "—"} · 인용 원문 대조 ${c.extract.quotesOk ?? "—"}/${c.extract.quotes ?? "—"} · 문제 ${c.extract.problems ?? "—"}건 · 생성 ${DATA.generated} · 점수·매매 정책 미연결 · 투자 판단 근거 아님</span>`;
+  try { localStorage.setItem("decode-tab", c.ticker); } catch (e) {}
+}
+
+$("#tabs").innerHTML = DATA.companies.map((c, i) => `<button role="tab" data-i="${i}">${c.name}</button>`).join("");
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) render(+b.dataset.i); });
+let start = 0; try { const s = localStorage.getItem("decode-tab"); const k = DATA.companies.findIndex(c => c.ticker === s); if (k >= 0) start = k; } catch (e) {}
+render(start);
+</script>
