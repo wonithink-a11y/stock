@@ -166,6 +166,7 @@
   .sitenav a:hover { color: var(--text); background: var(--card); }
   .sitenav a[aria-current="page"] { color: var(--text); background: var(--card); font-weight: 600; }
   .sitenav .ext { margin-left: auto; }
+  a.chip { text-decoration: none; display: inline-block; }
 </style>
 </head>
 <body>
@@ -174,6 +175,7 @@
   <a href="paper-trading/">모의투자</a>
   <a href="system-map.html">시스템 지도</a>
   <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
+  <a href="https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">기업 해독(Claude) ↗</a>
 </nav>
 <header>
   <h1>📊 주식 스코어링 대시보드</h1>
@@ -1610,7 +1612,8 @@ function detailVtabBtns(dt) {
   return `
     <button data-detail-vtab="chart" class="chip ${dt.vtab === 'chart' ? 'active' : ''}">📈 차트</button>
     <button data-detail-vtab="flows" class="chip ${dt.vtab === 'flows' ? 'active' : ''}">💰 수급</button>
-    <button data-detail-vtab="decode" class="chip ${dt.vtab === 'decode' ? 'active' : ''}">🔎 해독</button>`;
+    <button data-detail-vtab="decode" class="chip ${dt.vtab === 'decode' ? 'active' : ''}">🔎 해독</button>
+    <a class="chip" href="https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">🧭 Claude 판정 ↗</a>`;
 }
 
 // ---------- 기업 해독 카드 v0 (자동 데이터만 · 관찰용 · 점수·추천을 바꾸지 않는다) ----------
