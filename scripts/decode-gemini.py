@@ -114,10 +114,28 @@ def load_env():
     return env
 
 
+RETRY_HTTP = (500, 502, 503, 504)
+
+
+def fetch(req, timeout, tries=4, sleep=time.sleep):
+    """urlopen + 재시도 — 접속 타임아웃·연결 끊김·서버 5xx 는 20·40·60초 쉬고 다시(2026-10-06 DART 접속 타임아웃 한 번에 실행 전체가 죽었다).
+    4xx(429 한도 포함)는 호출한 쪽이 다룬다 — 여기서 재시도하지 않는다."""
+    for attempt in range(tries):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout)
+        except urllib.error.HTTPError as e:
+            if e.code not in RETRY_HTTP or attempt == tries - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
+            if attempt == tries - 1:
+                raise
+        sleep(20 * (attempt + 1))
+
+
 def dart_text(rcept, key):
     """보고서 원문 zip → 태그 뗀 텍스트. 표는 행=줄바꿈, 칸=' | '."""
     url = f"https://opendart.fss.or.kr/api/document.xml?crtfc_key={key}&rcept_no={rcept}"
-    raw = urllib.request.urlopen(url, timeout=60).read()
+    raw = fetch(url, 60).read()
     if not raw.startswith(b"PK"):
         raise SystemExit("DART 원문 조회 실패: " + raw[:200].decode("utf-8", "replace"))
     z = zipfile.ZipFile(io.BytesIO(raw))
@@ -156,14 +174,7 @@ def gemini(prompt, key, model=MODEL):
     req = urllib.request.Request(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "x-goog-api-key": key})
-    for attempt in range(4):                     # 503(과부하)이 잦다 — 30·60·90초 쉬고 다시
-        try:
-            d = json.load(urllib.request.urlopen(req, timeout=300))
-            break
-        except urllib.error.HTTPError as e:
-            if e.code != 503 or attempt == 3:
-                raise
-            time.sleep(30 * (attempt + 1))
+    d = json.load(fetch(req, 300))               # 503(과부하)·타임아웃은 fetch 가 20·40·60초 쉬고 다시
     usage = d.get("usageMetadata", {})
     return json.loads(d["candidates"][0]["content"]["parts"][0]["text"]), usage
 
@@ -257,7 +268,34 @@ def selftest():
     assert check({"claim": "Tesla 와 2025년 7월 26일부터 2033년 12월 31일까지 16,544", "quote": tq}, tsq) is None
     assert check({"claim": "Tesla 와 2025년 7월 27일부터", "quote": tq}, tsq).startswith("인용에 없는 숫자")
     assert numbers("2019.02.27~2027.03.31 · 2026년 3월 · 2026.03") == ["D20190227", "D20270331", "D202603", "D202603"]
-    print("selftest ok (14)")
+    # fetch: 접속 실패·5xx 는 재시도, 4xx 는 바로 올린다
+    calls, real = [], urllib.request.urlopen
+    def flaky(seq):
+        it = iter(seq)
+        def f(req, timeout=0):
+            calls.append(1); x = next(it)
+            if isinstance(x, Exception):
+                raise x
+            return x
+        return f
+    try:
+        urllib.request.urlopen = flaky([TimeoutError("t"), urllib.error.HTTPError("u", 503, "x", {}, None), "ok"])
+        assert fetch("u", 1, sleep=lambda s: None) == "ok" and len(calls) == 3
+        calls.clear(); urllib.request.urlopen = flaky([urllib.error.HTTPError("u", 429, "x", {}, None), "ok"])
+        try:
+            fetch("u", 1, sleep=lambda s: None); assert False
+        except urllib.error.HTTPError as e:
+            assert e.code == 429 and len(calls) == 1
+        calls.clear(); urllib.request.urlopen = flaky([TimeoutError("t")] * 4)
+        try:
+            fetch("u", 1, sleep=lambda s: None); assert False
+        except TimeoutError:
+            assert len(calls) == 4          # 4번 다 실패하면 그때 올린다
+    finally:
+        urllib.request.urlopen = real
+    tg = build_targets({"999999": "관심"}, ROOT / "data" / "backfill" / "universe" / "a1a" / "current.jsonl")
+    assert len(tg) > 2500 and "005930" in tg and tg["999999"] == "관심", len(tg)
+    print("selftest ok (16)")
 
 
 def decode(ticker, name, rcept, env, model):
@@ -296,7 +334,7 @@ def periodic_reports(key, days=88):
     while True:
         url = (f"https://opendart.fss.or.kr/api/list.json?crtfc_key={key}&bgn_de={bgn:%Y%m%d}&end_de={end:%Y%m%d}"
                f"&pblntf_ty=A&page_no={page}&page_count=100")
-        d = json.load(urllib.request.urlopen(url, timeout=60))
+        d = json.load(fetch(url, 60))
         if d.get("status") == "013":             # 조회된 데이터 없음
             break
         if d.get("status") != "000":
@@ -318,6 +356,19 @@ def _fail(items, t, r):
     cur["failedRcept"] = r["rcept_no"]
 
 
+def build_targets(watch, universe_path=None):
+    """해독 대상 = 전체 상장사(A1 유니버스, 스팩 제외 2,578) ∪ 관심종목. {종목코드: 이름}"""
+    p = universe_path or ROOT / "data" / "backfill" / "universe" / "a1a" / "current.jsonl"
+    out = {}
+    for line in Path(p).read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            out[r["ticker"]] = r.get("name")
+    for t, n in watch.items():
+        out.setdefault(t, n)
+    return out
+
+
 def auto(a, env):
     outdir = Path(a.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -325,7 +376,8 @@ def auto(a, env):
     index = json.loads(idx_path.read_text(encoding="utf-8")) if idx_path.exists() else {}
     items = index.setdefault("items", {})
     wl = json.loads((ROOT / "config" / "watchlist.json").read_text(encoding="utf-8"))
-    targets = {t["code"]: t.get("name") for t in wl["tickers"] if (t.get("market") or "KR") == "KR"}
+    watch = {t["code"]: t.get("name") for t in wl["tickers"] if (t.get("market") or "KR") == "KR"}
+    targets = dict(watch) if a.watchlist_only else build_targets(watch)
     try:                                         # 시총 큰 순 — 한도가 먼저 닿으면 작은 종목이 다음 날로 밀린다
         cap = {s["t"]: s["cap"] for s in json.loads(
             (ROOT / "docs" / "data" / "sector-strength.json").read_text(encoding="utf-8")).get("stocks", [])}
@@ -341,7 +393,7 @@ def auto(a, env):
         if cur.get("failedRcept") == r["rcept_no"] and cur.get("tries", 0) >= MAX_TRIES:
             continue
         pending.append((t, name, r))
-    pending.sort(key=lambda x: -cap.get(x[0], 0))
+    pending.sort(key=lambda x: (x[0] not in watch, -cap.get(x[0], 0), x[0]))   # 관심종목 먼저, 안에서는 시총 큰 순
     print(f"대상 {len(targets)} · 최근 정기보고서 있음 {sum(1 for t in targets if t in latest)} · 대기 {len(pending)}")
 
     def save():
@@ -402,6 +454,7 @@ def main():
     ap.add_argument("--max", type=int, default=450)          # 하루 500(Lite) 중 여유를 남긴다
     ap.add_argument("--budget-min", type=float, default=150)
     ap.add_argument("--outdir", default=str(AUTO_DIR))
+    ap.add_argument("--watchlist-only", action="store_true", help="관심종목만(2026-10-07 이전 동작)")
     a = ap.parse_args()
     if a.selftest:
         return selftest()

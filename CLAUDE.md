@@ -53,7 +53,7 @@ Validated against
             ★ **시장 히트맵**(섹터강도 탭 맨 위, 09-26): 국내 = 자체(sector-strength.json `stocks`) + '장중' = intraday-alert 가 쓰는
             `~/collector-venv/intraday/kr-snapshot.json` → VM `/kr-intraday`(nginx 반영 완료) — **첫 실물 09-28 09:00**. 미국 = TradingView 위젯
             (위젯이 KRX 를 외부 임베드에서 S&P500 으로 강제 교체 — 라이선스, 우회 안 함).
-            ★ **AI 공시 해독**(09-26): Actions `decode-gemini`(매일 20:00 KST)가 관심종목 KR 중 새 정기보고서만 Gemini 3.5 Flash-Lite 로
+            ★ **AI 공시 해독**(09-26): Actions `decode-gemini`(매일 20:00 KST)가 **전 상장사(10-07 부터, 관심종목 먼저)** 중 새 정기보고서만 Gemini 3.5 Flash-Lite 로
             해독 → docs/data/decode/, 해독 탭 'AI 공시 해독' 칸. 인용은 코드가 DART 원문과 대조(scripts/decode-gemini.py). 무료 한도 실측:
             Flash 하루 20 · Flash-Lite 500 · Pro 0(모델별). 관찰용 — 점수·매매 불사용. 시범·정답지 대조: docs/cards/*-gemini-pilot-2026-09.md.
             ★ **지분·이벤트 카드**(09-26): Actions `stock-events`(평일 19:40) → docs/data/stock-events.json — 5% 주주(국민연금 포함)·10% 주주·
