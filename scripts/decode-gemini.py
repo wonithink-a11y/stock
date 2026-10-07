@@ -137,7 +137,7 @@ def dart_text(rcept, key):
     url = f"https://opendart.fss.or.kr/api/document.xml?crtfc_key={key}&rcept_no={rcept}"
     raw = fetch(url, 60).read()
     if not raw.startswith(b"PK"):
-        raise SystemExit("DART 원문 조회 실패: " + raw[:200].decode("utf-8", "replace"))
+        raise RuntimeError("DART 원문 조회 실패: " + raw[:200].decode("utf-8", "replace"))   # SystemExit 은 --auto 의 종목별 except 를 뚫고 전체를 죽인다(2026-10-07 원문 없는 종목 하나에 실행 전체 중단)
     z = zipfile.ZipFile(io.BytesIO(raw))
     main = max(z.namelist(), key=lambda n: z.getinfo(n).file_size)   # 본문이 가장 크다(첨부는 작다)
     x = z.read(main).decode("utf-8", "replace")
@@ -295,7 +295,18 @@ def selftest():
         urllib.request.urlopen = real
     tg = build_targets({"999999": "관심"}, ROOT / "data" / "backfill" / "universe" / "a1a" / "current.jsonl")
     assert len(tg) > 2500 and "005930" in tg and tg["999999"] == "관심", len(tg)
-    print("selftest ok (16)")
+    # 원문 없음(014)은 그 종목만 실패 — 실행 전체를 죽이는 SystemExit 이 아니다
+    class _R:
+        def read(self): return b'<?xml version="1.0"?><result><status>014</status></result>'
+    real_fetch = globals()["fetch"]
+    globals()["fetch"] = lambda *a, **k: _R()
+    try:
+        dart_text("20260101000000", "k"); assert False
+    except RuntimeError:
+        pass
+    finally:
+        globals()["fetch"] = real_fetch
+    print("selftest ok (17)")
 
 
 def decode(ticker, name, rcept, env, model):

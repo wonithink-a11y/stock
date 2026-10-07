@@ -45,6 +45,7 @@ jobs:
         run: python -u scripts/decode-gemini.py --auto --max "$MAX" --budget-min 150
 
       - name: Commit decode results
+        if: always()          # 해독 도중 실패해도 그때까지 한 것은 남긴다(10-07 54건이 실패 종료로 버려졌다)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
