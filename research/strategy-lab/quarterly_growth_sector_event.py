@@ -209,7 +209,7 @@ def sn_mats(close, vol, liq, sector_idx, n_sec, static_ok_by_n, h):
     peers_mean = (ss - R0[:, cols]) / np.maximum(peers_cnt, 1)
     ok = L[:, cols] & (peers_cnt >= MIN_LIQ_PEERS)
     SN[:, cols] = np.where(ok, R[:, cols] - peers_mean, np.nan)
-    return {"SN": SN, "MK": MK, "liquid": liquid, "static_ok": static_ok_by_n}
+    return {"SN": SN, "MK": MK, "liquid": L, "static_ok": static_ok_by_n}
 
 
 def stats_arr(x, groups, rng):
