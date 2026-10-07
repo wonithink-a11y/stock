@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
@@ -74,6 +75,62 @@ def parse(html: str) -> List[dict]:
     return out
 
 
+# ── 증권사 목표가 변동 — 자이앤트 '당일 발간리포트' 요약·특징주 글에서 숫자 필드만 뽑아 tp-history.jsonl 에 영구 누적 ──
+# ★ 개인 열람 전용(위와 같음). 글의 서술 문장은 저장하지 않는다 — 종목명·일자·증권사·의견·목표가·변동 구분만.
+# ★ 그날 리포트가 나오고 채널이 올린 종목만 잡힌다(전 종목 컨센서스 아님). 점수·추천에 쓰지 않는다(절대 규칙 1).
+_KST = timezone(timedelta(hours=9))
+_ROW = re.compile(r"^\s*(\S+)\s*/\s*([A-Za-z가-힣]+)(?:\(([^)]*)\))?\s*/\s*([\d,]+)원\(([^)]*)\)", re.M)
+_NUM = lambda x: int(x.replace(",", ""))
+
+
+def _name(first: str) -> str:
+    """'✅️ 제이앤티씨 : +15.2% 상승 중' -> '제이앤티씨'"""
+    return re.sub(r"^[^\w가-힣]+", "", first.split(" : ")[0]).strip()
+
+
+def extract_tp(posts: List[dict]) -> List[dict]:
+    """매경 자이앤트 글 -> 목표가 기록. daily = 증권사별 한 줄, month = 특징주 글의 '최근 1개월 발간리포트' 요약."""
+    out = []
+    for p in posts:
+        if p.get("channel") != "mk_giant":
+            continue
+        t, at = p["text"], p["at"]
+        try:
+            day = datetime.fromisoformat(at).astimezone(_KST).date().isoformat()
+        except ValueError:
+            continue
+        name = _name(t.split("\n")[0])
+        if "당일 발간리포트" in t:
+            for m in _ROW.finditer(t):
+                out.append({"k": f"{p['id']}|{m.group(1)}", "kind": "daily", "pid": p["id"], "day": day, "name": name, "broker": m.group(1),
+                            "opinion": m.group(2), "opinionChg": m.group(3) or "", "tp": _NUM(m.group(4)), "tpChg": m.group(5)})
+        elif "최근 1개월 발간리포트" in t:
+            n = re.search(r"최근 1개월 발간리포트\s*-\s*(\d+)건", t)
+            tp = re.search(r"목표가(?: 평균)?\s*:\s*([\d,]+)원", t)
+            up = re.search(r"업사이드\s*:\s*([+-]?[\d.]+)%", t)
+            px = re.search(r"현재주가\s*:\s*([\d,]+)원", t)
+            if n and tp:
+                out.append({"k": p["id"], "kind": "month", "pid": p["id"], "day": day, "name": name, "n": int(n.group(1)), "tp": _NUM(tp.group(1)),
+                            "upside": float(up.group(1)) if up else None, "price": _NUM(px.group(1)) if px else None})
+    return out
+
+
+def append_tp(path: Path, posts: List[dict]) -> int:
+    """새 기록만 덧붙인다(k 로 중복 제거). 채널 글은 400건이 넘으면 버려지지만 이 파일은 버리지 않는다."""
+    seen = set()
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            seen.add(json.loads(line)["k"])
+    except (OSError, ValueError, KeyError):
+        pass
+    rows = [r for r in extract_tp(posts) if r["k"] not in seen]
+    if rows:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))
+    return len(rows)
+
+
 def _get(url: str) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=20) as r:
@@ -106,7 +163,8 @@ def fetch_all(path: Path, now: datetime, get: Callable[[str], str] = _get) -> in
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     os.replace(tmp, path)
+    added = append_tp(path.parent / "tp-history.jsonl", new)
     for ch, e in errors.items():
         print(f"[{ch}] {e}")
-    print(f"채널 소식 {len(new)}건 읽음 · 보관 {len(out['posts'])}건 · 실패 {len(errors)}/{len(CHANNELS)}")
+    print(f"채널 소식 {len(new)}건 읽음 · 보관 {len(out['posts'])}건 · 목표가 기록 +{added} · 실패 {len(errors)}/{len(CHANNELS)}")
     return 1 if len(errors) == len(CHANNELS) else 0

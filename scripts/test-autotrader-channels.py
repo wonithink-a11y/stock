@@ -60,6 +60,23 @@ def main():
         ck("형식이 바뀌어 전부 0건이면 종료코드 1(실패 알림)", channels.fetch_all(p, now, lambda u: "<html></html>") == 1)
         ck("실패해도 옛 글은 남는다", len(json.loads(p.read_text(encoding="utf-8"))["posts"]) == 2)
 
+        # ---- 증권사 목표가 기록(tp-history.jsonl)
+        NL = chr(10)
+        daily = {"id": "mk_giant/9", "channel": "mk_giant", "at": "2026-10-06T23:49:00+00:00", "text": NL.join([
+            "신한지주 : 당일 발간리포트 - 2건", "", "Buy : 2건", "목표가 평균 : 136,500원 | 최대 : 139,000원", "", "- 서술 문장은 저장하지 않는다", "",
+            "(증권사 : 투자의견 / 목표가)", "NH / Buy(유지) / 139,000원(유지)", "SK / Buy(신규) / 134,000원(신규)"])}
+        feat = {"id": "mk_giant/10", "channel": "mk_giant", "at": "2026-10-07T00:15:00+00:00", "text": NL.join([
+            "✅️ 제이앤티씨 : +15.2% 상승 중", "", "현재주가 : 26,400원", "", "* 최근 1개월 발간리포트 - 2건", "Buy : 1건 ", "목표가 : 26,000원", "업사이드 : +1.5%"])}
+        other = {"id": "wcforumxyz/1", "channel": "wcforumxyz", "at": "2026-10-07T00:15:00+00:00", "text": "NH / Buy(유지) / 1,000원(유지)"}
+        rows = channels.extract_tp([daily, feat, other])
+        ck("목표가: 증권사 2행 + 특징주 1건, 다른 채널은 무시", [r["kind"] for r in rows] == ["daily", "daily", "month"])
+        ck("목표가: 필드(증권사·의견·목표가·변동)", rows[0]["broker"] == "NH" and rows[0]["opinion"] == "Buy" and rows[0]["tp"] == 139000 and rows[1]["tpChg"] == "신규")
+        ck("목표가: 특징주 요약(건수·목표가·업사이드·현재가)", rows[2]["n"] == 2 and rows[2]["tp"] == 26000 and rows[2]["upside"] == 1.5 and rows[2]["price"] == 26400)
+        ck("목표가: 종목명은 이모지·꼬리 제거, 서술 문장은 저장 안 함", rows[0]["name"] == "신한지주" and rows[2]["name"] == "제이앤티씨" and "서술" not in json.dumps(rows, ensure_ascii=False))
+        tpf = Path(td) / "tp.jsonl"
+        ck("목표가: 처음엔 3건 추가", channels.append_tp(tpf, [daily, feat]) == 3)
+        ck("목표가: 같은 글을 다시 읽어도 중복 없음", channels.append_tp(tpf, [daily, feat]) == 0 and len(tpf.read_text(encoding="utf-8").splitlines()) == 3)
+
         # ---- 웹: 로그인 뒤에만, 이스케이프, 채널 목록만
         sdir = Path(td) / "state"
         (sdir / "channels.json").write_text(json.dumps({"updatedAt": "2026-09-22T21:00:00+09:00", "errors": {}, "posts": [
