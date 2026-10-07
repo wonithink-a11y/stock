@@ -479,6 +479,47 @@ def facts_from(ext, calc=()):
     return f
 
 
+TP_FILE = CACHE / "_tp-history.jsonl"   # VM state/tp-history.jsonl 사본(개인 열람 — 저장소 금지, 이 캐시는 gitignore)
+
+
+def tp_sync():
+    """VM 의 목표가 기록을 캐시로 복사한다(ssh stock-new — 작업 VM)."""
+    import subprocess
+    r = subprocess.run(["ssh", "stock-new", "cat ~/collector-venv/autotrader/state/tp-history.jsonl"], capture_output=True, check=True)
+    TP_FILE.write_bytes(r.stdout)
+    print(f"목표가 기록 {len(r.stdout.splitlines())}줄 -> {TP_FILE}")
+
+
+def tp_cards(uni):
+    """종목명 -> 티커로 이어 붙인 증권사 목표가 카드 데이터. 이름이 둘 이상의 티커에 걸리면 버린다."""
+    if not TP_FILE.exists():
+        return {}
+    names = {}
+    for t, u in uni.items():
+        names.setdefault(u["name"], []).append(t)
+    alias = {"현대차": "현대자동차"}   # 채널이 줄여 쓰는 이름 — 발견되는 대로 추가
+    by = {}
+    for l in TP_FILE.read_text(encoding="utf-8").splitlines():
+        r = json.loads(l)
+        ts = names.get(alias.get(r["name"], r["name"]))
+        if ts and len(ts) == 1:
+            by.setdefault(ts[0], []).append(r)
+    out = {}
+    for t, rs in by.items():
+        daily = sorted((r for r in rs if r["kind"] == "daily"), key=lambda r: (r["day"], r["pid"]), reverse=True)
+        latest = {}
+        for r in daily:
+            latest.setdefault(r["broker"], r)       # 증권사별 가장 최근 한 줄
+        tps = [r["tp"] for r in latest.values()]
+        mon = sorted((r for r in rs if r["kind"] == "month"), key=lambda r: r["day"], reverse=True)
+        chg = {k: sum(1 for r in daily if r["tpChg"] == k) for k in ("상향", "하향", "신규")}
+        out[t] = {"since": min(r["day"] for r in rs),
+                  "rows": [[r["day"], r["broker"], f"{r['opinion']}({r['opinionChg']})" if r.get("opinionChg") else r["opinion"], r["tp"], r["tpChg"]] for r in daily[:14]],
+                  "n": len(latest), "avg": round(sum(tps) / len(tps)) if tps else None, "max": max(tps) if tps else None, "min": min(tps) if tps else None,
+                  "chg": chg, "month": ({k: mon[0].get(k) for k in ("day", "n", "tp", "upside")} if mon else None)}
+    return out
+
+
 GEM_DIR = ROOT / "docs" / "data" / "decode"
 GEM_LABEL = {"A_사업구조": "사업 구조", "A_고객": "주요 고객", "A_시장지위": "시장 지위", "A_원재료": "원재료", "A_주요계약": "주요 계약", "C_전망": "회사 전망", "E_위험": "위험 요인"}
 
@@ -500,6 +541,7 @@ def gemini_facts(g):
 
 def render(tickers, out):
     comps = []
+    tpc = tp_cards(load_universe())
     for t in tickers:
         d = CACHE / t
         if not (d / "data.json").exists():
@@ -522,9 +564,10 @@ def render(tickers, out):
         if many:
             data = {**data, "eventsMore": max(len(data["events"]) - 14, 0), "events": data["events"][:14]}
         comps.append({**data, "summary": jd.get("summary") or (gem or {}).get("summary") or "판단 미작성 — OpenCode 추출만 표시",
-                      "mix": mix_from(ext), "drivers": drivers, "driversBy": by, "facts": facts, "extract": extract})
+                      "mix": mix_from(ext), "drivers": drivers, "driversBy": by, "facts": facts, "extract": extract, "tp": tpc.get(t)})
     tpl = (HERE / "template.html").read_text(encoding="utf-8")
-    html = tpl.replace("/*__DATA__*/null", json.dumps({"stages": STAGES, "companies": comps, "generated": date.today().isoformat()}, ensure_ascii=False))
+    html = tpl.replace("/*__DATA__*/null", json.dumps({"stages": STAGES, "companies": comps, "generated": date.today().isoformat(),
+                                                                "tpSince": min((json.loads(l)["day"] for l in TP_FILE.read_text(encoding="utf-8").splitlines()), default=None) if TP_FILE.exists() else None}, ensure_ascii=False))
     Path(out).write_text(html, encoding="utf-8")
     print(f"화면 -> {out} ({len(comps)}종목)")
 
@@ -598,7 +641,10 @@ def expand(tickers, shard=None, missing=False):
     """'@kr' = 관심종목 KR 전체(코스피200+코스닥150). --missing 은 data.json 이 이미 있는 종목을 뺀다. --shard i/n 은 병렬 실행용."""
     out = []
     for t in tickers:
-        out += [x["code"] for x in json.load(open(ROOT / "config/watchlist.json", encoding="utf-8"))["tickers"] if x["market"] == "KR"] if t == "@kr" else [t]
+        if t == "@held":   # 모의투자 보유 종목 — VM data/paper/*_positions.json 의 OPEN 을 {티커: [전략]} 로 저장해 둔 캐시
+            out += list(json.load(open(CACHE / "_held.json", encoding="utf-8")))
+        else:
+            out += [x["code"] for x in json.load(open(ROOT / "config/watchlist.json", encoding="utf-8"))["tickers"] if x["market"] == "KR"] if t == "@kr" else [t]
     if missing:
         out = [t for t in out if not (CACHE / t / "data.json").exists()]
     if shard:
@@ -608,7 +654,7 @@ def expand(tickers, shard=None, missing=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", nargs="?", choices=["prepare", "check", "render", "brief"])
+    ap.add_argument("cmd", nargs="?", choices=["prepare", "check", "render", "brief", "tp-sync"])
     ap.add_argument("tickers", nargs="*")
     ap.add_argument("--out", default=str(CACHE / "decode.html"))
     ap.add_argument("--selftest", action="store_true")
@@ -619,7 +665,7 @@ def main():
     if a.selftest:
         return selftest()
     tk = expand(a.tickers, a.shard, a.missing and a.cmd == "prepare")
-    {"prepare": lambda: prepare(tk, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(tk), "render": lambda: render(tk, a.out), "brief": lambda: brief(tk)}[a.cmd]()
+    {"prepare": lambda: prepare(tk, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(tk), "render": lambda: render(tk, a.out), "brief": lambda: brief(tk), "tp-sync": tp_sync}[a.cmd]()
 
 
 if __name__ == "__main__":

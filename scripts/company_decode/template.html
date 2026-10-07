@@ -201,6 +201,15 @@ function priceChart(pr) {
   return svg(W, H, g);
 }
 
+const TPC = { "상향": ["c-ok", "상향"], "하향": ["c-warn", "하향"], "신규": ["c-watch", "신규"], "유지": ["c-pending", "유지"] };
+function tpHtml(tp, price) {
+  const up = tp.avg && price ? (tp.avg / price - 1) * 100 : null;
+  const head = tp.n ? `<p>최근 기록 증권사 ${tp.n}곳 · 평균 ${won(tp.avg)}원${up == null ? "" : ` (현재가 대비 ${up >= 0 ? "+" : ""}${fmt(up, 1)}%)`} · 최저 ${won(tp.min)} · 최고 ${won(tp.max)} · 상향 ${tp.chg["상향"]} · 하향 ${tp.chg["하향"]} · 신규 ${tp.chg["신규"]}</p>` : "";
+  const mon = tp.month ? `<p class="note">특징주 글 기준(${tp.month.day}) 최근 1개월 리포트 ${tp.month.n}건 · 목표가 ${won(tp.month.tp)}원${tp.month.upside == null ? "" : ` · 업사이드 ${tp.month.upside >= 0 ? "+" : ""}${fmt(tp.month.upside, 1)}%`}</p>` : "";
+  const rows = tp.rows.length ? `<div class="tbl-scroll"><table><thead><tr><th>수집일</th><th>증권사</th><th>의견</th><th>목표가</th><th>변동</th></tr></thead><tbody>${tp.rows.map(([d, b, o, v, g]) => `<tr><td class="mono">${d}</td><td>${b}</td><td>${o}</td><td>${won(v)}원</td><td><span class="chip ${(TPC[g] || TPC["유지"])[0]}">${g}</span></td></tr>`).join("")}</tbody></table></div>` : "";
+  return head + mon + rows;
+}
+
 const CHK = { ok: ["c-ok", "정상"], watch: ["c-watch", "주의"], warn: ["c-warn", "경고"], pending: ["c-pending", "대기"] };
 
 function render(i) {
@@ -245,6 +254,7 @@ function render(i) {
       <div class="note">손절 = 현재가 − 3×ATR14 · 목표 = 현재가 + 1.5×손절폭 · 낙폭 관리용 규칙값 · 단일 종목 미검증</div></div>
     <div class="card"><h2>밸류에이션 <small>${pr.asOf || ""} 종가</small></h2>
       <div class="tiles">${tiles.map(([k, v, s]) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("")}</div></div>
+    <div class="card"><h2>증권사 목표가 변동 <small>자이앤트 요약 글 · 수집 시작 ${DATA.tpSince || "—"} · 그날 리포트가 나온 종목만</small></h2>${c.tp ? tpHtml(c.tp, pr.price) : '<p class="note">수집 기간 내 기록 없음 — 리포트가 나와 채널이 올린 종목만 쌓입니다.</p>'}</div>
     <div class="card"><h2>재검토 체크리스트 <small>${per.label[1]} vs ${per.label[0]} · 재고·채권은 전기말 대비 · 기준 제안값</small></h2>
       <div class="tbl-scroll"><table><thead><tr><th>관측 지표</th><th>재검토 기준</th><th>현재</th><th>상태</th></tr></thead><tbody>
       ${c.checks.map(([nm, th, cur, st]) => `<tr><td>${nm}</td><td class="mono">${th}</td><td>${cur}</td><td><span class="chip ${CHK[st][0]}">${CHK[st][1]}</span></td></tr>`).join("")}
