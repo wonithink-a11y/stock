@@ -303,7 +303,7 @@ function ovRow(c, i) {
   const a5 = c.score.a5;
   return { i, c, name: c.name, g, op: op[1], mg: rv[1] > 0 && op[1] != null ? op[1] / rv[1] * 100 : null, loss: op[1] != null && op[1] < 0, gap,
     warn: c.checks.filter(x => x[3] === "warn").length, stage: st.length ? Math.max(...st) : null, a5r: a5 && a5.r != null ? a5.r : null, a5f: a5 ? a5.f : null, live: c.score.live ? c.score.live.total : null, held: c.held.length,
-    tpu: c.tp ? c.tp.chg["상향"] : 0, tpd: c.tp ? c.tp.chg["하향"] : 0, judged: c.judged };
+    opPrev: op[0], ocf: (p.ocf || [null, null])[1], opUp: op[0] != null && op[1] != null && op[1] > 0 && op[1] > op[0], tpu: c.tp ? c.tp.chg["상향"] : 0, tpd: c.tp ? c.tp.chg["하향"] : 0, judged: c.judged };
 }
 function renderOv() {
   const all = DATA.companies.map(ovRow);
@@ -320,8 +320,18 @@ function renderOv() {
     <td class="num ${r.g == null ? "" : r.g < 0 ? "neg" : "pos"}">${sg(r.g)}</td><td class="num ${r.loss ? "neg" : ""}">${f1(r.op, 0)}</td><td class="num">${f1(r.mg)}${r.mg == null ? "" : "%"}</td>
     <td class="num ${r.warn >= 3 ? "neg" : ""}">${r.warn}</td><td class="num">${r.stage == null ? "—" : r.stage}</td>
     <td class="num">${r.c.tp ? `${r.tpu}↑ ${r.tpd}↓` : "—"}</td><td>${flags(r)}</td></tr>`).join("");
+  // 조건 통과 상위 10 — 미리 정한 기계적 조건. 추천·전망이 아니며 조건은 결과를 보고 바꾸지 않는다.
+  const pass = all.filter(r => r.judged && r.opUp && r.warn <= 1 && r.ocf != null && r.ocf > 0 && !r.gap && r.stage != null && r.stage >= 4);
+  pass.sort((a, b) => (b.a5f == null ? -1 : b.a5f) - (a.a5f == null ? -1 : a.a5f));
+  const top10 = pass.slice(0, 10), nj = all.filter(r => r.judged).length;
+  const srow = (r, k) => `<tr data-i="${r.i}"><td class="num">${k + 1}</td><td><span class="nm">${r.name}</span><span class="cd">${r.c.ticker}</span></td><td class="num">${r.a5f == null ? "—" : fmt(r.a5f, 1)}</td>
+    <td class="num ${r.g < 0 ? "neg" : "pos"}">${r.g == null ? "—" : (r.g >= 0 ? "+" : "") + fmt(r.g, 1) + "%"}</td><td class="num">${fmt(r.opPrev, 0)} → ${fmt(r.op, 0)}</td><td class="num">${fmt(r.ocf, 0)}</td><td class="num">${r.warn}</td><td class="num">${r.stage}</td><td>${r.c.held.join(" · ") || "—"}</td></tr>`;
+  const scr = `<div class="card wide"><h2>조건 통과 상위 10 <small>투자 권유 아님 · 미리 정한 기계적 조건 · 판단 ${nj}종목 중 ${pass.length}종목 통과</small></h2>
+    <div class="note">조건(모두 충족): ① H1 영업이익 흑자이고 전년 동기보다 증가 ② 재검토 체크리스트 경고 1개 이하 ③ H1 영업현금흐름 플러스 ④ 순이익 괴리 표시 없음 ⑤ 성장 동력 최고 단계 4 이상 — 통과 종목을 A5 점수 순으로 10개. 앞으로의 수익률을 예측하는 근거는 없으며, 조건은 결과를 보고 바꾸지 않는다. 금융업(보험·증권·카드·지주)은 영업이익·영업CF의 의미가 비금융과 달라도 같은 조건을 그대로 적용해 통과할 수 있고, 영업이익 자료가 없는 종목은 조건 ①에서 빠진다.</div>
+    <div class="tbl-scroll"><table><thead><tr><th class="num">#</th><th>종목</th><th class="num">A5 점수</th><th class="num">H1 매출 증감</th><th class="num">H1 영업이익(억)</th><th class="num">H1 영업CF(억)</th><th class="num">경고</th><th class="num">최고 단계</th><th>모의 보유</th></tr></thead>
+    <tbody>${top10.map(srow).join("") || '<tr><td colspan="9" class="note">조건을 모두 통과한 종목이 없습니다.</td></tr>'}</tbody></table></div></div>`;
   const chk = (k, lb) => `<label><input type="checkbox" data-f="${k}" ${OVF[k] ? "checked" : ""}>${lb}</label>`;
-  $("#ovw").innerHTML = `<div class="card wide"><h2>종목 개요 <small>${rows.length}종목 표시 / 전체 ${all.length} · 판단 ${all.filter(r => r.judged).length} · 열 이름을 누르면 정렬 · 행을 누르면 종목 상세</small></h2>
+  $("#ovw").innerHTML = scr + `<div class="card wide"><h2>종목 개요 <small>${rows.length}종목 표시 / 전체 ${all.length} · 판단 ${all.filter(r => r.judged).length} · 열 이름을 누르면 정렬 · 행을 누르면 종목 상세</small></h2>
     <div class="ovtool"><input type="search" id="ovq" placeholder="종목명·코드" value="${OVF.q}">${chk("judged", "판단 있는 종목만")}${chk("held", "모의 보유")}${chk("loss", "영업적자")}${chk("gap", "순이익 괴리")}${chk("warn", "경고 3개 이상")}${chk("top", "A5 100위 이내")}</div>
     <div class="tbl-scroll"><table><thead><tr>${th("name", "종목")}${th("a5f", "A5 점수", "num")}${th("a5r", "A5 순위", "num")}${th("live", "라이브 점수", "num")}${th("held", "모의 보유")}${th("g", "H1 매출 증감", "num")}${th("op", "H1 영업이익(억)", "num")}${th("mg", "영업이익률", "num")}${th("warn", "경고", "num")}${th("stage", "최고 단계", "num")}${th("tpu", "목표가 변동", "num")}<th>표시</th></tr></thead><tbody>${tb || '<tr><td colspan="12" class="note">조건에 맞는 종목이 없습니다.</td></tr>'}</tbody></table></div>
     <div class="note">A5 점수 = 공시 시점(PIT) 재무·주가 기준 월간 점수(순위는 커버리지 60% 미만이면 유보) · 라이브 점수 = 현재 시세 기준 대시보드 점수(관심종목 351종목만, 밖은 —) · 두 점수는 서로 다른 점수라 섞어 보지 않는다 · 경고 = 재검토 체크리스트의 경고 개수 · 최고 단계 = 성장 동력 단계(1 기술 확보 ~ 5 이익·현금, 판단 없는 종목은 —) · 순이익 괴리 = H1 순이익이 영업이익과 부호가 다르거나 2배 이상 차이 · 모의 보유 = VM 5개 슬리브 중 보유한 곳</div></div>`;
