@@ -58,6 +58,48 @@ def eok(v):
     return None if v is None else round(v / 1e8, 1)
 
 
+_FX = None
+
+
+def _fx_series():
+    """FRED DEXKOUS(원/달러) 일별 — 외화(USD) 보고서 환산용. 로컬 research/strategy-lab/data/market-regime."""
+    global _FX
+    if _FX is None:
+        import pandas as pd
+        d = pd.read_parquet(ROOT / "research/strategy-lab/data/market-regime/usdkrw_daily_kr.parquet", columns=["date", "usdKrwLevel"])
+        d["date"] = pd.to_datetime(d["date"])
+        _FX = d.dropna().set_index("date")["usdKrwLevel"].sort_index()
+    return _FX
+
+
+def fx_avg(start, end):
+    """기간 평균 원/달러(손익·현금흐름용)."""
+    x = _fx_series()[start:end]
+    return float(x.mean()) if len(x) else None
+
+
+def fx_at(day):
+    """기준일 또는 그 이전 마지막 원/달러(재무상태표용)."""
+    x = _fx_series()[:day]
+    return float(x.iloc[-1]) if len(x) else None
+
+
+FLOW = ("revenue", "op", "ni", "sga", "ocf")
+
+
+def to_krw(fin, yy, mm, annual):
+    """USD 보고서 fin -> 원화 환산. 손익·현금흐름은 기간 평균, 재무상태표는 기말(당기)·전기말 환율. (환산 근거 dict 반환)"""
+    y = int(yy); end = {"03": 31, "06": 30, "09": 30, "12": 31}[mm]
+    cur_end = f"{y}-{mm}-{end:02d}"
+    r_cur = fx_avg(f"{y}-01-01", cur_end); r_prev = fx_avg(f"{y - 1}-01-01", f"{y - 1}-{mm}-{end:02d}" if not annual else f"{y - 1}-12-31")
+    b_cur = fx_at(cur_end); b_prev = fx_at(f"{y - 1}-12-31")
+    out = {}
+    for k, (a, b) in fin.items():
+        rc, rp = (r_cur, r_prev) if k in FLOW else (b_cur, b_prev)
+        out[k] = (None if a is None else a * rc, None if b is None else b * rp)
+    return out, {"flowAvgCur": round(r_cur, 1), "flowAvgPrev": round(r_prev, 1), "bsCur": round(b_cur, 1), "bsPrev": round(b_prev, 1)}
+
+
 def pct_change(a, b):
     return None if a is None or b in (None, 0) else (a / b - 1) * 100
 
@@ -296,6 +338,12 @@ def prepare(tickers, peer_override=None):
             annual = kind == "사업보고서"
             fs, rows = dart_fin(key, u["corp"], yy, REPRT[(kind, mm)])
             fin = parse_fin(rows, annual)
+            cur = next((r.get("currency") for r in rows if r.get("currency")), "KRW")
+            fxinfo = None
+            if cur != "KRW":
+                if cur != "USD":
+                    raise ValueError(f"통화 {cur} 환산 미지원")
+                fin, fxinfo = to_krw(fin, yy, mm, annual)
             lbl = (f"FY{int(yy) - 1}", f"FY{yy}") if annual else (f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {int(yy) - 1}",
                                                                    f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {yy}")
             events = classify_events(lst)
@@ -316,10 +364,14 @@ def prepare(tickers, peer_override=None):
                 pr.append({"ticker": p, "name": uni[p]["name"], "pbr": round(px / bps, 2) if bps > 0 else None, "self": p == t, **growth(panel_all.get(p, {}))})
             ann = panel_all.get(t, {})
             ys = sorted(ann)[-10:]
+            if fxinfo:   # 연간 패널도 같은 외화 단위 — 해당 연도 평균 환율로 환산
+                ann = {y: {**ann[y], **{k: (None if ann[y].get(k) is None else ann[y][k] * fx_avg(f"{y}-01-01", f"{y}-12-31"))
+                                        for k in ("revenue", "op_income", "net_income", "cfo", "equity")}} for y in ys}
             data = {
                 "ticker": t, "name": u["name"], "market": u["market"], "sector": u["sector"], "corp": u["corp"],
                 "report": {"rcept": rep["rcept_no"], "name": rep["report_nm"].strip(), "kind": kind, "year": yy, "month": mm,
                            "fs": fs, "truncated": trunc, "businessChars": len(body)},
+                "currency": {"reported": cur, "converted": "KRW", **fxinfo} if fxinfo else None,
                 "period": {"label": list(lbl), **{k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("revenue", "op", "ni", "ocf") if k in fin}},
                 "bs": {k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("inventory", "receivables", "equity", "liabilities", "cash") if k in fin},
                 "annual": {"years": ys, "revenue": [eok(ann[y].get("revenue")) for y in ys], "op": [eok(ann[y].get("op_income")) for y in ys],
@@ -599,6 +651,11 @@ def selftest():
     assert f["revenue"] == (30.0, 20.0) and f["inventory"] == (5.0, 4.0), f
     ck = checks({"revenue": (130.0, 100.0), "inventory": (160.0, 100.0)}, [])
     assert ck[0][3] == "warn" and ck[1][2] == "확인 불가", ck
+    usd = {"revenue": (100.0, 50.0), "equity": (10.0, 8.0)}
+    k, info = to_krw(usd, "2026", "06", False)
+    assert abs(k["revenue"][0] - 100 * info["flowAvgCur"]) < 10 and abs(k["revenue"][1] - 50 * info["flowAvgPrev"]) < 10, k   # info 는 소수 1자리 반올림   # 손익은 기간 평균
+    assert abs(k["equity"][0] - 10 * info["bsCur"]) < 10 and abs(k["equity"][1] - 8 * info["bsPrev"]) < 10, k                   # 재무상태표는 기말
+    assert 800 < info["flowAvgCur"] < 2500 and 800 < info["bsPrev"] < 2500, info
     print("selftest ok")
 
 
