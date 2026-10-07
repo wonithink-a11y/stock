@@ -350,6 +350,13 @@ def sq(s):
     return re.sub(r"\s+", "", s or "")
 
 
+def num_in(srcn, v):
+    """숫자 v 가 원문(쉼표 제거본)에 숫자 토큰으로 있는가. 음수는 원문이 (148) 로 적어도 절댓값으로 본다."""
+    v = abs(float(v))
+    forms = {f"{v:g}", f"{v:.2f}", f"{v:.1f}", f"{v:.0f}" if v.is_integer() else f"{v:g}"}
+    return any(re.search(rf"(?<![\d.]){re.escape(f)}(?![\d])", srcn) for f in forms)
+
+
 def check_extract(ext, source):
     """인용 원문 대조 + 숫자-인용 대조 + 기간별 부문 비중 합계. -> (요약, 실패 목록)"""
     src = sq(source); bad = []; n_ok = n_all = 0
@@ -376,6 +383,20 @@ def check_extract(ext, source):
     q(ext.get("patents_registered"), "patents", ((ext.get("patents_registered") or {}).get("count"),))
     for i, g in enumerate(ext.get("growth_drivers") or []):
         q(g, f"growth[{i}] {g.get('name')}")
+    # 값 대조 — 인용 형식과 별개로, 모델이 옮긴 숫자 자체가 원문에 있는가(행 병합·계산으로 인용이 탈락해도 값은 맞을 수 있다)
+    srcn = source.replace(",", ""); vals = []; calc_keys = []
+    for s in ext.get("segments") or []:
+        if s.get("revenue") is not None:
+            vals.append(num_in(srcn, s["revenue"]))
+    for name, keys in (("export", ("domestic_pct", "overseas_pct")), ("top_customer", ("max_single_share_pct",)),
+                       ("rnd", ("ratio_pct", "headcount")), ("patents_registered", ("count",)), ("order_backlog", ("amount",))):
+        obj = ext.get(name) or {}
+        r = [num_in(srcn, obj[k]) for k in keys if obj.get(k) is not None]
+        vals += r
+        if not all(r):
+            calc_keys.append(name)   # 원문에 그대로 없는 값 — 모델이 합산·환산한 것(지시문은 계산을 금지)
+    vals += [num_in(srcn, c["utilization_pct"]) for c in ext.get("capacity") or [] if c.get("utilization_pct") is not None]
+    calc = sum(1 for s in ext.get("segments") or [] if s.get("share_pct") is not None and not num_in(srcn, s["share_pct"]))
     sums = {}
     for s in ext.get("segments") or []:
         if s.get("share_pct") is not None:
@@ -383,7 +404,7 @@ def check_extract(ext, source):
     for p, v in sums.items():
         if abs(v - 100) > 2:
             bad.append([f"segments {p}", f"비중 합계 {v:.1f}% (100% 아님 — 소계 중복·누락)", ""])
-    return {"quotesOk": n_ok, "quotes": n_all, "shareSums": {k: round(v, 1) for k, v in sums.items()}}, bad
+    return {"quotesOk": n_ok, "quotes": n_all, "valuesOk": sum(vals), "values": len(vals), "sharesCalc": calc, "calc": calc_keys, "shareSums": {k: round(v, 1) for k, v in sums.items()}}, bad
 
 
 def check(tickers):
@@ -398,7 +419,7 @@ def check(tickers):
         summ, bad = check_extract(ext, (d / "business.txt").read_text(encoding="utf-8"))
         res = {"model": ext.get("model"), **summ, "problems": bad}
         json.dump(res, open(d / "check.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-        print(f"{t}: 인용 {summ['quotesOk']}/{summ['quotes']} · 문제 {len(bad)}건 · 비중 합계 {summ['shareSums']}")
+        print(f"{t}: 인용 {summ['quotesOk']}/{summ['quotes']} · 값 {summ['valuesOk']}/{summ['values']} 원문에 있음 · 비중 계산값 {summ['sharesCalc']} · 문제 {len(bad)}건 · 비중 합계 {summ['shareSums']}")
         for b in bad:
             print("   -", b)
 
@@ -417,6 +438,7 @@ def mix_from(ext):
         if k not in per:
             tot = sum(v.values())
             per[k] = {n: round(x / tot * 100, 2) for n, x in v.items()}
+    per = {k: v for k, v in per.items() if 95 <= sum(v.values()) <= 105}   # 합이 100 근처가 아니면(행 중복·계산 오류) 그리지 않는다
     def order(p):   # 연도(없으면 '제N기') 순, 같은 해 안에서는 전기·전반기 < 연간 < 당기·반기·분기
         p = p or ""
         y = re.search(r"(20\d{2})", p) or re.search(r"제\s*(\d+)\s*기", p)
@@ -434,25 +456,26 @@ def mix_from(ext):
     return {"cats": cats, "periods": {short(k): [per[k].get(c, 0) for c in cats] for k in keep}} if per else None
 
 
-def facts_from(ext):
+def facts_from(ext, calc=()):
+    tag = lambda k: " · 모델 계산값" if k in calc else ""
     f = []
     e = ext.get("export") or {}
     if e.get("domestic_pct") is not None:
-        f.append(["내수 · 수출", f"내수 {e['domestic_pct']:g}% · 수출 {e.get('overseas_pct') or 0:g}% ({e.get('period') or ''})"])
+        f.append(["내수 · 수출", f"내수 {e['domestic_pct']:g}% · 수출 {e.get('overseas_pct') or 0:g}% ({e.get('period') or ''})" + tag("export")])
     c = ext.get("top_customer") or {}
-    f.append(["최대 단일 고객", "미공시" if c.get("max_single_share_pct") is None else f"{c['max_single_share_pct']:g}%" + (" · 사명 비공개" if c.get("names_disclosed") is False else "")])
+    f.append(["최대 단일 고객", "미공시" if c.get("max_single_share_pct") is None else f"{c['max_single_share_pct']:g}%" + (" · 사명 비공개" if c.get("names_disclosed") is False else "") + tag("top_customer")])
     cap = [x for x in ext.get("capacity") or [] if x.get("utilization_pct") is not None]
     if cap:
         f.append(["가동률", " · ".join(f"{x.get('period')} {x['utilization_pct']:g}%" for x in cap)])
     ob = ext.get("order_backlog") or {}
     if ob.get("exists") is not None:
-        f.append(["수주잔고", ("있음" + (f" {ob['amount']:,.0f}{ob.get('unit') or ''}" if ob.get("amount") else "")) if ob["exists"] else "없음(단기 발주·프로젝트)"])
+        f.append(["수주잔고", (("있음" + (f" {ob['amount']:,.0f}{ob.get('unit') or ''}" if ob.get("amount") else "")) if ob["exists"] else "없음(단기 발주·프로젝트)") + (tag("order_backlog") if ob.get("exists") else "")])
     r = ext.get("rnd") or {}
     if r.get("ratio_pct") is not None or r.get("headcount") is not None:
-        f.append(["연구개발", " · ".join(x for x in [f"매출 대비 {r['ratio_pct']:g}%" if r.get("ratio_pct") is not None else "", f"인력 {r['headcount']:g}명" if r.get("headcount") is not None else ""] if x)])
+        f.append(["연구개발", " · ".join(x for x in [f"매출 대비 {r['ratio_pct']:g}%" if r.get("ratio_pct") is not None else "", f"인력 {r['headcount']:g}명" if r.get("headcount") is not None else ""] if x) + tag("rnd")])
     pt = ext.get("patents_registered") or {}
     if pt.get("count") is not None:
-        f.append(["등록 특허", f"{pt['count']:g}건"])
+        f.append(["등록 특허", f"{pt['count']:g}건" + tag("patents_registered")])
     return f
 
 
@@ -488,8 +511,8 @@ def render(tickers, out):
         gem = gemini_for(t) if not jd.get("drivers") else {}
         drivers = jd.get("drivers") or [[g.get("name"), g.get("stage_candidate") or 1, (g.get("evidence") or "")] for g in ext.get("growth_drivers") or []]
         by = "Claude 판단" if jd.get("drivers") else "OpenCode 후보 · 미확정"
-        facts = facts_from(ext) + (jd.get("facts") or [])
-        extract = {"model": ext.get("model"), **{k: chk.get(k) for k in ("quotesOk", "quotes")}, "problems": len(chk.get("problems") or [])}
+        facts = facts_from(ext, chk.get("calc") or ()) + (jd.get("facts") or [])
+        extract = {"model": ext.get("model"), **{k: chk.get(k) for k in ("quotesOk", "quotes", "valuesOk", "values")}, "problems": len(chk.get("problems") or [])}
         if gem and not ext:   # 판단·추출이 없으면 제미나이 서술로 채운다 — 성장 동력은 단계 없이(Flash-Lite 의 단계 판정은 부풀려져 쓰지 않는다)
             drivers = [[i["claim"], None, ""] for i in gem["items"] if i["section"] == "B_성장동력"]
             by = "제미나이 서술 · 단계 미판정"
@@ -520,6 +543,10 @@ def selftest():
     ext["segments"][2]["share_pct"] = 30.0; ext["segments"][2]["quote"] = "기타 | 1,000 | 38.55%"
     _, bad = check_extract(ext, src)
     assert any("숫자 30" in b[1] for b in bad) and any("비중 합계" in b[1] for b in bad), bad
+    ext2 = {"segments": [{"name": "A", "period": "P", "revenue": 1054693, "share_pct": 50.5, "quote": "x"}, {"name": "B", "period": "P", "revenue": -148, "quote": "x"},
+                         {"name": "C", "period": "P", "revenue": 999, "quote": "x"}]}
+    sm, _ = check_extract(ext2, "열 | 소 계 | 1,054,693 | 기타 | (148)")
+    assert (sm["valuesOk"], sm["values"], sm["sharesCalc"]) == (2, 3, 1), sm   # 음수 (148)은 값 일치 · 999 는 원문에 없음 · 비중 50.5 는 계산값
     rows = [{"sj_div": "CIS", "account_id": "ifrs-full_Revenue", "account_nm": "매출액", "thstrm_amount": "10", "thstrm_add_amount": "30", "frmtrm_add_amount": "20"},
             {"sj_div": "BS", "account_id": "-표준계정코드 미사용-", "account_nm": "재고자산", "thstrm_amount": "5", "frmtrm_amount": "4"}]
     f = parse_fin(rows, annual=False)
@@ -527,6 +554,44 @@ def selftest():
     ck = checks({"revenue": (130.0, 100.0), "inventory": (160.0, 100.0)}, [])
     assert ck[0][3] == "warn" and ck[1][2] == "확인 불가", ck
     print("selftest ok")
+
+
+def brief(tickers):
+    """판단 칸을 쓰기 위한 압축 보기(종목당 ~2천 토큰) — data.json 전체 대신 이것만 읽는다."""
+    from collections import Counter
+    for t in tickers:
+        d = CACHE / t
+        if not (d / "data.json").exists():
+            continue
+        c = json.load(open(d / "data.json", encoding="utf-8"))
+        ext = json.loads(re.search(r"\{.*\}", (d / "extract.json").read_text(encoding="utf-8"), re.S).group(0)) if (d / "extract.json").exists() else {}
+        chk = json.load(open(d / "check.json", encoding="utf-8")) if (d / "check.json").exists() else {}
+        p, pr, a = c["period"], c["price"], c["annual"]
+        print(f"## {t} {c['name']} | {c['sector']} | {c['report']['name']}")
+        print(f"기간 {p['label']} 매출 {p.get('revenue')} 영업 {p.get('op')} 순이익 {p.get('ni')} 영업CF {p.get('ocf')} (억)")
+        print(f"연간 {a['years'][-4:]} 매출 {a['revenue'][-4:]} 영업 {a['op'][-4:]} 순이익 {a['ni'][-4:]}")
+        print(f"재무 자본 {c['bs'].get('equity')} 부채 {c['bs'].get('liabilities')} 현금 {c['bs'].get('cash')} | 주가 {pr['price']} 52주 {pr.get('lo52')}~{pr.get('hi52')} PBR {pr.get('pbr')} PER {pr.get('per')} 배당 {pr.get('divYield')}")
+        a5, lv = c["score"]["a5"], c["score"]["live"]
+        print(f"점수 A5 {a5 and (a5['f'], a5['r'])} 라이브 {lv and (lv['total'], lv['grade'])} 선정 {c['strategies']}")
+        print("검사 " + " / ".join(f"{x[0]}:{x[2]}[{x[3]}]" for x in c["checks"] if x[3] != "ok"))
+        print("동종 " + " ".join(f"{x['name']}(PBR {x['pbr']} 성장 {x.get('revYoY')} 이익률 {x.get('opMargin')})" for x in c["peers"] if not x["self"]))
+        cnt = Counter(e[2] for e in c["events"] if e[0] >= (date.today().replace(year=date.today().year - 1)).isoformat())
+        print(f"공시 1년 {dict(cnt)}")
+        if ext:
+            segs = ext.get("segments") or []
+            lastp = segs[-1]["period"] if segs else None
+            print(f"[추출 {chk.get('quotesOk')}/{chk.get('quotes')}] 부문(" + str(lastp) + ") " + " · ".join(f"{x['name']} {x['revenue']}{x.get('unit') or ''} {x.get('share_pct')}%" for x in segs if x["period"] == lastp))
+            for k in ("export", "top_customer", "order_backlog", "rnd", "patents_registered"):
+                v = {a: b for a, b in (ext.get(k) or {}).items() if a != "quote"}
+                print(f"  {k} {v}")
+            for g in ext.get("growth_drivers") or []:
+                print(f"  동력 {g.get('name')} | {g.get('evidence')} | 후보 {g.get('stage_candidate')}")
+        g = gemini_for(t)
+        if g:
+            print("제미나이 요약 " + (g.get("summary") or "")[:200])
+            for x in g.get("insights") or []:
+                print("  위험·전망 " + x[:150])
+        print()
 
 
 def expand(tickers, shard=None, missing=False):
@@ -543,7 +608,7 @@ def expand(tickers, shard=None, missing=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", nargs="?", choices=["prepare", "check", "render"])
+    ap.add_argument("cmd", nargs="?", choices=["prepare", "check", "render", "brief"])
     ap.add_argument("tickers", nargs="*")
     ap.add_argument("--out", default=str(CACHE / "decode.html"))
     ap.add_argument("--selftest", action="store_true")
@@ -554,7 +619,7 @@ def main():
     if a.selftest:
         return selftest()
     tk = expand(a.tickers, a.shard, a.missing and a.cmd == "prepare")
-    {"prepare": lambda: prepare(tk, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(tk), "render": lambda: render(tk, a.out)}[a.cmd]()
+    {"prepare": lambda: prepare(tk, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(tk), "render": lambda: render(tk, a.out), "brief": lambda: brief(tk)}[a.cmd]()
 
 
 if __name__ == "__main__":
