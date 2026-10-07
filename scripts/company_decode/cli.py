@@ -152,7 +152,7 @@ def load_panel(tickers=None):
 
 def load_bars(tickers):
     bars = {t: [] for t in tickers}
-    for p in sorted(glob.glob(str(ROOT / "data/backfill/price/a2a/*.jsonl.gz")))[-3:]:
+    for p in sorted(glob.glob(str(ROOT / "data/backfill/price/a2a/[0-9]*.jsonl.gz")))[-3:]:
         with gzip.open(p, "rt", encoding="utf-8") as f:
             for line in f:
                 t = line[12:18]   # '{"ticker": "000020", ...' — 값은 12번째 글자부터
@@ -273,6 +273,9 @@ def prepare(tickers, peer_override=None):
     if not key:
         sys.exit("DART_API_KEY 없음(.env)")
     uni = load_universe()
+    for t in [t for t in tickers if t not in uni]:
+        print(f"{t} 건너뜀: A1 유니버스에 없음", file=sys.stderr)
+    tickers = [t for t in tickers if t in uni]
     panel_all = load_panel()
     a5 = {x["t"]: x for x in json.load(open(ROOT / "docs/data/a5-latest.json", encoding="utf-8"))["items"]}
     a5_asof = json.load(open(ROOT / "docs/data/a5-latest.json", encoding="utf-8"))["asOf"]
@@ -283,56 +286,59 @@ def prepare(tickers, peer_override=None):
     krx_asof, krx = load_krx()
     tmpl = (HERE / "prompt.md").read_text(encoding="utf-8")
     for t in tickers:
-        u = uni[t]; d = CACHE / t; d.mkdir(parents=True, exist_ok=True)
-        lst = dart_list(key, u["corp"])
-        rep, kind, yy, mm = latest_periodic(lst)
-        text = dg.dart_text(rep["rcept_no"], key)
-        body, trunc = dg.business_section(text)
-        (d / "business.txt").write_text(body, encoding="utf-8")
-        annual = kind == "사업보고서"
-        fs, rows = dart_fin(key, u["corp"], yy, REPRT[(kind, mm)])
-        fin = parse_fin(rows, annual)
-        lbl = (f"FY{int(yy) - 1}", f"FY{yy}") if annual else (f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {int(yy) - 1}",
-                                                               f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {yy}")
-        events = classify_events(lst)
-        b = bars[t]; v = {}
-        if b:
-            px = b[-1]["close"]; last = b[-250:]
-            v = {"price": px, "asOf": b[-1]["date"], "hi52": max(x["high"] for x in last), "lo52": min(x["low"] for x in last)}
-            if t in krx.index:
-                r = krx.loc[t]; bps, eps, dps = float(r["BPS"]), float(r["EPS"]), float(r["DPS"])
-                v.update(bps=bps, pbr=round(px / bps, 2) if bps > 0 else None, per=round(px / eps, 1) if eps > 0 else None,
-                         divYield=round(dps / px * 100, 2) if px else None, krxAsOf=krx_asof)
-        a = atr14(b) if b else None
-        pr = []
-        for p in [t] + peers[t][0]:
-            if not bars.get(p) or p not in krx.index:
-                continue
-            px = bars[p][-1]["close"]; bps = float(krx.loc[p]["BPS"])
-            pr.append({"ticker": p, "name": uni[p]["name"], "pbr": round(px / bps, 2) if bps > 0 else None, "self": p == t, **growth(panel_all.get(p, {}))})
-        ann = panel_all.get(t, {})
-        ys = sorted(ann)[-10:]
-        data = {
-            "ticker": t, "name": u["name"], "market": u["market"], "sector": u["sector"], "corp": u["corp"],
-            "report": {"rcept": rep["rcept_no"], "name": rep["report_nm"].strip(), "kind": kind, "year": yy, "month": mm,
-                       "fs": fs, "truncated": trunc, "businessChars": len(body)},
-            "period": {"label": list(lbl), **{k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("revenue", "op", "ni", "ocf") if k in fin}},
-            "bs": {k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("inventory", "receivables", "equity", "liabilities", "cash") if k in fin},
-            "annual": {"years": ys, "revenue": [eok(ann[y].get("revenue")) for y in ys], "op": [eok(ann[y].get("op_income")) for y in ys],
-                       "ni": [eok(ann[y].get("net_income")) for y in ys], "ocf": [eok(ann[y].get("cfo")) for y in ys], "fs": [ann[y]["fs"] for y in ys]},
-            "price": {**v, "atr": round(a, 1) if a else None, "stop": round(v["price"] - 3 * a) if a and v else None,
-                      "target": round(v["price"] + 4.5 * a) if a and v else None,
-                      "series": [{"d": x["date"], "c": x["close"]} for x in b[::5] + b[-1:]] if b else []},
-            "score": {"a5": {**a5[t], "asOf": a5_asof} if t in a5 else None,
-                      "live": {"total": live[t]["totalScore"], "grade": live[t]["grade"]} if t in live else None},
-            "strategies": selections(t), "events": events, "checks": checks(fin, events),
-            "peers": pr, "peerNote": (f"동종사 {peers[t][1]}" if t in peer_override else
-                                      f"동종사 자동 선정: 같은 업종({peers[t][1]}) · 매출 규모 근접 — 사업이 다를 수 있음"),
-        }
-        json.dump(data, open(d / "data.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-        (d / "prompt.md").write_text(tmpl.replace("{TICKER}", t).replace("{INPUT}", rel(d / "business.txt")).replace("{OUTPUT}", rel(d / "extract.json")), encoding="utf-8")
-        print(f"{t} {u['name']}: {rep['report_nm'].strip()} ({rep['rcept_no']}) · 원문 {len(body):,}자{' (잘림)' if trunc else ''} · 재무 {fs} {len(fin)}개 개념 · 공시 {len(events)}건")
-        print("   OpenCode:", OPENCODE_LINE.format(prompt=rel(d / "prompt.md"), input=rel(d / "business.txt")))
+        try:
+            u = uni[t]; d = CACHE / t; d.mkdir(parents=True, exist_ok=True)
+            lst = dart_list(key, u["corp"])
+            rep, kind, yy, mm = latest_periodic(lst)
+            text = dg.dart_text(rep["rcept_no"], key)
+            body, trunc = dg.business_section(text)
+            (d / "business.txt").write_text(body, encoding="utf-8")
+            annual = kind == "사업보고서"
+            fs, rows = dart_fin(key, u["corp"], yy, REPRT[(kind, mm)])
+            fin = parse_fin(rows, annual)
+            lbl = (f"FY{int(yy) - 1}", f"FY{yy}") if annual else (f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {int(yy) - 1}",
+                                                                   f"{'H1' if mm == '06' else 'Q1' if mm == '03' else '9M'} {yy}")
+            events = classify_events(lst)
+            b = bars[t]; v = {}
+            if b:
+                px = b[-1]["close"]; last = b[-250:]
+                v = {"price": px, "asOf": b[-1]["date"], "hi52": max(x["high"] for x in last), "lo52": min(x["low"] for x in last)}
+                if t in krx.index:
+                    r = krx.loc[t]; bps, eps, dps = float(r["BPS"]), float(r["EPS"]), float(r["DPS"])
+                    v.update(bps=bps, pbr=round(px / bps, 2) if bps > 0 else None, per=round(px / eps, 1) if eps > 0 else None,
+                             divYield=round(dps / px * 100, 2) if px else None, krxAsOf=krx_asof)
+            a = atr14(b) if b else None
+            pr = []
+            for p in [t] + peers[t][0]:
+                if not bars.get(p) or p not in krx.index:
+                    continue
+                px = bars[p][-1]["close"]; bps = float(krx.loc[p]["BPS"])
+                pr.append({"ticker": p, "name": uni[p]["name"], "pbr": round(px / bps, 2) if bps > 0 else None, "self": p == t, **growth(panel_all.get(p, {}))})
+            ann = panel_all.get(t, {})
+            ys = sorted(ann)[-10:]
+            data = {
+                "ticker": t, "name": u["name"], "market": u["market"], "sector": u["sector"], "corp": u["corp"],
+                "report": {"rcept": rep["rcept_no"], "name": rep["report_nm"].strip(), "kind": kind, "year": yy, "month": mm,
+                           "fs": fs, "truncated": trunc, "businessChars": len(body)},
+                "period": {"label": list(lbl), **{k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("revenue", "op", "ni", "ocf") if k in fin}},
+                "bs": {k: [eok(fin[k][1]), eok(fin[k][0])] for k in ("inventory", "receivables", "equity", "liabilities", "cash") if k in fin},
+                "annual": {"years": ys, "revenue": [eok(ann[y].get("revenue")) for y in ys], "op": [eok(ann[y].get("op_income")) for y in ys],
+                           "ni": [eok(ann[y].get("net_income")) for y in ys], "ocf": [eok(ann[y].get("cfo")) for y in ys], "fs": [ann[y]["fs"] for y in ys]},
+                "price": {**v, "atr": round(a, 1) if a else None, "stop": round(v["price"] - 3 * a) if a and v else None,
+                          "target": round(v["price"] + 4.5 * a) if a and v else None,
+                          "series": [{"d": x["date"], "c": x["close"]} for x in b[::5] + b[-1:]] if b else []},
+                "score": {"a5": {**a5[t], "asOf": a5_asof} if t in a5 else None,
+                          "live": {"total": live[t]["totalScore"], "grade": live[t]["grade"]} if t in live else None},
+                "strategies": selections(t), "events": events, "checks": checks(fin, events),
+                "peers": pr, "peerNote": (f"동종사 {peers[t][1]}" if t in peer_override else
+                                          f"동종사 자동 선정: 같은 업종({peers[t][1]}) · 매출 규모 근접 — 사업이 다를 수 있음"),
+            }
+            json.dump(data, open(d / "data.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+            (d / "prompt.md").write_text(tmpl.replace("{TICKER}", t).replace("{INPUT}", rel(d / "business.txt")).replace("{OUTPUT}", rel(d / "extract.json")), encoding="utf-8")
+            print(f"{t} {u['name']}: {rep['report_nm'].strip()} ({rep['rcept_no']}) · 원문 {len(body):,}자{' (잘림)' if trunc else ''} · 재무 {fs} {len(fin)}개 개념 · 공시 {len(events)}건")
+            print("   OpenCode:", OPENCODE_LINE.format(prompt=rel(d / "prompt.md"), input=rel(d / "business.txt")))
+        except Exception as e:   # 한 종목 실패가 전체 배치를 멈추지 않게(353종목 일괄용)
+            print(f"{t} 실패: {type(e).__name__} {e}", file=sys.stderr)
 
 
 def rel(p):
@@ -450,19 +456,50 @@ def facts_from(ext):
     return f
 
 
+GEM_DIR = ROOT / "docs" / "data" / "decode"
+GEM_LABEL = {"A_사업구조": "사업 구조", "A_고객": "주요 고객", "A_시장지위": "시장 지위", "A_원재료": "원재료", "A_주요계약": "주요 계약", "C_전망": "회사 전망", "E_위험": "위험 요인"}
+
+
+def gemini_for(t):
+    p = GEM_DIR / f"{t}.json"
+    return json.load(open(p, encoding="utf-8")) if p.exists() else {}
+
+
+def gemini_facts(g):
+    out, seen = [], {}
+    for i in g["items"]:
+        lb = GEM_LABEL.get(i["section"])
+        if lb and seen.get(lb, 0) < 2:
+            seen[lb] = seen.get(lb, 0) + 1
+            out.append([lb, i["claim"]])
+    return out + [["요약 · 위험", x] for x in g.get("insights") or []]
+
+
 def render(tickers, out):
     comps = []
     for t in tickers:
         d = CACHE / t
+        if not (d / "data.json").exists():
+            print(f"{t} 건너뜀: prepare 결과 없음", file=sys.stderr); continue
         data = json.load(open(d / "data.json", encoding="utf-8"))
         ext = json.loads(re.search(r"\{.*\}", (d / "extract.json").read_text(encoding="utf-8"), re.S).group(0)) if (d / "extract.json").exists() else {}
         chk = json.load(open(d / "check.json", encoding="utf-8")) if (d / "check.json").exists() else {}
         jd = json.load(open(d / "judgment.json", encoding="utf-8")) if (d / "judgment.json").exists() else {}
+        gem = gemini_for(t) if not jd.get("drivers") else {}
         drivers = jd.get("drivers") or [[g.get("name"), g.get("stage_candidate") or 1, (g.get("evidence") or "")] for g in ext.get("growth_drivers") or []]
-        comps.append({**data, "summary": jd.get("summary") or "판단 미작성 — OpenCode 추출만 표시",
-                      "mix": mix_from(ext), "drivers": drivers, "driversBy": "Claude 판단" if jd.get("drivers") else "OpenCode 후보 · 미확정",
-                      "facts": facts_from(ext) + (jd.get("facts") or []), "extract": {"model": ext.get("model"), **{k: chk.get(k) for k in ("quotesOk", "quotes")},
-                                                                                       "problems": len(chk.get("problems") or [])}})
+        by = "Claude 판단" if jd.get("drivers") else "OpenCode 후보 · 미확정"
+        facts = facts_from(ext) + (jd.get("facts") or [])
+        extract = {"model": ext.get("model"), **{k: chk.get(k) for k in ("quotesOk", "quotes")}, "problems": len(chk.get("problems") or [])}
+        if gem and not ext:   # 판단·추출이 없으면 제미나이 서술로 채운다 — 성장 동력은 단계 없이(Flash-Lite 의 단계 판정은 부풀려져 쓰지 않는다)
+            drivers = [[i["claim"], None, ""] for i in gem["items"] if i["section"] == "B_성장동력"]
+            by = "제미나이 서술 · 단계 미판정"
+            facts = gemini_facts(gem)
+            extract = {"model": gem["model"], "quotesOk": gem["kept"], "quotes": gem["kept"] + gem["dropped"], "problems": gem["dropped"]}
+        many = len(tickers) > 12   # 일괄 화면은 크기를 줄인다
+        if many:
+            data = {**data, "eventsMore": max(len(data["events"]) - 14, 0), "events": data["events"][:14]}
+        comps.append({**data, "summary": jd.get("summary") or (gem or {}).get("summary") or "판단 미작성 — OpenCode 추출만 표시",
+                      "mix": mix_from(ext), "drivers": drivers, "driversBy": by, "facts": facts, "extract": extract})
     tpl = (HERE / "template.html").read_text(encoding="utf-8")
     html = tpl.replace("/*__DATA__*/null", json.dumps({"stages": STAGES, "companies": comps, "generated": date.today().isoformat()}, ensure_ascii=False))
     Path(out).write_text(html, encoding="utf-8")
@@ -492,17 +529,32 @@ def selftest():
     print("selftest ok")
 
 
+def expand(tickers, shard=None, missing=False):
+    """'@kr' = 관심종목 KR 전체(코스피200+코스닥150). --missing 은 data.json 이 이미 있는 종목을 뺀다. --shard i/n 은 병렬 실행용."""
+    out = []
+    for t in tickers:
+        out += [x["code"] for x in json.load(open(ROOT / "config/watchlist.json", encoding="utf-8"))["tickers"] if x["market"] == "KR"] if t == "@kr" else [t]
+    if missing:
+        out = [t for t in out if not (CACHE / t / "data.json").exists()]
+    if shard:
+        i, n = map(int, shard.split("/")); out = out[i::n]
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", nargs="?", choices=["prepare", "check", "render"])
     ap.add_argument("tickers", nargs="*")
     ap.add_argument("--out", default=str(CACHE / "decode.html"))
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--missing", action="store_true", help="prepare: data.json 이 이미 있는 종목은 건너뜀")
+    ap.add_argument("--shard", help="i/n — 티커 목록을 n 등분한 i 번째만(병렬 실행)")
     ap.add_argument("--peers", action="append", default=[], help="동종사 수동 지정: 티커=동종1,동종2 (여러 번)")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
-    {"prepare": lambda: prepare(a.tickers, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(a.tickers), "render": lambda: render(a.tickers, a.out)}[a.cmd]()
+    tk = expand(a.tickers, a.shard, a.missing and a.cmd == "prepare")
+    {"prepare": lambda: prepare(tk, {k: v.split(",") for k, v in (x.split("=") for x in a.peers)}), "check": lambda: check(tk), "render": lambda: render(tk, a.out)}[a.cmd]()
 
 
 if __name__ == "__main__":

@@ -155,6 +155,7 @@ function mixChart(mix) {
 
 function stagesHtml(dr, stages) {
   const rows = dr.map(([n, st, d]) => {
+    if (st == null) return `<div class="stage-row"><div class="n">${n}</div><div class="d">단계 미판정${d ? " · " + d : ""}</div></div>`;
     let dots = "";
     for (let i = 1; i <= 5; i++) { dots += `<span class="${i <= st ? "on" : ""}" title="${stages[i - 1]}"></span>`; if (i < 5) dots += `<b class="${i < st ? "on" : ""}"></b>`; }
     return `<div class="stage-row"><div class="n">${n}</div><div class="dots" aria-label="${stages[st - 1]} 단계">${dots}</div><div class="d">${stages[st - 1]} · ${d}</div></div>`; }).join("");
@@ -205,6 +206,7 @@ const CHK = { ok: ["c-ok", "정상"], watch: ["c-watch", "주의"], warn: ["c-wa
 function render(i) {
   const c = DATA.companies[i];
   document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.i == i));
+  if ($("#pick")) $("#pick").value = i;
   const cnt = k => c.checks.filter(x => x[3] === k).length;
   const a5 = c.score.a5, lv = c.score.live, pr = c.price, n = (v, d = 1) => v == null ? "—" : fmt(v, d);
   const quant = a5 ? `A5 ${n(a5.f)}점 · ${a5.r == null ? "유보" : a5.r.toLocaleString() + "위 (상위 " + n(a5.p) + "%)"} · ${a5.asOf}` : "A5 점수 없음";
@@ -237,7 +239,7 @@ function render(i) {
     <div class="card"><h2>이익의 질 <small>순이익 vs 영업현금흐름(억원)</small></h2>${c.annual.years.length ? qualityChart(c.annual, half) : ""}
       <div class="legend"><span><i style="background:var(--bar)"></i>순이익</span><span><i style="background:var(--accent)"></i>영업현금흐름</span></div></div>
     <div class="card"><h2>매출 구성 <small>공시 사업부문 · OpenCode 추출 · 인용 대조</small></h2>${c.mix && c.mix.cats.length ? mixChart(c.mix) : '<p class="note">부문 비중 표 없음</p>'}</div>
-    <div class="card"><h2>성장 동력 · 실현 단계 <small>${c.driversBy} · 미공시는 낮은 단계로</small></h2>${c.drivers.length ? stagesHtml(c.drivers, DATA.stages) : '<p class="note">원문에 성장 동력 서술 없음</p>'}</div>
+    <div class="card"><h2>성장 동력 · 실현 단계 <small>${c.driversBy}${c.drivers.some(d => d[1] != null) ? " · 미공시는 낮은 단계로" : ""}</small></h2>${c.drivers.length ? stagesHtml(c.drivers, DATA.stages) : '<p class="note">원문에 성장 동력 서술 없음</p>'}</div>
     <div class="card"><h2>동종사 <small>최근 연간 · PBR = 종가 ÷ KRX BPS</small></h2>${peerChart(c.peers)}<div class="note">${c.peerNote}</div></div>
     <div class="card"><h2>주가 · 손절 · 목표 <small>주간 종가 · 52주 범위 음영</small></h2>${pr.series && pr.series.length ? priceChart({ ...pr, last: pr.price }) : '<p class="note">일봉 없음</p>'}
       <div class="note">손절 = 현재가 − 3×ATR14 · 목표 = 현재가 + 1.5×손절폭 · 낙폭 관리용 규칙값 · 단일 종목 미검증</div></div>
@@ -249,14 +251,22 @@ function render(i) {
       </tbody></table></div></div>
     <div class="card"><h2>핵심 사실 <small>${c.report.name} 원문</small></h2><dl>${c.facts.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join("")}</dl></div>
     <div class="card"><h2>공시 타임라인 <small>DART 최근 2년 · 정기보고서 제외</small></h2><div class="ev">${c.events.slice(0, 14).map(e => `<span>${e[0]}</span><span>${e[1]}</span>`).join("")}</div>
-      ${c.events.length > 14 ? `<div class="note">외 ${c.events.length - 14}건</div>` : ""}</div>`;
+      ${c.events.length + (c.eventsMore || 0) > 14 ? `<div class="note">외 ${c.events.length + (c.eventsMore || 0) - 14}건</div>` : ""}</div>`;
   $("#foot").innerHTML = `<span>출처: DART ${c.report.name} (${c.report.rcept}) · 재무 ${c.report.fs} · 연간 패널 a3e-map-1.1 · A2a 일봉 · KRX 월말 BPS/EPS/DPS · A5 ${a5 ? a5.asOf : "—"}</span>
     <span>추출: ${c.extract.model || "—"} · 인용 원문 대조 ${c.extract.quotesOk ?? "—"}/${c.extract.quotes ?? "—"} · 문제 ${c.extract.problems ?? "—"}건 · 생성 ${DATA.generated} · 점수·매매 정책 미연결 · 투자 판단 근거 아님</span>`;
   try { localStorage.setItem("decode-tab", c.ticker); } catch (e) {}
 }
 
-$("#tabs").innerHTML = DATA.companies.map((c, i) => `<button role="tab" data-i="${i}">${c.name}</button>`).join("");
-$("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) render(+b.dataset.i); });
+if (DATA.companies.length > 12) {   // 종목이 많으면 탭 대신 검색 상자 + 선택 목록
+  $("#tabs").innerHTML = `<input id="q" list="names" placeholder="종목명·코드 검색" style="font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);min-width:200px">
+    <datalist id="names">${DATA.companies.map(c => `<option value="${c.name} ${c.ticker}">`).join("")}</datalist>
+    <select id="pick" style="font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)">${DATA.companies.map((c, i) => `<option value="${i}">${c.name} (${c.ticker})</option>`).join("")}</select>`;
+  $("#pick").addEventListener("change", e => render(+e.target.value));
+  $("#q").addEventListener("change", e => { const k = DATA.companies.findIndex(c => e.target.value === `${c.name} ${c.ticker}` || e.target.value === c.ticker || e.target.value === c.name); if (k >= 0) render(k); });
+} else {
+  $("#tabs").innerHTML = DATA.companies.map((c, i) => `<button role="tab" data-i="${i}">${c.name}</button>`).join("");
+  $("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) render(+b.dataset.i); });
+}
 let start = 0; try { const s = localStorage.getItem("decode-tab"); const k = DATA.companies.findIndex(c => c.ticker === s); if (k >= 0) start = k; } catch (e) {}
 render(start);
 </script>
