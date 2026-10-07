@@ -302,7 +302,7 @@ function ovRow(c, i) {
   const st = c.drivers.filter(d => d[1] != null).map(d => d[1]);
   const a5 = c.score.a5;
   return { i, c, name: c.name, g, op: op[1], mg: rv[1] > 0 && op[1] != null ? op[1] / rv[1] * 100 : null, loss: op[1] != null && op[1] < 0, gap,
-    warn: c.checks.filter(x => x[3] === "warn").length, stage: st.length ? Math.max(...st) : null, a5r: a5 && a5.r != null ? a5.r : null, held: c.held.length,
+    warn: c.checks.filter(x => x[3] === "warn").length, stage: st.length ? Math.max(...st) : null, a5r: a5 && a5.r != null ? a5.r : null, a5f: a5 ? a5.f : null, live: c.score.live ? c.score.live.total : null, held: c.held.length,
     tpu: c.tp ? c.tp.chg["상향"] : 0, tpd: c.tp ? c.tp.chg["하향"] : 0, judged: c.judged };
 }
 function renderOv() {
@@ -316,15 +316,15 @@ function renderOv() {
   const th = (k, lb, cls = "") => `<th class="${cls} ${OVS.k === k ? "on" : ""}" data-k="${k}">${lb}${OVS.k === k ? (OVS.dir > 0 ? " ▲" : " ▼") : ""}</th>`;
   const flags = r => [r.loss ? '<span class="chip c-warn">영업적자</span>' : "", r.gap ? '<span class="chip c-watch">순이익 괴리</span>' : ""].join(" ");
   const tb = rows.map(r => `<tr data-i="${r.i}"><td><span class="nm">${r.name}</span><span class="cd">${r.c.ticker}</span></td>
-    <td class="num">${r.a5r == null ? "—" : r.a5r.toLocaleString()}</td><td>${r.c.held.join(" · ") || "—"}</td>
+    <td class="num">${r.a5f == null ? "—" : f1(r.a5f)}</td><td class="num">${r.a5r == null ? "유보" : r.a5r.toLocaleString()}</td><td class="num" title="${r.c.score.live ? r.c.score.live.grade : "관심종목 밖 — 라이브 점수 없음"}">${r.live == null ? "—" : f1(r.live)}</td><td>${r.c.held.join(" · ") || "—"}</td>
     <td class="num ${r.g == null ? "" : r.g < 0 ? "neg" : "pos"}">${sg(r.g)}</td><td class="num ${r.loss ? "neg" : ""}">${f1(r.op, 0)}</td><td class="num">${f1(r.mg)}${r.mg == null ? "" : "%"}</td>
     <td class="num ${r.warn >= 3 ? "neg" : ""}">${r.warn}</td><td class="num">${r.stage == null ? "—" : r.stage}</td>
     <td class="num">${r.c.tp ? `${r.tpu}↑ ${r.tpd}↓` : "—"}</td><td>${flags(r)}</td></tr>`).join("");
   const chk = (k, lb) => `<label><input type="checkbox" data-f="${k}" ${OVF[k] ? "checked" : ""}>${lb}</label>`;
   $("#ovw").innerHTML = `<div class="card wide"><h2>종목 개요 <small>${rows.length}종목 표시 / 전체 ${all.length} · 판단 ${all.filter(r => r.judged).length} · 열 이름을 누르면 정렬 · 행을 누르면 종목 상세</small></h2>
     <div class="ovtool"><input type="search" id="ovq" placeholder="종목명·코드" value="${OVF.q}">${chk("judged", "판단 있는 종목만")}${chk("held", "모의 보유")}${chk("loss", "영업적자")}${chk("gap", "순이익 괴리")}${chk("warn", "경고 3개 이상")}${chk("top", "A5 100위 이내")}</div>
-    <div class="tbl-scroll"><table><thead><tr>${th("name", "종목")}${th("a5r", "A5 순위", "num")}${th("held", "모의 보유")}${th("g", "H1 매출 증감", "num")}${th("op", "H1 영업이익(억)", "num")}${th("mg", "영업이익률", "num")}${th("warn", "경고", "num")}${th("stage", "최고 단계", "num")}${th("tpu", "목표가 변동", "num")}<th>표시</th></tr></thead><tbody>${tb || '<tr><td colspan="10" class="note">조건에 맞는 종목이 없습니다.</td></tr>'}</tbody></table></div>
-    <div class="note">경고 = 재검토 체크리스트의 경고 개수 · 최고 단계 = 성장 동력 단계(1 기술 확보 ~ 5 이익·현금, 판단 없는 종목은 —) · 순이익 괴리 = H1 순이익이 영업이익과 부호가 다르거나 2배 이상 차이 · 모의 보유 = VM 5개 슬리브 중 보유한 곳</div></div>`;
+    <div class="tbl-scroll"><table><thead><tr>${th("name", "종목")}${th("a5f", "A5 점수", "num")}${th("a5r", "A5 순위", "num")}${th("live", "라이브 점수", "num")}${th("held", "모의 보유")}${th("g", "H1 매출 증감", "num")}${th("op", "H1 영업이익(억)", "num")}${th("mg", "영업이익률", "num")}${th("warn", "경고", "num")}${th("stage", "최고 단계", "num")}${th("tpu", "목표가 변동", "num")}<th>표시</th></tr></thead><tbody>${tb || '<tr><td colspan="12" class="note">조건에 맞는 종목이 없습니다.</td></tr>'}</tbody></table></div>
+    <div class="note">A5 점수 = 공시 시점(PIT) 재무·주가 기준 월간 점수(순위는 커버리지 60% 미만이면 유보) · 라이브 점수 = 현재 시세 기준 대시보드 점수(관심종목 351종목만, 밖은 —) · 두 점수는 서로 다른 점수라 섞어 보지 않는다 · 경고 = 재검토 체크리스트의 경고 개수 · 최고 단계 = 성장 동력 단계(1 기술 확보 ~ 5 이익·현금, 판단 없는 종목은 —) · 순이익 괴리 = H1 순이익이 영업이익과 부호가 다르거나 2배 이상 차이 · 모의 보유 = VM 5개 슬리브 중 보유한 곳</div></div>`;
 }
 function setView(v) {
   document.querySelectorAll("#views button").forEach(b => b.setAttribute("aria-selected", b.dataset.v === v));
