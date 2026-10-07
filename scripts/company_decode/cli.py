@@ -542,6 +542,8 @@ def gemini_facts(g):
 def render(tickers, out):
     comps = []
     tpc = tp_cards(load_universe())
+    held = json.load(open(CACHE / "_held.json", encoding="utf-8")) if (CACHE / "_held.json").exists() else {}
+    nm = {"pbr_value_v1": "PBR", "pbr_value_v1_combined": "PBR 결합", "lowmom60_v1": "저모멘텀", "factor_earnings_yield_v1": "이익수익률", "foreign_flow5d_v1": "외국인수급"}
     for t in tickers:
         d = CACHE / t
         if not (d / "data.json").exists():
@@ -564,7 +566,8 @@ def render(tickers, out):
         if many:
             data = {**data, "eventsMore": max(len(data["events"]) - 14, 0), "events": data["events"][:14]}
         comps.append({**data, "summary": jd.get("summary") or (gem or {}).get("summary") or "판단 미작성 — OpenCode 추출만 표시",
-                      "mix": mix_from(ext), "drivers": drivers, "driversBy": by, "facts": facts, "extract": extract, "tp": tpc.get(t)})
+                      "mix": mix_from(ext), "drivers": drivers, "driversBy": by, "facts": facts, "extract": extract, "tp": tpc.get(t),
+                      "held": [nm.get(x, x) for x in held.get(t, [])], "judged": bool(jd.get("drivers"))})
     tpl = (HERE / "template.html").read_text(encoding="utf-8")
     html = tpl.replace("/*__DATA__*/null", json.dumps({"stages": STAGES, "companies": comps, "generated": date.today().isoformat(),
                                                                 "tpSince": min((json.loads(l)["day"] for l in TP_FILE.read_text(encoding="utf-8").splitlines()), default=None) if TP_FILE.exists() else None}, ensure_ascii=False))
@@ -645,6 +648,7 @@ def expand(tickers, shard=None, missing=False):
             out += list(json.load(open(CACHE / "_held.json", encoding="utf-8")))
         else:
             out += [x["code"] for x in json.load(open(ROOT / "config/watchlist.json", encoding="utf-8"))["tickers"] if x["market"] == "KR"] if t == "@kr" else [t]
+    out = list(dict.fromkeys(out))   # '@kr @held' 처럼 겹쳐 지정해도 한 번씩만
     if missing:
         out = [t for t in out if not (CACHE / t / "data.json").exists()]
     if shard:
