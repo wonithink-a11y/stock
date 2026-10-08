@@ -32,7 +32,12 @@ def monthly(dates, tick, M, names):
     me = pd.Series(np.arange(len(dates))).groupby(per).max()
     liq = pd.DataFrame(M["VAL"].astype(float)).rolling(20, min_periods=10).mean().to_numpy()
     col_ok = np.array([t[-1] == "0" and not SPAC.search(names.get(t, "")) for t in tick])
-    logR = np.log1p(np.nan_to_num(R, nan=0.0))
+    tr = ~np.isnan(R)
+    fr = np.where(tr.any(0), tr.argmax(0), -1)
+    first_day = np.zeros_like(tr)
+    first_day[fr[fr >= 0], np.flatnonzero(fr >= 0)] = True
+    anomaly = (R > 1.0) & ~first_day                 # 개정 1: 하루 +100% 초과 = 자료 이상
+    logR = np.log1p(np.nan_to_num(np.where(anomaly, 0.0, R), nan=0.0))
     cs = np.vstack([np.zeros((1, R.shape[1])), np.cumsum(logR, axis=0)])
     rows = []
     months = list(me.index)
@@ -41,7 +46,7 @@ def monthly(dates, tick, M, names):
         ok = col_ok & ~np.isnan(R[r0]) & (liq[r0] >= LIQ) & (M["MCAP"][r0] > 0)
         nxt = np.exp(cs[r1 + 1] - cs[r0 + 1]) - 1
         alive = (~np.isnan(R[r0 + 1:r1 + 1])).any(0)
-        ok &= alive
+        ok &= alive & ~anomaly[r0 + 1:r1 + 1].any(0)
         idx = np.flatnonzero(ok)
         if len(idx) < 100:
             continue
