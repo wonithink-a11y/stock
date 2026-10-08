@@ -41,3 +41,13 @@ def build(rebuild=False):
     np.savez(CACHE, dates=dates.to_numpy(), tick=np.array(tick, dtype=object), **M)
     META.write_text(json.dumps({"sig": sig, "names": names, "market": market}, ensure_ascii=False), encoding="utf-8")
     return dates, tick, M, names, market
+
+
+def clean_returns(R):
+    """FLUC_RT 자료 이상 처리: 하루 +100% 초과(그 종목 첫 거래일 제외) → 0. 하락 쪽(정리매매 등)은 실제 가격이라 그대로(1월 효과 개정 1과 같은 규칙)."""
+    R = R.astype(float)
+    tr = ~np.isnan(R)
+    fr = np.where(tr.any(0), tr.argmax(0), -1)
+    first = np.zeros_like(tr)
+    first[fr[fr >= 0], np.flatnonzero(fr >= 0)] = True
+    return np.where((R > 1.0) & ~first, 0.0, R)
