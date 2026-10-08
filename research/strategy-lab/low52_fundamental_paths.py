@@ -615,7 +615,7 @@ def render(o):
          f"  신호: {sig} · 경제성: {'통과' if o['economic_ok'] else '미달'}. "
          + " · ".join(f"{k} {v['verdict']}" for k, v in J.items()) + ". (스크립트가 계산한 판정, 정의는 사전등록 그대로)",
          "---", "", "# 52주 저점 근처 × 실적 — 이후 경로 3갈래 결과", "",
-         "수치는 `low52_fundamental_paths.py --run` 이 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(`low52-fundamental-paths-preregistration-2026-10`, 동결 876c905f) 그대로이며 결과를 보고 바꾸지 않았다.",
+         "수치는 `low52_fundamental_paths.py --run` 이 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(`low52-fundamental-paths-preregistration-2026-10`, 동결 6370ce13) 그대로이며 결과를 보고 바꾸지 않았다.",
          f"가격 마지막 날 {o['params']['price_last']}. 사건 {rec['counts']['events']:,}건(60일 성숙 {rec['counts']['mature']:,}, 진입 시가 없어 제외 {rec['counts']['no_entry']}).", "",
          "## 1. 판정", "",
          "| 판정 | 값 | TRAIN | VALID | TEST | 전체(2016~2025) [블록 95%] | 바닥선(TRAIN 99백분위) | 쓴 달 TRAIN/VALID/TEST | 사건 그룹1/그룹2 (TRAIN) | 판정 |",

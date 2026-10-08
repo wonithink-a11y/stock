@@ -11,7 +11,7 @@ reason: >-
 
 # 52주 저점 근처 × 실적 — 이후 경로 3갈래 결과
 
-수치는 `low52_fundamental_paths.py --run` 이 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(`low52-fundamental-paths-preregistration-2026-10`, 동결 876c905f) 그대로이며 결과를 보고 바꾸지 않았다.
+수치는 `low52_fundamental_paths.py --run` 이 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(`low52-fundamental-paths-preregistration-2026-10`, 동결 6370ce13) 그대로이며 결과를 보고 바꾸지 않았다.
 가격 마지막 날 2026-10-02. 사건 7,133건(60일 성숙 7,072, 진입 시가 없어 제외 3).
 
 ## 1. 판정
