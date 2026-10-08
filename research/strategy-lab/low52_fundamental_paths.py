@@ -10,6 +10,7 @@
     python research/strategy-lab/low52_fundamental_paths.py --run              # 판정 J1~J4 + 기록 → findings/low52-fundamental-paths-results-2026-10.{md,json}
     python research/strategy-lab/low52_fundamental_paths.py --posthoc          # 사후 기록(결과 뒤 추가, 판정 불사용) — 결과 문서 §7 표
     python research/strategy-lab/low52_fundamental_paths.py --by-period        # 사후 기록: 연도별·기간 분할·코스피 국면별 — 결과 문서 §9 표
+    python research/strategy-lab/low52_fundamental_paths.py --explore          # 탐색(판정 없음): PBR·PER·영업이익·모멘텀·업종·변동성 구간별 → findings/low52-hold-factors-explore-2026-10
     python research/strategy-lab/low52_fundamental_paths.py --forward          # forward 월간 기록(사건 수만 출력) → reports/2026-10-low52-forward/
     python research/strategy-lab/low52_fundamental_paths.py --collect-recent 2026 11014   # 분기 공시 시즌 뒤 실적 갱신(보고서 1종 ≈ 31콜)
     python research/strategy-lab/low52_fundamental_paths.py --forward-judge 24 # 신호 24개월 성숙 뒤 1회(그 전엔 아무것도 계산 안 함)
@@ -725,6 +726,124 @@ def render(o):
     return "\n".join(L) + "\n"
 
 
+# ───────────── 탐색: 저점 근처에서 '버티는' 조건 (사용자 질문 2026-10-09 · EXPLORATORY, 판정 없음) ─────────────
+# 구간 경계·후보 규칙은 결과를 보기 전에 이 커밋으로 고정한다. 후보는 forward 새 사전등록으로만 검증한다.
+EXP_OUT = HERE / "findings" / "low52-hold-factors-explore-2026-10"
+EXP_VARS = {   # 이름: (열, 경계, 라벨, 결측 라벨)
+    "PBR": ("pbr", [0.5, 1, 2, 4], ["<0.5", "0.5~1", "1~2", "2~4", "≥4"], "결측"),
+    "PER(KRX 연간)": ("per", [8, 15, 30], ["<8", "8~15", "15~30", "≥30"], "적자·결측"),
+    "영업이익률(TTM)": ("opm", [0, 0.05, 0.10, 0.20], ["적자", "0~5%", "5~10%", "10~20%", "≥20%"], "결측"),
+    "TTM 영업이익 증가율": ("opg", [0, 0.2, 0.5], ["감소", "0~20%", "20~50%", "≥50%"], "적자·흑자전환·결측"),
+    "1개월 수익": ("m1", [-0.15, -0.05, 0.05], ["<−15%", "−15~−5%", "−5~+5%", "≥+5%"], "결측"),
+    "12-1개월 수익": ("m12", [-0.4, -0.2, 0], ["<−40%", "−40~−20%", "−20~0%", "≥0%"], "결측"),
+    "52주 고점 대비": ("dd", [-0.6, -0.45, -0.3], ["≤−60%", "−60~−45%", "−45~−30%", ">−30%"], "결측"),
+    "업종 60일 수익(동료 중앙)": ("sec60", [-0.1, 0, 0.1], ["<−10%", "−10~0%", "0~+10%", "≥+10%"], "결측"),
+    "사건 전 60일 변동성": ("vol60", [0.3, 0.45, 0.6], ["<30%", "30~45%", "45~60%", "≥60%"], "결측"),
+}
+
+
+def bin_label(x, edges, labels, na):
+    return na if x is None or not np.isfinite(x) else labels[int(np.searchsorted(edges, x, side="right"))]
+
+
+def month_tercile(df, col):
+    """신호월 안에서 col 순위 3등분(0 낮음 · 2 높음). 유효 값 6개 미만인 달은 NaN."""
+    def f(s):
+        if s.notna().sum() < 6:
+            return pd.Series(np.nan, index=s.index)
+        return pd.qcut(s.rank(method="first"), 3, labels=False)
+    return df.groupby("mi")[col].transform(f)
+
+
+def explore_frame():
+    A = load_all()
+    df, _, _ = build_events(A)
+    df = df[df["path"].notna()].reset_index(drop=True)
+    F, dates, tick, ti = A["F"], A["dates"], A["tick"], A["ti"]
+    C = F["C"]
+    rows = {str(d.date()): i for i, d in enumerate(dates)}
+    lr = np.log(C[1:] / C[:-1])
+    per_by, sec_by = {}, {}
+    for r in sorted({rows[d] for d in df["date"]}):
+        per_by[r] = valuation_at(A["krx"], dates, C, ti, r)[1]
+        x = C[r] / C[r - 60] - 1
+        by = defaultdict(list)
+        for j in np.flatnonzero(F["elig"][r] & np.isfinite(x)):
+            if A["sector"].get(tick[j]):
+                by[A["sector"][tick[j]]].append((j, x[j]))
+        sec_by[r] = by
+    ex = []
+    for e in df.itertuples():
+        r, j = rows[e.date], ti[e.ticker]
+        f = fundamentals(A["quarters"].get(e.ticker, []), date.fromisoformat(e.date))
+        peers = [v for jj, v in sec_by[r].get(A["sector"].get(e.ticker) or "", []) if jj != j]
+        ex.append(dict(per=per_by[r][j],
+                       opm=np.nan if f is None or f["ttm_rev"] <= 0 else f["ttm_op"] / f["ttm_rev"],
+                       opg=np.nan if f is None or f["ttm_op"] <= 0 or f["ttm_op_prev"] <= 0 else f["ttm_op"] / f["ttm_op_prev"] - 1,
+                       m1=C[r, j] / C[r - 21, j] - 1, m12=C[r - 21, j] / C[r - 252, j] - 1 if r >= 252 else np.nan,
+                       vol60=float(np.nanstd(lr[r - 60:r, j]) * np.sqrt(250)),
+                       sec60=float(np.median(peers)) if len(peers) >= SECTOR_MIN_PEERS else np.nan))
+    df = pd.concat([df, pd.DataFrame(ex)], axis=1)
+    q = df.loc[df["win"].isin(JUDGE_WINS), "vol60"].quantile([1 / 3, 2 / 3]).to_numpy()
+    df["vq"] = np.searchsorted(q, df["vol60"].to_numpy())
+    df["brk_adj"] = df["brk"] - df.groupby(["mi", "vq"])["brk"].transform("mean")   # 같은 달·같은 변동성 3분위 평균 대비
+    return df
+
+
+def explore():
+    df = explore_frame()
+    jt = df[df["win"].isin(JUDGE_WINS)]
+    rng = np.random.default_rng(SEED)
+    levels, contrasts = {}, {}
+    for name, (col, edges, labels, na) in EXP_VARS.items():
+        lab = jt[col].map(lambda x: bin_label(x, edges, labels, na))
+        levels[name] = {}
+        for b in labels + [na]:
+            s = jt[lab == b]
+            if len(s):
+                levels[name][b] = dict(n=len(s), **{f"brk_{w}": float(s.loc[s.win == w, "brk"].mean()) for w in JUDGE_WINS},
+                                       brk_adj=float(s["brk_adj"].mean()), reb=float((s["path"] == "반등").mean()),
+                                       x60=float(s["x60"].mean()), x60_med=float(s["x60"].median()))
+        t = month_tercile(df, col)
+        contrasts[name] = {}
+        for y in (["brk"] if col == "vol60" else ["brk_adj"]) + ["x60"]:
+            r = judge(by_month(df, t == 2, t == 0, y), 0, rng)
+            contrasts[name][y] = dict(**{w: r[w]["value"] for w in JUDGE_WINS}, ALL=r["ALL"]["value"], ci=r["ALL"]["ci"], floor=r["floor"],
+                                      candidate=r["verdict"] == "CONFIRMED")
+    out = dict(levels=levels, contrasts=contrasts, n=len(jt))
+    EXP_OUT.with_suffix(".json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
+    EXP_OUT.with_suffix(".md").write_text(render_explore(out), encoding="utf-8")
+    for name, c in contrasts.items():
+        print(name, {y: (round(v["TRAIN"], 3), round(v["VALID"], 3), round(v["TEST"], 3), "후보" if v["candidate"] else "-") for y, v in c.items()})
+    return 0
+
+
+def render_explore(o):
+    L = ["---", "track: kr", "factor: low52-hold-factors-explore", "date: 2026-10-09", "verdict: EXPLORATORY",
+         "criteria_version: research-only (탐색 — 판정 없음)",
+         "reason: >-", "  52주 저점 근처 사건(2016~2025, 60일 성숙)에서 PBR·PER·영업이익률·영업이익 증가율·모멘텀(1개월·12-1개월·52주 고점 대비)·업종 60일 수익·변동성 구간별 "
+         "추가 하락·반등·60일 초과를 본 탐색. 후보는 forward 새 사전등록으로만 검증한다.", "---", "",
+         "# 52주 저점 근처에서 '버티는' 조건 — 탐색 (판정 없음)", "",
+         f"`low52_fundamental_paths.py --explore`. 사건 {o['n']:,}건(TRAIN~TEST, 저점 근처 전체 G·B·U). 구간 경계·후보 규칙은 실행 전 커밋으로 고정했다.",
+         "'변동성 보정 추가 하락' = 추가 하락(0/1) − 같은 달·같은 변동성 3분위 사건 평균 — 변동성이 낮아 덜 깨지는 몫을 뺀 값(음수 = 덜 깨짐).", "",
+         "## 1. 대조 — 신호월 안 3분위(높음 − 낮음), 같은 가중 방식", "",
+         "**후보** = TRAIN·VALID·TEST 부호가 같고 TRAIN |값| > 월 안 순열 99백분위 ∧ 전체 6개월 블록 95% 구간이 0 제외. 변수 9개 × 결과 2개 = 18개 대조라 우연 후보가 0.2개 정도는 나올 수 있다.", "",
+         "| 변수 | 결과 | TRAIN | VALID | TEST | 전체 [95%] | 바닥선 | 후보 |", "|---|---|---:|---:|---:|---|---:|---|"]
+    yname = {"brk": "추가 하락", "brk_adj": "변동성 보정 추가 하락", "x60": "60일 초과"}
+    for name, c in o["contrasts"].items():
+        for y, v in c.items():
+            L.append(f"| {name} | {yname[y]} | {pp(v['TRAIN'])} | {pp(v['VALID'])} | {pp(v['TEST'])} | {pp(v['ALL'])} [{pp(v['ci'][0])}, {pp(v['ci'][1])}] | "
+                     f"{pp(v['floor'])} | {'**후보**' if v['candidate'] else ''} |")
+    L += ["", "## 2. 구간별 수준 (사건 단위 단순 집계, TRAIN~TEST)", "",
+          "| 변수 | 구간 | 사건 | 추가 하락 TRAIN | VALID | TEST | 변동성 보정 추가 하락 | 반등 | 60일 초과 평균 | 60일 초과 중앙 |",
+          "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for name, bins in o["levels"].items():
+        for b, r in bins.items():
+            L.append(f"| {name} | {b} | {r['n']} | {pct(r['brk_TRAIN'], 0)} | {pct(r['brk_VALID'], 0)} | {pct(r['brk_TEST'], 0)} | "
+                     f"{pp(r['brk_adj'])} | {pct(r['reb'], 0)} | {pct(r['x60'])} | {pct(r['x60_med'])} |")
+    return "\n".join(L) + "\n"
+
+
 # ───────────── forward 재검증 (사전등록 low52-fundamental-paths-forward-preregistration-2026-10, 동결 9501467f) ─────────────
 FWD_DIR = HERE / "reports" / "2026-10-low52-forward"
 FWD_OUT = HERE / "findings" / "low52-fundamental-paths-forward-results"
@@ -918,6 +1037,12 @@ def selftest():
     check("국면 경계: −1% 약세 · 0% 보통 · 20% 강세 · NaN 없음",
           [regime_label(x) for x in (-0.01, 0.0, 0.2)] == ["약세 < 0%", "보통 0~20%", "강세 ≥ 20%"] and regime_label(np.nan) is None)
     check("clean: NaN → None, numpy → 파이썬", clean({"a": np.float64("nan"), "b": np.int64(3)}) == {"a": None, "b": 3})
+    # 탐색 도구
+    e, lb = [0.5, 1, 2, 4], ["<0.5", "0.5~1", "1~2", "2~4", "≥4"]
+    check("구간 라벨: 경계값은 위 칸·NaN 결측", [bin_label(x, e, lb, "결측") for x in (0.49, 0.5, 4, np.nan)] == ["<0.5", "0.5~1", "≥4", "결측"])
+    td = pd.DataFrame({"mi": [0] * 9 + [1] * 4, "v": list(range(9)) + [1, 2, 3, np.nan]})
+    tt = month_tercile(td, "v")
+    check("월 안 3분위: 0~2 낮음·6~8 높음, 유효 6개 미만 달은 NaN", list(tt[:3]) == [0, 0, 0] and list(tt[6:9]) == [2, 2, 2] and tt[9:].isna().all())
     print("ALL PASS" if ok else "FAILED")
     return 0 if ok else 1
 
@@ -927,7 +1052,7 @@ if __name__ == "__main__":
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--collect-recent", nargs="*", metavar="연도 보고서코드", help="인자 없으면 2026 11013 11012")
     g.add_argument("--forward-judge", type=int, choices=(24, 36))
-    for a in ("--counts", "--snapshot", "--run", "--posthoc", "--by-period", "--forward", "--selftest"):
+    for a in ("--counts", "--snapshot", "--run", "--posthoc", "--by-period", "--explore", "--forward", "--selftest"):
         g.add_argument(a, action="store_true")
     a = ap.parse_args()
     if a.collect_recent is not None:
@@ -935,4 +1060,4 @@ if __name__ == "__main__":
     if a.forward_judge:
         sys.exit(forward_judge(a.forward_judge))
     sys.exit(counts() if a.counts else snapshot() if a.snapshot else run() if a.run else posthoc() if a.posthoc else
-             byperiod() if a.by_period else forward() if a.forward else selftest())
+             byperiod() if a.by_period else explore() if a.explore else forward() if a.forward else selftest())
