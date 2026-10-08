@@ -57,7 +57,7 @@ def load_raw():
                     rows.append((d["ticker"], d["date"], d["open"], d["high"], d["low"], d["close"], d["volume"]))
     df = pd.DataFrame(rows, columns=["ticker", "date", "open", "high", "low", "close", "volume"]).drop_duplicates(["ticker", "date"])
     df["date"] = pd.to_datetime(df["date"])
-    dates = np.array(sorted(df["date"].unique()))
+    dates = np.unique(df["date"].values)
     tick = np.array(sorted(df["ticker"].astype(str).unique()))
     di = np.searchsorted(dates, df["date"].values)
     ti = np.searchsorted(tick, df["ticker"].astype(str).values)
