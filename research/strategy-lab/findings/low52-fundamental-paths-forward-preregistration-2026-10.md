@@ -2,7 +2,7 @@
 track: kr
 factor: low52-fundamental-paths-forward
 date: 2026-10-09
-verdict: PREREGISTERED (초안 — 사용자 GO 전. GO 를 받으면 이 정의로 동결하고, forward 기록 코드는 그 뒤에 작성)
+verdict: PREREGISTERED (사용자 GO 2026-10-09 — 정의 동결, forward 기록 코드는 이 커밋 뒤에 작성)
 criteria_version: research-only
 reason: >-
   과거 표본(2016~2025)에서 판정이 안 선 두 가지와 확정된 하나를 동결 이후 새 표본으로 다시 잰다.
@@ -11,7 +11,7 @@ reason: >-
   점수·매매·종목 선별에 연결하지 않는다.
 ---
 
-# 52주 저점 근처 × 실적 — forward 재검증 (사전등록 초안)
+# 52주 저점 근처 × 실적 — forward 재검증 (사전등록)
 
 ## 0. 이 문서를 쓰는 시점의 지식 (블라인드가 아니다)
 
