@@ -655,6 +655,7 @@ def run(P, sector_idx, n_perm=N_PERM, verbose=True):
                    "win_net": float(np.nanmean((r - COST) > 0)), "hold_weeks": float(np.nanmean(ev["hold"][q])),
                    "trig_share": float(ev["trig"][q].mean()), "exit_vs_peak_pct": float(np.nanmean(give) * 100) if np.isfinite(give).any() else None,
                    "capture": float(np.nanmean(cap[np.isfinite(cap)])) if np.isfinite(cap).any() else None,
+                   "capture_median": float(np.nanmedian(cap[np.isfinite(cap)])) if np.isfinite(cap).any() else None,
                    "info_mean_all_pct": wmean_of(mm_i, None) * 100 if not np.isnan(wmean_of(mm_i, None)) else None,
                    "net_by_window_pct": {w: (wmean_of(mm_n, k) * 100 if not np.isnan(wmean_of(mm_n, k)) else None) for k, w in enumerate(WIN)}}
             table.append(row)
@@ -718,12 +719,14 @@ def render(out, P, tick, names):
     j1 = out["J1"]
     verd = {k: v["verdict"] for k, v in j1.items()}
     seg_conf = [n for n in out["segnames"] if out["cells"][n].get("conf", {}).get("status") == "CONFIRMED"]
+    seg_pos = [n for n in seg_conf if out["cells"][n]["info_mean"]["TRAIN"] > 0]
+    seg_neg = [n for n in seg_conf if out["cells"][n]["info_mean"]["TRAIN"] <= 0]
     anyinfo = any(v == "INFORMATION" for v in verd.values())
     anyrev = any(v == "REVERSE" for v in verd.values())
-    top = "INFORMATION" if (anyinfo or seg_conf) else ("REVERSE" if anyrev else "NONE")
+    top = "INFORMATION" if (anyinfo or seg_pos) else ("REVERSE" if (anyrev or seg_neg) else "NONE")
     L.append(f"verdict: {top}\ncriteria_version: research-only (surge-day-continuation-preregistration-2026-10)\n"
              f"conditions: [\"가족 D·W·R·K·Q 중심 칸 5개 J1 99백분위\", \"급등일 세분화 17칸 가족 바닥선\", \"주간 최고가 대비 x% 이탈 격자(J3 = 20% vs 무이탈)\", \"플라시보 20종목 대비 Info\"]\n"
-             f"reason: >-\n  신호: J1 {verd} · 세분화 CONFIRMED {len(seg_conf)}칸 · 경제성: 별도 표. 이탈 J3: {out['J3']}.\n---\n")
+             f"reason: >-\n  신호: J1 {verd} · 세분화 CONFIRMED 양(+) {len(seg_pos)}칸·음(−, 반대 방향) {len(seg_neg)}칸 · 경제성: 별도 표. 이탈 J3: {out['J3']}.\n---\n")
     L.append("# 상승 모멘텀 5종 이후 지속·소멸 + 주간 이탈 — 결과\n")
     L.append("수치는 `surge_day_continuation.py` 가 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(d57299ec) 그대로이며 결과를 보고 바꾸지 않았다. Info = 20거래일 수익(진입 시가→20일 뒤 시가) − 같은 진입일 플라시보 20종목 평균(단위 %p).\n")
     L.append("## 1. J1 — 가족별 중심 칸 (전체 사건)\n")
@@ -786,12 +789,12 @@ def render(out, P, tick, names):
     L.append(f"**J3 (D 중심 칸, 20% 이탈 − 무이탈)**: {out['J3']} · 평균 {f(out['exits']['D']['J3_20_vs_hold']['mean_pct'])}%p, 구간 [{f(out['exits']['D']['J3_20_vs_hold']['ci_pct'][0])}, {f(out['exits']['D']['J3_20_vs_hold']['ci_pct'][1])}], 구간별 {', '.join(w + ' ' + f(v) for w, v in out['exits']['D']['J3_20_vs_hold']['by_window_pct'].items())}\n")
     for key, e in out["exits"].items():
         L.append(f"### {key} (사건 {e['n']:,}건)\n")
-        L.append("| 이탈 x | 비용 후 평균(%) | 중앙(%) | 승률 | 평균 보유(주) | 발동 비율 | 청산가/최고점 −1 평균(%) | 고점 포착률 | Info(%p) | TRAIN | VALID | TEST |")
+        L.append("| 이탈 x | 비용 후 평균(%) | 중앙(%) | 승률 | 평균 보유(주) | 발동 비율 | 청산가/최고점 −1 평균(%) | 고점 포착률(중앙) | Info(%p) | TRAIN | VALID | TEST |")
         L.append("|---|---|---|---|---|---|---|---|---|---|---|---|")
         for r in e["table"]:
             xl = "무이탈(26주)" if r["x"] is None else f"{int(r['x']*100)}%"
             nb = r["net_by_window_pct"]
-            L.append(f"| {xl} | {f(r['net_mean_pct'])} | {f(r['median_pct'])} | {f(r['win_net'],2,False,False)} | {f(r['hold_weeks'],1,False,False)} | {f(r['trig_share'],2,False,False)} | {f(r['exit_vs_peak_pct'])} | {f(r['capture'],2)} | {f(r['info_mean_all_pct'])} | {f(nb['TRAIN'])} | {f(nb['VALID'])} | {f(nb['TEST'])} |")
+            L.append(f"| {xl} | {f(r['net_mean_pct'])} | {f(r['median_pct'])} | {f(r['win_net'],2,False,False)} | {f(r['hold_weeks'],1,False,False)} | {f(r['trig_share'],2,False,False)} | {f(r['exit_vs_peak_pct'])} | {f(r['capture_median'],2)} | {f(r['info_mean_all_pct'])} | {f(nb['TRAIN'])} | {f(nb['VALID'])} | {f(nb['TEST'])} |")
         q = e["peak_week_quantiles"]
         L.append(f"\n무이탈 경로: 정점 주 분위(10·25·50·75·90) = {', '.join(f(v,0,False,False) for v in q)} (−1 = 진입가 위로 못 오름, 비율 {f(e['peak_never_above_entry'],2,False,False)}) · 26주째 정점 대비 낙폭 중앙 {f(e['final_dd_from_peak_median_pct'])}% · 최고점 대비 −x% 첫 터치 뒤 8주 안 신고가 재갱신 비율: " +
                  ", ".join(f"{k}% → {f(v['recover8w'],2,False,False)} (터치 {f(v['triggered'],2,False,False)})" for k, v in e["recover_after_first_touch"].items()) + "\n")
@@ -817,6 +820,7 @@ def main():
     out = run(P, sector_idx)
     OUT.with_suffix(".json").write_text(json.dumps({k: v for k, v in out.items() if k not in ("_summ",)}, ensure_ascii=False, indent=1, default=lambda o: float(o) if isinstance(o, (np.floating, np.integer)) else str(o)), encoding="utf-8")
     md, top = render(out, P, tick, names)
+    md = md.replace("date: 2026-10-08\n\nverdict", "date: 2026-10-08\nverdict")
     OUT.with_suffix(".md").write_text(md, encoding="utf-8")
     print("verdict", top, "| J1", {k: v["verdict"] for k, v in out["J1"].items()}, "| J3", out["J3"])
 
