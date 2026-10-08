@@ -13,7 +13,7 @@
     python research/strategy-lab/low52_fundamental_paths.py --explore          # 탐색(판정 없음): PBR·PER·영업이익·모멘텀·업종·변동성 구간별 → findings/low52-hold-factors-explore-2026-10
     python research/strategy-lab/low52_fundamental_paths.py --forward          # forward 월간 기록(사건 수만 출력) → reports/2026-10-low52-forward/
     python research/strategy-lab/low52_fundamental_paths.py --collect-recent 2026 11014   # 분기 공시 시즌 뒤 실적 갱신(보고서 1종 ≈ 31콜)
-    python research/strategy-lab/low52_fundamental_paths.py --forward-judge 24 # 신호 24개월 성숙 뒤 1회(그 전엔 아무것도 계산 안 함)
+    python research/strategy-lab/low52_fundamental_paths.py --forward-judge 12 # 중간 12·18 · 최종 24 · 연장 36 — 성숙 전엔 아무것도 계산 안 함
     python research/strategy-lab/low52_fundamental_paths.py --selftest
 """
 from __future__ import annotations
@@ -844,13 +844,17 @@ def render_explore(o):
     return "\n".join(L) + "\n"
 
 
-# ───────────── forward 재검증 (사전등록 low52-fundamental-paths-forward-preregistration-2026-10, 동결 9501467f) ─────────────
+# ───────────── forward 재검증 (사전등록 low52-fundamental-paths-forward-preregistration-2026-10, 동결 9501467f · 개정 1 b75b65bd) ─────────────
 FWD_DIR = HERE / "reports" / "2026-10-low52-forward"
 FWD_OUT = HERE / "findings" / "low52-fundamental-paths-forward-results"
 FWD_START = date(2026, 10, 30)             # 동결 다음 첫 월말
 FWD_SEED, FWD_BLOCK = 20261030, 3
-FWD_JUDGES = {"F1": ("grp", "G", "B", -1, 12), "F3": ("state", "다지기", "경신 중", -1, 8), "F4": ("sector", "개별", "동반", +1, 10)}
-EV_COLS = ["date", "ticker", "name", "grp", "gv", "state", "a", "sector", "share", "dist", "dd", "qup", "pbr", "regime", "m250", "near_share"]
+FWD_JUDGES = {   # 이름: (라벨 열, 그룹 1, 그룹 2, x 열, 가설, 최종 최소 쓸 달) — F5 는 개정 1
+    "F1": ("grp", "G", "B", "brk", -1, 12), "F3": ("state", "다지기", "경신 중", "brk", -1, 8),
+    "F4": ("sector", "개별", "동반", "brk", +1, 10), "F5": ("dd_t", 2, 0, "brk_adj", -1, 12)}
+VOL_CUTS = (0.297, 0.420)          # 개정 1 고정: 사건 전 60일 변동성 3분위 경계(과거 TRAIN~TEST 6,720건)
+INTERIM = (12, 18)                 # 개정 1: 중간 판정 — 순열 10,000회 · 한쪽 99.9백분위 · 블록 99.8%
+EV_COLS = ["date", "ticker", "name", "grp", "gv", "state", "a", "sector", "share", "dist", "dd", "qup", "pbr", "regime", "m250", "near_share", "vol60", "dd_t"]
 OUT_COLS = ["date", "ticker", "path", "r20", "x20", "r60", "x60"]
 
 
@@ -874,6 +878,14 @@ def fwd_frame():
     df["m250"] = df["mi"].map(med)
     df["regime"] = df["m250"].map(regime_label)
     df["near_share"] = df["mi"].map(share)
+    # 개정 1(F5): 사건 전 60일 변동성 · 신호월 안 52주 고점 대비 3분위 · 변동성 보정 추가 하락
+    C = F["C"]
+    lr = np.log(C[1:] / C[:-1])
+    drow = {str(d.date()): i for i, d in enumerate(A["dates"])}
+    df["vol60"] = [float(np.nanstd(lr[drow[d] - 60:drow[d], A["ti"][t]]) * np.sqrt(250)) for d, t in zip(df["date"], df["ticker"])]
+    df["dd_t"] = month_tercile(df, "dd") if len(df) else np.nan
+    df["vq"] = np.searchsorted(VOL_CUTS, df["vol60"].to_numpy())
+    df["brk_adj"] = df["brk"] - df.groupby(["mi", "vq"])["brk"].transform("mean")
     return df, A, rows
 
 
@@ -891,7 +903,7 @@ def clean(r):
 
 def usable_months(df, months):
     return {n: sum(1 for m in months if (df[(df.mi == m) & (df[c] == a)].shape[0] >= MIN_GROUP and df[(df.mi == m) & (df[c] == b)].shape[0] >= MIN_GROUP))
-            for n, (c, a, b, _, _) in FWD_JUDGES.items()}
+            for n, (c, a, b, _, _, _) in FWD_JUDGES.items()}
 
 
 def forward():
@@ -912,28 +924,32 @@ def forward():
         print(f"| {d} | {len(g)} | {int(g['path'].notna().sum())} | {c('grp', 'G')} | {c('grp', 'B')} | {c('grp', 'U')} | {c('state', '다지기')} | "
               f"{c('state', '경신 중')} | {c('sector', '개별')} | {c('sector', '동반')} | {g['regime'].iloc[0]} ({pct(g['m250'].iloc[0], 0)}) | {g['near_share'].iloc[0]:.1%} |")
     months = sorted(df["mi"].unique())
-    print(f"쓸 수 있는 신호월(그룹 각 {MIN_GROUP}건 이상, 성숙 무관): {usable_months(df, months)} / 신호월 {len(months)} — 판정은 24개월 성숙 뒤(--forward-judge 24)")
+    print(f"쓸 수 있는 신호월(그룹 각 {MIN_GROUP}건 이상, 성숙 무관): {usable_months(df, months)} / 신호월 {len(months)} — "
+          "중간 판정 12·18개월(≈2028-01·07), 최종 24개월(≈2029-01) 성숙 뒤에만 --forward-judge")
     return 0
 
 
-def fwd_verdict(bm, months, hyp, min_used, rng):
+def fwd_verdict(bm, months, hyp, min_used, rng, interim=False):
+    """최종: 순열 1,000 · 한쪽 99백분위 · 블록 95%. 중간(개정 1): 순열 10,000 · 99.9백분위 · 블록 99.8%, 못 넘으면 '계속'."""
+    q, n_null, a = (0.999, 10_000, 0.001) if interim else (0.99, N_NULL, 0.025)
+    labels = ("CONFIRMED(중간)", "REVERSE(중간)", "계속") if interim else ("CONFIRMED", "REVERSE", "INCONCLUSIVE")
     used = [m for m in months if m in bm]
     out = dict(value=wstat(bm, used), used=len(used), of=len(months))
     if len(used) < min_used:
-        return out | dict(verdict="INCONCLUSIVE(표본 부족)")
-    null = np.array([wstat({m: (rng.permutation(bm[m][0]), bm[m][1]) for m in used}, used) for _ in range(N_NULL)])
-    lo, hi = (float(x) for x in np.quantile(null, [0.01, 0.99]))
+        return out | dict(verdict="계속(표본 부족)" if interim else "INCONCLUSIVE(표본 부족)")
+    null = np.array([wstat({m: (rng.permutation(bm[m][0]), bm[m][1]) for m in used}, used) for _ in range(n_null)])
+    lo, hi = (float(x) for x in np.quantile(null, [1 - q, q]))
     n = len(months)
     boot = np.array([wstat(bm, [months[s + k] for s in rng.integers(0, n - FWD_BLOCK + 1, n // FWD_BLOCK) for k in range(FWD_BLOCK)]) for _ in range(N_BOOT)])
-    ci = [float(np.nanquantile(boot, 0.025)), float(np.nanquantile(boot, 0.975))]
+    ci = [float(np.nanquantile(boot, a)), float(np.nanquantile(boot, 1 - a))]
     v = out["value"]
     hyp_side = (v < lo and ci[1] < 0) if hyp < 0 else (v > hi and ci[0] > 0)
     rev_side = (v > hi and ci[0] > 0) if hyp < 0 else (v < lo and ci[1] < 0)
-    return out | dict(null_1=lo, null_99=hi, ci=ci, verdict="CONFIRMED" if hyp_side else ("REVERSE" if rev_side else "INCONCLUSIVE"))
+    return out | dict(null_lo=lo, null_hi=hi, ci=ci, verdict=labels[0] if hyp_side else (labels[1] if rev_side else labels[2]))
 
 
 def forward_judge(n_months):
-    """신호 n_months(24, 연장 36)개월이 모두 60거래일 성숙했을 때만 판정한다. 그 전에는 아무 값도 계산하지 않는다."""
+    """신호 n_months(중간 12·18, 최종 24, 연장 36)개월이 모두 60거래일 성숙했을 때만 판정한다. 그 전에는 아무 값도 계산하지 않는다."""
     df, A, rows = fwd_frame()
     mi0 = mi_of(FWD_START)
     months = list(range(mi0, mi0 + n_months))
@@ -944,13 +960,15 @@ def forward_judge(n_months):
     d = df[df["mi"].isin(months) & df["path"].notna()]
     logged = {(x["date"], x["ticker"]): x for x in read_jsonl(FWD_DIR / "events.jsonl")}
     drift = {c: int(sum(1 for r in d.itertuples() if (r.date, r.ticker) in logged and logged[(r.date, r.ticker)][c] != getattr(r, c)))
-             for c in ("grp", "state", "sector")}
+             for c in ("grp", "state", "sector", "dd_t")}
     rng = np.random.default_rng(FWD_SEED)
-    res = {n: fwd_verdict(by_month(d, d[c] == a, d[c] == b, "brk"), months, hyp, mn, rng) for n, (c, a, b, hyp, mn) in FWD_JUDGES.items()}
+    interim = n_months in INTERIM
+    res = {n: fwd_verdict(by_month(d, d[c] == a, d[c] == b, x), months, hyp, mn // 2 if interim else mn, rng, interim)
+           for n, (c, a, b, x, hyp, mn) in FWD_JUDGES.items()}
     reg = {}
     for lab, _, _ in REGIMES:
         ms = sorted(set(d.loc[d["regime"] == lab, "mi"]))
-        reg[lab] = {n: wstat(by_month(d, d[c] == a, d[c] == b, "brk"), ms) for n, (c, a, b, _, _) in FWD_JUDGES.items()} | {
+        reg[lab] = {n: wstat(by_month(d, d[c] == a, d[c] == b, x), ms) for n, (c, a, b, x, _, _) in FWD_JUDGES.items()} | {
             "months": len(ms), "G 추가 하락": float(d[(d.regime == lab) & (d.grp == "G")]["brk"].mean()),
             "B 추가 하락": float(d[(d.regime == lab) & (d.grp == "B")]["brk"].mean())}
     gm = d[d.grp == "G"].groupby("mi")["r60"].mean() - COST
@@ -960,15 +978,16 @@ def forward_judge(n_months):
     out = dict(n_months=n_months, judges=res, regimes=reg, records=rec, price_last=str(A["dates"][-1].date()))
     p = FWD_OUT.with_name(FWD_OUT.name + f"-{n_months}m")
     p.with_suffix(".json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
-    L = [f"# 52주 저점 × 실적 forward 판정 — 신호 {n_months}개월 (자동 산출, 해석은 따로 붙인다)", "",
-         f"사전등록 동결 9501467f. 가격 마지막 날 {out['price_last']}. 사건(성숙) {rec['events']} · 기록 없던 사건 {rec['log_missing']} · 라벨 변동 {drift}.", "",
-         "| 판정 | 값 | 쓴 달 | 귀무 1·99백분위 | 블록 95% | 판정 |", "|---|---:|---|---|---|---|"]
+    L = [f"# 52주 저점 × 실적 forward {'중간 ' if interim else ''}판정 — 신호 {n_months}개월 (자동 산출, 해석은 따로 붙인다)", "",
+         f"사전등록 동결 9501467f · 개정 1 b75b65bd. 가격 마지막 날 {out['price_last']}. 사건(성숙) {rec['events']} · 기록 없던 사건 {rec['log_missing']} · 라벨 변동 {drift}.",
+         "중간 판정에서 확정된 판정은 그때 끝나고, '계속' 인 판정만 다음 시점에 다시 본다(앞 시점 결과 파일 참고)." if interim else "", "",
+         f"| 판정 | 값 | 쓴 달 | 귀무 {'0.1·99.9' if interim else '1·99'}백분위 | 블록 {'99.8' if interim else '95'}% | 판정 |", "|---|---:|---|---|---|---|"]
     for n, r in res.items():
-        L.append(f"| {n} | {pp(r['value'])} | {r['used']}/{r['of']} | {pp(r.get('null_1'))} · {pp(r.get('null_99'))} | "
+        L.append(f"| {n} | {pp(r['value'])} | {r['used']}/{r['of']} | {pp(r.get('null_lo'))} · {pp(r.get('null_hi'))} | "
                  f"{'' if 'ci' not in r else pp(r['ci'][0]) + ' ~ ' + pp(r['ci'][1])} | **{r['verdict']}** |")
-    L += ["", "| 국면 | 달 | F1 | F3 | F4 | G 추가 하락 | B 추가 하락 |", "|---|---:|---:|---:|---:|---:|---:|"]
+    L += ["", "| 국면 | 달 | F1 | F3 | F4 | F5 | G 추가 하락 | B 추가 하락 |", "|---|---:|---:|---:|---:|---:|---:|---:|"]
     for lab, r in reg.items():
-        L.append(f"| {lab} | {r['months']} | {pp(r['F1'])} | {pp(r['F3'])} | {pp(r['F4'])} | {pct(r['G 추가 하락'], 0)} | {pct(r['B 추가 하락'], 0)} |")
+        L.append(f"| {lab} | {r['months']} | {pp(r['F1'])} | {pp(r['F3'])} | {pp(r['F4'])} | {pp(r['F5'])} | {pct(r['G 추가 하락'], 0)} | {pct(r['B 추가 하락'], 0)} |")
     L += ["", f"기록: J2(G−B 60일 초과) {pp(rec['j2'])} · G 60일 비용 후 절대(달 평균) {pct(rec['g_net60'])}."]
     p.with_suffix(".md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print("\n".join(L))
@@ -1034,6 +1053,9 @@ def selftest():
     f0 = {m: v for m, v in synth(0.3, 0.3, 4).items() if m < 24}
     check("forward: 차이 없음 → INCONCLUSIVE", fwd_verdict(f0, fm, -1, 12, np.random.default_rng(0))["verdict"] == "INCONCLUSIVE")
     check("forward: 쓸 달 부족 → 표본 부족", fwd_verdict({m: f24[m] for m in range(8)}, fm, -1, 12, np.random.default_rng(0))["verdict"] == "INCONCLUSIVE(표본 부족)")
+    f12, m12 = {m: f24[m] for m in range(12)}, list(range(12))
+    check("중간: 큰 효과는 99.9백분위도 넘음 → CONFIRMED(중간)", fwd_verdict(f12, m12, -1, 6, np.random.default_rng(0), True)["verdict"] == "CONFIRMED(중간)")
+    check("중간: 차이 없음 → 계속", fwd_verdict({m: f0[m] for m in range(12)}, m12, -1, 6, np.random.default_rng(0), True)["verdict"] == "계속")
     check("국면 경계: −1% 약세 · 0% 보통 · 20% 강세 · NaN 없음",
           [regime_label(x) for x in (-0.01, 0.0, 0.2)] == ["약세 < 0%", "보통 0~20%", "강세 ≥ 20%"] and regime_label(np.nan) is None)
     check("clean: NaN → None, numpy → 파이썬", clean({"a": np.float64("nan"), "b": np.int64(3)}) == {"a": None, "b": 3})
@@ -1051,7 +1073,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--collect-recent", nargs="*", metavar="연도 보고서코드", help="인자 없으면 2026 11013 11012")
-    g.add_argument("--forward-judge", type=int, choices=(24, 36))
+    g.add_argument("--forward-judge", type=int, choices=(12, 18, 24, 36))
     for a in ("--counts", "--snapshot", "--run", "--posthoc", "--by-period", "--explore", "--forward", "--selftest"):
         g.add_argument(a, action="store_true")
     a = ap.parse_args()
