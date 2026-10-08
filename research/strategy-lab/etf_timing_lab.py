@@ -26,6 +26,8 @@ COLS = {"BAS_DD": "date", "ISU_CD": "code", "ISU_NM": "name", "TDD_CLSPRC": "clo
         "TDD_LWPRC": "low", "NAV": "nav", "ACC_TRDVOL": "vol", "ACC_TRDVAL": "val", "OBJ_STKPRC_IDX": "idx", "IDX_IND_NM": "idx_name", "MKTCAP": "mcap"}
 DIST_TH = 0.002
 K200, KQ150, KTB3, KTB10, SPH, NDQ, GOLD = "069500", "229200", "114260", "148070", "143850", "133690", "132030"
+# 분배금 복원은 국내 지수 ETF 만 — 해외 ETF 는 NAV 와 기초지수 기준일이 하루 어긋나 '가짜 분배금'이 매일 잡힌다(첫 실행 뒤 발견, 결과 문서 코드 보정 기록)
+DIST_CODES = {K200, KQ150, KTB3, KTB10}
 COST, STRESS = 0.0005, 0.0010
 SEED, N_SHIFT, MIN_SHIFT = 20261009, 1000, 60
 WINDOWS = {"TRAIN": ("2010-01-01", "2016-12-31"), "VALID": ("2017-01-01", "2020-12-31"), "TEST": ("2021-01-01", "2026-12-31")}
@@ -59,7 +61,7 @@ def tr_returns(panel, code, cal):
     c = c[c["close"] > 0]
     pr = c["close"].pct_change()
     gap = c["idx"].pct_change() - c["nav"].pct_change()
-    dist = gap.where((gap > DIST_TH) & (gap < 0.2), 0.0).fillna(0.0)
+    dist = gap.where((gap > DIST_TH) & (gap < 0.2), 0.0).fillna(0.0) if code in DIST_CODES else 0.0
     r = (pr + dist).replace([np.inf, -np.inf], np.nan)
     out = r.reindex(cal)
     first = c.index.min()
