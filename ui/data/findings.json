@@ -1,5 +1,5 @@
 {
-  "count": 481,
+  "count": 482,
   "findings": [
     {
       "file": "research/strategy-lab/findings/split-announcement-preregistration-2026-10.md",
@@ -358,6 +358,25 @@
         "해마다 무작위 달 순열 10,000회"
       ],
       "reason": "신호: 있음 · 경제성: 미달. D = +3.13%p, 순열 p = 0.011. (스크립트 판정)",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/kimchi-premium-preregistration-2026-10.md",
+      "title": "김치 프리미엄 → 비트코인 30일 — 사전등록",
+      "date": "2026-10-09",
+      "bodyMarkdown": "---\ntrack: crypto\nfactor: kimchi-premium\ndate: 2026-10-09\nverdict: PREREGISTERED (사용자 사전 위임 2026-10-09 새벽 — 정의 동결, 자료 수집·계산 코드는 이 커밋 뒤)\ncriteria_version: research-only\nreason: >-\n  김치 프리미엄(업비트 원화 가격 ÷ (바이낸스 USDT 가격 × 원/달러) − 1)이 크게 높을 때(국내 개인 과열) 그 뒤 30일 비트코인(달러 기준) 수익이 낮은가, 역프리미엄일 때 높은가.\n  2026-08 감사(`krw-usdt-premium-audit`)는 환율 자료가 없어 멈췄다 — FRED DEXKOUS 로 계산한다. 크립토 상승충격 모의 슬리브와 별개이며 점수·매매에 연결하지 않는다.\n---\n\n# 김치 프리미엄 → 비트코인 30일 — 사전등록\n\n## 1. 자료·정의 (동결)\n\n- 업비트 KRW-BTC·KRW-ETH 일봉(공개 API, 2017-10 ~, 캔들 마감 00:00 UTC) · 바이낸스 BTCUSDT·ETHUSDT 일봉(공개 API, 마감 00:00 UTC) · FRED DEXKOUS(원/달러, 뉴욕 정오).\n- `KP_d = 업비트 종가_d ÷ (바이낸스 종가_d × FX_{d 이전 마지막 영업일}) − 1`(환율은 하루 앞선 값 — 그날 환율은 그날 밤에야 공표되므로). USDT = 1달러로 둔다.\n- 신호(BTC 로 판정, ETH 는 기록): **KPH** = KP ≥ 직전 365일 KP 의 90백분위(유효 300일 이상) → 다음 날부터 30일 BTC(USDT) 수익. **KPL** = KP ≤ 직전 365일 10백분위.\n- 에피소드: 같은 칸 신호 뒤 30일 안 새 신호 무시. 구간(신호일): **TRAIN 2018-10 ~ 2020-12 · VALID 2021 ~ 2022 · TEST 2023 ~ 2026-10**(직전 365일 필요).\n\n## 2. 판정\n\n- 결과 = 30일 BTC 수익 − 같은 구간 무작위 날짜 30일 수익 평균. 귀무 = 같은 수의 무작위 날짜(1,000회) → KPH 는 1백분위, KPL 은 99백분위(두 칸, 한쪽 0.01).\n- **확정** = 가설 방향(KPH 음 · KPL 양)으로 귀무 백분위 밖 ∧ 세 구간 같은 부호. 그 밖 NONE. 에피소드가 구간당 5개 미만이면 그 구간 표본 부족 → NONE.\n- 기록: KP 시계열 요약(평균·극값 날짜), ETH 같은 규칙, 7·90일 보유, 절대 문턱(KP ≥ 5% · ≤ −1%) 변형.\n\n## 3. 재실행·사후 금지\n\n- 90·10백분위·365일·30일을 결과를 보고 바꾸지 않는다. 현실적 기대: 과열 국면이 손에 꼽을 만큼 적어(2018·2021) 표본 부족 또는 INCONCLUSIVE.\n",
+      "category": null,
+      "track": "crypto",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED (사용자 사전 위임 2026-10-09 새벽 — 정의 동결, 자료 수집·계산 코드는 이 커밋 뒤)",
+      "criteria_version": "research-only",
+      "conditions": null,
+      "reason": "김치 프리미엄(업비트 원화 가격 ÷ (바이낸스 USDT 가격 × 원/달러) − 1)이 크게 높을 때(국내 개인 과열) 그 뒤 30일 비트코인(달러 기준) 수익이 낮은가, 역프리미엄일 때 높은가. 2026-08 감사(`krw-usdt-premium-audit`)는 환율 자료가 없어 멈췄다 — FRED DEXKOUS 로 계산한다. 크립토 상승충격 모의 슬리브와 별개이며 점수·매매에 연결하지 않는다.",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
