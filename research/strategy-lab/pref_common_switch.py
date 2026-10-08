@@ -102,15 +102,15 @@ def summarize(ev, pool, side, rng):
         return None
     df["win"] = df["date"].dt.year.map(win_of)
     df["mi"] = (df["date"].dt.year - 2010) * 12 + df["date"].dt.month - 1
-    null = np.zeros(REPS)
+    null, cnt = np.zeros(REPS), 0
     for _, r in df.iterrows():
         cand, rel = pool[r["pair"]]
-        if len(cand) == 0:
-            null += np.nan
+        if len(cand) == 0:                 # 무작위 후보가 없는 짝은 귀무에서 뺀다(첫 실행 뒤 수정 — 결과 문서 코드 보정 기록)
             continue
         x = rel[rng.choice(cand, REPS)]
         null += x if side == "cheap" else -x
-    null /= len(df)
+        cnt += 1
+    null /= max(cnt, 1)
     mm = df.groupby("mi")["rel"].mean().sort_index()
     nb = int(np.ceil(len(mm) / BLOCK))
     st = rng.integers(0, max(len(mm) - BLOCK + 1, 1), (BOOT, nb))
