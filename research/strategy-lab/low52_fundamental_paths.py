@@ -2,11 +2,12 @@
 """52주 저점 근처 × 실적 — 사건 정의·사건 수·현재 스냅샷.
 사전등록: findings/low52-fundamental-paths-preregistration-2026-10.md. 정의 상수는 사전등록 §1~§3 과 같고 결과를 보고 바꾸지 않는다.
 
-지금 이 파일은 **수익률을 보지 않는다**(사건 수·현재 목록만). 경로·수익률·판정 계산은 사용자 GO 뒤에 추가한다.
+--counts·--snapshot 은 수익률을 보지 않는다. 경로·수익률·판정(--run)은 사용자 GO(2026-10-08) 뒤 추가했고 실행 전에 커밋했다.
 
     python research/strategy-lab/low52_fundamental_paths.py --collect-recent   # DART 2026 1분기·반기 주요계정(≈62콜) → data/quarterly-multi/recent-2026/
     python research/strategy-lab/low52_fundamental_paths.py --counts           # 월말 사건 수(그룹·상태·연도) — 사전등록 부록 A
     python research/strategy-lab/low52_fundamental_paths.py --snapshot         # 가격 마지막 날 목록 → reports/2026-10-low52-snapshot/ (관찰용, gitignore)
+    python research/strategy-lab/low52_fundamental_paths.py --run              # 판정 J1~J4 + 기록 → findings/low52-fundamental-paths-results-2026-10.{md,json}
     python research/strategy-lab/low52_fundamental_paths.py --selftest
 """
 from __future__ import annotations
@@ -89,7 +90,7 @@ def features(dates, tick, P, halt0, names):
     with np.errstate(invalid="ignore"):
         elig = (tv >= LIQ_MIN) & ~halt & ~np.isnan(C) & ~np.isnan(low250) & col_ok[None, :]
         near = elig & (C <= (1 + NEAR) * low250)
-    return dict(C=C, L=L, low250=low250, high250=high250, tv=tv, elig=elig, near=near)
+    return dict(O=P["open"], C=C, L=L, low250=low250, high250=high250, tv=tv, elig=elig, near=near)
 
 
 # ───────────────────── 실적(PIT) ─────────────────────
@@ -336,6 +337,303 @@ def snapshot():
     return 0
 
 
+# ───────────────────── 경로·수익률·판정 (사전등록 §4~§6, GO 뒤 추가·실행 전 커밋) ─────────────────────
+OUT = HERE / "findings" / "low52-fundamental-paths-results-2026-10"
+H_MAIN, HS = 60, (20, 60, 120)
+BREAK_X, REBOUND_X = 0.90, 1.20
+COST, COST_STRESS = 0.002354, 0.00335
+SEED, N_NULL, N_BOOT, BLOCK = 20261009, 1000, 2000, 6
+WINDOWS = {"TRAIN": (2016, 2020), "VALID": (2021, 2022), "TEST": (2023, 2025), "REC": (2026, 2026)}
+JUDGE_WINS = ("TRAIN", "VALID", "TEST")
+NM = (2025 - Y0 + 1) * 12          # TRAIN~TEST 달 수(2016-01 ~ 2025-12)
+PATHS = ("추가 하락", "다지기", "반등", "끝남")
+JUDGES = {   # 이름: (라벨 열, 그룹 1, 그룹 2, x 열, 가설 부호)
+    "J1": ("grp", "G", "B", "brk", -1),
+    "J2": ("grp", "G", "B", "x60", +1),
+    "J3": ("state", "다지기", "경신 중", "brk", 0),
+    "J4": ("sector", "개별", "동반", "brk", 0),
+}
+
+
+def win_of(y):
+    return next((w for w, (a, b) in WINDOWS.items() if a <= y <= b), None)
+
+
+def path_of(seg, low, E, ended):
+    """진입일부터 60거래일 종가 seg 에서 먼저 닿는 쪽. ended = 그 안에 종목 데이터가 끝남(폐지·합병 등)."""
+    for c in seg:
+        if np.isnan(c):
+            continue
+        if c <= BREAK_X * low:
+            return "추가 하락"
+        if c >= REBOUND_X * E:
+            return "반등"
+    return "끝남" if ended else "다지기"
+
+
+def build_events(A):
+    F, dates, tick = A["F"], A["dates"], A["tick"]
+    O, C = F["O"], F["C"]
+    D = len(dates)
+    Cff = pd.DataFrame(C).ffill().to_numpy()
+    valid = ~np.isnan(C)
+    lv = np.where(valid.any(0), D - 1 - np.argmax(valid[::-1], axis=0), -1)     # 종목별 마지막 유효 종가 행
+    ev, bench, no_entry = [], {}, 0
+    for r in month_end_rows(dates):
+        e = r + 1
+        if e >= D:
+            continue
+        d = dates[r].date()
+        mi = (d.year - Y0) * 12 + d.month - 1
+        E = O[e]
+        ok = F["elig"][r] & np.isfinite(E)
+        no_entry += int((F["near"][r] & ~np.isfinite(E)).sum())
+        rets = {}
+        for h in HS:
+            if e + h <= D - 1:                     # h 거래일 뒤 시가(없으면 그때까지 마지막 종가)
+                rets[h] = np.where(np.isfinite(O[e + h]), O[e + h], Cff[e + h]) / E - 1
+                bench[(mi, h)] = float(np.nanmean(rets[h][ok]))
+        pbr, _ = valuation_at(A["krx"], dates, C, A["ti"], r)
+        med = np.nanmedian(np.where(ok, pbr, np.nan))
+        share = sector_share(F["near"][r], F["elig"][r], tick, A["sector"])
+        for j in np.flatnonzero(F["near"][r] & np.isfinite(E)):
+            f = fundamentals(A["quarters"].get(tick[j], []), d)
+            grp = group_of(f)
+            st, a = state_at(F["L"], C, F["low250"], r, j)
+            s = share(j)
+            low = F["low250"][r, j]
+            x = dict(mi=mi, year=d.year, win=win_of(d.year), date=str(d), ticker=tick[j], name=A["names"].get(tick[j], ""),
+                     grp=grp, gv=bool(grp == "G" and np.isfinite(pbr[j]) and pbr[j] <= med), state=st, a=a,
+                     sector=sector_label(s), share=s, dist=C[r, j] / low - 1, dd=C[r, j] / F["high250"][r, j] - 1,
+                     qup=None if f is None else bool(f["q_op"] > f["q_op_prev"]), pbr=pbr[j], path=None)
+            if e + H_MAIN <= D - 1:
+                x["path"] = path_of(C[e:e + H_MAIN, j], low, E[j], lv[j] < e + H_MAIN - 1)
+            for h in HS:
+                x[f"r{h}"] = float(rets[h][j]) if h in rets else np.nan
+                x[f"x{h}"] = x[f"r{h}"] - bench[(mi, h)] if h in rets else np.nan
+            ev.append(x)
+    df = pd.DataFrame(ev)
+    df["brk"] = np.where(df["path"].isna(), np.nan, (df["path"] == "추가 하락").astype(float))
+    df["brk_end"] = np.where(df["path"].isna(), np.nan, df["path"].isin(["추가 하락", "끝남"]).astype(float))
+    return df, bench, no_entry
+
+
+def by_month(df, mask1, mask2, xcol):
+    """두 그룹이 각 MIN_GROUP 이상인 달 → {mi: (x 배열[그룹 1 먼저], n1)}."""
+    out = {}
+    d = df[(mask1 | mask2) & df[xcol].notna()]
+    m1 = mask1[d.index]
+    for mi, idx in d.groupby("mi").groups.items():
+        g1, g2 = d.loc[idx][m1[idx]][xcol].to_numpy(float), d.loc[idx][~m1[idx]][xcol].to_numpy(float)
+        if len(g1) >= MIN_GROUP and len(g2) >= MIN_GROUP:
+            out[int(mi)] = (np.r_[g1, g2], len(g1))
+    return out
+
+
+def wstat(bm, months):
+    """달별 (그룹 1 평균 − 그룹 2 평균) 의 표본 가중 평균, w = n1·n2/(n1+n2). months 에 중복이 있으면 그만큼 센다."""
+    num = den = 0.0
+    for m in months:
+        if m in bm:
+            v, n1 = bm[m]
+            n2 = len(v) - n1
+            w = n1 * n2 / (n1 + n2)
+            num += w * (v[:n1].mean() - v[n1:].mean())
+            den += w
+    return num / den if den else np.nan
+
+
+def win_months(w):
+    a, b = WINDOWS[w]
+    return list(range((a - Y0) * 12, (b - Y0 + 1) * 12))
+
+
+def verdict_of(res, hyp):
+    if any(res[w]["insufficient"] for w in JUDGE_WINS):
+        return "INCONCLUSIVE(표본 부족)"
+    t, v, s = (res[w]["value"] for w in JUDGE_WINS)
+    ci = res["ALL"]["ci"]
+    if not (abs(t) > res["floor"] and np.sign(v) == np.sign(t) == np.sign(s) and (ci[0] > 0 or ci[1] < 0)):
+        return "INCONCLUSIVE"
+    return "반대 방향 확정" if hyp and np.sign(t) != hyp else "CONFIRMED"
+
+
+def judge(bm, hyp, rng):
+    res = {}
+    for w in WINDOWS:
+        ms = win_months(w)
+        used = [m for m in ms if m in bm]
+        res[w] = dict(value=wstat(bm, used), months=len(used), of=len(ms), insufficient=len(used) * 2 < len(ms),
+                      n1=int(sum(bm[m][1] for m in used)), n2=int(sum(len(bm[m][0]) - bm[m][1] for m in used)))
+    train = [m for m in win_months("TRAIN") if m in bm]
+    null = np.array([wstat({m: (rng.permutation(bm[m][0]), bm[m][1]) for m in train}, train) for _ in range(N_NULL)])
+    res["floor"] = float(np.nanquantile(np.abs(null), 0.99)) if train else np.nan
+    boot = np.array([wstat(bm, [s + k for s in rng.integers(0, NM - BLOCK + 1, NM // BLOCK) for k in range(BLOCK)])
+                     for _ in range(N_BOOT)])
+    res["ALL"] = dict(value=wstat(bm, range(NM)), ci=[float(np.nanquantile(boot, 0.025)), float(np.nanquantile(boot, 0.975))])
+    res["verdict"] = verdict_of(res, hyp)
+    return res
+
+
+def window_values(bm):
+    return {w: wstat(bm, win_months(w)) for w in WINDOWS} | {"ALL": wstat(bm, range(NM))}
+
+
+def seg_table(d):
+    """사건 단위 단순 집계: n, 경로 비율, 60일 초과 평균·중앙값, 20·120일 초과 평균, 60일 비용 후 절대 수익 > 0 비율."""
+    m = d[d["path"].notna()]
+    row = dict(n=len(m))
+    for p in PATHS:
+        row[p] = float((m["path"] == p).mean()) if len(m) else np.nan
+    for h in HS:
+        row[f"x{h}"] = float(d[f"x{h}"].mean())
+    row["x60_med"] = float(m["x60"].median())
+    row["win60"] = float((m["r60"] - COST > 0).mean()) if len(m) else np.nan
+    return row
+
+
+def economic(df, cost):
+    """G 의 달별 평균(60일 비용 후 절대 수익·초과)을 구간별로 다시 평균."""
+    g = df[(df["grp"] == "G") & df["x60"].notna()]
+    mm = g.groupby(["win", "mi"]).agg(net=("r60", "mean"), ex=("x60", "mean")).reset_index()
+    mm["net"] -= cost
+    return {w: dict(net=float(mm.loc[mm["win"] == w, "net"].mean()), ex=float(mm.loc[mm["win"] == w, "ex"].mean()),
+                    months=int((mm["win"] == w).sum())) for w in WINDOWS}
+
+
+def run():
+    A = load_all()
+    df, bench, no_entry = build_events(A)
+    rng = np.random.default_rng(SEED)
+    J = {}
+    for name, (col, a, b, xcol, hyp) in JUDGES.items():
+        J[name] = judge(by_month(df, df[col] == a, df[col] == b, xcol), hyp, rng)
+    econ = {"base": economic(df, COST), "stress": economic(df, COST_STRESS)}
+    econ_ok = J["J2"]["verdict"] == "CONFIRMED" and all(econ["base"][w]["net"] > 0 and econ["base"][w]["ex"] > 0 for w in ("VALID", "TEST"))
+
+    jt = df[df["win"].isin(JUDGE_WINS)]
+    rec = {}
+    # 1. 그룹별(G·GV·B·U) × 구간
+    rec["groups"] = {w: {g: seg_table(df[(df["win"] == w) & m]) for g, m in
+                         (("G", df["grp"] == "G"), ("GV", df["gv"]), ("B", df["grp"] == "B"), ("U", df["grp"] == "U"))}
+                     for w in WINDOWS}
+    # 2. G 안 세분(TRAIN~TEST 묶음)
+    G = jt[jt["grp"] == "G"]
+    sec3 = np.where(G["share"].isna(), "결측", np.where(G["share"] < 0.10, "개별(<10%)", np.where(G["share"] < 0.30, "10~30%", "≥30%")))
+    pq, dq = G["pbr"].quantile([1 / 3, 2 / 3]).to_numpy(), G["dd"].quantile([1 / 3, 2 / 3]).to_numpy()
+    segs = {
+        "상태": G["state"].to_numpy(),
+        "업종 동반": sec3,
+        "저점 거리": np.where(G["dist"] < 0.02, "0~2%", "2~5%"),
+        "PBR 3분위(G 안)": np.where(G["pbr"].isna(), "결측", np.where(G["pbr"] <= pq[0], "하", np.where(G["pbr"] <= pq[1], "중", "상"))),
+        "52주 고점 대비 낙폭 3분위": np.where(G["dd"] <= dq[0], "깊음", np.where(G["dd"] <= dq[1], "중간", "얕음")),
+        "최근 분기 영업이익 전년 대비": np.where(G["qup"] == True, "증가", "감소·같음"),
+    }
+    rec["g_segments"] = {k: {lab: seg_table(G[v == lab]) for lab in pd.unique(v)} for k, v in segs.items()}
+    rec["g_segment_cuts"] = dict(pbr=pq.tolist(), dd=dq.tolist())
+    # 3. GV vs B · G 안 J3·J4
+    rec["gv_vs_b"] = {x: window_values(by_month(df, df["gv"], df["grp"] == "B", x)) for x in ("brk", "x60")}
+    gm = df["grp"] == "G"
+    rec["j3_in_g"] = window_values(by_month(df, gm & (df["state"] == "다지기"), gm & (df["state"] == "경신 중"), "brk"))
+    rec["j4_in_g"] = window_values(by_month(df, gm & (df["sector"] == "개별"), gm & (df["sector"] == "동반"), "brk"))
+    # 4. 끝남 = 추가 하락으로 본 J1
+    rec["j1_end_as_break"] = window_values(by_month(df, df["grp"] == "G", df["grp"] == "B", "brk_end"))
+    # 5. 시장 국면(그 달 적격 유니버스 60일 평균 수익 부호)
+    up = {mi for (mi, h), v in bench.items() if h == 60 and v > 0 and mi < NM}
+    down = {mi for (mi, h), v in bench.items() if h == 60 and v <= 0 and mi < NM}
+    rec["regime"] = {}
+    for x in ("brk", "x60"):
+        bm = by_month(df, df["grp"] == "G", df["grp"] == "B", x)
+        rec["regime"][x] = dict(up=wstat(bm, sorted(up)), down=wstat(bm, sorted(down)), up_months=len(up & set(bm)), down_months=len(down & set(bm)))
+    # 6. G 상위·하위 20건(TRAIN~TEST, 60일 절대 수익)
+    cols = ["date", "ticker", "name", "state", "r60", "x60", "path"]
+    Gm = G[G["r60"].notna()].sort_values("r60")
+    rec["g_top20"] = Gm.tail(20)[::-1][cols].to_dict("records")
+    rec["g_bottom20"] = Gm.head(20)[cols].to_dict("records")
+    # 7. 수
+    rec["counts"] = dict(events=len(df), mature=int(df["path"].notna().sum()), no_entry=no_entry,
+                         by_win={w: dict(df[df["win"] == w]["grp"].value_counts()) for w in WINDOWS})
+    out = dict(judges=J, economic=econ, economic_ok=econ_ok, records=rec,
+               params=dict(H=H_MAIN, BREAK_X=BREAK_X, REBOUND_X=REBOUND_X, COST=COST, SEED=SEED, N_NULL=N_NULL, N_BOOT=N_BOOT,
+                           BLOCK=BLOCK, MIN_GROUP=MIN_GROUP, price_last=str(A["dates"][-1].date())))
+    OUT.with_suffix(".json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=lambda o: None if o is None else (float(o) if np.isscalar(o) else str(o))), encoding="utf-8")
+    OUT.with_suffix(".md").write_text(render(out), encoding="utf-8")
+    for k, v in J.items():
+        print(k, v["verdict"], {w: round(v[w]["value"], 4) for w in JUDGE_WINS}, "floor", round(v["floor"], 4), "ci", [round(c, 4) for c in v["ALL"]["ci"]])
+    print("→", OUT.with_suffix(".md"))
+    return 0
+
+
+def pct(x, d=1):
+    return "" if x is None or not np.isfinite(x) else f"{x * 100:+.{d}f}%"
+
+
+def pp(x, d=1):
+    return "" if x is None or not np.isfinite(x) else f"{x * 100:+.{d}f}%p"
+
+
+def render(o):
+    J, rec, econ = o["judges"], o["records"], o["economic"]
+    conf = [k for k, v in J.items() if v["verdict"] == "CONFIRMED"]
+    rev = [k for k, v in J.items() if v["verdict"] == "반대 방향 확정"]
+    overall = "CONFIRMED" if conf else ("REVERSE" if rev else "INCONCLUSIVE")
+    sig = "있음(" + "·".join(conf + [f"{k} 반대" for k in rev]) + ")" if conf or rev else "없음"
+    unit = {"J1": pp, "J2": pp, "J3": pp, "J4": pp}
+    desc = {"J1": "추가 하락 확률 G − B", "J2": "60일 초과수익 G − B", "J3": "추가 하락 확률 다지기 − 경신 중", "J4": "추가 하락 확률 개별 − 동반"}
+    L = ["---", "track: kr", "factor: low52-fundamental-paths", "date: 2026-10-08", f"verdict: {overall}",
+         "criteria_version: research-only (low52-fundamental-paths-preregistration-2026-10)",
+         'conditions: ["월말 52주 저점 +5% 이내 · 거래대금 10억 · 보통주", "G = TTM 영업이익 흑자·전년 대비 증가(PIT)", '
+         '"경로 3갈래 60거래일(추가 하락 = 저점 × 0.90, 반등 = 진입가 × 1.20)", "같은 달 안 비교·표본 가중·월 안 순열 99백분위·6개월 블록 부트스트랩", '
+         '"TRAIN 2016~2020 / VALID 2021~22 / TEST 2023~25", "비용 23.54bp"]',
+         "reason: >-",
+         f"  신호: {sig} · 경제성: {'통과' if o['economic_ok'] else '미달'}. "
+         + " · ".join(f"{k} {v['verdict']}" for k, v in J.items()) + ". (스크립트가 계산한 판정, 정의는 사전등록 그대로)",
+         "---", "", "# 52주 저점 근처 × 실적 — 이후 경로 3갈래 결과", "",
+         "수치는 `low52_fundamental_paths.py --run` 이 계산해 그대로 옮긴 값이다. 정의·구간·판정은 사전등록(`low52-fundamental-paths-preregistration-2026-10`, 동결 876c905f) 그대로이며 결과를 보고 바꾸지 않았다.",
+         f"가격 마지막 날 {o['params']['price_last']}. 사건 {rec['counts']['events']:,}건(60일 성숙 {rec['counts']['mature']:,}, 진입 시가 없어 제외 {rec['counts']['no_entry']}).", "",
+         "## 1. 판정", "",
+         "| 판정 | 값 | TRAIN | VALID | TEST | 전체(2016~2025) [블록 95%] | 바닥선(TRAIN 99백분위) | 쓴 달 TRAIN/VALID/TEST | 사건 그룹1/그룹2 (TRAIN) | 판정 |",
+         "|---|---|---:|---:|---:|---|---:|---|---|---|"]
+    for k, v in J.items():
+        f = unit[k] if k != "J2" else pp
+        L.append(f"| {k} | {desc[k]} | {f(v['TRAIN']['value'])} | {f(v['VALID']['value'])} | {f(v['TEST']['value'])} | "
+                 f"{f(v['ALL']['value'])} [{f(v['ALL']['ci'][0])}, {f(v['ALL']['ci'][1])}] | {f(v['floor'])} | "
+                 f"{v['TRAIN']['months']}/{v['VALID']['months']}/{v['TEST']['months']} | {v['TRAIN']['n1']}/{v['TRAIN']['n2']} | **{v['verdict']}** |")
+    L += ["", f"2026 성숙분(기록): " + " · ".join(f"{k} {pp(v['REC']['value'])}({v['REC']['months']}달)" for k, v in J.items()), "",
+          "## 2. 경제성 (G 의 60일 절대 수익·초과, 달별 평균의 구간 평균)", "",
+          "| 구간 | 비용 23.54bp 후 절대 | 초과(유니버스 대비) | 스트레스 33.5bp 후 절대 | 달 수 |", "|---|---:|---:|---:|---:|"]
+    for w in WINDOWS:
+        b, s = econ["base"][w], econ["stress"][w]
+        L.append(f"| {w} | {pct(b['net'])} | {pct(b['ex'])} | {pct(s['net'])} | {b['months']} |")
+    L += ["", f"ECONOMIC 조건(J2 가설 방향 확정 ∧ VALID·TEST 절대·초과 모두 양): **{'통과' if o['economic_ok'] else '미달'}**.", "",
+          "## 3. 기록 — 그룹별 경로·수익 (사건 단위 단순 집계)", "",
+          "| 구간 | 그룹 | 사건(성숙) | 추가 하락 | 다지기 | 반등 | 끝남 | 20일 초과 | 60일 초과 평균 | 60일 초과 중앙 | 120일 초과 | 60일 비용 후 > 0 |",
+          "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for w, gs in rec["groups"].items():
+        for g, r in gs.items():
+            L.append(f"| {w} | {g} | {r['n']} | {pct(r['추가 하락'], 0)} | {pct(r['다지기'], 0)} | {pct(r['반등'], 0)} | {pct(r['끝남'], 0)} | "
+                     f"{pct(r['x20'])} | {pct(r['x60'])} | {pct(r['x60_med'])} | {pct(r['x120'])} | {pct(r['win60'], 0)} |")
+    L += ["", "## 4. 기록 — G 안 세분 (TRAIN~TEST 묶음, 사건 단위)", "",
+          f"PBR 3분위 경계 {', '.join(f'{x:.2f}' for x in rec['g_segment_cuts']['pbr'])} · 낙폭 3분위 경계 {', '.join(pct(x, 0) for x in rec['g_segment_cuts']['dd'])}.", "",
+          "| 축 | 칸 | 사건(성숙) | 추가 하락 | 다지기 | 반등 | 끝남 | 60일 초과 평균 | 60일 초과 중앙 | 60일 비용 후 > 0 |", "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for k, cells in rec["g_segments"].items():
+        for lab, r in sorted(cells.items()):
+            L.append(f"| {k} | {lab} | {r['n']} | {pct(r['추가 하락'], 0)} | {pct(r['다지기'], 0)} | {pct(r['반등'], 0)} | {pct(r['끝남'], 0)} | "
+                     f"{pct(r['x60'])} | {pct(r['x60_med'])} | {pct(r['win60'], 0)} |")
+    L += ["", "## 5. 기록 — 다른 대조 (같은 가중 방식, 판정 아님)", "", "| 대조 | TRAIN | VALID | TEST | REC 2026 | 전체 |", "|---|---:|---:|---:|---:|---:|"]
+    for lab, wv in (("GV vs B 추가 하락", rec["gv_vs_b"]["brk"]), ("GV vs B 60일 초과", rec["gv_vs_b"]["x60"]),
+                    ("J1, 끝남 = 추가 하락", rec["j1_end_as_break"]), ("J3 G 안에서", rec["j3_in_g"]), ("J4 G 안에서", rec["j4_in_g"])):
+        L.append(f"| {lab} | {pp(wv['TRAIN'])} | {pp(wv['VALID'])} | {pp(wv['TEST'])} | {pp(wv['REC'])} | {pp(wv['ALL'])} |")
+    rg = rec["regime"]
+    L += ["", f"시장 국면(그 달 유니버스 60일 평균 수익): 상승 달 J1 {pp(rg['brk']['up'])} · J2 {pp(rg['x60']['up'])} ({rg['brk']['up_months']}달) / "
+          f"하락 달 J1 {pp(rg['brk']['down'])} · J2 {pp(rg['x60']['down'])} ({rg['brk']['down_months']}달).", "",
+          "## 6. 기록 — G 60일 절대 수익 상위·하위 20건 (TRAIN~TEST)", "", "| 순 | 신호일 | 종목 | 상태 | 60일 | 초과 | 경로 |", "|---|---|---|---|---:|---:|---|"]
+    for tag, rows in (("상", rec["g_top20"]), ("하", rec["g_bottom20"])):
+        for i, x in enumerate(rows, 1):
+            L.append(f"| {tag}{i} | {x['date']} | {x['name']}({x['ticker']}) | {x['state']} | {pct(x['r60'], 0)} | {pct(x['x60'], 0)} | {x['path']} |")
+    return "\n".join(L) + "\n"
+
+
 # ───────────────────── 자체 점검 ─────────────────────
 def selftest():
     ok = True
@@ -367,6 +665,26 @@ def selftest():
     check("신선도 200일 초과 → U", fundamentals(s, date(2027, 3, 1)) is None)
     check("분기 말일: 2026Q2 = 6/30", quarter_end(2026 * 4 + 2) == date(2026, 6, 30) and quarter_end(2025 * 4 + 4) == date(2025, 12, 31))
     check("증감 문구", growth_txt(5, -1) == "흑자전환" and growth_txt(-1, -2) == "적자 지속" and growth_txt(12, 10) == "+20%")
+
+    # 경로 3갈래: 저점 100, 진입 103 → 추가 하락 ≤ 90 · 반등 ≥ 123.6
+    check("저점 −10% 를 먼저 깸 → 추가 하락", path_of(np.array([100, 95, 89, 130.0]), 100, 103, False) == "추가 하락")
+    check("+20% 를 먼저 넘음 → 반등(결측일 건너뜀)", path_of(np.array([100, np.nan, 124, 80.0]), 100, 103, False) == "반등")
+    check("둘 다 아님 → 다지기", path_of(np.array([95, 110, 120.0]), 100, 103, False) == "다지기")
+    check("둘 다 아니고 데이터 끝남 → 끝남", path_of(np.array([95, np.nan, np.nan]), 100, 103, True) == "끝남")
+    # 가중 평균: 달 0 은 G[1,1,1]·B[0,0,0] → 차 1, w 1.5 · 달 1 은 G[0]×3·B[0]×6 → 차 0, w 2
+    bm = {0: (np.r_[np.ones(3), np.zeros(3)], 3), 1: (np.zeros(9), 3)}
+    check("표본 가중 평균 = 1.5/3.5", abs(wstat(bm, [0, 1]) - 1.5 / 3.5) < 1e-12 and abs(wstat(bm, [0, 0, 1]) - 3 / 5) < 1e-12)
+    # 판정 규칙: 합성 120달, 달마다 G·B 각 10건
+    def synth(p1, p2, seed):
+        r = np.random.default_rng(seed)
+        rows = [dict(mi=m, grp=g, brk=float(r.random() < (p1 if g == "G" else p2))) for m in range(NM) for g in ("G", "B") for _ in range(10)]
+        d = pd.DataFrame(rows)
+        return by_month(d, d["grp"] == "G", d["grp"] == "B", "brk")
+    check("G 추가 하락 10% vs B 40% → 가설(−) 확정", judge(synth(0.1, 0.4, 1), -1, np.random.default_rng(0))["verdict"] == "CONFIRMED")
+    check("같은 효과를 가설(+)로 보면 반대 방향 확정", judge(synth(0.1, 0.4, 1), +1, np.random.default_rng(0))["verdict"] == "반대 방향 확정")
+    check("차이 없음 → 확정 아님", judge(synth(0.3, 0.3, 2), -1, np.random.default_rng(0))["verdict"].startswith("INCONCLUSIVE"))
+    sparse = {m: v for m, v in synth(0.1, 0.4, 1).items() if m % 3 == 0}
+    check("쓸 수 있는 달이 절반 미만 → 표본 부족", judge(sparse, -1, np.random.default_rng(0))["verdict"] == "INCONCLUSIVE(표본 부족)")
     print("ALL PASS" if ok else "FAILED")
     return 0 if ok else 1
 
@@ -374,7 +692,7 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
-    for a in ("--collect-recent", "--counts", "--snapshot", "--selftest"):
+    for a in ("--collect-recent", "--counts", "--snapshot", "--run", "--selftest"):
         g.add_argument(a, action="store_true")
     a = ap.parse_args()
-    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else selftest())
+    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else run() if a.run else selftest())
