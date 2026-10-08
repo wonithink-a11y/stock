@@ -9,6 +9,7 @@
     python research/strategy-lab/low52_fundamental_paths.py --snapshot         # 가격 마지막 날 목록 → reports/2026-10-low52-snapshot/ (관찰용, gitignore)
     python research/strategy-lab/low52_fundamental_paths.py --run              # 판정 J1~J4 + 기록 → findings/low52-fundamental-paths-results-2026-10.{md,json}
     python research/strategy-lab/low52_fundamental_paths.py --posthoc          # 사후 기록(결과 뒤 추가, 판정 불사용) — 결과 문서 §7 표
+    python research/strategy-lab/low52_fundamental_paths.py --by-period        # 사후 기록: 연도별·기간 분할·코스피 국면별 — 결과 문서 §9 표
     python research/strategy-lab/low52_fundamental_paths.py --selftest
 """
 from __future__ import annotations
@@ -590,6 +591,67 @@ def posthoc():
     return 0
 
 
+KOSPI = HERE / "data" / "market-regime" / "krkospi_raw.parquet"
+
+
+def byperiod():
+    """사후 기록(사용자 질문 2026-10-08 '2024 이전과 이후가 다른가', 판정 불사용): 연도별·제안 분할·코스피 250일 수익 국면별 J1~J4 값."""
+    A = load_all()
+    df, _, _ = build_events(A)
+    k = pd.read_parquet(KOSPI).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date")["value"]
+    k250 = (k / k.shift(250) - 1).dropna()
+    df["k250"] = [k250.asof(pd.Timestamp(d)) if pd.Timestamp(d) <= k250.index[-1] else np.nan for d in df["date"]]
+    bms = {n: by_month(df, df[c] == a, df[c] == b, x) for n, (c, a, b, x, _) in JUDGES.items()}
+    mk = df.groupby("mi")["k250"].first()
+
+    def line(lab, months, sel):
+        d = df[sel & df["path"].notna()]
+        g, b = d[d.grp == "G"], d[d.grp == "B"]
+        vals = " | ".join(pp(wstat(bms[n], months)) for n in JUDGES)
+        used = sum(1 for m in months if m in bms["J1"])
+        return (f"| {lab} | {len(d)} | {pct((g.path == '추가 하락').mean(), 0)} | {pct((b.path == '추가 하락').mean(), 0)} | {pct(g.x60.mean())} | "
+                f"{vals} | {used} |")
+    hdr = ("| 구간 | 사건(성숙) | G 추가 하락 | B 추가 하락 | G 60일 초과 | J1 G−B 하락 | J2 G−B 초과 | J3 다지기−경신 | J4 개별−동반 | J1 쓴 달 |\n"
+           "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    ye = k.groupby(k.index.year).last()
+    print("코스피 연간 수익(연말 종가 기준, 2026 은 08-21 까지): " + " · ".join(f"{y} {pct(ye[y] / ye[y - 1] - 1, 0)}" for y in ye.index if y - 1 in ye.index))
+    print("\n[연도별]\n" + hdr)
+    for y in range(Y0, 2027):
+        ms = list(range((y - Y0) * 12, (y - Y0 + 1) * 12))
+        print(line(str(y), ms, df["year"] == y))
+    print("\n[제안 분할]\n" + hdr)
+    for lab, (a, b) in (("2017~2024", (2017, 2024)), ("2025~2026", (2025, 2026)), ("2017~2023", (2017, 2023)), ("2024~2026", (2024, 2026))):
+        print(line(lab, list(range((a - Y0) * 12, (b - Y0 + 1) * 12)), df["year"].between(a, b)))
+    print("\n[신호일 코스피 250거래일 수익 국면]\n" + hdr)
+    for lab, lo, hi in (("약세 < 0%", -9, 0), ("보통 0~20%", 0, 0.2), ("강세 ≥ 20%", 0.2, 9)):
+        ms = [int(m) for m, v in mk.items() if lo <= v < hi]
+        print(line(lab, ms, df["k250"].between(lo, hi, inclusive="left")))
+    med = market_med250(A)
+    df["m250"] = df["mi"].map(med)
+    print("\n[신호일 적격 종목 250거래일 수익 중앙값 국면]\n" + hdr)
+    for lab, lo, hi in REGIMES:
+        ms = [m for m, v in med.items() if lo <= v < hi]
+        print(line(lab, ms, df["m250"].between(lo, hi, inclusive="left")))
+    print("\n월별 중앙값(2024~): " + " · ".join(f"{Y0 + m // 12}-{m % 12 + 1:02d} {pct(v, 0)}" for m, v in sorted(med.items()) if m >= (2024 - Y0) * 12))
+    return 0
+
+
+REGIMES = (("약세 < 0%", -9, 0), ("보통 0~20%", 0, 0.2), ("강세 ≥ 20%", 0.2, 9))
+
+
+def market_med250(A):
+    """월말 신호일마다 적격 종목의 250거래일 수익률(종가 기준) 중앙값 — '보통 종목' 추세. A2a 만 쓴다."""
+    F, dates = A["F"], A["dates"]
+    out = {}
+    for r in month_end_rows(dates):
+        if r < WIN_LOW:
+            continue
+        d = dates[r].date()
+        x = F["C"][r] / F["C"][r - WIN_LOW] - 1
+        out[(d.year - Y0) * 12 + d.month - 1] = float(np.nanmedian(np.where(F["elig"][r], x, np.nan)))
+    return out
+
+
 def pct(x, d=1):
     return "" if x is None or not np.isfinite(x) else f"{x * 100:+.{d}f}%"
 
@@ -718,7 +780,7 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
-    for a in ("--collect-recent", "--counts", "--snapshot", "--run", "--posthoc", "--selftest"):
+    for a in ("--collect-recent", "--counts", "--snapshot", "--run", "--posthoc", "--by-period", "--selftest"):
         g.add_argument(a, action="store_true")
     a = ap.parse_args()
-    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else run() if a.run else posthoc() if a.posthoc else selftest())
+    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else run() if a.run else posthoc() if a.posthoc else byperiod() if a.by_period else selftest())
