@@ -8,6 +8,7 @@
     python research/strategy-lab/low52_fundamental_paths.py --counts           # 월말 사건 수(그룹·상태·연도) — 사전등록 부록 A
     python research/strategy-lab/low52_fundamental_paths.py --snapshot         # 가격 마지막 날 목록 → reports/2026-10-low52-snapshot/ (관찰용, gitignore)
     python research/strategy-lab/low52_fundamental_paths.py --run              # 판정 J1~J4 + 기록 → findings/low52-fundamental-paths-results-2026-10.{md,json}
+    python research/strategy-lab/low52_fundamental_paths.py --posthoc          # 사후 기록(결과 뒤 추가, 판정 불사용) — 결과 문서 §7 표
     python research/strategy-lab/low52_fundamental_paths.py --selftest
 """
 from __future__ import annotations
@@ -564,6 +565,31 @@ def run():
     return 0
 
 
+def posthoc():
+    """사후 기록(결과를 본 뒤 추가, 판정 불사용): J3·J4 칸의 경로·수익과 사건 전 60일 변동성, 변동성 3분위 안 상태 비교."""
+    A = load_all()
+    df, _, _ = build_events(A)
+    C, ti = A["F"]["C"], A["ti"]
+    rows = {str(d.date()): i for i, d in enumerate(A["dates"])}
+    lr = np.log(C[1:] / C[:-1])
+    df["vol60"] = [np.nanstd(lr[max(rows[d] - 60, 0):rows[d], ti[t]]) * np.sqrt(250) for d, t in zip(df["date"], df["ticker"])]
+    jt = df[df["win"].isin(JUDGE_WINS) & df["path"].notna()]
+    q = jt["vol60"].quantile([1 / 3, 2 / 3]).to_numpy()
+    jt = jt.assign(vq=np.where(jt["vol60"] <= q[0], "저", np.where(jt["vol60"] <= q[1], "중", "고")))
+    print("| 칸 | 사건 | 추가 하락 | 다지기 | 반등 | 60일 초과 평균 | 60일 초과 중앙 | 사건 전 60일 변동성(연율, 중앙) |\n|---|---:|---:|---:|---:|---:|---:|---:|")
+    for col, labs in (("state", ("경신 중", "중간", "접근", "다지기")), ("sector", ("개별", "동반"))):
+        for lab in labs:
+            s = jt[jt[col] == lab]
+            print(f"| {lab} | {len(s)} | {(s.path == '추가 하락').mean():.0%} | {(s.path == '다지기').mean():.0%} | {(s.path == '반등').mean():.0%} | "
+                  f"{pct(s.x60.mean())} | {pct(s.x60.median())} | {s.vol60.median():.0%} |")
+    print(f"\n변동성 3분위 경계 {q[0]:.2f} · {q[1]:.2f}\n\n| 변동성 | 상태 | 사건 | 추가 하락 | 반등 | 60일 초과 평균 |\n|---|---|---:|---:|---:|---:|")
+    for v in ("저", "중", "고"):
+        for st in ("경신 중", "다지기"):
+            t = jt[(jt.vq == v) & (jt.state == st)]
+            print(f"| {v} | {st} | {len(t)} | {(t.path == '추가 하락').mean():.0%} | {(t.path == '반등').mean():.0%} | {pct(t.x60.mean())} |")
+    return 0
+
+
 def pct(x, d=1):
     return "" if x is None or not np.isfinite(x) else f"{x * 100:+.{d}f}%"
 
@@ -692,7 +718,7 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
-    for a in ("--collect-recent", "--counts", "--snapshot", "--run", "--selftest"):
+    for a in ("--collect-recent", "--counts", "--snapshot", "--run", "--posthoc", "--selftest"):
         g.add_argument(a, action="store_true")
     a = ap.parse_args()
-    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else run() if a.run else selftest())
+    sys.exit(collect_recent() if a.collect_recent else counts() if a.counts else snapshot() if a.snapshot else run() if a.run else posthoc() if a.posthoc else selftest())
