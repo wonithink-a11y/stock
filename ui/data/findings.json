@@ -1,5 +1,5 @@
 {
-  "count": 494,
+  "count": 495,
   "findings": [
     {
       "file": "research/strategy-lab/findings/split-announcement-preregistration-2026-10.md",
@@ -819,6 +819,25 @@
         "가짜 사건 1,000회 1·99백분위, 6개월 블록"
       ],
       "reason": "신호: 없음 · 경제성(회피 규칙): 미달. S1 NONE · S2 NONE. (스크립트 판정, 정의는 사전등록 그대로)",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/strategy-portfolio-stage1-preregistration-2026-10.md",
+      "title": "전략 포트폴리오 1단계 — 월간 수익 상관 (사전등록)",
+      "date": "2026-10-09",
+      "bodyMarkdown": "---\ntrack: multi\nfactor: strategy-portfolio-stage1\ndate: 2026-10-09\nverdict: PREREGISTERED\ncriteria_version: research-only\nreason: >-\n  야간 보고서 §2·§3-5 \"이미 따로 검증된 전략을 포트폴리오로 묶을 가치가 있나\"의 1단계 — 월간 수익 계열을 같은 기간으로 만들고\n  상관만 본다. 서로 거의 같이 움직이면 배분 연구(2단계)는 하지 않는다. 사용자 GO 2026-10-09(\"1단계 진행\").\n---\n\n# 전략 포트폴리오 1단계 — 월간 수익 상관 (사전등록)\n\n계열을 만들기 전에 이 문서를 커밋한다. 계열 생성 코드 커밋 → 1회 실행 → 결과 커밋. 점수·매매·배분 실행과 무관. 투자 자문이 아니다.\n\n## 1. 슬리브 (각 원 연구 코드 그대로, 새 최적화 없음)\n\n| 칸 | 전략 | 계열 만드는 법 | 통화 |\n|---|---|---|---|\n| S1 | `pbr_value_v1_combined` | `pbr_vs_ew_monthly_mtm` 의 run_smoke + schedule_with_monthly_mtm(월말 시가평가), 2016-01-01 ~ 2026-08-14 | KRW |\n| S2 | RV20 선물 사이징 **규칙 B**(동결본, Q5 → 0x) | `futures/stage5_3_sizing_backtest.run_sizing(전 구간, pct_rv20_rol, \"defensive\")` 일별 NAV → 월말 | KRW |\n| S3 | 무한매수 V4.0 TQQQ | `infinite_buying_engine.backtest`(분할 40, 로컬 규칙 파일) + 실현 체결 10bp(`realistic_fill_model.use_realistic_fill`), trace 의 일별 equity → 월말 | USD → KRW 환산 |\n| S4 | 무한매수 V4.0 SOXL | 위와 같음 | USD → KRW 환산 |\n| S5 | 국내 상장 ETF 6종 1/6 고정(매일 재조정, 비용 0 — 다중자산 연구의 기준선 그대로) | `multiasset_tsmom` 의 bench = 6종 일수익 평균 | KRW |\n\n참고 열(판정 불사용): R1 KODEX 200 총수익(분배금 복원) · R2 `ew_benchmark_liquid_v1`(S1 과 같은 엔진, 국내 유동 종목 등가중) · S1 − R2(PBR 의 초과분).\n\n- 환산: 월수익(KRW) = (1 + 월수익 USD) × (1 + USDKRW 월 변화) − 1, 환율은 `data/market-regime/usdkrw_daily_kr.parquet` 월말 값. USD 그대로의 상관은 기록.\n- 월 = 달력 월, 각 계열의 그 달 마지막 관측 값 기준. 공통 구간 = 모든 S 칸이 값이 있는 달(예상 2016-02 ~ 2026-07).\n\n## 2. 지표\n\n- 주: 공통 구간 월수익 피어슨 상관 행렬(S1~S5).\n- 기록: 스피어먼 상관 · R1 이 음(−)인 달만의 상관(하락장 상관) · 2016~2020 / 2021~ 나눈 상관 · 각 칸 연환산 수익·변동성·샤프·MDD.\n\n## 3. 판정 (2단계로 가는가)\n\n- 같은 원천 묶기: 두 칸의 상관 ≥ 0.7 이면 같은 원천으로 본다(S3·S4 처럼).\n- **2단계 GO 권고 조건**: 서로 상관이 모두 ≤ 0.5 인 칸이 **3개 이상**(같은 원천은 1개로 셈) ∧ 그 칸들이 각자 공통 구간 샤프 > 0.\n- 위를 못 넘으면 **STOP** — 배분 연구는 하지 않는다(독립 원천이 둘 이하면 배분은 사실상 두 자산 비중 문제다).\n- 하락장 상관이 전체보다 0.2 이상 높은 쌍은 경고로 적는다(위기 때 같이 빠짐).\n\n## 4. 한계 (결과 전에 적어 둔다)\n\n- 각 계열은 서로 다른 엔진·비용 가정이다(S5 는 비용 0, S2 는 원 연구의 고정 자본 = 최고가 × 승수). 상관은 비용 가정에 둔감하지만 샤프는 아니다.\n- S1·S2 의 규칙은 이 표본에서 골라졌다(동결은 2026-08~09) — 샤프는 낙관적이다. 상관 판단이 목적이라 받아들인다.\n- S3·S4 의 규칙 값은 원작자 재배포 금지라 로컬 전용 — 계열 값(월수익)은 커밋하지 않고 요약 통계만 커밋한다.\n",
+      "category": null,
+      "track": "multi",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only",
+      "conditions": null,
+      "reason": "야간 보고서 §2·§3-5 \"이미 따로 검증된 전략을 포트폴리오로 묶을 가치가 있나\"의 1단계 — 월간 수익 계열을 같은 기간으로 만들고 상관만 본다. 서로 거의 같이 움직이면 배분 연구(2단계)는 하지 않는다. 사용자 GO 2026-10-09(\"1단계 진행\").",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
