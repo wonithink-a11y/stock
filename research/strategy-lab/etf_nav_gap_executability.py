@@ -146,6 +146,26 @@ def decide(mR, mO, lo_net, days):
     return "INCONCLUSIVE"
 
 
+def adjust_minute(p, minute):
+    """KIS 분봉은 분배금 수정가(이후 분배만큼 과거가 낮다)라 원가격 NAV·일별 종가와 못 견준다(2026-10-10 첫 실행에서 발견 —
+    069500 2025-10 내내 −98.8bp, 분배 기준일마다 계단, 마지막 분배 뒤 0). 배수 = 일별 종가 ÷ 15:30 봉, 계단 사이 구간 중앙값.
+    계단 = 직전과 3bp 넘게 다르고 다음 날이 새 값과 맞는 날(하루짜리 어긋남 — 수능일 16:30 마감·15:30 봉 없음 — 은 구간 값을 쓴다)."""
+    close = {(c, d.strftime("%Y-%m-%d")): v for c, d, v in zip(p["code"], p["date"], p["close"])}
+    out = dict(minute)
+    for code in sorted({c for c, _ in minute}):
+        days = sorted(d for c, d in minute if c == code and (c, d) in close and bar_at(minute[(c, d)], "153000"))
+        if not days:
+            continue
+        v = np.log([close[(code, d)] / bar_at(minute[(code, d)], "153000") for d in days])
+        seg = [0]
+        for i in range(1, len(v)):
+            seg.append(seg[-1] + int(abs(v[i] - v[i - 1]) > 3e-4 and (i + 1 >= len(v) or abs(v[i + 1] - v[i]) < 3e-4)))
+        fac = np.exp(pd.Series(v).groupby(seg).transform("median").to_numpy())
+        for d, f in zip(days, fac):
+            out[(code, d)] = [[b[0], b[1] * f] + list(b[2:]) for b in minute[(code, d)]]
+    return out
+
+
 def load_minute():
     m = {}
     for f in MIN_DIR.glob("*.jsonl"):
@@ -158,7 +178,7 @@ def load_minute():
 
 def run():
     p = panel()
-    minute = load_minute()
+    minute = adjust_minute(p, load_minute())
     dates = sorted({d for _, d in minute})
     fut = {(pr, d): fut_at(pr, d) for pr in FUT.values() for d in dates}
     D = build_rows(p, minute, fut)
@@ -230,6 +250,15 @@ def selftest():
     check("O·R 둘 다 신호(−1% · −3%)", len(O) == 1 and len(R) == 1)
     check("판정 산수", decide(0.003, 0.004, 0.0001, 40) == "EXECUTABLE" and decide(0.0003, 0.004, 0.0, 40) == "NOT_EXECUTABLE"
           and decide(0.001, 0.004, 0.0001, 40) == "INCONCLUSIVE" and decide(0.003, 0.004, 0.0001, 20) == "INCONCLUSIVE")
+    # 분배금 수정가 → 원가격: 배수 0.99 구간 3일 + 1.0 구간 3일, 가운데 하루짜리 어긋남은 구간 값
+    ds = [f"2025-10-{x:02d}" for x in range(13, 19)]
+    pa = pd.DataFrame([dict(code="B", date=pd.Timestamp(d), close=100.0) for d in ds])
+    raw = [0.99, 0.99, 0.97, 0.99, 1.0, 1.0]
+    mb = {("B", d): [["151900", 100.0 * r, 1], ["153000", 100.0 * r, 1]] for d, r in zip(ds, raw)}
+    mb[("B", ds[2])] = [["151900", 99.0, 1], ["153000", 97.0, 1]]
+    adj = adjust_minute(pa, mb)
+    check("수정가 배수 복원(계단·하루 어긋남)", abs(adj[("B", ds[0])][0][1] - 100.0) < 1e-9 and abs(adj[("B", ds[2])][0][1] - 99.0 / 0.99) < 1e-9
+          and abs(adj[("B", ds[5])][1][1] - 100.0) < 1e-9)
     print("ALL PASS" if ok else "FAILED")
     return 0 if ok else 1
 
