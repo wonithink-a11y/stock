@@ -1,5 +1,5 @@
 {
-  "count": 493,
+  "count": 494,
   "findings": [
     {
       "file": "research/strategy-lab/findings/split-announcement-preregistration-2026-10.md",
@@ -627,6 +627,25 @@
       "criteria_version": "research-only",
       "conditions": null,
       "reason": "2026-10-09 밤 자율 연구에서 나온 후보를 과거 표본으로 더 다듬지 않고 동결 이후 새 표본(forward)으로만 판정하기 위한 초안. 칸마다 정의는 원 연구와 한 글자도 다르지 않게 두고, 결과를 본 뒤 생긴 변형(색 무관 분산일·코스닥 달력·대형 고배당 2024~)은 '사후 가설'로 표시한다.",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/night-forward-preregistration-2026-10.md",
+      "title": "야간 후보 forward 검증 — 사전등록 (FA1 · FB · FF)",
+      "date": "2026-10-09",
+      "bodyMarkdown": "---\ntrack: kr\nfactor: night-forward\ndate: 2026-10-09\nverdict: PREREGISTERED\ncriteria_version: research-only\nreason: >-\n  2026-10-09 야간 연구 후보 중 아침 결정 목록 권고 GO 3칸(FA1 분산일 경고 · FB ETF 종가 괴리 · FF 고배당 연말 랠리+배당 포착)을\n  동결 이후 새 표본(forward)으로만 판정한다. 정의는 원 연구 코드 그대로. 사용자 GO 2026-10-09(\"다음 실험 진행\" — 권고 GO 항목 착수로 해석).\n---\n\n# 야간 후보 forward 검증 — 사전등록 (FA1 · FB · FF)\n\n초안: `night-candidates-forward-draft-2026-10.md`. 이 문서가 동결본이다. **이 문서 커밋 뒤 기록 코드 커밋 → 그 뒤에만 실행.**\n점수·매매·계좌에 연결하지 않는다. 투자 자문이 아니다.\n\n빠진 칸(이 등록에 없음): FA2(사후) · FB-r(실시간 수집 경로 — 별도 GO) · FC · FD · FE · FG(사후·약한 신호, 보고서 §3-4 우선순위 낮음).\n\n## 공통\n\n- 동결 신호일: **2026-10-10 이후**(2026-10-09 는 한글날 휴장 → 첫 가능 신호일 2026-10-12). 그 전 날짜는 판정 표본이 아니다.\n- 기록은 추가 전용 jsonl. 이미 쓴 줄은 고치지 않는다. 판정 전에는 성과 값을 출력하지 않는다(건수만).\n- 판정은 아래 시점에 1회. INCONCLUSIVE 면 정해진 길이로 1회만 연장. 그 밖 시점 계산 금지(코드가 거부).\n- 코드: `research/strategy-lab/run_night_forward.py`. 기록: `research/strategy-lab/reports/2026-10-night-forward/{fa1,fb,ff}.jsonl`(추적·커밋).\n\n## FA1 — 분산일 경고 (원 연구: distribution-day, REVERSE 확정)\n\n- 정의(원 코드 `distribution_day_study.py` 그대로): 적격 = 20일 평균 거래대금 ≥ 20억 ∧ 기업행사 정지 창 [t−20, t+30] 없음 ∧ 다음 날 시가 존재 ∧ A3d 주식 수 변동 공시 120일 안 아님 ∧ 직전 30일 정지 없음.\n  D1 = 60일 수익 ≥ +20% ∧ 거래량 ÷ 직전 30일 평균 ≥ 3 ∧ (시가 − 종가) ÷ 시가 ≥ 4% ∧ 전일 종가보다 하락. 같은 종목 60거래일 안 재신호 버림.\n- 결과: R20 = 다음 날 시가 → 21거래일째 시가. Info = R20 − 같은 날 적격·비사건(D0·D1·D2 아님) 무작위 20종목 평균(시드 [YYYYMMDD, 20261009]).\n- 차이(원 연구 대비): 끝 여유(MARGIN) 175 → 0. 원 연구의 175일 여유는 공용 로더의 긴 보유기간용이었다(그래서 2026 사건이 11건뿐이었다 — 버그 아님). 성숙 = t ≤ 마지막 거래일 − 31.\n- 판정 시점: D1 성숙 사건 **300건 ∧ 기록 12개월**. 연장 1회: 600건 ∧ 24개월.\n- 규칙: 진입월 평균 Info 의 월평균 I · 6개월 블록 부트스트랩 95% 구간 · 가짜 사건(같은 날 적격 무작위 1종목, 1,000회) 귀무.\n  **REVERSE 재현** = I < 귀무 1백분위 ∧ 블록 95% 상단 < 0. 회피 경제성 = 추가로 −I > 23.54bp. 반대 부호 확정(I > 귀무 99백분위 ∧ 하단 > 0) = **부호 반전**. 그 밖 INCONCLUSIVE(연장 단계면 NOT REPLICATED).\n\n## FB — 국내 지수 ETF 종가 괴리 (원 연구: etf-nav-gap-explore §사후 기록, 17년 모두 양)\n\n- 정의(원 코드 `etf_nav_gap_explore.strategy()` 그대로): 기초지수명이 국내 허용 목록(DOMESTIC)에 맞고 해외·채권·레버리지 등(FOREIGN)이 아닌 ETF, 종가·NAV·지수 > 0,\n  **신호일 거래대금 ≥ 10억**(초안 표의 '전일'은 오기 — 원 코드는 당일 값), 종가 ÷ NAV − 1 ≤ −0.5%, 다음 날 분배락(다음 날 지수 수익 − NAV 수익 > 0.2%) 제외, |다음 날 초과| < 20%.\n  다음 날 초과 = ETF 종가 수익 − 기초지수 수익. 신호일별 등가중 평균 → 신호일 계열.\n- 대조(기록 전용): 같은 날 같은 조건의 |괴리| ≤ 0.2% ETF 평균 다음 날 초과.\n- 판정 시점: 신호일 **250일 ∧ 기록 12개월**. 연장 1회: 500일 ∧ 24개월.\n- 규칙: 신호일 계열 평균 m · 20거래일 블록 부트스트랩 95% 구간. **INFORMATION** = 하단 > 0. **ECONOMIC** = 추가로 (m − 3.54bp) 의 하단 > 0. 상단 < 0 = REVERSE. 그 밖 INCONCLUSIVE(연장 단계면 NOT REPLICATED).\n- 한계(판정과 별개): 일봉으로는 장 마감 단일가에 실제로 들어갈 수 있는지 못 가린다 — FB 가 통과해도 FB-r 없이는 운용 근거가 아니다.\n- 자료: `collect_etf_ohlc_krx.py --start <최근 기록일>` 증분(KRX 키, 무료) 뒤 실행. 연구 캐시(`.cache/etf_panel.parquet`)는 건드리지 않고 2026년 이후 연도 파일만 직접 읽는다.\n\n## FF — 고배당 연말 랠리 + 배당 포착 (원 연구: dividend-runup ECONOMIC · dividend-capture INFORMATION)\n\n- 대상(원 코드 그대로): KRX 11월 월말 단면 DIV ≥ 3% 보통주(코드 끝 0)·스팩 제외·해당일 거래·20일 평균 거래대금 ≥ 1억.\n- 랠리: 11월 마지막 거래일 종가 → 그해 마지막 거래일 − 2 종가, 등가중 − KRX 전종목 등가중. 귀무 = 같은 종목·같은 해 11·12월 밖 같은 길이 무작위 10,000회.\n- 포착: 배당락일 X = 마지막 거래일 − 1. 포착 = R_X + DIV × (1 − 15.4%) − 33.5bp. G = (R_X − 같은 종목 보통날 무작위 1,000회) + 세후 배당 − 비용(원 정의).\n- 기록: 해마다 1줄(연도·종목 수·랠리 초과·귀무 95백분위·포착 평균·G 평균·G 1백분위). 실행 = 그해 12월 일봉·11월 단면 수집 뒤(≈ 다음 해 1월 초) `--ff <연도>`.\n- 판정 시점: **2026·2027·2028 3년 기록 뒤(≈ 2029-01)**. 연장 1회: 2030 까지 5년(≈ 2031-01).\n  - 랠리 재현 = 3년 모두 초과 > 0 ∧ 3년 평균 > 3년 귀무 95백분위 평균. (연장: 5년 중 4년 이상 양 ∧ 같은 평균 조건.)\n  - 포착 재현 = 3년 모두 포착 평균 > 0 ∧ 3년 모두 G 1백분위 > 0. (연장: 5년 중 4년 이상 ∧ 같은 조건.)\n  - 3년 중 1년 이하 양 → NOT REPLICATED(연장 없음). 그 밖 INCONCLUSIVE → 연장.\n- 한계: 3년 모두 양은 동전 귀무로 p = 0.125 — 발견 검정이 아니라 **이미 16년 양인 결과의 재현 확인**이다. 그래서 같은 해 귀무 조건을 함께 건다.\n  2023 배당절차 개편 뒤 기준일을 옮긴 회사도 원 정의대로 포함한다(사후 필터 금지 — 기준일 확인 필터는 별도 가설).\n\n## 운영\n\n- 월간 점검(A2a 증분 뒤): `python research/strategy-lab/run_night_forward.py --fa1` · ETF 증분 뒤 `--fb`. 1월 초: `--ff <작년>`. 결과 jsonl 커밋.\n- 판정: `--judge fa1|fb|ff` — 시점 전이면 건수만 내고 거부.\n",
+      "category": null,
+      "track": "kr",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only",
+      "conditions": null,
+      "reason": "2026-10-09 야간 연구 후보 중 아침 결정 목록 권고 GO 3칸(FA1 분산일 경고 · FB ETF 종가 괴리 · FF 고배당 연말 랠리+배당 포착)을 동결 이후 새 표본(forward)으로만 판정한다. 정의는 원 연구 코드 그대로. 사용자 GO 2026-10-09(\"다음 실험 진행\" — 권고 GO 항목 착수로 해석).",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
