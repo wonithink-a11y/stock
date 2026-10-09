@@ -80,8 +80,8 @@ def setup_ok(H, L, C, t, j):
     return bool(np.nanmean(rng[-5:]) < np.nanmean(rng[:5]))
 
 
-def run():
-    dates, tick, raw = s.load_raw()
+def prepare(dates, raw):
+    """신호 배열(사전등록 §3). run·forward 가 같이 쓴다."""
     P = s.derive(raw, dates)
     O, H, L, C = P["On"], P["Hn"], P["Ln"], P["Cn"]
     D, N = C.shape
@@ -106,6 +106,16 @@ def run():
     adr_t = np.vstack([np.full((1, N), np.nan), adr[:-1]])
     brk = cond & (H > Bt)
     brk[:max(t0, 130)] = False
+    return dict(P=P, O=O, H=H, L=L, C=C, D=D, N=N, base=base, leader=leader, S10=S10, S20=S20, mkt_up=mkt_up, year=year, t0=t0,
+                Bt=Bt, adr_t=adr_t, brk=brk)
+
+
+def run():
+    dates, tick, raw = s.load_raw()
+    G = prepare(dates, raw)
+    O, H, L, C, D, N = (G[k] for k in ("O", "H", "L", "C", "D", "N"))
+    S10, S20, Bt, adr_t, brk = (G[k] for k in ("S10", "S20", "Bt", "adr_t", "brk"))
+    base, leader, mkt_up, year, t0 = (G[k] for k in ("base", "leader", "mkt_up", "year", "t0"))
     trades, variants = [], {"trail20": [], "nopartial": [], "noadr": []}
     busy = np.full(N, -1)
     for t, j in zip(*np.nonzero(brk)):
@@ -153,6 +163,55 @@ def run():
     Nl = pd.DataFrame(nul)
     report(T, Nl, variants, dates)
     return 0
+
+
+FREEZE = "2026-10-12"
+FWD = HERE / "reports" / "2026-10-qb-forward" / "trades.jsonl"
+
+
+def forward(path=FWD):
+    """사전등록 qullamaggie-breakout-forward §2 — 진입일 ≥ FREEZE 의 닫힌 거래만 한 번씩 기록. 건수만 출력."""
+    dates, tick, raw = s.load_raw()
+    G = prepare(dates, raw)
+    O, H, L, C, D, N = (G[k] for k in ("O", "H", "L", "C", "D", "N"))
+    t_f = int(np.searchsorted(dates, pd.Timestamp(FREEZE)))
+    have = {(r["ticker"], r["date"]) for r in map(json.loads, open(path, encoding="utf-8"))} if path.exists() else set()
+    busy, new, open_n = np.full(N, -1), [], 0
+    for t, j in zip(*np.nonzero(G["brk"])):
+        if t < t_f or t <= busy[j] or not setup_ok(H, L, C, t, j):
+            continue
+        entry, stop = max(O[t, j], G["Bt"][t, j]), L[t, j]
+        if np.isnan(G["adr_t"][t, j]) or (entry - stop) / entry > G["adr_t"][t, j]:
+            continue
+        r = simulate(O, H, L, C, G["S10"], G["S20"], t, j, entry, stop)
+        if r is None:
+            busy[j], open_n = D, open_n + 1                 # 아직 안 닫힘 — 다음 점검에서
+            continue
+        busy[j] = t + r[1]
+        key = (tick[j], str(dates[t].date()))
+        if key not in have:
+            new.append(dict(ticker=key[0], date=key[1], hold=int(r[1]), net=float(r[0] - COST), recorded=str(dates[-1].date())))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as f:
+        for x in new:
+            f.write(json.dumps(x, ensure_ascii=False) + chr(10))
+    print(f"QB forward — 새로 닫힌 거래 {len(new)}건 기록 · 누적 {len(have) + len(new)}건 · 열린 거래 {open_n}건 (자료 끝 {dates[-1].date()}, 성과 값은 판정 전 출력 안 함)")
+    return 0
+
+
+def forward_judge(path=FWD, asof=None, rng=None):
+    rows = [json.loads(l) for l in open(path, encoding="utf-8")] if path.exists() else []
+    asof = pd.Timestamp(asof or pd.Timestamp.today().normalize())
+    months = (asof.year - 2026) * 12 + asof.month - 10
+    if len(rows) < 60 or months < 24:
+        print(f"판정 거부 — 닫힌 거래 {len(rows)}/60 · 동결 뒤 {months}/24개월")
+        return None
+    df = pd.DataFrame(rows)
+    ms = month_series(df)
+    lo, _ = block_ci(ms.to_numpy(), rng or np.random.default_rng(SEED))
+    v = "REPLICATED" if ms.mean() > 0 and lo > 0 else "INCONCLUSIVE" if ms.mean() > 0 else "NOT REPLICATED"
+    print("판정", v, f"월 평균 {ms.mean():+.4f} · 90% 하단 {lo:+.4f} · 거래 {len(df)}")
+    return v
 
 
 def month_series(df):
@@ -257,6 +316,12 @@ def selftest():
     L4 = L.copy(); L4[7, 0] = 99                    # 5일 뒤 손절 본전(100) — 7행 저가 99 < 100
     r4 = simulate(O, H, L4, C, S10, S20, 0, 0, 100.0, 95.0)
     check("부분 익절 뒤 본전 손절", abs(r4[0] - (0.10 + 0.0) / 2) < 1e-12)
+    import tempfile
+    tmp = Path(tempfile.mkdtemp()) / "t.jsonl"
+    tmp.write_text("".join(json.dumps(dict(ticker="A", date=f"2027-{m:02d}-01", hold=5, net=0.01)) + chr(10) for m in range(1, 13)), encoding="utf-8")
+    check("forward 판정 거부(건수·기간 미달)", forward_judge(tmp, "2027-12-31") is None)
+    tmp.write_text("".join(json.dumps(dict(ticker="A", date=f"{2027 + i // 12}-{i % 12 + 1:02d}-01", hold=5, net=0.01 + 0.001 * (i % 3))) + chr(10) for i in range(60)), encoding="utf-8")
+    check("forward 판정 REPLICATED", forward_judge(tmp, "2031-01-01") == "REPLICATED")
     check("판정", decide(dict(net=.01, lo=.001, null=.0), dict(net=.01, null=0), dict(net=.01, null=0), 60) == "ECONOMIC"
           and decide(dict(net=.01, lo=-.001, null=.0), dict(net=.01, null=0), dict(net=.01, null=0), 60) == "REJECT"
           and decide(dict(net=.01, lo=.001, null=.0), dict(net=-.01, null=0), dict(net=.01, null=0), 60) == "INFORMATION"
@@ -268,4 +333,7 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
-    sys.exit(selftest() if ap.parse_args().selftest else run())
+    ap.add_argument("--forward", action="store_true")
+    ap.add_argument("--forward-judge", action="store_true")
+    a = ap.parse_args()
+    sys.exit(selftest() if a.selftest else forward() if a.forward else (forward_judge() and 0) if a.forward_judge else run())
