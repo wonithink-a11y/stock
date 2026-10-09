@@ -53,9 +53,16 @@ def collect():
         todo = [d for d in days if d in listed and d not in done]
         with open(f, "a", encoding="utf-8") as fh:
             for d in todo:
-                _, resp = _call("GET", BASE_URL + PATH, f"분봉({code} {d})", headers=c._headers("FHKST03010230"),
-                                params={"FID_ETC_CLS_CODE": "", "FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code, "FID_INPUT_HOUR_1": "153000",
-                                        "FID_PW_DATA_INCU_YN": "N", "FID_INPUT_DATE_1": d, "FID_FAKE_TICK_INCU_YN": "N"}, timeout=20)
+                for k in range(6):          # EGW00201(초당 한도)는 쉬었다 재시도 — 같은 키를 VM 도 쓴다
+                    try:
+                        _, resp = _call("GET", BASE_URL + PATH, f"분봉({code} {d})", headers=c._headers("FHKST03010230"),
+                                        params={"FID_ETC_CLS_CODE": "", "FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code, "FID_INPUT_HOUR_1": "153000",
+                                                "FID_PW_DATA_INCU_YN": "N", "FID_INPUT_DATE_1": d, "FID_FAKE_TICK_INCU_YN": "N"}, timeout=20)
+                        break
+                    except Exception as e:
+                        if "EGW00201" not in str(e) or k == 5:
+                            raise
+                        time.sleep(5 * (k + 1))
                 rows = [r for r in (resp.get("output2") or []) if r.get("stck_cntg_hour") and r.get("stck_bsop_date") == d]   # 교훈81: 요청일 대조
                 bars = sorted([r["stck_cntg_hour"], float(r["stck_prpr"]), float(r.get("cntg_vol") or 0)] for r in rows)
                 fh.write(json.dumps({"date": d, "bars": bars, "rt_cd": resp.get("rt_cd")}) + "\n")
