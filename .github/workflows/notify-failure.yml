@@ -51,7 +51,6 @@ on:
       # 2026-10-10 — 월간 명단 갱신(25일). 놓치면 다음 달 A2a 가 낡은 명단으로 돈다
       - backfill-universe-a1a
       - backfill-universe-a1b
-      - backfill-price-a2b
     types: [completed]
   workflow_dispatch:   # 채널 연결 확인용. 테스트 메시지 한 통을 보낸다
 
