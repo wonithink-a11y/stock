@@ -114,7 +114,7 @@ def build_rows(p, minute, fut):
         out.append(dict(date=d, code=r["code"], name=r["name"], index=r["idx_name"], gap_c=r["gap_c"], gap_19=p19 / inav19 - 1,
                         val=r["val"], prev_val=r["prev_val"], dist_next=bool(r["dist_next"]), nxt_ex=r["nxt_ex"],
                         ex_1519=(r["close_n"] / p19 - 1) - (r["idx_n"] / idx19 - 1), auction_move=(r["close"] / p19 - 1) - (f30 / f19 - 1),
-                        p30_match=None if p30 is None else bool(abs(p30 - r["close"]) < 1e-9)))
+                        p30_match=None if p30 is None else bool(abs(p30 / r["close"] - 1) < 1e-4)))   # 1bp — 수정가 배수를 곱한 뒤라 정확히 같을 수 없다
     return pd.DataFrame(out)
 
 
