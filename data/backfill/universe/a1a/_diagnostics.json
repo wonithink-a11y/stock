@@ -7,11 +7,11 @@
     {
       "path": "plain",
       "status": 200,
-      "bytes": 1263359
+      "bytes": 1263408
     }
   ],
   "sourceRows": 2801,
-  "sourceBytes": 1263359,
+  "sourceBytes": 1263408,
   "tickerContractViolations": [],
   "alnumTickersSource": [
     "0001A0",
@@ -22,6 +22,7 @@
     "0008Z0",
     "0009K0",
     "0010F0",
+    "0010S0",
     "0010V0",
     "0011A0",
     "0011T0",
@@ -31,6 +32,7 @@
     "0015S0",
     "0017J0",
     "0030R0",
+    "0035S0",
     "0037T0",
     "0039P0",
     "0041B0",
@@ -65,22 +67,46 @@
     "0131D0",
     "0132G0",
     "0134X0",
+    "0155E0",
     "0156T0",
+    "0161M0",
     "0164H0",
     "0165X0",
+    "0197V0",
+    "0200G0",
     "0203K0",
-    "0218L0"
+    "0209J0",
+    "0218L0",
+    "0220W0"
   ],
   "exactDuplicateRemoved": 43,
   "partialDuplicates": [],
   "marketCountsBeforeFilter": {
-    "KONEX": 109,
-    "KOSDAQ": 1816,
-    "KOSPI": 833
+    "KOSDAQ": 1820,
+    "KOSPI": 831,
+    "KONEX": 107
   },
-  "konexExcluded": 109,
+  "konexExcluded": 107,
   "spacExcluded": 71,
   "spacSample": [
+    {
+      "ticker": "0209J0",
+      "name": "KB제34호스팩",
+      "market": "KOSDAQ",
+      "sector": "금융 지원 서비스업"
+    },
+    {
+      "ticker": "0200G0",
+      "name": "한국제17호스팩",
+      "market": "KOSDAQ",
+      "sector": "금융 지원 서비스업"
+    },
+    {
+      "ticker": "0197V0",
+      "name": "엔에이치스팩34호",
+      "market": "KOSDAQ",
+      "sector": "금융 지원 서비스업"
+    },
     {
       "ticker": "0164H0",
       "name": "한국제16호스팩",
@@ -182,30 +208,12 @@
       "name": "유진스팩12호",
       "market": "KOSDAQ",
       "sector": "금융 지원 서비스업"
-    },
-    {
-      "ticker": "0054V0",
-      "name": "엔에이치스팩32호",
-      "market": "KOSDAQ",
-      "sector": "금융 지원 서비스업"
-    },
-    {
-      "ticker": "0096D0",
-      "name": "미래에셋비전스팩9호",
-      "market": "KOSDAQ",
-      "sector": "금융 지원 서비스업"
-    },
-    {
-      "ticker": "0096B0",
-      "name": "삼성스팩12호",
-      "market": "KOSDAQ",
-      "sector": "기타 금융업"
     }
   ],
   "spacSectorCross": {
     "nameHitSectorHit": 71,
     "nameHitSectorMiss": 0,
-    "nameMissSectorHit": 123
+    "nameMissSectorHit": 124
   },
   "konexAndSpac": 0,
   "excludedCorpMissing": [],
@@ -217,6 +225,7 @@
     "0008Z0",
     "0009K0",
     "0010F0",
+    "0010S0",
     "0010V0",
     "0011A0",
     "0011T0",
@@ -226,23 +235,29 @@
     "0015S0",
     "0017J0",
     "0030R0",
+    "0035S0",
     "0039P0",
     "0082N0",
     "0088M0",
     "0117P0",
     "0120G0",
     "0126Z0",
+    "0155E0",
     "0156T0",
-    "0218L0"
+    "0161M0",
+    "0218L0",
+    "0220W0"
   ],
-  "finalCount": 2578,
+  "finalCount": 2580,
   "marketCounts": {
-    "KOSPI": 833,
-    "KOSDAQ": 1745
+    "KOSPI": 831,
+    "KOSDAQ": 1749
   },
-  "excludedCount": 180,
+  "excludedCount": 178,
   "futureListedAt": [],
-  "corpCodeMissing": [],
+  "corpCodeMissing": [
+    "468670"
+  ],
   "acceptanceFails": [],
   "acceptanceWarns": [],
   "acceptancePassed": true
