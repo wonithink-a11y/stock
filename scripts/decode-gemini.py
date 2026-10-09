@@ -132,11 +132,17 @@ def fetch(req, timeout, tries=4, sleep=time.sleep):
         sleep(20 * (attempt + 1))
 
 
+class DartDown(RuntimeError):
+    """DART 전체가 안 받는다(800 시스템 점검·020 요청 한도). 보고서 탓이 아니라 tries 를 세지 않는다."""
+
+
 def dart_text(rcept, key):
     """보고서 원문 zip → 태그 뗀 텍스트. 표는 행=줄바꿈, 칸=' | '."""
     url = f"https://opendart.fss.or.kr/api/document.xml?crtfc_key={key}&rcept_no={rcept}"
     raw = fetch(url, 60).read()
     if not raw.startswith(b"PK"):
+        if re.search(rb"<status>(800|020)</status>", raw[:300]):   # 2026-10-08 02:44 KST 점검 한 번에 450건이 tries 1 이 됐다 — 두 번이면 몇 달 건너뛴다
+            raise DartDown("DART 일시 중단: " + raw[:200].decode("utf-8", "replace"))
         raise RuntimeError("DART 원문 조회 실패: " + raw[:200].decode("utf-8", "replace"))   # SystemExit 은 --auto 의 종목별 except 를 뚫고 전체를 죽인다(2026-10-07 원문 없는 종목 하나에 실행 전체 중단)
     z = zipfile.ZipFile(io.BytesIO(raw))
     main = max(z.namelist(), key=lambda n: z.getinfo(n).file_size)   # 본문이 가장 크다(첨부는 작다)
@@ -302,11 +308,21 @@ def selftest():
     globals()["fetch"] = lambda *a, **k: _R()
     try:
         dart_text("20260101000000", "k"); assert False
+    except DartDown:
+        assert False
     except RuntimeError:
+        pass
+    # 점검(800)은 DartDown — 종목 실패로 세지 않고 실행을 멈춘다
+    class _D:
+        def read(self): return '<?xml version="1.0"?><result><status>800</status><message>시스템 점검</message></result>'.encode()
+    globals()["fetch"] = lambda *a, **k: _D()
+    try:
+        dart_text("20260101000000", "k"); assert False
+    except DartDown:
         pass
     finally:
         globals()["fetch"] = real_fetch
-    print("selftest ok (17)")
+    print("selftest ok (18)")
 
 
 def decode(ticker, name, rcept, env, model):
@@ -411,7 +427,7 @@ def auto(a, env):
         index["updatedAt"] = kst_now().isoformat(timespec="seconds")
         idx_path.write_text(json.dumps(index, ensure_ascii=False, indent=0), encoding="utf-8")
 
-    start, done, failed = time.time(), 0, 0
+    start, done, failed, down = time.time(), 0, 0, False
     for t, name, r in pending[: a.max]:
         if time.time() - start > a.budget_min * 60:
             print("시간 예산 소진 — 다음 실행에서 이어 간다")
@@ -429,6 +445,10 @@ def auto(a, env):
             failed += 1
             _fail(items, t, r)
             continue
+        except DartDown as e:
+            print(f"  {t} {name} {e} — 여기서 멈추고 다음 실행에서 이어 간다")
+            down = True
+            break
         except Exception as e:
             print(f"  {t} {name} 실패 {type(e).__name__}: {str(e)[:120]}")
             failed += 1
@@ -452,6 +472,8 @@ def auto(a, env):
         save()                                   # 종목마다 — 도중에 끊겨도 한 것은 남는다
     save()
     print(f"완료 {done} · 실패 {failed} · 남은 대기 {len(pending) - done - failed}")
+    if down and done == 0:
+        raise SystemExit("DART 점검·한도로 하나도 못 했다")
     if pending and done == 0 and failed:
         raise SystemExit("전부 실패 — 소스나 키가 죽었다")   # 초록으로 끝내면 몇 주를 모른다
 
