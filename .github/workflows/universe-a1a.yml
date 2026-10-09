@@ -2,6 +2,11 @@ name: backfill-universe-a1a
 
 # A1a — 현재 상장 유니버스 (BF-1.1). 정의는 config/policies/universe.v1.json.
 on:
+  # 매월 25일 18:00 KST — 다음 달 1~5일 A2a(이 명단을 읽는다) 전에 상장·폐지를 반영한다.
+  # 2026-10-10 전엔 스케줄이 없어 08-10 명단이 두 달 그대로였다(신규 14·폐지 12 누락).
+  # 성공하면 A1b 가 workflow_run 으로 이어 돈다.
+  schedule:
+    - cron: '0 9 25 * *'
   workflow_dispatch:
     inputs:
       failInjection:

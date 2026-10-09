@@ -4,6 +4,9 @@ name: backfill-universe-a1b
 # 네트워크를 쓰지 않는다 — 입력 3개(A0.7 corpcode / A1a current·excluded)가 모두
 # 커밋된 산출물이라 이 잡은 순수 집합 연산이다. 상류가 갱신되면 다시 돌린다.
 on:
+  workflow_run:                 # A1a 가 명단을 갱신하면 폐지 후보도 같이 갱신한다
+    workflows: ["backfill-universe-a1a"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       failInjection:
@@ -21,6 +24,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

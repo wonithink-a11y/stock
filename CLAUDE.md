@@ -118,7 +118,7 @@ Validated against
             로딩이 systemd EnvironmentFile을 안 읽던 것) — 둘 다
             `collect_kospi200_daily_krx.py`/`stage5_1_volatility_event_study.py`.
             세부: docs/control/세션인수인계-2026-09-14.md.
-  다음      ★ 모의투자 월간 자동화 — 시한이 있는 항목 중 하나. A2a(월 1~5일) →
+  다음      ★ 모의투자 월간 자동화 — 시한이 있는 항목 중 하나. **A1a 명단(25일)→A1b**(10-10 연결, 그 전엔 08-10 명단이 고정) → A2a(월 1~5일) →
             refresh-selections(workflow_run) → VM pull(06:30) → 페이퍼 엔진
             (10분). CI 8회차 완주·자동 커밋까지 확인했고 **2026-10-01 첫 실물 검증에서 cron 발화(7시간 지연)·workflow_run 연결은 통과, 단 10월 selection 은 A2a 가 10-01 일봉을 받은 뒤에야 생긴다(인수인계 -10-02 §1)**.
             실패하면 notify-failure.yml 이
