@@ -284,6 +284,38 @@ def fb_judge(report=REPORT, asof=None):
 
 
 # ───────────────────── FF 고배당 연말 랠리 + 배당 포착 ─────────────────────
+Q3_BAD = ("적자 전환", "적자 지속", "30% 넘게 감소")
+
+
+def ff_q3_class(y, buy, panels=None):
+    """개정 1 Q: 매수일(YYYYMMDD)까지 공시된 그해 3분기 보고서의 1~9월 누적 순이익 분류 {ticker: 분류}. 연결 우선."""
+    from dividend_runup_q3 import yoy
+    qd = HERE / "data" / "quarterly-multi"
+    panels = panels or [qd / "quarterly-multi-panel-11014.jsonl", qd / "recent-2026" / "panel-recent.jsonl"]
+    best = {}
+    for f in panels:
+        if not Path(f).exists():
+            continue
+        for l in open(f, encoding="utf-8"):
+            r = json.loads(l)
+            if r.get("reprt") != "11014" or r.get("year") != y or r["availableFrom"] > buy:
+                continue
+            t = r["ticker"]
+            if t not in best or (best[t]["fsDiv"] != "CFS" and r["fsDiv"] == "CFS"):
+                best[t] = r
+    ni = lambda r, k: (r.get("net_income") or {}).get(k)
+    return {t: yoy(ni(r, "cur_add"), ni(r, "prev_add")) for t, r in best.items()}
+
+
+def ff_split(vals, groups):
+    """묶음별 {이름: {n, mean}} — 비면 mean None."""
+    out = {}
+    for g in sorted(set(groups)):
+        v = [x for x, k in zip(vals, groups) if k == g]
+        out[g] = {"n": len(v), "mean": float(np.mean(v)) if v else None}
+    return out
+
+
 def ff_year(y):
     """dividend_runup.run · dividend_capture.run 의 한 해 몸통 그대로."""
     import dividend_capture as dc
@@ -315,6 +347,11 @@ def ff_year(y):
             divs.append(d)
     js = np.array(js, int)
     L = e0 - s0
+    # 개정 1 기록 전용: H(매수일까지 20거래일 시장 대비 > +10%) · Q(3분기 1~9월 누적 순이익 악화)
+    ret20 = np.exp(cs[s0 + 1, js] - cs[s0 + 1 - 20, js]) - np.exp(ew_cs[s0 + 1] - ew_cs[s0 + 1 - 20])
+    q3 = ff_q3_class(y, st.d2s(dates[s0]).replace("-", ""))
+    qgrp = lambda t: "모름" if q3.get(t, "모름") == "모름" else ("악화" if q3[t] in Q3_BAD else "나머지")
+    tk = [tick[j] for j in js]
     stock = np.exp(cs[e0 + 1, js] - cs[s0 + 1, js]) - 1
     mkt = np.exp(ew_cs[e0 + 1] - ew_cs[s0 + 1]) - 1
     yr = np.flatnonzero(dates.year == y)
@@ -335,14 +372,17 @@ def ff_year(y):
         cand = normal[traded[normal, j]]
         if len(cand) < 50:
             continue
-        ev.append((float(d), float(R[X, j]), R[rng.choice(cand, dc.REPS), j]))
+        ev.append((float(d), float(R[X, j]), R[rng.choice(cand, dc.REPS), j], t))
     div = np.array([x[0] for x in ev])
     rx = np.array([x[1] for x in ev])
     cap = dc.capture(rx, div)
     G = (rx[:, None] - np.vstack([x[2] for x in ev])).mean(0) + div.mean() / 100 * (1 - dc.TAX) - dc.COST
     return {"year": y, "runup_n": int(len(js)), "runup_ex": float(stock.mean() - mkt), "runup_null95": float(np.percentile(null, 95)),
             "start": st.d2s(dates[s0]), "end": st.d2s(dates[e0]), "capture_n": int(len(ev)), "capture_mean": float(cap.mean()),
-            "capture_G": float(G.mean()), "capture_G_p1": float(np.percentile(G, 1)), "exdate": st.d2s(dates[X])}
+            "capture_G": float(G.mean()), "capture_G_p1": float(np.percentile(G, 1)), "exdate": st.d2s(dates[X]),
+            "rec_H_runup": ff_split(list(stock - mkt), ["과열" if r > 0.10 else "나머지" for r in ret20]),
+            "rec_Q_runup": ff_split(list(stock - mkt), [qgrp(t) for t in tk]),
+            "rec_Q_capture": ff_split(list(cap), [qgrp(x[3]) for x in ev])}
 
 
 def ff_update(y, report=REPORT):
@@ -457,6 +497,15 @@ def selftest():
     check("FB 판정 계산: 0 근처 → INCONCLUSIVE", fb_judge_compute(recs0)["verdict"] == "INCONCLUSIVE")
     # FF — 판정 산수
     mk = lambda y, a, c: dict(year=y, runup_ex=a, runup_null95=0.003, capture_mean=c, capture_G_p1=c)
+    fq = HERE / ".cache" / "_ff_q3_selftest.jsonl"
+    fq.parent.mkdir(exist_ok=True)
+    rowq = lambda t, fs, av, ca, pa: json.dumps({"ticker": t, "year": 2026, "reprt": "11014", "fsDiv": fs, "availableFrom": av, "net_income": {"cur_add": ca, "prev_add": pa}})
+    fq.write_text(chr(10).join([rowq("A", "OFS", "20261113", 50, 100), rowq("A", "CFS", "20261113", -5, 100), rowq("B", "CFS", "20261201", -5, 100),
+                             rowq("C", "CFS", "20261114", 120, 100)]), encoding="utf-8")
+    qc = ff_q3_class(2026, "20261127", [fq])
+    check("FF 개정 1 Q: 연결 우선·매수일 뒤 공시 제외", qc == {"A": "적자 전환", "C": "0~30% 증가"})
+    check("FF 개정 1 나눔", ff_split([0.1, 0.3, -0.2], ["과열", "과열", "나머지"]) == {"과열": {"n": 2, "mean": 0.2}, "나머지": {"n": 1, "mean": -0.2}})
+    fq.unlink()
     check("FF 3년 모두 양 → REPLICATED", ff_verdict([mk(2026, .02, .01), mk(2027, .01, .01), mk(2028, .03, .01)], 1) == {"runup": "REPLICATED", "capture": "REPLICATED", "runup_pos_years": 3, "capture_pos_years": 3})
     r = ff_verdict([mk(2026, .02, -.01), mk(2027, -.01, -.01), mk(2028, .03, .01)], 1)
     check("FF 2/3 → INCONCLUSIVE · 1/3 → NOT_REPLICATED", r["runup"] == "INCONCLUSIVE" and r["capture"] == "NOT_REPLICATED")
