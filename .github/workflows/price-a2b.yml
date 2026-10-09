@@ -17,6 +17,11 @@ name: backfill-price-a2b
 # A2a finalize가 A2b 샤드를 병합하고, manifest 디렉터리 해시가 두 단계를 한 덩어리로
 # 묶어 한쪽 재수집이 다른 쪽 하류까지 재실행시킨다.
 on:
+  # 2026-10-10 — A1b 가 폐지 후보를 갱신하면(매월 25일 A1a → A1b) 이어 돈다. 안 돌면 다음 달
+  # A2a 전량 재수집에서 명단에서 빠진 종목의 과거 일봉이 사라지고 여기에도 없다(생존 편향).
+  workflow_run:
+    workflows: ["backfill-universe-a1b"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       failInjection:
@@ -43,6 +48,7 @@ env:
 
 jobs:
   collect:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
