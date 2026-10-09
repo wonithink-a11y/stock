@@ -1,5 +1,5 @@
 {
-  "count": 496,
+  "count": 497,
   "findings": [
     {
       "file": "research/strategy-lab/findings/split-announcement-preregistration-2026-10.md",
@@ -861,6 +861,25 @@
         "같은 원천 ≥ 0.7 · 독립 ≤ 0.5 · 독립 3개 이상이면 2단계 GO"
       ],
       "reason": "독립 원천 3개(PBR 결합, RV20 규칙 B, 무한매수 TQQQ) → 2단계 GO. (스크립트 판정)",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/strategy-portfolio-stage2-preregistration-2026-10.md",
+      "title": "전략 포트폴리오 2단계 — 위험 균등 배분 vs ETF 6종 (사전등록)",
+      "date": "2026-10-09",
+      "bodyMarkdown": "---\ntrack: multi\nfactor: strategy-portfolio-stage2\ndate: 2026-10-09\nverdict: PREREGISTERED\ncriteria_version: research-only\nreason: >-\n  1단계 GO(독립 원천 3개: PBR 결합 · RV20 규칙 B · 무한매수 TQQQ, findings/strategy-portfolio-stage1-results-2026-10.md)에 이은 2단계.\n  질문 하나: 세 원천을 위험 균등으로 섞은 것이 ETF 6종 1/6 고정 단독보다 나은가. 사용자 GO 2026-10-09(\"2단계 진행\").\n---\n\n# 전략 포트폴리오 2단계 — 위험 균등 배분 vs ETF 6종 (사전등록)\n\n이 문서 커밋 → 코드 커밋 → 1회 실행 → 결과 커밋. 배분·매매 실행과 무관. 투자 자문이 아니다.\n\n## 1. 재료\n\n1단계가 만든 월수익 계열(`.cache/strategy_portfolio_stage1.parquet`, 1단계 코드 09a670ba 로 생성) 그대로. 새 계열·새 최적화 없음.\nS1 PBR 결합 · S2 RV20 규칙 B · S3 무한매수 V4.0 TQQQ(원화 환산) · S5 ETF 6종 1/6(비교 기준).\n\n## 2. 배분 규칙 (하나만, 결과 전 고정)\n\n- **M = 역변동성(위험 균등 근사)**: 달 t 의 비중 w_i ∝ 1 / σ_i, σ_i = 직전 24개월(최소 12개월) 월수익 표준편차(t 달 미포함). 합 1, 레버리지 없음, 매월 재조정.\n- 비교 기준 **B = S5 단독**.\n- 비교 달 = M 의 비중이 처음 정의되는 달부터(예상 2017-01) 공통 구간 끝까지. B 도 같은 달만.\n- 재조정 비용은 넣지 않는다(S5 도 비용 0 — 1단계와 같은 조건). 기록 열에 연 회전율을 적는다.\n\n## 3. 판정\n\n- 주 지표: 월수익 샤프(연환산, 무위험 0). 기간 나눔 P1 = 2017~2020, P2 = 2021~ 끝.\n- **PASS** = P1·P2 모두 샤프(M) > 샤프(B) ∧ 전체 샤프 차의 6개월 블록 부트스트랩(2,000회) 90% 구간 하단 > 0.\n- **PARTIAL** = P1·P2 모두 M > B 이나 구간 하단 ≤ 0.\n- **FAIL** = 그 밖.\n- PASS 여도 채택이 아니다 — 실제 배분은 별도 🔴 GO. 이 표본에서 골라진 규칙(S1·S2)이 들어 있어 샤프는 낙관적이다(1단계 §4).\n\n## 4. 기록 (판정 불사용)\n\n- 1/3 명목 균등(역변동성 없이) · 4원천 역변동성(S5 포함) · S5 대신 S4(SOXL) — 각 샤프·연수익·변동성·MDD, 구간별.\n- M 의 평균 비중 · 연 회전율 · M 을 B 와 같은 변동성으로 맞췄을 때(사후 상수 배율, 설명용) 연수익.\n",
+      "category": null,
+      "track": "multi",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only",
+      "conditions": null,
+      "reason": "1단계 GO(독립 원천 3개: PBR 결합 · RV20 규칙 B · 무한매수 TQQQ, findings/strategy-portfolio-stage1-results-2026-10.md)에 이은 2단계. 질문 하나: 세 원천을 위험 균등으로 섞은 것이 ETF 6종 1/6 고정 단독보다 나은가. 사용자 GO 2026-10-09(\"2단계 진행\").",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
