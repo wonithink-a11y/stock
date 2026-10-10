@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 12 |
-| 보류·판정 불가 | 39 |
+| 보류·판정 불가 | 40 |
 | 기각 | 116 |
-| 사전등록 문서(결과는 별도 파일) | 92 |
+| 사전등록 문서(결과는 별도 파일) | 93 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -30,11 +30,12 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (39)
+## 보류·판정 불가 (40)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-10 | INCONCLUSIVE | kr | [sp500-fx-hedge-results-2026-10.md](sp500-fx-hedge-results-2026-10.md) | C1(환노출이 변동성·낙폭 작음, 두 구간) SUPPORTED · C2(달러 비쌀 때 헤지 전환) INCONCLUSIVE — ΔSharpe 90% [-0.00, +0.16]. |
+| 2026-10-10 | INCONCLUSIVE | kr | [rebalance-rule-mix-results-2026-10.md](rebalance-rule-mix-results-2026-10.md) | 신호: 없음(연 1회 대비 우위 0개, 열위 0개) · 경제성: 해당 없음(같은 혼합의 운용 방식 비교) — 권고 규칙 R8 납입금+밴드 ±5%p (스크립트 판정) |
 | 2026-10-10 | 판정 불가 | crypto | [qullamaggie-breakout-crypto-results-2026-10.md](qullamaggie-breakout-crypto-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 33건, TRAIN net -4.18%(N1 +12.24%) · TEST net +6.13%(N1 +0.50%). 비용 20bp. |
 | 2026-10-10 | 판정 불가 | kr | [episodic-pivot-results-2026-10.md](episodic-pivot-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 27건, TRAIN net +3.58%(실적 없는 갭 N1 +2.10%) · VALID +0.09% · TEST +7.29%. 비용 33.5bp. |
 | 2026-10-09 | INCONCLUSIVE | kr | [etf-nav-gap-executability-results-2026-10.md](etf-nav-gap-executability-results-2026-10.md) | 실행 가능 신호: 판단 불가 · 경제성: 미달/판단 불가. R 신호일 72일 평균 +13.3bp(비용 후 90% [+3.1, +14.9]) vs O 67일 +28.5bp. (스크립트 판정) |
@@ -195,7 +196,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (92)
+## 사전등록 문서(결과는 별도 파일) (93)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -203,6 +204,7 @@
 | 2026-10-10 | PREREGISTERED | kr | [theme-leader-intraday-preregistration-2026-10.md](theme-leader-intraday-preregistration-2026-10.md) | 외부 자동매매(TTN META) '테마주 자동매매' 원리의 재현: 장 초반 거래대금 상위 강세 종목 → 가장 많이 몰린 테마 → 대장주 1종목 → 즉시 매수(셀 1)· 눌림 후 반등 매수(셀 2) … |
 | 2026-10-10 | PREREGISTERED | kr | [split-announcement-preregistration-2026-10.md](split-announcement-preregistration-2026-10.md) | 액면분할 공시 뒤 주가가 시장보다 오래 강한가(이켄베리 1996 류 '분할 뒤 표류'), 주식 병합(액면병합·감자형 병합) 공시 뒤엔 약한가. 무상증자·유상증자 공시는 이미 닫혔고(REJECT), … |
 | 2026-10-10 | PREREGISTERED | kr | [sp500-fx-hedge-preregistration-2026-10.md](sp500-fx-hedge-preregistration-2026-10.md) | 사전등록(결과 전 동결). 원화 투자자(연금저축)의 S&P500 환노출 vs 환헤지(H), 그리고 환율 수준으로 둘을 바꾸는 규칙 하나 — 사용자 사전 위임(야간 자율 연구). |
+| 2026-10-10 | PREREGISTERED | kr | [rebalance-rule-mix-preregistration-2026-10.md](rebalance-rule-mix-preregistration-2026-10.md) | 결과 전 고정. 연금저축·ISA 에서 비중을 고정한 ETF 혼합을 언제·어떻게 되맞출지(달력·밴드·납입금만) 비교한다. |
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-preregistration-2026-10.md](qullamaggie-breakout-preregistration-2026-10.md) | 사전등록(결과 전 동결). 크리스티안 쿨라마기(Qullamaggie)의 '돌파' 셋업을 국내 일봉(폐지 포함)에 그대로 옮겨 잰다 — 사용자 사전 위임(야간 자율 연구, 2026-10-10). |
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-forward-preregistration-2026-10.md](qullamaggie-breakout-forward-preregistration-2026-10.md) | 사전등록(동결). 쿨라마기 돌파(qullamaggie-breakout-results REJECT — 세 구간 net 양·N1 초과지만 TRAIN 하단 미달, 거래 154건)의 같은 규칙을 앞으로 생… |
 | 2026-10-10 | PREREGISTERED | crypto | [qullamaggie-breakout-crypto-preregistration-2026-10.md](qullamaggie-breakout-crypto-preregistration-2026-10.md) | 사전등록(결과 전 동결). 쿨라마기 돌파(국내 REJECT — 세 구간 net 양·검출력 부족)의 같은 규칙을 새 표본(크립토 30종 일봉)에서 잰다. 사용자 사전 위임(야간 자율 연구). |
