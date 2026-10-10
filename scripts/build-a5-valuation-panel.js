@@ -55,6 +55,10 @@ function defaultEnd() {
   return tradingDays[tradingDays.length - 1];
 }
 const END = argEnd || defaultEnd();
+// --with-delisted: 폐지 종목(A1b)·가격(A2b)을 더한다 - 생존편향 점검용(2026-10-10, 사전등록 75a4446c).
+// --out <dir>: 출력 폴더. 둘 다 없으면 예전과 바이트 동일(운용 패널).
+const WITH_DELISTED = process.argv.includes('--with-delisted');
+const OUT_DIR_ARG = process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : null;
 
 function readJsonl(relPath) {
   const buf = fs.readFileSync(path.join(ROOT, relPath));
@@ -103,6 +107,12 @@ function monthlyRebalanceDates(start, end) {
 
 function main() {
   const universe = readJsonl('data/backfill/universe/a1a/current.jsonl');
+  if (WITH_DELISTED) {
+    const listed = new Set(universe.map((u) => u.ticker));
+    for (const r of readJsonl('data/backfill/universe/a1b/delisted.jsonl')) {
+      if (!listed.has(r.ticker)) universe.push({ ticker: r.ticker, corp: r.corp });
+    }
+  }
   const corpActionsByCorp = loadCorporateActionsByCorp();
   const mergerSpinoffCorps = new Set();
   for (const [corp, events] of corpActionsByCorp.entries()) {
@@ -125,7 +135,8 @@ function main() {
     datesByYear.get(y).push(d);
   }
 
-  const outDir = path.join(ROOT, 'research/strategy-lab/reports/2026-08-21-a5-valuation-precheck');
+  const outDir = OUT_DIR_ARG ? path.resolve(OUT_DIR_ARG)
+    : path.join(ROOT, 'research/strategy-lab/reports/2026-08-21-a5-valuation-precheck');
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, 'valuation-panel.jsonl');
   const out = fs.createWriteStream(outPath);
@@ -136,6 +147,13 @@ function main() {
     if (!fs.existsSync(path.join(ROOT, p))) continue;
     const priceIdx = new Map();
     for (const r of readJsonl(p)) priceIdx.set(`${r.ticker}|${r.date}`, r);
+    const pb = `data/backfill/price/a2b/${year}.jsonl.gz`;
+    if (WITH_DELISTED && fs.existsSync(path.join(ROOT, pb))) {
+      for (const r of readJsonl(pb)) {
+        const k = `${r.ticker}|${r.date}`;
+        if (!priceIdx.has(k)) priceIdx.set(k, r);
+      }
+    }
 
     for (const { ticker, corp } of eligible) {
       const a3 = a3ByCorp.get(corp) || [];
