@@ -74,13 +74,6 @@ ui/orders/
 # manifest(data/backfill/minute/manifest)는 반대로 유일한 커밋 대상이라 무시하지 않는다.
 data/minute/
 
-# Obsidian 편집기 개인 설정(워크스페이스 상태 등, 기기마다 다르다) — 추적 안 함.
-# gitignore해도 Obsidian 사용에는 영향 없다(파일시스템만 읽고 git을 모른다).
-.obsidian/
-
-# graphify 생성 캐시 — `graphify update .`로 언제든 재생성 가능. 추적 안 함.
-# gitignore해도 graphify 사용에는 영향 없다(로컬 디스크에서 그대로 읽고 쓴다).
-graphify-out/
 research/strategy-lab/.opencode_scratch/
 
 # 라오어 무한매수법 규칙 명세 — 원작자가 "재가공·편집·정리하여 다른 공간에서 제공"을

@@ -10,27 +10,5 @@
       "mcp__claude-in-chrome__find",
       "mcp__ccd_session_mgmt__search_session_transcripts"
     ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "graphify hook-guard search"
-          }
-        ]
-      },
-      {
-        "matcher": "Read|Glob",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "graphify hook-guard read"
-          }
-        ]
-      }
-    ]
   }
 }
