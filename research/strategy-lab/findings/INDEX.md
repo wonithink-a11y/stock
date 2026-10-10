@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 12 |
 | 보류·판정 불가 | 40 |
-| 기각 | 118 |
-| 사전등록 문서(결과는 별도 파일) | 95 |
+| 기각 | 119 |
+| 사전등록 문서(결과는 별도 파일) | 97 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -75,7 +75,7 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (118)
+## 기각 (119)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -84,6 +84,7 @@
 | 2026-10-10 | REJECT | kr | [sector-earnings-breadth-results-2026-10.md](sector-earnings-breadth-results-2026-10.md) | 신호: 없음 · 경제성: 미달. TRAIN P -95bp vs 무작위 기준 95백분위 +293bp, VALID -422bp · TEST +34bp. (스크립트 판정) |
 | 2026-10-10 | REJECT | kr | [qullamaggie-breakout-results-2026-10.md](qullamaggie-breakout-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 154건, TRAIN 순수익 월평균 +1.48%(N1 +0.85%), VALID +11.84% · TEST +1.30%. 비용 33.5bp. |
 | 2026-10-10 | NOT SUPPORTED | us | [leverage-long-run-results-2026-10.md](leverage-long-run-results-2026-10.md) | 논문 발표 뒤 2016-01~2026-09: LRS 2배 연 +18.7%·낙폭 -37.0%·Sharpe 0.77 vs SPY 보유 +15.0%·-33.7%·0.86 vs SSO 보유 +22.7%·-… |
+| 2026-10-10 | REJECT | kr | [kospi-sector-momentum-pre2010-results-2026-10.md](kospi-sector-momentum-pre2010-results-2026-10.md) | 신호: 없음 · 평균 순초과 -8bp/월, 무작위 대비 p 0.495, 1990년대 +21bp · 2000년대 -37bp. (스크립트 판정) |
 | 2026-10-10 | REJECT | kr | [kcs-export-sector-results-2026-10.md](kcs-export-sector-results-2026-10.md) | 신호: 없음 · 경제성: 미달. TRAIN P -50bp (/무작위/ 95백분위 +103bp), VALID -86bp · TEST +132bp. (스크립트 판정) |
 | 2026-10-09 | FAIL | multi | [strategy-portfolio-stage2-results-2026-10.md](strategy-portfolio-stage2-results-2026-10.md) | 샤프 M 0.89 vs B 1.24, P1 0.86/1.33 · P2 0.91/1.21, 차 90% 구간 [-0.72, -0.07] → FAIL. (스크립트 판정) |
 | 2026-10-09 | NONE | kr | [short-selling-alert-results-2026-10.md](short-selling-alert-results-2026-10.md) | 신호: 없음 · 경제성(회피 규칙): 미달. S1 NONE · S2 NONE. (스크립트 판정, 정의는 사전등록 그대로) |
@@ -198,7 +199,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (95)
+## 사전등록 문서(결과는 별도 파일) (97)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -206,6 +207,7 @@
 | 2026-10-10 | PREREGISTERED | kr | [theme-leader-intraday-preregistration-2026-10.md](theme-leader-intraday-preregistration-2026-10.md) | 외부 자동매매(TTN META) '테마주 자동매매' 원리의 재현: 장 초반 거래대금 상위 강세 종목 → 가장 많이 몰린 테마 → 대장주 1종목 → 즉시 매수(셀 1)· 눌림 후 반등 매수(셀 2) … |
 | 2026-10-10 | PREREGISTERED | kr | [split-announcement-preregistration-2026-10.md](split-announcement-preregistration-2026-10.md) | 액면분할 공시 뒤 주가가 시장보다 오래 강한가(이켄베리 1996 류 '분할 뒤 표류'), 주식 병합(액면병합·감자형 병합) 공시 뒤엔 약한가. 무상증자·유상증자 공시는 이미 닫혔고(REJECT), … |
 | 2026-10-10 | PREREGISTERED | kr | [sp500-fx-hedge-preregistration-2026-10.md](sp500-fx-hedge-preregistration-2026-10.md) | 사전등록(결과 전 동결). 원화 투자자(연금저축)의 S&P500 환노출 vs 환헤지(H), 그리고 환율 수준으로 둘을 바꾸는 규칙 하나 — 사용자 사전 위임(야간 자율 연구). |
+| 2026-10-10 | PREREGISTERED | kr | [sector-momentum-forward-preregistration-2026-10.md](sector-momentum-forward-preregistration-2026-10.md) | 초안(커밋 전 검토용). 과거 자료에서 업종 추세 신호들이 2016~22 는 0·음, 2023~ 만 양으로 같은 모양을 보였다. 일시적 현상인지 새 자료로만 가린다. |
 | 2026-10-10 | PREREGISTERED | kr | [sector-earnings-breadth-preregistration-2026-10.md](sector-earnings-breadth-preregistration-2026-10.md) | 초안(커밋 전 검토용). 업종 부상을 가격보다 먼저 알 수 있는 정보로 잡을 수 있는지 — 공시된 분기 실적이 넓게 좋아진 업종이 이후 더 오르는가. |
 | 2026-10-10 | PREREGISTERED | kr | [rebalance-rule-mix-preregistration-2026-10.md](rebalance-rule-mix-preregistration-2026-10.md) | 결과 전 고정. 연금저축·ISA 에서 비중을 고정한 ETF 혼합을 언제·어떻게 되맞출지(달력·밴드·납입금만) 비교한다. |
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-preregistration-2026-10.md](qullamaggie-breakout-preregistration-2026-10.md) | 사전등록(결과 전 동결). 크리스티안 쿨라마기(Qullamaggie)의 '돌파' 셋업을 국내 일봉(폐지 포함)에 그대로 옮겨 잰다 — 사용자 사전 위임(야간 자율 연구, 2026-10-10). |
@@ -214,6 +216,7 @@
 | 2026-10-10 | PREREGISTERED | kr | [pbr-survivorship-check-preregistration-2026-10.md](pbr-survivorship-check-preregistration-2026-10.md) | 운용 중인 pbr_value_v1_combined 의 백테스트 재료(valuation-panel)는 현재 상장 종목만 담았다(1,724종목 중 폐지 6, 10년 선택 153종목 중 폐지 0, pol… |
 | 2026-10-10 | PREREGISTERED | kr | [pbr-combined-merged-rerun-preregistration-2026-10.md](pbr-combined-merged-rerun-preregistration-2026-10.md) | 운용 중인 pbr_value_v1_combined 를 규칙 그대로 폐지 종목 포함(A1A_A1B_MERGED)으로 다시 돌린다. 앞선 단순 규칙 점검(380f9d37)이 '편향 큼'(Δ +4.54%… |
 | 2026-10-10 | PREREGISTERED | us | [leverage-long-run-preregistration-2026-10.md](leverage-long-run-preregistration-2026-10.md) | 사전등록(결과 전 동결). Gayed 'Leverage for the Long Run'(2016, Charles H. Dow Award) — S&P500 이 200일선 위면 2배, 아래면 현금. 논… |
+| 2026-10-10 | PREREGISTERED | kr | [kospi-sector-momentum-pre2010-preregistration-2026-10.md](kospi-sector-momentum-pre2010-preregistration-2026-10.md) | 결과 전 고정. 국내 업종 추세는 2016~22 음, 2023~ 양이었다. 2010 이전에도 통했는지(=2016~22 가 예외인지, 2023~ 만의 현상인지)를 안 쓴 과거 자료로 가린다. |
 | 2026-10-10 | PREREGISTERED | kr | [kcs-export-sector-preregistration-2026-10.md](kcs-export-sector-preregistration-2026-10.md) | 결과 전 고정. 업종 부상을 가격보다 먼저 알 수 있는 정보 중 발표가 가장 이른 것 — 수출 실적이 관련 업종의 다음 달 수익을 설명하는가. |
 | 2026-10-10 | PREREGISTERED | kr | [episodic-pivot-preregistration-2026-10.md](episodic-pivot-preregistration-2026-10.md) | 사전등록(결과 전 동결). 쿨라마기의 두 번째 셋업 EP(실적 서프라이즈 갭 + 거래량 + 추세 추적 청산)를 국내 분기 보고서·일봉(폐지 포함)으로 잰다. 사용자 사전 위임(야간 자율 연구). |
 | 2026-10-09 | PREREGISTERED | kr | [volatility-breakout-etf-preregistration-2026-10.md](volatility-breakout-etf-preregistration-2026-10.md) | 래리 윌리엄스 변동성 돌파(국내 개인투자자에게 가장 유명한 형태): 오늘 시가 + 전일 변동폭(고가 − 저가) × k 를 넘으면 그 값에 사고 다음 날 시가에 판다. KODEX 200 일봉으로 '같… |
