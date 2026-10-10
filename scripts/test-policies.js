@@ -175,6 +175,10 @@ assert.ok(!('missingRateWarn' in price.acceptance),
 assert.ok(price.measured && price.measured.missingRate <= price.acceptance.missingRateMax,
   '실측 기준선이 임계를 넘는다 — 기준선이 이미 실패 상태면 임계가 근거를 잃는다');
 
+// PR-1.7 — 정리매매 면제 창. 0이면 폐지 손실이 다시 지워지고, 너무 크면 감자·병합을 놓친다.
+assert.ok(price.dailyChange.terminalResumeExemptDays >= 7 && price.dailyChange.terminalResumeExemptDays <= 15,
+  'terminalResumeExemptDays 는 정리매매 7거래일 + 여유 — 범위 밖이면 생존 편향이 돌아오거나 감자를 놓친다');
+
 // PR-1.4 — a2b 블록. A2a와 공유하는 것과 A2b가 덮어쓰는 것의 경계가 계약이다.
 const a2b = price.a2b;
 assert.ok(a2b, 'price에 a2b 블록 없음 — PR-1.4 미만이다');

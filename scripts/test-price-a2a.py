@@ -202,5 +202,28 @@ resume_ok[15] = row("000008", 15, 1050)          # 재개해도 +5%면 정상 �
 case("정지 재개 후 소폭 변동은 위반이 아니다",
      BASE + resume_ok, uni_of(*BASE_TK, "000008"), {})
 
+# 12. PR-1.7 — 거래가 끝난 종목의 마지막 10거래일 안 재개 급락은 정리매매(실제 손실)다.
+#     실측 2026-10: 카프로 −95%·코다코 −99.5% 가 종목째 지워져 생존 편향이 돌아왔다.
+liq = flat("000009")[:15]                         # 캘린더 끝(19) 전에 거래가 끝난다
+for i in range(5, 9):
+    liq[i] = row("000009", i, 1000, vol=0)        # 장기 정지
+for i in range(9, 15):
+    liq[i] = row("000009", i, 50)                 # 재개 = 정리매매 −95%, 6거래일 뒤 폐지
+d, kept, _ = case("거래 종료 직전 재개 급락은 정리매매 → 제외하지 않는다",
+                  BASE + liq, uni_of(*BASE_TK, "000009"), {})
+assert d["terminalResumeExempt"] >= 1, "정리매매 면제가 진단에 기록되지 않았다"
+assert "000009" in {r["ticker"] for r in kept}, "정리매매 종목이 산출물에서 빠졌다"
+
+# 13. 거래가 끝난 종목이라도 재개가 마지막 실거래일보다 10거래일 넘게 앞이면
+#     중간 구간 감자·병합이다 → 여전히 잡는다(e8c9c74f 의 원래 목적).
+mid = flat("000010")[:19]
+for i in range(2, 5):
+    mid[i] = row("000010", i, 1000, vol=0)
+for i in range(5, 19):
+    mid[i] = row("000010", i, 2000)               # 재개 5 → 마지막 18, 13거래일 앞
+case("거래 종료 종목의 중간 재개 급변은 여전히 제외한다",
+     BASE + mid, uni_of(*BASE_TK, "000010"),
+     {"000010": "UNADJUSTED_CORPORATE_ACTION"})
+
 print(f"\n{'✅' if not failed else '❌'} A2a 품질 판별 {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

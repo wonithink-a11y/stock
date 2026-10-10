@@ -244,8 +244,10 @@ def find_violations(by_ticker, cal_idx, pol, diag):
     """
     dc = pol["dailyChange"]
     limit = pol["acceptance"]["dailyChangeAbsMax"]
-    zero_vol = susp_gap = comparable = resume_after_halt = 0
+    zero_vol = susp_gap = comparable = resume_after_halt = terminal_exempt = 0
     viol = defaultdict(list)
+    cal_end = max(cal_idx.values()) if cal_idx else -1
+    terminal_days = dc["terminalResumeExemptDays"]
 
     for tk, xs in by_ticker.items():
         for i in range(1, len(xs)):
@@ -285,6 +287,14 @@ def find_violations(by_ticker, cal_idx, pol, diag):
                           # 모르면 제외하고 추정하지 않는다(교훈57).
             resume_after_halt += 1
             if a_["close"] > 0 and abs(b_["close"] / a_["close"] - 1) > limit:
+                # PR-1.7 — 거래가 끝난 종목의 마지막 N거래일 안에서 재개했다면
+                # 정지 → 정리매매 폭락(실제 상장폐지 손실)이다. 지우면 생존 편향이
+                # 돌아온다. 아직 거래 중인 종목(캘린더 끝까지 행이 있다)은 면제 안 함.
+                last_ci = cal_idx.get(xs[-1]["date"])
+                if (last_ci is not None and last_ci < cal_end
+                        and cal_idx[real[-1][1]["date"]] - ib < terminal_days):
+                    terminal_exempt += 1
+                    continue
                 base = a_["close"]
                 fwd = [xs[j]["close"] for j in range(bi + 1, min(bi + 1 + dc["transientReturnDays"], len(xs)))]
                 transient = any(abs(c / base - 1) < dc["transientReturnTolerance"] for c in fwd)
@@ -302,7 +312,8 @@ def find_violations(by_ticker, cal_idx, pol, diag):
     return viol, {"zeroVolumeTransitions": zero_vol,
                   "suspendedGapTransitions": susp_gap,
                   "comparableTransitions": comparable,
-                  "resumeAfterHaltTransitions": resume_after_halt}
+                  "resumeAfterHaltTransitions": resume_after_halt,
+                  "terminalResumeExempt": terminal_exempt}
 
 
 def build_exclusions(viol, uni_by_ticker, by_ticker):
