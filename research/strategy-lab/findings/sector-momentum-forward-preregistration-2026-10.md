@@ -72,3 +72,10 @@ reason: >-
 - 실행: 월간 점검(매월 첫 주)에 ETF 증분 수집(`collect_etf_ohlc_krx.py`, 이미 ETF 그림자 절차에 있음) · KRX 일별(`collect_krx_daily_ext.py <달>`) · 수출(`collect_kcs_exports.py`) 뒤
   `python research/strategy-lab/run_sector_momentum_forward.py`.
 - 코드(예정): `research/strategy-lab/run_sector_momentum_forward.py` — 이 문서 커밋 뒤 작성, `--selftest` 통과 후 실행 전 커밋.
+
+## 개정 1 (2026-10-10, 첫 관측 전 — 수익 계산 없이 대표 ETF 선정만 점검하다 발견)
+
+- **액티브 ETF 제외**: 'KRX 헬스케어'·'KRX 정보기술'을 비교지수로 둔 액티브 ETF(TIMEFOLIO K바이오액티브 · TIGER 코리아테크액티브)가 거래대금 1위로 잡혔다.
+  지수를 추종하지 않으므로 이름에 '액티브'가 있는 ETF 를 대표 후보에서 뺀다(§2 '추종' 정의를 명확히 한 것). 고친 뒤 대표: 헬스케어 TIGER 제약&바이오 · 정보기술 KODEX IT하드웨어.
+- **방송통신**: 유일한 ETF(TIGER 미디어통신)가 2025-12-03 이후 거래가 없어 순위에 들지 않는다 — 실제 업종 수는 14(§2 결측 규칙대로, 6 이상이라 판정 표본 유지).
+- 코드 정의 해시(DEF_HASH)는 이 개정을 포함한 값으로 시작한다. 수익·순위 결과는 보지 않았다(2026-09-30 기준 대표 ETF 목록만 확인).
