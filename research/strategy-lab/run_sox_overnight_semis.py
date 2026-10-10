@@ -46,7 +46,7 @@ def nw_t(y, ev):
     d = pd.DataFrame({"y": y, "e": ev.astype(float)}).dropna()
     if d.e.sum() < 5 or (1 - d.e).sum() < 5:
         return np.nan, np.nan
-    c, t, _ = nw(d.y.to_numpy(), d.e.to_numpy())
+    c, t, _ = nw(d.y, d.e)          # nw 는 pandas 입력을 받는다(params.iloc)
     return c, t
 
 
