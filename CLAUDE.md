@@ -256,6 +256,11 @@ Validated against
             빔서치 바닥선이 전수보다 높음 · 바닥선 통과는 필요조건일 뿐 · t 는 EW 대비 초과로 재야 함 ·
             실현손익 누적 회계 재발 · simulate_exits 는 회전율을 곱해야 함. 공개범위 PUBLIC 유지 —
             트리거: KEEP 전략이 처음 생기면 그것만 private 분리. 원문: 완료-이력.md 이월 ②.
+  다음      ★★ **PBR 생존편향(10-10, 판정 '편향 큼')** — 운용 백테스트 재료(valuation-panel·factor-panel)는 **현재 상장 종목만**이다
+            (policy.json `A1A_ONLY`·`SMOKE`, 정식은 폐지 포함 필요 — 한 번도 안 돌렸다). 같은 저PBR 30종목 규칙을 KRX PBR·일별(폐지 포함)로
+            돌리면 비용 후 연복리 현재 상장만 +10.29% vs 폐지 포함 +5.76%(Δ +4.54%p, 극단값 빼도 같음), 폐지 포함 전략은 등가중(+5.03%)을 겨우 이긴다.
+            상위 10% 판은 Δ +1.38%p. findings/pbr-survivorship-check-results-2026-10.md(사전등록 380f9d37). 운용 규칙 자체의 폐지 포함 재실행은 아직 —
+            운용 판단 재검토는 사용자 🔴. **팩터 패널 기반 연구 전반(54축 스윕·EY 등)도 같은 한계 위에 있다.**
   다음      PBR 연구 라인 — **production 🔴 결정(2026-09-18 사용자 확정): `pbr_value_v1_combined` GO,
             `factor_earnings_yield_v1`(EY) 보류.** EY 는 세 경로(단독·raw 50:50 결합·잔차화 결합) 전부 막혔고
             모의투자 관측용으로만 둔다(findings/earnings-yield-final-robustness · pbr-ey-composite-oos ·

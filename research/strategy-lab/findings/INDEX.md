@@ -9,9 +9,9 @@
 | 통과·채택 | 12 |
 | 보류·판정 불가 | 39 |
 | 기각 | 115 |
-| 사전등록 문서(결과는 별도 파일) | 89 |
+| 사전등록 문서(결과는 별도 파일) | 90 |
 | 정보·탐색 | 26 |
-| 미분류 | 235 |
+| 미분류 | 236 |
 
 ## 통과·채택 (12)
 
@@ -194,7 +194,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (89)
+## 사전등록 문서(결과는 별도 파일) (90)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -204,6 +204,7 @@
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-preregistration-2026-10.md](qullamaggie-breakout-preregistration-2026-10.md) | 사전등록(결과 전 동결). 크리스티안 쿨라마기(Qullamaggie)의 '돌파' 셋업을 국내 일봉(폐지 포함)에 그대로 옮겨 잰다 — 사용자 사전 위임(야간 자율 연구, 2026-10-10). |
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-forward-preregistration-2026-10.md](qullamaggie-breakout-forward-preregistration-2026-10.md) | 사전등록(동결). 쿨라마기 돌파(qullamaggie-breakout-results REJECT — 세 구간 net 양·N1 초과지만 TRAIN 하단 미달, 거래 154건)의 같은 규칙을 앞으로 생… |
 | 2026-10-10 | PREREGISTERED | crypto | [qullamaggie-breakout-crypto-preregistration-2026-10.md](qullamaggie-breakout-crypto-preregistration-2026-10.md) | 사전등록(결과 전 동결). 쿨라마기 돌파(국내 REJECT — 세 구간 net 양·검출력 부족)의 같은 규칙을 새 표본(크립토 30종 일봉)에서 잰다. 사용자 사전 위임(야간 자율 연구). |
+| 2026-10-10 | PREREGISTERED | kr | [pbr-survivorship-check-preregistration-2026-10.md](pbr-survivorship-check-preregistration-2026-10.md) | 운용 중인 pbr_value_v1_combined 의 백테스트 재료(valuation-panel)는 현재 상장 종목만 담았다(1,724종목 중 폐지 6, 10년 선택 153종목 중 폐지 0, pol… |
 | 2026-10-10 | PREREGISTERED | us | [leverage-long-run-preregistration-2026-10.md](leverage-long-run-preregistration-2026-10.md) | 사전등록(결과 전 동결). Gayed 'Leverage for the Long Run'(2016, Charles H. Dow Award) — S&P500 이 200일선 위면 2배, 아래면 현금. 논… |
 | 2026-10-10 | PREREGISTERED | kr | [episodic-pivot-preregistration-2026-10.md](episodic-pivot-preregistration-2026-10.md) | 사전등록(결과 전 동결). 쿨라마기의 두 번째 셋업 EP(실적 서프라이즈 갭 + 거래량 + 추세 추적 청산)를 국내 분기 보고서·일봉(폐지 포함)으로 잰다. 사용자 사전 위임(야간 자율 연구). |
 | 2026-10-09 | PREREGISTERED | kr | [volatility-breakout-etf-preregistration-2026-10.md](volatility-breakout-etf-preregistration-2026-10.md) | 래리 윌리엄스 변동성 돌파(국내 개인투자자에게 가장 유명한 형태): 오늘 시가 + 전일 변동폭(고가 − 저가) × k 를 넘으면 그 값에 사고 다음 날 시가에 판다. KODEX 200 일봉으로 '같… |
@@ -319,10 +320,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (235)
+## 미분류 (236)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
 | 2026-10-09 | DRAFT | kr | [night-candidates-forward-draft-2026-10.md](night-candidates-forward-draft-2026-10.md) | 2026-10-09 밤 자율 연구에서 나온 후보를 과거 표본으로 더 다듬지 않고 동결 이후 새 표본(forward)으로만 판정하기 위한 초안. 칸마다 정의는 원 연구와 한 글자도 다르지 않게 두고,… |
 | 2026-09-30 | UNCLASSIFIED | kr | [event-overlay-exposure-step0-2-2026-09.md](event-overlay-exposure-step0-2-2026-09.md) | 신호: 해당 없음(수익률 미측정) · 경제성: 해당 없음. 뉴스·공시 오버레이 검증의 0~2단계. 정의와 "충분" 기준을 세기 전에 고정했고, 상식 필터(거래정지)는 PBR 결합 슬롯에서 거래량 0… |
 | 2026-09-24 | UNCLASSIFIED | kr | [theme-sensitivity-results-2026-09.md](theme-sensitivity-results-2026-09.md) | 관찰용(판정 없음). 시장·규모를 통제한 뒤에도 /t/>2 칸이 2016–2022 69칸 · 2023– 54칸으로 우연 기대(12.9칸)의 4~5배 — 테마별 외부요인 민감도가 존재할 가능성을 강하… |
