@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 12 |
 | 보류·판정 불가 | 40 |
-| 기각 | 117 |
-| 사전등록 문서(결과는 별도 파일) | 94 |
+| 기각 | 118 |
+| 사전등록 문서(결과는 별도 파일) | 95 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -75,7 +75,7 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (117)
+## 기각 (118)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -84,6 +84,7 @@
 | 2026-10-10 | REJECT | kr | [sector-earnings-breadth-results-2026-10.md](sector-earnings-breadth-results-2026-10.md) | 신호: 없음 · 경제성: 미달. TRAIN P -95bp vs 무작위 기준 95백분위 +293bp, VALID -422bp · TEST +34bp. (스크립트 판정) |
 | 2026-10-10 | REJECT | kr | [qullamaggie-breakout-results-2026-10.md](qullamaggie-breakout-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 154건, TRAIN 순수익 월평균 +1.48%(N1 +0.85%), VALID +11.84% · TEST +1.30%. 비용 33.5bp. |
 | 2026-10-10 | NOT SUPPORTED | us | [leverage-long-run-results-2026-10.md](leverage-long-run-results-2026-10.md) | 논문 발표 뒤 2016-01~2026-09: LRS 2배 연 +18.7%·낙폭 -37.0%·Sharpe 0.77 vs SPY 보유 +15.0%·-33.7%·0.86 vs SSO 보유 +22.7%·-… |
+| 2026-10-10 | REJECT | kr | [kcs-export-sector-results-2026-10.md](kcs-export-sector-results-2026-10.md) | 신호: 없음 · 경제성: 미달. TRAIN P -50bp (/무작위/ 95백분위 +103bp), VALID -86bp · TEST +132bp. (스크립트 판정) |
 | 2026-10-09 | FAIL | multi | [strategy-portfolio-stage2-results-2026-10.md](strategy-portfolio-stage2-results-2026-10.md) | 샤프 M 0.89 vs B 1.24, P1 0.86/1.33 · P2 0.91/1.21, 차 90% 구간 [-0.72, -0.07] → FAIL. (스크립트 판정) |
 | 2026-10-09 | NONE | kr | [short-selling-alert-results-2026-10.md](short-selling-alert-results-2026-10.md) | 신호: 없음 · 경제성(회피 규칙): 미달. S1 NONE · S2 NONE. (스크립트 판정, 정의는 사전등록 그대로) |
 | 2026-10-09 | REJECT | kr | [sector-etf-weekly-reversal-results-2026-10.md](sector-etf-weekly-reversal-results-2026-10.md) | 신호: 없음 · 경제성: 미달. (스크립트 판정, 바닥선 +11.9bp/주) |
@@ -197,7 +198,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (94)
+## 사전등록 문서(결과는 별도 파일) (95)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -213,6 +214,7 @@
 | 2026-10-10 | PREREGISTERED | kr | [pbr-survivorship-check-preregistration-2026-10.md](pbr-survivorship-check-preregistration-2026-10.md) | 운용 중인 pbr_value_v1_combined 의 백테스트 재료(valuation-panel)는 현재 상장 종목만 담았다(1,724종목 중 폐지 6, 10년 선택 153종목 중 폐지 0, pol… |
 | 2026-10-10 | PREREGISTERED | kr | [pbr-combined-merged-rerun-preregistration-2026-10.md](pbr-combined-merged-rerun-preregistration-2026-10.md) | 운용 중인 pbr_value_v1_combined 를 규칙 그대로 폐지 종목 포함(A1A_A1B_MERGED)으로 다시 돌린다. 앞선 단순 규칙 점검(380f9d37)이 '편향 큼'(Δ +4.54%… |
 | 2026-10-10 | PREREGISTERED | us | [leverage-long-run-preregistration-2026-10.md](leverage-long-run-preregistration-2026-10.md) | 사전등록(결과 전 동결). Gayed 'Leverage for the Long Run'(2016, Charles H. Dow Award) — S&P500 이 200일선 위면 2배, 아래면 현금. 논… |
+| 2026-10-10 | PREREGISTERED | kr | [kcs-export-sector-preregistration-2026-10.md](kcs-export-sector-preregistration-2026-10.md) | 결과 전 고정. 업종 부상을 가격보다 먼저 알 수 있는 정보 중 발표가 가장 이른 것 — 수출 실적이 관련 업종의 다음 달 수익을 설명하는가. |
 | 2026-10-10 | PREREGISTERED | kr | [episodic-pivot-preregistration-2026-10.md](episodic-pivot-preregistration-2026-10.md) | 사전등록(결과 전 동결). 쿨라마기의 두 번째 셋업 EP(실적 서프라이즈 갭 + 거래량 + 추세 추적 청산)를 국내 분기 보고서·일봉(폐지 포함)으로 잰다. 사용자 사전 위임(야간 자율 연구). |
 | 2026-10-09 | PREREGISTERED | kr | [volatility-breakout-etf-preregistration-2026-10.md](volatility-breakout-etf-preregistration-2026-10.md) | 래리 윌리엄스 변동성 돌파(국내 개인투자자에게 가장 유명한 형태): 오늘 시가 + 전일 변동폭(고가 − 저가) × k 를 넘으면 그 값에 사고 다음 날 시가에 판다. KODEX 200 일봉으로 '같… |
 | 2026-10-09 | PREREGISTERED | multi | [strategy-portfolio-stage2-preregistration-2026-10.md](strategy-portfolio-stage2-preregistration-2026-10.md) | 1단계 GO(독립 원천 3개: PBR 결합 · RV20 규칙 B · 무한매수 TQQQ, findings/strategy-portfolio-stage1-results-2026-10.md)에 이은 2단… |
