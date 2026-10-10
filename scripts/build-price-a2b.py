@@ -186,14 +186,19 @@ def _kis_call_page(key, secret, token, ticker, d1, d2, tr_id, adj_flag):
             "msg": (b.get("msg1") or "")[:150], "rows": rows}
 
 
+RETRYABLE_MSG = {"EGW00201", "EGW00316"}
+
+
 def _call_page_with_retry(call_page, ticker, d1, d2, src):
     """EGW00201(초당 거래건수 초과)은 재시도 가능으로 분류한다(CLAUDE.md 운영기준).
     표본 프로브(297콜)에서 동시성 2·0.15초 간격으로 0회였지만 전량(약 9,000콜)의
-    3%뿐이라 재시도는 그대로 남겨둔다."""
+    3%뿐이라 재시도는 그대로 남겨둔다.
+    EGW00316('조회 처리 중 오류, 재조회 부탁')도 같이 재시도한다 — 2026-10-10 A2b 에서
+    089530·090730 이 이 응답 한 번에 종목째 빠졌다(8월엔 같은 자리가 연결 끊김 2건)."""
     r = None
     for attempt in range(src["egw00201RetryAttempts"]):
         r = call_page(ticker, d1, d2)
-        if r.get("msgCd") == "EGW00201":
+        if r.get("msgCd") in RETRYABLE_MSG:
             time.sleep(src["egw00201RetryBackoffBase"] ** attempt)
             continue
         return r

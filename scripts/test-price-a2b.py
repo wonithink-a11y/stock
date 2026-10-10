@@ -273,6 +273,20 @@ rows_egw, kind5, err5 = m.fetch_one(_call_page_egw_then_ok, "000001", "20200101"
 case("EGW00201은 재시도되고 최종 결과로 분류된다(예외로 즉시 포기하지 않는다)",
      len(_egw_calls) == 2 and kind5 == "empty", f"calls={len(_egw_calls)} kind={kind5}")
 
+_e316_calls = []
+
+
+def _call_page_316_then_ok(ticker, d1, d2):
+    _e316_calls.append(1)
+    if len(_e316_calls) == 1:
+        return {"rtCd": "1", "msgCd": "EGW00316", "msg": "조회 처리 중 오류 발생하였습니다. 재 조회 수행 부탁드립니다.", "rows": {}}
+    return {"rtCd": "0", "msgCd": None, "msg": "", "rows": {}}
+
+
+_, kind6, _ = m.fetch_one(_call_page_316_then_ok, "000001", "20200101", "20200209", POL)
+case("EGW00316(재조회 요청)도 재시도된다 — 2026-10-10 실측 2종목이 한 번에 빠졌다",
+     len(_e316_calls) == 2 and kind6 == "empty", f"calls={len(_e316_calls)} kind={kind6}")
+
 # ── 공유 계약 — 품질 판별은 A2a와 같아야 한다 ──────────────────────
 perm = series("000003", 0, 30)
 for i in range(15, 30):
