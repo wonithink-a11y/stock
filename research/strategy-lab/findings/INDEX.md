@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 12 |
 | 보류·판정 불가 | 40 |
-| 기각 | 120 |
-| 사전등록 문서(결과는 별도 파일) | 98 |
+| 기각 | 121 |
+| 사전등록 문서(결과는 별도 파일) | 99 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -75,10 +75,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (120)
+## 기각 (121)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-11 | REJECT | kr | [sox-overnight-kr-semis-open-results-2026-10.md](sox-overnight-kr-semis-open-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. SOX 가 밤사이 오른 날 한국 반도체는 시가가 이미 +1.2~3.3% 높게 열리고(갭), 그 뒤 장중엔 오히려 빠진다 — 사건일 장중 K2 전 기간 −… |
 | 2026-10-11 | REJECT | kr | [sector-follower-catchup-results-2026-10.md](sector-follower-catchup-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 네 셀 모두 TRAIN 바닥선(2.97) 근처에도 못 감(최대 t +0.86, B·h5). 업종 2~5위는 규모·최근 5일 수익이 같은 다른 업종 종목과 구분되지 않… |
 | 2026-10-10 | REJECT | kr | [theme-leader-intraday-results-2026-10.md](theme-leader-intraday-results-2026-10.md) | 셀1 신호: 없음 · 경제성: 미달 (REJECT, 비용 전 -90.1bp) / 셀2 신호: 없음 · 경제성: 미달 (REJECT, 비용 전 -76.6bp). 비용 33.5bp. (스크립트 판정) |
 | 2026-10-10 | NONE | kr | [split-announcement-results-2026-10.md](split-announcement-results-2026-10.md) | SPLIT NONE(60일 초과 -2.19%, 229건) · REV NONE(60일 초과 -6.75%, 120건). (스크립트 판정) |
@@ -200,10 +201,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (98)
+## 사전등록 문서(결과는 별도 파일) (99)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-11 | PREREGISTERED | kr | [sox-overnight-kr-semis-open-preregistration-2026-10.md](sox-overnight-kr-semis-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 밤사이 미국 반도체가 오르면 한국 반도체를 시초가에 사는 게 어떤가. 지수 단위는 이미 쟀다(us-overnight-kospi-… |
 | 2026-10-11 | PREREGISTERED | kr | [sector-follower-catchup-preregistration-2026-10.md](sector-follower-catchup-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 업종 주도주가 가면 그 업종 2~5번째 주식이 따라가는가. 업종 부상 연구(ed36f0c2)의 기록 셀 ⑦⑧ 에서 '부상 뒤 선… |
 | 2026-10-10 | PREREGISTERED | kr | [yearend-taxloss-preregistration-2026-10.md](yearend-taxloss-preregistration-2026-10.md) | 한국 개인 투자자는 연말 대주주 판정(양도세)을 피하려고 마지막 거래일 직전에 판다는 통설이 있다. 그렇다면 개인 비중이 큰 코스닥 소형주는 '연말 매도 구간'에 약하고 '연초 반등 구간'에 강해야… |
 | 2026-10-10 | PREREGISTERED | kr | [theme-leader-intraday-preregistration-2026-10.md](theme-leader-intraday-preregistration-2026-10.md) | 외부 자동매매(TTN META) '테마주 자동매매' 원리의 재현: 장 초반 거래대금 상위 강세 종목 → 가장 많이 몰린 테마 → 대장주 1종목 → 즉시 매수(셀 1)· 눌림 후 반등 매수(셀 2) … |
