@@ -300,7 +300,7 @@ def run_smoke(strategy_id, start, end, repo_root, ticker_subset=None, trace_limi
             continue
 
         try:
-            result = simulate_trade(order, fast_bars, calendar, cost_model)
+            result = simulate_trade(order, fast_bars, calendar, cost_model, data_end=end)
         except Exception:
             diag["executionErrorCount"] += 1
             continue

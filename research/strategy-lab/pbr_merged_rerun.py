@@ -2,6 +2,7 @@
 
 운용 규칙(저PBR 30 · nDrop 3 · MAX5 상위 20% 제외 · 왕복 30bp · 월말 MTM)은 운용 빌더의 함수를 그대로 가져다 쓴다.
 바꾸는 것은 유니버스(A1a → A1a+A1b, 가격 A2a → A2a+A2b)와 엔진 구멍(가격이 끊긴 매매를 버림) 보정뿐이다.
+엔진 구멍은 같은 날 엔진에서 고쳤다 — P0·E0 은 simulate_trade_old 로 예전 동작을 재현한다.
 
 준비(밸류 패널 두 개, 각 ~10초):
   node scripts/build-a5-valuation-panel.js --end 2026-09-01 --out research/strategy-lab/reports/2026-10-10-pbr-merged-rerun/current
@@ -28,7 +29,7 @@ from engine.data.a2aProvider import A2aProvider  # noqa: E402
 from engine.data.a2bProvider import A2bProvider  # noqa: E402
 from engine.data.calendar import TradingCalendar  # noqa: E402
 from engine.data.mergedPriceProvider import MergedPriceProvider  # noqa: E402
-from engine.execution.executor import Fill, _apply_slippage, simulate_trade  # noqa: E402
+from engine.execution.executor import simulate_trade  # noqa: E402
 from engine.portfolio.portfolio import PortfolioConfig  # noqa: E402
 from pbr_vs_ew_monthly_mtm import annual_returns_mtm, curve_metrics, schedule_with_monthly_mtm  # noqa: E402
 
@@ -65,25 +66,10 @@ class OverlapSafeMerged(MergedPriceProvider):
         return self._bars
 
 
-# ---------------- 엔진 구멍 보정: 이 실행에서만 감싼다 ----------------
-def simulate_trade_fixed(order, bars, calendar, cost_model):
-    """원래 결과가 있으면 그대로. 가격이 끊겨 None 이면: 청산 예정일 뒤 첫 거래일(정지 후 재개) 종가,
-    그것도 없으면(폐지) 진입 뒤 마지막 거래일 종가에 판다. 진입일 가격이 없으면 여전히 None(체결 불가)."""
-    res = simulate_trade(order, bars, calendar, cost_model)
-    if res is not None or order.order_date not in bars.index:
-        return res
-    entry = Fill(order, order.order_date, _apply_slippage(float(bars.loc[order.order_date, "open"]), "BUY",
-                                                          cost_model.slippage_bps),
-                 "OPEN", cost_model.entry_cost_bps, cost_model.slippage_bps)
-    window = calendar.next_n_sessions(order.order_date, order.risk_spec.max_holding_sessions)
-    days = sorted(d for d in bars.index if d >= order.order_date)
-    after = [d for d in days if window and d > window[-1]]
-    if after:
-        day, kind = after[0], "RESUME_EXIT"
-    else:
-        day, kind = days[-1], "LAST_BAR_EXIT"
-    price = _apply_slippage(float(bars.loc[day, "close"]), "SELL", cost_model.slippage_bps)
-    return entry, Fill(order, day, price, kind, cost_model.exit_cost_bps, cost_model.slippage_bps)
+# ---------------- 엔진 구멍: 2026-10-10 엔진 자체를 고쳤다(executor data_end, runner 가 넘긴다) ----------------
+def simulate_trade_old(order, bars, calendar, cost_model, data_end=None):
+    """P0·E0 용 — 고치기 전 엔진(가격이 끊긴 매매를 버림) 재현."""
+    return simulate_trade(order, bars, calendar, cost_model)
 
 
 # ---------------- 선택(운용 빌더와 같은 계산) ----------------
@@ -157,7 +143,7 @@ def run_engine(strategy_id, selection, mode, fixed):
     rule.PARAMS = copy.deepcopy(rule.PARAMS)
     rule.PARAMS["universe"]["mode"] = mode
     rule._SELECTION = selection
-    runner.simulate_trade = simulate_trade_fixed if fixed else simulate_trade
+    runner.simulate_trade = simulate_trade if fixed else simulate_trade_old
     runner.MergedPriceProvider = OverlapSafeMerged
     try:
         base = runner.run_smoke(strategy_id, START, END, REPO, rule_module=rule)
@@ -280,7 +266,7 @@ def write(runs, match, sel_dl, krx_added, dc, dm, gap, verdict, val_mer, dl):
     for y in sorted(runs["P2"]["annual"]):
         L.append(f"| {y} | {pct(runs['P0']['annual'].get(y))} | {pct(runs['P2']['annual'].get(y))} | {pct(runs['E2']['annual'].get(y))} |")
     L += ["", "한계: 폐지 종목 대부분은 DART 재무(A3)나 가격(A2b)이 없거나 합병·분할 이력 제외 규칙에 걸려 P2 에서도 선택될 수 없다 — "
-          "P3 가 그 빈칸의 상한을 보인다. 엔진 보정은 이 실행에만 적용했다(engine/ 무변경). 운용 규칙·모의 슬리브 변경은 별도 🔴 결정."]
+          "P3 가 그 빈칸의 상한을 보인다. 엔진 보정은 2026-10-10 엔진 자체에 반영했다(executor data_end). 운용 규칙·모의 슬리브 변경은 별도 🔴 결정."]
     open(OUT + ".md", "w", encoding="utf-8").write("\n".join(L) + "\n")
     json.dump({"verdict": verdict, "gap": gap, "match": match, "metrics": M,
                "annual": {k: v["annual"] for k, v in runs.items()}, "skipped": {k: v["skipped"] for k, v in runs.items()},
@@ -289,36 +275,23 @@ def write(runs, match, sel_dl, krx_added, dc, dm, gap, verdict, val_mer, dl):
 
 
 def selftest():
+    """엔진 수정 자체의 검사는 tests/test_execution.py 에 있다. 여기서는 예전 동작 재현만 본다."""
+    import pandas as pd
+    from engine.execution.contracts import Order
+    from engine.execution.executor import CostModel
+    from engine.signals.schema import RiskSpec
+
     class Cal:
         days = [f"2020-01-{i:02d}" for i in range(1, 11)]
 
         def next_n_sessions(self, d, n):
-            i = self.days.index(d)
-            return self.days[i:i + n]
+            return [x for x in self.days if x >= d][:n]
 
-    class Bars:
-        def __init__(self, rows):
-            self.index = rows
-            self.loc = self
-
-        def __getitem__(self, k):
-            return self.index[k[0]][k[1]] if isinstance(k, tuple) else self.index[k]
-
-    from engine.execution.executor import CostModel
-    from engine.signals.schema import RiskSpec
-    from types import SimpleNamespace
-    cm = CostModel(entry_cost_bps=0, exit_cost_bps=0, slippage_bps=0)
-    order = SimpleNamespace(symbol="X", order_date="2020-01-02", direction="LONG",
-                            risk_spec=RiskSpec(stop_distance=1e9, reward_risk=1.0, max_holding_sessions=4))
-    delisted = Bars({"2020-01-02": {"open": 100, "high": 100, "low": 100, "close": 100},
-                     "2020-01-03": {"open": 50, "high": 50, "low": 10, "close": 10}})
-    assert simulate_trade(order, delisted, Cal(), cm) is None                 # 원래 엔진: 매매가 사라진다
-    e, x = simulate_trade_fixed(order, delisted, Cal(), cm)
-    assert x.fill_type == "LAST_BAR_EXIT" and x.fill_price == 10 and x.fill_date == "2020-01-03"
-    halted = Bars({"2020-01-02": {"open": 100, "high": 100, "low": 100, "close": 100},
-                   "2020-01-08": {"open": 30, "high": 30, "low": 30, "close": 30}})
-    e, x = simulate_trade_fixed(order, halted, Cal(), cm)
-    assert x.fill_type == "RESUME_EXIT" and x.fill_date == "2020-01-08" and x.fill_price == 30
+    bars = pd.DataFrame([("2020-01-02", 100, 100, 100, 100), ("2020-01-03", 50, 50, 10, 10)],
+                        columns=["date", "open", "high", "low", "close"]).set_index("date")
+    order = Order("X", "2020-01-01", "2020-01-02", "LONG", RiskSpec(1e9, 1.0, 4))
+    assert simulate_trade_old(order, bars, Cal(), CostModel(), data_end="2020-01-10") is None
+    assert simulate_trade(order, bars, Cal(), CostModel(), data_end="2020-01-10")[1].fill_type == "LAST_BAR_EXIT"
     print("selftest ok")
 
 

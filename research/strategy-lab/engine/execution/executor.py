@@ -36,10 +36,19 @@ def build_order(signal, risk_spec, calendar):
     )
 
 
-def simulate_trade(order: Order, bars, calendar, cost_model: CostModel):
+def simulate_trade(order: Order, bars, calendar, cost_model: CostModel, data_end=None):
     """bars: the ticker's full DataFrame (future included - this layer is allowed
     to see it). Returns (entry_fill, exit_fill), or None if order_date has no bar
-    (e.g. ran past available data)."""
+    (e.g. ran past available data).
+
+    data_end (2026-10-10): the last date the caller loaded prices for. Without it
+    (default) a trade whose exit day has no bar is dropped - which silently erased
+    delisting losses and exits on halt days (EW benchmark lost 1,247 trades,
+    findings/pbr-combined-merged-rerun-results-2026-10.md). With it, such a trade is
+    still dropped only when the holding window runs past data_end or past the
+    calendar (genuinely unresolved); otherwise it exits at the close of the first
+    bar after the window (RESUME_EXIT - halted, then resumed) or, if there is none,
+    the last bar the ticker traded (LAST_BAR_EXIT - delisted)."""
     if order.order_date not in bars.index:
         return None
 
@@ -77,10 +86,29 @@ def simulate_trade(order: Order, bars, calendar, cost_model: CostModel):
             price = _apply_slippage(float(bars.loc[last_day, "close"]), "SELL", cost_model.slippage_bps)
             exit_fill = Fill(order, last_day, price, "TIME_EXIT", cost_model.exit_cost_bps, cost_model.slippage_bps)
 
+    if exit_fill is None and data_end is not None:
+        exit_fill = _exit_after_gap(order, bars, holding_window, data_end, cost_model)
+
     if exit_fill is None:
-        return None  # ran out of bars (e.g. delisted mid-holding) - not fabricated
+        return None  # unresolved (data ends before the exit) - not fabricated
 
     return entry_fill, exit_fill
+
+
+def _exit_after_gap(order, bars, holding_window, data_end, cost_model):
+    """Exit for a trade whose scheduled exit day has no bar. None when the window is
+    cut by the calendar or by data_end - the outcome is not knowable yet."""
+    if len(holding_window) < order.risk_spec.max_holding_sessions or holding_window[-1] > data_end:
+        return None
+    days = sorted(str(d)[:10] for d in bars.index)
+    after = [d for d in days if holding_window[-1] < d <= data_end]
+    if after:
+        day, kind = after[0], "RESUME_EXIT"
+    else:
+        held = [d for d in days if order.order_date <= d <= holding_window[-1]]
+        day, kind = held[-1], "LAST_BAR_EXIT"  # order_date itself has a bar, so held is non-empty
+    price = _apply_slippage(float(bars.loc[day, "close"]), "SELL", cost_model.slippage_bps)
+    return Fill(order, day, price, kind, cost_model.exit_cost_bps, cost_model.slippage_bps)
 
 
 def _fill_stop(order, day, row, stop_price, cost_model):

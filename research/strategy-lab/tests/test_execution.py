@@ -117,6 +117,41 @@ def test_transaction_cost_recorded_on_gap_stop_exit():
     assert exit_.cost_bps == 15, "exit transaction cost must apply even on a gap-through-stop exit"
 
 
+def _gap_order(cal):
+    return Order("X", cal.days[0], cal.days[1], "LONG", RiskSpec(1e9, 1.0, 5))  # 도달 불가 stop/target, 5세션 시간청산
+
+
+def test_delisted_mid_hold_exits_at_last_bar():
+    cal = FakeCalendar()
+    bars = _bars([(cal.days[1], 100, 100, 100, 100), (cal.days[2], 40, 40, 10, 12)])  # 이틀 뒤 폐지
+    assert simulate_trade(_gap_order(cal), bars, cal, CostModel()) is None, "data_end 없이는 예전 동작(버림) 유지"
+    _, exit_ = simulate_trade(_gap_order(cal), bars, cal, CostModel(), data_end=cal.days[-1])
+    assert (exit_.fill_type, exit_.fill_date, exit_.fill_price) == ("LAST_BAR_EXIT", cal.days[2], 12),         "폐지 손실이 사라지면 안 된다 - 마지막 거래일 종가에 판다"
+
+
+def test_halt_over_exit_day_exits_at_resume():
+    cal = FakeCalendar()
+    bars = _bars([(cal.days[1], 100, 100, 100, 100), (cal.days[9], 30, 30, 30, 31)])  # 청산일(5세션째) 정지, 9일째 재개
+    _, exit_ = simulate_trade(_gap_order(cal), bars, cal, CostModel(), data_end=cal.days[-1])
+    assert (exit_.fill_type, exit_.fill_date, exit_.fill_price) == ("RESUME_EXIT", cal.days[9], 31)
+
+
+def test_window_past_data_end_stays_unresolved():
+    cal = FakeCalendar()
+    bars = _bars([(cal.days[1], 100, 100, 100, 100), (cal.days[2], 100, 100, 100, 100)])
+    assert simulate_trade(_gap_order(cal), bars, cal, CostModel(), data_end=cal.days[3]) is None,         "데이터가 끝나서 모르는 결과를 마지막 가격으로 지어내면 안 된다"
+    short = FakeCalendar(n=4)  # 달력 끝에 잘린 창
+    assert simulate_trade(_gap_order(short), bars, short, CostModel(), data_end=short.days[-1]) is None
+
+
+def test_normal_time_exit_unchanged_by_data_end():
+    cal = FakeCalendar()
+    bars = _bars([(d, 100, 100, 100, 100 + i) for i, d in enumerate(cal.days[1:8])])
+    a = simulate_trade(_gap_order(cal), bars, cal, CostModel())
+    b = simulate_trade(_gap_order(cal), bars, cal, CostModel(), data_end=cal.days[-1])
+    assert a[1].fill_type == b[1].fill_type == "TIME_EXIT" and a[1].fill_price == b[1].fill_price
+
+
 def run():
     test_next_session_entry()
     test_target_hit()
@@ -125,6 +160,10 @@ def run():
     test_time_exit_at_60th_session_close()
     test_atr_timing_stop_distance_is_fixed_at_signal_time()
     test_transaction_cost_recorded_on_gap_stop_exit()
+    test_delisted_mid_hold_exits_at_last_bar()
+    test_halt_over_exit_day_exits_at_resume()
+    test_window_past_data_end_stays_unresolved()
+    test_normal_time_exit_unchanged_by_data_end()
     print("test_execution: OK")
 
 

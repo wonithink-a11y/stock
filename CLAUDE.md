@@ -256,12 +256,13 @@ Validated against
             빔서치 바닥선이 전수보다 높음 · 바닥선 통과는 필요조건일 뿐 · t 는 EW 대비 초과로 재야 함 ·
             실현손익 누적 회계 재발 · simulate_exits 는 회전율을 곱해야 함. 공개범위 PUBLIC 유지 —
             트리거: KEEP 전략이 처음 생기면 그것만 private 분리. 원문: 완료-이력.md 이월 ②.
-  다음      ★★ **PBR 생존편향 — 정식 재실행 '근거 유지'(10-10)** — 운용 규칙 그대로 폐지 포함(A1A_A1B_MERGED)+엔진 구멍 보정: 연복리 +7.76%
-            vs 같은 유니버스 등가중 +2.93%(gap +4.83%p, 샤프 0.75 vs 0.27), 현재 상장만 +7.29%. 폐지 종목을 넣어도 안 떨어진다 — 운용 규칙이 단순 저PBR 30
+  다음      ★★ **PBR 생존편향 — 정식 재실행 '근거 유지'(10-10)** — 운용 규칙 그대로 폐지 포함(A1A_A1B_MERGED)+엔진 구멍 보정: 연복리 +7.50%
+            vs 같은 유니버스 등가중 +2.30%(gap +5.20%p, 샤프 0.73 vs 0.23), 현재 상장만 +7.29%. 폐지 종목을 넣어도 안 떨어진다 — 운용 규칙이 단순 저PBR 30
             (단순 점검은 '편향 큼' Δ +4.54%p)과 다른 폐지 종목을 고른다(공개매수 자진상폐 등). 남은 구멍: A2b 가격 없는 최악의 폐지(품질 검사 제외)는 엔진이
-            못 봄 — 단순 규칙으로 약 −1.2%p, 빼도 gap ≈ +4%p. findings/pbr-combined-merged-rerun-results-2026-10.md(사전등록 75a4446c).
-            ★ **엔진 구멍**: `engine/execution/executor.py` 는 보유 중 가격이 끊기면(폐지·청산일 정지) 매매를 통째로 버린다(등가중 1,247건·PBR 28건) —
-            이번엔 실행에서만 감쌌다(`pbr_merged_rerun.simulate_trade_fixed`). 엔진 수정은 모든 전략 숫자를 바꾸므로 별도 결정.
+            못 봄 — 단순 규칙으로 약 −1.2%p, 빼도 gap ≈ +4.4%p. findings/pbr-combined-merged-rerun-results-2026-10.md(사전등록 75a4446c).
+            ★ **엔진 구멍 수정(10-10)**: `executor.simulate_trade(..., data_end=)` — 청산일 가격이 없으면 재개 첫날(RESUME_EXIT) 또는 마지막 거래일(LAST_BAR_EXIT)에
+            판다. 창이 data_end·달력 끝을 넘으면 예전처럼 미결(None). runner 가 `end` 를 넘긴다. data_end 를 안 넘기는 옛 스크립트(5DC merged·크립토 등)는 예전 동작.
+            **이전 runner 기반 숫자는 이 수정 전 값**(PBR 영향 −0.15%p, 진짜 구멍은 등가중 122건·PBR 5건 수준) — 다시 돌리면 조금 달라진다.
             ★ 팩터 패널(`kr-monthly-v1`)·A4 는 여전히 현재 상장만 — 54축 스윕·EY 등 그 위의 연구는 같은 한계(docs/control/실험-신뢰도-점검-2026-10-10.md).
   다음      PBR 연구 라인 — **production 🔴 결정(2026-09-18 사용자 확정): `pbr_value_v1_combined` GO,
             `factor_earnings_yield_v1`(EY) 보류.** EY 는 세 경로(단독·raw 50:50 결합·잔차화 결합) 전부 막혔고

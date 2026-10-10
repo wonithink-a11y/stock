@@ -1,6 +1,6 @@
 {
  "verdict": "근거 유지",
- "gap": 0.0483,
+ "gap": 0.052,
  "match": {
   "prodSlots": 3374,
   "rebuiltSlots": 3374,
@@ -15,25 +15,25 @@
    "sharpe": 0.7142
   },
   "P1": {
-   "finalEquity": 212694985,
-   "totalReturn": 1.1269,
-   "cagr": 0.0739,
+   "finalEquity": 207467822,
+   "totalReturn": 1.0747,
+   "cagr": 0.0714,
    "mdd": -0.1848,
-   "sharpe": 0.7286
+   "sharpe": 0.7086
   },
   "P2": {
-   "finalEquity": 220470506,
-   "totalReturn": 1.2047,
-   "cagr": 0.0776,
+   "finalEquity": 215034687,
+   "totalReturn": 1.1503,
+   "cagr": 0.075,
    "mdd": -0.1774,
-   "sharpe": 0.7538
+   "sharpe": 0.7339
   },
   "P3": {
-   "finalEquity": 230721730,
-   "totalReturn": 1.3072,
-   "cagr": 0.0822,
+   "finalEquity": 225146026,
+   "totalReturn": 1.2515,
+   "cagr": 0.0797,
    "mdd": -0.1715,
-   "sharpe": 0.8188
+   "sharpe": 0.7989
   },
   "E0": {
    "finalEquity": 127227196,
@@ -43,11 +43,11 @@
    "sharpe": 0.2309
   },
   "E2": {
-   "finalEquity": 135798063,
-   "totalReturn": 0.358,
-   "cagr": 0.0293,
+   "finalEquity": 127159373,
+   "totalReturn": 0.2716,
+   "cagr": 0.023,
    "mdd": -0.2554,
-   "sharpe": 0.2712
+   "sharpe": 0.2305
   }
  },
  "annual": {
@@ -75,7 +75,7 @@
    "2023": 0.0767,
    "2024": -0.0068,
    "2025": 0.2338,
-   "2026": 0.0475
+   "2026": 0.0217
   },
   "P2": {
    "2016": 0.1512,
@@ -88,7 +88,7 @@
    "2023": 0.0768,
    "2024": -0.0077,
    "2025": 0.2304,
-   "2026": 0.0703
+   "2026": 0.0439
   },
   "P3": {
    "2016": 0.2,
@@ -101,7 +101,7 @@
    "2023": 0.0651,
    "2024": -0.005,
    "2025": 0.2383,
-   "2026": 0.0735
+   "2026": 0.0476
   },
   "E0": {
    "2016": 0.058,
@@ -127,21 +127,28 @@
    "2023": 0.0986,
    "2024": -0.1078,
    "2025": 0.1927,
-   "2026": 0.0303
+   "2026": -0.0353
   }
  },
  "skipped": {
   "P0": {
    "ran_out_of_bars_before_exit_resolved": 28
   },
-  "P1": {},
-  "P2": {},
-  "P3": {},
+  "P1": {
+   "ran_out_of_bars_before_exit_resolved": 26
+  },
+  "P2": {
+   "ran_out_of_bars_before_exit_resolved": 26
+  },
+  "P3": {
+   "ran_out_of_bars_before_exit_resolved": 25
+  },
   "E0": {
    "ran_out_of_bars_before_exit_resolved": 1247,
    "no_bar_on_entry_date": 7
   },
   "E2": {
+   "ran_out_of_bars_before_exit_resolved": 1170,
    "no_bar_on_entry_date": 9
   }
  },
@@ -151,26 +158,25 @@
   },
   "P1": {
    "TIME_EXIT": 3346,
-   "LAST_BAR_EXIT": 26,
    "RESUME_EXIT": 2
   },
   "P2": {
    "TIME_EXIT": 3318,
-   "LAST_BAR_EXIT": 29,
-   "RESUME_EXIT": 2
+   "RESUME_EXIT": 2,
+   "LAST_BAR_EXIT": 3
   },
   "P3": {
    "TIME_EXIT": 3354,
-   "LAST_BAR_EXIT": 37,
-   "RESUME_EXIT": 1
+   "RESUME_EXIT": 1,
+   "LAST_BAR_EXIT": 12
   },
   "E0": {
    "TIME_EXIT": 128991
   },
   "E2": {
    "TIME_EXIT": 130323,
-   "LAST_BAR_EXIT": 1227,
-   "RESUME_EXIT": 65
+   "RESUME_EXIT": 65,
+   "LAST_BAR_EXIT": 57
   }
  },
  "selectedDelisted": {

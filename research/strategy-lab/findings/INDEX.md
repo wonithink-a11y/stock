@@ -326,7 +326,7 @@
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
-| 2026-10-10 | 근거 유지 | kr | [pbr-combined-merged-rerun-results-2026-10.md](pbr-combined-merged-rerun-results-2026-10.md) | 편향 재검증(신호·경제성 판정 아님). 폐지 포함·엔진 보정 P2 연복리 +7.76% vs 같은 유니버스 등가중 E2 +2.93% → gap +4.83%p, 샤프 0.75 vs 0.27 → 근거 유… |
+| 2026-10-10 | 근거 유지 | kr | [pbr-combined-merged-rerun-results-2026-10.md](pbr-combined-merged-rerun-results-2026-10.md) | 편향 재검증(신호·경제성 판정 아님). 폐지 포함·엔진 보정 P2 연복리 +7.50% vs 같은 유니버스 등가중 E2 +2.30% → gap +5.20%p, 샤프 0.73 vs 0.23 → 근거 유… |
 | 2026-10-09 | DRAFT | kr | [night-candidates-forward-draft-2026-10.md](night-candidates-forward-draft-2026-10.md) | 2026-10-09 밤 자율 연구에서 나온 후보를 과거 표본으로 더 다듬지 않고 동결 이후 새 표본(forward)으로만 판정하기 위한 초안. 칸마다 정의는 원 연구와 한 글자도 다르지 않게 두고,… |
 | 2026-09-30 | UNCLASSIFIED | kr | [event-overlay-exposure-step0-2-2026-09.md](event-overlay-exposure-step0-2-2026-09.md) | 신호: 해당 없음(수익률 미측정) · 경제성: 해당 없음. 뉴스·공시 오버레이 검증의 0~2단계. 정의와 "충분" 기준을 세기 전에 고정했고, 상식 필터(거래정지)는 PBR 결합 슬롯에서 거래량 0… |
 | 2026-09-24 | UNCLASSIFIED | kr | [theme-sensitivity-results-2026-09.md](theme-sensitivity-results-2026-09.md) | 관찰용(판정 없음). 시장·규모를 통제한 뒤에도 /t/>2 칸이 2016–2022 69칸 · 2023– 54칸으로 우연 기대(12.9칸)의 4~5배 — 테마별 외부요인 민감도가 존재할 가능성을 강하… |

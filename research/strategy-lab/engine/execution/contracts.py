@@ -19,6 +19,6 @@ class Fill:
     order: Order
     fill_date: str
     fill_price: float
-    fill_type: str          # "OPEN" | "STOP" | "TARGET" | "TIME_EXIT"
+    fill_type: str          # "OPEN" | "STOP" | "TARGET" | "TIME_EXIT" | "RESUME_EXIT" | "LAST_BAR_EXIT"
     cost_bps: float
     slippage_bps: float
