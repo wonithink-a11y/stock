@@ -121,7 +121,7 @@ def prices():
                    for p in sorted((HERE / ".cache" / "a2a_parquet").glob("*.parquet"))])
     rows = []
     for f in sorted(glob.glob(str(BF / "price" / "a2b" / "*.jsonl.gz"))):
-        if int(Path(f).name[:4]) < 2016:
+        if not Path(f).name[:4].isdigit() or int(Path(f).name[:4]) < 2016:
             continue
         for line in gzip.open(f, "rt", encoding="utf-8"):
             d = json.loads(line)
