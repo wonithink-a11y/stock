@@ -10,7 +10,7 @@
 | 보류·판정 불가 | 39 |
 | 기각 | 116 |
 | 사전등록 문서(결과는 별도 파일) | 92 |
-| 정보·탐색 | 26 |
+| 정보·탐색 | 27 |
 | 미분류 | 237 |
 
 ## 통과·채택 (12)
@@ -292,11 +292,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (26)
+## 정보·탐색 (27)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-10 | INFORMATION | kr | [yearend-taxloss-results-2026-10.md](yearend-taxloss-results-2026-10.md) | 신호: 부분(반등만) · 반등 구간 평균 +4.49%p(p 0.000, 15/16) · 매도 구간 -0.90%p(p 0.188, 11/16 음). (스크립트 판정) |
+| 2026-10-10 | EXPLORATORY | kr | [theme-leader-optimize-explore-2026-10.md](theme-leader-optimize-explore-2026-10.md) | 신호: 판정 대상 아님(사후 탐색) · 경제성: 판정 대상 아님. 960조합 중 IS·OOS 둘 다 40일 이상 915개. IS 비용 후 양 7개 · OOS 양 0개 · 둘 다 양 0개. IS 1위… |
 | 2026-10-10 | EXPLORATORY | kr | [dividend-runup-q3-2026-10.md](dividend-runup-q3-2026-10.md) | 탐색·사후(판정 없음). 11월 말까지 공시된 3분기 실적으로 연말 랠리 손실·배당 삭감을 미리 가를 수 있나. |
 | 2026-10-10 | EXPLORATORY | kr | [dividend-runup-loss-profile-2026-10.md](dividend-runup-loss-profile-2026-10.md) | 탐색·사후(판정 없음). 11월 말 매수 → 배당락일 매도에서 세후 손실이 난 경우를 매수 시점 정보로 나눠 봄. |
 | 2026-10-10 | EXPLORATORY | kr | [dividend-runup-by-stock-2026-10.md](dividend-runup-by-stock-2026-10.md) | 탐색·사후 기술 통계(판정 없음). 고배당 연말 랠리 대상의 종목·연도별 랠리·배당·배당락 뒤 보유 기간별 수익. |
