@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 12 |
 | 보류·판정 불가 | 39 |
-| 기각 | 115 |
-| 사전등록 문서(결과는 별도 파일) | 91 |
+| 기각 | 116 |
+| 사전등록 문서(결과는 별도 파일) | 92 |
 | 정보·탐색 | 26 |
 | 미분류 | 237 |
 
@@ -74,10 +74,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (115)
+## 기각 (116)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-10 | REJECT | kr | [theme-leader-intraday-results-2026-10.md](theme-leader-intraday-results-2026-10.md) | 셀1 신호: 없음 · 경제성: 미달 (REJECT, 비용 전 -90.1bp) / 셀2 신호: 없음 · 경제성: 미달 (REJECT, 비용 전 -76.6bp). 비용 33.5bp. (스크립트 판정) |
 | 2026-10-10 | NONE | kr | [split-announcement-results-2026-10.md](split-announcement-results-2026-10.md) | SPLIT NONE(60일 초과 -2.19%, 229건) · REV NONE(60일 초과 -6.75%, 120건). (스크립트 판정) |
 | 2026-10-10 | REJECT | kr | [qullamaggie-breakout-results-2026-10.md](qullamaggie-breakout-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 154건, TRAIN 순수익 월평균 +1.48%(N1 +0.85%), VALID +11.84% · TEST +1.30%. 비용 33.5bp. |
 | 2026-10-10 | NOT SUPPORTED | us | [leverage-long-run-results-2026-10.md](leverage-long-run-results-2026-10.md) | 논문 발표 뒤 2016-01~2026-09: LRS 2배 연 +18.7%·낙폭 -37.0%·Sharpe 0.77 vs SPY 보유 +15.0%·-33.7%·0.86 vs SSO 보유 +22.7%·-… |
@@ -194,11 +195,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (91)
+## 사전등록 문서(결과는 별도 파일) (92)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-10 | PREREGISTERED | kr | [yearend-taxloss-preregistration-2026-10.md](yearend-taxloss-preregistration-2026-10.md) | 한국 개인 투자자는 연말 대주주 판정(양도세)을 피하려고 마지막 거래일 직전에 판다는 통설이 있다. 그렇다면 개인 비중이 큰 코스닥 소형주는 '연말 매도 구간'에 약하고 '연초 반등 구간'에 강해야… |
+| 2026-10-10 | PREREGISTERED | kr | [theme-leader-intraday-preregistration-2026-10.md](theme-leader-intraday-preregistration-2026-10.md) | 외부 자동매매(TTN META) '테마주 자동매매' 원리의 재현: 장 초반 거래대금 상위 강세 종목 → 가장 많이 몰린 테마 → 대장주 1종목 → 즉시 매수(셀 1)· 눌림 후 반등 매수(셀 2) … |
 | 2026-10-10 | PREREGISTERED | kr | [split-announcement-preregistration-2026-10.md](split-announcement-preregistration-2026-10.md) | 액면분할 공시 뒤 주가가 시장보다 오래 강한가(이켄베리 1996 류 '분할 뒤 표류'), 주식 병합(액면병합·감자형 병합) 공시 뒤엔 약한가. 무상증자·유상증자 공시는 이미 닫혔고(REJECT), … |
 | 2026-10-10 | PREREGISTERED | kr | [sp500-fx-hedge-preregistration-2026-10.md](sp500-fx-hedge-preregistration-2026-10.md) | 사전등록(결과 전 동결). 원화 투자자(연금저축)의 S&P500 환노출 vs 환헤지(H), 그리고 환율 수준으로 둘을 바꾸는 규칙 하나 — 사용자 사전 위임(야간 자율 연구). |
 | 2026-10-10 | PREREGISTERED | kr | [qullamaggie-breakout-preregistration-2026-10.md](qullamaggie-breakout-preregistration-2026-10.md) | 사전등록(결과 전 동결). 크리스티안 쿨라마기(Qullamaggie)의 '돌파' 셋업을 국내 일봉(폐지 포함)에 그대로 옮겨 잰다 — 사용자 사전 위임(야간 자율 연구, 2026-10-10). |
