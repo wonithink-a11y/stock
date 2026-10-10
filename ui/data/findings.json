@@ -1,5 +1,5 @@
 {
-  "count": 522,
+  "count": 523,
   "findings": [
     {
       "file": "research/strategy-lab/findings/dividend-runup-by-stock-2026-10.md",
@@ -298,6 +298,31 @@
       "criteria_version": "research-only (qullamaggie-breakout-preregistration-2026-10)",
       "conditions": null,
       "reason": "신호: 없음 · 경제성: 미달. 거래 154건, TRAIN 순수익 월평균 +1.48%(N1 +0.85%), VALID +11.84% · TEST +1.30%. 비용 33.5bp.",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
+    {
+      "file": "research/strategy-lab/findings/rebalance-rule-mix-preregistration-2026-10.md",
+      "title": "고정 비중 자산 혼합의 되맞춤 규칙 — 사전등록 (2026-10-10)",
+      "date": "2026-10-10",
+      "bodyMarkdown": "---\ntrack: kr\nfactor: rebalance-rule-mix\ndate: 2026-10-10\nverdict: PREREGISTERED\ncriteria_version: research-only\nconditions: [\"고정 비중 자산 혼합 4개 × 되맞춤 규칙 9개\", \"월 납입(주) · 일시금(기록)\", \"기준 = 연 1회\", \"ΔSharpe 12개월 블록 부트스트랩 2,000회\", \"편도 5bp(스트레스 25bp)\"]\nreason: >-\n  결과 전 고정. 연금저축·ISA 에서 비중을 고정한 ETF 혼합을 언제·어떻게 되맞출지(달력·밴드·납입금만) 비교한다.\n---\n\n# 고정 비중 자산 혼합의 되맞춤 규칙 — 사전등록 (2026-10-10)\n\n투자 자문이 아니다. 과거 한 경로의 비교다.\n\n## 1. 왜 이 질문인가 — 남은 빈칸\n\n이미 닫힌 것(재시험 안 함): 타이밍(10개월선·12개월 모멘텀·듀얼 모멘텀, etf-timing-family REJECT) · 다자산 시계열 모멘텀(multiasset-tsmom REJECT) ·\n변동성 역가중 배분(strategy-portfolio-stage2 FAIL) · 섹터 로테이션·주도 섹터(pension-sector-bond REJECT) · 30주선(us-etf-30wma-slope REJECT).\n지지된 것: S&P500 코어 + 금·중기채(asset-class-addon) · 환노출(sp500-fx-hedge C1) · 국내 6종 1/6 고정이 추세 규칙보다 낫다(multiasset-tsmom 기준선).\n\n비어 있는 것: **비중을 고정한 저상관 자산 혼합**에서 되맞춤 방식. 섹터 등가중(상관 높음)에서는 '안 함'만 나쁘고 나머지 구분 불가였다\n(etf-longterm-and-sector-rebalance). 주식·채권·금처럼 상관이 낮으면 되맞춤 효과가 더 클 수 있다. 그리고 연금·ISA 는 **매달 납입**이 있어\n'팔지 않고 납입금으로만 맞추기'가 가능하다 — 이건 아직 아무도 안 쟀다.\n\n## 2. 자산 혼합 4개 (고정)\n\n| 이름 | 구성 | 수익 | 기간 |\n|---|---|---|---|\n| PA | SPY 60 / IEF 40 | USD 총수익 × USD/KRW(환노출) | 2005-01 ~ 2026-09 |\n| PB | SPY 60 / IEF 20 / GLD 20 | 같음 | 같음 |\n| PC | SPY 80 / GLD 20 | 같음 | 같음 |\n| PK | 국내 상장 6종 1/6: KODEX 200 · S&P500(H) · 나스닥100 · 금(H) · 국고채10년 · 달러선물 | 종가 + 분배금 복원(etf_timing_lab.tr_returns) | 2011-11 ~ 2026-09 |\n\n월말 종가 기준 월수익. SPY 등은 yfinance auto_adjust(캐시 `data/pension-test/`), 환율 KRW=X 월말.\n\n## 3. 규칙 9개 (고정, 점검은 월말에만)\n\n| 칸 | 규칙 |\n|---|---|\n| R0 | 안 함 — 납입은 목표 비중대로 나눠 산다, 매도 없음 |\n| R1 | 매월 목표로 되맞춤 |\n| R2 | 분기(3·6·9·12월 말) |\n| R3 | 반기(6·12월 말) |\n| R4 | **연 1회(12월 말) — 기준** |\n| R5 | 절대 밴드: 어느 자산이든 목표 ±5%p 를 벗어나면 전부 목표로 |\n| R6 | 상대 밴드: 목표의 ±25% 를 벗어나면 전부 목표로 |\n| R7 | 납입금만: 납입을 목표 대비 부족한 자산에 채운다(pension_dca10y 와 같은 방식), 매도 없음 |\n| R8 | 납입금 + 밴드: R7 로 먼저 맞추고, 그래도 ±5%p 를 벗어나면 그때만 팔아서 목표로 |\n\n## 4. 두 방식\n\n- **주(판정): 월 납입** — 0 에서 시작, 매월 초 1 단위 납입(물가 보정 없음). 수익은 시간가중(납입 직후 가치 대비 월말 가치).\n- **기록: 일시금** — 처음 1 투자, 납입 없음. R7 은 R0 과, R8 은 R5 와 같아져 표에서 뺀다.\n\n## 5. 지표\n\n샤프(월수익 평균·표준편차 연율, 무위험 차감 없음 — 기존 연구 관례) · CAGR(시간가중) · MDD · 연평균 **매도 회전율**(판 금액 / 포트폴리오 가치) ·\n연평균 되맞춤 횟수 · 목표 비중 최대 이탈(월말, %p) · 납입 방식 최종 배수(최종 가치 / 총 납입).\n시기 칸(기록): 2005~15 · 2016~23 · 2024 · 2025~ 의 ΔSharpe 점추정.\n\n## 6. 판정 (결과 전 고정)\n\n기준 R4 대비 ΔSharpe 95% 구간(12개월 블록 부트스트랩 2,000회, 두 규칙 같은 표본 인덱스), 편도 5bp.\n\n- **우위**: 4개 혼합 중 3개 이상에서 구간 하한 > 0.\n- **열위**: 4개 중 3개 이상에서 구간 상한 < 0.\n- 나머지 **구분 불가**.\n\n**권고 규칙(결과 전 고정)**: 열위가 아니고, 목표 비중 최대 이탈이 10%p 이하인 혼합이 4개 중 3개 이상인 규칙 가운데\n**연평균 매도 회전율이 가장 낮은 것**(같으면 되맞춤 횟수가 적은 것). 우위 규칙이 있으면 그것이 우선한다.\n스트레스(편도 25bp)에서 권고가 바뀌면 둘 다 적는다.\n\n## 7. 하지 않는 것\n\n결과를 보고 비중·밴드 폭·기간을 바꿔 재시험하지 않는다. 세금(연금·ISA 안 매매는 비과세로 가정)·환헤지 비용·연금 수령은 모형 밖.\n월말 점검·월말 종가 체결(같은 날) 근사.\n\n코드: `research/strategy-lab/rebalance_rule_mix.py`(실행 전 커밋, `--selftest` 통과 후).\n",
+      "category": "performance",
+      "track": "kr",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only",
+      "conditions": [
+        "고정 비중 자산 혼합 4개 × 되맞춤 규칙 9개",
+        "월 납입(주) · 일시금(기록)",
+        "기준 = 연 1회",
+        "ΔSharpe 12개월 블록 부트스트랩 2,000회",
+        "편도 5bp(스트레스 25bp)"
+      ],
+      "reason": "결과 전 고정. 연금저축·ISA 에서 비중을 고정한 ETF 혼합을 언제·어떻게 되맞출지(달력·밴드·납입금만) 비교한다.",
       "cagr": null,
       "sharpe": null,
       "mdd": null,
