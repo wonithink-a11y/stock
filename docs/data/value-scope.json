@@ -11,9 +11,8 @@
    "MERGER_UNHANDLED": 70,
    "RIGHTS_FORMULA_UNVERIFIED": 37,
    "CAPITAL_REDUCTION_TYPE_UNKNOWN": 13,
-   "NOT_IN_UNIVERSE": 1,
-   "NO_VALUATION_INPUT": 1,
-   "NO_PRICE": 2
+   "NO_PRICE": 3,
+   "NO_VALUATION_INPUT": 1
   }
  },
  "byTicker": {
@@ -939,7 +938,7 @@
   },
   "0220W0": {
    "inScope": false,
-   "reason": "NOT_IN_UNIVERSE"
+   "reason": "NO_PRICE"
   },
   "022100": {
    "inScope": true,
