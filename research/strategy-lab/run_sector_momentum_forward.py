@@ -9,10 +9,13 @@
 먼저 ETF 증분(collect_etf_ohlc_krx.py) · KRX 일별(collect_krx_daily_ext.py <달>) · 수출(collect_kcs_exports.py) 을 받아 둔다.
 구현 세부(실행 전 고정): 대표 ETF 시가가 없으면 그날 종가로 진입·청산한다(줄에 표시). 보조 1(업종 종목 묶음)은 KRX 일별에 시가가 없어
 진입일 종가 → 다음 진입일 종가로 잰다. 무작위 기준의 X 는 '무작위 3 업종 gross − 그달 실제 비용'이다(업종 고르는 실력만 비교).
+개정 2(2026-10-11, 첫 관측 전): 분배금 복원 — (e, e2] 사이 '기초지수 일 수익 − NAV 일 수익'이 0.2%~20% 인 날을 분배락으로 보고 (1+그 차이)를 곱한다
+(etf_timing_lab.tr_returns 와 같은 판별). 보조 1 은 KRX 일별이 청산일을 덮지 않으면 그 신호의 만기 줄 전체를 다음 실행으로 미룬다.
 """
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import json
 import sys
@@ -34,7 +37,7 @@ K, LOOK, MIN_SECT, ETF_COST, GROUP_COST, LIQ = 3, 20, 6, 0.0010, 0.00335, 1e9
 K200 = "069500"
 N_NULL, SEED = 10000, 20261010
 STAGES = {12: "interim", 24: "final", 36: "extension"}
-DEF = "KRX15 sector rep ETF(max val20, no lev/inv/2X/fut/active); RS=20d close ret at month-end; top3 EW; single portfolio monthly; entry next open; cost 10bp*turnover; bench EW15; freeze 2026-10-30"
+DEF = "KRX15 sector rep ETF(max val20, no lev/inv/2X/fut/active); dist-restored(idx-nav gap 0.2%~20%); RS=20d close ret at month-end; top3 EW; single portfolio monthly; entry next open; cost 10bp*turnover; bench EW15; freeze 2026-10-30"
 DEF_HASH = hashlib.sha256(DEF.encode()).hexdigest()[:10]
 
 
@@ -90,6 +93,20 @@ def px(p, code, d, field="open"):
     return (float(prev["close"].iloc[-1]), True) if len(prev) else (np.nan, True)
 
 
+DIST_LO, DIST_HI = 0.002, 0.2
+
+
+def dist_factor(p, code, e, e2):
+    """(e, e2] 사이 분배락 복원 배수와 그 날짜들. idx·nav 가 없으면 1."""
+    if not {"idx", "nav"} <= set(p.columns):
+        return 1.0, []
+    c = p[p["code"] == code].set_index("date").sort_index()
+    gap = c["idx"].pct_change(fill_method=None) - c["nav"].pct_change(fill_method=None)
+    g = gap[(gap.index > e) & (gap.index <= e2)]
+    g = g[(g > DIST_LO) & (g < DIST_HI)]
+    return float(np.prod(1 + g.to_numpy())), [str(d.date()) for d in g.index]
+
+
 def turnover(cur, prev):
     return 1.0 if not prev else len(set(cur) - set(prev)) / K
 
@@ -106,12 +123,20 @@ def append(rows):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
-def group_aux(s, e, e2):
-    """보조 1 — 업종 종목 묶음(20그룹) 직전 20거래일 상위 3 − 등가중, 진입일 종가 → 다음 진입일 종가."""
+@functools.lru_cache(maxsize=1)
+def _krx():
     import kcs_export_sector as kx
     import sector_earnings_breadth as seb
-    cal, R, tv20 = kx.load_prices()
-    gmap, groups, _ = seb.group_map()
+    return kx.load_prices(), seb.group_map()
+
+
+def krx_end():
+    return _krx()[0][0][-1]
+
+
+def group_aux(s, e, e2):
+    """보조 1 — 업종 종목 묶음(20그룹) 직전 20거래일 상위 3 − 등가중, 진입일 종가 → 다음 진입일 종가."""
+    (cal, R, tv20), (gmap, groups, _) = _krx()
     if s not in cal or e2 not in cal:
         return None
     i, a, b = cal.get_loc(s), cal.get_loc(e), cal.get_loc(e2)
@@ -135,10 +160,8 @@ def group_aux(s, e, e2):
 def export_aux(after):
     """보조 2 — 수출 신호(kcs-export-sector 정의), 진입일 ≥ after 이고 만기된 달."""
     import kcs_export_sector as kx
-    import sector_earnings_breadth as seb
     sig = kx.signals(kx.group_series(kx.load_exports()))
-    cal, R, tv20 = kx.load_prices()
-    gmap, _, _ = seb.group_map()
+    (cal, R, tv20), (gmap, _, _) = _krx()
     rows = []
     rng = np.random.default_rng(SEED)
     for m in kx.build_months(sig, cal, R, tv20, gmap):
@@ -181,11 +204,21 @@ def update(verbose=True):
         if a["signal_date"] in have_mat:
             continue
         e, e2 = pd.Timestamp(a["entry_date"]), pd.Timestamp(b["entry_date"])
-        rets, flags = {}, []
+        try:
+            if krx_end() < e2:
+                print(f"{a['signal_date']} 만기 기록 보류 — KRX 일별이 {e2.date()} 까지 없다(collect_krx_daily_ext.py 먼저)")
+                continue
+        except Exception as ex:  # noqa: BLE001
+            print(f"{a['signal_date']} 만기 기록 보류 — KRX 일별 읽기 실패 {type(ex).__name__}")
+            continue
+        rets, flags, dists = {}, [], {}
         for z, u in a["universe"].items():
             o1, f1 = px(p, u["code"], e)
             o2, f2 = px(p, u["code"], e2)
-            rets[z] = o2 / o1 - 1
+            df_, dd = dist_factor(p, u["code"], e, e2)
+            rets[z] = o2 / o1 * df_ - 1
+            if dd:
+                dists[z] = dd
             if f1 or f2:
                 flags.append(z)
         kp = [x["sector"] for x in a["picks"]]
@@ -193,10 +226,11 @@ def update(verbose=True):
         to = turnover(kp, prev)
         k1, _ = px(p, K200, e)
         k2, _ = px(p, K200, e2)
+        k2 *= dist_factor(p, K200, e, e2)[0]
         top, ew = float(np.mean([rets[z] for z in kp])), float(np.mean(list(rets.values())))
         row = dict(kind="mature", signal_date=a["signal_date"], exit_date=b["entry_date"], sample=a["sample"], turnover=to,
                    ret_top=top, ret_ew=ew, ret_k200=float(k2 / k1 - 1), X=top - ew - ETF_COST * to,
-                   sector_ret={z: round(v, 6) for z, v in rets.items()}, close_fallback=flags, defHash=DEF_HASH)
+                   sector_ret={z: round(v, 6) for z, v in rets.items()}, dist_dates=dists, close_fallback=flags, defHash=DEF_HASH)
         try:
             row["aux_groups"] = group_aux(pd.Timestamp(a["signal_date"]), e, e2)
         except Exception as ex:  # noqa: BLE001  보조 기록 실패가 주 기록을 막지 않는다
@@ -233,6 +267,9 @@ def judge():
     obs = read_obs()
     mats = sorted([o for o in obs if o["kind"] == "mature" and o["sample"]], key=lambda o: o["signal_date"])
     done = {o["stage"] for o in obs if o["kind"] == "judge"}
+    if any(o["kind"] == "judge" and o["result"] == "SUPPORTED(조기)" for o in obs):
+        print("12개월 중간 점검에서 조기 SUPPORTED — 판정 종료(이후 단계 없음)")
+        return
     stage = max([s for s in STAGES if len(mats) >= s and STAGES[s] not in done] or [0])
     if not stage:
         print(f"판정 표본 만기 {len(mats)}개월 — 다음 단계 {min([s for s in STAGES if STAGES[s] not in done] or [None])}개월 전에는 계산하지 않는다")
@@ -273,6 +310,10 @@ def selftest():
     assert not f and v > 0
     v, f = px(p, "C00", pd.Timestamp("2027-01-04"))                                 # 자료 없는 날 → 마지막 종가
     assert f and abs(v - p[p.code == "C00"].close.iloc[-1]) < 1e-9
+    q = pd.DataFrame(dict(date=cal[:5], code="D", close=100.0, open=100.0, idx=[100, 101, 102, 103, 104.0], nav=[100, 101, 99.96, 100.97, 101.96]))
+    fct, dd = dist_factor(q, "D", cal[0], cal[4])
+    assert dd == [str(cal[2].date())] and abs(fct - (1 + (102 / 101 - 1) - (99.96 / 101 - 1))) < 1e-12   # 3% 분배락 하루만
+    assert dist_factor(q, "D", cal[2], cal[4])[1] == []                                                # 진입일 당일 분배락은 제외
     mats = [dict(X=0.0, ret_top=0.01, ret_ew=0.01, sector_ret={z: 0.01 for z in SECTORS}) for _ in range(12)]
     mx, pv, nm = judge_compute(mats, n=200)
     assert mx == 0.0 and abs(nm) < 1e-12 and pv == 1.0                              # 모든 업종 같으면 무작위와 동일
