@@ -5,34 +5,34 @@
   "target": "data/backfill/price/a2b",
   "targetKind": "dir",
   "targetExt": ".jsonl.gz",
-  "hash": "sha256:d5028152711db442",
+  "hash": "sha256:9f6f41a31686549b",
   "fileCount": 15,
   "upstream": {
-    "A0.5": "sha256:37fa93c616711589",
-    "A1b": "sha256:1bbd28931525cf0e"
+    "A0.5": "sha256:d597552a5ed71293",
+    "A1b": "sha256:edcd0de7dc93c0ea"
   },
   "policyHash": {
-    "registry": "sha256:1e6ba386ce327dd6",
-    "registryVersion": "REG-1.6",
+    "registry": "sha256:d1c2a4032d71418f",
+    "registryVersion": "REG-1.8",
     "universe": "sha256:1325e19e37807f9a",
-    "price": "sha256:f2c34e0879f72c00"
+    "price": "sha256:61146336f057a73f"
   },
-  "recordCount": 543724,
-  "recordCountBeforeExclusion": 720757,
-  "candidateCount": 1223,
-  "tickersWithData": 508,
-  "tickersInAnalysisWindow": 460,
+  "recordCount": 545525,
+  "recordCountBeforeExclusion": 761509,
+  "candidateCount": 1240,
+  "tickersWithData": 496,
+  "tickersInAnalysisWindow": 448,
   "analysisFrom": "2016-01-01",
   "emptyCount": 591,
   "missingRate": 0,
-  "qualityExcludedCount": 122,
-  "exitRecordCount": 508,
+  "qualityExcludedCount": 151,
+  "exitRecordCount": 496,
   "coverageAssumesFailuresOutOfWindow": true,
   "exitAtIsLastTradedNotEffectiveDate": true,
   "environment": {
     "requests": "2.34.2",
-    "python": "3.11.15",
+    "python": "3.11.17",
     "kisSource": true
   },
-  "generatedAt": "2026-08-17T01:49:50.005Z"
+  "generatedAt": "2026-10-10T01:33:41.297Z"
 }
