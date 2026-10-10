@@ -137,6 +137,9 @@ Validated against
             `reports/2026-09-partial-exit-shadow/observations.jsonl` 을 커밋한다.
             첫 코호트(09-01 진입 09-02)의 21세션 청산이 추석 연휴(09-24~26)로 10월 초로
             밀릴 수 있어 "닫힌 거래 없음"이면 오류가 아니다 — A2a 창(1~5일) 안에 다시 본다.
+            ★ **규모 장세 확인도 같이**(10-10, 기록 안 함 — 계산값): `python research/strategy-lab/collect_krx_daily_ext.py <이번 달>`(KRX 키) 후
+            `python research/strategy-lab/diag_regime_semis.py --monthly` — 월별 '시총 상위 10% − 전체'. PBR 결합은 소형주 전략(거래대금 하위 21% 중앙)이라
+            이 값이 크게 양(+)인 달의 PBR 부진은 전략 붕괴가 아니라 장세 역풍으로 읽는다(2025-05~2026-06 대부분 +2~11%p, 반도체 빼도 같음).
             ★ **같은 점검에 O2b 그림자도 돌린다**: `python research/strategy-lab/futures/run_close_open_shadow.py`
             (같은 신호일은 중복 기록 안 함) 후 observations.jsonl 커밋.
             ★ **ETF 그림자도 같이**(09-22 사전등록 c42e17dc): `python research/strategy-lab/run_etf_close_open_shadow.py`
@@ -358,6 +361,8 @@ Validated against
 완료기록   docs/control/완료-이력.md             프로젝트 전체 완료 로그(2026-09-06 분리)
           docs/A3-완료기록.md · docs/A3-회고-재사용패턴.md
           docs/operations/minute-실측기록.md    VM·smoke·첫 Broad 수집 실측치
+실험 목록  research/strategy-lab/findings/INDEX.md   판정 묶음별 한 장(자동 생성 — build_findings_registry.py,
+                                                새 결과 파일을 쓰면 다시 돌린다). 현재 상태는 위 상태 블록이 정본
 교훈      docs/LESSONS.md                       51개 전문. 아래에는 일곱만 둔다
 운영      docs/operations/test-guide.md         테스트·수집·게이트 검증 명령 전문
           docs/operations/data-source-availability.md   막힌 소스 (재론 금지)

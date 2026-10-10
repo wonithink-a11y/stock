@@ -35,6 +35,29 @@ PERFORMANCE_KEYWORDS = ["Sharpe", "CAGR"]
 NUMERIC_FIELDS = ["cagr", "sharpe", "mdd", "win_rate", "n", "t_stat"]
 VALID_VERDICTS = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
 
+# frontmatter verdict 는 2026-09 이후 KEEP/HOLD/REJECT 밖의 값(ECONOMIC·PREREGISTERED·판정 불가 등)이 많다.
+# 예전엔 그런 파일을 키워드 추측으로 돌려 'REJECT' 같은 거짓 판정이 붙었다 - 이제 선언된 값을 그대로 쓰고
+# INDEX.md 묶음만 아래 표로 정한다(표에 없으면 '미분류', 교훈57).
+GROUPS = [
+    ("통과·채택", ("KEEP", "PASS", "GO", "CONFIRMED", "SUPPORTED", "ECONOMIC")),
+    ("보류·판정 불가", ("HOLD", "MIXED", "INCONCLUSIVE", "판정 불가", "CAUTION")),
+    ("기각", ("REJECT", "FAIL", "NOT SUPPORTED", "NONE", "REVERSE")),
+    ("사전등록 문서(결과는 별도 파일)", ("PREREGISTERED",)),
+    ("정보·탐색", ("INFORMATION", "INFORMATION-ONLY", "EXPLORATORY", "RECORD-ONLY", "DATA_PATH_CONFIRMED")),
+]
+
+
+def short_verdict(raw: str) -> str:
+    """'PREREGISTERED (사용자 GO …)' · 'CAUTION — …' 같은 선언에서 판정 낱말만 뗀다."""
+    return re.split(r"\s*[(—]|\s+-\s", str(raw).strip(), maxsplit=1)[0].strip()
+
+
+def verdict_group(verdict: str) -> str:
+    for name, keys in GROUPS:
+        if verdict in keys:
+            return name
+    return "미분류"
+
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 FIELD_RE = re.compile(
     r"^(track|factor|date|verdict|criteria_version|conditions|original_verdict|reason|"
@@ -148,11 +171,11 @@ def build_entry(path: Path, findings_root: Path) -> dict:
     text = path.read_text(encoding="utf-8", errors="replace")
     mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat()
     fm = parse_frontmatter(text)
-    if fm and fm.get("verdict") in VALID_VERDICTS:
+    if fm and fm.get("verdict"):
         entry = {
             "file": rel,
             "track": fm.get("track", infer_track(path.name)),
-            "verdict": fm["verdict"],
+            "verdict": short_verdict(fm["verdict"]),
             "original_verdict": fm.get("original_verdict"),
             "date": fm.get("date"),
             "mtime": mtime,
@@ -194,6 +217,33 @@ def write_registry(entries: list, out_path: Path) -> None:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
 
 
+def write_index(entries: list, out_path: Path) -> None:
+    """사람이 읽는 한 장 목록 - 묶음(판정)별, 최신 순. 생성 파일이니 손으로 고치지 않는다."""
+    def one_line(e):
+        r = " ".join(str(e.get("reason") or "").split())
+        return (r[:110] + "…") if len(r) > 110 else r
+    by = {}
+    for e in entries:
+        g = verdict_group(e["verdict"]) if e["source"] == "frontmatter" else "미분류"
+        by.setdefault(g, []).append(e)
+    order = [g for g, _ in GROUPS] + ["미분류"]
+    lines = ["# 실험 목록 (자동 생성)", "",
+             "> `python research/strategy-lab/build_findings_registry.py` 가 findings/*.md 머리말에서 만든다 - 손으로 고치지 않는다.",
+             "> 판정은 파일에 **선언된 값** 그대로다. 머리말이 없는 옛 파일은 '미분류'(키워드 추측을 판정으로 쓰지 않는다).",
+             "> 옛 HOLD 상당수는 이후 결정으로 흡수·종결됐다 - 현재 상태는 CLAUDE.md 상태 블록과 docs/control/시기분리-진단-2026-10-10.md §3.",
+             "", "| 묶음 | 파일 수 |", "|---|---:|"]
+    lines += [f"| {g} | {len(by.get(g, []))} |" for g in order]
+    for g in order:
+        es = sorted(by.get(g, []), key=lambda e: (e.get("date") or "", e["file"]), reverse=True)
+        if not es:
+            continue
+        lines += ["", f"## {g} ({len(es)})", "", "| 날짜 | 판정 | 트랙 | 파일 | 요약 |", "|---|---|---|---|---|"]
+        for e in es:
+            lines.append(f"| {e.get('date') or ''} | {e['verdict'] if e['source'] == 'frontmatter' else ''} | {e['track']} "
+                         f"| [{e['file']}]({e['file']}) | {one_line(e).replace('|', '/')} |")
+    out_path.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--findings-dir", default=str(Path(__file__).parent / "findings"))
@@ -204,6 +254,7 @@ def main():
 
     entries = build_registry(findings_root)
     write_registry(entries, out_path)
+    write_index(entries, findings_root / "INDEX.md")
 
     by_verdict = {}
     for e in entries:
