@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 13 |
-| 보류·판정 불가 | 40 |
+| 보류·판정 불가 | 41 |
 | 기각 | 122 |
-| 사전등록 문서(결과는 별도 파일) | 102 |
+| 사전등록 문서(결과는 별도 파일) | 103 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -31,10 +31,11 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (40)
+## 보류·판정 불가 (41)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-12 | INCONCLUSIVE | kr | [sideways-regime-sector-results-2026-10.md](sideways-regime-sector-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M INCONCLUSIVE(+43bp, p 0.021) / R REJECT(-7bp, p 0.492) / L REJECT(-17bp, p 0.698). (스크립트 판… |
 | 2026-10-10 | INCONCLUSIVE | kr | [sp500-fx-hedge-results-2026-10.md](sp500-fx-hedge-results-2026-10.md) | C1(환노출이 변동성·낙폭 작음, 두 구간) SUPPORTED · C2(달러 비쌀 때 헤지 전환) INCONCLUSIVE — ΔSharpe 90% [-0.00, +0.16]. |
 | 2026-10-10 | INCONCLUSIVE | kr | [rebalance-rule-mix-results-2026-10.md](rebalance-rule-mix-results-2026-10.md) | 신호: 없음(연 1회 대비 우위 0개, 열위 0개) · 경제성: 해당 없음(같은 혼합의 운용 방식 비교) — 권고 규칙 R8 납입금+밴드 ±5%p (스크립트 판정) |
 | 2026-10-10 | 판정 불가 | crypto | [qullamaggie-breakout-crypto-results-2026-10.md](qullamaggie-breakout-crypto-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 거래 33건, TRAIN net -4.18%(N1 +12.24%) · TEST net +6.13%(N1 +0.50%). 비용 20bp. |
@@ -203,10 +204,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (102)
+## 사전등록 문서(결과는 별도 파일) (103)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-12 | PREREGISTERED | kr | [sideways-regime-sector-preregistration-2026-10.md](sideways-regime-sector-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-12) — 코스피 6,000~7,000 횡보(2026-08~10)에서 AI 반도체 장비·기판·전력기기가 오르고 자동차·소비·게임·바이오가 … |
 | 2026-10-12 | PREREGISTERED | kr | [combined-rank-shadow-preregistration-2026-10.md](combined-rank-shadow-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 결합 순위 모델(combined-rank-model-results-2026-10)이 사전등록 기준 h1·h5 ECONOMIC 이었으나 h1 은 롱온리 원수익이 비용 … |
 | 2026-10-11 | PREREGISTERED | kr | [us-sector-overnight-kr-open-preregistration-2026-10.md](us-sector-overnight-kr-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-11) — 반도체(SOX, 7acb38d2 REJECT: 갭에 이미 반영, 장중 반납) 다음으로 다른 섹터도 밤사이 미국 짝 ETF 가 움… |
 | 2026-10-11 | PREREGISTERED | kr | [sox-overnight-kr-semis-open-preregistration-2026-10.md](sox-overnight-kr-semis-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 밤사이 미국 반도체가 오르면 한국 반도체를 시초가에 사는 게 어떤가. 지수 단위는 이미 쟀다(us-overnight-kospi-… |
