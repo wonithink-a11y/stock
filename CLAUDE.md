@@ -58,7 +58,7 @@ Validated against
             ★ 1:1 방의 **뉴스 키워드·장중 급등락은 09-25 부터 VM 타이머**(`news-alert` 15분·국내만·제목에 종목명 있는 기사만 · `intraday-alert` 10분 — Actions cron 이
             하루 2회·5회만 돌았다, b4228ceb). 상태는 ~/collector-venv/{news,intraday}. 미국 시세는 stooq 전멸 → Yahoo spark.
             미국 관심종목은 뉴스 대신 **SEC 8-K 공시**(`edgar-8k-alert` 15분, 항목 번호로 거름 — VM .env SEC_USER_AGENT).
-            공시·일일분석은 여전히 Actions(4~5시간 늦게 돈다). news-alert 는 VM .env 에 NAVER 키가 들어가야 켠다.
+            공시·일일분석은 여전히 Actions(4~5시간 늦게 돈다). news-alert 는 켜져 있다(10-13 확인: VM .env NAVER 키 있음·DART 키 없음, 매시 08~18). 장중 알림 원인 태그 설계: docs/control/장중급등-원인태그-설계-2026-10-13.md(구현 GO 대기).
             ★ **시장 히트맵**(섹터강도 탭 맨 위, 09-26): 국내 = 자체(sector-strength.json `stocks`) + '장중' = intraday-alert 가 쓰는
             `~/collector-venv/intraday/kr-snapshot.json` → VM `/kr-intraday`(nginx 반영 완료) — **첫 실물 09-28 09:00**. 미국 = TradingView 위젯
             (위젯이 KRX 를 외부 임베드에서 S&P500 으로 강제 교체 — 라이선스, 우회 안 함).
