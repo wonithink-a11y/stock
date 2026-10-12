@@ -9,7 +9,7 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 40 |
 | 기각 | 122 |
-| 사전등록 문서(결과는 별도 파일) | 101 |
+| 사전등록 문서(결과는 별도 파일) | 102 |
 | 정보·탐색 | 27 |
 | 미분류 | 237 |
 
@@ -203,10 +203,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (101)
+## 사전등록 문서(결과는 별도 파일) (102)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-12 | PREREGISTERED | kr | [combined-rank-shadow-preregistration-2026-10.md](combined-rank-shadow-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 결합 순위 모델(combined-rank-model-results-2026-10)이 사전등록 기준 h1·h5 ECONOMIC 이었으나 h1 은 롱온리 원수익이 비용 … |
 | 2026-10-11 | PREREGISTERED | kr | [us-sector-overnight-kr-open-preregistration-2026-10.md](us-sector-overnight-kr-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-11) — 반도체(SOX, 7acb38d2 REJECT: 갭에 이미 반영, 장중 반납) 다음으로 다른 섹터도 밤사이 미국 짝 ETF 가 움… |
 | 2026-10-11 | PREREGISTERED | kr | [sox-overnight-kr-semis-open-preregistration-2026-10.md](sox-overnight-kr-semis-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 밤사이 미국 반도체가 오르면 한국 반도체를 시초가에 사는 게 어떤가. 지수 단위는 이미 쟀다(us-overnight-kospi-… |
 | 2026-10-11 | PREREGISTERED | kr | [sector-follower-catchup-preregistration-2026-10.md](sector-follower-catchup-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 업종 주도주가 가면 그 업종 2~5번째 주식이 따라가는가. 업종 부상 연구(ed36f0c2)의 기록 셀 ⑦⑧ 에서 '부상 뒤 선… |
