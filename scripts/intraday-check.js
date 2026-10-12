@@ -22,6 +22,9 @@
  *
  * 상태 파일: INTRADAY_STATE_PATH (VM: ~/collector-venv/intraday/state.json).
  *   없으면 docs/data/intraday-state.json (옛 Actions 경로, 수동 실행용)
+ * 맥락(2026-10-13, docs/control/장중급등-원인태그-설계-2026-10-13.md): 국내 알림 중 |등락| 큰 10건에
+ *   유형(시초 갭·장중 무리·단독+공시·단독)·뉴스(news-alert 의 news.json → 없으면 네이버 1콜)·오늘 DART 공시를 한 줄 붙인다.
+ *   맥락은 전부 fail-soft — 실패해도 알림은 그대로 간다(lib/surgeContext.js).
  * 국내 스냅샷: 상태 파일 옆 kr-snapshot.json (INTRADAY_SNAPSHOT_PATH 로 바꿀 수 있다).
  *   국내장이 열린 실행마다 받은 현재가·전일종가를 그대로 남긴다 → VM 의 kis-minute-history-api
  *   /kr-intraday 가 내보내고 대시보드 시장 히트맵 '장중'이 읽는다(2026-09-26). 공개 시세뿐이다.
@@ -29,10 +32,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const surge = require('../lib/surgeContext.js');
 
 const ROOT = path.join(__dirname, '..');
 const STATE_PATH = process.env.INTRADAY_STATE_PATH || path.join(ROOT, 'docs', 'data', 'intraday-state.json');
 const SNAPSHOT_PATH = process.env.INTRADAY_SNAPSHOT_PATH || path.join(path.dirname(STATE_PATH), 'kr-snapshot.json');
+// VM: ~/collector-venv/intraday/state.json → ~/collector-venv/news/news.json (news-alert 가 쓴다)
+const NEWS_PATH = process.env.INTRADAY_NEWS_PATH || path.join(path.dirname(STATE_PATH), '..', 'news', 'news.json');
 
 // 2026-09-28 사용자 요청으로 줄였다 — 353종목·90분 반복·두 줄 겹침으로 하루 37통·194줄+ 였다.
 //   전일 대비: 종목마다 하루 한 번, 5%p 단계(5→10→15…)를 새로 넘거나 방향이 바뀔 때만 다시(쿨다운 대신 단계).
@@ -52,6 +58,10 @@ const RULES = {
   //   cron 으로는 못 고친다. 그러니 **잴 수 있는 것만 판정한다**(교훈57).
   suddenMaxGapMinutes: 30, // 직전 체크가 이보다 오래됐으면 suddenMove 를 건너뛴다
   maxAlertsPerMessage: 40, // 텔레그램 4096자 제한. 넘으면 잘라내고 몇 건 생략했는지 밝힌다
+  maxChars: 3800,          // 맥락 줄이 붙으면 줄 수로는 4096자를 못 지킨다 — 글자 수로도 자른다
+  contextTop: 10,          // 맥락을 붙일 국내 알림 수(|등락| 큰 순)
+  contextBudgetMs: 60000,  // 맥락 전체 시간 예산. 넘으면 남은 종목은 맥락 없이
+  newsStaleMinutes: 40,    // news.json 이 이보다 오래됐으면 네이버를 직접 1콜
 };
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; stock-scoring-app)' };
@@ -92,7 +102,7 @@ async function fetchQuoteKR(code) {
   if (rows.length < 2) throw new Error(`시세 파싱 실패: ${code}`);
   const last = rows[rows.length - 1];
   const prev = rows[rows.length - 2];
-  return { price: Number(last[4]), prevClose: Number(prev[4]), date: last[0] };
+  return { price: Number(last[4]), prevClose: Number(prev[4]), open: Number(last[1]) || null, date: last[0] };
 }
 
 /**
@@ -142,7 +152,7 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
   const newStep = step !== 0 && (!prev || prev.day !== day || Math.sign(prev.step) !== Math.sign(step)
     || Math.abs(step) > Math.abs(prev.step));
   if (newStep) {
-    alerts.push({ rule: 'dailyMove', step, day,
+    alerts.push({ rule: 'dailyMove', step, day, pct: dailyPct,
       message: `${name}(${ticker}) 전일 대비 ${dailyPct > 0 ? '+' : ''}${dailyPct}%` });
   }
 
@@ -154,7 +164,7 @@ function detect(ticker, name, market, quote, tickerState, now = Date.now(), rule
   if (gapOk && !newStep && tickerState && typeof tickerState.lastPrice === 'number') {
     const suddenPct = pct(tickerState.lastPrice, quote.price);
     if (suddenPct !== null && Math.abs(suddenPct) >= rules.suddenMovePct && canAlert('suddenMove')) {
-      alerts.push({ rule: 'suddenMove', message: `${name}(${ticker}) 직전 체크(${gapMin}분 전) 대비 ${suddenPct > 0 ? '+' : ''}${suddenPct}% 급변동` });
+      alerts.push({ rule: 'suddenMove', pct: suddenPct, message: `${name}(${ticker}) 직전 체크(${gapMin}분 전) 대비 ${suddenPct > 0 ? '+' : ''}${suddenPct}% 급변동` });
     }
   }
 
@@ -175,9 +185,15 @@ function stampAlerts(state, fired, now = Date.now()) {
   return state;
 }
 
-/** 메시지를 길이 제한 안으로 자른다. 잘라낸 건수를 숨기지 않는다. */
-function buildMessage(lines, max) {
-  const shown = lines.slice(0, max);
+/** 메시지를 길이 제한(건수·글자 수) 안으로 자른다. 잘라낸 건수를 숨기지 않는다. 한 건이 여러 줄(맥락)일 수 있다. */
+function buildMessage(lines, max, maxChars = RULES.maxChars) {
+  const shown = [];
+  let len = 0;
+  for (const l of lines.slice(0, max)) {
+    if (len + l.length + 1 > maxChars) break;
+    shown.push(l);
+    len += l.length + 1;
+  }
   const omitted = lines.length - shown.length;
   const tail = omitted > 0 ? `\n… 외 ${omitted}건 생략(총 ${lines.length}건)` : '';
   return `🚨 [장중 급등락 알림]\n${shown.join('\n')}${tail}\n\n※ 자동 감시 결과이며 투자 자문이 아닙니다.`;
@@ -215,11 +231,81 @@ async function sendSlack(text) {
  * main 이 한때 객체 배열을 그대로 join 해 '[object Object]' 만 보냈고 도장도 안 찍어 체크마다 같은 알림이 반복됐다(2026-09-22).
  */
 async function deliver(state, allAlerts, send, now = Date.now()) {
-  const text = buildMessage(allAlerts.map((a) => a.line), RULES.maxAlertsPerMessage);
+  const text = buildMessage(allAlerts.map((a) => (a.ctx ? `${a.line}\n${a.ctx}` : a.line)), RULES.maxAlertsPerMessage);
   console.log(text);
   const sent = await send(text);
   if (sent) stampAlerts(state, allAlerts, now);
   return sent;
+}
+
+// ---------- 맥락(유형·뉴스·공시) ----------
+
+function loadNews(now = Date.now()) {
+  try {
+    const st = fs.statSync(NEWS_PATH);
+    const j = JSON.parse(fs.readFileSync(NEWS_PATH, 'utf-8'));
+    return { byTicker: j.byTicker || {}, stale: now - st.mtimeMs > RULES.newsStaleMinutes * 60000 };
+  } catch (e) {
+    return { byTicker: null, stale: true };
+  }
+}
+
+/**
+ * 국내 알림 중 |등락| 큰 contextTop 건에 a.ctx(한 줄)를 붙인다. quotes: code → {price, prevClose, open, name}.
+ * ★ 어떤 실패도 밖으로 던지지 않는다 — 알림 전송이 맥락에 묶이면 안 된다. 상태에는 state._ctx(공시 30분 캐시)만 쓴다.
+ */
+async function addContext(alerts, quotes, state, now = Date.now(), deps = {}) {
+  const search = deps.search || ((name) => surge.searchNaver(name));
+  const dartFn = deps.dart || ((t, ymd) => surge.fetchDartToday(t, ymd));
+  const news = deps.news || loadNews(now);
+  let index;
+  try { index = deps.index || surge.loadPeerIndex(ROOT); } catch (e) { index = { groupsOf: new Map(), members: new Map() }; }
+  const ymd = localYmd(now, MARKET_TZ.KR);
+  const since = surge.prevCloseMs(now);
+  if (!state._ctx || state._ctx.day !== ymd) state._ctx = { day: ymd, dart: {} };
+  const seen = new Set();
+  const pick = alerts.filter((a) => a.market === 'KR' && quotes[a.ticker] && typeof a.pct === 'number')
+    .sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct))
+    .filter((a) => !seen.has(a.ticker) && seen.add(a.ticker))
+    .slice(0, RULES.contextTop);
+  const t0 = Date.now();
+  for (const a of pick) {
+    if (Date.now() - t0 > RULES.contextBudgetMs) { a.ctx = '   └ 맥락 생략(시간 예산)'; continue; }
+    try {
+      const q = quotes[a.ticker];
+      const dailyPct = pct(q.prevClose, q.price);
+      const gapPct = q.open ? pct(q.prevClose, q.open) : null;
+      const { peers, label } = surge.peersOf(index, a.ticker);
+      const peerMoves = peers.filter((t) => quotes[t]).map((t) => pct(quotes[t].prevClose, quotes[t].price)).filter(Number.isFinite);
+      let nw;
+      try {
+        const items = news.byTicker && news.byTicker[a.ticker] ? news.byTicker[a.ticker].items : [];
+        nw = news.byTicker ? surge.pickCauseArticle(items, since, q.name) : null;
+        if (!nw || (!nw.cause && (news.stale || !nw.total))) {
+          const live = await search(q.name);
+          if (live) {
+            const n2 = surge.pickCauseArticle(live, since, q.name);
+            if (!nw || n2.cause || n2.total > nw.total) nw = n2;
+          }
+        }
+      } catch (e) { nw = 'error'; }
+      let dart;
+      try {
+        const c = state._ctx.dart[a.ticker];
+        if (c && now - c.at < 30 * 60000) dart = c.titles;
+        else {
+          dart = await dartFn(a.ticker, ymd);
+          if (Array.isArray(dart)) state._ctx.dart[a.ticker] = { at: now, titles: dart };
+        }
+      } catch (e) { dart = 'error'; }
+      const cls = surge.classifySurge({ dailyPct, gapPct }, peerMoves, Array.isArray(dart) ? dart.length > 0 : null);
+      a.ctx = surge.contextLine(cls, label, gapPct, nw, dart);
+    } catch (e) {
+      a.ctx = '   └ 맥락 없음(오류)';
+      console.warn(`  [경고] ${a.ticker} 맥락 실패: ${e.message}`);
+    }
+  }
+  return pick.length;
 }
 
 // ---------- 메인 ----------
@@ -243,6 +329,7 @@ async function main() {
   let failed = 0;
   let stale = 0;
   const krQuotes = {};   // code → [현재가, 전일종가]. 오늘 시세만(휴장일 직전 봉은 위에서 걸러진다)
+  const krFull = {};     // code → {price, prevClose, open, name} — 맥락(동료 동반·시가 갭)용
 
   for (const t of targets) {
     const market = t.market || 'KR';
@@ -250,10 +337,13 @@ async function main() {
       const quote = market === 'US' ? usQuotes.get(t.code) : await fetchQuoteKR(t.code);
       if (!quote) { failed++; continue; }
       if (quote.date !== localYmd(now, MARKET_TZ[market])) { stale++; continue; } // 휴장일·개장 전
-      if (market === 'KR') krQuotes[t.code] = [quote.price, quote.prevClose];
+      if (market === 'KR') {
+        krQuotes[t.code] = [quote.price, quote.prevClose];
+        krFull[t.code] = { price: quote.price, prevClose: quote.prevClose, open: quote.open, name: t.name };
+      }
       const { alerts, newState } = detect(t.code, t.name, market, quote, state[t.code], now);
       state[t.code] = newState;
-      for (const a of alerts) allAlerts.push({ ticker: t.code, rule: a.rule, step: a.step, day: a.day, line: `[${market}] ${a.message}` });
+      for (const a of alerts) allAlerts.push({ ticker: t.code, market, rule: a.rule, step: a.step, day: a.day, pct: a.pct, line: `[${market}] ${a.message}` });
     } catch (e) {
       failed++;
       console.warn(`  [경고] ${t.code} 시세 조회 실패: ${e.message}`);
@@ -266,6 +356,12 @@ async function main() {
   if (allAlerts.length === 0) {
     console.log('감지된 급등락 없음.');
   } else {
+    try {
+      const n = await addContext(allAlerts, krFull, state, now);
+      if (n) console.log(`맥락 ${n}건 (${Date.now() - now}ms)`);
+    } catch (e) {
+      console.warn(`  [경고] 맥락 전체 실패 — 맥락 없이 보낸다: ${e.message}`);
+    }
     const sent = await deliver(state, allAlerts, async (text) => {
       const tg = await sendTelegram(text);
       const slack = await sendSlack(text);
@@ -293,4 +389,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, localYmd, RULES };
+module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, localYmd, addContext, RULES };
