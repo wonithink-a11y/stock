@@ -9,8 +9,8 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
 | 기각 | 122 |
-| 사전등록 문서(결과는 별도 파일) | 103 |
-| 정보·탐색 | 27 |
+| 사전등록 문서(결과는 별도 파일) | 104 |
+| 정보·탐색 | 28 |
 | 미분류 | 237 |
 
 ## 통과·채택 (13)
@@ -204,11 +204,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (103)
+## 사전등록 문서(결과는 별도 파일) (104)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-12 | PREREGISTERED | kr | [sideways-regime-sector-preregistration-2026-10.md](sideways-regime-sector-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-12) — 코스피 6,000~7,000 횡보(2026-08~10)에서 AI 반도체 장비·기판·전력기기가 오르고 자동차·소비·게임·바이오가 … |
+| 2026-10-12 | PREREGISTERED | kr | [sideways-regime-forward-preregistration-2026-10.md](sideways-regime-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 국면 검증(sideways-regime-sector-results-2026-10)이 INCONCLUSIVE — M +43bp/월(p 0.021, 기준 0.016… |
 | 2026-10-12 | PREREGISTERED | kr | [combined-rank-shadow-preregistration-2026-10.md](combined-rank-shadow-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 결합 순위 모델(combined-rank-model-results-2026-10)이 사전등록 기준 h1·h5 ECONOMIC 이었으나 h1 은 롱온리 원수익이 비용 … |
 | 2026-10-11 | PREREGISTERED | kr | [us-sector-overnight-kr-open-preregistration-2026-10.md](us-sector-overnight-kr-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-11) — 반도체(SOX, 7acb38d2 REJECT: 갭에 이미 반영, 장중 반납) 다음으로 다른 섹터도 밤사이 미국 짝 ETF 가 움… |
 | 2026-10-11 | PREREGISTERED | kr | [sox-overnight-kr-semis-open-preregistration-2026-10.md](sox-overnight-kr-semis-open-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-11) — 밤사이 미국 반도체가 오르면 한국 반도체를 시초가에 사는 게 어떤가. 지수 단위는 이미 쟀다(us-overnight-kospi-… |
@@ -312,10 +313,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (27)
+## 정보·탐색 (28)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-12 | EXPLORATORY | kr | [dividend-record-dates-2026-10.md](dividend-record-dates-2026-10.md) | 기술 명단(판정 없음). 고배당 후보의 회계연도별 결산배당 기준일(12월 유지 vs 다음 해 이동) — DART '현금ㆍ현물배당결정' 본문 기준. |
 | 2026-10-10 | INFORMATION | kr | [yearend-taxloss-results-2026-10.md](yearend-taxloss-results-2026-10.md) | 신호: 부분(반등만) · 반등 구간 평균 +4.49%p(p 0.000, 15/16) · 매도 구간 -0.90%p(p 0.188, 11/16 음). (스크립트 판정) |
 | 2026-10-10 | EXPLORATORY | kr | [theme-leader-optimize-explore-2026-10.md](theme-leader-optimize-explore-2026-10.md) | 신호: 판정 대상 아님(사후 탐색) · 경제성: 판정 대상 아님. 960조합 중 IS·OOS 둘 다 40일 이상 915개. IS 비용 후 양 7개 · OOS 양 0개 · 둘 다 양 0개. IS 1위… |
 | 2026-10-10 | EXPLORATORY | kr | [dividend-runup-q3-2026-10.md](dividend-runup-q3-2026-10.md) | 탐색·사후(판정 없음). 11월 말까지 공시된 3분기 실적으로 연말 랠리 손실·배당 삭감을 미리 가를 수 있나. |
