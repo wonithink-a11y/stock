@@ -8,9 +8,9 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 122 |
-| 사전등록 문서(결과는 별도 파일) | 105 |
-| 정보·탐색 | 28 |
+| 기각 | 123 |
+| 사전등록 문서(결과는 별도 파일) | 107 |
+| 정보·탐색 | 30 |
 | 미분류 | 238 |
 
 ## 통과·채택 (13)
@@ -77,10 +77,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (122)
+## 기각 (123)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | REJECT | kr | [surge-prob-model-results-2026-10.md](surge-prob-model-results-2026-10.md) | 신호: 없음 · 경제성: 미달. E1 REJECT(TEST 초과 -97.5bp) · E2 REJECT(TEST 초과 -6.3bp). 적중률 상위 20 35.5% vs 전체 10.7%. (스크립트 판… |
 | 2026-10-11 | REJECT | kr | [us-sector-overnight-kr-open-results-2026-10.md](us-sector-overnight-kr-open-results-2026-10.md) | 신호: 없음 · 경제성: 미달(채택 후보 0). 10셀 중 TRAIN 양·t ≥ 2.83 은 0개. 원전·상승 밤(URA z ≥ 1)만 세 구간 모두 사건일 장중 양·비용 후 양 (+6.6 / +1… |
 | 2026-10-11 | REJECT | kr | [sox-overnight-kr-semis-open-results-2026-10.md](sox-overnight-kr-semis-open-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. SOX 가 밤사이 오른 날 한국 반도체는 시가가 이미 +1.2~3.3% 높게 열리고(갭), 그 뒤 장중엔 오히려 빠진다 — 사건일 장중 K2 전 기간 −… |
 | 2026-10-11 | REJECT | kr | [sector-follower-catchup-results-2026-10.md](sector-follower-catchup-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 네 셀 모두 TRAIN 바닥선(2.97) 근처에도 못 감(최대 t +0.86, B·h5). 업종 2~5위는 규모·최근 5일 수익이 같은 다른 업종 종목과 구분되지 않… |
@@ -204,10 +205,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (105)
+## 사전등록 문서(결과는 별도 파일) (107)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | PREREGISTERED | kr | [surge-prob-model-preregistration-2026-10.md](surge-prob-model-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임) — "뉴스·공시 말고 급등주를 잡는 조건". 일별 기술 집계(10-13)에서 급등 확률은 최근 변동성(6%↑ 5.3배)·… |
+| 2026-10-13 | PREREGISTERED | kr | [early-session-herd-preregistration-2026-10.md](early-session-herd-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임). why_surge.py 급등 256건(2026-08~10)에서 장중 무리형은 다음 날 중앙값 +0.5%·5일 +6.5%… |
 | 2026-10-13 | PREREGISTERED | kr | [dividend-record-filter-preregistration-2026-10.md](dividend-record-filter-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 연말배당랠리-실행조사(10-11)·기준일 명단(10-12): 2023 배당절차 개편 뒤 결산 기준일을 다음 해로 옮긴 회사가 13% → 33% → 39% 로 늘었고 … |
 | 2026-10-12 | PREREGISTERED | kr | [sideways-regime-sector-preregistration-2026-10.md](sideways-regime-sector-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-12) — 코스피 6,000~7,000 횡보(2026-08~10)에서 AI 반도체 장비·기판·전력기기가 오르고 자동차·소비·게임·바이오가 … |
 | 2026-10-12 | PREREGISTERED | kr | [sideways-regime-forward-preregistration-2026-10.md](sideways-regime-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 국면 검증(sideways-regime-sector-results-2026-10)이 INCONCLUSIVE — M +43bp/월(p 0.021, 기준 0.016… |
@@ -314,10 +317,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (28)
+## 정보·탐색 (30)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | EXPLORATORY | kr | [flow-limitup-2026-10.md](flow-limitup-2026-10.md) | 사후 기술(판정 없음). 수급처별 순매수 강도 5분위는 급등 확률이 '가운데(수급 거의 없음)'에서 가장 높고 5일 초과는 거기서 가장 나쁘다(−29bp) — 양 끝(크게 사거나 크게 판 종목)이 … |
+| 2026-10-13 | EXPLORATORY | kr | [daily-rotation-2026-08-10.md](daily-rotation-2026-08-10.md) | 사후 기술(판정 없음, 예측 아님). 20260803~20261008 45거래일 하루 단위 업종 순환·하락일 강세 종목·급등 원인(공시 대조)·미국 선후행. |
 | 2026-10-12 | EXPLORATORY | kr | [dividend-record-dates-2026-10.md](dividend-record-dates-2026-10.md) | 기술 명단(판정 없음). 고배당 후보의 회계연도별 결산배당 기준일(12월 유지 vs 다음 해 이동) — DART '현금ㆍ현물배당결정' 본문 기준. |
 | 2026-10-10 | INFORMATION | kr | [yearend-taxloss-results-2026-10.md](yearend-taxloss-results-2026-10.md) | 신호: 부분(반등만) · 반등 구간 평균 +4.49%p(p 0.000, 15/16) · 매도 구간 -0.90%p(p 0.188, 11/16 음). (스크립트 판정) |
 | 2026-10-10 | EXPLORATORY | kr | [theme-leader-optimize-explore-2026-10.md](theme-leader-optimize-explore-2026-10.md) | 신호: 판정 대상 아님(사후 탐색) · 경제성: 판정 대상 아님. 960조합 중 IS·OOS 둘 다 40일 이상 915개. IS 비용 후 양 7개 · OOS 양 0개 · 둘 다 양 0개. IS 1위… |
