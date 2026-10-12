@@ -165,6 +165,9 @@ Validated against
             ★ **결합 순위 모델 h5 forward 그림자도 같이**(10-12 사전등록 f56c75e6 · 코드 d63757c6 · 기록 전용): A2a 증분 뒤 `python research/strategy-lab/run_combined_rank_shadow.py`(건수만, 패널 재구성 수 분) 후
             `reports/2026-10-combined-rank-shadow/` 커밋. 모델은 2016~2025 학습 1회 동결(`model_h5.txt` sha256 은 freeze.json — 다르면 기록 거부, 재학습 금지). 신호일 ≥ 2026-10-13 만.
             `--judge` 는 마지막 성숙 신호일 ≥ 2027-10-13 에 1차(E ≤ 0 REJECT · t ≥ 1.65 INFORMATION · 초과·원수익 모두 23.54bp 넘으면 ECONOMIC), INCONCLUSIVE 면 ≥ 2028-10-13 최종 — 그 전엔 코드가 거부. 현실적 기대 INCONCLUSIVE.
+            ★ **급락 뒤 횡보 국면 M forward도 같이**(10-12 사전등록 a50a9cfd · 코드 b0930e32 · 기록 전용): `python research/strategy-lab/run_sideways_regime_forward.py --collect`(KRX 로그인, 업종지수 20개 증분) 후
+            인자 없이 실행(건수만) → `reports/2026-10-sideways-regime-forward/` 커밋. 첫 신호 2026-10-30. `--judge` 는 국면 달 outcome 24개(≈2032)에 1차(평균 ≤ 0 REJECT · p < 0.05 SUPPORTED · 그 밖 계속), 48개 최종.
+            검출력 매우 낮음(월 X 표준편차 366bp) — 실질 가치는 음으로 나올 때 접기.
             ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`
             후 `reports/2026-09-infbuy-dip-shadow/observations.jsonl` 커밋. 2년(2028-09-29) 1회. 다른 레버리지 16종 재현은 3배 NOT·2배 PARTIAL
             (낙폭 악화) — SOXL 전용 효과, V4.0 운용 불변(findings/infinite-buying-dip-double-replication-results-2026-09.md).
@@ -228,7 +231,7 @@ Validated against
   안 한다   ★ 급락 뒤 횡보 국면 업종 고르기(2026-10-12, 사전등록 c38b60d3 · 코드 adfb0ce1 · 사용자 질문 '코스피 6~7천 횡보에 뭐가 올랐나') — **INCONCLUSIVE**. 신호: 없음(유의 미달) · 경제성: 미달.
             국면 = 126일 안 1년 고점 −15% ∧ 40일 고저폭 ≤ 15%, KOSPI 업종지수 19개 150개월(1990~2026-07). M 40일 상위 3 +43bp/월 p 0.021(기준 0.0167) · 두 시기 +44/+41 —
             국면 아닌 달은 −13bp 라 조건이 더하는 것은 있어 보이나 2010~23 +19bp 뿐, 2024~ +188bp(9개월)가 끌어올림. R 소외 되돌림·L 저변동 REJECT. 같은 표본 재절단 금지 —
-            쓰려면 forward 새 사전등록. 현재 구간 서술: diag_sideways_sectors.py(AI 반도체 장비·기판·전력 주도). findings/sideways-regime-sector-results-2026-10.md.
+            forward 기록 걸림(a50a9cfd, 월간 점검). 현재 구간 서술: diag_sideways_sectors.py(AI 반도체 장비·기판·전력 주도). findings/sideways-regime-sector-results-2026-10.md.
   안 한다   ★ 테마 대장주 장중 매매(TTN META 원리 재현, 2026-10-10, 사전등록 83b9893e) — **REJECT·종결**. 신호: 없음 · 경제성: 미달. 09:15 거래대금 상위 300·+3% →
             최다 업종(KSIC 세분류, LLM 대신) → 거래대금 1위 대장주, 분봉 279일 261매매일: 즉시 매수 비용 전 −90bp[−160, −23] · 눌림 반등 −77bp[−136, −18].
             대조(선별 목록 전체)도 −91·−79bp — **테마·대장 선정이 더하는 것 없음**, 장 초반 강세 종목 자체가 장중에 진다(기존 장중 음·되돌림과 같은 방향).
