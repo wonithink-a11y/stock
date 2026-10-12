@@ -9,9 +9,9 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
 | 기각 | 122 |
-| 사전등록 문서(결과는 별도 파일) | 104 |
+| 사전등록 문서(결과는 별도 파일) | 105 |
 | 정보·탐색 | 28 |
-| 미분류 | 237 |
+| 미분류 | 238 |
 
 ## 통과·채택 (13)
 
@@ -204,10 +204,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (104)
+## 사전등록 문서(결과는 별도 파일) (105)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | PREREGISTERED | kr | [dividend-record-filter-preregistration-2026-10.md](dividend-record-filter-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 연말배당랠리-실행조사(10-11)·기준일 명단(10-12): 2023 배당절차 개편 뒤 결산 기준일을 다음 해로 옮긴 회사가 13% → 33% → 39% 로 늘었고 … |
 | 2026-10-12 | PREREGISTERED | kr | [sideways-regime-sector-preregistration-2026-10.md](sideways-regime-sector-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 질문(2026-10-12) — 코스피 6,000~7,000 횡보(2026-08~10)에서 AI 반도체 장비·기판·전력기기가 오르고 자동차·소비·게임·바이오가 … |
 | 2026-10-12 | PREREGISTERED | kr | [sideways-regime-forward-preregistration-2026-10.md](sideways-regime-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 국면 검증(sideways-regime-sector-results-2026-10)이 INCONCLUSIVE — M +43bp/월(p 0.021, 기준 0.016… |
 | 2026-10-12 | PREREGISTERED | kr | [combined-rank-shadow-preregistration-2026-10.md](combined-rank-shadow-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 결합 순위 모델(combined-rank-model-results-2026-10)이 사전등록 기준 h1·h5 ECONOMIC 이었으나 h1 은 롱온리 원수익이 비용 … |
@@ -346,10 +347,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (237)
+## 미분류 (238)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
 | 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
 | 2026-10-10 | 근거 유지 | kr | [pbr-combined-merged-rerun-results-2026-10.md](pbr-combined-merged-rerun-results-2026-10.md) | 편향 재검증(신호·경제성 판정 아님). 폐지 포함·엔진 보정 P2 연복리 +7.50% vs 같은 유니버스 등가중 E2 +2.30% → gap +5.20%p, 샤프 0.73 vs 0.23 → 근거 유… |
 | 2026-10-09 | DRAFT | kr | [night-candidates-forward-draft-2026-10.md](night-candidates-forward-draft-2026-10.md) | 2026-10-09 밤 자율 연구에서 나온 후보를 과거 표본으로 더 다듬지 않고 동결 이후 새 표본(forward)으로만 판정하기 위한 초안. 칸마다 정의는 원 연구와 한 글자도 다르지 않게 두고,… |

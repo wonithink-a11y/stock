@@ -23,7 +23,9 @@ Validated against
             findings/combined-rank-model-results-2026-10.md. ★ 연말 고배당 랠리 실행 조사(10-11): 시총 상위 200 고배당 랠리 2024 −2.3 · 2025 −0.6% 소멸(배당기준일 2~3월 이동),
             배당 포착 2023~ +1.14% 는 과대 · 매수일 **11-30(월)**(옛 11-27 오기) · docs/control/연말배당랠리-실행조사-2026-10-11.md. **기준일 명단 완료(10-12)**: `dividend_record_dates.py`(DART '현금ㆍ현물배당결정' 본문, 2,294콜) → findings/dividend-record-dates-2026-10.{csv,md}.
             11월 말 DIV ≥ 3% 후보 중 결산 기준일을 다음 해로 옮긴 비율 2023 13% → 2024 33% → 2025 39%. 2026-08 후보 561 중 2025 결산 DEC 347 · MOVED 188(시총 1조↑ 40 — 기아·금융지주·KT&G·KT 등).
-            11월 말 단면 나오면 재실행(캐시로 호출 거의 없음). 필터 검증(유지군만 랠리 남나)은 새 사전등록 · 사용자 GO 대상.
+            11월 말 단면 나오면 재실행(캐시로 호출 거의 없음). **필터 검증 사전등록 fd0c9132 · 코드 bad4d6fb**: 직전 해 결산 기준일 12월 유지(D) vs 이동(M) 랠리 초과 Δ — 점검 2024 +3.57%p(t 2.58) · 2025 +1.01%p(t 1.00),
+            시총 200위 밖만도 +2.98/+0.88. 단 2025 D 중앙값 −0.45%·손실 58%. **판정은 2026 연말 1회 — 2027-01 `python research/strategy-lab/dividend_record_filter.py --judge`**
+            (2026-11 KRX 단면·12월 일봉·`dividend_record_dates.py` 재실행 뒤, 그 전엔 거부). KEEP = 세 해 Δ > 0 ∧ 2026 D > 33.5bp · REJECT = 2026 Δ ≤ 0.
             (2) **A3e 확장 재무·회계 축 탐색 종결** — 패널 24,749행(`data/fundamentals-ext/`, gitignore)·매핑 `a3e_account_map.py`(a3e-map-1.1 동결).
             EV 가치 3셀 × PBR 잔차화 **전부 REJECT** · 고부채 쏠림 통제 4셀 **REJECT**(기전 NOT SUPPORTED — 쏠림을 없앴는데 하락장 격차 그대로) ·
             품질 3축(GP/A·발생액·자산성장) 1단계 **전부 REJECT**. **PBR 이 유일한 생존 회계·가치 축.** EV/EBITDA 는 감가상각비 커버리지 19% 라 불가.
