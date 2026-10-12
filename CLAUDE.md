@@ -172,6 +172,9 @@ Validated against
             ★ **급락 뒤 횡보 국면 M forward도 같이**(10-12 사전등록 a50a9cfd · 코드 b0930e32 · 기록 전용): `python research/strategy-lab/run_sideways_regime_forward.py --collect`(KRX 로그인, 업종지수 20개 증분) 후
             인자 없이 실행(건수만) → `reports/2026-10-sideways-regime-forward/` 커밋. 첫 신호 2026-10-30. `--judge` 는 국면 달 outcome 24개(≈2032)에 1차(평균 ≤ 0 REJECT · p < 0.05 SUPPORTED · 그 밖 계속), 48개 최종.
             검출력 매우 낮음(월 X 표준편차 366bp) — 실질 가치는 음으로 나올 때 접기.
+            ★ **장중 뉴스 1분 뒤 매수 forward도 같이**(10-13 사전등록 findings/news-minute-forward-preregistration-2026-10.md · 기록 전용 · 사용자 요청): VM news-alert 가 처음 본 기사를 `~/collector-venv/news/news-log.jsonl` 에 쌓는다(fetch-news-kr.js, NEWS_OUT_PATH 있을 때만).
+            `collect_dart_event_titles.py --update` 뒤 `python research/strategy-lab/run_news_minute_forward.py --sync`(원장·분봉 복사) → 인자 없이 실행(건수만) → `reports/2026-10-news-minute-forward/` 커밋.
+            갈래 MOVE(시황 '○% 급등') > DISC(공시성) > OTHER, 진입 = 기사 분+1분 봉 종가, 주 청산 당일 종가 vs 시장, 비용 33.5bp. 갈래별 150건·6개월 `--judge` 1회(INCONCLUSIVE 면 300건·12개월 최종).
             ★ **마감 30분 약세 대형주 forward도 같이**(10-13 사전등록 71122107 · 기록 전용): `collect_krx_daily_ext.py <이번 달>` 뒤 `python research/strategy-lab/run_close_weakness_forward.py --sync`(VM 분봉 복사)
             → 인자 없이 실행 → `reports/2026-10-close-weakness-forward/` 커밋. 신호일 ≥ 10-14, 250 성숙일(≈2027-10) `--judge` 1회. 분봉은 VM ~/minute-raw 에만 쌓이므로 월 1회 이상 돌린다.
             ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`

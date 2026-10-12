@@ -34,6 +34,9 @@ const WATCHLIST_PATH = path.join(ROOT, 'config', 'watchlist.json');
 const HOLDINGS_PATH = path.join(ROOT, 'config', 'holdings.json');
 // VM 알림 실행은 저장소 밖 파일에 쓴다(알림 중복방지 원장 _seen 이 여기 산다). 기본값은 대시보드용.
 const OUT_PATH = process.env.NEWS_OUT_PATH || path.join(ROOT, 'docs', 'data', 'news.json');
+// VM 실행(NEWS_OUT_PATH 지정)일 때만: 제목에 종목명이 든 국내 새 기사를 원장에 덧붙인다(append-only).
+// 장중 뉴스 1분 뒤 매수 forward 기록기(research/strategy-lab/run_news_minute_forward.py)가 이 파일을 복사해 간다.
+const LOG_PATH = process.env.NEWS_OUT_PATH ? path.join(path.dirname(OUT_PATH), 'news-log.jsonl') : null;
 
 const PER_STOCK = Number(process.env.NEWS_PER_STOCK || 5);   // 종목당 저장 기사 수
 const USE_GOOGLE = process.env.NEWS_GOOGLE !== '0';           // 구글뉴스 RSS 병행(무키). 0이면 끔
@@ -299,6 +302,7 @@ async function main() {
 
   const byTicker = {};
   const freshAlerts = [];
+  const logLines = [];
   let calls = 0;
   let droppedOld = 0;
 
@@ -324,6 +328,10 @@ async function main() {
       // 키워드에 걸린 신규 기사 알림 대상 수집
       for (const it of uniq) {
         const key = it.originallink || it.link;
+        if (LOG_PATH && !seenLedger[key] && (t.market || 'KR') === 'KR' && it.title.includes(t.name)) {
+          logLines.push(JSON.stringify({ code: t.code, name: t.name, pubDate: it.pubDate, seenAt: new Date().toISOString(),
+            title: it.title, link: key, source: it.source, level: it.level, flags: it.flags }));
+        }
         // 같은 사건을 매체마다 다시 써서 링크만으로는 못 거른다(2026-09-28 HLB FDA 허가 하루 40건+).
         // 종목·키워드별 하루 1회 — 이미 알린 키워드가 하나라도 겹치면 같은 이야기로 본다. 새 키워드(횡령 등)는 통과.
         const topics = it.flags.map((f) => `topic:${t.code}:${f}:${KST_DAY}`);
@@ -445,6 +453,8 @@ async function main() {
     .slice(0, BRIEF_MAX);
 
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
+  if (LOG_PATH && logLines.length) fs.appendFileSync(LOG_PATH, logLines.join('\n') + '\n', 'utf8');
+', 'utf8');
   fs.writeFileSync(OUT_PATH, JSON.stringify({
     updatedAt: new Date().toISOString(),
     perStock: PER_STOCK,
