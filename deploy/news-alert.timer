@@ -1,15 +1,18 @@
 [Unit]
-Description=Watchlist news keyword alert hourly 08-18 KST, every 5 min 08:30-09:30
+Description=Watchlist news keyword alert hourly 08-18 KST, 5 min 08:30-09:30, 2 min 08:50-09:10
 OnFailure=unit-failure-notify@%n.service
 
 [Timer]
 # 1회 네이버 ~380콜(국내 353 + 시장쿼리 27, NEWS_MARKETS=KR) x 11회 = 하루 ~4,200콜.
 # 2026-09-28 15분 → 1시간(사용자 요청 — 알림이 너무 잦았다. 같은 이야기 거르기는 fetch-news-kr.js).
 OnCalendar=Mon..Fri *-*-* 08..18:00:00
-# 장 전·장 초반은 5분마다(2026-10-13) — 1회 약 380콜·1분 30초. 1분 간격은 그 한 시간만 약 23,000콜로 네이버 한도(25,000/일) 초과.
-# 하루 합계 ≈ 매시 11회 4,200 + 5분 12회 4,600 + 장중 알림 직접 조회 ≤ 420 ≈ 9,200콜.
-OnCalendar=Mon..Fri *-*-* 08:30/5:00
-OnCalendar=Mon..Fri *-*-* 09:00,05,10,15,20,25,30:00
+# 장 전·장 초반 촘촘히(2026-10-13 사용자 요청): 08:30~08:45·09:15~09:30 5분, 08:50~09:10 2분.
+#   2분이 하한이다 — 1회 약 380콜·약 1분 30초라 1분으로 걸어도 겹친 실행은 systemd 가 건너뛴다(실질 2분).
+#   하루 합계 ≈ 매시 11회 4,200 + 5분 8회 3,000 + 2분 11회 4,200 + 장중 알림 직접 조회 ≤ 420 ≈ 11,800콜(한도 25,000).
+OnCalendar=Mon..Fri *-*-* 08:30,35,40,45:00
+OnCalendar=Mon..Fri *-*-* 08:50/2:00
+OnCalendar=Mon..Fri *-*-* 09:00,02,04,06,08,10:00
+OnCalendar=Mon..Fri *-*-* 09:15,20,25,30:00
 
 [Install]
 WantedBy=timers.target
