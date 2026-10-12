@@ -172,6 +172,8 @@ Validated against
             ★ **급락 뒤 횡보 국면 M forward도 같이**(10-12 사전등록 a50a9cfd · 코드 b0930e32 · 기록 전용): `python research/strategy-lab/run_sideways_regime_forward.py --collect`(KRX 로그인, 업종지수 20개 증분) 후
             인자 없이 실행(건수만) → `reports/2026-10-sideways-regime-forward/` 커밋. 첫 신호 2026-10-30. `--judge` 는 국면 달 outcome 24개(≈2032)에 1차(평균 ≤ 0 REJECT · p < 0.05 SUPPORTED · 그 밖 계속), 48개 최종.
             검출력 매우 낮음(월 X 표준편차 366bp) — 실질 가치는 음으로 나올 때 접기.
+            ★ **마감 30분 약세 대형주 forward도 같이**(10-13 사전등록 71122107 · 기록 전용): `collect_krx_daily_ext.py <이번 달>` 뒤 `python research/strategy-lab/run_close_weakness_forward.py --sync`(VM 분봉 복사)
+            → 인자 없이 실행 → `reports/2026-10-close-weakness-forward/` 커밋. 신호일 ≥ 10-14, 250 성숙일(≈2027-10) `--judge` 1회. 분봉은 VM ~/minute-raw 에만 쌓이므로 월 1회 이상 돌린다.
             ★ **무한매수 '하락일 2배' 그림자도 같이**(09-29 사전등록 1970c643): `python research/strategy-lab/run_infbuy_dip_shadow.py`
             후 `reports/2026-09-infbuy-dip-shadow/observations.jsonl` 커밋. 2년(2028-09-29) 1회. 다른 레버리지 16종 재현은 3배 NOT·2배 PARTIAL
             (낙폭 악화) — SOXL 전용 효과, V4.0 운용 불변(findings/infinite-buying-dip-double-replication-results-2026-09.md).
@@ -232,6 +234,10 @@ Validated against
   안 한다   ★ 거래량 5배 + 공시 당일 → 다음 날 시가 진입(KR, 2026-10-04, 인스타 게시물 계기 · 사전등록 → 코드 0ca34f43) — **REJECT·종결**. 신호: 없음(음의 방향) · 경제성: 미달.
             공식 VD h1·h5 TRAIN t −1.54·−1.63(바닥선 2.38), 롱 gross −52·−49bp. 기록용 V·VN 은 세 구간 모두 음(V h1 TRAIN −6.7), 공시 유무 구분력 없음. 숏·역추세는 사후 가설 — 새 사전등록으로만.
             findings/kr-volsurge-news-day-results-2026-10.md. 부산물: 소형주 ETF 5종 비교(설명용, AVUV 우위는 2021·2022 두 해에 몰림) findings/us-smallcap-etf-compare-2026-10.md.
+  다음      ★★ **10-13 야간 연구(사용자 위임, 급등주 조건)** — docs/control/야간연구-보고-2026-10-13.md. 급등 확률 모델 REJECT(적중 3.3배인데 TEST −98bp) · 장 초반 무리형 REJECT ·
+            종가 매집 반대 방향 · 수급처별·상한가·횡보 사후 기술 · **실마리: 대형주 마감 약세 되돌림**(종가 위치 10년 저가 마감 +12.4bp t 8.3, 비용 미달) →
+            주식선물로는 REJECT(+8.8bp vs 현물 +29.1 — 15:45 선물 종가가 2/3 이미 반영, 정체 = 종가 동시호가 압력). 주식선물 일별 수집기 `collect_stock_futures_krx.py`(data/stock-futures/, 2023~).
+            급등 뉴스 다음 날 시가 매수 5일 −1.33%(구글 뉴스 RSS 날짜 범위 검색 가능 — 네이버 API 는 최신 1,100건뿐).
   안 한다   ★ 급락 뒤 횡보 국면 업종 고르기(2026-10-12, 사전등록 c38b60d3 · 코드 adfb0ce1 · 사용자 질문 '코스피 6~7천 횡보에 뭐가 올랐나') — **INCONCLUSIVE**. 신호: 없음(유의 미달) · 경제성: 미달.
             국면 = 126일 안 1년 고점 −15% ∧ 40일 고저폭 ≤ 15%, KOSPI 업종지수 19개 150개월(1990~2026-07). M 40일 상위 3 +43bp/월 p 0.021(기준 0.0167) · 두 시기 +44/+41 —
             국면 아닌 달은 −13bp 라 조건이 더하는 것은 있어 보이나 2010~23 +19bp 뿐, 2024~ +188bp(9개월)가 끌어올림. R 소외 되돌림·L 저변동 REJECT. 같은 표본 재절단 금지 —
