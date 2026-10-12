@@ -10,7 +10,7 @@
 | 보류·판정 불가 | 41 |
 | 기각 | 125 |
 | 사전등록 문서(결과는 별도 파일) | 109 |
-| 정보·탐색 | 33 |
+| 정보·탐색 | 35 |
 | 미분류 | 238 |
 
 ## 통과·채택 (13)
@@ -321,10 +321,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (33)
+## 정보·탐색 (35)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-13 | EXPLORATORY | kr | [news-chase-unbiased-2026-10.md](news-chase-unbiased-2026-10.md) | 사후 기술(판정 없음). 09:10 +5% 사건(결과 무관) 무작위 1200건에 구글 뉴스를 붙여, 뉴스가 있는 급등을 09:10 에 샀다면의 수익. |
+| 2026-10-13 | EXPLORATORY | kr | [news-chase-2025-08-2026-10.md](news-chase-2025-08-2026-10.md) | 사후 기술(판정 없음). 분봉 기간 급등 2675건(일 +15% 마감, 시총 2,000억↑)을 구글 뉴스 제목으로 원인 분류하고 장중 알림 시점(+5%)에 샀다면의 수익. '알림 시점' 칸은 결과로… |
 | 2026-10-13 | EXPLORATORY | kr | [flow-limitup-2026-10.md](flow-limitup-2026-10.md) | 사후 기술(판정 없음). 수급처별 순매수 강도 5분위는 급등 확률이 '가운데(수급 거의 없음)'에서 가장 높고 5일 초과는 거기서 가장 나쁘다(−29bp) — 양 끝(크게 사거나 크게 판 종목)이 … |
 | 2026-10-13 | EXPLORATORY | kr | [daily-rotation-2026-08-10.md](daily-rotation-2026-08-10.md) | 사후 기술(판정 없음, 예측 아님). 20260803~20261008 45거래일 하루 단위 업종 순환·하락일 강세 종목·급등 원인(공시 대조)·미국 선후행. |
 | 2026-10-13 | EXPLORATORY | kr | [consolidation-surge-2026-10.md](consolidation-surge-2026-10.md) | 사후 기술(판정 없음). 60일 횡보 폭·당일 거래 급증(순위)별 5일 안 +15% 도달 확률과 t+1 시가 → t+5 종가 초과·익절(+15%) 원수익. |
