@@ -195,9 +195,11 @@
   /* ---- 전체 스코어 테이블 ---------------------------------------------- */
   var TABLE_COLSPAN = 6 + AXES.length + 3; // #·티커·종목명·시장·총점·등급 + 축들 + 현재가·커버리지·경고
 
-  function scoreTableHtml(results, expandedTicker) {
-    var rows = results.slice()
+  function scoreTableHtml(results, expandedTicker, limit) {
+    var sorted = results.slice()
       .sort(function (a, b) { return (b.totalScore || 0) - (a.totalScore || 0); });
+    // 868행을 한 번에 그리면 폰에서 수만 px — 상위 limit 개만, 나머지는 '더 보기'(2026-10-14)
+    var rows = limit ? sorted.slice(0, limit) : sorted;
 
     var axisCell = function (r, key) {
       var box = r && r.breakdown && r.breakdown[key];
@@ -240,7 +242,9 @@
       AXES.map(function (a) { return "<th>" + a[1] + "</th>"; }).join("") +
       "<th>현재가</th><th>커버리지</th><th>경고</th>" +
       "</tr></thead><tbody>" + (body || "") + "</tbody></table>" +
-      (rows.length === 0 ? '<div class="empty">조건에 맞는 종목이 없습니다.</div>' : "");
+      (rows.length === 0 ? '<div class="empty">조건에 맞는 종목이 없습니다.</div>' : "") +
+      (sorted.length > rows.length ? '<div style="text-align:center;margin-top:10px"><button class="btn" id="score-more">더 보기 (' +
+        (sorted.length - rows.length) + "종목 남음)</button></div>" : "");
   }
 
   /* ---- 추천 성과 -------------------------------------------------------- */
@@ -356,6 +360,7 @@
     var wrap = container.querySelector("#score-table-wrap");
     var countEl = container.querySelector("#flt-count");
     var filterState = { minScore: null, grade: "ALL", market: "ALL", group: "ALL" };
+    var limit = 100;
     var expandedTicker = null;
 
     function applyFilters() {
@@ -370,7 +375,9 @@
 
     function render() {
       var filtered = applyFilters();
-      wrap.innerHTML = scoreTableHtml(filtered, expandedTicker);
+      wrap.innerHTML = scoreTableHtml(filtered, expandedTicker, limit);
+      var more = wrap.querySelector("#score-more");
+      if (more) more.addEventListener("click", function () { limit += 200; render(); });
       if (countEl) countEl.textContent = filtered.length + " / " + results.length + "종목";
       wrap.querySelectorAll("tbody tr[data-ticker]").forEach(function (row) {
         row.addEventListener("click", function () {
@@ -383,16 +390,16 @@
 
     container.querySelector("#flt-score").addEventListener("input", function (e) {
       filterState.minScore = e.target.value === "" ? null : Number(e.target.value);
-      render();
+      limit = 100; render();
     });
     container.querySelector("#flt-grade").addEventListener("change", function (e) {
-      filterState.grade = e.target.value; render();
+      filterState.grade = e.target.value; limit = 100; render();
     });
     container.querySelector("#flt-market").addEventListener("change", function (e) {
-      filterState.market = e.target.value; render();
+      filterState.market = e.target.value; limit = 100; render();
     });
     container.querySelector("#flt-group").addEventListener("change", function (e) {
-      filterState.group = e.target.value; render();
+      filterState.group = e.target.value; limit = 100; render();
     });
 
     render();
