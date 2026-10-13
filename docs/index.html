@@ -147,6 +147,16 @@
           padding: 4px 11px; border-radius: 14px; cursor: pointer; font-size: 12px; }
   .chip.active { color: var(--text); border-color: var(--accent); background: #1e2a44; }
   .chip .cnt { opacity: .6; margin-left: 4px; font-size: 11px; }
+  .mkt-seg { display: flex; width: 100%; max-width: 560px; margin-bottom: 12px; }
+  .mkt-seg button { flex: 1; padding: 9px 6px; font-size: 14px; white-space: nowrap; }
+  .mkt-seg .cnt { opacity: .6; margin-left: 4px; font-size: 11px; }
+  .fsel-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+  .fsel { flex: 1 1 80px; max-width: 220px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .fsel span { font-size: 11px; color: var(--muted); }
+  .fsel select { width: 100%; height: 38px; padding: 0 8px; background: #131a29; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font: inherit; font-size: 13px; }
+  .fsel.on select { border-color: var(--accent); background: #1e2a44; }
+  .fsel-row .chip { height: 38px; }
+  @media (max-width: 600px) { .mkt-seg .cnt { display: none; } .mkt-seg button { font-size: 13px; padding: 9px 2px; } }
   .a5bar { display: inline-block; width: 56px; height: 6px; background: var(--border); border-radius: 3px; vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .a5bar i { display: block; height: 100%; background: var(--accent); }
   .a5v { font-variant-numeric: tabular-nums; font-size: 13px; }
@@ -728,29 +738,25 @@ function renderScores() {
     <span class="muted" id="filterCount"></span>
   </div>`;
 
-  const filters = `
-    <div class="filter-row"><span class="lbl">업종</span>
-      ${chip('sector', 'all', '전체', all.length, state.sectorFilter)}
-      ${sectorKeys.map(k => chip('sector', k, SECTOR_LABEL[k] || k, sectorCounts[k], state.sectorFilter)).join('')}
-    </div>
-    <div class="filter-row"><span class="lbl">등급</span>
-      ${chip('grade', 'all', '전체', undefined, state.gradeFilter)}
-      ${['A','B','C','D','E','H'].map(g => {
-        const c = all.filter(r => gradeKey(r.grade) === g).length;
-        return c ? chip('grade', g, g === 'H' ? '유보' : g, c, state.gradeFilter) : '';
-      }).join('')}
-    </div>
-    ${groups.length ? `<div class="filter-row"><span class="lbl">그룹</span>
-      ${chip('group', 'all', '전체', undefined, state.groupFilter)}
-      ${groups.map(g => chip('group', g, (labels[g] || g).split(' ')[0], all.filter(r => (r.groups || []).includes(g)).length, state.groupFilter)).join('')}
-    </div>` : ''}`;
+  const opt = (val, text, cnt, cur) => `<option value="${esc(val)}"${cur === val ? ' selected' : ''}>${esc(text)}${cnt !== undefined ? ` (${cnt})` : ''}</option>`;
+  const sel = (key, label, opts) => `<label class="fsel${state[key + 'Filter'] !== 'all' ? ' on' : ''}"><span>${label}</span><select data-fsel="${key}">${opts}</select></label>`;
+  const anyFilter = ['sector', 'grade', 'group'].some(k => state[k + 'Filter'] !== 'all');
+  const filters = `<div class="fsel-row">
+    ${sel('sector', '업종', opt('all', '전체', all.length, state.sectorFilter) + sectorKeys.map(k => opt(k, SECTOR_LABEL[k] || k, sectorCounts[k], state.sectorFilter)).join(''))}
+    ${sel('grade', '등급', opt('all', '전체', undefined, state.gradeFilter) + ['A', 'B', 'C', 'D', 'E', 'H'].map(g => {
+      const c = all.filter(r => gradeKey(r.grade) === g).length;
+      return c ? opt(g, g === 'H' ? '유보' : g, c, state.gradeFilter) : '';
+    }).join(''))}
+    ${groups.length ? sel('group', '그룹', opt('all', '전체', undefined, state.groupFilter) + groups.map(g => opt(g, labels[g] || g, all.filter(r => (r.groups || []).includes(g)).length, state.groupFilter)).join('')) : ''}
+    ${anyFilter ? '<button class="chip" data-filter-reset="1">초기화</button>' : ''}
+  </div>`;
 
   // ── 시장/지수 배너(코스피 기본) - 전체 종목(all) 기준 개수, 선택은 다른 필터와 별개
   const marketIndexBanner = [
     ['kospi', '코스피'], ['kosdaq', '코스닥'], ['sp500', 'S&P500'], ['nasdaq100', '나스닥100'],
   ].map(([idx, label]) => {
     const cnt = all.filter(r => matchesMarketIndex(r, idx)).length;
-    return `<button data-market-index="${idx}" class="chip ${state.marketIndexFilter === idx ? 'active' : ''}" style="font-size:14px;padding:8px 18px">${label}<span class="cnt">${cnt}</span></button>`;
+    return `<button data-market-index="${idx}" class="${state.marketIndexFilter === idx ? 'active' : ''}">${label}<span class="cnt">${cnt}</span></button>`;
   }).join('');
 
   const filtered = applyFilters(all);
@@ -776,7 +782,7 @@ function renderScores() {
   const uni = d.universeVersion ? ` · 유니버스 ${esc(d.universeVersion)}(${d.universeSize ?? all.length}종목)` : '';
 
   return `<div class="card">
-    <div class="group-filter" style="margin-bottom:12px">${marketIndexBanner}</div>
+    <div class="seg mkt-seg">${marketIndexBanner}</div>
     ${toolbar}${filters}${strip}${body}
     <p class="muted" style="margin-top:12px;white-space:normal">업종 행 = 접기·펼치기 · <strong>'신뢰도 낮음'</strong> 업종은 비고를 먼저 읽으세요${uni}
       <span style="cursor:help" title="종목 행을 클릭하면 그 업종의 채점 주의사항이 열립니다. '신뢰도 낮음' 업종은 점수 자체의 예측력이 떨어집니다. 커버리지가 낮으면 config/fundamentals.json 보강으로 유보가 해제됩니다.">ⓘ</span></p></div>`;
@@ -3341,6 +3347,7 @@ function renderMarketReports() {
 }
 document.addEventListener('change', (e) => {
   if (e.target.matches && e.target.matches('[data-mreport-select]')) loadMarketReport(e.target.value);
+  if (e.target.matches && e.target.matches('[data-fsel]')) { state[e.target.dataset.fsel + 'Filter'] = e.target.value; render(); }   // 스코어 업종·등급·그룹
 });
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-mreport]');
@@ -3416,6 +3423,7 @@ document.getElementById('content').addEventListener('click', (e) => {
   if (gr) { state.gradeFilter = gr.dataset.grade; return render(); }
   const gp = t.closest('[data-group]');
   if (gp) { state.groupFilter = gp.dataset.group; return render(); }
+  if (t.closest('[data-filter-reset]')) { state.sectorFilter = state.gradeFilter = state.groupFilter = 'all'; return render(); }
 
   const df = t.closest('[data-disc-filter]');
   if (df) { state.discFilter = df.dataset.discFilter; return render(); }
