@@ -11,7 +11,7 @@
 
 env(~/collector-venv/.env): KAKAO_REST_API_KEY · KAKAO_CLIENT_SECRET(앱에서 켰을 때만) · KAKAO_REDIRECT_URI(기본 http://localhost:8765)
 상태: KAKAO_STATE_DIR(기본 ~/collector-venv/kakao) — token.json(600) · sent.json(보낸 리포트 이름)
-텍스트 템플릿 본문은 200자 상한 → 지수·한 줄 요약만, 전체는 '전체 보기' 버튼(대시보드 #mreport=)으로.
+텍스트 템플릿 본문은 200자 상한 → 텔레그램 요약을 줄 단위로 나눠 보통 3통, 전문은 '전체 보기' 버튼(대시보드 #mreport=)으로.
 """
 import datetime as dt
 import json
@@ -29,20 +29,18 @@ STATE = os.path.expanduser(os.environ.get("KAKAO_STATE_DIR", "~/collector-venv/k
 REDIRECT = os.environ.get("KAKAO_REDIRECT_URI", "http://localhost:8765")
 
 
-def _p(v):
-    return "−" if v is None else f"{v:+.2f}%".replace("-", "−")
+def _telegram():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("tg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "send-telegram-report.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
 
 
-def build_text(stem, facts, summary):
-    day, mkt = stem[:10], stem[11:]
-    wd = "월화수목금토일"[dt.date.fromisoformat(day).weekday()]
-    L = [f"{'📊 한국장' if mkt == 'kr' else '🌎 미국장'} 마감 {day[5:]}({wd})"]
-    L += [f"{r['name']} {r['close']:,.2f} {_p(r['chgPct'])}" for r in facts.get("series", [])
-          if r.get("group") == "지수" and "close" in r]
-    if (summary or {}).get("headline"):
-        L += ["", summary["headline"]]
-    text = "\n".join(L)
-    return text if len(text) <= 200 else text[:199] + "…"
+def build_texts(stem, facts, summary):
+    """텔레그램 요약과 같은 글(지수·수급·원인·강세/약세·체크)을 줄 단위로 200자씩 — 보통 3통. 링크는 버튼이 갖는다."""
+    tg = _telegram()
+    return tg.split(tg.short_message(stem + ".md", facts, summary or {}), 200)
 
 
 def candidates(now):
@@ -164,13 +162,14 @@ def main(args):
     for s in stems:
         facts = fetch_json(RAW + s + ".facts.json")
         if facts:
-            todo.append((s, build_text(s, facts, fetch_json(RAW + s + ".summary.json"))))
+            todo.append((s, build_texts(s, facts, fetch_json(RAW + s + ".summary.json"))))
     if not todo:
         return
     token = access_token()
-    for s, text in todo:
-        send(token, s, text)
-        print("보냄", s)
+    for s, texts in todo:
+        for text in texts:
+            send(token, s, text)
+        print("보냄", s, f"{len(texts)}통")
         sent = (sent + [s])[-60:]
         save("sent.json", sent)
 
