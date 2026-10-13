@@ -121,6 +121,37 @@ body { margin: 0; }
 .sitenav a:hover { color: var(--ink); background: var(--surface); }
 .sitenav a[aria-current="page"] { color: var(--ink); background: var(--surface); font-weight: 600; }
 .sitenav .ext { margin-left: auto; }
+/* 폰(≤600px): 한 화면에 더 많이 — 여백·글자·표 칸을 줄인다(2026-10-14 사용자 요청) */
+@media (max-width: 600px) {
+  body { font-size: 14px; line-height: 1.5; }
+  .sitenav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 12px; }
+  .sitenav::-webkit-scrollbar { display: none; }
+  .sitenav a { white-space: nowrap; }
+  .wrap { gap: 22px; padding: 14px 12px 40px; }
+  h1 { font-size: 22px; } h2 { font-size: 17px; } h3 { font-size: 15px; }
+  .lede { margin-top: 4px; font-size: 13.5px; }
+  .section-head { gap: 3px; margin-bottom: 10px; }
+  .section-head p { font-size: 13px; }
+  .machines { gap: 8px; }
+  .machine { padding: 10px 12px; gap: 3px; }
+  .machine p { font-size: 13px; }
+  .flow li { padding: 10px 14px 10px 10px; }
+  .depts { gap: 12px; }
+  .dept-head { padding: 10px 12px 8px; gap: 2px 10px; }
+  .dept-no { font-size: 22px; }
+  .dept-head .ad { font-size: 12.5px; }
+  table { font-size: 13px; }
+  th { padding: 6px 8px; }
+  td { padding: 7px 8px; }
+  td.what span, td.see { font-size: 12.5px; }
+  .note { padding: 8px 12px; font-size: 12.5px; }
+  .strict, .gaps { gap: 10px; }
+  .panel { padding: 12px 14px; gap: 10px; }
+  .bar-row { grid-template-columns: 96px minmax(0, 1fr) 44px; font-size: 13px; }
+  .gates li { font-size: 13px; }
+  .gapcard { padding: 10px 12px; gap: 4px; }
+  .gapcard p { font-size: 13px; }
+}
 </style>
 </head>
 <body>
