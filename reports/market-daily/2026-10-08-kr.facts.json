@@ -1,6 +1,6 @@
 {
  "market": "kr",
- "generatedAtKST": "2026-10-13T12:21:07+09:00",
+ "generatedAtKST": "2026-10-13T12:32:31+09:00",
  "expectedSession": "2026-10-08",
  "sessionOpen": true,
  "regularSessionEnded": true,
@@ -272,34 +272,34 @@
   {
    "file": "docs/data/market_flows.json",
    "updatedAt": "2026-10-12T19:08:12.145568Z",
-   "ageHours": 8.2
+   "ageHours": 8.4
   },
   {
    "file": "docs/data/sector-strength.json",
    "asOf": "20261012",
    "updatedAt": "2026-10-13T02:34:51+09:00",
-   "ageHours": 9.8
+   "ageHours": 10.0
   },
   {
    "file": "docs/data/disclosures.json",
    "updatedAt": "2026-10-12T18:59:39.634Z",
-   "ageHours": 8.4
+   "ageHours": 8.5
   },
   {
    "file": "docs/data/news.json",
    "updatedAt": "2026-10-12T09:58:15.203Z",
-   "ageHours": 17.4
+   "ageHours": 17.6
   },
   {
    "file": "docs/data/events.json",
    "asOf": "2026-10-13",
    "generatedAtKST": "2026-10-13T10:53:27+09:00",
-   "ageHours": 1.5
+   "ageHours": 1.7
   },
   {
    "file": "docs/data/stock-events.json",
    "updatedAt": "2026-10-13T04:59:46+09:00",
-   "ageHours": 7.4
+   "ageHours": 7.5
   }
  ],
  "kr": {
@@ -323,5 +323,374 @@
    "fresh": true,
    "note": "KRX 확정치(pykrx, 저장소 market_flows.json). 종목 수·프로그램·시총 상위는 과거 날짜라 없음."
   }
+ },
+ "news": {
+  "window": [
+   "2026-10-08T00:00+09:00",
+   "2026-10-08T18:10+09:00"
+  ],
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-10-08T15:38+09:00",
+    "title": "코스피·코스닥, 내림세로 장 마감 - 한강타임즈",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBrWkdobnhpcENEWDVWaG5Kd3RJZTFKMkZwczVGMGVmUXBzN0VFeFdyaFQtb2JHNFA1ZWpFZTZreEdBUExIbXdmT281dTdlZnlYWGZ0dERxbFJDNVJfcmJsSE5ER3hnQmotdS1v?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:39+09:00",
+    "title": "코스피, 2.62% 하락한 6625.93 마감 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFAydk15OXRaZTlzY045ZEVvVXkxS1JOSWlqYmdPWlotY0JkYWJFckY5VEZ0Q2NzTHVLaDgwYXNSZXhzVWFsaWJQUTU3T0UyS0ljdWNLR2R4cE01QUZSTHZvLTNQS24?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:41+09:00",
+    "title": "코스피, 2.62% 하락한 6625.93 마감…코스닥 0.69%↓ - 동아일보",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5lTDctZF9qalFITENCRzR2MzlCWmdaRXNMT3hxVWI2bEFrbDVXYVJjSFNFSy1xY1RsNlRfRkFWSVljUnRueG5Na2VXdTFFXzcyUk9oRk15TFd3MnB3ZGdqbW9GbHR2M1JaeTAzTkEwSTh4VTc5T3fSAWZBVV95cUxQZEVlaV9hQlRkdHMwSlZyNUJpazBteFo0QlZBZUdINXo2cHVhYlM2Ujg3ZDVhdFhNQk8tYmtpZ1RoUVUwSFhiWEhZUnBqbHZCWF95OTdDUDJVMmc3NnoyYjR4NG55ZHc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:42+09:00",
+    "title": "[속보]삼성 실적발표에도 코스피 2.62% 폭락…6625에 마감 - 노컷뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE11RXVUUm1NeUszcXpyWjlKVXhnU2Fvdi1qTUVNaGo1M0ktYnRBZUtyaFM5NzNjODIzdWpUREJOX1BYZGF5VGRyQUliSW5QU0RDUmc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:43+09:00",
+    "title": "[속보] 삼성전자 역대급 실적에도 코스피 6600선 하락 마감 - 국제뉴스",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBISzNSeXdxZGVKT3JPMTl0SmpIRTZ1MUFHblVNc0dfbV9Mb3lzNmNNbThkZndmNWtiQ1N3cms1QkJZVDFYemlRUzNlSWs0SktiaG1qLUQxRFUtWVN1UVdNVXkwUnd1cmR0cmVYUlJR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:44+09:00",
+    "title": "삼성전자 최대 실적에도 코스피 2.35% 하락 [MTN 마감시황] - MTN 머니투데이방송",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1zRlVJd2VtSWsxRzVEM0ZlbExJbXpYSjJjM1J0Uko3RVRfQzBaSUlicGlaVXBpdWNQemdNblVOZHhTdGl2dF9HLW9rWmNCZ2REakdrSC04RHEzcFBNY1RfU3p5djQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:46+09:00",
+    "title": "코스피, 외인·기관 매도세에 2.6%↓…6625.93 마감 - 블루밍비트",
+    "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5teVhtQVFaYzFVOWVmYlRYMWFjZVl0NmxXS1N1VzlMUlNodXJrR1lxeVRtMEx1R1lMSVdib0I4U0dIejBMUnpOWUlzYVpYLVVt?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:48+09:00",
+    "title": "[마감시황] 코스피, 177.97포인트(-2.62%) 내린 6625.93 마감 - 라이센스뉴스",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1ZWTkzV2V1bF81bkF1Z0d6ZGNYaWtkMVJlS19WR1FoeGIxV0VleTFHRUZGdXc3aTBGUS16RG90ZVp1bGIzci1GVHRFcEU4LVFrZXJWS1RMQlZuekF1NTAtVk1sSHV2YmlKWUVZ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:50+09:00",
+    "title": "외국인과 기관 순매도…상승 출발 코스피, 하락 폭 커진 6600선 마감 - 매일경제 마켓",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5KbzlyRDU0MTduZEdvcHdQTG9rcWVscTQtWm9PRGR3UkpabEJQR3JjbFVJS01vOHAxbldnUkdCMFc1cHpieURDSW93QW5ZOFc4Wmc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:52+09:00",
+    "title": "코스피, 2.62% 하락 마감…6,600대로 밀려 - 연합뉴스TV",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5HSHYzemFkYWJEaV96dnpxTjlxSlRqZTJDdGlLOTdONUg0TnNxOXlxX2Vzc00zbDc2bVRDSE5tMU1nSnVVcjhITVhPR01wWjdiVHNhM1lvM3NOaXN4V0dkZHNSclU3VVE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:52+09:00",
+    "title": "[마감시황] '107조 실적'도 역부족…코스피 2.6% 내린 6625.93 마감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBDVjRjZ29YQklwLVJmQ2loRWdGcXpnQnVGcDBKSHdsLUtUWVl3LU1VR0JFdTA5cGJ1dkptMU4wRVljN3dpN0dhT0xoYWdNZzdiaEVUYklaa0dMT1lV?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:52+09:00",
+    "title": "코스피·코스닥 동반 하락 마감 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9GT3NpcGVicUdRQVphWHprb2p0aUtrdzFCdmdPaTRVQmZlRE1VVTVOVDRBcmZoMzRnSEdlM0tIby0tamdEczBOTlVlaw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:53+09:00",
+    "title": "[거래소 외국인] SK하이닉스·삼성전자 폭풍 매도...이수페타시스는 집중 매수 - 핀포인트뉴스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9MclNlWF91ZXVfMWhBTVFwUjVMVkM2N2o1QlFRNTJwZXNxM2FZOVduNkdSRUNETFhCZE1CMFVmZW02dVJCM1dNbGhwUjdjNzFtSFhYbm9Nd3Z2cXVTbDZCOFRLVmFDcmc2Ykx1WHl0bGlSamvSAXdBVV95cUxOeUVoN2NsenpMY29IakZuNzNtTDZBT2NFVHROWUkyRm5JNWUyTVlTQmdrdENVM3ZEZ0RXWXRWazFERFZKN1RsY2FkMU01SXNJTjg1Vkp0aEEwTzhib0IyX1c0VHVPcU5qQTJ3cjBHUVV4NzRIX25BUQ?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T15:54+09:00",
+    "title": "6600선으로 밀려난 코스피…2.62% 내린 6625 마감 - SBS Biz",
+    "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9SUUZkZkdDMXJXUnBLcmRSWTkzREkxM3haZkktVXBuS2VNVUZWUFJNSkMtV0RNRDhBOThCaXoydzJYZDFTU0VqZU0xTzZqNlJGUzhR0gFYQVVfeXFMTUJLTldfckhONUhYZDFjSXEzN1ZvTFVxYWdxc1FkNWNyd3dWTG1yODU5ekNIU1JyS3daUlpJdUpJT25ESUNmMXJoczJQMml6cTRRajFmOEc1bg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:54+09:00",
+    "title": "코스피, 삼성전자 호실적에도 2.62%↓…6625.93 마감 - 민주신문",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE16Rmt5M3BsWWRCLUZXNllMXzZxQ1VCSjd3Rkcwc3lERS1nRzdDQXhJLXJzcWR2V2U1dkxOeVliSEIyMmRIczVLWkdoT3RZLVB2NHFtSVFoR2RmOG5tenYzcEkyN2JYWUHSAWtBVV95cUxQc1NsS0VuNnRmQTdlM3dTQ2tRZUowZjF0X1k2TU5GNmthd09PT1JIUG1ieWw1VS14WVhTN2M4QW1jUmFvSDlGeGVoLWRuT0d4elRrTVpVVWlNeDhhbE16d3U4bGlURU1qMG03WQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:55+09:00",
+    "title": "[장마감] 코스피 2.62%↓(6625.93), 코스닥 0.69%↓(892.27) - 버핏연구소",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5WMVlHa09OcGVCUUdaaXZQekc5VnhoM3pGZDVIOUtUQVhVZjBBenJlZk5wYUNEeVZaMFFrRmRBblE5SE9JdU9NVWdwREdtU3JaNVRDUGcyLWZMS3ZZR1NTOGhn?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:55+09:00",
+    "title": "코스피-코스닥지수 하락 마감 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9fOS1zLWF6UVNoN19zSm1FdnhCTXExckhlZWUwZmVneWxaODFaVmtjMmQwSHBCMlZlODcwd0s0amp2b2xLeXlST0lra1lPcjJVcjE0NW9BUkxjMHlhQV82eHl6RHFsbUFWZGRZWHhRTWJvNWF2bFg2NdIBeEFVX3lxTE9fOS1zLWF6UVNoN19zSm1FdnhCTXExckhlZWUwZmVneWxaODFaVmtjMmQwSHBCMlZlODcwd0s0amp2b2xLeXlST0lra1lPcjJVcjE0NW9BUkxjMHlhQV82eHl6RHFsbUFWZGRZWHhRTWJvNWF2bFg2NQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:55+09:00",
+    "title": "코스피-코스닥지수-원·달러환율 하락 마감 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFB4MnpBVWk0cDZHcVluQUtxbGxndVVYSkxlb0xfaVdvck50NlpXd0hXbllpdnMzTmJNLWktZWRPWmpfYllvSzJPMlNCUFVhTzAzelhIOUJYaXowXzg1Q01lNQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:56+09:00",
+    "title": "[마감시황] 삼성전자 실적 발표에도 코스피 6600선으로 하락…외국인·기관 팔자 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5KTGoyS2tfRkVuRUl1Z2JmWWtSaXFFSnBVeTJXNkhpaWVXczVWRUg3QjgwVVUyM0NOd2dpeHVMNHVXOUJHc1lOdXBYOF9mQlVOek05T3FURnlZd9IBWEFVX3lxTE5NY1c2emwzYmFjaHRIR1Fnc0ZjZzRwVGlEdUc1NUhvcGRHN21Rc01pNU53NFdBUkJUdkVxcnBnd19MNzRCWkdNQ0owcG4wMnBuM3VQc2M3Vm0?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T15:57+09:00",
+    "title": "삼전 '107조 실적' 역부족…코스피 2.6% 급락 6620선 마감[시황종합] - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1Vc1RLVlBhUGZIUjR2UGVRcGJJeEVSNXhLNGk2aTA5TWY5SVQ4TEl5SUNXS0FGY2xzMGpzYTUxa3h0dW5qMzc4SkdRcTJVWmQ0alZENjFDMzVKQzNfbEpz?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:00+09:00",
+    "title": "코스피, 2.6% 밀린 6600선 마감...반도체주 약세 - 컨슈머타임스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9pbFNXOW9vNmtPRHR5ZkRDQVpta3ZDM0pRQktneEVRT0dZRTZEcmtYLVZLZzNtdmdVQmpyTW5KTzU4TDFtWEo2RWVzRVNveS1jY21iSzhUMmpjOWpnNVJnVTFVcHIwWk9oTFE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:00+09:00",
+    "title": "[10.8(목) 한국장 마감] 동반 하락 (코스피 -2.62%, 코스닥 -0.69%) - 주달",
+    "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE1DbGd1X3B0cmsxWkpqQ2R2Q1dIcjUzRnl4eF9VSjNUbHpUeVNpNUlVZTdJMVc5MUpIbkdEem01a0xrNWY4M2ZSeU1pNDIwMjhCRjNNRkZOMA?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:00+09:00",
+    "title": "[증시-마감] 코스피, 삼전 역대급 실적에도 2.62% 반락…6,625.93 마감 - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9ZMFNTWG9Ib2FHdHB1ajNOYy16UEFJUEdFdVdxVTkwaVN0TjVBaGJ0eF96VWh0VGUtZURGdE5VSmZkVDRULWhkYTF1ZDZOMDRzWmFvS0ZrdE9QNjF4X1pqNUpHOGY2YmlQNDc1VThDc3dOUQ?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:00+09:00",
+    "title": "VN 지수가 14포인트 이상 하락했습니다. - Vietnam.vn",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBRbFhBVWF4UzIyNEJHOXdLSmxwMVBDbWFkZ0NDTFZzNHVLSmcyRXhDbEFla1RKYW9zUDB0RHJzdzVtallWYTdfazJqcko5eVdGNXZObURtamkzODJ1Y0N4cg?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T16:01+09:00",
+    "title": "삼성전자 역대 최대 실적에도 코스피 2%대 하락 마감‥금리·유가 영향 - MBC 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1RbGRUWlNUejZLb29Xd2NPamlTNjNuZC1vNkJfOUI4Yzl5a1ZCMmEzSGFyWFlaRHd3YlN1eF80Z2xUd3B4ZTQ2cDdqckhzRGZVMHItRGJtblZjM1Zpb216NzlydTJ0VXItT1lyRTVrdUduelA50gF0QVVfeXFMTXlTaF9BdWV3ZTg0OWpVSUtQT0FaTm15aU1xc1JOcWNabjc0WGd0ZGMzdTRLSmI5ZktoTDdJV2RPNVBDclUzUTRYM00zRzlMb2ZMRnQyZUZWOFA0cEMzT0VTcWxhMDByQkhKWFRINzZMb2x6bjU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:01+09:00",
+    "title": "[증시-마감] 코스피, 삼전 역대급 실적에도 2.62% 반락…6,625.93 마감 - 연합인포맥스",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1sVUVJQ1p4UWlUb2ZrZWJLaEs0YUdHaFlRaTJRTzJXTHNNaS1yRmQyY0NlUUx3SkdlRUZpMVhJT0R6R1M4Smd6eWlCb3hSWG5XX0t5SW9hUHAzZ25Xb2JQUGNIclg2d3p0YTZVNkRiMEHSAXRBVV95cUxPbFJ1cFRXbnRjRGVicVVsWVJIN2FWZjVQeGZUeldYSnlOM2FWRTVVY2ktWTB4RjNZcDdQWTBtUWJYbmJTR3ZMcG9qVmg4SnJMd0pkSHF6TUhxZVRGak1oRkl6YmFaQ09OcURnSkl4OE5BZkRvTw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:03+09:00",
+    "title": "[마감] 외국인 ‘팔자’에 코스피 2.6% 급락… 6700선 붕괴 - IT조선",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1ZVDRXeHY1cmQ2STZvTmtPc1lvdVRUVG9URUJGSVJWWjY1UkpwOU5fMC1GRml5V0RxUlhpV19fUk5FOWpaTG43VEEwUElwTlcyaTJwM2M3R2hsdkRDRzVDajNTVUVVaFowNmVNa2MtX3PSAXRBVV95cUxQZTRaTnNyZnpaN05OM0x0bnl6RjFsR01aRlA1dHcweUdHMXVCdktIVjgtVkY2c0dPYkI1bFJ0bmpxMEk0VG40MzJPQzlDZDJCMjc4aERPMUE1SmNhei1saEtER1NsSE4wWThsZTVvczdCTDdzRQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:03+09:00",
+    "title": "뻔했던 삼전 호실적…2.6% 하락 코스피, 6600선 마감 [시황] - 데일리안",
+    "link": "https://news.google.com/rss/articles/CBMiggJBVV95cUxQTzZZRXBxdnJMM0tqRXNoa1cxSl8zeDhHcUJ2RGhmTW9uUjVSVkZ1X28tX1ZCSmsxR0tiZ3VJaHJZa0RlNDl5Qmp1UU9mV2F2OHZaZGg0RnRmWENhanM2Vl9zTTFvWDlnQVNScF82VFFvakxNYThJeXFHNEtHa0l0MFY1YnlhR1dWRHRHMWxiYklHUWxVOW1EbVRCQUtSUGdfWnVMMkE2dlB2NDNiRkJhakpvYjRhdTJKbjI1bW5hNXZ1bnA3eHdENUtSUGZENkUtd3g3SXhJY3RoM0kwUVpZR21ZeDB5eFJJWjFLN3d6Qy1pRkpXR1pnT1IzQS1jb3VINUE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:04+09:00",
+    "title": "삼전 ‘분기익 100조’ 돌파에도… 코스피, 美금리·셀온에 2%대 하락 6625.93 마감 - 강원도민일보",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFA3OHEyaTBPQlBaSjA0ZnNwcDBUOEdIdkJLSHJQOFdqNkROSjh5c0wtdG5oNXQtYVUycEJkMV9zTnJmU29reVRmQmFJWFFsWTM4TlhZNEp4QldjUml4UnZsWXV0SURjdkE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:06+09:00",
+    "title": "코스피, 삼성전자 최대 실적에도 2.6% 하락…6620선 마감 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE43WXh0MmRfLWNuNC02NWs4RVRnVzR3SnR3UUVvQTdId05rSTd4dG1jTjFuNnFqVHRTaUVGYWdMZmtMRUxnNGQzWGxMbVl2blpINlJobl9LaEZ0VEN4OWxqZkxYQlc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:07+09:00",
+    "title": "수급 부담에 코스피 6,700선 하회 - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBuVjVlU1Bic2lEZjlWMGl4ekpQTVJYRlBZQTVQN1R5ZEE1RjB3aWR2cHRYTmNKQnpKZ3NleUpiZllKUHJSbnNsT0hwNUZ0YXVncHF1RHFKM0dqVkhuZnVaNnlELWYzbzNkLUd1Yw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:07+09:00",
+    "title": "(마감시황) 코스피, 삼성전자 호실적에도 매물 출회…2%대 급락 - 뉴스투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBaXzUxR2lOREVZRlgtZXRfU0JZTjl1Rjhudmcyc1M3b3UyWWFKcWpLb3RJNnpmdGRPV1RJMU5iVHFFWXdWTktKYlJNY1NOTWp5b3NOOThHVHNhcXlMc2c?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:08+09:00",
+    "title": "삼전 실적 이긴 '자사주 매입 종료·옵션 만기'…코스피, 6600선 마감 [fn마감시황] - 파이낸셜뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBwdGhSV3JZTXFVZktITDBTMkkzSXhPNmRCT0pyVG5BQmJkT0ZXdVpqMFNvTjROMTJXUzNNVm9Lb2VQLUxKY2UyTlJoYmtqVGRIU04yY1g4d3c4dw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:08+09:00",
+    "title": "게임 정보의 출처를 확인하는 바카라 마틴게일 읽기 기준 - Calgary Roughnecks",
+    "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNMVFCTVVjaUlmWTVxcDhSb1NtcnZxU0p6T2xqYnNFZzVEeXJhQ2hpakxpMTEydFdKaVQ0MDBVVE5yYWExazZjUEZBQzFfMXNmTHBQUzhoUXJISndJdHVHR0RKdXJ0Rll1V2x0VWxxN0VRVHhLQ05OWUREaGVFcS1lM19XdWRzVDQ3UUFuaGNOTDZleTN0bkR1TTBCTzBYVHphODY1TmJ3M2FvUzllNjlYRHJPSlVwRzRfRmZv?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T16:12+09:00",
+    "title": "코스피, 연휴 앞두고 주중 최저 '6625' 마감…외인·기관 4.5조 매도 - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBmX0ZNNmFIYnlzbTNQeU03TWxCRU1KVjNET2dVR2V1dm1tTDg0YXFaYUJ5bW9zcmhabkhtVkd5U1VkYnVMX2NEcElMb2lKQngtQlkzbg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:15+09:00",
+    "title": "삼성전자 호실적에도 '셀온'... 코스피 2.62%↓ [마감시황] - 매일일보",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5YaXNNNjlBUlJuemhSUGdjeWR5YS05V0dmXzBMNmRnTFY5SDMtRFdURWdxSzBDMUJFOVJfSmxSRE1YVTZ1YlluaFZxUXVmRmZ4a2Q1WHUyMkRaUFBLUlFzWGdTVjM?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:22+09:00",
+    "title": "삼성전자 ‘역대급 실적’에도 코스피 2.62% 급락… 6,625.93 마감 - 경기일보",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1ZQWZLYUZEcFhHS005RkFQam05Y0VOSjdUQUdkYjBGQ3A4UHR6VHoxZEVvUU5XbkhLUkh3Y0xpZzd4UVlrQVNOVGFsUjdCSXhTY256S0pmX3cxUUU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:22+09:00",
+    "title": "'삼전' 역대급 실적에도 주가 하락...코스피도 실망 추락 6625.93 마감 - 파이낸셜포스트",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE0ySUIyd3ZKdWpNTnEyYTlWTURrR3B1WEsyY1Y4WER4b0JYcjY0ajNwaGFxNjVfTVI1dTB1Z0JQdmUza25MVFBCSDFjWWpHeURDbVk5bzBwcUF5aFRtVjR4cE9uRTZiSThVa2d1RWNhSlRfcHJ4?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:22+09:00",
+    "title": "[마감시황] 코스피 2.62% 하락하며 6600선 후퇴…삼전 최대 실적에도 외국인 2조 이탈 - 블록미디어",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9NTTg1MGxMRVNtTlBHWVJOeU9lU0tMakMyM0haSC1zUndTMENIX29RME1zRk1oc3pXMWFqMk5wa0FfaXhfNUhtUnh5SVdudjZHa3pTRFdGMXU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:27+09:00",
+    "title": "셀온? 리밸런싱?…삼성전자 역대 최대 실적에도 코스피 2.6% 하락(종합) - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5qSnU4aEM1MmJGNHJvZkV1VklWaE55c1c4QkFYUFgwdkFOdWJOUnhLSlBiczhBTjJ4NzZJRHEzTGk3YWlIU0RwdmVSTU5NRmh0OWdBUUFiSDVrTzDSAWBBVV95cUxOV3lIRVFEZzVoQ0praGZzeVdLaVdUb3d5Y3ZnbXBNNW44dXdSaXoxLVFqRXo2R18zNVg4T254bjVkeDk1eDUtcm95NkdHSV9nNm83NjQ5YmtfMnBEQnJydEk?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:27+09:00",
+    "title": "코스피, 삼전 영업익 107조에도 ‘고금리·고유가’에 2.6% 급락마감 - 딜라이트닷넷",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9weENyRmhYcllyZXZEOEpaamlKbXZnSnJxeWMtMEprZG5iR19yT3hYQ1l6M0tSX0RlYkxER09vZUpsWVM2MEplOFdUZnNQdk5Od014b1YwRndycWFVSFd2M0tGQkFzVWVNQkY4VldB0gFyQVVfeXFMUG1TbXFhUjZrZFVyRUZKWTNqWDlpbWl6QlZzZHhLVVpoWjJCelg2bFdQZGFPay1hVm5xc29Uc2FjTFJIdkt1NmdvWUV4djg1cDltTDlpVXlCUEY5ajRyQzZUQkNpU041MGZiRGdkTjgteE5n?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:27+09:00",
+    "title": "삼성전자 역대급 실적에도 코스피 6600선 후퇴…외국인 2조원 순매도 - 시사투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1SbllaOFNOY3AzOFRLNjFGS0xMcG55YXBvVHRfNTNNV1lJU3lCMjdIZXFpTlE2NEFtSmpQWUxOQ2ZGR01PS25YbXhOdDd0cjBSWWFjUlRPb3o0STd10gFXQVVfeXFMT1RLTWdjdGViclNrQnlna2F4T0VYN2dPd0lvY1kyc2pEZ1E5UWduNXFfQzNORTkySjlzMTBvZGl3MVYtUF9VNUNHUE11TF9TZm1ZX1FXYW5B?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T16:28+09:00",
+    "title": "코스피, '삼성전자 107조' 호실적에도 2.62% 급락···6620선 마감 - 서울파이낸스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5tYXlmY29sSmQtdjBWRURMYTctejRmM1dqTTFlZGFXWGVRMDFObHlwemFLclVrT2Z1dXlZaE5wWVFEYm5FcEJsNjBDRVdnSzZoS0xKZmgtRDdaWHZ5TzI0b0Y3MnRvdDBlVWc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:28+09:00",
+    "title": "[마감시황] 코스피, 외국인·기관 매도에 2.62% 하락…삼성전자 실적에도 약세 - 한국면세뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9BRXhGeXhZb1ZYc2ZhbmdrU1EtQ0NjVFhueFNoaV9hRnlLd3RkUVZMX2VMUE90WHhWOUtISGk0dTA2VXc2ODNjb0RZRlhtanJpaC1faDZfcW8yVHFjaktPQ2JMbkpBdmFTb3c?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:32+09:00",
+    "title": "연속 진행 기능의 중단 조건, 삼겹살 토토 먹튀 설정 해설 - Calgary Roughnecks",
+    "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxObklaY0JmeTJZdlJwS191S3JPdzhfZHU5cDVBbmI1bVRrTXVUdTBiU1hGTWdPMDNPQTN3QTBHNWFLZTlHRHRuOW4xZHJwNU91dEdPZkMxTGw2MG1lVXdSZ2lWMko2UWRnNkFJczV6NkQ2Tnp2MldncGMxTzZlYVlVdGdFaERMNGtsMmtSOVZzemZobTQ?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:35+09:00",
+    "title": "코스피, 삼성전자 역대급 호실적에도 '6620선 마감 '…코스닥 0.69%↓ - 프라임경제",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTFBVMUFuSXBnczEyRXZSMGhCMzFnSjJ4WkprMlc5d2VzYTM0OE54NFQ5ZURpZElmZUtOSUlVdFNVV05iTmJqR3RHdnZtOTByYmRZeE5LU19ZSFhXV0JtQnJmM3BHbTk3SXZwaXFjZzdScF9UZw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:36+09:00",
+    "title": "[외환-마감] 연저점 앞두고 外人 주식매도에 '멈칫'…1,330원대서 줄다리기 - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1hOGhPcFhSalBsZ2h5Zmd6TE9YaGgzWU5hcW1HN3ZTN2hNT0xxRTM3UTlhcXRUUnQ2NmlKMU5YNUxUUXY2M21OZ2dzVzd5QV91SEt1REtydzZKY1Mxd2RobDN6NjNBZjNQeWt5NHpmMGVlZw?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T16:39+09:00",
+    "title": "코스피 - 코스닥 하락 마감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE56SUJ3aGExeFl3SWJHZU50QWxmVEM0ZkV0S1ZWVklYbk05T003SlFZYXNXbGhzY3pMSTRpdzAzSnVkNWt3cW1VckxSdDBSQ3owMlhuQkZKYURwc2Y5?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:39+09:00",
+    "title": "[26.10.8 증시 인싸잇] 삼성전자 호실적도 못 막았다… 코스피 6600선 추락 - 미디어워치",
+    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFBpUGFPSWNmMjVySGJGa2QyUGIyZXl5UmhlUWRUZy13Rzl3MGZ4MVEySm5oLS1MRlU4b0NmUWpaT0VRdVY0TGlhc25HR2dpU3VjZ1VaVFdxd2lfcDJkTkg0c3lQRQ?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-08T16:40+09:00",
+    "title": "[마감] 코스피, 삼성전자 '셀온'·금리 부담에 2.62% 급락…6620선 밀려 - 알파경제",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5Ua1ZIX09QVGx6ODdpUTh0Skd6Y09NSW16LUhJek8yYnVfUFF5ZjhJUmxRNzlXVTR4R2JQdVgxMkd4UDM1b0syUENqU3R5UktYWW5Xc2pSWl9ZRDBlVUFhY2VnYk82cDI0YWduNnBR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:46+09:00",
+    "title": "[마감시황] 코스피, 외인·기관 매도에 6700선 아래로 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1SVF9taGd5Yy1LT2ZVeE5lZzhFOS1iTE9Vb21sbHBqMVFZMDRsWHl4ay1DdmxMUnN0ZDV6UkFUY3FlRXBfQVZrbmNCczBzQVJWakZzRC01S1pWUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:48+09:00",
+    "title": "[마감시황] 코스피, 삼성전자 ‘어닝 서프라이즈’에도 2.6% 급락…6600선으로 후퇴 - 한양경제",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1peXlJR195NEVocVBQakt4dF9aeEJ2M0ZFaGhLSmJSejdhazc1REhsUVhDVG9MN0l6TkxWcHhUcTJ5YlpuUDlJUW5VRVpPbkFqZDRYZzRDemgxZ0ljaXlQblRnekg0SW9tcE5Gbnd3Z0FpUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:52+09:00",
+    "title": "[마감시황] 삼성전자 '사상 최대 실적'에도 셀온…코스피 2.62% 급락 - 폴리뉴스 Polinews",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9tTTVYYzhWaTFrMy1pNHl0SGRuVnJoTk0yT2tiTENXUTlIVmRZbVZtXzRnZGxwbG5MUmhhUWNYV2Q4cF9WdzBDb2hacEFfVlh3VFdSRHliZFRFSjVHRDhKZW1kSkprMzB2VEpxWWhR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:53+09:00",
+    "title": "[마감시황] 美 국채금리 급등 속 외국인·기관 '팔자'…코스피 6600선 후퇴 - 신아일보",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE8wQ2lpejgxdmlSZnduWFA4S3ZSdEVQV01VRWJOMjVwa05GV3VBSjZkdUpnV25EWEpNYjA4ODRzSlRpRVlhOElJdkFTaUtzdnJTWFZMM25vQlFVbzM1TkxIWTAtc3dCSU5sOU9KY3hydzQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:54+09:00",
+    "title": "107조 실적도 지탱 못한 코스피…6600선으로 밀려나 [마감시황] - 에너지경제신문",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5jbVhOY1h5bmRjMEk0ZEVwWlczLXVTTDgwOGNwU2xYRFJpVXdNb1ZOU2R2RnlyakZENGVpYzJwTmJLRFRNVl9scjViOC1EUVRTeW9xanMxSnJEc0U?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T16:56+09:00",
+    "title": "[마감] 코스피, 삼성전자 호실적에도 2%대↓…형지I&C 상한가 - 한스경제",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5aWDRUcmlFTEFCYnVndDZmSjhlWUFScXRFRE5jNXNJMFNhbXUtQWFoQ3JTTERpcXNUUmEyUU9RN1RmckVlc2g2RmhSUkZRV2hOdFU0OVJ2ckxZUl9BY0NKaXpxM1B5WlVHeGlR0gFvQVVfeXFMTUhtekg5eDBpZWstT0I1bGtYZHplWlY3alpGbDRuakhlM0MtZFVOVENHRXRNR2ZiSF85V2Y2XzVFTXhULUtoMm14NHl4eXNUWko0SWJlV19mUjFyYmZweFd4WTU0TWNDbmZwM252MlBV?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T17:07+09:00",
+    "title": "[마감시황] 코스피 2.62% 급락…‘역대 최대 실적’ 삼성전자도 2%대 하락 - 남도일보",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1QLWRfTHFsU3FZWVZKc3VLREVESFF5Z3ZxOW16VS1FaTIxaF85UlNJQVJjckQyMENKYlo2VDdGZS1PLS1KYm12akY3NVlSNTJ4WGZrcUNRVlNOVVcxSnVSNTlNbkl2a1RwckhDSNIBcEFVX3lxTE1QMWdpLTlmaDRqZHZRaHRoLWNxS1k1ZHluNW1WNmFZb2IzR2NWQkZRdzhoa1ZwSU1HSnFWTHFvRUZ5ZGl2QXhXWlpRMjdqYURjbVh6SXAzRFNUTzlmWFZud2QyV3o3M1VSb0lmR2ZsYXU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-08T17:25+09:00",
+    "title": "[특징주] 바이오인프라, 상폐 절차 유예에 상한가 - 바이오타임즈",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBGTXJYaHZUcG92YjB5YnJNcUNUdmhSZVlWcHBsUTg1WHBZY1NQRl9zQnJRSHZEbjZHQ3M2TUZXU2VUc0JUS3QyWHhXSmRMSjdpZl85aDYxYnZKcVZ0LTFxdlZIX1dxbWFTVHdlQg?oc=5",
+    "query": "특징주 급등"
+   },
+   {
+    "pubKST": "2026-10-08T17:50+09:00",
+    "title": "[특징주] 피노, “LG엔솔 3분기 매출 사상 최대” 전구체 공급망 부각되며 ‘급등‘ - 와이드경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5NQmdNcEc4QmRTOUhDUVlvTmNwUzFJbWtWVm54ZDFLaHZiUWdRY1dUa044NlpsT1ROQmpicV9RZHFPNEpORVVaVnpITTd3U2pGY3lCRjhWOW1RS2tORmczY1Nrc2o1OUNCQk16dQ?oc=5",
+    "query": "특징주 급등"
+   },
+   {
+    "pubKST": "2026-10-08T18:09+09:00",
+    "title": "“외국인·기관 3.6조 던졌다”…코스피, 이틀 만에 300포인트 넘게 빠졌다 - https://www.theconnectmoney.com/",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE4tYm0yYlUyWm1pMVNGU2d0TFBzUTFfUk0xZnNmNWJLWGwwM2Q5RmFMSnVFNDE4RFJLejlJdjByazJqampBbHliYk1PVWlWYzgwc0hPS3poUWs0RlNtR0hsZQ?oc=5",
+    "query": "코스피 마감"
+   }
+  ]
  }
 }

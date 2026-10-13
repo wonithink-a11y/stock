@@ -275,7 +275,53 @@ def build(market, ah_extra, now_utc=None, asof=None):
         facts["us2y"] = fred_last("DGS2", asof)
         facts["afterHours"] = after_hours(US_MEGACAPS + [s for s in ah_extra if s not in US_MEGACAPS], asof)
         facts["missing"] += ["미국 상승/하락 종목 수(RSP−SPY 차이로 대체)", "종목별 지수 기여도(쓰지 않는다)"]
+    if exp:
+        facts["news"], miss = news_candidates(market, exp, now_utc)
+        facts["missing"] += miss
     return facts
+
+
+NEWS_QUERIES = {
+    "kr": ("hl=ko&gl=KR&ceid=KR:ko", ["코스피 마감", "코스닥 마감", "증시 외국인 순매도", "특징주 급등", "특징주 급락"]),
+    "us": ("hl=en-US&gl=US&ceid=US:en", ["stock market today", "Wall Street stocks close", "Treasury yields",
+                                          "stocks after the bell earnings", "Nasdaq chip stocks"]),
+}
+
+
+def news_candidates(market, day, now_utc):
+    """원인 후보 기사 — 구글 뉴스 RSS 날짜 범위 검색(제목·게시 시각·링크만). 창 = 그날 00:00 ~ 리포트 시각
+    (kr 그날 18:10 KST · us 다음 날 07:00 KST). 사후 해설이 섞이지 않게 리포트 시각 뒤 기사는 버린다."""
+    import email.utils
+    import urllib.parse
+    import xml.etree.ElementTree as ET
+    tz = KST if market == "kr" else NY
+    start = datetime(day.year, day.month, day.day, tzinfo=tz)
+    end = (datetime(day.year, day.month, day.day, 18, 10, tzinfo=KST) if market == "kr"
+           else datetime(day.year, day.month, day.day, tzinfo=KST) + timedelta(days=1, hours=7))
+    end = min(end, now_utc)
+    hl, queries = NEWS_QUERIES[market]
+    seen, items, errors = set(), [], []
+    for q in queries:
+        rng = f" after:{day - timedelta(days=1)} before:{day + timedelta(days=2)}"
+        url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q + rng)}&{hl}"
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20) as r:
+                root = ET.fromstring(r.read())
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"뉴스 '{q}': {str(e)[:80]}")
+            continue
+        for it in root.iter("item"):
+            title, pub = it.findtext("title") or "", it.findtext("pubDate")
+            if not pub or title in seen:
+                continue
+            t = email.utils.parsedate_to_datetime(pub)
+            if start <= t <= end:
+                seen.add(title)
+                items.append({"pubKST": t.astimezone(KST).isoformat(timespec="minutes"), "title": title,
+                              "link": it.findtext("link"), "query": q})
+    items.sort(key=lambda x: x["pubKST"])
+    return {"window": [start.astimezone(KST).isoformat(timespec="minutes"), end.astimezone(KST).isoformat(timespec="minutes")],
+            "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')", "items": items[-60:]}, errors   # 마감 기사(창 끝)가 가장 중요하다 — 뒤에서 자른다
 
 
 def selftest():

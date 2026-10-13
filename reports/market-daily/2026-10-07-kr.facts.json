@@ -1,6 +1,6 @@
 {
  "market": "kr",
- "generatedAtKST": "2026-10-13T12:20:56+09:00",
+ "generatedAtKST": "2026-10-13T12:32:31+09:00",
  "expectedSession": "2026-10-07",
  "sessionOpen": true,
  "regularSessionEnded": true,
@@ -272,34 +272,34 @@
   {
    "file": "docs/data/market_flows.json",
    "updatedAt": "2026-10-12T19:08:12.145568Z",
-   "ageHours": 8.2
+   "ageHours": 8.4
   },
   {
    "file": "docs/data/sector-strength.json",
    "asOf": "20261012",
    "updatedAt": "2026-10-13T02:34:51+09:00",
-   "ageHours": 9.8
+   "ageHours": 10.0
   },
   {
    "file": "docs/data/disclosures.json",
    "updatedAt": "2026-10-12T18:59:39.634Z",
-   "ageHours": 8.4
+   "ageHours": 8.5
   },
   {
    "file": "docs/data/news.json",
    "updatedAt": "2026-10-12T09:58:15.203Z",
-   "ageHours": 17.4
+   "ageHours": 17.6
   },
   {
    "file": "docs/data/events.json",
    "asOf": "2026-10-13",
    "generatedAtKST": "2026-10-13T10:53:27+09:00",
-   "ageHours": 1.5
+   "ageHours": 1.7
   },
   {
    "file": "docs/data/stock-events.json",
    "updatedAt": "2026-10-13T04:59:46+09:00",
-   "ageHours": 7.4
+   "ageHours": 7.5
   }
  ],
  "kr": {
@@ -323,5 +323,374 @@
    "fresh": true,
    "note": "KRX 확정치(pykrx, 저장소 market_flows.json). 종목 수·프로그램·시총 상위는 과거 날짜라 없음."
   }
+ },
+ "news": {
+  "window": [
+   "2026-10-07T00:00+09:00",
+   "2026-10-07T18:10+09:00"
+  ],
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-10-07T15:37+09:00",
+    "title": "코스피, 1.98% 내린 6,803.90 마감…코스닥 2%대 하락 - Daum",
+    "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBnamd5NnhTajhBbzg2NVNsRy1Da25fVE01c3lkSXhfVHMyaDVkWlowaDNXSTFRQlhrS1hmbUdTUEpKYkp1Q0lGRTFjTXNydFU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:38+09:00",
+    "title": "코스피, 1.98% 내린 6803.90 마감...코스닥 2.34% 하락 - 국제뉴스",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9ZWld2cUtmd2RwODRtYWRQS05tNnN1NzJrVHFfWXg0NUgtbTlZRGk2d3RpM3JHZlNQUkNLWTVrcHdNNnEybUxidU5jMFk2Y1V1Q2tvNnU0RUtDY2ZrWHFJRmZ2MmVlNmM5RlNEWVRR?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:40+09:00",
+    "title": "[속보] 코스피 6,800선 마감...삼성전자 1%대 하락 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4yUkpRQmhxUjdIVmZPTHJQNS1qc2RYOHdUZ3EyQVRNM0pQdGR4cTRHVjI0TzI0NlZmbWhtaVYyanV2bGhMeXd6VlhZUzQtMnF0OHltYk55bERXUlY4bTVmbUhBQWxsb0FnY0ZiOXBJTQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:40+09:00",
+    "title": "[마감시황] 삼성전자 실적 앞둔 관망심리…코스피 6803선 하락 마감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBRc3lXMzVMT1hFT0hCSDRJU2hzU2EybFdSd0k2ak1TNGJVV3NmX3djUFNkRkEyeGlfRm00SU54VXFTaTgzQVhIUk1iYmc5dTdaX3pGcDc0TXhweXNi?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:40+09:00",
+    "title": "유가·금리 반등에 실적 경계감…코스피, 6800선 마감 - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE4ySXRvSEluUkNrNWhheVVGd2E5Z2pXSEM1YW0tMGNrTUtneW5HYkNXektmNjliZFJoQ0RIdnl5MTB0R0VMTzZHenE0QnAxYm1xaF93cg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:40+09:00",
+    "title": "코스피·코스닥, 내림세로 장 마감 - 한강타임즈",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE05ZDZNdXR1TEUwVzk0QmR2UmVUOXlaVmhkX1lZUmFzTWNQZjRvLU14dU1tcWtyLTk4ci02S1pMRmRLMFJGWFcycnpIZTNhRmxxUFRJS2ctY3VjTHFJMFJQVS1OZFlqaURXcUQ4?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:40+09:00",
+    "title": "[특징주] 러 페스트 유출 의심에 美도 주시…관련주 급등 마감(종합) - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE96LVplZUkzRWR0VVEtbXRVSFJ6QlFLTW5HUk5DVXIwcHY0MXJycm1tVkczQVMxZ3ZyRWpVWXFRVHJOTWZsZUE0RU9pWGJwRTFiOVUtLThGVnNHMW_SAWBBVV95cUxQOWpXazBma0tnNm9nYXBxdGNqZ08tay1ZNnVLZXhOUDhVQTdXd3VBaWQteTlLcjhXTHdCNFNGeXdGeFNpWGZaN3Fhdkk5cmN0QXlfb19qak9neHdxa0ZrQVY?oc=5",
+    "query": "특징주 급등"
+   },
+   {
+    "pubKST": "2026-10-07T15:41+09:00",
+    "title": "코스피, 1.98% 하락한 6803.90 마감…코스닥도 하락 - 조세일보",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vWXR3LXo1SjZtYmgzbTlFbEdUZzloQU5Fa1FHWHQtbUYwb2xIUXlQV1R4MDhQRFdkUXVWOHc3bXlueFRJX3UyY3NqNXJHQUdQNnhRbjJlYXRsT2RUS2tr?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:44+09:00",
+    "title": "코스피, 1.98% 내린 6803.90 마감 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBIMWtmYjNqanJ1TzMyeXBKOVFkNDdQNHhJdUpLYWxhOG52WFhuYml6eGlLY0pEYUxaSGRjMWJ5cDVfOW1ialJ1QkdiamFGY0M4VVV1dzRFaXpHTjRkZ25MOVlsTW4?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:46+09:00",
+    "title": "외국인 매도에 코스피 1.98%↓... 6800선 턱걸이 [마감시황] - 매일일보",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1QTnVFU1F1Vlc0U0VrZExGdVlPZlF3UWJTWDJnbnhJdmRaVHhhY3V5REt1QjVzbllsVzZzWHcwalpxcXc4UlpNR0hzZllsZlZoWE1ieERJWHhxOFh0WG5maXNhTzI?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:47+09:00",
+    "title": "[특징주] 하락장서 코스맥스 등 화장품주 강세(종합) - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9xYkdYVUFLS2JHYWIzWHVpZFg0LUctWnhPTzloMFBIZ3EwMEhaN296Ny1pLUlxd0Y3YnExSGh2THZQUjdtb1JIaXhicGlOeXZEZ0pJY2pTcFVWVVXSAWBBVV95cUxObXp1SnlpZkpTdXdsRzZmQlVxVnlSeGJyeXQ0a1BtZTVnSEVlaXpNaHJyY0kya2U2SFF5OERfZ1lDYWF3OThoMFZkdGJIQ2FSdlNRUDN4WDgzQTZNZVcxdVk?oc=5",
+    "query": "특징주 급락"
+   },
+   {
+    "pubKST": "2026-10-07T15:48+09:00",
+    "title": "하락 마감한 코스피 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFB5RTRpRkhxelJXMmJ3REtzQ2RRcDhVdVczdm9oeEFUODhlc3pqcE1RMGZNemFnWVFQWDB0RHJ3YjY4dm90ejhpNFRpaw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:48+09:00",
+    "title": "900선 내준 코스닥 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE53NFA4TFFfcHdEZ2FsVGFYRk9iZzNQUElTRF9FNWVVLXU3UUxqVWZkaW1UWHdoVlRVSEh1NU52MmdqZEswdEJ1WFQySQ?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:49+09:00",
+    "title": "[마감시황] 코스피, 137.49(-1.98%)포인트 내린 6803.90 마감 - 라이센스뉴스",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBTamVHMEtrVWhWRENjTl83ZmpEVGhXSFZvYVloclh6QkF3MGdGMHRfSy1xRy1kTzhyT2RDbUFNQTZDSXk4UHBiRlBLeFZteVQxTllMU2kyR3dPQTAtc3VwaWM2RXBGWndoUGM0?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:49+09:00",
+    "title": "코스피 하락 마감…원달러환율은 보합 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBHeE5hWXJxZHptZzJCSi00ZGVCVFBUSlFFNmFJbjRiLUZ4Vi1yZDRrNnhxczBlN3FsZnlGWFJpb1ZnQWJPaUtydWRWRQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:50+09:00",
+    "title": "[포토]코스피-코스닥 2% 하락 마감 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNSGZwVHlyWVl4dDFHMHRWSjBqUzU3ZWowV0xnTUtBUXNCZWxlRGNaUC1pdEo0dEJxcl9WbGJlenN6OEdQZVlzeHQzZk8tOFNTSXpxOUtkWHJUckhYd1VXVFBndDBDWF9mSC1tdmxueTc0MTlUV3dmcndBU1hpcFNBZg?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:50+09:00",
+    "title": "[포토]코스피,-코스닥 하락 마감 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPam9paXh4ZUY0bG43ZE01NHg5MS11ZFFmTkdFRE9Ib1JmNzBqWkVseE5RWF9HZW83dWs4SWhmcWFSTlVQTnRoY1VJY1NkYjdoMmFFbUR5VmhqQmMwM1p2M0VaS2J2ZTM1M05SYWZ2ZFNkeWpwS3RlZDVuTm5wVjNKVA?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:51+09:00",
+    "title": "[마감시황] 코스피, 1.98% 하락해 6800선 턱걸이…코스닥은 900선 붕괴 - 블록미디어",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBSbWJaQUZQU0dncUtDcjd2MU9DX1czWV8zUk83VUVlNXhsUnNDdTRjeE8ySkM0SjF5ajd2eklGVU55TUJGSFBqQlhRWVBVYkxrbVA0ZFJrNE8?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:53+09:00",
+    "title": "코스피 하락 마감…6803.9 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFB0VURlVWlXNzhIQ0dZaFhkcXVZSXgzNDRpcmgxSkdxSURfZ3poMl82ejdsNzVPaU9vX0doRFk1cmVGWHVnSTRubGZTSQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:53+09:00",
+    "title": "하락 마감한 코스피…6803.9 - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9Yd1Y0cFE1c3Fwa21sRzBqYWpVcmNOYlM2aExhamlmZTd6S1AzTERxSFUxbkVlU1Z6emxMT0VSTVhHckhyeDh2SnV4Yw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:55+09:00",
+    "title": "코스피, 1% 하락한 6800선 마감…코스닥은 하루만에 900 반납 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1ZVFFVS0tUTUEyTURrQUtHcEkzeHo4TTJFd095MUxfdnlLV3pBT1BFb3hSR0hxZG9PTXdkb1FsQWJQblczbkFVZDNHMzZsSDlQTno3SENrbF9IQnNLN05PUw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:56+09:00",
+    "title": "[마감시황] 코스피, 외국인 2.6조 순매도에 1.98% 내린 6800선 마감 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE55S2twNGVjc3ZoeG5Rd1VPRnJYVXdxaW5hU0p3TUZZbVo4MWh1WkVPSnU3dUJvY3R1MFFSRU9OQTZWTGQyRWRfZXZjLTU2alN4WjZwcnlPNDVJdw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:56+09:00",
+    "title": "코스피, 외인·기관 '팔자'에 6800선 턱걸이 마감…코스닥도 900선 하회 - 뉴스웍스",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1jbEtiaUUySDl4cmtOZkRaNmFFUGItRFY0V3dIWTVtVmR0M2M3THptTVdpUnJWM3dUbGl5em55dEEyVjRzNDM0Y2tnMXRENGQzZXNaUlY1RjI1MFBaX252aHhaY0psdDRNME9lREY0c9IBc0FVX3lxTE11X0NTa0tfdldzNDY1eGo1UnFPaUFLcHlCY0xFLW5Yc0dkTlJUR3M3ejZiUFdzd2t6S3hwOGFtckJfbVQzSHlGWjFndTNvTlRpYUdrdFpQREdKUHBBRHM1MXo4LVFsWWJtWFhSWWZudXctN1U?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:56+09:00",
+    "title": "코스피 6803.90 마감, 2% 가까이 하락…외인 2조5976억원 ‘팔자’ - 강원도민일보",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBCY0VUZ1BfX1JrU3V5MzQ3MWVMZzEzbEM2N2RfR0RyWHhjekVMTXVwMi1tZmliazJZUGN4Y0FqeEVYSjFScW9sZXJfRXlVcmlpOWFEQVhOMERGYWhxRGlxc3Q3SkdOZUU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:56+09:00",
+    "title": "(마감시황) 코스피, 중동 긴장 재고조·실적 경계에 1%대 하락…6,800선 턱걸이 - 뉴스투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9hUDl0eHBmSGF4YUY4dW1EbUc0S1haOTdZUHNzcm9CVE5ZejN1R3Bvc3dFSGZFb25ySDdKeWh0a2FFUE1qeTJjX2hKd2JhZDJvSVBGcUlpMFpYdE0xaWc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:57+09:00",
+    "title": "코스피, 2% 가까이 하락…코스닥도 하락 마감 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFAzOGJmdHpaTDJCSDRwbXZBUEM2MGZvWUFYcHp5Q2tSMWhFS0JBWXlZcU9yNlp2NEl3QkdwZkVyNHVSaWlkU2ZHWGZRajlYZndHRmN1SV9ldWhOVHdUdkktYw?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T15:57+09:00",
+    "title": "코스피, 1.98% 내린 6803.90 마감...코스닥은 900선 내줘[fn마감시황] - 파이낸셜뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBTazI5WVFaS2k3TnhqcVdOZ0lLYlAwRmk3V2dNLXAtMkhrUER3QTRPZnNreXgtMnpmYS1Fdm1VdjdaaDZTTTZQbVhmbnc5U2xrbzRfSGhDRFlvdw?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:00+09:00",
+    "title": "코스피, 외인·기관 '팔자' 6800선까지 밀려…이틀 연속 하락 마감 - 경제 | 기사 - 더팩트",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1SczN0RU1EZEp5VnVUZFhGT3Jlb1pfLTNVLWFnTVpSM3pVQm1ZNUcwaXktZTNFVzdpRExPUk1UVmpGWEpFWTRzbVlKYnpDa0dSUkxtU3BEcVM4dw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:00+09:00",
+    "title": "[10.7(수) 한국장 마감] 동반 하락 (코스피 -1.98%, 코스닥 -2.34%) - 주달",
+    "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE13dzlpenhoOFZTN0FHX2VJXzByS0pXYndCaDk5eTc1QXo5a0dDdHFVSml3TTVWR1ZpNXNKMzRiSkxlckNJQjFjNU10aU5DbkY2QVI1a3NHZw?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:00+09:00",
+    "title": "\"개미들 3조 쓸어담았는데\"…하루 만에 분위기 확 바뀐 이유 - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1hSzZhLVBPQU9TcVNDc2NnUWlWZ0FtWW53MlZ4LTFPeHZDRWtZOUpZUG1jcVJnLVB3bU5Pakc3T0RuOGxaei1FTm16ZWViaDFZOWp2SkJIMmRaZ1FRM2hmUVp2QnlZUkl0?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T16:02+09:00",
+    "title": "[ETF 시황] 코스피 하락에 인버스 '상승'…반도체·방산 '동반 약세' - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5JbmcwQTNQMU90dWNnaDFGQXJjczFqakdqVl94cVRzTk5aeDZhVTNnSEFGbnZoVmExbE5BR0htbmdmSHplMmtoR2tFVFdWVGk4Nmd5TTUtNUFMZ0pH?oc=5",
+    "query": "특징주 급락"
+   },
+   {
+    "pubKST": "2026-10-07T16:03+09:00",
+    "title": "코스피, 1.98% 하락한 6803.90 마감…코스닥 900선 아래로 - 대전일보",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1yeko3WVJCSXpyNlhNX1k5SWYzdnZUbVlCVzBQbmN1eTNsSTd6Z3o5aTlMa2pLQXNlRjlIaU1OYVZOR1VRdG1PaWYxTlJkT2xpdmRGNzFTS1NjYmJKNGZPVUNXYjdGOHVaa2gxejFMTdIBc0FVX3lxTFBVZjNUMDJkQndRTlVucU1yMXF4ejEtRXBCVFIyY0VxejZsN2tzRkhRRDlEa2Y1VmpCVmlMWS0yeTJLeEpKR3UybTRyZGI1QkZRZWl0TTFnWVVocGNmeldPYzBLWmtXNWkta2FlZVlJS21fSkU?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:06+09:00",
+    "title": "삼성전자 실적 발표 앞두고 하락…외국인·기관 매도 우위 - 스페셜타임스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1OaUw2UnRuVW1ZYVBEWElGbTJ5eVRzLUpNNjZCMmc0QjJabnplRWxNNEpmeFRRZmgwNVIwQ0dHMlZocm1DbDdlU2JlblZtX0lYMm5QTnFIYnFFRDRlYmlMd0g1cFRGcV9VNjFFM3Z4OWFPNjg?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T16:08+09:00",
+    "title": "[마감시황] 코스피 6800선으로 후퇴…외인·기관 동반 매도에 1.98%↓ - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBNVHh5Z1B1a2V1dzJWZG9uNW9oU1ltQjJyVUVOelBUbkhQRGN0YXhvNUF0SVV4Ti05QWJrZ1BFTF9FSk9zTzU3T1NlUDNsMk5vV20wMUlYMlVHd9IBWEFVX3lxTE9yUVdJTWdHOHpIeGRuY2hlVTBtM2RXVkp5Q2ZlWjNLY2lySHBHM3p0SUk0d1E2MFp1MDc2WkU3MlQzM3JuRnhLLTFUbUstSF9CaTRnaFBqd2M?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:10+09:00",
+    "title": "[증시-마감] 코스피, 삼전 실적발표 앞두고 외인 매도에 2% 하락 - 연합인포맥스",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFB4T2hmWjlCWG5oRDd5M3NhR29xWmltOWYzcnNtR29uM1F5N09KSUNpMXhjak5xQnhHTzhhMW5xeGhLcUNuX2NhQnc1eUFMMktSVmZibEo1SkYybEFKWnA0b3BkMXY5WXh6MEhtcG5XeVQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:11+09:00",
+    "title": "외인 3兆 매물 폭탄에 코스피 다시 후퇴…6800 턱걸이 마감 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE04U2Q3T0lNTlN1bHlhbjlXY21waVo5TnZkS1AwV1hsa0dPTDZ2UGVNaXNIRVp6enZFbklkQ3lFclBJN1lwTmNzRHlxYXppSkFIdDlsTTFEU0VlTW8ya0NGdNIBeEFVX3lxTE9tRWlQS3h5QzVxQ2RKZHFXRmlRLUxldnROcE9UMVA3SXNkTVJjaHcxVDdjRW9IelRSeUhzRTdpQVhoZ2Nta0xxR19OLURNSzloazZvcTNDbjF5aWd1NGJrR25kSEhqTkh0QU1FWTBLVWFLek9lSTlfQg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:15+09:00",
+    "title": "[장마감] 코스피 1.98%↓(6803.90), 코스닥 2.34%↓(898.43) - 버핏연구소",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5iMDVQTUoyNkdzTzZlSGM0NU1lMGxIQ2VNMmlCbnhYZDhKV1BXV2pWRktPM3pITXRkbkdueEd5NmJndmpTYUdKaXJuMV9FczhHNU8xQVlLV3pqRDAxazBZTmZB?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:15+09:00",
+    "title": "[마감시황]코스닥 2.34% 하락한 898.43 마감…외국인·기관 동반 매도에 900선 아래로 - 서울신문",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9DYVpXenhjcHd5Wkl5OTdKMGh3ekxOWjY3U2RYYTdfTzB3QnFjRk93VDF0MWNLS01pdEN1M21wZmsxdzREcUVxd3NIcjk3aEd0UjhlelIwTkgzMWI4dnUwVERrRW8?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:16+09:00",
+    "title": "코스피 1.98% 하락해 6803.90…삼성전자 실적 앞두고 경계 - 스페셜타임스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1WV1I5d3F2RUJST3hVc3BERHMyRXFzbm5HYm8xR0QwMjlCRkZiNHpvZkVubFVEa0JvSnVQYUZDZ3dPR3FLcHBxdm02c3lHUGZXWmVxQzNKWFotS2RjLWhOMGRjeElheW5PUTIySWFwVUcxZmM?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T16:20+09:00",
+    "title": "외국인 3조원 매도에 코스피 장중 반등 무산…실적 경계감 속 6800선 후퇴 - 스페셜경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5EMHMwQTF6NUdFNmVPUnlZSnVvWFNQVzhtcmQwZVAxcXdvejV5bURiN0J1ZTlvYmZQTlk5ajk0RkZuMTlSX0lqbTBFdld2aVZIcnRSU0NVN3A5Wjl5c2x0VzMtWmtwd3N1ZXBJSg?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T16:23+09:00",
+    "title": "[마켓뷰] 코스피, 6800선 턱걸이 마감… 삼성전자 실적 앞두고 관망세 - 조선비즈 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNcUt4QS1ZdzRPUFhsQUxacE42d08xOTRCWnZsdnRCUENrLWJGZkJlaFZxdHB6LUMtLVRvTU15QmExU2tNQ01VWHlVdUttX2E5SlpUbzA0eGkyTUxfMS1xQ3hFUlpxVm9abmJtOVFQZXgtYmF6OG1aMmtwOFdQalZIbFFyNTNnUFdp0gGcAUFVX3lxTE5TMm9xSE1hNVVOVG9JNGRNY0RNVGluQ2RBMWZLXzgxd3k5clNpYnBxWHlrbUlSandqMmVGVDJ4MlVkRi1SdmpoR1N6VUs2WjNHYXJ3WHNHR3h2dFFMemxnd2phMkExeTR0VWpnYXhPRnhlRy1Ya3J6TUFtRjYxMktKQTJBTXkyWnpNcHcwOWV1YzktclFoTTJZVVhXMQ?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:25+09:00",
+    "title": "[마감시황]‘삼전닉스’ 동반 하락에 코스피 1.98% 급락…6,800선 턱걸이 - 남도일보",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5ma2tteXRuRlExSGdYMzVCaDdwQi1XdGMxb2ZheGszTkQzNGJtb3FmTUZWMDJlYXhWWUVhTFBIQlZIel9jMjVKUjAwREN5c3YtLXVVVEpoZHIwZk9Fb0luZnpHNE91dXZXN2FMeNIBcEFVX3lxTE4yQ0V0WEttYm9QUUpLRjFqbTFtZWtIQ09PTXFCcmp0Z0F6MktnQzlubUlVQWg5REp3VC00VjZKM1p3TVh2dzJmUVVQelY1ZEpZY3BVWF9VRnYxbmtySVpHemhJd19HWGVjWGI3Z2xuSWc?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:31+09:00",
+    "title": "[마감] 코스피, 2% 하락 6800선 턱걸이… 삼전 실적발표 경계심 - IT조선",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5McHZfWXRVMmd5cjh0b1ZLVjNQVFI1RGxjb2I5b0NGMFBCWU0xWmJQSXFzSHI5Nmhaa3E2UFJUenZUQkdtRF9jbGVjc3hZcFgydjR2Q0hUbGhJdmVrMDJpY2RtZ1J4UE1fOU9yWGlNMzLSAXRBVV95cUxQVTJxUGhJbTB4aWpYbk1OS3RJVXFpX2dNYkhET2t1UzJFV1pnQUxLaFd1TEtBWnlUSDFSUncwZEVZeXNXVDRYcjl5YVVCSmE2ang0OWV1VmZRTjRlMF9WZXRNNEUxWWh1MnkybmVadUpHQ04zSg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:34+09:00",
+    "title": "코스피, 외인 매물 폭탄에 6800 턱걸이 마감...코스닥도 2.3%↓ - 증권일보",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9nSWxqUF9veXBGQ0hJX1lTSkctVGp1ck1mSU1tTGxYejJhUXgzeGM2Q1U5RTkzbjV1Q0pmbWVONGRkYWY5TlJnTXRHT0JTZHJQU242WXZzbU1vTUhaME5nLQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:39+09:00",
+    "title": "[마감시황] 美 증시 최고치에도…외국인·기관 '팔자' 코스피 6800선 마감 - 신아일보",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9FNUQ0em9KQ0Rxb0pVckVRRkdWeDQyakEwMXBJLTd0V1BLSHktSGx2bHFacUdVM0ItMUpraEdLdUxYWVNTQ0M0R2dUdXlWSUliNnFLRnRLNk83dHE2ZnhObjBKSGtfU1laazVwSlZYMzI?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:42+09:00",
+    "title": "[마감] 코스피, 유가·美금리 반등에 외인 2.6조 매도…1.98% 하락 - 알파경제",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBBUnJGTnlrVHJmX3lGOEZXeE1HTXJEQzhFWDlleUhkTUhCQjdtQXE4VWtfLWpyZVNac1VKQTdRdklSWGhOM2hmdFhSaEJtbnVWek1ZVV9ReEt6eVNwTEotUE5wN0NpQlFXSi1LRWRR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:44+09:00",
+    "title": "코스피 6,800선 마감...실적 발표 앞둔 삼성전자 1%대 ↓ - YTN",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBIMmhaaFVhQTFaZkhuRHd0S3A5LUFRYzNPT2R1ajhyRmFyNlZ0N244bDJaVDFkOXQ5OXVsX25FVEpqbWE5czZ6UW9qR3ZLa1IxTUhtbmlCSmtLMWdZSmMzQ1J1anl2aDYxSXFoRHh6bw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T16:52+09:00",
+    "title": "외국인 3조 매도에 코스피 6800선 턱걸이…코스닥 900선 붕괴 - 굿모닝경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBUUnRxcjBKeXVzaWNKT3ZMNzRmNHJieC1RVEwzc181eHVKM0I1TnowNG1mOEU5a0JRZzB6MmZlODJmd1g2ZHN1cnROWV91cHU5VTJiUGhmaDRmcnVuU19kdE9GUzJTaHVJYU11bA?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T17:00+09:00",
+    "title": "[마감시황] 코스피, 삼성전자 실적 경계감에 6800선으로 밀려 - 자본시장뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB2ZUJyNWlza2VfUTBZWWdKUWY3RVFtYmQ4VjVLWmV4Wmo4alppQ0hOdTJROHpPUkZGT1U5UnpENWxFb1lnOWJHVUU4NHZnbTB0SVJsWFRxZ1dvLWtuNkhqQzNVTXBaeGs?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:04+09:00",
+    "title": "코스피 2% 하락해 6804…외국인·기관 동반 매도 - 코리아리포트",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBwS05GMDZFbDVOWFlqRVN6R3d0ZklaVTNOQmQ3bjVSTUFQUzhDWHpiNGZOSTJlbW8xcTNOMDE2aFg1T1ZuQUlpbUhBRFgtOHJkZzBNU2JTeXRkWkNxZE85V3h0elJNNzlEYW4yanRpOUs?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T17:05+09:00",
+    "title": "코스피 7,000선 안착 실패…연고점 대비 25% 하락 - 애드뉴스인천",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5tRXZPbFJfd2Jnb1hGalFNTDF6UWRZaDR4UURrOVJLY21KeC02ZXJVM3Z4SDhvZWFDdFNFUElJWGpTMDBCRjdGQzg3eXBNYnNkcXBIQTB4Ri1mdlRYek1fTVVyNTdzUGxwSEVR?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T17:11+09:00",
+    "title": "코스피, 1.98% 내린 6803 마감…삼성전자 실적 앞두고 반도체 약세 By EBN - Investing.com 한국어",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5FdWZKcnNOVGp5bngxbUN3WGNGdnJoY0Z1WXBiWjBlUzRxcG5CdGV1ZVBwcUxTMXd4eC1Pc1dPSE9MWFpUY3JLX2FsTWhYQ1VDWUk5cTZGenRXNmRucE1kVlFuQ2RRdFYwU0JOazVvOVE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:16+09:00",
+    "title": "[포토] 코스피-코스닥 하락 마감 - www.dt.co.kr",
+    "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE50V3J0ZFVYYnBkLWZCRlRLeDBZSk5wSFMzT1lLWHhRZ2dfOVdkUGd5cExSaEdSTElPeFJjcC1qcUlTRzFoZ1ZhZEJTX1JNZw?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:17+09:00",
+    "title": "외국인 2조6000억원 팔았다…코스피 6800선 턱걸이, 최고점 대비 25%↓ - 경북매일",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1hcXhnbTcwUF9lVDRwVWJGenk4QU9CVzZmU1I4LXJJakg3a0Y4ZXUwZ2hGU0g2Ry1iV3lkVENvR2ZkVWVpZkdyTlE1R2syWXNTUHlMVElvZFN2UQ?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T17:21+09:00",
+    "title": "[오늘증시] 외국인 2조 6000억 순매도, 코스피 6800선 턱걸이 - Queen 이코노미퀸",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1FcDhMaGhlVWd2VDJ2ZHQ3VVZ3S0pxOWdpbG1jb0t6Z2hPeEdPTnlWWHBaQkV1ckJlSVp1dDJhdmhmdjV5WDJkTXpHYWlGV1ZlTHM5b1dPT3VpV3hTdy1RaEFJVjBta3EweUE?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-07T17:24+09:00",
+    "title": "[1007마감체크] 코스피, 삼성전자 실적 경계감에 6800 턱걸이... 외인·기관 순매도 - 인포스탁데일리",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1XSVpjb3ZvRFIyMGZPSERhUTFKeHpQbTc2bGVyR3IxTjhZYTJsUHQzWDZwZnctdmp2aGgtTFFNSlY2dldiaFVUaF9qQV96bm43VTNIYmk0RHRQMTJEWGN1TUR1aEhfVDNJYl9ud3FuYXIzNGVwdnc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:28+09:00",
+    "title": "[마감시황] 코스피, 외인 2.6조원 매도에 1.98%↓…6800선 턱걸이 - 한양경제",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9YQW13c0Q5RjRqN0kzNHo0aU9faWcycHc5c2kzMzdNRUZSUDlsYzdNMUF2UXVsV1Y2SjJJWEx4SnRMVjhkdE0wQ0pjaURha3RzeFZtb1k2TmtIcmFRY3JuS20tdC1yNW5uTEtkVG9sYjFmQQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:34+09:00",
+    "title": "[클로징 벨] 코스피 6800선 턱걸이…코스닥도 하루 만에 900선 반납 - https://www.standingout.kr/",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFB3T21QT0k1aDdMS2NHcmZUam1zaVplMGxnQlRlZU1VRDVHSl9jQTNiVnBNREd3M2VJdi1WQ1g5N1c0YnY4b01DVWl4NEUtcm1STDZDbGRTNk9fVzQ5bVNJcVBNblY2cTJjZG00?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:35+09:00",
+    "title": "[오늘의 주목주] LG전자 실적발표 뒤 주가 10%대 내려, 코스피 삼성전자 실적 경계심리에 6800선 하락 마감 - 비즈니스포스트",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBXcjZFRTZqV09VSmNCd2V6ZXpSaEtHY296X2ZEV1JuUURxbS1QN0ZtRXppRDBFaURtdUE5UjUtY2RjV1Y3NXR0Sy1SRjNNRENnekhzNHF5c3BPcTB1X25oUGFSaktzT1R1bHBGTkdycmlkUG8?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-07T17:53+09:00",
+    "title": "[마감시황] 10/07 실적 경계감에 코스피 6,803.90(-1.98%) - 네이버 프리미엄콘텐츠",
+    "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNS3ZqcjExSnBfeDQxR2paOUY2d19uU3pkZGJybnBlOWRGaFRBRmg0NUxBYUdaTExTNGVBbk9xOWN4b09aRWI4cUI0a3BxUkdPZ1BhSlp5c3lsdVdydi1TdmVqTExjcDFPSXEtUEc4OWhVak1LQmJJRTJqZng1SGE5dTNSVXBneTRfUHcwT0FOOV8?oc=5",
+    "query": "코스피 마감"
+   }
+  ]
  }
 }
