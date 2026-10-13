@@ -17,6 +17,7 @@ on:
     paths:
       - "docs/**"
       - "ui/**"
+      - "reports/market-daily/**"   # 장 마감 리포트(루틴 push) — 대시보드 '마감 리포트' 탭
   workflow_run:
     workflows:
       - "Update ui/data/findings.json (Research Lab UI)"
@@ -62,6 +63,10 @@ jobs:
           cp -r docs/. _site/
           mkdir -p _site/paper-trading
           cp -r ui/. _site/paper-trading/
+          # 장 마감 리포트 — md 만 복사하고 목록(index.json, 최신 먼저)을 만든다
+          mkdir -p _site/data/market-reports
+          cp reports/market-daily/*.md _site/data/market-reports/ 2>/dev/null || true
+          python3 -c "import glob,json,os; json.dump({'files': sorted((os.path.basename(f) for f in glob.glob('reports/market-daily/*.md')), reverse=True)}, open('_site/data/market-reports/index.json', 'w'))"
 
       - uses: actions/configure-pages@v5
 

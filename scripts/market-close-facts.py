@@ -87,18 +87,20 @@ def pct(a, b):
     return None if a is None or b in (None, 0) else round((a / b - 1) * 100, 2)
 
 
-def series_row(sym, name, group, kind, expected, now_utc):
+def series_row(sym, name, group, kind, expected, now_utc, asof=None):
     try:
-        ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=1mo&interval=1d")["chart"]["result"][0]
+        ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=3mo&interval=1d")["chart"]["result"][0]
     except Exception as e:  # noqa: BLE001 — 실패는 missing 으로 보고한다
         return {"sym": sym, "name": name, "group": group, "error": str(e)[:120]}
     rows = daily_closes(ch)
+    if asof:
+        rows = [r for r in rows if r[0] <= asof]
     if len(rows) < 2:
         return {"sym": sym, "name": name, "group": group, "error": "봉 부족"}
     (d, c), (_, p) = rows[-1], rows[-2]
     c5 = rows[-6][1] if len(rows) >= 6 else None
     rmt = ch["meta"].get("regularMarketTime")
-    at = datetime.fromtimestamp(rmt, timezone.utc).astimezone(KST) if rmt else None
+    at = datetime.fromtimestamp(rmt, timezone.utc).astimezone(KST) if rmt and not asof else None
     row = {"sym": sym, "name": name, "group": group, "kind": kind, "close": round(c, 4), "prevClose": round(p, 4),
            "chgPct": pct(c, p), "chg5dPct": pct(c, c5), "barDate": d.isoformat(),
            "lastTradeKST": at.isoformat(timespec="minutes") if at else None, "source": "Yahoo chart"}
@@ -106,6 +108,8 @@ def series_row(sym, name, group, kind, expected, now_utc):
         row["chgBp"] = round((c - p) * 100, 1)
     if kind == "regular":
         row["fresh"] = d == expected
+    elif asof:  # 과거 날짜: 그날 또는 직전 3일 안 봉
+        row["fresh"] = (asof - d).days <= 3
     else:  # 24시간·타 시장: 12시간 안 값이면 fresh
         row["fresh"] = bool(at) and (now_utc - at) < timedelta(hours=12)
     return row
@@ -141,36 +145,64 @@ def naver_kr(expected):
     return out, missing
 
 
-def after_hours(syms):
-    """미국 정규장 종가 vs 지금까지의 시간외 마지막 체결(5분봉, includePrePost). 정규장 수익률과 합치지 않는다."""
+def repo_flows(asof):
+    """과거 날짜의 국내 투자자별 순매수 — 저장소 market_flows.json(pykrx, KRX 확정치)."""
+    try:
+        j = json.loads((REPO / "docs" / "data" / "market_flows.json").read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    out = {}
+    for code, m in (j.get("markets") or {}).items():
+        day = next((d for d in m.get("days", []) if d.get("date") == asof.strftime("%Y%m%d")), None)
+        if day:
+            net = {i["name"]: round(i["net"] / 1e8) for i in day["items"]}
+            out[code] = {"flows억원": {"bizdate": day["date"], "개인": net.get("개인"), "외국인": net.get("외국인"),
+                                      "기관": net.get("기관합계")},
+                         "fresh": True, "note": "KRX 확정치(pykrx, 저장소 market_flows.json). 종목 수·프로그램·시총 상위는 과거 날짜라 없음."}
+    return out
+
+
+def after_hours(syms, asof=None):
+    """미국 정규장 종가 vs 그날 시간외 마지막 체결(5분봉, includePrePost). 정규장 수익률과 합치지 않는다.
+    asof 면 정규장 종가는 일봉에서, 시간외는 그날 16:00~20:00 ET 5분봉에서(Yahoo 5분봉은 최근 60일만)."""
     rows = []
     for s in syms:
         try:
-            ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{s}?range=1d&interval=5m&includePrePost=true")["chart"]["result"][0]
+            if asof:
+                day = [r for r in daily_closes(get_json(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{s}?range=3mo&interval=1d")["chart"]["result"][0]) if r[0] <= asof]
+                if not day or day[-1][0] != asof:
+                    raise ValueError("그날 일봉 없음")
+                p1 = int(datetime(asof.year, asof.month, asof.day, 16, tzinfo=NY).timestamp())
+                ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{s}?interval=5m&includePrePost=true"
+                              f"&period1={p1}&period2={p1 + 4 * 3600 + 300}")["chart"]["result"][0]
+            else:
+                ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{s}?range=1d&interval=5m&includePrePost=true")["chart"]["result"][0]
         except Exception as e:  # noqa: BLE001
             rows.append({"sym": s, "error": str(e)[:120]})
             continue
         meta = ch["meta"]
-        reg = meta.get("regularMarketPrice")
+        reg = day[-1][1] if asof else meta.get("regularMarketPrice")
+        prev = day[-2][1] if asof else meta.get("chartPreviousClose")
         last = None
         for ts, c in zip(ch.get("timestamp") or [], ch["indicators"]["quote"][0].get("close") or []):
             t = datetime.fromtimestamp(ts, NY)
-            if c is not None and (t.hour, t.minute) >= (16, 0):
+            if c is not None and (t.hour, t.minute) > (16, 0) and (not asof or t.date() == asof):
                 last = (t, float(c))
-        rows.append({"sym": s, "regularClose": reg,
-                     "regularChgPct": pct(reg, meta.get("chartPreviousClose")),
+        rows.append({"sym": s, "regularClose": round(reg, 4) if reg else None,
+                     "regularChgPct": pct(reg, prev),
                      "ahLast": round(last[1], 4) if last else None,
                      "ahTimeET": last[0].isoformat(timespec="minutes") if last else None,
                      "ahChgPct": pct(last[1], reg) if last else None})
     return rows
 
 
-def fred_last(series):
+def fred_last(series, asof=None):
     try:
         with urllib.request.urlopen(urllib.request.Request(
                 f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}", headers=UA), timeout=20) as r:
             lines = [l.split(",") for l in r.read().decode().strip().splitlines()[1:]]
-        vals = [(d, float(v)) for d, v in lines if v not in (".", "")]
+        vals = [(d, float(v)) for d, v in lines if v not in (".", "") and (not asof or d <= asof.isoformat())]
         (d1, v1), (d0, v0) = vals[-1], vals[-2]
         return {"series": series, "date": d1, "value": v1, "chgBp": round((v1 - v0) * 100, 1),
                 "source": "FRED(보통 하루 늦다 — date 확인)"}
@@ -214,12 +246,12 @@ def session_ended(market, exp, now_utc):
     return now.date() > exp or (now.date() == exp and (now.hour, now.minute) >= close)
 
 
-def build(market, ah_extra, now_utc=None):
+def build(market, ah_extra, now_utc=None, asof=None):
     now_utc = now_utc or datetime.now(timezone.utc)
     now_kst = now_utc.astimezone(KST)
-    exp = expected_session(market, now_kst)
+    exp = (asof if asof.weekday() < 5 else None) if asof else expected_session(market, now_kst)
     spec = KR_SERIES if market == "kr" else US_SERIES
-    series = [series_row(*s, exp, now_utc) for s in spec]
+    series = [series_row(*s, exp, now_utc, asof) for s in spec]
     anchor = next((r for r in series if r["sym"] in ("^KS11", "^GSPC")), {})
     facts = {
         "market": market, "generatedAtKST": now_kst.isoformat(timespec="seconds"),
@@ -227,15 +259,21 @@ def build(market, ah_extra, now_utc=None):
         "sessionOpen": bool(exp) and anchor.get("barDate") == exp.isoformat(),
         # 장중에 돌리면 barDate 가 오늘이어도 종가가 아니다 — false 면 루틴은 쓰지 않는다
         "regularSessionEnded": session_ended(market, exp, now_utc),
+        "backfill": bool(asof),
         "series": series, "missing": [f"{r['sym']} {r['name']}: {r['error']}" for r in series if "error" in r],
         "repoData": repo_freshness(now_kst),
     }
     if market == "kr":
-        facts["kr"], miss = naver_kr(exp or now_kst.date())
+        if asof:
+            facts["kr"], miss = repo_flows(asof), ["상승/하락 종목 수·프로그램·거래대금·시총 상위(과거 날짜 — 네이버는 당일만)"]
+            if not facts["kr"]:
+                miss.append("투자자별 순매수(저장소 market_flows.json 에 그날 없음)")
+        else:
+            facts["kr"], miss = naver_kr(exp or now_kst.date())
         facts["missing"] += miss + ["국내 시간외 단일가(키 없는 출처 없음)", "종목별 지수 기여도(지수 구성 비중 없음 — 쓰지 않는다)"]
     else:
-        facts["us2y"] = fred_last("DGS2")
-        facts["afterHours"] = after_hours(US_MEGACAPS + [s for s in ah_extra if s not in US_MEGACAPS])
+        facts["us2y"] = fred_last("DGS2", asof)
+        facts["afterHours"] = after_hours(US_MEGACAPS + [s for s in ah_extra if s not in US_MEGACAPS], asof)
         facts["missing"] += ["미국 상승/하락 종목 수(RSP−SPY 차이로 대체)", "종목별 지수 기여도(쓰지 않는다)"]
     return facts
 
@@ -267,13 +305,15 @@ def main():
     ap.add_argument("market", nargs="?", choices=["kr", "us"])
     ap.add_argument("--ah", default="", help="미국 시간외를 볼 종목 추가(쉼표)")
     ap.add_argument("--out")
+    ap.add_argument("--date", help="과거 날짜 YYYY-MM-DD(백필). 국내 수급은 저장소 KRX 확정치, 종목 수·시총 상위는 없음")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
     if not a.market:
         ap.error("kr 또는 us")
-    facts = build(a.market, [s.strip().upper() for s in a.ah.split(",") if s.strip()])
+    asof = datetime.strptime(a.date, "%Y-%m-%d").date() if a.date else None
+    facts = build(a.market, [s.strip().upper() for s in a.ah.split(",") if s.strip()], asof=asof)
     text = json.dumps(facts, ensure_ascii=False, indent=1)
     if a.out:
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)

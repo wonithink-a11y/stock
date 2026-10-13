@@ -3103,6 +3103,40 @@ function renderSectorTab() {
 
 // ---------- 탭 전환 ----------
 
+// ---------- 장 마감 리포트: Claude 루틴이 쓴 reports/market-daily/*.md (배포 때 data/market-reports/ 로 복사) ----------
+const mrep = { index: null, sel: null, text: {} };
+function loadMarketReport(file) {
+  mrep.sel = file;
+  if (mrep.text[file] !== undefined) return render();
+  mrep.text[file] = null;
+  fetch(`data/market-reports/${encodeURIComponent(file)}?t=${Date.now()}`).then(r => r.ok ? r.text() : '(불러오지 못했습니다)')
+    .catch(() => '(불러오지 못했습니다)').then(t => { mrep.text[file] = t; if (state.tab === 'mreport') render(); });
+}
+function renderMarketReports() {
+  if (mrep.index === null) {
+    mrep.index = [];
+    fetch(`data/market-reports/index.json?t=${Date.now()}`).then(r => r.ok ? r.json() : { files: [] }).catch(() => ({ files: [] }))
+      .then(j => { mrep.index = j.files || []; if (mrep.index.length) loadMarketReport(mrep.index[0]); else render(); });
+    return '<div class="card empty">불러오는 중…</div>';
+  }
+  if (!mrep.index.length) return '<div class="card empty">아직 리포트가 없습니다. 평일 18:10(한국)·07:00(미국)에 생깁니다.</div>';
+  const byDate = {};
+  for (const f of mrep.index) { const m = f.match(/^(\d{4}-\d{2}-\d{2})-(kr|us)\.md$/); if (m) (byDate[m[1]] = byDate[m[1]] || {})[m[2]] = f; }
+  const chips = Object.keys(byDate).sort().reverse().map(d => {
+    const b = (k, label) => byDate[d][k] ? `<button class="chip${mrep.sel === byDate[d][k] ? ' active' : ''}" data-mreport="${esc(byDate[d][k])}">${label}</button>` : '';
+    return `<span style="white-space:nowrap"><span class="muted" style="font-size:12px;margin-right:4px">${d.slice(5)}</span>${b('kr', '한국')} ${b('us', '미국')}</span>`;
+  }).join('');
+  const t = mrep.text[mrep.sel];
+  const body = t == null ? '<p class="muted">불러오는 중…</p>'
+    : `<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px;line-height:1.6;margin:0">${esc(t).replace(/https?:\/\/[^\s)<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`)}</pre>`;
+  return `<div class="filter-row" style="gap:10px">${chips}</div><div class="card">${body}</div>
+    <p class="muted" style="font-size:11px">미국 리포트 날짜는 미국 장 날짜입니다. 숫자는 scripts/market-close-facts.py, 해석은 Claude 루틴.</p>`;
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-mreport]');
+  if (b) loadMarketReport(b.dataset.mreport);
+});
+
 function render() {
   const el = document.getElementById('content');
   if (state.tab === 'today') el.innerHTML = renderToday();
@@ -3120,6 +3154,7 @@ function render() {
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
   else if (state.tab === 'live') el.innerHTML = renderLive();
+  else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
@@ -3403,7 +3438,7 @@ function renderToday() {
 
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
-  ['today', '오늘', [['today', '요약']]],
+  ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],

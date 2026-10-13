@@ -22,6 +22,8 @@ concurrency:
 
 jobs:
   send:
+    # 백필(과거 날짜 몰아 쓰기)은 커밋 메시지에 [no-telegram] — 대시보드에만 싣고 한꺼번에 보내지 않는다
+    if: ${{ !contains(github.event.head_commit.message, '[no-telegram]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
