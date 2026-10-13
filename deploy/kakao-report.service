@@ -1,0 +1,19 @@
+[Unit]
+# 장 마감 리포트 → 카카오톡 '나에게 보내기'(scripts/send-kakao-report.py 머리말 참고). 텔레그램은 Actions 가 따로 보낸다.
+# ~/collector-venv/.env 에 KAKAO_REST_API_KEY(+앱에서 켰으면 KAKAO_CLIENT_SECRET). 토큰은 ~/collector-venv/kakao/token.json —
+# 최초 1회 사람이 `python3 ~/collector/scripts/send-kakao-report.py --login` 으로 만든다.
+Description=Market close report to KakaoTalk (memo to self)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=KAKAO_STATE_DIR=/home/ubuntu/collector-venv/kakao
+ExecStart=/usr/bin/python3 /home/ubuntu/collector/scripts/send-kakao-report.py
+TimeoutStartSec=2min
+NoNewPrivileges=yes
+PrivateTmp=yes

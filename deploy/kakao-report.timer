@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for new market close report every 10 min 06:00-23:50 KST
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 루틴: kr 평일 18:10 · us 화~토 07:00(늦으면 몇 시간). 한 번에 raw 파일 3~6개 GET(없으면 404) — 하루 수백 건, 한도 걱정 없음.
+OnCalendar=*-*-* 06..23:00/10:00
+
+[Install]
+WantedBy=timers.target
