@@ -33,6 +33,33 @@
   .home-conf { font-size: 12px; padding: 1px 8px; border-radius: 6px; background: #2a2416; color: #f3c76e; white-space: nowrap; }
   .home-bar { display: grid; grid-template-columns: 96px 1fr 72px; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 6px; }
   .home-bar > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 마감 리포트 탭(시안 2026-10-13) */
+  .mrep-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .mrep-arrow { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: #c9d1dc; cursor: pointer; }
+  .mrep-arrow:disabled { color: #4a5260; cursor: default; }
+  .mrep-sel { height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
+  .mrep-tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+  .mrep-tabs button { min-height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: transparent; color: #c9d1dc; font: inherit; cursor: pointer; }
+  .mrep-tabs button.on { background: #1e2a44; color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+  .mrep-tabs button:disabled { color: #4a5260; cursor: default; }
+  .mrep-top { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+  .mrep-top > .card { margin: 0; border-radius: 12px; }
+  .mrep-idx { flex: 1 1 200px; padding: 18px; }
+  .mrep-big { font-size: 30px; font-weight: 700; line-height: 1.2; }
+  @media (max-width: 600px) { .mrep-idx { flex-basis: 140px; padding: 12px; } .mrep-big { font-size: 21px; } }
+  .mrep-head { flex: 2 1 360px; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 18px 20px; background: #1b1d1a; border-color: #3a3220; }
+  .mrep-head p { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.55; }
+  .mrep-cap { font-size: 12px; font-weight: 600; color: #c9a75e; letter-spacing: .04em; }
+  .mrep-no { width: 26px; height: 26px; border-radius: 50%; background: #26324a; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex: none; }
+  .mrep-conf { font-size: 12px; border: 1px solid currentColor; border-radius: 6px; padding: 1px 8px; white-space: nowrap; }
+  .mrep-ev { display: flex; flex-direction: column; gap: 8px; padding-left: 12px; border-left: 2px solid var(--border); font-size: 13px; }
+  .mrep-rc { display: grid; grid-template-columns: 40px 1fr; gap: 6px 10px; font-size: 13px; }
+  .mrep-sec { display: grid; grid-template-columns: 92px 1fr 52px 52px; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 5px; }
+  .mrep-sec > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
+  .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; }
+  .mrep-tile { padding: 8px; border: 1px solid var(--border); border-radius: 8px; }
+  .mrep-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #26324a; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
   .cal-h { text-align: center; color: var(--muted); font-size: 12px; padding: 2px 0; }
   .cal-c { min-height: 74px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 5px; background: var(--card); font-size: 11px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
@@ -3159,103 +3186,96 @@ const MREP_CONF = { 높음: 'var(--accent)', 중간: 'var(--mid)', 낮음: 'var(
 function mrepHead(title) { return `<h3 style="font-size:14px;margin:0 0 10px">${title}</h3>`; }
 
 function renderMrepBody(file, d) {
+  // 시안(artifact LM5VtBCGSzb8f3wVjcFLoS · Report)대로: 지수+한 줄 → 원인 카드 → 업종·수급·시장 폭 → 장 마감 뒤·내일 체크
   const f = d.facts, sm = d.summary || {};
   const kr = file.endsWith('-kr.md');
-  const day = file.slice(0, 10), wd = '일월화수목금토'[new Date(day + 'T12:00:00').getDay()];
+  const day = file.slice(0, 10);
   const S = (f && f.series) || [];
   const by = (g) => S.filter(r => r.group === g && r.chgPct != null);
   const sym = (x) => S.find(r => r.sym === x && r.close != null);
   const stale = S.filter(r => r.fresh === false);
+  const hm = iso => !iso ? '' : String(iso).slice(0, 10) === day ? esc(String(iso).slice(11, 16)) : mrepT(iso);   // 같은 날이면 시각만
+  const cardGrid = (cards, min = 330) => cards.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,${min}px),1fr));gap:14px;align-items:start;margin-bottom:14px">${cards.join('')}</div>` : '';
   const out = [];
 
-  // 1) 머리 — 날짜·기준·신선도
-  const badges = [f && f.backfill ? '<span class="chip">백필</span>' : '',
-    f ? `<span class="muted" style="font-size:12px">숫자 생성 ${mrepT(f.generatedAtKST)} KST</span>` : '<span class="chip">숫자 파일 없음</span>',
-    stale.length ? `<span class="chip" style="border-color:var(--mid);color:var(--mid)">날짜 다른 값 ${stale.length}</span>` : ''].join(' ');
-  out.push(`<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-    <div style="font-size:18px;font-weight:700">${kr ? '한국장' : '미국장'} 마감 · ${day}(${wd})${kr ? '' : ' <span class="muted" style="font-size:12px">미국 날짜</span>'}</div><div>${badges}</div></div>`);
+  // 0) 신선도 배지(있을 때만)
+  const badges = [f && f.backfill ? '<span class="chip">백필</span>' : '', !f ? '<span class="chip">숫자 파일 없음</span>' : '',
+    stale.length ? `<span class="chip" style="border-color:var(--mid);color:var(--mid)">날짜 다른 값 ${stale.length}</span>` : ''].filter(Boolean).join(' ');
+  if (badges) out.push(`<div style="margin-bottom:10px">${badges}</div>`);
 
-  // 2) 지수 카드
+  // 1) 지수 카드 + 한 줄
   const idx = by('지수');
-  if (idx.length) out.push(`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">${idx.map(r => `
-    <div class="card" style="margin:0;padding:12px;${r.fresh === false ? 'opacity:.5' : ''}">
-      <div class="muted" style="font-size:12px">${esc(r.name)}${r.fresh === false ? ` · ${esc(r.barDate)} 값` : ''}</div>
-      <div style="font-size:26px;font-weight:700;line-height:1.2">${mrepSign(r.chgPct, '%')}</div>
-      <div style="font-size:13px">${Number(r.close).toLocaleString(undefined, { maximumFractionDigits: 2 })} <span class="muted">· 5일 ${mrepSign(r.chg5dPct, '%')}</span></div></div>`).join('')}</div>`);
-
-  // 3) 한 줄
   const headline = sm.headline || ((d.text || '').match(/한 줄:\s*(.+)/) || [])[1];
-  if (headline) out.push(`<div class="card" style="border-left:3px solid var(--accent)"><div class="muted" style="font-size:12px;margin-bottom:4px">오늘의 핵심</div><div style="font-size:15px;line-height:1.6">${esc(headline)}</div></div>`);
+  const krTv = (code) => (((f && f.kr) || {})[code] || {}).tradingValue조원;
+  const idxCards = idx.map(r => {
+    const diff = r.prevClose != null ? r.close - r.prevClose : null, tv = kr ? krTv(r.name) : null;
+    return `<div class="card mrep-idx" style="${r.fresh === false ? 'opacity:.5' : ''}">
+      <div class="muted" style="font-size:12px">${esc(r.name)}${r.fresh === false ? ` · ${esc(r.barDate)} 값` : ''}</div>
+      <div class="num mrep-big">${Number(r.close).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+      <div class="num ${r.chgPct >= 0 ? 'pos' : 'neg'}" style="font-size:15px">${r.chgPct >= 0 ? '▲' : '▼'}${diff != null ? ` ${Math.abs(diff).toLocaleString(undefined, { maximumFractionDigits: Math.abs(diff) >= 100 ? 0 : 2 })} ·` : ''} ${r.chgPct >= 0 ? '+' : '−'}${Math.abs(r.chgPct).toFixed(2)}%</div>
+      <div class="muted" style="font-size:12px;margin-top:6px">5일 ${mrepSign(r.chg5dPct, '%')}${tv != null ? ` · 거래대금 <span class="num">${tv.toFixed(1)}조</span>` : ''}</div></div>`;
+  });
+  if (idxCards.length || headline) out.push(`<div class="mrep-top">${idxCards.join('')}${headline ? `<div class="card mrep-head"><span class="mrep-cap">한 줄</span><p>${esc(headline)}</p></div>` : ''}</div>`);
+
+  // 2) 왜 움직였나 — 근거 시각·반응·반론을 펼쳐 둔다
+  const causes = sm.causes || [];
+  out.push('<h3 style="font-size:17px;margin:6px 0 12px">왜 움직였나</h3>');
+  out.push(causes.length ? cardGrid(causes.map((c, i) => `<article class="card" style="margin:0;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px"><span class="mrep-no num">${i + 1}</span><strong style="flex:1;font-size:15px">${esc(c.title || '')}</strong>
+      <span class="mrep-conf" style="color:${MREP_CONF[c.confidence] || 'var(--muted)'}">확신 ${esc(c.confidence || '-')}</span></div>
+    ${(c.evidence || []).length ? `<div class="mrep-ev">${c.evidence.map(e => `<div><span class="num muted" style="font-size:12px">${hm(e.timeKST)}</span> <span class="muted" style="font-size:12px">${esc(e.source || '')}</span>
+      <div>${esc(e.text || '')}${e.url ? ` <a href="${esc(e.url)}" target="_blank" rel="noopener">원문↗</a>` : ''}</div></div>`).join('')}</div>` : ''}
+    ${c.reaction || c.counter ? `<div class="mrep-rc">${c.reaction ? `<span class="muted">반응</span><span>${esc(c.reaction)}</span>` : ''}${c.counter ? `<span class="muted">반론</span><span style="color:#c9d1dc">${esc(c.counter)}</span>` : ''}</div>` : ''}
+  </article>`), 420) : '<div class="card"><p class="muted" style="font-size:13px;margin:0">구조화 요약(summary.json)이 없습니다 — 아래 원문을 보세요.</p></div>');
 
   const grid = [];
-  // 4a) 한국: 수급 · 시장 폭
-  if (kr && f) {
-    const mk = Object.entries(f.kr || {});
-    const flows = mk.filter(([, v]) => v.flows억원 && v.flows억원.외국인 != null);
-    if (flows.length) {
-      const max = Math.max(...flows.flatMap(([, v]) => ['외국인', '기관', '개인'].map(k => Math.abs(v.flows억원[k] || 0))));
-      grid.push(`<div class="card" style="margin:0">${mrepHead('투자자 순매수 <span class="muted" style="font-size:11px">억원</span>')}${flows.map(([code, v]) => `
-        <div class="muted" style="font-size:12px;margin:6px 0 4px">${code} · ${/확정/.test(v.note || '') ? 'KRX 확정' : '장 마감 잠정'}</div>
-        ${['외국인', '기관', '개인'].map(k => `<div style="display:grid;grid-template-columns:44px 1fr 86px;gap:8px;align-items:center;font-size:13px;margin-bottom:3px">
-          <span>${k}</span>${mrepBar(v.flows억원[k] || 0, max)}<span style="text-align:right">${mrepSign(v.flows억원[k])}</span></div>`).join('')}
-        ${v.program억원 && v.program억원.합계 != null ? `<div class="muted" style="font-size:12px">프로그램 ${mrepSign(v.program억원.합계)} (차익 ${mrepSign(v.program억원.차익)} · 비차익 ${mrepSign(v.program억원.비차익)})</div>` : ''}`).join('')}</div>`);
-    }
-    const br = mk.filter(([, v]) => v.breadth);
-    grid.push(`<div class="card" style="margin:0">${mrepHead('시장 폭 <span class="muted" style="font-size:11px">종목 수</span>')}${br.length ? br.map(([code, v]) => {
-      const b = v.breadth, tot = (b.상승 + b.보합 + b.하락) || 1;
-      return `<div class="muted" style="font-size:12px;margin:6px 0 4px">${code}${v.tradingValue조원 != null ? ` · 거래대금 ${v.tradingValue조원}조` : ''}</div>
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden"><div style="width:${b.상승 / tot * 100}%;background:var(--up)"></div><div style="width:${b.보합 / tot * 100}%;background:var(--border)"></div><div style="width:${b.하락 / tot * 100}%;background:var(--down)"></div></div>
-        <div style="font-size:12px;margin-top:3px"><span class="pos">상승 ${b.상승}</span>${b.상한 ? `(상한 ${b.상한})` : ''} · 보합 ${b.보합} · <span class="neg">하락 ${b.하락}</span>${b.하한 ? `(하한 ${b.하한})` : ''}</div>`;
-    }).join('') : '<p class="muted" style="font-size:12px">수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
-    const top = (mk.find(([c]) => c === 'KOSPI') || [, {}])[1].topByMcap;
-    if (top && top.length) grid.push(`<div class="card" style="margin:0">${mrepHead('KOSPI 시총 상위')}<table><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td style="text-align:right">${mrepSign(t.chgPct, '%')}</td><td class="muted" style="text-align:right">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:11px;margin-top:4px">지수 기여도 아님 — 등락률과 시총만</p></div>`);
-  }
-  // 4b) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
-  if (!kr && f) {
-    const tile = (label, r, val, chg) => r ? `<div style="padding:8px;border:1px solid var(--border);border-radius:8px;${r.fresh === false ? 'opacity:.5' : ''}"><div class="muted" style="font-size:11px">${label}</div><div style="font-size:15px;font-weight:600">${val}</div><div style="font-size:12px">${chg}</div></div>` : '';
-    const v = (x, dg = 2) => Number(x).toLocaleString(undefined, { maximumFractionDigits: dg });
-    const tnx = sym('^TNX'), rsp = sym('RSP'), spy = sym('SPY');
-    const t2 = f.us2y && f.us2y.value != null ? `<div style="padding:8px;border:1px solid var(--border);border-radius:8px"><div class="muted" style="font-size:11px">2년물 (${esc(f.us2y.date)})</div><div style="font-size:15px;font-weight:600">${f.us2y.value}%</div><div style="font-size:12px">${mrepSign(f.us2y.chgBp, 'bp')}</div></div>` : '';
-    grid.push(`<div class="card" style="margin:0">${mrepHead('금리·달러·위험')}<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px">
-      ${tile('10년물', tnx, tnx ? v(tnx.close, 3) + '%' : '', tnx ? mrepSign(tnx.chgBp, 'bp') : '')}${t2}
-      ${[['DX-Y.NYB', '달러인덱스'], ['KRW=X', '원/달러'], ['^VIX', 'VIX'], ['CL=F', 'WTI'], ['GC=F', '금'], ['BTC-USD', '비트코인'], ['EWY', 'EWY(한국)'], ['ES=F', 'S&P 선물'], ['NQ=F', '나스닥 선물']]
-        .map(([s, l]) => { const r = sym(s); return tile(l, r, r ? v(r.close) : '', r ? mrepSign(r.chgPct, '%') : ''); }).join('')}</div>
-      ${rsp && spy ? `<p style="font-size:12px;margin-top:8px">시장 폭: 동일가중 RSP − 시총가중 SPY = ${mrepSign(Math.round((rsp.chgPct - spy.chgPct) * 100) / 100, '%p')} <span class="muted">(양수면 고르게, 음수면 대형주 쏠림)</span></p>` : ''}</div>`);
-    const ah = (f.afterHours || []).filter(a => a.regularClose != null);
-    if (ah.length) grid.push(`<div class="card" style="margin:0">${mrepHead('대형 기술주 — 정규장 · 시간외 따로')}<table><thead><tr><th>종목</th><th style="text-align:right">정규장</th><th style="text-align:right">시간외</th><th class="muted">시각(ET)</th></tr></thead><tbody>${ah.map(a => `<tr><td>${esc(a.sym)}</td><td style="text-align:right">${mrepSign(a.regularChgPct, '%')}</td><td style="text-align:right">${a.ahChgPct == null ? '<span class="muted">-</span>' : mrepSign(a.ahChgPct, '%')}</td><td class="muted">${a.ahTimeET ? esc(a.ahTimeET.slice(11, 16)) : ''}</td></tr>`).join('')}</tbody></table></div>`);
-  }
-  // 4c) 업종·섹터 전체 막대
+  // 3a) 업종·섹터 — 오늘 막대 + 5일
   const sec = by(kr ? '업종ETF' : '섹터').sort((a, b) => b.chgPct - a.chgPct);
   if (sec.length) {
     const max = Math.max(...sec.map(r => Math.abs(r.chgPct)));
-    grid.push(`<div class="card" style="margin:0">${mrepHead(`${kr ? '업종' : '섹터'} 등락 <span class="muted" style="font-size:11px">${kr ? '업종 ETF' : 'SPDR 섹터 ETF'} 기준</span>`)}${sec.map(r => `
-      <div style="display:grid;grid-template-columns:${kr ? '118px' : '84px'} 1fr 62px;gap:8px;align-items:center;font-size:13px;margin-bottom:3px">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name.replace(/^(KODEX|TIGER|SOL|PLUS) /, ''))}</span>${mrepBar(r.chgPct, max)}<span style="text-align:right">${mrepSign(r.chgPct, '%')}</span></div>`).join('')}</div>`);
+    grid.push(`<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px"><h3 style="font-size:15px;margin:0">${kr ? '업종 ETF' : '섹터 ETF'}</h3><span class="muted" style="font-size:12px">오늘 · 5일</span></div>${sec.map(r => `
+      <div class="mrep-sec"><span>${esc(r.name.replace(/^(KODEX|TIGER|SOL|PLUS|ACE|RISE) /, ''))}</span>${mrepBar(r.chgPct, max)}<span class="num ${r.chgPct >= 0 ? 'pos' : 'neg'}" style="text-align:right">${r.chgPct >= 0 ? '+' : '−'}${Math.abs(r.chgPct).toFixed(2)}</span><span class="num muted" style="text-align:right">${r.chg5dPct == null ? '-' : (r.chg5dPct >= 0 ? '+' : '−') + Math.abs(r.chg5dPct).toFixed(2)}</span></div>`).join('')}</div>`);
   }
-  if (grid.length) out.push(`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px;align-items:start;margin-bottom:12px">${grid.join('')}</div>`);
+  // 3b) 한국: 수급 표 + 시장 폭 · 시총 상위
+  if (kr && f) {
+    const mk = Object.entries(f.kr || {});
+    const flows = mk.filter(([, v]) => v.flows억원 && v.flows억원.외국인 != null);
+    const br = mk.filter(([, v]) => v.breadth);
+    const flowTable = flows.length ? `<div class="table-wrap"><table class="mrep-tbl"><thead><tr><th>억원</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th></tr></thead><tbody>${flows.map(([code, v]) =>
+      `<tr><td>${code} <span class="muted" style="font-size:11px">${/확정/.test(v.note || '') ? '확정' : '잠정'}</span></td>${['외국인', '기관', '개인'].map(k => `<td class="num">${mrepSign(v.flows억원[k])}</td>`).join('')}<td class="num">${v.program억원 && v.program억원.합계 != null ? mrepSign(v.program억원.합계) : '<span class="muted">-</span>'}</td></tr>`).join('')}</tbody></table></div>` : '';
+    const breadth = br.map(([code, v]) => {
+      const b = v.breadth, up = (b.상승 || 0) + (b.상한 || 0), dn = (b.하락 || 0) + (b.하한 || 0), fl = b.보합 || 0, tot = up + dn + fl || 1;
+      return `<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span>${code}</span><span class="num muted" style="font-size:12px">상승 ${up.toLocaleString()}${b.상한 ? ` (상한 ${b.상한})` : ''} · 보합 ${fl} · 하락 ${dn.toLocaleString()}${b.하한 ? ` (하한 ${b.하한})` : ''}</span></div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / tot * 100}%;background:var(--up)"></div><div style="width:${fl / tot * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--down)"></div></div></div>`;
+    }).join('');
+    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">수급 · 시장 폭</h3>${flowTable || '<p class="muted" style="font-size:12px">수급 수집 안 됨</p>'}${breadth || '<p class="muted" style="font-size:12px;margin-top:10px">시장 폭 수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
+    const top = (mk.find(([c]) => c === 'KOSPI') || [, {}])[1].topByMcap;
+    if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
+  }
+  // 3c) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
+  if (!kr && f) {
+    const tile = (label, r, val, chg) => r ? `<div class="mrep-tile" style="${r.fresh === false ? 'opacity:.5' : ''}"><div class="muted" style="font-size:11px">${label}</div><div class="num" style="font-size:15px;font-weight:600">${val}</div><div class="num" style="font-size:12px">${chg}</div></div>` : '';
+    const v = (x, dg = 2) => Number(x).toLocaleString(undefined, { maximumFractionDigits: dg });
+    const tnx = sym('^TNX'), rsp = sym('RSP'), spy = sym('SPY');
+    const t2 = f.us2y && f.us2y.value != null ? `<div class="mrep-tile"><div class="muted" style="font-size:11px">2년물 (${esc(f.us2y.date)})</div><div class="num" style="font-size:15px;font-weight:600">${f.us2y.value}%</div><div class="num" style="font-size:12px">${mrepSign(f.us2y.chgBp, 'bp')}</div></div>` : '';
+    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">금리 · 달러 · 위험</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px">
+      ${tile('10년물', tnx, tnx ? v(tnx.close, 3) + '%' : '', tnx ? mrepSign(tnx.chgBp, 'bp') : '')}${t2}
+      ${[['DX-Y.NYB', '달러인덱스'], ['KRW=X', '원/달러'], ['^VIX', 'VIX'], ['CL=F', 'WTI'], ['GC=F', '금'], ['BTC-USD', '비트코인'], ['EWY', 'EWY(한국)'], ['ES=F', 'S&P 선물'], ['NQ=F', '나스닥 선물']]
+        .map(([s, l]) => { const r = sym(s); return tile(l, r, r ? v(r.close) : '', r ? mrepSign(r.chgPct, '%') : ''); }).join('')}</div>
+      ${rsp && spy ? `<p style="font-size:12px;margin:10px 0 0">시장 폭: 동일가중 RSP − 시총가중 SPY = ${mrepSign(Math.round((rsp.chgPct - spy.chgPct) * 100) / 100, '%p')} <span class="muted">(양수면 고르게, 음수면 대형주 쏠림)</span></p>` : ''}</div>`);
+    const ah = (f.afterHours || []).filter(a => a.regularClose != null);
+    if (ah.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">대형 기술주 — 정규장 · 시간외</h3><table class="mrep-tbl"><thead><tr><th>종목</th><th>정규장</th><th>시간외</th><th>시각(ET)</th></tr></thead><tbody>${ah.map(a => `<tr><td>${esc(a.sym)}</td><td class="num">${mrepSign(a.regularChgPct, '%')}</td><td class="num">${a.ahChgPct == null ? '<span class="muted">-</span>' : mrepSign(a.ahChgPct, '%')}</td><td class="num muted">${a.ahTimeET ? esc(a.ahTimeET.slice(11, 16)) : ''}</td></tr>`).join('')}</tbody></table></div>`);
+  }
+  // 3d) 장 마감 뒤 · 내일 체크(일정·관찰·연구 메모)
+  const tl = (rows) => `<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px">${rows.map(x => `<span class="num muted">${hm(x.timeKST)}</span><span>${esc(x.text || '')}</span>`).join('')}</div>`;
+  if ((sm.afterClose || []).length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">장 마감 뒤</h3>${tl(sm.afterClose)}</div>`);
+  if ((sm.watch || []).length || (sm.events || []).length || (sm.researchNotes || []).length) grid.push(`<div class="card" style="margin:0;background:#151d2c"><h3 style="font-size:15px;margin:0 0 10px">${kr ? '내일 체크' : '오늘 한국장 · 오늘 밤 미국'}</h3>
+    ${(sm.watch || []).length ? `<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:13px">${sm.watch.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+    ${(sm.events || []).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${sm.events.map(e => `<span class="mrep-chip">${esc(String(e.timeKST || '').slice(5, 10))} ${esc(e.text || '')}</span>`).join('')}</div>` : ''}
+    ${(sm.researchNotes || []).map(n => `<p class="muted" style="font-size:12px;margin:12px 0 0">연구 메모 · ${esc(n.condition || '')} — ${esc(n.note || '')}</p>`).join('')}</div>`);
+  out.push(cardGrid(grid));
 
-  // 5) 원인 카드
-  const causes = sm.causes || [];
-  out.push(`<div class="card">${mrepHead('왜 움직였나')}${causes.length ? causes.map((c, i) => `
-    <div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><strong>${i + 1}. ${esc(c.title || '')}</strong>
-        <span style="font-size:12px;color:${MREP_CONF[c.confidence] || 'var(--muted)'};border:1px solid currentColor;border-radius:10px;padding:1px 8px;white-space:nowrap">확신도 ${esc(c.confidence || '-')}</span></div>
-      ${c.reaction ? `<div style="font-size:13px;margin-top:6px"><span class="muted">시장 반응</span> ${esc(c.reaction)}</div>` : ''}
-      ${(c.evidence && c.evidence.length) || c.counter ? `<details style="margin-top:6px"><summary class="muted" style="font-size:12px;cursor:pointer">근거 ${(c.evidence || []).length}건${c.counter ? ' · 반대 증거' : ''}</summary>
-        ${(c.evidence || []).map(e => `<div style="font-size:12px;margin-top:4px"><span class="muted">${mrepT(e.timeKST)} ${esc(e.source || '')}</span> ${esc(e.text || '')}${e.url ? ` <a href="${esc(e.url)}" target="_blank" rel="noopener">원문↗</a>` : ''}</div>`).join('')}
-        ${c.counter ? `<div style="font-size:12px;margin-top:6px"><span style="color:var(--mid)">반대 증거</span> ${esc(c.counter)}</div>` : ''}</details>` : ''}
-    </div>`).join('') : '<p class="muted" style="font-size:13px">구조화 요약(summary.json)이 없습니다 — 아래 원문을 보세요.</p>'}</div>`);
-
-  // 6) 장 마감 뒤 · 일정 · 체크
-  const tl = (rows) => rows.map(x => `<div style="display:grid;grid-template-columns:86px 1fr;gap:8px;font-size:13px;margin-bottom:4px"><span class="muted">${mrepT(x.timeKST)}</span><span>${esc(x.text || '')}</span></div>`).join('');
-  const side = [];
-  if ((sm.afterClose || []).length) side.push(`<div class="card" style="margin:0">${mrepHead(kr ? '장 마감 뒤 공시·뉴스' : '장 마감 뒤')}${tl(sm.afterClose)}</div>`);
-  if ((sm.events || []).length || (sm.watch || []).length) side.push(`<div class="card" style="margin:0">${mrepHead(kr ? '다음 거래일' : '오늘 한국장 · 오늘 밤 미국')}${tl(sm.events || [])}
-    ${(sm.watch || []).length ? `<div class="muted" style="font-size:12px;margin:6px 0 4px">관찰할 것</div>${sm.watch.map(w => `<div style="font-size:13px">· ${esc(w)}</div>`).join('')}` : ''}</div>`);
-  if ((sm.researchNotes || []).length) side.push(`<div class="card" style="margin:0">${mrepHead('연구 메모 <span class="muted" style="font-size:11px">조건이 맞을 때만 · 예측 아님</span>')}${sm.researchNotes.map(n => `<div style="font-size:13px;margin-bottom:6px"><span class="muted">조건</span> ${esc(n.condition || '')}<br>${esc(n.note || '')}</div>`).join('')}</div>`);
-  if (side.length) out.push(`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px;align-items:start;margin-bottom:12px">${side.join('')}</div>`);
-
-  // 7) 수집 안 됨 · 원문
+  // 4) 수집 안 됨 · 원문
   if (f && (f.missing || []).length) out.push(`<p class="muted" style="font-size:11px;margin-bottom:8px">수집 안 됨: ${f.missing.map(esc).join(' / ')}</p>`);
   if (d.text) out.push(`<details class="card"><summary style="cursor:pointer">원문 리포트</summary><pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px;line-height:1.6;margin:10px 0 0">${esc(d.text).replace(/https?:\/\/[^\s)<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`)}</pre></details>`);
   return out.join('');
@@ -3274,15 +3294,29 @@ function renderMarketReports() {
   if (!mrep.index.length) return '<div class="card empty">아직 리포트가 없습니다. 평일 18:10(한국)·07:00(미국)에 생깁니다.</div>';
   const byDate = {};
   for (const f of mrep.index) { const m = f.match(/^(\d{4}-\d{2}-\d{2})-(kr|us)\.md$/); if (m) (byDate[m[1]] = byDate[m[1]] || {})[m[2]] = f; }
-  const chips = Object.keys(byDate).sort().reverse().map(d => {
-    const b = (k, label) => byDate[d][k] ? `<button class="chip${mrep.sel === byDate[d][k] ? ' active' : ''}" data-mreport="${esc(byDate[d][k])}">${label}</button>` : '';
-    return `<span style="white-space:nowrap"><span class="muted" style="font-size:12px;margin-right:4px">${d.slice(5)}</span>${b('kr', '한국')} ${b('us', '미국')}</span>`;
-  }).join('');
+  const dates = Object.keys(byDate).sort().reverse();                       // 최신이 앞
+  const cur = (mrep.sel || '').slice(0, 10), mk = (mrep.sel || '').endsWith('-us.md') ? 'us' : 'kr';
+  const pick = dt => dt && (byDate[dt][mk] || byDate[dt].kr || byDate[dt].us);   // 그 날짜에 같은 시장이 없으면 있는 쪽
+  const i = dates.indexOf(cur), older = pick(dates[i + 1]), newer = i > 0 ? pick(dates[i - 1]) : null;
+  const wd = cur ? '일월화수목금토'[new Date(cur + 'T12:00:00').getDay()] : '';
+  const arrow = (file, label, path) => `<button class="mrep-arrow"${file ? ` data-mreport="${esc(file)}"` : ' disabled'} aria-label="${label}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="${path}"/></svg></button>`;
+  const tab = (k, label) => { const f = cur && byDate[cur] && byDate[cur][k]; return `<button role="tab" aria-selected="${mk === k}" class="${mk === k ? 'on' : ''}"${f ? ` data-mreport="${esc(f)}"` : ' disabled'}>${label}</button>`; };
   const d = mrep.data[mrep.sel];
   const body = !d || d.loading ? '<div class="card empty">불러오는 중…</div>' : renderMrepBody(mrep.sel, d);
-  return `<div class="filter-row" style="gap:10px">${chips}</div>${body}
-    <p class="muted" style="font-size:11px">숫자는 scripts/market-close-facts.py(Yahoo·네이버·FRED), 원인·일정은 Claude 루틴. 시황 설명이며 매매 권유가 아닙니다.</p>`;
+  return `<div class="mrep-bar">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${arrow(older, '이전 리포트', 'M15 18l-6-6 6-6')}
+        <h2 style="margin:0 6px;font-size:21px">${mk === 'kr' ? '한국장' : '미국장'} 마감 <span class="num muted" style="font-weight:500">${cur}(${wd})</span></h2>
+        ${arrow(newer, '다음 리포트', 'M9 18l6-6-6-6')}
+        <select class="mrep-sel" data-mreport-select aria-label="날짜 고르기">${dates.map(dt => `<option value="${esc(pick(dt))}"${dt === cur ? ' selected' : ''}>${dt.slice(5)}</option>`).join('')}</select>
+      </div>
+      <div class="mrep-tabs" role="tablist" aria-label="시장">${tab('kr', '한국')}${tab('us', '미국')}</div>
+    </div>${body}
+    <p class="muted" style="font-size:11px">숫자 = facts.json(Yahoo·네이버·FRED) · 원인 = 루틴이 기사 시각과 대조 · ${d && d.facts ? `숫자 생성 ${mrepT(d.facts.generatedAtKST)} KST · ` : ''}시황 설명이며 매매 권유가 아닙니다.</p>`;
 }
+document.addEventListener('change', (e) => {
+  if (e.target.matches && e.target.matches('[data-mreport-select]')) loadMarketReport(e.target.value);
+});
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-mreport]');
   if (b) loadMarketReport(b.dataset.mreport);
