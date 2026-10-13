@@ -135,12 +135,16 @@ def send(token, stem, text):
 
 
 def login():
-    # 사람이 셸에서 바로 치는 경로 — systemd 처럼 EnvironmentFile 을 안 읽으므로 KAKAO_* 줄만 직접 읽는다
-    with open(os.path.expanduser("~/collector-venv/.env"), encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("KAKAO_") and "=" in line:
-                key, val = line.strip().split("=", 1)
-                os.environ.setdefault(key, val.strip("'\""))
+    # 사람이 셸에서 바로 치는 경로 — systemd 처럼 EnvironmentFile 을 안 읽으므로 KAKAO_* 줄만 직접 읽는다.
+    # PC(브라우저 있는 곳)에서 setup-keys.bat 로 넣은 저장소 .env 도 본다 → 만든 token.json 은 VM 으로 복사.
+    for env in (os.path.expanduser("~/collector-venv/.env"), os.path.join(os.path.dirname(__file__), "..", ".env")):
+        if not os.path.exists(env):
+            continue
+        with open(env, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("KAKAO_") and "=" in line:
+                    key, val = line.strip().split("=", 1)
+                    os.environ.setdefault(key, val.strip("'\""))
     q =urllib.parse.urlencode({"response_type": "code", "client_id": os.environ["KAKAO_REST_API_KEY"],
                                 "redirect_uri": REDIRECT, "scope": "talk_message"})
     print("1) PC 브라우저에서 이 주소를 열고 카카오 로그인·동의:\n\n   https://kauth.kakao.com/oauth/authorize?" + q)

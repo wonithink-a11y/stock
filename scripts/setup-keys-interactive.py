@@ -76,6 +76,10 @@ SERVICES = [
     ("Google Gemini - 공시 계기 자동 해독(aistudio.google.com/apikey)", [
         ("GEMINI_API_KEY", "API 키"),
     ]),
+    ("카카오 - 장 마감 리포트 카톡(developers.kakao.com > 앱 > 플랫폼 키)", [
+        ("KAKAO_REST_API_KEY", "REST API 키(어드민 키 아님)"),
+        ("KAKAO_CLIENT_SECRET", "클라이언트 시크릿 - '사용 안 함'이면 s 로 건너뛴다"),
+    ]),
 ]
 
 
