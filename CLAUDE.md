@@ -237,6 +237,9 @@ Validated against
   안 한다   ★ 거래량 5배 + 공시 당일 → 다음 날 시가 진입(KR, 2026-10-04, 인스타 게시물 계기 · 사전등록 → 코드 0ca34f43) — **REJECT·종결**. 신호: 없음(음의 방향) · 경제성: 미달.
             공식 VD h1·h5 TRAIN t −1.54·−1.63(바닥선 2.38), 롱 gross −52·−49bp. 기록용 V·VN 은 세 구간 모두 음(V h1 TRAIN −6.7), 공시 유무 구분력 없음. 숏·역추세는 사후 가설 — 새 사전등록으로만.
             findings/kr-volsurge-news-day-results-2026-10.md. 부산물: 소형주 ETF 5종 비교(설명용, AVUV 우위는 2021·2022 두 해에 몰림) findings/us-smallcap-etf-compare-2026-10.md.
+  다음      ★ **호가·체결강도 장중 기록(10-13 사용자 GO)** — `scripts/collect-orderflow-kis.py` · `deploy/orderflow-collect.{service,timer}`(평일 08:49~15:31, 실전 키 초당 4, 조회 전용).
+            1분 시장 순위 6종 + 3분 전일 거래대금 상위 200 패널(10호가·예상체결·체결강도) → VM ~/orderflow-raw(커밋 안 함). 과거 이력 없음 → forward 만.
+            **6개월(≈2027-04) 동안 값을 열지 않는다**(건수·status·_summary 만) → 그 뒤 사전등록. 첫 주 실측(호출 수·EGW00201·분봉/autotrader 영향) 보고. 설계 docs/control/호가체결강도-기록-설계-2026-10-13.md.
   다음      ★★ **10-13 야간 연구(사용자 위임, 급등주 조건)** — docs/control/야간연구-보고-2026-10-13.md. 급등 확률 모델 REJECT(적중 3.3배인데 TEST −98bp) · 장 초반 무리형 REJECT ·
             종가 매집 반대 방향 · 수급처별·상한가·횡보 사후 기술 · **실마리: 대형주 마감 약세 되돌림**(종가 위치 10년 저가 마감 +12.4bp t 8.3, 비용 미달) →
             주식선물로는 REJECT(+8.8bp vs 현물 +29.1 — 15:45 선물 종가가 2/3 이미 반영, 정체 = 종가 동시호가 압력). 주식선물 일별 수집기 `collect_stock_futures_krx.py`(data/stock-futures/, 2023~).
