@@ -46,7 +46,6 @@
   .mrep-top > .card { margin: 0; border-radius: 12px; }
   .mrep-idx { flex: 1 1 200px; padding: 18px; }
   .mrep-big { font-size: 30px; font-weight: 700; line-height: 1.2; }
-  @media (max-width: 600px) { .mrep-idx { flex-basis: 140px; padding: 12px; } .mrep-big { font-size: 21px; } }
   .mrep-head { flex: 2 1 360px; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 18px 20px; background: #1b1d1a; border-color: #3a3220; }
   .mrep-head p { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.55; }
   .mrep-cap { font-size: 12px; font-weight: 600; color: #c9a75e; letter-spacing: .04em; }
@@ -60,6 +59,28 @@
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; }
   .mrep-tile { padding: 8px; border: 1px solid var(--border); border-radius: 8px; }
   .mrep-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #26324a; }
+  @media (max-width: 600px) {
+    /* 폰: 한 화면에 더 많이(2026-10-14 사용자 요청) — 날짜·시장 선택을 한 줄로(제목은 드롭다운·탭과 겹쳐 숨김), 카드·글자 축소 */
+    .mrep-bar { flex-wrap: nowrap; gap: 8px; margin-bottom: 10px; }
+    .mrep-bar h2 { display: none; }
+    .mrep-bar > div:first-child { flex-wrap: nowrap; gap: 6px; }
+    .mrep-arrow, .mrep-sel { height: 36px; }
+    .mrep-arrow { width: 36px; }
+    .mrep-tabs { padding: 3px; }
+    .mrep-tabs button { min-height: 30px; padding: 0 12px; }
+    .mrep-top { gap: 8px; margin-bottom: 12px; }
+    .mrep-idx { flex-basis: 140px; padding: 10px 12px; }
+    .mrep-big { font-size: 21px; }
+    .mrep-head { padding: 12px 14px; gap: 4px; }
+    .mrep-head p { font-size: 15px; line-height: 1.5; }
+    #content h3 { font-size: 15px !important; margin-bottom: 8px !important; }
+    #content .card { padding: 12px; }
+    #content article.card { gap: 8px !important; }
+    .mrep-ev { gap: 5px; font-size: 12.5px; }
+    .mrep-rc { font-size: 12.5px; gap: 4px 8px; }
+    .mrep-sec { margin-bottom: 3px; font-size: 12.5px; grid-template-columns: 80px 1fr 46px 46px; }
+    .mrep-tbl th, .mrep-tbl td { padding: 6px 4px; font-size: 12.5px; }
+  }
   .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
   .cal-h { text-align: center; color: var(--muted); font-size: 12px; padding: 2px 0; }
   .cal-c { min-height: 74px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 5px; background: var(--card); font-size: 11px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
