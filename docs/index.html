@@ -22,6 +22,16 @@
   #nav { margin-bottom: 8px; }
   #subnav button { padding: 5px 12px; font-size: 13px; }
   .today-compact th, .today-compact td { padding: 6px 8px; font-size: 12px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .home-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+  .home-tick { padding: 12px 14px; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); }   /* 칸 수가 안 나눠떨어져도 빈 회색 칸이 안 생기게 */
+  .home-hero a { color: var(--accent); text-decoration: none; }
+  .home-hero { display: flex; flex-wrap: wrap; gap: 20px 24px; padding: 20px; border-radius: 12px; }
+  .home-breadth { flex: 1 1 240px; display: flex; flex-direction: column; gap: 12px; padding-left: 24px; border-left: 1px solid var(--border); }
+  @media (max-width: 700px) { .home-breadth { padding-left: 0; border-left: 0; padding-top: 16px; border-top: 1px solid var(--border); } }
+  .home-conf { font-size: 12px; padding: 1px 8px; border-radius: 6px; background: #2a2416; color: #f3c76e; white-space: nowrap; }
+  .home-bar { display: grid; grid-template-columns: 96px 1fr 72px; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 6px; }
+  .home-bar > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
   .cal-h { text-align: center; color: var(--muted); font-size: 12px; padding: 2px 0; }
   .cal-c { min-height: 74px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 5px; background: var(--card); font-size: 11px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
@@ -3479,6 +3489,53 @@ document.addEventListener('click', (e) => {
 });
 
 // ---------- 오늘 (첫 화면): 기존 데이터를 카드로 모아 보여 준다. 새 계산 없음 ----------
+// 맨 위 지표 띠·리포트 요약·업종 강약은 가장 최근 한국장 마감 리포트(facts·summary)에서 읽는다(시안 2026-10-13).
+const homeRep = { loading: false, file: null, facts: null, summary: null };
+function loadHomeReport() {
+  if (homeRep.loading) return;
+  homeRep.loading = true;
+  mrepGet('data/market-reports/index.json', 'json').then(j => {
+    const f = ((j && j.files) || []).filter(x => /-kr\.md$/.test(x)).sort().pop();
+    if (!f) return;
+    const b = `data/market-reports/${encodeURIComponent(f.replace(/\.md$/, ''))}`;
+    return Promise.all([mrepGet(`${b}.facts.json`, 'json'), mrepGet(`${b}.summary.json`, 'json')]).then(([facts, summary]) => {
+      Object.assign(homeRep, { file: f, facts, summary });
+      if (state.tab === 'today') render();
+    });
+  });
+}
+function todayTop() {
+  loadHomeReport();
+  const f = homeRep.facts, s = homeRep.summary;
+  if (!f) return '';
+  const pct = v => v == null ? '' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}%</span>`;
+  const series = (f.series || []).filter(r => ['지수', '미국선물', '환율'].includes(r.group) && r.close != null);
+  const strip = series.map(r => `<div class="home-tick"><div class="muted" style="font-size:12px">${esc(r.name)}</div>
+    <div class="num" style="font-size:19px;font-weight:600">${Number(r.close).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
+    <div class="num" style="font-size:13px">${pct(r.chgPct)}${r.chg5dPct != null ? ` <span class="muted" style="font-size:11px">5일 ${r.chg5dPct >= 0 ? '+' : '−'}${Math.abs(r.chg5dPct).toFixed(2)}%</span>` : ''}</div></div>`).join('');
+  const stem = homeRep.file.replace(/\.md$/, ''), day = stem.slice(5, 10).replace('-', '/');
+  const causes = ((s && s.causes) || []).slice(0, 3).map((c, i) => `<div style="display:flex;gap:10px;align-items:baseline"><span class="num muted">${i + 1}</span>
+    <span style="flex:1">${esc(c.title)}</span>${c.confidence ? `<span class="home-conf">확신 ${esc(c.confidence)}</span>` : ''}</div>`).join('');
+  const breadth = ['KOSPI', 'KOSDAQ'].map(m => {
+    const k = (f.kr || {})[m] || {}, b = k.breadth;
+    if (!b) return '';
+    const up = (b['상승'] || 0) + (b['상한'] || 0), dn = (b['하락'] || 0) + (b['하한'] || 0), fl = b['보합'] || 0, n = up + dn + fl || 1;
+    return `<div><div style="display:flex;justify-content:space-between;font-size:13px"><span>${m}</span><span class="num muted" style="font-size:12px">상승 ${up.toLocaleString()} · 하락 ${dn.toLocaleString()}</span></div>
+      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / n * 100}%;background:var(--good)"></div><div style="width:${fl / n * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--bad)"></div></div></div>`;
+  }).join('');
+  const tv = ['KOSPI', 'KOSDAQ'].map(m => ((f.kr || {})[m] || {})['tradingValue조원']).filter(v => v != null);
+  return `<div class="home-strip">${strip}</div>
+  <div class="card home-hero">
+    <div style="flex:999 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="muted" style="font-size:12px;font-weight:600">${day} 한국장 마감 리포트</span>
+        <a href="#mreport=${esc(stem)}" data-goto="mreport" style="font-size:13px">전체 리포트 →</a></div>
+      <p style="margin:0;font-size:19px;font-weight:600;line-height:1.45">${esc((s && s.headline) || '')}</p>
+      ${causes ? `<div style="display:flex;flex-direction:column;gap:6px">${causes}</div>` : ''}
+    </div>
+    ${breadth ? `<div class="home-breadth"><span class="muted" style="font-size:12px;font-weight:600">시장 폭</span>${breadth}
+      ${tv.length === 2 ? `<div class="muted" style="font-size:12px">거래대금 KOSPI <span class="num">${tv[0].toFixed(1)}조</span> · KOSDAQ <span class="num">${tv[1].toFixed(1)}조</span></div>` : ''}</div>` : ''}
+  </div>`;
+}
 const TODAY_MACRO = ['vix', 'yieldcurve', 'hyspread', 'usdkrw', 'us10y', 'kospi'];
 function renderToday() {
   const link = (to, label) => `<button class="chip" data-goto="${to}" style="font-size:12px;padding:3px 10px">${label} →</button>`;
@@ -3486,6 +3543,7 @@ function renderToday() {
     <h2 style="margin:0;font-size:16px">${title}</h2>${link(to, label)}</div>${body}</div>`;
   const empty = '<p class="muted" style="margin:0">데이터가 아직 없습니다.</p>';
   const cards = [];
+  let regimeCard = '';   // 맨 위 지표 띠가 생겨서 국면 카드는 맨 끝으로 내린다
 
   // 1) 시장 국면 + 핵심 매크로
   const rg = state.regime, mi = (state.macro && state.macro.indicators) || [];
@@ -3494,24 +3552,35 @@ function renderToday() {
       const c = (it.changes || {}).d1, unit = it.changeUnit || '%';
       return `<div class="stat"><span class="k">${esc(MACRO_LABELS[it.key] || it.key)}</span><span class="v" style="font-size:16px">${esc(it.display != null ? it.display : it.value)}</span>${c == null ? '' : `<span class="${c >= 0 ? 'pos' : 'neg'}" style="font-size:11px">${c >= 0 ? '+' : ''}${c}${unit}</span>`}</div>`;
     }).join('');
-    cards.push(card('시장 국면', 'regime', '국면·매크로',
+    regimeCard = card('시장 국면', 'regime', '국면·매크로',
       `${rg ? `<div class="regime" style="margin-bottom:10px"><span class="score regime-${rg.grade}">${rg.score}</span>
         <div><div><strong>${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div></div></div>` : ''}
-       <div class="summary-strip" style="margin:0">${macro}</div>`));
+       <div class="summary-strip" style="margin:0">${macro}</div>`);
   }
 
-  // 2) 시장 수급 (가장 최근 확정일)
+  // 2) 시장 수급 (가장 최근 확정일) — 0 기준 좌우 막대
   const mf = state.marketFlows;
   if (mf && mf.markets) {
-    const rows = ['KOSPI', 'KOSDAQ'].map(m => {
-      const days = (mf.markets[m] || {}).days || [], d = days[days.length - 1];
-      if (!d) return '';
-      const cell = n => { const it = d.items.find(x => x.name === n); return it ? `<td class="${it.net >= 0 ? 'pos' : 'neg'}" style="text-align:right">${fmtEok(it.net)}</td>` : '<td class="muted" style="text-align:right">-</td>'; };
-      return `<tr><td><b>${m}</b> <span class="muted">${d.date.slice(4, 6)}/${d.date.slice(6, 8)}</span></td>${cell('외국인')}${cell('기관합계')}${cell('개인')}</tr>`;
-    }).join('');
+    const latest = ['KOSPI', 'KOSDAQ'].map(m => { const days = (mf.markets[m] || {}).days || []; return [m, days[days.length - 1]]; }).filter(x => x[1]);
+    const nets = latest.flatMap(([, d]) => d.items.filter(x => ['외국인', '기관합계', '개인'].includes(x.name)).map(x => Math.abs(x.net)));
+    const max = Math.max(1, ...nets);
+    const blocks = latest.map(([m, d]) => `<div class="muted" style="font-size:12px;margin:${m === 'KOSPI' ? 0 : 12}px 0 6px">${m} · ${d.date.slice(4, 6)}/${d.date.slice(6, 8)}</div>` +
+      [['외국인', '외국인'], ['기관합계', '기관'], ['개인', '개인']].map(([n, label]) => {
+        const it = d.items.find(x => x.name === n);
+        return it ? `<div class="home-bar"><span>${label}</span>${mrepBar(it.net, max)}<span class="num ${it.net >= 0 ? 'pos' : 'neg'}" style="text-align:right">${fmtEok(it.net)}</span></div>` : '';
+      }).join('')).join('');
     cards.push(card('시장 수급', 'flows', '시장수급',
-      rows ? `<div class="table-wrap"><table class="today-compact"><thead><tr><th>시장</th><th style="text-align:right">외국인</th><th style="text-align:right">기관</th><th style="text-align:right">개인</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <p class="muted" style="margin:6px 0 0;font-size:11px">순매수, 가장 최근 확정일 기준</p>` : empty));
+      blocks ? `${blocks}<p class="muted" style="margin:10px 0 0;font-size:11px">순매수, 가장 최근 확정일 기준</p>` : empty));
+  }
+
+  // 2-1) 업종 강약 — 가장 최근 한국장 마감 리포트의 업종 ETF 위·아래 3개
+  const sec = ((homeRep.facts && homeRep.facts.series) || []).filter(r => r.group === '업종ETF' && r.chgPct != null).sort((a, b) => b.chgPct - a.chgPct);
+  if (sec.length >= 6) {
+    const smax = Math.max(...sec.map(r => Math.abs(r.chgPct)));
+    const row = r => `<div class="home-bar"><span>${esc(r.name.replace(/^(KODEX|TIGER|SOL|PLUS|ACE|RISE)\s+/, ''))}</span>${mrepBar(r.chgPct, smax)}<span class="num ${r.chgPct >= 0 ? 'pos' : 'neg'}" style="text-align:right">${r.chgPct >= 0 ? '+' : '−'}${Math.abs(r.chgPct).toFixed(2)}%</span></div>`;
+    cards.push(card('업종 강약', 'sector', '섹터강도',
+      `${sec.slice(0, 3).map(row).join('')}<div style="height:1px;background:var(--border);margin:6px 0"></div>${sec.slice(-3).map(row).join('')}
+       <p class="muted" style="margin:10px 0 0;font-size:11px">업종 ETF ${sec.length}개 중 위·아래 3개 · ${homeRep.file.slice(5, 10).replace('-', '/')} 마감</p>`));
   }
 
   // 3) 앞으로 7일 일정 (핵심: 보유·거시·국내)
@@ -3552,8 +3621,10 @@ function renderToday() {
       `<div class="table-wrap"><table><thead><tr><th>종목</th><th style="text-align:right">손익</th><th>점수</th></tr></thead><tbody>${rows}</tbody></table></div>`));
   }
 
-  if (!cards.length) return '<div class="card empty">표시할 데이터가 아직 없습니다.</div>';
-  return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px;align-items:start">${cards.join('')}</div>`;
+  if (regimeCard) cards.push(regimeCard);
+  const top = todayTop();
+  if (!cards.length && !top) return '<div class="card empty">표시할 데이터가 아직 없습니다.</div>';
+  return `${top}<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;align-items:start">${cards.join('')}</div>`;
 }
 
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
