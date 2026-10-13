@@ -41,6 +41,8 @@ MOVE_RE = re.compile(r"\d+(\.\d+)?\s*%|급등|급락|상승|하락|강세|약세
 DISC_RE = re.compile(r"공시|공급계약|단일판매|수주|유상증자|무상증자|자사주|자기주식|전환사채|신주인수권|교환사채|합병|분할|최대주주|"
                      r"지분|잠정|실적|영업이익|매출액|순이익|배당|소각|상장폐지|거래정지|감자|소송|횡령|배임|불성실")
 HORIZONS = ("m5", "m30", "close", "next")
+# 제목 주어 자리 = 맨 앞 [말머리] 를 떼고 첫 쉼표 앞 20자 이내. 거기에 다른 회사만 있으면 남의 기사('농심, … 이마트 선출시')
+SUBJ_RE = re.compile(r"^\s*(?:\[[^\]]*\]\s*)*([^,，…]{1,20}?)\s*[,，]")
 
 
 def now_kst():
@@ -49,6 +51,16 @@ def now_kst():
 
 def read_jsonl(p):
     return [json.loads(l) for l in open(p, encoding="utf-8") if l.strip()] if p.exists() else []
+
+
+def is_subject(title, name):
+    """주어 자리가 없으면(쉼표 없는 제목) 통과 — 종목명이 제목에 있다는 원장 조건만 남는다.
+    증권사 리포트('하나증권, 키움증권 목표가 하향')는 증권사 주어를 떼고 그 뒤를 다시 본다."""
+    m = SUBJ_RE.match(title)
+    while m and re.fullmatch(r"\S*(증권|證)", m.group(1).strip()):
+        title = title[m.end():]
+        m = SUBJ_RE.match(title)
+    return not m or name in m.group(1)
 
 
 def classify(title):
@@ -71,7 +83,7 @@ def events(rows):
             continue
         p = datetime.fromisoformat(r["pubDate"].replace("Z", "+00:00")).astimezone(KST)
         d, hm = p.strftime("%Y%m%d"), p.strftime("%H:%M")
-        if d < FREEZE or not FIRST <= hm <= LAST:
+        if d < FREEZE or not FIRST <= hm <= LAST or not is_subject(r["title"], r["name"]):
             continue
         k = (r["code"], d, classify(r["title"]))
         if k not in best or hm < best[k]["pub_hm"]:
@@ -199,6 +211,13 @@ def selftest():
     assert classify("삼성전자, 3조 규모 자사주 매입 결정") == "DISC"
     assert classify("HLB, 美 FDA 허가 획득") == "OTHER"
     assert classify("○○, 수주 공시에 상한가") == "MOVE"            # 이미 움직인 뒤 기사가 우선
+    assert not is_subject("농심, 소비자 레시피 담은 '감바스짜파게티' 선봬…이마트 선출시", "이마트")
+    assert is_subject("[특징주] 에코프로, 2차전지 강세에 7% 급등", "에코프로")
+    assert is_subject("삼성전자·SK하이닉스, 반도체 강세", "SK하이닉스")
+    assert is_subject("하나증권, 키움증권 목표가 하향…“3분기 실적 부진 전망”", "키움증권")
+    assert not is_subject('키움證 "현대모비스, 현대차·기아 파업 부담…목표가 14.7%↓"', "기아")
+    assert is_subject("후성 주가, 10월 6일 장중 16,230원 0.98% 하락", "후성")
+    assert is_subject("로봇주 장중 동반 상승…휴림로봇 4%대·레인보우로보틱스 2%대 강세", "휴림로봇")   # 쉼표 없음
     rows = [{"code": "000010", "name": "가", "pubDate": "2026-10-14T01:05:00.000Z", "title": "가 공급계약 체결", "link": "a"},
             {"code": "000010", "name": "가", "pubDate": "2026-10-14T01:20:00.000Z", "title": "가 수주", "link": "b"},
             {"code": "000010", "name": "가", "pubDate": "2026-10-14T01:30:00.000Z", "title": "가 10% 급등", "link": "c"},
