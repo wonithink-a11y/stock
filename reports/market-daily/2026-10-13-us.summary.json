@@ -1,0 +1,23 @@
+{
+  "headline": "지수는 보합권(S&P −0.02%)이었지만 반도체 장비주 약세와 은행 실적 혼조, 국채금리 변동 속에 CPI를 앞두고 관망한 날이었다.",
+  "causes": [
+    {"title": "반도체 장비주 약세·나스닥 부진", "confidence": "중간",
+     "evidence": [{"timeKST": "2026-10-14T05:17", "source": "Reuters", "text": "칩 업종 하락과 은행 실적 속 나스닥 하락 마감", "url": ""},
+                  {"timeKST": "2026-10-14T03:12", "source": "Investing.com", "text": "어플라이드머티리얼즈 약세", "url": ""}],
+     "reaction": "SOX −0.23%(5일 −7.63%), 기술 섹터 −0.04%",
+     "counter": "엔비디아·브로드컴·메타는 상승"},
+    {"title": "국채금리 변동과 연준 발언", "confidence": "중간",
+     "evidence": [{"timeKST": "2026-10-14T03:20", "source": "investingLive", "text": "윌리엄스: 내년 금리 인상 필요 없다고 봄", "url": ""},
+                  {"timeKST": "2026-10-14T03:29", "source": "BigG", "text": "월러: 금리 급등은 성장과 AI 투자 반영", "url": ""}],
+     "reaction": "10년물 −2.3bp, 달러인덱스 −0.36%, 유틸리티 +0.58%",
+     "counter": "2년물 값 없음, 장기금리 6% 경계 기사 이어짐"},
+    {"title": "은행 실적 혼조", "confidence": "낮음",
+     "evidence": [{"timeKST": "2026-10-14T05:35", "source": "시황 기사", "text": "견조한 실적에도 하락", "url": ""}],
+     "reaction": "금융 섹터 −0.42%",
+     "counter": "개별 은행 등락률 데이터 없음"}
+  ],
+  "afterClose": [{"timeKST": "2026-10-14T06:31", "text": "BofA 재무부 12억 달러 벌금 보도"}],
+  "events": [{"timeKST": "2026-10-14T21:30", "text": "미국 9월 CPI(통상 시각)"}, {"timeKST": "2026-10-14T05:16", "text": "ASML 실적 예정(보도)"}],
+  "watch": ["CPI 발표 뒤 장기금리 반응", "반도체 업종 낙폭 확대 여부"],
+  "researchNotes": []
+}
