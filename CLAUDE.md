@@ -237,6 +237,10 @@ Validated against
   안 한다   ★ 거래량 5배 + 공시 당일 → 다음 날 시가 진입(KR, 2026-10-04, 인스타 게시물 계기 · 사전등록 → 코드 0ca34f43) — **REJECT·종결**. 신호: 없음(음의 방향) · 경제성: 미달.
             공식 VD h1·h5 TRAIN t −1.54·−1.63(바닥선 2.38), 롱 gross −52·−49bp. 기록용 V·VN 은 세 구간 모두 음(V h1 TRAIN −6.7), 공시 유무 구분력 없음. 숏·역추세는 사후 가설 — 새 사전등록으로만.
             findings/kr-volsurge-news-day-results-2026-10.md. 부산물: 소형주 ETF 5종 비교(설명용, AVUV 우위는 2021·2022 두 해에 몰림) findings/us-smallcap-etf-compare-2026-10.md.
+  다음      ★ **장 마감 리포트(10-13 사용자 GO)** — Claude 루틴 평일 18:10 kr · 07:00 us → `scripts/market-close-facts.py`(숫자만, Yahoo·네이버·FRED 키 없음) →
+            웹으로 원인·근거·시각 대조 → `reports/market-daily/` 커밋 → push 가 `market-report-telegram.yml` 을 깨워 1:1 방(지연 0.2분).
+            지시 정본 docs/control/시장마감리포트-루틴지시.md · 설계·Actions 지연 실측(cron 중앙 4~5h·최대 12h, 18:10 에 오늘 수급·공시 0/60) -설계-2026-10-13.md.
+            기여도 수치·가격 목표·확률 금지. 루틴 네트워크·push 브랜치·정시성은 등록 뒤 실측.
   다음      ★ **호가·체결강도 장중 기록(10-13 사용자 GO)** — `scripts/collect-orderflow-kis.py` · `deploy/orderflow-collect.{service,timer}`(평일 08:49~15:31, 실전 키 초당 4, 조회 전용).
             1분 시장 순위 6종 + 3분 전일 거래대금 상위 200 패널(10호가·예상체결·체결강도) → VM ~/orderflow-raw(커밋 안 함). 과거 이력 없음 → forward 만.
             **6개월(≈2027-04) 동안 값을 열지 않는다**(건수·status·_summary 만) → 그 뒤 사전등록. 첫 주 실측(호출 수·EGW00201·분봉/autotrader 영향) 보고. 설계 docs/control/호가체결강도-기록-설계-2026-10-13.md.

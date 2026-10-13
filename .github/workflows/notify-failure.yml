@@ -35,6 +35,8 @@ on:
       #   news·disclosures·intraday-alert·daily-analysis 도 콘텐츠·고빈도라 뺐다 - 장애 방은
       #   '뭐가 뜨면 무조건 고장'이어야 한다.
       - fundamentals-us
+      # 2026-10-13 - 장 마감 리포트 전달. 실패하면 그날 리포트가 안 온다(콘텐츠지만 전달 장애라 넣는다)
+      - market-report-telegram
       - Update macro.json
       - ETF/ETN daily snapshot (KIS)
       - Stock flows update (per-stock 수급 tab)
