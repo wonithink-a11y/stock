@@ -2,23 +2,23 @@
    이 변수·클래스를 재사용한다(3개 병렬 작업 결과가 시각적으로 안 어긋나게
    하는 계약). */
 :root {
-  --bg: #0b0e14;
-  /* 2026-09-14 - 카드가 배경과 거의 안 구분된다는 사용자 피드백으로 밝기 올림
-     (구 #11151d → #161c28, 테두리도 #1f2530 → #2c3446로 더 또렷하게). */
-  --panel: #161c28;
-  --panel-border: #2c3446;
-  --text: #d7dde5;
-  --text-dim: #7a8494;
-  --accent: #4da3ff;
-  --up: #ff4d4f;   /* 한국 관례: 상승 = 빨강 */
-  --down: #3b82f6; /* 하락 = 파랑 */
+  /* 2026-10-13 스코어링 대시보드(docs/index.html)와 같은 팔레트로 맞춤 — 두 페이지를 오가도 색이 안 바뀌게.
+     (옛값: bg #0b0e14 · panel #161c28 · border #2c3446 · text #d7dde5 · dim #7a8494 · up #ff4d4f · down #3b82f6) */
+  --bg: #0f1420;
+  --panel: #1a2233;
+  --panel-border: #2a3550;
+  --text: #e6ebf5;
+  --text-dim: #8b96ad;
+  --accent: #4d9fff;
+  --up: #f2555a;   /* 한국 관례: 상승 = 빨강 (대시보드 --up 과 같은 값) */
+  --down: #4c8dff; /* 하락 = 파랑 */
   --warn: #e0a72e;
-  --good: #35c07a;
-  --surface-2: #1c2333;   /* 중첩 카드(패널 위 패널) 배경 */
-  --surface-3: #232b3d;   /* 버튼·진행바 트랙·코드 배경 */
-  --row-hover: #1a2233;   /* 표·리스트 hover */
-  --row-selected: #1a2438; /* 표·리스트 선택됨 */
-  --input-bg: #0d1119;
+  --good: #2ecc71;
+  --surface-2: #1f2a3f;   /* 중첩 카드(패널 위 패널) 배경 */
+  --surface-3: #26324a;   /* 버튼·진행바 트랙·코드 배경 */
+  --row-hover: #1c263c;   /* 표·리스트 hover */
+  --row-selected: #1e2a44; /* 표·리스트 선택됨 */
+  --input-bg: #131a29;
   --tooltip-bg: #1c2433;
   --canvas-bg-grad: #0e1219;
   --mono: "Consolas", "SFMono-Regular", "Cascadia Mono", monospace;
@@ -28,6 +28,7 @@
 /* 라이트 테마 - html[data-theme="light"]일 때만 켜진다(기본은 다크, app.js가
    localStorage 기억). 값이 없는 토큰(--up 등 의미색)은 다크와 동일하게 둔다 -
    상승/하락 색은 테마와 무관하게 항상 같아야 한다. */
+:root[data-theme="light"] .sidebar { background: var(--panel); }
 :root[data-theme="light"] {
   --bg: #f4f5f7;
   --panel: #ffffff;
@@ -108,7 +109,7 @@ main { padding: 16px; }
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px 18px;
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
@@ -370,7 +371,7 @@ th {
    상단 가로 탭이 좁은 화면에서 줄바꿈되던 문제도 같이 해결된다. */
 .app-shell { display: flex; min-height: 100vh; }
 .sidebar {
-  width: 220px; flex-shrink: 0; background: var(--panel);
+  width: 220px; flex-shrink: 0; background: #0b0f18;   /* 대시보드 왼쪽 메뉴와 같은 바탕 */
   border-right: 1px solid var(--panel-border);
   display: flex; flex-direction: column;
 }
@@ -391,7 +392,7 @@ th {
 }
 .sidebar-nav .tab-btn .tab-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
 .sidebar-nav .tab-btn:hover { background: var(--row-hover); color: var(--text); }
-.sidebar-nav .tab-btn.active { background: var(--row-selected); color: var(--accent); font-weight: 600; }
+.sidebar-nav .tab-btn.active { background: var(--row-selected); color: var(--text); font-weight: 600; box-shadow: inset 2px 0 0 var(--accent); }
 
 .app-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .app-header {
