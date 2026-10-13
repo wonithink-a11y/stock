@@ -38,14 +38,15 @@ LIVE_PHRASE = "실계좌주문"      # 실계좌 주문 켜기·실행 때 입�
 SNAPSHOT_STALE_SEC = 30 * 60
 
 CSS = """
-:root{--bg:#0b1020;--fg:#e7e9f3;--card:#121933;--card2:#172042;--mut:#8a93ad;--line:#232c4d;--chip:#1b2447;
---acc:#6d6ff5;--acc2:#8b7cf6;--accs:rgba(109,111,245,.16);--up:#f25f6e;--dn:#5b8cff;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;
---oks:rgba(52,211,153,.13);--bads:rgba(248,113,113,.14);--warns:rgba(251,191,36,.14);--r:18px}
+:root{--bg:#0f1420;--fg:#e6ebf5;--card:#1a2233;--card2:#1f2a3f;--mut:#8b96ad;--line:#2a3550;--chip:#1f2a3f;
+--acc:#4d9fff;--acc2:#2a6fd6;--acct:#8cc4ff;--accs:rgba(77,159,255,.16);--up:#f2555a;--dn:#4c8dff;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;
+--oks:rgba(52,211,153,.13);--bads:rgba(248,113,113,.14);--warns:rgba(251,191,36,.14);--r:12px}
+/* 2026-10-13 스코어링 대시보드·모의투자 페이지와 같은 팔레트(배경·카드·테두리·파랑 강조·상승 빨강/하락 파랑). 옛값: 보라 강조 #6d6ff5 · bg #0b1020 */
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%;background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",system-ui,sans-serif;
 font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 svg.i{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.top{position:sticky;top:0;z-index:5;background:rgba(11,16,32,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 16px}
+.top{position:sticky;top:0;z-index:5;background:rgba(15,20,32,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 16px}
 .top .in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .top .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.4px;color:var(--fg);text-decoration:none}
 .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff}
@@ -70,7 +71,7 @@ h1{font-size:22px;margin:10px 2px 12px;letter-spacing:-.5px}h2{font-size:15px;ma
 @media(max-width:420px){.stat{grid-template-columns:repeat(3,1fr)}.stat .kill{grid-column:1/-1}}
 .ic{width:24px;height:24px;border-radius:8px;display:inline-grid;place-items:center}.ic svg.i{width:16px;height:16px}
 .ic.g{background:var(--oks);color:var(--ok)}.ic.b{background:var(--accs);color:var(--acc)}.ic.y{background:var(--warns);color:var(--warn)}.ic.r{background:var(--bads);color:var(--bad)}
-.tile{width:46px;height:46px;border-radius:14px;background:var(--accs);color:#a5a7ff;display:grid;place-items:center;flex:none}
+.tile{width:46px;height:46px;border-radius:14px;background:var(--accs);color:var(--acct);display:grid;place-items:center;flex:none}
 .tile svg.i{width:24px;height:24px}
 .sc-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}.sc-h .t{flex:1;min-width:0}
 .sc-h .nm{font-size:19px;font-weight:800;letter-spacing:-.4px;display:inline}.sc-h .pf{color:var(--mut);font-size:14px;margin-left:6px}
@@ -80,17 +81,17 @@ h1{font-size:22px;margin:10px 2px 12px;letter-spacing:-.5px}h2{font-size:15px;ma
 .pill.ok{background:var(--oks);border-color:rgba(52,211,153,.35);color:var(--ok)}
 .pill.bad{background:var(--bads);border-color:rgba(248,113,113,.35);color:var(--bad)}
 .pill.warn{background:var(--warns);border-color:rgba(251,191,36,.35);color:var(--warn)}
-.pill.acc{background:var(--accs);border-color:rgba(109,111,245,.35);color:#a5a7ff}
+.pill.acc{background:var(--accs);border-color:rgba(77,159,255,.35);color:var(--acct)}
 input,button,select{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line);width:100%;margin:6px 0;background:var(--chip);color:var(--fg)}
 input::placeholder{color:#5f6886}
 button{background:linear-gradient(135deg,var(--acc),var(--acc2));border:0;color:#fff;font-weight:700;cursor:pointer}
-button.ghost{background:transparent;border:1px solid var(--acc);color:#a5a7ff}
-a{color:#a5a7ff;text-decoration:none}
+button.ghost{background:transparent;border:1px solid var(--acc);color:var(--acct)}
+a{color:var(--acct);text-decoration:none}
 .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
 .nav a{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--fg);font-weight:700}
 .nav a small{display:block;color:var(--mut);font-weight:400;font-size:12px;margin-top:2px}
 .nav a .tile{width:40px;height:40px;border-radius:12px}
-.btn{display:block;text-align:center;border:1px solid var(--acc);color:#a5a7ff;border-radius:12px;padding:10px;font-weight:700;margin-top:8px}
+.btn{display:block;text-align:center;border:1px solid var(--acc);color:var(--acct);border-radius:12px;padding:10px;font-weight:700;margin-top:8px}
 .btn.fill{background:linear-gradient(135deg,var(--acc),var(--acc2));border:0;color:#fff}
 .btns{display:flex;gap:8px;flex-wrap:wrap}.btns>*{flex:1;min-width:120px}
 .tw{overflow-x:auto;margin:0 -4px}table{width:100%;border-collapse:collapse;font-size:14px}
@@ -102,12 +103,12 @@ td.n,th.n{text-align:right;white-space:nowrap}
 .pf label{display:block;font-size:12px;color:var(--mut);margin:8px 2px -2px}
 code{background:var(--chip);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
 .side{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:2px 6px;font-size:12px;font-weight:700}
-.side.b{background:var(--bads);color:var(--up)}.side.s{background:rgba(91,140,255,.16);color:var(--dn)}
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(14,20,40,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+.side.b{background:var(--bads);color:var(--up)}.side.s{background:rgba(76,141,255,.16);color:var(--dn)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(11,15,24,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
 .tabbar .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);font-size:12px;font-weight:600}
-.tabbar a.on{color:#8f91ff}.tabbar svg.i{width:24px;height:24px}
+.tabbar a.on{color:var(--acct)}.tabbar svg.i{width:24px;height:24px}
 """
 
 E = html.escape
@@ -154,7 +155,7 @@ def _page(title: str, body: str, refresh: bool = False, base: str = "", sub: str
         f'<a href="{E(base)}{path}" class="{"on" if key == tab else ""}">{ic(TAB_ICON[key])}{label}</a>' for key, path, label in TABS)
         + "</div></nav>")
     return (f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-            f'<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1020">{meta}<title>{E(title)}</title>'
+            f'<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0f1420">{meta}<title>{E(title)}</title>'
             f'<style>{CSS}</style></head><body>{top}<main>{body}</main>{bar}</body></html>').encode("utf-8")
 
 
