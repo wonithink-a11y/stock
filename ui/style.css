@@ -440,11 +440,23 @@ th {
   .kpi-label { margin-bottom: 4px; }
   .kpi-value { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .kpi-sub { font-size: 11px; }
-  .sitenav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .sitenav::-webkit-scrollbar { display: none; }
-  .sitenav a { white-space: nowrap; }
+  nav.sitenav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }   /* nav. 붙임: 아래쪽 기본 .sitenav 규칙이 뒤에 있어 덮어쓰던 것 */
+  nav.sitenav::-webkit-scrollbar { display: none; }
+  nav.sitenav a { white-space: nowrap; }
   .grid > * { min-width: 0; }
   .panel { overflow-x: auto; }   /* 넓은 표는 패널 안에서만 옆으로 밀리게 — 페이지 전체가 옆으로 흔들리지 않게 */
+  /* 한 화면에 더 많이(2026-10-14 사용자 요청): 계좌 탭·머리·KPI를 낮게 */
+  #ov-subtab-nav.v-chip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px; margin-bottom: 10px !important; }
+  #ov-subtab-nav .v-chip { padding: 6px 12px; font-size: 13px; white-space: nowrap; flex: none; }
+  .app-content main#tab-main { padding: 10px; }
+  .app-header { padding: 6px 12px; }
+  .sidebar-brand { padding: 8px 10px; gap: 8px; }
+  .sidebar-brand .brand-icon { font-size: 18px; }
+  .sidebar-brand .brand-sub { display: none; }
+  .sidebar-nav .tab-btn { padding: 6px 8px; font-size: 13px; }
+  .kpi-card { padding: 10px 12px; }
+  .kpi-label { font-size: 11px; margin-bottom: 2px; }
+  .kpi-value { font-size: 15px; }
 }
 
 /* Overview 2단 레이아웃(차트+전략상태, 포지션+거래) - 데스크톱만, 모바일은
