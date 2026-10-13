@@ -10,6 +10,7 @@
     --bg: #0f1420; --card: #1a2233; --border: #2a3550;
     --text: #e6ebf5; --muted: #8b96ad; --accent: #4d9fff;
     --good: #2ecc71; --mid: #f1c40f; --bad: #e74c3c;
+    --up: #f2555a; --down: #4c8dff;   /* 가격·수급 방향 — 한국식(상승 빨강·하락 파랑), 2026-10-13. 좋음/나쁨은 --good/--bad */
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 20px; }
@@ -61,7 +62,8 @@
   .grade-D { background: #4a2e1a; color: #f0a868; }
   .grade-E { background: #4c1d1d; color: #f38b8b; }
   .grade-H { background: #333a47; color: #aab4c8; } /* 유보 */
-  .pos { color: var(--good); } .neg { color: var(--bad); }
+  .pos { color: var(--up); } .neg { color: var(--down); }
+  .ok { color: var(--good); } .err { color: var(--bad); }   /* 방향이 아니라 상태(연결·검증) */
   .hm { position: relative; width: 100%; background: var(--bg); border-radius: 6px; overflow: hidden; }
   .hm-g { position: absolute; box-sizing: border-box; border: 1px solid var(--bg); }
   .hm-gh { font-size: 11px; font-weight: 600; padding: 1px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
@@ -177,6 +179,20 @@
   .sitenav a[aria-current="page"] { color: var(--text); background: var(--card); font-weight: 600; }
   .sitenav .ext { margin-left: auto; }
   a.chip { text-decoration: none; display: inline-block; }
+  /* 넓은 화면(≥1000px): 왼쪽 메뉴에 그룹·세부 탭을 모두 펼친다. 좁은 화면은 위쪽 그룹 버튼 + 세부 탭 그대로 */
+  #side { display: none; }
+  @media (min-width: 1000px) {
+    .layout { display: flex; gap: 24px; align-items: flex-start; }
+    .layout-main { flex: 1; min-width: 0; }
+    #nav, #subnav { display: none; }
+    #side { display: flex; flex-direction: column; gap: 16px; flex: 0 0 188px; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
+            padding: 14px 10px; background: #0b0f18; border: 1px solid var(--border); border-radius: 12px; }
+    #side .grp { font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); padding: 0 10px 4px; }
+    #side button { display: block; width: 100%; text-align: left; min-height: 34px; padding: 0 10px; border: 0; border-radius: 8px;
+                   background: transparent; color: #c9d1dc; font-size: 14px; cursor: pointer; }
+    #side button:hover { background: var(--card); color: var(--text); }
+    #side button.active { background: #1e2a44; color: var(--text); font-weight: 600; box-shadow: inset 2px 0 0 var(--accent); }
+  }
 </style>
 </head>
 <body>
@@ -193,10 +209,15 @@
   <span id="updated">로딩 중...</span>
 </header>
 
+<div class="layout">
+<nav id="side" aria-label="주 메뉴"></nav>
+<div class="layout-main">
 <nav id="nav"></nav>
 <nav id="subnav"></nav>
 
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
+</div>
+</div>
 <div id="stockModal" class="modal" hidden></div>
 
 <footer>
@@ -1016,7 +1037,7 @@ function renderNews() {
 const FLOW_HEADLINE = ['개인', '외국인', '기관합계'];
 const FLOW_TREND_SERIES = ['외국인', '개인', '기관합계'];
 
-// 투자자구분 하나를 한 줄(라벨 + 일별 초록/빨강 막대 + 우측 기간합계)로 그린다.
+// 투자자구분 하나를 한 줄(라벨 + 일별 상승/하락색 막대 + 우측 기간합계)로 그린다.
 // 시장수급(renderFlows)·종목별 수급(renderFlowsTab) 둘 다 이 한 줄 형태를 쓴다 -
 // 한 그래프에 여러 구분을 욱여넣으면 안 읽힌다는 피드백으로 분리했다.
 function investorTrendRow(label, vals, dateLabels) {
@@ -1028,7 +1049,7 @@ function investorTrendRow(label, vals, dateLabels) {
     const h = Math.max(2, Math.round(Math.abs(v) / trendMax * half));
     const top = v >= 0 ? half - h : half;
     return `<div style="width:${barW}px;height:${half * 2}px;position:relative;flex-shrink:0" title="${esc(dateLabels[i])} ${v >= 0 ? '+' : ''}${fmtEok(v)}">
-      <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'};border-radius:1px"></div>
+      <div style="position:absolute;left:0;right:0;top:${top}px;height:${h}px;background:${v >= 0 ? 'var(--up)' : 'var(--down)'};border-radius:1px"></div>
     </div>`;
   }).join('');
   const sum = vals.reduce((s, v) => s + v, 0);
@@ -1101,7 +1122,7 @@ function renderFlows() {
     const label = it.name === '기관합계' ? '기관' : it.name;
     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
       <div style="width:64px;font-size:13px">${esc(label)}</div>
-      <div class="bar-bg" style="width:220px"><span class="bar-fill" style="width:${pct}%;background:${it.net >= 0 ? 'var(--good)' : 'var(--bad)'}"></span></div>
+      <div class="bar-bg" style="width:220px"><span class="bar-fill" style="width:${pct}%;background:${it.net >= 0 ? 'var(--up)' : 'var(--down)'}"></span></div>
       <div class="${cls}" style="font-family:inherit;min-width:90px;text-align:right">${it.net >= 0 ? '+' : ''}${fmtEok(it.net)}</div>
     </div>`;
   }).join('');
@@ -1294,13 +1315,13 @@ function candleSvg(bars, w, h, opts) {
     // 종가만 이은 라인 - 기간이 길 때(수백 개 봉) 캔들보다 훨씬 읽기 쉽다
     const pts = bars.map((b, i) => `${(i * bw + bw / 2).toFixed(1)},${y(b.c).toFixed(1)}`).join(' ');
     const first = bars[0], lastB = bars[bars.length - 1];
-    const lineColor = lastB.c >= first.o ? '#2ecc71' : '#e74c3c';
+    const lineColor = lastB.c >= first.o ? '#f2555a' : '#4c8dff';
     marks = `<polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round"/>`;
   } else {
     marks = bars.map((b, i) => {
       const cx = i * bw + bw / 2;
       const up = b.c >= b.o;
-      const color = up ? '#2ecc71' : '#e74c3c';
+      const color = up ? '#f2555a' : '#4c8dff';
       const yO = y(b.o), yC = y(b.c), yH = y(b.h), yL = y(b.l);
       const bodyTop = Math.min(yO, yC).toFixed(1);
       const bodyH = Math.max(1, Math.abs(yC - yO)).toFixed(1);
@@ -1459,7 +1480,7 @@ function detailChartSvg(bars, w, mode, target) {
     priceBody = line(closes, py, '#e6ebf5', 1.5);
   } else {
     for (let i = 0; i < m; i++) {
-      const up = closes[i] >= opens[i], col = up ? '#2ecc71' : '#e74c3c';
+      const up = closes[i] >= opens[i], col = up ? '#f2555a' : '#4c8dff';
       const x = px(i), yO = py(opens[i]), yC = py(closes[i]);
       const top = Math.min(yO, yC), bh = Math.max(1, Math.abs(yO - yC));
       priceBody += `<line x1="${x.toFixed(1)}" y1="${py(highs[i]).toFixed(1)}" x2="${x.toFixed(1)}" y2="${py(lows[i]).toFixed(1)}" stroke="${col}" stroke-width="1"/><rect x="${(x - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${col}"/>`;
@@ -1468,7 +1489,7 @@ function detailChartSvg(bars, w, mode, target) {
 
   let volBody = '';
   for (let i = 0; i < m; i++) {
-    const up = closes[i] >= opens[i], col = up ? 'rgba(46,204,113,.5)' : 'rgba(231,76,60,.5)';
+    const up = closes[i] >= opens[i], col = up ? 'rgba(242,85,90,.5)' : 'rgba(76,141,255,.5)';
     const y = vy(vols[i]);
     volBody += `<rect x="${(px(i) - bw / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, vTop + VH - y).toFixed(1)}" fill="${col}"/>`;
   }
@@ -1649,7 +1670,7 @@ function ensureDecodeRefs() {
 }
 
 const DECODE_CATS = [['fundamental', '재무'], ['valuation', '밸류에이션'], ['technical', '기술'], ['supplyDemand', '수급']];
-const EVIDENCE_BADGE = { validated: ['검증됨(조건부)', 'pos'], reversed: ['반대 방향으로 검증', 'pos'], weak: ['약함·미확정', 'muted'], rejected: ['기각', 'neg'], untested: ['미검증', 'muted'] };
+const EVIDENCE_BADGE = { validated: ['검증됨(조건부)', 'ok'], reversed: ['반대 방향으로 검증', 'ok'], weak: ['약함·미확정', 'muted'], rejected: ['기각', 'err'], untested: ['미검증', 'muted'] };
 
 function decodeSection(title, basis, inner) {
   return `<div style="margin:14px 0 4px"><h4 style="margin:0 0 4px">${title}</h4><div class="muted" style="font-size:11px;margin-bottom:6px">${basis}</div>${inner}</div>`;
@@ -1752,7 +1773,7 @@ function decodeBars(items) {   // items: [{label, v}] v = 비율(±) → 0 기�
       <span class="muted" style="width:44px">${i.label}</span>
       <div style="flex:1;position:relative;height:12px;background:rgba(148,163,184,.12);border-radius:3px">
         <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(148,163,184,.5)"></div>
-        <div style="position:absolute;top:0;height:12px;border-radius:3px;${v >= 0 ? `left:50%;width:${w}%;background:#22c55e` : `right:50%;width:${w}%;background:#ef4444`}"></div>
+        <div style="position:absolute;top:0;height:12px;border-radius:3px;${v >= 0 ? `left:50%;width:${w}%;background:var(--up)` : `right:50%;width:${w}%;background:var(--down)`}"></div>
       </div><span style="width:58px;text-align:right" class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%</span></div>`;
   }).join('');
 }
@@ -2424,8 +2445,8 @@ function renderLive() {
 
   const statusMap = {
     idle: ['muted', '대기'], connecting: ['muted', '접속 중...'],
-    connected: ['pos', '● 실시간 연결됨'], disconnected: ['neg', '연결 끊김 - 재접속 중'],
-    error: ['neg', '연결 실패'],
+    connected: ['ok', '● 실시간 연결됨'], disconnected: ['err', '연결 끊김 - 재접속 중'],
+    error: ['err', '연결 실패'],
   };
   const [statusCls, statusLabel] = statusMap[state.live.status] || statusMap.idle;
 
@@ -2744,7 +2765,7 @@ function renderThemeSensitivity() {
     if (!c) return '<td class="muted" style="text-align:center">-</td>';
     const strong = Math.abs(c.t) >= 2;
     const pct = Math.round(Math.min(Math.abs(c.bp) / VMAX, 1) * (strong ? 70 : 18));
-    const col = c.bp >= 0 ? 'var(--good)' : 'var(--bad)';
+    const col = c.bp >= 0 ? 'var(--up)' : 'var(--down)';
     return `<td title="t = ${c.t} · 표본 ${c.n}일" style="text-align:center;font-size:12px;background:color-mix(in srgb, ${col} ${pct}%, transparent);${strong ? 'font-weight:600' : 'color:var(--muted)'}">${c.bp > 0 ? '+' : ''}${Math.round(c.bp)}</td>`;
   };
   let rows = '', prevBig = null;
@@ -2801,7 +2822,7 @@ const HEAT_WINS = { live: ['장중', 0.03], '1d': ['1일', 0.03], '1w': ['1주',
 function heatColor(r, cap) {
   if (r === null || r === undefined) return '#333a48';
   const t = Math.min(Math.abs(r) / cap, 1), base = [58, 66, 86];
-  const to = r >= 0 ? [30, 170, 90] : [214, 69, 65];
+  const to = r >= 0 ? [214, 69, 65] : [52, 110, 220];   // 한국식: 상승 빨강·하락 파랑
   return `rgb(${base.map((b, i) => Math.round(b + (to[i] - b) * t)).join(',')})`;
 }
 
@@ -3130,7 +3151,7 @@ function mrepBar(v, max) {   // 0 기준 좌우 막대 — 오른쪽 상승, 왼
   const w = max ? Math.min(50, Math.abs(v) / max * 50) : 0;
   return `<div style="position:relative;height:12px;background:#131a29;border-radius:3px;min-width:80px">
     <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)"></div>
-    <div style="position:absolute;top:2px;bottom:2px;${v >= 0 ? 'left' : 'right'}:50%;width:${w}%;background:var(${v >= 0 ? '--good' : '--bad'});border-radius:2px"></div></div>`;
+    <div style="position:absolute;top:2px;bottom:2px;${v >= 0 ? 'left' : 'right'}:50%;width:${w}%;background:var(${v >= 0 ? '--up' : '--down'});border-radius:2px"></div></div>`;
 }
 const mrepSign = (v, unit = '') => v == null ? '-' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${Number(v).toLocaleString()}${unit}</span>`;
 const mrepT = (iso) => iso ? esc(String(iso).slice(5, 16).replace('T', ' ')) : '';
@@ -3183,7 +3204,7 @@ function renderMrepBody(file, d) {
     grid.push(`<div class="card" style="margin:0">${mrepHead('시장 폭 <span class="muted" style="font-size:11px">종목 수</span>')}${br.length ? br.map(([code, v]) => {
       const b = v.breadth, tot = (b.상승 + b.보합 + b.하락) || 1;
       return `<div class="muted" style="font-size:12px;margin:6px 0 4px">${code}${v.tradingValue조원 != null ? ` · 거래대금 ${v.tradingValue조원}조` : ''}</div>
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden"><div style="width:${b.상승 / tot * 100}%;background:var(--good)"></div><div style="width:${b.보합 / tot * 100}%;background:var(--border)"></div><div style="width:${b.하락 / tot * 100}%;background:var(--bad)"></div></div>
+        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden"><div style="width:${b.상승 / tot * 100}%;background:var(--up)"></div><div style="width:${b.보합 / tot * 100}%;background:var(--border)"></div><div style="width:${b.하락 / tot * 100}%;background:var(--down)"></div></div>
         <div style="font-size:12px;margin-top:3px"><span class="pos">상승 ${b.상승}</span>${b.상한 ? `(상한 ${b.상한})` : ''} · 보합 ${b.보합} · <span class="neg">하락 ${b.하락}</span>${b.하한 ? `(하한 ${b.하한})` : ''}</div>`;
     }).join('') : '<p class="muted" style="font-size:12px">수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
     const top = (mk.find(([c]) => c === 'KOSPI') || [, {}])[1].topByMcap;
@@ -3521,7 +3542,7 @@ function todayTop() {
     if (!b) return '';
     const up = (b['상승'] || 0) + (b['상한'] || 0), dn = (b['하락'] || 0) + (b['하한'] || 0), fl = b['보합'] || 0, n = up + dn + fl || 1;
     return `<div><div style="display:flex;justify-content:space-between;font-size:13px"><span>${m}</span><span class="num muted" style="font-size:12px">상승 ${up.toLocaleString()} · 하락 ${dn.toLocaleString()}</span></div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / n * 100}%;background:var(--good)"></div><div style="width:${fl / n * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--bad)"></div></div></div>`;
+      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / n * 100}%;background:var(--up)"></div><div style="width:${fl / n * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--down)"></div></div></div>`;
   }).join('');
   const tv = ['KOSPI', 'KOSDAQ'].map(m => ((f.kr || {})[m] || {})['tradingValue조원']).filter(v => v != null);
   return `<div class="home-strip">${strip}</div>
@@ -3641,6 +3662,8 @@ function renderNav() {
   lastSub[g[0]] = state.tab;
   document.getElementById('nav').innerHTML = NAV_GROUPS.map(x => `<button data-navgroup="${x[0]}"${x[0] === g[0] ? ' class="active"' : ''}>${x[1]}</button>`).join('');
   document.getElementById('subnav').innerHTML = g[2].length < 2 ? '' : g[2].map(t => `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active"' : ''}>${t[1]}</button>`).join('');
+  document.getElementById('side').innerHTML = NAV_GROUPS.map(x => `<div><div class="grp">${x[1]}</div>${x[2].map(t =>
+    `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active" aria-current="page"' : ''}>${t[1]}</button>`).join('')}</div>`).join('');
 }
 document.addEventListener('click', (e) => {
   const gb = e.target.closest && e.target.closest('button[data-navgroup]');
