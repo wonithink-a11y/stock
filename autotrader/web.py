@@ -109,6 +109,24 @@ border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-
 .tabbar .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);font-size:12px;font-weight:600}
 .tabbar a.on{color:var(--acct)}.tabbar svg.i{width:24px;height:24px}
+/* 폰(≤600px): 한 화면에 더 많이 — 여백·글자·카드 높이를 줄인다(2026-10-14 사용자 요청) */
+@media(max-width:600px){body{font-size:14px;line-height:1.45}
+.top{padding:8px 12px}.top .brand{font-size:17px;gap:8px}.logo{width:28px;height:28px;border-radius:8px}.logo svg.i{width:16px;height:16px}
+.top .sub{font-size:11px;padding:3px 10px}
+main{padding:8px 10px 84px}h1{font-size:19px;margin:6px 2px 8px}h2{font-size:14px;margin:0 0 6px}
+.sec{font-size:16px;margin:14px 4px 8px}
+.card{padding:12px;margin:0 0 8px;border-radius:12px}.hd{margin-bottom:6px}.hd h2{font-size:15px}
+.row{padding:6px 0}.row>span:first-child{font-size:13px}
+.kpis{gap:6px;margin:2px 0 6px}.kpi{padding:7px 10px;border-radius:10px}.kpi .v{font-size:15px}.kpi .l{font-size:11px}
+.stat{gap:6px}.stat .kpi{padding:7px 8px}.stat .kpi .v{font-size:20px;margin-top:2px}
+.tile{width:36px;height:36px;border-radius:10px}.tile svg.i{width:20px;height:20px}
+.sc-h{gap:10px;margin-bottom:6px}.sc-h .nm{font-size:16px}.sc-h .pf{font-size:12px}
+.pill{padding:2px 9px;font-size:11.5px;margin:0 3px 3px 0}
+input,button,select{padding:9px 12px;margin:4px 0;border-radius:10px}
+.nav{gap:6px;margin:2px 0 8px}.nav a{padding:10px;border-radius:12px;gap:10px}.nav a .tile{width:34px;height:34px}
+.btn{padding:8px;margin-top:6px}
+th{padding:5px 4px}td{padding:6px 4px}table{font-size:13px}
+.tabbar{padding:5px 4px calc(5px + env(safe-area-inset-bottom))}.tabbar a{font-size:11px;gap:2px}.tabbar svg.i{width:21px;height:21px}}
 """
 
 E = html.escape
