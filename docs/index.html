@@ -282,12 +282,6 @@
 </div>
 <div id="stockModal" class="modal" hidden></div>
 
-<footer>
-  ⚠️ 이 대시보드는 정보 통합·정량화 참고자료이며 투자 자문이 아닙니다. 모든 매매 판단과 책임은 본인에게 있습니다.<br>
-  데이터: 네이버금융(KR 시세·수급)·Stooq(US 시세) + DART 재무·업종(fundamentals.json).
-  미국 시세는 시차로 전일 종가입니다. 점수·가중치는 백테스트로 검증되기 전까지 가설입니다.<br>
-  업종별 채점 기준은 config/criteria.json의 sectorOverrides에서 조정합니다. '신뢰도 낮음' 업종은 점수보다 비고를 우선해서 보세요.
-</footer>
 
 <script>
 const state = {
@@ -703,7 +697,6 @@ function renderA5() {
       ${chip('all', '전체')}${chip('KOSPI', 'KOSPI')}${chip('KOSDAQ', 'KOSDAQ')}
       <span class="muted">기준일 ${esc(d.asOf)} · ${esc(d.criteria)} · ${rows.length.toLocaleString()}종목</span>
     </div>
-    <p class="muted" style="margin:0 0 10px;font-size:12px">${esc(d.note)} · 기여 점수 = 축 점수 × 가중치(재무 30 · 밸류 50 · 기술 20 · 수급 0) · 커버리지 60% 미만은 유보(순위 제외)</p>
     <div class="card" style="padding:0"><div class="table-wrap"><table>
       <thead><tr><th>순위</th><th>종목</th><th>시장</th><th style="text-align:right">총점</th>${A5_AXES.map(([n, m]) => `<th>${n} /${m}</th>`).join('')}<th style="text-align:right">커버리지</th><th>업종 · 표시</th></tr></thead>
       <tbody>${body || '<tr><td colspan="9" class="muted">검색 결과 없음</td></tr>'}</tbody>

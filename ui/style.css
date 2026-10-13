@@ -433,6 +433,19 @@ th {
 .kpi-label { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
 .kpi-value { font-family: var(--mono); font-size: 23px; font-weight: 700; letter-spacing: -0.01em; }
 .kpi-sub { font-size: 11.5px; margin-top: 5px; color: var(--text-dim); }
+/* 폰: 금액이 '원'에서 줄바꿈돼 카드가 두 배로 길어졌다(2026-10-14 사용자 캡처) → 2열·작은 글자·줄바꿈 금지 */
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpi-card { padding: 12px; }
+  .kpi-label { margin-bottom: 4px; }
+  .kpi-value { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi-sub { font-size: 11px; }
+  .sitenav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .sitenav::-webkit-scrollbar { display: none; }
+  .sitenav a { white-space: nowrap; }
+  .grid > * { min-width: 0; }
+  .panel { overflow-x: auto; }   /* 넓은 표는 패널 안에서만 옆으로 밀리게 — 페이지 전체가 옆으로 흔들리지 않게 */
+}
 
 /* Overview 2단 레이아웃(차트+전략상태, 포지션+거래) - 데스크톱만, 모바일은
    .grid-2가 이미 1fr로 접힌다(스펙 18번 반응형 순서: KPI→차트→전략→포지션). */
