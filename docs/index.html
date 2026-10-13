@@ -895,17 +895,20 @@ function renderReco() {
   const currentByTicker = {};
   ((state.latest && state.latest.results) || []).forEach(r => { currentByTicker[r.ticker] = r; });
 
-  // 945건을 세로로 나열하면 안 읽히므로 날짜를 가로 칩으로 두고 하나만 골라 본다
-  // (시장수급 탭의 날짜 선택과 동일 패턴).
+  // 945건을 세로로 나열하면 안 읽히므로 날짜 하나만 골라 본다 — 날짜가 100개를 넘어
+  // 칩으로 깔면 폰 화면을 다 덮어서(2026-10-14 사용자 캡처) ◀ 날짜 ▶ + 드롭다운으로 바꿨다(마감 리포트 탭과 같은 모양).
   const byDate = {};
   d.performance.forEach(p => { (byDate[p.recommendedDate] = byDate[p.recommendedDate] || []).push(p); });
   const dates = Object.keys(byDate).sort().reverse();
   const activeDate = (state.recoDate && byDate[state.recoDate]) ? state.recoDate : dates[0];
 
-  const dateTabs = dates.map(date => {
-    const label = `${date.slice(5, 7)}/${date.slice(8, 10)}`;
-    return `<button data-reco-date="${esc(date)}" class="chip ${date === activeDate ? 'active' : ''}">${label}<span class="cnt">${byDate[date].length}</span></button>`;
-  }).join('');
+  const ai = dates.indexOf(activeDate), older = dates[ai + 1], newer = ai > 0 ? dates[ai - 1] : null;
+  const arrow = (date, label, path) => `<button class="mrep-arrow"${date ? ` data-reco-date="${esc(date)}"` : ' disabled'} aria-label="${label}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="${path}"/></svg></button>`;
+  const dateTabs = `<div style="display:flex;align-items:center;gap:8px">
+    ${arrow(older, '이전 날짜', 'M15 18l-6-6 6-6')}
+    <select class="mrep-sel" data-reco-select aria-label="추천 날짜">${dates.map(date => `<option value="${esc(date)}"${date === activeDate ? ' selected' : ''}>${date.slice(2).replace(/-/g, '.')} · ${byDate[date].length}건</option>`).join('')}</select>
+    ${arrow(newer, '다음 날짜', 'M9 18l6-6-6-6')}
+  </div>`;
 
   const rows = byDate[activeDate];
   const rl = limited('reco', activeDate, rows);
@@ -925,7 +928,7 @@ function renderReco() {
   };
 
   return `<div class="card">
-    <div class="group-filter" style="margin-bottom:10px">${dateTabs}</div>
+    <div style="margin-bottom:10px">${dateTabs}</div>
     <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>
     <div class="table-wrap"><table>
       <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th><th title="지금 기준 · 전일 대비 +5% 이상 / 업종 종목">업종 현재 급등</th></tr></thead>
@@ -3347,6 +3350,7 @@ function renderMarketReports() {
 }
 document.addEventListener('change', (e) => {
   if (e.target.matches && e.target.matches('[data-mreport-select]')) loadMarketReport(e.target.value);
+  if (e.target.matches && e.target.matches('[data-reco-select]')) { state.recoDate = e.target.value; render(); }   // 추천 이력 날짜
   if (e.target.matches && e.target.matches('[data-fsel]')) { state[e.target.dataset.fsel + 'Filter'] = e.target.value; render(); }   // 스코어 업종·등급·그룹
 });
 document.addEventListener('click', (e) => {
