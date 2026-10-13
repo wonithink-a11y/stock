@@ -454,7 +454,6 @@ async function main() {
 
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
   if (LOG_PATH && logLines.length) fs.appendFileSync(LOG_PATH, logLines.join('\n') + '\n', 'utf8');
-', 'utf8');
   fs.writeFileSync(OUT_PATH, JSON.stringify({
     updatedAt: new Date().toISOString(),
     perStock: PER_STOCK,
