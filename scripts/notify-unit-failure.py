@@ -20,9 +20,15 @@ GitHub Actions 의 notify-failure.yml 은 Actions 만 본다. 실제로 rv20 선
 대화로 오고 있어서, 거기에 장애까지 섞으면 급한 것이 묻힌다. chat id 는
 `TELEGRAM_ALERT_CHAT_ID` 를 쓰고, 없으면 **`TELEGRAM_CHAT_ID` 로 흘려보내지 않고
 실패한다** — 조용히 콘텐츠 방으로 새는 것이 분리 실패의 가장 흔한 모양이다.
+
+**같은 유닛은 30분에 한 번만 보낸다**(2026-10-13 사용자 요청). 그날 news-alert 가 2분 간격 구간에서
+문법 오류로 연달아 죽어 13분 동안 7통이 왔다. 건너뛴 횟수는 세어 두었다가 다음 알림에 붙인다.
+상태: NOTIFY_STATE_DIR(기본 ~/collector-venv/notify)/<유닛>.json — 지우면 바로 다시 보낸다.
 """
 import argparse
+import json
 import os
+import time
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +48,8 @@ for _s in (sys.stdout, sys.stderr):
 TELEGRAM_LIMIT = 600
 JOURNAL_LINES = 40          # 읽어오는 양. 메시지에 싣는 것은 이 중 한 줄이다
 ERROR_LINE_MAX = 300
+COOLDOWN_SEC = 30 * 60
+STATE_DIR = Path(os.environ.get("NOTIFY_STATE_DIR", "~/collector-venv/notify")).expanduser()
 
 # systemd 가 스스로 찍는 줄 - 무엇이 깨졌는지 말해주지 않으므로 건너뛴다
 _NOISE = ("Starting ", "Finished ", "Deactivated successfully", "Consumed ",
@@ -125,6 +133,32 @@ def _short_time(stamp):
     return (stamp or "").strip() or "(시각 없음)"
 
 
+def _state(unit, state_dir):
+    try:
+        return json.loads((state_dir / f"{unit}.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def throttle(unit, now, state_dir=STATE_DIR):
+    """보낼 차례면 그동안 건너뛴 횟수(int), 30분 안 반복이면 None(건너뜀으로 센다)."""
+    st = _state(unit, state_dir)
+    if "sent" in st and now - st["sent"] < COOLDOWN_SEC:
+        st["skipped"] = st.get("skipped", 0) + 1
+        _save(unit, st, state_dir)
+        return None
+    return st.get("skipped", 0)
+
+
+def mark_sent(unit, now, state_dir=STATE_DIR):
+    _save(unit, {"sent": now, "skipped": 0}, state_dir)   # 보낸 뒤에만 — 전송 실패면 다음 실패 때 다시 보낸다
+
+
+def _save(unit, st, state_dir):
+    state_dir.mkdir(parents=True, exist_ok=True)
+    (state_dir / f"{unit}.json").write_text(json.dumps(st), encoding="utf-8")
+
+
 def build_message(unit, fields, log):
     """폰에서 한눈에 읽히는 3줄. 자세한 건 VM 에 있다(journalctl -u <unit>)."""
     name = unit[:-len(".service")] if unit.endswith(".service") else unit
@@ -162,8 +196,16 @@ def main(argv=None):
               "(값은 출력하지 않는다). 장애 알림을 보내지 못했다.", file=sys.stderr)
         return 2
 
+    now = time.time()
+    skipped = throttle(args.unit, now)
+    if skipped is None:
+        print(f"30분 안 반복 실패 — 알림 건너뜀: {args.unit}")
+        return 0
+    if skipped:
+        text = f"{text}\n(직전 알림 뒤 {skipped}회 더 실패)"[:TELEGRAM_LIMIT]
     from autotrader.notify import send_telegram    # 기존 구현 재사용(토큰 누출 방지 포함)
     send_telegram(token, chat_id, text)
+    mark_sent(args.unit, now)
     print(f"장애 알림 전송: {args.unit}")
     return 0
 
@@ -254,6 +296,23 @@ def _selftest():
             if v is not None:
                 os.environ[k] = v
     ok(rc == 2, "ALERT chat id 없으면 콘텐츠 방으로 안 보내고 실패(rc=2)")
+
+    # 30분 묶기: 10-13 news-alert 처럼 2분 간격 7번 실패 → 1통, 30분 뒤 실패는 '6회 더' 를 달고 1통
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        sent = []
+        for i in range(7):
+            t = 1000 + i * 120
+            k = throttle("n.service", t, d)
+            if k is not None:
+                sent.append(k)
+                mark_sent("n.service", t, d)
+        ok(sent == [0], f"30분 안 7번 실패 → 1통 ({sent})")
+        ok(throttle("n.service", 1000 + 31 * 60, d) == 6, "30분 뒤 다음 알림에 건너뛴 6회")
+        ok(throttle("other.service", 1100, d) == 0, "다른 유닛은 따로 센다")
+        throttle("x.service", 0, d)                 # 보낼 차례였는데 mark_sent 안 함 = 전송 실패
+        ok(throttle("x.service", 60, d) == 0, "전송 실패면 다음 실패 때 다시 보낸다")
 
     print(f"\n{'FAILED' if failed else 'PASSED'} - {failed} failure(s)")
     return 1 if failed else 0
