@@ -240,7 +240,7 @@ Validated against
   다음      ★ **장 마감 리포트(10-13 사용자 GO)** — Claude 루틴 평일 18:10 kr · 07:00 us → `scripts/market-close-facts.py`(숫자만, Yahoo·네이버·FRED 키 없음) →
             웹으로 원인·근거·시각 대조 → `reports/market-daily/` 커밋 → push 가 `market-report-telegram.yml` 을 깨워 1:1 방(지연 0.2분).
             지시 정본 docs/control/시장마감리포트-루틴지시.md · 설계·Actions 지연 실측(cron 중앙 4~5h·최대 12h, 18:10 에 오늘 수급·공시 0/60) -설계-2026-10-13.md.
-            기여도 수치·가격 목표·확률 금지. 대시보드 '오늘 > 마감 리포트' 탭(deploy-pages 가 reports/market-daily/*.md 복사).
+            기여도 수치·가격 목표·확률 금지. 대시보드 '오늘 > 마감 리포트' 탭 = 지수 카드·수급·시장 폭·업종 막대·원인 카드(facts.json + 루틴의 summary.json, 10-13 시각화), 텔레그램은 summary 있으면 요약+`#mreport=` 링크.
             ★ **첫 실행(10-13) 클라우드 환경이 Yahoo 를 403 차단** → 루틴은 쓰지 않고 멈춤(정상). 환경 네트워크 허용(사용자 몫) 전엔 매일 실행도 같다.
             과거 날짜는 `--date`(로컬 생성·커밋) + 백필 루틴(`[no-telegram]`, 텔레그램 안 감). 루틴 ID kr trig_01JmShAenhSyQvLMRCDtoLmk · us trig_01HvzNBwMxLKn7VFJFQiiwKs.
   다음      ★ **호가·체결강도 장중 기록(10-13 사용자 GO)** — `scripts/collect-orderflow-kis.py` · `deploy/orderflow-collect.{service,timer}`(평일 08:49~15:31, 실전 키 초당 4, 조회 전용).
