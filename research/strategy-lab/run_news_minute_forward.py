@@ -54,7 +54,7 @@ def read_jsonl(p):
 
 
 def is_subject(title, name):
-    """주어 자리가 없으면(쉼표 없는 제목) 통과 — 종목명이 제목에 있다는 원장 조건만 남는다.
+    """주어 자리가 없으면(쉼표 없는 제목) 통과 — 종목명이 제목에 있다는 원장 조건만 남는다. 짝: lib/newsSubject.js(알림).
     증권사 리포트('하나증권, 키움증권 목표가 하향')는 증권사 주어를 떼고 그 뒤를 다시 본다."""
     m = SUBJ_RE.match(title)
     while m and re.fullmatch(r"\S*(증권|證)", m.group(1).strip()):

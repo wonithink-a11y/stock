@@ -33,6 +33,7 @@ const ROOT = path.resolve(__dirname, '..');
 const WATCHLIST_PATH = path.join(ROOT, 'config', 'watchlist.json');
 const HOLDINGS_PATH = path.join(ROOT, 'config', 'holdings.json');
 // VM 알림 실행은 저장소 밖 파일에 쓴다(알림 중복방지 원장 _seen 이 여기 산다). 기본값은 대시보드용.
+const { isSubject } = require('../lib/newsSubject');
 const OUT_PATH = process.env.NEWS_OUT_PATH || path.join(ROOT, 'docs', 'data', 'news.json');
 // VM 실행(NEWS_OUT_PATH 지정)일 때만: 제목에 종목명이 든 국내 새 기사를 원장에 덧붙인다(append-only).
 // 장중 뉴스 1분 뒤 매수 forward 기록기(research/strategy-lab/run_news_minute_forward.py)가 이 파일을 복사해 간다.
@@ -335,8 +336,9 @@ async function main() {
         // 같은 사건을 매체마다 다시 써서 링크만으로는 못 거른다(2026-09-28 HLB FDA 허가 하루 40건+).
         // 종목·키워드별 하루 1회 — 이미 알린 키워드가 하나라도 겹치면 같은 이야기로 본다. 새 키워드(횡령 등)는 통과.
         const topics = it.flags.map((f) => `topic:${t.code}:${f}:${KST_DAY}`);
+        // 제목 주어 자리에 다른 회사만 있으면 남의 기사라 안 알린다(2026-10-13, '농심, … 이마트 선출시' — lib/newsSubject.js)
         // 제목에 종목명이 있을 때만 알린다 - 요약에만 스친 기사가 85%였고 대부분 무관했다(2026-09-25 실측 171/202)
-        if (it.level !== 'neutral' && it.title.includes(t.name) && !seenLedger[key]
+        if (it.level !== 'neutral' && it.title.includes(t.name) && isSubject(it.title, t.name) && !seenLedger[key]
           && !topics.some((k) => seenLedger[k])) {
           freshAlerts.push({ code: t.code, name: t.name, held: heldCodes.has(t.code), ...it });
           for (const k of topics) seenLedger[k] = new Date().toISOString();
