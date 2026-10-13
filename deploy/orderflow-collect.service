@@ -1,0 +1,19 @@
+[Unit]
+# 호가·체결강도 장중 기록(scripts/collect-orderflow-kis.py) - 조회 전용, 주문 경로 없음.
+# 설계: docs/control/호가체결강도-기록-설계-2026-10-13.md. 데이터는 ~/orderflow-raw(저장소 밖, 커밋 안 함).
+# 실전 키 초당 4콜 상한 - 같은 키를 분봉·A2b·autotrader 가 쓴다. 토큰은 분봉 수집기 캐시(KIS_TOKEN_CACHE)를 같이 쓴다.
+Description=Orderbook and trade-strength intraday recorder (KIS, read-only)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/collector.env
+Environment=ORDERFLOW_RAW_ROOT=/home/ubuntu/orderflow-raw
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/collect-orderflow-kis.py
+TimeoutStartSec=7h30min
+NoNewPrivileges=yes
+PrivateTmp=yes

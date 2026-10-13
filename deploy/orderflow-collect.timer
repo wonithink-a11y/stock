@@ -1,0 +1,10 @@
+[Unit]
+Description=Orderbook and trade-strength recorder weekdays 08:49 KST (runs until 15:31)
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 휴장일은 스크립트가 09:03 에 알아채고 그날 기록을 지운 뒤 정상 종료한다.
+OnCalendar=Mon..Fri *-*-* 08:49:00
+
+[Install]
+WantedBy=timers.target
