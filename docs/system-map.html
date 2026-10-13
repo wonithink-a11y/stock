@@ -4,46 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>주식 시스템 지도</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* 레이아웃: 위에서 아래로 "어디서 → 어떤 순서로 → 부서별 상세 → 얼마나 엄격한가 → 빈칸" 순서. 기계 세 곳을 색으로 구분한다 */
+/* 2026-10-13 스코어링 대시보드·모의투자·매매 화면과 같은 어두운 팔레트로 맞춤(옛 밝은 녹색 계열·시스템 다크 전환 제거).
+   기계 세 곳(GitHub·VM·PC)과 상태 네 가지 색은 구분용이라 그대로 둔다 */
 :root {
-  --bg: #f2f4f3;
-  --surface: #ffffff;
-  --ink: #17201d;
-  --muted: #5d6965;
-  --line: #d6dcda;
-  --accent: #0f6b5c;
-  --gh: #4a4fb0;      /* GitHub Actions */
-  --vm: #0f7a68;      /* VM stock-new */
-  --pc: #a3610b;      /* PC · Claude 세션 · 사람 */
-  --gh-soft: #e7e8f7;
-  --vm-soft: #dff1ec;
-  --pc-soft: #f6ead8;
-  --ok: #1f7a3d; --ok-soft: #e1f2e6;
-  --watch: #2f5fa8; --watch-soft: #e3ebf7;
-  --stop: #6b6f6e; --stop-soft: #e9ebea;
-  --gap: #b23a26; --gap-soft: #f8e3de;
-  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "Consolas", monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #111715; --surface: #18201d; --ink: #e4ebe8; --muted: #9aa8a3; --line: #2c3834;
-    --accent: #5cc4ae; --gh: #9da2f0; --vm: #5cc4ae; --pc: #e2a453;
-    --gh-soft: #262947; --vm-soft: #173530; --pc-soft: #3a2c17;
-    --ok: #6fd18e; --ok-soft: #1c3424; --watch: #8fb4ef; --watch-soft: #1f2c42;
-    --stop: #a7adab; --stop-soft: #262c2a; --gap: #f08a74; --gap-soft: #3d221c;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #111715; --surface: #18201d; --ink: #e4ebe8; --muted: #9aa8a3; --line: #2c3834;
-  --accent: #5cc4ae; --gh: #9da2f0; --vm: #5cc4ae; --pc: #e2a453;
+  --bg: #0f1420; --surface: #1a2233; --ink: #e6ebf5; --muted: #8b96ad; --line: #2a3550;
+  --accent: #4d9fff; --gh: #9da2f0; --vm: #5cc4ae; --pc: #e2a453;
   --gh-soft: #262947; --vm-soft: #173530; --pc-soft: #3a2c17;
   --ok: #6fd18e; --ok-soft: #1c3424; --watch: #8fb4ef; --watch-soft: #1f2c42;
   --stop: #a7adab; --stop-soft: #262c2a; --gap: #f08a74; --gap-soft: #3d221c;
+  --font-body: "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", ui-monospace, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -62,7 +34,7 @@ code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
 
 /* 기계 세 곳 */
 .machines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.machine { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 8px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+.machine { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 12px; padding: 16px; display: grid; gap: 6px; align-content: start; }
 .machine .name { font-weight: 700; display: flex; gap: 8px; align-items: center; }
 .machine p { color: var(--muted); font-size: 14px; }
 .m-gh { --c: var(--gh); } .m-vm { --c: var(--vm); } .m-pc { --c: var(--pc); }
@@ -92,7 +64,7 @@ code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
 
 /* 부서 */
 .depts { display: grid; gap: 20px; }
-.dept { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.dept { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .dept-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 14px; padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
 .dept-no { font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--accent); line-height: 1; padding-top: 2px; }
 .dept-head .ad { font-size: 13.5px; color: var(--muted); }
@@ -114,7 +86,7 @@ td.see { width: 18%; font-size: 13.5px; }
 
 /* 엄격함 */
 .strict { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 14px; align-content: start; }
 .funnel { display: grid; gap: 10px; }
 .bar-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 52px; gap: 10px; align-items: center; font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .bar { height: 14px; border-radius: 3px; background: var(--bar, var(--accent)); min-width: 3px; }
@@ -131,7 +103,7 @@ td.see { width: 18%; font-size: 13.5px; }
 .neg { color: var(--gap); } .pos { color: var(--ok); }
 
 .gaps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.gapcard { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--k); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.gapcard { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--k); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
 .gapcard p { font-size: 14px; color: var(--muted); }
 .k-gap { --k: var(--gap); } .k-stop { --k: var(--stop); } .k-watch { --k: var(--watch); }
 
@@ -144,10 +116,10 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
 
 body { margin: 0; }
 .wrap > *, .depts > * { min-width: 0; }
-.sitenav { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 20px; background: var(--surface); border-bottom: 1px solid var(--line); font-size: 13px; }
+.sitenav { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 13px; }
 .sitenav a { color: var(--muted); text-decoration: none; padding: 5px 12px; border-radius: 6px; }
-.sitenav a:hover { color: var(--ink); background: var(--bg); }
-.sitenav a[aria-current="page"] { color: var(--ink); background: var(--bg); font-weight: 600; }
+.sitenav a:hover { color: var(--ink); background: var(--surface); }
+.sitenav a[aria-current="page"] { color: var(--ink); background: var(--surface); font-weight: 600; }
 .sitenav .ext { margin-left: auto; }
 </style>
 </head>
@@ -157,6 +129,8 @@ body { margin: 0; }
   <a href="paper-trading/">모의투자</a>
   <a href="system-map.html" aria-current="page">시스템 지도</a>
   <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
+  <a href="https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">기업 해독(Claude) ↗</a>
+  <a href="https://claude.ai/artifact/2H2dsVmjZSXMzxgtFutHQ5" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">배당 랠리 검색(Claude) ↗</a>
 </nav>
 <div class="wrap">
 
