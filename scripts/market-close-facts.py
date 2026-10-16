@@ -7,7 +7,7 @@
   python scripts/market-close-facts.py --selftest               # 네트워크 없이 계산 함수만 확인
 
 출처(전부 키 없음): Yahoo chart v8(지수·ETF·금리·환율·원자재·선물) · 네이버 모바일 증권 API
-(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위) · FRED CSV(미국 2년물, 하루 늦다).
+(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위) · FRED CSV(미국 2년물, 하루 늦다) · 구글 뉴스 RSS(원인 후보 기사 제목).
 값마다 barDate/asOf 와 fresh 를 붙인다. 못 받은 것은 추정으로 채우지 않고 missing 에 남긴다.
 
 sessionOpen=false 면 그날 정규장이 없었다(휴장) 또는 기준 지수가 아직 갱신 안 됐다 — 루틴은 리포트를 쓰지 않는다.
@@ -35,6 +35,11 @@ KR_SERIES = [
     ("091170.KS", "KODEX 은행", "업종ETF", "regular"), ("102970.KS", "KODEX 증권", "업종ETF", "regular"),
     ("117460.KS", "KODEX 에너지화학", "업종ETF", "regular"), ("117680.KS", "KODEX 철강", "업종ETF", "regular"),
     ("117700.KS", "KODEX 건설", "업종ETF", "regular"),
+    ("434730.KS", "HANARO 원자력iSelect", "업종ETF", "regular"), ("487240.KS", "KODEX AI전력핵심설비", "업종ETF", "regular"),
+    ("228790.KS", "TIGER 화장품", "업종ETF", "regular"), ("266360.KS", "KODEX K콘텐츠", "업종ETF", "regular"),
+    # 한국만의 움직임인지 가르는 대조군(반대 증거) — 대만은 반도체 비중이 비슷하다
+    ("^N225", "닛케이225", "아시아", "regular"), ("^TWII", "대만 가권", "아시아", "regular"),
+    ("000001.SS", "상해종합", "아시아", "regular"), ("^HSI", "항셍", "아시아", "regular"),
     ("KRW=X", "원/달러", "환율", "around"), ("ES=F", "S&P500 선물", "미국선물", "around"),
     ("NQ=F", "나스닥100 선물", "미국선물", "around"),
 ]
@@ -198,16 +203,50 @@ def after_hours(syms, asof=None):
 
 
 def fred_last(series, asof=None):
+    """FRED — 보통 하루 늦다. Yahoo 2YY=F(2년물 금리 선물)는 거래량 0·값 고정·월물 교체 때 튐(10-16 실측)이라 쓰지 않는다."""
+    for attempt in range(2):   # 10-15 us 에서 20초 시간 초과 — 한 번 더 길게
+        try:
+            with urllib.request.urlopen(urllib.request.Request(
+                    f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}", headers=UA), timeout=20 + 20 * attempt) as r:
+                lines = [l.split(",") for l in r.read().decode().strip().splitlines()[1:]]
+            vals = [(d, float(v)) for d, v in lines if v not in (".", "") and (not asof or d <= asof.isoformat())]
+            (d1, v1), (d0, v0) = vals[-1], vals[-2]
+            return {"series": series, "date": d1, "value": v1, "chgBp": round((v1 - v0) * 100, 1),
+                    "source": "FRED(보통 하루 늦다 — date 확인)"}
+        except Exception as e:  # noqa: BLE001
+            err = str(e)[:120]
+    return {"series": series, "error": err}
+
+
+def z_last(closes, w=252):
+    """마지막 일수익 ÷ 직전 w 개 일수익의 표본 표준편차(현재 제외) — 연구 zpast(us_overnight_study.py)와 같은 정의."""
+    r = [b / a - 1 for a, b in zip(closes, closes[1:])]
+    if len(r) < w + 1:
+        return None
+    prev = r[-w - 1:-1]
+    m = sum(prev) / w
+    sd = (sum((x - m) ** 2 for x in prev) / (w - 1)) ** 0.5
+    return round(r[-1] / sd, 2) if sd else None
+
+
+def sox_z(asof=None):
     try:
-        with urllib.request.urlopen(urllib.request.Request(
-                f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}", headers=UA), timeout=20) as r:
-            lines = [l.split(",") for l in r.read().decode().strip().splitlines()[1:]]
-        vals = [(d, float(v)) for d, v in lines if v not in (".", "") and (not asof or d <= asof.isoformat())]
-        (d1, v1), (d0, v0) = vals[-1], vals[-2]
-        return {"series": series, "date": d1, "value": v1, "chgBp": round((v1 - v0) * 100, 1),
-                "source": "FRED(보통 하루 늦다 — date 확인)"}
+        rows = daily_closes(get_json("https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=2y&interval=1d")["chart"]["result"][0])
     except Exception as e:  # noqa: BLE001
-        return {"series": series, "error": str(e)[:120]}
+        return {"error": str(e)[:120]}
+    rows = [r for r in rows if not asof or r[0] <= asof]
+    return {"date": rows[-1][0].isoformat(), "z": z_last([c for _, c in rows]),
+            "note": "연구 메모 'SOX z ≥ 1' 조건 판정용. 미국 휴장이 끼면 연구는 여러 날 누적이라 근사다."}
+
+
+def earnings_syms(day):
+    """events.json(관심종목) 에서 그날 미국 실적 발표 종목 — 시간외 자동 조회용. 발표 시각(장 전/후)은 없다."""
+    try:
+        ev = json.loads((REPO / "docs" / "data" / "events.json").read_text(encoding="utf-8")).get("events") or []
+    except Exception:  # noqa: BLE001
+        return []
+    return [e["code"] for e in ev if e.get("market") == "US" and e.get("kind") == "earnings"
+            and e.get("date") == day.isoformat() and e.get("code")]
 
 
 def repo_freshness(now_kst):
@@ -270,11 +309,14 @@ def build(market, ah_extra, now_utc=None, asof=None):
                 miss.append("투자자별 순매수(저장소 market_flows.json 에 그날 없음)")
         else:
             facts["kr"], miss = naver_kr(exp or now_kst.date())
-        facts["missing"] += miss + ["국내 시간외 단일가(키 없는 출처 없음)", "종목별 지수 기여도(지수 구성 비중 없음 — 쓰지 않는다)"]
+        facts["missing"] += miss   # 상시 없는 것(시간외 단일가·지수 기여도)은 매일 같은 줄이라 뺐다 — 금지는 지시문 2절
     else:
         facts["us2y"] = fred_last("DGS2", asof)
-        facts["afterHours"] = after_hours(US_MEGACAPS + [s for s in ah_extra if s not in US_MEGACAPS], asof)
-        facts["missing"] += ["미국 상승/하락 종목 수(RSP−SPY 차이로 대체)", "종목별 지수 기여도(쓰지 않는다)"]
+        facts["soxZ"] = sox_z(asof)
+        earn = earnings_syms(exp) if exp else []
+        facts["earningsToday"] = earn
+        ah = list(dict.fromkeys(US_MEGACAPS + earn + ah_extra))
+        facts["afterHours"] = after_hours(ah, asof)
     if exp:
         facts["news"], miss = news_candidates(market, exp, now_utc)
         facts["missing"] += miss
@@ -282,8 +324,8 @@ def build(market, ah_extra, now_utc=None, asof=None):
 
 
 NEWS_QUERIES = {
-    "kr": ("hl=ko&gl=KR&ceid=KR:ko", ["코스피 마감", "코스닥 마감", "증시 외국인 순매도", "특징주 급등", "특징주 급락"]),
-    "us": ("hl=en-US&gl=US&ceid=US:en", ["stock market today", "Wall Street stocks close", "Treasury yields",
+    "kr": ("hl=ko&gl=KR&ceid=KR:ko", ["코스피 마감", "코스닥 마감", "코스피 장중", "증시 외국인 순매도", "특징주 급등", "특징주 급락"]),
+    "us": ("hl=en-US&gl=US&ceid=US:en", ["stock market today", "stock futures", "Wall Street stocks close", "Treasury yields",
                                           "stocks after the bell earnings", "Nasdaq chip stocks"]),
 }
 
@@ -319,9 +361,16 @@ def news_candidates(market, day, now_utc):
                 seen.add(title)
                 items.append({"pubKST": t.astimezone(KST).isoformat(timespec="minutes"), "title": title,
                               "link": it.findtext("link"), "query": q})
+    close_kst = (datetime(day.year, day.month, day.day, 15, 30, tzinfo=KST) if market == "kr"
+                 else datetime(day.year, day.month, day.day, 16, tzinfo=NY)).astimezone(KST).isoformat(timespec="minutes")
     items.sort(key=lambda x: x["pubKST"])
+    for i in items:
+        i["afterClose"] = i["pubKST"] >= close_kst
+    pre, post = [i for i in items if not i["afterClose"]], [i for i in items if i["afterClose"]]
+    # 장중 기사(시각 대조의 재료)와 마감 해설을 따로 자른다 — 한 번에 뒤 60개로 자르면 마감 해설만 남는다(10-16 실측: 175건 중 장중 92건 전부 탈락)
     return {"window": [start.astimezone(KST).isoformat(timespec="minutes"), end.astimezone(KST).isoformat(timespec="minutes")],
-            "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')", "items": items[-60:]}, errors   # 마감 기사(창 끝)가 가장 중요하다 — 뒤에서 자른다
+            "closeKST": close_kst, "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+            "items": pre[-80:] + post[-50:]}, errors
 
 
 def selftest():
@@ -343,6 +392,12 @@ def selftest():
     assert not session_ended("kr", d13, u(2026, 10, 13, 12, 0)) and session_ended("kr", d13, u(2026, 10, 13, 18, 10))
     assert session_ended("us", datetime(2026, 10, 12).date(), u(2026, 10, 13, 7, 0))       # 뉴욕 18:00
     assert not session_ended("us", datetime(2026, 10, 12).date(), u(2026, 10, 13, 4, 0))   # 뉴욕 15:00
+    assert z_last([100.0] * 100) is None                                                      # 표본 부족
+    cl = [100.0]
+    for i in range(253):
+        cl.append(cl[-1] * (1.01 if i % 2 else 0.99))
+    cl.append(cl[-1] * 1.03)
+    assert 2.9 < z_last(cl) < 3.1, z_last(cl)                                                 # ±1% 진동 뒤 +3% ≈ z 3
     print("selftest OK")
 
 
