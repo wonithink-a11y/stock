@@ -7,7 +7,7 @@
   python scripts/market-close-facts.py --selftest               # 네트워크 없이 계산 함수만 확인
 
 출처(전부 키 없음): Yahoo chart v8(지수·ETF·금리·환율·원자재·선물) · 네이버 모바일 증권 API
-(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위) · FRED CSV(미국 2년물, 하루 늦다) · 구글 뉴스 RSS(원인 후보 기사 제목).
+(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위) · 미 재무부 일일 금리(미국 2년물, 실패 시 FRED) · 구글 뉴스 RSS(원인 후보 기사 제목).
 값마다 barDate/asOf 와 fresh 를 붙인다. 못 받은 것은 추정으로 채우지 않고 missing 에 남긴다.
 
 sessionOpen=false 면 그날 정규장이 없었다(휴장) 또는 기준 지수가 아직 갱신 안 됐다 — 루틴은 리포트를 쓰지 않는다.
@@ -147,6 +147,20 @@ def naver_kr(expected):
             "fresh": biz == expected.strftime("%Y%m%d") and poll.get("marketStatus") == "CLOSE",
             "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서.",
         }
+    try:  # 코스피200 선물 투자자별 — 같은 응답 구조(dealTrendInfo). 네이버는 당일 값만 준다(과거 날짜 없음)
+        fut = get_json("https://m.stock.naver.com/api/index/FUT/integration")
+        deal = fut.get("dealTrendInfo") or {}
+        num = lambda s: None if s in (None, "", "N/A") else float(str(s).replace(",", "").replace("+", ""))  # noqa: E731
+        out["KOSPI200선물"] = {
+            "month": fut.get("month"),
+            "flows억원": {"bizdate": deal.get("bizdate"), "개인": num(deal.get("personalValue")),
+                         "외국인": num(deal.get("foreignValue")), "기관": num(deal.get("institutionalValue"))},
+            "fresh": deal.get("bizdate") == expected.strftime("%Y%m%d"),
+            "note": "네이버 코스피200 선물(근월물 기준 화면) 투자자별 순매수, 억원으로 판단(계약 수 아님 — 10-16 −9,540 ≈ 기사 '선물 1.1조 매도', "
+                    "미니선물 제외 추정). 현물 수급과 더하지 않는다.",
+        }
+    except Exception as e:  # noqa: BLE001
+        missing.append(f"네이버 코스피200 선물 수급: {str(e)[:80]}")
     return out, missing
 
 
@@ -216,6 +230,26 @@ def fred_last(series, asof=None):
         except Exception as e:  # noqa: BLE001
             err = str(e)[:120]
     return {"series": series, "error": err}
+
+
+def treasury_2y(exp, asof=None):
+    """미 재무부 일일 국채 금리(Daily Treasury Par Yield Curve) — FRED DGS2 의 원본, 그날 저녁(보통 18:00 ET 전) 발표.
+    월초엔 전일 값이 지난달에 있어 두 달을 읽는다."""
+    import re
+    day = asof or exp or datetime.now(NY).date()
+    first = day.replace(day=1)
+    vals = {}
+    for m in (first - timedelta(days=1), first):
+        with urllib.request.urlopen(urllib.request.Request(
+                "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml"
+                f"?data=daily_treasury_yield_curve&field_tdr_date_value_month={m:%Y%m}", headers=UA), timeout=30) as r:
+            x = r.read().decode()
+        vals.update(re.findall(r"<d:NEW_DATE[^>]*>(\d{4}-\d{2}-\d{2})T.*?<d:BC_2YEAR[^>]*>([\d.]+)<", x, re.S))
+    rows = sorted((d, float(v)) for d, v in vals.items() if d <= day.isoformat())
+    (d1, v1), (_, v0) = rows[-1], rows[-2]
+    return {"series": "Treasury BC_2YEAR", "date": d1, "value": v1, "chgBp": round((v1 - v0) * 100, 1),
+            "fresh": bool(exp) and d1 == exp.isoformat(),
+            "source": "미 재무부 Daily Treasury Par Yield Curve(발표가 리포트 시각보다 늦으면 전날 값 — date·fresh 확인)"}
 
 
 def z_last(closes, w=252):
@@ -304,14 +338,17 @@ def build(market, ah_extra, now_utc=None, asof=None):
     }
     if market == "kr":
         if asof:
-            facts["kr"], miss = repo_flows(asof), ["상승/하락 종목 수·프로그램·거래대금·시총 상위(과거 날짜 — 네이버는 당일만)"]
+            facts["kr"], miss = repo_flows(asof), ["상승/하락 종목 수·프로그램·거래대금·시총 상위·선물 투자자별(과거 날짜 — 네이버는 당일만)"]
             if not facts["kr"]:
                 miss.append("투자자별 순매수(저장소 market_flows.json 에 그날 없음)")
         else:
             facts["kr"], miss = naver_kr(exp or now_kst.date())
         facts["missing"] += miss   # 상시 없는 것(시간외 단일가·지수 기여도)은 매일 같은 줄이라 뺐다 — 금지는 지시문 2절
     else:
-        facts["us2y"] = fred_last("DGS2", asof)
+        try:
+            facts["us2y"] = treasury_2y(exp, asof)
+        except Exception as e:  # noqa: BLE001 — 재무부가 막히면 하루 늦은 FRED
+            facts["us2y"] = {**fred_last("DGS2", asof), "treasuryError": str(e)[:120]}
         facts["soxZ"] = sox_z(asof)
         earn = earnings_syms(exp) if exp else []
         facts["earningsToday"] = earn
