@@ -1,0 +1,851 @@
+{
+ "market": "kr",
+ "generatedAtKST": "2026-10-16T18:11:59+09:00",
+ "expectedSession": "2026-10-16",
+ "sessionOpen": true,
+ "regularSessionEnded": true,
+ "backfill": false,
+ "series": [
+  {
+   "sym": "^KS11",
+   "name": "KOSPI",
+   "group": "지수",
+   "kind": "regular",
+   "close": 5668.05,
+   "prevClose": 5554.2202,
+   "chgPct": 2.05,
+   "chg5dPct": -14.46,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:32+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^KQ11",
+   "name": "KOSDAQ",
+   "group": "지수",
+   "kind": "regular",
+   "close": 794.78,
+   "prevClose": 760.82,
+   "chgPct": 4.46,
+   "chg5dPct": -10.93,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:32+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "091160.KS",
+   "name": "KODEX 반도체",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 116215.0,
+   "prevClose": 112300.0,
+   "chgPct": 3.49,
+   "chg5dPct": -20.5,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "091180.KS",
+   "name": "KODEX 자동차",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 24140.0,
+   "prevClose": 23360.0,
+   "chgPct": 3.34,
+   "chg5dPct": -2.88,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "466920.KS",
+   "name": "SOL 조선TOP3플러스",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 22360.0,
+   "prevClose": 22020.0,
+   "chgPct": 1.54,
+   "chg5dPct": -6.83,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "139230.KS",
+   "name": "TIGER 200 중공업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 10080.0,
+   "prevClose": 9815.0,
+   "chgPct": 2.7,
+   "chg5dPct": -13.48,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "449450.KS",
+   "name": "PLUS K방산",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 43150.0,
+   "prevClose": 41340.0,
+   "chgPct": 4.38,
+   "chg5dPct": -6.14,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "244580.KS",
+   "name": "KODEX 바이오",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 7630.0,
+   "prevClose": 7105.0,
+   "chgPct": 7.39,
+   "chg5dPct": -5.63,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "143860.KS",
+   "name": "TIGER 헬스케어",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 34205.0,
+   "prevClose": 32125.0,
+   "chgPct": 6.47,
+   "chg5dPct": -0.67,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "305720.KS",
+   "name": "KODEX 2차전지산업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 14760.0,
+   "prevClose": 14865.0,
+   "chgPct": -0.71,
+   "chg5dPct": -7.2,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "091170.KS",
+   "name": "KODEX 은행",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 14835.0,
+   "prevClose": 14745.0,
+   "chgPct": 0.61,
+   "chg5dPct": -3.04,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "102970.KS",
+   "name": "KODEX 증권",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 15205.0,
+   "prevClose": 14535.0,
+   "chgPct": 4.61,
+   "chg5dPct": -8.76,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "117460.KS",
+   "name": "KODEX 에너지화학",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 13300.0,
+   "prevClose": 13240.0,
+   "chgPct": 0.45,
+   "chg5dPct": -9.49,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "117680.KS",
+   "name": "KODEX 철강",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 11120.0,
+   "prevClose": 10890.0,
+   "chgPct": 2.11,
+   "chg5dPct": -6.63,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "117700.KS",
+   "name": "KODEX 건설",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 5765.0,
+   "prevClose": 5640.0,
+   "chgPct": 2.22,
+   "chg5dPct": -10.13,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T15:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "KRW=X",
+   "name": "원/달러",
+   "group": "환율",
+   "kind": "around",
+   "close": 1331.88,
+   "prevClose": 1339.35,
+   "chgPct": -0.56,
+   "chg5dPct": -0.83,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T18:12+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "ES=F",
+   "name": "S&P500 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 7800.75,
+   "prevClose": 7791.0,
+   "chgPct": 0.13,
+   "chg5dPct": -0.75,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T18:02+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "NQ=F",
+   "name": "나스닥100 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 30138.0,
+   "prevClose": 30143.75,
+   "chgPct": -0.02,
+   "chg5dPct": -3.12,
+   "barDate": "2026-10-16",
+   "lastTradeKST": "2026-10-16T18:02+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  }
+ ],
+ "missing": [
+  "국내 시간외 단일가(키 없는 출처 없음)",
+  "종목별 지수 기여도(지수 구성 비중 없음 — 쓰지 않는다)"
+ ],
+ "repoData": [
+  {
+   "file": "docs/data/market-movers.json",
+   "asOf": "20261015"
+  },
+  {
+   "file": "docs/data/market_flows.json",
+   "updatedAt": "2026-10-15T14:13:56.379496Z",
+   "ageHours": 19.0
+  },
+  {
+   "file": "docs/data/sector-strength.json",
+   "asOf": "20261015",
+   "updatedAt": "2026-10-15T22:28:02+09:00",
+   "ageHours": 19.7
+  },
+  {
+   "file": "docs/data/disclosures.json",
+   "updatedAt": "2026-10-15T14:14:50.540Z",
+   "ageHours": 19.0
+  },
+  {
+   "file": "docs/data/news.json",
+   "updatedAt": "2026-10-16T06:35:52.017Z",
+   "ageHours": 2.6
+  },
+  {
+   "file": "docs/data/events.json",
+   "asOf": "2026-10-16",
+   "generatedAtKST": "2026-10-16T07:59:07+09:00",
+   "ageHours": 10.2
+  },
+  {
+   "file": "docs/data/stock-events.json",
+   "updatedAt": "2026-10-16T00:20:29+09:00",
+   "ageHours": 17.9
+  }
+ ],
+ "kr": {
+  "KOSPI": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-10-16T16:15:00+09:00",
+   "tradingValue조원": 20.02,
+   "breadth": {
+    "상승": 759,
+    "상한": 2,
+    "보합": 22,
+    "하락": 135,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261016",
+    "개인": -5098.0,
+    "외국인": 3620.0,
+    "기관": -6812.0
+   },
+   "program억원": {
+    "bizdate": "20261016",
+    "차익": -1704.0,
+    "비차익": 6001.0,
+    "합계": 4297.0
+   },
+   "topByMcap": [
+    {
+     "code": "005930",
+     "name": "삼성전자",
+     "chgPct": 3.1,
+     "mcap조원": 1265.7
+    },
+    {
+     "code": "000660",
+     "name": "SK하이닉스",
+     "chgPct": 0.48,
+     "mcap조원": 926.3
+    },
+    {
+     "code": "005935",
+     "name": "삼성전자우",
+     "chgPct": 6.16,
+     "mcap조원": 135.5
+    },
+    {
+     "code": "402340",
+     "name": "SK스퀘어",
+     "chgPct": 1.83,
+     "mcap조원": 102.8
+    },
+    {
+     "code": "373220",
+     "name": "LG에너지솔루션",
+     "chgPct": -0.37,
+     "mcap조원": 93.8
+    },
+    {
+     "code": "009150",
+     "name": "삼성전기",
+     "chgPct": 1.81,
+     "mcap조원": 88.4
+    },
+    {
+     "code": "005380",
+     "name": "현대차",
+     "chgPct": 5.75,
+     "mcap조원": 63.6
+    },
+    {
+     "code": "207940",
+     "name": "삼성바이오로직스",
+     "chgPct": 3.05,
+     "mcap조원": 59.5
+    },
+    {
+     "code": "105560",
+     "name": "KB금융",
+     "chgPct": 2.23,
+     "mcap조원": 56.8
+    },
+    {
+     "code": "032830",
+     "name": "삼성생명",
+     "chgPct": 3.95,
+     "mcap조원": 47.4
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서."
+  },
+  "KOSDAQ": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-10-16T16:15:00+09:00",
+   "tradingValue조원": 5.74,
+   "breadth": {
+    "상승": 1471,
+    "상한": 7,
+    "보합": 40,
+    "하락": 222,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261016",
+    "개인": -935.0,
+    "외국인": -939.0,
+    "기관": 1711.0
+   },
+   "program억원": {
+    "bizdate": "20261016",
+    "차익": 6.0,
+    "비차익": -1066.0,
+    "합계": -1060.0
+   },
+   "topByMcap": [
+    {
+     "code": "196170",
+     "name": "알테오젠",
+     "chgPct": 9.37,
+     "mcap조원": 16.3
+    },
+    {
+     "code": "086520",
+     "name": "에코프로",
+     "chgPct": 0.87,
+     "mcap조원": 11.1
+    },
+    {
+     "code": "247540",
+     "name": "에코프로비엠",
+     "chgPct": 0.47,
+     "mcap조원": 10.4
+    },
+    {
+     "code": "036930",
+     "name": "주성엔지니어링",
+     "chgPct": 2.69,
+     "mcap조원": 9.8
+    },
+    {
+     "code": "277810",
+     "name": "레인보우로보틱스",
+     "chgPct": 2.03,
+     "mcap조원": 6.8
+    },
+    {
+     "code": "028300",
+     "name": "HLB",
+     "chgPct": 2.58,
+     "mcap조원": 5.6
+    },
+    {
+     "code": "039030",
+     "name": "이오테크닉스",
+     "chgPct": 5.44,
+     "mcap조원": 5.5
+    },
+    {
+     "code": "058470",
+     "name": "리노공업",
+     "chgPct": 5.65,
+     "mcap조원": 5.4
+    },
+    {
+     "code": "240810",
+     "name": "원익IPS",
+     "chgPct": 5.55,
+     "mcap조원": 5.3
+    },
+    {
+     "code": "000250",
+     "name": "삼천당제약",
+     "chgPct": 8.72,
+     "mcap조원": 4.9
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서."
+  }
+ },
+ "news": {
+  "window": [
+   "2026-10-16T00:00+09:00",
+   "2026-10-16T18:10+09:00"
+  ],
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-10-16T15:38+09:00",
+    "title": "[코스닥] 33.96포인트(4.46%) 오른 794.78 마감 - 서울경제",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9McWdUWktVVGhVc3RNTURyZm9rM2Z6UEpWbkdYTkZTSHMzZ3hLM2NVN0Z0QzVaQ0JpT1YtcTk1VG9XSlVZS3hzZWhWdFhDaC1PZWZ4TVAwOWdGSWJ6OFdCeG9zcG1kUdIBU0FVX3lxTFBLRHAzRGptV2hnSl9TdGowclBuZWJvZjdiRUt6cUliYkFDVjFjM1BVdEpSUnhjMG9BS1JXaVdtOXZUTmVkclpBTkFBVDczelRpczlv?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:41+09:00",
+    "title": "코스피, 2.05% 상승한 5668.05 마감…코스닥 4.46%↑ - 동아일보",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBNVVhOSFpIb1lhTGd3VWcya200cGcyM2s2M0tlSy1JS0dpZmFPR2x6Q1N5TXhIemlua3FSa2FCdjRwQWlZajRGUDBEUElXam81QTRqRlE3VDRiR3h5eVR6cVNpbDJ2ZWY3X0tiM25xeHJzVmx5eXfSAWZBVV95cUxPcTQybDlhRjcxV1hiNmhKbC1oUXI0blhvamRzLTJUZ2VRc3o0TklrZVZzQmdnYVFDV0N0WXBvV1pWTFJjM3pBZVZGaHpIa09wTzhyeVB6QWNrSWp2T0FkX1BJVkwwUGc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:42+09:00",
+    "title": "[마감시황] 코스피 하루만에 2.05% 반등…5660선 마감 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFB1SmtWTTgwcDA3d0JfWGpoeURVcWlFQVlSUW1zaHVyeVk3UENEbnZ6N0pIc3VNcUxjbUZxbjFuN3FoemRuNGlEUEpuVTdSWVJnODlGREhjQ2ZsUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:42+09:00",
+    "title": "코스피 2%·코스닥 4%대 상승 마감…외국인 매수세 유입에 5600선 회복 - 싱글리스트",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE0tZ1ZOLXRldHZTTjlTT28tUEJhNlo3T2dwdl9IRC1JZTRFY0szYllWeXNOVHgwUzBIZTduTThBZTNoNjFfRllYMTJlX2tOd0VFbTNEZHZxamhvQ2RGWWJHYTkyalpzZw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:43+09:00",
+    "title": "코스피, 2.05% 오른 5668.05 마감 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9HbXBZdnNFWFR1YUdSUlItNHB5NXBQYms2MU11WFZtbEZUNmI3TDJEMExQckVyNUNwWTYza1BjTXg2N2hicjlsQURWOGFTMmZEVzdfclpWUkppdUFzdkxJVEpoY1E?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:44+09:00",
+    "title": "[마감시황] 코스피 5660선 회복·코스닥 4%대 급등…AI 우려 완화에 동반 상승 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9WVWs4RFhWd2cxeWpjT21BTDM3c3VpcEJLREZiMVc4MGtUS0lqV09oMjRUVUl1NVRKOE8tdXdLSndSMWlqYUVyd0xJQXl1MzQ5dmMyaUxxU3LSAVhBVV95cUxPVlVrOERYVndnMXlqY09tQUwzN3N1aXBCS0RGYjFXODBrVEtJaldPaDI0VFVJdTVUSjhPLXV3S0p3UjFpamFFcndMSUF5dTM0OXZjMmlMcVNy?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:45+09:00",
+    "title": "코스피, 8거래일만 반등 5660선 마감...코스닥 4.5%↑ - 조세일보",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE92NmpBUGxfWXZjRFZpTHJIMHpBZWd6NjBoUlZ2Y2UyTVhQdW1mbUdYOC1ZWmE0S3ZtTEZUX2U4MkpNdW5IUkhVUm5rbWhQVDYwVmEycGlJVDc0eVU5T0ZEempWTXRlRFpCV05KVkZJQQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:46+09:00",
+    "title": "코스피·코스닥, 나란히 상승 마감…급락 충격 딛고 반등 - 직썰",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE8tbVQ0bFlSNWlkSjdOV0JjWngwRVFTLXJnaW9HTlN2RzUtMkZ0SU5nalVIOVR1T3BlN2tPZjlzWjZybk1LaEpVRkFfN3ZhQnpPRm5aYlFBQkhZYkhRT0NQVTJGWnVFNjVz0gFsQVVfeXFMTjFaQmlaZ3hYbmNjekc4S3gtMDlFNnZ4RmtJelhkdlY4dEVPN3lya0dJLWFsLVVJVnEyMVN0dVZDZ1JadHdiakRyRERPcFZUNTlFV0hwRjBLbXltZ1hWcDc5VUxubWlzUmp0Z0c2?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:46+09:00",
+    "title": "[마감시황] 코스피, 외인 매수에 2%대 반등…코스닥도 4% 급등 - 블록미디어",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5laVRaa3RRTXNtMy1lOW5uZlNVSFE0VG9BMDhTMkFGZl9RRlFUaG9tanQySS1HOGtJR3hzSDMtLXctRjVIWmZtS2tnQy1faXQ0eVczdG1ZN0c?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:50+09:00",
+    "title": "젠슨 황이 살린 코스피, 2% 반등해 5600 회복...8거래일만 상승 마감 - 오피니언뉴스",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE16dGdxcDV1VEhiOGlRekZIeW0zOTJ5a3FscTZaMDQxd25ORUZBa2p4VUVxZ0lJY2RaamZyZElTdTg5VWN2YjRhWHFLTVYwS2d3MVgzdVpfQk9mSXF6MEh0bG84bU53c0V0NHBzbk5LRzB0QQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:52+09:00",
+    "title": "[특징주] 서부T&D, 개발사업 본격화·자산가치 재평가 기대에 8.26% 급등 - https://www.moneystorm.kr/",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFB3Q2lySFhMcFAwRXFwaDQyVEUxNHlsZ3U3VjRkN2dESlpNSHlSYWxjR3J0UFFDRWxCVmJXaUJaNWVIRUVtaUgxZFZfUmdfbnREQ20zZXYxVlI5bFBJWTduazJmcU9FX0xsekE?oc=5",
+    "query": "특징주 급등"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "코스피, 8거래일 만에 반등2.05% 오른 5668.05 마감 - 국제신문",
+    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOa2VqRDBBb09nMFlCcDVFaVVqTDZyTmExWmgyakx3R1hzZXRncUEyNl9BYmVNTGxRcUJIOU5xLUZzSE5GVG9BV0dhWVoyT1dmbnRsWmJsRzV6R19vNlRTWU4tMXdxa1NuNEdhSWtmb3hTUkY5NzAwUGxjaUVwT1NKdm1UTEs0QnBxM0hR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "코스피 상승 마감 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE8yUElPeDBXTXRpR1N4ejU0YnAtSlRwNnNMcWVZcTZLZHRvV09fbHNFWUZhVVlCemFpRUdjT2FDYVZkLTByQjNJSElsaTFDakNNa1Zra1ZUWThCaVlyb2lhbg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "코스피, 8거래일만 반등 5660선 마감...코스닥 4.5%↑ - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9ncjY0NHpuSlkxRHZOYl9zUkVWZHBubFNMUFFKeDdpck9rM1plYUxtNVZLQ0hKaXBDYWZfTi02LWxxYmZJSFFJTll6RQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "코스피·코스닥, 오름세로 장 마감 - 한강타임즈",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1Ua1N6V2czeFpEYnZBcmx2MHFVOFQzSlpyZ1ltVmpqMGZ6V2lVSkp4MTFEVU5XSXNkb0RPVnZHcl9Pd3Fqa2R1RGZJOGRrRkdHc1hWdWF2cm9WMldWVzVPREdMMVozV1pLYXdV?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "개미 팔고 외인 샀다…코스피 5660선 상승 마감 [시황] - 데일리안",
+    "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOb2ZSU0dTaTlNQjlGbWdJSEZBRGZ6SUFrTHFZc3VDMzNGaVZrRFZYakxBeTc2M1p0MGN6cUU4eU5vc3hiNkNPWVdaLWVvakZkRUVhbjRyQmVFSkVLX0JncnpvQTFCc3A3Q25fYzY5WC1RR3VNV0s2a2EwQzJYQ2pCcmtibl9VZ3VMeXg1Q3FWRmppd3lwaFZTTldMVkZyd2pYNkYzMW5DekoyOFB5WXJLdnRQVGN1dnF4VWNSTlFmQXVuX2ZEVHpiNUYxd1o1MlFQN2M3NXdLVjNXeVRkaDNiVUJKaHNGcHJKX3lyaGhEa3Q0d0pRSFJjQQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:53+09:00",
+    "title": "상승 마감한 코스피-코스닥 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFAya0pjNl9MbnZkaC01b0xDRHM3bVg1X0t0YXktUW1Qeng3RTlPWFppRGlzQUhnQlpwNXRBU20ycTM1c29SSFdoeTVhc1BYRk9xbnBEa05oRWE1SElSakJ4Sw?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:54+09:00",
+    "title": "코스피, 저가 매수세에 5600선 마감 … 삼전닉스 0~2% 반등 - 뉴데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNbnY1QlZUcjhNLWFLSjk1VEVWY1dnaFdRYjRKWTJEaVdicTNTcTR6dG55Rzhid2wxV3dOOUpqal9LaG15ZEFzeVNPemVHWVBwLXNCV1hycy1VdXBtRVBJeHJVMXZSbFpiaXpTbV9raEotc0htMGkzc3ZJcFd2LWE0YtIBgAFBVV95cUxNbnY1QlZUcjhNLWFLSjk1VEVWY1dnaFdRYjRKWTJEaVdicTNTcTR6dG55Rzhid2wxV3dOOUpqal9LaG15ZEFzeVNPemVHWVBwLXNCV1hycy1VdXBtRVBJeHJVMXZSbFpiaXpTbV9raEotc0htMGkzc3ZJcFd2LWE0Yg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:55+09:00",
+    "title": "[마감시황] 코스피, 113.83포인트(+2.05%) 오른 5668.05 마감 - 라이센스뉴스",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBjeVlmNnI3azY2dk8xQ19vZ1lxc3loSWE2bkl0ZTdyVDdWTTZsb0NabUtSUHU3b0h4UjV2dXd4aDVhejgwRk5tY0pzbFBjNFBoalBuWU9fNG1hUV9ZcGpkQXNraV93TDhYUmV3?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:56+09:00",
+    "title": "[증시 레이더] 코스피 7거래일 하락 끝내고 반등⋯ 5668.05 마감 - 포커스온경제",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1zN2JjR2RyVzFkRGp0ME1sdExRQkRsb3dfNEFKS1J4cjJfVUprRnhmRllzTV9XRUh6cmx5MnppdUFmLVhKaDlJMnJCNjc0bTZZQ3lkYm5HMXNvMS1ESmc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:56+09:00",
+    "title": "코스피 8거래일 만에 반등해 2% 상승 마감…코스닥 4%대↑ - 노컷뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1xcmc1WWdTLTZPVlRuRTF6dmtkNF9MVjNtV1RLek1XUlFzdXNvMFQ5SjBiM29BdVRuLTluWTlRcWhVbURQUjQ3QXl1RWp3ZGlDYjhnbg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:56+09:00",
+    "title": "코스피, 8거래일 만에 반등...5660선 마감 - 컨슈머타임스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE80UjZMSDRLMXlOcFJPSEEwekdPamJDRHc2WjBwQmdMQUZkUDExZGtlS1c3SnpOUnVTMzlvcF9MMldJRmJ1YmJfMWZ3dEkzVW5mSjhQYUkybmRXNnQ2YkM1aVd5VEEtMk5Lbnc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T15:59+09:00",
+    "title": "코스피, 돌아온 외인에 2%대 상승 마감…14일 만에 '빨간불' - 더팩트",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE05WkVqamJjVklWOXJMNHMzWHp1NXFoTHJxOW1oWFVna0EyV1VUTTQxWHRyZGpzcEpzaG1DdklvdndSS0xXU0hBMVoyRnVQYWwtQy1qWGV1ZkhoUdIBVEFVX3lxTE9KcEx5QmhscXowNDg2Q2xjTVB2cGd2Smd0LU1pLVoya0RCX1Bib1BQSUhBc2hxRHZmWEJlcVB5Z0RVLTNwTE03MUNsa0xxWEstS09iRQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:00+09:00",
+    "title": "돌아온 외국인…코스피, 8거래일만 반등[fn마감시황] - 파이낸셜뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE92VEMzWTk0c19MQkJ5bkRkdEhMWS16WE14cmhtRnpPT0psYWtvMFN5MjRjOGxOYU1CNTUwWHFnTHBOZWVYOFFFUk93a1VfdFZ5Mk9DNVlGUXBDUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:00+09:00",
+    "title": "[10.16(금) 한국장 마감] 동반 상승 (코스피 +2.05%, 코스닥 +4.46%) - 주달",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBSVDlSRWVNblprMGJPZGtBcGI3eWo5NW4zd1NLdm1GdjFVUV9hZTRDaEFwSlhqemIxR09XN0lsYWNSVEZYUzFzMFgxWWpfZUMwekNTaThLb1FCNk1xeENLLU1tQ24yTkdhNUlwTHVxY2ZNWjlDeWc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:00+09:00",
+    "title": "급락 딛고 저가 매수세 유입...코스피 2%·코스닥 4% 반등 마감 - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1qRzIxbjlGZkRtdmJxTU9JcUtEaUh4Wk1CZXlpLW9zM0tNdFRCcUlXbTFndDE1RVBrSGpkaDJhVWo4MEFIR0c5VEppanVIOFRsM1FmTEVneDlOa3Z0TDlsNzFNc0xScmUyTTg3Y3pn?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:01+09:00",
+    "title": "코스피, 8거래일 만에 반등…코스닥도 4.46%↑ [MTN 마감시황] - MTN 머니투데이방송",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1LSDVFN1V5NlZDMkhUbmxvc3ZzclpUakFKcHA2NkxWUlY1aFFDN2gtRDlpM2Rna25SaEttOVByTTBOajBuRURDeWdTNmhsTVlsUFN0eTF3TnVmaFQ2X0lB?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:01+09:00",
+    "title": "코스피·코스닥 오름세 마감 [포토] - 더팩트",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE12N2R5UzhVVkc2bk5qa2ppOE4wUHZEVXFxQXpiWVR4Q21lSVNBVU9YMGsxQUtTVEhfNTNkVXFya0NxTjNfekZ1ejYzNUlnQlg4WFF5OHNDUFJFeFlHZWfSAVhBVV95cUxPR3hHYklMOWI1eW1XcGdKNWhrMFdNUHhMa2RsczhYWTc5OHJLNFpqWkpXa3JyRHdZaFJlYVUxQlhxOHRtdjRYbm1JTUdMQmI1RUVuYUtSQ0Z1?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:04+09:00",
+    "title": "\"본전 언제 찾나요\" 개미 피눈물...코스피 2% 반등에 그쳤다 - 머니투데이 - 머니투데이",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1xOEExaGRyeWctRFhUUjVVOEU4SE12ZU9SS0M0Ulg2cTNQWURIN1E4NjJjRjdQaHAyMGdsS2pwZ29TaE1md084cTVOb0N4a2lRN1FCdmIxelZfSl8yZkllcUxhUWJ6Z3JRMHFYR2tB0gFuQVVfeXFMTXE4QTFoZHJ5Zy1EWFRSNVU4RThITXZlT1JLQzRSWDZxM1BZREg3UTg2MmNGN1BocDIwZ2xLanBnb1NoTWZ3TzhxNU5vQ3hraVE3UUJ2YjF6Vl9KXzJmSWVxTGFRYnpnclEwcVhHa0E?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:05+09:00",
+    "title": "코스피, 8거래일 만에 반등…2%대 상승해 5600선 마감 - 시사저널",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9CdEVMTV9OOXgwaVZsYllwUFZBNUtRV3NPc2djeDhDZnBJWVRUYzNhVk41Y3N1dmFQVzdrelBkTWtlLXpCMmdKVEhpM0VMd3pyc2hoWjYxbldGNWZXTF8ycXhRNEdOTzEtRURib2hzWdIBc0FVX3lxTE9kcmFkWFFfMlNjcmdZMUJNbGxDSzdEQnVpWF9xX0VKLVNWUEpZX3JPdjZ1OVVaTVZfMzE3MTlVZXk3Qnl5M3dfam15QlVDWEpLNDFRd3o2N2xTN3NOYzUtdkVpd0NOQU9sYVctYUktU1RQUlU?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:07+09:00",
+    "title": "코스피·코스닥 오름세 마감 - 일요신문",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBrd0FjeDFhS0x6SmNKTjF2Tk9yWm5Fek1CUk44bDF0OXJZMVREdmtuQzh5LXhGU3BRSXBNb1NUWm1yQ0FBUzBrTmZ2S3owZ3p5dWdJNjRIbzUxTldwZFgwZTdQQm5oUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:08+09:00",
+    "title": "[마감시황] 코스피, 8거래일 만에 반등…코스닥 4.46% 급등 - 신아일보",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1tdGtmVFltWV9IS1o3WnBocHdpdGdBN3lWRkhzTm1YQUFzVjBJUjFuQldVeExDSnlvYjVpN2htMDZwTDJOTkN3ZkZqQVlUQVVIQkdjLUlnd3lLak54NExBMS10eUsyd0xRM1doX1NBUFQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:10+09:00",
+    "title": "급락장 하루 만에 반등···코스닥 매수 사이드카·코스피 5660선 마감 - 스마트비즈",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5OOEVUOXN3d0R3UWdEVW1vWHhBRmRmZEhFajJWdlVYS0JuTTRxWGZCdHRwQmhvUTdoX0JWQy0xR2lwdTJYUE11ZkRtUnBVQzRQX0NMemlFdXVqTkhMN0ZHSEZIV09ReTF4eExGTA?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:10+09:00",
+    "title": "[마켓뷰] 코스피, 8거래일 만에 2% 상승 마감… 코스닥도 4%대 반등 - 조선비즈 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPVncwclpGYURkWVg4bnlsSTVqY2dpeG9jVDdXamdnMlR1QUF4QWtjbFJKUkZjSXFNcHp0WWJSWlNvbjYwNHJOMmU3eEg3dnJBcW5EWHYtNGpRRzQyMlo4X0I4dmdlcHA3RzRzQU9tN0paUUFsV1ZXOWU1MkoyY1F1M0hQYWpJZTNl0gGcAUFVX3lxTE9LN0l2U1hILVhFUldFS3U3bDFid0l5TEhKeHJkSVVJcTgyaTBUdkZ4eHhMYnpkYXZUM3phOG0xUjJEeTAzcFFhdzk3VnU3ZEstMzlGWHhsRDBCcGxmeGtjUkJIVklyWG5EMW9WcHE3V1BONExYRXI2VVhNUkFWaG1DQ3N0WExhV2p3OWdQdHFBT3hlRUVxbkhpcXYweA?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:12+09:00",
+    "title": "[증시-마감] 뒷심 약한 코스피…8거래일만 반등에도 2%대 턱걸이 상승 - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE5ETEpjaVZNRk5kRmVaM0JrQTh5N1hFd2pQVXpvVWp0dzVkYVNxRFZzWGRrR0xSNnN3c0JvODFLb1dWR1B5MzBzVDc1WXJhbi1ab3VHTlRTZW1ncmhueS1SWVZNNFRYel9VNVNSY2dwcElpQQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:13+09:00",
+    "title": "[마감] 코스피, 8거래일 만에 상승… 코스닥 4.5% 급등 - IT조선",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9zUkl1Uk41dk8zNF9VY0dqZVo1X083b3lBU2FranFGQ2F0Z1ZYZ050NXVjTGJrd2ZsYUREQkFCSl9JNExPaEZNUmNRSG5hY2dhZGs4NFFxQXZIS3FSaDhjRGZuNlJFU1hYejRDSm54WnTSAXRBVV95cUxNeHYtSzJNeE0zLTFKamlRYWtqd2MxMXh0RERTM1dPZ2lNeFVrT2JpdFFkbFZOdE1DczFzUlFHQjVoSk5aa2xGTEVEWFJ5MnYtbU01aENRZDlvVGNyUkEyak0xQmhJMTdWdW5VMVlPaF92WF9nTg?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:14+09:00",
+    "title": "외국인 8거래일 만에 '사자'…코스피, 2% 상승해 5600선 마감 - 한국경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5adjBvTUhtb29uYndHMXBOanAtb3JoUV9JN25hdXFGQnNtQlJoWUJFVEZHXzVxMVlHNnFEanM2RkdXT1ppX0E3ZkFrOXk3T1loOW9PU2dITDRPUQ?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:18+09:00",
+    "title": "\"너무 떨어졌나\"…코스피, 2% 오른 5660선 마감 - 글로벌이코노믹",
+    "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOZE52M0ppSXJ1aHVZRGJMa2ZVZjdEcGVHVlhQR3puZ1c0TnY0YjhKTXN6WmpEUjMyNlpfYnNYMy1BSnIyNExMMjJYcWNEemFncGpQRk00cm1hclVYb1JjSFByNUZrZE42Yl9OaHRjTUt1eWNSbjNNeEVUT3N2RjZBNlRnZVhBRnM?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:20+09:00",
+    "title": "2.05% 반등한 코스피, 5660선 마감…7거래일 연속 하락 ‘브레이크’ - 한겨레",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE84NkVoTjRuM0xVVzh4bVRwRFV0Yl93MDA1ZmZ0WTQ4bVA3RUstamlQY3dVSnpCUVVYZDV1a3lvNmhSWGFTRW1UOHI0NGdwTWdoeXgyZmhkenhUTlFEbm02YnV5NFFrT28?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:23+09:00",
+    "title": "[장마감] 코스피 2.05%↑(5668.05), 코스닥 4.46%↑(794.78) - 버핏연구소",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE90R0lVYWxOckdiNXdRelg5eVpjR0pNWHRYcEJESmNReURUaVhzQTEyd00yVm1pRnV1VW85YktJM2lBQ2ROV01MRzBsdEdoSWNiV2d0aXJQWGlTZWg5a051SEl3?oc=5",
+    "query": "코스닥 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:24+09:00",
+    "title": "[마감시황] 코스피, 8거래일 만에 반등해 5660선 회복…코스닥 4%대 ↑ - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5CTWJqV0xpM3V4Ym5fTEJIdXB3emFVb3N0ZDFWQk1sUGJMeVZuR2FJVmxoRkk0d1JtbC1MUjRMUHZ5YVhxbnJLVFBQTjVLU1hpTXZ1dzZFeEE1VkhY?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:25+09:00",
+    "title": "장중 4%까지 반등한 코스피, 2% 오르며 5,600선서 마감 - MBC 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9HT1h6UkUya1h4N09GbmF5QUJWeUQ5dzFEYmVIamlBbG1aUEdGdXhJZUJUVEQ4eXN6NXFENE1PSXNleGg4UF9rekFUdU5MQkdCUUlweURodmNsVzVVM3YyZ01XcmxxUmtXRnZaV2YtLTZsMnZu0gF0QVVfeXFMTUZhNklud1pobmRtQ2NCRklxbHVnRkN2ZFRmY2s5Z0JDRk9USmRmZ29qcHZiU3ZhaS1HVGJfbzNyZTlnUGdCMm5XQUJSMW1SNDV0NzFqQW1zOXRWQjF6OGM2Qjc3YnUtNm5TZkZWLU1aSHJpVTE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:28+09:00",
+    "title": "코스피·코스닥, 7일 만에 반등 마감…코스닥도 4%대 급등 - 파이낸셜포스트",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBNVnhnR0hYRnBMLU9PSm1PN3AwakxRVVQwOWVLVlpEU3diVlR0dFZDLS1tQWtBRWk3OVBNRVdJUlM4TzVJUE5fQi1mSllHdndZdmVKU2RDNmtkbmljenR4M3dwbVppeGlyaE5VMzY0ZjkyTEJL?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:30+09:00",
+    "title": "코스피, 8거래일 만에 상승 마감…외국인 순매수 전환 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5odi1NY1lyd2paeTNqQy1vM3RqRnVKT1hkMmpsNC1wZ3l2UEJKUFE3N3ZsdVp2TG13cEo1R2FXUlVHTkRzNVJVUW95dDlpbnU1QXduMVl5SWRJdDY1Q0ZYRGdoMWw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:33+09:00",
+    "title": "코스피·코스닥 나란히 상승 마감...급락 딛고 반등 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBQTkFuM3JUa19PVnRJWEZacDUteUlXSzV3SXJTb1NQdkdzckw2Uml4YW8xUW1ZQjJXNFBqUC00YlhNd0d3ZGpDM05tS0hFak1ULU5WeTAwY1FETFRvVlliLUxPT3BHODFHd1g5OEg5Yw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:36+09:00",
+    "title": "[마감] 코스피, 저가 매수·AI 우려 완화에 2.05% 상승…8거래일 만에 반등 - 알파경제",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5ucXBxYXhORVE0LVVEcTh2YjBXX24yYWJwaUZHZS1DLVhxY3hmRVhZQVc2czdjY3lOQTNsYkVyTUV6N0VCZUVDc0d6ZkhUVl9PaWVNYkM0RnlvZkhFTjBUYXMwaUd5UThxME1TZjB3?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:38+09:00",
+    "title": "(마감시황) 코스피 2.05% 반등…코스닥 급등에 매수 사이드카 발동 - 뉴스투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBWZWpsZ1lXazRqTWNVV3gyQnFyVXhQNVJ6ZkFDejk4dVYtMDRPUFk3M2VwVGtRQlpCNTFoYlJmQjhlU2l2VVUzZFpVMFo0TnVXaVIwU1NHSmpyQjllVVE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:39+09:00",
+    "title": "코스피 2.05% 상승 마감... 8거래일 만에 하락 멈췄다 - 조선일보",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQTnl3RGpKYkpmd2pMbHNBVk0wUmI3YUp1OHdQNGhRYVo4SXdEU01rWF9yU0lOWlNadFp1UGVFczVNaGxWTkpDWlhBT3U4ZkkzdG5WM3UtZ1VLVnFDVlFuVngtNDZhSzZtVWNLZUI3SmJoeFd2cWhTNzRFUTYyTDVnbw?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:45+09:00",
+    "title": "[마감] 코스피, 8거래일 만 반등…화장품주 줄줄이 강세 - 한스경제",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBvdWFHOHdRUmZfUFVTSGh1MUp2Nlc0RnAxQmpSV3ZfVkxHV0tCczlzSmp2N0FMNWdRZE01YW5FZUt2Si1GVHh4UDR6dmFCUTUzQXZZWHZGMk5uN19Nc1hKVkhVTGVMSW53eVM40gFvQVVfeXFMTlA1VzJMQnFtRUVnLXdkRk5EaXlCdUxPdmcyejIxLU9hVzgwX0dZdm8tOXVWTmhlYl96djUzMmF1Z202R3RaM2x5TTkxcy13Nm0yVWNZV1hjQVlQRTNMY1lKakR5cGFBQkxtX1ZhTEtV?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:48+09:00",
+    "title": "코스피 8거래일 만에 반등…장중 5800선 돌파 후 상승폭 축소 [마감시황] - 매일일보",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5vdGhoTDlYWGV5UUVFaXZtVk1mQlNoY3pfWEtDUjVUR0htZkZqQWdQRF9LM3RKS3B4VzhIYmdoWnVUV0RiYzJBMzZvY0daZHBtdGZzODd6cXVNQ0JRMVRwNjVHNUc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:49+09:00",
+    "title": "外人 더 판 대만은 덜 빠졌다…코스피엔 없었던 ‘구원투수’ - 매일경제",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1qdXVXXzZlMndnOFdyM0VlV283UkJPQkdyYVpRMS1jNXpuWDNoYnU3ZWtFc0lxVFVLcmUzQVdubVdFTEw2U242eVNkTkdTT0RZb0Rqdw?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-16T16:50+09:00",
+    "title": "코스피, 저가 매수·외국인 순매수에 8거래일 만에 반등···5660선 마감 - 서울파이낸스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1TV19KWkpMMGFoZ0t0dzNBWHJLdUxCTjVYNEdOekpuZWdJZmlrX1llajZNRC1WWWtBdjEtVDJCUDNvdmk3WHByRWJBTnhCeGgxWWllNURmaEZScVJNc2pUWHlkYUthcjNaUlE?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:53+09:00",
+    "title": "순매수 전환한 외국인…코스피 2% 상승 마감 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5kN0VjV1U2cHBnVzE1eGx3djl1RjRzMmFaSGpWQ213UVZlMm5pbmpsMEJyaW16Y3pGT3hfQUt1eV8wRkxqRUhrZFVqWFg0cGNfbkhjMGZxU0YzdjVtaVRvUWdR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:58+09:00",
+    "title": "코스피, 2% 상승 마감…8거래일 만에 반등 - KBS 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE0waDNFVkZxWU5CSXdNaDZYVDJObHoxLXRmX1BJcGw3TmJ0SVBTZ0diQzBtSk5nRTQzRm1ERTl4Znh6Nmk5N0ZhTWV4YkdfTzZwdWFKajJEQ2xxTG8?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T16:59+09:00",
+    "title": "코스피, 8거래일 만에 반등…5660선 마감 - 한국금융경제신문",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1fbnhYTFlBX1RBQ214bjhBS2hZZGZMT1RMQ09NSFh6TnN1aUkzSjV6cDdlZGJmeUMzUjc1RlVqdmdVWHZXZFdSVnVVMDRUZ3huTXQ1TnNDRXB1ajJTZF9rU1hpeFo1MTNJM3M1VUhaSnrSAXBBVV95cUxNX254WExZQV9UQUNteG44QUtoWWRmTE9UTENPTUhYek5zdWlJM0o1enA3ZWRiZnlDM1I3NUZVanZnVVh2V2RXUlZ1VTA0VGd4bk10NU5zQ0VwdWoyU2Rfa1NYaXhaNTEzSTNzNVVIWkp6?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T17:02+09:00",
+    "title": "코스피, 8거래일만에 반등 2.1% 상승 마감 - 뉴스인사이드",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE03YzYxLTdKVFh3MWxLODFnTG1fSzc5ZnoxNXB3UV8wazVIOE1FbFVxTUdvdkdVdzhxb2MxbWFlS3U5VkN3aHpLdzlOWC1wcDlNRlFQdjlZMTFMcmJuR1VEbElGY3FOWGRncG43ZGJR?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T17:08+09:00",
+    "title": "버티려 해도 주식 팔렸다…이틀간 1698억원 강제청산 - 한국경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE44QmViVnE1MEYzTTJGbmJHcWtGaG5RV0ZPNmQ0RGZycnBOT2dtZnpzR3dHQS1pQzJHZ3lQWm10c1lwNGlHaG9fUldGNVJyOVFRNFNzeHBzcWNnQQ?oc=5",
+    "query": "증시 외국인 순매도"
+   },
+   {
+    "pubKST": "2026-10-16T17:12+09:00",
+    "title": "[1016마감체크] 코스피, 외국인 순매수에 2% 반등... 5600선 회복 - 인포스탁데일리",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1EcTNxNGtWbzFrRWFRUTRSVjE2RWZhVm5za2V0eUNUTkh0QndzNjJmQTlKVjA1WVc0MnZybVY5S2ZlUGM1ZXMyZ281TGVhWnFkLUJwc01sVlFURkljSXQ4Ynk3Rk4waW1SQTRYbU9NWkxsajhZdnc?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T17:59+09:00",
+    "title": "[마감시황] 외국인 9거래일 만에 '사자'···코스피 5600선 회복 - 폴리뉴스 Polinews",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9QOVZ3U18xRk1PS2FycTZFa0dsemdVRnlYZk5wTU1XVHQxcXhpMDd0Q0JwenJOT01SdHNPMTloRFlOZ1A4ZnNTV0ZTZGI5NVlrdHV2bUZWRGVaYVRGcTEwR1ZMQ2FMdlh2NEVTWlF3?oc=5",
+    "query": "코스피 마감"
+   },
+   {
+    "pubKST": "2026-10-16T18:09+09:00",
+    "title": "[인도 특징주] \"지오 플랫폼, 사상 최대 규모의 IPO 이후 상장 당일 급등할 것\" - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBNbmRTRXF3R19EZkprRzhZX3lPRkF6WHpaTzBsSFRmWmhSZ09nbXZFckpfN0twb0JoVE9HQkgxSGNzbEtiNTlsZ0daeGhNMXY5WS1pNjZuZmFwclFH?oc=5",
+    "query": "특징주 급등"
+   }
+  ]
+ }
+}
