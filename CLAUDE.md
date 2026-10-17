@@ -169,6 +169,10 @@ Validated against
             ★ **결합 순위 모델 h5 forward 그림자도 같이**(10-12 사전등록 f56c75e6 · 코드 d63757c6 · 기록 전용): A2a 증분 뒤 `python research/strategy-lab/run_combined_rank_shadow.py`(건수만, 패널 재구성 수 분) 후
             `reports/2026-10-combined-rank-shadow/` 커밋. 모델은 2016~2025 학습 1회 동결(`model_h5.txt` sha256 은 freeze.json — 다르면 기록 거부, 재학습 금지). 신호일 ≥ 2026-10-13 만.
             `--judge` 는 마지막 성숙 신호일 ≥ 2027-10-13 에 1차(E ≤ 0 REJECT · t ≥ 1.65 INFORMATION · 초과·원수익 모두 23.54bp 넘으면 ECONOMIC), INCONCLUSIVE 면 ≥ 2028-10-13 최종 — 그 전엔 코드가 거부. 현실적 기대 INCONCLUSIVE.
+            ★ **수익성 팩터 forward도 같이**(10-17 사전등록 findings/quality-forward-preregistration-2026-10.md · 정의 해시 a7ca0a2c37 · 기록 전용): A2a 월간 증분 뒤 `python research/strategy-lab/run_quality_forward.py`(건수만) 후
+            `reports/2026-10-quality-forward/` 커밋. 셀 Q1 = ROE·영업이익률·ROE 일관성 합성 상위 30 · Q2 = 하위 20% 제외, 둘 다 유동 종목 등가중 대비. 첫 신호 2026-11-02, 성숙은 m+2 첫날 가격 뒤.
+            `--judge` 12개월(≈2027-12, p<0.001 조기 통과만)·24개월 최종(≈2028-12)·INCONCLUSIVE 면 36개월 — 그 전엔 코드가 거부. **A3 는 수동 디스패치** — 사업연도 2026 재무가 2027-05 점검까지 안 들어오면 묵은 재무로 계속 돈다(A3 갱신 확인).
+            과거 참고(판정 불사용, 개정 1): 2016~23 Q1 −5bp·Q2 +3bp(IC 는 t 5.8) · 2025~ Q1 +110bp(t 1.57)·Q2 +22bp — findings/quality-forward-past-reference-2026-10.md. 결과로 정의·셀을 바꾸지 않는다.
             ★ **급락 뒤 횡보 국면 M forward도 같이**(10-12 사전등록 a50a9cfd · 코드 b0930e32 · 기록 전용): `python research/strategy-lab/run_sideways_regime_forward.py --collect`(KRX 로그인, 업종지수 20개 증분) 후
             인자 없이 실행(건수만) → `reports/2026-10-sideways-regime-forward/` 커밋. 첫 신호 2026-10-30. `--judge` 는 국면 달 outcome 24개(≈2032)에 1차(평균 ≤ 0 REJECT · p < 0.05 SUPPORTED · 그 밖 계속), 48개 최종.
             검출력 매우 낮음(월 X 표준편차 366bp) — 실질 가치는 음으로 나올 때 접기.
