@@ -8,10 +8,10 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 125 |
-| 사전등록 문서(결과는 별도 파일) | 109 |
+| 기각 | 126 |
+| 사전등록 문서(결과는 별도 파일) | 110 |
 | 정보·탐색 | 35 |
-| 미분류 | 238 |
+| 미분류 | 239 |
 
 ## 통과·채택 (13)
 
@@ -77,10 +77,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (125)
+## 기각 (126)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-17 | REJECT | kr | [bb-lower-reentry-results-2026-10.md](bb-lower-reentry-results-2026-10.md) | 신호: 있음(반대 방향) · 경제성: 미달. 12셀 중 B1_h5·W1_h5 가 바닥선(2.77)을 넘었지만 **부호가 음** — 하단 재진입·%R 과매도 탈출 종목은 같은 날·같은 규모·같은 5일… |
 | 2026-10-13 | REJECT | kr | [surge-prob-model-results-2026-10.md](surge-prob-model-results-2026-10.md) | 신호: 없음 · 경제성: 미달. E1 REJECT(TEST 초과 -97.5bp) · E2 REJECT(TEST 초과 -6.3bp). 적중률 상위 20 35.5% vs 전체 10.7%. (스크립트 판… |
 | 2026-10-13 | REJECT | kr | [stock-futures-close-location-results-2026-10.md](stock-futures-close-location-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 선물 매수−매도 +8.8bp/일(t +1.85) · 2023~24 +8.7 · 2025~ +8.8 · 비용 20bp 후 -11.2. 비용은 가정(호가 자료 없음). … |
 | 2026-10-13 | REJECT | kr | [early-session-herd-results-2026-10.md](early-session-herd-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 무리형 09:10→종가 -28.8bp (t -0.9) · 단독형 -84.5bp · 갭형 -76.7bp. (스크립트 판정) |
@@ -207,10 +208,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (109)
+## 사전등록 문서(결과는 별도 파일) (110)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-17 | PREREGISTERED | kr | [bb-lower-reentry-preregistration-2026-10.md](bb-lower-reentry-preregistration-2026-10.md) | 인스타그램 chart_mag 게시물(2026-10-16)이 제시 스타인 사례와 함께 '볼린저 하단 재진입'(밴드 밖으로 밀렸던 종가가 다시 안으로 들어와 마감)을 급락 뒤 진입 후보로 소개했다. 같… |
 | 2026-10-13 | PREREGISTERED | kr | [surge-prob-model-preregistration-2026-10.md](surge-prob-model-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임) — "뉴스·공시 말고 급등주를 잡는 조건". 일별 기술 집계(10-13)에서 급등 확률은 최근 변동성(6%↑ 5.3배)·… |
 | 2026-10-13 | PREREGISTERED | kr | [stock-futures-close-location-preregistration-2026-10.md](stock-futures-close-location-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 대형주 종가 위치 되돌림(close-location-largecap-2026-10, 같은 밤 사후 기술): 시총 상위 100 저가 마감 매수 − 고가 마감 매도 다음… |
 | 2026-10-13 | PREREGISTERED | kr | [early-session-herd-preregistration-2026-10.md](early-session-herd-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임). why_surge.py 급등 256건(2026-08~10)에서 장중 무리형은 다음 날 중앙값 +0.5%·5일 +6.5%… |
@@ -361,7 +363,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (238)
+## 미분류 (239)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -540,6 +542,7 @@
 |  | UNCLASSIFIED | kr | [opening-fade-regime-conditional-2026-08.md](opening-fade-regime-conditional-2026-08.md) | Opening Fade regime-conditional T+5/T+10 - 전체 baseline net +9.19bp(T+5), Risk-On/Neutral/Risk-Off 비교만, 252일 후반… |
 |  | UNCLASSIFIED | kr | [opening-fade-macro-rate-regime-check-2026-08.md](opening-fade-macro-rate-regime-check-2026-08.md) | 미국 10년물 금리 축으로는 Opening Fade 설명 안 됨 - T+5와 T+10이 반대 방향, PF 전 구간 1.00~1.01로 break-even, 기존 Risk-On 의존 분류 유지(조건이… |
 |  | UNCLASSIFIED | kr | [opening-fade-longonly-walkforward-2026-08.md](opening-fade-longonly-walkforward-2026-08.md) | Q1 롱온리 편도비용 walk-forward: TRAIN/VALID 양순익(T+5 t +2.63/+3.08)이나 TEST 급반전(net -484bp, t -3.10) - 문서에 최종 판정 표기 없음 |
+|  |  | kr | [news-minute-forward-preregistration-2026-10.md](news-minute-forward-preregistration-2026-10.md) |  |
 |  | UNCLASSIFIED | kr | [minute-opening-fade-comparison/summary.md](minute-opening-fade-comparison/summary.md) | 오프닝 페이드 5실험 종합 - 본실험(Q5-Q1 -34.6bp)·월별분해(12/13개월 음)·거래량프로파일은 추가연구 가치, 상하한가/창민감도 우려는 기각되어 본실험 강건성 지지 |
 |  | UNCLASSIFIED | macro | [market-regime-feature-semantics-2026-08.md](market-regime-feature-semantics-2026-08.md) | market_regime_features 기술통계·시간안정성·상관 감사 - rvol20↔impl_corr20(r=0.948)·ew_ret↔adv_pct(0.860) 중복 의심, 계산 로직 무변경 |
 |  | UNCLASSIFIED | macro | [market-regime-definition-2026-08.md](market-regime-definition-2026-08.md) | VIX·trend60·breadth·USD/KRW 4축 regime 정의 - 전략 성과에 최적화하지 않은 사전고정 임계값, 성과측정은 이 문서 범위 밖 |
