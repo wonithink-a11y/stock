@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 130 |
-| 사전등록 문서(결과는 별도 파일) | 116 |
+| 기각 | 131 |
+| 사전등록 문서(결과는 별도 파일) | 117 |
 | 정보·탐색 | 35 |
 | 미분류 | 241 |
 
@@ -77,11 +77,12 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (130)
+## 기각 (131)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-17 | REJECT | multi | [pre-fomc-drift-results-2026-10.md](pre-fomc-drift-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). F1 KOSPI200 결정일 세션 초과 TRAIN(2010~16) +2bp t 0.15 → REJECT, VALID +33bp · … |
+| 2026-10-17 | REJECT | kr | [kospi200-rebalance-results-2026-10.md](kospi200-rebalance-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). R1 편입 사전 상승(T−5→T) TRAIN +119bp t 0.90 → REJECT. 평균은 세 구간 모두 크게 양 (VALID … |
 | 2026-10-17 | REJECT | kr | [holder-5pct-entry-results-2026-10.md](holder-5pct-entry-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 9셀 중 TRAIN /t/ 가 바닥선 2.84 를 넘은 셀이 없다(최대 E1_h60 −1.69). E1·E2 는 대부분 음 — 5% 신규 진입 공시가 난 종목은 같은… |
 | 2026-10-17 | REJECT | crypto | [crypto-weekend-reversal-results-2026-10.md](crypto-weekend-reversal-results-2026-10.md) | 신호: 없음 · 경제성: 미달. W1(모든 주 월요일 역방향) TRAIN t 0.09 · W2(/주말 z/ ≥ 1 만) TRAIN t −0.44 → 둘 다 REJECT. 구간마다 부호가 바뀐다(W1… |
 | 2026-10-17 | REJECT | crypto | [crypto-liquidation-rebound-results-2026-10.md](crypto-liquidation-rebound-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). L1(4시간) TRAIN t 0.63 · L2(24시간) TRAIN t 1.71 < 2.25 → 둘 다 REJECT. 방향은 세 구… |
@@ -212,12 +213,13 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (116)
+## 사전등록 문서(결과는 별도 파일) (117)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-17 | PREREGISTERED | kr | [quality-forward-preregistration-2026-10.md](quality-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 2025~ 에 횡단면 수익성 특성(ROE·영업이익률·ROE 일관성)의 월 순위 IC 가 2016~23 의 약 3배로 커졌다(10-17 서술 계산). 과거 데이터로 다… |
 | 2026-10-17 | PREREGISTERED | multi | [pre-fomc-drift-preregistration-2026-10.md](pre-fomc-drift-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 FOMC 발표 직전 하루의 상승(pre-FOMC drift)이 한국 지수·비트코인에도 있는가". 사용자 요청 "단기·크립토 실험 더"(20… |
+| 2026-10-17 | PREREGISTERED | kr | [kospi200-rebalance-preregistration-2026-10.md](kospi200-rebalance-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지수 펀드가 만기일 종가에 사고파는 정기변경 종목은 편입 직전에 오르고, 편출 뒤 반등하는가". 사용자 요청 "단기·초단기 실험 더"(2026-… |
 | 2026-10-17 | PREREGISTERED | kr | [holder-5pct-entry-preregistration-2026-10.md](holder-5pct-entry-preregistration-2026-10.md) | 2026-10-17 국내 상장사 전체 DART 5% 대량보유를 기관별로 묶은 표(scripts/build-holder-map.py)를 만들면서, list.json D001 이 보고자·접수일을 200… |
 | 2026-10-17 | PREREGISTERED | kr | [highvol-exclusion-core-preregistration-2026-10.md](highvol-exclusion-core-preregistration-2026-10.md) | 10-17 서술 분석에서 국내 횡단면의 강하고 시기에 안 흔들리는 구조가 '위쪽'이 아니라 '아래쪽'(고변동 종목이 크게 진다)에 있다는 것이 보였다. 기존 기록은 이것을 IC·분위·필터 후보로만 … |
 | 2026-10-17 | PREREGISTERED | crypto | [crypto-weekend-reversal-preregistration-2026-10.md](crypto-weekend-reversal-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "기관·미국 주식시장이 쉬는 주말의 얇은 유동성에서 생긴 움직임이 월요일에 되돌려지는가". 사용자 요청 "단기·크립토 실험 더"(2026-10-1… |
