@@ -11,7 +11,7 @@
 | 기각 | 126 |
 | 사전등록 문서(결과는 별도 파일) | 112 |
 | 정보·탐색 | 35 |
-| 미분류 | 239 |
+| 미분류 | 240 |
 
 ## 통과·채택 (13)
 
@@ -365,10 +365,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (239)
+## 미분류 (240)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
 | 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
 | 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
 | 2026-10-10 | 근거 유지 | kr | [pbr-combined-merged-rerun-results-2026-10.md](pbr-combined-merged-rerun-results-2026-10.md) | 편향 재검증(신호·경제성 판정 아님). 폐지 포함·엔진 보정 P2 연복리 +7.50% vs 같은 유니버스 등가중 E2 +2.30% → gap +5.20%p, 샤프 0.73 vs 0.23 → 근거 유… |

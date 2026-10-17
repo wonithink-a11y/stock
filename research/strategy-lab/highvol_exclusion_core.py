@@ -19,6 +19,9 @@ D = HERE / "data"
 OUT = HERE / "findings" / "highvol-exclusion-core-results-2026-10"
 COST = 33.5  # bp, KR 연속 왕복
 NAME_EXCL = "스팩|기업인수목적|리츠|부동산투자|인프라|선박"
+REGISTERED = "registered" in sys.argv
+if REGISTERED:
+    OUT = OUT.with_name(OUT.name + "-registered-rule")
 CELLS = {"X1": ("ew", 0.10), "X2": ("ew", 0.20), "X3": ("cap300", 0.10)}
 ERAS = (("2016~23", "2016-01", "2023-12"), ("2024", "2024-01", "2024-12"), ("2025~", "2025-01", "2099-12"))
 
@@ -41,7 +44,14 @@ def load():
     delisted_tail = (last < last_day) & (tail_rank < 10)
     big = d.r.abs() > 0.30
     n_out = {"kept_delisting_tail": int((big & delisted_tail).sum()), "zeroed_data_error": int((big & ~delisted_tail).sum())}
-    d.loc[big & ~delisted_tail, "r"] = 0.0
+    if REGISTERED:  # 사전등록 원안 — 감자 자리표시 가격(1원 → 67,000원)이 정리매매 예외로 남는다
+        d.loc[big & ~delisted_tail, "r"] = 0.0
+    else:  # 보정(결과 뒤, 결과 문서 §자료 보정): 가격제한폭 밖 행은 직전 거래일 시총 대비 시총 비율 — 감자·주식 수 변동을 반영
+        mc_prev = d.MKTCAP.astype(float).where(d.ACC_TRDVAL > 0).groupby(d.ISU_CD).transform(lambda s: s.ffill().shift(1))
+        mr = d.MKTCAP.astype(float) / mc_prev - 1
+        n_out["mcap_ratio_used"] = int((big & mr.notna()).sum())
+        n_out["changed_over_1pp"] = int((big & mr.notna() & ((mr - d.r).abs() > 0.01)).sum())
+        d.loc[big, "r"] = mr[big].fillna(0.0)
     d["r"] = d.r.clip(lower=-1.0)
     R = d.pivot(index="BAS_DD", columns="ISU_CD", values="r")
     TV = d.pivot(index="BAS_DD", columns="ISU_CD", values="ACC_TRDVAL").astype(float)
