@@ -9,7 +9,7 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
 | 기각 | 126 |
-| 사전등록 문서(결과는 별도 파일) | 110 |
+| 사전등록 문서(결과는 별도 파일) | 112 |
 | 정보·탐색 | 35 |
 | 미분류 | 239 |
 
@@ -208,10 +208,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (110)
+## 사전등록 문서(결과는 별도 파일) (112)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-17 | PREREGISTERED | kr | [quality-forward-preregistration-2026-10.md](quality-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 2025~ 에 횡단면 수익성 특성(ROE·영업이익률·ROE 일관성)의 월 순위 IC 가 2016~23 의 약 3배로 커졌다(10-17 서술 계산). 과거 데이터로 다… |
+| 2026-10-17 | PREREGISTERED | kr | [highvol-exclusion-core-preregistration-2026-10.md](highvol-exclusion-core-preregistration-2026-10.md) | 10-17 서술 분석에서 국내 횡단면의 강하고 시기에 안 흔들리는 구조가 '위쪽'이 아니라 '아래쪽'(고변동 종목이 크게 진다)에 있다는 것이 보였다. 기존 기록은 이것을 IC·분위·필터 후보로만 … |
 | 2026-10-17 | PREREGISTERED | kr | [bb-lower-reentry-preregistration-2026-10.md](bb-lower-reentry-preregistration-2026-10.md) | 인스타그램 chart_mag 게시물(2026-10-16)이 제시 스타인 사례와 함께 '볼린저 하단 재진입'(밴드 밖으로 밀렸던 종가가 다시 안으로 들어와 마감)을 급락 뒤 진입 후보로 소개했다. 같… |
 | 2026-10-13 | PREREGISTERED | kr | [surge-prob-model-preregistration-2026-10.md](surge-prob-model-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임) — "뉴스·공시 말고 급등주를 잡는 조건". 일별 기술 집계(10-13)에서 급등 확률은 최근 변동성(6%↑ 5.3배)·… |
 | 2026-10-13 | PREREGISTERED | kr | [stock-futures-close-location-preregistration-2026-10.md](stock-futures-close-location-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 대형주 종가 위치 되돌림(close-location-largecap-2026-10, 같은 밤 사후 기술): 시총 상위 100 저가 마감 매수 − 고가 마감 매도 다음… |
