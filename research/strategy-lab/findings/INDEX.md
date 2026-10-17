@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 127 |
-| 사전등록 문서(결과는 별도 파일) | 113 |
+| 기각 | 128 |
+| 사전등록 문서(결과는 별도 파일) | 114 |
 | 정보·탐색 | 35 |
 | 미분류 | 241 |
 
@@ -77,11 +77,12 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (127)
+## 기각 (128)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-17 | REJECT | kr | [holder-5pct-entry-results-2026-10.md](holder-5pct-entry-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 9셀 중 TRAIN /t/ 가 바닥선 2.84 를 넘은 셀이 없다(최대 E1_h60 −1.69). E1·E2 는 대부분 음 — 5% 신규 진입 공시가 난 종목은 같은… |
+| 2026-10-17 | REJECT | crypto | [crypto-liquidation-rebound-results-2026-10.md](crypto-liquidation-rebound-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). L1(4시간) TRAIN t 0.63 · L2(24시간) TRAIN t 1.71 < 2.25 → 둘 다 REJECT. 방향은 세 구… |
 | 2026-10-17 | REJECT | kr | [bb-lower-reentry-results-2026-10.md](bb-lower-reentry-results-2026-10.md) | 신호: 있음(반대 방향) · 경제성: 미달. 12셀 중 B1_h5·W1_h5 가 바닥선(2.77)을 넘었지만 **부호가 음** — 하단 재진입·%R 과매도 탈출 종목은 같은 날·같은 규모·같은 5일… |
 | 2026-10-13 | REJECT | kr | [surge-prob-model-results-2026-10.md](surge-prob-model-results-2026-10.md) | 신호: 없음 · 경제성: 미달. E1 REJECT(TEST 초과 -97.5bp) · E2 REJECT(TEST 초과 -6.3bp). 적중률 상위 20 35.5% vs 전체 10.7%. (스크립트 판… |
 | 2026-10-13 | REJECT | kr | [stock-futures-close-location-results-2026-10.md](stock-futures-close-location-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 선물 매수−매도 +8.8bp/일(t +1.85) · 2023~24 +8.7 · 2025~ +8.8 · 비용 20bp 후 -11.2. 비용은 가정(호가 자료 없음). … |
@@ -209,13 +210,14 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (113)
+## 사전등록 문서(결과는 별도 파일) (114)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-17 | PREREGISTERED | kr | [quality-forward-preregistration-2026-10.md](quality-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 2025~ 에 횡단면 수익성 특성(ROE·영업이익률·ROE 일관성)의 월 순위 IC 가 2016~23 의 약 3배로 커졌다(10-17 서술 계산). 과거 데이터로 다… |
 | 2026-10-17 | PREREGISTERED | kr | [holder-5pct-entry-preregistration-2026-10.md](holder-5pct-entry-preregistration-2026-10.md) | 2026-10-17 국내 상장사 전체 DART 5% 대량보유를 기관별로 묶은 표(scripts/build-holder-map.py)를 만들면서, list.json D001 이 보고자·접수일을 200… |
 | 2026-10-17 | PREREGISTERED | kr | [highvol-exclusion-core-preregistration-2026-10.md](highvol-exclusion-core-preregistration-2026-10.md) | 10-17 서술 분석에서 국내 횡단면의 강하고 시기에 안 흔들리는 구조가 '위쪽'이 아니라 '아래쪽'(고변동 종목이 크게 진다)에 있다는 것이 보였다. 기존 기록은 이것을 IC·분위·필터 후보로만 … |
+| 2026-10-17 | PREREGISTERED | crypto | [crypto-liquidation-rebound-preregistration-2026-10.md](crypto-liquidation-rebound-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "가격 급락과 미결제약정 급감이 같은 1시간에 겹치면(강제 청산 연쇄) 그 뒤 4·24시간 반등하는가". 사용자 요청 "단기·크립토 실험 더"(2… |
 | 2026-10-17 | PREREGISTERED | kr | [bb-lower-reentry-preregistration-2026-10.md](bb-lower-reentry-preregistration-2026-10.md) | 인스타그램 chart_mag 게시물(2026-10-16)이 제시 스타인 사례와 함께 '볼린저 하단 재진입'(밴드 밖으로 밀렸던 종가가 다시 안으로 들어와 마감)을 급락 뒤 진입 후보로 소개했다. 같… |
 | 2026-10-13 | PREREGISTERED | kr | [surge-prob-model-preregistration-2026-10.md](surge-prob-model-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 사용자 요청(2026-10-13 밤, 위임) — "뉴스·공시 말고 급등주를 잡는 조건". 일별 기술 집계(10-13)에서 급등 확률은 최근 변동성(6%↑ 5.3배)·… |
 | 2026-10-13 | PREREGISTERED | kr | [stock-futures-close-location-preregistration-2026-10.md](stock-futures-close-location-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 대형주 종가 위치 되돌림(close-location-largecap-2026-10, 같은 밤 사후 기술): 시총 상위 100 저가 마감 매수 − 고가 마감 매도 다음… |
