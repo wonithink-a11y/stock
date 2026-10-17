@@ -84,7 +84,9 @@ def main():
                 has = True
         meta[m] = {"first": first.date().isoformat(), "binance": sym if has else None}
         print(f"[{i}/{len(mk)}] {m} {first.date()} {'B' if has else '-'}", flush=True)
-    btc = pd.concat([binance_daily("BTCUSDT", pd.Timestamp(s)) for s in ("2017-08-01", "2020-04-27", "2023-01-22")])
+    # 1000일씩 오늘까지(첫 실행은 세 번만 받아 2025-10-18 이후가 비었다 — 2026-10-18 수정)
+    starts = pd.date_range("2017-08-01", pd.Timestamp.today(), freq="999D")
+    btc = pd.concat([binance_daily("BTCUSDT", s) for s in starts])
     btc.drop_duplicates("date").to_parquet(OUT / "binance_daily" / "BTCUSDT.parquet", index=False)
     (OUT / "listings.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     print("listings", len(meta), "binance", sum(v["binance"] is not None for v in meta.values()))
