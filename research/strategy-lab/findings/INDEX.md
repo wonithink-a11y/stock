@@ -8,7 +8,7 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 126 |
+| 기각 | 127 |
 | 사전등록 문서(결과는 별도 파일) | 113 |
 | 정보·탐색 | 35 |
 | 미분류 | 241 |
@@ -77,10 +77,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (126)
+## 기각 (127)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-17 | REJECT | kr | [holder-5pct-entry-results-2026-10.md](holder-5pct-entry-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 9셀 중 TRAIN /t/ 가 바닥선 2.84 를 넘은 셀이 없다(최대 E1_h60 −1.69). E1·E2 는 대부분 음 — 5% 신규 진입 공시가 난 종목은 같은… |
 | 2026-10-17 | REJECT | kr | [bb-lower-reentry-results-2026-10.md](bb-lower-reentry-results-2026-10.md) | 신호: 있음(반대 방향) · 경제성: 미달. 12셀 중 B1_h5·W1_h5 가 바닥선(2.77)을 넘었지만 **부호가 음** — 하단 재진입·%R 과매도 탈출 종목은 같은 날·같은 규모·같은 5일… |
 | 2026-10-13 | REJECT | kr | [surge-prob-model-results-2026-10.md](surge-prob-model-results-2026-10.md) | 신호: 없음 · 경제성: 미달. E1 REJECT(TEST 초과 -97.5bp) · E2 REJECT(TEST 초과 -6.3bp). 적중률 상위 20 35.5% vs 전체 10.7%. (스크립트 판… |
 | 2026-10-13 | REJECT | kr | [stock-futures-close-location-results-2026-10.md](stock-futures-close-location-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 선물 매수−매도 +8.8bp/일(t +1.85) · 2023~24 +8.7 · 2025~ +8.8 · 비용 20bp 후 -11.2. 비용은 가정(호가 자료 없음). … |
