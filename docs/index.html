@@ -390,6 +390,8 @@ const state = {
   sectorSub: (() => { try { const v = localStorage.getItem('sectorSub'); return ['heat', 'tree', 'sens', 'rs'].includes(v) ? v : 'heat'; } catch { return 'heat'; } })(),   // 섹터강도 서브탭
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
   secHz: 'mid',            // 산점도 축: mid(3개월) · short(1개월)
+  secHot: null,            // 4분면·사다리에서 마우스를 올린 업종
+  secPick: null,           // 눌러서 고정한 업종
   secHeatSort: '1w',       // 기간별 색 표 정렬 기준
   heatMarket: 'KR',        // 시장 히트맵: KR(자체) | US(TradingView 위젯)
   heatWin: 'live',         // 시장 히트맵 기간(live = VM 장중 스냅샷, 실패하면 1d 로)
@@ -2702,13 +2704,22 @@ function sectorHeatTable(d) {
     <p class="muted" style="font-size:11px;margin:6px 0 0">값 = 그룹 종목 수익률 중앙값 − 전체 종목 중앙값(EW). 색 진하기는 열마다 그 기간의 가장 큰 값 기준. 관찰용 — 업종 강도로 다음 수익을 맞히는 규칙은 검증에서 근거가 없었다.</p></div>`;
 }
 
+// 업종 고유 색 — 업종 이름을 가나다순으로 세운 순번을 7칸씩 건너뛰며 색상환에 놓는다(날마다 같은 색, 이웃 색이 비슷하지 않게).
+// 4분면 점과 흐름 사다리 선이 같은 색을 쓴다. 분면 배경색(SEC_QUADS)과는 별개.
+function secHues(groups) {
+  const names = groups.map(g => g.group).sort((a, b) => a.localeCompare(b, 'ko'));
+  return Object.fromEntries(names.map((n, i) => [n, Math.round((i * 7 % names.length) * 360 / names.length)]));
+}
+const secCol = (hues, name) => `hsl(${hues[name] ?? 0} 70% 66%)`;
+const secFocus = () => state.secHot || state.secPick;
+
 function sectorScatter(groups, hz) {
   const pts = groups.map(g => ({ ...g, ax: secAxes(g, hz) })).filter(g => g.ax);
   if (!pts.length) return '';
-  const W = 680, H = 380, PAD = 44;
+  const W = 760, H = 440, PAD = 48;
   const xs = pts.map(p => p.ax.x), ys = pts.map(p => p.ax.y);
   const span = (a) => {
-    const lo = Math.min(...a, 0), hi = Math.max(...a, 0), m = (hi - lo) * 0.18 || 0.02;
+    const lo = Math.min(...a, 0), hi = Math.max(...a, 0), m = (hi - lo) * 0.14 || 0.02;
     return [lo - m, hi + m];
   };
   const [x0, x1] = span(xs), [y0, y1] = span(ys);
@@ -2716,49 +2727,101 @@ function sectorScatter(groups, hz) {
   const py = v => H - PAD - (v - y0) / (y1 - y0) * (H - PAD * 2);
   const cx = px(0), cy = py(0);
   const maxN = Math.max(...pts.map(p => p.n));
+  const hues = secHues(groups), f = secFocus();
+  const cnt = {}; pts.forEach(p => { cnt[p.ax.q] = (cnt[p.ax.q] || 0) + 1; });
 
   const tint = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${Math.max(0, w)}" height="${Math.max(0, h)}" fill="${c}" opacity="0.13"/>`;
-  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-width:${W}px" role="img" aria-label="섹터 4분면 산점도">`;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-width:${W}px;min-width:560px" role="img" aria-label="섹터 4분면 산점도">`;
   svg += tint(cx, PAD, W - PAD - cx, cy - PAD, SEC_QUADS['주도'].color);
   svg += tint(PAD, PAD, cx - PAD, cy - PAD, SEC_QUADS['부상'].color);
   svg += tint(cx, cy, W - PAD - cx, H - PAD - cy, SEC_QUADS['둔화'].color);
   svg += tint(PAD, cy, cx - PAD, H - PAD - cy, SEC_QUADS['약세'].color);
   svg += `<line x1="${PAD}" y1="${cy}" x2="${W - PAD}" y2="${cy}" stroke="var(--border)" stroke-dasharray="4 3"/>`;
   svg += `<line x1="${cx}" y1="${PAD}" x2="${cx}" y2="${H - PAD}" stroke="var(--border)" stroke-dasharray="4 3"/>`;
-  svg += `<text x="${W - PAD - 4}" y="${PAD + 14}" text-anchor="end" font-size="12" fill="${SEC_QUADS['주도'].color}">주도</text>`;
-  svg += `<text x="${PAD + 4}" y="${PAD + 14}" font-size="12" fill="${SEC_QUADS['부상'].color}">부상</text>`;
-  svg += `<text x="${W - PAD - 4}" y="${H - PAD - 6}" text-anchor="end" font-size="12" fill="${SEC_QUADS['둔화'].color}">둔화</text>`;
-  svg += `<text x="${PAD + 4}" y="${H - PAD - 6}" font-size="12" fill="${SEC_QUADS['약세'].color}">약세</text>`;
+  const corner = (x, y, anchor, q) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="13" font-weight="700" fill="${SEC_QUADS[q].color}">${q} <tspan font-weight="400" fill="var(--muted)">${cnt[q] || 0}</tspan></text>`;
+  svg += corner(W - PAD - 6, PAD + 16, 'end', '주도') + corner(PAD + 6, PAD + 16, 'start', '부상')
+       + corner(W - PAD - 6, H - PAD - 8, 'end', '둔화') + corner(PAD + 6, H - PAD - 8, 'start', '약세');
   const [xl, yl] = hz === 'short' ? ['1개월 상대강도', '1주 가속'] : ['3개월 상대강도', '1개월 가속'];
-  svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">← 약함    ${xl}    강함 →</text>`;
+  svg += `<text x="${W / 2}" y="${H - 12}" text-anchor="middle" font-size="11" fill="var(--muted)">← 약함    ${xl}    강함 →</text>`;
   svg += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 14 ${H / 2})">← 둔화    ${yl}    가속 →</text>`;
 
   const marks = pts.map(p => {
-    const r = 5 + 9 * Math.sqrt(p.n / maxN);
-    const X = px(p.ax.x), Y = py(p.ax.y);
-    const anchor = X > W - 150 ? 'end' : 'start';
-    return { p, r, X, Y, anchor, lx: X + (anchor === 'end' ? -(r + 4) : (r + 4)), ly: Y + 4 };
-  });
-  // 라벨 겹침 밀어내기: 가까운 라벨이 있으면 아래로 민다.
-  // ponytail: O(n^2) 그리디, 그룹이 20개 남짓이라 충분하다. 더 늘면 격자 인덱스로 바꾼다.
-  marks.sort((a, b) => a.ly - b.ly);
-  for (let i = 0; i < marks.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (Math.abs(marks[i].lx - marks[j].lx) < 110 && Math.abs(marks[i].ly - marks[j].ly) < 13) {
-        marks[i].ly = marks[j].ly + 13;
+    const r = 6 + 9 * Math.sqrt(p.n / maxN);
+    const X = px(p.ax.x), Y = py(p.ax.y), end = X > W - 170;
+    return { p, r, X, Y, end, lx: X + (end ? -(r + 5) : r + 5), ly: Y + 4 };
+  }).sort((a, b) => a.ly - b.ly);
+  // 이름 상자(글자 수 × 11px 추정, 높이 19 실측)끼리 겹치면 아래쪽 이름을 겹친 만큼 내린다. 겹침이 없을 때까지(최대 60회).
+  // ponytail: O(n²) 반복, 그룹이 20개 남짓이라 충분하다. 더 늘면 격자 인덱스로 바꾼다.
+  const box = m => { const w = m.p.group.length * 11; return { x: m.end ? m.lx - w : m.lx, y: m.ly - 14, w, h: 19 }; };
+  for (let pass = 0, moved = true; moved && pass < 60; pass++) {
+    moved = false;
+    for (let i = 0; i < marks.length; i++) for (let j = 0; j < marks.length; j++) {
+      if (i === j) continue;
+      const a = box(marks[i]), b = box(marks[j]);
+      if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h && (a.y > b.y || (a.y === b.y && i > j))) {
+        marks[i].ly = b.y + b.h + 15; moved = true;
       }
     }
-    marks[i].ly = Math.min(marks[i].ly, H - PAD - 2);
   }
-  for (const m of marks) {
-    const c = (SEC_QUADS[m.p.ax.q] || {}).color || '#6b7280';
-    svg += `<circle cx="${m.X.toFixed(1)}" cy="${m.Y.toFixed(1)}" r="${m.r.toFixed(1)}" fill="${c}" opacity="0.65"><title>${esc(m.p.group)} · ${m.p.n}종목</title></circle>`;
-    if (Math.abs(m.ly - (m.Y + 4)) > 2) {   // 밀려난 라벨은 실선으로 원과 이어준다
-      svg += `<line x1="${m.X.toFixed(1)}" y1="${m.Y.toFixed(1)}" x2="${m.lx.toFixed(1)}" y2="${(m.ly - 4).toFixed(1)}" stroke="${c}" stroke-width="0.7" opacity="0.5"/>`;
+  // 두 번에 나눠 그린다: 점(과 이음선)을 모두 그린 뒤 이름을 맨 위에 — 이름이 다른 업종 점 밑에 깔리지 않게. 강조 업종은 각 단계 맨 마지막
+  const attrs = m => { const on = m.p.group === f; return { on, op: state.secHot && !on ? 0.2 : 1, c: secCol(hues, m.p.group) }; };
+  const dot = m => {
+    const { on, op, c } = attrs(m);
+    let o = `<g data-secg="${esc(m.p.group)}" style="cursor:pointer" opacity="${op}">`;
+    if (Math.abs(m.ly - (m.Y + 4)) > 2) {   // 밀려난 이름은 가는 선으로 원과 이어준다
+      o += `<line x1="${m.X.toFixed(1)}" y1="${m.Y.toFixed(1)}" x2="${m.lx.toFixed(1)}" y2="${(m.ly - 4).toFixed(1)}" stroke="${c}" stroke-width="1" opacity="0.6"/>`;
     }
-    svg += `<text x="${m.lx.toFixed(1)}" y="${m.ly.toFixed(1)}" text-anchor="${m.anchor}" font-size="11" fill="var(--text)">${esc(m.p.group)}</text>`;
-  }
+    return o + `<circle cx="${m.X.toFixed(1)}" cy="${m.Y.toFixed(1)}" r="${(on ? m.r + 3 : m.r).toFixed(1)}" fill="${c}" stroke="var(--card)" stroke-width="2"><title>${esc(m.p.group)} · ${m.p.n}종목 · ${esc(m.p.ax.q)}</title></circle></g>`;
+  };
+  const label = m => {
+    const { on, op } = attrs(m);
+    return `<g data-secg="${esc(m.p.group)}" style="cursor:pointer" opacity="${op}"><text x="${m.lx.toFixed(1)}" y="${m.ly.toFixed(1)}" text-anchor="${m.end ? 'end' : 'start'}" font-size="12" font-weight="${on ? 700 : 500}" fill="var(--text)" style="paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round">${esc(m.p.group)}</text></g>`;
+  };
+  const ordered = [...marks.filter(m => m.p.group !== f), ...marks.filter(m => m.p.group === f)];
+  ordered.forEach(m => { svg += dot(m); });
+  ordered.forEach(m => { svg += label(m); });
   return svg + '</svg>';
+}
+
+// 흐름 사다리 — 업종 순위(EW 상대강도)가 6개월 → 3개월 → 1개월 → 1주 → 1일로 어떻게 바뀌었나. 양 끝에 이름을 항상 단다.
+function sectorLadder(groups) {
+  const order = [['6m', '6개월'], ['3m', '3개월'], ['1m', '1개월'], ['1w', '1주'], ['1d', '1일']];
+  const gs = groups.filter(g => order.every(([k]) => g.rs[k] != null));
+  if (gs.length < 2) return '';
+  const rank = {};
+  for (const [k] of order) [...gs].sort((a, b) => b.rs[k] - a.rs[k]).forEach((g, i) => { (rank[g.group] ||= {})[k] = i + 1; });
+  const W = 860, top = 34, step = 24, H = top + step * (gs.length - 1) + 24, L = 168, R = 168;
+  const X = i => L + i * (W - L - R) / (order.length - 1), Y = r => top + (r - 1) * step;
+  const hues = secHues(groups), f = secFocus();
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:640px" role="img" aria-label="업종 순위 변화">`;
+  order.forEach(([, l], i) => {
+    s += `<text x="${X(i)}" y="16" text-anchor="middle" font-size="12" fill="var(--muted)">${l}</text>`;
+    s += `<line x1="${X(i)}" y1="${top - 10}" x2="${X(i)}" y2="${H - 12}" stroke="var(--border)"/>`;
+  });
+  for (let r = 1; r <= gs.length; r++) s += `<text x="${X(0) - 8}" y="${Y(r) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${r}</text>`;
+  const draw = g => {
+    const on = g.group === f, dim = state.secHot && !on, c = secCol(hues, g.group), rk = rank[g.group];
+    const pts = order.map(([k], i) => `${X(i).toFixed(1)},${Y(rk[k]).toFixed(1)}`).join(' ');
+    let o = `<g data-secg="${esc(g.group)}" style="cursor:pointer" opacity="${dim ? 0.15 : 1}"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${on ? 4 : 2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    order.forEach(([k], i) => { o += `<circle cx="${X(i)}" cy="${Y(rk[k])}" r="${on ? 5 : 3.5}" fill="${c}"/>`; });
+    const fw = on ? 700 : 500;
+    o += `<text x="${X(0) - 26}" y="${Y(rk['6m']) + 4}" text-anchor="end" font-size="12" font-weight="${fw}" fill="${c}">${esc(g.group)}</text>`;
+    o += `<text x="${X(order.length - 1) + 10}" y="${Y(rk['1d']) + 4}" font-size="12" font-weight="${fw}" fill="${c}">${esc(g.group)}</text>`;
+    o += `<polyline points="${pts}" fill="none" stroke="transparent" stroke-width="12"/></g>`;   // 잡기 쉬운 넓은 선
+    return o;
+  };
+  gs.filter(g => g.group !== f).forEach(g => { s += draw(g); });
+  const sel = gs.find(g => g.group === f);
+  if (sel) s += draw(sel);
+  return s + '</svg>';
+}
+
+// 마우스를 올린 업종만 두 그래프에서 진하게 — 표·나머지 화면은 다시 그리지 않는다
+function refreshSecCharts() {
+  const d = state.sectorStrength, q = document.getElementById('secQuad'), l = document.getElementById('secLadder');
+  if (!d || !q || !l) return;
+  q.innerHTML = sectorScatter(d.groups, state.secHz);
+  l.innerHTML = sectorLadder(d.groups);
 }
 
 // ---------- 테마 트리 (관찰용) ----------
@@ -3158,8 +3221,14 @@ function renderSector() {
       <button class="chip${state.secHz === 'short' ? ' active' : ''}" data-sechz="short">단기 · 1개월</button>
       <span class="muted" style="font-size:11px">${state.secHz === 'short' ? '가로 = 1개월 상대강도 · 세로 = 1주 − 1개월. 매일 크게 움직이고 잡음도 크다.' : '가로 = 3개월 상대강도 · 세로 = 1개월 − 3개월. 몇 주에 걸쳐 움직인다.'}</span>
     </div>
-    ${sectorScatter(d.groups, state.secHz)}
-    <p class="muted" style="font-size:11px;margin:2px 0 0">원 크기 = 그룹 소속 종목 수. ${esc(legend)}${state.secHz === 'short' ? ' 단기 보기의 분면은 그래프에만 쓰고 아래 표의 분면(중기)과 다를 수 있다.' : ''}</p>
+    <div id="secQuad" style="overflow-x:auto">${sectorScatter(d.groups, state.secHz)}</div>
+    <p class="muted" style="font-size:11px;margin:2px 0 0">원 크기 = 그룹 소속 종목 수 · 점 색 = 업종(아래 흐름 사다리와 같은 색), 배경색 = 분면. ${esc(legend)}${state.secHz === 'short' ? ' 단기 보기의 분면은 그래프에만 쓰고 아래 표의 분면(중기)과 다를 수 있다.' : ''}</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 4px">흐름 사다리 <span class="muted" style="font-weight:400;font-size:13px">업종 순위 6개월 → 1일 · 1위가 맨 위</span></h2>
+    <p class="muted" style="margin:0 0 6px;font-size:12px">왼쪽 끝 이름은 6개월 순위, 오른쪽 끝 이름은 1일 순위 자리. 오른쪽으로 갈수록 선이 올라가면 최근 순위가 오른 업종이다. 색은 위 4분면과 같고, 마우스를 올리면 두 그래프에서 그 업종만 진하게, 누르면 강조가 고정된다.</p>
+    <div id="secLadder" style="overflow-x:auto">${sectorLadder(d.groups)}</div>
   </div>
 
   ${sectorHeatTable(d)}
@@ -3829,6 +3898,21 @@ document.addEventListener('click', (e) => {
   state.sectorSub = t.dataset.secsub;
   try { localStorage.setItem('sectorSub', state.sectorSub); } catch { /* 저장 못 해도 동작 */ }
   render();
+});
+
+// 4분면·흐름 사다리: 마우스를 올리면 강조, 누르면 고정(다시 누르면 해제)
+document.addEventListener('mouseover', (e) => {
+  if (state.tab !== 'sector') return;
+  const inside = e.target.closest && e.target.closest('#secQuad,#secLadder');
+  const g = inside && e.target.closest('[data-secg]');
+  const name = g ? g.dataset.secg : null;
+  if (name !== state.secHot) { state.secHot = name; refreshSecCharts(); }
+});
+document.addEventListener('click', (e) => {
+  const g = e.target.closest && e.target.closest('#secQuad [data-secg],#secLadder [data-secg]');
+  if (!g) return;
+  state.secPick = state.secPick === g.dataset.secg ? null : g.dataset.secg;
+  refreshSecCharts();
 });
 
 document.addEventListener('click', (e) => {
