@@ -250,6 +250,9 @@ Validated against
             편출 T→T+20 TRAIN −349bp(가설 반대)→이후 양 · ⑤ 업비트 원화 신규 상장 7일 숏(ab71638c): TRAIN(2018~21 상장일 16) t 2.36 < 2.49 로 근소 미달,
             VALID·TEST 초과 +11.5%·+14.0%(TEST t 8.5)·9개 연도 모두 양 — **forward 기록으로만 다시 묻는다**(위 월간 점검). 숏 실행 가능성(무기한·펀딩) 미측정.
             findings/{crypto-liquidation-rebound,pre-fomc-drift,crypto-weekend-reversal,kospi200-rebalance,upbit-krw-listing}-results-2026-10.md.
+  안 한다   ★ **미국 월가 목표가 신뢰도(2026-10-18, 사전등록 d4a61764 · 코드 eb574db3, 야후 이력 2012~ 517종목)** — Q2 상승여력 5분위·Q3 상향/하향 뒤 5·20일 **5셀 전부 REJECT**(바닥선 2.63, TRAIN 최대 |t| 1.58).
+            H1 낙관 편향 NOT SUPPORTED(생존편향으로 실현 +21% > 내재 +14%) · H4 증권사 정확도 지속 NOT SUPPORTED(ρ 0.07) — 낙관 성향만 지속(ρ 0.61, 기록). 화면 '월가 목표가' 칸(9dfa734e)은 맥락 그대로.
+            변경 폭 큰 사건 뒤 양(기록)은 새 사전등록으로만. findings/us-price-target-reliability-results-2026-10.md.
   안 한다   ★ 거래량 5배 + 공시 당일 → 다음 날 시가 진입(KR, 2026-10-04, 인스타 게시물 계기 · 사전등록 → 코드 0ca34f43) — **REJECT·종결**. 신호: 없음(음의 방향) · 경제성: 미달.
             공식 VD h1·h5 TRAIN t −1.54·−1.63(바닥선 2.38), 롱 gross −52·−49bp. 기록용 V·VN 은 세 구간 모두 음(V h1 TRAIN −6.7), 공시 유무 구분력 없음. 숏·역추세는 사후 가설 — 새 사전등록으로만.
             findings/kr-volsurge-news-day-results-2026-10.md. 부산물: 소형주 ETF 5종 비교(설명용, AVUV 우위는 2021·2022 두 해에 몰림) findings/us-smallcap-etf-compare-2026-10.md.

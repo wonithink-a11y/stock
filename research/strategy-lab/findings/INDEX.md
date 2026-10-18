@@ -8,7 +8,7 @@
 |---|---:|
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
-| 기각 | 132 |
+| 기각 | 133 |
 | 사전등록 문서(결과는 별도 파일) | 120 |
 | 정보·탐색 | 37 |
 | 미분류 | 241 |
@@ -77,10 +77,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (132)
+## 기각 (133)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-18 | REJECT | us | [us-price-target-reliability-results-2026-10.md](us-price-target-reliability-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 월가 목표가로 다음 달 종목을 고르거나(Q2) 목표가 상향·하향을 따라가는(Q3) 규칙은 다섯 셀 모두 TRAIN 이 바닥선 2.63 에 못 미치고 구간마다 부호가 … |
 | 2026-10-18 | REJECT | crypto | [upbit-krw-listing-results-2026-10.md](upbit-krw-listing-results-2026-10.md) | 신호: 없음(판정 기준 — U1 TRAIN t 2.36 < 바닥선 2.49, TRAIN 상장일 16개) · 경제성: 미달(판정상). U1(상장 뒤 7일 숏)은 TRAIN·VALID·TEST 초과 +… |
 | 2026-10-17 | REJECT | multi | [pre-fomc-drift-results-2026-10.md](pre-fomc-drift-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). F1 KOSPI200 결정일 세션 초과 TRAIN(2010~16) +2bp t 0.15 → REJECT, VALID +33bp · … |
 | 2026-10-17 | REJECT | kr | [kospi200-rebalance-results-2026-10.md](kospi200-rebalance-results-2026-10.md) | 신호: 없음(TRAIN 바닥선 미달) · 경제성: 미달(판정상). R1 편입 사전 상승(T−5→T) TRAIN +119bp t 0.90 → REJECT. 평균은 세 구간 모두 크게 양 (VALID … |

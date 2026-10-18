@@ -1,0 +1,705 @@
+{
+ "prereg": "d4a61764",
+ "rows_after_scale": 159660,
+ "scale_excluded": 148,
+ "rows_by_year": {
+  "2011": {
+   "rows": 1,
+   "tickers": 1,
+   "firms": 1
+  },
+  "2012": {
+   "rows": 5143,
+   "tickers": 384,
+   "firms": 122
+  },
+  "2013": {
+   "rows": 4904,
+   "tickers": 390,
+   "firms": 122
+  },
+  "2014": {
+   "rows": 5256,
+   "tickers": 397,
+   "firms": 116
+  },
+  "2015": {
+   "rows": 4834,
+   "tickers": 410,
+   "firms": 113
+  },
+  "2016": {
+   "rows": 4352,
+   "tickers": 408,
+   "firms": 93
+  },
+  "2017": {
+   "rows": 2967,
+   "tickers": 416,
+   "firms": 89
+  },
+  "2018": {
+   "rows": 6338,
+   "tickers": 428,
+   "firms": 79
+  },
+  "2019": {
+   "rows": 6433,
+   "tickers": 444,
+   "firms": 97
+  },
+  "2020": {
+   "rows": 13129,
+   "tickers": 461,
+   "firms": 103
+  },
+  "2021": {
+   "rows": 10801,
+   "tickers": 467,
+   "firms": 106
+  },
+  "2022": {
+   "rows": 15066,
+   "tickers": 474,
+   "firms": 101
+  },
+  "2023": {
+   "rows": 18529,
+   "tickers": 486,
+   "firms": 108
+  },
+  "2024": {
+   "rows": 20884,
+   "tickers": 499,
+   "firms": 93
+  },
+  "2025": {
+   "rows": 21666,
+   "tickers": 501,
+   "firms": 100
+  },
+  "2026": {
+   "rows": 19357,
+   "tickers": 512,
+   "firms": 91
+  }
+ },
+ "Q1": {
+  "n": 135762,
+  "months": 166,
+  "mean_u_pct": 13.73,
+  "median_u_pct": 12.42,
+  "mean_r_pct": 21.16,
+  "median_r_pct": 12.23,
+  "mean_bias_pct": -7.43,
+  "median_bias_pct": -0.62,
+  "bias_nw_t": -1.93,
+  "bias_by_period_pct": {
+   "2012~15": -4.86,
+   "2016~23": -6.57,
+   "2024": -2.5,
+   "2025~": -20.4
+  },
+  "H1": "NOT SUPPORTED",
+  "hit_end_pct": 43.86,
+  "hit_any_pct": 72.35,
+  "hit_end_up_pct": 46.97,
+  "hit_any_up_pct": 72.11,
+  "share_u_positive_pct": 86.82,
+  "by_u_quintile": {
+   "1": {
+    "mean_u": -4.74,
+    "mean_r": 19.54,
+    "median_r": 10.96,
+    "hit_end": 36.88,
+    "n": 27153
+   },
+   "2": {
+    "mean_u": 6.7,
+    "mean_r": 15.41,
+    "median_r": 10.21,
+    "hit_end": 55.75,
+    "n": 27152
+   },
+   "3": {
+    "mean_u": 12.43,
+    "mean_r": 17.83,
+    "median_r": 11.3,
+    "hit_end": 48.46,
+    "n": 27152
+   },
+   "4": {
+    "mean_u": 18.41,
+    "mean_r": 20.53,
+    "median_r": 12.95,
+    "hit_end": 43.03,
+    "n": 27152
+   },
+   "5": {
+    "mean_u": 35.83,
+    "mean_r": 32.47,
+    "median_r": 17.59,
+    "hit_end": 35.19,
+    "n": 27153
+   }
+  },
+  "calib_slope_r_on_u": 0.343,
+  "by_year": {
+   "2012": {
+    "n": 5143,
+    "u": 13.03,
+    "r": 27.22,
+    "bias": -14.2,
+    "hit_end": 57.77
+   },
+   "2013": {
+    "n": 4904,
+    "u": 10.46,
+    "r": 24.15,
+    "bias": -13.68,
+    "hit_end": 55.32
+   },
+   "2014": {
+    "n": 5256,
+    "u": 11.31,
+    "r": 12.3,
+    "bias": -0.99,
+    "hit_end": 42.16
+   },
+   "2015": {
+    "n": 4834,
+    "u": 11.9,
+    "r": 2.06,
+    "bias": 9.84,
+    "hit_end": 29.46
+   },
+   "2016": {
+    "n": 4352,
+    "u": 11.83,
+    "r": 23.71,
+    "bias": -11.87,
+    "hit_end": 50.97
+   },
+   "2017": {
+    "n": 2967,
+    "u": 9.65,
+    "r": 15.06,
+    "bias": -5.41,
+    "hit_end": 41.93
+   },
+   "2018": {
+    "n": 6338,
+    "u": 12.59,
+    "r": 11.5,
+    "bias": 1.09,
+    "hit_end": 42.41
+   },
+   "2019": {
+    "n": 6433,
+    "u": 10.67,
+    "r": 14.48,
+    "bias": -3.81,
+    "hit_end": 42.75
+   },
+   "2020": {
+    "n": 13129,
+    "u": 13.47,
+    "r": 50.9,
+    "bias": -37.43,
+    "hit_end": 66.13
+   },
+   "2021": {
+    "n": 10801,
+    "u": 12.84,
+    "r": -1.3,
+    "bias": 14.15,
+    "hit_end": 28.81
+   },
+   "2022": {
+    "n": 15066,
+    "u": 19.09,
+    "r": 8.54,
+    "bias": 10.55,
+    "hit_end": 28.77
+   },
+   "2023": {
+    "n": 18529,
+    "u": 14.5,
+    "r": 27.7,
+    "bias": -13.2,
+    "hit_end": 50.07
+   },
+   "2024": {
+    "n": 20884,
+    "u": 12.95,
+    "r": 15.45,
+    "bias": -2.5,
+    "hit_end": 40.82
+   },
+   "2025": {
+    "n": 17126,
+    "u": 15.03,
+    "r": 35.43,
+    "bias": -20.4,
+    "hit_end": 43.16
+   }
+  },
+  "by_grade": {
+   "buy": {
+    "n": 82200,
+    "u": 20.44,
+    "r": 22.08,
+    "bias": -1.64,
+    "hit_end": 43.11
+   },
+   "hold": {
+    "n": 46956,
+    "u": 5.35,
+    "r": 19.23,
+    "bias": -13.88,
+    "hit_end": 47.87
+   },
+   "sell": {
+    "n": 6606,
+    "u": -10.21,
+    "r": 23.38,
+    "bias": -33.59,
+    "hit_end": 24.75
+   }
+  }
+ },
+ "judge": {
+  "floor": 2.627,
+  "Q2": {
+   "dir": 1,
+   "train_t": 0.59,
+   "train_bp": 19.0,
+   "n_train": 84,
+   "valid_bp": 31.8,
+   "valid_t": 0.48,
+   "n_valid": 48,
+   "test_bp": -48.0,
+   "test_t": -0.62,
+   "n_test": 33,
+   "oos_gross_dir_bp": -0.7,
+   "oos_ci95": [
+    -101.6,
+    116.4
+   ],
+   "oos_net_bp": -7.5,
+   "oos_net_stress_bp": -14.2,
+   "oos_net_t": -0.15,
+   "breakeven_rt_bp": -1.1,
+   "periods": {
+    "2012~15": {
+     "gross_dir_bp": -7.5,
+     "n": 46
+    },
+    "2016~23": {
+     "gross_dir_bp": 36.6,
+     "n": 96
+    },
+    "2024": {
+     "gross_dir_bp": -98.7,
+     "n": 12
+    },
+    "2025~": {
+     "gross_dir_bp": -19.1,
+     "n": 21
+    }
+   },
+   "verdict": "REJECT"
+  },
+  "R5": {
+   "dir": -1,
+   "train_t": -1.42,
+   "train_bp": -6.1,
+   "n_train": 1619,
+   "valid_bp": -10.7,
+   "valid_t": -1.06,
+   "n_valid": 1013,
+   "test_bp": 9.2,
+   "test_t": 1.25,
+   "n_test": 712,
+   "oos_gross_dir_bp": 2.5,
+   "oos_ci95": [
+    -6.3,
+    11.7
+   ],
+   "oos_net_bp": -7.5,
+   "oos_net_stress_bp": -17.5,
+   "oos_net_t": -1.13,
+   "breakeven_rt_bp": 2.5,
+   "periods": {
+    "2012~15": {
+     "gross_dir_bp": 5.3,
+     "n": 982
+    },
+    "2016~23": {
+     "gross_dir_bp": 8.5,
+     "n": 1870
+    },
+    "2024": {
+     "gross_dir_bp": -24.2,
+     "n": 251
+    },
+    "2025~": {
+     "gross_dir_bp": -1.0,
+     "n": 461
+    }
+   },
+   "verdict": "REJECT"
+  },
+  "R20": {
+   "dir": -1,
+   "train_t": -1.58,
+   "train_bp": -15.3,
+   "n_train": 1619,
+   "valid_bp": -31.3,
+   "valid_t": -1.73,
+   "n_valid": 1013,
+   "test_bp": 10.0,
+   "test_t": 0.38,
+   "n_test": 697,
+   "oos_gross_dir_bp": 14.5,
+   "oos_ci95": [
+    -1.3,
+    30.8
+   ],
+   "oos_net_bp": 4.5,
+   "oos_net_stress_bp": -5.5,
+   "oos_net_t": 0.29,
+   "breakeven_rt_bp": 14.5,
+   "periods": {
+    "2012~15": {
+     "gross_dir_bp": 10.8,
+     "n": 982
+    },
+    "2016~23": {
+     "gross_dir_bp": 27.5,
+     "n": 1870
+    },
+    "2024": {
+     "gross_dir_bp": -23.6,
+     "n": 251
+    },
+    "2025~": {
+     "gross_dir_bp": -2.3,
+     "n": 446
+    }
+   },
+   "verdict": "REJECT"
+  },
+  "L5": {
+   "dir": 1,
+   "train_t": 1.02,
+   "train_bp": 7.4,
+   "n_train": 1444,
+   "valid_bp": -7.8,
+   "valid_t": -0.92,
+   "n_valid": 967,
+   "test_bp": -1.9,
+   "test_t": -0.18,
+   "n_test": 699,
+   "oos_gross_dir_bp": -5.3,
+   "oos_ci95": [
+    -15.8,
+    5.6
+   ],
+   "oos_net_bp": -15.3,
+   "oos_net_stress_bp": -25.3,
+   "oos_net_t": -2.32,
+   "breakeven_rt_bp": -5.3,
+   "periods": {
+    "2012~15": {
+     "gross_dir_bp": 0.9,
+     "n": 867
+    },
+    "2016~23": {
+     "gross_dir_bp": -0.7,
+     "n": 1746
+    },
+    "2024": {
+     "gross_dir_bp": -11.9,
+     "n": 248
+    },
+    "2025~": {
+     "gross_dir_bp": 3.6,
+     "n": 451
+    }
+   },
+   "verdict": "REJECT"
+  },
+  "L20": {
+   "dir": 1,
+   "train_t": 0.09,
+   "train_bp": 1.5,
+   "n_train": 1444,
+   "valid_bp": -19.7,
+   "valid_t": -0.89,
+   "n_valid": 967,
+   "test_bp": -26.8,
+   "test_t": -1.08,
+   "n_test": 684,
+   "oos_gross_dir_bp": -22.6,
+   "oos_ci95": [
+    -44.2,
+    -2.4
+   ],
+   "oos_net_bp": -32.6,
+   "oos_net_stress_bp": -42.6,
+   "oos_net_t": -1.98,
+   "breakeven_rt_bp": -22.6,
+   "periods": {
+    "2012~15": {
+     "gross_dir_bp": -24.0,
+     "n": 867
+    },
+    "2016~23": {
+     "gross_dir_bp": -7.9,
+     "n": 1746
+    },
+    "2024": {
+     "gross_dir_bp": -50.5,
+     "n": 248
+    },
+    "2025~": {
+     "gross_dir_bp": -13.3,
+     "n": 436
+    }
+   },
+   "verdict": "REJECT"
+  }
+ },
+ "Q2_record": {
+  "q5_ew_bp": 18.8,
+  "q5_ew_t": 1.07,
+  "q1_ew_bp": 9.7,
+  "q1_ew_t": 0.7,
+  "spread_ex_semis_bp": 7.9,
+  "spread_ex_semis_by_period": {
+   "2012~15": [
+    3.02,
+    46
+   ],
+   "2016~23": [
+    34.42,
+    96
+   ],
+   "2024": [
+    -85.43,
+    12
+   ],
+   "2025~": [
+    -49.49,
+    21
+   ]
+  },
+  "months": 175,
+  "median_names": 409,
+  "mean_turnover_sum": 1.281,
+  "hold": {
+   "3": {
+    "mean_bp": 48.6,
+    "nw_t": 0.79,
+    "n": 173
+   },
+   "12": {
+    "mean_bp": 400.2,
+    "nw_t": 1.78,
+    "n": 164
+   }
+  },
+  "semis_tickers": 22
+ },
+ "Q3_record": {
+  "up_h1": {
+   "events": 54856,
+   "dates": 3568,
+   "mean_bp": -0.0,
+   "rating_change_bp": 2.2,
+   "n_rc": 6550
+  },
+  "down_h1": {
+   "events": 32300,
+   "dates": 3316,
+   "mean_bp": 2.3,
+   "rating_change_bp": 1.7,
+   "n_rc": 4475
+  },
+  "up_h5": {
+   "events": 54743,
+   "dates": 3564,
+   "mean_bp": -0.7,
+   "rating_change_bp": 8.1,
+   "n_rc": 6543
+  },
+  "down_h5": {
+   "events": 32040,
+   "dates": 3312,
+   "mean_bp": 6.3,
+   "rating_change_bp": 17.2,
+   "n_rc": 4463
+  },
+  "up_h20": {
+   "events": 54455,
+   "dates": 3549,
+   "mean_bp": -3.2,
+   "rating_change_bp": 12.4,
+   "n_rc": 6511
+  },
+  "up_h20_by_mag": {
+   "small": -39.2,
+   "mid": -23.6,
+   "large": 53.2
+  },
+  "down_h20": {
+   "events": 31552,
+   "dates": 3297,
+   "mean_bp": 8.7,
+   "rating_change_bp": 8.6,
+   "n_rc": 4435
+  },
+  "down_h20_by_mag": {
+   "small": -34.8,
+   "mid": -19.0,
+   "large": 79.9
+  }
+ },
+ "Q4": {
+  "firms": 51,
+  "rows_A": 35188,
+  "rows_B": 93513,
+  "rho": 0.068,
+  "p_one_sided": 0.285,
+  "H4": "NOT SUPPORTED",
+  "bias_rho": 0.606,
+  "bias_p": 0.0,
+  "B_best10": [
+   [
+    "Pivotal Research",
+    -0.036,
+    46
+   ],
+   [
+    "Berenberg",
+    -0.022,
+    147
+   ],
+   [
+    "Atlantic Equities",
+    -0.017,
+    166
+   ],
+   [
+    "Wedbush",
+    -0.017,
+    1201
+   ],
+   [
+    "Keefe, Bruyette & Woods",
+    -0.015,
+    615
+   ],
+   [
+    "Citigroup",
+    -0.014,
+    4448
+   ],
+   [
+    "MKM Partners",
+    -0.014,
+    174
+   ],
+   [
+    "Evercore ISI Group",
+    -0.013,
+    2040
+   ],
+   [
+    "Stephens & Co.",
+    -0.011,
+    715
+   ],
+   [
+    "SunTrust Robinson Humphrey",
+    -0.011,
+    248
+   ]
+  ],
+  "B_worst10": [
+   [
+    "Barclays",
+    -0.0,
+    6050
+   ],
+   [
+    "DA Davidson",
+    0.0,
+    703
+   ],
+   [
+    "Cantor Fitzgerald",
+    0.001,
+    883
+   ],
+   [
+    "JMP Securities",
+    0.001,
+    758
+   ],
+   [
+    "Benchmark",
+    0.003,
+    567
+   ],
+   [
+    "Craig-Hallum",
+    0.008,
+    88
+   ],
+   [
+    "B. Riley Securities",
+    0.02,
+    198
+   ],
+   [
+    "Northland Capital Markets",
+    0.034,
+    130
+   ],
+   [
+    "Nomura",
+    0.039,
+    153
+   ],
+   [
+    "Societe Generale",
+    0.064,
+    38
+   ]
+  ],
+  "B_most_optimistic5": [
+   [
+    "B. Riley Securities",
+    0.042
+   ],
+   [
+    "Argus Research",
+    0.042
+   ],
+   [
+    "Benchmark",
+    0.053
+   ],
+   [
+    "JMP Securities",
+    0.057
+   ],
+   [
+    "Pivotal Research",
+    0.103
+   ]
+  ]
+ }
+}
