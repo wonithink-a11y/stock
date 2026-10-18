@@ -9,8 +9,8 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
 | 기각 | 132 |
-| 사전등록 문서(결과는 별도 파일) | 118 |
-| 정보·탐색 | 35 |
+| 사전등록 문서(결과는 별도 파일) | 119 |
+| 정보·탐색 | 36 |
 | 미분류 | 241 |
 
 ## 통과·채택 (13)
@@ -214,11 +214,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (118)
+## 사전등록 문서(결과는 별도 파일) (119)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-18 | PREREGISTERED | crypto | [upbit-krw-listing-preregistration-2026-10.md](upbit-krw-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트 원화 상장 날 튄 코인은 그 뒤 1주·1달 동안 BTC 보다 덜 오르는가(되돌림)". 사용자 요청 "크립토 실험 더"(2026-10-17… |
+| 2026-10-18 | PREREGISTERED | crypto | [upbit-krw-listing-forward-preregistration-2026-10.md](upbit-krw-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 과거 연구(upbit-krw-listing, 커밋 d08bf6df)는 U1 TRAIN t 2.36 < 바닥선 2.49 로 REJECT 였으나 VALID·T… |
 | 2026-10-17 | PREREGISTERED | kr | [quality-forward-preregistration-2026-10.md](quality-forward-preregistration-2026-10.md) | 신호: 미정 · 경제성: 미정. 2025~ 에 횡단면 수익성 특성(ROE·영업이익률·ROE 일관성)의 월 순위 IC 가 2016~23 의 약 3배로 커졌다(10-17 서술 계산). 과거 데이터로 다… |
 | 2026-10-17 | PREREGISTERED | multi | [pre-fomc-drift-preregistration-2026-10.md](pre-fomc-drift-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 FOMC 발표 직전 하루의 상승(pre-FOMC drift)이 한국 지수·비트코인에도 있는가". 사용자 요청 "단기·크립토 실험 더"(20… |
 | 2026-10-17 | PREREGISTERED | kr | [kospi200-rebalance-preregistration-2026-10.md](kospi200-rebalance-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지수 펀드가 만기일 종가에 사고파는 정기변경 종목은 편입 직전에 오르고, 편출 뒤 반등하는가". 사용자 요청 "단기·초단기 실험 더"(2026-… |
@@ -337,10 +338,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (35)
+## 정보·탐색 (36)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-18 | EXPLORATORY | crypto | [upbit-listing-executability-2026-10.md](upbit-listing-executability-2026-10.md) | 실행 가능성 점검(판정 없음). 상장일 D0 종가에 바이낸스 무기한이 있던 사건 105/119(88%, 2025~ 94%). 무기한 7일 숏은 평균 +11.2%(원수익), 펀딩이 평균 −2.3%(2… |
 | 2026-10-13 | EXPLORATORY | kr | [news-chase-unbiased-2026-10.md](news-chase-unbiased-2026-10.md) | 사후 기술(판정 없음). 09:10 +5% 사건(결과 무관) 무작위 1200건에 구글 뉴스를 붙여, 뉴스가 있는 급등을 09:10 에 샀다면의 수익. |
 | 2026-10-13 | EXPLORATORY | kr | [news-chase-2025-08-2026-10.md](news-chase-2025-08-2026-10.md) | 사후 기술(판정 없음). 분봉 기간 급등 2675건(일 +15% 마감, 시총 2,000억↑)을 구글 뉴스 제목으로 원인 분류하고 장중 알림 시점(+5%)에 샀다면의 수익. '알림 시점' 칸은 결과로… |
 | 2026-10-13 | EXPLORATORY | kr | [flow-limitup-2026-10.md](flow-limitup-2026-10.md) | 사후 기술(판정 없음). 수급처별 순매수 강도 5분위는 급등 확률이 '가운데(수급 거의 없음)'에서 가장 높고 5일 초과는 거기서 가장 나쁘다(−29bp) — 양 끝(크게 사거나 크게 판 종목)이 … |

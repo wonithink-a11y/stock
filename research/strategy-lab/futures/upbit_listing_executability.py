@@ -5,7 +5,7 @@
   - 무기한 존재: 바이낸스 USDⓈ-M `<코인>USDT`(없으면 `1000<코인>USDT`) 일봉 첫 봉 ≤ D0 → D0 종가에 숏 가능으로 본다.
     (첫 봉 = D0 은 그날 중 상장 — 기록에 따로 센다.)
   - 무기한 7일 숏 원수익 = −(무기한 종가 D0+7 ÷ D0 − 1). 펀딩 = fundingTime ∈ (D0+1 00:00, D0+8 00:00] UTC 의 합(숏은 양이면 받는다).
-  - 순 = 원수익 + 펀딩 − 10bp. 초과는 BTCUSDT 무기한 같은 창 수익을 뺀다.
+  - 순 = 원수익 + 펀딩 − 10bp. 초과 = 코인 숏 + BTC 무기한 롱(= −(코인 − BTC), 과거 U1 과 같은 부호) + 펀딩 − 10bp(BTC 다리 비용·펀딩 미반영).
   - 현물 증거금 대출 가능 여부는 공개 이력이 없어 재지 않는다.
 판정은 forward(upbit-krw-listing-forward-preregistration-2026-10.md) 에서만 한다 — 이 표본은 이미 본 표본이다.
     python research/strategy-lab/futures/upbit_listing_executability.py
@@ -98,7 +98,7 @@ def main():
                 raw = -(k[d0 + 7 * DAY] / k[d0] - 1) * 1e4
                 fund = fr[(fr.index > d0 + DAY) & (fr.index <= d0 + 8 * DAY)].sum() * 1e4
                 btc = (bk[d0 + 7 * DAY] / bk[d0] - 1) * 1e4 if bk is not None and d0 in bk.index and d0 + 7 * DAY in bk.index else np.nan
-                row.update(perp=True, perp_raw=raw, funding=fund, perp_net=raw + fund - 10, perp_ex_net=raw - btc + fund - 10 if np.isfinite(btc) else np.nan)
+                row.update(perp=True, perp_raw=raw, funding=fund, perp_net=raw + fund - 10, perp_ex_net=raw + btc + fund - 10 if np.isfinite(btc) else np.nan)
         rows.append(row)
     df = pd.DataFrame(rows)
     df["per"] = df["d0"].dt.year.map(period)
