@@ -9,7 +9,7 @@
 | 통과·채택 | 13 |
 | 보류·판정 불가 | 41 |
 | 기각 | 133 |
-| 사전등록 문서(결과는 별도 파일) | 120 |
+| 사전등록 문서(결과는 별도 파일) | 121 |
 | 정보·탐색 | 37 |
 | 미분류 | 241 |
 
@@ -215,10 +215,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (120)
+## 사전등록 문서(결과는 별도 파일) (121)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-18 | PREREGISTERED | us | [us-target-change-forward-preregistration-2026-10.md](us-target-change-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 애널리스트가 목표가를 크게(±10% 넘게) 바꾼 다음 날 산 종목은 20거래일 동안 시장보다 더 오르는가". 과거 표본에서는 결과를 본 뒤… |
 | 2026-10-18 | PREREGISTERED | us | [us-price-target-reliability-preregistration-2026-10.md](us-price-target-reliability-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "월가 목표가는 얼마나 믿을 만한가: 맞히는가(Q1), 상승여력이 큰 종목이 더 오르는가(Q2), 목표가를 올리고 내린 뒤 주가가 따라가는가(Q3… |
 | 2026-10-18 | PREREGISTERED | crypto | [upbit-krw-listing-preregistration-2026-10.md](upbit-krw-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트 원화 상장 날 튄 코인은 그 뒤 1주·1달 동안 BTC 보다 덜 오르는가(되돌림)". 사용자 요청 "크립토 실험 더"(2026-10-17… |
 | 2026-10-18 | PREREGISTERED | crypto | [upbit-krw-listing-forward-preregistration-2026-10.md](upbit-krw-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 과거 연구(upbit-krw-listing, 커밋 d08bf6df)는 U1 TRAIN t 2.36 < 바닥선 2.49 로 REJECT 였으나 VALID·T… |

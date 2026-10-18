@@ -188,6 +188,9 @@ Validated against
             후 `reports/2026-10-upbit-listing-forward/` 커밋. 동결 296시장(baseline_markets.json) 밖 새 원화 시장만(D0 ≥ 2026-10-19). F1 = 과거 U1 그대로 · F2 = 바이낸스 무기한 있던 사건 + 7일 펀딩.
             `--judge` 1차 = 상장일 60, 또는 2027-10-19 이후 ∧ 30(≈2027-10~2028-04) · 최종(INCONCLUSIVE·판정불가 때만) 120 또는 2028-10-19 ∧ 30 — 그 전엔 코드가 거부.
             자주 돌릴수록 '상장 뒤 곧 폐지' 누락이 준다. 과거 결과: findings/upbit-krw-listing-results-2026-10.md(REJECT, TRAIN t 2.36 < 2.49 · OOS 숏 +13.6%/주).
+            ★ **미국 목표가 큰 변경 뒤 20일 forward도 같이**(10-18 사전등록 findings/us-target-change-forward-preregistration-2026-10.md · 기록 전용): `python research/strategy-lab/collect_us_price_targets.py`(야후, 약 3분)
+            → `python research/strategy-lab/run_us_target_change_forward.py`(건수만) → `reports/2026-10-us-target-change-forward/` 커밋. 사건 D ≥ 2026-10-19, 큰 상향 ≥ +11.1% · 큰 하향 ≥ −10.3%(과거 2/3 분위).
+            `--judge` 1차 = UP_L·DN_L 성숙 사건일 각 150(≈2027-05~06) · 최종 300 — 그 전엔 코드가 거부. 배경: 신뢰도 연구 Q3 REJECT 의 사후 관찰(큰 변경만 양).
   다음      ★ 무한매수법 해외 슬리브 — 09-14 잔존 주문 확인 **완료**(미체결 0건,
             2026-09-12). 두 주문이 확인 시점에 이미 전량체결이라 "당일물인지"
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
