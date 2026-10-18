@@ -5,19 +5,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* 레이아웃: 위에서 아래로 — 한눈에(요약 세 칸) → 기간별 순위(막대, 눌러서 펼침) → 흐름 사다리(순위 변화선). 색은 한국 시장 관례: 강함 빨강 · 약함 파랑 */
+/* 레이아웃: 위에서 아래로 — 한눈에(요약 세 칸) → 4분면(주도·부상·둔화·약세) → 기간별 순위(막대, 눌러서 펼침) → 흐름 사다리(순위 변화선). 색은 한국 시장 관례: 강함 빨강 · 약함 파랑 */
 :root {
   --bg: #f4f6f8; --panel: #ffffff; --ink: #18202b; --muted: #5f6b7a; --line: #dde3ea;
   --up: #d23a3f; --up-soft: #f6d7d8; --down: #2b66d1; --down-soft: #d6e2f7; --pick: #0f7c74;
+  --hue-s: 62%; --hue-l: 40%;   /* 업종 고유 색(사다리·4분면 공통) = hsl(업종 순번별 색상, s, l) */
   --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #11151b; --panel: #181e26; --ink: #e8edf3; --muted: #93a0b0; --line: #2a333e;
-  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; color-scheme: dark } }
+  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; --hue-s: 70%; --hue-l: 66%; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #11151b; --panel: #181e26; --ink: #e8edf3; --muted: #93a0b0; --line: #2a333e;
-  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; color-scheme: dark }
+  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; --hue-s: 70%; --hue-l: 66%; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
 .wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 22px; }
@@ -78,7 +79,10 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
 
 /* 흐름 사다리 */
 .chart { overflow-x: auto; margin-top: 8px; }
-.chart svg { display: block; min-width: 560px; width: 100%; height: auto; }
+.chart svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.chart svg g[data-open] { cursor: pointer; }
+.quad-help { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px 14px; font-size: 13px; margin-top: 10px; }
+.quad-help b { margin-right: 6px; }
 .chart text { font-family: var(--f-body); }
 @media (prefers-reduced-motion: no-preference) { .row, .seg button { transition: background .15s; } }
 </style>
@@ -96,6 +100,17 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
     <div class="glance" id="glance"></div>
   </section>
 
+  <section aria-labelledby="q-h">
+    <h2 id="q-h">4분면 — 주도 · 부상 · 둔화 · 약세</h2>
+    <div class="seg" role="group" aria-label="4분면 기간" id="qseg"></div>
+    <p class="note" id="qnote"></p>
+    <div class="chart" id="quad"></div>
+    <div class="quad-help">
+      <div><b>주도</b>시장보다 강하고 더 강해지는 중</div><div><b>부상</b>약했는데 강해지는 중</div>
+      <div><b>둔화</b>강했는데 힘이 빠지는 중</div><div><b>약세</b>약하고 더 약해지는 중</div>
+    </div>
+  </section>
+
   <section aria-labelledby="r-h">
     <h2 id="r-h">기간별 순위</h2>
     <div class="seg" role="group" aria-label="기간 선택" id="seg"></div>
@@ -105,7 +120,7 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
 
   <section aria-labelledby="l-h">
     <h2 id="l-h">흐름 사다리</h2>
-    <p class="note">왼쪽이 긴 기간, 오른쪽이 최근입니다. 선이 올라가면 최근에 순위가 오른 업종입니다. 1위가 맨 위.</p>
+    <p class="note">왼쪽 끝 이름은 6개월 순위, 오른쪽 끝 이름은 1일 순위 자리입니다. 선이 오른쪽으로 갈수록 올라가면 최근에 순위가 오른 업종입니다. 1위가 맨 위. 마우스를 올리거나 누르면 그 업종만 진하게 보입니다.</p>
     <div class="chart" id="ladder"></div>
   </section>
 
@@ -200,45 +215,119 @@ function rows() {
   }).join("");
 }
 
-// 흐름 사다리 — 6개월 → 1일 순위
+// 업종 고유 색 — 순번을 7칸씩 건너뛰며 색상환에 배치해 이웃한 업종끼리 색이 비슷하지 않게 한다. 밝기는 테마 토큰(--hue-l)
+const HUE = Object.fromEntries(G.map((g, i) => [g.g, Math.round((i * 7 % G.length) * 360 / G.length)]));
+const col = g => `hsl(${HUE[g.g]} var(--hue-s) var(--hue-l))`;
+let hot = null;                       // 마우스를 올린 업종(강조만, 선택은 open)
+const focusOf = () => hot || open;
+
+// 흐름 사다리 — 6개월 → 1일 순위. 양 끝에 이름을 항상 단다
 function ladder() {
   const order = ["6m", "3m", "1m", "1w", "1d"];
   const rank = {};
   for (const k of order) [...G].sort((a, b) => b.rs[k] - a.rs[k]).forEach((g, i) => { (rank[g.g] ||= {})[k] = i + 1; });
-  const W = 720, top = 34, step = 24, H = top + step * (G.length - 1) + 24, L = 40, R = 190;
+  const W = 860, top = 36, step = 26, H = top + step * (G.length - 1) + 26, L = 168, R = 168;
   const X = i => L + i * (W - L - R) / (order.length - 1), Y = r => top + (r - 1) * step;
+  const f = focusOf();
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="업종 순위 변화">`;
   order.forEach((k, i) => {
-    s += `<text x="${X(i)}" y="16" text-anchor="middle" font-size="12" fill="var(--muted)">${LABEL[k]}</text>`;
-    s += `<line x1="${X(i)}" y1="${top - 8}" x2="${X(i)}" y2="${H - 16}" stroke="var(--line)"/>`;
+    s += `<text x="${X(i)}" y="16" text-anchor="middle" font-size="12" style="fill:var(--muted)">${LABEL[k]}</text>`;
+    s += `<line x1="${X(i)}" y1="${top - 10}" x2="${X(i)}" y2="${H - 14}" style="stroke:var(--line)"/>`;
   });
-  for (let r = 1; r <= G.length; r++) s += `<text x="${L - 14}" y="${Y(r) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" class="num">${r}</text>`;
-  const draw = (g, hot) => {
+  for (let r = 1; r <= G.length; r++) s += `<text x="${X(0) - 8}" y="${Y(r) + 4}" text-anchor="end" font-size="10" style="fill:var(--muted)" class="num">${r}</text>`;
+  const draw = g => {
+    const on = g.g === f, dim = hot && !on, c = col(g);
     const pts = order.map((k, i) => `${X(i).toFixed(1)},${Y(rank[g.g][k]).toFixed(1)}`).join(" ");
-    const last = rank[g.g]["1d"], c = hot ? "var(--pick)" : "var(--muted)";
-    let o = `<g data-open="${esc(g.g)}" style="cursor:pointer"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${hot ? 3 : 1.2}" opacity="${hot ? 1 : 0.35}" stroke-linejoin="round"/>`;
-    order.forEach((k, i) => { o += `<circle cx="${X(i)}" cy="${Y(rank[g.g][k])}" r="${hot ? 5 : 3}" fill="${c}" opacity="${hot ? 1 : 0.5}"/>`; });
-    o += `<text x="${X(order.length - 1) + 12}" y="${Y(last) + 4}" font-size="12" fill="${hot ? "var(--pick)" : "var(--ink)"}" font-weight="${hot ? 700 : 400}" opacity="${hot ? 1 : 0.8}">${esc(g.g)}</text>`;
-    o += `<rect x="${X(order.length - 1) + 8}" y="${Y(last) - 10}" width="${R - 12}" height="20" fill="transparent"/></g>`;
+    let o = `<g data-open="${esc(g.g)}" opacity="${dim ? 0.15 : 1}"><polyline points="${pts}" fill="none" style="stroke:${c}" stroke-width="${on ? 4 : 2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    order.forEach((k, i) => { o += `<circle cx="${X(i)}" cy="${Y(rank[g.g][k])}" r="${on ? 5 : 3.5}" style="fill:${c}"/>`; });
+    const fw = on ? 700 : 500;
+    o += `<text x="${X(0) - 26}" y="${Y(rank[g.g]["6m"]) + 4}" text-anchor="end" font-size="12" font-weight="${fw}" style="fill:${c}">${esc(g.g)}</text>`;
+    o += `<text x="${X(order.length - 1) + 10}" y="${Y(rank[g.g]["1d"]) + 4}" font-size="12" font-weight="${fw}" style="fill:${c}">${esc(g.g)}</text>`;
+    o += `<polyline points="${pts}" fill="none" stroke="transparent" stroke-width="12"/></g>`;   // 잡기 쉬운 넓은 선
     return o;
   };
-  G.filter(g => g.g !== open).forEach(g => { s += draw(g, false); });
-  const sel = G.find(g => g.g === open);
-  if (sel) s += draw(sel, true);
+  G.filter(g => g.g !== f).forEach(g => { s += draw(g); });
+  const sel = G.find(g => g.g === f);
+  if (sel) s += draw(sel);
   $("ladder").innerHTML = s + "</svg>";
 }
 
-function render() { seg(); rows(); ladder(); }
+// 4분면 — 중기: (3개월 RS, 1개월 − 3개월) · 단기: (1개월 RS, 1주 − 1개월)
+let qhz = "mid";
+try { const q = localStorage.getItem("sector-qhz"); if (q === "short" || q === "mid") qhz = q; } catch (e) {}
+const QNAME = (x, y) => x >= 0 ? (y >= 0 ? "주도" : "둔화") : (y >= 0 ? "부상" : "약세");
+function quad() {
+  $("qseg").innerHTML = [["mid", "중기 · 3개월"], ["short", "단기 · 1개월"]].map(([k, l]) => `<button aria-pressed="${k === qhz}" data-qhz="${k}">${l}</button>`).join("");
+  $("qnote").textContent = qhz === "short"
+    ? "가로 = 최근 1개월 시장 대비 강도, 세로 = 1주가 1개월보다 얼마나 더 강한가. 매일 크게 움직이고 잡음도 큽니다."
+    : "가로 = 최근 3개월 시장 대비 강도, 세로 = 1개월이 3개월보다 얼마나 더 강한가(가속). 몇 주에 걸쳐 움직입니다.";
+  const pt = g => qhz === "short" ? { x: g.rs["1m"], y: g.rs["1w"] - g.rs["1m"] } : { x: g.rs["3m"], y: g.rs["1m"] - g.rs["3m"] };
+  const P = G.map(g => ({ g, ...pt(g) }));
+  const W = 860, H = 480, PAD = 52;
+  const span = a => { const lo = Math.min(...a, 0), hi = Math.max(...a, 0), m = (hi - lo) * 0.14 || 0.02; return [lo - m, hi + m]; };
+  const [x0, x1] = span(P.map(p => p.x)), [y0, y1] = span(P.map(p => p.y));
+  const px = v => PAD + (v - x0) / (x1 - x0) * (W - PAD * 2), py = v => H - PAD - (v - y0) / (y1 - y0) * (H - PAD * 2);
+  const cx = px(0), cy = py(0), maxN = Math.max(...G.map(g => g.n)), f = focusOf();
+  const cnt = {}; P.forEach(p => { const q = QNAME(p.x, p.y); cnt[q] = (cnt[q] || 0) + 1; });
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="업종 4분면">`;
+  s += `<rect x="${cx}" y="${PAD}" width="${W - PAD - cx}" height="${cy - PAD}" style="fill:var(--up-soft)" opacity="0.7"/>`;
+  s += `<rect x="${PAD}" y="${cy}" width="${cx - PAD}" height="${H - PAD - cy}" style="fill:var(--down-soft)" opacity="0.7"/>`;
+  s += `<rect x="${PAD}" y="${PAD}" width="${W - PAD * 2}" height="${H - PAD * 2}" fill="none" style="stroke:var(--line)"/>`;
+  s += `<line x1="${PAD}" y1="${cy}" x2="${W - PAD}" y2="${cy}" style="stroke:var(--muted)" stroke-dasharray="4 4" opacity="0.6"/>`;
+  s += `<line x1="${cx}" y1="${PAD}" x2="${cx}" y2="${H - PAD}" style="stroke:var(--muted)" stroke-dasharray="4 4" opacity="0.6"/>`;
+  const corner = (x, y, anchor, q) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="13" font-weight="700" style="fill:var(--ink)" opacity="0.75">${q} <tspan font-weight="400" style="fill:var(--muted)">${cnt[q] || 0}</tspan></text>`;
+  s += corner(W - PAD - 8, PAD + 18, "end", "주도") + corner(PAD + 8, PAD + 18, "start", "부상")
+     + corner(W - PAD - 8, H - PAD - 10, "end", "둔화") + corner(PAD + 8, H - PAD - 10, "start", "약세");
+  const [xl, yl] = qhz === "short" ? ["1개월 강도", "1주 가속"] : ["3개월 강도", "1개월 가속"];
+  s += `<text x="${W / 2}" y="${H - 14}" text-anchor="middle" font-size="12" style="fill:var(--muted)">← 시장보다 약함 · ${xl} · 시장보다 강함 →</text>`;
+  s += `<text x="16" y="${H / 2}" text-anchor="middle" font-size="12" style="fill:var(--muted)" transform="rotate(-90 16 ${H / 2})">← 식는 중 · ${yl} · 강해지는 중 →</text>`;
+  // 이름 겹침 밀어내기(그리디). ponytail: 업종 20개 남짓이라 O(n²) 로 충분
+  const M = P.map(p => { const r = 6 + 9 * Math.sqrt(p.g.n / maxN), X = px(p.x), Y = py(p.y), end = X > W - 170;
+    return { ...p, r, X, Y, end, lx: X + (end ? -(r + 5) : r + 5), ly: Y + 4 }; }).sort((a, b) => a.ly - b.ly);
+  // 이름 상자(글자 수 × 12.5px 추정)끼리 겹치면 아래쪽 이름을 겹친 만큼 내린다. 겹침이 없어질 때까지 반복(최대 60회)
+  const box = m => { const w = m.g.g.length * 11; return { x: m.end ? m.lx - w : m.lx, y: m.ly - 14, w, h: 19 }; };   // 실측 글자 상자 높이 19
+  for (let pass = 0, moved = true; moved && pass < 60; pass++) {
+    moved = false;
+    for (let i = 0; i < M.length; i++) for (let j = 0; j < M.length; j++) {
+      if (i === j) continue;
+      const a = box(M[i]), b = box(M[j]);
+      if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h && (a.y > b.y || (a.y === b.y && i > j))) {
+        M[i].ly = b.y + b.h + 14 + 1; moved = true;
+      }
+    }
+  }
+  M.forEach(m => { m.ly = Math.min(m.ly, H - PAD - 4); });
+  const draw = m => {
+    const on = m.g.g === f, dim = hot && !on, c = col(m.g);
+    let o = `<g data-open="${esc(m.g.g)}" opacity="${dim ? 0.2 : 1}"><circle cx="${m.X.toFixed(1)}" cy="${m.Y.toFixed(1)}" r="${(on ? m.r + 3 : m.r).toFixed(1)}" style="fill:${c};stroke:var(--panel)" stroke-width="2"/>`;
+    if (Math.abs(m.ly - (m.Y + 4)) > 2) o += `<line x1="${m.X.toFixed(1)}" y1="${m.Y.toFixed(1)}" x2="${m.lx.toFixed(1)}" y2="${(m.ly - 4).toFixed(1)}" style="stroke:${c}" stroke-width="1" opacity="0.6"/>`;
+    o += `<text x="${m.lx.toFixed(1)}" y="${m.ly.toFixed(1)}" text-anchor="${m.end ? "end" : "start"}" font-size="12.5" font-weight="${on ? 700 : 500}" style="fill:var(--ink)">${esc(m.g.g)}</text></g>`;
+    return o;
+  };
+  M.filter(m => m.g.g !== f).forEach(m => { s += draw(m); });
+  const sel = M.find(m => m.g.g === f); if (sel) s += draw(sel);
+  $("quad").innerHTML = s + "</svg>";
+}
+
+function charts() { quad(); ladder(); }
+function render() { seg(); rows(); charts(); }
 glance(); render();
 
 document.addEventListener("click", e => {
   const w = e.target.closest("[data-win]");
   if (w) { win = w.dataset.win; try { localStorage.setItem("sector-win", win); } catch (err) {} render(); return; }
+  const q = e.target.closest("[data-qhz]");
+  if (q) { qhz = q.dataset.qhz; try { localStorage.setItem("sector-qhz", qhz); } catch (err) {} quad(); return; }
   const o = e.target.closest("[data-open]");
   if (!o) return;
   const g = o.dataset.open, fromRow = o.classList.contains("row");
   open = fromRow && open === g ? null : g;
   render();
-  if (!fromRow) { const r = document.querySelector(`.row[data-open="${CSS.escape(g)}"]`); if (r) r.scrollIntoView({ behavior: "smooth", block: "center" }); }
+  if (o.closest(".glance")) { const r = document.querySelector(`.row[data-open="${CSS.escape(g)}"]`); if (r) r.scrollIntoView({ behavior: "smooth", block: "center" }); }
 });
+// 그래프 위에 마우스를 올리면 그 업종만 진하게(나머지는 흐리게)
+for (const id of ["ladder", "quad"]) {
+  $(id).addEventListener("mouseover", e => { const o = e.target.closest("g[data-open]"); const g = o ? o.dataset.open : null; if (g && g !== hot) { hot = g; charts(); } });
+  $(id).addEventListener("mouseleave", () => { if (hot) { hot = null; charts(); } });
+}
 </script>
