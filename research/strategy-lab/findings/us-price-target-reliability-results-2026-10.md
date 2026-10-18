@@ -4,7 +4,7 @@ factor: us-price-target-reliability
 date: 2026-10-18
 verdict: REJECT
 criteria_version: research-only
-conditions: ["사전등록 d4a61764 · 코드 eb574db3, 1회 계산", "야후 목표가 159,660행(척도 제외 148) · 517종목 현재 상장(생존편향)", "Q2·Q3 5셀 바닥선 2.63 — 전부 REJECT", "H1 낙관 편향 NOT SUPPORTED(평균 −7.4%p, 생존편향 방향) · H4 정확도 지속 NOT SUPPORTED(ρ 0.07) — 낙관 성향 지속은 ρ 0.61(기록)"]
+conditions: ["사전등록 d4a61764 · 코드 3407db52, 1회 계산", "야후 목표가 159,660행(척도 제외 148) · 517종목 현재 상장(생존편향)", "Q2·Q3 5셀 바닥선 2.63 — 전부 REJECT", "H1 낙관 편향 NOT SUPPORTED(평균 −7.4%p, 생존편향 방향) · H4 정확도 지속 NOT SUPPORTED(ρ 0.07) — 낙관 성향 지속은 ρ 0.61(기록)"]
 reason: >-
   신호: 없음 · 경제성: 미달. 월가 목표가로 다음 달 종목을 고르거나(Q2) 목표가 상향·하향을 따라가는(Q3) 규칙은 다섯 셀 모두 TRAIN 이 바닥선 2.63 에 못 미치고
   구간마다 부호가 바뀐다. 목표가 숫자 자체는 12개월 뒤 실제와 약하게만 이어지고(보정 기울기 0.34), 상향 목표가가 1년 뒤 그 위에 있던 비율은 47%,
@@ -14,7 +14,7 @@ reason: >-
 
 # 미국 애널리스트 목표가 신뢰도 — 결과 (2026-10-18)
 
-사전등록 `us-price-target-reliability-preregistration-2026-10.md`(d4a61764) · 분석 코드 `run_us_price_target_reliability.py`(eb574db3, 계산 전 커밋) · 숫자 `us-price-target-reliability-results-2026-10.json`.
+사전등록 `us-price-target-reliability-preregistration-2026-10.md`(d4a61764) · 분석 코드 `run_us_price_target_reliability.py`(3407db52, 계산 전 커밋) · 숫자 `us-price-target-reliability-results-2026-10.json`.
 자료: 야후 `upgrades_downgrades`(2012~2026-10-16) · 517종목(`docs/data/latest.json` US, 2026-10-18 현재 상장) · 일봉 같은 날까지.
 
 ## 0. 한 장 요약
