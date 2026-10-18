@@ -10,7 +10,7 @@
 | 보류·판정 불가 | 41 |
 | 기각 | 132 |
 | 사전등록 문서(결과는 별도 파일) | 119 |
-| 정보·탐색 | 36 |
+| 정보·탐색 | 37 |
 | 미분류 | 241 |
 
 ## 통과·채택 (13)
@@ -338,11 +338,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (36)
+## 정보·탐색 (37)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-18 | EXPLORATORY | crypto | [upbit-listing-executability-2026-10.md](upbit-listing-executability-2026-10.md) | 실행 가능성 점검(판정 없음). 상장일 D0 종가에 바이낸스 무기한이 있던 사건 105/119(88%, 2025~ 94%). 무기한 7일 숏은 평균 +11.2%(원수익), 펀딩이 평균 −2.3%(2… |
+| 2026-10-18 | EXPLORATORY | kr | [rv20-2026-crash-diagnosis-2026-10.md](rv20-2026-crash-diagnosis-2026-10.md) | 진단(판정 없음, 규칙 불변). 규칙은 1차 하락(6-22 고점 → 8월)에는 0x 였다 — 고점→저점 79거래일 중 48일 0x, 로그수익 규칙 −21.5% vs 보유 −53.8%. 모의 계좌 손… |
 | 2026-10-13 | EXPLORATORY | kr | [news-chase-unbiased-2026-10.md](news-chase-unbiased-2026-10.md) | 사후 기술(판정 없음). 09:10 +5% 사건(결과 무관) 무작위 1200건에 구글 뉴스를 붙여, 뉴스가 있는 급등을 09:10 에 샀다면의 수익. |
 | 2026-10-13 | EXPLORATORY | kr | [news-chase-2025-08-2026-10.md](news-chase-2025-08-2026-10.md) | 사후 기술(판정 없음). 분봉 기간 급등 2675건(일 +15% 마감, 시총 2,000억↑)을 구글 뉴스 제목으로 원인 분류하고 장중 알림 시점(+5%)에 샀다면의 수익. '알림 시점' 칸은 결과로… |
 | 2026-10-13 | EXPLORATORY | kr | [flow-limitup-2026-10.md](flow-limitup-2026-10.md) | 사후 기술(판정 없음). 수급처별 순매수 강도 5분위는 급등 확률이 '가운데(수급 거의 없음)'에서 가장 높고 5일 초과는 거기서 가장 나쁘다(−29bp) — 양 끝(크게 사거나 크게 판 종목)이 … |
