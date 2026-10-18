@@ -78,20 +78,24 @@ def dart(api, key, **q):
     return d.get("list", [])
 
 
-def summarize_major(rows):
-    """5% 대량보유 — 보고자별 최신 비율·직전 대비·최근 4개 추이."""
+def summarize_major(rows, key=None):
+    """5% 대량보유 — 보고자별 최신 비율·직전 대비·최근 4개 추이.
+    key: 보고자 이름 → 묶음 이름(build-holder-map.py 의 계열 정규화). 원래 이름은 names 에 남는다."""
     by = {}
     for r in sorted(rows, key=lambda x: (x.get("rcept_dt", ""), x.get("rcept_no", ""))):
         rate = num(r.get("stkrt"))
         if rate is None:
             continue
-        by.setdefault(r.get("repror") or "?", []).append((r["rcept_dt"].replace("-", ""), rate, r.get("report_resn") or ""))
+        who = r.get("repror") or "?"
+        by.setdefault(key(who) if key else who, []).append((r["rcept_dt"].replace("-", ""), rate, r.get("report_resn") or "", r))
     out = []
     for who, h in by.items():
-        d, rate, resn = h[-1]
+        d, rate, resn, last = h[-1]
         prev = h[-2][1] if len(h) > 1 else None
         out.append({"who": who, "rate": rate, "chg": None if prev is None else round(rate - prev, 2),
-                    "date": d, "reason": resn[:30], "hist": [[x[0], x[1]] for x in h[-4:]]})
+                    "date": d, "reason": resn[:30], "hist": [[x[0], x[1]] for x in h[-4:]],
+                    "qty": num(last.get("stkqy")), "tp": last.get("report_tp"), "rcept": last.get("rcept_no"),
+                    "names": sorted({x[3].get("repror") or "?" for x in h})})
     out.sort(key=lambda x: -x["rate"])
     return out
 
