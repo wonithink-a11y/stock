@@ -324,7 +324,6 @@
 <nav class="sitenav" aria-label="사이트 메뉴">
   <a href="./" aria-current="page">스코어링</a>
   <a href="paper-trading/">모의투자</a>
-  <a href="system-map.html">시스템 지도</a>
   <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
   <a href="https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">기업 해독(Claude) ↗</a>
   <a href="https://claude.ai/artifact/2H2dsVmjZSXMzxgtFutHQ5" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">배당 랠리 검색(Claude) ↗</a>
@@ -3585,6 +3584,24 @@ function renderMrepBody(file, d) {
   return out.join('');
 }
 
+// 바로가기 — 상단 메뉴에 두지 않는 개인용 페이지. Claude 아티팩트는 비공개라 본인 계정으로 로그인해야 열린다.
+// 원본 HTML 은 저장소 artifacts/ 에 있다(갱신하면 같은 주소로 다시 게시).
+const PRIVATE_LINKS = [
+  ['시스템 지도', 'https://claude.ai/artifact/7QnnHaMLBbbALX2eAY7fvZ', '어디서 무엇이 언제 도는지 — Actions·VM·PC, 여섯 부서별 구성과 상태', 'Claude · 비공개'],
+  ['업종 강도 지도', 'https://claude.ai/artifact/1H6YCft69LxBik46X72hBX', '업종 강도를 요약·기간별 순위·순위 변화선으로 (10-16 종가 고정본)', 'Claude · 비공개'],
+  ['기업 해독', 'https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk', '관심종목 433종목 사업 해독 · 성장 단계 판정', 'Claude · 비공개'],
+  ['배당 랠리 검색', 'https://claude.ai/artifact/2H2dsVmjZSXMzxgtFutHQ5', '연말 고배당 후보 · 배당기준일 이동 여부', 'Claude · 비공개'],
+  ['매매', 'https://wonithink-stock.duckdns.org/autotrader/', '자동매매 설정 · 계획 카드(/plans) · 체결', 'VM · 로그인'],
+];
+function renderLinks() {
+  return `<div class="card"><h2 style="margin:0 0 4px">바로가기</h2>
+    <p class="muted" style="margin:0 0 12px;font-size:12px">개인용 페이지 모음입니다. Claude 표시가 있는 곳은 본인 Claude 계정으로 로그인해야 열립니다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px">${PRIVATE_LINKS.map(([t, u, d, k]) =>
+      `<a href="${u}" target="_blank" rel="noopener noreferrer" style="display:block;padding:12px 14px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);background:var(--card)">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><strong>${esc(t)} ↗</strong><span class="muted" style="font-size:11px;white-space:nowrap">${esc(k)}</span></div>
+        <div class="muted" style="font-size:12px;margin-top:4px">${esc(d)}</div></a>`).join('')}</div></div>`;
+}
+
 function renderMarketReports() {
   if (mrep.index === null) {
     mrep.index = [];
@@ -3647,6 +3664,7 @@ function render() {
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
+  else if (state.tab === 'links') el.innerHTML = renderLinks();
   else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
   else if (state.tab === 'holders') el.innerHTML = renderHolders();
   else el.innerHTML = renderBacktest();
@@ -4003,7 +4021,7 @@ function renderToday() {
 
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
-  ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트']]],
+  ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['links', '바로가기']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],

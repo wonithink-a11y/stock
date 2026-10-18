@@ -1,0 +1,244 @@
+<!-- 원본: 이 파일. 비공개 Claude 아티팩트 https://claude.ai/artifact/1H6YCft69LxBik46X72hBX (10-16 종가 스냅샷). 갱신은 DATA 를 docs/data/sector-strength.json 에서 다시 뽑아 같은 URL 로 게시. -->
+<title>업종 강도 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 위에서 아래로 — 한눈에(요약 세 칸) → 기간별 순위(막대, 눌러서 펼침) → 흐름 사다리(순위 변화선). 색은 한국 시장 관례: 강함 빨강 · 약함 파랑 */
+:root {
+  --bg: #f4f6f8; --panel: #ffffff; --ink: #18202b; --muted: #5f6b7a; --line: #dde3ea;
+  --up: #d23a3f; --up-soft: #f6d7d8; --down: #2b66d1; --down-soft: #d6e2f7; --pick: #0f7c74;
+  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --panel: #181e26; --ink: #e8edf3; --muted: #93a0b0; --line: #2a333e;
+  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --panel: #181e26; --ink: #e8edf3; --muted: #93a0b0; --line: #2a333e;
+  --up: #ff6b70; --up-soft: #4a2427; --down: #6ea2ff; --down-soft: #1f3150; --pick: #3cc7b8; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 22px; }
+h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 17px; margin: 0 0 4px; }
+.sub, .note { color: var(--muted); font-size: 13px; margin: 0; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.up { color: var(--up); } .down { color: var(--down); }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.bench { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* 한눈에 */
+.glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 10px; }
+.glance h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 500; letter-spacing: 0.02em; }
+.glance ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.glance button { all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; width: 100%; box-sizing: border-box;
+  padding: 7px 10px; border-radius: 8px; background: var(--bg); }
+.glance button:hover, .glance button:focus-visible { outline: 2px solid var(--pick); outline-offset: -2px; }
+.glance .why { color: var(--muted); font-size: 12px; }
+
+/* 기간 선택 */
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; background: var(--bg); padding: 4px; border-radius: 10px; margin: 10px 0 12px; }
+.seg button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 7px; font-size: 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 1px var(--line); }
+.seg button:focus-visible { outline: 2px solid var(--pick); }
+
+/* 순위 막대 */
+.rows { display: grid; gap: 2px; }
+.row { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(96px, 150px) 1fr 64px; align-items: center; gap: 10px;
+  padding: 6px 8px; border-radius: 8px; width: 100%; }
+.row:hover, .row:focus-visible { background: var(--bg); }
+.row:focus-visible { outline: 2px solid var(--pick); outline-offset: -2px; }
+.row[aria-expanded="true"] { background: var(--bg); box-shadow: inset 3px 0 0 var(--pick); }
+.name { font-weight: 500; font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.name small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+.track { position: relative; height: 18px; }
+.track .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line); }
+.track .bar { position: absolute; top: 3px; height: 12px; border-radius: 3px; }
+.track .ghost { position: absolute; top: 0; height: 18px; width: 2px; background: var(--muted); opacity: .75; }
+.val { text-align: right; font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); margin-bottom: 8px; align-items: center; }
+.legend i { display: inline-block; vertical-align: -2px; margin-right: 5px; }
+
+/* 펼친 설명 */
+.detail { margin: 2px 0 8px; padding: 12px 14px; border-left: 3px solid var(--pick); background: var(--bg); border-radius: 0 8px 8px 0; display: grid; gap: 12px; }
+.detail p { margin: 0; max-width: 62ch; }
+.dgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.dgrid h4 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 500; letter-spacing: 0.02em; }
+.mini { display: grid; gap: 4px; }
+.mini div { display: grid; grid-template-columns: 44px 1fr 56px; gap: 8px; align-items: center; font-size: 13px; }
+.mini .t { position: relative; height: 10px; }
+.mini .t span { position: absolute; top: 0; height: 10px; border-radius: 2px; }
+.mini .t::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line); }
+.tops { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 13px; }
+.tops li { display: flex; justify-content: space-between; gap: 8px; }
+.meter { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 3px 0 8px; }
+.meter span { display: block; height: 100%; background: var(--pick); }
+
+/* 흐름 사다리 */
+.chart { overflow-x: auto; margin-top: 8px; }
+.chart svg { display: block; min-width: 560px; width: 100%; height: auto; }
+.chart text { font-family: var(--f-body); }
+@media (prefers-reduced-motion: no-preference) { .row, .seg button { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>업종 강도 지도</h1>
+    <p class="sub" id="meta"></p>
+    <div class="bench" id="bench"></div>
+  </header>
+
+  <section aria-labelledby="g-h">
+    <h2 id="g-h">한눈에</h2>
+    <p class="note">시장 대비 %p. 이름을 누르면 아래 순위에서 그 업종이 펼쳐집니다.</p>
+    <div class="glance" id="glance"></div>
+  </section>
+
+  <section aria-labelledby="r-h">
+    <h2 id="r-h">기간별 순위</h2>
+    <div class="seg" role="group" aria-label="기간 선택" id="seg"></div>
+    <div class="legend" id="legend"></div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <section aria-labelledby="l-h">
+    <h2 id="l-h">흐름 사다리</h2>
+    <p class="note">왼쪽이 긴 기간, 오른쪽이 최근입니다. 선이 올라가면 최근에 순위가 오른 업종입니다. 1위가 맨 위.</p>
+    <div class="chart" id="ladder"></div>
+  </section>
+
+  <p class="note">값 = 업종 종목 수익률 중앙값 − 관심종목 전체 중앙값. 매일 바뀌는 최신 값은 대시보드 시장·섹터 탭에 있습니다. 관찰용입니다. 업종 강도로 다음 수익을 맞히는 규칙은 이 프로젝트 검증에서 근거가 없었습니다.</p>
+</div>
+
+<script>
+const DATA = {"asOf":"20261016","universe":352,"bench":{"1d":0.0415,"1w":-0.0651,"1m":-0.0716,"3m":-0.0361,"6m":-0.1869},"groups":[{"g":"2차전지","n":9,"rs":{"1d":-0.0285,"1w":-0.0794,"1m":-0.0012,"3m":0.0981,"6m":-0.0481},"b20":0.222,"b60":0.444,"q":"둔화","top":[["LG에너지솔루션",0.1208],["SK아이이테크놀로지",0.0473],["삼성SDI",-0.0275]]},{"g":"건설·부동산·건자재","n":13,"rs":{"1d":-0.0067,"1w":-0.0246,"1m":-0.0735,"3m":0.0852,"6m":-0.1779},"b20":0.077,"b60":0.154,"q":"둔화","top":[["한일시멘트",0.0211],["LS마린솔루션",-0.0511],["아세아",-0.0747]]},{"g":"음식료·농수산","n":11,"rs":{"1d":-0.0272,"1w":0.0978,"1m":0.062,"3m":0.0788,"6m":0.1078},"b20":0.818,"b60":0.455,"q":"둔화","top":[["KT&G",0.1141],["동서",0.0405],["CJ제일제당",0.0378]]},{"g":"철강·비철금속","n":11,"rs":{"1d":-0.0123,"1w":-0.0107,"1m":-0.0683,"3m":0.0587,"6m":-0.1746},"b20":0.0,"b60":0.182,"q":"둔화","top":[["에이치브이엠",0.2822],["씨에스윈드",-0.0303],["포스코엠텍",-0.0963]]},{"g":"미디어·엔터·광고","n":9,"rs":{"1d":0.0169,"1w":0.1071,"1m":0.0847,"3m":0.0468,"6m":-0.0428},"b20":0.889,"b60":0.778,"q":"주도","top":[["CJ ENM",0.1643],["스튜디오드래곤",0.1026],["제일기획",0.0323]]},{"g":"전자부품·디스플레이","n":20,"rs":{"1d":0.0086,"1w":-0.1183,"1m":0.0661,"3m":0.0429,"6m":-0.0748},"b20":0.15,"b60":0.55,"q":"주도","top":[["성호전자",0.5675],["대덕전자",0.283],["대주전자재료",0.2329]]},{"g":"화학·소재","n":42,"rs":{"1d":-0.0225,"1w":0.0073,"1m":0.0082,"3m":0.0333,"6m":0.0152},"b20":0.214,"b60":0.381,"q":"둔화","top":[["펌텍코리아",0.3826],["이수스페셜티케미컬",0.3557],["나노신소재",0.2106]]},{"g":"반도체","n":13,"rs":{"1d":0.0202,"1w":-0.1221,"1m":0.0868,"3m":-0.0019,"6m":0.2507},"b20":0.077,"b60":0.538,"q":"부상","top":[["두산테스나",0.358],["SFA반도체",0.3239],["하나마이크론",0.186]]},{"g":"전력·전기장비","n":13,"rs":{"1d":0.0119,"1w":-0.0897,"1m":-0.1112,"3m":-0.0032,"6m":-0.0302},"b20":0.154,"b60":0.231,"q":"약세","top":[["서진시스템",0.1007],["지역난방공사",0.0161],["한국가스공사",-0.0176]]},{"g":"통신·네트워크","n":7,"rs":{"1d":0.005,"1w":-0.0414,"1m":0.0484,"3m":-0.0076,"6m":-0.1028},"b20":0.143,"b60":0.286,"q":"부상","top":[["케이엠더블유",0.1379],["LG유플러스",0.0416],["RFHIC",0.0266]]},{"g":"IT·소프트웨어","n":26,"rs":{"1d":-0.0021,"1w":0.0464,"1m":0.0333,"3m":-0.0087,"6m":-0.0161},"b20":0.346,"b60":0.269,"q":"부상","top":[["안랩",0.4874],["루닛",0.4193],["디어유",0.1429]]},{"g":"기계·장비","n":40,"rs":{"1d":0.0276,"1w":-0.0736,"1m":0.0346,"3m":-0.0092,"6m":0.0055},"b20":0.125,"b60":0.325,"q":"부상","top":[["네오셈",0.2816],["와이씨",0.2701],["피에스케이홀딩스",0.2701]]},{"g":"조선·해운·운송","n":9,"rs":{"1d":-0.0264,"1w":0.0403,"1m":-0.0344,"3m":-0.0169,"6m":0.0155},"b20":0.222,"b60":0.222,"q":"약세","top":[["HMM",0.1319],["팬오션",0.1045],["CJ대한통운",-0.0346]]},{"g":"바이오·헬스케어","n":37,"rs":{"1d":0.0258,"1w":0.0346,"1m":-0.0039,"3m":-0.0351,"6m":-0.0999},"b20":0.351,"b60":0.27,"q":"부상","top":[["엘앤씨바이오",0.4436],["큐리옥스바이오시스템즈",0.4187],["HLB",0.3307]]},{"g":"금융","n":48,"rs":{"1d":-0.0266,"1w":0.0205,"1m":-0.0231,"3m":-0.0396,"6m":0.0597},"b20":0.125,"b60":0.125,"q":"부상","top":[["한국앤컴퍼니",0.0653],["하림지주",0.0401],["영원무역홀딩스",0.0216]]},{"g":"유통·소비재","n":23,"rs":{"1d":-0.0055,"1w":0.0442,"1m":0.0184,"3m":-0.0553,"6m":0.1054},"b20":0.391,"b60":0.348,"q":"부상","top":[["코웨이",0.1492],["서부T&D",0.1421],["메가스터디교육",0.1376]]},{"g":"자동차·부품","n":14,"rs":{"1d":0.01,"1w":0.0175,"1m":-0.0626,"3m":-0.0847,"6m":0.0192},"b20":0.143,"b60":0.071,"q":"부상","top":[["한온시스템",0.0938],["한국타이어앤테크놀로지",0.0112],["한라캐스트",-0.049]]},{"g":"항공·방산","n":6,"rs":{"1d":0.0349,"1w":-0.0012,"1m":-0.0994,"3m":-0.1887,"6m":-0.2501},"b20":0.167,"b60":0.167,"q":"부상","top":[["한화시스템",0.1354],["LIG넥스원",-0.1445],["한화에어로스페이스",-0.1674]]}]};
+
+const WINS = [["1d", "1일"], ["1w", "1주"], ["1m", "1개월"], ["3m", "3개월"], ["6m", "6개월"]];
+const LABEL = Object.fromEntries(WINS);
+const LONGER = { "1d": "1w", "1w": "1m", "1m": "3m", "3m": "6m", "6m": null };
+const G = DATA.groups;
+const $ = id => document.getElementById(id);
+const pp = v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1);
+const cls = v => v >= 0 ? "up" : "down";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let win = "1w";
+try { const w = localStorage.getItem("sector-win"); if (w && LABEL[w]) win = w; } catch (e) {}
+const moverScore = g => Math.abs(g.rs["1w"] - g.rs["3m"]);
+let open = [...G].sort((a, b) => moverScore(b) - moverScore(a))[0].g;
+
+// 머리말
+const d = DATA.asOf;
+$("meta").textContent = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)} 종가 · 관심종목 ${DATA.universe}종목 · ${G.length}개 업종 · 시장 대비 %p`;
+$("bench").innerHTML = "<span>같은 기간 보통 종목(중앙값)</span>" + WINS.map(([k, l]) =>
+  `<span>${l} <b class="num ${cls(DATA.bench[k])}">${pp(DATA.bench[k])}%</b></span>`).join("");
+
+// 한눈에
+function glance() {
+  const by1w = [...G].sort((a, b) => b.rs["1w"] - a.rs["1w"]);
+  const flips = G.filter(g => Math.abs(g.rs["1w"]) >= 0.03 && Math.abs(g.rs["3m"]) >= 0.03 && Math.sign(g.rs["1w"]) !== Math.sign(g.rs["3m"]))
+    .sort((a, b) => moverScore(b) - moverScore(a)).slice(0, 4);
+  const item = (g, why) => `<li><button data-open="${esc(g.g)}"><span>${esc(g.g)} <span class="why">${why}</span></span></button></li>`;
+  const box = (title, list) => `<div><h3>${title}</h3><ul>${list.join("") || '<li class="why">해당 없음</li>'}</ul></div>`;
+  $("glance").innerHTML =
+    box("이번 주 가장 강한 곳", by1w.slice(0, 3).map(g => item(g, `<span class="num up">${pp(g.rs["1w"])}</span>`))) +
+    box("이번 주 가장 약한 곳", by1w.slice(-3).reverse().map(g => item(g, `<span class="num down">${pp(g.rs["1w"])}</span>`))) +
+    box("흐름이 뒤집힌 곳 (3개월 → 1주)", flips.map(g => item(g, `<span class="num ${cls(g.rs["3m"])}">${pp(g.rs["3m"])}</span> → <span class="num ${cls(g.rs["1w"])}">${pp(g.rs["1w"])}</span>`)));
+}
+
+// 기간 선택
+function seg() {
+  $("seg").innerHTML = WINS.map(([k, l]) => `<button aria-pressed="${k === win}" data-win="${k}">${l}</button>`).join("");
+  const lg = LONGER[win];
+  $("legend").innerHTML = `<span><i style="width:12px;height:10px;border-radius:2px;background:var(--up)"></i>시장보다 강함</span>
+    <span><i style="width:12px;height:10px;border-radius:2px;background:var(--down)"></i>시장보다 약함</span>` +
+    (lg ? `<span><i style="width:2px;height:14px;background:var(--muted)"></i>${LABEL[lg]} 값(비교용)</span>` : "");
+}
+
+function sentence(g) {
+  const a = g.rs["3m"], b = g.rs["1w"], m = g.rs["1m"];
+  const s3 = a >= 0 ? `3개월 동안 시장보다 <b class="${cls(a)}">${pp(a)}%p</b> 강했고` : `3개월 동안 시장보다 <b class="${cls(a)}">${pp(a)}%p</b> 약했고`;
+  let tail;
+  if (Math.sign(a) !== Math.sign(b) && Math.abs(b) >= 0.03) tail = b >= 0 ? "최근 1주는 반대로 강해졌습니다" : "최근 1주는 반대로 식었습니다";
+  else tail = b >= 0 ? "최근 1주도 강합니다" : "최근 1주도 약합니다";
+  return `${s3}, ${tail}(<b class="${cls(b)}">${pp(b)}%p</b>). 1개월로는 <b class="${cls(m)}">${pp(m)}%p</b>입니다.`;
+}
+
+function detail(g) {
+  const mx = Math.max(...WINS.map(([k]) => Math.abs(g.rs[k])), 0.01);
+  const mini = WINS.map(([k, l]) => {
+    const v = g.rs[k], w = Math.abs(v) / mx * 50;
+    return `<div><span>${l}</span><span class="t"><span style="${v >= 0 ? `left:50%` : `right:50%`};width:${w}%;background:var(--${v >= 0 ? "up" : "down"})"></span></span><span class="num ${cls(v)}" style="text-align:right">${pp(v)}</span></div>`;
+  }).join("");
+  const tops = g.top.map(([n, r]) => `<li><span>${esc(n)}</span><span class="num ${cls(r)}">${pp(r)}%</span></li>`).join("");
+  const meter = (l, v) => `<div style="font-size:13px">${l} <b class="num">${Math.round(v * 100)}%</b></div><div class="meter"><span style="width:${Math.round(v * 100)}%"></span></div>`;
+  return `<div class="detail" id="detail">
+    <p>${sentence(g)}</p>
+    <div class="dgrid">
+      <div><h4>기간별 시장 대비(%p)</h4><div class="mini">${mini}</div></div>
+      <div><h4>1개월 많이 오른 종목(수익률)</h4><ul class="tops">${tops}</ul></div>
+      <div><h4>업종 안 종목 중 이동평균 위</h4>${meter("20일선 위", g.b20)}${meter("60일선 위", g.b60)}
+        <div class="note">중기 분면: ${esc(g.q || "-")} · 소속 ${g.n}종목</div></div>
+    </div></div>`;
+}
+
+function rows() {
+  const lg = LONGER[win];
+  const list = [...G].sort((a, b) => b.rs[win] - a.rs[win]);
+  const mx = Math.max(...G.flatMap(g => [Math.abs(g.rs[win]), lg ? Math.abs(g.rs[lg]) : 0]), 0.01);
+  const x = v => 50 + v / mx * 48;           // %, 가운데 50
+  $("rows").innerHTML = list.map((g, i) => {
+    const v = g.rs[win], on = g.g === open;
+    const bar = v >= 0 ? `left:50%;width:${x(v) - 50}%` : `left:${x(v)}%;width:${50 - x(v)}%`;
+    const ghost = lg ? `<span class="ghost" style="left:calc(${x(g.rs[lg])}% - 1px)" title="${LABEL[lg]} ${pp(g.rs[lg])}"></span>` : "";
+    return `<button class="row" aria-expanded="${on}" data-open="${esc(g.g)}">
+        <span class="name"><span class="num" style="color:var(--muted);margin-right:6px">${i + 1}</span>${esc(g.g)}<small>${g.n}</small></span>
+        <span class="track"><span class="mid"></span><span class="bar" style="${bar};background:var(--${v >= 0 ? "up" : "down"})"></span>${ghost}</span>
+        <span class="val num ${cls(v)}">${pp(v)}</span></button>${on ? detail(g) : ""}`;
+  }).join("");
+}
+
+// 흐름 사다리 — 6개월 → 1일 순위
+function ladder() {
+  const order = ["6m", "3m", "1m", "1w", "1d"];
+  const rank = {};
+  for (const k of order) [...G].sort((a, b) => b.rs[k] - a.rs[k]).forEach((g, i) => { (rank[g.g] ||= {})[k] = i + 1; });
+  const W = 720, top = 34, step = 24, H = top + step * (G.length - 1) + 24, L = 40, R = 190;
+  const X = i => L + i * (W - L - R) / (order.length - 1), Y = r => top + (r - 1) * step;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="업종 순위 변화">`;
+  order.forEach((k, i) => {
+    s += `<text x="${X(i)}" y="16" text-anchor="middle" font-size="12" fill="var(--muted)">${LABEL[k]}</text>`;
+    s += `<line x1="${X(i)}" y1="${top - 8}" x2="${X(i)}" y2="${H - 16}" stroke="var(--line)"/>`;
+  });
+  for (let r = 1; r <= G.length; r++) s += `<text x="${L - 14}" y="${Y(r) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" class="num">${r}</text>`;
+  const draw = (g, hot) => {
+    const pts = order.map((k, i) => `${X(i).toFixed(1)},${Y(rank[g.g][k]).toFixed(1)}`).join(" ");
+    const last = rank[g.g]["1d"], c = hot ? "var(--pick)" : "var(--muted)";
+    let o = `<g data-open="${esc(g.g)}" style="cursor:pointer"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${hot ? 3 : 1.2}" opacity="${hot ? 1 : 0.35}" stroke-linejoin="round"/>`;
+    order.forEach((k, i) => { o += `<circle cx="${X(i)}" cy="${Y(rank[g.g][k])}" r="${hot ? 5 : 3}" fill="${c}" opacity="${hot ? 1 : 0.5}"/>`; });
+    o += `<text x="${X(order.length - 1) + 12}" y="${Y(last) + 4}" font-size="12" fill="${hot ? "var(--pick)" : "var(--ink)"}" font-weight="${hot ? 700 : 400}" opacity="${hot ? 1 : 0.8}">${esc(g.g)}</text>`;
+    o += `<rect x="${X(order.length - 1) + 8}" y="${Y(last) - 10}" width="${R - 12}" height="20" fill="transparent"/></g>`;
+    return o;
+  };
+  G.filter(g => g.g !== open).forEach(g => { s += draw(g, false); });
+  const sel = G.find(g => g.g === open);
+  if (sel) s += draw(sel, true);
+  $("ladder").innerHTML = s + "</svg>";
+}
+
+function render() { seg(); rows(); ladder(); }
+glance(); render();
+
+document.addEventListener("click", e => {
+  const w = e.target.closest("[data-win]");
+  if (w) { win = w.dataset.win; try { localStorage.setItem("sector-win", win); } catch (err) {} render(); return; }
+  const o = e.target.closest("[data-open]");
+  if (!o) return;
+  const g = o.dataset.open, fromRow = o.classList.contains("row");
+  open = fromRow && open === g ? null : g;
+  render();
+  if (!fromRow) { const r = document.querySelector(`.row[data-open="${CSS.escape(g)}"]`); if (r) r.scrollIntoView({ behavior: "smooth", block: "center" }); }
+});
+</script>

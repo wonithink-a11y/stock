@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 원본: 이 파일. 비공개 Claude 아티팩트 https://claude.ai/artifact/7QnnHaMLBbbALX2eAY7fvZ 로 게시한다(공개 GitHub Pages 에서는 2026-10-18 내림). 갱신하면 같은 URL 로 다시 게시. -->
 <title>주식 시스템 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* 레이아웃: 위에서 아래로 "어디서 → 어떤 순서로 → 부서별 상세 → 얼마나 엄격한가 → 빈칸" 순서. 기계 세 곳을 색으로 구분한다 */
 /* 2026-10-13 스코어링 대시보드·모의투자·매매 화면과 같은 어두운 팔레트로 맞춤(옛 밝은 녹색 계열·시스템 다크 전환 제거).
@@ -20,7 +17,7 @@
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
-.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: grid; gap: 40px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px; display: grid; gap: 40px; }
 h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
 h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; letter-spacing: -0.01em; }
 h2 { font-size: 21px; font-weight: 700; }
@@ -111,7 +108,7 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
 
 @media (max-width: 760px) {
   .machines, .strict, .gaps { grid-template-columns: 1fr; }
-  .wrap { gap: 32px; padding-inline: 16px; }
+  .wrap { gap: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 }
 
 body { margin: 0; }
@@ -127,7 +124,7 @@ body { margin: 0; }
   .sitenav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 8px 12px; }
   .sitenav::-webkit-scrollbar { display: none; }
   .sitenav a { white-space: nowrap; }
-  .wrap { gap: 22px; padding: 14px 12px 40px; }
+  .wrap { gap: 22px; padding-block: 14px 40px; }
   h1 { font-size: 22px; } h2 { font-size: 17px; } h3 { font-size: 15px; }
   .lede { margin-top: 4px; font-size: 13.5px; }
   .section-head { gap: 3px; margin-bottom: 10px; }
@@ -153,16 +150,6 @@ body { margin: 0; }
   .gapcard p { font-size: 13px; }
 }
 </style>
-</head>
-<body>
-<nav class="sitenav" aria-label="사이트 메뉴">
-  <a href="./">스코어링</a>
-  <a href="paper-trading/">모의투자</a>
-  <a href="system-map.html" aria-current="page">시스템 지도</a>
-  <a class="ext" href="https://wonithink-stock.duckdns.org/autotrader/" target="_blank" rel="noopener noreferrer">매매 ↗</a>
-  <a href="https://claude.ai/artifact/V8PbDHh47YRRbKw6YqHMkk" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">기업 해독(Claude) ↗</a>
-  <a href="https://claude.ai/artifact/2H2dsVmjZSXMzxgtFutHQ5" target="_blank" rel="noopener noreferrer" title="비공개 — 내 Claude 계정 로그인 필요">배당 랠리 검색(Claude) ↗</a>
-</nav>
 <div class="wrap">
 
 <header>
@@ -448,6 +435,3 @@ body { margin: 0; }
 </footer>
 
 </div>
-
-</body>
-</html>
