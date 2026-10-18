@@ -10,9 +10,12 @@
          (docs/control/KIS-목표가-커버리지-프로브-2026-09-21.md — 소형 가치주 91% 결측). 여기선 보여 주기만 한다.
          목표가 없는 종목은 0 이 아니라 status 'none'. 조회 실패는 'error'(교훈 57).
          KIS 키·토큰이 없으면 목표가는 직전 파일 값을 그 asOf 그대로 이어 쓴다(새 값인 척 안 한다).
+  미국   yfinance(키 없음) — latest.json 의 US 종목. 평균·중앙·최고·최저 목표가, 의견 수(매수·보유·매도),
+         최근 180일 증권사별 변경 6건. 출처가 KIS 와 달라(집계 방식·커버 증권사) 두 시장 숫자를 같은 자로 비교하지 않는다.
 
-  python scripts/build-stock-context.py              # 52주 + 목표가
-  python scripts/build-stock-context.py --no-kis     # 52주만(목표가는 직전 값 유지)
+  python scripts/build-stock-context.py              # 52주 + 목표가(국내·미국)
+  python scripts/build-stock-context.py --no-kis     # 국내 목표가는 직전 값 유지(KIS 토큰 발급 안 함)
+  python scripts/build-stock-context.py --no-us      # 미국 목표가는 직전 값 유지
   python scripts/build-stock-context.py --selftest   # 네트워크 없이 요약 로직 확인
 """
 import argparse
@@ -54,6 +57,63 @@ def summarize_targets(rows):
     goals = [g for _, g in latest.values()]
     return {"median": int(statistics.median(goals)), "min": min(goals), "max": max(goals),
             "brokers": len(goals), "lastDate": max(d for d, _ in latest.values())}
+
+
+def summarize_us(apt, rec, ud, today, keep=6):
+    """야후 애널리스트 집계 → 화면용 요약. apt=analyst_price_targets(dict), rec=recommendations 첫 행(dict),
+    ud=[(datetime, firm, grade, target, prior)] 최신순. 평균 목표가가 없으면 None(목표가 없음)."""
+    mean = (apt or {}).get("mean")
+    if not mean or mean != mean:          # None·0·NaN
+        return None
+    num = lambda k: float(apt[k]) if apt.get(k) and apt[k] == apt[k] else None
+    rec = rec or {}
+    buy, hold = int(rec.get("strongBuy", 0) + rec.get("buy", 0)), int(rec.get("hold", 0))
+    sell = int(rec.get("sell", 0) + rec.get("strongSell", 0))
+    cut = today - timedelta(days=WINDOW_DAYS)
+    recent = [[d.strftime("%Y-%m-%d"), f, g, t or None, p or None] for d, f, g, t, p in ud if d >= cut][:keep]
+    return {"mean": round(float(mean), 2), "median": num("median"), "low": num("low"), "high": num("high"),
+            "buy": buy, "hold": hold, "sell": sell, "recent": recent}
+
+
+def fetch_us(ticker, today):
+    """(요약 또는 None, err). 야후 티커는 점 대신 하이픈(BRK.B → BRK-B)."""
+    import yfinance as yf
+    for k in range(3):
+        try:
+            tk = yf.Ticker(ticker.replace(".", "-"))
+            apt = tk.analyst_price_targets
+            r = tk.recommendations
+            rec = r.iloc[0].to_dict() if r is not None and len(r) else {}
+            u = tk.upgrades_downgrades
+            ud = [] if u is None or not len(u) else [
+                (d.to_pydatetime().replace(tzinfo=None), row.Firm, row.ToGrade, float(row.currentPriceTarget or 0),
+                 float(row.priorPriceTarget or 0)) for d, row in u.sort_index(ascending=False).iterrows()]
+            return summarize_us(apt, rec, ud, today.replace(tzinfo=None)), None
+        except Exception as e:
+            err = type(e).__name__
+            time.sleep(2 * (k + 1))
+    return None, err
+
+
+def build_us_targets(us_tickers, workers=4):
+    try:
+        import yfinance  # noqa: F401
+    except ImportError:
+        print("yfinance 없음 — 미국 목표가는 직전 값 유지")
+        return None
+    from concurrent.futures import ThreadPoolExecutor
+    today = datetime.now(KST)
+    with ThreadPoolExecutor(workers) as ex:
+        res = dict(zip(us_tickers, ex.map(lambda t: fetch_us(t, today), us_tickers)))
+    out = {t: ({"status": "error"} if err else {"status": "ok", **s} if s else {"status": "none"}) for t, (s, err) in res.items()}
+    errors = sum(v["status"] == "error" for v in out.values())
+    print(f"미국 목표가: {len(out)}종목 · 있음 {sum(v['status'] == 'ok' for v in out.values())} · 없음 "
+          f"{sum(v['status'] == 'none' for v in out.values())} · 실패 {errors}")
+    if errors / max(1, len(out)) > MAX_ERROR_SHARE:
+        print(f"실패 {errors / len(out):.0%} > {MAX_ERROR_SHARE:.0%} — 이번 미국 목표가 버림, 직전 값 유지")
+        return None
+    return {"asOf": today.strftime("%Y-%m-%d %H:%M KST"), "windowDays": WINDOW_DAYS, "source": "Yahoo Finance",
+            "byTicker": out}
 
 
 def week52(rec):
@@ -165,12 +225,22 @@ def selftest():
     assert week52({"h": [1] * 100, "l": [1] * 100}) is None
     w = week52({"h": [5, 9] * 70, "l": [3, 4] * 70, "d": ["x"] * 140})
     assert (w["high"], w["low"]) == (9, 3), w
+    now = datetime(2026, 10, 18)
+    assert summarize_us({"current": 10, "mean": None}, {}, [], now) is None          # 평균 없음 = 목표가 없음
+    assert summarize_us({"mean": float("nan")}, {}, [], now) is None
+    u = summarize_us({"mean": 12.345, "median": 12, "low": 9, "high": 15},
+                     {"strongBuy": 2, "buy": 3, "hold": 1, "sell": 1, "strongSell": 0},
+                     [(datetime(2026, 10, 1), "A", "Buy", 15.0, 14.0), (datetime(2026, 9, 1), "B", "Hold", 0.0, 0.0),
+                      (datetime(2025, 1, 1), "C", "Buy", 20.0, 0.0)], now)
+    assert (u["mean"], u["buy"], u["hold"], u["sell"]) == (12.35, 5, 1, 1), u
+    assert u["recent"] == [["2026-10-01", "A", "Buy", 15.0, 14.0], ["2026-09-01", "B", "Hold", None, None]], u  # 창 밖 C 제외·0=미제시
     print("selftest OK")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-kis", action="store_true")
+    ap.add_argument("--no-us", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -180,9 +250,11 @@ def main():
     prev = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
     w52 = {t: w for t, rec in prices.items() if (w := week52(rec))}
     targets = None if a.no_kis else build_targets([r["ticker"] for r in latest if r.get("market") == "KR"])
+    us = None if a.no_us else build_us_targets([r["ticker"] for r in latest if r.get("market") == "US"])
     doc = {"generatedAt": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
-           "note": "맥락 표시 전용 — 점수·추천·매매에 쓰지 않는다. 목표가는 KIS 회원 증권사 의견만(컨센서스 아님).",
-           "week52": w52, "targets": targets or prev.get("targets")}
+           "note": "맥락 표시 전용 — 점수·추천·매매에 쓰지 않는다. 국내 목표가는 KIS 회원 증권사 의견만(컨센서스 아님), "
+                   "미국은 야후 파이낸스 애널리스트 집계.",
+           "week52": w52, "targets": targets or prev.get("targets"), "usTargets": us or prev.get("usTargets")}
     OUT.write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"52주 {len(w52)}종목 → {OUT.relative_to(REPO)}")
 

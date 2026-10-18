@@ -1934,12 +1934,12 @@ function decodeSummaryHtml(r, c) {
       if (!w || !px) return decodeTile('52주 위치', '-', '이력 부족', 'neutral');
       const hi = Math.max(w.high, px), lo = Math.min(w.low, px), pos = hi > lo ? (px - lo) / (hi - lo) : null;
       return decodeTile('52주 위치', pos == null ? '-' : Math.round(pos * 100) + '%', `고점 ${fmtPrice(hi, r.market)} 대비 ${((px / hi - 1) * 100).toFixed(1)}%`, 'neutral'); })(),
-    (() => { if (r.market !== 'KR') return decodeTile('증권사 목표가', '-', '국내 종목만', 'neutral');
-      const T = (state.stockContext || {}).targets, t = T && T.byTicker[r.ticker];
-      if (!t) return decodeTile('증권사 목표가', '-', '수집 전', 'neutral');
-      if (t.status !== 'ok') return decodeTile('증권사 목표가', '-', t.status === 'none' ? `최근 ${T.windowDays}일 목표가 없음` : '조회 실패', 'neutral');
-      const up = r.currentPrice ? t.median / r.currentPrice - 1 : null;
-      return decodeTile('증권사 목표가', up == null ? '-' : `${up >= 0 ? '+' : ''}${(up * 100).toFixed(0)}%`, `중앙 ${fmtPrice(t.median, 'KR')} · ${t.brokers}곳${t.brokers < 3 ? '뿐' : ''}`, 'neutral'); })(),
+    (() => { // 목표가가 있는 종목만 칸을 낸다(없음·실패·수집 전은 숨김)
+      const t = targetOf(r); if (!t) return '';
+      const val = r.market === 'US' ? t.mean : t.median, up = r.currentPrice ? val / r.currentPrice - 1 : null;
+      const sub = r.market === 'US' ? `평균 ${fmtPrice(t.mean, 'US')} · 의견 ${t.buy + t.hold + t.sell}명(매수 ${t.buy}·보유 ${t.hold}·매도 ${t.sell})`
+        : `중앙 ${fmtPrice(t.median, 'KR')} · ${t.brokers}곳${t.brokers < 3 ? '뿐' : ''}`;
+      return decodeTile(r.market === 'US' ? '월가 목표가' : '증권사 목표가', up == null ? '-' : `${up >= 0 ? '+' : ''}${(up * 100).toFixed(0)}%`, sub, 'neutral'); })(),
     decodeTile('다음 일정', c.next ? (c.next.d === 0 ? '오늘' : 'D-' + c.next.d) : '-', c.next ? `${c.next.date.slice(5)} ${esc(c.next.title)}` : '수집된 일정 없음', c.next && c.next.d <= R.soonDays ? 'mid' : 'neutral'),
   ].join('');
 
@@ -1953,7 +1953,24 @@ function decodeSummaryHtml(r, c) {
 
   return `<div style="padding:10px 12px;border-radius:10px;background:rgba(148,163,184,.12);line-height:1.6;margin-bottom:10px">${esc(decodeHeadline(r, c))}</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">${tiles}</div>
-    ${finRow}${report}`;
+    ${finRow}${usTargetHtml(r)}${report}`;
+}
+
+// 목표가 — stock-context.json 의 targets(국내 KIS)·usTargets(미국 야후). 있는 종목만 객체, 나머지 null.
+function targetOf(r) {
+  const T = (state.stockContext || {})[r.market === 'US' ? 'usTargets' : 'targets'], t = T && T.byTicker[r.ticker];
+  return t && t.status === 'ok' ? t : null;
+}
+function usTargetHtml(r) {
+  const t = r.market === 'US' && targetOf(r); if (!t) return '';
+  const td = 'padding:4px 2px;font-size:12px;vertical-align:top';
+  const rows = (t.recent || []).map(([d, firm, grade, tp, prior]) => `<tr><td class="muted" style="${td};white-space:nowrap">${d.slice(5)}</td>
+    <td style="${td}">${esc(firm)} <span class="muted">${esc(grade || '')}</span></td>
+    <td style="${td};text-align:right;white-space:nowrap">${tp == null ? '<span class="muted">미제시</span>' : fmtPrice(tp, 'US')}${prior != null && tp != null && prior !== tp ? `<br><span class="muted">(${fmtPrice(prior, 'US')})</span>` : ''}</td></tr>`).join('');
+  const asOf = ((state.stockContext || {}).usTargets || {}).asOf || '';
+  return `<details style="margin-top:8px;font-size:12px"><summary>월가 목표가 범위 ${fmtPrice(t.low, 'US')} ~ ${fmtPrice(t.high, 'US')}${rows ? ` · 최근 변경 ${t.recent.length}건` : ''}</summary>
+    ${rows ? `<table style="width:100%;margin-top:6px;border-collapse:collapse">${rows}</table>` : ''}
+    <div class="muted" style="font-size:11px;margin-top:4px">야후 파이낸스 애널리스트 집계 · ${esc(asOf)} — 맥락용, 점수·매매에 안 쓴다. 괄호는 직전 목표가.</div></details>`;
 }
 
 // 지분·이벤트 — Actions stock-events 가 매일 쓰는 docs/data/stock-events.json(DART majorstock·elestock·주요 공시 1년).

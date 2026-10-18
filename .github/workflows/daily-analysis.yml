@@ -75,7 +75,7 @@ jobs:
         env:
           KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
           KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
-        run: pip install --quiet requests && python scripts/build-stock-context.py
+        run: pip install --quiet requests yfinance && python scripts/build-stock-context.py
 
       - name: Notify (telegram/slack)
         continue-on-error: true   # 알림 실패가 파이프라인을 죽이지 않도록
