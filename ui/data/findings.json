@@ -1,6 +1,31 @@
 {
-  "count": 579,
+  "count": 580,
   "findings": [
+    {
+      "file": "research/strategy-lab/findings/upbit-krw-listing-forward-preregistration-2026-10.md",
+      "title": "업비트 원화 신규 상장 뒤 7일 숏 — forward 기록 사전등록 (2026-10-18)",
+      "date": "2026-10-18",
+      "bodyMarkdown": "---\ntrack: crypto\nfactor: upbit-krw-listing-forward\ndate: 2026-10-18\nverdict: PREREGISTERED\ncriteria_version: research-only (기록 전용 — 매매·점수 불사용)\nconditions: [\"동결 2026-10-18, 사건 = 그 뒤 새로 생긴 업비트 원화 시장(첫 일봉 D0 ≥ 2026-10-19 UTC), 동결 시점 시장 목록은 baseline_markets.json\", \"F1 = U1 그대로(바이낸스 현물 D0 종가 숏 → D0+7 종가, −(코인 − BTC)) · F2 = D0 종가에 바이낸스 USDT 무기한이 있던 사건만, 무기한 가격 + 7일 펀딩(숏 수취)\", \"관측 = 같은 D0 평균, t 는 D0 의 UTC 주 평균으로 계산(7일 창 겹침 완화), 바닥선 t ≥ 2.0(2셀 단측 본페로니)\", \"1차 판정: 상장일 60개 또는 2027-10-19 이후 30개 · INCONCLUSIVE 면 최종: 120개 또는 2028-10-19 이후 30개\", \"비용 왕복 10bp · 스트레스 20bp\"]\nreason: >-\n  신호: (미측정) · 경제성: (미측정). 과거 연구(upbit-krw-listing, 커밋 d08bf6df)는 U1 TRAIN t 2.36 < 바닥선 2.49 로 REJECT 였으나\n  VALID·TEST 초과 +11.5%·+14.0%(TEST t 8.5)·9개 연도 모두 양이다. 같은 표본 재판정은 금지라 앞으로의 상장으로만 다시 묻는다.\n  과거 연구가 재지 못한 실행 가능성(무기한 존재·펀딩)을 함께 기록한다.\n---\n\n# 업비트 원화 신규 상장 뒤 7일 숏 — forward 기록 사전등록 (2026-10-18)\n\n> **동결.** 이 문서와 `run_upbit_listing_forward.py` 는 같은 커밋에서 들어가고, 그 뒤 정의·셀·판정 시점·바닥선·비용을 바꾸지 않는다.\n> 기록 전용이다 — 모의 슬리브·실주문·점수에 쓰지 않는다. 판정이 KEEP 쪽으로 나와도 실행은 별도 사전등록·사용자 GO 다.\n\n## 0. 배경\n\n- 과거 연구: `upbit-krw-listing-preregistration-2026-10.md`(ab71638c) → `-results-2026-10.md`(d08bf6df). U1 = 상장일 D0 바이낸스 현물 종가 숏 → D0+7 종가, BTC 대비.\n  TRAIN(2018~21) 상장일 16개라 t 2.36 으로 문턱 2.49 를 근소하게 놓쳤다. 같은 표본으로 문턱·구간을 바꿔 재판정하지 않는다(결과 §6).\n- 과거 연구가 못 잰 것(결과 §3 ①~⑤): ① 무기한 존재 ② 펀딩 ③ 업비트 공지·거래 시작 시각과 D0 종가의 간격 ④ 폐지 시장 생존편향 ⑤ 7일 창 겹침.\n  이 기록은 ①②를 사건마다 재고, ④는 앞으로의 상장이라 '상장 뒤 8일 안 폐지'만 남는다(§1), ⑤는 주 단위 t 로 완화한다. ③은 여전히 못 잰다.\n- 전 구간이 2026-10~ 다 — 시기 분리 규칙의 세 칸(2016~23 / 2024 / 2025~)은 전부 2025~ 칸에 들어간다. 결과 표에는 연도별 칸을 더한다. 반도체 제외 줄은 해당 없음(크립토).\n\n## 1. 사건\n\n- 동결 시점(첫 실행 2026-10-18) 업비트 `market/all` 의 원화 시장 목록을 `reports/2026-10-upbit-listing-forward/baseline_markets.json` 에 저장한다. 그 목록에 없는 원화 시장만 본다.\n- D0 = 업비트 원화 일봉 첫 봉의 UTC 날짜(과거 연구와 같음). **D0 ≥ 2026-10-19** 만 사건. 그보다 앞이면 `before_freeze` 로 기록하고 판정에서 뺀다.\n- 성숙: 실행 시점 UTC 날짜 ≥ D0+8(D0+7 종가 확정). 그 전엔 기록하지 않고 '대기'로 센다. 시장 하나당 한 줄, 다시 쓰지 않는다.\n- 생존편향 잔여: 업비트 API 는 폐지 시장을 주지 않는다 — 다음 실행 전에 폐지되면 사건이 빠진다. 월 1회 실행이면 상장 뒤 한 달 안 폐지만 놓친다(드묾).\n\n## 2. 사건마다 기록 (공개 API, 키 없음)\n\n| 칸 | 정의 |\n|---|---|\n| status | `used` · `before_freeze` · `no_spot`(바이낸스 USDT 현물 없음) · `not_prior`(현물 첫 봉 > D0−1) · `price_mismatch`(과거 연구 §1 가격 대조 0.7~1.4 밖) · `missing_price` |\n| U1_raw · U1_ex | 바이낸스 현물 D0 종가 → D0+7 종가, 숏 원수익 −코인 · 초과 −(코인 − BTCUSDT), bp. 과거 연구 `event()` 그대로 |\n| perp_symbol · perp_onboard | 바이낸스 USDⓈ-M `exchangeInfo` 의 `XUSDT`·`1000XUSDT`·`1000000XUSDT` 무기한, `onboardDate`(UTC) |\n| perp_at_d0 | onboardDate < D0+1 00:00 UTC(= D0 종가에 숏을 열 수 있었다) |\n| perp_raw · perp_ex | 무기한 일봉 D0 종가 → D0+7 종가로 같은 계산(BTC 는 현물) |\n| funding_bp · funding_n | `fundingRate` 중 시각이 [D0+1 00:01, D0+8 00:01) UTC 인 것의 합 × 1e4(숏이 받는 쪽 +), 건수 |\n| pump_d0 · pre_7_1 | 기록 전용 — D0−1 → D0, D0−7 → D0−1 초과(코인 − BTC), bp |\n| recorded_at | 기록 시각 KST |\n\n## 3. 판정 셀 (방향 숏, 결과 전 고정)\n\n| 셀 | 표본 | 값 |\n|---|---|---|\n| F1 | status = used | 초과 U1_ex · 원수익 U1_raw |\n| F2 | used ∧ perp_at_d0 ∧ 무기한 가격 있음 | 초과 perp_ex + funding_bp · 원수익 perp_raw + funding_bp |\n\n- 관측 = 같은 D0 의 코인 평균(상장일 하나 = 한 관측). 건수 문턱은 이 상장일 수로 센다.\n- t = 상장일 관측을 D0 의 UTC 주(월~일)로 다시 평균한 주 관측의 t. 7일 창 겹침이 남아 있어 t 는 여전히 다소 과대일 수 있다.\n- 바닥선 **t ≥ 2.0**(2셀 단측 α 0.025). 과거 표본 바닥선(2.49)은 TRAIN 부호반전 귀무였고 여기서는 방향이 이미 정해진 단측 검정이다.\n- **REJECT**: 초과 평균 ≤ 0. **INFORMATION**: t ≥ 2.0. **ECONOMIC**: INFORMATION ∧ (초과 − 비용 > 0 ∧ 원수익 − 비용 > 0) 을 10bp·20bp 둘 다.\n  **ROBUST**: ECONOMIC ∧ 주 관측 (초과 − 10bp) t ≥ 2.0. **INCONCLUSIVE**: 초과 > 0 ∧ t < 2.0.\n- 셀 표본 미달: F1 상장일 < 30 또는 F2 상장일 < 20 → 그 셀 `판정불가`. F2 판정불가는 \"숏을 열 수단이 있던 상장이 적다\" 자체가 결론이다.\n- 결과 표: 상장일 수 · 주 수 · 초과·원수익 bp · 주 관측 부트스트랩 95% 구간 · net(10·20bp) · 손익분기 · 연도별 · F2 커버리지(perp_at_d0 비율)·펀딩 평균.\n\n## 4. 판정 시점 (코드가 그 전엔 거부)\n\n- **1차**: F1 상장일 ≥ 60, 또는 2027-10-19 이후 ∧ F1 상장일 ≥ 30. 둘 중 먼저. (2025~ 상장 속도 연 ~40일이면 ≈ 2027-10~2028-04.)\n- **최종**(1차에서 어느 셀이든 INCONCLUSIVE·판정불가일 때만): F1 상장일 ≥ 120, 또는 2028-10-19 이후 ∧ ≥ 30. 최종에서 INCONCLUSIVE 는 '근거 없음'으로 종결.\n- 판정은 단계마다 1회, `judge-1.json`·`judge-2.json` 으로 남는다. 1차가 INCONCLUSIVE 아닌 판정을 냈으면 최종은 없다.\n- 2028-10-19 이후에도 상장일 < 30 이면 `판정불가` 로 종결.\n\n## 5. 현실적 기대\n\n과거 OOS 상장일당 표준편차 ≈ 15%, 초과 +14% 가 유지되면 30개만으로 t 가 넉넉히 넘는다 — F1 은 효과가 남아 있으면 쉽게 INFORMATION 이 나온다.\n진짜 질문은 F2 다: 상장 초기 소형 코인은 무기한이 없거나(그러면 판정불가), 상장 펌핑 뒤 숏이 몰려 펀딩이 크게 음(숏이 낸다)일 수 있다.\n알려진 이야기('업비트 상장 펌핑 뒤 하락')라 차익이 이미 줄었을 가능성도 크다.\n\n## 6. 하지 않는 것\n\n창(7일) 변경, 진입 시각 변경(공지 시각 등), 시총·거래대금·펌핑 크기 필터, 결과 뒤 코인·연도 제외, 중간 판정, 비용 재조정,\n과거 표본과 합쳐 판정, 결과로 모의 슬리브·실주문 만들기.\n\n## 7. 실행\n\n```\npython research/strategy-lab/run_upbit_listing_forward.py            # 증분 기록(건수만 출력)\npython research/strategy-lab/run_upbit_listing_forward.py --selftest # 네트워크 없음\npython research/strategy-lab/run_upbit_listing_forward.py --judge    # §4 시점 전엔 거부\n```\n\n월간 점검 때 1회 실행 후 `reports/2026-10-upbit-listing-forward/` 를 커밋한다. 실행 간격이 짧을수록 '상장 뒤 곧 폐지' 누락이 준다.\n",
+      "category": null,
+      "track": "crypto",
+      "verdict": "UNCLASSIFIED",
+      "original_verdict": "PREREGISTERED",
+      "criteria_version": "research-only (기록 전용 — 매매·점수 불사용)",
+      "conditions": [
+        "동결 2026-10-18, 사건 = 그 뒤 새로 생긴 업비트 원화 시장(첫 일봉 D0 ≥ 2026-10-19 UTC), 동결 시점 시장 목록은 baseline_markets.json",
+        "F1 = U1 그대로(바이낸스 현물 D0 종가 숏 → D0+7 종가, −(코인 − BTC)) · F2 = D0 종가에 바이낸스 USDT 무기한이 있던 사건만, 무기한 가격 + 7일 펀딩(숏 수취)",
+        "관측 = 같은 D0 평균, t 는 D0 의 UTC 주 평균으로 계산(7일 창 겹침 완화), 바닥선 t ≥ 2.0(2셀 단측 본페로니)",
+        "1차 판정: 상장일 60개 또는 2027-10-19 이후 30개 · INCONCLUSIVE 면 최종: 120개 또는 2028-10-19 이후 30개",
+        "비용 왕복 10bp · 스트레스 20bp"
+      ],
+      "reason": "신호: (미측정) · 경제성: (미측정). 과거 연구(upbit-krw-listing, 커밋 d08bf6df)는 U1 TRAIN t 2.36 < 바닥선 2.49 로 REJECT 였으나 VALID·TEST 초과 +11.5%·+14.0%(TEST t 8.5)·9개 연도 모두 양이다. 같은 표본 재판정은 금지라 앞으로의 상장으로만 다시 묻는다. 과거 연구가 재지 못한 실행 가능성(무기한 존재·펀딩)을 함께 기록한다.",
+      "cagr": null,
+      "sharpe": null,
+      "mdd": null,
+      "win_rate": null,
+      "n": null,
+      "t_stat": null
+    },
     {
       "file": "research/strategy-lab/findings/upbit-krw-listing-preregistration-2026-10.md",
       "title": "업비트 원화 신규 상장 뒤 되돌림 — 사전등록 (2026-10-18)",
