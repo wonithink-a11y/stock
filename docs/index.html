@@ -3255,11 +3255,43 @@ function surgeClusterCard() {
   </div>`;
 }
 
+// 시장 심리 맥락 — Actions market-breadth 가 쓰는 docs/data/market-breadth.json. 항목별 '10년 중 위치'만, 합산 점수 없음.
+// 매매 신호 아님: 공포·변동성 타이밍 규칙은 이 저장소에서 근거가 없었다(fear-position-sizing-overlay-2026-08 등).
+function marketBreadthCard() {
+  if (state.heatMarket !== 'KR') return '';
+  if (state.marketBreadth === undefined && !state._mbLoading) {
+    state._mbLoading = true;
+    loadJson('market-breadth').then(d => {
+      state.marketBreadth = d || null; state._mbLoading = false;
+      const c = document.getElementById('breadthCard');
+      if (c && state.tab === 'sector') c.outerHTML = marketBreadthCard();
+    });
+  }
+  const d = state.marketBreadth;
+  if (!d) return '<div class="card" id="breadthCard" style="display:none"></div>';
+  const spark = s => {
+    const lo = Math.min(...s), hi = Math.max(...s), w = 120, h = 28;
+    const pts = s.map((v, i) => `${(i / (s.length - 1) * w).toFixed(1)},${(h - (hi > lo ? (v - lo) / (hi - lo) : .5) * h).toFixed(1)}`).join(' ');
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><polyline points="${pts}" fill="none" stroke="#60a5fa" stroke-width="1.5"/></svg>`;
+  };
+  const tile = it => `<div style="background:rgba(148,163,184,.08);border-radius:10px;padding:10px">
+    <div class="muted" style="font-size:12px">${esc(it.label)}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:6px;margin-top:2px">
+      <div><div style="font-size:20px;font-weight:700">${esc(it.value)}</div><div class="muted" style="font-size:11px">${esc(it.sub)}</div></div>${spark(it.series)}</div>
+    <div style="margin-top:8px;height:6px;background:rgba(148,163,184,.25);border-radius:3px;position:relative">
+      <div style="position:absolute;left:calc(${it.pct}% - 5px);top:-3px;width:10px;height:12px;border-radius:3px;background:#60a5fa"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px" class="muted">
+      <span>최저 ${esc(it.min)}</span><span>10년 중 <strong style="color:inherit">${it.pct}%</strong> 위치 · 중앙 ${esc(it.median)}</span><span>최고 ${esc(it.max)}</span></div></div>`;
+  return `<div class="card" id="breadthCard"><h2 style="margin:0 0 4px">시장 상태 <span class="muted" style="font-weight:400;font-size:13px">KRX ${esc(d.asOf)} 종가 · ${esc(d.since)} 이후 ${d.days.toLocaleString()}거래일 중 위치</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:8px">${d.items.map(tile).join('')}</div>
+    <div class="muted" style="font-size:11px;margin-top:6px">코스피+코스닥 보통주(폐지 종목 포함). 위치 = 이력 중 오늘 값 이하인 날의 비율. 그래프는 최근 1년. 합산 점수 없음 — 매매 신호가 아니라 맥락이다.</div></div>`;
+}
+
 const SECTOR_SUBS = [['heat', '히트맵'], ['tree', '테마 트리'], ['sens', '민감도'], ['rs', '상대강도']];
 function renderSectorTab() {
   const bar = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${SECTOR_SUBS.map(([k, l]) =>
     `<button class="chip${state.sectorSub === k ? ' active' : ''}" data-secsub="${k}">${l}</button>`).join('')}</div>`;
-  const f = { heat: () => surgeClusterCard() + marketHeatmap(state.sectorStrength || {}), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
+  const f = { heat: () => marketBreadthCard() + surgeClusterCard() + marketHeatmap(state.sectorStrength || {}), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
   return bar + (f() || '<div class="card empty">데이터가 아직 없습니다.</div>');
 }
 

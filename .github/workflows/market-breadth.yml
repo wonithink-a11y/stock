@@ -1,0 +1,62 @@
+name: market-breadth
+
+# 국내 시장 상태 4항목(상승 종목 비율·200일선 위 비율·52주 신고가/신저가·코스피 실현 변동성)
+# -> docs/data/market-breadth.json + data/market-breadth/history.json (scripts/build-market-breadth.py).
+# 맥락 표시 전용 — 합산 점수 없음, 매매 신호 아님.
+# 최근 320거래일 패널은 Actions 캐시에 둔다. 캐시가 비면(7일 미사용 등) KRX 에서 약 640콜로 다시 받는다.
+# KRX 는 당일분을 저녁에 올린다 — market-movers 와 같이 20:20 · 다음 날 08:50 KST 두 번 시도, 새 날이 없으면 커밋 안 함.
+
+on:
+  schedule:
+    - cron: '20 11 * * 1-5'   # 20:20 KST
+    - cron: '50 23 * * 0-4'   # 08:50 KST (월~금)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-breadth
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install --quiet pandas pyarrow
+
+      - uses: actions/cache@v4
+        with:
+          path: .cache/market-breadth
+          key: market-breadth-${{ github.run_id }}
+          restore-keys: market-breadth-
+
+      - name: Selftest
+        run: python scripts/build-market-breadth.py --selftest
+
+      - name: Build
+        env:
+          KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: python scripts/build-market-breadth.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 화면 파일은 이력에서만 나온다(시각 필드 없음) — 새 거래일이 없으면 둘 다 바이트 동일해 커밋 안 함
+          git add data/market-breadth/history.json docs/data/market-breadth.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update market-breadth (시장 상태 맥락)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
