@@ -26,7 +26,9 @@ CUSIP→티커: OpenFIGI 무료(키 없음 25회/분·회당 10건) → data/us-
 
   python scripts/build-us-13f.py --selftest       # 네트워크 없음
   python scripts/build-us-13f.py                  # raw 의 zip 전부 → 최신 완결 분기 P 와 P-1 비교
-  env: SEC_USER_AGENT 는 zip 을 새로 받을 때만 필요하다(이 스크립트는 받지 않는다 — curl 로 raw/ 에 둔다).
+  python scripts/build-us-13f.py --fetch          # SEC 목록에서 최신 4개 zip 을 먼저 받는다(없는 것만, 옛 것은 지움)
+  env: SEC_USER_AGENT (--fetch 때만 — SEC 는 연락처 없는 요청을 막는다, .env / Actions secret)
+  Actions: .github/workflows/us-13f.yml (분기, CUSIP 캐시는 actions/cache).
 """
 import argparse
 import glob
@@ -70,6 +72,28 @@ def norm_ticker(t):
     return (t or "").upper().replace("/", ".").replace("-", ".")
 
 
+def effective_tickers(cmap):
+    """CUSIP → 쓸 티커. 확정 매핑은 그대로. None·추정(fb)은 같은 발행사(앞 6자리)의 확정 티커가 하나뿐이면 그걸,
+    아니면 추정 티커를(확정 쪽에 같은 티커가 없을 때만), 둘 다 아니면 뺀다.
+    실측: HON 438516106(옛)→None 과 438516205(새)→HON, DD 26614N102→'DDUSD'(추정) 과 26614N201→DD."""
+    sure = {c: m["t"] for c, m in cmap.items() if m and not m.get("fb") and m["t"]}
+    by_issuer = {}
+    for c, t in sure.items():
+        by_issuer.setdefault(c[:6], set()).add(t)
+    key = lambda n: re.sub(r"[^A-Z0-9]", "", (n or "").upper())[:5]
+    name_of = {t: key(cmap[c].get("n")) for c, t in sure.items()}
+    out = dict(sure)
+    for c, m in cmap.items():
+        if c in sure:
+            continue
+        ts = by_issuer.get(c[:6], set())
+        if len(ts) == 1:
+            out[c] = next(iter(ts))
+        elif m and m.get("t") and (m["t"] not in name_of or name_of[m["t"]] == key(m.get("n"))):
+            out[c] = m["t"]     # 추정 티커가 확정 티커와 겹치면 회사 이름 앞 5자가 같을 때만(XOM 지주회사 재편 실측)
+    return out
+
+
 def flow(prev, cur):
     """종목 하나의 두 분기 비교. prev/cur: {cik: shares}, 두 분기 모두 제출한 기관만 넣는다."""
     new = sum(1 for c in cur if c not in prev)
@@ -109,7 +133,14 @@ def selftest():
     oke = [{"ticker": "OKEEUR"}, {"ticker": "OKE"}, {"ticker": "ONKLUSD"}]
     assert pick_figi([], oke) == {"t": "OKE", "n": None, "ty": None, "fb": True}
     assert pick_figi([], [{"ticker": "J5A"}]) is None and pick_figi([], []) is None
-    print("selftest ok (11)")
+    cm = {"438516205": {"t": "HON"}, "438516106": None, "26614N201": {"t": "DD"}, "26614N102": {"t": "DDUSD", "fb": True},
+          "02079K305": {"t": "GOOGL"}, "02079K107": {"t": "GOOG"}, "02079K999": None, "68268010X": {"t": "OKE", "fb": True},
+          "30233Q108": {"t": "XOM", "n": "EXXONMOBIL HOLDINGS CORP"}, "30231G102": {"t": "XOM", "n": "EXXON MOBIL CORP", "fb": True},
+          "99999X100": {"t": "XOM", "n": "XOMA ROYALTY", "fb": True}}
+    e = effective_tickers(cm)
+    assert e["438516106"] == "HON" and e["26614N102"] == "DD" and "02079K999" not in e and e["68268010X"] == "OKE"
+    assert e["30231G102"] == "XOM" and "99999X100" not in e
+    print("selftest ok (12)")
 
 
 def ymd(s):  # '30-JUN-2026' → '2026-06-30'
@@ -185,6 +216,33 @@ def figi_post(cusips, us_only):
             time.sleep(30)
 
 
+def fetch_latest(n=4):
+    import os
+    ua = os.environ.get("SEC_USER_AGENT")
+    if not ua:
+        raise SystemExit("SEC_USER_AGENT 가 필요하다(--fetch)")
+    get = lambda u: urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": ua}), timeout=300)
+    page = get("https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets").read().decode("utf-8", "replace")
+    links = list(dict.fromkeys(re.findall(r'href="(/files/[^"]+_form13f\.zip)"', page)))[:n]   # 페이지가 최신순
+    if len(links) < n:
+        raise SystemExit(f"SEC 목록에서 zip 링크를 {len(links)}개만 찾았다 — 페이지 구조 변경?")
+    RAW.mkdir(parents=True, exist_ok=True)
+    keep = {l.rsplit("/", 1)[1] for l in links}
+    for l in links:
+        f = RAW / l.rsplit("/", 1)[1]
+        if not f.exists():
+            print(f"  받기 {f.name}")
+            tmp = f.with_suffix(".part")
+            with get("https://www.sec.gov" + l) as r, open(tmp, "wb") as w:
+                while chunk := r.read(1 << 20):
+                    w.write(chunk)
+            tmp.rename(f)
+            time.sleep(1)
+    for f in RAW.glob("*_form13f.zip"):
+        if f.name not in keep:
+            f.unlink()
+
+
 def figi_map(cusips):
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     todo = sorted(c for c in cusips if c not in cache)
@@ -208,9 +266,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--fetch", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if a.fetch:
+        fetch_latest()
 
     sub, cov, info = load_raw()
     byp = filings_by_period(sub, cov)
@@ -283,23 +344,28 @@ def main():
             targets[norm_ticker(t["code"])] = t.get("name")
     for t, n in KR_ADR.items():
         targets.setdefault(t, n)
-    t2c = {}
-    for c, m in cmap.items():
-        if m and m["t"] in targets and (m["t"] not in t2c or holders.get(c, 0) > holders.get(t2c[m["t"]], 0)):
-            t2c[m["t"]] = c
+    # 티커 하나에 CUSIP 여럿을 합친다 — 분사·재상장·본사 이전으로 CUSIP 이 바뀌면(HON·DD·CCL, 2026 실측)
+    # CUSIP 하나만 보면 '기관 2,000곳 신규'로 나온다. 추정 티커(fb)는 확정 CUSIP 이 없을 때만 쓴다.
+    # 옛 CUSIP 은 OpenFIGI 가 미국 상장을 못 주므로(None·추정) 같은 발행사 앞 6자리의 확정 티커를 물려받는다
+    eff = effective_tickers(cmap)
+    t2cs = {}
+    for c, t in eff.items():
+        if t in targets:
+            t2cs.setdefault(t, set()).add(c)
     hq = {p: hold[hold.period == p] for p in full}
+    by_t = lambda p, cs: hq[p][hq[p].CUSIP.isin(cs)].groupby("cik").agg(shares=("shares", "sum"), value=("value", "sum"))
     stocks = {}
-    for t, c in sorted(t2c.items()):
-        series = []
-        for p in full:
-            g = hq[p][hq[p].CUSIP == c]
-            series.append({"q": p, "holders": int(g.cik.nunique()), "shares": int(g.shares.sum()), "value": round(float(g.value.sum()))})
-        gc, gp = hq[P][hq[P].CUSIP == c], hq[P1][hq[P1].CUSIP == c]
-        cur = {k: v for k, v in zip(gc.cik, gc.shares) if k in both}
-        prv = {k: v for k, v in zip(gp.cik, gp.shares) if k in both}
+    for t, cs in sorted(t2cs.items()):
+        g = {p: by_t(p, cs) for p in full}
+        series = [{"q": p, "holders": len(g[p]), "shares": int(g[p].shares.sum()), "value": round(float(g[p].value.sum()))} for p in full]
+        cur = {k: v for k, v in g[P].shares.items() if k in both}
+        prv = {k: v for k, v in g[P1].shares.items() if k in both}
         f = flow(prv, cur)
         f["sharesPct"] = round(sum(cur.values()) / sum(prv.values()) - 1, 4) if prv else None
-        stocks[t] = {"name": targets[t], "issuer": (cmap[c] or {}).get("n"), "series": series, "flow": f,
+        # 직전 분기 보유가 이번의 20% 미만 = 새로 상장·분사, 또는 못 이은 CUSIP 변경(CCL 본사 이전 실측) — 신규 수가 의미 없다
+        f["break"] = len(prv) < 0.2 * len(cur)
+        top = max(cs, key=lambda c: holders.get(c, 0))
+        stocks[t] = {"name": targets[t], "issuer": (cmap[top] or {}).get("n"), "series": series, "flow": f,
                      "kr": t in KR_ADR}
     missing = sorted(set(targets) - set(stocks))
 

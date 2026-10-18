@@ -1,0 +1,61 @@
+name: us-13f
+
+# SEC 13F 분기 보유 → docs/data/us-13f.json (대시보드 시장·섹터 > 미국 기관(13F)). 맥락 표시 전용 — 점수·매매 불사용.
+# scripts/build-us-13f.py --fetch — SEC Form 13F Data Sets 최신 4개 zip(약 370MB, 매 실행 새로 받음).
+# SEC 는 2·5·8·11월 말까지의 제출분을 그 직후 올린다 → 3·6·9·12월 10일, 늦게 올라올 때를 대비해 25일에 한 번 더.
+# 바뀐 게 없으면 커밋하지 않는다.
+# CUSIP→티커(OpenFIGI, 키 없음 25회/분)는 actions/cache 로 이어 쓴다. 캐시가 비면 7천여 건에 약 100분이다.
+# 캐시는 7일 동안 안 쓰면 GitHub 가 지운다 — 분기 실행이라 매번 비어 있을 수 있다(그래서 timeout 240).
+
+on:
+  schedule:
+    - cron: '0 1 10,25 3,6,9,12 *'   # 10:00 KST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: us-13f
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install pandas
+
+      - name: Restore CUSIP map
+        uses: actions/cache@v4
+        with:
+          path: data/us-13f/cusip-map.json
+          key: us13f-cusip-${{ github.run_id }}
+          restore-keys: us13f-cusip-
+
+      - name: Build 13F
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          PYTHONIOENCODING: utf-8
+        run: python -u scripts/build-us-13f.py --fetch
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/us-13f.json
+          git diff --staged --quiet && exit 0
+          # builtAt 만 바뀐 실행(25일 재실행에 새 zip 이 없을 때)은 커밋하지 않는다. HEAD 에 파일이 없으면 비교가 실패해 커밋한다
+          if python -c "import json,subprocess as s;o=json.loads(s.check_output(['git','show','HEAD:docs/data/us-13f.json']));n=json.load(open('docs/data/us-13f.json',encoding='utf-8'));[d['meta'].pop('builtAt',None) for d in (o,n)];exit(o!=n)"; then echo "builtAt 만 바뀜"; exit 0; fi
+          git commit -m "chore: update docs/data/us-13f.json (13F)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

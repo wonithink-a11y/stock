@@ -38,6 +38,8 @@ on:
       # 2026-10-13 - 장 마감 리포트 전달. 실패하면 그날 리포트가 안 온다(콘텐츠지만 전달 장애라 넣는다)
       - market-report-telegram
       - Update macro.json
+      # 2026-10-18 - 분기 1~2회라 실패를 놓치면 석 달 낡는다
+      - us-13f
       - ETF/ETN daily snapshot (KIS)
       - Stock flows update (per-stock 수급 tab)
       - Update fundamentals (DART)

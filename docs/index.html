@@ -3246,6 +3246,73 @@ function renderSectorTab() {
   return bar + (f() || '<div class="card empty">데이터가 아직 없습니다.</div>');
 }
 
+// ---------- 미국 기관(13F): Actions us-13f 가 분기마다 쓰는 docs/data/us-13f.json — 맥락 전용 ----------
+// A 종목별 흐름(제출 기관 전체 합산) · B 집중 운용사(규칙 b-1.0 으로 고른 30곳). 신규/이탈은 두 분기 모두 낸 기관만 센다.
+const u13 = { data: null, loading: false, sub: 'flow', adr: false, sort: 'net' };
+const usd = v => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : `$${Math.round(v / 1e6).toLocaleString()}M`;
+function renderUs13f() {
+  if (!u13.data) {
+    if (!u13.loading) {
+      u13.loading = true;
+      loadJson('us-13f').then(d => { u13.data = d || { missing: true }; if (state.tab === 'us13f') render(); });
+    }
+    return '<div class="card empty">불러오는 중…</div>';
+  }
+  const d = u13.data;
+  if (d.missing) return '<div class="card empty">13F 데이터가 아직 없습니다.</div>';
+  const m = d.meta, [P1, P] = m.compare, ft = m.filedThrough;
+  const head = `<div class="card"><b>기준 ${esc(P)}</b> <span class="muted">(분기 말) · ${esc(ft.slice(0, 4))}-${esc(ft.slice(4, 6))}-${esc(ft.slice(6))} 제출분까지 · 제출 기관 ${fmtNum(m.filers[P])}곳 · ${esc(P1)} 대비 · 분기 말 45일 뒤 공개되는 롱 보유</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${[['flow', '종목별 흐름'], ['mgr', '집중 운용사']].map(([k, l]) =>
+      `<button class="chip${u13.sub === k ? ' active' : ''}" data-u13="sub:${k}">${l}</button>`).join('')}</div></div>`;
+  return head + (u13.sub === 'mgr' ? us13fManagers(d) : us13fFlow(d));
+}
+function us13fFlow(d) {
+  const key = { net: s => s.flow.break ? -1e9 : s.flow.new - s.flow.exit, shares: s => s.flow.break ? -1e9 : s.flow.sharesPct ?? -9, holders: s => s.series.at(-1).holders };
+  const rows = Object.entries(d.stocks).filter(([, s]) => !u13.adr || s.kr)
+    .sort((a, b) => key[u13.sort](b[1]) - key[u13.sort](a[1])).map(([t, s]) => {
+      const f = s.flow, net = f.new - f.exit, sp = f.sharesPct;
+      return `<tr><td><b>${esc(t)}</b> <span class="muted">${esc(s.name || s.issuer)}</span></td>
+        <td style="text-align:right">${fmtNum(s.series.at(-1).holders)}</td>
+        <td class="muted" style="white-space:nowrap">${s.series.map(x => fmtNum(x.holders)).join(' → ')}</td>
+        ${f.break ? '<td colspan="5" class="muted">직전 분기와 이어지지 않음(신규 상장·CUSIP 변경)</td></tr>' : `<td style="text-align:right">${f.new}</td><td style="text-align:right">${f.exit}</td>
+        <td style="text-align:right" class="${net > 0 ? 'pos' : net < 0 ? 'neg' : 'muted'}">${net > 0 ? '+' : ''}${net}</td>
+        <td style="text-align:right;white-space:nowrap"><span class="pos">${f.add}</span> / <span class="neg">${f.trim}</span></td>
+        <td style="text-align:right">${sp == null ? '-' : fmtPct(Math.round(sp * 1000) / 10)}</td></tr>`}`;
+    }).join('');
+  const chip = (k, v, l, cur) => `<button class="chip${cur ? ' active' : ''}" data-u13="${k}:${v}">${l}</button>`;
+  return `<div class="card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      ${chip('adr', 0, '관심종목 전체', !u13.adr)}${chip('adr', 1, '한국 ADR', u13.adr)}
+      <span class="muted" style="align-self:center;margin-left:8px">정렬</span>
+      ${chip('sort', 'net', '기관 순증', u13.sort === 'net')}${chip('sort', 'shares', '보유 주식 증감', u13.sort === 'shares')}${chip('sort', 'holders', '보유 기관 수', u13.sort === 'holders')}</div>
+    <div class="table-wrap"><table><thead><tr><th>종목</th><th style="text-align:right">보유 기관</th><th>4분기 추이</th>
+      <th style="text-align:right">신규</th><th style="text-align:right">이탈</th><th style="text-align:right">순증</th>
+      <th style="text-align:right">늘림/줄임</th><th style="text-align:right">보유 주식</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="muted" style="margin:6px 0 0;font-size:11px">보유 주식 증감은 분할을 보정하지 않습니다.</p></div>`;
+}
+const U13_CHG = { new: ['신규', 'pos'], add: ['증가', 'pos'], trim: ['감소', 'neg'], exit: ['이탈', 'neg'], same: ['유지', 'muted'] };
+function us13fManagers(d) {
+  return d.managers.map(g => {
+    const n = k => g.holdings.filter(h => h.chg === k).length;
+    const rows = g.holdings.map(h => {
+      const [l, c] = U13_CHG[h.chg];
+      return `<tr><td>${h.t ? `<b>${esc(h.t)}</b> ` : ''}<span class="muted">${esc(h.name)}</span></td>
+        <td style="text-align:right">${h.chg === 'exit' ? '-' : (h.w * 100).toFixed(1) + '%'}</td>
+        <td style="text-align:right">${h.chg === 'exit' ? '-' : usd(h.value)}</td>
+        <td class="${c}" style="white-space:nowrap">${l}${h.chgPct != null && h.chg !== 'same' ? ` ${h.chgPct > 0 ? '+' : ''}${Math.round(h.chgPct * 100)}%` : ''}</td></tr>`;
+    }).join('');
+    return `<details class="card" style="padding:10px 14px"><summary style="cursor:pointer"><b>${esc(g.name)}</b>
+        <span class="muted">${usd(g.aum)} · ${g.pos}종목 · 상위10 ${Math.round(g.top10 * 100)}% · <span class="pos">신규 ${n('new')}</span> · <span class="neg">이탈 ${n('exit')}</span> · 제출 ${esc(g.filed)}</span></summary>
+      <div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>종목</th><th style="text-align:right">비중</th><th style="text-align:right">평가액</th><th>변화</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+  }).join('') + `<p class="muted" style="font-size:11px">선정 규칙 ${esc(d.meta.rule.version)}: 직전 분기 보유 10~50종목 · 평가액 10억 달러 이상 · 상위 10종목 비중 50% 이상 · ETF 20% 미만, 평가액 순 ${d.meta.rule.top}곳</p>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-u13]');
+  if (!t) return;
+  const [k, v] = t.dataset.u13.split(':');
+  u13[k] = k === 'adr' ? v === '1' : v;
+  render();
+});
+
 // ---------- 탭 전환 ----------
 
 // ---------- 장 마감 리포트: Claude 루틴이 쓴 reports/market-daily/<날짜>-<kr|us>.{md,facts.json,summary.json} ----------
@@ -3430,6 +3497,7 @@ function render() {
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
+  else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
@@ -3777,7 +3845,7 @@ function renderToday() {
 const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
-  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['cycle', '경기사이클🥚']]],
+  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
 ];
