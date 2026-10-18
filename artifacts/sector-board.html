@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* 레이아웃: 위에서 아래로 — 한눈에(요약 세 칸) → 4분면(주도·부상·둔화·약세) → 기간별 순위(막대, 눌러서 펼침) → 흐름 사다리(순위 변화선). 색은 한국 시장 관례: 강함 빨강 · 약함 파랑 */
+/* 레이아웃: 위에서 아래로 — 한눈에(요약 세 칸) → 4분면(주도·부상·둔화·약세) → 흐름 사다리(순위 변화선, 같은 색) → 기간별 순위(막대, 눌러서 펼침). 색은 한국 시장 관례: 강함 빨강 · 약함 파랑 */
 :root {
   --bg: #f4f6f8; --panel: #ffffff; --ink: #18202b; --muted: #5f6b7a; --line: #dde3ea;
   --up: #d23a3f; --up-soft: #f6d7d8; --down: #2b66d1; --down-soft: #d6e2f7; --pick: #0f7c74;
@@ -111,17 +111,17 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
     </div>
   </section>
 
+  <section aria-labelledby="l-h">
+    <h2 id="l-h">흐름 사다리</h2>
+    <p class="note">왼쪽 끝 이름은 6개월 순위, 오른쪽 끝 이름은 1일 순위 자리입니다. 선이 오른쪽으로 갈수록 올라가면 최근에 순위가 오른 업종입니다. 1위가 맨 위. 색은 위 4분면과 같고, 마우스를 올리거나 누르면 두 그래프에서 그 업종만 진하게 보입니다.</p>
+    <div class="chart" id="ladder"></div>
+  </section>
+
   <section aria-labelledby="r-h">
     <h2 id="r-h">기간별 순위</h2>
     <div class="seg" role="group" aria-label="기간 선택" id="seg"></div>
     <div class="legend" id="legend"></div>
     <div class="rows" id="rows"></div>
-  </section>
-
-  <section aria-labelledby="l-h">
-    <h2 id="l-h">흐름 사다리</h2>
-    <p class="note">왼쪽 끝 이름은 6개월 순위, 오른쪽 끝 이름은 1일 순위 자리입니다. 선이 오른쪽으로 갈수록 올라가면 최근에 순위가 오른 업종입니다. 1위가 맨 위. 마우스를 올리거나 누르면 그 업종만 진하게 보입니다.</p>
-    <div class="chart" id="ladder"></div>
   </section>
 
   <p class="note">값 = 업종 종목 수익률 중앙값 − 관심종목 전체 중앙값. 매일 바뀌는 최신 값은 대시보드 시장·섹터 탭에 있습니다. 관찰용입니다. 업종 강도로 다음 수익을 맞히는 규칙은 이 프로젝트 검증에서 근거가 없었습니다.</p>
