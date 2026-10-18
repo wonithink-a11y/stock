@@ -390,6 +390,8 @@ const state = {
   tradeLevels: null,       // docs/data/trade-levels.json (PF-1.2 미발효 초안의 산출물)
   sectorSub: (() => { try { const v = localStorage.getItem('sectorSub'); return ['heat', 'tree', 'sens', 'rs'].includes(v) ? v : 'heat'; } catch { return 'heat'; } })(),   // 섹터강도 서브탭
   sectorQuad: 'all',       // 섹터강도 탭 4분면 필터
+  secHz: 'mid',            // 산점도 축: mid(3개월) · short(1개월)
+  secHeatSort: '1w',       // 기간별 색 표 정렬 기준
   heatMarket: 'KR',        // 시장 히트맵: KR(자체) | US(TradingView 위젯)
   heatWin: 'live',         // 시장 히트맵 기간(live = VM 장중 스냅샷, 실패하면 1d 로)
   heatLive: null,          // VM /kr-intraday 응답 + fetchedAt
@@ -2674,11 +2676,38 @@ function secPct(v, digits = 1) {
   return pctCell((v * 100).toFixed(digits));
 }
 
-function sectorScatter(groups) {
-  const pts = groups.filter(g => g.rs['3m'] !== null && g.accel !== null);
+// 산점도 축: 중기 = (3개월 RS, 1개월−3개월) — 서버가 붙인 분면 그대로 · 단기 = (1개월 RS, 1주−1개월) — 같은 규칙으로 여기서 분면을 붙인다
+const secQuadOf = (x, y) => x >= 0 ? (y >= 0 ? '주도' : '둔화') : (y >= 0 ? '부상' : '약세');
+function secAxes(g, hz) {
+  if (hz !== 'short') return g.rs['3m'] == null || g.accel == null ? null : { x: g.rs['3m'], y: g.accel, q: g.quadrant };
+  const a = g.rs['1m'], b = g.rs['1w'];
+  return a == null || b == null ? null : { x: a, y: b - a, q: secQuadOf(a, b - a) };
+}
+
+// 기간별 색 표 — 그룹 × (1일·1주·1개월·3개월·6개월) EW 상대강도. 색 진하기는 열마다 그 열의 최대 절댓값 기준.
+const SEC_HEAT_WINS = [['1d', '1일'], ['1w', '1주'], ['1m', '1개월'], ['3m', '3개월'], ['6m', '6개월']];
+function sectorHeatTable(d) {
+  const k = state.secHeatSort;
+  const gs = d.groups.slice().sort((a, b) => (b.rs[k] ?? -9) - (a.rs[k] ?? -9));
+  const mx = Object.fromEntries(SEC_HEAT_WINS.map(([w]) => [w, Math.max(1e-9, ...gs.map(g => Math.abs(g.rs[w] ?? 0)))]));
+  const cell = (v, w) => {
+    if (v == null) return '<td class="muted" style="text-align:center">-</td>';
+    const a = Math.min(1, Math.abs(v) / mx[w]) * 0.6;
+    const bg = `rgba(${v >= 0 ? '242,85,90' : '76,141,255'},${a.toFixed(2)})`;
+    return `<td style="text-align:right;padding:5px 3px;background:${bg};${w === k ? 'font-weight:700' : ''}">${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}</td>`;
+  };
+  const head = SEC_HEAT_WINS.map(([w, l]) => `<th data-secheatsort="${w}" style="text-align:right;cursor:pointer;white-space:nowrap;padding:5px 3px">${l}${w === k ? ' ▼' : ''}</th>`).join('');
+  const rows = gs.map(g => `<tr><td style="padding:5px 3px">${esc(g.group)} <span class="muted" style="font-size:11px">${g.n}</span></td>${SEC_HEAT_WINS.map(([w]) => cell(g.rs[w], w)).join('')}</tr>`).join('');
+  return `<div class="card"><h2 style="margin:0 0 4px">기간별 강도 <span class="muted" style="font-weight:400;font-size:13px">시장 대비 %p · 빨강 = 시장보다 강함 · 파랑 = 약함 · 열 이름을 누르면 그 기간으로 정렬</span></h2>
+    <div class="table-wrap"><table style="font-size:12px"><thead><tr><th style="padding:5px 3px">그룹 <span class="muted" style="font-weight:400;font-size:11px">종목 수</span></th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="muted" style="font-size:11px;margin:6px 0 0">값 = 그룹 종목 수익률 중앙값 − 전체 종목 중앙값(EW). 색 진하기는 열마다 그 기간의 가장 큰 값 기준. 관찰용 — 업종 강도로 다음 수익을 맞히는 규칙은 검증에서 근거가 없었다.</p></div>`;
+}
+
+function sectorScatter(groups, hz) {
+  const pts = groups.map(g => ({ ...g, ax: secAxes(g, hz) })).filter(g => g.ax);
   if (!pts.length) return '';
   const W = 680, H = 380, PAD = 44;
-  const xs = pts.map(p => p.rs['3m']), ys = pts.map(p => p.accel);
+  const xs = pts.map(p => p.ax.x), ys = pts.map(p => p.ax.y);
   const span = (a) => {
     const lo = Math.min(...a, 0), hi = Math.max(...a, 0), m = (hi - lo) * 0.18 || 0.02;
     return [lo - m, hi + m];
@@ -2701,12 +2730,13 @@ function sectorScatter(groups) {
   svg += `<text x="${PAD + 4}" y="${PAD + 14}" font-size="12" fill="${SEC_QUADS['부상'].color}">부상</text>`;
   svg += `<text x="${W - PAD - 4}" y="${H - PAD - 6}" text-anchor="end" font-size="12" fill="${SEC_QUADS['둔화'].color}">둔화</text>`;
   svg += `<text x="${PAD + 4}" y="${H - PAD - 6}" font-size="12" fill="${SEC_QUADS['약세'].color}">약세</text>`;
-  svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">← 약함    3개월 상대강도    강함 →</text>`;
-  svg += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 14 ${H / 2})">← 둔화    1개월 가속    가속 →</text>`;
+  const [xl, yl] = hz === 'short' ? ['1개월 상대강도', '1주 가속'] : ['3개월 상대강도', '1개월 가속'];
+  svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">← 약함    ${xl}    강함 →</text>`;
+  svg += `<text x="14" y="${H / 2}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 14 ${H / 2})">← 둔화    ${yl}    가속 →</text>`;
 
   const marks = pts.map(p => {
     const r = 5 + 9 * Math.sqrt(p.n / maxN);
-    const X = px(p.rs['3m']), Y = py(p.accel);
+    const X = px(p.ax.x), Y = py(p.ax.y);
     const anchor = X > W - 150 ? 'end' : 'start';
     return { p, r, X, Y, anchor, lx: X + (anchor === 'end' ? -(r + 4) : (r + 4)), ly: Y + 4 };
   });
@@ -2722,7 +2752,7 @@ function sectorScatter(groups) {
     marks[i].ly = Math.min(marks[i].ly, H - PAD - 2);
   }
   for (const m of marks) {
-    const c = (SEC_QUADS[m.p.quadrant] || {}).color || '#6b7280';
+    const c = (SEC_QUADS[m.p.ax.q] || {}).color || '#6b7280';
     svg += `<circle cx="${m.X.toFixed(1)}" cy="${m.Y.toFixed(1)}" r="${m.r.toFixed(1)}" fill="${c}" opacity="0.65"><title>${esc(m.p.group)} · ${m.p.n}종목</title></circle>`;
     if (Math.abs(m.ly - (m.Y + 4)) > 2) {   // 밀려난 라벨은 실선으로 원과 이어준다
       svg += `<line x1="${m.X.toFixed(1)}" y1="${m.Y.toFixed(1)}" x2="${m.lx.toFixed(1)}" y2="${(m.ly - 4).toFixed(1)}" stroke="${c}" stroke-width="0.7" opacity="0.5"/>`;
@@ -3124,9 +3154,16 @@ function renderSector() {
     <h2 style="margin:0 0 4px">섹터 상대강도<span class="muted" style="font-weight:400;font-size:13px">기준일 ${esc(d.asOf || '-')} · KR ${d.universeCount}종목 · ${d.groups.length}개 그룹</span></h2>
     <p class="muted" style="margin:4px 0 10px;font-size:12px">⚠️ <b>관찰용 — 매매신호 아님.</b> 벤치마크 3개월 EW ${secPct(b['3m'])} · TV ${secPct(tb['3m'])} · CAP ${secPct(cb['3m'])} — 표의 값은 각 벤치마크 대비 초과분, 가속 = 1M − 3M(EW).
       <span style="cursor:help" title="EW = 그룹의 보통 종목이 강한가(중앙값) · TV = 거래가 몰린 종목들이 강했는가(거래대금 가중, 순유입 아님) · CAP = 그룹이 지수를 얼마나 밀어올렸는가(시총가중, 이 유니버스 기준이며 KOSPI/KOSDAQ 지수가 아님). 가중치는 각 창의 시작 시점 기준. 분면 라벨은 EW에만 붙입니다. capTop = 그룹 시총 1위 종목과 비중(삼성전자가 통신·네트워크 시총의 95%인 것 같은 쏠림). Step 0 검증(2026-09-03)에서 섹터 주도권 신호는 난수 바닥선을 넘지 못했습니다.">ⓘ</span></p>
-    ${sectorScatter(d.groups)}
-    <p class="muted" style="font-size:11px;margin:2px 0 0">원 크기 = 그룹 소속 종목 수. ${esc(legend)}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 6px">
+      <button class="chip${state.secHz === 'mid' ? ' active' : ''}" data-sechz="mid">중기 · 3개월</button>
+      <button class="chip${state.secHz === 'short' ? ' active' : ''}" data-sechz="short">단기 · 1개월</button>
+      <span class="muted" style="font-size:11px">${state.secHz === 'short' ? '가로 = 1개월 상대강도 · 세로 = 1주 − 1개월. 매일 크게 움직이고 잡음도 크다.' : '가로 = 3개월 상대강도 · 세로 = 1개월 − 3개월. 몇 주에 걸쳐 움직인다.'}</span>
+    </div>
+    ${sectorScatter(d.groups, state.secHz)}
+    <p class="muted" style="font-size:11px;margin:2px 0 0">원 크기 = 그룹 소속 종목 수. ${esc(legend)}${state.secHz === 'short' ? ' 단기 보기의 분면은 그래프에만 쓰고 아래 표의 분면(중기)과 다를 수 있다.' : ''}</p>
   </div>
+
+  ${sectorHeatTable(d)}
 
   <div class="card">
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
@@ -3773,6 +3810,14 @@ document.addEventListener('click', (e) => {
   if (!t) return;
   state.sectorSub = t.dataset.secsub;
   try { localStorage.setItem('sectorSub', state.sectorSub); } catch { /* 저장 못 해도 동작 */ }
+  render();
+});
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-sechz],[data-secheatsort]');
+  if (!t) return;
+  if (t.dataset.sechz) state.secHz = t.dataset.sechz;
+  if (t.dataset.secheatsort) state.secHeatSort = t.dataset.secheatsort;
   render();
 });
 
