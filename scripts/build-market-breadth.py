@@ -25,6 +25,7 @@ import importlib.util
 import json
 import os
 import sys
+import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -90,8 +91,19 @@ def save_hist(h):
 
 
 def fetch(key, ymd):
-    """KRX 하루치. 응답 날짜가 요청일과 다르면 버린다(교훈 81). 휴장일·아직 안 올라온 날은 빈 목록."""
-    rows = [r for r in mm.fetch_day(key, ymd) if str(r.get("BAS_DD")) == ymd]
+    """KRX 하루치. 응답 날짜가 요청일과 다르면 버린다(교훈 81). 휴장일·아직 안 올라온 날은 빈 목록.
+    시간 초과는 5번까지 다시 묻는다(첫 실행 640콜 중 한 번 끊겨 실행 전체가 죽은 실측, 2026-10-18).
+    끝내 실패하면 예외 — 중간 날짜가 빠진 패널을 저장하면 200일선이 조용히 틀리므로 이어 붙이지 않는다."""
+    for k in range(5):
+        try:
+            got = mm.fetch_day(key, ymd)
+            break
+        except Exception as e:
+            if k == 4:
+                raise
+            print(f"  {ymd} 재시도 {k + 1} ({type(e).__name__})")
+            time.sleep(5 * (k + 1))
+    rows = [r for r in got if str(r.get("BAS_DD")) == ymd]
     return [{"BAS_DD": ymd, "ISU_CD": r.get("ISU_CD"), "ISU_NM": r.get("ISU_NM"), "FLUC_RT": mm.num(r.get("FLUC_RT")),
              "ACC_TRDVAL": mm.num(r.get("ACC_TRDVAL")), "MKTCAP": mm.num(r.get("MKTCAP")), "market": r.get("_mk")}
             for r in rows]
