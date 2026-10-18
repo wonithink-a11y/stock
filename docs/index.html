@@ -3313,6 +3313,70 @@ document.addEventListener('click', (e) => {
   render();
 });
 
+// ---------- 기관 보유(5%): Actions holder-map 이 평일 쓰는 docs/data/holders.json(DART 5% 대량보유, 전 상장사) — 맥락 전용 ----------
+// rows 상태: 보유(5% 이상) · exited(마지막 공시 5% 미만) · stale(2년 넘게 새 보고 없음 — 마지막 원문 비율). 국민연금 행의 ye = 연말 전체 목록 지분율.
+const h5 = { data: null, loading: false, sub: 'inv', q: '', byStock: null };
+const h5d = d => d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : '-';
+function h5State(r) {
+  if (r.exited) return '<span class="neg">이탈</span>';
+  if (r.stale) return `<span class="muted" title="2년 넘게 새 보고가 없어 마지막 원문 비율">오래된 보고</span>`;
+  return '보유';
+}
+function renderHolders() {
+  if (!h5.data) {
+    if (!h5.loading) {
+      h5.loading = true;
+      loadJson('holders').then(d => { h5.data = d || { missing: true }; if (state.tab === 'holders') render(); });
+    }
+    return '<div class="card empty">불러오는 중…</div>';
+  }
+  const d = h5.data;
+  if (d.missing) return '<div class="card empty">5% 보유자 데이터가 아직 없습니다.</div>';
+  const head = `<div class="card"><b>DART 5% 대량보유</b> <span class="muted">${h5d(d.asOf)} 기준 · 상장사 ${fmtNum(d.count.stocks)}곳 · 보고자 ${fmtNum(d.count.investors)}${d.nps ? ` · 국민연금 연말 ${h5d(d.nps.asOf)} 지분율 함께` : ''}</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">${[['inv', '기관별'], ['stk', '종목별']].map(([k, l]) =>
+      `<button class="chip${h5.sub === k ? ' active' : ''}" data-h5="${k}">${l}</button>`).join('')}
+      <input class="search" id="h5Search" placeholder="${h5.sub === 'inv' ? '기관 이름 검색' : '종목명·코드 검색'}" value="${esc(h5.q)}" style="max-width:220px"></div></div>`;
+  return head + (h5.sub === 'stk' ? h5Stocks(d) : h5Investors(d));
+}
+function h5Table(rows, first) {   // first: 'stock' = 종목 열, 'who' = 보고자 열
+  return `<div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>${first === 'stock' ? '종목' : '보고자'}</th><th style="text-align:right">지분율</th>
+    <th style="text-align:right">직전 대비</th><th>목적</th><th>공시일</th><th>상태</th></tr></thead><tbody>${rows.map(r => `<tr>
+    <td>${first === 'stock' ? `<b>${esc(r.name || r.t)}</b> <span class="muted">${esc(r.t)}</span>` : `<b>${esc(r.who)}</b>`}</td>
+    <td style="text-align:right">${r.rate == null ? '-' : r.rate.toFixed(2) + '%'}${r.ye != null ? `<div class="muted" style="font-size:11px">연말 ${r.ye}%</div>` : ''}</td>
+    <td style="text-align:right" class="${r.chg > 0 ? 'pos' : r.chg < 0 ? 'neg' : 'muted'}">${r.chg == null ? '-' : (r.chg > 0 ? '+' : '') + r.chg.toFixed(2)}</td>
+    <td class="muted">${esc(r.tp || '-')}</td><td class="muted" style="white-space:nowrap">${h5d(r.date)}</td><td>${h5State(r)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function h5Investors(d) {
+  const q = h5.q.trim().toLowerCase();
+  const list = (q ? d.investors.filter(x => x.who.toLowerCase().includes(q)) : d.investors).slice(0, 40);
+  if (!list.length) return '<div class="card empty">일치하는 기관이 없습니다.</div>';
+  return list.map(x => {
+    const ex = x.rows.filter(r => r.exited).length, st = x.rows.filter(r => r.stale && !r.exited).length;
+    return `<details class="card" style="padding:10px 14px"><summary style="cursor:pointer"><b>${esc(x.who)}</b>
+      <span class="muted">보유 ${x.n}종목${st ? ` · 오래된 보고 ${st}` : ''}${ex ? ` · 이탈 ${ex}` : ''}</span></summary>${h5Table(x.rows, 'stock')}</details>`;
+  }).join('') + `<p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유 종목 수 순'} 최대 40곳</p>`;
+}
+function h5Stocks(d) {
+  if (!h5.byStock) {
+    h5.byStock = {};
+    for (const x of d.investors) for (const r of x.rows) (h5.byStock[r.t] ||= []).push({ ...r, who: x.who });
+    for (const rs of Object.values(h5.byStock)) rs.sort((a, b) => (!!a.exited - !!b.exited) || (!!a.stale - !!b.stale) || ((b.rate || 0) - (a.rate || 0)));
+  }
+  const q = h5.q.trim().toLowerCase();
+  const ts = Object.entries(d.stocks).filter(([t, s]) => h5.byStock[t] && (!q || t.includes(q) || (s.name || '').toLowerCase().includes(q)))
+    .sort((a, b) => b[1].n - a[1].n).slice(0, 20);
+  if (!ts.length) return '<div class="card empty">일치하는 종목이 없습니다.</div>';
+  return ts.map(([t, s]) => `<details class="card" style="padding:10px 14px"${q && ts.length <= 3 ? ' open' : ''}><summary style="cursor:pointer"><b>${esc(s.name)}</b> <span class="muted">${esc(t)} · 5% 보유 ${s.n}${s.nStale ? ` · 오래된 보고 ${s.nStale}` : ''}${s.nExited ? ` · 이탈 ${s.nExited}` : ''}</span></summary>${h5Table(h5.byStock[t], 'who')}</details>`).join('')
+    + `<p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유자 많은 순'} 최대 20종목</p>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-h5]');
+  if (!t) return;
+  h5.sub = t.dataset.h5;
+  h5.q = '';
+  render();
+});
+
 // ---------- 탭 전환 ----------
 
 // ---------- 장 마감 리포트: Claude 루틴이 쓴 reports/market-daily/<날짜>-<kr|us>.{md,facts.json,summary.json} ----------
@@ -3498,6 +3562,7 @@ function render() {
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
   else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
+  else if (state.tab === 'holders') el.innerHTML = renderHolders();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
@@ -3638,6 +3703,7 @@ function onSearchInput(e) {
   if (e.target.id === 'stockSearch') { state.search = e.target.value; return renderKeepingFocus('stockSearch'); }
   if (e.target.id === 'etfSearch') { state.etfSearch = e.target.value; return renderKeepingFocus('etfSearch'); }
   if (e.target.id === 'a5Search') { state.a5Search = e.target.value; state.a5Limit = 100; return renderKeepingFocus('a5Search'); }
+  if (e.target.id === 'h5Search') { h5.q = e.target.value; return renderKeepingFocus('h5Search'); }
 }
 document.getElementById('content').addEventListener('input', (e) => { if (!e.isComposing) onSearchInput(e); });
 document.getElementById('content').addEventListener('compositionend', onSearchInput);
@@ -3845,7 +3911,7 @@ function renderToday() {
 const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
-  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
+  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
 ];

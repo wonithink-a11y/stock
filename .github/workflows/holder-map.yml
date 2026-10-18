@@ -1,0 +1,60 @@
+name: holder-map
+
+# 국내 상장사 전체 DART 5% 대량보유 → 기관별 보유 지도 docs/data/holders.json (대시보드 시장·섹터 > 기관 보유(5%)).
+# scripts/build-holder-map.py — 평일 증분: 직전 asOf 이후 대량보유(D001) 공시가 난 회사만 다시 받는다(하루 수십 곳).
+# 파일이 없거나 full 을 고르면 전량(상장사 ≈2,580곳 ≈5.3k콜 + 원문 ≈2.9k콜, 한도 2만) — Actions 에서 DART 는 로컬보다
+# 10배 가까이 느려(stock-events 실측 1.2초/콜) 3시간 안팎 걸린다. 한도(020)에 걸리면 남은 것은 retry 로 넘겨 다음 실행이 잇는다.
+# 직전 asOf 가 85일 넘게 지나면 증분이 거부된다(목록 조회 3개월 제한) — 그때 full 로 다시 돌린다.
+# 관찰용 — 점수·매매에 쓰지 않는다(5% 신규 진입 이벤트 연구 REJECT, 2026-10-17).
+
+on:
+  schedule:
+    - cron: '20 11 * * 1-5'   # 20:20 KST — stock-events(19:40) 뒤
+  workflow_dispatch:
+    inputs:
+      full:
+        description: '전량 다시 받기(약 3시간)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: holder-map
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build holder map
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          if [ "${{ inputs.full }}" = "true" ] || [ ! -f docs/data/holders.json ]; then
+            python -u scripts/build-holder-map.py --full
+          else
+            python -u scripts/build-holder-map.py
+          fi
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/holders.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update docs/data/holders.json (5% 보유자 지도)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

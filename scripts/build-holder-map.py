@@ -178,6 +178,9 @@ def load_nps(names):
     except UnicodeDecodeError:
         txt = raw.decode("cp949")
     by_name = {nkey(n): t for t, n in names.items()}
+    # 약칭(현대차·한국전력·KT&G) — a1a·A5 는 정식 법인명이라 관심종목 이름을 더한다(저장소에 있어 Actions 에서도 된다)
+    wl = json.loads((ROOT / "config" / "watchlist.json").read_text(encoding="utf-8"))["tickers"]
+    by_name.update({nkey(x["name"]): x["code"] for x in wl if x["code"] in names})
     krx = sorted((ROOT / "research" / "strategy-lab" / "data" / "krx-daily-ext").glob("*.parquet"))
     if krx:                                        # KRX 약칭(한국전력·KT&G) — a1a 는 정식 법인명. 로컬에만 있다(Actions 에선 a1a 이름만)
         import pandas as pd
@@ -331,7 +334,7 @@ def main():
     out = {"updatedAt": now.isoformat(timespec="seconds"), "asOf": today, "retry": failed,
            "count": {"stocks": len(cnt), "investors": len(investors), "rows": sum(len(x["rows"]) for x in investors)},
            "note": "DART 5% 대량보유 공시를 기관별로 묶었다. rate = 마지막 공시 비율(%) · chg = 같은 계열 직전 공시 대비 %p · "
-                   "exited = 마지막 공시가 5% 미만 · stale = 최근 5년 안에 보고는 있으나 2년 넘게 새 보고가 없어 DART 지분 API 가 비율을 안 준다(비율 미상 — 원문 표본에선 상당수가 이미 이탈). "
+                   "exited = 마지막 공시가 5% 미만 · stale = 2년 넘게 새 보고가 없어 DART 지분 API 가 비율을 안 주는 보고자 — 마지막 보고 원문에서 비율을 읽었다(src=doc, 그 뒤 1%p 미만 변화는 모른다). "
                    "tp 단순투자 = 약식 보고, '일반(경영참가 포함 가능)' 은 원문을 봐야 갈린다. 관찰용 — 점수·매매에 쓰지 않는다.",
            "investors": investors, "stocks": cnt}
     if nps_asof:
