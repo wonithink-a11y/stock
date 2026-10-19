@@ -28,7 +28,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 FULL = HERE / "data" / "fundamentals-full" / "annual-full.jsonl"
 A3 = ROOT / "data" / "backfill" / "fundamentals" / "a3"
-OUT = HERE / "findings" / "contract-liab-revenue-step1-2026-10.md"
+OUT = HERE / "reports" / "2026-10-contract-liab" / "step1-tables.md"   # 표만. 해석 붙인 정본은 findings/contract-liab-revenue-step1-2026-10.md
 NAME_RX = re.compile(r"계약부채|선수금|선수수익|초과청구")
 ID_RX = re.compile(r"ContractLiabilities|Advances(Received)?$|CurrentAdvances|DeferredIncome")
 SKIP_RX = re.compile(r"확정계약|증가|감소|전환사채")
@@ -106,6 +106,7 @@ def main():
     lines += ["", "## 연도별 계약부채 행 커버리지", "", "| 연도 | 비율 |", "|---|---:|"] + [f"| {y} | {v:.0%} |" for y, v in by_y.items()]
     print("\n".join(lines))
     if "--write" in sys.argv:
+        OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

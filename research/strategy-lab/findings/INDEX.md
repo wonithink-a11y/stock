@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 13 |
+| 통과·채택 | 14 |
 | 보류·판정 불가 | 41 |
 | 기각 | 133 |
 | 사전등록 문서(결과는 별도 파일) | 123 |
 | 정보·탐색 | 37 |
 | 미분류 | 241 |
 
-## 통과·채택 (13)
+## 통과·채택 (14)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-19 | CONFIRMED | kr | [contract-liab-revenue-step1-2026-10.md](contract-liab-revenue-step1-2026-10.md) | 신호: 있음(다음 해 매출 예측) · 경제성: 해당 없음(주가 미측정 — 1단계는 재무끼리). 계약부채가 전년 매출 대비 많이 늘어난 회사는 다음 해 매출이 더 늘었다 — 평균 Spearman 20… |
 | 2026-10-11 | ECONOMIC | kr | [combined-rank-model-results-2026-10.md](combined-rank-model-results-2026-10.md) | 신호: 있음 · 경제성: 통과. h1 ECONOMIC(TRAIN-WF +54.2bp t +12.81 · VALID +37.2 · TEST +32.0) / h5 ECONOMIC(TRAIN-WF +95… |
 | 2026-10-09 | GO | multi | [strategy-portfolio-stage1-results-2026-10.md](strategy-portfolio-stage1-results-2026-10.md) | 독립 원천 3개(PBR 결합, RV20 규칙 B, 무한매수 TQQQ) → 2단계 GO. (스크립트 판정) |
 | 2026-10-09 | ECONOMIC | kr | [dividend-runup-results-2026-10.md](dividend-runup-results-2026-10.md) | 신호: 있음 · 경제성: 통과. 2010~2022 평균 초과 +2.82%, 귀무 95백분위 +0.30%. (스크립트 판정) |
