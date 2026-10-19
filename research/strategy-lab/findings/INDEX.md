@@ -8,10 +8,10 @@
 |---|---:|
 | 통과·채택 | 14 |
 | 보류·판정 불가 | 41 |
-| 기각 | 134 |
-| 사전등록 문서(결과는 별도 파일) | 124 |
+| 기각 | 135 |
+| 사전등록 문서(결과는 별도 파일) | 125 |
 | 정보·탐색 | 37 |
-| 미분류 | 242 |
+| 미분류 | 241 |
 
 ## 통과·채택 (14)
 
@@ -78,10 +78,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (134)
+## 기각 (135)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-20 | REJECT | kr | [order-contract-size-results-2026-10.md](order-contract-size-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. 큰 수주 60거래일 정보 TRAIN −34bp(p 0.997) · VALID −470bp · TEST −410bp — 같은 해의 다른 수주보다도 나쁘다.… |
 | 2026-10-19 | REJECT | kr | [contract-liab-price-results-2026-10.md](contract-liab-price-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 계약부채가 크게 늘어난 회사(Q5)를 사업보고서 공시 다음 날 사면 126거래일 대조 대비 TRAIN +9.6%(p 0.165, 유의 미달)· VALID −5.7%(… |
 | 2026-10-18 | REJECT | us | [us-price-target-reliability-results-2026-10.md](us-price-target-reliability-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 월가 목표가로 다음 달 종목을 고르거나(Q2) 목표가 상향·하향을 따라가는(Q3) 규칙은 다섯 셀 모두 TRAIN 이 바닥선 2.63 에 못 미치고 구간마다 부호가 … |
 | 2026-10-18 | REJECT | crypto | [upbit-krw-listing-results-2026-10.md](upbit-krw-listing-results-2026-10.md) | 신호: 없음(판정 기준 — U1 TRAIN t 2.36 < 바닥선 2.49, TRAIN 상장일 16개) · 경제성: 미달(판정상). U1(상장 뒤 7일 숏)은 TRAIN·VALID·TEST 초과 +… |
@@ -217,10 +218,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (124)
+## 사전등록 문서(결과는 별도 파일) (125)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-20 | PREREGISTERED | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
 | 2026-10-19 | PREREGISTERED | kr | [theme-forecast-forward-preregistration-2026-10.md](theme-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 뉴스·논문·월가 예상과 'AI → 데이터센터 → 전력·ESS → 2차전지' 같은 인과 사슬로 미래 유망 섹터를 고를 … |
 | 2026-10-19 | PREREGISTERED | kr | [stock-forecast-forward-preregistration-2026-10.md](stock-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 숫자 몇 개가 아니라 사업·경쟁력·재무·촉매를 종합해 보면 잠재력 높은 종목을 고를 수 있는가, 지금 이익이 안 나거… |
 | 2026-10-19 | PREREGISTERED | kr | [contract-liab-price-preregistration-2026-10.md](contract-liab-price-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 1단계(contract-liab-revenue-step1-2026-10, CONFIRMED)에서 계약부채 증가는 다음 해 매출을 맞혔다 (Spearman … |
@@ -388,11 +390,10 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (242)
+## 미분류 (241)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
-| 2026-10-19 | DRAFT | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
 | 2026-10-17 | REFERENCE | kr | [quality-forward-past-reference-2026-10.md](quality-forward-past-reference-2026-10.md) | 신호: 과거 전체로는 없음(Q1 t 0.62 · Q2 t 1.70), 2025~ 에만 양 · 경제성: 판정 불사용(참고 계산). 폐지 종목을 넣어도 IC 강세는 남는다(2016~23 +0.042 →… |
 | 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
 | 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
