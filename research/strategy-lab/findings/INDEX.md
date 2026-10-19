@@ -9,7 +9,7 @@
 | 통과·채택 | 14 |
 | 보류·판정 불가 | 41 |
 | 기각 | 133 |
-| 사전등록 문서(결과는 별도 파일) | 123 |
+| 사전등록 문서(결과는 별도 파일) | 124 |
 | 정보·탐색 | 37 |
 | 미분류 | 241 |
 
@@ -216,12 +216,13 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (123)
+## 사전등록 문서(결과는 별도 파일) (124)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-19 | PREREGISTERED | kr | [theme-forecast-forward-preregistration-2026-10.md](theme-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 뉴스·논문·월가 예상과 'AI → 데이터센터 → 전력·ESS → 2차전지' 같은 인과 사슬로 미래 유망 섹터를 고를 … |
 | 2026-10-19 | PREREGISTERED | kr | [stock-forecast-forward-preregistration-2026-10.md](stock-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 숫자 몇 개가 아니라 사업·경쟁력·재무·촉매를 종합해 보면 잠재력 높은 종목을 고를 수 있는가, 지금 이익이 안 나거… |
+| 2026-10-19 | PREREGISTERED | kr | [contract-liab-price-preregistration-2026-10.md](contract-liab-price-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 1단계(contract-liab-revenue-step1-2026-10, CONFIRMED)에서 계약부채 증가는 다음 해 매출을 맞혔다 (Spearman … |
 | 2026-10-18 | PREREGISTERED | us | [us-target-change-forward-preregistration-2026-10.md](us-target-change-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 애널리스트가 목표가를 크게(±10% 넘게) 바꾼 다음 날 산 종목은 20거래일 동안 시장보다 더 오르는가". 과거 표본에서는 결과를 본 뒤… |
 | 2026-10-18 | PREREGISTERED | us | [us-price-target-reliability-preregistration-2026-10.md](us-price-target-reliability-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "월가 목표가는 얼마나 믿을 만한가: 맞히는가(Q1), 상승여력이 큰 종목이 더 오르는가(Q2), 목표가를 올리고 내린 뒤 주가가 따라가는가(Q3… |
 | 2026-10-18 | PREREGISTERED | crypto | [upbit-krw-listing-preregistration-2026-10.md](upbit-krw-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트 원화 상장 날 튄 코인은 그 뒤 1주·1달 동안 BTC 보다 덜 오르는가(되돌림)". 사용자 요청 "크립토 실험 더"(2026-10-17… |
