@@ -1,0 +1,44 @@
+{
+ "month": "2026-10",
+ "created": "2026-10-19",
+ "model": "claude-opus-5-5",
+ "horizon": "진입 = 2026-10-20 종가, 126거래일 뒤 종가",
+ "context": "첫 회(사전등록일). 직전 주 KOSPI 7거래일 하락(10-15 −7.57%, 5일 −18.37%) 뒤 10-16 반등. 하락 계기로 보도된 것은 중국 CXMT 차세대 D램 발표(10-12)·외국인 10월 누적 약 17.8조 순매도·AI 거품론. 미국 장기금리 5% 안팎의 고금리 장기화. 정보원은 구글 뉴스 RSS(2026-09-19~10-19 기사 제목·날짜)와 저장소 마감 리포트(reports/market-daily 10-13~16)·테마 강도(docs/data/theme-strength.json 10-16).",
+ "picks": [
+  {
+   "theme": "전력·에너지 인프라 · 전력기기",
+   "chain": "AI 데이터센터 증설 → 북미 전력망·변전소 병목 → 초고압 변압기 수주 → 수주잔고가 6개월 안에 매출·이익으로 전환. 직전 1개월 그룹 −20.8% 로 기대가 낮아진 반면 수주 공시는 이어진다(기대 대비 실적 괴리).",
+   "stage": "수주·발주",
+   "evidence": [
+    {"source": "지디넷코리아", "date": "2026-10-01", "title": "LS일렉트릭, 美 AI 데이터센터 9개 변전소에 1800억원 규모 변압기 공급", "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBtWlozUWRRNjYtM1owOWJNcVlrcTFVYTlOakpxY3dFSVVCbF9wejU4d05NTU1Icmt1Q2dqY19YS2JfNE93ZjM4b1lkcDBTazZpcmsxWjB3?oc=5"},
+    {"source": "글로벌이코노믹", "date": "2026-10-17", "title": "효성중공업, 美 빅테크 AI 데이터센터에 2억 8500만 달러 변압기 공급", "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNZWhJeGN3aGhiOHFjZFBUX1RIYzc2dWJQbVdtTG80SGkxUVZjY0dqUEhjMGp0czlMa1BBSDhHdnp3Q0J1UGlrczJWVmRZeTNDQ2VpOC1BbjBzTnJBdnQ3OGUzWE1mQnVTZUd6ZHc3bVZYZjFjRHVOYmxheFRDLXdaNjk4N0xiSzBo?oc=5"},
+    {"source": "스마트투데이", "date": "2026-10-13", "title": "AI 데이터센터 전력난에 수주 폭증…전력기기·ESS 주가 엇갈린 까닭", "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9hNktZcGhQWm83eHhSVkM2ajFmMFo3eTNSc3Z6bTcyMHQzbWlXYTZFTzZKdFY5d1NxaW5hUVFHeFBUU24zMTlkajlJdVRZMC1LbVZ2dTI3dTY1TEg2c2tR?oc=5"}
+   ],
+   "invalidation": "10월 말~11월 빅테크 실적에서 2027 설비투자 가이던스 하향, 또는 3·4분기 전력기기 3사 수주잔고 감소·변압기 단가 인하 보도."
+  },
+  {
+   "theme": "AI·반도체 · 메모리",
+   "chain": "AI 추론 수요 → HBM·서버 D램 공급 부족 → 2027 물량 대부분 장기 계약(가격 인상) → 6개월 창 안의 실적은 이미 정해진 계약이 지배. CXMT 충격은 2028년 이후 공급 이야기로, 지난주 −20% 하락이 그 위험을 먼저 반영했다고 본다.",
+   "stage": "실적",
+   "evidence": [
+    {"source": "연합뉴스TV", "date": "2026-09-29", "title": "공급 부족 현상…내년 HBM 평균판매가격 121%↑", "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5TaDhVSlE4cVJOdUM0d2loejhsYjRINEM1WmlCZjlIZVlxbnNGd0hYOVZXSUJSNkFDZFFWVlBHelhQZ3ctb1JuRWR3dlR4QzRFLVpmZ09HNE9KUTNBX0ticXFhQkdBcVU?oc=5"},
+    {"source": "테크월드", "date": "2026-10-07", "title": "마이크론 \"내년 메모리 75% 이미 팔렸다\"…HBM은 사실상 완판", "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBzMUdsbDVuR2oxVFNGS3NyZzE3NUxVVHRtdk1XM1hZN1pKSVE3MHhYa2pWY3FwSTlpNm1lZFRBem9ObV9PdkdsR0xUY29xV2FHMVRQMklRcHpOWUc3aXA3Y2NhZlJYVDdC?oc=5"},
+    {"source": "머니투데이", "date": "2026-10-13", "title": "中 차세대 D램, 삼전닉스 주도판 흔든다?…\"기술격차 3년\" 업계 선긋기 (반대 쪽 위험 확인용)", "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBGZE5NWFB1MmgwZjZ2YWdqYl9XamNORTBzS2Zxb3ZwdHhqWWJRc0U2a2t5ZlE2VUFDT1l5YUxLTEQ0Z05kMXk0ODZ6OUxUTTlyMWxOWVpoQWpmVWwwUUI4akYzMDdzZDVY0gFuQVVfeXFMTkc5Rnc2ek9rNy00amdwbFBaZDU1blI1ODBoclpMUzVOQy0xTWlscENENUhJUjVJbU93UzV0UzNoMk11dm1WaTZuRzBkN1FVRHlELThlWkVJVUU0enFxQldEUnI3WkEtNmZTdTR6dGc?oc=5"}
+   ],
+   "invalidation": "D램·HBM 계약가 하락 전환 보도, CXMT 의 서버용 차세대 D램 실제 양산 출하 확인, 또는 빅테크 설비투자 하향."
+  },
+  {
+   "theme": "2차전지 · 셀",
+   "chain": "AI 데이터센터 전력 수요 → 전력 품질·백업용 ESS 수요(미국 설치량 증가 전망) → 전기차 둔화를 ESS 가 메움 → 셀 3사 가동률·이익 회복. 지난주 급락장에서 2차전지 ETF 가 상대 강세(10-13·14)였다.",
+   "stage": "기대",
+   "evidence": [
+    {"source": "디일렉", "date": "2026-09-30", "title": "AI 데이터센터가 끌어올린 美 ESS…5년 뒤 연간 설치량 50%↑", "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5hZzJLaE9sb0dwRUp3TVRJZmFUbUxMYmphTWcwVHBVMzhrLW5ZcWlfWGYwQjVWR0hycmdCTm1EeWR4R2RxamhBWmFEVzNjdHItRjFoUk1wRzk3WnhNWkhZdVBlVVVxUQ?oc=5"},
+    {"source": "인더스트리뉴스", "date": "2026-09-22", "title": "LG에너지솔루션, 엔비디아 'DSX 레디' 합류…AI 데이터센터 ESS 공략", "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFA5R3V0bUhHT09RR0Q2TzdDQVcyNVpCTkIzREJwRFJrSGpFWUZBbUNTVTZrODBNbkN6RmRZdmJ6d3N2OXFvdjNLSmYyWno0dDVnbFVXSm1EZXFRNXlqMzBQRnVUZ3dfTGpNZ2gwRWUzdHBtQQ?oc=5"},
+    {"source": "조선일보", "date": "2026-10-12", "title": "\"AI 핵심 수혜주, 이제는 2차전지의 시간\"", "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQSTc4ZWczZHRpNGswMzBVSDlQZDRhaW9leVhqSm93bFIxRTlMY3lDeUlkWE5wWUpNRksyVXVmUGRqSU44a3NidUVUQUJuM0lHR05oQUVPTVRKLXR5X2JxLXA0VEowQmhuc0VGdmNNa3ZxRkZsck0zV19QR2F5QnEydw?oc=5"}
+   ],
+   "invalidation": "중국 업체의 미국 ESS 점유 확대(관세 완화 등)·셀 3사 ESS 수주 공시 부재가 1분기까지 이어지거나 3분기 실적에서 ESS 매출 비중이 늘지 않음."
+  }
+ ],
+ "common_risk": "세 개 모두 'AI 설비투자 지속' 한 축에 걸려 있다 — AI 거품론이 현실화되면 셋이 같이 진다(근거: 글로벌이코노믹 2026-10-18 'AI 투자, 8조5000억달러 회수 가능할까…월가 거품론 재점화'). 다른 사슬(방산·조선·원전·증권·바이오)은 이번 달 근거가 더 약하거나 반대 방향이었다: 현대로템 K2 수출 지연 목표가 하향(10-13), 중국 LNG선 추격(10-14), 거래대금 감소로 증권 실적 둔화(10-12), 바이오는 금리 방향에 달림.",
+ "free_pick": null
+}

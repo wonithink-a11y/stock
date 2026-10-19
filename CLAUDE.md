@@ -191,6 +191,10 @@ Validated against
             ★ **미국 목표가 큰 변경 뒤 20일 forward도 같이**(10-18 사전등록 findings/us-target-change-forward-preregistration-2026-10.md · 기록 전용): `python research/strategy-lab/collect_us_price_targets.py`(야후, 약 3분)
             → `python research/strategy-lab/run_us_target_change_forward.py`(건수만) → `reports/2026-10-us-target-change-forward/` 커밋. 사건 D ≥ 2026-10-19, 큰 상향 ≥ +11.1% · 큰 하향 ≥ −10.3%(과거 2/3 분위).
             `--judge` 1차 = UP_L·DN_L 성숙 사건일 각 150(≈2027-05~06) · 최종 300 — 그 전엔 코드가 거부. 배경: 신뢰도 연구 Q3 REJECT 의 사후 관찰(큰 변경만 양).
+            ★ **유망 테마 예측 고정 forward도 같이**(10-19 사전등록 findings/theme-forecast-forward-preregistration-2026-10.md · 사용자 요청 · 기록 전용): **매달 1~7일 Claude 가 직접 예측한다** —
+            뉴스(구글 뉴스 RSS 날짜 범위, 브라우저 패널 fetch)·논문·월가 전망으로 테마 트리 v0.2 고정본 44개 중 3개 + 인과 사슬·근거 2개↑·단계·틀릴 조건을 `reports/2026-10-theme-forecast-forward/forecasts/YYYY-MM.json` 에 쓰고
+            `python research/strategy-lab/run_theme_forecast_forward.py --register YYYY-MM`(등록일 = 오늘만, 소급 금지) → 커밋. 첫 회 2026-10(전력기기·메모리·2차전지 셀, 셋 다 AI 설비투자 축). 이 forward 의 중간 성과는 보지 않는다.
+            6개월 뒤 44개 등가중 대비, 테마 이름 재배치 귀무. `--judge` 2028-10-20 ∧ 성숙 18 · INCONCLUSIVE 면 2029-10-20 ∧ 30 — 그 전엔 코드가 거부. 현실적 기대 INCONCLUSIVE.
   다음      ★ 무한매수법 해외 슬리브 — 09-14 잔존 주문 확인 **완료**(미체결 0건,
             2026-09-12). 두 주문이 확인 시점에 이미 전량체결이라 "당일물인지"
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
