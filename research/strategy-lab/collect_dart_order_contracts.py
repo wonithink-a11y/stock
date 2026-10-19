@@ -41,7 +41,9 @@ OUT_DIR = HERE / "data" / "order-contracts"
 BODY = OUT_DIR / "body"
 EXT_TITLES = OUT_DIR / "titles"     # 제목 캐시 밖 종목(대부분 폐지)의 거래소공시 제목 — 생존편향을 막는다
 CORPS = REPO / "data" / "backfill" / "dart" / "corpcode.jsonl"
-WORKERS = 4      # 동시 요청 수. 응답 대기(건당 ~1초)가 병목이라 4개면 분당 ~240 — DART 분당 제한(~1,000)보다 한참 아래
+WORKERS = 2      # 동시 요청 수. 2026-10-19 실측: 본문 4개 분당 ~240·8개 ~215(키당 상한) → 그 뒤 목록 API 4개에서
+                 # OpenDART 가 이 IP 를 차단했다(연결 거부, dart.fss.or.kr 은 정상). 분당 제한 아래라도 몰아치면 막힌다
+REFUSED_MAX = 20  # 연결 오류가 연달아 이만큼이면 차단으로 보고 멈춘다
 
 RE_TITLE = re.compile(r"^단일판매.?공급계약(체결|해지)")
 NUM = r"(-?[\d,]+(?:\.\d+)?)"
@@ -196,8 +198,20 @@ def extend_titles(limit=None, workers=WORKERS):
     todo = [c for c in corps if not (EXT_TITLES / f"{c}.json").exists()][:limit]
     print(f"캐시 밖 {len(corps)}종목 · 남은 {len(todo)}")
     EXT_TITLES.mkdir(parents=True, exist_ok=True)
-    calls = [0]
+    calls, refused = [0], [0]
+
     def one(corp):
+        try:
+            _one(corp)
+            refused[0] = 0
+        except cdt.LimitReached:
+            raise
+        except Exception as e:             # 이 종목만 건너뛴다(파일이 없으니 다음 실행에서 다시 받는다)
+            refused[0] += 1
+            if refused[0] >= REFUSED_MAX:
+                raise SystemExit(f"연결 오류 {REFUSED_MAX}회 연속 — OpenDART 차단 의심, 나중에 다시 실행: {e!r}")
+
+    def _one(corp):
         rows, page = [], 1
         while True:
             lst, total = cdt.dart_list_range(key, corp, "I", page, cdt.BGN, cdt.END)
