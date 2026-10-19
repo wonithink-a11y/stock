@@ -441,6 +441,29 @@ def main():
             sleep=lambda s: None, min_interval=0).paginate("KR", "balance", {}, "x", "output1", ("ctx_area_fk100", "ctx_area_nk100"),
                                                           ("CTX_AREA_FK100", "CTX_AREA_NK100"))))
 
+        # 2026-10-19 EGW00215(원장 초당 건수) — 같은 계좌의 다음 프로필 클라이언트도 간격을 이어 쓰고, 조회는 재시도한다
+        bal = Resp({"rt_cd": "0", "output1": [], "output2": [{}]})
+        naps_a, naps_b, naps_c = [], [], []
+        ha = Http([("/oauth2/tokenP", token), ("inquire-balance", bal)])
+        kis.KisBroker(kis.KisClient("paper", "KEY1234", "SEC", "77777777-01", Path(td) / "s", http=ha, sleep=naps_a.append,
+                                    min_interval=1.2)).positions("KR")
+        kis.KisBroker(kis.KisClient("paper", "KEY1234", "SEC", "77777777-01", Path(td) / "s", http=ha, sleep=naps_b.append,
+                                    min_interval=1.2)).positions("KR")
+        kis.KisBroker(kis.KisClient("paper", "KEY1234", "SEC", "66666666-01", Path(td) / "s", http=ha, sleep=naps_c.append,
+                                    min_interval=1.2)).positions("KR")
+        ck("같은 계좌의 새 클라이언트는 앞 클라이언트 뒤 간격을 기다린다", len(naps_b) == 1 and naps_b[0] > 1.0)
+        ck("다른 계좌는 기다리지 않는다", naps_c == [])
+        seq = iter([Resp({"rt_cd": "1", "msg_cd": "EGW00215", "msg1": "원장에서 허용 가능한 초당 거래건수를 초과하였습니다."}), bal])
+        hr = Http([("/oauth2/tokenP", token), ("inquire-balance", lambda: next(seq))])
+        rcl = kis.KisClient("paper", "KEY1234", "SEC", "55555555-01", Path(td) / "r", http=hr, sleep=lambda s: None, min_interval=0)
+        ck("조회는 EGW00215 를 재시도해 성공", kis.KisBroker(rcl).positions("KR") == []
+           and sum(1 for c in hr.calls if "inquire-balance" in c[1]) == 2)
+        p215 = Http([("/oauth2/tokenP", token), ("order-cash", Resp({"rt_cd": "1", "msg_cd": "EGW00215", "msg1": "초과"}))])
+        b215 = kis.KisBroker(kis.KisClient("paper", "KEY1234", "SEC", "55555555-01", Path(td) / "y", http=p215,
+                                           sleep=lambda s: None, min_interval=0), orders_enabled=True)
+        ck("주문은 EGW00215 여도 재시도하지 않는다(POST 1회)", raises(kis.KisError, b215.place, kr("005930", "BUY", 1), False)
+           and sum(1 for c in p215.calls if "order-cash" in c[1]) == 1)
+
     # ---------------------------------------------------------------- 소스 위생
     src = "".join(p.read_text(encoding="utf-8") for p in (ROOT / "autotrader").rglob("*.py"))
     ck("소스에 앱키·토큰 리터럴 패턴이 없다", "PS" not in [w for w in src.split() if len(w) > 30 and w.startswith("PS")])

@@ -3,7 +3,7 @@
 ★ 실전 TR_ID 는 2026-09-22 KIS 공식 저장소(open-trading-api @b4e6249)와 대조해 **13개 전부 일치**했다
    (docs/control/autotrader-실전TRID-대조-2026-09-22.md). 같은 대조에서 주문 본문 2건(해외 거래소 코드 D1·국내
    EXCG_ID_DVSN_CD D2)을 공식대로 고쳤다. 실전 주문에는 여전히 사용자 확인(`live.tr_ids_reviewed`) 게이트가 걸려 있다.
-★ 주문은 재시도하지 않는다(중복 매수의 대가가 조회 실패보다 훨씬 크다). 조회만 EGW00201/EGW00300 에서 재시도.
+★ 주문은 재시도하지 않는다(중복 매수의 대가가 조회 실패보다 훨씬 크다). 조회만 EGW00201/EGW00215/EGW00300 에서 재시도.
 ★ 실전 주문은 어댑터도 한 번 더 잠근다: `orders_enabled` 가 True 로 만들어진 인스턴스만 실주문을 낸다
    (CLI 가 게이트를 통과한 `--execute` 실행에만 True 를 준다).
 """
@@ -60,7 +60,8 @@ PATHS = {
     ("US", "price"): "/uapi/overseas-price/v1/quotations/price",
 }
 
-_RETRYABLE = {"EGW00201", "EGW00300"}
+_RETRYABLE = {"EGW00201", "EGW00215", "EGW00300"}   # 00215 = 원장(계좌) 초당 건수 초과 — 조회(GET)만 재시도
+_LAST: Dict[Tuple[str, str], float] = {}   # (도메인, 계좌) → 마지막 요청 시각. 같은 계좌의 여러 프로필 클라이언트가 간격을 이어 쓴다
 MAX_PAGES = 100
 US_EXCHANGE = "NASD"          # 잔고·미체결 조회용 — 실전에서 NASD 는 '미국 전체'(공식 예제 inquire_balance/nccs)
 US_QUOTE_EXCHANGES = ("NAS", "AMS", "NYS")    # 시세용 코드가 다르다. 앞에서부터 값이 나올 때까지
@@ -109,7 +110,6 @@ class KisClient:
         self._http = http or self._default_http
         self._sleep = sleep
         self._min = min_interval if min_interval is not None else (1.2 if mode == "paper" else 0.2)
-        self._last = 0.0
         self._token: Optional[str] = None
 
     @staticmethod
@@ -118,10 +118,11 @@ class KisClient:
         return requests.request(method, url, **kw)
 
     def _request(self, method, url, **kw):
-        wait = self._last + self._min - time.monotonic()
+        k = (self.base, self.cano)                     # 프로필이 바뀌어도 같은 계좌면 간격이 이어진다(2026-10-19 EGW00215)
+        wait = _LAST.get(k, 0.0) + self._min - time.monotonic()
         if wait > 0:
             self._sleep(wait)
-        self._last = time.monotonic()
+        _LAST[k] = time.monotonic()
         return self._http(method, url, **kw)
 
     def _get_token(self) -> str:
