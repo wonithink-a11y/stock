@@ -112,6 +112,7 @@ def parse_body(text: str) -> dict:
         "sales": sales,
         "pct": pct,
         "pct_calc": round(amount / sales * 100, 4) if amount and sales else None,
+        "detail": _first(r"계약\s*구분\s*(공사수주|용역제공|기타\s*판매ㆍ공급계약|\S+)", t),   # 옛 서식만 있다(새 서식은 None)
         "content": (_first(r"(?:판매ㆍ공급계약|공급계약|계약)\s*내용\s*(.{1,80}?)\s*2\.", t) or "").strip() or None,
         "counterparty": _first(r"계약상대방?\s*(.{1,80}?)\s*-\s*(?:최근|회사와의)", t) or _first(r"계약상대방?\s*(.{1,80}?)\s*4\.", t),
         "related": None if rel is None else ("특수관계" in rel),
@@ -173,7 +174,7 @@ def listing():
             corp2t[j["corp"]] = (j["ticker"], j.get("corpName", ""))
     rows, amend = [], Counter()
     for p in sorted(TITLES.glob("*.json")) + sorted(EXT_TITLES.glob("*.json")):
-        corp = p.stem
+        corp, src = p.stem, ("ext" if p.parent == EXT_TITLES else "cache")
         for r in json.load(open(p, encoding="utf-8")).get("I", []):
             nm = re.sub(r"\s+", "", r["nm"])
             if nm.startswith("[") and re.search(r"단일판매.?공급계약(체결|해지)", nm):
@@ -183,7 +184,7 @@ def listing():
                 continue
             t, name = corp2t.get(corp, (None, ""))
             rows.append({"rcept_no": r["no"], "filed": r["d"], "corp": corp, "ticker": t, "name": name,
-                         "kind": k[0], "voluntary": k[1], "subsidiary": k[2], "title": r["nm"].strip()})
+                         "kind": k[0], "voluntary": k[1], "subsidiary": k[2], "title": r["nm"].strip(), "src": src})
     rows.sort(key=lambda x: x["rcept_no"])
     return rows, amend
 
@@ -332,7 +333,8 @@ def selftest():
     assert o["amount"] == 9916500000 and o["sales"] == 82034829154 and o["pct"] == 12.09, o
     assert abs(o["pct_calc"] - 12.0882) < 0.01 and o["related"] is True and o["conditional"] is False
     assert o["start"] == "2018-12-13" and o["end"] == "2020-08-28" and o["contract_date"] == "2018-12-13"
-    assert o["counterparty"] == "웰크론한텍" and o["content"] == "Boiler Package 제작", o
+    assert o["counterparty"] == "웰크론한텍" and o["content"] == "Boiler Package 제작" and o["detail"] is None, o
+    assert parse_body("1. 판매ㆍ공급계약 구분 공사수주 - 체결계약명 X 2. 계약내역")["detail"] == "공사수주"
     old = ("1. 공급계약 내용 LCD 장비 2. 계약금액(원) 1,200,000,000 최근 매출액(원) 30,000,000,000 매출액 대비(%) 4.0 "
            "3. 계약상대방 삼성디스플레이 4. 판매ㆍ공급지역 충남 5. 계약기간 시작일 2016. 3. 2 종료일 2016년 9월 30일")
     o = parse_body(old)
