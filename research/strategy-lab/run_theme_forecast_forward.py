@@ -61,7 +61,8 @@ def load_close(tickers):
 
 # ------------------------------------------------------------------ 원장
 def sha(p):
-    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+    """줄바꿈을 LF 로 맞춘 뒤 해시 — Windows checkout(CRLF)과 저장소(LF)가 같은 값을 낸다."""
+    return hashlib.sha256(Path(p).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def read_ledger():
