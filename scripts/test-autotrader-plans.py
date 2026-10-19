@@ -239,6 +239,9 @@ def _data_root(td: Path) -> Path:
                                "attr": {"lnP": 0.262364, "lnEps": 0.470004, "lnPer": -0.20764}}]},
         "009150": {"flags": [], "asOf": "20260814", "filings": 42,
                    "ttm": {"eps": 0.5, "epsCont": 0.5, "ageDays": 30, "late": False, "periods": ["2025Q3", "2025Q4", "2026Q1", "2026Q2"]}, "yearly": []}}})
+    w("docs/data/contract-liab.json", {"updatedAt": "2026-10-19T21:20:00+09:00", "withValue": 2, "count": 3, "items": {
+        "005930": {"fy": 2025, "cl": 3e10, "clPrev": 1e10, "revPrev": 1e11, "dcl": 0.2, "f": "20260310", "pct": 100.0, "q": 5, "peers": 2},
+        "009150": {"reason": "no_cl_row"}}})
     w("ui/data/positions.json", {"strategies": {"pbr_value_v1_combined": {"positions": [{"symbol": "005930", "status": "OPEN"}]}}})
     return d
 
@@ -277,6 +280,16 @@ def card_tests(now):
            and sc.build_card("009150", None, root)["eps"]["perNote"] == "tiny")
         ck("EPS: 파일에 없는 종목은 '수집 중' 상태(0 으로 지어내지 않는다)", sc.eps_block("000001", 100, root)["status"] == "pending")
         ck("EPS: 파일 자체가 없으면 nofile", sc.eps_block("005930", 100, root / "nowhere")["status"] == "nofile")
+        lb = card["liab"]
+        ck("매출 가시성: 파일 값 그대로(dCL 0.2 · 5분위 · 접수일)", lb["status"] == "ok" and lb["dcl"] == 0.2 and lb["q"] == 5 and lb["f"] == "20260310")
+        ck("매출 가시성: 값 없는 종목은 이유만(0 으로 지어내지 않는다)", sc.liab_block("009150", root) == {"status": "none", "reason": "no_cl_row",
+           "updatedAt": "2026-10-19T21:20:00+09:00", "withValue": 2, "count": 3})
+        ck("매출 가시성: 파일에 없으면 수집 중 · 파일이 없으면 nofile", sc.liab_block("000001", root)["status"] == "pending"
+           and sc.liab_block("005930", root / "nowhere")["status"] == "nofile")
+        html = web.render_card(card)
+        ck("카드 화면: 매출 가시성 절 — +20.0% · 100억 → 300억 · 5분위 · 접수일", "매출 가시성" in html and "+20.0%" in html
+           and "100억 → 300억" in html and "5분위 / 5" in html and "2026-03-10" in html)
+        ck("카드 화면: 값 없으면 이유 문장", "계약부채·선수금 항목이 없다" in web.render_card(sc.build_card("009150", None, root)))
         ck("계획 저장 때 당시 TTM EPS·PER 도 남긴다", sc.context_for_plan(card)["ttmEps"] == 10 and abs(sc.context_for_plan(card)["ttmPer"] - 12.9) < 1e-9)
         n = sc.checks(card, 128, 129, 128.5, 140)
         ck("점검: 지금 가격이 구간 안이면 경고", any("구간 안" in t for _, t in n))

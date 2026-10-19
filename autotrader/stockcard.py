@@ -119,6 +119,20 @@ def eps_block(code: str, price: float, root: Path = REPO_ROOT) -> Optional[dict]
     return out
 
 
+def liab_block(code: str, root: Path = REPO_ROOT) -> dict:
+    """계약부채 증가(매출 가시성) — scripts/build-contract-liab.py 가 만든 docs/data/contract-liab.json 만 읽는다. 모르는 값은 None."""
+    d = _load("docs/data/contract-liab.json", root)
+    if not d:
+        return {"status": "nofile"}
+    it = (d.get("items") or {}).get(code)
+    if not it:
+        return {"status": "pending"}
+    base = {"updatedAt": d.get("updatedAt"), "withValue": d.get("withValue"), "count": d.get("count")}
+    if it.get("dcl") is None:
+        return {"status": "none", "reason": it.get("reason"), **base}
+    return {"status": "ok", **{k: it.get(k) for k in ("fy", "dcl", "pct", "q", "peers", "cl", "clPrev", "revPrev", "f")}, **base}
+
+
 def _yearly_rows(ys: List[dict], out: dict, price: float, this_year: str) -> List[dict]:
     """연말표 — ① 올해 중간 날짜(연말 아님)는 빼고 카드의 **현재가·현재 TTM** 으로 '현재' 줄을 만든다 ② EPS 가 주가의 1% 미만인 해는
     PER·분해를 안 낸다(위 카드와 같은 기준) ③ 앞쪽의 TTM 결측 줄은 뺀다. 분해 = 연속한 두 줄의 ln P = ln EPS + ln PER."""
@@ -194,6 +208,7 @@ def build_card(code: str, intraday: Optional[dict] = None, root: Path = REPO_ROO
         "sectorFairPrice": price * sec_med / pbr if pbr and sec_med else None,
         "pbrSleeve": held, "levels": levels(price, atr),
         "eps": eps_block(code, price, root),
+        "liab": liab_block(code, root),
     }
 
 

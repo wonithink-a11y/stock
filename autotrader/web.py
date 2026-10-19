@@ -717,6 +717,34 @@ def _render_eps(e: Optional[dict]) -> str:
     return h + "".join(rows) + notes + tbl + foot
 
 
+_LIAB_NONE = {"financial": "금융업은 계약부채의 뜻이 달라 내지 않는다", "no_cl_row": "재무상태표에 계약부채·선수금 항목이 없다(관심종목의 약 3분의 2가 그렇다)",
+              "no_report": "사업보고서를 찾지 못했다", "pending": "아직 못 받았다(수집 중)", "small_revenue": "전년 매출 10억 미만이라 비율을 내지 않는다",
+              "no_revenue": "전년 매출을 모른다", "non_december_fy": "12월 결산이 아니라 다루지 않는다", "fy_unknown": "결산월을 몰라 계산하지 않았다",
+              "no_corp": "DART 법인코드가 없다"}
+
+
+def _render_liab(l: Optional[dict]) -> str:
+    """매출 가시성 — 계약부채(미리 받은 돈·수주 진행분) 증가. 연구 1단계 정의 그대로. 매매 신호가 아니다."""
+    h = '<h2 style="margin-top:12px">매출 가시성 (계약부채 증가)</h2>'
+    if not l or l.get("status") == "nofile":
+        return h + '<div class="mut">계약부채 데이터가 아직 없다(수집 전)</div>'
+    if l.get("status") == "pending":
+        return h + '<div class="mut">이 종목의 계약부채를 아직 못 받았다 — 수집 중</div>'
+    if l.get("status") == "none":
+        return h + f'<div class="mut">값 없음 — {E(_LIAB_NONE.get(l.get("reason"), str(l.get("reason"))))}</div>'
+    row = lambda a, b: f'<div class="row"><span>{a}</span><span>{b}</span></div>'   # noqa: E731
+    eok = lambda v: f"{v / 1e8:,.0f}억"                                              # noqa: E731
+    pos = "-" if l.get("pct") is None else (f'{l["q"]}분위 / 5 <small class="mut">많이 늘어난 순 상위 {100 - l["pct"]:.0f}% · '
+                                            f'관심종목 {l["peers"]}곳 비교(5분위 = 가장 많이 늘었다)</small>')
+    f = str(l.get("f") or "")
+    return (h + row(f'FY{l["fy"]} 증가 (전년 매출 대비)', f'{l["dcl"] * 100:+.1f}% <small class="mut">계약부채 {eok(l["clPrev"])} → {eok(l["cl"])}'
+                    f' · 전년 매출 {eok(l["revPrev"])}</small>')
+            + row("관심종목 중 위치", pos)
+            + '<div class="mut" style="margin-top:6px">계약부채 = 고객에게 미리 받은 돈·수주 진행분(선수금·초과청구공사 등). 연구: 많이 늘어난 회사일수록 다음 해 매출이 '
+              '더 늘었다(순위상관 +0.19~+0.22, 9개 연도 모두) — 그러나 공시 뒤 주가로는 이기지 못했다(REJECT). 관찰용 · '
+              f'사업보고서 접수 {E(f[:4] + "-" + f[4:6] + "-" + f[6:] if len(f) == 8 else "-")} · 갱신 {E(str(l.get("updatedAt") or "-")[:10])}</div>')
+
+
 def render_card(card: Optional[dict]) -> str:
     """종목 분석 카드 — 참고 자료 + 규칙 계산값(검증 결과를 같이 적는다). 투자 자문 아님."""
     if not card:
@@ -743,6 +771,7 @@ def render_card(card: Optional[dict]) -> str:
 {row("PBR", pbr)}
 {row("업종 PBR 기준", sec)}
 {_render_eps(card.get("eps"))}
+{_render_liab(card.get("liab"))}
 {row("PBR 전략(모의) 보유", "<span class=ok>보유 중 — 이번 달 편입 조건 충족</span>" if card["pbrSleeve"] else "<span class=mut>아님</span>")}
 {row("증권사 목표가", f"{_won(t['median'])} <small class=mut>중앙값 · {t['brokers']}개사 · {E(str(t['lastDate']))}</small>" if t else "<span class=mut>없음</span>")}
 {row("우리 점수", f"{sc['total']} · {E(str(sc['grade']))}" if sc and sc.get("total") is not None else "<span class=mut>-</span>")}
