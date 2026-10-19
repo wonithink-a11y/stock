@@ -1,0 +1,145 @@
+{
+ "month": "2026-10",
+ "created": "2026-10-19",
+ "model": "claude-opus-5-5",
+ "horizon": "진입 = 2026-10-20 종가, 252거래일 뒤 종가",
+ "process": "① 걸러내기(숫자): KRX 10-16 시총·20일 거래대금, 2026 반기 누적 실적(전년 반기 대비), A3 FY2025 재무. A = 흑자·시총 3천억↑·거래대금 30억↑·매출 +20%↑·영업이익 +30%↑·영업이익률 8%↑·부채/자본 1.5 미만·반기 연환산 PER 20 이하(36개) · B = A3 FY2025 갈래 B 조건·시총 2천억↑·거래대금 20억↑·매출 +30%↑·영업손익 개선(45개). ② 질적 확인: 반기보고서 AI 해독(사업 구조·고객 집중·위험) + 구글 뉴스 RSS 2026-08-20~10-19 기사. ③ 사슬 분산: 테마 예측(2026-10)이 이미 AI 설비투자 축 3개라 여기서는 메모리 1개만 두고 게임·식품·화장품·제약·의료기기·조선 엔진·태양광·양극재로 나눴다. 뺀 것: HD건설기계(매출 +153% 는 2026-01 합병 효과) · 제주반도체(D램 가격 급등의 소형 팹리스, 주기 정점 위험 큼) · SK하이닉스(삼성전자와 같은 사슬, 하나만) · 파두(부채/자본 5.2·PBR 145).",
+ "context": "직전 주 KOSPI 7거래일 하락(10-15 −7.57%) 뒤 10-16 반등. 후보 대부분이 6개월 고점 대비 −20~−65%. 숫자는 반기 누적(2026H1 vs 2025H1), PER 은 반기 순이익 ×2 기준 거친 값.",
+ "picks": [
+  {
+   "ticker": "005930", "name": "삼성전자", "lane": "A",
+   "business": "메모리(DRAM·HBM)·파운드리·완제품(DX). 반기 매출 +99%, 영업이익 146.7조 vs 11.4조 — DS(메모리) 가격·서버 수요가 전부를 끌었다. 해자: 메모리 생산능력·1c D램·HBM 턴키(베이스다이 TSMC 3나노 포함) 공급.",
+   "catalyst": "엔비디아 루빈 HBM4 12단 출하 본격화(2027), HBM 장기공급계약, 2027 물량 선판매.",
+   "financials": "부채/자본 0.30, 순현금 구조. 반기 영업이익률 48%.",
+   "valuation": "반기 연환산 PER 약 5.3배·PBR 2.9배, 6개월 고점 대비 −41%. 주기 정점 이익에 낮은 PER 은 함정일 수 있다 — 2027 계약 물량이 그 위험을 6~12개월 늦춘다고 본다.",
+   "risks": "CXMT 차세대 D램(10-12) 등 중국 추격·2028 공급 과잉론, 메모리 가격 하락 전환, DX(스마트폰·TV) 수익성 압박, 외국인 대량 매도.",
+   "invalidation": "D램·HBM 계약가 하락 전환 보도, HBM4 엔비디아 인증 지연, 빅테크 2027 설비투자 하향.",
+   "evidence": [
+    {"source": "연합인포맥스", "date": "2026-10-13", "title": "\"내년도 삼전닉스 성장동력은 HBM4…엔비디아 루빈 출하 본격화\"", "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE11c0k0RUlzVGZYU1c3UmRqOEVJRFNmbVVqeXVqRnFKSkhZV2lhWGhPd0FOY0F4MUk0VzV0c3IwakNWRXd5MWpqOXFOcG5UbXJXdWJobmR3Y0NqbUhKR2wxY0lzdWM2MzV5ZTVpOGlndmc?oc=5"},
+    {"source": "한국정경신문", "date": "2026-10-13", "title": "삼성전자, 엔비디아 HBM 독점 구도에 균열..턴키·장기공급계약으로 승부수", "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE15Q3lZMkc5MHdNVmtXaENWd0d0aXp6bzR1aDA0RHM3bUNvTTFlSE9uUm5mVlhsNWdfblVQNFdsNzhIUGZEaS1TczhDSzc2a2FqZFE?oc=5"}
+   ]
+  },
+  {
+   "ticker": "259960", "name": "크래프톤", "lane": "A",
+   "business": "PUBG IP 중심 게임사(PC·모바일), 광고·숏폼 등 신사업 투자. 반기 매출 +73%(신규 종속회사 편입 포함), 영업이익 9,725억 vs 7,033억(+38%), 영업이익률 37%. 해자: 10년 가까이 이어진 배틀로얄 IP·인도 등 신흥 시장 지배력.",
+   "catalyst": "멀티 IP 전환(2026 매출 4.8조 전망 보도), 4분기·2027 신작 출시.",
+   "financials": "부채/자본 0.31, 현금 창출력 큼.",
+   "valuation": "반기 연환산 PER 약 9배·PBR 1.2배, 고점 대비 −34%. 신작 공백이 이미 가격에 있다고 본다.",
+   "risks": "단일 IP 의존, 신작 흥행 실패, 신사업(광고·숏폼) 투자 손실, 환율.",
+   "invalidation": "PUBG 계열 매출 2개 분기 연속 감소, 대형 신작 연기·흥행 실패.",
+   "evidence": [
+    {"source": "뉴스퀘스트", "date": "2026-10-16", "title": "“2026년 매출 4.8조 시현…크래프톤, 단일 IP 잔혹사 끊고 ‘멀티 IP’ 날개”", "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9RbWItX29XdEdhT1c1X1VIZmlTeWhrelpOOWxQUHhvRElkN2pKZWRjSEhscnN2TUlUSlZENFFPT2FZUWFIa0NkOENIZkVrcHBuM2JnNjB5LUUzeFNudEZEbklEYmNkUldkOEtvN19oZw?oc=5"},
+    {"source": "뉴스핌", "date": "2026-10-19", "title": "[리포트 브리핑]크래프톤, '신작모멘텀 부재 장기화가 아쉬운 시기' 목표가 270,000원 - 부국증권 (반대 쪽 확인용)", "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1QVWtzNW1YTi1FNkU1QUROcUZkeGtnNnpfcFNUM1dqTXlGUHd6akVQSnZVaGNEMmZmenV1V25kV1RqNlE2TGc5eGtmWmc2V25XMEo1TFRaSHo1NUhB?oc=5"}
+   ]
+  },
+  {
+   "ticker": "003230", "name": "삼양식품", "lane": "A",
+   "business": "불닭 브랜드 면스낵(매출 90.6%), 해외 수출 중심. 반기 매출 1.48조(+37%), 영업이익 3,533억(+39%), 영업이익률 24%. 해자: 글로벌 브랜드 인지도·매운맛 카테고리 선점, 수요가 생산능력을 넘는 상태.",
+   "catalyst": "중국 공장 증설·국내 라인 풀가동으로 수출 여력 확대, 유럽 확장.",
+   "financials": "부채/자본 0.73, 이익률 높음.",
+   "valuation": "반기 연환산 PER 약 16배·PBR 7.3배 — 비싼 편, 고점 대비 −21%로 덜 빠졌다. 성장 지속이 전제.",
+   "risks": "단일 제품군 집중, 원화 강세(수출 환산), 팜유 등 원가, 유행 둔화.",
+   "invalidation": "분기 매출 성장률 +15% 미만으로 둔화, 해외 재고 증가·판촉 확대 보도.",
+   "evidence": [
+    {"source": "한국경제", "date": "2026-10-01", "title": "'불닭면만 대박난 줄 알았더니'…삼양식품, 뜻밖의 1000억 반전 [분석+]", "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBZTXRhSXNVbzhlLWZ6a0gxMU5Xc1A3Smpfbk5jRGVzSjJDRDJBSkZKelQwaElFN3dSY1VVb29acGJLOTNXbW8yMXg3dTN5SW40ZnZWcE8tcWhsUQ?oc=5"},
+    {"source": "글로벌이코노믹", "date": "2026-09-21", "title": "불닭 수요 못 따라가자 中공장 키운 삼양식품…내부엔 ‘AX’ 신설", "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPV0FjTUhibHgzVm5DZEJCeURrbHNwOFY4TjY3T29LMEtlNi1YRHRBMGs0ZU1rQnRBaVlEWkswdmVrSzNUeWVxTDZnMnhTSUdfc2JreG5VMU1PSXlpeXVQYlhTUHRydE5GZnJVOFNGcEJsQXhCb2d4ZjZHZ2tESEZkdDlQaFRkS0RNSkxZ?oc=5"}
+   ]
+  },
+  {
+   "ticker": "071970", "name": "HD현대마린엔진", "lane": "A",
+   "business": "선박용 저속 엔진·부품. 반기 매출 +44%, 영업이익 638억 vs 277억(+130%), 영업이익률 24%. 해자: 친환경(이중연료) 대형 엔진 생산능력은 세계적으로 몇 곳뿐 — 조선 발주의 병목.",
+   "catalyst": "중국향 포함 엔진 수주 확대(8,700억 수주 보도), 신조선가 상승, 데이터센터 발전용 엔진 진출.",
+   "financials": "부채/자본 0.67.",
+   "valuation": "반기 연환산 PER 약 12배(증권사 보도 2027 PER 6배대), 고점 대비 −65% 로 크게 빠졌다.",
+   "risks": "계열사(HD현대중공업) 의존, 조선 발주 둔화, 중국 엔진 업체 추격, 원자재.",
+   "invalidation": "분기 신규 수주 감소 전환, 엔진 단가 인하 보도, 증설 지연.",
+   "evidence": [
+    {"source": "헤럴드경제", "date": "2026-10-12", "title": "밀려드는 선박엔진 주문에 풀가동…8700억 수주 ‘쾌속 성장’ [헤럴딥-그 회사 어때?:HD현대마린엔진]", "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9GdG5aTFpkY3RicEZSR1QwS2p3WlFNTkNnVzljTDZSclNWRWoyclVjeUE0LWNMbGR5SW5jNUVWSEtKdWVDaHBrc1paWjh0RmdRZEo5V0ln?oc=5"},
+    {"source": "뉴스핌", "date": "2026-10-08", "title": "[리포트 브리핑]HD현대마린엔진, '중국향 수주 폭발인데! PER 6배대로?' 목표가 104,000원 - 다올투자증권", "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5rREpyN2Fxdk5XMmVReUtUaEwteVpKeXFCRm1Za0wzTjAwcldreWFKVVVma255NzB0QnN2Wlk2OTRFQkhWd2RPZ3h0VVhTY0d1RVpTM1BpVGVKNXUx?oc=5"}
+   ]
+  },
+  {
+   "ticker": "257720", "name": "실리콘투", "lane": "A",
+   "business": "K-뷰티 글로벌 B2B·B2C 유통 플랫폼. 반기 매출 +47%, 영업이익 1,475억 vs 999억(+48%), 영업이익률 20%. 해자: 수백 개 중소 브랜드를 해외 소매·도매에 붙이는 물류·판매망.",
+   "catalyst": "K-뷰티 수출 역대 최대·AI 쏠림 이탈 자금의 소비재 이동(10-18 보도), 신흥 지역 확장.",
+   "financials": "부채/자본 0.55.",
+   "valuation": "반기 연환산 PER 약 9배·PBR 4.9배, 고점 대비 −37%.",
+   "risks": "기업 고객(CA) 매출 집중, 원화 강세에 따른 환산 손실, 브랜드 직접 진출(유통 우회).",
+   "invalidation": "분기 매출 역성장 또는 영업이익률 15% 미만, 주요 브랜드 이탈 보도.",
+   "evidence": [
+    {"source": "파이낸셜뉴스", "date": "2026-10-18", "title": "AI 반도체 흔들리자 '최대실적' 뷰티株 부상…하이드로겔 마스크 공급 부족", "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBrMkVNel84VzdzYzQxbUJZTFAxT2lITUlySW1VZWQydmFHV2g3WGRJOXRqZV9idXRFV1JVWFZnRVpmUllLaXdUc1V1OHlUNzJoVWlwNWJxU05xZw?oc=5"},
+    {"source": "핀포인트뉴스", "date": "2026-10-14", "title": "하나증권 “화장품 업황 예상보다 양호”…에이피알·실리콘투, 환율 부담에 실적 변수", "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9CX01GQldOTnRlb1ctS3RsSEhqRGFkd3JfQ081OEJaX3g5LTlYWkk0cFhsbWZOYTBDb3hkMWlKVUdwQzVpZmM0cXJCOTViMlp1a1llVXVHNmprMzdUcWlzaGVsSVJtT2FCNWc1WFFEbmxQTEnSAXdBVV95cUxNU28ydUxBaTVIVmVEQ1pSSHY5aUVkcDBmVldVSHBRbE9nSFRXeWlwbVNqZ1JCTWg2THdpTDEwVGRxeTQwdmU1d0psQXZCd2RucEd4RkhUWjlNX3hJeEdyYzdTbGFhZDVVdlAtSEtlMFhZUzhaaERwTQ?oc=5"}
+   ]
+  },
+  {
+   "ticker": "326030", "name": "SK바이오팜", "lane": "A",
+   "business": "뇌전증 신약 세노바메이트(매출 98.5%) 미국 직판 + 해외 기술료. 반기 매출 +48%, 영업이익 1,868억 vs 876억(+113%), 영업이익률 39%. 해자: 미국 직접 판매망을 가진 드문 국내 신약사, 특허 기간.",
+   "catalyst": "소아 3상 완료로 적응증 확대, 처방 증가에 따른 이익 레버리지(판관비 고정).",
+   "financials": "부채/자본 0.45.",
+   "valuation": "반기 연환산 PER 약 15배·PBR 7배, 고점 대비 −31%.",
+   "risks": "단일 제품 집중, 미국 약가 규제, 후속 파이프라인 공백.",
+   "invalidation": "분기 미국 처방·매출 감소, 약가 인하 대상 지정, 소아 적응증 허가 거절.",
+   "evidence": [
+    {"source": "메디코파마", "date": "2026-10-19", "title": "SK바이오팜 '세노바메이트', 소아 3상 완료…적응증 확대 주목", "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1BTVFKeGE3U2E2Z2d5X2JjZUw4WkZxTWhXREJhbDdjRFQ5a3ZqRmItY0c0c1B0WXlfUUpzaTZOaUJ5emo0bzc2TXZERzVFdUl3ejNabkp0aGhxRkZvQ3pqZGNCVXp6OVZKajlRVm5Md0E3Zw?oc=5"},
+    {"source": "뉴스1", "date": "2026-10-12", "title": "SK바이오팜, 美서 세노바메이트 성공 경험 공유…글로벌 협력 확대", "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1ZNVRNVDJBQkloVjFiMTBKbFBxR3ZFbExmRkFVSGh5ZkNMdTVaOW1GMlF5clF5aFYzb3JiV2VFMGQ1Z19FU0o3aXVUWmFCMWs0STJMaV9nOFFLYlVsLTg5NQ?oc=5"}
+   ]
+  },
+  {
+   "ticker": "041830", "name": "인바디", "lane": "A",
+   "business": "전문가용 체성분 분석기(의료기기), 해외 매출 비중 큼. 반기 매출 +27%, 영업이익 308억 vs 174억(+77%), 영업이익률 22%. 해자: 체성분 분석 표준 장비 지위·병원 납품망.",
+   "catalyst": "비만 치료제(GLP-1) 확산 → 근육·체성분 측정 수요, 미국 병원 매출 증가.",
+   "financials": "부채/자본 0.13, 영업현금으로 투자·배당 충당.",
+   "valuation": "반기 연환산 PER 약 11배·PBR 2.2배, 고점 대비 −26%.",
+   "risks": "소형주(시총 7천억), 대주주 2세 지분 매도(10-08 보도), 경쟁 장비 진입, 환율.",
+   "invalidation": "분기 매출 성장 +10% 미만, 미국 매출 둔화.",
+   "evidence": [
+    {"source": "아시아경제", "date": "2026-10-13", "title": "살빼는 약 시대 필수장비…덩치 키우는 인바디[클릭 e종목]", "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE4zWGNqTEtKMGtBMG9CR0RTNExNaWxEZGMyejBuQnA5Q1RvWnc4Wk0tNE5uX1Q3WWdiYzdvNGx3MExnZzFiWFlWUTFaQzZWMldtdW9GSHdmMDJ3VzJlb2xiUmR3?oc=5"},
+    {"source": "마켓인", "date": "2026-09-23", "title": "인바디, 美 병원 매출로 체성분 분석기 수요 확인…리레이팅 주목-한투", "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBvdEo1eGVZZUZlRFpkOVJqMnJfem1VQnAzRW1VRmYwRmczY0lab0RBcFc2UWdCUHhIbE1OV3ZQbjNqUkJObnAwWTFzYWw2N3k5YTZ0Sks4eWd5bXdXOW5LU2U4TDUxVV9veW8yR0xXN3RFczQ?oc=5"}
+   ]
+  },
+  {
+   "ticker": "263750", "name": "펄어비스", "lane": "B",
+   "business": "검은사막·붉은사막 IP 게임사(PC·콘솔), 해외 매출 비중 큼. FY2025 영업손실 −148억·순손실 −84억 → 2026 반기 매출 +339%, 영업이익 2,797억 vs 88억. 해자: 자체 엔진·콘솔 대작 개발력(국내 드묾).",
+   "catalyst": "붉은사막 누적 600만 장(10-18), 콘솔 추가 판매·DLC, 검은사막 유지.",
+   "financials": "부채/자본 0.44 — 재무 자체는 약하지 않다. 갈래 B 는 FY2025 적자 때문.",
+   "valuation": "반기 연환산 PER 약 4배는 출시 직후 판매 집중을 연환산한 착시 — 정상화 이익 기준으로는 그보다 높다. 고점 대비 −54%.",
+   "risks": "출시 효과 소멸 뒤 매출 급감(신작 공백), 차기작까지 수년, 단일 대작 의존.",
+   "invalidation": "3·4분기 매출이 2분기 대비 70% 넘게 감소하고 후속 콘텐츠 일정 부재.",
+   "path_to_profit": "이미 2026 반기에 흑자 전환(영업이익 2,797억). 연간 흑자 확정이 다음 단계 — 하반기 판매가 반기의 30% 이상이면 FY2026 큰 흑자, 이후는 차기작·검은사막 유지 매출이 바닥.",
+   "evidence": [
+    {"source": "Pearl Abyss", "date": "2026-10-18", "title": "펄어비스 붉은사막, 글로벌 누적 판매량 600만 장 달성", "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5XZmJDZy0yQ01STmh2OS1USzgyRXlJU3dIeWdSMDN6cU9zTU1EUUFNTmpuZmZmYmViVkd0M2lYa19ndUdDdEJfTUFNNnNDV0prVm9PLUd0eEZRMWpLUEpFWHl1QTlLUEltbWl3?oc=5"},
+    {"source": "뷰어스", "date": "2026-10-16", "title": "'붉은사막' 흥행 이후…펄어비스, 성장 지속성 시험대", "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5rY2plb2pYS284WXRRbzFucWViVDNSNjhJUkRSdi03WWlXeTZkN2R5WFNQd3RuUVo2WDNhVkJpeXZncC10eXRqT19TbXY0MzFHOFBoYmFNX3U?oc=5"}
+   ]
+  },
+  {
+   "ticker": "066970", "name": "엘앤에프", "lane": "B",
+   "business": "2차전지 양극재(하이니켈 NCM + LFP 신규). FY2025 영업손실 −1,568억·순손실 −5,347억·부채/자본 3.6 → 2026 반기 매출 +84%, 영업이익 1,381억 vs −2,614억. 해자: 국내 LFP 양극재 선제 양산·고객 장기계약.",
+   "catalyst": "ESS 수요로 LFP 양극재 선계약(SK온 1,600억, 09-21), AI 데이터센터 → ESS 사슬(테마 예측 2026-10 의 2차전지와 같은 축).",
+   "financials": "약하다 — 차입 1.4조(10-15 보도), 반기 순이익은 아직 소폭 적자, 증자·자금조달 검토 보도.",
+   "valuation": "PBR 5.6배, 고점 대비 −56%. 흑자 지속을 전제로 한 값.",
+   "risks": "특정 고객 의존, 유상증자 희석, 원재료(리튬) 가격, 중국 LFP 저가 경쟁.",
+   "invalidation": "분기 영업손실 재전환, 대규모 유상증자 발표, LFP 계약 취소·지연.",
+   "path_to_profit": "영업이익은 2026 반기 흑자 전환. 남은 단계 = 이자·평가손실을 넘어 순이익 흑자 → 차입 축소. LFP 라인 가동률이 오르면 고정비 부담이 줄어든다.",
+   "evidence": [
+    {"source": "비즈니스포스트", "date": "2026-09-20", "title": "엘앤에프 ESS 수요 급증에 LFP 양극재 '입도선매', 허제홍 하이니켈 양극재도 순풍 '실적 날개'", "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1ydjF0U0xkNHc2cFhRYjZtT1NxS1ZFWU5qbTNMQVV1cVpGcWttWU04QU1rMGs5V2dHTXJVaXh0RmVIWWQ3M1I5THpPRjM3QVlZQ0c3UUhuSHhKaGRvM2tTc3BMOUZWQ3hJSEQ5Yy0wejhNZE0?oc=5"},
+    {"source": "CNews", "date": "2026-09-21", "title": "SK온, 엘앤에프와 1600억 규모 LFP 양극재 공급계약", "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE01cnN2V1FoRDl1VE16WUlkV1JQRHdRSkJnNkUxVUR1dlg2RG42UDY3NGE4d1A4b0N6YmhNUlU2bHJ2Szh0M1JuelYzMjAtZVd0SkxuekhveWpWVms1bjc5aFktQUVjMkQ3dXFIV3czMkdSdGFpZkRR?oc=5"},
+    {"source": "한스경제", "date": "2026-10-15", "title": "엘앤에프, LFP 키우는데 돈은 어디서…흑자 뒤 1.4조 빚더미 (반대 쪽 확인용)", "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBmZkxHb1RFejIzMDNiVU5zc2JPdDlJUm1lbzRxZXRJNEtiWC0yM0NXeW1CNFEzMklSYVpzSkNDSGlkcEMzN0Nkd0NvQzh4UDBqNlVRakVBei04RG5SYVNVVnRTbVFxNXRXMjlR0gFvQVVfeXFMTzVXeWFfcTQ3YXdFM0VxZlY2ZlJhT2RFRjl6SlNKMW1JWjdXNzVlUW1NTXRhSmN3elN5bUtnYVBnM2FFQU12akhXUXZPOVFDWTdUZ3l3aVFKVXJReUJOdzFWSnduNGVKa2MwWHdnNDNv?oc=5"}
+   ]
+  },
+  {
+   "ticker": "009830", "name": "한화솔루션", "lane": "B",
+   "business": "신재생(한화큐셀 태양광, 매출 절반↑)·기초소재(화학)·가공소재. FY2025 영업손실 −3,648억·순손실 −6,153억 → 2026 반기 영업이익 3,991억 vs 1,324억(+201%). 해자: 미국 내 셀~모듈 수직계열화·세액공제 수혜, 미국 내 비중국 공급망.",
+   "catalyst": "미국 분산전원·중국 견제 공급망 수요, 미국 법인 흑자(10-11 보도), 화학 부문 바닥 통과 시 추가 개선.",
+   "financials": "약한 편 — 부채/자본 1.96, 미국 법인 흑자에도 현금 시차로 4,000억 자금 지원(10-11·12 보도).",
+   "valuation": "PBR 0.63배, 반기 연환산 PER 약 14배, 고점 대비 −38%(실적 전망 14% 하향에 주가 −40%, 10-15 보도).",
+   "risks": "미국 세액공제·관세 정책 변경, 전력망 연계 병목, 글로벌 모듈 공급 과잉, 화학 부문 적자 지속, 증자.",
+   "invalidation": "미국 태양광 세액공제 축소 확정, 분기 영업손실 재전환, 유상증자 발표.",
+   "path_to_profit": "영업이익은 2026 반기 흑자. 남은 단계 = 순이익 흑자(이자 부담) → 미국 세액공제 현금화로 차입 축소. 화학 부문 적자 축소가 추가 지렛대.",
+   "evidence": [
+    {"source": "한국금융신문", "date": "2026-10-11", "title": "‘흑자’ 美 한화큐셀이 자금 4000억 수혈받는 까닭", "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1jaC1xM3lBTTlpQU0zNGpjZHljZ3JySkgwNV9pSjhUa3RzRlpsbkxkeDNtNHJIQU5YUGJwcVZwMWVlcjdCSG53SDZpNldGLXlvd1plQ25wQk82XzItWENwTGs2dnFzMnpLcUNmQmYwWEdfVHEyUGpvR0hJVy0?oc=5"},
+    {"source": "토요경제", "date": "2026-10-15", "title": "실적 전망 14% 낮췄는데 주가는 40%↓…한화솔루션, DB증권은 오히려 ′매수′", "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBhSXpxUDMtaFd1RExabGpZaDFKODd6WW9rY1lOZ3JhQW0tTXJiNFJZaFgwVVpqRU1QYmJLTnZnajFMV2JnYzV0akZaWThLOVdKNWl5MTJkSWpxTWkxbS1VWWwtRG90RDRyRFFFaURuMNIBb0FVX3lxTFBhSXpxUDMtaFd1RExabGpZaDFKODd6WW9rY1lOZ3JhQW0tTXJiNFJZaFgwVVpqRU1QYmJLTnZnajFMV2JnYzV0akZaWThLOVdKNWl5MTJkSWpxTWkxbS1VWWwtRG90RDRyRFFFaURuMA?oc=5"}
+   ]
+  }
+ ],
+ "common_risk": "10종목 중 6개가 고점 대비 −30% 이상 빠진 상태에서 골랐다 — '실적은 좋은데 많이 빠진' 쪽으로 기울었다(기대 대비 실적 괴리). 시장 전체 하락이 이어지면 같이 진다. 수출 비중이 큰 종목이 많아 원화 강세가 공통 역풍. 메모리 주기 꺾임은 삼성전자 하나에 직접, 엘앤에프·한화솔루션에 간접(ESS·전력)."
+}

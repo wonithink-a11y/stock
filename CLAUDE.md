@@ -195,6 +195,10 @@ Validated against
             뉴스(구글 뉴스 RSS 날짜 범위, 브라우저 패널 fetch)·논문·월가 전망으로 테마 트리 v0.2 고정본 44개 중 3개 + 인과 사슬·근거 2개↑·단계·틀릴 조건을 `reports/2026-10-theme-forecast-forward/forecasts/YYYY-MM.json` 에 쓰고
             `python research/strategy-lab/run_theme_forecast_forward.py --register YYYY-MM`(등록일 = 오늘만, 소급 금지) → 커밋. 첫 회 2026-10(전력기기·메모리·2차전지 셀, 셋 다 AI 설비투자 축). 이 forward 의 중간 성과는 보지 않는다.
             6개월 뒤 44개 등가중 대비, 테마 이름 재배치 귀무. `--judge` 2028-10-20 ∧ 성숙 18 · INCONCLUSIVE 면 2029-10-20 ∧ 30 — 그 전엔 코드가 거부. 현실적 기대 INCONCLUSIVE.
+            ★ **종목 종합 분석 예측 고정 forward도 같은 날**(10-19 사전등록 findings/stock-forecast-forward-preregistration-2026-10.md · 사용자 요청): 10종목(흑자 갈래 A + 미래 수익성 갈래 B 0~5, B = A3 최근 연간 영업·순손실·부채/자본 2↑·자본잠식 — 코드가 A3 로 대조)을
+            사업·해자·촉매·재무·밸류·위험·틀릴 조건·근거 2개↑(B 는 흑자 전환 경로)로 `reports/2026-10-stock-forecast-forward/forecasts/YYYY-MM.json` → `run_stock_forecast_forward.py --register YYYY-MM` → 커밋.
+            걸러내기 재료: KRX 일별(시총·거래대금)·quarterly-multi recent-2026(반기 누적)·A3·docs/data/decode 해독·구글 뉴스 RSS. 첫 회 2026-10(A 7: 삼성전자·크래프톤·삼양식품·HD현대마린엔진·실리콘투·SK바이오팜·인바디 · B 3: 펄어비스·엘앤에프·한화솔루션).
+            12개월 뒤 유동 종목(거래대금 10억↑) 등가중 대비, 종목 재배치 귀무, 기록 = 같은 달 PBR 결합 바구니·갈래별·B 붕괴율. `--judge` 2029-10-20 ∧ 성숙 24 · INCONCLUSIVE 면 2030-10-20 ∧ 36.
   다음      ★ 무한매수법 해외 슬리브 — 09-14 잔존 주문 확인 **완료**(미체결 0건,
             2026-09-12). 두 주문이 확인 시점에 이미 전량체결이라 "당일물인지"
             자체는 아직 미확정 — 부분체결 남는 날 재확인. **취소·재접수 로직은
