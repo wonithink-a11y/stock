@@ -145,9 +145,9 @@ def fetch(key, no, calls):
             r = requests.get("https://opendart.fss.or.kr/api/document.xml",
                              params={"crtfc_key": key, "rcept_no": no}, timeout=60)
             break
-        except requests.RequestException:
-            if attempt == 2:
-                raise
+        except requests.RequestException as e:
+            if attempt == 2:                       # 원래 예외 문구엔 API 키가 든 주소가 있다 — 로그에 남기지 않는다(절대 규칙 2)
+                raise RuntimeError(f"DART 전송 실패({type(e).__name__}) — 접수번호 {no}") from None
             time.sleep(5)
     calls[0] += 1
     if r.content[:2] != b"PK":
