@@ -22,9 +22,11 @@ import json
 import random
 import re
 import sys
+import threading
 import time
 import zipfile
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
@@ -39,10 +41,22 @@ OUT_DIR = HERE / "data" / "order-contracts"
 BODY = OUT_DIR / "body"
 EXT_TITLES = OUT_DIR / "titles"     # 제목 캐시 밖 종목(대부분 폐지)의 거래소공시 제목 — 생존편향을 막는다
 CORPS = REPO / "data" / "backfill" / "dart" / "corpcode.jsonl"
+WORKERS = 4      # 동시 요청 수. 응답 대기(건당 ~1초)가 병목이라 4개면 분당 ~240 — DART 분당 제한(~1,000)보다 한참 아래
 
 RE_TITLE = re.compile(r"^단일판매.?공급계약(체결|해지)")
 NUM = r"(-?[\d,]+(?:\.\d+)?)"
 DATE = r"(\d{4})[-.년\s]+(\d{1,2})[-.월\s]+(\d{1,2})"
+
+
+def pmap(fn, items, workers):
+    """fn(x) 를 동시에 돌려 (x, 결과) 를 끝난 순서로 낸다. 예외(DART 한도 등)가 나면 남은 일을 취소하고 다시 던진다."""
+    ex = ThreadPoolExecutor(workers)
+    futs = {ex.submit(fn, x): x for x in items}
+    try:
+        for f in as_completed(futs):
+            yield futs[f], f.result()
+    finally:
+        ex.shutdown(wait=True, cancel_futures=True)
 
 
 def kind_of(nm: str):
@@ -141,7 +155,9 @@ def fetch(key, no, calls):
         z = zipfile.ZipFile(io.BytesIO(r.content))
         out = {"text": clean(b" ".join(z.read(n) for n in z.namelist())), "error": None}
     p.parent.mkdir(parents=True, exist_ok=True)
-    json.dump(out, open(p, "w", encoding="utf-8"), ensure_ascii=False)
+    tmp = p.with_name(p.name + f".{threading.get_ident()}.tmp")
+    json.dump(out, open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
+    tmp.replace(p)                         # 중단돼도 반쪽 캐시가 남지 않게
     time.sleep(0.1)
     return out
 
@@ -170,7 +186,7 @@ def listing():
     return rows, amend
 
 
-def extend_titles(limit=None):
+def extend_titles(limit=None, workers=WORKERS):
     """corpcode.jsonl 종목 중 제목 캐시에 없는 회사의 거래소공시(I) 제목을 cdt.BGN~cdt.END 로 받는다. 있으면 건너뜀."""
     key = cdt.load_env().get("DART_API_KEY")
     if not key:
@@ -181,20 +197,22 @@ def extend_titles(limit=None):
     print(f"캐시 밖 {len(corps)}종목 · 남은 {len(todo)}")
     EXT_TITLES.mkdir(parents=True, exist_ok=True)
     calls = [0]
+    def one(corp):
+        rows, page = [], 1
+        while True:
+            lst, total = cdt.dart_list_range(key, corp, "I", page, cdt.BGN, cdt.END)
+            calls[0] += 1
+            rows += [{"d": r["rcept_dt"], "nm": r["report_nm"], "no": r["rcept_no"]} for r in lst]
+            if page >= total:
+                break
+            page += 1
+            time.sleep(0.05)
+        tmp = EXT_TITLES / f"{corp}.json.tmp"
+        json.dump({"I": rows, "_range": [cdt.BGN, cdt.END]}, open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
+        tmp.replace(EXT_TITLES / f"{corp}.json")
+
     try:
-        for i, corp in enumerate(todo, 1):
-            rows, page = [], 1
-            while True:
-                lst, total = cdt.dart_list_range(key, corp, "I", page, cdt.BGN, cdt.END)
-                calls[0] += 1
-                rows += [{"d": r["rcept_dt"], "nm": r["report_nm"], "no": r["rcept_no"]} for r in lst]
-                if page >= total:
-                    break
-                page += 1
-                time.sleep(0.05)
-            tmp = EXT_TITLES / f"{corp}.json.tmp"
-            json.dump({"I": rows, "_range": [cdt.BGN, cdt.END]}, open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
-            tmp.replace(EXT_TITLES / f"{corp}.json")
+        for i, _ in enumerate(pmap(one, todo, workers), 1):
             if i % 200 == 0:
                 print(f"  {i}/{len(todo)} 호출 {calls[0]}", flush=True)
     except cdt.LimitReached as e:
@@ -254,7 +272,7 @@ def report(rows, bodies, show=8):
         print("  % 없음:", r["rcept_no"], r["name"], bodies[r["rcept_no"]]["text"][:300])
 
 
-def run(probe=None, reparse=False):
+def run(probe=None, reparse=False, workers=WORKERS):
     rows, amend = listing()
     print(f"원본 공시 {len(rows)}건(체결 {sum(r['kind'] == 'order' for r in rows)} · 해지 {sum(r['kind'] == 'cancel' for r in rows)})"
           f" · 정정 제목 {sum(amend.values())}건(기록만) · 종목 매핑 없음 {sum(r['ticker'] is None for r in rows)}")
@@ -276,8 +294,8 @@ def run(probe=None, reparse=False):
         if not key:
             sys.exit("DART_API_KEY 없음(.env)")
         try:
-            for i, r in enumerate(rows, 1):
-                bodies[r["rcept_no"]] = fetch(key, r["rcept_no"], calls)
+            for i, (no, b) in enumerate(pmap(lambda no: fetch(key, no, calls), [r["rcept_no"] for r in rows], workers), 1):
+                bodies[no] = b
                 if i % 500 == 0:
                     print(f"  {i}/{len(rows)} 호출 {calls[0]}", flush=True)
         except cdt.LimitReached as e:
@@ -329,11 +347,12 @@ if __name__ == "__main__":
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--probe", type=int)
     ap.add_argument("--reparse", action="store_true")
+    ap.add_argument("--workers", type=int, default=WORKERS)
     ap.add_argument("--extend-titles", nargs="?", const=0, type=int, metavar="N", help="캐시 밖 종목 제목 받기(N 개만, 생략 시 전부)")
     a = ap.parse_args()
     if a.selftest:
         selftest()
     elif a.extend_titles is not None:
-        extend_titles(a.extend_titles or None)
+        extend_titles(a.extend_titles or None, a.workers)
     else:
-        run(a.probe, a.reparse)
+        run(a.probe, a.reparse, a.workers)
