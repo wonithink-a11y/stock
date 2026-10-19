@@ -11,7 +11,7 @@
 | 기각 | 134 |
 | 사전등록 문서(결과는 별도 파일) | 124 |
 | 정보·탐색 | 37 |
-| 미분류 | 241 |
+| 미분류 | 242 |
 
 ## 통과·채택 (14)
 
@@ -388,10 +388,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (241)
+## 미분류 (242)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-19 | DRAFT | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
 | 2026-10-17 | REFERENCE | kr | [quality-forward-past-reference-2026-10.md](quality-forward-past-reference-2026-10.md) | 신호: 과거 전체로는 없음(Q1 t 0.62 · Q2 t 1.70), 2025~ 에만 양 · 경제성: 판정 불사용(참고 계산). 폐지 종목을 넣어도 IC 강세는 남는다(2016~23 +0.042 →… |
 | 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
 | 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
