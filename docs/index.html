@@ -423,6 +423,8 @@ const state = {
   },
   openRows: {},            // 종목 상세 펼침
   recoDate: null,          // 추천 이력 탭 - 선택된 날짜(null=최신)
+  recoMarket: 'all',       // 추천 이력 탭 - 전체|kospi|kosdaq|sp500|nasdaq100 (스코어 탭 배너와 별개)
+  recoSearch: '',          // 추천 이력 탭 - 종목명·코드 검색(입력하면 날짜와 무관하게 전 기간)
 };
 
 const MACRO_LABELS = {
@@ -954,9 +956,20 @@ function renderReco() {
 
   // 945건을 세로로 나열하면 안 읽히므로 날짜 하나만 골라 본다 — 날짜가 100개를 넘어
   // 칩으로 깔면 폰 화면을 다 덮어서(2026-10-14 사용자 캡처) ◀ 날짜 ▶ + 드롭다운으로 바꿨다(마감 리포트 탭과 같은 모양).
+  // 시장 구분은 recommendations.json 에 지수 소속이 없어 latest.json 의 groups 를 티커로 붙여 스코어 탭과 같은 규칙(matchesMarketIndex)으로 가른다.
+  // 지금 유니버스에서 빠진 종목은 groups 가 비어 KR 은 코스피로 잡힌다(소수).
+  const withGroups = p => ({ market: p.market, groups: (currentByTicker[p.ticker] || {}).groups || [] });
+  const marketBanner = [['all', '전체'], ['kospi', '코스피'], ['kosdaq', '코스닥'], ['sp500', 'S&P500'], ['nasdaq100', '나스닥100']]
+    .map(([idx, label]) => `<button data-reco-market="${idx}" class="${state.recoMarket === idx ? 'active' : ''}">${label}</button>`).join('');
+  const perf = d.performance.filter(p => matchesMarketIndex(withGroups(p), state.recoMarket));
+  const q = state.recoSearch.trim().toLowerCase();
+  const head = `<div class="seg mkt-seg" style="margin-bottom:8px">${marketBanner}</div>
+    <input class="search" id="recoSearch" placeholder="종목명·코드 검색 (전 기간)" value="${esc(state.recoSearch)}" style="margin-bottom:10px">`;
+
   const byDate = {};
-  d.performance.forEach(p => { (byDate[p.recommendedDate] = byDate[p.recommendedDate] || []).push(p); });
+  perf.forEach(p => { (byDate[p.recommendedDate] = byDate[p.recommendedDate] || []).push(p); });
   const dates = Object.keys(byDate).sort().reverse();
+  if (!dates.length) return `<div class="card">${head}<p class="muted">이 시장의 추천 이력이 없습니다.</p></div>`;
   const activeDate = (state.recoDate && byDate[state.recoDate]) ? state.recoDate : dates[0];
 
   const ai = dates.indexOf(activeDate), older = dates[ai + 1], newer = ai > 0 ? dates[ai - 1] : null;
@@ -967,15 +980,19 @@ function renderReco() {
     ${arrow(newer, '다음 날짜', 'M9 18l6-6-6-6')}
   </div>`;
 
-  const rows = byDate[activeDate];
-  const rl = limited('reco', activeDate, rows);
+  // 검색어가 있으면 날짜 선택을 건너뛰고 전 기간에서 찾는다 — 한 종목이 언제 몇 번 추천됐는지 보는 용도.
+  const rows = q
+    ? perf.filter(p => String(p.name).toLowerCase().includes(q) || String(p.ticker).toLowerCase().includes(q))
+        .sort((a, b) => String(b.recommendedDate).localeCompare(String(a.recommendedDate)))
+    : byDate[activeDate];
+  const rl = limited('reco', [state.recoMarket, q, activeDate].join('|'), rows);
   const rowHtml = (p) => {
     const cur = currentByTicker[p.ticker];
     const curCell = cur
       ? `${gradeChip(cur.grade)} ${cur.totalScore ?? '-'}`
       : '<span class="muted" title="현재 채점 유니버스에 없음(상장폐지·유니버스 변경 등)">-</span>';
     return `<tr>
-      <td><strong>${esc(p.name)}</strong> <span class="muted">${esc(p.ticker)}</span>${mktChip(p.market)}</td>
+      <td><strong>${esc(p.name)}</strong> <span class="muted">${esc(p.ticker)}</span>${mktChip(p.market)}${q ? `<br><span class="muted" style="font-size:11px">${esc(p.recommendedDate)} 추천</span>` : ''}</td>
       <td>${gradeChip(p.gradeAtRecommendation)} ${p.scoreAtRecommendation}</td>
       <td>${curCell}</td>
       <td>${fmtPrice(p.priceAtRecommendation, p.market)} → ${fmtPrice(p.currentPrice, p.market)}</td>
@@ -985,8 +1002,10 @@ function renderReco() {
   };
 
   return `<div class="card">
-    <div style="margin-bottom:10px">${dateTabs}</div>
-    <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>
+    ${head}
+    ${q ? `<p class="muted" style="margin-bottom:8px">'${esc(state.recoSearch.trim())}' 전 기간 ${rows.length}건</p>`
+        : `<div style="margin-bottom:10px">${dateTabs}</div>
+    <p class="muted" style="margin-bottom:8px">${esc(activeDate)} 추천 · ${rows.length}건 · ${rows[0].holdingDays}일 전</p>`}
     <div class="table-wrap"><table>
       <thead><tr><th>종목</th><th>추천 당시</th><th>현재 점수</th><th>추천가→현재가</th><th>변동률</th><th title="지금 기준 · 전일 대비 +5% 이상 / 업종 종목">업종 현재 급등</th></tr></thead>
       <tbody>${rl.shown.map(rowHtml).join('')}</tbody></table></div>${rl.more}
@@ -3843,6 +3862,8 @@ document.getElementById('content').addEventListener('click', (e) => {
   // 추천 이력 - 날짜 칩 선택
   const rd = t.closest('[data-reco-date]');
   if (rd) { state.recoDate = rd.dataset.recoDate; return render(); }
+  const rm = t.closest('[data-reco-market]');
+  if (rm) { state.recoMarket = rm.dataset.recoMarket; return render(); }
 
   // 종목명 클릭 → 상세 차트 모달 (비고 토글보다 먼저 처리)
   const ch = t.closest('[data-chart]');
@@ -3872,6 +3893,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.de
 // 조합 중에는 건너뛰고 조합이 끝날 때(compositionend) 한 번 반영한다.
 function onSearchInput(e) {
   if (e.target.id === 'stockSearch') { state.search = e.target.value; return renderKeepingFocus('stockSearch'); }
+  if (e.target.id === 'recoSearch') { state.recoSearch = e.target.value; return renderKeepingFocus('recoSearch'); }
   if (e.target.id === 'etfSearch') { state.etfSearch = e.target.value; return renderKeepingFocus('etfSearch'); }
   if (e.target.id === 'a5Search') { state.a5Search = e.target.value; state.a5Limit = 100; return renderKeepingFocus('a5Search'); }
   if (e.target.id === 'h5Search') { h5.q = e.target.value; return renderKeepingFocus('h5Search'); }
