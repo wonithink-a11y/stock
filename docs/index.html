@@ -403,6 +403,7 @@ const state = {
   etfCompare: null,        // docs/data/etf-compare.json (동일 지수 비교·상관 이웃, 관찰용)
   etfPick: null,           // ETF 탭에서 비교 패널을 연 종목 코드
   events: null,            // docs/data/events.json (다가오는 일정 D-day, 관찰용)
+  rankH5: null,            // docs/data/rank-h5.json (가격·거래량 순위, 결합 순위 모델 h5 동결본 — 관찰용 두 번째 점수, KR만)
   stockContext: null,      // docs/data/stock-context.json (52주 고저·증권사 목표가 — 맥락 전용, 점수에 안 씀)
   eventsMonth: null,       // 일정 달력의 표시 월(YYYY-MM, 없으면 이번 달)
   eventsDay: null,         // 일정 달력에서 고른 날짜
@@ -588,6 +589,7 @@ function sortRows(rows) {
     if (k === 'grade') return 'ABCDEH'.indexOf(gradeKey(r.grade));
     if (k === 'coverage') return r.dataCoverage ? r.dataCoverage.overall : -1;
     if (k === 'sector') return sectorName(r);
+    if (k === 'rankH5') { const x = rankH5Of(r); return x ? x[0] : -1; }
     return r.totalScore ?? -1;
   };
   return [...rows].sort((a, b) => {
@@ -595,6 +597,17 @@ function sortRows(rows) {
     if (typeof x === 'string') return x.localeCompare(y, 'ko') * dir;
     return (x - y) * dir;
   });
+}
+
+// 가격·거래량 순위 [pct(100=그날 1위), rank] — 기존 점수와 별개, 등급·추천에 안 쓴다
+function rankH5Of(r) {
+  const d = state.rankH5;
+  return (r.market === 'KR' && d && d.byTicker && d.byTicker[r.ticker]) || null;
+}
+function rankH5Cell(r) {
+  const x = rankH5Of(r), d = state.rankH5;
+  if (!x) return (r.market === 'KR' && d) ? '<span class="muted" title="적격 밖 — 20일 거래대금 중앙값 10억 원 미만·우선주 등">-</span>' : '<span class="muted">-</span>';
+  return `<span title="${esc(d.asOf)} 기준 적격 ${d.n}종목 중 ${x[1]}위 · 5거래일 모델, 관찰용">${x[0]}</span>`;
 }
 
 function th(key, label) {
@@ -662,6 +675,7 @@ function stockRow(r) {
         ${(r.groups || []).length ? `<br>${(r.groups || []).map(g => `<span class="group-tag">${esc((((state.latest || {}).groupLabels || {})[g] || g).split(' ')[0])}</span>`).join('')}` : ''}</td>
       <td>${r.totalScore ?? '-'}</td>
       <td>${gradeChip(r.grade)}</td>
+      <td>${rankH5Cell(r)}</td>
       <td><span class="sector-tag">${esc(sectorName(r))}</span>${r.sectorCaution ? ' ' + confChip(r.sectorCaution.confidence) : ''}</td>
       <td>${fmtPrice(r.currentPrice, r.market)}</td>
       <td>${coverageBar(r.dataCoverage)}</td>
@@ -671,7 +685,7 @@ function stockRow(r) {
   if (!open || !hasDetail) return main;
   const c = r.sectorCaution;
   return main + `
-    <tr class="row-detail"><td colspan="8"><div style="position:sticky;left:10px;max-width:calc(100cqw - 20px)">
+    <tr class="row-detail"><td colspan="9"><div style="position:sticky;left:10px;max-width:calc(100cqw - 20px)">
       ${decodeSummaryHtml(r)}
       <button class="chip" data-chart="${esc(r.ticker)}" data-chart-name="${esc(r.name)}" data-chart-vtab="decode" style="margin-top:8px">🔎 전체 해독 — 점수 구성·업종 흐름·수급 차트</button>
       ${tl || hasNote ? `<details style="margin-top:8px"><summary class="muted" style="cursor:pointer;font-size:12px">포지션 기준·업종 비고 (글)</summary>` : ''}
@@ -688,7 +702,7 @@ function tableFor(rows, key) {
   const sig = [state.search, state.sectorFilter, state.gradeFilter, state.groupFilter, state.marketIndexFilter, state.sortKey, state.sortDir].join('|');
   const { shown, more } = limited('sc:' + key, sig, rows);
   return `<div class="table-wrap"><table>
-    <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
+    <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('rankH5','가격·거래량')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
     <tbody>${shown.map(stockRow).join('')}</tbody></table></div>${more}`;
 }
 
@@ -4171,9 +4185,9 @@ renderNav();
 
 (async function init() {
   let liveWatchlistRaw;
-  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare, state.events, state.stockContext] = await Promise.all([
+  [state.latest, state.regime, state.portfolio, state.reco, state.backtest, state.cycle, state.macro, state.etf, state.disclosures, state.news, state.marketFlows, state.live.daily, liveWatchlistRaw, state.etfReturns, state.etfDist, state.sectorStrength, state.tradeLevels, state.themeStrength, state.themeSensitivity, state.etfCompare, state.events, state.stockContext, state.rankH5] = await Promise.all([
     loadJson('latest'), loadJson('regime'), loadJson('portfolio'), loadJson('recommendations'), loadJson('backtest'), loadJson('cycles'), loadJson('macro'), loadJson('etf_snapshot'),
-    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'), loadJson('events'), loadJson('stock-context'),
+    loadJson('disclosures'), loadJson('news'), loadJson('market_flows'), loadJson('watchlist-daily'), loadJson('live-watchlist'), loadJson('etf-returns'), loadJson('etf-distributions'), loadJson('sector-strength'), loadJson('trade-levels'), loadJson('theme-strength'), loadJson('theme-sensitivity'), loadJson('etf-compare'), loadJson('events'), loadJson('stock-context'), loadJson('rank-h5'),
   ]);
   LIVE_WATCHLIST = liveWatchlistRaw ? liveWatchlistRaw.tickers.map(t => [t.ticker, t.name]) : [];
   const updated = state.latest && state.latest.updatedAt ? new Date(state.latest.updatedAt).toLocaleString('ko-KR') : '데이터 없음';

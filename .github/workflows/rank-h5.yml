@@ -1,0 +1,64 @@
+name: rank-h5
+
+# 가격·거래량 순위(결합 순위 모델 h5 동결본) -> docs/data/rank-h5.json (scripts/build-rank-h5.py).
+# 대시보드 종목 표의 '가격·거래량' 칸 — 관찰용 두 번째 점수, 기존 점수·등급·추천과 무관.
+# 최근 300거래일 KRX 일별 OHLCV 패널은 Actions 캐시에 둔다. 캐시가 비면 약 620콜로 다시 받는다.
+# KRX 는 당일분을 저녁에 올린다 — market-breadth 와 같이 20:20 · 다음 날 08:50 KST 두 번 시도.
+
+on:
+  schedule:
+    - cron: '25 11 * * 1-5'   # 20:25 KST
+    - cron: '55 23 * * 0-4'   # 08:55 KST (월~금)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rank-h5
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # lightgbm 은 동결 때 버전(freeze.json)과 맞춘다
+      - run: pip install --quiet pandas pyarrow lightgbm==4.7.0
+
+      - uses: actions/cache@v4
+        with:
+          path: .cache/rank-h5
+          key: rank-h5-${{ github.run_id }}
+          restore-keys: rank-h5-
+
+      - name: Selftest
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python scripts/build-rank-h5.py --selftest
+
+      - name: Build
+        env:
+          KRX_OPENAPI_KEY: ${{ secrets.KRX_OPENAPI_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: python scripts/build-rank-h5.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 파일에 시각 필드가 없다 — 새 거래일이 없으면 바이트 동일해 커밋 안 함
+          git add docs/data/rank-h5.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update rank-h5 (가격·거래량 순위, 관찰용)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
