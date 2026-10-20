@@ -3578,6 +3578,53 @@ document.addEventListener('click', (e) => {
   render();
 });
 
+// ---------- 증권사 의견 일지: Actions invest-opinion 이 평일 쓰는 docs/data/invest-opinion.json(KIS 종목투자의견, 관심종목 KR) — 맥락 전용 ----------
+// 리포트 제목·본문은 없고 증권사·의견·목표가만. 직전 목표가(ptp)는 같은 증권사의 바로 앞 의견(180일 창 안).
+const op = { data: null, loading: false, date: null, kind: 'all', q: '' };
+function renderOpinions() {
+  if (!op.data) {
+    if (!op.loading) { op.loading = true; loadJson('invest-opinion').then(d => { op.data = d || { missing: true }; if (state.tab === 'opinions') render(); }); }
+    return '<div class="card empty">불러오는 중…</div>';
+  }
+  const d = op.data;
+  if (d.missing || !d.rows) return '<div class="card empty">증권사 의견 데이터가 아직 없습니다.</div>';
+  const nm = t => (d.names || {})[t] || t, ymd = x => `${x.slice(4, 6)}/${x.slice(6, 8)}`;
+  const chgOf = r => r.tp && r.ptp ? (r.tp / r.ptp - 1) * 100 : null;
+  const KINDS = [['all', '전체'], ['up', '목표가 상향', r => chgOf(r) > 0], ['down', '목표가 하향', r => chgOf(r) < 0], ['op', '의견 변경', r => r.po && r.o && r.po !== r.o]];
+  const kf = (KINDS.find(k => k[0] === op.kind) || KINDS[0])[2];
+  const q = op.q.trim().toLowerCase();
+  const rows0 = d.rows.filter(r => (!kf || kf(r)) && (!q || r.t.includes(q) || nm(r.t).toLowerCase().includes(q)));
+  const dates = [...new Set(rows0.map(r => r.d))].sort().reverse();
+  const active = op.date && dates.includes(op.date) ? op.date : dates[0];
+  const rows = q ? rows0 : rows0.filter(r => r.d === active);
+  const ai = dates.indexOf(active), older = dates[ai + 1], newer = ai > 0 ? dates[ai - 1] : null;
+  const arrow = (dt, label, path) => `<button class="mrep-arrow"${dt ? ` data-op-date="${dt}"` : ' disabled'} aria-label="${label}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="${path}"/></svg></button>`;
+  const dateNav = q || !dates.length ? '' : `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">${arrow(older, '이전 날짜', 'M15 18l-6-6 6-6')}
+    <select class="mrep-sel" data-op-select aria-label="날짜">${dates.map(x => `<option value="${x}"${x === active ? ' selected' : ''}>${x.slice(2, 4)}.${ymd(x).replace('/', '.')} · ${rows0.filter(r => r.d === x).length}건</option>`).join('')}</select>
+    ${arrow(newer, '다음 날짜', 'M9 18l6-6-6-6')}</div>`;
+  const pct = v => v == null ? '<span class="muted">-</span>' : `<span class="${v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+  const { shown, more } = limited('op', [op.kind, q, active].join('|'), rows);
+  const body = shown.map(r => `<tr>
+      <td style="white-space:normal"><b>${esc(nm(r.t))}</b> <span class="muted">${esc(r.t)}</span>${q ? `<br><span class="muted" style="font-size:11px">${ymd(r.d)}</span>` : ''}</td>
+      <td>${esc(r.b)}</td>
+      <td>${r.po && r.po !== r.o ? `<span class="muted">${esc(r.po)} →</span> ` : ''}${esc(r.o || '-')}</td>
+      <td style="text-align:right">${r.tp ? r.tp.toLocaleString() : '-'}${r.ptp && r.ptp !== r.tp ? `<div class="muted" style="font-size:11px">직전 ${r.ptp.toLocaleString()}</div>` : ''}</td>
+      <td style="text-align:right">${pct(chgOf(r))}</td>
+      <td class="m-hide" style="text-align:right">${pct(r.tp && r.pc ? (r.tp / r.pc - 1) * 100 : null)}</td></tr>`).join('');
+  return `<div class="card"><b>증권사 의견 일지</b> <span class="muted">관심종목 · ${ymd(d.asOf)} 기준 · ${ymd(d.since)} 이후 ${d.rows.length.toLocaleString()}건 · 의견·목표가만(리포트 본문 없음)</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${KINDS.map(([k, l]) => `<button class="chip${op.kind === k ? ' active' : ''}" data-op-kind="${k}">${l}</button>`).join('')}</div>
+    <input class="search" id="opSearch" placeholder="종목명·코드 검색 (전 기간)" value="${esc(op.q)}" style="max-width:240px;margin-bottom:8px">
+    ${dateNav}
+    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>종목</th><th>증권사</th><th>의견</th><th style="text-align:right">목표가</th><th style="text-align:right">변경</th><th class="m-hide" style="text-align:right" title="목표가 ÷ 의견 전일 종가 − 1">전일가 대비</th></tr></thead><tbody>${body}</tbody></table></div>${more}` : '<p class="muted">해당하는 의견이 없습니다.</p>'}</div>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-op-kind],[data-op-date]');
+  if (!t) return;
+  if (t.dataset.opKind) op.kind = t.dataset.opKind; else op.date = t.dataset.opDate;
+  render();
+});
+document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('[data-op-select]')) { op.date = e.target.value; render(); } });
+
 // ---------- 탭 전환 ----------
 
 // ---------- 장 마감 리포트: Claude 루틴이 쓴 reports/market-daily/<날짜>-<kr|us>.{md,facts.json,summary.json} ----------
@@ -3775,6 +3822,7 @@ function render() {
   else if (state.tab === 'events') el.innerHTML = renderEvents();
   else if (state.tab === 'disclosures') el.innerHTML = renderDisclosures();
   else if (state.tab === 'news') el.innerHTML = renderNews();
+  else if (state.tab === 'opinions') el.innerHTML = renderOpinions();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
@@ -3927,6 +3975,7 @@ function onSearchInput(e) {
   if (e.target.id === 'etfSearch') { state.etfSearch = e.target.value; return renderKeepingFocus('etfSearch'); }
   if (e.target.id === 'a5Search') { state.a5Search = e.target.value; state.a5Limit = 100; return renderKeepingFocus('a5Search'); }
   if (e.target.id === 'u13Search') { u13.q = e.target.value; return renderKeepingFocus('u13Search'); }
+  if (e.target.id === 'opSearch') { op.q = e.target.value; return renderKeepingFocus('opSearch'); }
   if (e.target.id === 'h5Search') { h5.q = e.target.value; return renderKeepingFocus('h5Search'); }
 }
 document.getElementById('content').addEventListener('input', (e) => { if (!e.isComposing) onSearchInput(e); });
@@ -4232,7 +4281,7 @@ const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['links', '바로가기']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
-  ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스']]],
+  ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
 ];
 const NAV_ICON = {   // 폰 아래 탭 막대 아이콘(선 아이콘, currentColor)
