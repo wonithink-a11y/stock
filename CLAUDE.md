@@ -284,6 +284,7 @@ Validated against
             (`/kr-intraday` quotes = [현재가, 전일종가]), 아니면 마감 리포트. **실제 사이트·폰 장중 확인 전**(브라우저 패널이 github.io→VM 요청을 막아 localhost 로만 확인).
             증권사 의견 일지 = KIS 종목투자의견(의견·목표가만, 리포트 본문 없음) 관심종목 KR 180일 → docs/data/invest-opinion.json(Actions `invest-opinion` 평일 20:00) →
             이벤트·뉴스 > '증권사 의견'. 맥락 전용 — 점수·매매 불사용(절대 규칙 1). 네이버 리서치는 robots `Disallow: /`·브라우저 차단이라 쓰지 않는다. 폰 숨김 칸은 `.m-hide`.
+            홈 '내 관심종목' = VM `/pins`(X-Pin-Key, 키는 텔레그램 1:1 링크 `#pinkey=` 로 기기마다 한 번) — 기기 간 동기화, 목록 밖 국내 종목 시세는 intraday-check `pinQuotes`(10분).
   다음      ★ **장 마감 리포트(10-13 사용자 GO)** — Claude 루틴 평일 18:10 kr · 07:00 us → `scripts/market-close-facts.py`(숫자만, Yahoo·네이버·FRED 키 없음) →
             웹으로 원인·근거·시각 대조 → `reports/market-daily/` 커밋 → push 가 `market-report-telegram.yml` 을 깨워 1:1 방(지연 0.2분).
             지시 정본 docs/control/시장마감리포트-루틴지시.md · 설계·Actions 지연 실측(cron 중앙 4~5h·최대 12h, 18:10 에 오늘 수급·공시 0/60) -설계-2026-10-13.md.
