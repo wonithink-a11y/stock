@@ -1230,7 +1230,7 @@ function ensureMarketTrend() {
     .catch(e => { t.error = String(e); })
     .finally(() => {
       t.pending = false; t.fetchedAt = Date.now();
-      if (state.tab === 'flows' || state.tab === 'today') render();
+      if (state.tab === 'flows') render(); else if (state.tab === 'today') renderTodaySoft();
     });
 }
 
@@ -3121,7 +3121,7 @@ function loadHeatLive() {
       if (card && state.tab === 'sector') card.outerHTML = marketHeatmap(state.sectorStrength || {});
       const sc = document.getElementById('surgeCard');
       if (sc && state.tab === 'sector') sc.outerHTML = surgeClusterCard();
-      if (state.tab === 'today') render();
+      if (state.tab === 'today') renderTodaySoft();
     });
 }
 function heatLiveDue() {
@@ -4094,9 +4094,60 @@ setInterval(() => {
   ensureMarketTrend();
   if (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000) loadHeatLive();
 }, 30000);
+// 홈 '내 관심종목' — 이 브라우저(localStorage)에만 저장. 고를 수 있는 종목 = 채점 유니버스(latest.json, 국내 코스피200+코스닥150·미국 S&P500+나스닥100).
+// 가격: 장중 스냅샷(관심종목 353, 10분)에 있으면 그 값, 없으면 latest.json 종가 + 섹터강도 1일 등락(2026-10-20 사용자 요청).
+const PIN_KEY = 'homePins';
+const pinsGet = () => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || '[]'); } catch { return []; } };
+const pinsSet = a => { try { localStorage.setItem(PIN_KEY, JSON.stringify(a)); } catch { /* 저장 불가(사생활 보호 창 등) — 이번 화면에서만 */ } state.pinsMem = a; };
+function renderTodaySoft() { if (document.activeElement && document.activeElement.id === 'pinInput') return; render(); }
+function pinCard() {
+  const res = (state.latest && state.latest.results) || [], byT = Object.fromEntries(res.map(r => [r.ticker, r]));
+  const r1d = Object.fromEntries(((state.sectorStrength || {}).stocks || []).map(x => [x.t, x.r && x.r['1d']]));
+  const lq = (state.heatLive && state.heatLive.quotes) || {};
+  const pins = (state.pinsMem || pinsGet()).filter(t => byT[t]);
+  const rows = pins.map(t => {
+    const r = byT[t], q = lq[t], live = q && q[1];
+    const px = live ? q[0] : r.currentPrice, chg = live ? (q[0] / q[1] - 1) * 100 : (r1d[t] != null ? r1d[t] * 100 : null);
+    return `<tr><td style="white-space:normal"><b data-chart="${esc(t)}" data-chart-name="${esc(r.name)}" style="cursor:pointer">${esc(r.name)}</b> <span class="muted">${esc(t)}</span></td>
+      <td style="text-align:right">${fmtPrice(px, r.market)}</td>
+      <td style="text-align:right">${chg == null ? '<span class="muted">-</span>' : `<span class="${chg >= 0 ? 'pos' : 'neg'}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>`}</td>
+      <td>${gradeChip(r.grade)}</td>
+      <td style="text-align:right"><button class="chip" data-unpin="${esc(t)}" aria-label="${esc(r.name)} 빼기" style="padding:1px 8px">×</button></td></tr>`;
+  }).join('');
+  const opts = res.map(r => `<option value="${esc(r.name)} (${esc(r.ticker)})"></option>`).join('');
+  return `<div class="card"><h2 style="margin:0 0 8px;font-size:16px">내 관심종목</h2>
+    <input class="search" id="pinInput" list="pinList" placeholder="종목명·코드 입력 → 목록에서 고르면 추가" autocomplete="off" style="width:100%;max-width:320px;margin-bottom:6px">
+    <datalist id="pinList">${opts}</datalist>
+    ${rows ? `<div class="table-wrap"><table><tbody>${rows}</tbody></table></div>` : '<p class="muted" style="margin:4px 0 0">아직 없습니다.</p>'}
+    <p class="muted" style="margin:6px 0 0;font-size:11px">이 기기 브라우저에만 저장 · ${Object.keys(lq).length ? '장중 10분 스냅샷 또는 ' : ''}최근 종가</p></div>`;
+}
+function addPin(v) {
+  const res = (state.latest && state.latest.results) || [];
+  const m = /\(([0-9A-Z]{6}|[A-Z.\-]{1,6})\)\s*$/.exec(v.trim());
+  const q = v.trim().toLowerCase();
+  const hit = m ? res.find(r => r.ticker === m[1]) : res.find(r => r.ticker.toLowerCase() === q || String(r.name).toLowerCase() === q);
+  if (!hit) return false;
+  const a = state.pinsMem || pinsGet();
+  if (!a.includes(hit.ticker)) pinsSet([...a, hit.ticker]);
+  return true;
+}
+document.addEventListener('change', (e) => {
+  if (e.target.id !== 'pinInput') return;
+  if (addPin(e.target.value)) { e.target.value = ''; e.target.blur(); render(); }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.target.id === 'pinInput' && e.key === 'Enter' && !e.isComposing && addPin(e.target.value)) { e.target.value = ''; e.target.blur(); render(); }
+});
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-unpin]');
+  if (!b) return;
+  pinsSet((state.pinsMem || pinsGet()).filter(t => t !== b.dataset.unpin));
+  render();
+});
+
 function homeHeatmap() {
   if (state.heatWin === 'live' && !state.heatLive) loadHeatLive();
-  return marketHeatmap(state.sectorStrength || {}, true);
+  return marketHeatmap(state.sectorStrength || {}, true) + pinCard();
 }
 function intradayTop() {
   if (!krSessionWindow()) return '';
