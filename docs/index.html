@@ -3130,10 +3130,10 @@ function heatLiveDue() {
 }
 setInterval(() => { if (heatLiveDue() && !document.hidden) loadHeatLive(); }, 30000);
 
-function marketHeatmap(d) {
+function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국내 고정, 국내/미국 칩·각주 생략(2026-10-20)
   const mk = (key, label) => `<button class="chip${state.heatMarket === key ? ' active' : ''}" data-heatmarket="${key}">${label}</button>`;
-  const title = t => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t} ${mk('KR', '국내')}${mk('US', '미국')}</h2>`;
-  if (state.heatMarket === 'US') {
+  const title = t => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t} ${home ? '' : mk('KR', '국내') + mk('US', '미국')}</h2>`;
+  if (state.heatMarket === 'US' && !home) {
     return `<div class="card">${title('시장 히트맵')}
       <div id="tvHeatmap" style="height:${(window.innerWidth || 1000) < 700 ? 520 : 620}px"><div class="tradingview-widget-container" style="height:100%;width:100%">
         <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div></div></div>
@@ -3185,16 +3185,16 @@ function marketHeatmap(d) {
     : `장중 기준 <b>${esc(String(hl.atKst || '').slice(5, 16))}</b> KST · ${hl.n}종목 · VM이 10분마다 갱신, 화면은 2분마다 확인. 장이 끝나면 마지막 스냅샷이 남습니다.`;
   const asOfLabel = win === 'live' && hl && hl.atKst ? `장중 ${esc(String(hl.atKst).slice(5, 16))}` : `기준일 ${esc(d.asOf || '-')}`;
   return `
-  <div class="card" id="heatCard">
+  <div class="card"${home ? '' : ' id="heatCard"'}>
     ${title(`시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">${asOfLabel} · ${st.length}종목</span>`)}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px">
       ${Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
       <span style="width:10px"></span>
       ${chip('heatsize', 'cap', '면적 = 시총', state.heatSize)}${chip('heatsize', 'eq', '면적 = 동일', state.heatSize)}
     </div>
-    ${liveNote ? `<p class="muted" style="font-size:11px;margin:0 0 6px">${liveNote}</p>` : ''}
+    ${liveNote && !(home && win === 'live' && hl && !hl.error) ? `<p class="muted" style="font-size:11px;margin:0 0 6px">${liveNote}</p>` : ''}
     <div class="hm" style="aspect-ratio:${W}/${H}">${html}</div>
-    <p class="muted" style="font-size:11px;margin:6px 0 0">코스피200+코스닥150(우선주 제외) · 시총 = 종가 × 상장주식수 · 색은 ±${Math.round(cap * 100)}%에서 가장 진함 · 업종 옆 숫자 = 시총가중 수익률 · 종목을 누르면 상세 · 관찰용 — 매매신호 아님</p>
+    ${home ? '' : `<p class="muted" style="font-size:11px;margin:6px 0 0">코스피200+코스닥150(우선주 제외) · 시총 = 종가 × 상장주식수 · 색은 ±${Math.round(cap * 100)}%에서 가장 진함 · 업종 옆 숫자 = 시총가중 수익률 · 종목을 누르면 상세 · 관찰용 — 매매신호 아님</p>`}
   </div>`;
 }
 
@@ -3436,7 +3436,7 @@ const SECTOR_SUBS = [['heat', '히트맵'], ['tree', '테마 트리'], ['sens', 
 function renderSectorTab() {
   const bar = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${SECTOR_SUBS.map(([k, l]) =>
     `<button class="chip${state.sectorSub === k ? ' active' : ''}" data-secsub="${k}">${l}</button>`).join('')}</div>`;
-  const f = { heat: () => marketBreadthCard() + surgeClusterCard() + marketHeatmap(state.sectorStrength || {}), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
+  const f = { heat: () => surgeClusterCard() + marketHeatmap(state.sectorStrength || {}) + marketBreadthCard(), tree: renderThemeTree, sens: renderThemeSensitivity, rs: renderSector }[state.sectorSub] || renderSector;
   return bar + (f() || '<div class="card empty">데이터가 아직 없습니다.</div>');
 }
 
@@ -4082,6 +4082,9 @@ function loadHomeReport() {
 }
 // 장중(평일 09:00~15:30 KST) 홈 맨 위 = 지수·잠정 수급(VM /market-trend, 60초) + 관심종목 현재가(VM /kr-intraday, 10분).
 // 네이버가 장 상태를 OPEN 이 아니라고 하면(휴장일 등) 또는 자료가 없으면 마감 리포트로 돌아간다(2026-10-20).
+// 홈 수급 — 시장당 한 줄, 외국인·기관·개인 순(막대 없이 숫자만, 2026-10-20 사용자 요청)
+const flowTable = (rows, unit) => `<table class="home-flow" style="width:100%;font-size:13px"><thead><tr><th></th><th style="text-align:right">외국인</th><th style="text-align:right">기관</th><th style="text-align:right">개인</th></tr></thead><tbody>${
+  rows.map(([m, xs]) => `<tr><td class="muted" style="white-space:nowrap">${m}</td>${xs.map(x => `<td class="num ${x == null ? 'muted' : x >= 0 ? 'pos' : 'neg'}" style="text-align:right;white-space:nowrap">${x == null ? '-' : unit(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 function krSessionWindow() {
   const k = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })), hm = k.getHours() * 100 + k.getMinutes();
   return k.getDay() % 6 !== 0 && hm >= 900 && hm < 1530;
@@ -4091,6 +4094,10 @@ setInterval(() => {
   ensureMarketTrend();
   if (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000) loadHeatLive();
 }, 30000);
+function homeHeatmap() {
+  if (state.heatWin === 'live' && !state.heatLive) loadHeatLive();
+  return marketHeatmap(state.sectorStrength || {}, true);
+}
 function intradayTop() {
   if (!krSessionWindow()) return '';
   ensureMarketTrend();
@@ -4103,9 +4110,7 @@ function intradayTop() {
   const strip = ix.map(([m, v]) => `<div class="home-tick"><div class="muted" style="font-size:12px">${m}</div>
     <div class="num home-v" style="font-weight:600">${v.index.price.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
     <div class="num" style="font-size:13px">${pct(v.index.pct)}</div></div>`).join('');
-  const flows = ix.map(([m, v]) => `<div class="muted" style="font-size:12px;margin:6px 0 2px">${m}</div>` +
-    [['외국인', v.foreignEok], ['기관', v.institutionalEok], ['개인', v.personalEok]].map(([n, x]) => x == null ? '' :
-      `<div class="home-bar"><span>${n}</span>${mrepBar(x, Math.max(1, ...ix.flatMap(([, w]) => [w.foreignEok, w.institutionalEok, w.personalEok].map(y => Math.abs(y || 0)))))}<span class="num ${x >= 0 ? 'pos' : 'neg'}" style="text-align:right">${x >= 0 ? '+' : ''}${x.toLocaleString()}억</span></div>`).join('')).join('');
+  const flows = flowTable(ix.map(([m, v]) => [m, [v.foreignEok, v.institutionalEok, v.personalEok]]), x => `${x >= 0 ? '+' : ''}${x.toLocaleString()}억`);
   // 관심종목 353 현재가(quotes = [현재가, 전일종가]) → 오르내린 종목 수·상하위 5
   const hl = state.heatLive, names = {};
   ((state.latest && state.latest.results) || []).forEach(r => { names[r.ticker] = r.name; });
@@ -4117,10 +4122,10 @@ function intradayTop() {
     movers = `<div class="home-breadth"><span class="muted" style="font-size:12px;font-weight:600">관심종목 ${rows.length}개 · ${esc(String(hl.atKst || '').slice(11, 16))}</span>
       <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>오름 ${up} · 내림 ${dn}</span></div>
       <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / n * 100}%;background:var(--up)"></div><div style="width:${(n - up - dn) / n * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--down)"></div></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:4px 16px">${rows.slice(0, 5).map(li).join('')}${rows.slice(-5).reverse().map(li).join('')}</div>
-      <button class="chip" data-goto="sector" style="font-size:12px;padding:3px 10px;align-self:flex-start">장중 히트맵 →</button></div>`;
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:4px 16px">${rows.slice(0, 5).map(li).join('')}${rows.slice(-5).reverse().map(li).join('')}</div></div>`;
   }
   return `<div class="home-strip" style="grid-template-columns:repeat(2,minmax(0,1fr))">${strip}</div>
+  ${homeHeatmap()}
   <div class="card home-hero">
     <div style="flex:999 1 420px;min-width:0;display:flex;flex-direction:column;gap:6px">
       <span class="muted" style="font-size:12px;font-weight:600">장중 · ${esc(at)} · 수급은 네이버 잠정치(확정 아님)</span>${flows}
@@ -4151,6 +4156,7 @@ function todayTop() {
   }).join('');
   const tv = ['KOSPI', 'KOSDAQ'].map(m => ((f.kr || {})[m] || {})['tradingValue조원']).filter(v => v != null);
   return `<div class="home-strip">${strip}</div>
+  ${homeHeatmap()}
   <div class="card home-hero">
     <div style="flex:999 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="muted" style="font-size:12px;font-weight:600">${day} 한국장 마감 리포트</span>
@@ -4211,13 +4217,8 @@ function renderToday() {
   const mf = state.marketFlows;
   if (mf && mf.markets) {
     const latest = ['KOSPI', 'KOSDAQ'].map(m => { const days = (mf.markets[m] || {}).days || []; return [m, days[days.length - 1]]; }).filter(x => x[1]);
-    const nets = latest.flatMap(([, d]) => d.items.filter(x => ['외국인', '기관합계', '개인'].includes(x.name)).map(x => Math.abs(x.net)));
-    const max = Math.max(1, ...nets);
-    const blocks = latest.map(([m, d]) => `<div class="muted" style="font-size:12px;margin:${m === 'KOSPI' ? 0 : 12}px 0 6px">${m} · ${d.date.slice(4, 6)}/${d.date.slice(6, 8)}</div>` +
-      [['외국인', '외국인'], ['기관합계', '기관'], ['개인', '개인']].map(([n, label]) => {
-        const it = d.items.find(x => x.name === n);
-        return it ? `<div class="home-bar"><span>${label}</span>${mrepBar(it.net, max)}<span class="num ${it.net >= 0 ? 'pos' : 'neg'}" style="text-align:right">${fmtEok(it.net)}</span></div>` : '';
-      }).join('')).join('');
+    const blocks = latest.length ? flowTable(latest.map(([m, d]) => [`${m} ${d.date.slice(4, 6)}/${d.date.slice(6, 8)}`,
+      ['외국인', '기관합계', '개인'].map(n => (d.items.find(x => x.name === n) || {}).net)]), fmtEok) : '';
     cards.push(card('시장 수급', 'flows', '시장수급',
       blocks ? `${blocks}<p class="muted" style="margin:10px 0 0;font-size:11px">순매수, 가장 최근 확정일 기준</p>` : empty));
   }
