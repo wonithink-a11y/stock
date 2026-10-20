@@ -225,5 +225,33 @@ case("거래 종료 종목의 중간 재개 급변은 여전히 제외한다",
      BASE + mid, uni_of(*BASE_TK, "000010"),
      {"000010": "UNADJUSTED_CORPORATE_ACTION"})
 
+# 14. PR-1.8 — 정규장 교체 구간(from~)은 네이버 행을 전부 버리고 KIS 로 채운다.
+#     KIS 가 빈 종목의 네이버 행(애프터마켓 종가)이 '덮이지 않고 남는' 경로를 막는다.
+FROM = DAYS[15]
+naver = [dict(r, close=r["close"] + 5) if r["date"] >= FROM else r
+         for r in flat("000011") + flat("000012")]          # from 이후 = 20시 종가
+kis = [row("000011", i, 1000) for i in range(15, 20)]       # 000012 는 KIS 0행
+merged, ro = m.apply_regular_session_override(naver, kis, {"exceptionTickers": []}, FROM)
+recent = [r for r in merged if r["date"] >= FROM]
+check = (all(r["ticker"] == "000011" and r["close"] == 1000 for r in recent)
+         and len([r for r in merged if r["date"] < FROM]) == 30
+         and ro["naverRowsDropped"] == 10 and ro["kisRows"] == 5
+         and ro["closeDiffersFromNaver"] == 5 and ro["kisMissingTickers"] == ["000012"])
+print(f"  {'OK  ' if check else 'FAIL'}  정규장 교체 — 네이버 from 이후 행 전부 버림·KIS 로 채움·빈 종목 기록")
+passed, failed = passed + check, failed + (not check)
+
+for label, ro_in, substr in [
+        ("정규장 교체 — KIS 0행 종목이 있으면 FAIL", ro, "KIS 0행인 종목 1건"),
+        ("정규장 교체 — KIS 예외가 있으면 FAIL", dict(ro, kisMissingTickerCount=0, kisExceptionCount=1),
+         "KIS 예외 1건")]:
+    m.fails.clear(); m.warns.clear()
+    rows_ok, tk_ok = clean_fill()
+    with redirect_stdout(io.StringIO()):
+        m.validate(rows_ok, uni_of(*tk_ok), CAL, POL,
+                   {"actualDataFrom": DAYS[0], "regularSessionOverride": ro_in})
+    hit = any(substr in f for f in m.fails)
+    print(f"  {'OK  ' if hit else 'FAIL'}  {label}")
+    passed, failed = passed + hit, failed + (not hit)
+
 print(f"\n{'✅' if not failed else '❌'} A2a 품질 판별 {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

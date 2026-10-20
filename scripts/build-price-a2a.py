@@ -19,6 +19,16 @@ A1a가 확정한 2,579종목의 수정주가 일봉을 KRX에서 받아 연도�
   data/backfill/price/a2a/{YYYY}.jsonl.gz
   data/backfill/price/a2a/_diagnostics.json
 
+  --kis-recent           정규장 교체 구간(regularSessionOverride.from~)만 KIS 일봉 J 로 수집
+                         → _shards/kis-recent.jsonl (finalize 가 그 구간 네이버 행을 버리고 이것으로 채운다)
+
+★ PR-1.8 — 2026-09-14 KRX 애프터마켓(15:30~20:00) 개장 뒤로 네이버 일봉의 종가·고가·저가가
+저녁 8시 마지막 체결까지 넣은 값이 됐다(시가·거래량은 정규장). 그 구간만 KIS 일봉
+(FHKST03010100, 시장 J, 수정주가)으로 바꾼다 — J 는 KRX 공식 정규장 종가와 일치한다(실측).
+이력 전체를 KIS 로 바꾸지 않는 이유: KIS 는 분할 때 거래량도 조정하고 수정계수 반올림이 달라
+09-11 이전 행의 12%가 바뀐다 — 정규장 종가 복원과 무관한 과거 정의 변경이다.
+진단: docs/control/A2a-종가-애프터마켓-혼입-2026-10-20.md
+
 KRX 개별종목 일봉은 '오늘 기준 약 3,000거래일' 롤링 윈도우다. 캘린더 시작일보다
 실제 확보 시작일이 뒤일 수 있고 매일 밀린다. 그래서 actualDataFrom을 실행 시점에
 측정해 남기고 누락률은 그 기준으로 잰다 — calendarStart 기준으로 재면 시작 구간이
@@ -27,6 +37,7 @@ KRX 개별종목 일봉은 '오늘 기준 약 3,000거래일' 롤링 윈도우�
 import argparse
 import glob
 import gzip
+import importlib.util
 import io
 import json
 import os
@@ -34,6 +45,7 @@ import re
 import sys
 import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 POLICY = "config/policies/price.v1.json"
 UNIVERSE = "data/backfill/universe/a1a/current.jsonl"
@@ -203,6 +215,118 @@ def run_shard(shard, shards, pol, limit):
     return 0
 
 
+# ── 정규장 교체 구간 (PR-1.8) ──────────────────────────────────
+def _load_a2b():
+    """KIS 호출부는 A2b 것을 그대로 쓴다(토큰 캐시·페이지네이션·EGW 재시도). A2b 가
+    모듈 로드 때 이 파일을 다시 읽지만 최상위가 정의뿐이라 순환 부작용은 없다."""
+    spec = importlib.util.spec_from_file_location(
+        "a2b", os.path.join(os.path.dirname(os.path.abspath(__file__)), "build-price-a2b.py"))
+    b = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(b)
+    return b
+
+
+def run_kis_recent(pol, limit):
+    ovr = pol["regularSessionOverride"]
+    src = ovr["source"]
+    B = _load_a2b()
+    key, secret = B._kis_env()
+    token = B._kis_token(key, secret)
+
+    def call_page(ticker, d1, d2):
+        return B._kis_call_page(key, secret, token, ticker, d1, d2,
+                                src["trId"], src["adjustedFlag"])
+
+    # A2b.fetch_one 은 pol["a2b"]["source"] 만 읽는다 — 같은 KIS 파라미터를 그 자리에 넣어 준다.
+    fpol = {"a2b": {"source": src}}
+    diag_path = f"{SHARD_DIR}/_diagnostics-kis-recent.json"
+    diag = {"stage": "A2a", "mode": "kis-recent", "pricePolicy": pol["version"],
+            "from": ovr["from"], "environment": B._kis_environment()}
+    if limit:
+        diag["smokeTest"] = True
+
+    cal = load_json(CALENDAR)
+    frm = ovr["from"].replace("-", "")
+    to = cal["tradingDays"][-1].replace("-", "")
+    tickers = sorted(x["ticker"] for x in load_jsonl(UNIVERSE))
+    if limit:
+        tickers = tickers[:limit]
+    print(f"A2a 정규장 구간 — {len(tickers)}종목 · {frm}~{to} · KIS {src['trId']} 동시성 {src['concurrency']}")
+
+    probes = []
+    for pt in pol["probeTickers"]:
+        _, kind, err = B.fetch_one(call_page, pt, to, to, fpol)
+        probes.append({"ticker": pt, "ok": kind == "ok", "kind": kind, "error": err})
+    diag["probes"] = probes
+    if not any(p["ok"] for p in probes):
+        _abort("정찰 전건 실패 — KIS 경로가 막혔다", diag, diag_path)
+
+    rows, empty, exc, consec = [], [], [], 0
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=src["concurrency"]) as ex:
+        futs = {ex.submit(B.fetch_one, call_page, tk, frm, to, fpol): tk for tk in tickers}
+        for n, fut in enumerate(as_completed(futs), 1):
+            tk = futs[fut]
+            kis_rows, kind, err = fut.result()
+            if kind == "ok":
+                rows.extend(x for x in B.to_records_kis(tk, kis_rows) if x["date"] >= ovr["from"])
+                consec = 0
+            elif kind == "empty":
+                empty.append(tk)   # 판정은 finalize 가 네이버 행과 대조해서 한다
+                consec = 0
+            else:
+                exc.append({"ticker": tk, "error": err})
+                consec += 1
+                if consec >= pol["circuitBreakerConsecutiveFailures"]:
+                    diag.update(rowCount=len(rows), emptyTickers=empty, exceptionTickers=exc)
+                    _abort(f"연속 예외 {consec}건 — 루프 도중 KIS 경로가 막혔다", diag, diag_path)
+            if n % 500 == 0:
+                print(f"  {n}/{len(tickers)} · {len(rows)}행 · {time.time()-t0:.0f}s")
+
+    diag.update(tickerCount=len(tickers), rowCount=len(rows), emptyTickers=empty,
+                exceptionTickers=exc, elapsedSeconds=round(time.time() - t0, 1))
+    os.makedirs(SHARD_DIR, exist_ok=True)
+    with open(f"{SHARD_DIR}/{ovr['shardFile']}", "w", encoding="utf-8", newline="\n") as f:
+        for x in rows:
+            f.write(json.dumps(x, ensure_ascii=False) + "\n")
+    with open(diag_path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(diag, f, ensure_ascii=False, indent=2)
+    print(f"{SHARD_DIR}/{ovr['shardFile']} — {len(rows)}행 (빈 응답 {len(empty)} · 예외 {len(exc)}, "
+          f"{diag['elapsedSeconds']}s)")
+    return 0
+
+
+def apply_regular_session_override(rows, kis_rows, kis_diag, frm):
+    """교체 구간(date >= frm)의 네이버 행을 전부 버리고 KIS 행으로 채운다. 네이버 행을
+    남겨 두고 KIS 로 '덮기'만 하면 KIS 가 빈 종목에 애프터마켓 종가가 조용히 남는다.
+    반환: (합친 행, 진단 dict). 판정은 validate() 가 진단으로 한다."""
+    old = {(x["ticker"], x["date"]): x for x in rows if x["date"] >= frm}
+    kept = [x for x in rows if x["date"] < frm]
+    new = [x for x in kis_rows if x["date"] >= frm]
+    new_keys = {(x["ticker"], x["date"]) for x in new}
+    kis_tickers = {x["ticker"] for x in new}
+    naver_tickers = {tk for tk, _ in old}
+    both = [k for k in old if k in new_keys]
+    newmap = {(x["ticker"], x["date"]): x for x in new}
+    close_diff = sum(1 for k in both if old[k]["close"] != newmap[k]["close"])
+    d = {
+        "from": frm,
+        "naverRowsDropped": len(old),
+        "kisRows": len(new),
+        "kisTickers": len(kis_tickers),
+        # 네이버엔 교체 구간 행이 있는데 KIS 는 0행 — 그 종목의 최근 가격이 통째로 빠진다
+        "kisMissingTickers": sorted(naver_tickers - kis_tickers)[:200],
+        "kisMissingTickerCount": len(naver_tickers - kis_tickers),
+        "kisExceptionCount": len(kis_diag.get("exceptionTickers") or []),
+        "naverOnlyRows": sum(1 for k in old if k not in new_keys),
+        "kisOnlyRows": sum(1 for k in new_keys if k not in old),
+        # 관측 전용: 애프터마켓 혼입 규모(네이버 종가 ≠ 정규장 종가)
+        "closeDiffersFromNaver": close_diff,
+        "comparedRows": len(both),
+    }
+    return kept + new, d
+
+
 # ── finalize ───────────────────────────────────────────────────
 def write_gz(path, records, pol):
     """gzip mtime을 0으로 고정한다. 기본값(현재 시각)이면 내용이 같아도 매 실행
@@ -347,6 +471,15 @@ def validate(rows, uni, cal, pol, diag):
     if inject:
         diag["failInjection"] = inject
         chk(False, f"[FAIL INJECTION] {inject} — 게이트 검증용 강제 실패")
+
+    ro = diag.get("regularSessionOverride")
+    if ro is not None:
+        ra = pol["regularSessionOverride"]["acceptance"]
+        chk(ro["kisExceptionCount"] <= ra["kisExceptions"],
+            f"정규장 구간 KIS 예외 {ro['kisExceptionCount']}건")
+        chk(ro["kisMissingTickerCount"] <= ra["kisMissingTickers"],
+            f"정규장 구간 네이버엔 있는데 KIS 0행인 종목 {ro['kisMissingTickerCount']}건 "
+            f"{ro['kisMissingTickers'][:5]}")
 
     # 날짜 계약 · 가격 불변식
     bad_date = [x for x in rows if not DATE_RE.match(x["date"] or "")]
@@ -502,6 +635,23 @@ def run_finalize(pol):
         if os.path.exists(d) and load_json(d).get("smokeTest"):
             diag["smokeTest"] = True
 
+    ovr = pol.get("regularSessionOverride")
+    if ovr:
+        kp = f"{SHARD_DIR}/{ovr['shardFile']}"
+        if not os.path.exists(kp):
+            _abort(f"{kp} 없음 — 정규장 구간(KIS) 수집 잡을 먼저 돌려라", diag, diag_path)
+        kd_path = f"{SHARD_DIR}/_diagnostics-kis-recent.json"
+        kd = load_json(kd_path) if os.path.exists(kd_path) else {}
+        if kd.get("smokeTest"):
+            diag["smokeTest"] = True
+        diag["naverRowCount"] = len(rows)
+        rows, diag["regularSessionOverride"] = apply_regular_session_override(
+            rows, load_jsonl(kp), kd, ovr["from"])
+        diag["rowCount"] = len(rows)
+        ro = diag["regularSessionOverride"]
+        print(f"      정규장 교체 {ovr['from']}~ — 네이버 {ro['naverRowsDropped']}행 → KIS {ro['kisRows']}행 "
+              f"(종가 다름 {ro['closeDiffersFromNaver']}/{ro['comparedRows']})")
+
     uni = load_jsonl(UNIVERSE)
     cal = load_json(CALENDAR)
     diag["calendarStart"] = cal["tradingDays"][0]
@@ -576,6 +726,8 @@ def main() -> int:
     ap.add_argument("--shard", type=int)
     ap.add_argument("--shards", type=int)
     ap.add_argument("--finalize", action="store_true")
+    ap.add_argument("--kis-recent", action="store_true",
+                    help="정규장 교체 구간만 KIS 일봉 J 로 수집(PR-1.8)")
     ap.add_argument("--limit", type=int, default=0,
                     help="스모크 테스트용. 진단에 smokeTest 플래그가 박히고 CI가 거부한다")
     args = ap.parse_args()
@@ -587,6 +739,11 @@ def main() -> int:
 
     if args.finalize:
         return run_finalize(pol)
+    if args.kis_recent:
+        if not pol.get("regularSessionOverride"):
+            print("정책에 regularSessionOverride 가 없다 — PR-1.8 이상이 필요하다")
+            return 1
+        return run_kis_recent(pol, args.limit)
     if args.shard is None:
         print("--shard N --shards M 또는 --finalize 중 하나가 필요하다")
         return 1

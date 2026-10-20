@@ -67,7 +67,10 @@ const CONTRACT = {
                'keptZeroVolumeTransitions', 'keptComparableTransitions',
                // 관측 전용(게이트 아님)
                'frontTruncatedTickers', 'frontTruncatedTickerDays',
-               'rowsBeforeListedAt', 'tickersWithRowsBeforeListedAt'],
+               'rowsBeforeListedAt', 'tickersWithRowsBeforeListedAt',
+               // PR-1.8 — 애프터마켓 개장(09-14) 뒤 구간을 KIS 정규장으로 바꿨다는 기록.
+               // 빠지면 네이버 20시 종가가 그대로 산출된 것과 구분이 안 된다
+               'regularSessionOverride', 'naverRowCount'],
     trueFlags: [],
     // 부분 수집(--limit)이 정상 산출로 승격되는 경로를 막는다. 한 방향 훅이다 —
     // 이 플래그는 통과를 만들 수 없고 거부만 만든다.

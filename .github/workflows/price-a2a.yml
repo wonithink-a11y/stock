@@ -86,8 +86,54 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  # PR-1.8 — 애프터마켓 개장(2026-09-14) 뒤 구간만 KIS 일봉 시장 J(정규장)로 받는다.
+  # 네이버 샤드와 따로 단일 잡이다: KIS 토큰 발급이 5분당 1회라 matrix 8개가 동시에
+  # 발급을 다투면 1개만 성공한다(price-a2b.yml 과 같은 이유·같은 토큰 캐시 패턴).
+  kis-recent:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' || needs.check.outputs.needed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Restore KIS token cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .token_cache_kis.json
+          key: kis-token-cache-${{ github.run_id }}
+          restore-keys: |
+            kis-token-cache-
+
+      - name: Collect regular-session rows (KIS J)
+        timeout-minutes: 45
+        env:
+          # 저장소 시크릿 이름은 KIS_APPKEY/KIS_SECRET 이다(price-a2b.yml 과 같은 매핑)
+          KIS_APP_KEY: ${{ secrets.KIS_APPKEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_SECRET }}
+        run: python scripts/build-price-a2a.py --kis-recent
+
+      - name: Save KIS token cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .token_cache_kis.json
+          key: kis-token-cache-${{ github.run_id }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a2a-kis-recent
+          path: data/backfill/price/_shards/
+          retention-days: 1
+          if-no-files-found: error
+
   finalize:
-    needs: collect
+    needs: [collect, kis-recent]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -107,6 +153,11 @@ jobs:
           merge-multiple: true
           path: data/backfill/price/_shards/
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: a2a-kis-recent
+          path: data/backfill/price/_shards/
+
       - name: Verify all shards present
         # artifact가 하나라도 비면 조용히 적은 종목으로 통과할 수 있다.
         # 인수 조건의 minTickersWithData가 2차 방어지만, 여기서 먼저 명시적으로 센다.
@@ -114,6 +165,7 @@ jobs:
           N=$(ls data/backfill/price/_shards/shard-*.jsonl 2>/dev/null | wc -l)
           echo "샤드 파일 $N개 / 기대 $SHARDS개"
           test "$N" -eq "$SHARDS" || { echo "샤드 누락 — 부분 수집물로 산출할 수 없다"; exit 1; }
+          test -s data/backfill/price/_shards/kis-recent.jsonl || { echo "정규장 구간(KIS) 산출물 없음"; exit 1; }
 
       - name: Quality classification regression test
         # 합성 픽스처로 판별 분기를 전부 밟는다(네트워크·수집 산출물 불필요).

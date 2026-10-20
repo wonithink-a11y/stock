@@ -1,5 +1,5 @@
 {
-  "version": "PR-1.7",
+  "version": "PR-1.8",
   "note": "가격 백필(A2a·A2b)의 수집 파라미터와 인수 조건. universe.v1.json과 분리하는 이유는 축이 다르기 때문이다 — 유니버스는 '무엇을 담는가'를, 여기는 '어떻게 받고 무엇을 통과로 보는가'를 정의한다. score()도 A6도 읽지 않으므로 registry의 dataPolicies에 등록한다.",
   "market": "KR",
 
@@ -11,6 +11,32 @@
     "requiredVersionNote": "정책에는 '요구 버전', manifest에는 '실제 실행 버전'을 남긴다. 두 값이 갈라지면 같은 정책인데 결과가 다른 이유를 추적할 수 있다. 2026-08-05 실측: 문서에 기록된 1.0.51과 동작이 다르다(import 시 KRX 로그인 메시지 출력 — 개별종목 일봉 경로와는 무관한 노이즈다, 교훈41).",
     "adjusted": true,
     "adjustedNote": "adjusted=false 경로는 1.2.8에서 JSON 파싱 실패로 죽어 있다(실측). 따라서 dailyChangeAbsMax 검사의 목적은 '개발자가 수정주가를 안 썼는가'가 아니라 '소스가 수정주가를 정상 제공했는가'다. 2018-05-04 삼성전자 50:1 분할 구간에서 최대 일간변동 3.5%로 정상 적용을 확인했다."
+  },
+
+  "regularSessionOverride": {
+    "from": "2026-09-14",
+    "shardFile": "kis-recent.jsonl",
+    "source": {
+      "provider": "KIS",
+      "via": "REST",
+      "endpoint": "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice",
+      "trId": "FHKST03010100",
+      "marketDivCode": "J",
+      "adjustedFlag": "0",
+      "pageSize": 100,
+      "emptyPageThreshold": 90,
+      "maxPagesPerTicker": 36,
+      "concurrency": 4,
+      "sleepBetweenCallsSeconds": 0.15,
+      "egw00201RetryAttempts": 4,
+      "egw00201RetryBackoffBase": 2,
+      "credentialEnv": ["KIS_APP_KEY", "KIS_APP_SECRET"]
+    },
+    "acceptance": {
+      "kisExceptions": 0,
+      "kisMissingTickers": 0
+    },
+    "note": "PR-1.8(2026-10-20 사용자 GO). KRX 애프터마켓(15:30~20:00)이 2026-09-14 개장한 뒤로 네이버 일봉(최상위 source)의 종가·고가·저가가 저녁 8시 마지막 체결까지 넣은 값이 됐다 — 시가·거래량은 정규장 그대로라 품질 게이트에 안 걸리고 조용히 섞였다(09-14~10-01 종가가 KRX 공식과 다른 종목 하루 약 2,000/2,519, 1% 넘게 다른 종목 440~895, 장중 수익률 평균 부호 반대). from 이후 행은 네이버 것을 전부 버리고 KIS 일봉 시장 J(KRX 정규장, 수정주가)로 채운다 — J 종가는 KRX Open API TDD_CLSPRC·KIS 분봉 15:30 동시호가와 일치(실측). 이력 전체를 KIS 로 바꾸지 않는 이유: 표본 25종목에서 KIS 는 09-11 이전 행의 약 12%가 네이버와 다르다(분할 시 거래량까지 조정 · 수정계수 반올림 · 정지일 OHLC 표기) — 정규장 종가 복원과 무관한 과거 정의 변경이고 모든 백테스트 기준선을 흔든다. 그것은 별도 결정이다. KIS 콜은 종목당 from 이후 100거래일마다 1페이지(지금 약 2,500콜). acceptance 는 둘 다 0: KIS 예외가 하나라도 있거나, 네이버엔 from 이후 행이 있는데 KIS 가 0행인 종목이 있으면 그 종목의 최근 가격이 통째로 빠지거나 애프터마켓 종가가 남으므로 FAIL. 진단: docs/control/A2a-종가-애프터마켓-혼입-2026-10-20.md"
   },
 
   "collectFrom": "2014-05-13",
