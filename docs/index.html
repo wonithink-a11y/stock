@@ -3151,7 +3151,7 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
   };
   // 폰은 세로로 길게. 렌더 시점 창 폭으로 한 번 정한다(리사이즈 재배치는 안 한다)
   const W = Math.min(Math.max((window.innerWidth || 1000) - 80, 280), 1400);
-  const H = Math.round(W < 700 ? W * 1.6 : W * 0.55);
+  const H = Math.round(W < 700 ? W * (home ? 1.0 : 1.6) : W * (home ? 0.4 : 0.55));   // 홈은 위아래를 줄인다(2026-10-20 사용자 요청)
   const byG = {};
   st.forEach(s => (byG[s.g] = byG[s.g] || []).push({ ...s, v: eq ? 1 : s.cap }));
   const gcap = Object.fromEntries((d.groups || []).map(g => [g.group, (g.capRet || {})[win]]));
