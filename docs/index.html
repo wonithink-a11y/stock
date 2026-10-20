@@ -247,7 +247,7 @@
   #side { display: none; }
   .rk-sub { display: none; }
   @media (max-width: 600px) {
-    .rk-col { display: none; }
+    .rk-col, .m-hide { display: none; }
     .rk-sub { display: block; font-size: 11px; white-space: nowrap; }
     /* 폰 전 탭 공통(2026-10-14 사용자 요청 — 위아래 폭 줄이기): 표 칸·칩·제목·행 간격 축소 */
     #content h2 { font-size: 15px; }
@@ -3441,7 +3441,7 @@ function renderSectorTab() {
 
 // ---------- 미국 기관(13F): Actions us-13f 가 분기마다 쓰는 docs/data/us-13f.json — 맥락 전용 ----------
 // A 종목별 흐름(제출 기관 전체 합산) · B 집중 운용사(규칙 b-1.0 으로 고른 30곳). 신규/이탈은 두 분기 모두 낸 기관만 센다.
-const u13 = { data: null, loading: false, sub: 'flow', adr: false, sort: 'net' };
+const u13 = { data: null, loading: false, sub: 'flow', adr: false, sort: 'net', q: '' };
 const usd = v => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : `$${Math.round(v / 1e6).toLocaleString()}M`;
 function renderUs13f() {
   if (!u13.data) {
@@ -3461,15 +3461,20 @@ function renderUs13f() {
 }
 function us13fFlow(d) {
   const key = { net: s => s.flow.break ? -1e9 : s.flow.new - s.flow.exit, shares: s => s.flow.break ? -1e9 : s.flow.sharesPct ?? -9, holders: s => s.series.at(-1).holders };
-  const rows = Object.entries(d.stocks).filter(([, s]) => !u13.adr || s.kr)
-    .sort((a, b) => key[u13.sort](b[1]) - key[u13.sort](a[1])).map(([t, s]) => {
+  // 518종목을 한 번에 그리면 폰에서 20화면 — 검색 + 50행씩(limited), 폰은 핵심 4칸만(2026-10-20)
+  const q = u13.q.trim().toLowerCase();
+  const all = Object.entries(d.stocks).filter(([t, s]) => (!u13.adr || s.kr) &&
+      (!q || t.toLowerCase().includes(q) || String(s.name || s.issuer || '').toLowerCase().includes(q)))
+    .sort((a, b) => key[u13.sort](b[1]) - key[u13.sort](a[1]));
+  const { shown, more } = limited('u13', [u13.adr, u13.sort, q].join('|'), all);
+  const rows = shown.map(([t, s]) => {
       const f = s.flow, net = f.new - f.exit, sp = f.sharesPct;
-      return `<tr><td><b>${esc(t)}</b> <span class="muted">${esc(s.name || s.issuer)}</span></td>
+      return `<tr><td style="white-space:normal"><b>${esc(t)}</b> <span class="muted">${esc(s.name || s.issuer)}</span></td>
         <td style="text-align:right">${fmtNum(s.series.at(-1).holders)}</td>
-        <td class="muted" style="white-space:nowrap">${s.series.map(x => fmtNum(x.holders)).join(' → ')}</td>
-        ${f.break ? '<td colspan="5" class="muted">직전 분기와 이어지지 않음(신규 상장·CUSIP 변경)</td></tr>' : `<td style="text-align:right">${f.new}</td><td style="text-align:right">${f.exit}</td>
+        <td class="muted m-hide" style="white-space:nowrap">${s.series.map(x => fmtNum(x.holders)).join(' → ')}</td>
+        ${f.break ? '<td colspan="5" class="muted">직전 분기와 이어지지 않음(신규 상장·CUSIP 변경)</td></tr>' : `<td class="m-hide" style="text-align:right">${f.new}</td><td class="m-hide" style="text-align:right">${f.exit}</td>
         <td style="text-align:right" class="${net > 0 ? 'pos' : net < 0 ? 'neg' : 'muted'}">${net > 0 ? '+' : ''}${net}</td>
-        <td style="text-align:right;white-space:nowrap"><span class="pos">${f.add}</span> / <span class="neg">${f.trim}</span></td>
+        <td class="m-hide" style="text-align:right;white-space:nowrap"><span class="pos">${f.add}</span> / <span class="neg">${f.trim}</span></td>
         <td style="text-align:right">${sp == null ? '-' : fmtPct(Math.round(sp * 1000) / 10)}</td></tr>`}`;
     }).join('');
   const chip = (k, v, l, cur) => `<button class="chip${cur ? ' active' : ''}" data-u13="${k}:${v}">${l}</button>`;
@@ -3477,9 +3482,11 @@ function us13fFlow(d) {
       ${chip('adr', 0, '관심종목 전체', !u13.adr)}${chip('adr', 1, '한국 ADR', u13.adr)}
       <span class="muted" style="align-self:center;margin-left:8px">정렬</span>
       ${chip('sort', 'net', '기관 순증', u13.sort === 'net')}${chip('sort', 'shares', '보유 주식 증감', u13.sort === 'shares')}${chip('sort', 'holders', '보유 기관 수', u13.sort === 'holders')}</div>
-    <div class="table-wrap"><table><thead><tr><th>종목</th><th style="text-align:right">보유 기관</th><th>4분기 추이</th>
-      <th style="text-align:right">신규</th><th style="text-align:right">이탈</th><th style="text-align:right">순증</th>
-      <th style="text-align:right">늘림/줄임</th><th style="text-align:right">보유 주식</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <input class="search" id="u13Search" placeholder="티커·종목명 검색" value="${esc(u13.q)}" style="max-width:220px;margin-bottom:8px">
+    <div class="table-wrap"><table><thead><tr><th>종목</th><th style="text-align:right">보유 기관</th><th class="m-hide">4분기 추이</th>
+      <th class="m-hide" style="text-align:right">신규</th><th class="m-hide" style="text-align:right">이탈</th><th style="text-align:right">순증</th>
+      <th class="m-hide" style="text-align:right">늘림/줄임</th><th style="text-align:right">보유 주식</th></tr></thead><tbody>${rows}</tbody></table></div>${more}
+    ${all.length ? '' : '<p class="muted">일치하는 종목이 없습니다.</p>'}
     <p class="muted" style="margin:6px 0 0;font-size:11px">보유 주식 증감은 분할을 보정하지 않습니다.</p></div>`;
 }
 const U13_CHG = { new: ['신규', 'pos'], add: ['증가', 'pos'], trim: ['감소', 'neg'], exit: ['이탈', 'neg'], same: ['유지', 'muted'] };
@@ -3533,11 +3540,11 @@ function renderHolders() {
 }
 function h5Table(rows, first) {   // first: 'stock' = 종목 열, 'who' = 보고자 열
   return `<div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>${first === 'stock' ? '종목' : '보고자'}</th><th style="text-align:right">지분율</th>
-    <th style="text-align:right">직전 대비</th><th>목적</th><th>공시일</th><th>상태</th></tr></thead><tbody>${rows.map(r => `<tr>
-    <td>${first === 'stock' ? `<b>${esc(r.name || r.t)}</b> <span class="muted">${esc(r.t)}</span>` : `<b>${esc(r.who)}</b>`}</td>
+    <th style="text-align:right">직전 대비</th><th class="m-hide">목적</th><th class="m-hide">공시일</th><th>상태</th></tr></thead><tbody>${rows.map(r => `<tr>
+    <td style="white-space:normal">${first === 'stock' ? `<b>${esc(r.name || r.t)}</b> <span class="muted">${esc(r.t)}</span>` : `<b>${esc(r.who)}</b>`}</td>
     <td style="text-align:right">${r.rate == null ? '-' : r.rate.toFixed(2) + '%'}${r.ye != null ? `<div class="muted" style="font-size:11px">연말 ${r.ye}%</div>` : ''}</td>
     <td style="text-align:right" class="${r.chg > 0 ? 'pos' : r.chg < 0 ? 'neg' : 'muted'}">${r.chg == null ? '-' : (r.chg > 0 ? '+' : '') + r.chg.toFixed(2)}</td>
-    <td class="muted">${esc(r.tp || '-')}</td><td class="muted" style="white-space:nowrap">${h5d(r.date)}</td><td>${h5State(r)}</td></tr>`).join('')}</tbody></table></div>`;
+    <td class="muted m-hide">${esc(r.tp || '-')}</td><td class="muted m-hide" style="white-space:nowrap">${h5d(r.date)}</td><td>${h5State(r)}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function h5Investors(d) {
   const q = h5.q.trim().toLowerCase();
@@ -3918,6 +3925,7 @@ function onSearchInput(e) {
   if (e.target.id === 'recoSearch') { state.recoSearch = e.target.value; return renderKeepingFocus('recoSearch'); }
   if (e.target.id === 'etfSearch') { state.etfSearch = e.target.value; return renderKeepingFocus('etfSearch'); }
   if (e.target.id === 'a5Search') { state.a5Search = e.target.value; state.a5Limit = 100; return renderKeepingFocus('a5Search'); }
+  if (e.target.id === 'u13Search') { u13.q = e.target.value; return renderKeepingFocus('u13Search'); }
   if (e.target.id === 'h5Search') { h5.q = e.target.value; return renderKeepingFocus('h5Search'); }
 }
 document.getElementById('content').addEventListener('input', (e) => { if (!e.isComposing) onSearchInput(e); });
@@ -4055,12 +4063,35 @@ function todayTop() {
   </div>`;
 }
 const TODAY_MACRO = ['vix', 'yieldcurve', 'hyspread', 'usdkrw', 'us10y', 'kospi'];
+// 홈 맨 위 '오늘 확인할 것' — 흩어진 카드에서 내 보유 종목 공시·일정과 데이터 지연만 한 장으로 모은다(2026-10-20).
+const kstDay = iso => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+// ponytail: 주말만 뺀다 — 공휴일 뒤 첫날은 '지연'으로 잘못 뜰 수 있다. 자주 틀리면 events.json 휴장일을 쓴다.
+function weekdaysBetween(a, b) {
+  let n = 0;
+  for (let d = new Date(a + 'T00:00:00Z'); ; ) { d.setUTCDate(d.getUTCDate() + 1); if (d.toISOString().slice(0, 10) >= b) return n; if (d.getUTCDay() % 6) n++; }
+}
+function todayChecks() {
+  const today = kstDay(Date.now()), items = [];
+  const held = new Map(((state.portfolio && state.portfolio.holdings) || []).map(h => [h.ticker, h.name]));
+  const recent = i => weekdaysBetween(`${i.rceptDt.slice(0, 4)}-${i.rceptDt.slice(4, 6)}-${i.rceptDt.slice(6, 8)}`, today) < 2;   // 최근 3영업일
+  ((state.disclosures && state.disclosures.items) || []).filter(i => held.has(i.ticker) && recent(i)).slice(0, 5).forEach(i =>
+    items.push(`<span class="warn-tag">공시</span> <b>${esc(i.name)}</b> ${esc(i.category || i.reportNm)} <span class="muted">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</span> <a href="${esc(i.url)}" target="_blank" rel="noopener" class="muted" style="text-decoration:none">원문↗</a>`));
+  ((state.events && state.events.events) || []).filter(e => e.scope === 'held' && e.date >= today && weekdaysBetween(today, e.date) < 3).forEach(e =>
+    items.push(`<span class="warn-tag">일정</span> <b>${esc(e.name || '')}</b> ${esc(e.title)} <span class="muted">${e.date === today ? '오늘' : esc(e.date.slice(5).replace('-', '/'))}</span>`));
+  const feeds = [['스코어', state.latest], ['수급', state.marketFlows], ['공시', state.disclosures], ['뉴스', state.news]].filter(([, d]) => d && d.updatedAt);
+  feeds.forEach(([label, d]) => { const day = kstDay(d.updatedAt); if (weekdaysBetween(day, today) > 1) items.push(`<span class="neg">갱신 지연</span> ${label} — 마지막 ${day.slice(5).replace('-', '/')}`); });
+  const asof = feeds.map(([label, d]) => `${label} ${kstDay(d.updatedAt).slice(5).replace('-', '/')}`).join(' · ');
+  return `<div class="card" style="margin:0"><h2 style="margin:0 0 8px;font-size:16px">오늘 확인할 것</h2>
+    ${items.length ? items.map(x => `<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">${x}</div>`).join('') : '<p class="muted" style="margin:0">보유 종목 공시·일정과 데이터 지연 없음</p>'}
+    ${asof ? `<p class="muted" style="margin:8px 0 0;font-size:11px">기준 ${asof}</p>` : ''}</div>`;
+}
+
 function renderToday() {
   const link = (to, label) => `<button class="chip" data-goto="${to}" style="font-size:12px;padding:3px 10px">${label} →</button>`;
   const card = (title, to, label, body) => `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
     <h2 style="margin:0;font-size:16px">${title}</h2>${link(to, label)}</div>${body}</div>`;
   const empty = '<p class="muted" style="margin:0">데이터가 아직 없습니다.</p>';
-  const cards = [];
+  const cards = [todayChecks()];
   let regimeCard = '';   // 맨 위 지표 띠가 생겨서 국면 카드는 맨 끝으로 내린다
 
   // 1) 시장 국면 + 핵심 매크로
