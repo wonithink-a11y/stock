@@ -245,7 +245,10 @@
   a.chip { text-decoration: none; display: inline-block; }
   /* 넓은 화면(≥1000px): 왼쪽 메뉴에 그룹·세부 탭을 모두 펼친다. 좁은 화면은 위쪽 그룹 버튼 + 세부 탭 그대로 */
   #side { display: none; }
+  .rk-sub { display: none; }
   @media (max-width: 600px) {
+    .rk-col { display: none; }
+    .rk-sub { display: block; font-size: 11px; white-space: nowrap; }
     /* 폰 전 탭 공통(2026-10-14 사용자 요청 — 위아래 폭 줄이기): 표 칸·칩·제목·행 간격 축소 */
     #content h2 { font-size: 15px; }
     #content th, #content td { padding: 6px 7px; font-size: 12.5px; }
@@ -609,11 +612,16 @@ function rankH5Cell(r) {
   if (!x) return (r.market === 'KR' && d) ? '<span class="muted" title="적격 밖 — 20일 거래대금 중앙값 10억 원 미만·우선주 등">-</span>' : '<span class="muted">-</span>';
   return `<span title="${esc(d.asOf)} 기준 적격 ${d.n}종목 중 ${x[1]}위 · 5거래일 모델, 관찰용">${x[0]}</span>`;
 }
+// 폰: 4번째 칸이 화면 밖이라(375px 에서 x=346) 점수 칸 아래 한 줄로 같이 보인다 — 넓은 화면에선 숨김
+function rankH5Sub(r) {
+  const x = rankH5Of(r);
+  return x ? `<span class="rk-sub muted">가격·거래량 ${x[0]}</span>` : '';
+}
 
-function th(key, label) {
+function th(key, label, cls = '') {
   const on = state.sortKey === key;
   const arr = on ? (state.sortDir === 'asc' ? '▲' : '▼') : '⇅';
-  return `<th class="sortable" data-sort="${key}">${label} <span class="arr">${arr}</span></th>`;
+  return `<th class="sortable ${cls}" data-sort="${key}">${label} <span class="arr">${arr}</span></th>`;
 }
 
 // docs/data/trade-levels.json = config/policies/portfolio.v1.json(PF-1.2)의 규칙을
@@ -673,9 +681,9 @@ function stockRow(r) {
     <tr class="${hasDetail ? 'clickable' : ''}" data-row="${esc(r.ticker)}">
       <td><strong data-chart="${esc(r.ticker)}" data-chart-name="${esc(r.name)}" style="cursor:pointer;text-decoration:underline dotted var(--muted)" title="차트 보기">${esc(r.name)}</strong> <span class="muted">${esc(r.ticker)}</span>${mktChip(r.market)}${cycleFitTag(r.ticker)}
         ${(r.groups || []).length ? `<br>${(r.groups || []).map(g => `<span class="group-tag">${esc((((state.latest || {}).groupLabels || {})[g] || g).split(' ')[0])}</span>`).join('')}` : ''}</td>
-      <td>${r.totalScore ?? '-'}</td>
+      <td>${r.totalScore ?? '-'}${rankH5Sub(r)}</td>
       <td>${gradeChip(r.grade)}</td>
-      <td>${rankH5Cell(r)}</td>
+      <td class="rk-col">${rankH5Cell(r)}</td>
       <td><span class="sector-tag">${esc(sectorName(r))}</span>${r.sectorCaution ? ' ' + confChip(r.sectorCaution.confidence) : ''}</td>
       <td>${fmtPrice(r.currentPrice, r.market)}</td>
       <td>${coverageBar(r.dataCoverage)}</td>
@@ -702,7 +710,7 @@ function tableFor(rows, key) {
   const sig = [state.search, state.sectorFilter, state.gradeFilter, state.groupFilter, state.marketIndexFilter, state.sortKey, state.sortDir].join('|');
   const { shown, more } = limited('sc:' + key, sig, rows);
   return `<div class="table-wrap"><table>
-    <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('rankH5','가격·거래량')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
+    <thead><tr>${th('name','종목')}${th('totalScore','점수')}${th('grade','등급')}${th('rankH5','가격·거래량','rk-col')}${th('sector','업종')}<th>종가</th>${th('coverage','커버리지')}<th>경고</th><th>비고</th></tr></thead>
     <tbody>${shown.map(stockRow).join('')}</tbody></table></div>${more}`;
 }
 
