@@ -1230,7 +1230,7 @@ function ensureMarketTrend() {
     .catch(e => { t.error = String(e); })
     .finally(() => {
       t.pending = false; t.fetchedAt = Date.now();
-      if (state.tab === 'flows') render();
+      if (state.tab === 'flows' || state.tab === 'today') render();
     });
 }
 
@@ -3121,6 +3121,7 @@ function loadHeatLive() {
       if (card && state.tab === 'sector') card.outerHTML = marketHeatmap(state.sectorStrength || {});
       const sc = document.getElementById('surgeCard');
       if (sc && state.tab === 'sector') sc.outerHTML = surgeClusterCard();
+      if (state.tab === 'today') render();
     });
 }
 function heatLiveDue() {
@@ -4030,7 +4031,57 @@ function loadHomeReport() {
     });
   });
 }
+// 장중(평일 09:00~15:30 KST) 홈 맨 위 = 지수·잠정 수급(VM /market-trend, 60초) + 관심종목 현재가(VM /kr-intraday, 10분).
+// 네이버가 장 상태를 OPEN 이 아니라고 하면(휴장일 등) 또는 자료가 없으면 마감 리포트로 돌아간다(2026-10-20).
+function krSessionWindow() {
+  const k = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })), hm = k.getHours() * 100 + k.getMinutes();
+  return k.getDay() % 6 !== 0 && hm >= 900 && hm < 1530;
+}
+setInterval(() => {
+  if (state.tab !== 'today' || document.hidden || !krSessionWindow()) return;
+  ensureMarketTrend();
+  if (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000) loadHeatLive();
+}, 30000);
+function intradayTop() {
+  if (!krSessionWindow()) return '';
+  ensureMarketTrend();
+  if (!state.heatLive) loadHeatLive();
+  const mk = (state.marketTrend.data || {}).markets || {};
+  const ix = ['KOSPI', 'KOSDAQ'].map(m => [m, mk[m]]).filter(([, v]) => v && v.index && v.index.price != null);
+  if (!ix.length || ix.some(([, v]) => v.index.status && v.index.status !== 'OPEN')) return '';
+  const pct = v => v == null ? '' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}%</span>`;
+  const at = String(ix[0][1].index.at || '').slice(11, 16);
+  const strip = ix.map(([m, v]) => `<div class="home-tick"><div class="muted" style="font-size:12px">${m}</div>
+    <div class="num home-v" style="font-weight:600">${v.index.price.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
+    <div class="num" style="font-size:13px">${pct(v.index.pct)}</div></div>`).join('');
+  const flows = ix.map(([m, v]) => `<div class="muted" style="font-size:12px;margin:6px 0 2px">${m}</div>` +
+    [['외국인', v.foreignEok], ['기관', v.institutionalEok], ['개인', v.personalEok]].map(([n, x]) => x == null ? '' :
+      `<div class="home-bar"><span>${n}</span>${mrepBar(x, Math.max(1, ...ix.flatMap(([, w]) => [w.foreignEok, w.institutionalEok, w.personalEok].map(y => Math.abs(y || 0)))))}<span class="num ${x >= 0 ? 'pos' : 'neg'}" style="text-align:right">${x >= 0 ? '+' : ''}${x.toLocaleString()}억</span></div>`).join('')).join('');
+  // 관심종목 353 현재가(quotes = [현재가, 전일종가]) → 오르내린 종목 수·상하위 5
+  const hl = state.heatLive, names = {};
+  ((state.latest && state.latest.results) || []).forEach(r => { names[r.ticker] = r.name; });
+  let movers = '';
+  if (hl && hl.quotes) {
+    const rows = Object.entries(hl.quotes).filter(([, q]) => q && q[0] > 0 && q[1] > 0).map(([t, q]) => [t, (q[0] / q[1] - 1) * 100]).sort((a, b) => b[1] - a[1]);
+    const up = rows.filter(r => r[1] > 0).length, dn = rows.filter(r => r[1] < 0).length, n = rows.length || 1;
+    const li = r => `<div style="display:flex;justify-content:space-between;gap:6px;font-size:13px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(names[r[0]] || r[0])}</span>${pct(r[1])}</div>`;
+    movers = `<div class="home-breadth"><span class="muted" style="font-size:12px;font-weight:600">관심종목 ${rows.length}개 · ${esc(String(hl.atKst || '').slice(11, 16))}</span>
+      <div><div style="display:flex;justify-content:space-between;font-size:13px"><span>오름 ${up} · 내림 ${dn}</span></div>
+      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / n * 100}%;background:var(--up)"></div><div style="width:${(n - up - dn) / n * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--down)"></div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:4px 16px">${rows.slice(0, 5).map(li).join('')}${rows.slice(-5).reverse().map(li).join('')}</div>
+      <button class="chip" data-goto="sector" style="font-size:12px;padding:3px 10px;align-self:flex-start">장중 히트맵 →</button></div>`;
+  }
+  return `<div class="home-strip">${strip}</div>
+  <div class="card home-hero">
+    <div style="flex:999 1 420px;min-width:0;display:flex;flex-direction:column;gap:6px">
+      <span class="muted" style="font-size:12px;font-weight:600">장중 · ${esc(at)} · 수급은 네이버 잠정치(확정 아님)</span>${flows}
+    </div>${movers}
+  </div>`;
+}
+
 function todayTop() {
+  const live = intradayTop();
+  if (live) return live;
   loadHomeReport();
   const f = homeRep.facts, s = homeRep.summary;
   if (!f) return '';

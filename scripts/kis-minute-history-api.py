@@ -157,6 +157,7 @@ async def collect_day(ticker, date):
 # docs/data/market_flows.json은 pykrx '확정치'라 18:20 KST 이후에만 나오므로,
 # 장중에 대략적인 방향을 보려는 용도로만 쓴다(확정치와 다를 수 있다).
 NAVER_TREND_URL = "https://m.stock.naver.com/api/index/{}/trend"
+NAVER_INDEX_URL = "https://m.stock.naver.com/api/index/{}/basic"
 NAVER_HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://m.stock.naver.com/"}
 
 
@@ -173,6 +174,25 @@ def parse_eok(v):
         return None
 
 
+def parse_num(v):
+    """'5,564.21' / '-203.80' -> float. 못 읽으면 None."""
+    try:
+        return float(str(v).replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+
+
+def _fetch_index_sync(idx):
+    """지수 현재가(대시보드 홈 장중 칸, 2026-10-20). 실패해도 수급은 내보낸다 - None."""
+    try:
+        d = requests.get(NAVER_INDEX_URL.format(idx), headers=NAVER_HEADERS, timeout=8).json()
+    except Exception as e:
+        print(f"index {idx} 실패: {type(e).__name__}: {e}")
+        return None
+    return {"price": parse_num(d.get("closePrice")), "chg": parse_num(d.get("compareToPreviousClosePrice")),
+            "pct": parse_num(d.get("fluctuationsRatio")), "status": d.get("marketStatus"), "at": d.get("localTradedAt")}
+
+
 def _fetch_market_trend_sync():
     out = {}
     for idx in ("KOSPI", "KOSDAQ"):
@@ -183,6 +203,7 @@ def _fetch_market_trend_sync():
             "personalEok": parse_eok(d.get("personalValue")),
             "foreignEok": parse_eok(d.get("foreignValue")),
             "institutionalEok": parse_eok(d.get("institutionalValue")),
+            "index": _fetch_index_sync(idx),
         }
     return out
 
@@ -311,7 +332,8 @@ def selftest():
     assert parse_eok("+1,101") == 1101
     assert parse_eok("-2,364") == -2364
     assert parse_eok("") is None and parse_eok(None) is None and parse_eok("N/A") is None
-    print("selftest ok (5 assertions)")
+    assert parse_num("5,564.21") == 5564.21 and parse_num("-203.80") == -203.8 and parse_num(None) is None
+    print("selftest ok (8 assertions)")
 
 
 def main():
