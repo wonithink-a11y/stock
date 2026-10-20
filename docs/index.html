@@ -4094,43 +4094,81 @@ setInterval(() => {
   ensureMarketTrend();
   if (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000) loadHeatLive();
 }, 30000);
-// 홈 '내 관심종목' — 이 브라우저(localStorage)에만 저장. 고를 수 있는 종목 = 채점 유니버스(latest.json, 국내 코스피200+코스닥150·미국 S&P500+나스닥100).
-// 가격: 장중 스냅샷(관심종목 353, 10분)에 있으면 그 값, 없으면 latest.json 종가 + 섹터강도 1일 등락(2026-10-20 사용자 요청).
-const PIN_KEY = 'homePins';
-const pinsGet = () => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || '[]'); } catch { return []; } };
-const pinsSet = a => { try { localStorage.setItem(PIN_KEY, JSON.stringify(a)); } catch { /* 저장 불가(사생활 보호 창 등) — 이번 화면에서만 */ } state.pinsMem = a; };
+// 홈 '내 관심종목'(2026-10-20 사용자 요청). 목록은 VM /pins 에 두고 기기끼리 같게 본다 — 키(X-Pin-Key)는 텔레그램 1:1 방으로 받은 링크
+// (#pinkey=…)를 한 번 열면 이 기기 localStorage 에 남는다. 키가 없으면 이 기기에만 저장. 평소엔 접혀 있다(state.pinOpen).
+// 고를 수 있는 종목 = 채점 유니버스(latest.json 869) ∪ 국내 전 종목(a5-latest, 펼칠 때 불러옴).
+// 가격: 장중 스냅샷(관심종목 353 quotes · 그 밖 pinQuotes, 10분)에 있으면 그 값, 없으면 latest 종가 + 섹터강도 1일 등락.
+const PIN_KEY = 'homePins', PIN_URL = 'https://wonithink-stock.duckdns.org/pins';
+const lsGet = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch { /* 사생활 보호 창 등 */ } };
+(() => {   // 동기화 링크로 들어오면 키만 저장하고 주소창에서 지운다
+  const m = /(?:^#|&)pinkey=([0-9a-f]{16,64})/.exec(location.hash);
+  if (m) { lsSet('pinKey', m[1]); history.replaceState(null, '', location.pathname + location.search); }
+})();
+const pinsGet = () => state.pinsMem || (() => { try { return JSON.parse(lsGet(PIN_KEY, '[]')); } catch { return []; } })();
+const pinFetch = (method, body) => fetch(PIN_URL, { method, headers: { 'X-Pin-Key': lsGet('pinKey', ''), ...(body ? { 'Content-Type': 'application/json' } : {}) },
+  body: body ? JSON.stringify(body) : undefined }).then(r => r.ok ? r.json() : Promise.reject(r.status));
+function pinsSet(a) {
+  state.pinsMem = a; lsSet(PIN_KEY, JSON.stringify(a));
+  if (lsGet('pinKey', '')) pinFetch('PUT', { tickers: a }).then(() => { state.pinSync = 'ok'; }).catch(e => { state.pinSync = 'err ' + e; render(); });
+}
+function pinsPull() {   // 한 번만: 서버 목록을 받아 이 기기 목록과 합친다(처음 연결한 기기의 목록이 사라지지 않게)
+  if (state.pinPulled || !lsGet('pinKey', '')) return;
+  state.pinPulled = true;
+  pinFetch('GET').then(d => {
+    const local = pinsGet(), merged = [...new Set([...(d.tickers || []), ...local])];
+    state.pinsMem = merged; lsSet(PIN_KEY, JSON.stringify(merged)); state.pinSync = 'ok';
+    if (merged.length !== (d.tickers || []).length) pinsSet(merged);
+    if (state.tab === 'today') renderTodaySoft();
+  }).catch(e => { state.pinSync = 'err ' + e; if (state.tab === 'today') renderTodaySoft(); });
+}
 function renderTodaySoft() { if (document.activeElement && document.activeElement.id === 'pinInput') return; render(); }
+function pinUniverse() {   // ticker → {name, market, r(latest 결과·없으면 null)}
+  const u = {};
+  ((state.a5 && state.a5.items) || []).forEach(x => { u[x.t] = { name: x.n, market: 'KR', r: null }; });
+  ((state.latest && state.latest.results) || []).forEach(r => { u[r.ticker] = { name: r.name, market: r.market, r }; });
+  return u;
+}
 function pinCard() {
-  const res = (state.latest && state.latest.results) || [], byT = Object.fromEntries(res.map(r => [r.ticker, r]));
+  pinsPull();
+  const u = pinUniverse(), pins = pinsGet().filter(t => u[t] || !state.a5);
+  if (state.pinOpen && !state.a5 && !state.a5Loading) {
+    state.a5Loading = true;
+    loadJson('a5-latest').then(x => { state.a5 = x || false; if (state.tab === 'today') renderTodaySoft(); });
+  }
   const r1d = Object.fromEntries(((state.sectorStrength || {}).stocks || []).map(x => [x.t, x.r && x.r['1d']]));
-  const lq = (state.heatLive && state.heatLive.quotes) || {};
-  const pins = (state.pinsMem || pinsGet()).filter(t => byT[t]);
+  const hl = state.heatLive || {}, lq = { ...(hl.pinQuotes || {}), ...(hl.quotes || {}) };
   const rows = pins.map(t => {
-    const r = byT[t], q = lq[t], live = q && q[1];
-    const px = live ? q[0] : r.currentPrice, chg = live ? (q[0] / q[1] - 1) * 100 : (r1d[t] != null ? r1d[t] * 100 : null);
-    return `<tr><td style="white-space:normal"><b data-chart="${esc(t)}" data-chart-name="${esc(r.name)}" style="cursor:pointer">${esc(r.name)}</b> <span class="muted">${esc(t)}</span></td>
-      <td style="text-align:right">${fmtPrice(px, r.market)}</td>
+    const e = u[t] || { name: t, market: /^[0-9A-Z]{6}$/.test(t) && /\d/.test(t) ? 'KR' : 'US', r: null }, r = e.r, q = lq[t], live = q && q[1];
+    const px = live ? q[0] : r ? r.currentPrice : null, chg = live ? (q[0] / q[1] - 1) * 100 : (r1d[t] != null ? r1d[t] * 100 : null);
+    return `<tr><td style="white-space:normal"><b data-chart="${esc(t)}" data-chart-name="${esc(e.name)}" style="cursor:pointer">${esc(e.name)}</b> <span class="muted">${esc(t)}</span></td>
+      <td style="text-align:right">${fmtPrice(px, e.market)}</td>
       <td style="text-align:right">${chg == null ? '<span class="muted">-</span>' : `<span class="${chg >= 0 ? 'pos' : 'neg'}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>`}</td>
-      <td>${gradeChip(r.grade)}</td>
-      <td style="text-align:right"><button class="chip" data-unpin="${esc(t)}" aria-label="${esc(r.name)} 빼기" style="padding:1px 8px">×</button></td></tr>`;
+      <td>${r ? gradeChip(r.grade) : ''}</td>
+      <td style="text-align:right"><button class="chip" data-unpin="${esc(t)}" aria-label="${esc(e.name)} 빼기" style="padding:1px 8px">×</button></td></tr>`;
   }).join('');
-  const opts = res.map(r => `<option value="${esc(r.name)} (${esc(r.ticker)})"></option>`).join('');
-  return `<div class="card"><h2 style="margin:0 0 8px;font-size:16px">내 관심종목</h2>
-    <input class="search" id="pinInput" list="pinList" placeholder="종목명·코드 입력 → 목록에서 고르면 추가" autocomplete="off" style="width:100%;max-width:320px;margin-bottom:6px">
+  const opts = state.pinOpen ? Object.entries(u).map(([t, e]) => `<option value="${esc(e.name)} (${esc(t)})"></option>`).join('') : '';
+  const sync = !lsGet('pinKey', '') ? '이 기기에만 저장 — 텔레그램으로 받은 동기화 링크를 한 번 열면 기기끼리 같아집니다'
+    : String(state.pinSync || '').startsWith('err') ? `동기화 실패(${esc(state.pinSync.slice(4))}) — 이 기기 목록으로 표시` : '기기 간 동기화';
+  return `<details class="card" data-pin-details${state.pinOpen ? ' open' : ''}><summary style="cursor:pointer;font-weight:600">내 관심종목 <span class="muted" style="font-weight:400">${pins.length}종목</span></summary>
+    <input class="search" id="pinInput" list="pinList" placeholder="종목명·코드 입력 → 목록에서 고르면 추가" autocomplete="off" style="width:100%;max-width:320px;margin:8px 0 6px">
     <datalist id="pinList">${opts}</datalist>
     ${rows ? `<div class="table-wrap"><table><tbody>${rows}</tbody></table></div>` : '<p class="muted" style="margin:4px 0 0">아직 없습니다.</p>'}
-    <p class="muted" style="margin:6px 0 0;font-size:11px">이 기기 브라우저에만 저장 · ${Object.keys(lq).length ? '장중 10분 스냅샷 또는 ' : ''}최근 종가</p></div>`;
+    <p class="muted" style="margin:6px 0 0;font-size:11px">${sync} · 가격은 장중 10분 스냅샷 또는 최근 종가(목록 밖 종목은 다음 장중부터)</p></details>`;
 }
 function addPin(v) {
-  const res = (state.latest && state.latest.results) || [];
-  const m = /\(([0-9A-Z]{6}|[A-Z.\-]{1,6})\)\s*$/.exec(v.trim());
-  const q = v.trim().toLowerCase();
-  const hit = m ? res.find(r => r.ticker === m[1]) : res.find(r => r.ticker.toLowerCase() === q || String(r.name).toLowerCase() === q);
-  if (!hit) return false;
-  const a = state.pinsMem || pinsGet();
-  if (!a.includes(hit.ticker)) pinsSet([...a, hit.ticker]);
+  const u = pinUniverse(), m = /\(([0-9A-Z][0-9A-Z.\-]{0,6})\)\s*$/.exec(v.trim()), q = v.trim().toLowerCase();
+  const t = m && u[m[1]] ? m[1] : Object.keys(u).find(k => k.toLowerCase() === q || String(u[k].name).toLowerCase() === q);
+  if (!t) return false;
+  const a = pinsGet();
+  if (!a.includes(t)) pinsSet([...a, t]);
   return true;
 }
+document.addEventListener('toggle', (e) => {
+  if (!e.target.matches || !e.target.matches('[data-pin-details]')) return;
+  if (state.pinOpen === e.target.open) return;
+  state.pinOpen = e.target.open; render();
+}, true);
 document.addEventListener('change', (e) => {
   if (e.target.id !== 'pinInput') return;
   if (addPin(e.target.value)) { e.target.value = ''; e.target.blur(); render(); }
@@ -4141,7 +4179,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-unpin]');
   if (!b) return;
-  pinsSet((state.pinsMem || pinsGet()).filter(t => t !== b.dataset.unpin));
+  pinsSet(pinsGet().filter(t => t !== b.dataset.unpin));
   render();
 });
 

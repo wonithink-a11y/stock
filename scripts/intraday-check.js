@@ -39,6 +39,8 @@ const STATE_PATH = process.env.INTRADAY_STATE_PATH || path.join(ROOT, 'docs', 'd
 const SNAPSHOT_PATH = process.env.INTRADAY_SNAPSHOT_PATH || path.join(path.dirname(STATE_PATH), 'kr-snapshot.json');
 // VM: ~/collector-venv/intraday/state.json → ~/collector-venv/news/news.json (news-alert 가 쓴다)
 const NEWS_PATH = process.env.INTRADAY_NEWS_PATH || path.join(path.dirname(STATE_PATH), '..', 'news', 'news.json');
+// 대시보드 홈 '내 관심종목'(VM /pins 가 쓰는 파일) — 감시 목록 밖 국내 종목도 시세만 받아 스냅샷 pinQuotes 에 싣는다(알림 없음, 2026-10-20)
+const PINS_PATH = process.env.INTRADAY_PINS_PATH || path.join(path.dirname(STATE_PATH), '..', 'pins', 'pins.json');
 
 // 2026-09-28 사용자 요청으로 줄였다 — 353종목·90분 반복·두 줄 겹침으로 하루 37통·194줄+ 였다.
 //   전일 대비: 종목마다 하루 한 번, 5%p 단계(5→10→15…)를 새로 넘거나 방향이 바뀔 때만 다시(쿨다운 대신 단계).
@@ -350,6 +352,17 @@ async function main() {
     }
   }
   console.log(`조회 실패 ${failed} · 오늘 시세 아님(휴장·개장 전) ${stale} / ${targets.length}`);
+  const pinQuotes = {};
+  if (open.includes('KR') && fs.existsSync(PINS_PATH)) {
+    let pins = [];
+    try { pins = JSON.parse(fs.readFileSync(PINS_PATH, 'utf-8')).tickers || []; } catch (e) { console.warn(`  [경고] pins 읽기 실패: ${e.message}`); }
+    for (const code of pins.filter((c) => /^[0-9A-Z]{6}$/.test(c) && !krQuotes[c]).slice(0, 50)) {
+      try {
+        const q = await fetchQuoteKR(code);
+        if (q && q.date === localYmd(now, MARKET_TZ.KR)) pinQuotes[code] = [q.price, q.prevClose];
+      } catch (e) { console.warn(`  [경고] 관심 ${code} 시세 실패: ${e.message}`); }
+    }
+  }
   // 전부 실패는 소스가 죽은 것이다 - 초록으로 끝내면 stooq 처럼 몇 주를 모른다
   if (targets.length && failed === targets.length) throw new Error(`시세 소스 전멸: ${failed}종목 전부 실패`);
 
@@ -375,7 +388,7 @@ async function main() {
   if (Object.keys(krQuotes).length) {
     // 임시 파일 → rename: 서버가 쓰는 도중의 반쪽 파일을 읽지 않게
     const snap = { at: now, atKst: new Date(now).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }),
-      date: localYmd(now, MARKET_TZ.KR), n: Object.keys(krQuotes).length, quotes: krQuotes };
+      date: localYmd(now, MARKET_TZ.KR), n: Object.keys(krQuotes).length, quotes: krQuotes, pinQuotes };
     fs.writeFileSync(SNAPSHOT_PATH + '.tmp', JSON.stringify(snap), 'utf-8');
     fs.renameSync(SNAPSHOT_PATH + '.tmp', SNAPSHOT_PATH);
     console.log(`국내 스냅샷 ${snap.n}종목 → ${SNAPSHOT_PATH}`);

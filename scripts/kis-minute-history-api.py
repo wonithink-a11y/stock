@@ -23,8 +23,10 @@ GET /minute-history?ticker=005930&date=20260828
 KIS_VTS_APP_KEY/KIS_VTS_APP_SECRET 필요.
 """
 import asyncio
+import hmac
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -328,12 +330,55 @@ async def handle_kr_intraday(request):
     return web.json_response(data, headers={"Cache-Control": "no-store"})
 
 
+# 홈 '내 관심종목' 기기 간 동기화(2026-10-20 사용자 요청). 키(~/collector-venv/pins/key)를 아는 기기만 읽고 쓴다 —
+# 대시보드는 공개라 키 없이는 401. 키는 텔레그램 1:1 방으로 보낸 링크(#pinkey=)로 각 기기 localStorage 에 들어간다.
+PINS_DIR = Path(os.environ.get("PINS_DIR") or (Path.home() / "collector-venv" / "pins"))
+_PIN_RE = re.compile(r"^[0-9A-Z][0-9A-Z.\-]{0,6}$")
+PINS_MAX = 100
+
+
+def valid_pins(v):
+    """티커 목록이면 중복 없는 리스트, 아니면 None."""
+    if not isinstance(v, list) or len(v) > PINS_MAX or not all(isinstance(t, str) and _PIN_RE.match(t) for t in v):
+        return None
+    return list(dict.fromkeys(v))
+
+
+async def handle_pins(request):
+    try:
+        key = (PINS_DIR / "key").read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        key = ""
+    if not key or not hmac.compare_digest(key, request.headers.get("X-Pin-Key", "")):
+        return web.json_response({"error": "키 없음"}, status=401)
+    path = PINS_DIR / "pins.json"
+    if request.method == "GET":
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            data = {"tickers": [], "updatedAt": None}
+        return web.json_response(data, headers={"Cache-Control": "no-store"})
+    try:
+        tickers = valid_pins((await request.json()).get("tickers"))
+    except Exception:
+        tickers = None
+    if tickers is None:
+        return web.json_response({"error": "형식 오류"}, status=400)
+    data = {"tickers": tickers, "updatedAt": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(path)
+    return web.json_response(data)
+
+
 def selftest():
     assert parse_eok("+1,101") == 1101
     assert parse_eok("-2,364") == -2364
     assert parse_eok("") is None and parse_eok(None) is None and parse_eok("N/A") is None
     assert parse_num("5,564.21") == 5564.21 and parse_num("-203.80") == -203.8 and parse_num(None) is None
-    print("selftest ok (8 assertions)")
+    assert valid_pins(["005930", "0218L0", "NVDA", "BRK.B", "005930"]) == ["005930", "0218L0", "NVDA", "BRK.B"]
+    assert valid_pins(["../x"]) is None and valid_pins("005930") is None and valid_pins(["A"] * 101) is None
+    print("selftest ok (10 assertions)")
 
 
 def main():
@@ -346,6 +391,8 @@ def main():
     app.router.add_get("/minute-history", handle_minute_history)
     app.router.add_get("/market-trend", handle_market_trend)
     app.router.add_get("/kr-intraday", handle_kr_intraday)
+    app.router.add_get("/pins", handle_pins)
+    app.router.add_put("/pins", handle_pins)
     app.router.add_get("/accounts", handle_accounts)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)
