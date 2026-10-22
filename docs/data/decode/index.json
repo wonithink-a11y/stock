@@ -2602,13 +2602,13 @@
 "ver": 2
 },
 "185750": {
-"rceptNo": "20260814003547",
-"reportNm": "반기보고서 (2026.06)",
-"rceptDt": "20260814",
-"decodedAt": "2026-09-29T03:36:20+09:00",
+"rceptNo": "20261022000500",
+"reportNm": "[기재정정]반기보고서 (2026.06)",
+"rceptDt": "20261022",
+"decodedAt": "2026-10-23T00:48:08+09:00",
 "model": "gemini-3.5-flash-lite",
-"kept": 15,
-"dropped": 14,
+"kept": 13,
+"dropped": 2,
 "ver": 2
 },
 "005300": {
@@ -12914,13 +12914,13 @@
 "ver": 2
 },
 "067390": {
-"rceptNo": "20260813001368",
-"reportNm": "반기보고서 (2026.06)",
-"rceptDt": "20260813",
-"decodedAt": "2026-10-13T05:30:27+09:00",
+"rceptNo": "20261022000368",
+"reportNm": "[기재정정]반기보고서 (2026.06)",
+"rceptDt": "20261022",
+"decodedAt": "2026-10-23T00:50:04+09:00",
 "model": "gemini-3.5-flash-lite",
-"kept": 32,
-"dropped": 5,
+"kept": 25,
+"dropped": 3,
 "ver": 2
 },
 "067570": {
@@ -21187,7 +21187,9 @@
 "model": "gemini-3.5-flash-lite",
 "kept": 13,
 "dropped": 5,
-"ver": 2
+"ver": 2,
+"tries": 1,
+"failedRcept": "20261022000242"
 },
 "303360": {
 "rceptNo": "20260812000239",
@@ -25608,7 +25610,17 @@
 "kept": 13,
 "dropped": 2,
 "ver": 2
+},
+"432320": {
+"rceptNo": "20261022000450",
+"reportNm": "사업보고서 (2026.07)",
+"rceptDt": "20261022",
+"decodedAt": "2026-10-23T00:53:44+09:00",
+"model": "gemini-3.5-flash-lite",
+"kept": 9,
+"dropped": 0,
+"ver": 2
 }
 },
-"updatedAt": "2026-10-22T00:50:47+09:00"
+"updatedAt": "2026-10-23T00:53:44+09:00"
 }
