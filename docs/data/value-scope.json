@@ -1,6 +1,6 @@
 {
  "schemaVersion": "VS-1.0",
- "asOf": "2026-10-02",
+ "asOf": "2026-10-19",
  "note": "PIT 가치(PER/PBR) 산출 가능 여부. 점수·정책과 무관한 표시용 범위표 — 값 대체·신뢰도 평가 아님.",
  "summary": {
   "total": 353,
@@ -11,8 +11,8 @@
    "MERGER_UNHANDLED": 70,
    "RIGHTS_FORMULA_UNVERIFIED": 37,
    "CAPITAL_REDUCTION_TYPE_UNKNOWN": 13,
-   "NO_PRICE": 3,
-   "NO_VALUATION_INPUT": 1
+   "NO_VALUATION_INPUT": 2,
+   "NO_PRICE": 2
   }
  },
  "byTicker": {
@@ -938,7 +938,7 @@
   },
   "0220W0": {
    "inScope": false,
-   "reason": "NO_PRICE"
+   "reason": "NO_VALUATION_INPUT"
   },
   "022100": {
    "inScope": true,
