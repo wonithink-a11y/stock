@@ -4160,7 +4160,11 @@ const lsGet = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { r
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch { /* 사생활 보호 창 등 */ } };
 (() => {   // 동기화 링크로 들어오면 키만 저장하고 주소창에서 지운다
   const m = /(?:^#|&)pinkey=([0-9a-f]{16,64})/.exec(location.hash);
-  if (m) { lsSet('pinKey', m[1]); history.replaceState(null, '', location.pathname + location.search); }
+  if (m) {   // 키 부분만 주소창에서 지운다 — '#yt=ID&pinkey=…' 링크의 #yt=ID 는 남겨 그 영상을 연다
+    lsSet('pinKey', m[1]);
+    const rest = location.hash.replace(/&?pinkey=[0-9a-f]+/, '').replace(/^#?&/, '#');
+    history.replaceState(null, '', location.pathname + location.search + (rest === '#' ? '' : rest));
+  }
 })();
 const pinsGet = () => state.pinsMem || (() => { try { return JSON.parse(lsGet(PIN_KEY, '[]')); } catch { return []; } })();
 const pinFetch = (method, body) => fetch(PIN_URL, { method, headers: { 'X-Pin-Key': lsGet('pinKey', ''), ...(body ? { 'Content-Type': 'application/json' } : {}) },

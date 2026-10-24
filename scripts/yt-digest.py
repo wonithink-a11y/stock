@@ -156,13 +156,21 @@ def render(item):
 DASH = "https://wonithink-a11y.github.io/stock/"
 
 
-def render_short(item):
+def pin_key():
+    """대시보드 키(VM /pins·/yt 가 검사). 링크에 실어 보내면 어느 브라우저로 열어도 그 기기에 저장된다(텔레그램 앱 내 브라우저는 저장소가 따로라서)."""
+    try:
+        return (Path.home() / "collector-venv" / "pins" / "key").read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
+def render_short(item, key=""):
     """텔레그램용: 핵심 10줄 + 전문 링크(대시보드 '영상 요약'). 전문은 길어서 텔레그램에 보내지 않는다."""
     s = item["digest"]
     lines = (s.get("brief") or [])[:10] or [s["headline"]]   # brief 없는 옛 항목은 헤드라인만
     return "\n".join([f"🎬 {item['channel']} | {item['published'][:16].replace('T', ' ')}", item["title"], "",
                       s["headline"], ""] + [f"· {x}" for x in lines] +
-                     ["", f"전체 요약 → {DASH}#yt={item['id']}", f"영상 → {item['url']}"])
+                     ["", f"전체 요약 → {DASH}#yt={item['id']}" + (f"&pinkey={key}" if key else ""), f"영상 → {item['url']}"])
 
 
 def split(text, limit=3900):
@@ -262,7 +270,7 @@ def run(env):
         st["done"] = True
         write_json(STATE / "digest.json", digest)
         write_json(STATE / "seen.json", seen)
-        sent = telegram(env, render_short(item))
+        sent = telegram(env, render_short(item, pin_key()))
         print(f"요약 완료 {ch['name']} · {v['title'][:40]} · 토큰 {item['tokens']} · 텔레그램 {'OK' if sent else '생략/실패'}")
         done_n += 1
     print(f"새 영상 후보 {len(todo)}건, 요약 {done_n}건")
@@ -287,7 +295,8 @@ def selftest():
     sh = render_short(item)
     assert "· b9" in sh and "· b10" not in sh and "#yt=AAAAAAAAAAA" in sh and len(sh) < 1000   # 10줄 상한
     assert "· h" in render_short({**item, "digest": {"headline": "h", "summary": "s", "sections": []}})   # brief 없는 옛 항목
-    print("selftest ok (9 assertions)")
+    assert "#yt=AAAAAAAAAAA&pinkey=abc" in render_short(item, "abc") and "pinkey" not in render_short(item)
+    print("selftest ok (11 assertions)")
 
 
 if __name__ == "__main__":
