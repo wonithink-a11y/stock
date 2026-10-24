@@ -45,6 +45,7 @@ PROMPT = """이 영상은 한국어 투자·시장 방송이다. 시청하지 �
 - 숫자(지수·가격·금리·실적·날짜)는 말한 그대로 적는다. 들리지 않았거나 확실하지 않으면 적지 말고 caveats 에 '불분명'으로 남긴다.
 - 화자의 주장(전망·의견)과 확인된 사실(발표·실적·시세)을 구분해서 쓴다.
 - 광고·인사·구독 안내·잡담은 뺀다.
+- brief 는 바쁜 사람이 이것만 읽어도 되는 핵심 10줄 이내. 한 줄에 한 문장, 가장 중요한 것부터, 숫자는 말한 그대로. sections 와 겹쳐도 된다.
 - mentioned 는 종목·섹터·자산(원자재·환율·채권 등)만 쓴다. 사람·기관 이름은 넣지 말고 sections 안에 '누가 무엇을 말했다'로 쓴다. 해당이 없으면 빈 배열.
 - numbers 는 '무엇의 수치인지'를 붙여 쓴다(예: 'S&P500 −0.52%'). 날짜·단순 개수는 빼고, 없으면 빈 배열.
 - caveats 는 화자가 밝힌 위험·전제·불확실성, 또는 잘 안 들린 부분만. 없으면 빈 배열.
@@ -55,6 +56,7 @@ SCHEMA = {
     "type": "OBJECT",
     "properties": {
         "headline": {"type": "STRING"},
+        "brief": {"type": "ARRAY", "items": {"type": "STRING"}},
         "summary": {"type": "STRING"},
         "sections": {"type": "ARRAY", "items": {
             "type": "OBJECT",
@@ -69,7 +71,7 @@ SCHEMA = {
         "numbers": {"type": "ARRAY", "items": {"type": "STRING"}},
         "caveats": {"type": "ARRAY", "items": {"type": "STRING"}},
     },
-    "required": ["headline", "summary", "sections"],
+    "required": ["headline", "brief", "summary", "sections"],
 }
 
 NS = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
@@ -149,6 +151,18 @@ def render(item):
     if s.get("caveats"):
         L += ["", "유의"] + [f"· {c}" for c in s["caveats"]]
     return "\n".join(L)
+
+
+DASH = "https://wonithink-a11y.github.io/stock/"
+
+
+def render_short(item):
+    """텔레그램용: 핵심 10줄 + 전문 링크(대시보드 '영상 요약'). 전문은 길어서 텔레그램에 보내지 않는다."""
+    s = item["digest"]
+    lines = (s.get("brief") or [])[:10] or [s["headline"]]   # brief 없는 옛 항목은 헤드라인만
+    return "\n".join([f"🎬 {item['channel']} | {item['published'][:16].replace('T', ' ')}", item["title"], "",
+                      s["headline"], ""] + [f"· {x}" for x in lines] +
+                     ["", f"전체 요약 → {DASH}#yt={item['id']}", f"영상 → {item['url']}"])
 
 
 def split(text, limit=3900):
@@ -248,7 +262,7 @@ def run(env):
         st["done"] = True
         write_json(STATE / "digest.json", digest)
         write_json(STATE / "seen.json", seen)
-        sent = telegram(env, render(item))
+        sent = telegram(env, render_short(item))
         print(f"요약 완료 {ch['name']} · {v['title'][:40]} · 토큰 {item['tokens']} · 텔레그램 {'OK' if sent else '생략/실패'}")
         done_n += 1
     print(f"새 영상 후보 {len(todo)}건, 요약 {done_n}건")
@@ -269,7 +283,11 @@ def selftest():
     item = {"channel": "c", "published": "2026-10-24T07:00:00+09:00", "title": "t", "url": "u",
             "digest": {"headline": "h", "summary": "s", "sections": [{"title": "T", "points": ["p"]}], "numbers": ["n"]}}
     assert "■ T" in render(item) and "· p" in render(item)
-    print("selftest ok (6 assertions)")
+    item.update(id="AAAAAAAAAAA", digest={"headline": "h", "brief": [f"b{i}" for i in range(12)], "summary": "s", "sections": []})
+    sh = render_short(item)
+    assert "· b9" in sh and "· b10" not in sh and "#yt=AAAAAAAAAAA" in sh and len(sh) < 1000   # 10줄 상한
+    assert "· h" in render_short({**item, "digest": {"headline": "h", "summary": "s", "sections": []}})   # brief 없는 옛 항목
+    print("selftest ok (9 assertions)")
 
 
 if __name__ == "__main__":

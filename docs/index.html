@@ -3821,7 +3821,12 @@ function ytLoad() {
     .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(j => { yt.data = j.items || []; yt.err = null; yt.at = Date.now(); })
     .catch(e => { yt.err = e; if (!yt.data) yt.data = []; })
-    .finally(() => { yt.loading = false; if (state.tab === 'yt') render(); });
+    .finally(() => {
+      yt.loading = false;
+      if (state.tab !== 'yt') return;
+      render();
+      if (yt.focus) setTimeout(() => { const el = document.querySelector(`[data-ytid="${yt.focus}"]`); if (el) { el.scrollIntoView(); yt.focus = null; } }, 50);   // 텔레그램 링크(#yt=ID)로 들어오면 그 영상으로
+    });
 }
 function renderYt() {
   if (!lsGet('pinKey', '')) return '<div class="card empty">이 기기에 키가 없습니다. 텔레그램 1:1 방의 동기화 링크(#pinkey=…)를 한 번 열면 보입니다.</div>';
@@ -3841,6 +3846,8 @@ function renderYt() {
     html += `<details class="card" data-ytid="${esc(x.id)}"${open ? ' open' : ''} style="margin-bottom:10px">
       <summary style="cursor:pointer"><span class="mrep-chip">${esc(x.channel)}</span> <span class="muted" style="font-size:12px">${esc(x.published.slice(11, 16))}</span><br><b>${esc(x.title)}</b></summary>
       <p style="font-weight:600;margin:12px 0 6px">${esc(s.headline || '')}</p>
+      ${(s.brief || []).length ? `<ul style="margin:0 0 10px;padding-left:20px;line-height:1.6">${li(s.brief)}</ul>` : ''}
+      <h4 style="margin:12px 0 4px">전체 요약</h4>
       <p style="margin:0 0 10px;line-height:1.6">${esc(s.summary || '')}</p>
       ${(s.sections || []).map(sec => `<h4 style="margin:12px 0 4px">${esc(sec.title)}</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${li(sec.points)}</ul>`).join('')}
       ${(s.mentioned || []).length ? `<h4 style="margin:12px 0 4px">언급 종목·자산</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${s.mentioned.map(m => `<li><b>${esc(m.name)}</b> — ${esc(m.view)}</li>`).join('')}</ul>` : ''}
@@ -4459,6 +4466,7 @@ document.addEventListener('click', (e) => {
   renderNav();
   render();
 });
+{ const m = /^#yt=([\w-]{11})/.exec(location.hash); if (m) { state.tab = 'yt'; yt.open[m[1]] = true; yt.focus = m[1]; } }   // 영상 요약 텔레그램 링크
 if (/^#mreport=/.test(location.hash)) state.tab = 'mreport';   // 텔레그램 요약의 링크로 들어오면 그 리포트를 바로 연다
 renderNav();
 
