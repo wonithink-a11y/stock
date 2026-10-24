@@ -344,12 +344,30 @@ def valid_pins(v):
     return list(dict.fromkeys(v))
 
 
-async def handle_pins(request):
+def pin_key_ok(request):
     try:
         key = (PINS_DIR / "key").read_text(encoding="utf-8").strip()
     except FileNotFoundError:
         key = ""
-    if not key or not hmac.compare_digest(key, request.headers.get("X-Pin-Key", "")):
+    return bool(key) and hmac.compare_digest(key, request.headers.get("X-Pin-Key", ""))
+
+
+# 영상 요약(2026-10-24, scripts/yt-digest.py). 남의 콘텐츠 요약이라 저장소·공개 대시보드에 없고 VM 에만 — 같은 키(X-Pin-Key)를 아는 기기만 읽는다.
+YT_DIR = Path(os.environ.get("YT_DIR") or (Path.home() / "collector-venv" / "yt"))
+
+
+async def handle_yt(request):
+    if not pin_key_ok(request):
+        return web.json_response({"error": "키 없음"}, status=401)
+    try:
+        data = json.loads((YT_DIR / "digest.json").read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        data = {"items": []}
+    return web.json_response(data, headers={"Cache-Control": "no-store"})
+
+
+async def handle_pins(request):
+    if not pin_key_ok(request):
         return web.json_response({"error": "키 없음"}, status=401)
     path = PINS_DIR / "pins.json"
     if request.method == "GET":
@@ -393,6 +411,7 @@ def main():
     app.router.add_get("/kr-intraday", handle_kr_intraday)
     app.router.add_get("/pins", handle_pins)
     app.router.add_put("/pins", handle_pins)
+    app.router.add_get("/yt", handle_yt)
     app.router.add_get("/accounts", handle_accounts)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)

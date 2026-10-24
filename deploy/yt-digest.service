@@ -1,0 +1,20 @@
+[Unit]
+# 자주 보는 유튜브 채널(오선의 미국 증시·매경 라이브·소수몽키·매경 월가월부) 새 영상 → Gemini 상세 요약 → 텔레그램 1:1 방 + VM /yt(대시보드 '영상 요약').
+# ~/collector-venv/.env 에 GEMINI_API_KEY · TELEGRAM_BOT_TOKEN · TELEGRAM_CHAT_ID 가 필요하다. 요약은 ~/collector-venv/yt (저장소 밖 — 남의 콘텐츠).
+Description=YouTube channel digest (Gemini video summary)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=YT_DIR=/home/ubuntu/collector-venv/yt
+ExecStart=/usr/bin/python3 /home/ubuntu/collector/scripts/yt-digest.py
+StandardOutput=append:/home/ubuntu/collector-venv/logs/yt-digest.log
+StandardError=append:/home/ubuntu/collector-venv/logs/yt-digest.log
+TimeoutStartSec=15min
+NoNewPrivileges=yes
+PrivateTmp=yes

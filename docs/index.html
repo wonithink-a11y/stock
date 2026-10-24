@@ -3809,6 +3809,55 @@ document.addEventListener('click', (e) => {
   if (b) loadMarketReport(b.dataset.mreport);
 });
 
+// ---------- 영상 요약 (2026-10-24 사용자 요청) ----------
+// VM yt-digest 가 오선의 미국 증시·매경 라이브·소수몽키·매경 월가월부 새 영상을 Gemini 로 요약해 쌓는다. 남의 콘텐츠 요약이라 저장소엔 없고,
+// VM /yt 에서 키(X-Pin-Key — '내 관심종목' 동기화와 같은 키)로만 받는다. 맥락 전용 — 점수·매매 불사용.
+const YT_URL = 'https://wonithink-stock.duckdns.org/yt';
+const yt = { data: null, err: null, ch: '전체', open: {}, at: 0, loading: false };
+function ytLoad() {
+  if (yt.loading) return;
+  yt.loading = true;
+  fetch(YT_URL, { headers: { 'X-Pin-Key': lsGet('pinKey', '') } })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { yt.data = j.items || []; yt.err = null; yt.at = Date.now(); })
+    .catch(e => { yt.err = e; if (!yt.data) yt.data = []; })
+    .finally(() => { yt.loading = false; if (state.tab === 'yt') render(); });
+}
+function renderYt() {
+  if (!lsGet('pinKey', '')) return '<div class="card empty">이 기기에 키가 없습니다. 텔레그램 1:1 방의 동기화 링크(#pinkey=…)를 한 번 열면 보입니다.</div>';
+  if (yt.data === null || Date.now() - yt.at > 300000) ytLoad();
+  if (yt.data === null) return '<div class="card empty">불러오는 중…</div>';
+  if (yt.err && !yt.data.length) return `<div class="card empty">${yt.err === 401 ? '키가 맞지 않습니다. 텔레그램의 동기화 링크를 다시 여세요.' : '불러오지 못했습니다(' + esc(String(yt.err)) + '). 잠시 뒤 다시 열어 보세요.'}</div>`;
+  const chans = ['전체', ...new Set(yt.data.map(x => x.channel))];
+  const items = yt.data.filter(x => yt.ch === '전체' || x.channel === yt.ch).sort((a, b) => b.published.localeCompare(a.published));
+  if (!items.length) return '<div class="card empty">아직 요약이 없습니다. 새 영상이 올라오면 20분 안에 생깁니다.</div>';
+  const li = (a) => (a || []).map(p => `<li>${esc(p)}</li>`).join('');
+  let day = '', html = '';
+  items.forEach((x, i) => {
+    const d = x.published.slice(0, 10);
+    if (d !== day) { day = d; html += `<h3 style="margin:18px 0 8px">${esc(d.slice(5))}</h3>`; }
+    const s = x.digest || {};
+    const open = yt.open[x.id] ?? i === 0;
+    html += `<details class="card" data-ytid="${esc(x.id)}"${open ? ' open' : ''} style="margin-bottom:10px">
+      <summary style="cursor:pointer"><span class="mrep-chip">${esc(x.channel)}</span> <span class="muted" style="font-size:12px">${esc(x.published.slice(11, 16))}</span><br><b>${esc(x.title)}</b></summary>
+      <p style="font-weight:600;margin:12px 0 6px">${esc(s.headline || '')}</p>
+      <p style="margin:0 0 10px;line-height:1.6">${esc(s.summary || '')}</p>
+      ${(s.sections || []).map(sec => `<h4 style="margin:12px 0 4px">${esc(sec.title)}</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${li(sec.points)}</ul>`).join('')}
+      ${(s.mentioned || []).length ? `<h4 style="margin:12px 0 4px">언급 종목·자산</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${s.mentioned.map(m => `<li><b>${esc(m.name)}</b> — ${esc(m.view)}</li>`).join('')}</ul>` : ''}
+      ${(s.numbers || []).length ? `<h4 style="margin:12px 0 4px">나온 숫자</h4><ul style="margin:0;padding-left:20px">${li(s.numbers)}</ul>` : ''}
+      ${(s.caveats || []).length ? `<h4 style="margin:12px 0 4px">유의</h4><ul style="margin:0;padding-left:20px">${li(s.caveats)}</ul>` : ''}
+      <p class="muted" style="font-size:12px;margin:12px 0 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">영상 보기 ↗</a> · ${esc(x.model || '')} 요약</p>
+    </details>`;
+  });
+  return `<div class="mrep-tabs" style="flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="채널">${chans.map(c => `<button role="tab" aria-selected="${yt.ch === c}" class="${yt.ch === c ? 'on' : ''}" data-ytch="${esc(c)}">${esc(c)}</button>`).join('')}</div>${html}
+    <p class="muted" style="font-size:11px">AI(Gemini)가 영상을 듣고 정리한 글이라 틀린 곳이 있을 수 있습니다. 중요한 숫자는 영상에서 확인하세요. 시황 정리이며 매매 권유가 아닙니다.</p>`;
+}
+document.addEventListener('toggle', (e) => { const id = e.target.dataset && e.target.dataset.ytid; if (id) yt.open[id] = e.target.open; }, true);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-ytch]');
+  if (b) { yt.ch = b.dataset.ytch; render(); }
+});
+
 function render() {
   const el = document.getElementById('content');
   if (state.tab === 'today') el.innerHTML = renderToday();
@@ -3828,6 +3877,7 @@ function render() {
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
+  else if (state.tab === 'yt') el.innerHTML = renderYt();
   else if (state.tab === 'links') el.innerHTML = renderLinks();
   else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
   else if (state.tab === 'holders') el.innerHTML = renderHolders();
@@ -4368,7 +4418,7 @@ function renderToday() {
 
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
-  ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['links', '바로가기']]],
+  ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['yt', '영상 요약'], ['links', '바로가기']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견']]],

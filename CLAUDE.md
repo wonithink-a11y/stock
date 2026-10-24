@@ -293,6 +293,9 @@ Validated against
             ★ **카카오톡 '나에게 보내기'(10-13)**: VM `kakao-report.timer`(06~23시 10분) → `scripts/send-kakao-report.py` 가 raw 에서 새 리포트 읽어 200자+대시보드 버튼.
             토큰 ~/collector-venv/kakao/token.json(VM, 자동 갱신). 끊기면 장애 방 1회 → PC 에서 `--login` 후 token.json 을 VM 으로 복사.
             과거 날짜는 `--date`(로컬 생성·커밋) + 백필 루틴(`[no-telegram]`, 텔레그램 안 감). 루틴 ID kr trig_01JmShAenhSyQvLMRCDtoLmk · us trig_01HvzNBwMxLKn7VFJFQiiwKs.
+  다음      ★ **유튜브 영상 요약(10-24 사용자 GO)** — `scripts/yt-digest.py` · `deploy/yt-digest.{service,timer}`(VM 20분): 채널 RSS(오선의 미국 증시 '오늘의 요약' 영상만 · 매경 라이브 · 소수몽키 · 매경 월가월부)
+            새 영상 → Gemini 3.5 Flash(YouTube URL 직접, 429 면 Flash-Lite) 상세 요약 → 텔레그램 1:1 방 + VM `/yt`(키 X-Pin-Key) → 대시보드 오늘 > '영상 요약'. 시험: 3분 영상 1.1만 토큰·90분 방송 35만 토큰(68초).
+            ★ 남의 콘텐츠라 **VM ~/collector-venv/yt 에만**(저장소·공개 대시보드 금지, channels-feed 와 같은 규칙) · 맥락 전용(절대 규칙 1). VM .env 에 GEMINI_API_KEY 필요(사용자 몫). 라이브 진행 중 영상은 끝난 뒤 받는다.
   다음      ★ **호가·체결강도 장중 기록(10-13 사용자 GO)** — `scripts/collect-orderflow-kis.py` · `deploy/orderflow-collect.{service,timer}`(평일 08:49~15:31, 실전 키 초당 4, 조회 전용).
             1분 시장 순위 6종 + 3분 전일 거래대금 상위 200 패널(10호가·예상체결·체결강도) → VM ~/orderflow-raw(커밋 안 함). 과거 이력 없음 → forward 만.
             **6개월(≈2027-04) 동안 값을 열지 않는다**(건수·status·_summary 만) → 그 뒤 사전등록. 첫 주 실측(호출 수·EGW00201·분봉/autotrader 영향) 보고. 설계 docs/control/호가체결강도-기록-설계-2026-10-13.md.
