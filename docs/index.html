@@ -459,7 +459,7 @@ const SECTOR_LABEL = {
   airline: '항공', bio: '제약·바이오', telecom: '통신', reit: '리츠·부동산',
 };
 // 업종별 보기에서의 표시 순서 (신뢰도 낮은 업종을 위로 올려 눈에 띄게)
-const SECTOR_ORDER = ['financial','holding','utility','construction','shipping','airline','bio','telecom','reit','general'];
+const SECTOR_ORDER = ['holding','utility','construction','shipping','airline','bio','telecom','reit','general','financial']; // 금융은 맨 아래 (10년 PIT 진단: 등급이 순서를 못 세움)
 
 async function loadJson(name) {
   try {
