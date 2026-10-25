@@ -74,6 +74,9 @@ Validated against
             ★ 웹 `/channels` = 매경 자이앤트·크립토·월가월부 공개 채널 글(유닛 channels-feed 15분, VM state 에만 — **개인 열람,
             저장소·공개 대시보드 금지**). 비트캐쳐는 미리보기가 꺼져 불가. 자이앤트 목표가 글은 연구용 부적합(움직인 종목만·
             2025-05 시작) — 맥락 표시 전용(절대 규칙 1).
+  다음      ★★ **텔레그램 방 5개 분리(10-25, 최신 인수인계 docs/control/세션인수인계-2026-10-25-b.md)** — 같은 봇, 그룹 5개: 급등락(장중 급등락·미국 8-K) · 리포트(마감) · YouTube · 뉴스(뉴스·공시·D-day) · 스코어(등급 변동, Actions 전용).
+            환경변수 `TELEGRAM_{URGENT,REPORT,VIDEO,NEWS,SCORE}_CHAT_ID`, 비면 1:1 방(`TELEGRAM_CHAT_ID`)으로 폴백 — 빠뜨려도 에러 없이 1:1 로 간다. 장중 알림의 유형 라벨(`무리형(추정)`)·면책 문구 삭제.
+            push·VM pull 완료, **새 방 실제 도착은 미확인**(첫 장중 알림·마감 리포트·영상·스코어링 변경에서 확인). 방이 슈퍼그룹이 되면 ID 가 바뀌어 끊긴다.
   다음      ★★ 크립토 상승충격 모의 슬리브 — **2026-09-20 사용자 GO, 같은 날 첫
             관측 시작**(KRW-AVAX 7.26개·KRW-INJ 9.18개, 각 명목 10만원).
             사전등록 `findings/crypto-upshock-paper-sleeve-preregistration-2026-09.md`,
