@@ -595,7 +595,10 @@ function sortRows(rows) {
     if (k === 'rankH5') { const x = rankH5Of(r); return x ? x[0] : -1; }
     return r.totalScore ?? -1;
   };
+  // 금융업은 PBR 이 구조적으로 낮아 A 에 쏠리고 등급이 순서를 못 세운다(10년 PIT 진단 2026-10-25) — 점수는 그대로 두고 목록 맨 아래로
+  const lastFin = k !== 'name' && k !== 'sector';
   return [...rows].sort((a, b) => {
+    if (lastFin) { const fa = sectorOf(a) === 'financial', fb = sectorOf(b) === 'financial'; if (fa !== fb) return fa ? 1 : -1; }
     const x = val(a), y = val(b);
     if (typeof x === 'string') return x.localeCompare(y, 'ko') * dir;
     return (x - y) * dir;
