@@ -78,6 +78,12 @@ git log --oneline $(git log -1 --format=%H -- CLAUDE.md)..HEAD -- lib scripts co
 - push 는 사용자 확인 후. `pull --rebase --autostash` 를 쓰고 `stash pop` 은 맹목 사용하지 않는다.
 - `data/backfill/` 변경이 보이면 로컬 실행 부산물이니 `git checkout -- data/` 로 되돌린다 (절대 규칙 4).
 
-## 6. 마지막 보고
+## 6. 스킬 후보 점검
+
+마감 때 `skill-candidates` 스킬(홈 폴더, 범용)을 따른다: 이 세션에서 반복됐거나 다음에도 올 절차를 최대 2개 제안하고, 승인되면 만든다.
+이 프로젝트의 기존 스킬: monthly-check · monthly-forecast · preregistered-research · session-wrapup · vm-check · deploy-unit · run-regressions —
+겹치면 새로 만들지 말고 보강한다.
+
+## 7. 마지막 보고
 
 한 줄 + 이상만: 인수인계 경로, 커밋 해시, **미확인 항목**(있으면 맨 앞에), 사용자 몫 남은 일(키 입력·실계좌 스위치 등).
