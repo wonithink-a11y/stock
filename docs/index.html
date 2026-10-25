@@ -770,7 +770,11 @@ function renderA5() {
   if (state.a5 === false) return '<div class="card empty">A5 점수 파일이 아직 없습니다.</div>';
   const d = state.a5, q = (state.a5Search || '').trim(), mk = state.a5Market || 'all', lim = state.a5Limit || 100;
   const mine = new Set(((state.latest && state.latest.results) || []).map(r => r.ticker));
-  const rows = d.items.filter(x => (mk === 'all' || x.m === mk) && (!q || x.t.startsWith(q) || (x.n || '').includes(q)));
+  // 거래대금 적격 = rank-h5 와 같은 기준(20일 중앙값 10억↑·보통주) — 2025~ 진단에서 이 구간만 등급 순서가 섰다. 금융은 등급이 순서를 못 세워 맨 아래
+  const liq = state.a5Liq && state.rankH5 && state.rankH5.byTicker;
+  const isFin = (x) => /금융|보험|은행|증권|신탁|집합투자|투자업|여신/.test(x.s || '');
+  const rows = d.items.filter(x => (mk === 'all' || x.m === mk) && (!q || x.t.startsWith(q) || (x.n || '').includes(q)) && (!liq || liq[x.t]))
+    .map((x, i) => [isFin(x), i, x]).sort((a, b) => (a[0] - b[0]) || (a[1] - b[1])).map(a => a[2]);
   const bar = (v, max) => v == null ? '<span class="muted">—</span>'
     : `<span class="a5bar"><i style="width:${Math.max(0, Math.min(100, v / max * 100))}%"></i></span><span class="a5v">${v.toFixed(1)}</span>`;
   const chip = (val, text) => `<button class="chip ${mk === val ? 'active' : ''}" data-a5-market="${val}">${text}</button>`;
@@ -786,6 +790,7 @@ function renderA5() {
   return `<div class="toolbar">
       <input class="search" id="a5Search" placeholder="종목명·코드 검색" value="${esc(state.a5Search || '')}">
       ${chip('all', '전체')}${chip('KOSPI', 'KOSPI')}${chip('KOSDAQ', 'KOSDAQ')}
+      ${state.rankH5 ? `<button class="chip ${state.a5Liq ? 'active' : ''}" data-a5-liq="1" title="20일 거래대금 중앙값 10억 원 이상 보통주만 — 매매 가능한 종목">거래대금 10억↑</button>` : ''}
       <span class="muted">기준일 ${esc(d.asOf)} · ${esc(d.criteria)} · ${rows.length.toLocaleString()}종목</span>
     </div>
     <div class="card" style="padding:0"><div class="table-wrap"><table class="a5-tbl">
@@ -3911,6 +3916,7 @@ document.getElementById('content').addEventListener('click', (e) => {
 
   const a5m = t.closest('[data-a5-market]');
   if (a5m) { state.a5Market = a5m.dataset.a5Market; state.a5Limit = 100; return render(); }
+  if (t.closest('[data-a5-liq]')) { state.a5Liq = !state.a5Liq; state.a5Limit = 100; return render(); }
   if (t.closest('[data-a5-more]')) { state.a5Limit = (state.a5Limit || 100) + 200; return render(); }
 
   // 보기 전환
