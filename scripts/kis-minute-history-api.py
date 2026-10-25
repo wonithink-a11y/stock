@@ -366,6 +366,20 @@ async def handle_yt(request):
     return web.json_response(data, headers={"Cache-Control": "no-store"})
 
 
+# 종목 리포트 분석(2026-10-26). 학회·한국IR협의회 리포트를 읽고 공시와 대조한 기록 — 남의 리포트 분석이라 저장소에 없고 VM 에만, 같은 키로만 읽는다.
+RR_DIR = Path(os.environ.get("RR_DIR") or (Path.home() / "collector-venv" / "rr"))
+
+
+async def handle_rr(request):
+    if not pin_key_ok(request):
+        return web.json_response({"error": "키 없음"}, status=401)
+    try:
+        data = json.loads((RR_DIR / "reports.json").read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        data = {"items": []}
+    return web.json_response(data, headers={"Cache-Control": "no-store"})
+
+
 async def handle_pins(request):
     if not pin_key_ok(request):
         return web.json_response({"error": "키 없음"}, status=401)
@@ -412,6 +426,7 @@ def main():
     app.router.add_get("/pins", handle_pins)
     app.router.add_put("/pins", handle_pins)
     app.router.add_get("/yt", handle_yt)
+    app.router.add_get("/rr", handle_rr)
     app.router.add_get("/accounts", handle_accounts)
     print(f"minute-history API 시작: http://{LISTEN_HOST}:{LISTEN_PORT}/minute-history")
     web.run_app(app, host=LISTEN_HOST, port=LISTEN_PORT, print=None)

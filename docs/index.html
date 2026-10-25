@@ -3873,6 +3873,60 @@ document.addEventListener('click', (e) => {
   if (b) { yt.ch = b.dataset.ytch; render(); }
 });
 
+// ---------- 종목 리포트 분석 (2026-10-26 사용자 요청) ----------
+// 학회·한국IR협의회 종목 리포트를 읽고 DART·SEC 공시와 대조한 기록. 남의 리포트 분석이라 저장소엔 없고 VM /rr 에서 키(X-Pin-Key)로만 받는다.
+// 맥락 전용 — 점수·매매 불사용(절대 규칙 1). 리포트의 의견·목표가는 판단 근거로 쓰지 않는다.
+const RR_URL = 'https://wonithink-stock.duckdns.org/rr';
+const rr = { data: null, err: null, src: '전체', open: {}, at: 0, loading: false };
+function rrLoad() {
+  if (rr.loading) return;
+  rr.loading = true;
+  fetch(RR_URL, { headers: { 'X-Pin-Key': lsGet('pinKey', '') } })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { rr.data = j.items || []; rr.err = null; rr.at = Date.now(); })
+    .catch(e => { rr.err = e; if (!rr.data) rr.data = []; })
+    .finally(() => { rr.loading = false; if (state.tab === 'rr') render(); });
+}
+function renderRr() {
+  if (!lsGet('pinKey', '')) return '<div class="card empty">이 기기에 키가 없습니다. 텔레그램 1:1 방의 동기화 링크(#pinkey=…)를 한 번 열면 보입니다.</div>';
+  if (rr.data === null || Date.now() - rr.at > 300000) rrLoad();
+  if (rr.data === null) return '<div class="card empty">불러오는 중…</div>';
+  if (rr.err && !rr.data.length) return `<div class="card empty">${rr.err === 401 ? '키가 맞지 않습니다. 텔레그램의 동기화 링크를 다시 여세요.' : '불러오지 못했습니다(' + esc(String(rr.err)) + '). 잠시 뒤 다시 열어 보세요.'}</div>`;
+  const srcs = ['전체', ...new Set(rr.data.map(x => x.source))];
+  const items = rr.data.filter(x => rr.src === '전체' || x.source === rr.src).sort((a, b) => b.published.localeCompare(a.published));
+  if (!items.length) return '<div class="card empty">아직 분석한 리포트가 없습니다.</div>';
+  const ul = (a) => (a || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${a.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>';
+  const kv = (a) => (a || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${a.map(p => `<li><b>${esc(p.k)}</b> — ${esc(p.v)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>';
+  const h = (t) => `<h4 style="margin:14px 0 4px">${esc(t)}</h4>`;
+  const html = items.map((x, i) => {
+    const open = rr.open[x.id] ?? false;
+    const mm = (x.mismatches || []).length;
+    const counter = (x.counter || []).map(c => `<li><span class="mrep-chip">${c.type === 'stated' ? '리포트가 적음' : '안 보임'}</span> ${esc(c.text)}</li>`).join('');
+    const checks = (x.checks || []).length ? `<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><tr><th align="left">항목</th><th align="left">리포트</th><th align="left">공시(DART·SEC)</th><th align="left">결과</th></tr>${x.checks.map(c => `<tr><td>${esc(c.item)}</td><td>${esc(c.report)}</td><td>${esc(c.dart)}</td><td>${esc(c.result)}</td></tr>`).join('')}</table></div>` : '';
+    return `<details class="card" data-rrid="${esc(x.id)}"${open ? ' open' : ''} style="margin-bottom:10px">
+      <summary style="cursor:pointer"><span class="mrep-chip">${esc(x.source)}</span> <span class="muted" style="font-size:12px">${esc(x.published)} · ${esc(x.ticker)}</span>${mm ? ` <span class="mrep-chip" style="color:#d33">원문과 안 맞는 곳 ${mm}건</span>` : ' <span class="mrep-chip">안 맞는 곳 0건</span>'}<br><b>${esc(x.name)}</b> — ${esc(x.title)}</summary>
+      <p style="font-weight:600;margin:12px 0 6px">${esc(x.verdict)}</p>
+      <p class="muted" style="font-size:12px;margin:0">원문 의견: ${esc(x.stance)}</p>
+      ${h('주장')}<p style="margin:0;line-height:1.6">${esc(x.claim)}</p>
+      ${h('가정(결과를 좌우하는 것)')}${kv(x.assumptions)}
+      ${h('밸류에이션')}<p style="margin:0 0 6px;line-height:1.6">${esc((x.valuation || {}).summary || '')}</p>${kv((x.valuation || {}).rows)}
+      ${h('반대 근거')}${counter ? `<ul style="margin:0;padding-left:20px;line-height:1.6;list-style:none">${counter}</ul>` : '<span class="muted">없음</span>'}
+      ${h('숫자 대조')}${checks}
+      ${h('원문과 안 맞는 곳')}${ul(x.mismatches)}
+      ${h('확인 못 함')}${ul(x.unknown)}
+      ${h('다음 확인 날짜')}${(x.nextDates || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${x.nextDates.map(d => `<li><b>${esc(d.date)}</b> — ${esc(d.what)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>'}
+      <p class="muted" style="font-size:12px;margin:14px 0 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">원문 PDF ↗</a> · 분석 ${esc(x.analyzedAt)} · 읽은 범위: ${esc(x.readCoverage)}</p>
+    </details>`;
+  }).join('');
+  return `<p class="muted" style="font-size:12px;margin:0 0 10px">개인 열람용 — 남의 리포트를 읽고 공시와 대조한 기록입니다. 의견·목표가는 판단 근거로 쓰지 않았고 점수·매매에 연결하지 않습니다. 분석 중 '내 계산'은 제가 만든 산술이라 원문 값과 다를 수 있습니다.</p>
+    <div class="mrep-tabs" style="flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="출처">${srcs.map(c => `<button role="tab" aria-selected="${rr.src === c}" class="${rr.src === c ? 'on' : ''}" data-rrsrc="${esc(c)}">${esc(c)}</button>`).join('')}</div>${html}`;
+}
+document.addEventListener('toggle', (e) => { const id = e.target.dataset && e.target.dataset.rrid; if (id) rr.open[id] = e.target.open; }, true);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-rrsrc]');
+  if (b) { rr.src = b.dataset.rrsrc; render(); }
+});
+
 function render() {
   const el = document.getElementById('content');
   if (state.tab === 'today') el.innerHTML = renderToday();
@@ -3893,6 +3947,7 @@ function render() {
   else if (state.tab === 'live') el.innerHTML = renderLive();
   else if (state.tab === 'mreport') el.innerHTML = renderMarketReports();
   else if (state.tab === 'yt') el.innerHTML = renderYt();
+  else if (state.tab === 'rr') el.innerHTML = renderRr();
   else if (state.tab === 'links') el.innerHTML = renderLinks();
   else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
   else if (state.tab === 'holders') el.innerHTML = renderHolders();
@@ -4441,7 +4496,7 @@ const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['yt', '영상 요약'], ['links', '바로가기']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
-  ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견']]],
+  ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견'], ['rr', '종목 리포트']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
 ];
 const NAV_ICON = {   // 폰 아래 탭 막대 아이콘(선 아이콘, currentColor)
