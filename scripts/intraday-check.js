@@ -198,14 +198,14 @@ function buildMessage(lines, max, maxChars = RULES.maxChars) {
   }
   const omitted = lines.length - shown.length;
   const tail = omitted > 0 ? `\n… 외 ${omitted}건 생략(총 ${lines.length}건)` : '';
-  return `🚨 [장중 급등락 알림]\n${shown.join('\n')}${tail}\n\n※ 자동 감시 결과이며 투자 자문이 아닙니다.`;
+  return `🚨 [장중 급등락 알림]\n${shown.join('\n')}${tail}`;
 }
 
 // ---------- 알림 전송 ----------
 
 async function sendTelegram(text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const chatId = process.env.TELEGRAM_URGENT_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return false;
   const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',

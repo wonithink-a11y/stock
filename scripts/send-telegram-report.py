@@ -108,7 +108,7 @@ def _load_json(path):
 
 
 def main(paths):
-    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_REPORT_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID")
     if not token or not chat:
         print("TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID 없음")
         return 1

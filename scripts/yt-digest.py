@@ -192,7 +192,7 @@ def split(text, limit=3900):
 
 
 def telegram(env, text):
-    token, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
+    token, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_VIDEO_CHAT_ID") or env.get("TELEGRAM_CHAT_ID")
     if not token or not chat:
         return False
     parts = split(text)

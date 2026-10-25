@@ -30,7 +30,7 @@ if (!KEY) {
   process.exit(1);
 }
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
-const TG_CHAT = process.env.TELEGRAM_CHAT_ID || '';
+const TG_CHAT = process.env.TELEGRAM_NEWS_CHAT_ID || process.env.TELEGRAM_CHAT_ID || '';
 
 const ROOT = path.resolve(__dirname, '..');
 const WATCHLIST_PATH = path.join(ROOT, 'config', 'watchlist.json');

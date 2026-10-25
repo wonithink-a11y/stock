@@ -70,7 +70,7 @@ def main():
     print(text)
     if dry:
         return
-    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_NEWS_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID")
     if not token or not chat:
         sys.exit("TELEGRAM_BOT_TOKEN/CHAT_ID 없음")
     body = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()

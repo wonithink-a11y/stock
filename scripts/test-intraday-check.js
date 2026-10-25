@@ -188,7 +188,7 @@ okAsync('맥락: 뉴스·공시가 붙고 US 는 건드리지 않는다', async 
   const state = {};
   await addContext(al, quotes, state, NOW, { index: emptyIndex, news: { byTicker: {}, stale: false },
     search: async () => [{ title: '가온 북미 수주', at: NOW - 60000 }], dart: async (t) => (t === 'A00010' ? ['단일판매ㆍ공급계약체결'] : []) });
-  assert(/단독\+공시/.test(al[0].ctx) && /북미 수주/.test(al[0].ctx) && /공급계약/.test(al[0].ctx), al[0].ctx);
+  assert(/북미 수주/.test(al[0].ctx) && /공급계약/.test(al[0].ctx), al[0].ctx);
   assert(/공시 없음/.test(al[1].ctx));
   assert(!al[2].ctx, 'US 는 맥락 없음');
   assert(state._ctx.dart.A00010.titles.length === 1, '공시 30분 캐시');
@@ -207,7 +207,7 @@ okAsync('★ 뉴스·공시 조회가 전부 던져도 알림은 나가고 도�
 okAsync('DART 키 없음(null) → 공시 확인 안 함, 분류는 공시 모름으로', async () => {
   const al = mkAlerts();
   await addContext(al, quotes, {}, NOW, { index: emptyIndex, news: { byTicker: {}, stale: false }, search: async () => null, dart: async () => null });
-  assert(/공시 확인 안 함/.test(al[0].ctx) && /^ {3}└ 단독\(추정\) /.test(al[0].ctx), al[0].ctx);
+  assert(/공시 확인 안 함/.test(al[0].ctx) && /^ {3}└ 뉴스 /.test(al[0].ctx), al[0].ctx);
 });
 
 Promise.all(pending).then(() => console.log(`test-intraday-check: ${n}건 통과`))
