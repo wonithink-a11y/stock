@@ -121,6 +121,40 @@
           display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; line-height: 1.15; }
   .hm-s span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
   .hm-s:hover { outline: 2px solid #fff; z-index: 2; }
+  .hm-s.sel { outline: 3px solid #fff; z-index: 3; }
+  .hm-gh[data-hmdrill] { cursor: pointer; text-decoration: underline dotted var(--muted); }
+  .hm-info { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; padding: 8px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; min-height: 44px; }
+  .hm-info b { font-size: 15px; }
+  .rr-ov { padding: 0; overflow: hidden; }
+  .rr-ov table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rr-ov th { text-align: left; font-weight: 600; color: var(--muted); padding: 8px 6px; font-size: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .rr-ov td { padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
+  .rr-ov th:first-child, .rr-ov td:first-child { padding-left: 12px; }
+  .rr-ov tr[data-rrgo] { cursor: pointer; } .rr-ov tr[data-rrgo]:hover { background: #1e2a44; }
+  .rr-dot { display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; line-height: 20px; margin-right: 3px; color: #fff; }
+  .rr-dot.hi { background: var(--bad); } .rr-dot.mid { background: #d9822b; } .rr-dot.lo { background: #4a5670; }
+  .rr-fl .rr-dot { min-width: 10px; width: 10px; height: 10px; padding: 0; border-radius: 50%; margin-right: 8px; line-height: 10px; }
+  .rr-fl { list-style: none; padding: 0; margin: 0; } .rr-fl li { padding: 3px 0; line-height: 1.5; }
+  .rr-up { font-size: 13px; font-weight: 700; margin-right: 4px; }
+  .rr-card > summary { cursor: pointer; line-height: 1.5; }
+  .rr-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+  @media (min-width: 700px) { .rr-tiles { grid-template-columns: repeat(5, 1fr); } }
+  .rr-tile { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+  .rr-tl { font-size: 11px; color: var(--muted); } .rr-tb { font-size: 20px; font-weight: 700; margin: 2px 0; } .rr-ts { font-size: 11px; color: var(--muted); }
+  .rr-sc { display: flex; flex-direction: column; gap: 5px; }
+  .rr-sr { display: grid; grid-template-columns: 120px 1fr 56px; gap: 8px; align-items: center; font-size: 12px; }
+  .rr-sr.first .rr-sl { font-weight: 700; }
+  .rr-st { position: relative; height: 12px; background: var(--bg); border-radius: 6px; }
+  .rr-st::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--muted); }
+  .rr-st i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+  .rr-sp { text-align: right; font-variant-numeric: tabular-nums; }
+  .rr-fin { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .rr-fin th, .rr-fin td { padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  .rr-fin th:first-child, .rr-fin td:first-child { text-align: left; white-space: normal; }
+  .rr-keys { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rr-keys .mrep-chip { white-space: normal; line-height: 1.4; }
+  .rr-more { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .rr-more > summary { cursor: pointer; color: var(--accent); font-size: 13px; }
   .warn-tag { display: inline-block; background: #4c1d1d; color: #f38b8b; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
   .group-tag { display: inline-block; background: #1e3a5f; color: #9ecbff; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
   .mkt-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
@@ -397,6 +431,8 @@ const state = {
   heatMarket: 'KR',        // 시장 히트맵: KR(자체) | US(TradingView 위젯)
   heatWin: 'live',         // 시장 히트맵 기간(live = VM 장중 스냅샷, 실패하면 1d 로)
   heatLive: null,          // VM /kr-intraday 응답 + fetchedAt
+  heatDrill: null,         // 시장 히트맵: 업종 하나만 크게 볼 때 그 업종 이름
+  heatSel: null,           // 시장 히트맵: 눌러서 고른 종목 티커(정보 막대에 이름·등락 표시)
   heatSize: 'cap',         // 시장 히트맵 면적: cap(시총) | eq(동일)
   themeStrength: null,     // docs/data/theme-strength.json (테마 트리, 관찰용)
   themeWin: '1d',          // 테마 트리 기간
@@ -3159,7 +3195,8 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
   };
   // 폰은 세로로 길게. 렌더 시점 창 폭으로 한 번 정한다(리사이즈 재배치는 안 한다)
   const W = Math.min(Math.max((window.innerWidth || 1000) - 80, 280), 1400);
-  const H = Math.round(W < 700 ? W * (home ? 1.0 : 1.6) : W * (home ? 0.4 : 0.55));   // 홈은 위아래를 줄인다(2026-10-20 사용자 요청)
+  const drill = state.heatDrill && st.some(s => s.g === state.heatDrill) ? state.heatDrill : null;   // 업종 하나만 크게(2026-10-26 사용자 요청: 폰에서 종목 이름이 안 보임)
+  const H = Math.round(W < 700 ? W * (drill ? 1.5 : home ? 1.0 : 1.6) : W * (drill ? 0.62 : home ? 0.4 : 0.55));   // 홈은 위아래를 줄인다(2026-10-20 사용자 요청)
   const byG = {};
   st.forEach(s => (byG[s.g] = byG[s.g] || []).push({ ...s, v: eq ? 1 : s.cap }));
   const gcap = Object.fromEntries((d.groups || []).map(g => [g.group, (g.capRet || {})[win]]));
@@ -3169,24 +3206,26 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
   const jo = v => v >= 1e12 ? Math.round(v / 1e12).toLocaleString() + '조' : Math.round(v / 1e8).toLocaleString() + '억';
   const box = (x, y, w, h) => `left:${(x / W * 100).toFixed(3)}%;top:${(y / H * 100).toFixed(3)}%;width:${(w / W * 100).toFixed(3)}%;height:${(h / H * 100).toFixed(3)}%`;
   let html = '';
-  for (const G of squarify(groups, 0, 0, W, H)) {
-    const head = G.w > 50 && G.h > 40 ? 16 : 0;
+  const shown = drill ? groups.filter(g => g.g === drill) : groups;
+  for (const G of squarify(shown, 0, 0, W, H)) {
+    const head = drill ? 0 : G.w > 50 && G.h > 40 ? 16 : 0;
     let gr = gcap[G.g];
     if (win === 'live') {   // 장중은 표에 값이 없어 여기서 시총가중(현재 시총 — 하루 안이라 비중 차이는 무시할 만하다)
       const pts = G.m.map(s => [rOf(s), s.cap]).filter(([r]) => r !== null);
       const wsum = pts.reduce((a, [, c]) => a + c, 0);
       gr = wsum ? pts.reduce((a, [r, c]) => a + r * c, 0) / wsum : null;
     }
-    html += `<div class="hm-g" style="${box(G.x, G.y, G.w, G.h)}">${head ? `<div class="hm-gh">${esc(G.g)}${gr === null || gr === undefined ? '' : ' ' + pct(gr)}</div>` : ''}</div>`;
+    html += `<div class="hm-g" style="${box(G.x, G.y, G.w, G.h)}">${head ? `<div class="hm-gh" data-hmdrill="${esc(G.g)}" title="누르면 이 업종만 크게">${esc(G.g)}${gr === null || gr === undefined ? '' : ' ' + pct(gr)}</div>` : ''}</div>`;
     for (const s of squarify(G.m, G.x + 1, G.y + head + 1, G.w - 2, G.h - head - 2)) {
       const r = rOf(s), fs = Math.max(9, Math.min(22, Math.min(s.w / 6, s.h / 2.6)));
-      const label = s.w > 38 && s.h > 22
+      const label = s.w > (drill ? 24 : 38) && s.h > (drill ? 16 : 22)
         ? `<span style="font-size:${fs.toFixed(0)}px">${esc(s.n)}</span>${s.h > 36 ? `<span style="font-size:${Math.max(9, fs * 0.8).toFixed(0)}px">${r === null || r === undefined ? '-' : pct(r)}</span>` : ''}` : '';
       const tip = `${s.n} · ${s.g}\n${winLabel} ${r === null || r === undefined ? '-' : pct(r)} · 시총 ${jo(s.cap)}`;
-      html += `<div class="hm-s" data-chart="${esc(s.t)}" data-chart-name="${esc(s.n)}" title="${esc(tip)}" style="${box(s.x, s.y, s.w, s.h)};background:${heatColor(r, cap)}">${label}</div>`;
+      html += `<div class="hm-s${state.heatSel === s.t ? ' sel' : ''}" data-hm="${esc(s.t)}" data-hm-name="${esc(s.n)}" title="${esc(tip)}" style="${box(s.x, s.y, s.w, s.h)};background:${heatColor(r, cap)}">${label}</div>`;
     }
   }
   const chip = (attr, key, label, cur) => `<button class="chip${cur === key ? ' active' : ''}" data-${attr}="${key}">${label}</button>`;
+  const selS = state.heatSel && st.find(s => s.t === state.heatSel), selR = selS ? rOf(selS) : null;
   const hl = state.heatLive;
   const liveNote = hl && hl.error && win === '1d' ? '장중 시세를 못 받아 1일로 표시합니다(VM 응답 없음). "장중"을 누르면 다시 시도합니다.'
     : win !== 'live' ? '' : !hl || hl.error ? '장중 시세 불러오는 중…'
@@ -3201,8 +3240,10 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
       ${chip('heatsize', 'cap', '면적 = 시총', state.heatSize)}${chip('heatsize', 'eq', '면적 = 동일', state.heatSize)}
     </div>
     ${liveNote && !(home && win === 'live' && hl && !hl.error) ? `<p class="muted" style="font-size:11px;margin:0 0 6px">${liveNote}</p>` : ''}
+    ${drill ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 8px"><button class="chip" data-hmdrill="">← 전체 업종</button><b>${esc(drill)}</b><span class="muted">${shown[0].m.length}종목</span></div>` : ''}
     <div class="hm" style="aspect-ratio:${W}/${H}">${html}</div>
-    ${home ? '' : `<p class="muted" style="font-size:11px;margin:6px 0 0">코스피200+코스닥150(우선주 제외) · 시총 = 종가 × 상장주식수 · 색은 ±${Math.round(cap * 100)}%에서 가장 진함 · 업종 옆 숫자 = 시총가중 수익률 · 종목을 누르면 상세 · 관찰용 — 매매신호 아님</p>`}
+    <div class="hm-info">${selS ? `<span style="width:12px;height:12px;border-radius:3px;display:inline-block;background:${heatColor(selR, cap)}"></span><b>${esc(selS.n)}</b><span class="muted">${esc(selS.t)} · ${esc(selS.g)}</span><span class="${selR === null || selR === undefined ? 'muted' : selR >= 0 ? 'pos' : 'neg'}">${winLabel} ${selR === null || selR === undefined ? '-' : pct(selR)}</span><span class="muted">시총 ${jo(selS.cap)}</span><button class="chip" data-hmopen="${esc(selS.t)}" data-hmopen-name="${esc(selS.n)}">상세 보기</button>${drill ? '' : `<button class="chip" data-hmdrill="${esc(selS.g)}">업종 크게 보기</button>`}` : '<span class="muted">칸을 한 번 누르면 종목 이름·등락이 여기에 뜹니다. 같은 칸을 한 번 더 누르면 상세가 열립니다.</span>'}</div>
+    ${home ? '' : `<p class="muted" style="font-size:11px;margin:6px 0 0">코스피200+코스닥150(우선주 제외) · 시총 = 종가 × 상장주식수 · 색은 ±${Math.round(cap * 100)}%에서 가장 진함 · 업종 옆 숫자 = 시총가중 수익률 · 업종 이름을 누르면 그 업종만 크게 · 종목을 누르면 이름·등락, 한 번 더 누르면 상세 · 관찰용 — 매매신호 아님</p>`}
   </div>`;
 }
 
@@ -3887,6 +3928,7 @@ function rrLoad() {
     .catch(e => { rr.err = e; if (!rr.data) rr.data = []; })
     .finally(() => { rr.loading = false; if (state.tab === 'rr') render(); });
 }
+function rrNum(v) { return typeof v === 'number' ? v.toLocaleString('ko-KR') : esc(String(v)); }
 function renderRr() {
   if (!lsGet('pinKey', '')) return '<div class="card empty">이 기기에 키가 없습니다. 텔레그램 1:1 방의 동기화 링크(#pinkey=…)를 한 번 열면 보입니다.</div>';
   if (rr.data === null || Date.now() - rr.at > 300000) rrLoad();
@@ -3895,36 +3937,74 @@ function renderRr() {
   const srcs = ['전체', ...new Set(rr.data.map(x => x.source))];
   const items = rr.data.filter(x => rr.src === '전체' || x.source === rr.src).sort((a, b) => b.published.localeCompare(a.published));
   if (!items.length) return '<div class="card empty">아직 분석한 리포트가 없습니다.</div>';
-  const ul = (a) => (a || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${a.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>';
+  const okOf = x => { const c = x.checks || []; return [c.filter(k => /^일치/.test(k.result)).length, c.length]; };
+  const nFlag = (x, lv) => (((x.dash || {}).flags) || []).filter(f => f.lv === lv).length;
+  const upOf = x => { const o = (x.dash || {}).opinion; return o && typeof o.upside === 'number' ? o.upside : null; };
+  const dots = x => `<span class="rr-dot hi">${nFlag(x, 'hi')}</span><span class="rr-dot mid">${nFlag(x, 'mid')}</span>`;
+  const pctTxt = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  const overview = `<div class="card rr-ov"><div style="overflow-x:auto"><table>
+      <tr><th>종목</th><th>원문 의견</th><th>공시</th><th title="빨강=판단을 크게 좌우, 주황=확인 필요">확인할 점</th></tr>
+      ${items.map(x => { const [ok, tot] = okOf(x), u = upOf(x), o = (x.dash || {}).opinion || {};
+        return `<tr data-rrgo="${esc(x.id)}"><td><b>${esc(x.name)}</b><br><span class="muted" style="font-size:11px">${esc(x.source)}</span></td>
+          <td>${u === null ? `<span class="muted">${esc(o.label === '의견·목표가 없음' ? '없음' : (o.label || '-'))}</span>` : `${esc(o.label)} <span class="${u >= 0 ? 'pos' : 'neg'}">${pctTxt(u)}</span>`}</td>
+          <td class="${ok === tot ? 'ok' : ''}">${ok}/${tot}</td><td>${dots(x)}</td></tr>`; }).join('')}
+    </table></div><p class="muted" style="font-size:11px;margin:8px 12px 10px">행을 누르면 아래 카드가 열립니다 · 빨강 = 결과를 크게 좌우하는 점, 주황 = 확인이 필요한 점 · 상승여력은 리포트가 낸 값(현재 주가 기준 아님)</p></div>`;
+  const list = (a) => (a || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${a.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>';
   const kv = (a) => (a || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${a.map(p => `<li><b>${esc(p.k)}</b> — ${esc(p.v)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>';
   const h = (t) => `<h4 style="margin:14px 0 4px">${esc(t)}</h4>`;
-  const html = items.map((x, i) => {
+  const cards = items.map(x => {
+    const d = x.dash || {}, o = d.opinion || {}, [ok, tot] = okOf(x), u = upOf(x), mm = (x.mismatches || []).length;
     const open = rr.open[x.id] ?? false;
-    const mm = (x.mismatches || []).length;
+    const tile = (lab, big, sub, cls) => `<div class="rr-tile"><div class="rr-tl">${esc(lab)}</div><div class="rr-tb ${cls || ''}">${big}</div><div class="rr-ts">${esc(sub || '')}</div></div>`;
+    const tiles = `<div class="rr-tiles">
+      ${tile('원문 의견', esc(o.label || '-'), o.target ? `목표 ${o.target} / 현재 ${o.price}` : '소개 보고서(의견·목표가 없음)')}
+      ${tile('원문 상승여력', u === null ? '—' : pctTxt(u), u === null ? '' : '리포트 계산값', u === null ? '' : (u >= 0 ? 'pos' : 'neg'))}
+      ${d.val ? tile(d.val.l, esc(d.val.v), d.val.s) : ''}
+      ${tile('공시 대조', `${ok}/${tot}`, '일치 항목 수(DART·SEC)', ok === tot ? 'ok' : '')}
+      ${tile('확인할 점', `<span class="rr-dot hi">${nFlag(x, 'hi')}</span> <span class="rr-dot mid">${nFlag(x, 'mid')}</span> <span class="rr-dot lo">${nFlag(x, 'lo')}</span>`, `원문과 안 맞는 곳 ${mm}건`)}
+    </div>`;
+    const sc = d.scenarios || [];
+    const mx = Math.max(30, ...sc.map(s => Math.abs(s.pct)));
+    const scen = sc.length ? `${h('목표 PER을 바꾸면 현재가 대비 얼마인가')}<div class="rr-sc">${sc.map((s, i) => {
+      const w = Math.abs(s.pct) / mx * 50;
+      return `<div class="rr-sr${i === 0 ? ' first' : ''}"><span class="rr-sl">${esc(s.l)}</span><span class="rr-st"><i style="left:${s.pct >= 0 ? 50 : 50 - w}%;width:${w}%;background:var(${s.pct >= 0 ? '--up' : '--down'})"></i></span><span class="rr-sp ${s.pct >= 0 ? 'pos' : 'neg'}">${pctTxt(s.pct)}</span></div>`; }).join('')}</div>` : '';
+    const fin = d.fin ? `${h('실적(' + d.fin.unit + ')')}<div style="overflow-x:auto"><table class="rr-fin"><tr><th></th>${d.fin.years.map(y => `<th>${esc(y)}</th>`).join('')}</tr>${d.fin.rows.map(r => `<tr><td>${esc(r.l)}</td>${r.v.map(v => `<td class="num${v < 0 ? ' neg' : ''}">${rrNum(v)}</td>`).join('')}</tr>`).join('')}</table></div>${d.fin.note ? `<p class="muted" style="font-size:11px;margin:4px 0 0">${esc(d.fin.note)}</p>` : ''}` : '';
+    const flags = (d.flags || []).length ? `${h('확인할 점')}<ul class="rr-fl">${d.flags.map(f => `<li><span class="rr-dot ${f.lv}"></span>${esc(f.t)}</li>`).join('')}</ul>` : '';
+    const keys = (d.keys || []).length ? `${h('핵심 가정')}<div class="rr-keys">${d.keys.map(k => `<span class="mrep-chip">${esc(k)}</span>`).join('')}</div>` : '';
+    const nd = (x.nextDates || []).slice(0, 3);
+    const next = nd.length ? `${h('다음 확인')}<ul class="rr-fl">${nd.map(n => `<li><b>${esc(n.date)}</b> ${esc(n.what)}</li>`).join('')}</ul>` : '';
     const counter = (x.counter || []).map(c => `<li><span class="mrep-chip">${c.type === 'stated' ? '리포트가 적음' : '안 보임'}</span> ${esc(c.text)}</li>`).join('');
-    const checks = (x.checks || []).length ? `<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><tr><th align="left">항목</th><th align="left">리포트</th><th align="left">공시(DART·SEC)</th><th align="left">결과</th></tr>${x.checks.map(c => `<tr><td>${esc(c.item)}</td><td>${esc(c.report)}</td><td>${esc(c.dart)}</td><td>${esc(c.result)}</td></tr>`).join('')}</table></div>` : '';
-    return `<details class="card" data-rrid="${esc(x.id)}"${open ? ' open' : ''} style="margin-bottom:10px">
-      <summary style="cursor:pointer"><span class="mrep-chip">${esc(x.source)}</span> <span class="muted" style="font-size:12px">${esc(x.published)} · ${esc(x.ticker)}</span>${mm ? ` <span class="mrep-chip" style="color:#d33">원문과 안 맞는 곳 ${mm}건</span>` : ' <span class="mrep-chip">안 맞는 곳 0건</span>'}<br><b>${esc(x.name)}</b> — ${esc(x.title)}</summary>
-      <p style="font-weight:600;margin:12px 0 6px">${esc(x.verdict)}</p>
-      <p class="muted" style="font-size:12px;margin:0">원문 의견: ${esc(x.stance)}</p>
+    const checks = (x.checks || []).length ? `<div style="overflow-x:auto"><table class="rr-fin"><tr><th>항목</th><th>리포트</th><th>공시</th><th>결과</th></tr>${x.checks.map(c => `<tr><td>${esc(c.item)}</td><td>${esc(c.report)}</td><td>${esc(c.dart)}</td><td>${esc(c.result)}</td></tr>`).join('')}</table></div>` : '';
+    const more = `<details class="rr-more"><summary>자세히 보기 (분석 전문)</summary>
       ${h('주장')}<p style="margin:0;line-height:1.6">${esc(x.claim)}</p>
-      ${h('가정(결과를 좌우하는 것)')}${kv(x.assumptions)}
+      ${h('가정')}${kv(x.assumptions)}
       ${h('밸류에이션')}<p style="margin:0 0 6px;line-height:1.6">${esc((x.valuation || {}).summary || '')}</p>${kv((x.valuation || {}).rows)}
-      ${h('반대 근거')}${counter ? `<ul style="margin:0;padding-left:20px;line-height:1.6;list-style:none">${counter}</ul>` : '<span class="muted">없음</span>'}
+      ${h('반대 근거')}${counter ? `<ul style="margin:0;padding-left:0;line-height:1.6;list-style:none">${counter}</ul>` : '<span class="muted">없음</span>'}
       ${h('숫자 대조')}${checks}
-      ${h('원문과 안 맞는 곳')}${ul(x.mismatches)}
-      ${h('확인 못 함')}${ul(x.unknown)}
-      ${h('다음 확인 날짜')}${(x.nextDates || []).length ? `<ul style="margin:0;padding-left:20px;line-height:1.6">${x.nextDates.map(d => `<li><b>${esc(d.date)}</b> — ${esc(d.what)}</li>`).join('')}</ul>` : '<span class="muted">없음</span>'}
+      ${h('원문과 안 맞는 곳')}${list(x.mismatches)}
+      ${h('확인 못 함')}${list(x.unknown)}
+    </details>`;
+    return `<details class="card rr-card" id="rr-${esc(x.id)}" data-rrid="${esc(x.id)}"${open ? ' open' : ''}>
+      <summary><span class="mrep-chip">${esc(x.source)}</span> <span class="muted" style="font-size:12px">${esc(x.published)} · ${esc(x.ticker)}</span>
+        ${u === null ? '' : `<span class="rr-up ${u >= 0 ? 'pos' : 'neg'}">${pctTxt(u)}</span>`} ${dots(x)}<br>
+        <b style="font-size:16px">${esc(x.name)}</b><br><span class="muted" style="font-size:13px">${esc(d.headline || x.verdict)}</span></summary>
+      ${tiles}${scen}${fin}${flags}${keys}${next}${more}
       <p class="muted" style="font-size:12px;margin:14px 0 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">원문 PDF ↗</a> · 분석 ${esc(x.analyzedAt)} · 읽은 범위: ${esc(x.readCoverage)}</p>
     </details>`;
   }).join('');
-  return `<p class="muted" style="font-size:12px;margin:0 0 10px">개인 열람용 — 남의 리포트를 읽고 공시와 대조한 기록입니다. 의견·목표가는 판단 근거로 쓰지 않았고 점수·매매에 연결하지 않습니다. 분석 중 '내 계산'은 제가 만든 산술이라 원문 값과 다를 수 있습니다.</p>
-    <div class="mrep-tabs" style="flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="출처">${srcs.map(c => `<button role="tab" aria-selected="${rr.src === c}" class="${rr.src === c ? 'on' : ''}" data-rrsrc="${esc(c)}">${esc(c)}</button>`).join('')}</div>${html}`;
+  return `<p class="muted" style="font-size:12px;margin:0 0 10px">개인 열람용 — 남의 리포트를 읽고 공시와 대조한 기록입니다. 의견·목표가는 판단 근거로 쓰지 않았고 점수·매매에 연결하지 않습니다. '내 계산'은 제가 만든 산술이라 원문 값과 다를 수 있습니다.</p>
+    <div class="mrep-tabs" style="flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="출처">${srcs.map(c => `<button role="tab" aria-selected="${rr.src === c}" class="${rr.src === c ? 'on' : ''}" data-rrsrc="${esc(c)}">${esc(c)}</button>`).join('')}</div>${overview}${cards}`;
 }
 document.addEventListener('toggle', (e) => { const id = e.target.dataset && e.target.dataset.rrid; if (id) rr.open[id] = e.target.open; }, true);
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-rrsrc]');
   if (b) { rr.src = b.dataset.rrsrc; render(); }
+});
+document.addEventListener('click', (e) => {
+  const r = e.target.closest && e.target.closest('[data-rrgo]');
+  if (!r) return;
+  const id = r.dataset.rrgo; rr.open[id] = true; render();
+  setTimeout(() => { const el = document.getElementById('rr-' + id); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 10); }, 60);
 });
 
 function render() {
@@ -4151,6 +4231,16 @@ document.addEventListener('click', (e) => {
   render();
 });
 
+document.addEventListener('click', (e) => {   // 히트맵: 칸 첫 탭 = 이름·등락 확인, 같은 칸 두 번째 탭 = 상세. 업종 이름 탭 = 그 업종만 크게
+  const t = e.target.closest && e.target.closest('[data-hm],[data-hmdrill],[data-hmopen]');
+  if (!t) return;
+  e.stopPropagation();
+  if (t.dataset.hmopen) return openStockDetail(t.dataset.hmopen, t.dataset.hmopenName);
+  if (t.dataset.hmdrill !== undefined) { state.heatDrill = t.dataset.hmdrill || null; return render(); }
+  const tk = t.dataset.hm;
+  if (state.heatSel === tk) return openStockDetail(tk, t.dataset.hmName);
+  state.heatSel = tk; render();
+});
 document.addEventListener('click', (e) => {
   const w = e.target.closest && e.target.closest('[data-heatwin],[data-heatsize],[data-heatmarket]');
   if (!w) return;
