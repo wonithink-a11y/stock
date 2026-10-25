@@ -68,6 +68,14 @@ def load_rollup():
     return {ksic: g for g, ks in groups.items() for ksic in ks}
 
 
+def load_heatmap_groups():
+    """시장 히트맵 전용 업종 재분류(표시용). stocks[].hg 로만 내보낸다 - g 는 그대로.
+    g·tickerOverrides 는 사전등록 forward(급등 군집·업종별 A5 IC)와 업종 표·급등 비율이 읽으므로 바꾸지 않는다.
+    지금은 KSIC '기타 금융업'에 섞인 지주회사를 '지주회사'로 따로 보여 준다(2026-10-26)."""
+    with open(ROLLUP, encoding="utf-8") as f:
+        return {t: g for t, g in json.load(f).get("heatmapGroupOverrides", {}).items() if not t.startswith("_")}
+
+
 def load_sector_by_ticker(k2g):
     out = {}
     with open(A1A, encoding="utf-8") as f:
@@ -337,6 +345,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
     """sector_by_ticker 값은 그룹 이름 하나 또는 **리스트**(테마처럼 여러 그룹 소속).
     빈 리스트 = 어느 그룹에도 안 들지만 벤치마크에는 들어간다. 종목 행은 한 번만
     만들어지므로 벤치마크는 겹침 소속으로 이중 계산되지 않는다."""
+    heat_g = load_heatmap_groups() if market == "KR" else {}
     shares_by_ticker = shares_by_ticker or {}
     as_of = None
     for rec in prices["byTicker"].values():
@@ -514,7 +523,8 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
         # 시장 히트맵(업종 탭) — 면적 = 최근 종가 × 주식수, 색 = 창 수익률. 주식수 UNVERIFIED 는 빠진다.
         # 그룹은 첫 소속 하나(KR 업종은 단일 소속). 2026-09-26
         "stocks": [{"t": r["ticker"], "n": r["name"], "g": r["groups"][0], "cap": round(r["capNow"]),
-                    "r": {k: r4(r["rets"][k]) for k in ("1d", "1w", "1m", "3m")}}
+                    "r": {k: r4(r["rets"][k]) for k in ("1d", "1w", "1m", "3m")},
+                    **({"hg": heat_g[r["ticker"]]} if r["ticker"] in heat_g else {})}   # hg = 히트맵 표시용 업종(없으면 g)
                    for r in rows if r["capNow"] and r["groups"]],
     }
 
