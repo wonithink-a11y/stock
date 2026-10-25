@@ -38,7 +38,7 @@ git status --short
 
 ## 같이 알아 둘 것
 
-- **strategy-lab 테스트**(`research/strategy-lab/tests/`, 58개 파일)는 `python -m pytest` 로 도는데 **오래 걸린다**(2026-10-25 시험에서 5분 초과). 전부 돌리지 말고 바꾼 모듈에 해당하는 파일만 고른다:
+- **strategy-lab 테스트**(`research/strategy-lab/tests/`, 58개 파일)는 `python -m pytest` 로 도는데 **오래 걸린다**(2026-10-25 전체 315건 통과, 5분 55초 — 멈춘 게 아니라 느린 것이다. 백그라운드로 돌린다). 전부 돌리지 말고 바꾼 모듈에 해당하는 파일만 고른다:
   `python -m pytest research/strategy-lab/tests/test_<모듈>.py -q`.
   이 디렉터리의 `ok()` 헬퍼는 예외 없이 실패만 세는데, `tests/conftest.py` 가 이를 pytest 실패로 바꿔 준다 — conftest 를 건드리지 않는다.
 - 게이트 검증은 `*_FAIL_INJECTION=gate-test` 로 인수 조건을 강제 실패시킨다. 이 훅은 실패만 만들 수 있다. 새 단계에도 같은 형태로 붙인다.
