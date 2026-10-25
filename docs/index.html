@@ -3684,8 +3684,7 @@ function renderOpinions() {
     return `<tr>
       <td style="white-space:normal"><b>${esc(nm(r.t))}</b><br><span class="muted" style="font-size:11px">${esc(r.t)}${multi || q ? ' · ' + ymd(r.d) : ''}</span></td>
       <td><span class="op-c ${OPC[o]}" title="${esc(r.o || '')}${r.po && r.po !== r.o ? ' ← 직전 ' + esc(r.po) : ''}">${po && po !== o ? po + '→' : ''}${o}</span><br><span class="muted" style="font-size:11px">${esc(opShort(r.b))}</span></td>
-      <td style="text-align:right">${r.tp ? r.tp.toLocaleString() : '-'}<br>${ch === null ? '<span class="muted" style="font-size:11px">-</span>' : `<span style="font-size:11px">${pct(ch)}</span>`}</td>
-      <td class="m-hide" style="text-align:right">${r.ptp && r.ptp !== r.tp ? r.ptp.toLocaleString() : '<span class="muted">-</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">${r.tp ? r.tp.toLocaleString() : '-'}${ch === null ? '' : ` <span style="font-size:11px">${pct(ch)}</span>`}<br><span class="muted" style="font-size:11px">${r.ptp && r.ptp !== r.tp ? '직전 ' + r.ptp.toLocaleString() : r.ptp ? '직전과 같음' : '직전 -'}</span></td>
       <td class="m-hide" style="text-align:right">${pct(r.tp && r.pc ? (r.tp / r.pc - 1) * 100 : null)}</td></tr>`; }).join('');
   const nOp = k => rows.filter(r => opnOf(r.o) === k).length, nUp = rows.filter(r => chgOf(r) > 0).length, nDn = rows.filter(r => chgOf(r) < 0).length;
   const sum = rows.length ? `<p class="muted" style="font-size:12px;margin:8px 0">${multi ? `${win.length}거래일(${ymd(win[win.length - 1])}~${ymd(win[0])})` : ymd(active)} · <b style="color:var(--text)">${rows.length}건</b> — 매수 ${nOp('매수')} · 중립 ${nOp('중립')} · 매도 ${nOp('매도')} · 미제시 ${nOp('미제시')} / 목표가 <span class="pos">상향 ${nUp}</span> · <span class="neg">하향 ${nDn}</span></p>` : '';
@@ -3701,7 +3700,7 @@ function renderOpinions() {
     </div>
     ${q ? '' : `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${RANGES.map(([k, l]) => `<button class="chip${op.range === k ? ' active' : ''}" data-op-range="${k}">${l}</button>`).join('')}</div>`}
     ${dayNav}${sum}
-    ${rows.length ? `<div class="table-wrap"><table class="op-tbl"><thead><tr><th>종목</th><th>의견·증권사</th><th style="text-align:right" title="아래 숫자 = 직전 목표가 대비 변경">목표가</th><th class="m-hide" style="text-align:right">직전 목표가</th><th class="m-hide" style="text-align:right" title="목표가 ÷ 의견 전일 종가 − 1">전일가 대비</th></tr></thead><tbody>${body}</tbody></table></div>${more}` : '<p class="muted">해당하는 의견이 없습니다.</p>'}</div>`;
+    ${rows.length ? `<div class="table-wrap"><table class="op-tbl"><thead><tr><th>종목</th><th>의견·증권사</th><th style="text-align:right" title="% = 직전 목표가 대비 변경">목표가 · 직전</th><th class="m-hide" style="text-align:right" title="목표가 ÷ 의견 전일 종가 − 1">전일가 대비</th></tr></thead><tbody>${body}</tbody></table></div>${more}` : '<p class="muted">해당하는 의견이 없습니다.</p>'}</div>`;
 }
 document.addEventListener('click', (e) => {
   const t = e.target.closest && e.target.closest('[data-op-kind],[data-op-date],[data-op-range]');
