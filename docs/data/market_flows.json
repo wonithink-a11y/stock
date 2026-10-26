@@ -1,289 +1,9 @@
 {
-  "updatedAt": "2026-10-23T14:17:29.400831Z",
+  "updatedAt": "2026-10-26T16:11:28.270707Z",
   "source": "pykrx get_market_trading_value_by_investor (일별)",
   "markets": {
     "KOSPI": {
       "days": [
-        {
-          "date": "20260928",
-          "items": [
-            {
-              "name": "외국인",
-              "net": -3283042076672,
-              "agg": false
-            },
-            {
-              "name": "개인",
-              "net": 2646668396520,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 1638414395584,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": -1016882972663,
-              "agg": true
-            },
-            {
-              "name": "투신",
-              "net": -500013305536,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": -182059641045,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": -175852368592,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": -140322548654,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": -31202077584,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": 14867144035,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 14842257231,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -2300175287,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20260929",
-          "items": [
-            {
-              "name": "외국인",
-              "net": -2994371752997,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 1645382528637,
-              "agg": false
-            },
-            {
-              "name": "개인",
-              "net": 1244665081734,
-              "agg": false
-            },
-            {
-              "name": "투신",
-              "net": 135201142346,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": 103664651669,
-              "agg": true
-            },
-            {
-              "name": "연기금 등",
-              "net": -35787424003,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": 19376258341,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": 15946173550,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": -15305084666,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": -13348680174,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -2417733725,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 659490957,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20260930",
-          "items": [
-            {
-              "name": "외국인",
-              "net": -2069212023842,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 1652911531693,
-              "agg": false
-            },
-            {
-              "name": "개인",
-              "net": 1210896364465,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": -810758591275,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": -799251376553,
-              "agg": true
-            },
-            {
-              "name": "투신",
-              "net": 141372086193,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": -127879339717,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": -18320332079,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": 14386498085,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 4655504237,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": 1647917991,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": 300384249,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20261001",
-          "items": [
-            {
-              "name": "개인",
-              "net": -1410244814610,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 965612692599,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": 325185993255,
-              "agg": true
-            },
-            {
-              "name": "사모",
-              "net": 147392082595,
-              "agg": false
-            },
-            {
-              "name": "외국인",
-              "net": 124334003425,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": 103221516506,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": 37993933926,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": 23336506835,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": 16970435395,
-              "agg": false
-            },
-            {
-              "name": "투신",
-              "net": -5373798122,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": -4887874669,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": 1645316120,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
         {
           "date": "20261002",
           "items": [
@@ -1263,291 +983,81 @@
               "agg": true
             }
           ]
+        },
+        {
+          "date": "20261026",
+          "items": [
+            {
+              "name": "외국인",
+              "net": -652560724840,
+              "agg": false
+            },
+            {
+              "name": "금융투자",
+              "net": 644802660192,
+              "agg": false
+            },
+            {
+              "name": "기관합계",
+              "net": 581179122408,
+              "agg": true
+            },
+            {
+              "name": "투신",
+              "net": -127484903392,
+              "agg": false
+            },
+            {
+              "name": "연기금 등",
+              "net": 40348744644,
+              "agg": false
+            },
+            {
+              "name": "기타법인",
+              "net": 36411630750,
+              "agg": false
+            },
+            {
+              "name": "개인",
+              "net": 33127510136,
+              "agg": false
+            },
+            {
+              "name": "사모",
+              "net": 17482773546,
+              "agg": false
+            },
+            {
+              "name": "기타금융",
+              "net": 4965605920,
+              "agg": false
+            },
+            {
+              "name": "보험",
+              "net": 3715964233,
+              "agg": false
+            },
+            {
+              "name": "은행",
+              "net": -2651722735,
+              "agg": false
+            },
+            {
+              "name": "기타외국인",
+              "net": 1842461546,
+              "agg": false
+            },
+            {
+              "name": "전체",
+              "net": 0,
+              "agg": true
+            }
+          ]
         }
       ]
     },
     "KOSDAQ": {
       "days": [
-        {
-          "date": "20260928",
-          "items": [
-            {
-              "name": "금융투자",
-              "net": -73528717169,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": -73043633657,
-              "agg": true
-            },
-            {
-              "name": "외국인",
-              "net": 52243886290,
-              "agg": false
-            },
-            {
-              "name": "개인",
-              "net": 13691715878,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 5590740404,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": 3240674661,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": -2176124133,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": 2056096539,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -1986910560,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 1517291085,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": -1173016662,
-              "agg": false
-            },
-            {
-              "name": "투신",
-              "net": 524363667,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20260929",
-          "items": [
-            {
-              "name": "개인",
-              "net": 146516379646,
-              "agg": false
-            },
-            {
-              "name": "외국인",
-              "net": -131482754277,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": -59494821015,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": 58659542188,
-              "agg": false
-            },
-            {
-              "name": "투신",
-              "net": 53705461880,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": -33717654631,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": -22645867271,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -9756958765,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": -6847828893,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": 6636030518,
-              "agg": true
-            },
-            {
-              "name": "보험",
-              "net": 4088289754,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 976211384,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20260930",
-          "items": [
-            {
-              "name": "외국인",
-              "net": -72372778883,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": 48163015794,
-              "agg": true
-            },
-            {
-              "name": "투신",
-              "net": 46170527577,
-              "agg": false
-            },
-            {
-              "name": "개인",
-              "net": 18813773465,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": 11500567180,
-              "agg": false
-            },
-            {
-              "name": "금융투자",
-              "net": -9836854137,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": 6787935464,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -6122532905,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": -6111164785,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": 5774537400,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": 4330776339,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": 1065213285,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
-        {
-          "date": "20261001",
-          "items": [
-            {
-              "name": "개인",
-              "net": -778171359147,
-              "agg": false
-            },
-            {
-              "name": "기관합계",
-              "net": 567504170411,
-              "agg": true
-            },
-            {
-              "name": "금융투자",
-              "net": 323996188651,
-              "agg": false
-            },
-            {
-              "name": "외국인",
-              "net": 232126371429,
-              "agg": false
-            },
-            {
-              "name": "투신",
-              "net": 163541966162,
-              "agg": false
-            },
-            {
-              "name": "연기금 등",
-              "net": 73081696515,
-              "agg": false
-            },
-            {
-              "name": "기타금융",
-              "net": -53828670052,
-              "agg": false
-            },
-            {
-              "name": "사모",
-              "net": 51882779201,
-              "agg": false
-            },
-            {
-              "name": "기타법인",
-              "net": -18285427841,
-              "agg": false
-            },
-            {
-              "name": "보험",
-              "net": 17463533494,
-              "agg": false
-            },
-            {
-              "name": "은행",
-              "net": -8633323560,
-              "agg": false
-            },
-            {
-              "name": "기타외국인",
-              "net": -3173754852,
-              "agg": false
-            },
-            {
-              "name": "전체",
-              "net": 0,
-              "agg": true
-            }
-          ]
-        },
         {
           "date": "20261002",
           "items": [
@@ -2519,6 +2029,76 @@
             {
               "name": "은행",
               "net": -2067483108,
+              "agg": false
+            },
+            {
+              "name": "전체",
+              "net": 0,
+              "agg": true
+            }
+          ]
+        },
+        {
+          "date": "20261026",
+          "items": [
+            {
+              "name": "기관합계",
+              "net": -126787151443,
+              "agg": true
+            },
+            {
+              "name": "금융투자",
+              "net": -78022994879,
+              "agg": false
+            },
+            {
+              "name": "개인",
+              "net": 76854177168,
+              "agg": false
+            },
+            {
+              "name": "투신",
+              "net": -49123935279,
+              "agg": false
+            },
+            {
+              "name": "외국인",
+              "net": 42511458531,
+              "agg": false
+            },
+            {
+              "name": "기타법인",
+              "net": 5759427059,
+              "agg": false
+            },
+            {
+              "name": "연기금 등",
+              "net": 2850184765,
+              "agg": false
+            },
+            {
+              "name": "기타외국인",
+              "net": 1662088685,
+              "agg": false
+            },
+            {
+              "name": "은행",
+              "net": -884048085,
+              "agg": false
+            },
+            {
+              "name": "보험",
+              "net": -830026645,
+              "agg": false
+            },
+            {
+              "name": "기타금융",
+              "net": -405993740,
+              "agg": false
+            },
+            {
+              "name": "사모",
+              "net": -370337580,
               "agg": false
             },
             {
