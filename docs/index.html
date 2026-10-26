@@ -4496,10 +4496,14 @@ function todayTop() {
   const f = homeRep.facts, s = homeRep.summary;
   if (!f) return '';
   const pct = v => v == null ? '' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}%</span>`;
-  const series = (f.series || []).filter(r => ['지수', '미국선물', '환율'].includes(r.group) && r.close != null);
-  const strip = series.map(r => `<div class="home-tick"><div class="muted" style="font-size:12px">${esc(r.name)}</div>
+  const series = (f.series || []).filter(r => ['지수', '미국선물', '환율', '원자재'].includes(r.group) && r.close != null);
+  const rng = state.stripRange || 0, RNG = [['', 'chgPct'], ['5일 ', 'chg5dPct'], ['20일 ', 'chg20dPct']];
+  const strip = series.map(r => {
+    const oil = r.group === '원자재', [lab, key] = oil ? RNG[rng] : RNG[0], v = r[key];   // 유가 칸만 눌러서 당일→5일→20일
+    return `<div class="home-tick"${oil ? ' data-strip-range style="cursor:pointer"' : ''}><div class="muted" style="font-size:12px">${esc(r.name)}${oil ? ' <span style="font-size:10px">↻</span>' : ''}</div>
     <div class="num home-v" style="font-weight:600">${Number(r.close).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
-    <div class="num" style="font-size:13px">${pct(r.chgPct)}${r.chg5dPct != null ? ` <span class="muted home-5d" style="font-size:11px">5일 ${r.chg5dPct >= 0 ? '+' : '−'}${Math.abs(r.chg5dPct).toFixed(2)}%</span>` : ''}</div></div>`).join('');
+    <div class="num" style="font-size:13px">${lab ? `<span class="muted" style="font-size:11px">${lab}</span>` : ''}${pct(v)}${!oil && r.chg5dPct != null ? ` <span class="muted home-5d" style="font-size:11px">5일 ${r.chg5dPct >= 0 ? '+' : '−'}${Math.abs(r.chg5dPct).toFixed(2)}%</span>` : ''}</div></div>`;
+  }).join('');
   const stem = homeRep.file.replace(/\.md$/, ''), day = stem.slice(5, 10).replace('-', '/');
   const causes = ((s && s.causes) || []).slice(0, 3).map((c, i) => `<div style="display:flex;gap:10px;align-items:baseline"><span class="num muted">${i + 1}</span>
     <span style="flex:1">${esc(c.title)}</span>${c.confidence ? `<span class="home-conf">확신 ${esc(c.confidence)}</span>` : ''}</div>`).join('');
@@ -4658,6 +4662,9 @@ function renderNav() {
   document.getElementById('side').innerHTML = NAV_GROUPS.map(x => `<div><div class="grp">${x[1]}</div>${x[2].map(t =>
     `<button data-tab="${t[0]}"${t[0] === state.tab ? ' class="active" aria-current="page"' : ''}>${t[1]}</button>`).join('')}</div>`).join('');
 }
+document.addEventListener('click', (e) => {   // 홈 지표 띠 유가 칸: 당일→5일→20일
+  if (e.target.closest && e.target.closest('[data-strip-range]')) { state.stripRange = ((state.stripRange || 0) + 1) % 3; render(); }
+});
 document.addEventListener('click', (e) => {
   const gb = e.target.closest && e.target.closest('button[data-navgroup]');
   const tb = e.target.closest && e.target.closest('button[data-tab]');

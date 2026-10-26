@@ -42,6 +42,7 @@ KR_SERIES = [
     ("000001.SS", "상해종합", "아시아", "regular"), ("^HSI", "항셍", "아시아", "regular"),
     ("KRW=X", "원/달러", "환율", "around"), ("ES=F", "S&P500 선물", "미국선물", "around"),
     ("NQ=F", "나스닥100 선물", "미국선물", "around"),
+    ("CL=F", "WTI", "원자재", "around"),
 ]
 US_SERIES = [
     ("^GSPC", "S&P 500", "지수", "regular"), ("^IXIC", "NASDAQ", "지수", "regular"),
@@ -104,10 +105,11 @@ def series_row(sym, name, group, kind, expected, now_utc, asof=None):
         return {"sym": sym, "name": name, "group": group, "error": "봉 부족"}
     (d, c), (_, p) = rows[-1], rows[-2]
     c5 = rows[-6][1] if len(rows) >= 6 else None
+    c20 = rows[-21][1] if len(rows) >= 21 else None
     rmt = ch["meta"].get("regularMarketTime")
     at = datetime.fromtimestamp(rmt, timezone.utc).astimezone(KST) if rmt and not asof else None
     row = {"sym": sym, "name": name, "group": group, "kind": kind, "close": round(c, 4), "prevClose": round(p, 4),
-           "chgPct": pct(c, p), "chg5dPct": pct(c, c5), "barDate": d.isoformat(),
+           "chgPct": pct(c, p), "chg5dPct": pct(c, c5), "chg20dPct": pct(c, c20), "barDate": d.isoformat(),
            "lastTradeKST": at.isoformat(timespec="minutes") if at else None, "source": "Yahoo chart"}
     if group == "금리":  # 수익률(%) 계열은 변화율이 아니라 bp
         row["chgBp"] = round((c - p) * 100, 1)

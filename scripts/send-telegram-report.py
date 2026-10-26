@@ -73,6 +73,9 @@ def short_message(md_path, facts, summary, dash_url=""):
         if r.get("group") == "지수" and "close" in r:
             stale = "" if r.get("fresh", True) else f" [{r.get('barDate')} 값]"
             L.append(f"{r['name']} {r['close']:,.2f} {_p(r['chgPct'])} (5일 {_p(r.get('chg5dPct'))}){stale}")
+    wti = next((r for r in s if r.get("sym") == "CL=F" and "close" in r), None)
+    if wti:
+        L.append(f"WTI {wti['close']:,.2f} {_p(wti['chgPct'])} (5일 {_p(wti.get('chg5dPct'))} · 20일 {_p(wti.get('chg20dPct'))})")
     if mkt == "kr":
         for code, v in (facts.get("kr") or {}).items():
             f = v.get("flows억원") or {}
