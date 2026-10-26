@@ -3172,6 +3172,14 @@ function loadHeatLive() {
       if (state.tab === 'today') renderTodaySoft();
     });
 }
+// WTI 현재가(VM /oil, Yahoo ~10분 지연) — 홈 지표 띠의 유가 칸을 마감 값 대신 지금 값으로. 90초마다.
+function loadOil() {
+  if (state.oilLoading || (state.oil && Date.now() - state.oil.at < 90000)) return;
+  state.oilLoading = true;
+  fetch('https://wonithink-stock.duckdns.org/oil', { cache: 'no-store' }).then(r => r.ok ? r.json() : Promise.reject()).then(j => { state.oil = { ...j, at: Date.now() }; })
+    .catch(() => { state.oil = { at: Date.now() }; }).finally(() => { state.oilLoading = false; if (state.tab === 'today') renderTodaySoft(); });
+}
+setInterval(() => { if (state.tab === 'today' && !document.hidden) loadOil(); }, 60000);
 function heatLiveDue() {
   return state.tab === 'sector' && state.sectorSub === 'heat' && state.heatMarket === 'KR' && state.heatWin === 'live'
     && (!state.heatLive || Date.now() - state.heatLive.fetchedAt > 110000);
@@ -4499,9 +4507,18 @@ function todayTop() {
   const series = (f.series || []).filter(r => ['지수', '미국선물', '환율', '원자재'].includes(r.group) && r.close != null);
   const rng = state.stripRange || 0, RNG = [['', 'chgPct'], ['5일 ', 'chg5dPct'], ['20일 ', 'chg20dPct']];
   const strip = series.map(r => {
-    const oil = r.group === '원자재', [lab, key] = oil ? RNG[rng] : RNG[0], v = r[key];   // 유가 칸만 눌러서 당일→5일→20일
+    const oil = r.group === '원자재', [lab, key] = oil ? RNG[rng] : RNG[0];   // 유가 칸만 눌러서 당일→5일→20일
+    let v = r[key], close = r.close;
+    if (oil) {   // VM 현재가가 있으면 마감 값 대신 지금 값 — 5·20일은 마감 값에서 거슬러 올라간 기준가에 견준다
+      loadOil();
+      const o = state.oil;
+      if (o && o.price) {
+        close = o.price;
+        v = key === 'chgPct' ? (o.price / o.prevClose - 1) * 100 : r[key] == null ? null : (o.price / (r.close / (1 + r[key] / 100)) - 1) * 100;
+      }
+    }
     return `<div class="home-tick"${oil ? ' data-strip-range style="cursor:pointer"' : ''}><div class="muted" style="font-size:12px">${esc(r.name)}${oil ? ' <span style="font-size:10px">↻</span>' : ''}</div>
-    <div class="num home-v" style="font-weight:600">${Number(r.close).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
+    <div class="num home-v" style="font-weight:600">${Number(close).toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</div>
     <div class="num" style="font-size:13px">${lab ? `<span class="muted" style="font-size:11px">${lab}</span>` : ''}${pct(v)}${!oil && r.chg5dPct != null ? ` <span class="muted home-5d" style="font-size:11px">5일 ${r.chg5dPct >= 0 ? '+' : '−'}${Math.abs(r.chg5dPct).toFixed(2)}%</span>` : ''}</div></div>`;
   }).join('');
   const stem = homeRep.file.replace(/\.md$/, ''), day = stem.slice(5, 10).replace('-', '/');

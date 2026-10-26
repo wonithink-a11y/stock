@@ -219,6 +219,26 @@ _DAY_CACHE_MAX = 300
 _TREND_CACHE = {"at": 0.0, "data": None}
 
 
+# WTI 선물 현재가(대시보드 홈 지표 띠, 2026-10-26) — Yahoo 공개 시세(약 10~15분 지연), 60초 캐시. 24시간 거래라 장 시간과 무관하다.
+_OIL_CACHE = {"at": 0.0, "data": None}
+
+
+def _fetch_oil_sync():
+    m = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/CL=F?range=1d&interval=1d",
+                     headers={"User-Agent": "Mozilla/5.0"}, timeout=8).json()["chart"]["result"][0]["meta"]
+    return {"price": m["regularMarketPrice"], "prevClose": m["chartPreviousClose"], "at": m.get("regularMarketTime")}
+
+
+async def handle_oil(request):
+    if _OIL_CACHE["data"] is None or time.time() - _OIL_CACHE["at"] >= 60:
+        try:
+            _OIL_CACHE.update(at=time.time(), data=await asyncio.to_thread(_fetch_oil_sync))
+        except Exception as e:
+            print(f"oil 실패: {type(e).__name__}: {e}")
+            return web.json_response({"error": "조회 실패"}, status=502)
+    return web.json_response(_OIL_CACHE["data"], headers={"Cache-Control": "no-store"})
+
+
 async def handle_market_trend(request):
     if _TREND_CACHE["data"] is not None and time.time() - _TREND_CACHE["at"] < 30:
         data = _TREND_CACHE["data"]
@@ -423,6 +443,7 @@ def main():
     app.router.add_get("/minute-history", handle_minute_history)
     app.router.add_get("/market-trend", handle_market_trend)
     app.router.add_get("/kr-intraday", handle_kr_intraday)
+    app.router.add_get("/oil", handle_oil)
     app.router.add_get("/pins", handle_pins)
     app.router.add_put("/pins", handle_pins)
     app.router.add_get("/yt", handle_yt)
