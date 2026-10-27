@@ -1,0 +1,81 @@
+{
+ "headline": "AI·반도체 랠리가 사흘째 이어지며 나스닥이 앞섰고(SOX +3.6%), 보잉 급락과 에너지 약세가 지수를 눌렀다. FOMC 결과는 한국시간 10-29 새벽이다.",
+ "causes": [
+  {
+   "title": "AI 반도체 랠리 지속",
+   "confidence": "높음",
+   "evidence": [
+    {
+     "timeKST": "2026-10-28T06:11",
+     "source": "로이터",
+     "text": "Wall Street ends higher on revived AI momentum — 브로드컴 약 4% 상승, 반도체 3일 연속 상승",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-10-28T00:00",
+     "source": "Analytics Insight",
+     "text": "Broadcom, Nvidia lead chip stock gains(장중)",
+     "url": ""
+    }
+   ],
+   "reaction": "SOX +3.60%, 기술 섹터 +1.70%, 나스닥 +1.18%",
+   "counter": "SOX 20일 −9.08%, 메타 −1.64%·마이크로소프트 −0.24%는 동행하지 않음"
+  },
+  {
+   "title": "보잉 급락",
+   "confidence": "높음",
+   "evidence": [
+    {
+     "timeKST": "2026-10-28T06:34",
+     "source": "Motley Fool",
+     "text": "3분기 손실 확대, 737 생산 목표 2027년 초로 지연",
+     "url": ""
+    }
+   ],
+   "reaction": "보잉 −10.69%, 다우 +0.03%에 그침",
+   "counter": "개별 종목 사건으로 업종 전체로 일반화하지 않음"
+  },
+  {
+   "title": "에너지 약세",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-10-28T05:03",
+     "source": "TipRanks",
+     "text": "Stock Market Wrap: SPY, QQQ boosted by oil weakness",
+     "url": ""
+    }
+   ],
+   "reaction": "WTI −1.53%, 에너지 섹터 −2.05%",
+   "counter": "에너지 20일 +10.84%로 최근 강세 뒤 조정일 수 있음"
+  }
+ ],
+ "afterClose": [
+  {
+   "timeKST": "2026-10-28T07:07",
+   "text": "시간외 코스타그룹 −10.06%·로빈후드 −7.93%·NXP −7.30%·테라다인 −6.10%·씨게이트 −5.85%"
+  }
+ ],
+ "events": [
+  {
+   "timeKST": "2026-10-29",
+   "text": "FOMC 금리 결정(한국시간 10-29 새벽 발표)"
+  },
+  {
+   "timeKST": "2026-10-29",
+   "text": "마이크로소프트·알파벳 등 실적(미국 10-28, 시각 미확인)"
+  }
+ ],
+ "watch": [
+  "FOMC 결과와 10년물 금리 반응",
+  "반도체 랠리가 한국 시초가 이후에도 이어지는지",
+  "마이크로소프트·알파벳 실적 반응"
+ ],
+ "researchNotes": [
+  {
+   "condition": "밤사이 SOX z≥1 (z 1.26)",
+   "note": "한국 반도체는 시가 갭 상승(+1.2~3.3%) 후 시가→종가 평균 음(−0.2%대), 세 시기 모두. 평균이지 예측 아님",
+   "source": "research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"
+  }
+ ]
+}

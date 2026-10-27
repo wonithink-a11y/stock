@@ -1,0 +1,1736 @@
+{
+ "market": "us",
+ "generatedAtKST": "2026-10-28T07:09:14+09:00",
+ "expectedSession": "2026-10-27",
+ "sessionOpen": true,
+ "regularSessionEnded": true,
+ "backfill": false,
+ "series": [
+  {
+   "sym": "^GSPC",
+   "name": "S&P 500",
+   "group": "지수",
+   "kind": "regular",
+   "close": 7722.6,
+   "prevClose": 7676.77,
+   "chgPct": 0.6,
+   "chg5dPct": 0.13,
+   "chg20dPct": 0.67,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:48+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^IXIC",
+   "name": "NASDAQ",
+   "group": "지수",
+   "kind": "regular",
+   "close": 26477.81,
+   "prevClose": 26169.3809,
+   "chgPct": 1.18,
+   "chg5dPct": 0.2,
+   "chg20dPct": -1.19,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T06:15+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^DJI",
+   "name": "다우",
+   "group": "지수",
+   "kind": "regular",
+   "close": 52377.57,
+   "prevClose": 52361.5781,
+   "chgPct": 0.03,
+   "chg5dPct": -0.23,
+   "chg20dPct": 2.0,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:48+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^RUT",
+   "name": "러셀 2000",
+   "group": "지수",
+   "kind": "regular",
+   "close": 2818.87,
+   "prevClose": 2786.4199,
+   "chgPct": 1.16,
+   "chg5dPct": 1.64,
+   "chg20dPct": 0.39,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^SOX",
+   "name": "필라델피아 반도체",
+   "group": "지수",
+   "kind": "regular",
+   "close": 11482.505,
+   "prevClose": 11083.4697,
+   "chgPct": 3.6,
+   "chg5dPct": 1.76,
+   "chg20dPct": -9.08,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T06:15+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "SPY",
+   "name": "SPY(시총가중)",
+   "group": "시장폭",
+   "kind": "regular",
+   "close": 769.66,
+   "prevClose": 765.37,
+   "chgPct": 0.56,
+   "chg5dPct": 0.08,
+   "chg20dPct": 0.71,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "RSP",
+   "name": "RSP(동일가중)",
+   "group": "시장폭",
+   "kind": "regular",
+   "close": 217.52,
+   "prevClose": 217.29,
+   "chgPct": 0.11,
+   "chg5dPct": 0.77,
+   "chg20dPct": 3.83,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLK",
+   "name": "기술",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 189.49,
+   "prevClose": 186.32,
+   "chgPct": 1.7,
+   "chg5dPct": 2.18,
+   "chg20dPct": -2.58,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLC",
+   "name": "커뮤니케이션",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 103.58,
+   "prevClose": 103.85,
+   "chgPct": -0.26,
+   "chg5dPct": -6.0,
+   "chg20dPct": -7.08,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLY",
+   "name": "임의소비재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 115.45,
+   "prevClose": 114.26,
+   "chgPct": 1.04,
+   "chg5dPct": -0.04,
+   "chg20dPct": 5.77,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLF",
+   "name": "금융",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 55.88,
+   "prevClose": 56.02,
+   "chgPct": -0.25,
+   "chg5dPct": 0.29,
+   "chg20dPct": 3.46,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLV",
+   "name": "헬스케어",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 179.18,
+   "prevClose": 179.28,
+   "chgPct": -0.06,
+   "chg5dPct": -0.36,
+   "chg20dPct": 4.95,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLI",
+   "name": "산업재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 167.92,
+   "prevClose": 166.96,
+   "chgPct": 0.57,
+   "chg5dPct": 0.67,
+   "chg20dPct": -0.72,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLE",
+   "name": "에너지",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 68.21,
+   "prevClose": 69.64,
+   "chgPct": -2.05,
+   "chg5dPct": 0.35,
+   "chg20dPct": 10.84,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLP",
+   "name": "필수소비재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 87.15,
+   "prevClose": 87.96,
+   "chgPct": -0.92,
+   "chg5dPct": -0.68,
+   "chg20dPct": 6.48,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLU",
+   "name": "유틸리티",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 42.85,
+   "prevClose": 42.55,
+   "chgPct": 0.71,
+   "chg5dPct": 2.32,
+   "chg20dPct": 7.91,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLB",
+   "name": "소재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 51.78,
+   "prevClose": 51.38,
+   "chgPct": 0.78,
+   "chg5dPct": 1.07,
+   "chg20dPct": 5.46,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLRE",
+   "name": "부동산",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 42.44,
+   "prevClose": 42.8,
+   "chgPct": -0.84,
+   "chg5dPct": 0.14,
+   "chg20dPct": 2.66,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "EWY",
+   "name": "EWY(미국 상장 한국 ETF)",
+   "group": "한국연결",
+   "kind": "regular",
+   "close": 157.46,
+   "prevClose": 152.72,
+   "chgPct": 3.1,
+   "chg5dPct": 2.25,
+   "chg20dPct": -15.84,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^VIX",
+   "name": "VIX",
+   "group": "위험",
+   "kind": "regular",
+   "close": 17.52,
+   "prevClose": 18.39,
+   "chgPct": -4.73,
+   "chg5dPct": 1.21,
+   "chg20dPct": 9.23,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:15+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^TNX",
+   "name": "미국 10년물 금리(%)",
+   "group": "금리",
+   "kind": "regular",
+   "close": 4.993,
+   "prevClose": 4.986,
+   "chgPct": 0.14,
+   "chg5dPct": -2.42,
+   "chg20dPct": -4.99,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T03:59+09:00",
+   "source": "Yahoo chart",
+   "chgBp": 0.7,
+   "fresh": true
+  },
+  {
+   "sym": "DX-Y.NYB",
+   "name": "달러인덱스",
+   "group": "환율",
+   "kind": "around",
+   "close": 102.352,
+   "prevClose": 101.96,
+   "chgPct": 0.38,
+   "chg5dPct": 0.61,
+   "chg20dPct": 0.97,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "KRW=X",
+   "name": "원/달러",
+   "group": "환율",
+   "kind": "around",
+   "close": 1326.83,
+   "prevClose": 1321.76,
+   "chgPct": 0.38,
+   "chg5dPct": -0.24,
+   "chg20dPct": -2.41,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T06:49+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "CL=F",
+   "name": "WTI",
+   "group": "원자재",
+   "kind": "around",
+   "close": 100.2,
+   "prevClose": 101.76,
+   "chgPct": -1.53,
+   "chg5dPct": -1.56,
+   "chg20dPct": 12.11,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "GC=F",
+   "name": "금",
+   "group": "원자재",
+   "kind": "around",
+   "close": 4073.1,
+   "prevClose": 4038.3999,
+   "chgPct": 0.86,
+   "chg5dPct": -1.68,
+   "chg20dPct": -2.55,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "BTC-USD",
+   "name": "비트코인",
+   "group": "크립토",
+   "kind": "around",
+   "close": 80760.22,
+   "prevClose": 80006.6562,
+   "chgPct": 0.94,
+   "chg5dPct": -0.68,
+   "chg20dPct": -3.02,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T07:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "ES=F",
+   "name": "S&P500 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 7756.75,
+   "prevClose": 7714.5,
+   "chgPct": 0.55,
+   "chg5dPct": 0.02,
+   "chg20dPct": 0.32,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "NQ=F",
+   "name": "나스닥100 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 29803.0,
+   "prevClose": 29437.25,
+   "chgPct": 1.24,
+   "chg5dPct": 0.43,
+   "chg20dPct": -2.65,
+   "barDate": "2026-10-27",
+   "lastTradeKST": "2026-10-28T05:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  }
+ ],
+ "missing": [],
+ "repoData": [
+  {
+   "file": "docs/data/market-movers.json",
+   "asOf": "20261026"
+  },
+  {
+   "file": "docs/data/market_flows.json",
+   "updatedAt": "2026-10-27T15:25:54.793221Z",
+   "ageHours": 6.7
+  },
+  {
+   "file": "docs/data/sector-strength.json",
+   "asOf": "20261027",
+   "updatedAt": "2026-10-27T23:18:03+09:00",
+   "ageHours": 7.9
+  },
+  {
+   "file": "docs/data/disclosures.json",
+   "updatedAt": "2026-10-27T15:20:26.197Z",
+   "ageHours": 6.8
+  },
+  {
+   "file": "docs/data/news.json",
+   "updatedAt": "2026-10-27T08:31:12.978Z",
+   "ageHours": 13.6
+  },
+  {
+   "file": "docs/data/events.json",
+   "asOf": "2026-10-27",
+   "generatedAtKST": "2026-10-27T23:23:55+09:00",
+   "ageHours": 7.8
+  },
+  {
+   "file": "docs/data/stock-events.json",
+   "updatedAt": "2026-10-28T01:00:45+09:00",
+   "ageHours": 6.1
+  }
+ ],
+ "us2y": {
+  "series": "Treasury BC_2YEAR",
+  "date": "2026-10-27",
+  "value": 4.7,
+  "chgBp": 2.0,
+  "fresh": true,
+  "source": "미 재무부 Daily Treasury Par Yield Curve(발표가 리포트 시각보다 늦으면 전날 값 — date·fresh 확인)"
+ },
+ "soxZ": {
+  "date": "2026-10-27",
+  "z": 1.26,
+  "note": "연구 메모 'SOX z ≥ 1' 조건 판정용. 미국 휴장이 끼면 연구는 여러 날 누적이라 근사다."
+ },
+ "earningsToday": [
+  "AMT",
+  "ACGL",
+  "BXP",
+  "BKR",
+  "BA",
+  "CMS",
+  "CNC",
+  "CNP",
+  "CSGP",
+  "GLW",
+  "EQT",
+  "ECL",
+  "ESS",
+  "EXE",
+  "EXR",
+  "FFIV",
+  "FER",
+  "FE",
+  "FCX",
+  "HCA",
+  "HLT",
+  "HUBB",
+  "IQV",
+  "ITW",
+  "IVZ",
+  "JCI",
+  "NXPI",
+  "OKE",
+  "PPG",
+  "PCAR",
+  "PYPL",
+  "PNR",
+  "HOOD",
+  "RCL",
+  "SPGI",
+  "STX",
+  "SHW",
+  "TER",
+  "UPS",
+  "UHS",
+  "VTR",
+  "WM",
+  "XYL",
+  "V",
+  "KO"
+ ],
+ "afterHours": [
+  {
+   "sym": "NVDA",
+   "regularClose": 217.94,
+   "regularChgPct": 0.9,
+   "ahLast": 217.6352,
+   "ahTimeET": "2026-10-27T18:06-04:00",
+   "ahChgPct": -0.14
+  },
+  {
+   "sym": "AAPL",
+   "regularClose": 347.1,
+   "regularChgPct": 0.93,
+   "ahLast": 347.0,
+   "ahTimeET": "2026-10-27T18:09-04:00",
+   "ahChgPct": -0.03
+  },
+  {
+   "sym": "MSFT",
+   "regularClose": 531.33,
+   "regularChgPct": -0.24,
+   "ahLast": 532.9276,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": 0.3
+  },
+  {
+   "sym": "AMZN",
+   "regularClose": 253.1,
+   "regularChgPct": 1.61,
+   "ahLast": 253.67,
+   "ahTimeET": "2026-10-27T18:09-04:00",
+   "ahChgPct": 0.23
+  },
+  {
+   "sym": "GOOGL",
+   "regularClose": 320.58,
+   "regularChgPct": 1.19,
+   "ahLast": 321.778,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": 0.37
+  },
+  {
+   "sym": "META",
+   "regularClose": 620.19,
+   "regularChgPct": -1.64,
+   "ahLast": 619.8,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -0.06
+  },
+  {
+   "sym": "AVGO",
+   "regularClose": 342.33,
+   "regularChgPct": 4.0,
+   "ahLast": 341.193,
+   "ahTimeET": "2026-10-27T18:07-04:00",
+   "ahChgPct": -0.33
+  },
+  {
+   "sym": "TSLA",
+   "regularClose": 407.46,
+   "regularChgPct": 4.04,
+   "ahLast": 407.9,
+   "ahTimeET": "2026-10-27T18:09-04:00",
+   "ahChgPct": 0.11
+  },
+  {
+   "sym": "AMT",
+   "regularClose": 183.83,
+   "regularChgPct": -2.36,
+   "ahLast": 183.91,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": 0.04
+  },
+  {
+   "sym": "ACGL",
+   "regularClose": 100.34,
+   "regularChgPct": -1.95,
+   "ahLast": 100.34,
+   "ahTimeET": "2026-10-27T16:41-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "BXP",
+   "regularClose": 60.89,
+   "regularChgPct": -2.2,
+   "ahLast": 60.89,
+   "ahTimeET": "2026-10-27T16:42-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "BKR",
+   "regularClose": 59.0,
+   "regularChgPct": 5.34,
+   "ahLast": 58.5288,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -0.8
+  },
+  {
+   "sym": "BA",
+   "regularClose": 168.18,
+   "regularChgPct": -10.69,
+   "ahLast": 168.04,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -0.08
+  },
+  {
+   "sym": "CMS",
+   "regularClose": 69.0,
+   "regularChgPct": -0.85,
+   "ahLast": 69.0,
+   "ahTimeET": "2026-10-27T17:23-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "CNC",
+   "regularClose": 68.71,
+   "regularChgPct": 1.0,
+   "ahLast": 69.0,
+   "ahTimeET": "2026-10-27T16:40-04:00",
+   "ahChgPct": 0.42
+  },
+  {
+   "sym": "CNP",
+   "regularClose": 41.97,
+   "regularChgPct": 1.87,
+   "ahLast": 42.05,
+   "ahTimeET": "2026-10-27T16:01-04:00",
+   "ahChgPct": 0.19
+  },
+  {
+   "sym": "CSGP",
+   "regularClose": 32.01,
+   "regularChgPct": -5.01,
+   "ahLast": 28.79,
+   "ahTimeET": "2026-10-27T18:07-04:00",
+   "ahChgPct": -10.06
+  },
+  {
+   "sym": "GLW",
+   "regularClose": 126.3,
+   "regularChgPct": -1.13,
+   "ahLast": 125.77,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -0.42
+  },
+  {
+   "sym": "EQT",
+   "regularClose": 56.27,
+   "regularChgPct": 2.59,
+   "ahLast": 56.2,
+   "ahTimeET": "2026-10-27T17:51-04:00",
+   "ahChgPct": -0.12
+  },
+  {
+   "sym": "ECL",
+   "regularClose": 291.27,
+   "regularChgPct": 0.82,
+   "ahLast": 291.27,
+   "ahTimeET": "2026-10-27T17:22-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "ESS",
+   "regularClose": 274.85,
+   "regularChgPct": -0.16,
+   "ahLast": 274.85,
+   "ahTimeET": "2026-10-27T16:04-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "EXE",
+   "regularClose": 94.62,
+   "regularChgPct": 0.64,
+   "ahLast": 94.9,
+   "ahTimeET": "2026-10-27T16:38-04:00",
+   "ahChgPct": 0.3
+  },
+  {
+   "sym": "EXR",
+   "regularClose": 144.55,
+   "regularChgPct": 0.82,
+   "ahLast": 144.55,
+   "ahTimeET": "2026-10-27T17:25-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "FFIV",
+   "regularClose": 459.36,
+   "regularChgPct": -0.48,
+   "ahLast": 450.56,
+   "ahTimeET": "2026-10-27T17:26-04:00",
+   "ahChgPct": -1.92
+  },
+  {
+   "sym": "FER",
+   "regularClose": 54.02,
+   "regularChgPct": 7.29,
+   "ahLast": 54.28,
+   "ahTimeET": "2026-10-27T16:48-04:00",
+   "ahChgPct": 0.48
+  },
+  {
+   "sym": "FE",
+   "regularClose": 46.27,
+   "regularChgPct": 0.19,
+   "ahLast": 46.27,
+   "ahTimeET": "2026-10-27T16:53-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "FCX",
+   "regularClose": 65.95,
+   "regularChgPct": 1.21,
+   "ahLast": 66.05,
+   "ahTimeET": "2026-10-27T17:42-04:00",
+   "ahChgPct": 0.15
+  },
+  {
+   "sym": "HCA",
+   "regularClose": 449.96,
+   "regularChgPct": -3.29,
+   "ahLast": 449.86,
+   "ahTimeET": "2026-10-27T17:20-04:00",
+   "ahChgPct": -0.02
+  },
+  {
+   "sym": "HLT",
+   "regularClose": 344.65,
+   "regularChgPct": -2.06,
+   "ahLast": 345.06,
+   "ahTimeET": "2026-10-27T16:50-04:00",
+   "ahChgPct": 0.12
+  },
+  {
+   "sym": "HUBB",
+   "regularClose": 434.28,
+   "regularChgPct": -5.47,
+   "ahLast": 435.16,
+   "ahTimeET": "2026-10-27T16:24-04:00",
+   "ahChgPct": 0.2
+  },
+  {
+   "sym": "IQV",
+   "regularClose": 271.55,
+   "regularChgPct": -0.75,
+   "ahLast": 271.55,
+   "ahTimeET": "2026-10-27T17:13-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "ITW",
+   "regularClose": 275.93,
+   "regularChgPct": -0.1,
+   "ahLast": 275.93,
+   "ahTimeET": "2026-10-27T16:10-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "IVZ",
+   "regularClose": 28.43,
+   "regularChgPct": -0.35,
+   "ahLast": 28.43,
+   "ahTimeET": "2026-10-27T16:53-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "JCI",
+   "regularClose": 155.88,
+   "regularChgPct": 5.68,
+   "ahLast": 155.88,
+   "ahTimeET": "2026-10-27T17:25-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "NXPI",
+   "regularClose": 253.5,
+   "regularChgPct": 3.12,
+   "ahLast": 235.0,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -7.3
+  },
+  {
+   "sym": "OKE",
+   "regularClose": 96.01,
+   "regularChgPct": -0.36,
+   "ahLast": 96.01,
+   "ahTimeET": "2026-10-27T17:47-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "PPG",
+   "regularClose": 113.44,
+   "regularChgPct": 3.22,
+   "ahLast": 113.44,
+   "ahTimeET": "2026-10-27T17:38-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "PCAR",
+   "regularClose": 103.73,
+   "regularChgPct": -0.61,
+   "ahLast": 103.73,
+   "ahTimeET": "2026-10-27T17:23-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "PYPL",
+   "regularClose": 56.09,
+   "regularChgPct": 2.0,
+   "ahLast": 55.9911,
+   "ahTimeET": "2026-10-27T17:23-04:00",
+   "ahChgPct": -0.18
+  },
+  {
+   "sym": "PNR",
+   "regularClose": 62.29,
+   "regularChgPct": 12.8,
+   "ahLast": 62.2005,
+   "ahTimeET": "2026-10-27T17:04-04:00",
+   "ahChgPct": -0.14
+  },
+  {
+   "sym": "HOOD",
+   "regularClose": 94.56,
+   "regularChgPct": 1.85,
+   "ahLast": 87.0608,
+   "ahTimeET": "2026-10-27T18:09-04:00",
+   "ahChgPct": -7.93
+  },
+  {
+   "sym": "RCL",
+   "regularClose": 295.92,
+   "regularChgPct": 5.46,
+   "ahLast": 296.9,
+   "ahTimeET": "2026-10-27T17:10-04:00",
+   "ahChgPct": 0.33
+  },
+  {
+   "sym": "SPGI",
+   "regularClose": 448.93,
+   "regularChgPct": -0.38,
+   "ahLast": 448.93,
+   "ahTimeET": "2026-10-27T17:47-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "STX",
+   "regularClose": 667.85,
+   "regularChgPct": 3.67,
+   "ahLast": 628.8,
+   "ahTimeET": "2026-10-27T18:09-04:00",
+   "ahChgPct": -5.85
+  },
+  {
+   "sym": "SHW",
+   "regularClose": 326.01,
+   "regularChgPct": -2.73,
+   "ahLast": 326.0,
+   "ahTimeET": "2026-10-27T17:39-04:00",
+   "ahChgPct": -0.0
+  },
+  {
+   "sym": "TER",
+   "regularClose": 323.68,
+   "regularChgPct": 4.75,
+   "ahLast": 303.95,
+   "ahTimeET": "2026-10-27T18:06-04:00",
+   "ahChgPct": -6.1
+  },
+  {
+   "sym": "UPS",
+   "regularClose": 106.09,
+   "regularChgPct": 5.75,
+   "ahLast": 105.915,
+   "ahTimeET": "2026-10-27T17:53-04:00",
+   "ahChgPct": -0.16
+  },
+  {
+   "sym": "UHS",
+   "regularClose": 177.32,
+   "regularChgPct": -4.52,
+   "ahLast": 172.0,
+   "ahTimeET": "2026-10-27T17:39-04:00",
+   "ahChgPct": -3.0
+  },
+  {
+   "sym": "VTR",
+   "regularClose": 83.34,
+   "regularChgPct": -4.67,
+   "ahLast": 83.34,
+   "ahTimeET": "2026-10-27T16:04-04:00",
+   "ahChgPct": 0.0
+  },
+  {
+   "sym": "WM",
+   "regularClose": 235.81,
+   "regularChgPct": -2.16,
+   "ahLast": 229.0,
+   "ahTimeET": "2026-10-27T17:46-04:00",
+   "ahChgPct": -2.89
+  },
+  {
+   "sym": "XYL",
+   "regularClose": 92.86,
+   "regularChgPct": -14.21,
+   "ahLast": 93.15,
+   "ahTimeET": "2026-10-27T17:52-04:00",
+   "ahChgPct": 0.31
+  },
+  {
+   "sym": "V",
+   "regularClose": 401.86,
+   "regularChgPct": -0.57,
+   "ahLast": 396.1126,
+   "ahTimeET": "2026-10-27T18:08-04:00",
+   "ahChgPct": -1.43
+  },
+  {
+   "sym": "KO",
+   "regularClose": 91.18,
+   "regularChgPct": -1.64,
+   "ahLast": 91.28,
+   "ahTimeET": "2026-10-27T17:40-04:00",
+   "ahChgPct": 0.11
+  }
+ ],
+ "news": {
+  "window": [
+   "2026-10-27T13:00+09:00",
+   "2026-10-28T07:00+09:00"
+  ],
+  "closeKST": "2026-10-28T05:00+09:00",
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-10-27T21:59+09:00",
+    "title": "Morning Minute: Tokenized Stock Battle Looms Over Robinhood’s Earnings Call - Decrypt",
+    "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPR3hfYzhaQ2Fjbkhna2VYSU1sUVRkd1l5SUtLdjE3VXlMRHhUbDFhVGYxZFdFQXJWSkFic2o0eldPS2JZTnFEUTJBMnVQZUlha2FydTNzcS1jWHhKekRvZTN1ZUJlT0lQV3VQVEJnbEVqZktlaHRseEhNcjNhSnBNVVhaVm5RLXZJc0RCOFpJZFBkaVoyZHNUR0F4Vzdlamx0?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:01+09:00",
+    "title": "U.S. Treasury yields hover near multi-week lows ahead of Fed decision - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPTmgtenhjQ1NkVzRiaDdKYWJlcXJVcjI5Ym9IZEl3NUVPdi1PLXlQRHU1blZCVlpPektpRjI4NlJiWmYxTGV0NWF5RHdjT0VEQ3puNHpEYkI0X1FFLU9Kb3QwTVAxYTZqMUJPRFpDQ0l0c1BhM1VMcFltdzJ4SEJZMkFkMzRxTWowVnFVal90T1pkY1htUWFsV25KTlBvNnJQU1d2VmlHVk9UMHVQSUpOZWV0UGMzTkYxV0Q3YzVwem9Jdw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:04+09:00",
+    "title": "Falling Real Yields Cut Gold's Opportunity Cost Despite Uneven Demand - Crux Investor",
+    "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQMG5teFhqT1hHMjNrRHFIdURnMlU1NlZvalQwdUM3cHU2My1uVkF0cDJGNnFsVlJDV0V4V0tOOUZUWm9BWlhwYjUtYUlDUDBtOWJqRHhXbzlVMGVFWFRvQk5NREJxYUJIbmlLZ3AyRGxueTRvNUhFeHhxYjhuNlJpOGVWeWQ0MThVaTZ3TklJU0xnc0g1X3dSYmxCUUphdEh4S29FZ25B?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:10+09:00",
+    "title": "Wall Street points higher in heavy week of earnings; GM heads to Nasdaq after 115 years on the NYSE - The Morning Call",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9DaklITmwzdWxwcGZkbXpGc0pFV29LbFh5M2l5aGktdm9xS1lIVFU2U2RKb2pOQTRGWHJOSmRoX0M4TVFrbkNLTlZwWVhWSTlGeWIweWh5dE04LUtlTUlGWGl5TDRjOVpK?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:12+09:00",
+    "title": "Stock Futures Higher Amid Fresh Earnings, FOMC Meeting - Schaeffer's Investment Research",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPb1lxS1VQZVJjcjlBWkRydHJsN2wyc2FJSFRfZldMc2VtZ1FuZ1hyZ3FaSS1fVi12WlBVMXBGT2d4UUF2YzZ4cGRiTko2czhBYWNFbmlTT2l5cDRhRDRxYkN2bUd1U1ZRS1ZHemhaSEtWS1R5UC1DN3ItcHFDM2NVbzBUZ0Nhelpvb0FiU1U4N1NXUndZb0dMOVNhTkx0cUZYQ2VmVS1rZUNrVXUyLVJWM21wYjU?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:13+09:00",
+    "title": "Exchange-Traded Funds Higher, Equity Futures Mixed Pre-Bell Tuesday as Investors Assess Corporate Earnings - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNMnczRUh3YUQ0LU9VTllBUWlaUkZUbXRjOHZhV28xeWNRWHdqc241WUtwOUE4NXhZaWxnYXh5TzNUYzNmcTRNbkNKUDdyRndJaGNnaW5wT0d3ejNmTkZhWUE5ZXYxWlFiaXNEdmZpSzlqS090QzBBUWdlZmR1SWs1Skx0OWp6bmhLYUMyQkhxR1FNOUU0eElnVWgtMmN3Y3Iyd1E?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:15+09:00",
+    "title": "US banks face bond losses as Treasury yields surge, raising risks to share buybacks and capital strength | Hindustan Times - Hindustan Times",
+    "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxONGZmakNQZTlUdENjN0ZWQkJBeDBTUEM3NHdrdWNqS0ZBeEJydVMyc3pqQ3dtU2pLbFprNW5TR0d2NEpna1VZWG9sb1ZsVTRkSDhPbTA5SkdrN0Q4ZTNJUm45SWpCTGJpNU5IbXJDZlZnUVN0aGpTSUdxRFBxQ3RYeHl6U21OTmRTTXI5dnF5dlJxNTJBTXBlSXhSVEloU2hHaHBwUThnTGhEajBFUXVDbFczd0dZX2d1MWdOc2N5ZTRTSy00a1FCNndVUE9WTVl6SUNtOWNrYWhsZHlRbnlYRVJZSXdkWVVyQ29OVHA5Y3FZdjN3NkxfelVMTDB2UGJlLXlQNdIBigJBVV95cUxNanprWVQ1LWtKTWFtQzNrVWNxaTRUWEZ5TFlnSWFzSW95cG1qc05uSUV6UlFWN0pKZVNkOGVqdS1SdUZwdkdtUWd3NW53VzBta05hOFJaeWhSWU1CdzZsejdPbm9OT1NKMlBLWTJya3FHQ1B4RGRfQlBJcExkdlZEYjFibUd2WXZIWDB3OHh0NFFJQU15TW5vei05bGNKY3dNQkJMODlSU0dMLTctb08zMmFTZ0JPemY4N2llRGJKb0ZWaGlHYUdfNmJMQ3JVNnpib2tpMzFla3pwU1EzaFp1VFV2WHowaDhHTGE1ZENoZXIybDZrTGtmVTZGLVlEZHJFYmxjNkhyRmxGUQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:30+09:00",
+    "title": "POLL Strong dollar, high yields drag on gold outlook, but central-bank demand lends support - Reuters",
+    "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNY2N0dGg4Q1VsMUJXaTJYb1J4cjJiQjRGYS16djR0Nnh5VGVsQmFRZXctU0w3UUpfclljaFp4ZW5DVFZTLVYzTUlSWDY5Q0JsQ0JLYjF5aFJoVDBpOGhrWnkxdEZKdUtpQzNPc1kxRGdGRkdTZENtM25LLUNYNTdlMjNnMHdUcU52VVlFTkNXRUJKMDFhWEhFalptcGZvQ0FZeUl1UHF5T3Z2UmpWOUR6ekJmMnlHblRWQU1MUzFUaXZiUzA?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:31+09:00",
+    "title": "Robinhood Earnings Prediction Market Preview: What Will Vlad Tenev Say? - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPSHZyWE5JNlQ1Nnl1S2E5WXhWSU1DSlhJQlYzZzY4MmZpNVhLOHJtSTNzd2gyNXR0RHVYbV8yNTNxUlpqQ09DdG5fXzlNZS1wSmFZUEVLazdqeFpLcHd1aTcyRS12ZkxRcGdjVXdyRVFPV29UWkgwaV9ZZi14NnBUcjk4TGRqdHNNTGU5c0FJQ1VqQThSaG5iRDJSeEZaMkQ2cHQ0a2pOSHI0dld3OXc?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:32+09:00",
+    "title": "Your Easiest Way to Crypto - Trade Bitcoin, Ethereum &Most Trending Tokens - MEXC",
+    "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNczR0N0txd1hxUUtPRzJYbkZGNmIxbUxnbjdIQ3hPd19qLVBxeno4bkNlemxWbG1lMlhvdHF2WmZhOXduVjZIY0VQZkpVZXBRbDRmQmgxX19vQS1fVXlLY1J5Ulg3ZkNjWWhVVjY3Z0VGVUxqSmZTM1Q0NDl4YTRMUXBxOF8?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:33+09:00",
+    "title": "S&P 500, Nasdaq open higher as oil pulls back ahead of Fed decision - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNSmdrNjFJeVZnVHlSNkJnWVlJU3dyOGFvUEZ0N2h1VlJTTF9EbVBaZk4tU19ZcUZiZTBqRjYwdlBpVF9hYjhwMWZDRzY4b3M4Y1B2YXNuc3d2ZUJfY3haRDRibnBhWVlnRHJmdUdfeDZ2ZXlDR3poTV9VeVJCNXNOeW9YTGZxZHYwU3c?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:34+09:00",
+    "title": "U.S. Stock Futures Point Higher as AI Developments and Earnings Support Market Recovery: Dow Jones, S&P, Nasdaq, Wall Street - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOLUpWa0hvUnc1d0F5OXpVWVBxTUJyZHNaV1hucl8tX1ZmZXZiZ0tWcmp2ZHJmUm1UNEhIT21QNVhZOV9VelZueEVWYWpxU05KNDJpZVhsQXpfQTNybEYxOTNBZjc5ODUtTF9vLXRPOXl3QmpERjdlYVloU0kxdWU3Q3lUTkZ1LTVRS2pYU1pFZy1oWnRwTVM1VA?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:34+09:00",
+    "title": "S&P 500, Nasdaq gain as traders gear up for tech earnings, Fed decision this week - Investing.com India",
+    "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNN2JUTW01cVVMYzhXbGx4d1U4Ri1BamJ2eUdpYW9WU05kVlk3Rnl6RXpPXzdWZWFxZzRRWS1rUGNrWUV6aENwUlhoOFdGZ3AybmM4OVJiTTNLaUR4OVpEdnNlZm96NW1hVFVKa2JnLTRrRllvUHVjTXN0RUhVZW10dmVmTGxNYzJiS25melhQQjdPYi02SVRWczRzeF92aWM5SFNaM0g2UWlDTDVBUzdKdHhaMjUyRFZGbHlnZUxYMElSOEVSZFNMU0V0cnpoQQ?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:38+09:00",
+    "title": "Realty Income Q3 Earnings: Will Rising Treasury Yields Break ‘The Monthly Dividend Company’? - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNMzZMM2c0R1FsWldueFZsOUZvMUtIN2xlYjhOd0dCZjdZbXIzZkdneHN5VGYwdVpkVm5DUXlkdlpoeXRrQ2M2N1JJczJKUmJoV0k2R2VDZmg0TVZVN2ZpYjZHQl9PVlhpc3BnQmVnY0EzU0pmaWVBS2Nvd0F4czdWcC0tSU5OSUZUb0dfdmdoUDZTb1hyTDBHYTQtWUcydw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:45+09:00",
+    "title": "Nasdaq opens higher as chip stocks rally, oil prices fall ahead of Fed decision - Invezz",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPQ1dxTUg4TlJpZWZjZjhwZ3R2ZFluMUpKcFVQMHNZcGVyT25nNlZVYURYWS1wRldBaGNsVjBVUW13cDJTREl5WVZlaHZncEJCTUJkb0w2Wmx3OWd1VlFkdjFvNEx2SXcxVDAzalpVNjBEVXlYejlfQUVPc0RIQXFyQjRUU0dyRVMxOXY2R2xETS1TcW1hekVGc3drU3A1MGR0X0E4Ykd2Mm5PSGxMNlVCMHVHMGc?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:47+09:00",
+    "title": "PayPal Earnings Top Q3 Estimates. Revenue, Merchant Volume Miss. - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPaDZMdHc2YkltTkRlZkdCb0h2NnB3R0t0cWtBaXZlWnJleHVRbldOTllsM0hhVlV0YnVnX1F2ajVRVTZyVzUzTWd1b3kwYlA3Qi1FWTY2azluVTd5VnJqYmw4T2k5VDBwY2RrV2pkRlAwc2t1ZFMyWnQzOHVfcUZoRU01QUNsT3dvMER4b2FwZzVsUQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:50+09:00",
+    "title": "Stock Market Today (Oct. 27, 2026): S&P 500 climbs as Wall Street gears up for earnings, Fed meeting - Yahoo",
+    "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBRZUlxZ2h0WGtZM3dPZEpNQ1pJSDhPSl9mWF9ZQnd0dnZRbVJLVjN3eWF6VVkybHF2ajJCV3hmNmtrRmgzTHZJbnROVnVKeTFyRkl3SVYyVkFBRWF3N0tXTm1KRkVaS2JZN2hieGM1SWk1ZDZ3OTlBSHZzcVk?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:54+09:00",
+    "title": "Why is IREN stock surging today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQWnU2eThYSHo4Vi1GZ3dqTHlENTBVZDcwSU5FakJRYVlGLWduUFBqMzNnUm9Ibm9HZi12S2R0cHNkOUFhdFBCSnNBOFVCZnlvMkdFaHczNWhxZHdESUhVUmNlYzJWVGpyVzdaWm0yMERQaG9RU1ZiYmdQTnQxOTkyNmcxems1c0VBbEVjZ0ZmQ1ZkSER1UkZwXw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T22:54+09:00",
+    "title": "Veralto Gears Up to Report Q3 Earnings: What's in the Cards? - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQclJHY05KaWlCTDg4SWd1SURScFZqeVpEQS1QaHItUG9SSmpSd08wQXZCZFhUWUZRVnpydHRnalJEZXNxQzFVcTgyMHU2N0xkN08zSWc3MlNncnhaRlZDSGR5X1pCaXR2ZnFzRDQyMUN5a1kwNC1LN1lKR0dqWkYtNVJQeU5aWC1IclhLaXBXT2V6cnV5dGU4a3czdjFfN3ZrNFNwRTRMTGh1b3Z0VGZKWWFndGQ?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:07+09:00",
+    "title": "S&P 500, Nasdaq open higher as oil pulls back ahead of Fed decision - AOL.com",
+    "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9GNk4xendJUWJfaGhzQjhFcExWSVVKZ1lRYmxzRmhvV29kTGZBSjl1VEJCM2FDUEF1SjhvWHl4c2dwWHN4Qi12SHdIYW1qandlbW9WNXR6SXI3aS1kS2VCSzVKN2hTVl9jMVVtRHlFbVRHaGVpUzNMT3Fn?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:10+09:00",
+    "title": "Realty Income's Q3 earnings test growth amid ri... - Pluang",
+    "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxNLUZRSkdjUmNVU0tCVm9XUTVFQk80R2FYc1FoM2M5Mk5OY3RaZkx2dmpEQ3FIbklnbW1kZmVmWTAtN05JVGZwVGZGZ3NXT3p2Y1lHdzJXV0ZoU2FQay1yN1hWVENoZ3ZvWDlpSDZ5M2VtTE5nVGhId2cxSXFOVmZYZ2hhNGNYM1pPWTB6OEtGcw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:12+09:00",
+    "title": "Why is Cipher Digital stock rallying today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQOHZvcGZ2c1VkbmVYZ1JrQ2VPaGZEODVEX05BeFpQcFAtUVdGWVBQZW0wLWEtZlVwaDE2UEh6bWFCbGpKQnpoWWp0THVxQlBEZnBjeVlxb1BEUVlNTTdUNE5kZVUwbTlxLUhSSW1UcXZlUk9kU0lKN2prQ3RwRHoxdVI5NnN6dlJUWEU1QURqWGpjTTVOMzhjNHBPQmx0TGJUMXExLVk4aw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:14+09:00",
+    "title": "Why is Seagate Technology stock rallying today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNVmFBSy1DX3VIeE12WDBUYlFTU25SbXFLNUtCYUoyQk5tSUg3WGp2N0hyVXpJdUw2OGV5VzNmTjZNSlNsYzcxY3gyYy1zeTRBSGMtTFoxSGtobElyaTUtU096Z0s4c05Pa3FxVjFiWTFZeWJPMFc5TkItYmloWFpmQ08wdjBhLVhLbHlaUGI3RFBiYmdZSnRxajNvVmVmVFdlMVFVcUVIMUJNSkpX?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:17+09:00",
+    "title": "Why is MercadoLibre stock rallying today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNbG5LcmJKdVBIY0tyUVl5ckFOQmU3cTFnMHpZbEp4MkhOSlRZMlRsUGFNeUV5WExMRFYzZ1NHTGRjdU5OZUd1VGhOaktjcTdTbFFkZWxKXzdpc0xpOWJrMGF5elR2enRLcXozTGZZd0pzRDNUWTFtak1iQjFOUTdpLVc4Qkg1NVR1c21LQjMxOFd2dU80RnM5aXRuOHJwSHB3NWF1eQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:17+09:00",
+    "title": "Why is Meta Platforms stock sliding today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQR2lwWm1nUTFVV1pjNVdhXzRjQU1rb0VzUXJxZXlQRVh4N1Y4a3A5Ri1FNy1Ya3BSTEd4ZVBNLWZKZUpZSjJxZmxCMW52dHFGbHFMVVJVZUk5V2VsaDVNelExbGxvSWdLQmhPc05HNFBFZzdEODZ1elNvQjc4cEVBT1JmNU8tdlEyQ0JaODY2X0xYRFZrQ29pVXZkdi1QS0EweGhTMG5R?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:18+09:00",
+    "title": "Summary of T-bonds, stocks and precious metals - Kitco",
+    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOU2ZXWFF0VnVDYThFTU9xdmtrRkpiM1NqTWJMT2YyUk42a2tNWUMteFJURTdhUHhUWUpqdWh0MXpuVGo5RzcyYmtoSjFoTlFVUm54VlZ6N0dHYmhIdGRQRWx3ZVcxSUpwOGRaSmoxRms5WFF6aWZtQkJCMW4tU3ZLNFhJdjkxOGJOOU9v?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:34+09:00",
+    "title": "Why is Applied Digital stock surging today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQZ09tVXpTRHN0MUlERDhGWlZiU0NVVy1MdjZNRXlvdldrVUhnbkNucUY3SUx4Mmhia1YtN2Z3NnVVeUhSR3lLTUJBRkJHZVJvY054S2FleDlsemx0enh4VFlCS3NEbEpYdF9MSG4xQmJSN0tZaGFoY2NiNTh3UmFydy1FTG9KNFdabmlaLXBhZENTX2llWXFPd1o2elVGREQtX2JKakQtZw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:36+09:00",
+    "title": "These 3 stocks could rally after the Fed decision - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNeGlzMlBxSjRTdFBUSHJ2cnpWdFlhM2NtNGVEVGNIZ09LekFReTg2VmVLS08yNFNxdXZqaGZJSzJrcUhWLV9fNnhJNzljT2ZRN3VFa1hZaGw4VnMwcV82dlRmalQ2MS1rRkdFWXAxaVRac2gtVWNQbE9wbkxoR3lBZVpvLVRhWW9HU0hHZzV0eTBxOTVPV2Vtcm51clJDcVNXaXBYS2x2dzQ1UQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:37+09:00",
+    "title": "S&P 500, Nasdaq Lead As Tech Stocks Rebound - BusinessToday Malaysia",
+    "link": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQdlg0R0RZSTV0NlhGd0dYNTlob1laaFRVYThJSFdQS1dWMnYyZ3htUDZOMDdocGN4N3pRUE5Rb3dRdUJCSDhnOU9YOUt2WHJBSFQ1R1ZFMHBwaTBTU1NaU2xGSGVta1R1TDlOWGhQRUlmc21fMkw5eUJYem0yZnNUbklxclVKSzZ2V3AtbkRKekhMT3pCeFY3RGIzMGI5b0NIR1N0RVN5Q0ROOTJNRGhNR1hmcVBkd1RjWjBCZFM3bXN3RkVfM1liMVdQTFpJUWpkSG05ekR2STdxcERnT3NtdUIxWXFTbEJXVUIwM1UtVnkwelNlbUNVdzh2U2hJbW5o?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:38+09:00",
+    "title": "Realty Income Q3 Earnings: Will Rising Treasury Yields Break 'The Monthly Dividend Company'? - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOYUVkRFlxTjhld29zN2xEOWo4VUNZUFVMWXlORmQ3eHkzcWh0Mjk0QU9kZ2Y2OWk3RERkdDBveVU5TXFrQ2FUOUF6UFZxOF9BbEY1WFV6aTdHNkgxVDY3U0ljd1loMk5mdy1pWk82YzRSUnYtekZGTWJTT0lsUkJZWEFwdm43azVMWDFXelFTa243WHhlRXJNYklSdG1XYlRLVVZiRk5BQkpjTkN1WnZ1SkFKcnY1MWVYTmxyRlNnLUpYeWc2Vkk0cTdYZEc?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:42+09:00",
+    "title": "Why is Tesla stock climbing today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPRWJHNTJYVHEtZzlDMWRnVi1EQVVqTXAxX0k2SFRTMWwxMkd3UlRpSWthcmF0SW5rWnBfRTVxWEg0c0YtVEh3YUdSS0dOMWNQaUxBaVNjSUg0ZUc5cndTdUV0dDR4RjA2dFVOZzFXYVhTQU1RemoyVFpHTW5OT3ByWTVYcmgzYXZ2blFFcHZ6NndsOTJQTFdVT1BpVQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:44+09:00",
+    "title": "Why is Space Exploration Technologies stock rallying today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPWmp2SVliVDVWWlFFLWdyNVFMZ20wYXRycVpjMTI3RnB5MWJCaF9fSmdxN0MyYkRlaUJHMXpkWk91blNXc2paSXhsY3RKazdYdjJOOHJfcGlqcWxNdVlqZzJjaFFqMkxJVVJMbXcxWlVJLUNhcmFlS3UyaXFyMnpIeWhPYWtHWklJS3F1WUtNYkxBQUozRVpfeFhCckh6eEtYNFlab1F3S1VqTjZURUs1VjAzc2VXWWI1T3pPZQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-27T23:59+09:00",
+    "title": "2.40pm Markets Update - RTE.ie",
+    "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE8zaklLbmI2OC1vTWl0OFlaZkdjWGdLbm1kNjJIYWVrWDJ1SGJ4ZUMzV2NSYnUzaDBGZDVaemhaU0tsTGhNTi02VDQxVlZUcldV?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:00+09:00",
+    "title": "MSGR Begins Trading Today as the New York Rangers Become a Pure-Play Stock. What This Means for Investors. - Barchart.com",
+    "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxOVGU2OXc4bzZGQ093T252NklrWEp5Ry1TbzBON1RRbWN4TmNLWkdXYnNaR1hXU3JNdDhCLTVwVHBnNHUyUDQxVE9QQ2RIMVpid21CUVVvNDhqc1VqeHR2LVM0T19NN2Z0YWNTUXVnS1YxaG9JTFR4RGg1SFF4T3hMc2F1eEgzbGRmendQRGNwbUhpRFVfNExoRG1iSWxhQWs2azFoX0ZzSWpLbVptUW1fQUtBR0NiRFBsc1loZ0lGM2oxR2FyNTRJSzRCZFVIa0xVS2pacFJqbXQwcUZ4YnByLTdR?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:00+09:00",
+    "title": "Wall Street Futures Climb as Broadcom, Nvidia Lead Chip Stock Gains - Analytics Insight",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOQUg0NlU5U3liakJUeTZ1QXVWRXdDLU5OSkdxZzF6aDRqbGxvNU1aZGJOc3pwMm5CZ1JDWnFXdmdDbzlETUw2SHBRS3ZyLUVPY1VuUHN1S1Q4aHEtTWs5QXVKZGdPWVhqYkFiRmFQdU52dDlMbkFBSXhubEpyQ1VWMklHSlJyZ0MxNkRvbEpqZHgyaW5BYnpHY3hDXzYzdmpHSk5kT0V2dDlfUdIBtwFBVV95cUxOQUFGNllhRUhQRXFmOXVLWHozRWJVOFFpbnhaTkRENGltU3NySGdvTHY2UUxMV1M0aXF4NWEtWi1rZ1JQMTlhN1VfUFBTclllWXBwNG00SzFPcGpqY19Ja1ltOUliTzcwMUFZUDdoQ0pHMjFFUEZpaXhvN1dDMzdCWVpNUEFFMG56UDk0NVE2alM5dlFWZXBNblF2S2Zzc2dOSnNVZ3pXS3lPQ1JRRmdoQUhTTnpLNTQ?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:02+09:00",
+    "title": "Nasdaq Composite Jumps 175 Points to 26,344 as Chip Stocks Rally Ahead of Fed Decision - HDFC Sky",
+    "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNaGgxdEdXQ2tNalB3V1VPQVN0eUo4RWJBVEU5Z2hKQ2dvLVVVUnJNeGhFOUZRMEE1MjdUeGdDa0dRZXo3aUVYQnR6X05LRGlfQk1aamtwWkJ4Y01PUnFLLTZRRG1DZU0yZi1fZjVSUnFBZWdDMUZfRXRkTGUyNU9acVhRN3d4Y09YVDlraWRfVzM1VWs0dmtWVmhla3EyNXJ0dy1fSHR3NEpEcTZod05j?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:03+09:00",
+    "title": "After Brazil's election, contracts tied to its currency saw about $9.2 billion traded - Stock Titan",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQLVNXbjdzQzZmS1FCTjFRdVItSkVST3BFMDNOanRjalNpQ0cwVDJqNm9DMHFac1ZieUpseWdDT09Mb3JENGdBejNvRExiZkdhSEhzMlpVeHlBUzlSYnl4TGM5NjBmRWtsdXM3eGtkbms0aUNCQmNTLWRwX0R5ckRNYm1HMkFRbHg5YlJvb3ZJck9TU0tHeWNpR2NqbWJ0WVllTUFzUU94NjFXRVlCU1NuRlNlT1c?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:07+09:00",
+    "title": "Treasury Yields Edge Up As Markets Look To The Fed - Finimize",
+    "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNVldES1BkRE11ejY1X1RmZTBUOTN2VVhnNldRZUtIWF85MmtVS0h5MUgzX1FibENkN1ZYRUtGWnV3bnNMUVlFR1FDWDRId0R4UkEtd1oxSWRQVnNRcFdaWEI3anpFU0dnNlNVZ3l6bDRYUjNVaHNxa3ZyV3BUNlhETlhLcFJ3QQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:10+09:00",
+    "title": "Why is AMD stock gaining 4% today? - Invezz",
+    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1UbTNKY1QwU3d4X0U4UG9EeW1GektqYk5UcWNGWmlnRTJ3a3dIaTIwSnBIZmdWTzdCaXZKMnVsQTZxNFdEMEZvVzg1eTR1NFphOE5DWWpUQkUwOTBLbWJPcWw5WldYMGZhZ1FuYUlBMFpHRS1lV3RJ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:12+09:00",
+    "title": "Why is Cintas stock sliding today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNcjYzWXVhVlRuWWkxQXNvTHpMX1JqTFlBNWtTVXFUMllwNXU3Vy1VZ214UmxRSnNZQWdxend4VlBSYk1JY3gxVklWNi1KT0RLR2ZKbURfdWtDQ3FzWTlYZnh1S3BYaGx3T0MxQlY0eTdfVmEwVWYzRHlZV29tUXlPMjhWQkpWUVkxRUpkbTd5T3NRMTVuMnhyN3o3Yw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:13+09:00",
+    "title": "Cathie Wood Cashes Out AI Chip Stocks, Adds These Aviation Plays - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxORmw1MTlySnF4NGxpbFhfcXlHeVFueTU2ZW5yaHlSTlQ0NTE0ZVFvZjJqTm9ySmlwZFFQLVNXVFFfYUt3Vmo4UzFWSXgwU0RfeXNTLWo3VXZzOWtZd09CbE9kZ0l4MmlvX1otb05seDR6RkpvdHk0ckNtMnRVUC1xM1RucU1YRWJGRGVVcjVBTXVPckMtSGNqaFA3Rk1FODZfVkllQWxraUdiaVk?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:16+09:00",
+    "title": "Time to Extend Bond ETF Duration? - ETF Database",
+    "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE1jbmp0SF96SzVhOWgyZmdheEZ5aGd6Ym5jb2kzdlY1bExadEU0VksycVpNRFloYXBWZjg0SWV1ZS1EZHlDRmpjV3psbHczTTRvVDE3YWZMc3daT2xfYlpfZDRqNGU2MWpZWGIxc3RlZFFrQW8yTW05VEgyTXVIQQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:24+09:00",
+    "title": "Stock Market Today: Stock Market News And Analysis - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE8zdGl1MmxTM2JJa2pLNlFSWVhuZUd1ekRIeVpDcGVqckVJcloxaWlnRHJ3b0hqb291NXk4dlo0SmRQNlhDaGpubDh6ZWNTUHZiYVhjOVJINUxSYXE0NHRiNVE2OW51R2h4N1daaXRIdzVBR1UxT0g4?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:35+09:00",
+    "title": "AMD and Nvidia Split the AI Chip Market. 1 Stock Is Far Cheaper Today. - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPa05Cb1NpWEpwbmpNOVRNV3E4ZTZqNFFLTUhpNERwRWd5N2dlQkFIV05feGs0am5uSDFTWDAzNzRpRlYzdjVwdDdtaXQ5WGhyQTA1bURwT3AyMlpEV0F5LWY2MHpSUnM1SzZFaVN4bzdqdzRTYkY3bTh6M2FhWUk4TlVLUzQ5WVJuOGVtQVpCWUdDZw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:35+09:00",
+    "title": "US Treasury Yield at 5% Shows No Significant Economic Impact - 조선일보",
+    "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNbnU3ZlBrSG5OdFItRlhaUy1CN3RVbzVFTENjdER5TkJTT1JNeUpIMFh3U19SeXliRmtXRldtMnc5QW55WHo0cEtNS1BjNjQ4azR0OGgzUER0bTdydDRPSGNZY1hlRmw4aGlqSl96NzJqQ2ROQkRKMEtfZHp4V1VSMHA4X1NmNFBLMm5pZXhn?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:36+09:00",
+    "title": "Starbucks to Post Q4 Earnings: What's in the Cards for the Stock? - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNZkFwMnc1NDZkYTRTRXRlLUtDSXE1Mmd1Z3hDUW4tSVdYSlJQZWw3M283ZW02WmVhaDNZdUhvd19ZYVNHc2xxMVZGWUxCVkRhV0tDeG5TZzZoTE45Ujdod2N4RUlQNlVUYnJKT0hUbXA4d0FNcFYxUk1jTEV5aGZuM09QbThmZVNkbER0S1ZhNnFBaUwtOF9mTnhVN09KSkNXVkZ3QUFlYnc5UVhZUnN2X1hUMlJPMkFYMnlF?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T00:53+09:00",
+    "title": "Robinhood Stock Trends Higher: What's Happening? - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQbVVJODM5NENqZG15VFU4VWEtSDQtY3JOOWd6RktFWUJweDlRNEZrZk95V1l2TDJfM25mcTVmZnF4VmhVeXpRWUR5N0trazM2ODd5Z1ZLQWFSZ3d4VkN1ZU42Wk5fRjR6RlVYenZZU1ZlUHk2YWwtMzRSVUsxLVByMEJJLWFicGhKMzZFb1E3N3ZqclZGQW5nbHE4bDhhdzktbVdKb3VBUjMxZw?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T01:12+09:00",
+    "title": "Stock Market Today: S&P 500, Dow and Nasdaq Face Fed Decision as AI Stocks Rally - Coinpaper",
+    "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPVGhJUHFfM0VIS2E0Mzc2dEtqeU52M3R3d2dyY3Z0ZHRmSnpabUNub25yTGNCV0QtNmw2bzg0RllkcjlNQ2ZaMEZCcjJIU1VTOGViaWNDOTlJMGNYVkZkR2l3d2taQnpDWEhnYXFaREplUzFjYTFSUnc4bGkzX2xmQjZiR1dTTVdMQWxPemltcnpKQUZ5VV96eTF1LVlUSEZHeE1qS2swRWRYaTRWVVp3?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T01:12+09:00",
+    "title": "Broadcom and other AI stocks lift Wall Street closer to its record - Oskaloosa Herald",
+    "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxQSUpvdjJqNHpyWGZIQWNJRDJBc21wVGx1SFRER3BaZC1sdUJISVcwbzVDRWJxZ0xFZTVnZnBPbUJZTm92cjZWSEpOSm5pWUlzVGdWaFJTaE9ubzRsejBOaTZPcnR6ZFpNX3N0NGZvWV9jTVF5TUpZejA3b0dzT01STkRTa0xYWVlmdXJ6ZFhwc05MTnBpUk44ZjZReUc2U1B5STRtN0dERlY0THoxbjNWdlJXdE5WMVJXTk1FUi16T2RoR2xvc01fTXFJX2VZbnVuR1VOZHR2UU96eXY0TWlZRi1xMFduMTJCSlFNOW5aVzgwMDg?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T01:24+09:00",
+    "title": "Chip Stocks Rise For Third Straight Day: Micron, AMD Rise 3% As Nvidia-Meta Deepen AI Ties - NDTV Profit",
+    "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPMDRBNFdhZG9rT0x1VnNucUpSRG1GYVJhbGNFRWw5T01odTF0QXhaR0YzNm9QdUpiVjNMSDdJVHpLTldnblA2QzJkUUJ5dTlRVGE3bmhFc3hRUUl1T0VMSU0wLXM1NnlKc0RpcEh6MmtBQWFyRkc3VVlCQkdLNTNTLXNWMi1kU3FZYVpRWGVuNnpOR0ZmRUtlUGxHVDZOZGs5Q3E5X1psUlBFdHlRSUZMZDVzUUVtd3ZvSDIxS0gyZG42Ry1CZm9NcDc1SdIB0wFBVV95cUxOLXptbkRQQ3ZDcmoxTzhWMTc4Vjlfc2tBMHdTSGwzd0lIMjVyOFltVWE2cXNjSDFUVml0LUN1clFEa1VjWklWNHo2bnVDOURjRVRjaVZIVWJPZWk0RmZFZUFhaE5abmxBTWFZdG9LMjNkdmc0WllsUW9NTFZyUVNlWWJUeTVsZjFDcmZSSmVMcTVCTlR6YVloVEs3bTd2Y0MySDQxcUlmQ3NhTTZpcWVfZm9NaktUWm5IWWdNUDY4ODJSWGV5ZTdRc09HRlVoWUFxRVNj?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T01:37+09:00",
+    "title": "Why is Unifirst stock plunging today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNcUdGaUtLNVFTTTlUd0RQeXQzUDZ1dF92WkV1ejRSSE9ZZEJDRlY5UHRKU1hJSDlpeGRFRlNpTnFuNmdETWdnWW9iRkVhZk9FdnJ2TV84TlU3Q1g3S2RKMzhuMGdWM1M3TEUxQU1zN1BVVVJ5bmV5a09pVG9GQVhHSTRQYWdBSWJMZERMUWpXa1hQd0pqamVBQXNZZTRFWEU?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T01:46+09:00",
+    "title": "Texas Instruments, IBD Stock Of The Day, Clears Early Buy Point In Analog Chip Rebound - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQUXhsMUd0LWdWRUs4aFlZUVRIOHB6S0Vld2luOXJ5Y0lBVERia1ZoUGNnc1lTNlVEeGJqNzlJTXpLOF9xQVdfWmM5UWRfZDZEd0dxd1kwUjgtQ09DTTYybEF4R2FUZ3RieWdwbXNUdWVscDMycDZiczFDXzNyRUcwQW1jQlI1bFpaM3U3dF9Td0lNOVVDVk1LOFZkcEUyTE1qcHJRSmptaFJsLVdOU3U0?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:01+09:00",
+    "title": "Stock Market Midday, Oct. 27: Tech Stocks Drive Momentum and SoFi Surges 15% - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNa0NmZURqNjI0bFBQTlZqZHptb3hoMXgtUFRzb292RWhieFN4QndIbWxOVVhXd2RoVk1ENzE4My0ycFFleXAwVkoyaU1EY09Da18wZEYwTlZYcExRUkw2ZFBpUFFvWGFCbWt6dnliQmJ4dG1ldjVzS2tfZ1pCbld4dU1pOTZ0QTFfclRNNC12TnFad05xempmUjljSkVGYno3UkpxTno5M19XaHJrUkZJUzRLejJnUGtkWVgtVm1seWVMV3lOblBuaVJWbERqdlZNbFNBMmtQRQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:01+09:00",
+    "title": "Nasdaq 100 Climbs on Chip Rally, Boeing Sinks 10%: Stock Market Today - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPeFpMWFJaYzlnWXpaeDd3NmpYUzE5b1ExeE5rekE5enBEakNOelg1MU5HdUtKOWdIcldfX0ZnWEFiWmM4bVdBMUdZeDFZSFlRMTRDNWVmeFpoM3R1TTM1OUtXS2lwN19GOHJBSTViLVh0U19iazJSeUJhVnRmM3lzbjJWQU1MdnpLLThYT0s5N1NvOWRrNGpobzBoVzEtZk90Vm9TQmpZRWFyeXk1UnczbHpGQ0x1Sk5CakU4?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:05+09:00",
+    "title": "Stock Market Today: S&P 500 SPX 7,728 (+0.7%), Nasdaq IXIC +1.3%, Dow DJI Flat as Boeing BA Sinks 10% - TradingNEWS",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQNUYtRnFxQ25WT1h2MTkzRDRyUE9UMnVlSEtISmsyOTFMeGQzb3A4NVVfbURuY2VFZmFIU0RScDhjQS12S1hqalRIQWJJQjRhaEM4QlIxT01YN0dpV2JjM2NXd2EtY1ZpdmRnbTJRWE1YS0NRXy1JTWJoekJyem1Ya1dlclZFYldWaWZxeEgwVEhpNmRkeXAwTXdiNA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:07+09:00",
+    "title": "Why Innodata Stock Crashed Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQN1VxTXVHWXRsX002QUVJUjBuaGJiSDRuUHdpNks5cFlPLS00TkxaMHg3c2FEVmlWU0tCeFZWR2FZU1I2SzhZSlhwYzhKTkNySUh2LWxRZWdIeG15SVNBZ2lXMWkyYUI2cDA2S3o0TmRuTzRsTTVsU1dJNkNOQ1VtYm1sb215dE5LQlNRbjQ5MUZYV0t6T3pQYzZpUm1UZw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:14+09:00",
+    "title": "Muni Bond Yields Hit 15-Year Highs as Credit Holds Steady - ETF Database",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQNmxhWmZxZlJZOEJKeHFwNzN5d3JVdGZfdXBYSklpdEFzTEdiOTJ6WU55el8yM1puYUN6THhLQTczMFRRQ1VvNnVsdk82NWFiNnZuR0xaSENrZDdwYUdkWG5OeGw3a1NYVVhNMmlvQzB6NmtBUXdIeWxjckhVeTZRUG1ybzJMOVg0QkVnXzQydVRjZ04xOUVSbDZsbl85S1l0bFdPRGRkRW4tZw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:17+09:00",
+    "title": "Why Brown & Brown (BRO) stock is trading lower today - StockStory",
+    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNZEdOVG55UURrMjNscG5GQjYyOXQzLWxHVzBnLWFUMTFidXdQR3huekV6Zk1GLUxHTjNFemxGU3Z1LU0zWXplZEt0RE43NFp4NURqTC1UdGhXZnZzdkNuU2ZreWlYY1B1dlZjdGVram5NNGVTSDdlVlFoelZLbVpNT3hmeFRDa1RQNlJlVGx4NEVQTEFUaEdaWExFd2hZYWZrSXhzd01zeC0ya09HSFRUTA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:23+09:00",
+    "title": "Why Euronet Worldwide (EEFT) stock is falling today - StockStory",
+    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQb08wSkc0S3B5RGtmMXllc3J2enZETWZfV3pnaVdJWG4zQTkxZFQ0c080Y09uOURYdER3NnZUNUVxZVZPYzlOSmlmYU1zQmVuWkZ5R1lkUWlZMFUybUU5bjZyOEJBbTRnMFVUWnAzYUxsbUVfVWZUdl9IY3V6RmptbXNFSm1lZEY4QklsaEJWYXJydlVYb1ZRVjZ3cHZaNVVwcV9FeEQyNzJLX01XbDJtSw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:30+09:00",
+    "title": "Anthropic IPO Filing Sparks AI and Tech Rally (Nasdaq, SoftBank, Broadcom) - Gotrade",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPQ1FSYWctQkZLamZia0JaZGx6RjJxT0hQenVtdkZOeDg5QXFQVlpDNGlaMS1zT3JCdXBzT2RIbEdGU0x3dW50dUVTWVJJWm5xLWdMeFhuOExkUmJYek44QVlTZWZFOFozYkJUQWllVEpGMnF2U19KWjNnb3pjclh3UG1aaDk1cUs0eG9UODlaUFlfOUgtRHNGOEJTYkhGVjBIWVZwQ0p3XzVpdw?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:34+09:00",
+    "title": "MasTec Gears Up for Q3 Earnings: What's in the Offing for the Stock? - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPU0g3NHJoWm9OS3BuY0VKalEzak1Cek9oWnVpSVBkd2xadng0Zk1MOFdITUJodkpqb21FMlJEeUxBOGduMVQ0TEZfZ0pFOHNMc09ON19tRnNES1BkVEtaRW1vZUpTM1JBcWJCTmppT1luNy1DQ19uTHBaUXRlZUhpMlBhbXBiYnhnQkpoVzl1UmRJcEhpa1p4cHhlelA1amdIdTBVZGtfWDV0Vk9WWTdMY3pkUlpnZXF6QU9Xeko4Zw?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:36+09:00",
+    "title": "First Solar jumps as lower Treasury yields and earnings anticipation appear to support solar names - Quiver Quantitative",
+    "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPdE5OczFKcWNWMVRJVnZvTXFJa256amFIOF9HV1hzMkVMMEJFQ3dzb2lVZU0zYk95UjdGZkpUZEdjTnpMalhPTFVaWHZ4X2lyTXl5RzBLZzIyU3h5aWUwYVpYd095MXdqakJkQm5mWWV4cW9vMW1FZTBlclNXZmZVczRnR2lhbmg5ZkRKVnhtbENaZU8ydEVfcENoUUF5NVFJUUowN203QWl5S3JhZ2pTUkZQZmVfa0lpRkdjOGVjLUF5dzZicUtQVFFXYw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:37+09:00",
+    "title": "Indian Lenders Defer US Dollar Debt Plans Amid Rising Treasury Yields and Hedging Costs - CNBC TV18",
+    "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNWV8zaFAyQ0ZKNjFPQk9ydE1ubjdMcXl6eEk3UkMyV0F5SzQ2aHFHXzhDUnhnWnMxczdlQlFNQ2tackpRZVV4VG8yYTlGRzQ0ZnVKaUxvb3ZnZHNpMmN3cW9GVnktdkliMDQ3YjZXMzlHLUlLdjJwdi1waVZLOWdoRjRJUGZoN0EwYW0tc3F6XzdLMzVhN2c5QVJoWWV1ZjV3YXdOUE1Nb1RzZlNzMkNBbHNWNNIBuAFBVV95cUxQbHRVV2FKUHJDc0QzLVJZcFlEQmJVSGhNZ0JYVHYxbm9vSkNYRzYtZm1YWjltQXh3R3hBb082bjNDNy1LUEc0MHc3M0tZdlFYS1ZRRXJWRXlOZTBWX2NHdTFiQ1hPOWpTQ1VyYTdJbGpUNUVyTG5XTm9OSmVMc3dza0pyLVd4YlJ3Y3hsRTJqczhsSzlTSmNodWdWTmZKN3l2dU80R3JuODdSZ1JpaVByYUhqYXJCSFRI?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:43+09:00",
+    "title": "Cathie Wood’s Ark Trims Bitcoin ETF Holdings as BTC Extends October Losses - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOVUg2cEd2cTRYQjN4STRuZmVJWGFjX3djdy1yNDRHaEVwRFN1Y1dpMnRjdE9DZldmcW9fazRKclZtb29GakRZQjJfbGQ5TVdkaWd1NTl2ZlVMRjA1Ujh0NnV5ZWZrWU5yRVN0N2t3UndWVnFHRVU3ZFJ2V3dmX2lHeDFJRGVkVUgxaXhRcENqVXNRdEVoV1d4M0o0NVRvcEE2YlZDcDBJekhsOU5aYjFCc3k0MG9wU29JeHNSSDBpOEJwaWxheDJvcWNQa0VnUQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:43+09:00",
+    "title": "Anthropic’s S-1 Filing: How the AI Giant’s IPO Could Impact Stocks, Crypto, Bonds and Yields - Tekedia",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQRU9oLUwxMHBkTkJ5R2RibUcyOE5wTFdJelF0YW1rM2hyMWM0bENvUkVnR2lHcDRtRGVSNjJoR2pFZDYzZWQzVU5vM08tejFHVWI0azVMQmFLRnZ5MlBxeUUyTHdyOXIzTVZ4ZExDaXlqNlZrakxjX0lpTlRMZFNfRk95NlFyLTRUZmJzd2M2eHBERWxVN25OeDVPLV95RzhRQWpPdURUMWtjMlhILWlUNm13?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:47+09:00",
+    "title": "Why Innodata Stock Crashed Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNX3ZCYnBKT0w1TXdIM3ozR1c5MzFZWlhRTVdSbVJTeUZ2N0VYUUtSUUVCMEJWN3lxcWFkX0JIZ3ZuZk03bTkzUW9oaUZmeUpvWGI5Q3RKTVRGc19GNDFLMXNKakk4U0FxSmdQa0dCallVSjllT0ZVZmE2eDMweDBzMQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:50+09:00",
+    "title": "Why Is the Stock Market Up Today, 10/27/26? - TipRanks",
+    "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBQeldwZWtmYVBmUE8wMFVJem0xUDdESTQ5NURVY2ZzYzNmU1ItQ1EyVnNKajFyOElsRlRSenBSS3BkSnZlNlVoa0VlMlhnVEFRQ1VOUzJSakN1UERoRTdkbzZqaVhXN1VhRms3MDZ2cWEyenR4X2F0NlpoZw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T02:52+09:00",
+    "title": "Nasdaq Composite gains 295 points: Broadcom leads afternoon AI rally - ad-hoc-news.de",
+    "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNX1RMMXpuTElObEEzZG5pUHNBaUoxalMyTHljQ0YxME9Md01qTG9lMjJiQUlaLW03a3hJWWk5a2FrSHZHbkFqdGd3MG80dW92LUJscDRfYkpNT0d4X3p5UWVSanNzcVBDNTdsdU1PaVpkY2M0NFVYR0NTc19VWXVYeFpfMXdXTFRLeFdDNTRzdzAxNTZiY1VqWE16QUNSMDhxNDJXOVVrUWZKT1ZWMzUwNmNTbU9HZzRyWTR6RWNVbzY1QjNPY2toUQ?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:00+09:00",
+    "title": "Nasdaq, Treasury yields and dollar face a major AI sentiment test - StoneX",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOZlpmc3pTTnVwTkp5aS1HMXpISUhTSnBndTNiTWdzMmlkZ21QOUJsRm1CaWtidGtKVWVvV3N2cm5KTnE0NW93X2JfRUtzcjZoR1VVZWp5NzFheUEyOWFRd19vTjBCTUFVdnFaMWhaTXBBOW5rSDBRakQzNXBraTEyVklqajEyUjhaWUFIZXViVWZ3SFpkZmhfQmh1N1NQRXZjVUQyeDZyMGlaemNNdElyNGdB?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:05+09:00",
+    "title": "Why Polaris Stock Powered Higher Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPZmp2bGlIMEppX2pNaXRROUFOOGZRejdOMzdrWW5MUlJ2dVRIYmN6S1lCR0dOZUwxa05GQUJwaHJkcDVKRlpiTTJGN2tTbThlakhBWU5OWkVJYjdLZHA1ZlNlV090cXI3V0RmeDNRVmhVWVhmb29vd2NLemxGalg5WmxST25teVJDd0ZSYjREcEh0ZlFNd0U0T01BVlJEdw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:05+09:00",
+    "title": "Dollar Firmed As Yields Rose And Oil Slipped - Finimize",
+    "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE5XX1ZvcW54NlI4YnJFVWY4a3drTnVBSEdhYkZNNV9DYUhUUUo3SkNlbVo1YlNhLU1VbzNkeC1Ya3FRdDFyb090OHVobmxOM1oyVlpYRll3Z0lOUHkzanRjS3ctRjQ2MzlqQ1FnZmtSTFZySWZwWWQtQl9qWmhKQQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:14+09:00",
+    "title": "What Investors Should Expect from the Fed Today - Cabot Wealth Network",
+    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOSXo5bnZzdkhOZG9HWUtFOHlNb04tdkktMm9mYU9SWW84ZWcwSlJHandCWjAzYWZhcmktUmd2RE95ZWJPTHVHcDNoVmlXU3hVQkZrdXpQOG5kcHo4aklodVdlRnlwNjltQ2RhYVVONVpjN3hkZnZNR3ZEU3h5c193N2MxR0ZUNHBvWG5fc1JPNWtxbzRW?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:15+09:00",
+    "title": "Why Polaris Stock Powered Higher Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNN2tiTEFXVFdJN0UtOFpkTXZfUEhHSGVFV3E0Z1FZZWJMVG0ydUh2a0l3OUF3NkdDdWlEZjdKNkwxeXVpcWxjbjBlY0ItZjVabGV0OEJBS1RMbl8zcG9VdTB0Zi1jc0tHUWp4Ny1tVElGTEdGMDNqZElHSFM5blNwNVpHYWV4bmdr?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:29+09:00",
+    "title": "Tech Stocks Add to Gains After Yesterday’s Anthropic Rally - WSJ",
+    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQT3JwdW0zaTY4LTYtWHR0VVRPVUV0T0tmWmFkVkRIMzdZcGIyalNnT3pPeUZQLWNCdzRhZTdoOHpSWi0tdUwyR013aldzekZoT3Q0bDlPTFc3LUw0cmw4bUgtN1k3YTFGSVlta2FlWEM2aVFlQWhoYnY2M2l3OVdwS09iWlpIWmNVTTB2eDN0RU1Db1dEczBZb1VWdzBfLXNMSjRtMzBXNk1GSzB5dXIzeEhIS0Jfdw?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T03:42+09:00",
+    "title": "This 7% Preferred From ECF Lagging The Rally In Treasuries (NYSE:ECF) - Seeking Alpha",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxONF9Vb1liaFp4NFQ3azVHWGYzb1BCcUMwbHdtZ19Va040cEFTdW5ZSjhhTTZXWTNqTk5VN05UZGZ4bTRtUk5LWkpZT3YtbFFnazQ4R180cTV5RERUNWxnS2NkYjlQckdKYUpHaEp6T0p5dnp2QW92eUN3eDdGRlgxWlJMOEt3dnFvTVd6MU9neW5tcHRFbGpWQlFpTlBkOE43dFRRWnd3dnZsQQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T04:05+09:00",
+    "title": "Why Shares of Corning Are Tumbling Lower Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQTnJKdG9CTnlXRFQ2ZldCZXp5MVBDR3gtTEVqREgtemQ1R05NOUU2Smh2WWtmbW5xZG1VV2l5a2s2NWlXVDVISzFyTmk4eXR4VWJvS0VISk9OQjFkTXJBbkhWa3NaYjI0bGN3Q2hrXzF4aE5tZlk3Rks0M0V4U1owYVJsaWZETDZMM3ZNaFlxY0pYczQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T04:08+09:00",
+    "title": "Increased energy prices spark higher Oklahoma investment results - Oklahoma Energy Today",
+    "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQRGlHbFhETjVHc1NuMkRnSXVZNmJSMHowVS1tcVZjT0RvWUQ3MkF6V3lKX2o2VWNPZnUyNUVEWk90QVFwdTRuSmFLLUJuaHhXamphaGxISktFWTgxOFlBQThQa3MzM25MNjJTLTJHaU9FNFRWYTBVcEdvaUVHekFLSmtNZVNXdEJnTnpHNzVBTk1LRUxHOUh2MURBWDk2S3pV?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T04:17+09:00",
+    "title": "Why Shares of Corning Are Tumbling Lower Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOMWxHbEwtSDNnaWFkUV91MFpWM3BxYW5saGJzS3pOR29sbGVEOXhnZXlJMHg1ZWU4aV8yQVJ0bE4yem1hbHRmQVIzdm43NE56bXE1clQ3TGZtc01zeTlGRGhOaVBGTUVRM1BMNnhKZUhnSXNOMWE3ZHZVQlJDQmE0dUZPVld6TDVjTXJ5T29wRzBzZk1tbjhiUEEyUnhYN2M?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T04:18+09:00",
+    "title": "Why is Celestica stock surging today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNUXdJbUxlOW5jYl9ObTdUNk1lZ1ctOFVKbU9xZkF1d0R5OEFrYWNacnlVc3dQdk5hdmtLcjFvTHNmLVIwY00wS1Z3ZHVEYnhoTXRzNnJDNVZBNG9XV0xvYnRJdklIeUhWb0xiUlJ4QnI1TlRwOXhvSkROM00wLTliQlZuSzh2d1FPa19XYnN0THV5RUU2TXBPNDctankxZU0?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T04:30+09:00",
+    "title": "Microsoft Could Swing By $184 Billion After Earnings - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNYjJNVGZyMFdZb1VCN0VzX2p2UFROQmVzWU50RmdzemZUX0UtMTZoSVY2S1Q0MTZWcVdsUXlGTlFWYW5aRTNQT1RPMkMteHRab0VtTkFNNXh6dXZkbC1tenByWHRDcXdBM1VqUGdUM293RktGX3pzSTExZFNPb0RDYW5yTzREVjM4aUM4R0FzQmd6UmEtWmRVX0p6U1ZiOUZSVy12d3JCVkdnOWM?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-10-28T05:00+09:00",
+    "title": "Wall Street ends higher on revived AI momentum - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOVWlmNzdaV1NSRVcwVDNNUnlTVXRmVGJFTHl1SVZBRE5BakVDbFZJNDEzUERodHJFT3J0aXlLc0pvZWxuU0NNcVYwa2dnUXQ3OHVBWVY1MmJ2WmxRaEdJSmt1dWdpMENPWGl3NHp5aU9rRko5NVFEVXN0XzZWVXN2bjNMNXdUVTZkbWhKemJtWWJPaTdaN3c?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:00+09:00",
+    "title": "Redwire, Methode Electronics, and EVgo shares skyrocket, what you need to know - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOR0VzdFlPMmtPS29mVVppbXZ0aGFHR05CNEZBQ0ZJcXVxc1gwampjMGx6MnhDSWttRXBNekhrNlhEQUQtSS1oOWxaSGNmbC1SUzA2aGJndm5aM0JUV3FOeVZ3cVZWMHlnY0QzS0lCNUZ3OGhpN0MwUmlCWDROZzB5Tk9CQ0MyOGp4b2VZcFNmQjV5dXhVbzZ6UnhEZVhlNTF4alNmZzI5NmozWjFjNmQ1czEtREFFTTF3Uk81NXRDRjAwTkJwNENSanFIWmU2R3RyN2c?oc=5",
+    "query": "Treasury yields",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:03+09:00",
+    "title": "Stock Market Wrap: SPY, QQQ Boosted by Oil Weakness Ahead of Fed Rate Decision - TipRanks",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOUG5mQWJIRW9VM3VqVHBKd05vODNpTnZOaDhiZ0NFZW9QUGRyVjZwRnRnYVA2VmRQRDh2eDBJQ3JYdEtMVUZCMmxMdEpSUWZXYzVlbE4wanJnUnoyd1FVRXJmNHJoWDJaUjFvalp2eE5pdmpDOEFJWWxKa3B1VEYxdE9qRFFQLUZpR0t3ZEtIUGFHYVNMZlY4ZXBLbDY4R2d0c2NRZGx5Y1pyZw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:14+09:00",
+    "title": "Nasdaq Jumps 308 Points on Broadcom's Big Gains: Stock Market Today - Kiplinger",
+    "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOdFFQRE0yYXBzRGs4VzhJekFiR1IzOWNnWlVYa0JMeUEzdWFvZVlpZzhCbS1ibFZBT25JazRvS2VVS00wUWM0Q3M1bWRlalFaZjVOMXRDQVZvNXhQdy1rWnp3UUVEUXJaaGgyeFZ1bGE5eGVLa0xObVgtdlFGSHc5SjlseTA2ZU1samk0dHA1Q2NiQi1FVDBBM0t5alN6eUw5SF9sZEhNX3I4SkUw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:16+09:00",
+    "title": "US Stocks Close: Nasdaq Rises Over 1%, Philadelphia Semiconductor Index Gains Over 3%; Chip Stocks Extend Rally, CoreWeave Gains Nearly 8% - TradingKey",
+    "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOVXdjSWxmSlRsLWY4VTZNRFRrX04yMWV4TnVRT0tWX0lQR0tqUlluWkFtOVQ3T3RjeUNNVVVacVhOQ0NvVHg1VkhZdEM4YUp3UEZBbUNKMmtNa0V1T1lzekZuWVM1VHc2UWUwWnFScmRoejJrMHA0eUNid2VyZFNaOVZmUjcyVFptQzRTUGFESE00YVhwTEdjaFU4b3N3ZmZscElpRXJfa2NKaXJ1X0tPLU1xTWU0ZmhEMkNZVUNaRHlrSWtNRDZxeQ?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:21+09:00",
+    "title": "Nasdaq rallies as AI and chip stocks outperform - investingLive",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxORWstd19jSEhBR1ZNX2JDa1hnb2hpR2lQaWNkVjhiZFlIRU85bnB5T0lHM19EVmdvNThOUVhpTnFkSDhZNXNpN0U1b28yT1FpSlpkdXFqZTRxMUlCNEhGbWh1MlFlLU5YNk9GNmlUYk1hZGU2T0JwMjB1Tzl3cXNYWWlYUVpocnFq?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:37+09:00",
+    "title": "Why Royal Caribbean Stock Climbed Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPS2hvc1daZEc2TWNKU1dsLUVCYVhKekN4RFhUSDdnM3plLWdiMDhEN1M4TVM3Qm5lU2JSaXJPd1lwYnUybVEzRzlMXzRGRzdoY1AyVFVTdWNxTU9ndzZvZFVIX05hQnFjNG1kNzg1WUpOd2tWUlJBcGJSRkFJQWNFcl9LSzJzbGY4aVE?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:38+09:00",
+    "title": "Broadcom, Nvidia, Boeing, GM, UPS, JetBlue, and More Stocks That Explain Today’s Market - Barron's",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBET2xGeDU1LTZXN3FENUloNjE1UEVnT2VOSmVheVNjQUtfUGoydXpjSkx6M2FMMWUxTFZIWWZCT2d5MFZ4OXJMbFNndVY3M0s1bW8wTml4UTVhNEZSVGZ2aUVjWlg?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:39+09:00",
+    "title": "Why Royal Caribbean Stock Climbed Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQV2RrUFU5bHl3czMtUVFIaWhta3JBQU45emhBRDNKREJZamRLQkRPYWVlVExZVW8tTDZ1Y1hYcXpYTkhaOFZYMzNRNEdCODdKUVc0QV9RTDFRN0FVRDZrY2xzWnRzVkpIYzJMZ0tnZHk2Z3o3WVl5MklFaVVkNHNaRi1KRnJTS1dpZE5GX3ZqRkFaYm85bDlQX0h6NjkxNEk?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:46+09:00",
+    "title": "Broadcom and other AI stocks lift Wall Street closer to its record - AP News",
+    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNalA1YWp3MHd0dHNjRGRDaG05a1dLczBwNjE3RjVLU1JRSU1GaGVKRVFHdFBrU2ZxaDZmckMtVVVEUGpjLTQxNkxkNzhVVmlUUVQtTUxUeE9CaUtZNVU2Y1AwWk1aY0VOcHNwclpBdUg2VkdHd2RTcVFOcllaSlRBaksxVklzWTEtYnEyZ2NQVy1KTFIx?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:47+09:00",
+    "title": "Nike’s Dividend Now Pays Like a Treasury. Here’s What Could Put It at Risk - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOUTJDbUxCQ2tGUVA4eDVJb0ZiZXpDMFY1MDRRckZWNWhxbUN5VTRKMWMyLXBXWDBKTThHZ2dnelpFR2hYeXdwSEI5OS12NUxkQm1hQzducWtoVW9YdWRJdzlTckRiY3gzQzNVMW1sbVlIOTUzTWxIMXVuS3otc2Zsd1hwRV83MllhRGpHZDVrNVpRVXlrMHRoak41ZHF5blFpUlAyakdrV3Q1TnZza2NCS2toeDVWZw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:53+09:00",
+    "title": "Stock Market Today, Oct. 27: SoFi Soars 13% After Beating Estimates and Raising Guidance - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxQcERHSjVHd2JFa0p5ZWNmZmNJYXRVSk00NEwzaW5RTGZBTWhtMERtNXh3YnY3LVNocTBCSVlxMUFvWkdmMnFQRXlTZ1RmZWFIMURzNG5yWUFoWjd1OF93dzZTVEFvRG1EVXI0Wm1LdUoyYUF2Qkg1Sl9tZjU0bGtVbW5aaWI0RlZJbDZGb2h0X29qdUpvU0duYmloMmJVU2I0XzdnZnFIZEZyWVhBNWlHX2k1MmxFbHVjaEtTc2Z5M0d6MF9sVzVBdzQyQ19Wdk9yUFBJeUpTenIxUGIzalE?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:53+09:00",
+    "title": "Growth Leads Before Fed, Huge Earnings; Tesla, Nucor, Tenet Healthcare In Focus - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQVnpSSVRBMUR6NXVmaDIyd0V5aDhTNjVQNnFKc1dJR3R1VGlXZ1NuXzc1eXpicU52bXdNUmVtTVJYTl9zdnRnXzRrZ1BhOXd0dE1NY2k3cC04OTFYWjZPcENJaDF0SERFcU1VamxRZVljTFZpajJ1SlJwWGlaVnVNLWo4TURvd2NrckhIS2lwR05NQ2x2Z0tqOFp0ZFprN0ZfWFE?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:55+09:00",
+    "title": "Stock Market Today: Nasdaq Rises 1.2% as Anthropic Rally Extends Into Second Day - Eurasia Business News",
+    "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNVVc2S1oyZndlRGlyeW1mOFpvc1V1NzFES2JfU2k1amtLZ0xmRkRoWngtci1zNXNsMzRDNVpHeWVwdlB0N2JpMW81X00yTk5tRWJib3J6WWRJb0ljYS1kNXlSNk9yV2hhbGZxS3NSU3NVQTRTOFNyQkxMa09XZnRNd1d4X0V1bGs3aG9jR0ViOGpQMUVMNzM5cnJqM1NZYk5CTGVzSWtBZC1KQ2l0VmQtSmg3dnZSbTNXRElCVlBWVQ?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:55+09:00",
+    "title": "Why is Visa stock sliding today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPRzZXc2JhOFhPYUJ1akFCcTA5dnVpX2UxX0VBVlFfZ1diaXFIbDZYLURJajdIalk2QVRDZlZxSFZueGtGY0ZNeWJTcUlleDdRd1pON3Exdnd0My1reUdKNkdMbWNSWHRsUERyVURrMHVGUVRZWEhCTWlVWGtORTV3MnBfVURnbVFyWF9NeUowaXQ3Wm9PX21rNg?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:55+09:00",
+    "title": "Broadcom and other AI stocks lift Wall Street closer to its record - Toledo Blade",
+    "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNa3dra0FaNnlrd0lhT3JwbndMa3ZGMjczdS14bHNNZllRTVpLOEhQQzZZTHhDVnBkWDFTdzg4ZkcxcWxFM0VvcGFnN0RsYjF3YzJPdk9oR21QRVdyeXNrLWNsUWpaTmRwdlhaNzlYT2sxZ3ZIVjh0WFJFUlgwbTlJM0FiRVJpS2x3a1F6alB0X05hWEdOOFdQRmlOODNRRE9SNVVTaG43SWNmcExfTm1kT1BGSmUwNnNjbS1UU1ZyREJScV85UFB2SVZPVHNGTU9Ranc?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T05:55+09:00",
+    "title": "Falling Treasury Yields Leave Room for Mortgage Rates to Move Lower - U.S. News - Money",
+    "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOaEl0aHVXUUdFbUZPSExxUGhoS1JyY0pndHhPR3RjWjlJR2tMMDJfSVNaWms3SVF4TWhDOFdYWHpTZGZuZjZnZFlOSThrRFJwU3h4QTlmUXoyc3Q2NTE4UG5iOWw0VF9JX08tS2hQUFBjVS1HWDRYSHpDR2pzeTIyZmhUOFJneElmSnRKdk1DUEQydV9UdVBGbUZHckZWV2RjSF8yTjdnMVo3bWJTa1hFZHRScVRubmJI?oc=5",
+    "query": "Treasury yields",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:00+09:00",
+    "title": "Why is Arch Capital stock climbing today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNZkZkT1BtYXVSQ282TmFXVFczSjNDTmY3LWlBWUJuNDNJLWRwVEJ3bUhwWEFhRWJVcGNwOGVBQkZrZTBsSGNnUDdsQ2tWWm0tQjhVNHBqSUtzckdUaWEyNDcyRnJJdVZtNkgwSGJXdDhpa0ZjVFFrSEp5cUVocWJORjhiSHdoRVBYRG5mMHR1VkJ0dW1UbzBfSUtIeGJVRDdpU3hTVg?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:00+09:00",
+    "title": "Why is EQT stock sliding today? - Investing.com",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOZ1laSUxrSmtHQXBDaTNVWFdJWHFCTXlRM2EzUXJQUUE4WU9UTXJWTkEzaEVtZUdlYUszM0JNNmI2UHFNNERDelhOR0JKYjhJMXQ5bTBXQ2dNYlRRMXA2MF9INFg1V3F4MEh6dmFORGZfZnZRaDJzX0QzWEpYMUQ3THRkRnVkWlhBLUZNUk03YkRSTEtaNVhF?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:11+09:00",
+    "title": "Wall Street ends higher on revived AI momentum - Reuters",
+    "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNR21qQWZsLUZqbWRjR2YtQ3FGakpEWWVjSUVFNjVDSi01MnRiWmV3Z2pPQUsyVGhJR3UxQ1o4RjRVa2tCLXNXbnJjNE9fbE5KVzlKTEZtNHpZb3lPR0hXcFFSVGVydlpnR3RQdVM5bDE3aVI3aVowN0NqY3NHb3VDN3hlaXpLTmxkeFc3NE13dUNqYUtIMHNxRFR5M3VYZmpKUDRzVE5WLUdwRHJCeEpQM1pKaw?oc=5",
+    "query": "stock futures",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:16+09:00",
+    "title": "Stock Market Today, Oct. 27: CoreWeave Surges on Denmark Data Center Launch - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNcHJoLUJtSVBKMzlQVXN6RjgxcEJZc2JlV1QtVlBpMUlDVjBNd3EwM2I2Z2d5T1BGVDNITDNsdmtyUF9KUERlMmliX1pLdEZXclU5RC1IOHMwTUthQkZ5aXZqVDliVHpLNmxVY0FaTGpmU25mNWxQbXdKdVpYNWZPRU1HRnBLTGtlS2ZJZWZfdWpkNWlYc0ZTcmE4cFVtZVRGYnFNWFk4WWplVFRHZ0l4dHVQZzctblRFdm1sS0dEMnFXTV93TFA2MWxkRnl2dw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:19+09:00",
+    "title": "Stock Market Today, Oct. 27: Meta Raises Largest-Ever Equity Offering to Nearly $98 Billion to Fund AI Infrastructure Bet - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMijgJBVV95cUxNYXhwSGQ0cTRBT1p1Z0k2RHBaTm9tUTZCQTdsSzRMRmdKcER3T0ZIQlNZcTlOWTZ1UVRLLTNEZDZibEE4TzhDS2RrR21rdGRadXRNNnQzVXE1UTNWaGl5dUZ3SmJFVERBRXZpR0dPV2VfTDJqNVlwVVBJTGh1MWxBWkNBbDdkWi00ZXJMUlFCXzBteU9WVHhQNllTMlYxZkVLNzBlRG9qVzVVQWx3MHlOYk5jY3Z6cDE2WFF5R3FTckJEQUU2eVZoYVNDTHc2VU5mUFlzZUlQT2Y5SHJhVmw4R0ViQTFHOE9MTG8yd3N6TEZRRGN5LWlTWmVRQ3BUUlRteVphNzM3ekc4VFhzWnc?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:22+09:00",
+    "title": "Futures: Growth Runs, Tesla In Buy Zone; Fed, Google, Microsoft Due - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOOXctSXZneUdSOFNkQzc5bC1BWHgyUmJNS25RYldwUzJpeGwwUjVHTFhGSlZmS2Ytd3oxTEdHbFdrVlRPaG56eGZ1X0FVTmgwYUUwUDlmTlljVEx6V2prWHhyTWdZUXJJWG5oWWtXOUFuckhPZGRZR3p0eWxhRXZFVmhPeFdxVHNMOEJwWThoX2xtZXNwb1pYclVUd0hjVUU2QUNmQWtadndfZnNRNG9Td2FVM0xJeGZHRTFVZkoyQzVDVEFjWGc?oc=5",
+    "query": "stock futures",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:24+09:00",
+    "title": "Australian Stock Market Today: ASX Futures Dip On Oil Supply Strains And CPI Focus - Simply Wall Street",
+    "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxPeVIyMmFzUVluVXpma2o5am1BRnRGelBnaWY4OGpZNEJ5QUtfQ1FPRXdCMDlWU0I3Uy12WDJvbFBlN2lpN1lxNVdEMlpVU09WaDFER2VtT01PMDYyX3J5NG9kSEpFZWw4LUw3dW42ZUFMUkthTnlvMlBTM1EwaXI2anB4Q1g5b2QxcE9ZZ2pKelBWaHR0MW5QMzNPU2RvR09kSjI2MWZIQ2ZWQU9mM2FwZ180alBtT0xSM01WbVEtd0YxdnBoM0hxd3RuMU5hb00xZDh6MUU0cG1XSmZ6dWfSAeMBQVVfeXFMTk9lQnFUSE1tOEV3bUxvUDlyOWxJSDVFVEgxQkVES3NRYUVzZHJfODdFdFN4aE9LNjJ2NXdXVHVIR3BOdF8xSWdseEw1SGROWUNKcUNVTDBDb0VzTEpTdmQ4RE1mSDlaRnRjdUZUci1IbHJSSmlxb0g4YklTbnNzX2FpZ0doX0hwZklOcHRpZzFYZ1I1aDk3dVQwWm9pM0tuS1RLaEJfNkhuRl9fcGU3NTRmSDdad0tGR3MzXzhUUDdKLXp3bEVld2FqT0ZNd25qNjRNNmdvUkoyMlpVLWQ0TVdIQ3M?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:29+09:00",
+    "title": "Nasdaq rises 1.14% as chip stocks rally ahead of Fed decision - Invezz",
+    "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPZWloMExIbjR3OWpCNElLY1N2WUhxQWZ6QVAzTjQ2TnQtaHI0OXA5NkgyT0lqOXAxNDFCUmRUY3pwVVFPLXV5aWd0aGtNRkVTS0wzM2NlRjB3OEpEVVQ3S2R0TERVZmE5YVdPSThtbDlob1RObFRnM2xnRUhZcnBTU0lhRnhKTkRnWlN0djY5MmdYT3g1RlhweVNxZVdIRXJBRVR3Uk9LMXQ?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:34+09:00",
+    "title": "Stock Market Today, Oct. 27: Boeing Plummets 11% on Lower Production Rates and Missed Delivery Targets - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNR2x0Y2RITndscElBSEg2eWVxMkdNU3VCYlRjNERHRFlFNzdYQUpXMG9YWFVpeFR4LW55RkJXR19iVEtGMGJ0bjZrZW1KeTJ1amRXQUdmQkJSeFo3bXhTaFJJRDBVMklzVmtveFBGYzQydUd3Ull2UXRKS1NHUkpiblB5MmxuOFBrdkxzMkhYWnFfQ0pIa2djS0xtN2dKM0RsY0g5UUI4TllGb0tqelljNFJQeG5WQUpyUlFIaDVZaF9PS19PR2FwXy1ocGRKVWEzYXNMc3ZMTDZwOWN2UmlFenRMY1ZUMy1OSEFYLVV4R1Y?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:40+09:00",
+    "title": "Stock Market Today, Oct. 27: JetBlue Surges 19% on Stronger Q4 Revenue Guidance and Margin Improvement - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxOMEc0MjBRQUFGekJ5eE1ReHBSMmtBdEJ2V2E3bzE4TE5tcGgyMHR5QUU4NVV2bk00OVZBWWZRdzlTQnlyYktwbk9GTG94aHVSb2hXcWJtWFkwREoxdEdKWTRyTWNUbTNCcV84VnFaWURVczRNeHdscGk0cVJQcTIzQlQ0YVNXamhuLU9ZVHNHTDRxQ1BvYkV0NFFHeldFel9vUkZhYUZneXNSYlJ4VTYyeXQ2TlBBM09ycWliSi13enYwN3NicXhlLUtpMDRxMWhYcnhpWmRQYzVsMkpGOWFuRHEtbWFvQ2RLa050UnhrS3Y?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:40+09:00",
+    "title": "Crypto Market Today, Oct. 27: Bitcoin Bounces Back, but Whales Are Turning Bearish For the First Time Since June - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNN051ZHlFWUp0OUh0cEMwaHJ4NjZZZjk3T01sYUFndEZMdVhyWlM5emh6Ny1UV3R2NHlwM0RXRkh1eWFhVU04UDhIb0E3alVJRWZHdXlRWktlc1pOTkpjbDlXU3Y0STlvbjFpbmFpQ0p4Z3NYYW4xNEN1a3FzNkIwWXJFNm85QTFDakRQS2tpdEwxTEhUT1BwN0hHNGdaaGFLajc0aF9VT24yeHhfUkdldGxRZEpFWDgydjdyZ28taGtSWWF0ZWlqZGRUQ0xaUGV5Z0ZjUDNlTjN6amM1RXJRTk41TWYwaEdqVjA5NVRGTjRqNG54TXZOYkF4WWhjdw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:43+09:00",
+    "title": "AI stocks lift Wall Street closer to record - CommBank",
+    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPSXdQR2tIbnctNnNjbm8zZ0RBdTduR2JtZkIxalRvYjZEUUZHRFk0c0V4R2hBRlNPU3V4VlQ4bnNsVFdvTHVaNGt2d2U2YlNrcWdPQnBpQW9EMjh1Mm0wZllHQ25PbnVXcWRaWXU1dnVLazVZUXpPTFNLeTVNSmw1WHNhcXhtdWwxQjZkZTB2emhnNmdTUVBPQXhJQXg4X2VhVEcyTkF3RjRtM1U?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-10-28T06:51+09:00",
+    "title": "U.S. Treasury Yields Are Falling... Why Is the KOSPI Still Reeling? - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE0wb3QzeHlreGg3RmVDUW53ME14RkpwZVZWVTFIR3ZCTEhRdUp4QV9wZXJEOEY5VlRLZklOY1RZZGZFbW9KM1UyaE15MkllT2lVM2JQSFFXdlVkSXZBTGZFS3RSMlM?oc=5",
+    "query": "Treasury yields",
+    "afterClose": true
+   }
+  ]
+ }
+}
