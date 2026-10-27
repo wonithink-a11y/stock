@@ -2460,10 +2460,10 @@ function renderEvents() {
   const pass = e => {
     const sc = state.eventsScope;
     if (sc === 'all') return true;
-    if (sc === 'macro') return e.scope === 'macro';
+    if (sc === 'macro') return e.scope === 'macro' || e.scope === 'data';
     if (sc === 'kr') return e.market === 'KR';
     if (sc === 'us') return e.market === 'US';
-    return e.scope === 'held' || e.scope === 'macro' || e.market === 'KR';   // key: 보유 + 거시 + 국내
+    return e.scope === 'held' || e.scope === 'macro' || e.scope === 'data' || e.market === 'KR';   // key: 보유 + 거시 + 국내
   };
   const list = d.events.filter(e => dday(e.date) >= 0 && pass(e));
   const byDate = {};
@@ -2479,10 +2479,10 @@ function renderEvents() {
   const shiftM = (m, k) => { const [y, mo] = m.split('-').map(Number); const t = new Date(y, mo - 1 + k, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; };
   const [Y, M] = month.split('-').map(Number);
 
-  const kindIcon = { earnings: '📊', exdiv: '💰', fomc: '🇺🇸', bok: '🇰🇷', expiry: '⏳' };
+  const kindIcon = { earnings: '📊', exdiv: '💰', fomc: '🇺🇸', bok: '🇰🇷', expiry: '⏳', usdata: '📈' };
   // 칸에는 요약만 둔다 — 거시 일정은 아이콘, 보유종목은 📌, 나머지(실적·배당)는 건수 하나. 73건짜리 날도 같은 높이를 유지한다.
   const badges = evs => {
-    const macro = ['fomc', 'bok', 'expiry'].filter(k => evs.some(e => e.kind === k)).map(k => kindIcon[k]).join('');
+    const macro = ['fomc', 'bok', 'expiry', 'usdata'].filter(k => evs.some(e => e.kind === k)).map(k => kindIcon[k]).join('');
     const held = evs.some(e => e.scope === 'held') ? '📌' : '';
     const ne = evs.filter(e => e.kind === 'earnings').length, nx = evs.filter(e => e.kind === 'exdiv').length;
     return `${macro + held ? `<span class="cal-b">${macro}${held}</span>` : ''}${ne ? `<span class="cal-b muted">📊${ne}</span>` : ''}${nx ? `<span class="cal-b muted">💰${nx}</span>` : ''}`;
@@ -2509,6 +2509,7 @@ function renderEvents() {
 
   const statusBadge = e => e.status === 'official' ? '<span class="muted">공식</span>'
     : e.status === 'rule' ? '<span class="muted">규칙</span>'
+    : e.status === 'nasdaq' ? '<span class="muted">Nasdaq</span>'
     : e.status === 'range' ? `<span class="muted">미정(${esc(e.date)}~${esc(e.dateEnd)})</span>`
     : e.confirmedBy === 'nasdaq' ? '<span class="muted">Nasdaq 확인</span>' : '<span class="muted">Yahoo 예상</span>';
   let detail = '';
