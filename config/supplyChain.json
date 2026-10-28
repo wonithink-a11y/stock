@@ -519,6 +519,59 @@
    "name": "지에프아이",
    "role": "공급사",
    "listed": true
+  },
+  "QCOM": {
+   "name": "Qualcomm",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "AMBA": {
+   "name": "Ambarella",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "NLST": {
+   "name": "Netlist",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "SGH": {
+   "name": "Penguin Solutions",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "GM": {
+   "name": "GM(제너럴모터스)",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "RMBS": {
+   "name": "Rambus",
+   "role": "부품",
+   "listed": true,
+   "foreign": true
+  },
+  "LRCX": {
+   "name": "Lam Research",
+   "role": "부품",
+   "listed": true,
+   "foreign": true
+  },
+  "ADNT": {
+   "name": "Adient",
+   "role": "부품",
+   "listed": true,
+   "foreign": true
   }
  },
  "edges": [
@@ -2657,6 +2710,230 @@
     }
    ],
    "note": "최근 88일 계약공시 1건 - 계약금액÷공급사 최근 매출, 여러 해에 걸친 계약일 수 있어 매출 의존도가 아님"
+  },
+  {
+   "from": "TSM",
+   "to": "QCOM",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000804328-25-000085",
+     "report": "Qualcomm 10-K(2025-11-05)",
+     "quote": "The primary foundry suppliers for our various digital, analog/mixed-signal, RF and PM integrated circuits include Taiwan Semiconductor Manufacturing Company (TSMC), Samsung Electronics and Global Foundries."
+    }
+   ]
+  },
+  {
+   "from": "005930",
+   "to": "QCOM",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000804328-25-000085",
+     "report": "Qualcomm 10-K(2025-11-05)",
+     "quote": "The primary foundry suppliers for our various digital, analog/mixed-signal, RF and PM integrated circuits include Taiwan Semiconductor Manufacturing Company (TSMC), Samsung Electronics and Global Foundries."
+    }
+   ]
+  },
+  {
+   "from": "GFS",
+   "to": "QCOM",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000804328-25-000085",
+     "report": "Qualcomm 10-K(2025-11-05)",
+     "quote": "The primary foundry suppliers for our various digital, analog/mixed-signal, RF and PM integrated circuits include Taiwan Semiconductor Manufacturing Company (TSMC), Samsung Electronics and Global Foundries."
+    }
+   ]
+  },
+  {
+   "from": "005930",
+   "to": "AMBA",
+   "stage": "제조위탁",
+   "item": "SoC 생산·공급",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001193125-26-119321",
+     "report": "Ambarella 10-K(2026-03-23)",
+     "quote": "Currently, the substantial majority of our SoCs are supplied by Samsung Electronics Corporation (“Samsung”) in facilities located in Austin, Texas and South Korea"
+    }
+   ]
+  },
+  {
+   "from": "000660",
+   "to": "NLST",
+   "stage": "부품",
+   "item": "메모리 제품",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001104659-26-032152",
+     "report": "Netlist 10-K(2026-03-19)",
+     "quote": "We have purchased certain of these products under the terms of a product supply agreement with SK hynix, Inc., a South Korean memory semiconductor supplier (“SK hynix”)."
+    }
+   ]
+  },
+  {
+   "from": "005930",
+   "to": "SGH",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001616533-26-000050",
+     "report": "Penguin Solutions 10-K(2026-10-20)",
+     "quote": "Our semiconductor suppliers include many of the world’s largest memory manufacturers, including Samsung Semiconductor, Inc., Micron Technology, Inc., SK hynix, Inc., International Business Machines Corporation, and Kioxia Holdings Corporation."
+    }
+   ]
+  },
+  {
+   "from": "MU",
+   "to": "SGH",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001616533-26-000050",
+     "report": "Penguin Solutions 10-K(2026-10-20)",
+     "quote": "Our semiconductor suppliers include many of the world’s largest memory manufacturers, including Samsung Semiconductor, Inc., Micron Technology, Inc., SK hynix, Inc., International Business Machines Corporation, and Kioxia Holdings Corporation."
+    }
+   ]
+  },
+  {
+   "from": "000660",
+   "to": "SGH",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001616533-26-000050",
+     "report": "Penguin Solutions 10-K(2026-10-20)",
+     "quote": "Our semiconductor suppliers include many of the world’s largest memory manufacturers, including Samsung Semiconductor, Inc., Micron Technology, Inc., SK hynix, Inc., International Business Machines Corporation, and Kioxia Holdings Corporation."
+    }
+   ]
+  },
+  {
+   "from": "373220",
+   "to": "GM",
+   "stage": "부품",
+   "item": "배터리",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001467858-26-000013",
+     "report": "GM(제너럴모터스) 10-K(2026-01-27)",
+     "quote": "After further investigation into the manufacturing processes at our battery supplier, LG Energy Solution (LGES), and disassembling battery packs"
+    }
+   ]
+  },
+  {
+   "from": "RMBS",
+   "to": "000660",
+   "stage": "부품",
+   "item": "메모리 인터페이스 칩",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001193125-26-057101",
+     "report": "Rambus 10-K(2026-02-18)",
+     "quote": "Our memory interface chips are sold to major DRAM manufacturers, Micron, Samsung and SK hynix, as well as directly to system manufacturers and cloud providers"
+    }
+   ]
+  },
+  {
+   "from": "RMBS",
+   "to": "005930",
+   "stage": "부품",
+   "item": "메모리 인터페이스 칩",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001193125-26-057101",
+     "report": "Rambus 10-K(2026-02-18)",
+     "quote": "Our memory interface chips are sold to major DRAM manufacturers, Micron, Samsung and SK hynix, as well as directly to system manufacturers and cloud providers"
+    }
+   ]
+  },
+  {
+   "from": "LRCX",
+   "to": "000660",
+   "stage": "장비",
+   "item": "반도체 제조장비",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000707549-26-000037",
+     "report": "Lam Research 10-K(2026-08-07)",
+     "quote": "Our most significant customers during the fiscal years ending June 28, 2026, June 29, 2025, and June 30, 2024 included Micron Technology, Inc., Samsung Electronics Company, Ltd., SK hynix Inc., and Taiwan Semiconductor Manufacturing Company."
+    }
+   ]
+  },
+  {
+   "from": "LRCX",
+   "to": "005930",
+   "stage": "장비",
+   "item": "반도체 제조장비",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000707549-26-000037",
+     "report": "Lam Research 10-K(2026-08-07)",
+     "quote": "Our most significant customers during the fiscal years ending June 28, 2026, June 29, 2025, and June 30, 2024 included Micron Technology, Inc., Samsung Electronics Company, Ltd., SK hynix Inc., and Taiwan Semiconductor Manufacturing Company."
+    }
+   ]
+  },
+  {
+   "from": "ADNT",
+   "to": "005380",
+   "stage": "부품",
+   "item": "자동차 시트",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001670541-25-000152",
+     "report": "Adient 10-K(2025-11-18)",
+     "quote": "Adient is a supplier to all of the global OEMs and has longstanding relationships with premier automotive manufacturers, including BMW, Mercedes-Benz Group, Ford Motor Company, General Motors Company, Honda Motor Company, Hyundai Motor Company"
+    }
+   ]
   }
  ],
  "itemMix": [
