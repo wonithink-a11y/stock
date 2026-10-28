@@ -571,6 +571,58 @@
    "role": "부품",
    "listed": true,
    "foreign": true
+  },
+  "LICY": {
+   "name": "Li-Cycle",
+   "role": "소재",
+   "listed": true,
+   "foreign": true
+  },
+  "NEOV": {
+   "name": "NeoVolta",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "VG": {
+   "name": "Venture Global",
+   "role": "소재",
+   "listed": true,
+   "foreign": true
+  },
+  "LPG": {
+   "name": "Dorian LPG",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "SMR": {
+   "name": "NuScale Power",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "FRMI": {
+   "name": "Fermi",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "AMAT": {
+   "name": "Applied Materials",
+   "role": "장비",
+   "listed": true,
+   "foreign": true
+  },
+  "IONQ": {
+   "name": "IonQ",
+   "role": "소프트웨어",
+   "listed": true,
+   "foreign": true
   }
  },
  "edges": [
@@ -2933,6 +2985,170 @@
      "quote": "Adient is a supplier to all of the global OEMs and has longstanding relationships with premier automotive manufacturers, including BMW, Mercedes-Benz Group, Ford Motor Company, General Motors Company, Honda Motor Company, Hyundai Motor Company"
     }
    ]
+  },
+  {
+   "from": "LICY",
+   "to": "373220",
+   "stage": "소재",
+   "item": "니켈 설페이트 오프테이크",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001193125-25-006238",
+     "report": "Li-Cycle 8-K(2025-01-14)",
+     "quote": "amend and restate its nickel sulphate offtake agreement with LG Energy Solution, Inc."
+    }
+   ]
+  },
+  {
+   "from": "096770",
+   "to": "NEOV",
+   "stage": "부품",
+   "item": "LFP 배터리 셀",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001683168-26-007324",
+     "report": "NeoVolta 8-K(2026-09-23)",
+     "quote": "a signed agreement for SK On to supply 9 GWh of U.S.-manufactured LFP battery cells to NeoVolta"
+    }
+   ],
+   "note": "9 GWh, 추가 9 GWh는 협력 틀만 합의"
+  },
+  {
+   "from": "VG",
+   "to": "012450",
+   "stage": "공급계약",
+   "item": "LNG 매매계약(20년)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0002007855-26-000042",
+     "report": "Venture Global 8-K(2026-05-12)",
+     "quote": "a 20-year sales and purchase agreement (SPA) with Hanwha Aerospace"
+    }
+   ]
+  },
+  {
+   "from": "042660",
+   "to": "LPG",
+   "stage": "공급계약",
+   "item": "VLGC 3척 건조",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001596993-26-000041",
+     "report": "Dorian LPG 8-K(2026-09-04)",
+     "quote": "an agreement with Hanwha Ocean to build three 90,000 cbm dual-fuel Panamax VLGCs ... for a total price of approximately $345 million"
+    }
+   ],
+   "note": "총 약 3.45억 달러, 인도 2030년"
+  },
+  {
+   "from": "034020",
+   "to": "SMR",
+   "stage": "부품",
+   "item": "장납기 단조 소재(12개 모듈분)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001822966-25-000026",
+     "report": "NuScale Power 8-K(2025-03-03)",
+     "quote": "supply chain partner Doosan Enerbility continues forging long lead materials for 12 NuScale Power Modules"
+    }
+   ]
+  },
+  {
+   "from": "034020",
+   "to": "FRMI",
+   "stage": "부품",
+   "item": "원자로 용기·증기발생기 단조",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0002071778-26-000007",
+     "report": "Fermi 8-K(2026-03-30)",
+     "quote": "Doosan Enerbility began preparing forging dies and materials for reactor vessels and steam generators under a separate production readiness contract"
+    }
+   ]
+  },
+  {
+   "from": "NVDA",
+   "to": "005380",
+   "stage": "소프트웨어",
+   "item": "자율주행 플랫폼(DRIVE Hyperion)",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000051",
+     "report": "NVIDIA 8-K(2026-05-20)",
+     "quote": "Expanded partnership with Hyundai Motor Company and Kia for next-generation autonomous driving built on the NVIDIA DRIVE Hyperion platform"
+    }
+   ]
+  },
+  {
+   "from": "NVDA",
+   "to": "000270",
+   "stage": "소프트웨어",
+   "item": "자율주행 플랫폼(DRIVE Hyperion)",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000051",
+     "report": "NVIDIA 8-K(2026-05-20)",
+     "quote": "Expanded partnership with Hyundai Motor Company and Kia for next-generation autonomous driving built on the NVIDIA DRIVE Hyperion platform"
+    }
+   ]
+  },
+  {
+   "from": "AMAT",
+   "to": "000660",
+   "stage": "장비",
+   "item": "DRAM·HBM 개발 협력(장비사)",
+   "conf": "간접",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001628280-26-035071",
+     "report": "Applied Materials 8-K(2026-05-14)",
+     "quote": "A long-term collaboration agreement between Applied and SK hynix to accelerate the development and deployment of next-generation DRAM and high-bandwidth memory (HBM)"
+    }
+   ],
+   "note": "공급계약이 아닌 공동개발 협력"
+  },
+  {
+   "from": "IONQ",
+   "to": "005380",
+   "stage": "소프트웨어",
+   "item": "양자컴퓨팅 서비스 계약",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000950170-25-027713",
+     "report": "IonQ 8-K(2025-02-26)",
+     "quote": "IonQ has announced customer contracts and strategic partnerships with Hyundai Motor Group"
+    }
+   ],
+   "note": "원문 표기는 현대차그룹"
   }
  ],
  "itemMix": [
