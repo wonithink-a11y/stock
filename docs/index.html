@@ -4082,6 +4082,7 @@ function render() {
   else if (state.tab === 'disclosures') el.innerHTML = renderDisclosures();
   else if (state.tab === 'news') el.innerHTML = renderNews();
   else if (state.tab === 'opinions') el.innerHTML = renderOpinions();
+  else if (state.tab === 'supply') el.innerHTML = renderSupply();
   else if (state.tab === 'flows') el.innerHTML = renderFlows();
   else if (state.tab === 'etf') el.innerHTML = renderEtf();
   else if (state.tab === 'sector') el.innerHTML = renderSectorTab();
@@ -4655,11 +4656,64 @@ function renderToday() {
   return `${top}<div class="home-grid">${cards.join('')}</div>`;
 }
 
+// ---------- 공급망 지도(시험판): config/supplyChain.json → scripts/build-supply-chain.py → docs/data/supply-chain.json ----------
+// 연결마다 DART 사업보고서 근거(접수번호·원문 인용)가 있는 것만. 비율은 공시된 것만 — 없으면 '미공개'. 맥락 전용: 점수·매매 불사용(절대 규칙 1).
+const sc = { data: null, loading: false };
+function renderSupply() {
+  if (!sc.data) {
+    if (!sc.loading) {   // 수익률은 매일 갱신되는 sector-strength 에서 그때그때 붙인다 — supply-chain.json 은 연결만(정적)
+      sc.loading = true;
+      Promise.all([loadJson('supply-chain'), loadJson('sector-strength')]).then(([d, s]) => {
+        if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || null; }); d.priceAsOf = (s || {}).asOf || '-'; }
+        sc.data = d || { missing: true }; if (state.tab === 'supply') render();
+      });
+    }
+    return '<div class="card empty">불러오는 중…</div>';
+  }
+  const d = sc.data;
+  if (d.missing || !d.edges) return '<div class="card empty">공급망 데이터가 아직 없습니다.</div>';
+  const pct = v => v == null ? '<span class="muted">-</span>' : `<span class="${v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${v > 0 ? '+' : ''}${(v * 100).toFixed(1)}%</span>`;
+  const ret = n => n.r ? `<span style="font-size:12px;white-space:nowrap">1일 ${pct(n.r['1d'])} · 1주 ${pct(n.r['1w'])} · 1달 ${pct(n.r['1m'])}</span>`
+    : `<span class="muted" style="font-size:12px">${n.listed === false ? '비상장' : n.foreign ? '해외 상장 · 주가 미연결' : n.listed === null ? '상장 여부 미확인' : '주가 미연결'}</span>`;
+  const nameOf = (k) => { const n = d.nodes[k]; return n.r ? `<a href="#" onclick="openStockDetail('${k}','${esc(n.name)}');return false" style="color:var(--text)"><b>${esc(n.name)}</b></a>` : `<b>${esc(n.name)}</b>`; };
+  const STAGES = ['소재', '부품', '장비', '후공정'];
+  const mixBar = (m) => `<div style="display:flex;height:14px;border-radius:4px;overflow:hidden;margin:6px 0 4px">${m.items.map((x, i) =>
+    `<span title="${esc(x.item)} ${x.pct}%" style="width:${x.pct}%;background:var(--accent);opacity:${i < 3 ? 1 - i * .28 : .18}"></span>`).join('')}</div>
+    <div class="muted" style="font-size:12px">${m.items.map(x => `${esc(x.item)} ${x.pct}%`).join(' · ')}</div>`;
+  const cards = Object.entries(d.nodes).filter(([, n]) => n.role === '기준').map(([k, base]) => {
+    const es = d.edges.filter(e => e.to === k);
+    const mix = d.itemMix.find(m => m.company === k);
+    const groups = STAGES.map(st => {
+      const rows = es.filter(e => e.stage === st);
+      if (!rows.length) return '';
+      return `<div style="margin-top:10px"><b style="font-size:13px">${st}</b>${rows.map(e => {
+        const n = d.nodes[e.from];
+        const chips = [e.supplierShare ? `공급사 매출의 ${e.supplierShare.approx ? '약 ' : ''}${e.supplierShare.pct}%` : '',
+          e.itemShare ? `고객 매입 중 품목 ${e.itemShare.pct}%` : '', e.conf === '이름만' ? '이름만 공시' : e.conf === '간접' ? '간접 근거' : ''].filter(Boolean)
+          .map(c => `<span class="chip" style="font-size:11px;padding:1px 7px">${c}</span>`).join(' ') || '<span class="muted" style="font-size:11px">비율 미공개</span>';
+        return `<div style="padding:7px 0;border-top:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">${nameOf(e.from)}${ret(n)}</div>
+          <div class="muted" style="font-size:12px">${esc(e.item)}</div>
+          <div style="margin-top:3px">${chips}</div>
+          ${e.note ? `<div class="muted" style="font-size:11px;margin-top:2px">${esc(e.note)}</div>` : ''}
+          <details style="margin-top:3px"><summary class="muted" style="font-size:11px;cursor:pointer">근거 ${e.src.length}건</summary>${e.src.map(s =>
+            `<div class="muted" style="font-size:11px;margin-top:2px">${esc(s.report)} · 접수 ${s.rcept}<br>“${esc(s.quote)}”</div>`).join('')}</details></div>`;
+      }).join('')}</div>`;
+    }).join('');
+    return `<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${esc(base.name)} 공급사</h3>${ret(base)}</div>
+      ${mix ? `<div style="margin-top:8px"><span class="muted" style="font-size:12px">${esc(mix.scope)} 매입 구성 (${esc(mix.basis)})</span>${mixBar(mix)}${mix.note ? `<div class="muted" style="font-size:11px;margin-top:3px">${esc(mix.note)}</div>` : ''}</div>` : ''}
+      ${groups || '<p class="muted">연결 없음</p>'}</div>`;
+  }).join('');
+  const und = d.undisclosed.map(u => `<li>${esc(u.company)} <span class="muted">— ${esc(u.note)}</span></li>`).join('');
+  return `<p class="muted" style="font-size:12px;margin:0 0 8px">시험판 · 공시 근거가 있는 연결만 · 주가 ${d.priceAsOf} 기준 · 맥락 전용(점수·매매 불사용)</p>${cards}
+    <div class="card"><b style="font-size:13px">고객을 익명으로 공시해 연결하지 못한 곳</b><ul class="muted" style="font-size:12px;margin:6px 0 0;padding-left:18px">${und}</ul></div>`;
+}
+
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['yt', '영상 요약'], ['links', '바로가기']]],
   ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
-  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
+  ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['supply', '공급망'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견'], ['rr', '종목 리포트']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
 ];
