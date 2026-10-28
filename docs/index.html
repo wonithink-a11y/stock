@@ -4623,9 +4623,6 @@ function renderToday() {
        <p class="muted" style="margin:10px 0 0;font-size:11px">업종 ETF ${sec.length}개 중 위·아래 3개 · ${homeRep.file.slice(5, 10).replace('-', '/')} 마감</p>`));
   }
 
-  // 공급망 지도: 오늘 크게 움직인 공급사와 그 고객(공시 근거 연결)
-  { const sc1 = scHomeCard(card, esc); if (sc1) cards.push(sc1); }
-
   // 3) 앞으로 7일 일정 (핵심: 보유·거시·국내)
   const ev = state.events;
   if (ev && ev.events) {
@@ -4673,40 +4670,15 @@ function renderToday() {
 // ---------- 공급망 지도(시험판): config/supplyChain.json → scripts/build-supply-chain.py → docs/data/supply-chain.json ----------
 // 연결마다 DART 사업보고서 근거(접수번호·원문 인용)가 있는 것만. 비율은 공시된 것만 — 없으면 '미공개'. 맥락 전용: 점수·매매 불사용(절대 규칙 1).
 const sc = { data: null, loading: false, ind: '', view: 'map', sel: null, per: '1d', dec: {}, a5map: null };
-// 요약 화면의 공급망 카드 → 지도 보기로 이동(그 공급사가 납품하는 업종을 고르고 해당 기업을 선택).
-function scGo(id) {
-  const d = sc.data; if (!d || !d.edges) return;
-  const e = d.edges.find(x => x.from === id && d.nodes[x.to].industry), ind = e ? d.nodes[e.to].industry : d.nodes[id].industry;
-  if (ind) sc.ind = ind;
-  sc.view = 'map'; sc.sel = id; state.tab = 'supply'; render(); window.scrollTo(0, 0);
-}
-function scHomeCard(card, esc) {
-  scEnsure();
-  const d = sc.data; if (!d || !d.edges) return '';
-  const rows = Object.entries(d.nodes).filter(([, n]) => n.r && n.r['1d'] != null && n.role !== '기준');
-  if (rows.length < 6) return '';
-  rows.sort((a, b) => b[1].r['1d'] - a[1].r['1d']);
-  const custs = id => [...new Set(d.edges.filter(e => e.from === id).map(e => String(d.nodes[e.to].name).replace(/\(.*$/, '').trim()))];
-  const row = ([id, n]) => { const v = n.r['1d'], c = custs(id), cs = c.slice(0, 2).join('·') + (c.length > 2 ? ` 외 ${c.length - 2}` : '');
-    return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:3px 0;font-size:13px;cursor:pointer" onclick="scGo('${id}')"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="font-weight:500">${esc(n.name)}</b> <span class="muted" style="font-size:11.5px">→ ${esc(cs)}</span></span><span class="num ${v >= 0 ? 'pos' : 'neg'}" style="flex:0 0 auto">${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%</span></div>`; };
-  const nb = Object.values(d.nodes).filter(n => n.role === '기준').length;
-  return card('공급망 지도', 'supply', '공급망',
-    `${rows.slice(0, 3).map(row).join('')}<div style="height:1px;background:var(--border);margin:6px 0"></div>${rows.slice(-3).map(row).join('')}
-     <p class="muted" style="margin:10px 0 0;font-size:11px">공시로 확인된 공급사 중 1일 등락 위·아래 3곳 · 기준 기업 ${nb}곳 · 연결 ${d.edges.length}건 · 눌러서 지도 보기</p>`);
-}
-function scEnsure() {
-  if (sc.data) return;
+function renderSupply() {
+  if (!sc.data) {
     if (!sc.loading) {   // 수익률: sector-strength(관심종목) → 없으면 supply-prices(build-supply-prices.py). supply-chain.json 은 연결만(정적)
       sc.loading = true;
       Promise.all([loadJson('supply-chain'), loadJson('sector-strength'), loadJson('supply-prices')]).then(([d, s, sp]) => {
         if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || (((sp || {}).prices || {})[k] || {}).r || null; n.w = !!r[k]; }); d.priceAsOf = (s || {}).asOf || '-'; }
-        sc.data = d || { missing: true }; if (state.tab === 'supply' || state.tab === 'today') render();
+        sc.data = d || { missing: true }; if (state.tab === 'supply') render();
       });
     }
-}
-function renderSupply() {
-  if (!sc.data) {
-    scEnsure();
     return '<div class="card empty">불러오는 중…</div>';
   }
   const d = sc.data;
