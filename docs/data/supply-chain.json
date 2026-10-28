@@ -35,7 +35,8 @@
    "role": "소재",
    "listed": true,
    "foreign": true,
-   "note": "프랑크푸르트 상장 - 주가 미연결"
+   "note": "프랑크푸르트 상장 - 주가 미연결",
+   "yahoo": "WAF.DE"
   },
   "sksiltron": {
    "name": "SK실트론",
@@ -265,61 +266,70 @@
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "NVDA"
   },
   "AMD": {
    "name": "AMD",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "AMD"
   },
   "AVGO": {
    "name": "Broadcom",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "AVGO"
   },
   "TSLA": {
    "name": "Tesla",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "TSLA"
   },
   "TSM": {
    "name": "TSMC(대만)",
    "role": "부품",
    "listed": true,
    "foreign": true,
-   "note": "대만·미국 ADR 상장"
+   "note": "대만·미국 ADR 상장",
+   "yahoo": "TSM"
   },
   "GFS": {
    "name": "GlobalFoundries",
    "role": "부품",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "GFS"
   },
   "MU": {
    "name": "Micron",
    "role": "부품",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "MU"
   },
   "panasonic": {
    "name": "Panasonic(일본)",
    "role": "부품",
    "listed": true,
    "foreign": true,
-   "note": "일본 상장"
+   "note": "일본 상장",
+   "yahoo": "6752.T"
   },
   "catl": {
    "name": "CATL(중국)",
    "role": "부품",
    "listed": true,
    "foreign": true,
-   "note": "중국 상장"
+   "note": "중국 상장",
+   "yahoo": "300750.SZ"
   },
   "012450": {
    "name": "한화에어로스페이스",
@@ -524,105 +534,121 @@
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "QCOM"
   },
   "AMBA": {
    "name": "Ambarella",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "AMBA"
   },
   "NLST": {
    "name": "Netlist",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "NLST"
   },
   "SGH": {
    "name": "Penguin Solutions",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "PENG"
   },
   "GM": {
    "name": "GM(제너럴모터스)",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "GM"
   },
   "RMBS": {
    "name": "Rambus",
    "role": "부품",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "RMBS"
   },
   "LRCX": {
    "name": "Lam Research",
    "role": "부품",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "LRCX"
   },
   "ADNT": {
    "name": "Adient",
    "role": "부품",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "ADNT"
   },
   "LICY": {
    "name": "Li-Cycle",
    "role": "소재",
-   "listed": true,
-   "foreign": true
+   "listed": false,
+   "foreign": true,
+   "note": "Yahoo 에 시세 없음(상장폐지 추정, 8-K 시점 2025-01 기준 상장사)"
   },
   "NEOV": {
    "name": "NeoVolta",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "NEOV"
   },
   "VG": {
    "name": "Venture Global",
    "role": "소재",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "VG"
   },
   "LPG": {
    "name": "Dorian LPG",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "LPG"
   },
   "SMR": {
    "name": "NuScale Power",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "SMR"
   },
   "FRMI": {
    "name": "Fermi",
    "role": "기준",
    "listed": true,
    "foreign": true,
-   "industry": "미국"
+   "industry": "미국",
+   "yahoo": "FRMI"
   },
   "AMAT": {
    "name": "Applied Materials",
    "role": "장비",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "AMAT"
   },
   "IONQ": {
    "name": "IonQ",
    "role": "소프트웨어",
    "listed": true,
-   "foreign": true
+   "foreign": true,
+   "yahoo": "IONQ"
   }
  },
  "edges": [

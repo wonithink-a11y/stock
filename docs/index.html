@@ -4671,10 +4671,10 @@ function renderToday() {
 const sc = { data: null, loading: false, ind: '', view: 'map', sel: null, per: '1d' };
 function renderSupply() {
   if (!sc.data) {
-    if (!sc.loading) {   // 수익률은 매일 갱신되는 sector-strength 에서 그때그때 붙인다 — supply-chain.json 은 연결만(정적)
+    if (!sc.loading) {   // 수익률: sector-strength(관심종목) → 없으면 supply-prices(build-supply-prices.py). supply-chain.json 은 연결만(정적)
       sc.loading = true;
-      Promise.all([loadJson('supply-chain'), loadJson('sector-strength')]).then(([d, s]) => {
-        if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || null; }); d.priceAsOf = (s || {}).asOf || '-'; }
+      Promise.all([loadJson('supply-chain'), loadJson('sector-strength'), loadJson('supply-prices')]).then(([d, s, sp]) => {
+        if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || (((sp || {}).prices || {})[k] || {}).r || null; }); d.priceAsOf = (s || {}).asOf || '-'; }
         sc.data = d || { missing: true }; if (state.tab === 'supply') render();
       });
     }

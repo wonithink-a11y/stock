@@ -53,6 +53,11 @@ jobs:
         continue-on-error: true
         run: python scripts/build-sector-strength.py
 
+      # 공급망 지도용: 관심종목 밖 상장사(한국 네이버 일봉 · 해외 Yahoo)의 1일~6개월 수익률. 관찰용, 실패 무해.
+      - name: Build supply chain prices
+        continue-on-error: true
+        run: python scripts/build-supply-prices.py
+
       # config/themeTree.json(손으로 고른 현재 기준 테마) 강도. 같은 prices.json + 거기 없는
       # 테마 종목만 네이버 일봉으로 보충(~36콜, collect.js 와 같은 출처). 관찰용, 실패 무해.
       - name: Build theme tree snapshot
