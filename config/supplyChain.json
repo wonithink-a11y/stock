@@ -258,6 +258,67 @@
    "name": "한전KPS",
    "role": "서비스",
    "listed": true
+  },
+  "NVDA": {
+   "name": "NVIDIA",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "AMD": {
+   "name": "AMD",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "AVGO": {
+   "name": "Broadcom",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "TSLA": {
+   "name": "Tesla",
+   "role": "기준",
+   "listed": true,
+   "foreign": true,
+   "industry": "미국"
+  },
+  "TSM": {
+   "name": "TSMC(대만)",
+   "role": "부품",
+   "listed": true,
+   "foreign": true,
+   "note": "대만·미국 ADR 상장"
+  },
+  "GFS": {
+   "name": "GlobalFoundries",
+   "role": "부품",
+   "listed": true,
+   "foreign": true
+  },
+  "MU": {
+   "name": "Micron",
+   "role": "부품",
+   "listed": true,
+   "foreign": true
+  },
+  "panasonic": {
+   "name": "Panasonic(일본)",
+   "role": "부품",
+   "listed": true,
+   "foreign": true,
+   "note": "일본 상장"
+  },
+  "catl": {
+   "name": "CATL(중국)",
+   "role": "부품",
+   "listed": true,
+   "foreign": true,
+   "note": "중국 상장"
   }
  },
  "edges": [
@@ -1338,6 +1399,169 @@
      "rcept": "20260323000091",
      "report": "한전KPS 사업보고서(2025.12)",
      "quote": "한국전력공사(주) (최대주주) | 정비공사(매출액) | 2025.01.01. ~ 2025.12.31. | 1,151 | 7.4%"
+    }
+   ]
+  },
+  {
+   "from": "TSM",
+   "to": "NVDA",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000021",
+     "report": "NVIDIA 10-K(2026-02-25)",
+     "quote": "We utilize foundries, such as Taiwan Semiconductor Manufacturing Company Limited, or TSMC, and Samsung Electronics Co., Ltd., or Samsung, to produce our semiconductor wafers."
+    }
+   ]
+  },
+  {
+   "from": "005930",
+   "to": "NVDA",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000021",
+     "report": "NVIDIA 10-K(2026-02-25)",
+     "quote": "We utilize foundries, such as Taiwan Semiconductor Manufacturing Company Limited, or TSMC, and Samsung Electronics Co., Ltd., or Samsung, to produce our semiconductor wafers."
+    }
+   ]
+  },
+  {
+   "from": "000660",
+   "to": "NVDA",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000021",
+     "report": "NVIDIA 10-K(2026-02-25)",
+     "quote": "We purchase memory from SK Hynix Inc., Micron Technology, Inc., and Samsung."
+    }
+   ]
+  },
+  {
+   "from": "MU",
+   "to": "NVDA",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000021",
+     "report": "NVIDIA 10-K(2026-02-25)",
+     "quote": "We purchase memory from SK Hynix Inc., Micron Technology, Inc., and Samsung."
+    }
+   ]
+  },
+  {
+   "from": "005930",
+   "to": "NVDA",
+   "stage": "부품",
+   "item": "메모리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001045810-26-000021",
+     "report": "NVIDIA 10-K(2026-02-25)",
+     "quote": "We purchase memory from SK Hynix Inc., Micron Technology, Inc., and Samsung."
+    }
+   ]
+  },
+  {
+   "from": "TSM",
+   "to": "AMD",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리(HPC·FPGA·적응형 SoC)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000002488-26-000018",
+     "report": "AMD 10-K(2026-02-04)",
+     "quote": "We utilize Taiwan Semiconductor Manufacturing Company Limited (TSMC) for the production of wafers for our HPC, FPGA and adaptive SoC products and GLOBALFOUNDRIES Inc."
+    }
+   ]
+  },
+  {
+   "from": "GFS",
+   "to": "AMD",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0000002488-26-000018",
+     "report": "AMD 10-K(2026-02-04)",
+     "quote": "We utilize Taiwan Semiconductor Manufacturing Company Limited (TSMC) for the production of wafers for our HPC, FPGA and adaptive SoC products and GLOBALFOUNDRIES Inc."
+    }
+   ]
+  },
+  {
+   "from": "TSM",
+   "to": "AVGO",
+   "stage": "제조위탁",
+   "item": "웨이퍼 파운드리",
+   "conf": "명시",
+   "itemShare": {
+    "pct": 95,
+    "basis": "브로드컴 위탁생산사(CM)가 제조한 웨이퍼 중 TSMC 제조분(FY2025)"
+   },
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001730168-25-000121",
+     "report": "Broadcom 10-K(2025-12-18)",
+     "quote": "During fiscal year 2025, approximately 95% of the wafers manufactured by our CMs were produced by TSMC."
+    }
+   ]
+  },
+  {
+   "from": "panasonic",
+   "to": "TSLA",
+   "stage": "부품",
+   "item": "배터리 셀",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001628280-26-003952",
+     "report": "Tesla 10-K(2026-01-29)",
+     "quote": "Currently, we rely on suppliers such as Panasonic and Contemporary Amperex Technology Co."
+    }
+   ]
+  },
+  {
+   "from": "catl",
+   "to": "TSLA",
+   "stage": "부품",
+   "item": "배터리 셀",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "0001628280-26-003952",
+     "report": "Tesla 10-K(2026-01-29)",
+     "quote": "Currently, we rely on suppliers such as Panasonic and Contemporary Amperex Technology Co."
     }
    ]
   }

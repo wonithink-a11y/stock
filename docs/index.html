@@ -4676,12 +4676,12 @@ function renderSupply() {
   const ret = n => n.r ? `<span style="font-size:12px;white-space:nowrap">1일 ${pct(n.r['1d'])} · 1주 ${pct(n.r['1w'])} · 1달 ${pct(n.r['1m'])}</span>`
     : `<span class="muted" style="font-size:12px">${n.listed === false ? '비상장' : n.foreign ? '해외 상장 · 주가 미연결' : n.listed === null ? '상장 여부 미확인' : '주가 미연결'}</span>`;
   const nameOf = (k) => { const n = d.nodes[k]; return n.r ? `<a href="#" onclick="openStockDetail('${k}','${esc(n.name)}');return false" style="color:var(--text)"><b>${esc(n.name)}</b></a>` : `<b>${esc(n.name)}</b>`; };
-  const STAGES = ['소재', '부품', '장비', '후공정', '소프트웨어', '서비스'];
+  const STAGES = ['소재', '제조위탁', '부품', '장비', '후공정', '소프트웨어', '서비스'];
   const mixBar = (m) => `<div style="display:flex;height:14px;border-radius:4px;overflow:hidden;margin:6px 0 4px">${m.items.map((x, i) =>
     `<span title="${esc(x.item)} ${x.pct}%" style="width:${x.pct}%;background:var(--accent);opacity:${i < 3 ? 1 - i * .28 : .18}"></span>`).join('')}</div>
     <div class="muted" style="font-size:12px">${m.items.map(x => `${esc(x.item)} ${x.pct}%`).join(' · ')}</div>`;
   const have = new Set(Object.values(d.nodes).filter(n => n.role === '기준').map(n => n.industry));
-  const INDS = ['반도체', '자동차', '조선', '방산', '2차전지', '전력기기'].filter(i => have.has(i));
+  const INDS = ['반도체', '자동차', '조선', '방산', '2차전지', '전력기기', '미국'].filter(i => have.has(i));
   const bases = Object.entries(d.nodes).filter(([, n]) => n.role === '기준' && (!sc.ind || n.industry === sc.ind))
     .sort((a, b) => INDS.indexOf(a[1].industry) - INDS.indexOf(b[1].industry));
   const indChips = `<div class="op-days" style="margin-bottom:8px">${['', ...INDS].map(i => `<button class="chip${(sc.ind || '') === i ? ' active' : ''}" onclick="sc.ind='${i}';render()">${i || '전체'}</button>`).join('')}</div>`;

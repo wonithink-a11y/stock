@@ -37,7 +37,7 @@ def validate(cfg):
         if not e.get("src"):
             bad.append(f"{tag}: 근거 없음")
         for s in e.get("src", []):
-            if not re.fullmatch(r"\d{14}", s.get("rcept", "")) or not s.get("quote"):
+            if not re.fullmatch(r"\d{14}|\d{10}-\d{2}-\d{6}", s.get("rcept", "")) or not s.get("quote"):   # DART 접수번호 14자리 · SEC accession
                 bad.append(f"{tag}: 근거 접수번호·인용 누락")
         for k in ("itemShare", "supplierShare"):
             sh = e.get(k)
