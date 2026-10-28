@@ -9,8 +9,8 @@
 | 통과·채택 | 14 |
 | 보류·판정 불가 | 41 |
 | 기각 | 135 |
-| 사전등록 문서(결과는 별도 파일) | 125 |
-| 정보·탐색 | 37 |
+| 사전등록 문서(결과는 별도 파일) | 127 |
+| 정보·탐색 | 38 |
 | 미분류 | 241 |
 
 ## 통과·채택 (14)
@@ -218,10 +218,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (125)
+## 사전등록 문서(결과는 별도 파일) (127)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-28 | PREREGISTERED | kr | [day-trader-scan-kr-backtest-preregistration-2026-10.md](day-trader-scan-kr-backtest-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너의 셋업 5종이 국내 일봉에서도 다음 날 시가에 사서 종가에 팔면 같은 날 시장 종목보다 더 오르는… |
+| 2026-10-28 | PREREGISTERED | us | [day-trader-scan-forward-preregistration-2026-10.md](day-trader-scan-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너(day-trader-skill)가 장 전에 뽑는 셋업 후보를, 다음 거래일 시가에 사서 종가에 팔… |
 | 2026-10-20 | PREREGISTERED | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
 | 2026-10-19 | PREREGISTERED | kr | [theme-forecast-forward-preregistration-2026-10.md](theme-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 뉴스·논문·월가 예상과 'AI → 데이터센터 → 전력·ESS → 2차전지' 같은 인과 사슬로 미래 유망 섹터를 고를 … |
 | 2026-10-19 | PREREGISTERED | kr | [stock-forecast-forward-preregistration-2026-10.md](stock-forecast-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 사용자 질문(2026-10-19) — 숫자 몇 개가 아니라 사업·경쟁력·재무·촉매를 종합해 보면 잠재력 높은 종목을 고를 수 있는가, 지금 이익이 안 나거… |
@@ -348,10 +350,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (37)
+## 정보·탐색 (38)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-28 | INFORMATION | kr | [day-trader-scan-kr-results-2026-10.md](day-trader-scan-kr-results-2026-10.md) | 신호: 있음 · 경제성: 미달. 셀 판정 {"B20": "REJECT", "FLAG": "REJECT", "RECL": "REJECT", "OVSD": "INFORMATION", "BNCE": "R… |
 | 2026-10-18 | EXPLORATORY | crypto | [upbit-listing-executability-2026-10.md](upbit-listing-executability-2026-10.md) | 실행 가능성 점검(판정 없음). 상장일 D0 종가에 바이낸스 무기한이 있던 사건 105/119(88%, 2025~ 94%). 무기한 7일 숏은 평균 +11.2%(원수익), 펀딩이 평균 −2.3%(2… |
 | 2026-10-18 | EXPLORATORY | kr | [rv20-2026-crash-diagnosis-2026-10.md](rv20-2026-crash-diagnosis-2026-10.md) | 진단(판정 없음, 규칙 불변). 규칙은 1차 하락(6-22 고점 → 8월)에는 0x 였다 — 고점→저점 79거래일 중 48일 0x, 로그수익 규칙 −21.5% vs 보유 −53.8%. 모의 계좌 손… |
 | 2026-10-13 | EXPLORATORY | kr | [news-chase-unbiased-2026-10.md](news-chase-unbiased-2026-10.md) | 사후 기술(판정 없음). 09:10 +5% 사건(결과 무관) 무작위 1200건에 구글 뉴스를 붙여, 뉴스가 있는 급등을 09:10 에 샀다면의 수익. |

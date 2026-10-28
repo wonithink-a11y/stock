@@ -141,6 +141,8 @@ Validated against
   안 한다   ★ 스캘핑 후보 6개(09-27, 70d64249·852180bd) — 새로 잰 3갈래 REJECT, 호가 불균형은 데이터 없음. findings/scalping-candidates-results-2026-09.md.
   안 한다   ★ 크립토 포지션 쏠림(09-29, 14a3322a) — 기록 종결. K1 INFORMATION 이나 비용 10bp 미달, 비용을 결과 뒤 낮춰 재판정 금지. findings/crypto-positioning-results-2026-09.md.
   안 한다   ★ 단기·크립토 5건(10-17~18) 전부 REJECT(청산 반등·FOMC 직전·주말·KOSPI200 정기변경·업비트 상장). 업비트 상장 7일 숏만 forward(월간 점검). findings/*-results-2026-10.md.
+  안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
+            B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
   안 한다   ★ 미국 월가 목표가 신뢰도(10-18, d4a61764) — 5셀 REJECT. 큰 변경 뒤 양(기록)은 forward 로만(us-target-change). findings/us-price-target-reliability-results-2026-10.md.
   안 한다   ★ 계약부채 증가 → 공시 뒤 주가(10-19, 7d034d87) — REJECT(1단계 재무끼리는 통과, 커버리지 28%). 분기·반기 재시도는 새 사전등록으로만. rcept_no 는 최신 정정본(사건일 함정). findings/contract-liab-*.md.
   안 한다   ★ 큰 수주 공시 → 60거래일(10-20, 3a4e5056) — REJECT(반대 방향). 현재 상장만 쓰면 생존편향으로 부풀음. 뒤집어 쓰기는 사후 가설. findings/order-contract-size-results-2026-10.md.
