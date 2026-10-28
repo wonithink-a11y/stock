@@ -6,12 +6,14 @@
   "005930": {
    "name": "삼성전자",
    "role": "기준",
-   "listed": true
+   "listed": true,
+   "industry": "반도체"
   },
   "000660": {
    "name": "SK하이닉스",
    "role": "기준",
-   "listed": true
+   "listed": true,
+   "industry": "반도체"
   },
   "357780": {
    "name": "솔브레인",
@@ -69,12 +71,14 @@
   "005380": {
    "name": "현대차",
    "role": "기준",
-   "listed": true
+   "listed": true,
+   "industry": "자동차"
   },
   "000270": {
    "name": "기아",
    "role": "기준",
-   "listed": true
+   "listed": true,
+   "industry": "자동차"
   },
   "012330": {
    "name": "현대모비스",
@@ -149,6 +153,110 @@
   "011210": {
    "name": "현대위아",
    "role": "부품",
+   "listed": true
+  },
+  "329180": {
+   "name": "HD현대중공업",
+   "role": "기준",
+   "listed": true,
+   "industry": "조선"
+  },
+  "010140": {
+   "name": "삼성중공업",
+   "role": "기준",
+   "listed": true,
+   "industry": "조선"
+  },
+  "042660": {
+   "name": "한화오션",
+   "role": "기준",
+   "listed": true,
+   "industry": "조선"
+  },
+  "006400": {
+   "name": "삼성SDI",
+   "role": "기준",
+   "listed": true,
+   "industry": "2차전지"
+  },
+  "373220": {
+   "name": "LG에너지솔루션",
+   "role": "기준",
+   "listed": true,
+   "industry": "2차전지"
+  },
+  "096770": {
+   "name": "SK이노베이션(배터리 SK온)",
+   "role": "기준",
+   "listed": true,
+   "industry": "2차전지"
+  },
+  "079550": {
+   "name": "LIG넥스원(현 LIG디펜스앤에어로스페이스)",
+   "role": "기준",
+   "listed": true,
+   "industry": "방산"
+  },
+  "272210": {
+   "name": "한화시스템",
+   "role": "기준",
+   "listed": true,
+   "industry": "방산"
+  },
+  "015760": {
+   "name": "한국전력",
+   "role": "기준",
+   "listed": true,
+   "industry": "전력기기"
+  },
+  "460930": {
+   "name": "현대힘스",
+   "role": "부품",
+   "listed": true
+  },
+  "100090": {
+   "name": "SK오션플랜트",
+   "role": "소재",
+   "listed": true
+  },
+  "005490": {
+   "name": "POSCO홀딩스",
+   "role": "소재",
+   "listed": true
+  },
+  "065450": {
+   "name": "빅텍",
+   "role": "부품",
+   "listed": true
+  },
+  "247540": {
+   "name": "에코프로비엠",
+   "role": "소재",
+   "listed": true
+  },
+  "003670": {
+   "name": "포스코퓨처엠",
+   "role": "소재",
+   "listed": true
+  },
+  "005070": {
+   "name": "코스모신소재",
+   "role": "소재",
+   "listed": true
+  },
+  "298040": {
+   "name": "효성중공업",
+   "role": "장비",
+   "listed": true
+  },
+  "001440": {
+   "name": "대한전선",
+   "role": "부품",
+   "listed": true
+  },
+  "051600": {
+   "name": "한전KPS",
+   "role": "서비스",
    "listed": true
   }
  },
@@ -896,6 +1004,342 @@
     }
    ],
    "note": "특수관계 거래 12.4%는 분모가 불분명해 비율로 쓰지 않음"
+  },
+  {
+   "from": "460930",
+   "to": "329180",
+   "stage": "부품",
+   "item": "조선 기자재(품목 미확인)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 95,
+    "basis": "현대힘스 매출 중 HD현대중공업·HD현대삼호 합산(삼호는 HD한국조선해양 계열)",
+    "approx": true,
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260318000236",
+     "report": "현대힘스 사업보고서(2025.12)",
+     "quote": "단일고객은 HD현대중공업㈜ 및 HD현대삼호㈜이며, 전체 매출액의 약 95%를 차지하고 있습니다."
+    }
+   ]
+  },
+  {
+   "from": "100090",
+   "to": "010140",
+   "stage": "소재",
+   "item": "후육강관",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260323000486",
+     "report": "SK오션플랜트 사업보고서(2025.12)",
+     "quote": "주요 내수 판매처로는 삼성중공업, 대우조선해양, 현대중공업 등 주요 조선사이며"
+    }
+   ]
+  },
+  {
+   "from": "100090",
+   "to": "042660",
+   "stage": "소재",
+   "item": "후육강관",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260323000486",
+     "report": "SK오션플랜트 사업보고서(2025.12)",
+     "quote": "주요 내수 판매처로는 삼성중공업, 대우조선해양, 현대중공업 등 주요 조선사이며"
+    }
+   ],
+   "note": "원문 표기는 대우조선해양(현 한화오션)"
+  },
+  {
+   "from": "100090",
+   "to": "329180",
+   "stage": "소재",
+   "item": "후육강관",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260323000486",
+     "report": "SK오션플랜트 사업보고서(2025.12)",
+     "quote": "주요 내수 판매처로는 삼성중공업, 대우조선해양, 현대중공업 등 주요 조선사이며"
+    }
+   ],
+   "note": "원문 표기는 현대중공업"
+  },
+  {
+   "from": "005490",
+   "to": "329180",
+   "stage": "소재",
+   "item": "철강",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 3,
+    "basis": "POSCO홀딩스 매출 중 현대중공업그룹 합산",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260311004517",
+     "report": "POSCO홀딩스 사업보고서(2025.12)",
+     "quote": "2025년 주요 매출처는 현대중공업그룹(3%), 현대기아차그룹(3%), KG스틸(2%) 등 입니다."
+    }
+   ]
+  },
+  {
+   "from": "005490",
+   "to": "005380",
+   "stage": "소재",
+   "item": "철강",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 3,
+    "basis": "POSCO홀딩스 매출 중 현대기아차그룹 합산",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260311004517",
+     "report": "POSCO홀딩스 사업보고서(2025.12)",
+     "quote": "2025년 주요 매출처는 현대중공업그룹(3%), 현대기아차그룹(3%), KG스틸(2%) 등 입니다."
+    }
+   ]
+  },
+  {
+   "from": "005490",
+   "to": "000270",
+   "stage": "소재",
+   "item": "철강",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 3,
+    "basis": "POSCO홀딩스 매출 중 현대기아차그룹 합산",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260311004517",
+     "report": "POSCO홀딩스 사업보고서(2025.12)",
+     "quote": "2025년 주요 매출처는 현대중공업그룹(3%), 현대기아차그룹(3%), KG스틸(2%) 등 입니다."
+    }
+   ]
+  },
+  {
+   "from": "065450",
+   "to": "079550",
+   "stage": "부품",
+   "item": "전자전장비·전원공급장치",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260318000629",
+     "report": "빅텍 사업보고서(2025.12)",
+     "quote": "주요 제품 중 전자전장비는 당기 매출액의 36%를 차지하며 주요 거래처는 방위사업청과 LIG넥스원(주)입니다."
+    }
+   ],
+   "note": "원문 표기는 LIG넥스원(주)"
+  },
+  {
+   "from": "065450",
+   "to": "272210",
+   "stage": "부품",
+   "item": "소형무장헬기 레이더경보수신기",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260318000629",
+     "report": "빅텍 사업보고서(2025.12)",
+     "quote": "계약명: 소형무장헬기 레이더경보수신기 2차 양산 - 계약상대방: 한화시스템 주식회사"
+    }
+   ]
+  },
+  {
+   "from": "247540",
+   "to": "006400",
+   "stage": "소재",
+   "item": "NCA·NCM 양극소재",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 92.3,
+    "basis": "에코프로비엠 매출 중 삼성SDI·SK온 합산",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260318001622",
+     "report": "에코프로비엠 사업보고서(2025.12)",
+     "quote": "당사의 주요 매출처는 이차전지 Cell 제조 업체로 삼성SDI, SK온이 있으며, 주요 매출처에 대한 매출비중은 92.3% 입니다."
+    }
+   ]
+  },
+  {
+   "from": "247540",
+   "to": "096770",
+   "stage": "소재",
+   "item": "NCA·NCM 양극소재",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 92.3,
+    "basis": "에코프로비엠 매출 중 삼성SDI·SK온 합산",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260318001622",
+     "report": "에코프로비엠 사업보고서(2025.12)",
+     "quote": "당사의 주요 매출처는 이차전지 Cell 제조 업체로 삼성SDI, SK온이 있으며, 주요 매출처에 대한 매출비중은 92.3% 입니다."
+    }
+   ]
+  },
+  {
+   "from": "003670",
+   "to": "373220",
+   "stage": "소재",
+   "item": "배터리 소재(양극·음극)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 53.6,
+    "basis": "포스코퓨처엠 에너지소재부문 주요 매출처 합산(Ultium Cells 포함, 연결 매출 기준 표기)",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260312000826",
+     "report": "포스코퓨처엠 사업보고서(2025.12)",
+     "quote": "에너지소재사업부문은 Ultium Cells, LG에너지솔루션, 삼성SDI, SK온 등 53.6% 입니다."
+    }
+   ]
+  },
+  {
+   "from": "003670",
+   "to": "006400",
+   "stage": "소재",
+   "item": "배터리 소재(양극·음극)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 53.6,
+    "basis": "포스코퓨처엠 에너지소재부문 주요 매출처 합산(Ultium Cells 포함, 연결 매출 기준 표기)",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260312000826",
+     "report": "포스코퓨처엠 사업보고서(2025.12)",
+     "quote": "에너지소재사업부문은 Ultium Cells, LG에너지솔루션, 삼성SDI, SK온 등 53.6% 입니다."
+    }
+   ]
+  },
+  {
+   "from": "003670",
+   "to": "096770",
+   "stage": "소재",
+   "item": "배터리 소재(양극·음극)",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 53.6,
+    "basis": "포스코퓨처엠 에너지소재부문 주요 매출처 합산(Ultium Cells 포함, 연결 매출 기준 표기)",
+    "combined": true
+   },
+   "src": [
+    {
+     "rcept": "20260312000826",
+     "report": "포스코퓨처엠 사업보고서(2025.12)",
+     "quote": "에너지소재사업부문은 Ultium Cells, LG에너지솔루션, 삼성SDI, SK온 등 53.6% 입니다."
+    }
+   ]
+  },
+  {
+   "from": "005070",
+   "to": "006400",
+   "stage": "소재",
+   "item": "이차전지용 소재(품목 미확인)",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260316001442",
+     "report": "코스모신소재 사업보고서(2025.12)",
+     "quote": "주요 매출처는 삼성전기, 삼성SDI, 엘지화학 등이며 매출처별 금액 및 비율은 불가피하게 생략 하였습니다."
+    }
+   ]
+  },
+  {
+   "from": "298040",
+   "to": "015760",
+   "stage": "장비",
+   "item": "변압기 등 전력기기",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 3.4,
+    "basis": "효성중공업 지배회사 매출 중 한국전력공사 본사"
+   },
+   "src": [
+    {
+     "rcept": "20260311004208",
+     "report": "효성중공업 사업보고서(2025.12)",
+     "quote": "2025년 지배회사의 주요 매출처는 HICO(6.78%), ... 한국전력공사 본사 (3.40%), AL FANAR(3.39%) 등 입니다."
+    }
+   ]
+  },
+  {
+   "from": "001440",
+   "to": "015760",
+   "stage": "부품",
+   "item": "전선·케이블",
+   "conf": "이름만",
+   "itemShare": null,
+   "supplierShare": null,
+   "src": [
+    {
+     "rcept": "20260318001418",
+     "report": "대한전선 사업보고서(2025.12)",
+     "quote": "대한전선의 주요 매출처는 한국전력공사, (주)대원전선, (주)삼동, (주)경신전선 입니다."
+    }
+   ],
+   "note": "네 매출처 합산이 연결 매출의 약 18%(한국전력 단독 비중은 미공개)"
+  },
+  {
+   "from": "051600",
+   "to": "015760",
+   "stage": "서비스",
+   "item": "발전설비 정비공사",
+   "conf": "명시",
+   "itemShare": null,
+   "supplierShare": {
+    "pct": 7.4,
+    "basis": "한전KPS 대주주 등과의 영업거래 공시 비율(정비공사 매출액 기준, 분모는 별도 매출액으로 추정)",
+    "approx": true
+   },
+   "src": [
+    {
+     "rcept": "20260323000091",
+     "report": "한전KPS 사업보고서(2025.12)",
+     "quote": "한국전력공사(주) (최대주주) | 정비공사(매출액) | 2025.01.01. ~ 2025.12.31. | 1,151 | 7.4%"
+    }
+   ]
   }
  ],
  "itemMix": [
