@@ -166,6 +166,7 @@
   .scm-lab { position: absolute; transform: translate(-50%, -50%); font-size: 10.5px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; pointer-events: none; }
   .scm-tier { position: absolute; left: 10px; font-size: 11px; color: var(--muted); }
   .scm-rel { border-top: 1px solid var(--border); padding: 8px 0; }
+  .scm-co { margin: 6px 0 4px; padding: 8px 10px; border-left: 3px solid var(--accent); background: rgba(77,159,255,.06); border-radius: 0 6px 6px 0; }
   .chip:disabled { opacity: .4; cursor: not-allowed; }
   .op-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; } .op-days .chip { white-space: nowrap; flex: 0 0 auto; }
   .op-tbl th, .op-tbl td { padding: 6px 8px; vertical-align: middle; }
@@ -4668,13 +4669,13 @@ function renderToday() {
 
 // ---------- 공급망 지도(시험판): config/supplyChain.json → scripts/build-supply-chain.py → docs/data/supply-chain.json ----------
 // 연결마다 DART 사업보고서 근거(접수번호·원문 인용)가 있는 것만. 비율은 공시된 것만 — 없으면 '미공개'. 맥락 전용: 점수·매매 불사용(절대 규칙 1).
-const sc = { data: null, loading: false, ind: '', view: 'map', sel: null, per: '1d' };
+const sc = { data: null, loading: false, ind: '', view: 'map', sel: null, per: '1d', dec: {}, a5map: null };
 function renderSupply() {
   if (!sc.data) {
     if (!sc.loading) {   // 수익률: sector-strength(관심종목) → 없으면 supply-prices(build-supply-prices.py). supply-chain.json 은 연결만(정적)
       sc.loading = true;
       Promise.all([loadJson('supply-chain'), loadJson('sector-strength'), loadJson('supply-prices')]).then(([d, s, sp]) => {
-        if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || (((sp || {}).prices || {})[k] || {}).r || null; }); d.priceAsOf = (s || {}).asOf || '-'; }
+        if (d && d.edges) { const r = Object.fromEntries(((s || {}).stocks || []).map(x => [x.t, x.r])); Object.entries(d.nodes).forEach(([k, n]) => { n.r = r[k] || (((sp || {}).prices || {})[k] || {}).r || null; n.w = !!r[k]; }); d.priceAsOf = (s || {}).asOf || '-'; }
         sc.data = d || { missing: true }; if (state.tab === 'supply') render();
       });
     }
@@ -4728,6 +4729,42 @@ function renderSupply() {
 }
 
 // 지도 보기: 위가 고객, 아래가 공급사인 단계별 지도. 선 굵기 = 공시된 비중, 색 = 근거 등급. 기업을 누르면 연결과 근거가 아래에 열린다. 주가 변화 기간(1일·5일·1개월·3개월·6개월)은 전체 종목에 같이 적용(맥락 전용).
+// 선택한 한국 기업의 시장·업종 · 사업 요약(AI 공시 해독) · 우리 점수(A5 전 종목) · 종목 카드 링크. 관찰용 맥락 자료 — 점수·매매 규칙에 쓰지 않는다.
+function scCompany(id, n, esc) {
+  if (!/^\d{6}$/.test(id)) return '';
+  if (state.a5 === undefined) { state.a5 = null; loadJson('a5-latest').then(x => { state.a5 = x || false; if (state.tab === 'supply') render(); }); }
+  if (state.a5 && state.a5.items && !sc.a5map) sc.a5map = Object.fromEntries(state.a5.items.map(x => [x.t, x]));
+  if (sc.dec[id] === undefined) { sc.dec[id] = null; loadJson('decode/' + id).then(x => { sc.dec[id] = x || false; if (state.tab === 'supply') render(); }); }
+  const x = sc.a5map && sc.a5map[id], dec = sc.dec[id];
+  const score = !sc.a5map ? '<span class="muted">점수 불러오는 중…</span>' : !x ? '<span class="muted">전 종목 점수에 없음</span>'
+    : `<b>총점 ${x.f == null ? '-' : x.f.toFixed(1)}</b> · ${x.r == null ? '순위 유보(커버리지 60% 미만)' : `${x.r.toLocaleString()}위(상위 ${x.p == null ? '-' : x.p.toFixed(1)}%)`}
+       <div class="muted" style="font-size:11.5px">${A5_AXES.map(([nm, max], i) => `${nm} ${x.c[i] == null ? '-' : x.c[i].toFixed(1)}`).join(' · ')}${x.fl && x.fl.length ? ' · ' + x.fl.map(f => esc(A5_FLAG[f] || f)).join(' · ') : ''}</div>`;
+  const biz = dec === null ? '<span class="muted">사업 요약 불러오는 중…</span>' : !dec || !dec.summary ? '<span class="muted">사업 요약 없음(AI 공시 해독 대상 아님)</span>'
+    : `${esc(dec.summary)} <span class="muted" style="font-size:11px">AI 해독 · ${esc(dec.reportNm || '')}</span>`;
+  const mk = n.market ? `${esc(n.market)}${n.sector ? ' · ' + esc(n.sector) : ''}` : '';
+  return `<div class="scm-co">${mk ? `<div class="muted" style="font-size:12px">${mk}</div>` : ''}
+    <div style="font-size:12.5px;margin-top:4px"><span class="muted">사업</span> ${biz}</div>
+    <div style="font-size:12.5px;margin-top:4px"><span class="muted">우리 점수(A5)</span> ${score}</div>
+    ${n.w ? `<a class="chip" href="#" onclick="openStockDetail('${id}','${esc(n.name)}');return false" style="display:inline-block;margin-top:6px;font-size:12px;text-decoration:none">종목 카드 열기 →</a>` : ''}</div>`;
+}
+// 연결 한 줄 설명(기업을 눌렀을 때만 보인다). 공시에 적힌 품목·구분만 쓰고, 품목이 없으면 없다고 적는다.
+function scJosa(w, a, b) {
+  const ch = String(w).replace(/[\s)\]]+$/, '').slice(-1);
+  const code = ch.charCodeAt(0);
+  const has = code >= 0xAC00 && code <= 0xD7A3 ? (code - 0xAC00) % 28 !== 0 : /[mnlckgbp]/i.test(ch) || /[0136-8]/.test(ch);   // 영문은 발음 끝소리 어림(m n l c k g b p → 받침)
+  return has ? a : b;
+}
+function scLink(e, d) {
+  const nm = k => String(d.nodes[k].name).replace(/\(.*$/, '').trim();
+  const S = nm(e.from), C = nm(e.to), n = d.nodes[e.from], it = e.item || '';
+  const none = /미공개|세부/.test(it), item = none ? '' : it.replace(/\s*공급계약$/, '');
+  const j = (w, a, b) => w + scJosa(w, a, b);
+  if (e.svc === '공사') return `${j(S, '은', '는')} ${C}의 ${item ? item + ' ' : ''}공사를 수주했습니다.`;
+  if (e.svc === '용역') return `${j(S, '은', '는')} ${C}에 ${item ? item + ' ' : ''}용역을 제공합니다.`;
+  if (e.stage === '제조위탁') return `${j(S, '은', '는')} ${C}의 ${item ? j(item, '을', '를') : '제품을'} 위탁 생산합니다.`;
+  if (item) return `${j(S, '은', '는')} ${C}에 ${j(item, '을', '를')} 공급합니다${e.conf === '이름만' ? '(거래처로만 공시)' : ''}.`;
+  return `${j(S, '은', '는')} ${C}와 공급계약을 공시했습니다(품목 미공개${n.sector ? ' · ' + n.sector : ''}).`;
+}
 const SC_PER = [['1d', '1일'], ['1w', '5일'], ['1m', '1개월'], ['3m', '3개월'], ['6m', '6개월']];
 const SC_PL = Object.fromEntries(SC_PER);
 const SC_NW = 124, SC_NH = 54, SC_GX = 14, SC_ROWH = 112, SC_PADY = 36, SC_MAXC = 7;
@@ -4784,15 +4821,17 @@ function renderSupplyMap(d, ind, esc, pct) {
     const chip = (t, c) => `<span class="chip" style="font-size:11px;padding:1px 7px;${c ? 'color:' + c + ';border-color:' + c : ''}">${t}</span>`;
     const ratio = e.supplierShare ? chip(`${e.supplierShare.contract ? '계약 1건 = 공급사 최근 매출의 ' : '공급사 매출의 '}${e.supplierShare.approx ? '약 ' : ''}${e.supplierShare.pct}%${e.supplierShare.combined ? ' (그룹 합산)' : ''}`) : '';
     const item = e.itemShare ? chip(`고객 매입 중 품목 ${e.itemShare.pct}%`) : '';
-    return `<div class="scm-rel"><div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><b>${esc(o.name)}</b><span class="muted" style="font-size:12px">${esc(e.item)}</span>${chip(e.conf, tag)}${ratio}${item}</div>
+    return `<div class="scm-rel"><div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><b>${esc(o.name)}</b>${chip(e.conf, tag)}${ratio}${item}</div>
+      <div style="font-size:12.5px;margin-top:3px">${esc(scLink(e, d))}</div>
       ${e.note ? `<div class="muted" style="font-size:11px;margin-top:2px">${esc(e.note)}</div>` : ''}<div class="muted" style="font-size:11px;margin-top:2px">${esc(s0.report)} · 접수 ${esc(s0.rcept)}<br>“${esc(s0.quote)}”</div></div>`;
   };
   let panel;
   if (!sel) panel = `<b>${esc(ind)} 지도 읽는 법</b><p class="muted" style="font-size:12px;margin:4px 0 0">굵은 선은 공시에서 비중이 확인된 연결, 가는 회색 선은 거래처로 이름만 공시된 연결, 보라색 점선은 다른 공시에서 읽은 간접 근거입니다. 기업 카드를 누르면 연결과 근거가 열리고, 위의 주가 변화 기간을 바꾸면 모든 종목의 수익률이 그 기간으로 바뀝니다.</p>`;
   else {
     const n = d.nodes[sel], sup = edges.filter(e => e.to === sel), cus = edges.filter(e => e.from === sel);
-    panel = `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:16px">${n.r ? `<a href="#" onclick="openStockDetail('${sel}','${esc(n.name)}');return false" style="color:var(--text)">${esc(n.name)}</a>` : esc(n.name)}</b>
+    panel = `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:16px">${esc(n.name)}</b>
       <span class="muted" style="font-size:12px">${n.r ? SC_PER.map(([k, t]) => `${t} ${pct(n.r[k])}`).join(' · ') : '주가 수익률 미연결'}</span></div>
+      ${scCompany(sel, n, esc)}
       ${sup.length ? `<div class="muted" style="font-size:12px;margin-top:8px">공급사 ${sup.length}곳 (아래 단계)</div>${sup.map(e => relHtml(e, e.from)).join('')}` : ''}
       ${cus.length ? `<div class="muted" style="font-size:12px;margin-top:8px">고객 ${cus.length}곳 (위 단계)</div>${cus.map(e => relHtml(e, e.to)).join('')}` : ''}`;
   }

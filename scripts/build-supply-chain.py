@@ -21,6 +21,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(ROOT, "config", "supplyChain.json")
 SECTOR = os.path.join(ROOT, "docs", "data", "sector-strength.json")
 OUT = os.path.join(ROOT, "docs", "data", "supply-chain.json")
+UNIVERSE = os.path.join(ROOT, "data", "backfill", "universe", "a1a", "current.jsonl")   # 한국 상장사 시장·업종(KSIC 세분류)
 CONF = ("명시", "이름만", "간접")
 
 
@@ -53,6 +54,15 @@ def validate(cfg):
     return bad
 
 
+def kr_info():
+    """종목코드 -> (시장, 업종). 파일이 없으면 비운다(화면은 없어도 동작)."""
+    try:
+        rows = [json.loads(l) for l in open(UNIVERSE, encoding="utf-8") if l.strip()]
+    except OSError:
+        return {}
+    return {r["ticker"]: (r.get("market"), r.get("sector")) for r in rows}
+
+
 def build():
     cfg = json.load(open(CONFIG, encoding="utf-8"))
     bad = validate(cfg)
@@ -60,7 +70,9 @@ def build():
         raise SystemExit("공급망 검사 실패:\n  " + "\n  ".join(bad))
     sec = json.load(open(SECTOR, encoding="utf-8"))
     have = {s["t"] for s in sec["stocks"]}
-    out = {"asOf": cfg["asOf"], "note": cfg["note"], "nodes": cfg["nodes"],
+    info = kr_info()
+    nodes = {k: dict(v, **({"market": info[k][0], "sector": info[k][1]} if k in info else {})) for k, v in cfg["nodes"].items()}
+    out = {"asOf": cfg["asOf"], "note": cfg["note"], "nodes": nodes,
            "edges": cfg["edges"], "itemMix": cfg["itemMix"], "undisclosed": cfg["undisclosed"]}
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
