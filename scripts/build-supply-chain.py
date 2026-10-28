@@ -41,7 +41,8 @@ def validate(cfg):
                 bad.append(f"{tag}: 근거 접수번호·인용 누락")
         for k in ("itemShare", "supplierShare"):
             sh = e.get(k)
-            if sh is not None and not (isinstance(sh.get("pct"), (int, float)) and 0 <= sh["pct"] <= 100 and sh.get("basis")):
+            top = None if sh and sh.get("contract") else 100   # 계약 건별 비율은 한 계약이 연 매출을 넘을 수 있다
+            if sh is not None and not (isinstance(sh.get("pct"), (int, float)) and sh["pct"] >= 0 and (top is None or sh["pct"] <= top) and sh.get("basis")):
                 bad.append(f"{tag}: {k} pct/basis 이상")
         if e["conf"] == "이름만" and (e.get("itemShare") or e.get("supplierShare")):
             bad.append(f"{tag}: 이름만인데 비율이 있다")
