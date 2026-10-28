@@ -523,7 +523,7 @@ def build(prices, sector_by_ticker, market="KR", shares_by_ticker=None, min_memb
         # 시장 히트맵(업종 탭) — 면적 = 최근 종가 × 주식수, 색 = 창 수익률. 주식수 UNVERIFIED 는 빠진다.
         # 그룹은 첫 소속 하나(KR 업종은 단일 소속). 2026-09-26
         "stocks": [{"t": r["ticker"], "n": r["name"], "g": r["groups"][0], "cap": round(r["capNow"]),
-                    "r": {k: r4(r["rets"][k]) for k in ("1d", "1w", "1m", "3m")},
+                    "r": {k: r4(r["rets"][k]) for k in ("1d", "1w", "1m", "3m", "6m")},
                     **({"hg": heat_g[r["ticker"]]} if r["ticker"] in heat_g else {})}   # hg = 히트맵 표시용 업종(없으면 g)
                    for r in rows if r["capNow"] and r["groups"]],
     }

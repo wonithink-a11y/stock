@@ -157,6 +157,16 @@
   .rr-more > summary { cursor: pointer; color: var(--accent); font-size: 13px; }
   .op-c { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 6px; white-space: nowrap; }
   .op-c.b { background: #1e3a5f; color: #9ecbff; } .op-c.h { background: #333a47; color: #c3cbdb; } .op-c.s { background: #4c1d1d; color: #f38b8b; } .op-c.n { background: #262c3a; color: var(--muted); }
+  .scm-stage { overflow-x: auto; padding: 0; }
+  .scm-node { position: absolute; width: 124px; height: 54px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); padding: 6px 8px; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: center; gap: 2px; font: inherit; }
+  .scm-node b { font-size: 13px; font-weight: 500; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .scm-node small { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scm-node small.pos { color: var(--up); } .scm-node small.neg { color: var(--down); }
+  .scm-node.base { border: 2px solid var(--accent); } .scm-node.sel { background: #1e2a44; } .scm-node.dim { opacity: .3; }
+  .scm-lab { position: absolute; transform: translate(-50%, -50%); font-size: 10.5px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; pointer-events: none; }
+  .scm-tier { position: absolute; left: 10px; font-size: 11px; color: var(--muted); }
+  .scm-rel { border-top: 1px solid var(--border); padding: 8px 0; }
+  .chip:disabled { opacity: .4; cursor: not-allowed; }
   .op-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; } .op-days .chip { white-space: nowrap; flex: 0 0 auto; }
   .op-tbl th, .op-tbl td { padding: 6px 8px; vertical-align: middle; }
   .warn-tag { display: inline-block; background: #4c1d1d; color: #f38b8b; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
@@ -4658,7 +4668,7 @@ function renderToday() {
 
 // ---------- 공급망 지도(시험판): config/supplyChain.json → scripts/build-supply-chain.py → docs/data/supply-chain.json ----------
 // 연결마다 DART 사업보고서 근거(접수번호·원문 인용)가 있는 것만. 비율은 공시된 것만 — 없으면 '미공개'. 맥락 전용: 점수·매매 불사용(절대 규칙 1).
-const sc = { data: null, loading: false, ind: '' };
+const sc = { data: null, loading: false, ind: '', view: 'map', sel: null, per: '1d' };
 function renderSupply() {
   if (!sc.data) {
     if (!sc.loading) {   // 수익률은 매일 갱신되는 sector-strength 에서 그때그때 붙인다 — supply-chain.json 은 연결만(정적)
@@ -4673,7 +4683,7 @@ function renderSupply() {
   const d = sc.data;
   if (d.missing || !d.edges) return '<div class="card empty">공급망 데이터가 아직 없습니다.</div>';
   const pct = v => v == null ? '<span class="muted">-</span>' : `<span class="${v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${v > 0 ? '+' : ''}${(v * 100).toFixed(1)}%</span>`;
-  const ret = n => n.r ? `<span style="font-size:12px;white-space:nowrap">1일 ${pct(n.r['1d'])} · 1주 ${pct(n.r['1w'])} · 1달 ${pct(n.r['1m'])}</span>`
+  const ret = n => n.r ? `<span style="font-size:12px;white-space:nowrap">${SC_PL[sc.per]} ${pct(n.r[sc.per])}</span>`
     : `<span class="muted" style="font-size:12px">${n.listed === false ? '비상장' : n.foreign ? '해외 상장 · 주가 미연결' : n.listed === null ? '상장 여부 미확인' : '주가 미연결'}</span>`;
   const nameOf = (k) => { const n = d.nodes[k]; return n.r ? `<a href="#" onclick="openStockDetail('${k}','${esc(n.name)}');return false" style="color:var(--text)"><b>${esc(n.name)}</b></a>` : `<b>${esc(n.name)}</b>`; };
   const STAGES = ['소재', '제조위탁', '공급계약', '부품', '장비', '후공정', '소프트웨어', '서비스'];
@@ -4684,7 +4694,10 @@ function renderSupply() {
   const INDS = ['반도체', '자동차', '조선', '방산', '2차전지', '전력기기', '미국'].filter(i => have.has(i));
   const bases = Object.entries(d.nodes).filter(([, n]) => n.role === '기준' && (!sc.ind || n.industry === sc.ind))
     .sort((a, b) => INDS.indexOf(a[1].industry) - INDS.indexOf(b[1].industry));
-  const indChips = `<div class="op-days" style="margin-bottom:8px">${['', ...INDS].map(i => `<button class="chip${(sc.ind || '') === i ? ' active' : ''}" onclick="sc.ind='${i}';render()">${i || '전체'}</button>`).join('')}</div>`;
+  const indChips = `<div class="op-days" style="margin-bottom:8px">${(sc.view === 'list' ? ['', ...INDS] : INDS).map(i => `<button class="chip${(sc.ind || (sc.view === 'list' ? '' : INDS[0])) === i ? ' active' : ''}" onclick="sc.ind='${i}';sc.sel=null;render()">${i || '전체'}</button>`).join('')}</div>`;
+  const has6 = Object.values(d.nodes).some(n => n.r && n.r['6m'] != null);
+  const perChips = `<div class="op-days" style="margin-bottom:8px;align-items:center"><span class="muted" style="font-size:12px;flex:0 0 auto">주가 변화</span>${SC_PER.map(([k, t]) => `<button class="chip${sc.per === k ? ' active' : ''}"${k === '6m' && !has6 ? ' disabled title="다음 데이터 갱신부터 표시됩니다"' : ` onclick="sc.per='${k}';render()"`}>${t}</button>`).join('')}</div>`;
+  const viewChips = `<div class="op-days" style="margin-bottom:8px">${[['map', '지도 보기'], ['list', '목록 보기']].map(([v, t]) => `<button class="chip${sc.view === v ? ' active' : ''}" onclick="sc.view='${v}';sc.sel=null;render()">${t}</button>`).join('')}</div>`;
   const cards = bases.map(([k, base]) => {
     const es = d.edges.filter(e => e.to === k);
     const mix = d.itemMix.find(m => m.company === k);
@@ -4710,8 +4723,82 @@ function renderSupply() {
       ${groups || '<p class="muted">연결 없음</p>'}</div>`;
   }).join('');
   const und = d.undisclosed.map(u => `<li>${esc(u.company)} <span class="muted">— ${esc(u.note)}</span></li>`).join('');
-  return `<p class="muted" style="font-size:12px;margin:0 0 8px">시험판 · 공시 근거가 있는 연결만 · 주가 ${d.priceAsOf} 기준 · 맥락 전용(점수·매매 불사용)</p>${indChips}${cards}
+  return `<p class="muted" style="font-size:12px;margin:0 0 8px">시험판 · 공시 근거가 있는 연결만 · 주가 ${d.priceAsOf} 기준 · 맥락 전용(점수·매매 불사용)</p>${perChips}${viewChips}${indChips}${sc.view === 'list' ? cards : renderSupplyMap(d, sc.ind || INDS[0], esc, pct)}
     <div class="card"><b style="font-size:13px">고객을 익명으로 공시해 연결하지 못한 곳</b><ul class="muted" style="font-size:12px;margin:6px 0 0;padding-left:18px">${und}</ul></div>`;
+}
+
+// 지도 보기: 위가 고객, 아래가 공급사인 단계별 지도. 선 굵기 = 공시된 비중, 색 = 근거 등급. 기업을 누르면 연결과 근거가 아래에 열린다. 주가 변화 기간(1일·5일·1개월·3개월·6개월)은 전체 종목에 같이 적용(맥락 전용).
+const SC_PER = [['1d', '1일'], ['1w', '5일'], ['1m', '1개월'], ['3m', '3개월'], ['6m', '6개월']];
+const SC_PL = Object.fromEntries(SC_PER);
+const SC_NW = 124, SC_NH = 54, SC_GX = 14, SC_ROWH = 112, SC_PADY = 36, SC_MAXC = 7;
+function scSelect(id) {
+  const el = document.getElementById('scstage'), x = el ? el.scrollLeft : 0;
+  sc.sel = sc.sel === id ? null : id; render();
+  const e2 = document.getElementById('scstage'); if (e2) e2.scrollLeft = x;
+}
+function renderSupplyMap(d, ind, esc, pct) {
+  const out = {}, inn = {};
+  d.edges.forEach(e => { (out[e.from] = out[e.from] || []).push(e); (inn[e.to] = inn[e.to] || []).push(e); });
+  const bases = Object.keys(d.nodes).filter(k => d.nodes[k].role === '기준' && d.nodes[k].industry === ind);
+  const set = new Set(bases);
+  bases.forEach(b => { (inn[b] || []).forEach(e => set.add(e.from)); (out[b] || []).forEach(e => { set.add(e.to); (inn[e.to] || []).forEach(x => set.add(x.from)); }); });
+  if (sc.sel && !set.has(sc.sel)) sc.sel = null;
+  const ids = [...set], edges = d.edges.filter(e => set.has(e.from) && set.has(e.to)), W = SC_MAXC * (SC_NW + SC_GX) + SC_GX;
+  const cust = {}; edges.forEach(e => { (cust[e.from] = cust[e.from] || []).push(e.to); });
+  const memo = {};
+  const tier = (n, seen = new Set()) => { if (memo[n] !== undefined) return memo[n]; if (seen.has(n)) return 0; seen.add(n); const cs = cust[n] || []; return (memo[n] = cs.length ? 1 + Math.max(...cs.map(c => tier(c, seen))) : 0); };
+  const tiers = {}; ids.forEach(n => { (tiers[tier(n)] = tiers[tier(n)] || []).push(n); });
+  const P = {}; let row = 0; const rows = [];
+  Object.keys(tiers).map(Number).sort((a, b) => a - b).forEach(t => {
+    const bary = n => { const cs = (cust[n] || []).filter(c => P[c]); return cs.length ? cs.reduce((s, c) => s + P[c].x, 0) / cs.length : W / 2; };
+    const list = tiers[t].slice().sort((a, b) => bary(a) - bary(b) || d.nodes[a].name.localeCompare(d.nodes[b].name, 'ko'));
+    for (let i = 0; i < list.length; i += SC_MAXC) {
+      const chunk = list.slice(i, i + SC_MAXC), x0 = (W - (chunk.length * (SC_NW + SC_GX) - SC_GX)) / 2;
+      chunk.forEach((n, j) => { P[n] = { x: x0 + j * (SC_NW + SC_GX), y: SC_PADY + row * SC_ROWH }; });
+      rows.push({ row, t, first: i === 0 }); row++;
+    }
+  });
+  const H = SC_PADY + row * SC_ROWH - (SC_ROWH - SC_NH) + 20, sel = sc.sel;
+  const rel = new Set(); if (sel) { rel.add(sel); edges.forEach(e => { if (e.from === sel || e.to === sel) { rel.add(e.from); rel.add(e.to); } }); }
+  const dimOf = e => sel && !(e.from === sel || e.to === sel);
+  let svg = '', labs = '', nodes = '';
+  edges.forEach(e => {
+    const a = P[e.to], b = P[e.from]; if (!a || !b) return;
+    const x1 = a.x + SC_NW / 2, y1 = a.y + SC_NH, x2 = b.x + SC_NW / 2, y2 = b.y, my = (y1 + y2) / 2, sh = e.supplierShare || e.itemShare;
+    const w = sh ? 1.6 + Math.min(sh.pct, 100) / 100 * 7 : 1.3, col = e.conf === '명시' ? 'var(--accent)' : e.conf === '간접' ? '#a78bfa' : 'var(--muted)';
+    svg += `<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${col}" stroke-width="${w.toFixed(1)}"${e.conf === '간접' ? ' stroke-dasharray="5 4"' : ''} opacity="${dimOf(e) ? 0.08 : sh ? 0.75 : 0.5}"/>`;
+    if (sh && sel && !dimOf(e)) {
+      const tt = e.from === sel ? 0.5 : 0.78, u = 1 - tt, bx = u * u * u * x1 + 3 * u * u * tt * x1 + 3 * u * tt * tt * x2 + tt * tt * tt * x2, by = u * u * u * y1 + 3 * u * u * tt * my + 3 * u * tt * tt * my + tt * tt * tt * y2;
+      labs += `<span class="scm-lab" style="left:${bx}px;top:${by}px">${e.supplierShare ? (e.supplierShare.contract ? '계약 ' : '') : '품목 '}${sh.pct}%</span>`;
+    }
+  });
+  rows.forEach(r => { if (r.first) labs += `<span class="scm-tier" style="top:${SC_PADY + r.row * SC_ROWH - 22}px">${r.t === 0 ? '고객' : r.t + '단계 아래'}</span>`; });
+  ids.forEach(id => {
+    const n = d.nodes[id], p = P[id], base = bases.includes(id), v = n.r ? n.r[sc.per] : null;
+    const r = n.r ? (v == null ? '<small>-</small>' : `<small class="${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}">${v > 0 ? '▲' : v < 0 ? '▼' : ''} ${v > 0 ? '+' : ''}${(v * 100).toFixed(1)}% <span style="opacity:.7">${SC_PL[sc.per]}</span></small>`)
+      : `<small>${n.foreign ? '해외 상장' : n.listed === false ? '비상장' : '주가 미연결'}</small>`;
+    nodes += `<button class="scm-node${base ? ' base' : ''}${sel === id ? ' sel' : ''}${sel && !rel.has(id) ? ' dim' : ''}" onclick="scSelect('${id}')" style="left:${p.x}px;top:${p.y}px"><b title="${esc(n.name)}">${esc(n.name)}</b>${r}</button>`;
+  });
+  const relHtml = (e, oid) => {
+    const o = d.nodes[oid], s0 = e.src[0], tag = e.conf === '명시' ? 'var(--accent)' : e.conf === '간접' ? '#a78bfa' : 'var(--muted)';
+    const chip = (t, c) => `<span class="chip" style="font-size:11px;padding:1px 7px;${c ? 'color:' + c + ';border-color:' + c : ''}">${t}</span>`;
+    const ratio = e.supplierShare ? chip(`${e.supplierShare.contract ? '계약 1건 = 공급사 최근 매출의 ' : '공급사 매출의 '}${e.supplierShare.approx ? '약 ' : ''}${e.supplierShare.pct}%${e.supplierShare.combined ? ' (그룹 합산)' : ''}`) : '';
+    const item = e.itemShare ? chip(`고객 매입 중 품목 ${e.itemShare.pct}%`) : '';
+    return `<div class="scm-rel"><div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><b>${esc(o.name)}</b><span class="muted" style="font-size:12px">${esc(e.item)}</span>${chip(e.conf, tag)}${ratio}${item}</div>
+      ${e.note ? `<div class="muted" style="font-size:11px;margin-top:2px">${esc(e.note)}</div>` : ''}<div class="muted" style="font-size:11px;margin-top:2px">${esc(s0.report)} · 접수 ${esc(s0.rcept)}<br>“${esc(s0.quote)}”</div></div>`;
+  };
+  let panel;
+  if (!sel) panel = `<b>${esc(ind)} 지도 읽는 법</b><p class="muted" style="font-size:12px;margin:4px 0 0">굵은 선은 공시에서 비중이 확인된 연결, 가는 회색 선은 거래처로 이름만 공시된 연결, 보라색 점선은 다른 공시에서 읽은 간접 근거입니다. 기업 카드를 누르면 연결과 근거가 열리고, 위의 주가 변화 기간을 바꾸면 모든 종목의 수익률이 그 기간으로 바뀝니다.</p>`;
+  else {
+    const n = d.nodes[sel], sup = edges.filter(e => e.to === sel), cus = edges.filter(e => e.from === sel);
+    panel = `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:16px">${n.r ? `<a href="#" onclick="openStockDetail('${sel}','${esc(n.name)}');return false" style="color:var(--text)">${esc(n.name)}</a>` : esc(n.name)}</b>
+      <span class="muted" style="font-size:12px">${n.r ? SC_PER.map(([k, t]) => `${t} ${pct(n.r[k])}`).join(' · ') : '주가 수익률 미연결'}</span></div>
+      ${sup.length ? `<div class="muted" style="font-size:12px;margin-top:8px">공급사 ${sup.length}곳 (아래 단계)</div>${sup.map(e => relHtml(e, e.from)).join('')}` : ''}
+      ${cus.length ? `<div class="muted" style="font-size:12px;margin-top:8px">고객 ${cus.length}곳 (위 단계)</div>${cus.map(e => relHtml(e, e.to)).join('')}` : ''}`;
+  }
+  return `<div class="muted" style="font-size:12px;margin:0 0 6px">위 = 고객 · 아래 = 공급사 · 굵은 테두리 = ${esc(ind)} 기준 기업 · 청록 선 = 이름·비율 공시, 회색 = 이름만, 보라 점선 = 간접 · 기업 ${ids.length}곳 · 연결 ${edges.length}건</div>
+    <div class="card scm-stage" id="scstage"><div style="position:relative;width:${W}px;height:${H}px;margin:0 auto"><svg width="${W}" height="${H}" style="position:absolute;inset:0;pointer-events:none">${svg}</svg>${labs}${nodes}</div></div>
+    <div class="card" style="margin-top:8px">${panel}</div>`;
 }
 
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
