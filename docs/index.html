@@ -4676,7 +4676,7 @@ function renderSupply() {
   const ret = n => n.r ? `<span style="font-size:12px;white-space:nowrap">1일 ${pct(n.r['1d'])} · 1주 ${pct(n.r['1w'])} · 1달 ${pct(n.r['1m'])}</span>`
     : `<span class="muted" style="font-size:12px">${n.listed === false ? '비상장' : n.foreign ? '해외 상장 · 주가 미연결' : n.listed === null ? '상장 여부 미확인' : '주가 미연결'}</span>`;
   const nameOf = (k) => { const n = d.nodes[k]; return n.r ? `<a href="#" onclick="openStockDetail('${k}','${esc(n.name)}');return false" style="color:var(--text)"><b>${esc(n.name)}</b></a>` : `<b>${esc(n.name)}</b>`; };
-  const STAGES = ['소재', '부품', '장비', '후공정'];
+  const STAGES = ['소재', '부품', '장비', '후공정', '소프트웨어'];
   const mixBar = (m) => `<div style="display:flex;height:14px;border-radius:4px;overflow:hidden;margin:6px 0 4px">${m.items.map((x, i) =>
     `<span title="${esc(x.item)} ${x.pct}%" style="width:${x.pct}%;background:var(--accent);opacity:${i < 3 ? 1 - i * .28 : .18}"></span>`).join('')}</div>
     <div class="muted" style="font-size:12px">${m.items.map(x => `${esc(x.item)} ${x.pct}%`).join(' · ')}</div>`;
@@ -4688,7 +4688,7 @@ function renderSupply() {
       if (!rows.length) return '';
       return `<div style="margin-top:10px"><b style="font-size:13px">${st}</b>${rows.map(e => {
         const n = d.nodes[e.from];
-        const chips = [e.supplierShare ? `공급사 매출의 ${e.supplierShare.approx ? '약 ' : ''}${e.supplierShare.pct}%` : '',
+        const chips = [e.supplierShare ? `공급사 매출의 ${e.supplierShare.approx ? '약 ' : ''}${e.supplierShare.pct}%${e.supplierShare.combined ? ' (그룹 합산)' : ''}` : '',
           e.itemShare ? `고객 매입 중 품목 ${e.itemShare.pct}%` : '', e.conf === '이름만' ? '이름만 공시' : e.conf === '간접' ? '간접 근거' : ''].filter(Boolean)
           .map(c => `<span class="chip" style="font-size:11px;padding:1px 7px">${c}</span>`).join(' ') || '<span class="muted" style="font-size:11px">비율 미공개</span>';
         return `<div style="padding:7px 0;border-top:1px solid var(--border)">
