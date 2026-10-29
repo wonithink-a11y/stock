@@ -182,6 +182,7 @@ Validated against
   안 한다   ★ 코인베이스 거래량 비중(10-30, 3fe9fff·a5df732) — 신호 없음·REJECT(CV7 TRAIN t 0.68 · CV1 1.29 < 2.11, CV1 TEST 반대). 프리미엄 z 와 상관 0.005. 거래소 비중 라인 종결 권고. findings/coinbase-volume-share-results-2026-10.md.
   안 한다   ★ BTC–나스닥 괴리 되돌림(10-30, e9788ed·c68333b) — N1 REJECT(t −0.71) · N5 판정불가(TEST 14건). 되돌림 없고 세 구간 모두 '괴리 지속' 쪽(N5 TRAIN t −1.84 < 2.56) — BTC 고유 모멘텀은 사후 가설. findings/btc-nasdaq-divergence-results-2026-10.md.
   안 한다   ★ 코인베이스 상장(기존 코인, 10-30, 3e64562·d383d76) — REJECT(CL7 TRAIN t −0.66 · CL30 −1.12, 2021 반대). 2022~ 다섯 해 연속 상장 뒤 약세(TEST −792bp t −2.90)·상장 전 7일 +30%(t 4.75) 선반영은 기록. findings/coinbase-listing-results-2026-10.md.
+  안 한다   ★ 바이낸스 무기한 신규 상장(기존 현물 코인, 10-30, c801f34·117a37b) — REJECT(FL7 TRAIN t −0.02 · FL30 −0.38). 무기한은 직전 30일 +53~116% 급등 코인에 붙고 2023~ 30일 되돌림(t −7.2)은 사후. findings/binance-perp-launch-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
