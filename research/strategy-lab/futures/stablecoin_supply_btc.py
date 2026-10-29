@@ -99,8 +99,8 @@ def main():
     fwd = pd.Series([(open_d.get(d + 8 * D, np.nan) / open_d.get(d + D, np.nan) - 1) for d in wk.index], index=wk.index)
     both = pd.concat([wk, fwd], axis=1).dropna()
     both = both[both.index < OOS_END]
-    rec["weekly_spearman_g_vs_next7d"] = {"all": round(float(both.iloc[:, 0].corr(both.iloc[:, 1], method="spearman")), 3), "weeks": int(len(both)),
-                                         "by_year": {int(y): round(float(x.iloc[:, 0].corr(x.iloc[:, 1], method="spearman")), 3)
+    rec["weekly_spearman_g_vs_next7d"] = {"all": round(float(both.iloc[:, 0].rank().corr(both.iloc[:, 1].rank())), 3), "weeks": int(len(both)),
+                                         "by_year": {int(y): round(float(x.iloc[:, 0].rank().corr(x.iloc[:, 1].rank())), 3)
                                                      for y, x in both.groupby(both.index.year) if len(x) > 10}}
     cb, bnc = (rb._read(cp.DATA / f"{n}.parquet") for n in ("cb_btc", "bn_btc"))
     zc = cp.zscore(cp.premium(cb, bnc))
