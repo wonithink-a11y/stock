@@ -150,13 +150,15 @@ Validated against
             findings/coinbase-premium-robustness-results-2026-10.md.
             ★ **업비트 KRW-BTC 롱 모의 슬리브 — 10-29 사용자 GO**(사전등록 4f6eace): `run_coinbase_premium_paper.py`(UpbitPaperBroker, 실주문 경로 없음) ·
             `deploy/coinbase-premium-paper.{service,timer}` 매시 :02 · 상태 VM `~/collector-venv/cbprem-paper/`(trades.jsonl = 판정 원장). 고정 100만원·24시간 보유·지연 30분 넘으면 진입 안 함.
-            **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **VM 설치는 사용자 몫·main 반영 뒤 — 설치 미확인.** 실계좌는 Claude 가 켜지 않는다.
-            텔레그램: 모의 매수·청산·놓친/지연 롱 → `TELEGRAM_TRADE_CHAT_ID`. PR #1(main 대상).
+            **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **main 반영 완료(PR #1 머지 d8aca82, 10-29) — VM 타이머 설치는 사용자 몫, 설치 미확인.** 실계좌는 Claude 가 켜지 않는다.
+            텔레그램: 모의 매수·청산·놓친/지연 롱 → `TELEGRAM_TRADE_CHAT_ID`.
             가상 청산 기록(9b4d3dc): 실제 매수마다 T48·T72·Zm0.5 가상 손익 → `shadow.jsonl`(기록 전용, 비교는 본 판정 40건 때 1회, 그 전 건수만). 2026 매수 신호 24회(8월 10회 몰림), 10월 0회.
             ★ 청산 규칙 비교(98b2e94·955d188) **INCONCLUSIVE — 24시간 유지**: TRAIN 이 'z ≤ −0.5 에서 청산(최대 72h)'을 골랐으나 2023~ 월 +74bp t 1.15, 알트 재현 안 됨,
             긴 보유의 이득은 상승장 노출과 구분 안 됨. 점수 낮을 때 사기(z ≤ −2 롱)는 TRAIN −76bp/회. findings/coinbase-premium-exit-rule-results-2026-10.md.
             ★ 진입·청산 점수대 40셀(b16913f·0999682) **INCONCLUSIVE — 지금 규칙 유지**: TRAIN 선택 E1.0·Zm0.5, 2023~ 월 +145bp t 1.52. 사후 진단 — 고른 셀은 시장 노출 39%(지금 12%),
             노출당 효율은 z ≥ 2 · 24h 가 최고, 2025~ 하락장에서 고른 셀 −0.2%/년 vs 지금 +7.8%. findings/coinbase-premium-grid-results-2026-10.md.
+  안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
+            코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
             순위 IC −0.11(t −5.7)은 논문 방향이나 고분산 다리의 오른쪽 꼬리가 평균을 뒤집음 — 순위·꼬리 규칙은 사후 가설, 새 사전등록+forward 로만. findings/crypto-rv-jump-results-2026-10.md.
   안 한다   ★ 미국 월가 목표가 신뢰도(10-18, d4a61764) — 5셀 REJECT. 큰 변경 뒤 양(기록)은 forward 로만(us-target-change). findings/us-price-target-reliability-results-2026-10.md.
