@@ -28,6 +28,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 21 | 업비트 신규 상장 숏 | `run_upbit_listing_forward.py` (자주 돌릴수록 누락 감소) | `reports/2026-10-upbit-listing-forward/` | 상장일 60 또는 2027-10-19 ∧ 30 |
 | 22 | 미국 목표가 큰 변경 | `collect_us_price_targets.py` (≈3분) 후 `run_us_target_change_forward.py` | `reports/2026-10-us-target-change-forward/` | UP_L·DN_L 각 150 (≈2027-05~06) |
 | 23 | 업종 그룹별 A5 점수 IC | `run_sector_ic_forward.py` (A5 증분 뒤, 점수 날짜 > 2026-10-02 ∧ 20일 실현분) | `reports/2026-10-sector-ic-forward/observations.jsonl` | 기록 전용 — 몇 달 뒤에도 같은 업종이 계속 약할 때만 새 사전등록 후보 |
+| 24 | 스테이블코인 발행량 → BTC | `run_stablecoin_supply_forward.py` (DefiLlama·바이낸스 공개, 수 초 — 자주 돌릴수록 '처음 본 값'이 정확) | `reports/2026-10-stablecoin-supply-forward/` | S1 40건∧6개월 · S7 20건∧12개월, 연장 1회 |
 
 ## 메모
 
