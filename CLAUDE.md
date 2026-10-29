@@ -127,7 +127,7 @@ Validated against
             세부·함정: docs/control/세션인수인계-2026-09-09-b.md. 단 그
             인수인계의 "남은 것" 중 4건은 2026-09-10 실측으로 이미 닫혔다
             (완료-이력.md 참고) — 그 목록을 그대로 착수 목록으로 삼지 않는다.
-            ★ **월간 점검(A2a 뒤 forward 그림자 22개·시즌 한정 작업)은 스킬 `monthly-check` 로 돌린다** — `.claude/skills/monthly-check/`.
+            ★ **월간 점검(A2a 뒤 forward 그림자 25개·시즌 한정 작업)은 스킬 `monthly-check` 로 돌린다** — `.claude/skills/monthly-check/`.
             명령·기록 경로·판정 시점 표 = references/shadows.md · 사전등록 해시·과거 참고·함정 원문 = docs/control/월간점검-forward-상세-2026-10-25.md.
             새 forward 를 사전등록하면 두 곳(표 한 행 + 상세 문서)에 추가한다. 판정 시점 전 `--judge` 는 코드가 거부한다.
   다음      ★ 무한매수법 해외 슬리브 — 취소·재접수 로직 구현(c605be5)·VM 배선 완료(2026-09-20, 규칙·상태는 ~/collector-venv/infbuy/, T 이월 확인). 옛 타이머는 09-22 autotrader 전환으로 disabled(위 autotrader 항목) — 주문 스위치는 사용자 몫, Claude 는 켜지 않는다.
@@ -157,8 +157,32 @@ Validated against
             긴 보유의 이득은 상승장 노출과 구분 안 됨. 점수 낮을 때 사기(z ≤ −2 롱)는 TRAIN −76bp/회. findings/coinbase-premium-exit-rule-results-2026-10.md.
             ★ 진입·청산 점수대 40셀(b16913f·0999682) **INCONCLUSIVE — 지금 규칙 유지**: TRAIN 선택 E1.0·Zm0.5, 2023~ 월 +145bp t 1.52. 사후 진단 — 고른 셀은 시장 노출 39%(지금 12%),
             노출당 효율은 z ≥ 2 · 24h 가 최고, 2025~ 하락장에서 고른 셀 −0.2%/년 vs 지금 +7.8%. findings/coinbase-premium-grid-results-2026-10.md.
+  다음      ★ **바이낸스 신규 상장 → 다음 7일 BTC 대비(10-30, c776835·7bba3b1) — BL7 ROBUST**: 상장 547건(상폐 포함, 생존편향 없음), 상장 다음 날부터 7일
+            TRAIN −933bp(t −3.00) · VALID −647 · TEST −1,151(t −4.85), 아홉 해 모두 같은 쪽, 코인 3/4 이 BTC 에 짐. BL30 REJECT(2022 반대). 토큰화 주식 87개 빼도 불변(감사).
+            ★ 실행 가능성(2f33880·8512abb) **EXECUTABLE** — 바이낸스 무기한 숏 + 실제 펀딩: TEST +1,072bp(t 3.90), 펀딩 7일 −2.1%, 2024~ 상장 64% 에 무기한. **꼬리 위험 큼**(코인 26% 손실, 최악 −306% PNUT) —
+            크기·손절 설계 없이 쓰면 청산. 실매매·모의 슬리브는 🔴 사용자 GO + 새 사전등록. 국내 쓰임은 '상장 첫 주 매수 회피' 근거. findings/binance-listing-{results,perp-results}-2026-10.md.
+            ★ 강건성(712d13b·66032d5) **PASS 4/4** — 같은 주 대형 알트 대비 −1,074bp(t −5.78) · 달 블록 [−1,397, −588] · 상위 3개 달 빼도 −940 · 이틀 늦게 −617(t −3.84). 둘째 주도 −392. findings/binance-listing-robustness-results-2026-10.md.
+            ★ 업비트 원화 가격 확인(253e959·86c2817) **CONSISTENT** — 업비트에 있던 63 코인 첫 주 BTC 대비 −1,144bp(t −2.81), 2023~ −1,480 — 국내 '상장 첫 주 매수 회피' 근거. 경고 배선은 🔴 GO.
+            ★ **forward #25(7790acf·f40e40b)** — `run_binance_listing_forward.py` 월간 점검, L ≥ 2026-10-01, 판정 성숙 상장일 40 ∧ 6개월(t ≤ −1.65 CONFIRMED). 첫 실행 사건 19·관측 14. 기록 전용.
   안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
+  안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·
+            V2 VRP 주간 t −0.53 · V3 DVOL 급변 t 0.03, ETH 도 전부 REJECT). RV20 Rule B 의 크립토판 불성립. VRP 는 2021 15 → 2026 0.7%p 로 소멸(기록). findings/crypto-dvol-results-2026-10.md.
+  안 한다   ★ 해시 리본(채굴자 항복 국면, 10-30, 49dd0a1·77a9be8) — 신호 없음·REJECT(항복−아닌 날 TRAIN −10.6bp t −0.48 < 1.91, OOS 부호 반대, '항복 날 쉬기' Sharpe 0.90 vs 1.16).
+            '매수 신호' 21회 뒤 90일 +15.8% vs 아무 날 +13.3%(기록). findings/hash-ribbons-results-2026-10.md.
+  안 한다   ★ 공포·탐욕 지수 극단(10-30, 2c57e37·3a7a512) — 신호 없음·REJECT(F1 TRAIN t −0.29 · F7 −0.87, 바닥선 2.48, OOS 비용 전 −8bp). '극단 공포에 사기' 통념 불성립. findings/fear-greed-results-2026-10.md.
+  안 한다   ★ CME 주말 갭 메우기(10-30, 602acd1·3821322) — 신호 없음·REJECT(G1 TRAIN t −0.64 · G5 −0.26, 바닥선 2.28). 메움 59% vs 반대쪽 같은 거리 62% — 끌림 없음. findings/cme-gap-results-2026-10.md.
+  안 한다   ★ 업비트 거래대금 과열(10-30, d201cdf·2f51d54) — U1 업비트 BTC 비중 REJECT(TRAIN t 1.52 < 2.34, 방향은 과열→하락이 아니라 상승) · U2 알트 쏠림 판정불가(TEST 18건, 생존편향).
+            2025~ 두 셀 부호 반대. findings/upbit-turnover-results-2026-10.md.
+  안 한다   ★ 알트 상대 김치 프리미엄(19종, 10-30, 9dcc1e5·d4dcf7c) — 신호 없음·REJECT(K1 TRAIN t 1.94 < 2.13, VALID −22 · TEST +1bp 소멸 · K7 t 0.87). 김프 타이밍 라인 BTC·알트 모두 종결 권고. findings/alt-kimchi-relative-results-2026-10.md.
+  안 한다   ★ 크립토 달력 효과(10-30, a31ea7e·f9fb817) — 신호 없음·REJECT(월말·월초 TRAIN t 1.50 → OOS 반대 · 옵션 만기 전 −1.68 · 후 1.60, 바닥선 2.46). 만기 금요일 변동성 눌림 없음. findings/crypto-calendar-results-2026-10.md.
+  안 한다   ★ BTC 주간 시계열 모멘텀(10-30, 077d678·47cce20) — 신호 미확립·REJECT(T1 TRAIN t 0.53 · T4 1.63 < 2.25, T4 는 세 구간 모두 양). 롱만 T4 OOS Sharpe 1.11 vs 보유 1.16 · MDD −29 vs −51%(기록, 위험 도구 성격). findings/crypto-tsmom-results-2026-10.md.
+  안 한다   ★ 코인베이스 프리미엄 알트 횡단면(10-30, 90a3426·546525a) — 신호 없음·REJECT(TRAIN −1.4bp/일 t −0.13, OOS +7~14bp < 비용 12bp/일). C24 의 힘은 공통 성분(USDT 괴리) 쪽 — 모의 슬리브 불변. findings/coinbase-premium-xs-results-2026-10.md.
+  안 한다   ★ 알트 거래량 충격 횡단면(10-30, 9be93fa·ca93223) — 신호 없음·REJECT(TRAIN −86bp/주 t −1.08 < 1.92, 2023~ 반대 부호 +76·+101). 지난주 수익과 순위상관 0.33. findings/crypto-volume-premium-results-2026-10.md.
+  안 한다   ★ 코인베이스 거래량 비중(10-30, 3fe9fff·a5df732) — 신호 없음·REJECT(CV7 TRAIN t 0.68 · CV1 1.29 < 2.11, CV1 TEST 반대). 프리미엄 z 와 상관 0.005. 거래소 비중 라인 종결 권고. findings/coinbase-volume-share-results-2026-10.md.
+  안 한다   ★ BTC–나스닥 괴리 되돌림(10-30, e9788ed·c68333b) — N1 REJECT(t −0.71) · N5 판정불가(TEST 14건). 되돌림 없고 세 구간 모두 '괴리 지속' 쪽(N5 TRAIN t −1.84 < 2.56) — BTC 고유 모멘텀은 사후 가설. findings/btc-nasdaq-divergence-results-2026-10.md.
+  안 한다   ★ 코인베이스 상장(기존 코인, 10-30, 3e64562·d383d76) — REJECT(CL7 TRAIN t −0.66 · CL30 −1.12, 2021 반대). 2022~ 다섯 해 연속 상장 뒤 약세(TEST −792bp t −2.90)·상장 전 7일 +30%(t 4.75) 선반영은 기록. findings/coinbase-listing-results-2026-10.md.
+  안 한다   ★ 바이낸스 무기한 신규 상장(기존 현물 코인, 10-30, c801f34·117a37b) — REJECT(FL7 TRAIN t −0.02 · FL30 −0.38). 무기한은 직전 30일 +53~116% 급등 코인에 붙고 2023~ 30일 되돌림(t −7.2)은 사후. findings/binance-perp-launch-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
@@ -183,6 +207,7 @@ Validated against
   다음      ★ **크립토 탭(10-29, 사용자 요청)** — 대시보드 맨 끝 그룹 '크립토': 시세·프리미엄(바이낸스 시세 미러·코인베이스 공개 API 를 브라우저가 직접 — CORS 허용, 키 없음.
             z 는 VM 러너와 같은 정의, 실측 대조 소수 6자리 일치) · 연구·모의(판정 카드 `CRYPTO_LAB` 손으로 갱신 — 새 크립토 결과가 나오면 한 줄 추가).
             업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. Playwright 375px 로만 확인 — **실기기 미확인**.
+            ★ **'최근 신규 상장' 경고 칸(10-30 사용자 GO, 표시 전용)** — Actions `binance-listings`(매일 10:10 KST) → docs/data/binance-listings.json(30일 안 상장 · firstDay 캐시) → 상장 다음 날 시가부터 BTC 대비, 1~7일째 '첫 주' 강조. 토큰화 주식(stockLike)은 한 줄로 접는다. 점수·매매·텔레그램 불연결(규칙 1).
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
             둘 다 VM 설치·실행은 사용자 몫(인수인계 10-29 맨 위). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **대시보드 화면 5건(10-20)** — 세션인수인계-2026-10-20-b.md. 장중 홈 = 평일 09:00~15:30 ∧ 네이버 장 상태 OPEN 이면 홈 맨 위가 지수·잠정 수급·관심종목 353 오르내림
