@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 19 |
+| 통과·채택 | 20 |
 | 보류·판정 불가 | 43 |
 | 기각 | 151 |
-| 사전등록 문서(결과는 별도 파일) | 153 |
+| 사전등록 문서(결과는 별도 파일) | 154 |
 | 정보·탐색 | 39 |
 | 미분류 | 240 |
 
-## 통과·채택 (19)
+## 통과·채택 (20)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PASS | crypto | [binance-listing-robustness-results-2026-10.md](binance-listing-robustness-results-2026-10.md) | 신호: 있음 · 경제성: (원 판정 유지). BL7 강건성 4/4 PASS — K1 같은 주 대형 알트 24종 대비로도 −1,074bp(t −5.78, TRAIN·2023~ 모두 음; 위약 자체는 … |
 | 2026-10-30 | EXECUTABLE | crypto | [binance-listing-perp-results-2026-10.md](binance-listing-perp-results-2026-10.md) | 신호: 있음(BL7, 이미 ROBUST) · 경제성: 통과(무기한·펀딩 포함). 신규 상장 7일 숏을 바이낸스 무기한으로 하면 펀딩을 내고도 OOS 평균 +1,021bp/상장일(비용 10bp 뒤 +… |
 | 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
 | 2026-10-29 | PASS | crypto | [coinbase-premium-robustness-results-2026-10.md](coinbase-premium-robustness-results-2026-10.md) | 신호: 있음 · 경제성: 통과. A — K1 무작위 진입 p 0.0005 · K2 월 블록 95% [2.8, 73.3] · K3 상위 두 달 빼도 net10 +14.9bp · K4 업비트 롱 net… |
@@ -241,10 +242,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (153)
+## 사전등록 문서(결과는 별도 파일) (154)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-robustness-preregistration-2026-10.md](binance-listing-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "BL7(바이낸스 신규 상장 7일 약세, ROBUST)이 알트 전체의 약세·몇몇 달·진입 시점 하나에 기대지 않는가". BL7 결과를 본 뒤의 점… |
 | 2026-10-30 | PREREGISTERED | crypto | [coinbase-listing-preregistration-2026-10.md](coinbase-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 바이낸스에서 거래되던 코인이 코인베이스에 새로 상장되면('코인베이스 효과') 그 다음 날부터 1주·1달 BTC 대비 어느 쪽으로 가는가".… |
 | 2026-10-30 | PREREGISTERED | crypto | [binance-listing-perp-preregistration-2026-10.md](binance-listing-perp-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 7일 약세(BL7 ROBUST)를 무기한 선물 숏으로 실제로 잡을 수 있는가 — 무기한이 있는 비율, 펀딩 비용을 내고도 남… |
 | 2026-10-30 | PREREGISTERED | crypto | [btc-nasdaq-divergence-preregistration-2026-10.md](btc-nasdaq-divergence-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난 한 주 나스닥이 설명하는 만큼보다 크게 뒤처지거나(앞서거나) 했을 때, 다음 1·5거래일 그 괴리를 되돌리는가". 사용자 위임(… |

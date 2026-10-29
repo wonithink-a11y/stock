@@ -1,0 +1,64 @@
+{
+ "verdict": "PASS",
+ "passed": 4,
+ "base": {
+  "n": 415,
+  "bp": -1002.5,
+  "t": -5.29
+ },
+ "K1_placebo": {
+  "pass": true,
+  "diff_all": {
+   "n": 415,
+   "bp": -1073.6,
+   "t": -5.78
+  },
+  "diff_train": {
+   "n": 213,
+   "bp": -1056.1,
+   "t": -3.47
+  },
+  "diff_oos": {
+   "n": 202,
+   "bp": -1092.1,
+   "t": -5.26
+  },
+  "placebo_mean": {
+   "n": 415,
+   "bp": 71.1,
+   "t": 1.77
+  }
+ },
+ "K2_month_boot_ci95": {
+  "pass": true,
+  "ci": [
+   -1397.4,
+   -588.2
+  ],
+  "months": 93
+ },
+ "K3_drop_top3_months": {
+  "pass": true,
+  "n": 407,
+  "bp": -940.3,
+  "t": -4.9
+ },
+ "K4_delay_L3": {
+  "pass": true,
+  "n": 415,
+  "bp": -616.6,
+  "t": -3.84
+ },
+ "record": {
+  "delay_L2": {
+   "n": 415,
+   "bp": -735.3,
+   "t": -3.52
+  },
+  "second_week_L8": {
+   "n": 414,
+   "bp": -392.0,
+   "t": -3.37
+  }
+ }
+}
