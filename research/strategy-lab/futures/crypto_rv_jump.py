@@ -123,12 +123,22 @@ def load() -> dict:
 # ---------- 계산 ----------
 def week_stats(p: pd.Series, fund: pd.Series, mondays: pd.DatetimeIndex) -> pd.DataFrame:
     """월요일 T 마다: 형성 창 가격 [T−168h, T] 의 168개 로그수익으로 RV·BV·JV, 보유 R = p(T+168h)/p(T) − 1."""
-    lr = np.log(p).diff()
+    p = p.asfreq("h")   # 위치 = 시각 (속도만 — 정의 불변, test_equivalence 가 옛 reindex 방식과 대조)
+    lr = np.log(p).diff().to_numpy()
+    pv = p.to_numpy()
+    t0 = p.index[0]
+    fi, fv = fund.index, fund.to_numpy()
     rows = []
     for T in mondays:
-        r = lr.reindex(pd.date_range(T - (WEEK - 1) * H, T, freq="h")).to_numpy()
+        i = int((T - t0) / H)
+        lo, hi = i - (WEEK - 1), i + 1
+        r = np.full(WEEK, np.nan)
+        a, b = max(lo, 0), min(hi, len(lr))
+        if b > a:
+            r[a - lo:b - lo] = lr[a:b]
         ok = ~np.isnan(r)
-        p0, p1 = p.get(T, np.nan), p.get(T + WEEK * H, np.nan)
+        p0 = pv[i] if 0 <= i < len(pv) else np.nan
+        p1 = pv[i + WEEK] if 0 <= i + WEEK < len(pv) else np.nan
         if ok.sum() < MIN_RET or not np.isfinite(p0) or not np.isfinite(p1):
             continue
         a = np.abs(r)
@@ -137,9 +147,9 @@ def week_stats(p: pd.Series, fund: pd.Series, mondays: pd.DatetimeIndex) -> pd.D
         n = len(pair)
         rv = float(np.nansum(r ** 2))
         bv = float(np.pi / 2 * n / (n - 1) * pair.sum()) if n > 1 else np.nan
-        fw = fund[(fund.index > T) & (fund.index <= T + WEEK * H)]
+        fa, fb = fi.searchsorted(T, side="right"), fi.searchsorted(T + WEEK * H, side="right")   # (T, T+168h]
         rows.append({"T": T, "RV": rv, "BV": bv, "JV": max(rv - bv, 0.0), "RJ": max(rv - bv, 0.0) / rv if rv > 0 else np.nan,
-                     "R": p1 / p0 - 1, "form": float(np.nansum(r)), "F": float(fw.sum()), "F_n": len(fw)})
+                     "R": p1 / p0 - 1, "form": float(np.nansum(r)), "F": float(fv[fa:fb].sum()), "F_n": int(fb - fa)})
     return pd.DataFrame(rows).set_index("T") if rows else pd.DataFrame()
 
 
