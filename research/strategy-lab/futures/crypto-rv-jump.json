@@ -1,0 +1,239 @@
+{
+ "bar": 2.23,
+ "weeks": {
+  "RV": 336,
+  "JV": 336
+ },
+ "cells": {
+  "V1": {
+   "verdict": "REJECT",
+   "sign": -1,
+   "t_train": -0.32,
+   "TRAIN": {
+    "n": 145,
+    "bp": -28.2,
+    "t": -0.32
+   },
+   "VALID": {
+    "n": 51,
+    "bp": -177.7,
+    "t": -1.82
+   },
+   "TEST": {
+    "n": 140,
+    "bp": -31.3,
+    "t": -0.55
+   },
+   "oos_gross_bp": 70.4,
+   "oos_gross_ci95": [
+    -28.7,
+    166.2
+   ],
+   "oos_funding_bp": -1.0,
+   "oos_turnover": 0.527,
+   "net10_bp": 64.1,
+   "net20_bp": 58.8,
+   "t_net10": 1.31,
+   "breakeven_rt_bp": 131.5,
+   "periods_bp": {
+    "2024": {
+     "n": 53,
+     "bp": 110.6,
+     "t": 1.28
+    },
+    "2025~": {
+     "n": 87,
+     "bp": -17.0,
+     "t": -0.23
+    },
+    "~2023": {
+     "n": 196,
+     "bp": 67.1,
+     "t": 0.95
+    }
+   },
+   "yearly_bp": {
+    "2020": -71.3,
+    "2021": 266.5,
+    "2022": -106.4,
+    "2023": 177.7,
+    "2024": 110.6,
+    "2025": -63.6,
+    "2026": 52.2
+   },
+   "fund_missing_coin_weeks": 0
+  },
+  "V2": {
+   "verdict": "REJECT",
+   "sign": 1,
+   "t_train": 0.41,
+   "TRAIN": {
+    "n": 145,
+    "bp": 26.2,
+    "t": 0.41
+   },
+   "VALID": {
+    "n": 51,
+    "bp": -38.9,
+    "t": -0.52
+   },
+   "TEST": {
+    "n": 140,
+    "bp": 16.2,
+    "t": 0.34
+   },
+   "oos_gross_bp": 1.5,
+   "oos_gross_ci95": [
+    -76.4,
+    75.7
+   ],
+   "oos_funding_bp": 1.2,
+   "oos_turnover": 1.194,
+   "net10_bp": -9.2,
+   "net20_bp": -21.2,
+   "t_net10": -0.23,
+   "breakeven_rt_bp": 2.3,
+   "periods_bp": {
+    "2024": {
+     "n": 53,
+     "bp": 3.9,
+     "t": 0.05
+    },
+    "2025~": {
+     "n": 87,
+     "bp": 23.6,
+     "t": 0.43
+    },
+    "~2023": {
+     "n": 196,
+     "bp": 9.3,
+     "t": 0.18
+    }
+   },
+   "yearly_bp": {
+    "2020": 135.0,
+    "2021": -72.6,
+    "2022": 21.0,
+    "2023": -38.9,
+    "2024": 3.9,
+    "2025": 37.0,
+    "2026": 3.8
+   },
+   "fund_missing_coin_weeks": 0
+  }
+ },
+ "record": {
+  "RV": {
+   "spread_by_split": {
+    "TEST": {
+     "bp": -31.3,
+     "t": -0.55
+    },
+    "TRAIN": {
+     "bp": -28.2,
+     "t": -0.32
+    },
+    "VALID": {
+     "bp": -177.7,
+     "t": -1.82
+    }
+   },
+   "long_only_low_minus_ew": {
+    "gross_bp": -11.2,
+    "t": -0.47,
+    "net10_bp": -13.9
+   },
+   "leg_funding_bp": {
+    "LOW": 17.79,
+    "HIGH": 17.32
+   }
+  },
+  "JV": {
+   "spread_by_split": {
+    "TEST": {
+     "bp": 16.2,
+     "t": 0.34
+    },
+    "TRAIN": {
+     "bp": 26.2,
+     "t": 0.41
+    },
+    "VALID": {
+     "bp": -38.9,
+     "t": -0.52
+    }
+   },
+   "long_only_low_minus_ew": {
+    "gross_bp": 17.6,
+    "t": 0.88,
+    "net10_bp": 11.5
+   },
+   "leg_funding_bp": {
+    "LOW": 17.68,
+    "HIGH": 18.16
+   }
+  },
+  "BV": {
+   "spread_by_split": {
+    "TEST": {
+     "bp": -53.5,
+     "t": -0.94
+    },
+    "TRAIN": {
+     "bp": -25.8,
+     "t": -0.29
+    },
+    "VALID": {
+     "bp": -191.8,
+     "t": -1.86
+    }
+   },
+   "long_only_low_minus_ew": {
+    "gross_bp": -14.9,
+    "t": -0.61,
+    "net10_bp": -17.7
+   },
+   "leg_funding_bp": {
+    "LOW": 18.3,
+    "HIGH": 17.51
+   }
+  },
+  "RJ": {
+   "spread_by_split": {
+    "TEST": {
+     "bp": -5.5,
+     "t": -0.13
+    },
+    "TRAIN": {
+     "bp": 28.1,
+     "t": 0.4
+    },
+    "VALID": {
+     "bp": 57.2,
+     "t": 0.76
+    }
+   },
+   "long_only_low_minus_ew": {
+    "gross_bp": 13.1,
+    "t": 0.64,
+    "net10_bp": 6.6
+   },
+   "leg_funding_bp": {
+    "LOW": 18.92,
+    "HIGH": 18.34
+   }
+  },
+  "ic_rv_next": {
+   "mean": -0.109,
+   "t": -5.74,
+   "weeks": 336
+  },
+  "rank_corr_rv_formation_ret": 0.108,
+  "rank_corr_rv_abs_formation_ret": 0.446,
+  "coins_per_week": {
+   "min": 12,
+   "median": 27.0,
+   "max": 28
+  }
+ }
+}

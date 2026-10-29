@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 14 |
 | 보류·판정 불가 | 41 |
-| 기각 | 135 |
-| 사전등록 문서(결과는 별도 파일) | 127 |
+| 기각 | 136 |
+| 사전등록 문서(결과는 별도 파일) | 128 |
 | 정보·탐색 | 38 |
 | 미분류 | 241 |
 
@@ -78,10 +78,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (135)
+## 기각 (136)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-29 | REJECT | crypto | [crypto-rv-jump-results-2026-10.md](crypto-rv-jump-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(실현분산) TRAIN t −0.32 · V2(점프) TRAIN t +0.41 → 둘 다 바닥선 2.23 아래, REJECT. 평균 스프레드는 구간·연도마다 부호… |
 | 2026-10-20 | REJECT | kr | [order-contract-size-results-2026-10.md](order-contract-size-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. 큰 수주 60거래일 정보 TRAIN −34bp(p 0.997) · VALID −470bp · TEST −410bp — 같은 해의 다른 수주보다도 나쁘다.… |
 | 2026-10-19 | REJECT | kr | [contract-liab-price-results-2026-10.md](contract-liab-price-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 계약부채가 크게 늘어난 회사(Q5)를 사업보고서 공시 다음 날 사면 126거래일 대조 대비 TRAIN +9.6%(p 0.165, 유의 미달)· VALID −5.7%(… |
 | 2026-10-18 | REJECT | us | [us-price-target-reliability-results-2026-10.md](us-price-target-reliability-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 월가 목표가로 다음 달 종목을 고르거나(Q2) 목표가 상향·하향을 따라가는(Q3) 규칙은 다섯 셀 모두 TRAIN 이 바닥선 2.63 에 못 미치고 구간마다 부호가 … |
@@ -218,10 +219,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (127)
+## 사전등록 문서(결과는 별도 파일) (128)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-29 | PREREGISTERED | crypto | [crypto-rv-jump-preregistration-2026-10.md](crypto-rv-jump-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 실현분산(특히 점프 성분)이 큰 코인은 다음 주 수익이 낮은가(Lee & Wang, JFQA 2025)". 사용자 요청 "깃허브에서 안 … |
 | 2026-10-28 | PREREGISTERED | kr | [day-trader-scan-kr-backtest-preregistration-2026-10.md](day-trader-scan-kr-backtest-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너의 셋업 5종이 국내 일봉에서도 다음 날 시가에 사서 종가에 팔면 같은 날 시장 종목보다 더 오르는… |
 | 2026-10-28 | PREREGISTERED | us | [day-trader-scan-forward-preregistration-2026-10.md](day-trader-scan-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너(day-trader-skill)가 장 전에 뽑는 셋업 후보를, 다음 거래일 시가에 사서 종가에 팔… |
 | 2026-10-20 | PREREGISTERED | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
