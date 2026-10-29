@@ -38,6 +38,7 @@ RV20 선물: `tail -30 ~/collector-venv/logs/rv20-futures-paper-order.log`.
 | rv20-futures-paper-order | 평일 09:05 | 로그에 percentile·배수·주문번호 또는 "주문 없음", 종료 15초 안팎 |
 | crypto-upshock-paper | 매일 09:05 | 중복 매수 없음 |
 | coinbase-premium-paper | 매시 :02 | 로그 한 줄/시(JSON), 보유 최대 1건 · `run_coinbase_premium_paper.py --judge` 는 청산 40건 전 거부가 정상 |
+| upbit-market-events | 매시 :07 | 로그 한 줄/시(nKRW ≈ 300·flagged 수) · `collect_upbit_market_events.py --judge` 는 12개월 전 거부가 정상 |
 | us-universe-snapshot | 화~토 07:30 | 스냅샷 날짜 증가 |
 | news-alert | 평일 08~18시 | 상태 `~/collector-venv/news` |
 | intraday-alert | 장중 10분 | 상태 `~/collector-venv/intraday` |
