@@ -28,6 +28,7 @@ on:
       - "Update theme-sensitivity.json (monthly)"
       - "Build events calendar (D-day)"
       - "a5-latest"
+      - "binance-listings"         # 크립토 '최근 신규 상장' 칸(매일)
     types: [completed]
   workflow_dispatch:
 
