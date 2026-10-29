@@ -147,7 +147,10 @@ Validated against
             단 2021-05~ 프리미엄 z 는 코인베이스 USDT-USD 단독 z 와 상관 0.905 — 정체는 대부분 USDT/USD 괴리(사후 진단). findings/coinbase-premium-results-2026-10.md.
             ★ 강건성·재현(889aa6e·0ca19fa) **PASS** — K1 무작위 진입 p 0.0005 · K2 월 블록 [2.8, 73.3] · K3 상위 두 달 빼도 +14.9 · K4 **업비트 KRW-BTC 롱 net10 +58bp t 3.09** ·
             알트 24종 REPLICATED(일별 +26bp t 3.35, 월 블록 [11, 44], USDT 뺀 코인 고유 성분도 재현). 원 판정은 ECONOMIC 유지. 2025~ 약해짐(t 1.7).
-            → **업비트 KRW-BTC 롱 모의 슬리브 사전등록 권고 — 🔴 사용자 GO 대기**. 실계좌는 Claude 가 켜지 않는다. findings/coinbase-premium-robustness-results-2026-10.md.
+            findings/coinbase-premium-robustness-results-2026-10.md.
+            ★ **업비트 KRW-BTC 롱 모의 슬리브 — 10-29 사용자 GO**(사전등록 4f6eace): `run_coinbase_premium_paper.py`(UpbitPaperBroker, 실주문 경로 없음) ·
+            `deploy/coinbase-premium-paper.{service,timer}` 매시 :02 · 상태 VM `~/collector-venv/cbprem-paper/`(trades.jsonl = 판정 원장). 고정 100만원·24시간 보유·지연 30분 넘으면 진입 안 함.
+            **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **VM 설치는 사용자 몫·main 반영 뒤 — 설치 미확인.** 실계좌는 Claude 가 켜지 않는다.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
             순위 IC −0.11(t −5.7)은 논문 방향이나 고분산 다리의 오른쪽 꼬리가 평균을 뒤집음 — 순위·꼬리 규칙은 사후 가설, 새 사전등록+forward 로만. findings/crypto-rv-jump-results-2026-10.md.
   안 한다   ★ 미국 월가 목표가 신뢰도(10-18, d4a61764) — 5셀 REJECT. 큰 변경 뒤 양(기록)은 forward 로만(us-target-change). findings/us-price-target-reliability-results-2026-10.md.

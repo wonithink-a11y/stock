@@ -1,0 +1,18 @@
+[Unit]
+Description=Coinbase premium C24 paper sleeve hourly timer
+
+# 타이머 자신의 실패(유닛 파일 깨짐 등)도 알린다 - 서비스 OnFailure 로는 안 잡힌다.
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 매시 :02 (KST = UTC 와 분이 같다). 정각 T 에 끝난 1시간 봉으로 신호를 보고 바로 체결한다.
+# **매일·매시**다 - 크립토는 휴장이 없다.
+# 늦게 떠도 규칙이 조용히 바뀌지 않는다 - 신호 시각 + 30분을 넘기면 진입하지 않고(청산은 처리),
+# 실행이 빠진 시각의 사건은 다음 실행이 '놓침'으로 기록하고 차단만 한다.
+# 호출 예산: 실행마다 코인베이스 3 · 바이낸스 1 · 업비트 0~2 → 하루 약 100~150회(각 공개 한도의 1% 미만).
+OnCalendar=*-*-* *:02:00
+Persistent=true
+RandomizedDelaySec=20
+
+[Install]
+WantedBy=timers.target
