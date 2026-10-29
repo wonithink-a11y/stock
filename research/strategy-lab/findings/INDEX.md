@@ -9,7 +9,7 @@
 | 통과·채택 | 21 |
 | 보류·판정 불가 | 43 |
 | 기각 | 151 |
-| 사전등록 문서(결과는 별도 파일) | 155 |
+| 사전등록 문서(결과는 별도 파일) | 156 |
 | 정보·탐색 | 39 |
 | 미분류 | 240 |
 
@@ -243,10 +243,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (155)
+## 사전등록 문서(결과는 별도 파일) (156)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-forward-preregistration-2026-10.md](binance-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "백테스트(BL7 ROBUST·강건성 PASS)가 본 '바이낸스 신규 상장 코인의 첫 주 약세'가 2026-10 이후 새 상장에서도 이어지는가".… |
 | 2026-10-30 | PREREGISTERED | crypto | [binance-listing-upbit-preregistration-2026-10.md](binance-listing-upbit-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 업비트 원화 가격에서도 보이는가 — 국내 사용자의 '상장 첫 주 매수 회피' 근거… |
 | 2026-10-30 | PREREGISTERED | crypto | [binance-listing-robustness-preregistration-2026-10.md](binance-listing-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "BL7(바이낸스 신규 상장 7일 약세, ROBUST)이 알트 전체의 약세·몇몇 달·진입 시점 하나에 기대지 않는가". BL7 결과를 본 뒤의 점… |
 | 2026-10-30 | PREREGISTERED | crypto | [coinbase-listing-preregistration-2026-10.md](coinbase-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 바이낸스에서 거래되던 코인이 코인베이스에 새로 상장되면('코인베이스 효과') 그 다음 날부터 1주·1달 BTC 대비 어느 쪽으로 가는가".… |
