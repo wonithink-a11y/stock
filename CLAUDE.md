@@ -157,6 +157,8 @@ Validated against
             긴 보유의 이득은 상승장 노출과 구분 안 됨. 점수 낮을 때 사기(z ≤ −2 롱)는 TRAIN −76bp/회. findings/coinbase-premium-exit-rule-results-2026-10.md.
             ★ 진입·청산 점수대 40셀(b16913f·0999682) **INCONCLUSIVE — 지금 규칙 유지**: TRAIN 선택 E1.0·Zm0.5, 2023~ 월 +145bp t 1.52. 사후 진단 — 고른 셀은 시장 노출 39%(지금 12%),
             노출당 효율은 z ≥ 2 · 24h 가 최고, 2025~ 하락장에서 고른 셀 −0.2%/년 vs 지금 +7.8%. findings/coinbase-premium-grid-results-2026-10.md.
+  안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
+            두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 — forward 로만(새 사전등록, 사용자 결정). DefiLlama 는 PIT 아님. findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).

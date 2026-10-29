@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 137 |
-| 사전등록 문서(결과는 별도 파일) | 135 |
+| 기각 | 138 |
+| 사전등록 문서(결과는 별도 파일) | 138 |
 | 정보·탐색 | 38 |
 | 미분류 | 241 |
 
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (137)
+## 기각 (138)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [stablecoin-supply-btc-results-2026-10.md](stablecoin-supply-btc-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. S1(1일) TRAIN t 1.49 < 바닥선 2.34 → REJECT(VALID +97 · TEST +65bp 로 같은 부호지만 TRAIN 에서 신호가 서… |
 | 2026-10-29 | REJECT | crypto | [kimchi-premium-hourly-results-2026-10.md](kimchi-premium-hourly-results-2026-10.md) | 신호: 없음 · 경제성: 미달. K4 TRAIN t −1.06 · K24 TRAIN t −1.31 → 둘 다 바닥선 2.15 아래, REJECT. 구간마다 부호가 바뀐다(K24 TRAIN −28 ·… |
 | 2026-10-29 | REJECT | crypto | [crypto-rv-jump-results-2026-10.md](crypto-rv-jump-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(실현분산) TRAIN t −0.32 · V2(점프) TRAIN t +0.41 → 둘 다 바닥선 2.23 아래, REJECT. 평균 스프레드는 구간·연도마다 부호… |
 | 2026-10-20 | REJECT | kr | [order-contract-size-results-2026-10.md](order-contract-size-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. 큰 수주 60거래일 정보 TRAIN −34bp(p 0.997) · VALID −470bp · TEST −410bp — 같은 해의 다른 수주보다도 나쁘다.… |
@@ -224,10 +225,13 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (135)
+## 사전등록 문서(결과는 별도 파일) (138)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-btc-preregistration-2026-10.md](stablecoin-supply-btc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인(USDT·USDC 등) 발행이 평소보다 크게 늘거나 줄어든 주 다음 1·7일, BTC 는 그 방향(늘면 오름)으로 가는가". 코인베… |
+| 2026-10-29 | PREREGISTERED | crypto | [upbit-market-events-forward-preregistration-2026-10.md](upbit-market-events-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트가 투자유의·주의를 건 종목은 그 뒤 시장보다 약한가(회피 필터 근거가 되는가)". 과거 지정 이력은 업비트 공지에만 있고 이 환경에서 공… |
+| 2026-10-29 | PREREGISTERED | kr | [kr-static-vi-proxy-preregistration-2026-10.md](kr-static-vi-proxy-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 시가 대비 ±10%(정적 VI 발동 조건)에 처음 닿은 종목은 VI 가 풀린 뒤 종가까지 그 방향으로 더 가는가, 되돌리는가". 실제 VI… |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-shadow-exits-preregistration-2026-10.md](coinbase-premium-paper-shadow-exits-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 매수를 48·72시간 뒤나 z ≤ −0.5 에 팔았다면 24시간 청산보다 나았는가"를 앞으로의 자료로 잰다. 과거 자료의 청산 비교(98b… |
 | 2026-10-29 | PREREGISTERED | crypto | [kimchi-premium-hourly-preregistration-2026-10.md](kimchi-premium-hourly-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 프리미엄(김치 프리미엄)이 평소보다 크게 높거나 낮을 때 BTC 가 다음 4·24시간 어느 쪽으로 가는가". 김치 프리미엄 30일 연구(k… |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-grid-preregistration-2026-10.md](coinbase-premium-grid-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "사는 점수(z 문턱)와 파는 점수·시간을 여러 가지로 바꾸면 지금 규칙(z ≥ 2 · 24시간)보다 확실히 나은 조합이 있는가". 사용자 요청(… |
