@@ -4101,7 +4101,61 @@ function premCard(p) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">${side(p.ev.filter(x => x.z > 0), 1)}${side(p.ev.filter(x => x.z < 0), -1)}</div>
       <p class="muted" style="font-size:11px;margin:10px 0 0">브라우저가 공개 시세로 계산한 참고값 · ${kstHM(cryptoSt.premAt)} KST 기준(10분마다 새로 계산). 모의 매매의 정본은 VM 슬리브 기록이고, 매수·청산은 텔레그램 매매 방으로 온다. 매매 권유가 아니다.</p></div>`;
 }
+const listSt = { doc: null, rel: {}, at: 0, loading: false, err: null };   // 최근 신규 상장 — docs/data/binance-listings.json(Actions 매일) + 시세는 브라우저가 직접
+const D_MS = 24 * H_MS;
+async function listLoad() {   // 10분마다: 목록 1 + 상장마다 L+1 일봉 1 + BTC(같은 날 1) + 현재가 1
+  if (listSt.loading) return;
+  listSt.loading = true;
+  try {
+    if (!listSt.doc) {
+      const r = await fetch('data/binance-listings.json', { cache: 'no-cache' });
+      listSt.doc = r.ok ? await r.json() : { listings: [], missing: true };
+    }
+    const now = Date.now();
+    const live = (listSt.doc.listings || []).filter(x => !x.stockLike && now >= Date.parse(x.L + 'T00:00:00Z') + D_MS);   // L+1 시가가 있어야 잰다
+    const day1 = x => Date.parse(x.L + 'T00:00:00Z') + D_MS;
+    const open1 = async (sym, t) => { const r = await fetch(`${BNV}/klines?symbol=${sym}&interval=1d&startTime=${t}&limit=1`); if (!r.ok) return null; const k = await r.json(); return k.length && k[0][0] === t ? +k[0][1] : null; };
+    const btcOpen = {};
+    for (const t of [...new Set(live.map(day1))]) btcOpen[t] = await open1('BTCUSDT', t);
+    const opens = await Promise.all(live.map(x => open1(x.sym, day1(x))));
+    const syms = JSON.stringify([...new Set(['BTCUSDT', ...live.map(x => x.sym)])]);
+    const pr = live.length ? await fetch(`${BNV}/ticker/price?symbols=${encodeURIComponent(syms)}`) : null;
+    const px = pr && pr.ok ? Object.fromEntries((await pr.json()).map(p => [p.symbol, +p.price])) : {};
+    listSt.rel = {};
+    live.forEach((x, i) => {
+      const o = opens[i], b = btcOpen[day1(x)];
+      if (o && b && px[x.sym] && px.BTCUSDT) listSt.rel[x.sym] = { coin: px[x.sym] / o - 1, btc: px.BTCUSDT / b - 1 };
+    });
+    listSt.err = null; listSt.at = Date.now();
+  } catch (e) { listSt.err = String(e); }
+  listSt.loading = false;
+  if (state.tab === 'crypto') render();
+}
+function listingCard() {
+  const d = listSt.doc;
+  const bt = (d && d.backtest) || { events: 547, years: '2018~2026' };
+  const head = `<h3 style="margin:0 0 4px">최근 신규 상장 <span class="muted" style="font-size:12px;font-weight:400">바이낸스 · 30일 안</span></h3>
+      <p style="font-size:13px;margin:0 0 8px;padding:8px 10px;border-radius:8px;background:rgba(127,127,127,.1)">⚠ 과거 ${bt.events}건(${esc(bt.years)}): 상장 다음 날부터 7일 BTC 대비 평균 −10%, 4개 중 3개가 BTC 에 짐 — 평균이지 개별 코인 예측이 아님.</p>`;
+  if (!d) return `<div class="card" style="margin-top:10px">${head}<p class="muted" style="margin:0">${listSt.err ? '불러오지 못했습니다(' + esc(listSt.err) + ').' : '불러오는 중…'}</p></div>`;
+  if (d.missing) return `<div class="card" style="margin-top:10px">${head}<p class="muted" style="margin:0">목록 준비 중 — 매일 한 번 새로 만든다.</p></div>`;
+  const now = Date.now(), all = d.listings || [], ls = all.filter(x => !x.stockLike), stk = all.filter(x => x.stockLike);
+  const pct = v => `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%</span>`;
+  const rows = ls.map(x => {
+    const n = Math.floor((now - Date.parse(x.L + 'T00:00:00Z')) / D_MS);   // 상장일 = 0일째
+    const wk = n >= 1 && n <= 7, r = listSt.rel[x.sym];
+    return `<tr${wk ? ' style="background:rgba(220,60,60,.08)"' : ''}><td><b>${esc(x.base)}</b>${wk ? ' <span class="neg" style="font-size:11px;font-weight:700">첫 주</span>' : ''}<div class="muted" style="font-size:11px">${esc(x.L.slice(5))} 상장</div></td>
+      <td style="text-align:right">${n}일째</td>
+      <td style="text-align:right">${n < 1 ? '<span class="muted">내일부터</span>' : r ? pct(r.coin - r.btc) : '-'}</td>
+      <td class="m-hide" style="text-align:right">${r ? pct(r.coin) : '-'}</td></tr>`;
+  }).join('');
+  return `<div class="card" style="margin-top:10px">${head}
+      ${ls.length ? `<div class="table-wrap"><table style="font-size:13px"><thead><tr><th>코인</th><th style="text-align:right">경과</th><th style="text-align:right">BTC 대비</th><th class="m-hide" style="text-align:right">코인</th></tr></thead><tbody>${rows}</tbody></table></div>`
+        : '<p class="muted" style="margin:0">지난 30일 새로 상장한 코인 없음.</p>'}
+      ${stk.length ? `<p class="muted" style="font-size:12px;margin:8px 0 0">토큰화 주식처럼 보이는 ${stk.length}개는 표에서 뺐다(주식 가격을 따라감): ${stk.slice(0, 12).map(x => esc(x.base)).join(' · ')}${stk.length > 12 ? ' …' : ''}</p>` : ''}
+      <p class="muted" style="font-size:11px;margin:8px 0 0">'BTC 대비' = 상장 다음 날(UTC 0시) 시가부터 지금까지 코인 − BTC. 1~7일째 = 연구가 본 약세 구간. 목록 ${d.updatedAt ? esc(kstHM(Date.parse(d.updatedAt))) + ' KST' : '-'} 기준, 시세는 ${listSt.at ? kstHM(listSt.at) + ' KST' : '-'}. 경고·맥락 전용 — 매매 권유가 아니다.</p></div>`;
+}
 function renderCrypto() {
+  if (!listSt.at || Date.now() - listSt.at > 600000) listLoad();
   if (!cryptoSt.at || Date.now() - cryptoSt.at > 60000) cryptoLoad();
   if (!cryptoSt.premAt || Date.now() - cryptoSt.premAt > 600000) premLoad();
   if (!cryptoSt.tick && cryptoSt.err) return `<div class="card empty">시세를 불러오지 못했습니다(${esc(cryptoSt.err)}). 잠시 뒤 다시 열어 보세요.</div>`;
@@ -4113,7 +4167,7 @@ function renderCrypto() {
     <td style="text-align:right">${usd(+t.lastPrice)}</td><td style="text-align:right">${pc(+t.priceChangePercent)}</td>
     <td class="m-hide" style="text-align:right">$${(+t.quoteVolume / 1e6).toFixed(0)}M</td></tr>`).join('');
   return `<div class="card"><h3 style="margin:0 0 8px">주요 코인 <span class="muted" style="font-size:12px;font-weight:400">바이낸스 USDT · 24시간 변동</span></h3>
-      <div class="table-wrap"><table><thead><tr><th>코인</th><th style="text-align:right">가격</th><th style="text-align:right">24시간</th><th class="m-hide" style="text-align:right">24시간 거래대금</th></tr></thead><tbody>${rows}</tbody></table></div></div>${premCard(cryptoSt.prem)}`;
+      <div class="table-wrap"><table><thead><tr><th>코인</th><th style="text-align:right">가격</th><th style="text-align:right">24시간</th><th class="m-hide" style="text-align:right">24시간 거래대금</th></tr></thead><tbody>${rows}</tbody></table></div></div>${listingCard()}${premCard(cryptoSt.prem)}`;
 }
 const CRYPTO_LAB = [   // 크립토 연구 판정 — 원문은 findings 파일(저장소 공개)
   ['2026-10-30', 'REJECT', '무기한 선물 신규 상장(기존 코인) → 현물', '숏 수단 생겨도 2019~22 엔 영향 없음 · 바이낸스는 직전 한 달 급등 코인에 무기한을 붙임 · 2023~ 되돌림은 사후', 'binance-perp-launch-results-2026-10.md'],

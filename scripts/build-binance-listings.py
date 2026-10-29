@@ -36,6 +36,10 @@ def eligible(base: str) -> bool:
     return base not in STABLE and not LEV.search(base)
 
 
+def stock_like(base: str) -> bool:   # 토큰화 주식처럼 보이는 것(이름이 B 로 끝나는 주식 티커 모양) — run_binance_listing_forward.py 와 같은 규칙, 표시 구분 전용
+    return base.endswith("B") and base[:-1].isalpha() and len(base) <= 6
+
+
 def _get(path: str, **params):
     import requests
     for k in range(5):
@@ -80,7 +84,7 @@ def build(symbols: list[dict], cache: dict, first_fn, today: datetime) -> tuple[
                     others.append(cache[x["sym"]])
         if any(o < L for o in others):
             continue
-        out.append({"base": b, "sym": usdt, "L": L})
+        out.append({"base": b, "sym": usdt, "L": L, "stockLike": stock_like(b)})
     return sorted(out, key=lambda e: e["L"], reverse=True), cache
 
 
@@ -99,7 +103,13 @@ def main():
         return 1
     syms = [{"sym": s["symbol"], "base": s["baseAsset"], "quote": s["quoteAsset"]} for s in info["symbols"] if s.get("status") == "TRADING"]
     now = datetime.now(timezone.utc)
-    listings, cache = build(syms, dict(prev.get("firstDay", {})), first_day, now)
+    cache = dict(prev.get("firstDay", {}))
+    todo = [s["sym"] for s in syms if s["quote"] == "USDT" and eligible(s["base"]) and s["sym"] not in cache]
+    if todo:   # 첫 실행은 ~450회(1회 ~0.9초) — 6개 동시로 받아 캐시를 채운다(가중치 2 × 450, 분당 한도 6,000 안)
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(6) as ex:
+            cache.update(zip(todo, ex.map(first_day, todo)))
+    listings, cache = build(syms, cache, first_day, now)
     doc = {"updatedAt": now.isoformat(timespec="seconds"), "windowDays": WINDOW_DAYS, "backtest": BACKTEST,
            "listings": listings, "symbolsTrading": len(syms), "firstDay": dict(sorted(cache.items()))}
     out.write_text(json.dumps(doc, ensure_ascii=False, indent=0) + "\n", encoding="utf-8")
@@ -117,7 +127,7 @@ def selftest():
     calls = []
     fn = lambda s: (calls.append(s), fd.get(s))[1]  # noqa: E731
     lst, cache = build(syms, {}, fn, datetime(2026, 11, 20, tzinfo=timezone.utc))
-    assert [x["base"] for x in lst] == ["BBB"]; ok += 1                       # AAA 는 BTC 먼저 · OLD 는 오래됨 · 스테이블 제외 · CCC 는 USDT 없음
+    assert [x["base"] for x in lst] == ["BBB"] and lst[0]["stockLike"] and not stock_like("PEPE"); ok += 1                       # AAA 는 BTC 먼저 · OLD 는 오래됨 · 스테이블 제외 · CCC 는 USDT 없음
     n = len(calls)
     build(syms, cache, fn, datetime(2026, 11, 20, tzinfo=timezone.utc))
     assert len(calls) == n; ok += 1                                           # 캐시로 재호출 없음

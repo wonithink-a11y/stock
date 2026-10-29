@@ -1,0 +1,46 @@
+name: binance-listings
+
+# 바이낸스 최근 30일 신규 상장 목록 → docs/data/binance-listings.json (대시보드 크립토 > '최근 신규 상장' 경고 칸).
+# scripts/build-binance-listings.py — 공개 API(data-api.binance.vision), 키 없음. 첫 일봉 날짜는 JSON 의 firstDay 캐시로 이어 쓴다.
+# 맥락·경고 전용(절대 규칙 1) — 점수·매매·텔레그램에 쓰지 않는다. 근거: findings/binance-listing-results-2026-10.md (BL7 ROBUST).
+
+on:
+  schedule:
+    - cron: '10 1 * * *'    # 매일 10:10 KST (예정 시각 — Actions 는 몇 시간 늦을 수 있다)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: binance-listings
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --quiet requests
+
+      - name: Build
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -u scripts/build-binance-listings.py
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/binance-listings.json
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update docs/data/binance-listings.json (바이낸스 신규 상장)"
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && exit 0
+            sleep 5
+          done
+          exit 1
