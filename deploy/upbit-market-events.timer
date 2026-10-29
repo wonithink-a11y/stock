@@ -1,0 +1,16 @@
+[Unit]
+Description=Upbit market warning/caution flags hourly timer
+
+# 타이머 자신의 실패(유닛 파일 깨짐 등)도 알린다.
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 매시 :07 (KST = UTC 와 분이 같다). coinbase-premium-paper(:02)와 겹치지 않게 5분 뒤.
+# 매일·매시 - 크립토는 휴장이 없다. 빠진 실행은 다음 실행이 '최대 지연 n시간'으로 적는다.
+# 호출 예산: 실행마다 market/all 1 + ticker 3 → 하루 약 100회(업비트 공개 한도의 극히 일부).
+OnCalendar=*-*-* *:07:00
+Persistent=true
+RandomizedDelaySec=20
+
+[Install]
+WantedBy=timers.target

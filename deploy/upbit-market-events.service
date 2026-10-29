@@ -1,0 +1,25 @@
+[Unit]
+# 업비트 투자유의·주의 플래그 forward 기록, 매시 1회.
+# 사전등록: research/strategy-lab/findings/upbit-market-events-forward-preregistration-2026-10.md
+#
+# 업비트 공식 공개 API(market/all?is_details=true · ticker)만 쓴다 - 키 없음, 주문 없음, EnvironmentFile 없음.
+# 상태는 ~/collector-venv/upbit-events/: state.json(직전 플래그 - 지우면 다음 실행이 '첫 실행'이 되어
+# 켜져 있던 플래그를 사건으로 세지 않는다) · events.jsonl · snapshots-*.jsonl · prices-*.jsonl(판정 원장 - 지우지 않는다).
+# KRW 마켓이 100개 미만으로 오면 기록하지 않고 실패한다(조용한 빈 응답 방지) -> 장애 방 알림.
+Description=Upbit market warning/caution flags forward recorder (hourly, read-only)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/collect_upbit_market_events.py
+TimeoutStartSec=180
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/upbit-market-events.log
+StandardError=append:/home/ubuntu/collector-venv/logs/upbit-market-events.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes

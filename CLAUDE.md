@@ -178,6 +178,11 @@ Validated against
   다음      ★ **공급망 지도(10-28, 세션인수인계-2026-10-28.md 마감 절)** — 시장·섹터 > 공급망. 정본 `config/supplyChain.json`(연결마다 공시 접수번호·원문 인용 필수, 비율은 공시된 것만) →
             `scripts/build-supply-chain.py --selftest` → docs/data/supply-chain.json(정적) · 주가 `scripts/build-supply-prices.py`(daily-analysis 단계, 관심종목 밖 66곳). 노드 112·연결 132(DART 사업보고서·공급계약 공시 88일·SEC 10-K/8-K).
             맥락 전용(절대 규칙 1). **1년치 공급계약 수집은 중지 — 저장본 `C:\Users\User\supply-chain-cache`, 재개 절차 research/supply-chain/README.md.** 급한 것: 평일 16:40 daily-analysis 의 새 단계(supply prices) 첫 실행·6m 확인.
+  다음      ★ **크립토 탭(10-29, 사용자 요청)** — 대시보드 맨 끝 그룹 '크립토': 시세·프리미엄(바이낸스 시세 미러·코인베이스 공개 API 를 브라우저가 직접 — CORS 허용, 키 없음.
+            z 는 VM 러너와 같은 정의, 실측 대조 소수 6자리 일치) · 연구·모의(판정 카드 `CRYPTO_LAB` 손으로 갱신 — 새 크립토 결과가 나오면 한 줄 추가).
+            업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. Playwright 375px 로만 확인 — **실기기 미확인**.
+  다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
+            둘 다 VM 설치·실행은 사용자 몫(인수인계 10-29 맨 위). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **대시보드 화면 5건(10-20)** — 세션인수인계-2026-10-20-b.md. 장중 홈 = 평일 09:00~15:30 ∧ 네이버 장 상태 OPEN 이면 홈 맨 위가 지수·잠정 수급·관심종목 353 오르내림
             (`/kr-intraday` quotes = [현재가, 전일종가]), 아니면 마감 리포트. **실제 사이트·폰 장중 확인 전**(브라우저 패널이 github.io→VM 요청을 막아 localhost 로만 확인).
             증권사 의견 일지 = KIS 종목투자의견(의견·목표가만, 리포트 본문 없음) 관심종목 KR 180일 → docs/data/invest-opinion.json(Actions `invest-opinion` 평일 20:00) →
