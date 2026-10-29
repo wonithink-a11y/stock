@@ -9,8 +9,8 @@
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
 | 기각 | 138 |
-| 사전등록 문서(결과는 별도 파일) | 138 |
-| 정보·탐색 | 38 |
+| 사전등록 문서(결과는 별도 파일) | 139 |
+| 정보·탐색 | 39 |
 | 미분류 | 241 |
 
 ## 통과·채택 (16)
@@ -225,10 +225,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (138)
+## 사전등록 문서(결과는 별도 파일) (139)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-forward-preregistration-2026-10.md](stablecoin-supply-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인 발행량이 평소보다 크게 늘면 다음 1·7일 BTC 가 오르고(줄면 내리고), 그것이 앞으로의 자료에서도 비용 뒤 양인가". 백테스트… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-btc-preregistration-2026-10.md](stablecoin-supply-btc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인(USDT·USDC 등) 발행이 평소보다 크게 늘거나 줄어든 주 다음 1·7일, BTC 는 그 방향(늘면 오름)으로 가는가". 코인베… |
 | 2026-10-29 | PREREGISTERED | crypto | [upbit-market-events-forward-preregistration-2026-10.md](upbit-market-events-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트가 투자유의·주의를 건 종목은 그 뒤 시장보다 약한가(회피 필터 근거가 되는가)". 과거 지정 이력은 업비트 공지에만 있고 이 환경에서 공… |
 | 2026-10-29 | PREREGISTERED | kr | [kr-static-vi-proxy-preregistration-2026-10.md](kr-static-vi-proxy-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 시가 대비 ±10%(정적 VI 발동 조건)에 처음 닿은 종목은 VI 가 풀린 뒤 종가까지 그 방향으로 더 가는가, 되돌리는가". 실제 VI… |
@@ -368,10 +369,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (38)
+## 정보·탐색 (39)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | EXPLORATORY | crypto | [stablecoin-supply-explore-2023-2026-10.md](stablecoin-supply-explore-2023-2026-10.md) | 사후 기술(판정 없음). 2023~ S1 104건 평균 +71.8bp(t 2.25)는 사건 단위로 센 값이고, 7일 이내 사건을 한 국면으로 묶으면 독립 국면 19개 · 국면 평균 +19.4bp(t… |
 | 2026-10-28 | INFORMATION | kr | [day-trader-scan-kr-results-2026-10.md](day-trader-scan-kr-results-2026-10.md) | 신호: 있음 · 경제성: 미달. 셀 판정 {"B20": "REJECT", "FLAG": "REJECT", "RECL": "REJECT", "OVSD": "INFORMATION", "BNCE": "R… |
 | 2026-10-18 | EXPLORATORY | crypto | [upbit-listing-executability-2026-10.md](upbit-listing-executability-2026-10.md) | 실행 가능성 점검(판정 없음). 상장일 D0 종가에 바이낸스 무기한이 있던 사건 105/119(88%, 2025~ 94%). 무기한 7일 숏은 평균 +11.2%(원수익), 펀딩이 평균 −2.3%(2… |
 | 2026-10-18 | EXPLORATORY | kr | [rv20-2026-crash-diagnosis-2026-10.md](rv20-2026-crash-diagnosis-2026-10.md) | 진단(판정 없음, 규칙 불변). 규칙은 1차 하락(6-22 고점 → 8월)에는 0x 였다 — 고점→저점 79거래일 중 48일 0x, 로그수익 규칙 −21.5% vs 보유 −53.8%. 모의 계좌 손… |
