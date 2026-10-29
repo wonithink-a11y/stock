@@ -4116,6 +4116,18 @@ function renderCrypto() {
       <div class="table-wrap"><table><thead><tr><th>코인</th><th style="text-align:right">가격</th><th style="text-align:right">24시간</th><th class="m-hide" style="text-align:right">24시간 거래대금</th></tr></thead><tbody>${rows}</tbody></table></div></div>${premCard(cryptoSt.prem)}`;
 }
 const CRYPTO_LAB = [   // 크립토 연구 판정 — 원문은 findings 파일(저장소 공개)
+  ['2026-10-30', 'REJECT', 'BTC–나스닥 괴리 되돌림', '되돌림 없음 — 오히려 나스닥보다 앞선 BTC 가 계속 앞서는 쪽(사건 적어 판정 불가, 사후 관찰)', 'btc-nasdaq-divergence-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '코인베이스 거래량 비중 → BTC 1·7일', '신호 없음 — 가격 괴리(프리미엄)와 상관 0.005, 거래량 비중엔 정보 없음', 'coinbase-volume-share-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '알트 거래량 급증 → 다음 주(횡단면)', '2020~22 와 2023~ 방향이 정반대 — 신호 아님', 'crypto-volume-premium-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '코인베이스 프리미엄 알트 횡단면', '어느 알트에 미국 수요가 더 몰렸나는 비용(하루 0.12%)을 못 넘음 — C24 슬리브는 그대로', 'coinbase-premium-xs-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', 'BTC 주간 모멘텀(지난 1·4주)', '4주는 세 구간 모두 양이나 기준 미달 · 롱만 쓰면 낙폭 절반(기록)', 'crypto-tsmom-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '달력 효과(월말·월초 · 옵션 만기 전후)', '세 칸 모두 신호 없음 · 만기 금요일 변동성 눌림도 없음', 'crypto-calendar-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '알트 상대 김치 프리미엄(19종)', '2018~22 에만 약하게 있고 2023~ 소멸', 'alt-kimchi-relative-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '업비트 거래대금 과열 → BTC 7일', '\'붐비면 고점\' 확인 안 됨(오히려 상승 쪽, 기준 미달)', 'upbit-turnover-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', 'CME 주말 갭 메우기', '메움 59% vs 반대쪽 같은 거리 62% — 끌림 없음', 'cme-gap-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '공포·탐욕 지수 극단', '\'극단 공포에 사기\' 비용 전에도 성립 안 함', 'fear-greed-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '해시 리본(채굴자 항복)', '항복 국면 쉬기 Sharpe 0.90 vs 그냥 보유 1.16 · 매수 신호 뒤 수익 ≈ 아무 날', 'hash-ribbons-results-2026-10.md'],
+  ['2026-10-30', 'REJECT', '내재변동성 DVOL(쉬기·VRP·급변)', '변동성 높을 때 쉬면 오히려 손해 · 옵션 프리미엄(VRP) 15 → 1%p 로 소멸', 'crypto-dvol-results-2026-10.md'],
   ['2026-10-30', 'REJECT', '스테이블코인 발행량 → BTC 1·7일', '1일: 2018~22 에서 신호 안 섬(t 1.49) · 7일: 표본 부족. 2023~ 는 \'늘면 오름\' 쪽(사후 관찰)', 'stablecoin-supply-btc-results-2026-10.md'],
   ['2026-10-29', 'PASS', '코인베이스 프리미엄 C24 강건성·알트 재현', '무작위 진입 p 0.0005 · 업비트 롱 비용 뒤 +0.58%/회(t 3.09) · 알트 24종 재현', 'coinbase-premium-robustness-results-2026-10.md'],
   ['2026-10-29', 'ECONOMIC', '코인베이스 프리미엄 → BTC 24시간', '2018~2026 아홉 해 모두 양, 비용 뒤 +0.28%/회(t 1.99). 신호 대부분이 USDT/달러 괴리', 'coinbase-premium-results-2026-10.md'],
