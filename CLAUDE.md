@@ -143,6 +143,8 @@ Validated against
   안 한다   ★ 단기·크립토 5건(10-17~18) 전부 REJECT(청산 반등·FOMC 직전·주말·KOSPI200 정기변경·업비트 상장). 업비트 상장 7일 숏만 forward(월간 점검). findings/*-results-2026-10.md.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
+  다음      ★ **코인베이스 프리미엄 → BTC 24시간(10-29, f0de9c8·20401a4) — C24 ECONOMIC**(TRAIN t 3.53 · TEST +45bp t 2.84 · OOS net10 +27.9bp t 1.99, 아홉 해 모두 양) · C4 INFORMATION(비용 미달).
+            단 2021-05~ 프리미엄 z 는 코인베이스 USDT-USD 단독 z 와 상관 0.905 — 정체는 대부분 USDT/USD 괴리(사후 진단). 채택 아님 — forward 그림자 사전등록은 **사용자 결정 대기**. findings/coinbase-premium-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
             순위 IC −0.11(t −5.7)은 논문 방향이나 고분산 다리의 오른쪽 꼬리가 평균을 뒤집음 — 순위·꼬리 규칙은 사후 가설, 새 사전등록+forward 로만. findings/crypto-rv-jump-results-2026-10.md.
   안 한다   ★ 미국 월가 목표가 신뢰도(10-18, d4a61764) — 5셀 REJECT. 큰 변경 뒤 양(기록)은 forward 로만(us-target-change). findings/us-price-target-reliability-results-2026-10.md.
