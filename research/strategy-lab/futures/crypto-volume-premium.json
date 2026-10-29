@@ -1,0 +1,144 @@
+{
+ "bar": 1.92,
+ "coins": [
+  "AAVE",
+  "ADA",
+  "APT",
+  "ARB",
+  "ATOM",
+  "AVAX",
+  "BCH",
+  "BNB",
+  "DOGE",
+  "DOT",
+  "ETH",
+  "FIL",
+  "INJ",
+  "LINK",
+  "LTC",
+  "NEAR",
+  "OP",
+  "PEPE",
+  "SHIB",
+  "SOL",
+  "SUI",
+  "UNI",
+  "WLD",
+  "ZEC"
+ ],
+ "V1": {
+  "verdict": "REJECT",
+  "sign": -1,
+  "t_train": -1.08,
+  "TRAIN": {
+   "days": 156,
+   "coins_avg": 15.2,
+   "gross_bp": -86.2,
+   "t": -1.08
+  },
+  "VALID": {
+   "days": 53,
+   "coins_avg": 21.8,
+   "gross_bp": 76.1,
+   "t": 1.11
+  },
+  "TEST": {
+   "days": 142,
+   "coins_avg": 24.0,
+   "gross_bp": 101.0,
+   "t": 1.85
+  },
+  "oos_gross_ci95": [
+   -179.3,
+   -8.4
+  ],
+  "cost_bp_per_day": 8.0,
+  "net_bp": -102.2,
+  "net_stress_bp": -110.2,
+  "t_net": -2.33,
+  "breakeven_cost_multiple": -11.83,
+  "periods_bp": {
+   "2024": {
+    "n": 52,
+    "bp": -144.6,
+    "t": -1.36
+   },
+   "2025~": {
+    "n": 90,
+    "bp": -75.8,
+    "t": -1.25
+   },
+   "~2023": {
+    "n": 209,
+    "bp": 45.0,
+    "t": 0.72
+   }
+  },
+  "yearly": {
+   "2020": 4.9,
+   "2021": 197.9,
+   "2022": 55.7,
+   "2023": -76.1,
+   "2024": -144.6,
+   "2025": -164.6,
+   "2026": 45.6
+  },
+  "legs_bp": {
+   "TRAIN": {
+    "long_minus_ew": -23.9,
+    "ew_minus_short": -62.3
+   },
+   "VALID": {
+    "long_minus_ew": 6.5,
+    "ew_minus_short": 69.6
+   },
+   "TEST": {
+    "long_minus_ew": 66.9,
+    "ew_minus_short": 34.1
+   }
+  }
+ },
+ "record": {
+  "hold2w_biweekly": {
+   "TEST": {
+    "weeks": 70,
+    "bp": 229.5,
+    "t": 1.28,
+    "cost": 10.2
+   },
+   "TRAIN": {
+    "weeks": 78,
+    "bp": -110.7,
+    "t": -0.58,
+    "cost": 10.0
+   },
+   "VALID": {
+    "weeks": 27,
+    "bp": 248.5,
+    "t": 1.63,
+    "cost": 10.3
+   }
+  },
+  "long_only_top_minus_ew": {
+   "TEST": {
+    "weeks": 142,
+    "bp": 66.9,
+    "t": 2.07,
+    "cost": 4.1
+   },
+   "TRAIN": {
+    "weeks": 156,
+    "bp": -23.9,
+    "t": -0.57,
+    "cost": 4.1
+   },
+   "VALID": {
+    "weeks": 53,
+    "bp": 6.5,
+    "t": 0.19,
+    "cost": 4.4
+   }
+  },
+  "rankcorr_shock_vs_lastweek_ret": 0.329
+ }
+}

@@ -8,7 +8,7 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 147 |
+| 기각 | 148 |
 | 사전등록 문서(결과는 별도 파일) | 149 |
 | 정보·탐색 | 39 |
 | 미분류 | 241 |
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (147)
+## 기각 (148)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [crypto-volume-premium-results-2026-10.md](crypto-volume-premium-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 지난주 거래가 평소보다 크게 몰린 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −86bp/주(t −1.08, 바닥선 1.92 미달), 그 뒤 VALID +… |
 | 2026-10-30 | REJECT | crypto | [coinbase-premium-xs-results-2026-10.md](coinbase-premium-xs-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 같은 날 코인베이스에서 상대적으로 비싼 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −1.4bp/일(t −0.13) 로 0. VALID +14 · TEST… |
 | 2026-10-30 | REJECT | crypto | [crypto-tsmom-results-2026-10.md](crypto-tsmom-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. T1(지난 1주 부호) TRAIN +34bp/주 t 0.53 · T4(지난 4주 부호) TRAIN +103bp t 1.63 — 둘 다 바닥선 2.25 미달 →… |
 | 2026-10-30 | REJECT | crypto | [crypto-calendar-results-2026-10.md](crypto-calendar-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M1 월말·월초 4일 TRAIN +131bp(t 1.50) → VALID −110 · TEST −101 로 뒤집힘. E1 옵션 만기 전 48시간 TRAIN −99(t… |
