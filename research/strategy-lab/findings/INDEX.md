@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 148 |
-| 사전등록 문서(결과는 별도 파일) | 149 |
+| 기각 | 149 |
+| 사전등록 문서(결과는 별도 파일) | 150 |
 | 정보·탐색 | 39 |
 | 미분류 | 241 |
 
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (148)
+## 기각 (149)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [coinbase-volume-share-results-2026-10.md](coinbase-volume-share-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 코인베이스(미국) 거래량 비중 급변 → BTC — CV7 TRAIN t 0.68 · CV1 t 1.29, 바닥선 2.11 미달. CV1 은 TEST 에서 부호… |
 | 2026-10-30 | REJECT | crypto | [crypto-volume-premium-results-2026-10.md](crypto-volume-premium-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 지난주 거래가 평소보다 크게 몰린 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −86bp/주(t −1.08, 바닥선 1.92 미달), 그 뒤 VALID +… |
 | 2026-10-30 | REJECT | crypto | [coinbase-premium-xs-results-2026-10.md](coinbase-premium-xs-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 같은 날 코인베이스에서 상대적으로 비싼 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −1.4bp/일(t −0.13) 로 0. VALID +14 · TEST… |
 | 2026-10-30 | REJECT | crypto | [crypto-tsmom-results-2026-10.md](crypto-tsmom-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. T1(지난 1주 부호) TRAIN +34bp/주 t 0.53 · T4(지난 4주 부호) TRAIN +103bp t 1.63 — 둘 다 바닥선 2.25 미달 →… |
@@ -235,10 +236,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (149)
+## 사전등록 문서(결과는 별도 파일) (150)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-volume-share-preregistration-2026-10.md](coinbase-volume-share-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "전 세계 BTC 거래 중 코인베이스(미국) 비중이 평소보다 크게 늘거나 줄 때 다음 1·7일 BTC 는 어느 쪽으로 가는가". 가격 괴리(코인베… |
 | 2026-10-30 | PREREGISTERED | crypto | [crypto-volume-premium-preregistration-2026-10.md](crypto-volume-premium-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 거래가 평소보다 크게 몰린 알트가 다음 주 다른 알트보다 더 오르는가(고거래량 수익 프리미엄, Gervais·Kaniel·Mingelgr… |
 | 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-xs-preregistration-2026-10.md](coinbase-premium-xs-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 날 코인베이스에서 상대적으로 더 비싸게(미국 수요가 더 몰려) 거래되는 알트가 다음 24시간 다른 알트보다 더 오르는가". 유일하게 통과한… |
 | 2026-10-30 | PREREGISTERED | crypto | [crypto-tsmom-preregistration-2026-10.md](crypto-tsmom-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난주(지난 4주) 올랐으면 다음 주도 오르는가 — 크립토 시계열 모멘텀(Liu·Tsyvinski 2021)이 2018~ 바이낸스 자… |
