@@ -1,0 +1,162 @@
+{
+ "bar": 2.13,
+ "coins": [
+  "AAVE",
+  "ADA",
+  "APT",
+  "ARB",
+  "ATOM",
+  "AVAX",
+  "BCH",
+  "BNB",
+  "DOGE",
+  "DOT",
+  "ETH",
+  "FIL",
+  "INJ",
+  "LINK",
+  "LTC",
+  "NEAR",
+  "OP",
+  "SOL",
+  "SUI",
+  "UNI",
+  "WLD",
+  "ZEC",
+  "1000PEPE",
+  "1000SHIB"
+ ],
+ "X1": {
+  "verdict": "REJECT",
+  "sign": -1,
+  "t_train": -0.13,
+  "TRAIN": {
+   "days": 730,
+   "coins_avg": 14.0,
+   "gross_bp": -1.4,
+   "t": -0.13
+  },
+  "VALID": {
+   "days": 365,
+   "coins_avg": 20.3,
+   "gross_bp": 14.2,
+   "t": 1.61
+  },
+  "TEST": {
+   "days": 1003,
+   "coins_avg": 22.5,
+   "gross_bp": 6.9,
+   "t": 1.29
+  },
+  "oos_gross_ci95": [
+   -17.6,
+   0.7
+  ],
+  "cost_bp_per_day": 11.9,
+  "net_bp": -20.8,
+  "net_stress_bp": -32.7,
+  "t_net": -4.55,
+  "breakeven_cost_multiple": -0.74,
+  "periods_bp": {
+   "2024": {
+    "n": 366,
+    "bp": -6.6,
+    "t": -0.71
+   },
+   "2025~": {
+    "n": 637,
+    "bp": -7.1,
+    "t": -1.09
+   },
+   "~2023": {
+    "n": 1095,
+    "bp": -3.8,
+    "t": -0.48
+   }
+  },
+  "yearly": {
+   "2021": 12.1,
+   "2022": -9.3,
+   "2023": -14.2,
+   "2024": -6.6,
+   "2025": -3.1,
+   "2026": -12.5
+  },
+  "legs_bp": {
+   "TRAIN": {
+    "long_minus_ew": -1.3,
+    "ew_minus_short": -0.1
+   },
+   "VALID": {
+    "long_minus_ew": 5.9,
+    "ew_minus_short": 8.2
+   },
+   "TEST": {
+    "long_minus_ew": 3.4,
+    "ew_minus_short": 3.5
+   }
+  }
+ },
+ "record": {
+  "delay1h": {
+   "TEST": {
+    "days": 1003,
+    "bp": 6.1,
+    "t": 1.12,
+    "cost": 11.9
+   },
+   "TRAIN": {
+    "days": 730,
+    "bp": -1.3,
+    "t": -0.12,
+    "cost": 12.1
+   },
+   "VALID": {
+    "days": 365,
+    "bp": 7.4,
+    "t": 0.81,
+    "cost": 12.1
+   }
+  },
+  "long_only_top_minus_ew": {
+   "TEST": {
+    "days": 1003,
+    "bp": 3.4,
+    "t": 1.14,
+    "cost": 6.0
+   },
+   "TRAIN": {
+    "days": 730,
+    "bp": -1.3,
+    "t": -0.21,
+    "cost": 6.0
+   },
+   "VALID": {
+    "days": 365,
+    "bp": 5.9,
+    "t": 1.2,
+    "cost": 6.1
+   }
+  },
+  "halves": {
+   "TEST": {
+    "days": 1003,
+    "bp": 7.6,
+    "t": 1.77,
+    "cost": 8.7
+   },
+   "TRAIN": {
+    "days": 730,
+    "bp": 6.3,
+    "t": 0.75,
+    "cost": 8.8
+   },
+   "VALID": {
+    "days": 365,
+    "bp": 8.0,
+    "t": 1.2,
+    "cost": 8.7
+   }
+  }
+ }
+}

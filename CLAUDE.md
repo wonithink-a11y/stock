@@ -170,6 +170,7 @@ Validated against
   안 한다   ★ 알트 상대 김치 프리미엄(19종, 10-30, 9dcc1e5·d4dcf7c) — 신호 없음·REJECT(K1 TRAIN t 1.94 < 2.13, VALID −22 · TEST +1bp 소멸 · K7 t 0.87). 김프 타이밍 라인 BTC·알트 모두 종결 권고. findings/alt-kimchi-relative-results-2026-10.md.
   안 한다   ★ 크립토 달력 효과(10-30, a31ea7e·f9fb817) — 신호 없음·REJECT(월말·월초 TRAIN t 1.50 → OOS 반대 · 옵션 만기 전 −1.68 · 후 1.60, 바닥선 2.46). 만기 금요일 변동성 눌림 없음. findings/crypto-calendar-results-2026-10.md.
   안 한다   ★ BTC 주간 시계열 모멘텀(10-30, 077d678·47cce20) — 신호 미확립·REJECT(T1 TRAIN t 0.53 · T4 1.63 < 2.25, T4 는 세 구간 모두 양). 롱만 T4 OOS Sharpe 1.11 vs 보유 1.16 · MDD −29 vs −51%(기록, 위험 도구 성격). findings/crypto-tsmom-results-2026-10.md.
+  안 한다   ★ 코인베이스 프리미엄 알트 횡단면(10-30, 90a3426·546525a) — 신호 없음·REJECT(TRAIN −1.4bp/일 t −0.13, OOS +7~14bp < 비용 12bp/일). C24 의 힘은 공통 성분(USDT 괴리) 쪽 — 모의 슬리브 불변. findings/coinbase-premium-xs-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
