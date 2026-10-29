@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 16 |
-| 보류·판정 불가 | 41 |
+| 보류·판정 불가 | 42 |
 | 기각 | 136 |
-| 사전등록 문서(결과는 별도 파일) | 130 |
+| 사전등록 문서(결과는 별도 파일) | 132 |
 | 정보·탐색 | 38 |
 | 미분류 | 241 |
 
@@ -34,10 +34,11 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (41)
+## 보류·판정 불가 (42)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-29 | INCONCLUSIVE | crypto | [coinbase-premium-exit-rule-results-2026-10.md](coinbase-premium-exit-rule-results-2026-10.md) | 신호: 있음(진입 신호 자체) · 경제성: 청산 규칙 개선은 미확인. TRAIN 이 Zm0.5(z ≤ −0.5 에서 청산, 최대 72시간)를 골랐다(연 +23.1% vs T24 +14.6%). 확인… |
 | 2026-10-12 | INCONCLUSIVE | kr | [sideways-regime-sector-results-2026-10.md](sideways-regime-sector-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M INCONCLUSIVE(+43bp, p 0.021) / R REJECT(-7bp, p 0.492) / L REJECT(-17bp, p 0.698). (스크립트 판… |
 | 2026-10-10 | INCONCLUSIVE | kr | [sp500-fx-hedge-results-2026-10.md](sp500-fx-hedge-results-2026-10.md) | C1(환노출이 변동성·낙폭 작음, 두 구간) SUPPORTED · C2(달러 비쌀 때 헤지 전환) INCONCLUSIVE — ΔSharpe 90% [-0.00, +0.16]. |
 | 2026-10-10 | INCONCLUSIVE | kr | [rebalance-rule-mix-results-2026-10.md](rebalance-rule-mix-results-2026-10.md) | 신호: 없음(연 1회 대비 우위 0개, 열위 0개) · 경제성: 해당 없음(같은 혼합의 운용 방식 비교) — 권고 규칙 R8 납입금+밴드 ±5%p (스크립트 판정) |
@@ -221,10 +222,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (130)
+## 사전등록 문서(결과는 별도 파일) (132)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-exit-rule-preregistration-2026-10.md](coinbase-premium-exit-rule-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "z ≥ 2 에서 산 비트코인을 24시간 뒤 파는 것보다, 프리미엄 점수(z)가 어느 수준까지 내려왔을 때 파는 것이 나은가". 사용자 요청(20… |
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-sleeve-preregistration-2026-10.md](coinbase-premium-paper-sleeve-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "강건성 점검(K1~K4)·알트 재현을 통과한 C24 규칙이 앞으로(2026-10 이후) 업비트 체결에서도 비용 뒤 양인가". 사용자 GO(202… |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-robustness-preregistration-2026-10.md](coinbase-premium-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "coinbase-premium C24 ECONOMIC 이 (A) 무작위 진입·월 군집·업비트 체결에서도 버티고 (B) 다른 코인에서도 재현되는가… |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-preregistration-2026-10.md](coinbase-premium-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 가격이 바이낸스보다 평소보다 크게 높을(낮을) 때 — 미국 수요의 흔적 — BTC 가 다음 4·24시간 그 방향으로 가는가". 사용자… |
 | 2026-10-29 | PREREGISTERED | crypto | [crypto-rv-jump-preregistration-2026-10.md](crypto-rv-jump-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 실현분산(특히 점프 성분)이 큰 코인은 다음 주 수익이 낮은가(Lee & Wang, JFQA 2025)". 사용자 요청 "깃허브에서 안 … |
