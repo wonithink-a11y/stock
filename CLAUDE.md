@@ -165,6 +165,8 @@ Validated against
             '매수 신호' 21회 뒤 90일 +15.8% vs 아무 날 +13.3%(기록). findings/hash-ribbons-results-2026-10.md.
   안 한다   ★ 공포·탐욕 지수 극단(10-30, 2c57e37·3a7a512) — 신호 없음·REJECT(F1 TRAIN t −0.29 · F7 −0.87, 바닥선 2.48, OOS 비용 전 −8bp). '극단 공포에 사기' 통념 불성립. findings/fear-greed-results-2026-10.md.
   안 한다   ★ CME 주말 갭 메우기(10-30, 602acd1·3821322) — 신호 없음·REJECT(G1 TRAIN t −0.64 · G5 −0.26, 바닥선 2.28). 메움 59% vs 반대쪽 같은 거리 62% — 끌림 없음. findings/cme-gap-results-2026-10.md.
+  안 한다   ★ 업비트 거래대금 과열(10-30, d201cdf·2f51d54) — U1 업비트 BTC 비중 REJECT(TRAIN t 1.52 < 2.34, 방향은 과열→하락이 아니라 상승) · U2 알트 쏠림 판정불가(TEST 18건, 생존편향).
+            2025~ 두 셀 부호 반대. findings/upbit-turnover-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).

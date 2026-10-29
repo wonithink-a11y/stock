@@ -8,7 +8,7 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 142 |
+| 기각 | 143 |
 | 사전등록 문서(결과는 별도 파일) | 144 |
 | 정보·탐색 | 39 |
 | 미분류 | 241 |
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (142)
+## 기각 (143)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [upbit-turnover-results-2026-10.md](upbit-turnover-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. U1(전 세계 BTC 거래 중 업비트 비중 급증) TRAIN t 1.52 < 2.34 → REJECT — 방향은 '과열 → 하락'이 아니라 오히려 상승(+19… |
 | 2026-10-30 | REJECT | crypto | [cme-gap-results-2026-10.md](cme-gap-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 'CME 갭은 메워진다' — 메우는 쪽 진입 G1(24시간) TRAIN t −0.64 · G5(그 주) t −0.26, 바닥선 2.28 미달. 메움 비율 59… |
 | 2026-10-30 | REJECT | crypto | [fear-greed-results-2026-10.md](fear-greed-results-2026-10.md) | 신호: 없음 · 경제성: 미달. '극단적 공포면 사고 극단적 탐욕이면 판다' — F1(1일) TRAIN t −0.29 · F7(7일) t −0.87, 바닥선 2.48 에 한참 못 미침. OOS 도 … |
 | 2026-10-30 | REJECT | crypto | [hash-ribbons-results-2026-10.md](hash-ribbons-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 항복 국면(해시레이트 30일선 < 60일선) 날과 아닌 날의 BTC 일수익 차 TRAIN −10.6bp(t −0.48 < 1.91), VALID +47 · TEST … |
