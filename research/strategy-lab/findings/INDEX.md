@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 145 |
-| 사전등록 문서(결과는 별도 파일) | 146 |
+| 기각 | 146 |
+| 사전등록 문서(결과는 별도 파일) | 147 |
 | 정보·탐색 | 39 |
 | 미분류 | 241 |
 
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (145)
+## 기각 (146)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [crypto-tsmom-results-2026-10.md](crypto-tsmom-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. T1(지난 1주 부호) TRAIN +34bp/주 t 0.53 · T4(지난 4주 부호) TRAIN +103bp t 1.63 — 둘 다 바닥선 2.25 미달 →… |
 | 2026-10-30 | REJECT | crypto | [crypto-calendar-results-2026-10.md](crypto-calendar-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M1 월말·월초 4일 TRAIN +131bp(t 1.50) → VALID −110 · TEST −101 로 뒤집힘. E1 옵션 만기 전 48시간 TRAIN −99(t… |
 | 2026-10-30 | REJECT | crypto | [alt-kimchi-relative-results-2026-10.md](alt-kimchi-relative-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 업비트 알트가 BTC 대비 국내에서만 비싸지면(싸지면) 판다(산다) — K1 TRAIN +45bp t 1.94 < 바닥선 2.13, VALID −22 · TEST +… |
 | 2026-10-30 | REJECT | crypto | [upbit-turnover-results-2026-10.md](upbit-turnover-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. U1(전 세계 BTC 거래 중 업비트 비중 급증) TRAIN t 1.52 < 2.34 → REJECT — 방향은 '과열 → 하락'이 아니라 오히려 상승(+19… |
@@ -232,10 +233,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (146)
+## 사전등록 문서(결과는 별도 파일) (147)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [crypto-tsmom-preregistration-2026-10.md](crypto-tsmom-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난주(지난 4주) 올랐으면 다음 주도 오르는가 — 크립토 시계열 모멘텀(Liu·Tsyvinski 2021)이 2018~ 바이낸스 자… |
 | 2026-10-30 | PREREGISTERED | crypto | [crypto-calendar-preregistration-2026-10.md](crypto-calendar-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "주식의 월말·월초 효과가 비트코인에도 있는가, Deribit 월물 옵션 만기 앞뒤 이틀에 BTC 가 평소와 다르게 움직이는가". 사용자 위임(2… |
 | 2026-10-30 | PREREGISTERED | crypto | [alt-kimchi-relative-preregistration-2026-10.md](alt-kimchi-relative-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트에서 어떤 알트가 BTC 대비 평소보다 비싸게(싸게) 거래될 때, 그 알트가 다음 1·7일 업비트에서 상대적으로 빠지는가(오르는가)". 김… |
 | 2026-10-30 | PREREGISTERED | crypto | [cme-gap-preregistration-2026-10.md](cme-gap-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "'CME 갭은 메워진다'는 통념대로, 주말 사이 벌어진 갭의 반대쪽으로 재개 시각에 들어가면 다음 24시간·그 주 동안 비용 뒤 이득인가". 사… |
