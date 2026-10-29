@@ -206,7 +206,7 @@ Validated against
             맥락 전용(절대 규칙 1). **1년치 공급계약 수집은 중지 — 저장본 `C:\Users\User\supply-chain-cache`, 재개 절차 research/supply-chain/README.md.** 급한 것: 평일 16:40 daily-analysis 의 새 단계(supply prices) 첫 실행·6m 확인.
   다음      ★ **크립토 탭(10-29, 사용자 요청)** — 대시보드 맨 끝 그룹 '크립토': 시세·프리미엄(바이낸스 시세 미러·코인베이스 공개 API 를 브라우저가 직접 — CORS 허용, 키 없음.
             z 는 VM 러너와 같은 정의, 실측 대조 소수 6자리 일치) · 연구·모의(판정 카드 `CRYPTO_LAB` 손으로 갱신 — 새 크립토 결과가 나오면 한 줄 추가).
-            업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. Playwright 375px 로만 확인 — **실기기 미확인**.
+            업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. **폰 실기기 확인(10-30 사용자, 신규 상장 칸 포함)**.
             ★ **'최근 신규 상장' 경고 칸(10-30 사용자 GO, 표시 전용)** — Actions `binance-listings`(매일 10:10 KST) → docs/data/binance-listings.json(30일 안 상장 · firstDay 캐시) → 상장 다음 날 시가부터 BTC 대비, 1~7일째 '첫 주' 강조. 토큰화 주식(stockLike)은 한 줄로 접는다. 점수·매매·텔레그램 불연결(규칙 1).
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
             둘 다 VM 설치·실행은 사용자 몫(인수인계 10-29 맨 위). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
