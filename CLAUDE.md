@@ -163,6 +163,7 @@ Validated against
             V2 VRP 주간 t −0.53 · V3 DVOL 급변 t 0.03, ETH 도 전부 REJECT). RV20 Rule B 의 크립토판 불성립. VRP 는 2021 15 → 2026 0.7%p 로 소멸(기록). findings/crypto-dvol-results-2026-10.md.
   안 한다   ★ 해시 리본(채굴자 항복 국면, 10-30, 49dd0a1·77a9be8) — 신호 없음·REJECT(항복−아닌 날 TRAIN −10.6bp t −0.48 < 1.91, OOS 부호 반대, '항복 날 쉬기' Sharpe 0.90 vs 1.16).
             '매수 신호' 21회 뒤 90일 +15.8% vs 아무 날 +13.3%(기록). findings/hash-ribbons-results-2026-10.md.
+  안 한다   ★ 공포·탐욕 지수 극단(10-30, 2c57e37·3a7a512) — 신호 없음·REJECT(F1 TRAIN t −0.29 · F7 −0.87, 바닥선 2.48, OOS 비용 전 −8bp). '극단 공포에 사기' 통념 불성립. findings/fear-greed-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
