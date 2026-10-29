@@ -323,11 +323,11 @@
     header { margin-bottom: 10px; }
     header h1 { font-size: 17px; }
     #updated { font-size: 12px; }
-    #nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0;
+    #nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0;   /* 6칸 — 크립토 추가(2026-10-29) */
            background: rgba(11, 15, 24, .97); border-top: 1px solid var(--border); padding: 6px 4px calc(8px + env(safe-area-inset-bottom));
            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
     #nav button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 0 2px;
-                  background: transparent; border: 0; border-radius: 0; color: var(--muted); font-size: 11px; white-space: nowrap; }
+                  background: transparent; border: 0; border-radius: 0; color: var(--muted); font-size: 11px; white-space: normal; text-align: center; line-height: 1.15; word-break: keep-all; }   /* 긴 이름은 '·' 뒤 <wbr> 에서 두 줄 */
     #nav button.active { color: #8cc4ff; background: transparent; font-weight: 600; }
     #nav svg { width: 22px; height: 22px; }
     #subnav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; }
@@ -3986,6 +3986,138 @@ document.addEventListener('click', (e) => {
   if (b) { yt.ch = b.dataset.ytch; render(); }
 });
 
+// ---------- 크립토 (2026-10-29 사용자 요청) ----------
+// 시세·코인베이스 프리미엄은 브라우저가 공개 API(바이낸스 시세 미러·코인베이스, 둘 다 CORS 허용)로 직접 받아 계산한다 — 키·서버 없음.
+// z 는 research/strategy-lab/futures/coinbase_premium.py 와 같은 정의(T 에 끝나는 1시간 봉 종가 비, 직전 720시간·유효 360 이상, 표본 표준편차).
+// 참고용 화면이다 — 모의 슬리브의 정본은 VM 원장(~/collector-venv/cbprem-paper). 업비트는 CORS 를 막아 원화 시세·김프·투자유의는 아직 없다(VM 경유 예정).
+const CRYPTO_COINS = [['BTC', '비트코인'], ['ETH', '이더리움'], ['XRP', '리플'], ['SOL', '솔라나'], ['BNB', 'BNB'], ['DOGE', '도지'], ['ADA', '에이다'], ['LINK', '체인링크'], ['AVAX', '아발란체'], ['SUI', '수이']];
+const BNV = 'https://data-api.binance.vision/api/v3';
+const cryptoSt = { tick: null, prem: null, err: null, at: 0, loading: false };
+const H_MS = 3600e3;
+async function cbCloses(endMs) {   // 코인베이스 BTC-USD 1시간 봉, [end−800h, end−1h], 봉 시작 시각 → 종가
+  const out = new Map();
+  for (let t = endMs - 800 * H_MS; t < endMs; t += 300 * H_MS) {
+    const e = Math.min(t + 300 * H_MS, endMs);
+    const r = await fetch(`https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600&start=${new Date(t).toISOString()}&end=${new Date(e - H_MS).toISOString()}`);
+    if (!r.ok) throw new Error('coinbase ' + r.status);
+    for (const [ts, , , , cl] of await r.json()) { const ms = ts * 1000; if (ms >= t && ms < e) out.set(ms, cl); }
+  }
+  return out;
+}
+function premiumZ(cb, bn, endMs) {   // P(T) = CB_close[T−1h] / BN_close[T−1h] − 1, z = (P − 평균) / 표준편차(직전 720시간, 유효 ≥ 360)
+  const Ts = [], P = [];
+  for (let T = endMs - 799 * H_MS; T <= endMs; T += H_MS) {
+    const c = cb.get(T - H_MS), b = bn.get(T - H_MS);
+    Ts.push(T); P.push(c != null && b != null ? c / b - 1 : null);
+  }
+  const z = P.map((p, i) => {
+    if (p == null) return null;
+    const w = P.slice(Math.max(0, i - 720), i).filter(v => v != null);
+    if (w.length < 360) return null;
+    const m = w.reduce((a, v) => a + v, 0) / w.length;
+    const sd = Math.sqrt(w.reduce((a, v) => a + (v - m) ** 2, 0) / (w.length - 1));
+    return sd > 0 ? (p - m) / sd : null;
+  });
+  const ev = []; let freeAt = -Infinity;   // |z| ≥ 2 사건, 방향 무관 24시간 차단(연구·슬리브와 같다)
+  z.forEach((v, i) => { if (v != null && Math.abs(v) >= 2 && Ts[i] >= freeAt) { ev.push({ T: Ts[i], z: v }); freeAt = Ts[i] + 24 * H_MS; } });
+  return { Ts, P, z, ev };
+}
+async function cryptoLoad() {
+  if (cryptoSt.loading) return;
+  cryptoSt.loading = true;
+  try {
+    const syms = JSON.stringify(CRYPTO_COINS.map(c => c[0] + 'USDT'));
+    const endMs = Math.floor(Date.now() / H_MS) * H_MS;
+    const [tk, kl, cb] = await Promise.all([
+      fetch(`${BNV}/ticker/24hr?symbols=${encodeURIComponent(syms)}`).then(r => r.ok ? r.json() : Promise.reject('binance ' + r.status)),
+      fetch(`${BNV}/klines?symbol=BTCUSDT&interval=1h&limit=1000&startTime=${endMs - 800 * H_MS}&endTime=${endMs}`).then(r => r.ok ? r.json() : Promise.reject('binance ' + r.status)),
+      cbCloses(endMs),
+    ]);
+    cryptoSt.tick = tk;
+    cryptoSt.prem = premiumZ(cb, new Map(kl.map(k => [k[0], +k[4]])), endMs);
+    cryptoSt.err = null; cryptoSt.at = Date.now();
+  } catch (e) { cryptoSt.err = String(e); }
+  cryptoSt.loading = false;
+  if (state.tab === 'crypto') render();
+}
+const kstHM = ms => new Date(ms + 9 * H_MS).toISOString().slice(5, 16).replace('T', ' ');
+function zChart(p) {   // 최근 7일 z, ±2 선
+  const n = 168, z = p.z.slice(-n), W = 320, Hh = 110, lo = -4, hi = 4;
+  const y = v => Hh - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * Hh;
+  let d = '', pen = false;
+  z.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${(i / (n - 1) * W).toFixed(1)},${y(v).toFixed(1)}`; pen = true; });
+  const line = (v, c) => `<line x1="0" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-dasharray="4 3" stroke-width="1"/>`;
+  return `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" style="width:100%;height:120px;display:block" role="img" aria-label="최근 7일 프리미엄 z">
+    ${line(2, 'var(--up)')}${line(0, 'var(--border)')}${line(-2, 'var(--down)')}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6"/></svg>
+    <div class="muted" style="display:flex;justify-content:space-between;font-size:11px"><span>7일 전</span><span>빨간 점선 z = +2(매수 신호) · 파란 점선 z = −2(쉬기)</span><span>지금</span></div>`;
+}
+function renderCrypto() {
+  if (!cryptoSt.at || Date.now() - cryptoSt.at > 60000) cryptoLoad();
+  if (!cryptoSt.tick && cryptoSt.err) return `<div class="card empty">시세를 불러오지 못했습니다(${esc(cryptoSt.err)}). 잠시 뒤 다시 열어 보세요.</div>`;
+  if (!cryptoSt.tick) return '<div class="card empty">불러오는 중… (코인베이스·바이낸스 공개 시세, 몇 초)</div>';
+  const name = Object.fromEntries(CRYPTO_COINS.map(c => [c[0] + 'USDT', c[1]]));
+  const pc = v => `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+  const usd = v => v >= 100 ? '$' + Math.round(v).toLocaleString('en-US') : '$' + (+v).toPrecision(4);
+  const rows = cryptoSt.tick.map(t => `<tr><td><b>${esc(t.symbol.replace('USDT', ''))}</b> <span class="muted" style="font-size:12px">${esc(name[t.symbol] || '')}</span></td>
+    <td style="text-align:right">${usd(+t.lastPrice)}</td><td style="text-align:right">${pc(+t.priceChangePercent)}</td>
+    <td class="m-hide" style="text-align:right">$${(+t.quoteVolume / 1e6).toFixed(0)}M</td></tr>`).join('');
+  const p = cryptoSt.prem, i = p.z.length - 1;
+  const zNow = p.z[i] ?? p.z[i - 1], pNow = p.P[i] ?? p.P[i - 1];
+  const last = p.ev[p.ev.length - 1];
+  const blocked = last && p.Ts[i] < last.T + 24 * H_MS;
+  const status = zNow == null ? ['계산 불가', 'muted', '자료가 모자랍니다.'] :
+    zNow >= 2 ? ['매수 신호 구간', 'pos', 'z ≥ 2 — 규칙상 업비트 KRW-BTC 롱(24시간).'] :
+    zNow <= -2 ? ['쉬기 구간', 'neg', 'z ≤ −2 — 규칙상 거래하지 않고 24시간 쉰다.'] :
+    ['중립', 'muted', '|z| < 2 — 신호 없음.'];
+  const evRows = p.ev.slice(-8).reverse().map(e => `<tr><td>${kstHM(e.T)} KST</td><td style="text-align:right">${e.z >= 0 ? '+' : ''}${e.z.toFixed(2)}</td>
+    <td>${e.z > 0 ? '<span class="pos">롱(매수)</span>' : '<span class="neg">쉬기</span>'}</td></tr>`).join('');
+  return `<div class="card"><h3 style="margin:0 0 8px">주요 코인 <span class="muted" style="font-size:12px;font-weight:400">바이낸스 USDT · 24시간 변동</span></h3>
+      <div class="table-wrap"><table><thead><tr><th>코인</th><th style="text-align:right">가격</th><th style="text-align:right">24시간</th><th class="m-hide" style="text-align:right">24시간 거래대금</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="card" style="margin-top:10px"><h3 style="margin:0 0 4px">코인베이스 프리미엄 점수(z)</h3>
+      <p class="muted" style="font-size:12px;margin:0 0 10px">미국 코인베이스 BTC 가격이 바이낸스보다 평소(30일) 대비 얼마나 높거나 낮은지. 모의 슬리브의 신호다.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline">
+        <div><span class="muted" style="font-size:12px">지금 z</span><br><b style="font-size:26px">${zNow == null ? '-' : (zNow >= 0 ? '+' : '') + zNow.toFixed(2)}</b></div>
+        <div><span class="muted" style="font-size:12px">프리미엄</span><br><b style="font-size:18px">${pNow == null ? '-' : (pNow * 1e4).toFixed(1) + 'bp'}</b></div>
+        <div><span class="muted" style="font-size:12px">상태</span><br><b class="${status[1]}" style="font-size:18px">${status[0]}</b></div>
+      </div>
+      <p style="font-size:13px;margin:8px 0">${status[2]}${blocked ? ` 마지막 사건(${kstHM(last.T)} KST) 뒤 24시간 차단 중.` : ''}</p>
+      ${zChart(p)}
+      <h4 style="margin:14px 0 4px">최근 사건 <span class="muted" style="font-size:12px;font-weight:400">지난 약 18일, 24시간 차단 적용</span></h4>
+      ${evRows ? `<div class="table-wrap"><table><thead><tr><th>시각</th><th style="text-align:right">z</th><th>규칙</th></tr></thead><tbody>${evRows}</tbody></table></div>` : '<p class="muted" style="margin:0">없음</p>'}
+      <p class="muted" style="font-size:11px;margin:10px 0 0">브라우저가 공개 시세로 계산한 참고값 · ${kstHM(cryptoSt.at)} KST 기준(1분마다 새로 받음). 모의 매매의 정본은 VM 슬리브 기록이고, 매수·청산은 텔레그램 매매 방으로 온다. 매매 권유가 아니다.</p></div>`;
+}
+const CRYPTO_LAB = [   // 크립토 연구 판정 — 원문은 findings 파일(저장소 공개)
+  ['2026-10-29', 'PASS', '코인베이스 프리미엄 C24 강건성·알트 재현', '무작위 진입 p 0.0005 · 업비트 롱 비용 뒤 +0.58%/회(t 3.09) · 알트 24종 재현', 'coinbase-premium-robustness-results-2026-10.md'],
+  ['2026-10-29', 'ECONOMIC', '코인베이스 프리미엄 → BTC 24시간', '2018~2026 아홉 해 모두 양, 비용 뒤 +0.28%/회(t 1.99). 신호 대부분이 USDT/달러 괴리', 'coinbase-premium-results-2026-10.md'],
+  ['2026-10-29', 'INCONCLUSIVE', '청산 규칙 비교(24시간 vs 점수 하락)', '더 나은 청산 미확인 — 24시간 유지', 'coinbase-premium-exit-rule-results-2026-10.md'],
+  ['2026-10-29', 'INCONCLUSIVE', '진입·청산 점수대 40조합', '더 번 조합은 시장 노출 3배 — 노출당 효율은 z ≥ 2·24시간이 최고', 'coinbase-premium-grid-results-2026-10.md'],
+  ['2026-10-29', 'REJECT', '김치 프리미엄 → BTC 4·24시간', '신호 없음(해마다 방향 바뀜) · 코인베이스 신호와 상관 0.006', 'kimchi-premium-hourly-results-2026-10.md'],
+  ['2026-10-29', 'REJECT', '실현분산·점프 횡단면(28종)', '평균 효과 없음 — 고분산 코인의 오른쪽 꼬리가 평균을 뒤집음', 'crypto-rv-jump-results-2026-10.md'],
+  ['2026-10-18', 'REJECT', '업비트 KRW 상장 이벤트', '롱 REJECT · 상장 7일 숏만 forward 관측', 'upbit-krw-listing-results-2026-10.md'],
+  ['2026-10-17', 'REJECT', '주말 → 월요일 되돌림', '되돌림도 지속도 없음', 'crypto-weekend-reversal-results-2026-10.md'],
+  ['2026-10-17', 'REJECT', '청산(liquidation) 뒤 반등', '반등 없음', 'crypto-liquidation-rebound-results-2026-10.md'],
+  ['2026-10-09', 'NONE', '김치 프리미엄 → BTC 30일', '구간마다 부호 갈림', 'kimchi-premium-results-2026-10.md'],
+];
+const CRYPTO_SLEEVES = [
+  ['코인베이스 프리미엄 C24', '매시 z ≥ 2 → 업비트 KRW-BTC 100만원 모의 매수, 24시간 뒤 청산(숏 신호는 쉬기). 같은 매수의 48·72시간·z ≤ −0.5 가상 청산도 기록.', '청산 40건(약 1년)에서 1회', 'VM 설치 대기(10-29)'],
+  ['크립토 상승충격 지속', '하루 수익이 30일 표준편차의 2배를 넘은 업비트 KRW 코인 다음 날 매수, 24시간 보유, 포지션당 10만원.', '신호일 60일 도달 뒤 1회', '가동 중(09-20~)'],
+  ['업비트 투자유의·주의 기록', '공식 API 로 매시 플래그·전 종목 가격 저장 → 지정 뒤 72시간 시장 대비 수익(회피 필터 근거인가).', '12개월 ∧ 갈래별 100건', 'VM 설치 대기(10-29)'],
+];
+function renderCryptoLab() {
+  const tone = v => /PASS|ECONOMIC|ROBUST/.test(v) ? 'var(--good, #34c38f)' : /REJECT|NONE/.test(v) ? 'var(--muted)' : '#e0b04f';
+  const gh = f => `https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/${f}`;
+  const lab = CRYPTO_LAB.map(([d, v, t, s, f]) => `<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><span class="chip" style="font-size:11px;color:${tone(v)};border-color:${tone(v)}">${esc(v)}</span><b>${esc(t)}</b><span class="muted" style="font-size:12px">${esc(d)}</span></div>
+      <div style="font-size:13px;margin-top:4px">${esc(s)}</div><div style="font-size:12px;margin-top:4px"><a href="${gh(f)}" target="_blank" rel="noopener" style="color:var(--accent)">결과 원문 ↗</a></div></div>`).join('');
+  const sl = CRYPTO_SLEEVES.map(([t, r, j, s]) => `<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(t)}</b><span class="chip" style="font-size:11px">${esc(s)}</span></div>
+      <div style="font-size:13px;margin-top:4px">${esc(r)}</div><div class="muted" style="font-size:12px;margin-top:4px">판정: ${esc(j)} — 그 전 중간 숫자로 판정하지 않는다</div></div>`).join('');
+  return `<h3 style="margin:4px 0 8px">모의 슬리브·forward 기록 <span class="muted" style="font-size:12px;font-weight:400">실주문 없음</span></h3>${sl}
+    <h3 style="margin:18px 0 8px">연구 판정 <span class="muted" style="font-size:12px;font-weight:400">사전등록 → 코드 동결 → 1회 실행</span></h3>${lab}
+    <p class="muted" style="font-size:11px">PASS·ECONOMIC 도 채택이 아니다 — 실매매 연결은 사용자 결정. 전체 목록: <a href="https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/INDEX.md" target="_blank" rel="noopener" style="color:var(--accent)">findings INDEX ↗</a></p>`;
+}
+document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('[data-crypto-refresh]')) { cryptoSt.at = 0; render(); } });
+setInterval(() => { if (state.tab === 'crypto' && Date.now() - cryptoSt.at > 60000) cryptoLoad(); }, 15000);
+
 // ---------- 종목 리포트 분석 (2026-10-26 사용자 요청) ----------
 // 학회·한국IR협의회 종목 리포트를 읽고 DART·SEC 공시와 대조한 기록. 남의 리포트 분석이라 저장소엔 없고 VM /rr 에서 키(X-Pin-Key)로만 받는다.
 // 맥락 전용 — 점수·매매 불사용(절대 규칙 1). 리포트의 의견·목표가는 판단 근거로 쓰지 않는다.
@@ -4104,6 +4236,8 @@ function render() {
   else if (state.tab === 'links') el.innerHTML = renderLinks();
   else if (state.tab === 'us13f') el.innerHTML = renderUs13f();
   else if (state.tab === 'holders') el.innerHTML = renderHolders();
+  else if (state.tab === 'crypto') el.innerHTML = renderCrypto();
+  else if (state.tab === 'cryptolab') el.innerHTML = renderCryptoLab();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
@@ -4847,6 +4981,7 @@ const NAV_GROUPS = [
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['supply', '공급망'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견'], ['rr', '종목 리포트']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],
+  ['crypto', '크립토', [['crypto', '시세·프리미엄'], ['cryptolab', '연구·모의']]],
 ];
 const NAV_ICON = {   // 폰 아래 탭 막대 아이콘(선 아이콘, currentColor)
   today: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
@@ -4854,6 +4989,7 @@ const NAV_ICON = {   // 폰 아래 탭 막대 아이콘(선 아이콘, currentCo
   market: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
   event: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/>',
   etf: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/>',
+  crypto: '<circle cx="12" cy="12" r="9"/><path d="M9.5 8h4a2 2 0 0 1 0 4h-4z"/><path d="M9.5 12h4.5a2 2 0 0 1 0 4H9.5z"/><path d="M11 6v2"/><path d="M11 16v2"/>',
 };
 const navIcon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAV_ICON[k] || ''}</svg>`;
 const lastSub = {};   // 그룹별로 마지막에 보던 서브탭
