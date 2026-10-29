@@ -42,6 +42,9 @@ NOTIONAL_KRW = 1_000_000
 COST_BP = 10.0
 MARKET = "KRW-BTC"
 JUDGE_N, EXTEND_N = 40, 80
+# 가상 청산(기록 전용, 사전등록 coinbase-premium-paper-shadow-exits) — 실제 슬리브 규칙·판정과 무관
+SHADOWS = {"T48": ("time", 48), "T72": ("time", 72), "Zm0.5": ("z", -0.5)}
+SHADOW_MAX_H = 72
 DEFAULT_DIR = os.path.expanduser("~/collector-venv/cbprem-paper")
 
 for _s in (sys.stdout, sys.stderr):
@@ -146,6 +149,21 @@ def notify_trade_room(text: str, env=None, sender=None, log=print) -> bool:
         return False
 
 
+def shadow_target(leg: dict, z: pd.Series, T: pd.Timestamp):
+    """가상 다리가 닫힐 시각(아직 아니면 None). z 갈래는 신호 + 1h 이후 z ≤ 문턱인 첫 정시, 없으면 신호 + 72h."""
+    sigT = _ts(leg["signalT"])
+    kind, arg = SHADOWS[leg["rule"]]
+    if kind == "time":
+        t = sigT + arg * H
+        return t if T >= t else None
+    zz = z[(z.index >= sigT + H) & (z.index <= min(T, sigT + SHADOW_MAX_H * H))]
+    hit = zz[zz <= arg]
+    if len(hit):
+        return hit.index[0]
+    t = sigT + SHADOW_MAX_H * H
+    return t if T >= t else None
+
+
 def run(now: datetime, cb: pd.Series, bn: pd.DataFrame, broker, state_dir: Path, execute: bool, log=print,
         notifier=None) -> dict:
     T = pd.Timestamp(now).floor("h")
@@ -162,11 +180,32 @@ def run(now: datetime, cb: pd.Series, bn: pd.DataFrame, broker, state_dir: Path,
            "z": None if pd.isna(z.get(T)) else round(float(z[T]), 3), "firstRun": first_run, "actions": []}
     pos = st.get("position")
     trades, msgs = [], []
+    shadows, shadow_closed = list(st.get("shadows", [])), []
+    _px = {}
+
+    def cur():                                   # 한 실행에서 현재가는 한 번만 받는다
+        if "p" not in _px:
+            _px["p"] = float(broker.current_price(MARKET))
+        return _px["p"]
+
+    # 0) 가상 청산(기록 전용) — 실제 청산·진입과 무관
+    still = []
+    for leg in shadows:
+        tgt = shadow_target(leg, z, T)
+        if tgt is None:
+            still.append(leg)
+            continue
+        px = cur()
+        g = (px / leg["entryPrice"] - 1) * 1e4
+        shadow_closed.append({**leg, "targetT": str(tgt), "exitAt": str(pd.Timestamp(now)), "exitPrice": px,
+                              "hours": (tgt - _ts(leg["signalT"])) / H, "delayH": round((T - tgt) / H, 2),
+                              "grossBp": round(g, 2), "netBp": round(g - COST_BP, 2)})
+    shadows = still
     tag = "코인베이스 프리미엄 C24 · 모의(실주문 아님)"
 
     # 1) 청산 — 신호 시각 + 24h 이후 첫 실행
     if pos and T >= _ts(pos["signalT"]) + HOLD:
-        px = float(broker.current_price(MARKET))
+        px = cur()
         sigT = _ts(pos["signalT"])
         bo = bn["open"]
         bn_ret = (bo.get(sigT + HOLD, np.nan) / bo.get(sigT, np.nan) - 1) * 1e4
@@ -198,23 +237,28 @@ def run(now: datetime, cb: pd.Series, bn: pd.DataFrame, broker, state_dir: Path,
         elif pos is not None:
             rec["actions"].append("롱 사건 — 보유 중(있을 수 없는 상태), 진입 안 함")
         else:
-            px = float(broker.current_price(MARKET))
+            px = cur()
+            shadows += [{"signalT": str(t), "rule": r, "entryPrice": px} for r in SHADOWS]
             pos = {"signalT": str(t), "z": round(v, 3), "entryAt": str(pd.Timestamp(now)), "entryPrice": px,
                    "qty": NOTIONAL_KRW / px, "notionalKrw": NOTIONAL_KRW}
             rec["actions"].append(f"매수 {MARKET} {px:,.0f} z={v:+.2f}")
             msgs.append(("buy", f"🛒 모의 매수 · {tag}\n{MARKET} {NOTIONAL_KRW:,}원 @ {px:,.0f}원\n"
                                 f"신호 {_kst(t)} KST z={v:+.2f} · 청산 예정 {_kst(t + HOLD)} KST"))
 
+    if shadow_closed:
+        rec["actions"].append("가상 청산 " + ", ".join(f"{x['rule']} {x['netBp']:+.1f}bp" for x in shadow_closed))
     rec["blockedUntil"] = str(blocked) if blocked is not None else None
     log(json.dumps(rec, ensure_ascii=False))
     if execute:
         state_dir.mkdir(parents=True, exist_ok=True)
         for tr in trades:
             _append(state_dir, "trades.jsonl", tr)
+        for x in shadow_closed:
+            _append(state_dir, "shadow.jsonl", x)
         _append(state_dir, "runs.jsonl", rec)
         # T 의 P 가 아직 없으면(코인베이스 봉 지연) T 를 처리 완료로 치지 않는다 — 다음 실행이 T 를 다시 본다(사건이면 '놓침'으로 남는다)
         done = T if rec["P_bp"] is not None else T - H
-        new = {"lastScanned": str(done), "blockedUntil": rec["blockedUntil"], "position": pos}
+        new = {"lastScanned": str(done), "blockedUntil": rec["blockedUntil"], "position": pos, "shadows": shadows}
         (state_dir / "state.json").write_text(json.dumps(new, ensure_ascii=False, indent=1), encoding="utf-8")
         if notifier is not None:                 # 원장을 먼저 쓰고 보낸다 — 전송 실패가 기록을 막지 않는다
             if trades:
@@ -222,7 +266,8 @@ def run(now: datetime, cb: pd.Series, bn: pd.DataFrame, broker, state_dir: Path,
                 msgs = [(k, m + (f"\n누적 청산 {n}건(판정은 {JUDGE_N}건에서 1회)" if k == "exit" else "")) for k, m in msgs]
             for _, m in msgs:
                 notifier(m)
-    return {"rec": rec, "trades": trades, "position": pos, "messages": [k for k, _ in msgs]}
+    return {"rec": rec, "trades": trades, "position": pos, "messages": [k for k, _ in msgs],
+            "shadows_open": shadows, "shadow_closed": shadow_closed}
 
 
 # ---------- 판정 ----------
@@ -230,8 +275,11 @@ def judge(state_dir: Path, force_count_only=False) -> dict:
     f = state_dir / "trades.jsonl"
     tr = [json.loads(x) for x in f.read_text(encoding="utf-8").splitlines()] if f.exists() else []
     n = len(tr)
+    sf = state_dir / "shadow.jsonl"
+    sh = [json.loads(x) for x in sf.read_text(encoding="utf-8").splitlines()] if sf.exists() else []
     if n < JUDGE_N or force_count_only:
-        return {"closed": n, "judge": f"거부 — 청산 {n}건 < {JUDGE_N}건(사전등록 §3)"}
+        return {"closed": n, "judge": f"거부 — 청산 {n}건 < {JUDGE_N}건(사전등록 §3)",
+                "shadow_closed_counts": {r: sum(1 for x in sh if x["rule"] == r) for r in SHADOWS}}
     use = tr[:EXTEND_N] if n >= EXTEND_N else tr[:JUDGE_N]
     net = np.array([t["netBp"] for t in use])
     t_ = float(net.mean() / (net.std(ddof=1) / np.sqrt(len(net))))
@@ -240,8 +288,17 @@ def judge(state_dir: Path, force_count_only=False) -> dict:
     else:
         v = "KEEP 후보" if net.mean() > 0 and t_ >= 1.5 else "REJECT"
     gap = [t["grossBp"] - t["binanceSameEventBp"] for t in use if t.get("binanceSameEventBp") is not None]
+    real = {t["signalT"]: t["netBp"] for t in use}
+    shadow = {}
+    for r in SHADOWS:                           # 기록 전용 — 같은 매수에서 (가상 − 실제 24h)
+        d = np.array([x["netBp"] - real[x["signalT"]] for x in sh if x["rule"] == r and x["signalT"] in real])
+        hrs = [x["hours"] for x in sh if x["rule"] == r and x["signalT"] in real]
+        shadow[r] = {"n": int(len(d)), "diff_vs_24h_bp": round(float(d.mean()), 1) if len(d) else None,
+                     "t": round(float(d.mean() / (d.std(ddof=1) / np.sqrt(len(d)))), 2) if len(d) > 2 and d.std(ddof=1) > 0 else None,
+                     "avg_hours": round(float(np.mean(hrs)), 1) if hrs else None}
     return {"closed": n, "used": len(use), "net_mean_bp": round(float(net.mean()), 1), "t": round(t_, 2), "verdict": v,
-            "record_upbit_minus_binance_bp": round(float(np.mean(gap)), 1) if gap else None}
+            "record_upbit_minus_binance_bp": round(float(np.mean(gap)), 1) if gap else None,
+            "record_shadow_exits": shadow}
 
 
 # ---------- 시험 ----------
@@ -325,7 +382,51 @@ def selftest():
         out = run(T.to_pydatetime().replace(minute=2), cbs, bn, FakeBroker(1.0e8), d, execute=True, log=lambda *a: None)
         ok(out["position"] is None and pd.Timestamp(out["rec"]["blockedUntil"]) == T + HOLD, "숏 사건 → 거래 없음·24h 차단")
 
-    # 8) 알림 경로: 매매 방 우선 · 키 없으면 생략 · 전송 실패해도 예외 없음
+    # 8) 가상 청산(기록 전용): 실제 매수 때 3갈래 열림 → 24h 실제 청산과 무관하게 각자 닫힘
+    long_idx = pd.date_range(T - FETCH_HOURS * H, T + 80 * H, freq="h")
+    bl = pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.003, len(long_idx)))), index=long_idx)
+    pl = rng.normal(0, 0.0004, len(long_idx))
+    i0 = long_idx.get_loc(T - H)
+    pl[i0 - 30:i0] = 0.0                       # 직전 하루는 평온하게 — 우연한 |z| ≥ 2 가 T 진입을 차단하지 않게
+    pl[i0] = 0.01
+    cbl = bl * (1 + pl)
+
+    def at(k):
+        Tk = T + k * H
+        sl = slice(Tk - FETCH_HOURS * H, Tk)
+        return Tk, cbl[sl], pd.DataFrame({"open": bl[sl], "close": bl[sl]})
+
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        Tk, c_, b_ = at(0)
+        r0 = run(Tk.to_pydatetime().replace(minute=2), c_, b_, FakeBroker(1.0e8), d, execute=True, log=lambda *a: None)
+        ok(len(r0["shadows_open"]) == 3, "매수 때 가상 다리 3개")
+        Tk, c_, b_ = at(24)
+        z24, _ = premium_z(c_, b_["close"], Tk)
+        hits = z24[(z24.index >= T + H) & (z24.index <= Tk) & (z24 <= -0.5)]
+        r24 = run(Tk.to_pydatetime().replace(minute=2), c_, b_, FakeBroker(1.02e8), d, execute=True, log=lambda *a: None)
+        ok(len(r24["trades"]) == 1, "실제 청산은 24h 그대로")
+        zc = [x for x in r24["shadow_closed"] if x["rule"] == "Zm0.5"]
+        ok(len(hits) == 0 or (len(zc) == 1 and zc[0]["targetT"] == str(hits.index[0])
+                               and abs(zc[0]["delayH"] - (Tk - hits.index[0]) / H) < 1e-9), "Zm0.5 = z ≤ −0.5 첫 정시, 지연 기록")
+        ok({x["rule"] for x in r24["shadows_open"]} >= {"T48", "T72"}, "T48·T72 는 24h 뒤에도 열려 있음")
+        Tk, c_, b_ = at(48)
+        r48 = run(Tk.to_pydatetime().replace(minute=2), c_, b_, FakeBroker(1.03e8), d, execute=True, log=lambda *a: None)
+        t48 = [x for x in r48["shadow_closed"] if x["rule"] == "T48"]
+        ok(len(t48) == 1 and t48[0]["hours"] == 48 and abs(t48[0]["netBp"] - 290.0) < 1e-6, "T48 은 48h 에 닫힘(+3% − 10bp)")
+        Tk, c_, b_ = at(72)
+        r72 = run(Tk.to_pydatetime().replace(minute=2), c_, b_, FakeBroker(0.99e8), d, execute=True, log=lambda *a: None)
+        ok(not r72["shadows_open"] and any(x["rule"] == "T72" for x in r72["shadow_closed"]), "72h 에 남은 다리 모두 닫힘")
+        rows = [json.loads(x) for x in (d / "shadow.jsonl").read_text(encoding="utf-8").splitlines()]
+        ok(sorted(x["rule"] for x in rows) == ["T48", "T72", "Zm0.5"], "shadow.jsonl 에 3줄")
+        jd = judge(d)
+        ok("거부" in jd["judge"] and jd["shadow_closed_counts"] == {"T48": 1, "T72": 1, "Zm0.5": 1}, "40건 전 judge 는 가상도 건수만")
+    zflat = pd.Series(0.0, index=pd.date_range(T, T + 80 * H, freq="h"))
+    leg = {"signalT": str(T), "rule": "Zm0.5", "entryPrice": 1.0}
+    ok(shadow_target(leg, zflat, T + 71 * H) is None and shadow_target(leg, zflat, T + 72 * H) == T + 72 * H,
+       "z 가 안 내려오면 72h 에 닫힘")
+
+    # 9) 알림 경로: 매매 방 우선 · 키 없으면 생략 · 전송 실패해도 예외 없음
     got = []
     ok(notify_trade_room("x", {"TELEGRAM_BOT_TOKEN": "t", "TELEGRAM_TRADE_CHAT_ID": "TR", "TELEGRAM_CHAT_ID": "DM"},
                          sender=lambda tk, ch, tx: got.append(ch), log=lambda *a: None) and got == ["TR"], "매매 방으로 보낸다")

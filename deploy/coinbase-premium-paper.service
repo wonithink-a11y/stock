@@ -9,7 +9,8 @@
 # 모의 매수·청산·놓친/지연 롱 신호만 매매 방으로 보낸다(1년 약 40~80통). 키가 없거나 전송이 실패해도 슬리브는 계속 돈다.
 #
 # --execute 는 "상태·원장에 기록"(모의 체결)뿐이다. 상태는 ~/collector-venv/cbprem-paper/:
-# state.json(지우면 첫 실행처럼 차단을 다시 세운다, 거래는 안 함) · trades.jsonl(판정 원장 - 지우지 않는다).
+# state.json(지우면 첫 실행처럼 차단을 다시 세운다, 거래는 안 함) · trades.jsonl(판정 원장 - 지우지 않는다) ·
+# shadow.jsonl(같은 매수의 가상 청산 T48·T72·Zm0.5, 기록 전용).
 # git pull 은 하지 않는다 - 매시 도는 유닛이라 VM 의 정기 pull 에 맡긴다.
 Description=Coinbase premium C24 paper sleeve (Upbit KRW-BTC long, hourly, paper only)
 After=network-online.target
