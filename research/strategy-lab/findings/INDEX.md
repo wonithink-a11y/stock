@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 16 |
 | 보류·판정 불가 | 43 |
-| 기각 | 139 |
-| 사전등록 문서(결과는 별도 파일) | 140 |
+| 기각 | 140 |
+| 사전등록 문서(결과는 별도 파일) | 142 |
 | 정보·탐색 | 39 |
 | 미분류 | 241 |
 
@@ -82,10 +82,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (139)
+## 기각 (140)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | REJECT | crypto | [hash-ribbons-results-2026-10.md](hash-ribbons-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 항복 국면(해시레이트 30일선 < 60일선) 날과 아닌 날의 BTC 일수익 차 TRAIN −10.6bp(t −0.48 < 1.91), VALID +47 · TEST … |
 | 2026-10-30 | REJECT | crypto | [crypto-dvol-results-2026-10.md](crypto-dvol-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(DVOL 백분위 ≥ 0.8 이면 쉬기) TRAIN t 0.46 < 1.74 — 내재변동성 높은 날이 오히려 평균 +44bp 좋았고(TRAIN), OOS 에서 쉬… |
 | 2026-10-30 | REJECT | crypto | [stablecoin-supply-btc-results-2026-10.md](stablecoin-supply-btc-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. S1(1일) TRAIN t 1.49 < 바닥선 2.34 → REJECT(VALID +97 · TEST +65bp 로 같은 부호지만 TRAIN 에서 신호가 서… |
 | 2026-10-29 | REJECT | crypto | [kimchi-premium-hourly-results-2026-10.md](kimchi-premium-hourly-results-2026-10.md) | 신호: 없음 · 경제성: 미달. K4 TRAIN t −1.06 · K24 TRAIN t −1.31 → 둘 다 바닥선 2.15 아래, REJECT. 구간마다 부호가 바뀐다(K24 TRAIN −28 ·… |
@@ -226,10 +227,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (140)
+## 사전등록 문서(결과는 별도 파일) (142)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [hash-ribbons-preregistration-2026-10.md](hash-ribbons-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "채굴자 항복 국면(해시레이트 30일선이 60일선 아래)에 BTC 수익이 달라서, 국면에 따라 들고 있거나 쉬면 위험 대비 성과가 나아지는가". … |
+| 2026-10-30 | PREREGISTERED | crypto | [upbit-turnover-preregistration-2026-10.md](upbit-turnover-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 개인 매매가 평소보다 크게 몰릴 때(전 세계 BTC 거래 중 업비트 비중, 업비트 안 알트 쏠림) 다음 7일 BTC 는 어느 쪽으로 가는가… |
 | 2026-10-30 | PREREGISTERED | crypto | [crypto-dvol-preregistration-2026-10.md](crypto-dvol-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인 옵션 시장의 내재변동성(DVOL)이 높을 때 쉬면(V1) 위험 대비 성과가 나아지는가, 내재 − 실현 변동성 차(V2)나 DVOL 급변… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-forward-preregistration-2026-10.md](stablecoin-supply-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인 발행량이 평소보다 크게 늘면 다음 1·7일 BTC 가 오르고(줄면 내리고), 그것이 앞으로의 자료에서도 비용 뒤 양인가". 백테스트… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-btc-preregistration-2026-10.md](stablecoin-supply-btc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인(USDT·USDC 등) 발행이 평소보다 크게 늘거나 줄어든 주 다음 1·7일, BTC 는 그 방향(늘면 오름)으로 가는가". 코인베… |

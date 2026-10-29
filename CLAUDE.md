@@ -161,6 +161,8 @@ Validated against
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·
             V2 VRP 주간 t −0.53 · V3 DVOL 급변 t 0.03, ETH 도 전부 REJECT). RV20 Rule B 의 크립토판 불성립. VRP 는 2021 15 → 2026 0.7%p 로 소멸(기록). findings/crypto-dvol-results-2026-10.md.
+  안 한다   ★ 해시 리본(채굴자 항복 국면, 10-30, 49dd0a1·77a9be8) — 신호 없음·REJECT(항복−아닌 날 TRAIN −10.6bp t −0.48 < 1.91, OOS 부호 반대, '항복 날 쉬기' Sharpe 0.90 vs 1.16).
+            '매수 신호' 21회 뒤 90일 +15.8% vs 아무 날 +13.3%(기록). findings/hash-ribbons-results-2026-10.md.
   안 한다   ★ 김치 프리미엄 → BTC 4·24시간(10-29, 6964876·2a71340) — 신호 없음·REJECT(K4 TRAIN t −1.06 · K24 −1.31, 바닥선 2.15). 30일(NONE)에 이어 김프 타이밍 라인 종결 권고.
             코인베이스 z 와 상관 0.006(다른 신호). 재론은 새 표본(알트 김프·분 단위)·새 사전등록으로만. findings/kimchi-premium-hourly-results-2026-10.md.
   안 한다   ★ 크립토 실현분산·점프 횡단면(10-29, 6d97e2b·14875c7) — 신호 없음·REJECT(V1 RV TRAIN t −0.32 · V2 JV +0.41, 바닥선 2.23). 대형 28종(data.binance.vision mark 1h).
