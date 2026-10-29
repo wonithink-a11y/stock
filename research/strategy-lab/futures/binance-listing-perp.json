@@ -1,0 +1,87 @@
+{
+ "verdict": "EXECUTABLE",
+ "coverage": {
+  "TEST": {
+   "events": 264,
+   "with_perp_obs": 170
+  },
+  "TRAIN": {
+   "events": 242,
+   "with_perp_obs": 21
+  },
+  "VALID": {
+   "events": 33,
+   "with_perp_obs": 17
+  }
+ },
+ "by_split_day_mean_bp": {
+  "TEST": {
+   "days": 144,
+   "obs": 1071.7,
+   "t": 3.9,
+   "price_only": 1284.7,
+   "funding_7d": -213.0
+  },
+  "TRAIN": {
+   "days": 20,
+   "obs": 2211.2,
+   "t": 3.46,
+   "price_only": 2295.6,
+   "funding_7d": -84.4
+  },
+  "VALID": {
+   "days": 16,
+   "obs": 569.3,
+   "t": 0.88,
+   "price_only": 526.3,
+   "funding_7d": 43.0
+  }
+ },
+ "oos": {
+  "days": 160,
+  "net10": 1011.4,
+  "t_net10": 3.96,
+  "net30": 991.4,
+  "test_net10": 1061.7
+ },
+ "periods": {
+  "2024": {
+   "days": 44,
+   "obs": 269.9,
+   "t": 0.45
+  },
+  "2025~": {
+   "days": 100,
+   "obs": 1424.4,
+   "t": 4.93
+  },
+  "~2023": {
+   "days": 36,
+   "obs": 1481.5,
+   "t": 3.14
+  }
+ },
+ "record": {
+  "funding_against_short%": {
+   "TEST": 57.1,
+   "TRAIN": 61.9,
+   "VALID": 35.3
+  },
+  "perp_before_spot%": {
+   "TEST": 41.8,
+   "TRAIN": 0.0,
+   "VALID": 11.8
+  },
+  "basis_entry_bp_median": {
+   "TEST": -7.2,
+   "TRAIN": -4.1,
+   "VALID": 9.1
+  },
+  "funding_interval_h": {
+   "4.0": 165,
+   "8.0": 29,
+   "1.0": 12,
+   "2.0": 1
+  }
+ }
+}

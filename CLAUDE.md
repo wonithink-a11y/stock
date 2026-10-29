@@ -159,7 +159,8 @@ Validated against
             노출당 효율은 z ≥ 2 · 24h 가 최고, 2025~ 하락장에서 고른 셀 −0.2%/년 vs 지금 +7.8%. findings/coinbase-premium-grid-results-2026-10.md.
   다음      ★ **바이낸스 신규 상장 → 다음 7일 BTC 대비(10-30, c776835·7bba3b1) — BL7 ROBUST**: 상장 547건(상폐 포함, 생존편향 없음), 상장 다음 날부터 7일
             TRAIN −933bp(t −3.00) · VALID −647 · TEST −1,151(t −4.85), 아홉 해 모두 같은 쪽, 코인 3/4 이 BTC 에 짐. BL30 REJECT(2022 반대). 토큰화 주식 87개 빼도 불변(감사).
-            **비용 10bp 는 숏에 낙관적** — 무기한 유무·펀딩으로 숏 실행 가능성을 새 사전등록으로 재야 한다. 국내 쓰임은 '상장 첫 주 매수 회피' 근거. 채택·배선은 🔴 GO. findings/binance-listing-results-2026-10.md.
+            ★ 실행 가능성(2f33880·8512abb) **EXECUTABLE** — 바이낸스 무기한 숏 + 실제 펀딩: TEST +1,072bp(t 3.90), 펀딩 7일 −2.1%, 2024~ 상장 64% 에 무기한. **꼬리 위험 큼**(코인 26% 손실, 최악 −306% PNUT) —
+            크기·손절 설계 없이 쓰면 청산. 실매매·모의 슬리브는 🔴 사용자 GO + 새 사전등록. 국내 쓰임은 '상장 첫 주 매수 회피' 근거. findings/binance-listing-{results,perp-results}-2026-10.md.
   안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·
