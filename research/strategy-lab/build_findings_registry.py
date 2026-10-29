@@ -39,7 +39,7 @@ VALID_VERDICTS = ("KEEP", "HOLD", "REJECT", "UNCLASSIFIED")
 # 예전엔 그런 파일을 키워드 추측으로 돌려 'REJECT' 같은 거짓 판정이 붙었다 - 이제 선언된 값을 그대로 쓰고
 # INDEX.md 묶음만 아래 표로 정한다(표에 없으면 '미분류', 교훈57).
 GROUPS = [
-    ("통과·채택", ("KEEP", "PASS", "GO", "CONFIRMED", "SUPPORTED", "ECONOMIC")),
+    ("통과·채택", ("KEEP", "PASS", "GO", "CONFIRMED", "SUPPORTED", "ECONOMIC", "ROBUST")),
     ("보류·판정 불가", ("HOLD", "MIXED", "INCONCLUSIVE", "판정 불가", "CAUTION")),
     ("기각", ("REJECT", "FAIL", "NOT SUPPORTED", "NONE", "REVERSE")),
     ("사전등록 문서(결과는 별도 파일)", ("PREREGISTERED",)),

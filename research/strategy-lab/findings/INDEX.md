@@ -6,20 +6,22 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 16 |
+| 통과·채택 | 18 |
 | 보류·판정 불가 | 43 |
 | 기각 | 150 |
 | 사전등록 문서(결과는 별도 파일) | 151 |
 | 정보·탐색 | 39 |
-| 미분류 | 241 |
+| 미분류 | 240 |
 
-## 통과·채택 (16)
+## 통과·채택 (18)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
 | 2026-10-29 | PASS | crypto | [coinbase-premium-robustness-results-2026-10.md](coinbase-premium-robustness-results-2026-10.md) | 신호: 있음 · 경제성: 통과. A — K1 무작위 진입 p 0.0005 · K2 월 블록 95% [2.8, 73.3] · K3 상위 두 달 빼도 net10 +14.9bp · K4 업비트 롱 net… |
 | 2026-10-29 | ECONOMIC | crypto | [coinbase-premium-results-2026-10.md](coinbase-premium-results-2026-10.md) | 신호: 있음 · 경제성: 통과(C24) / 미달(C4). C24(24시간) TRAIN +68bp t 3.53 · VALID +17 · TEST +45(t 2.84), OOS net10 +27.9bp… |
 | 2026-10-19 | CONFIRMED | kr | [contract-liab-revenue-step1-2026-10.md](contract-liab-revenue-step1-2026-10.md) | 신호: 있음(다음 해 매출 예측) · 경제성: 해당 없음(주가 미측정 — 1단계는 재무끼리). 계약부채가 전년 매출 대비 많이 늘어난 회사는 다음 해 매출이 더 늘었다 — 평균 Spearman 20… |
+| 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
 | 2026-10-11 | ECONOMIC | kr | [combined-rank-model-results-2026-10.md](combined-rank-model-results-2026-10.md) | 신호: 있음 · 경제성: 통과. h1 ECONOMIC(TRAIN-WF +54.2bp t +12.81 · VALID +37.2 · TEST +32.0) / h5 ECONOMIC(TRAIN-WF +95… |
 | 2026-10-09 | GO | multi | [strategy-portfolio-stage1-results-2026-10.md](strategy-portfolio-stage1-results-2026-10.md) | 독립 원천 3개(PBR 결합, RV20 규칙 B, 무한매수 TQQQ) → 2단계 GO. (스크립트 판정) |
 | 2026-10-09 | ECONOMIC | kr | [dividend-runup-results-2026-10.md](dividend-runup-results-2026-10.md) | 신호: 있음 · 경제성: 통과. 2010~2022 평균 초과 +2.82%, 귀무 95백분위 +0.30%. (스크립트 판정) |
@@ -437,12 +439,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (241)
+## 미분류 (240)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-10-17 | REFERENCE | kr | [quality-forward-past-reference-2026-10.md](quality-forward-past-reference-2026-10.md) | 신호: 과거 전체로는 없음(Q1 t 0.62 · Q2 t 1.70), 2025~ 에만 양 · 경제성: 판정 불사용(참고 계산). 폐지 종목을 넣어도 IC 강세는 남는다(2016~23 +0.042 →… |
-| 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
 | 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
 | 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
 | 2026-10-10 | 근거 유지 | kr | [pbr-combined-merged-rerun-results-2026-10.md](pbr-combined-merged-rerun-results-2026-10.md) | 편향 재검증(신호·경제성 판정 아님). 폐지 포함·엔진 보정 P2 연복리 +7.50% vs 같은 유니버스 등가중 E2 +2.30% → gap +5.20%p, 샤프 0.73 vs 0.23 → 근거 유… |
