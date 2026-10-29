@@ -1,0 +1,32 @@
+[Unit]
+# 코인베이스 프리미엄 C24 - 업비트 KRW-BTC 롱 모의 슬리브, 매시 1회.
+# 사전등록: research/strategy-lab/findings/coinbase-premium-paper-sleeve-preregistration-2026-10.md
+#
+# 거래소 자격증명이 필요 없다 - 시세는 코인베이스·바이낸스(data-api.binance.vision)·업비트 공개
+# 엔드포인트이고, UpbitPaperBroker 는 로컬 시뮬레이션이라 인증 메서드를 부르지 않는다.
+# 실주문 경로가 코드에 없다 - 끄려면 타이머를 멈춘다(systemctl disable --now coinbase-premium-paper.timer).
+# EnvironmentFile 은 텔레그램 알림용(TELEGRAM_BOT_TOKEN · TELEGRAM_TRADE_CHAT_ID, 없으면 TELEGRAM_CHAT_ID)뿐이다.
+# 모의 매수·청산·놓친/지연 롱 신호만 매매 방으로 보낸다(1년 약 40~80통). 키가 없거나 전송이 실패해도 슬리브는 계속 돈다.
+#
+# --execute 는 "상태·원장에 기록"(모의 체결)뿐이다. 상태는 ~/collector-venv/cbprem-paper/:
+# state.json(지우면 첫 실행처럼 차단을 다시 세운다, 거래는 안 함) · trades.jsonl(판정 원장 - 지우지 않는다) ·
+# shadow.jsonl(같은 매수의 가상 청산 T48·T72·Zm0.5, 기록 전용).
+# git pull 은 하지 않는다 - 매시 도는 유닛이라 VM 의 정기 pull 에 맡긴다.
+Description=Coinbase premium C24 paper sleeve (Upbit KRW-BTC long, hourly, paper only)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_coinbase_premium_paper.py --execute
+TimeoutStartSec=300
+
+StandardOutput=append:/home/ubuntu/collector-venv/logs/coinbase-premium-paper.log
+StandardError=append:/home/ubuntu/collector-venv/logs/coinbase-premium-paper.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes

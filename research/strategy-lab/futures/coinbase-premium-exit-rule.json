@@ -1,0 +1,544 @@
+{
+ "first": "2018-01-16 02:00:00+00:00",
+ "train_years": 4.96,
+ "train": {
+  "T4": {
+   "n": 488,
+   "per_year": 98.5,
+   "annual_net_bp": -274.0,
+   "mean_bp": -2.8,
+   "win_pct": 47.5,
+   "avg_hours": 4.0,
+   "t": -0.32
+  },
+  "T12": {
+   "n": 295,
+   "per_year": 59.5,
+   "annual_net_bp": 1002.0,
+   "mean_bp": 16.8,
+   "win_pct": 50.8,
+   "avg_hours": 12.0,
+   "t": 0.92
+  },
+  "T24": {
+   "n": 213,
+   "per_year": 43.0,
+   "annual_net_bp": 1461.0,
+   "mean_bp": 34.0,
+   "win_pct": 53.1,
+   "avg_hours": 24.0,
+   "t": 1.2
+  },
+  "T48": {
+   "n": 160,
+   "per_year": 32.3,
+   "annual_net_bp": 1639.0,
+   "mean_bp": 50.8,
+   "win_pct": 50.0,
+   "avg_hours": 48.0,
+   "t": 1.17
+  },
+  "T72": {
+   "n": 132,
+   "per_year": 26.6,
+   "annual_net_bp": 1767.0,
+   "mean_bp": 66.3,
+   "win_pct": 49.2,
+   "avg_hours": 72.0,
+   "t": 1.27
+  },
+  "Z1.5": {
+   "n": 370,
+   "per_year": 74.7,
+   "annual_net_bp": 2.0,
+   "mean_bp": 0.0,
+   "win_pct": 43.8,
+   "avg_hours": 4.0,
+   "t": 0.0
+  },
+  "Z1.0": {
+   "n": 283,
+   "per_year": 57.1,
+   "annual_net_bp": 666.0,
+   "mean_bp": 11.7,
+   "win_pct": 46.6,
+   "avg_hours": 7.9,
+   "t": 0.7
+  },
+  "Z0.5": {
+   "n": 233,
+   "per_year": 47.0,
+   "annual_net_bp": 1316.0,
+   "mean_bp": 28.0,
+   "win_pct": 49.4,
+   "avg_hours": 14.0,
+   "t": 1.29
+  },
+  "Z0.0": {
+   "n": 193,
+   "per_year": 38.9,
+   "annual_net_bp": 1651.0,
+   "mean_bp": 42.4,
+   "win_pct": 49.7,
+   "avg_hours": 24.5,
+   "t": 1.47
+  },
+  "Zm0.5": {
+   "n": 172,
+   "per_year": 34.7,
+   "annual_net_bp": 2314.0,
+   "mean_bp": 66.7,
+   "win_pct": 50.6,
+   "avg_hours": 34.0,
+   "t": 1.76
+  }
+ },
+ "pick": "Zm0.5",
+ "confirm": {
+  "months": 45,
+  "diff_monthly_bp": 74.2,
+  "t": 1.15,
+  "pick_monthly_bp": 280.0,
+  "t24_monthly_bp": 205.8
+ },
+ "verdict": "INCONCLUSIVE — 24시간 유지",
+ "record": {
+  "all_cells_by_period": {
+   "T4": {
+    "TRAIN": {
+     "n": 488,
+     "per_year": 98.5,
+     "annual_net_bp": -274.0,
+     "mean_bp": -2.8,
+     "win_pct": 47.5,
+     "avg_hours": 4.0,
+     "t": -0.32
+    },
+    "2023": {
+     "n": 107,
+     "per_year": 107.1,
+     "annual_net_bp": 48.0,
+     "mean_bp": 0.5,
+     "win_pct": 43.0,
+     "avg_hours": 4.0,
+     "t": 0.05
+    },
+    "2024": {
+     "n": 124,
+     "per_year": 123.7,
+     "annual_net_bp": 437.0,
+     "mean_bp": 3.5,
+     "win_pct": 46.8,
+     "avg_hours": 4.0,
+     "t": 0.29
+    },
+    "2025~": {
+     "n": 179,
+     "per_year": 102.5,
+     "annual_net_bp": 330.0,
+     "mean_bp": 3.2,
+     "win_pct": 46.9,
+     "avg_hours": 4.0,
+     "t": 0.41
+    }
+   },
+   "T12": {
+    "TRAIN": {
+     "n": 295,
+     "per_year": 59.5,
+     "annual_net_bp": 1002.0,
+     "mean_bp": 16.8,
+     "win_pct": 50.8,
+     "avg_hours": 12.0,
+     "t": 0.92
+    },
+    "2023": {
+     "n": 67,
+     "per_year": 67.0,
+     "annual_net_bp": 2644.0,
+     "mean_bp": 39.4,
+     "win_pct": 52.2,
+     "avg_hours": 12.0,
+     "t": 1.57
+    },
+    "2024": {
+     "n": 65,
+     "per_year": 64.9,
+     "annual_net_bp": 3758.0,
+     "mean_bp": 57.9,
+     "win_pct": 63.1,
+     "avg_hours": 12.0,
+     "t": 2.16
+    },
+    "2025~": {
+     "n": 97,
+     "per_year": 55.5,
+     "annual_net_bp": 1031.0,
+     "mean_bp": 18.6,
+     "win_pct": 46.4,
+     "avg_hours": 12.0,
+     "t": 1.33
+    }
+   },
+   "T24": {
+    "TRAIN": {
+     "n": 213,
+     "per_year": 43.0,
+     "annual_net_bp": 1461.0,
+     "mean_bp": 34.0,
+     "win_pct": 53.1,
+     "avg_hours": 24.0,
+     "t": 1.2
+    },
+    "2023": {
+     "n": 51,
+     "per_year": 51.0,
+     "annual_net_bp": 2722.0,
+     "mean_bp": 53.3,
+     "win_pct": 43.1,
+     "avg_hours": 24.0,
+     "t": 1.36
+    },
+    "2024": {
+     "n": 44,
+     "per_year": 43.9,
+     "annual_net_bp": 5169.0,
+     "mean_bp": 117.7,
+     "win_pct": 72.7,
+     "avg_hours": 24.0,
+     "t": 3.1
+    },
+    "2025~": {
+     "n": 72,
+     "per_year": 41.2,
+     "annual_net_bp": 778.0,
+     "mean_bp": 18.9,
+     "win_pct": 50.0,
+     "avg_hours": 24.0,
+     "t": 0.86
+    }
+   },
+   "T48": {
+    "TRAIN": {
+     "n": 160,
+     "per_year": 32.3,
+     "annual_net_bp": 1639.0,
+     "mean_bp": 50.8,
+     "win_pct": 50.0,
+     "avg_hours": 48.0,
+     "t": 1.17
+    },
+    "2023": {
+     "n": 37,
+     "per_year": 37.0,
+     "annual_net_bp": 3218.0,
+     "mean_bp": 86.9,
+     "win_pct": 43.2,
+     "avg_hours": 48.0,
+     "t": 1.31
+    },
+    "2024": {
+     "n": 33,
+     "per_year": 32.9,
+     "annual_net_bp": 6861.0,
+     "mean_bp": 208.3,
+     "win_pct": 75.8,
+     "avg_hours": 48.0,
+     "t": 2.99
+    },
+    "2025~": {
+     "n": 52,
+     "per_year": 29.8,
+     "annual_net_bp": 1197.0,
+     "mean_bp": 40.2,
+     "win_pct": 48.1,
+     "avg_hours": 48.0,
+     "t": 1.12
+    }
+   },
+   "T72": {
+    "TRAIN": {
+     "n": 132,
+     "per_year": 26.6,
+     "annual_net_bp": 1767.0,
+     "mean_bp": 66.3,
+     "win_pct": 49.2,
+     "avg_hours": 72.0,
+     "t": 1.27
+    },
+    "2023": {
+     "n": 32,
+     "per_year": 32.0,
+     "annual_net_bp": 4724.0,
+     "mean_bp": 147.5,
+     "win_pct": 53.1,
+     "avg_hours": 72.0,
+     "t": 1.52
+    },
+    "2024": {
+     "n": 27,
+     "per_year": 26.9,
+     "annual_net_bp": 7374.0,
+     "mean_bp": 273.7,
+     "win_pct": 70.4,
+     "avg_hours": 72.0,
+     "t": 2.31
+    },
+    "2025~": {
+     "n": 45,
+     "per_year": 25.8,
+     "annual_net_bp": 650.0,
+     "mean_bp": 25.2,
+     "win_pct": 46.7,
+     "avg_hours": 72.0,
+     "t": 0.48
+    }
+   },
+   "Z1.5": {
+    "TRAIN": {
+     "n": 370,
+     "per_year": 74.7,
+     "annual_net_bp": 2.0,
+     "mean_bp": 0.0,
+     "win_pct": 43.8,
+     "avg_hours": 4.0,
+     "t": 0.0
+    },
+    "2023": {
+     "n": 74,
+     "per_year": 74.1,
+     "annual_net_bp": -525.0,
+     "mean_bp": -7.1,
+     "win_pct": 33.8,
+     "avg_hours": 4.3,
+     "t": -0.5
+    },
+    "2024": {
+     "n": 64,
+     "per_year": 63.9,
+     "annual_net_bp": 744.0,
+     "mean_bp": 11.6,
+     "win_pct": 46.9,
+     "avg_hours": 7.4,
+     "t": 0.55
+    },
+    "2025~": {
+     "n": 90,
+     "per_year": 51.5,
+     "annual_net_bp": 666.0,
+     "mean_bp": 12.9,
+     "win_pct": 40.0,
+     "avg_hours": 7.7,
+     "t": 0.96
+    }
+   },
+   "Z1.0": {
+    "TRAIN": {
+     "n": 283,
+     "per_year": 57.1,
+     "annual_net_bp": 666.0,
+     "mean_bp": 11.7,
+     "win_pct": 46.6,
+     "avg_hours": 7.9,
+     "t": 0.7
+    },
+    "2023": {
+     "n": 53,
+     "per_year": 53.0,
+     "annual_net_bp": 1861.0,
+     "mean_bp": 35.1,
+     "win_pct": 54.7,
+     "avg_hours": 8.9,
+     "t": 1.45
+    },
+    "2024": {
+     "n": 49,
+     "per_year": 48.9,
+     "annual_net_bp": 3394.0,
+     "mean_bp": 69.4,
+     "win_pct": 51.0,
+     "avg_hours": 15.0,
+     "t": 1.45
+    },
+    "2025~": {
+     "n": 63,
+     "per_year": 36.1,
+     "annual_net_bp": 271.0,
+     "mean_bp": 7.5,
+     "win_pct": 39.7,
+     "avg_hours": 20.6,
+     "t": 0.33
+    }
+   },
+   "Z0.5": {
+    "TRAIN": {
+     "n": 233,
+     "per_year": 47.0,
+     "annual_net_bp": 1316.0,
+     "mean_bp": 28.0,
+     "win_pct": 49.4,
+     "avg_hours": 14.0,
+     "t": 1.29
+    },
+    "2023": {
+     "n": 45,
+     "per_year": 45.0,
+     "annual_net_bp": 2300.0,
+     "mean_bp": 51.1,
+     "win_pct": 46.7,
+     "avg_hours": 17.9,
+     "t": 1.16
+    },
+    "2024": {
+     "n": 39,
+     "per_year": 38.9,
+     "annual_net_bp": 5466.0,
+     "mean_bp": 140.4,
+     "win_pct": 56.4,
+     "avg_hours": 27.4,
+     "t": 1.86
+    },
+    "2025~": {
+     "n": 53,
+     "per_year": 30.3,
+     "annual_net_bp": -528.0,
+     "mean_bp": -17.4,
+     "win_pct": 37.7,
+     "avg_hours": 36.8,
+     "t": -0.54
+    }
+   },
+   "Z0.0": {
+    "TRAIN": {
+     "n": 193,
+     "per_year": 38.9,
+     "annual_net_bp": 1651.0,
+     "mean_bp": 42.4,
+     "win_pct": 49.7,
+     "avg_hours": 24.5,
+     "t": 1.47
+    },
+    "2023": {
+     "n": 39,
+     "per_year": 39.0,
+     "annual_net_bp": 3239.0,
+     "mean_bp": 83.0,
+     "win_pct": 46.2,
+     "avg_hours": 33.6,
+     "t": 1.36
+    },
+    "2024": {
+     "n": 33,
+     "per_year": 32.9,
+     "annual_net_bp": 5699.0,
+     "mean_bp": 173.0,
+     "win_pct": 60.6,
+     "avg_hours": 42.1,
+     "t": 1.88
+    },
+    "2025~": {
+     "n": 49,
+     "per_year": 28.1,
+     "annual_net_bp": 297.0,
+     "mean_bp": 10.6,
+     "win_pct": 42.9,
+     "avg_hours": 50.8,
+     "t": 0.24
+    }
+   },
+   "Zm0.5": {
+    "TRAIN": {
+     "n": 172,
+     "per_year": 34.7,
+     "annual_net_bp": 2314.0,
+     "mean_bp": 66.7,
+     "win_pct": 50.6,
+     "avg_hours": 34.0,
+     "t": 1.76
+    },
+    "2023": {
+     "n": 36,
+     "per_year": 36.0,
+     "annual_net_bp": 4395.0,
+     "mean_bp": 122.0,
+     "win_pct": 50.0,
+     "avg_hours": 44.9,
+     "t": 1.54
+    },
+    "2024": {
+     "n": 30,
+     "per_year": 29.9,
+     "annual_net_bp": 7607.0,
+     "mean_bp": 254.1,
+     "win_pct": 70.0,
+     "avg_hours": 54.9,
+     "t": 2.41
+    },
+    "2025~": {
+     "n": 46,
+     "per_year": 26.3,
+     "annual_net_bp": 335.0,
+     "mean_bp": 12.7,
+     "win_pct": 41.3,
+     "avg_hours": 59.4,
+     "t": 0.26
+    }
+   }
+  },
+  "alts_pick_minus_t24": {
+   "all": {
+    "months": 105,
+    "bp": 10.6,
+    "t": 0.22
+   },
+   "TRAIN": {
+    "months": 60,
+    "bp": 51.5,
+    "t": 0.75
+   },
+   "2023~": {
+    "months": 45,
+    "bp": -44.0,
+    "t": -0.73
+   }
+  },
+  "buy_when_low_z24h": {
+   "TRAIN": {
+    "n": 300,
+    "per_year": 60.5,
+    "annual_net_bp": -4630.0,
+    "mean_bp": -76.5,
+    "win_pct": 48.3,
+    "avg_hours": 24.0,
+    "t": -3.16
+   },
+   "2023": {
+    "n": 48,
+    "per_year": 48.0,
+    "annual_net_bp": 1162.0,
+    "mean_bp": 24.2,
+    "win_pct": 54.2,
+    "avg_hours": 24.0,
+    "t": 0.82
+   },
+   "2024": {
+    "n": 58,
+    "per_year": 57.9,
+    "annual_net_bp": -2595.0,
+    "mean_bp": -44.8,
+    "win_pct": 43.1,
+    "avg_hours": 24.0,
+    "t": -1.51
+   },
+   "2025~": {
+    "n": 95,
+    "per_year": 54.4,
+    "annual_net_bp": -2184.0,
+    "mean_bp": -40.2,
+    "win_pct": 51.6,
+    "avg_hours": 24.0,
+    "t": -1.63
+   }
+  }
+ }
+}
