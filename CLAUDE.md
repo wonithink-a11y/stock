@@ -164,6 +164,8 @@ Validated against
             ★ 강건성(712d13b·66032d5) **PASS 4/4** — 같은 주 대형 알트 대비 −1,074bp(t −5.78) · 달 블록 [−1,397, −588] · 상위 3개 달 빼도 −940 · 이틀 늦게 −617(t −3.84). 둘째 주도 −392. findings/binance-listing-robustness-results-2026-10.md.
             ★ 업비트 원화 가격 확인(253e959·86c2817) **CONSISTENT** — 업비트에 있던 63 코인 첫 주 BTC 대비 −1,144bp(t −2.81), 2023~ −1,480 — 국내 '상장 첫 주 매수 회피' 근거. 경고 배선은 🔴 GO.
             ★ **forward #25(7790acf·f40e40b)** — `run_binance_listing_forward.py` 월간 점검, L ≥ 2026-10-01, 판정 성숙 상장일 40 ∧ 6개월(t ≤ −1.65 CONFIRMED). 첫 실행 사건 19·관측 14. 기록 전용.
+  안 한다   ★ 코인베이스 프리미엄 마이너스 z 문턱·보유(10-30, 8f869c7·737db26) — 신호 없음·REJECT(k −1~−4 × 24·72h 10셀, 최대 k −1.5·24h TRAIN t −2.38 < 바닥선 2.89, 2023 열 셀 모두 반대).
+            더 깊다고 더 약세 아님 · '과매도 반등'도 아님. 슬리브의 'z ≤ −2 면 24h 쉬기'는 그대로. findings/coinbase-premium-negz-results-2026-10.md.
   안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·
