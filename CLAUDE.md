@@ -162,6 +162,7 @@ Validated against
             ★ 실행 가능성(2f33880·8512abb) **EXECUTABLE** — 바이낸스 무기한 숏 + 실제 펀딩: TEST +1,072bp(t 3.90), 펀딩 7일 −2.1%, 2024~ 상장 64% 에 무기한. **꼬리 위험 큼**(코인 26% 손실, 최악 −306% PNUT) —
             크기·손절 설계 없이 쓰면 청산. 실매매·모의 슬리브는 🔴 사용자 GO + 새 사전등록. 국내 쓰임은 '상장 첫 주 매수 회피' 근거. findings/binance-listing-{results,perp-results}-2026-10.md.
             ★ 강건성(712d13b·66032d5) **PASS 4/4** — 같은 주 대형 알트 대비 −1,074bp(t −5.78) · 달 블록 [−1,397, −588] · 상위 3개 달 빼도 −940 · 이틀 늦게 −617(t −3.84). 둘째 주도 −392. findings/binance-listing-robustness-results-2026-10.md.
+            ★ 업비트 원화 가격 확인(253e959·86c2817) **CONSISTENT** — 업비트에 있던 63 코인 첫 주 BTC 대비 −1,144bp(t −2.81), 2023~ −1,480 — 국내 '상장 첫 주 매수 회피' 근거. 경고 배선은 🔴 GO.
   안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·

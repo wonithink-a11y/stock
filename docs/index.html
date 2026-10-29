@@ -4117,6 +4117,7 @@ function renderCrypto() {
 }
 const CRYPTO_LAB = [   // 크립토 연구 판정 — 원문은 findings 파일(저장소 공개)
   ['2026-10-30', 'REJECT', '코인베이스 상장(기존 코인) → 다음 7·30일', '2021 엔 반대라 기준 미달 · 2022~ 는 상장 뒤 약세 · 오름은 상장 전 7일에 이미(+30%)', 'coinbase-listing-results-2026-10.md'],
+  ['2026-10-30', 'CONSISTENT', '신규 상장 7일 약세 — 업비트 원화 가격', '바이낸스 신규 상장 코인 중 업비트에 있던 63개도 첫 주 BTC 대비 −11.4% · 4개 중 3개가 짐 — \'첫 주 매수 회피\' 근거', 'binance-listing-upbit-results-2026-10.md'],
   ['2026-10-30', 'PASS', '신규 상장 7일 약세 — 강건성 4/4', '같은 주 대형 알트보다도 −10.7% · 붐 달 3개 빼도 · 이틀 늦게 들어가도 성립 · 둘째 주도 −3.9%', 'binance-listing-robustness-results-2026-10.md'],
   ['2026-10-30', 'EXECUTABLE', '상장 7일 숏 — 바이낸스 무기한 실행 가능성', '펀딩을 내고도 회당 +10.7%(2024~, t 3.90) · 단 4개 중 1개는 손실, 최악 −306% — 크기·손절 설계 없이는 위험. 실매매 아님', 'binance-listing-perp-results-2026-10.md'],
   ['2026-10-30', 'ROBUST', '바이낸스 신규 상장 → 다음 7일', '상장 다음 날부터 7일간 BTC 보다 평균 9~12% 덜 오름(2018~2026 아홉 해 모두, 코인 4개 중 3개) — 숏 실행 가능성은 미검증, 국내에선 \'첫 주 매수 회피\' 근거', 'binance-listing-results-2026-10.md'],
@@ -4150,7 +4151,7 @@ const CRYPTO_SLEEVES = [
   ['업비트 투자유의·주의 기록', '공식 API 로 매시 플래그·전 종목 가격 저장 → 지정 뒤 72시간 시장 대비 수익(회피 필터 근거인가).', '12개월 ∧ 갈래별 100건', 'VM 설치 대기(10-29)'],
 ];
 function renderCryptoLab() {
-  const tone = v => /PASS|ECONOMIC|ROBUST|EXECUTABLE/.test(v) ? 'var(--good, #34c38f)' : /REJECT|NONE/.test(v) ? 'var(--muted)' : '#e0b04f';
+  const tone = v => /PASS|ECONOMIC|ROBUST|EXECUTABLE|CONSISTENT/.test(v) ? 'var(--good, #34c38f)' : /REJECT|NONE/.test(v) ? 'var(--muted)' : '#e0b04f';
   const gh = f => `https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/${f}`;
   const lab = CRYPTO_LAB.map(([d, v, t, s, f]) => `<div class="card" style="margin-bottom:8px">
       <div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><span class="chip" style="font-size:11px;color:${tone(v)};border-color:${tone(v)}">${esc(v)}</span><b>${esc(t)}</b><span class="muted" style="font-size:12px">${esc(d)}</span></div>
