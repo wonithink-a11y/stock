@@ -38,6 +38,8 @@ description: 새 전략·신호·가설을 사전등록 → 코드 동결 → �
 
 ## 4. 실행과 결과 파일
 
+클라우드 세션에서 `.cache`·크립토 시세·A4 가 없으면 다시 받지 말고 `python scripts/research-data.py get <묶음>`(목록은 `list`). 쓴 묶음의 sha256·builtAt 을 결과 파일에 적는다.
+
 `findings/<주제>-results-YYYY-MM.md`. 머리말 `reason` 첫머리에 **"신호: 있음/없음 · 경제성: 통과/미달"** 을 쓴다
 (UI 목록은 `verdict` 한 단어만 보여준다. 신호 실패와 비용 실패를 한 단어로 뭉개지 않는 규칙이다).
 

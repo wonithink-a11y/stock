@@ -835,6 +835,10 @@ SetupState가 깨져 다음 테스트까지 ERROR가 번진다(실측).
 수집·분석 스크립트의 사용법은 각 파일 docstring에 있다. `--dry-run`·`--selftest`·
 `--report`가 붙은 것은 네트워크 없이 돈다.
 
+**클라우드 세션(PC 없음)에서 연구 캐시가 없으면** 다시 수집하지 말고 먼저 VM 에서 받는다:
+`python scripts/research-data.py list` → `get <묶음…>`(키 RESEARCH_DATA_KEY). PC 캐시가 바뀌면 PC 에서 `push`.
+결과 파일에 쓴 묶음의 sha256·builtAt 을 적는다. 설계 docs/control/연구데이터-VM보관-설계-2026-10-30.md.
+
 게이트 검증은 `*_FAIL_INJECTION=gate-test`로 인수 조건을 강제 실패시킨다.
 이 훅은 **실패만 만들 수 있고 통과는 만들 수 없다** — 한 방향이라 남겨둬도 나쁜
 데이터를 밀어 넣는 통로가 되지 않는다. 새 단계에도 같은 형태로 붙인다.
