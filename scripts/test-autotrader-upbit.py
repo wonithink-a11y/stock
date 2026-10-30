@@ -205,6 +205,10 @@ def main():
     pr = ub.probe()
     ck("probe 는 주문 생성 '테스트'만 쓴다", pr == {"자산조회": "ok", "주문조회": "ok", "주문하기(테스트)": "ok"}
        and all(x[7] is True for x in fc.calls if x[0] == "place"))
+    fc.place_order = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("{'error': {'name': 'insufficient_funds_bid'}}"))
+    ck("원화 부족 거절은 권한·IP 통과로 읽는다", ub.probe()["주문하기(테스트)"].startswith("ok"))
+    fc.place_order = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("{'error': {'name': 'out_of_scope'}}"))
+    ck("권한 없음은 실패로 남는다", not ub.probe()["주문하기(테스트)"].startswith("ok"))
 
     # ------------------------------------------------ 전략 + 엔진(가짜 브로커)
     S = pd.Timestamp("2026-11-03 01:00", tz="UTC")                   # 롱 사건 시각(KST 10시)

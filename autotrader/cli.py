@@ -239,9 +239,10 @@ def cmd_upbit_probe(args) -> int:
     res = make_broker(cfg, env, False).probe((cfg.get("symbol_allowlist") or ["KRW-BTC"])[0])
     for k, v in res.items():
         print(f"{k}: {v}")
-    print("모두 ok 면 프로필 live.tr_ids_reviewed 를 true 로 둘 수 있다." if all(v == "ok" for v in res.values())
+    good = all(v.startswith("ok") for v in res.values())
+    print("모두 ok 면 프로필 live.tr_ids_reviewed 를 true 로 둘 수 있다." if good
           else "ok 가 아닌 항목: 업비트 API 키 관리에서 권한(자산조회·주문조회·주문하기)과 허용 IP 를 확인한다.")
-    return 0 if all(v == "ok" for v in res.values()) else 1
+    return 0 if good else 1
 
 
 def cmd_status(args) -> int:

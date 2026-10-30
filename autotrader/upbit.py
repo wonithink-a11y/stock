@@ -175,7 +175,10 @@ class UpbitBroker(Broker):
                 fn()
                 out[name] = "ok"
             except Exception as e:                      # noqa: BLE001 — 키 원문은 예외에 없다(업비트 오류 본문만)
-                out[name] = f"{type(e).__name__}: {e}"[:200]
+                if "insufficient_funds" in str(e):      # 권한·허용 IP 검사를 지난 뒤의 거절 — 경로는 통과(원화만 부족)
+                    out[name] = "ok(권한·IP 통과 — 원화 잔고 부족)"
+                else:
+                    out[name] = f"{type(e).__name__}: {e}"[:200]
         return out
 
 
