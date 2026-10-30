@@ -22,6 +22,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -160,8 +161,15 @@ def http_get(path, key):
 
 
 def remote_manifest(key):
-    with http_get("manifest.json", key) as r:
-        return {b["name"]: b for b in json.load(r)}
+    try:
+        with http_get("manifest.json", key) as r:
+            return {b["name"]: b for b in json.load(r)}
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            sys.exit("401 — 키가 틀렸다(RESEARCH_DATA_KEY 를 VM 키와 맞춘다)")
+        if e.code == 404:
+            sys.exit("404 — VM 에 아직 올린 묶음이 없다(PC 에서 push 먼저)")
+        raise
 
 
 def cmd_list():
