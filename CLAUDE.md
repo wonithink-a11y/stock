@@ -150,7 +150,7 @@ Validated against
             findings/coinbase-premium-robustness-results-2026-10.md.
             ★ **업비트 KRW-BTC 롱 모의 슬리브 — 10-29 사용자 GO**(사전등록 4f6eace): `run_coinbase_premium_paper.py`(UpbitPaperBroker, 실주문 경로 없음) ·
             `deploy/coinbase-premium-paper.{service,timer}` 매시 :02 · 상태 VM `~/collector-venv/cbprem-paper/`(trades.jsonl = 판정 원장). 고정 100만원·24시간 보유·지연 30분 넘으면 진입 안 함.
-            **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **main 반영 완료(PR #1 머지 d8aca82, 10-29) — VM 타이머 설치는 사용자 몫, 설치 미확인.** 실계좌는 Claude 가 켜지 않는다.
+            **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **VM 타이머 설치 완료(10-30 22:05 사용자, 첫 실행 firstRun·초기 차단 6건 정상).** 실계좌는 Claude 가 켜지 않는다.
             텔레그램: 모의 매수·청산·놓친/지연 롱 → `TELEGRAM_TRADE_CHAT_ID`.
             가상 청산 기록(9b4d3dc): 실제 매수마다 T48·T72·Zm0.5 가상 손익 → `shadow.jsonl`(기록 전용, 비교는 본 판정 40건 때 1회, 그 전 건수만). 2026 매수 신호 24회(8월 10회 몰림), 10월 0회.
             ★ 청산 규칙 비교(98b2e94·955d188) **INCONCLUSIVE — 24시간 유지**: TRAIN 이 'z ≤ −0.5 에서 청산(최대 72h)'을 골랐으나 2023~ 월 +74bp t 1.15, 알트 재현 안 됨,
@@ -212,7 +212,7 @@ Validated against
             업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. **폰 실기기 확인(10-30 사용자, 신규 상장 칸 포함)**.
             ★ **'최근 신규 상장' 경고 칸(10-30 사용자 GO, 표시 전용)** — Actions `binance-listings`(매일 10:10 KST) → docs/data/binance-listings.json(30일 안 상장 · firstDay 캐시) → 상장 다음 날 시가부터 BTC 대비, 1~7일째 '첫 주' 강조. 토큰화 주식(stockLike)은 한 줄로 접는다. 점수·매매·텔레그램 불연결(규칙 1). 크립토 밤샘 19건·마감: docs/control/세션인수인계-2026-10-30.md.
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
-            둘 다 VM 설치·실행은 사용자 몫(인수인계 10-29 맨 위). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
+            기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **대시보드 화면 5건(10-20)** — 세션인수인계-2026-10-20-b.md. 장중 홈 = 평일 09:00~15:30 ∧ 네이버 장 상태 OPEN 이면 홈 맨 위가 지수·잠정 수급·관심종목 353 오르내림
             (`/kr-intraday` quotes = [현재가, 전일종가]), 아니면 마감 리포트. **실제 사이트·폰 장중 확인 전**(브라우저 패널이 github.io→VM 요청을 막아 localhost 로만 확인).
             증권사 의견 일지 = KIS 종목투자의견(의견·목표가만, 리포트 본문 없음) 관심종목 KR 180일 → docs/data/invest-opinion.json(Actions `invest-opinion` 평일 20:00) →
