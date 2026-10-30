@@ -9,7 +9,7 @@
 | 통과·채택 | 21 |
 | 보류·판정 불가 | 43 |
 | 기각 | 153 |
-| 사전등록 문서(결과는 별도 파일) | 158 |
+| 사전등록 문서(결과는 별도 파일) | 159 |
 | 정보·탐색 | 39 |
 | 미분류 | 240 |
 
@@ -245,10 +245,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (158)
+## 사전등록 문서(결과는 별도 파일) (159)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-forward-preregistration-2026-10.md](coinbase-premium-negz-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 이하로 떨어진 뒤 24시간 BTC 가 약한가(2018~22·2024~ 약세, 2023 반대였던 것이 앞으로의 사… |
 | 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-preregistration-2026-10.md](coinbase-premium-negz-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 말고 더 얕거나(−1·−1.5) 더 깊을 때(−2.5·−3·−4), 그 뒤 24·72시간 BTC 가 빠지는가 —… |
 | 2026-10-30 | PREREGISTERED | crypto | [binance-perp-launch-preregistration-2026-10.md](binance-perp-launch-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 현물로 거래되던 코인에 바이낸스 무기한 선물이 새로 생겨 공매도가 가능해지면, 그 다음 1주·1달 현물이 BTC 대비 빠지는가(Miller… |
 | 2026-10-30 | PREREGISTERED | crypto | [binance-listing-forward-preregistration-2026-10.md](binance-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "백테스트(BL7 ROBUST·강건성 PASS)가 본 '바이낸스 신규 상장 코인의 첫 주 약세'가 2026-10 이후 새 상장에서도 이어지는가".… |

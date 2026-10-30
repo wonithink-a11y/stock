@@ -127,7 +127,7 @@ Validated against
             세부·함정: docs/control/세션인수인계-2026-09-09-b.md. 단 그
             인수인계의 "남은 것" 중 4건은 2026-09-10 실측으로 이미 닫혔다
             (완료-이력.md 참고) — 그 목록을 그대로 착수 목록으로 삼지 않는다.
-            ★ **월간 점검(A2a 뒤 forward 그림자 25개·시즌 한정 작업)은 스킬 `monthly-check` 로 돌린다** — `.claude/skills/monthly-check/`.
+            ★ **월간 점검(A2a 뒤 forward 그림자 26개·시즌 한정 작업)은 스킬 `monthly-check` 로 돌린다** — `.claude/skills/monthly-check/`.
             명령·기록 경로·판정 시점 표 = references/shadows.md · 사전등록 해시·과거 참고·함정 원문 = docs/control/월간점검-forward-상세-2026-10-25.md.
             새 forward 를 사전등록하면 두 곳(표 한 행 + 상세 문서)에 추가한다. 판정 시점 전 `--judge` 는 코드가 거부한다.
   다음      ★ 무한매수법 해외 슬리브 — 취소·재접수 로직 구현(c605be5)·VM 배선 완료(2026-09-20, 규칙·상태는 ~/collector-venv/infbuy/, T 이월 확인). 옛 타이머는 09-22 autotrader 전환으로 disabled(위 autotrader 항목) — 주문 스위치는 사용자 몫, Claude 는 켜지 않는다.
@@ -166,6 +166,7 @@ Validated against
             ★ **forward #25(7790acf·f40e40b)** — `run_binance_listing_forward.py` 월간 점검, L ≥ 2026-10-01, 판정 성숙 상장일 40 ∧ 6개월(t ≤ −1.65 CONFIRMED). 첫 실행 사건 19·관측 14. 기록 전용.
   안 한다   ★ 코인베이스 프리미엄 마이너스 z 문턱·보유(10-30, 8f869c7·737db26) — 신호 없음·REJECT(k −1~−4 × 24·72h 10셀, 최대 k −1.5·24h TRAIN t −2.38 < 바닥선 2.89, 2023 열 셀 모두 반대).
             더 깊다고 더 약세 아님 · '과매도 반등'도 아님. 슬리브의 'z ≤ −2 면 24h 쉬기'는 그대로. findings/coinbase-premium-negz-results-2026-10.md.
+            → **forward #26(10-30 사용자 요청, 87505fd·a50be3d)** — 원 동결 −2·24h 그대로 T ≥ 10-01 기록, 판정 성숙 40 ∧ 6개월(A 매수 보류 t ≤ −1.65 · B 숏은 펀딩 포함). 첫 실행 사건 11·관측 10.
   안 한다   ★ 스테이블코인 발행량 → BTC 1·7일(10-30, cd6011a·33bf463) — S1 REJECT(TRAIN t 1.49 < 바닥선 2.34) · S7 판정불가(TEST 18건). 2023~ OOS S1 +72bp [12, 130],
             두 갈래 같은 방향(늘면 오름·줄면 내림)은 사후 관찰 → **forward #24 시작(10-30 사용자 GO, fd1219b)** — 월간 점검, 판정 S1 40건∧6개월 · S7 20건∧12개월. DefiLlama 는 PIT 아님(처음 본 값 고정). findings/stablecoin-supply-btc-results-2026-10.md.
   안 한다   ★ 크립토 내재변동성 Deribit DVOL(10-30, 8e697e4·d4b5851) — 신호 없음·REJECT(V1 '상위 20% 면 쉬기' TRAIN t 0.46 < 1.74, OOS ΔSharpe −0.03 ·
