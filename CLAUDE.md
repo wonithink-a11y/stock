@@ -712,10 +712,9 @@ ssh stock-new   129.225.145.14   hostname: stock           ← 작업 VM(1 OCPU 
                 수집·페이퍼엔진·rv20·autotrader·크립토 슬리브·nginx·~/collector
 ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시 대시보드 하나뿐
                 stock.service(포트 8000, ~/stock/server.py, git 아님) · 프로젝트 타이머 0개
-                ★ 2026-09-20 stock.service disable --now 로 **정지**(폐기 시험 중).
-                  ~/stock 앱은 git 에 없어 PC 로 백업해 뒀다(저장소 밖, KIS 키 포함).
-                  ~/minute-raw 257일은 전수 대조 결과 저장소에 **전부 승격**돼 있다.
-                  2주쯤 아쉬운 게 없으면 VM 삭제. 되살리려면 enable --now.
+                ★ **2026-10-30 인스턴스·부트 볼륨 삭제(사용자)** — 이제 `ssh stock` 은 어디에도 안 붙는다.
+                  ~/stock 앱은 PC 백업(저장소 밖, KIS 키 포함) · ~/minute-raw 257일은 저장소에 전부 승격돼 있었다.
+                  OCI 에 남은 VM: Stock(작업, A1 1/10GB, 부트 100GB) · law(법령 MCP, ProEngineer 소관, A1 1/2GB) — A1 무료 한도 꽉 참.
 ```
 
 **문서·인수인계가 쓰는 "VM(`stock`)"은 hostname 기준이라 접속은 `ssh stock-new` 다.**
