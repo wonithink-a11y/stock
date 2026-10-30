@@ -153,7 +153,8 @@ Validated against
             **판정은 청산 40건(≈1년)에서 1회**(INCONCLUSIVE 면 80건), 그 전 `--judge` 거부. **VM 타이머 설치 완료(10-30 22:05 사용자, 첫 실행 firstRun·초기 차단 6건 정상).** 실계좌는 Claude 가 켜지 않는다.
             텔레그램: 모의 매수·청산·놓친/지연 롱 → `TELEGRAM_TRADE_CHAT_ID`.
             ★ **실계좌 연결(10-31 구현, 사용자 결정: 판정 전·1회 100만원·A안)** — autotrader 프로필 `cbprem`(broker `upbit`, 전략 `coinbase_premium`,
-            신호 함수는 모의 러너를 그대로 import). **켜기 전**: 업비트 주문 키(출금 권한 없음·IP 제한)·프로필·upbit-probe·dry 대조·패스키 켜기는 사용자 —
+            신호 함수는 모의 러너를 그대로 import). **10-31 VM 프로필 dry 가동**(기존 업비트 키 재사용 — 주문 권한·IP 확인, 출금 권한은 사용자 확인 대기, 원화 미입금).
+            남은 켜기(dry 대조 → tr_ids_reviewed·live.enabled·AUTOTRADER_ALLOW_LIVE → 패스키 켜기)는 사용자 —
             autotrader/README.md §11. **판정 정본은 여전히 모의 원장**, 실계좌는 체결 비용 기록. 회귀 scripts/test-autotrader-upbit.py.
             가상 청산 기록(9b4d3dc): 실제 매수마다 T48·T72·Zm0.5 가상 손익 → `shadow.jsonl`(기록 전용, 비교는 본 판정 40건 때 1회, 그 전 건수만). 2026 매수 신호 24회(8월 10회 몰림), 10월 0회.
             ★ 청산 규칙 비교(98b2e94·955d188) **INCONCLUSIVE — 24시간 유지**: TRAIN 이 'z ≤ −0.5 에서 청산(최대 72h)'을 골랐으나 2023~ 월 +74bp t 1.15, 알트 재현 안 됨,
