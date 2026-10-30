@@ -599,7 +599,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
                      for o in d.get("openOrders", []))
         cash = d.get("cash")
         rz = {"realized": snap["realized"]} if "realized" in snap else {}
-        rows.append(f'''<div class="card"><div class="hd"><h2>{E(m)} {"국내" if m == "KR" else "해외"}</h2><span class="mut">주문가능 {"-" if cash is None else _money(m, cash)}</span></div>
+        rows.append(f'''<div class="card"><div class="hd"><h2>{E(m)} {"국내" if m == "KR" else ("업비트" if m == "UPBIT" else "해외")}</h2><span class="mut">주문가능 {"-" if cash is None else _money(m, cash)}</span></div>
 {render_money_rows({"markets": {m: d}, **rz})}
 <h2 style="margin-top:6px">보유 <span class="mut">{len(d.get("positions") or [])}종목</span></h2><div class="tw"><table><tr><th>종목</th><th class="n">수량</th><th class="n">평단→현재</th><th class="n">손익</th></tr>{pos or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>
 <h2 style="margin-top:12px">미체결</h2><div class="tw"><table><tr><th>종목</th><th>방향</th><th class="n">잔량/수량</th><th class="n">가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>''')

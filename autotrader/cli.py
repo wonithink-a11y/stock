@@ -24,8 +24,16 @@ from typing import Optional
 from .config import (ConfigError, GateError, REPO_ROOT, due_slots, gate_problems, key_names, kill_file,
                      list_profiles, load_config, load_env, load_profile, profiles_dir, state_dir, take_run_request)
 from .engine import KST, Ledger, run_once
-from .kis import make_broker
+from .kis import make_broker as _kis_broker
 from .strategy import load_strategy
+
+
+def make_broker(cfg: dict, env: dict, execute: bool):
+    """설정의 broker 에 맞는 브로커. 업비트 어댑터는 업비트 프로필에서만 불러온다(KIS 경로는 그대로)."""
+    if cfg.get("broker") == "upbit":
+        from .upbit import make_broker as _upbit_broker
+        return _upbit_broker(cfg, env, execute)
+    return _kis_broker(cfg, env, execute)
 
 DEFAULT_CONFIG = REPO_ROOT / "autotrader" / "autotrader.local.json"
 
@@ -84,6 +92,7 @@ def run_summary(name: str, r: Optional[dict]) -> str:
         lines.append(f"접수 {x.get('market')} {x.get('symbol')} {x.get('side')} {x.get('qty')}"
                      + (f" · {x['reason']}" if x.get("reason") else ""))
     lines += [f"오류 {e}"[:200] for e in r.get("errors") or []]
+    lines += [f"알림 {n}"[:300] for n in r.get("notes") or []]
     return "\n".join(lines)
 
 
@@ -137,7 +146,8 @@ def cmd_run_due(args) -> int:
             code, rep = 1, {"strategy": cfg["strategy"], "mode": cfg["mode"], "execute": execute,
                             "status": "crash", "errors": [f"{type(e).__name__}: {e}"]}
         worst = max(worst, code)
-        if (rep is None or rep.get("placed") or rep.get("errors") or asked) and env.get("TELEGRAM_BOT_TOKEN") and trade_chat(env):
+        if (rep is None or rep.get("placed") or rep.get("errors") or rep.get("notes") or asked) \
+                and env.get("TELEGRAM_BOT_TOKEN") and trade_chat(env):
             try:
                 send_telegram(env["TELEGRAM_BOT_TOKEN"], trade_chat(env), run_summary(name, rep))
             except Exception as e:                      # noqa: BLE001 — 알림 실패가 실행 결과를 바꾸지 않는다
@@ -165,7 +175,7 @@ def cmd_profiles(args) -> int:
         miss = [k for k in keys if not env.get(k)]
         sfile = state_dir(c) / "schedule.json"
         last = ((json.loads(sfile.read_text(encoding="utf-8")) or ["-"])[-1]) if sfile.exists() else "-"
-        print(f"- {n}: 전략 {c['strategy']} · {c['mode']} · 키 {keys[0][:-len('_APP_KEY')]}"
+        print(f"- {n}: 전략 {c['strategy']} · {c['mode']} · 키 {c.get('key_prefix') or keys[0][:-len('_APP_KEY')]}"
               f"({'있음' if not miss else '없음: ' + ', '.join(miss)}) · 자동 {c['auto']} {','.join(c['run_at']) or '-'}"
               f" {c['days']} · 킬 {'ON' if kill_file(c).exists() else 'OFF'} · 마지막 예약 실행 {last}")
     return 0
@@ -213,6 +223,25 @@ def cmd_check(args) -> int:
         for x in p:
             print(f"  - {x}")
     return 0
+
+
+def cmd_upbit_probe(args) -> int:
+    """업비트 프로필의 키·권한·허용 IP 확인 — 주문을 만들지 않는다(주문은 업비트 '주문 생성 테스트'로만 검증)."""
+    cfg = _cfg(args)
+    if cfg.get("broker") != "upbit":
+        print("업비트 프로필이 아니다(--profile 로 broker upbit 프로필을 고른다)", file=sys.stderr)
+        return 2
+    env = load_env()
+    miss = [k for k in key_names(cfg) if not env.get(k)]
+    if miss:
+        print("키가 없다: " + ", ".join(miss), file=sys.stderr)
+        return 2
+    res = make_broker(cfg, env, False).probe((cfg.get("symbol_allowlist") or ["KRW-BTC"])[0])
+    for k, v in res.items():
+        print(f"{k}: {v}")
+    print("모두 ok 면 프로필 live.tr_ids_reviewed 를 true 로 둘 수 있다." if all(v == "ok" for v in res.values())
+          else "ok 가 아닌 항목: 업비트 API 키 관리에서 권한(자산조회·주문조회·주문하기)과 허용 IP 를 확인한다.")
+    return 0 if all(v == "ok" for v in res.values()) else 1
 
 
 def cmd_status(args) -> int:
@@ -444,7 +473,7 @@ def main(argv=None) -> int:
     npf.add_argument("--key-prefix", default="KIS_VTS", help="키 이름 앞부분(예: KIS_VTS → KIS_VTS_APP_KEY ...)")
     npf.add_argument("--mode", choices=("paper", "live"), default="paper")
     npf.add_argument("--markets", default="KR", help="KR 또는 US 또는 KR,US")
-    for name in ("check-config", "status", "kill", "resume", "snapshot", "channels-fetch"):
+    for name in ("check-config", "status", "kill", "resume", "snapshot", "channels-fetch", "upbit-probe"):
         sub.add_parser(name)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1", help="기본 127.0.0.1 — 앞단 HTTPS 프록시 뒤에서만 쓴다")
@@ -466,7 +495,7 @@ def main(argv=None) -> int:
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
           "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all,
-          "channels-fetch": cmd_channels_fetch}[args.cmd]
+          "channels-fetch": cmd_channels_fetch, "upbit-probe": cmd_upbit_probe}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

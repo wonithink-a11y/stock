@@ -43,6 +43,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 BASE_URL = "https://api.upbit.com"
 PATH_ORDERS = "/v1/orders"
 PATH_ORDER = "/v1/order"
+PATH_ORDERS_OPEN = "/v1/orders/open"        # 체결 대기 목록(문서 확인 2026-10-30)
+PATH_ORDERS_CLOSED = "/v1/orders/closed"    # 종료(체결 완료·취소) 목록, 조회 구간 최대 7일
+PATH_ORDERS_TEST = "/v1/orders/test"        # 주문 생성 테스트 — 검증만, 주문은 만들지 않는다
 PATH_ACCOUNTS = "/v1/accounts"
 PATH_TICKER = "/v1/ticker"
 PATH_CANDLES_DAYS = "/v1/candles/days"
@@ -96,10 +99,12 @@ def _load_env():
 
 
 class UpbitClient:
-    def __init__(self):
+    def __init__(self, access_key=None, secret_key=None):
+        """키를 직접 주면 그것을 쓴다(autotrader 가 주문 전용 키 UPBIT_<접두사>_* 를 넘긴다). 안 주면 예전처럼
+        .env·환경변수의 UPBIT_ACCESS_KEY/UPBIT_SECRET_KEY(조회용)."""
         env = _load_env()
-        self.access_key = env.get("UPBIT_ACCESS_KEY", "")
-        self.secret_key = env.get("UPBIT_SECRET_KEY", "")
+        self.access_key = access_key if access_key is not None else env.get("UPBIT_ACCESS_KEY", "")
+        self.secret_key = secret_key if secret_key is not None else env.get("UPBIT_SECRET_KEY", "")
         # 키가 없어도 생성은 성공한다 - 공개 메서드만 쓰는 UpbitPaperBroker가
         # 이걸 요구한다. 인증 메서드를 실제로 부를 때만 _require_keys()가 검사.
 
@@ -156,7 +161,7 @@ class UpbitClient:
         self._raise_if_error(r, body, "잔고 조회 실패")
         return body
 
-    def place_order(self, market, side, ord_type, volume=None, price=None):
+    def place_order(self, market, side, ord_type, volume=None, price=None, identifier=None, test=False):
         """side: 'bid'(매수) | 'ask'(매도). ord_type: 'limit'|'price'|'market'|'best'.
         시장가 매수(price)는 volume 생략, 시장가 매도(market)는 price 생략 -
         업비트 자체 비대칭(문서 확인). 반환: 업비트 응답 dict(uuid 포함)."""
@@ -167,8 +172,11 @@ class UpbitClient:
             query["volume"] = str(volume)
         if price is not None:
             query["price"] = str(price)
+        if identifier:                      # 계정 전체에서 한 번만 쓸 수 있다 — 같은 값의 두 번째 주문은 업비트가 거절(중복 주문 방지)
+            query["identifier"] = str(identifier)
         headers = self._auth_headers(query)
-        r = _request("POST", BASE_URL + PATH_ORDERS, headers=headers, json=query, timeout=10)
+        path = PATH_ORDERS_TEST if test else PATH_ORDERS
+        r = _request("POST", BASE_URL + path, headers=headers, json=query, timeout=10)
         body = r.json()
         self._raise_if_error(r, body, f"주문 실패({side} {market})")
         return body
@@ -179,4 +187,31 @@ class UpbitClient:
         r = _request("GET", BASE_URL + PATH_ORDER, headers=headers, params=query, timeout=10)
         body = r.json()
         self._raise_if_error(r, body, f"주문조회 실패({order_uuid})")
+        return body
+
+    def _get_auth(self, path, query, context):
+        headers = self._auth_headers(query)
+        r = _request("GET", BASE_URL + path, headers=headers, params=query, timeout=10)
+        body = r.json()
+        self._raise_if_error(r, body, context)
+        return body
+
+    def get_open_orders(self, market=None):
+        """체결 대기(wait) 주문 목록 — 최대 100건."""
+        query = {"market": market} if market else {}
+        return self._get_auth(PATH_ORDERS_OPEN, query or None, "대기 주문 조회 실패")
+
+    def get_closed_orders(self, start_ms, end_ms, market=None, limit=1000):
+        """start_ms~end_ms(밀리초, 최대 7일)에 생성돼 종료된 주문(done·cancel). 시장가 매수는 잔량이 남으면 cancel 이다."""
+        query = {"start_time": int(start_ms), "end_time": int(end_ms), "limit": int(limit), "order_by": "asc"}
+        if market:
+            query["market"] = market
+        return self._get_auth(PATH_ORDERS_CLOSED, query, "종료 주문 조회 실패")
+
+    def cancel_order(self, order_uuid):
+        query = {"uuid": order_uuid}
+        headers = self._auth_headers(query)
+        r = _request("DELETE", BASE_URL + PATH_ORDER, headers=headers, params=query, timeout=10)
+        body = r.json()
+        self._raise_if_error(r, body, f"주문취소 실패({order_uuid})")
         return body

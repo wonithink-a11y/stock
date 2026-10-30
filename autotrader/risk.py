@@ -43,6 +43,8 @@ def check_intent(intent: Intent, *, risk: Dict, allowlist: Iterable[str],
         if dev > risk["price_band_pct"]:
             return f"지정가가 직전 시세에서 {dev:.1f}% 벗어남(허용 ±{risk['price_band_pct']}%)"
     value = order_value(intent, last_price)
+    if "min_order_value" in risk and value < risk["min_order_value"]:      # 업비트 최소 주문 5,000원 — 거래소 거절 전에 막는다
+        return f"주문 금액 {value:,.0f} 이 최소 주문 {risk['min_order_value']:,} 미만"
     if value > risk["max_order_value"]:
         return f"주문 금액 {value:,.0f} 이 주문당 한도 {risk['max_order_value']:,} 초과"
     if spent_today + spent_run + value > risk["max_daily_value"]:

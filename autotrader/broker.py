@@ -37,6 +37,10 @@ class Broker:
     def cancel(self, order: OpenOrder, dry_run: bool = True) -> dict:
         raise NotImplementedError
 
+    def order_fill(self, order_no: str, market: str) -> dict:
+        """주문 하나의 누적 체결: {qty(체결 수량), price(평균 체결가, 없으면 0), fee, state}. 지원 안 하는 브로커는 NotImplementedError."""
+        raise NotImplementedError
+
 
 class FakeBroker(Broker):
     """메모리 브로커 — 회귀 테스트용. 호출을 전부 기록한다."""
@@ -86,6 +90,12 @@ class FakeBroker(Broker):
                "market": intent.market}
         self.placed.append(rec)
         return rec
+
+    def order_fill(self, order_no, market):
+        for f in self.fill_rows:
+            if f.get("orderNo") == order_no:
+                return {"qty": f["qty"], "price": f["price"], "fee": f.get("fee", 0.0), "state": f.get("state", "done")}
+        return {"qty": 0, "price": 0.0, "fee": 0.0, "state": "wait"}
 
     def cancel(self, order, dry_run=True):
         if dry_run:

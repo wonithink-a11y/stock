@@ -19,6 +19,12 @@ from typing import Dict, List, Optional
 from .config import state_dir
 from .engine import Ledger
 
+def _n(x):
+    """수량 — 주식은 정수 그대로, 코인(업비트)은 소수. 정수로 떨어지면 int 로 둔다(기존 원장·알림 표기 불변)."""
+    f = float(x or 0)
+    return int(f) if f.is_integer() else f
+
+
 LOOKBACK_DAYS = 7          # 이 기간 안에 낸 주문만 다시 조회한다(그 뒤엔 체결이 더 생기지 않는다 — 우리 미체결은 다음 실행이 취소)
 
 
@@ -40,8 +46,10 @@ def sync_fills(cfg: dict, broker, snap: dict, now: datetime) -> dict:
     book = load_book(cfg)
     if book is None:
         book = {"openedAt": now.isoformat(), "exclude": sorted(ours), "fills": {},
+                # 업비트는 시작 보유를 원가에 넣지 않는다 — 계좌의 기존 코인은 사용자 개인 보유이고 전략은 자기 체결분만 판다.
+                # 넣으면 개인 평단이 섞여 전략 실현손익이 틀어진다(원가 모르는 매도는 incomplete 로 드러난다).
                 "opening": {m: {p["symbol"]: {"qty": p["qty"], "avg": p["avgPrice"]} for p in d.get("positions", [])}
-                            for m, d in snap["markets"].items() if "positions" in d}}
+                            for m, d in snap["markets"].items() if "positions" in d and m != "UPBIT"}}
     cutoff = (now - timedelta(days=LOOKBACK_DAYS)).strftime("%Y-%m-%d")
     for m in snap["markets"]:
         pending = [o for no, o in ours.items() if o.get("market") == m and no not in book["exclude"]
@@ -65,7 +73,7 @@ def new_fills(prev: Optional[dict], book: Optional[dict]) -> List[dict]:
     before = (prev or {}).get("fills") or {}
     out = []
     for no, f in ((book or {}).get("fills") or {}).items():
-        d = int(f.get("qty") or 0) - int((before.get(no) or {}).get("qty") or 0)
+        d = _n(_n(f.get("qty")) - _n((before.get(no) or {}).get("qty")))
         if d > 0:
             out.append({**f, "orderNo": no, "delta": d})
     return out
@@ -79,15 +87,15 @@ def realized(book: Optional[dict]) -> Dict[str, dict]:
     pos: Dict[tuple, list] = {}                                        # (시장, 종목) -> [수량, 원가]
     for m, syms in (book.get("opening") or {}).items():
         for s, v in syms.items():
-            pos[(m, s)] = [int(v["qty"]), int(v["qty"]) * float(v["avg"])]
+            pos[(m, s)] = [_n(v["qty"]), _n(v["qty"]) * float(v["avg"])]
     for f in sorted(book.get("fills", {}).values(), key=lambda f: (f.get("day", ""), f["orderNo"])):
-        m, key, q, px = f["market"], (f["market"], f["symbol"]), int(f["qty"]), float(f["price"])
+        m, key, q, px = f["market"], (f["market"], f["symbol"]), _n(f["qty"]), float(f["price"])
         r = out.setdefault(m, {"realized": 0.0, "incomplete": False, "sells": []})
         qty, cost = pos.get(key, [0, 0.0])
         if f["side"] == "BUY":
             pos[key] = [qty + q, cost + q * px]
             continue
-        if qty < q:                                                    # 원가를 모르는 매도 — 지어내지 않는다
+        if qty < q - 1e-9:                                             # 원가를 모르는 매도 — 지어내지 않는다
             r["incomplete"] = True
             pos[key] = [0, 0.0]
             continue

@@ -96,7 +96,7 @@ sudo systemctl edit autotrader.service                       # 주문을 켜려�
 - 실전 TR_ID·해외 매도 `SLL_TYPE`·시세 TR 은 2026-09-22 공식 예제와 대조했다(§4-3). 조회 TR 이 틀리면 조회가 실패할 뿐이지만 **주문 TR 이 틀리면 거절되거나 다른 동작일 수 있다.**
 - 해외는 나스닥(NASD)만. 국내 주문 취소는 지원하지 않는다(KRX 당일물 — 장 마감에 소멸, 남은 미체결이 있으면 그 종목은 그날 건너뜀).
 - 잔고 기준 정합(브로커가 정본)이지만 부분체결·정정·호가단위·거래정지 종목 등은 전략이 다룬다.
-- 선물·옵션·크립토는 이 프로그램 범위가 아니다(기존 RV20 선물 자동화는 별도 경로로 돈다).
+- 선물·옵션은 이 프로그램 범위가 아니다(기존 RV20 선물 자동화는 별도 경로로 돈다). 크립토는 업비트 원화 마켓 시장가만(§11).
 - 예제 전략 `target_weights` 는 구조를 보여주는 예시다 — 수익성을 검증한 전략이 아니다.
 
 ## 7. 폰에서 보는 웹 화면 (읽기 전용)
@@ -224,3 +224,39 @@ python3 -m autotrader --profile samsung kill                                    
 전 프로필 공통 · 한 번만 켠다) × 그 프로필 '주문 켜짐'** 일 때만 나간다. 서버 허용 상태는 run-due 가 5분마다 남기는 `state/run_due.json`
 으로 보인다(12분 넘게 안 바뀌면 '타이머 멈춤?'). 실계좌 프로필은 여기서 켜지 않는다(상세 화면 — 확인 문구). 페이퍼 엔진(PBR 등) 슬리브는
 별도 엔진이라 상태만 보인다.
+
+## 11. 업비트 실계좌 — 코인베이스 프리미엄 C24 (`coinbase_premium`, broker `upbit`)
+
+설계: `docs/control/코인베이스프리미엄-실계좌연결-설계-2026-10-30.md`. 규칙은 모의 슬리브(사전등록 4f6eace)와 같다 —
+z ≥ +2 정시에 KRW-BTC 시장가 매수, 신호 +24시간 뒤 첫 실행에서 시장가 매도, 30분 넘게 늦으면 진입 안 함.
+신호 함수는 `research/strategy-lab/run_coinbase_premium_paper.py` 를 그대로 불러 쓴다(회귀가 같은 진입 시각을 핀).
+**판정 정본은 모의 원장이다** — 이 프로필은 실제 체결 비용 기록이다. **켜기(실주문)는 사용자만.**
+
+- 업비트에는 모의투자가 없다 → `mode` 는 `live` 고정. 주문 없이 보려면 `auto: "dry"`.
+- 포지션은 **체결 확인 뒤에만** 생긴다(원장 clientId → 업비트 체결량). 매도는 **이 전략이 산 수량만** — 계좌의 개인 BTC 는 안 건드린다.
+- 주문마다 업비트 `identifier`(`cbprem-YYYYMMDDHH-buy` 등, KST)를 보낸다 — 같은 값은 거래소가 다시 안 받는다(중복 주문 방지).
+- 웹 실현손익은 이 프로필 체결만 센다(업비트는 시작 보유를 원가에 안 넣는다). 거래별 bp 는 상태 파일 `strategy_coinbase_premium.json` 의 `trades`.
+- 청산이 신호 +26시간을 넘기면·체결 0·계좌에 BTC 가 모자라면 텔레그램 `매매•보안` 방에 "알림" 줄이 온다.
+
+**켜는 순서 (전부 사용자, VM)**
+
+1. 업비트 → Open API 키 발급: 권한 **자산조회·주문조회·주문하기만**(출금·입금 체크 금지), 허용 IP `129.225.145.14`.
+2. `~/collector-venv/.env` 에 `UPBIT_TRADE_ACCESS_KEY=…` · `UPBIT_TRADE_SECRET_KEY=…` (조회용 `UPBIT_ACCESS_KEY` 와 별개).
+3. 프로필 `~/collector-venv/autotrader/profiles/cbprem.json` — 처음엔 `auto: "dry"`:
+   ```json
+   {"strategy": "coinbase_premium", "broker": "upbit", "mode": "live", "key_prefix": "UPBIT_TRADE",
+    "markets": ["UPBIT"], "symbol_allowlist": ["KRW-BTC"], "auto": "dry",
+    "run_at": ["00:02-23:02/60"], "days": "daily", "params": {"notional_krw": 1000000},
+    "risk": {"UPBIT": {"max_order_value": 1500000, "max_daily_value": 3000000, "max_orders_per_run": 1,
+                       "max_position_value": 1500000, "allow_sell": true}},
+    "live": {"enabled": false, "tr_ids_reviewed": false}, "web_live_allowed": true}
+   ```
+   - `max_order_value` 는 **매도에도** 걸린다 — 24시간 사이 BTC 가 올라 매도 금액이 한도를 넘으면 청산이 거부된다. 그래서 1회 금액의 1.5배.
+   - `max_position_value` 는 계좌의 **KRW-BTC 전체** 평가액(개인 보유 포함)에 걸린다 — 개인 BTC 가 있으면 그 평가액 + 150만원으로 둔다.
+   - 매수에는 원화가 1회 금액 + 수수료(약 0.05%)만큼 있어야 한다.
+4. 키 확인(주문 안 만듦 — 업비트 '주문 생성 테스트'):
+   `cd ~/collector && ~/collector-venv/bin/python3 -m autotrader --config ~/collector-venv/autotrader/autotrader.local.json --profile cbprem upbit-probe`
+   → 세 줄 모두 `ok` 면 프로필 `live.tr_ids_reviewed: true`.
+5. 며칠 dry-run: `state/profiles/cbprem/strategy_coinbase_premium.json` 의 `log` 가 모의 슬리브 로그(`cbprem-paper/runs.jsonl`)와 같은 시각을 보는지 대조.
+6. 프로필 `live.enabled: true` · `autotrader.service` 환경에 `AUTOTRADER_ALLOW_LIVE=I-ACCEPT-REAL-TRADES`(§4·§9) — 타이머는 이미 `run-due --execute`.
+7. 웹 → 지문(패스키) → 이 프로필 **주문 켜기**. 끄기·킬 스위치는 웹에서 바로.

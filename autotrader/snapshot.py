@@ -35,7 +35,7 @@ def build_snapshot(cfg: dict, broker: Broker, env: Dict[str, str], now: datetime
             d["openOrders"] = [{"orderNo": o.order_no, "symbol": o.symbol, "side": o.side, "qty": o.qty,
                                 "remaining": o.remaining, "price": o.price} for o in broker.open_orders(m)]
             ref = cfg.get("params", {}).get("snapshot_ref_symbol_us") if m == "US" else None
-            d["cash"] = broker.cash(m, ref) if (m == "KR" or ref) else None
+            d["cash"] = broker.cash(m, ref) if (m in ("KR", "UPBIT") or ref) else None
         except Exception as e:                          # noqa: BLE001 — 한 시장의 실패가 다른 시장을 막지 않는다
             d["error"] = f"{type(e).__name__}: {e}"[:200]
         snap["markets"][m] = d

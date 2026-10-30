@@ -35,6 +35,7 @@ class Context:
         self.mode = broker.mode             # "paper" | "live" — 모의는 LOC 를 못 받는 등 주문 유형이 갈린다
         self.params = params                # 설정의 params
         self.state = state                  # 실행 사이에 유지되는 dict — 전략이 자유롭게 쓴다
+        self.notes: List[str] = []          # 사람이 알아야 할 일(청산 지연 등) — 엔진이 리포트에 싣고 run-due 가 텔레그램으로 보낸다
         self._pos: Dict[str, Dict[str, Position]] = {}
         self._quote: Dict[tuple, float] = {}
         self._cash: Dict[tuple, float] = {}
@@ -55,6 +56,10 @@ class Context:
         if key not in self._quote:
             self._quote[key] = self._broker.quote(symbol, market)
         return self._quote[key]
+
+    def order_fill(self, order_no: str, market: str) -> dict:
+        """우리 주문 하나의 누적 체결(조회 전용) — 시장가 체결 수량을 확인할 때."""
+        return self._broker.order_fill(order_no, market)
 
 
 _NAME = re.compile(r"^[a-z][a-z0-9_]*$")

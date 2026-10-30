@@ -153,6 +153,8 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
         report["errors"].append(f"전략 오류: {type(e).__name__}: {e}")
         report["status"] = "strategy-error"
         intents = []
+    if ctx.notes:
+        report["notes"] = list(ctx.notes)
 
     spent_run: Dict[str, float] = {m: 0.0 for m in markets}
     orders_run: Dict[str, int] = {m: 0 for m in markets}
@@ -244,7 +246,8 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
                        "strategy": strategy.name, "kind": "order", "market": it.market,
                        "symbol": it.symbol, "side": it.side, "qty": it.qty,
                        "price": it.limit_price if it.limit_price else last, "value": round(value, 2),
-                       "orderNo": res.get("orderNo"), "executed": True, "reason": it.reason})
+                       "orderNo": res.get("orderNo"), "executed": True, "reason": it.reason,
+                       **({"clientId": it.client_id} if it.client_id else {})})
         report["placed"].append({**rec, "value": round(value, 2), "orderNo": res.get("orderNo")})
 
     _save_json(Path(sdir) / f"strategy_{strategy.name}.json", ctx.state)

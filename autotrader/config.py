@@ -25,6 +25,11 @@ ENV_KEYS = PAPER_KEYS + LIVE_KEYS + ("AUTOTRADER_ALLOW_LIVE", "TELEGRAM_BOT_TOKE
 # 접두사 뒤에 한 마디 이상을 강제한다 — 시세용 KIS_APP_KEY(접두사 "KIS")는 고를 수 없다.
 _PREFIX = re.compile(r"^KIS_[A-Z0-9]+(_[A-Z0-9]+)*$")
 _KEYSET_ENV = re.compile(r"^KIS_[A-Z0-9_]+_(APP_KEY|APP_SECRET|ACCOUNT_NO)$")
+# 업비트(broker "upbit"): "key_prefix": "UPBIT_TRADE" → UPBIT_TRADE_ACCESS_KEY / UPBIT_TRADE_SECRET_KEY.
+# 접두사 뒤 한 마디를 강제한다 — 잔고 조회용 UPBIT_ACCESS_KEY(crypto-real-holdings)는 고를 수 없다(주문 키와 분리).
+_UPBIT_PREFIX = re.compile(r"^UPBIT_[A-Z0-9]+(_[A-Z0-9]+)*$")
+_UPBIT_KEYSET_ENV = re.compile(r"^UPBIT_[A-Z0-9_]+_(ACCESS_KEY|SECRET_KEY)$")
+BROKERS = ("kis", "upbit")
 _PROFILE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 _HM = r"([01]\d|2[0-3]):[0-5]\d"
 _RUN_AT = re.compile(rf"{_HM}(-{_HM}/([5-9]|[1-5]\d|60))?")       # "09:10" 또는 "09:05-15:15/5"(5~60분 간격)
@@ -37,6 +42,9 @@ RISK_DEFAULTS = {
            "price_band_pct": 5.0, "max_position_value": 1_000_000, "allow_sell": True},
     "US": {"max_order_value": 300, "max_daily_value": 1_000, "max_orders_per_run": 5,
            "price_band_pct": 5.0, "max_position_value": 1_000, "allow_sell": True},
+    # 업비트 원화 마켓. max_position_value 는 그 코인의 **계좌 전체** 보유 평가금액(수동 보유 포함)에 걸린다.
+    "UPBIT": {"max_order_value": 100_000, "max_daily_value": 300_000, "max_orders_per_run": 1,
+              "price_band_pct": 5.0, "max_position_value": 150_000, "allow_sell": True, "min_order_value": 5_000},
 }
 
 
@@ -58,7 +66,7 @@ def _read_env_file(p: Path, env: Dict[str, str]) -> None:
     for line in p.read_text(encoding="utf-8").splitlines():
         k, _, v = line.partition("=")
         k = k.strip()
-        if k in ENV_KEYS or _KEYSET_ENV.match(k):
+        if k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k):
             env[k] = v.strip().strip('"').strip("'")
 
 
@@ -74,7 +82,7 @@ def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dic
     if src.get("AUTOTRADER_ENV_FILE"):
         _read_env_file(Path(src["AUTOTRADER_ENV_FILE"]).expanduser(), env)
     for k, v in src.items():
-        if v and (k in ENV_KEYS or _KEYSET_ENV.match(k)):
+        if v and (k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k)):
             env[k] = v
     return env
 
@@ -82,6 +90,8 @@ def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dic
 def key_names(cfg: dict) -> tuple:
     """이 설정이 쓰는 키 환경변수 이름 3개(앱키·시크릿·계좌). 기본은 모드별 KIS_VTS_* / KIS_LIVE_*."""
     pre = cfg.get("key_prefix")
+    if cfg.get("broker") == "upbit":
+        return (f"{pre}_ACCESS_KEY", f"{pre}_SECRET_KEY")
     if not pre:
         return PAPER_KEYS if cfg.get("mode") == "paper" else LIVE_KEYS
     return (f"{pre}_APP_KEY", f"{pre}_APP_SECRET", f"{pre}_ACCOUNT_NO")
@@ -101,6 +111,7 @@ def normalize_config(cfg: dict) -> dict:
     if errs:
         raise ConfigError("설정 오류: " + " / ".join(errs))
     out = dict(cfg)
+    out.setdefault("broker", "kis")
     out.setdefault("params", {})
     out.setdefault("symbol_allowlist", [])
     out.setdefault("web", {})
@@ -123,13 +134,24 @@ def validate_config(cfg: dict) -> List[str]:
     if cfg.get("mode") not in ("paper", "live"):
         errs.append("mode 는 paper|live")
     mk = cfg.get("markets")
-    if not isinstance(mk, list) or not mk or any(m not in ("KR", "US") for m in mk):
+    br = cfg.get("broker", "kis")
+    if br not in BROKERS:
+        errs.append("broker 는 kis|upbit")
+    if br == "upbit":
+        if mk != ["UPBIT"]:
+            errs.append("broker upbit 는 markets [\"UPBIT\"] 만")
+        if cfg.get("mode") != "live":
+            errs.append("broker upbit 는 mode live 만(업비트에는 모의투자가 없다 — 주문 없이 보려면 dry-run)")
+    elif not isinstance(mk, list) or not mk or any(m not in ("KR", "US") for m in mk):
         errs.append("markets 는 [\"KR\"] 또는 [\"US\"] 또는 둘 다")
     al = cfg.get("symbol_allowlist", [])
     if not isinstance(al, list) or any(not isinstance(s, str) for s in al):
         errs.append("symbol_allowlist 는 종목코드 문자열 목록")
     pre = cfg.get("key_prefix")
-    if pre is not None and not (isinstance(pre, str) and _PREFIX.match(pre)):
+    if br == "upbit":
+        if not (isinstance(pre, str) and _UPBIT_PREFIX.match(pre)):
+            errs.append("broker upbit 는 key_prefix 가 필요하다 — UPBIT_ 로 시작하는 대문자 이름(예: UPBIT_TRADE). 조회용 UPBIT 키는 쓸 수 없다")
+    elif pre is not None and not (isinstance(pre, str) and _PREFIX.match(pre)):
         errs.append("key_prefix 는 KIS_ 로 시작하는 대문자 이름(예: KIS_VTS2). 시세용 KIS 키는 쓸 수 없다")
     if cfg.get("auto", "off") not in AUTO_MODES:
         errs.append("auto 는 off|dry|execute")
@@ -157,7 +179,7 @@ def validate_config(cfg: dict) -> List[str]:
             else:
                 errs.append(f"web.{k} 는 알 수 없는 키")
     for m, r in (cfg.get("risk") or {}).items():
-        if m not in ("KR", "US") or not isinstance(r, dict):
+        if m not in RISK_DEFAULTS or not isinstance(r, dict):
             errs.append(f"risk.{m} 형식 오류")
             continue
         for k, v in r.items():
@@ -202,7 +224,10 @@ def gate_problems(cfg: dict, env: Dict[str, str], execute: bool,
         if not live.get("enabled"):
             p.append("설정 live.enabled 가 true 가 아니다")
         if not live.get("tr_ids_reviewed"):
-            p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(실전 TR_ID 를 공식 문서와 대조했다는 표시 — README §실전 전환)")
+            if cfg.get("broker") == "upbit":
+                p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(업비트 주문 경로를 upbit-probe 로 확인했다는 표시 — README §11)")
+            else:
+                p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(실전 TR_ID 를 공식 문서와 대조했다는 표시 — README §실전 전환)")
         if env.get("AUTOTRADER_ALLOW_LIVE") != LIVE_ACK:
             p.append(f"환경변수 AUTOTRADER_ALLOW_LIVE={LIVE_ACK} 가 없다(설정 파일만으로는 실계좌를 못 켠다)")
     return p
