@@ -31,6 +31,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 24 | 스테이블코인 발행량 → BTC | `run_stablecoin_supply_forward.py` (DefiLlama·바이낸스 공개, 수 초 — 자주 돌릴수록 '처음 본 값'이 정확) | `reports/2026-10-stablecoin-supply-forward/` | S1 40건∧6개월 · S7 20건∧12개월, 연장 1회 |
 | 25 | 바이낸스 신규 상장 7일 약세 | `run_binance_listing_forward.py` (data-api 공개, 약 1~2분 — 자주 돌려도 됨) | `reports/2026-10-binance-listing-forward/` | 성숙 상장일 40 ∧ 6개월, 연장 1회(80) |
 | 26 | 코인베이스 프리미엄 z ≤ −2 → BTC 24h | `run_coinbase_premium_negz_forward.py` (코인베이스·바이낸스 공개, 약 10초) | `reports/2026-10-coinbase-premium-negz-forward/` | 성숙 사건 40 ∧ 6개월(≈2027-04~), 연장 1회(80) |
+| 27 | VIX 기간구조 T2 (미국) | `run_vix_term_t2_forward.py` (Yahoo 공개, 수 초 — 자주 돌려도 됨) | `reports/2026-10-vix-term-t2-forward/` | 성숙 250거래일 ∧ 12개월(≈2027-11), 연장 1회(500·24개월) |
 
 ## 메모
 
