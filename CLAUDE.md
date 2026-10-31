@@ -145,6 +145,8 @@ Validated against
             터틀 수프 TRAIN 초과 −36bp t −5.71(실패한 신저가 이탈은 반등 아니라 계속 약세 — 숏은 사후 가설) · NR7 · 홀리 그레일 음. findings/champion-shortterm-kr-results-2026-10.md.
   안 한다   ★ 같은 4종 미국 지수 선물(SPY·QQQ·IWM·DIA 가격 근사, 비용 3bp, 10-31, f1c9be58·a52d977f) — 6셀 REJECT · HG5 판정 불가(TRAIN 36일). 비용을 낮춰도 VB TEST gross −3bp ·
             NR5 +14bp < 5세션 무조건 보유. 대조(같은 날 4종 시가 진입)가 체결 프리미엄만큼 불리 — 사후 메모 §4. findings/champion-shortterm-usfut-results-2026-10.md.
+  안 한다   ★ 같은 4종 KOSPI200 선물(10-31, 937d368·268f059, 비용 26,000원/계약 = TEST 2.6bp) — NR1·NR5 REJECT(TRAIN t 0.46·−0.26 < 바닥선 3.06) · TS·HG 판정 불가(TRAIN 21·5일).
+            VB·VBM 은 KODEX200 VB 와 같은 표본이라 기록 전용(TEST net +17.8bp, 밤사이 몫 — 쓰려면 새 사전등록 forward). 고전 단기 기법 라인 종결 권고. findings/champion-shortterm-k200fut-results-2026-10.md.
   안 한다   ★ 공매도 잔고 회전일수(DTC)·잔고 변화 → 20거래일(10-31, 36ad6998·ac887a6a, A8 T+2 지연) — 3셀 REJECT·신호 없음(바닥선 2.46). DTC 상위 10% TRAIN info −14bp t −0.32 —
             '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
   안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).

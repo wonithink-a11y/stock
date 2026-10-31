@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 21 |
 | 보류·판정 불가 | 43 |
-| 기각 | 158 |
-| 사전등록 문서(결과는 별도 파일) | 166 |
+| 기각 | 159 |
+| 사전등록 문서(결과는 별도 파일) | 168 |
 | 정보·탐색 | 39 |
 | 미분류 | 239 |
 
@@ -87,7 +87,7 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (158)
+## 기각 (159)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -96,6 +96,7 @@
 | 2026-10-31 | REJECT | kr | [investor-type-flow-results-2026-10.md](investor-type-flow-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"ETC10": "REJECT", "PEN10": "REJECT", "TRU10": "REJECT", "PRV10": "REJECT"}. TRAIN 바닥선… |
 | 2026-10-31 | REJECT | us | [champion-shortterm-usfut-results-2026-10.md](champion-shortterm-usfut-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
 | 2026-10-31 | REJECT | kr | [champion-shortterm-kr-results-2026-10.md](champion-shortterm-kr-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
+| 2026-10-31 | REJECT | kr | [champion-shortterm-k200fut-results-2026-10.md](champion-shortterm-k200fut-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 판정 셀 {"TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5": "REJECT", "HG5": "판정 불가"} · VB… |
 | 2026-10-30 | REJECT | crypto | [upbit-turnover-results-2026-10.md](upbit-turnover-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. U1(전 세계 BTC 거래 중 업비트 비중 급증) TRAIN t 1.52 < 2.34 → REJECT — 방향은 '과열 → 하락'이 아니라 오히려 상승(+19… |
 | 2026-10-30 | REJECT | crypto | [stablecoin-supply-btc-results-2026-10.md](stablecoin-supply-btc-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. S1(1일) TRAIN t 1.49 < 바닥선 2.34 → REJECT(VALID +97 · TEST +65bp 로 같은 부호지만 TRAIN 에서 신호가 서… |
 | 2026-10-30 | REJECT | crypto | [hash-ribbons-results-2026-10.md](hash-ribbons-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 항복 국면(해시레이트 30일선 < 60일선) 날과 아닌 날의 BTC 일수익 차 TRAIN −10.6bp(t −0.48 < 1.91), VALID +47 · TEST … |
@@ -250,7 +251,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (166)
+## 사전등록 문서(결과는 별도 파일) (168)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -258,8 +259,10 @@
 | 2026-10-31 | PREREGISTERED | us | [vix-term-structure-preregistration-2026-10.md](vix-term-structure-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "VIX 기간구조가 역전되거나(단기 VIX ≥ 3개월 VIX) 평소보다 가파를 때 S&P500 선물을 비우면, 늘 들고 있는 것보다 위험 대비 수… |
 | 2026-10-31 | PREREGISTERED | kr | [short-balance-dtc-preregistration-2026-10.md](short-balance-dtc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "공매도 '잔고'가 평소 거래량의 며칠치인지(days-to-cover), 그리고 한 달 사이 잔고가 크게 늘거나 줄었는지가 다음 20거래일 수익을… |
 | 2026-10-31 | PREREGISTERED | kr | [investor-type-flow-preregistration-2026-10.md](investor-type-flow-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "외국인·기관 합계가 아니라 기타법인(자사주·대주주 법인 포함)·연기금·투신·사모가 각각 한 달 동안 거래대금 대비 많이 순매수한 종목이, 다음 … |
+| 2026-10-31 | PREREGISTERED | kr | [etc-flow-forward-preregistration-2026-10.md](etc-flow-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 바닥선에 0.06 모자랐던(t 2.46 < 2.52) 기타법인 순매수 상위 10% 종목의 20거래일 초과수익이, 아직 보지 않은 … |
 | 2026-10-31 | PREREGISTERED | us | [champion-shortterm-usfut-preregistration-2026-10.md](champion-shortterm-usfut-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주에서 7셀 모두 신호가 없던 대회 우승자·고전 단기 기법 4종(윌리엄스 변동성 돌파· 터틀 수프·NR7·홀리 그레일)이, 비용이 낮은… |
 | 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-kr-preregistration-2026-10.md](champion-shortterm-kr-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "선물 트레이딩 대회 우승자(래리 윌리엄스, 1987 로빈스 월드컵)의 변동성 돌파와 고전 단기 기법(래쉬키·코너스 『Street Smarts』의… |
+| 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-k200fut-preregistration-2026-10.md](champion-shortterm-k200fut-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주(7셀 REJECT)·미국 지수 선물(6셀 REJECT·1셀 판정 불가)에서 신호가 없던 고전 단기 기법 중 터틀 수프·NR7·홀리 … |
 | 2026-10-30 | PREREGISTERED | crypto | [upbit-turnover-preregistration-2026-10.md](upbit-turnover-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 개인 매매가 평소보다 크게 몰릴 때(전 세계 BTC 거래 중 업비트 비중, 업비트 안 알트 쏠림) 다음 7일 BTC 는 어느 쪽으로 가는가… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-forward-preregistration-2026-10.md](stablecoin-supply-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인 발행량이 평소보다 크게 늘면 다음 1·7일 BTC 가 오르고(줄면 내리고), 그것이 앞으로의 자료에서도 비용 뒤 양인가". 백테스트… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-btc-preregistration-2026-10.md](stablecoin-supply-btc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인(USDT·USDC 등) 발행이 평소보다 크게 늘거나 줄어든 주 다음 1·7일, BTC 는 그 방향(늘면 오름)으로 가는가". 코인베… |
