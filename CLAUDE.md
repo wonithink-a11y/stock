@@ -149,6 +149,9 @@ Validated against
             '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
   안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).
             T2 는 VALID·TEST 샤프 0.93/0.85 vs 보유 0.82/0.69 · MDD 개선(기록 전용, 낙폭 도구 성격) — 쓰려면 새 사전등록 forward 로만. findings/vix-term-structure-results-2026-10.md.
+  안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
+            기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
+  다음      ★ **VIX 기간구조 T2 forward(#27, 10-31, abebdc5a·2fa5828f)** — `run_vix_term_t2_forward.py` 월간 점검, 신호일 ≥ 11-02, 판정 250거래일 ∧ 12개월(≈2027-11). 기록 전용.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
   다음      ★ **코인베이스 프리미엄 → BTC 24시간(10-29, f0de9c8·20401a4) — C24 ECONOMIC**(TRAIN t 3.53 · TEST +45bp t 2.84 · OOS net10 +27.9bp t 1.99, 아홉 해 모두 양) · C4 INFORMATION(비용 미달).
