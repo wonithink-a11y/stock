@@ -32,6 +32,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 25 | 바이낸스 신규 상장 7일 약세 | `run_binance_listing_forward.py` (data-api 공개, 약 1~2분 — 자주 돌려도 됨) | `reports/2026-10-binance-listing-forward/` | 성숙 상장일 40 ∧ 6개월, 연장 1회(80) |
 | 26 | 코인베이스 프리미엄 z ≤ −2 → BTC 24h | `run_coinbase_premium_negz_forward.py` (코인베이스·바이낸스 공개, 약 10초) | `reports/2026-10-coinbase-premium-negz-forward/` | 성숙 사건 40 ∧ 6개월(≈2027-04~), 연장 1회(80) |
 | 27 | VIX 기간구조 T2 (미국) | `run_vix_term_t2_forward.py` (Yahoo 공개, 수 초 — 자주 돌려도 됨) | `reports/2026-10-vix-term-t2-forward/` | 성숙 250거래일 ∧ 12개월(≈2027-11), 연장 1회(500·24개월) |
+| 28 | 기타법인 순매수 강도 ETC10 (국내) | A2a·A4 증분 뒤 `run_etc_flow_forward.py` (약 5분) | `reports/2026-10-etc-flow-forward/` | 성숙 신호월 24 ∧ 24개월(≈2028-10), 연장 1회(48·48개월) |
 
 ## 메모
 

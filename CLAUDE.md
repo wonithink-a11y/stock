@@ -152,6 +152,7 @@ Validated against
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
   다음      ★ **VIX 기간구조 T2 forward(#27, 10-31, abebdc5a·2fa5828f)** — `run_vix_term_t2_forward.py` 월간 점검, 신호일 ≥ 11-02, 판정 250거래일 ∧ 12개월(≈2027-11). 기록 전용.
+            ★ **기타법인 ETC10 forward(#28, 10-31, 5f4103d6)** — `run_etc_flow_forward.py` A2a·A4 증분 뒤, 신호월 ≥ 2026-10, 판정 24신호월 ∧ 24개월(≈2028-10) t ≥ 1.65. 기록 전용.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
   다음      ★ **코인베이스 프리미엄 → BTC 24시간(10-29, f0de9c8·20401a4) — C24 ECONOMIC**(TRAIN t 3.53 · TEST +45bp t 2.84 · OOS net10 +27.9bp t 1.99, 아홉 해 모두 양) · C4 INFORMATION(비용 미달).
