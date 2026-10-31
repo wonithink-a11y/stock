@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 21 |
+| 통과·채택 | 22 |
 | 보류·판정 불가 | 43 |
-| 기각 | 159 |
-| 사전등록 문서(결과는 별도 파일) | 168 |
+| 기각 | 160 |
+| 사전등록 문서(결과는 별도 파일) | 169 |
 | 정보·탐색 | 39 |
 | 미분류 | 239 |
 
-## 통과·채택 (21)
+## 통과·채택 (22)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-10-31 | ROBUST | kr | [kr-static-vi-proxy-results-2026-10.md](kr-static-vi-proxy-results-2026-10.md) | 신호: 있음 · 경제성: 통과(숏 방향 — 개인 롱 전용으로는 매매 불가). VU(장중 시가 +10% 첫 도달) 뒤 3분 진입 → 종가는 되돌림: 일별 TRAIN −138bp(t −13.2) · V… |
 | 2026-10-30 | CONSISTENT | crypto | [binance-listing-upbit-results-2026-10.md](binance-listing-upbit-results-2026-10.md) | 신호: 있음(업비트에서도 같은 쪽) · 경제성: 판정 안 함(회피 근거 확인). 바이낸스 신규 상장 코인 중 업비트에 있던 것은 업비트 원화 가격으로도 첫 주 BTC 대비 −1,144bp(t −2.… |
 | 2026-10-30 | PASS | crypto | [binance-listing-robustness-results-2026-10.md](binance-listing-robustness-results-2026-10.md) | 신호: 있음 · 경제성: (원 판정 유지). BL7 강건성 4/4 PASS — K1 같은 주 대형 알트 24종 대비로도 −1,074bp(t −5.78, TRAIN·2023~ 모두 음; 위약 자체는 … |
 | 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
@@ -87,7 +88,7 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (159)
+## 기각 (160)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -95,6 +96,7 @@
 | 2026-10-31 | REJECT | kr | [short-balance-dtc-results-2026-10.md](short-balance-dtc-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"DTC10": "REJECT", "DUP10": "REJECT", "DDN10": "REJECT"}. TRAIN 바닥선 /t/ 2.46(3셀 가족 95%… |
 | 2026-10-31 | REJECT | kr | [investor-type-flow-results-2026-10.md](investor-type-flow-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"ETC10": "REJECT", "PEN10": "REJECT", "TRU10": "REJECT", "PRV10": "REJECT"}. TRAIN 바닥선… |
 | 2026-10-31 | REJECT | us | [champion-shortterm-usfut-results-2026-10.md](champion-shortterm-usfut-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
+| 2026-10-31 | REJECT | kr | [champion-shortterm-kretf-results-2026-10.md](champion-shortterm-kretf-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5… |
 | 2026-10-31 | REJECT | kr | [champion-shortterm-kr-results-2026-10.md](champion-shortterm-kr-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
 | 2026-10-31 | REJECT | kr | [champion-shortterm-k200fut-results-2026-10.md](champion-shortterm-k200fut-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 판정 셀 {"TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5": "REJECT", "HG5": "판정 불가"} · VB… |
 | 2026-10-30 | REJECT | crypto | [upbit-turnover-results-2026-10.md](upbit-turnover-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. U1(전 세계 BTC 거래 중 업비트 비중 급증) TRAIN t 1.52 < 2.34 → REJECT — 방향은 '과열 → 하락'이 아니라 오히려 상승(+19… |
@@ -251,7 +253,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (168)
+## 사전등록 문서(결과는 별도 파일) (169)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -261,6 +263,7 @@
 | 2026-10-31 | PREREGISTERED | kr | [investor-type-flow-preregistration-2026-10.md](investor-type-flow-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "외국인·기관 합계가 아니라 기타법인(자사주·대주주 법인 포함)·연기금·투신·사모가 각각 한 달 동안 거래대금 대비 많이 순매수한 종목이, 다음 … |
 | 2026-10-31 | PREREGISTERED | kr | [etc-flow-forward-preregistration-2026-10.md](etc-flow-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 바닥선에 0.06 모자랐던(t 2.46 < 2.52) 기타법인 순매수 상위 10% 종목의 20거래일 초과수익이, 아직 보지 않은 … |
 | 2026-10-31 | PREREGISTERED | us | [champion-shortterm-usfut-preregistration-2026-10.md](champion-shortterm-usfut-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주에서 7셀 모두 신호가 없던 대회 우승자·고전 단기 기법 4종(윌리엄스 변동성 돌파· 터틀 수프·NR7·홀리 그레일)이, 비용이 낮은… |
+| 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-kretf-preregistration-2026-10.md](champion-shortterm-kretf-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주·미국 지수 선물·KOSPI200 선물에서 신호가 없던 고전 단기 기법 4종이, 업종·테마 바스켓인 국내 주식형 ETF(세금 없음, … |
 | 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-kr-preregistration-2026-10.md](champion-shortterm-kr-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "선물 트레이딩 대회 우승자(래리 윌리엄스, 1987 로빈스 월드컵)의 변동성 돌파와 고전 단기 기법(래쉬키·코너스 『Street Smarts』의… |
 | 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-k200fut-preregistration-2026-10.md](champion-shortterm-k200fut-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주(7셀 REJECT)·미국 지수 선물(6셀 REJECT·1셀 판정 불가)에서 신호가 없던 고전 단기 기법 중 터틀 수프·NR7·홀리 … |
 | 2026-10-30 | PREREGISTERED | crypto | [upbit-turnover-preregistration-2026-10.md](upbit-turnover-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 개인 매매가 평소보다 크게 몰릴 때(전 세계 BTC 거래 중 업비트 비중, 업비트 안 알트 쏠림) 다음 7일 BTC 는 어느 쪽으로 가는가… |

@@ -147,6 +147,8 @@ Validated against
             NR5 +14bp < 5세션 무조건 보유. 대조(같은 날 4종 시가 진입)가 체결 프리미엄만큼 불리 — 사후 메모 §4. findings/champion-shortterm-usfut-results-2026-10.md.
   안 한다   ★ 같은 4종 KOSPI200 선물(10-31, 937d368·268f059, 비용 26,000원/계약 = TEST 2.6bp) — NR1·NR5 REJECT(TRAIN t 0.46·−0.26 < 바닥선 3.06) · TS·HG 판정 불가(TRAIN 21·5일).
             VB·VBM 은 KODEX200 VB 와 같은 표본이라 기록 전용(TEST net +17.8bp, 밤사이 몫 — 쓰려면 새 사전등록 forward). 고전 단기 기법 라인 종결 권고. findings/champion-shortterm-k200fut-results-2026-10.md.
+  안 한다   ★ 같은 4종 국내 주식형 ETF(대표 지수 71종 제외 431종, 비용 5bp, 10-31, 362ff69·6824cc3) — VB·VBM·NR1·NR5 REJECT(TRAIN 초과 전부 음, t −2.9~−8.4) · TS·HG 판정 불가.
+            **네 시장 모두 신호 없음 → 고전 단기 기법 라인 종결**(분봉 공정 대조는 표본 15개월로 검출력 없어 착수 안 함). findings/champion-shortterm-kretf-results-2026-10.md.
   안 한다   ★ 공매도 잔고 회전일수(DTC)·잔고 변화 → 20거래일(10-31, 36ad6998·ac887a6a, A8 T+2 지연) — 3셀 REJECT·신호 없음(바닥선 2.46). DTC 상위 10% TRAIN info −14bp t −0.32 —
             '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
   안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).
@@ -230,7 +232,8 @@ Validated against
             z 는 VM 러너와 같은 정의, 실측 대조 소수 6자리 일치) · 연구·모의(판정 카드 `CRYPTO_LAB` 손으로 갱신 — 새 크립토 결과가 나오면 한 줄 추가).
             업비트는 CORS 차단 → 원화 시세·김프·투자유의는 VM 경유로 다음에. 폰 아래 탭 막대 6칸. **폰 실기기 확인(10-30 사용자, 신규 상장 칸 포함)**.
             ★ **'최근 신규 상장' 경고 칸(10-30 사용자 GO, 표시 전용)** — Actions `binance-listings`(매일 10:10 KST) → docs/data/binance-listings.json(30일 안 상장 · firstDay 캐시) → 상장 다음 날 시가부터 BTC 대비, 1~7일째 '첫 주' 강조. 토큰화 주식(stockLike)은 한 줄로 접는다. 점수·매매·텔레그램 불연결(규칙 1). 크립토 밤샘 19건·마감: docs/control/세션인수인계-2026-10-30.md.
-  다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
+  다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사 — 10-31 캐시 예비 실행(d1578b9): VU(+10% 첫 도달) 되돌림 ROBUST**(OOS 숏 +187bp, net t 9.85 — 숏이라 개인 매매 불가, '추격 매수 회피' 맥락만) · VD REJECT.
+            캐시가 10-12 까지라 **정본은 VM 전체 창 실행**(`python3 research/strategy-lab/kr_static_vi_proxy.py`, 사용자 Cloud Shell) → 결과 §5 에 덧붙인다. findings/kr-static-vi-proxy-results-2026-10.md.
             기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
             클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
