@@ -1,0 +1,104 @@
+{
+ "bar": 2.28,
+ "days_with_data": 279,
+ "cells": {
+  "VU": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -13.22,
+   "TRAIN": {
+    "days": 132,
+    "bp": -137.9,
+    "t": -13.22
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -155.3,
+    "t": -6.45
+   },
+   "TEST": {
+    "days": 86,
+    "bp": -209.2,
+    "t": -10.37
+   },
+   "oos_gross_bp": 186.8,
+   "oos_gross_ci95": [
+    155.5,
+    218.5
+   ],
+   "net33_bp": 153.3,
+   "net67_bp": 119.8,
+   "t_net33": 9.85,
+   "breakeven_rt_bp": 186.8
+  },
+  "VD": {
+   "verdict": "REJECT",
+   "sign": -1,
+   "t_train": -2.43,
+   "TRAIN": {
+    "days": 132,
+    "bp": -42.9,
+    "t": -2.43
+   },
+   "VALID": {
+    "days": 61,
+    "bp": 49.4,
+    "t": 1.51
+   },
+   "TEST": {
+    "days": 86,
+    "bp": 20.5,
+    "t": 0.97
+   },
+   "oos_gross_bp": -32.5,
+   "oos_gross_ci95": [
+    -68.7,
+    1.8
+   ],
+   "net33_bp": -66.0,
+   "net67_bp": -99.5,
+   "t_net33": -3.6,
+   "breakeven_rt_bp": -32.5
+  }
+ },
+ "record": {
+  "VU": {
+   "events": 25020,
+   "events_per_day": 89.7,
+   "per_event_bp_dir": 130.9,
+   "win_pct_dir": 60.8,
+   "exit_1519_daily_bp_dir": 183.0,
+   "by_time_bp_dir": {
+    "09:01-09:30": 171.8,
+    "09:31-11:00": 89.6,
+    "11:01-15:10": 136.9
+   },
+   "ex_semis_daily_bp_dir": 167.7,
+   "skipped": {
+    "no_entry_bar": 1363,
+    "locked": 856
+   }
+  },
+  "VD": {
+   "events": 11025,
+   "events_per_day": 39.5,
+   "per_event_bp_dir": 17.2,
+   "win_pct_dir": 49.7,
+   "exit_1519_daily_bp_dir": -0.5,
+   "by_time_bp_dir": {
+    "09:01-09:30": 73.4,
+    "09:31-11:00": 12.0,
+    "11:01-15:10": -1.9
+   },
+   "ex_semis_daily_bp_dir": 9.7,
+   "skipped": {
+    "locked": 1046,
+    "no_entry_bar": 977
+   }
+  },
+  "both_up_and_down_pct": 1.36
+ },
+ "minute_dir": "/home/user/stock/research/strategy-lab/.cache/minute_raw",
+ "first_day": "2025-08-08",
+ "last_day": "2026-10-12"
+}
