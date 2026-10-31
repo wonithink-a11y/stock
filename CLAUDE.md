@@ -141,6 +141,8 @@ Validated against
   안 한다   ★ 스캘핑 후보 6개(09-27, 70d64249·852180bd) — 새로 잰 3갈래 REJECT, 호가 불균형은 데이터 없음. findings/scalping-candidates-results-2026-09.md.
   안 한다   ★ 크립토 포지션 쏠림(09-29, 14a3322a) — 기록 종결. K1 INFORMATION 이나 비용 10bp 미달, 비용을 결과 뒤 낮춰 재판정 금지. findings/crypto-positioning-results-2026-09.md.
   안 한다   ★ 단기·크립토 5건(10-17~18) 전부 REJECT(청산 반등·FOMC 직전·주말·KOSPI200 정기변경·업비트 상장). 업비트 상장 7일 숏만 forward(월간 점검). findings/*-results-2026-10.md.
+  안 한다   ★ 대회 우승자·고전 단기 기법 4종 국내 개별주 일봉(10-31, 6d823657·86596b81) — 7셀 전부 REJECT·신호 없음(바닥선 2.73). 윌리엄스 변동성 돌파 k0.5 손익분기 2.4bp(비용 33.5) ·
+            터틀 수프 TRAIN 초과 −36bp t −5.71(실패한 신저가 이탈은 반등 아니라 계속 약세 — 숏은 사후 가설) · NR7 · 홀리 그레일 음. findings/champion-shortterm-kr-results-2026-10.md.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
   다음      ★ **코인베이스 프리미엄 → BTC 24시간(10-29, f0de9c8·20401a4) — C24 ECONOMIC**(TRAIN t 3.53 · TEST +45bp t 2.84 · OOS net10 +27.9bp t 1.99, 아홉 해 모두 양) · C4 INFORMATION(비용 미달).
