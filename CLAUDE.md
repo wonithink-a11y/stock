@@ -145,6 +145,10 @@ Validated against
             터틀 수프 TRAIN 초과 −36bp t −5.71(실패한 신저가 이탈은 반등 아니라 계속 약세 — 숏은 사후 가설) · NR7 · 홀리 그레일 음. findings/champion-shortterm-kr-results-2026-10.md.
   안 한다   ★ 같은 4종 미국 지수 선물(SPY·QQQ·IWM·DIA 가격 근사, 비용 3bp, 10-31, f1c9be58·a52d977f) — 6셀 REJECT · HG5 판정 불가(TRAIN 36일). 비용을 낮춰도 VB TEST gross −3bp ·
             NR5 +14bp < 5세션 무조건 보유. 대조(같은 날 4종 시가 진입)가 체결 프리미엄만큼 불리 — 사후 메모 §4. findings/champion-shortterm-usfut-results-2026-10.md.
+  안 한다   ★ 공매도 잔고 회전일수(DTC)·잔고 변화 → 20거래일(10-31, 36ad6998·ac887a6a, A8 T+2 지연) — 3셀 REJECT·신호 없음(바닥선 2.46). DTC 상위 10% TRAIN info −14bp t −0.32 —
+            '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
+  안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).
+            T2 는 VALID·TEST 샤프 0.93/0.85 vs 보유 0.82/0.69 · MDD 개선(기록 전용, 낙폭 도구 성격) — 쓰려면 새 사전등록 forward 로만. findings/vix-term-structure-results-2026-10.md.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
   다음      ★ **코인베이스 프리미엄 → BTC 24시간(10-29, f0de9c8·20401a4) — C24 ECONOMIC**(TRAIN t 3.53 · TEST +45bp t 2.84 · OOS net10 +27.9bp t 1.99, 아홉 해 모두 양) · C4 INFORMATION(비용 미달).
