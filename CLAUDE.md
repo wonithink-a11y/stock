@@ -151,7 +151,8 @@ Validated against
             T2 는 VALID·TEST 샤프 0.93/0.85 vs 보유 0.82/0.69 · MDD 개선(기록 전용, 낙폭 도구 성격) — 쓰려면 새 사전등록 forward 로만. findings/vix-term-structure-results-2026-10.md.
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
-  다음      ★ **VIX 기간구조 T2 forward(#27, 10-31, abebdc5a·2fa5828f)** — `run_vix_term_t2_forward.py` 월간 점검, 신호일 ≥ 11-02, 판정 250거래일 ∧ 12개월(≈2027-11). 기록 전용.
+  다음      ★ 10-31 폰 세션 전체(연구 6건·forward 2건·코인베이스 z 주기 답): docs/control/세션인수인계-2026-10-31-b.md.
+            ★ **VIX 기간구조 T2 forward(#27, 10-31, abebdc5a·2fa5828f)** — `run_vix_term_t2_forward.py` 월간 점검, 신호일 ≥ 11-02, 판정 250거래일 ∧ 12개월(≈2027-11). 기록 전용.
             ★ **기타법인 ETC10 forward(#28, 10-31, 5f4103d6)** — `run_etc_flow_forward.py` A2a·A4 증분 뒤, 신호월 ≥ 2026-10, 판정 24신호월 ∧ 24개월(≈2028-10) t ≥ 1.65. 기록 전용.
   안 한다   ★ 데이트레이드 스캐너 셋업 5종 국내 백테스트(10-28, 3fb6bc94·2175d822) — 신호: OVSD(RSI<30)만 있음(TRAIN 초과 +22bp t 4.66, 2025 −4bp로 소멸) · 경제성: 미달(전 셀 net 음, 시가→종가 비용 33.5bp).
             B20 은 반대 방향 강한 음(−35bp, 사후 가설 — 숏 판정 안 함). 미국 forward 만 진행(day-trader-scan-forward 9b538692, 판정 120/250거래일, 무엇도 점수·매매 불연결). findings/day-trader-scan-kr-results-2026-10.md.
@@ -230,7 +231,7 @@ Validated against
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건. **국내 정적 VI 근사(ebccca5·dddd05e)** — 분봉이 VM 에만 있어 VM 실행 대기.
             기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
-            클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — 클라우드 환경 변수 등록은 사용자 미확인). PC 캐시가 바뀌면 PC 에서 `push`.
+            클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
             VM 부트 볼륨 100GB(무료 블록 147/200GB), 옛 stock-Monitor 삭제. 폰 VM 접속 = Cloud Shell(RSA 키). docs/control/연구데이터-VM보관-설계-2026-10-30.md.
   다음      ★ **대시보드 화면 5건(10-20)** — 세션인수인계-2026-10-20-b.md. 장중 홈 = 평일 09:00~15:30 ∧ 네이버 장 상태 OPEN 이면 홈 맨 위가 지수·잠정 수급·관심종목 353 오르내림
             (`/kr-intraday` quotes = [현재가, 전일종가]), 아니면 마감 리포트. **실제 사이트·폰 장중 확인 전**(브라우저 패널이 github.io→VM 요청을 막아 localhost 로만 확인).
