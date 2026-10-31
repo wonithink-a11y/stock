@@ -8,10 +8,10 @@
 |---|---:|
 | 통과·채택 | 21 |
 | 보류·판정 불가 | 43 |
-| 기각 | 153 |
-| 사전등록 문서(결과는 별도 파일) | 159 |
+| 기각 | 158 |
+| 사전등록 문서(결과는 별도 파일) | 166 |
 | 정보·탐색 | 39 |
-| 미분류 | 240 |
+| 미분류 | 239 |
 
 ## 통과·채택 (21)
 
@@ -19,8 +19,8 @@
 |---|---|---|---|---|
 | 2026-10-30 | CONSISTENT | crypto | [binance-listing-upbit-results-2026-10.md](binance-listing-upbit-results-2026-10.md) | 신호: 있음(업비트에서도 같은 쪽) · 경제성: 판정 안 함(회피 근거 확인). 바이낸스 신규 상장 코인 중 업비트에 있던 것은 업비트 원화 가격으로도 첫 주 BTC 대비 −1,144bp(t −2.… |
 | 2026-10-30 | PASS | crypto | [binance-listing-robustness-results-2026-10.md](binance-listing-robustness-results-2026-10.md) | 신호: 있음 · 경제성: (원 판정 유지). BL7 강건성 4/4 PASS — K1 같은 주 대형 알트 24종 대비로도 −1,074bp(t −5.78, TRAIN·2023~ 모두 음; 위약 자체는 … |
-| 2026-10-30 | EXECUTABLE | crypto | [binance-listing-perp-results-2026-10.md](binance-listing-perp-results-2026-10.md) | 신호: 있음(BL7, 이미 ROBUST) · 경제성: 통과(무기한·펀딩 포함). 신규 상장 7일 숏을 바이낸스 무기한으로 하면 펀딩을 내고도 OOS 평균 +1,021bp/상장일(비용 10bp 뒤 +… |
 | 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
+| 2026-10-30 | EXECUTABLE | crypto | [binance-listing-perp-results-2026-10.md](binance-listing-perp-results-2026-10.md) | 신호: 있음(BL7, 이미 ROBUST) · 경제성: 통과(무기한·펀딩 포함). 신규 상장 7일 숏을 바이낸스 무기한으로 하면 펀딩을 내고도 OOS 평균 +1,021bp/상장일(비용 10bp 뒤 +… |
 | 2026-10-29 | PASS | crypto | [coinbase-premium-robustness-results-2026-10.md](coinbase-premium-robustness-results-2026-10.md) | 신호: 있음 · 경제성: 통과. A — K1 무작위 진입 p 0.0005 · K2 월 블록 95% [2.8, 73.3] · K3 상위 두 달 빼도 net10 +14.9bp · K4 업비트 롱 net… |
 | 2026-10-29 | ECONOMIC | crypto | [coinbase-premium-results-2026-10.md](coinbase-premium-results-2026-10.md) | 신호: 있음 · 경제성: 통과(C24) / 미달(C4). C24(24시간) TRAIN +68bp t 3.53 · VALID +17 · TEST +45(t 2.84), OOS net10 +27.9bp… |
 | 2026-10-19 | CONFIRMED | kr | [contract-liab-revenue-step1-2026-10.md](contract-liab-revenue-step1-2026-10.md) | 신호: 있음(다음 해 매출 예측) · 경제성: 해당 없음(주가 미측정 — 1단계는 재무끼리). 계약부채가 전년 매출 대비 많이 늘어난 회사는 다음 해 매출이 더 늘었다 — 평균 Spearman 20… |
@@ -87,26 +87,31 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (153)
+## 기각 (158)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
-| 2026-10-30 | REJECT | crypto | [coinbase-premium-negz-results-2026-10.md](coinbase-premium-negz-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 10셀 모두 TRAIN 평균은 음(z 가 낮으면 그 뒤 BTC 약세)이나 가장 큰 것이 k −1.5 · 24h t −2.38 로 바닥선 2.89 미달, 그리고… |
-| 2026-10-30 | REJECT | crypto | [binance-perp-launch-results-2026-10.md](binance-perp-launch-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 기존 현물 코인에 무기한(숏 수단)이 생긴 뒤 — FL7 TRAIN −4bp(t −0.02) · FL30 −190(t −0.38), 바닥선 2.29 미달 → … |
-| 2026-10-30 | REJECT | crypto | [coinbase-listing-results-2026-10.md](coinbase-listing-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. 이미 거래되던 코인이 코인베이스에 상장된 다음 날부터 BTC 대비 — CL7 TRAIN −267bp(t −0.66) · CL30 −819(t −1.12), … |
-| 2026-10-30 | REJECT | crypto | [btc-nasdaq-divergence-results-2026-10.md](btc-nasdaq-divergence-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. 'BTC 가 나스닥 대비 크게 뒤처지면(앞서면) 되돌린다' — 되돌림은 없고 오히려 세 구간 모두 괴리가 이어지는 쪽이었다(N5 TRAIN −460 · VA… |
-| 2026-10-30 | REJECT | crypto | [coinbase-volume-share-results-2026-10.md](coinbase-volume-share-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 코인베이스(미국) 거래량 비중 급변 → BTC — CV7 TRAIN t 0.68 · CV1 t 1.29, 바닥선 2.11 미달. CV1 은 TEST 에서 부호… |
-| 2026-10-30 | REJECT | crypto | [crypto-volume-premium-results-2026-10.md](crypto-volume-premium-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 지난주 거래가 평소보다 크게 몰린 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −86bp/주(t −1.08, 바닥선 1.92 미달), 그 뒤 VALID +… |
-| 2026-10-30 | REJECT | crypto | [coinbase-premium-xs-results-2026-10.md](coinbase-premium-xs-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 같은 날 코인베이스에서 상대적으로 비싼 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −1.4bp/일(t −0.13) 로 0. VALID +14 · TEST… |
-| 2026-10-30 | REJECT | crypto | [crypto-tsmom-results-2026-10.md](crypto-tsmom-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. T1(지난 1주 부호) TRAIN +34bp/주 t 0.53 · T4(지난 4주 부호) TRAIN +103bp t 1.63 — 둘 다 바닥선 2.25 미달 →… |
-| 2026-10-30 | REJECT | crypto | [crypto-calendar-results-2026-10.md](crypto-calendar-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M1 월말·월초 4일 TRAIN +131bp(t 1.50) → VALID −110 · TEST −101 로 뒤집힘. E1 옵션 만기 전 48시간 TRAIN −99(t… |
-| 2026-10-30 | REJECT | crypto | [alt-kimchi-relative-results-2026-10.md](alt-kimchi-relative-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 업비트 알트가 BTC 대비 국내에서만 비싸지면(싸지면) 판다(산다) — K1 TRAIN +45bp t 1.94 < 바닥선 2.13, VALID −22 · TEST +… |
+| 2026-10-31 | REJECT | us | [vix-term-structure-results-2026-10.md](vix-term-structure-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 규칙 판정 {"T1": "REJECT", "T2": "REJECT"}. TRAIN 실력 바닥선 0.347(원형 이동 1,000회 95%), 비용 전환당 1.5bp. |
+| 2026-10-31 | REJECT | kr | [short-balance-dtc-results-2026-10.md](short-balance-dtc-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"DTC10": "REJECT", "DUP10": "REJECT", "DDN10": "REJECT"}. TRAIN 바닥선 /t/ 2.46(3셀 가족 95%… |
+| 2026-10-31 | REJECT | kr | [investor-type-flow-results-2026-10.md](investor-type-flow-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"ETC10": "REJECT", "PEN10": "REJECT", "TRU10": "REJECT", "PRV10": "REJECT"}. TRAIN 바닥선… |
+| 2026-10-31 | REJECT | us | [champion-shortterm-usfut-results-2026-10.md](champion-shortterm-usfut-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
+| 2026-10-31 | REJECT | kr | [champion-shortterm-kr-results-2026-10.md](champion-shortterm-kr-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "REJECT", "TS3": "REJECT", "NR1": "REJECT", "N… |
 | 2026-10-30 | REJECT | crypto | [upbit-turnover-results-2026-10.md](upbit-turnover-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. U1(전 세계 BTC 거래 중 업비트 비중 급증) TRAIN t 1.52 < 2.34 → REJECT — 방향은 '과열 → 하락'이 아니라 오히려 상승(+19… |
-| 2026-10-30 | REJECT | crypto | [cme-gap-results-2026-10.md](cme-gap-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 'CME 갭은 메워진다' — 메우는 쪽 진입 G1(24시간) TRAIN t −0.64 · G5(그 주) t −0.26, 바닥선 2.28 미달. 메움 비율 59… |
-| 2026-10-30 | REJECT | crypto | [fear-greed-results-2026-10.md](fear-greed-results-2026-10.md) | 신호: 없음 · 경제성: 미달. '극단적 공포면 사고 극단적 탐욕이면 판다' — F1(1일) TRAIN t −0.29 · F7(7일) t −0.87, 바닥선 2.48 에 한참 못 미침. OOS 도 … |
-| 2026-10-30 | REJECT | crypto | [hash-ribbons-results-2026-10.md](hash-ribbons-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 항복 국면(해시레이트 30일선 < 60일선) 날과 아닌 날의 BTC 일수익 차 TRAIN −10.6bp(t −0.48 < 1.91), VALID +47 · TEST … |
-| 2026-10-30 | REJECT | crypto | [crypto-dvol-results-2026-10.md](crypto-dvol-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(DVOL 백분위 ≥ 0.8 이면 쉬기) TRAIN t 0.46 < 1.74 — 내재변동성 높은 날이 오히려 평균 +44bp 좋았고(TRAIN), OOS 에서 쉬… |
 | 2026-10-30 | REJECT | crypto | [stablecoin-supply-btc-results-2026-10.md](stablecoin-supply-btc-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. S1(1일) TRAIN t 1.49 < 바닥선 2.34 → REJECT(VALID +97 · TEST +65bp 로 같은 부호지만 TRAIN 에서 신호가 서… |
+| 2026-10-30 | REJECT | crypto | [hash-ribbons-results-2026-10.md](hash-ribbons-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 항복 국면(해시레이트 30일선 < 60일선) 날과 아닌 날의 BTC 일수익 차 TRAIN −10.6bp(t −0.48 < 1.91), VALID +47 · TEST … |
+| 2026-10-30 | REJECT | crypto | [fear-greed-results-2026-10.md](fear-greed-results-2026-10.md) | 신호: 없음 · 경제성: 미달. '극단적 공포면 사고 극단적 탐욕이면 판다' — F1(1일) TRAIN t −0.29 · F7(7일) t −0.87, 바닥선 2.48 에 한참 못 미침. OOS 도 … |
+| 2026-10-30 | REJECT | crypto | [crypto-volume-premium-results-2026-10.md](crypto-volume-premium-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 지난주 거래가 평소보다 크게 몰린 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −86bp/주(t −1.08, 바닥선 1.92 미달), 그 뒤 VALID +… |
+| 2026-10-30 | REJECT | crypto | [crypto-tsmom-results-2026-10.md](crypto-tsmom-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. T1(지난 1주 부호) TRAIN +34bp/주 t 0.53 · T4(지난 4주 부호) TRAIN +103bp t 1.63 — 둘 다 바닥선 2.25 미달 →… |
+| 2026-10-30 | REJECT | crypto | [crypto-dvol-results-2026-10.md](crypto-dvol-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(DVOL 백분위 ≥ 0.8 이면 쉬기) TRAIN t 0.46 < 1.74 — 내재변동성 높은 날이 오히려 평균 +44bp 좋았고(TRAIN), OOS 에서 쉬… |
+| 2026-10-30 | REJECT | crypto | [crypto-calendar-results-2026-10.md](crypto-calendar-results-2026-10.md) | 신호: 없음 · 경제성: 미달. M1 월말·월초 4일 TRAIN +131bp(t 1.50) → VALID −110 · TEST −101 로 뒤집힘. E1 옵션 만기 전 48시간 TRAIN −99(t… |
+| 2026-10-30 | REJECT | crypto | [coinbase-volume-share-results-2026-10.md](coinbase-volume-share-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 코인베이스(미국) 거래량 비중 급변 → BTC — CV7 TRAIN t 0.68 · CV1 t 1.29, 바닥선 2.11 미달. CV1 은 TEST 에서 부호… |
+| 2026-10-30 | REJECT | crypto | [coinbase-premium-xs-results-2026-10.md](coinbase-premium-xs-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 같은 날 코인베이스에서 상대적으로 비싼 알트 상위 1/3 롱 · 하위 1/3 숏 — TRAIN −1.4bp/일(t −0.13) 로 0. VALID +14 · TEST… |
+| 2026-10-30 | REJECT | crypto | [coinbase-premium-negz-results-2026-10.md](coinbase-premium-negz-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 10셀 모두 TRAIN 평균은 음(z 가 낮으면 그 뒤 BTC 약세)이나 가장 큰 것이 k −1.5 · 24h t −2.38 로 바닥선 2.89 미달, 그리고… |
+| 2026-10-30 | REJECT | crypto | [coinbase-listing-results-2026-10.md](coinbase-listing-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. 이미 거래되던 코인이 코인베이스에 상장된 다음 날부터 BTC 대비 — CL7 TRAIN −267bp(t −0.66) · CL30 −819(t −1.12), … |
+| 2026-10-30 | REJECT | crypto | [cme-gap-results-2026-10.md](cme-gap-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 'CME 갭은 메워진다' — 메우는 쪽 진입 G1(24시간) TRAIN t −0.64 · G5(그 주) t −0.26, 바닥선 2.28 미달. 메움 비율 59… |
+| 2026-10-30 | REJECT | crypto | [btc-nasdaq-divergence-results-2026-10.md](btc-nasdaq-divergence-results-2026-10.md) | 신호: 미확립 · 경제성: 판정 안 함. 'BTC 가 나스닥 대비 크게 뒤처지면(앞서면) 되돌린다' — 되돌림은 없고 오히려 세 구간 모두 괴리가 이어지는 쪽이었다(N5 TRAIN −460 · VA… |
+| 2026-10-30 | REJECT | crypto | [binance-perp-launch-results-2026-10.md](binance-perp-launch-results-2026-10.md) | 신호: 없음 · 경제성: 판정 안 함. 기존 현물 코인에 무기한(숏 수단)이 생긴 뒤 — FL7 TRAIN −4bp(t −0.02) · FL30 −190(t −0.38), 바닥선 2.29 미달 → … |
+| 2026-10-30 | REJECT | crypto | [alt-kimchi-relative-results-2026-10.md](alt-kimchi-relative-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 업비트 알트가 BTC 대비 국내에서만 비싸지면(싸지면) 판다(산다) — K1 TRAIN +45bp t 1.94 < 바닥선 2.13, VALID −22 · TEST +… |
 | 2026-10-29 | REJECT | crypto | [kimchi-premium-hourly-results-2026-10.md](kimchi-premium-hourly-results-2026-10.md) | 신호: 없음 · 경제성: 미달. K4 TRAIN t −1.06 · K24 TRAIN t −1.31 → 둘 다 바닥선 2.15 아래, REJECT. 구간마다 부호가 바뀐다(K24 TRAIN −28 ·… |
 | 2026-10-29 | REJECT | crypto | [crypto-rv-jump-results-2026-10.md](crypto-rv-jump-results-2026-10.md) | 신호: 없음 · 경제성: 미달. V1(실현분산) TRAIN t −0.32 · V2(점프) TRAIN t +0.41 → 둘 다 바닥선 2.23 아래, REJECT. 평균 스프레드는 구간·연도마다 부호… |
 | 2026-10-20 | REJECT | kr | [order-contract-size-results-2026-10.md](order-contract-size-results-2026-10.md) | 신호: 없음(반대 방향) · 경제성: 미달. 큰 수주 60거래일 정보 TRAIN −34bp(p 0.997) · VALID −470bp · TEST −410bp — 같은 해의 다른 수주보다도 나쁘다.… |
@@ -245,42 +250,49 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (159)
+## 사전등록 문서(결과는 별도 파일) (166)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
-| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-forward-preregistration-2026-10.md](coinbase-premium-negz-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 이하로 떨어진 뒤 24시간 BTC 가 약한가(2018~22·2024~ 약세, 2023 반대였던 것이 앞으로의 사… |
-| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-preregistration-2026-10.md](coinbase-premium-negz-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 말고 더 얕거나(−1·−1.5) 더 깊을 때(−2.5·−3·−4), 그 뒤 24·72시간 BTC 가 빠지는가 —… |
-| 2026-10-30 | PREREGISTERED | crypto | [binance-perp-launch-preregistration-2026-10.md](binance-perp-launch-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 현물로 거래되던 코인에 바이낸스 무기한 선물이 새로 생겨 공매도가 가능해지면, 그 다음 1주·1달 현물이 BTC 대비 빠지는가(Miller… |
-| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-forward-preregistration-2026-10.md](binance-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "백테스트(BL7 ROBUST·강건성 PASS)가 본 '바이낸스 신규 상장 코인의 첫 주 약세'가 2026-10 이후 새 상장에서도 이어지는가".… |
-| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-upbit-preregistration-2026-10.md](binance-listing-upbit-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 업비트 원화 가격에서도 보이는가 — 국내 사용자의 '상장 첫 주 매수 회피' 근거… |
-| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-robustness-preregistration-2026-10.md](binance-listing-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "BL7(바이낸스 신규 상장 7일 약세, ROBUST)이 알트 전체의 약세·몇몇 달·진입 시점 하나에 기대지 않는가". BL7 결과를 본 뒤의 점… |
-| 2026-10-30 | PREREGISTERED | crypto | [coinbase-listing-preregistration-2026-10.md](coinbase-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 바이낸스에서 거래되던 코인이 코인베이스에 새로 상장되면('코인베이스 효과') 그 다음 날부터 1주·1달 BTC 대비 어느 쪽으로 가는가".… |
-| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-perp-preregistration-2026-10.md](binance-listing-perp-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 7일 약세(BL7 ROBUST)를 무기한 선물 숏으로 실제로 잡을 수 있는가 — 무기한이 있는 비율, 펀딩 비용을 내고도 남… |
-| 2026-10-30 | PREREGISTERED | crypto | [btc-nasdaq-divergence-preregistration-2026-10.md](btc-nasdaq-divergence-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난 한 주 나스닥이 설명하는 만큼보다 크게 뒤처지거나(앞서거나) 했을 때, 다음 1·5거래일 그 괴리를 되돌리는가". 사용자 위임(… |
-| 2026-10-30 | PREREGISTERED | crypto | [coinbase-volume-share-preregistration-2026-10.md](coinbase-volume-share-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "전 세계 BTC 거래 중 코인베이스(미국) 비중이 평소보다 크게 늘거나 줄 때 다음 1·7일 BTC 는 어느 쪽으로 가는가". 가격 괴리(코인베… |
-| 2026-10-30 | PREREGISTERED | crypto | [crypto-volume-premium-preregistration-2026-10.md](crypto-volume-premium-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 거래가 평소보다 크게 몰린 알트가 다음 주 다른 알트보다 더 오르는가(고거래량 수익 프리미엄, Gervais·Kaniel·Mingelgr… |
-| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-xs-preregistration-2026-10.md](coinbase-premium-xs-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 날 코인베이스에서 상대적으로 더 비싸게(미국 수요가 더 몰려) 거래되는 알트가 다음 24시간 다른 알트보다 더 오르는가". 유일하게 통과한… |
-| 2026-10-30 | PREREGISTERED | crypto | [crypto-tsmom-preregistration-2026-10.md](crypto-tsmom-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난주(지난 4주) 올랐으면 다음 주도 오르는가 — 크립토 시계열 모멘텀(Liu·Tsyvinski 2021)이 2018~ 바이낸스 자… |
-| 2026-10-30 | PREREGISTERED | crypto | [crypto-calendar-preregistration-2026-10.md](crypto-calendar-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "주식의 월말·월초 효과가 비트코인에도 있는가, Deribit 월물 옵션 만기 앞뒤 이틀에 BTC 가 평소와 다르게 움직이는가". 사용자 위임(2… |
-| 2026-10-30 | PREREGISTERED | crypto | [alt-kimchi-relative-preregistration-2026-10.md](alt-kimchi-relative-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트에서 어떤 알트가 BTC 대비 평소보다 비싸게(싸게) 거래될 때, 그 알트가 다음 1·7일 업비트에서 상대적으로 빠지는가(오르는가)". 김… |
-| 2026-10-30 | PREREGISTERED | crypto | [cme-gap-preregistration-2026-10.md](cme-gap-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "'CME 갭은 메워진다'는 통념대로, 주말 사이 벌어진 갭의 반대쪽으로 재개 시각에 들어가면 다음 24시간·그 주 동안 비용 뒤 이득인가". 사… |
-| 2026-10-30 | PREREGISTERED | crypto | [fear-greed-preregistration-2026-10.md](fear-greed-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "크립토 공포·탐욕 지수가 '극단적 공포'면 사고 '극단적 탐욕'이면 판다는 통념이 다음 1·7일 BTC 에서 비용 뒤에도 맞는가". 사용자 위임… |
-| 2026-10-30 | PREREGISTERED | crypto | [hash-ribbons-preregistration-2026-10.md](hash-ribbons-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "채굴자 항복 국면(해시레이트 30일선이 60일선 아래)에 BTC 수익이 달라서, 국면에 따라 들고 있거나 쉬면 위험 대비 성과가 나아지는가". … |
+| 2026-10-31 | PREREGISTERED | us | [vix-term-t2-forward-preregistration-2026-10.md](vix-term-t2-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 TRAIN 은 실패했지만 VALID·TEST 에서 샤프·낙폭이 보유보다 나았던 VIX 기간구조 T2 규칙이, 아직 보지 않은 앞으… |
+| 2026-10-31 | PREREGISTERED | us | [vix-term-structure-preregistration-2026-10.md](vix-term-structure-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "VIX 기간구조가 역전되거나(단기 VIX ≥ 3개월 VIX) 평소보다 가파를 때 S&P500 선물을 비우면, 늘 들고 있는 것보다 위험 대비 수… |
+| 2026-10-31 | PREREGISTERED | kr | [short-balance-dtc-preregistration-2026-10.md](short-balance-dtc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "공매도 '잔고'가 평소 거래량의 며칠치인지(days-to-cover), 그리고 한 달 사이 잔고가 크게 늘거나 줄었는지가 다음 20거래일 수익을… |
+| 2026-10-31 | PREREGISTERED | kr | [investor-type-flow-preregistration-2026-10.md](investor-type-flow-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "외국인·기관 합계가 아니라 기타법인(자사주·대주주 법인 포함)·연기금·투신·사모가 각각 한 달 동안 거래대금 대비 많이 순매수한 종목이, 다음 … |
+| 2026-10-31 | PREREGISTERED | us | [champion-shortterm-usfut-preregistration-2026-10.md](champion-shortterm-usfut-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주에서 7셀 모두 신호가 없던 대회 우승자·고전 단기 기법 4종(윌리엄스 변동성 돌파· 터틀 수프·NR7·홀리 그레일)이, 비용이 낮은… |
+| 2026-10-31 | PREREGISTERED | kr | [champion-shortterm-kr-preregistration-2026-10.md](champion-shortterm-kr-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "선물 트레이딩 대회 우승자(래리 윌리엄스, 1987 로빈스 월드컵)의 변동성 돌파와 고전 단기 기법(래쉬키·코너스 『Street Smarts』의… |
 | 2026-10-30 | PREREGISTERED | crypto | [upbit-turnover-preregistration-2026-10.md](upbit-turnover-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 개인 매매가 평소보다 크게 몰릴 때(전 세계 BTC 거래 중 업비트 비중, 업비트 안 알트 쏠림) 다음 7일 BTC 는 어느 쪽으로 가는가… |
-| 2026-10-30 | PREREGISTERED | crypto | [crypto-dvol-preregistration-2026-10.md](crypto-dvol-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인 옵션 시장의 내재변동성(DVOL)이 높을 때 쉬면(V1) 위험 대비 성과가 나아지는가, 내재 − 실현 변동성 차(V2)나 DVOL 급변… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-forward-preregistration-2026-10.md](stablecoin-supply-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인 발행량이 평소보다 크게 늘면 다음 1·7일 BTC 가 오르고(줄면 내리고), 그것이 앞으로의 자료에서도 비용 뒤 양인가". 백테스트… |
 | 2026-10-30 | PREREGISTERED | crypto | [stablecoin-supply-btc-preregistration-2026-10.md](stablecoin-supply-btc-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "스테이블코인(USDT·USDC 등) 발행이 평소보다 크게 늘거나 줄어든 주 다음 1·7일, BTC 는 그 방향(늘면 오름)으로 가는가". 코인베… |
+| 2026-10-30 | PREREGISTERED | crypto | [hash-ribbons-preregistration-2026-10.md](hash-ribbons-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "채굴자 항복 국면(해시레이트 30일선이 60일선 아래)에 BTC 수익이 달라서, 국면에 따라 들고 있거나 쉬면 위험 대비 성과가 나아지는가". … |
+| 2026-10-30 | PREREGISTERED | crypto | [fear-greed-preregistration-2026-10.md](fear-greed-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "크립토 공포·탐욕 지수가 '극단적 공포'면 사고 '극단적 탐욕'이면 판다는 통념이 다음 1·7일 BTC 에서 비용 뒤에도 맞는가". 사용자 위임… |
+| 2026-10-30 | PREREGISTERED | crypto | [crypto-volume-premium-preregistration-2026-10.md](crypto-volume-premium-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 거래가 평소보다 크게 몰린 알트가 다음 주 다른 알트보다 더 오르는가(고거래량 수익 프리미엄, Gervais·Kaniel·Mingelgr… |
+| 2026-10-30 | PREREGISTERED | crypto | [crypto-tsmom-preregistration-2026-10.md](crypto-tsmom-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난주(지난 4주) 올랐으면 다음 주도 오르는가 — 크립토 시계열 모멘텀(Liu·Tsyvinski 2021)이 2018~ 바이낸스 자… |
+| 2026-10-30 | PREREGISTERED | crypto | [crypto-dvol-preregistration-2026-10.md](crypto-dvol-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인 옵션 시장의 내재변동성(DVOL)이 높을 때 쉬면(V1) 위험 대비 성과가 나아지는가, 내재 − 실현 변동성 차(V2)나 DVOL 급변… |
+| 2026-10-30 | PREREGISTERED | crypto | [crypto-calendar-preregistration-2026-10.md](crypto-calendar-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "주식의 월말·월초 효과가 비트코인에도 있는가, Deribit 월물 옵션 만기 앞뒤 이틀에 BTC 가 평소와 다르게 움직이는가". 사용자 위임(2… |
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-volume-share-preregistration-2026-10.md](coinbase-volume-share-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "전 세계 BTC 거래 중 코인베이스(미국) 비중이 평소보다 크게 늘거나 줄 때 다음 1·7일 BTC 는 어느 쪽으로 가는가". 가격 괴리(코인베… |
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-xs-preregistration-2026-10.md](coinbase-premium-xs-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 날 코인베이스에서 상대적으로 더 비싸게(미국 수요가 더 몰려) 거래되는 알트가 다음 24시간 다른 알트보다 더 오르는가". 유일하게 통과한… |
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-preregistration-2026-10.md](coinbase-premium-negz-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 말고 더 얕거나(−1·−1.5) 더 깊을 때(−2.5·−3·−4), 그 뒤 24·72시간 BTC 가 빠지는가 —… |
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-premium-negz-forward-preregistration-2026-10.md](coinbase-premium-negz-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 프리미엄 z 가 −2 이하로 떨어진 뒤 24시간 BTC 가 약한가(2018~22·2024~ 약세, 2023 반대였던 것이 앞으로의 사… |
+| 2026-10-30 | PREREGISTERED | crypto | [coinbase-listing-preregistration-2026-10.md](coinbase-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 바이낸스에서 거래되던 코인이 코인베이스에 새로 상장되면('코인베이스 효과') 그 다음 날부터 1주·1달 BTC 대비 어느 쪽으로 가는가".… |
+| 2026-10-30 | PREREGISTERED | crypto | [cme-gap-preregistration-2026-10.md](cme-gap-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "'CME 갭은 메워진다'는 통념대로, 주말 사이 벌어진 갭의 반대쪽으로 재개 시각에 들어가면 다음 24시간·그 주 동안 비용 뒤 이득인가". 사… |
+| 2026-10-30 | PREREGISTERED | crypto | [btc-nasdaq-divergence-preregistration-2026-10.md](btc-nasdaq-divergence-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "비트코인이 지난 한 주 나스닥이 설명하는 만큼보다 크게 뒤처지거나(앞서거나) 했을 때, 다음 1·5거래일 그 괴리를 되돌리는가". 사용자 위임(… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-perp-launch-preregistration-2026-10.md](binance-perp-launch-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "이미 현물로 거래되던 코인에 바이낸스 무기한 선물이 새로 생겨 공매도가 가능해지면, 그 다음 1주·1달 현물이 BTC 대비 빠지는가(Miller… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-upbit-preregistration-2026-10.md](binance-listing-upbit-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 업비트 원화 가격에서도 보이는가 — 국내 사용자의 '상장 첫 주 매수 회피' 근거… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-robustness-preregistration-2026-10.md](binance-listing-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "BL7(바이낸스 신규 상장 7일 약세, ROBUST)이 알트 전체의 약세·몇몇 달·진입 시점 하나에 기대지 않는가". BL7 결과를 본 뒤의 점… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-preregistration-2026-10.md](binance-listing-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스에 새로 상장된 코인은 상장 다음 날부터 1주·1달 동안 BTC 보다 덜 오르는가(더 오르는가)". 업비트 상장 연구(U1 상장 뒤 7일… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-perp-preregistration-2026-10.md](binance-listing-perp-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "바이낸스 신규 상장 7일 약세(BL7 ROBUST)를 무기한 선물 숏으로 실제로 잡을 수 있는가 — 무기한이 있는 비율, 펀딩 비용을 내고도 남… |
+| 2026-10-30 | PREREGISTERED | crypto | [binance-listing-forward-preregistration-2026-10.md](binance-listing-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "백테스트(BL7 ROBUST·강건성 PASS)가 본 '바이낸스 신규 상장 코인의 첫 주 약세'가 2026-10 이후 새 상장에서도 이어지는가".… |
+| 2026-10-30 | PREREGISTERED | crypto | [alt-kimchi-relative-preregistration-2026-10.md](alt-kimchi-relative-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트에서 어떤 알트가 BTC 대비 평소보다 비싸게(싸게) 거래될 때, 그 알트가 다음 1·7일 업비트에서 상대적으로 빠지는가(오르는가)". 김… |
 | 2026-10-29 | PREREGISTERED | crypto | [upbit-market-events-forward-preregistration-2026-10.md](upbit-market-events-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "업비트가 투자유의·주의를 건 종목은 그 뒤 시장보다 약한가(회피 필터 근거가 되는가)". 과거 지정 이력은 업비트 공지에만 있고 이 환경에서 공… |
 | 2026-10-29 | PREREGISTERED | kr | [kr-static-vi-proxy-preregistration-2026-10.md](kr-static-vi-proxy-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 시가 대비 ±10%(정적 VI 발동 조건)에 처음 닿은 종목은 VI 가 풀린 뒤 종가까지 그 방향으로 더 가는가, 되돌리는가". 실제 VI… |
-| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-shadow-exits-preregistration-2026-10.md](coinbase-premium-paper-shadow-exits-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 매수를 48·72시간 뒤나 z ≤ −0.5 에 팔았다면 24시간 청산보다 나았는가"를 앞으로의 자료로 잰다. 과거 자료의 청산 비교(98b… |
 | 2026-10-29 | PREREGISTERED | crypto | [kimchi-premium-hourly-preregistration-2026-10.md](kimchi-premium-hourly-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "한국 프리미엄(김치 프리미엄)이 평소보다 크게 높거나 낮을 때 BTC 가 다음 4·24시간 어느 쪽으로 가는가". 김치 프리미엄 30일 연구(k… |
-| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-grid-preregistration-2026-10.md](coinbase-premium-grid-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "사는 점수(z 문턱)와 파는 점수·시간을 여러 가지로 바꾸면 지금 규칙(z ≥ 2 · 24시간)보다 확실히 나은 조합이 있는가". 사용자 요청(… |
-| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-exit-rule-preregistration-2026-10.md](coinbase-premium-exit-rule-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "z ≥ 2 에서 산 비트코인을 24시간 뒤 파는 것보다, 프리미엄 점수(z)가 어느 수준까지 내려왔을 때 파는 것이 나은가". 사용자 요청(20… |
-| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-sleeve-preregistration-2026-10.md](coinbase-premium-paper-sleeve-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "강건성 점검(K1~K4)·알트 재현을 통과한 C24 규칙이 앞으로(2026-10 이후) 업비트 체결에서도 비용 뒤 양인가". 사용자 GO(202… |
+| 2026-10-29 | PREREGISTERED | crypto | [crypto-rv-jump-preregistration-2026-10.md](crypto-rv-jump-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 실현분산(특히 점프 성분)이 큰 코인은 다음 주 수익이 낮은가(Lee & Wang, JFQA 2025)". 사용자 요청 "깃허브에서 안 … |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-robustness-preregistration-2026-10.md](coinbase-premium-robustness-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "coinbase-premium C24 ECONOMIC 이 (A) 무작위 진입·월 군집·업비트 체결에서도 버티고 (B) 다른 코인에서도 재현되는가… |
 | 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-preregistration-2026-10.md](coinbase-premium-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "코인베이스 가격이 바이낸스보다 평소보다 크게 높을(낮을) 때 — 미국 수요의 흔적 — BTC 가 다음 4·24시간 그 방향으로 가는가". 사용자… |
-| 2026-10-29 | PREREGISTERED | crypto | [crypto-rv-jump-preregistration-2026-10.md](crypto-rv-jump-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지난주 실현분산(특히 점프 성분)이 큰 코인은 다음 주 수익이 낮은가(Lee & Wang, JFQA 2025)". 사용자 요청 "깃허브에서 안 … |
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-sleeve-preregistration-2026-10.md](coinbase-premium-paper-sleeve-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "강건성 점검(K1~K4)·알트 재현을 통과한 C24 규칙이 앞으로(2026-10 이후) 업비트 체결에서도 비용 뒤 양인가". 사용자 GO(202… |
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-paper-shadow-exits-preregistration-2026-10.md](coinbase-premium-paper-shadow-exits-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "같은 매수를 48·72시간 뒤나 z ≤ −0.5 에 팔았다면 24시간 청산보다 나았는가"를 앞으로의 자료로 잰다. 과거 자료의 청산 비교(98b… |
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-grid-preregistration-2026-10.md](coinbase-premium-grid-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "사는 점수(z 문턱)와 파는 점수·시간을 여러 가지로 바꾸면 지금 규칙(z ≥ 2 · 24시간)보다 확실히 나은 조합이 있는가". 사용자 요청(… |
+| 2026-10-29 | PREREGISTERED | crypto | [coinbase-premium-exit-rule-preregistration-2026-10.md](coinbase-premium-exit-rule-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "z ≥ 2 에서 산 비트코인을 24시간 뒤 파는 것보다, 프리미엄 점수(z)가 어느 수준까지 내려왔을 때 파는 것이 나은가". 사용자 요청(20… |
 | 2026-10-28 | PREREGISTERED | kr | [day-trader-scan-kr-backtest-preregistration-2026-10.md](day-trader-scan-kr-backtest-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너의 셋업 5종이 국내 일봉에서도 다음 날 시가에 사서 종가에 팔면 같은 날 시장 종목보다 더 오르는… |
 | 2026-10-28 | PREREGISTERED | us | [day-trader-scan-forward-preregistration-2026-10.md](day-trader-scan-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "인스타 릴스가 소개한 Claude 일봉 스캐너(day-trader-skill)가 장 전에 뽑는 셋업 후보를, 다음 거래일 시가에 사서 종가에 팔… |
 | 2026-10-20 | PREREGISTERED | kr | [order-contract-size-preregistration-2026-10.md](order-contract-size-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 공시·뉴스 점수화 A/B(1ee09ba7)에서 수주 제목 사건은 20일 −63bp(방향 반대)였고 결과 문서가 "제목만 있고 금액·매출 비중이 없어 큰 수… |
@@ -453,7 +465,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (240)
+## 미분류 (239)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -648,7 +660,6 @@
 |  |  | kr | [infinite-buying-tqqq-version-final-comparison-2026-09-12.md](infinite-buying-tqqq-version-final-comparison-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md](infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-soxl-version-final-comparison-2026-09-12.md](infinite-buying-soxl-version-final-comparison-2026-09-12.md) |  |
-|  |  | kr | [infinite-buying-rule-spec-2026-09.md](infinite-buying-rule-spec-2026-09.md) |  |
 |  |  | kr | [infinite-buying-reverse-mode-sensitivity-2026-09-12.md](infinite-buying-reverse-mode-sensitivity-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-path-decomposition-2026-09-12.md](infinite-buying-path-decomposition-2026-09-12.md) |  |
