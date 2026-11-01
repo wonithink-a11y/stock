@@ -147,6 +147,8 @@ Validated against
             NR5 +14bp < 5세션 무조건 보유. 대조(같은 날 4종 시가 진입)가 체결 프리미엄만큼 불리 — 사후 메모 §4. findings/champion-shortterm-usfut-results-2026-10.md.
   안 한다   ★ 같은 4종 KOSPI200 선물 일봉(11-01, 9ac756b·3ce8793, 비용 1.4bp, 대조 = 구간 무조건 보유) — VB·VBM·NR 4셀 REJECT · TS·HG 판정 불가(신호 16년 63·28회).
             VB TRAIN t 1.61 < 2.57 이나 VALID·TEST net +12.6·+17.2bp(2025~ +50 쏠림, 2024 −3) — 사후 관찰, 쓰려면 forward 사전등록으로만. findings/champion-shortterm-k200fut-results-2026-11.md.
+  안 한다   ★ 같은 기법 국내 주식형 ETF 5셀(11-01, 26a2331·a275da6, 5bp, VB 제외) — NR 2셀 REJECT(NR1 TRAIN 초과 −11.7bp t −3.61, 돌파가 오히려 덜 오름) · TS·HG 판정 불가.
+            네 시장 모두 신호 없음 → 고전 단기 기법 라인 종결 권고. findings/champion-shortterm-kretf-results-2026-11.md.
   안 한다   ★ 공매도 잔고 회전일수(DTC)·잔고 변화 → 20거래일(10-31, 36ad6998·ac887a6a, A8 T+2 지연) — 3셀 REJECT·신호 없음(바닥선 2.46). DTC 상위 10% TRAIN info −14bp t −0.32 —
             '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
   안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).
