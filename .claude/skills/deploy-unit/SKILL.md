@@ -60,20 +60,19 @@ PrivateTmp=yes
 비어 있으면 1:1 방(`TELEGRAM_CHAT_ID`)으로 폴백한다. 새 알림이 어느 방이어야 하는지 모르겠으면 **내 권고를 붙여 사용자에게 묻는다**.
 방이 슈퍼그룹이 되면 ID 가 바뀌어 끊긴다.
 
-## 5. 설치 (사용자에게 한 줄씩, 한 블록에 명령 하나)
+## 5. 설치 (사용자에게 명령 하나 — PowerShell 에 그대로 붙여 넣는 형태)
 
-```bash
-cd ~/collector && git pull
+`deploy/install-unit.sh <이름>` 이 git pull → ReadWritePaths 폴더 만들기 → 유닛 복사 → daemon-reload → 타이머 enable --now → 1회 실행 → 로그 끝을 한 번에 한다.
+**큰따옴표·heredoc 을 쓰지 않는다**(PowerShell 이 ssh '…' 안의 큰따옴표를 지운다, 11-01 실측).
+
 ```
-```bash
-sudo cp deploy/<이름>.service deploy/<이름>.timer /etc/systemd/system/ && sudo systemctl daemon-reload
+ssh -t stock-new 'bash ~/collector/deploy/install-unit.sh <이름>'
 ```
-```bash
-sudo systemctl enable --now <이름>.timer
-```
-```bash
-sudo systemctl start <이름>.service && journalctl -u <이름> -n 30 --no-pager
-```
+
+설치 스크립트가 VM 에 아직 없을 때(그날 06:30 pull 전에 처음 쓰는 경우)만 앞에 pull 을 붙인다:
+`ssh -t stock-new 'cd ~/collector && git pull -q && bash deploy/install-unit.sh <이름>'`.
+주문·실계좌 유닛(autotrader·rv20·infinite-buying·kis-portfolio·crypto-real-holdings)은 스크립트가 거부한다 — 그건 수동 절차대로.
+설치 뒤 확인은 클라우드에서 `python scripts/research-data.py status <이름>`.
 
 `.env` 에 필요한 키(네이버·DART·텔레그램 방 ID 등)는 사용자가 직접 넣는다. 내가 키 값을 다루지 않는다.
 
