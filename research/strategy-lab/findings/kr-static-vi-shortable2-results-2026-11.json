@@ -1,0 +1,129 @@
+{
+ "a8_last": "2026-08-14",
+ "n_days": 247,
+ "threshold_won": 100000000.0,
+ "cells": {
+  "SH2": {
+   "verdict": "REJECT",
+   "sign": -1,
+   "t_train": -1.84,
+   "TRAIN": {
+    "days": 131,
+    "bp": -28.0,
+    "t": -1.84
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -105.7,
+    "t": -3.44
+   },
+   "TEST": {
+    "days": 53,
+    "bp": -188.0,
+    "t": -5.16
+   },
+   "oos_gross_bp": 144.0,
+   "oos_gross_ci95": [
+    99.0,
+    193.5
+   ],
+   "net33_bp": 110.5,
+   "net67_bp": 77.0,
+   "t_net33": 4.64,
+   "breakeven_rt_bp": 144.0,
+   "events": 7305,
+   "events_per_day": 29.57,
+   "days_with_event_pct": 99.2,
+   "exit_1519_daily_bp_dir": 89.1,
+   "ex_semis_daily_bp_dir": 85.0,
+   "net33_after_carry": {
+    "3%": 109.5,
+    "10%": 107.5,
+    "30%": 98.5
+   }
+  },
+  "NS2": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -15.94,
+   "TRAIN": {
+    "days": 131,
+    "bp": -179.3,
+    "t": -15.94
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -185.0,
+    "t": -7.73
+   },
+   "TEST": {
+    "days": 53,
+    "bp": -252.0,
+    "t": -8.77
+   },
+   "oos_gross_bp": 216.1,
+   "oos_gross_ci95": [
+    179.6,
+    253.1
+   ],
+   "net33_bp": 182.6,
+   "net67_bp": 149.1,
+   "t_net33": 9.77,
+   "breakeven_rt_bp": 216.1,
+   "events": 15272,
+   "events_per_day": 61.83,
+   "days_with_event_pct": 99.2,
+   "exit_1519_daily_bp_dir": 221.9,
+   "ex_semis_daily_bp_dir": 199.3,
+   "net33_after_carry": {
+    "3%": 181.6,
+    "10%": 179.6,
+    "30%": 170.6
+   }
+  },
+  "SH2_L": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -2.14,
+   "TRAIN": {
+    "days": 131,
+    "bp": -46.3,
+    "t": -2.14
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -149.3,
+    "t": -4.05
+   },
+   "TEST": {
+    "days": 53,
+    "bp": -230.0,
+    "t": -5.14
+   },
+   "oos_gross_bp": 186.8,
+   "oos_gross_ci95": [
+    130.1,
+    246.1
+   ],
+   "net33_bp": 153.3,
+   "net67_bp": 119.8,
+   "t_net33": 5.32,
+   "breakeven_rt_bp": 186.8,
+   "events": 3023,
+   "events_per_day": 12.24,
+   "days_with_event_pct": 99.2,
+   "exit_1519_daily_bp_dir": 119.2,
+   "ex_semis_daily_bp_dir": 116.3,
+   "net33_after_carry": {
+    "3%": 152.3,
+    "10%": 150.3,
+    "30%": 141.3
+   }
+  }
+ },
+ "record": {
+  "sh2_share_all_pct": 32.4,
+  "sh2_share_L_pct": 72.1
+ },
+ "bar": 2.04
+}
