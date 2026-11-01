@@ -308,7 +308,7 @@ def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -
             + ("".join(rows) or "<tr><td colspan=5 class=mut>아직 매도 체결 없음</td></tr>") + "</table></div></div>")
 
 
-AUTO_TXT = {"off": "자동 꺼짐", "dry": "자동 dry-run", "execute": "자동 주문"}
+AUTO_TXT = {"off": "자동주문 꺼짐", "dry": "자동주문 꺼짐 · 계획만", "execute": "자동주문 켜짐"}
 STRAT_KO = {"plan_trader": "계획 매매", "infinite_buying": "무한매수", "target_weights": "목표 비중"}
 HEARTBEAT_STALE_SEC = 12 * 60        # run-due 는 5분마다 — 두 번 넘게 빠지면 '타이머가 안 돈다'
 
@@ -338,7 +338,7 @@ def server_card(srv: str) -> str:
 def switch_pill(c: dict, server_on: bool) -> str:
     auto = c.get("auto", "off")
     if kill_file(c).exists():
-        return '<span class="pill bad">킬 ON</span>'
+        return '<span class="pill bad">긴급 정지</span>'
     if auto == "execute":
         return '<span class="pill ok">주문 켜짐</span>' if server_on else '<span class="pill warn">주문 대기(서버 허용 꺼짐)</span>'
     return '<span class="pill">계획만</span>' if auto == "dry" else '<span class="pill">꺼짐</span>'
@@ -493,7 +493,7 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: 
 <a class="go" href="{base}/details?p={quote(name)}">{ic("chev")}</a></div>
 <span class="pill acc">{E(str(cfg.get("strategy")))}</span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span>
 <span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))} {E(",".join(cfg.get("run_at") or []))}</span>
-{'<span class="pill bad">킬 ON</span>' if v["kill"] else ""}
+{'<span class="pill bad">긴급 정지</span>' if v["kill"] else ""}
 {"" if hide_money else render_money_rows(snap)}
 {"" if hide_money else held_tbl}
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {cnt("placed")} · <span class="{"bad" if cnt("errors") else ""}">{cnt("errors")}</span></span></div>
@@ -530,7 +530,7 @@ def render_dashboard(v: dict, csrf: str, base: str = "", strict: bool = False, e
         return f'<div class="kpi"><div class="l"><span class="ic {cls}">{ic(i)}</span>{label}</div><div class="v">{val}</div></div>'
     err = f'<span class="{"bad" if a["errors"] else ""}">{a["errors"]}</span>'
     kill = (f'<span class="pill {"bad" if a["kill"] else "ok"}" style="padding:8px 14px;margin:0">{ic("shield")}'
-            f'{"킬 스위치 ON" if a["kill"] else "킬 스위치 OFF"}</span>')
+            f'{"긴급 정지 중" if a["kill"] else "정상"}</span>')
     body = f'''<div class="card"><div class="stat">{kpi("play", "g", "오늘 실행", a["runs"])}{kpi("clip", "b", "접수된 주문", a["placed"])}
 {kpi("alert", "r" if a["errors"] else "y", "오류", err)}<div class="kill">{kill}</div></div></div>
 {top}{extra}
@@ -640,7 +640,7 @@ def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = 
     on = kill_file(cfg).exists()
     hid = f'<input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}"><input type="hidden" name="ret" value="{E(ret)}">'
     if not on:
-        act = f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">켜기</button></form>'
+        act = f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">긴급 정지</button></form>'
     elif has_pk:
         act = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}">'
                f'<input type="hidden" name="op" value="resume"><button>🔑 해제</button><div class="pk-msg"></div></form>')
@@ -649,7 +649,7 @@ def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = 
     else:
         act = (f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="resume">'
                '<input name="code" placeholder="인증앱 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required><button>해제</button></form>')
-    st = '🛑 킬 스위치 켜짐' if on else '✅ 킬 스위치 꺼짐'
+    st = '🛑 긴급 정지 중' if on else '✅ 정상'
     return f'<div class="kbar {"on" if on else "off"}"><span class="ks">{st}</span>{act}</div>'
 
 
@@ -1518,10 +1518,10 @@ class WebApp:
             kf = kill_file(c)
             kf.parent.mkdir(parents=True, exist_ok=True)
             kf.write_text(now.isoformat(), encoding="utf-8")
-            msg = "킬 스위치를 켰습니다 — 이 프로필의 주문이 멈춥니다"
+            msg = "긴급 정지를 켰습니다 — 이 프로필의 주문이 멈춥니다"
         else:
             kill_file(c).unlink(missing_ok=True)
-            msg = "킬 스위치를 해제했습니다"
+            msg = "긴급 정지를 해제했습니다"
         self._log(ip, f"action:{name}:{op}{'-live' if live else ''}")
         return msg
 
