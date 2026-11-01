@@ -384,6 +384,8 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
     from .config import current_notional
     from .pnl import load_book
     out = [exchange_tabs(base, counts or {}, ex)] + ([f'<div class="warn">{E(msg)}</div>'] if msg else [])
+    if items:                                                           # 긴급 정지는 거래소 탭마다 하나 — 그 거래소의 프로필 전부
+        out.append(kill_bar([c for c, _ in items], "*" + ex, csrf, base, pk, f"crypto-{ex}"))
     sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
     for cfg, v in items:
         name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
@@ -425,7 +427,6 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
             held_txt = "보유 " + (E(str(pos.get("qty"))) if pos else "없음")
         big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회"}</small></div>'
         facts = "" if hide_money else f'<div class="mut">{last_txt} · {held_txt} · 한도 {pct:.0f}%</div>'
-        out.append(kill_card(cfg, csrf, base, pk, f"crypto-{xm}"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(sym_txt)}</span></span>
 <span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></div>
@@ -434,7 +435,7 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
 <div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
 {"".join(rows) or '<span class="mut">없음</span>'}</div>''')
     if not items:
-        out.append('<div class="card mut">{"빗썸" if ex == "BITHUMB" else "업비트"} 프로필이 없다 — 서버 프로필에 broker {"bithumb" if ex == "BITHUMB" else "upbit"} 를 만든다(README §{"12" if ex == "BITHUMB" else "11"}).</div>')
+        out.append('<div class="card mut">프로필 없음</div>')
     return _page("크립토", "".join(out) + (sc if pk else ""), base=base, sub="크립토", tab="crypto")
 
 
@@ -634,10 +635,11 @@ def render_settings(csrf: str, base: str, n_pk: int, pk_disabled: str) -> bytes:
     return _page("설정", body, base=base, sub="설정", tab="set")
 
 
-def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = "") -> str:
-    """킬 스위치 한 줄 막대 — 켜짐: 빨강 '🛑 킬 스위치 켜짐' + 해제, 꺼짐: 초록 '✅ 킬 스위치 꺼짐' + 켜기(확인 없이 즉시)."""
-    name, live = str(cfg.get("profile", "")), cfg.get("mode") == "live"
-    on = kill_file(cfg).exists()
+def kill_bar(cfgs: List[dict], name: str, csrf: str, base: str, has_pk: bool = False, ret: str = "") -> str:
+    """긴급 정지 한 줄 막대 — name 이 프로필 이름이면 그 프로필, "*UPBIT"·"*BITHUMB" 이면 그 거래소의 프로필 전부.
+    정지 중(하나라도): 빨강 '🛑 긴급 정지 중' + 해제 / 평소: 초록 '✅ 정상' + 긴급 정지(확인 없이 즉시)."""
+    live = any(c.get("mode") == "live" for c in cfgs)
+    on = any(kill_file(c).exists() for c in cfgs)
     hid = f'<input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}"><input type="hidden" name="ret" value="{E(ret)}">'
     if not on:
         act = f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">긴급 정지</button></form>'
@@ -651,6 +653,10 @@ def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = 
                '<input name="code" placeholder="인증앱 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required><button>해제</button></form>')
     st = '🛑 긴급 정지 중' if on else '✅ 정상'
     return f'<div class="kbar {"on" if on else "off"}"><span class="ks">{st}</span>{act}</div>'
+
+
+def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = "") -> str:
+    return kill_bar([cfg], str(cfg.get("profile", "")), csrf, base, has_pk, ret)
 
 
 def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False, with_kill: bool = True,
@@ -686,10 +692,10 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
         hist = "".join(f'<div class="mut">{E(str(h.get("at", ""))[:16].replace("T", " "))} · {h.get("prev") or 0:,.0f} → {h.get("notional_krw", 0):,}원</div>'
                        for h in notional_history(cfg))
         nform = (f'''<div class="row"><span>{amount_label(cfg)}</span><span>{"-" if cur is None else f"{cur:,.0f}원"}</span></div>
-<div class="mut">{NOTIONAL_MIN:,}~{NOTIONAL_MAX:,}원 · 다음 매수부터</div>{hist}''')
+{hist}''')
         if has_pk:
             nform += (f'''<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-notional">
-<input name="val" inputmode="numeric" placeholder="금액(원, 숫자만)" autocomplete="off" required>
+<input name="val" inputmode="numeric" placeholder="금액(원)" autocomplete="off" required>
 <input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 금액 변경</button><div class="pk-msg"></div></form>''')
         nform = f'<div style="margin-top:10px">{nform}</div>'
     kc = kill_card(cfg, csrf, base, has_pk) if with_kill else ""
@@ -700,7 +706,7 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
         cur_txt = " · ".join([f"{n[4:]} {cw.get(n, 0) * 100:.0f}%" for n in names] + [f"기타 {co * 100:.0f}%"])
         ins = "".join(f'<input name="w" inputmode="numeric" placeholder="{E(n[4:])} %" autocomplete="off" style="width:30%">' for n in names)
         ins += '<input name="w" inputmode="numeric" placeholder="기타 %" autocomplete="off" style="width:30%">'
-        wform = (f'<div class="mut">지금 {E(cur_txt)} · 합 100% 이하</div>'
+        wform = (f'<div class="mut">{E(cur_txt)}</div>'
                  + (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-weights">'
                     f'{ins}<button>🔑 비율 변경</button><div class="pk-msg"></div></form>' if has_pk else ""))
     if compact:                                         # 크립토 화면: 접어 두고 필요할 때만 연다(한 화면에 최대한)
@@ -1449,8 +1455,15 @@ class WebApp:
 
     OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume", "set-notional", "set-weights")
 
+    def _resolve(self, name: str, op: str = "kill") -> List[dict]:
+        """조작 대상 프로필 — 이름이 목록에 있는 것만(경로로 쓰지 않는다). "*UPBIT"·"*BITHUMB" 은 그 거래소의 크립토 프로필 전부(긴급 정지·해제만)."""
+        name = str(name or "")
+        if name.startswith("*"):
+            return [c for c in self.profiles() if name[1:] in ("UPBIT", "BITHUMB") and crypto_market(c) == name[1:]] if op in ("kill", "resume") else []
+        return [c for c in self.profiles() if c.get("profile") == name]
+
     def _action(self, name: str, op: str, code: str, ip: str, phrase: str = "", ret: str = ""):
-        match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
+        match = self._resolve(name, op)
         if not match or op not in self.OPS:
             return self._not_found()
         c = match[0]
@@ -1482,7 +1495,7 @@ class WebApp:
                 return back("인증앱 코드가 맞지 않습니다(방금 쓴 코드는 못 씁니다 — 새 코드를 기다리세요)")
             self.store.set_last_step(step)
             self.lockout.ok(ip)
-        return back(self._execute(c, name, op, ip))
+        return back([self._execute(x, str(x.get("profile")), op, ip) for x in match][0])
 
     def _back_url(self, name: str, m: str) -> str:
         self._msgs.add(m)                               # 이 서버가 낸 문구만 화면에 띄운다(주소창으로 가짜 안내를 못 넣게)
@@ -1600,7 +1613,7 @@ class WebApp:
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})
         if path == "/passkey/action-options":
-            match = [c for c in self.profiles() if c.get("profile") == j.get("p")]
+            match = self._resolve(j.get("p"), str(j.get("op")))
             if not match or j.get("op") not in self.OPS or j.get("op") == "kill" or not self._passkeys():
                 return self._json(404, {"error": "없음"})
             val = ""
@@ -1634,7 +1647,10 @@ class WebApp:
                 return self._json(401, {"error": "패스키 확인 실패"})
             self.lockout.ok(ip)
             self._bump(cid, count)
-            c = [x for x in self.profiles() if x.get("profile") == pend["p"]][0]
+            cs = self._resolve(pend["p"], pend["op"])
+            if not cs:
+                return self._json(404, {"error": "없음"})
+            c = cs[0]
             if is_live_order(c, pend["op"]) and pend["op"] != "resume" and str(j.get("phrase", "")).strip() != LIVE_PHRASE:   # 킬 해제는 지문만(11-01 사용자 결정)
                 return self._json(400, {"error": f"확인 문구({LIVE_PHRASE})를 정확히 입력"})
             val = None
@@ -1648,7 +1664,7 @@ class WebApp:
                     return self._json(403, {"error": "확인한 금액과 다릅니다 — 다시"})
                 if needs_big_raise_phrase(c, val) and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
                     return self._json(400, {"error": f"현재 금액의 {NOTIONAL_BIG_RAISE}배를 넘는 증액입니다 — 확인 문구({LIVE_PHRASE})를 정확히 입력"})
-            msg = self._execute(c, pend["p"], pend["op"], ip, val)
+            msg = [self._execute(x, str(x.get("profile")), pend["op"], ip, val) for x in cs][0]
             return self._json(200, {"redirect": self.base + self._back_url(pend["p"], msg)})
         return self._not_found()
 
