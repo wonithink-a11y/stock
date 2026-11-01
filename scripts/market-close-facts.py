@@ -100,6 +100,20 @@ def regular_chg(rows, expected):
     return pct(rows[-1][1], rows[-2][1])
 
 
+def after_move(close, price, at, expected):
+    """애프터마켓(NXT) 칸 — 정규장 종가 대비(전일 대비 아님, 인베스팅닷컴 '폐장후'와 같은 기준).
+    그날 15:30 뒤 체결이 있고 정규장 종가를 알 때만 낸다. 아니면 빈 dict(칸 숨김) — 정규장 값과 섞지 않는다(2026-11-01)."""
+    if close is None or price is None or not at:
+        return {}
+    try:
+        t = datetime.fromisoformat(at).astimezone(KST)
+    except ValueError:
+        return {}
+    if t.date() != expected or (t.hour, t.minute) <= (15, 30):
+        return {}
+    return {"afterPrice": price, "afterChg": round(price - close, 4), "afterPct": pct(price, close), "afterAtKST": t.isoformat(timespec="minutes")}
+
+
 def fix_top_chg(top, rows_by_code, expected):
     """시총 상위의 등락률을 KRX 정규장 종가 기준으로 바꾼다(2026-11-01, 출처 naver_daily_kr).
     네이버 fluctuationsRatio 는 18:10 엔 애프터마켓(NXT) 가격, 밤엔 '전일 종가'가 전날 애프터마켓 마지막 가격이라
@@ -108,11 +122,13 @@ def fix_top_chg(top, rows_by_code, expected):
     out = []
     for t in top:
         r = dict(t, chgPctNaver=t.get("chgPct"))
-        reg = regular_chg(rows_by_code.get(t.get("code")), expected)
+        rows = rows_by_code.get(t.get("code"))
+        reg = regular_chg(rows, expected)
         if reg is not None:
-            r["chgPct"], r["chgSource"] = reg, "naver-krx-day"
+            r["chgPct"], r["chgSource"], r["close"] = reg, "naver-krx-day", rows[-1][1]
         else:
             r["chgSource"] = "naver-integrated"
+        r.update(after_move(r.get("close"), r.pop("afterPrice", None), r.pop("afterAt", None), expected))
         out.append(r)
     return out
 
@@ -181,6 +197,7 @@ def naver_kr(expected):
             "program억원": {"bizdate": prog.get("bizdate"), "차익": num(prog.get("indexDifferenceReal")),
                            "비차익": num(prog.get("indexBiDifferenceReal")), "합계": num(prog.get("indexTotalReal"))},
             "topByMcap": [{"code": s.get("itemCode"), "name": s.get("stockName"), "chgPct": num(s.get("fluctuationsRatio")),
+                           "afterPrice": num(s.get("closePriceRaw")), "afterAt": s.get("localTradedAt"),   # 받는 시각의 통합(NXT 포함) 마지막 체결 — 애프터 칸용
                            "mcap조원": round(num(s.get("marketValueRaw")) / 1e12, 1) if s.get("marketValueRaw") else None}
                           for s in (integ.get("enrollStocks") or [])],
             "fresh": biz == expected.strftime("%Y%m%d") and poll.get("marketStatus") == "CLOSE",
@@ -487,6 +504,14 @@ def selftest():
     fx = fix_top_chg(top, {"005930": [(d29, 230500.0), (d30, 220500.0)], "000660": None}, d30)
     assert fx[0]["chgPct"] == -4.34 and fx[0]["chgSource"] == "naver-krx-day" and fx[0]["chgPctNaver"] == -3.88
     assert fx[1]["chgPct"] == -7.47 and fx[1]["chgSource"] == "naver-integrated"             # 못 구하면 네이버 값 그대로 + 표시
+    am = after_move(220500.0, 221000.0, "2026-10-30T18:09:00+09:00", d30)
+    assert am["afterChg"] == 500.0 and am["afterPct"] == 0.23 and am["afterAtKST"].startswith("2026-10-30T18:09")   # 정규장 종가 대비
+    assert after_move(220500.0, 221000.0, "2026-10-30T15:30:00+09:00", d30) == {}            # 15:30 이하 = 정규장 체결 → 애프터 아님
+    assert after_move(220500.0, 221000.0, "2026-10-29T19:00:00+09:00", d30) == {}            # 다른 날 체결
+    assert after_move(None, 221000.0, "2026-10-30T18:09:00+09:00", d30) == {}                # 정규장 종가 모름 → 칸 숨김
+    fx2 = fix_top_chg([{"code": "005930", "chgPct": -3.88, "afterPrice": 221000.0, "afterAt": "2026-10-30T18:09:00+09:00"}],
+                      {"005930": [(d29, 230500.0), (d30, 220500.0)]}, d30)
+    assert fx2[0]["close"] == 220500.0 and fx2[0]["afterPct"] == 0.23 and "afterAt" not in fx2[0]
     print("selftest OK")
 
 
