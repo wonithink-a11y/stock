@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, quote, urlsplit
 
-from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, check_notional, check_weights, current_notional,
+from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, amount_label, check_notional, check_weights, current_notional,
                      crypto_market, current_weights, kill_file, list_profiles, parse_weights, web_set_weights, weight_names,
                      load_profile, needs_big_raise_phrase, notional_history, parse_notional, state_dir, web_request_run,
                      web_set_auto, web_set_notional)
@@ -390,7 +390,7 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
         cw_ = cfg.get("strategy") == "crypto_weights"
         st = _load_json(sdir / ("strategy_crypto_weights.json" if cw_ else "strategy_coinbase_premium.json")) or {}
         pos = st.get("position") or {}
-        cur = float((cfg.get("params") or {}).get("capital_krw") or 0) or None if cw_ else current_notional(cfg)
+        cur = current_notional(cfg)
         auto = cfg.get("auto", "off")
         auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "")
         t = v["todayRuns"]
@@ -685,7 +685,7 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
         cur = current_notional(cfg)
         hist = "".join(f'<div class="mut">{E(str(h.get("at", ""))[:16].replace("T", " "))} · {h.get("prev") or 0:,.0f} → {h.get("notional_krw", 0):,}원</div>'
                        for h in notional_history(cfg))
-        nform = (f'''<div class="row"><span>1회 매수 금액</span><span>{"-" if cur is None else f"{cur:,.0f}원"}</span></div>
+        nform = (f'''<div class="row"><span>{amount_label(cfg)}</span><span>{"-" if cur is None else f"{cur:,.0f}원"}</span></div>
 <div class="mut">{NOTIONAL_MIN:,}~{NOTIONAL_MAX:,}원 · 다음 매수부터</div>{hist}''')
         if has_pk:
             nform += (f'''<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-notional">
@@ -704,7 +704,7 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
                  + (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-weights">'
                     f'{ins}<button>🔑 비율 변경</button><div class="pk-msg"></div></form>' if has_pk else ""))
     if compact:                                         # 크립토 화면: 접어 두고 필요할 때만 연다(한 화면에 최대한)
-        parts = (f'<details class="fold"><summary>금액 바꾸기</summary>{nform}</details>' if nform else "")
+        parts = (f'<details class="fold"><summary>{amount_label(cfg)} 바꾸기</summary>{nform}</details>' if nform else "")
         parts += (f'<details class="fold"><summary>비율 바꾸기</summary>{wform}</details>' if wform else "")
         parts += f'<details class="fold"><summary>자동 · 실행</summary>{m}{form}{note}</details>'
         return parts
@@ -1504,7 +1504,7 @@ class WebApp:
             if err:
                 return err
             self._log(ip, f"action:{name}:set-notional{'-live' if live else ''}")
-            return f"1회 매수 금액을 {prev or 0:,.0f}원 → {val:,}원으로 바꿨습니다(다음 매수부터)"
+            return f"{amount_label(c)}을 {prev or 0:,.0f}원 → {val:,}원으로 바꿨습니다(다음 매수부터)"
         if op.startswith("auto-"):
             err = web_set_auto(c, op[5:], now)
             if err:

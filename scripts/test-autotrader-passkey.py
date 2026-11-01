@@ -278,7 +278,7 @@ def main():
         # ---- 크립토 서브탭: 업비트 | 빗썸(2026-11-01) — 거래소별로 따로 본다
         BW = {"strategy": "crypto_weights", "broker": "bithumb", "mode": "live", "key_prefix": "BITHUMB_TRADE", "markets": ["BITHUMB"],
               "symbol_allowlist": ["KRW-BTC"], "auto": "off",
-              "params": {"market": "BITHUMB", "weights": {"KRW-BTC": 1.0}, "capital_krw": 1_000_000},
+              "params": {"market": "BITHUMB", "weights": {"KRW-BTC": 1.0}, "capital_krw": 1_000_000, "web_notional": True},
               "risk": {"BITHUMB": {"max_order_value": 1_000_000, "max_daily_value": 5_000_000, "max_position_value": 2_000_000}}}
         (td / "profiles" / "bw.json").write_text(json.dumps(BW), encoding="utf-8")
         tu, tb = g("/crypto?x=UPBIT")[2].decode(), g("/crypto?x=BITHUMB")[2].decode()
@@ -301,6 +301,19 @@ def main():
         tb2 = g("/crypto?x=BITHUMB")[2].decode()
         ck("허용 종목 80개를 카드에 줄줄이 찍지 않고 한 줄 요약('바구니 …')", "KRW-C10,KRW-C11" not in tb2 and "바구니" in tb2)
         (td / "profiles" / "bm.json").unlink()
+
+        # ---- 한 바구니(crypto_weights) 자본을 웹에서(업비트·빗썸 동일)
+        from autotrader.config import effective_params as effective_params_cw
+        bw = load_profile(main_p, "bw")
+        st, _ = setn("bw", "1500000")
+        ck("한 바구니 자본을 지문으로 변경 → 전략 params 의 capital_krw 에 반영(notional_krw 아님)",
+           st == 200 and effective_params_cw(bw)["capital_krw"] == 1_500_000 and "notional_krw" not in effective_params_cw(bw))
+        st, b = setn("bw", "3000000")
+        ck("서버 한도(하루 500만원·코인당 200만원)를 넘는 자본 300만원은 저장 안 됨", st == 400 and "모자랍니다" in b
+           and effective_params_cw(bw)["capital_krw"] == 1_500_000)
+        tb3 = g("/crypto?x=BITHUMB")[2].decode()
+        ck("빗썸 탭에도 '자본 바꾸기' 접힘(업비트와 동일)", "자본 바꾸기" in tb3 and "1,500,000" in tb3)
+        notional_path(bw).unlink(missing_ok=True)
 
         # ---- 킬 스위치 상태를 한눈에(2026-11-01)
         kill_file(cb).unlink(missing_ok=True)
