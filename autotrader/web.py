@@ -365,11 +365,11 @@ def market_chips(base: str, on: str = "") -> str:
 
 
 def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool, controls: Dict[str, str], now: datetime,
-                  hide_money: bool = False) -> bytes:
+                  hide_money: bool = False, msg: str = "") -> bytes:
     """크립토 탭 — 업비트 프로필마다 한 화면: 상태 · 1회 매수 금액 · 보유 · 오늘 한도 · 최근 주문 · 조작(금액 변경·자동·킬)."""
     from .config import current_notional
     from .pnl import load_book
-    out = [market_chips(base, "CRYPTO")]
+    out = [market_chips(base, "CRYPTO")] + ([f'<div class="warn">{E(msg)}</div>'] if msg else [])
     sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
     for cfg, v in items:
         name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
@@ -401,16 +401,16 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
                 break
         money = "" if hide_money else f'''<div class="card cx"><div class="row" style="border:0"><span class="mut">1회 매수 금액</span><a href="#controls" style="color:var(--acct);font-weight:700">바꾸기 ›</a></div>
 <div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원</small></div>
-<div class="mut">{NOTIONAL_MIN:,} ~ {NOTIONAL_MAX:,}원 · 서버 한도 안에서만 저장 · 다음 매수부터 적용</div></div>
+<div class="mut">{NOTIONAL_MIN:,} ~ {NOTIONAL_MAX:,}원 · 다음 매수부터</div></div>
 <div class="stat" style="grid-template-columns:1fr 1fr"><div class="kpi"><div class="l">보유(이 전략)</div><div class="v">{E(str(pos.get("qty"))) if pos else "없음"}</div></div>
 <div class="kpi"><div class="l">매수 신호 z</div><div class="v">{E(str(pos.get("z"))) if pos else "대기"}</div></div></div>
 <div class="card"><h2>오늘 한도</h2><div class="row"><span>하루 사용</span><span>{pct:.0f}% ({used:,.0f} / {lim:,.0f}원)</span></div>
 <div class="bar"><i style="width:{pct:.0f}%"></i></div>
 <div class="row"><span>주문당 한도</span><span>{float(risk.get("max_order_value") or 0):,.0f}원</span></div></div>'''
+        out.append(kill_card(cfg, csrf, base, pk, "crypto"))                          # 킬 상태는 맨 위에 크게
         out.append(f'''<div class="card hl"><div class="sc-h">{_tile(cfg.get("strategy"))}<div class="t"><span class="nm">업비트 · {E(name)}</span>
 <span class="pf">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></div></div>
 <span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))}</span>
-{'<span class="pill bad">킬 ON</span>' if v["kill"] else '<span class="pill">킬 OFF</span>'}
 <div class="row"><span>마지막 실행</span><span>{last_txt}</span></div>
 <div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {sum(len(r.get("placed") or []) for r in t)} · {sum(len(r.get("errors") or []) for r in t)}</span></div></div>
 {money}
@@ -618,7 +618,29 @@ def render_settings(csrf: str, base: str, n_pk: int, pk_disabled: str) -> bytes:
     return _page("설정", body, base=base, sub="설정", tab="set")
 
 
-def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False) -> str:
+def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = "") -> str:
+    """킬 스위치 상태 + 버튼 하나. 켜짐이면 빨간 큰 표시와 '해제', 꺼짐이면 초록 표시와 '켜기'(확인 없이 즉시)."""
+    name, live = str(cfg.get("profile", "")), cfg.get("mode") == "live"
+    on = kill_file(cfg).exists()
+    hid = f'<input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}"><input type="hidden" name="ret" value="{E(ret)}">'
+    if not on:
+        act = f'<form method="post" action="{base}/action" style="margin:0">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">킬 스위치 켜기</button></form>'
+    elif has_pk:
+        ph = f'<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if live else ""
+        act = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin:0">'
+               f'<input type="hidden" name="op" value="resume">{ph}<button>🔑 해제</button><div class="pk-msg"></div></form>')
+    elif live:
+        act = '<div class="mut">해제는 패스키로만</div>'
+    else:
+        act = (f'<form method="post" action="{base}/action" style="margin:0">{hid}<input type="hidden" name="op" value="resume">'
+               '<input name="code" placeholder="인증앱 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required><button>해제</button></form>')
+    st = ('<div style="font-size:22px;font-weight:800;color:var(--bad)">🛑 킬 스위치 켜짐</div><div class="mut">주문 중단 중</div>' if on else
+          '<div style="font-size:22px;font-weight:800;color:var(--ok)">✅ 킬 스위치 꺼짐</div><div class="mut">정상</div>')
+    return (f'<div class="card" style="border-color:{"var(--bad)" if on else "var(--ok)"};{"background:var(--bads)" if on else ""}">{st}'
+            f'<div style="margin-top:8px">{act}</div></div>')
+
+
+def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False, with_kill: bool = True) -> str:
     """프로필 조작 폼. 킬 켜기만 확인 없이. 패스키가 있으면 **모든 조작을 지문으로**(2026-09-22 사용자 요청), 없으면 인증앱 코드.
     실계좌의 주문 켜기·실행·킬 해제는 패스키로만 + 확인 문구(보안 검토 M2·M3·M4 — 피싱된 인증앱 코드로는 실계좌 주문에 닿지 않는다)."""
     name = str(cfg.get("profile", ""))
@@ -626,21 +648,14 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
     web_live = live and bool(cfg.get("web_live_allowed"))
     opts = [("auto-off", "자동 끄기"), ("auto-dry", "자동 dry-run (주문 없이 계획만)")]
     if not live:
-        opts += [("auto-execute", "자동 주문 켜기 (모의투자)"), ("run", "지금 한 번 실행 (현재 자동 설정대로, 5분 안에)"),
-                 ("resume", "킬 스위치 해제")]
+        opts += [("auto-execute", "자동 주문 켜기 (모의투자)"), ("run", "지금 한 번 실행")]
     elif has_pk:
-        opts += ([("auto-execute", "⚠ 실계좌 자동 주문 켜기")] if web_live else []) +                 [("run", "지금 한 번 실행 (자동이 '주문'이면 ⚠ 실계좌 주문)"), ("resume", "실계좌 킬 스위치 해제")]
+        opts += ([("auto-execute", "⚠ 실계좌 자동 주문 켜기")] if web_live else []) + [("run", "지금 한 번 실행 (⚠ 자동이 '주문'이면 실계좌)")]
     else:
-        opts.append(("run", "지금 한 번 실행 — 자동이 '주문'이 아닐 때만(dry-run)"))
+        opts.append(("run", "지금 한 번 실행 (dry-run일 때만)"))
     sel = "".join(f'<option value="{k}">{E(t)}</option>' for k, t in opts)
     m = f'<div class="warn">{E(msg)}</div>' if msg else ""
-    if not live:
-        note = "<div class='mut'>'주문'은 서버 타이머에도 --execute 가 있어야 실제로 나간다.</div>"
-    elif not has_pk:
-        note = ("<div class='warn'>실계좌의 주문 켜기·실행·킬 해제는 <b>패스키로만</b> 된다 — 먼저 '패스키(지문) 관리'에서 등록"
-                "(등록 코드는 서버에서 발급).</div>")
-    else:
-        note = ""
+    note = "<div class='warn'>실계좌 조작은 패스키로만 — 먼저 패스키를 등록하세요.</div>" if live and not has_pk else ""
     if has_pk:
         phrase = (f'<input name="phrase" placeholder="실계좌 주문일 때만 확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if live else "")
         form = f'''<form id="pk-action" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}">
@@ -657,19 +672,16 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
         hist = "".join(f'<div class="mut">{E(str(h.get("at", ""))[:16].replace("T", " "))} · {h.get("prev") or 0:,.0f} → {h.get("notional_krw", 0):,}원</div>'
                        for h in notional_history(cfg))
         nform = (f'''<div class="row"><span>1회 매수 금액</span><span>{"-" if cur is None else f"{cur:,.0f}원"}</span></div>
-<div class="mut">다음 매수부터 적용 · {NOTIONAL_MIN:,}~{NOTIONAL_MAX:,}원 · 서버 한도보다 크면 저장되지 않는다 · 현재 금액의 {NOTIONAL_BIG_RAISE}배를 넘기면 확인 문구 필요</div>{hist}''')
+<div class="mut">{NOTIONAL_MIN:,}~{NOTIONAL_MAX:,}원 · 다음 매수부터</div>{hist}''')
         if has_pk:
             nform += (f'''<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-notional">
 <input name="val" inputmode="numeric" placeholder="금액(원, 숫자만)" autocomplete="off" required>
-<input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액일 때만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 지문으로 금액 변경</button><div class="pk-msg"></div></form>''')
-        else:
-            nform += "<div class='warn'>금액 변경은 패스키로만 됩니다 — 먼저 패스키를 등록하세요.</div>"
+<input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 금액 변경</button><div class="pk-msg"></div></form>''')
         nform = f'<div style="margin-top:10px">{nform}</div>'
-    return f'''<div class="card"><h2>조작</h2>{m}
-<div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
-{form}{note}{nform}
-<form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
-<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad)">킬 스위치 켜기 (확인 없이 즉시 — 주문 중단)</button></form></div>'''
+    kc = kill_card(cfg, csrf, base, has_pk) if with_kill else ""
+    return f'''{kc}<div class="card"><h2>조작</h2>{m}
+<div class="row"><span>자동</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
+{form}{note}{nform}</div>'''
 
 
 def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, title: str = "", controls: str = "") -> bytes:
@@ -1258,8 +1270,9 @@ class WebApp:
             now = self._now()
             pk = self._pk_ready()
             items = [(c, load_view(c, state_dir(c), now)) for c in self.profiles() if is_crypto(c)]
-            ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk) for c, _ in items}
-            return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now)
+            ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk, with_kill=False) for c, _ in items}
+            cm = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
+            return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now, msg=cm if cm in self._msgs else "")
         if method == "GET" and path == "/log":
             return 200, self._hdrs(), render_log(self.profiles(), self.base)
         if method == "GET" and path == "/orders":
@@ -1307,7 +1320,7 @@ class WebApp:
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
                 return 403, self._hdrs(), _page("403", "<h1>요청이 거부됨</h1>")
-            return self._action(field("p"), field("op"), field("code"), ip, field("phrase"))
+            return self._action(field("p"), field("op"), field("code"), ip, field("phrase"), field("ret"))
         if method == "POST" and path in ("/reauth", "/logout"):
             if field("csrf") != sess["csrf"]:
                 self._log(ip, "csrf-fail")
@@ -1398,7 +1411,7 @@ class WebApp:
 
     OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume", "set-notional")
 
-    def _action(self, name: str, op: str, code: str, ip: str, phrase: str = ""):
+    def _action(self, name: str, op: str, code: str, ip: str, phrase: str = "", ret: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
         if not match or op not in self.OPS:
             return self._not_found()
@@ -1407,6 +1420,9 @@ class WebApp:
         # 실계좌 주문으로 이어질 수 있는 조작(주문 켜기·주문 상태의 지금 실행)은 확인 문구까지 요구한다
         live_order = is_live_order(c, op)
         def back(m: str):
+            if ret == "crypto":                         # 크립토 화면에서 눌렀으면 거기로 돌아간다(상태 카드가 결과를 보여준다)
+                self._msgs.add(m)
+                return self._redirect(f"/crypto?m={quote(m)}")
             return self._redirect(self._back_url(name, m))
         if op == "set-notional":                        # 금액 변경은 인증앱 코드 경로가 없다 — 패스키로만(값이 지문 챌린지에 묶인다)
             return back("1회 매수 금액 변경은 패스키(지문)로만 됩니다")
