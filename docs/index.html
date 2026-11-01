@@ -103,6 +103,23 @@
   .gl-tg-key .k-px { border-radius: 50%; background: #e6ebf5; }
   .gl-tg-key .k-med { transform: rotate(45deg); background: #c9d1dc; }
   .gl-empty { font-size: 12px; margin: 0; }
+  .gl-plot { position: relative; width: 100%; margin-top: 6px; }
+  .gl-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .gl-zero { position: absolute; left: 0; transform: translateY(-110%); font-size: 10px; }
+  .gl-x { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; margin-top: 6px; }
+  .gl-fl-key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; }
+  .gl-fl-key i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: 3px; }
+  .gl-ev { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; padding: 0; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .gl-ev i { width: 10px; height: 10px; border-radius: 50%; background: #e6ebf5; box-shadow: 0 0 0 2px var(--card); }
+  .gl-ev.on i { width: 14px; height: 14px; background: var(--accent); }
+  .gl-ev-info { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 13px; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; min-height: 40px; }
+  .gl-ev-cat { font-size: 11px; padding: 1px 7px; border-radius: 5px; background: #26324a; }
+  .gl-ev i { font-style: normal; font-size: 9px; font-weight: 700; color: #0f1420; display: flex; align-items: center; justify-content: center; }
+  .gl-ev-it { flex-basis: 100%; }
+  .gl-ev-info a { color: var(--accent); text-decoration: none; }
+  .gl-hl { position: absolute; font-size: 10px; white-space: nowrap; pointer-events: none; }
+  .gl-ev-plot-pad { margin: 22px 0 26px; }   /* 위·아래 최고·최저 글자 자리 */
+
   /* 마감 리포트 그림 3종(2026-11-01) */
   .mrep-fb-legend { display: flex; justify-content: space-between; font-size: 11px; margin: -4px 72px 6px 68px; }
   .mrep-fb-mk + .mrep-fb-mk { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
@@ -2001,10 +2018,63 @@ function glValue(dt, r) {
   if (!parts.length) return '';
   return glSec('③ 비싼가 · 남들이 보는 값', '', parts.join(''));
 }
+// ④ 누가 사 모았나 — stock-flows.json(네이버, 수량×종가 근사) 60거래일 누적 순매수 선 3개. 색은 신원(외국인 보라·기관 노랑·개인 청록) —
+// 빨강·파랑은 이 화면에서 상승·하락 뜻이라 쓰지 않는다(dataviz validate_palette 어두운 카드 대비 통과). 끝값은 범례에 그대로 적는다.
+const GL_FLOW = [['foreign', '외국인', '#9085e9'], ['institution', '기관', '#c98500'], ['individual', '개인', '#199e70']];
+function glFlows(dt) {
+  if (dt.market === 'US') return '';
+  ensureFlows();
+  const rows = state.flows && (state.flows.byTicker || {})[dt.ticker];
+  if (!state.flows) return glSec('④ 누가 사 모았나', '', '<p class="muted gl-empty">불러오는 중…</p>');
+  if (!rows || rows.length < 5) return glSec('④ 누가 사 모았나', '', '<p class="muted gl-empty">수급 자료가 없습니다(관심종목만 수집).</p>');
+  const cum = {}; GL_FLOW.forEach(([k]) => { let a = 0; cum[k] = rows.map(r => (a += (r[k] || 0))); });
+  const all = GL_FLOW.flatMap(([k]) => cum[k]).concat([0]), lo = Math.min(...all), hi = Math.max(...all), H = 120, W = 340, n = rows.length;
+  const X = i => i / (n - 1) * W, Y = v => hi === lo ? H / 2 : (hi - v) / (hi - lo) * H;
+  const jo = v => { const a = Math.abs(v); return `${v > 0 ? '+' : v < 0 ? '−' : ''}${a >= 1e12 ? (a / 1e12).toFixed(1) + '조' : Math.round(a / 1e8).toLocaleString() + '억'}`; };
+  const lines = GL_FLOW.map(([k, , c]) => `<polyline fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="${cum[k].map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}"/>`).join('');
+  const d0 = rows[0].date, d1 = rows[n - 1].date;
+  return glSec('④ 누가 사 모았나', `${n}거래일 누적 순매수 · 금액은 수량×종가 근사`,
+    `<div class="gl-fl-key">${GL_FLOW.map(([k, l, c]) => `<span><i style="background:${c}"></i>${l} <b class="num">${jo(cum[k][n - 1])}</b></span>`).join('')}</div>
+    <div class="gl-plot" style="aspect-ratio:${W}/${H}"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="누적 순매수 선"><line x1="0" x2="${W}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="#3a4560" stroke-width="1" vector-effect="non-scaling-stroke"/>${lines}</svg>
+      <span class="gl-zero muted" style="top:${(Y(0) / H * 100).toFixed(1)}%">0</span></div>
+    <div class="gl-x muted num"><span>${esc(d0.slice(5))}</span><span>${esc(d1.slice(5))}</span></div>`);
+}
+// ⑤ 가격 위 사건 — 최근 120거래일 종가선 위에 주요 공시(stock-events.json 8분류) 점. 점을 누르면 아래 줄에 날짜·분류·제목·원문 링크. 다음 일정은 오른쪽 끝에.
+function glEvents(dt) {
+  const rec = state.prices && state.prices.byTicker && state.prices.byTicker[dt.ticker];
+  if (state.stockEvents === undefined) {   // 해독 탭과 같은 파일 — 아직 안 받았으면 한 번 받는다
+    state.stockEvents = 'loading';
+    fetch('data/stock-events.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)
+      .then(j => { state.stockEvents = j; if (state.detail.open && state.detail.vtab === 'glance') renderStockModal(); });
+  }
+  if (!rec || !rec.c || rec.c.length < 20) return '';
+  const N = Math.min(120, rec.c.length), c = rec.c.slice(-N), d = rec.d.slice(-N), W = 340, H = 110;
+  const lo = Math.min(...c), hi = Math.max(...c), X = i => i / (N - 1) * W, Y = v => hi === lo ? H / 2 : 8 + (hi - v) / (hi - lo) * (H - 16);
+  const evs = ((((state.stockEvents || {}).items || {})[dt.ticker] || {}).events || [])
+    .filter(e => e.d >= d[0] && e.d <= d[N - 1])
+    .map(e => { let i = d.findIndex(x => x >= e.d); if (i < 0) i = N - 1; return { ...e, i }; })
+    .sort((a, b) => a.d.localeCompare(b.d))
+    .reduce((g, e) => { const last = g[g.length - 1]; if (last && last.d === e.d) last.items.push(e); else g.push({ d: e.d, i: e.i, items: [e] }); return g; }, []);   // 같은 날 공시는 점 하나로
+  const sel = evs.length ? evs[Math.min(dt.glEv ?? evs.length - 1, evs.length - 1)] : null;
+  const kst = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const next = ((state.events && state.events.events) || []).filter(e => e.code === dt.ticker && e.date >= kst).sort((a, b) => a.date.localeCompare(b.date))[0];
+  const dd = next ? Math.round((Date.parse(next.date) - Date.parse(kst)) / 864e5) : null;
+  const line = `<polyline fill="none" stroke="#c9d1dc" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="${c.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}"/>`;
+  const dots = evs.map((e, k) => `<button class="gl-ev${e === sel ? ' on' : ''}" data-glev="${k}" style="left:${(X(e.i) / W * 100).toFixed(2)}%;top:${(Y(c[e.i]) / H * 100).toFixed(2)}%" aria-label="${esc(e.d)} ${e.items.map(x => esc(x.cat + ' ' + x.nm)).join(', ')}"><i>${e.items.length > 1 ? e.items.length : ''}</i></button>`).join('');
+  const hiI = c.indexOf(hi), loI = c.indexOf(lo), money = v => rec.market === 'US' ? '$' + fmtNum(v) : fmtNum(v);
+  const hx = i => i / (N - 1) > 0.8 ? '-100%' : i / (N - 1) < 0.2 ? '0' : '-50%';   // 양끝 가까우면 글자를 안쪽으로 — 창 밖으로 안 나가게
+  const fd = x => `${x.slice(4, 6)}-${x.slice(6, 8)}`;
+  const info = sel ? `<div class="gl-ev-info"><span class="num muted">${fd(sel.d)}</span>${sel.items.map(x => `<span class="gl-ev-it"><span class="gl-ev-cat">${esc(x.cat)}</span> ${esc(x.nm)}${x.rcept ? ` <a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${esc(x.rcept)}" target="_blank" rel="noopener">원문↗</a>` : ''}</span>`).join('')}</div>`
+    : dt.market === 'US' ? '' : `<div class="gl-ev-info muted">이 기간 주요 공시가 없습니다.</div>`;
+  return glSec('⑤ 가격 위 사건', `${N}거래일 종가${dt.market === 'US' ? '' : ` · 점 = 주요 공시 ${evs.reduce((a, g) => a + g.items.length, 0)}건, 누르면 아래에`}`,
+    `<div class="gl-plot gl-ev-plot-pad" style="aspect-ratio:${W}/${H}"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="종가 선">${line}</svg>${dots}
+      <span class="gl-hl muted num" style="left:${(X(hiI) / W * 100).toFixed(1)}%;top:0;transform:translate(${hx(hiI)},-115%)">최고 ${money(hi)}</span><span class="gl-hl muted num" style="left:${(X(loI) / W * 100).toFixed(1)}%;bottom:0;transform:translate(${hx(loI)},115%)">최저 ${money(lo)}</span></div>
+    <div class="gl-x muted num"><span>${fd(d[0])}</span>${next ? `<span>다음 ${esc(next.date.slice(5))} ${esc(next.title || '')} <b style="color:var(--text)">D-${dd}</b></span>` : ''}<span>${fd(d[N - 1])}</span></div>${info}`);
+}
 function renderGlanceTab(dt) {
   ensureDecodeRefs(); ensurePrices();
   const r = ((state.latest && state.latest.results) || []).find(x => x.ticker === dt.ticker);
-  return `<div class="gl">${glScore(r)}${glPrice(dt, r)}${glValue(dt, r)}
+  return `<div class="gl">${glScore(r)}${glPrice(dt, r)}${glValue(dt, r)}${glFlows(dt)}${glEvents(dt)}
     <p class="muted" style="font-size:11px;margin:12px 0 0">관찰용 그림입니다 — 매수·매도 신호가 아닙니다. 지표별 숫자·근거 문장은 🔎 해독 탭에 있습니다.</p></div>`;
 }
 
@@ -4766,6 +4836,8 @@ document.getElementById('stockModal').addEventListener('click', (e) => {
   if (ty) { state.detail.type = ty.dataset.detailType; return render(); }
   const vt = t.closest('[data-detail-vtab]');
   if (vt) { state.detail.vtab = vt.dataset.detailVtab; return render(); }
+  const ge = t.closest('[data-glev]');   // 한눈에 ⑤ 사건 점
+  if (ge) { state.detail.glEv = Number(ge.dataset.glev); return renderStockModal(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.detail.open) closeStockDetail(); });
 
