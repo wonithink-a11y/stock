@@ -35,7 +35,7 @@ from ..strategy import Strategy
 
 TAG = "cw"
 MIN_ORDER_KRW = 5_000
-_SYM = re.compile(r"^KRW-[A-Z0-9]{2,10}$")
+_SYM = re.compile(r"^KRW-[A-Z0-9]{1,10}$")          # 한 글자 코인(KRW-G·KRW-T·KRW-A 등)도 있다
 
 
 def _floor8(q: float) -> float:
@@ -187,7 +187,8 @@ class CryptoWeights(Strategy):
         for s_, w in targets.items():
             px, held = prices[s_], holdings.get(s_, 0.0)
             diff = w * base - held * px
-            if w > 0 and abs(diff) / base * 100 < p["band"]:
+            thr = min(p["band"], 25.0 * w)                                # %p — 목표가 작은 코인(30개 바구니의 3% 등)은 밴드를 목표의 25% 로 줄인다
+            if w > 0 and abs(diff) / base * 100 < thr:                    # (고정 5%p 면 목표 5% 미만 코인은 영영 안 산다 — 실데이터 점검에서 발견)
                 continue
             amount = min(abs(diff), p["max_order"])
             if diff < 0:                                              # 초과 → 자기 수량까지만, 계좌에 그만큼 없으면 있는 만큼
@@ -212,7 +213,7 @@ class CryptoWeights(Strategy):
                 continue
             budget -= krw
             cid = f"{TAG}-{ctx.now:%Y%m%d%H}-{s_[4:]}-buy"
-            out.append(Intent(s_, "BUY", krw / px, market=mk, order_type="market", client_id=cid,
+            out.append(Intent(s_, "BUY", _floor8(krw / px), market=mk, order_type="market", client_id=cid,
                               reason=f"목표 {w:.0%} 미달분 매수"))
             pending[cid] = {"symbol": s_, "side": "BUY"}
             log.append(f"매수 {s_} {krw:,.0f}원")

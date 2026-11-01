@@ -80,6 +80,7 @@ def main():
             errs += 1
     ck("잘못된 설정 8가지는 전부 거부", errs == len(bad))
     ok = CW.parse_params({"weights": {"KRW-BTC": 0.5, "KRW-ETH": 0.5}, "capital_krw": 1_000_000})
+    ck("한 글자 코인(KRW-G)·숫자 포함(KRW-1INCH)도 허용", CW.parse_params({"weights": {"KRW-G": 0.3, "KRW-1INCH": 0.2}, "capital_krw": 1e6})["weights"]["KRW-G"] == 0.3)
     ck("합 = 1·기본값(밴드 5·슬라이스 자본의 20%)", ok["band"] == 5.0 and ok["max_order"] == 200_000)
 
     price = {"KRW-BTC": BTC, "KRW-ETH": ETH}
@@ -234,6 +235,27 @@ def main():
         ck("other_mode 오류 거부", False)
     except ValueError:
         ck("other_mode 는 equal|volume 만", True)
+
+    # ---- 30개 바구니(목표가 작다) + 값이 딱 떨어지지 않는 시세 — 실데이터 점검에서 찾은 두 버그
+    syms30 = [f"KRW-C{i:02d}" for i in range(30)]
+    q30 = {s_: 1234.5678 + i * 37.31 for i, s_ in enumerate(syms30)}
+    info30 = {s_: {"value24h": 1e9, "value_avg": 1e9, "warning": False} for s_ in syms30}
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_for(td, weights={}, other_weight=1.0, other_candidates=syms30, other_top_n=30, other_mode="equal", max_order_krw=200_000)
+        c["symbol_allowlist"] = syms30
+        c["risk"]["UPBIT"]["max_orders_per_run"] = 30
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes=q30, info=info30)
+        r = run(c, fb, at(2), execute=False)
+        ck("30개 균등(코인당 3.3% < 밴드 5%): 첫날 30개 모두 매수 계획(목표가 작아도 처음엔 산다)", len(r["planned"]) == 30 and not r["rejected"])
+        r = run(c, fb, at(3))
+        ok_dec = all(abs(round(x["qty"], 8) - x["qty"]) < 1e-12 for x in r["placed"])
+        ck("시세가 딱 떨어지지 않아도 매수 수량은 소수 8자리(거부 없음)", len(r["placed"]) == 30 and ok_dec and not r["rejected"])
+        row = {}
+        fill_all(td, fb, q30)
+        run(c, fb, at(4))
+        st = state(td)
+        base = st["cash"] + sum(st["holdings"].get(s_, 0) * q30[s_] for s_ in syms30)
+        ck("한 번 체결되면 코인마다 보유가 생긴다(밴드 안은 더 안 산다)", len([s_ for s_ in syms30 if st["holdings"].get(s_, 0) > 0]) == 30 and base > 0)
 
     # ---- 선정 보정: 스테이블 제외 · N일 평균 순위(그날 급등 코인 완화) · 코인별 비중 상한
     USDT = "KRW-USDT"
