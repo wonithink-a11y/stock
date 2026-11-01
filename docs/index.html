@@ -82,7 +82,7 @@
   .grade-key i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 3px; }
   @media (max-width: 600px) {
     /* 옆으로 미는 표: 이름 칸을 고정(폭은 화면 40%까지, 넘치면 …). A5 표는 첫 칸이 순위라 둘째 칸(종목)을 고정 */
-    #content .table-wrap > table:not(.a5-tbl) th:first-child, #content .table-wrap > table:not(.a5-tbl) td:first-child,
+    #content .table-wrap > table:not(.a5-tbl):not(.cal-tbl) th:first-child, #content .table-wrap > table:not(.a5-tbl):not(.cal-tbl) td:first-child,
     #content .table-wrap > table.a5-tbl th:nth-child(2), #content .table-wrap > table.a5-tbl td:nth-child(2) {
       position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
@@ -314,6 +314,12 @@
   .cal-d { font-size: 12px; color: var(--muted); }
   .cal-b { white-space: nowrap; }
   .cal-agenda { display: none; }
+  .cal-row-detail { grid-column: 1 / -1; }   /* 고른 날이 있는 주 바로 아래 한 줄 전체 */
+  .cal-detail { margin: 4px 0 10px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; background: #151d2c; }
+  .cal-detail .table-wrap { margin-top: 6px; }
+  .cal-tbl td:first-child { white-space: normal; min-width: 120px; }   /* 일정 제목은 줄바꿈 허용 — 고정 칸 규칙에서 뺐다 */
+  .cal-ag + .cal-detail { margin-top: -2px; }
+  .cal-chev { margin-left: 8px; color: var(--muted); }
   .cal-ag { display: flex; justify-content: space-between; gap: 8px; padding: 9px 8px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 4px; cursor: pointer; font-size: 13px; }
   .cal-ag.sel { background: #1e2a44; border-color: var(--accent); }
   @media (max-width: 640px) { .cal-grid { display: none; } .cal-agenda { display: block; } }
@@ -2958,22 +2964,7 @@ function renderEvents() {
 
   const monthDates = Object.keys(byDate).filter(x => x.slice(0, 7) === month).sort();
   let sel = state.eventsDay && byDate[state.eventsDay] && state.eventsDay.slice(0, 7) === month ? state.eventsDay : null;
-  if (!sel) sel = monthDates.find(x => x >= todayStr) || monthDates[0] || null;
-
-  const dow = ['일', '월', '화', '수', '목', '금', '토'];
-  const startDow = new Date(Y, M - 1, 1).getDay(), daysIn = new Date(Y, M, 0).getDate();
-  let cells = dow.map(x => `<div class="cal-h">${x}</div>`).join('');
-  for (let i = 0; i < Math.ceil((startDow + daysIn) / 7) * 7; i++) {
-    const day = i - startDow + 1;
-    if (day < 1 || day > daysIn) { cells += '<div class="cal-c out"></div>'; continue; }
-    const ds = `${Y}-${pad(M)}-${pad(day)}`, evs = byDate[ds];
-    cells += `<div class="cal-c${ds === todayStr ? ' today' : ''}${ds === sel ? ' sel' : ''}${evs ? '' : ' empty'}"${evs ? ` data-events-day="${ds}"` : ''}><span class="cal-d">${day}</span>${evs ? badges(evs) : ''}</div>`;
-  }
-  // 좁은 화면에서는 7열 달력 대신 일정 있는 날만 한 줄씩
-  const agenda = monthDates.map(ds => {
-    const n = dday(ds), w = dow[new Date(ds + 'T00:00:00').getDay()];
-    return `<div class="cal-ag${ds === sel ? ' sel' : ''}" data-events-day="${ds}"><span><b>${ds.slice(5, 7)}/${ds.slice(8, 10)}</b> (${w}) <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span></span><span>${badges(byDate[ds])}</span></div>`;
-  }).join('');
+  if (!sel && state.eventsDay !== '') sel = monthDates.find(x => x >= todayStr) || monthDates[0] || null;   // '' = 같은 날을 다시 눌러 접은 상태
 
   const statusBadge = e => e.status === 'official' ? '<span class="muted">공식</span>'
     : e.status === 'rule' ? '<span class="muted">규칙</span>'
@@ -2988,9 +2979,28 @@ function renderEvents() {
     });
     const lim = limited('evday', sel + '|' + state.eventsScope, rows);
     const n = dday(sel);
-    detail = `<div style="margin-top:12px"><strong>${esc(sel)}</strong> <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span> <span class="muted">· ${rows.length}건</span></div>
-      <div class="table-wrap"><table><tbody>${lim.shown.join('')}</tbody></table></div>${lim.more}`;
+    detail = `<div class="cal-detail"><div><strong>${esc(sel)}</strong> <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span> <span class="muted">· ${rows.length}건 · 날짜를 다시 누르면 접힘</span></div>
+      <div class="table-wrap"><table class="cal-tbl"><tbody>${lim.shown.join('')}</tbody></table></div>${lim.more}</div>`;
   }
+
+  const dow = ['일', '월', '화', '수', '목', '금', '토'];
+  const startDow = new Date(Y, M - 1, 1).getDay(), daysIn = new Date(Y, M, 0).getDate();
+  let cells = dow.map(x => `<div class="cal-h">${x}</div>`).join('');
+  const selDay = sel ? Number(sel.slice(8, 10)) : null, selRowEnd = selDay ? Math.floor((selDay + startDow - 1) / 7) * 7 + 6 : -1;
+  for (let i = 0; i < Math.ceil((startDow + daysIn) / 7) * 7; i++) {
+    const day = i - startDow + 1;
+    if (day < 1 || day > daysIn) cells += '<div class="cal-c out"></div>';
+    else {
+      const ds = `${Y}-${pad(M)}-${pad(day)}`, evs = byDate[ds];
+      cells += `<div class="cal-c${ds === todayStr ? ' today' : ''}${ds === sel ? ' sel' : ''}${evs ? '' : ' empty'}"${evs ? ` data-events-day="${ds}"` : ''}><span class="cal-d">${day}</span>${evs ? badges(evs) : ''}</div>`;
+    }
+    if (i === selRowEnd && detail) cells += `<div class="cal-row-detail">${detail}</div>`;   // 그 주 칸들 바로 아래
+  }
+  // 좁은 화면에서는 7열 달력 대신 일정 있는 날만 한 줄씩
+  const agenda = monthDates.map(ds => {
+    const n = dday(ds), w = dow[new Date(ds + 'T00:00:00').getDay()];
+    return `<div class="cal-ag${ds === sel ? ' sel' : ''}" data-events-day="${ds}"><span><b>${ds.slice(5, 7)}/${ds.slice(8, 10)}</b> (${w}) <span class="${n <= 3 ? 'neg' : 'muted'}">${n === 0 ? '오늘' : 'D-' + n}</span></span><span>${badges(byDate[ds])}<span class="cal-chev">${ds === sel ? '▴' : '▾'}</span></span></div>${ds === sel ? detail : ''}`;
+  }).join('');
 
   const chip = (v, label) => `<button data-events-scope="${v}" class="chip ${state.eventsScope === v ? 'active' : ''}">${label}</button>`;
   const navBtn = (m, label, ok) => `<button class="chip"${ok ? ` data-events-month="${m}"` : ' disabled style="opacity:.35;cursor:default"'}>${label}</button>`;
@@ -3003,7 +3013,6 @@ function renderEvents() {
     ${monthDates.length ? '' : '<p class="muted">이 달에 표시할 일정이 없습니다.</p>'}
     <div class="cal-grid">${cells}</div>
     <div class="cal-agenda">${agenda}</div>
-    ${detail}
     <p class="muted" style="margin-top:8px">기준 ${esc(d.asOf)} · 앞으로 ${d.horizonDays}일 · 관심종목 ${d.counts.watchlist}개 조회(실패 ${d.counts.yahooFail}) · <strong>목록에 없다고 일정이 없는 것은 아닙니다</strong> · 관찰용
       <span style="cursor:help" title="실적·배당락은 Yahoo 기준이며 확정 여부를 Yahoo 가 알려주지 않습니다. 미국은 Nasdaq 실적 캘린더에 같은 날 있으면 'Nasdaq 확인'. 국내는 Yahoo 가 다루는 대형주만 나옵니다. FOMC·금통위는 공식 페이지에서 옮긴 값, 옵션 만기는 규칙 계산(휴장이면 직전 영업일)입니다.">ⓘ</span></p>
   </div>`;
@@ -4934,7 +4943,7 @@ document.getElementById('content').addEventListener('click', (e) => {
   const em = t.closest('[data-events-month]');
   if (em) { state.eventsMonth = em.dataset.eventsMonth; state.eventsDay = null; return render(); }
   const ed = t.closest('[data-events-day]');
-  if (ed) { state.eventsDay = ed.dataset.eventsDay; return render(); }
+  if (ed) { const cur = document.querySelector('.cal-ag.sel, .cal-c.sel'); state.eventsDay = cur && cur.dataset.eventsDay === ed.dataset.eventsDay ? '' : ed.dataset.eventsDay; return render(); }   // 같은 날 다시 = 접기
   const ep = t.closest('[data-etf-pick]');
   if (ep) { state.etfPick = ep.dataset.etfPick || null; render(); if (state.etfPick) window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
