@@ -4265,6 +4265,9 @@ function mrepBar(v, max) {   // 0 기준 좌우 막대 — 오른쪽 상승, 왼
     <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)"></div>
     <div style="position:absolute;top:2px;bottom:2px;${v >= 0 ? 'left' : 'right'}:50%;width:${w}%;background:var(${v >= 0 ? '--up' : '--down'});border-radius:2px"></div></div>`;
 }
+// 2026-11-01 사용자 요청: 정규장은 큰 줄, 애프터·시간외는 정규장 종가 대비로 가격·변동액·(%) — 두 기준을 섞지 않는다
+const mrepNum = (v, dg) => v == null ? '-' : Number(v).toLocaleString(undefined, { minimumFractionDigits: dg, maximumFractionDigits: dg });   // dg: 국내 0 · 미국 2
+const mrepTwo = (price, chg, pctV, dg) => price == null ? '<span class="muted">-</span>' : `<div>${mrepNum(price, dg)}</div><div style="font-size:11px">${chg == null ? '' : `<span class="${chg > 0 ? 'pos' : chg < 0 ? 'neg' : 'muted'}">${chg > 0 ? '+' : chg < 0 ? '−' : ''}${mrepNum(Math.abs(chg), dg)}</span> `}${pctV == null ? '' : pctV === 0 ? '<span class="muted">(0%)</span>' : `(${mrepSign(pctV, '%')})`}</div>`;
 const mrepSign = (v, unit = '') => v == null ? '-' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${Number(v).toLocaleString()}${unit}</span>`;
 const mrepT = (iso) => iso ? esc(String(iso).slice(5, 16).replace('T', ' ')) : '';
 const MREP_CONF = { 높음: 'var(--accent)', 중간: 'var(--mid)', 낮음: 'var(--muted)', 미확정: 'var(--muted)' };
@@ -4406,6 +4409,10 @@ function renderMrepBody(file, d) {
     // 지난 날짜는 그날 facts 의 시총 상위 10 칸으로 대신한다(다른 날 히트맵을 붙이면 날짜가 섞인다).
     const ss = state.sectorStrength, heatSameDay = ss && ss.asOf === day.replace(/-/g, '') && (ss.stocks || []).length;
     if (heatSameDay) out.push(marketHeatmap(ss, true, '1d'));   // 그날 하루 등락으로 고정 — 장중 스냅샷이 섞이지 않게
+    const aft = (top || []).filter(t => t.afterPct != null);   // 2026-11-02 리포트부터(그 전 파일엔 없다)
+    if (aft.length) { const at = aft.map(t => t.afterAtKST).sort().pop() || '';
+      grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">시총 상위 — 정규장 · 애프터(NXT)</h3><table class="mrep-tbl"><thead><tr><th>종목</th><th>정규장</th><th>🌙 애프터</th></tr></thead><tbody>${(top || []).slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepTwo(t.close, null, t.chgPct, 0)}</td><td class="num">${t.afterPct == null ? '<span class="muted">-</span>' : mrepTwo(t.afterPrice, t.afterChg, t.afterPct, 0)}</td></tr>`).join('')}</tbody></table>
+        <p class="muted" style="font-size:11px;margin:6px 0 0">정규장 = KRX 종가·전일 대비 · 애프터 = NXT 마지막 체결, 정규장 종가 대비 · ${esc(at.slice(11, 16))} 기준 · 애프터는 거래가 적어 튈 수 있음</p></div>`); }
     else if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만${top.some(t => t.chgSource !== 'naver-krx-day') ? ' · <span style="color:var(--mid)">등락률은 네이버 통합값(애프터마켓 포함 근사) — 정규장과 다를 수 있음</span>' : ''}</p></div>`);
   }
   // 3c) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
@@ -4420,7 +4427,7 @@ function renderMrepBody(file, d) {
         .map(([s, l]) => { const r = sym(s); return tile(l, r, r ? v(r.close) : '', r ? mrepSign(r.chgPct, '%') : ''); }).join('')}</div>
       ${rsp && spy ? `<p style="font-size:12px;margin:10px 0 0">시장 폭: 동일가중 RSP − 시총가중 SPY = ${mrepSign(Math.round((rsp.chgPct - spy.chgPct) * 100) / 100, '%p')} <span class="muted">(양수면 고르게, 음수면 대형주 쏠림)</span></p>` : ''}</div>`);
     const ah = (f.afterHours || []).filter(a => a.regularClose != null);
-    if (ah.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">대형 기술주 — 정규장 · 시간외</h3><table class="mrep-tbl"><thead><tr><th>종목</th><th>정규장</th><th>시간외</th><th>시각(ET)</th></tr></thead><tbody>${ah.map(a => `<tr><td>${esc(a.sym)}</td><td class="num">${mrepSign(a.regularChgPct, '%')}</td><td class="num">${a.ahChgPct == null ? '<span class="muted">-</span>' : mrepSign(a.ahChgPct, '%')}</td><td class="num muted">${a.ahTimeET ? esc(a.ahTimeET.slice(11, 16)) : ''}</td></tr>`).join('')}</tbody></table></div>`);
+    if (ah.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">대형 기술주 — 정규장 · 시간외</h3><table class="mrep-tbl"><thead><tr><th>종목</th><th>정규장</th><th>🌙 시간외</th><th>시각(ET)</th></tr></thead><tbody>${ah.map(a => `<tr><td>${esc(a.sym)}</td><td class="num">${mrepTwo(a.regularClose, null, a.regularChgPct, 2)}</td><td class="num">${a.ahLast == null ? '<span class="muted">-</span>' : mrepTwo(a.ahLast, a.ahLast - a.regularClose, a.ahChgPct, 2)}</td><td class="num muted">${a.ahTimeET ? esc(a.ahTimeET.slice(11, 16)) : ''}</td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:11px;margin:6px 0 0">정규장 = 종가·전일 대비 · 시간외 = 정규장 종가 대비(가격·변동액·변동률)</p></div>`);
   }
   // 3d) 장 마감 뒤 · 내일 체크(일정·관찰·연구 메모)
   const tl = (rows) => `<div class="mrep-tl">${rows.map(x => `<span class="num muted">${hm(x.timeKST)}</span><span>${esc(x.text || '')}</span>`).join('')}</div>`;
