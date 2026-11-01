@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 21 |
+| 통과·채택 | 22 |
 | 보류·판정 불가 | 43 |
 | 기각 | 160 |
 | 사전등록 문서(결과는 별도 파일) | 169 |
 | 정보·탐색 | 39 |
 | 미분류 | 239 |
 
-## 통과·채택 (21)
+## 통과·채택 (22)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-01 | ROBUST | kr | [kr-static-vi-proxy-results-2026-11.md](kr-static-vi-proxy-results-2026-11.md) | 신호: 있음(VU) · 경제성: 통과(VU, 숏 방향 — 실행 가능성 미확인). 잠정 — 연구 캐시 분봉이 2026-10-12 까지라 TEST 가 사전등록(10-28)보다 12거래일 짧다, VM 원… |
 | 2026-10-30 | CONSISTENT | crypto | [binance-listing-upbit-results-2026-10.md](binance-listing-upbit-results-2026-10.md) | 신호: 있음(업비트에서도 같은 쪽) · 경제성: 판정 안 함(회피 근거 확인). 바이낸스 신규 상장 코인 중 업비트에 있던 것은 업비트 원화 가격으로도 첫 주 BTC 대비 −1,144bp(t −2.… |
 | 2026-10-30 | PASS | crypto | [binance-listing-robustness-results-2026-10.md](binance-listing-robustness-results-2026-10.md) | 신호: 있음 · 경제성: (원 판정 유지). BL7 강건성 4/4 PASS — K1 같은 주 대형 알트 24종 대비로도 −1,074bp(t −5.78, TRAIN·2023~ 모두 음; 위약 자체는 … |
 | 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
