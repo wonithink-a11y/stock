@@ -1,0 +1,264 @@
+{
+ "month": "2026-11",
+ "created": "2026-11-01",
+ "model": "claude-opus-5-5",
+ "horizon": "진입 = 2026-11-02 종가, 252거래일 뒤 종가",
+ "process": "① 걸러내기(숫자): 네이버 분기 재무(m.stock.naver.com finance/quarter, 실적 확정 분기만) · 10-30 시총 · A2a 20일 평균 거래대금(10-19 까지) · A3 FY2025 갈래. A = 흑자·시총 3천억↑·거래대금 30억↑·2분기 매출 YoY +20%↑·영업이익 YoY +30%↑·최근 4분기 영업이익률 8%↑·부채비율 150% 미만·최근 4분기 지배순이익 PER 20 이하(34개) · B = A3 FY2025 갈래 B·시총 2천억↑·거래대금 20억↑·2분기 매출 YoY +30%↑·영업손익 개선(53개). ★ 10월과 바뀐 점: 반기 누적 YoY → 2분기 단일 분기 YoY, PER 반기×2 → 최근 4분기 합. 이유: 10월에 쓴 quarterly-multi 패널은 PC 전용이고 이 클라우드 세션엔 DART 키가 없다(문턱 숫자는 그대로). ② 질적 확인: 구글 뉴스 RSS 2026-10-01~11-01 기사 제목. ③ 사슬 분산: 테마 예측(2026-11)이 조선·화장품·은행이라 종목은 정유·비철·바이오 CDMO·위성통신·게임·화장품 1·해운·조선 1(미 해군)·미용의료·엔터로 나눴다. 메모리·AI 설비투자 종목은 10월(삼성전자)에 이미 있어 이번엔 넣지 않았다. 뺀 것: HD한국조선해양(조선이 테마·한화오션과 3중), SK스퀘어(하이닉스 지분가치 — 같은 메모리 사슬), 제주반도체(D램 주기 정점 위험), 롯데케미칼(B 후보였으나 '석화 반짝 특수 끝·3분기 적자 우려' 보도 — 흑자 전환 경로 근거 부족), 증권사(3분기 급감).",
+ "context": "10월 말 반도체 급락(10-30 KOSPI −3.48%) 직후. 3분기 실적 발표 시즌 중(대부분 11-14 까지 분기보고서) — 이 기록의 숫자는 2분기까지 확정치이고, 3분기 잠정 실적·전망은 기사 제목으로만 반영했다.",
+ "common_risk": "10종목 중 수출 비중 큰 종목이 6개(달바·에스티팜·인텔리안·팬오션·한화오션·고려아연) — 원화 강세가 공통 역풍. 3분기 실적이 기대 밑돌 것이라는 보도가 고려아연·인텔리안·에스티팜에 이미 있다(실적 확인 전 등록). 엔터·게임은 흥행 단발 위험.",
+ "picks": [
+  {
+   "ticker": "078930",
+   "name": "GS",
+   "lane": "A",
+   "business": "지주회사 — GS칼텍스(정유·석화, 지분법)·GS에너지(발전·LNG)·GS리테일 등. 이익의 큰 몫이 GS칼텍스 정제마진에 달린다.",
+   "catalyst": "정제마진 강세·경유 수출 확대로 정유 4사 3분기 영업이익 급증 전망, 4분기도 수출 호조.",
+   "financials": "2분기 매출 전년 동기 대비 +25%, 영업이익 4,860억 → 17,174억. 최근 4분기 영업이익률 16.9% · 부채비율 79.98%. 지주라 연결 숫자에 지분법·일회성이 섞인다.",
+   "valuation": "시총 약 7.52조, 최근 4분기 지배순이익 기준 PER 약 3.2배(10-30 시총 기준 거친 값). PER 3배대는 일회성 이익이 섞였을 가능성이 커 그대로 믿지 않는다 — 지주 할인 해소 여부가 관건.",
+   "risks": "원유 운송비 급등(정제마진 상쇄), 정유사 가격 규제·담합 조사, 정제마진 정점 통과, 지주 할인 지속.",
+   "invalidation": "싱가포르 정제마진 급락으로 4분기 정유 실적 적자 전환, GS칼텍스 배당 축소, 또는 3분기 실적에서 지분법 이익 감소.",
+   "evidence": [
+    {
+     "source": "중소기업신문",
+     "date": "2026-10-22",
+     "title": "정유 4사 3분기 영업이익 6조 찍나",
+     "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1BYTdySGRyQS1Sb2NEM2psdFRON3RnQk9HSnc0RTNIMXBqa3NCWkVGaDZDa295YnQ5cjdKZnp3azlSUFAzLWU5dzZZZVk4WXZ1cG1MTkQ0NVFNb0Q5ZGNKdVljd1E0Tm5pbk9qQk1R?oc=5"
+    },
+    {
+     "source": "아시아타임즈",
+     "date": "2026-11-01",
+     "title": "경유 수출 110%로 확대…정유업계 4분기도 청신호",
+     "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9hYW5nenRaUFdnMXZ2dXJMQno3dGJFejVfcDlsdFM0MW1ibWhnRF90UU9rbmxUc1pxN0piQ3FiUTV2RHlLRlhmSVI3MkwyakdMeWUxUm9DVUZWRG13Y0E?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "010130",
+   "name": "고려아연",
+   "lane": "A",
+   "business": "아연·연·귀금속(금·은)·구리 제련. 반도체용 고순도 금속·황산 등 부산물, 미국 제련 투자 추진. 해자: 제련 회수율·귀금속 회수 기술.",
+   "catalyst": "구리 생산능력 2028년 5배 확대 계획, 상반기 사상 최대 실적, 미국 시장 진출.",
+   "financials": "2분기 매출 전년 동기 대비 +67%, 영업이익 2,589억 → 5,871억. 최근 4분기 영업이익률 9.5% · 부채비율 95.98%.",
+   "valuation": "시총 약 17.99조, 최근 4분기 지배순이익 기준 PER 약 18.3배(10-30 시총 기준 거친 값). 경영권 분쟁 2년 뒤 실적 신기록 — 분쟁 프리미엄이 빠진 가격인지는 판단 보류.",
+   "risks": "3분기 실적이 귀금속 가격 약세·원화 강세로 기대치를 밑돌 것이라는 보도(10-28), 경영권 분쟁 재점화, 대규모 투자로 현금흐름 악화.",
+   "invalidation": "금·은·아연 가격 동반 하락으로 2분기 연속 영업이익 감소, 구리 증설 계획 지연·취소.",
+   "evidence": [
+    {
+     "source": "노컷뉴스",
+     "date": "2026-10-30",
+     "title": "경영권 분쟁 2년 고려아연…난관 넘어 실적 신기록 경신 행진[CBS뉴스룸]",
+     "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE9kRHpsS3MzMlNOM0JMbTNvbDBZU3F2ZnpjM1d3a3FvSFNmcmp3SjRRc1g3OEpSTF9Wcm9zZjQ2Z1p2SUJScmdHZnJPbHZoVHhuVXc?oc=5"
+    },
+    {
+     "source": "오피니언뉴스",
+     "date": "2026-10-20",
+     "title": "AI 시대 '구리' 선점 나선 최윤범號 고려아연…2028년 생산능력 5배 확대",
+     "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE5LQm1aUFNxekg2MEs2N3BjZEdwcG5ZOU5ISWJ1S2lsUnRJYTl0cG82cnhSUC1pUWp4UElqQjc4XzJsVHFENHJ6eC1uYUpPbTkyRi13RHBrOXh2eHFnZnFoc05NUFhwNVR6dktvam55MkJTQQ?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "237690",
+   "name": "에스티팜",
+   "lane": "A",
+   "business": "올리고뉴클레오타이드(siRNA·ASO) 원료의약품 CDMO. 해자: 대량 생산 설비·글로벌 빅파마 상업 공급 이력.",
+   "catalyst": "올리고 원료 잇단 신규 수주(수주잔고 약 4,400억), 고객사 신약의 미국·일본 상업화로 상업 물량 비중 상승.",
+   "financials": "2분기 매출 전년 동기 대비 +59%, 영업이익 129억 → 183억. 최근 4분기 영업이익률 18.3% · 부채비율 34.81%.",
+   "valuation": "시총 약 1.49조, 최근 4분기 지배순이익 기준 PER 약 19.4배(10-30 시총 기준 거친 값). CDMO 동종 대비 높지 않으나 PER 문턱(20) 경계.",
+   "risks": "환율 하락에 3분기 영업이익 기대 미달(10-31 보도), 고객 신약 판매 부진, 수익성 개선 지연.",
+   "invalidation": "주요 고객 신약의 상업화 지연·허가 실패, 수주잔고 감소 공시, 2분기 연속 영업이익 역성장.",
+   "evidence": [
+    {
+     "source": "메트로신문",
+     "date": "2026-10-29",
+     "title": "에스티팜, 수주 잔고 4400억원...\"올리고 CDMO 시장 맹주\"",
+     "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE0xeXF1bTloMlVmWHlfREIxS3hrLWt6alZPNEFabm5Lb1g4TzBfQURrQl8wT2dUaVAwbEdJbnFqb3Y5bTBmTlJmVVhmWU90eW1xZzNNZVNSZi1zbDU3c216Ng?oc=5"
+    },
+    {
+     "source": "핀포인트뉴스",
+     "date": "2026-11-01",
+     "title": "올리고 API 사업 무게중심 상업화로 이동…에스티팜 성장 구조 바뀌나",
+     "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBpNkFGQ3dJSW12UXdnaHRZR1hNU2RodENXTkQ3c1cwV3dCMVVjVTB1blFpbUx1UVdWbmYwUHBidW43OV90Q0tvay00SHJ4ZGR3VWxNdzBJV2xmZVAzUUlqZGRLRlpNU2FhZHJTNTEwX1RoNExZcXUw0gF3QVVfeXFMUGk2QUZDd0lJbXZRd2dodFlHWE1TZGh0Q1dORDdzVzBXd0IxVWNVMHVuUWltTHVRV1ZuZjBQcGJ1bjc5X3RDS29rLTRIcnhkZHdVbE13MElXbGZlUDNRSWpkZEtGWk1TYWFkclM1MTBfVGg0TFlxdTA?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "189300",
+   "name": "인텔리안테크",
+   "lane": "A",
+   "business": "위성통신 안테나·지상국 장비(저궤도 LEO·해상용). 해자: 다중 궤도 대응 안테나, 저궤도 사업자 공급 이력.",
+   "catalyst": "저궤도 위성망 확대·고객사 다변화로 4분기 실적 회복 전망, 스페이스X 실적 호조로 우주항공 투심 개선.",
+   "financials": "2분기 매출 전년 동기 대비 +30%, 영업이익 18억 → 71억. 최근 4분기 영업이익률 8.3% · 부채비율 89.63%.",
+   "valuation": "시총 약 0.56조, 최근 4분기 지배순이익 기준 PER 약 12.7배(10-30 시총 기준 거친 값). 목표가 하향 보도 뒤 — 3분기 일시 부진을 가격이 먼저 반영했다고 본다.",
+   "risks": "3분기 납품 이연·미국 신규 생산라인 비용(10-29~31 보도), 저궤도 사업자 발주 변동, 최대주주 주식담보.",
+   "invalidation": "4분기에도 납품 이연 지속으로 2개 분기 연속 영업적자, 주요 저궤도 고객 발주 축소.",
+   "evidence": [
+    {
+     "source": "뉴스핌",
+     "date": "2026-10-29",
+     "title": "[모닝 리포트] \"인텔리안테크, 3분기 납품 이연에도 4분기 실적 회복 전망\"",
+     "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFA3RlFrV3FHTUVJRTVMN2tkaGc1Z0wtOEhiV3ZLcWNwTXhFdTctMWlRbDQ0OVZXR2VJelV4VU1rYTRDVTBqTTVHX3pYdmtwMmJBSnVOYmJrZW15Vnl3?oc=5"
+    },
+    {
+     "source": "비즈니스포스트",
+     "date": "2026-10-21",
+     "title": "하나증권 \"스페이스X 호실적에 우주항공주 투심 개선 기대, 관련주 인텔리안테크 AP위성\"",
+     "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1qQ2pMZ1JsdTUyeWQyczFNaEdPVTRLejZnS2lWR2ZXel9rQndONGFmTzZRYjBWM1RMTzNUR3h6WXRyMF84R1V3TE5rZUdKNUJ6cUR0TmVZLU8wRnVDZl9hX2FZQ3lzN2dsS3RhNzRhYl9mQjA?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "036570",
+   "name": "NC",
+   "lane": "A",
+   "business": "온라인 게임(리니지 IP·아이온2 등) 개발·퍼블리싱. 해자: MMORPG 개발력·충성 이용자층.",
+   "catalyst": "아이온2 출시 3주 만에 누적 캐릭터 630만·스팀 동접 40만, 3분기 흑자 전환.",
+   "financials": "2분기 매출 전년 동기 대비 +101%, 영업이익 151억 → 1,739억. 최근 4분기 영업이익률 13.5% · 부채비율 30.23%.",
+   "valuation": "시총 약 4.31조, 최근 4분기 지배순이익 기준 PER 약 7.0배(10-30 시총 기준 거친 값). 구조조정 뒤 비용 감소분이 이익에 그대로 — 신작 흥행이 꺼지면 다시 낮아진다.",
+   "risks": "신작 흥행 단기 소멸, 리니지 매출 감소, 비용 재확대, 게임대상 등 화제성의 일시성.",
+   "invalidation": "아이온2 매출 순위·동접 급락(출시 3개월 안), 4분기 영업적자 재전환.",
+   "evidence": [
+    {
+     "source": "매일경제",
+     "date": "2026-10-26",
+     "title": "엔씨 ‘아이온2’, 출시 3주 만에 글로벌 누적 캐릭터 수 630만개 돌파",
+     "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFBjOTZoTUJ1YW1DRmMxMk1CYjBmNWVVa1dReWh6b3lLZzU0ZV85UTM3RnN3bFVFYVNVQm1OSTZQU2RQVVJ4cGV0UHFyZVU3UQ?oc=5"
+    },
+    {
+     "source": "금강일보",
+     "date": "2026-10-31",
+     "title": "엔씨는 흑자 전환, 카카오게임즈는 적자 확대… 왜?",
+     "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5JRUpwN0swTjBpMHFvTkVlbTR2cDAyeTkwNmdKbkxvOGt5WHBUVWt4bWdBclEwdXlyci1nbmhCLXdvdUM1U0hGNWlnVUVrX01EWVVVendOLXNDYjV6LU5HZjJsMHZFVmND?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "483650",
+   "name": "달바글로벌",
+   "lane": "A",
+   "business": "프리미엄 스킨케어 브랜드 'd'Alba' — 국내·일본·미국·러시아 등 해외 매출 비중 확대. 해자: 브랜드(미스트 세럼)와 해외 채널.",
+   "catalyst": "자사주 100억 추가 취득·전량 소각(250억 주주환원), 해외 확장, 원화 강세에도 수익성 방어(리포트).",
+   "financials": "2분기 매출 전년 동기 대비 +46%, 영업이익 292억 → 472억. 최근 4분기 영업이익률 21.2% · 부채비율 35.0%.",
+   "valuation": "시총 약 1.77조, 최근 4분기 지배순이익 기준 PER 약 16.3배(10-30 시총 기준 거친 값). 2025 상장 — 이력이 짧다.",
+   "risks": "해외 확장 과정의 운반비 증가가 매출보다 빠름(10-27 보도), 단일 브랜드 의존, 원화 강세.",
+   "invalidation": "2개 분기 연속 영업이익률 하락, 해외 매출 성장률 20% 미만으로 둔화.",
+   "evidence": [
+    {
+     "source": "비건뉴스",
+     "date": "2026-10-28",
+     "title": "달바글로벌, 100억원 자사주 신탁 결정…취득 후 전량 소각",
+     "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBwb1Yyc1FsQ2dtU1lRai1WR25fRWdDUDVCMnRBYXhQQ2NEWERCcHY2TnAwTFJ0TUdMUzhJbnBrMGphVThocU9xRVc0SzU1VzlVdnY4bTJzeHlRellIU054RFh4aXZBZw?oc=5"
+    },
+    {
+     "source": "뉴스핌",
+     "date": "2026-10-27",
+     "title": "[리포트 브리핑]달바글로벌, '원화 강세에도 수익성 방어' 목표가 240,000원 - 상상인증권",
+     "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5TbGNDNHJqbFRtai12Zk96VXA1NEpFT25SdXRySzBuT1EyR3dpMkdSTzVmeHVEbEt2MjFVN0trRDZqTzd5dlVQeVViVk4wUXhSM3VRMVNEWVAyalFQ?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "028670",
+   "name": "팬오션",
+   "lane": "A",
+   "business": "벌크선(곡물·철광석)·탱커(VLCC)·컨테이너 해운. 해자: 장기운송계약 비중.",
+   "catalyst": "유조선(VLCC) 운임 강세·탱커 선대 확대, 2,117억 장기화물운송계약, 영업이익 예상 상회(목표가 상향).",
+   "financials": "2분기 매출 전년 동기 대비 +48%, 영업이익 1,230억 → 1,937억. 최근 4분기 영업이익률 9.6% · 부채비율 103.08%.",
+   "valuation": "시총 약 3.12조, 최근 4분기 지배순이익 기준 PER 약 9.2배(10-30 시총 기준 거친 값). 해운 주기 정점 우려로 낮은 PER — 장기계약이 하방을 받친다고 본다.",
+   "risks": "선박 공급 과잉(KB 보유 의견), 운임 하락기 진입, 유가·지정학 변수.",
+   "invalidation": "BDI·VLCC 운임 동반 급락으로 4분기 영업이익 감소, 장기계약 해지.",
+   "evidence": [
+    {
+     "source": "글로벌이코노믹",
+     "date": "2026-10-27",
+     "title": "KB증권 \"팬오션, 영업이익 기존 예상 상회.. 목표가 상향\"",
+     "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNQ2dKZHg2T0NEcm1GdXNrdTBaUkhJd0l0bHFmOTVWbVNzb0xfc1ZST3lieVBtR3R2c1Z2SXU2eUIyT2tsV2pzMUFzUGxfSkRKZmdqUUZDc3lYaW94NWpTSFpsUGduOHVQZ1RrN1VHT3pNSC01TFNPRHJka19aZ095ZWJXVUsxbHNW?oc=5"
+    },
+    {
+     "source": "데이터투자",
+     "date": "2026-10-22",
+     "title": "팬오션, 2117억원 규모 장기화물운송계약",
+     "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBwVmRnUHNIcVdEQW5mc2pRc181ZXliV3Exd3RST0toSi1Wc1ZNeDR0WDMwaEJ6M0dzTjFkX1F5cjNiNGtnS1B2QmMyQmhkVHRRWkQzbHM1amNuZndfR29kbDdlMUtQM2tyVkJsdFFvVDcwbDg?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "042660",
+   "name": "한화오션",
+   "lane": "B",
+   "business": "LNG선·컨테이너선·해양·특수선(잠수함·함정) 건조. 해자: LNG선 건조 능력, 특수선(잠수함) 기술.",
+   "catalyst": "한화 필리조선소의 첫 미 해군 함정(LSM 3,575억) 수주 — 미국 함정 건조·MRO 진입, 3분기 조선 3사 동반 호실적.",
+   "financials": "2분기 매출 전년 동기 대비 +65%, 영업이익 3,717억 → 7,361억. 최근 4분기 영업이익률 11.4% · 부채비율 167.61%. A3 FY2025 는 흑자(영업이익 1.17조·순이익 1.25조)지만 부채/자본 2.26 이라 갈래 B.",
+   "valuation": "시총 약 15.08조, 최근 4분기 지배순이익 기준 PER 약 7.3배(10-30 시총 기준 거친 값). 흑자 전환 뒤 이익 지속성에 대한 의심이 남은 가격.",
+   "risks": "LNG선 선가 하락·중국 추격, 노사 리스크, 미국 함정 사업의 예산·법적 제약(외국 조선소 규제).",
+   "invalidation": "4분기 영업이익 감소 전환, 미국 함정 추가 수주 부재와 MASGA 예산 지연, 부채비율 재상승.",
+   "path_to_profit": "이미 흑자다 — 남은 B 조건은 부채/자본(FY2025 2.26, 2분기 부채비율 167%). 고선가 수주분 인도가 2027 까지 이어지며 이익이 쌓이면 FY2026 말 부채/자본 2 미만으로 내려가 갈래 A 조건 충족. 미 해군 함정·MRO 가 2027 이후 추가 이익원.",
+   "evidence": [
+    {
+     "source": "지디넷코리아",
+     "date": "2026-11-01",
+     "title": "한화, 필리조선소 인수 후 첫 미 해군 함정 건조 계약",
+     "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1ORU82TjRBTGtVX1d5Mi1ZUGZzall5ZEZwS3hLY1JvaG9TSkNKc2R0RTlUX2VpUFNVMVE5aVZWSHc0M1AyQ0RJM0wzRjhPcW5ONVg2LXpR?oc=5"
+    },
+    {
+     "source": "마이데일리",
+     "date": "2026-11-01",
+     "title": "3분기 나란히 웃은 조선 3사…노사 리스크 털고 중장기 성장 시동",
+     "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1ra3JiMnI3R3RBTmM0cC1kSnBTTElhYWtLczZjWm5JbHJqelJVY2dvYmhmTlhidHNSZ3BQeWw2N0o0eDl5UUN2cVotQnU5X2FvY3QyUnRnZXpvRTNyaExFVA?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "290650",
+   "name": "엘앤씨바이오",
+   "lane": "B",
+   "business": "인체 조직 이식재·스킨부스터('리투오') 등 재생·미용의료 소재. 중국 합작·태국 등 해외 진출.",
+   "catalyst": "태국 리투오 허가·공식 론칭, 미국 진출 추진, 2분기 영업이익 흑자 전환(−2억 → 86억).",
+   "financials": "2분기 매출 전년 동기 대비 +88%, 영업이익 -2억 → 86억. 최근 4분기 영업이익률 16.8% · 부채비율 42.44%. A3 FY2025 는 영업이익 44억 흑자·순손실 −1,382억(갈래 B — 순손실).",
+   "valuation": "시총 약 0.64조, 최근 4분기 지배순이익 적자라 PER 없음(10-30 시총 기준 거친 값). 유상증자 신주 370만주 11-04 상장 — 희석 반영 전 시총.",
+   "risks": "유상증자 희석, 원료 수급 논란 보도(회사 반박), 미용의료 경쟁 심화, 해외 허가 지연.",
+   "invalidation": "3·4분기 영업적자 재전환, 리투오 해외 매출 미미, 추가 자금 조달.",
+   "path_to_profit": "영업은 이미 흑자 — 남은 B 조건은 순손실(FY2025 −1,382억, 영업 외 손실). 리투오 국내 판매 증가 + 태국 등 해외 론칭으로 고마진 매출 비중이 오르고 영업 외 손실이 반복되지 않으면 FY2026 순이익 흑자 → 갈래 A 조건 충족.",
+   "evidence": [
+    {
+     "source": "의학신문",
+     "date": "2026-10-30",
+     "title": "엘앤씨바이오, 태국서 ‘리투오’ 허가 확보…시장 진입 본격화",
+     "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5mY2E0cGlwOTl5MjZhcHhwME9hN204bEhobXRFNXZsZ01nRHNBbGJLNWlmd2VIZzUteXJ6QjNKR3VsRG82RFlYVnM0NzF6VTdWWi13RXlHS2s0OUZTNmpXc1A5d3UzREhrVWc?oc=5"
+    },
+    {
+     "source": "의학신문",
+     "date": "2026-10-28",
+     "title": "엘앤씨바이오 \"미국 진출 및 원료 수급 이상 무…왜곡 보도엔 엄중 대응\"",
+     "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9udENaTmdVZF9XSlYyWVpYcV8yWjQzaUJSdk5selJxUmJHNHFsNVFvN2N2U1AxS1NEQVVfNTRwTi02V3VKM2gySWtIVUtSSW1pUmxJNDROdmlqYmNZa3YtSVg4SWgyZHFGN0E?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "352820",
+   "name": "하이브",
+   "lane": "B",
+   "business": "음악 레이블·공연·IP(BTS·세븐틴·뉴진스 등)·플랫폼(위버스). 해자: 아티스트 포트폴리오·팬 플랫폼.",
+   "catalyst": "BTS 월드투어로 3분기 흑자 전환·역대 최대 매출 전망, 신인(코르티스·캣츠아이) 성장.",
+   "financials": "2분기 매출 전년 동기 대비 +105%, 영업이익 659억 → 1,709억. 최근 4분기 영업이익률 -1.8% · 부채비율 63.48%. 최근 4분기 합 영업이익률은 아직 음(일회성 비용 포함). A3 FY2025 는 영업이익 493억·순손실 −2,544억(갈래 B — 순손실).",
+   "valuation": "시총 약 6.72조, 최근 4분기 지배순이익 적자라 PER 없음(10-30 시총 기준 거친 값). 투어 정점 이익을 연환산하면 싸 보이는 함정 — 투어 뒤 이익 지속이 관건.",
+   "risks": "투어 종료 뒤 매출 급감, 아티스트 계약·분쟁, 플랫폼 적자, 목표가 하향(LS 26만).",
+   "invalidation": "4분기 영업이익이 3분기의 절반 미만으로 급감, 2027 BTS 활동 계획 불확실, 순손실 지속.",
+   "path_to_profit": "BTS 월드투어(공연·MD) 매출이 3·4분기 이익을 끌고, 저연차 그룹 수익화가 투어 공백을 메우면 FY2026 순이익 흑자 → 갈래 A 조건 충족.",
+   "evidence": [
+    {
+     "source": "파이낸셜뉴스",
+     "date": "2026-10-20",
+     "title": "하이브, BTS 투어에 3분기 흑자전환 전망…목표가 29만원",
+     "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5KRlo2WHJ1c1c3QWhwRXdvdDJIcUJMQnlPbmo4aHg5Sml6ZWc3MkVScFU4WWhvcTRoTXZEWGYwOWFjTjRDUHhtNGVTZDc3eGFZTVVnVWV4dFJkZw?oc=5"
+    },
+    {
+     "source": "네이버 프리미엄콘텐츠",
+     "date": "2026-10-23",
+     "title": "하이브 | BTS 투어로 역대 최대 매출, 다음 성장은 코르티스·캣츠아이의 몫",
+     "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNY1RGZ1JZX2VwOUxEMnp3Z1psZFlObjdUTDdIUWtjVkpBNTFVQUpSckVyQjhrTWo3Y2FCZklESFlYb0ZjcFkwaUl5Tjdna3pvUjRFVlJpUFh0NmVpOHBLZUZWZ2dNWmVqRE9iUzFMT1NJOG1uNlA0aWwzcVFJZUZUMjQ1SExIbGtB?oc=5"
+    }
+   ]
+  }
+ ]
+}

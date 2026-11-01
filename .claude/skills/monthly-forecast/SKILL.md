@@ -12,7 +12,7 @@ description: 매달 1~7일에 하는 유망 테마 3개 + 종목 종합 분석 1
 ## 규칙 (사전등록 정본: `research/strategy-lab/findings/theme-forecast-forward-preregistration-2026-10.md`, `stock-forecast-forward-preregistration-2026-10.md`)
 
 - **등록일 = 오늘만.** 소급 금지. 매달 **1~7일** 안에만 한다. 지났으면 그 달은 건너뛴다 (메우지 않는다).
-- 테마: 테마 트리 v0.2 고정본 44개(`reports/2026-10-theme-forecast-forward/universe.json`) 중 **3개**. 각각 인과 사슬 · 근거 **2개 이상** · 단계 · 틀릴 조건.
+- 테마: 테마 트리 v0.2 고정본 44개(`research/strategy-lab/reports/2026-10-theme-forecast-forward/universe.json`) 중 **3개**. 각각 인과 사슬 · 근거 **2개 이상** · 단계 · 틀릴 조건.
 - 종목: **10개** = 흑자 갈래 A 7 + 미래 수익성 갈래 B 3 (B = A3 최근 연간 영업·순손실·부채/자본 2↑·자본잠식, 코드가 A3 로 대조). 사업·해자·촉매·재무·밸류·위험·틀릴 조건·근거 2개↑ (B 는 흑자 전환 경로).
 - 사슬이 겹치지 않게 분산한다 (10월에는 테마 3개가 AI 설비투자 축이라 종목에서는 메모리를 1개만 두었다).
 - 모델 ID 는 **지금 쓰는 모델**을 `model` 칸에 정확히 적는다.
@@ -20,12 +20,15 @@ description: 매달 1~7일에 하는 유망 테마 3개 + 종목 종합 분석 1
 ## 순서
 
 1. **날짜 확인**: 오늘이 1~7일인가. 아니면 멈추고 "이번 달은 건너뜀"만 보고.
-2. **직전 달 파일을 본보기로 연다**: `reports/2026-10-theme-forecast-forward/forecasts/2026-10.json`, `reports/2026-10-stock-forecast-forward/forecasts/2026-10.json`. 필드(month·created·model·horizon·context·picks[…])를 그대로 따른다.
+2. **직전 달 파일을 본보기로 연다**: `research/strategy-lab/reports/2026-10-{theme,stock}-forecast-forward/forecasts/` 의 **가장 최근 달** 파일. 필드(month·created·model·horizon·context·picks[…])를 그대로 따른다.
 3. **재료 모으기** (숫자는 코드·파일, 이야기는 뉴스):
    - 시장 맥락: `reports/market-daily/` 최근 마감 리포트, `docs/data/theme-strength.json`.
-   - 뉴스: 구글 뉴스 RSS 날짜 범위 검색 — 브라우저 패널(`mcp__Claude_Browser__*`)에서 fetch. 네이버 API 는 최신 1,100건뿐이라 쓰지 않는다.
-   - 종목 걸러내기: KRX 일별(시총·거래대금, 필요하면 `collect_krx_daily_ext.py <이번 달>` 먼저), `quarterly-multi` recent 반기 누적, A3 재무, `docs/data/decode/` AI 해독.
-   - A 조건 예(10월): 흑자·시총 3천억↑·거래대금 30억↑·매출 +20%↑·영업이익 +30%↑·영업이익률 8%↑·부채/자본 1.5 미만·반기 연환산 PER 20 이하. 이 숫자를 바꾸면 기록에 명시한다.
+   - **종목 걸러내기(11월부터 정본)**: `python research/strategy-lab/forecast_screen.py screen` — 네이버 분기 재무(키 없음)·A2a 20일 거래대금·A3 갈래로
+     A/B 후보 표를 낸다(약 4분, `.cache/forecast/screen-YYYY-MM.json`). 클라우드·루틴에서 돈다. 10월만 PC 전용 quarterly-multi(반기 누적)였다.
+     문턱(A: 시총 3천억·거래대금 30억·매출 +20%·영업이익 +30%·4분기 이익률 8%·부채비율 150% 미만·4분기 PER 20 이하)을 바꾸면 process 칸에 적는다.
+   - 뉴스: `python research/strategy-lab/forecast_screen.py news "검색어" …` — 구글 뉴스 RSS 날짜 범위(제목·날짜·링크, `.cache/forecast/news.json` 누적).
+     네이버 검색 API 는 최신 1,100건뿐이라 쓰지 않는다. 근거 url 은 이 파일에서 그대로 옮긴다(지어내지 않는다).
+   - 후보 고르기 전에 A3 갈래 사유(영업·순손실·부채/자본)를 `run_stock_forecast_forward.a3_latest` 로 확인하고 B 문구에 실제 값을 쓴다(11월에 추측으로 썼다가 고침).
 4. **JSON 작성** → `forecasts/YYYY-MM.json` 두 개. 근거마다 `source·date·title·url`. 본문 인용은 제목 위주로 짧게 (저작권).
 5. **등록** (오늘 날짜일 때만 받아 준다):
    ```bash
@@ -35,6 +38,11 @@ description: 매달 1~7일에 하는 유망 테마 3개 + 종목 종합 분석 1
    종목은 코드가 A3 로 갈래를 대조해 어긋나면 거부한다. 거부 메시지를 고쳐 다시 등록하되, 날짜 규칙을 우회하지 않는다.
 6. **커밋**: 두 `forecasts/YYYY-MM.json` + `ledger.jsonl` 류만 파일 명시 add. 메시지 `chore(forecast): YYYY-MM 테마·종목 예측 등록`.
 7. 인수인계에 한 줄 (`session-wrapup`). push 는 확인 후.
+
+## 자동 실행(루틴)
+
+매달 2일 예약 작업이 새 클라우드 세션에서 이 스킬을 돌린다(이름 '월간 예측 등록'). 루틴은 main 에서 시작해 등록 뒤 **main 에 바로 push** 한다
+(마감 리포트 루틴과 같은 방식 — 거절되면 `git pull --rebase` 후 다시, force 금지). 2일이 등록에 실패하면 그 달 7일까지 사람이 다시 돌릴 수 있다.
 
 ## 하지 말 것
 
