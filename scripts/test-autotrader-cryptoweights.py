@@ -152,6 +152,102 @@ def main():
         except GateError:
             ck("킬 스위치면 실행 거부", not fb.placed)
 
+    # ---- 전부 0%(weights 비어 있음): 새로 사지 않고 자기 보유만 정리
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_for(td, weights={})
+        fb = FakeBroker(positions={"UPBIT": [Position("KRW-BTC", "UPBIT", 0.5, 90e6, BTC)]}, cash={"UPBIT": 5_000_000}, quotes=price)
+        (Path(td) / "strategy_crypto_weights.json").write_text(json.dumps(
+            {"cash": 100_000.0, "capital": 1_000_000.0, "holdings": {"KRW-BTC": 0.006}, "pending": {}}), encoding="utf-8")
+        r = run(c, fb, at(2))
+        ck("비율 전부 0%: 매수 없음, 자기 BTC(0.006)만 정리 매도(개인 0.5 불변)",
+           [x["side"] for x in r["placed"]] == ["SELL"] and r["placed"][0]["qty"] <= 0.006)
+
+    # ---- '기타' 묶음: 후보 중 거래대금 상위 N · 투자유의 제외 · 월 1회 고정 · 균등
+    XRP, SOL, ADA, DOGE, JUNK = "KRW-XRP", "KRW-SOL", "KRW-ADA", "KRW-DOGE", "KRW-JUNK"
+    px2 = {**price, XRP: 1_000.0, SOL: 200_000.0, ADA: 800.0, DOGE: 300.0, JUNK: 10.0}
+    info = {XRP: {"value24h": 900e9, "warning": False}, SOL: {"value24h": 500e9, "warning": False},
+            ADA: {"value24h": 100e9, "warning": False}, DOGE: {"value24h": 300e9, "warning": False},
+            JUNK: {"value24h": 999e9, "warning": True}}
+    cands = [XRP, SOL, ADA, DOGE, JUNK, "KRW-NOPE"]
+
+    def cfg_o(td, **kw):
+        c = cfg_for(td, weights={"KRW-BTC": 0.5, "KRW-ETH": 0.2}, other_weight=0.3, other_candidates=cands, other_top_n=2, **kw)
+        c["symbol_allowlist"] = ["KRW-BTC", "KRW-ETH"] + cands
+        return c
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_o(td)
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes=px2, info=info)
+        r = run(c, fb, at(2), execute=False)
+        st = state(td)
+        ck("기타 = 후보 중 거래대금 상위 2(XRP 9천억·SOL 5천억), 투자유의(JUNK 9천9백억)·마켓 없음(NOPE) 제외", st["other"]["symbols"] == [XRP, SOL])
+        ck("기타 30% 를 균등(코인당 15%) — 계획 매수에 XRP·SOL", {x["symbol"] for x in r["planned"]} >= {XRP, SOL})
+        info[ADA]["value24h"] = 9_999e9
+        run(c, fb, at(20), execute=False)
+        ck("같은 달에는 목록이 안 바뀐다(거래대금이 바뀌어도)", state(td)["other"]["symbols"] == [XRP, SOL])
+        run(c, fb, datetime(2026, 12, 1, 9, 5, tzinfo=KST), execute=False)
+        ck("달이 바뀌면 다시 고른다(ADA 상위로)", state(td)["other"]["symbols"][0] == ADA and state(td)["other"]["month"] == "2026-12")
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_o(td)
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes=px2, info=info)
+        (Path(td) / "strategy_crypto_weights.json").write_text(json.dumps(
+            {"cash": 500_000.0, "capital": 1_000_000.0, "holdings": {"KRW-SOL": 0.5}, "pending": {},
+             "other": {"month": "2026-11", "symbols": [XRP, DOGE], "cands": [x for x in cands]}}), encoding="utf-8")
+        fb._pos["UPBIT"] = [Position("KRW-SOL", "UPBIT", 0.5, 150_000.0, 200_000.0)]
+        r = run(c, fb, at(2))
+        ck("기타에서 빠진 코인(SOL)의 자기 보유는 목표 0 으로 정리 매도", any(x["symbol"] == "KRW-SOL" and x["side"] == "SELL" for x in r["placed"]))
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_o(td)
+
+        class Boom(FakeBroker):
+            def market_info(self, market, symbols):
+                raise RuntimeError("API 다운")
+        fb = Boom(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes=px2)
+        r = run(c, fb, at(2), execute=False)
+        ck("시세 조회 실패 → 알림, 고정 코인만 계획(기타는 원화로)", any("조회 실패" in n for n in r.get("notes", []))
+           and {x["symbol"] for x in r["planned"]} == {"KRW-BTC", "KRW-ETH"})
+    for bad in ({"weights": {"KRW-BTC": 0.8}, "capital_krw": 1e6, "other_weight": 0.3, "other_candidates": ["KRW-XRP"]},
+                {"weights": {"KRW-BTC": 0.5}, "capital_krw": 1e6, "other_weight": 0.3},
+                {"weights": {"KRW-BTC": 0.5}, "capital_krw": 1e6, "other_weight": 0.3, "other_candidates": ["XRP"]},
+                {"weights": {"KRW-BTC": 0.5}, "capital_krw": 1e6, "other_weight": 0.3, "other_candidates": ["KRW-XRP"], "other_top_n": 0}):
+        try:
+            CW.parse_params(bad)
+            ck("기타 설정 오류 거부", False)
+        except ValueError:
+            ck("기타 설정 오류 거부(합>1·후보 없음·형식·N<1)", True)
+
+    # ---- 업비트 어댑터: market_info 는 공개 API 2개(마켓 목록·시세)로 거래대금·유의를 만든다
+    from autotrader import upbit as UB
+    mod = UB._client_module()
+
+    class Resp:
+        def __init__(self, data):
+            self.data = data
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return self.data
+    calls = []
+
+    def fake_request(method, url, **kw):
+        calls.append((method, url.rsplit("/", 1)[-1], kw.get("params")))
+        if url.endswith("/market/all"):
+            return Resp([{"market": "KRW-XRP", "market_warning": "NONE"}, {"market": "KRW-JUNK", "market_warning": "CAUTION"},
+                         {"market": "KRW-EVT", "market_warning": "NONE", "market_event": {"warning": True}}])
+        return Resp([{"market": "KRW-XRP", "acc_trade_price_24h": 9e11}, {"market": "KRW-JUNK", "acc_trade_price_24h": 1e12},
+                     {"market": "KRW-EVT", "acc_trade_price_24h": 5e11}, {"market": "KRW-GONE", "acc_trade_price_24h": 1e9}])
+    orig = mod._request
+    mod._request = fake_request
+    try:
+        mi = UB.UpbitBroker(object()).market_info("UPBIT", ["KRW-XRP", "KRW-JUNK", "KRW-EVT", "KRW-GONE"])
+    finally:
+        mod._request = orig
+    ck("어댑터 market_info: 거래대금·유의(CAUTION·market_event 경고), 목록에 없는 코인(GONE)은 빠진다",
+       mi == {"KRW-XRP": {"value24h": 9e11, "warning": False}, "KRW-JUNK": {"value24h": 1e12, "warning": True},
+              "KRW-EVT": {"value24h": 5e11, "warning": True}} and [c[1] for c in calls] == ["all", "ticker"]
+       and calls[1][2] == {"markets": "KRW-XRP,KRW-JUNK,KRW-EVT,KRW-GONE"})
+
     print(f"\ntest-autotrader-cryptoweights {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0
 

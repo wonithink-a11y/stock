@@ -31,6 +31,10 @@ class Broker:
     def quote(self, symbol: str, market: str) -> float:
         raise NotImplementedError
 
+    def market_info(self, market: str, symbols: List[str]) -> Dict[str, dict]:
+        """종목별 {value24h(24시간 거래대금, 원), warning(투자유의 등)} — 조회 전용. 지원 안 하는 브로커는 NotImplementedError."""
+        raise NotImplementedError
+
     def place(self, intent: Intent, dry_run: bool = True) -> dict:
         raise NotImplementedError
 
@@ -50,12 +54,14 @@ class FakeBroker(Broker):
                  cash: Optional[Dict[str, float]] = None,
                  quotes: Optional[Dict[str, float]] = None,
                  open_orders: Optional[List[OpenOrder]] = None,
-                 cancel_removes: bool = True, place_fails: bool = False):
+                 cancel_removes: bool = True, place_fails: bool = False,
+                 info: Optional[Dict[str, dict]] = None):
         self._pos = positions or {}
         self._cash = cash or {}
         self._quotes = quotes or {}
         self._open = list(open_orders or [])
         self.cancel_removes = cancel_removes
+        self._info = info or {}                    # 테스트가 마켓 정보(거래대금·유의)를 직접 넣는다
         self.place_fails = place_fails
         self.placed: List[dict] = []
         self.cancelled: List[dict] = []
@@ -73,6 +79,9 @@ class FakeBroker(Broker):
 
     def fills(self, market, start, end):
         return [dict(f) for f in self.fill_rows if f.get("market", market) == market]
+
+    def market_info(self, market, symbols):
+        return {s: dict(self._info[s]) for s in symbols if s in self._info}
 
     def quote(self, symbol, market):
         if symbol not in self._quotes:

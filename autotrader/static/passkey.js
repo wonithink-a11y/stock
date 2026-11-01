@@ -75,7 +75,8 @@
       ev.preventDefault();
       var base = act.dataset.base, csrf = act.dataset.csrf;
       var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase ? act.elements.phrase.value : "",
-                 val: act.elements.val ? act.elements.val.value : "" };
+                 val: act.elements.val ? act.elements.val.value
+                   : Array.prototype.map.call(act.querySelectorAll("input[name=w]"), function (i) { return i.value || "0"; }).join(",") };
       say(out, "지문 확인 중…", false);
       post(base + "/passkey/action-options", req).then(sign).then(function (cred) {
         req.credential = cred;

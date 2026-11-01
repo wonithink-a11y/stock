@@ -23,7 +23,8 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, quote, urlsplit
 
-from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, check_notional, current_notional, kill_file, list_profiles,
+from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, check_notional, check_weights, current_notional,
+                     current_weights, kill_file, list_profiles, parse_weights, web_set_weights, weight_names,
                      load_profile, needs_big_raise_phrase, notional_history, parse_notional, state_dir, web_request_run,
                      web_set_auto, web_set_notional)
 from .engine import Ledger
@@ -378,9 +379,10 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
     sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
     for cfg, v in items:
         name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
-        st = _load_json(sdir / "strategy_coinbase_premium.json") or {}
+        cw_ = cfg.get("strategy") == "crypto_weights"
+        st = _load_json(sdir / ("strategy_crypto_weights.json" if cw_ else "strategy_coinbase_premium.json")) or {}
         pos = st.get("position") or {}
-        cur = current_notional(cfg)
+        cur = float((cfg.get("params") or {}).get("capital_krw") or 0) or None if cw_ else current_notional(cfg)
         auto = cfg.get("auto", "off")
         auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "")
         t = v["todayRuns"]
@@ -404,9 +406,14 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
                             f'<small class="mut">{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</small></span></div>')
             if len(rows) >= 3:
                 break
-        big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / 1회 매수</small></div>'
-        facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · 보유 {E(str(pos.get("qty"))) if pos else "없음"} · z {E(str(pos.get("z"))) if pos else "대기"}</div>'
-                                       f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>')
+        wtxt = ""
+        if cfg.get("strategy") == "crypto_weights":
+            cw, co = current_weights(cfg)
+            wtxt = "비율 " + " · ".join([f"{n[4:]} {v * 100:.0f}" for n, v in cw.items()] + ([f"기타 {co * 100:.0f}"] if co else [])) + "%"
+        big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회 매수"}</small></div>'
+        facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · {("보유 " + str(sum(1 for q in (st.get("holdings") or {}).values() if q > 0)) + "종 · 현금 " + format(st.get("cash") or 0, ",.0f") + "원") if cw_ else ("보유 " + (E(str(pos.get("qty"))) if pos else "없음") + " · z " + (E(str(pos.get("z"))) if pos else "대기"))}</div>'
+                                       f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>'
+                                       + (f'<div class="mut">{wtxt}</div>' if wtxt else ""))
         out.append(kill_card(cfg, csrf, base, pk, "crypto"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <span><b>업비트 · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
@@ -675,8 +682,19 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
 <input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 금액 변경</button><div class="pk-msg"></div></form>''')
         nform = f'<div style="margin-top:10px">{nform}</div>'
     kc = kill_card(cfg, csrf, base, has_pk) if with_kill else ""
+    wform = ""
+    if (cfg.get("params") or {}).get("web_weights"):
+        cw, co = current_weights(cfg)
+        names = weight_names(cfg)
+        cur_txt = " · ".join([f"{n[4:]} {cw.get(n, 0) * 100:.0f}%" for n in names] + [f"기타 {co * 100:.0f}%"])
+        ins = "".join(f'<input name="w" inputmode="numeric" placeholder="{E(n[4:])} %" autocomplete="off" style="width:30%">' for n in names)
+        ins += '<input name="w" inputmode="numeric" placeholder="기타 %" autocomplete="off" style="width:30%">'
+        wform = (f'<div class="mut">지금 {E(cur_txt)} · 합 100% 이하, 나머지는 원화</div>'
+                 + (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-weights">'
+                    f'{ins}<button>🔑 비율 변경</button><div class="pk-msg"></div></form>' if has_pk else ""))
     if compact:                                         # 크립토 화면: 접어 두고 필요할 때만 연다(한 화면에 최대한)
         parts = (f'<details class="fold"><summary>금액 바꾸기</summary>{nform}</details>' if nform else "")
+        parts += (f'<details class="fold"><summary>비율 바꾸기</summary>{wform}</details>' if wform else "")
         parts += f'<details class="fold"><summary>자동 · 실행</summary>{m}{form}{note}</details>'
         return parts
     return f'''{kc}<div class="card"><h2>조작</h2>{m}
@@ -1409,7 +1427,7 @@ class WebApp:
         except Exception:                               # noqa: BLE001 — 데이터 파일이 깨져도 계획 화면은 뜬다
             return None
 
-    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume", "set-notional")
+    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume", "set-notional", "set-weights")
 
     def _action(self, name: str, op: str, code: str, ip: str, phrase: str = "", ret: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
@@ -1424,8 +1442,8 @@ class WebApp:
                 self._msgs.add(m)
                 return self._redirect(f"/crypto?m={quote(m)}")
             return self._redirect(self._back_url(name, m))
-        if op == "set-notional":                        # 금액 변경은 인증앱 코드 경로가 없다 — 패스키로만(값이 지문 챌린지에 묶인다)
-            return back("1회 매수 금액 변경은 패스키(지문)로만 됩니다")
+        if op in ("set-notional", "set-weights"):       # 금액·비율 변경은 인증앱 코드 경로가 없다 — 패스키로만(값이 지문 챌린지에 묶인다)
+            return back("금액·비율 변경은 패스키(지문)로만 됩니다")
         if live_order:                                  # 패스키가 없거나 쓸 수 없어도 코드로 내려가지 않는다(M3)
             return back("실계좌 주문 켜기·실행·킬 해제는 패스키로만 됩니다 — 아래 '패스키(지문)로 확인'")
         if op != "kill" and self._pk_ready():           # 패스키가 있으면 조작은 지문으로만(인증앱 코드는 패스키가 없을 때의 대체)
@@ -1449,10 +1467,16 @@ class WebApp:
         self._msgs.add(m)                               # 이 서버가 낸 문구만 화면에 띄운다(주소창으로 가짜 안내를 못 넣게)
         return f"/details?p={quote(name)}&m={quote(m)}"
 
-    def _execute(self, c: dict, name: str, op: str, ip: str, val: Optional[int] = None) -> str:
+    def _execute(self, c: dict, name: str, op: str, ip: str, val=None) -> str:
         """인증이 끝난 조작을 실행하고 안내 문구를 돌려준다. 요청 파일·킬 파일만 쓴다."""
         live = c.get("mode") == "live"
         now = self._now()
+        if op == "set-weights":
+            err = web_set_weights(c, val, now) if val is not None else "비율이 없습니다"
+            if err:
+                return err
+            self._log(ip, f"action:{name}:set-weights{'-live' if live else ''}")
+            return "비율을 " + " · ".join(f"{n[4:]} {v}%" for n, v in zip(weight_names(c) + ["KRW-기타"], val)) + "으로 바꿨습니다(다음 실행부터)"
         if op == "set-notional":
             prev = current_notional(c)
             err = web_set_notional(c, val, now) if val is not None else "금액이 없습니다"
@@ -1559,6 +1583,12 @@ class WebApp:
             if not match or j.get("op") not in self.OPS or j.get("op") == "kill" or not self._passkeys():
                 return self._json(404, {"error": "없음"})
             val = ""
+            if j["op"] == "set-weights":
+                v, why = parse_weights(match[0], j.get("val", ""))
+                why = why or check_weights(match[0], v) or ""
+                if why:
+                    return self._json(400, {"error": why})
+                val = ",".join(str(x) for x in v)
             if j["op"] == "set-notional":                # 값도 챌린지에 묶는다 — 지문 뒤에 금액이 바뀌지 못하게
                 n, why = parse_notional(j.get("val", ""))
                 why = why or (n is not None and check_notional(match[0], n)) or ""
@@ -1587,6 +1617,10 @@ class WebApp:
             if is_live_order(c, pend["op"]) and pend["op"] != "resume" and str(j.get("phrase", "")).strip() != LIVE_PHRASE:   # 킬 해제는 지문만(11-01 사용자 결정)
                 return self._json(400, {"error": f"확인 문구({LIVE_PHRASE})를 정확히 입력"})
             val = None
+            if pend["op"] == "set-weights":
+                val, _ = parse_weights(c, j.get("val", ""))
+                if val is None or ",".join(str(x) for x in val) != pend.get("val"):
+                    return self._json(403, {"error": "확인한 비율과 다릅니다 — 다시"})
             if pend["op"] == "set-notional":
                 val, _ = parse_notional(j.get("val", ""))
                 if val is None or str(val) != pend.get("val"):
