@@ -1,0 +1,22 @@
+[Unit]
+# VM 상태 스냅샷(5분) — 폰(클라우드) 세션이 ssh 없이 점검하게 한다. scripts/vm-status-snapshot.py 설명 참고.
+# 읽기만 한다: systemctl show/--failed · journalctl · 로그 tail · git log. 명령을 받아 실행하는 경로 없음.
+# 결과는 /srv/stock-data/bundles/_status/vm-status.json → 기존 nginx /research-data/ (X-Data-Key) 로 읽는다.
+# autotrader·실계좌 잔고 유닛은 상태만(로그 본문 없음). EnvironmentFile 없음 — 키를 읽지 않는다.
+Description=VM status snapshot for phone sessions (read-only, every 5 min)
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+ExecStart=/usr/bin/python3 /home/ubuntu/collector/scripts/vm-status-snapshot.py
+TimeoutStartSec=90
+StandardOutput=append:/home/ubuntu/collector-venv/logs/vm-status-snapshot.log
+StandardError=append:/home/ubuntu/collector-venv/logs/vm-status-snapshot.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/stock-data/bundles/_status /home/ubuntu/collector-venv/logs

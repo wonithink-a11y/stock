@@ -9,6 +9,7 @@ VM /srv/stock-data/bundles/ 에 두고, nginx /research-data/ 가 키(X-Data-Key
   python scripts/research-data.py list                  # VM 에 있는 묶음 목록
   python scripts/research-data.py get crypto-k1 a4      # 받기 → sha256 확인 → 원래 경로에 풀기 (all = 전부)
   python scripts/research-data.py push [이름…]           # PC 전용: 바뀐 묶음만 다시 묶어 VM 에 올린다(ssh stock-new)
+  python scripts/research-data.py status [유닛|--json]   # VM 상태(ssh 없이 — deploy/vm-status-snapshot 이 5분마다 쓴 것)
   python scripts/research-data.py --selftest            # 네트워크 없이
 
 ★ 키는 환경변수 RESEARCH_DATA_KEY(또는 .env). 저장소·로그에 넣지 않는다(절대 규칙 2).
@@ -212,6 +213,44 @@ def cmd_get(names):
         print(f"{n}: {got / 1e6:.1f}MB · {cnt}개 → {b['root']} (builtAt {b['builtAt']}, sha256 {b['sha256'][:12]})")
 
 
+def cmd_status(rest):
+    """VM 이 5분마다 쓰는 _status/vm-status.json 을 읽어 요약한다. 유닛 이름(앞부분)을 주면 그 로그를 보인다."""
+    try:
+        with http_get("_status/vm-status.json", data_key()) as r:
+            st = json.load(r)
+    except urllib.error.HTTPError as e:
+        sys.exit("404 — VM 에 상태 스냅샷이 없다(vm-status-snapshot.timer 설치 전)" if e.code == 404 else f"HTTP {e.code}")
+    if rest == ["--json"]:
+        print(json.dumps(st, ensure_ascii=False, indent=1))
+        return
+    if rest:
+        q = rest[0]
+        for sec in ("services", "timers"):
+            for n, v in st.get(sec, {}).items():
+                if n.startswith(q):
+                    print(n, v)
+        for sec in ("journal", "logs"):
+            for n, lines in st.get(sec, {}).items():
+                if n.startswith(q):
+                    print(f"--- {sec}: {n}")
+                    print("\n".join(lines))
+        return
+    print(f"{st['host']} · {st['atKST']} KST(스냅샷 시각) · failed {st['failed'] or '없음'} · git {st['git']['head']}")
+    if st.get("errors"):
+        print("수집 오류:", st["errors"])
+    d, m = st.get("disk", {}), st.get("memMB", {})
+    print(f"디스크 여유 {d.get('freeGB')}GB/{d.get('totalGB')}GB · 메모리 여유 {m.get('MemAvailable')}MB/{m.get('MemTotal')}MB · load {st.get('load')}")
+    for n, t in sorted(st.get("timers", {}).items()):
+        flag = "" if t.get("ActiveState") == "active" else "  ← " + t.get("ActiveState", "?") + "/" + t.get("UnitFileState", "?")
+        print(f"  {n:38} 마지막 {t.get('LastTriggerUSec', '')[:20]:20} 다음 {t.get('NextElapseUSecRealtime', '')[:20]:20}{flag}")
+    bad = {n: v for n, v in st.get("services", {}).items() if v.get("Result") not in ("success", None)}
+    for n, v in bad.items():
+        print(f"  ✗ {n} Result={v.get('Result')} status={v.get('ExecMainStatus')} at={v.get('ExecMainExitTimestamp')}")
+    for n, f in st.get("files", {}).items():
+        print(f"  파일 {n:22} {f}")
+    print(f"  폴더 수 {st.get('dirCounts')}")
+
+
 def ssh(cmd, data=None):
     r = subprocess.run(["ssh", SSH_HOST, cmd], input=data, capture_output=True)
     if r.returncode:
@@ -341,6 +380,8 @@ def main(argv):
         if not rest:
             sys.exit("받을 묶음 이름을 적는다(또는 all) — list 로 확인")
         cmd_get(rest)
+    elif cmd == "status":
+        cmd_status(rest)
     elif cmd == "push":
         bad = [n for n in rest if n not in BUNDLES]
         if bad:
