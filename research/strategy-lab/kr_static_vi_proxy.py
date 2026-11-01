@@ -15,6 +15,7 @@ import glob
 import json
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -147,11 +148,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--minute-dir", default=os.path.expanduser("~/minute-raw"))
     ap.add_argument("--selftest", action="store_true")
+    # 자료가 두 곳에 나뉘어 있다(11-01 실측: VM ~/minute-raw 는 최근 42거래일만, 연구 캐시는 10-12 까지) — 입출력만 더한다, 계산 규칙 불변.
+    ap.add_argument("--events-out", help="사건 목록만 JSON 으로 쓰고 끝낸다(판정 안 함)")
+    ap.add_argument("--events-in", action="append", default=[], help="다른 곳에서 만든 사건 목록 — minute-dir 에 없는 날만 더한다")
     a = ap.parse_args()
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
     if a.selftest:
         return selftest()
     days = sorted(p.split("date=", 1)[1] for p in glob.glob(os.path.join(a.minute_dir, "date=*")))
     days = [d for d in days if split_of(d)]
+    if a.events_out:
+        events = [e for d in days for e in day_events(read_day(os.path.join(a.minute_dir, f"date={d}")), d)]
+        Path(a.events_out).write_text(json.dumps({"days": days, "events": events}, ensure_ascii=False), encoding="utf-8")
+        print(f"사건 {len(events)}건 · {len(days)}일({days[0] if days else '-'}~{days[-1] if days else '-'}) → {a.events_out}")
+        return 0
     if not days:
         print(f"분봉 파티션이 없다: {a.minute_dir}")
         return 1
@@ -160,8 +170,17 @@ def main():
         events += day_events(read_day(os.path.join(a.minute_dir, f"date={d}")), d)
         if i % 25 == 0:
             print(f"  {i}/{len(days)} {d} 사건 누계 {len(events)}", flush=True)
+    have = set(days)
+    for path in a.events_in:
+        ext = json.load(open(path, encoding="utf-8"))
+        add = [d for d in ext["days"] if d not in have and split_of(d)]
+        events += [e for e in ext["events"] if e["day"] in set(add)]
+        have |= set(add)
+        print(f"  더함 {path}: {len(add)}일({add[0] if add else '-'}~{add[-1] if add else '-'})")
+    days = sorted(have)
     out = analyse(events)
     out["minute_dir"] = a.minute_dir
+    out["events_in"] = a.events_in
     out["first_day"], out["last_day"] = days[0], days[-1]
     (HERE / "kr-static-vi-proxy.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(out, ensure_ascii=False, indent=1))
