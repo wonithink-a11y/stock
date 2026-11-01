@@ -233,6 +233,9 @@ Validated against
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
             클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
             VM 부트 볼륨 100GB(무료 블록 147/200GB), 옛 stock-Monitor 삭제. 폰 VM 접속 = Cloud Shell(RSA 키). docs/control/연구데이터-VM보관-설계-2026-10-30.md.
+  다음      ★★ **대시보드 폰 개편(11-01, PR #12~#25, 세션인수인계-2026-11-01.md)** — 종목 상세 새 기본 탭 '👀 한눈에'(점수·가격·목표가 30일 변경·PBR·수급·공시 그림) · 마감 리포트·영상 요약·공시·의견·일정·홈 등 재배치(데이터·점수 불변).
+            ★ **마감 리포트 시총 상위 = KRX 정규장**(네이버 통합 등락률은 애프터마켓 혼입 — LG엔솔 +0.42 vs −0.70) + 애프터(NXT) 따로 칸. **Yahoo `.KS` 개별 종목도 애프터 혼입 — 쓰지 않는다**.
+            첫 실물 11-02 18:10(`chgSource`) 미확인 · 다음 창: 업종 ETF `.KS` 대조, 장중 화면 15:30 뒤 값.
   다음      ★ **대시보드 화면 5건(10-20)** — 세션인수인계-2026-10-20-b.md. 장중 홈 = 평일 09:00~15:30 ∧ 네이버 장 상태 OPEN 이면 홈 맨 위가 지수·잠정 수급·관심종목 353 오르내림
             (`/kr-intraday` quotes = [현재가, 전일종가]), 아니면 마감 리포트. **실제 사이트·폰 장중 확인 전**(브라우저 패널이 github.io→VM 요청을 막아 localhost 로만 확인).
             증권사 의견 일지 = KIS 종목투자의견(의견·목표가만, 리포트 본문 없음) 관심종목 KR 180일 → docs/data/invest-opinion.json(Actions `invest-opinion` 평일 20:00) →
