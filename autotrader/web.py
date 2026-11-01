@@ -23,8 +23,9 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, quote, urlsplit
 
-from .config import (ConfigError, kill_file, list_profiles, load_profile, state_dir, web_request_run,
-                     web_set_auto)
+from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, check_notional, current_notional, kill_file, list_profiles,
+                     load_profile, needs_big_raise_phrase, notional_history, parse_notional, state_dir, web_request_run,
+                     web_set_auto, web_set_notional)
 from .engine import Ledger
 from .names import names_for
 from .web_auth import (AuthStore, Lockout, Sessions, passkey_auth_options, passkey_auth_verify, passkey_available,
@@ -569,9 +570,23 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
 <select name="op">{sel}</select>
 <input name="code" placeholder="인증앱 6자리 코드(새 코드)" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
 <button>적용</button></form>'''
+    nform = ""
+    if (cfg.get("params") or {}).get("web_notional"):
+        cur = current_notional(cfg)
+        hist = "".join(f'<div class="mut">{E(str(h.get("at", ""))[:16].replace("T", " "))} · {h.get("prev") or 0:,.0f} → {h.get("notional_krw", 0):,}원</div>'
+                       for h in notional_history(cfg))
+        nform = (f'''<div class="row"><span>1회 매수 금액</span><span>{"-" if cur is None else f"{cur:,.0f}원"}</span></div>
+<div class="mut">다음 매수부터 적용 · {NOTIONAL_MIN:,}~{NOTIONAL_MAX:,}원 · 서버 한도보다 크면 저장되지 않는다 · 현재 금액의 {NOTIONAL_BIG_RAISE}배를 넘기면 확인 문구 필요</div>{hist}''')
+        if has_pk:
+            nform += (f'''<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-notional">
+<input name="val" inputmode="numeric" placeholder="금액(원, 숫자만)" autocomplete="off" required>
+<input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액일 때만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 지문으로 금액 변경</button><div class="pk-msg"></div></form>''')
+        else:
+            nform += "<div class='warn'>금액 변경은 패스키로만 됩니다 — 먼저 패스키를 등록하세요.</div>"
+        nform = f'<div style="margin-top:10px">{nform}</div>'
     return f'''<div class="card"><h2>조작</h2>{m}
 <div class="row"><span>지금 자동 설정</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
-{form}{note}
+{form}{note}{nform}
 <form method="post" action="{base}/action" style="margin-top:10px"><input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}">
 <input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad)">킬 스위치 켜기 (확인 없이 즉시 — 주문 중단)</button></form></div>'''
 
@@ -1284,7 +1299,7 @@ class WebApp:
         except Exception:                               # noqa: BLE001 — 데이터 파일이 깨져도 계획 화면은 뜬다
             return None
 
-    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume")
+    OPS = ("auto-off", "auto-dry", "auto-execute", "run", "kill", "resume", "set-notional")
 
     def _action(self, name: str, op: str, code: str, ip: str, phrase: str = ""):
         match = [c for c in self.profiles() if c.get("profile") == name]      # 목록에 있는 이름만 — 경로로 쓰지 않는다
@@ -1296,6 +1311,8 @@ class WebApp:
         live_order = is_live_order(c, op)
         def back(m: str):
             return self._redirect(self._back_url(name, m))
+        if op == "set-notional":                        # 금액 변경은 인증앱 코드 경로가 없다 — 패스키로만(값이 지문 챌린지에 묶인다)
+            return back("1회 매수 금액 변경은 패스키(지문)로만 됩니다")
         if live_order:                                  # 패스키가 없거나 쓸 수 없어도 코드로 내려가지 않는다(M3)
             return back("실계좌 주문 켜기·실행·킬 해제는 패스키로만 됩니다 — 아래 '패스키(지문)로 확인'")
         if op != "kill" and self._pk_ready():           # 패스키가 있으면 조작은 지문으로만(인증앱 코드는 패스키가 없을 때의 대체)
@@ -1319,10 +1336,17 @@ class WebApp:
         self._msgs.add(m)                               # 이 서버가 낸 문구만 화면에 띄운다(주소창으로 가짜 안내를 못 넣게)
         return f"/details?p={quote(name)}&m={quote(m)}"
 
-    def _execute(self, c: dict, name: str, op: str, ip: str) -> str:
+    def _execute(self, c: dict, name: str, op: str, ip: str, val: Optional[int] = None) -> str:
         """인증이 끝난 조작을 실행하고 안내 문구를 돌려준다. 요청 파일·킬 파일만 쓴다."""
         live = c.get("mode") == "live"
         now = self._now()
+        if op == "set-notional":
+            prev = current_notional(c)
+            err = web_set_notional(c, val, now) if val is not None else "금액이 없습니다"
+            if err:
+                return err
+            self._log(ip, f"action:{name}:set-notional{'-live' if live else ''}")
+            return f"1회 매수 금액을 {prev or 0:,.0f}원 → {val:,}원으로 바꿨습니다(다음 매수부터)"
         if op.startswith("auto-"):
             err = web_set_auto(c, op[5:], now)
             if err:
@@ -1421,8 +1445,15 @@ class WebApp:
             match = [c for c in self.profiles() if c.get("profile") == j.get("p")]
             if not match or j.get("op") not in self.OPS or j.get("op") == "kill" or not self._passkeys():
                 return self._json(404, {"error": "없음"})
+            val = ""
+            if j["op"] == "set-notional":                # 값도 챌린지에 묶는다 — 지문 뒤에 금액이 바뀌지 못하게
+                n, why = parse_notional(j.get("val", ""))
+                why = why or (n is not None and check_notional(match[0], n)) or ""
+                if why:
+                    return self._json(400, {"error": why})
+                val = str(n)
             opts, chal = passkey_auth_options(self.rp_id, [p["id"] for p in self._passkeys()])
-            sess["pkAct"] = {"chal": chal, "p": j["p"], "op": j["op"], "until": now + 120}   # 이 조작에만 묶인다
+            sess["pkAct"] = {"chal": chal, "p": j["p"], "op": j["op"], "val": val, "until": now + 120}   # 이 조작에만 묶인다
             return 200, self._hdrs({"Content-Type": "application/json; charset=utf-8"}), opts.encode()
         if path == "/passkey/action":
             pend = sess.pop("pkAct", None)              # 챌린지는 한 번만
@@ -1442,7 +1473,14 @@ class WebApp:
             c = [x for x in self.profiles() if x.get("profile") == pend["p"]][0]
             if is_live_order(c, pend["op"]) and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
                 return self._json(400, {"error": f"확인 문구({LIVE_PHRASE})를 정확히 입력"})
-            msg = self._execute(c, pend["p"], pend["op"], ip)
+            val = None
+            if pend["op"] == "set-notional":
+                val, _ = parse_notional(j.get("val", ""))
+                if val is None or str(val) != pend.get("val"):
+                    return self._json(403, {"error": "확인한 금액과 다릅니다 — 다시"})
+                if needs_big_raise_phrase(c, val) and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
+                    return self._json(400, {"error": f"현재 금액의 {NOTIONAL_BIG_RAISE}배를 넘는 증액입니다 — 확인 문구({LIVE_PHRASE})를 정확히 입력"})
+            msg = self._execute(c, pend["p"], pend["op"], ip, val)
             return self._json(200, {"redirect": self.base + self._back_url(pend["p"], msg)})
         return self._not_found()
 

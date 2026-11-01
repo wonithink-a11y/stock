@@ -74,7 +74,8 @@
     act.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var base = act.dataset.base, csrf = act.dataset.csrf;
-      var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase ? act.elements.phrase.value : "" };
+      var req = { csrf: csrf, p: act.dataset.profile, op: act.elements.op.value, phrase: act.elements.phrase ? act.elements.phrase.value : "",
+                 val: act.elements.val ? act.elements.val.value : "" };
       say(out, "지문 확인 중…", false);
       post(base + "/passkey/action-options", req).then(sign).then(function (cred) {
         req.credential = cred;

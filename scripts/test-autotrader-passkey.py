@@ -98,6 +98,13 @@ def main():
         (td / "profiles" / "la.json").write_text(json.dumps({**BASE, "mode": "live", "auto": "off", "web_live_allowed": True}),
                                                  encoding="utf-8")
         (td / "profiles" / "pa.json").write_text(json.dumps({**BASE, "mode": "paper", "auto": "off"}), encoding="utf-8")
+        CB = {"strategy": "coinbase_premium", "broker": "upbit", "mode": "live", "key_prefix": "UPBIT_TRADE", "markets": ["UPBIT"],
+              "symbol_allowlist": ["KRW-BTC"], "auto": "off", "params": {"notional_krw": 100_000, "web_notional": True},
+              "risk": {"UPBIT": {"max_order_value": 15_000_000, "max_daily_value": 20_000_000, "max_position_value": 15_000_000}}}
+        (td / "profiles" / "cb.json").write_text(json.dumps(CB), encoding="utf-8")
+        (td / "profiles" / "cn.json").write_text(json.dumps({**CB, "params": {"notional_krw": 100_000}}), encoding="utf-8")   # web_notional 없음
+        (td / "profiles" / "cl.json").write_text(json.dumps({**CB, "risk": {"UPBIT": {"max_order_value": 150_000, "max_daily_value": 300_000,
+                                                                                         "max_position_value": 150_000}}}), encoding="utf-8")
         sdir = td / "state"
         store = A.AuthStore(sdir / "web_auth.json")
         secret = A.new_totp_secret()
@@ -205,6 +212,53 @@ def main():
         ck("실계좌 끄기(안전 쪽)는 문구 없이 지문만", st == 200 and load_profile(main_p, "la")["auto"] == "off")
         app.handle("POST", "/action", h, f"csrf={csrf}&p=pa&op=kill".encode(), "1.1.1.1")
         ck("킬 켜기는 여전히 확인 없이 즉시", kill_file(load_profile(main_p, "pa")).exists())
+
+        # ---- 웹 1회 매수 금액(설계 업비트-매수금액-웹설정-설계-2026-11-01)
+        from autotrader.config import (current_notional, effective_params, notional_history, parse_notional, read_notional,
+                                       notional_path)
+        cb = load_profile(main_p, "cb")
+
+        def setn(p, val, phrase="", key=None, tamper=None):
+            r = {"csrf": csrf, "p": p, "op": "set-notional", "val": val, "phrase": phrase}
+            st, ao = pj("/passkey/action-options", r)
+            if st != 200:
+                return st, ao
+            return pj("/passkey/action", {**r, **({"val": tamper} if tamper else {}), "credential": dev.assert_(ao, key=key)})
+        ck("범위 경계: 4,999 거부 · 5,000 통과 · 10,000,000 통과 · 10,000,001 거부",
+           parse_notional("4999")[0] is None and parse_notional("5000")[0] == 5000
+           and parse_notional("10000000")[0] == 10_000_000 and parse_notional("10000001")[0] is None)
+        ck("쉼표·소수·부호·빈값·문자 거부", all(parse_notional(x)[0] is None for x in ("1,000,000", "5000.5", "-5000", "", " ", "5천", "１００００")))
+        ck("웹 금액이 없으면 프로필 값", current_notional(cb) == 100_000 and effective_params(cb)["notional_krw"] == 100_000)
+        st, body = setn("cb", "200000")
+        ck("지문으로 금액 변경(10배 이하는 문구 없이)", st == 200 and read_notional(cb) == 200_000 and current_notional(cb) == 200_000
+           and effective_params(cb)["notional_krw"] == 200_000 and load_profile(main_p, "cb")["auto"] == "off")
+        ck("변경 이력 기록", notional_history(cb)[0]["prev"] == 100_000 and notional_history(cb)[0]["notional_krw"] == 200_000)
+        st, _ = setn("cb", "6000000", phrase="")
+        ck("현재 값의 10배 초과 증액은 확인 문구 없으면 거부", st == 400 and read_notional(cb) == 200_000)
+        st, _ = setn("cb", "6000000", phrase=web.LIVE_PHRASE)
+        ck("확인 문구가 있으면 증액 통과", st == 200 and read_notional(cb) == 6_000_000)
+        st, _ = setn("cb", "10000001")
+        ck("상한 초과는 옵션 단계에서 거부", st == 400 and read_notional(cb) == 6_000_000)
+        st, _ = setn("cb", "300000", tamper="9000000")
+        ck("지문 뒤 금액을 바꾸면 거부(값이 챌린지에 묶임)", st == 403 and read_notional(cb) == 6_000_000)
+        st, _ = setn("cb", "300000", key=SoftAuthenticator().key)
+        ck("다른 키의 서명 거부", st == 401 and read_notional(cb) == 6_000_000)
+        st, _ = setn("cn", "200000")
+        ck("web_notional 허락이 없는 프로필은 거부", st == 400 and read_notional(load_profile(main_p, "cn")) is None
+           and effective_params(load_profile(main_p, "cn"))["notional_krw"] == 100_000)
+        st, b = setn("cl", "200000")
+        ck("서버 한도보다 큰 금액은 저장 안 됨(한도를 깎지도 올리지도 않는다)", st == 400 and "모자랍니다" in b
+           and read_notional(load_profile(main_p, "cl")) is None)
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=set-notional&code={code()}".encode(), "1.1.1.1")
+        ck("인증앱 코드 경로로는 금액을 못 바꾼다", read_notional(cb) == 6_000_000)
+        st, _, b = app.handle("GET", "/details?p=cb", h, b"", "1.1.1.1")
+        ck("상세 화면에 금액 칸·지문 폼", "1회 매수 금액" in b.decode() and 'name="val"' in b.decode() and "6,000,000" in b.decode())
+        st, _, b = app.handle("GET", "/details?p=la", h, b"", "1.1.1.1")
+        ck("허락 안 된 프로필 화면엔 금액 칸 없음", "1회 매수 금액" not in b.decode())
+        notional_path(cb).write_text("{깨진", encoding="utf-8")
+        ck("깨진 파일은 프로필 값으로", read_notional(cb) is None and effective_params(cb)["notional_krw"] == 100_000)
+        notional_path(cb).write_text(json.dumps({"notional_krw": 99_999_999}), encoding="utf-8")
+        ck("범위 밖 파일 값은 무시(읽는 쪽도 검사)", read_notional(cb) is None and effective_params(cb)["notional_krw"] == 100_000)
 
         # ---- 재인증(금액 보기)도 지문으로
         strict = web.WebApp(cfg, sdir, store, A.Sessions(clock=lambda: clk[0]), A.Lockout(clock=lambda: clk[0]),
