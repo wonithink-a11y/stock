@@ -4406,7 +4406,7 @@ function renderMrepBody(file, d) {
     // 지난 날짜는 그날 facts 의 시총 상위 10 칸으로 대신한다(다른 날 히트맵을 붙이면 날짜가 섞인다).
     const ss = state.sectorStrength, heatSameDay = ss && ss.asOf === day.replace(/-/g, '') && (ss.stocks || []).length;
     if (heatSameDay) out.push(marketHeatmap(ss, true, '1d'));   // 그날 하루 등락으로 고정 — 장중 스냅샷이 섞이지 않게
-    else if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
+    else if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만${top.some(t => t.chgSource !== 'naver-krx-day') ? ' · <span style="color:var(--mid)">등락률은 네이버 통합값(애프터마켓 포함 근사) — 정규장과 다를 수 있음</span>' : ''}</p></div>`);
   }
   // 3c) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
   if (!kr && f) {
