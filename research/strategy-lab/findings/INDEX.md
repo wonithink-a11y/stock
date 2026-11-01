@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 23 |
+| 통과·채택 | 24 |
 | 보류·판정 불가 | 43 |
-| 기각 | 160 |
-| 사전등록 문서(결과는 별도 파일) | 170 |
+| 기각 | 161 |
+| 사전등록 문서(결과는 별도 파일) | 173 |
 | 정보·탐색 | 39 |
-| 미분류 | 239 |
+| 미분류 | 240 |
 
-## 통과·채택 (23)
+## 통과·채택 (24)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-01 | ROBUST | kr | [kr-static-vi-shortable-results-2026-11.md](kr-static-vi-shortable-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향) — 단 **SH 규칙이 걸러내지 못했다(VU 사건의 95.8%가 SH)**: 실행 가능성의 답이 아니라 '공매도 거래량이 거의 모든 종목에 찍힌다'는 관찰이… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-proxy-results-2026-11.md](kr-static-vi-proxy-results-2026-11.md) | 신호: 있음(VU) · 경제성: 통과(VU, 숏 방향 — 실행 가능성 미확인). 확정(11-01) — 사전등록 전 기간 2025-08-08~2026-10-28. VU(시가 +10% 첫 도달 3분 뒤… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-liquid-results-2026-11.md](kr-static-vi-liquid-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향, 차입 비용·대차 가능 여부 미측정). 확정(11-01) — 2025-08-11~2026-10-28. VU_L(전일 거래대금 상위 200 종목의 장중 +10%… |
 | 2026-10-30 | CONSISTENT | crypto | [binance-listing-upbit-results-2026-10.md](binance-listing-upbit-results-2026-10.md) | 신호: 있음(업비트에서도 같은 쪽) · 경제성: 판정 안 함(회피 근거 확인). 바이낸스 신규 상장 코인 중 업비트에 있던 것은 업비트 원화 가격으로도 첫 주 BTC 대비 −1,144bp(t −2.… |
@@ -89,10 +90,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (160)
+## 기각 (161)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-01 | REJECT | kr | [kr-static-vi-shortable2-results-2026-11.md](kr-static-vi-shortable2-results-2026-11.md) | 신호: 없음(사전 문턱 기준) · 경제성: 해당 없음(미판정). 공매도 거래대금 일 1억원 이상 종목(SH2, VU 사건의 32.4%)만 남기면 TRAIN t −1.84 < 바닥선 2.04 로 문턱… |
 | 2026-11-01 | REJECT | kr | [champion-shortterm-kretf-results-2026-11.md](champion-shortterm-kretf-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5": "REJECT", "HG5": "판정 불가"}. TRA… |
 | 2026-11-01 | REJECT | kr | [champion-shortterm-k200fut-results-2026-11.md](champion-shortterm-k200fut-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5… |
 | 2026-10-31 | REJECT | us | [vix-term-structure-results-2026-10.md](vix-term-structure-results-2026-10.md) | 신호: 없음 · 경제성: 미달. 규칙 판정 {"T1": "REJECT", "T2": "REJECT"}. TRAIN 실력 바닥선 0.347(원형 이동 1,000회 95%), 비용 전환당 1.5bp. |
@@ -254,11 +256,14 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (170)
+## 사전등록 문서(결과는 별도 파일) (173)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-shortable2-preregistration-2026-11.md](kr-static-vi-shortable2-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "공매도가 실제로 두껍게(일 1억원 이상) 거래되던 종목만 남겨도 VU 숏 신호가 성립하는가". 1단계(SH 95.8%)가 변별하지 못해 규칙만 … |
+| 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-shortable-preregistration-2026-11.md](kr-static-vi-shortable-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST, 숏 방향)이 사건 전에 공매도가 실제로 이뤄지던 종목(= 공매도 허용·대차 … |
 | 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-liquid-preregistration-2026-11.md](kr-static-vi-liquid-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST 잠정, 숏 방향)이 대차가 비교적 쉬운 유동 대형주(전일 거래대금 상위 200… |
+| 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-forward-preregistration-2026-11.md](kr-static-vi-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 시가 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST, 2025-08~2026-10)이 앞으로도 같은 크기로 이어지는가". 사… |
 | 2026-11-01 | PREREGISTERED | kr | [champion-shortterm-kretf-preregistration-2026-11.md](champion-shortterm-kretf-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주에서 신호가 없던 고전 단기 기법(터틀 수프·NR7·홀리 그레일)이, 거래세가 없고 비용이 낮은 국내 주식형 ETF(왕복 ≈5bp)에… |
 | 2026-11-01 | PREREGISTERED | kr | [champion-shortterm-k200fut-preregistration-2026-11.md](champion-shortterm-k200fut-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주(7셀 REJECT)·미국 지수 선물(6셀 REJECT)에서 신호가 없던 대회 우승자·고전 단기 기법 4종이, 비용이 가장 낮은 KO… |
 | 2026-10-31 | PREREGISTERED | us | [vix-term-t2-forward-preregistration-2026-10.md](vix-term-t2-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 TRAIN 은 실패했지만 VALID·TEST 에서 샤프·낙폭이 보유보다 나았던 VIX 기간구조 T2 규칙이, 아직 보지 않은 앞으… |
@@ -473,7 +478,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (239)
+## 미분류 (240)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -668,6 +673,7 @@
 |  |  | kr | [infinite-buying-tqqq-version-final-comparison-2026-09-12.md](infinite-buying-tqqq-version-final-comparison-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md](infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-soxl-version-final-comparison-2026-09-12.md](infinite-buying-soxl-version-final-comparison-2026-09-12.md) |  |
+|  |  | kr | [infinite-buying-rule-spec-2026-09.md](infinite-buying-rule-spec-2026-09.md) |  |
 |  |  | kr | [infinite-buying-reverse-mode-sensitivity-2026-09-12.md](infinite-buying-reverse-mode-sensitivity-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-path-decomposition-2026-09-12.md](infinite-buying-path-decomposition-2026-09-12.md) |  |
