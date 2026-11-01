@@ -42,25 +42,33 @@
   .mrep-sel { height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
   .mrep-tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
   .mrep-tabs button { min-height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: transparent; color: #c9d1dc; font: inherit; cursor: pointer; }
-  .mrep-tabs button.on { background: #1e2a44; color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+  .mrep-tabs button.on { background: #1e2a44; color: var(--text); font-weight: 600; }
   .mrep-tabs button:disabled { color: #4a5260; cursor: default; }
-  .mrep-top { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
-  .mrep-top > .card { margin: 0; border-radius: 12px; }
-  .mrep-idx { flex: 1 1 200px; padding: 18px; }
-  .mrep-big { font-size: 30px; font-weight: 700; line-height: 1.2; }
-  .mrep-head { flex: 2 1 360px; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 18px 20px; background: #1b1d1a; border-color: #3a3220; }
-  .mrep-head p { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.55; }
-  .mrep-cap { font-size: 12px; font-weight: 600; color: #c9a75e; letter-spacing: .04em; }
-  .mrep-no { width: 26px; height: 26px; border-radius: 50%; background: #26324a; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex: none; }
-  .mrep-conf { font-size: 12px; border: 1px solid currentColor; border-radius: 6px; padding: 1px 8px; white-space: nowrap; }
+  /* 2026-11-01 재배치(taste-skill app-screens 규칙): 한 줄 = 화면이 먼저 답하는 문장 → 맨 위 · 지수는 칸 하나를 1px 선으로 나눈 띠 ·
+     원인은 한 카드 안의 목록 · 아래 카드는 다단 배치로 빈칸 없이 · 상자 안 상자(타일·칩) 대신 선과 정렬 */
+  .mrep-find { margin: 0 0 14px; font-size: 18px; font-weight: 600; line-height: 1.55; max-width: 72ch; }
+  .mrep-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .mrep-kpi { padding: 14px 18px; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); }
+  .mrep-big { font-size: 26px; font-weight: 600; line-height: 1.25; margin-top: 2px; }
+  .mrep-causes { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }   /* .card 를 안 쓴다 — 폰 #content .card 패딩이 목록 선을 안쪽으로 밀었다 */
+  .mrep-cause { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 10px 32px; padding: 16px 20px; border-top: 1px solid var(--border); }
+  .mrep-cause:first-child { border-top: 0; }
+  .mrep-cause-h { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; }
+  .mrep-no { color: var(--muted); font-size: 15px; font-weight: 600; min-width: 1em; flex: none; }
+  .mrep-conf { font-size: 12px; border-radius: 6px; padding: 2px 8px; white-space: nowrap; background: color-mix(in srgb, currentColor 14%, transparent); }
+  .mrep-cols { columns: 3 300px; column-gap: 14px; }
+  .mrep-cols > .card { display: block; break-inside: avoid; margin: 0 0 14px !important; }   /* 카드의 인라인 margin:0 을 이긴다 */
+  .mrep-tl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; }
+  .mrep-sub { display: block; color: var(--muted); font-size: 11px; }   /* 확정·잠정을 이름 아래로 — 수급 표가 카드 폭을 넘던 원인 */
+  .mrep-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 12px; }
   .mrep-ev { display: flex; flex-direction: column; gap: 8px; padding-left: 12px; border-left: 2px solid var(--border); font-size: 13px; }
   .mrep-rc { display: grid; grid-template-columns: 40px 1fr; gap: 6px 10px; font-size: 13px; }
   .mrep-sec { display: grid; grid-template-columns: 92px 1fr 52px 52px; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 5px; }
   .mrep-sec > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
-  .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; }
-  .mrep-tile { padding: 8px; border: 1px solid var(--border); border-radius: 8px; }
-  .mrep-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #26324a; }
+  .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
+  .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  .mrep-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #26324a; }   /* 마감 리포트는 안 쓰지만 영상 요약·종목 리포트가 쓴다 */
   @media (max-width: 600px) {
     /* 폰: 한 화면에 더 많이(2026-10-14 사용자 요청) — 날짜·시장 선택을 한 줄로(제목은 드롭다운·탭과 겹쳐 숨김), 카드·글자 축소 */
     .mrep-bar { flex-wrap: nowrap; gap: 8px; margin-bottom: 10px; }
@@ -70,14 +78,16 @@
     .mrep-arrow { width: 36px; }
     .mrep-tabs { padding: 3px; }
     .mrep-tabs button { min-height: 30px; padding: 0 12px; }
-    .mrep-top { gap: 8px; margin-bottom: 12px; }
-    .mrep-idx { flex-basis: 140px; padding: 10px 12px; }
+    .mrep-find { font-size: 16px; margin-bottom: 10px; }
+    .mrep-kpis { grid-template-columns: 1fr 1fr; margin-bottom: 16px; }
+    .mrep-kpi { padding: 10px 12px; }
+    .mrep-kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 홀수 개면 마지막 칸이 한 줄 전체 — 반쪽 빈칸 방지 */
     .mrep-big { font-size: 21px; }
-    .mrep-head { padding: 12px 14px; gap: 4px; }
-    .mrep-head p { font-size: 15px; line-height: 1.5; }
+    .mrep-causes { margin-bottom: 16px; }
+    .mrep-cause { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+    .mrep-cols > .card { margin-bottom: 10px !important; }
     #content h3 { font-size: 15px !important; margin-bottom: 8px !important; }
     #content .card { padding: 12px; }
-    #content article.card { gap: 8px !important; }
     .mrep-ev { gap: 5px; font-size: 12.5px; }
     .mrep-rc { font-size: 12.5px; gap: 4px 8px; }
     .mrep-sec { margin-bottom: 3px; font-size: 12.5px; grid-template-columns: 80px 1fr 46px 46px; }
@@ -3782,7 +3792,6 @@ function renderMrepBody(file, d) {
   const sym = (x) => S.find(r => r.sym === x && r.close != null);
   const stale = S.filter(r => r.fresh === false);
   const hm = iso => !iso ? '' : String(iso).slice(0, 10) === day ? esc(String(iso).slice(11, 16)) : mrepT(iso);   // 같은 날이면 시각만
-  const cardGrid = (cards, min = 330) => cards.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,${min}px),1fr));gap:14px;align-items:start;margin-bottom:14px">${cards.join('')}</div>` : '';
   const out = [];
 
   // 0) 신선도 배지(있을 때만)
@@ -3796,24 +3805,25 @@ function renderMrepBody(file, d) {
   const krTv = (code) => (((f && f.kr) || {})[code] || {}).tradingValue조원;
   const idxCards = idx.map(r => {
     const diff = r.prevClose != null ? r.close - r.prevClose : null, tv = kr ? krTv(r.name) : null;
-    return `<div class="card mrep-idx" style="${r.fresh === false ? 'opacity:.5' : ''}">
+    return `<div class="mrep-kpi" style="${r.fresh === false ? 'opacity:.5' : ''}">
       <div class="muted" style="font-size:12px">${esc(r.name)}${r.fresh === false ? ` · ${esc(r.barDate)} 값` : ''}</div>
       <div class="num mrep-big">${Number(r.close).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
       <div class="num ${r.chgPct >= 0 ? 'pos' : 'neg'}" style="font-size:15px">${r.chgPct >= 0 ? '▲' : '▼'}${diff != null ? ` ${Math.abs(diff).toLocaleString(undefined, { maximumFractionDigits: Math.abs(diff) >= 100 ? 0 : 2 })} ·` : ''} ${r.chgPct >= 0 ? '+' : '−'}${Math.abs(r.chgPct).toFixed(2)}%</div>
       <div class="muted" style="font-size:12px;margin-top:6px">5일 ${mrepSign(r.chg5dPct, '%')}${tv != null ? ` · 거래대금 <span class="num">${tv.toFixed(1)}조</span>` : ''}</div></div>`;
   });
-  if (idxCards.length || headline) out.push(`<div class="mrep-top">${idxCards.join('')}${headline ? `<div class="card mrep-head"><span class="mrep-cap">한 줄</span><p>${esc(headline)}</p></div>` : ''}</div>`);
+  if (headline) out.push(`<p class="mrep-find">${esc(headline)}</p>`);
+  if (idxCards.length) out.push(`<div class="mrep-kpis">${idxCards.join('')}</div>`);
 
   // 2) 왜 움직였나 — 근거 시각·반응·반론을 펼쳐 둔다
   const causes = sm.causes || [];
   out.push('<h3 style="font-size:17px;margin:6px 0 12px">왜 움직였나</h3>');
-  out.push(causes.length ? cardGrid(causes.map((c, i) => `<article class="card" style="margin:0;display:flex;flex-direction:column;gap:12px">
-    <div style="display:flex;align-items:center;gap:10px"><span class="mrep-no num">${i + 1}</span><strong style="flex:1;font-size:15px">${esc(c.title || '')}</strong>
+  out.push(causes.length ? `<div class="mrep-causes">${causes.map((c, i) => `<article class="mrep-cause">
+    <div class="mrep-cause-h"><span class="mrep-no num">${i + 1}</span><strong style="flex:1;font-size:15px">${esc(c.title || '')}</strong>
       <span class="mrep-conf" style="color:${MREP_CONF[c.confidence] || 'var(--muted)'}">확신 ${esc(c.confidence || '-')}</span></div>
     ${(c.evidence || []).length ? `<div class="mrep-ev">${c.evidence.map(e => `<div><span class="num muted" style="font-size:12px">${hm(e.timeKST)}</span> <span class="muted" style="font-size:12px">${esc(e.source || '')}</span>
-      <div>${esc(e.text || '')}${e.url ? ` <a href="${esc(e.url)}" target="_blank" rel="noopener">원문↗</a>` : ''}</div></div>`).join('')}</div>` : ''}
-    ${c.reaction || c.counter ? `<div class="mrep-rc">${c.reaction ? `<span class="muted">반응</span><span>${esc(c.reaction)}</span>` : ''}${c.counter ? `<span class="muted">반론</span><span style="color:#c9d1dc">${esc(c.counter)}</span>` : ''}</div>` : ''}
-  </article>`), 420) : '<div class="card"><p class="muted" style="font-size:13px;margin:0">구조화 요약(summary.json)이 없습니다 — 아래 원문을 보세요.</p></div>');
+      <div>${esc(e.text || '')}${e.url ? ` <a href="${esc(e.url)}" target="_blank" rel="noopener">원문↗</a>` : ''}</div></div>`).join('')}</div>` : '<div></div>'}
+    ${c.reaction || c.counter ? `<div class="mrep-rc" style="align-content:start">${c.reaction ? `<span class="muted">반응</span><span>${esc(c.reaction)}</span>` : ''}${c.counter ? `<span class="muted">반론</span><span style="color:#c9d1dc">${esc(c.counter)}</span>` : ''}</div>` : ''}
+  </article>`).join('')}</div>` : '<div class="card"><p class="muted" style="font-size:13px;margin:0">구조화 요약(summary.json)이 없습니다 — 아래 원문을 보세요.</p></div>');
 
   const grid = [];
   // 3a) 업종·섹터 — 오늘 막대 + 5일
@@ -3829,7 +3839,7 @@ function renderMrepBody(file, d) {
     const flows = mk.filter(([, v]) => v.flows억원 && v.flows억원.외국인 != null);
     const br = mk.filter(([, v]) => v.breadth);
     const flowTable = flows.length ? `<div class="table-wrap"><table class="mrep-tbl"><thead><tr><th>억원</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th></tr></thead><tbody>${flows.map(([code, v]) =>
-      `<tr><td>${code} <span class="muted" style="font-size:11px">${/확정/.test(v.note || '') ? '확정' : '잠정'}</span></td>${['외국인', '기관', '개인'].map(k => `<td class="num">${mrepSign(v.flows억원[k])}</td>`).join('')}<td class="num">${v.program억원 && v.program억원.합계 != null ? mrepSign(v.program억원.합계) : '<span class="muted">-</span>'}</td></tr>`).join('')}</tbody></table></div>` : '';
+      `<tr><td>${esc(code).replace(/(\d)(선물)$/, '$1<wbr>$2')}<span class="mrep-sub">${/확정/.test(v.note || '') ? '확정' : '잠정'}</span></td>${['외국인', '기관', '개인'].map(k => `<td class="num">${mrepSign(v.flows억원[k])}</td>`).join('')}<td class="num">${v.program억원 && v.program억원.합계 != null ? mrepSign(v.program억원.합계) : '<span class="muted">-</span>'}</td></tr>`).join('')}</tbody></table></div>` : '';
     const breadth = br.map(([code, v]) => {
       const b = v.breadth, up = (b.상승 || 0) + (b.상한 || 0), dn = (b.하락 || 0) + (b.하한 || 0), fl = b.보합 || 0, tot = up + dn + fl || 1;
       return `<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span>${code}</span><span class="num muted" style="font-size:12px">상승 ${up.toLocaleString()}${b.상한 ? ` (상한 ${b.상한})` : ''} · 보합 ${fl} · 하락 ${dn.toLocaleString()}${b.하한 ? ` (하한 ${b.하한})` : ''}</span></div>
@@ -3844,8 +3854,8 @@ function renderMrepBody(file, d) {
     const tile = (label, r, val, chg) => r ? `<div class="mrep-tile" style="${r.fresh === false ? 'opacity:.5' : ''}"><div class="muted" style="font-size:11px">${label}</div><div class="num" style="font-size:15px;font-weight:600">${val}</div><div class="num" style="font-size:12px">${chg}</div></div>` : '';
     const v = (x, dg = 2) => Number(x).toLocaleString(undefined, { maximumFractionDigits: dg });
     const tnx = sym('^TNX'), rsp = sym('RSP'), spy = sym('SPY');
-    const t2 = f.us2y && f.us2y.value != null ? `<div class="mrep-tile"><div class="muted" style="font-size:11px">2년물 (${esc(f.us2y.date)})</div><div class="num" style="font-size:15px;font-weight:600">${f.us2y.value}%</div><div class="num" style="font-size:12px">${mrepSign(f.us2y.chgBp, 'bp')}</div></div>` : '';
-    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">금리 · 달러 · 위험</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px">
+    const t2 = f.us2y && f.us2y.value != null ? `<div class="mrep-tile"><div class="muted" style="font-size:11px">2년물 · ${esc(String(f.us2y.date || '').slice(5))}</div><div class="num" style="font-size:15px;font-weight:600">${f.us2y.value}%</div><div class="num" style="font-size:12px">${mrepSign(f.us2y.chgBp, 'bp')}</div></div>` : '';
+    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 4px">금리 · 달러 · 위험</h3><div class="mrep-tiles">
       ${tile('10년물', tnx, tnx ? v(tnx.close, 3) + '%' : '', tnx ? mrepSign(tnx.chgBp, 'bp') : '')}${t2}
       ${[['DX-Y.NYB', '달러인덱스'], ['KRW=X', '원/달러'], ['^VIX', 'VIX'], ['CL=F', 'WTI'], ['GC=F', '금'], ['BTC-USD', '비트코인'], ['EWY', 'EWY(한국)'], ['ES=F', 'S&P 선물'], ['NQ=F', '나스닥 선물']]
         .map(([s, l]) => { const r = sym(s); return tile(l, r, r ? v(r.close) : '', r ? mrepSign(r.chgPct, '%') : ''); }).join('')}</div>
@@ -3854,13 +3864,13 @@ function renderMrepBody(file, d) {
     if (ah.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">대형 기술주 — 정규장 · 시간외</h3><table class="mrep-tbl"><thead><tr><th>종목</th><th>정규장</th><th>시간외</th><th>시각(ET)</th></tr></thead><tbody>${ah.map(a => `<tr><td>${esc(a.sym)}</td><td class="num">${mrepSign(a.regularChgPct, '%')}</td><td class="num">${a.ahChgPct == null ? '<span class="muted">-</span>' : mrepSign(a.ahChgPct, '%')}</td><td class="num muted">${a.ahTimeET ? esc(a.ahTimeET.slice(11, 16)) : ''}</td></tr>`).join('')}</tbody></table></div>`);
   }
   // 3d) 장 마감 뒤 · 내일 체크(일정·관찰·연구 메모)
-  const tl = (rows) => `<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px">${rows.map(x => `<span class="num muted">${hm(x.timeKST)}</span><span>${esc(x.text || '')}</span>`).join('')}</div>`;
+  const tl = (rows) => `<div class="mrep-tl">${rows.map(x => `<span class="num muted">${hm(x.timeKST)}</span><span>${esc(x.text || '')}</span>`).join('')}</div>`;
   if ((sm.afterClose || []).length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">장 마감 뒤</h3>${tl(sm.afterClose)}</div>`);
-  if ((sm.watch || []).length || (sm.events || []).length || (sm.researchNotes || []).length) grid.push(`<div class="card" style="margin:0;background:#151d2c"><h3 style="font-size:15px;margin:0 0 10px">${kr ? '내일 체크' : '오늘 한국장 · 오늘 밤 미국'}</h3>
+  if ((sm.watch || []).length || (sm.events || []).length || (sm.researchNotes || []).length) grid.push(`<div class="card"><h3 style="font-size:15px;margin:0 0 10px">${kr ? '내일 체크' : '오늘 한국장 · 오늘 밤 미국'}</h3>
     ${(sm.watch || []).length ? `<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:13px">${sm.watch.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
-    ${(sm.events || []).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${sm.events.map(e => `<span class="mrep-chip">${esc(String(e.timeKST || '').slice(5, 10))} ${esc(e.text || '')}</span>`).join('')}</div>` : ''}
+    ${(sm.events || []).length ? `<div class="muted" style="font-size:12px;margin:14px 0 6px">일정</div><div class="mrep-tl">${sm.events.map(e => `<span class="num muted">${esc(String(e.timeKST || '').slice(5, 10))}</span><span>${esc(e.text || '')}</span>`).join('')}</div>` : ''}
     ${(sm.researchNotes || []).map(n => `<p class="muted" style="font-size:12px;margin:12px 0 0">연구 메모 · ${esc(n.condition || '')} — ${esc(n.note || '')}</p>`).join('')}</div>`);
-  out.push(cardGrid(grid));
+  if (grid.length) out.push(`<div class="mrep-cols">${grid.join('')}</div>`);
 
   // 4) 수집 안 됨 · 원문
   if (f && (f.missing || []).length) out.push(`<p class="muted" style="font-size:11px;margin-bottom:8px">수집 안 됨: ${f.missing.map(esc).join(' / ')}</p>`);
