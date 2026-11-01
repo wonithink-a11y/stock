@@ -86,6 +86,8 @@
   .mrep-tv > summary { cursor: pointer; font-size: 12px; color: var(--muted); min-height: 28px; display: flex; align-items: center; }
   .mrep-tm { position: relative; width: 100%; aspect-ratio: 340 / 212; }
   .mrep-tm-c { position: absolute; border-radius: 4px; padding: 5px 6px; display: flex; flex-direction: column; gap: 1px; font-size: 12px; line-height: 1.25; overflow: hidden; }
+  .mrep-tm-c { cursor: pointer; }
+  .mrep-tm-c.sel { box-shadow: inset 0 0 0 2px #fff; }
   .mrep-tm-c b { font-weight: 600; white-space: nowrap; }
   .mrep-tm-key { display: flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 8px; }
   .mrep-tm-key i { width: 72px; height: 6px; border-radius: 3px; }
@@ -3274,7 +3276,7 @@ function heatLiveDue() {
 }
 setInterval(() => { if (heatLiveDue() && !document.hidden) loadHeatLive(); }, 30000);
 
-function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국내 고정, 국내/미국 칩·각주 생략(2026-10-20)
+function marketHeatmap(d, home = false, fixWin = null) {   // home: 홈 첫 화면용 — 국내 고정, 국내/미국 칩·각주 생략(2026-10-20). fixWin: 기간 고정·기간 칩 숨김(마감 리포트 = '1d', 2026-11-01)
   const mk = (key, label) => `<button class="chip${state.heatMarket === key ? ' active' : ''}" data-heatmarket="${key}">${label}</button>`;
   const title = t => `<h2 style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t} ${home ? '' : mk('KR', '국내') + mk('US', '미국')}</h2>`;
   if (state.heatMarket === 'US' && !home) {
@@ -3287,7 +3289,7 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
   const st = d.stocks || [];
   const gOf = s => s.hg || s.g;   // hg = 히트맵 표시용 업종(지주회사를 금융에서 분리, 2026-10-26). 없으면 g
   if (!st.length) return `<div class="card">${title('시장 히트맵')}<p class="muted">국내 데이터가 아직 없습니다(sector-strength.json stocks).</p></div>`;
-  const win = state.heatWin, [winLabel, cap] = HEAT_WINS[win], eq = state.heatSize === 'eq';
+  const win = fixWin || state.heatWin, [winLabel, cap] = HEAT_WINS[win], eq = state.heatSize === 'eq';
   const lq = win === 'live' && state.heatLive && state.heatLive.quotes;
   const rOf = s => {
     if (win !== 'live') return s.r[win];
@@ -3335,7 +3337,7 @@ function marketHeatmap(d, home = false) {   // home: 홈 첫 화면용 — 국�
   <div class="card"${home ? '' : ' id="heatCard"'}>
     ${title(`시장 히트맵 <span class="muted" style="font-weight:400;font-size:13px">${asOfLabel} · ${st.length}종목</span>`)}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px">
-      ${Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
+      ${fixWin ? '' : Object.keys(HEAT_WINS).map(k => chip('heatwin', k, HEAT_WINS[k][0], win)).join('')}
       <span style="width:10px"></span>
       ${chip('heatsize', 'cap', '면적 = 시총', state.heatSize)}${chip('heatsize', 'eq', '면적 = 동일', state.heatSize)}
     </div>
@@ -3826,7 +3828,7 @@ document.addEventListener('change', (e) => {
 
 // ---------- 장 마감 리포트: Claude 루틴이 쓴 reports/market-daily/<날짜>-<kr|us>.{md,facts.json,summary.json} ----------
 // 숫자는 facts.json(코드가 수집), 원인·일정은 summary.json(Claude), 원문은 md. 배포 때 data/market-reports/ 로 복사된다.
-const mrep = { index: null, sel: null, data: {} };
+const mrep = { index: null, sel: null, data: {}, tmSel: null };
 const mrepGet = (url, kind) => fetch(`${url}?t=${Date.now()}`).then(r => r.ok ? (kind === 'json' ? r.json() : r.text()) : null).catch(() => null);
 function loadMarketReport(file) {
   mrep.sel = file;
@@ -3863,7 +3865,7 @@ function mrepFlowBars(flows) {
     ${rowsOf(v).map(([k, x]) => `<div class="mrep-fb-row${k === '프로그램' ? ' prog' : ''}" title="${esc(code)} ${k} ${fmt(x)}억원"><span>${k}</span>${bar(x || 0)}<span class="num ${x > 0 ? 'pos' : x < 0 ? 'neg' : 'muted'}">${fmt(x)}</span></div>`).join('')}</div>`).join('');
 }
 // 시총 상위: 칸 넓이 = 시가총액, 색 = 오늘 등락(0 은 회색, ±6% 이상이면 가장 진하게). 작은 칸은 이름을 안 쓴다(아래 표로 보기에 다 있다).
-function mrepTreemap(top) {
+function mrepTreemap(top) {   // 칸 첫 탭 = 아래 줄에 이름·등락·시총, 같은 칸 두 번째 탭 = 종목 상세(시장 히트맵과 같은 동작, 2026-11-01 사용자 요청)
   const items = top.filter(t => t.mcap조원 > 0).slice(0, 10).sort((a, b) => b.mcap조원 - a.mcap조원);
   if (!items.length) return '';
   const W = 340, H = 212, out = [];                      // 폰 폭 기준으로 칸 크기를 재서 글자를 넣을지 정한다(PC 는 같은 비율로 더 크다)
@@ -3884,8 +3886,9 @@ function mrepTreemap(top) {
   return `<div class="mrep-tm">${out.map(({ t, x, y, w, h }) => {
     const bg = fill(t.chgPct), name = String(t.name || ''), fitName = w - 10 >= name.length * 12.5 && h >= 38, fitPct = w >= 60 && h >= 24;
     const chg = t.chgPct == null ? '-' : `${t.chgPct >= 0 ? '+' : '−'}${Math.abs(t.chgPct).toFixed(2)}%`;
-    return `<div class="mrep-tm-c" title="${esc(name)} ${chg} · 시총 ${t.mcap조원}조" style="left:${pct(x, W)};top:${pct(y, H)};width:calc(${pct(w, W)} - 2px);height:calc(${pct(h, H)} - 2px);background:${bg};color:${ink(bg)}">${fitName ? `<b>${esc(name)}</b>` : ''}${fitPct ? `<span class="num">${chg}</span>` : ''}</div>`;
-  }).join('')}</div><div class="mrep-tm-key muted"><span>−6%</span><i style="background:linear-gradient(90deg,#4c8dff,#2a3446 50%,#f2555a)"></i><span>+6%</span><span style="margin-left:auto">칸 넓이 = 시가총액</span></div>`;
+    return `<div class="mrep-tm-c${mrep.tmSel === t.code ? ' sel' : ''}" data-tm="${esc(t.code || '')}" data-tm-name="${esc(name)}" title="${esc(name)} ${chg} · 시총 ${t.mcap조원}조" style="left:${pct(x, W)};top:${pct(y, H)};width:calc(${pct(w, W)} - 2px);height:calc(${pct(h, H)} - 2px);background:${bg};color:${ink(bg)}">${fitName ? `<b>${esc(name)}</b>` : ''}${fitPct ? `<span class="num">${chg}</span>` : ''}</div>`;
+  }).join('')}</div>${(() => { const sel = items.find(t => t.code && t.code === mrep.tmSel);
+    return `<div class="hm-info">${sel ? `<b>${esc(sel.name)}</b><span class="muted">${esc(sel.code)}</span>${mrepSign(sel.chgPct, '%')}<span class="muted">시총 ${sel.mcap조원}조</span><button class="chip" data-hmopen="${esc(sel.code)}" data-hmopen-name="${esc(sel.name)}">상세 보기</button>` : '<span class="muted">칸을 한 번 누르면 종목 이름·등락이 여기에 뜹니다. 같은 칸을 한 번 더 누르면 상세가 열립니다.</span>'}</div>`; })()}<div class="mrep-tm-key muted"><span>−6%</span><i style="background:linear-gradient(90deg,#4c8dff,#2a3446 50%,#f2555a)"></i><span>+6%</span><span style="margin-left:auto">칸 넓이 = 시가총액</span></div>`;
 }
 // 근거 시각: 하루 축 위에 원인 번호 점. 한국 07~19시(정규장 음영), 미국은 그날 18시~다음 날 09시(KST, 뉴욕 정규장 음영 — 서머타임 자동).
 function mrepTimeStrip(causes, day, kr) {
@@ -3979,7 +3982,11 @@ function renderMrepBody(file, d) {
     }).join('');
     grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">수급 · 시장 폭</h3>${flowTable ? `${mrepFlowBars(flows)}<details class="mrep-tv"><summary>표로 보기</summary>${flowTable}</details>` : '<p class="muted" style="font-size:12px">수급 수집 안 됨</p>'}${breadth || '<p class="muted" style="font-size:12px;margin-top:10px">시장 폭 수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
     const top = (mk.find(([c]) => c === 'KOSPI') || [, {}])[1].topByMcap;
-    if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
+    // 시장 히트맵(sector-strength.json, 코스피200+코스닥150)은 최신 하루치만 있다 — 리포트 날짜와 같을 때만 그것을 쓰고(2026-11-01 사용자 요청),
+    // 지난 날짜는 그날 facts 의 시총 상위 10 칸으로 대신한다(다른 날 히트맵을 붙이면 날짜가 섞인다).
+    const ss = state.sectorStrength, heatSameDay = ss && ss.asOf === day.replace(/-/g, '') && (ss.stocks || []).length;
+    if (heatSameDay) out.push(marketHeatmap(ss, true, '1d'));   // 그날 하루 등락으로 고정 — 장중 스냅샷이 섞이지 않게
+    else if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
   }
   // 3c) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
   if (!kr && f) {
@@ -4066,6 +4073,12 @@ document.addEventListener('change', (e) => {
   if (e.target.matches && e.target.matches('[data-disc-select]')) { state.discFilter = e.target.value; render(); }   // 공시 유형
   if (e.target.matches && e.target.matches('[data-reco-select]')) { state.recoDate = e.target.value; render(); }   // 추천 이력 날짜
   if (e.target.matches && e.target.matches('[data-fsel]')) { state[e.target.dataset.fsel + 'Filter'] = e.target.value; render(); }   // 스코어 업종·등급·그룹
+});
+document.addEventListener('click', (e) => {   // 시총 칸: 첫 탭 = 선택, 같은 칸 두 번째 탭 = 상세
+  const t = e.target.closest && e.target.closest('[data-tm]');
+  if (!t || !t.dataset.tm) return;
+  if (mrep.tmSel === t.dataset.tm) return openStockDetail(t.dataset.tm, t.dataset.tmName);
+  mrep.tmSel = t.dataset.tm; render();
 });
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-mreport]');
