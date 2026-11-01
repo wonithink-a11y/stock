@@ -1,6 +1,6 @@
 {
  "bar": 2.28,
- "days_with_data": 279,
+ "days_with_data": 291,
  "cells": {
   "VU": {
    "verdict": "ROBUST",
@@ -17,19 +17,19 @@
     "t": -6.45
    },
    "TEST": {
-    "days": 86,
-    "bp": -209.2,
-    "t": -10.37
+    "days": 98,
+    "bp": -208.2,
+    "t": -11.07
    },
-   "oos_gross_bp": 186.8,
+   "oos_gross_bp": 187.9,
    "oos_gross_ci95": [
-    155.5,
-    218.5
+    160.5,
+    217.8
    ],
-   "net33_bp": 153.3,
-   "net67_bp": 119.8,
-   "t_net33": 9.85,
-   "breakeven_rt_bp": 186.8
+   "net33_bp": 154.4,
+   "net67_bp": 120.9,
+   "t_net33": 10.36,
+   "breakeven_rt_bp": 187.9
   },
   "VD": {
    "verdict": "REJECT",
@@ -46,59 +46,62 @@
     "t": 1.51
    },
    "TEST": {
-    "days": 86,
-    "bp": 20.5,
-    "t": 0.97
+    "days": 98,
+    "bp": 23.0,
+    "t": 1.2
    },
-   "oos_gross_bp": -32.5,
+   "oos_gross_bp": -33.1,
    "oos_gross_ci95": [
-    -68.7,
-    1.8
+    -67.9,
+    0.5
    ],
-   "net33_bp": -66.0,
-   "net67_bp": -99.5,
-   "t_net33": -3.6,
-   "breakeven_rt_bp": -32.5
+   "net33_bp": -66.6,
+   "net67_bp": -100.1,
+   "t_net33": -3.87,
+   "breakeven_rt_bp": -33.1
   }
  },
  "record": {
   "VU": {
-   "events": 25020,
-   "events_per_day": 89.7,
-   "per_event_bp_dir": 130.9,
-   "win_pct_dir": 60.8,
-   "exit_1519_daily_bp_dir": 183.0,
+   "events": 25868,
+   "events_per_day": 88.9,
+   "per_event_bp_dir": 131.1,
+   "win_pct_dir": 60.7,
+   "exit_1519_daily_bp_dir": 184.7,
    "by_time_bp_dir": {
-    "09:01-09:30": 171.8,
-    "09:31-11:00": 89.6,
-    "11:01-15:10": 136.9
+    "09:01-09:30": 174.3,
+    "09:31-11:00": 90.1,
+    "11:01-15:10": 134.9
    },
-   "ex_semis_daily_bp_dir": 167.7,
+   "ex_semis_daily_bp_dir": 169.2,
    "skipped": {
-    "no_entry_bar": 1363,
-    "locked": 856
+    "no_entry_bar": 1429,
+    "locked": 913
    }
   },
   "VD": {
-   "events": 11025,
-   "events_per_day": 39.5,
-   "per_event_bp_dir": 17.2,
-   "win_pct_dir": 49.7,
-   "exit_1519_daily_bp_dir": -0.5,
+   "events": 11434,
+   "events_per_day": 39.3,
+   "per_event_bp_dir": 15.2,
+   "win_pct_dir": 49.6,
+   "exit_1519_daily_bp_dir": -2.4,
    "by_time_bp_dir": {
-    "09:01-09:30": 73.4,
-    "09:31-11:00": 12.0,
-    "11:01-15:10": -1.9
+    "09:01-09:30": 67.8,
+    "09:31-11:00": 11.2,
+    "11:01-15:10": -2.9
    },
-   "ex_semis_daily_bp_dir": 9.7,
+   "ex_semis_daily_bp_dir": 8.0,
    "skipped": {
-    "locked": 1046,
-    "no_entry_bar": 977
+    "locked": 1091,
+    "no_entry_bar": 1041
    }
   },
-  "both_up_and_down_pct": 1.36
+  "both_up_and_down_pct": 1.4
  },
  "minute_dir": ".cache/minute_raw",
+ "events_in": [
+  "/tmp/vie/vi-events.json"
+ ],
  "first_day": "2025-08-08",
- "last_day": "2026-10-12"
+ "last_day": "2026-10-28"
 }

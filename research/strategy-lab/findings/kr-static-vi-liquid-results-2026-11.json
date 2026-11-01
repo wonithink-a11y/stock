@@ -1,7 +1,10 @@
 {
  "first_day": "2025-08-11",
- "last_day": "2026-10-12",
+ "last_day": "2026-10-28",
  "top": 200,
+ "events_in": [
+  "/tmp/vie/vi-liquid-events.json"
+ ],
  "cells": {
   "VU_L": {
    "verdict": "ROBUST",
@@ -18,22 +21,22 @@
     "t": -5.86
    },
    "TEST": {
-    "days": 86,
-    "bp": -265.4,
-    "t": -7.82
+    "days": 98,
+    "bp": -267.9,
+    "t": -8.48
    },
-   "oos_gross_bp": 241.3,
+   "oos_gross_bp": 244.7,
    "oos_gross_ci95": [
-    194.1,
-    291.1
+    198.7,
+    290.6
    ],
-   "net33_bp": 207.8,
-   "net67_bp": 174.3,
-   "t_net33": 8.4,
-   "breakeven_rt_bp": 241.3,
-   "events": 4551,
-   "events_per_day": 16.4,
-   "exit_1519_daily_bp_dir": 202.3
+   "net33_bp": 211.2,
+   "net67_bp": 177.7,
+   "t_net33": 8.88,
+   "breakeven_rt_bp": 244.7,
+   "events": 4737,
+   "events_per_day": 16.3,
+   "exit_1519_daily_bp_dir": 206.4
   },
   "VU_S": {
    "verdict": "ROBUST",
@@ -50,22 +53,22 @@
     "t": -5.86
    },
    "TEST": {
-    "days": 86,
-    "bp": -201.2,
-    "t": -10.19
+    "days": 98,
+    "bp": -197.9,
+    "t": -10.75
    },
-   "oos_gross_bp": 177.0,
+   "oos_gross_bp": 176.8,
    "oos_gross_ci95": [
-    145.8,
-    208.7
+    150.3,
+    206.5
    ],
-   "net33_bp": 143.5,
-   "net67_bp": 110.0,
-   "t_net33": 9.27,
-   "breakeven_rt_bp": 177.0,
-   "events": 20425,
-   "events_per_day": 73.5,
-   "exit_1519_daily_bp_dir": 180.1
+   "net33_bp": 143.3,
+   "net67_bp": 109.8,
+   "t_net33": 9.68,
+   "breakeven_rt_bp": 176.8,
+   "events": 21087,
+   "events_per_day": 72.7,
+   "exit_1519_daily_bp_dir": 180.9
   }
  },
  "bar": 2.2
