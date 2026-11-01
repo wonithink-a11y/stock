@@ -395,8 +395,8 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
         auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "")
         t = v["todayRuns"]
         last = v["runs"][-1] if v["runs"] else None
-        last_txt = (f'{E(str(last.get("at", ""))[5:16].replace("T", " "))} · {E("주문" if last.get("execute") else "dry-run")} · {E(str(last.get("status")))}'
-                    if last else "아직 없음")
+        last_txt = (f'{E(str(last.get("at", ""))[5:16].replace("T", " "))} {E("주문" if last.get("execute") else "dry-run")}'
+                    + ("" if last.get("status") == "ok" else f' {E(str(last.get("status")))}') if last else "실행 전")
         xm = crypto_market(cfg) or "UPBIT"
         risk = (cfg.get("risk") or {}).get(xm) or {}
         sp = (v.get("spent") or {}).get(xm) or {}
@@ -415,24 +415,20 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
                             f'<small class="mut">{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</small></span></div>')
             if len(rows) >= 3:
                 break
-        wtxt = ""
-        if cfg.get("strategy") == "crypto_weights":
-            cw, co = current_weights(cfg)
-            wtxt = "비율 " + " · ".join([f"{n[4:]} {v * 100:.0f}" for n, v in cw.items()] + ([f"기타 {co * 100:.0f}"] if co else [])) + "%"
-        al = [x[4:] for x in (cfg.get("symbol_allowlist") or [])]               # 허용 종목 80개를 전부 찍지 않는다 — 한 줄 요약
+        al = [x[4:] for x in (cfg.get("symbol_allowlist") or [])]               # 허용 종목을 길게 찍지 않는다 — 한 줄 요약
         if cw_:
-            n_ = len([x for x in (st.get("other") or {}).get("symbols", [])]) + len((cfg.get("params") or {}).get("weights") or {})
-            sym_txt = f"바구니 {n_}종" if n_ else f"바구니(후보 {len(al)})"
+            n_ = len((st.get("other") or {}).get("symbols", [])) + len((cfg.get("params") or {}).get("weights") or {})
+            sym_txt = f"바구니 {n_}종" if n_ else "바구니"
+            held_txt = f"{sum(1 for q in (st.get('holdings') or {}).values() if q > 0)}종 보유 · 현금 {st.get('cash') or 0:,.0f}원"
         else:
-            sym_txt = ", ".join(al[:3]) + (f" 외 {len(al) - 3}" if len(al) > 3 else "")
-        big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회 매수"}</small></div>'
-        facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · {("보유 " + str(sum(1 for q in (st.get("holdings") or {}).values() if q > 0)) + "종 · 현금 " + format(st.get("cash") or 0, ",.0f") + "원") if cw_ else ("보유 " + (E(str(pos.get("qty"))) if pos else "없음") + " · z " + (E(str(pos.get("z"))) if pos else "대기"))}</div>'
-                                       f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>'
-                                       + (f'<div class="mut">{wtxt}</div>' if wtxt else ""))
+            sym_txt = ", ".join(al[:2]) + (f" 외 {len(al) - 2}" if len(al) > 2 else "")
+            held_txt = "보유 " + (E(str(pos.get("qty"))) if pos else "없음")
+        big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회"}</small></div>'
+        facts = "" if hide_money else f'<div class="mut">{last_txt} · {held_txt} · 한도 {pct:.0f}%</div>'
         out.append(kill_card(cfg, csrf, base, pk, f"crypto-{xm}"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(sym_txt)}</span></span>
-<span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></span></div>
+<span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></div>
 {big}{facts}</div>
 {controls.get(name, "").replace(sc, "")}
 <div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
@@ -653,7 +649,7 @@ def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = 
     else:
         act = (f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="resume">'
                '<input name="code" placeholder="인증앱 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required><button>해제</button></form>')
-    st = '🛑 킬 스위치 켜짐 <span class="mut" style="font-weight:500">· 주문 중단</span>' if on else '✅ 킬 스위치 꺼짐'
+    st = '🛑 킬 스위치 켜짐' if on else '✅ 킬 스위치 꺼짐'
     return f'<div class="kbar {"on" if on else "off"}"><span class="ks">{st}</span>{act}</div>'
 
 
@@ -704,7 +700,7 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
         cur_txt = " · ".join([f"{n[4:]} {cw.get(n, 0) * 100:.0f}%" for n in names] + [f"기타 {co * 100:.0f}%"])
         ins = "".join(f'<input name="w" inputmode="numeric" placeholder="{E(n[4:])} %" autocomplete="off" style="width:30%">' for n in names)
         ins += '<input name="w" inputmode="numeric" placeholder="기타 %" autocomplete="off" style="width:30%">'
-        wform = (f'<div class="mut">지금 {E(cur_txt)} · 합 100% 이하, 나머지는 원화</div>'
+        wform = (f'<div class="mut">지금 {E(cur_txt)} · 합 100% 이하</div>'
                  + (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}"><input type="hidden" name="op" value="set-weights">'
                     f'{ins}<button>🔑 비율 변경</button><div class="pk-msg"></div></form>' if has_pk else ""))
     if compact:                                         # 크립토 화면: 접어 두고 필요할 때만 연다(한 화면에 최대한)

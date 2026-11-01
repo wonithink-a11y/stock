@@ -259,7 +259,7 @@ def main():
         g = lambda p: app.handle("GET", p, h, b"", "1.1.1.1")                       # noqa: E731
         st, _, b = g("/crypto")
         t = b.decode()
-        ck("크립토 화면: 업비트 프로필·금액·바꾸기·최근 주문 링크", st == 200 and "1회 매수" in t and "6,000,000" in t
+        ck("크립토 화면: 업비트 프로필·금액·바꾸기·최근 주문 링크", st == 200 and "원 / 1회" in t and "6,000,000" in t
            and "/orders?m=crypto" in t and "금액 바꾸기" in t and "자동 · 실행" in t)
         ck("크립토 화면은 passkey.js 를 한 번만 싣는다(지문이 두 번 뜨지 않게)", t.count("/static/passkey.js") == 1)
         ck("크립토 화면엔 주식 프로필이 없다", "업비트 · la" not in t and "업비트 · pa" not in t and "업비트 · cb" in t)
@@ -309,7 +309,7 @@ def main():
         st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=kill&ret=crypto".encode(), "1.1.1.1")
         t1 = g("/crypto")[2].decode()
         ck("크립토에서 켜면 크립토로 돌아오고 '킬 스위치 켜짐'·해제 버튼", kill_file(cb).exists() and "/crypto" in hd.get("Location", "")
-           and "킬 스위치 켜짐" in t1 and "주문 중단" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
+           and "킬 스위치 켜짐" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
         ck("프로필마다 버튼은 하나: 켜진 cb 는 해제만, 꺼진 cn·cl 은 켜기만(상태와 버튼이 어긋나지 않게)",
            t1.count('name="op" value="resume"') == 1 and t1.count('name="op" value="kill"') == 2)
         r = {"csrf": csrf, "p": "cb", "op": "resume", "phrase": ""}
