@@ -624,9 +624,8 @@ def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = 
     if not on:
         act = f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">켜기</button></form>'
     elif has_pk:
-        ph = f'<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if live else ""
         act = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}">'
-               f'<input type="hidden" name="op" value="resume">{ph}<button>🔑 해제</button><div class="pk-msg"></div></form>')
+               f'<input type="hidden" name="op" value="resume"><button>🔑 해제</button><div class="pk-msg"></div></form>')
     elif live:
         act = '<span class="mut">해제는 패스키로만</span>'
     else:
@@ -1585,7 +1584,7 @@ class WebApp:
             self.lockout.ok(ip)
             self._bump(cid, count)
             c = [x for x in self.profiles() if x.get("profile") == pend["p"]][0]
-            if is_live_order(c, pend["op"]) and str(j.get("phrase", "")).strip() != LIVE_PHRASE:
+            if is_live_order(c, pend["op"]) and pend["op"] != "resume" and str(j.get("phrase", "")).strip() != LIVE_PHRASE:   # 킬 해제는 지문만(11-01 사용자 결정)
                 return self._json(400, {"error": f"확인 문구({LIVE_PHRASE})를 정확히 입력"})
             val = None
             if pend["op"] == "set-notional":

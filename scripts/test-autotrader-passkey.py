@@ -287,12 +287,14 @@ def main():
            t1.count('name="op" value="resume"') == 1 and t1.count('name="op" value="kill"') == 2)
         r = {"csrf": csrf, "p": "cb", "op": "resume", "phrase": ""}
         st, ao = pj("/passkey/action-options", r)
-        st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao)})
-        ck("실계좌 해제는 확인 문구 없으면 거부(킬 유지)", st == 400 and kill_file(cb).exists())
-        r["phrase"] = web.LIVE_PHRASE
+        st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao, key=SoftAuthenticator().key)})
+        ck("다른 키로는 킬 해제 안 됨(지문은 여전히 필수)", st == 401 and kill_file(cb).exists())
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=resume&code={code()}".encode(), "1.1.1.1")
+        ck("인증앱 코드로는 실계좌 킬 해제 안 됨(패스키 전용 유지)", kill_file(cb).exists())
+        ck("해제 막대에 확인 문구 칸이 없다", 'name="phrase"' not in t1.split('value="resume"')[1].split("</form>")[0])
         st, ao = pj("/passkey/action-options", r)
         st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao)})
-        ck("지문+문구로 해제 → '킬 스위치 꺼짐'", st == 200 and not kill_file(cb).exists() and "킬 스위치 꺼짐" in g("/crypto")[2].decode())
+        ck("지문만으로 해제(문구 없이) → '킬 스위치 꺼짐'", st == 200 and not kill_file(cb).exists() and "킬 스위치 꺼짐" in g("/crypto")[2].decode())
         notional_path(cb).write_text("{깨진", encoding="utf-8")
         ck("깨진 파일은 프로필 값으로", read_notional(cb) is None and effective_params(cb)["notional_krw"] == 100_000)
         notional_path(cb).write_text(json.dumps({"notional_krw": 99_999_999}), encoding="utf-8")
