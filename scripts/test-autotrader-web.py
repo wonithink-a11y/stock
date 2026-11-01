@@ -223,7 +223,7 @@ def main():
         (sdir / "KILL").write_text("x", encoding="utf-8")
         clk.t += 30
         st, h, b = login("a-very-long-password", A.totp_now(secret, clk()), "10.0.0.10")
-        ck("킬 스위치가 켜져 있으면 요약에 표시", "킬 스위치 ON".encode() in app.handle("GET", "/", {"cookie": cookie_of(h)}, b"", "10.0.0.10")[2])
+        ck("킬 스위치가 켜져 있으면 요약에 표시", "긴급 정지 중".encode() in app.handle("GET", "/", {"cookie": cookie_of(h)}, b"", "10.0.0.10")[2])
 
         # ---------------------------------------------------------------- 기본 모드: 로그인 한 번으로 상세까지(재인증 없음)
         easy = web.WebApp(cfg, sdir, store, A.Sessions(idle_sec=1800, clock=clk), A.Lockout(clock=clk), clock=clk)

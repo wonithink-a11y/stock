@@ -289,7 +289,7 @@ def main():
         t_def = g("/crypto")[2].decode()
         ck("거래소를 안 고르면 업비트(프로필이 있는 첫 거래소)", 'class="on">업비트' in t_def)
         st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=bw&op=kill&ret=crypto-BITHUMB".encode(), "1.1.1.1")
-        ck("빗썸 탭에서 킬을 켜면 빗썸 탭으로 돌아온다", "x=BITHUMB" in hd.get("Location", "") and "킬 스위치 켜짐" in g("/crypto?x=BITHUMB")[2].decode())
+        ck("빗썸 탭에서 킬을 켜면 빗썸 탭으로 돌아온다", "x=BITHUMB" in hd.get("Location", "") and "긴급 정지 중" in g("/crypto?x=BITHUMB")[2].decode())
         from autotrader.config import kill_file as _kf
         _kf(load_profile(main_p, "bw")).unlink(missing_ok=True)
 
@@ -301,6 +301,26 @@ def main():
         tb2 = g("/crypto?x=BITHUMB")[2].decode()
         ck("허용 종목 80개를 카드에 줄줄이 찍지 않고 한 줄 요약('바구니 …')", "KRW-C10,KRW-C11" not in tb2 and "바구니" in tb2)
         (td / "profiles" / "bm.json").unlink()
+
+        # ---- 거래소 단위 긴급 정지(막대 하나, 그 거래소의 프로필 전부)
+        from autotrader.config import kill_file as kf2
+        ups = [load_profile(main_p, n) for n in ("cb", "cn", "cl")]
+        for x in ups:
+            kf2(x).unlink(missing_ok=True)
+        tg = g("/crypto?x=UPBIT")[2].decode()
+        ck("업비트 탭: 막대 하나(프로필 3개여도), 대상은 *UPBIT", tg.count('class="kbar') == 1 and 'name="p" value="*UPBIT"' in tg)
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=*UPBIT&op=kill&ret=crypto-UPBIT".encode(), "1.1.1.1")
+        ck("거래소 긴급 정지: 업비트 프로필 3개가 전부 멈추고 빗썸 프로필은 그대로", all(kf2(x).exists() for x in ups)
+           and not kf2(load_profile(main_p, "bw")).exists())
+        ck("빗썸 탭 막대는 정상 그대로", "✅ 정상" in g("/crypto?x=BITHUMB")[2].decode())
+        r = {"csrf": csrf, "p": "*UPBIT", "op": "resume", "phrase": ""}
+        st, ao = pj("/passkey/action-options", r)
+        st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao)})
+        ck("지문으로 거래소 해제: 업비트 프로필 3개 전부 풀림", st == 200 and not any(kf2(x).exists() for x in ups))
+        st, _ = pj("/passkey/action-options", {"csrf": csrf, "p": "*UPBIT", "op": "auto-execute"})
+        ck("*거래소 대상은 긴급 정지·해제만(자동주문 켜기 등은 불가)", st == 404)
+        st, _ = pj("/passkey/action-options", {"csrf": csrf, "p": "*XXX", "op": "resume"})
+        ck("모르는 거래소 이름은 거부", st == 404)
 
         # ---- 한 바구니(crypto_weights) 자본을 웹에서(업비트·빗썸 동일)
         from autotrader.config import effective_params as effective_params_cw
@@ -318,13 +338,13 @@ def main():
         # ---- 킬 스위치 상태를 한눈에(2026-11-01)
         kill_file(cb).unlink(missing_ok=True)
         t0 = g("/crypto")[2].decode()
-        ck("킬 꺼짐: 초록 '킬 스위치 꺼짐' + 켜기 버튼", "킬 스위치 꺼짐" in t0 and "킬 스위치 켜짐" not in t0 and 'name="ret" value="crypto-UPBIT"' in t0)
+        ck("킬 꺼짐: 초록 '✅ 정상' + 켜기 버튼", "✅ 정상" in t0 and "긴급 정지 중" not in t0 and 'name="ret" value="crypto-UPBIT"' in t0)
         st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=kill&ret=crypto".encode(), "1.1.1.1")
         t1 = g("/crypto")[2].decode()
-        ck("크립토에서 켜면 크립토로 돌아오고 '킬 스위치 켜짐'·해제 버튼", kill_file(cb).exists() and "/crypto" in hd.get("Location", "")
-           and "킬 스위치 켜짐" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
-        ck("프로필마다 버튼은 하나: 켜진 cb 는 해제만, 꺼진 cn·cl 은 켜기만(상태와 버튼이 어긋나지 않게)",
-           t1.count('name="op" value="resume"') == 1 and t1.count('name="op" value="kill"') == 2)
+        ck("크립토에서 켜면 크립토로 돌아오고 '긴급 정지 중'·해제 버튼", kill_file(cb).exists() and "/crypto" in hd.get("Location", "")
+           and "긴급 정지 중" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
+        ck("거래소 탭마다 막대 하나: 하나라도 정지면 '긴급 정지 중'·해제 하나, 긴급 정지 버튼은 없다",
+           t1.count('class="kbar') == 1 and t1.count('name="op" value="resume"') == 1 and t1.count('name="op" value="kill"') == 0)
         r = {"csrf": csrf, "p": "cb", "op": "resume", "phrase": ""}
         st, ao = pj("/passkey/action-options", r)
         st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao, key=SoftAuthenticator().key)})
@@ -334,7 +354,7 @@ def main():
         ck("해제 막대에 확인 문구 칸이 없다", 'name="phrase"' not in t1.split('value="resume"')[1].split("</form>")[0])
         st, ao = pj("/passkey/action-options", r)
         st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao)})
-        ck("지문만으로 해제(문구 없이) → '킬 스위치 꺼짐'", st == 200 and not kill_file(cb).exists() and "킬 스위치 꺼짐" in g("/crypto")[2].decode())
+        ck("지문만으로 해제(문구 없이) → '✅ 정상'", st == 200 and not kill_file(cb).exists() and "✅ 정상" in g("/crypto")[2].decode())
         # ---- 웹 비율 변경(crypto_weights, 2026-11-01)
         from autotrader.config import parse_weights, read_weights, weights_path, current_weights as cur_w
         CWP = {"strategy": "crypto_weights", "broker": "upbit", "mode": "live", "key_prefix": "UPBIT_TRADE", "markets": ["UPBIT"],

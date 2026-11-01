@@ -134,7 +134,7 @@ def main():
         st, _, b = app.handle("GET", "/details?p=la", h, b"", "1.1.1.1")
         ck("패스키 없으면 실계좌 조작 안내만(주문 켜기 선택지 없음)", "패스키로만" in b.decode() and "auto-execute" not in b.decode())
         lg = (sdir / "web_login.log").read_text(encoding="utf-8").splitlines()
-        ck("실계좌 조작은 텔레그램에 실계좌로 표시", any("실계좌 킬 스위치 켬" in m for m in notify.build_messages(lg)))
+        ck("실계좌 조작은 텔레그램에 실계좌로 표시", any("실계좌 긴급 정지 켬" in m for m in notify.build_messages(lg)))
         (td / "profiles" / "la.json").unlink()
 
         # ---- 실계좌 요약(전엔 인터넷에 인증 없이 열려 있던 /accounts) — 로그인 뒤에서만
@@ -167,8 +167,8 @@ def main():
 
         st, _, body = app.handle("GET", "/details?p=pp&m=" + "계좌가 해킹됐습니다", h, b"", "1.1.1.1")
         ck("주소창으로 넣은 가짜 문구는 안 보인다", st == 200 and "해킹" not in body.decode())
-        st, _, body = app.handle("GET", "/details?p=pp&m=" + "킬 스위치를 해제했습니다", h, b"", "1.1.1.1")
-        ck("서버가 낸 문구는 보인다 + 조작 폼", "킬 스위치를 해제했습니다" in body.decode() and 'action="/action"' in body.decode())
+        st, _, body = app.handle("GET", "/details?p=pp&m=" + "긴급 정지를 해제했습니다", h, b"", "1.1.1.1")
+        ck("서버가 낸 문구는 보인다 + 조작 폼", "긴급 정지를 해제했습니다" in body.decode() and 'action="/action"' in body.decode())
         log = (sdir / "web_login.log").read_text(encoding="utf-8")
         ck("조작이 기록된다", "action:pp:auto-execute" in log and "action:pp:kill" in log)
         msgs = notify.build_messages(log.splitlines())
