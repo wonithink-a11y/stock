@@ -15,6 +15,13 @@ ssh stock       hostname: stock-monitor  ← 옛 감시 대시보드. 폐기 시
 문서가 말하는 "VM(`stock`)"은 hostname 기준이라 **접속은 `ssh stock-new`** 다. 붙자마자 `hostname` 이 `stock` 인지 본다.
 `stock-monitor` 가 나오면 잘못 붙은 것이다 — 거기서 "타이머 없음"이 나와도 고장이 아니다.
 
+## 0-1. 클라우드(폰) 세션이면 ssh 가 안 된다 — 상태 스냅샷을 읽는다
+
+클라우드 컨테이너는 HTTPS(443)만 나간다(22 포트 막힘, 설정으로 못 연다·우회 안 함). VM 이 5분마다 쓰는 상태 한 장을 읽는다:
+`python scripts/research-data.py status` (요약) · `status <유닛 앞부분>` (그 유닛 상태·journal·로그 끝 15줄) · `status --json`.
+autotrader·실계좌 잔고 유닛은 상태만 나온다(로그 본문 없음). 스냅샷 `atKST` 가 10분 넘게 낡았으면 그 타이머부터 의심한다.
+쓰기·설치·재시작은 여전히 사용자(Cloud Shell·PC) 몫 — 한 블록 명령으로 건넨다.
+
 ## 1. 읽기 전용 점검 (바로 해도 된다)
 
 한 번의 ssh 로 묶어서 부른다 (턴·토큰 절약). 필요하면 `ssh stock-new '<명령>'`.

@@ -133,17 +133,27 @@ def fix_top_chg(top, rows_by_code, expected):
     return out
 
 
-def naver_daily_kr(code, expected):
+def naver_daily_kr(code, expected, days=14):
     """국내 종목 KRX 정규장 일봉 [(date, close)] — 네이버 차트 API(api.stock.naver.com/chart/domestic/item/{code}/day).
     이 응답의 종가·거래량은 KRX 정규장만이다(10-27~10-30 삼성전자 225,000·245,000·230,500·220,500 = KIS 정규장, 거래량 19,485,781 = KRX 단독 — 11-01 실측).
     ★ Yahoo .KS 는 쓰지 않는다 — 개별 종목 일봉이 애프터마켓 가격을 섞는다(10-30 삼성전자 225,000 vs 정규장 220,500, 같은 날 현대차 282,000 vs 278,500).
+    ★ 주식 현금배당은 수정하지 않고(2024-12-27 삼성전자 배당락 전후 원값 그대로) ETF 분배금은 수정한다
+    (069500 10-29 분배락 136원 — 이전 종가가 ×0.99859, KRX 분배락 기준가·네이버 등락률 −1.10% 와 같음, 11-01 실측).
     실패하면 None(그 종목만 네이버 통합 등락률을 '근사'로 남긴다)."""
     try:
-        a = (expected - timedelta(days=14)).strftime("%Y%m%d")
+        a = (expected - timedelta(days=days)).strftime("%Y%m%d")
         j = get_json(f"https://api.stock.naver.com/chart/domestic/item/{code}/day?startDateTime={a}0000&endDateTime={expected.strftime('%Y%m%d')}2359")
         return sorted((datetime.strptime(x["localDate"], "%Y%m%d").date(), float(x["closePrice"])) for x in j if x.get("closePrice") is not None)
     except Exception:  # noqa: BLE001
         return None
+
+
+def pick_kr_rows(yahoo, naver):
+    """국내 ETF 일봉 고르기 — 네이버 차트(분배락 수정 = KRX 기준가)가 Yahoo 의 마지막 봉까지 있고 21봉 이상이면 네이버.
+    18:10 에 네이버가 그날 봉을 아직 안 주면 Yahoo 를 그대로 쓴다(두 소스를 한 계열에 섞지 않는다)."""
+    if naver and yahoo and naver[-1][0] >= yahoo[-1][0] and len(naver) >= 21:
+        return [r for r in naver if r[0] <= yahoo[-1][0]], "naver-krx-day"
+    return yahoo, "Yahoo chart"
 
 
 def series_row(sym, name, group, kind, expected, now_utc, asof=None):
@@ -154,6 +164,10 @@ def series_row(sym, name, group, kind, expected, now_utc, asof=None):
     rows = daily_closes(ch)
     if asof:
         rows = [r for r in rows if r[0] <= asof]
+    src = "Yahoo chart"
+    if sym.endswith(".KS"):  # 국내 ETF — Yahoo 종가는 분배락 미수정이라 분배락 날 등락·5/20일 수익률이 KRX 와 어긋난다
+        nv = naver_daily_kr(sym[:-3], asof or expected or now_utc.astimezone(KST).date(), days=45)
+        rows, src = pick_kr_rows(rows, nv)
     if len(rows) < 2:
         return {"sym": sym, "name": name, "group": group, "error": "봉 부족"}
     (d, c), (_, p) = rows[-1], rows[-2]
@@ -163,7 +177,7 @@ def series_row(sym, name, group, kind, expected, now_utc, asof=None):
     at = datetime.fromtimestamp(rmt, timezone.utc).astimezone(KST) if rmt and not asof else None
     row = {"sym": sym, "name": name, "group": group, "kind": kind, "close": round(c, 4), "prevClose": round(p, 4),
            "chgPct": pct(c, p), "chg5dPct": pct(c, c5), "chg20dPct": pct(c, c20), "barDate": d.isoformat(),
-           "lastTradeKST": at.isoformat(timespec="minutes") if at else None, "source": "Yahoo chart"}
+           "lastTradeKST": at.isoformat(timespec="minutes") if at else None, "source": src}
     if group == "금리":  # 수익률(%) 계열은 변화율이 아니라 bp
         row["chgBp"] = round((c - p) * 100, 1)
     if kind == "regular":
@@ -512,6 +526,14 @@ def selftest():
     fx2 = fix_top_chg([{"code": "005930", "chgPct": -3.88, "afterPrice": 221000.0, "afterAt": "2026-10-30T18:09:00+09:00"}],
                       {"005930": [(d29, 230500.0), (d30, 220500.0)]}, d30)
     assert fx2[0]["close"] == 220500.0 and fx2[0]["afterPct"] == 0.23 and "afterAt" not in fx2[0]
+    days = [d29 - timedelta(days=i) for i in range(30, 0, -1)] + [d29, d30]
+    nv = [(d, 95515.0 if d < d29 else 94465.0) for d in days]                                 # 069500 분배락 수정 계열
+    yh = [(d, 95650.0 if d < d29 else 94465.0) for d in days]
+    r, src = pick_kr_rows(yh, nv)
+    assert src == "naver-krx-day" and r[-1][0] == d30 and pct(r[-2][1], r[-3][1]) == -1.10   # 10-29 = KRX 분배락 기준 −1.10%
+    assert pick_kr_rows(yh, nv[:-1]) == (yh, "Yahoo chart")                                   # 네이버가 그날 봉 아직 없음 → 섞지 않음
+    assert pick_kr_rows(yh, None) == (yh, "Yahoo chart") and pick_kr_rows(yh, nv[-5:])[1] == "Yahoo chart"   # 실패·20일 봉 부족
+    assert pick_kr_rows(yh[:-1], nv)[0][-1][0] == d29                                         # 과거 날짜(asof): Yahoo 마지막 봉까지만
     print("selftest OK")
 
 
