@@ -68,6 +68,35 @@
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
   .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  /* 종목 상세 차트·해독 탭(2026-11-01) */
+  .ch-rets { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .ch-ret { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); font-size: 11px; }
+  .ch-ret b { font-size: 14px; }
+  .ch-ctl { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; align-items: center; }
+  .ch-ctl::-webkit-scrollbar { display: none; }
+  .ch-ctl .chip { flex: none; }
+  .ch-sep { flex: none; width: 1px; height: 22px; background: var(--border); }
+  .tg { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .tg-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; margin-bottom: 6px; }
+  .tg-ma { font-size: 12px; color: var(--muted); }
+  .tg-ma b { color: var(--text); }
+  .tg-row { display: grid; grid-template-columns: 76px 1fr 48px 56px; gap: 8px; align-items: center; font-size: 13px; min-height: 28px; }
+  .tg-row > .num { text-align: right; }
+  .tg-txt { font-size: 11px; }
+  .tg-track { position: relative; height: 8px; border-radius: 4px; background: #131a29; }
+  .tg-z { position: absolute; top: 0; bottom: 0; background: rgba(255, 255, 255, .08); }
+  .tg-band { position: absolute; top: 0; bottom: 0; background: #2a3446; }
+  .tg-t { position: absolute; top: -3px; bottom: -3px; width: 1px; background: #3a4560; }
+  .tg-dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #e6ebf5; box-shadow: 0 0 0 2px var(--card); }
+  .tg-bar { position: absolute; top: 0; bottom: 0; }
+  .tg-bar.up { background: var(--up); border-radius: 0 4px 4px 0; }
+  .tg-bar.dn { background: var(--down); border-radius: 4px 0 0 4px; }
+  .dc-ptr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 12px; margin: 0 0 10px; }
+  .hd-bar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0 6px; }
+  .hd-bar .hd-rest, .hd-key .hd-rest { background: #3a4350; }
+  .hd-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; }
+  .hd-key i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+  @media (max-width: 600px) { .tg-row { grid-template-columns: 76px 1fr 44px 52px; gap: 6px; } .tg-row > span:first-child { white-space: nowrap; } .ch-rets { grid-template-columns: repeat(4, minmax(0, 1fr)); } .ch-ret:last-child { grid-column: span 2; } }   /* 폰 4칸: 7개라 YTD 가 두 칸 — 빈 칸 없게 */
   /* 종목 상세 '한눈에' 탭(2026-11-01) */
   .gl { counter-reset: gl; }
   .gl-sec { padding: 12px 0; border-top: 1px solid var(--border); counter-increment: gl; }
@@ -2393,29 +2422,7 @@ function decodeSummaryHtml(r, c) {
   c = c || decodeCompute(r);
   const R = DECODE_RULES;
   const vs = c.validatedShare;
-  const tiles = [
-    r.market !== 'KR' ? decodeTile('점수 신뢰도', '미검증', '미국 지표는 검증 전', 'neutral')
-      : decodeTile('점수 신뢰도', vs == null ? '-' : vs < R.lowTrust ? '낮음' : vs < R.midTrust ? '보통' : '높음', `검증 지표 몫 ${vs == null ? '-' : Math.round(vs * 100) + '%'}`, vs == null ? 'neutral' : vs < R.lowTrust ? 'bad' : vs < R.midTrust ? 'mid' : 'good'),
-    valueScopeTile(r),
-    decodeTile('가격(PBR)', c.mine == null ? '-' : c.mine.toFixed(2) + '배', c.pbrPct == null ? '비교 불가' : `${c.poolN}종목 중 비싼 쪽 ${Math.round((1 - c.pbrPct) * 100)}%`, c.pbrPct == null ? 'neutral' : c.pbrPct >= R.pricey ? 'bad' : c.pbrPct <= R.cheap ? 'good' : 'mid'),
-    (() => { const g = c.theme ? c.theme.st : c.sector; const rs = g && g.rs ? g.rs['1m'] : null;
-      return decodeTile(c.theme ? '테마 흐름(1개월)' : '업종 흐름(1개월)', rs == null ? '-' : `${rs >= 0 ? '+' : ''}${(rs * 100).toFixed(1)}%p`, rs == null ? '소속 정보 없음' : '시장 대비', rs == null ? 'neutral' : rs >= R.strongRs ? 'good' : rs <= -R.strongRs ? 'bad' : 'mid'); })(),
-    (() => { if (r.market !== 'KR') return decodeTile('수급', '-', '미국 미제공', 'neutral');
-      if (!c.flows || !c.flows.length) return decodeTile('수급 20일', '-', state.flows ? '데이터 없음' : '불러오는 중', 'neutral');
-      const s = k => c.flows.slice(-20).reduce((a, x) => a + (x[k] || 0), 0); const fo = s('foreign'), ins = s('institution');
-      return decodeTile('수급 20일', `${fo + ins >= 0 ? '순매수' : '순매도'}`, `외국인 ${fmtEok(fo)} · 기관 ${fmtEok(ins)}`, fo + ins >= 0 ? 'good' : 'bad'); })(),
-    (() => { const w = ((state.stockContext || {}).week52 || {})[r.ticker], px = r.currentPrice;
-      if (!w || !px) return decodeTile('52주 위치', '-', '이력 부족', 'neutral');
-      const hi = Math.max(w.high, px), lo = Math.min(w.low, px), pos = hi > lo ? (px - lo) / (hi - lo) : null;
-      return decodeTile('52주 위치', pos == null ? '-' : Math.round(pos * 100) + '%', `고점 ${fmtPrice(hi, r.market)} 대비 ${((px / hi - 1) * 100).toFixed(1)}%`, 'neutral'); })(),
-    (() => { // 목표가가 있는 종목만 칸을 낸다(없음·실패·수집 전은 숨김)
-      const t = targetOf(r); if (!t) return '';
-      const val = r.market === 'US' ? t.mean : t.median, up = r.currentPrice ? val / r.currentPrice - 1 : null;
-      const sub = r.market === 'US' ? `평균 ${fmtPrice(t.mean, 'US')} · 의견 ${t.buy + t.hold + t.sell}명(매수 ${t.buy}·보유 ${t.hold}·매도 ${t.sell})`
-        : `중앙 ${fmtPrice(t.median, 'KR')} · ${t.brokers}곳${t.brokers < 3 ? '뿐' : ''}`;
-      return decodeTile(r.market === 'US' ? '월가 목표가' : '증권사 목표가', up == null ? '-' : `${up >= 0 ? '+' : ''}${(up * 100).toFixed(0)}%`, sub, 'neutral'); })(),
-    decodeTile('다음 일정', c.next ? (c.next.d === 0 ? '오늘' : 'D-' + c.next.d) : '-', c.next ? `${c.next.date.slice(5)} ${esc(c.next.title)}` : '수집된 일정 없음', c.next && c.next.d <= R.soonDays ? 'mid' : 'neutral'),
-  ].join('');
+  const tiles = valueScopeTile(r);   // 2026-11-01: 신뢰도·PBR·업종 흐름·수급·52주·목표가·일정 칸은 '👀 한눈에' 그림과 겹쳐서 뺐다 — PIT 가치 범위만 여기 고유
 
   // 재무 한 줄 — 기준 시점 명시
   const f = c.fin, fv = k => f[k] && f[k].raw != null ? f[k].raw : null;
@@ -2426,7 +2433,8 @@ function decodeSummaryHtml(r, c) {
   const report = DECODE_REPORTS[r.ticker] ? `<a href="https://github.com/wonithink-a11y/stock/blob/main/${DECODE_REPORTS[r.ticker]}" target="_blank" rel="noopener" style="display:block;margin:10px 0;padding:10px 12px;border:1px solid rgba(96,165,250,.5);border-radius:10px;text-decoration:none;color:#93c5fd">📄 이 회사 사업 분석 보고서 보기 — 무엇으로 돈을 버는지 · 성장 동력 단계 · 위험·재검토 조건 (공시 원문 인용)</a>` : '';
 
   return `<div style="padding:10px 12px;border-radius:10px;background:rgba(148,163,184,.12);line-height:1.6;margin-bottom:10px">${esc(decodeHeadline(r, c))}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">${tiles}</div>
+    <div class="dc-ptr"><span class="muted">점수·가격·목표가·PBR·수급·일정 그림은</span><button class="chip" data-detail-vtab="glance">👀 한눈에</button></div>
+    ${tiles ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">${tiles}</div>` : ''}
     ${finRow}${usTargetHtml(r)}${report}`;
 }
 
@@ -2467,6 +2475,12 @@ function stockEventsHtml(ticker) {
   const major = v.major.length ? `<table style="font-size:12px;margin:4px 0"><thead><tr><th>보고자</th><th style="text-align:right">보유</th><th style="text-align:right">직전 대비</th><th>흐름</th><th>보고일</th></tr></thead><tbody>${v.major.slice(0, 8).map(m =>
     `<tr${/국민연금/.test(m.who) ? ' style="background:rgba(59,130,246,.12)"' : ''}><td>${esc(m.who)}</td><td style="text-align:right">${pct(m.rate)}</td><td style="text-align:right">${chg(m.chg)}</td><td class="muted">${esc(hist(m.hist))}</td><td class="muted">${ymd(m.date)}</td></tr>`).join('')}</tbody></table>`
     : '<p class="muted" style="font-size:12px">최근 2년 안에 5% 보고가 없습니다.</p>';
+  // 지분 막대(2026-11-01): 5% 보고 주주를 보유율 순으로 한 줄 띠 — 나머지는 회색 '그 밖'. 색은 신원용(빨강·파랑은 상승·하락이라 피함).
+  // 보고 시점이 서로 달라 합은 근사다(특수관계인 합산 보고는 한 줄). 100% 넘으면 띠를 그리지 않는다.
+  const HC = ['#9085e9', '#c98500', '#199e70', '#d55181'];
+  const hs = v.major.filter(m => m.rate > 0).sort((a, b) => b.rate - a.rate).slice(0, 4), hsum = hs.reduce((a, m) => a + m.rate, 0);
+  const hbar = hs.length && hsum <= 100 ? `<div class="hd-bar">${hs.map((m, i) => `<i style="width:${m.rate}%;background:${HC[i]}" title="${esc(m.who)} ${pct(m.rate)}"></i>`).join('')}<i class="hd-rest" style="flex:1"></i></div>
+    <div class="hd-key">${hs.map((m, i) => `<span><i style="background:${HC[i]}"></i>${esc(m.who)} <b class="num">${pct(m.rate)}</b></span>`).join('')}<span class="muted"><i class="hd-rest"></i>그 밖 ${pct(100 - hsum)}</span></div>` : '';
   const big = v.bigHolders.length ? `<p style="font-size:12px;margin:4px 0">10% 이상 주주: ${v.bigHolders.slice(0, 4).map(b => `${esc(b.who)} ${pct(b.rate)}${b.first ? ' <span class="muted">(첫 보고)</span>' : ''}`).join(' · ')}</p>` : '';
   const ex = v.execs6m;
   const execLine = ex.n ? `<p class="muted" style="font-size:11px;margin:2px 0">임원 지분 보고 6개월 ${ex.n}건(늘어남 ${ex.up} · 줄어듦 ${ex.down}) — 주식보상과 장내매수가 구분되지 않아 매수 신호로 읽지 않습니다.</p>` : '';
@@ -2476,7 +2490,7 @@ function stockEventsHtml(ticker) {
   const evList = v.events.slice(0, 12).map(e => `<li style="margin:2px 0"><span class="muted">${ymd(e.d)}</span> <span style="color:${EVENT_COLOR[e.cat] || '#9ca3af'}">[${esc(e.cat)}]</span> <a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${esc(e.rcept)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(e.nm)}</a></li>`).join('');
   return `<div style="margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:10px">
     <h4 style="margin:0 0 4px">🏦 지분·이벤트 <span class="muted" style="font-weight:400;font-size:12px">DART · ${esc((state.stockEvents.updatedAt || '').slice(0, 10))}</span></h4>
-    <div style="font-size:12px;font-weight:600;margin-top:6px">누가 들고 있나 — 5% 이상 주주</div>${major}${big}${execLine}
+    <div style="font-size:12px;font-weight:600;margin-top:6px">누가 들고 있나 — 5% 이상 주주</div>${hbar}${hbar ? `<details><summary style="cursor:pointer;font-size:12px;margin-top:6px">보유 변화 표</summary>${major}</details>` : major}${big}${execLine}
     <div style="font-size:12px;font-weight:600;margin-top:10px">회사가 한 일 — 최근 1년 주요 공시 ${v.events.length}건</div>
     <div style="margin:4px 0">${chips || '<span class="muted" style="font-size:12px">해당 공시 없음</span>'}</div>
     ${evList ? `<details><summary style="cursor:pointer;font-size:12px">최근 공시 목록</summary><ul style="margin:4px 0 0;padding-left:18px;font-size:12px">${evList}</ul></details>` : ''}
@@ -2537,7 +2551,7 @@ function renderDecodeTab(dt) {
     ${c.sector && c.sector.capTop && c.sector.capTopWeight >= 0.49 ? `<p class="muted" style="font-size:11px">업종 시총의 ${Math.round(c.sector.capTopWeight * 100)}%가 ${esc(c.sector.capTop.name)} — 업종 수치를 산업 전체로 읽지 말 것</p>` : ''}</div>`;
 
   // 차트 3: 수급
-  const chart3 = r.market !== 'KR' || !c.flows || !c.flows.length ? '' : `<div><h4 style="margin:0 0 2px">누가 사고 있나 (20거래일 누적)</h4>${decodeFlowSvg(c.flows)}</div>`;
+  const chart3 = '';   // 20일 수급 그림은 '👀 한눈에 › 누가 사 모았나'(5/20/60일 표 + 60일 누적선)와 겹쳐 뺐다(2026-11-01)
 
   return `<div style="font-size:13px">${decodeSummaryHtml(r, c)}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px">${chart1}${chart2}${chart3}</div>
@@ -2677,6 +2691,30 @@ function renderDecodeDetails(dt) {
     <p class="muted" style="font-size:11px;margin-top:10px">기업 해독 v0 — 자동 데이터만 쓴다. 사업 구조·성장 동력·약세 시나리오 같은 정성 분석은 아직 없다(v1). 이 화면은 점수·추천·매매를 바꾸지 않는다.</p></div>`;
 }
 
+// 차트 탭 기술 지표 눈금(2026-11-01) — 같은 계산·같은 문턱(badgesFor 와 동일: RSI 70/30, %B 0.8/0.2)을 글자 칩 대신 막대 위 점으로. 관찰용.
+function techGauges(dailyBars) {
+  const closes = dailyBars.map(b => b.c), n = closes.length; if (n < 21) return '';
+  const last = closes[n - 1], ma20a = smaArr(closes, 20), ma60a = smaArr(closes, 60), ma20 = ma20a[n - 1], ma60 = ma60a[n - 1];
+  const sd = stdArr(closes, 20, ma20a)[n - 1], rsi = rsiArr(closes, 14)[n - 1];
+  const bbU = ma20 != null && sd != null ? ma20 + 2 * sd : null, bbL = ma20 != null && sd != null ? ma20 - 2 * sd : null;
+  const pctB = bbU != null && bbL != null && bbU !== bbL ? (last - bbL) / (bbU - bbL) : null;
+  const disp = ma20 != null ? (last / ma20 - 1) * 100 : null;
+  let arrange = '혼조'; if (ma20 != null && ma60 != null) { if (last > ma20 && ma20 > ma60) arrange = '정배열'; else if (last < ma20 && ma20 < ma60) arrange = '역배열'; }
+  const clamp = v => Math.max(0, Math.min(100, v));
+  const gauge = (label, val, txt, pos, zones, ticks) => `<div class="tg-row"><span>${label}</span><div class="tg-track">${zones}${ticks}${pos == null ? '' : `<i class="tg-dot" style="left:${clamp(pos).toFixed(1)}%"></i>`}</div><span class="num">${val}</span><span class="tg-txt muted">${txt}</span></div>`;
+  const rows = [];
+  if (rsi != null) rows.push(gauge('RSI 14', rsi.toFixed(0), rsi >= 70 ? '과매수' : rsi <= 30 ? '과매도' : '중립', rsi,
+    '<i class="tg-z" style="left:0;width:30%"></i><i class="tg-z" style="left:70%;width:30%"></i>', '<i class="tg-t" style="left:30%"></i><i class="tg-t" style="left:70%"></i>'));
+  if (pctB != null) { const P = v => (v + 0.25) / 1.5 * 100;   // 눈금 −0.25~1.25(밴드 밖까지)
+    rows.push(gauge('볼린저 %B', pctB.toFixed(2), pctB >= 1 ? '상단돌파' : pctB >= 0.8 ? '상단권' : pctB <= 0 ? '하단이탈' : pctB <= 0.2 ? '하단권' : '중앙', P(pctB),
+      `<i class="tg-band" style="left:${P(0)}%;width:${P(1) - P(0)}%"></i>`, `<i class="tg-t" style="left:${P(0.2)}%"></i><i class="tg-t" style="left:${P(0.8)}%"></i>`)); }
+  if (disp != null) { const m = Math.max(10, Math.abs(disp) * 1.1), P = v => 50 + v / m * 50;
+    rows.push(gauge('20일 이격', `${disp >= 0 ? '+' : ''}${disp.toFixed(1)}%`, disp >= 0 ? '선 위' : '선 아래', null, '',
+      `<i class="tg-t" style="left:50%"></i><i class="tg-bar ${disp >= 0 ? 'up' : 'dn'}" style="${disp >= 0 ? 'left' : 'right'}:50%;width:${Math.abs(P(disp) - 50).toFixed(1)}%"></i>`)); }
+  return `<div class="tg"><div class="tg-h"><b>기술 지표</b><span class="tg-ma">MA20·60 <b>${arrange}</b></span></div>${rows.join('')}
+    <div class="muted" style="font-size:11px;margin-top:4px">음영 = RSI 과매수·과매도 구간(70·30) · 볼린저 밴드(%B 0~1) · 참고용이며 매매 신호가 아닙니다</div></div>`;
+}
+
 function renderChartTab(dt, dailyBars, n, rec) {
   const isUS = dt.market === 'US';
   if (isUS && dt.intraday) dt.intraday = false;  // KIS 분봉조회(FHKST03010230)는 국내주식 전용 - US는 강제로 일봉으로
@@ -2694,8 +2732,9 @@ function renderChartTab(dt, dailyBars, n, rec) {
     note = `일봉 ${sliced.length}개`;
   }
 
+  const retCell = (lb, v) => `<div class="ch-ret"><span class="muted">${lb}</span><b class="num ${v == null ? 'muted' : v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${v == null ? '−' : (v > 0 ? '+' : '') + v.toFixed(1) + '%'}</b></div>`;
   const retsHtml = [['1일', 1], ['1주', 5], ['1개월', 20], ['3개월', 60], ['6개월', 120], ['1년', 250]]
-    .map(([lb, k]) => retChip(lb, retN(rec.c, k))).join('') + retChip('YTD', retYTD(rec.c, rec.d));
+    .map(([lb, k]) => retCell(lb, retN(rec.c, k))).join('') + retCell('YTD', retYTD(rec.c, rec.d));
 
   // 1D(분)을 먼저 눌러야 분봉 버튼이 나오던 2단계 구조를 없애고 분봉·기간
   // 버튼을 한 줄에 같이 둔다 - 아무거나 바로 눌러서 전환.
@@ -2706,12 +2745,11 @@ function renderChartTab(dt, dailyBars, n, rec) {
   const typeBtns = ['candle', 'line'].map(t => `<button data-detail-type="${t}" class="chip ${dt.type === t ? 'active' : ''}">${t === 'candle' ? '캔들' : '라인'}</button>`).join('');
 
   return `
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${retsHtml}</div>
-    <div class="group-filter" style="margin-bottom:6px">${tfBtns}${rangeBtns}</div>
-    <div class="group-filter" style="margin-bottom:12px">${typeBtns}</div>
+    <div class="ch-rets">${retsHtml}</div>
+    <div class="ch-ctl">${tfBtns}${tfBtns ? '<i class="ch-sep"></i>' : ''}${rangeBtns}<i class="ch-sep"></i>${typeBtns}</div>
     <div class="muted" style="font-size:12px;margin-bottom:4px">${esc(note)}</div>
     <div class="table-wrap">${bodyHtml}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${badgesFor(dailyBars)}</div>
+    ${techGauges(dailyBars)}
     <p class="muted" style="font-size:11px;margin-top:10px">차트 위에 커서를 올리면(모바일은 탭) 그 봉의 날짜·시고저종·거래량이 표시됩니다. 기간 등락률은 거래일 기준(주=5·월=20·년=250 거래일). MA/볼린저/RSI/52주 지표는 참고용이며 투자 자문이 아닙니다.</p>`;
 }
 
