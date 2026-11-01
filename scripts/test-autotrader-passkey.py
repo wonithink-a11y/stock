@@ -275,10 +275,28 @@ def main():
         ck("주문 내역 크립토 필터", st == 200 and "주문 · 거래 내역" in b.decode() and "← 크립토" in b.decode())
         st, _, b = g("/")
         ck("홈: 시장 칩 + 크립토 열기 버튼", st == 200 and "/crypto" in b.decode() and "chips" in b.decode() and "크립토 열기" in b.decode())
+        # ---- 크립토 서브탭: 업비트 | 빗썸(2026-11-01) — 거래소별로 따로 본다
+        BW = {"strategy": "crypto_weights", "broker": "bithumb", "mode": "live", "key_prefix": "BITHUMB_TRADE", "markets": ["BITHUMB"],
+              "symbol_allowlist": ["KRW-BTC"], "auto": "off",
+              "params": {"market": "BITHUMB", "weights": {"KRW-BTC": 1.0}, "capital_krw": 1_000_000},
+              "risk": {"BITHUMB": {"max_order_value": 1_000_000, "max_daily_value": 5_000_000, "max_position_value": 2_000_000}}}
+        (td / "profiles" / "bw.json").write_text(json.dumps(BW), encoding="utf-8")
+        tu, tb = g("/crypto?x=UPBIT")[2].decode(), g("/crypto?x=BITHUMB")[2].decode()
+        ck("서브탭: 업비트 탭엔 업비트 프로필만, 빗썸 탭엔 빗썸만(위아래로 섞지 않는다)",
+           "업비트 · cb" in tu and "빗썸 · bw" not in tu and "빗썸 · bw" in tb and "업비트 · cb" not in tb)
+        ck("서브탭 막대: 업비트·빗썸 링크와 프로필 수, 선택한 쪽 강조", "/crypto?x=UPBIT" in tu and "/crypto?x=BITHUMB" in tu and "업비트 (" in tu
+           and 'class="on">빗썸' in tb and 'class="on">업비트' in tu)
+        t_def = g("/crypto")[2].decode()
+        ck("거래소를 안 고르면 업비트(프로필이 있는 첫 거래소)", 'class="on">업비트' in t_def)
+        st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=bw&op=kill&ret=crypto-BITHUMB".encode(), "1.1.1.1")
+        ck("빗썸 탭에서 킬을 켜면 빗썸 탭으로 돌아온다", "x=BITHUMB" in hd.get("Location", "") and "킬 스위치 켜짐" in g("/crypto?x=BITHUMB")[2].decode())
+        from autotrader.config import kill_file as _kf
+        _kf(load_profile(main_p, "bw")).unlink(missing_ok=True)
+
         # ---- 킬 스위치 상태를 한눈에(2026-11-01)
         kill_file(cb).unlink(missing_ok=True)
         t0 = g("/crypto")[2].decode()
-        ck("킬 꺼짐: 초록 '킬 스위치 꺼짐' + 켜기 버튼", "킬 스위치 꺼짐" in t0 and "킬 스위치 켜짐" not in t0 and 'name="ret" value="crypto"' in t0)
+        ck("킬 꺼짐: 초록 '킬 스위치 꺼짐' + 켜기 버튼", "킬 스위치 꺼짐" in t0 and "킬 스위치 켜짐" not in t0 and 'name="ret" value="crypto-UPBIT"' in t0)
         st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=kill&ret=crypto".encode(), "1.1.1.1")
         t1 = g("/crypto")[2].decode()
         ck("크립토에서 켜면 크립토로 돌아오고 '킬 스위치 켜짐'·해제 버튼", kill_file(cb).exists() and "/crypto" in hd.get("Location", "")

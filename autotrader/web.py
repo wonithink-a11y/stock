@@ -370,12 +370,20 @@ def market_chips(base: str, on: str = "") -> str:
     return '<div class="chips">' + "".join(f'<a href="{E(base)}{p}" class="{"on" if k == on else ""}">{t}</a>' for k, p, t in items) + "</div>"
 
 
+def exchange_tabs(base: str, counts: Dict[str, int], on: str) -> str:
+    """크립토 화면 서브탭 — 업비트 | 빗썸(프로필 수). 눌러서 거래소별로 따로 본다."""
+    items = (("UPBIT", "업비트"), ("BITHUMB", "빗썸"))
+    return '<div class="chips">' + "".join(
+        f'<a href="{E(base)}/crypto?x={k}" class="{"on" if k == on else ""}">{t}{f" ({counts[k]})" if counts.get(k) else ""}</a>'
+        for k, t in items) + "</div>"
+
+
 def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool, controls: Dict[str, str], now: datetime,
-                  hide_money: bool = False, msg: str = "") -> bytes:
+                  hide_money: bool = False, msg: str = "", ex: str = "UPBIT", counts: Optional[Dict[str, int]] = None) -> bytes:
     """크립토 탭 — 업비트 프로필마다 한 화면: 상태 · 1회 매수 금액 · 보유 · 오늘 한도 · 최근 주문 · 조작(금액 변경·자동·킬)."""
     from .config import current_notional
     from .pnl import load_book
-    out = [f'<div class="warn">{E(msg)}</div>'] if msg else []
+    out = [exchange_tabs(base, counts or {}, ex)] + ([f'<div class="warn">{E(msg)}</div>'] if msg else [])
     sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
     for cfg, v in items:
         name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
@@ -415,7 +423,7 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
         facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · {("보유 " + str(sum(1 for q in (st.get("holdings") or {}).values() if q > 0)) + "종 · 현금 " + format(st.get("cash") or 0, ",.0f") + "원") if cw_ else ("보유 " + (E(str(pos.get("qty"))) if pos else "없음") + " · z " + (E(str(pos.get("z"))) if pos else "대기"))}</div>'
                                        f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>'
                                        + (f'<div class="mut">{wtxt}</div>' if wtxt else ""))
-        out.append(kill_card(cfg, csrf, base, pk, "crypto"))
+        out.append(kill_card(cfg, csrf, base, pk, f"crypto-{xm}"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
 <span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></span></div>
@@ -424,7 +432,7 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
 <div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
 {"".join(rows) or '<span class="mut">없음</span>'}</div>''')
     if not items:
-        out.append('<div class="card mut">크립토(업비트·빗썸) 프로필이 없다 — 서버 프로필에 broker upbit|bithumb 를 만든다(README §11).</div>')
+        out.append('<div class="card mut">{"빗썸" if ex == "BITHUMB" else "업비트"} 프로필이 없다 — 서버 프로필에 broker {"bithumb" if ex == "BITHUMB" else "upbit"} 를 만든다(README §{"12" if ex == "BITHUMB" else "11"}).</div>')
     return _page("크립토", "".join(out) + (sc if pk else ""), base=base, sub="크립토", tab="crypto")
 
 
@@ -1285,13 +1293,22 @@ class WebApp:
             return 200, self._hdrs(), _page("주식", body, base=self.base, sub="주식", tab="strat")
         if method == "GET" and path == "/crypto":
             if self.require_reauth and not self.sessions.is_fresh(sess):
-                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/crypto")
+                xq = (parse_qs(urlsplit(raw_path).query).get("x") or [""])[0]
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(),
+                                                        nxt="/crypto" + (f"?x={xq}" if xq in ("UPBIT", "BITHUMB") else ""))
             now = self._now()
             pk = self._pk_ready()
-            items = [(c, load_view(c, state_dir(c), now)) for c in self.profiles() if is_crypto(c)]
+            cps = [c for c in self.profiles() if is_crypto(c)]
+            counts = {k: sum(1 for c in cps if crypto_market(c) == k) for k in ("UPBIT", "BITHUMB")}
+            q = parse_qs(urlsplit(raw_path).query)
+            ex = (q.get("x") or [""])[0]
+            if ex not in ("UPBIT", "BITHUMB"):                  # 기본 = 프로필이 있는 첫 거래소(업비트 먼저)
+                ex = "UPBIT" if counts["UPBIT"] or not counts["BITHUMB"] else "BITHUMB"
+            items = [(c, load_view(c, state_dir(c), now)) for c in cps if crypto_market(c) == ex]
             ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk, with_kill=False, compact=True) for c, _ in items}
-            cm = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
-            return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now, msg=cm if cm in self._msgs else "")
+            cm = (q.get("m") or [""])[0]
+            return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now, msg=cm if cm in self._msgs else "",
+                                                    ex=ex, counts=counts)
         if method == "GET" and path == "/log":
             return 200, self._hdrs(), render_log(self.profiles(), self.base)
         if method == "GET" and path == "/orders":
@@ -1439,9 +1456,10 @@ class WebApp:
         # 실계좌 주문으로 이어질 수 있는 조작(주문 켜기·주문 상태의 지금 실행)은 확인 문구까지 요구한다
         live_order = is_live_order(c, op)
         def back(m: str):
-            if ret == "crypto":                         # 크립토 화면에서 눌렀으면 거기로 돌아간다(상태 카드가 결과를 보여준다)
+            if ret.startswith("crypto"):                # 크립토 화면에서 눌렀으면 그 거래소 탭으로 돌아간다(상태 카드가 결과를 보여준다)
                 self._msgs.add(m)
-                return self._redirect(f"/crypto?m={quote(m)}")
+                xx = ret.split("-", 1)[1] if "-" in ret and ret.split("-", 1)[1] in ("UPBIT", "BITHUMB") else ""
+                return self._redirect(f"/crypto?{'x=' + xx + '&' if xx else ''}m={quote(m)}")
             return self._redirect(self._back_url(name, m))
         if op in ("set-notional", "set-weights"):       # 금액·비율 변경은 인증앱 코드 경로가 없다 — 패스키로만(값이 지문 챌린지에 묶인다)
             return back("금액·비율 변경은 패스키(지문)로만 됩니다")
@@ -1575,7 +1593,7 @@ class WebApp:
             self._bump(cid, count)
             self.sessions.mark_reauth(tok)
             self._log(ip, "reauth-ok")
-            ok_next = ({"/", "/accounts", "/details", "/orders", "/crypto", "/orders?m=crypto", "/orders?m=stock"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            ok_next = ({"/", "/accounts", "/details", "/orders", "/crypto", "/crypto?x=UPBIT", "/crypto?x=BITHUMB", "/orders?m=crypto", "/orders?m=stock"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
                        | {f"/plans?p={quote(str(c.get('profile', '')))}" for c in self.profiles() if c.get("strategy") == "plan_trader"})
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})
