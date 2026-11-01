@@ -127,6 +127,22 @@ class UpbitBroker(Broker):
         self._check_market(market)
         return float(self.client.get_ticker(symbol))
 
+    def market_info(self, market: str, symbols: List[str]) -> Dict[str, dict]:
+        """공개 시세 API(키 불필요) — 24시간 거래대금(acc_trade_price_24h)과 투자유의 여부. 마켓 목록에 없는 종목은 빠진다."""
+        self._check_market(market)
+        mod = _client_module()
+        syms = list(symbols)
+        if not syms:
+            return {}
+        mk = mod._request("GET", mod.BASE_URL + "/v1/market/all", params={"isDetails": "true"}, timeout=10)
+        mk.raise_for_status()
+        warn = {m["market"]: (m.get("market_warning") == "CAUTION" or bool((m.get("market_event") or {}).get("warning")))
+                for m in mk.json()}
+        tk = mod._request("GET", mod.BASE_URL + "/v1/ticker", params={"markets": ",".join(syms)}, timeout=10)
+        tk.raise_for_status()
+        return {t["market"]: {"value24h": _f(t.get("acc_trade_price_24h")), "warning": warn.get(t["market"], True)}
+                for t in tk.json() if t["market"] in warn}
+
     def order_request(self, intent: Intent) -> dict:
         """보낼 주문 본문(서명 전). dry-run 리포트와 실제 주문이 같은 함수로 만든다."""
         if intent.market != MARKET or intent.order_type != "market":

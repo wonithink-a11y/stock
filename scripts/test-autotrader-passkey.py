@@ -295,6 +295,50 @@ def main():
         st, ao = pj("/passkey/action-options", r)
         st, _ = pj("/passkey/action", {**r, "credential": dev.assert_(ao)})
         ck("지문만으로 해제(문구 없이) → '킬 스위치 꺼짐'", st == 200 and not kill_file(cb).exists() and "킬 스위치 꺼짐" in g("/crypto")[2].decode())
+        # ---- 웹 비율 변경(crypto_weights, 2026-11-01)
+        from autotrader.config import parse_weights, read_weights, weights_path, current_weights as cur_w
+        CWP = {"strategy": "crypto_weights", "broker": "upbit", "mode": "live", "key_prefix": "UPBIT_TRADE", "markets": ["UPBIT"],
+               "symbol_allowlist": ["KRW-BTC", "KRW-ETH", "KRW-XRP", "KRW-SOL"], "auto": "off",
+               "params": {"weights": {"KRW-BTC": 0.5, "KRW-ETH": 0.2}, "capital_krw": 1_000_000, "other_weight": 0.3,
+                          "other_candidates": ["KRW-XRP", "KRW-SOL"], "other_top_n": 2, "web_weights": True},
+               "risk": {"UPBIT": {"max_order_value": 1_000_000, "max_daily_value": 5_000_000, "max_orders_per_run": 5,
+                                  "max_position_value": 600_000}}}
+        (td / "profiles" / "cw.json").write_text(json.dumps(CWP), encoding="utf-8")
+        (td / "profiles" / "cx.json").write_text(json.dumps({**CWP, "params": {**CWP["params"], "web_weights": False}}), encoding="utf-8")
+        (td / "profiles" / "cy.json").write_text(json.dumps({**CWP, "risk": {"UPBIT": {**CWP["risk"]["UPBIT"], "max_position_value": 100_000}}}), encoding="utf-8")
+        cw = load_profile(main_p, "cw")
+
+        def setw(p, val, tamper=None, key=None):
+            r = {"csrf": csrf, "p": p, "op": "set-weights", "val": val}
+            st, ao = pj("/passkey/action-options", r)
+            if st != 200:
+                return st, ao
+            return pj("/passkey/action", {**r, **({"val": tamper} if tamper else {}), "credential": dev.assert_(ao, key=key)})
+        ck("비율 입력 검사: 정수 3칸·합 ≤ 100·형식", parse_weights(cw, "50,20,30")[0] == [50, 20, 30] and parse_weights(cw, "50,20")[0] is None
+           and parse_weights(cw, "60,30,20")[0] is None and parse_weights(cw, "50,20,3.5")[0] is None and parse_weights(cw, "-1,20,30")[0] is None
+           and parse_weights(cw, "50,20,３0")[0] is None and parse_weights(cw, "50,20,101")[0] is None)
+        ck("웹 비율이 없으면 프로필 값", cur_w(cw) == ({"KRW-BTC": 0.5, "KRW-ETH": 0.2}, 0.3))
+        st, _ = setw("cw", "40,30,20")
+        ck("지문으로 비율 변경 → 전략 params 에 반영(기타 20%)", st == 200 and read_weights(cw) == ({"KRW-BTC": 0.4, "KRW-ETH": 0.3}, 0.2)
+           and cur_w(cw) == ({"KRW-BTC": 0.4, "KRW-ETH": 0.3}, 0.2) and load_profile(main_p, "cw")["auto"] == "off")
+        from autotrader.config import effective_params as eff_p
+        ck("effective_params 가 weights·other_weight 를 덮는다", eff_p(cw)["weights"] == {"KRW-BTC": 0.4, "KRW-ETH": 0.3} and eff_p(cw)["other_weight"] == 0.2)
+        st, _ = setw("cw", "0,0,0")
+        ck("0% 는 허용(전부 원화) — 코인 키가 빠진다", st == 200 and cur_w(cw) == ({}, 0.0))
+        st, _ = setw("cw", "50,20,30", tamper="90,5,5")
+        ck("지문 뒤 비율을 바꾸면 거부(값이 챌린지에 묶임)", st == 403 and cur_w(cw) == ({}, 0.0))
+        st, b = setw("cw", "70,20,10")
+        ck("서버 종목당 보유 한도(60만원)를 넘는 비율은 저장 안 됨", st == 400 and "한도" in b and cur_w(cw) == ({}, 0.0))
+        st, _ = setw("cx", "30,30,30")
+        ck("web_weights 허락이 없는 프로필은 거부", st == 400 and read_weights(load_profile(main_p, "cx")) is None)
+        st, b = setw("cy", "50,20,30")
+        ck("한도가 모자라면 필요한 한도를 알려 주고 저장 안 함", st == 400 and read_weights(load_profile(main_p, "cy")) is None)
+        app.handle("POST", "/action", h, f"csrf={csrf}&p=cw&op=set-weights&code={code()}".encode(), "1.1.1.1")
+        ck("인증앱 코드 경로로는 비율을 못 바꾼다", cur_w(cw) == ({}, 0.0))
+        t = g("/crypto")[2].decode()
+        ck("크립토 화면: 비율 접힘·입력 3칸·현재 비율", "비율 바꾸기" in t and t.count('name="w"') >= 3 and "기타 0%" in t)
+        weights_path(cw).write_text("{깨진", encoding="utf-8")
+        ck("깨진 비율 파일은 프로필 값으로", read_weights(cw) is None and cur_w(cw) == ({"KRW-BTC": 0.5, "KRW-ETH": 0.2}, 0.3))
         notional_path(cb).write_text("{깨진", encoding="utf-8")
         ck("깨진 파일은 프로필 값으로", read_notional(cb) is None and effective_params(cb)["notional_krw"] == 100_000)
         notional_path(cb).write_text(json.dumps({"notional_krw": 99_999_999}), encoding="utf-8")

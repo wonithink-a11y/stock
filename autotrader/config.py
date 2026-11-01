@@ -351,13 +351,92 @@ def read_notional(cfg: dict) -> Optional[int]:
 
 
 def effective_params(cfg: dict) -> dict:
-    """전략에 넘길 params. 프로필이 params.web_notional: true 로 허락한 경우에만 웹 금액이 notional_krw 를 덮는다."""
+    """전략에 넘길 params. 프로필이 params.web_notional: true 로 허락한 경우에만 웹 금액이 notional_krw 를 덮고,
+    params.web_weights: true 인 경우에만 웹 비율(weights_override.json)이 weights·other_weight 를 덮는다."""
     p = dict(cfg.get("params") or {})
     if p.get("web_notional"):
         n = read_notional(cfg)
         if n is not None:
             p["notional_krw"] = n
+    if p.get("web_weights"):
+        w = read_weights(cfg)
+        if w is not None:
+            p["weights"], p["other_weight"] = w
     return p
+
+
+# ---- 웹에서 바꾸는 크립토 비율(crypto_weights) — 설계 docs/control/크립토-목표비중-전략-설계-2026-11-01.md §7
+def weights_path(cfg: dict) -> Path:
+    return state_dir(cfg) / "weights_override.json"
+
+
+def weight_names(cfg: dict) -> List[str]:
+    """웹 입력 칸 순서 — 프로필 params.weights 의 코인들, 마지막이 '기타'."""
+    return list((cfg.get("params") or {}).get("weights") or {})
+
+
+def parse_weights(cfg: dict, text) -> Tuple[Optional[List[int]], str]:
+    """'50,20,30'(코인 칸들 + 기타, 정수 %) → ([50,20,30], "") 또는 (None, 사유). 합 ≤ 100."""
+    parts = [x.strip() for x in str(text).split(",")]
+    n = len(weight_names(cfg)) + 1
+    if len(parts) != n or any((not x.isascii()) or (not x.isdigit()) for x in parts):
+        return None, f"비율은 정수 {n}개(%)를 쉼표로 — 코인 {n - 1}개 + 기타"
+    v = [int(x) for x in parts]
+    if any(x > 100 for x in v) or sum(v) > 100:
+        return None, f"각 비율은 0~100, 합은 100 이하(지금 {sum(v)})"
+    return v, ""
+
+
+def read_weights(cfg: dict):
+    """웹이 둔 비율 → ({코인: 0~1}, 기타 0~1) 또는 None(없음·깨짐·범위 밖 = 프로필 값). 읽는 쪽도 다시 검사한다."""
+    try:
+        d = json.loads(weights_path(cfg).read_text(encoding="utf-8"))
+        names = weight_names(cfg)
+        pct = d["pct"]
+        if not (isinstance(pct, list) and len(pct) == len(names) + 1 and all(type(x) is int and 0 <= x <= 100 for x in pct)
+                and sum(pct) <= 100):
+            return None
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return {s: pct[i] / 100 for i, s in enumerate(names) if pct[i] > 0}, pct[-1] / 100
+
+
+def current_weights(cfg: dict) -> Tuple[Dict[str, float], float]:
+    p = effective_params(cfg)
+    return dict(p.get("weights") or {}), float(p.get("other_weight") or 0)
+
+
+def check_weights(cfg: dict, pct: List[int]) -> Optional[str]:
+    """웹 비율을 서버 한도와 맞춰 본다(코인 하나가 자본 × 비율만큼 보유해도 종목당 보유 한도 안인지). 거부 사유(None=통과)."""
+    p = cfg.get("params") or {}
+    if not p.get("web_weights"):
+        return "이 프로필은 서버가 웹 비율 설정을 허락하지 않았다(프로필 params.web_weights)"
+    names = weight_names(cfg)
+    if len(pct) != len(names) + 1 or sum(pct) > 100:
+        return "비율 형식이 맞지 않는다"
+    if pct[-1] > 0 and not p.get("other_candidates"):
+        return "서버에 '기타' 후보 코인(params.other_candidates)이 없어 기타 비율을 못 둔다"
+    cap = float(p.get("capital_krw") or 0)
+    top_n = max(1, int(p.get("other_top_n", 5)))
+    lim = float(((cfg.get("risk") or {}).get("UPBIT") or {}).get("max_position_value") or 0)
+    worst = max([x for x in pct[:-1]] + [pct[-1] / top_n]) / 100 * cap
+    if worst > lim:
+        return f"코인 하나의 목표 금액 {worst:,.0f}원이 서버 종목당 보유 한도 {lim:,.0f}원을 넘습니다 — 서버 프로필(SSH)에서 한도를 올려야 저장됩니다"
+    return None
+
+
+def web_set_weights(cfg: dict, pct: List[int], now: datetime) -> Optional[str]:
+    err = check_weights(cfg, pct)
+    if err:
+        return err
+    p = weights_path(cfg)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"pct": pct, "at": now.isoformat()}), encoding="utf-8")
+    os.replace(tmp, p)
+    with (p.parent / "weights_history.jsonl").open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"at": now.isoformat(), "pct": pct}) + chr(10))
+    return None
 
 
 def current_notional(cfg: dict) -> Optional[float]:
