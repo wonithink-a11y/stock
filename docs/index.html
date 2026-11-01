@@ -1980,8 +1980,14 @@ function glValue(dt, r) {
   const parts = [];
   if (r && state.decodeRefs) {
     const c = decodeCompute(r);
-    if (c.pbrPct != null) parts.push(`<div class="gl-sub">PBR <b class="num">${c.mine.toFixed(2)}배</b> <span class="muted">· ${c.poolN}종목 중 위치</span></div>
-      <div class="gl-pbr"><div class="gl-pbr-track"><i class="gl-52-dot" style="left:${(c.pbrPct * 100).toFixed(1)}%"></i></div><div class="gl-52-lab muted"><span>싼 쪽</span><span class="num">${c.pbrPct < 0.5 ? `싼 쪽 ${Math.round(c.pbrPct * 100) + 1}%` : `비싼 쪽 ${Math.round((1 - c.pbrPct) * 100)}%`}</span><span>비싼 쪽</span></div></div>`);
+    if (c.pbrPct != null) {   // 점 위치 = 순위(값이 아니다). 2026-11-01 사용자 질문 '비싼 쪽 2%가 뭐냐' → 순위·중앙값을 그대로 적는다
+      const pool = ((state.latest && state.latest.results) || []).filter(x => x.market === r.market).map(x => ((((x.breakdown || {}).valuation || {}).detail || {}).pbr || {}).raw).filter(v => typeof v === 'number' && v > 0).sort((a, b) => a - b);
+      const med = pool.length ? pool[Math.floor(pool.length / 2)] : null;
+      const lowSide = c.pbrPct < 0.5, n = c.poolN, rk = (lowSide ? pool.filter(v => v < c.mine).length : pool.filter(v => v > c.mine).length) + 1;   // 같은 값이 있어도 '나보다 낮은(높은) 종목 수 + 1'
+      parts.push(`<div class="gl-sub">PBR <b class="num">${c.mine.toFixed(2)}배</b> <span class="muted">· ${r.market === 'KR' ? '국내' : '미국'} ${n}종목 중 ${lowSide ? '낮은' : '높은'} 순 <b class="num" style="color:var(--text)">${rk}위</b>${med ? ` · 중앙값 ${med.toFixed(2)}배` : ''}</span></div>
+      <div class="gl-pbr"><div class="gl-pbr-track"><i class="gl-med" style="left:50%" title="중앙값 ${med ? med.toFixed(2) : '-'}배"></i><i class="gl-52-dot" style="left:${(c.pbrPct * 100).toFixed(1)}%"></i></div><div class="gl-52-lab muted"><span>← PBR 낮은 종목</span><span>중앙</span><span>PBR 높은 종목 →</span></div></div>
+      <div class="muted" style="font-size:11px;margin-top:4px">점 위치 = 줄 세운 순위(값 크기 아님) · ${lowSide ? '하위' : '상위'} ${Math.max(1, Math.round((lowSide ? c.pbrPct : 1 - c.pbrPct) * 100))}%</div>`);
+    }
   }
   const T = (state.stockContext || {})[dt.market === 'US' || (r && r.market === 'US') ? 'usTargets' : 'targets'], t = T && T.byTicker && T.byTicker[dt.ticker];
   const rec = state.prices && state.prices.byTicker && state.prices.byTicker[dt.ticker], px = rec && rec.c ? rec.c[rec.c.length - 1] : r && r.currentPrice;
