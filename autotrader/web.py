@@ -112,8 +112,13 @@ border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-
 .tabbar a.on{color:var(--acct)}.tabbar svg.i{width:24px;height:24px}
 .chips{display:flex;gap:6px;margin:0 0 10px}.chips a{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-weight:600;font-size:13px}
 .chips a.on{background:var(--accs);border-color:var(--acc);color:var(--acct);font-weight:700}
-.big{font-size:30px;font-weight:800;letter-spacing:-1px}.big small{font-size:15px;font-weight:600;color:var(--mut);margin-left:4px;letter-spacing:0}
-.card.cx{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,159,255,.12)}
+.big{font-size:26px;font-weight:800;letter-spacing:-1px;margin:6px 0 2px}.big small{font-size:15px;font-weight:600;color:var(--mut);margin-left:4px;letter-spacing:0}
+.kbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 8px;padding:8px 12px;border-radius:12px;border:1px solid;margin:0 0 8px}
+.kbar.on{border-color:var(--bad);background:var(--bads)}.kbar.off{border-color:rgba(52,211,153,.35);background:var(--oks)}
+.kbar .ks{font-weight:800;font-size:15px}.kbar form{margin:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.kbar.on form{flex:1 1 100%}
+.kbar input{flex:1;min-width:0;width:auto;margin:0;padding:8px 10px}.kbar button{margin:0;padding:8px 14px;width:auto}.kbar .pk-msg{flex-basis:100%}
+.fold{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:0 0 8px;padding:0 12px}.fold summary{padding:10px 0;font-weight:700;cursor:pointer;color:var(--acct)}
+.fold[open]{padding-bottom:10px}
 /* 폰(≤600px): 한 화면에 더 많이 — 여백·글자·카드 높이를 줄인다(2026-10-14 사용자 요청) */
 @media(max-width:600px){body{font-size:14px;line-height:1.45}
 .top{padding:8px 12px}.top .brand{font-size:17px;gap:8px}.logo{width:28px;height:28px;border-radius:8px}.logo svg.i{width:16px;height:16px}
@@ -369,7 +374,7 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
     """크립토 탭 — 업비트 프로필마다 한 화면: 상태 · 1회 매수 금액 · 보유 · 오늘 한도 · 최근 주문 · 조작(금액 변경·자동·킬)."""
     from .config import current_notional
     from .pnl import load_book
-    out = [market_chips(base, "CRYPTO")] + ([f'<div class="warn">{E(msg)}</div>'] if msg else [])
+    out = [f'<div class="warn">{E(msg)}</div>'] if msg else []
     sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
     for cfg, v in items:
         name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
@@ -397,27 +402,20 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
                             f'<span class="side {"b" if r.get("side") == "BUY" else "s"}">{"매수" if r.get("side") == "BUY" else "매도"}</span>'
                             f'<span>{E(str(r.get("symbol")))}</span></span><span style="text-align:right">{stt}<br>'
                             f'<small class="mut">{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</small></span></div>')
-            if len(rows) >= 5:
+            if len(rows) >= 3:
                 break
-        money = "" if hide_money else f'''<div class="card cx"><div class="row" style="border:0"><span class="mut">1회 매수 금액</span><a href="#controls" style="color:var(--acct);font-weight:700">바꾸기 ›</a></div>
-<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원</small></div>
-<div class="mut">{NOTIONAL_MIN:,} ~ {NOTIONAL_MAX:,}원 · 다음 매수부터</div></div>
-<div class="stat" style="grid-template-columns:1fr 1fr"><div class="kpi"><div class="l">보유(이 전략)</div><div class="v">{E(str(pos.get("qty"))) if pos else "없음"}</div></div>
-<div class="kpi"><div class="l">매수 신호 z</div><div class="v">{E(str(pos.get("z"))) if pos else "대기"}</div></div></div>
-<div class="card"><h2>오늘 한도</h2><div class="row"><span>하루 사용</span><span>{pct:.0f}% ({used:,.0f} / {lim:,.0f}원)</span></div>
-<div class="bar"><i style="width:{pct:.0f}%"></i></div>
-<div class="row"><span>주문당 한도</span><span>{float(risk.get("max_order_value") or 0):,.0f}원</span></div></div>'''
-        out.append(kill_card(cfg, csrf, base, pk, "crypto"))                          # 킬 상태는 맨 위에 크게
-        out.append(f'''<div class="card hl"><div class="sc-h">{_tile(cfg.get("strategy"))}<div class="t"><span class="nm">업비트 · {E(name)}</span>
-<span class="pf">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></div></div>
-<span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))}</span>
-<div class="row"><span>마지막 실행</span><span>{last_txt}</span></div>
-<div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {sum(len(r.get("placed") or []) for r in t)} · {sum(len(r.get("errors") or []) for r in t)}</span></div></div>
-{money}
-<div class="card"><div class="row" style="border:0"><h2 style="margin:0">최근 주문</h2><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 보기 ›</a></div>
-{"".join(rows) or '<span class="mut">아직 낸 주문이 없다</span>'}</div>
-<div id="controls">{controls.get(name, "").replace(sc, "")}</div>''')
-    if len(out) == 1:
+        big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / 1회 매수</small></div>'
+        facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · 보유 {E(str(pos.get("qty"))) if pos else "없음"} · z {E(str(pos.get("z"))) if pos else "대기"}</div>'
+                                       f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>')
+        out.append(kill_card(cfg, csrf, base, pk, "crypto"))
+        out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+<span><b>업비트 · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
+<span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></span></div>
+{big}{facts}</div>
+{controls.get(name, "").replace(sc, "")}
+<div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
+{"".join(rows) or '<span class="mut">없음</span>'}</div>''')
+    if not items:
         out.append('<div class="card mut">크립토(업비트) 프로필이 없다 — 서버 프로필에 broker upbit 를 만든다(README §11).</div>')
     return _page("크립토", "".join(out) + (sc if pk else ""), base=base, sub="크립토", tab="crypto")
 
@@ -619,28 +617,27 @@ def render_settings(csrf: str, base: str, n_pk: int, pk_disabled: str) -> bytes:
 
 
 def kill_card(cfg: dict, csrf: str, base: str, has_pk: bool = False, ret: str = "") -> str:
-    """킬 스위치 상태 + 버튼 하나. 켜짐이면 빨간 큰 표시와 '해제', 꺼짐이면 초록 표시와 '켜기'(확인 없이 즉시)."""
+    """킬 스위치 한 줄 막대 — 켜짐: 빨강 '🛑 킬 스위치 켜짐' + 해제, 꺼짐: 초록 '✅ 킬 스위치 꺼짐' + 켜기(확인 없이 즉시)."""
     name, live = str(cfg.get("profile", "")), cfg.get("mode") == "live"
     on = kill_file(cfg).exists()
     hid = f'<input type="hidden" name="csrf" value="{E(csrf)}"><input type="hidden" name="p" value="{E(name)}"><input type="hidden" name="ret" value="{E(ret)}">'
     if not on:
-        act = f'<form method="post" action="{base}/action" style="margin:0">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">킬 스위치 켜기</button></form>'
+        act = f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="kill"><button style="background:var(--bad);border-color:var(--bad);color:#1a0b0b;font-weight:800">켜기</button></form>'
     elif has_pk:
         ph = f'<input name="phrase" placeholder="확인 문구: {E(LIVE_PHRASE)}" autocomplete="off">' if live else ""
-        act = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}" style="margin:0">'
+        act = (f'<form class="pk-act" data-base="{E(base)}" data-csrf="{E(csrf)}" data-profile="{E(name)}">'
                f'<input type="hidden" name="op" value="resume">{ph}<button>🔑 해제</button><div class="pk-msg"></div></form>')
     elif live:
-        act = '<div class="mut">해제는 패스키로만</div>'
+        act = '<span class="mut">해제는 패스키로만</span>'
     else:
-        act = (f'<form method="post" action="{base}/action" style="margin:0">{hid}<input type="hidden" name="op" value="resume">'
+        act = (f'<form method="post" action="{base}/action">{hid}<input type="hidden" name="op" value="resume">'
                '<input name="code" placeholder="인증앱 코드" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required><button>해제</button></form>')
-    st = ('<div style="font-size:22px;font-weight:800;color:var(--bad)">🛑 킬 스위치 켜짐</div><div class="mut">주문 중단 중</div>' if on else
-          '<div style="font-size:22px;font-weight:800;color:var(--ok)">✅ 킬 스위치 꺼짐</div><div class="mut">정상</div>')
-    return (f'<div class="card" style="border-color:{"var(--bad)" if on else "var(--ok)"};{"background:var(--bads)" if on else ""}">{st}'
-            f'<div style="margin-top:8px">{act}</div></div>')
+    st = '🛑 킬 스위치 켜짐 <span class="mut" style="font-weight:500">· 주문 중단</span>' if on else '✅ 킬 스위치 꺼짐'
+    return f'<div class="kbar {"on" if on else "off"}"><span class="ks">{st}</span>{act}</div>'
 
 
-def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False, with_kill: bool = True) -> str:
+def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool = False, with_kill: bool = True,
+                    compact: bool = False) -> str:
     """프로필 조작 폼. 킬 켜기만 확인 없이. 패스키가 있으면 **모든 조작을 지문으로**(2026-09-22 사용자 요청), 없으면 인증앱 코드.
     실계좌의 주문 켜기·실행·킬 해제는 패스키로만 + 확인 문구(보안 검토 M2·M3·M4 — 피싱된 인증앱 코드로는 실계좌 주문에 닿지 않는다)."""
     name = str(cfg.get("profile", ""))
@@ -679,6 +676,10 @@ def render_controls(cfg: dict, csrf: str, base: str, msg: str = "", has_pk: bool
 <input name="phrase" placeholder="{NOTIONAL_BIG_RAISE}배 초과 증액만: {E(LIVE_PHRASE)}" autocomplete="off"><button>🔑 금액 변경</button><div class="pk-msg"></div></form>''')
         nform = f'<div style="margin-top:10px">{nform}</div>'
     kc = kill_card(cfg, csrf, base, has_pk) if with_kill else ""
+    if compact:                                         # 크립토 화면: 접어 두고 필요할 때만 연다(한 화면에 최대한)
+        parts = (f'<details class="fold"><summary>금액 바꾸기</summary>{nform}</details>' if nform else "")
+        parts += f'<details class="fold"><summary>자동 · 실행</summary>{m}{form}{note}</details>'
+        return parts
     return f'''{kc}<div class="card"><h2>조작</h2>{m}
 <div class="row"><span>자동</span><span>{E({"off": "꺼짐", "dry": "dry-run", "execute": "주문"}.get(cfg.get("auto"), str(cfg.get("auto"))))} {E(",".join(cfg.get("run_at") or []))}</span></div>
 {form}{note}{nform}</div>'''
@@ -1270,7 +1271,7 @@ class WebApp:
             now = self._now()
             pk = self._pk_ready()
             items = [(c, load_view(c, state_dir(c), now)) for c in self.profiles() if is_crypto(c)]
-            ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk, with_kill=False) for c, _ in items}
+            ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk, with_kill=False, compact=True) for c, _ in items}
             cm = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
             return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now, msg=cm if cm in self._msgs else "")
         if method == "GET" and path == "/log":
