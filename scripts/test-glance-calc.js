@@ -4,6 +4,7 @@
 //   2) 강점·약점: 문턱 15점 경계, 점수/중앙값 결측이면 판정 안 함, 실제 latest.json(삼성전자 재무 강점, 삼성생명 기술 강점)
 //   3) 수급 기간 합: 5·20·60일 합 = 직접 합, 행 부족·결측이면 null(0 으로 안 채움)
 //   4) 검증 비율 산식 전제: 지표별 기여 합 = 총점 — 해독 탭의 decodeCompute 를 실제 기준표·근거 파일로 돌려 전 종목 대조
+//   5) 홈 시장 국면 막대 구간 경계 = config/marketRegime.json regimeGrades
 // 실행: node scripts/test-glance-calc.js  (네트워크 불필요)
 'use strict';
 const fs = require('fs');
@@ -129,6 +130,16 @@ const { glTargetRevisions, glStrengths, glFlowSums, GL_STRONG, GL_REV_DAYS } = c
   ok(badShare === 0, `검증+기각 비율 0~1 (위반 ${badShare})`);
   const basisOut = L.filter(r => r.basis && !r.basis.includes('supplyDemand')).length;
   console.log(`  참고: 총점 basis 에 수급이 없는 종목 ${basisOut}/${L.length} — 화면에 '총점 미반영' 표시`);
+}
+
+// ---- 5) 홈 시장 국면 막대의 구간 경계 = config/marketRegime.json regimeGrades.min (그림이 등급과 어긋나지 않게) ----
+{
+  const src = grab(/const REGIME_BANDS = \[[^\n]*\];/, 'REGIME_BANDS');
+  const c3 = {}; vm.createContext(c3); vm.runInContext(`${src}\nthis.b = REGIME_BANDS;`, c3);
+  const g = readJson('config/marketRegime.json').regimeGrades;
+  const want = Object.entries(g).map(([k, v]) => [k, v.min]).sort((x, y) => x[1] - y[1]);
+  const got = c3.b.map(x => [x.k, x.min]);
+  ok(JSON.stringify(got) === JSON.stringify(want), `REGIME_BANDS = regimeGrades (got ${JSON.stringify(got)} want ${JSON.stringify(want)})`);
 }
 
 console.log(`${fails ? 'FAIL' : 'OK'} test-glance-calc: ${checks - fails}/${checks}`);
