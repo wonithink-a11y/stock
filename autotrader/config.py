@@ -29,7 +29,16 @@ _KEYSET_ENV = re.compile(r"^KIS_[A-Z0-9_]+_(APP_KEY|APP_SECRET|ACCOUNT_NO)$")
 # 접두사 뒤 한 마디를 강제한다 — 잔고 조회용 UPBIT_ACCESS_KEY(crypto-real-holdings)는 고를 수 없다(주문 키와 분리).
 _UPBIT_PREFIX = re.compile(r"^UPBIT_[A-Z0-9]+(_[A-Z0-9]+)*$")
 _UPBIT_KEYSET_ENV = re.compile(r"^UPBIT_[A-Z0-9_]+_(ACCESS_KEY|SECRET_KEY)$")
-BROKERS = ("kis", "upbit")
+# 빗썸(broker "bithumb"): "key_prefix": "BITHUMB_TRADE" → BITHUMB_TRADE_ACCESS_KEY / BITHUMB_TRADE_SECRET_KEY (조회용 BITHUMB_ACCESS_KEY 는 못 고른다).
+_BITHUMB_PREFIX = re.compile(r"^BITHUMB_[A-Z0-9]+(_[A-Z0-9]+)*$")
+_BITHUMB_KEYSET_ENV = re.compile(r"^BITHUMB_[A-Z0-9_]+_(ACCESS_KEY|SECRET_KEY)$")
+BROKERS = ("kis", "upbit", "bithumb")
+CRYPTO_BROKERS = {"upbit": "UPBIT", "bithumb": "BITHUMB"}        # broker → 시장 이름
+
+
+def crypto_market(cfg: dict) -> Optional[str]:
+    """프로필의 거래소 시장 이름(UPBIT|BITHUMB), 크립토가 아니면 None."""
+    return CRYPTO_BROKERS.get(cfg.get("broker"))
 _PROFILE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 _HM = r"([01]\d|2[0-3]):[0-5]\d"
 _RUN_AT = re.compile(rf"{_HM}(-{_HM}/([5-9]|[1-5]\d|60))?")       # "09:10" 또는 "09:05-15:15/5"(5~60분 간격)
@@ -46,6 +55,7 @@ RISK_DEFAULTS = {
     "UPBIT": {"max_order_value": 100_000, "max_daily_value": 300_000, "max_orders_per_run": 1,
               "price_band_pct": 5.0, "max_position_value": 150_000, "allow_sell": True, "min_order_value": 5_000},
 }
+RISK_DEFAULTS["BITHUMB"] = dict(RISK_DEFAULTS["UPBIT"])           # 빗썸 원화 마켓도 같은 모양(최소 주문 5,000원)
 
 
 class ConfigError(ValueError):
@@ -66,7 +76,7 @@ def _read_env_file(p: Path, env: Dict[str, str]) -> None:
     for line in p.read_text(encoding="utf-8").splitlines():
         k, _, v = line.partition("=")
         k = k.strip()
-        if k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k):
+        if k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k) or _BITHUMB_KEYSET_ENV.match(k):
             env[k] = v.strip().strip('"').strip("'")
 
 
@@ -82,7 +92,7 @@ def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dic
     if src.get("AUTOTRADER_ENV_FILE"):
         _read_env_file(Path(src["AUTOTRADER_ENV_FILE"]).expanduser(), env)
     for k, v in src.items():
-        if v and (k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k)):
+        if v and (k in ENV_KEYS or _KEYSET_ENV.match(k) or _UPBIT_KEYSET_ENV.match(k) or _BITHUMB_KEYSET_ENV.match(k)):
             env[k] = v
     return env
 
@@ -90,7 +100,7 @@ def load_env(repo_root: Path = REPO_ROOT, environ: Optional[dict] = None) -> Dic
 def key_names(cfg: dict) -> tuple:
     """이 설정이 쓰는 키 환경변수 이름 3개(앱키·시크릿·계좌). 기본은 모드별 KIS_VTS_* / KIS_LIVE_*."""
     pre = cfg.get("key_prefix")
-    if cfg.get("broker") == "upbit":
+    if cfg.get("broker") in CRYPTO_BROKERS:
         return (f"{pre}_ACCESS_KEY", f"{pre}_SECRET_KEY")
     if not pre:
         return PAPER_KEYS if cfg.get("mode") == "paper" else LIVE_KEYS
@@ -136,12 +146,17 @@ def validate_config(cfg: dict) -> List[str]:
     mk = cfg.get("markets")
     br = cfg.get("broker", "kis")
     if br not in BROKERS:
-        errs.append("broker 는 kis|upbit")
+        errs.append("broker 는 kis|upbit|bithumb")
     if br == "upbit":
         if mk != ["UPBIT"]:
             errs.append("broker upbit 는 markets [\"UPBIT\"] 만")
         if cfg.get("mode") != "live":
             errs.append("broker upbit 는 mode live 만(업비트에는 모의투자가 없다 — 주문 없이 보려면 dry-run)")
+    elif br == "bithumb":
+        if mk != ["BITHUMB"]:
+            errs.append("broker bithumb 는 markets [\"BITHUMB\"] 만")
+        if cfg.get("mode") != "live":
+            errs.append("broker bithumb 는 mode live 만(빗썸에는 모의투자가 없다 — 주문 없이 보려면 dry-run)")
     elif not isinstance(mk, list) or not mk or any(m not in ("KR", "US") for m in mk):
         errs.append("markets 는 [\"KR\"] 또는 [\"US\"] 또는 둘 다")
     al = cfg.get("symbol_allowlist", [])
@@ -151,6 +166,9 @@ def validate_config(cfg: dict) -> List[str]:
     if br == "upbit":
         if not (isinstance(pre, str) and _UPBIT_PREFIX.match(pre)):
             errs.append("broker upbit 는 key_prefix 가 필요하다 — UPBIT_ 로 시작하는 대문자 이름(예: UPBIT_TRADE). 조회용 UPBIT 키는 쓸 수 없다")
+    elif br == "bithumb":
+        if not (isinstance(pre, str) and _BITHUMB_PREFIX.match(pre)):
+            errs.append("broker bithumb 는 key_prefix 가 필요하다 — BITHUMB_ 로 시작하는 대문자 이름(예: BITHUMB_TRADE). 조회용 BITHUMB 키는 쓸 수 없다")
     elif pre is not None and not (isinstance(pre, str) and _PREFIX.match(pre)):
         errs.append("key_prefix 는 KIS_ 로 시작하는 대문자 이름(예: KIS_VTS2). 시세용 KIS 키는 쓸 수 없다")
     if cfg.get("auto", "off") not in AUTO_MODES:
@@ -226,6 +244,8 @@ def gate_problems(cfg: dict, env: Dict[str, str], execute: bool,
         if not live.get("tr_ids_reviewed"):
             if cfg.get("broker") == "upbit":
                 p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(업비트 주문 경로를 upbit-probe 로 확인했다는 표시 — README §11)")
+            elif cfg.get("broker") == "bithumb":
+                p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(빗썸은 주문 테스트가 없다 — 소액 실검증 주문을 사용자가 직접 해 보고 켠다, 설계 §3 P2)")
             else:
                 p.append("설정 live.tr_ids_reviewed 가 true 가 아니다(실전 TR_ID 를 공식 문서와 대조했다는 표시 — README §실전 전환)")
         if env.get("AUTOTRADER_ALLOW_LIVE") != LIVE_ACK:
@@ -418,7 +438,7 @@ def check_weights(cfg: dict, pct: List[int]) -> Optional[str]:
         return "서버에 '기타' 후보 코인(params.other_candidates)이 없어 기타 비율을 못 둔다"
     cap = float(p.get("capital_krw") or 0)
     top_n = max(1, int(p.get("other_top_n", 5)))
-    lim = float(((cfg.get("risk") or {}).get("UPBIT") or {}).get("max_position_value") or 0)
+    lim = float(((cfg.get("risk") or {}).get(crypto_market(cfg) or "UPBIT") or {}).get("max_position_value") or 0)
     worst = max([x for x in pct[:-1]] + [pct[-1] / top_n]) / 100 * cap
     if worst > lim:
         return f"코인 하나의 목표 금액 {worst:,.0f}원이 서버 종목당 보유 한도 {lim:,.0f}원을 넘습니다 — 서버 프로필(SSH)에서 한도를 올려야 저장됩니다"
@@ -450,7 +470,7 @@ def check_notional(cfg: dict, n: int) -> Optional[str]:
         return "이 프로필은 서버가 웹 금액 설정을 허락하지 않았다(프로필 params.web_notional)"
     if not NOTIONAL_MIN <= n <= NOTIONAL_MAX:
         return f"금액은 {NOTIONAL_MIN:,}원 이상 {NOTIONAL_MAX:,}원 이하여야 합니다"
-    r = (cfg.get("risk") or {}).get("UPBIT") or {}
+    r = (cfg.get("risk") or {}).get(crypto_market(cfg) or "UPBIT") or {}
     need = (("max_order_value", n * 3 / 2, "주문당 한도(매도 포함, 1회 금액의 1.5배)"),
             ("max_daily_value", n * 2, "하루 한도(매수+매도, 1회 금액의 2배)"),
             ("max_position_value", n, "종목당 보유 한도(개인 보유 BTC 평가액은 별도로 더해서 잡는다)"))

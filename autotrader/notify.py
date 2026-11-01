@@ -52,7 +52,7 @@ def fill_message(profile: str, mode: str, f: dict) -> str:
     us = f.get("market") == "US"
     px = f"${float(f.get('price') or 0):,.2f}" if us else f"{float(f.get('price') or 0):,.0f}원"
     side = "매도" if f.get("side") == "SELL" else "매수"
-    unit = "개" if f.get("market") == "UPBIT" else "주"
+    unit = "개" if f.get("market") in ("UPBIT", "BITHUMB") else "주"
     more = f" (누적 {f.get('qty')}{unit})" if f.get("qty") != f.get("delta") else ""
     return "\n".join([f"{'💰' if side == '매도' else '🛒'} 체결 · {profile} · {'모의' if mode == 'paper' else '⚠실전'}",
                       f"{f.get('market')} {f.get('symbol')} {side} {f.get('delta')}{unit} @ {px}(평균){more}",

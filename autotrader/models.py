@@ -5,7 +5,8 @@ import math
 from dataclasses import dataclass
 from typing import Optional
 
-MARKETS = ("KR", "US", "UPBIT")          # UPBIT = 업비트 원화 마켓(KRW-BTC 등) — 소수 수량·시장가만
+MARKETS = ("KR", "US", "UPBIT", "BITHUMB")   # UPBIT·BITHUMB = 거래소 원화 마켓(KRW-BTC 등) — 소수 수량·시장가만
+CRYPTO_MARKETS = ("UPBIT", "BITHUMB")
 SIDES = ("BUY", "SELL")
 ORDER_TYPES = ("limit", "market", "loc")
 
@@ -29,17 +30,17 @@ class Intent:
         if self.side not in SIDES:
             return f"side 는 BUY|SELL: {self.side!r}"
         if self.market not in MARKETS:
-            return f"market 은 KR|US|UPBIT: {self.market!r}"
+            return f"market 은 KR|US|UPBIT|BITHUMB: {self.market!r}"
         if self.order_type not in ORDER_TYPES:
             return f"order_type 은 limit|market|loc: {self.order_type!r}"
-        if self.market == "UPBIT":
+        if self.market in CRYPTO_MARKETS:
             q = self.qty
             if isinstance(q, bool) or not isinstance(q, (int, float)) or not math.isfinite(q) or q <= 0:
                 return f"수량은 양수여야 한다: {q!r}"
             if abs(round(q, 8) - q) > 1e-12:
-                return f"업비트 수량은 소수 8자리까지: {q!r}"
+                return f"코인 수량은 소수 8자리까지: {q!r}"
             if self.order_type != "market":
-                return "업비트는 시장가(market)만 지원한다"
+                return "업비트·빗썸은 시장가(market)만 지원한다"
             return None
         if isinstance(self.qty, bool) or not isinstance(self.qty, int) or self.qty <= 0:
             return f"수량은 양의 정수여야 한다: {self.qty!r}"
