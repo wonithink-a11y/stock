@@ -55,6 +55,20 @@ def _avg(order: dict) -> float:
     return funds / vol if vol > 0 else 0.0
 
 
+def _add_avg(mod, out: Dict[str, dict], days: int) -> None:
+    """최근 days 일 일평균 거래대금(오늘 진행 중인 봉은 뺀다) — 공개 일봉 API, 코인마다 한 번(월 1회 선정 때만 부른다). 실패한 코인은 0 으로 둔다."""
+    import time
+    for sym, rec in out.items():
+        try:
+            r = mod._request("GET", mod.BASE_URL + "/v1/candles/days", params={"market": sym, "count": days + 1}, timeout=10)
+            r.raise_for_status()
+            cs = r.json()[1:days + 1]
+            rec["value_avg"] = sum(_f(c.get("candle_acc_trade_price")) for c in cs) / len(cs) if cs else 0.0
+        except Exception:                               # noqa: BLE001
+            rec["value_avg"] = 0.0
+        time.sleep(0.12)                                # 공개 시세 호출 제한(초당 10회)에 여유
+
+
 class UpbitBroker(Broker):
     name = "upbit"
     mode = "live"
@@ -127,7 +141,7 @@ class UpbitBroker(Broker):
         self._check_market(market)
         return float(self.client.get_ticker(symbol))
 
-    def market_info(self, market: str, symbols: List[str]) -> Dict[str, dict]:
+    def market_info(self, market: str, symbols: List[str], days: int = 1) -> Dict[str, dict]:
         """공개 시세 API(키 불필요) — 24시간 거래대금(acc_trade_price_24h)과 투자유의 여부. 마켓 목록에 없는 종목은 빠진다."""
         self._check_market(market)
         mod = _client_module()
@@ -138,10 +152,16 @@ class UpbitBroker(Broker):
         mk.raise_for_status()
         warn = {m["market"]: (m.get("market_warning") == "CAUTION" or bool((m.get("market_event") or {}).get("warning")))
                 for m in mk.json()}
-        tk = mod._request("GET", mod.BASE_URL + "/v1/ticker", params={"markets": ",".join(syms)}, timeout=10)
-        tk.raise_for_status()
-        return {t["market"]: {"value24h": _f(t.get("acc_trade_price_24h")), "warning": warn.get(t["market"], True)}
-                for t in tk.json() if t["market"] in warn}
+        rows = []
+        for i in range(0, len(syms), 100):                  # 주소가 길어지면 414 — 100개씩 나눠 부른다
+            tk = mod._request("GET", mod.BASE_URL + "/v1/ticker", params={"markets": ",".join(syms[i:i + 100])}, timeout=10)
+            tk.raise_for_status()
+            rows += tk.json()
+        out = {t["market"]: {"value24h": _f(t.get("acc_trade_price_24h")), "warning": warn.get(t["market"], True)}
+               for t in rows if t["market"] in warn}
+        if days > 1:
+            _add_avg(mod, out, days)
+        return out
 
     def order_request(self, intent: Intent) -> dict:
         """보낼 주문 본문(서명 전). dry-run 리포트와 실제 주문이 같은 함수로 만든다."""

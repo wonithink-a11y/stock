@@ -31,8 +31,8 @@ class Broker:
     def quote(self, symbol: str, market: str) -> float:
         raise NotImplementedError
 
-    def market_info(self, market: str, symbols: List[str]) -> Dict[str, dict]:
-        """종목별 {value24h(24시간 거래대금, 원), warning(투자유의 등)} — 조회 전용. 지원 안 하는 브로커는 NotImplementedError."""
+    def market_info(self, market: str, symbols: List[str], days: int = 1) -> Dict[str, dict]:
+        """종목별 {value24h(24시간 거래대금, 원), warning(투자유의 등)} + days>1 이면 value_avg(최근 days 일 일평균 거래대금, 오늘 제외) — 조회 전용. 지원 안 하는 브로커는 NotImplementedError."""
         raise NotImplementedError
 
     def place(self, intent: Intent, dry_run: bool = True) -> dict:
@@ -80,7 +80,7 @@ class FakeBroker(Broker):
     def fills(self, market, start, end):
         return [dict(f) for f in self.fill_rows if f.get("market", market) == market]
 
-    def market_info(self, market, symbols):
+    def market_info(self, market, symbols, days=1):
         return {s: dict(self._info[s]) for s in symbols if s in self._info}
 
     def quote(self, symbol, market):

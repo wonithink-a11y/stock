@@ -269,3 +269,9 @@ z ≥ +2 정시에 KRW-BTC 시장가 매수, 신호 +24시간 뒤 첫 실행에�
 - 시장가만: 매수 = 총액(`order_type price`), 매도 = 수량(`market`). 주문 식별자 `client_order_id`(우리 `clientId`)를 보내고, 보내기 전에 같은 값의 주문이 있으면 안 보낸다.
 - **빗썸에는 주문 생성 '테스트'가 없다.** `bithumb-probe` 대신 `upbit-probe` 명령이 빗썸 프로필도 받는다(`--profile`) — 잔고·대기 주문 조회만 확인한다.
 - **켜기 전 필수 — 소액 실검증(P2, 사용자 직접)**: 빗썸에 5,000~10,000원을 입금해 ① 시장가 매수 1회 → 전량 매도 1회(빗썸 앱 또는 `--execute` 1회) ② 같은 `client_order_id` 로 두 번 보내 거절되는지 ③ 결과(주문 조회 응답 원문, 키 가린 것)를 Claude 에게 보여 줘 어댑터 파싱을 맞춘다. 확인 전에는 `live.tr_ids_reviewed` 를 켜지 않는다. 그다음 업비트와 같은 순서(dry-run → `live.enabled` → 패스키 켜기).
+
+### 12-1. 한 바구니 프로필 초안 (`autotrader/profiles.example/cw-upbit.json`, `cw-bithumb.json`)
+
+후보 80개(거래대금 상위·경고·스테이블 제외) 중 **최근 30일 평균 거래대금 상위 30개**를 거래대금 비례로 담고 한 코인은 기타의 15% 까지. `auto: dry` · `live.enabled: false` 라 주문은 안 나간다.
+쓰려면 VM 에서 `cp autotrader/profiles.example/cw-upbit.json ~/collector-venv/autotrader/profiles/` 로 복사한 뒤 `capital_krw`(이 전략의 자본, 5,000~10,000,000원 안)를 정한다. 코인당 주문은 최소 5,000원(그 아래는 안 낸다).
+빗썸은 `BITHUMB_TRADE_ACCESS_KEY/_SECRET_KEY` 가 `.env` 에 있어야 dry-run 이 돈다. 후보 목록은 생성 시점 기준이라 가끔 갱신한다.
