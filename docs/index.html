@@ -86,6 +86,32 @@
     #content .table-wrap > table.a5-tbl th:nth-child(2), #content .table-wrap > table.a5-tbl td:nth-child(2) {
       position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
+  /* 기관 보유(5%)·크립토 연구 목록(2026-11-01) */
+  .h5-list, .cl-list { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+  .h5-it + .h5-it, .cl-it + .cl-it { border-top: 1px solid var(--border); }
+  .h5-it > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) 72px 58px; gap: 2px 10px; align-items: center; padding: 10px 14px; }
+  .h5-it > summary::-webkit-details-marker, .cl-it > summary::-webkit-details-marker { display: none; }
+  .h5-nm { display: flex; flex-direction: column; min-width: 0; }
+  .h5-nm b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .h5-nm .muted { font-size: 11px; }
+  .h5-bar { height: 6px; border-radius: 3px; background: #131a29; overflow: hidden; }
+  .h5-bar i { display: block; height: 100%; background: #8fa8d6; border-radius: 3px; }
+  .h5-n { text-align: right; font-weight: 600; white-space: nowrap; }
+  .h5-n .muted { font-size: 11px; font-weight: 400; margin-left: 2px; }
+  .h5-sub { grid-column: 1 / -1; font-size: 11px; }
+  .h5-it[open] > summary { background: #1e2a44; }
+  .h5-it .table-wrap { margin: 0 !important; padding: 0 10px 10px; }
+  .cl-bar { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .cl-f { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .cl-f i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+  .cl-it > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 96px minmax(0, 1fr) 40px; gap: 8px; align-items: baseline; padding: 10px 14px; font-size: 13px; }
+  .cl-v { font-size: 11px; font-weight: 700; letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cl-t { font-weight: 600; line-height: 1.4; }
+  .cl-d { font-size: 11px; text-align: right; white-space: nowrap; }
+  .cl-b { padding: 0 14px 12px; font-size: 13px; line-height: 1.6; }
+  .cl-b a { color: var(--accent); white-space: nowrap; }
+  .cl-it[open] > summary { background: #1e2a44; }
+  @media (max-width: 600px) { .cl-it > summary { grid-template-columns: 1fr 44px; } .cl-v { grid-column: 1 / -1; } .h5-it > summary { grid-template-columns: minmax(0, 1fr) 52px 66px; padding: 10px 12px; } }
   /* 종목 상세 차트·해독 탭(2026-11-01) */
   .ch-rets { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
   .ch-ret { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); font-size: 11px; }
@@ -4055,11 +4081,12 @@ function h5Investors(d) {
   const q = h5.q.trim().toLowerCase();
   const list = (q ? d.investors.filter(x => x.who.toLowerCase().includes(q)) : d.investors).slice(0, 40);
   if (!list.length) return '<div class="card empty">일치하는 기관이 없습니다.</div>';
-  return list.map(x => {
+  const max = Math.max(1, ...list.map(x => x.n));   // 2026-11-01: 카드 40장 → 목록 한 장 + 보유 종목 수 막대(이 목록 맨 위 대비)
+  return `<div class="h5-list">${list.map(x => {
     const ex = x.rows.filter(r => r.exited).length, st = x.rows.filter(r => r.stale && !r.exited).length;
-    return `<details class="card" style="padding:10px 14px"><summary style="cursor:pointer"><b>${esc(x.who)}</b>
-      <span class="muted">보유 ${x.n}종목${st ? ` · 오래된 보고 ${st}` : ''}${ex ? ` · 이탈 ${ex}` : ''}</span></summary>${h5Table(x.rows, 'stock')}</details>`;
-  }).join('') + `<p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유 종목 수 순'} 최대 40곳</p>`;
+    return `<details class="h5-it"><summary><span class="h5-nm"><b>${esc(x.who)}</b><span class="muted">${st ? `오래된 보고 ${st}` : ''}${st && ex ? ' · ' : ''}${ex ? `이탈 ${ex}` : ''}</span></span>
+      <span class="h5-bar"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i></span><span class="num h5-n">${x.n}<span class="muted">종목</span></span></summary>${h5Table(x.rows, 'stock')}</details>`;
+  }).join('')}</div><p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유 종목 수 순'} 최대 40곳 · 막대 = 보유 종목 수(맨 위 기관 대비) · 줄을 누르면 종목 표</p>`;
 }
 function h5Stocks(d) {
   if (!h5.byStock) {
@@ -4071,8 +4098,9 @@ function h5Stocks(d) {
   const ts = Object.entries(d.stocks).filter(([t, s]) => h5.byStock[t] && (!q || t.includes(q) || (s.name || '').toLowerCase().includes(q)))
     .sort((a, b) => b[1].n - a[1].n).slice(0, 20);
   if (!ts.length) return '<div class="card empty">일치하는 종목이 없습니다.</div>';
-  return ts.map(([t, s]) => `<details class="card" style="padding:10px 14px"${q && ts.length <= 3 ? ' open' : ''}><summary style="cursor:pointer"><b>${esc(s.name)}</b> <span class="muted">${esc(t)} · 5% 보유 ${s.n}${s.nStale ? ` · 오래된 보고 ${s.nStale}` : ''}${s.nExited ? ` · 이탈 ${s.nExited}` : ''}</span></summary>${h5Table(h5.byStock[t], 'who')}</details>`).join('')
-    + `<p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유자 많은 순'} 최대 20종목</p>`;
+  const maxS = Math.max(1, ...ts.map(([, x]) => x.n));
+  return `<div class="h5-list">` + ts.map(([t, s]) => `<details class="h5-it"${q && ts.length <= 3 ? ' open' : ''}><summary><span class="h5-nm"><b>${esc(s.name)}</b><span class="muted">${esc(t)}</span></span><span class="h5-bar"><i style="width:${(s.n / maxS * 100).toFixed(1)}%"></i></span><span class="num h5-n">${s.n}<span class="muted">곳</span></span><span class="muted h5-sub">5% 보유 ${s.n}${s.nStale ? ` · 오래된 보고 ${s.nStale}` : ''}${s.nExited ? ` · 이탈 ${s.nExited}` : ''}</span></summary>${h5Table(h5.byStock[t], 'who')}</details>`).join('')
+    + `</div><p class="muted" style="font-size:11px">${q ? '검색 결과' : '보유자 많은 순'} 최대 20종목 · 막대 = 5% 보유 기관 수</p>`;
 }
 document.addEventListener('click', (e) => {
   const t = e.target.closest && e.target.closest('[data-h5]');
@@ -4722,16 +4750,24 @@ const CRYPTO_SLEEVES = [
   ['크립토 상승충격 지속', '하루 수익이 30일 표준편차의 2배를 넘은 업비트 KRW 코인 다음 날 매수, 24시간 보유, 포지션당 10만원.', '신호일 60일 도달 뒤 1회', '가동 중(09-20~)'],
   ['업비트 투자유의·주의 기록', '공식 API 로 매시 플래그·전 종목 가격 저장 → 지정 뒤 72시간 시장 대비 수익(회피 필터 근거인가).', '12개월 ∧ 갈래별 100건', 'VM 설치 대기(10-29)'],
 ];
+const clab = { f: 'all' };   // 크립토 연구 판정 필터(all·ok·mid·no)
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-clab]'); if (b) { clab.f = b.dataset.clab; render(); } });
 function renderCryptoLab() {
   const tone = v => /PASS|ECONOMIC|ROBUST|EXECUTABLE|CONSISTENT/.test(v) ? 'var(--good, #34c38f)' : /REJECT|NONE/.test(v) ? 'var(--muted)' : '#e0b04f';
   const gh = f => `https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/${f}`;
-  const lab = CRYPTO_LAB.map(([d, v, t, s, f]) => `<div class="card" style="margin-bottom:8px">
-      <div style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline"><span class="chip" style="font-size:11px;color:${tone(v)};border-color:${tone(v)}">${esc(v)}</span><b>${esc(t)}</b><span class="muted" style="font-size:12px">${esc(d)}</span></div>
-      <div style="font-size:13px;margin-top:4px">${esc(s)}</div><div style="font-size:12px;margin-top:4px"><a href="${gh(f)}" target="_blank" rel="noopener" style="color:var(--accent)">결과 원문 ↗</a></div></div>`).join('');
+  // 2026-11-01: 카드 30장(폰 4,577px) → 위에 판정 집계 띠 + 갈래 필터, 목록은 한 줄씩 접힘(누르면 요약·원문). 판정 단어는 그대로.
+  const kind = v => /PASS|ECONOMIC|ROBUST|EXECUTABLE|CONSISTENT/.test(v) ? 'ok' : /REJECT|NONE/.test(v) ? 'no' : 'mid';
+  const K = { ok: ['통과·성립', 'var(--good, #34c38f)'], mid: ['보류·판정불가', '#e0b04f'], no: ['기각·신호 없음', '#6b7280'] };
+  const cnt = { ok: 0, mid: 0, no: 0 }; CRYPTO_LAB.forEach(x => cnt[kind(x[1])]++);
+  const tot = CRYPTO_LAB.length, f = clab.f;
+  const tally = `<div class="cl-bar">${['ok', 'mid', 'no'].filter(k => cnt[k]).map(k => `<i style="width:${(cnt[k] / tot * 100).toFixed(1)}%;background:${K[k][1]}"></i>`).join('')}</div>
+    <div class="cl-f">${[['all', `전체 ${tot}`]].concat(['ok', 'mid', 'no'].map(k => [k, `${K[k][0]} ${cnt[k]}`])).map(([k, l]) => `<button class="chip${f === k ? ' active' : ''}" data-clab="${k}">${k === 'all' ? '' : `<i style="background:${K[k][1]}"></i>`}${l}</button>`).join('')}</div>`;
+  const lab = `<div class="cl-list">${CRYPTO_LAB.filter(x => f === 'all' || kind(x[1]) === f).map(([d, v, t, s, fl]) => `<details class="cl-it"><summary><span class="cl-v" style="color:${tone(v)}">${esc(v)}</span><span class="cl-t">${esc(t)}</span><span class="muted num cl-d">${esc(d.slice(5))}</span></summary>
+      <div class="cl-b">${esc(s)} <a href="${gh(fl)}" target="_blank" rel="noopener">결과 원문 ↗</a></div></details>`).join('')}</div>`;
   const sl = CRYPTO_SLEEVES.map(([t, r, j, s]) => `<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(t)}</b><span class="chip" style="font-size:11px">${esc(s)}</span></div>
       <div style="font-size:13px;margin-top:4px">${esc(r)}</div><div class="muted" style="font-size:12px;margin-top:4px">판정: ${esc(j)} — 그 전 중간 숫자로 판정하지 않는다</div></div>`).join('');
   return `<h3 style="margin:4px 0 8px">모의 슬리브·forward 기록 <span class="muted" style="font-size:12px;font-weight:400">실주문 없음</span></h3>${sl}
-    <h3 style="margin:18px 0 8px">연구 판정 <span class="muted" style="font-size:12px;font-weight:400">사전등록 → 코드 동결 → 1회 실행</span></h3>${lab}
+    <h3 style="margin:18px 0 8px">연구 판정 <span class="muted" style="font-size:12px;font-weight:400">사전등록 → 코드 동결 → 1회 실행 · 줄을 누르면 요약</span></h3>${tally}${lab}
     <p class="muted" style="font-size:11px">PASS·ECONOMIC 도 채택이 아니다 — 실매매 연결은 사용자 결정. 전체 목록: <a href="https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/INDEX.md" target="_blank" rel="noopener" style="color:var(--accent)">findings INDEX ↗</a></p>`;
 }
 document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('[data-crypto-refresh]')) { cryptoSt.at = 0; render(); } });
