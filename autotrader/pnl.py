@@ -49,7 +49,7 @@ def sync_fills(cfg: dict, broker, snap: dict, now: datetime) -> dict:
                 # 업비트는 시작 보유를 원가에 넣지 않는다 — 계좌의 기존 코인은 사용자 개인 보유이고 전략은 자기 체결분만 판다.
                 # 넣으면 개인 평단이 섞여 전략 실현손익이 틀어진다(원가 모르는 매도는 incomplete 로 드러난다).
                 "opening": {m: {p["symbol"]: {"qty": p["qty"], "avg": p["avgPrice"]} for p in d.get("positions", [])}
-                            for m, d in snap["markets"].items() if "positions" in d and m != "UPBIT"}}
+                            for m, d in snap["markets"].items() if "positions" in d and m not in ("UPBIT", "BITHUMB")}}
     cutoff = (now - timedelta(days=LOOKBACK_DAYS)).strftime("%Y-%m-%d")
     for m in snap["markets"]:
         pending = [o for no, o in ours.items() if o.get("market") == m and no not in book["exclude"]

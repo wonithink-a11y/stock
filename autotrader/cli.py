@@ -33,6 +33,9 @@ def make_broker(cfg: dict, env: dict, execute: bool):
     if cfg.get("broker") == "upbit":
         from .upbit import make_broker as _upbit_broker
         return _upbit_broker(cfg, env, execute)
+    if cfg.get("broker") == "bithumb":
+        from .bithumb import make_broker as _bithumb_broker
+        return _bithumb_broker(cfg, env, execute)
     return _kis_broker(cfg, env, execute)
 
 DEFAULT_CONFIG = REPO_ROOT / "autotrader" / "autotrader.local.json"
@@ -228,8 +231,8 @@ def cmd_check(args) -> int:
 def cmd_upbit_probe(args) -> int:
     """업비트 프로필의 키·권한·허용 IP 확인 — 주문을 만들지 않는다(주문은 업비트 '주문 생성 테스트'로만 검증)."""
     cfg = _cfg(args)
-    if cfg.get("broker") != "upbit":
-        print("업비트 프로필이 아니다(--profile 로 broker upbit 프로필을 고른다)", file=sys.stderr)
+    if cfg.get("broker") not in ("upbit", "bithumb"):
+        print("업비트·빗썸 프로필이 아니다(--profile 로 broker upbit|bithumb 프로필을 고른다)", file=sys.stderr)
         return 2
     env = load_env()
     miss = [k for k in key_names(cfg) if not env.get(k)]
@@ -239,7 +242,7 @@ def cmd_upbit_probe(args) -> int:
     res = make_broker(cfg, env, False).probe((cfg.get("symbol_allowlist") or ["KRW-BTC"])[0])
     for k, v in res.items():
         print(f"{k}: {v}")
-    good = all(v.startswith("ok") for v in res.values())
+    good = all(v.startswith(("ok", "해당 없음")) for v in res.values())
     print("모두 ok 면 프로필 live.tr_ids_reviewed 를 true 로 둘 수 있다." if good
           else "ok 가 아닌 항목: 업비트 API 키 관리에서 권한(자산조회·주문조회·주문하기)과 허용 IP 를 확인한다.")
     return 0 if good else 1

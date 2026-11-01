@@ -24,7 +24,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, quote, urlsplit
 
 from .config import (ConfigError, NOTIONAL_BIG_RAISE, NOTIONAL_MAX, NOTIONAL_MIN, check_notional, check_weights, current_notional,
-                     current_weights, kill_file, list_profiles, parse_weights, web_set_weights, weight_names,
+                     crypto_market, current_weights, kill_file, list_profiles, parse_weights, web_set_weights, weight_names,
                      load_profile, needs_big_raise_phrase, notional_history, parse_notional, state_dir, web_request_run,
                      web_set_auto, web_set_notional)
 from .engine import Ledger
@@ -174,7 +174,7 @@ TAB_ICON = {"home": "home", "crypto": "coin", "strat": "trend", "log": "clock", 
 
 
 def is_crypto(c: dict) -> bool:
-    return c.get("broker") == "upbit" or "UPBIT" in (c.get("markets") or [])
+    return c.get("broker") in ("upbit", "bithumb") or any(m in ("UPBIT", "BITHUMB") for m in (c.get("markets") or []))
 
 
 def ic(name: str) -> str:
@@ -389,8 +389,9 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
         last = v["runs"][-1] if v["runs"] else None
         last_txt = (f'{E(str(last.get("at", ""))[5:16].replace("T", " "))} · {E("주문" if last.get("execute") else "dry-run")} · {E(str(last.get("status")))}'
                     if last else "아직 없음")
-        risk = (cfg.get("risk") or {}).get("UPBIT") or {}
-        sp = (v.get("spent") or {}).get("UPBIT") or {}
+        xm = crypto_market(cfg) or "UPBIT"
+        risk = (cfg.get("risk") or {}).get(xm) or {}
+        sp = (v.get("spent") or {}).get(xm) or {}
         used, lim = float(sp.get("used") or 0), float(sp.get("limit") or risk.get("max_daily_value") or 0)
         pct = min(100, used / lim * 100) if lim else 0
         fills = (load_book(cfg) or {}).get("fills") or {}
@@ -416,14 +417,14 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
                                        + (f'<div class="mut">{wtxt}</div>' if wtxt else ""))
         out.append(kill_card(cfg, csrf, base, pk, "crypto"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-<span><b>업비트 · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
+<span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
 <span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></span></div>
 {big}{facts}</div>
 {controls.get(name, "").replace(sc, "")}
 <div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
 {"".join(rows) or '<span class="mut">없음</span>'}</div>''')
     if not items:
-        out.append('<div class="card mut">크립토(업비트) 프로필이 없다 — 서버 프로필에 broker upbit 를 만든다(README §11).</div>')
+        out.append('<div class="card mut">크립토(업비트·빗썸) 프로필이 없다 — 서버 프로필에 broker upbit|bithumb 를 만든다(README §11).</div>')
     return _page("크립토", "".join(out) + (sc if pk else ""), base=base, sub="크립토", tab="crypto")
 
 
@@ -725,7 +726,7 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
                      for o in d.get("openOrders", []))
         cash = d.get("cash")
         rz = {"realized": snap["realized"]} if "realized" in snap else {}
-        rows.append(f'''<div class="card"><div class="hd"><h2>{E(m)} {"국내" if m == "KR" else ("업비트" if m == "UPBIT" else "해외")}</h2><span class="mut">주문가능 {"-" if cash is None else _money(m, cash)}</span></div>
+        rows.append(f'''<div class="card"><div class="hd"><h2>{E(m)} {"국내" if m == "KR" else ("업비트" if m == "UPBIT" else ("빗썸" if m == "BITHUMB" else "해외"))}</h2><span class="mut">주문가능 {"-" if cash is None else _money(m, cash)}</span></div>
 {render_money_rows({"markets": {m: d}, **rz})}
 <h2 style="margin-top:6px">보유 <span class="mut">{len(d.get("positions") or [])}종목</span></h2><div class="tw"><table><tr><th>종목</th><th class="n">수량</th><th class="n">평단→현재</th><th class="n">손익</th></tr>{pos or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div>
 <h2 style="margin-top:12px">미체결</h2><div class="tw"><table><tr><th>종목</th><th>방향</th><th class="n">잔량/수량</th><th class="n">가격</th></tr>{oo or "<tr><td colspan=4 class=mut>없음</td></tr>"}</table></div></div>''')

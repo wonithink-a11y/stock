@@ -45,7 +45,10 @@ import requests
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 BASE_URL = "https://api.bithumb.com"
 PATH_ORDERS = "/v2/orders"
-PATH_ORDER = "/v2/order"
+PATH_ORDER = "/v2/order"                  # 취소(DELETE)만 — 조회는 v1(PATH_ORDER_V1). 문서 확인 11-01
+PATH_ORDER_V1 = "/v1/order"               # 개별 주문 조회: uuid 또는 client_order_id
+PATH_ORDERS_HISTORY = "/v2/orders/history"  # 종료 주문 목록(done/cancel, 최대 7일)
+PATH_ORDERS_PENDING = "/v2/orders/pending"  # 대기 주문 목록(wait/watch)
 PATH_ORDER_CHANCE = "/v1/orders/chance"
 PATH_ACCOUNTS = "/v1/accounts"
 PATH_TICKER = "/v1/ticker"
@@ -105,10 +108,14 @@ def _query_string(query: dict) -> str:
 
 
 class BithumbClient:
-    def __init__(self):
-        env = _load_env()
-        self.access_key = env.get("BITHUMB_ACCESS_KEY", "")
-        self.secret_key = env.get("BITHUMB_SECRET_KEY", "")
+    def __init__(self, access_key=None, secret_key=None):
+        """키 인자를 주면(autotrader: 프로필 key_prefix 의 주문 전용 키) 그걸 쓴다. 안 주면 예전처럼 .env 의 BITHUMB_ACCESS_KEY/_SECRET_KEY."""
+        if access_key is not None or secret_key is not None:
+            self.access_key, self.secret_key = access_key or "", secret_key or ""
+        else:
+            env = _load_env()
+            self.access_key = env.get("BITHUMB_ACCESS_KEY", "")
+            self.secret_key = env.get("BITHUMB_SECRET_KEY", "")
         # 키가 없어도 생성은 성공한다 - 공개 메서드만 쓰는
         # BithumbPaperBroker가 이걸 요구한다.
 
@@ -181,7 +188,7 @@ class BithumbClient:
         self._raise_if_error(r, body, f"주문가능정보 조회 실패({market})")
         return body
 
-    def place_order(self, market, side, order_type, volume=None, price=None):
+    def place_order(self, market, side, order_type, volume=None, price=None, client_order_id=None):
         """side: 'bid'(매수) | 'ask'(매도). order_type: 'limit'|'price'|'market'|'best'
         (limit만 공식 예제로 확인됨 - price/market/best는 업비트와 동일한
         시장가 비대칭 관례로 유추, **미검증**). 반환: 빗썸 응답 dict(order_id 포함)."""
@@ -192,6 +199,8 @@ class BithumbClient:
             body_params["volume"] = str(volume)
         if price is not None:
             body_params["price"] = str(price)
+        if client_order_id:                      # 사용자 지정 고유 ID(영문·숫자·-·_ 1~36자) — 중복 주문 방지·조회에 쓴다
+            body_params["client_order_id"] = str(client_order_id)
         headers = self._auth_headers(body_params)
         headers["Content-Type"] = "application/json; charset=utf-8"
         r = _request("POST", BASE_URL + PATH_ORDERS, headers=headers, json=body_params, timeout=10)
@@ -216,4 +225,40 @@ class BithumbClient:
         r = _request("GET", BASE_URL + PATH_ORDER, headers=headers, params=query, timeout=10)
         body = r.json()
         self._raise_if_error(r, body, f"주문조회 실패({order_id})")
+        return body
+
+    # ---- 문서(apidocs.bithumb.com, 2026-11-01 확인) 기준 조회 ----
+
+    def get_order_v1(self, uuid=None, client_order_id=None):
+        """개별 주문 조회 GET /v1/order — uuid(= 주문 응답의 order_id) 또는 client_order_id 하나 이상."""
+        if not uuid and not client_order_id:
+            raise ValueError("uuid 또는 client_order_id 가 필요하다")
+        query = {"uuid": uuid} if uuid else {"client_order_id": client_order_id}
+        headers = self._auth_headers(query)
+        r = _request("GET", BASE_URL + PATH_ORDER_V1, headers=headers, params=query, timeout=10)
+        body = r.json()
+        self._raise_if_error(r, body, f"주문조회 실패({uuid or client_order_id})")
+        return body
+
+    def get_orders_history(self, market=None, start_ms=None, end_ms=None, limit=1000, next_key=None):
+        """종료 주문 목록 GET /v2/orders/history — {data:[...], has_next, next_key}. 기간은 최대 7일."""
+        query = {"limit": limit}
+        for k, v in (("market", market), ("start_time", start_ms), ("end_time", end_ms), ("next_key", next_key)):
+            if v is not None:
+                query[k] = v
+        headers = self._auth_headers(query)
+        r = _request("GET", BASE_URL + PATH_ORDERS_HISTORY, headers=headers, params=query, timeout=10)
+        body = r.json()
+        self._raise_if_error(r, body, "종료 주문 목록 조회 실패")
+        return body
+
+    def get_pending_orders(self, market=None):
+        """대기 주문 목록 GET /v2/orders/pending — wait 상태(기본). {data:[...]} 또는 배열."""
+        query = {"state": "wait"}
+        if market:
+            query["market"] = market
+        headers = self._auth_headers(query)
+        r = _request("GET", BASE_URL + PATH_ORDERS_PENDING, headers=headers, params=query, timeout=10)
+        body = r.json()
+        self._raise_if_error(r, body, "대기 주문 목록 조회 실패")
         return body

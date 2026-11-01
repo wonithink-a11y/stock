@@ -16,6 +16,7 @@ params(프로필):
     other_top_n      기타에 담을 코인 수(기본 5) — 후보 중 24시간 거래대금 상위(투자유의 제외), **월 1회만 갱신**
     other_mode       기타 안의 비중: "equal"(균등, 기본) | "volume"(24시간 거래대금에 비례 — 선정 시점 값을 그 달 동안 고정)
                      '한 바구니'(권고): weights {} · other_weight 1.0 · other_mode "volume" — BTC·ETH 가 거래대금이 커서 자연히 큰 비중
+    market           거래소 시장 이름 "UPBIT"(기본) | "BITHUMB" — 프로필 broker/markets 와 같아야 한다
     web_weights      true 면 웹에서 바꾼 비율(weights_override.json)이 weights·other_weight 를 덮는다
 허용 종목·한도·킬 스위치는 엔진이 강제한다(프로필 symbol_allowlist 에 weights 의 코인이 모두 있어야 주문이 나간다).
 """
@@ -72,20 +73,23 @@ def parse_params(pr: dict) -> dict:
     top_n = int(pr.get("other_top_n", 5))
     if top_n < 1:
         raise ValueError("other_top_n 은 1 이상")
+    market = pr.get("market", "UPBIT")
+    if market not in ("UPBIT", "BITHUMB"):
+        raise ValueError('market 은 "UPBIT" 또는 "BITHUMB"')
     mode = pr.get("other_mode", "equal")
     if mode not in ("equal", "volume"):
         raise ValueError('other_mode 는 "equal" 또는 "volume"')
     return {"weights": {str(s): float(v) for s, v in w.items()}, "capital": float(cap), "band": band, "max_order": mo,
-            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n, "mode": mode}
+            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n, "mode": mode, "market": market}
 
 
 class CryptoWeights(Strategy):
     name = "crypto_weights"
-    markets = ["UPBIT"]
+    markets = ["UPBIT", "BITHUMB"]
 
     def decide(self, ctx) -> List[Intent]:
         p = parse_params(ctx.params)
-        weights, st = p["weights"], ctx.state
+        weights, st, mk = p["weights"], ctx.state, p["market"]
         log: List[str] = []
         out: List[Intent] = []
 
@@ -108,7 +112,7 @@ class CryptoWeights(Strategy):
                 log.append(f"{cid} 주문 기록 없음(dry-run 또는 거부) — 변화 없음")
                 pending.pop(cid)
                 continue
-            f = ctx.order_fill(r["orderNo"], "UPBIT")
+            f = ctx.order_fill(r["orderNo"], mk)
             if f["state"] in ("wait", "watch"):
                 log.append(f"{cid} 아직 체결 대기 — 다음 실행에 다시 본다")
                 continue
@@ -142,15 +146,15 @@ class CryptoWeights(Strategy):
         prices: Dict[str, float] = {}
         for s_ in list(targets):
             try:
-                prices[s_] = ctx.quote(s_, "UPBIT")
+                prices[s_] = ctx.quote(s_, mk)
             except Exception:                                         # noqa: BLE001 — 시세를 못 얻는 코인(상폐 등)은 이번엔 건너뛴다
                 ctx.notes.append(f"크립토 목표 비중: {s_} 시세를 못 읽어 건너뜀")
                 targets.pop(s_)
         base = st["cash"] + sum(holdings.get(s_, 0.0) * prices[s_] for s_ in targets)
         if base <= 0:
             return self._finish(st, ctx, log, out)
-        acct = ctx.positions("UPBIT")
-        acct_cash = ctx.cash("UPBIT")
+        acct = ctx.positions(mk)
+        acct_cash = ctx.cash(mk)
         sells, buys = [], []
         for s_, w in targets.items():
             px, held = prices[s_], holdings.get(s_, 0.0)
@@ -169,7 +173,7 @@ class CryptoWeights(Strategy):
                 buys.append((s_, amount, px, w, diff))
         for s_, qty, px, w in sells:
             cid = f"{TAG}-{ctx.now:%Y%m%d%H}-{s_[4:]}-sell"
-            out.append(Intent(s_, "SELL", qty, market="UPBIT", order_type="market", client_id=cid,
+            out.append(Intent(s_, "SELL", qty, market=mk, order_type="market", client_id=cid,
                               reason=f"목표 {w:.0%} 초과분 정리"))
             pending[cid] = {"symbol": s_, "side": "SELL"}
             log.append(f"매도 {s_} {qty:.8f} (≈{qty * px:,.0f}원)")
@@ -180,7 +184,7 @@ class CryptoWeights(Strategy):
                 continue
             budget -= krw
             cid = f"{TAG}-{ctx.now:%Y%m%d%H}-{s_[4:]}-buy"
-            out.append(Intent(s_, "BUY", krw / px, market="UPBIT", order_type="market", client_id=cid,
+            out.append(Intent(s_, "BUY", krw / px, market=mk, order_type="market", client_id=cid,
                               reason=f"목표 {w:.0%} 미달분 매수"))
             pending[cid] = {"symbol": s_, "side": "BUY"}
             log.append(f"매수 {s_} {krw:,.0f}원")
@@ -197,7 +201,7 @@ class CryptoWeights(Strategy):
         if cur.get("month") == month and cur.get("shares") and cur.get("cands") == cands and cur.get("mode") == p["mode"]:
             return dict(cur["shares"])
         try:
-            info = ctx.market_info("UPBIT", cands)
+            info = ctx.market_info(p["market"], cands)
         except Exception as e:                                        # noqa: BLE001
             ctx.notes.append(f"크립토 목표 비중: 기타 후보 시세 조회 실패({type(e).__name__}) — 직전 목록 유지")
             return dict(cur.get("shares") or {})

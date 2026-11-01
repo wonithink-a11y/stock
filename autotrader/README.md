@@ -260,3 +260,12 @@ z ≥ +2 정시에 KRW-BTC 시장가 매수, 신호 +24시간 뒤 첫 실행에�
 5. 며칠 dry-run: `state/profiles/cbprem/strategy_coinbase_premium.json` 의 `log` 가 모의 슬리브 로그(`cbprem-paper/runs.jsonl`)와 같은 시각을 보는지 대조.
 6. 프로필 `live.enabled: true` · `autotrader.service` 환경에 `AUTOTRADER_ALLOW_LIVE=I-ACCEPT-REAL-TRADES`(§4·§9) — 타이머는 이미 `run-due --execute`.
 7. 웹 → 지문(패스키) → 이 프로필 **주문 켜기**. 끄기·킬 스위치는 웹에서 바로.
+
+## 12. 빗썸 실계좌 — 크립토 목표 비중 (`crypto_weights`, broker `bithumb`, 2026-11-01)
+
+설계·공식 문서 확인: `docs/control/빗썸-autotrader-어댑터-설계-2026-11-01.md`(§6). 업비트(§11)와 같은 전략·웹·킬 스위치를 쓰고, 다른 점만 적는다.
+
+- 프로필: `"broker": "bithumb"`, `"markets": ["BITHUMB"]`, `"mode": "live"`, `"key_prefix": "BITHUMB_TRADE"`(→ `BITHUMB_TRADE_ACCESS_KEY` / `_SECRET_KEY`, 조회용 `BITHUMB_ACCESS_KEY` 는 못 고른다), 전략 `params.market: "BITHUMB"`, 한도는 `risk.BITHUMB`.
+- 시장가만: 매수 = 총액(`order_type price`), 매도 = 수량(`market`). 주문 식별자 `client_order_id`(우리 `clientId`)를 보내고, 보내기 전에 같은 값의 주문이 있으면 안 보낸다.
+- **빗썸에는 주문 생성 '테스트'가 없다.** `bithumb-probe` 대신 `upbit-probe` 명령이 빗썸 프로필도 받는다(`--profile`) — 잔고·대기 주문 조회만 확인한다.
+- **켜기 전 필수 — 소액 실검증(P2, 사용자 직접)**: 빗썸에 5,000~10,000원을 입금해 ① 시장가 매수 1회 → 전량 매도 1회(빗썸 앱 또는 `--execute` 1회) ② 같은 `client_order_id` 로 두 번 보내 거절되는지 ③ 결과(주문 조회 응답 원문, 키 가린 것)를 Claude 에게 보여 줘 어댑터 파싱을 맞춘다. 확인 전에는 `live.tr_ids_reviewed` 를 켜지 않는다. 그다음 업비트와 같은 순서(dry-run → `live.enabled` → 패스키 켜기).
