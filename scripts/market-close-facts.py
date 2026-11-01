@@ -7,7 +7,7 @@
   python scripts/market-close-facts.py --selftest               # 네트워크 없이 계산 함수만 확인
 
 출처(전부 키 없음): Yahoo chart v8(지수·ETF·금리·환율·원자재·선물) · 네이버 모바일 증권 API
-(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위) · 미 재무부 일일 금리(미국 2년물, 실패 시 FRED) · 구글 뉴스 RSS(원인 후보 기사 제목).
+(국내 상승/하락 종목 수·투자자별 순매수·프로그램·거래대금·시총 상위 — 시총 상위 등락률은 네이버 차트 API 의 KRX 정규장 일봉으로 다시 계산) · 미 재무부 일일 금리(미국 2년물, 실패 시 FRED) · 구글 뉴스 RSS(원인 후보 기사 제목).
 값마다 barDate/asOf 와 fresh 를 붙인다. 못 받은 것은 추정으로 채우지 않고 missing 에 남긴다.
 
 sessionOpen=false 면 그날 정규장이 없었다(휴장) 또는 기준 지수가 아직 갱신 안 됐다 — 루틴은 리포트를 쓰지 않는다.
@@ -93,6 +93,43 @@ def pct(a, b):
     return None if a is None or b in (None, 0) else round((a / b - 1) * 100, 2)
 
 
+def regular_chg(rows, expected):
+    """[(date, close)] → expected 날의 정규장 등락률(%). 그날 봉이 없거나 직전 봉이 없으면 None(추정 안 함)."""
+    if not rows or rows[-1][0] != expected or len(rows) < 2:
+        return None
+    return pct(rows[-1][1], rows[-2][1])
+
+
+def fix_top_chg(top, rows_by_code, expected):
+    """시총 상위의 등락률을 KRX 정규장 종가 기준으로 바꾼다(2026-11-01, 출처 naver_daily_kr).
+    네이버 fluctuationsRatio 는 18:10 엔 애프터마켓(NXT) 가격, 밤엔 '전일 종가'가 전날 애프터마켓 마지막 가격이라
+    정규장 등락과 다르다(10-30 삼성전자 −3.88%·−4.96% vs 정규장 −4.34%). 정규장 값을 못 구한 종목만 네이버 값을 두고
+    chgSource 로 구분한다 — 화면은 그걸 보고 '근사' 표시를 한다."""
+    out = []
+    for t in top:
+        r = dict(t, chgPctNaver=t.get("chgPct"))
+        reg = regular_chg(rows_by_code.get(t.get("code")), expected)
+        if reg is not None:
+            r["chgPct"], r["chgSource"] = reg, "naver-krx-day"
+        else:
+            r["chgSource"] = "naver-integrated"
+        out.append(r)
+    return out
+
+
+def naver_daily_kr(code, expected):
+    """국내 종목 KRX 정규장 일봉 [(date, close)] — 네이버 차트 API(api.stock.naver.com/chart/domestic/item/{code}/day).
+    이 응답의 종가·거래량은 KRX 정규장만이다(10-27~10-30 삼성전자 225,000·245,000·230,500·220,500 = KIS 정규장, 거래량 19,485,781 = KRX 단독 — 11-01 실측).
+    ★ Yahoo .KS 는 쓰지 않는다 — 개별 종목 일봉이 애프터마켓 가격을 섞는다(10-30 삼성전자 225,000 vs 정규장 220,500, 같은 날 현대차 282,000 vs 278,500).
+    실패하면 None(그 종목만 네이버 통합 등락률을 '근사'로 남긴다)."""
+    try:
+        a = (expected - timedelta(days=14)).strftime("%Y%m%d")
+        j = get_json(f"https://api.stock.naver.com/chart/domestic/item/{code}/day?startDateTime={a}0000&endDateTime={expected.strftime('%Y%m%d')}2359")
+        return sorted((datetime.strptime(x["localDate"], "%Y%m%d").date(), float(x["closePrice"])) for x in j if x.get("closePrice") is not None)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def series_row(sym, name, group, kind, expected, now_utc, asof=None):
     try:
         ch = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=3mo&interval=1d")["chart"]["result"][0]
@@ -147,8 +184,14 @@ def naver_kr(expected):
                            "mcap조원": round(num(s.get("marketValueRaw")) / 1e12, 1) if s.get("marketValueRaw") else None}
                           for s in (integ.get("enrollStocks") or [])],
             "fresh": biz == expected.strftime("%Y%m%d") and poll.get("marketStatus") == "CLOSE",
-            "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서.",
+            "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서, "
+                    "등락률은 KRX 정규장 종가 기준(chgSource=naver-krx-day, 못 구하면 naver-integrated = 애프터마켓 포함 근사).",
         }
+        top = out[code]["topByMcap"]
+        out[code]["topByMcap"] = fix_top_chg(top, {t["code"]: naver_daily_kr(t["code"], expected) for t in top if t.get("code")}, expected)
+        nf = sum(1 for t in out[code]["topByMcap"] if t["chgSource"] != "naver-krx-day")
+        if nf:
+            missing.append(f"{code} 시총 상위 {nf}종목 정규장 등락 못 받음 — 네이버 통합 등락률(애프터마켓 포함 근사)")
     try:  # 코스피200 선물 투자자별 — 같은 응답 구조(dealTrendInfo). 네이버는 당일 값만 준다(과거 날짜 없음)
         fut = get_json("https://m.stock.naver.com/api/index/FUT/integration")
         deal = fut.get("dealTrendInfo") or {}
@@ -437,6 +480,13 @@ def selftest():
         cl.append(cl[-1] * (1.01 if i % 2 else 0.99))
     cl.append(cl[-1] * 1.03)
     assert 2.9 < z_last(cl) < 3.1, z_last(cl)                                                 # ±1% 진동 뒤 +3% ≈ z 3
+    d29, d30 = datetime(2026, 10, 29).date(), datetime(2026, 10, 30).date()
+    assert regular_chg([(d29, 230500.0), (d30, 220500.0)], d30) == -4.34                     # 10-30 삼성전자 정규장
+    assert regular_chg([(d29, 230500.0)], d30) is None and regular_chg(None, d30) is None     # 그날 봉 없음 → 추정 안 함
+    top = [{"code": "005930", "chgPct": -3.88}, {"code": "000660", "chgPct": -7.47}]
+    fx = fix_top_chg(top, {"005930": [(d29, 230500.0), (d30, 220500.0)], "000660": None}, d30)
+    assert fx[0]["chgPct"] == -4.34 and fx[0]["chgSource"] == "naver-krx-day" and fx[0]["chgPctNaver"] == -3.88
+    assert fx[1]["chgPct"] == -7.47 and fx[1]["chgSource"] == "naver-integrated"             # 못 구하면 네이버 값 그대로 + 표시
     print("selftest OK")
 
 
