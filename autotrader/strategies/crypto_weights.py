@@ -13,7 +13,9 @@ params(프로필):
     max_order_krw    한 주문의 최대 금액(원, 기본 capital_krw 의 20%) — 처음 진입을 며칠에 나눠 들어간다
     other_weight     '기타' 묶음 비중(0~1, 기본 0) — weights 합 + other_weight ≤ 1
     other_candidates 기타 후보 코인 목록(["KRW-XRP", ...]) — **서버 프로필이 정한다**. 이 안에서만 고르고, 프로필 symbol_allowlist 에도 있어야 주문이 나간다
-    other_top_n      기타에 담을 코인 수(기본 5) — 후보 중 24시간 거래대금 상위(투자유의 제외), 균등 비중, **월 1회만 갱신**
+    other_top_n      기타에 담을 코인 수(기본 5) — 후보 중 24시간 거래대금 상위(투자유의 제외), **월 1회만 갱신**
+    other_mode       기타 안의 비중: "equal"(균등, 기본) | "volume"(24시간 거래대금에 비례 — 선정 시점 값을 그 달 동안 고정)
+                     '한 바구니'(권고): weights {} · other_weight 1.0 · other_mode "volume" — BTC·ETH 가 거래대금이 커서 자연히 큰 비중
     web_weights      true 면 웹에서 바꾼 비율(weights_override.json)이 weights·other_weight 를 덮는다
 허용 종목·한도·킬 스위치는 엔진이 강제한다(프로필 symbol_allowlist 에 weights 의 코인이 모두 있어야 주문이 나간다).
 """
@@ -70,8 +72,11 @@ def parse_params(pr: dict) -> dict:
     top_n = int(pr.get("other_top_n", 5))
     if top_n < 1:
         raise ValueError("other_top_n 은 1 이상")
+    mode = pr.get("other_mode", "equal")
+    if mode not in ("equal", "volume"):
+        raise ValueError('other_mode 는 "equal" 또는 "volume"')
     return {"weights": {str(s): float(v) for s, v in w.items()}, "capital": float(cap), "band": band, "max_order": mo,
-            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n}
+            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n, "mode": mode}
 
 
 class CryptoWeights(Strategy):
@@ -129,8 +134,8 @@ class CryptoWeights(Strategy):
         targets: Dict[str, float] = dict(weights)
         if p["other"] > 0:
             picked = self._other_symbols(ctx, p, st, log)
-            for s_ in picked:
-                targets[s_] = targets.get(s_, 0.0) + p["other"] / len(picked)
+            for s_, sh in picked.items():
+                targets[s_] = targets.get(s_, 0.0) + p["other"] * sh
         for s_, q_ in holdings.items():                                # 목표에서 빠진 코인의 자기 보유는 비중 0 으로 정리
             if q_ > 0 and s_ not in targets:
                 targets[s_] = 0.0
@@ -182,28 +187,32 @@ class CryptoWeights(Strategy):
         return self._finish(st, ctx, log, out)
 
     @staticmethod
-    def _other_symbols(ctx, p: dict, st: dict, log: List[str]) -> List[str]:
-        """'기타' 코인 목록 — 달이 바뀌었거나 아직 없을 때만 다시 고른다(매일 바뀌면 불필요한 매매가 생긴다).
-        후보 중 고정 코인 제외 · 투자유의 제외 · 24시간 거래대금 상위 N. 조회가 실패하면 직전 목록을 유지한다."""
+    def _other_symbols(ctx, p: dict, st: dict, log: List[str]) -> Dict[str, float]:
+        """'기타' 코인 → 비중(합 1) — 달이 바뀌었거나 아직 없을 때만 다시 고른다(매일 바뀌면 불필요한 매매가 생긴다).
+        후보 중 고정 코인 제외 · 투자유의 제외 · 24시간 거래대금 상위 N. 비중은 균등 또는 선정 시점의 거래대금 비례(그 달 고정).
+        조회가 실패하면 직전 목록을 유지한다."""
         month = f"{ctx.now:%Y-%m}"
         cur = st.get("other") or {}
         cands = [c for c in p["cands"] if c not in p["weights"]]
-        if cur.get("month") == month and cur.get("symbols") and cur.get("cands") == cands:
-            return list(cur["symbols"])
+        if cur.get("month") == month and cur.get("shares") and cur.get("cands") == cands and cur.get("mode") == p["mode"]:
+            return dict(cur["shares"])
         try:
             info = ctx.market_info("UPBIT", cands)
         except Exception as e:                                        # noqa: BLE001
             ctx.notes.append(f"크립토 목표 비중: 기타 후보 시세 조회 실패({type(e).__name__}) — 직전 목록 유지")
-            return list(cur.get("symbols") or [])
+            return dict(cur.get("shares") or {})
         ranked = sorted((c for c in cands if c in info and not info[c].get("warning")),
                         key=lambda c: (-float(info[c].get("value24h") or 0), c))
         picked = ranked[:p["top_n"]]
         if not picked:
             ctx.notes.append("크립토 목표 비중: 기타 후보 중 고를 코인이 없다(투자유의·시세 없음) — 기타 비중은 이번엔 원화로 둔다")
-            return list(cur.get("symbols") or [])
-        st["other"] = {"month": month, "symbols": picked, "cands": cands}
-        log.append(f"기타 목록 갱신 {month}: " + ", ".join(picked))
-        return picked
+            return dict(cur.get("shares") or {})
+        vals = {c: float(info[c].get("value24h") or 0) for c in picked}
+        tot = sum(vals.values())
+        shares = {c: (vals[c] / tot if p["mode"] == "volume" and tot > 0 else 1 / len(picked)) for c in picked}
+        st["other"] = {"month": month, "symbols": picked, "shares": shares, "cands": cands, "mode": p["mode"]}
+        log.append(f"기타 목록 갱신 {month}: " + ", ".join(f"{c[4:]} {shares[c]:.0%}" for c in picked))
+        return shares
 
     @staticmethod
     def _finish(st, ctx, log, out):

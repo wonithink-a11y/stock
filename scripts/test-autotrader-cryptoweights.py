@@ -215,6 +215,26 @@ def main():
         except ValueError:
             ck("기타 설정 오류 거부(합>1·후보 없음·형식·N<1)", True)
 
+    # ---- 한 바구니: weights {} · other_weight 1.0 · other_mode volume — 거래대금 비례, 그 달 고정
+    info[ADA]["value24h"] = 100e9                      # 앞 테스트가 바꾼 값을 되돌린다
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_for(td, weights={}, other_weight=1.0, other_candidates=cands, other_top_n=2, other_mode="volume")
+        c["symbol_allowlist"] = cands
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes=px2, info=info)
+        r = run(c, fb, at(2), execute=False)
+        sh = state(td)["other"]["shares"]
+        ck("거래대금 비례 비중: XRP 9천억·SOL 5천억 → 64%·36%(합 1)", abs(sh[XRP] - 900 / 1400) < 1e-9 and abs(sh[SOL] - 500 / 1400) < 1e-9
+           and abs(sum(sh.values()) - 1) < 1e-9)
+        info[SOL]["value24h"] = 9_999e9
+        run(c, fb, at(20), execute=False)
+        ck("같은 달에는 비중도 고정(거래대금이 바뀌어도)", state(td)["other"]["shares"] == sh)
+        ck("한 바구니: 고정 코인 없이 기타만으로 계획 매수(XRP·SOL)", {x["symbol"] for x in r["planned"]} == {XRP, SOL})
+    try:
+        CW.parse_params({"weights": {}, "capital_krw": 1e6, "other_weight": 1, "other_candidates": ["KRW-XRP"], "other_mode": "cap"})
+        ck("other_mode 오류 거부", False)
+    except ValueError:
+        ck("other_mode 는 equal|volume 만", True)
+
     # ---- 업비트 어댑터: market_info 는 공개 API 2개(마켓 목록·시세)로 거래대금·유의를 만든다
     from autotrader import upbit as UB
     mod = UB._client_module()
