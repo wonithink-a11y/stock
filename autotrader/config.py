@@ -11,7 +11,7 @@ import os
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LIVE_ACK = "I-ACCEPT-REAL-TRADES"          # 환경변수 AUTOTRADER_ALLOW_LIVE 가 정확히 이 값이어야 실계좌 주문이 열린다
@@ -317,6 +317,97 @@ def web_request_run(cfg: dict, now: datetime) -> None:
     p = run_request_path(cfg)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps({"at": now.isoformat()}), encoding="utf-8")
+
+
+# ---- 웹에서 바꾸는 1회 매수 금액(설계 docs/control/업비트-매수금액-웹설정-설계-2026-11-01.md)
+# 웹은 '희망 금액'만 쓴다. 서버 프로필의 한도(risk)가 최종 상한이고 웹은 그것을 올리지 못한다.
+NOTIONAL_MIN, NOTIONAL_MAX = 5_000, 10_000_000      # 업비트 최소 주문 ~ 웹 상한
+NOTIONAL_BIG_RAISE = 10                              # 현재 값의 이 배수를 넘기는 증액은 확인 문구를 요구한다
+
+
+def notional_path(cfg: dict) -> Path:
+    return state_dir(cfg) / "notional_override.json"
+
+
+def parse_notional(text) -> Tuple[Optional[int], str]:
+    """입력 문자열 → (정수, "") 또는 (None, 사유). 숫자만 받는다 — 쉼표·소수·부호·공백 안쪽 문자는 거부."""
+    s = str(text).strip()
+    if not s.isascii() or not s.isdigit():
+        return None, "금액은 숫자만 입력합니다(쉼표·소수·부호 불가)"
+    n = int(s)
+    if not NOTIONAL_MIN <= n <= NOTIONAL_MAX:
+        return None, f"금액은 {NOTIONAL_MIN:,}원 이상 {NOTIONAL_MAX:,}원 이하여야 합니다"
+    return n, ""
+
+
+def read_notional(cfg: dict) -> Optional[int]:
+    """웹이 둔 희망 금액. 파일이 없거나 깨졌거나 범위 밖이면 None(= 프로필 값). 읽는 쪽도 범위를 다시 본다."""
+    try:
+        d = json.loads(notional_path(cfg).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    n = d.get("notional_krw") if isinstance(d, dict) else None
+    return n if type(n) is int and NOTIONAL_MIN <= n <= NOTIONAL_MAX else None
+
+
+def effective_params(cfg: dict) -> dict:
+    """전략에 넘길 params. 프로필이 params.web_notional: true 로 허락한 경우에만 웹 금액이 notional_krw 를 덮는다."""
+    p = dict(cfg.get("params") or {})
+    if p.get("web_notional"):
+        n = read_notional(cfg)
+        if n is not None:
+            p["notional_krw"] = n
+    return p
+
+
+def current_notional(cfg: dict) -> Optional[float]:
+    v = effective_params(cfg).get("notional_krw")
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def check_notional(cfg: dict, n: int) -> Optional[str]:
+    """웹 금액 n 을 서버 한도와 맞춰 본다. 거부 사유 문자열(None=통과). 한도를 깎아 맞추지 않는다."""
+    if not (cfg.get("params") or {}).get("web_notional"):
+        return "이 프로필은 서버가 웹 금액 설정을 허락하지 않았다(프로필 params.web_notional)"
+    if not NOTIONAL_MIN <= n <= NOTIONAL_MAX:
+        return f"금액은 {NOTIONAL_MIN:,}원 이상 {NOTIONAL_MAX:,}원 이하여야 합니다"
+    r = (cfg.get("risk") or {}).get("UPBIT") or {}
+    need = (("max_order_value", n * 3 / 2, "주문당 한도(매도 포함, 1회 금액의 1.5배)"),
+            ("max_daily_value", n * 2, "하루 한도(매수+매도, 1회 금액의 2배)"),
+            ("max_position_value", n, "종목당 보유 한도(개인 보유 BTC 평가액은 별도로 더해서 잡는다)"))
+    for key, lo, label in need:
+        if float(r.get(key) or 0) < lo:
+            return f"서버 {label} {int(r.get(key) or 0):,}원이 모자랍니다 — {int(lo):,}원 이상으로 서버 프로필(SSH)에서 올려야 저장됩니다"
+    return None
+
+
+def needs_big_raise_phrase(cfg: dict, n: int) -> bool:
+    cur = current_notional(cfg)
+    return bool(cur) and n > cur * NOTIONAL_BIG_RAISE
+
+
+def web_set_notional(cfg: dict, n: int, now: datetime) -> Optional[str]:
+    """웹에서 1회 매수 금액을 바꾼다(다음 매수부터). 거부 사유 문자열(None=성공)."""
+    err = check_notional(cfg, n)
+    if err:
+        return err
+    prev = current_notional(cfg)
+    p = notional_path(cfg)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"notional_krw": n, "at": now.isoformat(), "prev": prev}), encoding="utf-8")
+    os.replace(tmp, p)
+    with (p.parent / "notional_history.jsonl").open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"at": now.isoformat(), "prev": prev, "notional_krw": n}) + "\n")
+    return None
+
+
+def notional_history(cfg: dict, limit: int = 5) -> List[dict]:
+    try:
+        rows = [json.loads(x) for x in (state_dir(cfg) / "notional_history.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+    except (OSError, ValueError):
+        return []
+    return rows[-limit:][::-1]
 
 
 def take_run_request(cfg: dict, now: datetime) -> Optional[str]:

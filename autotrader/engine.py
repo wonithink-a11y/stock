@@ -19,7 +19,7 @@ from typing import Callable, Dict, List, Optional
 
 from . import risk
 from .broker import Broker
-from .config import GateError, REPO_ROOT, gate_problems, kill_file, state_dir
+from .config import GateError, REPO_ROOT, effective_params, gate_problems, kill_file, state_dir
 from .models import Intent
 from .strategy import Context, Strategy
 
@@ -146,7 +146,7 @@ def run_once(cfg: dict, broker: Broker, strategy: Strategy, *, execute: bool, en
     for m in markets:
         _reconcile(broker, m, ledger, execute, report, blocked, sleep)
 
-    ctx = Context(broker, now, cfg.get("params", {}), state, sdir)
+    ctx = Context(broker, now, effective_params(cfg), state, sdir)
     try:
         intents = [i for i in strategy.decide(ctx) if i.market in markets]
     except Exception as e:                              # noqa: BLE001 — 전략 오류는 주문 없이 종료
