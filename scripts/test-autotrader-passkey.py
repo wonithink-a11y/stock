@@ -259,7 +259,7 @@ def main():
         g = lambda p: app.handle("GET", p, h, b"", "1.1.1.1")                       # noqa: E731
         st, _, b = g("/crypto")
         t = b.decode()
-        ck("크립토 화면: 업비트 프로필·금액·바꾸기·최근 주문 링크", st == 200 and "1회 매수" in t and "6,000,000" in t
+        ck("크립토 화면: 업비트 프로필·금액·바꾸기·최근 주문 링크", st == 200 and "원 / 1회" in t and "6,000,000" in t
            and "/orders?m=crypto" in t and "금액 바꾸기" in t and "자동 · 실행" in t)
         ck("크립토 화면은 passkey.js 를 한 번만 싣는다(지문이 두 번 뜨지 않게)", t.count("/static/passkey.js") == 1)
         ck("크립토 화면엔 주식 프로필이 없다", "업비트 · la" not in t and "업비트 · pa" not in t and "업비트 · cb" in t)
@@ -275,14 +275,41 @@ def main():
         ck("주문 내역 크립토 필터", st == 200 and "주문 · 거래 내역" in b.decode() and "← 크립토" in b.decode())
         st, _, b = g("/")
         ck("홈: 시장 칩 + 크립토 열기 버튼", st == 200 and "/crypto" in b.decode() and "chips" in b.decode() and "크립토 열기" in b.decode())
+        # ---- 크립토 서브탭: 업비트 | 빗썸(2026-11-01) — 거래소별로 따로 본다
+        BW = {"strategy": "crypto_weights", "broker": "bithumb", "mode": "live", "key_prefix": "BITHUMB_TRADE", "markets": ["BITHUMB"],
+              "symbol_allowlist": ["KRW-BTC"], "auto": "off",
+              "params": {"market": "BITHUMB", "weights": {"KRW-BTC": 1.0}, "capital_krw": 1_000_000},
+              "risk": {"BITHUMB": {"max_order_value": 1_000_000, "max_daily_value": 5_000_000, "max_position_value": 2_000_000}}}
+        (td / "profiles" / "bw.json").write_text(json.dumps(BW), encoding="utf-8")
+        tu, tb = g("/crypto?x=UPBIT")[2].decode(), g("/crypto?x=BITHUMB")[2].decode()
+        ck("서브탭: 업비트 탭엔 업비트 프로필만, 빗썸 탭엔 빗썸만(위아래로 섞지 않는다)",
+           "업비트 · cb" in tu and "빗썸 · bw" not in tu and "빗썸 · bw" in tb and "업비트 · cb" not in tb)
+        ck("서브탭 막대: 업비트·빗썸 링크와 프로필 수, 선택한 쪽 강조", "/crypto?x=UPBIT" in tu and "/crypto?x=BITHUMB" in tu and "업비트 (" in tu
+           and 'class="on">빗썸' in tb and 'class="on">업비트' in tu)
+        t_def = g("/crypto")[2].decode()
+        ck("거래소를 안 고르면 업비트(프로필이 있는 첫 거래소)", 'class="on">업비트' in t_def)
+        st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=bw&op=kill&ret=crypto-BITHUMB".encode(), "1.1.1.1")
+        ck("빗썸 탭에서 킬을 켜면 빗썸 탭으로 돌아온다", "x=BITHUMB" in hd.get("Location", "") and "킬 스위치 켜짐" in g("/crypto?x=BITHUMB")[2].decode())
+        from autotrader.config import kill_file as _kf
+        _kf(load_profile(main_p, "bw")).unlink(missing_ok=True)
+
+        # ---- 허용 종목을 카드 제목 옆에 길게 찍지 않는다(11-01 폰 화면에서 80개가 줄줄이 나옴)
+        many = [f"KRW-C{i:02d}" for i in range(80)]
+        (td / "profiles" / "bm.json").write_text(json.dumps({**BW, "symbol_allowlist": many, "markets": ["BITHUMB"],
+                                                             "params": {**BW["params"], "weights": {}, "other_weight": 1.0,
+                                                                        "other_candidates": many, "other_top_n": 30}}), encoding="utf-8")
+        tb2 = g("/crypto?x=BITHUMB")[2].decode()
+        ck("허용 종목 80개를 카드에 줄줄이 찍지 않고 한 줄 요약('바구니 …')", "KRW-C10,KRW-C11" not in tb2 and "바구니" in tb2)
+        (td / "profiles" / "bm.json").unlink()
+
         # ---- 킬 스위치 상태를 한눈에(2026-11-01)
         kill_file(cb).unlink(missing_ok=True)
         t0 = g("/crypto")[2].decode()
-        ck("킬 꺼짐: 초록 '킬 스위치 꺼짐' + 켜기 버튼", "킬 스위치 꺼짐" in t0 and "킬 스위치 켜짐" not in t0 and 'name="ret" value="crypto"' in t0)
+        ck("킬 꺼짐: 초록 '킬 스위치 꺼짐' + 켜기 버튼", "킬 스위치 꺼짐" in t0 and "킬 스위치 켜짐" not in t0 and 'name="ret" value="crypto-UPBIT"' in t0)
         st, hd, _ = app.handle("POST", "/action", h, f"csrf={csrf}&p=cb&op=kill&ret=crypto".encode(), "1.1.1.1")
         t1 = g("/crypto")[2].decode()
         ck("크립토에서 켜면 크립토로 돌아오고 '킬 스위치 켜짐'·해제 버튼", kill_file(cb).exists() and "/crypto" in hd.get("Location", "")
-           and "킬 스위치 켜짐" in t1 and "주문 중단" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
+           and "킬 스위치 켜짐" in t1 and 'value="resume"' in t1 and "🔑 해제" in t1)
         ck("프로필마다 버튼은 하나: 켜진 cb 는 해제만, 꺼진 cn·cl 은 켜기만(상태와 버튼이 어긋나지 않게)",
            t1.count('name="op" value="resume"') == 1 and t1.count('name="op" value="kill"') == 2)
         r = {"csrf": csrf, "p": "cb", "op": "resume", "phrase": ""}
