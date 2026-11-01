@@ -35,9 +35,13 @@ def turnover(day_dir: str) -> pd.Series:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--minute-dir", required=True)
+    ap.add_argument("--events-out", help="사건 목록(tier 포함)만 JSON 으로 쓰고 끝낸다")
+    ap.add_argument("--events-in", action="append", default=[], help="다른 곳 사건 목록 — minute-dir 에 없는 날만 더한다")
     a = ap.parse_args()
+    import warnings
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
     import day_trader_scan_kr as dts
-    for p in (PREREG, Path(__file__).resolve()):
+    for p in (PREREG, Path(__file__).resolve()) if not a.events_out else ():
         if not dts.committed_clean(p):
             sys.exit(f"{p.name} 가 커밋되지 않았거나 수정 중 — 계산하지 않는다")
     days = sorted(p.split("date=", 1)[1] for p in glob.glob(os.path.join(a.minute_dir, "date=*")))
@@ -50,8 +54,19 @@ def main():
             if e["cell"] == "VU" and "ret_close" in e:
                 e["tier"] = "L" if e["ticker"] in top else "S"
                 ev.append(e)
+    if a.events_out:
+        Path(a.events_out).write_text(json.dumps({"days": days[1:], "events": ev}, ensure_ascii=False), encoding="utf-8")
+        print(f"사건 {len(ev)}건 → {a.events_out}")
+        return 0
+    have = {d for d in days[1:] if vp.split_of(d)}
+    for path in a.events_in:
+        ext = json.load(open(path, encoding="utf-8"))
+        add = {d for d in ext["days"] if d not in have and vp.split_of(d)}
+        ev += [e for e in ext["events"] if e["day"] in add]
+        have |= add
+        print(f"  더함 {path}: {len(add)}일")
     df = pd.DataFrame(ev)
-    out = {"first_day": days[1], "last_day": days[-1], "top": TOP, "cells": {}}
+    out = {"first_day": min(have), "last_day": max(have), "top": TOP, "events_in": a.events_in, "cells": {}}
     dailyL = df[df.tier == "L"].groupby("day")["ret_close"].mean().sort_index()
     bar = null_bar([dailyL[[vp.split_of(x) == "TRAIN" for x in dailyL.index]].to_numpy()], np.random.default_rng(vp.SEED))
     out["bar"] = round(bar, 2)
