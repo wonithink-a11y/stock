@@ -237,7 +237,7 @@ Validated against
             숏 OOS net33.5 +154bp. VD REJECT. **유동 대형주(전일 거래대금 상위 200, fb8afed·839625f)도 ROBUST** — TEST −268bp, net33.5 +211. 실행 가능성(대차·차입 비용) 미측정 — 매매 🔴 별도 GO. 쓰임 = '장중 급등 추격 회피' 근거. 전 기간은 캐시+VM 최근분 합치기(`--events-out/--events-in`, VM 분봉은 최근 42거래일만). findings/kr-static-vi-proxy-results-2026-11.md.
             ★ **11-01 사용자 GO 2건**: ① forward #29(`run_kr_static_vi_forward.py`, VM 타이머 `vi-forward` 월~토 21:30 → `_status/vi-forward.jsonl` → 월간 점검 `sync`, 판정 관측일 100 ∧ 2027-05-03) — **VM 설치 완료(11-01 16:56 사용자, 첫 기록은 11-02 21:30)** ·
             ② 장중 급등 알림에 '시가 대비 +10% → 추격 주의' 한 줄(`intraday-check.js` markVi, 맥락 전용 — 점수·매매 불연결, 다음 06:30 pull 부터).
-            기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
+            기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사는 위 줄대로 11-01 확정·forward #29 가동(옛 '실행은 사용자 몫' 끝남). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
             클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
             VM 부트 볼륨 100GB(무료 블록 147/200GB), 옛 stock-Monitor 삭제. 폰 VM 접속 = Cloud Shell(RSA 키). **클라우드 세션은 ssh(22) 불가(443 만)** → VM 상태는 `research-data.py status [유닛]`(`vm-status-snapshot.timer` 5분, **11-01 VM 설치·첫 읽기 확인**). 장중 스냅샷 국내 창 15:35 까지(15:40 = NXT 애프터, 11-01) · yt-digest RSS 전멸 2시간 → 장애 알림. docs/control/연구데이터-VM보관-설계-2026-10-30.md.
