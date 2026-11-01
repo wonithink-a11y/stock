@@ -228,12 +228,13 @@ def run(env):
     seen = read_json(STATE / "seen.json", {})            # id → {"tries": n} | {"done": true}
     digest = read_json(STATE / "digest.json", {"items": []})
     now = datetime.now(timezone.utc)
-    todo = []
+    todo, rss_failed = [], 0
     for ch in CHANNELS:
         try:
             feed = parse_feed(http(urllib.request.Request(f"https://www.youtube.com/feeds/videos.xml?channel_id={ch['id']}"), 30))
         except Exception as e:  # noqa: BLE001 — 한 채널 실패가 나머지를 막지 않는다
             print(f"{ch['name']} RSS 실패: {type(e).__name__}: {e}")
+            rss_failed += 1
             continue
         for v in feed:
             st = seen.get(v["id"], {})
@@ -274,6 +275,29 @@ def run(env):
         print(f"요약 완료 {ch['name']} · {v['title'][:40]} · 토큰 {item['tokens']} · 텔레그램 {'OK' if sent else '생략/실패'}")
         done_n += 1
     print(f"새 영상 후보 {len(todo)}건, 요약 {done_n}건")
+    msg = rss_outage(STATE / "rss-health.json", rss_failed == len(CHANNELS), now)
+    if msg:
+        raise SystemExit(msg)
+
+
+def rss_outage(path, all_failed, now, after=timedelta(hours=2), every=timedelta(hours=24)):
+    """채널 전부 실패가 `after` 넘게 이어지면 실패 메시지(→ OnFailure 장애 알림), 그 뒤엔 `every` 마다 한 번.
+    성공으로 끝나면 장애 방에 안 뜬다(11-01 실측: RSS 전 채널 404 인데 Result=success). 매 실행(20분) 실패로 끝내면
+    알림 쿨다운(30분) 뒤 계속 울리므로 묶는다. 한 채널이라도 받으면 기록을 지운다."""
+    if not all_failed:
+        path.unlink(missing_ok=True)
+        return None
+    h = read_json(path, {})
+    since = datetime.fromisoformat(h["downSince"]) if h.get("downSince") else now
+    last = datetime.fromisoformat(h["alertedAt"]) if h.get("alertedAt") else None
+    h["downSince"] = since.isoformat()
+    due = now - since >= after and (last is None or now - last >= every)
+    if due:
+        h["alertedAt"] = now.isoformat()
+    write_json(path, h)
+    if due:
+        return f"YouTube RSS 전멸 {int((now - since).total_seconds() // 3600)}시간째 — 채널 {len(CHANNELS)}개 전부 실패(하루 1번만 알림)"
+    return None
 
 
 def selftest():
@@ -296,7 +320,18 @@ def selftest():
     assert "· b9" in sh and "· b10" not in sh and "#yt=AAAAAAAAAAA" in sh and len(sh) < 1000   # 10줄 상한
     assert "· h" in render_short({**item, "digest": {"headline": "h", "summary": "s", "sections": []}})   # brief 없는 옛 항목
     assert "#yt=AAAAAAAAAAA&pinkey=abc" in render_short(item, "abc") and "pinkey" not in render_short(item)
-    print("selftest ok (11 assertions)")
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        hp = Path(d) / "h.json"
+        t0 = datetime(2026, 11, 1, 6, tzinfo=timezone.utc)
+        assert rss_outage(hp, True, t0) is None                                        # 막 시작 — 아직 안 알림
+        assert rss_outage(hp, True, t0 + timedelta(hours=1, minutes=59)) is None
+        assert "2시간째" in rss_outage(hp, True, t0 + timedelta(hours=2))              # 2시간 → 1번
+        assert rss_outage(hp, True, t0 + timedelta(hours=3)) is None                  # 그 뒤 하루 동안 조용
+        assert rss_outage(hp, True, t0 + timedelta(hours=26)) is not None             # 하루 뒤 다시 1번
+        assert rss_outage(hp, False, t0 + timedelta(hours=27)) is None and not hp.exists()   # 회복 → 기록 지움
+        assert rss_outage(hp, True, t0 + timedelta(hours=28)) is None                 # 새 장애는 처음부터
+    print("selftest ok (18 assertions)")
 
 
 if __name__ == "__main__":
