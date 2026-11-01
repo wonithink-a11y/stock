@@ -1,0 +1,22 @@
+[Unit]
+# 정적 VI 근사 VU forward 기록(사전등록 findings/kr-static-vi-forward-preregistration-2026-11.md) — 기록 전용, 주문·알림 없음.
+# ~/minute-raw 의 manifest 통과 날(≥ 2026-11-02) 중 아직 안 쓴 날만 계산해 ~/collector-venv/vi-forward/daily.jsonl 에 덧붙이고
+# /srv/stock-data/bundles/_status/vi-forward.jsonl 로 복사한다(클라우드 월간 점검이 /research-data/ 로 읽어 reports/ 에 커밋).
+# daily.jsonl 은 판정 원장이다 — 지우지 않는다. EnvironmentFile 없음(키를 읽지 않는다).
+Description=KR static VI proxy (VU) forward recorder (read-only)
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/research/strategy-lab/run_kr_static_vi_forward.py record --minute-dir /home/ubuntu/minute-raw
+TimeoutStartSec=900
+StandardOutput=append:/home/ubuntu/collector-venv/logs/vi-forward.log
+StandardError=append:/home/ubuntu/collector-venv/logs/vi-forward.log
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/collector-venv/vi-forward /home/ubuntu/collector-venv/logs /srv/stock-data/bundles/_status

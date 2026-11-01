@@ -234,8 +234,28 @@ async function sendSlack(text) {
  * 알림을 보내고, **보낸 뒤에만** 쿨다운 도장을 찍는다. send(text) -> Promise<boolean>.
  * main 이 한때 객체 배열을 그대로 join 해 '[object Object]' 만 보냈고 도장도 안 찍어 체크마다 같은 알림이 반복됐다(2026-09-22).
  */
+/**
+ * 국내 알림 중 '오늘 시가 대비 +10% 이상'인 종목에 추격 주의 한 줄(a.vi)을 붙인다 — 맥락 전용, 점수·매매 불연결(절대 규칙 1).
+ * 근거: findings/kr-static-vi-proxy-results-2026-11.md(ROBUST, 2025-08~2026-10) — 시가 +10% 첫 도달 3분 뒤 매수 → 당일 종가 일 평균
+ * −1.4~−2.1%(유동 대형주 −1.3~−2.7%). 기준이 전일 종가가 아니라 **당일 시가**라 알림의 등락률과 다를 수 있다.
+ */
+const VI_PCT = 10;
+function markVi(alerts, quotes) {
+  let n = 0;
+  for (const a of alerts) {
+    const q = a.market === 'KR' ? quotes[a.ticker] : null;
+    if (!q || !(q.open > 0) || !(q.price > 0)) continue;
+    const fromOpen = (q.price / q.open - 1) * 100;
+    if (fromOpen >= VI_PCT) {
+      a.vi = `   └ 시가 대비 +${fromOpen.toFixed(1)}% — 이 조건 뒤 당일 종가까지 평균 −1~3%(연구, 2025-08~26-10) · 추격 주의(매매 신호 아님)`;
+      n += 1;
+    }
+  }
+  return n;
+}
+
 async function deliver(state, allAlerts, send, now = Date.now()) {
-  const text = buildMessage(allAlerts.map((a) => (a.ctx ? `${a.line}\n${a.ctx}` : a.line)), RULES.maxAlertsPerMessage);
+  const text = buildMessage(allAlerts.map((a) => [a.line, a.ctx, a.vi].filter(Boolean).join('\n')), RULES.maxAlertsPerMessage);
   console.log(text);
   const sent = await send(text);
   if (sent) stampAlerts(state, allAlerts, now);
@@ -377,6 +397,8 @@ async function main() {
     } catch (e) {
       console.warn(`  [경고] 맥락 전체 실패 — 맥락 없이 보낸다: ${e.message}`);
     }
+    const nVi = markVi(allAlerts, krFull);
+    if (nVi) console.log(`추격 주의 줄 ${nVi}건(시가 대비 +${VI_PCT}%)`);
     const sent = await deliver(state, allAlerts, async (text) => {
       const tg = await sendTelegram(text);
       const slack = await sendSlack(text);
@@ -404,4 +426,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, localYmd, addContext, RULES };
+module.exports = { detect, marketsOpenNow, stampAlerts, buildMessage, deliver, localYmd, addContext, markVi, RULES };

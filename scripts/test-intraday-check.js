@@ -14,7 +14,7 @@
  * 아래 검사들은 그 사슬의 각 고리를 하나씩 붙잡는다.
  */
 const assert = require('assert');
-const { detect, stampAlerts, buildMessage, deliver, localYmd, RULES, marketsOpenNow } = require('./intraday-check.js');
+const { detect, stampAlerts, buildMessage, deliver, localYmd, RULES, marketsOpenNow, markVi } = require('./intraday-check.js');
 
 let n = 0;
 const ok = (name, fn) => { fn(); n += 1; };
@@ -214,6 +214,15 @@ ok('★ 국내 창은 15:30 실행까지 — 15:40 실행은 NXT 애프터 가�
   const kst = (h, mi) => new Date(Date.UTC(2026, 9, 30, h - 9, mi, 5));   // 금요일
   assert(marketsOpenNow(kst(9, 0)).includes('KR') && marketsOpenNow(kst(15, 30)).includes('KR'));
   assert(!marketsOpenNow(kst(15, 40)).includes('KR'));
+});
+
+okAsync('★ 시가 대비 +10% 이상 국내 알림에만 추격 주의 줄 — 기준은 전일 종가가 아니라 당일 시가', () => {
+  const al = [{ ticker: 'A', market: 'KR', line: 'a' }, { ticker: 'B', market: 'KR', line: 'b' }, { ticker: 'C', market: 'US', line: 'c' }, { ticker: 'D', market: 'KR', line: 'd' }];
+  const q = { A: { price: 1100, open: 1000, prevClose: 900 }, B: { price: 1150, open: 1100, prevClose: 900 }, C: { price: 2, open: 1 }, D: { price: 1100, open: null } };
+  assert.strictEqual(markVi(al, q), 1);                      // A 만(+10.0%). B 는 전일 대비 +27.8% 지만 시가 대비 +4.5%
+  assert(/시가 대비 \+10\.0%/.test(al[0].vi) && !al[1].vi && !al[2].vi && !al[3].vi, JSON.stringify(al));
+  let sentText = '';
+  return deliver({}, al, async (t) => { sentText = t; return true; }).then(() => assert(sentText.includes('a\n   └ 시가 대비'), sentText));
 });
 
 Promise.all(pending).then(() => console.log(`test-intraday-check: ${n}건 통과`))
