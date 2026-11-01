@@ -6,18 +6,19 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 22 |
+| 통과·채택 | 23 |
 | 보류·판정 불가 | 43 |
 | 기각 | 160 |
-| 사전등록 문서(결과는 별도 파일) | 169 |
+| 사전등록 문서(결과는 별도 파일) | 170 |
 | 정보·탐색 | 39 |
 | 미분류 | 239 |
 
-## 통과·채택 (22)
+## 통과·채택 (23)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-proxy-results-2026-11.md](kr-static-vi-proxy-results-2026-11.md) | 신호: 있음(VU) · 경제성: 통과(VU, 숏 방향 — 실행 가능성 미확인). 잠정 — 연구 캐시 분봉이 2026-10-12 까지라 TEST 가 사전등록(10-28)보다 12거래일 짧다, VM 원… |
+| 2026-11-01 | ROBUST | kr | [kr-static-vi-liquid-results-2026-11.md](kr-static-vi-liquid-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향, 차입 비용·대차 가능 여부 미측정). 잠정 — 캐시 분봉 10-12 까지. VU_L(전일 거래대금 상위 200 종목의 장중 +10% 첫 도달 3분 뒤 → 종… |
 | 2026-10-30 | CONSISTENT | crypto | [binance-listing-upbit-results-2026-10.md](binance-listing-upbit-results-2026-10.md) | 신호: 있음(업비트에서도 같은 쪽) · 경제성: 판정 안 함(회피 근거 확인). 바이낸스 신규 상장 코인 중 업비트에 있던 것은 업비트 원화 가격으로도 첫 주 BTC 대비 −1,144bp(t −2.… |
 | 2026-10-30 | PASS | crypto | [binance-listing-robustness-results-2026-10.md](binance-listing-robustness-results-2026-10.md) | 신호: 있음 · 경제성: (원 판정 유지). BL7 강건성 4/4 PASS — K1 같은 주 대형 알트 24종 대비로도 −1,074bp(t −5.78, TRAIN·2023~ 모두 음; 위약 자체는 … |
 | 2026-10-30 | ROBUST | crypto | [binance-listing-results-2026-10.md](binance-listing-results-2026-10.md) | 신호: 있음 · 경제성: 통과(단 비용 10bp 는 숏 실행을 낙관한 값). BL7 — 바이낸스 신규 상장 코인은 상장 다음 날부터 7일 동안 BTC 보다 평균 9~12% 덜 올랐다: TRAIN −… |
@@ -253,10 +254,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (169)
+## 사전등록 문서(결과는 별도 파일) (170)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-liquid-preregistration-2026-11.md](kr-static-vi-liquid-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST 잠정, 숏 방향)이 대차가 비교적 쉬운 유동 대형주(전일 거래대금 상위 200… |
 | 2026-11-01 | PREREGISTERED | kr | [champion-shortterm-kretf-preregistration-2026-11.md](champion-shortterm-kretf-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주에서 신호가 없던 고전 단기 기법(터틀 수프·NR7·홀리 그레일)이, 거래세가 없고 비용이 낮은 국내 주식형 ETF(왕복 ≈5bp)에… |
 | 2026-11-01 | PREREGISTERED | kr | [champion-shortterm-k200fut-preregistration-2026-11.md](champion-shortterm-k200fut-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "국내 개별주(7셀 REJECT)·미국 지수 선물(6셀 REJECT)에서 신호가 없던 대회 우승자·고전 단기 기법 4종이, 비용이 가장 낮은 KO… |
 | 2026-10-31 | PREREGISTERED | us | [vix-term-t2-forward-preregistration-2026-10.md](vix-term-t2-forward-preregistration-2026-10.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 TRAIN 은 실패했지만 VALID·TEST 에서 샤프·낙폭이 보유보다 나았던 VIX 기간구조 T2 규칙이, 아직 보지 않은 앞으… |

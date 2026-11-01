@@ -234,7 +234,7 @@ Validated against
             ★ **'최근 신규 상장' 경고 칸(10-30 사용자 GO, 표시 전용)** — Actions `binance-listings`(매일 10:10 KST) → docs/data/binance-listings.json(30일 안 상장 · firstDay 캐시) → 상장 다음 날 시가부터 BTC 대비, 1~7일째 '첫 주' 강조. 토큰화 주식(stockLike)은 한 줄로 접는다. 점수·매매·텔레그램 불연결(규칙 1). 크립토 밤샘 19건·마감: docs/control/세션인수인계-2026-10-30.md.
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건.
             ★ **국내 정적 VI 근사(ebccca5·dddd05e) — VU ROBUST(잠정, 11-01 캐시 10-12 까지)**: 장중 시가 +10% 첫 도달 3분 뒤 → 종가 일 평균 −138/−155/−209bp(t −13.2),
-            숏 OOS net33.5 +153bp. VD REJECT. 실행 가능성(대차·차입 비용) 미측정 — 매매 🔴 별도 GO. 쓰임 = '장중 급등 추격 회피' 근거. **VM 원본(10-28) 재실행으로 확정** 남음. findings/kr-static-vi-proxy-results-2026-11.md.
+            숏 OOS net33.5 +153bp. VD REJECT. **유동 대형주(전일 거래대금 상위 200, fb8afed·839625f)도 ROBUST** — TEST −265bp, net33.5 +208. 실행 가능성(대차·차입 비용) 미측정 — 매매 🔴 별도 GO. 쓰임 = '장중 급등 추격 회피' 근거. **VM 원본(10-28) 재실행으로 확정** 남음. findings/kr-static-vi-proxy-results-2026-11.md.
             기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
             클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
