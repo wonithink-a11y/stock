@@ -1,0 +1,72 @@
+{
+ "first_day": "2025-08-11",
+ "last_day": "2026-10-12",
+ "top": 200,
+ "cells": {
+  "VU_L": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -6.53,
+   "TRAIN": {
+    "days": 131,
+    "bp": -131.7,
+    "t": -6.53
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -207.4,
+    "t": -5.86
+   },
+   "TEST": {
+    "days": 86,
+    "bp": -265.4,
+    "t": -7.82
+   },
+   "oos_gross_bp": 241.3,
+   "oos_gross_ci95": [
+    194.1,
+    291.1
+   ],
+   "net33_bp": 207.8,
+   "net67_bp": 174.3,
+   "t_net33": 8.4,
+   "breakeven_rt_bp": 241.3,
+   "events": 4551,
+   "events_per_day": 16.4,
+   "exit_1519_daily_bp_dir": 202.3
+  },
+  "VU_S": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -13.11,
+   "TRAIN": {
+    "days": 131,
+    "bp": -139.9,
+    "t": -13.11
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -143.0,
+    "t": -5.86
+   },
+   "TEST": {
+    "days": 86,
+    "bp": -201.2,
+    "t": -10.19
+   },
+   "oos_gross_bp": 177.0,
+   "oos_gross_ci95": [
+    145.8,
+    208.7
+   ],
+   "net33_bp": 143.5,
+   "net67_bp": 110.0,
+   "t_net33": 9.27,
+   "breakeven_rt_bp": 177.0,
+   "events": 20425,
+   "events_per_day": 73.5,
+   "exit_1519_daily_bp_dir": 180.1
+  }
+ },
+ "bar": 2.2
+}
