@@ -1,0 +1,12 @@
+[Unit]
+Description=KR static VI proxy forward recorder (Mon-Sat 21:30 KST)
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 분봉 수집(minute-collect)이 그날 저녁에 끝난 뒤. 토요일은 금요일분이 늦게 통과했을 때를 줍는다 — 이미 쓴 날은 건너뛴다.
+OnCalendar=Mon..Sat *-*-* 21:30:00
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target
