@@ -377,7 +377,7 @@ def effective_params(cfg: dict) -> dict:
     if p.get("web_notional"):
         n = read_notional(cfg)
         if n is not None:
-            p["notional_krw"] = n
+            p[amount_key(cfg)] = n
     if p.get("web_weights"):
         w = read_weights(cfg)
         if w is not None:
@@ -459,8 +459,17 @@ def web_set_weights(cfg: dict, pct: List[int], now: datetime) -> Optional[str]:
     return None
 
 
+def amount_key(cfg: dict) -> str:
+    """웹이 바꾸는 금액이 가리키는 전략 값 — 한 바구니(crypto_weights)는 자본(capital_krw), 그 밖은 1회 매수 금액(notional_krw)."""
+    return "capital_krw" if cfg.get("strategy") == "crypto_weights" else "notional_krw"
+
+
+def amount_label(cfg: dict) -> str:
+    return "자본" if cfg.get("strategy") == "crypto_weights" else "1회 매수 금액"
+
+
 def current_notional(cfg: dict) -> Optional[float]:
-    v = effective_params(cfg).get("notional_krw")
+    v = effective_params(cfg).get(amount_key(cfg))
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
@@ -471,9 +480,18 @@ def check_notional(cfg: dict, n: int) -> Optional[str]:
     if not NOTIONAL_MIN <= n <= NOTIONAL_MAX:
         return f"금액은 {NOTIONAL_MIN:,}원 이상 {NOTIONAL_MAX:,}원 이하여야 합니다"
     r = (cfg.get("risk") or {}).get(crypto_market(cfg) or "UPBIT") or {}
-    need = (("max_order_value", n * 3 / 2, "주문당 한도(매도 포함, 1회 금액의 1.5배)"),
-            ("max_daily_value", n * 2, "하루 한도(매수+매도, 1회 금액의 2배)"),
-            ("max_position_value", n, "종목당 보유 한도(개인 보유 BTC 평가액은 별도로 더해서 잡는다)"))
+    if cfg.get("strategy") == "crypto_weights":                       # 자본: 한 주문(max_order_krw)·하루(자본의 2배)·코인 하나의 목표 금액이 한도 안인지
+        pr = cfg.get("params") or {}
+        order = float(pr.get("max_order_krw") or n * 0.2)
+        share = max([float(pr.get("other_max_share", 1.0)) if float(pr.get("other_weight") or 0) > 0 else 0.0]
+                    + [float(v) for v in (pr.get("weights") or {}).values()] + [0.0])
+        need = (("max_order_value", order, "주문당 한도(한 주문 상한 max_order_krw 이상)"),
+                ("max_daily_value", n * 2, "하루 한도(매수+매도, 자본의 2배)"),
+                ("max_position_value", n * share, "종목당 보유 한도(자본 × 한 코인 최대 비중)"))
+    else:
+        need = (("max_order_value", n * 3 / 2, "주문당 한도(매도 포함, 1회 금액의 1.5배)"),
+                ("max_daily_value", n * 2, "하루 한도(매수+매도, 1회 금액의 2배)"),
+                ("max_position_value", n, "종목당 보유 한도(개인 보유 BTC 평가액은 별도로 더해서 잡는다)"))
     for key, lo, label in need:
         if float(r.get(key) or 0) < lo:
             return f"서버 {label} {int(r.get(key) or 0):,}원이 모자랍니다 — {int(lo):,}원 이상으로 서버 프로필(SSH)에서 올려야 저장됩니다"
