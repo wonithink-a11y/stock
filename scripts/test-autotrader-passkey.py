@@ -255,6 +255,26 @@ def main():
         ck("상세 화면에 금액 칸·지문 폼", "1회 매수 금액" in b.decode() and 'name="val"' in b.decode() and "6,000,000" in b.decode())
         st, _, b = app.handle("GET", "/details?p=la", h, b"", "1.1.1.1")
         ck("허락 안 된 프로필 화면엔 금액 칸 없음", "1회 매수 금액" not in b.decode())
+        # ---- 화면 개편(2026-11-01): 하단 탭 · 크립토 화면 · 시장 칩
+        g = lambda p: app.handle("GET", p, h, b"", "1.1.1.1")                       # noqa: E731
+        st, _, b = g("/crypto")
+        t = b.decode()
+        ck("크립토 화면: 업비트 프로필·금액·바꾸기·최근 주문 링크", st == 200 and "1회 매수 금액" in t and "6,000,000" in t
+           and "/orders?m=crypto" in t and 'id="controls"' in t and "크립토" in t)
+        ck("크립토 화면은 passkey.js 를 한 번만 싣는다(지문이 두 번 뜨지 않게)", t.count("/static/passkey.js") == 1)
+        ck("크립토 화면엔 주식 프로필이 없다", "업비트 · la" not in t and "업비트 · pa" not in t and "업비트 · cb" in t)
+        bar = t.split('<nav class="tabbar">')[1]
+        ck("하단 탭: 홈·크립토·주식·기록·설정(주문 탭 없음)", all(f"</svg>{x}</a>" in bar for x in ("홈", "크립토", "주식", "기록", "설정"))
+           and "/orders" not in bar)
+        st, _, b = g("/strategies")
+        ck("주식 화면: 크립토 프로필 제외 + 시장 칩 + 주문 링크", st == 200 and "업비트" not in b.decode() and "/strategies?m=KR" in b.decode()
+           and "/orders?m=stock" in b.decode())
+        st, _, b = g("/strategies?m=US")
+        ck("시장 칩 US 는 US 프로필만(국내 전용 프로필 숨김)", st == 200 and "BASE" not in b.decode())
+        st, _, b = g("/orders?m=crypto")
+        ck("주문 내역 크립토 필터", st == 200 and "주문 · 거래 내역" in b.decode() and "← 크립토" in b.decode())
+        st, _, b = g("/")
+        ck("홈: 시장 칩 + 크립토 열기 버튼", st == 200 and "/crypto" in b.decode() and "chips" in b.decode() and "크립토 열기" in b.decode())
         notional_path(cb).write_text("{깨진", encoding="utf-8")
         ck("깨진 파일은 프로필 값으로", read_notional(cb) is None and effective_params(cb)["notional_krw"] == 100_000)
         notional_path(cb).write_text(json.dumps({"notional_krw": 99_999_999}), encoding="utf-8")

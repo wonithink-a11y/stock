@@ -110,6 +110,10 @@ border-top:1px solid var(--line);padding:8px 6px calc(8px + env(safe-area-inset-
 .tabbar .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);font-size:12px;font-weight:600}
 .tabbar a.on{color:var(--acct)}.tabbar svg.i{width:24px;height:24px}
+.chips{display:flex;gap:6px;margin:0 0 10px}.chips a{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--mut);font-weight:600;font-size:13px}
+.chips a.on{background:var(--accs);border-color:var(--acc);color:var(--acct);font-weight:700}
+.big{font-size:30px;font-weight:800;letter-spacing:-1px}.big small{font-size:15px;font-weight:600;color:var(--mut);margin-left:4px;letter-spacing:0}
+.card.cx{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,159,255,.12)}
 /* 폰(≤600px): 한 화면에 더 많이 — 여백·글자·카드 높이를 줄인다(2026-10-14 사용자 요청) */
 @media(max-width:600px){body{font-size:14px;line-height:1.45}
 .top{padding:8px 12px}.top .brand{font-size:17px;gap:8px}.logo{width:28px;height:28px;border-radius:8px}.logo svg.i{width:16px;height:16px}
@@ -151,14 +155,20 @@ _ICON = {
     "news": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h6M7 13h10M7 16h10"/>',
     "key": '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',
     "chev": '<path d="M9 6l6 6-6 6"/>',
+    "coin": '<circle cx="12" cy="12" r="9"/><path d="M10 8h3.5a2 2 0 0 1 0 4H10m0 0h4a2 2 0 0 1 0 4h-4M10 7v10M12 6v1m0 10v1"/>',
     "out": '<path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/>',
     "wallet": '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h.01"/>',
     "server": '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>',
 }
 STRAT_ICON = {"plan_trader": "cal", "infinite_buying": "inf", "target_weights": "target"}
-TABS = (("home", "/", "홈"), ("strat", "/strategies", "전략"), ("orders", "/orders", "주문"), ("log", "/log", "기록"),
+# 하단 탭(2026-11-01 개편 — 크립토를 한 번에): 주문 내역은 크립토·주식 화면 안의 링크(/orders?m=crypto|stock)로 옮겼다.
+TABS = (("home", "/", "홈"), ("crypto", "/crypto", "크립토"), ("strat", "/strategies", "주식"), ("log", "/log", "기록"),
         ("set", "/settings", "설정"))
-TAB_ICON = {"home": "home", "strat": "trend", "orders": "orders", "log": "clock", "set": "gear"}
+TAB_ICON = {"home": "home", "crypto": "coin", "strat": "trend", "log": "clock", "set": "gear"}
+
+
+def is_crypto(c: dict) -> bool:
+    return c.get("broker") == "upbit" or "UPBIT" in (c.get("markets") or [])
 
 
 def ic(name: str) -> str:
@@ -348,6 +358,70 @@ def _strat_name(c: dict) -> str:
     return E(STRAT_KO.get(c.get("strategy"), str(c.get("strategy"))))
 
 
+def market_chips(base: str, on: str = "") -> str:
+    """시장 전환 칩(홈·주식 화면) — 크립토는 전용 화면으로."""
+    items = (("", "/", "전체"), ("KR", "/strategies?m=KR", "국내"), ("US", "/strategies?m=US", "미국"), ("CRYPTO", "/crypto", "크립토"))
+    return '<div class="chips">' + "".join(f'<a href="{E(base)}{p}" class="{"on" if k == on else ""}">{t}</a>' for k, p, t in items) + "</div>"
+
+
+def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool, controls: Dict[str, str], now: datetime,
+                  hide_money: bool = False) -> bytes:
+    """크립토 탭 — 업비트 프로필마다 한 화면: 상태 · 1회 매수 금액 · 보유 · 오늘 한도 · 최근 주문 · 조작(금액 변경·자동·킬)."""
+    from .config import current_notional
+    from .pnl import load_book
+    out = [market_chips(base, "CRYPTO")]
+    sc = f'<script src="{E(base)}/static/passkey.js"></script>'          # 프로필마다 싣지 않고 한 번만(두 번 실으면 지문이 두 번 뜬다)
+    for cfg, v in items:
+        name, sdir = str(cfg.get("profile", "")), state_dir(cfg)
+        st = _load_json(sdir / "strategy_coinbase_premium.json") or {}
+        pos = st.get("position") or {}
+        cur = current_notional(cfg)
+        auto = cfg.get("auto", "off")
+        auto_cls = {"execute": "bad", "dry": "ok"}.get(auto, "")
+        t = v["todayRuns"]
+        last = v["runs"][-1] if v["runs"] else None
+        last_txt = (f'{E(str(last.get("at", ""))[5:16].replace("T", " "))} · {E("주문" if last.get("execute") else "dry-run")} · {E(str(last.get("status")))}'
+                    if last else "아직 없음")
+        risk = (cfg.get("risk") or {}).get("UPBIT") or {}
+        sp = (v.get("spent") or {}).get("UPBIT") or {}
+        used, lim = float(sp.get("used") or 0), float(sp.get("limit") or risk.get("max_daily_value") or 0)
+        pct = min(100, used / lim * 100) if lim else 0
+        fills = (load_book(cfg) or {}).get("fills") or {}
+        rows = []
+        for r in reversed(Ledger(sdir).rows()):
+            if r.get("kind") in ("order", "error"):
+                f = fills.get(r.get("orderNo") or "")
+                stt = ('<span class="pill bad">실패</span>' if r.get("kind") == "error" else
+                       '<span class="pill ok">체결</span>' if f and float(f.get("qty") or 0) >= float(r.get("qty") or 0) > 0 else '<span class="pill">접수</span>')
+                rows.append(f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">'
+                            f'<span class="side {"b" if r.get("side") == "BUY" else "s"}">{"매수" if r.get("side") == "BUY" else "매도"}</span>'
+                            f'<span>{E(str(r.get("symbol")))}</span></span><span style="text-align:right">{stt}<br>'
+                            f'<small class="mut">{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</small></span></div>')
+            if len(rows) >= 5:
+                break
+        money = "" if hide_money else f'''<div class="card cx"><div class="row" style="border:0"><span class="mut">1회 매수 금액</span><a href="#controls" style="color:var(--acct);font-weight:700">바꾸기 ›</a></div>
+<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원</small></div>
+<div class="mut">{NOTIONAL_MIN:,} ~ {NOTIONAL_MAX:,}원 · 서버 한도 안에서만 저장 · 다음 매수부터 적용</div></div>
+<div class="stat" style="grid-template-columns:1fr 1fr"><div class="kpi"><div class="l">보유(이 전략)</div><div class="v">{E(str(pos.get("qty"))) if pos else "없음"}</div></div>
+<div class="kpi"><div class="l">매수 신호 z</div><div class="v">{E(str(pos.get("z"))) if pos else "대기"}</div></div></div>
+<div class="card"><h2>오늘 한도</h2><div class="row"><span>하루 사용</span><span>{pct:.0f}% ({used:,.0f} / {lim:,.0f}원)</span></div>
+<div class="bar"><i style="width:{pct:.0f}%"></i></div>
+<div class="row"><span>주문당 한도</span><span>{float(risk.get("max_order_value") or 0):,.0f}원</span></div></div>'''
+        out.append(f'''<div class="card hl"><div class="sc-h">{_tile(cfg.get("strategy"))}<div class="t"><span class="nm">업비트 · {E(name)}</span>
+<span class="pf">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></div></div>
+<span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}">{E(AUTO_TXT.get(auto, auto))}</span>
+{'<span class="pill bad">킬 ON</span>' if v["kill"] else '<span class="pill">킬 OFF</span>'}
+<div class="row"><span>마지막 실행</span><span>{last_txt}</span></div>
+<div class="row"><span>오늘 실행 · 접수 · 오류</span><span>{len(t)} · {sum(len(r.get("placed") or []) for r in t)} · {sum(len(r.get("errors") or []) for r in t)}</span></div></div>
+{money}
+<div class="card"><div class="row" style="border:0"><h2 style="margin:0">최근 주문</h2><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 보기 ›</a></div>
+{"".join(rows) or '<span class="mut">아직 낸 주문이 없다</span>'}</div>
+<div id="controls">{controls.get(name, "").replace(sc, "")}</div>''')
+    if len(out) == 1:
+        out.append('<div class="card mut">크립토(업비트) 프로필이 없다 — 서버 프로필에 broker upbit 를 만든다(README §11).</div>')
+    return _page("크립토", "".join(out) + (sc if pk else ""), base=base, sub="크립토", tab="crypto")
+
+
 def render_switches(items: List[dict], sdir: Path, csrf: str, base: str, now: datetime, pk: bool,
                     paper_engine: Optional[dict] = None) -> str:
     """전략 목록(전략 탭) — 프로필마다 상태 + 켜기/끄기(지문). 금액 없음 — 로그인만으로 보인다."""
@@ -396,6 +470,8 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: 
                     + (f'<div class="mut">외 {len(held) - 8}종목 — 상세에서</div>' if len(held) > 8 else "")) if held else ""
         sw = f'<div class="row"><span>{switch_pill(cfg, server_on)}</span>{switch_btn(cfg, csrf, base, pk)}</div>' if csrf else ""
         plan_btn = f'<a class="btn fill" href="{base}/plans?p={quote(name)}">매매 계획</a>' if cfg.get("strategy") == "plan_trader" else ""
+        if is_crypto(cfg):
+            plan_btn = f'<a class="btn fill" href="{base}/crypto">크립토 열기</a>'
         out.append(f'''<div class="card hl"><div class="sc-h">{_tile(cfg.get("strategy"))}<div class="t">
 <span class="nm">{_strat_name(cfg)}</span><span class="pf">{E(name)}</span></div>
 <a class="go" href="{base}/details?p={quote(name)}">{ic("chev")}</a></div>
@@ -477,9 +553,12 @@ def render_log(profiles: List[dict], base: str = "") -> bytes:
     return _page("기록", body, base=base, sub="기록", tab="log")
 
 
-def render_orders(profiles: List[dict], base: str = "") -> bytes:
-    """주문 탭 — 프로필마다 우리가 낸 주문(원장)과 체결(스냅샷 체결 원장)·미체결. 재확인(지문) 뒤에만."""
+def render_orders(profiles: List[dict], base: str = "", only: str = "") -> bytes:
+    """주문 내역 — 프로필마다 우리가 낸 주문(원장)과 체결(스냅샷 체결 원장)·미체결. 재확인(지문) 뒤에만.
+    only="crypto"|"stock" 이면 그 쪽 프로필만(크립토·주식 화면의 '주문 전체 보기' 링크)."""
     from .pnl import load_book
+    if only:
+        profiles = [c for c in profiles if is_crypto(c) == (only == "crypto")]
     items, opens, snaps = [], [], []
     for c in profiles:
         sdir = state_dir(c)
@@ -517,7 +596,9 @@ def render_orders(profiles: List[dict], base: str = "") -> bytes:
                  f'<span class="mut">{E(str(o["remaining"]))}/{E(str(o["qty"]))} · {_px(m, o["price"])}</span></div>' for c, m, o in opens)
     body = (f'<h1>주문 · 거래 내역</h1><div class="sec">미체결</div><div class="card">{ot or "<span class=mut>없음</span>"}</div>'
             f'<div class="sec">주문 기록 <small>최근 80 · 체결은 5분마다 갱신</small></div><div class="card">{rows or "<span class=mut>아직 낸 주문이 없다</span>"}</div>')
-    return _page("주문", body, base=base, sub="주문", tab="orders")
+    tab = {"crypto": "crypto", "stock": "strat"}.get(only)
+    back = f'<a class="btn" href="{base}/{"crypto" if only == "crypto" else "strategies"}">← {"크립토" if only == "crypto" else "주식"}</a>' if only else ""
+    return _page("주문", body + back, base=base, sub="주문", tab=tab)
 
 
 def render_settings(csrf: str, base: str, n_pk: int, pk_disabled: str) -> bytes:
@@ -1148,12 +1229,12 @@ class WebApp:
             js = f'<script src="{E(self.base)}/static/passkey.js"></script>' if pk else ""   # 한 번만 — 두 번 실으면 버튼마다 지문이 두 번 뜬다
             server_on, srv = server_state(self.sdir, now)
             base_v = load_view(self.cfg, self.sdir, now)
-            views = [(c, load_view(c, state_dir(c), now)) for c in profs]
+            views = sorted(((c, load_view(c, state_dir(c), now)) for c in profs), key=lambda x: not is_crypto(x[0]))   # 크립토 카드 먼저
             allv = [base_v] + [pv for _, pv in views]
             n = lambda k: sum(len(r.get(k) or []) for x in allv for r in x["todayRuns"])   # noqa: E731
             agg = {"runs": sum(len(x["todayRuns"]) for x in allv), "placed": n("placed"), "errors": n("errors"),
                    "kill": any(x["kill"] for x in allv)}
-            extra = unlock + js + render_profiles(views, self.base, hide_money=locked, csrf=sess["csrf"], pk=pk, server_on=server_on)
+            extra = unlock + js + market_chips(self.base) + render_profiles(views, self.base, hide_money=locked, csrf=sess["csrf"], pk=pk, server_on=server_on)
             return 200, self._hdrs(), render_dashboard(base_v, sess["csrf"], self.base, self.require_reauth, extra,
                                                        server_card(srv), agg)
         if not sess:                                    # 로그인 전에는 나머지 경로가 존재하지 않는 것처럼
@@ -1162,15 +1243,29 @@ class WebApp:
             from .stockcard import _load as _load_repo
             pk = self._pk_ready()
             pe = _load_repo("ui/data/positions.json", *([self.data_root] if self.data_root else []))
-            body = (render_switches(self.profiles(), self.sdir, sess["csrf"], self.base, self._now(), pk, pe)
+            mk = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
+            mk = mk if mk in ("KR", "US") else ""
+            stock = [c for c in self.profiles() if not is_crypto(c) and (not mk or mk in (c.get("markets") or []))]
+            body = (market_chips(self.base, mk) + render_switches(stock, self.sdir, sess["csrf"], self.base, self._now(), pk, pe)
+                    + f'<a class="btn" href="{self.base}/orders?m=stock">주식 주문 내역 ›</a>'
                     + (f'<script src="{E(self.base)}/static/passkey.js"></script>' if pk else ""))
-            return 200, self._hdrs(), _page("전략", body, base=self.base, sub="전략", tab="strat")
+            return 200, self._hdrs(), _page("주식", body, base=self.base, sub="주식", tab="strat")
+        if method == "GET" and path == "/crypto":
+            if self.require_reauth and not self.sessions.is_fresh(sess):
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/crypto")
+            now = self._now()
+            pk = self._pk_ready()
+            items = [(c, load_view(c, state_dir(c), now)) for c in self.profiles() if is_crypto(c)]
+            ctl = {str(c.get("profile")): render_controls(c, sess["csrf"], self.base, "", pk) for c, _ in items}
+            return 200, self._hdrs(), render_crypto(items, self.base, sess["csrf"], pk, ctl, now)
         if method == "GET" and path == "/log":
             return 200, self._hdrs(), render_log(self.profiles(), self.base)
         if method == "GET" and path == "/orders":
+            om = (parse_qs(urlsplit(raw_path).query).get("m") or [""])[0]
+            om = om if om in ("crypto", "stock") else ""
             if self.require_reauth and not self.sessions.is_fresh(sess):
-                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/orders")
-            return 200, self._hdrs(), render_orders(self.profiles(), self.base)
+                return 200, self._hdrs(), render_reauth(sess["csrf"], base=self.base, pk=self._pk_ready(), nxt="/orders" + (f"?m={om}" if om else ""))
+            return 200, self._hdrs(), render_orders(self.profiles(), self.base, om)
         if method == "GET" and path == "/settings":
             return 200, self._hdrs(), render_settings(sess["csrf"], self.base, len(self._passkeys()), self._pk_disabled())
         if method == "GET" and path == "/accounts":
@@ -1437,7 +1532,7 @@ class WebApp:
             self._bump(cid, count)
             self.sessions.mark_reauth(tok)
             self._log(ip, "reauth-ok")
-            ok_next = ({"/", "/accounts", "/details", "/orders"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
+            ok_next = ({"/", "/accounts", "/details", "/orders", "/crypto", "/orders?m=crypto", "/orders?m=stock"} | {f"/details?p={quote(str(c.get('profile', '')))}" for c in self.profiles()}
                        | {f"/plans?p={quote(str(c.get('profile', '')))}" for c in self.profiles() if c.get("strategy") == "plan_trader"})
             nxt = j.get("next") if j.get("next") in ok_next else "/details"   # 허용목록 — 열린 리디렉션 금지
             return self._json(200, {"redirect": self.base + nxt})
