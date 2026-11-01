@@ -81,8 +81,10 @@ function marketsOpenNow(now = new Date()) {
   if (day === 0 || day === 6) return [];
   const mins = now.getUTCHours() * 60 + now.getUTCMinutes();
   const open = [];
-  // KR: 09:00~15:30 KST = 00:00~06:30 UTC (여유 10분 포함)
-  if (mins >= 0 && mins <= 6 * 60 + 40) open.push('KR');
+  // KR: 09:00~15:30 KST = 00:00~06:30 UTC. 끝 여유는 5분뿐 — 15:30 실행(종가 확정)은 들이고 15:40 실행은 뺀다.
+  // 15:40 의 네이버 실시간 봉은 NXT 애프터 가격이다(10-30 15:40 스냅샷 삼성전자 225,000 vs 정규장 220,500 · LG엔솔 부호 반대,
+  // 11-01 실측). 그 값이 kr-snapshot 에 남아 저녁·주말 내내 히트맵 '장중'·관심종목 시세가 되고, 급등락 판정도 애프터로 했다.
+  if (mins >= 0 && mins <= 6 * 60 + 35) open.push('KR');
   // US: 09:30~16:00 ET = 13:30~20:00 UTC(서머타임) / 14:30~21:00 UTC(표준시) - 둘 다 커버
   if (mins >= 13 * 60 + 20 && mins <= 21 * 60 + 10) open.push('US');
   return open;

@@ -14,7 +14,7 @@
  * 아래 검사들은 그 사슬의 각 고리를 하나씩 붙잡는다.
  */
 const assert = require('assert');
-const { detect, stampAlerts, buildMessage, deliver, localYmd, RULES } = require('./intraday-check.js');
+const { detect, stampAlerts, buildMessage, deliver, localYmd, RULES, marketsOpenNow } = require('./intraday-check.js');
 
 let n = 0;
 const ok = (name, fn) => { fn(); n += 1; };
@@ -208,6 +208,12 @@ okAsync('DART 키 없음(null) → 공시 확인 안 함, 분류는 공시 모�
   const al = mkAlerts();
   await addContext(al, quotes, {}, NOW, { index: emptyIndex, news: { byTicker: {}, stale: false }, search: async () => null, dart: async () => null });
   assert(/공시 확인 안 함/.test(al[0].ctx) && /^ {3}└ 뉴스 /.test(al[0].ctx), al[0].ctx);
+});
+
+ok('★ 국내 창은 15:30 실행까지 — 15:40 실행은 NXT 애프터 가격이라 뺀다(11-01)', () => {
+  const kst = (h, mi) => new Date(Date.UTC(2026, 9, 30, h - 9, mi, 5));   // 금요일
+  assert(marketsOpenNow(kst(9, 0)).includes('KR') && marketsOpenNow(kst(15, 30)).includes('KR'));
+  assert(!marketsOpenNow(kst(15, 40)).includes('KR'));
 });
 
 Promise.all(pending).then(() => console.log(`test-intraday-check: ${n}건 통과`))
