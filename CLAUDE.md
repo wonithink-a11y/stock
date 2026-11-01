@@ -235,13 +235,13 @@ Validated against
   다음      ★ **업비트 투자유의·주의 forward(3efc209·4635026)** — VM `upbit-market-events` 매시 :07, 판정 12개월 ∧ 갈래 100건.
             ★ **국내 정적 VI 근사(ebccca5·dddd05e) — VU ROBUST(11-01 확정, ~10-28)**: 장중 시가 +10% 첫 도달 3분 뒤 → 종가 일 평균 −138/−155/−208bp(t −13.2),
             숏 OOS net33.5 +154bp. VD REJECT. **유동 대형주(전일 거래대금 상위 200, fb8afed·839625f)도 ROBUST** — TEST −268bp, net33.5 +211. 실행 가능성(대차·차입 비용) 미측정 — 매매 🔴 별도 GO. 쓰임 = '장중 급등 추격 회피' 근거. 전 기간은 캐시+VM 최근분 합치기(`--events-out/--events-in`, VM 분봉은 최근 42거래일만). findings/kr-static-vi-proxy-results-2026-11.md.
-            ★ **11-01 사용자 GO 2건**: ① forward #29(`run_kr_static_vi_forward.py`, VM 타이머 `vi-forward` 월~토 21:30 → `_status/vi-forward.jsonl` → 월간 점검 `sync`, 판정 관측일 100 ∧ 2027-05-03) — **VM 설치 전** ·
+            ★ **11-01 사용자 GO 2건**: ① forward #29(`run_kr_static_vi_forward.py`, VM 타이머 `vi-forward` 월~토 21:30 → `_status/vi-forward.jsonl` → 월간 점검 `sync`, 판정 관측일 100 ∧ 2027-05-03) — **VM 설치 완료(11-01 16:56 사용자, 첫 기록은 11-02 21:30)** ·
             ② 장중 급등 알림에 '시가 대비 +10% → 추격 주의' 한 줄(`intraday-check.js` markVi, 맥락 전용 — 점수·매매 불연결, 다음 06:30 pull 부터).
             기록기 타이머 설치 완료(10-30 사용자, 첫 실행 nKRW 299·on 0 정상). VI 근사 실행은 사용자 몫(인수인계 10-29 맨 위 6번). 업비트 공지 API 는 이 클라우드 환경에서 봇 차단 — 우회하지 않는다.
   다음      ★ **연구 데이터 VM 보관(10-30)** — PC 전용 캐시 15묶음 11.9GB 를 VM /srv/stock-data 에 두고 nginx `/research-data/`(X-Data-Key) 로 내준다.
             클라우드 세션: `python scripts/research-data.py list|get <묶음>`(키 RESEARCH_DATA_KEY — **10-31 클라우드 환경 변수 등록·list 확인**, 폰에서 되는 작업 목록 = 세션인수인계-2026-10-31-b.md §5). PC 캐시가 바뀌면 PC 에서 `push`.
             VM 부트 볼륨 100GB(무료 블록 147/200GB), 옛 stock-Monitor 삭제. 폰 VM 접속 = Cloud Shell(RSA 키). **클라우드 세션은 ssh(22) 불가(443 만)** → VM 상태는 `research-data.py status [유닛]`(`vm-status-snapshot.timer` 5분, **11-01 VM 설치·첫 읽기 확인**). 장중 스냅샷 국내 창 15:35 까지(15:40 = NXT 애프터, 11-01) · yt-digest RSS 전멸 2시간 → 장애 알림. docs/control/연구데이터-VM보관-설계-2026-10-30.md.
-  다음      ★★ **11-01 오후 세션 요약·다음 확인 목록: docs/control/세션인수인계-2026-11-01-b.md**(VM 상태 통로·월간 예측 자동화·VI 근사 확정·forward #29 설치 대기).
+  다음      ★★ **11-01 오후 세션 요약·다음 확인 목록: docs/control/세션인수인계-2026-11-01-b.md**(VM 상태 통로·월간 예측 자동화·VI 근사 확정·forward #29 설치 완료). 새 VM 유닛 설치 = `ssh -t stock-new 'bash ~/collector/deploy/install-unit.sh <이름>'`.
   다음      ★★ **대시보드 폰 개편(11-01, PR #12~#25, 세션인수인계-2026-11-01.md)** — 종목 상세 새 기본 탭 '👀 한눈에'(점수·가격·목표가 30일 변경·PBR·수급·공시 그림) · 마감 리포트·영상 요약·공시·의견·일정·홈 등 재배치(데이터·점수 불변).
             ★ **마감 리포트 시총 상위 = KRX 정규장**(네이버 통합 등락률은 애프터마켓 혼입 — LG엔솔 +0.42 vs −0.70) + 애프터(NXT) 따로 칸. **Yahoo `.KS` 개별 종목도 애프터 혼입 — 쓰지 않는다**.
             첫 실물 11-02 18:10(`chgSource`·업종ETF `source`) 미확인 · 업종 ETF 는 네이버 차트 일봉으로 교체(11-01, Yahoo 는 분배락 미수정 — 네이버는 ETF 분배금만 수정·주식 배당 미수정) · 다음 창: 장중 화면 15:30 뒤 값.
