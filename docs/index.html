@@ -3800,7 +3800,10 @@ function renderMrepBody(file, d) {
   if (badges) out.push(`<div style="margin-bottom:10px">${badges}</div>`);
 
   // 1) 지수 카드 + 한 줄
-  const idx = by('지수');
+  // 지수 띠 끝에 유가(2026-11-01 사용자 요청) — 미국 금리 칸에서는 뺐다(한 숫자 한 곳). 한국은 원/달러도 붙여 짝수 칸(폰 2열에 외톨이 칸 방지)
+  const extra = (kr ? [['KRW=X', '원/달러'], ['CL=F', 'WTI 유가']] : [['CL=F', 'WTI 유가']])
+    .map(([x, name]) => { const r = S.find(q => q.sym === x && q.chgPct != null); return r && { ...r, name }; }).filter(Boolean);
+  const idx = by('지수').concat(extra);
   const headline = sm.headline || ((d.text || '').match(/한 줄:\s*(.+)/) || [])[1];
   const krTv = (code) => (((f && f.kr) || {})[code] || {}).tradingValue조원;
   const idxCards = idx.map(r => {
@@ -3857,7 +3860,7 @@ function renderMrepBody(file, d) {
     const t2 = f.us2y && f.us2y.value != null ? `<div class="mrep-tile"><div class="muted" style="font-size:11px">2년물 · ${esc(String(f.us2y.date || '').slice(5))}</div><div class="num" style="font-size:15px;font-weight:600">${f.us2y.value}%</div><div class="num" style="font-size:12px">${mrepSign(f.us2y.chgBp, 'bp')}</div></div>` : '';
     grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 4px">금리 · 달러 · 위험</h3><div class="mrep-tiles">
       ${tile('10년물', tnx, tnx ? v(tnx.close, 3) + '%' : '', tnx ? mrepSign(tnx.chgBp, 'bp') : '')}${t2}
-      ${[['DX-Y.NYB', '달러인덱스'], ['KRW=X', '원/달러'], ['^VIX', 'VIX'], ['CL=F', 'WTI'], ['GC=F', '금'], ['BTC-USD', '비트코인'], ['EWY', 'EWY(한국)'], ['ES=F', 'S&P 선물'], ['NQ=F', '나스닥 선물']]
+      ${[['DX-Y.NYB', '달러인덱스'], ['KRW=X', '원/달러'], ['^VIX', 'VIX'], ['GC=F', '금'], ['BTC-USD', '비트코인'], ['EWY', 'EWY(한국)'], ['ES=F', 'S&P 선물'], ['NQ=F', '나스닥 선물']]
         .map(([s, l]) => { const r = sym(s); return tile(l, r, r ? v(r.close) : '', r ? mrepSign(r.chgPct, '%') : ''); }).join('')}</div>
       ${rsp && spy ? `<p style="font-size:12px;margin:10px 0 0">시장 폭: 동일가중 RSP − 시총가중 SPY = ${mrepSign(Math.round((rsp.chgPct - spy.chgPct) * 100) / 100, '%p')} <span class="muted">(양수면 고르게, 음수면 대형주 쏠림)</span></p>` : ''}</div>`);
     const ah = (f.afterHours || []).filter(a => a.regularClose != null);
