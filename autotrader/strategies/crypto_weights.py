@@ -14,6 +14,9 @@ params(프로필):
     other_weight     '기타' 묶음 비중(0~1, 기본 0) — weights 합 + other_weight ≤ 1
     other_candidates 기타 후보 코인 목록(["KRW-XRP", ...]) — **서버 프로필이 정한다**. 이 안에서만 고르고, 프로필 symbol_allowlist 에도 있어야 주문이 나간다
     other_top_n      기타에 담을 코인 수(기본 5) — 후보 중 24시간 거래대금 상위(투자유의 제외), **월 1회만 갱신**
+    other_exclude    기타에서 뺄 코인(["KRW-USDT", ...]) — 스테이블코인 등. **스테이블은 꼭 넣는다**(거래대금 1위가 되기 쉽다)
+    other_rank_days  순위·비중에 쓰는 거래대금 기간(일, 기본 1 = 24시간). 7~30 을 권고 — 24시간 값은 그날 급등한 코인이 상위를 차지한다
+    other_max_share  기타 안에서 한 코인의 최대 비중(0~1, 기본 1 = 상한 없음). 권고 0.15~0.2
     other_mode       기타 안의 비중: "equal"(균등, 기본) | "volume"(24시간 거래대금에 비례 — 선정 시점 값을 그 달 동안 고정)
                      '한 바구니'(권고): weights {} · other_weight 1.0 · other_mode "volume" — BTC·ETH 가 거래대금이 커서 자연히 큰 비중
     market           거래소 시장 이름 "UPBIT"(기본) | "BITHUMB" — 프로필 broker/markets 와 같아야 한다
@@ -79,8 +82,33 @@ def parse_params(pr: dict) -> dict:
     mode = pr.get("other_mode", "equal")
     if mode not in ("equal", "volume"):
         raise ValueError('other_mode 는 "equal" 또는 "volume"')
+    excl = pr.get("other_exclude") or []
+    if not isinstance(excl, list) or any(not _SYM.match(str(c)) for c in excl):
+        raise ValueError("other_exclude 는 KRW-XXX 목록")
+    days = int(pr.get("other_rank_days", 1))
+    if not 1 <= days <= 30:
+        raise ValueError("other_rank_days 는 1~30")
+    cap_share = float(pr.get("other_max_share", 1.0))
+    if not 0 < cap_share <= 1 or cap_share * top_n < 1 - 1e-9:
+        raise ValueError("other_max_share 는 0 초과 1 이하이고 (상한 × other_top_n) ≥ 1 이어야 한다(합이 1 이 되도록)")
     return {"weights": {str(s): float(v) for s, v in w.items()}, "capital": float(cap), "band": band, "max_order": mo,
-            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n, "mode": mode, "market": market}
+            "other": float(ow), "cands": [str(c) for c in cands], "top_n": top_n, "mode": mode, "market": market,
+            "exclude": [str(c) for c in excl], "days": days, "max_share": cap_share}
+
+
+def _cap_shares(shares: Dict[str, float], cap: float) -> Dict[str, float]:
+    """한 코인의 비중이 cap 을 넘지 않게 깎고 남는 몫을 나머지에 비례해 나눈다(합 1 유지, cap × 개수 ≥ 1 이어야 한다)."""
+    s = dict(shares)
+    for _ in range(len(s) + 1):
+        over = [c for c, v in s.items() if v > cap + 1e-12]
+        if not over:
+            break
+        fixed = {c: cap for c in over}
+        rest = [c for c in s if c not in fixed]
+        left = 1.0 - cap * len(fixed)
+        base = sum(s[c] for c in rest)
+        s = {**{c: (s[c] / base * left if base > 0 else left / len(rest)) for c in rest}, **fixed}
+    return s
 
 
 class CryptoWeights(Strategy):
@@ -197,24 +225,28 @@ class CryptoWeights(Strategy):
         조회가 실패하면 직전 목록을 유지한다."""
         month = f"{ctx.now:%Y-%m}"
         cur = st.get("other") or {}
-        cands = [c for c in p["cands"] if c not in p["weights"]]
-        if cur.get("month") == month and cur.get("shares") and cur.get("cands") == cands and cur.get("mode") == p["mode"]:
+        cands = [c for c in p["cands"] if c not in p["weights"] and c not in p["exclude"]]
+        if cur.get("month") == month and cur.get("shares") and cur.get("cands") == cands and cur.get("mode") == p["mode"] \
+                and cur.get("days") == p["days"] and cur.get("cap") == p["max_share"]:
             return dict(cur["shares"])
         try:
-            info = ctx.market_info(p["market"], cands)
+            info = ctx.market_info(p["market"], cands, p["days"])
         except Exception as e:                                        # noqa: BLE001
             ctx.notes.append(f"크립토 목표 비중: 기타 후보 시세 조회 실패({type(e).__name__}) — 직전 목록 유지")
             return dict(cur.get("shares") or {})
-        ranked = sorted((c for c in cands if c in info and not info[c].get("warning")),
-                        key=lambda c: (-float(info[c].get("value24h") or 0), c))
+        def rank(c):                                                  # days>1 이면 일평균 거래대금, 아니면 24시간 값
+            return float(info[c].get("value_avg" if p["days"] > 1 else "value24h") or 0)
+        ranked = sorted((c for c in cands if c in info and not info[c].get("warning")), key=lambda c: (-rank(c), c))
         picked = ranked[:p["top_n"]]
         if not picked:
             ctx.notes.append("크립토 목표 비중: 기타 후보 중 고를 코인이 없다(투자유의·시세 없음) — 기타 비중은 이번엔 원화로 둔다")
             return dict(cur.get("shares") or {})
-        vals = {c: float(info[c].get("value24h") or 0) for c in picked}
+        vals = {c: rank(c) for c in picked}
         tot = sum(vals.values())
         shares = {c: (vals[c] / tot if p["mode"] == "volume" and tot > 0 else 1 / len(picked)) for c in picked}
-        st["other"] = {"month": month, "symbols": picked, "shares": shares, "cands": cands, "mode": p["mode"]}
+        shares = _cap_shares(shares, p["max_share"])
+        st["other"] = {"month": month, "symbols": picked, "shares": shares, "cands": cands, "mode": p["mode"],
+                       "days": p["days"], "cap": p["max_share"]}
         log.append(f"기타 목록 갱신 {month}: " + ", ".join(f"{c[4:]} {shares[c]:.0%}" for c in picked))
         return shares
 

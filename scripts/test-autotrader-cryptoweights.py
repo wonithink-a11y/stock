@@ -235,6 +235,39 @@ def main():
     except ValueError:
         ck("other_mode 는 equal|volume 만", True)
 
+    # ---- 선정 보정: 스테이블 제외 · N일 평균 순위(그날 급등 코인 완화) · 코인별 비중 상한
+    USDT = "KRW-USDT"
+    info3 = {XRP: {"value24h": 900e9, "value_avg": 300e9, "warning": False}, SOL: {"value24h": 500e9, "value_avg": 280e9, "warning": False},
+             ADA: {"value24h": 100e9, "value_avg": 50e9, "warning": False}, DOGE: {"value24h": 9_000e9, "value_avg": 20e9, "warning": False},
+             USDT: {"value24h": 9_999e9, "value_avg": 999e9, "warning": False}}
+    c3 = [XRP, SOL, ADA, DOGE, USDT]
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_for(td, weights={}, other_weight=1.0, other_candidates=c3, other_top_n=3, other_mode="volume",
+                    other_exclude=[USDT], other_rank_days=7)
+        c["symbol_allowlist"] = c3
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes={**px2, USDT: 1_400.0}, info=info3)
+        run(c, fb, at(2), execute=False)
+        o = state(td)["other"]
+        ck("스테이블(USDT)은 거래대금 1위여도 제외, 7일 평균 순위(DOGE 24시간 폭증은 뒤로)", o["symbols"] == [XRP, SOL, ADA]
+           and USDT not in o["symbols"] and o["days"] == 7)
+    with tempfile.TemporaryDirectory() as td:
+        c = cfg_for(td, weights={}, other_weight=1.0, other_candidates=c3, other_top_n=3, other_mode="volume",
+                    other_exclude=[USDT], other_rank_days=7, other_max_share=0.4)
+        c["symbol_allowlist"] = c3
+        fb = FakeBroker(positions={"UPBIT": []}, cash={"UPBIT": 5_000_000}, quotes={**px2, USDT: 1_400.0}, info=info3)
+        run(c, fb, at(2), execute=False)
+        sh = state(td)["other"]["shares"]
+        ck("코인별 비중 상한 40%: 합 1 유지·상한 초과 없음(XRP 원래 48%)", abs(sum(sh.values()) - 1) < 1e-9 and max(sh.values()) <= 0.4 + 1e-9
+           and sh[XRP] == 0.4)
+    for bad in ({"other_rank_days": 0}, {"other_rank_days": 31}, {"other_max_share": 0.2}, {"other_max_share": 0}, {"other_exclude": ["USDT"]}):
+        try:
+            CW.parse_params({"weights": {}, "capital_krw": 1e6, "other_weight": 1, "other_candidates": ["KRW-XRP"], "other_top_n": 3, **bad})
+            ck("선정 보정 설정 오류 거부", False)
+        except ValueError:
+            ck("선정 보정 설정 오류 거부(기간 범위·상한×N<1·형식)", True)
+    ck("_cap_shares: 상한 넘는 몫을 나머지에 비례 분배(합 1)", abs(sum(CW._cap_shares({"a": 0.7, "b": 0.2, "c": 0.1}, 0.5).values()) - 1) < 1e-9
+       and CW._cap_shares({"a": 0.7, "b": 0.2, "c": 0.1}, 0.5)["a"] == 0.5)
+
     # ---- 업비트 어댑터: market_info 는 공개 API 2개(마켓 목록·시세)로 거래대금·유의를 만든다
     from autotrader import upbit as UB
     mod = UB._client_module()
@@ -267,6 +300,43 @@ def main():
        mi == {"KRW-XRP": {"value24h": 9e11, "warning": False}, "KRW-JUNK": {"value24h": 1e12, "warning": True},
               "KRW-EVT": {"value24h": 5e11, "warning": True}} and [c[1] for c in calls] == ["all", "ticker"]
        and calls[1][2] == {"markets": "KRW-XRP,KRW-JUNK,KRW-EVT,KRW-GONE"})
+
+    # ---- days>1: 일봉 평균(오늘 진행 중인 봉 제외)
+    from autotrader import bithumb as BTH
+    mod_b = BTH._client_module()
+    seen2 = []
+
+    class R2:
+        def __init__(self, d):
+            self.d = d
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return self.d
+
+    def fake2(method, url, **kw):
+        seen2.append((url.rsplit("/", 1)[-1], (kw.get("params") or {}).get("count")))
+        if url.endswith("/market/all"):
+            return R2([{"market": "KRW-XRP", "market_warning": "NONE"}])
+        if url.endswith("virtual_asset_warning"):
+            return R2([])
+        if url.endswith("/ticker"):
+            return R2([{"market": "KRW-XRP", "acc_trade_price_24h": 9e11}])
+        return R2([{"candle_acc_trade_price": 9e12}, {"candle_acc_trade_price": 100.0}, {"candle_acc_trade_price": 300.0}])
+    orig2 = mod_b._request
+    mod_b._request = fake2
+    try:
+        import time as _t
+        _sl = _t.sleep
+        _t.sleep = lambda x: None
+        mi2 = BTH.BithumbBroker(object()).market_info("BITHUMB", ["KRW-XRP"], days=2)
+    finally:
+        mod_b._request = orig2
+        _t.sleep = _sl
+    ck("market_info(days=2): 오늘 봉(첫 번째) 제외 일평균 = (100+300)/2, 일봉 count = days+1",
+       mi2["KRW-XRP"]["value_avg"] == 200.0 and ("days", 3) in seen2)
 
     print(f"\ntest-autotrader-cryptoweights {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0

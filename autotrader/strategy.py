@@ -61,9 +61,9 @@ class Context:
         """우리 주문 하나의 누적 체결(조회 전용) — 시장가 체결 수량을 확인할 때."""
         return self._broker.order_fill(order_no, market)
 
-    def market_info(self, market: str, symbols: List[str]) -> Dict[str, dict]:
-        """종목별 24시간 거래대금·투자유의(조회 전용) — 유니버스를 고를 때."""
-        return self._broker.market_info(market, symbols)
+    def market_info(self, market: str, symbols: List[str], days: int = 1) -> Dict[str, dict]:
+        """종목별 24시간 거래대금·투자유의(+ days>1 이면 최근 days 일 일평균 거래대금, 조회 전용) — 유니버스를 고를 때."""
+        return self._broker.market_info(market, symbols, days)
 
 
 _NAME = re.compile(r"^[a-z][a-z0-9_]*$")
