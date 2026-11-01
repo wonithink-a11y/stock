@@ -68,6 +68,36 @@
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
   .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  /* 마감 리포트 그림 3종(2026-11-01) */
+  .mrep-fb-legend { display: flex; justify-content: space-between; font-size: 11px; margin: -4px 72px 6px 68px; }
+  .mrep-fb-mk + .mrep-fb-mk { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .mrep-fb-h { display: flex; gap: 8px; align-items: baseline; font-size: 13px; margin-bottom: 4px; }
+  .mrep-fb-h .muted { font-size: 11px; }
+  .mrep-fb-row { display: grid; grid-template-columns: 60px 1fr 64px; gap: 8px; align-items: center; font-size: 13px; min-height: 24px; }
+  .mrep-fb-row > span:last-child { text-align: right; }
+  .mrep-fb-row.prog > span:first-child { color: var(--muted); white-space: nowrap; }
+  .mrep-fb-track { position: relative; height: 14px; }
+  .mrep-fb-base { position: absolute; left: 50%; top: -5px; bottom: -5px; width: 1px; background: #3a4560; }
+  .mrep-fb-bar { position: absolute; top: 1px; height: 12px; }
+  .mrep-fb-bar.up { background: var(--up); border-radius: 0 4px 4px 0; }
+  .mrep-fb-bar.dn { background: var(--down); border-radius: 4px 0 0 4px; }
+  .mrep-fb-row.prog .mrep-fb-bar { top: 4px; height: 6px; }   /* 프로그램은 투자자 구분과 겹치는 별도 집계 — 얇게 */
+  .mrep-tv { margin-top: 10px; }
+  .mrep-tv > summary { cursor: pointer; font-size: 12px; color: var(--muted); min-height: 28px; display: flex; align-items: center; }
+  .mrep-tm { position: relative; width: 100%; aspect-ratio: 340 / 212; }
+  .mrep-tm-c { position: absolute; border-radius: 4px; padding: 5px 6px; display: flex; flex-direction: column; gap: 1px; font-size: 12px; line-height: 1.25; overflow: hidden; }
+  .mrep-tm-c b { font-weight: 600; white-space: nowrap; }
+  .mrep-tm-key { display: flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 8px; }
+  .mrep-tm-key i { width: 72px; height: 6px; border-radius: 3px; }
+  .mrep-ts { padding: 14px 20px 12px; border-bottom: 1px solid var(--border); }
+  .mrep-ts-track { position: relative; margin: 0 12px; border-bottom: 1px solid #3a4560; }
+  .mrep-ts-sess { position: absolute; top: 0; bottom: 0; background: rgba(255, 255, 255, .05); }
+  .mrep-ts-tick { position: absolute; bottom: -4px; width: 1px; height: 4px; background: #3a4560; }
+  .mrep-ts-dot { position: absolute; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #c9d1dc; color: #0f1420; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--card); cursor: default; }
+  .mrep-ts-axis { position: relative; height: 16px; margin: 4px 12px 0; font-size: 11px; }
+  .mrep-ts-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .mrep-ts-cap { font-size: 11px; margin-top: 4px; }
+  @media (max-width: 600px) { .mrep-ts { padding: 12px 12px 10px; } .mrep-fb-row { grid-template-columns: 58px 1fr 58px; gap: 6px; } .mrep-fb-legend { margin-left: 64px; margin-right: 64px; } }
   /* 영상 요약 탭(2026-11-01 재구성) — 목록 한 장, 접힌 줄에 한 줄 요약, 채널은 가로로 밀리는 한 줄 */
   .yt-wrap { max-width: 860px; }
   .yt-chans { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 6px; scrollbar-width: none; }
@@ -3818,6 +3848,69 @@ const mrepT = (iso) => iso ? esc(String(iso).slice(5, 16).replace('T', ' ')) : '
 const MREP_CONF = { 높음: 'var(--accent)', 중간: 'var(--mid)', 낮음: 'var(--muted)', 미확정: 'var(--muted)' };
 function mrepHead(title) { return `<h3 style="font-size:14px;margin:0 0 10px">${title}</h3>`; }
 
+// ---- 마감 리포트 그림 3종(2026-11-01, dataviz 스킬: 막대는 얇게·끝만 둥글게, 0 기준선, 색은 데이터에만, 표는 '표로 보기'로 남긴다) ----
+const mrepFlowState = n => /^KRX 확정/.test(n || '') ? '확정' : '잠정';   // 메모의 '…KRX 확정치와 다를 수 있다'가 '확정'으로 읽히던 버그(10-31 발견)
+// 수급: 시장마다 투자자별 0 기준 좌우 막대(오른쪽 순매수·빨강, 왼쪽 순매도·파랑). 막대 길이는 전 시장 공통 눈금 — 1,700억이 1.6조와 같아 보이지 않게.
+function mrepFlowBars(flows) {
+  const rowsOf = v => [['외국인', v.flows억원.외국인], ['기관', v.flows억원.기관], ['개인', v.flows억원.개인]]
+    .concat(v.program억원 && v.program억원.합계 != null ? [['프로그램', v.program억원.합계]] : []);
+  const max = Math.max(1, ...flows.flatMap(([, v]) => rowsOf(v).map(([, x]) => Math.abs(x || 0))));
+  const bar = x => { const w = Math.abs(x) / max * 50;
+    return `<div class="mrep-fb-track"><i class="mrep-fb-base"></i>${x ? `<i class="mrep-fb-bar ${x > 0 ? 'up' : 'dn'}" style="${x > 0 ? 'left' : 'right'}:50%;width:max(2px,${w.toFixed(2)}%)"></i>` : ''}</div>`; };
+  const fmt = x => x == null ? '-' : `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x).toLocaleString()}`;
+  return `<div class="mrep-fb-legend muted"><span>← 순매도</span><span>억원</span><span>순매수 →</span></div>` + flows.map(([code, v]) => `
+    <div class="mrep-fb-mk"><div class="mrep-fb-h"><b>${esc(code)}</b><span class="muted">${mrepFlowState(v.note)}${/선물/.test(code) ? ' · 현물과 따로' : ''}</span></div>
+    ${rowsOf(v).map(([k, x]) => `<div class="mrep-fb-row${k === '프로그램' ? ' prog' : ''}" title="${esc(code)} ${k} ${fmt(x)}억원"><span>${k}</span>${bar(x || 0)}<span class="num ${x > 0 ? 'pos' : x < 0 ? 'neg' : 'muted'}">${fmt(x)}</span></div>`).join('')}</div>`).join('');
+}
+// 시총 상위: 칸 넓이 = 시가총액, 색 = 오늘 등락(0 은 회색, ±6% 이상이면 가장 진하게). 작은 칸은 이름을 안 쓴다(아래 표로 보기에 다 있다).
+function mrepTreemap(top) {
+  const items = top.filter(t => t.mcap조원 > 0).slice(0, 10).sort((a, b) => b.mcap조원 - a.mcap조원);
+  if (!items.length) return '';
+  const W = 340, H = 212, out = [];                      // 폰 폭 기준으로 칸 크기를 재서 글자를 넣을지 정한다(PC 는 같은 비율로 더 크다)
+  const split = (arr, x, y, w, h) => {                  // 무게를 반씩 나눠 긴 변을 자르는 단순 분할 — 10칸이면 충분히 네모에 가깝다
+    if (arr.length === 1) return out.push({ t: arr[0], x, y, w, h });
+    const tot = arr.reduce((a, t) => a + t.mcap조원, 0); let acc = 0, k = 0;
+    while (k < arr.length - 1 && acc + arr[k].mcap조원 <= tot / 2) acc += arr[k++].mcap조원;
+    if (k === 0) acc = arr[k++].mcap조원;
+    const r = acc / tot;
+    if (w >= h) { split(arr.slice(0, k), x, y, w * r, h); split(arr.slice(k), x + w * r, y, w * (1 - r), h); }
+    else { split(arr.slice(0, k), x, y, w, h * r); split(arr.slice(k), x, y + h * r, w, h * (1 - r)); }
+  };
+  split(items, 0, 0, W, H);
+  const mix = (a, b, t) => '#' + [0, 2, 4].map(i => Math.round(parseInt(a.substr(i + 1, 2), 16) * (1 - t) + parseInt(b.substr(i + 1, 2), 16) * t).toString(16).padStart(2, '0')).join('');
+  const fill = c => c == null ? '#2a3446' : mix('#2a3446', c >= 0 ? '#f2555a' : '#4c8dff', Math.min(1, Math.abs(c) / 6));
+  const ink = hex => { const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.45 ? '#0f1420' : '#ffffff'; };
+  const pct = (v, d) => (v / d * 100).toFixed(3) + '%';
+  return `<div class="mrep-tm">${out.map(({ t, x, y, w, h }) => {
+    const bg = fill(t.chgPct), name = String(t.name || ''), fitName = w - 10 >= name.length * 12.5 && h >= 38, fitPct = w >= 60 && h >= 24;
+    const chg = t.chgPct == null ? '-' : `${t.chgPct >= 0 ? '+' : '−'}${Math.abs(t.chgPct).toFixed(2)}%`;
+    return `<div class="mrep-tm-c" title="${esc(name)} ${chg} · 시총 ${t.mcap조원}조" style="left:${pct(x, W)};top:${pct(y, H)};width:calc(${pct(w, W)} - 2px);height:calc(${pct(h, H)} - 2px);background:${bg};color:${ink(bg)}">${fitName ? `<b>${esc(name)}</b>` : ''}${fitPct ? `<span class="num">${chg}</span>` : ''}</div>`;
+  }).join('')}</div><div class="mrep-tm-key muted"><span>−6%</span><i style="background:linear-gradient(90deg,#4c8dff,#2a3446 50%,#f2555a)"></i><span>+6%</span><span style="margin-left:auto">칸 넓이 = 시가총액</span></div>`;
+}
+// 근거 시각: 하루 축 위에 원인 번호 점. 한국 07~19시(정규장 음영), 미국은 그날 18시~다음 날 09시(KST, 뉴욕 정규장 음영 — 서머타임 자동).
+function mrepTimeStrip(causes, day, kr) {
+  const t0 = kr ? Date.parse(`${day}T07:00:00+09:00`) : Date.parse(`${day}T18:00:00+09:00`), span = (kr ? 12 : 15) * 3600e3;
+  const nyOff = d => { const p = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(Date.parse(`${d}T12:00:00Z`))).find(q => q.type === 'hour'); return +p.value - 12; };   // −4(서머타임) 또는 −5
+  const sess = kr ? [Date.parse(`${day}T09:00:00+09:00`), Date.parse(`${day}T15:30:00+09:00`)]
+    : [Date.parse(`${day}T09:30:00Z`) - nyOff(day) * 3600e3, Date.parse(`${day}T16:00:00Z`) - nyOff(day) * 3600e3];
+  const pos = ms => (ms - t0) / span * 100;
+  const pts = [];
+  causes.forEach((c, i) => (c.evidence || []).forEach(e => { const ms = Date.parse(String(e.timeKST || '').slice(0, 16) + ':00+09:00'); if (!isNaN(ms)) pts.push({ n: i + 1, ms, e }); }));
+  const inside = pts.filter(p => p.ms >= t0 && p.ms <= t0 + span).sort((a, b) => a.ms - b.ms);
+  if (!inside.length) return '';
+  const lanes = [];                                       // 가까운 점은 아래 줄로 — 폰 폭(약 320px)에서 점 24px 이 겹치지 않게
+  inside.forEach(p => { const x = pos(p.ms); let l = lanes.findIndex(last => x - last >= 8); if (l < 0) { l = lanes.length; lanes.push(x); } else lanes[l] = x; p.lane = l; p.x = x; });
+  const hh = ms => new Date(ms + 9 * 3600e3).toISOString().slice(11, 16);
+  const ticks = []; for (let ms = t0; ms <= t0 + span; ms += 3 * 3600e3) ticks.push(ms);
+  const H = 12 + lanes.length * 28;
+  return `<div class="mrep-ts" aria-label="근거 기사 시각">
+    <div class="mrep-ts-track" style="height:${H}px"><i class="mrep-ts-sess" style="left:${pos(sess[0]).toFixed(2)}%;width:${(pos(sess[1]) - pos(sess[0])).toFixed(2)}%"></i>
+      ${ticks.map(ms => `<i class="mrep-ts-tick" style="left:${pos(ms).toFixed(2)}%"></i>`).join('')}
+      ${inside.map(p => `<span class="mrep-ts-dot num" title="${hh(p.ms)} ${esc(p.e.source || '')} — ${esc(p.e.text || '')}" style="left:${p.x.toFixed(2)}%;top:${6 + p.lane * 28}px">${p.n}</span>`).join('')}</div>
+    <div class="mrep-ts-axis num muted">${ticks.map(ms => `<span style="left:${pos(ms).toFixed(2)}%">${hh(ms).slice(0, 2)}시</span>`).join('')}</div>
+    <div class="mrep-ts-cap muted">음영 = ${kr ? '정규장 09:00–15:30' : `뉴욕 정규장 ${hh(sess[0])}–${hh(sess[1])} KST`} · 숫자 = 아래 원인 번호${pts.length > inside.length ? ` · 축 밖 ${pts.length - inside.length}건 생략` : ''}</div></div>`;
+}
+
 function renderMrepBody(file, d) {
   // 시안(artifact LM5VtBCGSzb8f3wVjcFLoS · Report)대로: 지수+한 줄 → 원인 카드 → 업종·수급·시장 폭 → 장 마감 뒤·내일 체크
   const f = d.facts, sm = d.summary || {};
@@ -3856,7 +3949,7 @@ function renderMrepBody(file, d) {
   // 2) 왜 움직였나 — 근거 시각·반응·반론을 펼쳐 둔다
   const causes = sm.causes || [];
   out.push('<h3 style="font-size:17px;margin:6px 0 12px">왜 움직였나</h3>');
-  out.push(causes.length ? `<div class="mrep-causes">${causes.map((c, i) => `<article class="mrep-cause">
+  out.push(causes.length ? `<div class="mrep-causes">${mrepTimeStrip(causes, day, kr)}${causes.map((c, i) => `<article class="mrep-cause">
     <div class="mrep-cause-h"><span class="mrep-no num">${i + 1}</span><strong style="flex:1;font-size:15px">${esc(c.title || '')}</strong>
       <span class="mrep-conf" style="color:${MREP_CONF[c.confidence] || 'var(--muted)'}">확신 ${esc(c.confidence || '-')}</span></div>
     ${(c.evidence || []).length ? `<div class="mrep-ev">${c.evidence.map(e => `<div><span class="num muted" style="font-size:12px">${hm(e.timeKST)}</span> <span class="muted" style="font-size:12px">${esc(e.source || '')}</span>
@@ -3878,15 +3971,15 @@ function renderMrepBody(file, d) {
     const flows = mk.filter(([, v]) => v.flows억원 && v.flows억원.외국인 != null);
     const br = mk.filter(([, v]) => v.breadth);
     const flowTable = flows.length ? `<div class="table-wrap"><table class="mrep-tbl"><thead><tr><th>억원</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th></tr></thead><tbody>${flows.map(([code, v]) =>
-      `<tr><td>${esc(code).replace(/(\d)(선물)$/, '$1<wbr>$2')}<span class="mrep-sub">${/확정/.test(v.note || '') ? '확정' : '잠정'}</span></td>${['외국인', '기관', '개인'].map(k => `<td class="num">${mrepSign(v.flows억원[k])}</td>`).join('')}<td class="num">${v.program억원 && v.program억원.합계 != null ? mrepSign(v.program억원.합계) : '<span class="muted">-</span>'}</td></tr>`).join('')}</tbody></table></div>` : '';
+      `<tr><td>${esc(code).replace(/(\d)(선물)$/, '$1<wbr>$2')}<span class="mrep-sub">${mrepFlowState(v.note)}</span></td>${['외국인', '기관', '개인'].map(k => `<td class="num">${mrepSign(v.flows억원[k])}</td>`).join('')}<td class="num">${v.program억원 && v.program억원.합계 != null ? mrepSign(v.program억원.합계) : '<span class="muted">-</span>'}</td></tr>`).join('')}</tbody></table></div>` : '';
     const breadth = br.map(([code, v]) => {
       const b = v.breadth, up = (b.상승 || 0) + (b.상한 || 0), dn = (b.하락 || 0) + (b.하한 || 0), fl = b.보합 || 0, tot = up + dn + fl || 1;
       return `<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><span>${code}</span><span class="num muted" style="font-size:12px">상승 ${up.toLocaleString()}${b.상한 ? ` (상한 ${b.상한})` : ''} · 보합 ${fl} · 하락 ${dn.toLocaleString()}${b.하한 ? ` (하한 ${b.하한})` : ''}</span></div>
         <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:6px;gap:2px"><div style="width:${up / tot * 100}%;background:var(--up)"></div><div style="width:${fl / tot * 100}%;background:#3a4350"></div><div style="flex:1;background:var(--down)"></div></div></div>`;
     }).join('');
-    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">수급 · 시장 폭</h3>${flowTable || '<p class="muted" style="font-size:12px">수급 수집 안 됨</p>'}${breadth || '<p class="muted" style="font-size:12px;margin-top:10px">시장 폭 수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
+    grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 12px">수급 · 시장 폭</h3>${flowTable ? `${mrepFlowBars(flows)}<details class="mrep-tv"><summary>표로 보기</summary>${flowTable}</details>` : '<p class="muted" style="font-size:12px">수급 수집 안 됨</p>'}${breadth || '<p class="muted" style="font-size:12px;margin-top:10px">시장 폭 수집 안 됨(과거 날짜는 네이버가 당일만 준다)</p>'}</div>`);
     const top = (mk.find(([c]) => c === 'KOSPI') || [, {}])[1].topByMcap;
-    if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
+    if (top && top.length) grid.push(`<div class="card" style="margin:0"><h3 style="font-size:15px;margin:0 0 10px">KOSPI 시총 상위</h3>${mrepTreemap(top)}<details class="mrep-tv"><summary>표로 보기</summary><table class="mrep-tbl"><tbody>${top.slice(0, 10).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${mrepSign(t.chgPct, '%')}</td><td class="num muted">${t.mcap조원 ?? '-'}조</td></tr>`).join('')}</tbody></table></details><p class="muted" style="font-size:11px;margin:6px 0 0">지수 기여도 아님 — 등락률과 시총만</p></div>`);
   }
   // 3c) 미국: 금리·위험 · 대형 기술주(정규장 vs 시간외)
   if (!kr && f) {
