@@ -1147,7 +1147,9 @@ class WebApp:
         return h
 
     def _cookie(self, tok: str, max_age: int) -> str:
-        return f"{COOKIE}={tok}; HttpOnly; SameSite=Strict; Path={self.base or '/'}; Max-Age={max_age}" + ("; Secure" if self.secure_cookie else "")
+        # Lax(2026-11-01): 모니터링 화면(다른 사이트)의 링크로 들어올 때도 쿠키가 가야 로그인이 유지된다. Strict 는 그때 쿠키를 빼서
+        # 세션이 살아 있어도 로그인 화면이 떴다. 상태 변경은 전부 POST + CSRF 토큰(+지문)이고 Lax 는 다른 사이트의 POST 에 쿠키를 안 싣는다.
+        return f"{COOKIE}={tok}; HttpOnly; SameSite=Lax; Path={self.base or '/'}; Max-Age={max_age}" + ("; Secure" if self.secure_cookie else "")
 
     @staticmethod
     def _session_token(headers: Dict[str, str]) -> Optional[str]:
