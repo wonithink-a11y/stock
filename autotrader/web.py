@@ -419,13 +419,19 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
         if cfg.get("strategy") == "crypto_weights":
             cw, co = current_weights(cfg)
             wtxt = "비율 " + " · ".join([f"{n[4:]} {v * 100:.0f}" for n, v in cw.items()] + ([f"기타 {co * 100:.0f}"] if co else [])) + "%"
+        al = [x[4:] for x in (cfg.get("symbol_allowlist") or [])]               # 허용 종목 80개를 전부 찍지 않는다 — 한 줄 요약
+        if cw_:
+            n_ = len([x for x in (st.get("other") or {}).get("symbols", [])]) + len((cfg.get("params") or {}).get("weights") or {})
+            sym_txt = f"바구니 {n_}종" if n_ else f"바구니(후보 {len(al)})"
+        else:
+            sym_txt = ", ".join(al[:3]) + (f" 외 {len(al) - 3}" if len(al) > 3 else "")
         big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회 매수"}</small></div>'
         facts = "" if hide_money else (f'<div class="mut">마지막 {last_txt} · {("보유 " + str(sum(1 for q in (st.get("holdings") or {}).values() if q > 0)) + "종 · 현금 " + format(st.get("cash") or 0, ",.0f") + "원") if cw_ else ("보유 " + (E(str(pos.get("qty"))) if pos else "없음") + " · z " + (E(str(pos.get("z"))) if pos else "대기"))}</div>'
                                        f'<div class="mut">오늘 한도 {pct:.0f}% · 주문당 {float(risk.get("max_order_value") or 0):,.0f}원</div>'
                                        + (f'<div class="mut">{wtxt}</div>' if wtxt else ""))
         out.append(kill_card(cfg, csrf, base, pk, f"crypto-{xm}"))
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-<span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(",".join(cfg.get("symbol_allowlist") or []))}</span></span>
+<span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(sym_txt)}</span></span>
 <span><span class="pill">{"실전" if cfg.get("mode") == "live" else "모의"}</span><span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></span></div>
 {big}{facts}</div>
 {controls.get(name, "").replace(sc, "")}

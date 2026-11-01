@@ -293,6 +293,15 @@ def main():
         from autotrader.config import kill_file as _kf
         _kf(load_profile(main_p, "bw")).unlink(missing_ok=True)
 
+        # ---- 허용 종목을 카드 제목 옆에 길게 찍지 않는다(11-01 폰 화면에서 80개가 줄줄이 나옴)
+        many = [f"KRW-C{i:02d}" for i in range(80)]
+        (td / "profiles" / "bm.json").write_text(json.dumps({**BW, "symbol_allowlist": many, "markets": ["BITHUMB"],
+                                                             "params": {**BW["params"], "weights": {}, "other_weight": 1.0,
+                                                                        "other_candidates": many, "other_top_n": 30}}), encoding="utf-8")
+        tb2 = g("/crypto?x=BITHUMB")[2].decode()
+        ck("허용 종목 80개를 카드에 줄줄이 찍지 않고 한 줄 요약('바구니 …')", "KRW-C10,KRW-C11" not in tb2 and "바구니" in tb2)
+        (td / "profiles" / "bm.json").unlink()
+
         # ---- 킬 스위치 상태를 한눈에(2026-11-01)
         kill_file(cb).unlink(missing_ok=True)
         t0 = g("/crypto")[2].decode()
