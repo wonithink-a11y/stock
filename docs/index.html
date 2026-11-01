@@ -86,6 +86,20 @@
     #content .table-wrap > table.a5-tbl th:nth-child(2), #content .table-wrap > table.a5-tbl td:nth-child(2) {
       position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
+  /* 공시·증권사 의견 정리(2026-11-01) */
+  .disc-chips { display: flex; gap: 6px; margin: 4px 0 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }   /* 유형 15개가 폰에서 6줄을 차지해 한 줄 가로 밀기로 */
+  .disc-chips::-webkit-scrollbar { display: none; }
+  .disc-chips .chip { flex: none; }
+  .disc-chips .chip { font-size: 12px; }
+  .disc-grp > summary { list-style: none; cursor: pointer; }
+  .disc-grp > summary::-webkit-details-marker { display: none; }
+  .disc-grp[open] > summary { background: #1e2a44; }
+  .disc-in { padding-left: 14px; }
+  .op-ud { display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; margin: 0 0 4px; }
+  .op-ud .up { background: var(--up); } .op-ud .dn { background: var(--down); }
+  .op-ud-k { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+  .op-rest { margin-top: 10px; }
+  .op-rest > summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: 8px 2px; }
   /* 기관 보유(5%)·크립토 연구 목록(2026-11-01) */
   .h5-list, .cl-list { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
   .h5-it + .h5-it, .cl-it + .cl-it { border-top: 1px solid var(--border); }
@@ -629,7 +643,7 @@ const state = {
   groupFilter: 'all',
   marketIndexFilter: 'kospi',  // 코스피(기본)|kosdaq|sp500|nasdaq100 - 상단 배너
   // 공시·뉴스·시장수급 탭 전용
-  discFilter: 'all',
+  discFilter: 'high',      // 공시 탭 기본 = 투자영향 큰 유형(level high)만(2026-11-01 — 786건 중 76건)
   newsGroup: 'brief',
   flowsMarket: 'KOSPI',
   // 장중 잠정 수급(VM /market-trend) - 확정치 market_flows.json과 별개
@@ -944,8 +958,8 @@ function tradeLevelBlock(tl) {
 
 // 긴 표는 처음 LIMIT_STEP 행만 보이고 '더 보기'로 늘린다. sig(필터·정렬을 이은 문자열)가 바뀌면 처음으로 돌아간다.
 const LIMIT_STEP = 50;
-function limited(key, sig, rows) {
-  const st = state.lim[key] && state.lim[key].sig === sig ? state.lim[key] : (state.lim[key] = { sig, n: LIMIT_STEP });
+function limited(key, sig, rows, step = LIMIT_STEP) {   // step: 처음 보일 줄 수(폰에서 긴 목록은 20, 2026-11-01)
+  const st = state.lim[key] && state.lim[key].sig === sig ? state.lim[key] : (state.lim[key] = { sig, n: step, step });
   const more = rows.length > st.n
     ? `<div style="text-align:center;margin:8px 0"><button class="chip" data-more="${esc(key)}">더 보기 (${st.n}/${rows.length})</button> <button class="chip" data-more="${esc(key)}" data-all="1">전체 보기</button></div>` : '';
   return { shown: rows.slice(0, st.n), more };
@@ -1422,21 +1436,31 @@ function renderDisclosures() {
   const counts = {};
   items.forEach(i => counts[i.category] = (counts[i.category] || 0) + 1);
   const cats = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-  const filtered = state.discFilter === 'all' ? items : items.filter(i => i.category === state.discFilter);
-
-  const dl = limited('disc', state.discFilter, filtered);
+  const nHigh = items.filter(i => i.level === 'high').length;
+  const filtered = state.discFilter === 'all' ? items : state.discFilter === 'high' ? items.filter(i => i.level === 'high') : items.filter(i => i.category === state.discFilter);
+  // 같은 날 같은 회사 공시는 한 줄로 묶는다(펼치면 각 공시) — 임원 지분 보고가 한 회사에서 여러 건 이어지던 것(2026-11-01)
+  const groups = [];
+  filtered.forEach(i => { const g = groups[groups.length - 1]; if (g && g.k === i.rceptDt + '|' + i.name) g.items.push(i); else groups.push({ k: i.rceptDt + '|' + i.name, items: [i] }); });
+  const dl = limited('disc', state.discFilter, groups, 20);
+  const tag = i => i.level === 'high' ? `<span class="warn-tag">${esc(i.category)}</span>` : `<span class="group-tag">${esc(i.category)}</span>`;
+  const row = (i, inner) => `<a class="disc-row${inner ? ' disc-in' : ''}" href="${esc(i.url)}" target="_blank" rel="noopener">
+      <span class="muted num">${inner ? '' : `${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}`}</span>
+      <b>${inner ? '' : esc(i.name)}</b>
+      <span>${tag(i)}</span>
+      <span class="disc-r">${esc(i.reportNm)} <span class="muted">↗</span></span>
+    </a>`;
+  const grpHtml = g => {
+    if (g.items.length === 1) return row(g.items[0]);
+    const i0 = g.items[0], cc = {}; g.items.forEach(i => { cc[i.category] = (cc[i.category] || 0) + 1; });
+    const hi = g.items.some(i => i.level === 'high');
+    return `<details class="disc-grp"><summary class="disc-row"><span class="muted num">${esc(i0.rceptDt.slice(4, 6))}/${esc(i0.rceptDt.slice(6, 8))}</span><b>${esc(i0.name)}</b>
+      <span><span class="${hi ? 'warn-tag' : 'group-tag'}">공시 ${g.items.length}건</span></span><span class="disc-r muted">${Object.entries(cc).map(([c, n]) => `${esc(c)} ${n}`).join(' · ')} ▾</span></summary>${g.items.map(i => row(i, true)).join('')}</details>`;
+  };
   let html = `<div class="card">
     <h2>DART 공시 <span class="muted" style="font-weight:400">${esc(d.range.bgnDe)}~${esc(d.range.endDe)} · 투자영향 큰 유형만 자동 수집 · ${items.length}건</span></h2>
-    <label class="fsel" style="max-width:280px;margin-bottom:10px"><span>유형</span><select data-disc-select>
-      <option value="all"${state.discFilter === 'all' ? ' selected' : ''}>전체 (${items.length})</option>
-      ${cats.map(c => `<option value="${esc(c)}"${state.discFilter === c ? ' selected' : ''}>${esc(c)} (${counts[c]})</option>`).join('')}
-    </select></label>
-    <div class="disc-list">${dl.shown.map(i => `<a class="disc-row" href="${esc(i.url)}" target="_blank" rel="noopener">
-      <span class="muted num">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</span>
-      <b>${esc(i.name)}</b>
-      <span>${i.level === 'high' ? `<span class="warn-tag">${esc(i.category)}</span>` : `<span class="group-tag">${esc(i.category)}</span>`}</span>
-      <span class="disc-r">${esc(i.reportNm)} <span class="muted">↗</span></span>
-    </a>`).join('') || '<p class="empty">해당 유형의 공시가 없습니다</p>'}</div>${dl.more}
+    <div class="disc-chips">${[['high', `중요 ${nHigh}`], ['all', `전체 ${items.length}`]].concat(cats.map(c => [c, `${c} ${counts[c]}`])).map(([k, l]) => `<button class="chip${state.discFilter === k ? ' active' : ''}" data-disc-filter="${esc(k)}">${esc(l)}</button>`).join('')}</div>
+    <p class="muted" style="font-size:11px;margin:0 0 8px">중요 = 최대주주 변경·유상증자·메자닌 등 투자영향 큰 유형(빨간 칩) · 같은 날 같은 회사 공시는 한 줄로 묶음(누르면 펼침)</p>
+    <div class="disc-list">${dl.shown.map(grpHtml).join('') || '<p class="empty">해당 유형의 공시가 없습니다</p>'}</div>${dl.more}
   </div>`;
   return html;
 }
@@ -4166,15 +4190,21 @@ function renderOpinions() {
   const RANGES = [['day', '하루'], ['w5', '5거래일'], ['w20', '20거래일'], ['all', '전체']];
   const pct = v => v == null ? '<span class="muted">-</span>' : `<span class="${v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
   const OPC = { 매수: 'b', 중립: 'h', 매도: 's', 미제시: 'n', 기타: 'n' };
-  const { shown, more } = limited('op', [op.kind, q, span, active, op.broker, op.opn].join('|'), rows);
-  const body = shown.map(r => {
+  // 2026-11-01: '전체'에서도 목표가·의견이 바뀐 줄을 먼저(변경 폭 큰 순), 그대로·미제시·신규는 아래 접힘으로
+  const changed = r => (chgOf(r) != null && chgOf(r) !== 0) || (r.po && r.o && opnOf(r.po) !== opnOf(r.o));
+  const rowsA = rows.filter(changed).sort((p, q2) => q2.d.localeCompare(p.d) || Math.abs(chgOf(q2) || 0) - Math.abs(chgOf(p) || 0)), rowsB = rows.filter(r => !changed(r));
+  const { shown, more } = limited('op', [op.kind, q, span, active, op.broker, op.opn].join('|'), rowsA, 20);
+  const rowHtml = r => {
     const o = opnOf(r.o), po = r.po ? opnOf(r.po) : null, ch = chgOf(r);
     return `<tr>
       <td style="white-space:normal"><b>${esc(nm(r.t))}</b><br><span class="muted" style="font-size:11px">${esc(r.t)}${multi || q ? ' · ' + ymd(r.d) : ''}</span></td>
       <td><span class="op-c ${OPC[o]}" title="${esc(r.o || '')}${r.po && r.po !== r.o ? ' ← 직전 ' + esc(r.po) : ''}">${po && po !== o ? po + '→' : ''}${o}</span><br><span class="muted" style="font-size:11px">${esc(opShort(r.b))}</span></td>
       <td style="text-align:right;white-space:nowrap">${r.tp ? r.tp.toLocaleString() : '-'}${ch === null ? '' : ` <span style="font-size:11px">${pct(ch)}</span>`}<br><span class="muted" style="font-size:11px">${r.ptp && r.ptp !== r.tp ? '직전 ' + r.ptp.toLocaleString() : r.ptp ? '직전과 같음' : '직전 -'}</span></td>
-      <td class="m-hide" style="text-align:right">${pct(r.tp && r.pc ? (r.tp / r.pc - 1) * 100 : null)}</td></tr>`; }).join('');
+      <td class="m-hide" style="text-align:right">${pct(r.tp && r.pc ? (r.tp / r.pc - 1) * 100 : null)}</td></tr>`; };
+  const body = shown.map(rowHtml).join('');
+  const lb = limited('opB', [op.kind, q, span, active, op.broker, op.opn].join('|'), rowsB, 20);
   const nOp = k => rows.filter(r => opnOf(r.o) === k).length, nUp = rows.filter(r => chgOf(r) > 0).length, nDn = rows.filter(r => chgOf(r) < 0).length;
+  const updn = nUp + nDn ? `<div class="op-ud"><i class="up" style="width:${(nUp / (nUp + nDn) * 100).toFixed(1)}%"></i><i class="dn" style="flex:1"></i></div><div class="op-ud-k muted"><span class="pos">▲ 상향 ${nUp}</span><span>목표가 바꾼 ${nUp + nDn}건 중</span><span class="neg">하향 ${nDn} ▼</span></div>` : '';
   const sum = rows.length ? `<p class="muted" style="font-size:12px;margin:8px 0">${multi ? `${win.length}거래일(${ymd(win[win.length - 1])}~${ymd(win[0])})` : ymd(active)} · <b style="color:var(--text)">${rows.length}건</b> — 매수 ${nOp('매수')} · 중립 ${nOp('중립')} · 매도 ${nOp('매도')} · 미제시 ${nOp('미제시')} / 목표가 <span class="pos">상향 ${nUp}</span> · <span class="neg">하향 ${nDn}</span></p>` : '';
   const bc = {};
   d.rows.forEach(r => { bc[r.b] = (bc[r.b] || 0) + 1; });
@@ -4187,8 +4217,8 @@ function renderOpinions() {
       <select class="mrep-sel" data-op-opn aria-label="의견"><option value="">전체 의견</option>${['매수', '중립', '매도', '미제시'].map(k => `<option value="${k}"${op.opn === k ? ' selected' : ''}>${k}</option>`).join('')}</select>
     </div>
     ${q ? '' : `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${RANGES.map(([k, l]) => `<button class="chip${op.range === k ? ' active' : ''}" data-op-range="${k}">${l}</button>`).join('')}</div>`}
-    ${dayNav}${sum}
-    ${rows.length ? `<div class="table-wrap"><table class="op-tbl"><thead><tr><th>종목</th><th>의견·증권사</th><th style="text-align:right" title="% = 직전 목표가 대비 변경">목표가 · 직전</th><th class="m-hide" style="text-align:right" title="목표가 ÷ 의견 전일 종가 − 1">전일가 대비</th></tr></thead><tbody>${body}</tbody></table></div>${more}` : '<p class="muted">해당하는 의견이 없습니다.</p>'}</div>`;
+    ${dayNav}${sum}${updn}
+    ${rows.length ? `${rowsA.length ? `<div class="table-wrap"><table class="op-tbl"><thead><tr><th>종목</th><th>의견·증권사</th><th style="text-align:right" title="% = 직전 목표가 대비 변경">목표가 · 직전</th><th class="m-hide" style="text-align:right" title="목표가 ÷ 의견 전일 종가 − 1">전일가 대비</th></tr></thead><tbody>${body}</tbody></table></div>${more}` : '<p class="muted" style="font-size:12px">이 기간 목표가·의견이 바뀐 줄이 없습니다.</p>'}${rowsB.length ? `<details class="op-rest"><summary>목표가·의견 그대로 · 미제시 · 신규 ${rowsB.length}건 ▾</summary><div class="table-wrap"><table class="op-tbl"><tbody>${lb.shown.map(rowHtml).join('')}</tbody></table></div>${lb.more}</details>` : ''}` : '<p class="muted">해당하는 의견이 없습니다.</p>'}</div>`;
 }
 document.addEventListener('click', (e) => {
   const t = e.target.closest && e.target.closest('[data-op-kind],[data-op-date],[data-op-range]');
@@ -5003,7 +5033,7 @@ document.getElementById('content').addEventListener('click', (e) => {
 
   // 긴 표 더 보기
   const mb = t.closest('[data-more]');
-  if (mb) { const st = state.lim[mb.dataset.more]; if (st) st.n = mb.dataset.all ? Infinity : st.n + LIMIT_STEP; return render(); }
+  if (mb) { const st = state.lim[mb.dataset.more]; if (st) st.n = mb.dataset.all ? Infinity : st.n + (st.step || LIMIT_STEP); return render(); }
 
   // 업종 블록 접기
   const st = t.closest('[data-sector-toggle]');
@@ -5371,7 +5401,13 @@ function todayChecks() {
   const today = kstDay(Date.now()), items = [];
   const held = new Map(((state.portfolio && state.portfolio.holdings) || []).map(h => [h.ticker, h.name]));
   const recent = i => weekdaysBetween(`${i.rceptDt.slice(0, 4)}-${i.rceptDt.slice(4, 6)}-${i.rceptDt.slice(6, 8)}`, today) < 2;   // 최근 3영업일
-  ((state.disclosures && state.disclosures.items) || []).filter(i => held.has(i.ticker) && recent(i)).slice(0, 5).forEach(i =>
+  // 2026-11-01: 같은 회사 공시는 한 줄로(예: 삼성전자 임원 지분 보고가 5줄을 다 차지했다) — 2건 이상이면 유형별 건수, 누르면 공시 탭
+  const hd = ((state.disclosures && state.disclosures.items) || []).filter(i => held.has(i.ticker) && recent(i)), byCo = new Map();
+  hd.forEach(i => { if (!byCo.has(i.ticker)) byCo.set(i.ticker, []); byCo.get(i.ticker).push(i); });
+  [...byCo.values()].filter(l => l.length > 1).forEach(l => { const cc = {}; l.forEach(i => { cc[i.category] = (cc[i.category] || 0) + 1; });
+    const ds = l.map(i => i.rceptDt).sort(), dd = x => `${x.slice(4, 6)}/${x.slice(6, 8)}`;
+    items.push(`<span class="warn-tag">공시</span> <b>${esc(l[0].name)}</b> ${l.length}건 <span class="muted">${Object.entries(cc).map(([c, n]) => `${esc(c)} ${n}`).join(' · ')} · ${dd(ds[0])}${ds[0] !== ds[ds.length - 1] ? '~' + dd(ds[ds.length - 1]) : ''}</span> <a href="#" data-goto="disclosures" class="muted" style="text-decoration:none">공시 →</a>`); });
+  [...byCo.values()].filter(l => l.length === 1).map(l => l[0]).slice(0, 5).forEach(i =>
     items.push(`<span class="warn-tag">공시</span> <b>${esc(i.name)}</b> ${esc(i.category || i.reportNm)} <span class="muted">${esc(i.rceptDt.slice(4, 6))}/${esc(i.rceptDt.slice(6, 8))}</span> <a href="${esc(i.url)}" target="_blank" rel="noopener" class="muted" style="text-decoration:none">원문↗</a>`));
   ((state.events && state.events.events) || []).filter(e => e.scope === 'held' && e.date >= today && weekdaysBetween(today, e.date) < 3).forEach(e =>
     items.push(`<span class="warn-tag">일정</span> <b>${esc(e.name || '')}</b> ${esc(e.title)} <span class="muted">${e.date === today ? '오늘' : esc(e.date.slice(5).replace('-', '/'))}</span>`));
