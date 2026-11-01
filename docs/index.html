@@ -68,6 +68,24 @@
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
   .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  .rg { margin-bottom: 12px; }
+  .rg-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .rg-score { font-size: 28px; }
+  .rg-top b:nth-child(2) { font-size: 16px; }
+  .rg-bar { position: relative; height: 10px; margin: 10px 8px 0; }
+  .rg-bar i { position: absolute; top: 0; bottom: 0; background: currentColor; opacity: .35; }
+  .rg-bar i:first-child { border-radius: 5px 0 0 5px; } .rg-bar i:nth-last-child(2) { border-radius: 0 5px 5px 0; }
+  .rg-dot { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #e6ebf5; box-shadow: 0 0 0 3px var(--card); }
+  .rg-lab { position: relative; height: 16px; margin: 6px 8px 0; font-size: 11px; }
+  .rg-lab span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .grade-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 11px; margin: 0 0 8px; }
+  .grade-key i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 3px; }
+  @media (max-width: 600px) {
+    /* 옆으로 미는 표: 이름 칸을 고정(폭은 화면 40%까지, 넘치면 …). A5 표는 첫 칸이 순위라 둘째 칸(종목)을 고정 */
+    #content .table-wrap > table:not(.a5-tbl) th:first-child, #content .table-wrap > table:not(.a5-tbl) td:first-child,
+    #content .table-wrap > table.a5-tbl th:nth-child(2), #content .table-wrap > table.a5-tbl td:nth-child(2) {
+      position: sticky; left: 0; z-index: 1; background: var(--card); box-shadow: 1px 0 0 var(--border); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
   /* 종목 상세 차트·해독 탭(2026-11-01) */
   .ch-rets { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
   .ch-ret { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); font-size: 11px; }
@@ -418,7 +436,8 @@
   .scd-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
              padding: 18px; width: 100%; max-width: 740px; margin: auto; }
 
-  .summary-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .summary-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 104px), 1fr)); gap: 0 !important; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }   /* 2026-11-01: 상자 → 선으로 나눈 띠 */
+  .summary-strip .stat { background: transparent; border: 0; border-radius: 0; box-shadow: 1px 0 0 var(--border), 0 1px 0 var(--border); display: flex; flex-direction: column; gap: 1px; min-width: 0; }   /* 값과 변화를 각자 한 줄 — 좁은 칸에서 '+0.37%p-0.01%p'처럼 붙어 꺾이던 것 */
   .stat { background: #131a29; border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; }
   .stat .k { color: var(--muted); font-size: 11px; display: block; }
   .stat .v { font-size: 17px; font-weight: 700; }
@@ -1090,8 +1109,9 @@ function renderScores() {
     ${unmapped ? `<div class="stat"><span class="k">업종 미분류</span><span class="v" style="color:var(--bad)">${unmapped}</span></div>` : ''}
   </div>`;
 
+  const gradeKey_ = state.viewMode === 'sector' ? `<div class="grade-key muted">등급 분포 색 ${['A', 'B', 'C', 'D', 'E', 'H'].map(k => `<span><i class="d-${k}"></i>${k === 'H' ? '유보' : k}</span>`).join('')}</div>` : '';
   const body = state.viewMode === 'sector'
-    ? renderSectorView(filtered)
+    ? gradeKey_ + renderSectorView(filtered)
     : (filtered.length ? tableFor(sortRows(filtered), 'list') : '<div class="empty">조건에 맞는 종목이 없습니다.</div>');
 
   const uni = d.universeVersion ? ` · 유니버스 ${esc(d.universeVersion)}(${d.universeSize ?? all.length}종목)` : '';
@@ -5294,6 +5314,7 @@ function todayTop() {
   </div>`;
 }
 const TODAY_MACRO = ['vix', 'yieldcurve', 'hyspread', 'usdkrw', 'us10y', 'kospi'];
+const REGIME_BANDS = [{ k: 'risk', ko: '위험', min: 0 }, { k: 'caution', ko: '주의', min: 25 }, { k: 'neutral', ko: '중립', min: 45 }, { k: 'favorable', ko: '우호', min: 70 }];   // = config/marketRegime.json regimeGrades.min
 // 홈 맨 위 '오늘 확인할 것' — 흩어진 카드에서 내 보유 종목 공시·일정과 데이터 지연만 한 장으로 모은다(2026-10-20).
 const kstDay = iso => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
 // ponytail: 주말만 뺀다 — 공휴일 뒤 첫날은 '지연'으로 잘못 뜰 수 있다. 자주 틀리면 events.json 휴장일을 쓴다.
@@ -5332,9 +5353,14 @@ function renderToday() {
       const c = (it.changes || {}).d1, unit = it.changeUnit || '%';
       return `<div class="stat"><span class="k">${esc(MACRO_LABELS[it.key] || it.key)}</span><span class="v" style="font-size:16px">${esc(it.display != null ? it.display : it.value)}</span>${c == null ? '' : `<span class="${c >= 0 ? 'pos' : 'neg'}" style="font-size:11px">${c >= 0 ? '+' : ''}${c}${unit}</span>`}</div>`;
     }).join('');
+    // 2026-11-01: 숫자 하나(58.5)·영어 등급(neutral) → 0~100 구간 막대 위 점. 구간 경계는 config/marketRegime.json regimeGrades 의 min
+    // (scripts/test-glance-calc.js 가 REGIME_BANDS 와 그 파일이 같은지 검사한다). 등급·점수는 regime.json 그대로 — 막대는 그림일 뿐.
+    const band = rg && REGIME_BANDS.find(b => b.k === rg.grade);
     regimeCard = card('시장 국면', 'regime', '국면·매크로',
-      `${rg ? `<div class="regime" style="margin-bottom:10px"><span class="score regime-${rg.grade}">${rg.score}</span>
-        <div><div><strong>${esc(rg.grade)}</strong> <span class="muted">(한국 시장 기준)</span></div><div class="muted">${esc(rg.action)}</div></div></div>` : ''}
+      `${rg ? `<div class="rg"><div class="rg-top"><b class="rg-score num regime-${esc(rg.grade)}">${rg.score ?? '-'}</b><b class="regime-${esc(rg.grade)}">${esc(band ? band.ko : rg.grade)}</b><span class="muted">한국 시장 기준</span></div>
+        <div class="rg-bar">${REGIME_BANDS.map((b, i) => `<i class="regime-${b.k}" style="left:${b.min}%;width:${(REGIME_BANDS[i + 1] ? REGIME_BANDS[i + 1].min : 100) - b.min}%"></i>`).join('')}${rg.score != null ? `<span class="rg-dot" style="left:${Math.max(0, Math.min(100, rg.score))}%"></span>` : ''}</div>
+        <div class="rg-lab muted">${REGIME_BANDS.map((b, i) => `<span style="left:${(b.min + (REGIME_BANDS[i + 1] ? REGIME_BANDS[i + 1].min : 100)) / 2}%">${b.ko}</span>`).join('')}</div>
+        <div class="muted" style="font-size:12px;margin-top:6px">${esc(rg.action)}</div></div>` : ''}
        <div class="summary-strip" style="margin:0">${macro}</div>`);
   }
 
