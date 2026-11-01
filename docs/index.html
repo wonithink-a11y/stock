@@ -68,6 +68,42 @@
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
   .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  /* 영상 요약 탭(2026-11-01 재구성) — 목록 한 장, 접힌 줄에 한 줄 요약, 채널은 가로로 밀리는 한 줄 */
+  .yt-wrap { max-width: 860px; }
+  .yt-chans { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 6px; scrollbar-width: none; }
+  .yt-chans::-webkit-scrollbar { display: none; }
+  .yt-chans button { flex: none; min-height: 36px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: #c9d1dc; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .yt-chans button .num { color: var(--muted); margin-left: 2px; }
+  .yt-chans button.on { background: #1e2a44; border-color: #3a4a6a; color: var(--text); font-weight: 600; }
+  .yt-day { font-size: 13px; color: var(--muted); font-weight: 600; margin: 18px 0 8px; }
+  .yt-list { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .yt-item + .yt-item { border-top: 1px solid var(--border); }
+  .yt-item > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .yt-item > summary::-webkit-details-marker { display: none; }
+  .yt-item[open] > summary { padding-bottom: 6px; }
+  .yt-meta { display: flex; gap: 8px; font-size: 12px; color: var(--muted); }
+  .yt-meta span:first-child { color: #9fb6dd; font-weight: 600; }
+  .yt-chev { margin-left: auto; font-size: 18px; line-height: 12px; transition: transform .15s; }   /* 펼침 표시 — 접힌 줄도 누를 수 있다는 걸 보여 준다 */
+  .yt-item[open] .yt-chev { transform: rotate(90deg); }
+  .yt-title { font-size: 15px; font-weight: 600; line-height: 1.45; }
+  .yt-head { font-size: 14px; line-height: 1.55; color: #c9d1dc; }
+  .yt-item:not([open]) .yt-head { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .yt-body { padding: 0 16px 14px; }
+  .yt-h { font-size: 13px; color: var(--muted); font-weight: 600; margin: 14px 0 6px; }
+  .yt-ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; font-size: 14px; line-height: 1.6; }
+  .yt-brief li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .yt-p { margin: 8px 0 0; font-size: 14px; line-height: 1.7; }
+  .yt-kv { display: grid; grid-template-columns: minmax(80px, max-content) 1fr; gap: 6px 14px; font-size: 14px; line-height: 1.5; }
+  .yt-kv b { font-weight: 600; }
+  .yt-kv span { color: #c9d1dc; }
+  .yt-nums { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .yt-nums li { font-size: 13px; padding: 3px 10px; border: 1px solid var(--border); border-radius: 6px; font-variant-numeric: tabular-nums; }
+  .yt-more { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .yt-more > summary { cursor: pointer; font-size: 13px; color: var(--accent); min-height: 32px; display: flex; align-items: center; }
+  .yt-note { margin: 14px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .yt-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; font-size: 13px; }
+  .yt-foot .muted { font-size: 11px; }
+  @media (max-width: 600px) { .yt-item > summary { padding: 12px; } .yt-body { padding: 0 12px 12px; } .yt-kv { grid-template-columns: 1fr; gap: 2px; } .yt-kv span { margin-bottom: 6px; } }
   .mrep-chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #26324a; }   /* 마감 리포트는 안 쓰지만 영상 요약·종목 리포트가 쓴다 */
   @media (max-width: 600px) {
     /* 폰: 한 화면에 더 많이(2026-10-14 사용자 요청) — 날짜·시장 선택을 한 줄로(제목은 드롭다운·탭과 겹쳐 숨김), 카드·글자 축소 */
@@ -3947,7 +3983,7 @@ document.addEventListener('click', (e) => {
 // VM yt-digest 가 오선의 미국 증시·매경 라이브·소수몽키·매경 월가월부 새 영상을 Gemini 로 요약해 쌓는다. 남의 콘텐츠 요약이라 저장소엔 없고,
 // VM /yt 에서 키(X-Pin-Key — '내 관심종목' 동기화와 같은 키)로만 받는다. 맥락 전용 — 점수·매매 불사용.
 const YT_URL = 'https://wonithink-stock.duckdns.org/yt';
-const yt = { data: null, err: null, ch: '전체', open: {}, at: 0, loading: false };
+const yt = { data: null, err: null, ch: '전체', open: {}, more: {}, at: 0, loading: false };
 function ytLoad() {
   if (yt.loading) return;
   yt.loading = true;
@@ -3968,32 +4004,40 @@ function renderYt() {
   if (yt.data === null) return '<div class="card empty">불러오는 중…</div>';
   if (yt.err && !yt.data.length) return `<div class="card empty">${yt.err === 401 ? '키가 맞지 않습니다. 텔레그램의 동기화 링크를 다시 여세요.' : '불러오지 못했습니다(' + esc(String(yt.err)) + '). 잠시 뒤 다시 열어 보세요.'}</div>`;
   const chans = ['전체', ...new Set(yt.data.map(x => x.channel))];
+  const cnt = c => c === '전체' ? yt.data.length : yt.data.filter(x => x.channel === c).length;
   const items = yt.data.filter(x => yt.ch === '전체' || x.channel === yt.ch).sort((a, b) => b.published.localeCompare(a.published));
   if (!items.length) return '<div class="card empty">아직 요약이 없습니다. 새 영상이 올라오면 20분 안에 생깁니다.</div>';
+  // 2026-11-01 재구성(사용자 요청 '보기 편하게'): 접힌 줄에 채널·시각·제목·한 줄 요약 → 펼치면 핵심·언급 종목·숫자 →
+  // 전체 요약·구간별 정리는 '자세히'로 한 번 더 접는다(90분 라이브는 구간 15개라 화면이 끝없이 길어졌다).
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), yday = new Date(Date.now() - 15 * 3600e3).toISOString().slice(0, 10);
+  const dayLabel = d => `${d.slice(5)}(${'일월화수목금토'[new Date(d + 'T12:00:00').getDay()]})${d === today ? ' · 오늘' : d === yday ? ' · 어제' : ''}`;
   const li = (a) => (a || []).map(p => `<li>${esc(p)}</li>`).join('');
   let day = '', html = '';
   items.forEach((x, i) => {
     const d = x.published.slice(0, 10);
-    if (d !== day) { day = d; html += `<h3 style="margin:18px 0 8px">${esc(d.slice(5))}</h3>`; }
-    const s = x.digest || {};
-    const open = yt.open[x.id] ?? i === 0;
-    html += `<details class="card" data-ytid="${esc(x.id)}"${open ? ' open' : ''} style="margin-bottom:10px">
-      <summary style="cursor:pointer"><span class="mrep-chip">${esc(x.channel)}</span> <span class="muted" style="font-size:12px">${esc(x.published.slice(11, 16))}</span><br><b>${esc(x.title)}</b></summary>
-      <p style="font-weight:600;margin:12px 0 6px">${esc(s.headline || '')}</p>
-      ${(s.brief || []).length ? `<ul style="margin:0 0 10px;padding-left:20px;line-height:1.6">${li(s.brief)}</ul>` : ''}
-      <h4 style="margin:12px 0 4px">전체 요약</h4>
-      <p style="margin:0 0 10px;line-height:1.6">${esc(s.summary || '')}</p>
-      ${(s.sections || []).map(sec => `<h4 style="margin:12px 0 4px">${esc(sec.title)}</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${li(sec.points)}</ul>`).join('')}
-      ${(s.mentioned || []).length ? `<h4 style="margin:12px 0 4px">언급 종목·자산</h4><ul style="margin:0;padding-left:20px;line-height:1.6">${s.mentioned.map(m => `<li><b>${esc(m.name)}</b> — ${esc(m.view)}</li>`).join('')}</ul>` : ''}
-      ${(s.numbers || []).length ? `<h4 style="margin:12px 0 4px">나온 숫자</h4><ul style="margin:0;padding-left:20px">${li(s.numbers)}</ul>` : ''}
-      ${(s.caveats || []).length ? `<h4 style="margin:12px 0 4px">유의</h4><ul style="margin:0;padding-left:20px">${li(s.caveats)}</ul>` : ''}
-      <p class="muted" style="font-size:12px;margin:12px 0 0"><a href="${esc(x.url)}" target="_blank" rel="noopener">영상 보기 ↗</a> · ${esc(x.model || '')} 요약</p>
-    </details>`;
+    if (d !== day) { html += `${day ? '</div>' : ''}<h3 class="yt-day">${esc(dayLabel(d))}</h3><div class="yt-list">`; day = d; }
+    const s = x.digest || {}, secs = s.sections || [];
+    const open = yt.open[x.id] ?? (i === 0 && !yt.focus);
+    const more = (s.summary || secs.length) ? `<details class="yt-more" data-ytmore="${esc(x.id)}"${yt.more[x.id] ? ' open' : ''}><summary>자세히 — 전체 요약${secs.length ? ` · 구간별 정리 ${secs.length}개` : ''}</summary>
+        ${s.summary ? `<p class="yt-p">${esc(s.summary)}</p>` : ''}
+        ${secs.map(sec => `<h4 class="yt-h">${esc(sec.title)}</h4><ul class="yt-ul">${li(sec.points)}</ul>`).join('')}</details>` : '';
+    html += `<details class="yt-item" data-ytid="${esc(x.id)}"${open ? ' open' : ''}>
+      <summary><div class="yt-meta"><span>${esc(x.channel)}</span><span class="num">${esc(x.published.slice(11, 16))}</span><span class="yt-chev" aria-hidden="true">›</span></div>
+        <div class="yt-title">${esc(x.title)}</div>${s.headline ? `<div class="yt-head">${esc(s.headline)}</div>` : ''}</summary>
+      <div class="yt-body">
+      ${(s.brief || []).length ? `<h4 class="yt-h">핵심</h4><ol class="yt-ul yt-brief">${li(s.brief)}</ol>` : ''}
+      ${(s.mentioned || []).length ? `<h4 class="yt-h">언급 종목·자산</h4><div class="yt-kv">${s.mentioned.map(m => `<b>${esc(m.name)}</b><span>${esc(m.view)}</span>`).join('')}</div>` : ''}
+      ${(s.numbers || []).length ? `<h4 class="yt-h">나온 숫자</h4><ul class="yt-nums">${li(s.numbers)}</ul>` : ''}
+      ${more}
+      ${(s.caveats || []).length ? `<p class="yt-note">유의 · ${s.caveats.map(esc).join(' · ')}</p>` : ''}
+      <div class="yt-foot"><a href="${esc(x.url)}" target="_blank" rel="noopener">영상 보기 ↗</a><span class="muted">${esc(x.model || '')} 요약</span></div>
+      </div></details>`;
   });
-  return `<div class="mrep-tabs" style="flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="채널">${chans.map(c => `<button role="tab" aria-selected="${yt.ch === c}" class="${yt.ch === c ? 'on' : ''}" data-ytch="${esc(c)}">${esc(c)}</button>`).join('')}</div>${html}
-    <p class="muted" style="font-size:11px">AI(Gemini)가 영상을 듣고 정리한 글이라 틀린 곳이 있을 수 있습니다. 중요한 숫자는 영상에서 확인하세요. 시황 정리이며 매매 권유가 아닙니다.</p>`;
+  html += '</div>';
+  return `<div class="yt-wrap"><div class="yt-chans" role="tablist" aria-label="채널">${chans.map(c => `<button role="tab" aria-selected="${yt.ch === c}" class="${yt.ch === c ? 'on' : ''}" data-ytch="${esc(c)}">${esc(c)} <span class="num">${cnt(c)}</span></button>`).join('')}</div>${html}
+    <p class="muted" style="font-size:11px;margin-top:14px">AI(Gemini)가 영상을 듣고 정리한 글이라 틀린 곳이 있을 수 있습니다. 중요한 숫자는 영상에서 확인하세요. 시황 정리이며 매매 권유가 아닙니다.</p></div>`;
 }
-document.addEventListener('toggle', (e) => { const id = e.target.dataset && e.target.dataset.ytid; if (id) yt.open[id] = e.target.open; }, true);
+document.addEventListener('toggle', (e) => { const ds = e.target.dataset || {}; if (ds.ytid) yt.open[ds.ytid] = e.target.open; if (ds.ytmore) yt.more[ds.ytmore] = e.target.open; }, true);
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('[data-ytch]');
   if (b) { yt.ch = b.dataset.ytch; render(); }
