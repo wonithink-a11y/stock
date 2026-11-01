@@ -68,6 +68,41 @@
   .mrep-tbl th, .mrep-tbl td { text-align: right; padding: 8px 6px; font-size: 13px; }
   .mrep-tbl th:first-child, .mrep-tbl td:first-child { text-align: left; white-space: normal; }   /* 이름 칸만 줄바꿈 허용(KOSPI200·선물) — 숫자 칸은 한 줄 */
   .mrep-tile { padding: 8px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+  /* 종목 상세 '한눈에' 탭(2026-11-01) */
+  .gl-sec { padding: 12px 0; border-top: 1px solid var(--border); }
+  .gl-sec:first-child { border-top: 0; padding-top: 0; }
+  .gl-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 8px; font-size: 15px; }
+  .gl-h .muted { font-size: 11px; }
+  .gl-grade { display: inline-block; min-width: 22px; text-align: center; padding: 0 6px; border-radius: 5px; background: #26324a; font-size: 13px; }
+  .gl-row { display: grid; grid-template-columns: 64px 1fr 52px; gap: 8px; align-items: center; font-size: 13px; min-height: 26px; }
+  .gl-row > span:last-child { text-align: right; }
+  .gl-track { position: relative; height: 10px; background: #131a29; border-radius: 5px; }
+  .gl-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #8fa8d6; border-radius: 0 4px 4px 0; }
+  .gl-med { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #e6ebf5; border-radius: 1px; }
+  .gl-dv { background: transparent; height: 12px; }
+  .gl-base { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 1px; background: #3a4560; }
+  .gl-bar { position: absolute; top: 0; bottom: 0; }
+  .gl-bar.up { background: var(--up); border-radius: 0 4px 4px 0; }
+  .gl-bar.dn { background: var(--down); border-radius: 4px 0 0 4px; }
+  .gl-mk { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; background: #9aa3b5; border-radius: 1px; box-shadow: 0 0 0 1px var(--card); }
+  .gl-cap { font-size: 11px; margin: 12px 0 4px; }
+  .gl-trust-bar { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; }
+  .gl-trust-key, .gl-tg-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; margin-top: 6px; }
+  .gl-trust-key i, .gl-tg-key i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+  .gl-52 { margin: 4px 0 12px; }
+  .gl-52-track, .gl-pbr-track { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #2a3446, #3a4560); margin: 10px 8px 0; }
+  .gl-52-dot { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #e6ebf5; box-shadow: 0 0 0 3px var(--card); }
+  .gl-52-lab { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; margin-top: 8px; }
+  .gl-52-lab b { font-size: 14px; }
+  .gl-sub { font-size: 13px; }
+  .gl-tg { position: relative; height: 22px; margin: 8px 8px 0; }
+  .gl-tg::before { content: ''; position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: #2a3446; }
+  .gl-tg-rng { position: absolute; top: 6px; height: 10px; background: #3a4a6a; border-radius: 5px; }
+  .gl-tg-med { position: absolute; top: 4px; width: 12px; height: 12px; margin-left: -6px; transform: rotate(45deg); background: #c9d1dc; }
+  .gl-tg-px { position: absolute; top: 3px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #e6ebf5; box-shadow: 0 0 0 3px var(--card); }
+  .gl-tg-key .k-px { border-radius: 50%; background: #e6ebf5; }
+  .gl-tg-key .k-med { transform: rotate(45deg); background: #c9d1dc; }
+  .gl-empty { font-size: 12px; margin: 0; }
   /* 마감 리포트 그림 3종(2026-11-01) */
   .mrep-fb-legend { display: flex; justify-content: space-between; font-size: 11px; margin: -4px 72px 6px 68px; }
   .mrep-fb-mk + .mrep-fb-mk { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
@@ -1723,7 +1758,7 @@ function ensureFlows() {
 }
 
 function openStockDetail(ticker, name, vtab) {
-  state.detail = { open: true, ticker, name, market: state.detail.market, vtab: vtab || 'chart', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
+  state.detail = { open: true, ticker, name, market: state.detail.market, vtab: vtab || 'glance', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
   ensurePrices();
   render();
 }
@@ -1893,12 +1928,98 @@ function modalShell(dt, inner) {
   </div>`;
 }
 
+// ---------- 종목 상세 '한눈에' 탭(2026-11-01 사용자 요청: 해독 탭이 글자 1,500자·폰 3화면이라 한눈에 안 보인다) ----------
+// 1단계: ① 점수 막대(범주별 + 국내 중앙값 눈금 + 근거 신뢰도 띠) ② 가격 위치(52주 범위 점 + 기간 수익률 vs 국내 종목 중앙값) ③ 밸류(PBR 위치 + 증권사 목표가 범위).
+// 숫자는 해독 탭과 같은 계산(decodeCompute)을 다시 쓴다 — 같은 종목이면 두 탭 숫자가 같다. 관찰용 — 매수·매도 신호가 아니다(절대 규칙 1).
+const GL_WINS = [['1주', 5], ['1개월', 20], ['3개월', 60], ['6개월', 120]];
+let glMktMed = null;   // 국내 종목 기간 수익률 중앙값(prices.json 전체) — 한 번만 계산
+function glMarketMedians() {
+  if (glMktMed || !state.prices || !state.prices.byTicker) return glMktMed;
+  const recs = Object.values(state.prices.byTicker).filter(x => x.market === 'KR' && x.c && x.c.length > 120);
+  const med = a => { const b = a.filter(v => v != null && isFinite(v)).sort((x, y) => x - y); return b.length ? b[Math.floor(b.length / 2)] : null; };
+  glMktMed = { n: recs.length, by: Object.fromEntries(GL_WINS.map(([l, k]) => [l, med(recs.map(x => retN(x.c, k)))])) };
+  return glMktMed;
+}
+const glSec = (title, sub, body) => `<section class="gl-sec"><div class="gl-h"><b>${title}</b>${sub ? `<span class="muted">${sub}</span>` : ''}</div>${body}</section>`;
+const glPct = v => v == null ? '-' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}%`;
+function glScore(r) {
+  if (!r) return glSec('① 점수', '', '<p class="muted gl-empty">이 종목은 점수 대상(latest.json)에 없습니다.</p>');
+  const results = ((state.latest && state.latest.results) || []).filter(x => x.market === r.market);
+  const med = k => { const a = results.map(x => ((x.breakdown || {})[k] || {}).score).filter(v => v != null).sort((x, y) => x - y); return a.length ? a[Math.floor(a.length / 2)] : null; };
+  const rows = DECODE_CATS.map(([k, label]) => {
+    const sc = ((r.breakdown || {})[k] || {}).score, m = med(k);
+    return `<div class="gl-row"><span>${label === '밸류에이션' ? '밸류' : label}</span><div class="gl-track">${sc == null ? '' : `<i class="gl-fill" style="width:${Math.max(0, Math.min(100, sc)).toFixed(1)}%"></i>`}${m == null ? '' : `<i class="gl-med" style="left:${m.toFixed(1)}%" title="${r.market === 'KR' ? '국내' : '미국'} 중앙값 ${m.toFixed(0)}"></i>`}</div><span class="num">${sc == null ? '<span class="muted">−</span>' : sc.toFixed(0)}</span></div>`;
+  }).join('');
+  let trust = '<p class="muted gl-empty" style="margin:8px 0 0">근거 기준표 불러오는 중…</p>';
+  if (state.decodeRefs) {
+    const c = decodeCompute(r), v = c.validatedShare, j = c.rejectedShare;
+    trust = v == null ? '' : `<div class="gl-trust"><div class="gl-trust-bar"><i style="width:${(v * 100).toFixed(1)}%;background:#22c55e"></i><i style="width:${((1 - v - (j || 0)) * 100).toFixed(1)}%;background:#6b7280"></i><i style="width:${((j || 0) * 100).toFixed(1)}%;background:#ef4444"></i></div>
+      <div class="gl-trust-key muted"><span><i style="background:#22c55e"></i>검증 ${Math.round(v * 100)}%</span><span><i style="background:#6b7280"></i>미검증 ${Math.round((1 - v - (j || 0)) * 100)}%</span><span><i style="background:#ef4444"></i>기각 ${Math.round((j || 0) * 100)}%</span>${r.market !== 'KR' ? '<span>미국은 검증 연구 없음</span>' : ''}</div></div>`;
+  }
+  const grade = String(r.grade || '').slice(0, 1);
+  return glSec(`① 점수 <span class="gl-grade">${esc(grade || '-')}</span> <span class="num">${r.totalScore ?? '-'}</span>`, '막대 0~100 · 흰 눈금 = 전체 중앙값',
+    rows + `<div class="gl-cap muted">점수가 어떤 근거에서 나왔나</div>` + trust);
+}
+function glPrice(dt, r) {
+  const rec = state.prices && state.prices.byTicker && state.prices.byTicker[dt.ticker];
+  if (!rec || !rec.c || rec.c.length < 2) return glSec('② 가격 위치', '', `<p class="muted gl-empty">${state.prices ? '주가 시계열이 없습니다.' : '불러오는 중…'}</p>`);
+  const px = rec.c[rec.c.length - 1], w = ((state.stockContext || {}).week52 || {})[dt.ticker];
+  const hi = w && w.high ? w.high : Math.max(...rec.h.filter(Boolean)), lo = w && w.low ? w.low : Math.min(...rec.l.filter(Boolean));
+  const pos = hi > lo ? Math.max(0, Math.min(1, (px - lo) / (hi - lo))) : null;
+  const money = v => rec.market === 'US' ? '$' + fmtNum(v) : fmtNum(v);
+  const range = pos == null ? '' : `<div class="gl-52"><div class="gl-52-track"><i class="gl-52-dot" style="left:${(pos * 100).toFixed(1)}%"></i></div>
+    <div class="gl-52-lab num"><span class="muted">저가 ${money(lo)}</span><b>${Math.round(pos * 100)}%</b><span class="muted">고가 ${money(hi)}</span></div></div>`;
+  const mm = rec.market === 'KR' ? glMarketMedians() : null;
+  const vals = GL_WINS.map(([l, k]) => ({ l, v: retN(rec.c, k), m: mm ? mm.by[l] : null }));
+  const max = Math.max(5, ...vals.flatMap(x => [Math.abs(x.v || 0), Math.abs(x.m || 0)]));
+  const X = v => 50 + v / max * 50;
+  const bars = vals.map(({ l, v, m }) => `<div class="gl-row"><span>${l}</span><div class="gl-track gl-dv"><i class="gl-base"></i>${v == null ? '' : `<i class="gl-bar ${v >= 0 ? 'up' : 'dn'}" style="${v >= 0 ? 'left' : 'right'}:50%;width:${(Math.abs(v) / max * 50).toFixed(1)}%"></i>`}${m == null ? '' : `<i class="gl-mk" style="left:${X(m).toFixed(1)}%" title="국내 중앙값 ${glPct(m)}"></i>`}</div><span class="num ${v > 0 ? 'pos' : v < 0 ? 'neg' : 'muted'}">${glPct(v)}</span></div>`).join('');
+  return glSec('② 가격 위치', `52주 범위 안 지금 자리${mm ? ' · 회색 눈금 = 국내 ' + mm.n + '종목 중앙값' : ''}`, range + bars);
+}
+function glValue(dt, r) {
+  const parts = [];
+  if (r && state.decodeRefs) {
+    const c = decodeCompute(r);
+    if (c.pbrPct != null) parts.push(`<div class="gl-sub">PBR <b class="num">${c.mine.toFixed(2)}배</b> <span class="muted">· ${c.poolN}종목 중 위치</span></div>
+      <div class="gl-pbr"><div class="gl-pbr-track"><i class="gl-52-dot" style="left:${(c.pbrPct * 100).toFixed(1)}%"></i></div><div class="gl-52-lab muted"><span>싼 쪽</span><span class="num">${c.pbrPct < 0.5 ? `싼 쪽 ${Math.round(c.pbrPct * 100) + 1}%` : `비싼 쪽 ${Math.round((1 - c.pbrPct) * 100)}%`}</span><span>비싼 쪽</span></div></div>`);
+  }
+  const T = (state.stockContext || {})[dt.market === 'US' || (r && r.market === 'US') ? 'usTargets' : 'targets'], t = T && T.byTicker && T.byTicker[dt.ticker];
+  const rec = state.prices && state.prices.byTicker && state.prices.byTicker[dt.ticker], px = rec && rec.c ? rec.c[rec.c.length - 1] : r && r.currentPrice;
+  if (t && t.status === 'ok' && t.min != null && t.max != null && px) {
+    const lo = Math.min(t.min, px) * 0.95, hi = Math.max(t.max, px) * 1.05, X = v => ((v - lo) / (hi - lo) * 100).toFixed(1);
+    const up = t.median / px - 1;
+    parts.push(`<div class="gl-sub" style="margin-top:14px">증권사 목표가 <span class="muted">· ${t.brokers}곳 · 맥락 전용</span></div>
+      <div class="gl-tg"><i class="gl-tg-rng" style="left:${X(t.min)}%;width:${(X(t.max) - X(t.min)).toFixed(1)}%"></i><i class="gl-tg-med" style="left:${X(t.median)}%" title="중앙 ${fmtNum(t.median)}"></i><i class="gl-tg-px" style="left:${X(px)}%" title="현재 ${fmtNum(px)}"></i></div>
+      <div class="gl-tg-key muted num"><span><i class="k-px"></i>현재 ${fmtNum(px)}</span><span><i class="k-med"></i>중앙 ${fmtNum(t.median)} (${glPct(up * 100)})</span><span>범위 ${fmtNum(t.min)}~${fmtNum(t.max)}</span></div>`);
+  }
+  if (!parts.length) return '';
+  return glSec('③ 비싼가 · 남들이 보는 값', '', parts.join(''));
+}
+function renderGlanceTab(dt) {
+  ensureDecodeRefs(); ensurePrices();
+  const r = ((state.latest && state.latest.results) || []).find(x => x.ticker === dt.ticker);
+  return `<div class="gl">${glScore(r)}${glPrice(dt, r)}${glValue(dt, r)}
+    <p class="muted" style="font-size:11px;margin:12px 0 0">관찰용 그림입니다 — 매수·매도 신호가 아닙니다. 지표별 숫자·근거 문장은 🔎 해독 탭에 있습니다.</p></div>`;
+}
+
 function renderStockModal() {
   const el = document.getElementById('stockModal');
   const dt = state.detail;
   if (!dt.open) { el.hidden = true; el.innerHTML = ''; return; }
   el.hidden = false;
 
+  if (dt.vtab === 'glance') {   // 한눈에 — 가격 시계열이 없어도 열린다(점수만 있는 종목)
+    const rec = state.prices && state.prices.byTicker && state.prices.byTicker[dt.ticker];
+    let head = '';
+    if (rec && rec.c && rec.c.length >= 2) {
+      dt.market = rec.market;
+      const d1 = retN(rec.c, 1), last = rec.c[rec.c.length - 1];
+      head = `<div style="margin-bottom:10px"><div style="font-size:13px;color:var(--muted)">${esc(rec.d[rec.d.length - 1] || '')}${dt.market ? mktChip(dt.market) : ''} 종가</div>
+        <div style="font-size:22px;font-weight:700">${dt.market === 'US' ? '$' + fmtNum(last) : fmtNum(last) + '원'} <span class="${d1 > 0 ? 'pos' : d1 < 0 ? 'neg' : 'muted'}" style="font-size:14px;font-weight:400">${d1 > 0 ? '+' : ''}${d1 != null ? d1.toFixed(2) : '-'}%</span></div></div>`;
+    }
+    el.innerHTML = modalShell(dt, `${head}<div class="group-filter" style="margin-bottom:12px">${detailVtabBtns(dt)}</div>${renderGlanceTab(dt)}`);
+    return;
+  }
   if (dt.vtab === 'decode') {   // 기업 해독은 가격 시계열이 없어도 열린다
     el.innerHTML = modalShell(dt, `<div class="group-filter" style="margin-bottom:12px">${detailVtabBtns(dt)}</div>${renderDecodeTab(dt)}`);
     return;
@@ -1935,6 +2056,7 @@ function renderStockModal() {
 
 function detailVtabBtns(dt) {
   return `
+    <button data-detail-vtab="glance" class="chip ${dt.vtab === 'glance' ? 'active' : ''}">👀 한눈에</button>
     <button data-detail-vtab="chart" class="chip ${dt.vtab === 'chart' ? 'active' : ''}">📈 차트</button>
     <button data-detail-vtab="flows" class="chip ${dt.vtab === 'flows' ? 'active' : ''}">💰 수급</button>
     <button data-detail-vtab="decode" class="chip ${dt.vtab === 'decode' ? 'active' : ''}">🔎 해독</button>
