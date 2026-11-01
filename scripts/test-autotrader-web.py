@@ -165,8 +165,9 @@ def main():
         ip2 = "10.0.0.2"
         code1 = A.totp_now(secret, clk())
         st, h, b = login("a-very-long-password", code1, ip2)
-        ck("로그인 성공 → 303 + 쿠키(HttpOnly·SameSite=Strict·Secure)", st == 303 and "HttpOnly" in h["Set-Cookie"]
-           and "SameSite=Strict" in h["Set-Cookie"] and "Secure" in h["Set-Cookie"])
+        ck("로그인 성공 → 303 + 쿠키(HttpOnly·SameSite=Lax·Secure — Strict 면 다른 사이트 링크 진입 때 로그인이 풀려 보인다)", st == 303
+           and "HttpOnly" in h["Set-Cookie"] and "SameSite=Lax" in h["Set-Cookie"] and "SameSite=Strict" not in h["Set-Cookie"]
+           and "Secure" in h["Set-Cookie"])
         ck("로그인 코드 재사용 거부(같은 코드로 다시 로그인 불가)", login("a-very-long-password", code1, "10.0.0.3")[0] == 401)
         ck_cookie = {"cookie": cookie_of(h)}
 
