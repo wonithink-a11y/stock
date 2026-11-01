@@ -43,3 +43,23 @@
 ## 5. 하지 않는 것
 
 빗썸에서 코인베이스 프리미엄 전략(BTC 프리미엄 규칙 — 업비트 전용) · 지정가·선물·레버리지 · 키·한도를 웹에서 바꾸기 · 빗썸 자동 켜기.
+
+## 6. P0 결과 — 공식 문서 확인 (11-01, apidocs.bithumb.com 을 브라우저 패널에서 직접 읽음)
+
+§1 의 '없음·위험' 상당수가 문서로 해소됐다. **설계 §1·§2 는 아래로 갱신한다.**
+
+| 항목 | 문서 확인 결과 |
+|---|---|
+| 시장가 주문 | `POST /v2/orders` — `order_type`: `limit` 지정가 · **`price` 시장가 매수(`price` = 주문 총액 원)** · **`market` 시장가 매도(`volume` 필수)** · `best` 최유리. 클라이언트의 '미검증 유추'가 **맞다**(업비트와 같은 비대칭). 응답 201 에 `order_id`·`client_order_id` |
+| **주문 식별자** | **있다 — `client_order_id`**(사용자 지정 고유 ID, 영문·숫자·`-`·`_`, 1~36자). 업비트 `identifier` 와 같은 용도 → 중복 주문 방지가 업비트와 같은 수준으로 된다. **클라이언트가 아직 안 보낸다(추가 필요)**. 우리 `clientId`(`cw-2026110209-BTC-buy` 등)는 36자 이하·허용 문자라 그대로 쓸 수 있다 |
+| 개별 주문 조회 | **`GET /v1/order`** — `uuid` 또는 `client_order_id`. 응답: `state`(wait/watch/done/cancel) · `executed_volume` · `executed_funds` · `paid_fee` · `trades[{price,volume,funds}]` — 업비트와 같은 모양이라 `_avg`·체결 확인 로직을 거의 그대로 쓴다 |
+| **클라이언트 버그** | `bithumbClient.get_order` 는 `GET /v2/order` + `order_id` 로 부른다 — **문서의 조회는 `/v1/order` + `uuid`(또는 `client_order_id`)**. 그대로 쓰면 틀린 경로. 어댑터에서 바로잡는다(모의 브로커 `check_fill` 도 같은 경로를 쓰므로 영향 확인 필요) |
+| 종료 주문 목록 | **있다 — `GET /v2/orders/history`**(`market`·`state`·`start_time`·`end_time` 최대 7일·`limit` ≤ 1000·`next_key` 페이지) — §1 의 '종료 주문 목록 없음' 은 **틀렸다**(클라이언트에 없었을 뿐). 체결 알림·손익 기록은 업비트처럼 7일 창으로 만들 수 있다 |
+| 대기 주문 | `GET` 대기 주문 목록(wait/watch) 있다 — 어댑터 `open_orders` 용 |
+| 투자 경보 | **`GET /v1/market/virtual_asset_warning`**(공개) — `market`·`warning_type`·`warning_step`(CAUTION/WARNING/DANGER)·`end_date`. `crypto_weights` '기타' 에서 빗썸 **경보 코인 제외**에 쓴다(업비트 `market_warning` 대응) |
+| 주문 '테스트' | 문서 목록에 **주문 생성 테스트 엔드포인트가 없다**(업비트와 달리) — 소액 실검증(P2)이 여전히 필요하다 |
+| 기타 | `time_in_force`(ioc/fok/post_only) 는 `limit`·`best` 전용 — 시장가엔 안 쓴다. 자전거래 방지(`stp_type: cancel_taker`)가 응답에 붙는다 |
+
+**남은 불확실(P2 로 확인)**: 시장가 매수 `price` 가 수수료 포함 총액인지(예약 수수료 `reserved_fee`) · `POST /v2/orders` 의 실제 201 응답 필드 · 주문 취소 접수 `DELETE /v2/order` 의 정확한 파라미터(`order_id` vs `uuid`) · 최소 주문 금액.
+
+**갱신된 중복 주문 방지**: `client_order_id` 를 보내면 업비트 `identifier` 와 같이 거래소가 같은 값을 거절하는지는 문서에 명시가 없다 — P2 에서 같은 ID 로 두 번 보내 보는 시험이 필요하다. 그 전까지는 §2 의 원장 가드·미체결 조회를 같이 쓴다.
