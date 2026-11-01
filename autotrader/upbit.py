@@ -152,10 +152,13 @@ class UpbitBroker(Broker):
         mk.raise_for_status()
         warn = {m["market"]: (m.get("market_warning") == "CAUTION" or bool((m.get("market_event") or {}).get("warning")))
                 for m in mk.json()}
-        tk = mod._request("GET", mod.BASE_URL + "/v1/ticker", params={"markets": ",".join(syms)}, timeout=10)
-        tk.raise_for_status()
+        rows = []
+        for i in range(0, len(syms), 100):                  # 주소가 길어지면 414 — 100개씩 나눠 부른다
+            tk = mod._request("GET", mod.BASE_URL + "/v1/ticker", params={"markets": ",".join(syms[i:i + 100])}, timeout=10)
+            tk.raise_for_status()
+            rows += tk.json()
         out = {t["market"]: {"value24h": _f(t.get("acc_trade_price_24h")), "warning": warn.get(t["market"], True)}
-               for t in tk.json() if t["market"] in warn}
+               for t in rows if t["market"] in warn}
         if days > 1:
             _add_avg(mod, out, days)
         return out
