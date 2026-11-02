@@ -1,0 +1,1703 @@
+{
+ "market": "kr",
+ "generatedAtKST": "2026-11-02T18:19:13+09:00",
+ "expectedSession": "2026-11-02",
+ "sessionOpen": true,
+ "regularSessionEnded": true,
+ "backfill": false,
+ "series": [
+  {
+   "sym": "^KS11",
+   "name": "KOSPI",
+   "group": "지수",
+   "kind": "regular",
+   "close": 5859.08,
+   "prevClose": 5730.7402,
+   "chgPct": 2.24,
+   "chg5dPct": 7.12,
+   "chg20dPct": -15.95,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:32+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^KQ11",
+   "name": "KOSDAQ",
+   "group": "지수",
+   "kind": "regular",
+   "close": 734.36,
+   "prevClose": 724.38,
+   "chgPct": 1.38,
+   "chg5dPct": 0.98,
+   "chg20dPct": -17.88,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:33+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "091160.KS",
+   "name": "KODEX 반도체",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 109660.0,
+   "prevClose": 106755.0,
+   "chgPct": 2.72,
+   "chg5dPct": 6.37,
+   "chg20dPct": -26.75,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "091180.KS",
+   "name": "KODEX 자동차",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 22300.0,
+   "prevClose": 22070.0,
+   "chgPct": 1.04,
+   "chg5dPct": -1.77,
+   "chg20dPct": -12.02,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "466920.KS",
+   "name": "SOL 조선TOP3플러스",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 19605.0,
+   "prevClose": 18330.0,
+   "chgPct": 6.96,
+   "chg5dPct": 2.54,
+   "chg20dPct": -25.07,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "139230.KS",
+   "name": "TIGER 200 중공업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 8990.0,
+   "prevClose": 8485.0,
+   "chgPct": 5.95,
+   "chg5dPct": 1.65,
+   "chg20dPct": -28.33,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "449450.KS",
+   "name": "PLUS K방산",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 36020.0,
+   "prevClose": 34220.0,
+   "chgPct": 5.26,
+   "chg5dPct": -0.08,
+   "chg20dPct": -28.67,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "244580.KS",
+   "name": "KODEX 바이오",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 7270.0,
+   "prevClose": 7230.0,
+   "chgPct": 0.55,
+   "chg5dPct": -2.15,
+   "chg20dPct": -14.32,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "143860.KS",
+   "name": "TIGER 헬스케어",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 33100.0,
+   "prevClose": 33000.0,
+   "chgPct": 0.3,
+   "chg5dPct": -0.7,
+   "chg20dPct": -8.99,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "305720.KS",
+   "name": "KODEX 2차전지산업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 13705.0,
+   "prevClose": 13430.0,
+   "chgPct": 2.05,
+   "chg5dPct": 3.47,
+   "chg20dPct": -6.55,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "091170.KS",
+   "name": "KODEX 은행",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 14140.0,
+   "prevClose": 14360.0,
+   "chgPct": -1.53,
+   "chg5dPct": 3.51,
+   "chg20dPct": -9.61,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "102970.KS",
+   "name": "KODEX 증권",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 15000.0,
+   "prevClose": 15090.0,
+   "chgPct": -0.6,
+   "chg5dPct": 4.42,
+   "chg20dPct": -14.87,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117460.KS",
+   "name": "KODEX 에너지화학",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 11855.0,
+   "prevClose": 11470.0,
+   "chgPct": 3.36,
+   "chg5dPct": 2.33,
+   "chg20dPct": -15.61,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117680.KS",
+   "name": "KODEX 철강",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 10550.0,
+   "prevClose": 10065.0,
+   "chgPct": 4.82,
+   "chg5dPct": 5.04,
+   "chg20dPct": -13.03,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117700.KS",
+   "name": "KODEX 건설",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 6010.0,
+   "prevClose": 5735.0,
+   "chgPct": 4.8,
+   "chg5dPct": -0.91,
+   "chg20dPct": -10.83,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "434730.KS",
+   "name": "HANARO 원자력iSelect",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 42370.0,
+   "prevClose": 40040.0,
+   "chgPct": 5.82,
+   "chg5dPct": 0.94,
+   "chg20dPct": -26.44,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "487240.KS",
+   "name": "KODEX AI전력핵심설비",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 26480.0,
+   "prevClose": 24540.0,
+   "chgPct": 7.91,
+   "chg5dPct": 3.95,
+   "chg20dPct": -27.27,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "228790.KS",
+   "name": "TIGER 화장품",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 3540.0,
+   "prevClose": 3455.0,
+   "chgPct": 2.46,
+   "chg5dPct": -1.53,
+   "chg20dPct": -15.61,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "266360.KS",
+   "name": "KODEX K콘텐츠",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 8640.0,
+   "prevClose": 8640.0,
+   "chgPct": 0.0,
+   "chg5dPct": -1.31,
+   "chg20dPct": -6.54,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "^N225",
+   "name": "닛케이225",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 63081.86,
+   "prevClose": 63290.1094,
+   "chgPct": -0.33,
+   "chg5dPct": 1.43,
+   "chg20dPct": -7.65,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T15:45+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^TWII",
+   "name": "대만 가권",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 44920.14,
+   "prevClose": 45211.8281,
+   "chgPct": -0.65,
+   "chg5dPct": -2.44,
+   "chg20dPct": -6.3,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T14:33+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "000001.SS",
+   "name": "상해종합",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 3638.031,
+   "prevClose": 3599.0171,
+   "chgPct": 1.08,
+   "chg5dPct": -1.61,
+   "chg20dPct": -4.85,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T16:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^HSI",
+   "name": "항셍",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 23393.32,
+   "prevClose": 23294.4199,
+   "chgPct": 0.42,
+   "chg5dPct": 0.78,
+   "chg20dPct": -2.42,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T17:08+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "KRW=X",
+   "name": "원/달러",
+   "group": "환율",
+   "kind": "around",
+   "close": 1339.97,
+   "prevClose": 1337.98,
+   "chgPct": 0.15,
+   "chg5dPct": 1.38,
+   "chg20dPct": -0.19,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T18:19+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "ES=F",
+   "name": "S&P500 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 7644.5,
+   "prevClose": 7614.0,
+   "chgPct": 0.4,
+   "chg5dPct": -0.91,
+   "chg20dPct": -2.32,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T18:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "NQ=F",
+   "name": "나스닥100 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 28754.5,
+   "prevClose": 28534.0,
+   "chgPct": 0.77,
+   "chg5dPct": -2.32,
+   "chg20dPct": -8.18,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T18:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "CL=F",
+   "name": "WTI",
+   "group": "원자재",
+   "kind": "around",
+   "close": 99.78,
+   "prevClose": 104.12,
+   "chgPct": -4.17,
+   "chg5dPct": -1.95,
+   "chg20dPct": 11.57,
+   "barDate": "2026-11-02",
+   "lastTradeKST": "2026-11-02T18:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  }
+ ],
+ "missing": [],
+ "repoData": [
+  {
+   "file": "docs/data/market-movers.json",
+   "asOf": "20261030"
+  },
+  {
+   "file": "docs/data/market_flows.json",
+   "updatedAt": "2026-10-30T16:00:10.932763Z",
+   "ageHours": 65.3
+  },
+  {
+   "file": "docs/data/sector-strength.json",
+   "asOf": "20261030",
+   "updatedAt": "2026-10-31T00:15:09+09:00",
+   "ageHours": 66.1
+  },
+  {
+   "file": "docs/data/disclosures.json",
+   "updatedAt": "2026-10-30T15:52:57.359Z",
+   "ageHours": 65.4
+  },
+  {
+   "file": "docs/data/news.json",
+   "updatedAt": "2026-11-02T03:02:20.604Z",
+   "ageHours": 6.3
+  },
+  {
+   "file": "docs/data/events.json",
+   "asOf": "2026-11-02",
+   "generatedAtKST": "2026-11-02T08:26:20+09:00",
+   "ageHours": 9.9
+  },
+  {
+   "file": "docs/data/stock-events.json",
+   "updatedAt": "2026-10-31T01:49:28+09:00",
+   "ageHours": 64.5
+  }
+ ],
+ "kr": {
+  "KOSPI": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-11-02T16:15:00+09:00",
+   "tradingValue조원": 14.87,
+   "breadth": {
+    "상승": 653,
+    "상한": 4,
+    "보합": 29,
+    "하락": 230,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261102",
+    "개인": -13313.0,
+    "외국인": -3848.0,
+    "기관": 12256.0
+   },
+   "program억원": {
+    "bizdate": "20261102",
+    "차익": -192.0,
+    "비차익": 935.0,
+    "합계": 743.0
+   },
+   "topByMcap": [
+    {
+     "code": "005930",
+     "name": "삼성전자",
+     "chgPct": 4.08,
+     "mcap조원": 1341.7,
+     "chgPctNaver": 2.0,
+     "chgSource": "naver-krx-day",
+     "close": 229500.0,
+     "afterPrice": 229500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "000660",
+     "name": "SK하이닉스",
+     "chgPct": 6.33,
+     "mcap조원": 1080.4,
+     "chgPctNaver": 4.3,
+     "chgSource": "naver-krx-day",
+     "close": 1479000.0,
+     "afterPrice": 1479000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "005935",
+     "name": "삼성전자우",
+     "chgPct": 3.8,
+     "mcap조원": 142.6,
+     "chgPctNaver": 2.07,
+     "chgSource": "naver-krx-day",
+     "close": 177700.0,
+     "afterPrice": 177700.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "402340",
+     "name": "SK스퀘어",
+     "chgPct": 9.49,
+     "mcap조원": 126.4,
+     "chgPctNaver": 6.8,
+     "chgSource": "naver-krx-day",
+     "close": 958000.0,
+     "afterPrice": 958000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "009150",
+     "name": "삼성전기",
+     "chgPct": 3.34,
+     "mcap조원": 90.0,
+     "chgPctNaver": 0.75,
+     "chgSource": "naver-krx-day",
+     "close": 1205000.0,
+     "afterPrice": 1205000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "373220",
+     "name": "LG에너지솔루션",
+     "chgPct": 1.13,
+     "mcap조원": 83.4,
+     "chgPctNaver": -0.83,
+     "chgSource": "naver-krx-day",
+     "close": 356500.0,
+     "afterPrice": 356500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "207940",
+     "name": "삼성바이오로직스",
+     "chgPct": -0.42,
+     "mcap조원": 66.0,
+     "chgPctNaver": -4.1,
+     "chgSource": "naver-krx-day",
+     "close": 1426000.0,
+     "afterPrice": 1426000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "005380",
+     "name": "현대차",
+     "chgPct": 2.51,
+     "mcap조원": 58.1,
+     "chgPctNaver": 1.24,
+     "chgSource": "naver-krx-day",
+     "close": 285500.0,
+     "afterPrice": 285500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "105560",
+     "name": "KB금융",
+     "chgPct": -0.84,
+     "mcap조원": 54.4,
+     "chgPctNaver": -1.41,
+     "chgSource": "naver-krx-day",
+     "close": 153300.0,
+     "afterPrice": 153300.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "032830",
+     "name": "삼성생명",
+     "chgPct": 0.93,
+     "mcap조원": 54.2,
+     "chgPctNaver": 0.18,
+     "chgSource": "naver-krx-day",
+     "close": 271000.0,
+     "afterPrice": 271000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서, 등락률은 KRX 정규장 종가 기준(chgSource=naver-krx-day, 못 구하면 naver-integrated = 애프터마켓 포함 근사)."
+  },
+  "KOSDAQ": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-11-02T16:15:00+09:00",
+   "tradingValue조원": 4.8,
+   "breadth": {
+    "상승": 1115,
+    "상한": 5,
+    "보합": 71,
+    "하락": 553,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261102",
+    "개인": -234.0,
+    "외국인": -348.0,
+    "기관": 625.0
+   },
+   "program억원": {
+    "bizdate": "20261102",
+    "차익": 14.0,
+    "비차익": -402.0,
+    "합계": -387.0
+   },
+   "topByMcap": [
+    {
+     "code": "196170",
+     "name": "알테오젠",
+     "chgPct": 2.15,
+     "mcap조원": 14.9,
+     "chgPctNaver": 0.95,
+     "chgSource": "naver-krx-day",
+     "close": 213500.0,
+     "afterPrice": 213500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "086520",
+     "name": "에코프로",
+     "chgPct": 3.81,
+     "mcap조원": 10.0,
+     "chgPctNaver": 1.8,
+     "chgSource": "naver-krx-day",
+     "close": 73500.0,
+     "afterPrice": 73500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "247540",
+     "name": "에코프로비엠",
+     "chgPct": 2.34,
+     "mcap조원": 9.0,
+     "chgPctNaver": 1.1,
+     "chgSource": "naver-krx-day",
+     "close": 91900.0,
+     "afterPrice": 91900.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "036930",
+     "name": "주성엔지니어링",
+     "chgPct": 3.95,
+     "mcap조원": 7.8,
+     "chgPctNaver": 2.0,
+     "chgSource": "naver-krx-day",
+     "close": 168300.0,
+     "afterPrice": 168300.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "277810",
+     "name": "레인보우로보틱스",
+     "chgPct": 1.68,
+     "mcap조원": 7.1,
+     "chgPctNaver": 0.28,
+     "chgSource": "naver-krx-day",
+     "close": 364000.0,
+     "afterPrice": 364000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "028300",
+     "name": "HLB",
+     "chgPct": -0.36,
+     "mcap조원": 5.5,
+     "chgPctNaver": 3.75,
+     "chgSource": "naver-krx-day",
+     "close": 41500.0,
+     "afterPrice": 41500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "039030",
+     "name": "이오테크닉스",
+     "chgPct": 1.82,
+     "mcap조원": 4.8,
+     "chgPctNaver": 0.77,
+     "chgSource": "naver-krx-day",
+     "close": 391500.0,
+     "afterPrice": 391500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "222800",
+     "name": "심텍",
+     "chgPct": 8.13,
+     "mcap조원": 4.7,
+     "chgPctNaver": 6.7,
+     "chgSource": "naver-krx-day",
+     "close": 121100.0,
+     "afterPrice": 121100.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "240810",
+     "name": "원익IPS",
+     "chgPct": 4.94,
+     "mcap조원": 4.5,
+     "chgPctNaver": 3.28,
+     "chgSource": "naver-krx-day",
+     "close": 91400.0,
+     "afterPrice": 91400.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    },
+    {
+     "code": "058470",
+     "name": "리노공업",
+     "chgPct": 3.25,
+     "mcap조원": 4.4,
+     "chgPctNaver": 1.96,
+     "chgSource": "naver-krx-day",
+     "close": 57200.0,
+     "afterPrice": 57200.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-02T18:19+09:00"
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서, 등락률은 KRX 정규장 종가 기준(chgSource=naver-krx-day, 못 구하면 naver-integrated = 애프터마켓 포함 근사)."
+  },
+  "KOSPI200선물": {
+   "month": "26.12.",
+   "flows억원": {
+    "bizdate": "20261102",
+    "개인": -1194.0,
+    "외국인": 3408.0,
+    "기관": -1878.0
+   },
+   "fresh": true,
+   "note": "네이버 코스피200 선물(근월물 기준 화면) 투자자별 순매수, 억원으로 판단(계약 수 아님 — 10-16 −9,540 ≈ 기사 '선물 1.1조 매도', 미니선물 제외 추정). 현물 수급과 더하지 않는다."
+  }
+ },
+ "news": {
+  "window": [
+   "2026-11-02T00:00+09:00",
+   "2026-11-02T18:10+09:00"
+  ],
+  "closeKST": "2026-11-02T15:30+09:00",
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-11-02T07:53+09:00",
+    "title": "기술주 투매에 외국인 자금 이탈 우려⋯\"1330원 초반 하락 후 반등\" [환율전망] - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1HYXRvMjVvTG9rbUNJT0d2QW9LVXZZUXp6V2tZVHJfS3hNb0cxTFhFY2U0YXJkbkh6elo4U3FQUkVQaU1yUVZ0TWFZVHZCVTIyVmpOYg?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T08:24+09:00",
+    "title": "[특징주] ‘인텔 쇼크’에 삼성전자·SK하이닉스 프리마켓서 3%대 급락 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOWF9vZ1dhN2VWV1pVVHlvSHk2QkdDcUUxdlo3SF9mMkxHdjRpOXFaQ1Z1eGk0NFFnNWp2REE2UTFIQ1VBY3hRNldjMUdlRUV0V2Q0eXctOEtRSTNlSWFmZDRIZUlfM1puNzRoSHlnalIwQmIycjZfUkxPRjJvejhqbW14bDJPUGJS0gGcAUFVX3lxTE1OMjlST1lSTk51SUxsenlzUG5PejdTMV9QRzF2RXF4REZGazAteVZMb3hvU3Y1Y1ZlWWRENWQ5ekl0OVU4Q0tVWTBZYUtsUHlKNldER0wtdkR4Tmd1dGVCTEtfaDJodDhZYUFka2xpVTJtQWg5OGU2YVB2U1B0YmIxNmlKa0Vld0JBVlNSN3dJejlzSDhtdnZubFJMMg?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T08:38+09:00",
+    "title": "[증시 전망] 코스피 5,600선 지킬까…미국 반도체 7.2% 급락, 삼성전자·SK하이닉스 주목 - 톱스타뉴스",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1pWjVyeGNmZUtEc2hjbDI0SUxuaDlSZHdmVm1sazV2TnlfS2FicEV6QjJGLWptX1ZxbXBycEJJWEdyak12c2I2RzFwUzZZRFlBZ1B0dERfU2RyTE1vLXcyVk5CV2hhZzEySzgxOUd0OS15dw?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T08:47+09:00",
+    "title": "[특징주] 삼전닉스, 美 반도체 쇼크에 프리마켓서 3%대 하락 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBCRzdQVWFhSXlDMkdMZ0pMRmhRcE1sWkFOclpMYWI0anpERk5Udkh5M09NdUwxMHU2RnZNZE12MkhYVDRDRTFVRFdNaHR3c3B3RE1aZDRQZGxhQld1?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:05+09:00",
+    "title": "코스피, 1%대 하락 출발…코스닥은 약보합 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1OSk9sd3h3ekRTQW9qZGJnYklwT0stRUVOcWluUjU3QWxubnlLc1pyMGZaVVpRU2tvTndIQ09xdGtEcmhmWHBYWVRHa2g0ZlpoblZ3N3YyalplU0praUJLUtIBYEFVX3lxTE1OSk9sd3h3ekRTQW9qZGJnYklwT0stRUVOcWluUjU3QWxubnlLc1pyMGZaVVpRU2tvTndIQ09xdGtEcmhmWHBYWVRHa2g0ZlpoblZ3N3YyalplU0praUJLUg?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:10+09:00",
+    "title": "[특징주] ‘공정 통합형 모듈 솔루션’ 영광, 코스닥 입성 첫날 75% 급등 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQZ29WRzZ4dzg3blNsRml1MWFVZzdTT0FqU1ZpNmQwZHV2UXgweGNkb0NEbDRJY25IcWRCQUlHb3JoU3FYZnhHUE1KSEdnNlBpajYtWUNlYV9VSzVYWDRFWUtFMzlSSGhrWDlQamZEODVQc2czTzFwMDMwSzNkSm9mbThENzhBNDM5ZXYxVHNILTV6VFc1MDVaVGFzU0_SAZwBQVVfeXFMUGdvVkc2eHc4N25TbEZpdTFhVWc3U09BalNWaTZkMGR1dlF4MHhjZG9DRGw0SWNuSHFkQkFJR29yaFNxWGZ4R1BNSkhHZzZQaWo2LVlDZWFfVUs1WFg0RVlLRTM5Ukhoa1g5UGpmRDg1UHNnM08xcDAzMEszZEpvZm04RDc4QTQzOWV2MVRzSC01elRXNTA1WlRhc1NP?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:15+09:00",
+    "title": "[마켓라이브] ‘인텔 쇼크’에도 버티는 코스피…기관 매수에 반도체· 전력기기 상승폭 확대 - 한국경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFA1N1pwZWg4STJjRjlvb21ETUNvS2MzNlVQeXlVQzVCSFZkU3Q2RHdEYjVNcG1Cb25IZkhTQ3hLckdiZllrQWFoVkNoLWN4bUNEZG5NdTR5aGt0QQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:15+09:00",
+    "title": "[특징주] 영광, 코스닥 거래 첫날 장초반 70% 이상 급등 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE4yWHdZZ2tKd3NTbk0xYWVrUFI3TmsyQ1U1ZmNOQzV3OFhwRnJzLTJJX09fZEhPU3N5bnhKVFpCN2VGeXM0MkVtZURvQ1pnblJkWWtsUkh6UmYzLTDSAWBBVV95cUxQaWJjaWxtVUVKTmdPcFF1NUM2WE5mV0FCbGFiQkNabkZ3QVpBakR2VnFlcktVUmxvcEY0TlBGYldzNWYtYmpWU0JGVHBhSmdMcGE2ZlgzUTVrdmp6NUpQX24?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:18+09:00",
+    "title": "[특징주] 비상장 전환 위한 공개매수 소식에…한국철강 23% 급등 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNUkFZdWU5Nk55bExZSTd4dXJZaVVfRHBfd250OXJZSC0wcDBDSU5mNjFONGZSbUhwd0pLSEpPalNIQUxmM0U4LTRaS3JfYllhQjdKQ2ZRdUUtbl8zZjdrRjVGd0t2Q09fUUdSd09kV09iZ1FZUXYtTEtxalppcnRSTk9GVXJQOVRuZFVtS0p1NW4weExwSUpVMnpjd1XSAZwBQVVfeXFMTVJBWXVlOTZOeWxMWUk3eHVyWWlVX0RwX3dudDlyWUgtMHAwQ0lOZjYxTjRmUm1IcHdKS0hKT2pTSEFMZjNFOC00WktyX2JZYUI3SkNmUXVFLW5fM2Y3a0Y1RndLdkNPX1FHUndPZFdPYmdRWVF2LUxLcWpaaXJ0Uk5PRlVyUDlUbmRVbUtKdTVuMHhMcElKVTJ6Y3dV?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:18+09:00",
+    "title": "[특징주] 삼성전자 장초반 3%대 급락…SK하이닉스도 1.5%↓ - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9Rd0tKUnV5dkpZOFdPTUFjU2w2ejlsWHdOamV4TllVZElBN1FUbC1EUXg2VkxJSGZSQUh6XzRpWFlEenllMjEyR0kzT0tweWJoTzVtbVJEdHdzODjSAWBBVV95cUxOVFZQU2dKWGlMSHRtX25LRVZyQVpXSU9qUnF1VE5TakhyVnJtUG5QZWFFVGp5SUJ6bjZvV1FoQUFnNm1WS1hSR2tBcVdUbmNHMnRrZHpTMzkzUUx1ZVhoVkM?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:21+09:00",
+    "title": "‘검은 월요일’ 피했나...1.6% 하락 출발했던 코스피 장중 상승 전환 - 조선일보",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOR1B5V05mdV9vcWlvdC1nc3hPR1VuUzVVbVVrajFCQ3BSd2lRMjhvN0FwSjNKcXVnT0Y4b2lJM1JhM2x4eFdxTFd5UEk1cTFMNnVfeWdCTS1nbHZ5OXBTN0hLcVpwWi1MZ0ZQdUhwSUtqNTFLaWY5cElVOWNJVTktMQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:23+09:00",
+    "title": "[특징주] 샘표·샘표식품, 합병 소식에 29% 동반 급등 - 아이뉴스24",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1GLUlvSTliWDE4d0J0U0xyczh3NXR2WW9fUjhZMWxRbVRsZVRaUjNRYlBrNElxX0NUY0F3dV9QOVc4WmJPWTBFZkF3WQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:23+09:00",
+    "title": "[특징주] 삼성전자·SK하이닉스 동반 약세⋯美 AI주 급락 여진 - 아이뉴스24",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE0zY1liblF4M2JwZVdRbl96MGl3TktQbW5mSmZ0QnBiRThpSjMyaVpObzUxQlFlREJ1QllYTHBEdVd0dVUxTm1uYmJhVQ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:27+09:00",
+    "title": "원·달러 환율, 0.6원 오른 1334.9원 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOWVUtc3RMUmR6QWhQTTZsMFNNdFdaUl8zRGwxelByYjJKWV9BNE5BMHFqZno3QjZ0OGxPd2pEYkhjLTFrSjc4VWpvRFNDeF8zcFRXems1SGVhcUpIS3lLYXZiWFI4MHFlVUlCeDNXNVR4OHF6QVh4bzFyaHI4dnQ3MTA3d1JhUdIBmgFBVV95cUxOd0Zud0ZfdmhDVEZQUG9lRWFxNmRmOHVsTS1nMDctNGVQbnlzSmNfSGkyR2p1OUxVQWQ4ZGxoRGMydjJfN011eHRVVUhpbHpfVnQyeXZDT0FmaWdIaGVQM05lamVuTE05UUtRdjNxYXNOQlBPbHhIQXA3RXE0bXVCdXY3b0hmQUJyTDEzTkVvUGlpcjZxdjNEZTdR?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:27+09:00",
+    "title": "[특징주] 삼성전자 3% 급락·SK하이닉스 1%대↓…美 반도체 쇼크 여파 - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE8ycnFCSENwYmpnOEZ5ZVc0VjZkcTQ5M2dqUVhkMlJhWmRqOGlxZjBTRmlFSUwtTGt6Ry12RjVMQnM2cE4zVmJwcFdCV1BwbWdzVGU0Mg?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:29+09:00",
+    "title": "\"합병 발표에 상한가\"…샘표·샘표식품 30% 급등 [특징주] - 데일리안",
+    "link": "https://news.google.com/rss/articles/CBMijgJBVV95cUxOZVJXNVpFcXVHcFFkYW1Wdm0yQlFOcjc1Ymp2Z2w3bjRDQ0hzdUcxVkFibXAyWHNkSmRUbEpXRzRodWZzdWFfb1RNcnVVcmo2MzFMZHNNZVY0NVBvbEtfbzZkeWs5RUlFWF83TnZWWlEyLTZ4TmZJOG9kTVhyY3A5bHVqZTdTMWI3am1DVnNNRzF2MThheVJiYnI5U0VDSjBSRUlsc1pXNmM5clZuYnBVN1pYSjVaU0FFSENUMG5pQnVyT3ZUYlNyTWM2bVhhc0hPZFJMaVBRMmVnOVpuWm9QdlIxTzdsamgyLXpjdGhTNU1NazIwaWRaZHNnLXU4M1YwRm1QaHByY0FyZ25rLUE?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:32+09:00",
+    "title": "[특징주] SOOP 3분기 실적 컨센서스 하회에…13%대 급락 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNQzRGQVhNRWEzNlpPV3l6VHlhVXZ1ZXJyV19FX2YzcDhsWlVfdWZCZXlVeTFDZ3VadVg4U3piRjgtcEF0bERnclJaTHIxZkdKYnBpdUI0VTQwMUdzb04xVjdIZE9lT2lTdTM4Ti1kTEY5WFBURVFZSHpUYXRsSHR2OHlRc1lWRDQzQlVGVzBod2NYdzcycE92UTRnTXXSAZwBQVVfeXFMTUM0RkFYTUVhMzZaT1d5elR5YVV2dWVycldfRV9mM3A4bFpVX3VmQmV5VXkxQ2d1WnVYOFN6YkY4LXBBdGxEZ3JSWkxyMWZHSmJwaXVCNFU0MDFHc29OMVY3SGRPZU9pU3UzOE4tZExGOVhQVEVRWUh6VGF0bEh0djh5UXNZVkQ0M0JVRlcwaHdjWHc3MnBPdlE0Z011?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:37+09:00",
+    "title": "코스피, 외국인·개인 매도세에 장중 1% 약세 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE8td1FLRkExaUpQYnVCV3lOaFlRMndYYlhWZmFaOHRIOW02MWptM3p6a0t4Z3pxMXBzYlRXcHF5UWdHS2NlWDhCVGw0VEFzUjdOZDVVel9BVTZpeEZDeWNnbGJB?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:41+09:00",
+    "title": "환율, 1330원대 초반 지속…외인 역송금·수출업체 네고 공방 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBScEQ3V0x5RlhsbUo2MTQxVHRvMW9ZamdRc0RJU0k0N0JnbktHeGstRDc4M0owRjFabm1jbDJjRlZvb3JQdDRXbXNyLW1CRzVmLUw4LURhc2XSAVhBVV95cUxQUnBEN1dMeUZYbG1KNjE0MVR0bzFvWWpnUXNESVNJNDdCZ25LR3hrLUQ3ODNKMEYxWm5tY2wyY0ZWb29yUHQ0V21zci1tQkc1Zi1MOC1EYXNl?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:41+09:00",
+    "title": "[개장시황] 삼성전자 2.67% 하락…외국인·기관 매수 - 자본시장뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB3UkRydlUtNk5NUW9NRG1Gdmt5a3lEN3VHVUcyaWp3THRWa1lhdEhENVFwNzlpcG1jSHA5cm1YWlBHNTlNYTFmS3RoeTB2RlZPX1NoUFFfYUp6TXlFU2tIWW40eDQ0UDQ?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:42+09:00",
+    "title": "[특징주] '저PBR 포함' 현대제철…주가 12% 급등 - 뉴스드림",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE03SDk5b0c3dkd6d20tYlpQT3NfeFdUV0oyaGRzaFFzcDIybU4xLXJFdFNxbE5RTTVYVXcwZ0NIV29fMURmNmtOUGRVUi1OUEM2ZlJ2VGxPYXd6dzdoN3VfSkFiUXY0SjROQW5j0gFuQVVfeXFMUEtWTklBMlZjWlJpLWNhMDdCbmRwSlhfSkU4MURXTUM5T2ZwVElmbkRhS0c1VHc3ZEE2QTNsRzYzRm5RMTlPQnBFVzU2TFZpQUlaaG5LM3J5NmlOUk5OcFdrSWlfZUNaMXFiU1pZQ1E?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:42+09:00",
+    "title": "[특징주] 키움증권, 3% 하락⋯실적 부진에 2거래일 연속 급락 - 아이뉴스24",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBBejdHWTZZVl9yd3NHb1ZzSnRGcW1KbHR5V2RYbzRZX2dJamNJVFRISE1jWHBNU2FVdzJYX2x3TnNmRlV2b3ZoV1FuWQ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:44+09:00",
+    "title": "코스피, 장초반 1%대 하락…미국 기술주 급락에도 낙폭 제한 - 스페셜타임스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5zeU1zbklyZFRXN3VfaHhIS2VPSUdnUTV1LWExZ3c5MXhPbnpoUEpfb1lrR0FOdTNTX1o5SnZjWTVhdFBDdk43QmRZMUpMZkR5c0IzZ1VqeXY0cFl2ZE1VS1M4enlidnpRekczRWtBb3hFWVk?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:44+09:00",
+    "title": "[특징주] 한국철강, 비상장 전환 위한 공개매수 공시…23%대 급등 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5EY0MxY1VfaEk4OXZtMHdZb1NidTdqcGVFZ2l0Mk9DQXF1a1pWMWk0c3NmN09oNzRzck5qbnhzRnZHS2dpcFgwUlBhOVNIclFnMFAzaVhEUlFiUdIBWEFVX3lxTFBWamFkbE1WaFpUV3NFdS1jMDZUdnhqZTJzeUN0ZEJGNGtQRHVLWXZhNHl5bFFKckk2bVlYdnNjVURvOWNnVGpyRFA0NWRMRmxIbmw4Y05RTVQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:57+09:00",
+    "title": "\"강하다 코스피\" … 인텔 급락 딛고 장중 상승 전환 '급반등' - 뉴데일리",
+    "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9uT1hTVDAxQklpZlJzR1NOUHEyYnRUckJIUW1hRWVuWEdMRXpsOVV2NmRnRWxLZTVxNUJnRWRuaDFSQjl4TW0zejVTZXZtNmplX2lpOTgwZHRVSkFxRGRGWUk5RDdEQnVWbmJEUUUxdDZ6SWpPSFRuVlRLY9IBgAFBVV95cUxObzA0THp2MEktRXAwcVdHU0Vua3lLSXdxeVJrdllsVHc1dXlSandURm94SWtDMUMzbVVzRW9WczFmOHZveDVvOHk4OGdhRlQySk1zQWV0Wlk2XzNkSmJfR1o1Rkl1aXlwSXVBNTNVUFRLZ3ZYcUJRcDNCZjJtSEY2ZQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:58+09:00",
+    "title": "[특징주] 삼성전자·SK하이닉스, 美 반도체주 급락에도 '선방' - 글로벌이코노믹",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNNnM4a0lZSlJRTzFYcTdNaU5STWw5X1UtZGxpS0tqa3ZKUHBxVFdzd3VCeGM4c2YwcTFremdueW9oUS1LaEdzWGc1SVdEYVU1X0pSVElqY2ROZWo5dEpzVmxIUGRVTjNtSEp6cFJJSU5rRk53ZHhnX2VvRnVUZWg5Nk5CaFY3UGsy?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:59+09:00",
+    "title": "[속보] 코스피, 낙폭 축소해 보합권서 등락…장중 상승 전환도 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9UcWMtaFQ4ZFdWZS1vYjVuOEN6OTN3eHVpR3pZbGJYUTg1RExvX3JSaWRHc21NN0FYYWJ3M3dEQ1JKSE9XeHkydjdBZUYyT2hKbVhsM1Y0Vjk4WkRoMVl4UdIBYEFVX3lxTE9UcWMtaFQ4ZFdWZS1vYjVuOEN6OTN3eHVpR3pZbGJYUTg1RExvX3JSaWRHc21NN0FYYWJ3M3dEQ1JKSE9XeHkydjdBZUYyT2hKbVhsM1Y0Vjk4WkRoMVl4UQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T09:59+09:00",
+    "title": "[속보] 코스피, 낙폭 축소해 보합권서 등락…장중 상승 전환도 - 매일경제 마켓",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE14MnBZTEdWTlphNjY5RXdHUnBQTm13TV9abWtoTEI3NG1jWnEyM0NDV19zLS1SMmhLcHU1aW1hTU1QU0pQemg0NnlVREZ5Rkd0MGc?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:00+09:00",
+    "title": "인텔 쇼크에 밀렸던 코스피, 장중 낙폭 만회…5720선 회복 - 뉴시안",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1BZXlRLUcwdEVaclNWdEpTZmlkbEN3dDA2dGZXTzV6cnlpYWFGd1BHaXROUTNHUXo5UGR6VkEydTNIcHJzSkg3LUhsSzRNYlVzb0xjSVNySzdvb1ZlUzhyYXlIMWtUS2M1VU13Mg?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:00+09:00",
+    "title": "[특징주] 글로벌 선박 발주 확대·신조선가 상승에 조선株 급등 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE42RnlyM2RlTjd6WGQ5Q3l5d1FYTmdFOVNIMmItNEZHbWxlOEo1UlBxbXpYVHlfZ0lZVV9EcXoxcnNuUHFwWGZoYV8zYVQ3Z2hDbzJfMnRQVHNDc3h0?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:02+09:00",
+    "title": "[특징주] HD현대중공업·현대모비스 강세, 삼성전자는 약세 - 센머니",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1DaGhIY3ZoT29PbWhYaTFOX2pLeWQ2NzY4UHlPVUE1T1JqeFVORWZFVXRIcWdSWVdlNkZXY3JEd3MyMnFnWUNiMTJ0aHFnM19sajdWSloybVRrRU80SGpHbENsdnk0WWh6dy1aeA?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:03+09:00",
+    "title": "코스피, 하락 출발 후 상승 전환...조선·중공업↑·엔터·게임주 ↓ - 월요신문",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1HR2txa29oWVo3VW84Q2RZR0xNdGV6RnNDaEtJdlJPckV5ZGJ4OG84aHVsWDlzZUt0TGU2WDdLZnlGVHdPc2NPSFBFN1hyYVoxSGlkb2RfVW5zYklXY3ljY3dOa2tHZHhkR3c?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:05+09:00",
+    "title": "코스피, 낙폭 축소해 보합권서 등락…장중 상승 전환도 - 부산일보",
+    "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1Wd3R4X0RjRUduMDRPM0ppTGVCR1FyOUJPZmxYRnZUSVNOVGJrQnNCNkFGTzMwM2p2TVIxNzdVNkFwS3ZrM3dtV05zSC1EZHA5VTQ4aGtyYS1GY2F3eGhoYzF4WWp2RmpReUNGRDhZV0ltNlF5akxIZGd3VQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:08+09:00",
+    "title": "[속보] 코스피, 낙폭 축소해 보합권서 등락…장중 상승 전환도 - 스페셜타임스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBKbno5eF96RVlVbVdha0dEaFMxYTZGcC1rSm9WbllveTRObGQ2MXBTdE9BNmIxNm9aeGFDM1djZkpSSHZ0ekFJb2xKRUFHQlAzSkl1Nll2Z1luOGhlMzg4d0E2VkZ4Tkp0UHBUbzctV1J0cjQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:21+09:00",
+    "title": "코스피, 장중 상승 전환해 1%대 오름세…코스닥도 반등 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1TN0lmb2s1aGJxb3FVR3N4SkUxS1RKZnlDcDdaWjN5YVRPZHRwV0tVSDJPYVlNblVQU0R3ZVJKVHlyZUdGTEZ1WDZkeGpBUWVGU3A4WGNsVVBUb1nSAWBBVV95cUxOMEtJWUhQM2lkSUliUXBfQjZJLVZGY2Z3Yl9SVUlCYjRzTzV1X1ZRV2dldzhNVVJ6UWNtRERvNXNEd2pVXzNNeW9VWkVWWDJlcWNxdFJMMmVTYWRqN2s4dkY?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:23+09:00",
+    "title": "[포토] 코스피, 장중 상승 전환해 1%대 오름세…코스닥도 반등 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBGTGNyLTdtOVNwMTZmSjVIbTJLNE1ySGJhWms3MC10NmZMemhtVHZXSkx5SXNUeS1fSHc5dDFLNVhnc0drOXpEY0FGMHk2eGI2TUVGLW83S2RPeUNOYmxwRw?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:23+09:00",
+    "title": "[특징주] HD현대마린엔진 16%대 급등 4만1000원선 돌파 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5kekVqRk1PclBvTzdJREEwT2NIUzE2Q1dzNmtscTBQQmpHSDlQeEdCY3VlbUV4c2JvR3p3NGMtWDJvanQxdmhSMkFTVQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:23+09:00",
+    "title": "[특징주] 코스닥 영광 장중 84%대 급등 3만1300원 기록 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9IZEl3cHFSX0ZEeC1lc3ZUalE1Tjk2Ylo0WENYdExJOHkwcFJobVVDa2JnamI4d0liMWt1VWtpcWdtc2FYTmw2RzVwNA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:23+09:00",
+    "title": "[특징주] 인텔리빅스, 장중 15%대 급락세 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBYeWZlNkxGLVhzalJ6dFRodHpJQlhsdUhHcWs3UHFXeEFNTEZkaW11clprMGl0cEJubWxra25xOEdwTkVQdUpuVzZtWQ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:24+09:00",
+    "title": "[속보]“미국은 춥다며?”코스피 장중 5800선 탈환 - 문화일보",
+    "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE00cElBTnFrRWh1Ri1ZRnFMcW5KRHNaWVA4cGNKYUkyd1JTaDFXQmFYa2hyQ2daSEViWWZTWktjSUZBdUt0SDh2SjN1aktRZGFJ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:24+09:00",
+    "title": "[특징주] 현대제철, 장중 12%대 급등하며 2만9000원선 돌파 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFA1RTZDeHVTRjNKcjZseWFocHpITWdaVE5UNkUyeFJuNTFWNm95MU9FMnVwVHJsNkpGdEN2UXdLZm1qRGpUOFlhS0pzMA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:24+09:00",
+    "title": "[특징주] 라온로보틱스 16%대 급등 1만3450원 기록 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5HVUlIQjRydnlYaFZ5ZElSdVRlbFdQYVVxUEF4bkZvMklYY0ZVR0Y3V0pIdnJhaV9PTko1T010dDF2Qm84dTUxdW9LWQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:24+09:00",
+    "title": "[특징주] SOOP, 3분기 실적 컨센서스 하회.. 12%대 '급락' - 글로벌이코노믹",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQTXF2Y2R1bC1iMm83ZmFVcFl2OERmLWNxM0ZGSW5sRENqWDRMUzhxOURmOEpmTDBoZTNYb2d0U1g3aXIyOEtEVXV0dnhyZzZTU1hhVVNsU2EzeWhLY3RQdktmaHFVODc4NXUzUF93cEhVbVRUUDhhWFpHaEY4V1NDMUx2YTBfdzFZ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:31+09:00",
+    "title": "[증시 브리핑] 코스피 반등, 반도체 자동차로 옮겨간 매수세 - 센머니",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5lT1dtVlVJYmdieWY1d3ZnbmU0Y0dKdnpXXzJlTkNJTUk1Sjg3YzR1TW92bFpOZ0hCeHVqSHVPWDZ1VnZYcTJDQ1k2Z0NxbHpoWGRDQU16cmdveUw3Sjl0cnVUOXg3dEZkakZpQQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:32+09:00",
+    "title": "코스피 장중 상승 전환 5750선 위로, '인텔 충격'에도 저가 매수세 유입 - 비즈니스포스트",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1LZ3EwRlhoM3VTYnR0UWNfalVMcnN5aWNZU0xrSXB3VDJIMTFRNUxlYS1YNmtxb0JTMmFUTUpQYzBZVjhKYWZNYXY5d0hodHY3Nlo5UllmYk1sSXFidnRQOEVBLXF0alZxcEROTWhXUzFETUE?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:37+09:00",
+    "title": "[일본 특징주] 키옥시아 주가 15% 급락...'실적 정점' 논란 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1Qb3JRU3g2TmFyZUtMTGRKUHdRaHdqZzlWMHJKd0ljaWFWa0VnUWNsdldPUmxndmFxRWJtM1JpaGdHS1FQV0NvbEo0QTlpSEdHc2VOdS1OVkxUVy16?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:39+09:00",
+    "title": "'인텔 쇼크' 딛고 코스피 1%대 상승 전환…SK하닉 3%↑[장중시황] - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBwUnZsXzlxLUFDdF9SR3B3N0d5ZTlRTVQyTkpXemxzcGdGQlUzSzctS1RfMlpiRkVPdVpNeUhDbnhtU2cyYjRhVkZ3ekVUNkRMMnp0QzJGVnc3VWs?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:43+09:00",
+    "title": "코스피, 장중 상승 전환…‘반도체주’ 반등 - KBS 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1ZOVZjZDRpakR4VEdtRUxaeGZaQmI2eEZPb2pMazlJMXVDQlE2VVpsTzR6bnhsTUMwVzA4WDdtMThVMDNzcm9GaVI2cmxKYjFyOHRfakJyMEJ2S1U?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:43+09:00",
+    "title": "코스피, 장중 상승 전환…코스닥도 반등 - KBS 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9zY3ZraFozaHV6R3VCWlRBZFJrZ2l0dnRLOXozZWdVZ0gzb05MOWR4UzNBWnF6SjRReEJlbU81RGVsZS1lUzVIUVVGS0ZOeEdZVmNmcDJQUjJrVGxNV1RGa2JueXZjdw?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:49+09:00",
+    "title": "대만 증시 외국인, 10월 317억8000만 달러 순매도 역대 최대 - 토큰포스트",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBhbVBTY3VZYkhESGxOTHBNSFBveXR0YWdMV1UtbHk3ZFhVVFRLUmlvaXozWHFhbkdQb0tqR2Fza2d1MFJBS2M0Y0c1TGZyRmx3Vm13UmNHS0xuNTTSAVtBVV95cUxQYW1QU2N1WWJIREhsTkxwTUhQb3l0dGFnTFdVLWx5N2RYVVRUS1Jpb2l6M1hxYW5HUG9Lakdhc2tndTBSQUtjNGNHNUxmckZsd1Ztd1JjR0tMbjU0?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:50+09:00",
+    "title": "코스피, 장중 상승 전환해 1%대 오름세…하이닉스 반등 - 한국경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9heENBb3R0UlVuU0tuVDJ0SzZDRVRndWJTVkVJOWtZS0R2NnNtdDRURldheGROcElUVWlJQkg1WGlhaEtUVHhGUHF0LXh0WV81U2hsMk03VndfQQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:51+09:00",
+    "title": "[장중시황]상승 전환한 코스피, W 반등 분기점?…공포의 끝은 새로운 시작 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5LTmpjWF9RYktuVGxIR3VCXzNpWU43UmwyLTdyR0VNRU84TXFjaGdFbzBINzBaa2tNdWs0RjYwYzdKeURKNGNZMlk0dUp1Z1N3ZDBDS1VHN1jSAVhBVV95cUxOS05qY1hfUWJLblRsSEd1Ql8zaVlON1JsMi03ckdFTUVPOE1xY2hnRW8wSDcwWmtrTXVrNEY2MGM3SnlESjRjWTJZNHVKdWdTd2QwQ0tVRzdY?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:51+09:00",
+    "title": "[특징주] 영광, 코스닥 상장 첫날 '급등' - 컨슈머타임스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9heHg2WE5LQm5YODllbGQyeWhjejF3VHNpZlFuazJwSl9RQXh6R0pLNldVckVMSUoySFk3enIxbEZWeWtVMjVHTFF6cDFaQmU2NWQzZ0J4bzZlTENHMlFmeW9MMFlCcWhTakE?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T10:52+09:00",
+    "title": "코스피 반등 속 반도체 '투톱' 희비…'자사주 방어막' 하이닉스 강세 - 연합인포맥스",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1vRlB0UVU0NGFFeXFYZGtVUy1SZ2JVTmdkR0wwZWU2eTc5Sk84M1dZYTVBMGIwZHpGeDVwRTVFUGw4RXRmMXRPZ1ZpYUNFT05tRTNWUXBEVUJnMk9SX3lhYXlBX3ctTFRjZ3lwMHd1S0tYa0cw0gF0QVVfeXFMTW9GUHRRVTQ0YUV5cVhka1VTLVJnYlVOZ2RHTDBlZTZ5NzlKTzgzV1lhNUEwYjBkekZ4NXBFNUVQbDhFdGYxdE9nVmlhQ0VPTm1FM1ZRcERVQmcyT1JfeWFheUFfdy1MVGNneXAwd3VLS1hrRzA?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:02+09:00",
+    "title": "[특징주] 영광, 코스닥 상장 첫날 94% 급등 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1WV1JVWUVpX3VUaVl2UUdQRGF6ekh0LTZKOFVkdXRUdEZPdTU1ZXBYVGlwT0VHQURNNXE1MUJCQ2RiTzljTUVwLVJqclVOTUtSUFY0d2FvRjhPdi1n?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:02+09:00",
+    "title": "[특징주] 한화오션, 잠수함 핵심 기술 국산화 소식에 '급등' - 컨슈머타임스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE52UmtOak9WcTlZOEhRaG5FQ2R6V04wRVpFaGRGMFpLbW9Zd0JUeVQ2SEFFblJMYk95VkxnVTZpWldRV1FyVVpMLWhZbVl6RTAxNzNrLXNFQUR4TXpCbHdXcE9EX0k0OHY1MXc?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:06+09:00",
+    "title": "반도체 자사주 46조 매입…반등은 외국인 관건 : 한국증시 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE82UU41c255TU1DVm5OaE0zNDUxTjdOajVTdUVXUE5QQmgxdW5FWENvVEJoZ2RrcEYwSm9EMGhxbExBSlR1RWxrU2cyaw?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:13+09:00",
+    "title": "'AI 공포' 대만 증시, 한달새 외국인 42조 '엑소더스'…사상 최대 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQaXJxbWtSblFGX1BHeDVfZndVelpqYk5Bd1RaTDR2LUV6YTFPcjdZRGFoMmI4aUpoNkZpMHowZ0o3Q01EWEUzRzhkU1dsZjA3c05fZms0bXp2aVMyM0UxNXRFR3Y2NU1tMGQ2dEZvMDdMX2pEZEk5QnRaV2VTRWFQUQ?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:15+09:00",
+    "title": "삼성전자·SK하이닉스 자사주 46조 매입에도…코스피 반등 지속성 '불투명' - 산경투데이",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE93ZkJWdUJCeHJGWDFNX0pVd1BLU0ZlWGJOYUpaU1J3Zjh4WXZzRENPdjVFbWJ3bmJFMXdwMTdQTzN2WWlyVVFFOV9oaEdJWmR1U3ZSdWRRRGtkaEMyT2ZsN0NXQ2JGeEhWNXZBTk9IWTQ5MFps0gF0QVVfeXFMT3dmQlZ1QkJ4ckZYMU1fSlV3UEtTRmVYYk5hSlpTUndmOHhZdnNEQ092NUVtYnduYkUxd3AxN1BPM3ZZaXJVUUU5X2hoR0laZHVTdlJ1ZFFEa2RoQzJPZmw3Q1dDYkZ4SFY1dkFOT0hZNDkwWmw?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:16+09:00",
+    "title": "코스피, 장중 1.6% 급등 후 5750대 강세 - 데일리바이트(DAILY BYTE)",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNNkhNeVRsZzF6a0EtbVVQUDJKRWxONWJwV3QyaE9STU43V3VGVkVIdzlEank0dlRFYjBFM1ZObFhVdXJwZVRuNmhKcHI1VFQ3QVdYVG1WV3NjYkNTMTVHTlVrVE1MRXpBdmdJNWFMcVp3MXVsMzlTQVhldVVsd1RrRUNpVjlCT0RtX0drMXF1ZVJrdWJNbGV5cA?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:17+09:00",
+    "title": "[오늘의 증시] 11월 2일 코스피 5813.78·코스닥 729.88…양대 지수 동반 상승 - 잡포스트",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE5VTy10ajRjZU9GQkZNU2pQQzVVLW9QUWVDWTRxWWhJNHVEekxWWEVSbERqV3pPaGVqMjY2dGp0RWd3SGxZZUYzRXQ0bzZZQTFEOTBqckUtRThwLVpSbVdCREMtTDZwbUNlT0JJcG56WHZ6d9IBckFVX3lxTE5VTy10ajRjZU9GQkZNU2pQQzVVLW9QUWVDWTRxWWhJNHVEekxWWEVSbERqV3pPaGVqMjY2dGp0RWd3SGxZZUYzRXQ0bzZZQTFEOTBqckUtRThwLVpSbVdCREMtTDZwbUNlT0JJcG56WHZ6dw?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:17+09:00",
+    "title": "[특징주] 영광, 코스닥 거래 첫날 +92%대 급등 - 전국매일신문",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5vcTRyTHFteUl2LXVmdm1ka2VtSzBVMUU2YnNxQ01uemptcF8xYnBFb2ZXV1JMajE5NWdaLXY4UXRXM0FQOHR2N3M0LTVMd2pPRUxEckRrR3l6cTlJYUpESXpJMjBCVkFwRy1oM3ZB?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:50+09:00",
+    "title": "[특징주] 외국인, 삼성중공업·대한해운 매수 상위…기관, 삼성전자 순매수 1위 - 뉴스티앤티",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1pUU5iMmszYkl3TURWMmw0OEFqbTlOV0FlcE5wZl8zUlNjS2FfdGdfd3h6YllrZFhjYjM4TFQ0M1pBQ2U1RjlJY3NkWFpDdUtIbWg5Z0pmc1luam1wLXZ6RkxvQlBUZHUwUGc?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T11:51+09:00",
+    "title": "미 AI 우려 딛고 코스피 상승 전환...장중 5,800 터치 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE50RG9yS0dXMEFaUWp5U1N1bEo2TXoyZTFRdDNXY2VCOVZZMlIzOGVhb2MtdjVabGs3c0NtUU5Nd3BnYXVDUFNEQmNRb2F5WGZfUTBwWi01TWpTZTM1X2c?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T12:21+09:00",
+    "title": "[오전 시황] 샘표·피앤에스로보틱스 상한가…조선주 7%대↑ - 중기이코노미",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE4xbGxiUFVuekxDdW14X09oVHNrbWdZb3oyeXVxNl90WWRmODV6WERHMWIxVXZrbGtJY0tQS2NORGE4Q0w0cFMtWmFvRlZBXzRvQnhSd3Ztd3lzUEVUaDlzdXA1WklFaVhfaXc?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T12:43+09:00",
+    "title": "코스피, 기관 매수세에 장중 양전 후 2% 상승 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE9GMW44d2RfV3lJUUdfQUxrY2VHT25YaDkxb29xckJraXh6cTl3cXpzNUdUeVltelQ3d3FIRFdUWl9idjZGQlp6WktQdVBXLVhzUnBwdjN5QnJiTzZGbnpnOG1n?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T12:43+09:00",
+    "title": "[특징주] 상장 첫날 244% 폭등한 인텔리빅스, 이튿날 20% 급락 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE4yOXh5U1J2XzIzYko1U1d4SWhJRERteDhTa2xMMlZMTk1zSlVtZTJCNkJLN2lLMUlJdHRndnRkMXQ4SlZFVzF2WDAzeUtqcFRfT3RaY2JDYUh5UdIBWEFVX3lxTE1xSWpRalhtSEJZNW9xTG01UkFibElJN2Vua2FzZVZ1THU4b05IZUdzS254NGV6dUg0SmtjMVhPMFhHYXh1dU1OdTU0bjBLYWdjaG9IZkNKVHM?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T12:45+09:00",
+    "title": "개인·외국인 ‘팔자’에도 반등한 코스피…장중 5850선 회복 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPWmRLYjBuY2RkaW1NbGRQYWYyZDlxamNQQkRaV2REX1EyUnpPTVB0RzRpWktTN2E4VFNjUFVJdlA2LXNBS1Z3aHdPYUxqdkhFcTRwRmZBME9PbEJaLXRBOGdkaG1xcTNCM2dsZEdmdUV0NzVHR1A0SG90LUdZWXBmeTg1clQ5MlZP0gGcAUFVX3lxTE5HNW1DLVpnUUk2MUt0c0xqY1E0c0gzMzJjSXVVbVNTUXZfWnd0OWMzdjk1V0NKZFM0VEk4TVktVFM2WFo3TXZiLVFSajFOZVl0TUNSQzdhZmVUSkdySDJQcTBOOUZvZ0ZTdC1RLUVRLVVjVFVhTGNiM2FqTWhXY3RzTDdDYVNhVU9ScWVDMDVIYkI2cUlodXdlSGxrWQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:06+09:00",
+    "title": "[경제읽기] 코스피, 장중 상승 전환…8조원 털린 바이낸스 - 연합뉴스TV",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE40VDFnZUpSSlREOFNtb2tSX3NrbldNeTV3Rnl6c00xeVhQS2FWYnh4QVRubFI2eFZJc0U4eHF4M2kyaENrbEVxajRsc21hbkQ1MGxTOWwxd08wOXRteFc1SG5Od21tM2c?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:17+09:00",
+    "title": "[특징주] 삼성전자·하이닉스, 인텔 쇼크에도 장초반 하락 출발 후 강세 - 마켓잉크",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9LWl9pLVVGaWNHOUZadHZRT2ZvOHh6aHF3YmhubHVHVWhINnhZYkNBTmUxLVBNYURUWDViZGt1RU8yNkhFcUpIY2gxTGdManloRVlqN3hIdWE2OG1TdlVnekxtMTM0aFE4UHBrLWNKbw?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:29+09:00",
+    "title": "[특징주] KISCO홀딩스, 한국철강 완전 자회사 편입 추진에 주가 동반 급등 - 뉴스웍스",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBMRVZlMVBKU055Z1NOcXM0Ymt3dUNWamNuQjZuU3JXMEdXX0hDTlc5aDdZSnpCSDV4NFF0aWJhOUEzenhuNU9vZ1JSSnNuOFZSeHJHZjBsZE0zUnk5eHlyRlluYzRCVVVsZk1LYmlKRdIBc0FVX3lxTFByajlsekd0YzZhVm5vbjZnSVl4NzNCMEU5SnFESWZMYi1SU0I1NkJBdlE4cklBcEp3UnZkWWtWRjZzb1RQZkc1QXp5WFU5blBsRUJ3VnMzVUNmaENkY08zVWswbDUtbjdUMVQyZzhHRk9RTGc?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:32+09:00",
+    "title": "미국 반도체 쇼크에도 코스피 반등…증시 변동성 확대 - 시사매거진",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE4xXzlYQURTaUV2bHZHWmpwdDhKbmt3MWpRd2MxSkp1aVdONUxsMDRKWkl2dlczOWdMWnNWOWNyWmE4S0RkVmxSdHVrSkpWc0NWWEFMRG0wbDl3aFBjRWtrR253?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:36+09:00",
+    "title": "코스피 장중 3% 올라…SK하이닉스 5%대 상승 - 이코노미블록",
+    "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE92Tks0dEdnTWdzUVhfYXZtSjd4OE51TDFZQmRWM2tsNVh2dnZFRHlfMG55NlgyMjNwNl85Rm80c3lwZkMtLUU3ZWozSXo?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:42+09:00",
+    "title": "[중국 특징주] 선그로우, 3Q 이익 급감에도 9.5% 급등...ESS 기대 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE85Q0lfeUJndlVtYkhfbFRUdVBBeDlVQ0xYZWtHNlB2UGhZSzN0SjkwemhRcVpuX1ZIbU9yaTQ1bU1HSW5ic1FDcDR2TGluZUV0YXcwODcyYlpxdl9Q?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T13:53+09:00",
+    "title": "[특징주] 호반그룹 최대주주 등극 가능성에 한진칼 7%대 급등 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOZlZQYW54b2NyeUpJeUdBczIzVFhPUUpsdGpLV3lQVklaNzE3WlVjZzZYcEtNZmdnUm84UGxQQmRXRHNNMEVXLVVlVGZQLXl4Rkp1VE4wOHhKQkhCY1N6SmdSWkUwZWROZGFTZzUzQzFkbWV2NnkxbERZRGdOd2g0ZFVrdDQtX2lf0gGcAUFVX3lxTE5QWldaWk9KTVh6cERpc3hOOHhMcURtakEwaUpVVXQzb0M1TDlzVkVxNnoxTkVvNXVMTS1ZOWMzTGRiVnJZX00zVDJ4emF2ekZZRUtXa3BXdXIyd0libFE5V3VOMk90LVVVeGpPdTFyQ1JqMUZ4Wlg4bmtZRTZqbHQ3VEl1YWZDZVMxMllPdFcwTGNudjFtWlZSU0tDdA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T14:10+09:00",
+    "title": "코스피, 장중 상승폭 확대해 2% 넘게 올라…삼전닉스 2∼4%대↑ - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9rckRwLVRSYm5oUDhqZWVEcVBwMURJTFRHcUYwUjQzNE5FT3JJTkZrMEN2QlJCUUFBQzVmZW1HNVQyRzY0ekhGNTE3OUNaalF3S015cXFVaThkU1XSAWBBVV95cUxOdnRCUU9HNGtmTXFiM01hUVNHWWFxM283RnBtdnhEV25XdFNhcF9DZmhiazMxMTVoeG9uUEtfMEVlYjdVMFd4aWs0a0dHa3FGSDhjYmMtOFczOVRrMXR2X2Q?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T14:15+09:00",
+    "title": "코스피 5800선 탈환, 기관 1조원 순매수…외국인은 4000억 팔았다 - OBC 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5nWXh1YzlySUFPR2tQNEZ2eVotcGFmWDBHWG9COGxKQ1p6ZVJZSnlaVTktNkJmd3V6RXpFQXJzLTBWZEVYc2U5TUhTRGp0S2M2QldKYmdyNjQtT05rTnJ2bWdjd1ItaEVN?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T14:38+09:00",
+    "title": "코스피 3% 급등 5900선 안착 시도 [장중시황] - https://www.2news.co.kr/",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1ZX3V6M2pqZ292VlhUR2NBaEh1Vlg5RTdqbzJoV1lfdFg5bUl5M2NTRkU2dVBYSjlXcFJ0R1JYUm5CQzFXX3VNallRNzJydXhIWUQ2TkhvV0k2enJ5b3RDemxmdkpVX2xJ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T14:51+09:00",
+    "title": "코스피 상승 전환 후 오름세...장중 한때 5,900 터치 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9BWnVnaUF0cU5JUzhQTlJTeTFiOGJXbkJKd1lHRFFEX3FJVUhQTC12dlJsUm1UbFdPYzJmMTVBMUpGTW5hd21sRW9zYV9xbTR4Z1FLbnFQbTQ1R09wajJoOHhZbmRDaWVGdmVSc25ZUQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T14:52+09:00",
+    "title": "美 '인텔 쇼크'발 '검은 월요일' 없었다…코스피, 급락 출발 뒤 반등 - 금융소비자뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1BeGZ0eEg1bU9ISDdBSjY0SkdZbTJ6NEpNYXNwZExrVVlqeXNTcldMN1BBVUlDVVZOREJQZHMtQzVQY1dnTGZhcXR1STNIWldPZkh0c1dzNVdNR21DWUNXd2RSRUMzQkpDa1E?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-02T15:52+09:00",
+    "title": "[증시 레이더] 코스피 장중 5,600선 밀렸다 2.24% 반등…5,859 마감 - 포커스온경제",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE93WDFCaXFWVXhvdUZFSnk5b1Jhbm8zN2RkTEN5M3RnMlpSb1k2T2FQMG4yNUVIR05vcTREMm5BaU52NzBCbDU3Qms3N21DVm1NcFFnQXpsVEVNbTljUXc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:53+09:00",
+    "title": "상승 마감한 코스피·코스닥 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE85djZyUHpXb1IxRVpxblBtZkk1eWR4WUJURERrWUhfRTU2VHZLY1ZTZ2czR1hHQm41cnFTQlh1TGxJY2hsT0o5UEtnenE2aE42Q1o4QjNCSldEYlVn?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:53+09:00",
+    "title": "[마감분석] 멜콘 10.90% 상승 마감 1만5260원 기록 : 기업주식정보 - 재경일보",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9DZFctaUxySG9OYk1XSW5zWDNZMkt0ZXItLUppbjBrZEdvTzI0REVNczlyUDNNdXRzbmk1T3RHS2psT0ZhY2owVjJFNA?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:53+09:00",
+    "title": "[오늘의증시] '인텔 쇼크' 털어낸 코스피...장중 반등에 삼전·SK하닉 '불기둥' - 이코노미스트",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE02UF9BcXVYOFZ6M2NNNW0yODN4LURna0xxUXRuaXlkSjRNWmt3U1Bjb1ZNalpQYmRib1J5cnE4cS1LazlDT0cyaDNZc3JmUmZPTF80VWw5VW5zWktSTVNmdjd3?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:54+09:00",
+    "title": "코스피, 하락 출발 후 반등…2.24% 오른 5859 마감 - SBS Biz",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5nRGNmd09raE9wNkNCeWdrQzRjWlN1Wk15TmN0NjZrYW5neXVZNTBnNVNla2NhRTM3NjRyY1VaS2JKUzRodHMwTmlGUHVCd1dpd1oyR09NS0XSAVhBVV95cUxOZ0RjZndPa2hPcDZDQnlna0M0Y1pTdVpNeU5jdDY2a2FuZ3l1WTUwZzVTZWtjYUUzNzY0cmNVWktiSlM0aHRzME5pRlB1QndXaXdaMkdPTUtF?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:55+09:00",
+    "title": "[마감시황] 코스피, 128.34포인트(+2.24%) 오른 5859.08 마감 - 라이센스뉴스",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5vZmJzR3dKVGpRR0Z6WWhVc3FXNlF0Y0labENoN1hXdkFGN01Jend1TlJrMWJlTlVOWlFnMEstTEFGZFhsckZGTDV2dnZTcnZrOEtqSXZxZ053TnU5X1BxMk9mWU1pZEw2WnVV?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:56+09:00",
+    "title": "삼전 1.8%·하이닉스 3.8%↑…장중 출렁하다 상승 마감(종합) - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE04Z080VTBwZmJ0NXk3aHlfVm5OWS1ZY0RoVk00UWp1ZW1mUXJ2eEtkUDZNQ1RucEhPMWNnNVFKclM0bml5NjFsWmc3bjFCeUI5YXJWUFFQb1ZXb3NKS3gxRdIBYEFVX3lxTE04Z080VTBwZmJ0NXk3aHlfVm5OWS1ZY0RoVk00UWp1ZW1mUXJ2eEtkUDZNQ1RucEhPMWNnNVFKclM0bml5NjFsWmc3bjFCeUI5YXJWUFFQb1ZXb3NKS3gxRQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:57+09:00",
+    "title": "'검은 월요일' 피했다…코스피, 5859.08로 상승 마감 - 중앙신문",
+    "link": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxOcXM1RmZOa0VSQlUxbEhRNDMybU1UYjBJbWlVUDJFYnZIOUdMMGpTYldpU19STWIxdFlqbjhCMEZBcnlDa1YzMUktRjI0YVNkdjRzZmlOclNVeFBtYmJfSHdXRE9YYk5SZkZaZkFvU1QwWlhEOTI4QmFZZUNhQ2NXbmhjVHBvSmhTNzJqLXp3NjI0TVBKOFl2MXMxQ19qT3hWU1MxYjBTVjA1UURhSHBnenQzdXQteW5pS0xXZTVHWE83ZVVpU29HRXZkQmRFeU4xSFVSazhJamc2R0hDVmJZVzI3ZEZuWGcyV214dUl6RS00OWFjWlJEUlpSdlBpOUVLaDBocFpTN3Y3Tmsyc0NueGNJVHM4ZGNzZ0pQYmNqQVJWVktWRjQ3cEZR?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:57+09:00",
+    "title": "코스피, 3거래일 만에 상승 마감…기관 '사자' 2%대 반등 - 더팩트",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5aU0xoT0FGdG9oMi1rQW1YZ3hna1psenU5WHN3ZkpONkVJV21LNXRUYmU4Nk8tX0FqWFNEY0pXZ0tPWjN1RFU1SmxOZFR4TkhjN2JQZHRPUzVCUdIBVEFVX3lxTFBRUWtoZ1FMd0FSM3RxTnlpTkpWR0VOcGQ2VkJPeERsTEV6VVFfSmc3QUdQZUQ3Y0tMYlBKSGt3NHE0THVLTHV1dXVGQldaT2VLZUdWaA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:57+09:00",
+    "title": "[마감시황] 코스피, 기관 매수세에 2%대 상승…코스닥도 1.4% 올라 - 세계비즈",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE0yN1ZsaUFjWXI2MllGRmFRbjBTRTQ4bTd2SHZIQlpNdnpxaXA3U1FDaDk4dmNpRUtONXBwVTdreVNkd3ZoaVVrUllGcUV2dFZwOXh1QWFlVXZxUUM0?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:59+09:00",
+    "title": "코스피, 미국발 악재에도 반등…2%대 상승 마감 - KBS 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5hVFA5MndRVk5iR1czbHMyS09Jd0p5M0hRWExjNE5LTTl1Z1RJdHM2SkhLV3JKczJrNF90NWpzQXZ0dk9HV05nbFpZemlST1hRVEVIM0Jxc0ZHV3o5M1ZYSUh0bmlyUQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:59+09:00",
+    "title": "코스피, 美 반도체 급락 딛고 2%대 상승 마감 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBfaG9UMS0zWUJzUGdRVGlTRFZqOFdieDhqT3ZXZi1PcEZaRGdKa0JncXEtR2FudldiNEp2cW51RHJZZTItVUVJSWNUQk5lX3FEQkJLdmVQZFF3dmJkXzF2Q0YwdnA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T15:59+09:00",
+    "title": "코스피 2.24% 오른 5859.08 마감…미국 증시 급락에도 반등 - 강원도민일보",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE93YVRKSjhjbjBDOU5lNkpRLW1pRkFXUDZsTjc5MThFcDliejYtV2tCaklEQzVuTDdYZ0pxYkRzLVo5TEg1dTYwZEMwalUtVHdzSkwwU0w4ZGExa2ZIQ2ljcDlMYUZfZVE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:00+09:00",
+    "title": "[11.2(월) 한국장 마감] 동반 상승 (코스피 +2.24%, 코스닥 +1.38%) - 주달",
+    "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5ockpsMWZWTy1lZV9GNGhDOF9seHpBMVVhU1FZUXZqQUVhczZfY19VQ1hwRkdHcGdFLWZYcHE0Qnp0MFVxRG45ckNRVVFVWTJQejkzUHVfelhJeDE0Y0tYUEh0Y293U2pMSjJQMVRDTjdXejIxN3V0QQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:01+09:00",
+    "title": "전약후강 양 지수 동반 상승↑ - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFB5SGotdVg5RDRxdHkxSVN1MG83dU10RFpiaXNpUEJLejkwbzUzRFh5cC1pU2U3R2s5U2xub21TeFk2NHJyWTVZVDF2c3hLVE9NQmZrMFRxNUwyRjFnckhSOHdNcVotWmpqVEVCdg?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:02+09:00",
+    "title": "하락 출발 코스피, 반등 성공 2% 상승 마감···코스닥도 730선 회복 - 대구MBC",
+    "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFBxcW9nSldqLWItU3FjNUxHTXRseEZLSG9RbWpLYUptSEtFMWQ2ekl5dHJjcW1CSmkta25BcDBicklfRG8wN2lFWDJBNGk?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:04+09:00",
+    "title": "[마감시황] 코스피, 기관 1조 '사자'에 2.2% 반등…5800선 회복 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9hUzJqd1VULU9nQ2lpTEpWZ3RMMHZLYTJEZVVRQ3hnb0gtUmZDVkJNWkNfaV9YaUZITElDb3ZYSERNaXZHWS1NU3U2QWRnc0xaWE50YVlaSGcyV3lK?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:04+09:00",
+    "title": "코스피 2%대 급등 마감…기관 1조원대 순매수 힘입어 반등 - 메디컬투데이",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5oRWt1Y0F1S3ZVVl9aQURWWVB0dlhIQnNVdlNmMFRkd2RRUGlLZzVESUpYUlZrdnRrcGdhbnRTb1FyTDNlY193UTU0TjgyMXZOOV9XOGkzRjVIWmRrNFRvb2Y4Q0JCYjNfeXZLVA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:04+09:00",
+    "title": "‘검은 월요일’ 없었다...코스피, 기관 매수세에 2.24% 상승 마감 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQR0F0SHJFX3pGVXNYSXRfT3Q2UjJWWU5PM1dZWHhPeW9sdFh3aThhWXhMMkZrMEZTSWw3UU03ZEtCQTBUdXhqZldmazBtVHl2V1hHekhHQUE0WDRXamZ2RGFNMTc3d0h5SHctc01IQVc1aG9BeTdNaFpXclg4ODRkTmFSY3M4WGdmMDE1eDkwaDc1dVVhbGFUYXBYQ0LSAZwBQVVfeXFMUEdBdEhyRV96RlVzWEl0X090NlIyVllOTzNXWVh4T3lvbHRYd2k4YVl4TDJGazBGU0lsN1FNN2RLQkEwVHV4amZXZmswbVR5dldYR3pIR0FBNFg0V2pmdkRhTTE3N3dIeUh3LXNNSEFXNWhvQXk3TWhaV3JYODg0ZE5hUmNzOFhnZjAxNXg5MGg3NXVVYWxhVGFwWENC?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:05+09:00",
+    "title": "코스피 2.2% 오른 5859 마감, 기관 1.3조 순매수...'악재 다 반영했나' - 오피니언뉴스",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTFBaMXl1aHRMcWI3UWwxUjFRTHBKU0gwN0hiaWZ3dno3NGk0VTVIaU1IckhibWhJXzdJVnpGWFlfSGF5c2ZTcUZKTTU1dGpBcXBQcThYbE9rTWNld0F5cWp0YTVUeHk2MERsVDROeDBDRG8yZw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:07+09:00",
+    "title": "[마감시황] 美 반도체 쇼크 뒤집은 코스피…기관 '사자'에 5800선 탈환 - 신아일보",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE4td3FtaWs4NTZjMUdBMWxIX2tjTTA0ZDVSdElaRzZqcVJsQzg0eU9lQ0pOaDg1M3VXVnFCUU1XNkdhV0RXa0FGeHRYTXZXbWstOVN0b0V1ekNra3ltbnlZWkRNNWhBejluOW9lRXVmbVI?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:08+09:00",
+    "title": "[증시-마감] 美·이란 기대감에 코스피 2%대 상승…기관 순매수 - 연합인포맥스",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE16Z0IzNnc2R1VUYlFkbkZqZHB6eE5zQjNBb0l6RmI2RGFsMnB5V1kzamFFWVRvcjJpTXBlbXpxNmVSUDNudC1LeGhxVS1nMTZ2c3dvU0h0TUE5LWpsZVI4d0ZhWF8zSWJfT2QtOFRLSm8?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:09+09:00",
+    "title": "“검은 월요일은 피했다”…코스피, ‘인텔 쇼크’ 딛고 2% 상승 - 매일경제",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5JbFBCMDItNXFwM3NzYkNYa3VSNnpjT3NQbnEyMTJzX3ZVNzVPTGF2alpfNzdGeUQyRGh0X192UnBFcmpVQjNJTFhTal9CbDZ4UGc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:09+09:00",
+    "title": "코스피, 기관 '사자'에 5800선 회복…코스닥도 상승 - 뉴스웍스",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1BLWpFS0M3M3FRM2dzLU5mbkJPcXVrcXNid2Z0Unh1N1dsN0lXallBcUI4a2haUzFubmxocUs0ODhpT2ZZMUNmV0YwVGFMcU4yU2dLQWZvUTNVeF9mNUFmVW4tNjFPRDhFMTRoUlZkONIBc0FVX3lxTE1LX0pfWG9PZkVFYWlLR3JvdC1tdDlFVHVJbE03bUNJQm5ETmJtYng5MjJJSUwxV0RpZm4yN0R2VWRfQUhzdVpoRXR4V00zeVgxNGc5eDFqTklwUlpyYmlHd1pPSU5DRDFCUDdncFZqdjljc1U?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:12+09:00",
+    "title": "[포토] 코스피 반등 성공, 5859 마감 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE02T1RhdXZLSEUtRVAzZ1RxT0J3ckVBaV9LZDVFQjFaRmFZY1M3ejJUSllyaV8xWTdXMkZyUDlaNC04NUJLTHVwUFJOZF9WT0tUTjlOMWlzeHjSAVhBVV95cUxNNk9UYXV2S0hFLUVQM2dUcU9Cd3JFQWlfS2Q1RUIxWkZhWWNTN3oyVEpZcmlfMVk3VzJGclA5WjQtODVCS0x1cFBSTmRfVk9LVE45TjFpc3h4?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:13+09:00",
+    "title": "[포토] 코스피·코스닥 동시 상승 마감 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9uaXplVVN4dVBwdmtUMXBINzdiZHZLWFVWS3RkVDZjZE1LM1pMakVWODdYeHBSd2V4MHJITVFsX3lZbFVmNXdkdHM2YS1pMkEtS0JnS3VqRm7SAVhBVV95cUxPbml6ZVVTeHVQcHZrVDFwSDc3YmR2S1hVVkt0ZFQ2Y2RNSzNaTGpFVjg3WHhwUndleDBySE1RbF95WWxVZjV3ZHRzNmEtaTJBLUtCZ0t1akZu?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:13+09:00",
+    "title": "‘검은 월요일’ 없었다…코스피 상승 전환 '5800선 마감' - 파이낸셜포스트",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5TLUNNLTF5TUhpQ2UwTmhnRm5HbnFMNURzREFseWlCWm5RWXlQSXlBeHEydERDSEtRNGNKOTRkdEN4a192UDBlVWxoRlp4REswOS04UkRKWWNTY0FPd1V0UHdrMlhRNE9FdUc0TlotVHlJXzZp?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:14+09:00",
+    "title": "[외환-마감] 코스피 반등·外人 '사자'로 상승…9.50원↑ - KB Think",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE1hSlpXSmZubWZEN1JKS19Da1ljTjlWMUh6a0dNdTlhU3VLN244SzZZQ2RFVm5rQnZyb25aLVZCWHJsV0dwU0tSSTJUZTY5QXA3ZVIzSXBwQzVrb0NwSG1Ya2JBMzMwWkpiOHRjZ0FkVG5jUQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:15+09:00",
+    "title": "코스피, 5859.08로 상승 마감…\"美 중간선거 후 주목\"(종합) - 중앙신문",
+    "link": "https://news.google.com/rss/articles/CBMitwJBVV95cUxQb3RXUC1EaVRVM1VWSk5fSEJfS0FiX2tpRkk4X2pLcmk0UnFvQjdSbG5zaFQ1cVoyUEM1S3FWVlU3bHRoZEpuaXZocmVOUTJtcHkyMktjemM0YW9jR0dPajVmbVZuMFpESHo0a2dtSlh5aDlBZWdPVk54UGdyOENLWWFhUHY4RkF0UTFDRkdwb1RSRjZ1eDllVGJ5XzZNcldvSDh1SHJZYlpqeUtuM2dBVkVUSWlNLWI0ZGZiZ3lFQlBvSHEzUkRWTzVYc3lacWZMUE96RUt3UXdxaXUzNkF5b1Z6UlR3OE5ibXhrUmw5S1ZlYkdiTlVWTkgzbmdId2V0WGl3SW94elhKeDI0X0UxOEZMbWlTejJHT3o2aklsX3hHY0ZxOHpMZU5pcHNYNDNoWTQ1SzRXWQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:17+09:00",
+    "title": "미국발 악재에도 2% 반등한 코스피…기관 1.2조원 '사자' - 비즈워치",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5jT3FrTFQta0g1T3BSeFVqZlNWQ3c3YmFHMGR5blhvRzJDR2s1dl9zNTh3eXI4ZTZWN3VVbW5QdWxtai1aNGctbS0wWTRqUndlV1ZRa0VhRnZjYzB1X1hfMm90QjVXYnlQU1E?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:18+09:00",
+    "title": "(마감시황) 코스피, 기관 매수에 2%대 반등…5,850선 회복 - 뉴스투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5YYUNZVHBmdkx4Rk11RzE4Q1UyejBZVmRNbFVWSTBVOUZ3N1Uxd3RpWGpjMFV2bmN5N3pEMXVsNzV5NDFmcW1ZdHBjdjdTS3FRMklFUUtGSGlzVVYtUkE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:18+09:00",
+    "title": "장초반 2% 밀렸던 코스피, 2%대 상승 마감…5800선 회복 - 노컷뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE03b29ZTzVWbmdiNnVvWDkwd3h0d1JQSVBPLWNRWGNHOEZqWUcwXzZBVm5oTFEtU0kzNXdDYjkwc0NDU2syVDVCa01ydWNUOUNxcGc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:21+09:00",
+    "title": "코스피 하락 출발 후 2.2% 반등...'인텔 쇼크' 버텼다 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5YWEd2T2I2YVJ6SUxnYUZ6alBfTVlzZ1p6RWowbjk4al9TTmx6VnNXZUYzbEx0dUZYdnU3cV9vd2tuOTlLY2plZmEyRlBpMk9XdE9PZ2plaE5NLXU2dU04V0VtemMyMVJlSnV6NkpCdmdqOUxkaHc?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:22+09:00",
+    "title": "[장마감] 코스피 2.24%↑(5859.08), 코스닥 1.38%↑(734.36) - 버핏연구소",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1NMVFzZWlnTGVHUTVGYXBDbEhxSkJROHlmSnR3TnRyc3RrdGRNQ3liMlRpY2hPM1RBQ2xsZzRGSFljMkVvTHlsWW1IWGMyb1NidktmYUZPWUlacWl3bXhFM0Zn?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:32+09:00",
+    "title": "美 반도체 쇼크에도 ‘검은 월요일’ 없었다…코스피, 5800선 회복 - 시사저널",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1OM25yTWNSNk1XejBxQklFcHBJcGpNb0lUVFZQQVdhNUtfeC03SHVBVE83bWJGZW1SdV9kVjB2SVhmLWl5X1QxNEJfeGo1UjJ4Q3RUMFpXZzljb19IcTZacnRiMWtNN1FXbnhRSFpyd9IBc0FVX3lxTFA4YjBLSjhIazRQTWpsUC0yYWxaTDhnQkExSXpackwzYmF5cWhwNFhFVkpzM25tM2pTMmczSWY0U05LZDFXcWlYYlJtRWE2Q0xWRm5TV1FzSEFhU2V3eXFyQy1fR2k1QzBQWmdZWTV5MURFdGs?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:38+09:00",
+    "title": "코스피, 미 기술주 급락 딛고 2.24%↑ 5859.08 마감…삼성전자·SK하이닉스 반등 - 포인트데일리",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE94RFJWM3piS2loWlZKVnhvRVQtN1NsSlh5S3gzQTdycW1TaXVUd0tRVjlJSFEzQWZRQnp0SmVWTzNfV2MyWk93QjcxaTh3VGd6d05rbW1BVzFrN0dGV2NZSlJ6eWk2SmxIbjhELWFHdznSAXRBVV95cUxQZExQVTIyT21zN2gzWGhkSlBCSWJjZm1qNGhpRFF5LVJYYTlia1Y2MTFMTjZBZzFFcGJxa1IwZFJ5VGdSWG83by1MRjhBUkRxOWpZWUJISVBkMldJb1RXczEzWnVtTnc2Rlpxd2JaQXppdkRKVA?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:43+09:00",
+    "title": "코스피, 인텔쇼크 딛고 2.24% 상승 마감...기관 1.2조 폭풍매수 - 증권일보",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9rT3ZUb1lmTG04cjRjUnJmT3hkX2s3OFQ3RGc0ZVBzU1M4ckROcVRmaWdZMG02bl9WZXgzT3ZjS3BUQzlodHRYRXRHU2xqOHljYml3NDRJRzltaFdMeHhadA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:44+09:00",
+    "title": "[마감] 코스피 2% 상승… 기관 ‘사자’에 5800선 회복 - IT조선",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9FaURsNzR6dC1nZU1qOUNhcnlZeHNCR3JvMWNsa21sZVRZMnRkclNpSlhzRS1vcnM5bFVER2lkdDFzeXA3emZKdXliZUxEQlpOa2s1TmJieVJRVXVzaWluUnJLNDZ2bUpRYWh6SnVtcVbSAXRBVV95cUxOU1JPcFR5WlRuenlJQkdTZHhhMzM1OXFxV1RWc2JmcHRBRmU0ZF81ZUxnbUNnZEIyZW1Da21rZXc4ZjJ3MnZzU2FqWjlSUDFLMk91N09JbzMtY3Q1dlZaUGtQNEFVSW9YSHhJOC04NVd5OGpndg?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:46+09:00",
+    "title": "인텔 29% 폭락에도 '검은 월요일' 없었다…코스피 2.24% 급등 마감 - www.hidomin.com",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE91UU12anhHOXF1cHJJNXlOME1hLTNRRnhvSE1yZ3RjbTltZmwzTkx0NXdQNkN1SXhVbmJ4d0ZRa0lnNHMtaU9VTmlaUkFMajVQc2J4Rk5RbjlJbEROem16b2s5SHRrX0gxWlE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:46+09:00",
+    "title": "[마감] 코스피, 기관 저가 매수에 2.24% 반등…'인텔 쇼크' 딛고 5850선 - 알파경제",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5aZlRsbDdRVmFXUzZTUENDZTZ4dS10Sks4RW5peFk4SU1kMjJnZXhteVk0dmtpSU9OR2l1SG8zYjZSMUFsYU9wSDYyUV9nWWhOdklSbVlObWFzZlpwWFFwZ09RYXczY0VJR21BM0pR?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:48+09:00",
+    "title": "美 기술주 한파 뚫고 1.2조 기관 매수…코스피 2.24% 반등 마감 - 진일보 | 전남일보",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE45X2tKUkEyZUpOUXZVd05rQ2ZLZW00WWhxSjNUSjhSWE51bXAzbkVrbHEzVFU1b3BTRVVBZDNfNW4zTGE5b2tGRVgwYWxQOUZGSngyaWpGZnZBWW94RjA3emxkSXFaczVOeGhUeWJ0NA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T16:58+09:00",
+    "title": "[마감시황] 기관 1.2조 매수에 코스피 2.24% 반등···반도체주 상승 전환 - 폴리뉴스 Polinews",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1NZExJczlUalJPYlBOZnc5WTdxbllyczdzRjdGalF5Mnc1MUFnM1R6VG5YUURBbFlNS2s1NVJEaE4yb0N6bGpUcFVEUDVOellLVFpTNnZrdEdzSEdBdGxJd2x3Wnd5bkpXZUJsenln?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:06+09:00",
+    "title": "[1102마감체크] 코스피 지수 2.24% 급등하며 5800선 회복…3거래일 만에 반등 - 인포스탁데일리",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE44RjFZZC1nVER4eEFrejJSQlhIeUMwQVU4LWk0Tmg0LU9YQ3pJTHhIa1BpZThEUmJQOGxtdVc1Mm0xVl85STFORVByZXdLYTZWdk95YjdGV1N6RVh4TFZQYlp2WmhQaWNBakFuN2JQb2N1OXFiQlE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:14+09:00",
+    "title": "코스피, 미국발 악재 딛고 2.2% 반등…5859 마감 - 코리아리포트",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBFOWFiRjVjZHh4dHJudi1hanhLby12a1ZQeHkyVjhkQkxaeDJOcVhmdU1fT210MWdHUkV4eFVTdkhhMXRlVkVUTVh2SDhiWmdtZW9wNTUyclJHSWlYLTdkVEVyVl85ZTByS1lWZGt6Rm8?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:32+09:00",
+    "title": "[바이오 마감 브리핑]HLB 계열주 강세에도 지수 하회…케어젠 FDA 의견에 급락 - 메디코파마",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE4xVndZME1oS0JKdGxfckdySTR5cjFGWklaajNzNXUtN1FVWkRhR2RhZTNDN0xZVWppekhmcVl0Y0lLYWtfWklLelhhNnUtTWxSUkVQWk9LSFEydlkwRTYtcDF3cXhmZVhDTzBGRk9NYmE4QQ?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:34+09:00",
+    "title": "코스피, 美 반도체 충격 딛고 반등 성공…2%대 상승 마감 - MTN 머니투데이방송",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5IVWg4Z0F3S2l1c01HcEZ0UFZhazNIRG9QRGt3QWpnQlJLNnFPc05paVFlSUYxQ0NEbTJDbm5GOGIteGgyVDh3YlVMMkhqR2ZwTXd3MVJCWXpTUXZ3ZmQw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:34+09:00",
+    "title": "인텔 폭락 충격 뚫고 코스피 2.24% 반등...5859선 마감 - 위키리크스한국",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBuazFJV3k3dXV6dk9ETVhqN244YUEyNGQwZEdUT0FoOG53WFhBZUx0aW1LS3ZNYlJLOXhtbzVXTXppMzlKV0lVYVpMSHV6WE8zeUlYYWV5T0dVc1FvcmwwUWRkNEtnYi16Yjctcnk5ZTE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:35+09:00",
+    "title": "[마감시황] 코스피, 기관 1조원대 순매수에 2%대 반등…5800선 회복 - 한양경제",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE5DQnZycDl6ckk2SXBwVG1mRDdNU1FIZ3ZQejBsdlNfYjQwcVhyUHlLeWVIRnRhblp2NTl0NFRnbDV6bi1wUmhOV2s2R0RkVnJ1V1pCNnFFa1hwNjZmVnVfZ1RIS2pCWHFzQzdnRldBWjM0Zw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:42+09:00",
+    "title": "'블랙먼데이' 공포 딛고 코스피·코스닥 상승 마감 - 프리진뉴스",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1XcUxUWDVnTjV3cWpGaUdUeWZtR1dOR09zMHNtSXZDaDBfWmxnWTJVSGhhazhMRkRpYWV2YUZRSGNzejc2ME9qY1kzUWstdC1PN1RJaVY2djBUQU52Z2tic05uM0p5bDliZXdKckVQOA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-02T17:51+09:00",
+    "title": "‘미국발 한파’ 뚫은 코스피, 3거래일 만에 상승 마감…5850선 탈환 - 더나은미래",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE13eFB5b01PUkxBQjFPZnB5eXJGRGpIbDc4TnhSY3I0NlR0dHJRSlNpcU5rbUNTNmQySmhwdV9ybGRpdDVqMURLNWFEV21Uam1oLXc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   }
+  ]
+ }
+}
