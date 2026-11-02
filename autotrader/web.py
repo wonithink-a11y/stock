@@ -14,6 +14,7 @@ from __future__ import annotations
 import html
 import json
 import math
+import os
 import re
 import threading
 import time
@@ -1789,6 +1790,31 @@ def _profile_loader(cfg: dict, config_path) -> Callable[[], List[dict]]:
     return load
 
 
+RESTART_EXIT = 75                    # 0 이 아니어야 systemd(Restart=on-failure)가 다시 띄운다
+
+
+def _code_stamp() -> Tuple[int, int]:
+    """autotrader 소스·정적 파일의 (개수, 가장 늦은 수정 시각) — git pull 로 코드가 바뀌었는지 보는 지문."""
+    root = Path(__file__).resolve().parent
+    files = [f for pat in ("*.py", "strategies/*.py", "static/*") for f in root.glob(pat) if f.is_file()]
+    return len(files), max((int(f.stat().st_mtime) for f in files), default=0)
+
+
+def _exit_on_code_change(poll_sec: float = 60.0, settle_sec: float = 10.0) -> None:
+    """코드가 바뀌면 스스로 종료해 systemd 가 새 코드로 다시 띄우게 한다(웹 유닛은 NoNewPrivileges 라 sudo 재시작이 안 된다).
+    세션은 파일에 저장돼 로그인은 유지된다. pull 이 쓰는 중에 읽지 않도록 변화 감지 뒤 잠시 기다린다."""
+    try:
+        base = _code_stamp()
+        while True:
+            time.sleep(poll_sec)
+            if _code_stamp() != base:
+                time.sleep(settle_sec)
+                print("autotrader web — 코드가 바뀌어 다시 시작한다", flush=True)
+                os._exit(RESTART_EXIT)
+    except Exception as e:                      # 감시가 죽어도 웹은 계속 돈다
+        print(f"코드 변경 감시 중지: {e}", flush=True)
+
+
 def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "",
           config_path=None) -> None:
     sdir = state_dir(cfg)
@@ -1803,4 +1829,5 @@ def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: b
                  rp_id=str(w.get("rp_id", "")), origin=str(w.get("origin", "")))
     httpd = ThreadingHTTPServer((host, port), make_handler(app))
     print(f"autotrader web — http://{host}:{port} (앞단 HTTPS 프록시 뒤에서만 쓴다)", flush=True)
+    threading.Thread(target=_exit_on_code_change, daemon=True).start()
     httpd.serve_forever()
