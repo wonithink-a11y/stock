@@ -5,11 +5,11 @@
   "target": "data/backfill/supplyDemand/a4",
   "targetKind": "dir",
   "targetExt": ".jsonl.gz",
-  "hash": "sha256:d72aee591dd536cc",
+  "hash": "sha256:e10fcf3aed2421ad",
   "fileCount": 11,
   "upstream": {
-    "A0.5": "sha256:4cb71738acb8a01f",
-    "A1a": "sha256:3543c5a084d46438"
+    "A0.5": "sha256:d4a9a5ed2574bf85",
+    "A1a": "sha256:4767ab9e83034425"
   },
   "policyHash": {
     "registry": "sha256:d1c2a4032d71418f",
@@ -17,33 +17,29 @@
     "universe": "sha256:1325e19e37807f9a",
     "supplyDemand": "sha256:9cac4ab51b1322ed"
   },
-  "recordCount": 37841,
-  "candidateCount": 2578,
-  "tickersWithData": 2021,
-  "tickersWithDataRate": 0.7839,
-  "emptyCount": 553,
-  "unresolvedCount": 4,
+  "recordCount": 36734,
+  "candidateCount": 2580,
+  "tickersWithData": 2060,
+  "tickersWithDataRate": 0.7984,
+  "emptyCount": 517,
+  "unresolvedCount": 3,
   "unresolved": [
     {
-      "ticker": "018680",
+      "ticker": "074600",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     },
     {
-      "ticker": "020560",
+      "ticker": "034230",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     },
     {
-      "ticker": "034810",
-      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
-    },
-    {
-      "ticker": "018290",
+      "ticker": "033340",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     }
   ],
-  "missingRate": 0.01453,
+  "missingRate": 0.00933,
   "actualDataFrom": "2016-01-04",
-  "actualDataTo": "2026-10-02",
+  "actualDataTo": "2026-10-30",
   "smokeTest": false,
-  "generatedAt": "2026-10-02T13:01:58.027Z"
+  "generatedAt": "2026-11-02T04:03:04.449Z"
 }

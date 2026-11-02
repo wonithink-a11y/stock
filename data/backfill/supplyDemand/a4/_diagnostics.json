@@ -4,7 +4,7 @@
   "supplyDemandPolicy": "SD-1.1",
   "environment": {
     "pykrx": "unknown",
-    "python": "3.11.16"
+    "python": "3.11.17"
   },
   "shardFiles": [
     "shard-0.jsonl",
@@ -25,64 +25,60 @@
     "shard-9.jsonl"
   ],
   "shardCount": 16,
-  "emptyCount": 553,
-  "exceptionCount": 4,
-  "unresolvedCount": 4,
+  "emptyCount": 517,
+  "exceptionCount": 3,
+  "unresolvedCount": 3,
   "shardCollectFrom": [
-    "2026-09-04"
+    "2026-10-03"
   ],
   "unresolved": [
     {
-      "ticker": "018680",
+      "ticker": "074600",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     },
     {
-      "ticker": "020560",
+      "ticker": "034230",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     },
     {
-      "ticker": "034810",
-      "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
-    },
-    {
-      "ticker": "018290",
+      "ticker": "033340",
       "reason": "일부 측정치만 빈 응답 — 부분 응답은 병합하지 않는다"
     }
   ],
   "calendarStart": "2014-01-02",
-  "calendarEnd": "2026-10-02",
-  "rowCount": 37841,
+  "calendarEnd": "2026-10-30",
+  "rowCount": 36734,
   "actualDataFrom": "2016-01-04",
-  "actualDataTo": "2026-10-02",
+  "actualDataTo": "2026-10-30",
   "dateContractViolations": 0,
   "tickerContractViolations": 0,
   "categoryKeySetViolations": 0,
   "marketClearingViolations": 0,
   "marketClearingViolationSample": [],
-  "candidateCount": 2578,
-  "tickersWithData": 2021,
-  "tickersWithDataRate": 0.7839,
-  "expectedDaysPerTicker": 19,
-  "missingRateFrom": "2026-09-04",
-  "missingRate": 0.01453,
-  "unresolvedRate": 0.0016,
-  "rowCountAfterValidation": 37841,
-  "actualDataFromThisRun": "2026-09-04",
+  "candidateCount": 2580,
+  "tickersWithData": 2060,
+  "tickersWithDataRate": 0.7984,
+  "expectedDaysPerTicker": 18,
+  "missingRateFrom": "2026-10-03",
+  "missingRate": 0.00933,
+  "unresolvedRate": 0.0012,
+  "rowCountAfterValidation": 36734,
+  "actualDataFromThisRun": "2026-10-06",
   "acceptanceFails": [],
   "acceptanceWarns": [
-    "데이터 확보 종목 2021/2578 (78.4%) >= 90%"
+    "데이터 확보 종목 2060/2580 (79.8%) >= 90%"
   ],
   "acceptancePassed": true,
   "years": {
     "2026": {
-      "rows": 439558,
-      "newRows": 37841,
-      "existingRowsBeforeMerge": 401717,
-      "rawBytes": 435453780,
-      "gzBytes": 55963914
+      "rows": 476292,
+      "newRows": 36734,
+      "existingRowsBeforeMerge": 439558,
+      "rawBytes": 471317098,
+      "gzBytes": 60201270
     }
   },
-  "totalGzBytes": 55963914,
+  "totalGzBytes": 60201270,
   "yearsInDataset": [
     "2016",
     "2017",
@@ -96,5 +92,5 @@
     "2025",
     "2026"
   ],
-  "totalGzBytesAllYears": 645799589
+  "totalGzBytesAllYears": 650036945
 }
