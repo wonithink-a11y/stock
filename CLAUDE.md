@@ -34,7 +34,7 @@ Validated against
             설계 docs/control/직접매매-계획카드-설계-2026-09-27.md §10. §11 종목 분석 카드(조회 → 손절 = 진입 상단 − 3×ATR · 목표 +1.5×,
             연구 변형 C 값·검증 결과 표시, 미리보기 점검, 저장 때 당시 상태 기록). 투자 자문 아닌 규칙 계산값.
             ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 에 **의도적으로 disabled**(autotrader 전환 절차, README §무한매수 —
-            sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
+            sudo 기록으로 확인). 절차의 뒷 절반은 이후 끝났다 — **11-03 VM 확인: `infbuy` 는 paper(KIS 모의) · 자동 execute 23:35 평일, 마지막 예약 실행 11-02**(실계좌 아님).
             ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
             nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-10-20-b.md(최신 — 화면 5건·증권사 의견 일지) · 그 이전 인수인계 40여 건의 한 줄 요약 목록 = docs/control/CLAUDE상태블록-이력-2026-10-25.md §2 (파일 자체는 docs/control/세션인수인계-*.md).
             보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토 — **미룬 변경 f51488d0
