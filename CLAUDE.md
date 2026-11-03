@@ -159,6 +159,7 @@ Validated against
             T2 는 VALID·TEST 샤프 0.93/0.85 vs 보유 0.82/0.69 · MDD 개선(기록 전용, 낙폭 도구 성격) — 쓰려면 새 사전등록 forward 로만. findings/vix-term-structure-results-2026-10.md.
   안 한다   ★ VIX ≤14 팔고 ≥20 사기 · CNN 공탐 ≥80 팔고 ≤20 사기 · RSI14 ≥80 팔고 ≤30 사기 → S&P500 일봉·주봉(11-03, ba9cedf0) — 6셀 전부 REJECT. CAGR +7~9% vs 보유 +11.7%(현금 시간이 길어 강세장 2013·2017·2021·2024 를 놓침), 타이밍 p ≥ 0.0255 > 0.0083.
             문턱 변경·봉 재선택 금지. **CNN 공탐지수 일별 2011~2026-03 은 PC 로컬 data/macro/cnn_fear_greed_raw.csv(미커밋, 결함 목록은 세션인수인계-2026-11-03.md)**. findings/vix-fng-rsi-timing-results-2026-11.md.
+  안 한다   ★ 위 세 신호 조합 16셀(합의/하나라도 × 일봉·주봉, 11-03, 4461ca7b·d9a4cf7a) — 13셀 REJECT, 주봉 합의 3셀만 INFORMATION(p 0.0002)이나 **사건 1건**(2018-01 매도 → 2020-03-20 매수, ΔSharpe CI 0 포함)이고 같은 조합 일봉은 부호 반대. 지다 이유 = 쉬는 동안 시장이 연 +6~15% 오름(피한 손실 : 놓친 이익 ≈ 1 : 3~∞). 매매 불연결. findings/vix-fng-rsi-combo-results-2026-11.md.
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
   다음      ★ 10-31 폰 세션 전체(연구 6건·forward 2건·코인베이스 z 주기 답): docs/control/세션인수인계-2026-10-31-b.md.
