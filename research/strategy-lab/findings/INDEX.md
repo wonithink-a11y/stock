@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 24 |
 | 보류·판정 불가 | 43 |
-| 기각 | 161 |
-| 사전등록 문서(결과는 별도 파일) | 173 |
+| 기각 | 162 |
+| 사전등록 문서(결과는 별도 파일) | 174 |
 | 정보·탐색 | 39 |
 | 미분류 | 240 |
 
@@ -90,10 +90,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (161)
+## 기각 (162)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-03 | REJECT | us | [vix-fng-rsi-timing-results-2026-11.md](vix-fng-rsi-timing-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 세 규칙 × 일봉·주봉 6셀 전부 REJECT — 연 수익이 단순 보유(+11.7%)보다 일봉 +8.1~9.2% · 주봉 +7.1~8.4% 로 낮고 샤프도 낮다 (일… |
 | 2026-11-01 | REJECT | kr | [kr-static-vi-shortable2-results-2026-11.md](kr-static-vi-shortable2-results-2026-11.md) | 신호: 없음(사전 문턱 기준) · 경제성: 해당 없음(미판정). 공매도 거래대금 일 1억원 이상 종목(SH2, VU 사건의 32.4%)만 남기면 TRAIN t −1.84 < 바닥선 2.04 로 문턱… |
 | 2026-11-01 | REJECT | kr | [champion-shortterm-kretf-results-2026-11.md](champion-shortterm-kretf-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5": "REJECT", "HG5": "판정 불가"}. TRA… |
 | 2026-11-01 | REJECT | kr | [champion-shortterm-k200fut-results-2026-11.md](champion-shortterm-k200fut-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 셀 판정 {"VB": "REJECT", "VBM": "REJECT", "TS1": "판정 불가", "TS3": "판정 불가", "NR1": "REJECT", "NR5… |
@@ -256,10 +257,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (173)
+## 사전등록 문서(결과는 별도 파일) (174)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-03 | PREREGISTERED | us | [vix-fng-rsi-timing-preregistration-2026-11.md](vix-fng-rsi-timing-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "VIX ≤14 팔고 ≥20 사기 / CNN 공탐지수 ≥80 팔고 ≤20 사기 / RSI14 ≥80 팔고 ≤30 사기" 세 통념이 S&P500 에… |
 | 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-shortable2-preregistration-2026-11.md](kr-static-vi-shortable2-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "공매도가 실제로 두껍게(일 1억원 이상) 거래되던 종목만 남겨도 VU 숏 신호가 성립하는가". 1단계(SH 95.8%)가 변별하지 못해 규칙만 … |
 | 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-shortable-preregistration-2026-11.md](kr-static-vi-shortable-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST, 숏 방향)이 사건 전에 공매도가 실제로 이뤄지던 종목(= 공매도 허용·대차 … |
 | 2026-11-01 | PREREGISTERED | kr | [kr-static-vi-liquid-preregistration-2026-11.md](kr-static-vi-liquid-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "장중 +10% 첫 도달 뒤 종가까지 빠지는 현상(VU ROBUST 잠정, 숏 방향)이 대차가 비교적 쉬운 유동 대형주(전일 거래대금 상위 200… |
