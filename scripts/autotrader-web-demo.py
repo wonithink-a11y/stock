@@ -30,6 +30,10 @@ _kr = [k for k, v in json.loads((Path(__file__).resolve().parent.parent / "docs/
 (td / "profiles" / "plans.json").write_text(json.dumps({"strategy": "plan_trader", "mode": "paper", "markets": ["KR"],
     "symbol_allowlist": _kr, "params": {"capital": 10_000_000}, "risk": {"KR": {"max_order_value": 5_000_000, "max_position_value": 5_000_000}},
     "auto": "off", "run_at": ["09:05-15:15/5"]}), encoding="utf-8")
+for nm, mode in (("vixinv", "paper"), ("vixinv-live", "live")):        # 모의/실계좌 화면 분리 미리보기
+    (td / "profiles" / f"{nm}.json").write_text(json.dumps({"strategy": "vix_inverse", "mode": mode, "markets": ["US"],
+        "symbol_allowlist": ["SVIX"], "auto": "execute" if mode == "paper" else "off", "run_at": ["23:50", "00:20"],
+        "params": {"symbol": "SVIX", "capital_usd": 1000}}), encoding="utf-8")
 sd = td / "state"
 (sd / "profiles" / "infbuy" / "runs").mkdir(parents=True)
 (sd / "profiles" / "pbr").mkdir(parents=True)
@@ -72,6 +76,8 @@ sessions._s[A.Sessions._h("demo")] = {"created": 9e18, "seen": 9e18, "reauth": 0
 sessions._s[A.Sessions._h("demo")].update(created=__import__("time").time(), seen=__import__("time").time())
 app = web.WebApp(cfg, sd, store, sessions, A.Lockout(), secure_cookie=False, profiles=web._profile_loader(cfg, main_p),
                  rp_id="localhost", origin="http://localhost:8799",
+                 quote_fetch=lambda s: {"price": {"SVIX": 25.94, "TQQQ": 84.1, "SOXL": 41.3}.get(s, 10.0), "prev": {"SVIX": 25.31}.get(s, 85.0),
+                                        "at": now.timestamp(), "closes": [25.31 + 0.6 * __import__("math").sin(i / 9) + i * 0.01 for i in range(60)]},
                  accounts_fetch=lambda: {"fetchedAt": now.isoformat()[:19], "real": {"upbit": {"totalKrw": 1523000.0, "totalCostKrw": 1600000.0,
                      "totalPnlKrw": -77000.0, "generatedAtKST": now.isoformat()[:16], "holdings": [
                          {"currency": "BTC", "balance": 0.0071, "evalKrw": 1020000.0, "pnlKrw": -30000.0, "pnlPct": -2.9},

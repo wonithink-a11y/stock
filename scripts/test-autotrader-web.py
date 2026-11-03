@@ -314,6 +314,23 @@ def main():
     ck("설정: web 기본값이 채워진다", normalize_config({"strategy": "x", "mode": "paper", "markets": ["KR"]})["web"] == {})
     ck("웹 소스는 텔레그램·알림 모듈을 모른다(토큰이 웹 프로세스에 없다)", "TELEGRAM" not in web_src and "notify" not in web_src.lower())
 
+    # ---- 미국 시세 칸(2026-11-04): 60초 캐시 · 실패는 '시세 없음' · 전일 대비 부호
+    calls = []
+
+    def qf(s):
+        calls.append(s)
+        if s == "BAD":
+            raise OSError("down")
+        return {"price": 26.0, "prev": 25.0, "at": 0, "closes": [25.0, 25.5, 26.0]}
+    web._QUOTE_CACHE.clear()
+    q1 = web.cached_quote(qf, "SVIX", 100)
+    ck("시세: 60초 안에는 다시 안 부른다", q1 and web.cached_quote(qf, "SVIX", 130) and calls == ["SVIX"])
+    ck("시세: 60초 지나면 다시 부른다", web.cached_quote(qf, "SVIX", 161) and calls == ["SVIX", "SVIX"])
+    ck("시세: 조회 실패는 None(화면은 뜬다)", web.cached_quote(qf, "BAD", 0) is None)
+    strip = web.quote_strip({"symbol_allowlist": ["SVIX", "BAD"]}, {"SVIX": q1, "BAD": None})
+    ck("시세 칸: 가격·전일 대비·상승색·흐름선·실패 표시", "$26.00" in strip and "+1.00 (+4.00%)" in strip and 'class="up"' in strip
+       and "<polyline" in strip and "시세 없음" in strip)
+
     total = COUNT[0]
     print(f"\ntest-autotrader-web {total - len(FAILS)}/{total}" + ("" if not FAILS else f"  FAILED: {FAILS}"))
     return 1 if FAILS else 0
