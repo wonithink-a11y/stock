@@ -1,0 +1,133 @@
+{
+ "a8_last": "2026-08-14",
+ "first_day": "2025-08-11",
+ "last_day": "2026-08-14",
+ "n_days": 247,
+ "cells": {
+  "SH": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -12.12,
+   "TRAIN": {
+    "days": 131,
+    "bp": -129.6,
+    "t": -12.12
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -151.0,
+    "t": -6.28
+   },
+   "TEST": {
+    "days": 53,
+    "bp": -227.2,
+    "t": -7.7
+   },
+   "oos_gross_bp": 186.4,
+   "oos_gross_ci95": [
+    150.3,
+    223.4
+   ],
+   "net33_bp": 152.9,
+   "net67_bp": 119.4,
+   "t_net33": 8.02,
+   "breakeven_rt_bp": 186.4,
+   "events": 21623,
+   "events_per_day": 87.54,
+   "days_with_event_pct": 99.2,
+   "exit_1519_daily_bp_dir": 173.8,
+   "ex_semis_daily_bp_dir": 159.7,
+   "net33_after_carry": {
+    "3%": 151.9,
+    "10%": 149.9,
+    "30%": 140.9
+   }
+  },
+  "NS": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -7.16,
+   "TRAIN": {
+    "days": 126,
+    "bp": -298.8,
+    "t": -7.16
+   },
+   "VALID": {
+    "days": 56,
+    "bp": -207.2,
+    "t": -2.02
+   },
+   "TEST": {
+    "days": 47,
+    "bp": -600.2,
+    "t": -3.97
+   },
+   "oos_gross_bp": 386.5,
+   "oos_gross_ci95": [
+    213.7,
+    565.3
+   ],
+   "net33_bp": 353.0,
+   "net67_bp": 319.5,
+   "t_net33": 3.91,
+   "breakeven_rt_bp": 386.5,
+   "events": 954,
+   "events_per_day": 3.86,
+   "days_with_event_pct": 92.7,
+   "exit_1519_daily_bp_dir": 408.0,
+   "ex_semis_daily_bp_dir": 345.2,
+   "net33_after_carry": {
+    "3%": 352.0,
+    "10%": 350.0,
+    "30%": 341.0
+   }
+  },
+  "SH_L": {
+   "verdict": "ROBUST",
+   "sign": -1,
+   "t_train": -6.26,
+   "TRAIN": {
+    "days": 131,
+    "bp": -125.5,
+    "t": -6.26
+   },
+   "VALID": {
+    "days": 61,
+    "bp": -197.6,
+    "t": -5.57
+   },
+   "TEST": {
+    "days": 53,
+    "bp": -305.7,
+    "t": -6.69
+   },
+   "oos_gross_bp": 247.8,
+   "oos_gross_ci95": [
+    192.2,
+    305.9
+   ],
+   "net33_bp": 214.3,
+   "net67_bp": 180.8,
+   "t_net33": 7.44,
+   "breakeven_rt_bp": 247.8,
+   "events": 4103,
+   "events_per_day": 16.61,
+   "days_with_event_pct": 99.2,
+   "exit_1519_daily_bp_dir": 193.4,
+   "ex_semis_daily_bp_dir": 194.1,
+   "net33_after_carry": {
+    "3%": 213.3,
+    "10%": 211.3,
+    "30%": 202.3
+   }
+  }
+ },
+ "record": {
+  "sh_share_all_pct": 95.8,
+  "sh_share_L_pct": 97.8,
+  "sh_same_day_short_pct": 94.4,
+  "sh_median_short_value_won": 47905100.0,
+  "sh_short_volume_over_minute_volume_median": 0.0054
+ },
+ "bar": 2.03
+}

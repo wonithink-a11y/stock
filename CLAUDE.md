@@ -34,7 +34,7 @@ Validated against
             설계 docs/control/직접매매-계획카드-설계-2026-09-27.md §10. §11 종목 분석 카드(조회 → 손절 = 진입 상단 − 3×ATR · 목표 +1.5×,
             연구 변형 C 값·검증 결과 표시, 미리보기 점검, 저장 때 당시 상태 기록). 투자 자문 아닌 규칙 계산값.
             ★ 옛 `infinite-buying-vts.timer` 는 09-22 00:36 에 **의도적으로 disabled**(autotrader 전환 절차, README §무한매수 —
-            sudo 기록으로 확인). 절차의 뒷 절반(`infbuy` 프로필 auto 올리기)은 아직이라 **무한매수는 지금 어디서도 안 돈다**.
+            sudo 기록으로 확인). 절차의 뒷 절반은 이후 끝났다 — **11-03 VM 확인: `infbuy` 는 paper(KIS 모의) · 자동 execute 23:35 평일, 마지막 예약 실행 11-02**(실계좌 아님).
             ★ 실계좌 주문 켜기·실행·킬 해제는 패스키로만 · 웹 유닛은 허용목록 격리(새 파일은 BindReadOnlyPaths 에 추가) ·
             nginx 정본은 deploy/nginx-*.conf. 세부: docs/control/세션인수인계-2026-10-20-b.md(최신 — 화면 5건·증권사 의견 일지) · 그 이전 인수인계 40여 건의 한 줄 요약 목록 = docs/control/CLAUDE상태블록-이력-2026-10-25.md §2 (파일 자체는 docs/control/세션인수인계-*.md).
             보안 검토 기록 docs/control/autotrader-보안검토-2026-09-22.md(실계좌 연결 직전 재검토 — **미룬 변경 f51488d0
@@ -58,6 +58,10 @@ Validated against
             ★ 웹 `/channels` = 매경 자이앤트·크립토·월가월부 공개 채널 글(유닛 channels-feed 15분, VM state 에만 — **개인 열람,
             저장소·공개 대시보드 금지**). 비트캐쳐는 미리보기가 꺼져 불가. 자이앤트 목표가 글은 연구용 부적합(움직인 종목만·
             2025-05 시작) — 맥락 표시 전용(절대 규칙 1).
+  다음      ★★ **크립토 자동매매 화면·한 바구니(11-01 밤, 최신 인수인계 docs/control/세션인수인계-2026-11-01-c.md)** — autotrader 탭 홈·크립토·주식·기록·설정 · 크립토 서브탭 업비트|빗썸 ·
+            **긴급 정지(구 킬 스위치)는 거래소 탭마다 하나**(그 거래소 프로필 전부, 실계좌 해제=지문만) · 전략 `crypto_weights`(30일 평균 거래대금 상위 30·스테이블 제외·코인당 ≤15%·월 1회 선정·자기 체결 수량만) ·
+            빗썸 어댑터(`autotrader/bithumb.py`) · 웹에서 cbprem 금액·한 바구니 자본(5천~1천만, 패스키) 변경. VM 프로필 `cbprem`·`cw-upbit`·`cw-bithumb` 전부 **dry·live 꺼짐 — 실주문 0**.
+            켜기(사용자): 원화 입금 → dry-run 계획 확인 → 업비트 먼저(README §11). **빗썸은 소액 실검증 전 켜지 않는다(README §12)**. 수동 주문 화면 없음(설계·승인 필요).
   다음      ★★ **텔레그램 방 5개 분리(10-25, 최신 인수인계 docs/control/세션인수인계-2026-10-25-b.md)** — 같은 봇, 그룹 5개: 급등락(장중 급등락·미국 8-K) · 리포트(마감) · YouTube · 뉴스(뉴스·공시·D-day) · 스코어(등급 변동, Actions 전용).
             환경변수 `TELEGRAM_{URGENT,REPORT,VIDEO,NEWS,SCORE}_CHAT_ID`, 비면 1:1 방(`TELEGRAM_CHAT_ID`)으로 폴백 — 빠뜨려도 에러 없이 1:1 로 간다. 장중 알림의 유형 라벨(`무리형(추정)`)·면책 문구 삭제.
             push·VM pull 완료, **새 방 실제 도착 확인(10-27 사용자)**. 방이 슈퍼그룹이 되면 ID 가 바뀌어 끊긴다.
@@ -153,6 +157,11 @@ Validated against
             '잔고 많으면 약세'(미국 문헌) 국내 불성립, 숏커버 DDN10 TRAIN −71·TEST +166 부호 반전. findings/short-balance-dtc-results-2026-10.md.
   안 한다   ★ VIX 기간구조 → S&P500 선물 비중(10-31, 36ad6998·3d40c89c) — T1 역전·T2 백분위 0.8 둘 다 REJECT(TRAIN 실력 0.24·0.10 < 바닥선 0.35).
             T2 는 VALID·TEST 샤프 0.93/0.85 vs 보유 0.82/0.69 · MDD 개선(기록 전용, 낙폭 도구 성격) — 쓰려면 새 사전등록 forward 로만. findings/vix-term-structure-results-2026-10.md.
+  안 한다   ★ VIX ≤14 팔고 ≥20 사기 · CNN 공탐 ≥80 팔고 ≤20 사기 · RSI14 ≥80 팔고 ≤30 사기 → S&P500 일봉·주봉(11-03, ba9cedf0) — 6셀 전부 REJECT. CAGR +7~9% vs 보유 +11.7%(현금 시간이 길어 강세장 2013·2017·2021·2024 를 놓침), 타이밍 p ≥ 0.0255 > 0.0083.
+            문턱 변경·봉 재선택 금지. **CNN 공탐지수 일별 2011~2026-03 은 PC 로컬 data/macro/cnn_fear_greed_raw.csv(미커밋, 결함 목록은 세션인수인계-2026-11-03.md)**. findings/vix-fng-rsi-timing-results-2026-11.md.
+  안 한다   ★ 위 세 신호 조합 16셀(합의/하나라도 × 일봉·주봉, 11-03, 4461ca7b·d9a4cf7a) — 13셀 REJECT, 주봉 합의 3셀만 INFORMATION(p 0.0002)이나 **사건 1건**(2018-01 매도 → 2020-03-20 매수, ΔSharpe CI 0 포함)이고 같은 조합 일봉은 부호 반대. 지다 이유 = 쉬는 동안 시장이 연 +6~15% 오름(피한 손실 : 놓친 이익 ≈ 1 : 3~∞). 매매 불연결. findings/vix-fng-rsi-combo-results-2026-11.md.
+  안 한다   ★ 같은 3규칙을 섹터·배당·주도섹터(미국)·한국 지수·업종에 적용(11-03, f6eff501·7ce21221, 묶음 18셀 α 0.05/40) — 미국 9셀 REJECT, 한국 공탐·RSI 6셀 REJECT, **한국 VIX 3셀만 INCONCLUSIVE**(CAGR +8.2~8.8% vs +5.5~6.1%, MDD 개선, p 0.049~0.10, 2025~ −20~−33%p 로 뒤집힘). 미국 에너지만 덜 해롭고 한국 철강·화학·건설이 VIX 에 반응. 후속은 한국 VIX forward 사전등록으로만. findings/vix-fng-rsi-sector-kr-results-2026-11.md.
+  안 한다   ★ VIX 수준으로 롱/인버스 ETN 사고팔기 최적값 · 국내 ETN vs 미국 · 대통령·정당별(11-03, 8eb60a12·2899e608) — 인버스(VIX ≥20 매수·≤16 매도) 넓은 고원이 TRAIN·VALID·TEST 모두 양이나 TEST 순열 p 0.071 로 OOS 실패(수익 대부분 인버스 구조적 보유 수익, 규칙은 샤프·낙폭 개선); 롱 VIX 는 거래 1건씩이라 신호 아님(트럼프2기 VIX ≤12 일수 0). 같은 규칙에서 국내 ETN 은 미국 ETF 보다 훨씬 적게 벎(+56% vs +152%). 정당별 VIX 수준 차이 없음, 변동성만 2009년 이후 증가. 후속은 인버스 forward 사전등록으로만. findings/vix-level-product-era-results-2026-11.md.
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
   다음      ★ 10-31 폰 세션 전체(연구 6건·forward 2건·코인베이스 z 주기 답): docs/control/세션인수인계-2026-10-31-b.md.
