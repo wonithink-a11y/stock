@@ -9,8 +9,8 @@
 | 통과·채택 | 24 |
 | 보류·판정 불가 | 44 |
 | 기각 | 162 |
-| 사전등록 문서(결과는 별도 파일) | 176 |
-| 정보·탐색 | 40 |
+| 사전등록 문서(결과는 별도 파일) | 177 |
+| 정보·탐색 | 41 |
 | 미분류 | 240 |
 
 ## 통과·채택 (24)
@@ -258,10 +258,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (176)
+## 사전등록 문서(결과는 별도 파일) (177)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-03 | PREREGISTERED | us-kr | [vix-level-product-era-preregistration-2026-11.md](vix-level-product-era-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (1) VIX 수준으로 롱/인버스 상품을 사고파는 규칙에서 '몇일 때 사고 몇일 때 파나'의 최적값이 구간을 넘어 통하는가, (2) 국내 ETN … |
 | 2026-11-03 | PREREGISTERED | us | [vix-fng-rsi-timing-preregistration-2026-11.md](vix-fng-rsi-timing-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "VIX ≤14 팔고 ≥20 사기 / CNN 공탐지수 ≥80 팔고 ≤20 사기 / RSI14 ≥80 팔고 ≤30 사기" 세 통념이 S&P500 에… |
 | 2026-11-03 | PREREGISTERED | us-kr | [vix-fng-rsi-sector-kr-preregistration-2026-11.md](vix-fng-rsi-sector-kr-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 전체 시장(S&P500)에서 졌던 VIX·공탐·RSI 극단 규칙이 (1) 섹터·배당·주도 섹터 ETF 에서 달리 작동하는가, (2) 미국 VIX·… |
 | 2026-11-03 | PREREGISTERED | us | [vix-fng-rsi-combo-preregistration-2026-11.md](vix-fng-rsi-combo-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 단독 규칙 3개가 모두 REJECT 였는데, VIX·공탐지수·RSI 극단 신호를 합치면(둘이 같이/하나라도, 세 개 합의) 보유를 이기는가. 사용… |
@@ -439,10 +440,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (40)
+## 정보·탐색 (41)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-03 | INFORMATION | us-kr | [vix-level-product-era-results-2026-11.md](vix-level-product-era-results-2026-11.md) | 신호: 인버스 레그만 있음(구간 전반 양, 단 상당 부분이 인버스의 구조적 보유 수익) · 경제성: 조건부. 레그B(VIX ≥20 인버스 매수 → ≤16 매도)는 TRAIN·VALID·TEST 모두… |
 | 2026-11-03 | INFORMATION | us | [vix-fng-rsi-combo-results-2026-11.md](vix-fng-rsi-combo-results-2026-11.md) | 신호: 있음(주봉 합의 3셀, 단 **사건 1건**) · 경제성: 미달. 16셀 중 13셀 REJECT, 주봉 합의 C2·C3·C4 만 타이밍 p 0.0002(순열 하한)·CAGR 12.8~13.2… |
 | 2026-10-30 | EXPLORATORY | crypto | [stablecoin-supply-explore-2023-2026-10.md](stablecoin-supply-explore-2023-2026-10.md) | 사후 기술(판정 없음). 2023~ S1 104건 평균 +71.8bp(t 2.25)는 사건 단위로 센 값이고, 7일 이내 사건을 한 국면으로 묶으면 독립 국면 19개 · 국면 평균 +19.4bp(t… |
 | 2026-10-28 | INFORMATION | kr | [day-trader-scan-kr-results-2026-10.md](day-trader-scan-kr-results-2026-10.md) | 신호: 있음 · 경제성: 미달. 셀 판정 {"B20": "REJECT", "FLAG": "REJECT", "RECL": "REJECT", "OVSD": "INFORMATION", "BNCE": "R… |
