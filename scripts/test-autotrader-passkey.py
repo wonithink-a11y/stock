@@ -273,8 +273,10 @@ def main():
         ck("시장 칩 US 는 US 프로필만(국내 전용 프로필 숨김)", st == 200 and "BASE" not in b.decode())
         st, _, b = g("/orders?m=crypto")
         ck("주문 내역 크립토 필터", st == 200 and "주문 · 거래 내역" in b.decode() and "← 크립토" in b.decode())
-        st, _, b = g("/")
+        st, _, b = g("/?a=live")                         # 크립토는 실계좌뿐 — 홈의 실계좌 화면에 나온다(2026-11-04 모의/실계좌 분리)
         ck("홈: 시장 칩 + 크립토 열기 버튼", st == 200 and "/crypto" in b.decode() and "chips" in b.decode() and "크립토 열기" in b.decode())
+        b0 = g("/")[2].decode()
+        ck("홈 기본(모의): 실계좌 프로필 카드 없음 + 계좌 전환 칸", "크립토 열기" not in b0 and 'class="seg"' in b0 and "?a=live" in b0)
         # ---- 크립토 서브탭: 업비트 | 빗썸(2026-11-01) — 거래소별로 따로 본다
         BW = {"strategy": "crypto_weights", "broker": "bithumb", "mode": "live", "key_prefix": "BITHUMB_TRADE", "markets": ["BITHUMB"],
               "symbol_allowlist": ["KRW-BTC"], "auto": "off",
