@@ -46,13 +46,17 @@ def run(closes):
     return state, sig, info, closes[-1]
 
 
-def qn_status(today=None):
+def qn_posted():
+    """SVIX·UVIX 면제(QN) 공시일(date). 실패하면 예외 — 호출부가 처리."""
     import requests
+    t = requests.get(QN_URL, timeout=30, headers={"User-Agent": "stock-research-monitor/1.0"}).text
+    return dt.date(*map(int, re.search(r"(\d{4})(\d{2})(\d{2})\.pdf", t).groups()))
+
+
+def qn_status(today=None):
     today = today or dt.date.today()
     try:
-        t = requests.get(QN_URL, timeout=30, headers={"User-Agent": "stock-research-monitor/1.0"}).text
-        m = re.search(r"(\d{4})(\d{2})(\d{2})\.pdf", t)
-        posted = dt.date(*map(int, m.groups()))
+        posted = qn_posted()
     except Exception as e:  # 네트워크·페이지 형식 변경
         return f"SVIX 면제(QN) 확인 실패: {e}"
     left = (posted + dt.timedelta(days=92) - today).days
