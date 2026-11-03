@@ -1,0 +1,21 @@
+{
+ "headline": "반도체·AI주가 사흘 만에 반등해 나스닥이 올랐지만 애플 약세와 동일가중 하락으로 다우는 내렸다 — 지수끼리 엇갈린 날.",
+ "causes": [
+  {"title":"AI·반도체 반등","confidence":"중간",
+   "evidence":[{"timeKST":"2026-11-04T02:53","source":"24/7 Wall St.","text":"AI 데이터센터주 자금조달 우려에서 반등","url":""},{"timeKST":"2026-11-04T02:24","source":"Benzinga","text":"나스닥100 상승, 엔비디아가 애플 시총 추월","url":""}],
+   "reaction":"SOX +2.63%, 기술 +1.31%, 브로드컴 +3.07%",
+   "counter":"SOX 5일 −7.68%·20일 −19.80%로 일부 만회, RSP −0.33%"},
+  {"title":"애플 약세가 다우를 눌렀다","confidence":"낮음",
+   "evidence":[{"timeKST":"2026-11-04T01:50","source":"The News International","text":"애플 하락(이유는 제목에서 미확인)","url":""}],
+   "reaction":"애플 −1.90%, 다우 −0.38%",
+   "counter":"엔비디아·마이크로소프트·메타는 +2%대"},
+  {"title":"금리 상승·소비재 약세","confidence":"낮음",
+   "evidence":[{"timeKST":"2026-11-04T01:30","source":"Bloomberg","text":"유가 변동·강한 구인 지표에 국채 하락(제목)","url":""}],
+   "reaction":"10년물 +5.8bp, 필수소비재 −2.07%, 소재 −2.01%",
+   "counter":"WTI +0.36%뿐"}
+ ],
+ "afterClose": [{"timeKST":"2026-11-04T06:54","text":"CFTC 개별 주식 무기한 선물 허용, 거래소 측 소송 제기"}],
+ "events": [{"timeKST":"2026-11-04T23:00","text":"미국 JOLTS 구인건수"}],
+ "watch": ["반도체 반등이 이어지는지","대형주 쏠림(RSP−SPY) 지속 여부","10년물 5% 접근"],
+ "researchNotes": []
+}
