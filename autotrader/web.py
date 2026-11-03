@@ -411,7 +411,7 @@ def _fetch_us_quote(sym: str) -> dict:
 
 
 _QUOTE_CACHE: Dict[str, Tuple[float, Optional[dict]]] = {}
-QUOTE_TTL = 60
+QUOTE_TTL = 15                                  # 화면 시세 재사용(초) — 홈·주식 탭은 30초마다 새로고침
 
 
 def cached_quote(fetch: Callable[[str], dict], sym: str, now: float) -> Optional[dict]:
@@ -1416,7 +1416,7 @@ class WebApp:
                                       self._quotes(stock))
                     + f'<a class="btn" href="{self.base}/orders?m=stock">주식 주문 내역 ›</a>'
                     + (f'<script src="{E(self.base)}/static/passkey.js"></script>' if pk else ""))
-            return 200, self._hdrs(), _page("주식", body, base=self.base, sub="주식 · " + ("실계좌" if acct == "live" else "모의"),
+            return 200, self._hdrs(), _page("주식", body, refresh=True, base=self.base, sub="주식 · " + ("실계좌" if acct == "live" else "모의"),
                                             tab="strat", live=acct == "live")
         if method == "GET" and path == "/crypto":
             if self.require_reauth and not self.sessions.is_fresh(sess):
