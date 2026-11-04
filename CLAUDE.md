@@ -168,7 +168,7 @@ Validated against
             수익 최선 −1/−0.5배는 VALID MDD −86%. 배율 순서 −0.5 > −1 > 현금 > 롱 은 안정(순위상관 0.81). 롱 상시 연 −39~−87%. 현행 vixinv(SVIX −1배) 무분할 2020-03 −84%(기록). findings/vix-leverage-menu-results-2026-11.md.
   다음      ★ **VIX 인버스 모의 가동(11-03)** — autotrader 프로필 `vixinv`(KIS 모의·SVIX·VIX≥20 매수/≤16 매도·4분할·평일 23:50/00:20), 첫 체결 11-03 23:50. 실계좌 0 · 모의 계좌는 infbuy 와 공유 · 규칙은 OOS 미통과라 문턱 변경 금지. 경위 docs/control/세션인수인계-2026-11-03-{,b,c}.md.
             ★ **실계좌 프로필 `vixinv-live`(11-04, 총 $1,000) 준비 — 꺼짐**: 실전 키 dry-run 통과, 달러 0 이라 주문 거부. 남은 켜기(환전·live 플래그·ALLOW_LIVE·지문)는 사용자.
-            웹 개편(PR #52·#53): 홈·주식 '모의|실계좌' 전환·실계좌 주황·미국 카드 야후 시세(15초). 미해결 infbuy fills.json 0건. docs/control/세션인수인계-2026-11-04.md.
+            웹 개편(PR #52·#53): 홈·주식 '모의|실계좌' 전환·실계좌 주황·미국 카드 야후 시세(15초). 미해결 infbuy fills.json 0건. docs/control/세션인수인계-2026-11-04.md · 오후 VIX 연구 2건 REJECT -b.
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
   다음      ★ 10-31 폰 세션 전체(연구 6건·forward 2건·코인베이스 z 주기 답): docs/control/세션인수인계-2026-10-31-b.md.
