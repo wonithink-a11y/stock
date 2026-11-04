@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 24 |
 | 보류·판정 불가 | 44 |
-| 기각 | 163 |
-| 사전등록 문서(결과는 별도 파일) | 178 |
+| 기각 | 164 |
+| 사전등록 문서(결과는 별도 파일) | 179 |
 | 정보·탐색 | 42 |
 | 미분류 | 240 |
 
@@ -91,10 +91,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (163)
+## 기각 (164)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-04 | REJECT | us | [vix-leverage-menu-results-2026-11.md](vix-leverage-menu-results-2026-11.md) | 신호: 약함(문턱 미달) · 경제성: 미달. O1(샤프)은 'VIX ≥20 이면 −0.5배, ≤16 이면 현금'(현행 규칙과 같은 꼴)을 골랐고 VALID·TEST 샤프 0.63·1.29 로 단순 … |
 | 2026-11-04 | REJECT | us | [vix-community-shortvol-results-2026-11.md](vix-community-shortvol-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 커뮤니티 표준 숏 변동성 타이밍 두 규칙 모두 같은 보유 비율의 무작위 타이밍과 구분되지 않는다 — C1 콘탱고 p 0.209(보유 94%, 샤프 0.60 vs 단순… |
 | 2026-11-03 | REJECT | us | [vix-fng-rsi-timing-results-2026-11.md](vix-fng-rsi-timing-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 세 규칙 × 일봉·주봉 6셀 전부 REJECT — 연 수익이 단순 보유(+11.7%)보다 일봉 +8.1~9.2% · 주봉 +7.1~8.4% 로 낮고 샤프도 낮다 (일… |
 | 2026-11-01 | REJECT | kr | [kr-static-vi-shortable2-results-2026-11.md](kr-static-vi-shortable2-results-2026-11.md) | 신호: 없음(사전 문턱 기준) · 경제성: 해당 없음(미판정). 공매도 거래대금 일 1억원 이상 종목(SH2, VU 사건의 32.4%)만 남기면 TRAIN t −1.84 < 바닥선 2.04 로 문턱… |
@@ -259,10 +260,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (178)
+## 사전등록 문서(결과는 별도 파일) (179)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-04 | PREREGISTERED | us | [vix-leverage-menu-preregistration-2026-11.md](vix-leverage-menu-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 상품을 배율(+2·+1·−0.5·−1배)로 늘어놓고 '어떤 상태에서 어느 배율을 들까'를 TRAIN 에서 고르면, 그 선택이 VALID·T… |
 | 2026-11-04 | PREREGISTERED | us | [vix-community-shortvol-preregistration-2026-11.md](vix-community-shortvol-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 깃허브·커뮤니티에서 가장 널리 쓰는 숏 변동성 타이밍 규칙 두 개(VIX/VIX3M 콘탱고, Cooper 2013 의 VRP)가 인버스 VIX 상… |
 | 2026-11-03 | PREREGISTERED | us-kr | [vix-level-product-era-preregistration-2026-11.md](vix-level-product-era-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (1) VIX 수준으로 롱/인버스 상품을 사고파는 규칙에서 '몇일 때 사고 몇일 때 파나'의 최적값이 구간을 넘어 통하는가, (2) 국내 ETN … |
 | 2026-11-03 | PREREGISTERED | us | [vix-fng-rsi-timing-preregistration-2026-11.md](vix-fng-rsi-timing-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "VIX ≤14 팔고 ≥20 사기 / CNN 공탐지수 ≥80 팔고 ≤20 사기 / RSI14 ≥80 팔고 ≤30 사기" 세 통념이 S&P500 에… |
