@@ -3,9 +3,17 @@
   "ticker": "207940",
   "listingStatus": "NORMAL",
   "tradingState": "NORMAL",
-  "riskStates": [],
-  "activeMeta": [],
-  "lastSortKey": "20261030:20261030000702:00",
-  "lastEventId": "dart:20261030000702#0",
-  "updatedAt": "2026-11-02T09:00:56+09:00"
+  "riskStates": [
+    "RIGHTS_OFFERING_ACTIVE"
+  ],
+  "activeMeta": [
+    {
+      "code": "RIGHTS_OFFERING_ACTIVE",
+      "activatedAt": "2026-11-05T00:00:00+09:00",
+      "ttlDays": 30
+    }
+  ],
+  "lastSortKey": "20261105:20261105800618:00",
+  "lastEventId": "dart:20261105800618#0",
+  "updatedAt": "2026-11-05T00:00:00+09:00"
 }
