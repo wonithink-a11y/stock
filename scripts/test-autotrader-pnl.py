@@ -96,6 +96,45 @@ def main():
            notify.trade_chat({"TELEGRAM_TRADE_CHAT_ID": "T", "TELEGRAM_CHAT_ID": "C", "TELEGRAM_ALERT_CHAT_ID": "A"}) == "T"
            and notify.trade_chat({"TELEGRAM_CHAT_ID": "C", "TELEGRAM_ALERT_CHAT_ID": "A"}) == "C")
 
+    # ---- 11-06: infbuy fills.json 0건 대응 — 번호 자릿수·동기화 기록·시장별 실패 격리·되살리기 기간
+    with tempfile.TemporaryDirectory() as td:
+        cfg = normalize_config({"strategy": "x", "mode": "paper", "markets": ["US", "KR"], "symbol_allowlist": ["TQQQ"],
+                                "state_dir": str(Path(td) / "s")})
+        cfg["profile"] = "p"
+        led = Ledger(Path(td) / "s")
+        snap = {"markets": {"US": {"positions": []}, "KR": {"positions": []}}}
+        now = datetime(2026, 11, 6, 9, 0, tzinfo=KST)
+        b = sync_fills(cfg, FakeBroker(), snap, now)                           # 원장 생성(주문 없음 → exclude 빈 목록)
+        ck("동기화 기록: 주문 없으면 시장별 pending 0", b["sync"]["markets"]["US"] == {"pending": 0} and b["exclude"] == [])
+
+        led.append(order("0030012345", "TQQQ", "BUY", "2026-11-05"))
+        led.append(order("0000777", "TQQQ", "SELL", "2026-10-20"))              # 7일 밖(되살리기 대상)
+        fb = FakeBroker()
+        fb.fill_rows = [{"orderNo": "30012345", "symbol": "TQQQ", "side": "BUY", "qty": 4, "price": 60.0, "day": "20261105"},
+                        {"orderNo": "777", "symbol": "TQQQ", "side": "SELL", "qty": 2, "price": 70.0, "day": "20261020"}]
+        b = sync_fills(cfg, fb, snap, now)
+        ck("앞의 0 이 다른 번호도 같은 주문(키는 원장 번호)", set(b["fills"]) == {"0030012345"}
+           and b["fills"]["0030012345"]["orderNo"] == "0030012345")
+        us = b["sync"]["markets"]["US"]
+        ck("동기화 기록: 기간·받은 행·맞춘 행·표본", us["pending"] == 1 and us["brokerRows"] == 2 and us["matched"] == 1
+           and us["range"] == ["20261104", "20261106"] and us["oursSample"] == ["0030012345"])
+        ck("기본 7일 — 10-20 주문은 아직 안 들어온다", "0000777" not in b["fills"])
+        b = sync_fills(cfg, fb, snap, now, lookback_days=30)
+        ck("되살리기(30일): 7일 밖 체결도 들어온다", set(b["fills"]) == {"0030012345", "0000777"} and b["sync"]["lookbackDays"] == 30)
+        ck("되살리기 상한 90일", sync_fills(cfg, fb, snap, now, lookback_days=999)["sync"]["lookbackDays"] == 90)
+
+        class Half(FakeBroker):                                                # US 는 실패, KR 은 정상
+            def fills(self, market, start, end):
+                if market == "US":
+                    raise RuntimeError("EGW00201 초당 거래건수 초과")
+                return [{"orderNo": "9", "symbol": "005930", "side": "BUY", "qty": 1, "price": 100.0, "day": "20261105"}]
+        led.append({**order("9", "005930", "BUY", "2026-11-05"), "market": "KR"})
+        b = sync_fills(cfg, Half(), snap, now)
+        ck("한 시장 실패는 기록하고 다른 시장은 갱신", "9" in b["fills"] and "error" in b["sync"]["markets"]["US"]
+           and b["sync"]["errors"] and "0030012345" in b["fills"])
+        ck("실패해도 파일은 남는다(기록 포함)",
+           "errors" in json.loads((Path(td) / "s" / "fills.json").read_text(encoding="utf-8"))["sync"])
+
     print(f"\ntest-autotrader-pnl {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0
 

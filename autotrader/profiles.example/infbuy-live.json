@@ -1,0 +1,33 @@
+{
+  "_설명": "무한매수 V4.0 실계좌 초안(2026-11-06) — auto=off · live 꺼짐(주문 안 나감). 모의 infbuy 와 달리 import_state_dir 가 없다: 실계좌는 T=0 새 사이클로 시작한다(모의 회차를 이어받으면 안 된다). seed_usd 는 종목당 배정액 — 1회 매수 = seed/40, LOC 두 갈래로 반씩이라 주문 1건 ≈ seed/80. 그 금액이 주가보다 작으면 0주라 안 나간다(TQQQ·SOXL 이 $50~60 이면 seed ≥ $5,000 이어야 갈래마다 1주). 정수 반올림 오차가 커서 규칙과 다르게 산다 — 갈래당 5주(≈ seed $25,000) 아래는 근사다. MOC(역전 첫날 매도)는 autotrader 에 없어 건너뛴다(규칙과 다름). 계좌 달러 현금을 vixinv-live 와 공유하면 서로의 잔금을 먹는다 — 환전액을 두 전략 합으로 맞춘다. 켜기는 README §4·§9(전부 사용자).",
+  "strategy": "infinite_buying",
+  "mode": "live",
+  "key_prefix": "KIS_LIVE",
+  "markets": ["US"],
+  "symbol_allowlist": ["TQQQ", "SOXL"],
+  "params": {
+    "rules_file": "/home/ubuntu/collector-venv/infbuy/_rules.local.json",
+    "tickers": ["TQQQ", "SOXL"],
+    "seed_usd": 5000,
+    "splits": 40,
+    "snapshot_ref_symbol_us": "TQQQ"
+  },
+  "auto": "off",
+  "run_at": ["23:35"],
+  "days": "weekdays",
+  "risk": {
+    "US": {
+      "max_order_value": 300,
+      "max_daily_value": 1000,
+      "max_orders_per_run": 20,
+      "price_band_pct": 30,
+      "max_position_value": 5500,
+      "allow_sell": true
+    }
+  },
+  "live": {
+    "enabled": false,
+    "tr_ids_reviewed": false
+  },
+  "web_live_allowed": true
+}
