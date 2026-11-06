@@ -349,7 +349,7 @@ def cmd_fills_sync(args) -> int:
     book = sync_fills(cfg, broker, build_snapshot(cfg, broker, env, now), now, lookback_days=args.days)
     sync = book.get("sync", {})
     print(f"[{cfg.get('profile')}] 체결 원장 {before} → {len(book.get('fills', {}))}건 · 원장 주문 {sync.get('ledgerOrders')} · "
-          f"조회 {sync.get('lookbackDays')}일 · 시작 전 주문(제외) {len(book.get('exclude', []))}")
+          f"조회 {sync.get('lookbackDays')}일 · 원장 생성 {book.get('openedAt')} · 생성 전 주문(제외) {len(book.get('exclude', []))}")
     for m, i in sync.get("markets", {}).items():
         print(f"  {m}: " + " ".join(f"{k}={v}" for k, v in i.items()))
     for m, r in realized(book).items():
