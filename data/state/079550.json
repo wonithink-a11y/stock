@@ -3,9 +3,17 @@
   "ticker": "079550",
   "listingStatus": "NORMAL",
   "tradingState": "NORMAL",
-  "riskStates": [],
-  "activeMeta": [],
-  "lastSortKey": "20260904:20260904000208:00",
-  "lastEventId": "dart:20260904000208#0",
-  "updatedAt": "2026-10-05T08:42:12+09:00"
+  "riskStates": [
+    "RIGHTS_OFFERING_ACTIVE"
+  ],
+  "activeMeta": [
+    {
+      "code": "RIGHTS_OFFERING_ACTIVE",
+      "activatedAt": "2026-11-06T00:00:00+09:00",
+      "ttlDays": 30
+    }
+  ],
+  "lastSortKey": "20261106:20261106000234:00",
+  "lastEventId": "dart:20261106000234#0",
+  "updatedAt": "2026-11-06T00:00:00+09:00"
 }
