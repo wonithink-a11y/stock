@@ -1,0 +1,21 @@
+{
+ "headline": "전날 대폭락 뒤 반도체 반등 주도로 나스닥 +1.09%·SOX +4.21%, 다우는 −0.46% — 지수가 갈렸고 나스닥은 주간 기준 4주 연속 하락.",
+ "causes": [
+  {"title":"전날 AI·반도체 급락의 되돌림","confidence":"중간",
+   "evidence":[{"timeKST":"2026-11-07T00:52","source":"Financial Express","text":"칩 주식 회복, 나스닥 400포인트 이상 상승 개장","url":""},{"timeKST":"2026-11-07T01:53","source":"BNN Bloomberg","text":"AI 급락 뒤 안도 랠리","url":""}],
+   "reaction":"SOX +4.21%, XLK +1.45%, 엔비디아 +2.78%, EWY +4.07% (SOX 5일은 −12.15%)",
+   "counter":"RSP −0.38%, 다우 −0.46% — 반등이 대형 기술주에 집중"},
+  {"title":"강한 고용지표 → 금리·연준 인상 경계","confidence":"중간",
+   "evidence":[{"timeKST":"2026-11-07T01:31","source":"Beinsure","text":"페이롤 16.5만, 수익률·인상 확률 상승(원문 수치 미확인)","url":""},{"timeKST":"2026-11-07T05:36","source":"Bloomberg","text":"강한 고용에 국채 약세","url":""}],
+   "reaction":"10년 +2.2bp, 2년 +5.0bp, 달러인덱스 +0.74%, 금 −0.82%",
+   "counter":"금리 상승에도 기술주 상승"},
+  {"title":"개별 실적·가이던스 호재","confidence":"낮음",
+   "evidence":[{"timeKST":"2026-11-07T01:06","source":"24/7 Wall St","text":"에어비앤비 가이던스 상향","url":""}],
+   "reaction":"개별 종목 이야기 — 업종 일반화 안 함",
+   "counter":"지수 방향을 설명하지 못함"}
+ ],
+ "afterClose": [],
+ "events": [{"timeKST":"2026-11-07","text":"버크셔해서웨이B 실적 발표"},{"timeKST":"2026-11-09","text":"콘스텔레이션·KKR·옥시덴탈·트레이드데스크 등 실적"}],
+ "watch": ["반도체 반등이 대형 기술주 밖으로 퍼지는지","금리 상승이 기술주에 부담이 되는지","11-09 한국장 시가 갭 이후 장중 흐름"],
+ "researchNotes": [{"condition":"밤사이 SOX z≥1 (z=1.4)","note":"한국 반도체는 시가 갭 상승 후 시가→종가 평균 음 — 평균적 관찰, 예측 아님","source":"research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"}]
+}
