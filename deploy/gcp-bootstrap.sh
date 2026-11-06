@@ -44,7 +44,7 @@ fi
 echo "== 저장소 · venv (ubuntu 로)"
 sudo -u ubuntu -H bash -s "$REPO_URL" <<'EOS'
 set -euo pipefail
-[ -d ~/collector/.git ] || git clone -q "$1" ~/collector
+[ -d ~/collector/.git ] || git clone -q --depth 1 "$1" ~/collector   # 얕은 복제: 전체 이력은 1GB VM 에 너무 크다(15분+). pull --ff-only 는 그대로 동작
 [ -d ~/collector-venv ] || python3 -m venv ~/collector-venv
 mkdir -p ~/collector-venv/logs
 ~/collector-venv/bin/pip install -q --upgrade pip "setuptools<81"
