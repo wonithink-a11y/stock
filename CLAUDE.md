@@ -15,7 +15,8 @@ Validated against
   ★★★ 지금  **OCI 테넌시 `wonithink` 정지·구독 종료(11-06~07 확인, 사유 '데이터 감사' 미공개) — 작업 VM·Object Storage 전부 접근 불가, 데이터는 보존.**
             이의 제기 접수(번호·기한 없음, 뒤집히면 이메일). VM 전 유닛·OCI 쓰는 Actions(분봉 승격·paper-trading-ui) 실패가 정상. 실계좌는 원래 전부 꺼짐.
             **GCP 임시 서버(e2-micro us-west1-b, 브라우저 SSH)는 11-07 밤 사용자가 `중지`했다 — 외부 IPv4 가 e2-micro 무료 등급에도 월 약 $3.6 이라 비용 원칙(절대 규칙 9)에 따름. 서버에서 돌던 유닛(알림·collector-pull·모의 슬리브·rv20 선물 모의·autotrader 웹·SVIX 모의 프로필)은 전부 멈춘 상태.**
-            **남은 가동 = 이 PC 의 작업 스케줄러**: `stock-gcp-backup`(서버 백업 — 서버가 꺼져 있어 지금은 실패가 정상) · `stock-vix-alert`(매일 07:10, SVIX 신호 알림 텔레그램+카카오) · `stock-price-alert`(5분, 가격 목표 알림 — 등록한 목표 없음). 래퍼 scripts/run-alert-pc.ps1(PC `.env` 에 텔레그램·카카오 키). 서버를 다시 켜려면 콘솔에서 '시작/재개'(외부 IP 가 바뀌고 월 약 $3.6 — 켜기 전 사용자 확인).
+            **남은 가동 = 이 PC 의 작업 스케줄러**: `stock-gcp-backup`(서버 백업 — 서버가 꺼져 있어 지금은 실패가 정상) · `stock-vix-alert`(매일 07:10, SVIX 신호 알림 텔레그램+카카오) · `stock-price-alert`(5분, 가격 목표 알림 — 등록한 목표 없음). 래퍼 scripts/run-alert-pc.ps1(PC `.env` 에 텔레그램·카카오 키).
+            **autotrader 웹은 11-07 밤 이 PC 로 이사 — `https://namwon.tail4575b6.ts.net/autotrader/`(Tailscale 사설, 폰 앱 필요·PC 켜져 있을 때만)**: 작업 `stock-autotrader-web`(로그인 시)·`stock-autotrader-snapshot`(5분, 모의 읽기 전용), 래퍼 scripts/run-autotrader-pc.ps1(웹은 `.env` 미로딩), 상태 `autotrader\state\`(gitignore, 서버 백업에서 복원), 패스키 새 도메인으로 재등록·지문 동작 확인. 실전 키를 PC 에 상시 두는 실계좌 연결은 권하지 않음. 알림을 PC 와 분리하는 Cloudflare Workers 이전은 다음 단계(미착수). 서버를 다시 켜려면 콘솔에서 '시작/재개'(외부 IP 가 바뀌고 월 약 $3.6 — 켜기 전 사용자 확인).
             백업 `C:\Users\User\stock-backup\gcp\`(서버 상태 마지막 11-07 22:44, 웹 인증 해시·카카오 토큰 포함 — 저장소·클라우드 금지). 서버 없이 PC 도 꺼도 되는 알림은 Cloudflare Workers(무료 5분 크론) 이전이 후보(미착수). docs/control/세션인수인계-2026-11-07.md(최신 §10~14) · -11-06.md.
   완료      2026-09-22 아침 VM 확인 — 미국 S&P500 스냅샷 첫 자동 실행 성공(07:31) · RV20·크립토 09:05 정상(git pull 수정 b61f5882
             첫 검증 통과, `systemctl --failed` 비어 있음) · 크립토 AVAX +3,558 · INJ −5,051 청산(~48시간 보유 편차), 신규 5종 진입.
