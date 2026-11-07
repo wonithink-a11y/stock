@@ -101,6 +101,21 @@ export function checkMoves(quotes, state, dateKey, step = MOVE_STEP) {
   return { alerts, state: st };
 }
 
+// ---- 장중 VIX 단계(20·25·30·35…, 5 단위) — 참고용. 매매 신호는 여전히 마감 종가 기준(vixAlert) ----
+export const vixLevel = (v) => (v >= 20 ? Math.floor(v / 5) * 5 : 0);
+
+/** 오늘 처음 '전일 종가의 단계'보다 높은 단계에 닿았을 때만(이미 높은 구간에 있는 날마다 반복해서 울리지 않게). state={date, level} → {msg|null, state} */
+export function checkVixLevel(px, prev, state, dateKey) {
+  const st = state && state.date === dateKey ? { ...state } : { date: dateKey, level: 0 };
+  const lvl = vixLevel(px), base = Math.max(vixLevel(prev), st.level);
+  if (lvl > base) {
+    st.level = lvl;
+    return { msg: `[VIX 장중] VIX ${fmt(px)} — ${lvl} 단계 도달 (전일 종가 ${fmt(prev)})\n참고용 장중 값입니다. SVIX 매매 신호는 마감 종가 기준이라 마감 뒤 07:10 에 따로 옵니다.`, state: st };
+  }
+  st.level = Math.max(st.level, lvl);
+  return { msg: null, state: st };
+}
+
 /** 마감 요약 한 통. rows=[{label, px, prev}] */
 export function digestMessage(title, dateLabel, rows) {
   return `[${title}] ${dateLabel}\n` + rows.map((r) => `${r.label} ${fmt(r.px)} (${sgn(pctChange(r.px, r.prev))})`).join('\n');
