@@ -13,6 +13,8 @@ PC·서버 없이 SVIX 신호 알림과 가격 목표 알림을 보낸다. 비�
 
 ## 배포 (PowerShell, `cd C:\Users\User\projects\stock\cloudflare\alerts`)
 
+> ★ 이 PC 의 PowerShell 은 `npx.ps1` 실행 정책에 막힌다("스크립트를 실행할 수 없으므로") — 아래 `npx` 는 전부 **`npx.cmd`** 로 친다(정책 설정은 안 바꾼다).
+
 1. Cloudflare 무료 계정을 만든다(dash.cloudflare.com).
 2. `npx wrangler login` — 브라우저에서 승인.
 3. `npx wrangler kv namespace create ALERTS` — 출력되는 `id` 를 `wrangler.toml` 의 `REPLACE_WITH_KV_ID` 에 넣는다(비밀 아님).
