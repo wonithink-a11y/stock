@@ -90,6 +90,8 @@ ssh -t stock-new 'bash ~/collector/deploy/install-unit.sh <이름>'
 
 ## 8. GCP 임시 서버일 때 (OCI 정지 중 — 2026-11-07~, 복구되면 이 절 삭제)
 
+> ★ **GCP 서버는 11-07 밤 중지**(외부 IP 월 약 $3.6 — 비용 원칙) — 지금 알림·웹은 **`pc-workers-ops` 스킬**(Workers·PC)이다. 이 절은 서버를 다시 켤 때만(사용자 확인 후) 쓴다.
+
 위 절차의 `ssh stock-new` 는 **안 붙는다**. 서버는 GCP e2-micro, 접속은 사용자의 브라우저 SSH 창뿐이고 Claude 는 접속·확인 불가 — 명령은 사용자가 치고 화면 캡처로 확인한다.
 
 - **계정**: 기본 로그인은 `wonithink`, 서비스·파일은 `ubuntu`. `~` 는 `wonithink` 홈으로 풀리므로 **`sudo -iu ubuntu bash /home/ubuntu/...` 전체 경로**.
