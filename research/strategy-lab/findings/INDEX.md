@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 24 |
 | 보류·판정 불가 | 44 |
-| 기각 | 166 |
-| 사전등록 문서(결과는 별도 파일) | 181 |
+| 기각 | 167 |
+| 사전등록 문서(결과는 별도 파일) | 182 |
 | 정보·탐색 | 42 |
 | 미분류 | 240 |
 
@@ -91,11 +91,12 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (166)
+## 기각 (167)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | REJECT | us | [tech-timing-3x-results-2026-11.md](tech-timing-3x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 108셀 전부 REJECT(ROBUST 0 · INFORMATION 0 · 낙폭 도구 0). 2010~2019 VALID 에서는 나스닥 쪽 54규칙 중 ΔSha… |
+| 2026-11-08 | REJECT | global | [tech-timing-3x-c-results-2026-11.md](tech-timing-3x-c-results-2026-11.md) | 신호: 없음(재현 실패) · 경제성: 해당 없음. 4규칙 모두 NOT REPLICATED(충족 시장 0/6). IBS·3일 연속 하락·Double-7 은 새 시장에서 TEST 에서도 보유를 못 이겼… |
 | 2026-11-08 | REJECT | us-kr | [tech-timing-3x-b-results-2026-11.md](tech-timing-3x-b-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 105셀 전부 REJECT(ROBUST 0 · INFORMATION 0). 2010~2019 VALID 에서 나스닥·반도체 3배는 17규칙 중 ΔSharpe>0… |
 | 2026-11-04 | REJECT | us | [vix-leverage-menu-results-2026-11.md](vix-leverage-menu-results-2026-11.md) | 신호: 약함(문턱 미달) · 경제성: 미달. O1(샤프)은 'VIX ≥20 이면 −0.5배, ≤16 이면 현금'(현행 규칙과 같은 꼴)을 골랐고 VALID·TEST 샤프 0.63·1.29 로 단순 … |
 | 2026-11-04 | REJECT | us | [vix-community-shortvol-results-2026-11.md](vix-community-shortvol-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 커뮤니티 표준 숏 변동성 타이밍 두 규칙 모두 같은 보유 비율의 무작위 타이밍과 구분되지 않는다 — C1 콘탱고 p 0.209(보유 94%, 샤프 0.60 vs 단순… |
@@ -262,11 +263,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (181)
+## 사전등록 문서(결과는 별도 파일) (182)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
+| 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
 | 2026-11-04 | PREREGISTERED | us | [vix-leverage-menu-preregistration-2026-11.md](vix-leverage-menu-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 상품을 배율(+2·+1·−0.5·−1배)로 늘어놓고 '어떤 상태에서 어느 배율을 들까'를 TRAIN 에서 고르면, 그 선택이 VALID·T… |
 | 2026-11-04 | PREREGISTERED | us | [vix-community-shortvol-preregistration-2026-11.md](vix-community-shortvol-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 깃허브·커뮤니티에서 가장 널리 쓰는 숏 변동성 타이밍 규칙 두 개(VIX/VIX3M 콘탱고, Cooper 2013 의 VRP)가 인버스 VIX 상… |
