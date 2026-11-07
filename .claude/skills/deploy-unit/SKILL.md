@@ -87,3 +87,18 @@ ssh -t stock-new 'bash ~/collector/deploy/install-unit.sh <이름>'
 - 새 환경변수·유닛이 있으면 `docs/control/` 인수인계 표(무엇↔환경변수↔실행 위치)에 한 줄.
 - 감시 대상 유닛이 늘면 `vm-check` 스킬의 기대 스케줄 표에 한 행 추가.
 - Actions 쪽 실패 알림이 필요하면 `notify-failure.yml` 대상 목록(현재 12개)에 추가 — 단 10분 주기처럼 잦은 것은 '성공→실패' 전이에만.
+
+## 8. GCP 임시 서버일 때 (OCI 정지 중 — 2026-11-07~, 복구되면 이 절 삭제)
+
+위 절차의 `ssh stock-new` 는 **안 붙는다**. 서버는 GCP e2-micro, 접속은 사용자의 브라우저 SSH 창뿐이고 Claude 는 접속·확인 불가 — 명령은 사용자가 치고 화면 캡처로 확인한다.
+
+- **계정**: 기본 로그인은 `wonithink`, 서비스·파일은 `ubuntu`. `~` 는 `wonithink` 홈으로 풀리므로 **`sudo -iu ubuntu bash /home/ubuntu/...` 전체 경로**.
+- **코드 반영**: `~/collector` 는 main 만 받은 얕은 복제라 브랜치 checkout 불가, `collector-pull` 도 main 을 따라간다. 병합 전 파일은
+  `sudo -iu ubuntu bash -c 'cd ~/collector && git fetch -q --depth 1 origin <브랜치> && git checkout FETCH_HEAD -- <파일들>'`
+- **설치**: `sudo -iu ubuntu bash /home/ubuntu/collector/deploy/install-unit.sh <이름>` → `systemctl list-timers <이름>.timer --no-pager`.
+- **확인**: 스크립트에 `--test`(전송 경로만 확인, 상태 불변) 옵션을 둔다. 수동 실행은 `.env` 를 못 읽으므로
+  `sudo systemd-run --wait --pipe -p User=ubuntu -p EnvironmentFile=/home/ubuntu/collector-venv/.env -p Environment=... /home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/<x>.py --test`
+  (`. .env` 로 셸에 읽지 않는다 — 이름 없는 줄이 있으면 오류).
+- **키·토큰 옮기기**: 채팅에 값을 붙이지 않는다. PC PowerShell 에서 `Select-String '^이름' .env | ForEach-Object Line | Set-Clipboard` → 서버 SSH 에서 `sudo -iu ubuntu bash -c 'cat >> /home/ubuntu/collector-venv/.env'` 후 Ctrl+V · Enter · Ctrl+D. 파일(`token.json` 등)은 `cat > 파일 && chmod 600`. 넣은 뒤 **`grep -o '^이름='` 으로 이름만 확인**(붙여넣는 순간 값이 화면에 찍히니 스크린샷을 보낼 때 가린다).
+- **함정**: 브라우저 SSH 에 여러 줄 코드를 붙이면 줄바꿈이 깨진다 → 한 줄 명령이나 스크립트 옵션으로. PC PowerShell 의 `sudo` 는 윈도우 sudo 라 서버 명령을 치면 오류 — 서버 명령은 SSH 창에서. 새 패키지 누락은 실행해야 드러난다(jwt·scipy → `gcp-bootstrap.sh`).
+- **복구 시**: GCP 에 올린 유닛은 `disable --now` 로 먼저 끈다(같은 봇·같은 모의 계좌 이중 실행 방지). 목록은 인수인계 11-07 §3·§10.

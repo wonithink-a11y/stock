@@ -1,0 +1,11 @@
+[Unit]
+Description=VIX inverse signal alert after US close (KST 07:10 Tue-Sat)
+OnFailure=unit-failure-notify@%n.service
+
+[Timer]
+# 미국 마감 05:00(서머)/06:00(겨울) KST 뒤. 신호가 바뀐 날만 알리므로 매일 돌아도 조용하다.
+OnCalendar=Tue..Sat 07:10
+Persistent=true
+
+[Install]
+WantedBy=timers.target

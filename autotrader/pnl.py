@@ -26,6 +26,7 @@ def _n(x):
 
 
 LOOKBACK_DAYS = 7          # 이 기간 안에 낸 주문만 다시 조회한다(그 뒤엔 체결이 더 생기지 않는다 — 우리 미체결은 다음 실행이 취소)
+MAX_LOOKBACK_DAYS = 90     # 수동 되살리기(`fills-sync --days`) 상한 — KIS 체결내역 조회 기간(약 3개월)
 
 
 def fills_path(cfg: dict) -> Path:
@@ -39,8 +40,21 @@ def load_book(cfg: dict) -> Optional[dict]:
         return None
 
 
-def sync_fills(cfg: dict, broker, snap: dict, now: datetime) -> dict:
-    """우리 주문의 누적 체결을 브로커에서 받아 체결 원장을 갱신한다. 처음이면 스냅샷의 보유를 시작 원가로 잡는다."""
+def _key(no) -> str:
+    """주문번호 대조용 — 숫자 주문번호는 앞의 0 을 뗀다(주문 응답 ODNO 와 체결내역 odno 의 자릿수가 달라도 같은 주문).
+    업비트 UUID 처럼 숫자가 아니면 그대로."""
+    s = str(no or "").strip()
+    return (s.lstrip("0") or "0") if s.isdigit() else s
+
+
+def sync_fills(cfg: dict, broker, snap: dict, now: datetime, lookback_days: int = LOOKBACK_DAYS) -> dict:
+    """우리 주문의 누적 체결을 브로커에서 받아 체결 원장을 갱신한다. 처음이면 스냅샷의 보유를 시작 원가로 잡는다.
+
+    매 동기화의 사실(조회 기간·받은 행·맞춘 행·오류·주문번호 표본)을 `sync` 에 남긴다 — 체결이 0 건일 때
+    '체결이 없었다'와 '조회가 실패했다'와 '번호가 안 맞았다'를 가르려면 그 자리에서 남겨야 한다(교훈 75).
+    한 시장의 조회 실패가 다른 시장의 갱신을 막지 않는다. 실패는 `sync.errors` 에 남는다(호출부가 화면에 올린다).
+    """
+    lookback_days = max(1, min(int(lookback_days), MAX_LOOKBACK_DAYS))
     ours = {r["orderNo"]: r for r in Ledger(state_dir(cfg)).rows()
             if r.get("kind") == "order" and r.get("executed") and r.get("orderNo")}
     book = load_book(cfg)
@@ -50,16 +64,38 @@ def sync_fills(cfg: dict, broker, snap: dict, now: datetime) -> dict:
                 # 넣으면 개인 평단이 섞여 전략 실현손익이 틀어진다(원가 모르는 매도는 incomplete 로 드러난다).
                 "opening": {m: {p["symbol"]: {"qty": p["qty"], "avg": p["avgPrice"]} for p in d.get("positions", [])}
                             for m, d in snap["markets"].items() if "positions" in d and m not in ("UPBIT", "BITHUMB")}}
-    cutoff = (now - timedelta(days=LOOKBACK_DAYS)).strftime("%Y-%m-%d")
+    excluded = {_key(no) for no in book.get("exclude", [])}
+    cutoff = (now - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+    sync = {"at": now.isoformat(), "lookbackDays": lookback_days, "ledgerOrders": len(ours), "markets": {}}
+    errors = []
     for m in snap["markets"]:
-        pending = [o for no, o in ours.items() if o.get("market") == m and no not in book["exclude"]
-                   and str(o.get("day", "")) >= cutoff]
+        pending = {_key(no): no for no, o in ours.items() if o.get("market") == m and _key(no) not in excluded
+                   and str(o.get("day", "")) >= cutoff}
+        info: dict = {"pending": len(pending)}
+        sync["markets"][m] = info
         if not pending:
             continue
-        start = (datetime.strptime(min(o["day"] for o in pending), "%Y-%m-%d") - timedelta(days=1)).strftime("%Y%m%d")
-        for f in broker.fills(m, start, now.strftime("%Y%m%d")):
-            if f["orderNo"] in ours and f["orderNo"] not in book["exclude"]:
-                book["fills"][f["orderNo"]] = {**f, "market": m}          # 누적값이라 덮어쓴다(부분체결이 늘어나도 한 줄)
+        start = (datetime.strptime(min(ours[no]["day"] for no in pending.values()), "%Y-%m-%d") - timedelta(days=1)).strftime("%Y%m%d")
+        info["range"] = [start, now.strftime("%Y%m%d")]
+        try:
+            rows = broker.fills(m, start, now.strftime("%Y%m%d"))
+        except Exception as e:                          # noqa: BLE001 — 기록하고 다음 시장으로
+            info["error"] = f"{type(e).__name__}: {e}"[:200]
+            errors.append(f"{m}: {info['error']}")
+            continue
+        matched = 0
+        for f in rows:
+            no = pending.get(_key(f.get("orderNo")))
+            if no is not None:
+                book["fills"][no] = {**f, "orderNo": no, "market": m}   # 누적값이라 덮어쓴다(부분체결이 늘어나도 한 줄)
+                matched += 1
+        info.update({"brokerRows": len(rows), "matched": matched,
+                     # 번호 형식 대조용 표본(주문번호는 계좌번호가 아니다). 우리 미체결·취소분은 원래 안 맞는다.
+                     "oursSample": sorted(pending.values())[-3:],
+                     "brokerSample": [f.get("orderNo") for f in rows[:3]]})
+    if errors:
+        sync["errors"] = errors
+    book["sync"] = sync
     p = fills_path(cfg)
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(".tmp")

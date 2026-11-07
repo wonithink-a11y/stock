@@ -12,6 +12,9 @@ Validated against
             **매도 FAIL**(체결 282,500 vs 공식 시가 283,000, −17.67bp — 분봉으로 교차 확인, 모의가 시초 단일가가 아니라 개장 뒤
             연속 매매가로 체결한 것으로 보임). 결과·해석: docs/control/단기규칙-모의실행-1단계시험-결과-2026-09-22.md.
             다른 체결 방식으로 계속하는 것은 **새 GO 없이 안 한다**. O2b **그림자**(반사실 계산)는 무관 — 월간 점검에서 계속.
+  ★★★ 지금  **OCI 테넌시 `wonithink` 정지·구독 종료(11-06~07 확인, 사유 '데이터 감사' 미공개) — 작업 VM·Object Storage 전부 접근 불가, 데이터는 보존.**
+            이의 제기 접수(번호·기한 없음, 뒤집히면 이메일). VM 전 유닛·OCI 쓰는 Actions(분봉 승격·paper-trading-ui) 실패가 정상. 실계좌는 원래 전부 꺼짐.
+            **GCP 임시 서버 가동(11-07, e2-micro us-west1-b, `ssh` 별칭 없음·브라우저 SSH, 유닛 8개: 장애 알림·collector-pull·vm-status-snapshot·events-dday·edgar-8k-alert·코인베이스 프리미엄·크립토 상승충격 모의·rv20 선물 모의 — 첫 정시 실행 미확인, rv20 은 11-09 09:05).** autotrader·실계좌·news/intraday 알림은 일부러 안 올림(상태·키 OCI). 다음 = 로그 확인 · 예산 알림 · 복구 시 임시 쪽 타이머 먼저 끄기 · 업비트 주문 키 삭제 권고. docs/control/세션인수인계-2026-11-07.md(최신) · -11-06.md.
   완료      2026-09-22 아침 VM 확인 — 미국 S&P500 스냅샷 첫 자동 실행 성공(07:31) · RV20·크립토 09:05 정상(git pull 수정 b61f5882
             첫 검증 통과, `systemctl --failed` 비어 있음) · 크립토 AVAX +3,558 · INJ −5,051 청산(~48시간 보유 편차), 신규 5종 진입.
             RV20 30분 지연은 09-14 부터 매일이었다 — 수집기가 휴장일을 매번 재조회(60초 대기). 09-23 수정 5e3eddfa, VM 재실행 1.5초.
@@ -168,7 +171,7 @@ Validated against
             수익 최선 −1/−0.5배는 VALID MDD −86%. 배율 순서 −0.5 > −1 > 현금 > 롱 은 안정(순위상관 0.81). 롱 상시 연 −39~−87%. 현행 vixinv(SVIX −1배) 무분할 2020-03 −84%(기록). findings/vix-leverage-menu-results-2026-11.md.
   다음      ★ **VIX 인버스 모의 가동(11-03)** — autotrader 프로필 `vixinv`(KIS 모의·SVIX·VIX≥20 매수/≤16 매도·4분할·평일 23:50/00:20), 첫 체결 11-03 23:50. 실계좌 0 · 모의 계좌는 infbuy 와 공유 · 규칙은 OOS 미통과라 문턱 변경 금지. 경위 docs/control/세션인수인계-2026-11-03-{,b,c}.md.
             ★ **실계좌 프로필 `vixinv-live`(11-04, 총 $1,000) 준비 — 꺼짐**: 실전 키 dry-run 통과, 달러 0 이라 주문 거부. 남은 켜기(환전·live 플래그·ALLOW_LIVE·지문)는 사용자.
-            웹 개편(PR #52·#53): 홈·주식 '모의|실계좌' 전환·실계좌 주황·미국 카드 야후 시세(15초). 미해결 infbuy fills.json 0건. docs/control/세션인수인계-2026-11-04.md · 오후 VIX 연구 2건 REJECT -b.
+            웹 개편(PR #52·#53): 홈·주식 '모의|실계좌' 전환·실계좌 주황·미국 카드 야후 시세(15초). 미해결 infbuy fills.json 0건 → 진단 도구 `fills-sync`·`scripts/vm-fills-sync.sh`·실계좌 초안 `profiles.example/infbuy-live.json`(꺼짐, 브랜치 ccr-c32c9d34-v87x7r·main 미병합, 인수인계 11-06). docs/control/세션인수인계-2026-11-04.md · 오후 VIX 연구 2건 REJECT -b.
   안 한다   ★ 투자자 유형별 순매수 강도 → 20거래일(10-31, afcc108f·51c8f938, A4 현재 상장만 — 생존편향) — 기타법인·연기금·투신·사모 4셀 REJECT(바닥선 2.52).
             기타법인 TRAIN t 2.46(세 구간 info +72·+57·+105bp, 11년 중 10년 양 — 사후 관찰, forward 로만). findings/investor-type-flow-results-2026-10.md.
   다음      ★ 10-31 폰 세션 전체(연구 6건·forward 2건·코인베이스 z 주기 답): docs/control/세션인수인계-2026-10-31-b.md.
@@ -785,6 +788,8 @@ ssh stock       129.225.177.125  hostname: stock-monitor   ← 옛 개인 감시
 무료 한도      A1.Flex 는 월 1,500 OCPU시간 + 9,000 GB시간 = 상시 구동 기준
                **2 OCPU · 12GB 가 상한**(MN-1.0 §확인한 한도, docs.oracle.com).
                널리 인용되는 "4 OCPU/24GB" 는 이 테넌시에 해당하지 않는다.
+계정 종류      ★ **종량제(Pay As You Go) 업그레이드됨 — Always Free 전용 계정이 아니다**(사용자 여러 번 확인, 11-06 재강조).
+               결제수단 등록·과금 0(무료 한도 안). → Always Free '유휴 인스턴스 회수'는 원인 후보로 들지 않는다.
 ```
 
 **그래서 아래 9개 제약은 "지금의 물리적 한계"가 아니라 "그때 그렇게 만든 이유"다.**

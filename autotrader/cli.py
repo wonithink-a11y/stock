@@ -314,6 +314,9 @@ def cmd_snapshot(args) -> int:
                 book = sync_fills(c, broker, snap, now)
                 snap["realized"] = realized(book)
                 _notify_fills(c, env, new_fills(prev, book))
+                if book.get("sync", {}).get("errors"):
+                    snap["realizedError"] = ("; ".join(book["sync"]["errors"]))[:200]
+                    print(f"[{tag}] 체결 조회 실패: {snap['realizedError']}", file=sys.stderr)
             except Exception as e:                      # noqa: BLE001 — 체결 조회 실패가 보유 화면을 막지 않는다
                 snap["realizedError"] = f"{type(e).__name__}: {e}"[:200]
                 print(f"[{tag}] 체결 조회 실패: {snap['realizedError']}", file=sys.stderr)
@@ -322,6 +325,36 @@ def cmd_snapshot(args) -> int:
         print(f"[{tag}] 스냅샷 저장 {p}" + (" · 오류 " + "; ".join(errs) if errs else ""))
         worst = max(worst, 1 if errs else 0)
     return worst
+
+
+def cmd_fills_sync(args) -> int:
+    """체결 원장 되살리기·진단 — 한 프로필의 우리 주문 체결을 `--days` 일(최대 90)까지 거슬러 다시 받는다. 조회 전용(주문 없음).
+
+    스냅샷(5분)은 최근 7일 주문만 다시 묻는다 — 그 사이 조회가 계속 실패했으면 그 체결은 영영 안 들어온다.
+    알림은 보내지 않는다(옛 체결을 새 체결처럼 알리지 않게). 결과는 시장별 조회 기간·받은 행·맞춘 행·오류.
+    """
+    from .pnl import load_book, realized, sync_fills
+    from .snapshot import build_snapshot
+    if not getattr(args, "profile", None):
+        print("--profile 이 필요하다(체결 원장은 프로필마다 따로다)", file=sys.stderr)
+        return 2
+    cfg = _cfg(args)
+    env = load_env()
+    problems = gate_problems(cfg, env, False)
+    if problems:
+        print("거부 — 키가 없다:", "; ".join(problems), file=sys.stderr)
+        return 2
+    broker, now = make_broker(cfg, env, False), datetime.now(KST)
+    before = len((load_book(cfg) or {}).get("fills", {}))
+    book = sync_fills(cfg, broker, build_snapshot(cfg, broker, env, now), now, lookback_days=args.days)
+    sync = book.get("sync", {})
+    print(f"[{cfg.get('profile')}] 체결 원장 {before} → {len(book.get('fills', {}))}건 · 원장 주문 {sync.get('ledgerOrders')} · "
+          f"조회 {sync.get('lookbackDays')}일 · 원장 생성 {book.get('openedAt')} · 생성 전 주문(제외) {len(book.get('exclude', []))}")
+    for m, i in sync.get("markets", {}).items():
+        print(f"  {m}: " + " ".join(f"{k}={v}" for k, v in i.items()))
+    for m, r in realized(book).items():
+        print(f"  실현손익 {m}: {r['realized']:.2f}" + (" (원가 모르는 매도 있음 — incomplete)" if r["incomplete"] else ""))
+    return 1 if sync.get("errors") else 0
 
 
 def _notify_fills(c: dict, env: dict, fills: list) -> None:
@@ -479,6 +512,8 @@ def main(argv=None) -> int:
     npf.add_argument("--markets", default="KR", help="KR 또는 US 또는 KR,US")
     for name in ("check-config", "status", "kill", "resume", "snapshot", "channels-fetch", "upbit-probe"):
         sub.add_parser(name)
+    fs = sub.add_parser("fills-sync", help="체결 원장 되살리기·진단(조회 전용) — --profile 필요")
+    fs.add_argument("--days", type=int, default=60, help="며칠 전 주문까지 다시 조회할지(최대 90)")
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1", help="기본 127.0.0.1 — 앞단 HTTPS 프록시 뒤에서만 쓴다")
     sv.add_argument("--port", type=int, default=8787)
@@ -499,7 +534,7 @@ def main(argv=None) -> int:
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
           "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all,
-          "channels-fetch": cmd_channels_fetch, "upbit-probe": cmd_upbit_probe}[args.cmd]
+          "channels-fetch": cmd_channels_fetch, "upbit-probe": cmd_upbit_probe, "fills-sync": cmd_fills_sync}[args.cmd]
     try:
         return fn(args)
     except ConfigError as e:

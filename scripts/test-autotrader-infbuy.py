@@ -119,6 +119,15 @@ def main():
         ck("같은 가격 매도(LOC 쿼터+지정가 나머지)는 한 주문으로 합쳐 보유 전량", sum(p["qty"] for p in sells) == 5)
         ck("전략 상태가 프로필 상태 폴더에 저장", (Path(td) / "state" / "strategy_infinite_buying.json").exists())
 
+    # ---- 실계좌 초안(profiles.example/infbuy-live.json, 11-06): 꺼진 채로 배포되고 모의 회차를 이어받지 않는다
+    ex = json.loads((ROOT / "autotrader" / "profiles.example" / "infbuy-live.json").read_text(encoding="utf-8"))
+    ck("실계좌 초안: auto off · live 꺼짐 · 실전 키 접두사",
+       ex["auto"] == "off" and ex["live"] == {"enabled": False, "tr_ids_reviewed": False} and ex["key_prefix"] == "KIS_LIVE")
+    ck("실계좌 초안: 모의 상태를 이어받지 않는다(T=0 새 사이클)", "import_state_dir" not in ex["params"])
+    ck("실계좌 초안: 한도가 작다(주문 $300·일 $1,000)",
+       ex["risk"]["US"]["max_order_value"] <= 300 and ex["risk"]["US"]["max_daily_value"] <= 1000)
+    normalize_config({**ex, "state_dir": "/tmp/x"})                           # 설정 검사 통과(예외면 회귀 실패)
+
     print(f"\ntest-autotrader-infbuy {COUNT[0] - len(FAILS)}/{COUNT[0]}")
     return 1 if FAILS else 0
 

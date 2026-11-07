@@ -1,0 +1,19 @@
+[Unit]
+# SVIX(VIX 인버스) 신호 알림 — 주문 없음. scripts/vix-signal-alert.py 머리말 참고.
+# .env: TELEGRAM_BOT_TOKEN · TELEGRAM_URGENT_CHAT_ID(또는 TELEGRAM_CHAT_ID) · (카카오) KAKAO_REST_API_KEY · KAKAO_CLIENT_SECRET
+Description=VIX inverse (SVIX) signal alert
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=KAKAO_STATE_DIR=/home/ubuntu/collector-venv/kakao
+Environment=VIX_ALERT_STATE=/home/ubuntu/collector-venv/vix-alert
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/vix-signal-alert.py
+TimeoutStartSec=2min
+NoNewPrivileges=yes
+PrivateTmp=yes

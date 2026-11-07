@@ -166,6 +166,10 @@ python3 -m autotrader --profile samsung kill                                    
   (서로의 미체결은 "남의 주문"으로 보고 그 종목을 건너뛰긴 하지만, 그건 겹침을 늦게 막는 장치이지 막는 방법이 아니다.)
 - 모의투자는 LOC 를 못 받아 지정가로 낸다 — 이 숫자는 전략 판정용이 아니다(판정 정본은 옛 러너 `--mode paper`).
 - MOC(역전 첫날 매도)는 autotrader 에 없는 주문이라 건너뛰고 상태에 `skippedMOC` 로 남긴다 — **실전에서는 규칙과 다르다**.
+- **실계좌 초안** `autotrader/profiles.example/infbuy-live.json`(11-06, auto off · live 꺼짐 · 종목당 $5,000 · 주문 $300·일 $1,000).
+  모의 회차를 이어받지 않는다(T=0). 주문 1건 ≈ seed/80 이라 seed 가 작으면 0주·반올림 오차 — 파일 `_설명` 참고. 켜기는 §4·§9.
+- **체결 원장(실현손익)이 비면** 조회 전용 진단·되살리기: `python -m autotrader --config … --profile infbuy fills-sync --days 60`.
+  `fills.json` 의 `sync` 에 매 동기화의 조회 기간·받은 행·맞춘 행·오류·주문번호 표본이 남는다(스냅샷은 최근 7일 주문만 다시 묻는다).
 
 ## 9. 웹 화면에서 조작하기 — 모의는 바로, 실계좌는 서버가 허락한 것만
 
