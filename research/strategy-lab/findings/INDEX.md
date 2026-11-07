@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 24 |
-| 보류·판정 불가 | 44 |
+| 보류·판정 불가 | 45 |
 | 기각 | 167 |
-| 사전등록 문서(결과는 별도 파일) | 182 |
+| 사전등록 문서(결과는 별도 파일) | 183 |
 | 정보·탐색 | 42 |
 | 미분류 | 240 |
 
@@ -42,10 +42,11 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (44)
+## 보류·판정 불가 (45)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-08 | INCONCLUSIVE | global | [vix30-fall3-events-results-2026-11.md](vix30-fall3-events-results-2026-11.md) | 신호: 약함(사전 기준 미달 — 충족 2/9: S&P500·코스닥) · 경제성: 해당 없음. 63일 초과수익은 9곳 모두 양(+4.5~+32.0%p)이고 21일도 8곳 양이나, 순열 p ≤ 0.01… |
 | 2026-11-03 | INCONCLUSIVE | us-kr | [vix-fng-rsi-sector-kr-results-2026-11.md](vix-fng-rsi-sector-kr-results-2026-11.md) | 신호: 미국 없음 · 한국 VIX 만 약한 양(미확정) · 경제성: 미달. 미국 섹터 9·배당 2·주도섹터 3 묶음은 9셀 전부 REJECT. 한국 지수·업종·주도업종에 미국 VIX 규칙(R1)만 … |
 | 2026-10-29 | INCONCLUSIVE | crypto | [coinbase-premium-grid-results-2026-10.md](coinbase-premium-grid-results-2026-10.md) | 신호: 있음 · 경제성: 지금 규칙보다 나은 조합은 미확인. TRAIN 이 E1.0·Zm0.5(z ≥ 1 에 사서 z ≤ −0.5 에 팖, 최대 72h)를 골랐다(연 +38.0% vs 지금 규칙 +… |
 | 2026-10-29 | INCONCLUSIVE | crypto | [coinbase-premium-exit-rule-results-2026-10.md](coinbase-premium-exit-rule-results-2026-10.md) | 신호: 있음(진입 신호 자체) · 경제성: 청산 규칙 개선은 미확인. TRAIN 이 Zm0.5(z ≤ −0.5 에서 청산, 최대 72시간)를 골랐다(연 +23.1% vs T24 +14.6%). 확인… |
@@ -263,10 +264,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (182)
+## 사전등록 문서(결과는 별도 파일) (183)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-08 | PREREGISTERED | global | [vix30-fall3-events-preregistration-2026-11.md](vix30-fall3-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX ≥ 30 에서 3일 연속 하락' 시점에 지수를 사면, 평소 아무 날에 사는 것보다 21·63일 수익이 높은가. tech-timing-3x… |
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
