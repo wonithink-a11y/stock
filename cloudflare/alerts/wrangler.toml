@@ -3,7 +3,7 @@ main = "src/index.js"
 compatibility_date = "2026-11-01"
 
 [triggers]
-crons = ["*/5 * * * *", "10 22 * * 1-5"]
+crons = ["*/5 * * * *", "10 22 * * 1-5", "40 6 * * 1-5", "10 21 * * 1-5"]
 
 [[kv_namespaces]]
 binding = "ALERTS"

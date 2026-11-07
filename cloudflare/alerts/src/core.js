@@ -71,6 +71,41 @@ export function parseNaver(xml, now) {
   return last[0] === parts(now, 'Asia/Seoul').ymd ? Number(last[4]) : null;
 }
 
+/** 네이버 fchart XML 의 오늘(KST) 봉 {px, prev}(전일 종가). 휴장일(오늘 봉 없음)이면 null. */
+export function parseNaverQuote(xml, now) {
+  const rows = [...xml.matchAll(/<item data="([^"]+)"/g)].map((m) => m[1].split('|'));
+  if (rows.length < 2) return null;
+  const last = rows[rows.length - 1];
+  return last[0] === parts(now, 'Asia/Seoul').ymd ? { px: Number(last[4]), prev: Number(rows[rows.length - 2][4]) } : null;
+}
+
+// ---- 등락률 알림(SVIX·SOXL 같은 소수 종목) — 하루 한 번씩 단계(STEP %)를 새로 넘거나 방향이 바뀔 때만 ----
+export const MOVE_STEP = 10;
+export const pctChange = (px, prev) => Math.round(((px / prev) - 1) * 100 * 1e6) / 1e6;   // 부동소수 오차로 정확히 −10% 가 −9.99…가 되지 않게
+export const moveLevel = (pct, step = MOVE_STEP) => Math.sign(pct) * Math.floor(Math.abs(pct) / step) || 0;   // -0 → 0
+
+const fmt = (x, d = 2) => x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const sgn = (x) => (x >= 0 ? '+' : '−') + fmt(Math.abs(x)) + '%';
+
+/** quotes=[{symbol, px, prev}], state={date, levels} → {alerts:[메시지], state}. dateKey 가 바뀌면 단계를 비운다. */
+export function checkMoves(quotes, state, dateKey, step = MOVE_STEP) {
+  const st = state && state.date === dateKey ? { date: dateKey, levels: { ...state.levels } } : { date: dateKey, levels: {} };
+  const alerts = [];
+  for (const q of quotes) {
+    const pct = pctChange(q.px, q.prev), lvl = moveLevel(pct, step), last = st.levels[q.symbol] || 0;
+    if (lvl !== 0 && (Math.sign(lvl) !== Math.sign(last) || Math.abs(lvl) > Math.abs(last))) {
+      alerts.push(`[급등락] ${q.symbol} ${sgn(pct)} — 현재 ${fmt(q.px)} (전일 종가 ${fmt(q.prev)})\n전일 종가 대비 ${Math.abs(lvl) * step}% 단계${lvl < 0 ? ' 하락' : ' 상승'}`);
+      st.levels[q.symbol] = lvl;
+    }
+  }
+  return { alerts, state: st };
+}
+
+/** 마감 요약 한 통. rows=[{label, px, prev}] */
+export function digestMessage(title, dateLabel, rows) {
+  return `[${title}] ${dateLabel}\n` + rows.map((r) => `${r.label} ${fmt(r.px)} (${sgn(pctChange(r.px, r.prev))})`).join('\n');
+}
+
 /** 장이 열려 있고 아직 안 울린 목표 중 도달한 것. fetchPx(market, symbol) → 가격|null */
 export async function checkTargets(targets, fired, now, fetchPx) {
   const out = [];
