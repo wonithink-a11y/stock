@@ -1,10 +1,10 @@
 // stock-alerts — Cloudflare Workers(무료). 주문 없음. 크론 4개(무료 한도 5개):
-//   */5 * * * *    가격 목표 + 소수 종목 등락률(±MOVE_STEP% 단계) 알림 — 장 밖이면 시세 조회 없이 끝  [텔레그램+카카오]
+//   */5 * * * *    가격 목표 + 소수 종목 등락률(±MOVE_STEP% 단계) + 장중 VIX 20·25·30… 단계(참고용) — 장 밖이면 시세 조회 없이 끝  [텔레그램+카카오]
 //   10 22 * * 1-5  SVIX 신호 알림(UTC 22:10 = KST 07:10 화~토, 미국 마감 뒤)                       [텔레그램+카카오]
 //   40 6 * * 1-5   국내 마감 요약(KST 15:40) — 코스피200·코스닥150(ETF)                           [텔레그램만]
 //   10 21 * * 1-5  미국 마감 요약(KST 06:10, 서머타임이어도 마감 뒤) — S&P500·나스닥100·감시 종목  [텔레그램만]
 // 상태: KV ALERTS — targets · fired · vix_last · move_state · kakao_token. 시크릿: TELEGRAM_BOT_TOKEN · TELEGRAM_CHAT_ID · KAKAO_REST_API_KEY · (KAKAO_CLIENT_SECRET) · ADMIN_KEY
-import { vixAlert, checkTargets, parseNaverQuote, checkMoves, digestMessage, marketOpen, etDate, tid } from './core.js';
+import { vixAlert, checkTargets, parseNaverQuote, checkMoves, checkVixLevel, digestMessage, marketOpen, etDate, tid } from './core.js';
 
 const DASH = 'https://wonithink-a11y.github.io/stock/';
 const UA = { 'User-Agent': 'Mozilla/5.0' };
@@ -100,6 +100,7 @@ async function priceJob(env, now) {
 /** 감시 종목(SVIX·SOXL)의 전일 대비 등락률 — 하루 한 번씩 10% 단계를 새로 넘거나 방향이 바뀔 때만(피로도 때문에 5% 가 아니다). */
 async function moveJob(env, now) {
   if (!marketOpen('US', now)) return;
+  await vixLevelJob(env, now);
   const quotes = [];
   for (const symbol of WATCH_US) { const q = await quote('US', symbol, now); if (q) quotes.push({ symbol, ...q }); }
   if (!quotes.length) return;
@@ -109,6 +110,16 @@ async function moveJob(env, now) {
   let sentAny = false;
   for (const a of alerts) sentAny = (await send(env, a)).ok || sentAny;
   if (sentAny) await env.ALERTS.put('move_state', JSON.stringify(state));     // 하나도 못 보냈으면 도장을 안 찍어 다음 회차에 다시 시도
+}
+
+/** 장중 VIX 가 20·25·30·35… 단계에 닿으면 참고 알림(하루 한 번씩, 전일 종가의 단계보다 높을 때만). 매매 신호가 아니다. */
+async function vixLevelJob(env, now) {
+  const q = await quote('US', '^VIX', now);
+  if (!q) return;
+  const old = JSON.parse((await env.ALERTS.get('vix_level')) || 'null');
+  const { msg, state } = checkVixLevel(q.px, q.prev, old, etDate(now));
+  if (msg && !(await send(env, msg)).ok) return;          // 못 보냈으면 도장을 안 찍어 다음 회차에 다시
+  if (JSON.stringify(state) !== JSON.stringify(old)) await env.ALERTS.put('vix_level', JSON.stringify(state));
 }
 
 /** 마감 요약 한 통(텔레그램만). 오늘 봉이 하나도 없으면(휴장) 보내지 않는다. */

@@ -1,6 +1,6 @@
 // 등락률 알림·마감 요약·네이버 시세 파싱 단위 시험(파이썬 정본이 없는 새 로직).   node cloudflare/alerts/test/unit.mjs
 import assert from 'node:assert/strict';
-import { moveLevel, checkMoves, digestMessage, parseNaverQuote, pctChange } from '../src/core.js';
+import { moveLevel, checkMoves, digestMessage, parseNaverQuote, pctChange, vixLevel, checkVixLevel } from '../src/core.js';
 
 let n = 0; const t = (name, f) => { f(); n++; };
 
@@ -25,6 +25,17 @@ t('등락률 알림: 날짜가 바뀌면 단계를 비운다 · 종목별로 따
   assert.equal(r.alerts.length, 1); assert.match(r.alerts[0], /SVIX/);
   r = checkMoves([{ symbol: 'SVIX', px: 111, prev: 100 }], r.state, '2026-11-10');   // 다음 날 같은 폭 → 다시 울린다
   assert.equal(r.alerts.length, 1);
+});
+
+t('장중 VIX 단계(20·25·30…): 전일 종가의 단계보다 높을 때만, 하루 한 번씩', () => {
+  assert.equal(vixLevel(19.99), 0); assert.equal(vixLevel(20), 20); assert.equal(vixLevel(24.9), 20); assert.equal(vixLevel(30.2), 30);
+  const D = '2026-11-09'; let r = checkVixLevel(19.5, 18, null, D); assert.equal(r.msg, null);                       // 20 미만
+  r = checkVixLevel(20.4, 18, r.state, D); assert.match(r.msg, /VIX 20\.40 — 20 단계/); const st = r.state;          // 20 처음 도달
+  assert.equal(checkVixLevel(21, 18, st, D).msg, null);                                                               // 같은 단계 반복 없음
+  r = checkVixLevel(25.1, 18, st, D); assert.match(r.msg, /25 단계/);                                                  // 25 도달
+  assert.equal(checkVixLevel(21, 22, null, '2026-11-10').msg, null);                                                  // 전일 종가(22)가 이미 20 단계 → 20 대는 조용
+  assert.match(checkVixLevel(25.5, 22, null, '2026-11-10').msg, /25 단계/);                                            // 전일보다 높은 25 는 알림
+  assert.equal(checkVixLevel(24, 22, { date: '2026-11-10', level: 25 }, '2026-11-10').msg, null);                      // 내려갔다 다시 올라도 같은 날 같은 단계는 안 울림
 });
 
 t('마감 요약 형식', () => {
