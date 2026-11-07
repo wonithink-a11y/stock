@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 25 |
 | 보류·판정 불가 | 47 |
-| 기각 | 167 |
-| 사전등록 문서(결과는 별도 파일) | 186 |
+| 기각 | 168 |
+| 사전등록 문서(결과는 별도 파일) | 187 |
 | 정보·탐색 | 42 |
 | 미분류 | 240 |
 
@@ -95,10 +95,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (167)
+## 기각 (168)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-08 | REJECT | kr | [vix-ladder-kr-2x-results-2026-11.md](vix-ladder-kr-2x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 코스피 2배는 TRAIN(사건 4건, 평균 −9.7%)과 TEST(이익 비율 64%) 미달, 코스닥 2배도 TRAIN(평균 −3.7%)과 TEST(이익 73%)… |
 | 2026-11-08 | REJECT | us | [tech-timing-3x-results-2026-11.md](tech-timing-3x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 108셀 전부 REJECT(ROBUST 0 · INFORMATION 0 · 낙폭 도구 0). 2010~2019 VALID 에서는 나스닥 쪽 54규칙 중 ΔSha… |
 | 2026-11-08 | REJECT | global | [tech-timing-3x-c-results-2026-11.md](tech-timing-3x-c-results-2026-11.md) | 신호: 없음(재현 실패) · 경제성: 해당 없음. 4규칙 모두 NOT REPLICATED(충족 시장 0/6). IBS·3일 연속 하락·Double-7 은 새 시장에서 TEST 에서도 보유를 못 이겼… |
 | 2026-11-08 | REJECT | us-kr | [tech-timing-3x-b-results-2026-11.md](tech-timing-3x-b-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 105셀 전부 REJECT(ROBUST 0 · INFORMATION 0). 2010~2019 VALID 에서 나스닥·반도체 3배는 17규칙 중 ΔSharpe>0… |
@@ -267,11 +268,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (186)
+## 사전등록 문서(결과는 별도 파일) (187)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | PREREGISTERED | global | [vix30-fall3-events-preregistration-2026-11.md](vix30-fall3-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX ≥ 30 에서 3일 연속 하락' 시점에 지수를 사면, 평소 아무 날에 사는 것보다 21·63일 수익이 높은가. tech-timing-3x… |
+| 2026-11-08 | PREREGISTERED | kr | [vix-ladder-kr-2x-preregistration-2026-11.md](vix-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 나스닥에서 견딘 'VIX 사다리 8회 분할' 방식이 한국 지수 2배 레버리지(KODEX 레버리지형)에서도 같은 기준으로 견디는가. 사용자 요… |
 | 2026-11-08 | PREREGISTERED | us | [vix-ladder-3x-preregistration-2026-11.md](vix-ladder-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 사용자가 구상한 'VIX 20부터 5씩 오를 때마다 3배 상품을 나눠 사고 VIX가 내려오면 파는' 방식이 닷컴 붕괴·금융위기를 포함한 1990~… |
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
