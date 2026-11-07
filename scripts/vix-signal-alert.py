@@ -84,6 +84,13 @@ def selftest():
 def main():
     if "--selftest" in sys.argv:
         return selftest()
+    if "--test" in sys.argv:                             # 전송 경로 확인용 — 상태 파일을 건드리지 않는다
+        for f in (telegram, kakao):
+            try:
+                f("[테스트] SVIX 알림 연결 확인"); print(f.__name__, "OK")
+            except Exception as e:
+                print(f"{f.__name__} 실패: {e}")
+        return
     last = json.loads(STATE.read_text())["date"] if STATE.exists() else ""
     msg, d = check(vix_closes(), last)
     if not msg:
