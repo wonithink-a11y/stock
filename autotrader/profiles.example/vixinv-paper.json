@@ -1,0 +1,29 @@
+{
+  "_설명": "SVIX(VIX 인버스) 모의 프로필(2026-11-07, GCP 임시 서버용) — KIS 모의투자 · auto=dry(주문 안 나감, 계획만 기록). VIX 종가 ≥20 매수·≤16 전량 매도·20/25/30/35 에서 1/4 칸씩. capital_usd 2000 → 한 칸 $500. 규칙은 OOS 미통과(p 0.071) — 문턱 변경 금지. 켜기(execute)는 사용자. 실계좌 vixinv-live 와 별개.",
+  "strategy": "vix_inverse",
+  "mode": "paper",
+  "key_prefix": "KIS_VTS",
+  "markets": ["US"],
+  "symbol_allowlist": ["SVIX"],
+  "params": {
+    "symbol": "SVIX",
+    "capital_usd": 2000,
+    "split": true,
+    "join_current_cycle": false,
+    "limit_slack_pct": 0.5
+  },
+  "auto": "dry",
+  "run_at": ["23:50"],
+  "days": "weekdays",
+  "risk": {
+    "US": {
+      "max_order_value": 600,
+      "max_daily_value": 2000,
+      "max_orders_per_run": 3,
+      "price_band_pct": 30,
+      "max_position_value": 2100,
+      "allow_sell": true
+    }
+  },
+  "live": {"enabled": false, "tr_ids_reviewed": false}
+}

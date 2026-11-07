@@ -49,7 +49,7 @@ set -euo pipefail
 mkdir -p ~/collector-venv/logs
 ~/collector-venv/bin/pip install -q --upgrade pip "setuptools<81"
 # ponytail: 알림·모의 슬리브에 필요한 최소 묶음. 유닛이 ImportError 를 내면 그 패키지만 더한다.
-~/collector-venv/bin/pip install -q pandas numpy requests lxml html5lib pyarrow pyjwt scipy
+~/collector-venv/bin/pip install -q pandas numpy requests lxml html5lib pyarrow pyjwt scipy yfinance
 EOS
 
 cat <<'MSG'
