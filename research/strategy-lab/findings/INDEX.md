@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 24 |
+| 통과·채택 | 25 |
 | 보류·판정 불가 | 47 |
 | 기각 | 167 |
-| 사전등록 문서(결과는 별도 파일) | 185 |
+| 사전등록 문서(결과는 별도 파일) | 186 |
 | 정보·탐색 | 42 |
 | 미분류 | 240 |
 
-## 통과·채택 (24)
+## 통과·채택 (25)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-08 | ROBUST | us | [vix-ladder-3x-results-2026-11.md](vix-ladder-3x-results-2026-11.md) | 신호: 있음(견딤) · 경제성: 미확정. 주 셀(N 8·청산 ≤16)에서 나스닥 3배는 TRAIN·VALID·TEST 모두 기준 충족(ROBUST), 반도체 3배는 TRAIN 만 미달(INFORMA… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-shortable-results-2026-11.md](kr-static-vi-shortable-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향) — 단 **SH 규칙이 걸러내지 못했다(VU 사건의 95.8%가 SH)**: 실행 가능성의 답이 아니라 '공매도 거래량이 거의 모든 종목에 찍힌다'는 관찰이… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-proxy-results-2026-11.md](kr-static-vi-proxy-results-2026-11.md) | 신호: 있음(VU) · 경제성: 통과(VU, 숏 방향 — 실행 가능성 미확인). 확정(11-01) — 사전등록 전 기간 2025-08-08~2026-10-28. VU(시가 +10% 첫 도달 3분 뒤… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-liquid-results-2026-11.md](kr-static-vi-liquid-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향, 차입 비용·대차 가능 여부 미측정). 확정(11-01) — 2025-08-11~2026-10-28. VU_L(전일 거래대금 상위 200 종목의 장중 +10%… |
@@ -266,11 +267,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (185)
+## 사전등록 문서(결과는 별도 파일) (186)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | PREREGISTERED | global | [vix30-fall3-events-preregistration-2026-11.md](vix30-fall3-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX ≥ 30 에서 3일 연속 하락' 시점에 지수를 사면, 평소 아무 날에 사는 것보다 21·63일 수익이 높은가. tech-timing-3x… |
+| 2026-11-08 | PREREGISTERED | us | [vix-ladder-3x-preregistration-2026-11.md](vix-ladder-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 사용자가 구상한 'VIX 20부터 5씩 오를 때마다 3배 상품을 나눠 사고 VIX가 내려오면 파는' 방식이 닷컴 붕괴·금융위기를 포함한 1990~… |
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
