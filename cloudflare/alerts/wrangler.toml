@@ -1,0 +1,10 @@
+name = "stock-alerts"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[triggers]
+crons = ["*/5 * * * *", "10 22 * * 1-5"]
+
+[[kv_namespaces]]
+binding = "ALERTS"
+id = "b5692a2364a84cc0b6d824c7d6acbe6e"      # npx wrangler kv namespace create ALERTS 가 알려 준 id (비밀 아님)
