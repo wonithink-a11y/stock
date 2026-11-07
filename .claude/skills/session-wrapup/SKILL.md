@@ -81,7 +81,7 @@ git log --oneline $(git log -1 --format=%H -- CLAUDE.md)..HEAD -- lib scripts co
 ## 6. 스킬 후보 점검
 
 마감 때 `skill-candidates` 스킬(홈 폴더, 범용)을 따른다: 이 세션에서 반복됐거나 다음에도 올 절차를 최대 2개 제안하고, 승인되면 만든다.
-이 프로젝트의 기존 스킬: monthly-check · monthly-forecast · preregistered-research · session-wrapup · vm-check · deploy-unit · run-regressions —
+이 프로젝트의 기존 스킬: monthly-check · monthly-forecast · preregistered-research · session-wrapup · vm-check · deploy-unit · run-regressions · pc-workers-ops · cost-check —
 겹치면 새로 만들지 말고 보강한다.
 
 ## 7. 마지막 보고
