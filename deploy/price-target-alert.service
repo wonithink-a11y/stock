@@ -1,0 +1,19 @@
+[Unit]
+# 가격 목표 알림 — 주문 없음. scripts/price-target-alert.py 머리말 참고. 목표 목록은 서버에만(~/collector-venv/price-targets.json).
+Description=Price target alert (no orders)
+After=network-online.target
+Wants=network-online.target
+OnFailure=unit-failure-notify@%n.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/collector
+EnvironmentFile=/home/ubuntu/collector-venv/.env
+Environment=KAKAO_STATE_DIR=/home/ubuntu/collector-venv/kakao
+Environment=PRICE_TARGETS_FILE=/home/ubuntu/collector-venv/price-targets.json
+Environment=PRICE_ALERT_STATE=/home/ubuntu/collector-venv/price-alert
+ExecStart=/home/ubuntu/collector-venv/bin/python3 /home/ubuntu/collector/scripts/price-target-alert.py
+TimeoutStartSec=2min
+NoNewPrivileges=yes
+PrivateTmp=yes
