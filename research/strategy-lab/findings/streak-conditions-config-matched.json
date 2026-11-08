@@ -1,0 +1,173 @@
+{
+ "name": "streak-conditions",
+ "seed": 20261108,
+ "nperm": 1000,
+ "horizons": [
+  5,
+  21,
+  63
+ ],
+ "primary": 21,
+ "min_events": 5,
+ "fdr": 0.05,
+ "markets": [
+  {
+   "name": "SPY",
+   "ticker": "SPY",
+   "vix_lag": 0
+  },
+  {
+   "name": "QQQ",
+   "ticker": "QQQ",
+   "vix_lag": 0
+  },
+  {
+   "name": "반도체SOX",
+   "ticker": "^SOX",
+   "vix_lag": 0
+  },
+  {
+   "name": "닛케이",
+   "ticker": "^N225",
+   "vix_lag": 1
+  },
+  {
+   "name": "DAX",
+   "ticker": "^GDAXI",
+   "vix_lag": 1
+  },
+  {
+   "name": "항셍",
+   "ticker": "^HSI",
+   "vix_lag": 1
+  },
+  {
+   "name": "코스피",
+   "ticker": "^KS11",
+   "vix_lag": 1
+  },
+  {
+   "name": "코스닥",
+   "ticker": "^KQ11",
+   "vix_lag": 1
+  },
+  {
+   "name": "대만가권",
+   "ticker": "^TWII",
+   "vix_lag": 1
+  },
+  {
+   "name": "상해종합",
+   "ticker": "000001.SS",
+   "vix_lag": 1
+  },
+  {
+   "name": "FTSE",
+   "ticker": "^FTSE",
+   "vix_lag": 1
+  },
+  {
+   "name": "CAC40",
+   "ticker": "^FCHI",
+   "vix_lag": 1
+  }
+ ],
+ "events": [
+  {
+   "name": "A(≥3일·-5%)",
+   "type": "streak",
+   "L": 3,
+   "D": 0.05,
+   "gap": 10
+  },
+  {
+   "name": "B(≥4일·-7%)",
+   "type": "streak",
+   "L": 4,
+   "D": 0.07,
+   "gap": 10
+  },
+  {
+   "name": "C(≥5일·-10%)",
+   "type": "streak",
+   "L": 5,
+   "D": 0.1,
+   "gap": 10
+  }
+ ],
+ "filters": [
+  {
+   "name": "VIX≥25",
+   "series": "vix",
+   "op": ">=",
+   "value": 25
+  },
+  {
+   "name": "VIX≥30",
+   "series": "vix",
+   "op": ">=",
+   "value": 30
+  },
+  {
+   "name": "VIX<20",
+   "series": "vix",
+   "op": "<",
+   "value": 20
+  },
+  {
+   "name": "VIX 5일 +30%↑",
+   "series": "vixchg5",
+   "op": ">=",
+   "value": 0.3
+  },
+  {
+   "name": "거래량≥1.5배",
+   "series": "vol",
+   "op": ">=",
+   "value": 1.5
+  },
+  {
+   "name": "거래량≥2.0배",
+   "series": "vol",
+   "op": ">=",
+   "value": 2.0
+  },
+  {
+   "name": "SMA200 아래",
+   "series": "sma200gap",
+   "op": "<",
+   "value": 0
+  },
+  {
+   "name": "SMA200 위",
+   "series": "sma200gap",
+   "op": ">=",
+   "value": 0
+  },
+  {
+   "name": "RSI14<30",
+   "series": "rsi14",
+   "op": "<",
+   "value": 30
+  },
+  {
+   "name": "252일 낙폭≤-20%",
+   "series": "dd252",
+   "op": "<=",
+   "value": -0.2
+  },
+  {
+   "name": "최대 하루 낙폭≤-3%",
+   "series": "maxday",
+   "op": "<=",
+   "value": -0.03
+  },
+  {
+   "name": "야금야금(최대 하루>-2%)",
+   "series": "maxday",
+   "op": ">",
+   "value": -0.02
+  }
+ ],
+ "matched": true
+}
