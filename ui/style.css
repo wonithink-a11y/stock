@@ -240,6 +240,8 @@ th {
 .v-badge.v-hold { color: var(--warn); border-color: var(--warn); }
 .v-badge.v-reject { color: var(--up); border-color: var(--up); }
 .v-badge.v-unclassified { color: var(--text-dim); }
+.v-badge.v-prereg { color: var(--text-dim); border-style: dashed; }
+.v-badge.v-info { color: #5b8def; border-color: #5b8def; }
 .v-badge.v-cat-performance { color: var(--accent); border-color: var(--accent); text-transform: none; }
 .v-badge.v-cat-audit { color: var(--text-dim); border-style: dashed; text-transform: none; }
 .v-orig { font-size: 10px; color: var(--text-dim); font-style: italic; }
