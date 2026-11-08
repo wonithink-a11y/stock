@@ -9,9 +9,9 @@
 | 통과·채택 | 25 |
 | 보류·판정 불가 | 47 |
 | 기각 | 169 |
-| 사전등록 문서(결과는 별도 파일) | 192 |
+| 사전등록 문서(결과는 별도 파일) | 194 |
 | 정보·탐색 | 46 |
-| 미분류 | 240 |
+| 미분류 | 241 |
 
 ## 통과·채택 (25)
 
@@ -269,13 +269,15 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (192)
+## 사전등록 문서(결과는 별도 파일) (194)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | PREREGISTERED | global | [vix30-fall3-events-preregistration-2026-11.md](vix30-fall3-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX ≥ 30 에서 3일 연속 하락' 시점에 지수를 사면, 평소 아무 날에 사는 것보다 21·63일 수익이 높은가. tech-timing-3x… |
 | 2026-11-08 | PREREGISTERED | us | [vix-ladder-svix-preregistration-2026-11.md](vix-ladder-svix-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 사용자가 구상한 'VIX 20부터 5씩 오를 때마다 SVIX 를 나눠 사고 VIX ≤ 16 에서 파는' 방식이 인버스 VIX 상품의 꼬리(2018… |
+| 2026-11-08 | PREREGISTERED | us | [vix-ladder-sensitivity-preregistration-2026-11.md](vix-ladder-sensitivity-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 나스닥 VIX 사다리의 ROBUST 판정이 (20·5·16) 이라는 한 점의 우연인가, 주변 문턱에서도 유지되는가. 격자 36셀을 결과 전에 전부… |
 | 2026-11-08 | PREREGISTERED | kr | [vix-ladder-kr-2x-preregistration-2026-11.md](vix-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 나스닥에서 견딘 'VIX 사다리 8회 분할' 방식이 한국 지수 2배 레버리지(KODEX 레버리지형)에서도 같은 기준으로 견디는가. 사용자 요… |
+| 2026-11-08 | PREREGISTERED | global | [vix-ladder-forward-preregistration-2026-11.md](vix-ladder-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 과거 표본에서 견딘 VIX·실현변동성 사다리 규칙이 앞으로의 새 사건에서도 같은 기준을 통과하는가. 현재 11-02 에 시작한 사건이 진행 중이다… |
 | 2026-11-08 | PREREGISTERED | us | [vix-ladder-3x-preregistration-2026-11.md](vix-ladder-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 사용자가 구상한 'VIX 20부터 5씩 오를 때마다 3배 상품을 나눠 사고 VIX가 내려오면 파는' 방식이 닷컴 붕괴·금융위기를 포함한 1990~… |
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
@@ -517,10 +519,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (240)
+## 미분류 (241)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-08 | SENSITIVE | us | [vix-ladder-sensitivity-results-2026-11.md](vix-ladder-sensitivity-results-2026-11.md) | 신호: 약함(문턱 민감) · 경제성: 미확정. 나스닥 3배의 'ROBUST'(20·5·16) 는 주변 문턱에서 유지되지 않았다 — 합격 9/36(25%), 반도체 5/36(14%), S&P500 1… |
 | 2026-10-17 | REFERENCE | kr | [quality-forward-past-reference-2026-10.md](quality-forward-past-reference-2026-10.md) | 신호: 과거 전체로는 없음(Q1 t 0.62 · Q2 t 1.70), 2025~ 에만 양 · 경제성: 판정 불사용(참고 계산). 폐지 종목을 넣어도 IC 강세는 남는다(2016~23 +0.042 →… |
 | 2026-10-13 | PENDING | kr | [dividend-record-filter-results-2026-10.md](dividend-record-filter-results-2026-10.md) | 신호: 미정 · 경제성: 미정. 과거 점검 2024 Δ +3.57% · 2025 Δ +1.01%. 판정은 2026 연말 결과로 2027-01 1회. (스크립트 기록) |
 | 2026-10-10 | 편향 큼 | kr | [pbr-survivorship-check-results-2026-10.md](pbr-survivorship-check-results-2026-10.md) | 편향 점검(신호·경제성 판정 아님). 비용 후 연복리 SURV +10.29% vs ALL +5.76% → Δ +4.54%p · ALL 전략 > ALL 등가중(+5.03%) → 편향 큼. (스크립트 … |
