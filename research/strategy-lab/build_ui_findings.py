@@ -21,6 +21,7 @@ FINDINGS_DIR = os.path.join(REPO_ROOT, "research", "strategy-lab", "findings")
 OUT_PATH = os.path.join(REPO_ROOT, "ui", "data", "findings.json")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from findings_link import link_prereg, is_doc  # noqa: E402
 from build_findings_registry import (  # noqa: E402
     parse_frontmatter, strip_frontmatter, parse_conditions, parse_float, strip_quotes,
     infer_track, infer_verdict, infer_category, NUMERIC_FIELDS, short_verdict, verdict_group,
@@ -75,6 +76,18 @@ def main():
         for f in NUMERIC_FIELDS:
             entry[f] = parse_float(fm.get(f))
         entries.append(entry)
+    # 사전등록 ↔ 결과 연결, 연구가 아닌 문서 분리(findings_link.py, 2026-11-08)
+    prefix = "research/strategy-lab/findings/"
+    nm = lambda e: e["file"][len(prefix):] if e["file"].startswith(prefix) else e["file"]
+    linked = link_prereg([dict(file=nm(e), verdict=e["declared"], date=e.get("date")) for e in entries])
+    for e in entries:
+        if e["declared"] == "PREREGISTERED":
+            m = linked.get(nm(e))
+            e["group"] = "사전등록·결과 연결" if m else "사전등록·결과 연결 안 됨"
+            if m:
+                e["linked"], e["linkedFile"] = m[0]["verdict"], m[0]["file"]
+        elif e["group"] == "미분류" and is_doc(nm(e)):
+            e["group"] = "문서·기타"
     entries.sort(key=lambda e: e.get("date") or "", reverse=True)
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
