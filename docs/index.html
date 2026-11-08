@@ -4819,6 +4819,56 @@ function renderCryptoLab() {
 document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('[data-crypto-refresh]')) { cryptoSt.at = 0; render(); } });
 setInterval(() => { if (state.tab !== 'crypto') return; if (Date.now() - cryptoSt.at > 60000) cryptoLoad(); if (Date.now() - cryptoSt.premAt > 600000) premLoad(); }, 15000);
 
+// ---------- 연구 목록 (2026-11-08 사용자 요청) ----------
+// research/strategy-lab/findings 의 판정된 결과 전체(scripts/build-research-index.py → docs/data/research-index.json). 맥락·기록 전용 — 점수·매매 불사용(절대 규칙 1).
+const rs = { doc: null, err: null, loading: false, k: 'all', tr: 'all', q: '', n: 60 };
+function rsLoad() {
+  if (rs.loading || rs.doc) return;
+  rs.loading = true;
+  fetch('data/research-index.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(d => { rs.doc = d; }).catch(e => { rs.err = String(e.message || e); }).finally(() => { rs.loading = false; if (state.tab === 'research') render(); });
+}
+const RS_K = { ok: ['통과·성립', 'var(--good, #34c38f)'], mid: ['보류·판정불가', '#e0b04f'], no: ['기각·신호 없음', '#6b7280'], info: ['정보·탐색', '#5b8def'] };
+const RS_TR = { kr: '국내', us: '미국', crypto: '크립토', global: '글로벌', macro: '거시' };
+function rsFiltered() {
+  const q = rs.q.trim().toLowerCase();
+  return rs.doc.items.filter(x => (rs.k === 'all' || x.k === rs.k) && (rs.tr === 'all' || x.tr === rs.tr || (rs.tr === 'etc' && !RS_TR[x.tr])) && (!q || (x.t + ' ' + x.s + ' ' + x.v).toLowerCase().includes(q)));
+}
+function rsListHtml() {
+  const gh = f => `https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/${f}`;
+  const L = rsFiltered(), show = L.slice(0, rs.n);
+  if (!L.length) return '<div class="card empty">조건에 맞는 결과가 없습니다.</div>';
+  return `<p class="muted" style="font-size:12px;margin:0 0 6px">${L.length}건${L.length > show.length ? ` 중 ${show.length}건 표시` : ''}</p><div class="cl-list">${show.map(x => `<details class="cl-it"><summary><span class="cl-v" style="color:${RS_K[x.k][1]}">${esc(x.v)}</span><span class="cl-t">${esc(x.t)}</span><span class="muted">${esc((x.d || '').slice(5))}</span></summary>
+      <div class="cl-b">${esc(x.s) || '(요약 없음)'} <a href="${gh(x.f)}" target="_blank" rel="noopener">원문 ↗</a></div></details>`).join('')}</div>
+    ${L.length > show.length ? '<div style="text-align:center;margin:10px 0"><button class="chip" data-rs-more="1">더 보기</button></div>' : ''}`;
+}
+function renderResearch() {
+  rsLoad();
+  if (rs.err && !rs.doc) return `<div class="card empty">연구 목록을 불러오지 못했습니다(${esc(rs.err)}).</div>`;
+  if (!rs.doc) return '<div class="card empty">불러오는 중…</div>';
+  const cnt = { ok: 0, mid: 0, no: 0, info: 0 }; rs.doc.items.forEach(x => cnt[x.k]++);
+  const tot = rs.doc.n;
+  const bar = `<div class="cl-bar">${['ok', 'mid', 'no', 'info'].filter(k => cnt[k]).map(k => `<i style="width:${(cnt[k] / tot * 100).toFixed(1)}%;background:${RS_K[k][1]}"></i>`).join('')}</div>`;
+  const chip = (attr, key, cur, label, dot) => `<button class="chip${cur === key ? ' active' : ''}" ${attr}="${key}">${dot ? `<i style="background:${dot}"></i>` : ''}${label}</button>`;
+  const trs = Array.from(new Set(rs.doc.items.map(x => x.tr))).sort((a, b) => rs.doc.items.filter(x => x.tr === b).length - rs.doc.items.filter(x => x.tr === a).length);
+  const trKeys = trs.filter(t => RS_TR[t]).concat(trs.some(t => !RS_TR[t]) ? ['etc'] : []);
+  return `<h3 style="margin:4px 0 8px">연구 목록 <span class="muted" style="font-size:12px;font-weight:400">판정된 결과 ${tot}건 · 사전등록 ${rs.doc.prereg}건·미분류 ${rs.doc.unclassified}건은 제외</span></h3>${bar}
+    <div class="cl-f">${[chip('data-rs-k', 'all', rs.k, `전체 ${tot}`)].concat(['ok', 'mid', 'no', 'info'].map(k => chip('data-rs-k', k, rs.k, `${RS_K[k][0]} ${cnt[k]}`, RS_K[k][1]))).join('')}</div>
+    <div class="cl-f">${[chip('data-rs-tr', 'all', rs.tr, '전체')].concat(trKeys.map(t => chip('data-rs-tr', t, rs.tr, RS_TR[t] || '기타'))).join('')}</div>
+    <input id="rs-q" type="search" placeholder="이름·요약 검색 (예: VIX, 배당, 코인)" value="${esc(rs.q)}" style="width:100%;box-sizing:border-box;margin:0 0 10px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card, transparent);color:inherit;font-size:14px">
+    <div id="rs-list">${rsListHtml()}</div>
+    <p class="muted" style="font-size:11px">PASS·ECONOMIC·ROBUST 도 채택이 아니다 — 실매매 연결은 사용자 결정. 맥락·기록용(점수·매매 불사용). 판정은 파일에 선언된 값 그대로(옛 파일 일부는 이후 결정으로 흡수). 전체: <a href="https://github.com/wonithink-a11y/stock/blob/main/research/strategy-lab/findings/INDEX.md" target="_blank" rel="noopener" style="color:var(--accent)">findings INDEX ↗</a></p>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest && e.target.closest('[data-rs-k],[data-rs-tr],[data-rs-more]');
+  if (!t) return;
+  if (t.dataset.rsK) { rs.k = t.dataset.rsK; rs.n = 60; } else if (t.dataset.rsTr) { rs.tr = t.dataset.rsTr; rs.n = 60; } else rs.n += 60;
+  render();
+});
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'rs-q') { rs.q = e.target.value; rs.n = 60; const l = document.getElementById('rs-list'); if (l) l.innerHTML = rsListHtml(); }
+});
+
 // ---------- 종목 리포트 분석 (2026-10-26 사용자 요청) ----------
 // 학회·한국IR협의회 종목 리포트를 읽고 DART·SEC 공시와 대조한 기록. 남의 리포트 분석이라 저장소엔 없고 VM /rr 에서 키(X-Pin-Key)로만 받는다.
 // 맥락 전용 — 점수·매매 불사용(절대 규칙 1). 리포트의 의견·목표가는 판단 근거로 쓰지 않는다.
@@ -4939,6 +4989,7 @@ function render() {
   else if (state.tab === 'holders') el.innerHTML = renderHolders();
   else if (state.tab === 'crypto') el.innerHTML = renderCrypto();
   else if (state.tab === 'cryptolab') el.innerHTML = renderCryptoLab();
+  else if (state.tab === 'research') el.innerHTML = renderResearch();
   else el.innerHTML = renderBacktest();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
@@ -5692,7 +5743,7 @@ function renderSupplyMap(d, ind, esc, pct) {
 // ---------- 내비게이션: 그룹(위) + 서브탭(아래). state.tab 은 예전처럼 세부 키이고 그룹은 그 위의 묶음일 뿐이다 ----------
 const NAV_GROUPS = [
   ['today', '오늘', [['today', '요약'], ['mreport', '마감 리포트'], ['yt', '영상 요약'], ['links', '바로가기']]],
-  ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)']]],
+  ['stock', '종목', [['scores', '스코어'], ['a5', '전 종목(A5)'], ['reco', '추천 이력'], ['holdings', '내 포트폴리오'], ['live', '실시간⚡'], ['backtest', '검증(백테스트)'], ['research', '연구 목록']]],
   ['market', '시장·섹터', [['regime', '국면·매크로'], ['flows', '시장수급'], ['sector', '섹터강도'], ['supply', '공급망'], ['holders', '기관 보유(5%)'], ['us13f', '미국 기관(13F)'], ['cycle', '경기사이클🥚']]],
   ['event', '이벤트·뉴스', [['events', '일정📅'], ['disclosures', '공시'], ['news', '뉴스'], ['opinions', '증권사 의견'], ['rr', '종목 리포트']]],
   ['etf', 'ETF', [['etfwatch', '관심·상위'], ['etf', '전체 목록']]],

@@ -1,0 +1,236 @@
+{
+ "name": "condition-grid-l2b",
+ "seed": 20261108,
+ "nperm": 1000,
+ "horizons": [
+  5,
+  21,
+  63
+ ],
+ "primary": 21,
+ "min_events": 20,
+ "min_clusters": 10,
+ "fdr": 0.05,
+ "matched": true,
+ "l2": true,
+ "markets": [
+  {
+   "name": "SPY",
+   "ticker": "SPY",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "QQQ",
+   "ticker": "QQQ",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "반도체SOX",
+   "ticker": "^SOX",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "닛케이",
+   "ticker": "^N225",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "DAX",
+   "ticker": "^GDAXI",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "항셍",
+   "ticker": "^HSI",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "코스피",
+   "ticker": "^KS11",
+   "vix_lag": 1,
+   "flows": true
+  },
+  {
+   "name": "코스닥",
+   "ticker": "^KQ11",
+   "vix_lag": 1,
+   "flows": true
+  },
+  {
+   "name": "대만가권",
+   "ticker": "^TWII",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "상해종합",
+   "ticker": "000001.SS",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "FTSE",
+   "ticker": "^FTSE",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "CAC40",
+   "ticker": "^FCHI",
+   "vix_lag": 1,
+   "flows": false
+  }
+ ],
+ "events": [
+  {
+   "name": "A(≥3일·-5%)",
+   "type": "streak",
+   "L": 3,
+   "D": 0.05,
+   "gap": 10
+  },
+  {
+   "name": "DAILY(하루 -3%)",
+   "type": "daily",
+   "thr": -0.03,
+   "gap": 10
+  },
+  {
+   "name": "R20(20일 -10%)",
+   "type": "ret20",
+   "thr": -0.1,
+   "gap": 10
+  },
+  {
+   "name": "GAP(갭 -2%)",
+   "type": "gap",
+   "thr": -0.02,
+   "gap": 10
+  }
+ ],
+ "filters": [
+  {
+   "name": "달러5일 +1%↑",
+   "series": "usd5",
+   "op": ">=",
+   "value": 0.01
+  },
+  {
+   "name": "달러5일 -1%↓",
+   "series": "usd5",
+   "op": "<=",
+   "value": -0.01
+  },
+  {
+   "name": "달러20일 +2%↑",
+   "series": "usd20",
+   "op": ">=",
+   "value": 0.02
+  },
+  {
+   "name": "달러20일 -2%↓",
+   "series": "usd20",
+   "op": "<=",
+   "value": -0.02
+  },
+  {
+   "name": "미10년금리5일 +0.15p↑",
+   "series": "tnx5",
+   "op": ">=",
+   "value": 0.15
+  },
+  {
+   "name": "미10년금리5일 -0.15p↓",
+   "series": "tnx5",
+   "op": "<=",
+   "value": -0.15
+  },
+  {
+   "name": "미10년금리20일 +0.3p↑",
+   "series": "tnx20",
+   "op": ">=",
+   "value": 0.3
+  },
+  {
+   "name": "미10년금리20일 -0.3p↓",
+   "series": "tnx20",
+   "op": "<=",
+   "value": -0.3
+  },
+  {
+   "name": "외국인5일 순매수 z≤-0.5",
+   "series": "frgn_z",
+   "op": "<=",
+   "value": -0.5
+  },
+  {
+   "name": "외국인5일 순매수 z≥+0.5",
+   "series": "frgn_z",
+   "op": ">=",
+   "value": 0.5
+  },
+  {
+   "name": "기관5일 순매수 z≤-0.5",
+   "series": "inst_z",
+   "op": "<=",
+   "value": -0.5
+  },
+  {
+   "name": "기관5일 순매수 z≥+0.5",
+   "series": "inst_z",
+   "op": ">=",
+   "value": 0.5
+  },
+  {
+   "name": "VIX≥25∧달러5일 +1%↑",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 25
+    },
+    {
+     "series": "usd5",
+     "op": ">=",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "name": "VIX≥25∧금리5일 +0.15p↑",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 25
+    },
+    {
+     "series": "tnx5",
+     "op": ">=",
+     "value": 0.15
+    }
+   ]
+  },
+  {
+   "name": "외국인 z≤-0.5∧RSI<30",
+   "all": [
+    {
+     "series": "frgn_z",
+     "op": "<=",
+     "value": -0.5
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  }
+ ]
+}

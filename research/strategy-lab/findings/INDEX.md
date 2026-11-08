@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 25 |
-| 보류·판정 불가 | 53 |
-| 기각 | 170 |
-| 사전등록 문서(결과는 별도 파일) | 203 |
+| 보류·판정 불가 | 57 |
+| 기각 | 171 |
+| 사전등록 문서(결과는 별도 파일) | 209 |
 | 정보·탐색 | 48 |
 | 미분류 | 241 |
 
@@ -43,7 +43,7 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (53)
+## 보류·판정 불가 (57)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -54,8 +54,12 @@
 | 2026-11-08 | INCONCLUSIVE | us | [midterm-election-events-results-2026-11.md](midterm-election-events-results-2026-11.md) | 신호: 약함(사전 기준 미달: 63일 p 0.042 · 126일 p 0.017 > 0.01) · 경제성: 해당 없음. 방향은 일관(126일 19/19 이익, 평균 +13.4% vs 무조건 +4.6%… |
 | 2026-11-08 | INCONCLUSIVE | kr | [kr-largecap-crash-events-results-2026-11.md](kr-largecap-crash-events-results-2026-11.md) | 신호: 약함(충족 4/9: LG화학·삼성SDI·POSCO홀딩스·기아) · 경제성: 해당 없음. 4종목은 63일 평균 +27~34%·이익 83~100%였으나 생존한 대형주만 본 표본이라 부풀려졌다(카… |
 | 2026-11-08 | INCONCLUSIVE | global | [foreign-drop-events-results-2026-11.md](foreign-drop-events-results-2026-11.md) | 신호: 약함(방향: 21일 평균이 9곳 모두 무조건보다 높았으나 p ≤ 0.01 은 코스닥 1곳뿐 → 사전 기준 5/9 미달) · 경제성: 해당 없음. 원인 구분(글로벌 vs 자국 고유)은 신호 없… |
+| 2026-11-08 | INCONCLUSIVE | global | [drop-events-v2-results-2026-11.md](drop-events-v2-results-2026-11.md) | 신호: 보조 근거(군집을 반영해도 평균 초과 양, 구간이 0 위인 셀 5/6) · 경제성: 해당 없음. 원 연구의 사전 기준(시장별 순열 p) 미충족이라 판정은 유지하고, 같은 조건 국면(VIX 높… |
 | 2026-11-08 | INCONCLUSIVE | us-kr | [drop-cause-events-results-2026-11.md](drop-cause-events-results-2026-11.md) | 신호: 없음(정책·정치 vs 나머지 21일 차이 −0.8%p, 양측 p 0.88) · 경제성: 해당 없음. 원인별 표본이 4~6건이라 어떤 분류도 구분되지 않는다. 눈에 띄는 기록: 거시(물가·금리… |
 | 2026-11-08 | INCONCLUSIVE | global | [crash-rebound-events-results-2026-11.md](crash-rebound-events-results-2026-11.md) | 신호: 약함(충족 3/8: 코스닥·DAX·S&P500, S&P500은 사건 3건뿐) · 경제성: 해당 없음. 코스피는 63일 평균 +5.7%(p 0.26)로 평소와 구분 안 되고, 63일 안에 사건… |
+| 2026-11-08 | INCONCLUSIVE | global | [condition-grid-l3-results-2026-11.md](condition-grid-l3-results-2026-11.md) | 신호: 부분 재현(하루 −3% 칸 9곳 모두 양·매칭 후에도 양) · 경제성: 미판단. 사전 규칙상 통과3 없음 → INCONCLUSIVE. DAILY 칸은 BH 통과 3/9(절반 5 미달)이라 통… |
+| 2026-11-08 | INCONCLUSIVE | global | [condition-grid-l2c-results-2026-11.md](condition-grid-l2c-results-2026-11.md) | 신호: 없음(통과3 0칸) · 경제성: 미판단. L2 의 유일한 형식상 통과는 유효 시장 1곳이라 INCONCLUSIVE(시장·지역 부족)로 내려갔다. 군집 부트스트랩으로 구간이 0 을 벗어난 칸은… |
+| 2026-11-08 | INCONCLUSIVE | global | [condition-grid-l2-results-2026-11.md](condition-grid-l2-results-2026-11.md) | 신호: 사실상 없음 · 경제성: 미판단. L2 에서 형식상 통과2 가 1칸(GAP / VIX≥30∧거래량≥1.5)이나 유효 시장 1곳·사건 20건(하한)·매칭 p 0.15 라 실질 근거가 약하다. … |
 | 2026-11-03 | INCONCLUSIVE | us-kr | [vix-fng-rsi-sector-kr-results-2026-11.md](vix-fng-rsi-sector-kr-results-2026-11.md) | 신호: 미국 없음 · 한국 VIX 만 약한 양(미확정) · 경제성: 미달. 미국 섹터 9·배당 2·주도섹터 3 묶음은 9셀 전부 REJECT. 한국 지수·업종·주도업종에 미국 VIX 규칙(R1)만 … |
 | 2026-10-29 | INCONCLUSIVE | crypto | [coinbase-premium-grid-results-2026-10.md](coinbase-premium-grid-results-2026-10.md) | 신호: 있음 · 경제성: 지금 규칙보다 나은 조합은 미확인. TRAIN 이 E1.0·Zm0.5(z ≥ 1 에 사서 z ≤ −0.5 에 팖, 최대 72h)를 골랐다(연 +38.0% vs 지금 규칙 +… |
 | 2026-10-29 | INCONCLUSIVE | crypto | [coinbase-premium-exit-rule-results-2026-10.md](coinbase-premium-exit-rule-results-2026-10.md) | 신호: 있음(진입 신호 자체) · 경제성: 청산 규칙 개선은 미확인. TRAIN 이 Zm0.5(z ≤ −0.5 에서 청산, 최대 72시간)를 골랐다(연 +23.1% vs T24 +14.6%). 확인… |
@@ -101,7 +105,7 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (170)
+## 기각 (171)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -111,6 +115,7 @@
 | 2026-11-08 | REJECT | us-kr | [tech-timing-3x-b-results-2026-11.md](tech-timing-3x-b-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 105셀 전부 REJECT(ROBUST 0 · INFORMATION 0). 2010~2019 VALID 에서 나스닥·반도체 3배는 17규칙 중 ΔSharpe>0… |
 | 2026-11-08 | REJECT | us | [post-drop-asset-selection-results-2026-11.md](post-drop-asset-selection-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 두 트리거 모두 33종 전부 REJECT. 가장 가까운 것은 QQQ 3배(QQQ 트리거: 초과 +5.0%p, 세 구간 모두 양, p 0.010)와 SOX 3배(… |
 | 2026-11-08 | REJECT | us | [hfea-results-2026-11.md](hfea-results-2026-11.md) | 신호: 없음(기준 미달) · 경제성: 해당 없음. HFEA 는 2002~2012(샤프 0.79 = 60/40 0.79, MDD −64%)와 2020~(샤프 0.47 < 0.62, MDD −68%)에… |
+| 2026-11-08 | REJECT | global | [drop-events-v2b-results-2026-11.md](drop-events-v2b-results-2026-11.md) | 신호: 없음(국면 효과로 설명됨) · 경제성: 해당 없음. 매칭 초과 +0.14%p, 군집 부트스트랩 95% [−5.39, +5.98], 시장당 부호 일치 4/9. 3일 연속 하락이 VIX≥30 국… |
 | 2026-11-04 | REJECT | us | [vix-leverage-menu-results-2026-11.md](vix-leverage-menu-results-2026-11.md) | 신호: 약함(문턱 미달) · 경제성: 미달. O1(샤프)은 'VIX ≥20 이면 −0.5배, ≤16 이면 현금'(현행 규칙과 같은 꼴)을 골랐고 VALID·TEST 샤프 0.63·1.29 로 단순 … |
 | 2026-11-04 | REJECT | us | [vix-community-shortvol-results-2026-11.md](vix-community-shortvol-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 커뮤니티 표준 숏 변동성 타이밍 두 규칙 모두 같은 보유 비율의 무작위 타이밍과 구분되지 않는다 — C1 콘탱고 p 0.209(보유 94%, 샤프 0.60 vs 단순… |
 | 2026-11-03 | REJECT | us | [vix-fng-rsi-timing-results-2026-11.md](vix-fng-rsi-timing-results-2026-11.md) | 신호: 없음 · 경제성: 미달. 세 규칙 × 일봉·주봉 6셀 전부 REJECT — 연 수익이 단순 보유(+11.7%)보다 일봉 +8.1~9.2% · 주봉 +7.1~8.4% 로 낮고 샤프도 낮다 (일… |
@@ -276,7 +281,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (203)
+## 사전등록 문서(결과는 별도 파일) (209)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -301,9 +306,15 @@
 | 2026-11-08 | PREREGISTERED | kr | [kr-largecap-crash-events-preregistration-2026-11.md](kr-largecap-crash-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 한국 대형주가 20일 −25%·고점 대비 −40% 급락한 상태에서 사면 이후 21·63일이 평소보다 높은가, 아니면 데드캣(추가 하락)이 흔한가.… |
 | 2026-11-08 | PREREGISTERED | us | [hfea-preregistration-2026-11.md](hfea-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 커뮤니티에서 자주 언급되는 HFEA(주식 3배 + 채권 3배 리밸런싱)가 세 시기 모두에서 60/40 을 위험 대비로 이기고 낙폭이 −50% 이내… |
 | 2026-11-08 | PREREGISTERED | global | [foreign-drop-events-preregistration-2026-11.md](foreign-drop-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 해외 지수가 하루 −5% 이상 급락한 뒤 더 떨어지는가 반등하는가, 미국 동반 충격(글로벌)과 자국 고유 충격은 다른가. 사용자 요청(2026-1… |
+| 2026-11-08 | PREREGISTERED | global | [drop-events-v2b-preregistration-2026-11.md](drop-events-v2b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 해당 없음. 질문 — vix30-fall3 의 63일 초과(+6.88%p)는 'VIX≥30 이후는 원래 오른다'는 국면 효과인가, '3일 연속 하락'이 더하는 몫이 있… |
+| 2026-11-08 | PREREGISTERED | global | [drop-events-v2-preregistration-2026-11.md](drop-events-v2-preregistration-2026-11.md) | 신호: (재분류) · 경제성: 해당 없음. 질문 — 원 연구에서 INCONCLUSIVE 였던 4건이 사건 군집(같은 위기)을 반영한 통계에서는 어떻게 보이는가. 원 연구의 사전 판정은 바꾸지 않는다… |
 | 2026-11-08 | PREREGISTERED | us-kr | [drop-cause-events-preregistration-2026-11.md](drop-cause-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 하루 급락의 원인(정책·정치·규제 / 금융 / 거시 / 외생 / 기업·기술)에 따라 이후 지수·자산 반응이 다른가. 사용자 요청(2026-11-0… |
 | 2026-11-08 | PREREGISTERED | us | [dd-ladder-3x-preregistration-2026-11.md](dd-ladder-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 대신 '지수 낙폭 −10%부터 5%p 씩 깊어질 때마다 나눠 사고 −5% 이내로 회복하면 파는' 낙폭 사다리가 같은 기준을 통과하는가. V… |
 | 2026-11-08 | PREREGISTERED | global | [crash-rebound-events-preregistration-2026-11.md](crash-rebound-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 지수가 20일 −20% 이상 급락한 상태(고점 대비 −30% 이하)에서 사면 이후 21·63일 수익이 평소보다 높은가, 아니면 데드캣(반등 뒤 재… |
+| 2026-11-08 | PREREGISTERED | global | [condition-grid-l3-preregistration-2026-11.md](condition-grid-l3-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 미판단. 질문 — 금리 하락 직후 급락의 반등이 L2 의 12곳이 아닌 독립 시장에서도 같은 방향으로 재현되는가(L3 확증). 사용자 요청(2026-11-08, 1순위… |
+| 2026-11-08 | PREREGISTERED | global | [condition-grid-l2c-preregistration-2026-11.md](condition-grid-l2c-preregistration-2026-11.md) | 신호: (재분류) · 경제성: 미판단. 질문 — L2 의 유일한 형식상 통과가 '유효 시장 1곳' 구멍이었으므로, 시장 수 하한과 사건 의존성(군집)을 반영한 판정 규칙 v2 에서 통과가 남는가. … |
+| 2026-11-08 | PREREGISTERED | global | [condition-grid-l2b-preregistration-2026-11.md](condition-grid-l2b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 달러·금리·외국인·기관 수급 변화가 사건 뒤 반등을 가르는가. 문턱은 사건 건수(--count)만 보고 완화했고 수익률 결과는 보지 않았다(L2 … |
+| 2026-11-08 | PREREGISTERED | global | [condition-grid-l2-preregistration-2026-11.md](condition-grid-l2-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — L1(150칸)에 갭·20일 급락·달러·금리·FOMC·수급 축을 더하고 사건 군집·위기 제외를 판정에 넣어도, 반등이 구분되는 상황이 남는가. 사… |
 | 2026-11-04 | PREREGISTERED | us | [vix-leverage-menu-preregistration-2026-11.md](vix-leverage-menu-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 상품을 배율(+2·+1·−0.5·−1배)로 늘어놓고 '어떤 상태에서 어느 배율을 들까'를 TRAIN 에서 고르면, 그 선택이 VALID·T… |
 | 2026-11-04 | PREREGISTERED | us | [vix-community-shortvol-preregistration-2026-11.md](vix-community-shortvol-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 깃허브·커뮤니티에서 가장 널리 쓰는 숏 변동성 타이밍 규칙 두 개(VIX/VIX3M 콘탱고, Cooper 2013 의 VRP)가 인버스 VIX 상… |
 | 2026-11-03 | PREREGISTERED | us-kr | [vix-level-product-era-preregistration-2026-11.md](vix-level-product-era-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (1) VIX 수준으로 롱/인버스 상품을 사고파는 규칙에서 '몇일 때 사고 몇일 때 파나'의 최적값이 구간을 넘어 통하는가, (2) 국내 ETN … |
