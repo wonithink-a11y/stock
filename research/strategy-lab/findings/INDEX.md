@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 25 |
-| 보류·판정 불가 | 48 |
+| 보류·판정 불가 | 49 |
 | 기각 | 170 |
-| 사전등록 문서(결과는 별도 파일) | 197 |
+| 사전등록 문서(결과는 별도 파일) | 198 |
 | 정보·탐색 | 47 |
 | 미분류 | 241 |
 
@@ -43,11 +43,12 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (48)
+## 보류·판정 불가 (49)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | INCONCLUSIVE | global | [vix30-fall3-events-results-2026-11.md](vix30-fall3-events-results-2026-11.md) | 신호: 약함(사전 기준 미달 — 충족 2/9: S&P500·코스닥) · 경제성: 해당 없음. 63일 초과수익은 9곳 모두 양(+4.5~+32.0%p)이고 21일도 8곳 양이나, 순열 p ≤ 0.01… |
+| 2026-11-08 | INCONCLUSIVE | us-kr | [one-day-drop-5pct-results-2026-11.md](one-day-drop-5pct-results-2026-11.md) | 신호: 없음(사전 규칙 기준: QQQ 5일 p 0.91·21일 p 0.72) · 경제성: 해당 없음. 지수는 하루 −5% 이후 5·21일 평균이 평소와 구분되지 않았고, 21일 안에 −5% 더 빠진… |
 | 2026-11-08 | INCONCLUSIVE | us | [midterm-election-events-results-2026-11.md](midterm-election-events-results-2026-11.md) | 신호: 약함(사전 기준 미달: 63일 p 0.042 · 126일 p 0.017 > 0.01) · 경제성: 해당 없음. 방향은 일관(126일 19/19 이익, 평균 +13.4% vs 무조건 +4.6%… |
 | 2026-11-08 | INCONCLUSIVE | kr | [kr-largecap-crash-events-results-2026-11.md](kr-largecap-crash-events-results-2026-11.md) | 신호: 약함(충족 4/9: LG화학·삼성SDI·POSCO홀딩스·기아) · 경제성: 해당 없음. 4종목은 63일 평균 +27~34%·이익 83~100%였으나 생존한 대형주만 본 표본이라 부풀려졌다(카… |
 | 2026-11-08 | INCONCLUSIVE | global | [crash-rebound-events-results-2026-11.md](crash-rebound-events-results-2026-11.md) | 신호: 약함(충족 3/8: 코스닥·DAX·S&P500, S&P500은 사건 3건뿐) · 경제성: 해당 없음. 코스피는 63일 평균 +5.7%(p 0.26)로 평소와 구분 안 되고, 63일 안에 사건… |
@@ -271,7 +272,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (197)
+## 사전등록 문서(결과는 별도 파일) (198)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -286,6 +287,7 @@
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
 | 2026-11-08 | PREREGISTERED | kr | [rv-ladder-kr-2x-preregistration-2026-11.md](rv-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 VIX 가 한국 지수에 어긋나 REJECT 였던 사다리를, 한국 지수 자신의 20일 실현변동성(VKOSPI 대용)으로 바꾸면 같은 기준을 통… |
 | 2026-11-08 | PREREGISTERED | us | [post-drop-asset-selection-preregistration-2026-11.md](post-drop-asset-selection-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — SPY·QQQ 가 10거래일 내 −5% 이상 하락한 직후 어떤 자산(섹터·스타일·반도체·채권·금·3배 등)을 사면 이후 5·21·63일 수익이 지… |
+| 2026-11-08 | PREREGISTERED | us-kr | [one-day-drop-5pct-preregistration-2026-11.md](one-day-drop-5pct-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 지수가 하루에 −5% 이상 빠진 날 이후 더 떨어지는가 반등하는가, 그리고 섹터·채권·금·3배·한국 지수가 어떻게 움직이는가. 사용자 요청(202… |
 | 2026-11-08 | PREREGISTERED | us | [midterm-election-events-preregistration-2026-11.md](midterm-election-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 중간선거 이후 지수가 평소보다 잘 올랐는가(2026-11-03 선거 직후 'AI 규제 우려' 급락 국면 해석용). 사용자 요청(2026-11… |
 | 2026-11-08 | PREREGISTERED | us | [laor-vs-vix-ladder-preregistration-2026-11.md](laor-vs-vix-ladder-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 같은 날 시작했을 때 라오어 V4.0 과 VIX 사다리 중 어느 쪽이 평균·최악 사건에서 우위인가. 사용자 요청(2026-11-08, 라오어 매수… |
 | 2026-11-08 | PREREGISTERED | us | [laor-cycle-events-preregistration-2026-11.md](laor-cycle-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 20 이상 시점에 라오어를 시작하면 첫 사이클이 얼마나 걸려 끝나고(수익·낙폭), 끝나지 않은 채 남는 사건은 얼마나 되는가. laor-v… |
