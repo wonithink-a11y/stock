@@ -11,7 +11,7 @@ reason: >-
 
 # 바이낸스 신규 상장 꼬리 조건 — forward 기록 — 사전등록 (2026-11-08)
 
-> **동결.** 이 커밋 이후 규칙·판정 시점·문턱을 바꾸지 않는다. 판정 전 `--judge` 는 코드가 거부한다(건수만). 코드 `research/strategy-lab/run_binance_listing_tail_forward.py`(다음 커밋). 월간 점검 표 #30.
+> **동결.** 이 커밋 이후 규칙·판정 시점·문턱을 바꾸지 않는다. 판정 전 `--judge` 는 코드가 거부한다(건수만). 코드 `research/strategy-lab/run_binance_listing_tail_forward.py`(다음 커밋). 월간 점검 표 #31.
 
 ## 1. 기록
 - 사건: `reports/2026-10-binance-listing-forward/events.json`(forward #25 가 쓰는 L ≥ 2026-10-01 신규 상장 목록 — 이 기록기는 #25 를 건드리지 않고 읽기만 한다. #25 가 안 돌면 사건이 안 늘어난다).
