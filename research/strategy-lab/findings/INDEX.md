@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 25 |
-| 보류·판정 불가 | 50 |
+| 보류·판정 불가 | 51 |
 | 기각 | 170 |
-| 사전등록 문서(결과는 별도 파일) | 199 |
+| 사전등록 문서(결과는 별도 파일) | 200 |
 | 정보·탐색 | 47 |
 | 미분류 | 241 |
 
@@ -43,7 +43,7 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (50)
+## 보류·판정 불가 (51)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -51,6 +51,7 @@
 | 2026-11-08 | INCONCLUSIVE | us-kr | [one-day-drop-5pct-results-2026-11.md](one-day-drop-5pct-results-2026-11.md) | 신호: 없음(사전 규칙 기준: QQQ 5일 p 0.91·21일 p 0.72) · 경제성: 해당 없음. 지수는 하루 −5% 이후 5·21일 평균이 평소와 구분되지 않았고, 21일 안에 −5% 더 빠진… |
 | 2026-11-08 | INCONCLUSIVE | us | [midterm-election-events-results-2026-11.md](midterm-election-events-results-2026-11.md) | 신호: 약함(사전 기준 미달: 63일 p 0.042 · 126일 p 0.017 > 0.01) · 경제성: 해당 없음. 방향은 일관(126일 19/19 이익, 평균 +13.4% vs 무조건 +4.6%… |
 | 2026-11-08 | INCONCLUSIVE | kr | [kr-largecap-crash-events-results-2026-11.md](kr-largecap-crash-events-results-2026-11.md) | 신호: 약함(충족 4/9: LG화학·삼성SDI·POSCO홀딩스·기아) · 경제성: 해당 없음. 4종목은 63일 평균 +27~34%·이익 83~100%였으나 생존한 대형주만 본 표본이라 부풀려졌다(카… |
+| 2026-11-08 | INCONCLUSIVE | global | [foreign-drop-events-results-2026-11.md](foreign-drop-events-results-2026-11.md) | 신호: 약함(방향: 21일 평균이 9곳 모두 무조건보다 높았으나 p ≤ 0.01 은 코스닥 1곳뿐 → 사전 기준 5/9 미달) · 경제성: 해당 없음. 원인 구분(글로벌 vs 자국 고유)은 신호 없… |
 | 2026-11-08 | INCONCLUSIVE | us-kr | [drop-cause-events-results-2026-11.md](drop-cause-events-results-2026-11.md) | 신호: 없음(정책·정치 vs 나머지 21일 차이 −0.8%p, 양측 p 0.88) · 경제성: 해당 없음. 원인별 표본이 4~6건이라 어떤 분류도 구분되지 않는다. 눈에 띄는 기록: 거시(물가·금리… |
 | 2026-11-08 | INCONCLUSIVE | global | [crash-rebound-events-results-2026-11.md](crash-rebound-events-results-2026-11.md) | 신호: 약함(충족 3/8: 코스닥·DAX·S&P500, S&P500은 사건 3건뿐) · 경제성: 해당 없음. 코스피는 63일 평균 +5.7%(p 0.26)로 평소와 구분 안 되고, 63일 안에 사건… |
 | 2026-11-03 | INCONCLUSIVE | us-kr | [vix-fng-rsi-sector-kr-results-2026-11.md](vix-fng-rsi-sector-kr-results-2026-11.md) | 신호: 미국 없음 · 한국 VIX 만 약한 양(미확정) · 경제성: 미달. 미국 섹터 9·배당 2·주도섹터 3 묶음은 9셀 전부 REJECT. 한국 지수·업종·주도업종에 미국 VIX 규칙(R1)만 … |
@@ -273,7 +274,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (199)
+## 사전등록 문서(결과는 별도 파일) (200)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -294,6 +295,7 @@
 | 2026-11-08 | PREREGISTERED | us | [laor-cycle-events-preregistration-2026-11.md](laor-cycle-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 20 이상 시점에 라오어를 시작하면 첫 사이클이 얼마나 걸려 끝나고(수익·낙폭), 끝나지 않은 채 남는 사건은 얼마나 되는가. laor-v… |
 | 2026-11-08 | PREREGISTERED | kr | [kr-largecap-crash-events-preregistration-2026-11.md](kr-largecap-crash-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 한국 대형주가 20일 −25%·고점 대비 −40% 급락한 상태에서 사면 이후 21·63일이 평소보다 높은가, 아니면 데드캣(추가 하락)이 흔한가.… |
 | 2026-11-08 | PREREGISTERED | us | [hfea-preregistration-2026-11.md](hfea-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 커뮤니티에서 자주 언급되는 HFEA(주식 3배 + 채권 3배 리밸런싱)가 세 시기 모두에서 60/40 을 위험 대비로 이기고 낙폭이 −50% 이내… |
+| 2026-11-08 | PREREGISTERED | global | [foreign-drop-events-preregistration-2026-11.md](foreign-drop-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 해외 지수가 하루 −5% 이상 급락한 뒤 더 떨어지는가 반등하는가, 미국 동반 충격(글로벌)과 자국 고유 충격은 다른가. 사용자 요청(2026-1… |
 | 2026-11-08 | PREREGISTERED | us-kr | [drop-cause-events-preregistration-2026-11.md](drop-cause-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 하루 급락의 원인(정책·정치·규제 / 금융 / 거시 / 외생 / 기업·기술)에 따라 이후 지수·자산 반응이 다른가. 사용자 요청(2026-11-0… |
 | 2026-11-08 | PREREGISTERED | us | [dd-ladder-3x-preregistration-2026-11.md](dd-ladder-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — VIX 대신 '지수 낙폭 −10%부터 5%p 씩 깊어질 때마다 나눠 사고 −5% 이내로 회복하면 파는' 낙폭 사다리가 같은 기준을 통과하는가. V… |
 | 2026-11-08 | PREREGISTERED | global | [crash-rebound-events-preregistration-2026-11.md](crash-rebound-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 지수가 20일 −20% 이상 급락한 상태(고점 대비 −30% 이하)에서 사면 이후 21·63일 수익이 평소보다 높은가, 아니면 데드캣(반등 뒤 재… |
