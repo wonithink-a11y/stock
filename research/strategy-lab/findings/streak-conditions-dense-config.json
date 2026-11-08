@@ -1,0 +1,548 @@
+{
+ "name": "streak-conditions-dense",
+ "seed": 20261108,
+ "nperm": 1000,
+ "horizons": [
+  5,
+  21,
+  63
+ ],
+ "primary": 21,
+ "min_events": 5,
+ "fdr": 0.05,
+ "markets": [
+  {
+   "name": "SPY",
+   "ticker": "SPY",
+   "vix_lag": 0
+  },
+  {
+   "name": "QQQ",
+   "ticker": "QQQ",
+   "vix_lag": 0
+  },
+  {
+   "name": "반도체SOX",
+   "ticker": "^SOX",
+   "vix_lag": 0
+  },
+  {
+   "name": "닛케이",
+   "ticker": "^N225",
+   "vix_lag": 1
+  },
+  {
+   "name": "DAX",
+   "ticker": "^GDAXI",
+   "vix_lag": 1
+  },
+  {
+   "name": "항셍",
+   "ticker": "^HSI",
+   "vix_lag": 1
+  },
+  {
+   "name": "코스피",
+   "ticker": "^KS11",
+   "vix_lag": 1
+  },
+  {
+   "name": "코스닥",
+   "ticker": "^KQ11",
+   "vix_lag": 1
+  },
+  {
+   "name": "대만가권",
+   "ticker": "^TWII",
+   "vix_lag": 1
+  },
+  {
+   "name": "상해종합",
+   "ticker": "000001.SS",
+   "vix_lag": 1
+  },
+  {
+   "name": "FTSE",
+   "ticker": "^FTSE",
+   "vix_lag": 1
+  },
+  {
+   "name": "CAC40",
+   "ticker": "^FCHI",
+   "vix_lag": 1
+  }
+ ],
+ "events": [
+  {
+   "name": "A(≥3일·-5%)",
+   "type": "streak",
+   "L": 3,
+   "D": 0.05,
+   "gap": 10
+  },
+  {
+   "name": "B(≥4일·-7%)",
+   "type": "streak",
+   "L": 4,
+   "D": 0.07,
+   "gap": 10
+  },
+  {
+   "name": "C(≥5일·-10%)",
+   "type": "streak",
+   "L": 5,
+   "D": 0.1,
+   "gap": 10
+  }
+ ],
+ "filters": [
+  {
+   "name": "VIX<15",
+   "series": "vix",
+   "op": "<",
+   "value": 15
+  },
+  {
+   "name": "VIX15~20",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 15
+    },
+    {
+     "series": "vix",
+     "op": "<",
+     "value": 20
+    }
+   ]
+  },
+  {
+   "name": "VIX20~25",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 20
+    },
+    {
+     "series": "vix",
+     "op": "<",
+     "value": 25
+    }
+   ]
+  },
+  {
+   "name": "VIX25~30",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 25
+    },
+    {
+     "series": "vix",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  },
+  {
+   "name": "VIX≥30",
+   "series": "vix",
+   "op": ">=",
+   "value": 30
+  },
+  {
+   "name": "VIX5일 +30%↑",
+   "series": "vixchg5",
+   "op": ">=",
+   "value": 0.3
+  },
+  {
+   "name": "VIX5일 +10%↑",
+   "series": "vixchg5",
+   "op": ">=",
+   "value": 0.1
+  },
+  {
+   "name": "VIX5일 ≤0",
+   "series": "vixchg5",
+   "op": "<=",
+   "value": 0.0
+  },
+  {
+   "name": "VIX 1년 백분위≥0.9",
+   "series": "vixpct",
+   "op": ">=",
+   "value": 0.9
+  },
+  {
+   "name": "VIX 1년 백분위≤0.5",
+   "series": "vixpct",
+   "op": "<=",
+   "value": 0.5
+  },
+  {
+   "name": "거래량<0.8배",
+   "series": "vol",
+   "op": "<",
+   "value": 0.8
+  },
+  {
+   "name": "거래량0.8~1.5배",
+   "all": [
+    {
+     "series": "vol",
+     "op": ">=",
+     "value": 0.8
+    },
+    {
+     "series": "vol",
+     "op": "<",
+     "value": 1.5
+    }
+   ]
+  },
+  {
+   "name": "거래량≥1.5배",
+   "series": "vol",
+   "op": ">=",
+   "value": 1.5
+  },
+  {
+   "name": "거래량≥2.0배",
+   "series": "vol",
+   "op": ">=",
+   "value": 2.0
+  },
+  {
+   "name": "SMA200 -10%↓",
+   "series": "sma200gap",
+   "op": "<=",
+   "value": -0.1
+  },
+  {
+   "name": "SMA200 -10~0%",
+   "all": [
+    {
+     "series": "sma200gap",
+     "op": ">",
+     "value": -0.1
+    },
+    {
+     "series": "sma200gap",
+     "op": "<",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "name": "SMA200 0~+10%",
+   "all": [
+    {
+     "series": "sma200gap",
+     "op": ">=",
+     "value": 0
+    },
+    {
+     "series": "sma200gap",
+     "op": "<",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "name": "SMA200 +10%↑",
+   "series": "sma200gap",
+   "op": ">=",
+   "value": 0.1
+  },
+  {
+   "name": "SMA50 아래",
+   "series": "sma50gap",
+   "op": "<",
+   "value": 0
+  },
+  {
+   "name": "SMA50 위",
+   "series": "sma50gap",
+   "op": ">=",
+   "value": 0
+  },
+  {
+   "name": "직전60일 +15%↑",
+   "series": "run60",
+   "op": ">=",
+   "value": 0.15
+  },
+  {
+   "name": "직전60일 -15%↓",
+   "series": "run60",
+   "op": "<=",
+   "value": -0.15
+  },
+  {
+   "name": "RSI14<20",
+   "series": "rsi14",
+   "op": "<",
+   "value": 20
+  },
+  {
+   "name": "RSI14 20~30",
+   "all": [
+    {
+     "series": "rsi14",
+     "op": ">=",
+     "value": 20
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  },
+  {
+   "name": "RSI14 30~40",
+   "all": [
+    {
+     "series": "rsi14",
+     "op": ">=",
+     "value": 30
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 40
+    }
+   ]
+  },
+  {
+   "name": "RSI14≥40",
+   "series": "rsi14",
+   "op": ">=",
+   "value": 40
+  },
+  {
+   "name": "252일 낙폭≤-10%",
+   "series": "dd252",
+   "op": "<=",
+   "value": -0.1
+  },
+  {
+   "name": "252일 낙폭≤-20%",
+   "series": "dd252",
+   "op": "<=",
+   "value": -0.2
+  },
+  {
+   "name": "252일 낙폭≤-30%",
+   "series": "dd252",
+   "op": "<=",
+   "value": -0.3
+  },
+  {
+   "name": "최대 하루 낙폭≤-3%",
+   "series": "maxday",
+   "op": "<=",
+   "value": -0.03
+  },
+  {
+   "name": "최대 하루 낙폭≤-2%",
+   "series": "maxday",
+   "op": "<=",
+   "value": -0.02
+  },
+  {
+   "name": "야금야금(하루>-2%)",
+   "series": "maxday",
+   "op": ">",
+   "value": -0.02
+  },
+  {
+   "name": "변동성비율≥1.5",
+   "series": "atrratio",
+   "op": ">=",
+   "value": 1.5
+  },
+  {
+   "name": "변동성비율<1.0",
+   "series": "atrratio",
+   "op": "<",
+   "value": 1.0
+  },
+  {
+   "name": "볼린저 하단 이탈(%b<0)",
+   "series": "pctb",
+   "op": "<",
+   "value": 0
+  },
+  {
+   "name": "볼린저 %b≥0.2",
+   "series": "pctb",
+   "op": ">=",
+   "value": 0.2
+  },
+  {
+   "name": "미국 SPY -3% 동반",
+   "series": "usdown",
+   "op": ">=",
+   "value": 1
+  },
+  {
+   "name": "9~10월",
+   "all": [
+    {
+     "series": "month",
+     "op": ">=",
+     "value": 9
+    },
+    {
+     "series": "month",
+     "op": "<=",
+     "value": 10
+    }
+   ]
+  },
+  {
+   "name": "월요일",
+   "series": "weekday",
+   "op": "<",
+   "value": 1
+  },
+  {
+   "name": "금요일",
+   "series": "weekday",
+   "op": ">=",
+   "value": 4
+  },
+  {
+   "name": "연속 6일↑",
+   "series": "streakL",
+   "op": ">=",
+   "value": 6
+  },
+  {
+   "name": "VIX≥30 ∧ 거래량≥1.5",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 30
+    },
+    {
+     "series": "vol",
+     "op": ">=",
+     "value": 1.5
+    }
+   ]
+  },
+  {
+   "name": "VIX≥30 ∧ RSI<30",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 30
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  },
+  {
+   "name": "VIX≥30 ∧ SMA200 아래",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 30
+    },
+    {
+     "series": "sma200gap",
+     "op": "<",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "name": "VIX≥25 ∧ 직전60일 +15%↑",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 25
+    },
+    {
+     "series": "run60",
+     "op": ">=",
+     "value": 0.15
+    }
+   ]
+  },
+  {
+   "name": "VIX≥25 ∧ VIX5일 +30%↑",
+   "all": [
+    {
+     "series": "vix",
+     "op": ">=",
+     "value": 25
+    },
+    {
+     "series": "vixchg5",
+     "op": ">=",
+     "value": 0.3
+    }
+   ]
+  },
+  {
+   "name": "SMA200 아래 ∧ RSI<30",
+   "all": [
+    {
+     "series": "sma200gap",
+     "op": "<",
+     "value": 0
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  },
+  {
+   "name": "직전60일 +15%↑ ∧ SMA200 위",
+   "all": [
+    {
+     "series": "run60",
+     "op": ">=",
+     "value": 0.15
+    },
+    {
+     "series": "sma200gap",
+     "op": ">=",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "name": "거래량≥1.5 ∧ RSI<30",
+   "all": [
+    {
+     "series": "vol",
+     "op": ">=",
+     "value": 1.5
+    },
+    {
+     "series": "rsi14",
+     "op": "<",
+     "value": 30
+    }
+   ]
+  }
+ ],
+ "matched": true
+}

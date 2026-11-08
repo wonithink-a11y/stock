@@ -44,7 +44,7 @@ def bh_adjust(p):
     return adj
 
 
-def build_series(d: pd.DataFrame, vix: pd.Series, vix_lag: int):
+def build_series(d: pd.DataFrame, vix: pd.Series, vix_lag: int, spy_ret: pd.Series = None):
     c = d["Close"]
     p = c.values
     n = len(p)
@@ -68,7 +68,24 @@ def build_series(d: pd.DataFrame, vix: pd.Series, vix_lag: int):
     up = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
     dn = (-delta.clip(upper=0)).ewm(alpha=1 / 14, adjust=False).mean()
     rsi14 = (100 - 100 / (1 + up / dn)).values
-    return dict(r=r, L=L, D=D, maxday=maxday, vix=v.values, vixchg5=(v / v.shift(5) - 1).values, vol=volratio, sma200gap=(c / s200 - 1).values, rsi14=rsi14, dd252=dd252, dd10=dd10, month=c.index.month.values.astype(float)), p
+    sma50 = c.rolling(50).mean()
+    run60 = (c / c.shift(60) - 1).values
+    rv20 = c.pct_change().rolling(20).std()
+    atrratio = (rv20 / rv20.rolling(252, min_periods=60).median()).values
+    vixpct = v.rolling(252, min_periods=60).apply(lambda x: (x[:-1] < x[-1]).mean(), raw=True).values
+    ma20 = c.rolling(20).mean()
+    sd20 = c.rolling(20).std()
+    pctb = ((c - (ma20 - 2 * sd20)) / (4 * sd20)).values
+    if spy_ret is not None:
+        sr = spy_ret.reindex(c.index.union(spy_ret.index)).sort_index()
+        prev = spy_ret.shift(1)
+        both = pd.concat([spy_ret.rename("a"), prev.rename("b")], axis=1).min(axis=1)
+        usd = (both <= -0.03).astype(float).reindex(c.index, method=None).fillna(0.0).values
+        prev_only = (spy_ret.shift(1) <= -0.03).astype(float)
+        usd = np.maximum(usd, prev_only.reindex(c.index, method="ffill").fillna(0.0).values)
+    else:
+        usd = np.zeros(len(c))
+    return dict(sma50gap=(c / sma50 - 1).values, run60=run60, atrratio=atrratio, vixpct=vixpct, pctb=pctb, usdown=usd, weekday=c.index.weekday.values.astype(float), streakL=L.astype(float), r=r, L=L, D=D, maxday=maxday, vix=v.values, vixchg5=(v / v.shift(5) - 1).values, vol=volratio, sma200gap=(c / s200 - 1).values, rsi14=rsi14, dd252=dd252, dd10=dd10, month=c.index.month.values.astype(float)), p
 
 
 def events_for(ev_def, S, p):
@@ -99,10 +116,12 @@ def events_for(ev_def, S, p):
 def passes(S, i, flt):
     if flt is None:
         return True
-    val = S[flt["series"]][i]
-    if val != val:
-        return False
-    return bool(OPS[flt["op"]](val, flt["value"]))
+    clauses = flt["all"] if "all" in flt else [flt]
+    for c in clauses:
+        val = S[c["series"]][i]
+        if val != val or not OPS[c["op"]](val, c["value"]):
+            return False
+    return True
 
 
 def fwd_array(p, h):
@@ -111,7 +130,12 @@ def fwd_array(p, h):
     return a
 
 
+SPY_RET = None
+
+
 def run(cfg):
+    global SPY_RET
+    SPY_RET = load_cv("SPY")["Close"].pct_change()
     rng = np.random.default_rng(cfg.get("seed", B.SEED))
     rng_m = np.random.default_rng(cfg.get("seed", B.SEED) + 1)   # 매칭 대조 전용(주 지표 난수열을 바꾸지 않는다)
     matched = cfg.get("matched", False)
@@ -124,7 +148,7 @@ def run(cfg):
     for m in cfg["markets"]:
         d = load_cv(m["ticker"])
         d = d[d.index <= B.END]
-        S, p = build_series(d, vix, m.get("vix_lag", 0))
+        S, p = build_series(d, vix, m.get("vix_lag", 0), SPY_RET)
         mk[m["name"]] = dict(S=S, p=p, dates=d.index, fw={h: fwd_array(p, h) for h in hs})
     flts = [None] + cfg["filters"]
     tests = []   # (cell, market, stats)
