@@ -9,8 +9,8 @@
 | 통과·채택 | 25 |
 | 보류·판정 불가 | 52 |
 | 기각 | 170 |
-| 사전등록 문서(결과는 별도 파일) | 201 |
-| 정보·탐색 | 47 |
+| 사전등록 문서(결과는 별도 파일) | 202 |
+| 정보·탐색 | 48 |
 | 미분류 | 241 |
 
 ## 통과·채택 (25)
@@ -275,7 +275,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (201)
+## 사전등록 문서(결과는 별도 파일) (202)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -289,6 +289,7 @@
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
 | 2026-11-08 | PREREGISTERED | global | [streak-drop-events-preregistration-2026-11.md](streak-drop-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 하루 급락이 아니라 연속 하락(하락 포인트 누적)에서 사건을 정의하면 이후 시장은 더 떨어지는가 반등하는가, 연속 일수가 길수록 달라지는가. 사용… |
+| 2026-11-08 | PREREGISTERED | global | [streak-conditions-preregistration-2026-11.md](streak-conditions-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 연속 하락(streak-drop-events 는 INCONCLUSIVE, 반등 방향은 일관) 에 VIX·거래량·추세·RSI·낙폭·하락 속도 조건을… |
 | 2026-11-08 | PREREGISTERED | kr | [rv-ladder-kr-2x-preregistration-2026-11.md](rv-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 VIX 가 한국 지수에 어긋나 REJECT 였던 사다리를, 한국 지수 자신의 20일 실현변동성(VKOSPI 대용)으로 바꾸면 같은 기준을 통… |
 | 2026-11-08 | PREREGISTERED | us | [post-drop-asset-selection-preregistration-2026-11.md](post-drop-asset-selection-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — SPY·QQQ 가 10거래일 내 −5% 이상 하락한 직후 어떤 자산(섹터·스타일·반도체·채권·금·3배 등)을 사면 이후 5·21·63일 수익이 지… |
 | 2026-11-08 | PREREGISTERED | us-kr | [one-day-drop-5pct-preregistration-2026-11.md](one-day-drop-5pct-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 지수가 하루에 −5% 이상 빠진 날 이후 더 떨어지는가 반등하는가, 그리고 섹터·채권·금·3배·한국 지수가 어떻게 움직이는가. 사용자 요청(202… |
@@ -481,11 +482,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (47)
+## 정보·탐색 (48)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | INFORMATION | us | [vix-ladder-svix-results-2026-11.md](vix-ladder-svix-results-2026-11.md) | 신호: 있음(기준 충족, 단 약함) · 경제성: 미확정. 주 셀(N 8·≤16)에서 VALID(14건 평균 +2.8%·이익 86%·최악 −41%)와 TEST(9건 +1.9%·89%·−33%)가 기준… |
+| 2026-11-08 | INFORMATION | global | [streak-conditions-results-2026-11.md](streak-conditions-results-2026-11.md) | 신호: 있음(약함, 사전 기준 1칸 통과: A≥3일·−5% ∧ VIX≥30) · 경제성: 미확정. 그 칸은 12개 시장 모두 보유, 사건 320건, 6개 시장이 BH 5% 통과, 합산 초과 +3.1… |
 | 2026-11-08 | INFORMATION | kr | [rv-ladder-kr-2x-results-2026-11.md](rv-ladder-kr-2x-results-2026-11.md) | 신호: 있음(코스닥만, 약함) · 경제성: 미확정. 코스닥 2배는 VALID(12건 이익 83%·최악 −2%)·TEST(11건 82%·0%)를 충족해 INFORMATION, TRAIN 은 이익 55… |
 | 2026-11-08 | INFORMATION-ONLY | us | [laor-vs-vix-ladder-results-2026-11.md](laor-vs-vix-ladder-results-2026-11.md) | 신호: 해당 없음(비교 기록) · 경제성: 해당 없음. 평균은 사다리가 높고(TQQQ 창B +38.6% vs +19.9%, SOXL +55.1% vs +26.9%), 최악 사건은 TQQQ 에서 라오… |
 | 2026-11-08 | INFORMATION-ONLY | us | [laor-cycle-events-results-2026-11.md](laor-cycle-events-results-2026-11.md) | 신호: 해당 없음(기록) · 경제성: 해당 없음. 첫 사이클은 TQQQ 25/26건·SOXL 25/25건이 완료됐고 중앙값 35·25일, 수익 중앙값 +4.1·+4.2%(시드 대비)였다. 손실로 끝… |

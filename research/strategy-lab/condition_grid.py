@@ -113,6 +113,8 @@ def fwd_array(p, h):
 
 def run(cfg):
     rng = np.random.default_rng(cfg.get("seed", B.SEED))
+    rng_m = np.random.default_rng(cfg.get("seed", B.SEED) + 1)   # 매칭 대조 전용(주 지표 난수열을 바꾸지 않는다)
+    matched = cfg.get("matched", False)
     nperm = cfg.get("nperm", 1000)
     hs = cfg.get("horizons", [5, 21, 63])
     prim = cfg.get("primary", 21)
@@ -148,6 +150,16 @@ def run(cfg):
                     sh = np.nanmean(a[idx], axis=1)
                     p_val = float((1 + np.sum(np.abs(sh - m_all) >= abs(diff))) / (1 + nperm))
                     row[h] = dict(n=int(len(evr)), mean=round(float(evr.mean()), 2), base=round(float(m_all), 2), diff=round(diff, 2), win=round(float((evr > 0).mean() * 100)), p=p_val)
+                    if h == prim and matched and flt is not None:
+                        # 같은 조건을 만족하는 모든 날을 기준으로 한 대조(조건 자체가 만드는 국면 효과를 분리)
+                        reg = np.array([i for i in range(n) if passes(M["S"], i, flt) and not np.isnan(a[i])], dtype=int)
+                        if len(reg) >= max(50, 3 * len(evr)):
+                            base_m = float(a[reg].mean())
+                            sims = np.array([a[rng_m.choice(reg, size=len(evr), replace=False)].mean() for _ in range(nperm)])
+                            dm = float(evr.mean() - base_m)
+                            row[h]["base_matched"] = round(base_m, 2)
+                            row[h]["diff_matched"] = round(dm, 2)
+                            row[h]["p_matched"] = float((1 + np.sum(np.abs(sims - base_m) >= abs(dm))) / (1 + nperm))
                     if h == prim:
                         dts = M["dates"][ev[~np.isnan(a[ev])]]
                         per = {}
@@ -184,7 +196,10 @@ def run(cfg):
         m_pass = max(pos, neg)
         same_sign = all(pooled_per[pn] is not None and np.sign(pooled_per[pn]) == sign for pn in ("VALID", "TEST"))
         ok = bool(valid) and m_pass >= need and same_sign and pooled is not None and np.sign(pooled) == sign
-        summ.append(dict(cell=cell, 시장수=len(valid), 사건합=tot_n, BH통과_양=pos, BH통과_음=neg, 합산초과=None if pooled is None else round(pooled, 2), VALID=pooled_per["VALID"], TEST=pooled_per["TEST"], 통과=ok))
+        mt = [r[prim] for r in valid if "diff_matched" in r[prim]]
+        m_pool = round(float(np.average([x["diff_matched"] for x in mt], weights=[x["n"] for x in mt])), 2) if mt else None
+        m_sig = sum(1 for x in mt if x["p_matched"] <= 0.05 and x["diff_matched"] * (1 if pos >= neg else -1) > 0)
+        summ.append(dict(매칭합산초과=m_pool, 매칭p05시장=m_sig, cell=cell, 시장수=len(valid), 사건합=tot_n, BH통과_양=pos, BH통과_음=neg, 합산초과=None if pooled is None else round(pooled, 2), VALID=pooled_per["VALID"], TEST=pooled_per["TEST"], 통과=ok))
     return dict(config=cfg.get("name"), K=len(ps), 칸=len(cells), 요약=summ, tests=tests)
 
 
@@ -219,9 +234,9 @@ def main():
     outp = Path(a.config).with_name(Path(a.config).stem.replace("-config", "") + "-results.json")
     outp.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
     print(f"설정 {res['config']}: 칸 {res['칸']}개, 주 지표 시험 K={res['K']}개(BH 보정). 통과 칸 = BH≤{cfg.get('fdr', 0.05)} 시장 ≥ 절반 ∧ VALID·TEST 같은 부호")
-    print(f"{'칸':42s} 시장 사건합 BH양 BH음  합산초과 VALID  TEST 통과")
+    print(f"{'칸':42s} 시장 사건합 BH양 BH음  합산초과 VALID  TEST 통과 | 매칭초과 매칭p≤.05")
     for s in sorted(res["요약"], key=lambda x: -(x["BH통과_양"] + x["BH통과_음"])):
-        print(f"{s['cell']:42s} {s['시장수']:3d} {s['사건합']:5d} {s['BH통과_양']:3d} {s['BH통과_음']:3d} {str(s['합산초과']):>8s} {str(s['VALID']):>6s} {str(s['TEST']):>6s} {'★' if s['통과'] else ''}")
+        print(f"{s['cell']:42s} {s['시장수']:3d} {s['사건합']:5d} {s['BH통과_양']:3d} {s['BH통과_음']:3d} {str(s['합산초과']):>8s} {str(s['VALID']):>6s} {str(s['TEST']):>6s} {'★' if s['통과'] else ''} | {str(s['매칭합산초과']):>6s} {s['매칭p05시장']}")
     print("통과 칸:", [s["cell"] for s in res["요약"] if s["통과"]])
     return 0
 
