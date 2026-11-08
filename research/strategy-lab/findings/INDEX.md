@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 25 |
-| 보류·판정 불가 | 52 |
+| 보류·판정 불가 | 53 |
 | 기각 | 170 |
-| 사전등록 문서(결과는 별도 파일) | 202 |
+| 사전등록 문서(결과는 별도 파일) | 203 |
 | 정보·탐색 | 48 |
 | 미분류 | 241 |
 
@@ -43,12 +43,13 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (52)
+## 보류·판정 불가 (53)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | INCONCLUSIVE | global | [vix30-fall3-events-results-2026-11.md](vix30-fall3-events-results-2026-11.md) | 신호: 약함(사전 기준 미달 — 충족 2/9: S&P500·코스닥) · 경제성: 해당 없음. 63일 초과수익은 9곳 모두 양(+4.5~+32.0%p)이고 21일도 8곳 양이나, 순열 p ≤ 0.01… |
 | 2026-11-08 | INCONCLUSIVE | global | [streak-drop-events-results-2026-11.md](streak-drop-events-results-2026-11.md) | 신호: 약함(21일 p ≤ 0.01: A 2곳·B 2곳·C 3곳 < 6) · 경제성: 해당 없음. 방향은 일관되게 반등 쪽이다 — 21일 평균이 평소보다 높은 지수가 A 9/12·B 10/12·C … |
+| 2026-11-08 | INCONCLUSIVE | global | [streak-conditions-dense-results-2026-11.md](streak-conditions-dense-results-2026-11.md) | 신호: 약함 · 경제성: 미확정. 150칸 중 사전 기준 통과는 1칸(A≥3일·−5% ∧ VIX≥30, 이전 격자와 같은 칸)이고 매칭 대조 후 초과 +1.17%p·1시장으로 국면 효과가 대부분이다… |
 | 2026-11-08 | INCONCLUSIVE | us-kr | [one-day-drop-5pct-results-2026-11.md](one-day-drop-5pct-results-2026-11.md) | 신호: 없음(사전 규칙 기준: QQQ 5일 p 0.91·21일 p 0.72) · 경제성: 해당 없음. 지수는 하루 −5% 이후 5·21일 평균이 평소와 구분되지 않았고, 21일 안에 −5% 더 빠진… |
 | 2026-11-08 | INCONCLUSIVE | us | [midterm-election-events-results-2026-11.md](midterm-election-events-results-2026-11.md) | 신호: 약함(사전 기준 미달: 63일 p 0.042 · 126일 p 0.017 > 0.01) · 경제성: 해당 없음. 방향은 일관(126일 19/19 이익, 평균 +13.4% vs 무조건 +4.6%… |
 | 2026-11-08 | INCONCLUSIVE | kr | [kr-largecap-crash-events-results-2026-11.md](kr-largecap-crash-events-results-2026-11.md) | 신호: 약함(충족 4/9: LG화학·삼성SDI·POSCO홀딩스·기아) · 경제성: 해당 없음. 4종목은 63일 평균 +27~34%·이익 83~100%였으나 생존한 대형주만 본 표본이라 부풀려졌다(카… |
@@ -275,7 +276,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (202)
+## 사전등록 문서(결과는 별도 파일) (203)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -290,6 +291,7 @@
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
 | 2026-11-08 | PREREGISTERED | global | [streak-drop-events-preregistration-2026-11.md](streak-drop-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 하루 급락이 아니라 연속 하락(하락 포인트 누적)에서 사건을 정의하면 이후 시장은 더 떨어지는가 반등하는가, 연속 일수가 길수록 달라지는가. 사용… |
 | 2026-11-08 | PREREGISTERED | global | [streak-conditions-preregistration-2026-11.md](streak-conditions-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 연속 하락(streak-drop-events 는 INCONCLUSIVE, 반등 방향은 일관) 에 VIX·거래량·추세·RSI·낙폭·하락 속도 조건을… |
+| 2026-11-08 | PREREGISTERED | global | [streak-conditions-dense-preregistration-2026-11.md](streak-conditions-dense-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이전 연속 하락 격자(조건 12개)가 촘촘하지 않았으므로, 축마다 구간을 늘리고 카탈로그의 미구현 축(직전 60일 수익·변동성 비율·볼린저·미국 … |
 | 2026-11-08 | PREREGISTERED | kr | [rv-ladder-kr-2x-preregistration-2026-11.md](rv-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 VIX 가 한국 지수에 어긋나 REJECT 였던 사다리를, 한국 지수 자신의 20일 실현변동성(VKOSPI 대용)으로 바꾸면 같은 기준을 통… |
 | 2026-11-08 | PREREGISTERED | us | [post-drop-asset-selection-preregistration-2026-11.md](post-drop-asset-selection-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — SPY·QQQ 가 10거래일 내 −5% 이상 하락한 직후 어떤 자산(섹터·스타일·반도체·채권·금·3배 등)을 사면 이후 5·21·63일 수익이 지… |
 | 2026-11-08 | PREREGISTERED | us-kr | [one-day-drop-5pct-preregistration-2026-11.md](one-day-drop-5pct-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 지수가 하루에 −5% 이상 빠진 날 이후 더 떨어지는가 반등하는가, 그리고 섹터·채권·금·3배·한국 지수가 어떻게 움직이는가. 사용자 요청(202… |
