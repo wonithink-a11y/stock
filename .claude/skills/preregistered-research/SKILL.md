@@ -61,6 +61,7 @@ description: 새 전략·신호·가설을 사전등록 → 코드 동결 → �
 ## 6. 닫기
 
 1. `python research/strategy-lab/build_findings_registry.py` 로 `_registry.jsonl`/INDEX 갱신. (INDEX.md 는 자동 생성이다. 손으로 쓰지 않는다.)
+   이어서 화면용 두 파일도 갱신한다: `python research/strategy-lab/build_ui_findings.py`(모의투자 앱 리서치랩 `ui/data/findings.json`) · `python scripts/build-research-index.py`(대시보드 연구 목록 `docs/data/research-index.json`). 새 결과·사전등록 파일이 늘어도 화면에 안 보이는 일을 막는다(2026-11-08).
 2. REJECT/종결이면 CLAUDE.md "안 한다" 에 **2~3줄**만 (신호/경제성, 핵심 숫자 하나, findings 경로). 상세는 findings 에 둔다 — CLAUDE.md 는 매 요청 토큰이다.
 3. forward 로 넘기면 월간 점검 표(`.claude/skills/monthly-check/references/shadows.md`)에 한 행, 상세 문서에 원문을 추가한다.
 4. 세션 인수인계 `docs/control/세션인수인계-YYYY-MM-DD[-b].md` 에 한 줄 (저장소 루트에 쓰지 않는다).
