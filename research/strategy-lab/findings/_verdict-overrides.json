@@ -1,0 +1,10 @@
+{
+ "_note": "선언된 판정이 없는 옛 파일 중, 이미 CLAUDE.md·완료-이력.md 또는 그 파일 자체 요약이 결론을 적어 둔 것만 화면 표시용으로 판정을 붙인다(원문 파일은 수정하지 않는다). 키워드 추측은 쓰지 않는다. 2026-11-08.",
+ "5dc-riskoff-filter-validation-2026-08.md": {"verdict": "INFORMATION", "why": "Risk-Off 신규진입 차단으로 CAGR −9.85→−5.34%·MDD −75.0→−54.8% 개선, 승격 권고(오프라인) — 완료-이력 P0-2 후속", "src": "완료-이력.md"},
+ "5dc-riskoff-runner-validation-2026-08.md": {"verdict": "INFORMATION", "why": "실제 runner 에서도 5개 지표 개선, 개선폭은 오프라인의 63~76% — 최종판정 A(개선 확인, 규모 축소)", "src": "완료-이력.md"},
+ "trend-breakout-riskoff-runner-validation-2026-08.md": {"verdict": "INFORMATION", "why": "필터가 전략 무관하게 통한다는 근거로만 인용 — 필터 후에도 CAGR −12.5%, 'TREND-BREAKOUT-v1 이 쓸만해졌다'는 근거 아님", "src": "완료-이력.md"},
+ "trendbreakout-5dc-exposure-overlay-timing-value-2026-08.md": {"verdict": "INFORMATION", "why": "손실 완화 신호이지 수익 신호가 아님(타이밍 가치: TREND-BREAKOUT −0.55%p, 5DC +0.52%p) — 상관관계 ≠ 타이밍 가치 교훈 재현", "src": "완료-이력.md"},
+ "event-overlay-exposure-step0-2-2026-09.md": {"verdict": "NONE", "why": "공시 오버레이 — 노출 점검에서 종결(사용자 확정, 재개 조건: 노출 1% 초과)", "src": "CLAUDE.md"},
+ "overissue-filter-exposure-check-2026-09.md": {"verdict": "NONE", "why": "유상증자 회피 필터는 PBR 슬리브 슬롯 3,402개 중 4개(0.1%)에만 걸려 시험할 대상이 없다(파일 자체 요약)", "src": "파일 요약"},
+ "pbr-reproducibility-anchor-2026-09.md": {"verdict": "RECORD-ONLY", "why": "PBR 재현성 사슬 점검 기록 — baseline 정본 CAGR 5.49%, 패널 한 줄로 재현(판정 아닌 기준점)", "src": "CLAUDE.md"}
+}
