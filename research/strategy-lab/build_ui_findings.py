@@ -78,6 +78,7 @@ def main():
         entries.append(entry)
     # 사전등록 ↔ 결과 연결, 연구가 아닌 문서 분리(findings_link.py, 2026-11-08)
     prefix = "research/strategy-lab/findings/"
+    overrides = {k: v for k, v in json.load(open(os.path.join(FINDINGS_DIR, "_verdict-overrides.json"), encoding="utf-8")).items() if not k.startswith("_")}
     nm = lambda e: e["file"][len(prefix):] if e["file"].startswith(prefix) else e["file"]
     linked = link_prereg([dict(file=nm(e), verdict=e["declared"], date=e.get("date")) for e in entries])
     for e in entries:
@@ -88,6 +89,12 @@ def main():
                 e["linked"], e["linkedFile"] = m[0]["verdict"], m[0]["file"]
         elif e["group"] == "미분류" and is_doc(nm(e)):
             e["group"] = "문서·기타"
+        elif e["group"] == "미분류":
+            ov = overrides.get(nm(e))
+            if ov:   # 문서·파일 요약이 결론을 적어 둔 것만(findings/_verdict-overrides.json)
+                e["declared"], e["group"], e["note"] = ov["verdict"], verdict_group(ov["verdict"]), ov["why"] + " [" + ov["src"] + "]"
+            else:
+                e["group"] = "초기 탐색(판정 미선언)"
     entries.sort(key=lambda e: e.get("date") or "", reverse=True)
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
