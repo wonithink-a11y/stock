@@ -64,7 +64,7 @@ def main() -> int:
                     완료일수=dict(median=q([r["days"] for r in done], 50), p25=q([r["days"] for r in done], 25), p75=q([r["days"] for r in done], 75), max=max([r["days"] for r in done]) if done else None),
                     완료수익=dict(mean=round(float(np.mean([r["profit"] for r in done])), 1) if done else None, median=q([r["profit"] for r in done], 50), min=min([r["profit"] for r in done]) if done else None),
                     완료중최대낙폭=dict(median=q([r["mdd"] for r in done], 50), max=max([r["mdd"] for r in done]) if done else None),
-                    미완료=[(r["start"], r["profit"], r["mdd"]) for r in undone],
+                    미완료목록=[(r["start"], r["profit"], r["mdd"]) for r in undone],
                     리버스진입=sum(1 for r in rows if r["reverse"]),
                     e252=dict(n=len([r for r in rows if r["e252"] is not None]), mean=round(float(np.mean([r["e252"] for r in rows if r["e252"] is not None])), 1), min=min(r["e252"] for r in rows if r["e252"] is not None)),
                     e504=dict(n=len([r for r in rows if r["e504"] is not None]), mean=round(float(np.mean([r["e504"] for r in rows if r["e504"] is not None])), 1), min=min(r["e504"] for r in rows if r["e504"] is not None)))
