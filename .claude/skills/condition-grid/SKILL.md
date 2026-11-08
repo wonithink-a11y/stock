@@ -36,6 +36,9 @@ VIX·낙폭·추세처럼 **국면을 가르는 조건**을 얹은 칸은 반드
 - 사건이 같은 위기(2000~02·2008·2020)에 몰린 것을 독립으로 해석하기 — 결과 문서에 반드시 적는다.
 - 원인 라벨(정책·금융·거시 등)을 기억으로 붙이고 확정처럼 쓰기 — 객관 기준(미국 동반 여부 등)을 우선하고, 사후 라벨은 '주관적'이라 명시.
 
+## 2-1. 촘촘함 현황·확장 단계
+현재 밀도(16축·필터 49개·150칸·K 약 1,200)와 비어 있는 영역, 확장 사다리(L1~L4)는 `docs/control/조건격자-촘촘함-현황-2026-11-08.md` 에 있다. 조건을 넓히기 전에 그 문서의 §2·§3 을 본다.
+
 ## 3. 기존 도구
 - 엔진: `research/strategy-lab/condition_grid.py` (설정 JSON → 칸별 통계). 지표 라이브러리: `tech_timing_3x.py`(SMA·RSI·MACD·볼린저·돈치안·피보나치 등 54규칙), `post_drop_asset_selection.py`(자산 33종 종가), `one_day_drop_5pct.py`·`streak_drop_events.py`(사건 정의 예시).
 - 결과 예시: `findings/streak-drop-events-results-2026-11.md`, `findings/drop-cause-events-results-2026-11.md`.
