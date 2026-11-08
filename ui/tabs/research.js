@@ -33,8 +33,8 @@
 
   // 판정 묶음(2026-11-08): findings.json 의 group(레지스트리 묶음 표). 예전엔 KEEP/HOLD/REJECT/UNCLASSIFIED 4종뿐이라
   // ROBUST·INCONCLUSIVE·PREREGISTERED 등 선언 판정이 전부 '미분류'로 보였다.
-  const GROUPS = [['통과·채택', 'keep'], ['보류·판정 불가', 'hold'], ['기각', 'reject'], ['사전등록 문서(결과는 별도 파일)', 'prereg'], ['정보·탐색', 'info'], ['미분류', 'unclassified']];
-  const GROUP_LABEL = { '통과·채택': '통과', '보류·판정 불가': '보류', '기각': '기각', '사전등록 문서(결과는 별도 파일)': '사전등록', '정보·탐색': '정보', '미분류': '미분류' };
+  const GROUPS = [['통과·채택', 'keep'], ['보류·판정 불가', 'hold'], ['기각', 'reject'], ['정보·탐색', 'info'], ['사전등록·결과 연결', 'prereg'], ['사전등록·결과 연결 안 됨', 'prereg'], ['문서·기타', 'unclassified'], ['미분류', 'unclassified']];
+  const GROUP_LABEL = { '통과·채택': '통과', '보류·판정 불가': '보류', '기각': '기각', '정보·탐색': '정보', '사전등록·결과 연결': '사전등록(결과 있음)', '사전등록·결과 연결 안 됨': '사전등록(결과 없음·대기)', '문서·기타': '문서·기타', '미분류': '미분류' };
   const GROUP_CLS = Object.fromEntries(GROUPS);
   const VERDICTS = GROUPS.map(g => g[0]);
   const groupOf = f => f.group || (f.verdict === 'KEEP' ? '통과·채택' : f.verdict === 'HOLD' ? '보류·판정 불가' : f.verdict === 'REJECT' ? '기각' : '미분류');
@@ -47,7 +47,8 @@
     if (!finding.verdict) return '';
     const orig = finding.original_verdict && finding.original_verdict !== finding.declared ? ` <span class="v-orig">(원문: ${escapeHtml(finding.original_verdict)})</span>` : '';
     const g = groupOf(finding), dv = finding.declared || finding.verdict;
-    return `<span class="v-badge v-${GROUP_CLS[g] || 'unclassified'}" title="${escapeHtml(g)}">${escapeHtml(dv)}</span>${orig}`;
+    const lk = finding.linked ? ` <span class="v-orig">→ 결과 ${escapeHtml(finding.linked)}</span>` : '';
+    return `<span class="v-badge v-${GROUP_CLS[g] || 'unclassified'}" title="${escapeHtml(g)}">${escapeHtml(dv)}</span>${orig}${lk}`;
   }
 
   function trackBadge(finding) {
