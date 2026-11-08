@@ -9,8 +9,8 @@
 | 통과·채택 | 25 |
 | 보류·판정 불가 | 47 |
 | 기각 | 169 |
-| 사전등록 문서(결과는 별도 파일) | 191 |
-| 정보·탐색 | 45 |
+| 사전등록 문서(결과는 별도 파일) | 192 |
+| 정보·탐색 | 46 |
 | 미분류 | 240 |
 
 ## 통과·채택 (25)
@@ -269,7 +269,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (191)
+## 사전등록 문서(결과는 별도 파일) (192)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -280,6 +280,7 @@
 | 2026-11-08 | PREREGISTERED | us | [tech-timing-3x-preregistration-2026-11.md](tech-timing-3x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 이동평균·피보나치·MACD·RSI·볼린저·일목·돈치안 등 널리 쓰이는 차트 매매 기법 54개 중, 미국 지수 신호로 3배 레버리지(TQQQ·SOX… |
 | 2026-11-08 | PREREGISTERED | global | [tech-timing-3x-c-preregistration-2026-11.md](tech-timing-3x-c-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 1차·2차 시험(나스닥·반도체·코스피)에서 TEST(2020~)에만 강했던 단기 반등 규칙 4개가 독립 시장 6곳에서도 보유를 이기는가. 이 4규… |
 | 2026-11-08 | PREREGISTERED | us-kr | [tech-timing-3x-b-preregistration-2026-11.md](tech-timing-3x-b-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (A) 인터넷·커뮤니티에서 자주 쓰는 17개 기법(IBS·Double-7·Connors RSI2+추세·12개월 모멘텀·VIX 3일 하락 등)이 3… |
+| 2026-11-08 | PREREGISTERED | kr | [rv-ladder-kr-2x-preregistration-2026-11.md](rv-ladder-kr-2x-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 VIX 가 한국 지수에 어긋나 REJECT 였던 사다리를, 한국 지수 자신의 20일 실현변동성(VKOSPI 대용)으로 바꾸면 같은 기준을 통… |
 | 2026-11-08 | PREREGISTERED | us | [midterm-election-events-preregistration-2026-11.md](midterm-election-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 미국 중간선거 이후 지수가 평소보다 잘 올랐는가(2026-11-03 선거 직후 'AI 규제 우려' 급락 국면 해석용). 사용자 요청(2026-11… |
 | 2026-11-08 | PREREGISTERED | us | [laor-vs-vix-ladder-preregistration-2026-11.md](laor-vs-vix-ladder-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 같은 날 시작했을 때 라오어 V4.0 과 VIX 사다리 중 어느 쪽이 평균·최악 사건에서 우위인가. 사용자 요청(2026-11-08, 라오어 매수… |
 | 2026-11-08 | PREREGISTERED | us | [hfea-preregistration-2026-11.md](hfea-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 커뮤니티에서 자주 언급되는 HFEA(주식 3배 + 채권 3배 리밸런싱)가 세 시기 모두에서 60/40 을 위험 대비로 이기고 낙폭이 −50% 이내… |
@@ -465,11 +466,12 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (45)
+## 정보·탐색 (46)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-08 | INFORMATION | us | [vix-ladder-svix-results-2026-11.md](vix-ladder-svix-results-2026-11.md) | 신호: 있음(기준 충족, 단 약함) · 경제성: 미확정. 주 셀(N 8·≤16)에서 VALID(14건 평균 +2.8%·이익 86%·최악 −41%)와 TEST(9건 +1.9%·89%·−33%)가 기준… |
+| 2026-11-08 | INFORMATION | kr | [rv-ladder-kr-2x-results-2026-11.md](rv-ladder-kr-2x-results-2026-11.md) | 신호: 있음(코스닥만, 약함) · 경제성: 미확정. 코스닥 2배는 VALID(12건 이익 83%·최악 −2%)·TEST(11건 82%·0%)를 충족해 INFORMATION, TRAIN 은 이익 55… |
 | 2026-11-08 | INFORMATION-ONLY | us | [laor-vs-vix-ladder-results-2026-11.md](laor-vs-vix-ladder-results-2026-11.md) | 신호: 해당 없음(비교 기록) · 경제성: 해당 없음. 평균은 사다리가 높고(TQQQ 창B +38.6% vs +19.9%, SOXL +55.1% vs +26.9%), 최악 사건은 TQQQ 에서 라오… |
 | 2026-11-08 | INFORMATION | us | [dd-ladder-3x-results-2026-11.md](dd-ladder-3x-results-2026-11.md) | 신호: 있음(약함: VALID·TEST 만 충족) · 경제성: 미확정. NDX·SOX·S&P500 3배 모두 VALID(100% 이익)·TEST(91~100%)는 기준을 충족했으나 TRAIN 에서 … |
 | 2026-11-03 | INFORMATION | us-kr | [vix-level-product-era-results-2026-11.md](vix-level-product-era-results-2026-11.md) | 신호: 인버스 레그만 있음(구간 전반 양, 단 상당 부분이 인버스의 구조적 보유 수익) · 경제성: 조건부. 레그B(VIX ≥20 인버스 매수 → ≤16 매도)는 TRAIN·VALID·TEST 모두… |
