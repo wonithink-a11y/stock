@@ -34,6 +34,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 27 | VIX 기간구조 T2 (미국) | `run_vix_term_t2_forward.py` (Yahoo 공개, 수 초 — 자주 돌려도 됨) | `reports/2026-10-vix-term-t2-forward/` | 성숙 250거래일 ∧ 12개월(≈2027-11), 연장 1회(500·24개월) |
 | 28 | 기타법인 순매수 강도 ETC10 (국내) | A2a·A4 증분 뒤 `run_etc_flow_forward.py` (약 5분) | `reports/2026-10-etc-flow-forward/` | 성숙 신호월 24 ∧ 24개월(≈2028-10), 연장 1회(48·48개월) |
 | 29 | 정적 VI 근사 VU (국내 장중 +10% → 종가) | `run_kr_static_vi_forward.py sync` (VM 타이머 vi-forward 가 매일 계산 → `/research-data/_status` 에서 받기, 수 초) | `reports/2026-11-kr-static-vi-forward/` | 관측일 100 ∧ 2027-05-03, 연장 1회(200 ∧ 2027-11-01) |
+| 30 | VIX·실현변동성 사다리 (나스닥·반도체 3배, 코스닥 2배) | `run_vix_ladder_forward.py` (Yahoo 공개, 수 초 — 자주 돌릴수록 좋음) | `reports/2026-11-vix-ladder-forward/observations.jsonl` | 닫힌 사건 12 ∧ 2027-11-02 이후 `--judge` 1회(그 전 거부). 현재 11-02 사건 진행 중(체결 2칸) |
 
 ## 메모
 
