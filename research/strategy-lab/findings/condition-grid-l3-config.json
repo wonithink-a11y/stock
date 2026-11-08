@@ -1,0 +1,106 @@
+{
+ "name": "condition-grid-l3",
+ "seed": 20261108,
+ "nperm": 1000,
+ "horizons": [
+  5,
+  21,
+  63
+ ],
+ "primary": 21,
+ "min_events": 10,
+ "min_clusters": 10,
+ "fdr": 0.05,
+ "matched": true,
+ "l2": true,
+ "markets": [
+  {
+   "name": "호주ASX200",
+   "ticker": "^AXJO",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "인도NIFTY",
+   "ticker": "^NSEI",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "유로스톡스50",
+   "ticker": "^STOXX50E",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "스페인IBEX",
+   "ticker": "^IBEX",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "네덜란드AEX",
+   "ticker": "^AEX",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "스위스SMI",
+   "ticker": "^SSMI",
+   "vix_lag": 1,
+   "flows": false
+  },
+  {
+   "name": "캐나다TSX",
+   "ticker": "^GSPTSE",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "브라질BOVESPA",
+   "ticker": "^BVSP",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "신흥국EEM",
+   "ticker": "EEM",
+   "vix_lag": 0,
+   "flows": false
+  },
+  {
+   "name": "선진국EFA",
+   "ticker": "EFA",
+   "vix_lag": 0,
+   "flows": false
+  }
+ ],
+ "events": [
+  {
+   "name": "DAILY(하루 -3%)",
+   "type": "daily",
+   "thr": -0.03,
+   "gap": 10
+  },
+  {
+   "name": "R20(20일 -10%)",
+   "type": "ret20",
+   "thr": -0.1,
+   "gap": 10
+  },
+  {
+   "name": "GAP(갭 -2%)",
+   "type": "gap",
+   "thr": -0.02,
+   "gap": 10
+  }
+ ],
+ "filters": [
+  {
+   "name": "미10년금리20일 -0.3p↓",
+   "series": "tnx20",
+   "op": "<=",
+   "value": -0.3
+  }
+ ]
+}

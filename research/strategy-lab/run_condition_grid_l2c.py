@@ -15,7 +15,11 @@ import tech_timing_3x as B  # noqa: E402
 
 F = Path(__file__).resolve().parent / "findings"
 REGION = {"SPY": "미국", "QQQ": "미국", "반도체SOX": "미국", "닛케이": "아시아", "항셍": "아시아", "코스피": "아시아", "코스닥": "아시아", "대만가권": "아시아", "상해종합": "아시아",
-          "DAX": "유럽", "FTSE": "유럽", "CAC40": "유럽"}
+          "DAX": "유럽", "FTSE": "유럽", "CAC40": "유럽",
+          # L3 신규 시장
+          "호주ASX200": "아시아", "인도NIFTY": "아시아", "유로스톡스50": "유럽", "스페인IBEX": "유럽", "네덜란드AEX": "유럽", "스위스SMI": "유럽",
+          "캐나다TSX": "아메리카", "브라질BOVESPA": "아메리카", "신흥국EEM": "글로벌ETF", "선진국EFA": "글로벌ETF"}
+NONINDEP = {"신흥국EEM", "선진국EFA"}   # 국가 지수와 구성이 겹치는 ETF — 표에는 넣되 유효 시장·지역 수에는 세지 않는다(L3 사전등록)
 BOOT, SEED = 2000, 20261108
 
 
@@ -68,7 +72,8 @@ def boot(events, days=30, rng=None):
 
 def classify(s, ev):
     mk = sorted({e[0] for e in ev})
-    regions = sorted({REGION[m] for m in mk})
+    regions = sorted({REGION[m] for m in mk if m not in NONINDEP})
+    mk_n = [m for m in mk if m not in NONINDEP]
     rng = np.random.default_rng(SEED)
     mean, ci, k = boot(ev, 30, rng)
     sign = 1 if mean >= 0 else -1
@@ -76,7 +81,7 @@ def classify(s, ev):
     ci14 = boot(ev, 14, np.random.default_rng(SEED))[1]
     ci60 = boot(ev, 60, np.random.default_rng(SEED))[1]
     reasons = []
-    if len(mk) < 4:
+    if len(mk_n) < 4:
         reasons.append("시장 부족")
     if len(regions) < 2:
         reasons.append("지역 부족")
@@ -87,13 +92,14 @@ def classify(s, ev):
     p3 = not reasons
     anysig = s["BH통과_양"] + s["BH통과_음"] > 0 or s["통과"]
     verdict = "INFORMATION" if p3 else ("INCONCLUSIVE" if anysig else "REJECT")
-    return dict(cell=s["cell"], 유효시장=len(mk), 시장=mk, 지역=regions, 사건=len(ev), 군집=k, 평균초과=round(mean, 2), ci95=[round(x, 2) for x in ci],
+    return dict(cell=s["cell"], 유효시장=len(mk_n), 시장=mk, 지역=regions, 사건=len(ev), 군집=k, 평균초과=round(mean, 2), ci95=[round(x, 2) for x in ci],
                 ci95_14일=[round(x, 2) for x in ci14], ci95_60일=[round(x, 2) for x in ci60], 통과2=s["통과2"], 통과3=p3, 사유=reasons, 판정=verdict)
 
 
 def main():
     res = {}
-    for nm in ("condition-grid-l2", "condition-grid-l2b"):
+    names = sys.argv[1:] or ["condition-grid-l2", "condition-grid-l2b"]
+    for nm in names:
         cfg = json.loads((F / f"{nm}-config.json").read_text(encoding="utf-8"))
         v1 = json.loads((F / f"{nm}-results.json").read_text(encoding="utf-8"))
         ev = collect(cfg)
@@ -101,7 +107,7 @@ def main():
         res[nm] = rows
         c = pd.Series([r["판정"] for r in rows]).value_counts().to_dict()
         print(nm, len(rows), "칸", c, "통과3:", [r["cell"] for r in rows if r["통과3"]])
-    (F / "condition-grid-l2c-results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    (F / ("condition-grid-l2c-results.json" if not sys.argv[1:] else f"{names[0]}-v2-results.json")).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":
