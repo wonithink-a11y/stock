@@ -23,7 +23,7 @@ OUT_PATH = os.path.join(REPO_ROOT, "ui", "data", "findings.json")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_findings_registry import (  # noqa: E402
     parse_frontmatter, strip_frontmatter, parse_conditions, parse_float, strip_quotes,
-    infer_track, infer_verdict, infer_category, NUMERIC_FIELDS,
+    infer_track, infer_verdict, infer_category, NUMERIC_FIELDS, short_verdict, verdict_group,
 )
 
 
@@ -64,6 +64,11 @@ def main():
         # 정규 4종이 아닌 verdict는 지어내지 않고 원문 그대로 남긴다(화면이 '원문:'으로 표시).
         entry["original_verdict"] = fm.get("original_verdict") or (
             raw_verdict if raw_verdict and raw_verdict not in CANONICAL else None)
+        # 화면 묶음(2026-11-08): 4종 밖의 선언 판정(ROBUST·INCONCLUSIVE·PREREGISTERED…)이 전부 '미분류'로 접혀 보이던 것을 푼다.
+        # group = 레지스트리와 같은 묶음 표(verdict_group), declared = 선언된 판정 낱말. verdict 는 그대로 둔다(옛 호환).
+        declared = short_verdict(raw_verdict) if raw_verdict else entry["verdict"]
+        entry["declared"] = declared
+        entry["group"] = verdict_group(declared)
         entry["criteria_version"] = fm.get("criteria_version")
         entry["conditions"] = parse_conditions(fm.get("conditions"))
         entry["reason"] = strip_quotes(fm.get("reason"))

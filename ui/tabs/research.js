@@ -31,7 +31,13 @@
     return (md || '').replace(/^---\s*\n[\s\S]*?\n---\s*\n/, '');
   }
 
-  const VERDICTS = ['KEEP', 'HOLD', 'REJECT', 'UNCLASSIFIED'];
+  // 판정 묶음(2026-11-08): findings.json 의 group(레지스트리 묶음 표). 예전엔 KEEP/HOLD/REJECT/UNCLASSIFIED 4종뿐이라
+  // ROBUST·INCONCLUSIVE·PREREGISTERED 등 선언 판정이 전부 '미분류'로 보였다.
+  const GROUPS = [['통과·채택', 'keep'], ['보류·판정 불가', 'hold'], ['기각', 'reject'], ['사전등록 문서(결과는 별도 파일)', 'prereg'], ['정보·탐색', 'info'], ['미분류', 'unclassified']];
+  const GROUP_LABEL = { '통과·채택': '통과', '보류·판정 불가': '보류', '기각': '기각', '사전등록 문서(결과는 별도 파일)': '사전등록', '정보·탐색': '정보', '미분류': '미분류' };
+  const GROUP_CLS = Object.fromEntries(GROUPS);
+  const VERDICTS = GROUPS.map(g => g[0]);
+  const groupOf = f => f.group || (f.verdict === 'KEEP' ? '통과·채택' : f.verdict === 'HOLD' ? '보류·판정 불가' : f.verdict === 'REJECT' ? '기각' : '미분류');
   const TRACKS = ['kr', 'crypto', 'macro', 'us'];
   const METRIC_FIELDS = ['cagr', 'sharpe', 'mdd', 'win_rate', 'n', 't_stat'];
 
@@ -39,8 +45,9 @@
 
   function verdictBadge(finding) {
     if (!finding.verdict) return '';
-    const orig = finding.original_verdict ? ` <span class="v-orig">(원문: ${escapeHtml(finding.original_verdict)})</span>` : '';
-    return `<span class="v-badge v-${finding.verdict.toLowerCase()}">${finding.verdict}</span>${orig}`;
+    const orig = finding.original_verdict && finding.original_verdict !== finding.declared ? ` <span class="v-orig">(원문: ${escapeHtml(finding.original_verdict)})</span>` : '';
+    const g = groupOf(finding), dv = finding.declared || finding.verdict;
+    return `<span class="v-badge v-${GROUP_CLS[g] || 'unclassified'}" title="${escapeHtml(g)}">${escapeHtml(dv)}</span>${orig}`;
   }
 
   function trackBadge(finding) {
@@ -110,7 +117,7 @@
   function filterFindings(findings, query, trackFilter, verdictFilter) {
     let out = findings;
     if (trackFilter !== 'all') out = out.filter(f => f.track === trackFilter);
-    if (verdictFilter !== 'all') out = out.filter(f => f.verdict === verdictFilter);
+    if (verdictFilter !== 'all') out = out.filter(f => groupOf(f) === verdictFilter);
     if (query.trim()) {
       const q = query.toLowerCase();
       out = out.filter(f => f.title.toLowerCase().includes(q));
@@ -125,7 +132,7 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'v-chip' + (opt === current ? ' active' : '');
-      btn.textContent = opt;
+      btn.textContent = GROUP_LABEL[opt] || opt;
       btn.addEventListener('click', () => onPick(opt));
       row.appendChild(btn);
     });
@@ -178,8 +185,8 @@
   // ---- Overview ----
 
   function renderOverview(container, allFindings, goToExperiments) {
-    const counts = { KEEP: 0, HOLD: 0, REJECT: 0, UNCLASSIFIED: 0 };
-    allFindings.forEach(f => { if (counts[f.verdict] !== undefined) counts[f.verdict]++; });
+    const counts = Object.fromEntries(VERDICTS.map(v => [v, 0]));
+    allFindings.forEach(f => { counts[groupOf(f)]++; });
     const trackCounts = {};
     TRACKS.forEach(t => trackCounts[t] = allFindings.filter(f => f.track === t).length);
 
@@ -197,10 +204,7 @@
     container.innerHTML = `
       <div class="rl-stat-grid">
         ${tile('전체 실험', allFindings.length)}
-        ${tile('KEEP', counts.KEEP, 'v-keep-text')}
-        ${tile('HOLD', counts.HOLD, 'v-hold-text')}
-        ${tile('REJECT', counts.REJECT, 'v-reject-text')}
-        ${tile('UNCLASSIFIED', counts.UNCLASSIFIED, 'dim')}
+        ${GROUPS.map(([g, c]) => tile(GROUP_LABEL[g], counts[g], c === 'keep' ? 'v-keep-text' : c === 'hold' ? 'v-hold-text' : c === 'reject' ? 'v-reject-text' : 'dim')).join('')}
       </div>
       <div class="panel rl-panel">
         <h2>트랙별 실험 수</h2>
