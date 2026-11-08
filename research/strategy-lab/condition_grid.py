@@ -15,6 +15,10 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import tech_timing_3x as B  # noqa: E402
 
+ENGINE_VERSION = "L2-1"
+GRID_DIR = Path(__file__).resolve().parent / "data" / "condition-grid"
+CRISES = {"닷컴붕괴": ("2000-03-10", "2002-10-09"), "금융위기": ("2008-09-01", "2009-06-30"), "코로나": ("2020-02-19", "2020-04-30")}
+
 OPS = {">=": lambda a, b: a >= b, "<=": lambda a, b: a <= b, ">": lambda a, b: a > b, "<": lambda a, b: a < b}
 
 
@@ -30,6 +34,90 @@ def load_cv(tk):
     f.parent.mkdir(parents=True, exist_ok=True)
     d.to_parquet(f)
     return d
+
+
+def load_fomc():
+    """연준 공식 페이지에서 받은 결정일(회의 마지막 날). 일정은 사전 공개라 미리 알 수 있다."""
+    return pd.to_datetime(json.loads((GRID_DIR / "fomc_dates.json").read_text(encoding="utf-8")))
+
+
+def _macro(tk):
+    d = B.load(tk)
+    return d["Close"]
+
+
+def add_l2(S, d, tk, lag, flows, macro, fomc, flow_df):
+    """L2 신규 시리즈. 모두 사건일 종가 시점 정보만 쓴다(미국 자료는 lag 만큼 늦춰 PIT)."""
+    idx = d.index
+    c = d["Close"]
+    S["ret20"] = (c / c.shift(20) - 1).values
+    try:
+        o = B.load(tk)["Open"].reindex(idx)
+        pc = c.shift(1)
+        gap = (o / pc - 1)
+        if (o == pc).mean() > 0.3 or o.isna().mean() > 0.3:   # 시가 자료가 종가 복사본인 시장은 갭 칸 제외
+            gap[:] = np.nan
+        S["gap"] = gap.values
+    except Exception:
+        S["gap"] = np.full(len(idx), np.nan)
+    for nm, ser, fn in (("usd5", macro["DXY"], lambda x: x / x.shift(5) - 1), ("usd20", macro["DXY"], lambda x: x / x.shift(20) - 1),
+                        ("tnx5", macro["TNX"], lambda x: x - x.shift(5)), ("tnx20", macro["TNX"], lambda x: x - x.shift(20))):
+        v = fn(ser)
+        v = v.shift(lag) if lag else v
+        S[nm] = v.reindex(idx.union(v.index)).sort_index().ffill().reindex(idx).values
+    # FOMC 거리(달력일). 다음 결정일은 사전 공개 일정, 직후 거리는 결정이 장 마감 뒤(lag=1 시장)면 하루 늦게 안다.
+    dates = fomc.values
+    nxt = np.full(len(idx), np.nan)
+    lst = np.full(len(idx), np.nan)
+    for i, t in enumerate(idx.values):
+        j = np.searchsorted(dates, t, side="left")
+        if j < len(dates):
+            nxt[i] = (dates[j] - t) / np.timedelta64(1, "D")
+        cut = t - np.timedelta64(lag, "D")
+        k = np.searchsorted(dates, cut, side="right") - 1
+        if k >= 0:
+            lst[i] = (t - dates[k]) / np.timedelta64(1, "D")
+    S["fomc_next"], S["fomc_last"] = nxt, lst
+    # 수급(국내만): 직전 거래일까지의 외국인·기관 5일 순매수 / 거래대금, 252일 z (당일 값은 쓰지 않는다)
+    for nm in ("frgn_z", "inst_z"):
+        S[nm] = np.full(len(idx), np.nan)
+    if flows and flow_df is not None:
+        for nm, col in (("frgn_z", "f"), ("inst_z", "i")):
+            r5 = flow_df[col].rolling(5).sum() / flow_df["a"].rolling(5).sum()
+            z = (r5 - r5.rolling(252, min_periods=120).mean()) / r5.rolling(252, min_periods=120).std()
+            z = z.shift(1)
+            S[nm] = z.reindex(idx.union(z.index)).sort_index().ffill().reindex(idx).values
+            S[nm][idx < flow_df.index.min()] = np.nan
+
+
+def load_flows():
+    f = GRID_DIR / "krx_flow_daily.parquet"
+    if f.exists():
+        return pd.read_parquet(f)
+    x = pd.read_parquet(Path(__file__).resolve().parent / "data" / "a4" / "a4-research-dataset.parquet", columns=["date", "foreign_net", "inst_net", "total_amount"])
+    x["date"] = pd.to_datetime(x["date"])
+    g = x.groupby("date").agg(f=("foreign_net", "sum"), i=("inst_net", "sum"), a=("total_amount", "sum"))
+    g.to_parquet(f)
+    return g
+
+
+def provenance(cfg_path):
+    import hashlib
+    import subprocess
+    def sh(p):
+        return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16] if Path(p).exists() else None
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=Path(__file__).parent, text=True).strip()
+    except Exception:
+        commit = None
+    data = {}
+    for f in sorted(B.CACHE.glob("*.parquet")):
+        data[f.name] = sh(f)
+    for f in sorted(GRID_DIR.glob("*")):
+        data["condition-grid/" + f.name] = sh(f)
+    return dict(engine_version=ENGINE_VERSION, git_commit=commit, engine_sha=sh(__file__), config_sha=sh(cfg_path) if cfg_path else None,
+                data_sha=hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:16], data_files=len(data),
+                generated=pd.Timestamp.now().isoformat(timespec="seconds"))
 
 
 def bh_adjust(p):
@@ -105,6 +193,12 @@ def events_for(ev_def, S, p):
             ok = S["r"][i] <= ev_def["thr"]
         elif t == "dd10":
             ok = S["dd10"][i] <= ev_def["thr"]
+        elif t == "ret20":
+            v = S["ret20"][i]
+            ok = v == v and v <= ev_def["thr"]
+        elif t == "gap":
+            v = S["gap"][i]
+            ok = v == v and v <= ev_def["thr"]
         else:
             raise ValueError(t)
         if ok and i - last > gap:
@@ -133,7 +227,7 @@ def fwd_array(p, h):
 SPY_RET = None
 
 
-def run(cfg):
+def run(cfg, count_only=False):
     global SPY_RET
     SPY_RET = load_cv("SPY")["Close"].pct_change()
     rng = np.random.default_rng(cfg.get("seed", B.SEED))
@@ -144,11 +238,18 @@ def run(cfg):
     prim = cfg.get("primary", 21)
     min_ev = cfg.get("min_events", 5)
     vix = B.load("^VIX")["Close"]
+    l2 = cfg.get("l2", False)
+    if l2:
+        macro = {"DXY": _macro("DX-Y.NYB"), "TNX": _macro("^TNX")}
+        fomc = load_fomc()
+        flow_df = load_flows()
     mk = {}
     for m in cfg["markets"]:
         d = load_cv(m["ticker"])
         d = d[d.index <= B.END]
         S, p = build_series(d, vix, m.get("vix_lag", 0), SPY_RET)
+        if l2:
+            add_l2(S, d, m["ticker"], m.get("vix_lag", 0), m.get("flows", False), macro, fomc, flow_df)
         mk[m["name"]] = dict(S=S, p=p, dates=d.index, fw={h: fwd_array(p, h) for h in hs})
     flts = [None] + cfg["filters"]
     tests = []   # (cell, market, stats)
@@ -160,6 +261,11 @@ def run(cfg):
                 ev = np.array([i for i in ev_all if passes(M["S"], i, flt)], dtype=int)
                 row = dict(cell=cell, market=nm, n=int(len(ev)))
                 n = len(M["p"])
+                if count_only:
+                    okn = M["fw"][prim][ev] if len(ev) else np.array([])
+                    if (~np.isnan(okn)).sum() >= min_ev:
+                        tests.append(row)
+                    continue
                 for h in hs:
                     a = M["fw"][h]
                     evr = a[ev] if len(ev) else np.array([])
@@ -186,12 +292,18 @@ def run(cfg):
                             row[h]["p_matched"] = float((1 + np.sum(np.abs(sims - base_m) >= abs(dm))) / (1 + nperm))
                     if h == prim:
                         dts = M["dates"][ev[~np.isnan(a[ev])]]
+                        row["dates"] = [str(x.date()) for x in dts]
+                        keep = [k for k, x in enumerate(dts) if not any(lo <= str(x.date()) <= hi for lo, hi in CRISES.values())]
+                        row[h]["n_exc"] = len(keep)
+                        row[h]["diff_exc"] = round(float(np.mean(evr[keep]) - m_all), 2) if keep else None
                         per = {}
                         for pn, (lo, hi) in {"TRAIN": ("1900", "2009-12-31"), "VALID": ("2010-01-01", "2019-12-31"), "TEST": ("2020-01-01", "2026-12-31")}.items():
                             sel = [x for x, dt in zip(evr, dts) if lo <= str(dt.date()) <= hi]
                             per[pn] = (len(sel), round(float(np.mean(sel) - m_all), 2)) if len(sel) >= 3 else None
                         row["per"] = per
                 tests.append(row)
+    if count_only:
+        return dict(config=cfg.get("name"), K=len(tests), 칸=len({t["cell"] for t in tests}), tests=tests)
     ps = [t[prim]["p"] for t in tests if t.get(prim)]
     adj = bh_adjust(ps) if ps else []
     k = 0
@@ -223,7 +335,19 @@ def run(cfg):
         mt = [r[prim] for r in valid if "diff_matched" in r[prim]]
         m_pool = round(float(np.average([x["diff_matched"] for x in mt], weights=[x["n"] for x in mt])), 2) if mt else None
         m_sig = sum(1 for x in mt if x["p_matched"] <= 0.05 and x["diff_matched"] * (1 if pos >= neg else -1) > 0)
-        summ.append(dict(매칭합산초과=m_pool, 매칭p05시장=m_sig, cell=cell, 시장수=len(valid), 사건합=tot_n, BH통과_양=pos, BH통과_음=neg, 합산초과=None if pooled is None else round(pooled, 2), VALID=pooled_per["VALID"], TEST=pooled_per["TEST"], 통과=ok))
+        ex = [r[prim] for r in valid if r[prim].get("diff_exc") is not None and r[prim]["n_exc"] > 0]
+        ex_pool = round(float(np.average([x["diff_exc"] for x in ex], weights=[x["n_exc"] for x in ex])), 2) if ex else None
+        alld = sorted({d for r in valid for d in r.get("dates", [])})
+        clusters = 0
+        lastd = None
+        for dd in alld:
+            t0 = pd.Timestamp(dd)
+            if lastd is None or (t0 - lastd).days > 30:
+                clusters += 1
+            lastd = t0
+        sg = 1 if pos >= neg else -1
+        ok2 = bool(ok and (m_pool is not None and np.sign(m_pool) == sg) and (ex_pool is not None and np.sign(ex_pool) == sg) and clusters >= cfg.get("min_clusters", 10))
+        summ.append(dict(위기제외합산초과=ex_pool, 군집수=clusters, 통과2=ok2, 매칭합산초과=m_pool, 매칭p05시장=m_sig, cell=cell, 시장수=len(valid), 사건합=tot_n, BH통과_양=pos, BH통과_음=neg, 합산초과=None if pooled is None else round(pooled, 2), VALID=pooled_per["VALID"], TEST=pooled_per["TEST"], 통과=ok))
     return dict(config=cfg.get("name"), K=len(ps), 칸=len(cells), 요약=summ, tests=tests)
 
 
@@ -250,18 +374,25 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--config")
+    ap.add_argument("--count", action="store_true", help="결과를 보지 않고 K(시험 수)만 센다")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
     cfg = json.loads(Path(a.config).read_text(encoding="utf-8"))
+    if a.count:
+        r = run(cfg, count_only=True)
+        print(f"{r['config']}: 칸 {r['칸']} · K={r['K']} (사건 {cfg.get('min_events', 5)}건 이상)")
+        return 0
     res = run(cfg)
+    res["provenance"] = provenance(a.config)
     outp = Path(a.config).with_name(Path(a.config).stem.replace("-config", "") + "-results.json")
     outp.write_text(json.dumps(res, ensure_ascii=False, indent=1, default=float), encoding="utf-8")
     print(f"설정 {res['config']}: 칸 {res['칸']}개, 주 지표 시험 K={res['K']}개(BH 보정). 통과 칸 = BH≤{cfg.get('fdr', 0.05)} 시장 ≥ 절반 ∧ VALID·TEST 같은 부호")
     print(f"{'칸':42s} 시장 사건합 BH양 BH음  합산초과 VALID  TEST 통과 | 매칭초과 매칭p≤.05")
     for s in sorted(res["요약"], key=lambda x: -(x["BH통과_양"] + x["BH통과_음"])):
-        print(f"{s['cell']:42s} {s['시장수']:3d} {s['사건합']:5d} {s['BH통과_양']:3d} {s['BH통과_음']:3d} {str(s['합산초과']):>8s} {str(s['VALID']):>6s} {str(s['TEST']):>6s} {'★' if s['통과'] else ''} | {str(s['매칭합산초과']):>6s} {s['매칭p05시장']}")
+        print(f"{s['cell']:42s} {s['시장수']:3d} {s['사건합']:5d} {s['BH통과_양']:3d} {s['BH통과_음']:3d} {str(s['합산초과']):>8s} {str(s['VALID']):>6s} {str(s['TEST']):>6s} {'★' if s['통과'] else ''}{'★2' if s.get('통과2') else ''} 군집{s.get('군집수')} 위기제외{s.get('위기제외합산초과')} | {str(s['매칭합산초과']):>6s} {s['매칭p05시장']}")
     print("통과 칸:", [s["cell"] for s in res["요약"] if s["통과"]])
+    print("통과2 칸(매칭·위기제외·군집):", [s["cell"] for s in res["요약"] if s.get("통과2")])
     return 0
 
 
