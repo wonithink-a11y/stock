@@ -1,0 +1,97 @@
+{
+ "headline": "유가 급락과 AI·반도체 낙폭 과대 반등으로 나스닥 +2.74%, 다우 +2.15% 급등, 엔비디아만 −4.27%.",
+ "causes": [
+  {
+   "title": "유가 급락 → 인플레이션 우려 완화",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-11-10T06:01",
+     "source": "Reuters",
+     "text": "Wall St jumps as oil slide cools inflation worries; Nvidia slumps",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-11-10T03:01",
+     "source": "Bloomberg",
+     "text": "S&P 500 Futures Rise as Oil Falls",
+     "url": ""
+    }
+   ],
+   "reaction": "WTI −4.88%, 달러인덱스 −0.62%, 러셀 +3.15%",
+   "counter": "10년물 +0.5bp 불변, 2년물 +5bp, CPI 직전"
+  },
+  {
+   "title": "AI·반도체 낙폭 과대 반등",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-11-10T02:59",
+     "source": "Bloomberg",
+     "text": "Nasdaq 100 Jumps 3% as Chips Rebound",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-11-10T01:44",
+     "source": "Business Insider",
+     "text": "worst of the sell-off is over",
+     "url": ""
+    }
+   ],
+   "reaction": "SOX +6.85%(20일 −18.0%), AVGO +8.78%",
+   "counter": "SOX 5일은 여전히 −2.85%"
+  },
+  {
+   "title": "엔비디아 개별 악재(CEO 관련 보도)",
+   "confidence": "낮음",
+   "evidence": [
+    {
+     "timeKST": "2026-11-10T03:01",
+     "source": "Bloomberg",
+     "text": "Nvidia Sinks on Huang Affair",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-11-10T06:21",
+     "source": "CBS News",
+     "text": "questions swirl around Jensen Huang's future as CEO",
+     "url": ""
+    }
+   ],
+   "reaction": "NVDA −4.27%, 시간외 +0.46%",
+   "counter": "다른 반도체는 강세, 사안 세부 미확인"
+  }
+ ],
+ "afterClose": [
+  {
+   "timeKST": "2026-11-10T06:23",
+   "text": "Rocket Lab 매출 상회·EPS 미달, 시간외 −4.99%"
+  },
+  {
+   "timeKST": "2026-11-10T06:00",
+   "text": "Trade Desk 시간외 +19.16%"
+  }
+ ],
+ "events": [
+  {
+   "timeKST": "2026-11-11T21:30",
+   "text": "미국 CPI·Core CPI"
+  },
+  {
+   "timeKST": "2026-11-10T00:00",
+   "text": "CoreWeave·TransDigm 실적(장 마감 뒤)"
+  }
+ ],
+ "watch": [
+  "CPI 전 유가·금리 흐름",
+  "반도체 반등 지속 여부",
+  "엔비디아 CEO 관련 보도 전개"
+ ],
+ "researchNotes": [
+  {
+   "condition": "밤사이 SOX z≥1 (z=2.27)",
+   "note": "한국 반도체는 시가 갭 상승 뒤 시가→종가 평균 음(−0.2%대), 세 시기 모두",
+   "source": "research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"
+  }
+ ]
+}
