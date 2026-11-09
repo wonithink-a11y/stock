@@ -3,9 +3,17 @@
   "ticker": "178320",
   "listingStatus": "NORMAL",
   "tradingState": "NORMAL",
-  "riskStates": [],
-  "activeMeta": [],
-  "lastSortKey": "20260901:20260901000219:00",
-  "lastEventId": "dart:20260901000219#0",
-  "updatedAt": "2026-10-01T09:14:33+09:00"
+  "riskStates": [
+    "MEZZANINE_ACTIVE"
+  ],
+  "activeMeta": [
+    {
+      "code": "MEZZANINE_ACTIVE",
+      "activatedAt": "2026-11-09T00:00:00+09:00",
+      "ttlDays": 30
+    }
+  ],
+  "lastSortKey": "20261109:20261109000003:00",
+  "lastEventId": "dart:20261109000003#0",
+  "updatedAt": "2026-11-09T00:00:00+09:00"
 }
