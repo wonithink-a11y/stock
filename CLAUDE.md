@@ -12,7 +12,7 @@ Validated against
             대체 가동: 알림 = Cloudflare Workers(`https://stock-alerts.wonithink.workers.dev`, cloudflare/alerts/) ·
             autotrader 웹 = 이 PC(Tailscale 사설, scripts/run-autotrader-pc.ps1) · 백업 C:\Users\User\stock-backup\gcp\ (저장소·클라우드 금지).
             PC 작업 `stock-vix-alert`·`stock-price-alert` 는 중복 방지로 Disable 대상. 서버 재가동은 월 약 $3.6 — 켜기 전 사용자 확인.
-            최신 인수인계: docs/control/세션인수인계-2026-11-07-b.md (이후 -11-08 있으면 그것).
+            최신 인수인계: docs/control/세션인수인계-2026-11-08-b.md (11-08 연구 정리·forward #31) · 인프라 11-07-b.
   안 한다   O2b·O3u 모의 실행 중단(09-22, 시초가 체결 −17.67bp) — 새 GO 없이 재개 금지. 닫힌 연구 80여 건(REJECT·종결)은
             같은 표본 재판정 금지, 재개는 새 사전등록·새 표본/forward 로만. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.

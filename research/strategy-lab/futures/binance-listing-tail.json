@@ -1,0 +1,284 @@
+{
+ "events": 536,
+ "tail_total": 47,
+ "tail_rate_all": 0.0877,
+ "big_total": 10,
+ "K": 11,
+ "BH통과": 2,
+ "판정": "INFORMATION",
+ "by_period": {
+  "TRAIN": {
+   "n": 242,
+   "tail": 23
+  },
+  "VALID": {
+   "n": 33,
+   "tail": 2
+  },
+  "TEST": {
+   "n": 261,
+   "tail": 22
+  }
+ },
+ "rows": [
+  {
+   "cond": "#1 첫날 하락·보합",
+   "n": 139,
+   "tail_rate": 0.0576,
+   "tail_rate_out": 0.0982,
+   "diff": -0.0407,
+   "p": 0.16563499185152492,
+   "ci95": [
+    -0.0809,
+    0.0084
+   ],
+   "big_rate": 0.0072,
+   "touch_rate": 0.1151,
+   "mean_rel_bp": -839.0,
+   "mean_rel_out_bp": -925.0,
+   "period_diff": {
+    "TRAIN": -0.0519,
+    "TEST": -0.0317
+   },
+   "valid_test_diff": -0.0321,
+   "p_bh": 0.1822,
+   "pass": false
+  },
+  {
+   "cond": "#2 첫날 소폭 상승",
+   "n": 185,
+   "tail_rate": 0.0541,
+   "tail_rate_out": 0.1054,
+   "diff": -0.0514,
+   "p": 0.05346477293975713,
+   "ci95": [
+    -0.1035,
+    -0.0025
+   ],
+   "big_rate": 0.0054,
+   "touch_rate": 0.0865,
+   "mean_rel_bp": -960.0,
+   "mean_rel_out_bp": -873.0,
+   "period_diff": {
+    "TRAIN": -0.0525,
+    "TEST": -0.0518
+   },
+   "valid_test_diff": -0.0536,
+   "p_bh": 0.084,
+   "pass": false
+  },
+  {
+   "cond": "#3 첫날 급등(≥+50%)",
+   "n": 212,
+   "tail_rate": 0.1368,
+   "tail_rate_out": 0.0556,
+   "diff": 0.0812,
+   "p": 0.0016026119652254069,
+   "ci95": [
+    0.025,
+    0.1446
+   ],
+   "big_rate": 0.0377,
+   "touch_rate": 0.2028,
+   "mean_rel_bp": -896.0,
+   "mean_rel_out_bp": -908.0,
+   "period_diff": {
+    "TRAIN": 0.1057,
+    "VALID": 0.0952,
+    "TEST": 0.0698
+   },
+   "valid_test_diff": 0.0694,
+   "p_bh": 0.0088,
+   "pass": true
+  },
+  {
+   "cond": "#4 첫날 폭등(≥+100%)",
+   "n": 166,
+   "tail_rate": 0.1506,
+   "tail_rate_out": 0.0595,
+   "diff": 0.0911,
+   "p": 0.0008952303401729385,
+   "ci95": [
+    0.0136,
+    0.1715
+   ],
+   "big_rate": 0.0422,
+   "touch_rate": 0.2169,
+   "mean_rel_bp": -719.0,
+   "mean_rel_out_bp": -985.0,
+   "period_diff": {
+    "TRAIN": 0.1174,
+    "VALID": 0.125,
+    "TEST": 0.0749
+   },
+   "valid_test_diff": 0.0789,
+   "p_bh": 0.0088,
+   "pass": true
+  },
+  {
+   "cond": "#5 BTC 7일 ≥+10%",
+   "n": 66,
+   "tail_rate": 0.1364,
+   "tail_rate_out": 0.0809,
+   "diff": 0.0555,
+   "p": 0.15963685129003669,
+   "ci95": [
+    -0.0492,
+    0.1559
+   ],
+   "big_rate": 0.0606,
+   "touch_rate": 0.2121,
+   "mean_rel_bp": -72.0,
+   "mean_rel_out_bp": -1020.0,
+   "period_diff": {
+    "TRAIN": 0.0505,
+    "TEST": 0.0434
+   },
+   "valid_test_diff": 0.0592,
+   "p_bh": 0.1822,
+   "pass": false
+  },
+  {
+   "cond": "#6 BTC 7일 ≤−10%",
+   "n": 37,
+   "tail_rate": 0.0811,
+   "tail_rate_out": 0.0882,
+   "diff": -0.0071,
+   "p": 1.0,
+   "ci95": [
+    -0.0884,
+    0.1083
+   ],
+   "big_rate": 0.0,
+   "touch_rate": 0.1081,
+   "mean_rel_bp": -1302.0,
+   "mean_rel_out_bp": -873.0,
+   "period_diff": {
+    "TRAIN": -0.0704
+   },
+   "valid_test_diff": null,
+   "p_bh": 1.0,
+   "pass": false
+  },
+  {
+   "cond": "#7 BTC 200일선 위",
+   "n": 334,
+   "tail_rate": 0.1078,
+   "tail_rate_out": 0.0545,
+   "diff": 0.0533,
+   "p": 0.04002932924621562,
+   "ci95": [
+    -0.0046,
+    0.0952
+   ],
+   "big_rate": 0.021,
+   "touch_rate": 0.1647,
+   "mean_rel_bp": -1091.0,
+   "mean_rel_out_bp": -592.0,
+   "period_diff": {
+    "TRAIN": 0.0299,
+    "TEST": 0.0789
+   },
+   "valid_test_diff": 0.0695,
+   "p_bh": 0.084,
+   "pass": false
+  },
+  {
+   "cond": "#8 BTC 200일선 아래",
+   "n": 202,
+   "tail_rate": 0.0545,
+   "tail_rate_out": 0.1078,
+   "diff": -0.0533,
+   "p": 0.04002932924621562,
+   "ci95": [
+    -0.0964,
+    0.0037
+   ],
+   "big_rate": 0.0149,
+   "touch_rate": 0.099,
+   "mean_rel_bp": -592.0,
+   "mean_rel_out_bp": -1091.0,
+   "period_diff": {
+    "TRAIN": -0.0299,
+    "TEST": -0.0789
+   },
+   "valid_test_diff": -0.0695,
+   "p_bh": 0.084,
+   "pass": false
+  },
+  {
+   "cond": "#9 동시 상장 쏠림(≥3)",
+   "n": 96,
+   "tail_rate": 0.0312,
+   "tail_rate_out": 0.1,
+   "diff": -0.0688,
+   "p": 0.02843562421667963,
+   "ci95": [
+    -0.1117,
+    0.0678
+   ],
+   "big_rate": 0.0,
+   "touch_rate": 0.0417,
+   "mean_rel_bp": -649.0,
+   "mean_rel_out_bp": -958.0,
+   "period_diff": {
+    "TRAIN": -0.1,
+    "TEST": -0.0716
+   },
+   "valid_test_diff": -0.0643,
+   "p_bh": 0.084,
+   "pass": false
+  },
+  {
+   "cond": "#10 급등∧BTC 급등",
+   "n": 32,
+   "tail_rate": 0.1875,
+   "tail_rate_out": 0.0813,
+   "diff": 0.1062,
+   "p": 0.05115929204672693,
+   "ci95": [
+    -0.0825,
+    0.2859
+   ],
+   "big_rate": 0.125,
+   "touch_rate": 0.25,
+   "mean_rel_bp": 537.0,
+   "mean_rel_out_bp": -994.0,
+   "period_diff": {
+    "TRAIN": 0.0774,
+    "TEST": 0.1203
+   },
+   "valid_test_diff": 0.1393,
+   "p_bh": 0.084,
+   "pass": false
+  },
+  {
+   "cond": "#11 급등∧쏠림",
+   "n": 8,
+   "skipped": true
+  },
+  {
+   "cond": "#12 하락·보합∧BTC 200일선 아래",
+   "n": 67,
+   "tail_rate": 0.0299,
+   "tail_rate_out": 0.0959,
+   "diff": -0.0661,
+   "p": 0.10218987773321254,
+   "ci95": [
+    -0.1122,
+    -0.0104
+   ],
+   "big_rate": 0.0149,
+   "touch_rate": 0.0746,
+   "mean_rel_bp": -361.0,
+   "mean_rel_out_bp": -980.0,
+   "period_diff": {
+    "TRAIN": -0.057,
+    "TEST": -0.0731
+   },
+   "valid_test_diff": -0.0693,
+   "p_bh": 0.1405,
+   "pass": false
+  }
+ ]
+}

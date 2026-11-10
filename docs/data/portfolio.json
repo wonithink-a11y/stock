@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T15:57:59.844Z",
+  "updatedAt": "2026-11-09T18:32:45.522Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,17 +7,19 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 193500,
-      "currentValue": 1935000,
+      "currentPrice": 187000,
+      "currentValue": 1870000,
       "investedValue": 700000,
-      "unrealizedPnL": 1235000,
-      "unrealizedPnLPct": 176.43,
-      "stockScore": 69.2,
+      "unrealizedPnL": 1170000,
+      "unrealizedPnLPct": 167.14,
+      "stockScore": 67.2,
       "stockGrade": "B (긍정적)",
-      "stockWarnings": [],
+      "stockWarnings": [
+        "deadCatBounce"
+      ],
       "marketRegime": "neutral",
       "referenceSignal": "유지 (긍정적)",
-      "signalReason": "긍정적 신호가 우세하나 확대보다는 현 비중 유지가 참고할 만합니다.",
+      "signalReason": "긍정적 신호가 우세하나 확대보다는 현 비중 유지가 참고할 만합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -60,7 +62,7 @@
           }
         },
         "valuation": {
-          "score": 63,
+          "score": 66.1,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -69,23 +71,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 2.25,
-              "score": 13.46153846153846
+              "raw": 2.17,
+              "score": 17.769230769230774
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.25988023952095807,
+              "peg": 0.2511976047904192,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": 0.06833482409183067,
-              "score": 23.917188432140733
+              "marginOfSafety": 0.10046184689648152,
+              "score": 35.16164641376853
             }
           }
         },
         "technical": {
-          "score": 68.8,
+          "score": 51.3,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -94,7 +96,7 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 39.4,
+              "value": 41.7,
               "score": 45
             },
             "macd": {
@@ -104,18 +106,18 @@
             },
             "volumeConfirmation": {
               "label": "거래량 동반 여부",
-              "confirmed": true,
-              "score": 100
+              "confirmed": false,
+              "score": 30
             }
           }
         },
         "supplyDemand": {
-          "score": 48.7,
+          "score": 32.7,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
+              "trend": "consistentSell",
+              "score": 0
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
