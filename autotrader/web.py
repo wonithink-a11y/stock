@@ -14,6 +14,7 @@ from __future__ import annotations
 import html
 import json
 import math
+import os
 import re
 import threading
 import time
@@ -247,6 +248,20 @@ def _px(m: str, x) -> str:
     return "-" if not x else (f"{x:,.2f}" if m == "US" else f"{x:,.0f}")
 
 
+def _q(x) -> str:
+    """수량 표기 — 과학표기(7.08e-06)를 쓰지 않고, 소수는 적당한 자리(1 미만 8자리·그 외 4자리)에서 반올림해 끝의 0을 뗀다. 정수는 그대로."""
+    try:
+        f = float(x)
+    except (TypeError, ValueError):
+        return E(str(x if x is not None else ""))
+    if not math.isfinite(f):
+        return "-"
+    if f == int(f):
+        return str(int(f))
+    t = format(f, ".8f" if abs(f) < 1 else ".4f").rstrip("0").rstrip(".")
+    return t if t not in ("", "-0") else "0"
+
+
 def _sign_cls(x) -> str:
     """국내 관례: 오르면 빨강(up), 내리면 파랑(dn)."""
     return "" if x is None else ("up" if x > 0 else ("dn" if x < 0 else ""))
@@ -312,7 +327,7 @@ def render_sells(snap: Optional[dict], names: Optional[Dict[str, str]] = None) -
     rows = []
     for m, r in ((snap or {}).get("realized") or {}).items():
         for x in reversed(r.get("sells", [])[-30:]):
-            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{_sym(x["symbol"], names)}</td><td class="n">{E(str(x["qty"]))}</td>'
+            rows.append(f'<tr><td>{E(str(x.get("day", "")))}</td><td>{_sym(x["symbol"], names)}</td><td class="n">{_q(x["qty"])}</td>'
                         f'<td class="n">{_px(m, x["avg"])}<br><small class="mut">→ {_px(m, x["price"])}</small></td><td class="n {_sign_cls(x["pnl"])}">{_signed(m, x["pnl"])}</td></tr>')
     if "realized" not in (snap or {}):
         return ""
@@ -513,13 +528,22 @@ def render_crypto(items: List[Tuple[dict, dict]], base: str, csrf: str, pk: bool
             held_txt = f"{sum(1 for q in (st.get('holdings') or {}).values() if q > 0)}종 보유 · 현금 {st.get('cash') or 0:,.0f}원"
         else:
             sym_txt = ", ".join(al[:2]) + (f" 외 {len(al) - 2}" if len(al) > 2 else "")
-            held_txt = "보유 " + (E(str(pos.get("qty"))) if pos else "없음")
+            held_txt = "보유 " + (_q(pos.get("qty")) if pos else "없음")
+        zl = (st.get("log") or [None])[-1] if not cw_ else None
+        z_txt = ""
+        if zl and zl.get("z") is not None:
+            try:
+                zt = datetime.fromisoformat(str(zl.get("T"))).astimezone(KST).strftime("%m-%d %H시")
+            except ValueError:
+                zt = "-"
+            z_txt = (f'<div class="mut">현재 z <b class="{"up" if zl["z"] >= 2 else ""}">{zl["z"]:+.2f}</b>'
+                     f' · 매수 기준 +2 이상 · {E(zt)} 실행 기준</div>')
         big = "" if hide_money else f'<div class="big">{"-" if cur is None else f"{cur:,.0f}"}<small>원 / {"자본" if cw_ else "1회"}</small></div>'
         facts = "" if hide_money else f'<div class="mut">{last_txt} · {held_txt} · 한도 {pct:.0f}%</div>'
         out.append(f'''<div class="card hl" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <span><b>{"빗썸" if xm == "BITHUMB" else "업비트"} · {E(name)}</b> <span class="code">{E(sym_txt)}</span></span>
 <span class="pill {auto_cls}" style="margin-right:0">{E(AUTO_TXT.get(auto, auto))}</span></div>
-{big}{facts}</div>
+{big}{facts}{z_txt}</div>
 {controls.get(name, "").replace(sc, "")}
 <div class="card" style="padding:10px 12px"><div class="row" style="border:0;padding:0 0 4px"><b>최근 주문</b><a href="{base}/orders?m=crypto" style="color:var(--acct)">전체 ›</a></div>
 {"".join(rows) or '<span class="mut">없음</span>'}</div>''')
@@ -571,7 +595,7 @@ def render_profiles(items: List[Tuple[dict, dict]], base: str = "", hide_money: 
             for p in d.get("positions") or []:
                 px = p.get("price") or 0
                 pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
-                held.append(f'<tr><td>{_sym(p["symbol"], v["names"])}</td><td class="n">{E(str(p["qty"]))}</td>'
+                held.append(f'<tr><td>{_sym(p["symbol"], v["names"])}</td><td class="n">{_q(p["qty"])}</td>'
                             f'<td class="n {_sign_cls(pc)}">{"-" if pc is None else f"{pc:+.1f}%"}</td></tr>')
         held_tbl = (f'<div class="tw"><table><tr><th>보유</th><th class="n">수량</th><th class="n">수익률</th></tr>{"".join(held[:8])}</table></div>'
                     + (f'<div class="mut">외 {len(held) - 8}종목 — 상세에서</div>' if len(held) > 8 else "")) if held else ""
@@ -694,17 +718,17 @@ def render_orders(profiles: List[dict], base: str = "", only: str = "") -> bytes
         if f and float(f.get("qty") or 0) >= float(r.get("qty") or 0):
             return '<span class="pill ok">체결</span>'
         if f and float(f.get("qty") or 0) > 0:
-            return f'<span class="pill warn">일부 {E(str(f.get("qty")))}</span>'
+            return f'<span class="pill warn">일부 {_q(f.get("qty"))}</span>'
         return '<span class="pill">접수</span>'
     rows = "".join(
         f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">{side(r.get("side"))}'
-        f'<span>{_sym(r.get("symbol"), names)}<small class="mut">{E(str(r.get("qty")))}주'
+        f'<span>{_sym(r.get("symbol"), names)}<small class="mut">{_q(r.get("qty"))}주'
         f'{" · " + _px(r.get("market", "KR"), f["price"]) if f and f.get("price") else ""} · {_strat_name(c)}</small></span></span>'
         f'<span style="text-align:right">{state(r, f)}<br><small class="mut">{E(ts[5:16].replace("T", " "))}</small></span></div>'
         + (f'<div class="mut" style="margin:-4px 0 6px">{E(str(r.get("reason")))}</div>' if r.get("reason") else "")
         for ts, c, r, f in items[:80])
     ot = "".join(f'<div class="row"><span style="display:flex;gap:10px;align-items:center;color:var(--fg)">{side(o["side"])}{_sym(o["symbol"], names)}</span>'
-                 f'<span class="mut">{E(str(o["remaining"]))}/{E(str(o["qty"]))} · {_px(m, o["price"])}</span></div>' for c, m, o in opens)
+                 f'<span class="mut">{_q(o["remaining"])}/{_q(o["qty"])} · {_px(m, o["price"])}</span></div>' for c, m, o in opens)
     body = (f'<h1>주문 · 거래 내역</h1><div class="sec">미체결</div><div class="card">{ot or "<span class=mut>없음</span>"}</div>'
             f'<div class="sec">주문 기록 <small>최근 80 · 체결은 5분마다 갱신</small></div><div class="card">{rows or "<span class=mut>아직 낸 주문이 없다</span>"}</div>')
     tab = {"crypto": "crypto", "stock": "strat"}.get(only)
@@ -827,12 +851,12 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
             pnl = (px - p["avgPrice"]) * p["qty"] if px else None
             pc = (px / p["avgPrice"] - 1) * 100 if px and p["avgPrice"] else None
             cls = _sign_cls(pnl)
-            return (f'<tr><td>{_sym(p["symbol"], names)}</td><td class="n">{E(str(p["qty"]))}</td>'
+            return (f'<tr><td>{_sym(p["symbol"], names)}</td><td class="n">{_q(p["qty"])}</td>'
                     f'<td class="n">{_px(m, p["avgPrice"])}<br><small class="mut">→ {_px(m, px)}</small></td>'
                     f'<td class="n {cls}">{_signed(m, pnl)}{"" if pc is None else f"<br><small>{pc:+.1f}%</small>"}</td></tr>')
         pos = "".join(prow(p) for p in d.get("positions", []))
         oo = "".join(f'<tr><td>{_sym(o["symbol"], names)}</td><td>{"매수" if o["side"] == "BUY" else "매도"}</td>'
-                     f'<td class="n">{E(str(o["remaining"]))}/{E(str(o["qty"]))}</td><td class="n">{_px(m, o["price"])}</td></tr>'
+                     f'<td class="n">{_q(o["remaining"])}/{_q(o["qty"])}</td><td class="n">{_px(m, o["price"])}</td></tr>'
                      for o in d.get("openOrders", []))
         cash = d.get("cash")
         rz = {"realized": snap["realized"]} if "realized" in snap else {}
@@ -843,13 +867,13 @@ def render_details(v: dict, csrf: str, base: str = "", strict: bool = False, tit
     led = "".join(
         f'<tr><td>{E(str(r.get("ts", ""))[5:16].replace("T", " "))}</td><td>{_sym(r.get("symbol"), names)}</td>'
         f'<td>{"매수" if r.get("side") == "BUY" else ("매도" if r.get("side") == "SELL" else E(str(r.get("side"))))}</td>'
-        f'<td class="n">{E(str(r.get("qty")))}</td><td class="{"bad" if r.get("kind") == "error" else "mut"}">{E(str(r.get("kind")))}</td></tr>'
+        f'<td class="n">{_q(r.get("qty"))}</td><td class="{"bad" if r.get("kind") == "error" else "mut"}">{E(str(r.get("kind")))}</td></tr>'
         for r in reversed(v["ledger"][-30:]))
     last = v["runs"][-1] if v["runs"] else None
     lastblk = ""
     if last:
         def lines(k, label):
-            return "".join(f'<tr><td>{label}</td><td>{_sym(x.get("symbol", ""), names)}</td><td>{E(str(x.get("side", "")))} {E(str(x.get("qty", "")))}</td>'
+            return "".join(f'<tr><td>{label}</td><td>{_sym(x.get("symbol", ""), names)}</td><td>{E(str(x.get("side", "")))} {_q(x.get("qty", ""))}</td>'
                            f'<td class="mut">{E(str(x.get("reason", "")))}</td></tr>' for x in (last.get(k) or []) if isinstance(x, dict))
         body_rows = lines("planned", "계획") + lines("placed", "접수") + lines("rejected", "거부") + lines("skipped", "건너뜀")
         lastblk = (f'<div class="card"><h2>마지막 실행 <span class="mut">{E(str(last.get("at", ""))[5:16].replace("T", " "))} · '
@@ -1885,6 +1909,31 @@ def _profile_loader(cfg: dict, config_path) -> Callable[[], List[dict]]:
     return load
 
 
+RESTART_EXIT = 75                    # 0 이 아니어야 systemd(Restart=on-failure)가 다시 띄운다
+
+
+def _code_stamp() -> Tuple[int, int]:
+    """autotrader 소스·정적 파일의 (개수, 가장 늦은 수정 시각) — git pull 로 코드가 바뀌었는지 보는 지문."""
+    root = Path(__file__).resolve().parent
+    files = [f for pat in ("*.py", "strategies/*.py", "static/*") for f in root.glob(pat) if f.is_file()]
+    return len(files), max((int(f.stat().st_mtime) for f in files), default=0)
+
+
+def _exit_on_code_change(poll_sec: float = 60.0, settle_sec: float = 10.0) -> None:
+    """코드가 바뀌면 스스로 종료해 systemd 가 새 코드로 다시 띄우게 한다(웹 유닛은 NoNewPrivileges 라 sudo 재시작이 안 된다).
+    세션은 파일에 저장돼 로그인은 유지된다. pull 이 쓰는 중에 읽지 않도록 변화 감지 뒤 잠시 기다린다."""
+    try:
+        base = _code_stamp()
+        while True:
+            time.sleep(poll_sec)
+            if _code_stamp() != base:
+                time.sleep(settle_sec)
+                print("autotrader web — 코드가 바뀌어 다시 시작한다", flush=True)
+                os._exit(RESTART_EXIT)
+    except Exception as e:                      # 감시가 죽어도 웹은 계속 돈다
+        print(f"코드 변경 감시 중지: {e}", flush=True)
+
+
 def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: bool = True, base: str = "",
           config_path=None) -> None:
     sdir = state_dir(cfg)
@@ -1899,4 +1948,5 @@ def serve(cfg: dict, host: str = "127.0.0.1", port: int = 8787, secure_cookie: b
                  rp_id=str(w.get("rp_id", "")), origin=str(w.get("origin", "")), quote_fetch=_fetch_us_quote)
     httpd = ThreadingHTTPServer((host, port), make_handler(app))
     print(f"autotrader web — http://{host}:{port} (앞단 HTTPS 프록시 뒤에서만 쓴다)", flush=True)
+    threading.Thread(target=_exit_on_code_change, daemon=True).start()
     httpd.serve_forever()
