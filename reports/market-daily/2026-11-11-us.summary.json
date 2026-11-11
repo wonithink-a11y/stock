@@ -1,0 +1,25 @@
+{
+ "headline": "CoreWeave 실적 호조로 AI·반도체가 크게 반등했지만(SOX +5.66%) MSFT·AMZN·META는 내려 대형주 안에서도 갈렸고, 동일가중은 시총가중에 못 미쳤다.",
+ "causes": [
+  {"title":"CoreWeave 실적 호조 → AI 트레이드 반등","confidence":"중간",
+   "evidence":[{"timeKST":"2026-11-11T23:36","source":"MLQ.ai","text":"나스닥선물 약 2% 상승, CoreWeave +15% (개장 전)","url":""},
+               {"timeKST":"2026-11-12T04:33","source":"Yahoo Finance","text":"CoreWeave 매출 예상 상회·연간 전망 상향","url":""}],
+   "reaction":"SOX +5.66%, 기술 +3.23%, NVDA +2.92%, AVGO +3.99%",
+   "counter":"MSFT −2.26%, AMZN −1.74%, META −1.97%, 다우 +0.49%에 그침. 1차 출처 미확인"},
+  {"title":"금리 인상 우려","confidence":"낮음",
+   "evidence":[{"timeKST":"2026-11-12T05:24","source":"24/7 Wall St.","text":"2년물 19개월 만의 최대 상승","url":""}],
+   "reaction":"달러인덱스 +0.68%, 금 −0.90%",
+   "counter":"지수 상승·VIX −10%, 이날 채권시장 휴장"},
+  {"title":"대형 플랫폼주 약세","confidence":"미확정","evidence":[],"reaction":"MSFT·AMZN·META −1.7~−2.3%","counter":"개별 재료 확인 안 됨"}
+ ],
+ "afterClose": [
+  {"timeKST":"2026-11-12T07:07","text":"NVDA 시간외 −2.96%"},
+  {"timeKST":"2026-11-12T07:06","text":"CTVA 실적 발표, 시간외 −6.75%"}
+ ],
+ "events": [
+  {"timeKST":"2026-11-12","text":"Cisco 실적(언론 보도, 시각 미확인)"},
+  {"timeKST":"2026-11-12T22:00","text":"Nebius 실적 통화(장 시작 전 발표)"}
+ ],
+ "watch": ["반도체 갭 상승 뒤 장중 흐름", "2년물 금리와 달러 방향", "MSFT·AMZN·META 약세가 이어지는지"],
+ "researchNotes": [{"condition":"밤사이 SOX z≥1 (z=1.86)","note":"한국 반도체는 시가 갭 상승하나 시가→종가 평균 음(−0.2%대), 세 시기 모두","source":"research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"}]
+}
