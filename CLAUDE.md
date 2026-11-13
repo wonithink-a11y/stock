@@ -7,12 +7,15 @@ Claude Code가 매 세션 자동으로 읽는다. **길어지면 매 요청의 �
 Validated against
   정책      UN-1.2 · PR-1.7 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1 (PF-1.2 registry 미등록 = 미발효)
             criteria  KR-2.4 · US-2.2
-  ★★★ 지금  OCI 테넌시 `wonithink` 정지·구독 종료(11-06~07) — 작업 VM·Object Storage 접근 불가, 데이터 보존, 이의 제기 접수 중.
-            VM 전 유닛·OCI 쓰는 Actions 실패가 정상. 실계좌는 전부 꺼짐. GCP 임시 서버는 비용(규칙 9)으로 중지됨.
+  ★★★ 지금  OCI 테넌시 `wonithink` **영구 종료 확정(11-13)** — 이의 제기 거절·"최종". 사유 공개·복구·재가입(무료·개인 유료) 모두 불가, 데이터는 접근 불가 상태로 삭제 예정.
+            Oracle 로 돌아가지 않는다 — 새 계정·가족 명의 가입 금지(1인 1무료 계정 규정·재종료 위험). 서버는 없다: VM 전 유닛 정지, OCI 쓰던
+            Actions(`paper-trading-ui`·`promote-minute-manifest`)는 11-13 disable(`gh workflow enable` 로 복구). 실계좌는 전부 꺼짐. GCP 임시 서버는 비용(규칙 9)으로 중지됨.
+            법령 MCP 서버(law VM)도 같은 테넌시라 멈춤 → 공개 서버 `mcp.gomdori.app/law` 를 claude.ai 커넥터로(제3자·키 없이·미검증).
             대체 가동: 알림 = Cloudflare Workers(`https://stock-alerts.wonithink.workers.dev`, cloudflare/alerts/) ·
             autotrader 웹 = 이 PC(Tailscale 사설, scripts/run-autotrader-pc.ps1) · 백업 C:\Users\User\stock-backup\gcp\ (저장소·클라우드 금지).
             PC 작업 `stock-vix-alert`·`stock-price-alert` 는 중복 방지로 Disable 대상. 서버 재가동은 월 약 $3.6 — 켜기 전 사용자 확인.
-            최신 인수인계: docs/control/세션인수인계-2026-11-11.md (11월 월간 점검·PC 분봉 수집 검토) · 연구 11-08-b · 인프라 11-07-b.
+            24시간 서버는 실매매 직전에야 필요 — 그때 새 업체를 월 정확한 금액으로 비교해 사용자 확인(규칙 9). 그전엔 PC 가동 시간만 모의.
+            최신 인수인계: docs/control/세션인수인계-2026-11-13.md (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
   안 한다   O2b·O3u 모의 실행 중단(09-22, 시초가 체결 −17.67bp) — 새 GO 없이 재개 금지. 닫힌 연구 80여 건(REJECT·종결)은
             같은 표본 재판정 금지, 재개는 새 사전등록·새 표본/forward 로만. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.
@@ -405,6 +408,8 @@ A5가 A1b를 인용하지 않으면 생존편향 상태로 채점되므로, 이 
 ---
 
 ## 수집 VM 운영 기준 (2026-08-09 고정 · 2026-09-20 환경 정정)
+
+> ★ 2026-11-13 OCI 영구 종료 — 이 절과 아래 'AI 협업 구조'의 VM→OCI→Actions 경로는 **과거 기록**이다. 규율(1~9)은 다른 서버로 옮겨도 유효하나 현재 가동 중인 VM 은 없다.
 
 ### ★ 기계가 둘이고 ssh 별칭이 hostname과 어긋난다 (2026-09-20 실측)
 
