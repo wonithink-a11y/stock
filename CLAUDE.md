@@ -15,7 +15,7 @@ Validated against
             autotrader 웹 = 이 PC(Tailscale 사설, scripts/run-autotrader-pc.ps1) · 백업 C:\Users\User\stock-backup\gcp\ (저장소·클라우드 금지).
             PC 작업 `stock-vix-alert`·`stock-price-alert` 는 중복 방지로 Disable 대상. 서버 재가동은 월 약 $3.6 — 켜기 전 사용자 확인.
             24시간 서버는 실매매 직전에야 필요 — 그때 새 업체를 월 정확한 금액으로 비교해 사용자 확인(규칙 9). 그전엔 PC 가동 시간만 모의.
-            최신 인수인계: docs/control/세션인수인계-2026-11-14.md (Fable 감사·PBR 결합 초과수익 '유의하지 않음'·재검증 후보) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
+            최신 인수인계: docs/control/세션인수인계-2026-11-14.md (Fable 감사 후속 5건: PBR 유의성·바이낸스 진입가·결합 순위 v2·수급 진입 지연 — 전부 기록 전용) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
   안 한다   O2b·O3u 모의 실행 중단(09-22, 시초가 체결 −17.67bp) — 새 GO 없이 재개 금지. 닫힌 연구 80여 건(REJECT·종결)은
             같은 표본 재판정 금지, 재개는 새 사전등록·새 표본/forward 로만. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.
