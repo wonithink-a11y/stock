@@ -6,14 +6,14 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 25 |
+| 통과·채택 | 27 |
 | 보류·판정 불가 | 57 |
 | 기각 | 172 |
-| 사전등록 문서(결과는 별도 파일) | 214 |
+| 사전등록 문서(결과는 별도 파일) | 215 |
 | 정보·탐색 | 49 |
-| 미분류 | 243 |
+| 미분류 | 244 |
 
-## 통과·채택 (25)
+## 통과·채택 (27)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -29,6 +29,8 @@
 | 2026-10-29 | ECONOMIC | crypto | [coinbase-premium-results-2026-10.md](coinbase-premium-results-2026-10.md) | 신호: 있음 · 경제성: 통과(C24) / 미달(C4). C24(24시간) TRAIN +68bp t 3.53 · VALID +17 · TEST +45(t 2.84), OOS net10 +27.9bp… |
 | 2026-10-19 | CONFIRMED | kr | [contract-liab-revenue-step1-2026-10.md](contract-liab-revenue-step1-2026-10.md) | 신호: 있음(다음 해 매출 예측) · 경제성: 해당 없음(주가 미측정 — 1단계는 재무끼리). 계약부채가 전년 매출 대비 많이 늘어난 회사는 다음 해 매출이 더 늘었다 — 평균 Spearman 20… |
 | 2026-10-17 | ROBUST | kr | [highvol-exclusion-core-results-2026-10.md](highvol-exclusion-core-results-2026-10.md) | 신호: 있음 · 경제성: 통과(X1·X2) / 신호: 없음 · 경제성: 미달(X3). 유동 종목 등가중에서 rv60 상위 10%·20% 를 빼면 같은 등가중보다 비용 뒤 월 +30·+37bp(OOS… |
+| 2026-10-11 | ECONOMIC | kr | [combined-rank-model-v2-v2-results-2026-11.md](combined-rank-model-v2-v2-results-2026-11.md) | 신호: 있음 · 경제성: 통과. h1 ECONOMIC(TRAIN-WF +56.6bp t +12.58 · VALID +38.0 · TEST +38.1) / h5 ECONOMIC(TRAIN-WF +91… |
+| 2026-10-11 | ECONOMIC | kr | [combined-rank-model-v2-v1-results-2026-11.md](combined-rank-model-v2-v1-results-2026-11.md) | 신호: 있음 · 경제성: 통과. h1 ECONOMIC(TRAIN-WF +56.9bp t +14.08 · VALID +39.1 · TEST +37.4) / h5 ECONOMIC(TRAIN-WF +10… |
 | 2026-10-11 | ECONOMIC | kr | [combined-rank-model-results-2026-10.md](combined-rank-model-results-2026-10.md) | 신호: 있음 · 경제성: 통과. h1 ECONOMIC(TRAIN-WF +54.2bp t +12.81 · VALID +37.2 · TEST +32.0) / h5 ECONOMIC(TRAIN-WF +95… |
 | 2026-10-09 | GO | multi | [strategy-portfolio-stage1-results-2026-10.md](strategy-portfolio-stage1-results-2026-10.md) | 독립 원천 3개(PBR 결합, RV20 규칙 B, 무한매수 TQQQ) → 2단계 GO. (스크립트 판정) |
 | 2026-10-09 | ECONOMIC | kr | [dividend-runup-results-2026-10.md](dividend-runup-results-2026-10.md) | 신호: 있음 · 경제성: 통과. 2010~2022 평균 초과 +2.82%, 귀무 95백분위 +0.30%. (스크립트 판정) |
@@ -282,10 +284,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (214)
+## 사전등록 문서(결과는 별도 파일) (215)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-14 | PREREGISTERED | kr | [combined-rank-model-v2-preregistration-2026-11.md](combined-rank-model-v2-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 2026-11-13 독립 감사가 짚은 두 구현 결함(거래정지일에 묵은 종가로 청산 · 거래량 원값×수정주가)을 고쳐 다시 돌려도 h1·h5 ECO… |
 | 2026-11-14 | PREREGISTERED | crypto | [binance-listing-perp-entry-time-preregistration-2026-11.md](binance-listing-perp-entry-time-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 신규 상장 7일 숏 무기한(EXECUTABLE)의 진입가는 '무기한 일봉 시가'인데, 무기한이 t0(상장 다음 날 00:00 UTC) 당일 장중에… |
 | 2026-11-13 | PREREGISTERED | kr | [pbr-combined-excess-significance-preregistration-2026-11.md](pbr-combined-excess-significance-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 운용 중인 pbr_value_v1_combined 의 등가중 대비 월 초과수익(P2−E2, 10-10 재실행과 같은 엔진·같은 표본)은 표본 변동… |
 | 2026-11-08 | PREREGISTERED | global | [vix30-fall3-events-preregistration-2026-11.md](vix30-fall3-events-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX ≥ 30 에서 3일 연속 하락' 시점에 지수를 사면, 평소 아무 날에 사는 것보다 21·63일 수익이 높은가. tech-timing-3x… |
@@ -555,10 +558,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (243)
+## 미분류 (244)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-14 | 보정해도 유지 | kr | [combined-rank-model-v2-results-2026-11.md](combined-rank-model-v2-results-2026-11.md) | 신호: 있음(유지) · 경제성: 통과(유지, 비용 23.54bp). 거래정지일 행을 무효화해도(V1), 거기에 tv20 특징을 빼도(V2) h1·h5 네 셀 모두 ECONOMIC 이 그대로다. TE… |
 | 2026-11-14 | 진입가 문제 없음 | crypto | [binance-listing-perp-entry-time-results-2026-11.md](binance-listing-perp-entry-time-results-2026-11.md) | 신호: 해당 없음(원 BL7 은 이미 ROBUST) · 경제성: 원 EXECUTABLE 유지. 감사의 우려(무기한 일봉 시가 = 장중 첫 체결가)는 실재했지만 규모가 작다 — D 건은 전체 관측 1… |
 | 2026-11-13 | 유의하지 않음 | kr | [pbr-combined-excess-significance-results-2026-11.md](pbr-combined-excess-significance-results-2026-11.md) | 신호: 유의하지 않음(월 초과 +0.37%, 부트스트랩 95% [-0.09%, +0.68%], NW t 1.81) · 경제성: 해당 없음(기록 전용). 2022·2024 제외 평균 +0.18%. 운… |
 | 2026-11-08 | SENSITIVE | us | [vix-ladder-sensitivity-results-2026-11.md](vix-ladder-sensitivity-results-2026-11.md) | 신호: 약함(문턱 민감) · 경제성: 미확정. 나스닥 3배의 'ROBUST'(20·5·16) 는 주변 문턱에서 유지되지 않았다 — 합격 9/36(25%), 반도체 5/36(14%), S&P500 1… |
