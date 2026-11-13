@@ -1,0 +1,198 @@
+{
+ "verdict": "EXECUTABLE",
+ "label": "진입가 문제 없음",
+ "original": {
+  "verdict": "EXECUTABLE",
+  "oosDays": 160,
+  "net10": 1011.4,
+  "t_net10": 3.96,
+  "net30": 991.4,
+  "test_net10": 1061.7,
+  "periods": {
+   "2024": {
+    "days": 44,
+    "obs": 269.9,
+    "t": 0.45
+   },
+   "2025~": {
+    "days": 100,
+    "obs": 1424.4,
+    "t": 4.93
+   },
+   "~2023": {
+    "days": 36,
+    "obs": 1481.5,
+    "t": 3.14
+   }
+  },
+  "bySplit": {
+   "TEST": {
+    "days": 144,
+    "obs": 1071.7,
+    "t": 3.9
+   },
+   "TRAIN": {
+    "days": 20,
+    "obs": 2211.2,
+    "t": 3.46
+   },
+   "VALID": {
+    "days": 16,
+    "obs": 569.3,
+    "t": 0.88
+   }
+  }
+ },
+ "corrected": {
+  "verdict": "EXECUTABLE",
+  "oosDays": 160,
+  "net10": 1018.9,
+  "t_net10": 3.99,
+  "net30": 998.9,
+  "test_net10": 1061.7,
+  "periods": {
+   "2024": {
+    "days": 44,
+    "obs": 270.0,
+    "t": 0.45
+   },
+   "2025~": {
+    "days": 100,
+    "obs": 1424.4,
+    "t": 4.93
+   },
+   "~2023": {
+    "days": 36,
+    "obs": 1520.1,
+    "t": 3.2
+   }
+  },
+  "bySplit": {
+   "TEST": {
+    "days": 144,
+    "obs": 1071.7,
+    "t": 3.89
+   },
+   "TRAIN": {
+    "days": 20,
+    "obs": 2221.2,
+    "t": 3.37
+   },
+   "VALID": {
+    "days": 16,
+    "obs": 643.6,
+    "t": 1.01
+   }
+  }
+ },
+ "stress4h": {
+  "verdict": "EXECUTABLE",
+  "oosDays": 160,
+  "net10": 1023.6,
+  "t_net10": 4.01,
+  "net30": 1003.6,
+  "test_net10": 1064.3,
+  "periods": {
+   "2024": {
+    "days": 44,
+    "obs": 278.4,
+    "t": 0.46
+   },
+   "2025~": {
+    "days": 100,
+    "obs": 1424.4,
+    "t": 4.93
+   },
+   "~2023": {
+    "days": 36,
+    "obs": 1472.1,
+    "t": 3.11
+   }
+  },
+  "bySplit": {
+   "TEST": {
+    "days": 144,
+    "obs": 1074.3,
+    "t": 3.91
+   },
+   "TRAIN": {
+    "days": 20,
+    "obs": 2115.9,
+    "t": 3.19
+   },
+   "VALID": {
+    "days": 16,
+    "obs": 667.3,
+    "t": 1.06
+   }
+  }
+ },
+ "cleanOnly": {
+  "verdict": "EXECUTABLE",
+  "oosDays": 154,
+  "net10": 1061.2,
+  "t_net10": 4.01,
+  "net30": 1041.2,
+  "test_net10": 1076.7,
+  "periods": {
+   "2024": {
+    "days": 41,
+    "obs": 262.8,
+    "t": 0.41
+   },
+   "2025~": {
+    "days": 100,
+    "obs": 1424.4,
+    "t": 4.93
+   },
+   "~2023": {
+    "days": 21,
+    "obs": 1392.6,
+    "t": 1.99
+   }
+  },
+  "bySplit": {
+   "TEST": {
+    "days": 141,
+    "obs": 1086.7,
+    "t": 3.88
+   },
+   "TRAIN": {
+    "days": 8,
+    "obs": 2186.6,
+    "t": 1.68
+   },
+   "VALID": {
+    "days": 13,
+    "obs": 903.9,
+    "t": 1.11
+   }
+  }
+ },
+ "coverage": {
+  "TEST": {
+   "C": 167,
+   "D": 3,
+   "X": 8
+  },
+  "TRAIN": {
+   "C": 8,
+   "D": 13,
+   "X": 42
+  },
+  "VALID": {
+   "C": 13,
+   "D": 4,
+   "X": 9
+  }
+ },
+ "dEvents": {
+  "n": 20,
+  "withOrig": 20,
+  "withCorr": 20,
+  "origMean": 1601.7,
+  "corrMean": 1638.2,
+  "origVsEntryGap_bp_median": -161.2,
+  "firstPrintVsEntry_bp_median": -161.2
+ }
+}
