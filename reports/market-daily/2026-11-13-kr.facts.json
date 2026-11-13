@@ -1,0 +1,1563 @@
+{
+ "market": "kr",
+ "generatedAtKST": "2026-11-13T18:11:16+09:00",
+ "expectedSession": "2026-11-13",
+ "sessionOpen": true,
+ "regularSessionEnded": true,
+ "backfill": false,
+ "series": [
+  {
+   "sym": "^KS11",
+   "name": "KOSPI",
+   "group": "지수",
+   "kind": "regular",
+   "close": 5290.53,
+   "prevClose": 5342.73,
+   "chgPct": -0.98,
+   "chg5dPct": 4.56,
+   "chg20dPct": -6.66,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:32+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^KQ11",
+   "name": "KOSDAQ",
+   "group": "지수",
+   "kind": "regular",
+   "close": 699.66,
+   "prevClose": 696.53,
+   "chgPct": 0.45,
+   "chg5dPct": 8.6,
+   "chg20dPct": -11.97,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:33+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "091160.KS",
+   "name": "KODEX 반도체",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 98520.0,
+   "prevClose": 99355.0,
+   "chgPct": -0.84,
+   "chg5dPct": 15.36,
+   "chg20dPct": -15.23,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "091180.KS",
+   "name": "KODEX 자동차",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 22240.0,
+   "prevClose": 21965.0,
+   "chgPct": 1.25,
+   "chg5dPct": -0.56,
+   "chg20dPct": -7.47,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "466920.KS",
+   "name": "SOL 조선TOP3플러스",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 18390.0,
+   "prevClose": 18355.0,
+   "chgPct": 0.19,
+   "chg5dPct": 2.39,
+   "chg20dPct": -17.75,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "139230.KS",
+   "name": "TIGER 200 중공업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 8150.0,
+   "prevClose": 8235.0,
+   "chgPct": -1.03,
+   "chg5dPct": 5.23,
+   "chg20dPct": -19.0,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "449450.KS",
+   "name": "PLUS K방산",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 32185.0,
+   "prevClose": 32890.0,
+   "chgPct": -2.14,
+   "chg5dPct": 1.5,
+   "chg20dPct": -25.41,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "244580.KS",
+   "name": "KODEX 바이오",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 7215.0,
+   "prevClose": 7305.0,
+   "chgPct": -1.23,
+   "chg5dPct": 2.34,
+   "chg20dPct": -5.44,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "143860.KS",
+   "name": "TIGER 헬스케어",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 33100.0,
+   "prevClose": 33365.0,
+   "chgPct": -0.79,
+   "chg5dPct": -1.65,
+   "chg20dPct": -3.23,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "305720.KS",
+   "name": "KODEX 2차전지산업",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 12780.0,
+   "prevClose": 12860.0,
+   "chgPct": -0.62,
+   "chg5dPct": 3.27,
+   "chg20dPct": -13.41,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "091170.KS",
+   "name": "KODEX 은행",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 14850.0,
+   "prevClose": 14390.0,
+   "chgPct": 3.2,
+   "chg5dPct": 3.77,
+   "chg20dPct": 0.47,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "102970.KS",
+   "name": "KODEX 증권",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 13585.0,
+   "prevClose": 13235.0,
+   "chgPct": 2.64,
+   "chg5dPct": 1.34,
+   "chg20dPct": -10.65,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117460.KS",
+   "name": "KODEX 에너지화학",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 10945.0,
+   "prevClose": 11000.0,
+   "chgPct": -0.5,
+   "chg5dPct": 2.0,
+   "chg20dPct": -17.63,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117680.KS",
+   "name": "KODEX 철강",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 9965.0,
+   "prevClose": 10075.0,
+   "chgPct": -1.09,
+   "chg5dPct": 0.45,
+   "chg20dPct": -10.21,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "117700.KS",
+   "name": "KODEX 건설",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 5955.0,
+   "prevClose": 5845.0,
+   "chgPct": 1.88,
+   "chg5dPct": 7.39,
+   "chg20dPct": 3.3,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "434730.KS",
+   "name": "HANARO 원자력iSelect",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 37180.0,
+   "prevClose": 37835.0,
+   "chgPct": -1.73,
+   "chg5dPct": 6.18,
+   "chg20dPct": -18.25,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "487240.KS",
+   "name": "KODEX AI전력핵심설비",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 23110.0,
+   "prevClose": 23050.0,
+   "chgPct": 0.26,
+   "chg5dPct": 12.79,
+   "chg20dPct": -17.12,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "228790.KS",
+   "name": "TIGER 화장품",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 3325.0,
+   "prevClose": 3370.0,
+   "chgPct": -1.34,
+   "chg5dPct": -3.9,
+   "chg20dPct": -17.39,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "266360.KS",
+   "name": "KODEX K콘텐츠",
+   "group": "업종ETF",
+   "kind": "regular",
+   "close": 8750.0,
+   "prevClose": 9010.0,
+   "chgPct": -2.89,
+   "chg5dPct": -5.35,
+   "chg20dPct": -3.79,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:30+09:00",
+   "source": "naver-krx-day",
+   "fresh": true
+  },
+  {
+   "sym": "^N225",
+   "name": "닛케이225",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 61142.35,
+   "prevClose": 60819.3594,
+   "chgPct": 0.53,
+   "chg5dPct": 6.46,
+   "chg20dPct": -5.1,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T15:45+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^TWII",
+   "name": "대만 가권",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 43675.12,
+   "prevClose": 43091.8711,
+   "chgPct": 1.35,
+   "chg5dPct": 10.01,
+   "chg20dPct": -10.18,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T14:33+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "000001.SS",
+   "name": "상해종합",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 3634.353,
+   "prevClose": 3655.8301,
+   "chgPct": -0.59,
+   "chg5dPct": -0.41,
+   "chg20dPct": -2.2,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T16:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^HSI",
+   "name": "항셍",
+   "group": "아시아",
+   "kind": "regular",
+   "close": 23637.6,
+   "prevClose": 24008.5508,
+   "chgPct": -1.55,
+   "chg5dPct": -3.45,
+   "chg20dPct": -1.77,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T17:08+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "KRW=X",
+   "name": "원/달러",
+   "group": "환율",
+   "kind": "around",
+   "close": 1336.42,
+   "prevClose": 1336.26,
+   "chgPct": 0.01,
+   "chg5dPct": -1.47,
+   "chg20dPct": -0.34,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T18:11+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "ES=F",
+   "name": "S&P500 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 7605.75,
+   "prevClose": 7615.25,
+   "chgPct": -0.12,
+   "chg5dPct": 2.75,
+   "chg20dPct": -1.28,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T18:01+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "NQ=F",
+   "name": "나스닥100 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 28290.0,
+   "prevClose": 28384.5,
+   "chgPct": -0.33,
+   "chg5dPct": 4.45,
+   "chg20dPct": -3.75,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T18:01+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "CL=F",
+   "name": "WTI",
+   "group": "원자재",
+   "kind": "around",
+   "close": 88.84,
+   "prevClose": 88.74,
+   "chgPct": 0.11,
+   "chg5dPct": -2.19,
+   "chg20dPct": -12.4,
+   "barDate": "2026-11-13",
+   "lastTradeKST": "2026-11-13T18:01+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  }
+ ],
+ "missing": [],
+ "repoData": [
+  {
+   "file": "docs/data/market-movers.json",
+   "asOf": "20261112"
+  },
+  {
+   "file": "docs/data/market_flows.json",
+   "updatedAt": "2026-11-12T17:39:20.612061Z",
+   "ageHours": 15.5
+  },
+  {
+   "file": "docs/data/sector-strength.json",
+   "asOf": "20261112",
+   "updatedAt": "2026-11-13T02:00:01+09:00",
+   "ageHours": 16.2
+  },
+  {
+   "file": "docs/data/disclosures.json",
+   "updatedAt": "2026-11-12T17:36:46.874Z",
+   "ageHours": 15.6
+  },
+  {
+   "file": "docs/data/news.json",
+   "updatedAt": "2026-11-13T03:52:40.343Z",
+   "ageHours": 5.3
+  },
+  {
+   "file": "docs/data/events.json",
+   "asOf": "2026-11-13",
+   "generatedAtKST": "2026-11-13T09:56:19+09:00",
+   "ageHours": 8.2
+  },
+  {
+   "file": "docs/data/stock-events.json",
+   "updatedAt": "2026-11-13T03:35:08+09:00",
+   "ageHours": 14.6
+  }
+ ],
+ "kr": {
+  "KOSPI": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-11-13T16:15:00+09:00",
+   "tradingValue조원": 15.95,
+   "breadth": {
+    "상승": 451,
+    "상한": 3,
+    "보합": 41,
+    "하락": 420,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261113",
+    "개인": 138.0,
+    "외국인": -5448.0,
+    "기관": 3.0
+   },
+   "program억원": {
+    "bizdate": "20261113",
+    "차익": -372.0,
+    "비차익": -1517.0,
+    "합계": -1889.0
+   },
+   "topByMcap": [
+    {
+     "code": "005930",
+     "name": "삼성전자",
+     "chgPct": 0.24,
+     "mcap조원": 1210.2,
+     "chgPctNaver": -0.48,
+     "chgSource": "naver-krx-day",
+     "close": 207000.0,
+     "afterPrice": 207000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "000660",
+     "name": "SK하이닉스",
+     "chgPct": -1.53,
+     "mcap조원": 892.7,
+     "chgPctNaver": -2.55,
+     "chgSource": "naver-krx-day",
+     "close": 1222000.0,
+     "afterPrice": 1222000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "005935",
+     "name": "삼성전자우",
+     "chgPct": 1.91,
+     "mcap조원": 136.8,
+     "chgPctNaver": 1.31,
+     "chgSource": "naver-krx-day",
+     "close": 170500.0,
+     "afterPrice": 170500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "402340",
+     "name": "SK스퀘어",
+     "chgPct": -1.42,
+     "mcap조원": 100.5,
+     "chgPctNaver": -3.67,
+     "chgSource": "naver-krx-day",
+     "close": 762000.0,
+     "afterPrice": 762000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "373220",
+     "name": "LG에너지솔루션",
+     "chgPct": -1.22,
+     "mcap조원": 75.7,
+     "chgPctNaver": -1.82,
+     "chgSource": "naver-krx-day",
+     "close": 323500.0,
+     "afterPrice": 323500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "207940",
+     "name": "삼성바이오로직스",
+     "chgPct": -2.49,
+     "mcap조원": 65.3,
+     "chgPctNaver": -2.62,
+     "chgSource": "naver-krx-day",
+     "close": 1411000.0,
+     "afterPrice": 1411000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "009150",
+     "name": "삼성전기",
+     "chgPct": -1.83,
+     "mcap조원": 64.0,
+     "chgPctNaver": -3.27,
+     "chgSource": "naver-krx-day",
+     "close": 857000.0,
+     "afterPrice": 857000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "105560",
+     "name": "KB금융",
+     "chgPct": 3.87,
+     "mcap조원": 56.1,
+     "chgPctNaver": 4.22,
+     "chgSource": "naver-krx-day",
+     "close": 158200.0,
+     "afterPrice": 158200.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "005380",
+     "name": "현대차",
+     "chgPct": 1.13,
+     "mcap조원": 54.8,
+     "chgPctNaver": 1.13,
+     "chgSource": "naver-krx-day",
+     "close": 269500.0,
+     "afterPrice": 269500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "032830",
+     "name": "삼성생명",
+     "chgPct": 0.2,
+     "mcap조원": 50.3,
+     "chgPctNaver": 0.6,
+     "chgSource": "naver-krx-day",
+     "close": 251500.0,
+     "afterPrice": 251500.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서, 등락률은 KRX 정규장 종가 기준(chgSource=naver-krx-day, 못 구하면 naver-integrated = 애프터마켓 포함 근사)."
+  },
+  "KOSDAQ": {
+   "marketStatus": "CLOSE",
+   "localTradedAt": "2026-11-13T16:15:00+09:00",
+   "tradingValue조원": 5.42,
+   "breadth": {
+    "상승": 850,
+    "상한": 6,
+    "보합": 95,
+    "하락": 806,
+    "하한": 0
+   },
+   "flows억원": {
+    "bizdate": "20261113",
+    "개인": -534.0,
+    "외국인": -790.0,
+    "기관": 1263.0
+   },
+   "program억원": {
+    "bizdate": "20261113",
+    "차익": 215.0,
+    "비차익": -517.0,
+    "합계": -302.0
+   },
+   "topByMcap": [
+    {
+     "code": "196170",
+     "name": "알테오젠",
+     "chgPct": 0.57,
+     "mcap조원": 12.3,
+     "chgPctNaver": -0.45,
+     "chgSource": "naver-krx-day",
+     "close": 176600.0,
+     "afterPrice": 176600.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "086520",
+     "name": "에코프로",
+     "chgPct": 2.11,
+     "mcap조원": 9.9,
+     "chgPctNaver": 0.28,
+     "chgSource": "naver-krx-day",
+     "close": 72600.0,
+     "afterPrice": 72600.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "247540",
+     "name": "에코프로비엠",
+     "chgPct": 2.36,
+     "mcap조원": 9.8,
+     "chgPctNaver": 1.45,
+     "chgSource": "naver-krx-day",
+     "close": 91200.0,
+     "afterPrice": 91200.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "036930",
+     "name": "주성엔지니어링",
+     "chgPct": 1.64,
+     "mcap조원": 8.1,
+     "chgPctNaver": 0.7,
+     "chgSource": "naver-krx-day",
+     "close": 173200.0,
+     "afterPrice": 173200.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "277810",
+     "name": "레인보우로보틱스",
+     "chgPct": 8.45,
+     "mcap조원": 7.2,
+     "chgPctNaver": 7.67,
+     "chgSource": "naver-krx-day",
+     "close": 372000.0,
+     "afterPrice": 372000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "222800",
+     "name": "심텍",
+     "chgPct": 2.96,
+     "mcap조원": 4.9,
+     "chgPctNaver": 1.05,
+     "chgSource": "naver-krx-day",
+     "close": 125200.0,
+     "afterPrice": 125200.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "039030",
+     "name": "이오테크닉스",
+     "chgPct": -1.52,
+     "mcap조원": 4.4,
+     "chgPctNaver": -2.86,
+     "chgSource": "naver-krx-day",
+     "close": 357000.0,
+     "afterPrice": 357000.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "000250",
+     "name": "삼천당제약",
+     "chgPct": -4.88,
+     "mcap조원": 4.1,
+     "chgPctNaver": -4.72,
+     "chgSource": "naver-krx-day",
+     "close": 173600.0,
+     "afterPrice": 173600.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "058470",
+     "name": "리노공업",
+     "chgPct": 0.0,
+     "mcap조원": 3.9,
+     "chgPctNaver": -1.33,
+     "chgSource": "naver-krx-day",
+     "close": 51800.0,
+     "afterPrice": 51800.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    },
+    {
+     "code": "028300",
+     "name": "HLB",
+     "chgPct": -1.37,
+     "mcap조원": 3.8,
+     "chgPctNaver": -2.04,
+     "chgSource": "naver-krx-day",
+     "close": 28800.0,
+     "afterPrice": 28800.0,
+     "afterChg": 0.0,
+     "afterPct": 0.0,
+     "afterAtKST": "2026-11-13T18:11+09:00"
+    }
+   ],
+   "fresh": true,
+   "note": "네이버 장 마감 잠정치(투자자별은 KRX 확정치와 다를 수 있다). 시총 상위는 네이버 표시 순서, 등락률은 KRX 정규장 종가 기준(chgSource=naver-krx-day, 못 구하면 naver-integrated = 애프터마켓 포함 근사)."
+  },
+  "KOSPI200선물": {
+   "month": "26.12.",
+   "flows억원": {
+    "bizdate": "20261113",
+    "개인": -24.0,
+    "외국인": 5664.0,
+    "기관": -5137.0
+   },
+   "fresh": true,
+   "note": "네이버 코스피200 선물(근월물 기준 화면) 투자자별 순매수, 억원으로 판단(계약 수 아님 — 10-16 −9,540 ≈ 기사 '선물 1.1조 매도', 미니선물 제외 추정). 현물 수급과 더하지 않는다."
+  }
+ },
+ "news": {
+  "window": [
+   "2026-11-13T00:00+09:00",
+   "2026-11-13T18:10+09:00"
+  ],
+  "closeKST": "2026-11-13T15:30+09:00",
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-11-13T01:46+09:00",
+    "title": "[미국 특징주] 스트래티지, MSCI 지수 퇴출 확정에 8% 급락…진짜 악재는 '안정적 매수자' 상실 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9tLTFkZEpIaGpJX212Tk5ZZWZDb2k2azZEQVZWYnBGWXN0QXhBemtkdi1fWXlmZkptU25XZV9id0otMDZtRHdSVzNLZmk1bThFM21oMTJ0SkdmbmdZ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T02:02+09:00",
+    "title": "[미국 특징주] 젠슨 황 사임 충격…엔비디아 시총 4조달러 붕괴 위기, AI주 동반 급락 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBaNERRTkJFMGlhX1BDSFF6Qzd2b2FNQWtRbW05eFFWTnQyRzNaMUJaNXRDa3l5Q25oVUFKNWVqa0huVTRQcDlJUXJ4VFRWZlFYSkNvYV9CRldIaVpm?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T02:18+09:00",
+    "title": "[美특징주]네비우스, 실적 전망 실망…17%대 급락 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPMlRJcmVxNmRwMkxaRjk2NXdTUjVHdUNmaXE5Y2pjNzQtOTNVZGV0bEYtdHRqZ1JiWjVrTWZwTHhmX2s2RnVSaHRIZ0ppcjZEMGloM1BPcjE0OUMwbVNvT0RWOC1mOUhFRlh5ME03SmkzeEVzZVpuOC1rUnRGcGxxWQ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T02:42+09:00",
+    "title": "[美특징주]스트래티지, 급락…지수 편출 결정에 비트코인 하락까지 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOQ2lHbUdCNGdhQkUwUEtST29PQlVhN0N2WUNwOXAzbEZzVDlsSU1sOXpHbDM0X0lhd0UyUWRGaE96aUZqa25uSlRMVFByZ1gzdmIwem9VcURvNXo4X0VMUjVyTnNxd0l3NlJuNFpHelZaZ0pscXg3RDJHc2xSck5VVQ?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T03:16+09:00",
+    "title": "[美특징주]큐리그닥터페퍼, 20억달러 유상증자 계획에 급락 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOMEhwd0xtd3RQZ0k4MzdBeDhTWmstU1Z6Vi1vdXE2dkZoY0dYOFpGbHY0UVY5WVhTTjI4LTJ1LV9lWFlOR09aeHlmbjc2eGF4dy15MGtkVnJwM0dFTHlCdEFGZHhtYVo5YkIyZTBlZmFEV2twVFpZc2dkeFlRTnNpRw?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T03:21+09:00",
+    "title": "[美특징주]코어위브, 실적 발표 급등 하루만에 다시 하락 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQQWlWMmMwOE15QnhlYVNkNVNURjNhMWdkaDBCR2FGOUJ3VDVTX251MzRYS2d3VUtGeF8yaFZLYmo5Q0xqdGNydlJjRFN6VlpIWXZVeld1S2oyelZUdjBWSWhPdmpaaHpQQlZicUZLbzZsTHA2OEFLZVdxeVMySFBtaA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T03:32+09:00",
+    "title": "“미국 반도체주 5% 급등했는데 한국은 하락”…기관 6900억 매도에 코스피 5342 마감 - 데일리25",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBtNUxNNTFQZW5Zb3lOOXQzdkprYTljOXVlVGpIWFFrSFk0X1JvdUFJeUNrNVk2YWV6NjBOS0Z2clNrNWRGWUZlTHFhRlVFeU05ZXZJVUVReG5wM3VucXNKU2xaMkVwNEdkTkVlMQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T04:52+09:00",
+    "title": "[美증시 특징주] 엔비디아, '대체불가' 젠슨황 퇴진에 또 폭락…경영 불투명성 증폭 - 미디어펜",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE44dnJvajVYdF9LYW1ULXAwZ2ZacHFhY1lYVmZGdWVDeFg5THN4WEtoWjdNMFhQaGlLcUNGWEdra2Z1b1hvM3I5SW5OYnRxM3RTTHROR0FQdjDSAVhBVV95cUxOOHZyb2o1WHRfS2FtVC1wMGdmWnBxYWNZWFZmRnVlQ3hYOUxzeFhLaFo3TTBYUGhpS3FDRlhHa2tmdW9YbzNyOUluTmJ0cTN0U0x0TkdBUHYw?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T05:38+09:00",
+    "title": "대신증권 \"외국인 214조원 팔았는데…매도 절반 가까이 영국 계정에 집중\" | - 핀포인트뉴스",
+    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9WaDJaZ3N0N2pBbVZGUzdSNWd1SndCdHVLb09Cd3ZzUGtDa1dTcjhMRENFQnljRFFGcjRVVWl4VnB6ODhfVGtPZTg2ZUNPWmE2Ql9PcHZ1a3ZGYUdadWdnN1lpYTUyaGoyUmtUalFqYzVyLTRpZ2RR?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T05:43+09:00",
+    "title": "[美특징주]인텔, 실적 부진에 주가 급락하자 CEO 970만달러 자사주 매입 - 이데일리",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQNDJxTi1VM01hVy1fYXJoVTRrTVBGa2JNdm1JU0FPMWR4SVpLMENucU5CcEdCdEg0UFN5YTlUM184aGQ4ekZXWDZGczNQMGFPVk94bEJPWHpBSHBaNEpRd19yZ0c3cnFQd3pjSHFpUkoyZFJiNVlQU29melc3VlVWXw?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T06:07+09:00",
+    "title": "[美증시 특징주] AI네트워크 아리스타 의외의 급등…매출 가이던스 압도적 - 미디어펜",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9xTGpoY2tHeVB3ZXVFbWpJdlVSOFU1SzVXZWZNZDIyVkN4cWQzeXo3NHNaNEJfYk5JYVlhcTFvRUVETDF1dm1oT2JxT3J3bmo5elN0Qlk2M3XSAVhBVV95cUxPcUxqaGNrR3lQd2V1RW1qSXZVUjhVNUs1V2VmTWQyMlZDeHFkM3l6NzRzWjRCX2JOSWFZYXExb0VFREwxdXZtaE9icU9yd25qOXpTdEJZNjN1?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T08:07+09:00",
+    "title": "[마켓뷰] '젠슨 황 퇴진' 파장 어디까지? 코스피 영향 주시 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9SU1ZWVkxNWkJfQVFiZDRwMVJST2FRSWQ5NHhJVWJDMHpmMjNkQmZuQ01JNXZKUXlMbDgxZHdkLU50MnRMM2ZmWWpTYnN0TGdFQnd1bUFxZWZTVmxBWTYzX9IBYEFVX3lxTE9SU1ZWVkxNWkJfQVFiZDRwMVJST2FRSWQ5NHhJVWJDMHpmMjNkQmZuQ01JNXZKUXlMbDgxZHdkLU50MnRMM2ZmWWpTYnN0TGdFQnd1bUFxZWZTVmxBWTYzXw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T08:26+09:00",
+    "title": "[미국 특징주] 슈퍼마이크로, '앨리스 황' 연루 조사에 11% 급락 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE4zSEgxLWg0cmlEWkktUklSVVA0S3UyMFpTbmZielJjWmttUF9mSnVRcDhjLVdwUzhEME9nczdvN0hWdS1RYmtqZy1CTTk1SlVZME1XX1Q2MWlfUVhL?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:06+09:00",
+    "title": "특징주, 자람테크놀로지-뉴로모픽 반도체 테마 상승세에 7.61% ↑ - 매일경제 마켓",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5TWG95by1WdXA1Y1Y5OFFFTlpuOHBZcHAzUG5Lc01uRnhMM0tfblUtT19QZDVBcDVLVEk3SFVEeFIxNmhsZE5YVTAwSkh0aWx3NVE?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:06+09:00",
+    "title": "특징주, 앤씨앤-뉴로모픽 반도체 테마 상승세에 7.45% ↑ - 매일경제 마켓",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE5qbUUxblNndmRsLUtSUmk0dE01aXZoeUxfSHZuYUptVDdOLVF3MVo1cGp6QkhHV2pwU3lJcjNNOEwtLUpXTEhYUzZhY3Bjek5jLXc?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:11+09:00",
+    "title": "[특징주] 금호건설, 3분기 호실적에 18%대 급등 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE41OGlvNmdielBLa1lZNzB0ZHdwUEpyRUZfSC1KME1BSEZ3dDRWNXMyVWpCVVlJbUdKV2k1ektIc3JaOUVuaE41d0hnLWJXaGVnckIwSFRjZ0VHUQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:18+09:00",
+    "title": "코스피, 반도체 강세에 장중 5500선 회복 [마켓시그널] - 서울경제",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBvMGg0TzFmclB5NFNfM2FiZG9hdHEzMlgzNmRSbzhHaHZ1eDNlNTJjVV9YUXV5U3dnR2xEQ0w5SjlGR2k2akg4YlgtMjV3Q3VvNkHSAVNBVV95cUxPUWdFb0RSRURiV3RWOW1yYkV5TTJKU0tGeVhaSUIxV1Ywem1TUnIxckNsY2t3bkl4aVdfMTJhYXppSnR3WlZxTjNOclBTcGdsQTlNTQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:19+09:00",
+    "title": "[특징주] '젠슨 황 사임' 악재 털었나…삼전·닉스, 장초반 3∼4%대 급등 - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE10YUhsdXphcVkyMUxNNERsOG1ORHhweWVpbDVqX29fTnNURFFWdlA3YlJRYXZvajl0WU1FSXNQSkhEU0ZVUGdYWkEzTERmbkRFa28xVk10RWttUlnSAWBBVV95cUxOd0o2NFFnaEZadzI5S1Q4eEt1aUlzWExOTGxmTzJ5MnB1a1lnTG9FUUpIbTU4Ni1TbXllcFFoMUFNZEZ6c0w0SmQ0SXB6WnMyU0FTVC1kSW5CWEl3Y3ZPZmI?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:19+09:00",
+    "title": "[특징주] 삼성전자·SK하이닉스 동반 강세…엔비디아 급락에도 상승 - 에너지경제신문",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBiVDE5OHRsWGMzclc0UjdTMkMwdUtxTl8xZ0hDM0Fndi1HSEgxb25VYjNlSUtTY1E1V3pfekpFbnl1elRSXzFRcjRraVg4Nmc1dHZRRWNlMFBNNGs?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:26+09:00",
+    "title": "[특징주] 한국전력, 3분기 실적 부진에 9%대 급락 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFA1UTY0SzhSenRYTnNtUE1UazNCUlZSck10TFJSbjB3NmJhVUlFZzJIYmM4alBrMktPXzdJa3dZakVsdzRmRUtoeEgwUlkza21FTm9PMjNuWHJuZw?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:31+09:00",
+    "title": "[속보]‘외국인 순매수세’…코스피 장중 5500선 탈환, 삼전·닉스 동반 강세 - 문화일보",
+    "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9QeWVtcXhvQlBMeXdvT0ZJYmt2d0x0N0x0dTFJLXAtQTVSUHVSaHh4TzlXck90QkFkd2VfTE4zOE1TV0Z2RTluOHlOOEgyYkVE?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:32+09:00",
+    "title": "[속보] 코스피 2% 상승 출발…장중 5500 돌파 - 세계일보",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5NaF9DWC1YRVQ5ZDR2TnpGb3R6STdoa0xhY01mZFRsTVlHaHJfT2hjb1VRME50SVdfa3REMVlMTEhIQVpsdGR6cmQyZDRsOHRwdUlPVnJKc2ZJTkd3djlmbU05aXJnMlppQTZB0gFUQVVfeXFMUHdDVW9DT0dIYnJIVzY1ZzRXUW9WYnBMM2Q1VWtSWTlPVjVZTEpRb2oxWFBQYUtlNFcwWnFrb2tSWWtKM01GNlNVTVZCQ3d6eml5eFZk?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:33+09:00",
+    "title": "[특징주] 한국전력, 3분기 실적 부진에 9%대 급락 - Chosunbiz",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOQlA4d2tidVdjRzVRMzFxUGViY2JrQk5yV0dfUG9jZFpfUVpCMjUtWExaSkt0aTV5OFotT1I3RnZ3YTZhaERWRlF3bmU3dzZIR3VrN0QyVXdVc3JoQU8xZ3pFQUNocDVDcUZfZWg1NHIyVS0tcWRlODg4WnhWUUFvSXBNb3J3d0NMY1g0LTRWaGJQQ2FxYklsUmJmRHfSAZwBQVVfeXFMTkJQOHdrYnVXY0c1UTMxcVBlYmNia0JOcldHX1BvY2RaX1FaQjI1LVhMWkpLdGk1eThaLU9SN0Z2d2E2YWhEVkZRd25lN3c2SEd1azdEMlV3VXNyaEFPMWd6RUFDaHA1Q3FGX2VoNTRyMlUtLXFkZTg4OFp4VlFBb0lwTW9yd3dDTGNYNC00VmhiUENhcWJJbFJiZkR3?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:44+09:00",
+    "title": "[특징주] 엔비디아 쇼크에도 삼성전자·SK하이닉스 동반 강세…2%대 상승 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9fYnNtM1YwcUt0UW5wOC1pSTUwXzZfNkl1ZGZ6YkhZRTFGQy1Qc2hROEhUV2cya2RZT044ZTVvRmtaanlXUVk1eWotV1VZZ05TSW9rZ2pOQS3SAVhBVV95cUxPX2JzbTNWMHFLdFFucDgtaUk1MF82XzZJdWRmemJIWUUxRkMtUHNoUThIVFdnMmtkWU9OOGU1b0ZrWmp5V1FZNXlqLVdVWWdOU0lva2dqTkEt?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:46+09:00",
+    "title": "코스피, '젠슨 황 악재' 털어냈나... 2.88% 상승→장중 5500선 회복 - 싱글리스트",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFB0Rm1ybFNfVXRoWnFXYnJnNGtkOFU1Q3RJT2Y1SEF6UVA4Q3dQWlRKR1JXWkI3Qlhwamo0enlmbHU3RXdhY1NTZGRXQzZINENtdVQ2ZXE1aTVsQXJRREIzR1M2b1AwQQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:49+09:00",
+    "title": "[특징주] 한국전력, 3분기 영업이익 급감…주가 9%↓ - 뉴스드림",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBKZ0dCUUYzcEw4SFlDcDMtZEhfYW5mcEVjUjYwamJ3ZDhPdTIwQkNkRjA5V0Y2MWpGX0k5T2lYVWw1TF9ob2FjVmNvd3YwelI4MjlteklSZzA1TjViRW9hVkw1Ql9GdTFaeG0w0gFuQVVfeXFMTXY5emlUbGp3dEloNVJNQS1zVUx2RjRMcHV1VFRlMV9OY0kwbGhHelI5UnpkX2k1elFlYjJCZnl5NjItV1J0bmZVbmx1azJySGpaMk1sNm5ZS29fWjdMbmRtOXlLRzJRTThaUjFHdnc?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:52+09:00",
+    "title": "코스피, 장 초반 2%대 급등…장중 5500선 돌파 - 뉴스토마토",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5zaV8tY0Zyd19pWnVMYnR3Wi01TjNkaTBHY0d2V2FoemplNWIyd1VsWVhyNVptazE1UVpqUTFYTDBjdkpzOXptcklLdndGcFhTby0zaG8xX1JDUE5hTWQyeg?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:55+09:00",
+    "title": "[특징주] 이수페타시스, AI 기판 수요 폭발 기대감에 장 초반 10%대 급등 - 와이드경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE43eVZQWXV2V1JyaHJyRWlqRFhucW82elV3a3RqMDVRTUZnWXJ3Sy1QZ08tdEw4OFM1YWFnYWwtOUNIM2ZnbnpXTVhpbE1wX00yTVZiandyZlhTU0psaVZyaGtuY2FBOExaX0cycQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T09:57+09:00",
+    "title": "[특징주] 바이브컴퍼니, 경영권 매각 소식에 29.95% 급등 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1aRGhBcGdsM09VY1JYS2Zza2ZnSWRyeHhCSVNLMjR4OWU0M19qVmtKZkU0QXhQaEd3WHNxQThrWElSYnV6RURGM0lHdWJYN0tuVHJxclVTNExKdw?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:01+09:00",
+    "title": "코스피 5500선 돌파...코리아써키트 12% 급등·네이버 3% 하락 - 월요신문",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5CMllrZXdzNzdCQW9PbnEtN3JHcHpUS19UcUQ3QzNLdjEwSTFLWThGODdLRzg5cXU1clFMQm9wWnZYdHRRSmI3RVZ3NTJUSVRBSXFKZFVUVWxBN2t2cDljS1dfUUJOcHQzQmc?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:10+09:00",
+    "title": "[특징주] 한국전력 9% 급락…실적 쇼크에 '연중 최저치' 기록 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE0taTNCRHMxZlZzUXpfNVd6bVNPLVl1QTlLMmo3VjczSlFVcUVzOWwycU1EeFo2QVFQZlR2OHF5U0QyaG5vTFR1Z2xwS3pfelBteTB1WkhvVF9ZY25B?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:16+09:00",
+    "title": "코스피, 젠슨 황 사임에도 2%대 상승…장중 5500선 돌파 - 경북도민일보",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1xTDNLV29YWUFta25uT0JidHFDNC1WWUV5Q2J1czRSVmM2YXlkdzNTOEJJQjdnYm9DaUh0eDF3dHBlRU5zNkhDWXl6QUhjMndnWUxqN3NBRExja3ZFVklaLUk5ZWJEMXNYeHc?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:21+09:00",
+    "title": "[특징주] 영풍, 고려아연 주총 소송 1심 승소에 9%대 급등 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5IczZHUWR2N3JvY2RJSkJUQVFPZDZGVWNRcnM1V3pvZzBnYnlqdVVvQXM4WnluYzkxMjh2b183WmpYX0tFUm5vQk9ZM09jOTI0eHV0UDBCSE4zQQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:31+09:00",
+    "title": "[증시 브리핑] 코스피 급반등, 업종별 자금 이동 - 센머니",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA2c3V6NGo5d1FfaWxiQ3Ntd2JkZjNORkY1X09Da3VTT254WmNid0RRNDNxUFVNOG9qdUxKODVMTjA3UnNxVnlWRXp1MGViYzZFeUhVa1pRM041eXB1U0poSlJoY1NaSklsaGpjTg?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:38+09:00",
+    "title": "[특징주] 한국전력, 3분기 '어닝 쇼크'.. 9%대 '급락' - 글로벌이코노믹",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPMExRVGlibV9CbWRINDNBQnJnNHFvMHg2SVI3eWc0MzRXX2ctY0pKRi1vZE5RajdueXlHWGU0Q3U1QTl5aUc3aVlmWUxjSTd2am83ck1nQkhtTWxkem1XY3N2VUV3RHBreFFUZnRvZU10N0FOVkxqQk9uOHJYcVdwSGZMbVRja2Zt?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:41+09:00",
+    "title": "[증시 오늘(13일) 주요 특징주] 코스피·코스닥 동반 급등세 이끄는 주요 특징주…반도체·바이오 집중 조명 - 더페어",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5CV0gxNXBuMTRmb3dFQUFWZzdtYmlMUTVtNEctQ0tpdVZqbDFpZDlzYUxBWWlGU2lQaUNTQzdmMC0zRXdzWnlXWHlqc1pRV3l0X1J2UWkwV1NwOE15TGhwNTBSOHdMTFg1cU5lb3Vpc0zSAXRBVV95cUxPckFMTVdDRnVVbzREdWxRaHRwLXBTOTBPZ3RCYk90UWNWQVZ0aklUS3hURFh1TTBhMlVhdUZfZFZWMklhaHFTZjcxTjI0b2NLZTQtaFF2VnBmc1pnZzlha3N1R2YxQ0dmYk04UzJXMFJ5RHFlMg?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:46+09:00",
+    "title": "가계자금 증시 순유입 147조원…김학균 \"집단적 성공의 경험 필요\" - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE91Qm5raDVhQzk2Qml2VHJaOUJUOEZyTkRSUEotdDQ1ZkZUcjJ0NExMOUVHc1BTT0xCX1lyZ2NkYVZsRW1Ld05UY3IyY0hTMzZ2SzVNRzFPbThPR3RZ?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:47+09:00",
+    "title": "[특징주] 삼전·SK하닉 강세 훈풍…피에스케이 5%대 상승 - 이투데이",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE83QktLVzFMSVZwTV9NZjlwUlpEYl9feG96b1dTeFY1XzEzcVJUZTF0d1ZLYW9zdHhjcHlSQlFZYVVUS29yZnpnMG85VVdOYzUzNXFtMFUxQ09RUjFtSUliSHhKbWZIamdvZnFmbDZHc2p4QQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:49+09:00",
+    "title": "[특징주] 李대통령 코스닥 활성화 강조에 1347개 종목 상승↑ - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9GQTJ5OXdJdHYtZjJGa0E0Nl9DSUg1Z0hLVmt2VzBCa2xjLVBmZDJiTWl0eWxMUHAta2tCWjNhTUloMlRkWmtNcUF5UGlSamJuSkJHN3NTNmtXM2oy?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:50+09:00",
+    "title": "[장중시황] 코스피 2%대 오른 5450선⋯코스닥도 3%대 급등 - 브릿지경제",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9aMVltWHhIY2tWYlpfUGFTbTVORXNBcEl6Xy1jNmJVVmwyejItVEZCdWdpS2tnTk9RMVlIZkUybDJIajlERjlZd3lUdmItZEpsRHdNaGN6NmNkQQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:51+09:00",
+    "title": "코스피 외국인·기관 순매수에 장중 5470선 상승세, 코스닥은 720선 강세 - 비즈니스포스트",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1NRnQ0U1VLeEdyT2I3VkxUY1BTVlZNMURvbXpoa2JVckw2M2xHaXZPTE9PSFlNdHpRa2xLMks5NVh6U05sbk02cFFlbnhEdDJSMTY0ajZkMHBtaW1QMVBON05uY2lLY2drT283WW5GNzUzajQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:57+09:00",
+    "title": "'젠슨 황 퇴임'에도 코스피, 장중 2%대 상승…외국인 '사자' - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFAzclgzdkJVZDhqYWpUdGFtdTBxSzNsclRTMEwya0N3VDlQempHR2d6ZGZPN2h0ZGtIOHo1TWRyUkRleTU5MFRWYVl0RUwtdzR2Z2pfR05Yc0NsZ2PSAWBBVV95cUxQN2wwTWhrNmJhMEtGN2ZjYU5mdlJaSjdZb3BiVTZLSnA5X1RFZDhBSk1iYktxS2ZucW5QcHIxUHcyVEw4ck5yQ204WGNHVDBaXzVEYmhrNnppbmRINXNvNUM?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:58+09:00",
+    "title": "[특징주] 앱클론 11% 급등…혈액암 신약 기대감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9iTG8wbXVhV2l4dHdOU1VIRkxDR3RRRFY0b1JYZy1zZXM2SGlLM18wTXFMWnBiVEQ0U3BBbVBBYnMyNGJULTlTbzZtNnhqN2xWaGIyVGgwVV9ld3Ra?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T10:59+09:00",
+    "title": "[오늘증시] 외국인·기관 쌍끌이 '코스피 2%대' 상승…5500선 눈앞 - 오늘경제",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA4NzNNNWszV3FhbHJVRlh3enJvWnlGTHdQLTY4WlNpdFlnXzcxNWZlNXdTcnBDNjlXNVVTR05FU2o0a3VnSTNfeVA0VkNicWpUR3JScTEyOUdYTmxNVWNRRDVJN3V6a3ZHbVVKVU9KanotZHM?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:04+09:00",
+    "title": "[특징주] 이수페타시스, 반도체 기판에 관심 쏠려.. '급등' - 글로벌이코노믹",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOSVZndWNUcEFpdEFpWUVYUFp2Q0VMZUtYNHYwcUN4R2hfdW9pdzA1a21SalRLemk3WTItZl9LM0gtQmpEQ2VQbnU0TTh4Qk5UOTNmS1JXaWRaTzZ1OUhPM3FZZGRZM0ZjNUh4MXRWNEgwTDdWYllDcTBCRVZiNHhHaGdfZ2xRYnF1?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:10+09:00",
+    "title": "[특징주] ISC, 차세대 AI 반도체 소켓 거점 '송도팹' 착공에 두 자릿수 상승 - 와이드경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBfTWo5QkNnWFphYmlrSlFDUzkzeFc4aDlBX0habjVKdUdRRjRiWDBsZmhaRTBzZmlEWW4wR0l0Nzk1TVI2NmtOQVVVcFpvWHJsUUFUX1RQdXpkeHBjLVA1dDNUU0NLVVVJNkU5cA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:11+09:00",
+    "title": "'젠슨 황 퇴진' 충격 딛고… 코스피, 장중 2%대 반등세 시동 - 파이낸스투데이",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9DM1R6LWYtSFhwTmRUS084dks5UFZnQVIwU0JKOUJvQjMtdHl2S2tTdVVkc0RvYi1oWWsxb0twbVhBSWpGRTBta2hUd0ljbEFCV1VzSDl4RFFCV2VXc1lFcUdpbVBSb1VOMXdaTg?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:12+09:00",
+    "title": "[특징주] 고영, AI 서버향 정밀검사 수요 폭발…어닝 서프라이즈에 두 자릿수 상승 - 와이드경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE02XzRyYUY5UW03Uk1CdEJ2MDNjeHVtV0JNUXdGRHRpNURIemVXM1BuLWZzU0hSbkRCaFZmRUE3bkpWRm9RclF2bnJoTU5nUlhxRjNGNV9JamFESWpqUVoyTlJ2M0JZcDBSWWtHaA?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:25+09:00",
+    "title": "“엔비디아 쇼크에도…” 코스피 장중 5500 돌파, 코스닥 4% 급등 - 한경매거진",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5JS3FrMHJhNEdpWkRkNWlQbjZlZzVEQmkydmJLX1gxOTN6VzN4a0xxUUY1bW1Ud2g4aGJlS1pnblNfSlN0RTQ1emF5YkUwWDdWMmxYUmxBMXBaWlF3eE4zT19ZWGdScmc?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:30+09:00",
+    "title": "코스피, 젠슨 황 사임 등 악재에도 장중 3% 강세 - 동아일보",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5OZTBEbGczUDhYeDBBNzRNSHNhcG40dXNtc0FMUTFNREpfVVh5d203MnUzcS0xRU9VSGZKbVpKZnl6Z1dPWHQwd193Sl8tejBkeUxydEtkNGhaVjU0OWhpOWNLcUJQTS1aWnotTHpQNWNBU0JTWmfSAWZBVV95cUxOX2Z2Z285Vm4zejk3cS11U1I4MUcwNEdtY0RjN2xQdms0X1dQbDZVUkNIT3BveGM5cXpJaTk3YjFxN3UtU2lFLUUyWGtOMVlDTlowRUt5LWE1OWhPcGRvX0FtQUJqa3c?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:32+09:00",
+    "title": "[특징주] '어닝 쇼크'에 목표가 줄하향⋯한전 9% '급락' - 아이뉴스24",
+    "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE5TQkFJSmRBaUNmZWVpM01hdDlDU2xEU0RheEdsT2NPVFlYNDc1RmFWWS1RTGVtZjRnUERfMWpMRG00MU83QTRBUkdlSjc?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:34+09:00",
+    "title": "[특징주] 코아시아, 자회사 코아시아씨엠 호실적·시스템반도체 훈풍에 17%대 급등 - 와이드경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1EMUNuRW9Fakl5c0laQzQySXdqMDUzM1JFMjNrcUZuWGM4RzYtc1ppb3dCbHJPZDZoaldMTk1BTjl5aG4ySE9Ta3ZnNjgyS1VsQkNlSEV1VGt3cFFIWjRFNWRIdHFLcWFPdV9BZw?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:38+09:00",
+    "title": "코스닥, 젠슨 황 사임에도 4% 급등…코스피는 장중 5500 찍었다 By 알파경제 alphabiz - Investing.com 한국어",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE92U3F1ejJxWlBZVW01NlBMNkdJY3hGRVBYZFFvM1BROXlfdFFNTll2TTltaUFvS2dfeDlmY21CREFzb0pVc01RU3BtUTJrNTRnMU1QaXBlV3pWVTQ5OEg5Z2dwX0hDS1M3bFZZektOUVQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T11:50+09:00",
+    "title": "[특징주] 삼성전자·루닛, 외국인·기관 동반 순매수 상위권…한국전력 순매도 1위 - 뉴스티앤티",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5kTldja3Z6bnVnSkNLdHAtelBzZ1pSU0RETWFSb2xVVEVEdW9JUVlQeUltV2l6Wl80UWMzY0Y1Ny12UV92SUxqLTNFOHlHZUNqbUFjUFJwS3owWDlmUk9EbndqT05SYzFCM1E?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T13:26+09:00",
+    "title": "코스피, 장중 하락 전환…5300선 밑으로 - 뉴시스",
+    "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1fZzhRdmZEdk9VWTBwcDlpaHVIdm9fbDdTVHRIS0lSQThhb1V5bGdRalJBbjdTREFuVTZxZHVpX21kUUVFaElmNVVfdmp2TWhDanlFQTNHNThHMm9NU080UGFjREI1SnNZU29WV3dWZVVsRWZNeXBictIBeEFVX3lxTE1fZzhRdmZEdk9VWTBwcDlpaHVIdm9fbDdTVHRIS0lSQThhb1V5bGdRalJBbjdTREFuVTZxZHVpX21kUUVFaElmNVVfdmp2TWhDanlFQTNHNThHMm9NU080UGFjREI1SnNZU29WV3dWZVVsRWZNeXBicg?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T13:27+09:00",
+    "title": "[특징주] 李대통령 벤처투자 개선 주문에…DSC인베스트먼트 상한가 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFA1OW44SDAzS2RHcHY1YzZfRTMyb1dlX09sTFBWcHdwZklsczV4YjVyS2JtN3dTN0F6VS1FLUR2NHJpalcyekxwM0pwbkdTRER6elR5RWtBQWRhLWw2?oc=5",
+    "query": "특징주 급등",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T13:48+09:00",
+    "title": "코스피, 장중 하락 전환...코스닥, 상승폭 축소 - YTN",
+    "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE05OW5TMTY3SEFMTm1JZWZDTEwzSzZKZmdfbkN6Y0JnNHIxMVFIX0U3ZVdzcm5XRWZDV2N5bk5DYkRCZ1QyWVhNT2ZPcU1GUHM0M1ZJb3RLWEtPNkNlQ3kxR3RrUnpoR0RvMG1hNkxhNA?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T13:48+09:00",
+    "title": "李대통령 거래소 떠나자 하락세 돌아선 '삼전닉스'…코스피 하락세 전환[장중시황] - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE82eHR0NXBzM3ZRT2VTTUxJeFM4Q1lMX3B5QWttTWY3eG4yWUhDTGNFWjE3ai1rRlczQTlXa2dDYUo4VlRlVEI4Uk44LUtleXlWNWR4Nl9Lanc3SFU?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T14:18+09:00",
+    "title": "[특징주] 한국전력, 3분기 실적 충격에 10%대 급락…증권가 목표가 줄하향 - 아주경제",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE8xeHp6RF8xdm5FU0NuUEJuMmp5cF9kMDJvMXhwN3F3SFVJUWVJOW0tckxySUh6UXJkQ2RtYW5Yd1pJUGhkdFNNeTJ1SFJ2dEJlemNTejRCZHPSAVhBVV95cUxPMXh6ekRfMXZuRVNDblBCbjJqeXBfZDAybzF4cDdxd0hVSVFlSTltLXJMcklIelFyZENkbWFuWHdaSVBoZHRTTXkydUhSdnRCZXpjU3o0QmRz?oc=5",
+    "query": "특징주 급락",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T14:48+09:00",
+    "title": "코스피, 장중 5500선 찍고 5260대로…외국인 6200억 순매도 [fn오후시황] - 파이낸셜뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE93dGhkNTFCLUcyS1VMNW12T1gybGRIZ3ZrcDV6cFJfMGF2bDN1NDdZdnlPV2E5Y194VkI0dVBYTU1BUmxEYjlyampjRGVVMS1icm1lY0ZFa3Zkdw?oc=5",
+    "query": "코스피 장중",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-13T16:05+09:00",
+    "title": "'엔비디아 쇼크' 국내 증시…코스피 5300선 내줬다 - 경제타임스",
+    "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5KOW1EUFh1QTVMYlJCWHNyNVRILXpram5DS3ZhbEdIQV9qdDFBeVBnbGlabGVDT29CQXhER0lpQmpkdTZrNFdUamVsb2lXWDhxZzhR?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:07+09:00",
+    "title": "’전강후약’ 코스피 하락 마감…5,300선 아래로 - 연합뉴스TV",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9Fb3dJU2dVVGpqaFdhUVF6WkdqMXZCQVF2QUJ2ZGdqaTNPQUxFNFRLTlhvc2t1aU5OazZJaF9tc2lLSV9abEVORDNwUVEtMkp0cy1tVnk2S2lBb24xQUV1aWZQWkVIMnM?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:07+09:00",
+    "title": "코스피, 젠슨 황 사임·중동 긴장 속 하락 마감…반도체·한전 약세 - 서울경제TV",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE8zZDJaS1kxT3JBOHpHOVZOcjNuWDFaejBVMUdXbEltMDEyLVZlTFJ5MThlRUdKVjR2NHI3QWtzd1JhZXFMWDhaYjBkVi05eWc0SUtFdWg0TTBDSmZfX1ExOFl5QzI?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:10+09:00",
+    "title": "[증시-마감] '팔자' 돌아선 외인…코스피, 엔비디아 쇼크 속 1% 하락 | - 연합인포맥스",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE8yVkdjeDBaZG9mQ0hScEFpVm5HX015U0d2dmhYRWdRaEh4RHlTMFVpbW10bms0UlJxM2tSYW0yRmpUS0tqLU10XzRQdHN3SlRUcFhYYWdZU1J3QWFJYVNnMEd2Z1JjNG1WbHJObllGZzdTbFRW?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:10+09:00",
+    "title": "엔비디아發 AI 반도체 불안, 외국인 ‘팔자’ 전환…코스피 1% 하락 마감 - 동아일보",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9DZUpiS05fb1hOVjdxUEtOdEpSbTFpRVFPZHpITFlpRjN5U3V3VHhaM0d3alN1S2FFWnRsTnd4RWxuTWczX2RRNjFtQlRBdFNQME04eWk3YVBZaVRza0oyZmNWaGUtZDA1VzNmWEtscWszemFOd3fSAWZBVV95cUxNRHFYN2tSc0cwdFhzc3BlY2tHY01PNUtQY2ZOUXYtdjZKUGxRNXNYQmg3Mmp3WTFMTHltTFZzN041bTliRkhBX2t2VF9VQmpvaXdWNUNBVWRtQktQSkZCdkhlQVJYSUE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:10+09:00",
+    "title": "李 대통령 자본시장 간담회에도…코스피 5500 찍고 하락 반전[시황종합] - 뉴스1",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBMVEh1VE1zVXZCa1d6dVZpUG4tR0ZsbHE4ZTM2eXdMSFN2WmZfSFZIMXhEb1JIZFhYSjloRHByUmdObVlEN0k1T1ZIU2JjQVBTSGF1QmlBVTJaTlk?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:11+09:00",
+    "title": "[ETF 특징주] NVDL 한달 새 64% 급락, 단일 종목 레버리지 치명타 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5yWWdKYzFGTXdZeF94TEo1Tmhxa2JqMTNIZzJzR1JabXFCOUh2aXVvMmMyZlhiNDRBZjFTb1ZUNjZmS2g2enhYYU9NQ2lXY3JHMDRvazl3ckJBUl9s?oc=5",
+    "query": "특징주 급락",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:12+09:00",
+    "title": "장중 3% 반짝 상승 코스피…외국인 매도에 결국 5300선 마감 - 파이낸셜포스트",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE53YlFaelVXaUhlQlk4bUg1UFVTVDhpa0Y4UVlzQi1ZS2VVNG03NmxTbDBXNUUtYTBiQ2REclV6bllKeUJiSzdHVUtKbm1DNWNZUXdoWmhVWW8xLVlUVjVrUVBHUjV2ZlNlRFNuZHIyRzFLSGlk?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:14+09:00",
+    "title": "'젠슨황 사퇴' 효과...코스피, 상승 후 결국 0.98% 하락 5,290 마감 - 금융소비자뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9YV0I0a29LZ01lTXZBQmh0bXl3Q2pUVVpLMWVWWllFX1B1a1E4aXAwNjk1S2ZxREllNzNmVEhMSXZST25zNGVrbHpRQzJsX2hvaFFTZmRqTHhoRndBbm5PTGxwdXpwR2dGd0E?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:15+09:00",
+    "title": "[속보] 장중 5500선 회복했던 코스피… 결국 5300선 밑으로 - 대전일보",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5LZGJMVlBBZHJoNTYxenREcGxZNm1ybjZqd0pDd2FIclA4cDdrTFJHSmF4WGtldkhjTmpuTXByN25fQk9ZOVBxQXVZWmMwS0ktZmt1Nm05UXFLcGYxV2dQRVMwMWpwVURQaURTSHNwSEdqU3fSAXNBVV95cUxOS2RiTFZQQWRyaDU2MXp0RHBsWTZtcm42andKQ3dhSHJQOHA3a0xSR0pheFhrZXZIY05qbk1wcjduX0JPWTlQcUF1WVpjMEtJLWZrdTZtOVFxS3BmMVdnUEVTMDFqcFVEUGlEU0hzcEhHalN3?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:16+09:00",
+    "title": "'약세' 코스피, 5200선 하락 마감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE4tbmdyNHB0MGthTlh5eC1rSXZTZHBPbGdCWk9WSnR0N2ZiWGtpTTBwVzk0aVJ3dTlOb1hjOGtDb0Vkb0RVcDBWbnRrWFp5WHkyLS1UWmt5U0ZyVDRP?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:16+09:00",
+    "title": "코스피, 장중 5500선 찍고 5290.53 마감…외국인 5505억원 순매도 - 아이뉴스24",
+    "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE03a1VqMVAtcGt2S2w4X2pOZVZkWGRMUDFpS3dMR0dBZ2xfd0pRemVsV3hGZ2VuZ3FBSGNYdzRQRnh6SmNpNVFpMHZJSQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:16+09:00",
+    "title": "코스피, 장중 5500선 찍고도 뒷심 부족…외인 '팔자' 하락 마감 - 경제 | 기사 - 더팩트",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1tRE5aZHVBTWk2a045YkFiWTAtNkU1bUhIT3pVY2Z2SmJ5ME56dU1DVTNJNUdEWTBxS1locW10WjJGRGZoRG1wN0pzbHNycGZCMFhJUHhTMVhTZw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:16+09:00",
+    "title": "코스피 5,500선 찍고 5,290선 하락 마감…외국인 매도에 상승분 반납 - https://www.ppss.kr/",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1DY0IxRExtVVdsR01fSDNTTm1pX3NVU2pLblFka0lyRlp3X3NVU3BoZ3g4dHNfd09Ga0p3TFB3WnJkNy13NW53cHBJOXpwemFaakNFSjRKQTY2LWxXcjNNNWgxb2Q?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:16+09:00",
+    "title": "코스피 하락, 코스닥 상승하며 장 마감 - 뉴스핌",
+    "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE03SFNKb0lSLVJnTm91OTJXemZnNWJwMVdnLXZPMDVMWWt3VVFOblNISHpIaURUbGxwMnN5TEpvSEJyWjRFemc1R3lUTjRaVW5IMmdnb1FLQUpKOUhB?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:17+09:00",
+    "title": "[오늘의 특징주] DSC인베스트먼트·금호건설 상한가…벤처투자 정책·실적 개선에 매수세 - https://www.ppss.kr/",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE85N1huVkhqT0JNQkl6MFh4Rkxpa0ljQW41N3pqcTRWTDhrSEt6emVwYjNqYnNEVjktMVlYel9yZVFFMEJTa1cxSHpWWTFRSFU0ZndQVVlKUTh2UDN2VzZndnhtZkQ?oc=5",
+    "query": "특징주 급등",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:20+09:00",
+    "title": "코스피 하락 전환, 5,200선 마감…반도체주↓ - KBS 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE0wWWxjT0p0OGhOZmozaHMzdzlzTXVBWjhYVHRwYVFkTU92MjlyaTNMZmVhS1I0X0htMGZUcjNhd3FhVHg4Q1NTM2lTU0pRN0EtYm10ekRfN3V0X1k?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:21+09:00",
+    "title": "코스피, 외국인 5475억 순매도에 5290선 후퇴…코스닥은 0.45% 상승 - 우리경제신문",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFB5RFBpUmpCSzdfaDN4cFUzd1ZrMk56VG1HVXJHRmFkOFZWRTZpZmoyN0VpbFE4YjlZejdOQlVjNldTTDhvN1doa2pLWWhKZUhiTUZZZDNiaTE?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:23+09:00",
+    "title": "'젠슨황 퇴임'에도 장중 3%까지 올랐던 코스피, 0.98% 하락 마감(종합) - 연합뉴스",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE8yeC1xYnpJajlSMU56U3BkMzI5QnVCYzdxNUxPUU1QRzkwN1BUTl81WHFxWS1MOTBKYU91X2F2ZVBqeXdXMkwyOFRxNTFnVzFqRzFPVmVTbmYydklnYTlyOEwwNlI5cFdTRE4xMVhfenhrTkhLUnc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:24+09:00",
+    "title": "다시 5200대로…코스피, 반도체 약세에 하락 마감 - 아시아경제",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9tQndKakZtSTZkQVUwYUtiYmJHSzIwdjJ6MURIVV9MTkRTanl5NGxnSG1EQWRneUtmSHRVa1R2eXhjVk5hRm9JcHo3MFJodjgxZUJ2YjRLVVRGUlcyLXRiSA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:24+09:00",
+    "title": "[마감시황] 코스피, 젠슨 황 사임·외인 매도에 1% 하락…5290선 마감 - 중앙이코노미뉴스",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE5xSURoTVdCTG1hSVpadkhaZEZlaExLUTh0ODRoTlh5akVxUVJOZ2oxMTZsOW5RTTQ0SlF4STdLV2FVcUFiNmVYaXV2dnh1VmZTejJoV1N3X1RWUzVtbk5XdEg1QVB1UnpPM2ZsV2xjMG5MQQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:27+09:00",
+    "title": "[마감시황] 반도체주 상승분 반납…코스피 '전강후약' 0.98% 하락 - 폴리뉴스 Polinews",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE80eTNkZ0luVlpvMVNicl96Vzhpb3kyWHlzSmRPSGNyQTd5dkdWcnZ4cW1oRERRdXVwQnQwUUMwRkdRdklTMG4tckZqRDNRTVdwVXZQNXRFY04zR0RXWTZuOC0zd2czd3JjeTI5TVJB?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:28+09:00",
+    "title": "[마감] 코스피, 젠슨 황 퇴진 여진·외국인 매도에 0.98% 하락…5290선 후퇴 - 알파경제",
+    "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFAzQWx3WlJpVXA4OGZhTTY2bklDMmJNY0FNZ3kwRUwzM1pUN09uT3hFUUg3eUtzSTZhQzhibkQ0aTdWS05acEt4TzNKMWJxX2d2cXpNSFdOYVlIdVVBeEljRDhobWRpRVlHTVN4dUtR?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:28+09:00",
+    "title": "장 초반 강세 못 지킨 코스피, 5300선 내줬다 [마켓시그널] - 서울경제",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFA3U0lTWTMzUWg1dlFWZDF3MHhKNEtERlV4WjhlRS1wLXNrb0d3VHZmNHl2ODQwZEVJdlB2cHBONnhkTy1uckQ3dDNsNkppNDJnaWfSAVNBVV95cUxOWGhOTmZ3YjFnTnRWbERGYnlXN0RCODRjUWtERUJUNnY3UUZ1NmJjRm15ZHc1MEI1OWJtYnRaNmVVZG9GRFBGX1Vld25nUU5mMWpjTQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:29+09:00",
+    "title": "5500 넘던 코스피, 5290 마감…외국인 매도에 ‘반전’ - 경북매일",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBQTDdGR09KbnFWeDdnWHI3WjNyZ0NmaElTS3BOU3pPUFpMaVhkYTFJeTZZeEJfVml3Wm0zVllsa01idUNjNEZSQ3g0MlFWYVptUzhsZUhuRkVJUQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:30+09:00",
+    "title": "코스피, 0.98% 하락 마감‥반도체 대형주 약세 - MBC 뉴스",
+    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBmVWxUdTgwRTVlaTV2ZTRGTGdYR21oV2l4SlVDaG1mUnhzWXlRZGdWQW1GbVR3QUlVNjRpNXdqMHNkaWNqclVfNUZzTjFyZmRQR3o3ZENmM203TWUyblRaOG9GSXpnd1MxRGhqVERwZnpZYmNl0gF0QVVfeXFMTWNDc2h2VWsxWElyY2RhaUxvaFk3bFpUdjI2MjB5Y0ZjYWZPd25QVW5BdnoyRmFRSVNWQ0FnTkRXTHdITENUU3NXWE0xZVRsemFiazdrQi1MeGpIOC1pcUV2cnR1dUEtVmc3Znlpc1RSWHBORWk?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:30+09:00",
+    "title": "'전강후약' 코스피, 젠슨 황 쇼크에 5290선 약세 마감···외국인 '팔자' 전환 - 서울파이낸스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5YeVlOUFc4dGk1cDJFRFdPSmpnNVZfT04tdXRGZVV4dXVJcXFwOFhjZUVMUHpNRFdESEg3bDdaVUVuaXhFRmJhWnhta3lpdEM1VDZKU1VSYjcxRW16Q2hleGtDVHl6SGx2SEE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:32+09:00",
+    "title": "젠슨 황 퇴임과 코스피 하락, 외국인 매도와 정책 기대감 - 스페셜타임스",
+    "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9LcjE4ZzVWRGVXNEFjclozclRwNUZ3bkRPcTlUTTkzWHRQV01tQTZWM2p1ODZsY2VWaXpjN0FoakJ6ZjNOTTRGdWhMajN2UkxHOHpIN05WeVpDZjh5aXdCOUYtNmRzOENTTEJnT05vNnktSXc?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:37+09:00",
+    "title": "코스피, 장중 5500선 넘었다가 5290선 마감…외국인 매도 전환 - 굿모닝경제",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE96dERzYkJZd0JfTXFDdGlpMnE5eFJ2UElOTHp6enBpS3RVM0xBdVVhRjRmUUNXeVF4bWxhNGZLSVhmUTgtV2NpR1ZnX1R2LTR3bURXVDYxYzZ4WW9hdnFZZGR3by1HM3ZhaEE1Mw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:39+09:00",
+    "title": "(마감시황) 코스피, 외국인 매도에 상승분 반납…5,290선 후퇴 - 뉴스투데이",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1DODM2YXBKWUppNEg4YzhRVFEtRHRhTDJCUUlNMUtHYVZDVjlidjZUbjFKLWo4WGhLellvcHFXYXlkb0tpLTNtZUhYZm5GLXB4VmtkSDdUcUpfbmVOdHc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:39+09:00",
+    "title": "장중 3% 치솟던 코스피, 상승 폭 반납하고 0.98% 하락 마감 - 파이낸스투데이",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBwYlgxejVsZE1COEk3cm1DOTNnd2RSeXVzN3pqWC1ZYzBNckVJREc1RUtwZ2JJT0l6T2hpelFrNGd0czByR3lWUnhrUzRSaXlZU0hVMlp5cHdDUm85SXEtOGlCQ1lWQkFIS05QaA?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:40+09:00",
+    "title": "[바이오 마감 브리핑]동반 약세 속 개별 이슈에 주가 급변…루닛 반등·큐리옥스 22% 급락 - 메디코파마",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTFBSY2tZU2d0WlctTTA0SGFKMmRMOFZIYlFhUnVBMEZSQlVKaHVpd2pzbmd5dFNFcnRMalZ6YlFVaUpPaWlkTXZTQVNtLVFXOFdoYkpJb0p1Q1N0bWpTaUYtb3phY0lkVXRwTTE1akVsaWNNdw?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:42+09:00",
+    "title": "코스피, 장중 5500선 돌파 후 하락 반전…외국인 다시 팔았다 By EBN - Investing.com 한국어",
+    "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE43NzdPYUtORE5pNktOVHhtVDhDcEhUS2QwaHg3cHFYb3FFeFk3YVdXYVVUbGY0dTNWc2wwYzVUNUpEa3pwNmlmM01RQ2I3dTBwaHl0M0VaekxEVUVGQ0VFcEhEN3gtM2NxX2RuWFlNMTI?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:44+09:00",
+    "title": "[포토] 오늘의 코스피 마감 증시는? - 천지일보",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5JNUd2MTYtdDdhUGFqWTN3dS16WjZQVFdqdHk0VVR2VzJOdHRtWVdLVXdMR0tTNEtpc19hWU5IZWh0S3dJUUZRX1VIMUJGUW9NOXFQQWI0QUhnQ2NIT3hNdFkyX29zN01hVkE?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:44+09:00",
+    "title": "코스피 3% 넘게 오르다가 하락 마감 - 한겨레",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE5UalRKZW44WTlmWmpYTll0TlNOOUhBalFjeUZ5Q1A1eGl2Q05IR1FISWhWd2t3aVdqOWVNTE5mUXlBQ1RSbG1NOWsxa2FTV2xOelN5T2xJZkJrN19ySmJ4RXdULW5ZenIzZ1I1VjB3OWtqdw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:44+09:00",
+    "title": "[포토] 코스피 하락, 코스닥 소폭 상승 마감 - 천지일보",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9VVWs0aEVPTUFXVVZ5LW9aSUxIU2piV0xwdXVBZy1IN1hvaXVFaEVLYTFMbzdWRl9URXVCLVo1bVNsanNPcmtWUE1palh1aTdVbXNNV2N3Y1J2SkZrM1FtelBYM1htdVlNY0E?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:45+09:00",
+    "title": "나흘만에 순매도 돌아선 외국인…수급 변동성 여전 - 머니투데이 - 머니투데이",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1xMWtLMDZjeVllbml2ZjBMaVNzZ0tUQThXUlhudXlZTnI4RFpEaEtRbzR1NTd6NTdGcW9QaEJpLVU2d3NVSDhOcm1CQVZNSnFsZ2VPT3NNdkM3SnpNdEI5aEJORHBTYjA5cFE5VUpIR25NdFRfYkHSAXtBVV95cUxNbWsxa25TbXZpS0x1QzJIWVhHcXJzc0xTUWdBTEQ3bWlGVkQyVkl2RmdnQXJjN2p2eUozdFp0bFRYMXRXcHloc0NHQThVeGdvc2VwQTIyU1pzMHJSZkR5R0t4YkVtb2xMN0JVTnNlWUhaaTNYelVLRDlEZlU?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:47+09:00",
+    "title": "코스피, 젠슨 황 사임·유가 급등에 1% 하락…코스닥은 강보합 마감 - 청년일보",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5aNUJIZm5NdlBUUFIwR3IyNHNIZ0xFZDFWOW9CSGhOa19UdndwUzJjSmFWZ1Bzb21wbDlNNTltMVYxa0xMWHFDUnlhMzB4WnYwdmJTVG1scVEzeUJBXzlCYnNjRHhkNkU?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:47+09:00",
+    "title": "코스피, 5500선 찍고 하락 반전…외국인 5475억 ‘팔자’ - 뉴시안",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBCMy1jaGxXRkZxLS1BeXZKSFJtNGdaTXNZSjNOa3JYcmlKRmVBU3FnRmhyV2ZudXFSQ2o0bVFoajZNc3pVcWx1SVZBZEpabFJtZ2xQYzBUclNydEthbElPMkQyVEFlWDVYNkNpZQ?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:48+09:00",
+    "title": "[e마켓클로징] 코스피 5290 후퇴···젠슨 황 퇴진에 외인 7천억 매도 - 시사저널e",
+    "link": "https://news.google.com/rss/articles/CBMickFVX3lxTFBKRHdieWhNdktZVzNMczlkTTU3OWpMOTZvbHYwTGFMbUk3cEdHZ2NCREVRQTN6cVM3RXV2UEZhellZek1FbHhHeHJmaHVpVG94X0lYSFZFWWVYa0h0Z3BpZjN2Nm9NQVE5MlFvUUdMN0Fydw?oc=5",
+    "query": "코스피 장중",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T16:52+09:00",
+    "title": "코스피, 반도체 약세에 0.98% 내린 5290선 마감...코스닥은 700선 회복 실패 - 증권일보",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1aYVY1VjJ4UC1CQVhjZ3NyQ0l6X2lVZlNDZGlJaUJwdUhxWmRGS2ZacUtXYTk0MUZTemtYZDNJOEhVN0RNa04zdlp6bGVuY0t6WGJkeGdELTdsYjA5blpYcg?oc=5",
+    "query": "코스닥 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:04+09:00",
+    "title": "코스피, 2.05% 상승 출발 뒤 0.98% 하락 마감 - 비건뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBPX2FvajVQNnJkT3I1WUJFWGcyQmtlT1JvdlJEcVExbkNtSXpRUVh6OWFQSjV5Wk9wMXo2djl2VXJmQ3dPajF5NkVRUVh2b190YUFVUEZ6THlxVW9iYzA0aVRhQVM4UQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:09+09:00",
+    "title": "[1113마감체크] 코스피 지수, 외국인 매도 속 하락…코스닥은 강보합 마감 - 인포스탁데일리",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1qM3RkeGcwYzF0OTVBdDE0MnAxS05vZ3hIR1JKbUctVmhXUW9keDJLMXRxMmRyNDFaNmsyMjJaRGZNY29Na29scUFVdmRGc0dTWkdXU05mcExwbGlsT0hTZjk5Z0g1OExqZGJKNTFUQmY4Ulotb1E?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:10+09:00",
+    "title": "[마감시황] 코스피, 외국인 매도 전환에 5300선 하회…장중 245포인트 출렁 - 한국면세뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBPSWh1UzVyNGNjdkVTZlZtZVJrbXdUM2JEbXpaUzE5SEYxZGlqcEsxN041d2E3Q0ZaNW80eXdDRUhrWDRaSEd2REhJbVNUa1BweXQ5WWVZYkNVaWVHR2xCOGVmWXp0WkJ6cnc?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:11+09:00",
+    "title": "‘젠슨 황 쇼크’ 피하지 못한 코스피…외국인 ‘순매도’에 발목 - 세계일보",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFAwNS1Wb3YzN2YzNzR6dDVVeER2bl9STU93Yk5WOHVHZDlnODJicjZIWTByeHk2a2tZNHRyOVQ1REc2RW02UklWTF8yS0I3bkdqM3pEMXFjREPSAVRBVV95cUxQRHpQZkx3bHUwYkRpUEsxNDhCRVZtUjFkcnZjWEN6VEt0S0xxM0R2WUpNdVI5eXY1elRXdThqMlVBWnZpLS1waGtDVGYwQzN3RHVwRlM?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:12+09:00",
+    "title": "코스피, 5500선 찍고 5290.53 마감…외국인 7034억 순매도 [fn마감시황] - 파이낸셜뉴스",
+    "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBCZzhTdVRTeG9YZGVkN0xWLVNGQ2lQWGZRUF94TWtVSDNfekgzQWp3ZGxDa0VjOWRqYmRXcncxTW44dGNmNDFDQzFqSGluZE5hUEtNY3lYeWw3Zw?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:14+09:00",
+    "title": "SK하이닉스, 장중 5% 상승 뒤 3.03% 하락 마감…삼성전자도 내려 - 강원도민일보",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5kaDZJZThzbFF1aEFXLU56YVZ5Z0pRUnotUThvN0Q0MUNra2xfdy1VeTk3dm9YRzYxNjJ5RDBwdzZQRTQ0dlkxZ3Rta2hxT0V0WDA4V3pPSnllSDllbmZYSjRCNDA5X3lx?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:15+09:00",
+    "title": "외국인 오후 들어 7000억원 팔았다…코스피 5290선으로 후퇴 - https://www.theconnectmoney.com/",
+    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBTZ3RMb2h4MXM2Tkw2cWZaQ194WkgxdTA4N1dweVA0TjlQTFlBYng0ZFd2WnhUaEVpSkhrUzlmSExhM1JuLVB3Q3J3SnRmNEg4UmQwQWRZVVhBS3RkMkNqUQ?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:34+09:00",
+    "title": "[분석] 5,500 넘던 코스피, 5,290 마감…이재명 대통령이 꺼낸 시장 개혁 - www.standingout.kr",
+    "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9pcnpGazJtczh0bU16WjUwRTJTV0N2VkMybTJyWHJUUTM5eWJLcm8wcGdITi03dVZuTHA5NUpSOFd0c2VTNXpIanFKUUlKOFlINXMtLVhGd25FelBQT2pVcmhYaHE5NUlFNEZn?oc=5",
+    "query": "코스피 마감",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-13T17:54+09:00",
+    "title": "코스피, 李 대통령 자본시장 간담회 효과 무색…‘외국인 순매도’에 하락 마감 - 더나은미래",
+    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBnU3NUU0oyOUFCWHRmdmRwR2hTeFN1VGRGQTAxM2JWRE9QaVpOVkpvalNyOENMN20wUkE0cGl3YUJKN3lDSTRIbmw5aTdSeUtQS3c?oc=5",
+    "query": "증시 외국인 순매도",
+    "afterClose": true
+   }
+  ]
+ }
+}
