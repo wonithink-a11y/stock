@@ -36,6 +36,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 29 | 정적 VI 근사 VU (국내 장중 +10% → 종가) | `run_kr_static_vi_forward.py sync` (VM 타이머 vi-forward 가 매일 계산 → `/research-data/_status` 에서 받기, 수 초) | `reports/2026-11-kr-static-vi-forward/` | 관측일 100 ∧ 2027-05-03, 연장 1회(200 ∧ 2027-11-01) |
 | 30 | VIX·실현변동성 사다리 (나스닥·반도체 3배, 코스닥 2배) | `run_vix_ladder_forward.py` (Yahoo 공개, 수 초 — 자주 돌릴수록 좋음) | `reports/2026-11-vix-ladder-forward/observations.jsonl` | 닫힌 사건 12 ∧ 2027-11-02 이후 `--judge` 1회(그 전 거부). 현재 11-02 사건 진행 중(체결 2칸) |
 | 31 | 바이낸스 신규 상장 꼬리 조건(첫날 급등 → 7일 꼬리) | `run_binance_listing_tail_forward.py` (#25 다음, data-api 공개, 약 1분) | `reports/2026-11-binance-listing-tail-forward/` | 성숙 80 ∧ 주 칸 30 ∧ 6개월, 연장 1회(160·60) |
+| 32 | 바이낸스 무기한 크기·손절 칸(+30% 손절·급등 건너뜀·2%) | `run_binance_listing_perp_sizing_forward.py` (#25 events.json 재사용, 일 파일·fapi 공개, 수 초) | `reports/2026-11-binance-listing-perp-sizing-forward/` | 무기한 성숙 40 ∧ 6개월, 마감 2027-11-30(미달 시 INCONCLUSIVE). **2026-11-14 현재 사건 19건 전부 무기한 없음(토큰화 주식형) — 쌓이지 않으면 INCONCLUSIVE 로 끝남** |
 
 ## 메모
 
