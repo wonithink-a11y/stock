@@ -1,0 +1,14 @@
+/* 대시보드(docs/index.html) 토큰 브리지 — docs/design/DESIGN_SYSTEM.md §8 단계 3 의 첫 걸음.
+   로드 순서: 인라인 <style>(옛 변수) → tokens.css(새 토큰) → 이 파일. 대시보드는 다크 전용이라 <html data-theme="dark"> 로 고정한다.
+   같은 이름 변수(--bg --accent --good --up --down)는 tokens.css 값이 이기고, 이름이 다른 것(--card --border --text --muted --mid --bad)만 여기서 연결한다.
+   하드코딩 색(약 145곳)과 모듈별 정리는 탭 단위로 후속. 되돌리려면 index.html 의 두 <link> 와 data-theme 를 지운다. */
+:root[data-theme="dark"] {
+  --card: var(--surface-1);
+  --border: var(--line);
+  --text: var(--text-1);
+  --muted: var(--text-3);
+  --mid: var(--warn);
+  --bad: var(--crit);
+}
+body { font-family: var(--font); }
+button, input, select, textarea { font-family: inherit; }
