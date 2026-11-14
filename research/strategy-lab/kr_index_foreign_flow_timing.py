@@ -155,7 +155,7 @@ def q2(d: pd.DataFrame, rng: np.random.Generator) -> tuple[dict, list]:
     for en, ev in (("E1", e1), ("E2", e2)):
         for h in HS_Q2:
             y = fwd(close, h)
-            m = sub(d, START, END).to_numpy() & np.isfinite(y)
+            m = sub(d, START, END) & np.isfinite(y)
             cell = {"events": int((ev & m).sum())}
             mon = d.index.to_period("M")
             df = pd.DataFrame({"y": y[m], "e": ev[m], "mon": mon[m]})
@@ -172,7 +172,7 @@ def q2(d: pd.DataFrame, rng: np.random.Generator) -> tuple[dict, list]:
             cell["ci"] = [float(np.nanquantile(diffs, a / 2)), float(np.nanquantile(diffs, 1 - a / 2))] if tot[0] > 0 else None
             per = {}
             for p, (lo, hi) in SPLITS.items():
-                mp = m & sub(d, lo, hi).to_numpy()
+                mp = m & sub(d, lo, hi)
                 ne, nn = int((ev & mp).sum()), int((~ev & mp).sum())
                 per[p] = {"events": ne, "diff": float(y[ev & mp].mean() - y[~ev & mp].mean())} if ne >= 20 and nn >= 20 else {"events": ne, "diff": None}
             cell["periods"] = per
@@ -181,7 +181,7 @@ def q2(d: pd.DataFrame, rng: np.random.Generator) -> tuple[dict, list]:
             cell["pass"] = bool(ok)
             res[f"{en}|h{h}"] = cell
     ep = []
-    idx = np.nonzero(e2 & sub(d, START, END).to_numpy())[0]
+    idx = np.nonzero(e2 & sub(d, START, END))[0]
     runs, cur = [], []
     for i in idx:
         if cur and i - cur[-1] > 5:
