@@ -7,7 +7,8 @@ mkdir -p logs
 termux-wake-lock 2>/dev/null || true         # 화면이 꺼져도 CPU 를 재우지 않는다
 while true; do
   python -m autotrader --config autotrader/autotrader.local.json run-due "$@" >> logs/autotrader.log 2>&1
-  date '+%F %T' >> logs/heartbeat.log          # 5분마다 한 줄 — 멈춘 시각을 여기서 본다
+  # 5분마다 한 줄 — 멈춘 시각과 공인 IP 가 바뀐 시각을 여기서 본다(no-net = 인터넷 끊김). 이 파일은 폰에만 있고 커밋되지 않는다.
+  echo "$(date '+%F %T') $(curl -s --max-time 5 https://api.ipify.org || echo no-net)" >> logs/heartbeat.log
   for f in logs/autotrader.log logs/heartbeat.log; do   # 로그가 5MB 를 넘으면 뒤쪽 1MB 만 남긴다
     [ "$(stat -c%s "$f" 2>/dev/null || echo 0)" -gt 5000000 ] && tail -c 1000000 "$f" > "$f.tmp" && mv "$f.tmp" "$f"
   done
