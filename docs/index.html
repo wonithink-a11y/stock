@@ -635,7 +635,7 @@
 <main id="content"><div class="card empty">데이터를 불러오는 중...</div></main>
 </div>
 </div>
-<div id="stockModal" class="modal" hidden></div>
+<div id="stockModal" class="modal" hidden></div><script src="market-board.js?v=3"></script>
 
 
 <script>
@@ -4994,6 +4994,7 @@ function render() {
   else if (state.tab === 'cryptolab') el.innerHTML = renderCryptoLab();
   else if (state.tab === 'research') el.innerHTML = renderResearch();
   else el.innerHTML = renderBacktest();
+  if (state.tab === 'today' && window.MktBoard) MktBoard.mount();
   if (state.tab === 'live') attachDetailHover('#content', state.live);
   if (state.tab === 'sector') { mountTvHeatmap(); if (heatLiveDue()) loadHeatLive(); }
   renderStockModal();
@@ -5301,7 +5302,7 @@ function pinsPull() {   // 한 번만: 서버 목록을 받아 이 기기 목록
     if (state.tab === 'today') renderTodaySoft();
   }).catch(e => { state.pinSync = 'err ' + e; if (state.tab === 'today') renderTodaySoft(); });
 }
-function renderTodaySoft() { if (document.activeElement && document.activeElement.id === 'pinInput') return; render(); }
+function renderTodaySoft() { if (document.activeElement && (document.activeElement.id === 'pinInput' || document.activeElement.id === 'mb-q')) return; render(); }
 function pinUniverse() {   // ticker → {name, market, r(latest 결과·없으면 null)}
   const u = {};
   ((state.a5 && state.a5.items) || []).forEach(x => { u[x.t] = { name: x.n, market: 'KR', r: null }; });
@@ -5567,7 +5568,7 @@ function renderToday() {
   if (regimeCard) cards.push(regimeCard);
   const top = todayTop();
   if (!cards.length && !top) return '<div class="card empty">표시할 데이터가 아직 없습니다.</div>';
-  return `${top}<div class="home-grid">${cards.join('')}</div>`;
+  return `${top}${window.MktBoard ? MktBoard.html() : ''}<div class="home-grid">${cards.join('')}</div>`;
 }
 
 // ---------- 공급망 지도(시험판): config/supplyChain.json → scripts/build-supply-chain.py → docs/data/supply-chain.json ----------
