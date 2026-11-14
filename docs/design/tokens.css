@@ -1,0 +1,130 @@
+/* Stock Terminal — 디자인 토큰 (단일 출처). 설명·규칙: docs/design/DESIGN_SYSTEM.md
+   - 색은 역할(semantic)로만 쓴다. 화면 CSS 에 16진수를 직접 쓰지 않는다.
+   - 한국 관례: 상승 = 빨강(--up), 하락 = 파랑(--down). 방향은 색만으로 전하지 않는다(▲▼ 와 +/− 를 같이).
+   - 라이트 기본, 다크는 OS 설정(prefers-color-scheme) 또는 html[data-theme="dark"]. 라이트 강제는 html[data-theme="light"].
+   - 대비는 WCAG AA(본문 4.5:1) 이상으로 계산해 고른 값이다(문서 §3). 값을 바꾸면 다시 계산한다. */
+
+:root {
+  color-scheme: light;
+
+  /* 면(surface) — 박스를 늘리지 않고 면의 명도 차이와 헤어라인으로 구획한다 */
+  --bg: #F5F6F8;
+  --surface-1: #FFFFFF;     /* 패널 */
+  --surface-2: #EEF0F4;     /* 호버·선택·입력 */
+  --surface-3: #E3E6EC;     /* 눌림·트랙 */
+  --line: rgba(15, 23, 42, 0.10);
+  --line-strong: rgba(15, 23, 42, 0.18);
+
+  /* 글자 */
+  --text-1: #111827;
+  --text-2: #4B5563;
+  --text-3: #5F6B7E;        /* 보조·축 라벨 (surface-2 위에서도 4.5:1) */
+
+  /* 방향(가격) — 한국 관례 */
+  --up: #D4222D;
+  --down: #1F63D6;
+  --up-wash: rgba(212, 34, 45, 0.10);
+  --down-wash: rgba(31, 99, 214, 0.10);
+
+  /* 강조(선택·포커스·링크) — 방향색(빨강/파랑)과 다른 계열이라 가격 방향으로 읽히지 않는다 */
+  --accent: #5443D1;
+  --accent-wash: rgba(84, 67, 209, 0.10);
+
+  /* 상태 — 반드시 아이콘+글자와 함께 쓴다(색 단독 금지). 가격 방향색과 구분하려고 상태 '위험'은 아이콘 모양으로 가른다 */
+  --good: #0B7A3B;
+  --warn: #9A5B00;
+  --crit: #C42B2B;
+  --good-wash: rgba(11, 122, 59, 0.10);
+  --warn-wash: rgba(154, 91, 0, 0.12);
+  --crit-wash: rgba(196, 43, 43, 0.10);
+
+  /* 글꼴 — 한 계열. 숫자는 .num(tabular)로 정렬한다 */
+  --font: "Pretendard Variable", Pretendard, "Segoe UI", system-ui, -apple-system, "Malgun Gothic", sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* 글자 크기 — 6단계만. 본문 13px(데이터 화면 기준), 큰 숫자는 별도 */
+  --fs-caption: 11px;
+  --fs-meta: 12px;
+  --fs-body: 13px;
+  --fs-title: 16px;
+  --fs-page: 20px;
+  --fs-hero: 28px;
+  --lh: 1.45;
+
+  /* 간격 — 4px 격자 */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+
+  /* 모서리 — 3종만 */
+  --r-sm: 4px;      /* 칩·입력 */
+  --r-md: 8px;      /* 패널 */
+  --r-pill: 999px;  /* 필·토글 */
+
+  /* 높이 정보 — 패널은 그림자 없음. 떠 있는 것(팝오버·메뉴)만 */
+  --shadow-pop: 0 8px 24px rgba(15, 23, 42, 0.16);
+
+  --ease: cubic-bezier(.2, .0, .2, 1);
+  --dur: 120ms;
+
+  /* 레이아웃 */
+  --topbar-h: 48px;
+  --rail-w: 208px;
+  --aside-w: 296px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0E1116;
+    --surface-1: #151A21;
+    --surface-2: #1B212A;
+    --surface-3: #252C37;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --text-1: #E8ECF2;
+    --text-2: #A3ACBA;
+    --text-3: #8490A1;
+    --up: #FF6B72;
+    --down: #6AA6FF;
+    --up-wash: rgba(255, 107, 114, 0.12);
+    --down-wash: rgba(106, 166, 255, 0.12);
+    --accent: #9A8CFF;
+    --accent-wash: rgba(154, 140, 255, 0.14);
+    --good: #3DD68C;
+    --warn: #F2B134;
+    --crit: #FF6B72;
+    --good-wash: rgba(61, 214, 140, 0.12);
+    --warn-wash: rgba(242, 177, 52, 0.12);
+    --crit-wash: rgba(255, 107, 114, 0.12);
+    --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0E1116;
+  --surface-1: #151A21;
+  --surface-2: #1B212A;
+  --surface-3: #252C37;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --text-1: #E8ECF2;
+  --text-2: #A3ACBA;
+  --text-3: #8490A1;
+  --up: #FF6B72;
+  --down: #6AA6FF;
+  --up-wash: rgba(255, 107, 114, 0.12);
+  --down-wash: rgba(106, 166, 255, 0.12);
+  --accent: #9A8CFF;
+  --accent-wash: rgba(154, 140, 255, 0.14);
+  --good: #3DD68C;
+  --warn: #F2B134;
+  --crit: #FF6B72;
+  --good-wash: rgba(61, 214, 140, 0.12);
+  --warn-wash: rgba(242, 177, 52, 0.12);
+  --crit-wash: rgba(255, 107, 114, 0.12);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; }
+}
