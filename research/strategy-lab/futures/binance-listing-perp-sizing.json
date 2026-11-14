@@ -1,0 +1,436 @@
+{
+ "label": "설계 가능",
+ "recommended": "s+30%|급등건너뜀|f2%",
+ "passed": [
+  "s없음|급등건너뜀|f2%",
+  "s+30%|급등진입|f2%",
+  "s+30%|급등진입|f5%",
+  "s+30%|급등건너뜀|f2%",
+  "s+30%|급등건너뜀|f5%",
+  "s+50%|급등진입|f2%",
+  "s+50%|급등건너뜀|f2%",
+  "s+100%|급등진입|f2%",
+  "s+100%|급등건너뜀|f2%"
+ ],
+ "coverage": {
+  "전체후보": 539,
+  "무기한없음": 272,
+  "X제외": 59,
+  "봉부족": 0,
+  "청산>END": 27
+ },
+ "oosEvents": 187,
+ "trainEvents": 21,
+ "groups": {
+  "D건": 7,
+  "C건": 180
+ },
+ "pumpEvents": 120,
+ "repro": {
+  "oosDays": 160,
+  "net10_dayMean": 1018.9
+ },
+ "unit": {
+  "없음|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 799.4,
+   "stopShare": 0.0,
+   "worstNetBp": -30608.1
+  },
+  "없음|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 955.4,
+   "stopShare": 0.0,
+   "worstNetBp": -7695.5
+  },
+  "30|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 570.8,
+   "stopShare": 0.305,
+   "worstNetBp": -4803.8
+  },
+  "30|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 613.6,
+   "stopShare": 0.224,
+   "worstNetBp": -4166.6
+  },
+  "50|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 631.6,
+   "stopShare": 0.193,
+   "worstNetBp": -7044.5
+  },
+  "50|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 674.1,
+   "stopShare": 0.149,
+   "worstNetBp": -6442.3
+  },
+  "100|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 747.4,
+   "stopShare": 0.059,
+   "worstNetBp": -10957.8
+  },
+  "100|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 815.5,
+   "stopShare": 0.03,
+   "worstNetBp": -10362.2
+  }
+ },
+ "cells": {
+  "s없음|급등진입|f2%": {
+   "final": 1.336,
+   "mdd": 0.153,
+   "worst1Pct": -6.12,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 0,
+   "stressFinal": 1.326,
+   "stressMdd": 0.153,
+   "periodRet": {
+    "2023": 0.021,
+    "2024": -0.038,
+    "2025~": 0.361
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s없음|급등진입|f5%": {
+   "final": 1.994,
+   "mdd": 0.365,
+   "worst1Pct": -15.3,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 0,
+   "stressFinal": 1.958,
+   "stressMdd": 0.366,
+   "periodRet": {
+    "2023": 0.052,
+    "2024": -0.109,
+    "2025~": 1.128
+   },
+   "A": true,
+   "B": false,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s없음|급등건너뜀|f2%": {
+   "final": 1.135,
+   "mdd": 0.027,
+   "worst1Pct": -1.54,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 0,
+   "stressFinal": 1.132,
+   "stressMdd": 0.028,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.004,
+    "2025~": 0.116
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.048,
+   "D": true,
+   "pass": true
+  },
+  "s없음|급등건너뜀|f5%": {
+   "final": 1.368,
+   "mdd": 0.069,
+   "worst1Pct": -3.85,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 0,
+   "stressFinal": 1.359,
+   "stressMdd": 0.07,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.009,
+    "2025~": 0.311
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+30%|급등진입|f2%": {
+   "final": 1.233,
+   "mdd": 0.058,
+   "worst1Pct": -0.96,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 57,
+   "stressFinal": 1.187,
+   "stressMdd": 0.065,
+   "periodRet": {
+    "2023": 0.023,
+    "2024": 0.012,
+    "2025~": 0.191
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.095,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등진입|f5%": {
+   "final": 1.66,
+   "mdd": 0.14,
+   "worst1Pct": -2.4,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 57,
+   "stressFinal": 1.511,
+   "stressMdd": 0.155,
+   "periodRet": {
+    "2023": 0.057,
+    "2024": 0.025,
+    "2025~": 0.531
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.032,
+   "boot_mdd_p95": 0.233,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등건너뜀|f2%": {
+   "final": 1.085,
+   "mdd": 0.03,
+   "worst1Pct": -0.83,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 15,
+   "stressFinal": 1.073,
+   "stressMdd": 0.033,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.003,
+    "2025~": 0.066
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.047,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등건너뜀|f5%": {
+   "final": 1.221,
+   "mdd": 0.075,
+   "worst1Pct": -2.08,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 15,
+   "stressFinal": 1.189,
+   "stressMdd": 0.081,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.008,
+    "2025~": 0.171
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.122,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등진입|f2%": {
+   "final": 1.259,
+   "mdd": 0.061,
+   "worst1Pct": -1.41,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 36,
+   "stressFinal": 1.223,
+   "stressMdd": 0.066,
+   "periodRet": {
+    "2023": 0.018,
+    "2024": 0.005,
+    "2025~": 0.23
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.112,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등진입|f5%": {
+   "final": 1.742,
+   "mdd": 0.148,
+   "worst1Pct": -3.52,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 36,
+   "stressFinal": 1.618,
+   "stressMdd": 0.158,
+   "periodRet": {
+    "2023": 0.045,
+    "2024": 0.008,
+    "2025~": 0.654
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+50%|급등건너뜀|f2%": {
+   "final": 1.093,
+   "mdd": 0.026,
+   "worst1Pct": -1.29,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 10,
+   "stressFinal": 1.084,
+   "stressMdd": 0.027,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": -0.0,
+    "2025~": 0.079
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.057,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등건너뜀|f5%": {
+   "final": 1.244,
+   "mdd": 0.063,
+   "worst1Pct": -3.22,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 10,
+   "stressFinal": 1.217,
+   "stressMdd": 0.067,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": -0.001,
+    "2025~": 0.204
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+100%|급등진입|f2%": {
+   "final": 1.313,
+   "mdd": 0.056,
+   "worst1Pct": -2.19,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 11,
+   "stressFinal": 1.291,
+   "stressMdd": 0.058,
+   "periodRet": {
+    "2023": 0.021,
+    "2024": 0.013,
+    "2025~": 0.27
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.13,
+   "D": true,
+   "pass": true
+  },
+  "s+100%|급등진입|f5%": {
+   "final": 1.922,
+   "mdd": 0.135,
+   "worst1Pct": -5.48,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 11,
+   "stressFinal": 1.844,
+   "stressMdd": 0.141,
+   "periodRet": {
+    "2023": 0.052,
+    "2024": 0.023,
+    "2025~": 0.786
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+100%|급등건너뜀|f2%": {
+   "final": 1.114,
+   "mdd": 0.03,
+   "worst1Pct": -2.07,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 2,
+   "stressFinal": 1.109,
+   "stressMdd": 0.032,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.004,
+    "2025~": 0.095
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.066,
+   "D": true,
+   "pass": true
+  },
+  "s+100%|급등건너뜀|f5%": {
+   "final": 1.304,
+   "mdd": 0.075,
+   "worst1Pct": -5.18,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 2,
+   "stressFinal": 1.289,
+   "stressMdd": 0.08,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.009,
+    "2025~": 0.249
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  }
+ },
+ "liquidationNear": {
+  "TRAIN": {
+   "3x격리": 0.333,
+   "2x격리": 0.095,
+   "1x": 0.048
+  },
+  "OOS": {
+   "3x격리": 0.267,
+   "2x격리": 0.193,
+   "1x": 0.059
+  }
+ },
+ "trainUnitNoStopMeanNet10": 2272.0
+}
