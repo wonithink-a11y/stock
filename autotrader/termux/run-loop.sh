@@ -2,6 +2,7 @@
 # 5분마다 autotrader run-due 를 부르는 반복 실행(서버의 systemd 타이머 대신). 기본은 dry-run(주문 없음).
 # 모의 주문은 `bash run-loop.sh --execute` 로 직접 켠 때만, 그것도 프로필 파일이 "auto":"execute" 인 것만 나간다.
 # 이 스크립트는 실전 키·AUTOTRADER_ALLOW_LIVE 를 건드리지 않는다. 멈추기: pkill -f run-loop.sh
+export TZ=Asia/Seoul                          # 로그 시각을 한국 시간으로(Termux 기본 시간대가 한국이 아닐 수 있다 — 2026-11-15 태블릿에서 12시간 어긋남)
 cd "$HOME/stock" || exit 1
 mkdir -p logs
 termux-wake-lock 2>/dev/null || true         # 화면이 꺼져도 CPU 를 재우지 않는다
