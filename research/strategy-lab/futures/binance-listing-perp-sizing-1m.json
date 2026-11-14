@@ -1,0 +1,460 @@
+{
+ "label": "설계 가능",
+ "recommended": "s+30%|급등건너뜀|f2%",
+ "passed": [
+  "s없음|급등건너뜀|f2%",
+  "s+30%|급등진입|f2%",
+  "s+30%|급등진입|f5%",
+  "s+30%|급등건너뜀|f2%",
+  "s+30%|급등건너뜀|f5%",
+  "s+50%|급등진입|f2%",
+  "s+50%|급등건너뜀|f2%",
+  "s+100%|급등진입|f2%",
+  "s+100%|급등건너뜀|f2%"
+ ],
+ "coverage": {
+  "전체후보": 539,
+  "무기한없음": 272,
+  "X제외": 59,
+  "봉부족": 0,
+  "청산>END": 27
+ },
+ "oosEvents": 187,
+ "trainEvents": 21,
+ "groups": {
+  "D건": 7,
+  "C건": 180
+ },
+ "pumpEvents": 120,
+ "repro": {
+  "oosDays": 160,
+  "net10_dayMean": 1018.9
+ },
+ "unit": {
+  "없음|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 799.4,
+   "stopShare": 0.0,
+   "worstNetBp": -30608.1
+  },
+  "없음|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 955.4,
+   "stopShare": 0.0,
+   "worstNetBp": -7695.5
+  },
+  "30|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 570.6,
+   "stopShare": 0.305,
+   "worstNetBp": -4815.8
+  },
+  "30|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 612.7,
+   "stopShare": 0.224,
+   "worstNetBp": -4147.0
+  },
+  "50|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 633.9,
+   "stopShare": 0.193,
+   "worstNetBp": -6987.8
+  },
+  "50|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 673.0,
+   "stopShare": 0.149,
+   "worstNetBp": -6429.5
+  },
+  "100|급등건너뜀=False": {
+   "n": 187,
+   "meanNet10bp": 747.8,
+   "stopShare": 0.059,
+   "worstNetBp": -10981.1
+  },
+  "100|급등건너뜀=True": {
+   "n": 67,
+   "meanNet10bp": 815.4,
+   "stopShare": 0.03,
+   "worstNetBp": -10379.8
+  }
+ },
+ "cells": {
+  "s없음|급등진입|f2%": {
+   "final": 1.336,
+   "mdd": 0.153,
+   "worst1Pct": -6.12,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 0,
+   "stressFinal": 1.326,
+   "stressMdd": 0.153,
+   "periodRet": {
+    "2023": 0.021,
+    "2024": -0.038,
+    "2025~": 0.361
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s없음|급등진입|f5%": {
+   "final": 1.994,
+   "mdd": 0.365,
+   "worst1Pct": -15.3,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 0,
+   "stressFinal": 1.958,
+   "stressMdd": 0.366,
+   "periodRet": {
+    "2023": 0.052,
+    "2024": -0.109,
+    "2025~": 1.128
+   },
+   "A": true,
+   "B": false,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s없음|급등건너뜀|f2%": {
+   "final": 1.135,
+   "mdd": 0.027,
+   "worst1Pct": -1.54,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 0,
+   "stressFinal": 1.132,
+   "stressMdd": 0.028,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.004,
+    "2025~": 0.116
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.048,
+   "D": true,
+   "pass": true
+  },
+  "s없음|급등건너뜀|f5%": {
+   "final": 1.368,
+   "mdd": 0.069,
+   "worst1Pct": -3.85,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 0,
+   "stressFinal": 1.359,
+   "stressMdd": 0.07,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.009,
+    "2025~": 0.311
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+30%|급등진입|f2%": {
+   "final": 1.233,
+   "mdd": 0.058,
+   "worst1Pct": -0.96,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 57,
+   "stressFinal": 1.187,
+   "stressMdd": 0.064,
+   "periodRet": {
+    "2023": 0.023,
+    "2024": 0.011,
+    "2025~": 0.192
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.095,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등진입|f5%": {
+   "final": 1.66,
+   "mdd": 0.139,
+   "worst1Pct": -2.41,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 57,
+   "stressFinal": 1.511,
+   "stressMdd": 0.154,
+   "periodRet": {
+    "2023": 0.057,
+    "2024": 0.024,
+    "2025~": 0.533
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.032,
+   "boot_mdd_p95": 0.233,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등건너뜀|f2%": {
+   "final": 1.085,
+   "mdd": 0.03,
+   "worst1Pct": -0.83,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 15,
+   "stressFinal": 1.073,
+   "stressMdd": 0.033,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.003,
+    "2025~": 0.067
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.047,
+   "D": true,
+   "pass": true
+  },
+  "s+30%|급등건너뜀|f5%": {
+   "final": 1.221,
+   "mdd": 0.074,
+   "worst1Pct": -2.07,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 15,
+   "stressFinal": 1.189,
+   "stressMdd": 0.081,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.007,
+    "2025~": 0.171
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.122,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등진입|f2%": {
+   "final": 1.26,
+   "mdd": 0.061,
+   "worst1Pct": -1.4,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 36,
+   "stressFinal": 1.224,
+   "stressMdd": 0.066,
+   "periodRet": {
+    "2023": 0.018,
+    "2024": 0.005,
+    "2025~": 0.232
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.112,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등진입|f5%": {
+   "final": 1.746,
+   "mdd": 0.147,
+   "worst1Pct": -3.49,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 36,
+   "stressFinal": 1.622,
+   "stressMdd": 0.158,
+   "periodRet": {
+    "2023": 0.045,
+    "2024": 0.007,
+    "2025~": 0.658
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+50%|급등건너뜀|f2%": {
+   "final": 1.093,
+   "mdd": 0.026,
+   "worst1Pct": -1.29,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 10,
+   "stressFinal": 1.084,
+   "stressMdd": 0.027,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": -0.0,
+    "2025~": 0.079
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.057,
+   "D": true,
+   "pass": true
+  },
+  "s+50%|급등건너뜀|f5%": {
+   "final": 1.244,
+   "mdd": 0.064,
+   "worst1Pct": -3.21,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 10,
+   "stressFinal": 1.217,
+   "stressMdd": 0.067,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": -0.001,
+    "2025~": 0.203
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+100%|급등진입|f2%": {
+   "final": 1.313,
+   "mdd": 0.056,
+   "worst1Pct": -2.2,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 11,
+   "stressFinal": 1.292,
+   "stressMdd": 0.058,
+   "periodRet": {
+    "2023": 0.021,
+    "2024": 0.013,
+    "2025~": 0.27
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.13,
+   "D": true,
+   "pass": true
+  },
+  "s+100%|급등진입|f5%": {
+   "final": 1.923,
+   "mdd": 0.134,
+   "worst1Pct": -5.49,
+   "n": 187,
+   "skipped": 0,
+   "stopped": 11,
+   "stressFinal": 1.844,
+   "stressMdd": 0.141,
+   "periodRet": {
+    "2023": 0.052,
+    "2024": 0.023,
+    "2025~": 0.787
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  },
+  "s+100%|급등건너뜀|f2%": {
+   "final": 1.114,
+   "mdd": 0.03,
+   "worst1Pct": -2.08,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 2,
+   "stressFinal": 1.109,
+   "stressMdd": 0.032,
+   "periodRet": {
+    "2023": 0.014,
+    "2024": 0.004,
+    "2025~": 0.095
+   },
+   "A": true,
+   "B": true,
+   "C": true,
+   "bootP_mdd_gt25": 0.0,
+   "boot_mdd_p95": 0.066,
+   "D": true,
+   "pass": true
+  },
+  "s+100%|급등건너뜀|f5%": {
+   "final": 1.303,
+   "mdd": 0.075,
+   "worst1Pct": -5.19,
+   "n": 67,
+   "skipped": 120,
+   "stopped": 2,
+   "stressFinal": 1.289,
+   "stressMdd": 0.08,
+   "periodRet": {
+    "2023": 0.035,
+    "2024": 0.009,
+    "2025~": 0.249
+   },
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": null,
+   "pass": false
+  }
+ },
+ "liquidationNear": {
+  "TRAIN": {
+   "3x격리": 0.333,
+   "2x격리": 0.095,
+   "1x": 0.048
+  },
+  "OOS": {
+   "3x격리": 0.267,
+   "2x격리": 0.193,
+   "1x": 0.059
+  }
+ },
+ "trainUnitNoStopMeanNet10": 2272.0,
+ "extras": {
+  "fillShareMedian": 0.0,
+  "fillShareP90": 0.0,
+  "gapBpOOS": {
+   "+30%": {
+    "n": 57,
+    "median": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   },
+   "+50%": {
+    "n": 36,
+    "median": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   },
+   "+100%": {
+    "n": 11,
+    "median": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   }
+  }
+ }
+}
