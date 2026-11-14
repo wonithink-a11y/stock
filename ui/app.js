@@ -9,6 +9,7 @@
    Performance/System)을 1군으로, 기존 리서치 도구 4개를 2군으로 나눴다. */
 const TAB_GROUPS = [
   { label: null, ids: ["overview", "positions", "activity", "performance", "system"] },
+  { label: "시장", ids: ["today"] },
   { label: "리서치", ids: ["scoring", "research", "macro", "themes", "datahealth"] },
 ];
 const TAB_ORDER = TAB_GROUPS.flatMap((g) => g.ids);
@@ -23,6 +24,7 @@ const TAB_ICONS = {
   research: ICON('<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/>'),
   macro: ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'),
   themes: ICON('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
+  today: ICON('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>'),
   datahealth: ICON('<path d="M3 12h4l3-7 4 14 3-7h4"/>'),
 };
 const THEME_ICON = {

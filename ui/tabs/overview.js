@@ -23,10 +23,13 @@ window.TABS.overview = {
     const macro = await PT.tryFetchJson("data/macro.json");
     const rv20 = await PT.tryFetchJson("data/rv20-futures-automation.json");
     let real = null, paper = null;
+    // 실계좌 요약은 서버(과거 OCI VM, 2026-11-13 종료)에서만 온다. 응답이 없으면 연결 시간 초과(수 분)까지 이 탭 전체가
+    // "불러오는 중"에 묶이므로 2.5초 안에 포기하고 카드만 생략한다(2026-11-14 수정).
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 2500);
     try {
-      const r = await fetch("https://wonithink-stock.duckdns.org/accounts?t=" + Date.now());
+      const r = await fetch("https://wonithink-stock.duckdns.org/accounts?t=" + Date.now(), { signal: ctl.signal });
       if (r.ok) { const j = await r.json(); real = j.real; paper = j.paper; }
-    } catch (e) { /* 서브탭에서 카드만 생략 */ }
+    } catch (e) { /* 서브탭에서 카드만 생략 */ } finally { clearTimeout(timer); }
 
     const subtabs = [
       { id: "paper", label: "모의투자" },
