@@ -8,16 +8,16 @@ Validated against
   정책      UN-1.2 · PR-1.7 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1 (PF-1.2 registry 미등록 = 미발효)
             criteria  KR-2.4 · US-2.2
   ★★★ 지금  OCI 테넌시 `wonithink` **영구 종료 확정(11-13)** — 이의 제기 거절·"최종". 사유 공개·복구·재가입(무료·개인 유료) 모두 불가, 데이터는 접근 불가 상태로 삭제 예정.
-            ★ 11-14 사용자 결정(11-13 "가입 금지" 권고를 바꿈): 아내 본인 명의로 OCI 를 한 번 더 시도 — 인증·결제는 본인들이, Claude 는 설치만, 용도는
+            ★ 11-14 사용자 결정(11-13 "가입 금지" 권고를 바꿈): 아내 본인 명의 OCI 재시도 → **11-15 중지**(해외 카드 거절·홈 영역에 서울 없음). 대안 = 집 태블릿(갤럭시 탭 S8+, Termux 모의 시험 중) + Workers 손절 1분 알림(배포됨). 원안: 인증·결제는 본인들이, Claude 는 설치만, 용도는
             실매매 서버 하나·최소(수집·인터넷 공개·뉴스 수집은 올리지 않음). 막히거나 경고·회수되면 OCI 완전 포기. 계획 docs/control/실매매서버-최소배치-계획-2026-11-14.md.
-            지금은 서버 없다(가입 전): VM 전 유닛 정지, OCI 쓰던
+            지금은 서버 없다: VM 전 유닛 정지, OCI 쓰던
             Actions(`paper-trading-ui`·`promote-minute-manifest`)는 11-13 disable(`gh workflow enable` 로 복구). 실계좌는 전부 꺼짐. GCP 임시 서버는 비용(규칙 9)으로 중지됨.
             법령 MCP 서버(law VM)도 같은 테넌시라 멈춤 → 공개 서버 `mcp.gomdori.app/law` 를 claude.ai 커넥터로(제3자·키 없이·미검증).
             대체 가동: 알림 = Cloudflare Workers(`https://stock-alerts.wonithink.workers.dev`, cloudflare/alerts/) ·
             autotrader 웹 = 이 PC(Tailscale 사설, scripts/run-autotrader-pc.ps1) · 백업 C:\Users\User\stock-backup\gcp\ (저장소·클라우드 금지).
             PC 작업 `stock-vix-alert`·`stock-price-alert` 는 중복 방지로 Disable 대상. 서버 재가동은 월 약 $3.6 — 켜기 전 사용자 확인.
             24시간 서버는 실매매 직전에야 필요 — 그때 새 업체를 월 정확한 금액으로 비교해 사용자 확인(규칙 9). 그전엔 PC 가동 시간만 모의.
-            최신 인수인계: docs/control/세션인수인계-2026-11-14.md (Fable 감사 후속 5건 + 바이낸스 크기·손절 설계(§9~10 설계 가능, 손절 갭 없음·BTC 다리·펀딩이 손실 원인, forward 확인 전 운용 근거 아님) + OKX BL7 재현(§11 부분 재현) + 코스피·코스닥 지수 외국인 수급(§12 동행일 뿐 선행 아님) — 전부 기록 전용; §13 멀티에이전트 파이프라인 Fable 설계 준비: 현황조사·시작 프롬프트 docs/control/; §14 디자인 시스템 docs/design/) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
+            최신 인수인계: docs/control/세션인수인계-2026-11-15.md (태블릿 Termux 모의 시험·Workers 손절 1분 알림·엔진 멈춤 알림 배포·시안 B 이식) · 11-14 (Fable 감사 후속 5건 + 바이낸스 크기·손절 설계(§9~10 설계 가능, 손절 갭 없음·BTC 다리·펀딩이 손실 원인, forward 확인 전 운용 근거 아님) + OKX BL7 재현(§11 부분 재현) + 코스피·코스닥 지수 외국인 수급(§12 동행일 뿐 선행 아님) — 전부 기록 전용; §13 멀티에이전트 파이프라인 Fable 설계 준비: 현황조사·시작 프롬프트 docs/control/; §14 디자인 시스템 docs/design/) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
   안 한다   O2b·O3u 모의 실행 중단(09-22, 시초가 체결 −17.67bp) — 새 GO 없이 재개 금지. 닫힌 연구 80여 건(REJECT·종결)은
             같은 표본 재판정 금지, 재개는 새 사전등록·새 표본/forward 로만. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.
