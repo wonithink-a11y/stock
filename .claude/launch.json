@@ -42,6 +42,15 @@
         "scripts/autotrader-web-demo.py"
       ],
       "port": 8799
+    },
+    {
+      "name": "site-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "scripts/serve-site-preview.py",
+        "8734"
+      ],
+      "port": 8734
     }
   ]
 }

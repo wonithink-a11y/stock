@@ -4,7 +4,8 @@
    - 라이트 기본, 다크는 OS 설정(prefers-color-scheme) 또는 html[data-theme="dark"]. 라이트 강제는 html[data-theme="light"].
    - 대비는 WCAG AA(본문 4.5:1) 이상으로 계산해 고른 값이다(문서 §3). 값을 바꾸면 다시 계산한다. */
 
-:root {
+:root,
+:root[data-theme="light"] {
   color-scheme: light;
 
   /* 면(surface) — 박스를 늘리지 않고 면의 명도 차이와 헤어라인으로 구획한다 */

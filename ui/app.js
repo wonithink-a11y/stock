@@ -12,9 +12,22 @@ const TAB_GROUPS = [
   { label: "리서치", ids: ["scoring", "research", "macro", "themes", "datahealth"] },
 ];
 const TAB_ORDER = TAB_GROUPS.flatMap((g) => g.ids);
+const ICON = (d) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + "</svg>";
 const TAB_ICONS = {
-  overview: "📊", positions: "💼", activity: "🧾", performance: "📈", system: "⚙️",
-  scoring: "🧮", research: "🔬", macro: "🌐", themes: "🗂️", datahealth: "🩺",
+  overview: ICON('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+  positions: ICON('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>'),
+  activity: ICON('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),
+  performance: ICON('<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>'),
+  system: ICON('<path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>'),
+  scoring: ICON('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+  research: ICON('<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/>'),
+  macro: ICON('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'),
+  themes: ICON('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
+  datahealth: ICON('<path d="M3 12h4l3-7 4 14 3-7h4"/>'),
+};
+const THEME_ICON = {
+  light: ICON('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>'),
+  dark: ICON('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'),
 };
 
 /* 다크/라이트 테마 - localStorage에 기억, 기본은 다크(기존 동작 무변경).
@@ -25,7 +38,7 @@ const THEME_KEY = "ui_theme";
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   const btn = document.getElementById("theme-toggle");
-  if (btn) btn.textContent = theme === "light" ? "🌞" : "🌙";
+  if (btn) btn.innerHTML = theme === "light" ? THEME_ICON.light : THEME_ICON.dark;
 }
 
 function initTheme() {
