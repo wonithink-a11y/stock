@@ -1,0 +1,22 @@
+/* 디자인 토큰 브리지 — docs/design/DESIGN_SYSTEM.md §8 단계 1.
+   로드 순서: style.css(옛 변수) → ../design/tokens.css(새 토큰) → 이 파일. 옛 변수 이름을 새 토큰에 연결해
+   탭 모듈(ui/tabs/*.js)을 고치지 않고 팔레트·글꼴·숫자 정렬을 통일한다. 이모지·반경 정리는 탭 단위로 따로(문서 §8). */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --panel: var(--surface-1);
+  --panel-border: var(--line);
+  --text: var(--text-1);
+  --text-dim: var(--text-3);
+  --row-hover: var(--surface-2);
+  --row-selected: var(--accent-wash);
+  --input-bg: var(--surface-2);
+  --tooltip-bg: var(--surface-1);
+  --canvas-bg-grad: var(--surface-2);
+  --mono: var(--font);                 /* 숫자 고정폭은 글꼴이 아니라 tabular-nums 로 */
+}
+body, button, input, select, textarea { font-family: var(--font); }
+table, td, th, .stat-value, .heat-score, .heat-ticker, .mono, .kpi-value, .num { font-variant-numeric: tabular-nums; }
+.tab-icon svg, .brand-icon svg, .btn-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.brand-icon svg { width: 18px; height: 18px; }
+.tab-icon { display: inline-grid; place-items: center; }

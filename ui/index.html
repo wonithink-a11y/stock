@@ -4,8 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paper Trading Engine</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%93%88</text></svg>">
-<link rel="stylesheet" href="style.css?v=20261108a">   <!-- 바꿀 때 v 를 올린다: 폰 브라우저가 옛 CSS 를 계속 쓰던 문제(2026-10-14) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23111827%22/><path d=%22M7 21l6-6 4 4 8-8%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css?v=20261108a">
+<link rel="stylesheet" href="../design/tokens.css?v=1">   <!-- 단일 출처: docs/design/tokens.css (배포 때 docs 가 루트, ui 가 /paper-trading/ 라 ../design 으로 닿는다) -->
+<link rel="stylesheet" href="design-bridge.css?v=1">   <!-- 바꿀 때 v 를 올린다: 폰 브라우저가 옛 CSS 를 계속 쓰던 문제(2026-10-14) -->
 </head>
 <body>
 <nav class="sitenav" aria-label="사이트 메뉴">
@@ -16,7 +19,7 @@
 <div class="app-shell">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <span class="brand-icon" aria-hidden="true">📈</span>
+      <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>
       <div>
         <div class="brand-title">Paper Trading</div>
         <div class="brand-sub">KIS VTS · PAPER</div>
@@ -28,8 +31,8 @@
     <header class="app-header">
       <span id="market-status-slot"></span>
       <div class="app-header-right">
-        <button id="refresh-btn" class="btn-icon" aria-label="새로고침" title="새로고침">↻</button>
-        <button id="theme-toggle" class="btn-icon theme-toggle" title="다크/라이트 테마 전환" aria-label="테마 전환">🌙</button>
+        <button id="refresh-btn" class="btn-icon" aria-label="새로고침" title="새로고침"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg></button>
+        <button id="theme-toggle" class="btn-icon theme-toggle" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
       </div>
     </header>
     <main id="tab-main"></main>

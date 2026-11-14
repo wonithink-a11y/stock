@@ -1,6 +1,6 @@
 # Stock Terminal — 디자인 시스템
 
-작성 2026-11-14 · 토큰 [`tokens.css`](tokens.css) · 시안 [`prototype-today.html`](prototype-today.html) (`python -m http.server --directory docs` 후 `/design/prototype-today.html`).
+작성 2026-11-14 · 토큰 [`tokens.css`](tokens.css) · 시안 [`prototype-today.html`](prototype-today.html). 로컬 확인: `python scripts/serve-site-preview.py` → `http://localhost:8734/design/prototype-today.html` · `/paper-trading/` (배포 구조 docs=루트·ui=/paper-trading/ 를 흉내 낸다).
 목적: 대시보드(`docs/index.html`)·모의투자 앱(`ui/`)·autotrader 웹(`autotrader/web.py`)이 **하나의 제품처럼** 보이게 하고, "AI 가 만든 단편 화면" 티를 없앤다.
 이 문서는 시스템(원칙·토큰·구성요소·적용 순서)이고 화면 전환은 §8 순서로 한다. 코드·데이터·점수 로직은 바꾸지 않는다.
 
@@ -89,7 +89,8 @@
 | 단계 | 내용 | 위험 | 상태 |
 |---|---|---|---|
 | 0 | `tokens.css` + 시안(`prototype-today.html`) + 이 문서 | 없음(기존 화면 무영향) | ✔ 완료 |
-| 1 | `ui/`(모의투자 앱) 부터 토큰 이식 — 이미 `ui/style.css` 가 변수 계약을 가져 가장 쉽다. 이모지 아이콘을 SVG 로, 글꼴 상속, 반경 3종 | 낮음(정적 앱, 회귀 없음) | 다음 |
+| 1a | `ui/`(모의투자 앱) 토큰 브리지 — `ui/design-bridge.css` 가 옛 변수(`--panel` 등)를 새 토큰에 연결, Pretendard·tabular 숫자, 사이드바·헤더 아이콘을 SVG 로. 탭 JS 는 무수정 | 낮음 | ✔ 완료(2026-11-14, 데스크톱 다크·라이트·375px 확인) |
+| 1b | 탭 안의 이모지(약 660줄)·반경 9종·카드 벽돌을 탭 단위로 정리 | 중간(탭마다 화면 확인) | 다음(후순위 가능) |
 | 2 | 공통 셸(상단바·좌측 메뉴)을 `docs/design/shell.css` 로 추출하고 `ui/` 에 적용 | 중간 | 다음 |
 | 3 | 대시보드 `docs/index.html`(**약 470KB 단일 파일**) 점진 이식: 토큰 먼저, 모듈을 메뉴 단위로. 한 번에 갈아엎지 않는다. `dashboard-phone-check` 스킬(375px)로 매번 확인 | 높음(범위 큼) | 후순위 |
 | 4 | autotrader 웹(`web.py` 인라인 HTML) — 인증·킬 스위치가 있어 마지막. 승인 단계 설계(파이프라인 Fable 세션) 뒤에 새 화면으로 | 높음(주문 관련 화면, 사용자 확인) | 후순위 |
