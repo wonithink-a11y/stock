@@ -8,7 +8,9 @@ Validated against
   정책      UN-1.2 · PR-1.7 · FN-1.8 · REG-1.8 · MN-1.3 · SB-1.1 · SD-1.1 (PF-1.2 registry 미등록 = 미발효)
             criteria  KR-2.4 · US-2.2
   ★★★ 지금  OCI 테넌시 `wonithink` **영구 종료 확정(11-13)** — 이의 제기 거절·"최종". 사유 공개·복구·재가입(무료·개인 유료) 모두 불가, 데이터는 접근 불가 상태로 삭제 예정.
-            Oracle 로 돌아가지 않는다 — 새 계정·가족 명의 가입 금지(1인 1무료 계정 규정·재종료 위험). 서버는 없다: VM 전 유닛 정지, OCI 쓰던
+            ★ 11-14 사용자 결정(11-13 "가입 금지" 권고를 바꿈): 아내 본인 명의로 OCI 를 한 번 더 시도 — 인증·결제는 본인들이, Claude 는 설치만, 용도는
+            실매매 서버 하나·최소(수집·인터넷 공개·뉴스 수집은 올리지 않음). 막히거나 경고·회수되면 OCI 완전 포기. 계획 docs/control/실매매서버-최소배치-계획-2026-11-14.md.
+            지금은 서버 없다(가입 전): VM 전 유닛 정지, OCI 쓰던
             Actions(`paper-trading-ui`·`promote-minute-manifest`)는 11-13 disable(`gh workflow enable` 로 복구). 실계좌는 전부 꺼짐. GCP 임시 서버는 비용(규칙 9)으로 중지됨.
             법령 MCP 서버(law VM)도 같은 테넌시라 멈춤 → 공개 서버 `mcp.gomdori.app/law` 를 claude.ai 커넥터로(제3자·키 없이·미검증).
             대체 가동: 알림 = Cloudflare Workers(`https://stock-alerts.wonithink.workers.dev`, cloudflare/alerts/) ·
