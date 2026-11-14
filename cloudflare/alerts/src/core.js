@@ -131,3 +131,65 @@ export async function checkTargets(targets, fired, now, fetchPx) {
   }
   return out;
 }
+
+// ---- 손절선 이탈 감시(2026-11-15 설계: docs/control/손절알림-설계-2026-11-15.md) — 알림만, 주문 없음 ----
+export const STOP_FAST_MIN = 10, STOP_SLOW_EVERY = 5, DEADMAN_MIN = 20, DEADMAN_REPEAT_MIN = 30, MAX_STOPS = 30;
+export const stopId = (s) => s.id || `${s.market}:${s.symbol}:${s.stop}`;
+export const stopHit = (s, px) => (s.dir === 'above' ? px >= s.stop : px <= s.stop);
+
+/** 처음 이탈한 뒤 elapsedMin 분째(0=처음) 알릴지와 몇 번째 알림인지. 처음 10분은 매분(10번), 이후 5분마다. */
+export function repeatDue(elapsedMin) {
+  if (elapsedMin < 0) return { send: false, n: 0 };
+  if (elapsedMin < STOP_FAST_MIN) return { send: true, n: elapsedMin + 1 };
+  if ((elapsedMin - STOP_FAST_MIN) % STOP_SLOW_EVERY === 0) return { send: true, n: STOP_FAST_MIN + (elapsedMin - STOP_FAST_MIN) / STOP_SLOW_EVERY + 1 };
+  return { send: false, n: 0 };
+}
+
+/**
+ * stops=[{id?,market,symbol,stop,dir?,note?}], prices={id: {px,t?}|null}, breach={id:처음 이탈 ms}, ack={id:확인 ms}
+ * → {alerts:[{id,kind:'break'|'repeat'|'recover',n,s,px,breachAt,t}], breach, ack, changed}. 시세가 없으면(null) 그 종목은 건드리지 않는다.
+ * 이탈 중의 반복 횟수는 경과 분으로 계산한다 — 분마다 KV 에 쓰지 않는다(무료 쓰기 한도 보호).
+ */
+export function evalStops(stops, prices, breachIn, ackIn, nowMs) {
+  const breach = { ...breachIn }, ack = { ...ackIn }, alerts = [];
+  let changed = false;
+  const live = new Set(stops.map(stopId));
+  for (const id of Object.keys(breach)) if (!live.has(id)) { delete breach[id]; delete ack[id]; changed = true; }    // 목록에서 빠진 종목 정리
+  for (const s of stops) {
+    const id = stopId(s), p = prices[id];
+    if (!p || !(p.px > 0)) continue;
+    if (stopHit(s, p.px)) {
+      if (breach[id] == null) {
+        breach[id] = nowMs; delete ack[id]; changed = true;
+        alerts.push({ id, kind: 'break', n: 1, s, px: p.px, breachAt: nowMs, t: p.t, nowMs });
+      } else if (!(ack[id] >= breach[id])) {
+        const r = repeatDue(Math.floor((nowMs - breach[id]) / 60000));
+        if (r.send && r.n > 1) alerts.push({ id, kind: 'repeat', n: r.n, s, px: p.px, breachAt: breach[id], t: p.t, nowMs });
+      }
+    } else if (breach[id] != null) {
+      alerts.push({ id, kind: 'recover', n: 0, s, px: p.px, breachAt: breach[id], t: p.t, nowMs });
+      delete breach[id]; delete ack[id]; changed = true;
+    }
+  }
+  return { alerts, breach, ack, changed };
+}
+
+export function stopLine(a) {
+  const unit = a.s.market === 'KR' ? '원' : '달러', f = (x) => x.toLocaleString('en-US', { minimumFractionDigits: a.s.market === 'KR' ? 0 : 2, maximumFractionDigits: 2 });
+  const cmp = a.s.dir === 'above' ? '≥' : '≤', name = a.s.name ? `${a.s.name}(${a.s.symbol})` : a.s.symbol;
+  if (a.kind === 'recover') return `✅ ${name} 손절선 회복 — 현재 ${f(a.px)}${unit} (손절 ${f(a.s.stop)}${unit})`;
+  const age = a.t ? `, 시세 ${Math.max(0, Math.round((a.nowMs - a.t * 1000) / 60000))}분 전` : '';
+  return `🔴 ${name} 현재 ${f(a.px)}${unit} ${cmp} 손절 ${f(a.s.stop)}${unit} (${a.n}번째${age})` + (a.s.note ? `\n   ${a.s.note}` : '');
+}
+
+/** 엔진 멈춤: 감시 중인 손절선이 있고 하트비트가 DEADMAN_MIN 분 넘게 없을 때만. 같은 알림은 DEADMAN_REPEAT_MIN 분마다. dm={active,lastAlert} → {send, kind:'down'|'up'|null, dm} */
+export function deadmanDue(stopsCount, hbMs, nowMs, dm) {
+  const st = { active: !!(dm && dm.active), lastAlert: dm && dm.lastAlert ? dm.lastAlert : 0 };
+  const down = stopsCount > 0 && (hbMs == null || nowMs - hbMs > DEADMAN_MIN * 60000);
+  if (down) {
+    if (!st.active || nowMs - st.lastAlert >= DEADMAN_REPEAT_MIN * 60000) return { send: true, kind: 'down', dm: { active: true, lastAlert: nowMs } };
+    return { send: false, kind: null, dm: st };
+  }
+  if (st.active) return { send: stopsCount > 0, kind: stopsCount > 0 ? 'up' : null, dm: { active: false, lastAlert: 0 } };
+  return { send: false, kind: null, dm: st };
+}

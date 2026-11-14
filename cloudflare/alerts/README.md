@@ -53,3 +53,25 @@ Invoke-RestMethod -Method Post $u/rearm -Headers $h                   # 울린 �
 ## 주의
 - 카카오 갱신 토큰은 약 12월 중순 만료 — PC 에서 `scripts/send-kakao-report.py --login` 후 6번의 `kakao_token` 을 다시 넣는다.
 - 텔레그램은 `TELEGRAM_CHAT_ID`(1:1 방)로 간다. 알림이 겹치므로 Workers 가 확인된 뒤 PC 작업 `stock-vix-alert`·`stock-price-alert` 는 끈다(`Disable-ScheduledTask`).
+
+## 손절선 이탈 1분 알림 · 엔진 멈춤 알림 (2026-11-15, 설계 `docs/control/손절알림-설계-2026-11-15.md`)
+
+알림만 보낸다 — **주문 없음**. 크론은 `* * * * *` 하나가 매분 손절·엔진 멈춤을 보고, 5분마다 위 가격 목표·등락률 작업도 돌린다(무료 크론 5개 한도 안, 총 4개).
+
+| 기능 | 동작 |
+|---|---|
+| 손절선 이탈 | 감시 목록(KV `stops`, 최대 30)의 시세가 손절선 이하(`dir:above` 면 이상)이면 **매매·보안방**(`TELEGRAM_TRADE_CHAT_ID`, 없으면 기본 방)에 알림. 처음 10분 매분, 이후 5분마다. 카카오(보조)는 처음·회복만 |
+| 확인(알림 멈춤) | 메시지 끝의 서명 링크 → 버튼 한 번(GET 은 버튼만 보여 주고 POST 가 멈춘다 — 텔레그램 미리보기가 먼저 열어도 안 멈춘다). 가격이 회복되면 회복 알림 한 번 |
+| 엔진 멈춤 | 감시 목록이 있는데 하트비트가 20분 넘게 없으면 알림(30분마다 반복, 복귀 시 한 번). 목록이 비면 조용 |
+
+**관리 HTTP**(`Authorization: Bearer ADMIN_KEY`): `GET /stops` · `PUT /stops?src=engine|manual`(그 출처의 목록을 통째로 바꿈, 형식 `[{"market":"KR","symbol":"005930","name":"삼성전자","stop":70000,"note":"…"}]`) · `POST /hb` · `POST /test?chat=trade`(매매방 연결 시험).
+시세: 국내 네이버 일봉(현재가), 미국 야후(마지막 체결이 15분 안일 때만 — 낡은 값은 건너뛴다). **무료 시세의 실제 지연은 미확인** — 며칠 증권사 화면과 비교해 2분 이내인지 기록한다.
+
+### 배포(사용자, PowerShell, 저장소의 `cloudflare\alerts` 폴더에서)
+1. `npx.cmd wrangler deploy` (크론이 매분으로 바뀐다).
+2. 매매·보안방 번호를 시크릿으로(번호는 대화에 붙이지 않는다): `npx.cmd wrangler secret put TELEGRAM_TRADE_CHAT_ID` 후 프롬프트에 입력.
+3. 시험: 관리 키(`stock-backup` 폴더의 `cf-admin-key.txt`)로 `POST /test?chat=trade` — 매매방에 도착하는지 눈으로 확인.
+4. 태블릿(Termux) `~/stock/.env` 에 `ALERTS_URL=https://stock-alerts.wonithink.workers.dev` · `ALERTS_ADMIN_KEY=<위 관리 키>` 를 직접 입력하고 `run-loop.sh` 를 재시작 → 5분마다 `/hb`.
+5. 처음엔 감시 목록을 비워 두고 하트비트만 확인(`GET /stops` 의 `hb`). 그 다음 모의 손절선을 `PUT /stops?src=manual` 로 넣어 알림·확인 링크를 시험.
+
+시험: `node test/unit.mjs` · `node test/stops.mjs`(8) · `node test/worker.mjs`(7, 가짜 fetch·KV) · `node test/parity.mjs`.
