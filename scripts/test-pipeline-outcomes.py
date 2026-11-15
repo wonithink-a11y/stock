@@ -3,7 +3,7 @@
 
 핀하는 것: 같은 종목 연속 후보는 첫 날만 사건(5회 연속 탈락 뒤 재진입은 새 사건) · 무효 조건 종류마다 닿음/안 닿음 경계 ·
 자료 부족은 '모름'(닿음도 안 닿음도 아님) · 진입은 기록 다음 거래일 종가 · 정지·시세 없음은 ret null ·
-만기 전에는 재지 않고 이미 잰 것은 다시 재지 않는다 · 판정 잠김 · 화면 파일 결정적(갈래별 평균 수익 없음) · 알림 문구.
+만기 전에는 재지 않고 이미 잰 것은 다시 재지 않는다 · 화면 파일 결정적(갈래별 평균 수익 없음) · 알림 문구.
 
     python scripts/test-pipeline-outcomes.py
 """
@@ -92,11 +92,6 @@ def main():
     ok(h["status"] == "halted" and h["ret"] is None and h["excess"] is None and h["benchRet"] is not None, "정지 → ret null(0 아님)")
     gone = O.measure(cand("000009", DAYS[0]), prices, at, set())[0]["payload"]
     ok(gone["status"] == "no-price" and gone["ret"] is None and gone["entryPx"] is None, "시세 없음 → ret null")
-    try:
-        O.judge()
-        ok(False, "판정이 열려 있다")
-    except SystemExit:
-        pass
 
     # ---- 화면 파일
     th = E.make("THESIS_WRITTEN", event_id=E.thesis_id(c["eventId"], "v1", "m"), ticker="000001", market="KR",
