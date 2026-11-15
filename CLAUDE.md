@@ -17,10 +17,12 @@ Validated against
             autotrader 웹 = 이 PC(Tailscale 사설, scripts/run-autotrader-pc.ps1) · 백업 C:\Users\User\stock-backup\gcp\ (저장소·클라우드 금지).
             PC 작업 `stock-vix-alert`·`stock-price-alert` 는 중복 방지로 Disable 대상. 서버 재가동은 월 약 $3.6 — 켜기 전 사용자 확인.
             24시간 서버는 실매매 직전에야 필요 — 그때 새 업체를 월 정확한 금액으로 비교해 사용자 확인(규칙 9). 그전엔 PC 가동 시간만 모의.
-            최신 인수인계: docs/control/세션인수인계-2026-11-15.md (태블릿 Termux 모의 시험·Workers 손절 1분 알림·엔진 멈춤 알림 배포·시안 B 이식) · 11-14 (Fable 감사 후속 5건 + 바이낸스 크기·손절 설계(§9~10 설계 가능, 손절 갭 없음·BTC 다리·펀딩이 손실 원인, forward 확인 전 운용 근거 아님) + OKX BL7 재현(§11 부분 재현) + 코스피·코스닥 지수 외국인 수급(§12 동행일 뿐 선행 아님) — 전부 기록 전용; §13 멀티에이전트 파이프라인 Fable 설계 준비: 현황조사·시작 프롬프트 docs/control/; §14 디자인 시스템 docs/design/) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
+            최신 인수인계: docs/control/세션인수인계-2026-11-15-b.md (멀티에이전트 파이프라인 설계 4문서, 코드 변경 없음) · 11-15 (태블릿 Termux 모의 시험·Workers 손절 1분 알림·엔진 멈춤 알림 배포·시안 B 이식) · 11-14 (Fable 감사 후속 5건 + 바이낸스 크기·손절 설계(§9~10 설계 가능, 손절 갭 없음·BTC 다리·펀딩이 손실 원인, forward 확인 전 운용 근거 아님) + OKX BL7 재현(§11 부분 재현) + 코스피·코스닥 지수 외국인 수급(§12 동행일 뿐 선행 아님) — 전부 기록 전용; §13 멀티에이전트 파이프라인 Fable 설계 준비: 현황조사·시작 프롬프트 docs/control/; §14 디자인 시스템 docs/design/) · 11-13 (OCI 종료 확정·문의 경위) · 11-11(월간 점검·PC 분봉) · 인프라 11-07-b.
   안 한다   O2b·O3u 모의 실행 중단(09-22, 시초가 체결 −17.67bp) — 새 GO 없이 재개 금지. 닫힌 연구 80여 건(REJECT·종결)은
             같은 표본 재판정 금지, 재개는 새 사전등록·새 표본/forward 로만. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.
+            파이프라인(발굴~매도): 설계 완료(11-15) — docs/ARCHITECTURE·AGENT_SPEC·VALIDATION·ROADMAP.md. 구현은 ROADMAP §2 순서(P1 은 🟡 착수 가능,
+            P2·P3·P7 은 🔴 D1~D3 사용자 GO 뒤). LLM 은 주석만 — 점수·후보·주문에 못 닿는다. 유료 API·서버 없음.
             월간 점검(A2a 뒤 forward 그림자 26+개) = 스킬 `monthly-check`. 연말배당 필터 판정은 2027-01
             `python research/strategy-lab/dividend_record_filter.py --judge` (사전등록 fd0c9132).
             autotrader: 모의 프로필 가동(infbuy·vixinv·cbprem·crypto_weights 등), 실계좌 주문·킬 해제는 패스키·사용자 몫,
