@@ -251,6 +251,21 @@ def append(events: Iterable[dict], root=EVENTS_DIR) -> Dict[str, int]:
     return {"written": written, "duplicates": dup}
 
 
+def episode_starts(cands: Iterable[dict], gap: int = 5) -> set:
+    """사건의 첫 날인 후보의 signalId 집합. 같은 종목이 연속으로 후보면 첫 날만 사건이다(docs/VALIDATION.md §2 겹침).
+
+    직전 gap 번의 실행(기준일) 어디에도 그 종목이 없었으면 새 사건 — gap 번 연속 탈락한 뒤 다시 오르면 새로 센다.
+    주석·무효 조건 점검·사후 평가는 사건의 첫 날에만 붙는다(같은 종목을 20일치 20건으로 세지 않는다).
+    """
+    cands = [c for c in cands if c["type"] == "CANDIDATE_SELECTED"]
+    idx = {d: i for i, d in enumerate(sorted({c["asOf"] for c in cands}))}
+    by_ticker: Dict[str, set] = {}
+    for c in cands:
+        by_ticker.setdefault(c["ticker"], set()).add(idx[c["asOf"]])
+    return {c["eventId"] for c in cands
+            if not any(j in by_ticker[c["ticker"]] for j in range(max(0, idx[c["asOf"]] - gap), idx[c["asOf"]]))}
+
+
 def fold(events: Iterable[dict]) -> Dict[str, dict]:
     """signalId → 후보의 현재 모습. 저장하지 않는다 — 매번 로그에서 접는다."""
     out: Dict[str, dict] = {}
