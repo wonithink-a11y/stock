@@ -6,6 +6,7 @@
     python -m pipeline outcomes     만기 도래분 사후 수익
     python -m pipeline view         화면용 latest.json 전체 재생성
     python -m pipeline notify       텔레그램 한 줄 요약 (토큰 없으면 건너뛴다)
+    python -m pipeline judge        반증 깃발 forward 판정 — 사전등록 조건 전에는 건수만(읽기 전용)
   공통: [--root DIR] [--now 2026-11-16T20:45:00] · agents: [--max N] [--model M]
 """
 from __future__ import annotations
@@ -67,6 +68,13 @@ def cmd_candidates(a, now):
     states = {f.stem: _json(f) for f in (ROOT / "data" / "state").glob("*.json")}
     evs, diag = C.select(json.loads(raw), hashlib.sha256(raw).hexdigest(), states, now, commit=COMMIT)
     diag.update(E.append(evs, a.root / "events"), runAt=_at(now))
+    if evs:                                                     # 기준선 사실은 뽑는 날 적는다 — 가격 파일이 250일뿐이라 판정 때 다시 못 만든다
+        from . import judge as J
+        f = a.root / "baseline" / f"{evs[0]['asOf']}.json"
+        if not f.exists():                                      # 한 번 쓴 파일은 덮어쓰지 않는다
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(json.dumps(J.baseline_facts(evs, _prices()), ensure_ascii=False, indent=1, sort_keys=True) + "\n",
+                         encoding="utf-8", newline="\n")
     diag_update(a.root, now.strftime("%Y%m%d"), "candidates", diag)
 
 
@@ -206,8 +214,17 @@ def cmd_notify(a, now):
     print("notify sent", len(text))
 
 
+def cmd_judge(a, now):
+    """반증 깃발 forward 판정(사전등록 f7c22327). 조건 전에는 건수만 — 읽기 전용, 아무것도 쓰지 않는다."""
+    from . import judge as J
+    diags = {f.stem: _json(f) for f in (a.root / "diagnostics").glob("*.json")}
+    baselines = {f.stem: _json(f) for f in (a.root / "baseline").glob("*.json")}
+    semis = {s["t"] for s in (_json(DATA / "sector-strength.json") or {}).get("stocks") or [] if s.get("g") == "반도체"}
+    print(json.dumps(J.run(E.read(a.root / "events"), diags, baselines, now.strftime("%Y-%m-%d"), semis), ensure_ascii=False, indent=1))
+
+
 CMDS = {"candidates": cmd_candidates, "agents": cmd_agents, "monitor": cmd_monitor, "outcomes": cmd_outcomes,
-        "view": cmd_view, "notify": cmd_notify}
+        "view": cmd_view, "notify": cmd_notify, "judge": cmd_judge}
 
 
 def main(argv=None):

@@ -23,9 +23,10 @@ Validated against
   다음      연구 라인 대부분 종결. 새 연구는 새 데이터 없이 회계·가치·품질 축 재시도 금지. 스킬 `preregistered-research` 로만 시작.
             파이프라인(발굴~매도): P1~P5·P7 가동(11-16) — `pipeline/` + `pipeline.yml`(평일 20:40 KST, 후보 20 → 새 사건에 Gemini 논리·반증 →
             무효 조건 점검 → 사후 수익 → docs/data/pipeline/latest.json). LLM 은 주석만 — 점수·후보·주문에 못 닿는다(격리 회귀). 비용 0.
-            다음 = G0 운영 품질 판정(20거래일 뒤, 약 12-11 이후 한 번, VALIDATION §4) → P6 사전등록(🔴 D4). **그 전에 중간 성과를 보고
-            지시문·기준을 고치지 않는다.** 승인 화면(/plans 오늘 후보)은 PC 에 plan_trader 프로필이 있어야 뜬다(사용자 몫). 설계 docs/ARCHITECTURE·
-            AGENT_SPEC·VALIDATION·ROADMAP.md.
+            반증 깃발 forward 사전등록 완료(11-16, f7c22327 · 코드 a2d0f7f8 · 월간 점검 #33): G0·판정 갈래·표본 시작일은 코드가 정하고
+            `python -m pipeline judge` 는 조건(365일 ∧ 깃발 60건 ∧ 40주) 전에 건수만 낸다. **판정 전 중간 성과를 보고 지시문(prompts/*.v1.txt)·모델·
+            기준을 고치지 않는다 — 고치면 새 갈래다.** 승인 화면(/plans 오늘 후보)용 모의 프로필 `autotrader/profiles/plans.json` 생성(주문 없이 계획만).
+            설계 docs/ARCHITECTURE·AGENT_SPEC·VALIDATION·ROADMAP.md.
             월간 점검(A2a 뒤 forward 그림자 26+개) = 스킬 `monthly-check`. 연말배당 필터 판정은 2027-01
             `python research/strategy-lab/dividend_record_filter.py --judge` (사전등록 fd0c9132).
             autotrader: 모의 프로필 가동(infbuy·vixinv·cbprem·crypto_weights 등), 실계좌 주문·킬 해제는 패스키·사용자 몫,

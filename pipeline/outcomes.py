@@ -4,7 +4,7 @@
 - 기준 수익 = 같은 기간 관심종목(KR) 동일가중 평균. 저장소에 코스피·코스닥 지수 일별 시세가 없고,
   "뽑힌 20개가 뽑히지 않은 나머지보다 나았나"가 선별의 값을 묻는 질문이다.
 - 비용 왕복 33.5bp 고정. 거래량 0(정지)·시세 없음은 ret 을 비운다(0 으로 채우지 않는다).
-- 갈래별 평균은 여기서 내지 않는다 — 사전등록 판정 전에 중간 성과를 보지 않는다(judge 는 P6 등록 뒤에 연다).
+- 갈래별 평균은 여기서 내지 않는다 — 판정은 pipeline/judge.py 가 사전등록 조건이 찬 뒤 한 번만 한다.
 """
 from __future__ import annotations
 
@@ -58,7 +58,3 @@ def measure(cand: dict, prices: Dict[str, dict], at: str, done: set, commit: str
                                    "netExcess": _r6(None if ex is None else ex - COST_BP / 1e4), "status": status}))
     return out
 
-
-def judge(*_a, **_k):
-    """사전등록(P6) 전에는 판정하지 않는다. 등록 뒤 그 파일의 조건으로만 연다."""
-    raise SystemExit("판정 잠김 — 반증 가치 forward 사전등록(docs/VALIDATION.md §3) 전이다. 건수는 docs/data/pipeline/latest.json 의 counts.")
