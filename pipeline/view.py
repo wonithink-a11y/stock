@@ -45,10 +45,10 @@ def build(log: List[dict], names: Dict[str, str]) -> dict:
         eps.append({
             "signalId": sid, "ticker": c["ticker"], "name": names.get(c["ticker"], ""), "asOf": c["asOf"],
             "rank": c["payload"]["rank"], "finalScore": c["payload"]["finalScore"],
-            "thesis": th and {"model": th["producer"]["model"], "summary": th["payload"]["summary"],
+            "thesis": th and {"eventId": th["eventId"], "model": th["producer"]["model"], "summary": th["payload"]["summary"],
                               "claims": th["payload"]["claims"],
                               "verification": {k: th["payload"]["verification"][k] for k in ("claimsTotal", "claimsKept")}},
-            "rebuttal": rb and {"flag": rb["payload"]["flag"], "counters": rb["payload"]["counters"],
+            "rebuttal": rb and {"eventId": rb["eventId"], "flag": rb["payload"]["flag"], "counters": rb["payload"]["counters"],
                                 "invalidations": [{**i, "triggeredAt": hit[i["id"]]["occurredAt"][:10] if i["id"] in hit else None,
                                                    "observed": hit[i["id"]]["payload"]["observed"] if i["id"] in hit else None}
                                                   for i in rb["payload"]["invalidations"]]},

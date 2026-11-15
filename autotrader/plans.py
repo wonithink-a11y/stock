@@ -2,8 +2,9 @@
 
 설계: docs/control/직접매매-계획카드-설계-2026-09-27.md
 
-파일이 둘이고 쓰는 쪽이 하나씩이다(덮어쓰기 경합 없음):
+파일마다 쓰는 쪽이 하나씩이다(덮어쓰기 경합 없음):
     <프로필 상태>/plans.json               웹만 쓴다 — 계획 정의 + 사용자 요청(취소·지금 청산)
+    <프로필 상태>/approvals.jsonl          웹만 쓴다(추가 전용) — 파이프라인 후보에 대한 승인·거절(docs/AGENT_SPEC.md §6.3)
     <프로필 상태>/strategy_plan_trader.json 전략만 쓴다 — 계획별 진행 상태(ctx.state["plans"])
 웹이 뚫려도 계획으로 낼 수 있는 주문은 프로필 파일(SSH 전용)의 허용 종목·한도 안이다 — 엔진이 매 주문 검사한다.
 """
@@ -48,6 +49,54 @@ def save_plans(sdir, plans: List[dict]) -> None:
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps({"plans": plans}, ensure_ascii=False, indent=1), encoding="utf-8")
     os.replace(tmp, p)
+
+
+# ------------------------------------------------------------------ 후보 승인·거절(웹 소유, 추가 전용)
+REJECT_REASONS = {"valuation": "가격이 비싸다", "chart": "차트가 안 좋다", "already-held": "이미 들고 있다",
+                  "rebuttal": "반증을 보고 접었다", "size": "자금·한도", "other": "기타"}
+
+
+def approvals_path(sdir) -> Path:
+    return Path(sdir) / "approvals.jsonl"
+
+
+def load_approvals(sdir) -> List[dict]:
+    try:
+        lines = approvals_path(sdir).read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    out = []
+    for x in lines:
+        try:
+            out.append(json.loads(x))
+        except ValueError:
+            continue
+    return out
+
+
+def append_approval(sdir, now: datetime, signal_id: str, decision: str, plan_id: str = "", reason: str = "", note: str = "") -> None:
+    """승인은 계획이 저장될 때만(plan_id 필수), 거절은 사유 코드와 함께. 보지 않은 후보는 아무 기록도 없다(= 미열람)."""
+    assert decision in ("approve", "reject") and (plan_id if decision == "approve" else reason in REJECT_REASONS)
+    row = {"at": now.isoformat(timespec="seconds"), "signalId": signal_id, "decision": decision,
+           **({"planId": plan_id} if plan_id else {}), **({"reasonCode": reason} if reason else {}),
+           **({"note": note[:40]} if note else {})}
+    p = approvals_path(sdir)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def origin_for(view: Optional[dict], signal_id: str, symbol: str) -> Optional[dict]:
+    """화면용 파이프라인 파일에서 그 후보를 찾아 계획에 실을 origin. 오늘 후보가 아니거나 종목이 다르면 None.
+
+    주석(논리·반증)은 사건의 첫 날에 붙어 있다 — 이어지는 후보는 그 사건의 기록을 가리킨다.
+    """
+    row = next((x for x in (view or {}).get("today") or [] if x.get("signalId") == signal_id), None)
+    if not row or row.get("ticker") != symbol:
+        return None
+    ep = next((e for e in view.get("episodes") or [] if e.get("signalId") == row.get("episodeSignalId")), None) or {}
+    return {"signalId": signal_id, "episodeSignalId": row.get("episodeSignalId"),
+            "thesisEventId": (ep.get("thesis") or {}).get("eventId"), "rebuttalEventId": (ep.get("rebuttal") or {}).get("eventId")}
 
 
 # ------------------------------------------------------------------ 입력 검증·수량

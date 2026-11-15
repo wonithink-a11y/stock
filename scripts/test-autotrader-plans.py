@@ -339,6 +339,62 @@ def card_tests(now):
         page = app.handle("GET", "/plans?p=pl&q=005930", h, b"", "1.1.1.1")[2].decode()
         ck("다른 날 장중 스냅샷은 안 쓰고 종가로", "종가 2026-09-30" in page)
 
+        # ---- 파이프라인 후보 → 승인(계획 저장)·거절. 웹은 plans.json·approvals.jsonl 만 쓰고 주문 경로는 그대로다
+        from autotrader.plans import load_approvals, origin_for
+        sdir_pl = Path(pl["state_dir"])
+        ck("후보 파일이 없으면 후보 칸이 없다(기존 화면 그대로)", "오늘 후보" not in page and load_approvals(sdir_pl) == [])
+        ck("origin 없는 기존 계획이 그대로 읽힌다", "origin" not in saved[0] and "삼성전자" in page)
+        s1, s2 = "cand:20260930:CR-1.0:005930", "cand:20260930:CR-1.0:009150"
+        view = {"asOf": "20260930", "today": [
+            {"ticker": "005930", "name": "삼성전자", "rank": 1, "finalScore": 91.5, "signalId": s1, "isNew": False, "episodeSignalId": "cand:20260929:CR-1.0:005930"},
+            {"ticker": "009150", "name": "삼성전기", "rank": 2, "finalScore": 90.1, "signalId": s2, "isNew": True, "episodeSignalId": s2}],
+            "episodes": [{"signalId": "cand:20260929:CR-1.0:005930", "ticker": "005930",
+                          "thesis": {"eventId": "thesis:x", "claims": [{"id": "T1", "kind": "growth", "claim": "매출이 <b>늘었다", "quote": "인용문", "evidenceId": "decode:1"}],
+                                     "verification": {"claimsTotal": 2, "claimsKept": 1}},
+                          "rebuttal": {"eventId": "rebut:x", "flag": "caution", "counters": [{"id": "R1", "targets": "T1", "claim": "반박", "quote": "근거", "evidenceId": "decode:2"}],
+                                       "invalidations": [{"id": "I1", "text": "60일선 이탈", "check": {"kind": "close-below-ma", "ma": 60, "days": 5}, "triggeredAt": "2026-09-30", "observed": {}},
+                                                         {"id": "I2", "text": "계약 해지", "check": {"kind": "manual"}, "triggeredAt": None, "observed": None}]}}]}
+        (root / "docs" / "data" / "pipeline").mkdir()
+        (root / "docs" / "data" / "pipeline" / "latest.json").write_text(json.dumps(view, ensure_ascii=False), encoding="utf-8")
+        ck("origin: 이어지는 후보는 사건 첫 날의 주석을 가리킨다", origin_for(view, s1, "005930") == {
+            "signalId": s1, "episodeSignalId": "cand:20260929:CR-1.0:005930", "thesisEventId": "thesis:x", "rebuttalEventId": "rebut:x"})
+        ck("origin: 종목이 다르거나 오늘 후보가 아니면 없음", origin_for(view, s1, "009150") is None and origin_for(view, "cand:old", "005930") is None)
+        page = app.handle("GET", "/plans?p=pl", h, b"", "1.1.1.1")[2].decode()
+        ck("후보 목록: 순위·점수·깃발·무효 닿음·허용 종목 아님·새 후보", "오늘 후보" in page and "1. 삼성전자" in page and "91.5" in page
+           and "반증 주의" in page and "무효 조건 1" in page and page.count("허용 종목 아님") == 1 and "새 후보" in page)
+        ck("후보 목록: 점수·주문에 쓰이지 않는다고 적는다", "점수·순위·주문에 쓰이지 않는다" in page)
+        page = app.handle("GET", f"/plans?p=pl&q=005930&sig={uq(s1)}", h, b"", "1.1.1.1")[2].decode()
+        ck("후보를 고르면 주석(논리·반증·무효 조건) + 규칙 계산값 폼 + 숨은 signalId", "후보 주석" in page and "인용 대조 통과 1/2" in page
+           and "코드가 매일 점검" in page and "닿음 2026-09-30" in page and f'name="signalId" value="{s1}"' in page and 'value="117"' in page)
+        ck("주석 글은 이스케이프", "<b>늘었다" not in page and "&lt;b&gt;늘었다" in page)
+        ck("오늘 후보가 아닌 sig 는 버린다", 'name="signalId"' not in app.handle("GET", "/plans?p=pl&q=005930&sig=cand:fake", h, b"", "1.1.1.1")[2].decode())
+        n0 = len(load_plans(sdir_pl))
+        app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=new&signalId={uq(s2)}&{form}".encode(), "1.1.1.1")
+        ck("후보와 종목이 다르면 저장 안 함·승인 기록 없음", len(load_plans(sdir_pl)) == n0 and load_approvals(sdir_pl) == [])
+        app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=new&signalId={uq(s2)}&{form.replace('005930', '009150')}".encode(), "1.1.1.1")
+        ck("허용 종목 밖 후보는 계획이 못 된다(기존 검사)", len(load_plans(sdir_pl)) == n0 and load_approvals(sdir_pl) == [])
+        app.clock = lambda: clk[0] + 1                                # 계획 id 가 초 단위다
+        app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=new&signalId={uq(s1)}&{form}".encode(), "1.1.1.1")
+        got, ap = load_plans(sdir_pl), load_approvals(sdir_pl)
+        ck("승인 = 계획 저장 + origin + approvals 한 줄", len(got) == n0 + 1 and got[-1]["origin"]["signalId"] == s1 and got[-1]["origin"]["rebuttalEventId"] == "rebut:x"
+           and len(ap) == 1 and ap[0]["decision"] == "approve" and ap[0]["planId"] == got[-1]["id"] and ap[0]["at"].endswith("+09:00"))
+        st = app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=reject&signalId={uq(s2)}&reasonCode=rebuttal".encode(), "1.1.1.1")[0]
+        ap = load_approvals(sdir_pl)
+        ck("거절은 사유 코드와 함께 한 줄(계획은 안 생김)", st == 303 and len(ap) == 2 and ap[1] == {**ap[1], "signalId": s2, "decision": "reject", "reasonCode": "rebuttal"}
+           and "planId" not in ap[1] and len(load_plans(sdir_pl)) == n0 + 1)
+        ck("모르는 사유·오늘 후보가 아닌 거절은 404", app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=reject&signalId={uq(s2)}&reasonCode=x".encode(), "1.1.1.1")[0] == 404
+           and app.handle("POST", "/plans", h, f"csrf={csrf}&p=pl&op=reject&signalId=cand:fake&reasonCode=other".encode(), "1.1.1.1")[0] == 404)
+        ck("CSRF 없는 거절은 403·기록 없음", app.handle("POST", "/plans", h, f"p=pl&op=reject&signalId={uq(s2)}&reasonCode=other".encode(), "1.1.1.1")[0] == 403
+           and len(load_approvals(sdir_pl)) == 2)
+        page = app.handle("GET", "/plans?p=pl", h, b"", "1.1.1.1")[2].decode()
+        ck("결정한 후보는 목록에 표시", "계획 저장됨" in page and "거절함" in page)
+        ck("웹이 쓰는 파일은 plans.json·approvals.jsonl 뿐(상태 폴더)", {f.name for f in sdir_pl.iterdir()} <= {"plans.json", "approvals.jsonl", "web_login.log"})
+        src = "".join((ROOT / "autotrader" / f).read_text(encoding="utf-8") for f in ("plans.py",))
+        ck("계획 모듈에 주문 호출이 없다", ".place(" not in src and "broker" not in src.replace("브로커", ""))
+        sub = (ROOT / "autotrader" / "web.py").read_text(encoding="utf-8")
+        ck("웹의 후보·승인 코드에 주문 호출이 없다", ".place(" not in sub[sub.index("def _plan_candidates"):sub.index("def render_plans")]
+           and ".place(" not in sub[sub.index("def _plans("):sub.index("def _search(")])
+
 
 def switch_tests(now):
     """전략 스위치 — 상태 표시(서버 허용 × 프로필 주문)·실전은 버튼 없음·타이머 heartbeat."""

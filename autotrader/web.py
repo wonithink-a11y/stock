@@ -1017,8 +1017,72 @@ def render_card(card: Optional[dict]) -> str:
 {lvl}</div>'''
 
 
-def _plan_form(base: str, hid: str, cap, card: Optional[dict], vals: Optional[dict], notes) -> str:
+_FLAG_PILL = {"none": '<span class="pill">반증 없음</span>', "caution": '<span class="pill warn">반증 주의</span>',
+              "thesis-weak": '<span class="pill bad">논리 약함</span>'}
+_CHECK_KO = {"risk-state-added": "공시 위험 상태", "score-below": "점수 하락", "close-below-ma": "이동평균 이탈",
+             "drawdown-from-signal": "낙폭", "candidate-dropped": "후보 탈락", "manual": "직접 확인"}
+
+
+def _plan_candidates(base: str, name: str, view: Optional[dict], allow, decided: Dict[str, str]) -> str:
+    """오늘 후보(파이프라인) — 저장소의 화면용 파일을 읽어 그 자리에서 그린다. 초안을 저장하지 않는다."""
+    if not view or not view.get("today"):
+        return ""
+    eps = {e["signalId"]: e for e in view.get("episodes") or []}
+    rows = []
+    for x in view["today"]:
+        ep = eps.get(x.get("episodeSignalId")) or {}
+        rb = ep.get("rebuttal")
+        hit = sum(1 for i in (rb or {}).get("invalidations") or [] if i.get("triggeredAt"))
+        pills = (('<span class="pill acc">새 후보</span>' if x.get("isNew") else "")
+                 + (_FLAG_PILL.get(rb["flag"], "") if rb else '<span class="pill">주석 없음</span>')
+                 + (f'<span class="pill bad">무효 조건 {hit}</span>' if hit else "")
+                 + ('' if x["ticker"] in allow else '<span class="pill">허용 종목 아님</span>')
+                 + {"approve": '<span class="pill ok">계획 저장됨</span>', "reject": '<span class="pill">거절함</span>'}.get(decided.get(x["signalId"]), ""))
+        rows.append(f'<div class="row"><span><a href="{base}/plans?p={quote(name)}&q={quote(x["ticker"])}&sig={quote(x["signalId"])}">'
+                    f'{x["rank"]}. {E(x.get("name") or x["ticker"])}</a> <span class="code">{E(x["ticker"])}</span><br>{pills}</span>'
+                    f'<span class="n">{x["finalScore"]}</span></div>')
+    d = str(view.get("asOf") or "")
+    return (f'<div class="card"><h2>오늘 후보 <span class="mut">점수 상위 {len(view["today"])} · 기준일 {E(d[:4])}-{E(d[4:6])}-{E(d[6:])}</span></h2>'
+            f'<div class="mut">후보는 점수 코드가 고른다. 논리·반증은 AI 주석이고 점수·순위·주문에 쓰이지 않는다.</div>{"".join(rows)}</div>')
+
+
+def _plan_notes(base: str, hid: str, view: Optional[dict], sig: str) -> str:
+    """고른 후보의 논리·반증·무효 조건 + 거절 버튼. 주석은 그 사건의 첫 날에 붙어 있다."""
+    from .plans import REJECT_REASONS
+    row = next((x for x in (view or {}).get("today") or [] if x.get("signalId") == sig), None)
+    if not row:
+        return ""
+    ep = next((e for e in view.get("episodes") or [] if e.get("signalId") == row.get("episodeSignalId")), None) or {}
+    th, rb = ep.get("thesis"), ep.get("rebuttal")
+    quote_ = lambda c: f'<div class="row" style="display:block"><b>{E(c["id"])}</b> {E(c["claim"])}<div class="mut">“{E(c["quote"])}”</div></div>'   # noqa: E731
+    body = ""
+    if th:
+        v = th.get("verification") or {}
+        body += (f'<h2>논리 <span class="mut">인용 대조 통과 {v.get("claimsKept")}/{v.get("claimsTotal")}</span></h2>'
+                 + "".join(quote_(c) for c in th.get("claims") or []))
+    if rb:
+        body += f'<h2 style="margin-top:12px">반증 {_FLAG_PILL.get(rb.get("flag"), "")}</h2>' + "".join(
+            f'<div class="row" style="display:block"><b>{E(c["id"])} → {E(c["targets"])}</b> {E(c["claim"])}<div class="mut">“{E(c["quote"])}”</div></div>'
+            for c in rb.get("counters") or [])
+        body += '<h2 style="margin-top:12px">이게 보이면 논리가 깨진 것</h2>' + "".join(
+            f'<div class="row"><span>{E(i["text"])}<br><small class="mut">{E(_CHECK_KO.get(i["check"]["kind"], ""))}'
+            f'{" · 코드가 매일 점검" if i["check"]["kind"] != "manual" else ""}</small></span>'
+            f'<span>{"<span class=bad>닿음 " + E(str(i["triggeredAt"])) + "</span>" if i.get("triggeredAt") else ""}</span></div>'
+            for i in rb.get("invalidations") or [])
+    if not body:
+        body = '<div class="mut">이 후보에는 주석이 없다(주석은 후보에 처음 오른 날에만 쓴다 · 한도·검증 탈락).</div>'
+    opts = "".join(f'<option value="{k}">{E(v)}</option>' for k, v in REJECT_REASONS.items())
+    return (f'<div class="card"><h2>후보 주석 · {E(row.get("name") or row["ticker"])} <span class="mut">{row["rank"]}위 · {row["finalScore"]}점</span></h2>'
+            f'<div class="mut">AI 주석 — 사람 검토 안 됨. 인용은 코드가 근거와 대조해 통과한 것만 남겼다. 매매 신호가 아니다.</div>{body}'
+            f'<form method="post" action="{base}/plans" style="margin-top:12px">{hid}<input type="hidden" name="signalId" value="{E(sig)}">'
+            f'<label>이 후보를 거절하는 이유</label><select name="reasonCode">{opts}</select>'
+            f'<button name="op" value="reject" class="ghost">거절로 기록</button></form></div>')
+
+
+def _plan_form(base: str, hid: str, cap, card: Optional[dict], vals: Optional[dict], notes, sig: str = "") -> str:
     """입력 폼. 값 우선순위: 미리보기로 돌아온 입력 > 카드의 규칙 계산값 > 빈칸. '미리보기'는 저장하지 않고 점검만 보여 준다."""
+    if sig:
+        hid += f'<input type="hidden" name="signalId" value="{E(sig)}">'      # 이 계획이 어느 후보에서 왔는지(origin)
     v = dict(vals or {})
     if not vals and card:
         v["symbol"] = card["code"]
@@ -1042,9 +1106,10 @@ def _plan_form(base: str, hid: str, cap, card: Optional[dict], vals: Optional[di
 
 
 def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "", q: str = "", matches=None,
-                 card: Optional[dict] = None, vals: Optional[dict] = None, notes=None) -> bytes:
-    """직접매매 계획 카드(plan_trader 프로필) — 입력 폼·진행 중·종료(R 배수)·통계. 재확인(지문) 뒤에만 불린다."""
-    from .plans import (CLOSED, MIN_SAMPLE, MIN_TAG_SAMPLE, STATUS_KO, fills_by_plan, load_plans, outcome,
+                 card: Optional[dict] = None, vals: Optional[dict] = None, notes=None,
+                 view: Optional[dict] = None, sig: str = "") -> bytes:
+    """직접매매 계획 카드(plan_trader 프로필) — 오늘 후보·입력 폼·진행 중·종료(R 배수)·통계. 재확인(지문) 뒤에만 불린다."""
+    from .plans import (CLOSED, MIN_SAMPLE, MIN_TAG_SAMPLE, STATUS_KO, fills_by_plan, load_approvals, load_plans, outcome,
                         reward_risk, summarize)
     from .pnl import load_book
     name = str(c.get("profile", ""))
@@ -1095,10 +1160,14 @@ def render_plans(c: dict, sdir: Path, csrf: str, base: str = "", msg: str = "", 
     else:
         stat = '<span class="mut">아직 체결로 끝난 계획이 없다</span>'
     cap = (c.get("params") or {}).get("capital")
-    search_html, card_html, form_html = _plan_search(base, name, q, matches), render_card(card), _plan_form(base, hid, cap, card, vals, notes)
+    if sig and not any(x.get("signalId") == sig for x in (view or {}).get("today") or []):
+        sig = ""                                                 # 오늘 후보가 아닌 값은 버린다(주소로 들어온 값을 믿지 않는다)
+    decided = {a.get("signalId"): a.get("decision") for a in load_approvals(sdir)}
+    cand_html = _plan_candidates(base, name, view, set(c.get("symbol_allowlist") or []), decided)
+    search_html, card_html, form_html = _plan_search(base, name, q, matches), render_card(card), _plan_form(base, hid, cap, card, vals, notes, sig)
     m = f'<div class="warn">{E(msg)}</div>' if msg else ""
     body = f'''<h1>매매 계획 · {E(name)} <span class="pill">모의</span></h1>{m}
-{search_html}{card_html}{form_html}
+{cand_html}{search_html}{card_html}{_plan_notes(base, hid, view, sig)}{form_html}
 <div class="card"><h2>진행 중</h2><div class="tw"><table><tr><th>종목</th><th>상태</th><th class="n">진입 · 손절/목표</th><th class="n">수량</th><th></th></tr>
 {"".join(act) or "<tr><td colspan=5 class=mut>없음</td></tr>"}</table></div></div>
 <div class="card"><h2>결과 <span class="mut">실제 체결가 기준 R 배수</span></h2>{stat}
@@ -1497,8 +1566,8 @@ class WebApp:
 
     # -------------------------------------------------------------- 매매 계획(plan_trader 프로필만)
     def _plans(self, method, raw_path, sess, field, ip):
-        """보기·입력 모두 재확인(지문) 5분 안에서만. 웹은 plans.json 만 쓴다 — 주문은 run-due 가 엔진 검사를 거쳐 낸다."""
-        from .plans import CLOSED, build_plan, load_plans, save_plans
+        """보기·입력 모두 재확인(지문) 5분 안에서만. 웹은 plans.json·approvals.jsonl 만 쓴다 — 주문은 run-due 가 엔진 검사를 거쳐 낸다."""
+        from .plans import CLOSED, REJECT_REASONS, append_approval, build_plan, load_plans, origin_for, save_plans
         q = parse_qs(urlsplit(raw_path).query)
         name = field("p") if method == "POST" else (q.get("p") or [""])[0]
         match = [c for c in self.profiles() if c.get("profile") == name and c.get("strategy") == "plan_trader"]
@@ -1513,14 +1582,15 @@ class WebApp:
             return 200, self._hdrs(), render_reauth(sess["csrf"], "확인 5분이 지났습니다 — 다시 확인 뒤 입력하세요" if method == "POST" else "",
                                                     base=self.base, pk=self._pk_ready(), nxt=url)
         sdir = state_dir(c)
+        view = self._pipeline_view()
         if method == "GET":
             msg = (q.get("m") or [""])[0]
             qs = (q.get("q") or [""])[0].strip()[:30]
             matches = self._search(qs) if qs else None
             card = self._card(matches[0][0]) if matches and len(matches) == 1 else None
             return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, msg if msg in self._msgs else "",
-                                                   qs, None if card else matches, card)
-        op, plans = field("op"), load_plans(sdir)
+                                                   qs, None if card else matches, card, view=view, sig=(q.get("sig") or [""])[0][:120])
+        op, plans, sig = field("op"), load_plans(sdir), field("signalId")[:120]
         if op == "preview":                             # 저장하지 않고 점검만 — 같은 폼을 값 그대로 다시 그린다
             from .stockcard import checks
             vals = {k: field(k) for k in PLAN_FIELDS}
@@ -1531,16 +1601,29 @@ class WebApp:
                                                           f" · 손절 시 약 −{plan['qty'] * (plan['entryHigh'] - plan['stop']):,.0f}원")]
             if plan:
                 notes += checks(card, plan["entryLow"], plan["entryHigh"], plan["stop"], plan["target"])
-            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, "", "", None, card, vals, notes)
+            return 200, self._hdrs(), render_plans(c, sdir, sess["csrf"], self.base, "", "", None, card, vals, notes, view=view, sig=sig)
         if op == "new":
             st = ((_load_json(sdir / "strategy_plan_trader.json") or {}).get("plans")) or {}
             active = sum(1 for p in plans if (st.get(p["id"]) or {}).get("status", "wait") not in CLOSED)
             plan, msg = build_plan({k: field(k) for k in PLAN_FIELDS}, c, self._now(), active)
+            origin = origin_for(view, sig, plan["symbol"]) if plan and sig else None
+            if plan and sig and not origin:                 # 후보에서 온 계획인데 오늘 후보가 아니거나 종목이 다르다 — 출처를 지어내지 않는다
+                plan, msg = None, "후보와 종목이 맞지 않는다 — 후보 목록에서 다시 고르거나 종목 조회로 직접 입력"
             if plan:
                 from .stockcard import context_for_plan
                 plan["context"] = context_for_plan(self._card(plan["symbol"]))       # 30건 뒤 내 데이터로 규칙을 보려고
+                if origin:
+                    plan["origin"] = origin
                 save_plans(sdir, plans + [plan])
+                if origin:                                  # 승인 = 계획이 저장된 것. 주문은 여전히 엔진이 위험 검사를 거쳐 낸다
+                    append_approval(sdir, self._now(), sig, "approve", plan_id=plan["id"])
                 msg = f"계획을 저장했습니다 — {plan['symbol']} {plan['qty']}주, 다음 점검(5분, 장중)부터 봅니다"
+        elif op == "reject":
+            reason = field("reasonCode")
+            if reason not in REJECT_REASONS or not any(x.get("signalId") == sig for x in (view or {}).get("today") or []):
+                return self._not_found()
+            append_approval(sdir, self._now(), sig, "reject", reason=reason)
+            msg = f"거절로 기록했습니다 — {REJECT_REASONS[reason]}"
         elif op in ("cancel", "close"):
             hit = [p for p in plans if p["id"] == field("id")]
             if not hit:
@@ -1558,6 +1641,14 @@ class WebApp:
     def _search(self, qs: str):
         from .stockcard import search
         return search(qs, **({"root": self.data_root} if self.data_root else {}))
+
+    def _pipeline_view(self) -> Optional[dict]:
+        """파이프라인 화면용 파일(저장소의 docs/data/pipeline/latest.json). 없거나 깨졌으면 후보 칸이 안 보일 뿐이다."""
+        from .stockcard import _load as _load_repo
+        try:
+            return _load_repo("docs/data/pipeline/latest.json", *([self.data_root] if self.data_root else []))
+        except Exception:                               # noqa: BLE001
+            return None
 
     def _card(self, code: str) -> Optional[dict]:
         """종목 카드. 장중 현재가는 오늘 날짜 스냅샷일 때만 쓴다 — 못 가져오면 종가로(화면에 어느 쪽인지 적힌다)."""
