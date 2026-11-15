@@ -305,6 +305,7 @@ push된 히스토리를 다시 쓰지 않는다. 되돌릴 일은 revert로 앞�
 | `AGENTS.md` | Claude가 관리 (OpenCode 진입 규칙, OpenCode는 파일 수정·커밋 기본 금지라 스스로 못 씀) |
 | `docs/AI협업-업무분담.md` · `docs/control/` | Claude |
 | `docs/data/` · `data/backfill/` | GitHub Actions |
+| `data/pipeline/` | GitHub Actions(`pipeline.yml` 하나) — 로컬은 `python -m pipeline … --root <다른 곳>` |
 | VM staging · Object Storage | VM |
 | `docs/verification/` | 실험실 (또는 OpenCode 결과를 Claude가 옮겨 적는다 — ChatGPT 계약 피드백과 같은 relay) |
 
