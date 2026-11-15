@@ -108,5 +108,5 @@ reason: >-
 
 ## 8. 코드
 
-- 판정·G0·기준선 사실: `pipeline/judge.py` (이 문서 커밋 다음 커밋 — 해시는 결과 머리말에 적는다).
+- 판정·G0·기준선 사실: `pipeline/judge.py` — 코드 커밋 **a2d0f7f8**(이 문서 f7c22327 다음 커밋). 실행 `python -m pipeline judge`.
 - 회귀: `scripts/test-pipeline-judge.py` — 조건 미달 거부, G0 경계, 갈래 분류, 고정 입력의 `D`.

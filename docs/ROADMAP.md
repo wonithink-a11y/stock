@@ -77,7 +77,9 @@ P9 US 주석·평가              ── 보류    (KR 이 G0 를 넘은 뒤 재
 | 완료 기준 | 사후 평가 회귀(VALIDATION §5) · `latest.json` 을 지우고 다시 만들어도 바이트 동일(결정적) · 표에 `status` 별 건수 |
 | 그 뒤 | 20거래일 가동 → **G0 판정**(VALIDATION §4). 결과는 `docs/control/` 인수인계에 표로. 못 넘으면 지시문 버전을 올리고 다시 20일 |
 
-### P6 — 반증 가치 forward 사전등록 (🔴 D4, G0 뒤)
+### P6 — 반증 가치 forward 사전등록 (🔴 D4) — **완료 2026-11-16**
+
+> G0 를 기다리지 않고 먼저 등록했다(사용자 GO). 대신 G0 통과 여부·판정 갈래·표본 시작일을 코드가 진단 파일로 정하게 해 사람이 고를 자리를 없앴다. 등록 f7c22327 · 코드 a2d0f7f8 · 월간 점검 표 #33. 아래는 원래 계획.
 | | |
 |---|---|
 | 방법 | `preregistered-research` 스킬 그대로. VALIDATION §3 을 `research/strategy-lab/findings/pipeline-rebuttal-forward-preregistration-YYYY-MM.md` 로 옮기고 먼저 커밋 → `outcomes.py` 의 `--judge` 조건을 등록값으로 연다(그 커밋 해시를 등록 파일에) |
