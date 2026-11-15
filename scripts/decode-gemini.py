@@ -173,10 +173,11 @@ def business_section(text):
     return best[:MAX_CHARS], len(best) > MAX_CHARS
 
 
-def gemini(prompt, key, model=MODEL):
+def gemini(prompt, key, model=MODEL, schema=None, temperature=0.2):
+    """schema·temperature 는 pipeline/agents.py 가 같은 호출을 쓰려고 연 인자다 — 기본값은 해독 그대로."""
     body = {"contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json",
-                                 "responseSchema": SCHEMA}}
+            "generationConfig": {"temperature": temperature, "responseMimeType": "application/json",
+                                 "responseSchema": schema or SCHEMA}}
     req = urllib.request.Request(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "x-goog-api-key": key})

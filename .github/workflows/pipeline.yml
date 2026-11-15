@@ -37,6 +37,12 @@ jobs:
       - name: Candidates
         run: python -m pipeline candidates
 
+      # 논리·반증 주석(무료 Gemini, 하루 최대 40 요청). 키가 없거나 한도에 걸리면 건너뛰고 진단에 남긴다 — 실패로 치지 않는다
+      - name: Agents
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python -m pipeline agents
+
       # 실패한 실행은 커밋하지 않는다(if: always() 금지) — 진단만 아티팩트로 남긴다
       - name: Commit
         run: |
