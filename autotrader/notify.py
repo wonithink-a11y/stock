@@ -25,7 +25,8 @@ ACTION_TEXT = {"auto-off": "자동 실행 끔", "auto-dry": "자동 dry-run", "a
                "auto-off-live": "실계좌 자동 끔", "auto-dry-live": "실계좌 dry-run", "kill-live": "🛑 실계좌 긴급 정지 켬",
                "resume-live": "실계좌 긴급 정지 해제",
                "set-notional": "1회 매수 금액 변경", "set-notional-live": "⚠️ 실계좌 1회 매수 금액 변경(값은 화면 이력)",
-               "plan-new": "📝 매매 계획 추가", "plan-cancel": "매매 계획 취소", "plan-close": "⚠️ 계획 종목 지금 청산 요청"}
+               "plan-new": "📝 매매 계획 추가", "plan-cancel": "매매 계획 취소", "plan-close": "⚠️ 계획 종목 지금 청산 요청",
+               "plan-reject": "후보 거절 기록"}
 
 
 def send_telegram(token: str, chat_id: str, text: str, timeout: float = 10.0) -> None:
