@@ -166,13 +166,14 @@ Claude 세션 수동 배치는 `model` 자리에 모델 id(예: `claude-fable-5-
 ```json
 { "horizon": 20, "entryDate": "20261117", "exitDate": "20261215",
   "entryPx": 71200, "exitPx": 73900, "ret": 0.0379,
-  "benchmark": "KOSPI|KOSDAQ", "benchRet": 0.0121, "excess": 0.0258,
+  "benchmark": "KR_WATCHLIST_EW", "benchRet": 0.0121, "excess": 0.0258,
   "costBp": 33.5, "netExcess": 0.02245,
   "status": "ok | halted | delisted | no-price" }
 ```
 - 만기 `h ∈ {5, 20, 60}` 거래일. 진입 = `occurredAt` **다음 거래일 종가**(후보가 20:40 에 나오므로 당일 종가는 살 수 없다 — 2026-11 외국인 수급 재검증에서 진입을 하루 늦추자 +36.5 → +9.0bp 가 된 선례).
 - 가격은 수정주가. 거래정지·상장폐지는 `status` 로 남기고 `ret` 을 `null` 로 둔다 — **0 으로 채우지 않는다**(교훈 57). 폐지분을 빼고 평균 내면 생존편향이므로 귀속 표는 `status` 별 건수를 항상 같이 낸다.
-- 비용은 VALIDATION §2 에서 고정한 값만 쓴다.
+- 비용은 VALIDATION §2 에서 고정한 값만 쓴다. 기준 수익은 KR 관심종목 동일가중 평균(지수 시세가 저장소에 없다).
+- 주석(§3.3·§3.4)·무효 조건 점검·사후 평가는 **사건의 첫 날**(직전 5회 실행에 그 종목이 후보가 아니었던 날)에만 붙는다 — 같은 종목이 매일 상위에 있어도 논리를 매일 다시 쓰지 않는다(한도·알림 중복·표본 부풀림 방지, `events.episode_starts`).
 
 ## 4. evidenceIds — 접두사가 귀속의 단위다
 
