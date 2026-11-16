@@ -201,7 +201,7 @@ def main():
         msgs = notify.build_messages(log)
         ck("웹 입력은 텔레그램 조작 알림으로", any("매매 계획 추가" in m for m in msgs) and any("매매 계획 취소" in m for m in msgs))
         home = app.handle("GET", "/", h, b"", "1.1.1.1")[2].decode()
-        ck("요약 화면에 계획 링크(계획 프로필만)", home.count("/plans?p=") == 1)
+        ck("요약 화면에 계획 링크(계획 프로필만: 맨 위 바로가기 + 카드 버튼)", home.count("/plans?p=") == 2)
 
     card_tests(now)
     switch_tests(now)

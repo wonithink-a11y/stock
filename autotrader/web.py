@@ -60,7 +60,7 @@ main{max-width:760px;margin:0 auto;padding:10px 14px 100px}
 h1{font-size:24px;margin:12px 2px 14px;letter-spacing:-.6px}h2{font-size:15px;margin:0 0 10px}
 .sec{font-size:18px;font-weight:800;color:var(--fg);margin:26px 4px 10px;letter-spacing:-.5px}
 .sec small{font-size:12px;font-weight:500;color:var(--mut);margin-left:4px}
-.card{background:var(--card);border-radius:var(--r);padding:18px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:18px;margin:0 0 10px}
 .card.hl{background:var(--card)}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.hd h2{margin:0;font-size:17px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
@@ -92,7 +92,7 @@ button:active,.btn:active{transform:scale(.98)}
 button.ghost{background:var(--accs);color:var(--acct)}
 a{color:var(--acct);text-decoration:none}
 .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
-.nav a{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:14px;color:var(--fg);font-weight:700}
+.nav a{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;color:var(--fg);font-weight:700}
 .nav a small{display:block;color:var(--mut);font-weight:400;font-size:12px;margin-top:2px}
 .nav a .tile{width:38px;height:38px;border-radius:12px}
 .btn{display:block;text-align:center;background:var(--accs);color:var(--acct);border-radius:14px;padding:12px;font-weight:700;margin-top:8px}
@@ -383,6 +383,12 @@ def market_chips(base: str, on: str = "", acct: str = "") -> str:
     items = (("", "/" + (f"?{q}" if q else ""), "전체"), ("KR", "/strategies?m=KR" + (f"&{q}" if q else ""), "국내"),
              ("US", "/strategies?m=US" + (f"&{q}" if q else ""), "미국"), ("CRYPTO", "/crypto", "크립토"))
     return '<div class="chips">' + "".join(f'<a href="{E(base)}{p}" class="{"on" if k == on else ""}">{t}</a>' for k, p, t in items) + "</div>"
+
+
+def plan_shortcut(profs: List[dict], base: str) -> str:
+    """홈 맨 위 바로가기 — 전략 카드가 길어 '매매 계획' 버튼이 한참 아래로 밀리므로, plan_trader 프로필마다 한 줄."""
+    return "".join(f'<a class="btn fill" style="margin:0 0 10px" href="{E(base)}/plans?p={quote(str(c.get("profile", "")))}">매매 계획 · 오늘 후보 · {E(str(c.get("profile", "")))}</a>'
+                   for c in profs if c.get("strategy") == "plan_trader")
 
 
 def acct_of(raw_path: str, default: str) -> str:
@@ -1464,7 +1470,7 @@ class WebApp:
             n = lambda k: sum(len(r.get(k) or []) for x in allv for r in x["todayRuns"])   # noqa: E731
             agg = {"runs": sum(len(x["todayRuns"]) for x in allv), "placed": n("placed"), "errors": n("errors"),
                    "kill": any(x["kill"] for x in allv)}
-            extra = (unlock + js + market_chips(self.base, acct=acct)
+            extra = (unlock + js + plan_shortcut(profs, self.base) + market_chips(self.base, acct=acct)
                      + (render_profiles(views, self.base, hide_money=locked, csrf=sess["csrf"], pk=pk, server_on=server_on,
                                         quotes=self._quotes(profs))
                         or f'<div class="card mut">{"실계좌" if acct == "live" else "모의투자"} 프로필이 없다</div>'))
