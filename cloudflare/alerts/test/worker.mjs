@@ -92,8 +92,8 @@ await t('원격 킬: 서명 링크로만 켜고, 태블릿이 가져가 ack 하�
   assert.equal((await (await adm('/kill/ack', 'POST')).json()).had, true);
   assert.equal((await (await adm('/kill')).json()).kill, null);
   assert.equal(sent().filter((m) => m.text.includes('긴급 정지 적용')).length, 1);
-  assert.equal((await (await adm('/kill/ack', 'POST')).json()).had, false);                                                    // 이미 지워졌으면 알림 없음
-  assert.equal(sent().filter((m) => m.text.includes('긴급 정지 적용')).length, 1);
+  assert.equal((await (await adm('/kill/ack', 'POST')).json()).had, false);                                                    // 요청이 안 보여도(KV 지연) 태블릿이 부른 ack 는 적용 알림을 보낸다
+  assert.equal(sent().filter((m) => m.text.includes('긴급 정지 적용')).length, 2);
 });
 
 console.log(`OK ${n}/${n}`);

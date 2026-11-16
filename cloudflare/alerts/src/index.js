@@ -252,7 +252,8 @@ async function admin(request, env) {
   if (pathname === '/kill/ack' && request.method === 'POST') {                                                            // 태블릿이 KILL 을 켠 뒤 부른다 — 요청을 지우고 적용을 알린다
     const had = await kvJson(env, 'kill_req', null);
     await env.ALERTS.delete('kill_req');
-    if (had) await send(env, '[긴급 정지 적용] 태블릿 엔진의 킬 스위치가 켜졌습니다. 해제는 태블릿에서 `python -m autotrader resume-all` 로 직접 하세요.', { chat: 'trade', kakao: false });
+    // had 가 null 이어도 알린다 — KV 읽기가 늦게 반영될 수 있다(11-16 실측: 요청은 사라졌는데 적용 알림만 누락)
+    await send(env, '[긴급 정지 적용] 태블릿 엔진의 킬 스위치가 켜졌습니다. 해제는 태블릿에서 `python -m autotrader resume-all` 로 직접 하세요.', { chat: 'trade', kakao: false });
     return json({ ok: true, had: !!had });
   }
   if (pathname === '/kill/link' && request.method === 'GET') return json({ link: await killLink(env) });                  // 폰 즐겨찾기용(한 번만 읽어 간다)
