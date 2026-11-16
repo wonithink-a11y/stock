@@ -9,9 +9,9 @@
 | 통과·채택 | 27 |
 | 보류·판정 불가 | 57 |
 | 기각 | 172 |
-| 사전등록 문서(결과는 별도 파일) | 224 |
+| 사전등록 문서(결과는 별도 파일) | 225 |
 | 정보·탐색 | 49 |
-| 미분류 | 251 |
+| 미분류 | 252 |
 
 ## 통과·채택 (27)
 
@@ -284,10 +284,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (224)
+## 사전등록 문서(결과는 별도 파일) (225)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-17 | PREREGISTERED | us | [vix-ladder-svix-lag-baseline-preregistration-2026-11.md](vix-ladder-svix-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 SVIX(−1배)' INFORMATION 이 VIX 확정 다음 날 체결에도 남고, 같은 보유일수 무작위 SVIX 보유와 구분되는가… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
 | 2026-11-16 | PREREGISTERED | kr | [pipeline-rebuttal-forward-preregistration-2026-11.md](pipeline-rebuttal-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "점수 상위 후보에 LLM 반증이 '주의·논리 약함' 깃발을 단 종목은 그 뒤 20거래일 동안 깃발 없는 후보보다 덜 오르는가, 그리고 그 차이가… |
 | 2026-11-14 | PREREGISTERED | crypto | [okx-listing-bl7-replication-preregistration-2026-11.md](okx-listing-bl7-replication-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 해당 없음. 질문 — 바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 바이낸스가 아닌 거래소(OKX)의 신규 상장에서도 보이는가. 바이낸스 효과가 '바이… |
@@ -567,10 +568,11 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (251)
+## 미분류 (252)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-17 | 지연 견딤 | us | [vix-ladder-svix-lag-baseline-results-2026-11.md](vix-ladder-svix-lag-baseline-results-2026-11.md) | 신호: 있음(지연 견딤, 단 한 사건에 크게 좌우) · 기준선 대비 구분 안 됨 · 경제성: 미확정. L1 에서도 VALID(14건 +6.5%·이익 100%·최악 0%)와 TEST(9건 +0.6%·… |
 | 2026-11-17 | 지연 견딤 | us | [vix-ladder-3x-lag-baseline-results-2026-11.md](vix-ladder-3x-lag-baseline-results-2026-11.md) | 신호: 있음(집행 지연에 견딤) · 기준선 대비 구분 안 됨 · 경제성: 미확정. NDX 3배는 다음 날 체결로 바꿔도 TRAIN·VALID·TEST 모두 원 기준을 충족한다(평균 +2.9·+5.7… |
 | 2026-11-14 | 부분 재현 | crypto | [okx-listing-bl7-replication-results-2026-11.md](okx-listing-bl7-replication-results-2026-11.md) | 신호: 방향은 같으나 유의하지 않음(부분 재현) · 경제성: 판정 안 함. OOS 상장일 73 평균 rel -425.2bp (t -0.96), TRAIN -436.3bp. OKX 신규 상장(바이낸스… |
 | 2026-11-14 | 신호 없음 | kr | [kr-index-foreign-flow-timing-results-2026-11.md](kr-index-foreign-flow-timing-results-2026-11.md) | 신호: Q1 신호 없음 · Q2 구분 안 됨 · Q3 개선/보호 도구 셀 5/14 (KOSPI R1b MA100: 보호 도구, KOSDAQ R1a MA200: 보호 도구, KOSDAQ R1b MA1… |
