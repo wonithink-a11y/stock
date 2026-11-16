@@ -1,0 +1,73 @@
+{
+ "agents": {
+  "bundleSkipped": 0,
+  "candidates": 1,
+  "duplicates": 0,
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "v1",
+  "quotaSkipped": 0,
+  "rebuttal": {
+   "failed": 0,
+   "flags": {
+    "caution": 0,
+    "none": 1,
+    "thesis-weak": 0
+   },
+   "invalidations": 4,
+   "manual": 1,
+   "written": 1
+  },
+  "skippedExisting": 0,
+  "thesis": {
+   "claimsKept": 4,
+   "claimsTotal": 4,
+   "failed": 0,
+   "written": 1
+  },
+  "written": 2
+ },
+ "candidates": {
+  "asOf": "20261116",
+  "candidates": 20,
+  "duplicates": 0,
+  "eligible": 340,
+  "excluded": {
+   "low-confidence": 3,
+   "risk-state": 10
+  },
+  "ruleVersion": "CR-1.0",
+  "runAt": "2026-11-17T06:15:30+09:00",
+  "staleScoreSkip": false,
+  "universe": 353,
+  "written": 20
+ },
+ "monitor": {
+  "checked": 59,
+  "duplicates": 0,
+  "expired": 0,
+  "triggered": [
+   {
+    "name": "삼성증권",
+    "text": "최종 점수가 90.0 아래로 내려간다.",
+    "ticker": "016360"
+   },
+   {
+    "name": "키움증권",
+    "text": "최종 점수가 90.0점 아래로 내려갈 경우 논리가 깨진 것으로 봅니다.",
+    "ticker": "039490"
+   },
+   {
+    "name": "한국금융지주",
+    "text": "최종 점수가 90.0 아래로 내려간다.",
+    "ticker": "071050"
+   }
+  ],
+  "unknown": 0,
+  "written": 3
+ },
+ "outcomes": {
+  "duplicates": 0,
+  "measured": 0,
+  "written": 0
+ }
+}
