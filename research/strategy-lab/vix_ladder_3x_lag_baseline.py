@@ -67,7 +67,7 @@ def stat(rows):
         return None
     a = np.array([x["ret"] for x in rows])
     return dict(n=len(a), mean=round(float(a.mean()), 1), med=round(float(np.median(a)), 1), win=round(float((a > 0).mean() * 100)),
-                worst=round(float(min(x["worst"] for x in rows))))
+                worst=round(float(a.min())), hold_worst=round(float(min(x["worst"] for x in rows))))   # 원과 같이 worst=사건 최악 수익(a.min), 보유중최악은 따로
 
 
 def meets(c):
