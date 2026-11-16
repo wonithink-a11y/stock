@@ -4,7 +4,7 @@ import worker from '../src/index.js';
 
 let n = 0; const t = async (name, f) => { await f(); n++; };
 const kv = new Map();
-const env = { ALERTS: { get: async (k) => kv.get(k) ?? null, put: async (k, v) => { kv.set(k, v); } }, TELEGRAM_BOT_TOKEN: 'tok', TELEGRAM_CHAT_ID: '111', TELEGRAM_TRADE_CHAT_ID: '222', ADMIN_KEY: 'adminkey' };
+const env = { ALERTS: { get: async (k) => kv.get(k) ?? null, put: async (k, v) => { kv.set(k, v); }, delete: async (k) => { kv.delete(k); } }, TELEGRAM_BOT_TOKEN: 'tok', TELEGRAM_CHAT_ID: '111', TELEGRAM_TRADE_CHAT_ID: '222', ADMIN_KEY: 'adminkey' };
 let price = 69900, calls = [];
 globalThis.fetch = async (url, init) => {
   url = String(url); calls.push({ url, body: init && init.body });
@@ -72,6 +72,28 @@ await t('매매방 번호가 없으면 기본 방으로 폴백', async () => {
   delete env.TELEGRAM_TRADE_CHAT_ID; calls = [];
   await worker.fetch(new Request('https://x/test?chat=trade', { method: 'POST', headers: { Authorization: 'Bearer adminkey' } }), env);
   assert.equal(sent()[0].chat_id, '111');
+});
+
+await t('원격 킬: 서명 링크로만 켜고, 태블릿이 가져가 ack 하면 지워지며 매매방에 두 번(요청·적용) 알린다', async () => {
+  calls = []; kv.delete('kill_req'); env.TELEGRAM_TRADE_CHAT_ID = '222';
+  const link = (await (await adm('/kill/link')).json()).link, s = new URL(link).searchParams.get('s');
+  assert.equal((await worker.fetch(new Request('https://x/k?s=bad'), env)).status, 200);                                    // 잘못된 서명은 안내 페이지만
+  assert.equal(kv.get('kill_req'), undefined);
+  assert.match(await (await worker.fetch(new Request(link), env)).text(), /긴급 정지/);                                       // GET = 버튼만, 켜지 않는다
+  assert.equal(kv.get('kill_req'), undefined);
+  await worker.fetch(new Request('https://x/k', { method: 'POST', body: `s=bad` }), env);
+  assert.equal(kv.get('kill_req'), undefined);
+  await worker.fetch(new Request('https://x/k', { method: 'POST', body: `s=${s}` }), env);
+  assert.ok(JSON.parse(kv.get('kill_req')).t);
+  await worker.fetch(new Request('https://x/k', { method: 'POST', body: `s=${s}` }), env);                                  // 중복 요청은 알림을 더 보내지 않는다
+  assert.equal(sent().filter((m) => m.chat_id === '222' && m.text.includes('긴급 정지 요청')).length, 1);
+  assert.ok((await (await adm('/kill')).json()).kill);                                                                         // 태블릿이 읽는다
+  assert.equal((await worker.fetch(new Request('https://x/kill'), env)).status, 404);                                          // Bearer 없으면 404
+  assert.equal((await (await adm('/kill/ack', 'POST')).json()).had, true);
+  assert.equal((await (await adm('/kill')).json()).kill, null);
+  assert.equal(sent().filter((m) => m.text.includes('긴급 정지 적용')).length, 1);
+  assert.equal((await (await adm('/kill/ack', 'POST')).json()).had, false);                                                    // 이미 지워졌으면 알림 없음
+  assert.equal(sent().filter((m) => m.text.includes('긴급 정지 적용')).length, 1);
 });
 
 console.log(`OK ${n}/${n}`);

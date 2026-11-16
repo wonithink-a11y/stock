@@ -206,10 +206,31 @@ async function ackHandler(request, env, url) {
   return page('<p>확인했습니다. 이 이탈에 대한 알림을 멈춥니다. 가격이 회복되면 알려 드립니다.</p>');
 }
 
+// 원격 킬 — 태블릿 엔진은 PC 웹의 킬 파일을 못 본다. 여기서 요청을 받아 두면 태블릿이 매분 가져가 KILL 을 켜고 ack 한다.
+// 켜는 쪽만 열려 있다(서명 링크 /k — 새어도 거래가 멈출 뿐). 해제(resume)는 태블릿에서 사람이 한다.
+const killLink = async (env) => `${BASE}/k?s=${await hmacHex(env, 'kill-v1')}`;
+async function killRequest(env, how) {
+  const cur = await kvJson(env, 'kill_req', null);
+  if (cur) return cur;                                       // 이미 요청 중이면 그대로(중복 알림 없음)
+  const req = { t: Date.now(), how };
+  await env.ALERTS.put('kill_req', JSON.stringify(req));
+  await send(env, `[긴급 정지 요청] 태블릿 엔진이 1~2분 안에 킬 스위치를 켭니다(${how}). 적용되면 다시 알립니다.`, { chat: 'trade', kakao: false });
+  return req;
+}
+async function killHandler(request, env, url) {
+  if (!S(env, 'ADMIN_KEY')) return new Response('Not Found', { status: 404 });
+  const q = request.method === 'POST' ? new URLSearchParams(await request.text()) : url.searchParams;
+  if (!sameHex(q.get('s') || '', await hmacHex(env, 'kill-v1'))) return page('<p>링크가 올바르지 않습니다.</p>');
+  if (request.method === 'GET') return page(`<p><b>긴급 정지</b><br>태블릿 자동매매 엔진의 킬 스위치를 켤까요?<br><small>해제는 태블릿에서 직접 합니다.</small></p><form method="post" action="/k"><input type="hidden" name="s" value="${esc(q.get('s'))}"><button style="font-size:20px;padding:12px 24px;background:#c33;color:#fff;border:0;border-radius:10px">긴급 정지</button></form>`);
+  await killRequest(env, '정지 링크');
+  return page('<p>요청했습니다. 태블릿이 1~2분 안에 킬 스위치를 켜고 매매방에 알립니다.</p>');
+}
+
 // ---------- 관리용 HTTP(Bearer ADMIN_KEY) ----------
 async function admin(request, env) {
   const url = new URL(request.url);
   if (url.pathname === '/ack' && ['GET', 'POST'].includes(request.method)) return ackHandler(request, env, url);   // 서명 링크로 인증(Bearer 아님)
+  if (url.pathname === '/k' && ['GET', 'POST'].includes(request.method)) return killHandler(request, env, url);      // 서명 링크(켜기 전용)
   const auth = request.headers.get('Authorization') || '';
   if (!S(env, 'ADMIN_KEY') || auth !== `Bearer ${S(env, 'ADMIN_KEY')}`) return new Response('Not Found', { status: 404 });   // 존재를 숨긴다
   const { pathname } = url, json = (o) => Response.json(o);
@@ -226,6 +247,15 @@ async function admin(request, env) {
     await env.ALERTS.put('stops', JSON.stringify(merged));
     return json({ ok: true, count: merged.length });
   }
+  if (pathname === '/kill' && request.method === 'GET') return json({ kill: await kvJson(env, 'kill_req', null) });          // 태블릿이 매분 본다
+  if (pathname === '/kill' && request.method === 'POST') return json({ kill: await killRequest(env, 'PC·관리 키') });
+  if (pathname === '/kill/ack' && request.method === 'POST') {                                                            // 태블릿이 KILL 을 켠 뒤 부른다 — 요청을 지우고 적용을 알린다
+    const had = await kvJson(env, 'kill_req', null);
+    await env.ALERTS.delete('kill_req');
+    if (had) await send(env, '[긴급 정지 적용] 태블릿 엔진의 킬 스위치가 켜졌습니다. 해제는 태블릿에서 `python -m autotrader resume-all` 로 직접 하세요.', { chat: 'trade', kakao: false });
+    return json({ ok: true, had: !!had });
+  }
+  if (pathname === '/kill/link' && request.method === 'GET') return json({ link: await killLink(env) });                  // 폰 즐겨찾기용(한 번만 읽어 간다)
   if (pathname === '/hb' && request.method === 'POST') { await env.ALERTS.put('hb', JSON.stringify({ t: Date.now() })); return json({ ok: true }); }
   if (pathname === '/targets' && request.method === 'GET') {
     const fired = new Set(JSON.parse((await env.ALERTS.get('fired')) || '[]'));

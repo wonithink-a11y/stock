@@ -277,6 +277,31 @@ def cmd_resume(args) -> int:
     return 0
 
 
+def _all_kill_files(config_path) -> list:
+    """기본 + 모든 프로필의 KILL 경로. 프로필 설정이 깨져 있어도 상태 폴더 규칙(<기본>/profiles/<이름>)만으로 구한다."""
+    main_cfg = load_config(config_path)
+    return [kill_file(main_cfg)] + [state_dir(main_cfg) / "profiles" / n / "KILL" for n in list_profiles(config_path)]
+
+
+def cmd_kill_all(args) -> int:
+    """킬 스위치를 기본·모든 프로필에 한 번에 켠다 — 태블릿 원격 킬(Workers 요청)과 사람의 비상 정지가 같이 쓴다."""
+    now = datetime.now(KST).isoformat()
+    files = _all_kill_files(args.config)
+    for kf in files:
+        kf.parent.mkdir(parents=True, exist_ok=True)
+        kf.write_text(now, encoding="utf-8")
+    print(f"킬 스위치 ON — {len(files)}곳(기본 + 프로필 {len(files) - 1}개). 해제: python -m autotrader resume-all")
+    return 0
+
+
+def cmd_resume_all(args) -> int:
+    files = [kf for kf in _all_kill_files(args.config) if kf.exists()]
+    for kf in files:
+        kf.unlink()
+    print(f"킬 스위치 OFF — {len(files)}곳 해제")
+    return 0
+
+
 def cmd_snapshot(args) -> int:
     """브로커를 읽기 전용으로 조회해 state/snapshot.json 을 갱신한다(웹 화면이 읽는다). 주문은 절대 안 낸다."""
     from .snapshot import build_snapshot, write_snapshot
@@ -510,7 +535,7 @@ def main(argv=None) -> int:
     npf.add_argument("--key-prefix", default="KIS_VTS", help="키 이름 앞부분(예: KIS_VTS → KIS_VTS_APP_KEY ...)")
     npf.add_argument("--mode", choices=("paper", "live"), default="paper")
     npf.add_argument("--markets", default="KR", help="KR 또는 US 또는 KR,US")
-    for name in ("check-config", "status", "kill", "resume", "snapshot", "channels-fetch", "upbit-probe"):
+    for name in ("check-config", "status", "kill", "resume", "kill-all", "resume-all", "snapshot", "channels-fetch", "upbit-probe"):
         sub.add_parser(name)
     fs = sub.add_parser("fills-sync", help="체결 원장 되살리기·진단(조회 전용) — --profile 필요")
     fs.add_argument("--days", type=int, default=60, help="며칠 전 주문까지 다시 조회할지(최대 90)")
@@ -530,7 +555,7 @@ def main(argv=None) -> int:
     ws.add_argument("--reset", action="store_true")
     args = ap.parse_args(argv)
     fn = {"run": cmd_run, "check-config": cmd_check, "status": cmd_status,
-          "kill": cmd_kill, "resume": cmd_resume, "snapshot": cmd_snapshot,
+          "kill": cmd_kill, "resume": cmd_resume, "kill-all": cmd_kill_all, "resume-all": cmd_resume_all, "snapshot": cmd_snapshot,
           "serve": cmd_serve, "web-setup": cmd_web_setup, "run-due": cmd_run_due,
           "profiles": cmd_profiles, "new-profile": cmd_new_profile, "notify-logins": cmd_notify, "telegram-chat-id": cmd_chat_id,
           "passkey-reset": cmd_passkey_reset, "passkey-enroll": cmd_passkey_enroll, "logout-all": cmd_logout_all,
