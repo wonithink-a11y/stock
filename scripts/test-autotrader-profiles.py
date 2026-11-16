@@ -94,6 +94,15 @@ def main():
         ck("경로 조작 이름 거부", raises(ConfigError, load_profile, main_p, "../a"))
         (Path(td) / "profiles" / "bad.json").unlink()
 
+        # ---- 원격 킬(태블릿): kill-all 은 기본 + 모든 프로필에 KILL, resume-all 은 전부 해제. 프로필 설정이 깨져 있어도 동작(상태 폴더 규칙만 씀)
+        kfs = [Path(td) / "state" / "KILL", Path(td) / "state" / "profiles" / "a" / "KILL", Path(td) / "state" / "profiles" / "b" / "KILL"]
+        ck("kill-all 전에는 KILL 없음", not any(k.exists() for k in kfs))
+        ck("kill-all 종료코드 0", cli.main(["--config", str(main_p), "kill-all"]) == 0)
+        ck("kill-all: 기본+프로필 전부 KILL", all(k.exists() for k in kfs))
+        ck("프로필 게이트가 KILL 을 본다", any("킬 스위치" in x for x in gate_problems(load_profile(main_p, "a"), PAPER, True)))
+        ck("resume-all 종료코드 0", cli.main(["--config", str(main_p), "resume-all"]) == 0)
+        ck("resume-all: 전부 해제", not any(k.exists() for k in kfs))
+
         # ---- 토큰: 같은 앱키는 프로필이 달라도 한 파일 · 발급 제한이면 1분 기다려 한 번 재시도
         from autotrader import kis as K
         b_main = K.make_broker(normalize_config({**BASE, "state_dir": str(Path(td) / "state")}), PAPER, False)

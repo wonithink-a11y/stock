@@ -65,6 +65,7 @@ Invoke-RestMethod -Method Post $u/rearm -Headers $h                   # 울린 �
 | 엔진 멈춤 | 감시 목록이 있는데 하트비트가 20분 넘게 없으면 알림(30분마다 반복, 복귀 시 한 번). 목록이 비면 조용 |
 
 **관리 HTTP**(`Authorization: Bearer ADMIN_KEY`): `GET /stops` · `PUT /stops?src=engine|manual`(그 출처의 목록을 통째로 바꿈, 형식 `[{"market":"KR","symbol":"005930","name":"삼성전자","stop":70000,"note":"…"}]`) · `POST /hb` · `POST /test?chat=trade`(매매방 연결 시험).
+**원격 킬**(태블릿 엔진용, 켜기 전용): `POST /kill`(요청) · `GET /kill`(태블릿이 매분 읽음) · `POST /kill/ack`(태블릿이 KILL 을 켠 뒤 — 요청을 지우고 매매방에 알림) · `GET /kill/link`(폰 즐겨찾기용 서명 링크 `/k?s=…`: GET=버튼만, POST=요청). 링크가 새도 거래가 멈출 뿐이다. 해제는 태블릿 `resume-all`. PC 에서는 `scripts/kill-tablet.ps1`.
 시세: 국내 네이버 일봉(현재가), 미국 야후(마지막 체결이 15분 안일 때만 — 낡은 값은 건너뛴다). **무료 시세의 실제 지연은 미확인** — 며칠 증권사 화면과 비교해 2분 이내인지 기록한다.
 
 ### 배포(사용자, PowerShell, 저장소의 `cloudflare\alerts` 폴더에서)
