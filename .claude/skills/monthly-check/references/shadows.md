@@ -38,6 +38,10 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 31 | 바이낸스 신규 상장 꼬리 조건(첫날 급등 → 7일 꼬리) | `run_binance_listing_tail_forward.py` (#25 다음, data-api 공개, 약 1분) | `reports/2026-11-binance-listing-tail-forward/` | 성숙 80 ∧ 주 칸 30 ∧ 6개월, 연장 1회(160·60) |
 | 32 | 바이낸스 무기한 크기·손절 칸(+30% 손절·급등 건너뜀·2%) | `run_binance_listing_perp_sizing_forward.py` (#25 events.json 재사용, 일 파일·fapi 공개, 수 초) | `reports/2026-11-binance-listing-perp-sizing-forward/` | 무기한 성숙 40 ∧ 6개월, 마감 2027-11-30(미달 시 INCONCLUSIVE). **2026-11-14 현재 사건 19건 전부 무기한 없음(토큰화 주식형) — 쌓이지 않으면 INCONCLUSIVE 로 끝남** |
 | 33 | 파이프라인 반증 깃발 변별력 (점수 상위 후보에 단 LLM 반증 깃발 → 20거래일 초과수익) | `python -m pipeline judge` (저장소 루트, 읽기 전용, 수 초 — 기록은 `pipeline.yml` 이 평일 20:40 에 자동으로 쌓는다. 여기서는 **건수·G0 상태만** 본다) | `data/pipeline/events/` · `diagnostics/` · `baseline/` (Actions 커밋) | 표본 시작(G0 통과 다음 날, 코드가 정함) 365일 ∧ 깃발 사건 60 ∧ 40주에 1회, 1,095일 마감. 사전등록 f7c22327 · 코드 a2d0f7f8 |
+| 34 | 급락 후 반등·데드캣 (8개 지수, 20일 −20% ∧ 252일 고점 −30% 새 사건 → 63일 초과수익) | `run_drop_events_forward.py` (yfinance 공개, 약 30초 — 자주 돌려도 됨. #35 와 같은 스크립트 한 번) | `reports/2026-11-drop-events-forward/` (events·outcomes·baseline·cohort) | 성숙 wave ≥ 7 ∧ 24개월 1회, 최종 60개월(그때 wave < 7 이면 표본 부족 종결). 사전등록 b39a4a05 · 코드 d1e339a6. 드문 사건이라 기록 위주 |
+| 35 | 연속 하락 셀 C (12개 지수, 5일 연속 하락 ∧ −10% 새 사건 → 21일 초과수익) | `run_drop_events_forward.py` (#34 와 같은 실행) | 위와 같은 폴더 | 성숙 wave ≥ 7 ∧ 12개월 1회, 최종 36개월. 사전등록 b39a4a05 · 코드 d1e339a6 |
+| 36 | VIX 한국 지수 R1 (VIX ≤14 현금 / ≥20 매수 → 코스피·코스닥, 보유 대비) | `run_vix_kr_inv_forward.py` (yfinance 공개, 수 초 — 자주 돌려도 됨. #37 과 같은 실행) | `reports/2026-11-vix-kr-inv-forward/observations.jsonl` | 성숙 250거래일 ∧ 12개월 1회, 연장 500·24개월. 판정 불가 = 현금 날 10일 미만. 사전등록 b39a4a05 · 코드 d1e339a6 |
+| 37 | VIX 인버스 B (VIX ≥20 SVXY 매수 / ≤16 현금, 보유 대비) | `run_vix_kr_inv_forward.py` (#36 과 같은 실행) | 위와 같은 폴더 | 위와 같음. 판정 불가 = 진입 3회 미만(관측 시작 때 이미 매수 상태면 새 진입이 있어야 센다). 사전등록 b39a4a05 · 코드 d1e339a6 |
 
 ## 메모
 

@@ -9,7 +9,7 @@
 | 통과·채택 | 27 |
 | 보류·판정 불가 | 57 |
 | 기각 | 172 |
-| 사전등록 문서(결과는 별도 파일) | 225 |
+| 사전등록 문서(결과는 별도 파일) | 228 |
 | 정보·탐색 | 49 |
 | 미분류 | 252 |
 
@@ -284,12 +284,15 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (225)
+## 사전등록 문서(결과는 별도 파일) (228)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-svix-lag-baseline-preregistration-2026-11.md](vix-ladder-svix-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 SVIX(−1배)' INFORMATION 이 VIX 확정 다음 날 체결에도 남고, 같은 보유일수 무작위 SVIX 보유와 구분되는가… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
+| 2026-11-17 | PREREGISTERED | us-kr | [vix-kr-inverse-forward-preregistration-2026-11.md](vix-kr-inverse-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (KR-R1) "미국 VIX ≤14/≥20 규칙으로 한국 지수를 사고판 과거 INCONCLUSIVE 3셀(CAGR +8.2 vs +6.1%, ΔS… |
+| 2026-11-17 | PREREGISTERED | global | [streak-drop-c-forward-preregistration-2026-11.md](streak-drop-c-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE 였던 깊은 연속 하락(5일·−10%) 뒤 21일 반등이, 앞으로의 사건에서 평소보다 일관되게 높은가(또는 … |
+| 2026-11-17 | PREREGISTERED | global | [crash-rebound-forward-preregistration-2026-11.md](crash-rebound-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE(충족 3/8 < 4)였던 급락 후 63일 반등이, 아직 보지 않은 앞으로의 급락 사건에서 평소보다 일관되게… |
 | 2026-11-16 | PREREGISTERED | kr | [pipeline-rebuttal-forward-preregistration-2026-11.md](pipeline-rebuttal-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "점수 상위 후보에 LLM 반증이 '주의·논리 약함' 깃발을 단 종목은 그 뒤 20거래일 동안 깃발 없는 후보보다 덜 오르는가, 그리고 그 차이가… |
 | 2026-11-14 | PREREGISTERED | crypto | [okx-listing-bl7-replication-preregistration-2026-11.md](okx-listing-bl7-replication-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 해당 없음. 질문 — 바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 바이낸스가 아닌 거래소(OKX)의 신규 상장에서도 보이는가. 바이낸스 효과가 '바이… |
 | 2026-11-14 | PREREGISTERED | kr | [kr-index-foreign-flow-timing-preregistration-2026-11.md](kr-index-foreign-flow-timing-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문(사용자 2026-11-14) — 코스피가 6월 고점(9,114) 대비 −42%까지 내렸고 외국인이 올해 대부분의 달에 순매도였다. 외국인 순매도는 지… |
