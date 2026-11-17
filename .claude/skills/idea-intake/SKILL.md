@@ -18,7 +18,7 @@ description: 외부 아이디어(GitHub·논문·전문가·트레이더 방법)
 
 ## 1. 찾기
 
-출처 후보(무료): GitHub 목록형 저장소(예: paperswithbacktest/awesome-systematic-trading 의 논문 목록 — **홍보 퍼널이 있고 수치는 비용 전 gross**), 논문 초록(SSRN·arXiv·공개 페이지), 트레이더 공개 글.
+출처 후보(무료): **arXiv 최근 논문(권장 — 별 수 대신 날짜로 찾는다)**: `curl -sL "https://export.arxiv.org/api/query?search_query=cat:q-fin.TR+OR+cat:q-fin.PM+OR+cat:q-fin.ST&sortBy=submittedDate&sortOrder=descending&max_results=100"` 으로 제목·초록을 받아 훑는다(2026-11-17 시험: 100편 중 규칙+자료가 맞는 것은 1~2편). GitHub 는 `gh search repos "topic:quant stars:>300 pushed:>YYYY-MM-DD" --sort stars` 처럼 조건식으로 찾되 상위는 프레임워크·에이전트라 전략이 아니다. GitHub 목록형 저장소(예: paperswithbacktest/awesome-systematic-trading 의 논문 목록 — **홍보 퍼널이 있고 수치는 비용 전 gross**), 논문 초록(SSRN·arXiv·공개 페이지), 트레이더 공개 글.
 한 건마다 적는다: 출처 URL · 주장 한 문장 · **규칙으로 쓸 수 있는 형태**(진입·청산·문턱).
 
 ## 2. 거르기 — 여섯 문, 하나라도 걸리면 거기서 멈춘다
