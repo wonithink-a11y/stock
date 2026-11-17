@@ -9,8 +9,8 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 58 |
 | 기각 | 173 |
-| 사전등록 문서(결과는 별도 파일) | 231 |
-| 정보·탐색 | 49 |
+| 사전등록 문서(결과는 별도 파일) | 232 |
+| 정보·탐색 | 50 |
 | 미분류 | 252 |
 
 ## 통과·채택 (28)
@@ -287,7 +287,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (231)
+## 사전등록 문서(결과는 별도 파일) (232)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -297,6 +297,7 @@
 | 2026-11-17 | PREREGISTERED | us | [us-treasury-month-end-preregistration-2026-11.md](us-treasury-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 쿠폰 국채 수익이 달의 마지막 며칠에 평소보다 높다(Predictable End-of-Month Treasury Returns, windo… |
 | 2026-11-17 | PREREGISTERED | global | [streak-drop-c-forward-preregistration-2026-11.md](streak-drop-c-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE 였던 깊은 연속 하락(5일·−10%) 뒤 21일 반등이, 앞으로의 사건에서 평소보다 일관되게 높은가(또는 … |
 | 2026-11-17 | PREREGISTERED | kr | [kr-ust-etf-month-end-preregistration-2026-11.md](kr-ust-etf-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "IEF 에서 확인한 미국 국채 월말 효과(월 +20.9bp, 순열 p 0.0002)가 한국 개인이 실제로 살 수 있는 국내 상장 미국채 선물 E… |
+| 2026-11-17 | PREREGISTERED | kr | [kr-nominal-price-preregistration-2026-11.md](kr-nominal-price-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "주가의 명목 수준(액면·주수 선택의 부산물인 1주당 가격)이 낮은 한국 종목이, 시총을 같이 맞춰도, 다음 달 수익이 다른가(Nominal Pr… |
 | 2026-11-17 | PREREGISTERED | kr | [kr-crash-events-alllist-preregistration-2026-11.md](kr-crash-events-alllist-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 폐지 종목을 포함한 한국 대형주(시총 상위 100)에서 20일 −25%·252일 고점 −40% 급락 뒤 63일이 같은 시기의 다른 대형주보다 높은… |
 | 2026-11-17 | PREREGISTERED | global | [crash-rebound-forward-preregistration-2026-11.md](crash-rebound-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE(충족 3/8 < 4)였던 급락 후 63일 반등이, 아직 보지 않은 앞으로의 급락 사건에서 평소보다 일관되게… |
 | 2026-11-16 | PREREGISTERED | kr | [pipeline-rebuttal-forward-preregistration-2026-11.md](pipeline-rebuttal-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "점수 상위 후보에 LLM 반증이 '주의·논리 약함' 깃발을 단 종목은 그 뒤 20거래일 동안 깃발 없는 후보보다 덜 오르는가, 그리고 그 차이가… |
@@ -523,10 +524,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (49)
+## 정보·탐색 (50)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-17 | INFORMATION | kr | [kr-nominal-price-results-2026-11.md](kr-nominal-price-results-2026-11.md) | 신호: 약함(고가 우위 방향, 문턱 미달) · 경제성: 해당 없음(저가 우위가 아님). 시총을 맞춘 뒤에도 저가 3분위가 고가 3분위보다 월 −23.7bp [−62.4, +16.8] 낮았고(순열 양… |
 | 2026-11-08 | INFORMATION | us | [vix-ladder-svix-results-2026-11.md](vix-ladder-svix-results-2026-11.md) | 신호: 있음(기준 충족, 단 약함) · 경제성: 미확정. 주 셀(N 8·≤16)에서 VALID(14건 평균 +2.8%·이익 86%·최악 −41%)와 TEST(9건 +1.9%·89%·−33%)가 기준… |
 | 2026-11-08 | INFORMATION | global | [streak-conditions-results-2026-11.md](streak-conditions-results-2026-11.md) | 신호: 있음(약함, 사전 기준 1칸 통과: A≥3일·−5% ∧ VIX≥30) · 경제성: 미확정. 그 칸은 12개 시장 모두 보유, 사건 320건, 6개 시장이 BH 5% 통과, 합산 초과 +3.1… |
 | 2026-11-08 | INFORMATION | kr | [rv-ladder-kr-2x-results-2026-11.md](rv-ladder-kr-2x-results-2026-11.md) | 신호: 있음(코스닥만, 약함) · 경제성: 미확정. 코스닥 2배는 VALID(12건 이익 83%·최악 −2%)·TEST(11건 82%·0%)를 충족해 INFORMATION, TRAIN 은 이익 55… |
