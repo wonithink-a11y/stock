@@ -1,0 +1,63 @@
+{
+ "agents": {
+  "bundleSkipped": 0,
+  "candidates": 1,
+  "duplicates": 0,
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "v1",
+  "quotaSkipped": 0,
+  "rebuttal": {
+   "failed": 0,
+   "flags": {
+    "caution": 0,
+    "none": 1,
+    "thesis-weak": 0
+   },
+   "invalidations": 4,
+   "manual": 1,
+   "written": 1
+  },
+  "skippedExisting": 0,
+  "thesis": {
+   "claimsKept": 4,
+   "claimsTotal": 4,
+   "failed": 0,
+   "written": 1
+  },
+  "written": 2
+ },
+ "candidates": {
+  "asOf": "20261117",
+  "candidates": 20,
+  "duplicates": 0,
+  "eligible": 340,
+  "excluded": {
+   "low-confidence": 3,
+   "risk-state": 10
+  },
+  "ruleVersion": "CR-1.0",
+  "runAt": "2026-11-18T05:00:48+09:00",
+  "staleScoreSkip": false,
+  "universe": 353,
+  "written": 20
+ },
+ "monitor": {
+  "checked": 59,
+  "duplicates": 0,
+  "expired": 0,
+  "triggered": [
+   {
+    "name": "미스토홀딩스",
+    "text": "기준일 종가 대비 15% 넘게 하락하는 경우 논리가 깨진 것으로 봅니다.",
+    "ticker": "081660"
+   }
+  ],
+  "unknown": 0,
+  "written": 1
+ },
+ "outcomes": {
+  "duplicates": 0,
+  "measured": 0,
+  "written": 0
+ }
+}
