@@ -9,7 +9,7 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 59 |
 | 기각 | 174 |
-| 사전등록 문서(결과는 별도 파일) | 234 |
+| 사전등록 문서(결과는 별도 파일) | 235 |
 | 정보·탐색 | 50 |
 | 미분류 | 252 |
 
@@ -289,7 +289,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (234)
+## 사전등록 문서(결과는 별도 파일) (235)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -297,6 +297,7 @@
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
 | 2026-11-17 | PREREGISTERED | us-kr | [vix-kr-inverse-forward-preregistration-2026-11.md](vix-kr-inverse-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (KR-R1) "미국 VIX ≤14/≥20 규칙으로 한국 지수를 사고판 과거 INCONCLUSIVE 3셀(CAGR +8.2 vs +6.1%, ΔS… |
 | 2026-11-17 | PREREGISTERED | us | [us-treasury-month-end-preregistration-2026-11.md](us-treasury-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 쿠폰 국채 수익이 달의 마지막 며칠에 평소보다 높다(Predictable End-of-Month Treasury Returns, windo… |
+| 2026-11-17 | PREREGISTERED | us | [us-treasury-month-end-forward-preregistration-2026-11.md](us-treasury-month-end-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "2002~2026-10 표본에서 월 +20.9bp [12.6, 29.3](순열 p 0.0002)로 나온 IEF 월말 3거래일 효과가, 발견 표본… |
 | 2026-11-17 | PREREGISTERED | global | [streak-drop-c-forward-preregistration-2026-11.md](streak-drop-c-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE 였던 깊은 연속 하락(5일·−10%) 뒤 21일 반등이, 앞으로의 사건에서 평소보다 일관되게 높은가(또는 … |
 | 2026-11-17 | PREREGISTERED | kr | [kr-ust-etf-month-end-preregistration-2026-11.md](kr-ust-etf-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "IEF 에서 확인한 미국 국채 월말 효과(월 +20.9bp, 순열 p 0.0002)가 한국 개인이 실제로 살 수 있는 국내 상장 미국채 선물 E… |
 | 2026-11-17 | PREREGISTERED | kr | [kr-penny-avoid-preregistration-2026-11.md](kr-penny-avoid-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "명목 주가 연구(kr-nominal-price)에서 발견 표본(2016~2026)의 사후 관찰로 나온 '극저가 소형주가 약하다'가 2016 이전… |

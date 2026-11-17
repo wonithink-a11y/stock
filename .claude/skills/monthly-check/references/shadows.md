@@ -42,6 +42,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 35 | 연속 하락 셀 C (12개 지수, 5일 연속 하락 ∧ −10% 새 사건 → 21일 초과수익) | `run_drop_events_forward.py` (#34 와 같은 실행) | 위와 같은 폴더 | 성숙 wave ≥ 7 ∧ 12개월 1회, 최종 36개월. 사전등록 b39a4a05 · 코드 d1e339a6 |
 | 36 | VIX 한국 지수 R1 (VIX ≤14 현금 / ≥20 매수 → 코스피·코스닥, 보유 대비) | `run_vix_kr_inv_forward.py` (yfinance 공개, 수 초 — 자주 돌려도 됨. #37 과 같은 실행) | `reports/2026-11-vix-kr-inv-forward/observations.jsonl` | 성숙 250거래일 ∧ 12개월 1회, 연장 500·24개월. 판정 불가 = 현금 날 10일 미만. 사전등록 b39a4a05 · 코드 d1e339a6 |
 | 37 | VIX 인버스 B (VIX ≥20 SVXY 매수 / ≤16 현금, 보유 대비) | `run_vix_kr_inv_forward.py` (#36 과 같은 실행) | 위와 같은 폴더 | 위와 같음. 판정 불가 = 진입 3회 미만(관측 시작 때 이미 매수 상태면 새 진입이 있어야 센다). 사전등록 b39a4a05 · 코드 d1e339a6 |
+| 38 | 미국 국채 월말 효과 (IEF 마지막 3거래일 월 초과 — 확인 단계 forward) | `run_ust_month_end_forward.py` (yfinance 공개, 수 초 — 월 1회면 충분. 월이 끝난 뒤 돌린다) | `reports/2026-11-ust-month-end-forward/observations.jsonl` | 완결 월 ≥ 48 ∧ 48개월(≈2030-11) 1회, INCONCLUSIVE 면 72개월 1회 연장. 확인됨 = 평균 E > 5bp ∧ 순열 p ≤ 0.05. 사전등록 bf2c52d6 · 코드 03087e2d |
 
 ## 메모
 
