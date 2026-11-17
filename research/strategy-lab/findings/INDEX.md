@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 27 |
-| 보류·판정 불가 | 57 |
+| 보류·판정 불가 | 58 |
 | 기각 | 172 |
-| 사전등록 문서(결과는 별도 파일) | 228 |
+| 사전등록 문서(결과는 별도 파일) | 229 |
 | 정보·탐색 | 49 |
 | 미분류 | 252 |
 
@@ -45,10 +45,11 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (57)
+## 보류·판정 불가 (58)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-17 | INCONCLUSIVE | kr | [kr-crash-events-alllist-results-2026-11.md](kr-crash-events-alllist-results-2026-11.md) | 신호: 가려지지 않음(없음에 가깝다) · 경제성: 미달. 63일 wave 평균 초과 −0.99%p(95% 구간 −5.9~+4.1, 양 wave 22/50, 단측 p 0.24), 21일 +1.24%p… |
 | 2026-11-08 | INCONCLUSIVE | global | [vix30-fall3-events-results-2026-11.md](vix30-fall3-events-results-2026-11.md) | 신호: 약함(사전 기준 미달 — 충족 2/9: S&P500·코스닥) · 경제성: 해당 없음. 63일 초과수익은 9곳 모두 양(+4.5~+32.0%p)이고 21일도 8곳 양이나, 순열 p ≤ 0.01… |
 | 2026-11-08 | INCONCLUSIVE | global | [streak-drop-events-results-2026-11.md](streak-drop-events-results-2026-11.md) | 신호: 약함(21일 p ≤ 0.01: A 2곳·B 2곳·C 3곳 < 6) · 경제성: 해당 없음. 방향은 일관되게 반등 쪽이다 — 21일 평균이 평소보다 높은 지수가 A 9/12·B 10/12·C … |
 | 2026-11-08 | INCONCLUSIVE | global | [streak-conditions-dense-results-2026-11.md](streak-conditions-dense-results-2026-11.md) | 신호: 약함 · 경제성: 미확정. 150칸 중 사전 기준 통과는 1칸(A≥3일·−5% ∧ VIX≥30, 이전 격자와 같은 칸)이고 매칭 대조 후 초과 +1.17%p·1시장으로 국면 효과가 대부분이다… |
@@ -284,7 +285,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (228)
+## 사전등록 문서(결과는 별도 파일) (229)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -292,6 +293,7 @@
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
 | 2026-11-17 | PREREGISTERED | us-kr | [vix-kr-inverse-forward-preregistration-2026-11.md](vix-kr-inverse-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (KR-R1) "미국 VIX ≤14/≥20 규칙으로 한국 지수를 사고판 과거 INCONCLUSIVE 3셀(CAGR +8.2 vs +6.1%, ΔS… |
 | 2026-11-17 | PREREGISTERED | global | [streak-drop-c-forward-preregistration-2026-11.md](streak-drop-c-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE 였던 깊은 연속 하락(5일·−10%) 뒤 21일 반등이, 앞으로의 사건에서 평소보다 일관되게 높은가(또는 … |
+| 2026-11-17 | PREREGISTERED | kr | [kr-crash-events-alllist-preregistration-2026-11.md](kr-crash-events-alllist-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 폐지 종목을 포함한 한국 대형주(시총 상위 100)에서 20일 −25%·252일 고점 −40% 급락 뒤 63일이 같은 시기의 다른 대형주보다 높은… |
 | 2026-11-17 | PREREGISTERED | global | [crash-rebound-forward-preregistration-2026-11.md](crash-rebound-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE(충족 3/8 < 4)였던 급락 후 63일 반등이, 아직 보지 않은 앞으로의 급락 사건에서 평소보다 일관되게… |
 | 2026-11-16 | PREREGISTERED | kr | [pipeline-rebuttal-forward-preregistration-2026-11.md](pipeline-rebuttal-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "점수 상위 후보에 LLM 반증이 '주의·논리 약함' 깃발을 단 종목은 그 뒤 20거래일 동안 깃발 없는 후보보다 덜 오르는가, 그리고 그 차이가… |
 | 2026-11-14 | PREREGISTERED | crypto | [okx-listing-bl7-replication-preregistration-2026-11.md](okx-listing-bl7-replication-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 해당 없음. 질문 — 바이낸스 신규 상장 코인의 첫 주 약세(BL7 ROBUST)가 바이낸스가 아닌 거래소(OKX)의 신규 상장에서도 보이는가. 바이낸스 효과가 '바이… |
