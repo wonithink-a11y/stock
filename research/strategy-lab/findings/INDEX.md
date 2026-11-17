@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 58 |
-| 기각 | 173 |
-| 사전등록 문서(결과는 별도 파일) | 232 |
+| 기각 | 174 |
+| 사전등록 문서(결과는 별도 파일) | 233 |
 | 정보·탐색 | 50 |
 | 미분류 | 252 |
 
@@ -109,11 +109,12 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (173)
+## 기각 (174)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-17 | REJECT | kr | [kr-ust-etf-month-end-results-2026-11.md](kr-ust-etf-month-end-results-2026-11.md) | 신호: 확인 안 됨(사전등록 규칙상 REJECT — 순열 p 0.0542 로 0.05 를 근소하게 넘음) · 경제성: 점추정은 통과하나 신호가 서지 않아 근거 없음. 305080 은 마지막 3거래일… |
+| 2026-11-17 | REJECT | kr | [kr-penny-avoid-results-2026-11.md](kr-penny-avoid-results-2026-11.md) | 신호: 없음(홀드아웃에서 방향이 반대) · 경제성: 해당 없음. 2010~2015 홀드아웃에서 극저가 소형주 A 는 나머지보다 월 +41.2bp [−140.8, +235.5] 더 올라 '회피' 방향… |
 | 2026-11-08 | REJECT | kr | [vix-ladder-kr-2x-results-2026-11.md](vix-ladder-kr-2x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 코스피 2배는 TRAIN(사건 4건, 평균 −9.7%)과 TEST(이익 비율 64%) 미달, 코스닥 2배도 TRAIN(평균 −3.7%)과 TEST(이익 73%)… |
 | 2026-11-08 | REJECT | us | [tech-timing-3x-results-2026-11.md](tech-timing-3x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 108셀 전부 REJECT(ROBUST 0 · INFORMATION 0 · 낙폭 도구 0). 2010~2019 VALID 에서는 나스닥 쪽 54규칙 중 ΔSha… |
 | 2026-11-08 | REJECT | global | [tech-timing-3x-c-results-2026-11.md](tech-timing-3x-c-results-2026-11.md) | 신호: 없음(재현 실패) · 경제성: 해당 없음. 4규칙 모두 NOT REPLICATED(충족 시장 0/6). IBS·3일 연속 하락·Double-7 은 새 시장에서 TEST 에서도 보유를 못 이겼… |
@@ -287,7 +288,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (232)
+## 사전등록 문서(결과는 별도 파일) (233)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -297,6 +298,7 @@
 | 2026-11-17 | PREREGISTERED | us | [us-treasury-month-end-preregistration-2026-11.md](us-treasury-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 쿠폰 국채 수익이 달의 마지막 며칠에 평소보다 높다(Predictable End-of-Month Treasury Returns, windo… |
 | 2026-11-17 | PREREGISTERED | global | [streak-drop-c-forward-preregistration-2026-11.md](streak-drop-c-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE 였던 깊은 연속 하락(5일·−10%) 뒤 21일 반등이, 앞으로의 사건에서 평소보다 일관되게 높은가(또는 … |
 | 2026-11-17 | PREREGISTERED | kr | [kr-ust-etf-month-end-preregistration-2026-11.md](kr-ust-etf-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "IEF 에서 확인한 미국 국채 월말 효과(월 +20.9bp, 순열 p 0.0002)가 한국 개인이 실제로 살 수 있는 국내 상장 미국채 선물 E… |
+| 2026-11-17 | PREREGISTERED | kr | [kr-penny-avoid-preregistration-2026-11.md](kr-penny-avoid-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "명목 주가 연구(kr-nominal-price)에서 발견 표본(2016~2026)의 사후 관찰로 나온 '극저가 소형주가 약하다'가 2016 이전… |
 | 2026-11-17 | PREREGISTERED | kr | [kr-nominal-price-preregistration-2026-11.md](kr-nominal-price-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "주가의 명목 수준(액면·주수 선택의 부산물인 1주당 가격)이 낮은 한국 종목이, 시총을 같이 맞춰도, 다음 달 수익이 다른가(Nominal Pr… |
 | 2026-11-17 | PREREGISTERED | kr | [kr-crash-events-alllist-preregistration-2026-11.md](kr-crash-events-alllist-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 폐지 종목을 포함한 한국 대형주(시총 상위 100)에서 20일 −25%·252일 고점 −40% 급락 뒤 63일이 같은 시기의 다른 대형주보다 높은… |
 | 2026-11-17 | PREREGISTERED | global | [crash-rebound-forward-preregistration-2026-11.md](crash-rebound-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "과거 표본에서 INCONCLUSIVE(충족 3/8 < 4)였던 급락 후 63일 반등이, 아직 보지 않은 앞으로의 급락 사건에서 평소보다 일관되게… |
