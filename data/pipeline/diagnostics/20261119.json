@@ -1,0 +1,57 @@
+{
+ "agents": {
+  "bundleSkipped": 0,
+  "candidates": 1,
+  "duplicates": 0,
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "v1",
+  "quotaSkipped": 0,
+  "rebuttal": {
+   "failed": 0,
+   "flags": {
+    "caution": 0,
+    "none": 1,
+    "thesis-weak": 0
+   },
+   "invalidations": 4,
+   "manual": 1,
+   "written": 1
+  },
+  "skippedExisting": 0,
+  "thesis": {
+   "claimsKept": 3,
+   "claimsTotal": 3,
+   "failed": 0,
+   "written": 1
+  },
+  "written": 2
+ },
+ "candidates": {
+  "asOf": "20261118",
+  "candidates": 20,
+  "duplicates": 0,
+  "eligible": 340,
+  "excluded": {
+   "low-confidence": 3,
+   "risk-state": 10
+  },
+  "ruleVersion": "CR-1.0",
+  "runAt": "2026-11-19T04:36:02+09:00",
+  "staleScoreSkip": false,
+  "universe": 353,
+  "written": 20
+ },
+ "monitor": {
+  "checked": 61,
+  "duplicates": 0,
+  "expired": 0,
+  "triggered": [],
+  "unknown": 0,
+  "written": 0
+ },
+ "outcomes": {
+  "duplicates": 0,
+  "measured": 0,
+  "written": 0
+ }
+}

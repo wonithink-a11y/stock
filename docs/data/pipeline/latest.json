@@ -1,31 +1,117 @@
 {
- "asOf": "20261117",
+ "asOf": "20261118",
  "counts": {
-  "candidates": 60,
+  "candidates": 80,
   "claimEvidence": {
-   "decode": 53,
+   "decode": 55,
    "px": 1,
-   "score": 23
+   "score": 24
   },
-  "episodes": 22,
+  "episodes": 23,
   "flags": {
    "caution": 1,
-   "none": 20,
+   "none": 21,
    "미기록": 1
   },
   "invalidationKinds": {
    "candidate-dropped": 1,
    "close-below-ma": 1,
-   "drawdown-from-signal": 21,
-   "manual": 20,
-   "risk-state-added": 19,
-   "score-below": 20
+   "drawdown-from-signal": 22,
+   "manual": 21,
+   "risk-state-added": 20,
+   "score-below": 21
   },
   "outcomes": {},
-  "runs": 3,
+  "runs": 4,
   "triggered": 4
  },
  "episodes": [
+  {
+   "asOf": "20261118",
+   "finalScore": 82.7,
+   "name": "KT",
+   "outcomes": {},
+   "rank": 17,
+   "rebuttal": {
+    "counters": [],
+    "eventId": "rebut:cand:20261118:CR-1.0:030200:v1:gemini-3.5-flash-lite",
+    "flag": "none",
+    "invalidations": [
+     {
+      "check": {
+       "kind": "score-below",
+       "value": 80.0
+      },
+      "id": "I1",
+      "observed": null,
+      "text": "최종 점수가 80.0 아래로 내려간다",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "manual"
+      },
+      "id": "I2",
+      "observed": null,
+      "text": "종가가 60일 평균 아래에서 3거래일 연속 마감",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "drawdown-from-signal",
+       "pct": 10.0
+      },
+      "id": "I3",
+      "observed": null,
+      "text": "기준일 종가 대비 10.0% 넘게 하락",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "risk-state-added"
+      },
+      "id": "I4",
+      "observed": null,
+      "text": "새 공시 위험 상태가 붙는다",
+      "triggeredAt": null
+     }
+    ]
+   },
+   "signalId": "cand:20261118:CR-1.0:030200",
+   "thesis": {
+    "claims": [
+     {
+      "claim": "최종 점수 82.7을 기록하였으며, 점수 기여 측면에서 가치 축이 +23.8로 가장 크게 기여하였습니다.",
+      "evidenceId": "score:20261118:030200",
+      "id": "T1",
+      "kind": "valuation",
+      "quote": "최종 점수 82.7 = 원점수 82.7 − 위험 감점 0. 적격 340종목 중 17위. 축별 점수: 재무 22.9 · 가치 48.8 · 기술 11 · 수급 0. 점수 기여(평균 대비): 가치 +23.8 · 재무 +7.9 · 기술 +1 · 수급 +0."
+     },
+     {
+      "claim": "㈜케이티는 AI, 클라우드, IT 분야 경쟁력 강화를 위해 마이크로소프트와 전략적 파트너십을 체결했습니다.",
+      "evidenceId": "decode:030200:20261116001593#07",
+      "id": "T2",
+      "kind": "business",
+      "quote": "2024년 9월 27일 ㈜케이티는 AI/클라우드/IT 분야 경쟁력을 강화하고 새로운 도약을 위한 기반을 마련하기 위해 마이크로소프트(MS)와 전략적 파트너십을 체결하였습니다."
+     },
+     {
+      "claim": "자체 기술력으로 개발한 차세대 클라우드 플랫폼인 kt cloud PLATFORM을 선보였습니다.",
+      "evidenceId": "decode:030200:20261116001593#08",
+      "id": "T3",
+      "kind": "growth",
+      "quote": "2026년 6월, 자체 기술력으로 개발한 차세대 클라우드 플랫폼 'kt cloud PLATFORM'은 클라우드 표준 기술 Kubernetes 기반 Openstack 아키텍처를 적용하여 가상서버(VM)와 컨테이너를 하나의 환경에서 통합·운영할 수 있도록 설계된 플랫폼으로"
+     }
+    ],
+    "eventId": "thesis:cand:20261118:CR-1.0:030200:v1:gemini-3.5-flash-lite",
+    "model": "gemini-3.5-flash-lite",
+    "summary": "KT는 최종 점수 82.7을 기록하며 가치 축을 중심으로 우수한 점수 기여도를 보였습니다. AI 및 클라우드 분야에서 마이크로소프트와의 파트너십 체결 및 자체 클라우드 플랫폼 개발 등 사업적 노력을 확인했습니다.",
+    "verification": {
+     "claimsKept": 3,
+     "claimsTotal": 3
+    }
+   },
+   "ticker": "030200"
+  },
   {
    "asOf": "20261117",
    "finalScore": 82.3,
@@ -1957,66 +2043,75 @@
  "note": "관찰용 — 논리·반증은 LLM 주석이고 점수·후보 선별·주문에 쓰이지 않는다. 인용은 코드가 근거 묶음과 대조해 통과한 것만.",
  "today": [
   {
+   "episodeSignalId": "cand:20261113:CR-1.0:009970",
+   "finalScore": 88.5,
+   "isNew": false,
+   "name": "영원무역홀딩스",
+   "rank": 1,
+   "signalId": "cand:20261118:CR-1.0:009970",
+   "ticker": "009970"
+  },
+  {
    "episodeSignalId": "cand:20261113:CR-1.0:001450",
    "finalScore": 88.2,
    "isNew": false,
    "name": "현대해상",
-   "rank": 1,
-   "signalId": "cand:20261117:CR-1.0:001450",
+   "rank": 2,
+   "signalId": "cand:20261118:CR-1.0:001450",
    "ticker": "001450"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:111770",
-   "finalScore": 87.7,
-   "isNew": false,
-   "name": "영원무역",
-   "rank": 2,
-   "signalId": "cand:20261117:CR-1.0:111770",
-   "ticker": "111770"
-  },
-  {
    "episodeSignalId": "cand:20261113:CR-1.0:016360",
-   "finalScore": 87.5,
+   "finalScore": 88,
    "isNew": false,
    "name": "삼성증권",
    "rank": 3,
-   "signalId": "cand:20261117:CR-1.0:016360",
+   "signalId": "cand:20261118:CR-1.0:016360",
    "ticker": "016360"
+  },
+  {
+   "episodeSignalId": "cand:20261113:CR-1.0:005940",
+   "finalScore": 87.1,
+   "isNew": false,
+   "name": "NH투자증권",
+   "rank": 4,
+   "signalId": "cand:20261118:CR-1.0:005940",
+   "ticker": "005940"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:071050",
    "finalScore": 87,
    "isNew": false,
    "name": "한국금융지주",
-   "rank": 4,
-   "signalId": "cand:20261117:CR-1.0:071050",
+   "rank": 5,
+   "signalId": "cand:20261118:CR-1.0:071050",
    "ticker": "071050"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:009970",
-   "finalScore": 86.7,
-   "isNew": false,
-   "name": "영원무역홀딩스",
-   "rank": 5,
-   "signalId": "cand:20261117:CR-1.0:009970",
-   "ticker": "009970"
-  },
-  {
-   "episodeSignalId": "cand:20261113:CR-1.0:005940",
+   "episodeSignalId": "cand:20261113:CR-1.0:052400",
    "finalScore": 85.9,
    "isNew": false,
-   "name": "NH투자증권",
+   "name": "코나아이",
    "rank": 6,
-   "signalId": "cand:20261117:CR-1.0:005940",
-   "ticker": "005940"
+   "signalId": "cand:20261118:CR-1.0:052400",
+   "ticker": "052400"
+  },
+  {
+   "episodeSignalId": "cand:20261113:CR-1.0:006040",
+   "finalScore": 85.8,
+   "isNew": false,
+   "name": "동원산업",
+   "rank": 7,
+   "signalId": "cand:20261118:CR-1.0:006040",
+   "ticker": "006040"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:195940",
    "finalScore": 85.7,
    "isNew": false,
    "name": "HK이노엔",
-   "rank": 7,
-   "signalId": "cand:20261117:CR-1.0:195940",
+   "rank": 8,
+   "signalId": "cand:20261118:CR-1.0:195940",
    "ticker": "195940"
   },
   {
@@ -2024,44 +2119,62 @@
    "finalScore": 85.5,
    "isNew": false,
    "name": "키움증권",
-   "rank": 8,
-   "signalId": "cand:20261117:CR-1.0:039490",
+   "rank": 9,
+   "signalId": "cand:20261118:CR-1.0:039490",
    "ticker": "039490"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:069620",
-   "finalScore": 85.1,
+   "episodeSignalId": "cand:20261113:CR-1.0:111770",
+   "finalScore": 85.2,
    "isNew": false,
-   "name": "대웅제약",
-   "rank": 9,
-   "signalId": "cand:20261117:CR-1.0:069620",
-   "ticker": "069620"
+   "name": "영원무역",
+   "rank": 10,
+   "signalId": "cand:20261118:CR-1.0:111770",
+   "ticker": "111770"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:081660",
-   "finalScore": 85.1,
+   "finalScore": 84.7,
    "isNew": false,
    "name": "미스토홀딩스",
-   "rank": 10,
-   "signalId": "cand:20261117:CR-1.0:081660",
+   "rank": 11,
+   "signalId": "cand:20261118:CR-1.0:081660",
    "ticker": "081660"
   },
   {
+   "episodeSignalId": "cand:20261113:CR-1.0:069620",
+   "finalScore": 84.5,
+   "isNew": false,
+   "name": "대웅제약",
+   "rank": 12,
+   "signalId": "cand:20261118:CR-1.0:069620",
+   "ticker": "069620"
+  },
+  {
    "episodeSignalId": "cand:20261113:CR-1.0:003090",
-   "finalScore": 84.1,
+   "finalScore": 84.3,
    "isNew": false,
    "name": "대웅",
-   "rank": 11,
-   "signalId": "cand:20261117:CR-1.0:003090",
+   "rank": 13,
+   "signalId": "cand:20261118:CR-1.0:003090",
    "ticker": "003090"
   },
   {
+   "episodeSignalId": "cand:20261113:CR-1.0:009540",
+   "finalScore": 84.3,
+   "isNew": false,
+   "name": "HD한국조선해양",
+   "rank": 14,
+   "signalId": "cand:20261118:CR-1.0:009540",
+   "ticker": "009540"
+  },
+  {
    "episodeSignalId": "cand:20261113:CR-1.0:383220",
-   "finalScore": 84.1,
+   "finalScore": 83.9,
    "isNew": false,
    "name": "F&F",
-   "rank": 12,
-   "signalId": "cand:20261117:CR-1.0:383220",
+   "rank": 15,
+   "signalId": "cand:20261118:CR-1.0:383220",
    "ticker": "383220"
   },
   {
@@ -2069,35 +2182,26 @@
    "finalScore": 83.6,
    "isNew": false,
    "name": "미래에셋증권",
-   "rank": 13,
-   "signalId": "cand:20261117:CR-1.0:006800",
+   "rank": 16,
+   "signalId": "cand:20261118:CR-1.0:006800",
    "ticker": "006800"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:009540",
-   "finalScore": 83.5,
-   "isNew": false,
-   "name": "HD한국조선해양",
-   "rank": 14,
-   "signalId": "cand:20261117:CR-1.0:009540",
-   "ticker": "009540"
-  },
-  {
-   "episodeSignalId": "cand:20261113:CR-1.0:052400",
-   "finalScore": 83.3,
-   "isNew": false,
-   "name": "코나아이",
-   "rank": 15,
-   "signalId": "cand:20261117:CR-1.0:052400",
-   "ticker": "052400"
+   "episodeSignalId": "cand:20261118:CR-1.0:030200",
+   "finalScore": 82.7,
+   "isNew": true,
+   "name": "KT",
+   "rank": 17,
+   "signalId": "cand:20261118:CR-1.0:030200",
+   "ticker": "030200"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:017960",
-   "finalScore": 82.9,
+   "finalScore": 82.6,
    "isNew": false,
    "name": "한국카본",
-   "rank": 16,
-   "signalId": "cand:20261117:CR-1.0:017960",
+   "rank": 18,
+   "signalId": "cand:20261118:CR-1.0:017960",
    "ticker": "017960"
   },
   {
@@ -2105,35 +2209,17 @@
    "finalScore": 82.4,
    "isNew": false,
    "name": "네오위즈",
-   "rank": 17,
-   "signalId": "cand:20261117:CR-1.0:095660",
+   "rank": 19,
+   "signalId": "cand:20261118:CR-1.0:095660",
    "ticker": "095660"
   },
   {
-   "episodeSignalId": "cand:20261117:CR-1.0:003380",
-   "finalScore": 82.3,
-   "isNew": true,
-   "name": "하림지주",
-   "rank": 18,
-   "signalId": "cand:20261117:CR-1.0:003380",
-   "ticker": "003380"
-  },
-  {
-   "episodeSignalId": "cand:20261113:CR-1.0:006040",
-   "finalScore": 82.3,
-   "isNew": false,
-   "name": "동원산업",
-   "rank": 19,
-   "signalId": "cand:20261117:CR-1.0:006040",
-   "ticker": "006040"
-  },
-  {
    "episodeSignalId": "cand:20261113:CR-1.0:033500",
-   "finalScore": 82.3,
+   "finalScore": 82,
    "isNew": false,
    "name": "동성화인텍",
    "rank": 20,
-   "signalId": "cand:20261117:CR-1.0:033500",
+   "signalId": "cand:20261118:CR-1.0:033500",
    "ticker": "033500"
   }
  ]
