@@ -1,0 +1,63 @@
+{
+ "agents": {
+  "bundleSkipped": 0,
+  "candidates": 1,
+  "duplicates": 0,
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "v1",
+  "quotaSkipped": 0,
+  "rebuttal": {
+   "failed": 0,
+   "flags": {
+    "caution": 0,
+    "none": 1,
+    "thesis-weak": 0
+   },
+   "invalidations": 4,
+   "manual": 1,
+   "written": 1
+  },
+  "skippedExisting": 0,
+  "thesis": {
+   "claimsKept": 4,
+   "claimsTotal": 4,
+   "failed": 0,
+   "written": 1
+  },
+  "written": 2
+ },
+ "candidates": {
+  "asOf": "20261119",
+  "candidates": 20,
+  "duplicates": 0,
+  "eligible": 340,
+  "excluded": {
+   "low-confidence": 3,
+   "risk-state": 10
+  },
+  "ruleVersion": "CR-1.0",
+  "runAt": "2026-11-20T04:38:25+09:00",
+  "staleScoreSkip": false,
+  "universe": 353,
+  "written": 20
+ },
+ "monitor": {
+  "checked": 64,
+  "duplicates": 0,
+  "expired": 0,
+  "triggered": [
+   {
+    "name": "영원무역홀딩스",
+    "text": "종가가 20일 평균 아래에서 3거래일 연속 마감",
+    "ticker": "009970"
+   }
+  ],
+  "unknown": 0,
+  "written": 1
+ },
+ "outcomes": {
+  "duplicates": 0,
+  "measured": 0,
+  "written": 0
+ }
+}
