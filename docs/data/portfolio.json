@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-19T17:33:27.208Z",
+  "updatedAt": "2026-11-20T16:56:39.370Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,17 +7,20 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 197400,
-      "currentValue": 1974000,
+      "currentPrice": 180900,
+      "currentValue": 1809000,
       "investedValue": 700000,
-      "unrealizedPnL": 1274000,
-      "unrealizedPnLPct": 182,
-      "stockScore": 62,
-      "stockGrade": "C (중립/관찰)",
-      "stockWarnings": [],
+      "unrealizedPnL": 1109000,
+      "unrealizedPnLPct": 158.43,
+      "stockScore": 70.4,
+      "stockGrade": "B (긍정적)",
+      "stockWarnings": [
+        "oversold",
+        "deadCatBounce"
+      ],
       "marketRegime": "neutral",
-      "referenceSignal": "유지 (중립 관찰)",
-      "signalReason": "뚜렷한 방향성 신호가 약해 추가 관찰이 필요합니다.",
+      "referenceSignal": "유지 (긍정적)",
+      "signalReason": "긍정적 신호가 우세하나 확대보다는 현 비중 유지가 참고할 만합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -60,7 +63,7 @@
           }
         },
         "valuation": {
-          "score": 50.6,
+          "score": 78.4,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -69,23 +72,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 2.29,
-              "score": 11.307692307692305
+              "raw": 1.95,
+              "score": 29.615384615384617
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.9002994011976049,
-              "score": 75.9820359281437
+              "peg": 0.17035928143712578,
+              "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": -0.749416410628921,
-              "score": 0
+              "marginOfSafety": 0.29776547127520614,
+              "score": 84.66482069128092
             }
           }
         },
         "technical": {
-          "score": 63.8,
+          "score": 36.5,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -94,13 +97,13 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 38.9,
-              "score": 45
+              "value": 27.9,
+              "score": 30
             },
             "macd": {
               "label": "MACD",
-              "signal": "bullishCross",
-              "score": 100
+              "signal": "bearishCross",
+              "score": 0
             },
             "volumeConfirmation": {
               "label": "거래량 동반 여부",
@@ -110,12 +113,12 @@
           }
         },
         "supplyDemand": {
-          "score": 48.7,
+          "score": 32.7,
           "detail": {
             "foreignNetBuy5d": {
               "label": "외국인 5일 순매수 추세",
-              "trend": "netSell",
-              "score": 30
+              "trend": "consistentSell",
+              "score": 0
             },
             "institutionNetBuy5d": {
               "label": "기관 5일 순매수 추세",
