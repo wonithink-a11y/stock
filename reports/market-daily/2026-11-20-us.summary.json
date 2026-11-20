@@ -1,0 +1,79 @@
+{
+ "headline": "AI·반도체 투매가 이어져 나스닥 −5.28%, 필라델피아 반도체 −10.73%, S&P 500·다우는 조정 구간에 들어갔고 VIX는 35.89로 뛰었다.",
+ "causes": [
+  {
+   "title": "AI·반도체 투매",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-11-21T02:00",
+     "source": "매체 종합",
+     "text": "AMD·마이크론 주도 반도체 투매, AI 트레이드 붕괴, 엔비디아 7주 연속 주간 하락",
+     "url": ""
+    }
+   ],
+   "reaction": "SOX −10.73%, XLK −7.27%, 나스닥 −5.28%, 필수소비재만 상승",
+   "counter": "엔비디아 분기 매출 보도 뒤 시간외 +2.47% — 실적보다 심리·수급 요인 해석"
+  },
+  {
+   "title": "엔비디아 SEC 조사 보도",
+   "confidence": "낮음",
+   "evidence": [
+    {
+     "timeKST": "2026-11-17T00:00",
+     "source": "WSJ 인용 보도",
+     "text": "SEC가 엔비디아 공시의 투자자 오도 여부 민사 조사(당국·회사 미확인)",
+     "url": "https://pymnts.com/legal/2026/sec-investigating-whether-nvidia-misled-investors"
+    }
+   ],
+   "reaction": "NVDA −14.01%",
+   "counter": "보도는 11-17자라 이날 급락의 직접 촉발인지 확인 못 함"
+  },
+  {
+   "title": "브로드컴 급락(구글 AI 칩 계획 축소 보도)",
+   "confidence": "낮음",
+   "evidence": [
+    {
+     "timeKST": "2026-11-21T04:13",
+     "source": "Yahoo Finance",
+     "text": "브로드컴 12% 급락, 구글 AI 칩 계획 축소 보도",
+     "url": ""
+    }
+   ],
+   "reaction": "AVGO −12.19%",
+   "counter": "1차 출처 확인 못 함"
+  },
+  {
+   "title": "안전자산 선호 속 금리 하락",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-11-21T01:18",
+     "source": "Investing.com",
+     "text": "채권시장은 연준 발언이 아니라 위험자산을 따라간다",
+     "url": ""
+    }
+   ],
+   "reaction": "10년물 −14bp, 2년물 −13bp",
+   "counter": "금도 −3.99%로 동반 하락"
+  }
+ ],
+ "afterClose": [
+  {
+   "timeKST": "2026-11-21T06:25",
+   "text": "엔비디아 분기 매출 1,158억 달러 보도 → 시간외 +2.47%"
+  }
+ ],
+ "events": [
+  {
+   "timeKST": "2026-11-23T00:00",
+   "text": "월요일 실적: Agilent·HPE·Jacobs 등"
+  }
+ ],
+ "watch": [
+  "반도체 투매가 이어지는지",
+  "VIX 30 이상 유지 여부",
+  "10년물 금리 하락 지속 여부"
+ ],
+ "researchNotes": []
+}
