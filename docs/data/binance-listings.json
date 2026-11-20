@@ -1,5 +1,5 @@
 {
-"updatedAt": "2026-11-19T08:42:39+00:00",
+"updatedAt": "2026-11-20T08:29:17+00:00",
 "windowDays": 30,
 "backtest": {
 "events": 547,
@@ -9,6 +9,12 @@
 "note": "상장 다음 날 시가 → 7일 뒤, BTC 대비. 연구 BL7 ROBUST · 강건성 PASS 4/4 · 업비트 원화 가격 CONSISTENT. 평균이지 개별 코인 예측이 아니다."
 },
 "listings": [
+{
+"base": "ANTB",
+"sym": "ANTBUSDT",
+"L": "2026-11-19",
+"stockLike": true
+},
 {
 "base": "EWJB",
 "sym": "EWJBUSDT",
@@ -112,7 +118,7 @@
 "stockLike": true
 }
 ],
-"symbolsTrading": 1380,
+"symbolsTrading": 1375,
 "firstDay": {
 "0GUSDT": "2025-09-22",
 "1000CATUSDT": "2024-12-17",
@@ -151,6 +157,7 @@
 "AMZNBUSDT": "2026-07-29",
 "ANIMEUSDT": "2025-01-23",
 "ANKRUSDT": "2019-07-23",
+"ANTBUSDT": "2026-11-19",
 "APEUSDT": "2022-03-17",
 "API3USDT": "2022-01-21",
 "APPBUSDT": "2026-10-28",
