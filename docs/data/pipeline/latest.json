@@ -1,31 +1,103 @@
 {
- "asOf": "20261119",
+ "asOf": "20261120",
  "counts": {
-  "candidates": 100,
+  "candidates": 120,
   "claimEvidence": {
    "decode": 58,
    "px": 1,
-   "score": 25
+   "score": 26
   },
-  "episodes": 24,
+  "episodes": 25,
   "flags": {
    "caution": 1,
-   "none": 22,
+   "none": 23,
    "미기록": 1
   },
   "invalidationKinds": {
    "candidate-dropped": 1,
    "close-below-ma": 1,
-   "drawdown-from-signal": 23,
-   "manual": 22,
-   "risk-state-added": 21,
-   "score-below": 22
+   "drawdown-from-signal": 24,
+   "manual": 23,
+   "risk-state-added": 22,
+   "score-below": 23
   },
   "outcomes": {},
-  "runs": 5,
-  "triggered": 5
+  "runs": 6,
+  "triggered": 8
  },
  "episodes": [
+  {
+   "asOf": "20261120",
+   "finalScore": 81.5,
+   "name": "지역난방공사",
+   "outcomes": {},
+   "rank": 20,
+   "rebuttal": {
+    "counters": [],
+    "eventId": "rebut:cand:20261120:CR-1.0:071320:v1:gemini-3.5-flash-lite",
+    "flag": "none",
+    "invalidations": [
+     {
+      "check": {
+       "kind": "risk-state-added"
+      },
+      "id": "I1",
+      "observed": null,
+      "text": "새로운 공시 위험 상태가 추가되면 이 논리는 유효하지 않다.",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "score-below",
+       "value": 80.0
+      },
+      "id": "I2",
+      "observed": null,
+      "text": "최종 점수가 80.0 아래로 내려가면 이 논리는 깨진다.",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "manual"
+      },
+      "id": "I3",
+      "observed": null,
+      "text": "종가가 20일 평균 가격 아래에서 5거래일 연속 마감되면 논리가 무효화된다.",
+      "triggeredAt": null
+     },
+     {
+      "check": {
+       "kind": "drawdown-from-signal",
+       "pct": 15.0
+      },
+      "id": "I4",
+      "observed": null,
+      "text": "기준일 종가 대비 15.0% 넘게 하락하면 논리가 훼손된다.",
+      "triggeredAt": null
+     }
+    ]
+   },
+   "signalId": "cand:20261120:CR-1.0:071320",
+   "thesis": {
+    "claims": [
+     {
+      "claim": "가치 축의 점수 기여도가 평균 대비 높은 수준을 기록했습니다.",
+      "evidenceId": "score:20261120:071320",
+      "id": "T1",
+      "kind": "valuation",
+      "quote": "최종 점수 81.5 = 원점수 81.5 − 위험 감점 0. 적격 340종목 중 20위. 축별 점수: 재무 23 · 가치 48.7 · 기술 9.8 · 수급 0. 점수 기여(평균 대비): 가치 +23.7 · 재무 +8 · 기술 -0.2 · 수급 +0."
+     }
+    ],
+    "eventId": "thesis:cand:20261120:CR-1.0:071320:v1:gemini-3.5-flash-lite",
+    "model": "gemini-3.5-flash-lite",
+    "summary": "지역난방공사는 가치 축을 중심으로 높은 점수를 기록하였으며, 전국 지역난방 보급 대상 가구 중 상당 부분에 난방을 공급하는 사업 구조를 갖추고 있습니다.",
+    "verification": {
+     "claimsKept": 1,
+     "claimsTotal": 2
+    }
+   },
+   "ticker": "071320"
+  },
   {
    "asOf": "20261119",
    "finalScore": 81.8,
@@ -52,9 +124,11 @@
        "value": 80.0
       },
       "id": "I2",
-      "observed": null,
+      "observed": {
+       "finalScore": 77.9
+      },
       "text": "최종 점수가 80.0 아래로 내려간다",
-      "triggeredAt": null
+      "triggeredAt": "2026-11-21"
      },
      {
       "check": {
@@ -1428,9 +1502,13 @@
        "pct": 10.0
       },
       "id": "I4",
-      "observed": null,
+      "observed": {
+       "close": 18800,
+       "pct": -12.56,
+       "signalClose": 21500
+      },
       "text": "기준일 종가 대비 10% 넘게 하락하는 경우",
-      "triggeredAt": null
+      "triggeredAt": "2026-11-21"
      }
     ]
    },
@@ -1947,9 +2025,13 @@
        "pct": 10.0
       },
       "id": "I3",
-      "observed": null,
+      "observed": {
+       "close": 12510,
+       "pct": -12.46,
+       "signalClose": 14290
+      },
       "text": "기준일 종가 대비 10% 넘게 하락한다",
-      "triggeredAt": null
+      "triggeredAt": "2026-11-21"
      },
      {
       "check": {
@@ -2143,30 +2225,12 @@
  "note": "관찰용 — 논리·반증은 LLM 주석이고 점수·후보 선별·주문에 쓰이지 않는다. 인용은 코드가 근거 묶음과 대조해 통과한 것만.",
  "today": [
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:111770",
-   "finalScore": 90.2,
-   "isNew": false,
-   "name": "영원무역",
-   "rank": 1,
-   "signalId": "cand:20261119:CR-1.0:111770",
-   "ticker": "111770"
-  },
-  {
-   "episodeSignalId": "cand:20261113:CR-1.0:071050",
-   "finalScore": 89.5,
-   "isNew": false,
-   "name": "한국금융지주",
-   "rank": 2,
-   "signalId": "cand:20261119:CR-1.0:071050",
-   "ticker": "071050"
-  },
-  {
    "episodeSignalId": "cand:20261113:CR-1.0:009970",
-   "finalScore": 88.8,
+   "finalScore": 88.3,
    "isNew": false,
    "name": "영원무역홀딩스",
-   "rank": 3,
-   "signalId": "cand:20261119:CR-1.0:009970",
+   "rank": 1,
+   "signalId": "cand:20261120:CR-1.0:009970",
    "ticker": "009970"
   },
   {
@@ -2174,35 +2238,44 @@
    "finalScore": 88.2,
    "isNew": false,
    "name": "현대해상",
-   "rank": 4,
-   "signalId": "cand:20261119:CR-1.0:001450",
+   "rank": 2,
+   "signalId": "cand:20261120:CR-1.0:001450",
    "ticker": "001450"
   },
   {
+   "episodeSignalId": "cand:20261113:CR-1.0:111770",
+   "finalScore": 87.7,
+   "isNew": false,
+   "name": "영원무역",
+   "rank": 3,
+   "signalId": "cand:20261120:CR-1.0:111770",
+   "ticker": "111770"
+  },
+  {
    "episodeSignalId": "cand:20261113:CR-1.0:016360",
-   "finalScore": 88,
+   "finalScore": 87.5,
    "isNew": false,
    "name": "삼성증권",
-   "rank": 5,
-   "signalId": "cand:20261119:CR-1.0:016360",
+   "rank": 4,
+   "signalId": "cand:20261120:CR-1.0:016360",
    "ticker": "016360"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:383220",
-   "finalScore": 86.5,
+   "episodeSignalId": "cand:20261113:CR-1.0:071050",
+   "finalScore": 87,
    "isNew": false,
-   "name": "F&F",
-   "rank": 6,
-   "signalId": "cand:20261119:CR-1.0:383220",
-   "ticker": "383220"
+   "name": "한국금융지주",
+   "rank": 5,
+   "signalId": "cand:20261120:CR-1.0:071050",
+   "ticker": "071050"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:039490",
    "finalScore": 85.5,
    "isNew": false,
    "name": "키움증권",
-   "rank": 7,
-   "signalId": "cand:20261119:CR-1.0:039490",
+   "rank": 6,
+   "signalId": "cand:20261120:CR-1.0:039490",
    "ticker": "039490"
   },
   {
@@ -2210,81 +2283,90 @@
    "finalScore": 85.1,
    "isNew": false,
    "name": "NH투자증권",
-   "rank": 8,
-   "signalId": "cand:20261119:CR-1.0:005940",
+   "rank": 7,
+   "signalId": "cand:20261120:CR-1.0:005940",
    "ticker": "005940"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:081660",
-   "finalScore": 84.7,
-   "isNew": false,
-   "name": "미스토홀딩스",
-   "rank": 9,
-   "signalId": "cand:20261119:CR-1.0:081660",
-   "ticker": "081660"
-  },
-  {
    "episodeSignalId": "cand:20261113:CR-1.0:195940",
-   "finalScore": 84.5,
+   "finalScore": 84.9,
    "isNew": false,
    "name": "HK이노엔",
-   "rank": 10,
-   "signalId": "cand:20261119:CR-1.0:195940",
+   "rank": 8,
+   "signalId": "cand:20261120:CR-1.0:195940",
    "ticker": "195940"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:009540",
-   "finalScore": 84.3,
+   "episodeSignalId": "cand:20261113:CR-1.0:069620",
+   "finalScore": 84.5,
    "isNew": false,
-   "name": "HD한국조선해양",
-   "rank": 11,
-   "signalId": "cand:20261119:CR-1.0:009540",
-   "ticker": "009540"
+   "name": "대웅제약",
+   "rank": 9,
+   "signalId": "cand:20261120:CR-1.0:069620",
+   "ticker": "069620"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:052400",
-   "finalScore": 84,
+   "episodeSignalId": "cand:20261113:CR-1.0:081660",
+   "finalScore": 84.4,
    "isNew": false,
-   "name": "코나아이",
-   "rank": 12,
-   "signalId": "cand:20261119:CR-1.0:052400",
-   "ticker": "052400"
+   "name": "미스토홀딩스",
+   "rank": 10,
+   "signalId": "cand:20261120:CR-1.0:081660",
+   "ticker": "081660"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:006800",
    "finalScore": 83.6,
    "isNew": false,
    "name": "미래에셋증권",
-   "rank": 13,
-   "signalId": "cand:20261119:CR-1.0:006800",
+   "rank": 11,
+   "signalId": "cand:20261120:CR-1.0:006800",
    "ticker": "006800"
   },
   {
-   "episodeSignalId": "cand:20261118:CR-1.0:030200",
-   "finalScore": 83,
+   "episodeSignalId": "cand:20261113:CR-1.0:052400",
+   "finalScore": 83.6,
    "isNew": false,
-   "name": "KT",
+   "name": "코나아이",
+   "rank": 12,
+   "signalId": "cand:20261120:CR-1.0:052400",
+   "ticker": "052400"
+  },
+  {
+   "episodeSignalId": "cand:20261116:CR-1.0:000990",
+   "finalScore": 83.5,
+   "isNew": false,
+   "name": "DB하이텍",
+   "rank": 13,
+   "signalId": "cand:20261120:CR-1.0:000990",
+   "ticker": "000990"
+  },
+  {
+   "episodeSignalId": "cand:20261117:CR-1.0:003380",
+   "finalScore": 83.2,
+   "isNew": false,
+   "name": "하림지주",
    "rank": 14,
-   "signalId": "cand:20261119:CR-1.0:030200",
-   "ticker": "030200"
+   "signalId": "cand:20261120:CR-1.0:003380",
+   "ticker": "003380"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:017960",
-   "finalScore": 82.7,
+   "episodeSignalId": "cand:20261113:CR-1.0:383220",
+   "finalScore": 83.2,
    "isNew": false,
-   "name": "한국카본",
+   "name": "F&F",
    "rank": 15,
-   "signalId": "cand:20261119:CR-1.0:017960",
-   "ticker": "017960"
+   "signalId": "cand:20261120:CR-1.0:383220",
+   "ticker": "383220"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:069620",
-   "finalScore": 82.6,
+   "episodeSignalId": "cand:20261113:CR-1.0:033500",
+   "finalScore": 82.4,
    "isNew": false,
-   "name": "대웅제약",
+   "name": "동성화인텍",
    "rank": 16,
-   "signalId": "cand:20261119:CR-1.0:069620",
-   "ticker": "069620"
+   "signalId": "cand:20261120:CR-1.0:033500",
+   "ticker": "033500"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:095660",
@@ -2292,35 +2374,35 @@
    "isNew": false,
    "name": "네오위즈",
    "rank": 17,
-   "signalId": "cand:20261119:CR-1.0:095660",
+   "signalId": "cand:20261120:CR-1.0:095660",
    "ticker": "095660"
   },
   {
    "episodeSignalId": "cand:20261113:CR-1.0:006040",
-   "finalScore": 82.3,
+   "finalScore": 81.9,
    "isNew": false,
    "name": "동원산업",
    "rank": 18,
-   "signalId": "cand:20261119:CR-1.0:006040",
+   "signalId": "cand:20261120:CR-1.0:006040",
    "ticker": "006040"
   },
   {
-   "episodeSignalId": "cand:20261113:CR-1.0:033500",
-   "finalScore": 82,
+   "episodeSignalId": "cand:20261113:CR-1.0:003090",
+   "finalScore": 81.5,
    "isNew": false,
-   "name": "동성화인텍",
+   "name": "대웅",
    "rank": 19,
-   "signalId": "cand:20261119:CR-1.0:033500",
-   "ticker": "033500"
+   "signalId": "cand:20261120:CR-1.0:003090",
+   "ticker": "003090"
   },
   {
-   "episodeSignalId": "cand:20261119:CR-1.0:006730",
-   "finalScore": 81.8,
+   "episodeSignalId": "cand:20261120:CR-1.0:071320",
+   "finalScore": 81.5,
    "isNew": true,
-   "name": "서부T&D",
+   "name": "지역난방공사",
    "rank": 20,
-   "signalId": "cand:20261119:CR-1.0:006730",
-   "ticker": "006730"
+   "signalId": "cand:20261120:CR-1.0:071320",
+   "ticker": "071320"
   }
  ]
 }
