@@ -9,7 +9,7 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 61 |
 | 기각 | 176 |
-| 사전등록 문서(결과는 별도 파일) | 241 |
+| 사전등록 문서(결과는 별도 파일) | 242 |
 | 정보·탐색 | 51 |
 | 미분류 | 252 |
 
@@ -293,11 +293,12 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (241)
+## 사전등록 문서(결과는 별도 파일) (242)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
+| 2026-11-22 | PREREGISTERED | kr | [price-limit-memory-preregistration-2026-11.md](price-limit-memory-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 판정 안 함(다음 날 종가-종가 수익은 시초 갭을 포함해 체결 불가능). 질문 — 상·하한가로 잘린 종목은 한도 직전까지만 오르고 안 잘린 종목보다 다음 날 같은 방향… |
 | 2026-11-22 | PREREGISTERED | us | [friday-8k-preregistration-2026-11.md](friday-8k-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 금요일 장 마감 뒤에 낸 악재 8-K 는 월~목 저녁에 낸 같은 종류의 악재보다 다음 거래일 주가 반응이 덜 나쁜가(악재 묻기 가설, DellaV… |
 | 2026-11-22 | PREREGISTERED | global | [fed-expect-shock-preregistration-2026-11.md](fed-expect-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 시장이 가격에 넣은 연준 금리 인상 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤(충격 주) 다음 주 QQQ·반도체(SOXX)·금·비트코인… |
 | 2026-11-22 | PREREGISTERED | us | [etf-corr-accel-preregistration-2026-11.md](etf-corr-accel-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 섹터 ETF 끼리의 단기 상관이 열흘 사이 급하게 오르는 날(상관 가속) 뒤 20거래일 동안 SPY 수익이 평소보다 낮은가(일시 헤지의 근거가 되… |
