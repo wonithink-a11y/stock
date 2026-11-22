@@ -9,8 +9,8 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 61 |
 | 기각 | 175 |
-| 사전등록 문서(결과는 별도 파일) | 238 |
-| 정보·탐색 | 50 |
+| 사전등록 문서(결과는 별도 파일) | 239 |
+| 정보·탐색 | 51 |
 | 미분류 | 252 |
 
 ## 통과·채택 (28)
@@ -292,13 +292,14 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (238)
+## 사전등록 문서(결과는 별도 파일) (239)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
 | 2026-11-22 | PREREGISTERED | global | [fed-expect-shock-preregistration-2026-11.md](fed-expect-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 시장이 가격에 넣은 연준 금리 인상 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤(충격 주) 다음 주 QQQ·반도체(SOXX)·금·비트코인… |
 | 2026-11-22 | PREREGISTERED | us | [etf-corr-accel-preregistration-2026-11.md](etf-corr-accel-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 섹터 ETF 끼리의 단기 상관이 열흘 사이 급하게 오르는 날(상관 가속) 뒤 20거래일 동안 SPY 수익이 평소보다 낮은가(일시 헤지의 근거가 되… |
+| 2026-11-22 | PREREGISTERED | global | [dollar-month-end-preregistration-2026-11.md](dollar-month-end-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 월중 미국 주식이 오른 달 마지막 거래일에는 달러가 약해지고, 내린 달에는 강해지는가(해외 연기금의 월말 환헤지 리밸런싱, Melvin·Prins… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-svix-lag-baseline-preregistration-2026-11.md](vix-ladder-svix-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 SVIX(−1배)' INFORMATION 이 VIX 확정 다음 날 체결에도 남고, 같은 보유일수 무작위 SVIX 보유와 구분되는가… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
 | 2026-11-17 | PREREGISTERED | us-kr | [vix-kr-inverse-forward-preregistration-2026-11.md](vix-kr-inverse-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (KR-R1) "미국 VIX ≤14/≥20 규칙으로 한국 지수를 사고판 과거 INCONCLUSIVE 3셀(CAGR +8.2 vs +6.1%, ΔS… |
@@ -535,10 +536,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (50)
+## 정보·탐색 (51)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-22 | INFORMATION | global | [dollar-month-end-results-2026-11.md](dollar-month-end-results-2026-11.md) | 신호: 있음(2000~2020) · 경제성: 미달(2021 이후 역방향). 월중 나스닥이 오른 달은 마지막 거래일 달러 약세, 내린 달은 강세에 베팅한 평균이 전체 +5.76bp(95% [+0.6,… |
 | 2026-11-17 | INFORMATION | kr | [kr-nominal-price-results-2026-11.md](kr-nominal-price-results-2026-11.md) | 신호: 약함(고가 우위 방향, 문턱 미달) · 경제성: 해당 없음(저가 우위가 아님). 시총을 맞춘 뒤에도 저가 3분위가 고가 3분위보다 월 −23.7bp [−62.4, +16.8] 낮았고(순열 양… |
 | 2026-11-08 | INFORMATION | us | [vix-ladder-svix-results-2026-11.md](vix-ladder-svix-results-2026-11.md) | 신호: 있음(기준 충족, 단 약함) · 경제성: 미확정. 주 셀(N 8·≤16)에서 VALID(14건 평균 +2.8%·이익 86%·최악 −41%)와 TEST(9건 +1.9%·89%·−33%)가 기준… |
 | 2026-11-08 | INFORMATION | global | [streak-conditions-results-2026-11.md](streak-conditions-results-2026-11.md) | 신호: 있음(약함, 사전 기준 1칸 통과: A≥3일·−5% ∧ VIX≥30) · 경제성: 미확정. 그 칸은 12개 시장 모두 보유, 사건 320건, 6개 시장이 BH 5% 통과, 합산 초과 +3.1… |
