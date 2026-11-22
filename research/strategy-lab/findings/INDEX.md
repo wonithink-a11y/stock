@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 61 |
-| 기각 | 174 |
-| 사전등록 문서(결과는 별도 파일) | 237 |
+| 기각 | 175 |
+| 사전등록 문서(결과는 별도 파일) | 238 |
 | 정보·탐색 | 50 |
 | 미분류 | 252 |
 
@@ -112,10 +112,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (174)
+## 기각 (175)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-22 | REJECT | us | [etf-corr-accel-results-2026-11.md](etf-corr-accel-results-2026-11.md) | 신호: 없음 · 경제성: 판정 안 함. 섹터 ETF 상관 가속일(사건 126건, 1999-01~2026-11) 뒤 20거래일 SPY 수익은 +0.48% 로 평소 +0.77% 보다 −0.28%p 낮을… |
 | 2026-11-17 | REJECT | kr | [kr-ust-etf-month-end-results-2026-11.md](kr-ust-etf-month-end-results-2026-11.md) | 신호: 확인 안 됨(사전등록 규칙상 REJECT — 순열 p 0.0542 로 0.05 를 근소하게 넘음) · 경제성: 점추정은 통과하나 신호가 서지 않아 근거 없음. 305080 은 마지막 3거래일… |
 | 2026-11-17 | REJECT | kr | [kr-penny-avoid-results-2026-11.md](kr-penny-avoid-results-2026-11.md) | 신호: 없음(홀드아웃에서 방향이 반대) · 경제성: 해당 없음. 2010~2015 홀드아웃에서 극저가 소형주 A 는 나머지보다 월 +41.2bp [−140.8, +235.5] 더 올라 '회피' 방향… |
 | 2026-11-08 | REJECT | kr | [vix-ladder-kr-2x-results-2026-11.md](vix-ladder-kr-2x-results-2026-11.md) | 신호: 없음 · 경제성: 해당 없음. 코스피 2배는 TRAIN(사건 4건, 평균 −9.7%)과 TEST(이익 비율 64%) 미달, 코스닥 2배도 TRAIN(평균 −3.7%)과 TEST(이익 73%)… |
@@ -291,12 +292,13 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (237)
+## 사전등록 문서(결과는 별도 파일) (238)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
 | 2026-11-22 | PREREGISTERED | global | [fed-expect-shock-preregistration-2026-11.md](fed-expect-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 시장이 가격에 넣은 연준 금리 인상 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤(충격 주) 다음 주 QQQ·반도체(SOXX)·금·비트코인… |
+| 2026-11-22 | PREREGISTERED | us | [etf-corr-accel-preregistration-2026-11.md](etf-corr-accel-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 섹터 ETF 끼리의 단기 상관이 열흘 사이 급하게 오르는 날(상관 가속) 뒤 20거래일 동안 SPY 수익이 평소보다 낮은가(일시 헤지의 근거가 되… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-svix-lag-baseline-preregistration-2026-11.md](vix-ladder-svix-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 SVIX(−1배)' INFORMATION 이 VIX 확정 다음 날 체결에도 남고, 같은 보유일수 무작위 SVIX 보유와 구분되는가… |
 | 2026-11-17 | PREREGISTERED | us | [vix-ladder-3x-lag-baseline-preregistration-2026-11.md](vix-ladder-3x-lag-baseline-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 'VIX 사다리 나스닥 3배' ROBUST 가 (a) 장 마감 뒤에 확정되는 VIX 종가로 같은 날 종가에 체결하는 가정과 (b) '그냥 3배를 … |
 | 2026-11-17 | PREREGISTERED | us-kr | [vix-kr-inverse-forward-preregistration-2026-11.md](vix-kr-inverse-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — (KR-R1) "미국 VIX ≤14/≥20 규칙으로 한국 지수를 사고판 과거 INCONCLUSIVE 3셀(CAGR +8.2 vs +6.1%, ΔS… |
