@@ -69,3 +69,14 @@ t('엔진 멈춤: 하트비트 20분 초과 + 감시 목록 있을 때만, 30분
 });
 
 console.log(`OK ${n}/${n}`);
+
+// 2026-11-22: 감시 목록이 비어도 하트비트가 왔던 엔진이 멈추면 알린다(6시간마다), 복귀도 알린다. 한 번도 안 온 엔진은 조용.
+{
+  const MIN = 60000, T = 1e12; let dm = null, r;
+  r = deadmanDue(0, T, T + 21 * MIN, dm); assert.equal(r.send, true); assert.equal(r.kind, 'down'); dm = r.dm;
+  r = deadmanDue(0, T, T + 60 * MIN, dm); assert.equal(r.send, false);                       // 목록 없으면 30분 반복 안 함
+  r = deadmanDue(0, T, T + 21 * MIN + 361 * MIN, dm); assert.equal(r.send, true); dm = r.dm; // 6시간 뒤 반복
+  r = deadmanDue(0, T + 500 * MIN, T + 501 * MIN, dm); assert.equal(r.kind, 'up'); assert.equal(r.send, true);
+  r = deadmanDue(0, null, T + 999 * MIN, null); assert.equal(r.send, false);                 // 하트비트 한 번도 없음 + 목록 없음 → 조용
+  console.log('ok 엔진 멈춤: 목록 비어도 하트비트 이력이 있으면 알림');
+}

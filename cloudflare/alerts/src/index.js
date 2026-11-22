@@ -166,14 +166,14 @@ async function stopsJob(env, now) {
   if (r.changed) { await env.ALERTS.put('stops_breach', JSON.stringify(r.breach)); await env.ALERTS.put('stops_ack', JSON.stringify(r.ack)); }
 }
 
-/** 매분: 감시 목록이 있는데 엔진 하트비트가 20분 넘게 없으면 알린다(30분마다 반복, 복귀하면 한 번). 목록이 비면 조용. */
+/** 매분: 감시 목록이 있는데 엔진 하트비트가 20분 넘게 없으면 알린다(30분마다 반복, 복귀하면 한 번). 목록이 비어도 하트비트가 왔던 엔진이면 알린다(그땐 6시간마다). */
 async function deadmanJob(env, now) {
   const stops = await kvJson(env, 'stops', []), hb = await kvJson(env, 'hb', null), dm = await kvJson(env, 'dm', null);
-  if (!stops.length && !(dm && dm.active)) return;
+  if (!stops.length && !hb && !(dm && dm.active)) return;   // 감시 목록도 없고 하트비트도 한 번도 없으면(엔진 미설치) 조용
   const r = deadmanDue(stops.length, hb && hb.t, now.getTime(), dm);
   if (r.send) {
     const text = r.kind === 'down'
-      ? `[엔진 멈춤] 하트비트가 ${hb && hb.t ? Math.round((now.getTime() - hb.t) / 60000) + '분째' : '아직'} 없습니다.\n감시 중인 손절선 ${stops.length}개는 이 서비스가 계속 지켜보지만, 엔진이 멈춰 손절선·주문이 갱신되지 않습니다.`
+      ? `[엔진 멈춤] 하트비트가 ${hb && hb.t ? Math.round((now.getTime() - hb.t) / 60000) + '분째' : '아직'} 없습니다.${stops.length ? `\n감시 중인 손절선 ${stops.length}개는 이 서비스가 계속 지켜보지만, 엔진이 멈춰 손절선·주문이 갱신되지 않습니다.` : '\n태블릿 엔진(Termux run-loop)이 꺼진 것 같습니다.'}`
       : '[엔진 복귀] 하트비트가 다시 옵니다.';
     if (!(await send(env, text, { chat: 'trade', kakao: r.kind === 'down' && !(dm && dm.active) })).ok) return;
   }

@@ -133,7 +133,7 @@ export async function checkTargets(targets, fired, now, fetchPx) {
 }
 
 // ---- 손절선 이탈 감시(2026-11-15 설계: docs/control/손절알림-설계-2026-11-15.md) — 알림만, 주문 없음 ----
-export const STOP_FAST_MIN = 10, STOP_SLOW_EVERY = 5, DEADMAN_MIN = 20, DEADMAN_REPEAT_MIN = 30, MAX_STOPS = 30;
+export const STOP_FAST_MIN = 10, STOP_SLOW_EVERY = 5, DEADMAN_MIN = 20, DEADMAN_REPEAT_MIN = 30, DEADMAN_IDLE_REPEAT_MIN = 360, MAX_STOPS = 30;
 export const stopId = (s) => s.id || `${s.market}:${s.symbol}:${s.stop}`;
 export const stopHit = (s, px) => (s.dir === 'above' ? px >= s.stop : px <= s.stop);
 
@@ -182,14 +182,16 @@ export function stopLine(a) {
   return `🔴 ${name} 현재 ${f(a.px)}${unit} ${cmp} 손절 ${f(a.s.stop)}${unit} (${a.n}번째${age})` + (a.s.note ? `\n   ${a.s.note}` : '');
 }
 
-/** 엔진 멈춤: 감시 중인 손절선이 있고 하트비트가 DEADMAN_MIN 분 넘게 없을 때만. 같은 알림은 DEADMAN_REPEAT_MIN 분마다. dm={active,lastAlert} → {send, kind:'down'|'up'|null, dm} */
+/** 엔진 멈춤: 하트비트가 DEADMAN_MIN 분 넘게 없을 때 — 손절선이 있거나, 한 번이라도 하트비트가 왔던 엔진일 때(2026-11-22: 목록이 비어 5일간 조용했다). 한 번도 안 온 엔진은 목록이 있을 때만. 같은 알림은 목록이 있으면 DEADMAN_REPEAT_MIN 분, 없으면 DEADMAN_IDLE_REPEAT_MIN 분마다. dm={active,lastAlert} → {send, kind:'down'|'up'|null, dm} */
 export function deadmanDue(stopsCount, hbMs, nowMs, dm) {
   const st = { active: !!(dm && dm.active), lastAlert: dm && dm.lastAlert ? dm.lastAlert : 0 };
-  const down = stopsCount > 0 && (hbMs == null || nowMs - hbMs > DEADMAN_MIN * 60000);
+  const stale = hbMs == null || nowMs - hbMs > DEADMAN_MIN * 60000;
+  const down = stale && (stopsCount > 0 || hbMs != null);
+  const repeatMin = stopsCount > 0 ? DEADMAN_REPEAT_MIN : DEADMAN_IDLE_REPEAT_MIN;   // 목록 없이 태블릿을 일부러 끈 밤에 30분마다 울리지 않게
   if (down) {
-    if (!st.active || nowMs - st.lastAlert >= DEADMAN_REPEAT_MIN * 60000) return { send: true, kind: 'down', dm: { active: true, lastAlert: nowMs } };
+    if (!st.active || nowMs - st.lastAlert >= repeatMin * 60000) return { send: true, kind: 'down', dm: { active: true, lastAlert: nowMs } };
     return { send: false, kind: null, dm: st };
   }
-  if (st.active) return { send: stopsCount > 0, kind: stopsCount > 0 ? 'up' : null, dm: { active: false, lastAlert: 0 } };
+  if (st.active) return { send: true, kind: 'up', dm: { active: false, lastAlert: 0 } };
   return { send: false, kind: null, dm: st };
 }
