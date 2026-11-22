@@ -23,6 +23,7 @@ OUT = HERE / "findings" / "fed-expect-shock-results.json"
 ASSETS = {"QQQ": 0.0005, "SOXX": 0.0005, "GLD": 0.0005, "BTC-USD": 0.0010}        # 왕복 비용(사전등록 §5)
 ALPHA, PERM, SEED = 0.05 / 4, 5000, 20261122
 ZLB = 0.50                                                    # TRAIN q 산정에서 제외할 제로금리 구간(주말 DFF < 0.50%)
+SAMPLE_START = pd.Timestamp("2003-01-01")                      # 사전등록 §3 TRAIN·시기 정의의 시작(DGS6MO 는 1981~ 라 명시하지 않으면 그 전 주가 들어간다)
 TRAIN_END = pd.Timestamp("2015-12-31")
 BUCKETS = [("2003~15", None, "2015-12-31"), ("2016~23", "2016-01-01", "2023-12-31"),
            ("2024", "2024-01-01", "2024-12-31"), ("2025~", "2025-01-01", None)]
@@ -152,7 +153,7 @@ def analyse(wk: pd.DataFrame, px: pd.Series, q: float, cost: float, rng, perm: i
     rows["r0"] = [contemporaneous(px, a, b) for a, b in zip(rows["week_start"], rows["week_end"])]
     rows = rows[rows["delta"].notna() & rows["r1"].notna()].reset_index(drop=True)
     first = px.index[0]
-    rows = rows[rows["week_end"] >= first + pd.Timedelta(days=14)].reset_index(drop=True)
+    rows = rows[(rows["week_end"] >= first + pd.Timedelta(days=14)) & (rows["week_end"] >= SAMPLE_START)].reset_index(drop=True)
     s = rows["shock"].values.astype(bool)
     r = rows["r1"].values
     d_obs, p = perm_p(r, s, perm, rng)
@@ -190,7 +191,7 @@ def main() -> int:
     wk = weekly(e)
     wff = weekly(ff)[["week_start", "v"]].rename(columns={"v": "ff_end"})
     wk = wk.merge(wff, on="week_start", how="left")
-    tr = wk[(wk["week_end"] <= TRAIN_END) & wk["delta"].notna() & (wk["ff_end"] >= ZLB)]["delta"]
+    tr = wk[(wk["week_end"] >= SAMPLE_START) & (wk["week_end"] <= TRAIN_END) & wk["delta"].notna() & (wk["ff_end"] >= ZLB)]["delta"]
     q = float(np.quantile(tr, 0.9))
     TRAIN_LOW = float(np.quantile(tr, 0.1))
     print(f"E {e.index[0].date()}~{e.index[-1].date()} · TRAIN 주(ZLB 제외) {len(tr)} · q(90분위)={q:.3f}%p · 10분위 {TRAIN_LOW:.3f}%p")
