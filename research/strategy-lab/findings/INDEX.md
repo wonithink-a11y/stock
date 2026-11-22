@@ -10,7 +10,7 @@
 | 보류·판정 불가 | 61 |
 | 기각 | 176 |
 | 사전등록 문서(결과는 별도 파일) | 242 |
-| 정보·탐색 | 51 |
+| 정보·탐색 | 52 |
 | 미분류 | 252 |
 
 ## 통과·채택 (28)
@@ -540,10 +540,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (51)
+## 정보·탐색 (52)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-23 | INFORMATION | kr | [price-limit-memory-results-2026-11.md](price-limit-memory-results-2026-11.md) | 신호: 있음(양 방향) · 경제성: 판정 안 함(다음 날 종가-종가는 시초 갭을 포함해 체결 불가능). 상한 마감 종목의 다음 날 평균은 +3.83% 인데 한도 직전 비절단 큰 상승(+22~28.5… |
 | 2026-11-22 | INFORMATION | global | [dollar-month-end-results-2026-11.md](dollar-month-end-results-2026-11.md) | 신호: 있음(2000~2020) · 경제성: 미달(2021 이후 역방향). 월중 나스닥이 오른 달은 마지막 거래일 달러 약세, 내린 달은 강세에 베팅한 평균이 전체 +5.76bp(95% [+0.6,… |
 | 2026-11-17 | INFORMATION | kr | [kr-nominal-price-results-2026-11.md](kr-nominal-price-results-2026-11.md) | 신호: 약함(고가 우위 방향, 문턱 미달) · 경제성: 해당 없음(저가 우위가 아님). 시총을 맞춘 뒤에도 저가 3분위가 고가 3분위보다 월 −23.7bp [−62.4, +16.8] 낮았고(순열 양… |
 | 2026-11-08 | INFORMATION | us | [vix-ladder-svix-results-2026-11.md](vix-ladder-svix-results-2026-11.md) | 신호: 있음(기준 충족, 단 약함) · 경제성: 미확정. 주 셀(N 8·≤16)에서 VALID(14건 평균 +2.8%·이익 86%·최악 −41%)와 TEST(9건 +1.9%·89%·−33%)가 기준… |
