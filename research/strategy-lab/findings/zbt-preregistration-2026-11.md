@@ -3,6 +3,7 @@ track: us
 factor: zbt-breadth-thrust
 date: 2026-11-23
 verdict: PREREGISTERED
+code: 488ed573
 criteria_version: research-only
 conditions: ["S&P500 PIT 구성(membership_intervals.csv)·가격 패널(us_pit_prices.py panel, 2016-01~)로 일별 상승종목 비율 → 10일 EMA", "ZBT 신호: EMA10 < 0.40 인 날 t0 뒤 10거래일 이내 EMA10 > 0.615, 신호일 = 처음 넘은 날", "신호 간 최소 간격 126거래일(군집 제거)", "1차 결과 = 신호일 종가 뒤 63거래일 S&P500 가격지수 수익, 무작위 같은 건수·같은 간격 1,000회 대조", "신호 5건 미만이면 판정 불가(INCONCLUSIVE) — 사전 선언", "비용 = ETF 5bp 왕복"]
 reason: >-
