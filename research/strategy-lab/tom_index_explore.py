@@ -55,6 +55,23 @@ def confirm():
     print(f"확인 S&P500 1970~1989: TOM {x['a']*1e4:+.1f}bp vs {x['b']*1e4:+.1f}bp · t {x['t']:+.2f} · 단측 p {x['p']:.4f} → {'확인됨' if x['p'] <= 0.05 and x['t'] > 0 else 'REJECT'}")
 
 
+FWD_START, FWD_MONTHS = "2026-12-01", 36
+
+
+def forward(judge=False):
+    """확인(C) forward — tom-kr-forward-prereg-2026-11.md. 2026-12 이후 국내 2지수만, 36개월 전 판정 거부."""
+    for name in ("코스피", "코스닥"):
+        c = load(MKT[name][0])["close"].dropna()
+        r = c.pct_change().dropna()
+        r = r[r.index >= FWD_START]
+        months = r.index.to_period("M").nunique()
+        if not judge or months < FWD_MONTHS:
+            print(f"{name}: forward {months}개월 (판정은 {FWD_MONTHS}개월 뒤)" + (" — 판정 거부" if judge else ""))
+            continue
+        x = test(r)
+        print(f"{name} forward 판정: TOM {x['a']*1e4:+.1f}bp vs {x['b']*1e4:+.1f}bp · t {x['t']:+.2f} · 단측 p {x['p']:.4f} → {'확인됨' if x['p'] <= 0.05 and x['t'] > 0 else 'REJECT'}")
+
+
 def selftest():
     idx = pd.bdate_range("2020-01-01", "2020-03-31")
     f = tom_flag(idx)
@@ -65,4 +82,6 @@ def selftest():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--selftest", action="store_true"); ap.add_argument("--confirm", action="store_true")
-    a = ap.parse_args(); selftest() if a.selftest else (confirm() if a.confirm else run())
+    ap.add_argument("--forward", action="store_true"); ap.add_argument("--judge", action="store_true")
+    a = ap.parse_args()
+    selftest() if a.selftest else (confirm() if a.confirm else (forward(a.judge) if a.forward else run()))
