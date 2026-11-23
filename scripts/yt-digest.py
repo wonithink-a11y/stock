@@ -419,7 +419,7 @@ if __name__ == "__main__":
     elif "--deep" in sys.argv:    # --deep ID [모델] [--once]  정밀 분석(2회 호출: 분석 → 누락 점검). 출력만
         e = load_env()
         t0 = time.time()
-        a = [x for x in sys.argv[sys.argv.index("--deep") + 1:] if x != "--once"]
+        a = [x for x in sys.argv[sys.argv.index("--deep") + 1:] if x not in ("--once", "--")]   # ID 가 -로 시작해도 `--deep -- ID` 로 받는다
         s, u = deep(a[0], e["GEMINI_API_KEY"], a[1] if len(a) > 1 else MODEL, review="--once" not in sys.argv)
         print(json.dumps(s, ensure_ascii=False, indent=1))
         print(f"\n토큰 {u.get('totalTokenCount')} · {time.time() - t0:.0f}초", file=sys.stderr)
