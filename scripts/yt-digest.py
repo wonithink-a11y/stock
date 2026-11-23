@@ -3,6 +3,7 @@
 
   python3 scripts/yt-digest.py              # 새 영상 찾아 요약·발송 (타이머가 20분마다)
   python3 scripts/yt-digest.py --test ID    # 영상 하나만 요약해 출력 (저장·발송 없음, 토큰 실측용)
+  python3 scripts/yt-digest.py --deep ID    # 정밀 분석 — 타임라인·주장 유형·전 엔티티·규칙·누락 점검(2회 호출). 출력만
   python3 scripts/yt-digest.py --selftest
 
 채널 RSS(키 없음)로 새 영상을 찾고, 영상 URL 을 Gemini 에 그대로 넣는다(공개 영상만). 라이브 중인 영상은 끝난 뒤에 받는다.
@@ -73,6 +74,82 @@ SCHEMA = {
     },
     "required": ["headline", "brief", "summary", "sections"],
 }
+
+# ── 정밀 분석(--deep) — 11-23 사용자 요청: "요약"이 아니라 빠뜨림 없는 정리. 20분 타이머 경로(PROMPT·SCHEMA)는 건드리지 않는다.
+DEEP_PROMPT = """이 영상을 처음부터 끝까지 **빠짐없이** 분석해 구조화하라. 목표는 짧게 줄이는 것이 아니라, 시청하지 않은 사람이 영상을 다시 볼 필요가 없을 만큼 정보를 보존하는 것이다.
+
+원칙:
+- 영상에서 실제로 말하거나 화면에 보인 내용만 쓴다. 네 의견·추천·보충 설명을 섞지 않는다. 외부 지식으로 보태야 하면 notes_external 에만 쓰고 '영상 밖 정보'로 표시한다.
+- 줄이지 않는다. 판단이 애매하면 넣는다(빼는 쪽이 아니라 넣는 쪽으로 틀린다). 광고·구독 안내·인사만 뺀다.
+- 영상 흐름 순서대로 timeline 을 만든다. 주제가 바뀔 때마다 새 항목, 항목마다 시작 시각(mm:ss, 모르면 빈 문자열)·화자·그 구간에서 말한 모든 요점을 문장으로 쓴다.
+- 모든 주장에 종류를 붙인다: fact(발표·실적·시세·이미 일어난 일) / opinion(화자의 해석) / forecast(예측) / advice(권유·행동 제안) / anecdote(경험담). 근거를 말했으면 근거를, 안 했으면 '근거 없음'.
+- 숫자·날짜·종목·티커·회사·인물·기관·제품·도구·명령어·URL·책·논문·지표 이름은 **전부** entities 에 말한 그대로 적고, 언급 맥락을 붙인다. 들리지 않거나 확실하지 않으면 '불분명'.
+- 조건부 규칙·매매 방법·전략이 나오면 rules 에 진입·청산·손절·종목 선정·기간·사이즈를 말한 그대로 단계별로 적는다. 빠진 조건(말하지 않은 것)은 missing_conditions 에 '언급 없음'으로 명시한다.
+- 성과·수익률·승률 주장은 claims_performance 에 기간·표본·비용 반영 여부·비교 기준까지, 말하지 않았으면 '언급 없음'으로 적는다.
+- 화자 간 의견 차이·말 바꿈·앞뒤가 맞지 않는 대목은 inconsistencies 에 쓴다.
+- 질문과 답변(Q&A, 댓글 소개)이 있으면 qa 에 하나도 빼지 않는다.
+- 한국어로 쓴다."""
+
+DEEP_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "headline": {"type": "STRING"},
+        "video_type": {"type": "STRING"},
+        "speakers": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "brief": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "timeline": {"type": "ARRAY", "items": {
+            "type": "OBJECT",
+            "properties": {"start": {"type": "STRING"}, "speaker": {"type": "STRING"}, "topic": {"type": "STRING"},
+                           "points": {"type": "ARRAY", "items": {"type": "STRING"}}},
+            "required": ["topic", "points"]}},
+        "claims": {"type": "ARRAY", "items": {
+            "type": "OBJECT",
+            "properties": {"claim": {"type": "STRING"}, "kind": {"type": "STRING", "enum": ["fact", "opinion", "forecast", "advice", "anecdote"]},
+                           "basis": {"type": "STRING"}, "speaker": {"type": "STRING"}},
+            "required": ["claim", "kind", "basis"]}},
+        "entities": {"type": "ARRAY", "items": {
+            "type": "OBJECT",
+            "properties": {"name": {"type": "STRING"}, "type": {"type": "STRING"}, "context": {"type": "STRING"}},
+            "required": ["name", "context"]}},
+        "numbers": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "rules": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "missing_conditions": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "claims_performance": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "inconsistencies": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "qa": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "unclear": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "notes_external": {"type": "ARRAY", "items": {"type": "STRING"}},
+    },
+    "required": ["headline", "brief", "timeline", "claims", "entities"],
+}
+
+DEEP_REVIEW = """아래는 같은 영상에 대해 네가 만든 1차 분석이다. 영상을 다시 처음부터 끝까지 확인하며 **빠진 것**만 찾아라: 누락된 구간·주장·숫자·종목·도구·조건·Q&A, 잘못 옮긴 숫자. 같은 스키마로, 1차 분석에 없는 항목만(그리고 정정은 unclear 에 '정정: 기존 → 올바른 값') 담아 반환하라. 빠진 것이 없으면 각 배열을 비워 반환한다.
+
+1차 분석:
+"""
+
+
+def deep(vid, key, model=MODEL, review=True):
+    """영상 하나를 정밀 분석. 2차로 누락 점검 후 합친다. 출력 전용(저장 금지 — 남의 콘텐츠)."""
+    def call(text):
+        body = {"contents": [{"parts": [{"fileData": {"fileUri": f"https://www.youtube.com/watch?v={vid}"}}, {"text": text}]}],
+                "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json", "responseSchema": DEEP_SCHEMA}}
+        req = urllib.request.Request(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "x-goog-api-key": key})
+        d = json.loads(http(req, 900, 2))
+        return json.loads(d["candidates"][0]["content"]["parts"][0]["text"]), d.get("usageMetadata", {})
+    first, u1 = call(DEEP_PROMPT)
+    if not review:
+        return first, u1
+    extra, u2 = call(DEEP_PROMPT + "\n\n" + DEEP_REVIEW + json.dumps(first, ensure_ascii=False))
+    merged = dict(first)
+    for k, v in extra.items():
+        if isinstance(v, list) and v:
+            merged[k] = list(first.get(k, [])) + v
+    tot = {"totalTokenCount": u1.get("totalTokenCount", 0) + u2.get("totalTokenCount", 0)}
+    return merged, tot
+
 
 NS = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
 
@@ -337,6 +414,13 @@ def selftest():
 if __name__ == "__main__":
     if "--selftest" in sys.argv:
         selftest()
+    elif "--deep" in sys.argv:    # --deep ID [모델] [--once]  정밀 분석(2회 호출: 분석 → 누락 점검). 출력만
+        e = load_env()
+        t0 = time.time()
+        a = [x for x in sys.argv[sys.argv.index("--deep") + 1:] if x != "--once"]
+        s, u = deep(a[0], e["GEMINI_API_KEY"], a[1] if len(a) > 1 else MODEL, review="--once" not in sys.argv)
+        print(json.dumps(s, ensure_ascii=False, indent=1))
+        print(f"\n토큰 {u.get('totalTokenCount')} · {time.time() - t0:.0f}초", file=sys.stderr)
     elif "--test" in sys.argv:
         e = load_env()
         t0 = time.time()
