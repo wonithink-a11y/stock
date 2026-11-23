@@ -56,6 +56,21 @@ def confirm():
     print(f"확인 S&P500 1970~1989 연휴 직전 3일: n={len(ev)} · {ev.mean():+.2%} vs {base.mean():+.2%} · t {t:+.2f} · 단측 p {p:.4f} → {'확인됨' if p <= 0.05 and t > 0 else 'REJECT'}")
 
 
+FWD_START, FWD_MONTHS, FWD_MIN = "2026-12-01", 60, 8
+
+
+def forward(judge=False):
+    """확인(C) forward — holiday-kosdaq-forward-prereg-2026-11.md. 2026-12 이후 코스닥 긴 연휴 직전 하루."""
+    c = load("^KQ11")["close"].dropna()
+    ev, base, _, _ = test(c, 2, 1)
+    ev, base = ev[ev.index >= FWD_START], base[base.index >= FWD_START]
+    months = base.index.to_period("M").nunique()
+    if not judge or months < FWD_MONTHS or len(ev) < FWD_MIN:
+        print(f"코스닥 forward {months}개월 · 사건 {len(ev)} (판정: {FWD_MONTHS}개월 ∧ 사건 ≥ {FWD_MIN})" + (" — 판정 거부" if judge else "")); return
+    t, p2 = stats.ttest_ind(ev, base, equal_var=False); p = p2 / 2 if t > 0 else 1 - p2 / 2
+    print(f"코스닥 forward 판정: n={len(ev)} {ev.mean():+.2%} vs {base.mean():+.2%} · 단측 p {p:.4f} → {'확인됨' if p <= 0.05 and t > 0 else 'REJECT'}")
+
+
 def selftest():
     idx = pd.DatetimeIndex(["2020-01-20", "2020-01-21", "2020-01-22", "2020-01-28", "2020-01-29"])   # 23~27 휴장(평일 3일)
     c = pd.Series([100, 101, 102, 103, 104.0], idx)
@@ -66,4 +81,6 @@ def selftest():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--selftest", action="store_true"); ap.add_argument("--confirm", action="store_true")
-    a = ap.parse_args(); selftest() if a.selftest else (confirm() if a.confirm else run())
+    ap.add_argument("--forward", action="store_true"); ap.add_argument("--judge", action="store_true")
+    a = ap.parse_args()
+    selftest() if a.selftest else (confirm() if a.confirm else (forward(a.judge) if a.forward else run()))
