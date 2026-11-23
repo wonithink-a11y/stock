@@ -57,7 +57,7 @@ def null_means(pool_idx, px, n, rng, gap=DEBOUNCE):
     return np.array(out)
 
 
-def run():
+def run(min_ev=10, prior=PRIOR):
     f = features(pd.read_parquet(PANEL))
     px = load_sp500()
     f = f[(f.index >= START)]
@@ -84,16 +84,16 @@ def run():
                     mm = null_means(matched, px, n, rng, gap=1)
                     row["matched"] = mm.mean()
             rows.append(row)
-            ps.append(row.get("p", 1.0) if n >= 10 else None)
+            ps.append(row.get("p", 1.0) if n >= min_ev else None)
     testable = [i for i, p in enumerate(ps) if p is not None]
-    adj, ok, m = bh_with_prior([ps[i] for i in testable], q=0.10, prior=PRIOR)
+    adj, ok, m = bh_with_prior([ps[i] for i in testable], q=0.10, prior=prior)
     for k, i in enumerate(testable):
         rows[i]["p_bh"], rows[i]["pass"] = adj[k], ok[k] and rows[i]["mean"] > rows[i]["null"]
-    print(f"BH 가족 m = {len(testable)} 시험 + 누적 {PRIOR} (사건 <10 칸은 시험 아님 → 판정 불가)")
+    print(f"BH 가족 m = {len(testable)} 시험 + 누적 {prior} (사건 <{min_ev} 칸은 시험 아님 → 판정 불가)")
     for r in rows:
         if r["n"] == 0:
             print(f"{r['칸']}: 사건 0"); continue
-        tag = ("통과(후보)" if r.get("pass") else "미통과") if r["n"] >= 10 else "판정 불가(n<10)"
+        tag = (("통과(후보)" if r.get("pass") else "미통과") + (" ·소표본" if r["n"] < 10 else "")) if r["n"] >= min_ev else f"판정 불가(n<{min_ev})"
         print(f"{r['칸']}: n={r['n']} · 63일 {r['mean']:+.2%} (net {r['mean'] - COST:+.2%}) vs 무작위 {r['null']:+.2%}"
               f" · 매칭(S&P −8%↓) {r.get('matched', float('nan')):+.2%} · p {r['p']:.3f} · BH {r.get('p_bh', float('nan')):.3f}"
               f" · 양수 {r['pos']:.0%} · 21일 {r['r21']:+.2%} · 126일 {r['r126']:+.2%} → {tag}")
@@ -118,4 +118,7 @@ def selftest():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--selftest", action="store_true")
-    selftest() if ap.parse_args().selftest else run()
+    ap.add_argument("--min-events", type=int, default=10)   # RP-2.1 재실행: 5
+    ap.add_argument("--prior", type=int, default=PRIOR)
+    a = ap.parse_args()
+    selftest() if a.selftest else run(a.min_events, a.prior)
