@@ -6,18 +6,17 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 29 |
-| 보류·판정 불가 | 64 |
+| 통과·채택 | 28 |
+| 보류·판정 불가 | 65 |
 | 기각 | 179 |
 | 사전등록 문서(결과는 별도 파일) | 257 |
 | 정보·탐색 | 55 |
 | 미분류 | 252 |
 
-## 통과·채택 (29)
+## 통과·채택 (28)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
-| 2026-11-24 | CONFIRMED | us-kr | [idio-crash-results-2026-11.md](idio-crash-results-2026-11.md) | 신호: 국내 있음(확인됨) · 미국 없음 · 경제성: 회피용(국내 개인 공매도 제약 — 매도·제외 규칙으로만 의미). 시장이 안 빠졌는데 혼자 10일 안에 −30% 이상 빠진 국내 유동 종목은 이후… |
 | 2026-11-17 | ECONOMIC | us | [us-treasury-month-end-results-2026-11.md](us-treasury-month-end-results-2026-11.md) | 신호: 있음 · 경제성: 통과(왕복 5bp 가정 — 한국 개인의 해외 ETF 위탁 수수료로는 미달할 수 있음). IEF 는 달의 마지막 3거래일에 같은 달 나머지보다 월 +20.9bp [+12.6,… |
 | 2026-11-08 | ROBUST | us | [vix-ladder-3x-results-2026-11.md](vix-ladder-3x-results-2026-11.md) | 신호: 있음(견딤) · 경제성: 미확정. 주 셀(N 8·청산 ≤16)에서 나스닥 3배는 TRAIN·VALID·TEST 모두 기준 충족(ROBUST), 반도체 3배는 TRAIN 만 미달(INFORMA… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-shortable-results-2026-11.md](kr-static-vi-shortable-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향) — 단 **SH 규칙이 걸러내지 못했다(VU 사건의 95.8%가 SH)**: 실행 가능성의 답이 아니라 '공매도 거래량이 거의 모든 종목에 찍힌다'는 관찰이… |
@@ -47,12 +46,13 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (64)
+## 보류·판정 불가 (65)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-24 | INCONCLUSIVE | us | [true-bottom-explore-results-2026-11.md](true-bottom-explore-results-2026-11.md) | 신호: 판정 불가(시험 가능 1칸 미통과, 나머지 3칸 n<10) · 경제성: 해당 없음. 느슨한 칸(−10%·40%, n=17) 63일 +4.25% vs 무작위 +3.41%, p 0.295. 엄격… |
 | 2026-11-24 | INCONCLUSIVE | us-kr | [seasonal-us-kr-explore-results-2026-11.md](seasonal-us-kr-explore-results-2026-11.md) | 신호: 방향은 10칸 전부 양(겨울 > 여름, 연말 > 평소) · 누적 보정 뒤 통과 0 · 경제성: 해당 없음. 가장 강한 칸 코스닥 Sell in May(겨울 월 +1.77% vs 여름 −1.1… |
+| 2026-11-24 | INCONCLUSIVE | us-kr | [idio-crash-results-2026-11.md](idio-crash-results-2026-11.md) | 신호: 국내 있음(두 구간 모두 음, 홀드아웃 t −4.2) · 사전 규칙상 판정 불가 · 경제성: 회피용. 처음엔 '확인됨'으로 적었으나 비교 기준 결함을 찾아 정정했다 — 올바른 기준에서 국내 … |
 | 2026-11-24 | INCONCLUSIVE | kr | [hi52-kr-explore-results-2026-11.md](hi52-kr-explore-results-2026-11.md) | 신호: 원 통계는 있음(국내 5−1 월 +1.92%, t 3.27) · 누적 보정 뒤 미통과 · 경제성: 롱 온리 net 월 +0.69%(기록). 국내 표본을 이미 400여 번 본 값(누적 K)을 … |
 | 2026-11-22 | INCONCLUSIVE | global | [real-yield-shock-results-2026-11.md](real-yield-shock-results-2026-11.md) | 신호: 없음 · 경제성: 판정 안 함. 실질금리 충격 주의 다음 주 수익은 QQQ(D −0.14%p, p 0.316)와 BTC(D +0.23%p, p 0.574)에서 평소와 구분되지 않아 REJEC… |
 | 2026-11-22 | INCONCLUSIVE | global | [fed-expect-shock-results-2026-11.md](fed-expect-shock-results-2026-11.md) | 신호: 약함(QQQ 만 경계) · 경제성: 판정 안 함. 연준 금리 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤 다음 주 QQQ 는 평소보다 −0.88%p(p 0.0108, 보정 0.012… |
