@@ -1,0 +1,1379 @@
+{
+ "market": "us",
+ "generatedAtKST": "2026-11-24T07:09:16+09:00",
+ "expectedSession": "2026-11-23",
+ "sessionOpen": true,
+ "regularSessionEnded": true,
+ "backfill": false,
+ "series": [
+  {
+   "sym": "^GSPC",
+   "name": "S&P 500",
+   "group": "지수",
+   "kind": "regular",
+   "close": 7237.17,
+   "prevClose": 6910.3901,
+   "chgPct": 4.73,
+   "chg5dPct": -2.42,
+   "chg20dPct": -5.73,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:42+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^IXIC",
+   "name": "NASDAQ",
+   "group": "지수",
+   "kind": "regular",
+   "close": 24089.559,
+   "prevClose": 22617.7305,
+   "chgPct": 6.51,
+   "chg5dPct": -1.71,
+   "chg20dPct": -7.95,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T07:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^DJI",
+   "name": "다우",
+   "group": "지수",
+   "kind": "regular",
+   "close": 49595.31,
+   "prevClose": 48147.3281,
+   "chgPct": 3.01,
+   "chg5dPct": -3.9,
+   "chg20dPct": -5.28,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:42+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^RUT",
+   "name": "러셀 2000",
+   "group": "지수",
+   "kind": "regular",
+   "close": 2669.655,
+   "prevClose": 2581.79,
+   "chgPct": 3.4,
+   "chg5dPct": -2.67,
+   "chg20dPct": -4.19,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:30+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^SOX",
+   "name": "필라델피아 반도체",
+   "group": "지수",
+   "kind": "regular",
+   "close": 9588.05,
+   "prevClose": 8408.5898,
+   "chgPct": 14.03,
+   "chg5dPct": -0.24,
+   "chg20dPct": -13.49,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T07:09+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "SPY",
+   "name": "SPY(시총가중)",
+   "group": "시장폭",
+   "kind": "regular",
+   "close": 722.29,
+   "prevClose": 689.81,
+   "chgPct": 4.71,
+   "chg5dPct": -2.39,
+   "chg20dPct": -5.63,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "RSP",
+   "name": "RSP(동일가중)",
+   "group": "시장폭",
+   "kind": "regular",
+   "close": 212.82,
+   "prevClose": 207.44,
+   "chgPct": 2.59,
+   "chg5dPct": -2.79,
+   "chg20dPct": -2.06,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLK",
+   "name": "기술",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 162.38,
+   "prevClose": 149.01,
+   "chgPct": 8.97,
+   "chg5dPct": -1.44,
+   "chg20dPct": -12.85,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLC",
+   "name": "커뮤니케이션",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 103.6,
+   "prevClose": 100.03,
+   "chgPct": 3.57,
+   "chg5dPct": -3.01,
+   "chg20dPct": -0.24,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLY",
+   "name": "임의소비재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 116.93,
+   "prevClose": 112.46,
+   "chgPct": 3.97,
+   "chg5dPct": -1.03,
+   "chg20dPct": 2.34,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLF",
+   "name": "금융",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 55.65,
+   "prevClose": 54.57,
+   "chgPct": 1.98,
+   "chg5dPct": -4.35,
+   "chg20dPct": -0.66,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLV",
+   "name": "헬스케어",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 179.42,
+   "prevClose": 177.24,
+   "chgPct": 1.23,
+   "chg5dPct": -4.5,
+   "chg20dPct": 0.08,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLI",
+   "name": "산업재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 162.47,
+   "prevClose": 156.37,
+   "chgPct": 3.9,
+   "chg5dPct": -1.93,
+   "chg20dPct": -2.69,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLE",
+   "name": "에너지",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 59.87,
+   "prevClose": 60.51,
+   "chgPct": -1.06,
+   "chg5dPct": -6.0,
+   "chg20dPct": -14.03,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLP",
+   "name": "필수소비재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 90.38,
+   "prevClose": 90.46,
+   "chgPct": -0.09,
+   "chg5dPct": -2.4,
+   "chg20dPct": 2.75,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLU",
+   "name": "유틸리티",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 43.32,
+   "prevClose": 42.69,
+   "chgPct": 1.48,
+   "chg5dPct": -1.81,
+   "chg20dPct": 1.81,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLB",
+   "name": "소재",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 49.9,
+   "prevClose": 48.34,
+   "chgPct": 3.23,
+   "chg5dPct": -3.05,
+   "chg20dPct": -2.88,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "XLRE",
+   "name": "부동산",
+   "group": "섹터",
+   "kind": "regular",
+   "close": 42.9,
+   "prevClose": 42.46,
+   "chgPct": 1.04,
+   "chg5dPct": -3.05,
+   "chg20dPct": 0.23,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "EWY",
+   "name": "EWY(미국 상장 한국 ETF)",
+   "group": "한국연결",
+   "kind": "regular",
+   "close": 135.72,
+   "prevClose": 123.26,
+   "chgPct": 10.11,
+   "chg5dPct": -0.61,
+   "chg20dPct": -11.13,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:00+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^VIX",
+   "name": "VIX",
+   "group": "위험",
+   "kind": "regular",
+   "close": 26.62,
+   "prevClose": 35.89,
+   "chgPct": -25.83,
+   "chg5dPct": 16.19,
+   "chg20dPct": 44.75,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:15+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "^TNX",
+   "name": "미국 10년물 금리(%)",
+   "group": "금리",
+   "kind": "regular",
+   "close": 4.918,
+   "prevClose": 4.912,
+   "chgPct": 0.12,
+   "chg5dPct": -3.96,
+   "chg20dPct": -1.36,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T04:59+09:00",
+   "source": "Yahoo chart",
+   "chgBp": 0.6,
+   "fresh": true
+  },
+  {
+   "sym": "DX-Y.NYB",
+   "name": "달러인덱스",
+   "group": "환율",
+   "kind": "around",
+   "close": 104.329,
+   "prevClose": 103.81,
+   "chgPct": 0.5,
+   "chg5dPct": 0.75,
+   "chg20dPct": 2.32,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "KRW=X",
+   "name": "원/달러",
+   "group": "환율",
+   "kind": "around",
+   "close": 1340.87,
+   "prevClose": 1334.79,
+   "chgPct": 0.46,
+   "chg5dPct": 0.57,
+   "chg20dPct": 1.45,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T07:03+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "CL=F",
+   "name": "WTI",
+   "group": "원자재",
+   "kind": "around",
+   "close": 80.25,
+   "prevClose": 83.98,
+   "chgPct": -4.44,
+   "chg5dPct": -6.38,
+   "chg20dPct": -21.14,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "GC=F",
+   "name": "금",
+   "group": "원자재",
+   "kind": "around",
+   "close": 3634.6,
+   "prevClose": 3515.3999,
+   "chgPct": 3.39,
+   "chg5dPct": -5.67,
+   "chg20dPct": -10.0,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "BTC-USD",
+   "name": "비트코인",
+   "group": "크립토",
+   "kind": "around",
+   "close": 61250.51,
+   "prevClose": 61161.9102,
+   "chgPct": 0.14,
+   "chg5dPct": -2.76,
+   "chg20dPct": -20.81,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T07:02+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "ES=F",
+   "name": "S&P500 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 7271.5,
+   "prevClose": 6935.0,
+   "chgPct": 4.85,
+   "chg5dPct": -2.25,
+   "chg20dPct": -5.74,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  },
+  {
+   "sym": "NQ=F",
+   "name": "나스닥100 선물",
+   "group": "미국선물",
+   "kind": "around",
+   "close": 26849.5,
+   "prevClose": 25126.5,
+   "chgPct": 6.86,
+   "chg5dPct": -1.59,
+   "chg20dPct": -8.79,
+   "barDate": "2026-11-23",
+   "lastTradeKST": "2026-11-24T06:59+09:00",
+   "source": "Yahoo chart",
+   "fresh": true
+  }
+ ],
+ "missing": [],
+ "repoData": [
+  {
+   "file": "docs/data/market-movers.json",
+   "asOf": "20261120"
+  },
+  {
+   "file": "docs/data/market_flows.json",
+   "updatedAt": "2026-11-23T21:31:37.028086Z",
+   "ageHours": 0.6
+  },
+  {
+   "file": "docs/data/sector-strength.json",
+   "asOf": "20261123",
+   "updatedAt": "2026-11-24T05:15:15+09:00",
+   "ageHours": 1.9
+  },
+  {
+   "file": "docs/data/disclosures.json",
+   "updatedAt": "2026-11-23T21:17:33.166Z",
+   "ageHours": 0.9
+  },
+  {
+   "file": "docs/data/news.json",
+   "updatedAt": "2026-11-23T15:07:30.319Z",
+   "ageHours": 7.0
+  },
+  {
+   "file": "docs/data/events.json",
+   "asOf": "2026-11-23",
+   "generatedAtKST": "2026-11-23T09:41:43+09:00",
+   "ageHours": 21.5
+  },
+  {
+   "file": "docs/data/stock-events.json",
+   "updatedAt": "2026-11-21T03:48:21+09:00",
+   "ageHours": 75.3
+  }
+ ],
+ "us2y": {
+  "series": "Treasury BC_2YEAR",
+  "date": "2026-11-23",
+  "value": 4.63,
+  "chgBp": 0.0,
+  "fresh": true,
+  "source": "미 재무부 Daily Treasury Par Yield Curve(발표가 리포트 시각보다 늦으면 전날 값 — date·fresh 확인)"
+ },
+ "soxZ": {
+  "date": "2026-11-23",
+  "z": 4.47,
+  "note": "연구 메모 'SOX z ≥ 1' 조건 판정용. 미국 휴장이 끼면 연구는 여러 날 누적이라 근사다."
+ },
+ "earningsToday": [
+  "A",
+  "HPE",
+  "J"
+ ],
+ "afterHours": [
+  {
+   "sym": "NVDA",
+   "regularClose": 165.05,
+   "regularChgPct": 31.48,
+   "ahLast": 165.0897,
+   "ahTimeET": "2026-11-23T17:09-05:00",
+   "ahChgPct": 0.02
+  },
+  {
+   "sym": "AAPL",
+   "regularClose": 349.08,
+   "regularChgPct": 1.9,
+   "ahLast": 349.4897,
+   "ahTimeET": "2026-11-23T17:06-05:00",
+   "ahChgPct": 0.12
+  },
+  {
+   "sym": "MSFT",
+   "regularClose": 492.5,
+   "regularChgPct": 1.65,
+   "ahLast": 493.44,
+   "ahTimeET": "2026-11-23T17:09-05:00",
+   "ahChgPct": 0.19
+  },
+  {
+   "sym": "AMZN",
+   "regularClose": 255.39,
+   "regularChgPct": 3.47,
+   "ahLast": 256.0,
+   "ahTimeET": "2026-11-23T17:08-05:00",
+   "ahChgPct": 0.24
+  },
+  {
+   "sym": "GOOGL",
+   "regularClose": 282.1,
+   "regularChgPct": 6.34,
+   "ahLast": 283.39,
+   "ahTimeET": "2026-11-23T17:08-05:00",
+   "ahChgPct": 0.46
+  },
+  {
+   "sym": "META",
+   "regularClose": 597.6,
+   "regularChgPct": 6.55,
+   "ahLast": 599.0001,
+   "ahTimeET": "2026-11-23T17:07-05:00",
+   "ahChgPct": 0.23
+  },
+  {
+   "sym": "AVGO",
+   "regularClose": 313.55,
+   "regularChgPct": 3.0,
+   "ahLast": 312.392,
+   "ahTimeET": "2026-11-23T17:09-05:00",
+   "ahChgPct": -0.37
+  },
+  {
+   "sym": "TSLA",
+   "regularClose": 385.46,
+   "regularChgPct": 11.46,
+   "ahLast": 385.51,
+   "ahTimeET": "2026-11-23T17:09-05:00",
+   "ahChgPct": 0.01
+  },
+  {
+   "sym": "A",
+   "regularClose": 176.04,
+   "regularChgPct": 3.32,
+   "ahLast": 188.51,
+   "ahTimeET": "2026-11-23T17:07-05:00",
+   "ahChgPct": 7.08
+  },
+  {
+   "sym": "HPE",
+   "regularClose": 48.02,
+   "regularChgPct": 17.38,
+   "ahLast": 45.46,
+   "ahTimeET": "2026-11-23T17:09-05:00",
+   "ahChgPct": -5.33
+  },
+  {
+   "sym": "J",
+   "regularClose": 157.53,
+   "regularChgPct": 4.59,
+   "ahLast": 157.9,
+   "ahTimeET": "2026-11-23T16:42-05:00",
+   "ahChgPct": 0.23
+  }
+ ],
+ "news": {
+  "window": [
+   "2026-11-23T14:00+09:00",
+   "2026-11-24T07:00+09:00"
+  ],
+  "closeKST": "2026-11-24T06:00+09:00",
+  "source": "Google News RSS(제목만 — 본문 확인 전엔 '언론 해석')",
+  "items": [
+   {
+    "pubKST": "2026-11-24T00:49+09:00",
+    "title": "Why Nvidia Rehiring Jensen Huang Is Making Micron Stock Skyrocket Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxOY0tpblAydUFpam44QV9Od1owS1M4T1BHTGlkYlU3LThpeWh3VTg3YWgyam5jY2pMbTFCUkNYWXlJZm5aRnJWc0h4RGNwTEtubGVHblI2NWtRSUJNS2dQeDI0MTJ4TFhwSDgxRjZRSEI1M1oxQjRaSTlZTXJITldkYS04VXFBYUhLTHFZb0JrU3ZmQzEyQkQ5SE9fMG9aUQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T00:51+09:00",
+    "title": "The Stock Market Rebound Is Here for a Good Time, Not a Long Time - Barron's",
+    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQU2xrTE1GVmFMbXM5VHhqX01PN1A4OHJhLTktcmswbm9RTHBnUXBmbmFneGw5b0ZXUGZoSDFrakFOZG1MbXRzQUkzcDhfaEJicGItMVNEaDhBWlRvYVlMNEZJLVoycjNKaHl2SGhkUkM2eVZ2Q2dQM01nUWhkTmZfRA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T00:56+09:00",
+    "title": "“You Don’t Have to Own CoreWeave”: Analyst Says Amazon Captures the Same Demand - TIKR.com",
+    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOUU1JQ2NtZE5YWUpzcS1iTHM5M1ZiUUs0SWRna2FILVlUeHRxNDAteVYwM0F2cmJwaGFDb1JkcWhiTTRjeWFzZndhaEhLMjR2YVdhczUzcmJvRmdLNXV1Q2VCSlljLVlFdWV6bzJEcFdFTk03OEhqeEVCenVGTU9EOEtxb1kwZENQTDVWVHNTaUZXcmctWkF2WG1ObWV1dV9va1hGMQ?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:00+09:00",
+    "title": "The Best ETF to Buy if You're Nervous About a Stock Market Crash - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQX05vUXRhcWRsTkF6WjAwYmd6aVZYRDJmeGh6SHhBbnJuaDQ4VGVEeldSa3B3cV9LWmdEdk5KMWZseVp4a21DS2tVcno1SkdINFpxTTdkUUdyTmpTZmNkeXJqdXlMTGJRdlhPaG9BaTJiclZKU3VQRmZKY3JtZWpVdWJ1cjlESGdvc1QxOW4taDRUdWtCa014M0ExUjRiZ21yS0dEaWNWTGhxUQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:00+09:00",
+    "title": "US Treasury Yields Keep Equity Valuations Under Pressure - kalkine.ca",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNY1pWV0lfOF8zZElEaDFHenE4UFdzMWRPcDVuZ3lHUGRTd0RBcnRuYjNQZ05MYmRpd3FMNkRlMkNmRnIxd2piTlVhdTJZeEJIZ2NEYUNUeUViLXhCeERhOC1PSnhmYkVpWVJmcmxBWXhNQkYzc2cwVi1hNWk2aGNnRXVsQ01qLWozS3NGMFRyUW5RY29IbWJuMw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:03+09:00",
+    "title": "Why Nvidia Rehiring Jensen Huang Is Making Sandisk Stock Skyrocket Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQTWR6R3E3WWsyamVnRDkwQ0JpaDJjZW1kM0VWY2hlMm91dlpQTS0xaTJ1M1B4TXM1OFViV25QdHVKUmttT0UyM0FsbTc5Nm56bUlGZVpnTnd0b09vM0VqMUl2N0hBOV9oT3JoamtxbHRQYVBKWGxUWGVsVXFiUGpWRWNsemlobUxPZXp4aWJIYVYyeERVY1RzMGpDa1VZQQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:03+09:00",
+    "title": "Nvidia Is Soaring on Jensen Huang's Return. History Says the Biggest Rallies of the Dot-Com Crash Came on the Way Down, and Cisco Fell 79% After Its 24% Day - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMizwJBVV95cUxPMXQ3VjduZ29PaVl5ZmM5OG1pVU9vU2lPcG5rTGVxZEpJdkNaQTVLTHhqWUt3Z2RxbDZJcDFPWUo2MzN3bVNTTWxIcUZqdVBpZzd4bVdIWkpDSnN4X1Mwa0xsT3AyTEZnZkxlVWRNMERmaGtXZ3R5RUpaMWQ3Xzhxd0xoQUduN3VGaGJkT2dITjBXdklIQVdkdGptOENaRm9YdXNlRHRQcDYwVXNURnRkMllIajVNQVFSNi1MZ1JkTmlxVktkc00tZldnTC1sRWhGUjFEbUg5T0dSd0lzbWpGQUJpdXk0UFA4bmx1bjVKbXVwV09UZmlXcnhuNW1QeHlkbW91ZWdfT3h2TWs0RnlPNGhyN2Rwc3JKTEp1MVd3b3d2Y0NNQkFBYnZKVFN6VzF6YmU4QXBNcW1DbHJkemh1TjlFcmY2eFdYTTlsaUtXMA?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:21+09:00",
+    "title": "Okta, Datadog, JFrog, Bandwidth, and Rapid7 shares are soaring, what you need to know - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPeXFJRV9ad2pUekJrR1Bua0ZDeGFzMk1oYnVqeDViYmpYZDB6Q0VDaEJMazdDbnBNUVpuNzhLVDk4MkJXUHZhUHMzV0VhNVAwWGh0a0JOYUJFRkFtS0tsTlFTZHY1QmRrSzlkWDNXXzQyQUhOcS13ckN1a3Z1U1llUEJSWmFMR00telMyQW1EWEJ2Ti01UEtaaWItVVZOeU1uQ01jdkVTTGlyb1R3ejJnSXFBeTgyZ0ZPLTJ0d3B0RzRKdHE0cE9lUFY0a1I4NDh6Y1VWWW5kSW4?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:25+09:00",
+    "title": "Nasdaq futures tripped a circuit breaker built for market crashes as Jensen Huang returned to Nvidia - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxNMUU4TU5rZk5fRHVMMnZyVVJSU2ctQWFjR0tYVlNaZUp2d1cwOXp5bGlyWm9sZmRzWHlCUmdEU3JwZ3Z5LW12TXR5cW5QY3pCNUxKT2tUbEQ2d2NnMlg3bDdkSWVTWEJCYVFvQVBXX05ESU5UMzV2aXJ5eThVbXBZcVU5NFltaFpFcDdLS3RfV2g3QUUxclV4TGVzcGM0VGpiNDVCYldhSmpnQ0U4ZmdvU2ZNTkhvdU0xWTlBbzBqQ096dDRwSFlGY0FGRHBiUGphVXd3U0dOQVVMMnF1blR6T2NuYzhNUXh2eUd5c1NVbE1EcWV3XzFV?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:26+09:00",
+    "title": "Weekly market commentary - BlackRock",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQLWJDTjBBalYwVHVpc0VxV1BwRE1xeUt1RWlLQ1VJdnJQRXNnb3p6MnFNbjRBV0s0TnlldW4wSVIycFRQeVNISWJ3VV9wMWdjX1ZndE1Tc24tNzc0anNYWjl0SVBsRDhSa0dVTWlyVVYxX0w5b2JhTFB0Tm9Vb2FwYVZubTU1SVJlcy0zMEpXOEM4ZlhiSU1QazdVQVlldw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:29+09:00",
+    "title": "Tesla Leaps 13%, Retakes Key Levels. New FSD Update Announced. - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQRklMYUtseGRNMjJBTmk0V3Fnbjl6M0xfY0JTOHVYVGczeVpzeVNNb2gyUEhsXzNwaE5CcV9YZWx2ZUxfdWQtQjJDVl9ibHBKc1Z4c0hkbFhHenBscE81eUpGb2tiTGVEcmVEMWJsYm9FN2pDU0NRaVExdzZaV2JNRU5tZ0hpSFo0NHdFM2Rna0dVc3VpR094U2ZITko3SF9PV0RiMzBYZVREVTJF?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:33+09:00",
+    "title": "Stock Market Today: S&P 500, Nasdaq Jump 5% as Nvidia Leads AI Rally make - Coinpaper",
+    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOSUdodDNLUUxfcEFGWWdjQkE5TXhYTGNDdzVXdjU5Mm1tdTFMeF83OXhsdGFPOTQyZk5IdmYtQ2ZyUkpMZlBrNnJHZ0w5TUlKOFB0bG1JZ21WZGpwSENMajJyOWcwZmkyUVJwSjFWZFUtSF90alpRQ0tJOWxsUTV3dkliT01peG9oWWlyUGVsRFNfcm52azJkWUhFdVotRVcxWnNWSg?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:36+09:00",
+    "title": "Nasdaq Halts Futures Trading After 7% Surge, Stocks Surge at Market Open - CoinGape",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNN1A1OVplTWVTUU5hN19YME5yUjNaMG9ES3ZhRnU2Tzhaa2VBWTkwcmV6QVNoUk9HMEFKT1FObG1ud2NJTzNZQTFoamFLYm9hRVFyZkdzdjkzSXY3eUxDWXJsdlNia3h6ZnFMNlZNTFVLam1Kd1hGYmRxOWJtOGdjX2pCaXZPbFNscmRzczd2Zm80REtFOTRB?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:41+09:00",
+    "title": "Wall Street analysts scramble to upgrade Nvidia’s stock after Huang’s return - CNBC",
+    "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPYjRkQWN2WS14N2RwdGhnbHk3T1lhOEpDNDFwNlY1blBqOUFoa3JjelFjdFJRb1hZVEdzUE9uM3Q4TmJvWlN3eFotd2ZWTWQtU2lTX2J1akRkNzVQd21ZaF90TW10blQzUDlCTmVlb29mZ3RxNll3RUR1dFpJRm9jTUljZlFRSlBMekVUU3JUWFEyQl9XdWt5MmhlYkZad1pVQVEyLXR3?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:45+09:00",
+    "title": "Chip Stocks Lead Wall Street's Monday Rebound as Buyers Return - Quantisnow",
+    "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQVEVJVXdGSWJvMUoyMms1OE1jMlNhcnA3TnRGM3MxQzM3NTdIcjAxdGdGZHhfalV3TV94aVBaQVp5ZE9yWTlYY1F5UkJCQ2JiX2pCMDhXSFpTSlRuaXV6RHpMZzVEVDFBc05QOHpWUW1QWlNhSWhYNkhBdVp2ajdNbzQ3azdxNGR1SnVFN1lTTHd0aGg3NUt2M3liRmR0UmR3dUdKUVROdw?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:45+09:00",
+    "title": "Why Did Astera Labs (NASDAQ:ALAB) Rise 16.88% as AI Connectivity Stocks Rebounded on November 23? - kalkine.com",
+    "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNQ0Z5MXRnR1BCTEdVS3NhRVcyTlVNaTVOblJvbmllM3F6UEhZRVRzcjVLUldYVm9vVFBRUGN1Nmh6a2IzNC1UMk5hXzRxYjM5RHdFTVZsc1B5VHZzcTcyNGUtSV9oY3FnLVhxV0NMNG1XN091T2gteE9nbVRwbDB2RUdONFNlaG5oTmVPWC1Ub1I3bUt0VHdhcGRmdjMxR2UtZ0NwLW9qaVJIb3lNOFFMUXZVN0tLUkJDY0lVQWhBSXF1MExWSXBKUWFqeXFjQWIwQTZtRHBYaw?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:45+09:00",
+    "title": "Why Did Micron (NASDAQ:MU) Jump 17.93% as Memory Stocks Rebounded on November 23? - kalkine.com",
+    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNUHRtcjJKdG1kRWdLZE51ck05Qk4zS0FRUjc4Ti1LMGtjTUNLTFhWR2E3ZEJXUWVSWUFwOEpoUUNpNjdmZjJLZ3BiR0s2Z0REYXZYWmtYOHk1ejZvUzk0am10NTc2MWhaNkx3OHZTT0R4STVxYUpCWXpVYWZ2azJEY2dDZ1ZZZE1RWHN3bmIzeUNXSFhKbWY0Uzd4NkN2ZjNGb0JOWExxMXdKTmVaNVF3Rg?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:49+09:00",
+    "title": "Treasury Yields Rise as Huang Returns as CEO, European Bond Yields Slip -- Update - marketscreener.com",
+    "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPYjNSS0IwNmJtMXJydXh1Rmt5cjl2YXBKUjNYd0o5TldSVUpWazRWaldheW1jQXhFdzE2eUIxTkdaZnFLYjFJZGR5WHphMi1Kc0V2Wi1IN1ZoaWk5RXFyUjJva2M2cDk5Zm9iVVozdWlMZDE5clFSUEs3aXNjaHpWNU5Pb1ByZEVBLWI5NGRwMlRNaEgySmVTZ2dxd1ZxdmJXcnJYekZCVUxua1ZTSXZYaVBRV1FWWTBYcTY0eVkzZVlRaVNpY011Ykpn?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T01:59+09:00",
+    "title": "Cameco vs. Denison: Which Uranium Stock Offers Better Opportunity Today? - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxORC1UaWFhQ2QwdWd4UVRVWEFCU3JXN3lsUXp5ZmpWcUprYnUzX2p4MWo1MUFaOHZlYVI5S2NheTl6UEF6bUdYb1pWN2JVVkdIRW9zS1NNOGVVV2dQWWttLWFGcWxxTWRwWDZpU3BBbjZyUFNrV29GdjJpcUYwc3VSM19zaG1vUmFxQ29nQ1dfRmpsN1Q1NTBuSkZONzQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:05+09:00",
+    "title": "Wall Street soars as Nvidia reinstates Huang, dollar jumps - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNUV8xQS1Xa09sWUwzZlR6YzZyQTBlRk1jRWJNNWFROHY1ZDdicFNhLXkwRWIyV3YtM2NJSXRJY05mTHhyU3JHTFRndEdmQlZEYXJlMVJzMmhmTGdXOFAzZERRdmduRjZXSmpBLWVWQjBxUWNIVDdHZ0M0VXdja3EyZ2xzWGhSVXc0d0VIczl5Y2UyMDlzTzdBbw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:06+09:00",
+    "title": "US futures rally as AI selloff pauses, Asian authorities support stocks - American Journal of Transportation",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNR1Z0WXhmYnpkWmJFNlo1dUxXZWhxeWZJRExKelJsdkF4US1RSXVKbzhrTFpHOFpYdHRfdHFOUmQ2bzdycW9NNm5lMHJrOVhHaFl2X2NyVEhNWlp0TXRPUFlFV3NqM1owZDlnUEsxUEdRRmw0VFlHVk9CY1hxWjkxZ3JqZXZrQXBmSDMyM0FYQjE1bUFhaE9GeHRuUXk?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:08+09:00",
+    "title": "CrowdStrike Beats Earnings Estimates, Raises Guidance — Yet Stock Plunges After Zscaler Deal - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxQSWI5eXhWazhzY0hUSndXTlV2TmNCS1V0MVBaSHVINjhMS2xmN2lHRUJ4ZUEtdy1VZmdzdGhUSC1wVjJ1bkZJNnhrTWxac1UtN0hCQ1Z2YXA0MGhMNF8zN19aNkdHT0tvbWY5ZnBzdFB6RERQR1lMem5seWx1YzdSdzFkaWJGb2U4Y0VXSGJsZk9wZjFCWklXNU9WRGpyRnExbEg4VGpyLTdTNmFQR2ptUFVlUEtaenpPR2lsQW1SQXVvbHcwOFdGWEdYazVQcWwwVmNzbjEtM3BXMHotRFJj?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:09+09:00",
+    "title": "Chip Stocks Lead Wall Street's Monday Rebound as Buyers Return - The Globe and Mail",
+    "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxQTjNkdzBLN201UzNzdUdmM2RJamRQY3hNcmtuZG9FUF9maEd1NGJORURZRWpLNXlUVnU0VG9LWVc4RWlveEJvNXU3MXhKR3VoajFPaV9WLWQ5cVFmbkxHQ1VhRFE5cmpuVFZ4QW9FdFdrdU9pVUZqQXNKeTRDNm1PdXlxSjJHWnpLZE5mU1AzTDBpVXhZeDdUa1VjdGlELW1BLXc5RlZRSHRkbGFSOTVvb0szQndyVHdfRWtOWmIyV1ZrdS1tbER3cm1tUTBrdVJ0UG5DbThCajIzZVdF?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:12+09:00",
+    "title": "Stock Market Midday, Nov. 23: Nasdaq Surges Nearly 7% as Jensen Huang's Return Sparks Historic AI Rebound - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxNd0xVdUd0ZFlTOWI1RHBIQVlUdGNhaklnNUh4OVd6dWNWVFd3MHpDRTNlOFN6N2E4LXB6NU5xb0Z6cTNzNU8zZE5DYlVJVU5qMlIzUmJPbEtLNFlaeUczLVcyaUdLbXYtQ0l4cDZxckNERnhpSUdsQlNqTUFjTGxTMHl6Z1lPekROd195eXQ5YlQ4eU15c1FVLUEwLUt0X3ZVWE9HM2ZvVl9ndEFVRllWcmdfNXktRE5jNXQ5MW5IaFRJWWMxQWNkRmpCam9XTFVHYUhaWDVlTjFvX09hdVY4a20xSmFEWjk5SzVsVjZIQlBGVzdm?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:16+09:00",
+    "title": "Why Did Cerebras Stock Soar Today? - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNYXAwSVBnZ015TXZNc2QtY1JSNDVpWk1WZ1VtTFpLc0o4N2Y2X29UbFdETnZhNHN3WVRkVGV4WkozV2lvcFRxOUVCLW1XQmR3dHJoWWxUX1FhZlVWTVdIN0FCUnRENG9pX0NSNkdxN01sMmtWQzIxenVkamdmTjBfc2FR?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:24+09:00",
+    "title": "SPCX Stock Gets A ‘Buy’ Rating From Jefferies For Its Engineering Edge, But Musk Reportedly Fears SpaceX’s AI Lag - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNNFBTRGRDTWs2VkJZUmhkSlhoZHRCS2Z0NWI1VzZ5V3FYMXJXN1hjeHR0V2NPNkp1T3Bwb09nekxWY3F4ek9XZ2FlMmxGY202VzdPYnR2SXZyWThETGdEVDl3bVlzQzd5ZTFvRC1PakRZVWFhNjN1V2N4ZFU3RzZaQVNTY3N0bkw5SkMtREp1NjlmOWhBTmc?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:25+09:00",
+    "title": "S&P/TSX composite up more than 1,000 points, U.S. stocks up as Nvidia CEO reinstated - BNN Bloomberg",
+    "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPZXVIT1BvakhnQ20zMW1XQ19ueFZtaFB1UVlQMFE2d0p0UkphOU9TaWNVNFc2M3FSRng1RjlzRlZHY0k2RldXTWEtd19LVWxUM0xtWFdpYmJVdWlnOTA0MWNuUmhQdmRKNGdKeVEzM3hzSGs2VUx3QTd5bjRSV3NYY2ZrM0ZQeGhmcnZ3SllxdVJiWHV5eEdTMkM0TmxOZnRPR1JqUjZYVUN1d3dzbGJnNVMwd1pJYnF3b1UxTGw5RQ?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:28+09:00",
+    "title": "Anthropic Stock Slips, Misses Out On AI Rally Following Jensen Huang's Nvidia Comeback - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQM3MxRWxwSEg4SHk1NjVOQnEtNzFqOXU4Q0RyS2k1YWlWUnQtNU9vN1NzYmdTV2I1MExtSk5tXzl2dUFEdDNuWVRZSjZyZkM0bUh6b2NVaEsyUkw0Wnd4OHFocXo5M2lBd09kUXJNaUNxcEYySWl1X0ZNTkxWTHVrMGNpeFkteHF4S1F0dndzd2s3UQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:36+09:00",
+    "title": "Why Did Cerebras Stock Soar Today? - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNQllEOWJLMEdONVNHajhIWWUxXzdqRFhUTTlRQ3A1OHI4ZXhxVWhNcGd4V2s0OFBRcm90akhFNGl0WmM3T3VrbEFyWWlzME1GcmV3ZnI0RlNfYkxRN1Z6Rl9mQ0x6a2xRUllRMGdObS1mbmxuMTkxRnctNEFITl94V21qbjgxTHdOdTY5bEEtMnFrY1VUTTVJ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:38+09:00",
+    "title": "Why Zscaler Stock Rocketed Higher Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOSzZ2eG1Gcm5ldFlFSklpeGtuNUQ2a3FZd01TcWdRSlF0cWdsUVlGbFBaUW93MVBUeWdCWE1wQ1VLbFMyUU5ZTmVmTVo5eEotWWN0WTRETTJqeXpCWTFqMVR4MUJ5dUZvZG1Iem1FNWIwSEVxaEpkSWFUVUtfeWFUWllndHo0clhGUGc?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:44+09:00",
+    "title": "Stocks are tumbling. Has the AI bubble finally burst? - USA Today",
+    "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNZklrV0VpTVZhVlN2bWFING1HakdRdHNPaHBMNFA0Z29MSWI3N3lhRnVGeGVlUWZScGQzMm1GeVE5cnZPQ3RvUjI1MUVQbE5kWDctNFVFdWRYamJEdXlQRDBnSi1EblUzc3gxMDZCcklOcFNVby1mWFRweXFNWmh1WEdEcmxFUV9UM3RMSC13bkZ2dG1LbDQ0SFJOV05QV0JKM1VaZzdDTnVQR0NM?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:50+09:00",
+    "title": "Anthropic stock whipsaws as Monday's tech rally takes off - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPQXRnRF9CZ2JPbnNHMWZFRDZRbU82dmQwbHBVeHQ1cWxwdGlTUFJUZFpSOWFZN1lWSm1BbklRZFZFMlBaMEJiV0RQVHQtaG94QzhheFBWSXhWUDJCN3hwaU5hS3FHTGJrR3VlNXZ1aU5XckRoMXI0aHVNSFRJSkJfRExzclFiV2tDVVBieUExcmdaYzd0bTUzMHpoSVptN3FENFl3YnIybW9nNUo0RHBhMktGSl9tUm91OFRWZA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:54+09:00",
+    "title": "Applied Materials Stocks Jump 15.37% as Record Guidance Meets the Chip Rebound - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOQTFVVzNxRVNkS1cyTnpDMWQyN0poUm1zMXNXc2QxRElpY3hNRlBoNHVlU2hQa29UeWdaMEN2ZEtzR2s1S3U5XzE2Sl9hV0VaNk12OURWT0JSRC04WnlXYUV2ZWI3SUhDTS1VNUtOMUJQaTRWQ1MxZ2hRcUY4ZGV1Mm5mdENaSERRS0RITEJMbk9oSlRWbUg4clN3Q3VXSGg0eS1rdFRxU1FpbEttSjEwa0xSTjVvNllxbkNuNUY2ZWVJa2QwS2pjZW5RaEdlNFNOMDU4?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:56+09:00",
+    "title": "Why is Anthropic stock lagging the broader market today? - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNV3hRWE95WEJqV0tGaEVPNjRKOF9rd280c1NiaG8xVXYyMy1Za0tuNTRXdTNTX2JTWUR0NUctNU51X1I3c3hRX3dTbmFuaHBGdHFLNDdjOFBta09LbmFhd19mcktDa0ZuS2tPUUYzSWVYVTZTN2pTYXRQTW90TVBDRHdscnFYUzg3WmI5dHJzUGpEU3hWbDd5YWFJSjNNRHNqMDVUbWJFRExaRUdTamFJaVd3?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T02:58+09:00",
+    "title": "Why Zscaler Stock Rocketed Higher Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPRkJxOXN5b2Mwb2E2dHVzczlTelRrOVlfMmZoaGdTMU5WdnJSUXBIQ1llUEVBQl9ZbXZUelZhSXBmVFFIU3F3cEtvbG9RUEkwSVBUbUlqSmV2ejlHa2NHUVUtWDNUMVRhQnFEUFJBSk5VWkFDcHllMUVJLTVtNG9tbzJTRzVLMTdYazNNSnl6UnpLT0p1aVdaRUszcFc3N3c?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:00+09:00",
+    "title": "The Fed Isn’t Cutting. These 2 T-Bill ETFs Pay 3.7% With Almost Zero Rate Risk - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPVWpGSEd2Ni0zd3d3UXVwcDBKUWR2VVE2RWtBVW84ZGUydlRNbXBVa2RwSlZ4cVJzaFlIeWFtVzJ2TGVuUl9sQmVuQ293bFQxY05VbGFyOWo5bGJSTE82ZllXN1hBVVlfbXltVXpYaWJvUTdBb3MtTlFtWHRDWDBhTDJHLUpQeGpWMy1QZTRqWGVxQWFGdWtEdkJGeE1fTExEMC04UXlsS0h0VTVxc1gzX2lqMUF5WEdBM1kycTRhbjA?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:01+09:00",
+    "title": "CoreWeave, Nebius lead neocloud stocks higher as Jensen Huang's Nvidia return lifts AI trade - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNT2J1ZXlUSFVEX19VZ3YtWDhtVHJhcFdUM01mN2ljQWY5SGlYeEU2SVpkd2kzdzZFVTJjZHZRQlo1WmVYNDA2R1JFMldWU2xRTEdkZXEySFdYeEdKcmZLUS05N0xEaWRyOUlkODBwUVF3WWFsVXRfcDFleWF2TWZNb3lfMHF5TVRTNUw2cjRQVXdtVnRIakFiclZjdXhEUFQ5VXI0X3ZNRzUyWDE3enZaSTYza21vQ0FqVWFsS3JVMVZWeWFNM3ZtNVZkbEtYSFkyZmZjRm9DbTVpZ0FDaXo2cEV3?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:03+09:00",
+    "title": "U.S. Treasury sells $69 billion the two-year notes at a high yield of 4.700% - investingLive",
+    "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOd0tBOWJPaHFXUGhWaWFISmRlVzV4Vk9Tbi1WdGdDNDA3dTd3dXV2TDJRR3k4VnktZTVWcWE5SU9KT3RJakZOdzBIUTBqX25lb3dER1hXUVUzNy1DX2xySGhUQnlkc3JzYnRKamRkWm1fNTlPVzg0VjF2ZWRwRmpYcFl4cGk0NERhN2FNR0JpQ2ZJWE9lMng2Nk92Rlg4SDNqN3oxUGxzWjA?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:03+09:00",
+    "title": "US TREASURY 2-YEAR NOTE AUCTION HIGH YIELD 4.700%; 2.65 BID-COVER RATIO IS MIDRANGE - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOZ0pPMW94dkViQVVkcTRCdjJNUzZhTkhTVXAyc1lhV3lsMGt5N2ZXWjZvNTZIa3NSekFnRGtpNk1NcUdLUzExUmw4dUcxRE9waEM4TGlMdkxsSm01N1hMbG5xZTQ5ZVZMWVNpNXFxOEExaUtpY2g4Rl9aS0FBdS1zWjE2N3lhUTBveFBFYk8wUzRZZ2lVZXV3cW0zN2dpYWNIOHM2Y0JDUUx6RFMwRHFrZ1V4bjQxOGxyaHp5eVJwXzBtY1NvZWViUWxRR0hhNllZX01CdGIxcw?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:05+09:00",
+    "title": "Why IonQ Stock Is Gaining Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBfdVZkSktSSmZhbUl0cFlZRllaakUtUnM4Wk5RSGJXY3pobDF5TW9kQjJKT0FEMUVWRWJiRzJBcHFRbkNZWjlRc3ppTEZlb0pYTGFqMF9ZNlI4Z1R5WHFMSHZpZkt1SVBkaXFKR2lMTVdEVHc3WHlHMXlsMTJNWVU?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:06+09:00",
+    "title": "CME single stock futures top 500,000 contracts, near $5 billion in volume - Crypto Briefing",
+    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9VOXNTSG44RzFJMDlrcjdqRVNKbXdrdUFmN3J4LXpNTHJLUWxyZXlOZ3lZazlIXzZUX3FsWHB0UDB0aXJvVWV1dGRwbEJiM3BmS1NLWFkwLWY0eHhWMXFvZHQyU1VwclFsTTd4MW1RT2hIdzFvUHc?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:09+09:00",
+    "title": "Why Boeing Stock Popped Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5KVFBMMXkwM0pnTDJxRmh2RTFsMjFHNTFHZWRVWm92VVpLVGZOWUoxc0Nta0Zxc0lSS1V6QkNXYldxVzd4RkNTX29VRjlyXzNpVjlNcHlHLXVVNHJZcXpMYjBUbXlJUFpuclR0Zms0bENycUdWYzk4d3NsZ0g?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:10+09:00",
+    "title": "Why Oracle Stock Is Rising Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE56cFlyWTlCZmdLdlVKRW4ydjlVWjg4aDNYM09OMVdCVVo4emJXR0FUaWx5WER1ZHc0dEZlTjlXX0hxUkNnQ0JfZlNkbElFQmZwX3lieXNDMU9MRV9CX3Bmd3gtRHJnVTJJbk9WVGpENTUwNTNacmFyNQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:10+09:00",
+    "title": "Fermi shares skyrocket, what you need to know - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPLXhXdG8wZlVCRzRVRUZ2X3VrbEd1d1dwbjJ0S3BWeDdnRExyVkJWWXBYbWxlQTUzbkVtSmdBWUhCeEFaQ00waHpvSHIxN0FyZ1F4a1VvRGk0cUpGRmJaV3hUNlUtSW9pa3UwWTVLcU90MlRnQzNSQTRjX29PV1MweE9JdUg5VTMxM2ttdGF0dG0zalpBQVI2WWFwTDRGVzJZNVZnbG4wMlk?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:12+09:00",
+    "title": "Nvidia Spikes 32% on Huang Return, S&P 500 Up 5%: Stock Market Today - Tesla (NASDAQ:TSLA) - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQT0dzbHRxcHVYcmN3akF6Y1BoWXpmUjhZRGlJQWRNbHp0a0dnUHBsbXo5YThHMzQ2aGR0MnVORmc1Z0d0eERWVUlhUko3VU1iUjg3VDVDdTBLWnphd2R3T0dZd1p2T2twQ2MzT25mbGxYbnpWeHRqVXlaeDZKOC13S2RfZXZDMkFGVWF0a0lybXJjWm9oRVpfa0Z4aGs2VFh1WHFhdzZMOUlITXpfaXgxdnJKcThnQ0I5VmRiZ19Yc0std3FpS3ZoMGtfTDRWZ05r?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:15+09:00",
+    "title": "Why iShares Semiconductor ETF (SOXX) Is Up Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPV3daUXh0cHBuWFR5T0p1VVlKMU4xRFhYaV9LbzBxZUtLUnFuaG1RM255VnlfTVhsVTZiZUY2WnBqaXRsV1JXQm9aT1kyZDlhTlp0T3VDaG9ZN25sUmVmRnBuMnUxMVJpZGppYUE4XzJXTnpLS3Z5d1BrcGJ6eXZCY25SdGRaaFFBSmFra1RsQXUzdnM?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:29+09:00",
+    "title": "Why Boeing Stock Popped Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPeUc5NHhRMWFsODlhYkNEWmpmQ0FrLWJsWXprWVNuaHFXWWVmRk5xcmRLcExmNmstQm4wcFljczVMeEhkbk5rNDVXcVBDVElMalA0TGFpQ2NtNWUwWUF4LVg3c0JUb2QyQTBpSDZLc1RkYjdyUlM3TlpzZFNYdmowRTZZNVpkRVowRnMxaHFrdTQ3MTdFWnBGTFlB?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:30+09:00",
+    "title": "Why Oracle Stock Is Rising Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNZXMtNy0wSFNISkFvb2l3aUdEYkNFSWI5c2M1cXlxQjhfQ2tRTl9mMU1ZQ05aYkpUaDhGWTNYaFMtVUxiWG43ZW15MVUzbm41T3F1MFg0MUZaSE9TWTMzb0NScVVsRlBydVZ6dUhyRy1aNzZab0ptR3ZkSHlZRml5S3hKNmUzZDVKbmRjQUVGNEQ4TGhJU1pXQ3ZB?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:35+09:00",
+    "title": "Why iShares Semiconductor ETF (SOXX) Is Up Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNMkJIVXF2YjFqT3F3QzN1c1hGS3VTMFhfYWRnWTdfeXFsX0RtSWZTQXBTTzNIanFMbm5RdVZzbmdpNUZwa1NBelJfTk1pdFg5dGhidkhpN2k5MnNtUGp0STE2Wks2VmNEYnl4WUEwUUpNTEI3aE5UaXV4SklqaFRraHhvcm1LaEx2VFNNVmMwT2tlcmx0NXZUUTEwWVV3b3Jq?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:39+09:00",
+    "title": "Treasuries Slip as Nvidia Surges on Huang Return - Wisevoter",
+    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOSFp4Q2s4LWk0ZjVwR1JzeTNLdmRTMkdVWmN4UUxhOHN4LW5ya1J6dUVKSFBSazluUGxvS2tJUm1vVWExa1VOR29vLUpqdGdyLVA5dXVUbDdyNE02NHpyNHRwcG5adDVoNjBrRTl6cXkyNldvX3hRYnJDLTMwdXRaUDVGX0ptYWU3?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T03:54+09:00",
+    "title": "Michael Burry and Elon Musk Disagree on NVIDIA. It’s Up 32% Today, so What’s Next for NVDA Stock? - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPNDBzVUhRSTVEYTZDNF9zb1hYMmNDMWh6SXcyMlN3UXRBZEFPWEh4VnpqR3pLanZrOGFvamZ0RkdXclFJN0JuWVhzVWZaaWgzOFJaVzV4LVpLZnlZUndITlA4blc1WndqNG9CRkdWd2QtMzVUSHkxZm4xV2FqNmt4YWh6YVRKZHpnZ0JEc0Y5ZENwMHJ2dTJaQjhIT1RJdw?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:01+09:00",
+    "title": "Treasury Yields Fall, German Bunds’ Tick Higher - WSJ",
+    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPT0dsM2ttY3ctRTRCZzZPRzE4aG1RNzBCeUQzUEFRbGk1VzRqZGF4Z2J6NFFXVExyX0xROFU1bWFGc3U5ZXpWR21YQmh6S096RXVFS25wcjY4QmxDTUJhdkh5eG51UjVrRVlfZHBpX0pKZkJMOFI4eVVvV1BvSWxIOWQ3aFZId2xOcXJXeGI2SlZvd0RqUUhzT2NVck1jQ3VKLUNXSEFaYXhuNzVtbm1vaQ?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:02+09:00",
+    "title": "Fewer 401(k) Savers Today Are Millionaires. Blame Stock Market Volatility - AOL.com",
+    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBoWXhzYUhERDlSMHcwSjFoSVFNMEdDNFdadzR5c2xVVVlNZ1paczNoVjZ6aTlheHhiS0E0SG5Rek9LWU02OGlPeHpKYU52bEpoaFFFemdwWnk0VXB0N1hSYW1IRHRVYXI1UUdXTjQxeDBIZlRuekdJ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:14+09:00",
+    "title": "KLA Corporation soars 14% as chip shares advance (KLAC:NASDAQ) - Seeking Alpha",
+    "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQVElHc0dyLWxncG55MFVVMmNBOV95RlJlcDB1cWJTaktLTDRyQzVrTHdGT2ZLS3dBblZEZmVZU0RkcHRWbjh4Y1ppMm9PUkpqOGM2TWlrX2c3XzhXdkJCaV91T3NSbkVlaldKV0s1dHRvbnNXRjlLUWwxMTVyOHdvMjVITWJvaFVvaVhydmdB?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:16+09:00",
+    "title": "Jensen Huang Just Returned to Nvidia and the Stock Soared 31%. A Retiree Who Moved Shares to a Roth IRA on Friday Got the Best Deal in 18 Months. Here's What the Same Move Costs Now - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMiwwJBVV95cUxOT2k4VzRacTUxS3J4UXJOOFJDeEJUbklFNTc5OWJLSUZhckRFeGJaV19sMi1Zb3lfZk43a2k5Z1ZTY1NzRlVqcVY3RkJrNW1Fc1VUSHFpNjRVeE8yUmZNcnpsam44QmJ0eHRwTTU0VnZRQnFWMUIxaElaMG5mZHVnN0hrZmJBaklWZk5qRHpVTVIzRUV1bVhGX1ZVVEJxd3R2MG9HWWVkNkF3MElkQXFCSnVMbjhaR09zOVpOOGhsemFUSDhlT0xyZUUybFRWN2k0WTYtZ0ZVaGMtcGQyU01sSXdzRjdub3BNVDBsTTR1Q21RaFp2Sm5SN0c4aWtvNnNxc2Vqb1o1X0twRmNhY0JhR3UyWUI2cW1saVoyQTczY3lGVXNHZlpBMTYtVndlb0ItRENyTmpEcEpjLUM0Q3UzLU1qMA?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:20+09:00",
+    "title": "Tech stocks surge as Nvidia rally adds $2 trillion to Nasdaq 100 - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNekR3Z3ZzOWpmNk0xdUYzMVczU25pSGdnUi1teC1IbVZyX256RkJvQU4xcXdjU3ZtRzdDTG5NRDZDWFRFX25HUTBHbjJYRTZyaGFJT2tpNEItMTVXNXdFejliWGZKSmN0c2tJa2N6NmhOeTFBMzd4OWxZUjdBMmljT1VJalduc01UckdJRGJkeXRfNWVBcHJiaWNoVQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:20+09:00",
+    "title": "Treasuries slip as Huang’s Nvidia return revives risk trade - Moneycontrol.com",
+    "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNc2RxTVNfNGUwSUNtc09neDZGelhHTDVycHF0R19RV2x1YTJOYUZ2dTBBVXJCWXR1UTRyZk01S0tuRHNqR09LTDdrTEpMRGN5eGozaEUzR0J5aEFYMnFmS2pJNmlVaW51MVh3Z1NMSEUzMTkzTm9nTFZkbXZwZFc0TnB1QklVR3hldy00Z0hHYXhPRGtxeUhLbUNGYXJ2LWU3VVh3U2JwS0RKZUpXWDQzTWdYeC1OQmc?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:24+09:00",
+    "title": "US stock market today: Nasdaq Composite surges 6.5% as Nvidia jumps 30% - Beinsure",
+    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPVkhhLWZsSzRjYjY0NlU1ZDM3ckpSS19QcFFhMVNGYnB6LUpvbVFqYU03ZS16ZHdMa19oT3RMZmlITFFzcEpNc1lEd1VHT3RkVU5wSEU1ekVUcEkwZ19ldDY0emQ3ZTdGZ1l2ZE5wamZOWlBaUGwxZFRhQ0dxOEJ3ZmJsTkRtVFFtcDVCckxXYkN6UQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:24+09:00",
+    "title": "2.40pm Markets Update - RTE.ie",
+    "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE8zaklLbmI2OC1vTWl0OFlaZkdjWGdLbm1kNjJIYWVrWDJ1SGJ4ZUMzV2NSYnUzaDBGZDVaemhaU0tsTGhNTi02VDQxVlZUcldV?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:25+09:00",
+    "title": "Gold reclaims $3,650 as Nvidia news sparks rally ahead of US PCE | FXStreet - شبكة تواصل الإخبارية",
+    "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9XR0JhaTJ3N0xKQzl3NVpMS2d6eDJRUmROR1ZZSlNIR1IwSVhTOUdMZnlnc2czVGhpX3YtLUtMamdMMkRVMHhpaWJJMTBISFQyNThR?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:28+09:00",
+    "title": "Why Tesla Stock Stepped on the Gas Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQYzBvbHBpSmpwNWR6WDBYQzlFM3ZDUUFsZ1Z3cXB5UDduX0k3Tk1qNTVaekRuUlpvOFc1RjFQQkdLdXdKZl9aa0Z4VTRIekxyREJVWjNmNUI0M0RicG1ieFRrQ2VpVE5NS1BsLTRwRWJwaTlJYXJZNEJWZGtjZldwaTBUU0xkbFVPTjNZ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:32+09:00",
+    "title": "Apple rises as robust inflation and Fed talk keep risks from higher Treasury yields in focus - Traders Union",
+    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQM05hZVVidmtYQy1BMXU5cy1UZXVab3FFQUE5cmlXUENIRHRSYldzNGFJS1RVWEdZSXVWVUpfdVg5TzdFcDJ1SjA2Z01SQVRWWnpZUVBqYnF4cWRndEtfWm55b19KZ2lQMzZ5SXBqYnU1ZzBmbHBEZzZadXRzdHdBY0drSUx5TWxhZWs1YUhMTC0wX1Ux?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:36+09:00",
+    "title": "Why Alphabet Stock Popped Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1CVnYwOHNFS3l2RERENEd6NDg3clZ0Qm1oSDRuVmlWZENOQVlOV0lZWThlUFdBNmFpUkJoZWdSQU1GSkt1NkdYV3F1Tl9tMkJCTHk4eEtTUnlnM0hHd2plR2x6ZHltSmJSeE5QaHhBOWhkT3V1YzJWQjUtNmw3ZEE?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:47+09:00",
+    "title": "Stock Market Today, November 23, 2026: Nvidia Surges on Jensen Huang’s Return, Nasdaq Jumps Nearly 7%, Dow Soars - Eurasia Business News",
+    "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOVnQycUtpVGkxa0dZbl83Ykdvc3QwUzBSbkJScFdlS2R2V0o3VWI1eGlEM01sQXlJdmtXQzN4Rl84MGt5RDdEbzZkcmdqNEEtZy1PSVlrRkJPZ29mNTRrdXREcUtoVnByakJtNmx4NGVSejFMYXQzcndzWUxfYk5ZcElKWXN6LW1RT3JSUDNMcG9oRkxLX0ZBNl9xT2Jfa3Zqdmc3N0pOZ3dnVlVDUWtPVWg0RG5DSlZ1ekx6RGFfR0lUaDZLc01Ub1gxSXRKY0N6QklCQlBTdlp3elVET1p2bDMyVQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:48+09:00",
+    "title": "Why Tesla Stock Stepped on the Gas Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPZFA0V1hDV2VPREN5aW5OQTN3U2lSam1QUjVualY2ZkV2TGFCbXNxdXh0elh6R2t6U3U2SVkzdlVWc201eUdocTZHSW1NZVhlNDNwREQzYW9iWndYbDlGM1Mzb21lWF9xNG5WZkVKM0FMd1lNM2wzcmV5Y1A1LVdRZkhVMUN0ZDQ5QVdFMTAxcUZzdGRrejNF?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:54+09:00",
+    "title": "Wall Street just put a $1 trillion price on Jensen Huang as Nvidia stock soars 31% after his return as CEO - Fortune",
+    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQTF9hZHJLYXVSQWY0Q0tMUmo3WWQ2T0JSQlFCd1VRcXBfYWQySDE2MEotMEFTR3owSlZNdUEyYUg4WTJMVzRsUlZYazlHQVNkMUZRNFFSYUYtcUVpM0xKcEp5akZkRDhla0ZMeEtuQmNiM2xHbXhETTJiYlhaOWNkZl9PRHpaX2d6Z290OU1JV3NkeE1fTnc?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:56+09:00",
+    "title": "Why Alphabet Stock Popped Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPb2ZwTV80UUsydkpBaXQyTGMyajM5ZFRUM2ZaWnF1VUZob1h4MlNYeE1MS2hoTnlFaERsVVNUSVRJOWZfMFo5M0VETUF4dGNxc3NEN1BTNzBROFdkVFE5TnN1VHYwQmlrbjQ2Zml3a3dtSm4tTWtHZlNnRnVnSTRlazMweGN2V0xfUWxlaDc1MEF0R3ptZldXVXIzNWc?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T04:57+09:00",
+    "title": "Anthropic Fizzles While the Market Sizzles: Is ANT Stock Headed for $75 or Even $50? - 24/7 Wall St.",
+    "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNaTJGeTBoeU9hVlBwYklCSFdReDgwemZHVU5vS2pWY1lOX2NvaTgyQjUxUUJXcmxFdWFjSjg4ZnFCN29MMTlSY0M0bW1fblRIT3BOaDhINEFwbUtFS0ZOVENtblZIbl9tUDZVRzE3WTgyRWNVSzJMbURsb3hUWGVzdVV5Q2FxYUVlTG5IQXVfd0ZKUTMyQlNBdWRxSXdCa1NxOGxZek1vNnFuSjVyMGZhT1NSMjJRUTgweXkyeWlIQVU2UQ?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:00+09:00",
+    "title": "Prediction: Here's What a $5,000 Investment in Nvidia Stock Today Will Be Worth by Year-End 2027 - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQVERzNlN3M2xkd2JjVDhsNV93UUxqQjloVGxnOXM5WE90UUlIU2xLaWRmUkhUTF9lcFBMdVVySzBaX2ZDb04wenp0dFdBbzFHQ2pnQXBwM3ZnZDZLQ1hjRkRvQlVnS2t6Y0Q3djR6eEd5Rk5zMURvYkVIeWlsQm5LTE1WX2d6RE0zU0NPM0hRSlNGUEhfTkowVXJhU0JtY21RdlZudzA4UXp3RmY1MkRWM3R5eGpReFI3S0pmX0VoVlNjY3B4MTJ3anI0NnVub05jNXRKcENFNA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:01+09:00",
+    "title": "Why Texas Pacific Land Stock Was Slumping While the Market Surged Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOc3NzWjRlM2J4aDlVbkxFcjVCVG0yX1IwX3hTdUNjZTUzOXY4NEJqSTM2QlZ2QmFuZ2s5amNaNVR0SEJtRWdiUThvSkdETld5d2NfUlhhRVZPeVlGcVNUemd1eXRaRWxSazFtU2ZHa2YwbmlsUnp6elJZQ0kxSFVOLVhHSmFPMzA1YkItek9tXzdoMnBUSVhHUDBtbmozNHBGMEVTak9ka09HbDZpOV9adUpXSzU?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:12+09:00",
+    "title": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap - Bloomberg.com",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNMFVRM2J2cTZ6eU02Qzk1TF83UmhsSEN3SlpHYjJuc2lDeXBVM0h6WkN2bEJCUlk5RnZNOFMta05FOXFqeTZQQWZnbFl2RG1WTWVNSXYwVWhZRFZxRkx6SDlhTWtUWk92UVBJa2FGWVk3ak9rOUVJYjZ6RDBqcUZCOEpiWmFVWGxvVmM1Y2prdDk2N19EZG0xWjU3aFV5QkJ6MjF4eExGSkd3TWxaWGRBVzhB?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:16+09:00",
+    "title": "Nvidia’s Rally Ripples Across Markets - WSJ",
+    "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPbmRrWGlNNEhKN1FYMEt2NmxkREM3N2toWEt1QW9NOW5ULUt5MHpuRmdjMnI2MnpzbnFIdVdTcFhXMEJDZkNFenAxSWM5aWdaYVZyLVFwTjhFODJ0dUNIWGdmdkZ2ZFhBSnE4YjJZYXFDSWRZc3NTcHJSb0FvcEduX3Y4M1JINDZRaDlKMEZLbkJjLXRMMGM0Skt6V2FXZXlTZFV3bE93?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:20+09:00",
+    "title": "Here's Why nVent Stock Surged Today (Hint: It's Nvidia and Jensen Huang Related) - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPVnhoUjhpaU5PNlpTVGRoSE1EaTQ4TUFydU5kcXF5ZFlnZlNCUUVKYndQMk5QRVoyZzB2UkxBZHc1Nmt6T2Y1ZDhPUHFOa2VYMGhPUnBqeG8wT0JfTGZoZkw4Wm1FcFFzVF9WbS1jY0h1OWt3X21hUVVMV3NvR1NOdTg5QzJfZEx4Y3Zza3Uzd1RvTHdRcmxqUg?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:21+09:00",
+    "title": "Why Texas Pacific Land Stock Was Slumping While the Market Surged Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNNjFYWUpENy1qSzVnQ09yVl9PODZPY2dFalN5U2N0NXgwd2RQamRfXzNwclBibGgtdFd1SDdnU0QzdVFDdHJpQXE2MEtFR0NQb0NZOHRzMTRaa1Z1X3N5SHRJOUhxckdUTE1icDcyWTI3eks4V3U4Tnh0RlVrNkpMcmRzcGRvWndmUVMtSFlNbGF2NDVFemRuWA?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:32+09:00",
+    "title": "Traders Are Pricing a 13% Swing In Dell Ahead of Earnings - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPVkVMSDNqaFF2TXFYOFlnWHphZnE4WmRFdmk2RnM1QmJGZnRRbnVtUmRtenpVeEFzdjhWZUduTk16bVp3UmlzenJxQ1pkZTA3dVNBMEtGWlVoWklVa0hKZm44V0R3eFpELUZOLXE1cmNGQnd2X3I2X2VlZnotQXE1dVMtbzFqaVpITE91SEdVcUF6Nm13ZlozSHhnQmx1enNLQmYyQ09md2FUUUlNWVRpNzVn?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:37+09:00",
+    "title": "Treasury Futures Fall as Rising Stock Futures Damp Haven Demand - Bloomberg.com",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNU2FnY19ZVXo4MGlTUlpSamM4Z0Fwd2J0aGxxMWlDYXNXMkFYc2ZtSkpfRS1aQ2VLdFdKSEVPaHdmanA0NzBONHd2dFhUbXlKWE1JRGhZaXVOcG5PdlZqLU9xMGd3UWFid0NuMmpYYnByMmxad2FpZXgza2U1NHRVbDZnV2szanN3aUxROW5JSmFUQnZKbFpnbWZMdmhzQTZKanlsV0pxZWI2TTh1MzdmZGQyTmk?oc=5",
+    "query": "stock futures",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:47+09:00",
+    "title": "TREASURIES-Shorter-dated Treasury yields rise as Nvidia brings back CEO Huang - marketscreener.com",
+    "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNalZrd0hPRXFmMktiSGoyamVBbTFqejNQV1Z6WFJRRnkyTmdIdkZ4STE2bGswd3JLR3B3ZlRYTjVvdkpjdE05Z1NWUzdoSjdZTEFXNHZlVVFubzhDMTZGUWQ0SmQ0TWJFUWo2b2JLUUJvNFQxWUh5b0cxaGVVdk5tVmY0TnBSOTE1c0dqSU9GWUFIYWczSTRTaHByQjlsRWVySEZvYWRlSV9yRjlWUlhTWEJ6TTZXckpLNk04djQwbjZJWEowSUdhZzdB?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:55+09:00",
+    "title": "Nvidia Sell-Off Puts AI CapEx Funding and Treasury Yields in Focus - StoneX",
+    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQUDV2azZBTzc3bG40ejg2SGlUTHRZeGItYXpXRG1tYjVxUFV1NERZeU9wN2wzcEwyTnZESkx2cy11aFc4UkIyRzhCV1BYSXhacWxIdm4zQVJsTGFlemFLTE10a1dFMElRQkpmNWVzWVVKYlRWOXRfQXVrbWJsanJHd2kwMnFmMU56TFVad2tmeXpFM1hvSV9EV0xSUWJONWFWeDhhTA?oc=5",
+    "query": "Treasury yields",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:56+09:00",
+    "title": "Why PDD Holdings Stock Was Bumping Higher Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQMEJIN3Y1YTRsNjh4YmQwc1lqX29KZHZkXzh2X29jYUY3eXpucTc5cW5MOGxTM3hvazhIMUdQQmNuTVdFOVNOUHRBTVR3NzhCZG5UNGhYZGhiZVVaSHpLMHk2cW1lODVRQ3BTZjRzcXBkYWJKM0NENDQyd09EajViX3diMm53Vm5fVlU3UUhjd2lBLXNW?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T05:58+09:00",
+    "title": "Dow Jones Industrial Average (DJIA) today: Wall Street backs 2027 recovery - Beinsure",
+    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQY0VsTnJqZXFtNEplN0FETE5tYzRJdlBVbGxMUzFMQm40ZmVBSEQ2Y2otcTlrbmJ5RHRfNTliUGNSc1NHZmtzYVBuVkxXT2tRZU9HeEVmeUkyWVVRbEhrMnZ5a0s5NC0wMUl0SjM5VU5XMWFFdGsxMHV1RmJpRHFJeDFVMzZWSzAxUWNUS3FzV19SRUs0NzV2SDBwU1dGLTQ?oc=5",
+    "query": "stock market today",
+    "afterClose": false
+   },
+   {
+    "pubKST": "2026-11-24T06:00+09:00",
+    "title": "Why TSMC Stock Soared Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE92TkVUSlNHYU1SY3BsX3E1MWN3elI4c2hqQ0NONE5DOU5FVWl2cTZEVk1tb282dTE0TEJGU1RhRndzTTZhOU5rbXEyVVlRQzd2ckxua1dORnktSjljNG1KNnlrSVQtZEE2YUFxbDFoY0JRdXFRdnZ1UERn?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:11+09:00",
+    "title": "Nasdaq Soars 1,471 Points as Huang Returns to Nvidia: Stock Market Today - Kiplinger",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQZU4wMDJ5RGQtN0Z3THRxOUpGX04xcjZ3STFGZ1pEVTJ1dmp6cTNEZ2FuaC1Ddl83cUJLMU9MLU40aVRJbzJHTWlmWEZuMU9jS0k4LXoybF9pWmd5cExBcmQ3eGZKLV9IcndONEhBVmYyTEUyUzNJVzdKcWFzZW1IeXlTWTg2eU1sc2o3Wk9mMkpvXzI2ZGhVUk9ZTUp2TUhxMExjbXFVTFhZckZfM25rMmRvcTU?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:12+09:00",
+    "title": "Atrium Ljungberg (OM:ATRLJ B) Stock Looks Fairly Valued On Current Earnings - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNZ0pic3h1UUVsakctQjZlVkZKLTZLU0IxNFJKSmgxLXlyVGFKQzlFaXVJRGJMQ3dCeVZlWnE2NWVhVzFSTTExZFNUdGkyOFg5cVpjdEV2VGhLU3BLUlYxdXRUT2ZVZGtTcDBnU1NXRURzTXA4VG1GdmpxTWlzWkpzaHZFR01kQ2hzc1BEZ2gtSHFoWnI3SWhB?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:13+09:00",
+    "title": "Nasdaq surges 6%, Dow soars 1,400 pts as Jensen Huang’s Nvidia return revives AI trade - The Economic Times",
+    "link": "https://news.google.com/rss/articles/CBMihwJBVV95cUxNQll5VVFnYkdWZWE1TWRNcTRFS0JPZXc3N3lGeVBieUhUTS1wdWxEOERITlVlYWx2ckNGMXdfN2pUN1JuRmhBSjlCVktxS0tnNlNlXzRWQ2g1M1ZrdUhNS3ZhdEVTZlRhUGtaV3EyNklzdXJUZTFOdXZnWVZ0OWVTOXlwWUtLUTVFWUF1eFI1aWdqTUZ6a2RjSll1eEVza2R1N25jZlphbEtIQU1uUjVuNG1UTkh2dF9VTkszRjduNlVRYi0xQXM2ZjNhM0xfeVRObEthYjRSUTV4VkV0cVFOVU9hdVdlM0dOX1dDcW8tUTh5RHgyb1EtWU8tRFplbGt5LWVoVWJxRdIBhwJBVV95cUxNQll5VVFnYkdWZWE1TWRNcTRFS0JPZXc3N3lGeVBieUhUTS1wdWxEOERITlVlYWx2ckNGMXdfN2pUN1JuRmhBSjlCVktxS0tnNlNlXzRWQ2g1M1ZrdUhNS3ZhdEVTZlRhUGtaV3EyNklzdXJUZTFOdXZnWVZ0OWVTOXlwWUtLUTVFWUF1eFI1aWdqTUZ6a2RjSll1eEVza2R1N25jZlphbEtIQU1uUjVuNG1UTkh2dF9VTkszRjduNlVRYi0xQXM2ZjNhM0xfeVRObEthYjRSUTV4VkV0cVFOVU9hdVdlM0dOX1dDcW8tUTh5RHgyb1EtWU8tRFplbGt5LWVoVWJxRQ?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:14+09:00",
+    "title": "Nvidia soars 31% as board reinstates Jensen Huang as CEO, chip stocks jump - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPQXQxeWtYZkw0VGdES0pzRTNhc1h5aW9VNWNkRU0zeVE0QzBBYk12VmM1cjFkWEJSUmwzQndzZHVJaGF3bGdvSGI1UEtwWXBzZ1NuZExiejR2bkFsVl9ZWl9hS1FEekV3TS1ZV1hnZnNSVU9ybGRJTkF5b193dXVPLUs1ZDRJMWY3X25UYV8wNEU0RTliTXk4NFNDUElmWjZhSFJXVy1MSmlsbXZEajY5MEJoVmpBWEt1a3g0SFRFalpZSmdXWjVZYw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:15+09:00",
+    "title": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip - WSJ",
+    "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOZ01XVnNSdmRPYmYxOWNxejJQZ3Zsa3Ywa21rWWNDSi0ydnk5N0RjZ1BNQS1BRnNuSlZDcXpkUkZ4QkQ0V25rLUQ1MjRMa2hsRWlOQy1HOVRadlBZcG5TT3NIZ0duRDJvb0JGVHc4ZFE4dlVQSDBQcDhuMTFsdkRuRGQ4djl3bDE4c3lpMjEzU0dZWHo1dlNRTWo5LThIMHZtVk9iVjhoWGR1azJKUEE?oc=5",
+    "query": "Treasury yields",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:16+09:00",
+    "title": "Why PDD Holdings Stock Was Bumping Higher Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNc19BRWJNVjFEWUp4a0tzQ0J6T2M2TkpYaGdBYThqaHIwNHNLWURVdHdtVmdyUEJjUUt4MEgxWXBLdW9HRHFVODVNaXRhNThoaklMd1BzcFY1dFpwT0lRbnpRYUFZUG9lU0EzSWNtcjNLU0N0TF96MzN4a2VpT1lPa214UmxUeGltZlFoRWlQQ3Q3N3ZjNFB1U2xWTQ?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:19+09:00",
+    "title": "Stocks to watch after hours: HPE, SYM, A, and PTON - TradingView",
+    "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPMENzcDl4MmJnYkNKQVotR1Y3UzRKM0tQVXpiMTZOMXRxMmswUmtCMlg5Y0ZUSVBMOE53ZmtmZk5mU3VEWHg4ZG5tZUxCMFhsbW5iNTQyaWFkT2twdnJIWldPM1BfQy1EM1UzTy12NTFIMlFBSXptYXAtdlF1c1I3STdnLTFCMEhQY0lVRWZTa1dlY0VhYnpZQWoxUm9Yb2VHQ0I3Z1VRNFdzZ1RnSFE?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:19+09:00",
+    "title": "Stocks to watch after hours: HPE, SYM, A, and PTON - Seeking Alpha",
+    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPSUVZaHgzdjh4Vk94emI3YzVOc1BGUkVrSXFsdkJKNEhJQU4xVnFieVlzY1JXR01iT0RNYTY0amotbTBWRGdJLU9BWG5mNnRURHI0bTVvZjEtd2dWNTNMZWpzbU1DMC00TFRyeVUzVlF5Q0dWMVd2WTR5alpRVmxXUVhiMVZrQ052ZElLQQ?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:20+09:00",
+    "title": "Why TSMC Stock Soared Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOMEdpVWJwSTh1cU9tb25IQWwwR3VjdlNfYWZUYXI5b3lrZzRTb3c3SHBqVy00endjamt2M3RvMFZLcGZRTmRLcTZTOE92ejJqM09vejF6Y29zRy02XzRQeGJ2a2ZKaTVDNE5DeU1YbjJUc3NOM3plT3NJOWZWZ1ZoTm9YZ0JZZkZGMXZwUkNxQ3NnSVhDWDVn?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:20+09:00",
+    "title": "Zoom Posts Q3 Double Beat, Lifts 2026 Outlook - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNbjlmdk1KcEpWS1RjaVNFbjNRRVNSeTVaR2hvaE5oYTJYNnNKbjU3VVlaS2FBRlR2eEZ1QWRlblFGYUFYME8yOElPUng1UE1XNEFlTjhOaDFCc1VtTzQyMnlGOUtXdWF1NVAydFFxSW9USVYxNjhYWXFFbXdZeERESGcyV1B1SVJxdmNTOWU2a3pmakN5RWFPa1Z6dVpwUkNXQVFR?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:21+09:00",
+    "title": "Dow Surges 1,400 Points, Nasdaq Rallies 6.5% in Biggest Daily Gains in Nearly 19 Months; Nvidia Soars 31% as Jensen Huang's Return Reignites AI Trade - TradingKey",
+    "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPVGZaaXZSbGVZY2VPVE1wYXNTM0dDeDJUZmJMQS1ZWjliRnlJbUFJenl1MW1selpxQk5ZeVpfRTcwcmtidVEtZ19FNHZlelNodTdkdi1MZkhZU0tqZnVJdkUtR2szdjlCZlIzMmxwZktsMmVqRU5lQ3RzU1NXd3NpLURkdzVMNHRCOU96ZENBT2w0UWZnRlNldjFERWplQmVPdGtVb19GY3lYNzduQ0JVXzQ2WTdLWnBSOHVHeTVUQ3lud1RKZ0czV2cyNllNZw?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:22+09:00",
+    "title": "Why Lumentum Holdings Stock Trounced the Market Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOWG80R0t2V21xd012VmZSM1hpNUxtczNud2VzVi1DUndmMlVXWi1CSG9raGEybHllZEw5Mm5fMlNtRmpiWWUxeHF6bTdoZGgySC1Eb2NjVlJCZ2NKOEpzNzF2aW4xWl9RZmNvZFVucmVnVThjbmNTRG9TZ3VUMTlPc1JsOUkzZ082LWpqWmh3Y294OE1KTFFVTjFlLWM?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:23+09:00",
+    "title": "Stocks Surge After Jensen Huang Is Reinstated as Nvidia CEO - The New York Times",
+    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPNXRXMlFUQkJfcnJPMGVlaWZRejZzSnVuRWJiV1E3TUM3c3pkWkxSSGZJaGtCcEc0Uzdja0xzbFFNcWRIZEtZNlFHMHNDclAzVzJqUHU2Z2lFRE51V3AwSWV1cnRoamFsbDVleTdVUFVhSElYMEhXTlhiNkhQNWtSZlRGT1FYQURPeE9RTA?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:23+09:00",
+    "title": "ASML surges 9% as chip stocks rally (ASML:NASDAQ) - Seeking Alpha",
+    "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBDTHVWdFhBU1B6Y0RWNmxFZG13akZXdjZGUXkxb1F5cGY3cVExejRnNmQ1bi0tUGl1akRvNDR5Y0o3UmlPaFp4c1hfbEV5eWdyOVhrN3FXTzl0SThHeU9KeFVpNkJBRG54Rnp2THdTRk0za3hsUlI4eWtoWDk?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:25+09:00",
+    "title": "Stocks surge in best day since 2025, adding trillions in value after Jensen Huang returns to Nvidia - NBC News",
+    "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQTWR5WHAwZmExU2UyZkd2d0w4UWxCcXh0X1hJajU4alplUUVUdGM5bk52dDRoazNfamJfbWdQRGhEVExVeFAtZldhcmxYOTlaMmJKTkNQN2Yza1dNS0dfZkhQZTRTTGZudGI1d0JNbWR3SWJzN1hRYWxxWktYS2hNaFR3ajgzQ3FRUlJLVjE5d0cwVnc?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:27+09:00",
+    "title": "Nvidia stock has best day since May 2003, gaining nearly $1T in market cap after Jensen Huang is reinstated as CEO - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMiggJBVV95cUxPWE52dEljX0cyZVo2a1A1dWJaNXFBemdNUE9jcU94RjNXc1JwMEJyZkpjd3h5cHF0VFUxZWpCOTRpTlRRSzJBTlJGa0tubHEwa3VROU9xRFd4a1czS1Z3d05tMklnTFdESzMyTVRpdVFUQXBoMmkwdE0zd0V4TkcxRnhocTdBSm9fS3pvcksteFlqRGtIMUpjdldDbElVQlgzX3hMNWotbEJXelczemJac2h0TWhKeW9PTmJrZlIwNVBpY2VQVFVaRHFadlNOV0d2bWN2aDl4WlVQeU9IVkFRRUNDSU9tSV9xcjNJcFdJVGhkQWw0cmpJbld3WWE5OHhKcnc?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:27+09:00",
+    "title": "Nvidia, Dell, Micron, Anthropic, CrowdStrike, UnitedHealth, and More Stocks That Explain Today’s Market - Barron's",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5Gb1NJc213U3JRbHpTNS1TT2lENXJ5RFY4aGQ3TWl0ZWZGajJMNUNpRDcwSWFtTm81ZzZackhuQ3g4cG5qbi1sckItb08tSnFld0hHTW5NVXVGYzZzRXdxanhIUVg?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:30+09:00",
+    "title": "All Is Right Again? Wall Street Splits on What Jensen Huang's Return Really Fixes - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNT05UYVBEcnlnMGx5cFZPd1Q1QzRHQ1ZROWRWclgzVkVDRWZYTWJFcUNGeWpudDYwNmJtM3c5MTVIQmY4dmxUUnJ5d01ZX0gxdGVSR0xLSGY2b0Q3OTV1T3FlTUNleXlqbXBvYWtyTV94M1E0V0Q3NmNpalp3QXVXWmtGMl9VSkNhd0pRRlk1ZUR2cm5fci1NRm5JT09VRkl0Uk1JSndlVTFid21BdURYWWVGWUxDdUNHXzdwLXd3?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:31+09:00",
+    "title": "Why stocks had their best Monday since 2020 - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNb0R4RDFfcDNaQ2VuVDZ5dGJHZ2lhWEtpeFlvSmh0VWNoS3lvS0F0ejUyTU9XeWRNSmoySE50YlNnU2NJNi1WXzVUbXAwX3M5SEJmT0pISDdsWHNacE12c3NxR1V5NXlkdndOR2cwZENYUmZXUjNuN29YY2ZnTEFQYjhhSXVpSFg4dG43V0laT090QXN3ajRLajRaN05XOG5yWlJVdTB5amNpcEp1SUVXYQ?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:32+09:00",
+    "title": "Dow Jumps 1,448; Nasdaq Surges 1,472; S&P 500 Rallies 327 - TV News Check",
+    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNMWgwMjBHbmN4ai1peEstZjhoRW1TVU1RbGRNRllzbHNsdlpod0g4Tm9VSUVycklyWEU3cW0tM0Y3NWpqUC15bkYzalYyYkVCOHdfQUQtdVdVZ2dPU1F1eV9URTI3elVYRG1FNUdBYVQ1MWlQYld2bmJwTFN1VmNLRVJSc1VZLVFTVF9LeHBGZkJBRTNzN0JGN3J3?oc=5",
+    "query": "Nasdaq chip stocks",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:39+09:00",
+    "title": "Gold price today: XAU/USD rebounds as banks assess 2027 outlook - Beinsure",
+    "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9nRnY3U3BWSGlpcXVMckdxVC03RHppZU1fdlU5MlNna19ZbmVqQjVfZEN5d0FodFM1VHdkcGV3b2dGVUdrVlhnZFZsYUZlR19XbjgwY0NmNTFuYVVHTk9zVURhLUY?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:40+09:00",
+    "title": "Stock Market Today, Nov. 23: Nvidia Surges 31%, Adding Nearly $1 Trillion in Market Value as Jensen Huang Reclaims CEO Role - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMijgJBVV95cUxNZjdUTWx5ZTZ4ZmFybm9KdTlybzRuWUZuYW9ERXlxdGJGVm1UX1VGeXBONjNoRVl4bTdyTmFhb05CSE5zdTN6dElVN0RqOXNvVnZQMkdFcTVVR3QzdUpKLUhNNjFDa1R5NFcwNkJZSmlzU0hiU3pMMlFtMTMwazNOcG8zYy1od1BpNk8zbHhkdnFVTktERElkLWZvcFpteV9SU19uUHpEaFlKMFFNcnBUS2Z2SGtXZEh4QWlyRFJBY3d5YTJrT1h4bjUzc0VsZVlMazNvb2RMYjNIb0Fydk1SQkdBdFFRTUNKWTY0ZWpzZVI4ZXVnb3UtcUhsMG9jMDdOY0JFOXI3OVkwdU9OTmc?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:42+09:00",
+    "title": "Why Lumentum Holdings Stock Trounced the Market Today - Yahoo Finance",
+    "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOZHJnWVlRRllVaXBzdkdGQk9XY3hTaFVfZGFra2lTYVVNZWlMbGdtSnNKNDA1TjAxNGNXY2t2UzFTY1FaRWFva0hsSndxRlFlaC1TcVhud0Ruek93b2Z4cmZ4anpwcy1NaTh6c05EaDBoTmdVY0RWcmlXUVFEajA4UlJ3d0YwVEhiR0tkaXFvZ1ZGeW5BRFZJa2dZUTNMTVFwOGxF?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:45+09:00",
+    "title": "What time does the stock market close? 4 p.m. ET, and 1 p.m. ET on Black Friday - Nacionale",
+    "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPSDBaX3o3SlJBeE95NEg3WkxSME53WVpGUXotd1NrWmxzQkg2ZnBxVUJjWXBkd1JEVWpaX3FYVUF4V3d4OEpvT0FMVWpNaG5YRjIxOUJQd2c5Yy1LMm0zZVlJS29QRTJ2dUdnSG1vRWg3UmpLVjJ1MGRTb3ZYYkpiRkFVb0JqYzF1aDNWTUJSdmIzTE5LSVNoMEJHMUpTYldUWlpLUTl6Q1dxMDlNYjJ1bV9kTm4yMGNreFM1d2NMVWhxQQ?oc=5",
+    "query": "Wall Street stocks close",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:45+09:00",
+    "title": "Semtech Stock Gives Back Some Gains After Q3 Earnings Print - Benzinga",
+    "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQRlcyV2tUb2ZnQTFtZnlYVzZfT2paSFRoR0V2d1dWelNoWmNNZ2VLY1MtMUt3SEN5ZnVuMFdER29yWFd3SUFhTDkyc2VaUDFka1NRQ0JUVWhtQmh6LW02VXFaQjFQaVVMZ1hUb0E0cEpMaFpnY2wzVnFKcmxhLXM5dmRERm9RNmtCdDNhdjNhMXVyOEhYdHh1MU9ZYnA3SVl6NklTc24tekE0UFJwemNhTFBLd2hocjg?oc=5",
+    "query": "stocks after the bell earnings",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:46+09:00",
+    "title": "Why Marvell Technology Stock Crushed it Today - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPa3ZSQ1VlTEhGN3pxcHFMSkZnbm96VnVaRnBSTW1mRHdvNWtyWDcwd1FDbFJ4OGsxVDQwN1M5dHpjekNnNnNINWUtc1E0ZUl2dU5CX09UTEY3aXV5OExwWWctRE45X0hRYUdzWlFRY21DT2ltaU9VUlFwT0tJbE5jbldIdGJnc1FlOFB5TGZyWk9IZw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:48+09:00",
+    "title": "Stock Market Today: Nasdaq Jumps 6.5% as Huang Returns - FinanceFeeds",
+    "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPdnVyc1VaRWNpLW05ZmM1T3ZuYzdmTzl4RGl3b1FneFREd19EUE51ZDV5RndUeVB0ejZZY2ZnTklPSWhfZk5DX3JGdVZLSmt3MGVQTkpaNlppbWsxWDJ2ZVZQOFFySnRXM3AtbnpiTWJVU3JRcTZxVHhaTUlLbENabkVaZThYNVctRDJNUGlmcw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:49+09:00",
+    "title": "Stock Market Today, Nov. 23: CoreWeave Surges 22% as Nvidia Reinstates Jensen Huang as CEO - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxOSk9pSkVfbFRIWW9YMHByc09VekNES0c1eDNOWEIyTlBmb1hQdlJqMGVEcnRfajUwS1V0Rm93dXZtdUJNck9WUEh6VGdpWXNQNk1yT2xBNS1zU3NCTDJNYUpVSVhMM0oxby1YaXhnX3paYUVXSmMwVlQ4aWdIVThWUGF4cDl5STlPZnRoQ251MVFCWWxFRDRrcFUzMDI2QWx4bjNpc0ZPOGpINUZfOTJCX3ZOclYwSjdWNUU3X054ZjVqMVlwbEE0OTl0Z1FsNXJQOTh1MEdINjhpemhGWmRYTw?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:54+09:00",
+    "title": "Stock Market Today, Nov. 23: Advanced Micro Devices Climbs on AI-Chip Rebound After Nvidia Reinstates Jensen Huang as CEO - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxQeWlXazZSREdHVFpCWDBzdG1YTHQwU2JmZXc5Y0dqamhsaTV0YWo5UzFqbUk2aVM0Q0p6TWtxb3kzdUQtdVVySWg0V3lNRm1SSlNuMmx3V09SVGhvZUh6bS1hNmFHR05ENGdHSjRDR1o1SmxnTXJMYmQ0ZWdTRmhBbk0xTjBENHdoRUQ3RG1waTZNYkNodEFMdHZrQjRkRmJUUkxPWkxLR3dkUXdyaTNGcmwxdlp5SlFtRmxpMENLRTBoWDV3aE45cktrVU94Rnk2cXdlXzg1d3hQZ2g3NWgxbmxjc2trcEtvN1o1S3VHNThuS2dnTmZSVU15aUF2ZWFaaTdwU0ZKOWsyTnc?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:55+09:00",
+    "title": "Crypto Market Today, Nov. 23: Bitcoin Sits Out Wall Street's Historic Rally as $1.8 Billion ETF Exodus Weighs on Prices - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxPdWQ4bjBaRlh5OURIMmROZkljd0NiMlRZcU43MURTZlFqcFppdlhrUkJNWGdBc1lzZWFQU240N05abTN1ck5WV1pnZE9fQWZCYmZFZzd5YlFYaGppVm1vYWFBSXl6RGhWQWdvQlNBZ0RQMHl2R21hdlVlbHZtTzN1TnZidVFEX20wX18yWnNidEZnMWxuMU9WWEV6QjNtS0diM0RZWlNCVU91TktuNUoxQlR5Y1M5OGh4QldzXzZSaEplUnNqenJVWHZkbnVMbEpzNUQySUswSTVXeTk1UVZxcVNuX1FZRDlkVmhiLWxRZjQ3amgwYVgtbzlhRU5yQ3pZc0xKMU9tVnFuUE0?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:57+09:00",
+    "title": "Dow Jones Futures: Tech Stocks, Nvidia Snap Back On Jensen Huang Return; Elon Musk-Led SpaceX, Tesla Rally - Investor's Business Daily",
+    "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOd1IzaXRYZ1Zmel9FV1BGMUVhdlVxcHhJZTR1aVZNSEFjMXUyUDdZMlhKME5qRHRYdjRmWlE2Rm1WR2s2N0RzcWpVQUdaNVREQlBzTWxCWHRha2FqZUZMYk5GcklEcE84MmlXNUwyb3pQSGVoSlB5QVNEbUFXMWZyVkVZNGRCbF8wYVM5cUZBbDBYcTNNTi1OLUEzQ0VIN3VYak02Nk14Qmx0M3J6aF85YWlQZHpEWU5uUkV1MTQ2d3o1R01nMWdwQWktQTA?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   },
+   {
+    "pubKST": "2026-11-24T06:59+09:00",
+    "title": "Stock Market Today, Nov. 23: Markets Rebound From Correction on AI Relief Rally - The Motley Fool",
+    "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQTVNSOGdwRGRqRkc4Nnl2OXI4SXctRXlOQkk0QU40UFRTSHB5clpPUnFUWTV6cTVNZFVsT29Mb0dFcEJMUUt4cVo1MkIwNC1UUXVlN084Z19LOGt2M2FaVi1tV3BaTUs5dmVuWFNaSGQ3MVN1NFRRM3kzR2UwQ3FMa2FxUW1jNmU4OTJMQ0dIcXIwNndKRjQ0Nm9JVXl5X0FzbDZGd1c0bHhibGV3aWdHdTdGQ0U5WEVIX255R1prb1BPQWRCSmtUWkFHX2dubFpOSFlr?oc=5",
+    "query": "stock market today",
+    "afterClose": true
+   }
+  ]
+ }
+}

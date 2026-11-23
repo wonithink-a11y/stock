@@ -1,0 +1,20 @@
+{
+ "headline": "엔비디아가 젠슨 황 CEO 복귀를 발표하자 반도체가 하루 14% 뛰며 나스닥 +6.51%·S&P +4.73%로 급반등, VIX는 35.89→26.62로 내렸다.",
+ "causes": [
+  {"title": "엔비디아 젠슨 황 CEO 복귀 → AI·반도체 반등", "confidence": "높음",
+   "evidence": [{"timeKST": "2026-11-24T01:25", "source": "Yahoo Finance", "text": "황 복귀에 나스닥 선물 거래 제한 발동", "url": ""},
+                {"timeKST": "2026-11-23", "source": "엔비디아 8-K", "text": "이사회가 황을 사장·CEO·이사로 복귀", "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000090/nov23pressrelease.htm"}],
+   "reaction": "엔비디아 +31.48%, 반도체지수 +14.03%, 기술 ETF +8.97%, EWY +10.11%",
+   "counter": "RSP−SPY −2.12%p 대형주 쏠림, 에너지 −1.06%, 앤트로픽 관련주 부진"},
+  {"title": "낙폭 과대 반등·위험 회피 완화", "confidence": "중간",
+   "evidence": [{"timeKST": "2026-11-24T06:59", "source": "Motley Fool", "text": "조정에서의 AI 안도 랠리(마감 뒤 해석)", "url": ""}],
+   "reaction": "VIX −25.83%, 러셀 +3.40%, 다우 +3.01%",
+   "counter": "5일 수익률은 아직 모두 음수"},
+  {"title": "유가 하락 −4.44%", "confidence": "미확정",
+   "evidence": [], "reaction": "에너지 ETF −1.06%", "counter": "설명 기사 없음"}
+ ],
+ "afterClose": [{"timeKST": "2026-11-24T06:19", "text": "시간외 애질런트 +7.08%, HPE −5.33% (실적 발표)"}],
+ "events": [{"timeKST": "2026-11-24", "text": "미국 실적: ADI·오토데스크·베스트바이·델·달러트리·HP·스머커·메드트로닉·워크데이(시각 미표기)"}],
+ "watch": ["반도체 급등 뒤 한국 반도체 시가→종가 흐름", "대형주 쏠림(RSP−SPY) 지속 여부", "엔비디아 독립위원회 조사 진행"],
+ "researchNotes": [{"condition": "밤사이 SOX z≥1 (z=4.47)", "note": "한국 반도체 시가 갭 상승 후 시가→종가 평균 음(−0.2%대). 평균적 결과이지 예측 아님", "source": "research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"}]
+}
