@@ -9,8 +9,8 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 62 |
 | 기각 | 178 |
-| 사전등록 문서(결과는 별도 파일) | 245 |
-| 정보·탐색 | 52 |
+| 사전등록 문서(결과는 별도 파일) | 246 |
+| 정보·탐색 | 53 |
 | 미분류 | 252 |
 
 ## 통과·채택 (28)
@@ -296,10 +296,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (245)
+## 사전등록 문서(결과는 별도 파일) (246)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | PREREGISTERED | us | [true-bottom-explore2-prereg-2026-11.md](true-bottom-explore2-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). **사후 재실행** — 1차(true-bottom-explore-results-2026-11, INCONCLUSIVE)에서 n 5~9 칸의 결과를 본 뒤 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore-prereg-2026-11.md](true-bottom-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.0 E 레인 시범. 질문 — "애플이 크게 빠지고 S&P500 종목 대부분이 50일선 아래인 날 산 S&P500 은 63거래일 동안 무작위 날보다… |
 | 2026-11-23 | PREREGISTERED | us | [zbt-preregistration-2026-11.md](zbt-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "S&P500 종목의 시장 폭이 과매도에서 10거래일 안에 급반등(ZBT)한 날 산 S&P500 은 이후 63거래일 동안 아무 날이나 산 것보다 … |
 | 2026-11-23 | PREREGISTERED | kr | [price-limit-open-preregistration-2026-11.md](price-limit-open-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 상한가 마감 종목이 가격제한폭 이월(앞선 시험: 종가-종가 다음 날 +3.83% vs 근접 −1.49%, D +5.32%p, INFORMATION… |
@@ -546,10 +547,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (52)
+## 정보·탐색 (53)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | INFORMATION | us | [true-bottom-explore2-results-2026-11.md](true-bottom-explore2-results-2026-11.md) | 신호: 탐색 통과(사후·소표본) 2칸 · 경제성: 통과(비용 5bp 대비 효과 큼, 단 n 5~6). 애플 252일 낙폭 ≤ −22% ∧ 50일선 위 비율 ≤ 40%(n=6) 63일 +11.42% … |
 | 2026-11-23 | INFORMATION | kr | [price-limit-memory-results-2026-11.md](price-limit-memory-results-2026-11.md) | 신호: 있음(양 방향) · 경제성: 판정 안 함(다음 날 종가-종가는 시초 갭을 포함해 체결 불가능). 상한 마감 종목의 다음 날 평균은 +3.83% 인데 한도 직전 비절단 큰 상승(+22~28.5… |
 | 2026-11-22 | INFORMATION | global | [dollar-month-end-results-2026-11.md](dollar-month-end-results-2026-11.md) | 신호: 있음(2000~2020) · 경제성: 미달(2021 이후 역방향). 월중 나스닥이 오른 달은 마지막 거래일 달러 약세, 내린 달은 강세에 베팅한 평균이 전체 +5.76bp(95% [+0.6,… |
 | 2026-11-17 | INFORMATION | kr | [kr-nominal-price-results-2026-11.md](kr-nominal-price-results-2026-11.md) | 신호: 약함(고가 우위 방향, 문턱 미달) · 경제성: 해당 없음(저가 우위가 아님). 시총을 맞춘 뒤에도 저가 3분위가 고가 3분위보다 월 −23.7bp [−62.4, +16.8] 낮았고(순열 양… |
