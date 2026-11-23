@@ -44,6 +44,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 37 | VIX 인버스 B (VIX ≥20 SVXY 매수 / ≤16 현금, 보유 대비) | `run_vix_kr_inv_forward.py` (#36 과 같은 실행) | 위와 같은 폴더 | 위와 같음. 판정 불가 = 진입 3회 미만(관측 시작 때 이미 매수 상태면 새 진입이 있어야 센다). 사전등록 b39a4a05 · 코드 d1e339a6 |
 | 38 | 미국 국채 월말 효과 (IEF 마지막 3거래일 월 초과 — 확인 단계 forward) | `run_ust_month_end_forward.py` (yfinance 공개, 수 초 — 월 1회면 충분. 월이 끝난 뒤 돌린다) | `reports/2026-11-ust-month-end-forward/observations.jsonl` | 완결 월 ≥ 48 ∧ 48개월(≈2030-11) 1회, INCONCLUSIVE 면 72개월 1회 연장. 확인됨 = 평균 E > 5bp ∧ 순열 p ≤ 0.05. 사전등록 bf2c52d6 · 코드 03087e2d |
 | 39 | 월말 달러 (월중 나스닥 부호 → 마지막 거래일 달러 반대 베팅, 확인 단계 forward) | `run_dollar_month_end_forward.py` (yfinance 공개, 수 초 — 월 1회면 충분. 월이 끝난 뒤 돌린다, 첫 관측 2026-11 은 12-01 이후) | `reports/2026-11-dollar-month-end-forward/observations.jsonl` | 완결 월 ≥ 36 ∧ 36개월(≈2029-11) 1회, INCONCLUSIVE 면 60개월 1회 연장. 확인됨 = 평균 E > 5bp ∧ 순열 p ≤ 0.05, REJECT = 평균 E ≤ 0. 탐색(INFORMATION)은 2000~2020 재현·2021~ 반대(−9.95bp). 사전등록 20fa8023 · 코드 bf684dfb(blob c8205cd9) |
+| 40 | RP-2.0 연구 정책 1개월 점검 (2026-12-24 한 번) | `python research/strategy-lab/trials.py count <표본>` + 장부 `idea-ledger.jsonl` 의 탐색 통과·확인 통과 수 | 탐색 통과 → 확인 통과 비율 ~5% 면 BH 10%→5% 로 되돌림, 15% 넘으면 유지(docs/연구정책-RP-2.0.md §6) | — |
 
 ## 메모
 

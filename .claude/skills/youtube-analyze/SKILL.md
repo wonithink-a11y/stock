@@ -29,6 +29,7 @@ python scripts/yt-digest.py --test <영상ID> [모델]            # 빠른 요�
 출력을 `inspect-social-post` 절차에 넘긴다(claims·rules·claims_performance 가 그대로 "주장 쪼개기"의 입력이다): 주장 쪼개기 → 출처·설치 명령·수치 확인 → 이미 있는 기능과 겹침. Gemini 요약은 **주장일 뿐 사실이 아니다**(절대 규칙 1: 맥락용, 점수·매매 불사용). 요약이 영상 원문과 다를 수 있음을 caveats 로 같이 말한다.
 
 ## 4. 후속
+- RP-2.0: 문턱이 모호하거나 사후 분류인 주장은 WATCH 로 멈추지 말고 S 놀이터(`research/sandbox/`)에서 바로 돌려 본다.
 - 검증을 통과한 전략·신호 아이디어만 `idea-intake` 장부에 적고 `preregistered-research` 로 넘긴다. 영상의 성과 주장은 근거가 아니다 — 같은 표본 재판정 금지·사전등록 규칙 그대로.
 - 종목 언급은 관찰 메모일 뿐 추천이 아니다. 주문·실계좌 연결 금지.
 
