@@ -6,17 +6,18 @@
 
 | 묶음 | 파일 수 |
 |---|---:|
-| 통과·채택 | 28 |
-| 보류·판정 불가 | 63 |
+| 통과·채택 | 29 |
+| 보류·판정 불가 | 64 |
 | 기각 | 179 |
-| 사전등록 문서(결과는 별도 파일) | 254 |
+| 사전등록 문서(결과는 별도 파일) | 257 |
 | 정보·탐색 | 55 |
 | 미분류 | 252 |
 
-## 통과·채택 (28)
+## 통과·채택 (29)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | CONFIRMED | us-kr | [idio-crash-results-2026-11.md](idio-crash-results-2026-11.md) | 신호: 국내 있음(확인됨) · 미국 없음 · 경제성: 회피용(국내 개인 공매도 제약 — 매도·제외 규칙으로만 의미). 시장이 안 빠졌는데 혼자 10일 안에 −30% 이상 빠진 국내 유동 종목은 이후… |
 | 2026-11-17 | ECONOMIC | us | [us-treasury-month-end-results-2026-11.md](us-treasury-month-end-results-2026-11.md) | 신호: 있음 · 경제성: 통과(왕복 5bp 가정 — 한국 개인의 해외 ETF 위탁 수수료로는 미달할 수 있음). IEF 는 달의 마지막 3거래일에 같은 달 나머지보다 월 +20.9bp [+12.6,… |
 | 2026-11-08 | ROBUST | us | [vix-ladder-3x-results-2026-11.md](vix-ladder-3x-results-2026-11.md) | 신호: 있음(견딤) · 경제성: 미확정. 주 셀(N 8·청산 ≤16)에서 나스닥 3배는 TRAIN·VALID·TEST 모두 기준 충족(ROBUST), 반도체 3배는 TRAIN 만 미달(INFORMA… |
 | 2026-11-01 | ROBUST | kr | [kr-static-vi-shortable-results-2026-11.md](kr-static-vi-shortable-results-2026-11.md) | 신호: 있음 · 경제성: 통과(숏 방향) — 단 **SH 규칙이 걸러내지 못했다(VU 사건의 95.8%가 SH)**: 실행 가능성의 답이 아니라 '공매도 거래량이 거의 모든 종목에 찍힌다'는 관찰이… |
@@ -46,11 +47,12 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (63)
+## 보류·판정 불가 (64)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-24 | INCONCLUSIVE | us | [true-bottom-explore-results-2026-11.md](true-bottom-explore-results-2026-11.md) | 신호: 판정 불가(시험 가능 1칸 미통과, 나머지 3칸 n<10) · 경제성: 해당 없음. 느슨한 칸(−10%·40%, n=17) 63일 +4.25% vs 무작위 +3.41%, p 0.295. 엄격… |
+| 2026-11-24 | INCONCLUSIVE | us-kr | [seasonal-us-kr-explore-results-2026-11.md](seasonal-us-kr-explore-results-2026-11.md) | 신호: 방향은 10칸 전부 양(겨울 > 여름, 연말 > 평소) · 누적 보정 뒤 통과 0 · 경제성: 해당 없음. 가장 강한 칸 코스닥 Sell in May(겨울 월 +1.77% vs 여름 −1.1… |
 | 2026-11-24 | INCONCLUSIVE | kr | [hi52-kr-explore-results-2026-11.md](hi52-kr-explore-results-2026-11.md) | 신호: 원 통계는 있음(국내 5−1 월 +1.92%, t 3.27) · 누적 보정 뒤 미통과 · 경제성: 롱 온리 net 월 +0.69%(기록). 국내 표본을 이미 400여 번 본 값(누적 K)을 … |
 | 2026-11-22 | INCONCLUSIVE | global | [real-yield-shock-results-2026-11.md](real-yield-shock-results-2026-11.md) | 신호: 없음 · 경제성: 판정 안 함. 실질금리 충격 주의 다음 주 수익은 QQQ(D −0.14%p, p 0.316)와 BTC(D +0.23%p, p 0.574)에서 평소와 구분되지 않아 REJEC… |
 | 2026-11-22 | INCONCLUSIVE | global | [fed-expect-shock-results-2026-11.md](fed-expect-shock-results-2026-11.md) | 신호: 약함(QQQ 만 경계) · 경제성: 판정 안 함. 연준 금리 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤 다음 주 QQQ 는 평소보다 −0.88%p(p 0.0108, 보정 0.012… |
@@ -298,7 +300,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (254)
+## 사전등록 문서(결과는 별도 파일) (257)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -307,8 +309,11 @@
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-confirm-prereg-2026-11.md](true-bottom-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.1 확인(C) — 탐색 통과(사후) 칸 '애플 −22% ∧ 50일선 위 ≤ 40%'(2016~ n=6, 63일 +11.42%)를 겹치지 않는 20… |
 | 2026-11-24 | PREREGISTERED | kr | [tom-kr-forward-prereg-2026-11.md](tom-kr-forward-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 국내 TOM 탐색 통과(사후, tom-index-explore-results-2026-11)를 겹치지 않는 미래 자료로 확인한다. 실행 `python re… |
 | 2026-11-24 | PREREGISTERED | us-kr | [tom-index-explore-prereg-2026-11.md](tom-index-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "월말·월초 4거래일 지수 수익이 나머지 날보다 높은가(미국·국내)". 놀이터(turn_of_month_us_kr.py)에서 본 표본이라 post… |
+| 2026-11-24 | PREREGISTERED | us-kr | [seasonal-us-kr-explore-prereg-2026-11.md](seasonal-us-kr-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-1.0 에서 막혔던 두 계절성(장부 11-17 Sell in May SKIP 문1 · 11-22 연말 강세 WATCH 문5)을 RP-2.1 탐색으로 … |
 | 2026-11-24 | PREREGISTERED | us | [rsi2-sp500-confirm-prereg-2026-11.md](rsi2-sp500-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.1 확인(C) — 탐색(rsi2-index-explore, 사후)에서 S&P500 R1·R2 통과. 주 규칙 R1 하나만 독립 구간 1970~19… |
 | 2026-11-24 | PREREGISTERED | us-kr | [rsi2-index-explore-prereg-2026-11.md](rsi2-index-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "지수가 2일 RSI 10 아래로 과매도되면 5거래일 동안 무작위 날보다 더 오르는가(미국·국내)". 출처 = 통념(Connors RSI2). 놀… |
+| 2026-11-24 | PREREGISTERED | us-kr | [idio-crash-explore-prereg-2026-11.md](idio-crash-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-1.0 에서 '사후 분류라 규칙화 불가'로 WATCH(11-23)였던 '이벤트성 악재 급락 매수'를 기계적 대용으로 연다. 놀이터(idio_crash… |
+| 2026-11-24 | PREREGISTERED | us-kr | [idio-crash-confirm-prereg-2026-11.md](idio-crash-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 종목 고유 급락 뒤 63일(E: idio-crash-explore-prereg-2026-11)을 탐색과 겹치지 않는 구간에서 시장별 단일 검정. |
 | 2026-11-24 | PREREGISTERED | kr | [holiday-kosdaq-forward-prereg-2026-11.md](holiday-kosdaq-forward-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 코스닥 연휴 직전 효과(탐색 통과·사후)를 미래 자료로 확인. 실행 `python research/strategy-lab/holiday_index_expl… |
 | 2026-11-24 | PREREGISTERED | us-kr | [holiday-index-explore-prereg-2026-11.md](holiday-index-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "설·추석 같은 긴 연휴 직전 거래일에 국내 지수가 오르는가(미국은 3일 연휴 직전 3일)". 놀이터(long_holiday_kr_us.py)에서… |
 | 2026-11-24 | PREREGISTERED | kr | [hi52-kr-explore-prereg-2026-11.md](hi52-kr-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "52주 고가에 가까운 국내 유동 종목은 다음 달 더 오르는가(미국은 비교)". 놀이터(cross-section-us-kr-2026-11)에서 이… |
