@@ -7,9 +7,9 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 28 |
-| 보류·판정 불가 | 61 |
+| 보류·판정 불가 | 62 |
 | 기각 | 178 |
-| 사전등록 문서(결과는 별도 파일) | 244 |
+| 사전등록 문서(결과는 별도 파일) | 245 |
 | 정보·탐색 | 52 |
 | 미분류 | 252 |
 
@@ -46,10 +46,11 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (61)
+## 보류·판정 불가 (62)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | INCONCLUSIVE | us | [true-bottom-explore-results-2026-11.md](true-bottom-explore-results-2026-11.md) | 신호: 판정 불가(시험 가능 1칸 미통과, 나머지 3칸 n<10) · 경제성: 해당 없음. 느슨한 칸(−10%·40%, n=17) 63일 +4.25% vs 무작위 +3.41%, p 0.295. 엄격… |
 | 2026-11-22 | INCONCLUSIVE | global | [real-yield-shock-results-2026-11.md](real-yield-shock-results-2026-11.md) | 신호: 없음 · 경제성: 판정 안 함. 실질금리 충격 주의 다음 주 수익은 QQQ(D −0.14%p, p 0.316)와 BTC(D +0.23%p, p 0.574)에서 평소와 구분되지 않아 REJEC… |
 | 2026-11-22 | INCONCLUSIVE | global | [fed-expect-shock-results-2026-11.md](fed-expect-shock-results-2026-11.md) | 신호: 약함(QQQ 만 경계) · 경제성: 판정 안 함. 연준 금리 기대(6개월물 − 실효금리)가 한 주에 크게 오른 뒤 다음 주 QQQ 는 평소보다 −0.88%p(p 0.0108, 보정 0.012… |
 | 2026-11-17 | INCONCLUSIVE | kr | [kr-crash-events-alllist-results-2026-11.md](kr-crash-events-alllist-results-2026-11.md) | 신호: 가려지지 않음(없음에 가깝다) · 경제성: 미달. 63일 wave 평균 초과 −0.99%p(95% 구간 −5.9~+4.1, 양 wave 22/50, 단측 p 0.24), 21일 +1.24%p… |
@@ -295,10 +296,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (244)
+## 사전등록 문서(결과는 별도 파일) (245)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | PREREGISTERED | us | [true-bottom-explore-prereg-2026-11.md](true-bottom-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.0 E 레인 시범. 질문 — "애플이 크게 빠지고 S&P500 종목 대부분이 50일선 아래인 날 산 S&P500 은 63거래일 동안 무작위 날보다… |
 | 2026-11-23 | PREREGISTERED | us | [zbt-preregistration-2026-11.md](zbt-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "S&P500 종목의 시장 폭이 과매도에서 10거래일 안에 급반등(ZBT)한 날 산 S&P500 은 이후 63거래일 동안 아무 날이나 산 것보다 … |
 | 2026-11-23 | PREREGISTERED | kr | [price-limit-open-preregistration-2026-11.md](price-limit-open-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 상한가 마감 종목이 가격제한폭 이월(앞선 시험: 종가-종가 다음 날 +3.83% vs 근접 −1.49%, D +5.32%p, INFORMATION… |
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
