@@ -9,9 +9,9 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 61 |
 | 기각 | 177 |
-| 사전등록 문서(결과는 별도 파일) | 243 |
+| 사전등록 문서(결과는 별도 파일) | 244 |
 | 정보·탐색 | 52 |
-| 미분류 | 252 |
+| 미분류 | 251 |
 
 ## 통과·채택 (28)
 
@@ -294,10 +294,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (243)
+## 사전등록 문서(결과는 별도 파일) (244)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-23 | PREREGISTERED | us | [zbt-preregistration-2026-11.md](zbt-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "S&P500 종목의 시장 폭이 과매도에서 10거래일 안에 급반등(ZBT)한 날 산 S&P500 은 이후 63거래일 동안 아무 날이나 산 것보다 … |
 | 2026-11-23 | PREREGISTERED | kr | [price-limit-open-preregistration-2026-11.md](price-limit-open-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 상한가 마감 종목이 가격제한폭 이월(앞선 시험: 종가-종가 다음 날 +3.83% vs 근접 −1.49%, D +5.32%p, INFORMATION… |
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
 | 2026-11-22 | PREREGISTERED | kr | [price-limit-memory-preregistration-2026-11.md](price-limit-memory-preregistration-2026-11.md) | 신호: (미측정) · 경제성: 판정 안 함(다음 날 종가-종가 수익은 시초 갭을 포함해 체결 불가능). 질문 — 상·하한가로 잘린 종목은 한도 직전까지만 오르고 안 잘린 종목보다 다음 날 같은 방향… |
@@ -599,7 +600,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (252)
+## 미분류 (251)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -806,7 +807,6 @@
 |  |  | kr | [infinite-buying-tqqq-version-final-comparison-2026-09-12.md](infinite-buying-tqqq-version-final-comparison-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md](infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-soxl-version-final-comparison-2026-09-12.md](infinite-buying-soxl-version-final-comparison-2026-09-12.md) |  |
-|  |  | kr | [infinite-buying-rule-spec-2026-09.md](infinite-buying-rule-spec-2026-09.md) |  |
 |  |  | kr | [infinite-buying-reverse-mode-sensitivity-2026-09-12.md](infinite-buying-reverse-mode-sensitivity-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-path-decomposition-2026-09-12.md](infinite-buying-path-decomposition-2026-09-12.md) |  |
