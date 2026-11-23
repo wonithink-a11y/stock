@@ -5,8 +5,8 @@ description: 새 전략·신호·가설을 사전등록 → 코드 동결 → �
 
 # 사전등록 연구
 
-> **RP-2.0(2026-11-24 발효, `docs/연구정책-RP-2.0.md`) — 레인을 먼저 고른다.**
-> S 놀이터(사전등록 없음·판정 아님·`research/sandbox/`) · **E 탐색**(아래 절차를 짧은 형식으로: 머리말 `lane: E`·`criteria_version: RP-2.0`, 후보 문턱 전부 격자, 격자 + `trials.py count <표본>` 에 BH 10%, 사건 ≥ 10) · **C 확인**(이 문서 절차 그대로, 독립 표본).
+> **RP-2.0(2026-11-24 발효, `docs/연구정책-RP-2.1.md`) — 레인을 먼저 고른다.**
+> S 놀이터(사전등록 없음·판정 아님·`research/sandbox/`) · **E 탐색**(아래 절차를 짧은 형식으로: 머리말 `lane: E`·`criteria_version: RP-2.0`, 후보 문턱 전부 격자, 격자 + `trials.py count <표본>` 에 BH 10%, 사건 ≥ 5, 5~9 소표본 — RP-2.1; 결과 본 뒤 재실행은 `post_hoc: true`) · **C 확인**(이 문서 절차 그대로, 독립 표본).
 > 같은 표본 재판정은 이제 **허용 — 누적 K 로 비싸게**. 실행마다 `python research/strategy-lab/trials.py log --sample <표본> --lane <S|E|C> --cells <칸 수> --what ... --file ...`.
 
 이 프로젝트의 연구는 거의 다 REJECT 로 끝난다. 그건 실패가 아니라 정상 산출이다 — 싸게 접는 것이 값이다.
