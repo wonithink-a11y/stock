@@ -8,10 +8,10 @@
 |---|---:|
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 61 |
-| 기각 | 177 |
+| 기각 | 178 |
 | 사전등록 문서(결과는 별도 파일) | 244 |
 | 정보·탐색 | 52 |
-| 미분류 | 251 |
+| 미분류 | 252 |
 
 ## 통과·채택 (28)
 
@@ -112,10 +112,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (177)
+## 기각 (178)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-23 | REJECT | us | [zbt-results-2026-11.md](zbt-results-2026-11.md) | 신호: 없음 · 경제성: 미달. ZBT 대용(S&P500 PIT 폭) 신호 6건의 63거래일 평균 +3.45% vs 무작위 +3.32% — 귀무 49.8백분위(문턱 95), 양수 비율 50%(문턱 … |
 | 2026-11-23 | REJECT | kr | [price-limit-open-results-2026-11.md](price-limit-open-results-2026-11.md) | 신호: 없음(방향 반대) · 경제성: 미달. 상한가 마감 다음 날 **시가에 사서 종가에 팔면 평균 −3.11%**(대조 −1.07%)로 D −2.04%p, 단측 p 1.000 — 이월이 시초 갭(… |
 | 2026-11-22 | REJECT | us | [friday-8k-results-2026-11.md](friday-8k-results-2026-11.md) | 신호: 없음(방향 반대) · 경제성: 판정 안 함. 금요일 저녁에 낸 악재 8-K 의 다음 거래일 초과수익은 −0.65%(n 25)로 월~목 저녁 −0.06%(n 112)보다 오히려 −0.60%p … |
 | 2026-11-22 | REJECT | us | [etf-corr-accel-results-2026-11.md](etf-corr-accel-results-2026-11.md) | 신호: 없음 · 경제성: 판정 안 함. 섹터 ETF 상관 가속일(사건 126건, 1999-01~2026-11) 뒤 20거래일 SPY 수익은 +0.48% 로 평소 +0.77% 보다 −0.28%p 낮을… |
@@ -600,7 +601,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (251)
+## 미분류 (252)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -807,6 +808,7 @@
 |  |  | kr | [infinite-buying-tqqq-version-final-comparison-2026-09-12.md](infinite-buying-tqqq-version-final-comparison-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md](infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-soxl-version-final-comparison-2026-09-12.md](infinite-buying-soxl-version-final-comparison-2026-09-12.md) |  |
+|  |  | kr | [infinite-buying-rule-spec-2026-09.md](infinite-buying-rule-spec-2026-09.md) |  |
 |  |  | kr | [infinite-buying-reverse-mode-sensitivity-2026-09-12.md](infinite-buying-reverse-mode-sensitivity-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-path-decomposition-2026-09-12.md](infinite-buying-path-decomposition-2026-09-12.md) |  |
