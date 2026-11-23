@@ -1,4 +1,5 @@
-"""종목 고유 급락 뒤 63일 — E(findings/idio-crash-explore-prereg-2026-11.md) · C(idio-crash-confirm-prereg-2026-11.md) 그대로.
+"""[11-24 결과 뒤 보정] 기준을 '매일 재조정 등가중'(국내에서 63일 +5.8%p 과대)에서 '같은 날 유니버스 사서 들고 있기 평균'으로 바꿨다. 옛 값은 ex_rebal 로 함께 낸다.
+종목 고유 급락 뒤 63일 — E(findings/idio-crash-explore-prereg-2026-11.md) · C(idio-crash-confirm-prereg-2026-11.md) 그대로.
 
   python research/strategy-lab/idio_crash.py --selftest
   python research/strategy-lab/idio_crash.py                 # E (미국 2015~, 국내 2016~)
@@ -27,7 +28,8 @@ def events(ret, mem, ix, horizons=(21, 63)):
     dd10 = lvl / lvl.rolling(10, min_periods=10).max() - 1
     ix = ix.reindex(ret.index).ffill()
     idd = ix / ix.rolling(10, min_periods=10).max() - 1
-    ew = (1 + ret.where(mem).mean(axis=1).fillna(0)).cumprod()
+    ew = (1 + ret.where(mem).mean(axis=1).fillna(0)).cumprod()     # 옛 기준(매일 재조정) — 기록용
+    bh = {h: (lvl.shift(-h) / lvl - 1).where(mem).mean(axis=1) for h in horizons}   # 11-24 보정: 같은 날 유니버스를 사서 들고 있기 평균
     rows = []
     for col in ret.columns:
         hit = ((dd10[col] <= -0.30) & mem[col].fillna(False) & (idd > -0.05)).to_numpy()
@@ -38,8 +40,9 @@ def events(ret, mem, ix, horizons=(21, 63)):
             last = i
             for h in horizons:
                 if i + h < len(ret):
-                    rows.append((ret.index[i], col, h, lvl[col].iloc[i + h] / lvl[col].iloc[i] - 1 - (ew.iloc[i + h] / ew.iloc[i] - 1)))
-    return pd.DataFrame(rows, columns=["date", "tk", "h", "ex"])
+                    raw = lvl[col].iloc[i + h] / lvl[col].iloc[i] - 1
+                    rows.append((ret.index[i], col, h, raw - bh[h].iloc[i], raw - (ew.iloc[i + h] / ew.iloc[i] - 1)))
+    return pd.DataFrame(rows, columns=["date", "tk", "h", "ex", "ex_rebal"])
 
 
 def cluster_test(x, sign):
