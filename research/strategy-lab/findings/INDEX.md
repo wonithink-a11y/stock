@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 65 |
-| 기각 | 181 |
-| 사전등록 문서(결과는 별도 파일) | 259 |
+| 기각 | 182 |
+| 사전등록 문서(결과는 별도 파일) | 260 |
 | 정보·탐색 | 55 |
 | 미분류 | 252 |
 
@@ -116,10 +116,11 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (181)
+## 기각 (182)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | REJECT | kr | [true-bottom-kr-confirm-results-2026-11.md](true-bottom-kr-confirm-results-2026-11.md) | 신호: 없음(국내) · 경제성: 미달. 본 칸 사건 13건, 63일 +3.67% vs 무작위 +2.54%, 양수 54%, p 0.323 → REJECT. 기록 전용 '폭 ≤ 20%' 칸은 +6.1%… |
 | 2026-11-24 | REJECT | us-kr | [rsi2-index-results-2026-11.md](rsi2-index-results-2026-11.md) | 신호: 탐색에선 있음(S&P500, 사후) · 확인 실패 · 경제성: 해당 없음. RSI(2)<10 ∧ 200일선 위 → 5일: 1990~ n=318 +0.66% vs 무작위 +0.19%(BH 0.… |
 | 2026-11-24 | REJECT | us-kr | [index-swing-rules-results-2026-11.md](index-swing-rules-results-2026-11.md) | 신호: 미국 1990~ 에만 있음(A, 1970~89 없음) · 경제성: 미달(연 net +2.6% vs 보유 +8.5%). A 는 S&P500·나스닥100 E 통과(t 3.97·3.94, BH 0… |
 | 2026-11-24 | REJECT | us-kr | [double7-results-2026-11.md](double7-results-2026-11.md) | 신호: 1990~ 미국에만 있음 · 확인 실패 · 경제성: 미달(노출 30%, 연 net 이 보유보다 낮음). 200일선 위 7일 최저 종가 매수 → 7일 최고 청산: S&P500 1990~ 거래당… |
@@ -302,10 +303,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (259)
+## 사전등록 문서(결과는 별도 파일) (260)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-24 | PREREGISTERED | kr | [true-bottom-kr-confirm-prereg-2026-11.md](true-bottom-kr-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 미국 진바닥 E 통과(사후·소표본, true-bottom-explore2-results) 규칙을 국내 독립 표본으로 옮긴 확인. 국내 결과는 아직 본 적 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore2-prereg-2026-11.md](true-bottom-explore2-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). **사후 재실행** — 1차(true-bottom-explore-results-2026-11, INCONCLUSIVE)에서 n 5~9 칸의 결과를 본 뒤 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore-prereg-2026-11.md](true-bottom-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.0 E 레인 시범. 질문 — "애플이 크게 빠지고 S&P500 종목 대부분이 50일선 아래인 날 산 S&P500 은 63거래일 동안 무작위 날보다… |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-confirm-prereg-2026-11.md](true-bottom-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.1 확인(C) — 탐색 통과(사후) 칸 '애플 −22% ∧ 50일선 위 ≤ 40%'(2016~ n=6, 63일 +11.42%)를 겹치지 않는 20… |
