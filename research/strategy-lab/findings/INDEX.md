@@ -8,8 +8,8 @@
 |---|---:|
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 65 |
-| 기각 | 179 |
-| 사전등록 문서(결과는 별도 파일) | 257 |
+| 기각 | 180 |
+| 사전등록 문서(결과는 별도 파일) | 258 |
 | 정보·탐색 | 55 |
 | 미분류 | 252 |
 
@@ -116,11 +116,12 @@
 | 2026-08-26 | HOLD | kr | [pbr-combined-invvol-weighting-2026-08.md](pbr-combined-invvol-weighting-2026-08.md) | 역변동성 가중이 동일비중 대비 CAGR -0.19%p·MDD 소폭 개선·Sharpe +0.0002로 사실상 무승부 - 단일 실행·단일 창 결과라 유효/무효 어느 쪽도 결론 보류 |
 | 2026-08-23 | HOLD | kr | [pbr-sizing-macro-continuous-2026-08.md](pbr-sizing-macro-continuous-2026-08.md) | 미국10Y 연속 비중축소가 이진 필터 대비 MDD·Calmar 개선이나 Sharpe 개선이 오차범위(+0.0047) - 채택할 만큼 명확한 개선은 아니어서 연구 후보로 남기고 production 결… |
 
-## 기각 (179)
+## 기각 (180)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-24 | REJECT | us-kr | [rsi2-index-results-2026-11.md](rsi2-index-results-2026-11.md) | 신호: 탐색에선 있음(S&P500, 사후) · 확인 실패 · 경제성: 해당 없음. RSI(2)<10 ∧ 200일선 위 → 5일: 1990~ n=318 +0.66% vs 무작위 +0.19%(BH 0.… |
+| 2026-11-24 | REJECT | us-kr | [double7-results-2026-11.md](double7-results-2026-11.md) | 신호: 1990~ 미국에만 있음 · 확인 실패 · 경제성: 미달(노출 30%, 연 net 이 보유보다 낮음). 200일선 위 7일 최저 종가 매수 → 7일 최고 청산: S&P500 1990~ 거래당… |
 | 2026-11-23 | REJECT | us | [zbt-results-2026-11.md](zbt-results-2026-11.md) | 신호: 없음 · 경제성: 미달. ZBT 대용(S&P500 PIT 폭) 신호 6건의 63거래일 평균 +3.45% vs 무작위 +3.32% — 귀무 49.8백분위(문턱 95), 양수 비율 50%(문턱 … |
 | 2026-11-23 | REJECT | kr | [price-limit-open-results-2026-11.md](price-limit-open-results-2026-11.md) | 신호: 없음(방향 반대) · 경제성: 미달. 상한가 마감 다음 날 **시가에 사서 종가에 팔면 평균 −3.11%**(대조 −1.07%)로 D −2.04%p, 단측 p 1.000 — 이월이 시초 갭(… |
 | 2026-11-22 | REJECT | us | [friday-8k-results-2026-11.md](friday-8k-results-2026-11.md) | 신호: 없음(방향 반대) · 경제성: 판정 안 함. 금요일 저녁에 낸 악재 8-K 의 다음 거래일 초과수익은 −0.65%(n 25)로 월~목 저녁 −0.06%(n 112)보다 오히려 −0.60%p … |
@@ -300,7 +301,7 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (257)
+## 사전등록 문서(결과는 별도 파일) (258)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -317,6 +318,7 @@
 | 2026-11-24 | PREREGISTERED | kr | [holiday-kosdaq-forward-prereg-2026-11.md](holiday-kosdaq-forward-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 코스닥 연휴 직전 효과(탐색 통과·사후)를 미래 자료로 확인. 실행 `python research/strategy-lab/holiday_index_expl… |
 | 2026-11-24 | PREREGISTERED | us-kr | [holiday-index-explore-prereg-2026-11.md](holiday-index-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "설·추석 같은 긴 연휴 직전 거래일에 국내 지수가 오르는가(미국은 3일 연휴 직전 3일)". 놀이터(long_holiday_kr_us.py)에서… |
 | 2026-11-24 | PREREGISTERED | kr | [hi52-kr-explore-prereg-2026-11.md](hi52-kr-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "52주 고가에 가까운 국내 유동 종목은 다음 달 더 오르는가(미국은 비교)". 놀이터(cross-section-us-kr-2026-11)에서 이… |
+| 2026-11-24 | PREREGISTERED | us-kr | [double7-explore-prereg-2026-11.md](double7-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 출처 = backtestedstrategies.com Connors Double 7(밤샘 수집 #29). 놀이터(blog_rules_index.py)에서 … |
 | 2026-11-23 | PREREGISTERED | us | [zbt-preregistration-2026-11.md](zbt-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "S&P500 종목의 시장 폭이 과매도에서 10거래일 안에 급반등(ZBT)한 날 산 S&P500 은 이후 63거래일 동안 아무 날이나 산 것보다 … |
 | 2026-11-23 | PREREGISTERED | kr | [price-limit-open-preregistration-2026-11.md](price-limit-open-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 상한가 마감 종목이 가격제한폭 이월(앞선 시험: 종가-종가 다음 날 +3.83% vs 근접 −1.49%, D +5.32%p, INFORMATION… |
 | 2026-11-22 | PREREGISTERED | global | [real-yield-shock-preregistration-2026-11.md](real-yield-shock-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — 실질금리가 한 주에 크게 오른 뒤(충격 주) 다음 주 금·비트코인·나스닥 수익이 평소 주보다 낮은가(선행성). CoinDesk(2026-11-20… |
