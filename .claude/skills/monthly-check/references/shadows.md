@@ -46,6 +46,7 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 | 39 | 월말 달러 (월중 나스닥 부호 → 마지막 거래일 달러 반대 베팅, 확인 단계 forward) | `run_dollar_month_end_forward.py` (yfinance 공개, 수 초 — 월 1회면 충분. 월이 끝난 뒤 돌린다, 첫 관측 2026-11 은 12-01 이후) | `reports/2026-11-dollar-month-end-forward/observations.jsonl` | 완결 월 ≥ 36 ∧ 36개월(≈2029-11) 1회, INCONCLUSIVE 면 60개월 1회 연장. 확인됨 = 평균 E > 5bp ∧ 순열 p ≤ 0.05, REJECT = 평균 E ≤ 0. 탐색(INFORMATION)은 2000~2020 재현·2021~ 반대(−9.95bp). 사전등록 20fa8023 · 코드 bf684dfb(blob c8205cd9) |
 | 40 | RP-2.0 연구 정책 1개월 점검 (2026-12-24 한 번) | `python research/strategy-lab/trials.py count <표본>` + 장부 `idea-ledger.jsonl` 의 탐색 통과·확인 통과 수 | 탐색 통과 → 확인 통과 비율 ~5% 면 BH 10%→5% 로 되돌림, 15% 넘으면 유지(docs/연구정책-RP-2.1.md §6) | — |
 | 41 | 국내 TOM 월말·월초 forward 확인(C) — 2026-12 부터 36개월 | `python research/strategy-lab/tom_index_explore.py --forward` (야후, 수 초. 판정은 2029-12 이후 `--judge`) | 코스피·코스닥 TOM 4일 일평균 − 나머지, Welch 단측 p ≤ 0.05 (tom-kr-forward-prereg-2026-11.md) | — |
+| 42 | 코스닥 긴 연휴 직전 거래일 forward 확인(C) — 2026-12 부터 60개월·사건 ≥8 | `python research/strategy-lab/holiday_index_explore.py --forward` (야후, 수 초) | 연휴 직전 하루 수익 vs 평소, Welch 단측 p ≤ 0.05 (holiday-kosdaq-forward-prereg-2026-11.md) | — |
 
 ## 메모
 
