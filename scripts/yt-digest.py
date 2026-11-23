@@ -145,8 +145,10 @@ def deep(vid, key, model=MODEL, review=True):
     extra, u2 = call(DEEP_PROMPT + "\n\n" + DEEP_REVIEW + json.dumps(first, ensure_ascii=False))
     merged = dict(first)
     for k, v in extra.items():
-        if isinstance(v, list) and v:
-            merged[k] = list(first.get(k, [])) + v
+        if k in ("brief", "speakers") or not (isinstance(v, list) and v):   # 2차의 요약·화자 메타문장은 합치지 않는다(1차 기준 유지)
+            continue
+        merged[k] = list(first.get(k, [])) + v
+    merged["timeline"] = sorted(merged.get("timeline", []), key=lambda t: t.get("start") or "99:99")   # 보충 구간을 시각 순으로
     tot = {"totalTokenCount": u1.get("totalTokenCount", 0) + u2.get("totalTokenCount", 0)}
     return merged, tot
 
