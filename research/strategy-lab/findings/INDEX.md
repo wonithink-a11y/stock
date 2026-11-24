@@ -7,7 +7,7 @@
 | 묶음 | 파일 수 |
 |---|---:|
 | 통과·채택 | 28 |
-| 보류·판정 불가 | 65 |
+| 보류·판정 불가 | 66 |
 | 기각 | 182 |
 | 사전등록 문서(결과는 별도 파일) | 260 |
 | 정보·탐색 | 55 |
@@ -46,11 +46,12 @@
 | 2026-08-26 | KEEP | kr | [pbr-combined-2022-concentration-2026-08.md](pbr-combined-2022-concentration-2026-08.md) | combined의 연도별 초과분해에서 baseline 98.6%의 단일연도 몰입이 2022 45.7%·2024 28.3%로 완화 - production 후보 상향 판단 유지하나 소수 연도·금리 국면… |
 | 2026-08-24 | KEEP | kr | [v3-5dc-signal-independence-2026-08.md](v3-5dc-signal-independence-2026-08.md) | V3·5DC 완전 동일일 겹침 4건(0.00%), 20거래일 선후관계 17.78% - 같은 Bollinger 계열이나 실질 분리된 신호, 독립성 전제 해소로 V3 다음 단계 진행 |
 
-## 보류·판정 불가 (65)
+## 보류·판정 불가 (66)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
 | 2026-11-24 | INCONCLUSIVE | us | [true-bottom-explore-results-2026-11.md](true-bottom-explore-results-2026-11.md) | 신호: 판정 불가(시험 가능 1칸 미통과, 나머지 3칸 n<10) · 경제성: 해당 없음. 느슨한 칸(−10%·40%, n=17) 63일 +4.25% vs 무작위 +3.41%, p 0.295. 엄격… |
+| 2026-11-24 | INCONCLUSIVE | us | [true-bottom-confirm-results-2026-11.md](true-bottom-confirm-results-2026-11.md) | 신호: 판정 안 함 · 경제성: 판정 안 함. 자료 게이트 미달(멤버-일 커버리지 평균 82.8%, 최저 70.6%) → 사전 규칙대로 INCONCLUSIVE(생존 편향). 참고로 본 칸 수치는 n… |
 | 2026-11-24 | INCONCLUSIVE | us-kr | [seasonal-us-kr-explore-results-2026-11.md](seasonal-us-kr-explore-results-2026-11.md) | 신호: 방향은 10칸 전부 양(겨울 > 여름, 연말 > 평소) · 누적 보정 뒤 통과 0 · 경제성: 해당 없음. 가장 강한 칸 코스닥 Sell in May(겨울 월 +1.77% vs 여름 −1.1… |
 | 2026-11-24 | INCONCLUSIVE | us-kr | [idio-crash-results-2026-11.md](idio-crash-results-2026-11.md) | 신호: 국내 있음(두 구간 모두 음, 홀드아웃 t −4.2) · 사전 규칙상 판정 불가 · 경제성: 회피용. 처음엔 '확인됨'으로 적었으나 비교 기준 결함을 찾아 정정했다 — 올바른 기준에서 국내 … |
 | 2026-11-24 | INCONCLUSIVE | kr | [hi52-kr-explore-results-2026-11.md](hi52-kr-explore-results-2026-11.md) | 신호: 원 통계는 있음(국내 5−1 월 +1.92%, t 3.27) · 누적 보정 뒤 미통과 · 경제성: 롱 온리 net 월 +0.69%(기록). 국내 표본을 이미 400여 번 본 값(누적 K)을 … |
