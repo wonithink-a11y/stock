@@ -1,0 +1,23 @@
+{
+  "headline": "전날 14% 뛴 반도체가 하루 만에 7.88% 내려 나스닥 −1.48%, 반면 다우는 +0.85%로 50,000선을 지켰다(대형 기술주→가치·방어주 순환).",
+  "causes": [
+    {"title": "전날 AI·반도체 급반등의 되돌림", "confidence": "중간",
+     "evidence": [{"timeKST": "2026-11-25T00:31", "source": "Quantisnow", "text": "칩주가 월요일 상승분의 절반 넘게 반납", "url": ""},
+                  {"timeKST": "2026-11-25T00:21", "source": "MLQ.ai", "text": "엔비디아 5% 넘게 하락하며 개장", "url": ""}],
+     "reaction": "반도체지수 −7.88%, 엔비디아 −5.86%, 기술 ETF −3.26%, 나스닥 선물 −2.05%",
+     "counter": "다우 +0.85%·RSP +0.54%·헬스케어 +2.95% — 전체 하락이 아니라 쏠림 해소"},
+    {"title": "반도체·AI 개별 악재 겹침(마이크론 공급과잉 경고·HPE 마진 우려)", "confidence": "낮음",
+     "evidence": [{"timeKST": "2026-11-25T06:22", "source": "MarketWatch", "text": "애널리스트가 향후 공급과잉 경고", "url": ""},
+                  {"timeKST": "2026-11-25T01:46", "source": "Stocks Down Under", "text": "HPE 실적 호조에도 AI 마진 우려로 급락", "url": ""}],
+     "reaction": "해당 종목 급락 보도(등락률은 facts 에 없음)",
+     "counter": "개별 종목을 업종 전체로 일반화할 수 없음"},
+    {"title": "관세 확대 검토 보도", "confidence": "낮음",
+     "evidence": [{"timeKST": "2026-11-25T00:59", "source": "Crypto Briefing", "text": "트럼프 더 넓은 관세 검토 — 헤드라인만, 1차 출처 미확인", "url": ""}],
+     "reaction": "반도체·나스닥 하락과 같은 방향",
+     "counter": "10년물 −1.4bp, 다우 상승"}
+  ],
+  "afterClose": [{"timeKST": "2026-11-25T06:19", "text": "델 3분기 호실적·가이던스 상향 헤드라인(IBD) — 시간외 가격은 수집 안 됨"}],
+  "events": [{"timeKST": "2026-11-25T23:00", "text": "미국 CB 소비자신뢰지수(예상 92.1)"}],
+  "watch": ["반도체지수 낙폭이 이어지는지", "다우·동일가중 강세(순환)가 이어지는지"],
+  "researchNotes": []
+}
