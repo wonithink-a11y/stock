@@ -1,0 +1,46 @@
+{
+ "agents": {
+  "candidates": 0,
+  "noKey": false,
+  "skipped": true
+ },
+ "candidates": {
+  "asOf": "20261125",
+  "candidates": 20,
+  "duplicates": 0,
+  "eligible": 340,
+  "excluded": {
+   "low-confidence": 3,
+   "risk-state": 10
+  },
+  "ruleVersion": "CR-1.0",
+  "runAt": "2026-11-26T05:39:48+09:00",
+  "staleScoreSkip": false,
+  "universe": 353,
+  "written": 20
+ },
+ "monitor": {
+  "checked": 62,
+  "duplicates": 0,
+  "expired": 0,
+  "triggered": [
+   {
+    "name": "대웅",
+    "text": "최종 점수가 80.0 아래로 내려갈 경우 이 논리는 깨진 것으로 본다.",
+    "ticker": "003090"
+   },
+   {
+    "name": "KT",
+    "text": "최종 점수가 80.0 아래로 내려간다",
+    "ticker": "030200"
+   }
+  ],
+  "unknown": 0,
+  "written": 2
+ },
+ "outcomes": {
+  "duplicates": 0,
+  "measured": 1,
+  "written": 1
+ }
+}
