@@ -74,7 +74,7 @@ def main():
         df["rs"], df["rn"] = np.log(df.c).diff(), np.log(df.n).diff()
         df["ex"] = df.rs - df.rn
         pos = event_index(df.index)
-        if pos is None or pos + 20 >= len(df) or pos < 130:
+        if pos is None or pos + 20 >= len(df) or pos < 121:
             print("제외(자료 부족):", s)
             continue
         data[s] = (df, pos)
