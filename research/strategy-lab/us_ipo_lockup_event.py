@@ -156,7 +156,7 @@ def main():
     L.append("---\ntrack: us\nfactor: ipo-lockup-event-window\ndate: 2026-11-26\n")
     any_info = any(c["verdict"] == "INFORMATION" for c in cells)
     L.append(f"verdict: {'INFORMATION' if any_info else 'NONE'}\nlane: E\ncriteria_version: RP-2.0\n")
-    L.append('conditions: ["명목 180일 사건일 19건(자료 부족 제외 후 %d)", "창 A[-10,-1] B[0,+4] C[+5,+20]", "귀무 1,000회 1·99백분위 + BH 10% 누적 K=%d"]\n' % (n, K))
+    L.append('conditions: ["명목 180일 사건일 19건(자료 부족 제외 후 %d)", "창 A[-10,-1] B[0,+4] C[+5,+20]", "귀무 1,000회 1·99백분위 + BH 10%% 누적 K=%d"]\n' % (n, K))
     L.append(f"reason: >-\n  신호: {'일부 있음' if any_info else '없음'} · 경제성: 미측정(이벤트 연구). 스크립트 판정, 사전등록 동결.\n---\n")
     L.append("# 미국 대형 IPO 보호예수 해제 전후 — 결과 (E 레인)\n")
     L.append(f"사전등록 `us-ipo-lockup-preregistration-2026-11.md` (커밋 b8182a7). 사건 {n}건. 일봉 날짜는 미국 거래일, 장 마감 16:00 ET = 한국 다음날 05:00/06:00.\n")
