@@ -3,9 +3,17 @@
   "ticker": "267250",
   "listingStatus": "NORMAL",
   "tradingState": "NORMAL",
-  "riskStates": [],
-  "activeMeta": [],
-  "lastSortKey": "20261027:20261027000277:00",
-  "lastEventId": "dart:20261027000277#0",
-  "updatedAt": "2026-11-26T12:17:02+09:00"
+  "riskStates": [
+    "RIGHTS_OFFERING_ACTIVE"
+  ],
+  "activeMeta": [
+    {
+      "code": "RIGHTS_OFFERING_ACTIVE",
+      "activatedAt": "2026-11-26T00:00:00+09:00",
+      "ttlDays": 30
+    }
+  ],
+  "lastSortKey": "20261126:20261126800411:00",
+  "lastEventId": "dart:20261126800411#0",
+  "updatedAt": "2026-11-26T00:00:00+09:00"
 }
