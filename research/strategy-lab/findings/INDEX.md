@@ -9,9 +9,9 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 66 |
 | 기각 | 182 |
-| 사전등록 문서(결과는 별도 파일) | 260 |
-| 정보·탐색 | 55 |
-| 미분류 | 252 |
+| 사전등록 문서(결과는 별도 파일) | 261 |
+| 정보·탐색 | 56 |
+| 미분류 | 251 |
 
 ## 통과·채택 (28)
 
@@ -304,10 +304,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (260)
+## 사전등록 문서(결과는 별도 파일) (261)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-26 | PREREGISTERED | us | [us-ipo-lockup-preregistration-2026-11.md](us-ipo-lockup-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정, 이벤트 연구라 비용 판정 없음). 질문: 미국 대형 IPO 의 보호예수 해제 전후(-10~+20 거래일)에 종목이 나스닥100 보다 약해지는가, 그리고 나스… |
 | 2026-11-24 | PREREGISTERED | kr | [true-bottom-kr-confirm-prereg-2026-11.md](true-bottom-kr-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 미국 진바닥 E 통과(사후·소표본, true-bottom-explore2-results) 규칙을 국내 독립 표본으로 옮긴 확인. 국내 결과는 아직 본 적 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore2-prereg-2026-11.md](true-bottom-explore2-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). **사후 재실행** — 1차(true-bottom-explore-results-2026-11, INCONCLUSIVE)에서 n 5~9 칸의 결과를 본 뒤 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore-prereg-2026-11.md](true-bottom-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.0 E 레인 시범. 질문 — "애플이 크게 빠지고 S&P500 종목 대부분이 50일선 아래인 날 산 S&P500 은 63거래일 동안 무작위 날보다… |
@@ -569,10 +570,11 @@
 | 2026-09-19 | PREREGISTERED | kr | [futures-intraday-signal-preregistration-2026-09.md](futures-intraday-signal-preregistration-2026-09.md) | 결과를 보기 전에 고정한 사전등록. 주식 장중 연구(오프닝 페이드·VWAP 회귀·ORB 방향·갭 리버설)가 전부 거래비용(주식 최소 드래그 60bp)에서 죽었으므로, 왕복비용이 ≈1.25bp 인 선… |
 | 2026-09-05 | PREREGISTERED | kr | [futures-leadlag-preregistration-2026-09.md](futures-leadlag-preregistration-2026-09.md) | 결과를 보기 전에 작성한 사전등록 문서다. 판정치는 없다. 정보 존재 여부(INFORMATION) · OOS 재현(ROBUST) · 경제적 유용성(ECONOMIC)을 분리하고, "정보는 있으나 거래… |
 
-## 정보·탐색 (55)
+## 정보·탐색 (56)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-26 | INFORMATION | us | [us-ipo-lockup-results-2026-11.md](us-ipo-lockup-results-2026-11.md) | 신호: 일부 있음 · 경제성: 미측정(이벤트 연구). 스크립트 판정, 사전등록 동결. |
 | 2026-11-24 | INFORMATION | us | [true-bottom-explore2-results-2026-11.md](true-bottom-explore2-results-2026-11.md) | 신호: 탐색 통과(사후·소표본) 2칸 · 경제성: 통과(비용 5bp 대비 효과 큼, 단 n 5~6). 애플 252일 낙폭 ≤ −22% ∧ 50일선 위 비율 ≤ 40%(n=6) 63일 +11.42% … |
 | 2026-11-24 | INFORMATION | us-kr | [tom-index-explore-results-2026-11.md](tom-index-explore-results-2026-11.md) | 신호: 국내 탐색 통과(사후) · 미국 없음 · 경제성: 국내 TOM 4일 묶음 net 월 +0.66~0.69%(ETF 5bp, 기록). 코스피 TOM 일평균 +18.3bp vs 나머지 +0.7bp… |
 | 2026-11-24 | INFORMATION | us-kr | [holiday-index-explore-results-2026-11.md](holiday-index-explore-results-2026-11.md) | 신호: 코스닥만 탐색 통과(사후) · 경제성: 통과(사건당 net +0.72%, 기록). 긴 연휴(평일 휴장 ≥2) 직전 거래일 코스닥 +0.77% vs 평소 +0.01%(t 3.98, BH 0.0… |
@@ -629,7 +631,7 @@
 | 2026-09-28 | RECORD-ONLY | kr | [partial-exit-ladder-fujimoto-2026-09.md](partial-exit-ladder-fujimoto-2026-09.md) | 신호: 판정 대상 아님 · 경제성: 판정 대상 아님. 인스타 게시물(일본 90세 투자자 분할 매매법)의 상승 사다리 매도를 부분 익절 그림자와 같은 표본에서 나란히 잰 **기록 전용** 비교. 결과… |
 | 2026-09-04 | DATA_PATH_CONFIRMED | kr | [kospi200-futures-minute-data-path-2026-09.md](kospi200-futures-minute-data-path-2026-09.md) |  |
 
-## 미분류 (252)
+## 미분류 (251)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
@@ -836,7 +838,6 @@
 |  |  | kr | [infinite-buying-tqqq-version-final-comparison-2026-09-12.md](infinite-buying-tqqq-version-final-comparison-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md](infinite-buying-splits-2x3x-crypto-extension-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-soxl-version-final-comparison-2026-09-12.md](infinite-buying-soxl-version-final-comparison-2026-09-12.md) |  |
-|  |  | kr | [infinite-buying-rule-spec-2026-09.md](infinite-buying-rule-spec-2026-09.md) |  |
 |  |  | kr | [infinite-buying-reverse-mode-sensitivity-2026-09-12.md](infinite-buying-reverse-mode-sensitivity-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-regime-hybrid-2026-09-12.md](infinite-buying-regime-hybrid-2026-09-12.md) |  |
 |  |  | kr | [infinite-buying-path-decomposition-2026-09-12.md](infinite-buying-path-decomposition-2026-09-12.md) |  |
