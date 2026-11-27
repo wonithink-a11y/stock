@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1420">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="주식스코어">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>주식 스코어링 대시보드</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%93%8A</text></svg>">
 <style>
@@ -1901,9 +1907,13 @@ function ensureFlows() {
 function openStockDetail(ticker, name, vtab) {
   state.detail = { open: true, ticker, name, market: state.detail.market, vtab: vtab || 'glance', range: 250, type: 'candle', intraday: false, tf: '1m', view: null, viewGeom: null };
   ensurePrices();
+  try { if (!(history.state && history.state.detail)) history.pushState({ tab: state.tab, detail: true }, ''); } catch { /* 히스토리 못 써도 동작 */ }   // 뒤로가기 = 종목 창 닫기
   render();
 }
-function closeStockDetail() { state.detail.open = false; render(); }
+function closeStockDetail() {
+  if (history.state && history.state.detail) { history.back(); return; }   // popstate 가 닫는다
+  state.detail.open = false; render();
+}
 
 // 캔들+MA20/60+볼린저(위) · 거래량(중) · RSI14(아래) 3단 SVG. bars={date|time|minute,o,h,l,c,v}
 function detailChartSvg(bars, w, mode, target) {
@@ -5791,9 +5801,26 @@ document.addEventListener('click', (e) => {
   }
   renderNav();
   render();
+  navPush();
+});
+// 앱처럼 동작: 탭 이동을 히스토리에 쌓아 뒤로가기가 이전 화면으로 가게 하고, 마지막 탭을 기억해 다시 열면 거기서 시작한다.
+const TAB_IDS = new Set(NAV_GROUPS.flatMap(g => g[2].map(t => t[0])));
+function navPush() {
+  try { localStorage.setItem('lastTab', state.tab); } catch { /* 저장 못 해도 동작 */ }
+  try { if ((history.state || {}).tab !== state.tab) history.pushState({ tab: state.tab }, ''); } catch { /* 히스토리 못 써도 동작 */ }
+}
+window.addEventListener('popstate', (e) => {
+  const s = e.state || {};
+  if (state.detail.open && !s.detail) state.detail.open = false;   // 종목 창에서 뒤로 = 창 닫기
+  if (s.tab && TAB_IDS.has(s.tab) && s.tab !== state.tab) { state.tab = s.tab; try { localStorage.setItem('lastTab', s.tab); } catch { /* 무시 */ } }
+  renderNav();
+  render();
 });
 { const m = /^#yt=([\w-]{11})/.exec(location.hash); if (m) { state.tab = 'yt'; yt.open[m[1]] = true; yt.focus = m[1]; } }   // 영상 요약 텔레그램 링크
 if (/^#mreport=/.test(location.hash)) state.tab = 'mreport';   // 텔레그램 요약의 링크로 들어오면 그 리포트를 바로 연다
+else if (!/^#(yt|pinkey)=/.test(location.hash)) { const t = lsGet('lastTab', ''); if (TAB_IDS.has(t)) state.tab = t; }   // 다시 열면 마지막으로 보던 탭에서 시작
+try { history.replaceState({ tab: state.tab }, ''); } catch { /* 무시 */ }
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* 오프라인 캐시 없이도 동작 */ });
 renderNav();
 
 (async function init() {
