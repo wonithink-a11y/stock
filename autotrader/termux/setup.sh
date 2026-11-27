@@ -13,7 +13,7 @@ if [ ! -d "$DIR/.git" ]; then
   git clone --depth 1 --filter=blob:none --sparse "$REPO" "$DIR"
 fi
 cd "$DIR"
-git sparse-checkout set --no-cone '/autotrader/' '/config/' '/research/strategy-lab/*.py' '/research/strategy-lab/engine/'
+git sparse-checkout set --no-cone '/autotrader/' '/config/' '/research/strategy-lab/*.py' '/research/strategy-lab/engine/' '/scripts/edgar-8k-alert.py'
 git pull --ff-only
 
 [ -f autotrader/autotrader.local.json ] || cp autotrader/config.example.json autotrader/autotrader.local.json
