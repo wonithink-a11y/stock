@@ -13,6 +13,23 @@ RECENT_RUNS = 60     # 최근 60번 실행 안에 시작한 사건만 싣는다
 NOTE = "관찰용 — 논리·반증은 LLM 주석이고 점수·후보 선별·주문에 쓰이지 않는다. 인용은 코드가 근거 묶음과 대조해 통과한 것만."
 
 
+def ex_group(latest_v2: dict, groups: Dict[str, str], states: Dict[str, dict], now, as_of: str,
+             group: str = "금융", n: int = 20) -> List[dict]:
+    """화면 전용 보조 목록 — 업종 `group`(sector-strength 의 g) 을 뺀 점수 상위 n. 후보(CR-1.0)·주석·평가에 닿지 않는다.
+
+    적격 기준은 후보 규칙과 같다(C.select 를 그대로 쓴다). 후보 기준일이 `as_of` 와 다르면 빈 목록 —
+    다른 날 점수를 오늘 목록에 섞지 않는다. 업종을 모르는 종목은 빼지 않는다(모르는 것은 금융이 아니다) — group 이 None 으로 남는다.
+    """
+    from . import candidates as C
+    evs, _ = C.select(latest_v2, "", states, now, n=10 ** 6)
+    if not evs or evs[0]["asOf"] != as_of:
+        return []
+    rows = [e for e in evs if groups.get(e["ticker"]) != group]
+    return [{"rank": i, "overallRank": e["payload"]["rank"], "ticker": e["ticker"], "finalScore": e["payload"]["finalScore"],
+             "group": groups.get(e["ticker"]), "inTop20": e["payload"]["rank"] <= C.N}
+            for i, e in enumerate(rows[:n], 1)]
+
+
 def build(log: List[dict], names: Dict[str, str]) -> dict:
     cands = [e for e in log if e["type"] == "CANDIDATE_SELECTED"]
     if not cands:

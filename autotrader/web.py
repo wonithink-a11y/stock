@@ -1048,8 +1048,15 @@ def _plan_candidates(base: str, name: str, view: Optional[dict], allow, decided:
                     f'{x["rank"]}. {E(x.get("name") or x["ticker"])}</a> <span class="code">{E(x["ticker"])}</span><br>{pills}</span>'
                     f'<span class="n">{x["finalScore"]}</span></div>')
     d = str(view.get("asOf") or "")
+    ex_rows = "".join(
+        f'<div class="row"><span>{x["rank"]}. {E(x.get("name") or x["ticker"])} <span class="code">{E(x["ticker"])}</span><br>'
+        f'<span class="pill">{"후보 " + str(x["overallRank"]) + "위" if x.get("inTop20") else "전체 " + str(x["overallRank"]) + "위"}</span></span>'
+        f'<span class="n">{x["finalScore"]}</span></div>' for x in view.get("todayExFinancial") or [])
+    ex_card = (f'<div class="card"><h2>금융 제외 상위 {len(view["todayExFinancial"])} <span class="mut">참고용 · 같은 기준일</span></h2>'
+               f'<div class="mut">금융 업종(증권·보험·은행·지주)을 뺀 점수 순위. 후보·주석·계획에 쓰이지 않는 보기 전용이다.</div>{ex_rows}</div>'
+               if view.get("todayExFinancial") else "")
     return (f'<div class="card"><h2>오늘 후보 <span class="mut">점수 상위 {len(view["today"])} · 기준일 {E(d[:4])}-{E(d[4:6])}-{E(d[6:])}</span></h2>'
-            f'<div class="mut">후보는 점수 코드가 고른다. 논리·반증은 AI 주석이고 점수·순위·주문에 쓰이지 않는다.</div>{"".join(rows)}</div>')
+            f'<div class="mut">후보는 점수 코드가 고른다. 논리·반증은 AI 주석이고 점수·순위·주문에 쓰이지 않는다.</div>{"".join(rows)}</div>' + ex_card)
 
 
 def _plan_notes(base: str, hid: str, view: Optional[dict], sig: str) -> str:
