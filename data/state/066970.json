@@ -4,16 +4,22 @@
   "listingStatus": "NORMAL",
   "tradingState": "NORMAL",
   "riskStates": [
-    "MEZZANINE_ACTIVE"
+    "MEZZANINE_ACTIVE",
+    "RIGHTS_OFFERING_ACTIVE"
   ],
   "activeMeta": [
     {
       "code": "MEZZANINE_ACTIVE",
       "activatedAt": "2026-11-19T00:00:00+09:00",
       "ttlDays": 30
+    },
+    {
+      "code": "RIGHTS_OFFERING_ACTIVE",
+      "activatedAt": "2026-11-27T00:00:00+09:00",
+      "ttlDays": 30
     }
   ],
-  "lastSortKey": "20261126:20261126000731:00",
-  "lastEventId": "dart:20261126000731#0",
-  "updatedAt": "2026-11-26T00:00:00+09:00"
+  "lastSortKey": "20261127:20261127800945:00",
+  "lastEventId": "dart:20261127800945#0",
+  "updatedAt": "2026-11-27T00:00:00+09:00"
 }
