@@ -1,0 +1,72 @@
+{
+ "headline": "이틀 연속 AI 우려로 눌렸던 반도체·AI주가 한꺼번에 되돌림을 받아 나스닥 +2.31%, 필라델피아 반도체 +4.69%로 마감했고, 금리·달러는 같이 올랐다.",
+ "causes": [
+  {
+   "title": "AI·반도체 낙폭 반등",
+   "confidence": "중간",
+   "evidence": [
+    {
+     "timeKST": "2026-11-28T00:08",
+     "source": "Advisor Perspectives",
+     "text": "나스닥 선물, 낙폭 큰 AI주로 매수 몰려 상승",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-11-28T00:20",
+     "source": "MLQ.ai",
+     "text": "블프 단축장 앞 칩 반등으로 나스닥 선물 상승",
+     "url": ""
+    }
+   ],
+   "reaction": "SOX +4.69%, 기술 ETF +2.80%, VIX −11.16%, 메모리·저장장치 급등",
+   "counter": "SOX 20일 −20.24%로 일부 되돌림 수준, NVDA +0.80%로 업종보다 약함, 일부는 기술적 반등으로 해석"
+  },
+  {
+   "title": "강한 지표 속 금리·달러 동반 상승",
+   "confidence": "낮음",
+   "evidence": [
+    {
+     "timeKST": "2026-11-28T04:05",
+     "source": "Bloomberg",
+     "text": "주식 상승으로 안전자산 수요 감소, 국채 하락",
+     "url": ""
+    },
+    {
+     "timeKST": "2026-11-27T22:00",
+     "source": "Yahoo Finance(Tradeweb 인용)",
+     "text": "근원 PCE 3.3%, 3분기 성장률 4.3%, 10년물 4.92%",
+     "url": "https://finance.yahoo.com/markets/currencies/articles/u-treasury-yields-rise-shortened-094900410.html"
+    }
+   ],
+   "reaction": "10년물 +8.8bp, 2년물 +8.0bp, 달러인덱스 +0.33%",
+   "counter": "금리가 올랐어도 주식은 상승, 금 +3.75%는 설명 못 함"
+  }
+ ],
+ "afterClose": [],
+ "events": [
+  {
+   "timeKST": "2026-12-01T00:00",
+   "text": "마벨·NetApp·Copart 실적"
+  },
+  {
+   "timeKST": "2026-12-02T23:00",
+   "text": "미국 ISM 제조업 PMI · JOLTS"
+  },
+  {
+   "timeKST": "2026-12-03T21:15",
+   "text": "미국 ADP 고용"
+  }
+ ],
+ "watch": [
+  "반도체 반등이 이어지는지(5일·20일은 아직 음)",
+  "금리·달러 상승이 주가를 누르기 시작하는지",
+  "월요일 한국 반도체 시가 갭 이후 장중 흐름"
+ ],
+ "researchNotes": [
+  {
+   "condition": "밤사이 SOX z≥1 (z=1.43)",
+   "note": "한국 반도체 시가 갭 상승 후 시가→종가는 평균 음(−0.2%대). 평균일 뿐 예측 아님",
+   "source": "research/strategy-lab/findings/sox-overnight-kr-semis-open-results-2026-10.md"
+  }
+ ]
+}
