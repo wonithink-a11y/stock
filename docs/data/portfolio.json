@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-26T18:27:56.918Z",
+  "updatedAt": "2026-11-27T18:21:35.432Z",
   "marketRegime": "neutral",
   "holdings": [
     {
@@ -7,19 +7,17 @@
       "name": "삼성전자",
       "quantity": 10,
       "avgPrice": 70000,
-      "currentPrice": 171500,
-      "currentValue": 1715000,
+      "currentPrice": 179500,
+      "currentValue": 1795000,
       "investedValue": 700000,
-      "unrealizedPnL": 1015000,
-      "unrealizedPnLPct": 145,
-      "stockScore": 74.5,
+      "unrealizedPnL": 1095000,
+      "unrealizedPnLPct": 156.43,
+      "stockScore": 74.3,
       "stockGrade": "B (긍정적)",
-      "stockWarnings": [
-        "deadCatBounce"
-      ],
+      "stockWarnings": [],
       "marketRegime": "neutral",
       "referenceSignal": "유지 (긍정적)",
-      "signalReason": "긍정적 신호가 우세하나 확대보다는 현 비중 유지가 참고할 만합니다. 단, 경고 신호가 감지되어 있어 더 보수적으로 접근하는 것을 참고하세요.",
+      "signalReason": "긍정적 신호가 우세하나 확대보다는 현 비중 유지가 참고할 만합니다.",
       "breakdown": {
         "fundamental": {
           "score": 79.8,
@@ -62,7 +60,7 @@
           }
         },
         "valuation": {
-          "score": 80.5,
+          "score": 78.8,
           "detail": {
             "perRelative": {
               "label": "PER (업종평균 대비 배율)",
@@ -71,23 +69,23 @@
             },
             "pbr": {
               "label": "PBR",
-              "raw": 1.85,
-              "score": 34.99999999999999
+              "raw": 1.93,
+              "score": 30.692307692307697
             },
             "peg": {
               "label": "PEG (피터 린치)",
-              "peg": 0.16137724550898203,
+              "peg": 0.1688622754491018,
               "score": 100
             },
             "marginOfSafety": {
               "label": "안전마진 (벤저민 그레이엄)",
-              "marginOfSafety": 0.3342840111746017,
-              "score": 90.14260167619025
+              "marginOfSafety": 0.3044522542149485,
+              "score": 85.66783813224227
             }
           }
         },
         "technical": {
-          "score": 51.3,
+          "score": 55,
           "detail": {
             "movingAverageCross": {
               "label": "이동평균선 골든/데드크로스",
@@ -96,8 +94,8 @@
             },
             "rsi": {
               "label": "RSI (상대강도지수)",
-              "value": 38.8,
-              "score": 45
+              "value": 46.2,
+              "score": 70
             },
             "macd": {
               "label": "MACD",
