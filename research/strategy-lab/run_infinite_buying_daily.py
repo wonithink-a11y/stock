@@ -118,18 +118,35 @@ def recent_bars(ticker: str, days: int = 30) -> list[dict]:
 # ---------------------------------------------------------------- 모드
 
 
+def catchup_days(last_date: str | None, today, base: int = 30) -> int:
+    """따라잡기에 필요한 시야(봉 수). 달력일 수는 거래일 수 이상이라 모자랄 수 없다.
+
+    ★ 고정 30봉이면 마지막 처리일 이후 간격이 30봉을 넘을 때 앞 날짜가 **조용히** 빠졌다
+    (2026-11-27 VM 종료 뒤 53봉 공백을 복원하다 발견)."""
+    if not last_date:
+        return base
+    gap = (today - datetime.strptime(last_date, "%Y-%m-%d").date()).days
+    return max(base, gap + 5)
+
+
+def new_bar_indices(bars: list[dict], last_date: str | None) -> list[int]:
+    """처리할 봉의 위치. 시야가 마지막 처리일을 덮지 못하면 건너뛴 날이 있는지 알 수 없으니 멈춘다."""
+    if last_date and bars and bars[0]["date"] > last_date:
+        raise SystemExit(f"시야가 모자란다: 가장 오래된 봉 {bars[0]['date']} 이 마지막 처리일 {last_date} 보다 "
+                         f"뒤라 그 사이 날짜를 건너뛸 수 있다. 가격 이력을 늘리거나 리플레이로 따라잡는다.")
+    idx = [i for i, b in enumerate(bars) if last_date is None or b["date"] > last_date]
+    return idx[-1:] if last_date is None else idx     # 첫 실행은 오늘부터. 과거를 몰래 소급하지 않는다
+
+
 def run_paper(ticker: str, rules_path: Path, seed: float, splits: int,
               verbose: bool) -> dict:
     """규칙대로(LOC) 하루를 진행한다. 주문 없음. 마지막 처리일 이후만 따라잡는다."""
     r = E.Rules.load(rules_path, ticker, splits, seed=seed)
     s, meta = load_state(ticker, "paper", seed, splits)
-    bars = recent_bars(ticker)
+    bars = recent_bars(ticker, catchup_days(meta["lastDate"], datetime.now(KST).date()))
     closes = [b["close"] for b in bars]
 
-    idx = [i for i, b in enumerate(bars)
-           if meta["lastDate"] is None or b["date"] > meta["lastDate"]]
-    if meta["lastDate"] is None:
-        idx = idx[-1:]              # 첫 실행은 오늘부터. 과거를 몰래 소급하지 않는다
+    idx = new_bar_indices(bars, meta["lastDate"])
     fresh = [bars[i] for i in idx]
     if not fresh:
         return {"ticker": ticker, "mode": "paper", "advanced": 0,
@@ -422,7 +439,23 @@ def selftest() -> int:
     ck("run_paper 서명에 splits 가 있다", "splits" in _insp.signature(run_paper).parameters)
     ck("run_vts 서명에 splits 가 있다", "splits" in _insp.signature(run_vts).parameters)
 
-    total = 31
+    # ★ 따라잡기 시야(2026-11-27): 고정 30봉이면 긴 공백 뒤 앞 날짜가 조용히 빠졌다.
+    from datetime import date as _d
+    ck("마지막 처리일이 없으면 시야는 기본 30", catchup_days(None, _d(2026, 11, 27)) == 30)
+    ck("공백이 길면 시야가 달력일만큼 넓어진다", catchup_days("2026-09-11", _d(2026, 11, 27)) >= 77)
+    ck("공백이 짧으면 기본 30 이하로 줄지 않는다", catchup_days("2026-11-25", _d(2026, 11, 27)) == 30)
+    dates = [f"2026-10-{i:02d}" for i in range(1, 31)]
+    bars40 = [{"date": x, "close": 1.0} for x in dates]
+    ck("마지막 처리일 이후 봉만 고른다", new_bar_indices(bars40, "2026-10-27") == [27, 28, 29])
+    ck("첫 실행은 마지막 봉 하나만", new_bar_indices(bars40, None) == [29])
+    try:
+        new_bar_indices(bars40, "2026-09-11")
+        ck("시야가 마지막 처리일을 못 덮으면 멈춘다", False)
+    except SystemExit:
+        ck("시야가 마지막 처리일을 못 덮으면 멈춘다", True)
+    ck("시야가 마지막 처리일을 덮으면 통과", new_bar_indices(bars40, "2026-10-01") == list(range(1, 30)))
+
+    total = 38
     print(f"\nselftest {total - len(fails)}/{total}" + ("" if not fails else f"  FAILED: {fails}"))
     return 1 if fails else 0
 
