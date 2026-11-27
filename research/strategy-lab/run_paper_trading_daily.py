@@ -132,6 +132,12 @@ def main():
     # 따로 내려받아 커밋해야 한다(scripts/sync-paper-state-oci.py + 새 워크플로).
     # 상태는 scan_rebalance_signals()가 dry-run에서도 항상 쓰므로 여기도 항상
     # 올린다 - 지금 VM에 있는 그대로가 정직한 값이다.
+    # ★ 2026-11-27 OCI 종료 — `oci` 모듈이 없는 기계(PC)에서는 매 실행이 ImportError 트레이스백을 남기고
+    # 네트워크를 부른다. 모듈이 있을 때만 올린다.
+    import importlib.util
+    if importlib.util.find_spec("oci") is None:
+        print("OCI 업로드 건너뜀 - oci 모듈 없음(OCI 종료 후 PC 실행)")
+        return
     upload = os.path.join(REPO_ROOT, "scripts", "upload-paper-state-oci.py")
     subprocess.run([sys.executable, upload, "--namespace", "ax4zjhxnmgyz"], check=False)
 
