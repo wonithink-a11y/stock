@@ -65,12 +65,17 @@ KST = timezone(timedelta(hours=9))
 # --fixed-hold 로 is_still_selected 를 넘기지 않는다. 이 전략은 5세션 고정보유가
 # 검증된 계약이라(policy.json risk.maxHoldingSessionsNote) "다음 리밸런싱에도
 # 뽑혔나"로 청산하면 다음 날 대부분 빠져서 계약이 깨진다.
+#
+# ★ 2026-11-27 - foreign_flow5d_v1 은 주기 "exit-only"(신규 진입 없음, 보유분의 손절·목표·시간청산만).
+# 사용자가 일별 전종목 데이터 수집을 보류했다(A2a 월 1회 · A4 월 1회라 일별 신호가 낡는다). 그냥 빼면
+# 11-05 에 들어간 30종목이 청산 점검을 못 받고 계좌에 남는다. 보유가 다 정리되면 이 줄을 지운다
+# (tests/test_paper_sleeve_policy.py 의 표에서도). 일별 데이터 경로가 생기면 "daily" 로 되돌린다.
 STRATEGIES = [
     ("pbr_value_v1", 100_000_000, 1, "monthly"),
     ("lowmom60_v1", 100_000_000, 1, "monthly"),
     ("pbr_value_v1_combined", 100_000_000, 1, "monthly"),
     ("factor_earnings_yield_v1", 100_000_000, 1, "monthly"),
-    ("foreign_flow5d_v1", 50_000_000, 1, "daily"),
+    ("foreign_flow5d_v1", 50_000_000, 1, "exit-only"),
 ]
 
 
@@ -107,14 +112,16 @@ def main():
         print("이번 달 거래일이 캘린더에 없음 - 월간 전략만 스킵(일별은 계속)")
 
     for strategy, capital, slices, cadence in STRATEGIES:
-        as_of = "latest" if cadence == "daily" else month_as_of
+        as_of = "latest" if cadence in ("daily", "exit-only") else month_as_of
         if as_of is None:
             continue
         cmd = [sys.executable, os.path.join(_THIS_DIR, "run_monthly_rebalance.py"),
                "--strategy", strategy, "--as-of", as_of, "--capital", str(capital),
                "--entry-slices", str(slices)]
-        if cadence == "daily":
+        if cadence in ("daily", "exit-only"):
             cmd.append("--fixed-hold")
+        if cadence == "exit-only":
+            cmd.append("--exit-only")
         if not args.dry_run:
             cmd.append("--enable-live-orders")
         print(f"=== {strategy} ({as_of}) ===")

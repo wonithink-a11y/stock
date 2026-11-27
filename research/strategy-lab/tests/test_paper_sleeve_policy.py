@@ -93,3 +93,25 @@ def test_factor_params_match_confirmed_values():
     assert dropout.get("nDrop") == EXPECTED_FACTOR_PARAMS["pbr_value_v1_combined"]["nDrop"], (
         f"pbr_value_v1_dropout/selection.json 의 nDrop={dropout.get('nDrop')} 이 "
         "확정값과 다르다 - 구워진 selection 이 정본이므로 라이브가 이 값으로 돈다.")
+
+
+def test_foreign_flow_is_exit_only():
+    """2026-11-27 일별 수집 보류 — 신규 진입 없이 보유분 청산만. 그냥 빼면 보유 30종목이 청산 점검을 못 받는다."""
+    src = open(os.path.join(_LAB, "run_paper_trading_daily.py"), encoding="utf-8").read()
+    block = re.search(r"^STRATEGIES = \[(.*?)^\]", src, re.S | re.M).group(1)
+    assert re.search(r'"foreign_flow5d_v1"\s*,[^)]*"exit-only"', block), "foreign_flow5d_v1 이 exit-only 가 아니다"
+
+
+def test_exit_only_run_does_not_scan_or_write_state():
+    """--exit-only(dry-run)는 selection 을 안 읽고 진입 의도(상태 파일)를 만들지 않는다."""
+    import subprocess
+    import sys
+    path = os.path.join(_LAB, "data", "paper", "foreign_flow5d_v1_positions.json")
+    before = open(path, "rb").read() if os.path.exists(path) else None
+    out = subprocess.run([sys.executable, os.path.join(_LAB, "run_monthly_rebalance.py"), "--strategy", "foreign_flow5d_v1",
+                          "--as-of", "latest", "--capital", "50000000", "--fixed-hold", "--exit-only"],
+                         cwd=_LAB, capture_output=True, text=True, encoding="utf-8")
+    after = open(path, "rb").read() if os.path.exists(path) else None
+    assert out.returncode == 0, out.stderr[-400:]
+    assert "[exit-only]" in out.stdout and "이번 달 선택" not in out.stdout and "신규 진입 의도" not in out.stdout, out.stdout
+    assert before == after, "exit-only dry-run 이 상태 파일을 바꿨다"

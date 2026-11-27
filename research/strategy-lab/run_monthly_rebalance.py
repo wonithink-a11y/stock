@@ -81,6 +81,9 @@ def main():
                           "(foreign_flow5d_v1 = 5세션 고정)은 '다음 리밸런싱에도 뽑혔나'로 "
                           "청산하면 안 된다 - 일별이라 대부분 다음 날 목록에서 빠지고, "
                           "그러면 5세션 고정보유라는 검증된 계약이 깨진다.")
+    ap.add_argument("--exit-only", action="store_true",
+                    help="신규 진입 의도를 만들지 않고(selection·scan 건너뜀) 이미 보유한 종목의 "
+                         "손절·목표·시간청산·체결확인만 poll_once 로 돌린다. 전략을 접는 중에 쓴다.")
     ap.add_argument("--capital", type=int, required=True, help="이 전략에 배정된 가상자금(원)")
     ap.add_argument("--entry-slices", type=int, default=1,
                     help="목표수량을 며칠에 나눠 살지(기본 1=하루에 전량). 시장충격은 하루 "
@@ -92,6 +95,18 @@ def main():
 
     rule = importlib.import_module(f"strategies.{args.strategy}.rule")
     strategy_id = rule.PARAMS["strategyId"]
+
+    if args.exit_only:
+        # ★ selection 이 낡았다고 멈추지 않는다 - 신규 진입을 안 하니 selection 이 필요 없다.
+        print(f"[exit-only] {strategy_id} 신규 진입 없음 - 보유분의 청산·체결확인만 점검한다.")
+        if not args.enable_live_orders:
+            print("[dry-run] --enable-live-orders 없음 - KIS에는 아무 것도 안 나갔다.")
+            return
+        from engine.live.kisVtsBroker import KisVtsBroker
+        poll_events = poll_once(REPO_ROOT, rule, KisVtsBroker(), log=print, enable_live_orders=True,
+                                 is_still_selected=None)       # 고정 보유 계약 - 재선택 여부로 청산하지 않는다
+        print(f"poll_once 이벤트 {len(poll_events)}건 - EXIT_SUBMITTED 가 남아있으면 다시 실행해 체결을 확인한다.")
+        return
 
     as_of = _resolve_as_of(rule, args.as_of)
     if as_of is None:
