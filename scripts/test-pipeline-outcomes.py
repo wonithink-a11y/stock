@@ -117,6 +117,20 @@ def main():
     ok(not any(k in dump for k in ("meanExcess", "avgExcess", "winRate")), "갈래별 평균 수익은 싣지 않는다")
     ok(V.build([], {})["today"] == [], "빈 로그")
 
+    # ---- 보기 전용 '금융 제외' 보조 목록
+    from datetime import datetime, timedelta, timezone
+    now = datetime(2026, 11, 16, 20, 45, tzinfo=timezone(timedelta(hours=9)))
+    rows = [{"market": "KR", "meta": {"dataCutoff": "20261116", "policies": {}},
+             "result": {"ticker": f"{i:06d}", "rawScore": 100 - i, "riskPenalty": 0, "finalScore": 100 - i, "tradeAllowed": True,
+                        "tradingState": "NORMAL", "flags": [], "confidence": {"coverage": 90.0}}} for i in range(1, 31)]
+    groups = {f"{i:06d}": ("금융" if i in (1, 2, 3) else "기계·장비") for i in range(1, 29)}      # 29·30번은 업종 모름
+    ex = V.ex_group({"results": rows}, groups, {}, now, "20261116")
+    ok(len(ex) == 20 and ex[0]["ticker"] == "000004" and ex[0]["rank"] == 1 and ex[0]["overallRank"] == 4, "금융(1~3위)을 빼고 4위부터 20개")
+    ok(not any(groups.get(x["ticker"]) == "금융" for x in ex), "금융이 섞이지 않는다")
+    ok([x["inTop20"] for x in ex][:3] == [True, True, True] and ex[-1]["overallRank"] == 23 and ex[-1]["inTop20"] is False, "원래 순위·후보 포함 표시")
+    ok("000029" in [x["ticker"] for x in V.ex_group({"results": rows}, groups, {}, now, "20261116", n=30)], "업종을 모르는 종목은 빼지 않는다")
+    ok(V.ex_group({"results": rows}, groups, {}, now, "20261113") == [], "후보 기준일이 다르면 빈 목록")
+
     # ---- 알림
     msg = message(v, {"monitor": {"triggered": [{"ticker": "000001", "name": "가나", "text": "10% 하락"}]}})
     ok("새 사건 1" in msg and "다라(000002)" in msg and "(주석 없음)" in msg and "✖ 가나(000001) — 10% 하락" in msg, f"알림 문구: {msg}")

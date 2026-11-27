@@ -177,7 +177,13 @@ def _view_path(a) -> Path:
 
 def cmd_view(a, now):
     from . import view as V
-    v = V.build(E.read(a.root / "events"), {t: p.get("name", "") for t, p in _prices().items()})
+    names = {t: p.get("name", "") for t, p in _prices().items()}
+    v = V.build(E.read(a.root / "events"), names)
+    # 화면 전용 보조 목록(금융 제외 상위 20) — 후보·주석·평가와 무관. 업종은 sector-strength 의 g.
+    groups = {s["t"]: s.get("g") for s in (_json(DATA / "sector-strength.json") or {}).get("stocks") or []}
+    states = {f.stem: _json(f) for f in (ROOT / "data" / "state").glob("*.json")}
+    ex = V.ex_group(_json(DATA / "latest-v2.json") or {}, groups, states, now, v["asOf"] or "")
+    v["todayExFinancial"] = [{**x, "name": names.get(x["ticker"], "")} for x in ex]
     p = _view_path(a)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(v, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
