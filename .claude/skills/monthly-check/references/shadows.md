@@ -55,3 +55,4 @@ CLAUDE.md 상태 블록(2026-10-25 기준) 에서 옮긴 표. 명령은 저장�
 - 점수 후보 3종(`run_score_candidates_shadow.py --snapshot`)은 11월 초 한 번.
 - 일부 그림자는 Actions 가 자동으로 쌓는다(급등 군집 `clusters.jsonl` 은 market-movers 워크플로). 손으로 돌리지 않는다.
 - 이 표가 CLAUDE.md 와 어긋나면 CLAUDE.md 가 정본이다. 새 forward 를 사전등록하면 여기에 한 행 추가한다.
+| 43 | LETF 마감 반전 forward(C) — 사건 t ≥ 2026-11-30, |SMH 야간|≥3% 날 하이닉스·삼성 다음 날 반전 | `python research/strategy-lab/run_letf_reversal_forward.py` (야후, 수 초) → `reports/2026-11-letf-reversal-forward/` 커밋 | 1차 사건일 ≥60 ∧ 2027-08-30 · 최종 ≥120 ∧ 2028-05-30, 단측 t 2.0/1.75 (letf-close-reversal-forward-preregistration-2026-11.md) | — |
