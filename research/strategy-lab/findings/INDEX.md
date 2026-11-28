@@ -9,7 +9,7 @@
 | 통과·채택 | 28 |
 | 보류·판정 불가 | 66 |
 | 기각 | 182 |
-| 사전등록 문서(결과는 별도 파일) | 260 |
+| 사전등록 문서(결과는 별도 파일) | 261 |
 | 정보·탐색 | 55 |
 | 미분류 | 252 |
 
@@ -304,10 +304,11 @@
 | 2026-08 | REJECT | kr | [cand1-close-exit-approximation-2026-08.md](cand1-close-exit-approximation-2026-08.md) | 익일 종가 근사 net이 baseline 대비 93% 침식(21.43→1.48bp)에 TEST t=2.01로 희석 - 엔진에 얹을 만한 근사가 아니며 CAND1 edge는 첫 09:35 창에 집중 |
 |  | REJECT | crypto | [crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md](crypto-strategies/CRYPTO_STRATEGY_LAB_SUMMARY.md) | 3개 공개 전략 구조 모두 In-sample 강하나 OOS(VALID/TEST)에서 붕괴 - 재현 가능한 edge 없음 |
 
-## 사전등록 문서(결과는 별도 파일) (260)
+## 사전등록 문서(결과는 별도 파일) (261)
 
 | 날짜 | 판정 | 트랙 | 파일 | 요약 |
 |---|---|---|---|---|
+| 2026-11-28 | PREREGISTERED | kr | [letf-close-reversal-forward-preregistration-2026-11.md](letf-close-reversal-forward-preregistration-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 질문 — "미국 반도체가 하루 3% 넘게 움직인 다음 한국 거래일에 SK하이닉스·삼성전자가 시장 대비 크게 움직였다면, 그 움직임의 일부를 다음 날 종가까… |
 | 2026-11-24 | PREREGISTERED | kr | [true-bottom-kr-confirm-prereg-2026-11.md](true-bottom-kr-confirm-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). 미국 진바닥 E 통과(사후·소표본, true-bottom-explore2-results) 규칙을 국내 독립 표본으로 옮긴 확인. 국내 결과는 아직 본 적 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore2-prereg-2026-11.md](true-bottom-explore2-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). **사후 재실행** — 1차(true-bottom-explore-results-2026-11, INCONCLUSIVE)에서 n 5~9 칸의 결과를 본 뒤 … |
 | 2026-11-24 | PREREGISTERED | us | [true-bottom-explore-prereg-2026-11.md](true-bottom-explore-prereg-2026-11.md) | 신호: (미측정) · 경제성: (미측정). RP-2.0 E 레인 시범. 질문 — "애플이 크게 빠지고 S&P500 종목 대부분이 50일선 아래인 날 산 S&P500 은 63거래일 동안 무작위 날보다… |

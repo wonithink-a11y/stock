@@ -57,4 +57,4 @@ reason: >-
 
 월간 점검(월초): `python research/strategy-lab/run_letf_reversal_forward.py`(건수·기록, 야후 일봉, 수 초) → `reports/2026-11-letf-reversal-forward/` 커밋. 서버 없이 PC 에서 돌고, 월 1회로 충분하다(기록은 날짜 기준이라 늦게 돌려도 같다). 코드 해시는 아래에 커밋 뒤 적는다.
 
-code: (코드 커밋 뒤 기입)
+code: run_letf_reversal_forward.py @ 07cbf1a7 (사전등록 문서 1c5f1c81 다음 커밋)
