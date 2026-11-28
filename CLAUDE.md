@@ -22,6 +22,8 @@ Validated against
             번복하지 않는다. ★ 연구 정책 RP-2.0(11-24 GO, docs/연구정책-RP-2.1.md): 놀이터 S(사전등록 없음·판정 아님·research/sandbox/) ·
             탐색 E(짧은 사전등록, 격자+표본 누적 K 에 BH 10%, 사건 ≥5 — RP-2.1) · 확인 C(독립 표본, RP-1.0 그대로). 같은 표본 재사용은 누적 K(trials.py)로 비싸게.
             ★ 가격제한폭 이월(11-23): 종가-종가는 INFORMATION(D +5.32%p)이나 갭이었고 시초 매수 O2C −3.1%(REJECT) — 체결 가능 규칙 없음, findings/price-limit-{memory,open}-results-2026-11.md.
+            ★ LETF 마감 반전(11-28): 상장(2026-05-27) 전후 이중차분 DiD −36bp(p .83) REJECT — 놀이터의 2026 반전은 상장 전(1~5월)에 있었다, findings/letf-launch-did-explore-results-2026-11.md.
+              forward 사전등록(1c5f1c81, 월간 점검 #43)은 그대로 둔다 — 판정 2027-08-30~, 중간 값으로 규칙을 고치지 않는다.
             ★ ZBT 대용(S&P500 폭, 11-23): 신호 6건 63일 +3.45% vs 무작위 +3.32%(49.8백분위) REJECT — findings/zbt-results-2026-11.md. 목록·재론 조건 = 상태 블록 전문의 "안 한다" 항.
   다음      연구 라인 대부분 종결. 회계·가치·품질 축도 RP-2.0 S·E 로 열림(누적 K 큼). 정식 시작은 스킬 `preregistered-research`.
             파이프라인(발굴~매도): P1~P5·P7 가동(11-16) — `pipeline/` + `pipeline.yml`(평일 20:40 KST, 후보 20 → 새 사건에 Gemini 논리·반증 →
